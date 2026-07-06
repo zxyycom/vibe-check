@@ -1,0 +1,84 @@
+# AGENTS.md
+
+## 项目定位
+
+- Vibe Check 是 Rust-first 的代码质量检测 CLI。
+- 质量扫描、聚合、warning 和报告设计可参考 `..\docnav\scripts`。
+- Docnav 是主要参考项目；除项目目标、命名和业务边界外，基础工作方式优先模仿 Docnav。
+- `docs/` 是长期规范入口；OpenSpec 用于较大 change；代码、测试和 release artifact 证明实现状态。
+
+## 架构边界
+
+- CLI：参数、配置、路径、退出码、输出模式、错误映射。
+- Core：扫描计划、文件收集、指标模型、聚合、warning、报告数据。
+- Scanner：内置检测、外部工具适配、缓存、原始输出、解析错误。
+- Output：人读报告、机器输出、CI 摘要和 annotation。
+- Config：默认阈值、include/exclude、generated file、project profile。
+
+## 工作方式
+
+- 能从文档、OpenSpec、Docnav 参考实现或相邻代码可靠推断时，说明假设后继续。
+- 方案影响 CLI、schema、scanner contract、退出码或长期架构时，先区分目标、现有方案、可选方案和推荐方案。
+- 多条路径影响兼容性、跨平台或维护成本时，先比较复杂度、风险和开发成本。
+- 不为短期跑通引入长期难维护方案；确需临时处理时写清 TODO、范围和移除条件。
+- 风险高且不能可靠推断时，只问必要问题。
+
+## 上下文获取
+
+### 本仓库
+
+1. 先读本文件，以及贴近编辑路径的项目文档、源码或测试。
+2. 项目文档从 `docs/navigation.md` 进入，只读本任务需要的主规范。
+3. 缺少对应 owner 文档时，使用近邻代码、测试、示例和用户上下文作为依据。
+4. 短小配置、入口提示词和工具说明可直接读取。
+
+### Markdown 与文档
+
+优先用 Docnav 读取大型 Markdown 或层级文档：
+
+```powershell
+docnav outline <path>
+docnav read <path> --ref "<ref>"
+```
+
+`docnav` 不可运行时，回退到常规文件读取。
+
+### Docnav 参考
+
+- 质量检测行为优先参考 `..\docnav\scripts\quality\**` 和 `..\docnav\scripts\tools\quality\**`。
+- 必要时再读相邻工具模块。
+- 引用 Docnav 时写清取舍，不带入 Docnav 产品契约、workspace 假设或专属脚本名。
+
+### 代码结构
+
+- 理解调用关系优先用可用的 CodeGraph MCP。
+- CodeGraph 不可用、索引缺失或结果不足时，用带路径过滤的 `rg` / `rg --files`。
+- 搜索排除 `.git`、`target`、`node_modules`、`.venv`、`dist`、`build` 和缓存目录。
+
+### 变更材料
+
+- `openspec/changes/` 只在处理 change、审计、验收或用户明确要求时读取；涉及时先运行 `openspec list --json`。
+- 修改字段、示例、schema 或输出 shape 时，读取 `docs/schemas/` 和 `docs/examples/`；owner 缺失时先说明依据和落点。
+
+## 实现与验证
+
+### 变更前
+
+- 涉及实现、重构、测试脚本、验证脚本或跨模块修改时，先读对应主规范和 `docs/coding-style.md`。
+- 缺少对应主规范时，按现有代码、Rust 社区惯例和相邻实现执行，并在需要时补文档。
+- 涉及架构、数据模型、CLI surface、scanner 边界、依赖或验证链路时，先说明影响范围和验证方式。
+
+### 测试与契约
+
+- 新增或修改测试前，明确证明目标；没有明文契约时，不新增臆测断言。
+- 涉及 schema、示例、CLI 或 scanner 输出时，同步更新对应规范和验证材料。
+- 发现实现与 docs、OpenSpec、schema 或 examples 偏离时，先判断是实现缺口、目标能力、计划中 change、历史记录还是冲突。
+
+### 命令与验证
+
+- CLI 命令优先只读、可复现、范围明确。
+- Rust 行为改动后，按范围运行 `cargo fmt`、`cargo clippy --all-targets --all-features`、`cargo test --all` 或更窄命令。
+- 有 workspace verify 命令时，跨 Rust 行为、OpenSpec、schema、示例、输出边界或多个包边界的改动优先运行它。
+- 说明文档改动用 `docnav outline`、局部 diff、关键词搜索等范围匹配的验证。
+- 新增 Node/TypeScript 依赖用 `pnpm`；运行项目脚本用 `bun run`；Python 工具用 `uv`。
+- 修改后用局部 diff 确认只改目标范围；无法运行的验证在最终说明中写明。

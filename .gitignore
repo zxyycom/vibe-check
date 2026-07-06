@@ -1,0 +1,30 @@
+# Rust build output
+/target/
+
+# JavaScript / TypeScript dependencies and build output
+/node_modules/
+/dist/
+/build/
+/coverage/
+
+# Python virtualenvs and caches
+/.venv/
+/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Tool caches and generated local state
+/.codegraph/
+/.cache/
+/tmp/
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# OS metadata
+.DS_Store
+Thumbs.db
