@@ -15,7 +15,7 @@ metadata:
 
 ## 目标
 
-根据用户给出的 change name 或需求描述，创建一个新的 OpenSpec change，并生成进入实现阶段所需的 artifacts。完成后，该 change 应满足 `openspec status --change "<name>" --json` 中 `applyRequires` 指向的 artifacts 全部为 `done`；但在阻塞级审计任务完成前，该 change 只达到“临时计划已形成”的状态，不等于方案已审计，也不可进入实现执行。
+根据用户给出的 change name 或需求描述，创建一个新的 OpenSpec change，并生成进入实现阶段所需的 artifacts。完成后，该 change 应满足 `openspec status --change "<name>" --json` 中 `applyRequires` 指向的 artifacts 全部为 `done`；但在阻塞级审计门禁解除前，该 change 只达到“临时计划已形成”的状态，不等于方案已审计，也不可进入实现执行。
 
 ## 输入
 
@@ -33,7 +33,7 @@ metadata:
 1. OpenSpec change 是临时计划容器，不是已批准实现方案；创建 change 只表示把想法沉淀成可审计材料。
 2. Proposal、design、tasks 和 delta spec 在审计前都是待确认 artifacts；不能因为 artifacts 已生成或状态为 `done` 就默认开始实现。
 3. Tasks 中必须包含实现前置审计任务，用于检查目标、范围、capability、spec delta、tasks、开放问题和验证路径是否一致。
-4. Apply 流程开始实现前必须确认该审计任务已完成，且 `## Open Questions` 没有未回答问题或已收敛歧义。
+4. Apply 流程开始实现前必须确认没有未完成的阻塞级审计门禁，且 `## Open Questions` 没有未回答问题或已收敛歧义；如果后续审计以删除临时门禁任务的方式收敛，也视为门禁已解除。
 5. 这个门禁用于降低创建 change 的心理负担：可以先安全记录临时计划，再通过审计决定是否进入实现。
 
 ## CLI 使用策略
@@ -205,7 +205,7 @@ OpenSpec change name 和 capability ID 是不同概念：
 8. artifact 正文使用当前项目文档的主要语言；没有明确项目语言时，跟随用户输入语言。
 9. 每个 artifact 文件正文开头必须写一句核心句，说明本 change 的目标和当前文档性质，防止后续内容偏离范围。
 10. 每个 artifact 必须标注：当前 change 只在 `openspec/changes/<name>/` 下形成待审计临时计划，不影响现有其它文档或主规范。
-11. tasks artifact 必须把阻塞级审计任务放在所有实现任务之前；后续实现任务必须以该审计完成为前置条件。
+11. tasks artifact 必须把阻塞级审计任务放在所有实现任务之前；后续实现任务必须以审计门禁解除为前置条件。
 
 ## 完成标准
 

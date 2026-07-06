@@ -40,10 +40,10 @@ metadata:
 
 ## 执行前门禁
 
-OpenSpec change 可以作为未审计的临时计划存在；apply 不应把“artifact 已生成”误读成“方案已批准实现”。执行任何实现任务前必须确认 change 已通过实现前置门禁：
+OpenSpec change 可以作为未审计的临时计划存在；apply 不应把“artifact 已生成”误读成“方案已批准实现”。执行任何实现任务前必须确认 change 没有未完成的实现前置门禁：
 
 1. 按 `contextFiles` 读取 tasks 和包含 `## Open Questions` 的 artifact。
-2. 确认 tasks 中的阻塞级审计任务已经完成；未找到或未完成时立即暂停，不改代码、不勾选实现任务，并提示先补齐或完成审计任务。
+2. 检查 tasks 中是否仍存在未完成的阻塞级审计任务；存在时立即暂停，不改代码、不勾选实现任务。未找到审计任务时，视为当前没有审计门禁。
 3. 发现未回答开放问题时立即暂停，不改代码、不勾选任务、不把问题当作实现假设。
 4. 对 `已收敛` 条目检查是否仍有待选择、待确认或影响实现的歧义；存在歧义时暂停。
 5. 用户回答后，先更新 artifact，并按归宿删除开放问题或标记为 `已收敛`，再重新进入 apply 流程。
@@ -59,7 +59,7 @@ OpenSpec change 可以作为未审计的临时计划存在；apply 不应把“a
    - 其他可执行状态：继续处理未完成任务。
 5. 运行 `openspec show "<name>" --type change --json --no-interactive`，用结构化 delta 理解 capability、operation 和 requirement 变化；只需要 delta 时加 `--deltas-only`。
 6. 对 CLI 未覆盖的 proposal、design、tasks 原文细节，按 `contextFiles` 精确读取对应文件。
-7. 按“执行前门禁”检查阻塞级审计任务和 `## Open Questions`；审计未完成、存在未回答问题或已收敛歧义时停止在询问阶段。
+7. 按“执行前门禁”检查阻塞级审计任务和 `## Open Questions`；存在未完成审计门禁、未回答问题或已收敛歧义时停止在询问阶段。
 8. 逐项实施未完成任务：
    - 说明当前任务。
    - 做与任务直接相关的最小必要改动。
