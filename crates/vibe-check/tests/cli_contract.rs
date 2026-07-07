@@ -75,6 +75,7 @@ fn scan_omitted_project_root_uses_current_dir_with_human_output() {
     assert!(stdout.contains("Mode: scanner"));
     assert!(stdout.contains("Files in scope: 0"));
     assert!(stdout.contains("Supported files in scope: 0"));
+    assert!(stdout.contains("Metrics: no supported files measured"));
     assert!(stdout.contains("Warnings: none"));
     assert!(stdout.contains(&format!(
         "Project root: {}",
@@ -115,6 +116,12 @@ fn scan_json_uses_explicit_project_root_and_config_path() {
     assert_eq!(value["scope"]["file_count"], 1);
     assert_eq!(value["scope"]["supported_file_count"], 0);
     assert_eq!(value["metrics"]["supported_scanner_findings"], 0);
+    assert_eq!(value["metrics"]["files_measured"], 0);
+    assert_eq!(value["metrics"]["total_lines"], 0);
+    assert_eq!(value["metrics"]["code_lines"], 0);
+    assert_eq!(value["metrics"]["comment_lines"], 0);
+    assert_eq!(value["metrics"]["blank_lines"], 0);
+    assert_eq!(value["metrics"]["languages"].as_array().unwrap().len(), 0);
     assert_eq!(value["warnings"].as_array().unwrap().len(), 0);
     assert_eq!(value["diagnostics"].as_array().unwrap().len(), 0);
     assert_eq!(value["gate"]["status"], "passed");
@@ -169,6 +176,17 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
     assert_eq!(value["run"]["mode"], "scanner");
     assert_eq!(value["scope"]["file_count"], 8);
     assert_eq!(value["scope"]["supported_file_count"], 7);
+    assert_eq!(value["metrics"]["supported_scanner_findings"], 7);
+    assert_eq!(value["metrics"]["files_measured"], 7);
+    assert_eq!(
+        value["metrics"]["languages"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|language| language["language"].as_str().unwrap())
+            .collect::<Vec<_>>(),
+        vec!["go", "javascript", "python", "rust", "typescript"]
+    );
     assert_eq!(value["summary"]["status"], "completed");
     assert_eq!(value["summary"]["diagnostic_count"], 0);
     assert_eq!(value["diagnostics"].as_array().unwrap().len(), 0);
@@ -180,6 +198,35 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
     assert!(human.contains("Mode: scanner"));
     assert!(human.contains("Files in scope: 8"));
     assert!(human.contains("Supported files in scope: 7"));
+    assert!(human.contains("Measured supported files: 7"));
+    assert!(human.contains("Languages:"));
+}
+
+#[test]
+fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
+    let project = test_dir("gate-failure");
+    let mut contents = String::new();
+    for index in 0..800 {
+        contents.push_str(&format!("fn generated_{index}() {{}}\n"));
+    }
+    write_file(&project.join("src/main.rs"), &contents);
+
+    let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(stderr(&output).is_empty());
+    let value: Value = serde_json::from_slice(&output.stdout).expect("json report");
+    assert_report_schema_valid(&value);
+    assert_eq!(value["summary"]["warning_count"], 1);
+    assert_eq!(value["summary"]["blocking_warning_count"], 1);
+    assert_eq!(value["gate"]["status"], "failed");
+    assert_eq!(value["gate"]["blocking_warnings"], 1);
+    assert_eq!(value["metrics"]["files_measured"], 1);
+    assert_eq!(value["warnings"][0]["file"], "src/main.rs");
+    assert_eq!(value["warnings"][0]["location"], "file");
+    assert_eq!(value["warnings"][0]["severity"], "high");
+    assert_eq!(value["warnings"][0]["rule"], "file.too_many_lines");
+    assert_eq!(value["warnings"][0]["blocking"], true);
 }
 
 #[test]

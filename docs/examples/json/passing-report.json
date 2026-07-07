@@ -10,19 +10,53 @@
     "config_path": null
   },
   "scope": {
-    "file_count": 12,
-    "supported_file_count": 12
+    "file_count": 3,
+    "supported_file_count": 2
   },
   "summary": {
     "status": "completed",
-    "warning_count": 0,
+    "warning_count": 1,
     "blocking_warning_count": 0,
     "diagnostic_count": 0
   },
   "metrics": {
-    "supported_scanner_findings": 0
+    "supported_scanner_findings": 2,
+    "files_measured": 2,
+    "total_lines": 440,
+    "code_lines": 380,
+    "comment_lines": 40,
+    "blank_lines": 20,
+    "languages": [
+      {
+        "language": "python",
+        "file_count": 1,
+        "total_lines": 20,
+        "code_lines": 12,
+        "comment_lines": 6,
+        "blank_lines": 2
+      },
+      {
+        "language": "rust",
+        "file_count": 1,
+        "total_lines": 420,
+        "code_lines": 368,
+        "comment_lines": 34,
+        "blank_lines": 18
+      }
+    ]
   },
-  "warnings": [],
+  "warnings": [
+    {
+      "file": "src/lib.rs",
+      "location": "file",
+      "severity": "medium",
+      "rule": "file.too_many_lines",
+      "message": "File has 420 total lines, meeting the 400-line threshold.",
+      "accepted": false,
+      "suppressed": false,
+      "blocking": false
+    }
+  ],
   "gate": {
     "status": "passed",
     "blocking_warnings": 0

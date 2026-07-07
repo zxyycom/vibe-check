@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use crate::core::{scanner_report, IgnoreScopeCollector, ReportData, ScanRequest, ScopeCollector};
+use crate::core::{
+    scanner_report, IgnoreScopeCollector, LocMetricsAdapter, ReportData, ScanRequest,
+    ScopeCollector, TokeiLocMetricsAdapter,
+};
 use crate::error::{AppError, AppResult};
 
 pub(crate) trait VibeCheckRuntime {
@@ -19,18 +22,41 @@ impl VibeCheckRuntime for ScannerRuntime {
     }
 
     fn execute_scan(&self, request: ScanRequest) -> AppResult<ReportData> {
-        execute_scan_with_collector(request, &IgnoreScopeCollector)
+        execute_scan_with_collector_and_metrics(
+            request,
+            &IgnoreScopeCollector,
+            &TokeiLocMetricsAdapter,
+        )
     }
 }
 
+#[cfg(test)]
 fn execute_scan_with_collector<C: ScopeCollector>(
     request: ScanRequest,
     collector: &C,
 ) -> AppResult<ReportData> {
+    execute_scan_with_collector_and_metrics(request, collector, &TokeiLocMetricsAdapter)
+}
+
+fn execute_scan_with_collector_and_metrics<C, M>(
+    request: ScanRequest,
+    collector: &C,
+    metrics_adapter: &M,
+) -> AppResult<ReportData>
+where
+    C: ScopeCollector,
+    M: LocMetricsAdapter,
+{
     let scope = collector.collect(&request.project_root).map_err(|error| {
         AppError::scanner_fatal(format!("scan scope collection failed: {}", error.message()))
     })?;
-    Ok(scanner_report(&request, scope))
+    let supported_files = scope.supported_file_paths();
+    let metrics_outcome = metrics_adapter
+        .measure(&request.project_root, &supported_files)
+        .map_err(|error| {
+            AppError::scanner_fatal(format!("metrics collection failed: {}", error.message()))
+        })?;
+    Ok(scanner_report(&request, scope, metrics_outcome))
 }
 
 #[cfg(test)]
@@ -55,11 +81,15 @@ mod tests {
     use std::path::Path;
 
     use crate::core::{
-        DiagnosticRecord, DiagnosticSeverity, ScanScope, ScopeCollectionFailure, ScopeFile,
+        DiagnosticRecord, DiagnosticSeverity, FileMetrics, LanguageId, MetricsFailure,
+        MetricsOutcome, ScanScope, ScopeCollectionFailure, ScopeFile,
     };
 
-    use super::{execute_scan_with_collector, FixtureRuntime, VibeCheckRuntime};
-    use crate::core::ScopeCollector;
+    use super::{
+        execute_scan_with_collector, execute_scan_with_collector_and_metrics, FixtureRuntime,
+        VibeCheckRuntime,
+    };
+    use crate::core::{LocMetricsAdapter, ScopeCollector};
 
     struct DiagnosticCollector;
 
@@ -84,6 +114,68 @@ mod tests {
         }
     }
 
+    struct RecordingMetricsAdapter {
+        files_seen: std::cell::RefCell<Vec<String>>,
+    }
+
+    impl RecordingMetricsAdapter {
+        fn new() -> Self {
+            Self {
+                files_seen: std::cell::RefCell::new(Vec::new()),
+            }
+        }
+    }
+
+    impl LocMetricsAdapter for RecordingMetricsAdapter {
+        fn measure(
+            &self,
+            _project_root: &Path,
+            supported_files: &[String],
+        ) -> Result<MetricsOutcome, MetricsFailure> {
+            self.files_seen
+                .borrow_mut()
+                .extend_from_slice(supported_files);
+            Ok(MetricsOutcome {
+                files: supported_files
+                    .iter()
+                    .map(|file| FileMetrics::new(file, LanguageId::Rust, 3, 1, 1, 1))
+                    .collect(),
+                diagnostics: Vec::new(),
+            })
+        }
+    }
+
+    struct DiagnosticMetricsAdapter;
+
+    impl LocMetricsAdapter for DiagnosticMetricsAdapter {
+        fn measure(
+            &self,
+            _project_root: &Path,
+            _supported_files: &[String],
+        ) -> Result<MetricsOutcome, MetricsFailure> {
+            Ok(MetricsOutcome {
+                files: vec![FileMetrics::new("src/lib.rs", LanguageId::Rust, 3, 1, 1, 1)],
+                diagnostics: vec![DiagnosticRecord {
+                    severity: DiagnosticSeverity::Warning,
+                    code: "METRICS_LOC_PARTIAL".to_owned(),
+                    message: "failed to measure LOC for src/missing.rs".to_owned(),
+                }],
+            })
+        }
+    }
+
+    struct FatalMetricsAdapter;
+
+    impl LocMetricsAdapter for FatalMetricsAdapter {
+        fn measure(
+            &self,
+            _project_root: &Path,
+            _supported_files: &[String],
+        ) -> Result<MetricsOutcome, MetricsFailure> {
+            Err(MetricsFailure::new("tokei unavailable"))
+        }
+    }
+
     #[test]
     fn recoverable_collection_diagnostic_produces_partial_report() {
         let request = crate::core::ScanRequest {
@@ -99,6 +191,80 @@ mod tests {
         assert_eq!(report.diagnostics[0].code, "SCAN_SCOPE_WALK");
         assert_eq!(report.scope.file_count, 1);
         assert_eq!(report.scope.supported_file_count, 1);
+    }
+
+    #[test]
+    fn metrics_adapter_receives_only_supported_files() {
+        struct MixedCollector;
+
+        impl ScopeCollector for MixedCollector {
+            fn collect(&self, _project_root: &Path) -> Result<ScanScope, ScopeCollectionFailure> {
+                Ok(ScanScope::new(
+                    vec![
+                        ScopeFile::supported("src/lib.rs"),
+                        ScopeFile::unsupported("README.md"),
+                    ],
+                    Vec::new(),
+                ))
+            }
+        }
+
+        let request = crate::core::ScanRequest {
+            project_root: Path::new(".").to_path_buf(),
+            config_path: None,
+        };
+        let metrics_adapter = RecordingMetricsAdapter::new();
+
+        let report =
+            execute_scan_with_collector_and_metrics(request, &MixedCollector, &metrics_adapter)
+                .expect("metrics report");
+
+        assert_eq!(
+            metrics_adapter.files_seen.into_inner(),
+            vec!["src/lib.rs".to_owned()]
+        );
+        assert_eq!(report.scope.file_count, 2);
+        assert_eq!(report.scope.supported_file_count, 1);
+        assert_eq!(report.metrics.files_measured, 1);
+    }
+
+    #[test]
+    fn recoverable_metrics_diagnostic_produces_partial_report() {
+        let request = crate::core::ScanRequest {
+            project_root: Path::new(".").to_path_buf(),
+            config_path: None,
+        };
+
+        let report = execute_scan_with_collector_and_metrics(
+            request,
+            &DiagnosticCollector,
+            &DiagnosticMetricsAdapter,
+        )
+        .expect("partial report");
+
+        assert_eq!(report.summary.status, crate::core::ReportStatus::Partial);
+        assert_eq!(report.summary.diagnostic_count, 2);
+        assert_eq!(report.metrics.files_measured, 1);
+        assert_eq!(report.gate.status, crate::core::GateStatus::Passed);
+        assert_eq!(report.gate.blocking_warnings, 0);
+    }
+
+    #[test]
+    fn fatal_metrics_failure_maps_to_scanner_fatal_error() {
+        let request = crate::core::ScanRequest {
+            project_root: Path::new(".").to_path_buf(),
+            config_path: None,
+        };
+
+        let error = execute_scan_with_collector_and_metrics(
+            request,
+            &DiagnosticCollector,
+            &FatalMetricsAdapter,
+        )
+        .expect_err("fatal error");
+
+        assert_eq!(error.exit_code().code(), 3);
+        assert!(error.message().contains("tokei unavailable"));
     }
 
     #[test]

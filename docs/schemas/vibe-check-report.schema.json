@@ -99,11 +99,45 @@
     "metrics": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["supported_scanner_findings"],
+      "required": [
+        "supported_scanner_findings",
+        "files_measured",
+        "total_lines",
+        "code_lines",
+        "comment_lines",
+        "blank_lines",
+        "languages"
+      ],
       "properties": {
         "supported_scanner_findings": {
           "type": "integer",
           "minimum": 0
+        },
+        "files_measured": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "code_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comment_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blank_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/language_metrics"
+          }
         }
       }
     },
@@ -146,7 +180,8 @@
         "rule",
         "message",
         "accepted",
-        "suppressed"
+        "suppressed",
+        "blocking"
       ],
       "properties": {
         "file": {
@@ -174,6 +209,47 @@
         },
         "suppressed": {
           "type": "boolean"
+        },
+        "blocking": {
+          "type": "boolean"
+        }
+      }
+    },
+    "language_metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "file_count",
+        "total_lines",
+        "code_lines",
+        "comment_lines",
+        "blank_lines"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": ["go", "javascript", "python", "rust", "typescript"]
+        },
+        "file_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "code_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comment_lines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blank_lines": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },

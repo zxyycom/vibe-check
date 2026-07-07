@@ -100,6 +100,14 @@ impl ScanScope {
             .count() as u64
     }
 
+    pub(crate) fn supported_file_paths(&self) -> Vec<String> {
+        self.files
+            .iter()
+            .filter(|file| file.kind == ScopeFileKind::Supported)
+            .map(|file| file.path.clone())
+            .collect()
+    }
+
     pub(crate) fn into_diagnostics(self) -> Vec<DiagnosticRecord> {
         self.diagnostics
     }
@@ -235,5 +243,6 @@ mod tests {
 
         assert_eq!(scope.file_count(), 2);
         assert_eq!(scope.supported_file_count(), 1);
+        assert_eq!(scope.supported_file_paths(), vec!["src/lib.rs"]);
     }
 }

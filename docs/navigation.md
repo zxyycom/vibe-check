@@ -9,11 +9,11 @@
 | 角色 / 任务 | 必读 | 需要时再读 |
 | --- | --- | --- |
 | 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、Config 主规范 |
-| 讨论或调整 scanner 依赖、结构扫描基座、LOC 或重复检测方案 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | `..\docnav\scripts\quality\**`、相关 adapter 验证和 fixture |
+| 讨论或调整 scanner 依赖、结构扫描基座、LOC 或重复检测方案 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、`..\docnav\scripts\quality\**`、相关 adapter 验证和 fixture |
 | 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
 | 修改 Rust 实现、重构或模块边界 | [编码规范](coding-style.md) | 对应模块文档、相邻代码和测试 |
 | 修改 CLI 行为、输出或退出码 | [CLI](cli.md)、[Output](output.md)、[编码规范](coding-style.md) | 示例、schema、集成测试 |
-| 修改质量扫描、warning 或报告逻辑 | [编码规范](coding-style.md) | `..\docnav\scripts\quality\**`、`..\docnav\scripts\tools\quality\**` |
+| 修改质量扫描、指标、warning、gate 或报告数据逻辑 | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`..\docnav\scripts\quality\**`、`..\docnav\scripts\tools\quality\**` |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md) | 测试策略、示例、schema、相邻测试 |
 | 审计历史或规划较大 change | `..\openspec\changes\` | 对应 proposal、design、tasks 和 spec delta |
 
@@ -38,6 +38,7 @@ cargo test --all
 | 工程规范 | [编码规范](coding-style.md) | 修改 Rust、脚本、测试或验证工具 |
 | CLI | [CLI](cli.md) | 修改命令、参数、配置入口、路径归一化、输出模式、stdout/stderr 或退出码 |
 | Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
+| Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改基础 LOC 指标、metrics aggregation、warning rule、blocking policy、gate policy 或 metrics diagnostics |
 | Output | [Output](output.md) | 修改输出模式、机器 JSON、schema、examples、empty state 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 参考实现 | `..\docnav\scripts\quality\**` | 对照质量检测行为、指标模型、warning 和报告设计 |
@@ -61,7 +62,7 @@ OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同
 | Rust 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
 | CLI 参数、配置、路径、退出码和输出模式 | [CLI](cli.md) |
 | 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
-| 扫描计划、指标模型、warning 和报告数据 | Core / Scanner 主规范 |
+| 扫描计划、指标模型、warning、gate 和报告数据 | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
 | 机器输出、schema、示例和格式校验 | [Output](output.md) |
 | 测试层级、fixture、case 归属和验证脚本 | 测试策略 |

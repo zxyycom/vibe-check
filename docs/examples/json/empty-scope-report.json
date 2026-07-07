@@ -20,7 +20,13 @@
     "diagnostic_count": 0
   },
   "metrics": {
-    "supported_scanner_findings": 0
+    "supported_scanner_findings": 0,
+    "files_measured": 0,
+    "total_lines": 0,
+    "code_lines": 0,
+    "comment_lines": 0,
+    "blank_lines": 0,
+    "languages": []
   },
   "warnings": [],
   "gate": {

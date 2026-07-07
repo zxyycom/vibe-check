@@ -1,9 +1,15 @@
+mod metrics;
 mod scan_scope;
 
 use std::path::PathBuf;
 
 use serde::Serialize;
 
+use metrics::LanguageMetricsSummary;
+use metrics::{aggregate_metrics, gate_from_warnings, generate_warnings};
+#[cfg(test)]
+pub(crate) use metrics::{FileMetrics, LanguageId, MetricsFailure};
+pub(crate) use metrics::{LocMetricsAdapter, MetricsOutcome, TokeiLocMetricsAdapter};
 pub(crate) use scan_scope::{IgnoreScopeCollector, ScanScope, ScopeCollector};
 #[cfg(test)]
 pub(crate) use scan_scope::{ScopeCollectionFailure, ScopeFile};
@@ -93,6 +99,12 @@ impl ReportStatus {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub(crate) struct MetricsSummary {
     pub(crate) supported_scanner_findings: u64,
+    pub(crate) files_measured: u64,
+    pub(crate) total_lines: u64,
+    pub(crate) code_lines: u64,
+    pub(crate) comment_lines: u64,
+    pub(crate) blank_lines: u64,
+    pub(crate) languages: Vec<LanguageMetricsSummary>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
@@ -104,6 +116,7 @@ pub(crate) struct WarningFinding {
     pub(crate) message: String,
     pub(crate) accepted: bool,
     pub(crate) suppressed: bool,
+    pub(crate) blocking: bool,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
@@ -184,16 +197,14 @@ impl DiagnosticSeverity {
     }
 }
 
-pub(crate) fn scanner_report(request: &ScanRequest, scope: ScanScope) -> ReportData {
+pub(crate) fn scanner_report(
+    request: &ScanRequest,
+    scope: ScanScope,
+    metrics_outcome: MetricsOutcome,
+) -> ReportData {
     let file_count = scope.file_count();
     let supported_file_count = scope.supported_file_count();
     let diagnostics = scope.into_diagnostics();
-    let diagnostic_count = diagnostics.len() as u64;
-    let status = if diagnostics.is_empty() {
-        ReportStatus::Completed
-    } else {
-        ReportStatus::Partial
-    };
 
     report_from_parts(
         request,
@@ -202,13 +213,8 @@ pub(crate) fn scanner_report(request: &ScanRequest, scope: ScanScope) -> ReportD
             file_count,
             supported_file_count,
         },
-        ReportSummary {
-            status,
-            warning_count: 0,
-            blocking_warning_count: 0,
-            diagnostic_count,
-        },
         diagnostics,
+        metrics_outcome,
     )
 }
 
@@ -221,13 +227,11 @@ pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
             file_count: 0,
             supported_file_count: 0,
         },
-        ReportSummary {
-            status: ReportStatus::Completed,
-            warning_count: 0,
-            blocking_warning_count: 0,
-            diagnostic_count: 0,
-        },
         Vec::new(),
+        MetricsOutcome {
+            files: Vec::new(),
+            diagnostics: Vec::new(),
+        },
     )
 }
 
@@ -235,9 +239,24 @@ fn report_from_parts(
     request: &ScanRequest,
     mode: RunMode,
     scope: ScopeSummary,
-    summary: ReportSummary,
-    diagnostics: Vec<DiagnosticRecord>,
+    mut diagnostics: Vec<DiagnosticRecord>,
+    metrics_outcome: MetricsOutcome,
 ) -> ReportData {
+    diagnostics.extend(metrics_outcome.diagnostics);
+    let metrics = aggregate_metrics(&metrics_outcome.files);
+    let warnings = generate_warnings(&metrics_outcome.files);
+    let gate = gate_from_warnings(&warnings);
+    let summary = ReportSummary {
+        status: if diagnostics.is_empty() {
+            ReportStatus::Completed
+        } else {
+            ReportStatus::Partial
+        },
+        warning_count: warnings.len() as u64,
+        blocking_warning_count: gate.blocking_warnings,
+        diagnostic_count: diagnostics.len() as u64,
+    };
+
     ReportData {
         schema_version: REPORT_SCHEMA_VERSION,
         tool: ToolInfo {
@@ -254,14 +273,9 @@ fn report_from_parts(
         },
         scope,
         summary,
-        metrics: MetricsSummary {
-            supported_scanner_findings: 0,
-        },
-        warnings: Vec::new(),
-        gate: GateResult {
-            status: GateStatus::Passed,
-            blocking_warnings: 0,
-        },
+        metrics,
+        warnings,
+        gate,
         diagnostics,
     }
 }

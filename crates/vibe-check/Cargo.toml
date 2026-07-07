@@ -13,6 +13,7 @@ clap.workspace = true
 ignore.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+tokei.workspace = true
 
 [dev-dependencies]
 jsonschema.workspace = true

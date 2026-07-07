@@ -91,11 +91,7 @@ fn write_human_report<W: Write>(report: &ReportData, writer: &mut W) -> io::Resu
         "Supported files in scope: {}",
         report.scope.supported_file_count
     )?;
-    writeln!(
-        writer,
-        "Supported scanner findings: {}",
-        report.metrics.supported_scanner_findings
-    )?;
+    write_metrics(report, writer)?;
     writeln!(writer)?;
     writeln!(writer, "Gate: {}", report.gate.status.as_str())?;
     writeln!(
@@ -110,6 +106,52 @@ fn write_human_report<W: Write>(report: &ReportData, writer: &mut W) -> io::Resu
     Ok(())
 }
 
+fn write_metrics<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
+    if report.metrics.files_measured == 0 {
+        writeln!(writer, "Metrics: no supported files measured")?;
+        writeln!(
+            writer,
+            "Supported scanner findings: {}",
+            report.metrics.supported_scanner_findings
+        )?;
+        return Ok(());
+    }
+
+    writeln!(writer, "Metrics:")?;
+    writeln!(
+        writer,
+        "Measured supported files: {}",
+        report.metrics.files_measured
+    )?;
+    writeln!(
+        writer,
+        "Lines: total={} code={} comments={} blanks={}",
+        report.metrics.total_lines,
+        report.metrics.code_lines,
+        report.metrics.comment_lines,
+        report.metrics.blank_lines
+    )?;
+    writeln!(
+        writer,
+        "Supported scanner findings: {}",
+        report.metrics.supported_scanner_findings
+    )?;
+    writeln!(writer, "Languages:")?;
+    for language in &report.metrics.languages {
+        writeln!(
+            writer,
+            "- {} files={} total={} code={} comments={} blanks={}",
+            language.language.as_str(),
+            language.file_count,
+            language.total_lines,
+            language.code_lines,
+            language.comment_lines,
+            language.blank_lines
+        )?;
+    }
+    Ok(())
+}
+
 fn write_warnings<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
     if report.warnings.is_empty() {
         writeln!(writer, "Warnings: none")?;
@@ -118,10 +160,12 @@ fn write_warnings<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<(
 
     writeln!(writer, "Warnings:")?;
     for warning in &report.warnings {
+        let blocking = if warning.blocking { " [blocking]" } else { "" };
         writeln!(
             writer,
-            "- {} {} {} {}: {}",
+            "- {}{} {} {} {}: {}",
             warning.severity.as_str(),
+            blocking,
             warning.file,
             warning.location,
             warning.rule,
@@ -178,7 +222,7 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::cli::OutputFormat;
-    use crate::core::{fixture_report, GateStatus, ScanRequest};
+    use crate::core::{fixture_report, GateStatus, ScanRequest, WarningFinding, WarningSeverity};
 
     use super::{write_outcome, CommandOutcome};
 
@@ -192,6 +236,17 @@ mod tests {
         report.gate.status = GateStatus::Failed;
         report.gate.blocking_warnings = 1;
         report.summary.blocking_warning_count = 1;
+        report.summary.warning_count = 1;
+        report.warnings.push(WarningFinding {
+            file: "src/main.rs".to_owned(),
+            location: "file".to_owned(),
+            severity: WarningSeverity::High,
+            rule: "file.too_many_lines".to_owned(),
+            message: "File has 800 total lines, meeting the 800-line threshold.".to_owned(),
+            accepted: false,
+            suppressed: false,
+            blocking: true,
+        });
 
         let mut stdout = Vec::new();
         let mut stderr = Vec::new();
@@ -206,5 +261,7 @@ mod tests {
         let stdout = String::from_utf8(stdout).expect("stdout utf8");
         assert!(stdout.contains("Gate: failed"));
         assert!(stdout.contains("Blocking warnings: 1"));
+        assert!(stdout.contains("Metrics: no supported files measured"));
+        assert!(stdout.contains("- high [blocking] src/main.rs file file.too_many_lines"));
     }
 }

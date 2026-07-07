@@ -10,8 +10,8 @@
     "config_path": "/repo/project/vibe-check.toml"
   },
   "scope": {
-    "file_count": 12,
-    "supported_file_count": 12
+    "file_count": 1,
+    "supported_file_count": 1
   },
   "summary": {
     "status": "completed",
@@ -20,17 +20,33 @@
     "diagnostic_count": 0
   },
   "metrics": {
-    "supported_scanner_findings": 1
+    "supported_scanner_findings": 1,
+    "files_measured": 1,
+    "total_lines": 850,
+    "code_lines": 800,
+    "comment_lines": 20,
+    "blank_lines": 30,
+    "languages": [
+      {
+        "language": "rust",
+        "file_count": 1,
+        "total_lines": 850,
+        "code_lines": 800,
+        "comment_lines": 20,
+        "blank_lines": 30
+      }
+    ]
   },
   "warnings": [
     {
       "file": "src/main.rs",
-      "location": "line 42",
+      "location": "file",
       "severity": "high",
-      "rule": "function-complexity",
-      "message": "Function exceeds the configured complexity threshold.",
+      "rule": "file.too_many_lines",
+      "message": "File has 850 total lines, meeting the 800-line threshold.",
       "accepted": false,
-      "suppressed": false
+      "suppressed": false,
+      "blocking": true
     }
   ],
   "gate": {

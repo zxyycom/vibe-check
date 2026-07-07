@@ -30,7 +30,7 @@ vibe-check scan --format json
 - `gate`
 - `diagnostics`
 
-字段类型、必填性和枚举由 JSON schema 定义；本文只固定当前 MVP JSON 格式标识与 schema 校验边界。Schema 和 examples 首次实现时进入 `docs/schemas/` 与 `docs/examples/`，并回写本文导航。
+字段类型、必填性和枚举由 JSON schema 定义；本文只固定当前 MVP JSON 格式标识与 schema 校验边界。`metrics`、`warnings` 和 `gate` 的业务语义由 [Quality Metrics](quality-metrics.md) 定义；Output 只投影 Core report data。Schema 和 examples 首次实现时进入 `docs/schemas/` 与 `docs/examples/`，并回写本文导航。
 
 Scanner raw output 不进入稳定 JSON envelope。需要暴露 adapter 诊断时，必须先归一化为 `diagnostics`；第三方原生 report structure 或未进入 schema 的 adapter 私有引用不属于当前 MVP JSON 合同。
 
@@ -58,6 +58,7 @@ vibe-check scan --format human
 `human` 输出从同一份 report data 派生，至少呈现：
 
 - summary
+- metrics summary，包括 measured supported file count、aggregate line totals 和 per-language summaries
 - gate result
 - warning findings
 - accepted 或 suppressed warnings，如果 report data 中存在
@@ -71,7 +72,7 @@ vibe-check scan --format human
 
 - scan scope 文件数为零。
 - warnings 为零。
-- supported scanner findings 为零。
+- metrics measured supported file count 为零。
 - diagnostics 为空。
 
 `json` 使用结构化字段表达空集合和计数；`human` 使用明确文本表达。
