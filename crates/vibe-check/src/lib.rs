@@ -7,7 +7,7 @@ mod runtime;
 
 use std::io::Write;
 
-use runtime::{FixtureRuntime, VibeCheckRuntime};
+use runtime::{ScannerRuntime, VibeCheckRuntime};
 
 pub fn run<I, S, W, E>(args: I, stdout: W, stderr: E) -> i32
 where
@@ -16,7 +16,8 @@ where
     W: Write,
     E: Write,
 {
-    run_with_runtime(args, stdout, stderr, &FixtureRuntime)
+    let runtime = ScannerRuntime;
+    run_with_runtime(args, stdout, stderr, &runtime)
 }
 
 fn run_with_runtime<I, S, W, E, T>(args: I, mut stdout: W, mut stderr: E, runtime: &T) -> i32

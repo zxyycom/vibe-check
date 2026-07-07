@@ -5,7 +5,7 @@
     "version": "0.1.0"
   },
   "run": {
-    "mode": "fixture",
+    "mode": "scanner",
     "project_root": "/repo/empty-project",
     "config_path": null
   },

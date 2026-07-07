@@ -88,6 +88,11 @@ fn write_human_report<W: Write>(report: &ReportData, writer: &mut W) -> io::Resu
     writeln!(writer, "Files in scope: {}", report.scope.file_count)?;
     writeln!(
         writer,
+        "Supported files in scope: {}",
+        report.scope.supported_file_count
+    )?;
+    writeln!(
+        writer,
         "Supported scanner findings: {}",
         report.metrics.supported_scanner_findings
     )?;

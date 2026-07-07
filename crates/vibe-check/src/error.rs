@@ -16,7 +16,6 @@ impl VibeCheckExitCode {
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum AppErrorKind {
     UserOrConfig,
-    #[allow(dead_code)]
     ScannerFatal,
     OutputFailure,
 }
@@ -37,7 +36,6 @@ impl AppError {
         }
     }
 
-    #[allow(dead_code)]
     pub(crate) fn scanner_fatal(message: impl Into<String>) -> Self {
         Self {
             kind: AppErrorKind::ScannerFatal,

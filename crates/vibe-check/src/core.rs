@@ -1,6 +1,12 @@
+mod scan_scope;
+
 use std::path::PathBuf;
 
 use serde::Serialize;
+
+pub(crate) use scan_scope::{IgnoreScopeCollector, ScanScope, ScopeCollector};
+#[cfg(test)]
+pub(crate) use scan_scope::{ScopeCollectionFailure, ScopeFile};
 
 pub(crate) const REPORT_SCHEMA_VERSION: &str = "vibe-check.report.v1";
 pub(crate) const TOOL_NAME: &str = "vibe-check";
@@ -40,8 +46,8 @@ pub(crate) struct RunInfo {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum RunMode {
-    Fixture,
     #[allow(dead_code)]
+    Fixture,
     Scanner,
 }
 
@@ -72,7 +78,6 @@ pub(crate) struct ReportSummary {
 #[serde(rename_all = "snake_case")]
 pub(crate) enum ReportStatus {
     Completed,
-    #[allow(dead_code)]
     Partial,
 }
 
@@ -179,7 +184,60 @@ impl DiagnosticSeverity {
     }
 }
 
+pub(crate) fn scanner_report(request: &ScanRequest, scope: ScanScope) -> ReportData {
+    let file_count = scope.file_count();
+    let supported_file_count = scope.supported_file_count();
+    let diagnostics = scope.into_diagnostics();
+    let diagnostic_count = diagnostics.len() as u64;
+    let status = if diagnostics.is_empty() {
+        ReportStatus::Completed
+    } else {
+        ReportStatus::Partial
+    };
+
+    report_from_parts(
+        request,
+        RunMode::Scanner,
+        ScopeSummary {
+            file_count,
+            supported_file_count,
+        },
+        ReportSummary {
+            status,
+            warning_count: 0,
+            blocking_warning_count: 0,
+            diagnostic_count,
+        },
+        diagnostics,
+    )
+}
+
+#[cfg(test)]
 pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
+    report_from_parts(
+        request,
+        RunMode::Fixture,
+        ScopeSummary {
+            file_count: 0,
+            supported_file_count: 0,
+        },
+        ReportSummary {
+            status: ReportStatus::Completed,
+            warning_count: 0,
+            blocking_warning_count: 0,
+            diagnostic_count: 0,
+        },
+        Vec::new(),
+    )
+}
+
+fn report_from_parts(
+    request: &ScanRequest,
+    mode: RunMode,
+    scope: ScopeSummary,
+    summary: ReportSummary,
+    diagnostics: Vec<DiagnosticRecord>,
+) -> ReportData {
     ReportData {
         schema_version: REPORT_SCHEMA_VERSION,
         tool: ToolInfo {
@@ -187,23 +245,15 @@ pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
             version: env!("CARGO_PKG_VERSION").to_owned(),
         },
         run: RunInfo {
-            mode: RunMode::Fixture,
+            mode,
             project_root: request.project_root.display().to_string(),
             config_path: request
                 .config_path
                 .as_ref()
                 .map(|path| path.display().to_string()),
         },
-        scope: ScopeSummary {
-            file_count: 0,
-            supported_file_count: 0,
-        },
-        summary: ReportSummary {
-            status: ReportStatus::Completed,
-            warning_count: 0,
-            blocking_warning_count: 0,
-            diagnostic_count: 0,
-        },
+        scope,
+        summary,
         metrics: MetricsSummary {
             supported_scanner_findings: 0,
         },
@@ -212,6 +262,6 @@ pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
             status: GateStatus::Passed,
             blocking_warnings: 0,
         },
-        diagnostics: Vec::new(),
+        diagnostics,
     }
 }
