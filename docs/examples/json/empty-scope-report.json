@@ -1,0 +1,31 @@
+{
+  "schema_version": "vibe-check.report.v1",
+  "tool": {
+    "name": "vibe-check",
+    "version": "0.1.0"
+  },
+  "run": {
+    "mode": "fixture",
+    "project_root": "/repo/empty-project",
+    "config_path": null
+  },
+  "scope": {
+    "file_count": 0,
+    "supported_file_count": 0
+  },
+  "summary": {
+    "status": "completed",
+    "warning_count": 0,
+    "blocking_warning_count": 0,
+    "diagnostic_count": 0
+  },
+  "metrics": {
+    "supported_scanner_findings": 0
+  },
+  "warnings": [],
+  "gate": {
+    "status": "passed",
+    "blocking_warnings": 0
+  },
+  "diagnostics": []
+}

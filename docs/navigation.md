@@ -8,10 +8,10 @@
 
 | 角色 / 任务 | 必读 | 需要时再读 |
 | --- | --- | --- |
-| 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | CLI、Core / Scanner、Output、Config 主规范 |
+| 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、Config 主规范 |
 | 讨论或调整 scanner 依赖、结构扫描基座、LOC 或重复检测方案 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | `..\docnav\scripts\quality\**`、相关 adapter 验证和 fixture |
 | 修改 Rust 实现、重构或模块边界 | [编码规范](coding-style.md) | 对应模块文档、相邻代码和测试 |
-| 修改 CLI 行为、输出或退出码 | [编码规范](coding-style.md) | CLI 主规范、示例、schema、集成测试 |
+| 修改 CLI 行为、输出或退出码 | [CLI](cli.md)、[Output](output.md)、[编码规范](coding-style.md) | 示例、schema、集成测试 |
 | 修改质量扫描、warning 或报告逻辑 | [编码规范](coding-style.md) | `..\docnav\scripts\quality\**`、`..\docnav\scripts\tools\quality\**` |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md) | 测试策略、示例、schema、相邻测试 |
 | 审计历史或规划较大 change | `..\openspec\changes\` | 对应 proposal、design、tasks 和 spec delta |
@@ -35,6 +35,8 @@ cargo test --all
 | 文档导航 | 本文档 | 定位任务主规范、规则 owner 和验证入口 |
 | 架构 | [架构](architecture.md) | 讨论组件职责、输出分层、调用链和运行边界 |
 | 工程规范 | [编码规范](coding-style.md) | 修改 Rust、脚本、测试或验证工具 |
+| CLI | [CLI](cli.md) | 修改命令、参数、配置入口、路径归一化、输出模式、stdout/stderr 或退出码 |
+| Output | [Output](output.md) | 修改输出模式、机器 JSON、schema、examples、empty state 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 参考实现 | `..\docnav\scripts\quality\**` | 对照质量检测行为、指标模型、warning 和报告设计 |
 | 变更工作流 | `..\openspec\changes\` | 规划、验收、归档或审计较大 change |
@@ -55,10 +57,10 @@ OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同
 | --- | --- |
 | 组件职责、输出分层、调用链和运行边界 | [架构](architecture.md) |
 | Rust 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
-| CLI 参数、配置、路径、退出码和输出模式 | CLI 主规范 |
+| CLI 参数、配置、路径、退出码和输出模式 | [CLI](cli.md) |
 | 扫描计划、指标模型、warning 和报告数据 | Core / Scanner 主规范 |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
-| 机器输出、schema、示例和兼容性 | 对应 schema、examples 和输出规范 |
+| 机器输出、schema、示例和格式校验 | [Output](output.md) |
 | 测试层级、fixture、case 归属和验证脚本 | 测试策略 |
 
 ## 术语

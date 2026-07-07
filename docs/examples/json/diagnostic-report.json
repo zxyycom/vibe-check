@@ -1,0 +1,37 @@
+{
+  "schema_version": "vibe-check.report.v1",
+  "tool": {
+    "name": "vibe-check",
+    "version": "0.1.0"
+  },
+  "run": {
+    "mode": "scanner",
+    "project_root": "/repo/project",
+    "config_path": null
+  },
+  "scope": {
+    "file_count": 12,
+    "supported_file_count": 10
+  },
+  "summary": {
+    "status": "partial",
+    "warning_count": 0,
+    "blocking_warning_count": 0,
+    "diagnostic_count": 1
+  },
+  "metrics": {
+    "supported_scanner_findings": 0
+  },
+  "warnings": [],
+  "gate": {
+    "status": "passed",
+    "blocking_warnings": 0
+  },
+  "diagnostics": [
+    {
+      "severity": "warning",
+      "code": "SCANNER_PARTIAL",
+      "message": "One scanner returned a recoverable diagnostic."
+    }
+  ]
+}

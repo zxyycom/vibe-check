@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vibe-check.local/schemas/vibe-check-report.schema.json",
+  "title": "Vibe Check JSON report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tool",
+    "run",
+    "scope",
+    "summary",
+    "metrics",
+    "warnings",
+    "gate",
+    "diagnostics"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "vibe-check.report.v1"
+    },
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "const": "vibe-check"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "project_root", "config_path"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["fixture", "scanner"]
+        },
+        "project_root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "config_path": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_count", "supported_file_count"],
+      "properties": {
+        "file_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "supported_file_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "warning_count",
+        "blocking_warning_count",
+        "diagnostic_count"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["completed", "partial"]
+        },
+        "warning_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocking_warning_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "diagnostic_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supported_scanner_findings"],
+      "properties": {
+        "supported_scanner_findings": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "blocking_warnings"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["passed", "failed"]
+        },
+        "blocking_warnings": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "$defs": {
+    "warning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "location",
+        "severity",
+        "rule",
+        "message",
+        "accepted",
+        "suppressed"
+      ],
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "low", "medium", "high", "critical"]
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accepted": {
+          "type": "boolean"
+        },
+        "suppressed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error"]
+        },
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

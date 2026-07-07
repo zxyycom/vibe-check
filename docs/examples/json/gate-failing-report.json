@@ -1,0 +1,41 @@
+{
+  "schema_version": "vibe-check.report.v1",
+  "tool": {
+    "name": "vibe-check",
+    "version": "0.1.0"
+  },
+  "run": {
+    "mode": "scanner",
+    "project_root": "/repo/project",
+    "config_path": "/repo/project/vibe-check.toml"
+  },
+  "scope": {
+    "file_count": 12,
+    "supported_file_count": 12
+  },
+  "summary": {
+    "status": "completed",
+    "warning_count": 1,
+    "blocking_warning_count": 1,
+    "diagnostic_count": 0
+  },
+  "metrics": {
+    "supported_scanner_findings": 1
+  },
+  "warnings": [
+    {
+      "file": "src/main.rs",
+      "location": "line 42",
+      "severity": "high",
+      "rule": "function-complexity",
+      "message": "Function exceeds the configured complexity threshold.",
+      "accepted": false,
+      "suppressed": false
+    }
+  ],
+  "gate": {
+    "status": "failed",
+    "blocking_warnings": 1
+  },
+  "diagnostics": []
+}
