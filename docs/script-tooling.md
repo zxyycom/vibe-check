@@ -1,12 +1,13 @@
 # 脚本工具
 
-本文档是 Vibe Check 开发脚本工具边界的 owner：记录哪些
-Docnav-style toolkit 被接入、哪些 Vibe Check 脚本消费它们、这些脚本如何
-保持在 Rust runtime contract 之外，以及哪些初始化和验证命令证明脚本工具仍可用。
+本文档是 Vibe Check 开发脚本工具边界的 owner：记录共享 toolkit、Vibe
+Check-owned consumer、runtime 边界、配置 owner 和脚本验证入口。
 
 ## 范围
 
-Vibe Check 复用 Docnav 的脚本工具组织方式，用于开发期质量观测。
+Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/*`
+提供共享 helper source import；consumer、默认配置、profile 和 package scripts
+由 Vibe Check 拥有。
 
 当前由 Vibe Check 拥有的消费入口是：
 
@@ -38,7 +39,8 @@ Vibe Check 复用 Docnav 的脚本工具组织方式，用于开发期质量观�
   和 `runQualityScan`。
 
 每个 toolkit 都通过 `scripts/tools/*/src` 的源码 import 被消费。它们不是 npm
-package contract。
+package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact
+路径。
 
 ## 新 checkout 初始化
 
@@ -96,39 +98,20 @@ release artifact。
 任务集合、profile 分层、warning output 识别和成功输出过滤。它不定义产品行为，
 只编排已有命令。
 
-## 验证
+## 验证入口
 
 修改脚本工具接入时，如果 `node_modules/` 或 `scripts/tools/*` 缺失，先完成上面的
 新 checkout 初始化。
 
 按改动面选择最窄验证：
 
-- 根脚本配置或 Vibe Check quality 入口：
-
-```bash
-bun run typecheck:scripts
-bun run lint:scripts
-bun run quality:check
-```
-
-- 文档 validator、schema/example 校验或 Markdown 链接校验：
-
-```bash
-bun run validate:docs
-```
-
-- Workspace verifier 编排、任务定义或输出过滤：
-
-```bash
-bun run verify:vibe-check-workspace:required
-```
-
-- Toolkit pin、source checkout 或面向 toolkit 的 import：
-
-```bash
-bun run toolkit:foundation:test
-bun run toolkit:parallel:test
-bun run toolkit:quality:test
-```
+| 改动面 | 命令 |
+| --- | --- |
+| 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
+| quality 入口或配置 | `bun run quality:check` |
+| 文档校验 | `bun run validate:docs` |
+| workspace verifier | `bun run verify:vibe-check-workspace:required` |
+| quality annotation | `bun run quality:annotate` |
+| toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test`、`bun run toolkit:quality:test` |
 
 Rust 行为改动仍按 `docs/navigation.md` 的 Rust 验证路径执行。
