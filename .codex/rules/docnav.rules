@@ -1,4 +1,0 @@
-prefix_rule(pattern=["docnav", "--help"], decision="allow")
-prefix_rule(pattern=["docnav", "help"], decision="allow")
-prefix_rule(pattern=["docnav", "outline"], decision="allow")
-prefix_rule(pattern=["docnav", "read"], decision="allow")
