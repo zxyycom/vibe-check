@@ -8,10 +8,20 @@ Docnav-style toolkit 被接入、哪些 Vibe Check 脚本消费它们、这些�
 
 Vibe Check 复用 Docnav 的脚本工具组织方式，用于开发期质量观测。
 
-当前由 Vibe Check 拥有的消费入口是 `scripts/quality/scan.ts`，它使用
-`foundation` 和 `quality-core`。`parallel-task-runner` 作为固定版本的
-toolkit 保留给后续本地 automation 使用；新增任何 Vibe Check-owned consumer
-时，必须在本文补充入口、owner 和验证命令。
+当前由 Vibe Check 拥有的消费入口是：
+
+- `scripts/quality/scan.ts`：开发期质量观测入口，使用 `foundation` 和
+  `quality-core`。
+- `scripts/quality/annotate.ts`：把 quality warning NDJSON 渲染为 GitHub
+  Actions warning annotation。
+- `scripts/docs/validate.ts`：校验 Markdown 链接、JSON 语法、report schema
+  编译和 report examples。
+- `scripts/cargo/with-bins.ts`：构建指定 Cargo binary，并把 executable path
+  注入下游命令环境变量。
+- `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
+  `parallel-task-runner` 并行运行本地检查。
+
+新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
 这些工具不属于 Rust CLI runtime contract。
 
@@ -45,8 +55,9 @@ pnpm install --frozen-lockfile
 ## Runtime 边界
 
 `vibe-check` Rust binary 仍然是产品 runtime 和 release contract。脚本工具可以
-为本地观测调用 lizard、scc、jscpd 等外部工具，但这些结果不能替代 Rust scanner
-adapter、schema examples、CLI contract tests 或 OpenSpec validation。
+为本地观测调用 lizard、scc、jscpd、Cargo、OpenSpec 和 JSON schema validator，但
+这些结果不能替代 Rust scanner adapter、schema examples、CLI contract tests 或
+OpenSpec validation。
 
 开发期 quality 入口是：
 
@@ -56,6 +67,15 @@ bun scripts/quality/scan.ts --profile quick
 
 默认 artifact 写入 `artifacts/vibe-check-quality/`，并作为 generated local state
 忽略。
+
+开发期 workspace 验证入口是：
+
+```bash
+bun scripts/vibe-check-workspace/verify.ts --profile required
+```
+
+验证日志写入 `.log/verify/workspace/`。日志和 artifact 只用于本地定位，不属于
+release artifact。
 
 ## 配置所有权
 
@@ -68,6 +88,13 @@ bun scripts/quality/scan.ts --profile quick
 
 长期产品语义仍由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
 `docs/quality-metrics.md`、`docs/output.md` 及其 schema/examples 拥有。
+
+`scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它只登记
+现有 schema/example 路径，不重新定义 output contract。
+
+`scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的
+任务集合、profile 分层、warning output 识别和成功输出过滤。它不定义产品行为，
+只编排已有命令。
 
 ## 验证
 
@@ -82,6 +109,18 @@ bun scripts/quality/scan.ts --profile quick
 bun run typecheck:scripts
 bun run lint:scripts
 bun run quality:check
+```
+
+- 文档 validator、schema/example 校验或 Markdown 链接校验：
+
+```bash
+bun run validate:docs
+```
+
+- Workspace verifier 编排、任务定义或输出过滤：
+
+```bash
+bun run verify:vibe-check-workspace:required
 ```
 
 - Toolkit pin、source checkout 或面向 toolkit 的 import：

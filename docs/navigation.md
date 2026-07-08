@@ -14,7 +14,7 @@
 | 修改 Rust 实现、重构或模块边界 | [编码规范](coding-style.md) | 对应模块文档、相邻代码和测试 |
 | 修改 CLI 行为、输出或退出码 | [CLI](cli.md)、[Output](output.md)、[编码规范](coding-style.md) | 示例、schema、集成测试 |
 | 修改质量扫描、指标、warning、gate 或报告数据逻辑 | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`..\docnav\scripts\quality\**`、`..\docnav\scripts\tools\quality\**` |
-| 讨论或调整开发脚本工具、Docnav toolkit 复用或 quality 观测脚本 | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`scripts/tools/**`、`..\docnav\scripts\tools\**` |
+| 讨论或调整开发脚本工具、Docnav toolkit 复用、workspace verifier、docs validators 或 quality 观测脚本 | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`scripts/tools/**`、`..\docnav\scripts\tools\**` |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md) | 测试策略、示例、schema、相邻测试 |
 | 审计历史或规划较大 change | `..\openspec\changes\` | 对应 proposal、design、tasks 和 spec delta |
 
@@ -67,7 +67,7 @@ OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同
 | 扫描计划、指标模型、warning、gate 和报告数据 | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
 | 机器输出、schema、示例和格式校验 | [Output](output.md) |
-| 开发脚本工具、Docnav toolkit 复用和 quality 观测脚本 | [脚本工具](script-tooling.md) |
+| 开发脚本工具、Docnav toolkit 复用、workspace verifier、docs validators 和 quality 观测脚本 | [脚本工具](script-tooling.md) |
 | 测试层级、fixture、case 归属和验证脚本 | 测试策略 |
 
 ## 术语

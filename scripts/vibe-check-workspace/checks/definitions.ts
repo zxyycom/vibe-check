@@ -1,0 +1,233 @@
+import { defineChecks } from "./normalization.ts";
+import { PROFILE_FULL, PROFILE_REQUIRED } from "./model.ts";
+import type { CheckDefinition } from "./model.ts";
+
+const testRunnerSuccessOutput = [
+  /^bun test v\d+\.\d+\.\d+ \([0-9a-f]+\)$/,
+  /^.*\.test\.ts:$/,
+  /^\(pass\) .+ \[[\d.]+(?:ms|s)\]$/,
+  /^\s*\d+ pass$/,
+  /^\s*0 fail$/,
+  /^\s*\d+ expect\(\) calls$/,
+  /^Ran \d+ tests? across \d+ files?\. \[[\d.]+(?:ms|s)\]$/
+];
+
+const cargoProgressOutput = [
+  /^\s*(Checking|Compiling) .*$/,
+  /^\s*Blocking waiting for file lock on .+$/,
+  /^\s*Finished `.*` profile .*$/
+];
+
+const qualityWarningOutput = [
+  /^Quality check status: warning$/,
+  /^Warnings: \d+ total \(\d+ changed, \d+ regressions\)$/,
+  /^This is a quick quality check, not a full quality scan\.$/,
+  /^Showing first \d+ warnings:$/,
+  /^\s*\d+\. \[.+\] .+$/,
+  /^\s*Accepted reason: .+$/,
+  /^\s*\.\.\. and \d+ more warnings$/,
+  /^Detailed report: .+$/,
+  /^Warning records: .+$/
+];
+
+const qualityVerificationWarningOutput = [
+  /^Quality verification status: warning$/,
+  /^Warnings without accepted reason: \d+ total \(\d+ changed, \d+ regressions\)$/,
+  /^Showing first \d+ warnings without accepted reason:$/,
+  /^\s*\d+\. \[.+\] .+$/,
+  /^\s*\.\.\. and \d+ more warnings without accepted reason$/,
+  /^Detailed report: .+$/,
+  /^Warning records: .+$/
+];
+
+export const checks = defineChecks([
+  {
+    id: "required-checks",
+    type: PROFILE_REQUIRED,
+    tasks: [
+      {
+        id: "cargo-fmt",
+        label: "cargo fmt",
+        command: "cargo",
+        args: ["fmt", "--all", "--check"]
+      },
+      {
+        id: "typecheck-scripts",
+        label: "TypeScript script typecheck",
+        command: "bun",
+        args: ["run", "typecheck:scripts"],
+        ignoreOutput: [
+          /^\$ tsgo -p tsconfig\.json$/
+        ]
+      },
+      {
+        id: "lint-scripts",
+        label: "TypeScript script lint",
+        command: "bun",
+        args: ["run", "lint:scripts"],
+        ignoreOutput: [
+          /^\$ eslint --max-warnings 0 --cache --cache-location \.eslintcache --cache-strategy content$/
+        ]
+      },
+      {
+        id: "quality-quick-check",
+        label: "quality quick check",
+        command: "bun",
+        args: [
+          "scripts/quality/scan.ts",
+          "--profile",
+          "quick",
+          "--artifact-dir",
+          "artifacts/vibe-check-quality/quick"
+        ],
+        env: {
+          VIBE_CHECK_QUALITY_TIMINGS: "1"
+        },
+        allowOutput: [
+          ...qualityWarningOutput
+        ],
+        warningOutput: [
+          /^Quality check status: warning$/m
+        ]
+      },
+      {
+        id: "docs-validators",
+        label: "docs validators",
+        tasks: docsValidatorChecks()
+      },
+      {
+        id: "git-diff-whitespace",
+        label: "git diff whitespace",
+        command: "git",
+        args: ["diff", "--check"],
+        ignoreOutput: [
+          /\b(CRLF|LF) will be replaced by (CRLF|LF)\b/i
+        ]
+      }
+    ]
+  },
+  {
+    id: "full-checks",
+    type: PROFILE_FULL,
+    tasks: [
+      {
+        id: "toolkit-tests",
+        label: "toolkit tests",
+        tasks: [
+          toolkitTestCheck("toolkit-foundation-tests", "foundation toolkit tests", "toolkit:foundation:test"),
+          toolkitTestCheck("toolkit-parallel-tests", "parallel toolkit tests", "toolkit:parallel:test"),
+          toolkitTestCheck("toolkit-quality-tests", "quality toolkit tests", "toolkit:quality:test")
+        ]
+      },
+      {
+        id: "quality-full-check",
+        label: "quality full check",
+        command: "bun",
+        args: [
+          "scripts/quality/scan.ts",
+          "--profile",
+          "full",
+          "--with-baseline",
+          "--verification-output"
+        ],
+        env: {
+          VIBE_CHECK_QUALITY_TIMINGS: "1"
+        },
+        dependsOn: ["toolkit-quality-tests"],
+        allowOutput: [
+          ...qualityVerificationWarningOutput
+        ],
+        warningOutput: [
+          /^Quality verification status: warning$/m
+        ]
+      },
+      {
+        id: "cargo-clippy",
+        label: "cargo clippy",
+        command: "cargo",
+        args: ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"],
+        mutex: ["cargo-build"],
+        ignoreOutput: [
+          ...cargoProgressOutput
+        ]
+      },
+      {
+        id: "cargo-test",
+        label: "cargo test",
+        command: "cargo",
+        args: ["test", "--all"],
+        mutex: ["cargo-build"],
+        ignoreOutput: [
+          ...cargoProgressOutput,
+          /^\s*Running unittests .*$/,
+          /^\s*Running tests[\\/].*$/,
+          /^\s*Doc-tests .*$/,
+          /^running \d+ tests?$/,
+          /^test .* \.\.\. ok$/,
+          /^test result: ok\..*$/
+        ]
+      },
+      {
+        id: "openspec",
+        label: "openspec",
+        command: "openspec",
+        args: ["validate", "--all", "--strict"],
+        ignoreOutput: [
+          /^✓ /,
+          /^Totals: \d+ passed, 0 failed .*$/,
+          /^- Validating\.\.\.$/
+        ]
+      }
+    ]
+  }
+]);
+
+function docsValidatorChecks(): CheckDefinition[] {
+  return [
+    docsValidatorCheck("docs-json-validator", "docs json validator", "json", [
+      /^json syntax ok:/
+    ]),
+    docsValidatorCheck("docs-schema-validator", "docs schema validator", "schema", [
+      /^schema strict compile ok:/
+    ]),
+    docsValidatorCheck("docs-example-validator", "docs example validator", "examples", [
+      /^schema ok:/,
+      /^report examples ok:/
+    ]),
+    docsValidatorCheck("docs-links-validator", "docs links validator", "links", [
+      /^markdown links ok:/
+    ])
+  ];
+}
+
+function docsValidatorCheck(
+  id: string,
+  label: string,
+  target: string,
+  successOutput: readonly RegExp[]
+): CheckDefinition {
+  return {
+    id,
+    label,
+    command: "bun",
+    args: ["run", "validate:docs", target],
+    ignoreOutput: [
+      new RegExp(`^\\$ bun scripts\\/docs\\/validate\\.ts "?${target}"?$`),
+      ...successOutput
+    ]
+  };
+}
+
+function toolkitTestCheck(id: string, label: string, scriptName: string): CheckDefinition {
+  return {
+    id,
+    label,
+    command: "bun",
+    args: ["run", scriptName],
+    ignoreOutput: [
+      new RegExp(`^\\$ bun run --cwd scripts\\/tools\\/[^ ]+ test$`),
+      /^\$ bun test test(?: src)?$/,
+      ...testRunnerSuccessOutput
+    ]
+  };
+}
