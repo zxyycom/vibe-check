@@ -76,6 +76,7 @@ mod tests {
         }
     }
 
+    // @case WB-RUNTIME-ERROR-001
     #[test]
     fn scanner_fatal_before_report_exits_three() {
         let mut stdout = Vec::new();

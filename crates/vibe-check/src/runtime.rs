@@ -187,6 +187,7 @@ mod tests {
         }
     }
 
+    // @case WB-RUNTIME-PIPELINE-001
     #[test]
     fn recoverable_collection_diagnostic_produces_partial_report() {
         let request = crate::core::ScanRequest {

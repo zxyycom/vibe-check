@@ -211,6 +211,7 @@ mod tests {
 
     use super::{is_supported_file, ScanScope, ScopeFile};
 
+    // @case WB-SCOPE-CLASSIFY-001
     #[test]
     fn supported_file_classification_covers_mvp_extensions() {
         for path in [

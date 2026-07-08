@@ -63,6 +63,7 @@ fn write_file(path: &Path, contents: &str) {
     fs::write(path, contents).expect("write file");
 }
 
+// @case WB-METRICS-AGGREGATE-001
 #[test]
 fn aggregation_counts_files_totals_and_languages() {
     let metrics = aggregate_metrics(&[

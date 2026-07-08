@@ -15,7 +15,7 @@
 | 修改 CLI 行为、输出或退出码 | [CLI](cli.md)、[Output](output.md)、[编码规范](coding-style.md) | 示例、schema、集成测试 |
 | 修改质量扫描、指标、warning、gate 或报告数据逻辑 | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`scripts/quality/**`、`scripts/tools/quality-core/**` |
 | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators 或 quality 观测脚本 | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`scripts/tools/**`、`scripts/vibe-check-workspace/**` |
-| 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md) | 测试策略、示例、schema、相邻测试 |
+| 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md) | [测试用例编号账本](testing/cases.md)、示例、schema、相邻测试 |
 | 审计历史或规划较大 change | `openspec/changes/` | 对应 proposal、design、tasks 和 spec delta |
 
 ## 交付验证
@@ -50,6 +50,8 @@ cargo test --all
 | Output | [Output](output.md) | 修改输出模式、机器 JSON、schema、examples、empty state 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality 观测脚本和脚本依赖 |
+| 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
+| 测试资料 | [测试用例维护](testing/case-maintenance.md)、[测试用例编号账本](testing/cases.md) | 测试变更流程、case 条目、证明目标或 `@case` 标记 |
 | 变更工作流 | `openspec/changes/` | 规划、验收、归档或审计较大 change |
 
 脚本和验证材料不重新定义产品语义。与主规范不一致时，先判断是主规范缺口、验证材料漂移还是有意 contract 变更。
@@ -74,7 +76,7 @@ OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
 | 机器输出、schema、示例和格式校验 | [Output](output.md) |
 | 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality 观测脚本 | [脚本工具](script-tooling.md) |
-| 测试层级、fixture、case 归属和验证脚本 | 测试策略 |
+| 测试层级、fixture、case 归属和验证脚本 | [测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md)、[测试用例编号账本](testing/cases.md) |
 
 ## 术语
 

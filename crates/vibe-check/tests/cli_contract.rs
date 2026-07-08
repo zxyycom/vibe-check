@@ -62,6 +62,7 @@ fn assert_report_schema_valid(value: &Value) {
     );
 }
 
+// @case BB-CLI-SCAN-001
 #[test]
 fn scan_omitted_project_root_uses_current_dir_with_human_output() {
     let project = test_dir("cwd-human");
@@ -127,6 +128,7 @@ fn scan_json_uses_explicit_project_root_and_config_path() {
     assert_eq!(value["gate"]["status"], "passed");
 }
 
+// @case BB-SCOPE-SCAN-001
 #[test]
 fn scan_scope_counts_supported_files_and_respects_exclusions() {
     let project = test_dir("scan-scope");
@@ -202,6 +204,7 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
     assert!(human.contains("Languages:"));
 }
 
+// @case BB-METRICS-GATE-001
 #[test]
 fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
     let project = test_dir("gate-failure");
@@ -229,6 +232,7 @@ fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
     assert_eq!(value["warnings"][0]["blocking"], true);
 }
 
+// @case BB-CLI-INPUT-001
 #[test]
 fn terminator_allows_leading_dash_project_root() {
     let parent = test_dir("dash-root-parent");

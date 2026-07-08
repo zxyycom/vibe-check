@@ -250,6 +250,7 @@ mod tests {
 
     use super::{write_outcome, CommandOutcome};
 
+    // @case WB-OUTPUT-GATE-001
     #[test]
     fn failed_gate_report_exits_one_after_successful_output() {
         let request = ScanRequest {

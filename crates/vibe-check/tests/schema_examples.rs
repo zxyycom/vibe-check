@@ -21,6 +21,7 @@ const EXAMPLES: &[(&str, &str)] = &[
     ),
 ];
 
+// @case WB-SCHEMA-EXAMPLES-001
 #[test]
 fn report_examples_validate_against_owner_schema() {
     let schema = serde_json::from_str::<Value>(REPORT_SCHEMA).expect("schema parses");
