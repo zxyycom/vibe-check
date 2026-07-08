@@ -1,7 +1,9 @@
 use std::io::{self, Write};
 
 use crate::cli::OutputFormat;
-use crate::core::{GateStatus, ReportData};
+use crate::core::{
+    DiagnosticRecord, GateResult, GateStatus, MetricsSummary, ReportData, WarningFinding,
+};
 use crate::error::{AppError, VibeCheckExitCode};
 
 pub(crate) struct CommandOutcome {
@@ -76,6 +78,15 @@ fn write_json_report<W: Write>(report: &ReportData, stdout: &mut W) -> Result<()
 }
 
 fn write_human_report<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
+    write_report_header(report, writer)?;
+    write_metrics(&report.metrics, writer)?;
+    write_gate(&report.gate, writer)?;
+    write_warnings(&report.warnings, writer)?;
+    writeln!(writer)?;
+    write_diagnostics(&report.diagnostics, writer)
+}
+
+fn write_report_header<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
     writeln!(writer, "Vibe Check report")?;
     writeln!(writer, "Summary: {}", report.summary.status.as_str())?;
     writeln!(writer, "Project root: {}", report.run.project_root)?;
@@ -91,53 +102,56 @@ fn write_human_report<W: Write>(report: &ReportData, writer: &mut W) -> io::Resu
         "Supported files in scope: {}",
         report.scope.supported_file_count
     )?;
-    write_metrics(report, writer)?;
-    writeln!(writer)?;
-    writeln!(writer, "Gate: {}", report.gate.status.as_str())?;
-    writeln!(
-        writer,
-        "Blocking warnings: {}",
-        report.gate.blocking_warnings
-    )?;
-    writeln!(writer)?;
-    write_warnings(report, writer)?;
-    writeln!(writer)?;
-    write_diagnostics(report, writer)?;
     Ok(())
 }
 
-fn write_metrics<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
-    if report.metrics.files_measured == 0 {
-        writeln!(writer, "Metrics: no supported files measured")?;
-        writeln!(
-            writer,
-            "Supported scanner findings: {}",
-            report.metrics.supported_scanner_findings
-        )?;
-        return Ok(());
+fn write_gate<W: Write>(gate: &GateResult, writer: &mut W) -> io::Result<()> {
+    writeln!(writer)?;
+    writeln!(writer, "Gate: {}", gate.status.as_str())?;
+    writeln!(writer, "Blocking warnings: {}", gate.blocking_warnings)?;
+    writeln!(writer)
+}
+
+fn write_metrics<W: Write>(metrics: &MetricsSummary, writer: &mut W) -> io::Result<()> {
+    if metrics.files_measured == 0 {
+        return write_empty_metrics(metrics, writer);
     }
 
+    write_metric_totals(metrics, writer)?;
+    write_language_metrics(metrics, writer)
+}
+
+fn write_empty_metrics<W: Write>(metrics: &MetricsSummary, writer: &mut W) -> io::Result<()> {
+    writeln!(writer, "Metrics: no supported files measured")?;
+    writeln!(
+        writer,
+        "Supported scanner findings: {}",
+        metrics.supported_scanner_findings
+    )
+}
+
+fn write_metric_totals<W: Write>(metrics: &MetricsSummary, writer: &mut W) -> io::Result<()> {
     writeln!(writer, "Metrics:")?;
     writeln!(
         writer,
         "Measured supported files: {}",
-        report.metrics.files_measured
+        metrics.files_measured
     )?;
     writeln!(
         writer,
         "Lines: total={} code={} comments={} blanks={}",
-        report.metrics.total_lines,
-        report.metrics.code_lines,
-        report.metrics.comment_lines,
-        report.metrics.blank_lines
+        metrics.total_lines, metrics.code_lines, metrics.comment_lines, metrics.blank_lines
     )?;
     writeln!(
         writer,
         "Supported scanner findings: {}",
-        report.metrics.supported_scanner_findings
+        metrics.supported_scanner_findings
     )?;
-    writeln!(writer, "Languages:")?;
-    for language in &report.metrics.languages {
+    writeln!(writer, "Languages:")
+}
+
+fn write_language_metrics<W: Write>(metrics: &MetricsSummary, writer: &mut W) -> io::Result<()> {
+    for language in &metrics.languages {
         writeln!(
             writer,
             "- {} files={} total={} code={} comments={} blanks={}",
@@ -152,54 +166,64 @@ fn write_metrics<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()
     Ok(())
 }
 
-fn write_warnings<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
-    if report.warnings.is_empty() {
+fn write_warnings<W: Write>(warnings: &[WarningFinding], writer: &mut W) -> io::Result<()> {
+    if warnings.is_empty() {
         writeln!(writer, "Warnings: none")?;
         return Ok(());
     }
 
     writeln!(writer, "Warnings:")?;
-    for warning in &report.warnings {
-        let blocking = if warning.blocking { " [blocking]" } else { "" };
+    write_warning_entries(warnings, writer)?;
+    write_warning_totals(warnings, writer)
+}
+
+fn write_warning_entries<W: Write>(warnings: &[WarningFinding], writer: &mut W) -> io::Result<()> {
+    for warning in warnings {
         writeln!(
             writer,
             "- {}{} {} {} {}: {}",
             warning.severity.as_str(),
-            blocking,
+            blocking_label(warning),
             warning.file,
             warning.location,
             warning.rule,
             warning.message
         )?;
     }
+    Ok(())
+}
 
-    let accepted = report
-        .warnings
-        .iter()
-        .filter(|warning| warning.accepted)
-        .count();
-    let suppressed = report
-        .warnings
-        .iter()
-        .filter(|warning| warning.suppressed)
-        .count();
-    if accepted > 0 {
-        writeln!(writer, "Accepted warnings: {accepted}")?;
+fn blocking_label(warning: &WarningFinding) -> &'static str {
+    if warning.blocking {
+        " [blocking]"
+    } else {
+        ""
     }
-    if suppressed > 0 {
-        writeln!(writer, "Suppressed warnings: {suppressed}")?;
+}
+
+fn write_warning_totals<W: Write>(warnings: &[WarningFinding], writer: &mut W) -> io::Result<()> {
+    let accepted = warnings.iter().filter(|warning| warning.accepted).count();
+    let suppressed = warnings.iter().filter(|warning| warning.suppressed).count();
+
+    write_positive_count("Accepted warnings", accepted, writer)?;
+    write_positive_count("Suppressed warnings", suppressed, writer)
+}
+
+fn write_positive_count<W: Write>(label: &str, count: usize, writer: &mut W) -> io::Result<()> {
+    if count > 0 {
+        writeln!(writer, "{label}: {count}")?;
     }
     Ok(())
 }
 
-fn write_diagnostics<W: Write>(report: &ReportData, writer: &mut W) -> io::Result<()> {
-    if report.diagnostics.is_empty() {
+fn write_diagnostics<W: Write>(diagnostics: &[DiagnosticRecord], writer: &mut W) -> io::Result<()> {
+    if diagnostics.is_empty() {
         writeln!(writer, "Scanner diagnostics: none")?;
         return Ok(());
     }
 
     writeln!(writer, "Scanner diagnostics:")?;
-    for diagnostic in &report.diagnostics {
+    for diagnostic in diagnostics {
         writeln!(
             writer,
             "- {} {}: {}",

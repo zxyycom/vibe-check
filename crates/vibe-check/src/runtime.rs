@@ -126,6 +126,17 @@ mod tests {
         }
     }
 
+    fn rust_file_metrics(file: impl Into<String>) -> FileMetrics {
+        FileMetrics {
+            file: file.into(),
+            language: LanguageId::Rust,
+            total_lines: 3,
+            code_lines: 1,
+            comment_lines: 1,
+            blank_lines: 1,
+        }
+    }
+
     impl LocMetricsAdapter for RecordingMetricsAdapter {
         fn measure(
             &self,
@@ -138,7 +149,7 @@ mod tests {
             Ok(MetricsOutcome {
                 files: supported_files
                     .iter()
-                    .map(|file| FileMetrics::new(file, LanguageId::Rust, 3, 1, 1, 1))
+                    .map(|file| rust_file_metrics(file.clone()))
                     .collect(),
                 diagnostics: Vec::new(),
             })
@@ -154,7 +165,7 @@ mod tests {
             _supported_files: &[String],
         ) -> Result<MetricsOutcome, MetricsFailure> {
             Ok(MetricsOutcome {
-                files: vec![FileMetrics::new("src/lib.rs", LanguageId::Rust, 3, 1, 1, 1)],
+                files: vec![rust_file_metrics("src/lib.rs")],
                 diagnostics: vec![DiagnosticRecord {
                     severity: DiagnosticSeverity::Warning,
                     code: "METRICS_LOC_PARTIAL".to_owned(),
