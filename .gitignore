@@ -16,7 +16,9 @@ __pycache__/
 
 # Tool caches and generated local state
 /.codegraph/
+/.eslintcache
 /.cache/
+/artifacts/
 /tmp/
 *.log
 

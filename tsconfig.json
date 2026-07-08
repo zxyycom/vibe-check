@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "incremental": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": true,
+    "strict": true,
+    "target": "esnext",
+    "tsBuildInfoFile": ".cache/typescript/tsconfig.tsbuildinfo",
+    "types": ["node"],
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": [
+    "eslint.config.ts",
+    "scripts/**/*.ts"
+  ]
+}

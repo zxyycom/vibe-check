@@ -1,0 +1,41 @@
+{
+  "name": "vibe-check",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.1.3",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "lint:scripts": "eslint --max-warnings 0 --cache --cache-location .eslintcache --cache-strategy content",
+    "typecheck:scripts": "tsgo -p tsconfig.json",
+    "typecheck:scripts:tsc": "tsc -p tsconfig.json",
+    "quality:check": "bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick",
+    "quality:full-check": "bun scripts/quality/scan.ts --profile full --with-baseline",
+    "quality:scan": "bun scripts/quality/scan.ts",
+    "toolkit:foundation:typecheck": "bun run --cwd scripts/tools/foundation typecheck",
+    "toolkit:foundation:lint": "bun run --cwd scripts/tools/foundation lint",
+    "toolkit:foundation:test": "bun run --cwd scripts/tools/foundation test",
+    "toolkit:parallel:typecheck": "bun run --cwd scripts/tools/parallel-task-runner typecheck",
+    "toolkit:parallel:lint": "bun run --cwd scripts/tools/parallel-task-runner lint",
+    "toolkit:parallel:test": "bun run --cwd scripts/tools/parallel-task-runner test",
+    "toolkit:quality:typecheck": "bun run --cwd scripts/tools/quality-core typecheck",
+    "toolkit:quality:lint": "bun run --cwd scripts/tools/quality-core lint",
+    "toolkit:quality:test": "bun run --cwd scripts/tools/quality-core test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.2",
+    "@typescript/native-preview": "7.0.0-dev.20260621.1",
+    "csv-parse": "^7.0.0",
+    "eslint": "^10.5.0",
+    "execa": "^9.6.1",
+    "globals": "^17.6.0",
+    "jiti": "^2.7.0",
+    "jscpd": "5.0.11",
+    "minimatch": "^10.2.5",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1"
+  }
+}
