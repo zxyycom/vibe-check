@@ -229,7 +229,7 @@
       "properties": {
         "language": {
           "type": "string",
-          "enum": ["go", "javascript", "python", "rust", "typescript"]
+          "enum": ["go", "python", "rust", "typescript"]
         },
         "file_count": {
           "type": "integer",

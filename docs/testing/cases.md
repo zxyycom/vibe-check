@@ -24,7 +24,13 @@ Proves:
 - 真实 scan scope 统计 supported/unsupported files，并排除 `.git`、`target`、
   `node_modules`、`.venv`、`dist`、`build`、`vendor`、`generated`、`.cache` 和 `cache`
   默认目录。
-- `.gitignore` 生效，supported file 分类进入 metrics 和 human report。
+- Checked-in single-language fixtures 直接作为 project root 扫描，证明 TypeScript `.ts`
+  / `.d.ts`、Go `.go`、Rust `.rs` 和 Python `.py` 进入当前 language summaries。
+- Mixed fixture 证明 `.gitignore`、generated/vendor/cache/default-exclude 输入不进入 scan
+  scope，unsupported Markdown、`.tsx`、`.js` 和 `.jsx` 只作为 unsupported ordinary files
+  被收集，且不会产生 `javascript` language summary。
+- Temp-dir scope matrix 继续证明 `.gitignore` 生效、supported file 分类进入 metrics 和
+  human report。
 - 成功路径 summary 为 `completed`，diagnostics 为空。
 
 ### BB-METRICS-GATE-001 Blocking file-size warning 失败 gate 但仍输出 JSON report
@@ -32,7 +38,8 @@ Status: implemented
 Code: `crates/vibe-check/tests/cli_contract.rs`
 
 Proves:
-- 达到 blocking file-size threshold 时真实 CLI 返回 gate failure 退出码 1。
+- Checked-in `threshold-long-file` fixture 的手写 Python source 达到 blocking file-size
+  threshold 时，真实 CLI 返回 gate failure 退出码 1。
 - stdout 仍输出可解析、schema-valid 的 JSON report，stderr 保持为空。
 - warning record、summary、gate status 和 measured file count 与 owner 语义一致。
 
@@ -90,8 +97,10 @@ Status: implemented
 Code: `crates/vibe-check/src/core/scan_scope.rs`
 
 Proves:
-- MVP supported extensions 包含 `rs`、`ts`、`tsx`、`js`、`jsx`、`py` 和 `go`。
-- unsupported files 不进入 supported file paths，但仍计入 scope file count。
+- MVP supported extensions 包含 `rs`、`ts`、`py` 和 `go`；`.d.ts` 因最终扩展名为
+  `.ts` 进入 TypeScript supported input。
+- `.tsx`、`.js`、`.jsx` 和其它 unsupported ordinary files 不进入 supported file paths，但
+  仍计入 scope file count。
 
 ### WB-METRICS-AGGREGATE-001 Metrics 聚合、warning、gate 和 tokei adapter 语义稳定
 Status: implemented
@@ -101,7 +110,8 @@ Proves:
 - metrics aggregation 汇总 files、lines 和 language summaries。
 - file-size warning 区分 non-blocking medium 和 blocking high severity。
 - gate 只由 blocking warnings 决定。
-- tokei adapter 能测量当前 supported language fixture，并返回 total/code/comment/blank line counts。
+- tokei adapter 能测量当前 supported language fixture，language identifiers 收敛为
+  `go`、`python`、`rust` 和 `typescript`，并返回 total/code/comment/blank line counts。
 
 ## Auxiliary Script Cases
 

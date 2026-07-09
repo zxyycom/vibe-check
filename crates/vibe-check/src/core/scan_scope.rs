@@ -18,7 +18,7 @@ const DEFAULT_EXCLUDED_COMPONENTS: &[&str] = &[
     "cache",
 ];
 
-const SUPPORTED_EXTENSIONS: &[&str] = &["rs", "ts", "tsx", "js", "jsx", "py", "go"];
+const SUPPORTED_EXTENSIONS: &[&str] = &["ts", "go", "rs", "py"];
 
 pub(crate) trait ScopeCollector {
     fn collect(&self, project_root: &Path) -> Result<ScanScope, ScopeCollectionFailure>;
@@ -214,22 +214,19 @@ mod tests {
     // @case WB-SCOPE-CLASSIFY-001
     #[test]
     fn supported_file_classification_covers_mvp_extensions() {
-        for path in [
-            "lib.rs",
-            "app.ts",
-            "view.tsx",
-            "main.js",
-            "component.jsx",
-            "script.py",
-            "main.go",
-        ] {
+        for path in ["app.ts", "types.d.ts", "main.go", "lib.rs", "script.py"] {
             assert!(
                 is_supported_file(Path::new(path)),
                 "{path} should be supported"
             );
         }
 
-        assert!(!is_supported_file(Path::new("README.md")));
+        for path in ["view.tsx", "main.js", "component.jsx", "README.md"] {
+            assert!(
+                !is_supported_file(Path::new(path)),
+                "{path} should be unsupported"
+            );
+        }
     }
 
     #[test]

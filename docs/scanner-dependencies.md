@@ -9,7 +9,7 @@
 依赖基线必须满足三项要求：
 
 1. 以 Rust crate 或 Rust 可导入库为默认集成方式。
-2. 面向主流代码库，最低覆盖 TypeScript / JavaScript、Rust、Python 和 Go。
+2. 面向主流代码库，当前首批支持覆盖 TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py`；JavaScript / JSX / TSX 属于后续支持范围。
 3. 支持 scanner adapter 输出 Vibe Check 自己的归一化模型，而不是把第三方结构作为 public contract。
 
 本文适用于新增、替换、降级或重新评估 scanner 依赖。实现某个具体指标、warning、gate、输出字段或 schema 时，进入对应 owner 文档。
@@ -73,7 +73,7 @@ Scanner adapter 必须把第三方结果归一化为 Vibe Check 模型。允许�
 
 首次接入或替换这些依赖时，最低验证包括：
 
-1. 覆盖 TypeScript / JavaScript、Rust、Python、Go 的 fixture。
+1. 覆盖首批 supported source set：TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py` 的 fixture；JavaScript / JSX / TSX fixture 只在后续支持 change 中作为 supported dependency coverage 引入。
 2. 文件收集 fixture：include / exclude、`.gitignore`、hidden file、generated / vendor path。
 3. LOC fixture：code、comments、blanks、empty file、mixed newline 和 unsupported file。
 4. 结构扫描 fixture：函数 / 方法定位、嵌套结构、语法错误文件、UTF-8 路径。

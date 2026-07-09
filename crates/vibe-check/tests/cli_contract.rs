@@ -32,6 +32,14 @@ fn test_dir(name: &str) -> PathBuf {
     path
 }
 
+fn fixture_project_path(id: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("fixtures")
+        .join("projects")
+        .join(id)
+}
+
 fn write_file(path: &Path, contents: &str) {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent).expect("create parent dir");
@@ -60,6 +68,15 @@ fn assert_report_schema_valid(value: &Value) {
         errors.is_empty(),
         "JSON output should validate against owner schema, got {errors:?}"
     );
+}
+
+fn language_ids(value: &Value) -> Vec<&str> {
+    value["metrics"]["languages"]
+        .as_array()
+        .expect("language summaries")
+        .iter()
+        .map(|language| language["language"].as_str().expect("language id"))
+        .collect()
 }
 
 // @case BB-CLI-SCAN-001
@@ -130,10 +147,108 @@ fn scan_json_uses_explicit_project_root_and_config_path() {
 
 // @case BB-SCOPE-SCAN-001
 #[test]
+fn fixture_projects_scan_supported_language_summaries() {
+    let cases = [
+        ("typescript-app", "typescript", 2, 2),
+        ("go-service", "go", 2, 2),
+        ("rust-crate", "rust", 2, 2),
+        ("python-package", "python", 3, 2),
+    ];
+
+    for (fixture_id, expected_language, expected_file_count, expected_supported_count) in cases {
+        let project = fixture_project_path(fixture_id);
+
+        let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+        assert_eq!(output.status.code(), Some(0), "{fixture_id}");
+        assert!(stderr(&output).is_empty(), "{fixture_id}");
+        let value: Value = serde_json::from_slice(&output.stdout).expect("json report");
+        assert_report_schema_valid(&value);
+        assert_eq!(value["summary"]["status"], "completed", "{fixture_id}");
+        assert_eq!(
+            value["scope"]["file_count"].as_u64(),
+            Some(expected_file_count),
+            "{fixture_id}"
+        );
+        assert_eq!(
+            value["scope"]["supported_file_count"].as_u64(),
+            Some(expected_supported_count),
+            "{fixture_id}"
+        );
+        assert_eq!(
+            value["metrics"]["supported_scanner_findings"].as_u64(),
+            Some(expected_supported_count),
+            "{fixture_id}"
+        );
+        assert_eq!(
+            value["metrics"]["files_measured"].as_u64(),
+            Some(expected_supported_count),
+            "{fixture_id}"
+        );
+        assert_eq!(
+            language_ids(&value),
+            vec![expected_language],
+            "{fixture_id}"
+        );
+        assert_eq!(
+            value["diagnostics"].as_array().unwrap().len(),
+            0,
+            "{fixture_id}"
+        );
+        assert_eq!(value["gate"]["status"], "passed", "{fixture_id}");
+    }
+}
+
+#[test]
+fn mixed_scope_fixture_classifies_unsupported_and_excluded_inputs() {
+    let project = fixture_project_path("mixed-scope-boundaries");
+    let ignored_file = project.join("ignored-by-gitignore.py");
+    let ignored_nested_file = project.join("ignored").join("hidden.ts");
+
+    assert!(
+        ignored_file.is_file(),
+        "fixture input should be checked in despite .gitignore: {}",
+        ignored_file.display()
+    );
+    assert!(
+        ignored_nested_file.is_file(),
+        "fixture input should be checked in despite .gitignore: {}",
+        ignored_nested_file.display()
+    );
+
+    let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(output.status.code(), Some(0));
+    assert!(stderr(&output).is_empty());
+    let value: Value = serde_json::from_slice(&output.stdout).expect("json report");
+    assert_report_schema_valid(&value);
+    assert_eq!(value["summary"]["status"], "completed");
+    assert_eq!(value["scope"]["file_count"].as_u64(), Some(8));
+    assert_eq!(value["scope"]["supported_file_count"].as_u64(), Some(4));
+    assert_eq!(
+        value["metrics"]["supported_scanner_findings"].as_u64(),
+        Some(4)
+    );
+    assert_eq!(value["metrics"]["files_measured"].as_u64(), Some(4));
+    assert_eq!(
+        language_ids(&value),
+        vec!["go", "python", "rust", "typescript"]
+    );
+    assert!(!language_ids(&value).contains(&"javascript"));
+    assert_eq!(value["summary"]["diagnostic_count"], 0);
+    assert_eq!(value["diagnostics"].as_array().unwrap().len(), 0);
+    assert_eq!(value["gate"]["status"], "passed");
+}
+
+#[test]
 fn scan_scope_counts_supported_files_and_respects_exclusions() {
     let project = test_dir("scan-scope");
     write_file(&project.join("src/lib.rs"), "fn main() {}\n");
     write_file(&project.join("src/app.ts"), "export const value = 1;\n");
+    write_file(
+        &project.join("src/types.d.ts"),
+        "export type Value = string;\n",
+    );
     write_file(
         &project.join("src/view.tsx"),
         "export const View = () => null;\n",
@@ -176,10 +291,10 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
     let value: Value = serde_json::from_slice(&json.stdout).expect("json report");
     assert_report_schema_valid(&value);
     assert_eq!(value["run"]["mode"], "scanner");
-    assert_eq!(value["scope"]["file_count"], 8);
-    assert_eq!(value["scope"]["supported_file_count"], 7);
-    assert_eq!(value["metrics"]["supported_scanner_findings"], 7);
-    assert_eq!(value["metrics"]["files_measured"], 7);
+    assert_eq!(value["scope"]["file_count"], 9);
+    assert_eq!(value["scope"]["supported_file_count"], 5);
+    assert_eq!(value["metrics"]["supported_scanner_findings"], 5);
+    assert_eq!(value["metrics"]["files_measured"], 5);
     assert_eq!(
         value["metrics"]["languages"]
             .as_array()
@@ -187,7 +302,7 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
             .iter()
             .map(|language| language["language"].as_str().unwrap())
             .collect::<Vec<_>>(),
-        vec!["go", "javascript", "python", "rust", "typescript"]
+        vec!["go", "python", "rust", "typescript"]
     );
     assert_eq!(value["summary"]["status"], "completed");
     assert_eq!(value["summary"]["diagnostic_count"], 0);
@@ -198,21 +313,16 @@ fn scan_scope_counts_supported_files_and_respects_exclusions() {
     assert!(stderr(&human).is_empty());
     let human = stdout(&human);
     assert!(human.contains("Mode: scanner"));
-    assert!(human.contains("Files in scope: 8"));
-    assert!(human.contains("Supported files in scope: 7"));
-    assert!(human.contains("Measured supported files: 7"));
+    assert!(human.contains("Files in scope: 9"));
+    assert!(human.contains("Supported files in scope: 5"));
+    assert!(human.contains("Measured supported files: 5"));
     assert!(human.contains("Languages:"));
 }
 
 // @case BB-METRICS-GATE-001
 #[test]
 fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
-    let project = test_dir("gate-failure");
-    let mut contents = String::new();
-    for index in 0..800 {
-        contents.push_str(&format!("fn generated_{index}() {{}}\n"));
-    }
-    write_file(&project.join("src/main.rs"), &contents);
+    let project = fixture_project_path("threshold-long-file");
 
     let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
 
@@ -225,7 +335,8 @@ fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
     assert_eq!(value["gate"]["status"], "failed");
     assert_eq!(value["gate"]["blocking_warnings"], 1);
     assert_eq!(value["metrics"]["files_measured"], 1);
-    assert_eq!(value["warnings"][0]["file"], "src/main.rs");
+    assert_eq!(language_ids(&value), vec!["python"]);
+    assert_eq!(value["warnings"][0]["file"], "src/long_file.py");
     assert_eq!(value["warnings"][0]["location"], "file");
     assert_eq!(value["warnings"][0]["severity"], "high");
     assert_eq!(value["warnings"][0]["rule"], "file.too_many_lines");

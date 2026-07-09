@@ -142,9 +142,9 @@ fn tokei_adapter_measures_supported_language_fixtures() {
             LanguageId::TypeScript,
         ),
         (
-            "src/main.js",
-            "// comment\n\nconsole.log('hello');\n",
-            LanguageId::JavaScript,
+            "src/types.d.ts",
+            "// comment\n\nexport type Value = string;\n",
+            LanguageId::TypeScript,
         ),
         (
             "tools/script.py",

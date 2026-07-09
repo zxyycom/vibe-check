@@ -25,7 +25,7 @@ LOC metrics adapter 的输入只能来自 normalized scan scope 中已收集的 
 Core 接收的文件级 metrics 使用 Vibe Check-owned model。MVP 字段为：
 
 - `file`: project-root-relative path using `/` separators.
-- `language`: stable lowercase Vibe Check identifier, currently `rust`, `typescript`, `javascript`, `python`, or `go`.
+- `language`: stable lowercase Vibe Check identifier, currently `go`, `python`, `rust`, or `typescript`.
 - `total_lines`: `code_lines + comment_lines + blank_lines`.
 - `code_lines`.
 - `comment_lines`.
@@ -94,7 +94,7 @@ Diagnostic code 使用稳定大写前缀。LOC adapter 的 recoverable diagnosti
 修改本文 owner 行为时，最低验证包括：
 
 - `tokei` dependency 版本、license、default features 和编译验证。
-- Rust、TypeScript、JavaScript、Python 和 Go supported files 的 LOC fixture。
+- TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py` supported files 的 LOC fixture；`.d.ts` 按 TypeScript supported input 处理。
 - Unsupported file 不进入 metrics adapter。
 - Metrics aggregation、per-language sorting 和 `supported_scanner_findings = files_measured`。
 - Recoverable metrics diagnostic 产生 partial report。

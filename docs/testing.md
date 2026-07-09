@@ -81,6 +81,29 @@ Rust tests 负责具有独立出错空间的自定义逻辑。每个用例应明
   径边界、输出通道边界或 exit code 映射。
 - 跨层测试必须分别断言内部不变量和外部 CLI 契约，不重复相同的参数组合矩阵。
 
+## Fixture projects
+
+Rust CLI contract tests 可以使用 `crates/vibe-check/tests/fixtures/projects/<fixture-id>/`
+下的 checked-in project fixtures。Fixture id 使用稳定 kebab-case；fixture source、配置
+和 ignore 文件是手写入库的测试环境输入，不需要 npm、go、cargo、pip 或网络依赖即可被
+`vibe-check scan` 读取。
+
+Fixture-backed tests 必须直接把 checked-in fixture project path 作为 `vibe-check scan`
+的 project root，并且只允许运行 CLI、读取 stdout/stderr、解析 report 和校验 owner
+schema。测试代码不得创建、复制、拼接、追加、改写或生成作为 scan input 的 source、
+configuration 或 ignore 文件；threshold fixture 也使用入库长文件，而不是运行时生成。
+
+普通单语言 fixture 只承接该语言的 supported source proof target；跨语言、unsupported
+`.tsx` / `.js` / `.jsx`、unsupported Markdown、`.gitignore`、generated/vendor/cache
+和默认排除边界放入专门 mixed fixture。测试资料只记录 fixture environment、文件分类集
+合、证明目标和源码 `@case` 归属；supported file、language identifier、warning、gate
+和 output shape 的产品语义仍追溯到 owner 文档、schema 或 examples。
+
+Fixture-backed report 断言应聚焦 schema validity、language presence/absence、
+supported/unsupported classification 的可观察结果、diagnostics status、gate status、退
+出码和 stdout/stderr 边界。不要为 fixture report 引入完整 JSON snapshot、LOC totals
+snapshot、与分类无关的手写 count snapshot 或 human/readable rendering 文案断言。
+
 ## 脚本与工具依赖
 
 验证脚本和按需工具依赖的运行方式由 [脚本工具](script-tooling.md) 拥有。本节只定义测

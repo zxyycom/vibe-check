@@ -115,7 +115,6 @@ pub(crate) struct FileMetrics {
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub(crate) enum LanguageId {
     Go,
-    JavaScript,
     Python,
     Rust,
     TypeScript,
@@ -125,7 +124,6 @@ impl LanguageId {
     pub(crate) const fn as_str(self) -> &'static str {
         match self {
             Self::Go => "go",
-            Self::JavaScript => "javascript",
             Self::Python => "python",
             Self::Rust => "rust",
             Self::TypeScript => "typescript",
@@ -135,20 +133,9 @@ impl LanguageId {
     fn from_path(path: impl AsRef<Path>) -> Option<Self> {
         match path.as_ref().extension().and_then(OsStr::to_str) {
             Some(extension) if extension.eq_ignore_ascii_case("go") => Some(Self::Go),
-            Some(extension)
-                if extension.eq_ignore_ascii_case("js")
-                    || extension.eq_ignore_ascii_case("jsx") =>
-            {
-                Some(Self::JavaScript)
-            }
             Some(extension) if extension.eq_ignore_ascii_case("py") => Some(Self::Python),
             Some(extension) if extension.eq_ignore_ascii_case("rs") => Some(Self::Rust),
-            Some(extension)
-                if extension.eq_ignore_ascii_case("ts")
-                    || extension.eq_ignore_ascii_case("tsx") =>
-            {
-                Some(Self::TypeScript)
-            }
+            Some(extension) if extension.eq_ignore_ascii_case("ts") => Some(Self::TypeScript),
             _ => None,
         }
     }

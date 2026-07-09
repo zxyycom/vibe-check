@@ -37,15 +37,15 @@ Core 只消费归一化后的文件路径、supported 分类和 diagnostic。`ig
 
 `scope.file_count` 表示经过 ignore/default exclude 后进入 scan scope 的普通文件总数。`scope.supported_file_count` 表示其中当前 scanner baseline 支持的文件数。
 
-当前 supported file classification 按扩展名识别：
+当前 supported file classification 按最终扩展名识别：
 
-- `.rs`
 - `.ts`
-- `.tsx`
-- `.js`
-- `.jsx`
-- `.py`
 - `.go`
+- `.rs`
+- `.py`
+
+`.d.ts` 因最终扩展名是 `.ts`，按 TypeScript supported input 处理。
+`.tsx`、`.js` 和 `.jsx` 属于 unsupported ordinary files：如果它们未被 ignore 或默认排除规则过滤，计入 `scope.file_count`，但不计入 `scope.supported_file_count`。
 
 Unsupported ordinary files 计入 `scope.file_count`，不计入 `scope.supported_file_count`，且不会仅因 unsupported 生成 diagnostic。
 

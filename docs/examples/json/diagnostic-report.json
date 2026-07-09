@@ -28,7 +28,7 @@
     "blank_lines": 120,
     "languages": [
       {
-        "language": "javascript",
+        "language": "typescript",
         "file_count": 2,
         "total_lines": 300,
         "code_lines": 230,
