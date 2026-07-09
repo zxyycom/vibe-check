@@ -2,7 +2,6 @@
 
 ## Purpose
 Define how Vibe Check turns collected supported files into basic quality metrics, warning findings, diagnostics, and gate results before output projection.
-
 ## Requirements
 ### Requirement: Quality metrics owner documentation
 Quality metrics behavior SHALL have a long-term owner document under `docs/` that records metric ownership, LOC adapter boundaries, aggregation semantics, warning rules, default thresholds, blocking policy, gate policy, diagnostics, and verification expectations. `docs/navigation.md` MUST reference this owner document.
@@ -12,18 +11,22 @@ Quality metrics behavior SHALL have a long-term owner document under `docs/` tha
 - **THEN** the navigation document points to the quality metrics owner document
 
 ### Requirement: LOC metrics adapter input
-Core scan pipeline SHALL run a LOC metrics adapter after scan scope collection and before warning generation. The adapter MUST receive only collected supported files from the normalized scan scope, and MUST NOT measure files excluded by scan scope rules or files classified as unsupported.
+Core scan pipeline SHALL run a LOC metrics adapter after scan scope collection and before warning generation. The adapter MUST receive only collected supported files from the normalized scan scope, and MUST NOT measure files excluded by scan scope rules or files classified as unsupported. MVP supported metric inputs are TypeScript `.ts`, Go `.go`, Rust `.rs`, and Python `.py` files.
 
 #### Scenario: Supported files are measured
-- **WHEN** a project root contains collected supported files in Rust, TypeScript, JavaScript, Python, or Go
+- **WHEN** a project root contains collected supported files in TypeScript, Go, Rust, or Python
 - **THEN** the LOC metrics adapter produces normalized file metrics for those supported files
 
 #### Scenario: Unsupported files are not measured
-- **WHEN** a project root contains collected unsupported files such as Markdown
+- **WHEN** a project root contains collected unsupported files such as Markdown, JavaScript, JSX, or TSX
 - **THEN** unsupported files are included in `scope.file_count` but do not produce LOC metrics records
 
+#### Scenario: TypeScript declaration files are measured as TypeScript
+- **WHEN** scan scope provides collected supported file `src/types.d.ts`
+- **THEN** the LOC metrics adapter treats it as TypeScript input
+
 ### Requirement: Normalized LOC metrics
-LOC metrics SHALL be normalized into Vibe Check-owned models before aggregation. MVP file metrics MUST include file path, normalized language, total lines, code lines, comment lines, and blank lines for each measured supported file.
+LOC metrics SHALL be normalized into Vibe Check-owned models before aggregation. MVP file metrics MUST include file path, normalized language, total lines, code lines, comment lines, and blank lines for each measured supported file. MVP language identifiers MUST be `go`, `python`, `rust`, and `typescript`.
 
 #### Scenario: File metrics use Vibe Check model
 - **WHEN** the LOC adapter measures `src/lib.rs`
@@ -31,7 +34,7 @@ LOC metrics SHALL be normalized into Vibe Check-owned models before aggregation.
 
 #### Scenario: Language names are normalized
 - **WHEN** supported files are measured
-- **THEN** their language values are normalized to stable Vibe Check language identifiers such as `rust`, `typescript`, `javascript`, `python`, or `go`
+- **THEN** their language values are normalized to stable Vibe Check language identifiers `go`, `python`, `rust`, or `typescript`
 
 ### Requirement: Metrics aggregation
 Core SHALL aggregate normalized file metrics into report data totals and per-language summaries. In this LOC-only change, `metrics.supported_scanner_findings` and `metrics.files_measured` MUST both equal the number of supported files that produced successful file metrics records.
