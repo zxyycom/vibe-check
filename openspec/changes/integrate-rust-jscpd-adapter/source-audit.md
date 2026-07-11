@@ -1,12 +1,12 @@
 # jscpd Rust 接入前置探索
 
-最后检查日期：2026-07-09
+最后检查日期：2026-07-10
 
 本文是 `integrate-rust-jscpd-adapter` 的前置 source audit。后续实现直接消费本文结论；若 Cargo resolution、编译结果或 fixture 行为与本文冲突，先更新本文、`design.md` 和相关 spec delta，再继续实现。
 
 ## 结论
 
-可以接入。推荐以 `cpd-finder = "0.1.8"` 作为第一版 Rust duplicate scanner adapter 的依赖入口，调用 `cpd_finder::orchestrate::{RunConfig, run}`。
+可以接入。第一版以 `cpd-finder 0.1.8` 作为 Rust duplicate scanner adapter 的依赖入口，Cargo manifest 使用 exact requirement `cpd-finder = "=0.1.8"`，adapter 调用 `cpd_finder::orchestrate::{RunConfig, run}`。
 
 方便程度：中等偏方便。上游 API 很薄，`RunConfig` 加 `run()` 就能跑出 `clones`，license 也匹配本仓库的 MIT；但要把它接成 Vibe Check 的稳定 scanner contract，并不是“一行依赖就完成”。
 
@@ -19,13 +19,13 @@
 
 主要成本和风险：
 
-- upstream crates 要求 Rust `1.87`，本仓库没有显式 `rust-toolchain.toml`，需要接受或记录 MSRV 影响。
+- upstream crates 要求 Rust `1.87`；项目将独立固定当前环境默认 stable Rust `1.96.0`，依赖 MSRV 只用于确认兼容性。
 - `cpd-finder` 会走自己的 walker，并且可能静默跳过 walk error、open/mmap 失败、非 UTF-8 文件、低于阈值文件等；Vibe Check adapter 必须自己做 preflight 和 diagnostics。
-- upstream `CpdClone` 是 pairwise clone，不是天然 N-location group；Vibe Check 需要自己定义 group identity 和排序。
+- upstream `CpdClone` 是 pairwise clone，不是天然 N-location group；Vibe Check 需要自己定义 pair identity 和排序。
 - upstream source id 是 canonical path string，需要映射回 project-root-relative `/` path，Windows 下尤其要测试。
 - `cpd-tokenizer` 会带入 `oxc_*` 等 transitive dependencies，编译时间和依赖体积需要作为接入成本接受。
 
-推荐路径：继续推进第一版，但保持 duplicate warning 为 `medium`、non-blocking；先用 fixture 证明 scope、threshold、path normalization 和 error mapping，再考虑是否让 duplicate 影响 gate。
+推荐路径：继续推进第一版，使用不可变内置扫描 profile，并保持 duplicate warning 为 `medium`、non-blocking；先用 fixture 证明 scope、threshold、path normalization 和 error mapping，再考虑可变配置或 blocking policy。
 
 ## 已验证来源
 
@@ -52,10 +52,10 @@
 
 ## 依赖结论
 
-第一版依赖入口使用：
+第一版 manifest 使用 exact dependency requirement：
 
 ```toml
-cpd-finder = "0.1.8"
+cpd-finder = "=0.1.8"
 ```
 
 依据：
@@ -68,8 +68,9 @@ cpd-finder = "0.1.8"
 兼容性约束：
 
 - upstream crates 使用 Rust edition `2024`，rust-version `1.87`。
-- Vibe Check workspace 当前是 Rust edition `2021`，license `MIT`，没有 checked-in `rust-toolchain.toml`。
-- 本次探索使用的本地工具链是 `cargo 1.96.0`，本地编译能力应满足 upstream MSRV；发布策略仍需接受 Rust `1.87+`。
+- Vibe Check workspace 当前是 Rust edition `2021`、license `MIT`；实现计划新增 `rust-toolchain.toml`，固定当前环境默认 stable Rust `1.96.0`。
+- 本次探索和 2026-07-10 决策复查使用 `rustc 1.96.0`、`cargo 1.96.0`，active toolchain 为 `stable-x86_64-pc-windows-msvc (default)`。
+- 项目工具链版本由环境基线决定，不由 dependency MSRV 决定；当前固定版本高于 upstream `1.87`，满足编译兼容性。
 - `cpd-tokenizer` 会引入 `oxc_*` parser 依赖；这是依赖体积和编译成本风险，不是 scanner 行为风险。
 
 来源冲突处理：
@@ -150,8 +151,10 @@ Vibe Check adapter 的接入规则：
 - `ignore` 为空，因为 include / exclude / generated / vendor / cache 已由 Vibe Check scan scope 负责。
 - `no_gitignore = true`，避免 jscpd 在 Vibe Check scope 之后再次应用 `.gitignore`。
 - `pattern = None`，第一版不用 jscpd positive glob filtering。
-- `follow_symlinks` 应与 scan scope collector 保持一致；如果当前 model 没有该字段，先保持 jscpd default `false` 并记录限制。
+- `follow_symlinks = false`，与当前 scan scope collector 不跟随 symlink 的行为保持一致。
 - `blame = false`，因为 blame 不属于第一版 duplicate finding model。
+
+第一版不新增 duplicate scanner 配置入口。adapter 使用不可变内置 profile：`min_tokens = 50`、`min_lines = 5` 和 audited `RunConfig` defaults；`paths`、`formats`、`no_gitignore`、symlink、ignore 和 blame 等 scope ownership 字段按本节显式覆盖。
 
 exact-file-list 策略可行，但必须用 fixture 证明。原因是 jscpd 仍会做 format detection、size filtering 和 token threshold filtering。
 
@@ -202,10 +205,10 @@ pub struct Location {
 
 归一化规则：
 
-- 第一版可把每个 `CpdClone` pair 视为一个 Vibe Check duplicate group；除非实现显式增加 deterministic graph coalescing。
+- 第一版把每个 `CpdClone` pair 视为一个 Vibe Check duplicate finding，不做 graph coalescing。
 - 不要声称 upstream 返回 native N-location clone groups。
 - 将 `fragment_a.source_id` / `fragment_b.source_id` 从 canonical path string 映射回 project-root-relative `/` path。
-- 无法映射回 project root 的 clone fragment 必须被拒绝或产生 diagnostic。
+- 无法映射回 project root、location 无效或缺少两个可信 fragments 时返回 scanner fatal error。
 - 保留 `start.line`、`end.line`、`start.column`、`end.column` 作为 location evidence。
 - `Fragment.range` 是 token index range，不是 byte range。
 - `CpdClone.token_count` 可作为 threshold evidence。
@@ -216,6 +219,8 @@ pub struct Location {
 
 - `cpd-core` 会按 `(fragment_a.source_id, fragment_a.start.line, fragment_b.source_id, fragment_b.start.line)` 排序。
 - Vibe Check 仍必须在 path normalization 后自行排序，因为 Windows path separator、canonicalization 和 project-relative conversion 都属于 Vibe Check 边界。
+- pair 内 locations 按 `(path, start line, start column, end line, end column)` 排序；排序后的 location tuple 与 token count 构成内部 identity。
+- 第一版 warning 使用第一个 location 作为 primary `file`，使用稳定 line range，并在 message 中标识另一处 location 和 token count。
 
 ## Error 和 diagnostic 事实
 
@@ -233,17 +238,19 @@ adapter 影响：
 - 调用 jscpd 前做 Vibe Check-owned preflight：文件仍存在、是 file、可读、按 owner 预期可 UTF-8 decode。
 - 低于 threshold 是正常 no-finding，不是 diagnostic。
 - `FinderError` 在无法信任 duplicate report data 时映射为 scanner fatal error。
-- 若单文件 preflight 问题可恢复且仍能生成其它 scanner data，输出 duplicate scanner diagnostic，并让 report 进入 partial。
-- 若所有 duplicate scanner input 在调用前都不可用，返回显式 duplicate scanner diagnostic 或 unsupported outcome，不能静默报 clean。
-- 如需把 scanner panic 纳入稳定错误边界，可在 adapter 层包一层 panic containment。
+- 若单文件 preflight 问题可恢复且至少一个 input 仍可扫描，为失败文件输出 warning-severity `DUPLICATE_SCAN_PARTIAL` diagnostic，并让 report 进入 partial。
+- 若 scan scope 原本包含 supported files，但所有 duplicate inputs 在调用前都不可用，返回 scanner fatal error，不能静默报 clean。
+- scan scope 没有 supported files 时跳过 duplicate adapter，正常完成且不产生 diagnostic。
+- `FinderError`、panic unwind、越界 source id 或无法归一化的 clone 映射为 scanner fatal error。
+- dependency resolution、编译和 API mismatch 是 apply-time blocker，不设计运行时 unsupported state。
 
 ## 推荐第一版 `RunConfig`
 
 ```rust
 let config = RunConfig {
     paths: supported_file_paths,
-    min_tokens: duplicate_min_tokens,
-    min_lines: duplicate_min_lines,
+    min_tokens: 50,
+    min_lines: 5,
     max_lines: None,
     formats: vec![
         "typescript".to_string(),
@@ -255,7 +262,7 @@ let config = RunConfig {
     code_ignore_patterns: vec![],
     max_size: None,
     no_gitignore: true,
-    follow_symlinks: scan_scope_follow_symlinks,
+    follow_symlinks: false,
     skip_local: false,
     blame: false,
     workers: None,
@@ -267,7 +274,7 @@ let config = RunConfig {
 };
 ```
 
-如果 Rust 因字段已全部指定而不接受 `..Default::default()`，移除 struct update。不要仅为设置默认 `mode` 而新增直接 `cpd-tokenizer` 依赖。
+如果 Rust 因字段已全部指定而不接受 `..Default::default()`，移除 struct update。不要仅为设置默认 `mode` 而新增直接 `cpd-tokenizer` 依赖。第一版 profile 由 adapter owning，不提供用户覆盖入口。
 
 ## Fixture 证明目标
 
@@ -279,18 +286,18 @@ let config = RunConfig {
 - `.ts`、`.go`、`.rs`、`.py` 正确映射到 `typescript`、`go`、`rust`、`python`。
 - `.mts`、`.cts`、`.pyx`、`.pxd`、`.pxi`、JS/JSX/TSX、Markdown、Vue、Svelte、Astro 不进入第一版 input。
 - `no_gitignore = true` 能避免 jscpd 对 Vibe Check 已批准的 exact paths 再应用 `.gitignore`。
-- threshold 行为尊重 `min_tokens` 和 `min_lines`。
+- threshold 行为固定尊重 `min_tokens = 50` 和 `min_lines = 5`，并覆盖 token 与 line-span 两个边界。
 - pairwise `CpdClone` 能归一化为稳定 Vibe Check duplicate findings。
 - canonical absolute `source_id` 在 Windows 和 Unix 上都能转为 project-root-relative `/` path。
 - missing、unreadable、non-UTF-8、post-collection-deleted 文件会产生显式 diagnostics 或 fatal errors，不会被当成 zero duplicates。
 
 ## Apply 阶段复查条件
 
-Apply 阶段可以做 Cargo resolution、编译、fixture tests 和 local diff validation。这些是实现验证，不是大范围上游探索。
+具体执行顺序由 `design.md` 和 `tasks.md` 持有。文档 gate 通过后，Apply 阶段可以做 Cargo resolution、编译、fixture tests 和 local diff validation；这些是实现验证，不是大范围上游探索。
 
 只有以下情况才重新打开 upstream source exploration：
 
-- `cpd-finder = "0.1.8"` 已无法解析，或 Cargo 解析出的 public API 不兼容。
+- exact `cpd-finder = "=0.1.8"` 已无法解析，或 Cargo 解析出的 public API 不兼容。
 - 下载到本地的 crate source 与本文列出的字段或模型冲突。
 - 编译证明需要本文未记录的 direct dependency 或 feature flag。
 - fixture tests 证明 individual-file `paths` 无法保持 Vibe Check scan scope。

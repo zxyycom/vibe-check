@@ -1,3 +1,5 @@
+# test-fixtures delta
+
 本 spec delta 定义 `integrate-rust-jscpd-adapter` 需要新增的 duplicate-code fixture 增量；归档前，主规范仍以当前仓库状态为准。
 
 ## ADDED Requirements
@@ -7,11 +9,15 @@ checked-in project fixture suite SHALL 为 Rust CLI duplicate scanner 提供 det
 
 #### Scenario: Cross-file duplicate fixture 存在
 - **WHEN** CLI contract test 需要验证跨文件 duplicate detection
-- **THEN** fixture suite 包含至少两个 checked-in supported source files，并带有达到或超过 configured threshold 的 intentional duplicate fragment
+- **THEN** fixture suite 包含至少两个 checked-in supported source files，并带有达到或超过内置默认 threshold 的 intentional duplicate fragment
 
 #### Scenario: Same-file duplicate fixture 存在
 - **WHEN** adapter test 需要验证 same-file duplicate normalization
 - **THEN** fixture suite 包含一个 checked-in supported source file，并带有两个 intentional duplicate spans
+
+#### Scenario: 默认 threshold 边界可验证
+- **WHEN** adapter tests 验证内置 `50` token / `5` line-span profile
+- **THEN** fixture suite 同时包含达到默认 threshold 和分别低于 token / line threshold 的 checked-in source fragments
 
 #### Scenario: Excluded duplicate fixture 不产生 warning
 - **WHEN** duplicate-looking code 只存在于 generated、vendor、cache、target 或 ignored fixture paths 下
