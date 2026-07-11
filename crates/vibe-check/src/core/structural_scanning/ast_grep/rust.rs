@@ -1,7 +1,7 @@
 use ast_grep_core::Node;
 
 use super::super::{FunctionKind, FunctionMetric, StructuralScanFailure};
-use super::{build_metric, LanguageId, ParsedNode};
+use super::{build_metric, FunctionDescriptor, LanguageId, ParsedNode};
 
 pub(super) fn extract(
     candidates: Vec<ParsedNode<'_>>,
@@ -23,9 +23,11 @@ pub(super) fn extract(
             &node,
             file,
             language,
-            function_kind(&node),
-            name.text().into_owned(),
-            parameter_count(&node)?,
+            FunctionDescriptor::new(
+                function_kind(&node),
+                name.text().into_owned(),
+                parameter_count(&node)?,
+            ),
         )?);
     }
     Ok(metrics)

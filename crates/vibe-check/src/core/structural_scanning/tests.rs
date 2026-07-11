@@ -101,8 +101,7 @@ fn outcome_state_distinguishes_skip_clean_partial_and_fatal_result() {
 }
 
 // @case WB-STRUCTURAL-ADAPTER-001
-#[test]
-fn ast_grep_adapter_normalizes_four_language_inventory_and_ordering() {
+fn scan_inventory_fixture() -> StructuralScanOutcome {
     let files = [
         "functions.py",
         "functions.rs",
@@ -112,17 +111,19 @@ fn ast_grep_adapter_normalizes_four_language_inventory_and_ordering() {
     ]
     .map(str::to_owned);
 
-    let first = AstGrepStructuralScanner
+    AstGrepStructuralScanner
         .scan(&fixture_root(), &files)
-        .expect("structural scan");
-    let second = AstGrepStructuralScanner
-        .scan(&fixture_root(), &files)
-        .expect("repeat structural scan");
+        .expect("structural scan")
+}
+
+#[test]
+fn ast_grep_adapter_results_are_deterministic_and_normalized() {
+    let first = scan_inventory_fixture();
+    let second = scan_inventory_fixture();
 
     assert_eq!(first, second);
     assert_eq!(first.state, StructuralScanState::Completed);
     assert!(first.diagnostics.is_empty());
-    assert_eq!(first.metrics.len(), 28);
     assert!(first.metrics.windows(2).all(|pair| {
         let normalized = normalize_metrics(pair.to_vec()).expect("ordered unique pair");
         normalized == pair
@@ -134,7 +135,11 @@ fn ast_grep_adapter_normalizes_four_language_inventory_and_ordering() {
             && metric.range.end_line > 0
             && metric.range.end_column > 0
     }));
+}
 
+#[test]
+fn ast_grep_adapter_normalizes_four_language_inventory() {
+    let outcome = scan_inventory_fixture();
     let expected = [
         ("functions.ts", "nested", FunctionKind::Function, 5),
         ("functions.ts", "constructor", FunctionKind::Constructor, 5),
@@ -155,8 +160,9 @@ fn ast_grep_adapter_normalizes_four_language_inventory_and_ordering() {
         ("functions.py", "static", FunctionKind::Method, 5),
         ("functions.py", "compound", FunctionKind::Method, 4),
     ];
+    assert_eq!(outcome.metrics.len(), 28);
     for (file, name, kind, parameter_count) in expected {
-        let metric = first
+        let metric = outcome
             .metrics
             .iter()
             .find(|metric| metric.file == file && metric.display_name == name)
@@ -164,7 +170,7 @@ fn ast_grep_adapter_normalizes_four_language_inventory_and_ordering() {
         assert_eq!(metric.kind, kind, "{file}:{name}");
         assert_eq!(metric.parameter_count, parameter_count, "{file}:{name}");
     }
-    assert!(first
+    assert!(outcome
         .metrics
         .iter()
         .all(|metric| metric.file != "declarations.d.ts"));

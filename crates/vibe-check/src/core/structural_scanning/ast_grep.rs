@@ -21,6 +21,33 @@ use super::{
 
 pub(super) type ParsedNode<'tree> = Node<'tree, StrDoc<SupportLang>>;
 
+#[derive(Clone, Copy)]
+struct InputLanguage {
+    parser: SupportLang,
+    metric: LanguageId,
+}
+
+enum FileScanOutcome {
+    Measured(Vec<FunctionMetric>),
+    Partial(StructuralDiagnostic),
+}
+
+pub(super) struct FunctionDescriptor {
+    kind: FunctionKind,
+    display_name: String,
+    parameter_count: usize,
+}
+
+impl FunctionDescriptor {
+    pub(super) fn new(kind: FunctionKind, display_name: String, parameter_count: usize) -> Self {
+        Self {
+            kind,
+            display_name,
+            parameter_count,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub(crate) struct AstGrepStructuralScanner;
 
@@ -45,45 +72,10 @@ fn scan_files(
     let mut diagnostics = Vec::new();
 
     for supported_file in supported_files {
-        let input = normalize_input_path(project_root, Path::new(supported_file))?;
-        let (parser_language, metric_language) = language_for_input(&input)?;
-        let source = match read_source(&input) {
-            Ok(source) => source,
-            Err(reason) => {
-                diagnostics.push(StructuralDiagnostic::new(input.relative, reason));
-                continue;
-            }
-        };
-        let parsed =
-            AstGrep::<StrDoc<SupportLang>>::try_new(&source, parser_language).map_err(|error| {
-                StructuralScanFailure::new(format!(
-                    "failed to initialize structural parser for {}: {error}",
-                    input.relative
-                ))
-            })?;
-        let root = parsed.root();
-        let candidates = match collect_candidates(&root, candidate_kinds(parser_language)) {
-            Ok(candidates) => candidates,
-            Err(reason) => {
-                diagnostics.push(StructuralDiagnostic::new(input.relative, reason));
-                continue;
-            }
-        };
-        let mut file_metrics = match parser_language {
-            SupportLang::TypeScript => {
-                typescript::extract(candidates, &input.relative, metric_language)?
-            }
-            SupportLang::Go => go::extract(candidates, &input.relative, metric_language)?,
-            SupportLang::Rust => rust::extract(candidates, &input.relative, metric_language)?,
-            SupportLang::Python => python::extract(candidates, &input.relative, metric_language)?,
-            _ => {
-                return Err(StructuralScanFailure::new(format!(
-                    "structural language mapping produced disabled parser for {}",
-                    input.relative
-                )))
-            }
-        };
-        metrics.append(&mut file_metrics);
+        match scan_file(project_root, supported_file)? {
+            FileScanOutcome::Measured(mut file_metrics) => metrics.append(&mut file_metrics),
+            FileScanOutcome::Partial(diagnostic) => diagnostics.push(diagnostic),
+        }
     }
 
     let metrics = normalize_metrics(metrics)?;
@@ -99,25 +91,79 @@ fn scan_files(
     }
 }
 
-fn language_for_input(
-    input: &StructuralInputPath,
-) -> Result<(SupportLang, LanguageId), StructuralScanFailure> {
+fn scan_file(
+    project_root: &Path,
+    supported_file: &str,
+) -> Result<FileScanOutcome, StructuralScanFailure> {
+    let input = normalize_input_path(project_root, Path::new(supported_file))?;
+    let language = language_for_input(&input)?;
+    let source = match read_source(&input) {
+        Ok(source) => source,
+        Err(reason) => {
+            return Ok(FileScanOutcome::Partial(StructuralDiagnostic::new(
+                input.relative,
+                reason,
+            )))
+        }
+    };
+    let parsed =
+        AstGrep::<StrDoc<SupportLang>>::try_new(&source, language.parser).map_err(|error| {
+            StructuralScanFailure::new(format!(
+                "failed to initialize structural parser for {}: {error}",
+                input.relative
+            ))
+        })?;
+    let root = parsed.root();
+    let candidates = match collect_candidates(&root, candidate_kinds(language.parser)) {
+        Ok(candidates) => candidates,
+        Err(reason) => {
+            return Ok(FileScanOutcome::Partial(StructuralDiagnostic::new(
+                input.relative,
+                reason,
+            )))
+        }
+    };
+    let metrics = extract_file_metrics(candidates, &input.relative, language)?;
+    Ok(FileScanOutcome::Measured(metrics))
+}
+
+fn extract_file_metrics(
+    candidates: Vec<ParsedNode<'_>>,
+    file: &str,
+    language: InputLanguage,
+) -> Result<Vec<FunctionMetric>, StructuralScanFailure> {
+    match language.parser {
+        SupportLang::TypeScript => typescript::extract(candidates, file, language.metric),
+        SupportLang::Go => go::extract(candidates, file, language.metric),
+        SupportLang::Rust => rust::extract(candidates, file, language.metric),
+        SupportLang::Python => python::extract(candidates, file, language.metric),
+        _ => Err(StructuralScanFailure::new(format!(
+            "structural language mapping produced disabled parser for {file}"
+        ))),
+    }
+}
+
+fn language_for_input(input: &StructuralInputPath) -> Result<InputLanguage, StructuralScanFailure> {
     let extension = Path::new(&input.relative)
         .extension()
         .and_then(|extension| extension.to_str());
     match extension {
-        Some(extension) if extension.eq_ignore_ascii_case("ts") => {
-            Ok((SupportLang::TypeScript, LanguageId::TypeScript))
-        }
-        Some(extension) if extension.eq_ignore_ascii_case("go") => {
-            Ok((SupportLang::Go, LanguageId::Go))
-        }
-        Some(extension) if extension.eq_ignore_ascii_case("rs") => {
-            Ok((SupportLang::Rust, LanguageId::Rust))
-        }
-        Some(extension) if extension.eq_ignore_ascii_case("py") => {
-            Ok((SupportLang::Python, LanguageId::Python))
-        }
+        Some(extension) if extension.eq_ignore_ascii_case("ts") => Ok(InputLanguage {
+            parser: SupportLang::TypeScript,
+            metric: LanguageId::TypeScript,
+        }),
+        Some(extension) if extension.eq_ignore_ascii_case("go") => Ok(InputLanguage {
+            parser: SupportLang::Go,
+            metric: LanguageId::Go,
+        }),
+        Some(extension) if extension.eq_ignore_ascii_case("rs") => Ok(InputLanguage {
+            parser: SupportLang::Rust,
+            metric: LanguageId::Rust,
+        }),
+        Some(extension) if extension.eq_ignore_ascii_case("py") => Ok(InputLanguage {
+            parser: SupportLang::Python,
+            metric: LanguageId::Python,
+        }),
         _ => Err(StructuralScanFailure::new(format!(
             "missing structural language mapping for {}",
             input.relative
@@ -201,10 +247,13 @@ pub(super) fn build_metric(
     node: &ParsedNode<'_>,
     file: &str,
     language: LanguageId,
-    kind: FunctionKind,
-    display_name: String,
-    parameter_count: usize,
+    descriptor: FunctionDescriptor,
 ) -> Result<FunctionMetric, StructuralScanFailure> {
+    let FunctionDescriptor {
+        kind,
+        display_name,
+        parameter_count,
+    } = descriptor;
     if node.range().is_empty() {
         return Err(StructuralScanFailure::new(format!(
             "function node has an empty source range in {file}"

@@ -1,5 +1,5 @@
 use super::super::{FunctionKind, FunctionMetric, StructuralScanFailure};
-use super::{build_metric, LanguageId, ParsedNode};
+use super::{build_metric, FunctionDescriptor, LanguageId, ParsedNode};
 
 pub(super) fn extract(
     candidates: Vec<ParsedNode<'_>>,
@@ -34,9 +34,7 @@ pub(super) fn extract(
             &node,
             file,
             language,
-            kind,
-            display_name,
-            parameter_count,
+            FunctionDescriptor::new(kind, display_name, parameter_count),
         )?);
     }
     Ok(metrics)

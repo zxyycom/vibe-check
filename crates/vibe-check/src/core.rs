@@ -223,14 +223,16 @@ pub(crate) fn scanner_report(
 
     report_from_parts(
         request,
-        ScopeSummary {
-            file_count,
-            supported_file_count,
+        ReportParts {
+            scope: ScopeSummary {
+                file_count,
+                supported_file_count,
+            },
+            diagnostics,
+            metrics_outcome,
+            structural_outcome,
+            duplicate_outcome,
         },
-        diagnostics,
-        metrics_outcome,
-        structural_outcome,
-        duplicate_outcome,
     )
 }
 
@@ -238,30 +240,40 @@ pub(crate) fn scanner_report(
 pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
     let mut report = report_from_parts(
         request,
-        ScopeSummary {
-            file_count: 0,
-            supported_file_count: 0,
-        },
-        Vec::new(),
-        MetricsOutcome {
-            files: Vec::new(),
+        ReportParts {
+            scope: ScopeSummary {
+                file_count: 0,
+                supported_file_count: 0,
+            },
             diagnostics: Vec::new(),
+            metrics_outcome: MetricsOutcome {
+                files: Vec::new(),
+                diagnostics: Vec::new(),
+            },
+            structural_outcome: StructuralScanOutcome::skipped(),
+            duplicate_outcome: DuplicateScanOutcome::default(),
         },
-        StructuralScanOutcome::skipped(),
-        DuplicateScanOutcome::default(),
     );
     report.run.mode = RunMode::Fixture;
     report
 }
 
-fn report_from_parts(
-    request: &ScanRequest,
+struct ReportParts {
     scope: ScopeSummary,
-    mut diagnostics: Vec<DiagnosticRecord>,
+    diagnostics: Vec<DiagnosticRecord>,
     metrics_outcome: MetricsOutcome,
     structural_outcome: StructuralScanOutcome,
     duplicate_outcome: DuplicateScanOutcome,
-) -> ReportData {
+}
+
+fn report_from_parts(request: &ScanRequest, parts: ReportParts) -> ReportData {
+    let ReportParts {
+        scope,
+        mut diagnostics,
+        metrics_outcome,
+        structural_outcome,
+        duplicate_outcome,
+    } = parts;
     debug_assert!(match structural_outcome.state {
         structural_scanning::StructuralScanState::SkippedNoSupportedInput
         | structural_scanning::StructuralScanState::Completed => {

@@ -1,5 +1,5 @@
 use super::super::{FunctionKind, FunctionMetric, StructuralScanFailure};
-use super::{build_metric, LanguageId, ParsedNode};
+use super::{build_metric, FunctionDescriptor, LanguageId, ParsedNode};
 
 pub(super) fn extract(
     candidates: Vec<ParsedNode<'_>>,
@@ -36,9 +36,7 @@ fn declaration_metric(
         node,
         file,
         language,
-        FunctionKind::Function,
-        name,
-        parameter_count(node)?,
+        FunctionDescriptor::new(FunctionKind::Function, name, parameter_count(node)?),
     )
     .map(Some)
 }
@@ -59,7 +57,13 @@ fn method_metric(
     } else {
         FunctionKind::Method
     };
-    build_metric(node, file, language, kind, name, parameter_count(node)?).map(Some)
+    build_metric(
+        node,
+        file,
+        language,
+        FunctionDescriptor::new(kind, name, parameter_count(node)?),
+    )
+    .map(Some)
 }
 
 fn bound_metric(
@@ -87,9 +91,11 @@ fn bound_metric(
         &value,
         file,
         language,
-        FunctionKind::Function,
-        name_node.text().into_owned(),
-        parameter_count(&value)?,
+        FunctionDescriptor::new(
+            FunctionKind::Function,
+            name_node.text().into_owned(),
+            parameter_count(&value)?,
+        ),
     )
     .map(Some)
 }
