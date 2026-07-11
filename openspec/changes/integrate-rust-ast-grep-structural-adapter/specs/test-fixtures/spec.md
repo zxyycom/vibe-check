@@ -15,6 +15,11 @@ Checked-in fixture suite SHALL 为 `ast-grep-core` / `ast-grep-language` depende
 - **THEN** fixtures 包含 Go、Rust、TypeScript 和 Python receiver forms
 - **AND** fixtures 包含 default、optional、destructured、rest 或 variadic parameter 的代表性输入
 
+#### Scenario: Parameter-list comment 使用 checked-in input
+- **WHEN** characterization 与 adapter tests 验证 named syntax extras
+- **THEN** checked-in Go 和 TypeScript fixtures 在 parameter list 中包含 comment
+- **AND** tests 证明 comment node 可观察但不贡献 parameter slot
+
 #### Scenario: Parser 与路径边界使用 checked-in input
 - **WHEN** adapter tests 验证 syntax error、UTF-8 path 或 declaration-only source
 - **THEN** 对应 source 与路径作为 checked-in fixture 存在
@@ -32,6 +37,11 @@ Checked-in project fixtures SHALL 至少包含一个 `parameter_count >= 5` 的 
 #### Scenario: 低于阈值的 function 不产生该 warning
 - **WHEN** 同一 checked-in fixture 中的 supported function 只有四个 normalized parameters
 - **THEN** report 不为该 function 生成 `function.too_many_parameters` warning
+
+#### Scenario: Parameter-list comment project 保持成功扫描
+- **WHEN** CLI contract test 扫描包含 Go / TypeScript parameter-list comment 的 checked-in project fixture
+- **THEN** report status 为 `completed`，且不包含 structural diagnostic
+- **AND** 四个 explicit parameters 不产生 `function.too_many_parameters` warning
 
 ### Requirement: Structural fixture ownership remains traceable
 新增或修改 structural characterization、adapter 或 CLI fixture-backed tests 时，testing owner materials SHALL 记录 proof target、fixture responsibility、planned / implemented status 和唯一 `@case` mapping。Fixture metadata MUST NOT 重新定义 function model、parameter threshold、diagnostic 或 gate semantics。

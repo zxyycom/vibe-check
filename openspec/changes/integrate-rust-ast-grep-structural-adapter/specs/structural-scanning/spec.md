@@ -55,7 +55,7 @@ Structural scanner results SHALL 在 warning generation 前归一化为 Vibe Che
 - **THEN** adapter 不为该 callback 或 closure 产生 `FunctionMetric`
 
 ### Requirement: Cross-language parameter count semantics
-`FunctionMetric.parameter_count` SHALL 表示调用者显式传入的 parameter slots。Go method receiver、Rust self receiver、TypeScript `this` pseudo-parameter，以及 Python non-static class method 的第一个 receiver parameter MUST NOT 计入。Python `@staticmethod` parameters MUST 全部按普通 explicit parameters 计数。Default、optional、destructured、rest 和 variadic parameter forms MUST 各按一个 parameter slot 计数。
+`FunctionMetric.parameter_count` SHALL 表示调用者显式传入的 parameter slots。Go method receiver、Rust self receiver、TypeScript `this` pseudo-parameter，以及 Python non-static class method 的第一个 receiver parameter MUST NOT 计入。Python `@staticmethod` parameters MUST 全部按普通 explicit parameters 计数。Default、optional、destructured、rest 和 variadic parameter forms MUST 各按一个 parameter slot 计数。Go / TypeScript parameter-list comment 与 unnamed punctuation MUST NOT 贡献 parameter slot，也 MUST NOT 产生 structural diagnostic 或 scanner fatal；这两个 grammar mapping 中其它未经 source audit 的 named parameter child MUST 作为 normalization invariant failure 映射为 scanner fatal。
 
 #### Scenario: Language receiver 不计入参数数量
 - **WHEN** Go method、Rust method、TypeScript method 或 Python non-static class method 各声明一个 receiver 和四个 explicit parameters
@@ -69,6 +69,11 @@ Structural scanner results SHALL 在 warning generation 前归一化为 Vibe Che
 - **WHEN** supported function 包含 default、optional、destructured、rest 或 variadic parameter
 - **THEN** 每个 source-level parameter slot 对 `parameter_count` 贡献 `1`
 - **AND** binding 内部包含的名字数量不增加 parameter count
+
+#### Scenario: Parameter-list comment 不改变参数数量
+- **WHEN** Go 或 TypeScript supported function 的 parameter list 在四个 explicit parameters 之间包含 comment
+- **THEN** normalized `parameter_count` 仍为 `4`
+- **AND** scan 不产生 structural diagnostic 或 scanner fatal
 
 ### Requirement: Structural result ordering remains deterministic
 Structural scanner adapter SHALL 使用 normalized source identity 输出确定性结果。`FunctionMetric` MUST 按 `(file, start line, start column, end line, end column, kind, display name)` 排序；相同源码、相同 scan scope 和相同内置 profile MUST 产生相同 function metric 数量、内容和顺序。

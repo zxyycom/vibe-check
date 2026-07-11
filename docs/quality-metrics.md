@@ -70,7 +70,8 @@ Structural adapter 向 Core 返回 Vibe Check-owned `FunctionMetric`，不返回
 Parameter count 排除 Go receiver、Rust self receiver、TypeScript `this` pseudo-parameter 和
 Python non-static direct class method 的第一个 receiver parameter；Python `@staticmethod`
 全部按普通参数计数。Default、optional、destructured、rest 和 variadic form各计一个 slot，
-binding内部名字不展开；Go grouped names按实际 call-site slots计数。
+binding内部名字不展开；Go grouped names按实际 call-site slots计数。Parameter-list comment与
+unnamed punctuation不属于调用参数，计数为零，也不产生 structural diagnostic或 fatal。
 
 只有有 executable body 且具有 stable declaration / direct binding name 的 function forms进入
 该模型。Signature-only、abstract / no-body 与 anonymous callback / closure正常排除且不产生
@@ -218,7 +219,8 @@ Scanner fatal 由 CLI 映射为 exit code `3`，stdout 不写 human 或 JSON rep
 - `duplicate.code_fragment` 的两个 locations、token count、summary 计数和 non-blocking gate
   policy。
 - Structural adapter四语言 inventory、stable binding、receiver / compound parameter
-  semantics、range / path normalization、deterministic ordering与正常 exclusions。
+  semantics、parameter-list named comment extra、range / path normalization、deterministic
+  ordering与正常 exclusions。
 - `function.too_many_parameters` 的 parameter count `4` / `5` threshold、warning fields、
   summary计数、unified ordering、non-blocking gate与 LOC compatibility counters。
 - Structural syntax-error / all-input-partial diagnostic，以及 adapter invariant fatal exit code

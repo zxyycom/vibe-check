@@ -33,6 +33,7 @@ compatible ranges；workspace lockfile 实际解析为 exact `ast-grep-core 0.44
 - `ast-grep-language 0.44.1` metadata: https://crates.io/crates/ast-grep-language/0.44.1
 - `ast-grep-core` Rust API: https://docs.rs/ast-grep-core/0.44.1/ast_grep_core/
 - `Node` traversal / field / range / error API: https://docs.rs/ast-grep-core/0.44.1/ast_grep_core/struct.Node.html
+- `Node::is_named` API: https://docs.rs/ast-grep-core/0.44.1/ast_grep_core/struct.Node.html#method.is_named
 - `Position` zero-based character-coordinate API: https://docs.rs/ast-grep-core/0.44.1/ast_grep_core/struct.Position.html
 - tree-sitter integration module and `StrDoc`: https://docs.rs/ast-grep-core/0.44.1/ast_grep_core/tree_sitter/
 - built-in language enum: https://docs.rs/ast-grep-language/0.44.1/ast_grep_language/enum.SupportLang.html
@@ -42,6 +43,7 @@ compatible ranges；workspace lockfile 实际解析为 exact `ast-grep-core 0.44
 - Python grammar node types: https://github.com/tree-sitter/tree-sitter-python/blob/293fdc02038ee2bf0e2e206711b69c90ac0d413f/src/node-types.json
 - Resolved Rust grammar node types: https://github.com/tree-sitter/tree-sitter-rust/blob/e2bee853694a1d3e0f6ef308fe3674542fec95d7/src/node-types.json
 - TypeScript grammar node types: https://github.com/tree-sitter/tree-sitter-typescript/blob/f975a621f4e7f532fe322e13c4f79495e0a7b2e7/typescript/src/node-types.json
+- TypeScript generated grammar extras: https://github.com/tree-sitter/tree-sitter-typescript/blob/f975a621f4e7f532fe322e13c4f79495e0a7b2e7/typescript/src/grammar.json
 
 本地官方 package snapshot 由以下命令下载并复查：
 
@@ -92,7 +94,7 @@ package。
 - `ast_grep_core::tree_sitter::{StrDoc, LanguageExt}`；
 - `ast_grep_language::SupportLang`；
 - `AstGrep::<StrDoc<SupportLang>>::try_new`、`AstGrep::root`；
-- `Node::{dfs, children, parent, field, field_children, kind, text, start_pos, end_pos, range, is_error, is_missing}`；
+- `Node::{dfs, children, parent, field, field_children, kind, text, start_pos, end_pos, range, is_named, is_error, is_missing}`；
 - `Position::{line, column}`。
 
 不使用 pattern DSL、native tree-sitter `Node`、raw S-expression、parser internals或第三方 error type作为 Core / Output contract。Characterization tests 可以读取 node kind、field、text 和 position 来证明 dependency facts，但不得断言 Vibe Check warning。
@@ -125,6 +127,20 @@ Malformed TypeScript signature可恢复为 missing node而没有 `ERROR` node；
 fixture可产生 `ERROR` node。因此 adapter必须检查 `is_missing() || is_error()`，不能只依赖
 其中一种 representation。
 
+### Named syntax extras
+
+Resolved `tree-sitter-go 0.25.0` 的 `node-types.json` 将 `comment` 标记为
+`named: true`、`extra: true`；resolved TypeScript generated grammar同样把 `comment`列入
+`extras`，且 `node-types.json` 将其标记为 named。`Node::children()` 会返回这些 direct
+children，因此 `filter(Node::is_named)` 不能等价表示 parameter slots。
+
+Go / TypeScript parameter traversal必须先忽略 unnamed punctuation，再显式忽略
+source-audited `comment` extra，只计算下列对应语言的 parameter node kinds。这两个 mapping
+中的其它 named child表示 grammar漂移或 normalization invariant failure，映射为 scanner
+fatal；合法 comment本身不产生 diagnostic或 fatal。Characterization与 adapter fixtures
+必须在 Go / TypeScript parameter list中保留 comment，防止再次把 named syntax extra误计
+为 parameter。
+
 ## Grammar mapping
 
 下表中的 kind / field names 来自四个 exact grammar package 的 `node-types.json`。只有带 executable `body`、稳定 name / binding 且通过 characterization 的形态进入 metric。
@@ -140,6 +156,8 @@ fixture可产生 `ERROR` node。因此 adapter必须检查 `is_missing() || is_e
 | declaration-only | `function_signature`, `method_signature`, `abstract_method_signature` | available but no body | no executable body | exclude without diagnostic |
 
 `formal_parameters` named children are `required_parameter` / `optional_parameter`; each child is one slot. A single-parameter arrow uses field `parameter` and counts one. Destructured/default/rest forms stay inside one parameter node and count once. A parameter whose `pattern` field is kind `this` is the TypeScript pseudo-receiver and counts zero. Anonymous callbacks and non-identifier variable bindings are excluded.
+Direct `comment` children are named syntax extras and count zero；unnamed punctuation同样忽略，
+其它 named child是 normalization invariant failure。
 
 ### Go
 
@@ -149,6 +167,8 @@ fixture可产生 `ERROR` node。因此 adapter必须检查 `is_missing() || is_e
 | method | `method_declaration`; `name`, `receiver`, optional `body`, `parameters` | field identifier | body must be `block`; receiver is separate | include as `method` |
 
 Receiver field never contributes to `parameter_count`. In `parameters`, each `variadic_parameter_declaration` counts one. A `parameter_declaration` with N `name` fields represents N call-site slots and counts N; an unnamed declaration counts one. Go declarations without `body` are excluded without diagnostic.
+Direct `comment` children are named syntax extras and count zero；unnamed punctuation同样忽略，
+其它 named child是 normalization invariant failure。
 
 ### Rust
 
@@ -184,7 +204,7 @@ Scanner fatal conditions：enabled language initialization失败、dependency pa
 
 1. 四种 extension 映射到 exact enabled language且逐个 source只 parse / traverse一次。
 2. 上表 node kind、name / body / parameter fields与 actual parsed tree一致。
-3. TypeScript `this`、Go receiver、Rust self和 Python non-static receiver排除；default、optional、destructured、rest / variadic各按一个 call-site slot计数。
+3. TypeScript `this`、Go receiver、Rust self和 Python non-static receiver排除；default、optional、destructured、rest / variadic各按一个 call-site slot计数；Go / TypeScript parameter-list comment作为 named extra可观察但计数为零。
 4. signature-only / anonymous forms可区分且不依赖 warning模型。
 5. syntax error / missing node可由 DFS 检测。
 6. 1-based inclusive line / column、UTF-8 source和同一行多 node range稳定。

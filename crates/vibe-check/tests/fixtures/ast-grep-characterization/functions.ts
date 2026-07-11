@@ -19,6 +19,7 @@ export class Service {
 
   run(
     this: Service,
+    /* Parameter-list comments are named syntax extras. */
     { left, right }: Pair,
     optional?: string,
     withDefault = 1,

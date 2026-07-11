@@ -65,13 +65,17 @@ fn typescript_parameter_count(function: &ParsedNode<'_>) -> usize {
         .field("parameters")
         .expect("function-like node should have parameters")
         .children()
-        .filter(|parameter| parameter.is_named())
-        .filter(|parameter| {
-            parameter
-                .field("pattern")
-                .is_none_or(|pattern| pattern.kind().as_ref() != "this")
+        .filter(Node::is_named)
+        .map(|parameter| match parameter.kind().as_ref() {
+            "comment" => 0,
+            "required_parameter" | "optional_parameter" => usize::from(
+                parameter
+                    .field("pattern")
+                    .is_none_or(|pattern| pattern.kind().as_ref() != "this"),
+            ),
+            other => panic!("unexpected TypeScript parameter node {other}"),
         })
-        .count()
+        .sum()
 }
 
 fn go_parameter_count(function: &ParsedNode<'_>) -> usize {
@@ -86,6 +90,7 @@ fn go_parameter_count(function: &ParsedNode<'_>) -> usize {
                 names.max(1)
             }
             "variadic_parameter_declaration" => 1,
+            "comment" => 0,
             other => panic!("unexpected Go parameter node {other}"),
         })
         .sum()
@@ -211,6 +216,14 @@ fn typescript_nodes_distinguish_executable_stable_forms_and_parameter_slots() {
     let constructor = named_node(&parsed, "method_definition", "constructor");
     assert_eq!(typescript_parameter_count(&constructor), 5);
     let method = named_node(&parsed, "method_definition", "run");
+    let method_parameter_kinds = method
+        .field("parameters")
+        .expect("method parameters")
+        .children()
+        .filter(Node::is_named)
+        .map(|parameter| parameter.kind().into_owned())
+        .collect::<Vec<_>>();
+    assert!(method_parameter_kinds.iter().any(|kind| kind == "comment"));
     assert_eq!(typescript_parameter_count(&method), 4);
 
     let bound_arrow = named_node(&parsed, "variable_declarator", "boundArrow");
@@ -277,6 +290,14 @@ fn go_and_rust_nodes_expose_receivers_separately_from_call_site_slots() {
     let build = named_node(&go, "function_declaration", "Build");
     let threshold = named_node(&go, "function_declaration", "Threshold");
     let run = named_node(&go, "method_declaration", "Run");
+    let run_parameter_kinds = run
+        .field("parameters")
+        .expect("method parameters")
+        .children()
+        .filter(Node::is_named)
+        .map(|parameter| parameter.kind().into_owned())
+        .collect::<Vec<_>>();
+    assert!(run_parameter_kinds.iter().any(|kind| kind == "comment"));
     assert_eq!(go_parameter_count(&build), 4);
     assert_eq!(go_parameter_count(&threshold), 5);
     assert_eq!(go_parameter_count(&run), 4);

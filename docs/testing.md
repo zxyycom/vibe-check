@@ -115,12 +115,13 @@ diagnostic 和 fatal failure，不把 upstream structs 提升为 Core contract�
 Structural characterization fixtures 放在独立 checked-in目录，直接调用 exact
 `ast-grep-core` / `ast-grep-language` public API，证明 TypeScript、Go、Rust、Python 的
 language mapping、node / field names、stable name、body presence、receiver / compound
-parameter slots、1-based inclusive range、syntax error / missing node和 UTF-8 path。该 gate只
-证明 dependency事实，通过前不实现 Vibe Check structural model。Structural adapter tests再
-证明 Vibe Check-owned normalization、deterministic ordering、preflight partial和 fatal
-invariants；CLI project fixture只证明 `function.too_many_parameters` 的 human / schema-valid
-JSON投影、non-blocking gate、all-input structural partial，以及 unsupported / excluded files
-不进入 adapter。三层不得互相替代 proof target。
+parameter slots、Go / TypeScript parameter-list named comment extra、1-based inclusive range、
+syntax error / missing node和 UTF-8 path。该 gate只证明 dependency事实，通过前不实现 Vibe
+Check structural model。Structural adapter tests再证明 Vibe Check-owned normalization、
+deterministic ordering、preflight partial、fatal invariants，以及 runtime只传递 supported exact
+paths；CLI project fixtures只证明 `function.too_many_parameters` 的 human / schema-valid JSON
+投影、parameter-list comment成功扫描、non-blocking gate和 all-input structural partial。
+三层不得互相替代 proof target。
 
 Fixture-backed report 断言应聚焦 schema validity、language presence/absence、
 supported/unsupported classification 的可观察结果、diagnostics status、gate status、退

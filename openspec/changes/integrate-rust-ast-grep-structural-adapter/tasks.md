@@ -99,3 +99,19 @@ TypeScript modifier range、UTF-8 character column，以及 missing / `ERROR` no
 - [x] 9.5 运行 `openspec validate integrate-rust-ast-grep-structural-adapter --type change --json --strict --no-interactive`，并确认 `openspec status` / `instructions apply` 可消费最终 artifacts。
 - [x] 9.6 运行 `bun run verify:vibe-check-workspace:required`；dependency、Rust、output、testing 或 OpenSpec 任一 gate 失败时修正后重跑。
 - [x] 9.7 检查 local diff 与 Cargo lockfile diff，确认只修改目标范围、没有恢复 ad-hoc CLI/config 参数获取、没有未回答 Open Questions，并记录残余 performance / grammar upgrade 风险。
+
+## 10. Review remediation
+
+- [x] 10.1 将 parameter-list named extra 纳入 source audit 与 structural contract：记录
+  `Node::is_named`、Go / TypeScript `comment` node，以及合法 comment 不贡献 parameter slot、
+  不产生 diagnostic 或 fatal 的规则。
+- [x] 10.2 更新 checked-in Go / TypeScript characterization fixtures 和 dependency tests，证明
+  parameter-list comment 是 named extra，同时 parameter count 保持不变。
+- [x] 10.3 增加 adapter 与真实 CLI regression evidence，并在 production fix 前观察到 Go
+  comment 触发 fatal、TypeScript comment 虚增 parameter count 的 RED 结果。
+- [x] 10.4 在 Go / TypeScript adapter 内只计算已审计 parameter node kinds、忽略 comment
+  与 unnamed punctuation，并继续把其它未知 named child 映射为 normalization fatal。
+- [x] 10.5 对账 owner docs、testing case ledger 和 source-audit authority 引用，使 proof target、
+  `Code:` 路径和归档后的长期 owner 路径保持可追踪。
+- [x] 10.6 运行 focused tests、Rust 全量验证、`bun run validate`、OpenSpec strict validation、
+  workspace required verification 与 final diff audit。

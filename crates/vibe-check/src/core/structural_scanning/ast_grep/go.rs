@@ -1,5 +1,3 @@
-use ast_grep_core::Node;
-
 use super::super::{FunctionKind, FunctionMetric, StructuralScanFailure};
 use super::{build_metric, LanguageId, ParsedNode};
 
@@ -37,23 +35,22 @@ fn parameter_count(node: &ParsedNode<'_>) -> Result<usize, StructuralScanFailure
     let parameters = node
         .field("parameters")
         .ok_or_else(|| StructuralScanFailure::new("Go function node has no parameters field"))?;
-    let count =
-        parameters
-            .children()
-            .filter(Node::is_named)
-            .try_fold(0usize, |count, parameter| {
-                let slots = match parameter.kind().as_ref() {
-                    "parameter_declaration" => parameter.field_children("name").count().max(1),
-                    "variadic_parameter_declaration" => 1,
-                    other => {
-                        return Err(StructuralScanFailure::new(format!(
-                            "unexpected Go parameter node {other}"
-                        )))
-                    }
-                };
-                count
-                    .checked_add(slots)
-                    .ok_or_else(|| StructuralScanFailure::new("Go parameter count overflow"))
-            });
+    let count = parameters.children().try_fold(0usize, |count, parameter| {
+        if !parameter.is_named() || parameter.kind().as_ref() == "comment" {
+            return Ok(count);
+        }
+        let slots = match parameter.kind().as_ref() {
+            "parameter_declaration" => parameter.field_children("name").count().max(1),
+            "variadic_parameter_declaration" => 1,
+            other => {
+                return Err(StructuralScanFailure::new(format!(
+                    "unexpected Go parameter node {other}"
+                )))
+            }
+        };
+        count
+            .checked_add(slots)
+            .ok_or_else(|| StructuralScanFailure::new("Go parameter count overflow"))
+    });
     count
 }

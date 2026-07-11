@@ -68,6 +68,9 @@ Signature-only declaration、`.d.ts` declaration、abstract member、无 body tr
 - TypeScript `this` pseudo-parameter 不计入。
 - Python direct class-body method 的第一个 receiver parameter 不计入；`@staticmethod` 没有隐式 receiver，因此全部 parameters 计入。
 - default、optional、destructured、rest 和 variadic form 各计一个 slot，内部 binding 数量不展开。
+- Go / TypeScript parameter-list comment 与 unnamed punctuation 属于 syntax extras，不贡献
+  parameter slot，也不产生 diagnostic 或 fatal；这两个 grammar mapping中的其它未经审计
+  named parameter child表示 invariant失效，继续映射为 scanner fatal。
 
 Core 对 `parameter_count >= 5` 生成 `function.too_many_parameters`，severity 为 `medium`，`blocking = false`、`accepted = false`、`suppressed = false`。Finding 使用 normalized file、`lines START-END` location，message 包含 display name、实际 count 和 threshold。阈值 `5` 沿用现有开发期 quality policy 的默认风险线索，但在本 change 中成为独立的 Rust CLI built-in contract，不读取旧脚本配置。
 

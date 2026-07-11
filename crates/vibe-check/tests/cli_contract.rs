@@ -446,6 +446,26 @@ fn function_parameter_warning_is_locatable_in_json_and_human_reports() {
 }
 
 #[test]
+fn parameter_list_comments_do_not_fail_or_inflate_real_scan() {
+    let project = fixture_project_path("structural-parameter-comments");
+
+    let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(output.status.code(), Some(0));
+    assert!(stderr(&output).is_empty());
+    let value: Value = serde_json::from_slice(&output.stdout).expect("JSON report");
+    assert_report_schema_valid(&value);
+    assert_eq!(value["summary"]["status"], "completed");
+    assert_eq!(value["summary"]["warning_count"], 0);
+    assert_eq!(value["summary"]["diagnostic_count"], 0);
+    assert_eq!(value["gate"]["status"], "passed");
+    assert_eq!(value["metrics"]["files_measured"], 2);
+    assert_eq!(language_ids(&value), vec!["go", "typescript"]);
+    assert!(value["warnings"].as_array().unwrap().is_empty());
+    assert!(value["diagnostics"].as_array().unwrap().is_empty());
+}
+
+#[test]
 fn all_structural_inputs_with_syntax_errors_produce_partial_report() {
     let project = fixture_project_path("structural-syntax-error");
 

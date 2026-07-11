@@ -74,17 +74,23 @@ Scanner 默认使用以下依赖：
 tree-sitter patch 升级也必须视为 characterization 触发条件，不能只检查两个 direct crate
 versions。
 
-实施期 API authority 是
-`openspec/changes/integrate-rust-ast-grep-structural-adapter/source-audit.md`。Adapter 只使
-用经审计的 `AstGrep` / `StrDoc` parse boundary、`SupportLang` 四语言映射，以及 `Node` 的
-DFS、field、kind、text、range、position、error / missing inspection。第三方 node、language
-enum、native error、pattern 或 raw tree 不进入 Core、Output、schema 或 examples。
+长期 dependency contract 由本节持有；exact source facts 与实施审计由 OpenSpec change
+`integrate-rust-ast-grep-structural-adapter` 的 `source-audit.md` 持有，并在归档后随该
+change 作为历史证据保留。Adapter 只使用经审计的 `AstGrep` / `StrDoc` parse boundary、
+`SupportLang` 四语言映射，以及 `Node` 的 DFS、field、kind、text、range、position、named、
+error / missing inspection。第三方 node、language enum、native error、pattern 或 raw tree
+不进入 Core、Output、schema 或 examples。
 
 第一版支持有 executable body 且可稳定命名的形态：TypeScript named function、method、
 constructor 和 direct identifier-bound arrow / function expression；Go function / method；
 Rust free / nested function、impl method 和 trait default method；Python sync / async free、
 nested 和 class method。Signature-only / abstract / no-body forms 与无 stable declaration / direct
 binding 的 anonymous callbacks 不产生 metric，也不产生 diagnostic。
+
+Go / TypeScript parameter traversal 只计算 audit 列出的 parameter node kinds。这两种语言的
+parameter-list `comment` 是 named syntax extra，和 unnamed punctuation 一样计数为零，且不
+产生 diagnostic 或 fatal；其它未经审计的 named child 表示对应 grammar mapping invariant
+失效，映射为 scanner fatal。
 
 Adapter 不扫描 project root、不重新应用 ignore rules，也不接收 argv、config path、raw
 include / exclude 或 threshold override。它逐个读取 exact supported file，严格 UTF-8 decode，
@@ -96,9 +102,9 @@ identity invariant失败是 scanner fatal。
 
 Checked-in、hand-written、offline fixtures 已直接调用 dependency public API，证明四语言
 node / field mapping、稳定名称、body presence、1-based inclusive range、receiver 排除、
-compound parameter slot、syntax error / missing-node 检测和 UTF-8 behavior。Exact dependency
-或 grammar 升级必须重新运行完整 characterization；失败时先修正 source audit 和 change
-artifacts，不增加 adapter workaround。
+compound parameter slot、Go / TypeScript named comment extra、syntax error / missing-node检测
+和 UTF-8 behavior。Exact dependency 或 grammar 升级必须重新运行完整 characterization；
+失败时先修正 source audit 和 change artifacts，不增加 adapter workaround。
 
 ### Structural scan performance evidence
 

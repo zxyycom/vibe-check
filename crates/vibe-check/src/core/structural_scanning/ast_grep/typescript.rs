@@ -1,5 +1,3 @@
-use ast_grep_core::Node;
-
 use super::super::{FunctionKind, FunctionMetric, StructuralScanFailure};
 use super::{build_metric, LanguageId, ParsedNode};
 
@@ -112,13 +110,23 @@ fn parameter_count(node: &ParsedNode<'_>) -> Result<usize, StructuralScanFailure
     let parameters = node.field("parameters").ok_or_else(|| {
         StructuralScanFailure::new("TypeScript function node has no parameters field")
     })?;
-    Ok(parameters
-        .children()
-        .filter(Node::is_named)
-        .filter(|parameter| {
-            parameter
-                .field("pattern")
-                .is_none_or(|pattern| pattern.kind().as_ref() != "this")
-        })
-        .count())
+    let count = parameters.children().try_fold(0usize, |count, parameter| {
+        if !parameter.is_named() || parameter.kind().as_ref() == "comment" {
+            return Ok(count);
+        }
+        if !matches!(
+            parameter.kind().as_ref(),
+            "required_parameter" | "optional_parameter"
+        ) {
+            return Err(StructuralScanFailure::new(format!(
+                "unexpected TypeScript parameter node {}",
+                parameter.kind()
+            )));
+        }
+        let is_this = parameter
+            .field("pattern")
+            .is_some_and(|pattern| pattern.kind().as_ref() == "this");
+        Ok(count + usize::from(!is_this))
+    });
+    count
 }

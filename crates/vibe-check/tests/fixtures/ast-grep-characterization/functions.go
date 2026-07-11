@@ -10,7 +10,11 @@ func Threshold(a, b int, c, d string, values ...string) int {
 	return a + b + len(c) + len(d) + len(values)
 }
 
-func (service *Service) Run(a, b int, c, d string) int {
+func (service *Service) Run(
+	a, b int,
+	// Parameter-list comments are named syntax extras.
+	c, d string,
+) int {
 	return a + b + len(c) + len(d)
 }
 
