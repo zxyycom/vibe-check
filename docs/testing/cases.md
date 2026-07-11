@@ -43,6 +43,22 @@ Proves:
 - stdout 仍输出可解析、schema-valid 的 JSON report，stderr 保持为空。
 - warning record、summary、gate status 和 measured file count 与 owner 语义一致。
 
+### BB-DUPLICATE-SCAN-001 Duplicate warning 在 human / JSON report 中可定位
+Status: implemented
+Code: `crates/vibe-check/tests/cli_contract.rs`
+
+Proves:
+- Checked-in duplicate project fixture 通过真实 `vibe-check scan` 产生 cross-file
+  `duplicate.code_fragment` warning，human 与 schema-valid JSON 都能定位 primary 和
+  secondary spans 以及 token count。
+- Duplicate-only report 增加 warning count，但 blocking warning count 为 `0`、gate 保持
+  passed、CLI exit code 为 `0`。
+- `duplicate-code` mixed fixture 与既有 scope-boundary fixture 证明 unsupported extensions
+  以及 generated/vendor/cache/target/ignored paths 不进入 duplicate scanner input，也不产
+  生 duplicate warning。
+- `duplicate-code` fixture 负责 cross-file supported pair、第一版完整 unsupported
+  extension 集合，以及 generated/vendor/cache/target exclusion proof inputs。
+
 ### BB-CLI-INPUT-001 CLI 输入、terminator、失败和 meta command 边界稳定
 Status: implemented
 Code: `crates/vibe-check/tests/cli_contract.rs`
@@ -54,6 +70,31 @@ Proves:
 - root help、scan help 和 version 不启动扫描，也不输出 report。
 
 ## White-box Cases
+
+### WB-DUPLICATE-DEPENDENCY-001 cpd-finder dependency characterization 与 source audit 一致
+Status: implemented
+Code: `crates/vibe-check/tests/cpd_finder_characterization.rs`
+
+Proves:
+- Checked-in characterization fixtures 直接调用 `cpd_finder`，证明 individual exact file
+  paths 能产生 cross-file 和 same-file pairs，不需要把 project root 作为 input。
+- `.ts`、`.go`、`.rs`、`.py` format mapping、`50` token / `5` line-span threshold、
+  `no_gitignore = true` 和 canonical source ids 与 source audit 一致。
+- 该 case 只证明 upstream dependency 事实，并作为 Vibe Check duplicate model 和 runtime
+  integration 的前置 gate。
+
+### WB-DUPLICATE-ADAPTER-001 Duplicate adapter 归一化 pair 并显式映射失败
+Status: implemented
+Code: `crates/vibe-check/src/core/duplicate_scanning/tests.rs`, `crates/vibe-check/src/core/metrics/tests.rs`, `crates/vibe-check/src/runtime/tests.rs`
+
+Proves:
+- Adapter 把 upstream pair 映射为 Vibe Check-owned identity、两个 project-relative `/`
+  locations、line/column spans 和 token count，并保持 pair 与 finding deterministic ordering。
+- Checked-in adapter fixtures 证明 partial preflight diagnostic、all-input fatal、upstream
+  failure、invalid source id / location fatal 和 zero-supported-input completed。
+- Core-facing trait outcome 不泄漏 `cpd-finder`、`cpd-core` 或 `cpd-tokenizer` native types。
+- Runtime 只把 supported paths 交给 adapter，Core 在 gate 前生成 deterministic、medium、
+  non-blocking duplicate warnings，并保持 LOC compatibility counters。
 
 ### WB-SCHEMA-EXAMPLES-001 Report examples 对 owner schema 保持有效
 Status: implemented
@@ -75,7 +116,7 @@ Proves:
 
 ### WB-RUNTIME-PIPELINE-001 Runtime pipeline 保持 collector/metrics handoff 和 diagnostic 语义
 Status: implemented
-Code: `crates/vibe-check/src/runtime.rs`
+Code: `crates/vibe-check/src/runtime/tests.rs`
 
 Proves:
 - recoverable collection diagnostic 和 metrics diagnostic 生成 partial report。

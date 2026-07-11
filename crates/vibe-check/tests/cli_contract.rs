@@ -235,6 +235,7 @@ fn mixed_scope_fixture_classifies_unsupported_and_excluded_inputs() {
         vec!["go", "python", "rust", "typescript"]
     );
     assert!(!language_ids(&value).contains(&"javascript"));
+    assert_eq!(value["warnings"].as_array().unwrap().len(), 0);
     assert_eq!(value["summary"]["diagnostic_count"], 0);
     assert_eq!(value["diagnostics"].as_array().unwrap().len(), 0);
     assert_eq!(value["gate"]["status"], "passed");
@@ -341,6 +342,65 @@ fn blocking_file_size_warning_fails_gate_but_writes_json_report() {
     assert_eq!(value["warnings"][0]["severity"], "high");
     assert_eq!(value["warnings"][0]["rule"], "file.too_many_lines");
     assert_eq!(value["warnings"][0]["blocking"], true);
+}
+
+// @case BB-DUPLICATE-SCAN-001
+#[test]
+fn duplicate_fixture_is_locatable_in_json_and_human_reports() {
+    let project = fixture_project_path("duplicate-code");
+
+    let first = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+    let second = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(first.status.code(), Some(0));
+    assert_eq!(second.status.code(), Some(0));
+    assert!(stderr(&first).is_empty());
+    assert!(stderr(&second).is_empty());
+    let first: Value = serde_json::from_slice(&first.stdout).expect("first JSON report");
+    let second: Value = serde_json::from_slice(&second.stdout).expect("second JSON report");
+    assert_report_schema_valid(&first);
+    assert_report_schema_valid(&second);
+    assert_eq!(first["warnings"], second["warnings"]);
+
+    assert_eq!(first["scope"]["file_count"], 14);
+    assert_eq!(first["scope"]["supported_file_count"], 2);
+    assert_eq!(first["metrics"]["supported_scanner_findings"], 2);
+    assert_eq!(first["metrics"]["files_measured"], 2);
+    assert_eq!(first["summary"]["status"], "completed");
+    assert_eq!(first["summary"]["warning_count"], 1);
+    assert_eq!(first["summary"]["blocking_warning_count"], 0);
+    assert_eq!(first["summary"]["diagnostic_count"], 0);
+    assert_eq!(first["gate"]["status"], "passed");
+    assert_eq!(first["gate"]["blocking_warnings"], 0);
+
+    let warning = &first["warnings"][0];
+    assert_eq!(warning["file"], "src/primary.rs");
+    assert_eq!(warning["location"], "lines 1-15");
+    assert_eq!(warning["severity"], "medium");
+    assert_eq!(warning["rule"], "duplicate.code_fragment");
+    assert_eq!(warning["accepted"], false);
+    assert_eq!(warning["suppressed"], false);
+    assert_eq!(warning["blocking"], false);
+    let message = warning["message"].as_str().unwrap();
+    let token_count = message
+        .split_whitespace()
+        .nth(3)
+        .expect("token count")
+        .parse::<u32>()
+        .expect("numeric token count");
+    assert!(token_count >= 50);
+    assert!(message.contains("src/secondary.rs:1-15"));
+
+    let human = run(&["scan", project.to_str().unwrap(), "--format", "human"]);
+    assert_eq!(human.status.code(), Some(0));
+    assert!(stderr(&human).is_empty());
+    let human = stdout(&human);
+    assert!(human.contains("duplicate.code_fragment"));
+    assert!(human.contains("src/primary.rs lines 1-15"));
+    assert!(human.contains("src/secondary.rs:1-15"));
+    assert!(human.contains("tokens; also appears"));
+    assert!(human.contains("Gate: passed"));
+    assert!(human.contains("Blocking warnings: 0"));
 }
 
 // @case BB-CLI-INPUT-001

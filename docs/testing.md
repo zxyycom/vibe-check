@@ -59,6 +59,8 @@ Rust tests 负责具有独立出错空间的自定义逻辑。每个用例应明
 - CLI token 消费边界、format 枚举、config 参数和 project root 归一化。
 - scan scope 默认排除、gitignore 行为、supported file 分类和 recoverable diagnostic。
 - LOC metrics adapter、语言归并、指标聚合和空 scope。
+- `cpd-finder` dependency characterization、duplicate pair normalization、path ordering、
+  preflight diagnostic 和 fatal mapping。
 - warning severity、blocking policy、gate status 和 summary 计数。
 - runtime 对 scanner fatal、recoverable diagnostic 和 output write failure 的错误映射。
 - 人读输出、JSON report 序列化、schema examples 和 stdout/stderr 分流。
@@ -98,6 +100,14 @@ configuration 或 ignore 文件；threshold fixture 也使用入库长文件，�
 和默认排除边界放入专门 mixed fixture。测试资料只记录 fixture environment、文件分类集
 合、证明目标和源码 `@case` 归属；supported file、language identifier、warning、gate
 和 output shape 的产品语义仍追溯到 owner 文档、schema 或 examples。
+
+Duplicate-code fixtures 也遵守 checked-in、手写、离线可运行的约束。Dependency
+characterization fixtures 直接证明 `cpd_finder` 的 individual-file input、cross-file / same-
+file pair、`50` token / `5` line-span threshold、format mapping、gitignore ownership 和
+canonical source ids；该测试通过前不实现 Vibe Check duplicate model。CLI fixtures 负责
+证明 human / JSON warning 可定位、duplicate-only gate 通过，以及 unsupported / excluded
+inputs 不进入 duplicate scanner。Adapter 单元 fixture 负责 preflight、normalization、
+diagnostic 和 fatal failure，不把 upstream structs 提升为 Core contract。
 
 Fixture-backed report 断言应聚焦 schema validity、language presence/absence、
 supported/unsupported classification 的可观察结果、diagnostics status、gate status、退

@@ -1,3 +1,4 @@
+mod duplicate_scanning;
 mod metrics;
 mod scan_scope;
 
@@ -5,6 +6,11 @@ use std::path::PathBuf;
 
 use serde::Serialize;
 
+pub(crate) use duplicate_scanning::{
+    CpdFinderDuplicateScanner, DuplicateFinding, DuplicateScanOutcome, DuplicateScannerAdapter,
+};
+#[cfg(test)]
+pub(crate) use duplicate_scanning::{DuplicateLocation, DuplicateScanFailure};
 use metrics::LanguageMetricsSummary;
 use metrics::{aggregate_metrics, gate_from_warnings, generate_warnings};
 #[cfg(test)]
@@ -201,6 +207,7 @@ pub(crate) fn scanner_report(
     request: &ScanRequest,
     scope: ScanScope,
     metrics_outcome: MetricsOutcome,
+    duplicate_outcome: DuplicateScanOutcome,
 ) -> ReportData {
     let file_count = scope.file_count();
     let supported_file_count = scope.supported_file_count();
@@ -208,21 +215,20 @@ pub(crate) fn scanner_report(
 
     report_from_parts(
         request,
-        RunMode::Scanner,
         ScopeSummary {
             file_count,
             supported_file_count,
         },
         diagnostics,
         metrics_outcome,
+        duplicate_outcome,
     )
 }
 
 #[cfg(test)]
 pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
-    report_from_parts(
+    let mut report = report_from_parts(
         request,
-        RunMode::Fixture,
         ScopeSummary {
             file_count: 0,
             supported_file_count: 0,
@@ -232,19 +238,23 @@ pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
             files: Vec::new(),
             diagnostics: Vec::new(),
         },
-    )
+        DuplicateScanOutcome::default(),
+    );
+    report.run.mode = RunMode::Fixture;
+    report
 }
 
 fn report_from_parts(
     request: &ScanRequest,
-    mode: RunMode,
     scope: ScopeSummary,
     mut diagnostics: Vec<DiagnosticRecord>,
     metrics_outcome: MetricsOutcome,
+    duplicate_outcome: DuplicateScanOutcome,
 ) -> ReportData {
     diagnostics.extend(metrics_outcome.diagnostics);
+    diagnostics.extend(duplicate_outcome.diagnostics);
     let metrics = aggregate_metrics(&metrics_outcome.files);
-    let warnings = generate_warnings(&metrics_outcome.files);
+    let warnings = generate_warnings(&metrics_outcome.files, &duplicate_outcome.findings);
     let gate = gate_from_warnings(&warnings);
     let summary = ReportSummary {
         status: if diagnostics.is_empty() {
@@ -264,7 +274,7 @@ fn report_from_parts(
             version: env!("CARGO_PKG_VERSION").to_owned(),
         },
         run: RunInfo {
-            mode,
+            mode: RunMode::Scanner,
             project_root: request.project_root.display().to_string(),
             config_path: request
                 .config_path

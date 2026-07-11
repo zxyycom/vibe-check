@@ -6,6 +6,7 @@ use super::{
     aggregate_metrics, gate_from_warnings, generate_warnings, FileMetrics, LanguageId,
     LocMetricsAdapter, TokeiLocMetricsAdapter,
 };
+use crate::core::{DuplicateFinding, DuplicateLocation};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct LineCounts {
@@ -41,6 +42,30 @@ fn rust_file(file: impl Into<String>, total_lines: u64) -> FileMetrics {
         LanguageId::Rust,
         lines(total_lines, total_lines, 0, 0),
     )
+}
+
+fn duplicate_finding(primary: &str, secondary: &str, token_count: u32) -> DuplicateFinding {
+    let locations = [
+        DuplicateLocation {
+            file: primary.to_owned(),
+            start_line: 10,
+            start_column: 1,
+            end_line: 18,
+            end_column: 2,
+        },
+        DuplicateLocation {
+            file: secondary.to_owned(),
+            start_line: 30,
+            start_column: 3,
+            end_line: 38,
+            end_column: 4,
+        },
+    ];
+    DuplicateFinding {
+        identity: format!("{primary}|{secondary}|{token_count}"),
+        locations,
+        token_count,
+    }
 }
 
 fn test_dir(name: &str) -> PathBuf {
@@ -92,39 +117,84 @@ fn aggregation_counts_files_totals_and_languages() {
 
 #[test]
 fn file_size_warnings_cover_small_medium_and_blocking_files() {
-    let warnings = generate_warnings(&[
-        rust_file("small.rs", 399),
-        rust_file("medium.rs", 400),
-        rust_file("large.rs", 800),
-    ]);
+    let warnings = generate_warnings(
+        &[
+            rust_file("small.rs", 399),
+            rust_file("medium.rs", 400),
+            rust_file("large.rs", 800),
+        ],
+        &[],
+    );
 
     assert_eq!(warnings.len(), 2);
-    assert_eq!(warnings[0].file, "medium.rs");
-    assert_eq!(warnings[0].location, "file");
-    assert_eq!(warnings[0].severity.as_str(), "medium");
-    assert_eq!(warnings[0].rule, "file.too_many_lines");
-    assert!(!warnings[0].blocking);
-    assert!(warnings[0].message.contains("400 total lines"));
-    assert!(warnings[0].message.contains("400-line threshold"));
+    assert_eq!(
+        warnings
+            .iter()
+            .map(|warning| warning.file.as_str())
+            .collect::<Vec<_>>(),
+        vec!["large.rs", "medium.rs"]
+    );
 
-    assert_eq!(warnings[1].file, "large.rs");
-    assert_eq!(warnings[1].severity.as_str(), "high");
-    assert!(warnings[1].blocking);
-    assert!(warnings[1].message.contains("800 total lines"));
-    assert!(warnings[1].message.contains("800-line threshold"));
+    let large = &warnings[0];
+    assert_eq!(large.severity.as_str(), "high");
+    assert!(large.blocking);
+    assert!(large.message.contains("800 total lines"));
+    assert!(large.message.contains("800-line threshold"));
+
+    let medium = &warnings[1];
+    assert_eq!(medium.location, "file");
+    assert_eq!(medium.severity.as_str(), "medium");
+    assert_eq!(medium.rule, "file.too_many_lines");
+    assert!(!medium.blocking);
+    assert!(medium.message.contains("400 total lines"));
+    assert!(medium.message.contains("400-line threshold"));
 }
 
 #[test]
 fn gate_uses_only_blocking_warnings() {
-    let non_blocking = generate_warnings(&[rust_file("medium.rs", 400)]);
+    let non_blocking = generate_warnings(&[rust_file("medium.rs", 400)], &[]);
     let passing_gate = gate_from_warnings(&non_blocking);
     assert_eq!(passing_gate.status.as_str(), "passed");
     assert_eq!(passing_gate.blocking_warnings, 0);
 
-    let blocking = generate_warnings(&[rust_file("large.rs", 800)]);
+    let blocking = generate_warnings(&[rust_file("large.rs", 800)], &[]);
     let failing_gate = gate_from_warnings(&blocking);
     assert_eq!(failing_gate.status.as_str(), "failed");
     assert_eq!(failing_gate.blocking_warnings, 1);
+}
+
+#[test]
+fn duplicate_warnings_are_locatable_sorted_and_non_blocking() {
+    let warnings = generate_warnings(
+        &[rust_file("z-large.rs", 800)],
+        &[
+            duplicate_finding("b.rs", "c.rs", 75),
+            duplicate_finding("a.rs", "d.rs", 50),
+        ],
+    );
+
+    assert_eq!(warnings.len(), 3);
+    assert_eq!(
+        warnings
+            .iter()
+            .map(|warning| warning.file.as_str())
+            .collect::<Vec<_>>(),
+        vec!["a.rs", "b.rs", "z-large.rs"]
+    );
+
+    let duplicate = &warnings[0];
+    assert_eq!(duplicate.location, "lines 10-18");
+    assert_eq!(duplicate.severity.as_str(), "medium");
+    assert_eq!(duplicate.rule, "duplicate.code_fragment");
+    assert!(duplicate.message.contains("50 tokens"));
+    assert!(duplicate.message.contains("d.rs:30-38"));
+    assert!(!duplicate.accepted);
+    assert!(!duplicate.suppressed);
+    assert!(!duplicate.blocking);
+
+    let gate = gate_from_warnings(&warnings);
+    assert_eq!(gate.status.as_str(), "failed");
+    assert_eq!(gate.blocking_warnings, 1);
 }
 
 #[test]

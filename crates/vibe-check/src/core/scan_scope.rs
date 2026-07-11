@@ -221,7 +221,20 @@ mod tests {
             );
         }
 
-        for path in ["view.tsx", "main.js", "component.jsx", "README.md"] {
+        for path in [
+            "module.mts",
+            "module.cts",
+            "module.pyx",
+            "module.pxd",
+            "module.pxi",
+            "main.js",
+            "component.jsx",
+            "view.tsx",
+            "README.md",
+            "component.vue",
+            "component.svelte",
+            "page.astro",
+        ] {
             assert!(
                 !is_supported_file(Path::new(path)),
                 "{path} should be unsupported"

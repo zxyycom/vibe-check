@@ -5,11 +5,12 @@ use std::path::Path;
 use serde::{Serialize, Serializer};
 
 use super::{
-    DiagnosticRecord, DiagnosticSeverity, GateResult, GateStatus, MetricsSummary, WarningFinding,
-    WarningSeverity,
+    DiagnosticRecord, DiagnosticSeverity, DuplicateFinding, GateResult, GateStatus, MetricsSummary,
+    WarningFinding, WarningSeverity,
 };
 
 const METRICS_LOC_PARTIAL_CODE: &str = "METRICS_LOC_PARTIAL";
+const DUPLICATE_CODE_RULE: &str = "duplicate.code_fragment";
 const TOO_MANY_LINES_RULE: &str = "file.too_many_lines";
 const MEDIUM_LINE_THRESHOLD: u64 = 400;
 const HIGH_LINE_THRESHOLD: u64 = 800;
@@ -199,8 +200,11 @@ pub(crate) fn aggregate_metrics(files: &[FileMetrics]) -> MetricsSummary {
     summary
 }
 
-pub(crate) fn generate_warnings(files: &[FileMetrics]) -> Vec<WarningFinding> {
-    files
+pub(crate) fn generate_warnings(
+    files: &[FileMetrics],
+    duplicate_findings: &[DuplicateFinding],
+) -> Vec<WarningFinding> {
+    let mut warnings = files
         .iter()
         .filter_map(|file| {
             let (severity, threshold, blocking) = if file.total_lines >= HIGH_LINE_THRESHOLD {
@@ -225,7 +229,33 @@ pub(crate) fn generate_warnings(files: &[FileMetrics]) -> Vec<WarningFinding> {
                 blocking,
             })
         })
-        .collect()
+        .collect::<Vec<_>>();
+
+    warnings.extend(duplicate_findings.iter().map(|finding| {
+        let primary = &finding.locations[0];
+        let secondary = &finding.locations[1];
+        WarningFinding {
+            file: primary.file.clone(),
+            location: format!("lines {}-{}", primary.start_line, primary.end_line),
+            severity: WarningSeverity::Medium,
+            rule: DUPLICATE_CODE_RULE.to_owned(),
+            message: format!(
+                "Duplicate fragment has {} tokens; also appears at {}:{}-{}.",
+                finding.token_count, secondary.file, secondary.start_line, secondary.end_line
+            ),
+            accepted: false,
+            suppressed: false,
+            blocking: false,
+        }
+    }));
+    warnings.sort_by(|left, right| {
+        left.file
+            .cmp(&right.file)
+            .then(left.location.cmp(&right.location))
+            .then(left.rule.cmp(&right.rule))
+            .then(left.message.cmp(&right.message))
+    });
+    warnings
 }
 
 pub(crate) fn gate_from_warnings(warnings: &[WarningFinding]) -> GateResult {
