@@ -2,14 +2,16 @@ use std::path::Path;
 
 use crate::core::{
     DiagnosticRecord, DiagnosticSeverity, DuplicateFinding, DuplicateLocation,
-    DuplicateScanFailure, DuplicateScanOutcome, DuplicateScannerAdapter, FileMetrics, LanguageId,
-    LocMetricsAdapter, MetricsFailure, MetricsOutcome, ScanRequest, ScanScope,
-    ScopeCollectionFailure, ScopeCollector, ScopeFile,
+    DuplicateScanFailure, DuplicateScanOutcome, DuplicateScannerAdapter, FileMetrics, FunctionKind,
+    FunctionMetric, LanguageId, LocMetricsAdapter, MetricsFailure, MetricsOutcome, ScanRequest,
+    ScanScope, ScopeCollectionFailure, ScopeCollector, ScopeFile, SourceRange,
+    StructuralDiagnostic, StructuralScanFailure, StructuralScanOutcome, StructuralScannerAdapter,
 };
 
 use super::{
     execute_scan_with_collector, execute_scan_with_collector_and_adapters,
-    execute_scan_with_collector_and_metrics, FixtureRuntime, VibeCheckRuntime,
+    execute_scan_with_collector_and_metrics, EmptyStructuralScanner, FixtureRuntime,
+    VibeCheckRuntime,
 };
 
 fn request() -> ScanRequest {
@@ -184,6 +186,57 @@ impl DuplicateScannerAdapter for UnexpectedDuplicateAdapter {
     }
 }
 
+struct RecordingStructuralAdapter {
+    files_seen: std::cell::RefCell<Vec<String>>,
+    outcome: StructuralScanOutcome,
+}
+
+impl RecordingStructuralAdapter {
+    fn new(outcome: StructuralScanOutcome) -> Self {
+        Self {
+            files_seen: std::cell::RefCell::new(Vec::new()),
+            outcome,
+        }
+    }
+}
+
+impl StructuralScannerAdapter for RecordingStructuralAdapter {
+    fn scan(
+        &self,
+        _project_root: &Path,
+        supported_files: &[String],
+    ) -> Result<StructuralScanOutcome, StructuralScanFailure> {
+        self.files_seen
+            .borrow_mut()
+            .extend_from_slice(supported_files);
+        Ok(self.outcome.clone())
+    }
+}
+
+struct FatalStructuralAdapter;
+
+impl StructuralScannerAdapter for FatalStructuralAdapter {
+    fn scan(
+        &self,
+        _project_root: &Path,
+        _supported_files: &[String],
+    ) -> Result<StructuralScanOutcome, StructuralScanFailure> {
+        Err(StructuralScanFailure::new("structural invariant failed"))
+    }
+}
+
+struct UnexpectedStructuralAdapter;
+
+impl StructuralScannerAdapter for UnexpectedStructuralAdapter {
+    fn scan(
+        &self,
+        _project_root: &Path,
+        _supported_files: &[String],
+    ) -> Result<StructuralScanOutcome, StructuralScanFailure> {
+        panic!("structural adapter should be skipped")
+    }
+}
+
 fn duplicate_finding() -> DuplicateFinding {
     DuplicateFinding {
         identity: "src/a.rs|src/b.rs|50".to_owned(),
@@ -204,6 +257,17 @@ fn duplicate_finding() -> DuplicateFinding {
             },
         ],
         token_count: 50,
+    }
+}
+
+fn function_metric(file: &str, parameter_count: u32) -> FunctionMetric {
+    FunctionMetric {
+        file: file.to_owned(),
+        language: LanguageId::Rust,
+        kind: FunctionKind::Function,
+        display_name: "build".to_owned(),
+        range: SourceRange::new(3, 1, 8, 2).expect("valid function range"),
+        parameter_count,
     }
 }
 
@@ -277,6 +341,7 @@ fn duplicate_adapter_receives_supported_files_before_gate_calculation() {
         request(),
         &MixedCollector("src/a.rs"),
         &metrics,
+        &EmptyStructuralScanner,
         &duplicates,
     )
     .expect("duplicate report");
@@ -297,6 +362,7 @@ fn zero_supported_inputs_skip_duplicate_adapter() {
         request(),
         &UnsupportedCollector,
         &RecordingMetricsAdapter::default(),
+        &UnexpectedStructuralAdapter,
         &UnexpectedDuplicateAdapter,
     )
     .expect("empty duplicate scan");
@@ -319,6 +385,7 @@ fn duplicate_diagnostic_is_partial_and_failure_is_fatal() {
         request(),
         &DiagnosticCollector,
         &RecordingMetricsAdapter::default(),
+        &EmptyStructuralScanner,
         &diagnostic_adapter,
     )
     .expect("partial duplicate report");
@@ -329,11 +396,71 @@ fn duplicate_diagnostic_is_partial_and_failure_is_fatal() {
         request(),
         &DiagnosticCollector,
         &RecordingMetricsAdapter::default(),
+        &EmptyStructuralScanner,
         &FatalDuplicateAdapter,
     )
     .expect_err("fatal duplicate scan");
     assert_eq!(error.exit_code().code(), 3);
     assert!(error.message().contains("cpd-finder unavailable"));
+}
+
+#[test]
+fn structural_adapter_receives_only_supported_files_and_feeds_warning_policy() {
+    let structural =
+        RecordingStructuralAdapter::new(StructuralScanOutcome::completed(vec![function_metric(
+            "src/lib.rs",
+            5,
+        )]));
+
+    let report = execute_scan_with_collector_and_adapters(
+        request(),
+        &MixedCollector("src/lib.rs"),
+        &RecordingMetricsAdapter::default(),
+        &structural,
+        &RecordingDuplicateAdapter::new(DuplicateScanOutcome::default()),
+    )
+    .expect("structural report");
+
+    assert_eq!(structural.files_seen.into_inner(), vec!["src/lib.rs"]);
+    assert_eq!(report.warnings.len(), 1);
+    assert_eq!(report.warnings[0].rule, "function.too_many_parameters");
+    assert_eq!(report.summary.warning_count, 1);
+    assert_eq!(report.gate.status, crate::core::GateStatus::Passed);
+    assert_eq!(report.metrics.files_measured, 1);
+}
+
+#[test]
+fn structural_partial_is_reportable_and_structural_failure_is_fatal() {
+    let structural = RecordingStructuralAdapter::new(StructuralScanOutcome::partial(
+        Vec::new(),
+        vec![StructuralDiagnostic::new(
+            "src/broken.rs",
+            "syntax tree contains an error node",
+        )],
+    ));
+    let partial = execute_scan_with_collector_and_adapters(
+        request(),
+        &MixedCollector("src/broken.rs"),
+        &RecordingMetricsAdapter::default(),
+        &structural,
+        &RecordingDuplicateAdapter::new(DuplicateScanOutcome::default()),
+    )
+    .expect("partial structural report");
+    assert_eq!(partial.summary.status, crate::core::ReportStatus::Partial);
+    assert_eq!(partial.summary.diagnostic_count, 1);
+    assert_eq!(partial.diagnostics[0].code, "STRUCTURAL_SCAN_PARTIAL");
+    assert!(partial.warnings.is_empty());
+
+    let error = execute_scan_with_collector_and_adapters(
+        request(),
+        &MixedCollector("src/lib.rs"),
+        &RecordingMetricsAdapter::default(),
+        &FatalStructuralAdapter,
+        &RecordingDuplicateAdapter::new(DuplicateScanOutcome::default()),
+    )
+    .expect_err("fatal structural scan");
+    assert_eq!(error.exit_code().code(), 3);
+    assert!(error.message().contains("structural invariant failed"));
 }
 
 #[test]

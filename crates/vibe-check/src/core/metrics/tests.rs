@@ -6,7 +6,7 @@ use super::{
     aggregate_metrics, gate_from_warnings, generate_warnings, FileMetrics, LanguageId,
     LocMetricsAdapter, TokeiLocMetricsAdapter,
 };
-use crate::core::{DuplicateFinding, DuplicateLocation};
+use crate::core::{DuplicateFinding, DuplicateLocation, FunctionKind, FunctionMetric, SourceRange};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct LineCounts {
@@ -68,6 +68,23 @@ fn duplicate_finding(primary: &str, secondary: &str, token_count: u32) -> Duplic
     }
 }
 
+fn function_metric(
+    file: &str,
+    name: &str,
+    start_line: u32,
+    end_line: u32,
+    parameter_count: u32,
+) -> FunctionMetric {
+    FunctionMetric {
+        file: file.to_owned(),
+        language: LanguageId::Rust,
+        kind: FunctionKind::Function,
+        display_name: name.to_owned(),
+        range: SourceRange::new(start_line, 1, end_line, 1).expect("valid function range"),
+        parameter_count,
+    }
+}
+
 fn test_dir(name: &str) -> PathBuf {
     let now = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -124,6 +141,7 @@ fn file_size_warnings_cover_small_medium_and_blocking_files() {
             rust_file("large.rs", 800),
         ],
         &[],
+        &[],
     );
 
     assert_eq!(warnings.len(), 2);
@@ -152,12 +170,12 @@ fn file_size_warnings_cover_small_medium_and_blocking_files() {
 
 #[test]
 fn gate_uses_only_blocking_warnings() {
-    let non_blocking = generate_warnings(&[rust_file("medium.rs", 400)], &[]);
+    let non_blocking = generate_warnings(&[rust_file("medium.rs", 400)], &[], &[]);
     let passing_gate = gate_from_warnings(&non_blocking);
     assert_eq!(passing_gate.status.as_str(), "passed");
     assert_eq!(passing_gate.blocking_warnings, 0);
 
-    let blocking = generate_warnings(&[rust_file("large.rs", 800)], &[]);
+    let blocking = generate_warnings(&[rust_file("large.rs", 800)], &[], &[]);
     let failing_gate = gate_from_warnings(&blocking);
     assert_eq!(failing_gate.status.as_str(), "failed");
     assert_eq!(failing_gate.blocking_warnings, 1);
@@ -171,6 +189,7 @@ fn duplicate_warnings_are_locatable_sorted_and_non_blocking() {
             duplicate_finding("b.rs", "c.rs", 75),
             duplicate_finding("a.rs", "d.rs", 50),
         ],
+        &[],
     );
 
     assert_eq!(warnings.len(), 3);
@@ -195,6 +214,63 @@ fn duplicate_warnings_are_locatable_sorted_and_non_blocking() {
     let gate = gate_from_warnings(&warnings);
     assert_eq!(gate.status.as_str(), "failed");
     assert_eq!(gate.blocking_warnings, 1);
+}
+
+#[test]
+fn function_parameter_warnings_use_threshold_fields_and_non_blocking_gate() {
+    let warnings = generate_warnings(
+        &[],
+        &[],
+        &[
+            function_metric("src/small.rs", "small", 2, 4, 4),
+            function_metric("src/exact.rs", "exact", 10, 20, 5),
+            function_metric("src/large.rs", "large", 30, 45, 6),
+        ],
+    );
+
+    assert_eq!(warnings.len(), 2);
+    let exact = warnings
+        .iter()
+        .find(|warning| warning.file == "src/exact.rs")
+        .expect("threshold warning");
+    assert_eq!(exact.location, "lines 10-20");
+    assert_eq!(exact.severity.as_str(), "medium");
+    assert_eq!(exact.rule, "function.too_many_parameters");
+    assert!(exact.message.contains("exact"));
+    assert!(exact.message.contains("5 parameters"));
+    assert!(exact.message.contains("threshold of 5"));
+    assert!(!exact.accepted);
+    assert!(!exact.suppressed);
+    assert!(!exact.blocking);
+
+    let gate = gate_from_warnings(&warnings);
+    assert_eq!(gate.status.as_str(), "passed");
+    assert_eq!(gate.blocking_warnings, 0);
+}
+
+#[test]
+fn loc_duplicate_and_function_warnings_share_one_deterministic_order() {
+    let files = [rust_file("z.rs", 800)];
+    let metrics = aggregate_metrics(&files);
+    let warnings = generate_warnings(
+        &files,
+        &[duplicate_finding("m.rs", "n.rs", 50)],
+        &[function_metric("a.rs", "build", 3, 8, 5)],
+    );
+
+    assert_eq!(
+        warnings
+            .iter()
+            .map(|warning| (warning.file.as_str(), warning.rule.as_str()))
+            .collect::<Vec<_>>(),
+        vec![
+            ("a.rs", "function.too_many_parameters"),
+            ("m.rs", "duplicate.code_fragment"),
+            ("z.rs", "file.too_many_lines"),
+        ]
+    );
+    assert_eq!(metrics.supported_scanner_findings, 1);
+    assert_eq!(metrics.files_measured, 1);
 }
 
 #[test]

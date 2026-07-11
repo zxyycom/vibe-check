@@ -5,15 +5,17 @@ use std::path::Path;
 use serde::{Serialize, Serializer};
 
 use super::{
-    DiagnosticRecord, DiagnosticSeverity, DuplicateFinding, GateResult, GateStatus, MetricsSummary,
-    WarningFinding, WarningSeverity,
+    DiagnosticRecord, DiagnosticSeverity, DuplicateFinding, FunctionMetric, GateResult, GateStatus,
+    MetricsSummary, WarningFinding, WarningSeverity,
 };
 
 const METRICS_LOC_PARTIAL_CODE: &str = "METRICS_LOC_PARTIAL";
 const DUPLICATE_CODE_RULE: &str = "duplicate.code_fragment";
 const TOO_MANY_LINES_RULE: &str = "file.too_many_lines";
+const TOO_MANY_PARAMETERS_RULE: &str = "function.too_many_parameters";
 const MEDIUM_LINE_THRESHOLD: u64 = 400;
 const HIGH_LINE_THRESHOLD: u64 = 800;
+const TOO_MANY_PARAMETERS_THRESHOLD: u32 = 5;
 
 pub(crate) trait LocMetricsAdapter {
     fn measure(
@@ -203,6 +205,7 @@ pub(crate) fn aggregate_metrics(files: &[FileMetrics]) -> MetricsSummary {
 pub(crate) fn generate_warnings(
     files: &[FileMetrics],
     duplicate_findings: &[DuplicateFinding],
+    function_metrics: &[FunctionMetric],
 ) -> Vec<WarningFinding> {
     let mut warnings = files
         .iter()
@@ -248,6 +251,27 @@ pub(crate) fn generate_warnings(
             blocking: false,
         }
     }));
+    warnings.extend(
+        function_metrics
+            .iter()
+            .filter(|metric| metric.parameter_count >= TOO_MANY_PARAMETERS_THRESHOLD)
+            .map(|metric| WarningFinding {
+                file: metric.file.clone(),
+                location: format!(
+                    "lines {}-{}",
+                    metric.range.start_line, metric.range.end_line
+                ),
+                severity: WarningSeverity::Medium,
+                rule: TOO_MANY_PARAMETERS_RULE.to_owned(),
+                message: format!(
+                    "Function {} has {} parameters, meeting the threshold of {}.",
+                    metric.display_name, metric.parameter_count, TOO_MANY_PARAMETERS_THRESHOLD
+                ),
+                accepted: false,
+                suppressed: false,
+                blocking: false,
+            }),
+    );
     warnings.sort_by(|left, right| {
         left.file
             .cmp(&right.file)

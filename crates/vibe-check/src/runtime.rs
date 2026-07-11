@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 
+#[cfg(test)]
+use crate::core::StructuralScanFailure;
 use crate::core::{
-    scanner_report, CpdFinderDuplicateScanner, DuplicateScanOutcome, DuplicateScannerAdapter,
-    IgnoreScopeCollector, LocMetricsAdapter, ReportData, ScanRequest, ScopeCollector,
-    TokeiLocMetricsAdapter,
+    scanner_report, AstGrepStructuralScanner, CpdFinderDuplicateScanner, DuplicateScanOutcome,
+    DuplicateScannerAdapter, IgnoreScopeCollector, LocMetricsAdapter, ReportData, ScanRequest,
+    ScopeCollector, StructuralScanOutcome, StructuralScannerAdapter, TokeiLocMetricsAdapter,
 };
 use crate::error::{AppError, AppResult};
 
@@ -27,6 +29,7 @@ impl VibeCheckRuntime for ScannerRuntime {
             request,
             &IgnoreScopeCollector,
             &TokeiLocMetricsAdapter,
+            &AstGrepStructuralScanner,
             &CpdFinderDuplicateScanner,
         )
     }
@@ -34,6 +37,20 @@ impl VibeCheckRuntime for ScannerRuntime {
 
 #[cfg(test)]
 struct EmptyDuplicateScanner;
+
+#[cfg(test)]
+struct EmptyStructuralScanner;
+
+#[cfg(test)]
+impl StructuralScannerAdapter for EmptyStructuralScanner {
+    fn scan(
+        &self,
+        _project_root: &std::path::Path,
+        _supported_files: &[String],
+    ) -> Result<StructuralScanOutcome, StructuralScanFailure> {
+        Ok(StructuralScanOutcome::completed(Vec::new()))
+    }
+}
 
 #[cfg(test)]
 impl DuplicateScannerAdapter for EmptyDuplicateScanner {
@@ -55,6 +72,7 @@ fn execute_scan_with_collector<C: ScopeCollector>(
         request,
         collector,
         &TokeiLocMetricsAdapter,
+        &EmptyStructuralScanner,
         &EmptyDuplicateScanner,
     )
 }
@@ -73,19 +91,22 @@ where
         request,
         collector,
         metrics_adapter,
+        &EmptyStructuralScanner,
         &EmptyDuplicateScanner,
     )
 }
 
-fn execute_scan_with_collector_and_adapters<C, M, D>(
+fn execute_scan_with_collector_and_adapters<C, M, S, D>(
     request: ScanRequest,
     collector: &C,
     metrics_adapter: &M,
+    structural_adapter: &S,
     duplicate_adapter: &D,
 ) -> AppResult<ReportData>
 where
     C: ScopeCollector,
     M: LocMetricsAdapter,
+    S: StructuralScannerAdapter,
     D: DuplicateScannerAdapter,
 {
     let scope = collector.collect(&request.project_root).map_err(|error| {
@@ -97,6 +118,15 @@ where
         .map_err(|error| {
             AppError::scanner_fatal(format!("metrics collection failed: {}", error.message()))
         })?;
+    let structural_outcome = if supported_files.is_empty() {
+        StructuralScanOutcome::skipped()
+    } else {
+        structural_adapter
+            .scan(&request.project_root, &supported_files)
+            .map_err(|error| {
+                AppError::scanner_fatal(format!("structural scan failed: {}", error.message()))
+            })?
+    };
     let duplicate_outcome = if supported_files.is_empty() {
         DuplicateScanOutcome::default()
     } else {
@@ -110,6 +140,7 @@ where
         &request,
         scope,
         metrics_outcome,
+        structural_outcome,
         duplicate_outcome,
     ))
 }

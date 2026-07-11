@@ -11,24 +11,30 @@ Core 生成 non-blocking warnings，并由现有 report schema 投影。当前�
 unit tests、fixture-backed CLI contract tests 和 workspace verification 为实现证据；
 `integrate-rust-jscpd-adapter` 继续记录本次接入的验收与归档状态。
 
+Rust CLI 已实现 function metrics 与 `function.too_many_parameters`：structural adapter 返回
+Vibe Check-owned metrics，Core 生成 unified、non-blocking warning，现有 human / JSON report
+投影同一 finding，且不扩展 report schema。Dependency characterization、adapter / Core
+tests、fixture-backed CLI contract 和 workspace verification 持有实现证据；
+`integrate-rust-ast-grep-structural-adapter` 记录本次接入的验收状态。
+
 ## Pipeline Boundary
 
-基础质量指标和 duplicate scanning 在 scan scope collection 之后、warning 生成之前运
-行：
+基础质量指标、structural scanning 和 duplicate scanning 在 scan scope collection之后、
+warning生成之前运行：
 
 ```text
 collect scan scope
-  -> measure LOC metrics + scan pairwise duplicates
-  -> aggregate metrics + normalize duplicate findings
+  -> measure LOC metrics + structural functions + pairwise duplicates
+  -> aggregate metrics + normalize structural / duplicate findings
   -> generate warnings
   -> calculate gate
   -> report data
 ```
 
-LOC metrics adapter 和 duplicate scanner adapter 的输入只能来自 normalized scan scope 中
-已收集的 supported files。Unsupported ordinary files 计入 `scope.file_count`，但不进入任
-一 adapter。被默认排除目录、ignore 规则、generated/vendor/cache 边界或其它 scan scope
-规则排除的文件不进入 metrics 或 duplicate scanning。
+LOC、structural 和 duplicate adapters 的输入只能来自 normalized scan scope中已收集的
+supported files。Unsupported ordinary files计入 `scope.file_count`，但不进入任一 adapter。
+被默认排除目录、ignore规则、generated/vendor/cache边界或其它 scan scope规则排除的文件
+不进入 metrics、structural或 duplicate scanning。
 
 ## LOC Adapter
 
@@ -49,6 +55,27 @@ Core 接收的文件级 metrics 使用 Vibe Check-owned model。MVP 字段为：
 
 文件级 metrics 是 Core 内部输入，用于聚合、warning 和 tests。本阶段不把逐文件 metrics 列表输出为稳定 JSON。
 
+## Function Metrics
+
+Structural adapter 向 Core 返回 Vibe Check-owned `FunctionMetric`，不返回第三方 AST。第一
+版内部字段为：
+
+- `file`: project-root-relative `/` path。
+- `language`: `go`、`python`、`rust` 或 `typescript`。
+- `kind`: `function`、`method` 或 `constructor`。
+- `display_name`: declaration、method / constructor key 或 TypeScript direct binding 的稳定名称。
+- `range`: 1-based inclusive start / end line and column。
+- `parameter_count`: 调用者显式传入的 source-level parameter slots。
+
+Parameter count 排除 Go receiver、Rust self receiver、TypeScript `this` pseudo-parameter 和
+Python non-static direct class method 的第一个 receiver parameter；Python `@staticmethod`
+全部按普通参数计数。Default、optional、destructured、rest 和 variadic form各计一个 slot，
+binding内部名字不展开；Go grouped names按实际 call-site slots计数。
+
+只有有 executable body 且具有 stable declaration / direct binding name 的 function forms进入
+该模型。Signature-only、abstract / no-body 与 anonymous callback / closure正常排除且不产生
+diagnostic。Function metrics只作为 Core warning input，第一版不新增稳定 JSON metrics字段。
+
 ## Aggregation
 
 Report `metrics` 汇总成功产生 file metrics 的 supported files：
@@ -65,6 +92,8 @@ Report `metrics` 汇总成功产生 file metrics 的 supported files：
 `comment_lines` 和 `blank_lines`。`supported_scanner_findings` 与 `files_measured` 必须相
 等。该字段继续只兼容表示成功产生 LOC file metrics 的 supported files；duplicate
 finding 或 warning 数量不得加入该计数，也不得改变 LOC totals 或 language summaries。
+Structural function metric或 warning数量同样不得加入该计数；
+`supported_scanner_findings` 必须继续等于 `files_measured`。
 
 ## Duplicate Scanner Profile
 
@@ -92,6 +121,7 @@ Core 定义以下 warning rules：
 | `file.too_many_lines`: `400 <= total_lines < 800` | `medium` | `false` |
 | `file.too_many_lines`: `total_lines >= 800` | `high` | `true` |
 | `duplicate.code_fragment`: one normalized pair | `medium` | `false` |
+| `function.too_many_parameters`: `parameter_count >= 5` | `medium` | `false` |
 
 同一个文件最多生成一条 `file.too_many_lines` warning，并使用最高适用等级。Finding 必须包含：
 
@@ -111,9 +141,19 @@ Core 定义以下 warning rules：
 - message 包含 token count 和 secondary fragment 的 `path:START-END`；
 - `severity = medium`，`blocking = false`、`accepted = false`、`suppressed = false`。
 
-LOC 和 duplicate warnings 合并后按 `(file, location, rule, message)` 排序；Output 不重新排
-序。第一版不实现 accepted/suppressed 配置、comment ratio、zero-code file 或 function
-complexity warnings。
+每个 `parameter_count >= 5` 的 normalized function metric生成一条
+`function.too_many_parameters` warning：
+
+- `file` 使用 function metric 的 normalized path；
+- `location = "lines START-END"`，来自 function 的 1-based inclusive line range；
+- message包含 `display_name`、实际 parameter count和 threshold `5`；
+- `severity = medium`，`blocking = false`、`accepted = false`、`suppressed = false`。
+
+`parameter_count < 5` 不产生该 rule。
+
+LOC、duplicate 和 function warnings合并后按 `(file, location, rule, message)` 排序；Output
+不重新排序。第一版不实现 accepted/suppressed配置、comment ratio、zero-code file、
+function complexity或 function NLOC warnings。
 
 ## Gate Policy
 
@@ -128,6 +168,10 @@ Recoverable metrics diagnostics 不直接导致 gate failure；只有同一 repo
 
 `duplicate.code_fragment` 会增加 `summary.warning_count`，但不会增加
 `summary.blocking_warning_count`，也不会单独让 gate failed。
+
+`function.too_many_parameters` 遵循同一 non-blocking policy：增加
+`summary.warning_count`，但不增加 `summary.blocking_warning_count`，也不会单独让 gate
+failed。
 
 ## Diagnostics
 
@@ -149,6 +193,14 @@ Duplicate scanner 在调用 upstream 前检查输入仍存在、是 regular file
 - scan scope 没有 supported files、低于 threshold 或没有 clone 属于正常 no-finding，不
   产生 duplicate diagnostic。
 
+Structural adapter 同样在 parse前检查 exact input仍存在、是 regular file、可读且是
+UTF-8。单文件 preflight失败或 syntax tree包含 `ERROR` / missing node时，跳过该文件全部
+function metrics并产生 warning-severity `STRUCTURAL_SCAN_PARTIAL`；report status为
+`partial`。即使所有 structural inputs都被跳过，只要 LOC / duplicate数据仍可信，仍返回
+partial report。Adapter初始化、panic、supported language mapping、project-root-relative
+path、source range或 unique identity invariant失败是 scanner fatal，使用 exit code `3`且
+stdout为空。Zero-supported-input与 zero-function是正常 completed state。
+
 Scanner fatal 由 CLI 映射为 exit code `3`，stdout 不写 human 或 JSON report。
 
 ## Verification
@@ -165,6 +217,12 @@ Scanner fatal 由 CLI 映射为 exit code `3`，stdout 不写 human 或 JSON rep
   和 zero-supported-input fixture。
 - `duplicate.code_fragment` 的两个 locations、token count、summary 计数和 non-blocking gate
   policy。
+- Structural adapter四语言 inventory、stable binding、receiver / compound parameter
+  semantics、range / path normalization、deterministic ordering与正常 exclusions。
+- `function.too_many_parameters` 的 parameter count `4` / `5` threshold、warning fields、
+  summary计数、unified ordering、non-blocking gate与 LOC compatibility counters。
+- Structural syntax-error / all-input-partial diagnostic，以及 adapter invariant fatal exit code
+  `3` / empty stdout边界。
 - Duplicate partial diagnostic、all-input fatal、upstream failure 和 invalid normalized result
   fatal。
 - Recoverable metrics diagnostic 产生 partial report。

@@ -9,6 +9,8 @@ name = "vibe-check"
 path = "src/main.rs"
 
 [dependencies]
+ast-grep-core.workspace = true
+ast-grep-language.workspace = true
 clap.workspace = true
 cpd-finder.workspace = true
 ignore.workspace = true

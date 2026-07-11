@@ -59,6 +59,21 @@ Proves:
 - `duplicate-code` fixture 负责 cross-file supported pair、第一版完整 unsupported
   extension 集合，以及 generated/vendor/cache/target exclusion proof inputs。
 
+### BB-STRUCTURAL-WARNING-001 Function parameter warning 与 structural failure边界可观察
+Status: implemented
+Code: `crates/vibe-check/tests/cli_contract.rs`
+
+Proves:
+- Checked-in function-warning project fixture通过真实 `vibe-check scan` 产生可定位的
+  `function.too_many_parameters` warning；human与 schema-valid JSON消费同一 finding。
+- 同一 fixture中 parameter count `5` 触发、`4` 不触发，function-only warning增加 warning
+  count但保持 blocking count `0`、gate passed和 exit code `0`。
+- Checked-in syntax-error fixture即使所有 structural inputs被跳过，仍输出带
+  `STRUCTURAL_SCAN_PARTIAL` diagnostic的 partial report；adapter invariant fatal保持 exit
+  code `3`、empty stdout。
+- Unsupported / excluded files不进入 structural adapter input；测试只读 checked-in project
+  fixtures，不生成或改写 scan source。
+
 ### BB-CLI-INPUT-001 CLI 输入、terminator、失败和 meta command 边界稳定
 Status: implemented
 Code: `crates/vibe-check/tests/cli_contract.rs`
@@ -95,6 +110,34 @@ Proves:
 - Core-facing trait outcome 不泄漏 `cpd-finder`、`cpd-core` 或 `cpd-tokenizer` native types。
 - Runtime 只把 supported paths 交给 adapter，Core 在 gate 前生成 deterministic、medium、
   non-blocking duplicate warnings，并保持 LOC compatibility counters。
+
+### WB-STRUCTURAL-DEPENDENCY-001 ast-grep dependency characterization 与 source audit一致
+Status: implemented
+Code: `crates/vibe-check/tests/ast_grep_characterization.rs`
+
+Proves:
+- Checked-in、hand-written、offline fixtures直接调用 exact `ast-grep-core` /
+  `ast-grep-language` public API，证明 `.ts`、`.go`、`.rs`、`.py` language mapping及目标
+  function / method / constructor node、name、body和 parameter fields。
+- Characterization证明 1-based inclusive range、UTF-8 path、同一行 multi-node ordering、
+  syntax error / missing-node检测，以及 signature-only / anonymous forms可区分。
+- Go / Rust / TypeScript / Python receiver排除与 default、optional、destructured、rest /
+  variadic slot语义和 source audit一致；该 case不使用 Vibe Check model或 warning assertions。
+
+### WB-STRUCTURAL-ADAPTER-001 Structural adapter归一化 functions并显式映射失败
+Status: implemented
+Code: `crates/vibe-check/src/core/structural_scanning/tests.rs`, `crates/vibe-check/src/core/metrics/tests.rs`, `crates/vibe-check/src/runtime/tests.rs`
+
+Proves:
+- Adapter只消费 normalized scan scope的 exact supported paths，并输出 Vibe Check-owned
+  function kind、stable display name、project-relative `/` path、inclusive range和 parameter
+  count；第三方 AST / language types不跨出 boundary。
+- 四语言 inventory、TypeScript direct binding、receiver / compound parameter semantics、
+  normal exclusions、unique identity和 deterministic ordering由 adapter tests证明。
+- File preflight / parse问题产生 `STRUCTURAL_SCAN_PARTIAL`，adapter panic、language mapping、
+  path / range / identity invariant问题映射为 fatal；zero-supported-input保持 completed。
+- Core从 count `4` / `5` 生成统一排序的 non-blocking function warning，并保持 summary、gate和
+  LOC compatibility counters。
 
 ### WB-SCHEMA-EXAMPLES-001 Report examples 对 owner schema 保持有效
 Status: implemented

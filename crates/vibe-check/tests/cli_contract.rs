@@ -403,6 +403,72 @@ fn duplicate_fixture_is_locatable_in_json_and_human_reports() {
     assert!(human.contains("Blocking warnings: 0"));
 }
 
+// @case BB-STRUCTURAL-WARNING-001
+#[test]
+fn function_parameter_warning_is_locatable_in_json_and_human_reports() {
+    let project = fixture_project_path("function-warning");
+
+    let json = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(json.status.code(), Some(0));
+    assert!(stderr(&json).is_empty());
+    let value: Value = serde_json::from_slice(&json.stdout).expect("JSON report");
+    assert_report_schema_valid(&value);
+    assert_eq!(value["summary"]["status"], "completed");
+    assert_eq!(value["summary"]["warning_count"], 1);
+    assert_eq!(value["summary"]["blocking_warning_count"], 0);
+    assert_eq!(value["summary"]["diagnostic_count"], 0);
+    assert_eq!(value["gate"]["status"], "passed");
+    assert_eq!(value["gate"]["blocking_warnings"], 0);
+    assert_eq!(value["metrics"]["files_measured"], 1);
+
+    let warning = &value["warnings"][0];
+    assert_eq!(warning["file"], "src/functions.rs");
+    assert_eq!(warning["location"], "lines 1-9");
+    assert_eq!(warning["severity"], "medium");
+    assert_eq!(warning["rule"], "function.too_many_parameters");
+    assert_eq!(warning["accepted"], false);
+    assert_eq!(warning["suppressed"], false);
+    assert_eq!(warning["blocking"], false);
+    assert!(warning["message"]
+        .as_str()
+        .unwrap()
+        .contains("assemble has 5 parameters"));
+
+    let human = run(&["scan", project.to_str().unwrap(), "--format", "human"]);
+    assert_eq!(human.status.code(), Some(0));
+    assert!(stderr(&human).is_empty());
+    let human = stdout(&human);
+    assert!(human.contains("medium src/functions.rs lines 1-9 function.too_many_parameters"));
+    assert!(human.contains("assemble has 5 parameters"));
+    assert!(human.contains("Gate: passed"));
+    assert!(human.contains("Blocking warnings: 0"));
+}
+
+#[test]
+fn all_structural_inputs_with_syntax_errors_produce_partial_report() {
+    let project = fixture_project_path("structural-syntax-error");
+
+    let output = run(&["scan", project.to_str().unwrap(), "--format", "json"]);
+
+    assert_eq!(output.status.code(), Some(0));
+    assert!(stderr(&output).is_empty());
+    let value: Value = serde_json::from_slice(&output.stdout).expect("JSON report");
+    assert_report_schema_valid(&value);
+    assert_eq!(value["summary"]["status"], "partial");
+    assert_eq!(value["summary"]["warning_count"], 0);
+    assert_eq!(value["summary"]["blocking_warning_count"], 0);
+    assert_eq!(value["summary"]["diagnostic_count"], 1);
+    assert_eq!(value["gate"]["status"], "passed");
+    assert_eq!(value["metrics"]["files_measured"], 1);
+    assert_eq!(value["diagnostics"][0]["severity"], "warning");
+    assert_eq!(value["diagnostics"][0]["code"], "STRUCTURAL_SCAN_PARTIAL");
+    assert!(value["diagnostics"][0]["message"]
+        .as_str()
+        .unwrap()
+        .contains("src/broken.ts"));
+}
+
 // @case BB-CLI-INPUT-001
 #[test]
 fn terminator_allows_leading_dash_project_root() {

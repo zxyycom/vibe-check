@@ -61,6 +61,9 @@ Rust tests 负责具有独立出错空间的自定义逻辑。每个用例应明
 - LOC metrics adapter、语言归并、指标聚合和空 scope。
 - `cpd-finder` dependency characterization、duplicate pair normalization、path ordering、
   preflight diagnostic 和 fatal mapping。
+- `ast-grep-core` / `ast-grep-language` dependency characterization、四语言 grammar mapping、
+  function inventory、parameter slot normalization、source range / path ordering、partial
+  diagnostic 和 fatal invariant mapping。
 - warning severity、blocking policy、gate status 和 summary 计数。
 - runtime 对 scanner fatal、recoverable diagnostic 和 output write failure 的错误映射。
 - 人读输出、JSON report 序列化、schema examples 和 stdout/stderr 分流。
@@ -108,6 +111,16 @@ canonical source ids；该测试通过前不实现 Vibe Check duplicate model。
 证明 human / JSON warning 可定位、duplicate-only gate 通过，以及 unsupported / excluded
 inputs 不进入 duplicate scanner。Adapter 单元 fixture 负责 preflight、normalization、
 diagnostic 和 fatal failure，不把 upstream structs 提升为 Core contract。
+
+Structural characterization fixtures 放在独立 checked-in目录，直接调用 exact
+`ast-grep-core` / `ast-grep-language` public API，证明 TypeScript、Go、Rust、Python 的
+language mapping、node / field names、stable name、body presence、receiver / compound
+parameter slots、1-based inclusive range、syntax error / missing node和 UTF-8 path。该 gate只
+证明 dependency事实，通过前不实现 Vibe Check structural model。Structural adapter tests再
+证明 Vibe Check-owned normalization、deterministic ordering、preflight partial和 fatal
+invariants；CLI project fixture只证明 `function.too_many_parameters` 的 human / schema-valid
+JSON投影、non-blocking gate、all-input structural partial，以及 unsupported / excluded files
+不进入 adapter。三层不得互相替代 proof target。
 
 Fixture-backed report 断言应聚焦 schema validity、language presence/absence、
 supported/unsupported classification 的可观察结果、diagnostics status、gate status、退

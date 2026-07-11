@@ -1,6 +1,7 @@
 mod duplicate_scanning;
 mod metrics;
 mod scan_scope;
+mod structural_scanning;
 
 use std::path::PathBuf;
 
@@ -19,6 +20,12 @@ pub(crate) use metrics::{LocMetricsAdapter, MetricsOutcome, TokeiLocMetricsAdapt
 pub(crate) use scan_scope::{IgnoreScopeCollector, ScanScope, ScopeCollector};
 #[cfg(test)]
 pub(crate) use scan_scope::{ScopeCollectionFailure, ScopeFile};
+pub(crate) use structural_scanning::{
+    AstGrepStructuralScanner, FunctionMetric, StructuralDiagnostic, StructuralScanOutcome,
+    StructuralScannerAdapter,
+};
+#[cfg(test)]
+pub(crate) use structural_scanning::{FunctionKind, SourceRange, StructuralScanFailure};
 
 pub(crate) const REPORT_SCHEMA_VERSION: &str = "vibe-check.report.v1";
 pub(crate) const TOOL_NAME: &str = "vibe-check";
@@ -207,6 +214,7 @@ pub(crate) fn scanner_report(
     request: &ScanRequest,
     scope: ScanScope,
     metrics_outcome: MetricsOutcome,
+    structural_outcome: StructuralScanOutcome,
     duplicate_outcome: DuplicateScanOutcome,
 ) -> ReportData {
     let file_count = scope.file_count();
@@ -221,6 +229,7 @@ pub(crate) fn scanner_report(
         },
         diagnostics,
         metrics_outcome,
+        structural_outcome,
         duplicate_outcome,
     )
 }
@@ -238,6 +247,7 @@ pub(crate) fn fixture_report(request: &ScanRequest) -> ReportData {
             files: Vec::new(),
             diagnostics: Vec::new(),
         },
+        StructuralScanOutcome::skipped(),
         DuplicateScanOutcome::default(),
     );
     report.run.mode = RunMode::Fixture;
@@ -249,12 +259,32 @@ fn report_from_parts(
     scope: ScopeSummary,
     mut diagnostics: Vec<DiagnosticRecord>,
     metrics_outcome: MetricsOutcome,
+    structural_outcome: StructuralScanOutcome,
     duplicate_outcome: DuplicateScanOutcome,
 ) -> ReportData {
+    debug_assert!(match structural_outcome.state {
+        structural_scanning::StructuralScanState::SkippedNoSupportedInput
+        | structural_scanning::StructuralScanState::Completed => {
+            structural_outcome.diagnostics.is_empty()
+        }
+        structural_scanning::StructuralScanState::Partial => {
+            !structural_outcome.diagnostics.is_empty()
+        }
+    });
     diagnostics.extend(metrics_outcome.diagnostics);
+    diagnostics.extend(
+        structural_outcome
+            .diagnostics
+            .iter()
+            .map(StructuralDiagnostic::to_record),
+    );
     diagnostics.extend(duplicate_outcome.diagnostics);
     let metrics = aggregate_metrics(&metrics_outcome.files);
-    let warnings = generate_warnings(&metrics_outcome.files, &duplicate_outcome.findings);
+    let warnings = generate_warnings(
+        &metrics_outcome.files,
+        &duplicate_outcome.findings,
+        &structural_outcome.metrics,
+    );
     let gate = gate_from_warnings(&warnings);
     let summary = ReportSummary {
         status: if diagnostics.is_empty() {

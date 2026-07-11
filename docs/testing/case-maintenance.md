@@ -34,6 +34,7 @@
 | `SCOPE` | scan scope 收集、默认排除、supported file 分类和 collection diagnostic |
 | `METRICS` | LOC metrics、聚合、warning、gate 和 report summary |
 | `DUPLICATE` | Duplicate dependency characterization、adapter、pair normalization 和 warning contract |
+| `STRUCTURAL` | Structural dependency characterization、function adapter、parameter normalization、diagnostic 和 warning contract |
 | `OUTPUT` | 人读输出、JSON 输出、schema 示例和输出通道 |
 | `SCHEMA` | schema/example 验证材料 |
 | `RUNTIME` | pipeline runtime、collector/adapter handoff、fatal/recoverable failure 映射 |
