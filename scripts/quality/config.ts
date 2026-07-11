@@ -28,11 +28,17 @@ function readJsonStringArrayEnv(name: string): string[] {
 }
 
 export const DEFAULT_CONFIG = Object.freeze({
-  version: "0.1.0",
+  version: "0.2.0",
 
+  // Keep Vibe Check-owned scripts explicit so fallback collection does not enter toolkit submodules.
   include: [
     "crates/**/*.rs",
+    "scripts/cargo/**/*.ts",
+    "scripts/docs/**/*.ts",
     "scripts/quality/**/*.ts",
+    "scripts/tools/*.ts",
+    "scripts/tools/validators/**/*.ts",
+    "scripts/vibe-check-workspace/**/*.ts",
     "docs/**/*.md",
     "docs/**/*.json",
     "openspec/**/*.md"
@@ -49,6 +55,7 @@ export const DEFAULT_CONFIG = Object.freeze({
     "build",
     "vendor",
     "generated",
+    "fixtures",
     ".cache",
     "cache",
     "artifacts",
@@ -84,7 +91,14 @@ export const DEFAULT_CONFIG = Object.freeze({
     },
     "script-tooling": {
       description: "Vibe Check TypeScript quality tooling",
-      globs: ["scripts/quality/**/*.ts"],
+      globs: [
+        "scripts/cargo/**/*.ts",
+        "scripts/docs/**/*.ts",
+        "scripts/quality/**/*.ts",
+        "scripts/tools/*.ts",
+        "scripts/tools/validators/**/*.ts",
+        "scripts/vibe-check-workspace/**/*.ts"
+      ],
       excludeGlobs: ["scripts/**/*.test.ts", "**/fixtures/**", "**/generated/**"],
       warningPolicy: "moderate"
     },
@@ -162,7 +176,38 @@ export const DEFAULT_CONFIG = Object.freeze({
     }
   },
 
-  acceptedWarnings: Object.freeze([]),
+  acceptedWarnings: Object.freeze([
+    {
+      ruleId: "scc-file-code-lines",
+      sourceTool: "scc",
+      path: "crates/vibe-check/src/runtime/tests.rs",
+      codeArea: "rust-tests",
+      metric: "code-lines",
+      value: 424,
+      reason:
+        "Runtime pipeline tests keep their single-use collector and scanner doubles beside assertions for one orchestration boundary; splitting them would separate proof setup without reducing production complexity."
+    },
+    {
+      ruleId: "scc-file-code-lines",
+      sourceTool: "scc",
+      path: "crates/vibe-check/tests/ast_grep_characterization.rs",
+      codeArea: "rust-tests",
+      metric: "code-lines",
+      value: 349,
+      reason:
+        "The audited ast-grep dependency characterization keeps shared parser helpers and explicit cross-language grammar assertions together so upstream behavior can be reviewed in one place."
+    },
+    {
+      ruleId: "lizard-cyclomatic-complexity",
+      sourceTool: "lizard",
+      path: "crates/vibe-check/src/core/structural_scanning/ast_grep/python.rs",
+      codeArea: "rust-production",
+      metric: "cyclomatic-complexity",
+      value: 11,
+      reason:
+        "The complexity comes from a linear candidate loop and guard clauses that preserve Python AST exclusion semantics and error ordering; extracting them would only distribute the same branches across helpers."
+    }
+  ]),
 
   report: {
     title: "Vibe Check Quality Snapshot",
