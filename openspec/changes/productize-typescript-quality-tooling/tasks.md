@@ -1,62 +1,69 @@
-本 change 的核心目标是把现有 TypeScript quality tooling 提升为 Vibe Check 的自包含产品核心，并以 Bun 控制面、内建混合 scanner 和便携目录形成正式产品架构；本文只在本 change 下形成待审计临时计划，不影响现有其它文档或主规范。
+## 1. 实现前审计
 
-## 1. 实现前架构审计门禁
+- [x] 1.1 审计 proposal、design、六个 capability deltas 和本 tasks：确认它们都以现有完整 TS 实现的产品化为唯一主线，且源码所有权、固定检测栈、正式入口、capability ownership、实现顺序和验收证据一致；`design.md` 无未回答开放问题；当前 change 仍只修改 `openspec/changes/productize-typescript-quality-tooling/**`。
+- [x] 1.2 确认实施 gates：第 2 节固定源码 closure、现有行为回归、固定组件和 owner contract 基线；第 3–5 节完成源码收归与固定检测栈产品化；第 6 节提供当前开发环境的本地验收证据；第 7–8 节在全部证据通过后同步 owners、切换默认入口并完成最终验证。
 
-- [ ] 1.1 回答 `design.md` 的四个 Open Questions：函数指标正式语义、Bun control-plane packaging、profile 对 baseline/threshold/accepted-warning 的隔离范围，以及 portable resource budgets；把每个答案写入连续编号 Decision 和对应 spec，清空所有未回答问题。
-- [ ] 1.2 阻塞级审计：确认 proposal、design、五个 capability deltas 和 tasks 都围绕“现有 TS tooling 是产品核心”这一核心句；capability ID 使用长期 owner 名称；当前 change 仍只是待审计临时计划；尚未修改其它 docs/specs/code；受影响主 specs 与新架构的冲突已完整列出；验证路径足以证明 source ownership、backend semantics 和 portable closure。审计未完成前不得执行第 2 节及之后的任何实现任务。
+## 2. 产品化回归与依赖基线
 
-## 2. 现有 TS 产品原型基线
+- [ ] 2.1 固定 `quality-core`、foundation 和 parallel-task-runner 当前 gitlink revisions，记录来源、许可证、submodule worktree 状态与未推送修改保护方式；不得覆盖用户已有 worktree。
+- [ ] 2.2 建立 product runtime import inventory，逐项区分 product core、runtime helper closure 和 development-only validators/verifier，并证明 inventory 覆盖全部 production imports。
+- [ ] 2.3 建立产品化前回归基线，覆盖 scan planning、code areas、baseline/cache、scc/Lizard/jscpd parsing、metrics/aggregation、warning channels、accepted-warning handling、gate、console status 和 report/raw artifacts，并保存可重放输入与期望结果。
+- [ ] 2.4 对照 CLI、output、exit-code、scan-scope、schema 和 examples owners，标出正式 entry/projection 必须保持的 contract 与对应 product-core 行为。
+- [ ] 2.5 固定 scc、jscpd、Lizard/Python 和 Bun 的 version、source、license、invocation protocol、resolution strategy、现有 typed tools config 与 availability checks，并记录影响 normalized results 的参数。
 
-- [ ] 2.1 固定 `quality-core`、foundation 和 parallel-task-runner 当前 gitlink revisions，记录来源、许可证、当前 checkout 差异及未推送修改保护方式；不得覆盖用户已有 submodule worktree。
-- [ ] 2.2 建立 product runtime import inventory，区分 `quality-core`、运行期必需 helpers、仅开发期 validators/verifier/release scripts，并用调用搜索证明边界完整。
-- [ ] 2.3 运行或补齐现有 TS quality-core characterization，固定 scan planning、code area、baseline、cache、scc/Lizard/jscpd parsing、warning 和 artifact report 的迁入前行为证据。
-- [ ] 2.4 审计现有 docs/specs/code 与 TS product behavior 的差异，把本 change 必须调整的 owner boundary、实现缺口和后续独立功能决策分开。
+## 3. Vibe Check-owned Product Source
 
-## 3. 单仓 Product Core
+- [ ] 3.1 建立正式 TS/Bun local CLI、product core、domain model、scanner adapters、toolchain config 与验证入口的模块边界，并写出 production import constraints。
+- [ ] 3.2 按固定 revision 迁入 `quality-core` source，并以第 2.3 节回归基线证明源码所有权变化保持完整行为。
+- [ ] 3.3 只迁入 inventory 证明为 product runtime 所需的 foundation / task-runner helpers，保留来源、许可证和局部 API provenance。
+- [ ] 3.4 把 production imports 切换到 Vibe Check-owned modules，并用 dependency/import audit 证明 product source 不导入 `scripts/tools/*` gitlinks、workspace verifier 或 docs validators。
+- [ ] 3.5 将 `scripts/quality/**` dogfooding entry 改为消费正式 product API/CLI；仓库专用 include/exclude、code areas、thresholds 和 accepted warnings 留在 typed consumer config。
+- [ ] 3.6 仅在 gitlink 已无剩余消费者时删除对应 `.gitmodules` entry、gitlink、初始化文档和 package scripts；仍服务开发工具的 submodule 明确记录 owner 与消费边界。
+- [ ] 3.7 运行迁入后 typecheck、lint、unit tests 和回归 suite，逐项核对第 2.3 节证据并修复未解释差异。
 
-- [ ] 3.1 建立 Vibe Check-owned product module 边界，使正式入口、core、scanner adapters、domain model 和 artifact projection 不依赖 `scripts/tools/*` gitlinks。
-- [ ] 3.2 按固定 revisions 一次性迁入 `quality-core` 和实际使用的 runtime helpers，保留来源与许可证记录，不在迁入任务中改写业务行为。
-- [ ] 3.3 将开发期 quality entry 改为消费正式 product API / CLI，证明 product core 不导入 workspace verifier、docs validators 或 release scripts。
-- [ ] 3.4 移除已迁入 toolkit 的 `.gitmodules` entries、gitlinks、submodule initialization docs 和 package scripts，确认新 checkout 不再依赖跨仓源码。
-- [ ] 3.5 为 product core 运行 typecheck、lint 和完整迁入 characterization，确认源码所有权变化未改变已批准行为。
+## 4. TS/Bun Product Control Plane
 
-## 4. TS/Bun 控制面与 Backend Registry
+- [ ] 4.1 实现正式 TS/Bun invocation，保持 `vibe-check scan [project-root]`、`--format human|json`、`--config`、help/version、path normalization 与 CLI owner contract，并把请求直接接入迁入后的 product core。
+- [ ] 4.2 让 normalized scan scope 成为 scc、Lizard/Python 和 jscpd adapters 的唯一 input owner，证明 output mode、cwd 和 component path 不改变 supported/excluded file set。
+- [ ] 4.3 建立 typed product config boundary；通用 defaults 与 Vibe Check dogfooding config 分离，并覆盖 code areas、baseline/cache、thresholds、accepted warnings、artifact/cache path 和 scanner fixed args 的 validation/identity。
+- [ ] 4.4 由 TS product core 继续生成 metrics、warning channels、accepted-warning state、gate 和 report data；在 projection layer 完成 owner-defined rule IDs、JSON schema/examples、human output、stdout/stderr 和 exit-code mapping，不把 component-native identity 暴露为 product policy。
+- [ ] 4.5 定义 scc、Lizard/Python 与 jscpd 的 product-owned normalized result、diagnostic 与 failure types，并让 typed tool config 为每项 capability 只映射唯一固定 component。
+- [ ] 4.6 将 component version、影响结果的固定参数、parser/normalization 和 config 接入 cache/baseline identity，并覆盖兼容复用与不兼容重新扫描。
+- [ ] 4.7 为三个 process components 实现 tool-config-resolved command、structured args、explicit cwd、timeout、bounded stdout/stderr 与 no-shell invocation，并使用 platform-neutral runtime APIs。
+- [ ] 4.8 映射 component missing/wrong-version、spawn、timeout、protocol、file-level partial 与 normalization failures，证明失败不表现为 zero metrics、zero duplicates 或 clean scan。
 
-- [ ] 4.1 建立正式 TS/Bun product entry 和模块化单体调用链，复用迁入后的 scan planning、baseline/cache、warning、gate 和 report pipeline。
-- [ ] 4.2 定义内部 scanner capability / adapter / normalized result / diagnostic 边界，确保 JS、native process、Python 和未来 WASM 类型不越过 adapter。
-- [ ] 4.3 实现内建 backend registry 和 manifest-derived resolution，移除 production PATH、目标项目 `node_modules` 和全局 runtime fallback。
-- [ ] 4.4 定义 semantic profile identity 与 cache/result metadata 接线，覆盖 backend version、固定选项和 normalization rule version。
-- [ ] 4.5 将现有 scc、jscpd 和 Lizard wrappers 接入正式 registry，并用现有 fixtures 证明迁入前后 normalized behavior。
+## 5. 固定检测栈产品化
 
-## 5. Function Metrics Production Backend 与 Sidecar Spike
+- [ ] 5.1 将现有 scc wrapper 迁入正式 LOC adapter，固定 version、`--by-file --format csv` protocol、file/language normalization、ordering、raw artifact 和 diagnostics，并通过产品化回归 suite。
+- [ ] 5.2 将现有 jscpd wrapper、code-area task planning、parallel execution、cache、JSON parsing、fragment normalization 和 raw artifact 迁入正式 duplicate adapter；固定 product default 与 dogfooding threshold config 的 identity。
+- [ ] 5.3 将 jscpd resolution 接入 repo-owned typed tools config 与 availability checks，证明执行不读取目标项目 `node_modules` 或 package metadata，并覆盖 valid empty report、missing report、invalid JSON、timeout 和 process failure。
+- [ ] 5.4 将现有 Lizard wrapper、CSV parser、function normalization、ordering 和 raw artifact 迁入正式 function-metrics adapter，固定 Python/Lizard versions 与 invocation protocol。
+- [ ] 5.5 将 Python/Lizard resolution 接入 repo-owned typed tools config 与 availability checks，覆盖 missing executable、wrong version、explicit path、cwd 和 temporary directory boundaries。
+- [ ] 5.6 在 TypeScript、Go、Rust 和 Python checked-in fixtures 上完成 Lizard product normalization，覆盖 supported/excluded forms、stable name/kind/range、NLOC、cyclomatic complexity、receiver/compound parameter semantics、ordering、file-level partial 和 fatal protocol behavior。
+- [ ] 5.7 为 scc、jscpd 与 Lizard/Python 建立 checked-in productization/conformance suites；同一 fixed version、config、inputs 和 protocol 在基线实现、迁入后 source entry 与当前开发环境 local CLI 中产生相同 normalized results、diagnostics 和 artifact boundaries。
 
-- [ ] 5.1 根据审计后的正式语义扩展 backend-neutral `FunctionMetric`，覆盖 function identity/location、NLOC、cyclomatic complexity 和 parameter count。
-- [ ] 5.2 固定 Lizard 与 Python runtime versions、平台来源、许可证和调用协议，建立四语言 source audit 与 checked-in fixtures。
-- [ ] 5.3 实现 Lizard production adapter，将原生输出归一化为已批准 semantic profile，并覆盖成功、无发现、partial、fatal 和 deterministic ordering。
-- [ ] 5.4 组装不依赖系统 Python 的 bundled Python/Lizard backend，并验证安装目录、项目目录和临时目录分离。
-- [ ] 5.5 制作独立 Rust `function-metrics` sidecar spike，复用现有 structural adapter 中有价值的 parser/normalization 能力，但不接入 production profile。
-- [ ] 5.6 在同一组四语言 fixtures 上比较 Lizard 与 sidecar 的 normalized results、冷启动、扫描延迟、峰值内存和产物大小；差异进入显式评估，不自动修改 production backend。
+## 6. 产品验证
 
-## 6. Portable Distribution Spike
+- [ ] 6.1 建立正式 local product command 与 repo-owned dependency check，验证 Bun、scc、Lizard/Python、jscpd、typed config 和 writable paths 已满足执行条件。
+- [ ] 6.2 在当前开发环境通过正式 entry 对代表性 checked-in project inputs 运行真实 human 与 JSON scans，并保存回归、owner-contract、diagnostic 和 artifact evidence。
+- [ ] 6.3 从不同 cwd 扫描外部 project roots，验证 project input、repository config 与 cache/artifact/baseline/temporary state 的 typed boundaries。
+- [ ] 6.4 为 path normalization 与 process invocation 建立 lexical tests，覆盖 POSIX/Windows path values、spaces、Unicode、quotes、relative path、structured args 和 executable naming；validation scripts 使用 platform-neutral runtime APIs。
+- [ ] 6.5 验证 dependency missing/wrong-version、spawn failure、timeout、invalid protocol、project-root 外 path 和 normalization invariant failure 产生可行动 diagnostics，且不产生虚假成功 report。
+- [ ] 6.6 运行完整产品化回归、固定组件 conformance 和 CLI/output/scan-scope/schema owner contract suites，并修复未解释差异。
 
-- [ ] 6.1 根据审计决策实现 control-plane release build：compiled Bun executable 或 pinned Bun runtime + bundled JS；记录 Bun version 和可复现 build inputs。
-- [ ] 6.2 定义 portable directory layout 和 release manifest，包含 product、platform、control plane、Python/Lizard、scc、jscpd、semantic profiles、schema、checksums 和第三方许可证材料。
-- [ ] 6.3 生成 Windows x64 portable package，并确认 production runtime 只从 install manifest / fixed layout 解析组件。
-- [ ] 6.4 在无 Node、Bun、Python、npm 和全局 scanner、无网络、只读安装目录以及空格/Unicode 路径条件下运行端到端 scan。
-- [ ] 6.5 测量并对照已批准预算记录压缩包/解压体积、冷启动、代表性扫描延迟、峰值内存和 cache 命中表现。
-- [ ] 6.6 验证 backend 缺失、损坏、版本/profile 不匹配和子进程失败产生可行动诊断，不发生 PATH 或网络回退。
+## 7. Owner 同步与仓库默认入口切换
 
-## 7. Owner 文档与契约同步
-
-- [ ] 7.1 更新 `AGENTS.md`、architecture、navigation、script-tooling、scanner dependencies 和 coding/testing owner，使 TS/Bun product core、模块化单体和内建混合 backend 成为唯一长期架构。
-- [ ] 7.2 同步 quality metrics 与 structural scanning owner，记录正式 function metric semantics、production profile、sidecar experimental status 和替换流程。
-- [ ] 7.3 按实现审计 CLI、config、output schema/examples、scan-scope、duplicate 和 release contract：只同步本 change 已确定的边界，未确定功能进入后续 change。
-- [ ] 7.4 更新 toolkit checkout、product build 和 release 文档，使其只描述单仓自包含源码与便携产品架构；保留必要来源与许可证记录。
-- [ ] 7.5 根据 portable spike 和产品 owner 切换结果，另行决定 Rust CLI 源码删除、历史保留或仅保留 sidecar implementation 的范围。
+- [ ] 7.1 更新 `AGENTS.md`、architecture、navigation 和 coding-style owners，使现有 TS quality engine、模块化单体与 scc/Lizard/Python/jscpd 固定检测栈成为唯一长期产品架构。
+- [ ] 7.2 更新 script-tooling owner，区分 Vibe Check-owned product source、dogfooding consumer、development-only submodules、typed config 和验证命令。
+- [ ] 7.3 更新 scanner-dependencies、quality-metrics、structural-scanning 与 duplicate-scanning owners，记录固定 component、dependency resolution、normalization、result-affecting identity、state compatibility 和 failure mapping。
+- [ ] 7.4 同步 CLI、output、scan-scope、schema 和 examples owners，记录 TS/Bun product entry 与 product-core projection；任何 stable shape/meaning change 必须在对应 delta 和 schema version 中明确。
+- [ ] 7.5 更新 testing strategy、fixture maintenance、case ledger 与 `@case` markers，使产品化回归、fixed-component protocol、local acceptance 和 owner contract proof targets 可追溯。
+- [ ] 7.6 更新 product setup、dependency checks、runtime provenance 与 local validation instructions，使正式产品入口和运行条件可直接发现。
+- [ ] 7.7 在 source ownership、回归、固定依赖、owner contracts 与本地执行证据全部通过后，将仓库默认 product entry、dogfooding 与 validation commands 切换到 TS/Bun product core。
 
 ## 8. 最终验证
 
-- [ ] 8.1 运行 product core unit/integration/characterization tests、TypeScript typecheck、lint 和 backend fixture suites。
-- [ ] 8.2 运行 Windows x64 portable acceptance 与 function-metrics backend comparison，保存 resource budget 和 semantic difference evidence。
-- [ ] 8.3 运行受影响 docs、schema、examples、OpenSpec、case ledger、whitespace 和 workspace required/full validation。
-- [ ] 8.4 运行 `openspec validate "productize-typescript-quality-tooling" --type change --json --strict --no-interactive`、`git diff --check`、局部 diff 和 gitlink audit，确认只包含经审计范围并记录无法执行的验证与残余风险。
+- [ ] 8.1 运行 product core unit/integration/regression tests、TypeScript typecheck、lint、import-boundary audit 和全部 fixed-component fixture suites。
+- [ ] 8.2 运行当前开发环境 local acceptance、dependency failures、project/config/state isolation 和 path/process lexical boundary checks，并保存验证证据。
+- [ ] 8.3 运行受影响 docs、schema、examples、OpenSpec、case ledger 和 whitespace validation，以及 `bun run verify:vibe-check-workspace:required`。
+- [ ] 8.4 运行 `openspec validate "productize-typescript-quality-tooling" --type change --json --strict --no-interactive`、`git diff --check`、局部 diff、capability audit、gitlink audit 和 production import audit，确认只包含经审计范围并记录无法执行的验证与残余风险。

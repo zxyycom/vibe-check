@@ -1,100 +1,84 @@
-本 change 的核心目标是把现有 TypeScript quality tooling 提升为 Vibe Check 的自包含产品核心，并以 Bun 控制面、内建混合 scanner 和便携目录形成正式产品架构；本文只在本 change 下形成待审计临时计划，不影响现有其它文档或主规范。
-
 ## Context
 
-Vibe Check 当前同时存在两条能力来源：Rust CLI 已实现 scan scope、LOC、结构扫描、duplicate、warning、gate 和 JSON output；开发期 TypeScript quality tooling 已实现更接近目标产品的扫描编排、code area、baseline/cache、scc/Lizard/jscpd adapter、warning 和 artifact report。前期为 Docnav 与 Vibe Check 复用脚本而建立的多个 submodule，会让产品源码所有权、checkout、版本推进和 release dependency 保持跨仓耦合。
+现有 TypeScript quality tooling 已经形成完整调用链：收集并分类 scan inputs，运行 scc、Lizard 和 jscpd，生成 file/function/duplicate metrics，完成 code-area aggregation、baseline/cache comparison、warning、accepted-warning handling、gate 和 report/artifact projection。这套实现及其固定检测栈直接成为产品基础。
 
-当前方向不是把 Rust 产品迁移到 TypeScript，也不是长期维护双实现；现有 TS tooling 本身就是产品原型。Rust 代码只在某项 scanner backend 的独立实验能降低分发或维护成本时被选择性复用。
+产品化缺口集中在运行和治理边界。`quality-core`、foundation 与 parallel-task-runner 仍通过 `scripts/tools/*` git submodule 提供源码；scanner 依赖、入口和默认配置仍由脚本约定；artifact/cache/temp state、错误映射和长期 owner 尚未形成正式产品边界。
 
-已确认的产品约束是：不要求单文件分发，接受解压即用的便携目录；产品不得依赖目标机器预装 Node、Bun、Python 或全局 scanner；`installRoot` 与被扫描项目必须相互独立；scanner 可以使用 JS、native process、Python 或 WASM，但产品控制面和业务 owner 保持 TS/Bun。
+设计路径是：先锁定现有行为，再收归 runtime source closure，把现有入口、scanner wrappers、typed config 和 availability checks 提升为正式产品模块，完成本地验收后切换仓库默认入口。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 将现有 TS quality tooling 确立为唯一产品核心和业务实现 owner。
-- 建立 TS/Bun 模块化单体以及 product core、scanner backend、artifact projection 和 release packaging 的稳定边界。
-- 把当前跨仓 toolkit 源码转为 Vibe Check-owned source，停止 Docnav / Vibe Check 代码同步和 submodule 治理。
-- 建立不绑定实现语言的内建 scanner backend 模型和版本化 semantic profile。
-- 以 Lizard + bundled Python 作为第一版 function-metrics backend，并用 Rust sidecar spike 评估未来替换价值。
-- 形成 Windows x64 自包含便携目录的纵向验证路径，为后续平台包复用同一架构。
+- 将现有 TS quality tooling 确立为唯一产品 core 和业务 policy owner。
+- 以可执行回归基线保持现有完整检测行为。
+- 将 product runtime source closure 收归 Vibe Check，形成单仓模块化单体。
+- 将现有 scc、Lizard/Python 和 jscpd 集成提升为产品管理的内建检测栈。
+- 建立正式 TS/Bun entry、typed config、adapter、依赖、错误和可写状态边界。
+- 在当前开发环境完成产品入口、既有行为和 owner contract 验收。
 
 **Non-Goals:**
 
-- 不从 Rust CLI 向 TS 逐项迁移，也不要求新产品与 Rust report schema、CLI parser 或内部模型兼容。
-- 不在本 change 中完成全部配置字段、CLI option、warning threshold、artifact schema 或退出码设计。
-- 不建立公开 scanner plugin SDK、第三方 backend discovery 或运行时 PATH fallback。
-- 不统一 Docnav 与 Vibe Check 的脚本、配置或 release revision。
-- 不预先把所有 scanner 重写为 TypeScript、Rust 或 WASM。
+- 新 scanner backend、公开 plugin interface 或新的检测语义不属于本 change。
+- 公开发布与平台分发不属于本 change。
+- 性能基准、资源预算和性能优化不属于本 change。
+- 当前开发环境承担执行验收；指定平台的发布或验收矩阵不属于本 change。
 
 ## Decisions
 
-### Decision 1: 现有 TS quality tooling 成为产品核心
+### Decision 1: 现有 TS quality tooling 是产品基础
 
-`quality-core` 已有 pipeline、baseline、cache、warning 和 report 能力，直接提升为 Vibe Check product core。正式 CLI、开发期 dogfooding 入口和 CI automation 均消费这一核心；产品运行路径不得反向依赖只服务仓库维护的 validators、workspace verifier 或 release scripts。
+`scripts/quality/**` 与 `quality-core` 已经拥有完整检测和业务 pipeline，因此直接迁为产品实现。迁入前用可重放 inputs 和期望结果锁定 scan planning、code-area classification、baseline/cache、scanner parsing、metrics、warnings、accepted warnings、gate 和 report/artifact behavior；每个迁入 slice 都用同一证据验收。
 
-备选“以 Rust CLI 为产品、TS 只做外层 orchestration”会保留两套业务 owner；备选“从零设计新的 TS core”会放弃现有成熟实现，均不采用。
+现有 CLI、output、exit-code 和 scan-scope owners 继续定义正式入口的外部 contract；TS product core 保留完整 engine capability，并在入口和输出层完成对应投影。
 
-### Decision 2: 采用单仓自包含的模块化单体
+### Decision 2: Vibe Check 拥有 product runtime source closure
 
-Vibe Check 仓库拥有正式 CLI、product core、backend adapters、配置与报告模型以及 release assembly。现有 `quality-core` 和运行期实际使用的 foundation / parallel runner 能力按 pinned revision 一次性迁入并记录来源与许可证；迁入完成后移除 gitlink 和跨仓源码 import，不保留自动同步关系。
+Vibe Check 以单仓模块化单体拥有正式 local CLI、product core、scanner adapters、domain model、toolchain config 和验证入口。先固定 submodule revisions、worktree state、licenses 与 behavior baseline，再根据 import inventory 迁入 `quality-core` 和产品运行期实际需要的 foundation / task-runner helpers。Production import audit 负责证明 runtime source closure 完整且由本仓库拥有。
 
-源码是否立即拆成多个 workspace package 不是架构要求；只有出现独立发布或明确依赖隔离价值时才增加 package boundary。
+仍只服务 docs validators、workspace verifier 或其它仓库 automation 的 toolkit 可以继续作为开发依赖。只有对应 gitlink 没有剩余消费者时才在本 change 删除，避免把产品源码收归扩张为无关脚本重写。
 
-### Decision 3: TS/Bun 拥有完整控制面
+### Decision 3: TS/Bun 拥有完整 control plane 与 product policy
 
-TS/Bun 负责 CLI / invocation、scan scope、scan planning、baseline、cache、metrics aggregation、warning、gate、diagnostics 和 report/artifact projection。Scanner backend 只负责特定测量能力与结果归一化，不拥有产品 policy 或输出 contract。
+TS/Bun 负责正式 invocation、scan scope、scan planning、code areas、baseline、cache、metrics aggregation、warning、accepted-warning handling、gate、diagnostics 和 report/artifact projection。Repository dogfooding entry 与 CI automation 消费同一 product API；仓库专用 include/exclude、code-area definitions 和 accepted-warning records 通过 typed consumer config 传入。
 
-开发依赖管理仍可暂时使用现有 pnpm lockfile；产品 runtime 和 release package 不依赖用户机器上的 package manager。
+Scanner adapter 只负责执行既定检测组件并返回 normalized observations、provenance 或 failures，不拥有 threshold、severity、blocking、warning identity 或 output projection。
 
-### Decision 4: Scanner 使用内建、语言无关的 adapter boundary
+### Decision 4: 产品检测栈固定为 scc、Lizard/Python 和 jscpd
 
-每个 backend 通过 Vibe Check-owned adapter 暴露 capability、input、normalized result、diagnostic 和 semantic profile。实现可以是同进程 JS、bundled native process、bundled Python tool 或 WASM；实现技术不得泄漏到 product core、warning policy 或稳定 artifact model。
+LOC/file metrics 使用现有 scc wrapper；function NLOC、cyclomatic complexity 和 parameter count 使用现有 Lizard/Python wrapper；duplicate detection 使用现有 jscpd wrapper。三个 adapter 的 parsing、normalization、ordering、code-area assignment、cache interaction 和 failure projection 由产品化回归 fixtures 固定，并随源码一起迁入 product modules。
 
-第一阶段只支持产品内建 backend registry，不设计第三方 plugin API。Backend 不能通过 PATH、目标仓 `node_modules` 或隐式全局环境静默替换。
+现有 typed `tools` config 对每项 capability 声明 command、固定参数与显式 override，现有 tool-availability checks 验证组件可用性。产品化将这些机制与 wrappers 一起收归 product modules，并统一依赖解析和 diagnostic；组件缺失、版本不兼容或协议不匹配必须产生可行动诊断。
 
-### Decision 5: Function metrics 首版使用 Lizard + bundled Python
+### Decision 5: 影响结果的组件信息进入状态 identity
 
-第一版 function-metrics capability 使用固定 Lizard 与随包 Python runtime，保留现有四语言 NLOC、圈复杂度和参数数量能力。产品包把 Python 和 Lizard 视为受管理 backend，而不是外部前置条件。
+Tool version、影响结果的固定参数、parser/normalization identity 和 product config 进入 cache 与 baseline identity。只有这些信息与 input semantics 兼容时才复用旧状态；不兼容时产生明确的重新扫描或 baseline 处理结果。
 
-并行 Rust `function-metrics` sidecar 只验证同一 normalized contract 下的行为、性能、产物大小和跨平台成本。它不是第二产品实现，也不阻塞 TS/Bun 主架构；只有测量证据证明收益后，才通过后续 change 替换生产 backend。
+### Decision 6: 当前开发环境承担产品化验收
 
-### Decision 6: 以平台便携目录作为 release unit
+正式入口是 repo-owned TS/Bun local CLI。产品化验收在当前开发环境执行，复用仓库已支持的 Bun、scc、Lizard/Python 与 jscpd toolchain；typed config、availability checks 和 diagnostics 使运行条件显式可检查。
 
-每个平台 release 包含 Vibe Check 控制面、内建 backend、schema、manifest 和第三方许可证材料，并在无全局 runtime / scanner、无网络的 clean machine 上运行。第一条纵向验证路径是 Windows x64；其它平台复用相同目录和 manifest contract。
+验收覆盖真实 human/JSON scans、现有行为、依赖与配置边界、scanner failures 和 owner contracts，并以正式 local CLI 的可执行证据作为完成条件。
 
-Bun 官方支持把 TypeScript、导入文件、npm packages 和 Bun runtime 编入 standalone executable，并支持 Windows x64 cross-compile：https://bun.sh/docs/bundler/executables 。因此 release 可以在 spike 中比较 compiled control-plane executable 与独立 Bun runtime + JS bundle；无论选择哪种形式，native/Python backend 仍使完整产品以目录为交付单位。
+### Decision 7: Path 与 process 边界保持平台中立
 
-### Decision 7: Semantic profile 标识 backend 行为而非只标识版本
+Path 与 process code 使用 Bun/TypeScript platform APIs、structured arguments、explicit cwd 和 no-shell invocation。相关 tests 使用 POSIX/Windows lexical values、空格、Unicode 和引号覆盖解析边界；validation scripts 使用 runtime API 表达路径与进程调用。当前开发环境提供本 change 的执行证据。
 
-每个可比较的 scanner capability 都必须有稳定 semantic profile identity，覆盖 backend identity/version、对结果有影响的固定选项和 normalization rules。Cache、baseline 和结果 metadata 必须能够区分不兼容 profile；不同实现只有在 profile 明确相同且 fixtures 证明等价时才能透明替换。
+### Decision 8: 仓库默认入口形成单一产品路径
+
+Repository default CLI、dogfooding scripts、validation commands 与 owner docs 在 source ownership、回归、依赖、owner contract 和本地验收全部通过后切换到 TS/Bun product core。完成后这些入口共同消费同一产品实现。
 
 ## Risks / Trade-offs
 
-- [Risk] 一次性迁入多个 toolkit 后可能携带只服务 Docnav 或开发脚本的冗余抽象。→ 先固定来源 revision 和 characterization，再以产品调用链为边界逐步删减；不在迁入阶段同时重写行为。
-- [Risk] Bun 与 Node-compatible npm package 在 compiled executable 中可能存在动态资源、子进程入口或模块解析差异。→ 便携 spike 同时验证源码运行、bundle 和 compiled mode，失败时保留独立 Bun runtime + bundle 作为同架构 fallback。
-- [Risk] Bundled Python 显著增加体积、启动链路和平台 release 成本。→ 把 Lizard backend 独立放置并记录预算；Rust sidecar spike 只以测量结果驱动替换。
-- [Risk] 现有主 specs 与 TS tooling 行为存在语义冲突。→ 本 change 先重建 owner 和 backend boundary；具体指标、CLI 与 output 冲突必须在实现前审计中列出并由对应 delta 或后续 change 明确解决。
-- [Risk] 过早开放 plugin API 会固化尚未稳定的 adapter contract。→ 第一版只允许内部 registry；稳定多个内建 backend 后再评估公开扩展面。
-- [Trade-off] 模块化单体减少独立发布和复用能力。→ 当前只有一个产品 owner，单仓内部边界已足以支持替换 backend，避免为假设中的消费者支付治理成本。
+- [Risk] 一次性迁入多个 toolkit 时遗漏隐式 runtime import 或改变现有行为。→ 固定 revisions 与 worktree state，建立完整 import inventory，并在每个迁入 slice 后重跑同一回归 suite。
+- [Risk] Repository-specific config 被误放进 product defaults。→ Product core 接收 typed config；Vibe Check 自身的 include/exclude、code areas 和 accepted warnings 留在 dogfooding consumer，并用 dependency audit 证明方向。
+- [Risk] 当前环境中的隐式 PATH、Python 或 `node_modules` 状态掩盖依赖要求。→ 复用并产品化现有 tool config 与 availability checks，增加 missing/wrong-version tests。
+- [Risk] 路径或进程调用依赖当前 shell 行为。→ 使用 platform APIs、structured args 和 lexical edge-case tests 固定边界。
+- [Risk] 现有 engine 结果与 CLI/output owner 的投影不一致。→ 为入口与 projection 建立 owner contract tests，同时保留 core 的完整数据。
 
 ## Migration Plan
 
-1. 完成实现前架构审计，确认本 change 的 capability、spec delta、开放问题和验证路径一致；审计解除前不实施代码迁入。
-2. 固定现有 TS toolkit revisions、许可证、测试与产品实际调用面，建立迁入前 characterization baseline。
-3. 将 `quality-core` 和运行期必要 helper 迁入 Vibe Check-owned product modules，保持行为不变并切断 submodule imports。
-4. 建立正式 TS/Bun CLI / product core 调用链和内建 backend registry；开发脚本改为调用产品入口。
-5. 组装 Lizard + Python、scc、jscpd 与 control plane 的 Windows x64 portable spike，在 clean/offline 环境验证。
-6. 并行运行 Rust function-metrics sidecar spike，记录但不自动替换生产 backend。
-7. 根据验证结果同步 architecture、script tooling、scanner、metrics、testing、release owner docs 和主 specs，再决定 Rust CLI 源码的历史保留或删除方式。
-
-在正式 release contract 切换前，如果 spike 失败，可以恢复原开发脚本入口并保留既有 Rust binary；由于本 change 不做持久数据迁移，rollback 不需要数据转换。产品 owner 文档和 release 入口一旦切换，回滚必须同时恢复这些 owner，不能留下双重权威。
-
-## Open Questions
-
-1. 第一版 `FunctionMetric` 的 parameter count、NLOC 和圈复杂度正式采用 Lizard 原生语义，还是由 adapter 归一化到现有 Rust 语义？该答案必须在实现 function-metrics contract 前写入 Decision 和对应 spec。
-2. Production control plane 最终使用 `bun build --compile`，还是携带独立 Bun runtime + bundled JS？由 Windows x64 spike 的兼容性、调试性、冷启动和体积证据决定。
-3. 不同 semantic profile 是否必须使用完全独立的 baseline、threshold 和 accepted-warning namespaces，还是只隔离 cache/result identity？
-4. Python runtime 与 Rust sidecar 的首版体积、冷启动、峰值内存和扫描延迟预算是多少？预算需要在 portable spike 前确定。
-
-以上问题仍未回答；当前 change 只能进入实现前审计，不能开始实现任务。
+1. 固定 source/dependency provenance、runtime import closure、现有行为基线与 owner contract 对照。
+2. 迁入 product source closure，建立正式 TS/Bun entry、typed config 和 product module boundaries。
+3. 将现有 scanner wrappers、tool config、availability checks、normalization 和 failure mapping 收归正式模块。
+4. 在当前开发环境完成真实扫描、错误路径和完整回归，通过后切换仓库默认入口并同步长期 owners。
