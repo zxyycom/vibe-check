@@ -30,8 +30,6 @@ Repository SHALL 以 terryyin/lizard 1.23.0、commit 06284ec87c1966fee4ddbf3f068
 - **THEN** tests 使用 checked-in source、expectations 和 TypeScript port
 - **AND** 不调用迁移期 Python/Lizard oracle
 
-## MODIFIED Requirements
-
 ### Requirement: Fixed product scanner stack
 TS/Bun 产品 SHALL 使用固定 scanner stack：scc 提供 LOC/file metrics，仓库内 Lizard-compatible TypeScript 模块提供 function metrics，jscpd 提供 duplicate detection。Typed product tool config MUST 为 external scc/jscpd 声明 command、受支持版本、固定参数、resolution strategy 和 protocol；function-metrics implementation MUST 来自当前 Vibe Check revision。
 

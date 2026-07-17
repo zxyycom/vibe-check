@@ -1,6 +1,6 @@
 本 delta 让 structural fixtures 同时证明逐文件 TypeScript 翻译与 Python-free 产品运行。
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Structural scanner characterization fixtures
 Checked-in fixture suite SHALL 为 Lizard-compatible TypeScript function-metrics module 提供 deterministic regression、normalization 和正式入口 proof targets。Fixtures MUST 覆盖 TypeScript、Go、Rust 和 Python，并证明 supported function forms、source ranges、stable names、kind、NLOC、cyclomatic complexity、token count、parameter semantics、diagnostics 和 deterministic ordering。

@@ -2,7 +2,7 @@
 
 ## 1. 固定翻译基线
 
-- [ ] 1.1 确认 productize-typescript-quality-tooling 已固定四语言 function-metrics 行为、fixtures 和 adapter contract。
+- [ ] 1.1 确认 `promote-typescript-quality-tooling-to-product` 已完成源码上移和正式入口接线，Python/Lizard adapter 及现有测试已由产品源码拥有。
 - [ ] 1.2 固定 Lizard 1.23.0、commit 06284ec87c1966fee4ddbf3f068ccf89b987b0f8，并记录 source archive 与适用 license。
 - [ ] 1.3 核对 design 中的逐文件 source map；发现必需依赖时先更新 map。
 - [ ] 1.4 为每个 source file 记录对应 upstream tests、known skips 和目标 TypeScript test。

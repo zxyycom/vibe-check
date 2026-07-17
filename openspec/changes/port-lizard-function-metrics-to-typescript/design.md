@@ -2,7 +2,7 @@
 
 ## Context
 
-当前 function-metrics adapter 执行 python -m lizard --csv，再把 CSV 转成 Vibe Check 的 FunctionMetric。前置 change productize-typescript-quality-tooling 负责固定四语言输入、指标归一化和产品输出；本 change 只替换其 backend。
+当前 function-metrics adapter 执行 python -m lizard --csv，再把 CSV 转成 Vibe Check 的 FunctionMetric。前置 change `promote-typescript-quality-tooling-to-product` 负责将现有质量运行时上移为仓库自有产品源码；本 change 在该产品源码上替换 backend。
 
 翻译基线为 terryyin/lizard tag 1.23.0、commit 06284ec87c1966fee4ddbf3f068ccf89b987b0f8。
 
@@ -67,7 +67,7 @@ Python/Lizard 只作为迁移期 oracle。required validation 使用提交到仓
 
 ## Implementation Order
 
-1. 等待前置 change 固定现有行为和四语言 fixtures。
+1. 等待前置 change `promote-typescript-quality-tooling-to-product` 完成源码上移和正式入口接线。
 2. 固定上游 revision、source map、license 和对应 tests。
 3. 逐文件翻译 core、reader base 和共享 helper。
 4. 逐文件翻译四个 language reader。

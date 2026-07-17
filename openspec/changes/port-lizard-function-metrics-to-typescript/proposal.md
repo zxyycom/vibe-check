@@ -19,16 +19,15 @@
 
 ### New Capabilities
 
-- 无。
+- `scanner-backends`：在 TypeScript port 完成后定义产品固定 scanner stack、adapter、component resolution 和 failure boundary。
 
 ### Modified Capabilities
 
-- scanner-backends：将 function-metrics 从 Python/Lizard 外部组件改为仓库内 TypeScript 模块。
 - structural-scanning：保持现有四语言指标契约，替换 backend 实现。
 - test-fixtures：增加逐文件翻译测试和 Python/Lizard 对照验证。
 
 ## Impact
 
-- 前置 change productize-typescript-quality-tooling 先固定现有产品行为，本 change 再替换其 Python/Lizard 实现。
+- 前置 change `promote-typescript-quality-tooling-to-product` 先完成现有质量运行时的源码上移，本 change 再替换其 Python/Lizard 实现。
 - 主要影响 quality-core 的 Lizard adapter、内部 TypeScript port、测试和工具配置。
 - 对外 CLI、schema、rule ID 和报告结构不变；内部 scanner identity 随实现切换更新。
