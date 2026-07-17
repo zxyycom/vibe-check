@@ -1,7 +1,3 @@
-# Vibe Check product CLI smoke commands.
-prefix_rule(pattern=["vibe-check", "--help"], decision="allow")
-prefix_rule(pattern=["vibe-check", "scan"], decision="allow")
-
 # Docnav helper commands for navigating repository Markdown docs.
 prefix_rule(pattern=["docnav", "--help"], decision="allow")
 prefix_rule(pattern=["docnav", "help"], decision="allow")
@@ -18,9 +14,11 @@ prefix_rule(pattern=["bun", "scripts/docs/validate.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/vibe-check-workspace/verify.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/quality/scan.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/quality/annotate.ts"], decision="prompt")
-prefix_rule(pattern=["bun", "scripts/cargo/with-bins.ts"], decision="allow")
 
-# TypeScript script checks.
+# TypeScript product and script checks.
+prefix_rule(pattern=["bun", "run", "lint:product"], decision="allow")
+prefix_rule(pattern=["bun", "run", "typecheck:product"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test:product"], decision="allow")
 prefix_rule(pattern=["bun", "run", "lint:scripts"], decision="allow")
 prefix_rule(pattern=["bun", "run", "typecheck:scripts"], decision="allow")
 prefix_rule(pattern=["bun", "run", "typecheck:scripts:tsc"], decision="allow")
@@ -47,9 +45,6 @@ prefix_rule(pattern=["bun", "run", "toolkit:foundation:test"], decision="allow")
 prefix_rule(pattern=["bun", "run", "toolkit:parallel:typecheck"], decision="allow")
 prefix_rule(pattern=["bun", "run", "toolkit:parallel:lint"], decision="allow")
 prefix_rule(pattern=["bun", "run", "toolkit:parallel:test"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:quality:typecheck"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:quality:lint"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:quality:test"], decision="allow")
 
 # Package, dependency, and ad-hoc Bun commands can change workspace state.
 prefix_rule(pattern=["bun", "install"], decision="prompt")
@@ -74,38 +69,3 @@ prefix_rule(pattern=["openspec", "validate"], decision="allow")
 
 # OpenSpec commands that mutate change state or specs.
 prefix_rule(pattern=["openspec", "archive"], decision="prompt")
-
-# Rust workspace inspection, build, formatting, linting, and tests.
-prefix_rule(pattern=["cargo", "--version"], decision="allow")
-prefix_rule(pattern=["cargo", "metadata"], decision="allow")
-prefix_rule(pattern=["cargo", "locate-project"], decision="allow")
-prefix_rule(pattern=["cargo", "tree"], decision="allow")
-prefix_rule(pattern=["cargo", "check"], decision="allow")
-prefix_rule(pattern=["cargo", "build"], decision="allow")
-prefix_rule(pattern=["cargo", "fmt"], decision="allow")
-prefix_rule(pattern=["cargo", "clippy"], decision="allow")
-prefix_rule(pattern=["cargo", "test"], decision="allow")
-prefix_rule(pattern=["cargo", "nextest"], decision="allow")
-prefix_rule(pattern=["cargo", "doc"], decision="allow")
-prefix_rule(pattern=["cargo", "run"], decision="allow")
-prefix_rule(pattern=["rustc", "--version"], decision="allow")
-prefix_rule(pattern=["rustfmt", "--version"], decision="allow")
-prefix_rule(pattern=["rustup", "show"], decision="allow")
-prefix_rule(pattern=["rustup", "target", "list"], decision="allow")
-prefix_rule(pattern=["rustup", "component", "list"], decision="allow")
-
-# Rust dependency, packaging, cleanup, and toolchain changes.
-prefix_rule(pattern=["cargo", "fetch"], decision="prompt")
-prefix_rule(pattern=["cargo", "add"], decision="prompt")
-prefix_rule(pattern=["cargo", "remove"], decision="prompt")
-prefix_rule(pattern=["cargo", "update"], decision="prompt")
-prefix_rule(pattern=["cargo", "install"], decision="prompt")
-prefix_rule(pattern=["cargo", "package"], decision="prompt")
-prefix_rule(pattern=["cargo", "publish"], decision="prompt")
-prefix_rule(pattern=["cargo", "clean"], decision="prompt")
-prefix_rule(pattern=["rustup", "component", "add"], decision="prompt")
-prefix_rule(pattern=["rustup", "component", "remove"], decision="prompt")
-prefix_rule(pattern=["rustup", "target", "add"], decision="prompt")
-prefix_rule(pattern=["rustup", "target", "remove"], decision="prompt")
-prefix_rule(pattern=["rustup", "toolchain"], decision="prompt")
-prefix_rule(pattern=["rustup", "update"], decision="prompt")
