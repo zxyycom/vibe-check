@@ -1,212 +1,183 @@
 # 测试策略
 
-本文定义 Vibe Check 自动化测试的层级、所有权、统一验证入口和一致性审计规则。以下子
-文档维护测试用例流程和最终账本：
+本文定义 Vibe Check 自动化测试的层级、所有权、fixture 边界、统一验证入口和一致性审计
+规则。以下子文档维护测试用例流程和最终账本：
 
 - [测试用例维护](testing/case-maintenance.md)：测试函数、fixture 证明目标和源码
   `@case` 标记变更时的维护流程。
-- [测试用例编号账本](testing/cases.md)：最终 case 条目、证明目标和源码 `@case` 标记映
-  射。
+- [测试用例编号账本](testing/cases.md)：最终 case 条目、证明目标和源码 `@case` 标记
+  映射。
 
-稳定 CLI 行为、退出码、输出字段、schema 形状、scan scope、指标、warning 和 gate 语
-义以 [文档导航](navigation.md#规则所有权) 指向的 owner 文档为准；测试文档只记录覆盖
-目标、测试归属和验收边界。
+稳定 CLI、scan scope、metrics、warning、baseline、artifact 和 output 语义以
+[文档导航](navigation.md#规则所有权) 指向的 owner 文档为准。测试文档只记录证明目标、
+测试归属和验收边界。
+
+## 实施状态
+
+产品测试 owner 位于 `src/product/**`，测试对象是仓库自有 TypeScript/Bun source、正式
+product entry 和外部 scanner adapters。迁移后的 quality-core tests / fixtures 位于
+`src/product/quality-core/**`；`docs/testing/cases.md` 记录其当前路径。
+
+Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或逐项映射到 TypeScript
+产品。新增 coverage、scanner characterization 或既有缺陷修复进入独立 change，不回填
+已删除的 Rust 证明资产。
 
 ## 测试层级
 
 | 层级 | 核心目标 |
 | --- | --- |
-| 文档 / schema | Markdown 链接、JSON 语法、report schema 编译和 report examples 校验；schema 和 examples 是输出契约验证材料，不重新定义产品语义 |
-| Rust 单元 | CLI parser、scan scope、指标聚合、warning / gate、runtime 错误映射、输出 helper 和其它自定义逻辑不变量 |
-| Rust 集成 | 通过真实 `vibe-check` binary 验证 CLI 参数、路径、配置、stdout/stderr、退出码、人读输出和 JSON report schema |
-| 脚本 / toolkit | TypeScript 脚本类型、lint、quality tooling、workspace verifier 和共享 toolkit 的本地工具边界 |
-| 综合验证 | required / full profile 串联文档、脚本、quality、Cargo、OpenSpec 和 toolkit gate，证明交付边界没有漂移 |
+| 文档 / schema | Markdown 链接、JSON 语法和 checked-in schema/examples 一致性；已退役历史材料不重新定义当前产品语义 |
+| Product unit | TypeScript model、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 report helper 的自定义不变量 |
+| Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、console、status 和 artifacts 到达同一 core |
+| Script consumer | CI annotation、workspace verifier 和其它 `scripts/**` consumer 只消费产品 output，不成为第二套产品实现 |
+| Productization parity | 一次性证明上移前 pinned consumer 与当前产品入口在 quick、full、baseline 和 explicit changed-files 下等价 |
+| 综合验证 | docs、OpenSpec、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
+
+当前 workspace verifier 使用 TypeScript product checks，不保留空跑或不可达的 Rust /
+Cargo 产品 gate。
 
 ## 测试所有权
 
-测试按“用户可观察契约”和“自定义逻辑不变量”划分所有权。同一行为只有在证明不同责任时
-才跨层测试：Rust 单元测试证明内部不变量，Rust 集成测试和验证脚本证明真实入口的外部
-契约。
+测试按“用户可观察 contract”和“自定义逻辑不变量”划分。一个行为只有在证明不同责任时
+才跨层测试：
 
-历史回归只作为风险线索或代表性输入来源，不作为证明目标。新增测试、拆分测试或向已有
-测试添加断言前，先能写出“owner 明确承诺的语义 -> 可观察结果”的证明目标，并能追溯到
-当前 owner 文档、schema、示例或相邻实现边界；涉及稳定 case 的改动按
-[测试用例维护](testing/case-maintenance.md) 更新账本和 `@case` 标记。只有当 owner 明
-文要求校验缺失、拒绝、输出通道不污染、路径不变更或其它否定性边界时，才测试该否定行
-为；否则使用现有覆盖、局部验证命令或代码审查证明本次改动。
+- Product unit tests 证明 normalized model、parser、ordering、cache identity 和 warning
+  algorithm。
+- Product entry tests 证明正式命令与 dogfood wrapper 的外部行为。
+- Productization parity 已一次性证明源码位置和入口改变没有修改 TypeScript behavior。
+- Workspace validation 证明 consumer、docs 和 automation 接线仍可工作。
 
-### CLI contract
+历史回归只作为风险线索，不自动成为新 proof target。新增断言前必须能写出“owner 承诺的
+语义 -> 可观察结果”，并追溯到当前 owner、现有 TypeScript behavior 或明确 change
+requirement。
 
-CLI contract 测试从发布给用户的可执行入口验证外部契约。覆盖范围按以下维度评估：
+已有缺陷或 coverage 缺口进入后续 change，不借 owner 搬移改变既有测试范围或预期结果。
 
-- `scan` 的代表性成功路径和失败路径。
-- project root 默认值、显式路径、leading-dash 路径、config path 和路径规范化。
-- `human` 与 `json` 输出模式，以及 JSON 输出对
-  [report schema](schemas/vibe-check-report.schema.json) 的校验。
-- 退出码、`stdout`、`stderr` 及其相互约束。
-- scan scope 的 include / exclude、supported file 分类和 collection diagnostic。
-- 指标聚合、warning records、blocking gate 和 partial report 的可观察结果。
-- help / version 不启动扫描，也不输出 report。
+## Product unit tests
 
-同一校验规则下的多个同类非法值视为一个等价类，只选择能证明外部行为的用例。覆盖完整
-性由契约维度判断，不以代码覆盖率或参数组合数量衡量。
+当前 TypeScript tests 继续证明其职责。`docs/testing/cases.md` 记录的直接
+资产包括：
 
-### Rust tests
+- `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV、jscpd version/report parser，
+  以及 jscpd unavailable / execution / report / parse failure。
+- `measurement/scanners/jscpd/area-scans.test.ts`：per-code-area task planning、稳定 task /
+  file ordering 和 current-scan fatal issue channel。
+- `measurement/cache.test.ts`：duplicate 与 baseline cache identity、cache hit 和 snapshot
+  integrity。
+- `input/files.test.ts`：file fingerprint、Git pathspec 和 explicit changed-files failure。
+- `output/warnings/generator.test.ts`：file/function/duplicate thresholds、changed/regression
+  channels 和 accepted warning behavior。
+- `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels 和
+  accepted reason。
 
-Rust tests 负责具有独立出错空间的自定义逻辑。每个用例应明确证明一个分支、状态转换、
-算法边界或数据不变量，例如：
-
-- CLI token 消费边界、format 枚举、config 参数和 project root 归一化。
-- scan scope 默认排除、gitignore 行为、supported file 分类和 recoverable diagnostic。
-- LOC metrics adapter、语言归并、指标聚合和空 scope。
-- `cpd-finder` dependency characterization、duplicate pair normalization、path ordering、
-  preflight diagnostic 和 fatal mapping。
-- `ast-grep-core` / `ast-grep-language` dependency characterization、四语言 grammar mapping、
-  function inventory、parameter slot normalization、source range / path ordering、partial
-  diagnostic 和 fatal invariant mapping。
-- warning severity、blocking policy、gate status 和 summary 计数。
-- runtime 对 scanner fatal、recoverable diagnostic 和 output write failure 的错误映射。
-- 人读输出、JSON report 序列化、schema examples 和 stdout/stderr 分流。
-
-以下行为由 CLI contract 或验证脚本证明外部契约，无需在 Rust 单元测试中建立重复矩阵：
-
-- `clap` 自带且无自定义分支的解析行为。
-- 无转换逻辑的字段透传或 serde 序列化。
-- 同一校验规则下的多个等价非法值。
-- 文档链接、schema 示例和 workspace verifier 输出过滤规则。
+这些 tests 只依赖 Vibe Check-owned models。scc CSV row、Lizard CSV row 和 jscpd reporter
+objects 可以作为 parser fixture 输入，但不得成为 Core / Output contract。
 
 ### 代码组织
 
-- 小型白盒测试可按相邻模块惯例放在 `#[cfg(test)] mod tests` 中。
-- 测试变大、fixture/helper 开始遮蔽主实现时，优先拆到同级 `tests.rs` 子模块，主实现
-  文件只声明测试模块。
-- 测试通过模块可见性访问私有实现，生产 API 的可见性保持不变。
-- 单个测试只证明一个自定义不变量或一个外部契约维度。
-- 参数解析和输出测试保持少量高价值用例；新增用例必须覆盖新的 strict input 规则、路
-  径边界、输出通道边界或 exit code 映射。
-- 跨层测试必须分别断言内部不变量和外部 CLI 契约，不重复相同的参数组合矩阵。
+- 小型 test 与实现保持现有相邻 `.test.ts` 结构。
+- Fixture/helper 遮蔽 proof target 时，按已有分组组织，不为路径移动重构 test
+  architecture。
+- 单个 test 保持一个自定义不变量或一个外部 contract dimension。
+- Production export 不得只为迁移后的白盒 test 扩大；沿用现有 public source entrypoint 和
+  module visibility。
+- Async process tests 必须观察 Promise、退出状态和 artifact；不得依赖未处理 rejection 或
+  环境泄漏。
 
-## Fixture projects
+## Scanner fixtures
 
-Rust CLI contract tests 可以使用 `crates/vibe-check/tests/fixtures/projects/<fixture-id>/`
-下的 checked-in project fixtures。Fixture id 使用稳定 kebab-case；fixture source、配置
-和 ignore 文件是手写入库的测试环境输入，不需要 npm、go、cargo、pip 或网络依赖即可被
-`vibe-check scan` 读取。
+现有 TypeScript scanner tests / fixtures 作为一个整体随 pinned source 上移。它们继续
+证明：
 
-Fixture-backed tests 必须直接把 checked-in fixture project path 作为 `vibe-check scan`
-的 project root，并且只允许运行 CLI、读取 stdout/stderr、解析 report 和校验 owner
-schema。测试代码不得创建、复制、拼接、追加、改写或生成作为 scan input 的 source、
-configuration 或 ignore 文件；threshold fixture 也使用入库长文件，而不是运行时生成。
+- scc/Lizard/jscpd parser 的当前 normalized output。
+- jscpd real duplicate scan 和 failure projection。
+- cache/fingerprint、changed-files 和 report/warning behavior。
 
-普通单语言 fixture 只承接该语言的 supported source proof target；跨语言、unsupported
-`.tsx` / `.js` / `.jsx`、unsupported Markdown、`.gitignore`、generated/vendor/cache
-和默认排除边界放入专门 mixed fixture。测试资料只记录 fixture environment、文件分类集
-合、证明目标和源码 `@case` 归属；supported file、language identifier、warning、gate
-和 output shape 的产品语义仍追溯到 owner 文档、schema 或 examples。
+Rust CLI project fixtures 和 Rust dependency / grammar characterization fixtures 已删除。
+它们不是 TypeScript behavior source，也不得被复制到 `src/product/**` 作为“补齐”。若
+现有 TypeScript test 无法证明某个长期 contract，先把缺口记录为后续 change。
 
-Duplicate-code fixtures 也遵守 checked-in、手写、离线可运行的约束。Dependency
-characterization fixtures 直接证明 `cpd_finder` 的 individual-file input、cross-file / same-
-file pair、`50` token / `5` line-span threshold、format mapping、gitignore ownership 和
-canonical source ids；该测试通过前不实现 Vibe Check duplicate model。CLI fixtures 负责
-证明 human / JSON warning 可定位、duplicate-only gate 通过，以及 unsupported / excluded
-inputs 不进入 duplicate scanner。Adapter 单元 fixture 负责 preflight、normalization、
-diagnostic 和 fatal failure，不把 upstream structs 提升为 Core contract。
+## 一次性 productization parity evidence
 
-Structural characterization fixtures 放在独立 checked-in目录，直接调用 exact
-`ast-grep-core` / `ast-grep-language` public API，证明 TypeScript、Go、Rust、Python 的
-language mapping、node / field names、stable name、body presence、receiver / compound
-parameter slots、Go / TypeScript parameter-list named comment extra、1-based inclusive range、
-syntax error / missing node和 UTF-8 path。该 gate只证明 dependency事实，通过前不实现 Vibe
-Check structural model。Structural adapter tests再证明 Vibe Check-owned normalization、
-deterministic ordering、preflight partial、fatal invariants，以及 runtime只传递 supported exact
-paths；CLI project fixtures只证明 `function.too_many_parameters` 的 human / schema-valid JSON
-投影、parameter-list comment成功扫描、non-blocking gate和 all-input structural partial。
-三层不得互相替代 proof target。
+初次产品化验收使用迁移后的现有 TypeScript fixture material 建立隔离 Git project，固定：
 
-Fixture-backed report 断言应聚焦 schema validity、language presence/absence、
-supported/unsupported classification 的可观察结果、diagnostics status、gate status、退
-出码和 stdout/stderr 边界。不要为 fixture report 引入完整 JSON snapshot、LOC totals
-snapshot、与分类无关的手写 count snapshot 或 human/readable rendering 文案断言。
+- baseline commit。
+- current commit。
+- explicit changed-files input。
+- scanner tools 和 product config。
+
+上移前 pinned consumer 与当前 product entry 扫描同一个 fixture project。Quick、full、
+with-baseline 和 explicit changed-files runs 已比较：
+
+- metrics、aggregates 和 fingerprints。
+- baseline / comparison status 与 trends。
+- all / changed / regression warnings。
+- report、warnings 和 raw scanner artifacts。
+- console completion 与 final status。
+
+该验收只忽略源码位置、入口名、时间戳、绝对 root path 和明确记录的工具环境 metadata。
+Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完成产品化后，它不是
+日常验证或每次产品变更都要重跑的固定 gate。
+
+## Product entry and dogfood tests
+
+入口 tests 必须证明：
+
+- `bun run product:cli -- scan [project-root]` 到达唯一 product core。
+- 省略 project root 时使用启动 cwd。
+- `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan` 只作为
+  单向 wrapper，并显式传入 Vibe Check repository root。
+- 正式入口与 wrapper 保持现有 flags、profile、console、artifact 和 status mapping。
+- Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
+
+入口 tests 不需要为每个 flag 复制完整 scanner matrix；选择能证明 routing、root 和 output
+边界的代表性路径。
 
 ## 脚本与工具依赖
 
-验证脚本和按需工具依赖的运行方式由 [脚本工具](script-tooling.md) 拥有。本节只定义测
-试验证边界：
+验证脚本和按需工具的安装方式由 [脚本工具](script-tooling.md) 拥有。本节只定义测试
+边界：
 
-- 包依赖不要求预先全局安装；新 checkout 初始化、Bun、pnpm 和 toolkit submodule 要求由
-  [脚本工具](script-tooling.md#新-checkout-初始化) 维护。
-- `bun run typecheck:scripts` 证明 TypeScript 脚本模块 contract 和边界类型一致，不替
-  代真实 CLI、schema 或 Rust 测试。
-- `bun run lint:scripts` 证明脚本源码没有未使用变量/函数、显式 `any` 和常见静态质量
-  问题。
-- `bun run quality:check` / `bun run quality:full-check` 证明开发期质量观测链路能生
-  成 metrics、warnings、report 和 baseline 相关输出；它们不替代 Rust CLI release
-  contract。
-- 共享 toolkit 变更还必须运行各自 private manifest 中的 `test`，用于证明 toolkit
-  public source entrypoint 可独立通过本地 tooling 检查。
+- `bun run typecheck:scripts` 和 `bun run lint:scripts` 继续验证尚留在 `scripts/**` 的
+  consumers / wrappers，不代替 product typecheck、lint 和 test。
+- `quality:check` / `quality:full-check` / `quality:scan` 调用
+  `src/product/**` 的同一 core。
+- Foundation 只复制 product runtime 实际可达的 helper；仍在 submodule 中的开发 helper
+  tests 不因此成为 product tests。
+- 新 checkout、Bun、pnpm 和 external scanner installation requirements 由 script tooling
+  owner 维护。
 
 ## 统一验证入口
 
-常规交付前使用 Vibe Check workspace 综合验证入口：
+文档先行阶段至少运行：
 
 ```bash
-bun run verify:vibe-check-workspace
+bun run validate:docs
+bun run validate
 ```
 
-该入口默认运行 full profile，是常规交付前的完整验证入口。
+TypeScript 产品交付验证按改动面覆盖：
 
-日常开发可先跑 required profile：
+- product import boundary。
+- product typecheck、lint 和 tests。
+- `bun run quality:check`。
+- `bun run quality:full-check`。
+- `bun run quality:scan`。
+- `bun run verify:vibe-check-workspace:full`。
 
-```bash
-bun run verify:vibe-check-workspace:required
-```
-
-required profile 是快速、确定性的必需验证集合，用于日常开发中缩短反馈周期。它包含
-`cargo fmt --all --check`、脚本 typecheck、脚本 lint、quick quality check、docs
-validators 和 `git diff --check`。
-
-full profile 复用 required profile 中的非 quick quality 检查，使用 full quality check
-替代 quick quality check，并追加 toolkit tests、`cargo clippy --all-targets
---all-features -- -D warnings`、`cargo test --all` 和 OpenSpec 严格校验。
-
-workspace verifier 的终端输出用于快速判断当前验证状态：默认展示每个 report 的
-completion line 和最终 summary。完整子命令 stdout/stderr 写入
-`.log/verify/workspace/latest.log`，验证运行中间状态和 quality artifacts 写入对应
-`.cache/`、`.log/` 或 `artifacts/` 目录；这些本地文件不是 release artifact。
-
-开发期快捷入口：
-
-| 命令 | 用途 |
-| --- | --- |
-| `bun run validate:docs` | 文档链接、JSON、schema 和 examples 校验 |
-| `bun run validate` | docs、OpenSpec 和 whitespace 校验 |
-| `bun run verify:vibe-check-workspace:required` | 快速验证，只跑必需检查 |
-| `bun run verify:vibe-check-workspace:full` | 完整验证，显式运行 full profile |
-| `bun run quality:check` | 快速质量检查，生成 quick profile 报告 |
-| `bun run quality:full-check` | 全量质量检查，包含 baseline comparison |
-| `cargo fmt --all --check` | Rust 格式检查 |
-| `cargo clippy --all-targets --all-features -- -D warnings` | Rust lint gate |
-| `cargo test --all` | Rust 单元测试和集成测试 |
-
-局部改动仍可先运行范围更小的命令或 required profile；跨 Rust 行为、文档、OpenSpec、
-schema、示例、输出边界或多个包边界的交付，最终应运行
-`bun run verify:vibe-check-workspace:required` 或更高层级验证。具体检查项和输出过滤规
-则由验证脚本维护，本节只定义 profile 用途和交付要求。
+局部改动可以先运行更窄的 tests，但跨源码所有权、产品入口、scanner adapters 和
+artifacts 的交付必须运行相应 product tests、dogfood 和 workspace verification。一次性
+productization parity 已完成，不属于日常统一验证入口。无法运行的验证要记录具体命令、
+原因和残余风险。
 
 ## 一致性审计
 
 交付前检查：
 
-1. 新增、删除或修改测试能追溯到 [文档导航](navigation.md#规则所有权) 指向的 owner
-   文档。
-2. 测试函数变更已按 [测试用例维护](testing/case-maintenance.md) 判断证明目标、case
-   归属和账本更新范围。
-3. 测试文档只记录覆盖目标、归属和验收边界，不重新定义稳定字段、退出码、warning 规
-   则、gate 语义或 CLI 命令语义。
-4. schema、示例和 fixture 只校验 documented shape、输出投影和当前 owner 语义，不成为
-   新的业务规则来源。
-5. OpenSpec change 只作为变更依据、验收和审计历史，不作为日常实现主入口。
-6. 当测试暴露规范缺口时，先更新 owner 文档，再同步 schema、示例、实现和验证脚本。
-7. 涉及共享 helper 的改动必须覆盖可观察外部行为：CLI strict failure、stdout/stderr
-   purity、JSON schema validation、scan scope diagnostic、metrics aggregation、warning
-   generation、gate status 和 output write failure。
+1. 新增、删除或移动的 tests 能追溯到 owner 文档或明确 change requirement。
+2. 已迁移 TypeScript tests / fixtures 的证明目标和 case 映射保持可追溯。
+3. 已删除的 Rust tests / fixtures 没有进入 `src/product/**`。
+4. 测试文档不重新定义 threshold、warning、baseline、artifact 或 status。
+5. Case ledger 路径和 `implemented` 状态必须对应实际测试与唯一 `@case` marker。
+6. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。
+7. 发现既有缺陷或 coverage gap 时进入后续 change。

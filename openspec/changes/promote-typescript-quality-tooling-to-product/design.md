@@ -46,7 +46,7 @@
 
 ### Decision 2: 只有固定 TypeScript 快照是迁移来源
 
-TypeScript 迁移 SHALL 只以 `scripts/tools/quality-core` gitlink 固定的 `3acea8c2f643ea86f7a1e8f2a6db716b7e320c76` 为质量核心来源，以 `scripts/tools/foundation` gitlink 固定的 `f593edbf55fd03be7db54ef44a38d0a9feda4dbd` 为 helper 来源，并以上移开始时记录的仓库 revision 中 `scripts/quality/scan.ts`、`args.ts` 和 `config.ts` 为 consumer 来源。源码先保持原有文件分组、类型和控制流，仅做路径、入口和仓库所有权所必需的机械调整。
+TypeScript 迁移 SHALL 只以 `scripts/tools/quality-core` gitlink 固定的 `3acea8c2f643ea86f7a1e8f2a6db716b7e320c76` 为质量核心来源，以 `scripts/tools/foundation` gitlink 固定的 `f593edbf55fd03be7db54ef44a38d0a9feda4dbd` 为 helper 来源，并以 consumer revision `eae25aee64a5b4ecef4b02e8e86d8d39c4ab122d` 中 `scripts/quality/scan.ts`、`args.ts` 和 `config.ts` 为 consumer 来源。源码先保持原有文件分组、类型和控制流，仅做路径、入口和仓库所有权所必需的机械调整。
 
 选择 lift-and-shift 而不是重新设计，是为了让迁移差异可以按来源文件复核。超出机械调整范围的改动进入后续独立 change。
 
@@ -60,6 +60,8 @@ TypeScript 迁移 SHALL 只以 `scripts/tools/quality-core` gitlink 固定的 `3
 
 上移前的 TypeScript 脚本输出是本次 change 的唯一行为基准；Rust 产品行为不参与对照。实现只允许改变源码位置、导入路径、正式命令名和为接受 project root 所需的最薄入口接线；现有 flag 含义、默认 profile 行为、扫描器调用、指标、warning、baseline、artifact 文件和状态映射保持不变。
 
+本 design、proposal 与 tasks 所称配置、输出、gate、schema/examples 和质量规则“保持不变”，均指上述 pinned TypeScript consumer、quality-core 与 foundation 的现有 observable behavior。它不保留 Rust `vibe-check scan`、human/JSON stdout、`vibe-check.report.v1`、0–4 blocking-gate mapping、Rust metrics/warnings 或四语言 scope contract；这些要求由本 change 的 delta specs 明确移除或替换。
+
 验收覆盖 quick、full、baseline 和显式 changed-files。对照只忽略由源码位置、命令入口、时间戳、绝对路径或工具环境元数据造成的非语义差异；其它差异阻塞 TypeScript 迁移。借上移修复既有缺陷的方案不采用。
 
 ### Decision 5: 正式入口唯一，兼容方向单向
@@ -72,7 +74,7 @@ TypeScript 迁移 SHALL 只以 `scripts/tools/quality-core` gitlink 固定的 `3
 
 代码任务开始前 SHALL 先更新长期文档与 AGENTS，分别写明 Rust 产品删除、TypeScript 产品 owner 和 dogfood consumer。文档 SHALL 区分目标契约与当前实现状态；只有两个代码任务和验收完成后，才把 `src/product/**` 标记为已实现的唯一产品路径。
 
-文档与 spec delta SHALL 把 contract 变化拆开表达：删除 Rust-only scanner 与 fixture requirements；独立记录现有 TypeScript/Bun 脚本使用的 jscpd 与 Python/Lizard boundary。现有 TypeScript 测试资产随源码上移，不在本 change 中补建缺失 coverage。配置、输出、scanner algorithm、gate 和质量规则保持现状。
+文档与 spec delta SHALL 把 contract 变化拆开表达：退役 Rust CLI、human/JSON output、blocking gate、schema/example ownership、metrics、scan scope、scanner 与 fixture requirements；独立记录现有 TypeScript/Bun 脚本使用的 CLI、artifact、metrics owner、collection、jscpd 与 Python/Lizard boundary。现有 TypeScript 测试资产随源码上移，不在本 change 中补建缺失 coverage。配置、输出、scanner algorithm、gate、schema/examples 和质量规则仅保持 pinned TypeScript behavior，不保留任何 Rust contract。
 
 ## Risks / Trade-offs
 

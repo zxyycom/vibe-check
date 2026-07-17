@@ -1,125 +1,166 @@
 # 架构
 
-本文是 Vibe Check 组件职责、输出分层、scanner 边界和运行边界的主规范。
+本文是 Vibe Check 组件职责、源码所有权、输出分层、scanner 边界和运行边界的主规范。
 
 ## 核心定位
 
-Vibe Check 是 Rust-first 的代码质量检测 CLI。`vibe-check` 是核心 CLI，负责命令类型识别、配置入口、项目路径归一化、输出模式、顶层诊断和退出码映射。扫描编排由 core scan pipeline 拥有，负责从已归一化输入生成扫描计划、调用 scanner、聚合指标、生成 warning、计算 gate 结果并交给输出层。
+Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun 源码。
+`bun run product:cli -- scan [project-root]` 是正式本地入口，负责 operation 分流、
+project-root 归一化、现有 scan flags、顶层 error 和进程状态映射。扫描编排由 product core
+拥有，负责文件收集、scanner 调用、指标聚合、baseline comparison、warning、artifact 和
+最终 quality status。
 
-核心流程：
+仓库 dogfood 命令 `quality:check`、`quality:full-check`、`quality:scan` 及保留的
+`scripts/quality/scan.ts` 只作为单向薄 wrapper：它们显式传入 Vibe Check 仓库根并调用
+同一产品入口。`src/product/**` 不反向导入 `scripts/**` 或 toolkit gitlink。
+
+### 当前实现状态
+
+`src/product/**` 已拥有正式 CLI、参数解析、默认配置、扫描 core、scanner adapters、
+warnings 和 output。`src/product/config.ts` 是产品默认配置的唯一 owner；
+`src/product/quality-core/**` 与产品静态可达的 `src/product/foundation/**` 闭包均由本仓库
+直接拥有。
+
+`quality:*` 与 `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并单向调用正式
+产品入口。Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；
+`foundation` 与 `parallel-task-runner` gitlinks 只保留为开发脚本依赖，不进入产品 runtime
+import closure。
+
+核心流程保持产品化时固定的 TypeScript consumer 顺序：
 
 ```text
-collect -> scan -> aggregate -> warn -> report -> gate
+collect + classify
+  -> fingerprint + changed scope
+  -> scan
+  -> aggregate
+  -> baseline + compare
+  -> warn
+  -> write artifacts
+  -> passed | warning | failed
 ```
 
-`project root` 定位被扫描项目；`scan scope` 表示 include/exclude/generated 规则解析后的文件集合；`scanner result` 表示检测能力的归一化输出；`quality snapshot` 表示指标、聚合、warning 和 gate 的业务结果。CLI 不解析 scanner 私有输出；Output 不重新计算指标；Scanner 不拥有 warning policy 或 gate policy。
+`project root` 定位被扫描项目；`scan scope` 表示 product config 解析后的文件集合；
+`scanner result` 表示检测能力的归一化输出；`quality metrics` 表示指标、聚合、baseline、
+warning channels 和 metadata。CLI 不解析 scanner 私有输出；Output 不重新计算指标；
+Scanner 不拥有 warning policy 或最终 status。
 
 ## 输出分层
 
-Vibe Check 扫描结果分为四类输出：
+TypeScript 产品扫描结果分为以下层次：
 
-| 输出 | 目标 | Owner |
+| 输出 | 用途 | Owner |
 | --- | --- | --- |
-| 人读摘要 | 本地定位、审查和快速判断 | Output |
-| 机器结果 | CI、脚本、schema 校验和长期兼容 | Output |
-| CI 投影 | summary、annotation 和 gate 展示 | Output |
-| scanner 原始摘要 | 复现 adapter 解析问题和工具诊断 | Scanner |
+| Console summary | 本地进度、summary、warning preview、completion 与 fatal 定位 | Product CLI / Output |
+| `metrics.json` 与 warning NDJSON | 自动化、comparison 和 CI consumer | Output |
+| `report.md` | 人读审查和定位 | Output |
+| `raw/**` | 复现 scanner 与 baseline behavior | Scanner / Output |
+| CI annotation | 消费 warning NDJSON，不进入产品 runtime | `scripts/**` consumer |
 
-这些输出复用相同业务语义，例如文件、指标、warning、accepted warning 和 gate 结果，但使用不同包装和稳定性承诺。扫描管线不按输出模式分叉；Core 产出业务结果和诊断，Output 按输出模式投影到 stdout、stderr 和 artifact。
+这些输出复用同一份 Vibe Check-owned metrics 和 warnings，但不共享稳定性承诺。Product
+Core 先完成扫描和业务计算，Output 再写 console 与 artifacts；CI consumer 只读取产品
+artifact，不形成第二条扫描管线。
 
-需要机器稳定解析、兼容校验或自动化断言时，调用 machine output。默认 CLI 输出优先服务阅读体验。scanner 原始摘要只用于诊断和复现，不是业务 schema 的 owner。
+scc CSV、Lizard CSV、jscpd reporter object、process result 和临时配置只属于 adapter
+boundary。需要复现时可以保存 raw material，但第三方私有结构不成为稳定 product field。
+旧 Rust CLI 的 human/JSON renderer、`vibe-check.report.v1` schema 和 examples 不是
+TypeScript 迁移输入。
 
 ## 组件职责
 
-### `vibe-check`
+### Product CLI
 
 负责：
 
-- 提供稳定 CLI 入口和命令分流。
-- 解析 argv、help/version、配置入口、项目路径和输出模式。
-- 将用户输入归一化为 core scan request。
-- 调用 core scan pipeline 并接收 scan outcome。
-- 将 core error、output error 和 gate result 映射为退出码。
-- 维护 stdout/stderr 通道边界和顶层诊断投影。
+- 在 `src/product/**` 提供 `scan` operation 和正式入口。
+- 解析 project root，并把现有 scan flags 交给 product parser。
+- 绑定 product default config，调用 product core。
+- 保持 scan help、stdout/stderr、顶层 error 与进程状态映射。
 
-`vibe-check` 不拥有指标语义、scanner adapter、warning 规则、machine output 字段或报告结构。
+Product CLI 不拥有 scan scope、scanner adapter、metrics、warning、baseline 或 artifact
+shape。它不新增 `--format`、`--config`、version operation 或第二套 output renderer。
 
-### Core scan pipeline
+### Product core
 
 负责：
 
-- 合并配置并构造 scan scope。
-- 解析 include/exclude/generated 规则并生成文件集合。
-- 构造 scanner registry 和 scan plan。
-- 调用 scanner adapter 并收集归一化 scanner result。
-- 建立文件级、函数级和聚合指标模型。
-- 根据指标、阈值、scope 和 accepted warning 规则生成 warning。
-- 根据 warning 和 gate policy 生成 gate result。
-- 生成供 Output 消费的 report data。
+- 从 product config 构造 normalized scan scope 和 code areas。
+- 建立 fingerprints、changed-file scope 和 optional baseline。
+- 调用 scc、Python/Lizard 和 jscpd adapters。
+- 将 scanner output 归一化为 Vibe Check-owned models。
+- 聚合 current/baseline metrics 并生成 all / changed / regression warnings。
+- 验证 metrics，写入 report data，并计算 `passed` / `warning` / `failed` outcome。
 
-Core scan pipeline 不解析 CLI argv，不写 stdout/stderr，不拥有具体报告排版，也不保存 scanner 私有原始格式作为稳定输出。
+Product core 不解析 CLI operation 或 project-root positional，也不把 scanner-private
+protocol 提升为 public model。
 
 ### Scanner adapter
 
 负责：
 
-- 使用内置实现、嵌入式 Rust 库或外部工具提供检测能力；默认依赖选择由 [Scanner 依赖选择](scanner-dependencies.md) 维护。
-- 声明 scanner identity、能力范围、输入要求和版本信息。
-- 将检测结果归一化为 Core 可消费的 scanner result。
-- 区分成功、无发现、跳过、部分失败和 fatal 失败。
-- 保存复现解析问题所需的原始摘要或诊断。
+- 使用 product config 选择的 external component 提供检测能力；默认 stack 由
+  [Scanner 依赖选择](scanner-dependencies.md) 维护。
+- 只消费 product core 已批准的 exact inputs。
+- 隔离 availability check、process invocation、CSV/JSON report 与 parser。
+- 返回 Vibe Check-owned metrics/fragments 或 normalized failure。
+- 保存复现问题所需的 raw material 或 normalized scanner artifact。
 
-Scanner adapter 只处理检测能力和结果归一化，不承担 warning policy、gate policy、输出模式、退出码或项目配置命令。
+Availability preflight 失败继续按现有 TypeScript behavior 记录并跳过该 component；已进入
+scanner invocation 后的 process/report/parse failure 不得伪装成 successful empty result。
+Scanner adapter 不拥有 warning、baseline、artifact envelope 或进程状态。
 
 ### Output
 
 负责：
 
-- 将 report data 投影为人读摘要、机器结果、CI 摘要和 annotation。
-- 维护机器结果的 envelope、schema、example 和兼容性。
-- 维护人读输出的 section、label、排序和 empty state。
-- 维护 artifact 写入、stdout/stderr placement 和 output error 映射。
-- 保持 machine output、human output 和 CI output 的业务语义一致。
+- 写入 `metrics.json`、`report.md`、warning NDJSON 和 raw artifacts。
+- 从同一 metrics data 生成 summary、ranking、warning preview 和 completion text。
+- 维护 artifact 路径、JSON/NDJSON serialization、Markdown report 与 stdout/stderr
+  placement。
+- 保持 quick/full、baseline 和 accepted-warning context 的输出一致。
 
-Output 不拥有 scanner 解析、指标计算、warning 生成或 gate 判定。
+Output 不拥有 file collection、scanner invocation、metrics aggregation、warning generation
+或 status decision。Output 保持当前 TypeScript behavior；新增 schema、字段或 output mode
+必须作为独立 contract 变更处理。
 
-### 共享模块
+### 源码分组
 
-共享模块只抽取稳定契约、机械流程和跨组件重复实现。共享 owner：
+当前产品源码保持既有文件分组、类型和控制流。逻辑职责包括：
 
-- `config`：配置数据结构、默认值、配置合并和配置诊断。
-- `files`：scan scope、路径归一化、文件分类和 generated file 判定。
-- `model`：quality snapshot、metric、warning、gate 和 report data 的领域类型。
-- `scanner`：scanner trait、adapter registry、scanner result 和 scanner diagnostics。
-- `warning`：warning rule、accepted warning 匹配和 warning ordering。
-- `gate`：gate policy、gate result 和 blocking 计算。
-- `output`：human/machine/CI output projection 和 artifact 写入。
-- `error`：跨 owner error category、diagnostic record 和 CLI 映射材料。
+- `config`：default config、code areas、thresholds、scanner commands 和 artifact paths。
+- `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
+- `measurement`：scc、Python/Lizard、jscpd adapters、cache 和 aggregation。
+- `warnings`：warning rules、channels、accepted reason 和 ordering。
+- `output`：artifacts、Markdown report、summary 和 status text。
+- `scan-command` / engine：runtime orchestration、baseline 和 final outcome。
 
-除上述 owner 明确承接的职责外，共享模块不定义 CLI 参数、scanner 私有语义、输出字段形状、schema 示例、项目配置命令或测试 case 归属。新增共享模块或调整共享边界时，必须同步 owner 文档和验证材料。
+这些是 owner 边界，不要求平行的 domain、adapter、service 或 provider hierarchy。新增
+共享模块必须有独立变化原因和验证证据，不能只为源码移动制造抽象。
 
 ## 调用链
 
-通用调用链：
-
 ```text
 caller
-  -> vibe-check：解析命令类型、配置入口、项目路径、输出模式和顶层诊断上下文
-  -> core scan pipeline：加载配置、构造 scan scope、生成 scan plan
-  -> scanner adapter registry：选择并调用 scanner adapter
-  -> selected scanner adapter：执行检测、归一化结果、返回 scanner diagnostics
-  <- core scan pipeline：聚合指标、生成 warning、计算 gate、构造 report data
-  <- output layer：投影为人读输出、机器输出、CI 输出和 artifact
-  <- vibe-check：写入 stdout/stderr 并映射退出码
+  -> product CLI：分流 scan、归一化 project root、解析现有 flags
+  -> product core：加载 default config、收集文件、构造 scan context
+  -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
+  <- product core：聚合、baseline comparison、warnings
+  -> output：写 artifacts 与 summary
+  -> product core：验证 metrics 并选择 final outcome
+  -> output：写 warning completion 或 fatal status
+  <- product CLI：保留 stdout/stderr 与进程状态 mapping
 ```
 
-调用链保持单一业务路径。输出模式只影响投影方式，不改变扫描、聚合、warning 或 gate 的业务结果。
+Dogfood 调用只在链首增加一个显式传入仓库根的 wrapper。正式入口和 wrapper 必须到达同一
+core，产品源码不得回调脚本入口。
 
 ## 运行边界
 
-- 默认扫描通过 core release 编译进来的 scanner adapter registry 执行。
-- Scanner adapter 返回归一化结果、scanner diagnostics 或 scanner error；stdout/stderr、退出码和输出包装由 CLI / Output owner 处理。
-- 嵌入式 Rust 库是默认检测集成方式；外部工具必须通过 scanner adapter 隔离进程、版本、退出状态和原始摘要。
-- Scanner 依赖基线由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；架构层只要求依赖通过 scanner adapter 输出归一化结果和诊断。
-- 配置错误、输入错误、scanner fatal、output failure 和 gate failure 使用不同 error category。
-- Machine output 用于自动化消费和兼容验证；human output 用于阅读和定位。
+- 产品运行时源码闭包全部位于 `src/product/**`，由本仓库直接拥有；正式入口不得在运行时
+  import `scripts/**` 或 toolkit gitlink。
+- Product runtime 只拥有静态可达的 foundation helper；开发脚本专用 helper 留在
+  toolkit。
+- External scanner command、args、availability、process result 和 raw output 由 adapter
+  隔离。
+- Scanner 依赖基线由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；架构层只要求
+  product core 消费 Vibe Check-owned result。
+- 当前 runtime 不保留已退役 Rust 产品的 config、scanner、output 或 status contract。

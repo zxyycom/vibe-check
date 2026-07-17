@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src/product",
+    "tsBuildInfoFile": ".cache/typescript/product.tsbuildinfo"
+  },
+  "include": [
+    "src/product/**/*.ts"
+  ]
+}

@@ -1,235 +1,192 @@
 # Quality Metrics
 
-本文是 Vibe Check 基础质量指标、warning 和 gate policy 的 owner 文档。它维护 Core / Scanner 在 scan scope 后如何生成 LOC metrics、聚合 report metrics、产生 warning findings、处理 metrics diagnostics，并计算 gate result。
+本文是 Vibe Check 基础质量指标、warning channels、baseline comparison 和质量状态的 owner
+文档。它维护 Product Core / Scanner 在 normalized scan scope 后如何生成 metrics、聚合
+report data、产生 warnings，并计算 `passed` / `warning` / `failed` 状态。
 
-Output 只投影本文定义的 report data；CLI 只映射已完成 scan 的 gate result 和 fatal error。本文不拥有 CLI 参数、JSON envelope、schema 示例排版、scan scope 文件收集规则或未来 Config 配置入口。
+Output 只投影本文定义的 report data；CLI 只负责参数、入口和最终状态映射。本文不拥有
+project-root 解析、scan scope 路径规则、artifact 序列化格式或 scanner dependency 选择。
 
 ## 实施状态
 
-Rust CLI 已实现本文的 duplicate scanning contract：adapter 归一化 pairwise findings，
-Core 生成 non-blocking warnings，并由现有 report schema 投影。当前行为以 adapter / Core
-unit tests、fixture-backed CLI contract tests 和 workspace verification 为实现证据；
-`integrate-rust-jscpd-adapter` 继续记录本次接入的验收与归档状态。
+当前 owner 是 `src/product/**` 下的 TypeScript/Bun quality core。默认 thresholds、code
+areas、scanner commands、artifact paths 和 profiles 由 `src/product/config.ts` 唯一拥有；
+`src/product/quality-core/**` 提供 quick / full、optional baseline comparison、scc、
+Python/Lizard、jscpd、warning channels、cache 和 artifacts。已退役的 Rust metrics /
+warning contract 不属于当前产品行为或测试来源。
 
-Rust CLI 已实现 function metrics 与 `function.too_many_parameters`：structural adapter 返回
-Vibe Check-owned metrics，Core 生成 unified、non-blocking warning，现有 human / JSON report
-投影同一 finding，且不扩展 report schema。Dependency characterization、adapter / Core
-tests、fixture-backed CLI contract 和 workspace verification 持有实现证据；
-`integrate-rust-ast-grep-structural-adapter` 记录本次接入的验收状态。
+## Pipeline boundary
 
-## Pipeline Boundary
-
-基础质量指标、structural scanning 和 duplicate scanning 在 scan scope collection之后、
-warning生成之前运行：
+当前 TypeScript product pipeline 顺序：
 
 ```text
-collect scan scope
-  -> measure LOC metrics + structural functions + pairwise duplicates
-  -> aggregate metrics + normalize structural / duplicate findings
-  -> generate warnings
-  -> calculate gate
-  -> report data
+collect + classify normalized scan scope
+  -> build input fingerprints and changed-file scope
+  -> run scc + Python/Lizard (+ jscpd in enabled profiles)
+  -> normalize scanner results and raw artifacts
+  -> aggregate metrics
+  -> optionally scan/compare baseline
+  -> generate all / changed / regression warning channels
+  -> write report artifacts
+  -> validate metrics
+  -> calculate passed / warning / failed status
 ```
 
-LOC、structural 和 duplicate adapters 的输入只能来自 normalized scan scope中已收集的
-supported files。Unsupported ordinary files计入 `scope.file_count`，但不进入任一 adapter。
-被默认排除目录、ignore规则、generated/vendor/cache边界或其它 scan scope规则排除的文件
-不进入 metrics、structural或 duplicate scanning。
+Scanner inputs 只能来自 normalized scan scope。Adapter 不重新发现 project root，不重新应用
+include / exclude，也不把第三方输出结构交给 aggregation、warning 或 Output。
 
-## LOC Adapter
+## Vibe Check-owned models
 
-默认 LOC adapter 使用 `tokei`。`tokei` 负责读取文件并识别 code、comment、blank 和语言统计；adapter 负责把第三方结果归一化为 Vibe Check-owned models。
+Product Core 使用仓库自有模型隔离 scanner protocol。现有模型包括：
 
-`tokei` 的语言 taxonomy、report structure、错误类型和私有配置不进入 Core 外部契约、Output schema 或 examples。若 `tokei` 因编译、license、平台、API 或 fixture 验证不可接受，必须先更新 scanner dependency 和本 owner，再实现替代 adapter。
+- `FileMetric`：path、language、code area、changed 标记、lines、可用的 code/comment/blank
+  lines，以及 Vibe Check-owned decision-token metric。
+- `FunctionMetric`：file、code area、stable function name、start/end line、Lizard NLOC、
+  parameter count、cyclomatic complexity 和 changed 标记。
+- `DuplicateCodeFragment`：stable id、token/line count、归一化 locations、涉及的 code
+  areas 和 changed-scope 标记。
+- `FatalIssue`：tool、phase 和可行动 error。
 
-## File Metrics
+这些类型属于 product core contract。scc CSV record、Lizard CSV row、jscpd reporter
+object、process result、临时 config 和 component-private data 不得越过 adapter boundary。
 
-Core 接收的文件级 metrics 使用 Vibe Check-owned model。MVP 字段为：
+## scc file metrics boundary
 
-- `file`: project-root-relative path using `/` separators.
-- `language`: stable lowercase Vibe Check identifier, currently `go`, `python`, `rust`, or `typescript`.
-- `total_lines`: `code_lines + comment_lines + blank_lines`.
-- `code_lines`.
-- `comment_lines`.
-- `blank_lines`.
+现有 TypeScript product config 解析 scc command。Adapter 运行 by-file measurement，把
+scc output 归一化为 `FileMetric`，并保留 file code lines、comment/blank lines、language
+和 decision-token input。
 
-文件级 metrics 是 Core 内部输入，用于聚合、warning 和 tests。本阶段不把逐文件 metrics 列表输出为稳定 JSON。
+scc 的 CSV header、language taxonomy、native error 和 process protocol 只属于 adapter。
+Availability preflight 失败继续按现有 behavior 记录并跳过 scc；已进入 invocation 后的
+未知 header、不可解析 output 或执行失败进入既有 normalized failure channel，不能被当成
+zero metrics。
 
-## Function Metrics
+scc command、args、file-line thresholds、decision-token allowance、aggregate 公式和 raw
+artifact 都属于当前 product contract；修改时必须同步对应 owner 与测试。
 
-Structural adapter 向 Core 返回 Vibe Check-owned `FunctionMetric`，不返回第三方 AST。第一
-版内部字段为：
+## Python/Lizard function metrics boundary
 
-- `file`: project-root-relative `/` path。
-- `language`: `go`、`python`、`rust` 或 `typescript`。
-- `kind`: `function`、`method` 或 `constructor`。
-- `display_name`: declaration、method / constructor key 或 TypeScript direct binding 的稳定名称。
-- `range`: 1-based inclusive start / end line and column。
-- `parameter_count`: 调用者显式传入的 source-level parameter slots。
+Structural scanning 使用 product config 解析的 Python/Lizard component。当前产品
+通过 Python command 与 `-m lizard` 调用 Lizard，并解析 CSV；process 和 parser behavior
+由现有 adapter tests 验证。
 
-Parameter count 排除 Go receiver、Rust self receiver、TypeScript `this` pseudo-parameter 和
-Python non-static direct class method 的第一个 receiver parameter；Python `@staticmethod`
-全部按普通参数计数。Default、optional、destructured、rest 和 variadic form各计一个 slot，
-binding内部名字不展开；Go grouped names按实际 call-site slots计数。Parameter-list comment与
-unnamed punctuation不属于调用参数，计数为零，也不产生 structural diagnostic或 fatal。
+Product core 只向 adapter 传递 normalized scan scope 中受支持的 `.ts` / `.d.ts` 和 `.rs`
+exact paths。`.go`、`.py`、`.tsx`、`.js` 和 `.jsx` 不在 pinned TypeScript selector 中。
+Adapter 不扫描 project root，也不接收被 scope rules 排除或 unsupported 的文件。
 
-只有有 executable body 且具有 stable declaration / direct binding name 的 function forms进入
-该模型。Signature-only、abstract / no-body 与 anonymous callback / closure正常排除且不产生
-diagnostic。Function metrics只作为 Core warning input，第一版不新增稳定 JSON metrics字段。
+Adapter 向 core 返回 Vibe Check-owned `FunctionMetric` 或 normalized failure。Lizard
+process protocol、CSV output 和 private fields 留在 adapter 内；为了复现行为保存的 raw
+material 只属于 scanner artifact，不成为稳定 product output field。
+
+现有 parser 归一化 function name、file path、line range、NLOC、parameter count 和
+cyclomatic complexity。Lizard 保持 external component；parser、function identity、
+threshold 或 warning algorithm 的变化必须作为对应 scanner / metrics contract 变更处理。
+
+## jscpd duplicate boundary
+
+Duplicate scanning 使用 product config 解析的 jscpd component。当前 TypeScript adapter
+按 code area 规划任务，把 product core 已批准的 exact paths 写入私有临时 config，调用
+repository-managed jscpd CLI，并解析 JSON reporter output。
+
+Adapter 向 core 返回 Vibe Check-owned `DuplicateCodeFragment` records 或 normalized
+failure。临时 config、CLI process protocol、reporter JSON 和 private configuration 留在
+adapter 内；raw reporter output 即使为复现而保存也只能作为 scanner artifact，不能成为
+stable product output field。
+
+以下边界保持现有行为：
+
+- quick profile 跳过 jscpd；启用 duplicate scanning 的 profile 继续按 configured code
+  area、format 和 minimum-token values 运行。
+- format 为 `null` 时省略 format override，并不跳过至少有两个 exact inputs 的 area；被
+  scan scope 排除的 paths 不进入 task，没有足够 inputs 的 area 正常跳过。
+- availability preflight 失败继续记录并跳过 jscpd；已进入 invocation 后的 non-zero
+  execution、缺失 report 或 parse failure 不伪装成 successful empty duplicate result。
+- duplicate fragments 的 location、token count、code area、ordering、cache identity 和
+  warning mapping 保持 pinned TypeScript source 的实现。
+
+当前产品不采用或保留已退役 Rust duplicate integration contract。
 
 ## Aggregation
 
-Report `metrics` 汇总成功产生 file metrics 的 supported files：
+Aggregation 只消费 Vibe Check-owned metrics，并保持现有 TypeScript shape：
 
-- `supported_scanner_findings`: LOC-only 阶段的兼容计数字段，等于成功 file metrics 记录数。
-- `files_measured`: 成功 file metrics 记录数。
-- `total_lines`.
-- `code_lines`.
-- `comment_lines`.
-- `blank_lines`.
-- `languages`: per-language summaries sorted by `language`.
+- overall totals：files、lines、functions，以及可用的 code lines、decision tokens、
+  function lines/complexity/parameters 和 duplicate fragments。
+- by-language totals：files、lines、code/comment/blank lines。
+- by-code-area totals：warning policy、files、lines、functions 和可用的 scanner totals。
+- current/baseline fingerprints、baseline metadata、comparison status 和 trends。
 
-每个 language summary 包含 `language`、`file_count`、`total_lines`、`code_lines`、
-`comment_lines` 和 `blank_lines`。`supported_scanner_findings` 与 `files_measured` 必须相
-等。该字段继续只兼容表示成功产生 LOC file metrics 的 supported files；duplicate
-finding 或 warning 数量不得加入该计数，也不得改变 LOC totals 或 language summaries。
-Structural function metric或 warning数量同样不得加入该计数；
-`supported_scanner_findings` 必须继续等于 `files_measured`。
+缺失的可选 scanner value 保持现有 `null` / omitted semantics，不得用猜测值补齐。排序、
+fingerprint、baseline identity、cache key 和 comparison algorithm 由当前产品实现和测试
+共同验证。
 
-## Duplicate Scanner Profile
+## Warning rules and channels
 
-第一版 duplicate scanner 使用 adapter-owned、用户不可变的内置 profile：
+现有 TypeScript core 从 current metrics、changed scope、optional baseline、absolute floor
+和 changed delta 生成三个 channels：
 
-- `cpd-finder = "=0.1.8"`，调用 jscpd v5 Rust API；
-- `min_tokens = 50`、`min_lines = 5`；
-- audited default tokenization mode；
-- formats 只包含 `typescript`、`go`、`rust` 和 `python`；
-- `no_gitignore = true`、empty ignore / code-ignore / pattern；
-- `follow_symlinks = false`、`blame = false`，其它 audited defaults 保持不变。
+- `all`：当前 scan 的全部 warning records。
+- `changed`：按现有 scope / comparison policy 选出的 changed warnings。
+- `regressions`：超过 configured delta floor 的 changed warnings。
 
-adapter 只接收 scan scope 已收集的 exact supported file paths，不扫描 project root。每个
-upstream clone pair 归一化为一个 Vibe Check-owned finding，不做 graph coalescing。pair
-内 locations 先按 `(path, start line, start column, end line, end column)` 排序，再以归一
-化 locations 和 token count 形成内部 deterministic identity；finding 也按归一化结果稳
-定排序。路径必须是 project-root-relative `/` path。
+规则集合保持 pinned source 与 product config 不变：
 
-## Warning Rules
+| Rule | Source |
+| --- | --- |
+| `scc-file-code-lines` | file code lines 与 decision-token-aware floor |
+| `lizard-cyclomatic-complexity` | function cyclomatic complexity |
+| `lizard-function-code-density` | Lizard NLOC 与 complexity-aware floor |
+| `lizard-parameter-count` | function parameter count |
+| `jscpd-duplicate-code` | normalized duplicate fragment |
 
-Core 定义以下 warning rules：
+Code-area warning policy 继续控制 strict、moderate、relaxed、watchlist-only 和
+exclude-warnings 行为。Accepted warning configuration 只给匹配 warning 增加
+`acceptedReason`；不删除 `all` / `changed` / `regressions` records。未匹配的 accepted
+configuration 是否产生 warning 继续由现有 validation option 决定。
 
-| Rule / Condition | Severity | Blocking |
-| --- | --- | --- |
-| `file.too_many_lines`: `400 <= total_lines < 800` | `medium` | `false` |
-| `file.too_many_lines`: `total_lines >= 800` | `high` | `true` |
-| `duplicate.code_fragment`: one normalized pair | `medium` | `false` |
-| `function.too_many_parameters`: `parameter_count >= 5` | `medium` | `false` |
+改变 rule id、message、metric、threshold、policy、排序、accepted reason 或 channel
+selection 时，必须作为 Quality Metrics contract 变更处理。
 
-同一个文件最多生成一条 `file.too_many_lines` warning，并使用最高适用等级。Finding 必须包含：
+## Baseline and profiles
 
-- project-root-relative `file`.
-- `location = "file"`.
-- `severity`.
-- `rule = "file.too_many_lines"`.
-- message containing the actual total lines and triggered threshold.
-- `accepted = false`.
-- `suppressed = false`.
-- Core-set `blocking`.
+Quick profile 继续跳过 baseline comparison 和 jscpd。Full profile 运行全部 configured
+scanners；baseline comparison 仍是显式 opt-in。Baseline unavailable、input unchanged 和
+compared 状态，以及 current/baseline cache identity，都保持 pinned source 行为。
 
-每个 normalized duplicate pair 生成一条 `duplicate.code_fragment` warning：
+显式 changed-files input 与自动 changed scope 只影响 existing changed/regression context，
+不改变 full metrics inventory。
 
-- `file` 使用排序后的第一个 location path；
-- `location` 使用 primary fragment 的稳定 `lines START-END`；
-- message 包含 token count 和 secondary fragment 的 `path:START-END`；
-- `severity = medium`，`blocking = false`、`accepted = false`、`suppressed = false`。
+## Status and failure
 
-每个 `parameter_count >= 5` 的 normalized function metric生成一条
-`function.too_many_parameters` warning：
+质量扫描有三个 core outcomes：
 
-- `file` 使用 function metric 的 normalized path；
-- `location = "lines START-END"`，来自 function 的 1-based inclusive line range；
-- message包含 `display_name`、实际 parameter count和 threshold `5`；
-- `severity = medium`，`blocking = false`、`accepted = false`、`suppressed = false`。
+- `passed`：scan 完成且没有 warning records。
+- `warning`：scan 完成且存在 warning records；默认仍是 non-blocking development result。
+- `failed`：存在 scanner/runtime fatal issue 或 metrics validation failure。
 
-`parameter_count < 5` 不产生该 rule。
+当前 consumer 只在 core 返回 `failed` 时映射非零质量扫描退出结果；`passed` 和 `warning`
+保持成功退出。Verification output 对带 accepted reason 的 warnings 使用既有过滤语义。
+未处理顶层 error 不产生 core outcome，由 CLI 保持既有 error mapping。新的 blocking
+gate、exit mapping 或 status 必须先更新对应 owner contract。
 
-LOC、duplicate 和 function warnings合并后按 `(file, location, rule, message)` 排序；Output
-不重新排序。第一版不实现 accepted/suppressed配置、comment ratio、zero-code file、
-function complexity或 function NLOC warnings。
-
-## Gate Policy
-
-Gate 只从 warning findings 的 `blocking` 值派生：
-
-- `summary.warning_count` 等于 warning findings 总数。
-- `summary.blocking_warning_count` 等于 `blocking = true` 的 warning 数。
-- `gate.blocking_warnings` 等于 `summary.blocking_warning_count`。
-- 存在 blocking warning 时 `gate.status = failed`，否则 `gate.status = passed`。
-
-Recoverable metrics diagnostics 不直接导致 gate failure；只有同一 report 内存在 blocking warning 时 gate 才失败。Gate failure 表示扫描已完成但质量门禁未通过，CLI exit code 为 `1`。
-
-`duplicate.code_fragment` 会增加 `summary.warning_count`，但不会增加
-`summary.blocking_warning_count`，也不会单独让 gate failed。
-
-`function.too_many_parameters` 遵循同一 non-blocking policy：增加
-`summary.warning_count`，但不增加 `summary.blocking_warning_count`，也不会单独让 gate
-failed。
-
-## Diagnostics
-
-Metrics adapter 问题分为两类：
-
-- Recoverable diagnostic: 单个或部分 supported files 无法测量，但仍能产生 report data。诊断进入 `diagnostics`，`summary.status = partial`，`summary.diagnostic_count` 递增，`metrics.files_measured` 只统计成功记录。
-- Fatal failure: adapter 无法初始化或无法在 scan scope 后产生 report data。CLI 映射为 scanner fatal exit code `3`，stdout 不写 human 或 JSON scan report。
-
-Diagnostic code 使用稳定大写前缀。LOC adapter 的 recoverable diagnostic 使用 `METRICS_LOC_PARTIAL`；fatal failure 使用 scanner fatal error message，不进入 stdout report。
-
-Duplicate scanner 在调用 upstream 前检查输入仍存在、是 regular file、可读且是 UTF-8：
-
-- 部分文件 preflight 失败但至少一个输入仍可扫描时，每个失败文件产生 warning-severity
-  `DUPLICATE_SCAN_PARTIAL` diagnostic，report status 为 `partial`；
-- scan scope 原本包含 supported files，但所有 duplicate inputs 都失效时，返回 scanner
-  fatal；
-- `FinderError`、panic unwind、project root 外 source id、无效 location 或 normalization
-  invariant failure 均返回 scanner fatal，不能投影为 empty duplicate result；
-- scan scope 没有 supported files、低于 threshold 或没有 clone 属于正常 no-finding，不
-  产生 duplicate diagnostic。
-
-Structural adapter 同样在 parse前检查 exact input仍存在、是 regular file、可读且是
-UTF-8。单文件 preflight失败或 syntax tree包含 `ERROR` / missing node时，跳过该文件全部
-function metrics并产生 warning-severity `STRUCTURAL_SCAN_PARTIAL`；report status为
-`partial`。即使所有 structural inputs都被跳过，只要 LOC / duplicate数据仍可信，仍返回
-partial report。Adapter初始化、panic、supported language mapping、project-root-relative
-path、source range或 unique identity invariant失败是 scanner fatal，使用 exit code `3`且
-stdout为空。Zero-supported-input与 zero-function是正常 completed state。
-
-Scanner fatal 由 CLI 映射为 exit code `3`，stdout 不写 human 或 JSON report。
+无发现、没有 supported inputs、profile skip、availability preflight skip 和 invocation
+failure 必须保持不同的 observable context。现有 availability preflight skip 不产生 fatal
+issue；已调用 component 后的 execution/report/parse failure 和 invalid normalized output
+不能被归一化成 successful empty result。
 
 ## Verification
 
-修改本文 owner 行为时，最低验证包括：
+当前产品证明资产来自 `src/product/**` 下的 TypeScript tests 与 fixtures，不使用已删除的
+Rust tests / fixtures 补建 coverage。现有证明资产包括：
 
-- `tokei` dependency 版本、license、default features 和编译验证。
-- TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py` supported files 的 LOC fixture；`.d.ts` 按 TypeScript supported input 处理。
-- Unsupported file 不进入 metrics adapter。
-- Metrics aggregation、per-language sorting 和 `supported_scanner_findings = files_measured`。
-- Duplicate adapter exact supported inputs、内置 profile、pair normalization 和 deterministic
-  ordering。
-- Cross-file / same-file duplicate、token / line-span threshold、unsupported / excluded input
-  和 zero-supported-input fixture。
-- `duplicate.code_fragment` 的两个 locations、token count、summary 计数和 non-blocking gate
-  policy。
-- Structural adapter四语言 inventory、stable binding、receiver / compound parameter
-  semantics、parameter-list named comment extra、range / path normalization、deterministic
-  ordering与正常 exclusions。
-- `function.too_many_parameters` 的 parameter count `4` / `5` threshold、warning fields、
-  summary计数、unified ordering、non-blocking gate与 LOC compatibility counters。
-- Structural syntax-error / all-input-partial diagnostic，以及 adapter invariant fatal exit code
-  `3` / empty stdout边界。
-- Duplicate partial diagnostic、all-input fatal、upstream failure 和 invalid normalized result
-  fatal。
-- Recoverable metrics diagnostic 产生 partial report。
-- Fatal metrics failure 使用 exit code `3` 且 stdout 为空。
-- `file.too_many_lines` small、medium non-blocking 和 high blocking 分支。
-- Warning `blocking` 投影到 JSON 和 human output。
-- Gate failure exit code `1`。
-- JSON schema、examples、CLI contract tests 和 OpenSpec strict validation。
+- scanner parser 与 wrapper tests：scc CSV、Lizard CSV、jscpd version/report，以及
+  unavailable / execution / report / parse failures。
+- jscpd area task tests：per-area planning、稳定 task/file ordering 和 fatal issue channel。
+- cache、fingerprint、Git pathspec 与 explicit changed-files tests。
+- warning generator tests：file、function、duplicate、accepted warning 与 channel semantics。
+- Markdown report tests：ranking、changed-file summary、accepted reason 和 scanner metrics。
+
+日常交付按改动面运行 product import boundary、typecheck、lint、tests 和 dogfood
+verification。初次产品化已用同一隔离 Git project 对照迁移前 consumer 与当前产品入口的
+quick、full、baseline 和显式 changed-files outputs；该 parity 是一次性迁移证据，不是每次
+质量变更的固定 gate。

@@ -1,79 +1,97 @@
 # CLI
 
-本文是 Vibe Check CLI 行为的主规范，固定命令面、路径、配置入口、输出模式、通道和退出码。
+本文是 Vibe Check 产品 CLI 的主规范，固定正式命令、project root、scan flags、console
+通道和进程状态。Metrics、warning、baseline 与 artifact 内容由对应 owner 维护。
+
+## 产品入口
+
+正式本地入口是：
+
+```text
+bun run product:cli -- scan [project-root] [options]
+```
+
+实现归属位于 `src/product/**`。入口只为现有 TypeScript/Bun scan 提供最薄的 operation 与
+project-root 分流；不提供配置文件入口、输出 mode、version operation 或另一套参数语义。
+Rust CLI 和根 Cargo 产品入口已退役。
 
 ## 命令面
 
-MVP 提供以下命令：
+Product CLI 只提供 `scan` operation：
 
 ```text
-vibe-check scan [project-root] [--format human|json] [--config <path>]
-vibe-check --help
-vibe-check scan --help
-vibe-check --version
+bun run product:cli -- scan [project-root] [options]
+bun run product:cli -- scan [project-root] --help
 ```
 
-`scan` 是质量扫描 operation。Help 和 version 命令不启动 scan pipeline，不产生 scan report。
+`scan` 调用唯一的 `runQualityScan` core。未知 operation 或 flag 必须在启动 scanner
+前失败；`--help` 成功时退出 `0`，不启动 scan pipeline。
 
-## Scan 执行
+## Project root
 
-`vibe-check scan` 把 argv 解析成 core scan request，然后调用 core scan pipeline。
+`project-root` 是被扫描项目根目录。省略时使用启动 cwd；相对路径基于启动 cwd 解析，并在
+交给 scan core 前归一化。正式入口不得把 Vibe Check 仓库根硬编码为所有调用者的默认值。
 
-CLI 只处理命令、flag、路径、配置入口、输出模式、stdout/stderr 和顶层错误映射。指标、warning、gate、report data、JSON 字段和人读输出由下游 owner 负责。
+仓库 dogfood wrapper 是例外：`quality:check`、`quality:full-check`、`quality:scan` 和
+`scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根，以保持当前仓库自动化行为。
 
-输出模式只影响 report data 的渲染方式，不改变扫描、聚合、warning 或 gate 语义。
+## Scan flags
 
-## Parser 与 help
+正式入口接收当前 TypeScript product flags：
 
-Parser 必须在启动 scanner execution 前拒绝以下 invocation：
-
-- 未知命令或未知 flag。
-- 不支持的 `--format` 值。
-- 无效、不可访问或不是目录的 `project-root`。
-- 无效、不可访问或不是文件的显式 config path。
-
-Help 和 version 命令成功时退出码为 `0`。它们的输出不承诺 scan report shape。
-
-## 项目根与路径
-
-`project-root` 是被扫描项目根目录。
-
-省略 `project-root` 时，CLI 使用启动 cwd。相对 `project-root` 基于启动 cwd 解析；绝对路径保留文件系统语义。CLI 在调用 core 前把 project root 归一化。
-
-归一化后的 core scan request 不携带原始 argv 字符串。Core、Scanner 和 Output 不重新解析 positional argument。
-
-## 配置文件路径
-
-`--config <path>` 选择本次 invocation 使用的显式配置文件。显式 path 是文件路径，不是目录；CLI 不自动追加默认文件名。
-
-相对 config path 基于启动 cwd 解析，并在传给 core 前归一化。
-
-未传 `--config` 时，配置发现和默认配置语义由 Config owner 定义。
-
-## 输出模式
-
-`scan` 支持以下输出模式：
-
-| Mode | 用途 |
+| Flag | 现有语义 |
 | --- | --- |
-| `human` | 默认模式。面向本地阅读和定位。 |
-| `json` | 固定机器格式。面向脚本、CI、agent、schema 校验和审计。 |
+| `--profile <quick\|full>` | 选择 quick 或 full；默认 `full` |
+| `--baseline <sha>` | 使用显式 commit 生成 baseline comparison |
+| `--with-baseline` | 自动选择已有 comparison 逻辑的 baseline |
+| `--changed-files <file>` | 读取每行一个 path 的显式 changed-file 输入 |
+| `--top-n <n>` | 设置报告 ranking 数量 |
+| `--artifact-dir <dir>` | 设置 artifact 目录 |
+| `--skip-baseline` | 跳过 baseline 选择与扫描 |
+| `--verification-output` | 使用现有 accepted-warning-aware verification summary |
+| `--help` | 输出 scan help 并成功退出 |
 
-MVP 不支持独立 `ci` mode。CI 默认消费 `json` 输出，并结合退出码判断 gate 状态。
+Quick profile 继续拒绝 `--baseline` 和 `--with-baseline`。默认值、重复 flag precedence、
+正整数校验和错误文本保持当前 product parser 行为。Product CLI 不提供 `--format`、
+`--config` 或 `--version`。
 
-## 通道
+## CLI 边界
 
-- `human` scan report 写 stdout。
-- `json` scan report 写 stdout，且 stdout 只包含一个 JSON object。
-- Usage error、输入/config error、scanner fatal、output failure 和 report envelope 之外的顶层诊断写 stderr。
-- 输入错误不向 stdout 写 scan report。
+Product CLI 只负责：
 
-## 退出码
+- 分流 `scan` operation。
+- 解析并归一化 project root。
+- 把其余现有 flags 交给 product parser。
+- 绑定默认 product config，并调用同一 scan core。
+- 保持顶层 error、stdout/stderr 和进程状态映射。
 
-CLI 使用以下进程退出码：
+CLI 不重新实现 file collection、scanner 调用、metrics、warning、baseline、artifact
+serialization 或 report rendering。产品源码不得导入 dogfood wrapper。
 
-- 扫描完成、gate 通过、输出成功退出 `0`。
-- 扫描完成、gate 未通过退出 `1`。
-- 用户输入或配置错误退出 `2`。
-- Scanner 在 report 完成前 fatal 失败退出 `3`。
-- Report data 已存在，但输出投影或写入失败退出 `4`。
+## Console 与 artifacts
+
+Scan 继续把 banner、profile、进度、artifact paths、summary、warning preview 和 completion
+status 写入 stdout。Core 收集到的 fatal issues 和未处理顶层 error 写入 stderr；scanner
+process 的原生 stdout/stderr 不直接成为产品 console contract。
+
+产品不提供旧 Rust CLI 的 `human` / `json` stdout mode。机器与人读结果继续通过
+`metrics.json`、warnings NDJSON、`report.md` 和 raw artifacts 交付，具体语义由
+[输出边界](output.md) 维护。
+
+## 进程状态
+
+Product CLI 使用以下状态映射：
+
+- Core 返回 `passed` 或 `warning` 时退出 `0`；warning 仍是 non-blocking development
+  result。
+- Core 返回 `failed` 时退出 `2`。
+- 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT` 或 config-related error 返回
+  `3`。
+
+已退役 Rust CLI 的 gate exit `1` 和 output-failure exit `4` 不属于当前 CLI contract。
+
+## Dogfood wrapper
+
+Dogfood wrapper 可以为仓库验证选择既有 profile、baseline 或 artifact 参数，但必须把用户
+参数、stdout、stderr 和进程状态透明传给正式入口。Wrapper 不得拥有第二套 parser、默认
+配置、scan core、output renderer 或 status mapping。

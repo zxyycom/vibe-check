@@ -1,201 +1,160 @@
 # Scanner 依赖选择
 
-本文是 Vibe Check scanner 依赖选择的 owner 文档。它维护默认依赖基线，约束每个依赖的实现归属、adapter 边界、替换条件和验收要求。
+本文是 Vibe Check scanner 依赖选择的 owner 文档。它维护默认 scanner stack、component
+配置归属、adapter 边界、替换条件和验收要求。
 
-本文只回答“scanner 默认使用哪些 Rust 可导入依赖，以及如何隔离它们”。指标语义、warning、gate、schema、示例和输出字段仍由各自 owner 定义。
+本文只回答“产品调用哪些外部 scanner，以及如何隔离 process / report protocol”。指标、
+warning、baseline、gate、artifact shape 和输出字段仍由各自 owner 定义。
 
 ## 实施状态
 
-Rust CLI 已通过 exact `cpd-finder 0.1.8` dependency、Vibe Check-owned adapter 和
-fixture-backed contract tests 实现本文的 duplicate scanner 基线。当前 binary 的实现证
-据由 Cargo metadata、Rust adapter tests 和 CLI contract tests 持有；
-`integrate-rust-jscpd-adapter` 继续记录本次接入的验收与归档状态。
+`src/product/**` 下的仓库自有 TypeScript/Bun source 调用 scc、Python/Lizard 和 jscpd。
+`src/product/config.ts` 是 scanner commands、args、thresholds 和 code-area mappings 的
+唯一产品配置 owner；quality-core 和运行时实际可达的 foundation helper 闭包都由
+`src/product/**` 直接拥有。Quality-core gitlink 和 Rust scanner runtime 已移除。
 
-Rust CLI 也已通过 exact `ast-grep-core 0.44.1` / `ast-grep-language 0.44.1` dependencies、
-四语言最小 parser features、Vibe Check-owned structural adapter 和 fixture-backed contract
-tests 实现本文的 structural scanner 基线。Cargo resolution、dependency characterization、
-adapter / Core tests 和真实 CLI contract 持有实现证据；
-`integrate-rust-ast-grep-structural-adapter` 记录本次接入的验收状态。
+## 默认 scanner stack
 
-## 目标与范围
-
-依赖基线必须满足三项要求：
-
-1. 以 Rust crate 或 Rust 可导入库为默认集成方式。
-2. 面向主流代码库，当前首批支持覆盖 TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py`；JavaScript / JSX / TSX 属于后续支持范围。
-3. 支持 scanner adapter 输出 Vibe Check 自己的归一化模型，而不是把第三方结构作为 public contract。
-
-本文适用于新增、替换、降级或重新评估 scanner 依赖。实现某个具体指标、warning、gate、输出字段或 schema 时，进入对应 owner 文档。
-
-## 默认基线
-
-Scanner 默认使用以下依赖：
-
-1. `ignore`：文件收集和 scan scope 基础能力。
-2. `ast-grep-core` + `ast-grep-language`：多语言结构扫描基座。
-3. `tokei`：LOC、注释行、空行和语言统计 adapter。
-4. `cpd-finder = "=0.1.8"`：jscpd v5 Rust engine 的重复代码检测 adapter 入口。
-
-实现 scanner 时以这些依赖作为基线。新增 feature 不重新发散依赖选择；如果编译、许可证、性能、API 稳定性或 fixture 证明某个依赖不可用，按“替换流程”处理。
-
-## 依赖基线
-
-| 依赖 | 实现归属 | 采用规则 |
+| Component | Product responsibility | Adapter-private material |
 | --- | --- | --- |
-| `ignore` | 文件收集 / scan scope | 默认核心依赖 |
-| `ast-grep-core` + `ast-grep-language` | Scanner adapter / structural scan | 默认结构扫描基座 |
-| `tokei` | LOC metrics adapter | 默认 LOC adapter |
-| `cpd-finder = "=0.1.8"` | Duplicate scanner adapter | 默认 duplicate scanner；升级或替换前必须重跑 dependency characterization |
+| scc | file-level code/comment/blank lines、language 与 decision-token input | process protocol、by-file CSV、native errors |
+| Python/Lizard | function name、range、NLOC、parameter count 与 cyclomatic complexity | Python invocation、Lizard CSV、component-private fields |
+| jscpd | per-code-area duplicate fragments、locations 与 token count | temporary config、CLI protocol、JSON reporter output |
 
-使用约束：
+Product config 提供每个 component 的 command 和 args。调用者可以使用既有环境变量覆盖
+command / args；wrapper 不得新增第二套 dependency configuration。
 
-1. `ignore` 负责递归遍历、`.gitignore`、include / exclude、hidden file 和路径过滤。不可读路径、walk error 和 ignore 解析错误必须映射为 Vibe Check 诊断。
-2. `ast-grep-core` + `ast-grep-language` 负责多语言 AST / CST pattern、语言识别和 parser 接线。它不拥有质量指标、warning、gate 或输出字段语义。
-3. `tokei` 负责文件数、代码行、注释行、空行和语言统计。`tokei` 的语言 taxonomy 和报告结构只作为 adapter 输入，不成为 machine output 契约。
-4. `cpd-finder` 通过 jscpd v5 Rust engine 提供 pairwise duplicate clone 输入。Rust API、
-   scope ownership、threshold 和 source-id 行为通过 checked-in fixture 后才能进入 Vibe
-   Check model 与 runtime integration；characterization 未通过时停止接入并先修正 owner
-   文档和 change artifacts。
+Scanner tools 是外部 components，不是 product public API。Product Core、Output 和
+consumer 只依赖 Vibe Check-owned metrics、warnings、fatal issue/status context 和
+normalized failure。
 
-## Structural scanner dependency contract
+## 共同 adapter contract
 
-第一版 structural scanner dependency baseline 固定为：
+每个 adapter 必须：
 
-| 项目 | 决策 |
-| --- | --- |
-| Cargo requirements | exact `ast-grep-core = "=0.44.1"`、`ast-grep-language = "=0.44.1"` |
-| Language features | 关闭 `builtin-parser`；只启用 `tree-sitter-go`、`tree-sitter-python`、`tree-sitter-rust`、`tree-sitter-typescript` |
-| Upstream MSRV / license | Rust `1.85` / MIT |
-| Vibe Check toolchain | Rust `1.96.0`，独立于 dependency MSRV |
-| Input ownership | normalized scan scope 提供的 exact `.ts` / `.go` / `.rs` / `.py` paths |
+1. 只接收 product core 已批准的 exact scan inputs。
+2. 检查并报告工具可用性；preflight unavailable 按现有 behavior 记录并跳过 component。
+3. 隔离 command line、process result、timeout、native error 和 raw report。
+4. 解析后返回 Vibe Check-owned model 或 normalized failure。
+5. 在需要复现 scanner behavior 时把 raw output 写为 scanner artifact，而不是 stable
+   output field。
 
-当前 lockfile 解析 `tree-sitter 0.26.10`、Go `0.25.0`、Python `0.25.0`、Rust
-`0.24.2` 和 TypeScript `0.23.2` grammar；没有启用其它语言 parser。Grammar 与
-tree-sitter patch 升级也必须视为 characterization 触发条件，不能只检查两个 direct crate
-versions。
+External tool 的 stdout/stderr、CSV/JSON row、language enum、临时路径和 private config
+不得直接成为 product contract。无发现、profile skip、availability preflight skip、
+non-zero exit、missing report 和 parse failure 必须保持可区分。
 
-长期 dependency contract 由本节持有；exact source facts 与实施审计由 OpenSpec change
-`integrate-rust-ast-grep-structural-adapter` 的 `source-audit.md` 持有，并在归档后随该
-change 作为历史证据保留。Adapter 只使用经审计的 `AstGrep` / `StrDoc` parse boundary、
-`SupportLang` 四语言映射，以及 `Node` 的 DFS、field、kind、text、range、position、named、
-error / missing inspection。第三方 node、language enum、native error、pattern 或 raw tree
-不进入 Core、Output、schema 或 examples。
+## scc boundary
 
-第一版支持有 executable body 且可稳定命名的形态：TypeScript named function、method、
-constructor 和 direct identifier-bound arrow / function expression；Go function / method；
-Rust free / nested function、impl method 和 trait default method；Python sync / async free、
-nested 和 class method。Signature-only / abstract / no-body forms 与无 stable declaration / direct
-binding 的 anonymous callbacks 不产生 metric，也不产生 diagnostic。
+scc adapter 使用现有 product config 的 command / args 和 by-file output，向 product core
+返回 Vibe Check-owned `FileMetric` records。Adapter 拥有 CSV header mapping、language
+normalization、decision-token extraction 和 process failure。
 
-Go / TypeScript parameter traversal 只计算 audit 列出的 parameter node kinds。这两种语言的
-parameter-list `comment` 是 named syntax extra，和 unnamed punctuation 一样计数为零，且不
-产生 diagnostic 或 fatal；其它未经审计的 named child 表示对应 grammar mapping invariant
-失效，映射为 scanner fatal。
+以下内容保持 pinned TypeScript source 行为：
 
-Adapter 不扫描 project root、不重新应用 ignore rules，也不接收 argv、config path、raw
-include / exclude 或 threshold override。它逐个读取 exact supported file，严格 UTF-8 decode，
-每个文件只 parse / traverse 一次。Syntax recovery tree 中出现 `ERROR` 或 missing node、文件
-不存在、非 regular file、不可读或非 UTF-8 时，跳过该文件全部 structural metrics并返回
-warning-severity `STRUCTURAL_SCAN_PARTIAL`；即使全部 structural inputs 被跳过，只要其它
-report data可信，仍返回 partial report。初始化、panic、language mapping、path / range或
-identity invariant失败是 scanner fatal。
+- exact scan file list 与 code-area classification。
+- file code/comment/blank lines 与 language mapping。
+- availability preflight skip，以及 invocation 后 unknown header、invalid row 和 non-zero
+  execution 的 failure projection。
+- raw output、tool metadata、cache identity 和 aggregation input。
 
-Checked-in、hand-written、offline fixtures 已直接调用 dependency public API，证明四语言
-node / field mapping、稳定名称、body presence、1-based inclusive range、receiver 排除、
-compound parameter slot、Go / TypeScript named comment extra、syntax error / missing-node检测
-和 UTF-8 behavior。Exact dependency 或 grammar 升级必须重新运行完整 characterization；
-失败时先修正 source audit 和 change artifacts，不增加 adapter workaround。
+当前产品不使用已退役 Rust LOC adapter 或 model。
 
-### Structural scan performance evidence
+## Python/Lizard boundary
 
-2026-07-11 在 Windows、Rust `1.96.0`、release profile 下比较接入前的 `5d97352` binary 与
-当前实现。两者均先预热，随后用 PowerShell `Measure-Command` 运行完整
-`vibe-check scan <fixture> --format json`，stdout 丢弃，编译时间不计入结果：
+Function metrics component 使用 product config 解析的 Python command 与 `-m lizard` args。
+Adapter 只接收 normalized scan scope 中的 `.ts` / `.d.ts` 和 `.rs` exact paths；`.go`、
+`.py`、`.tsx`、`.js` 和 `.jsx` 不在 pinned TypeScript selector 中。Adapter 不得接收
+project root 重新发现输入。
 
-| Checked-in input | Repetitions | Before average | After average | Difference |
-| --- | ---: | ---: | ---: | ---: |
-| `mixed-scope-boundaries` | 30 | 35.34 ms | 35.83 ms | +0.49 ms / +1.4% |
-| `tests/fixtures/projects` 全集 | 20 | 102.69 ms | 109.16 ms | +6.48 ms / +6.3% |
+Lizard CSV parser 负责把 row 归一化为 Vibe Check-owned `FunctionMetric`：stable name、
+file、start/end line、NLOC、parameter count 和 cyclomatic complexity。Python process
+protocol、CSV output 和 component-private data 留在 adapter 内。
 
-两组对比都扫描工作树中的同一绝对 fixture path，避免 baseline 临时目录位置影响结果。
-Adapter 的 per-file loop 对成功输入调用一次 `AstGrep::try_new`，再执行一次 root DFS 收集
-candidates；per-language normalization 只消费该 candidate list。当前证据未显示需要 cache 或
-并行 scheduler；依赖或 grammar 升级、supported language 扩展，或代表性扫描耗时出现明显
-回归时重新测量并评估。
+Current raw artifact 保存 normalized function metrics；process / CSV material 即使为复现而
+保存也只属于 scanner artifact，不是 stable product output field。Invocation 后的 non-zero
+exit 和 parse failure 返回现有 normalized failure，不降级为 zero functions。
 
-## Duplicate scanner dependency contract
+当前产品不使用已退役 Rust structural API 或 grammar characterization，也不把 Lizard
+重写为 TypeScript。Function inventory、parser 和 warning 算法由当前 TypeScript 产品
+实现与测试拥有。
 
-第一版 duplicate scanner 依赖基线固定为：
+## jscpd boundary
 
-| 项目 | 决策 |
-| --- | --- |
-| Cargo requirement | exact `cpd-finder = "=0.1.8"` |
-| Rust API | `cpd_finder::orchestrate::{RunConfig, run}` |
-| Upstream MSRV | Rust `1.87` |
-| Vibe Check toolchain | Rust `1.96.0`，独立于 dependency MSRV |
-| License | MIT |
-| Result semantics | 每个 upstream clone 是一个 pair，不是 N-location group |
+jscpd adapter 使用 existing product config 的 repository-managed CLI command。Product core
+按 configured code area、format 和 minimum-token values 规划 tasks；adapter 只接收每个
+task 的 exact paths。
 
-`cpd-core` 和 `cpd-tokenizer` 默认只作为 transitive dependencies。只有 adapter 必须在公开
-签名中命名其类型时才允许新增 direct dependency，并且必须在本节记录原因；Core 不得依
-赖这些 upstream types。`cpd-reporter` 不进入第一版依赖图，raw reporter output 也不成
-为稳定输出字段。
+Adapter 可以为这组 exact paths 创建临时 config 和 reporter directory，并调用 jscpd JSON
+reporter。它把 reporter output 归一化为 Vibe Check-owned `DuplicateCodeFragment`：
+locations、token/line count、code areas、changed-scope marker 和 stable ordering。
 
-实施期 API authority 是
-`openspec/changes/integrate-rust-jscpd-adapter/source-audit.md`。Cargo resolution、下载到本
-地的 crate source、编译结果或 fixture 行为只要与该 snapshot 冲突，就必须先更新 source
-audit、design 和受影响 spec，再继续实现；不能用 adapter workaround 隐藏冲突。
+Temporary config、reporter result structure、process protocol 和 private options 留在 adapter
+内。Raw JSON 可以作为 scanner artifact 保存，但不成为 stable product output field。
+Successful process without report、invalid report 和 non-zero execution 使用现有 distinct
+failure reason，不能投影为 successful empty duplicates。Availability preflight unavailable
+保持现有 skipped behavior。
 
-在新增 Vibe Check duplicate model、adapter 或 runtime integration 前，必须用直接调用
-`cpd_finder` 的 checked-in fixtures 证明：
+当前产品不使用已退役 Rust duplicate API；原 dependency characterization 与 fixtures
+不是 TypeScript tests 的证明来源。
 
-- individual exact file paths 可以产生 cross-file 和 same-file pairs，不需要传 project
-  root；
-- `.ts`、`.go`、`.rs`、`.py` 与 upstream formats 的映射成立；
-- `min_tokens = 50`、`min_lines = 5` 的真实边界与 source audit 一致；
-- `no_gitignore = true` 不会对 Vibe Check 已批准的 exact paths 二次应用 gitignore；
-- canonical source ids 能稳定映射回输入文件。
+## Runtime dependency closure
 
-该 characterization gate 只验证 dependency 事实，不拥有 Vibe Check warning、gate 或诊
-断语义。
+`src/product/**` 拥有运行 scanner 所需的 TypeScript core、entry code 和实际可达
+foundation helpers。正式产品入口追踪到的 runtime import 不得进入 `scripts/**` 或
+toolkit gitlink。
 
-## Adapter 边界
+只复制产品路径静态可达的 foundation closure。仍服务开发脚本的 foundation /
+parallel-task-runner 可以留作开发依赖，但不因此成为 product runtime dependency。来源
+commits 和复制范围记录在 `src/product/README.md`。
 
-Scanner adapter 必须把第三方结果归一化为 Vibe Check 模型。允许跨 adapter 边界传递的模型包括：
+产品依赖闭包保持现有 file grouping 和 control flow；不得为这些 adapters 抽出新的通用
+scanner framework、service layer 或 provider hierarchy。
 
-- `FileMetrics`：文件路径、语言、lines、code、comments、blanks 和来源信息。
-- `FunctionMetric`：函数 / 方法类别、稳定名称、位置和参数数量。
-- `DuplicateFinding`：稳定 pair identity、两个归一化片段位置、line / column spans 和
-  token count。
-- `ScannerDiagnostic`：scanner identity、版本、输入范围、跳过原因、部分失败、fatal 失败和原始摘要位置。
+## Failure and observability
 
-第三方 AST、语言枚举、原始 JSON、私有错误类型和内部配置只允许停留在 adapter 内部。Core、Output、schema 和测试 fixture 只依赖 Vibe Check 类型、稳定字段和明确错误分类。
+Adapter failure 必须保留 tool、phase 和可行动 error。Product runtime 可以保存 raw scanner
+material、tool version 和 command metadata 以复现问题，但 Output 只消费 normalized product
+data。
+
+以下情况不得等价处理：
+
+- zero supported inputs。
+- quick profile 跳过 jscpd。
+- scanner 正常完成但没有 findings。
+- availability preflight skip。
+- process、report 或 parser failure。
+- normalized output validation failure。
+
+Scanner dependency 变更不得自行重新设计 fatal issue、console channel、artifact
+directory、status 或 exit code。
 
 ## 替换流程
 
-满足任一条件时，可以替换或降级依赖：
+满足任一条件时，可以在独立 change 中替换或升级 dependency：
 
-1. 依赖无法在目标平台或发布链路可靠编译。
-2. 许可证、MSRV、native build、依赖体积或安全审计风险不可接受。
-3. API 或输出在小版本内频繁破坏，导致 adapter 维护成本过高。
-4. fixture 证明其语言覆盖、位置映射、指标语义或重复检测结果不满足 Vibe Check 契约。
-5. 出现更小、更稳定或更适合多语言质量扫描的 Rust 可导入替代库。
+1. Component 无法在目标平台或发布链路可靠运行。
+2. 许可证、安装、native dependency、性能或安全风险不可接受。
+3. CLI / output 在兼容版本内频繁破坏，导致 adapter 维护成本过高。
+4. Checked-in tests 证明 path、metric、location 或 duplicate semantics 不满足 product
+   contract。
+5. 出现更小、更稳定且能保持 Vibe Check-owned model 的替代 component。
 
-替换必须按以下顺序执行：
-
-1. 记录触发原因、影响范围、候选替代方案和保留现状的风险。
-2. 证明新方案能保持 adapter contract，或明确需要同步哪些 Vibe Check 模型。
-3. 更新本文档、adapter tests、schema examples 和 release notes。
-4. 在最终说明中列出验证命令、fixture 覆盖和残余风险。
+替换前必须记录当前 baseline、候选方案、配置和 artifact 兼容性；更新本文、adapter tests
+和受影响 owner 后再修改实现。
 
 ## 验证要求
 
-首次接入或替换这些依赖时，最低验证包括：
+当前 scanner stack 的最低证明包括：
 
-1. 覆盖首批 supported source set：TypeScript `.ts`、Go `.go`、Rust `.rs` 和 Python `.py` 的 fixture；JavaScript / JSX / TSX fixture 只在后续支持 change 中作为 supported dependency coverage 引入。
-2. 文件收集 fixture：include / exclude、`.gitignore`、hidden file、generated / vendor path。
-3. LOC fixture：code、comments、blanks、empty file、mixed newline 和 unsupported file。
-4. 结构扫描 fixture：函数 / 方法定位、嵌套结构、语法错误文件、UTF-8 路径。
-5. 重复检测 fixture：individual-file input、跨文件 pair、同文件 pair、`50` token / `5`
-   line-span 阈值、gitignore ownership、generated / vendor 排除和 canonical source id。
-6. 诊断 fixture：工具跳过、部分失败、解析失败、fatal 失败和 raw summary 位置。
+- scc by-file CSV parser 与 failure mapping。
+- Lizard CSV function fields、process failure 和 supported exact inputs。
+- jscpd version/report parser、真实 duplicate scan、unavailable / execution / report / parse
+  failures。
+- jscpd per-area task planning、file ordering 和 fatal issue channel。
+- raw scanner artifacts 不进入 stable product models。
+- product runtime import closure 不依赖 `scripts/**` 或 toolkit gitlink。
+- 正式入口与 dogfood wrapper 到达同一 product core。
+
+初次产品化的 quick、full、baseline 和 explicit changed-files parity 已作为一次性迁移证据
+完成。Dependency 或 parser 的新增 characterization、覆盖补齐和 scanner 改写进入后续
+独立 change。

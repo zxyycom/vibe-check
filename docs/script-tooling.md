@@ -1,7 +1,7 @@
 # 脚本工具
 
 本文档是 Vibe Check 开发脚本工具边界的 owner：记录共享 toolkit、Vibe
-Check-owned consumer、runtime 边界、配置 owner 和脚本验证入口。
+Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚本验证入口。
 
 ## 范围
 
@@ -9,22 +9,32 @@ Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/t
 提供共享 helper source import；consumer、默认配置、profile 和 package scripts
 由 Vibe Check 拥有。
 
-当前由 Vibe Check 拥有的消费入口是：
+Vibe Check 拥有的开发脚本入口是：
 
-- `scripts/quality/scan.ts`：开发期质量观测入口，使用 `foundation` 和
-  `quality-core`。
+- `scripts/quality/scan.ts`：显式传入 Vibe Check 仓库根并委托
+  `bun run product:cli -- scan [project-root]` 的 dogfood 薄 wrapper。
 - `scripts/quality/annotate.ts`：把 quality warning NDJSON 渲染为 GitHub
   Actions warning annotation。
 - `scripts/docs/validate.ts`：校验 Markdown 链接、JSON 语法、report schema
   编译和 report examples。
-- `scripts/cargo/with-bins.ts`：构建指定 Cargo binary，并把 executable path
-  注入下游命令环境变量。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
   `parallel-task-runner` 并行运行本地检查。
 
 新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
-这些工具不属于 Rust CLI runtime contract。
+这些工具不属于产品 runtime contract。`quality:check`、`quality:full-check` 和
+`quality:scan` 是 package-level dogfood wrapper，不是第二套产品入口。
+
+## 当前实现状态
+
+- `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并调用
+  `src/product/cli.ts` 的正式入口。
+- `quality:check`、`quality:full-check` 和 `quality:scan` 通过该 wrapper 到达同一产品
+  core。
+- `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
+  配置或扫描 core。
+- Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
+  `parallel-task-runner` gitlinks 仍服务开发脚本。
 
 ## 工具来源
 
@@ -34,41 +44,56 @@ Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/t
   argument、error 和 type guard helpers。
 - `parallel-task-runner`：task normalization、dependency graph validation、
   concurrency、mutex scheduling 和 lifecycle hooks。
-- `quality-core`：quality schema/types、code area classification、scanner
-  adapters、metrics aggregation、warnings、reports、baseline/cache primitives
-  和 `runQualityScan`。
 
 每个 toolkit 都通过 `scripts/tools/*/src` 的源码 import 被消费。它们不是 npm
 package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact
 路径。
 
+质量产品的 schema/types、scanner adapters、metrics、warnings、reports、
+baseline/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
+不是开发脚本 toolkit。开发脚本可以单向调用产品入口，但产品运行时不得 import
+`scripts/**`、`foundation` gitlink 或其它 toolkit gitlink。
+
+已移除 quality-core gitlink 的来源 revision 和产品内 foundation helper 闭包记录在
+`src/product/README.md`。`foundation` 与 `parallel-task-runner` gitlinks 不是产品 runtime
+依赖。
+
 ## 新 checkout 初始化
 
-在新的 checkout 里运行脚本工具前，先初始化 toolkit submodule，并安装 lockfile
-固定的 Node 依赖：
+在新的 checkout 里运行仍由开发脚本消费的 toolkit 前，先初始化对应 submodule，并安装
+lockfile 固定的 Node 依赖：
 
 ```bash
 git submodule update --init --recursive
 pnpm install --frozen-lockfile
 ```
 
-这些命令只准备本地开发工具，不构建也不修改 `vibe-check` Rust binary。
+这些命令只准备本地开发工具，不构建也不修改 `src/product/**`；quality dogfood 不依赖
+quality-core submodule。
 
 ## Runtime 边界
 
-`vibe-check` Rust binary 仍然是产品 runtime 和 release contract。脚本工具可以
-为本地观测调用 lizard、scc、jscpd、Cargo、OpenSpec 和 JSON schema validator，但
-这些结果不能替代 Rust scanner adapter、schema examples、CLI contract tests 或
-OpenSpec validation。
-
-开发期 quality 入口是：
+`src/product/**` 是 TypeScript/Bun 产品 runtime 的唯一源码 owner，正式本地入口是：
 
 ```bash
-bun scripts/quality/scan.ts --profile quick
+bun run product:cli -- scan [project-root]
 ```
 
-默认 artifact 写入 `artifacts/vibe-check-quality/`，并作为 generated local state
-忽略。
+省略 project root 时使用启动 cwd。开发脚本可以调用 lizard、scc、jscpd、OpenSpec 和
+JSON schema validator；产品扫描所需的 scanner 调用必须由 `src/product/**` 内的产品
+边界拥有，不能由 wrapper 重新实现。
+
+仓库 dogfood 入口是：
+
+```bash
+bun run quality:check
+bun run quality:full-check
+bun run quality:scan
+```
+
+这些命令与 `scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根并单向调用同一
+产品入口。默认 artifact 继续写入 `artifacts/vibe-check-quality/`，并作为 generated
+local state 忽略。
 
 开发期 workspace 验证入口是：
 
@@ -81,15 +106,17 @@ release artifact。
 
 ## 配置所有权
 
-`scripts/quality/config.ts` 拥有开发期 quality observation 默认配置：
+产品默认配置及其 profile、scanner、warning、baseline、artifact 和 gate 语义由
+`src/product/config.ts` 唯一拥有，包括：
 
 - Vibe Check source、docs、schemas 和 OpenSpec material 的 include / exclude globs。
 - code area 分组和 warning policy 名称。
 - lizard、scc 和 jscpd command discovery。
 - artifact 和 cache 路径。
 
-长期产品语义仍由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
-`docs/quality-metrics.md`、`docs/output.md` 及其 schema/examples 拥有。
+长期产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
+`docs/quality-metrics.md` 和 `docs/output.md` 拥有；已退役 schema/examples 的历史状态由
+Output owner 说明。
 
 `scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它只登记
 现有 schema/example 路径，不重新定义 output contract。
@@ -108,10 +135,10 @@ release artifact。
 | 改动面 | 命令 |
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
-| quality 入口或配置 | `bun run quality:check` |
+| 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | quality annotation | `bun run quality:annotate` |
-| toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test`、`bun run toolkit:quality:test` |
+| toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test` |
 
-Rust 行为改动仍按 `docs/navigation.md` 的 Rust 验证路径执行。
+产品行为改动按 TypeScript/Bun 产品验证入口执行。

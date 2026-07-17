@@ -8,9 +8,13 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "lint:scripts": "eslint --max-warnings 0 --cache --cache-location .eslintcache --cache-strategy content",
+    "product:cli": "bun src/product/cli.ts",
+    "lint:product": "eslint --max-warnings 0 --cache --cache-location .cache/eslint/product --cache-strategy content \"src/product/**/*.ts\"",
+    "lint:scripts": "eslint --max-warnings 0 --cache --cache-location .eslintcache --cache-strategy content \"eslint.config.ts\" \"scripts/**/*.ts\"",
+    "typecheck:product": "tsgo -p tsconfig.product.json",
     "typecheck:scripts": "tsgo -p tsconfig.json",
     "typecheck:scripts:tsc": "tsc -p tsconfig.json",
+    "test:product": "bun test src/product",
     "validate": "bun run validate:docs && bun run validate:openspec && bun run validate:diff",
     "validate:docs": "bun scripts/docs/validate.ts",
     "validate:openspec": "openspec validate --all --strict",
@@ -27,10 +31,7 @@
     "toolkit:foundation:test": "bun run --cwd scripts/tools/foundation test",
     "toolkit:parallel:typecheck": "bun run --cwd scripts/tools/parallel-task-runner typecheck",
     "toolkit:parallel:lint": "bun run --cwd scripts/tools/parallel-task-runner lint",
-    "toolkit:parallel:test": "bun run --cwd scripts/tools/parallel-task-runner test",
-    "toolkit:quality:typecheck": "bun run --cwd scripts/tools/quality-core typecheck",
-    "toolkit:quality:lint": "bun run --cwd scripts/tools/quality-core lint",
-    "toolkit:quality:test": "bun run --cwd scripts/tools/quality-core test"
+    "toolkit:parallel:test": "bun run --cwd scripts/tools/parallel-task-runner test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -12,7 +12,7 @@
 - 只从 pinned `scripts/tools/quality-core/**`、`scripts/quality/scan.ts`、参数与默认配置及其必要 `foundation` 运行时依赖迁移源码、测试和 fixtures，并按现有结构和行为放入 `src/product/**`。
 - 让正式命令直接调用 `src/product/**`；需要保留的 `scripts/quality/scan.ts` 仅作为指向产品入口的薄兼容包装。
 - 用上移前 TypeScript 脚本与新产品入口的 quick、full、baseline、显式 changed-files、warning 和 artifact 对照证明源码归位没有顺带改变行为。
-- 将配置重做、输出契约重做、scanner 重写、已知缺陷修复和 Lizard TypeScript 移植留给后续独立 change。
+- 将配置重做、输出契约重做、scanner 重写、已知缺陷修复和 Lizard TypeScript 移植留给后续独立 change；本 change 所称配置、输出、gate、schema/examples 和质量规则“不变”只指 pinned TypeScript consumer 的现有行为，Rust 产品契约随 Rust 路径退役。
 
 ## Capabilities
 
@@ -25,11 +25,15 @@
 - `duplicate-scanning`：删除 jscpd Rust integration requirement，并独立记录现有 TypeScript/Bun 脚本的 jscpd component boundary。
 - `structural-scanning`：删除 ast-grep Rust integration requirement，并独立记录现有 TypeScript/Bun 脚本的 Python/Lizard function-metrics boundary。
 - `test-fixtures`：删除 Rust CLI 与 ast-grep dependency characterization 专用 fixture requirements；现有 TypeScript 测试资产随源码原样上移。
+- `cli-contract`：退役 Rust MVP command、output mode、config 与 0–4 gate mapping，并记录正式 `product:cli`、现有 TypeScript flags、console/artifact boundary 和 status mapping。
+- `output-contract`：退役 Rust human/JSON stdout、`vibe-check.report.v1` 与 schema/example requirements，并记录现有 TypeScript artifacts 和 console boundary。
+- `quality-metrics`：退役 Rust LOC、warning 与 blocking-gate requirements，并让长期 owner 记录 pinned TypeScript metrics、warning channels、baseline/profile 和三态 status boundary。
+- `scan-scope`：用 pinned TypeScript config include、Git-first collection 与 fallback behavior 取代 Rust scope counters、全局四语言分类和 normalized collection diagnostics。
 
 ## Impact
 
 - architecture、CLI、scanner、script-tooling、testing 和 AGENTS 等长期说明先对齐目标 owner 与实现状态。
-- Rust-specific scanner 和 fixture contracts 被删除；现有 TypeScript scanner boundary 被独立记录，normalized result、warning、gate 和 output contracts 保持不变。
+- Rust-specific CLI、output、metrics、scan-scope、scanner 和 fixture contracts 被删除或替换；现有 TypeScript scanner boundary 被独立记录。保持不变的是 pinned consumer revision `eae25aee64a5b4ecef4b02e8e86d8d39c4ab122d`、quality-core `3acea8c2f643ea86f7a1e8f2a6db716b7e320c76` 与 foundation `f593edbf55fd03be7db54ef44a38d0a9feda4dbd` 的配置、输出、warning、status 和 artifact 行为，不保留 Rust human/JSON、blocking gate、schema/examples 或 metrics contract。
 - 删除 Rust 产品 crate、源码、测试、fixtures、产品入口及其专用构建与测试接线。
 - 将当前 TypeScript 扫描入口、质量核心、运行时 helper、测试和必要 fixtures 迁移到 `src/product/**`；CI annotation 等仓库 consumer 继续留在 `scripts/**`。
 - 调整 `package.json` 中的正式产品命令和保留的开发期兼容入口。

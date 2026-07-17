@@ -12,12 +12,6 @@ const testRunnerSuccessOutput = [
   /^Ran \d+ tests? across \d+ files?\. \[[\d.]+(?:ms|s)\]$/
 ];
 
-const cargoProgressOutput = [
-  /^\s*(Checking|Compiling) .*$/,
-  /^\s*Blocking waiting for file lock on .+$/,
-  /^\s*Finished `.*` profile .*$/
-];
-
 const qualityWarningOutput = [
   /^Quality check status: warning$/,
   /^Warnings: \d+ total \(\d+ changed, \d+ regressions\)$/,
@@ -46,10 +40,22 @@ export const checks = defineChecks([
     type: PROFILE_REQUIRED,
     tasks: [
       {
-        id: "cargo-fmt",
-        label: "cargo fmt",
-        command: "cargo",
-        args: ["fmt", "--all", "--check"]
+        id: "typecheck-product",
+        label: "TypeScript product typecheck and import boundary",
+        command: "bun",
+        args: ["run", "typecheck:product"],
+        ignoreOutput: [
+          /^\$ tsgo -p tsconfig\.product\.json$/
+        ]
+      },
+      {
+        id: "lint-product",
+        label: "TypeScript product lint",
+        command: "bun",
+        args: ["run", "lint:product"],
+        ignoreOutput: [
+          /^\$ eslint .*src\/product\/\*\*\/\*\.ts.*$/
+        ]
       },
       {
         id: "typecheck-scripts",
@@ -66,7 +72,7 @@ export const checks = defineChecks([
         command: "bun",
         args: ["run", "lint:scripts"],
         ignoreOutput: [
-          /^\$ eslint --max-warnings 0 --cache --cache-location \.eslintcache --cache-strategy content$/
+          /^\$ eslint .*scripts\/\*\*\/\*\.ts.*$/
         ]
       },
       {
@@ -83,6 +89,7 @@ export const checks = defineChecks([
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
+        dependsOn: ["typecheck-product", "lint-product", "typecheck-scripts", "lint-scripts"],
         allowOutput: [
           ...qualityWarningOutput
         ],
@@ -115,8 +122,18 @@ export const checks = defineChecks([
         label: "toolkit tests",
         tasks: [
           toolkitTestCheck("toolkit-foundation-tests", "foundation toolkit tests", "toolkit:foundation:test"),
-          toolkitTestCheck("toolkit-parallel-tests", "parallel toolkit tests", "toolkit:parallel:test"),
-          toolkitTestCheck("toolkit-quality-tests", "quality toolkit tests", "toolkit:quality:test")
+          toolkitTestCheck("toolkit-parallel-tests", "parallel toolkit tests", "toolkit:parallel:test")
+        ]
+      },
+      {
+        id: "test-product",
+        label: "TypeScript product tests",
+        command: "bun",
+        args: ["run", "test:product"],
+        dependsOn: ["typecheck-product", "lint-product"],
+        ignoreOutput: [
+          /^\$ bun test src\/product$/,
+          ...testRunnerSuccessOutput
         ]
       },
       {
@@ -133,38 +150,12 @@ export const checks = defineChecks([
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
-        dependsOn: ["toolkit-quality-tests"],
+        dependsOn: ["test-product", "typecheck-scripts", "lint-scripts"],
         allowOutput: [
           ...qualityVerificationWarningOutput
         ],
         warningOutput: [
           /^Quality verification status: warning$/m
-        ]
-      },
-      {
-        id: "cargo-clippy",
-        label: "cargo clippy",
-        command: "cargo",
-        args: ["clippy", "--all-targets", "--all-features", "--", "-D", "warnings"],
-        mutex: ["cargo-build"],
-        ignoreOutput: [
-          ...cargoProgressOutput
-        ]
-      },
-      {
-        id: "cargo-test",
-        label: "cargo test",
-        command: "cargo",
-        args: ["test", "--all"],
-        mutex: ["cargo-build"],
-        ignoreOutput: [
-          ...cargoProgressOutput,
-          /^\s*Running unittests .*$/,
-          /^\s*Running tests[\\/].*$/,
-          /^\s*Doc-tests .*$/,
-          /^running \d+ tests?$/,
-          /^test .* \.\.\. ok$/,
-          /^test result: ok\..*$/
         ]
       },
       {

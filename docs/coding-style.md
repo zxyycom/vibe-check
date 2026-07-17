@@ -4,9 +4,21 @@
 
 具体 CLI 行为、输出字段、schema 形状、质量指标和测试矩阵，以 [文档导航](navigation.md) 指向的主规范为准。编码规范只回答一个问题：实现这些契约时，代码应该保持什么性质。
 
+## 实现方向
+
+产品实现的唯一 runtime owner 是 `src/product/**` 下的仓库自有 TypeScript/Bun 源码；
+`scripts/**`
+只保留开发自动化、CI consumer 和指向产品入口的薄 wrapper。产品源码不得反向导入
+`scripts/**` 或 toolkit gitlink。
+
+正式入口是 `bun run product:cli -- scan [project-root]`。`scripts/quality/scan.ts`
+只负责显式传入 Vibe Check 仓库根并单向调用产品入口；默认配置和扫描行为由
+`src/product/**` 拥有。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
+TypeScript 产品的实现来源或兼容层。
+
 ## 1. 文档边界与使用方式
 
-编码规范只负责通用实现质量规则：如何识别 owner、如何处理边界、如何用 Rust 类型表达领域含义、如何组织模块、如何选择验证层级，以及交付前检查什么。
+编码规范只负责通用实现质量规则：如何识别 owner、如何处理边界、如何用类型表达领域含义、如何组织模块、如何选择验证层级，以及交付前检查什么。
 
 实现前确认三件事：
 
@@ -18,9 +30,9 @@
 
 ## 2. Owner 与实现归属先行
 
-实现代码必须服从主规范定义的职责边界和稳定契约。owner 是规则来源文档；实现归属是承载代码的 crate、模块、文件或脚本。
+实现代码必须服从主规范定义的职责边界和稳定契约。owner 是规则来源文档；实现归属是承载代码的 source area、模块、文件或脚本。
 
-新增逻辑先进入最明确的现有实现归属。只有职责、变化原因、复用边界或命名空间清晰时，才新增模块、crate 或共享层。
+新增逻辑先进入最明确的现有实现归属。只有职责、变化原因、复用边界或命名空间清晰时，才新增模块、package 或共享层。
 
 跨实现归属协作必须通过显式类型、稳定输出或主规范定义的边界完成。调用入口只做本入口负责的解析、校验、归一化和映射；属于下游组件的 opaque 值或业务语义原样传递。
 
@@ -42,15 +54,18 @@
 
 验收标准：任何失败路径都能回答“调用方下一步该看什么、改什么或重试什么”。
 
-## 4. Rust 类型表达领域含义
+## 4. 类型表达领域含义
 
-跨模块传递领域含义时，优先使用能表达不变量的 Rust 类型。裸字符串、通用 JSON 值和元组只适合协议镜像、opaque options、错误 details、测试构造和局部 glue code。
+跨模块传递领域含义时，优先使用能表达不变量的 TypeScript 类型、discriminated union 和
+只读数据结构。裸字符串、通用 JSON 值和 tuple 只适合协议镜像、opaque options、错误
+details、测试构造和局部 glue code；外部输入先以 `unknown` 接收并在边界完成校验，不用
+`any` 绕过边界。
 
 类型设计遵循三条原则：
 
 1. 业务逻辑入口接收已经校验过的领域值，不重复解析原始输入。
 2. 稳定序列化类型保持字段形状清晰，不把私有语义塞进共享输出。
-3. 公开 API 通过 `Result`、返回值或类型状态表达普通失败，不因调用方可传入的非法值 `panic`。
+3. 公开 API 通过返回值、显式 result union 或可识别的 error 表达普通失败，不把缺失工具、解析失败或非法输入伪装成成功空结果。
 
 稳定字段、错误码、退出码、schema 名、诊断前缀和跨函数复用的字符串或数字，应使用枚举、新类型、常量模块或职责内配置表达。不要建立跨组件的全局杂物常量池。
 
@@ -60,12 +75,12 @@
 
 错误类型按边界和调用方需求设计。内部 helper 可以返回具体错误；跨模块和 CLI 边界应映射为稳定、可解释、可测试的错误模型。
 
-Rust 错误处理规则：
+错误处理规则：
 
-1. 可预期失败用 `Result`，不可恢复的不变量破坏才使用 `panic`。
-2. `unwrap` / `expect` 只用于测试、示例或已经由局部不变量证明的路径；生产路径使用显式错误。
+1. 可预期失败使用显式 result union、受控 exception 或调用链已有的 typed error；不要混用多种失败协议描述同一边界。
+2. Promise 必须被 `await`、返回或显式处理；生产路径不得遗留未观察 rejection。
 3. 外部命令失败、工具不可用、解析失败和无发现分别建模。
-4. 错误消息面向定位和行动，不依赖调用栈才能理解。
+4. `catch` 中把未知值按 `unknown` 处理，并在统一边界生成可定位、可行动的消息。
 
 验收标准：错误路径能被测试或命令输出观察到，并且不会把不同失败混成同一种状态。
 
@@ -73,9 +88,13 @@ Rust 错误处理规则：
 
 文件、模块、函数和脚本应围绕单一变化原因组织。编码规范不规定固定目录方案；具体拆分服从当前代码形状和相邻模块惯例。
 
-新增代码先进入最明确的现有实现归属。文件大小、函数长度和质量检查结果只是观察信号，不是拆分依据；拆分要服务于职责、变化原因、复用边界或局部可读性。
+新增代码先进入最明确的现有实现归属。把现有 runtime 源码移动到新的 owner 时，应保持
+已有文件分组、类型和控制流，只做路径、import、入口和所有权所需调整；不借搬移新增
+领域层、adapter 层或 service 层。
 
-Rust 模块拆分时，优先采用“同名入口文件 + 同名目录”的形态，例如由 `scanner.rs` 声明并组织 `scanner/` 下的子模块。新增模块入口使用同名文件，不使用 `mod.rs`；`lib.rs`、`main.rs` 等 crate root 按 Rust 约定保留。
+TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 runtime 闭包必须位于
+`src/product/**`；仍属于仓库开发自动化的 consumer 留在 `scripts/**`，只允许
+`scripts/** -> src/product/**` 的单向依赖。
 
 需要拆分的信号：
 
@@ -92,7 +111,8 @@ Rust 模块拆分时，优先采用“同名入口文件 + 同名目录”的形
 
 外部工具适配要隔离在 scanner 或 tooling 边界内：
 
-1. 检测工具可用性，不把缺失工具伪装成扫描通过。
+1. 检测并报告工具可用性；保持现有 preflight skip 与 no-finding 可区分，已进入 invocation
+   后的失败不得伪装成扫描通过。
 2. 保存必要的原始输出或摘要，便于复现解析问题。
 3. 把外部工具版本、命令和退出状态纳入可观察结果。
 4. 不让外部工具的 stdout/stderr 直接成为稳定机器输出。
@@ -105,9 +125,10 @@ Rust 模块拆分时，优先采用“同名入口文件 + 同名目录”的形
 
 当实现发现规则缺失、冲突或过期时，先判断 owner：
 
-1. CLI 行为、退出码和输出模式由 CLI / Output owner 定义。
+1. CLI operation、scan flags、project root、console 和进程状态由 CLI / Output owner 定义。
 2. 指标模型、warning 语义和报告数据由 Core / Scanner owner 定义。
-3. JSON 字段形状由 schema 定义；示例证明语义和兼容性。
+3. 已有 owner schema 的稳定 JSON 字段由 schema 定义；当前 TypeScript quality artifacts
+   使用产品 runtime validation，不套用已退役的 Rust report schema。
 4. 测试层级、fixture 和验证入口由测试策略定义。
 
 验收标准：任何稳定规则变化，都能指出唯一 owner，并说明本次改动同步了哪些受影响材料。
@@ -120,10 +141,15 @@ Rust 模块拆分时，优先采用“同名入口文件 + 同名目录”的形
 
 1. 内部语义有单元测试或等价局部验证。
 2. CLI 行为有集成测试或等价命令验证。
-3. schema、示例和 machine output 保持可解析、可校验、可互相映射。
+3. 触及 owner schema/examples 时保持二者可互相映射；TypeScript machine artifacts 运行
+   既有 runtime validation 和相应契约测试。
 4. 输出层边界和 stderr/stdout 边界有测试或脚本检查。
 5. 纯文档改动至少用 `bun run validate:docs`、局部 diff、关键词搜索或等价方式确认结构和范围。
 6. 无法运行的验证必须在交付说明中明确原因和风险。
+
+TypeScript 产品变更还应按影响面运行 product import boundary、typecheck、lint 和 test。
+源码归位类 change 必须用迁移前后同一输入的行为对照证明路径调整没有改变既有参数、
+scanner、warning、baseline、artifact 或状态语义。
 
 验收标准：验证能证明本次改动影响的边界仍成立，而不是只证明代码可以编译。
 

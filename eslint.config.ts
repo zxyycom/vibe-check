@@ -5,6 +5,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 const tsconfigRootDir = dirname(fileURLToPath(import.meta.url));
+const productFiles = ["src/product/**/*.ts"];
 const scriptFiles = ["scripts/**/*.ts"];
 
 export default tseslint.config(
@@ -22,7 +23,7 @@ export default tseslint.config(
     ]
   },
   {
-    files: ["eslint.config.ts", ...scriptFiles],
+    files: ["eslint.config.ts", ...productFiles, ...scriptFiles],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended
@@ -48,10 +49,10 @@ export default tseslint.config(
     }
   },
   {
-    files: scriptFiles,
+    files: [...productFiles, ...scriptFiles],
     languageOptions: {
       parserOptions: {
-        project: "./tsconfig.json",
+        project: ["./tsconfig.json", "./tsconfig.product.json"],
         tsconfigRootDir
       }
     },
