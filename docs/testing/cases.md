@@ -4,6 +4,19 @@
 [测试用例维护](case-maintenance.md)。产品语义以 [文档导航](../navigation.md#规则所有权)
 指向的 owner 文档为准；本账本只记录测试证明目标。
 
+## White-box Output Cases
+
+### WB-OUTPUT-NOTICES-001 Product report notice 所有权和位置稳定
+Status: implemented
+Code: `src/product/config.test.ts`
+
+Proves:
+- 顶部 non-blocking notice 紧随报告标题，并将 TypeScript/Bun 产品 CLI、报告契约和产品
+  测试标识为 release contract。
+- Footer notice 保持为报告末行，并将 TypeScript/Bun 产品测试和契约校验标识为 release
+  gates。
+- 两处 notice 不再将已退役的 Rust CLI、schema 或测试标识为当前 release owner。
+
 ## Auxiliary Script Cases
 
 ### AUX-PARALLEL-RUNNER-001 Parallel task runner 保持调度契约

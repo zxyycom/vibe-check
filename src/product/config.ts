@@ -162,10 +162,10 @@ export const DEFAULT_CONFIG = Object.freeze({
   report: {
     title: "Vibe Check Quality Snapshot",
     nonBlockingNotice:
-      "Non-blocking development quality snapshot. Vibe Check's Rust CLI, schema, and tests remain the release contract.",
+      "Non-blocking development quality snapshot. The Vibe Check TypeScript/Bun product CLI, report contract, and product tests define the release contract.",
     footerGeneratedBy: "Vibe Check Quality Observability",
     footerNotice:
-      "This report is a non-blocking development snapshot. Rust tests and schema validation remain the release gates.",
+      "This report is a non-blocking development snapshot. Vibe Check TypeScript/Bun product tests and contract validation define the release gates.",
     topN: 10,
     timeZone: "Asia/Shanghai",
     showWatchlist: true,
