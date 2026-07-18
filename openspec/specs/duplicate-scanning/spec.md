@@ -4,86 +4,36 @@
 Define how Vibe Check scans normalized supported files for duplicate code, normalizes pairwise clone results, and reports deterministic warnings and scanner failures.
 ## Requirements
 ### Requirement: Duplicate scanner adapter input
-Core scan pipeline SHALL 从 Vibe Check normalized scan scope 运行 duplicate scanning。duplicate scanner adapter MUST 只接收已收集的 supported files，MUST NOT 扫描被 scan scope rules 排除的文件，也不能扫描 Rust CLI supported source set 判定为 unsupported 的文件。
+Product core SHALL 从 Vibe Check normalized scan scope 和 configured code areas 运行 duplicate scanning。jscpd adapter MUST 只接收该 code area 已收集且未被 scan scope rules 排除的 exact paths，MUST NOT 扫描 project root 或自行扩大输入。每个至少包含两个 exact paths 的 code area SHALL 使用 configured minimum-token value；format mapping 为字符串时 SHALL 传给 jscpd，值为 `null` 时 SHALL 省略 format override，而不是跳过该 code area。
 
-#### Scenario: 接收 supported files
-- **WHEN** scan scope 包含 supported files `src/a.rs` 和 `src/b.rs`
-- **THEN** duplicate scanner adapter 接收这些 exact supported file paths 作为 scan input
+#### Scenario: 接收 configured code-area exact paths
+- **WHEN** configured code area 包含已收集 paths `src/a.rs` 和 `src/b.rs`
+- **THEN** jscpd adapter 接收这两个 exact paths 作为该 area 的 scan input
+- **AND** adapter 使用该 area 的 configured minimum-token value
 
-#### Scenario: 不扫描 unsupported files
-- **WHEN** scan scope 包含 supported file `src/lib.rs` 和 unsupported ordinary file `README.md`
-- **THEN** duplicate scanner adapter 接收 `src/lib.rs`
-- **AND** duplicate scanner adapter 不接收 `README.md`
+#### Scenario: Null format 保留自动检测
+- **WHEN** configured code area 至少包含两个 exact paths 且 format mapping 为 `null`
+- **THEN** jscpd adapter 仍为该 area 建立 scan task
+- **AND** jscpd invocation 省略 format override
 
 #### Scenario: 遵守 excluded paths
 - **WHEN** generated、vendor、cache、target 或 ignored paths 下的 project files 已被 scan scope collection 排除
-- **THEN** 这些 excluded files 不进入 duplicate scanner input
+- **THEN** 这些 excluded files 不进入 jscpd input
 
-#### Scenario: 没有 supported files 时正常完成
-- **WHEN** normalized scan scope 不包含 supported files
-- **THEN** runtime 跳过 duplicate scanner adapter
-- **AND** scan 正常完成，不产生 duplicate warning 或 duplicate diagnostic
+#### Scenario: Code area 输入不足时正常跳过
+- **WHEN** configured code area 少于两个 exact paths
+- **THEN** product core 不为该 area 启动 jscpd invocation
+- **AND** 该 area 正常完成且不产生 duplicate fragment
 
-### Requirement: jscpd Rust engine integration boundary
-duplicate scanner adapter SHALL 通过 Rust API 接入 jscpd v5 Rust engine。adapter MUST 将 jscpd 或 `cpd-finder` native result types、reporter output 和 private configuration 限制在 adapter boundary 内，并且 MUST 向 Core 返回 Vibe Check-owned duplicate results 或 diagnostics。
+### Requirement: Product-owned jscpd integration boundary
+Duplicate scanning SHALL 使用现有 product config 解析的 jscpd component。Adapter MUST 将 process protocol、reporter output 和 private configuration 限制在 adapter boundary 内，并向 product core 返回 Vibe Check-owned `DuplicateCodeFragment` records 或 normalized failure。
 
-#### Scenario: Rust API result 被归一化
-- **WHEN** jscpd Rust engine 报告 duplicate clone pair
-- **THEN** Core 接收 Vibe Check duplicate finding，而不是 jscpd-native result structure
+#### Scenario: jscpd result 被归一化
+- **WHEN** configured jscpd component 报告 duplicate clone pair
+- **THEN** product core 接收 Vibe Check-owned `DuplicateCodeFragment`
+- **AND** product core 不依赖 jscpd reporter result structure
 
 #### Scenario: Reporter output 不是 stable contract
-- **WHEN** adapter 使用任何 jscpd reporter 或 raw summary 调试 scanner behavior
-- **THEN** raw reporter output 不作为 stable JSON output field 暴露
-
-### Requirement: Normalized pairwise duplicate finding
-Duplicate scanner results SHALL 在 warning generation 前归一化为 Vibe Check-owned duplicate finding records。每个 upstream clone pair MUST 产生一个 duplicate finding，第一版 MUST NOT 对多个 pairs 做 graph coalescing。每个 finding MUST 包含 deterministic internal identity、两个 project-root-relative locations、每个 location 的 line span，以及 scanner token count。
-
-#### Scenario: Cross-file duplicate 被归一化
-- **WHEN** jscpd 报告跨 `src/a.rs` 和 `src/b.rs` 的 clone pair
-- **THEN** normalized duplicate finding 包含这两个 project-root-relative files 的 locations
-- **AND** 每个 location 包含 line span
-
-#### Scenario: Same-file duplicate 被归一化
-- **WHEN** jscpd 报告同一个 supported file 内的两个 clone locations
-- **THEN** normalized duplicate finding 将两个 locations 保留为独立 spans
-
-#### Scenario: Pair 不被合并
-- **WHEN** jscpd 返回两个相互重叠或共享 location 的 clone pairs
-- **THEN** adapter 返回两个 normalized duplicate findings
-
-#### Scenario: Duplicate finding 顺序确定
-- **WHEN** 同一个 project 在源码未变化时重复扫描
-- **THEN** pair 内 locations 和 duplicate findings 使用 normalized path / location deterministic ordering
-
-### Requirement: Built-in duplicate scanning profile
-duplicate scanner adapter SHALL 使用不可变的第一版内置扫描 profile。profile MUST 使用 `min_tokens = 50`、`min_lines = 5`、audited default tokenization mode 和 Vibe Check-owned scope overrides。
-
-#### Scenario: 达到默认 token 和 line threshold
-- **WHEN** supported source 包含 token count 至少为 `50` 且满足 `5` line-span 规则的 duplicate pair
-- **THEN** duplicate scanner 返回 normalized duplicate finding
-
-#### Scenario: 低于默认 token threshold
-- **WHEN** 相似文本的 duplicate token count 小于 `50`
-- **THEN** duplicate scanner 不为该文本返回 normalized duplicate finding
-
-#### Scenario: 低于默认 line threshold
-- **WHEN** 相似文本达到 token threshold 但不满足 `5` line-span 规则
-- **THEN** duplicate scanner 不为该文本返回 normalized duplicate finding
-
-### Requirement: Duplicate scanner diagnostics
-duplicate scanner adapter failures SHALL 显式可见。部分输入失败但仍有可信 scanner data 时，adapter MUST 产生 `DUPLICATE_SCAN_PARTIAL` diagnostics 和 partial report；无法产生可信 duplicate result 的 failure MUST 映射为 scanner fatal error，MUST NOT 转换成 empty duplicate result。
-
-#### Scenario: Recoverable duplicate scanner issue 产生 partial report
-- **WHEN** 一个 supported file preflight 失败，但至少一个其它 supported file 仍可扫描
-- **THEN** scan report 包含该文件的 warning-severity `DUPLICATE_SCAN_PARTIAL` diagnostic
-- **AND** `summary.status` 为 `partial`
-
-#### Scenario: 所有 collected inputs 失效时 fatal
-- **WHEN** scan scope 原本包含 supported files，但所有 duplicate scanner inputs 都在 preflight 失败
-- **THEN** CLI 以 scanner fatal exit code `3` 退出
-- **AND** stdout 不包含 human 或 JSON scan report
-
-#### Scenario: Adapter result 无法信任时 fatal
-- **WHEN** adapter 收到 `FinderError`、panic unwind、project root 外的 source id、无效 location 或无法归一化的 clone
-- **THEN** CLI 以 scanner fatal exit code `3` 退出
-- **AND** scanner failure 不表现为 zero duplicate findings
+- **WHEN** adapter 保存 jscpd reporter output 以复现 scanner behavior
+- **THEN** raw reporter output 只作为 scanner artifact 使用
+- **AND** raw reporter output 不成为 stable product output field

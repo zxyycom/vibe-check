@@ -11,58 +11,34 @@ Scan scope behavior SHALL have a long-term owner document under `docs/` that rec
 - **THEN** the navigation document points to the scan scope owner document
 
 ### Requirement: Real project file collection
-Core scan pipeline SHALL collect ordinary files under the normalized project root before invoking metric or scanner adapters. The collected scope MUST be independent of output format, and MUST produce the same report data for human and JSON projection.
+Core scan pipeline SHALL 从 normalized project root 下的 pinned product config include paths 构造 scan scope。Collection MUST 先运行 `git ls-files --cached --others --exclude-standard` 取得候选 paths；该命令失败时 SHALL 保持现有提示并使用 pinned fallback walker。Collection result SHALL 继续交给现有 config exclude、generated-file 与 code-area rules，而不得为源码上移新增 output-mode 或 Rust report-counter semantics。
 
-#### Scenario: Scan counts ordinary project files
-- **WHEN** a project root contains ordinary source files that are not ignored or excluded
-- **THEN** `vibe-check scan --format json` reports `run.mode` as `scanner` and `scope.file_count` as the number of collected ordinary files
+#### Scenario: Git-first collection uses configured include paths
+- **WHEN** project root 可由 Git collection 读取且 configured include paths 包含 ordinary project files
+- **THEN** core 从 `git ls-files --cached --others --exclude-standard` 返回的候选 paths 构造 scope
+- **AND** 只保留符合 pinned product config scope rules 的 paths
 
-#### Scenario: Output format does not change scope
-- **WHEN** the same project root is scanned with `--format human` and `--format json`
-- **THEN** both outputs are projected from report data with the same scan scope counts
+#### Scenario: Git failure uses the existing fallback
+- **WHEN** Git collection command 失败
+- **THEN** core 保持 pinned consumer 的 fallback 提示并使用现有 fallback walker
+- **AND** fallback 不被重新分类为 Rust scanner-fatal outcome
 
 ### Requirement: Default exclusion baseline
-Scan scope collection SHALL apply Vibe Check default exclusions for VCS, dependency, build, virtual environment, generated, vendor and cache directories before counting files. The default baseline MUST exclude at least `.git`, `target`, `node_modules`, `.venv`, `dist`, `build`, `vendor`, `generated`, `.cache`, and `cache` path components.
+Scan scope collection SHALL 在构造 scanner exact inputs 前应用 pinned product config 的 exclude directories、generated-file globs 和 code-area boundaries。源码上移 MUST 保持这些配置值与 precedence，不得从 Rust scope counters 推导或增加另一套默认排除。
 
-#### Scenario: Default excluded directories are not counted
-- **WHEN** a project root contains files only under `.git`, `target`, `node_modules`, `.venv`, `dist`, `build`, `vendor`, `generated`, `.cache`, or `cache`
-- **THEN** those files are not included in `scope.file_count` or `scope.supported_file_count`
+#### Scenario: Configured exclusions do not reach scanner inputs
+- **WHEN** candidate path 匹配 pinned product config 的 excluded directory 或 generated-file rule
+- **THEN** 该 path 不进入 normalized scanner exact inputs
+- **AND** collection 不需要生成 Rust `scope.file_count` 或 `scope.supported_file_count`
 
 ### Requirement: Ignore file handling
-Scan scope collection SHALL respect supported VCS ignore rules for files under the project root. Files ignored by those rules MUST NOT be included in `scope.file_count` or `scope.supported_file_count`.
+Scan scope 的 primary Git collection SHALL 通过 `--exclude-standard` 保持 VCS ignore behavior。Git collection 不可用时，core SHALL 保持 pinned fallback walker 的现有 semantics，而 MUST NOT 为源码上移发明 VCS-ignore parity、ignore-parse diagnostic 或 partial-report contract。
 
-#### Scenario: Gitignore excludes matching files
-- **WHEN** a project root contains a `.gitignore` rule that ignores `generated.js`
-- **THEN** `generated.js` is not included in the scan scope counts
+#### Scenario: Primary Git collection respects ignored paths
+- **WHEN** primary Git collection 可用且 VCS ignore rules 排除一个 path
+- **THEN** 该 path 不出现在 Git collection 返回的 normalized candidates 中
 
-### Requirement: Supported file classification
-Scan scope collection SHALL classify collected ordinary files into supported and unsupported files. MVP supported files MUST include only TypeScript, Go, Rust, and Python source files identified by final `.ts`, `.go`, `.rs`, and `.py` extensions. TypeScript JSX, JavaScript, JSX, and other non-MVP language files, including `.tsx`, `.js`, and `.jsx`, SHALL count toward `scope.file_count` when collected but SHALL NOT count toward `scope.supported_file_count`.
-
-#### Scenario: Supported languages are counted separately
-- **WHEN** a project root contains `src/app.ts`, `main.go`, `src/lib.rs`, `src/main.py`, `src/view.tsx`, `src/main.js`, `src/component.jsx`, and `README.md`
-- **THEN** `scope.file_count` includes all collected ordinary files that are not ignored or excluded
-- **AND** `scope.supported_file_count` includes only `.ts`, `.go`, `.rs`, and `.py` source files
-
-#### Scenario: TypeScript declaration files follow extension classification
-- **WHEN** a project root contains collected ordinary file `src/types.d.ts`
-- **THEN** scan scope classifies `src/types.d.ts` as a TypeScript supported file because its final extension is `.ts`
-
-#### Scenario: Unsupported files are not diagnostics
-- **WHEN** a project root contains unsupported ordinary files that are otherwise readable
-- **THEN** scan completes without adding diagnostics solely because those files are unsupported
-
-### Requirement: Recoverable collection diagnostics
-Scan scope collection SHALL map recoverable file collection problems, including walk errors and ignore parsing problems, into normalized diagnostics when report data can still be produced. Reports with recoverable collection diagnostics MUST set summary status to `partial` and increment `summary.diagnostic_count`.
-
-#### Scenario: Recoverable walk error produces partial report
-- **WHEN** scan scope collection encounters a recoverable walk error after collecting other files
-- **THEN** scan completes with a JSON report containing a diagnostic
-- **AND** `summary.status` is `partial`
-
-### Requirement: Fatal collection failures
-After CLI has normalized and accepted the project root, scan scope collection SHALL report a scanner fatal error when the collector cannot initialize or collection fails before report data can be produced. Fatal collection failures MUST NOT write a scan report to stdout.
-
-#### Scenario: Collection cannot produce report
-- **WHEN** scan scope collection receives a normalized project root but cannot initialize or cannot produce report data
-- **THEN** CLI exits with the scanner fatal exit code
-- **AND** stdout does not contain a human or JSON scan report
+#### Scenario: Fallback keeps its existing boundary
+- **WHEN** primary Git collection 失败并启用 fallback walker
+- **THEN** core 使用 pinned fallback semantics
+- **AND** 不产生 Rust normalized ignore diagnostic 或 partial report
