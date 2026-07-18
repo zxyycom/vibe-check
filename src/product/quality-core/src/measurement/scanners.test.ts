@@ -13,6 +13,7 @@ import {
 } from "./scanners/jscpd/scanner.ts";
 import { parseSccCSV } from "./scanners/scc.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
+import { checkLizard } from "./scanners/tool-availability/lizard.ts";
 import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -121,6 +122,40 @@ describe("quality scanner output parsing", () => {
       assert.equal(invalidDuplicate.reason, "jscpd-parse-failure");
       assert.match(invalidDuplicate.error, /duplicate #1 must be an object/);
     }
+  });
+});
+
+describe("quality lizard availability projection", () => {
+  // @case AUX-QUALITY-LIZARD-AVAILABILITY-001
+  it("classifies non-zero version exits with stderr as execution failures", async () => {
+    const toolConfig = createFakeVersionToolConfig({
+      stdout: "",
+      stderr: "No module named lizard",
+      exitCode: 1
+    });
+
+    try {
+      const result = await checkLizard(REPO_ROOT, toolConfig);
+
+      assert.equal(result.available, false);
+      assert.equal(result.reason, "execution-error");
+      assert.equal(result.version, null);
+      assert.match(result.error ?? "", /lizard --version failed, exit 1: No module named lizard/);
+    } finally {
+      toolConfig.cleanup();
+    }
+  });
+
+  it("classifies missing dependency commands as unavailable tools", async () => {
+    const result = await checkLizard(REPO_ROOT, {
+      command: join(REPO_ROOT, `vibe-check-missing-lizard-${process.pid}.cmd`),
+      args: []
+    });
+
+    assert.equal(result.available, false);
+    assert.equal(result.reason, "tool-unavailable");
+    assert.equal(result.version, null);
+    assert.match(result.error ?? "", /lizard command unavailable/);
   });
 });
 
@@ -275,6 +310,31 @@ describe("quality jscpd wrapper failure projection", () => {
     }
   });
 });
+
+function createFakeVersionToolConfig({
+  stdout,
+  stderr,
+  exitCode
+}: {
+  exitCode: number;
+  stderr: string;
+  stdout: string;
+}) {
+  const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-version-tool-"));
+  const fakeToolPath = join(tempDir, "fake-version-tool.ts");
+
+  writeFileSync(fakeToolPath, `
+process.stdout.write(${JSON.stringify(stdout)});
+console.error(${JSON.stringify(stderr)});
+process.exit(${JSON.stringify(exitCode)});
+`, "utf8");
+
+  return {
+    command: process.execPath,
+    args: [fakeToolPath],
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
+  };
+}
 
 function createFakeJscpdToolConfig({
   reportJson,

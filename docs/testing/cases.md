@@ -92,6 +92,15 @@ Proves:
 - jscpd wrapper 将 non-zero execution 映射为 `jscpd-execution-error`，不把执行失败标成
   skipped scan。
 
+### AUX-QUALITY-LIZARD-AVAILABILITY-001 Quality Lizard availability failure projection 稳定
+Status: implemented
+Code: `src/product/quality-core/src/measurement/scanners.test.ts`
+
+Proves:
+- Lizard version command 非零退出时，即使 stderr 非空也映射为不可用的
+  `execution-error`，并保留退出状态和诊断内容。
+- 配置的 Lizard dependency command 不存在时映射为 `tool-unavailable`，不进入实际扫描。
+
 ### AUX-QUALITY-CACHE-001 Quality measurement cache identity 稳定
 Status: implemented
 Code: `src/product/quality-core/src/measurement/cache.test.ts`
