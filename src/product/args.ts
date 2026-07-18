@@ -6,18 +6,25 @@ import {
   type QualityScanProfile
 } from "./quality-core/src/scan-command/command-model.ts";
 
+export type ParsedScanArgs = Omit<QualityScanOptions, "artifactDir" | "topN"> & {
+  artifactDir: string | null;
+  configFile: string | null;
+  topN: number | null;
+};
+
 const skipBaselineByToken: Partial<Record<string, boolean>> = {
   baseline: false,
   "skip-baseline": true,
   "with-baseline": false
 };
 
-export function parseArgs(argv = process.argv.slice(2)): QualityScanOptions {
+export function parseArgs(argv = process.argv.slice(2)): ParsedScanArgs {
   const parsed = parseScriptArgs({
     args: argv,
     options: {
       baseline: { type: "string" },
       "changed-files": { type: "string" },
+      config: { type: "string" },
       "top-n": { type: "string" },
       "artifact-dir": { type: "string" },
       profile: { type: "string" },
@@ -27,6 +34,7 @@ export function parseArgs(argv = process.argv.slice(2)): QualityScanOptions {
       help: { type: "boolean" }
     }
   });
+  assertSingleOption(parsed.tokens, "config");
 
   if (booleanOption(parsed.values, "help")) {
     printHelp();
@@ -34,18 +42,20 @@ export function parseArgs(argv = process.argv.slice(2)): QualityScanOptions {
   }
 
   const baseline = stringOption(parsed.values, "baseline") ?? null;
+  const topN = stringOption(parsed.values, "top-n");
   const scanProfile = parseScanProfile(stringOption(parsed.values, "profile") ?? "full");
   if (scanProfile === "quick" && hasBaselineOption(parsed.tokens)) {
     throw new Error("quick quality check does not support baseline options; use --profile full for baseline comparison");
   }
 
   return {
-    artifactDir: stringOption(parsed.values, "artifact-dir") ?? DEFAULT_CONFIG.artifactDir,
+    artifactDir: stringOption(parsed.values, "artifact-dir") ?? null,
     baseline,
     changedFiles: stringOption(parsed.values, "changed-files") ?? null,
+    configFile: stringOption(parsed.values, "config") ?? null,
     scanProfile,
     skipBaseline: scanProfile === "quick" ? true : resolveSkipBaseline(parsed.tokens, baseline === null),
-    topN: parsePositiveInteger(stringOption(parsed.values, "top-n") ?? String(DEFAULT_CONFIG.report.topN), "--top-n"),
+    topN: topN === undefined ? null : parsePositiveInteger(topN, "--top-n"),
     verificationOutput: booleanOption(parsed.values, "verification-output")
   };
 }
@@ -73,6 +83,15 @@ function hasBaselineOption(tokens: readonly ScriptArgToken[]): boolean {
   );
 }
 
+function assertSingleOption(tokens: readonly ScriptArgToken[], name: string): void {
+  const count = tokens.filter(
+    (token) => token.kind === "option" && token.name === name
+  ).length;
+  if (count > 1) {
+    throw new Error(`--${name} may only be provided once`);
+  }
+}
+
 function printHelp(): void {
   console.log(`
 Vibe Check Quality Observability
@@ -85,8 +104,10 @@ Options:
   --with-baseline         Auto-detect and scan previous-code baseline
   --changed-files <file>  List file; relative paths use project root
                           Absolute list paths are kept; entries are project-relative, one per line
-  --top-n <n>             Top N for rankings (default: ${DEFAULT_CONFIG.report.topN})
-  --artifact-dir <dir>    Artifact output directory (default: ${DEFAULT_CONFIG.artifactDir})
+  --config <file>         Complete JSON config; relative paths use project root
+                          Omit to use built-in defaults; no discovery or merge is performed
+  --top-n <n>             Top N for rankings (built-in default: ${DEFAULT_CONFIG.report.topN})
+  --artifact-dir <dir>    Artifact output directory (built-in default: ${DEFAULT_CONFIG.artifactDir})
   --skip-baseline         Skip baseline commit detection and scan
   --verification-output   Print verifier-style status based on unaccepted warnings
   --help                  Show this help

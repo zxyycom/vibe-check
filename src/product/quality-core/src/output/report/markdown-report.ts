@@ -32,7 +32,9 @@ const DEFAULT_REPORT_OPTIONS: ReportOptions = {
   nonBlockingNotice: "Quality metrics are observational unless the caller defines a blocking policy.",
   footerGeneratedBy: "Quality Core",
   footerNotice: "Quality metrics are observational unless the caller defines a blocking policy.",
-  timeZone: "UTC"
+  showWatchlist: true,
+  timeZone: "UTC",
+  watchlistMax: 10
 };
 
 export function generateMarkdownReport(
@@ -55,7 +57,9 @@ export function generateMarkdownReport(
     functionComplexityRankings(metrics, topN),
     functionSizeRankings(metrics, topN),
     duplicateCodeSection(metrics),
-    changedFilesSection(metrics, Math.min(topN, 10)),
+    ...(reportOptions.showWatchlist
+      ? [changedFilesSection(metrics, reportOptions.watchlistMax)]
+      : []),
     warningsSection(metrics),
     footer(metrics, reportOptions)
   ].join("\n\n");

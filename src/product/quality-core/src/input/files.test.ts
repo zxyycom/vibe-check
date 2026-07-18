@@ -233,6 +233,28 @@ describe("quality input file collection", () => {
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });
+
+  it("does not add built-in exclusions to the selected fallback config", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-selected-config-"));
+    const selectedConfig = {
+      excludeDirs: [],
+      generatedFiles: [],
+      include: ["vendor/**/*.ts"]
+    } satisfies ScanInputConfig;
+
+    try {
+      writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
+
+      assert.deepEqual(collectScanFiles(projectRoot, selectedConfig), [
+        "vendor/kept.ts"
+      ]);
+      assert.deepEqual(collectBaselineFiles(projectRoot, selectedConfig), [
+        "vendor/kept.ts"
+      ]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
 });
 
 function writeFixtureFile(rootDir: string, relPath: string, content: string): void {

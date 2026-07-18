@@ -2,8 +2,10 @@ export type ReportOptions = {
   footerGeneratedBy: string;
   footerNotice: string;
   nonBlockingNotice: string;
+  showWatchlist: boolean;
   timeZone: string;
   title: string;
+  watchlistMax: number;
 };
 
 export function formatCommitDisplay(sha: string, title: string | null | undefined): string {

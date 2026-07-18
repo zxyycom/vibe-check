@@ -31,6 +31,7 @@
 | 责任域 | 范围 |
 | --- | --- |
 | `CLI` | CLI 参数、路径、meta command、退出码和 stdout/stderr 边界 |
+| `CONFIG` | 默认或显式完整配置、严格 parsing、选择、替换和 precedence |
 | `SCOPE` | scan scope 收集、默认排除、supported file 分类和 collection diagnostic |
 | `METRICS` | LOC metrics、聚合、warning、gate 和 report summary |
 | `DUPLICATE` | Duplicate dependency characterization、adapter、pair normalization 和 warning contract |

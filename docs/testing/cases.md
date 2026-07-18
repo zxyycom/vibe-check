@@ -6,6 +6,24 @@
 
 ## Black-box CLI Cases
 
+### BB-CLI-CONFIG-FILE-001 Product 显式完整配置正式入口稳定
+Status: implemented
+Code: `src/product/configured-project.test.ts`
+Fixture: `fixtures/projects/configured-typescript/`
+
+Proves:
+- 正式入口从 fixture root 外按 normalized project root 读取 relative、absolute 与含
+  `..` 的 `--config`，并使用 explicit version、scope、code area、threshold、report、
+  artifact 和 controlled tools。
+- Eligible source 进入 metrics / warnings，explicit exclude 与 generated controls 不进入
+  scanner inputs；重复运行产生相同 Vibe Check-owned evidence。
+- Config 的 artifact/top-N defaults 生效，显式 `--artifact-dir` / `--top-n` 只覆盖对应
+  output option；`VIBE_CHECK_*` command / args 不重写或阻断 explicit tool settings。
+- Config read / parse failure 在 scanner 与 artifact 前写 stderr 并退出 `3`，不回退默认
+  config。
+- 未指定 `--config` 时不自动发现 project config，继续使用 `DEFAULT_CONFIG` 并保留默认分支
+  的 `VIBE_CHECK_*` overrides。
+
 ### BB-CLI-CHANGED-FILES-001 Product changed-files CLI 路径与错误映射稳定
 Status: implemented
 Code: `src/product/cli.test.ts`
@@ -19,6 +37,26 @@ Proves:
   error 使用 exit `2`。
 
 ## White-box Product Cases
+
+### WB-CONFIG-FILE-001 Product 完整 JSON 配置 parsing 稳定
+Status: implemented
+Code: `src/product/config-file.test.ts`
+
+Proves:
+- 完整 `QualityConfig` JSON 返回字段值不变且与输入 detached 的 typed value。
+- Missing、unknown、invalid nested、invalid time zone、non-object、invalid UTF-8 / JSON、
+  非 regular file 与 read failure 直接失败。
+- File-level error 保留 resolved config path 与原始 cause。
+
+### WB-CLI-CONFIG-OPTIONS-001 Product config option presence 稳定
+Status: implemented
+Code: `src/product/args.test.ts`
+
+Proves:
+- Relative、absolute 与含 `..` 的 config values 保持 parser input。
+- Omitted `--config`、`--top-n` 与 `--artifact-dir` 保持 option absence，供 selected config
+  提供值。
+- Duplicate 或 missing-value `--config` 直接失败。
 
 ### WB-CLI-CHANGED-FILES-001 Product changed-file input 路径与错误边界稳定
 Status: implemented
@@ -40,6 +78,7 @@ Proves:
 - Git command 失败时，current 与 baseline 都进入 config-only fallback；匹配 product
   include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
+- Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
 
 ## White-box Output Cases
 
@@ -146,6 +185,7 @@ Code: `src/product/quality-core/src/output/report/markdown-report.test.ts`
 Proves:
 - baseline unavailable 时 changed-file watchlist 仍按风险展示有用文件。
 - rankings 排序不修改 scanner output 原始顺序。
+- Report config 控制 Changed Files Watchlist visibility 与独立展示上限。
 - scc `Complexity` 文件列在人类报告中展示为 decision-token count，并补充热点占比。
 - Code Area 汇总表展示 decision-token count 和总量占比，用于定位热点区域。
 - 带 `acceptedReason` 的 warning 在报告中贴近对应 warning 展示原因，不从单独质量扫描中消

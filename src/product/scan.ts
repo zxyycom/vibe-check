@@ -1,5 +1,8 @@
-import { DEFAULT_CONFIG } from "./config.ts";
+import { resolve } from "node:path";
+
 import { parseArgs } from "./args.ts";
+import { loadQualityConfig } from "./config-file.ts";
+import { createDefaultConfig } from "./config.ts";
 import { runQualityScan } from "./quality-core/src/index.ts";
 import type { QualityScanOptions } from "./quality-core/src/index.ts";
 
@@ -9,12 +12,26 @@ export async function runScan(
   projectRoot: string,
   argv: readonly string[]
 ): Promise<ScanStatus> {
-  const options = parseArgs([...argv]);
+  const root = resolve(projectRoot);
+  const parsed = parseArgs([...argv]);
+  const config = parsed.configFile === null
+    ? createDefaultConfig()
+    : await loadQualityConfig(resolve(root, parsed.configFile));
+  const options: QualityScanOptions = {
+    artifactDir: parsed.artifactDir ?? config.artifactDir,
+    baseline: parsed.baseline,
+    changedFiles: parsed.changedFiles,
+    scanProfile: parsed.scanProfile,
+    skipBaseline: parsed.skipBaseline,
+    topN: parsed.topN ?? config.report.topN,
+    verificationOutput: parsed.verificationOutput
+  };
+
   return runQualityScan({
     banner: printBanner,
-    config: DEFAULT_CONFIG,
+    config,
     options,
-    root: projectRoot,
+    root,
     timingsEnabled: process.env.VIBE_CHECK_QUALITY_TIMINGS === "1"
   });
 }

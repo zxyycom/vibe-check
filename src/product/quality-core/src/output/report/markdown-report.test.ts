@@ -7,6 +7,7 @@ import {
   type WarningRecord
 } from "../../model/schema.ts";
 import { changedFilesSection, warningsSection } from "./findings.ts";
+import { generateMarkdownReport } from "./markdown-report.ts";
 import { fileDecisionTokenRankings, fileRankings, functionSizeRankings } from "./rankings.ts";
 import { repositorySize } from "./summary.ts";
 
@@ -30,6 +31,31 @@ describe("quality report", () => {
     assert.match(section, /Changed files: 2 total, 1 shown by risk ranking/);
     assert.match(section, /src\/risky\.ts/);
     assert.doesNotMatch(section, /src\/quiet\.ts/);
+  });
+
+  it("applies configured watchlist visibility and limit independently from ranking top N", () => {
+    const metrics = qualityMetrics();
+    metrics.fileMetrics = [
+      qualityFile("src/high.ts", { isChanged: true, lines: 300, decisionTokens: 30 }),
+      qualityFile("src/medium.ts", { isChanged: true, lines: 200, decisionTokens: 20 }),
+      qualityFile("src/low.ts", { isChanged: true, lines: 100, decisionTokens: 10 })
+    ];
+    metrics.warnings = {
+      all: metrics.fileMetrics.map((file) =>
+        warning(file.path, "scc-file-code-lines", file.lines)
+      ),
+      changed: [],
+      regressions: []
+    };
+
+    const hidden = generateMarkdownReport(metrics, 5, { showWatchlist: false });
+    const limited = generateMarkdownReport(metrics, 5, {
+      showWatchlist: true,
+      watchlistMax: 1
+    });
+
+    assert.doesNotMatch(hidden, /## Changed Files Watchlist/);
+    assert.match(limited, /Changed files: 3 total, 1 shown by risk ranking/);
   });
 
   it("sorts rankings by metric without mutating scanner output order", () => {

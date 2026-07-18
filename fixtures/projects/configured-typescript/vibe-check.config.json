@@ -1,0 +1,105 @@
+{
+  "version": "configured-typescript-1",
+  "include": [
+    "src/**/*.ts",
+    "excluded/**/*.ts"
+  ],
+  "excludeDirs": [
+    "excluded",
+    "node_modules",
+    "artifacts",
+    ".cache"
+  ],
+  "generatedFiles": [
+    "**/*.generated.ts"
+  ],
+  "codeAreas": {
+    "fixture-app": {
+      "description": "Configured TypeScript fixture application",
+      "globs": [
+        "src/**/*.ts"
+      ],
+      "excludeGlobs": [
+        "**/*.generated.ts"
+      ],
+      "warningPolicy": "moderate"
+    }
+  },
+  "lizard": {
+    "cyclomaticComplexity": {
+      "absoluteFloor": 3,
+      "changedDelta": 1
+    },
+    "functionCodeDensity": {
+      "absoluteFloor": 8,
+      "changedDelta": 2,
+      "lowComplexityAllowance": {
+        "maxCyclomaticComplexityExclusive": 2,
+        "codeLineFloor": 20
+      }
+    },
+    "parameterCount": {
+      "absoluteFloor": 2,
+      "changedDelta": 1
+    }
+  },
+  "scc": {
+    "fileCodeLines": {
+      "absoluteFloor": 5,
+      "changedDelta": 2,
+      "lowDecisionTokenAllowance": {
+        "maxDecisionTokens": 2,
+        "codeLineFloor": 8
+      }
+    }
+  },
+  "jscpd": {
+    "maxParallelTasks": 1,
+    "minimumTokens": {
+      "fixture-app": 20
+    },
+    "formatByCodeArea": {
+      "fixture-app": "typescript"
+    },
+    "defaultMinimumTokens": 20,
+    "duplicateFragments": {
+      "changedDelta": 0
+    }
+  },
+  "acceptedWarnings": [],
+  "report": {
+    "title": "Configured TypeScript Fixture Quality",
+    "nonBlockingNotice": "Deterministic explicit-configuration acceptance fixture.",
+    "footerGeneratedBy": "Vibe Check Config Fixture",
+    "footerNotice": "Generated only for explicit configuration acceptance.",
+    "topN": 3,
+    "timeZone": "UTC",
+    "showWatchlist": true,
+    "watchlistMax": 3
+  },
+  "artifactDir": "artifacts/configured-scan",
+  "cacheDir": ".cache/configured-scan",
+  "tools": {
+    "lizard": {
+      "command": "bun",
+      "args": [
+        "tools/controlled-scanner.ts",
+        "lizard"
+      ]
+    },
+    "scc": {
+      "command": "bun",
+      "args": [
+        "tools/controlled-scanner.ts",
+        "scc"
+      ]
+    },
+    "jscpd": {
+      "command": "bun",
+      "args": [
+        "tools/controlled-scanner.ts",
+        "jscpd"
+      ]
+    }
+  }
+}

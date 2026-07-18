@@ -8,17 +8,18 @@ warning、baseline、artifact 和输出字段由各自 owner 维护。
 
 ## 实施状态
 
-`src/product/**` 下的 TypeScript/Bun core 从 `src/product/config.ts` 构造 normalized scan
-scope，再把同一份归一化输入交给 scc、Python/Lizard 和 jscpd adapters。该配置文件是
-include、exclude、generated files、code areas 和 scanner input defaults 的唯一实现
-owner；dogfood wrapper 不维护第二份配置或 collection behavior。
+`src/product/**` 下的 TypeScript/Bun core 从本次 selected complete config 构造 normalized
+scan scope，再把同一份归一化输入交给 scc、Python/Lizard 和 jscpd adapters。Selected
+config 可以是 `src/product/config.ts` 的 `DEFAULT_CONFIG`，也可以是正式入口显式加载的
+完整 JSON config；选择与替换规则由 [Configuration](configuration.md) 维护。Dogfood
+wrapper 不维护第二份配置或 collection behavior。
 
 ## 职责边界
 
 CLI 负责归一化并接受 `project-root`。Product core 在该 root 下：
 
-1. 按现有 product config 收集 scan files。
-2. 应用 product exclude / generated-file 边界，并在 primary Git collection 中应用 VCS
+1. 按 selected config 收集 scan files。
+2. 应用 selected exclude / generated-file 边界，并在 primary Git collection 中应用 VCS
    ignore。
 3. 把文件归入 configured code areas 并生成稳定 fingerprint。
 4. 解析 baseline 或显式 changed-files scope。
@@ -30,9 +31,11 @@ ignore、generated-file 或 changed-file 规则。收集与分类结果使用 Vi
 
 ## 配置与默认排除
 
-Include、exclude directories、generated-file globs 和 code-area definitions 由
-`src/product/config.ts` 提供。改变这些值、precedence、路径规则、默认目录或 fallback
-语义时，必须同步本 owner 和相应测试。
+Include、exclude directories、generated-file globs 和 code-area definitions 来自本次
+selected config。未指定 `--config` 时使用当前 `DEFAULT_CONFIG`；指定时只应用显式完整
+config，不把 built-in exclude、include 或 code area 合并进来。改变这些值的 scope
+precedence、路径规则或 fallback 语义时，必须同步本 owner、Configuration owner 和相应
+测试。
 
 默认排除继续覆盖仓库元数据、构建产物、依赖、虚拟环境、vendor、generated、fixture、
 cache、artifact、临时文件和日志目录。具体列表以当前 product config 为实现
@@ -49,7 +52,7 @@ Current 与 baseline primary file collection 都使用
 结果，不触发 fallback walker。
 
 只有 Git command 失败时，对应 collector 才使用 config-only best-effort fallback。
-Fallback 只应用 product config 的 include、exclude directories 和 generated-file
+Fallback 只应用同一 selected config 的 include、exclude directories 和 generated-file
 rules，不读取 `.gitignore`、`.git/info/exclude` 或 global Git excludes。需要稳定排除的
 path 必须由 Config / Scan Scope owner 维护，不能只依赖 VCS ignore source。无论来自哪个
 collector，被 config exclude 或 generated-file 规则排除的路径都不得因某个 scanner
@@ -71,7 +74,7 @@ Pinned TypeScript selector 的 structural inputs 只有：
 files 可以属于总体 scan scope 和其它 configured measurement，但不得仅因 unsupported
 产生 structural diagnostic。
 
-Duplicate scanning 按 product config 的 code area、format mapping 和 minimum-token profile
+Duplicate scanning 按 selected config 的 code area、format mapping 和 minimum-token profile
 选择输入。每个至少包含两个已批准 exact paths 的 code area 可以建立 jscpd task；format
 mapping 为字符串时传给 jscpd，值为 `null` 时省略 format override 并保留 component 自动
 检测。被 scope rules 排除的路径不进入 task。
@@ -109,6 +112,8 @@ failure 或 fallback，也不拥有 failure code、status、artifact 或 console
 - `.ts` / `.d.ts` / `.rs` structural inputs 和 unsupported extensions。
 - Python/Lizard 与 jscpd 只接收 normalized exact paths，不重新扫描 project root。
 - zero-supported-input、quick profile 跳过 jscpd 和 normal no-finding。
+- 显式 complete config 的 include、exclude、generated-file 与 code-area 规则同时用于
+  current、baseline 和 Git-failure fallback；不继承隐藏的 built-in exclusions。
 
 涉及 output shape 时必须同步 Output owner；本 owner 不单独新增 artifact、JSON 或 warning
 字段。

@@ -16,8 +16,11 @@ project-root 归一化、现有 scan flags、顶层 error 和进程状态映射�
 
 ### 当前实现状态
 
-`src/product/**` 已拥有正式 CLI、参数解析、默认配置、扫描 core、scanner adapters、
-warnings 和 output。`src/product/config.ts` 是产品默认配置的唯一 owner；
+`src/product/**` 已拥有正式 CLI、参数解析、默认与显式完整配置、扫描 core、scanner
+adapters、warnings 和 output。`src/product/config.ts` 拥有内置默认值，
+`src/product/config-file.ts`、`config-parser.ts`、`config-thresholds.ts` 与
+`config-validation.ts` 分别拥有显式 JSON 的 file boundary、完整结构 mapping、threshold
+sections 和 path-aware primitive validation；
 `src/product/quality-core/**` 与产品静态可达的 `src/product/foundation/**` 闭包均由本仓库
 直接拥有。
 
@@ -73,11 +76,11 @@ TypeScript 迁移输入。
 
 - 在 `src/product/**` 提供 `scan` operation 和正式入口。
 - 解析 project root，并把现有 scan flags 交给 product parser。
-- 绑定 product default config，调用 product core。
+- 在扫描前选择内置默认或显式完整 config，调用 product core。
 - 保持 scan help、stdout/stderr、顶层 error 与进程状态映射。
 
 Product CLI 不拥有 scan scope、scanner adapter、metrics、warning、baseline 或 artifact
-shape。它不新增 `--format`、`--config`、version operation 或第二套 output renderer。
+shape。它不新增 `--format`、version operation、配置自动发现或第二套 output renderer。
 
 ### Product core
 
@@ -126,7 +129,8 @@ Output 不拥有 file collection、scanner invocation、metrics aggregation、wa
 
 当前产品源码保持既有文件分组、类型和控制流。逻辑职责包括：
 
-- `config`：default config、code areas、thresholds、scanner commands 和 artifact paths。
+- `config`：default config、完整 JSON parsing、code areas、thresholds、scanner commands
+  和 artifact paths。
 - `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
 - `measurement`：scc、Python/Lizard、jscpd adapters、cache 和 aggregation。
 - `warnings`：warning rules、channels、accepted reason 和 ordering。
@@ -140,8 +144,8 @@ Output 不拥有 file collection、scanner invocation、metrics aggregation、wa
 
 ```text
 caller
-  -> product CLI：分流 scan、归一化 project root、解析现有 flags
-  -> product core：加载 default config、收集文件、构造 scan context
+  -> product CLI：分流 scan、归一化 project root、解析 flags、选择完整 config
+  -> product core：消费 selected config、收集文件、构造 scan context
   -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
   <- product core：聚合、baseline comparison、warnings
   -> output：写 artifacts 与 summary

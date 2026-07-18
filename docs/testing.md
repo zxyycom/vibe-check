@@ -16,7 +16,8 @@
 
 产品测试 owner 位于 `src/product/**`，测试对象是仓库自有 TypeScript/Bun source、正式
 product entry 和外部 scanner adapters。迁移后的 quality-core tests / fixtures 位于
-`src/product/quality-core/**`；`docs/testing/cases.md` 记录其当前路径。
+`src/product/quality-core/**`；可由正式入口扫描的 reusable external project fixture 位于
+`fixtures/projects/**`。`docs/testing/cases.md` 记录其当前路径。
 
 Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或逐项映射到 TypeScript
 产品。新增 coverage、scanner characterization 或既有缺陷修复进入独立 change，不回填
@@ -43,7 +44,7 @@ Cargo 产品 gate。
 
 - Product unit tests 证明 normalized model、parser、ordering、cache identity 和 warning
   algorithm。
-- Product entry tests 证明正式命令与 dogfood wrapper 的外部行为。
+- Product entry tests 证明正式命令、显式完整 config 与 dogfood wrapper 的外部行为。
 - Productization parity 已一次性证明源码位置和入口改变没有修改 TypeScript behavior。
 - Workspace validation 证明 consumer、docs 和 automation 接线仍可工作。
 
@@ -70,6 +71,7 @@ requirement。
   channels 和 accepted warning behavior。
 - `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels 和
   accepted reason。
+- `config-file.test.ts` 与 `args.test.ts`：完整 JSON config parsing 与 option presence。
 
 这些 tests 只依赖 Vibe Check-owned models。scc CSV row、Lizard CSV row 和 jscpd reporter
 objects 可以作为 parser fixture 输入，但不得成为 Core / Output contract。
@@ -97,6 +99,13 @@ objects 可以作为 parser fixture 输入，但不得成为 Core / Output contr
 Rust CLI project fixtures 和 Rust dependency / grammar characterization fixtures 已删除。
 它们不是 TypeScript behavior source，也不得被复制到 `src/product/**` 作为“补齐”。若
 现有 TypeScript test 无法证明某个长期 contract，先把缺口记录为后续 change。
+
+可由正式入口扫描的 external project fixture 与 unit/scanner protocol support 分开：
+`fixtures/projects/configured-typescript/` 提供完整 config、eligible / excluded /
+generated source 和受控 scanner command。`src/product/configured-project.test.ts` 从
+fixture root 外调用正式入口，证明 selected config、路径、整体替换、CLI precedence、
+scope、code area、warning、artifact 与失败退出；受控 scanner 只提供 deterministic
+acceptance support，不定义稳定 Core / Output contract。
 
 ## 一次性 productization parity evidence
 
@@ -129,6 +138,8 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 - `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan` 只作为
   单向 wrapper，并显式传入 Vibe Check repository root。
 - 正式入口与 wrapper 保持现有 flags、profile、console、artifact 和 status mapping。
+- 显式 config acceptance 使用 checked-in external project，证明相对 path、整体替换、
+  selected scope、warning、artifact 与 config error exit `3`。
 - Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
 
 入口 tests 不需要为每个 flag 复制完整 scanner matrix；选择能证明 routing、root 和 output
@@ -181,4 +192,5 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
 4. 测试文档不重新定义 threshold、warning、baseline、artifact 或 status。
 5. Case ledger 路径和 `implemented` 状态必须对应实际测试与唯一 `@case` marker。
 6. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。
-7. 发现既有缺陷或 coverage gap 时进入后续 change。
+7. External project fixture 位于 `fixtures/projects/**`，不与 product unit fixture 混合。
+8. 发现既有缺陷或 coverage gap 时进入后续 change。

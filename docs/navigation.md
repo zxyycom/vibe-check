@@ -8,7 +8,8 @@
 
 | 角色 / 任务 | 必读 | 需要时再读 |
 | --- | --- | --- |
-| 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、Config 主规范 |
+| 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、[Configuration](configuration.md) |
+| 修改完整 JSON 配置、默认配置、选择规则或 CLI precedence | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、相邻 config tests |
 | 讨论或调整 scanner 依赖、结构扫描基座、LOC 或重复检测方案 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、`scripts/quality/**`、相关 adapter 验证和 fixture |
 | 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
 | 修改 TypeScript/Bun 产品实现、重构或 `src/product/**` 边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 对应 owner 文档、相邻代码和测试 |
@@ -37,6 +38,7 @@
 | 架构 | [架构](architecture.md) | 讨论组件职责、输出分层、调用链和运行边界 |
 | 工程规范 | [编码规范](coding-style.md) | 修改 TypeScript/Bun 产品、脚本、测试或验证工具 |
 | CLI | [CLI](cli.md) | 修改 operation、project root、scan flags、stdout/stderr 或进程状态 |
+| Configuration | [Configuration](configuration.md) | 修改默认或显式完整配置、路径、替换、CLI precedence 或配置错误 |
 | Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
 | Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning 或最终 status |
 | Output | [Output](output.md) | 修改 console、metrics/report/warning/raw artifacts、empty/failure state 或通道 |
@@ -72,6 +74,7 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | 组件职责、输出分层、调用链和运行边界 | [架构](architecture.md) |
 | 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
 | Product CLI operation、project root、scan flags、console 和进程状态 | [CLI](cli.md) |
+| 默认配置、显式完整 JSON 配置、选择、替换和配置错误 | [Configuration](configuration.md) |
 | 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
 | 扫描计划、指标模型、warning channels、baseline 和最终 status | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |

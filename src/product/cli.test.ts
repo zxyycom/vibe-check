@@ -193,6 +193,9 @@ describe("changed-files CLI contract", () => {
     assert.match(formal.stdout, /Usage: bun run product:cli -- scan \[project-root\] \[options\]/);
     assert.match(formal.stdout, /relative paths use project root/);
     assert.match(formal.stdout, /Absolute list paths are kept; entries are project-relative/);
+    assert.match(formal.stdout, /--config <file>/);
+    assert.match(formal.stdout, /Complete JSON config; relative paths use project root/);
+    assert.match(formal.stdout, /Omit to use built-in defaults; no discovery or merge is performed/);
     assert.doesNotMatch(formal.stdout, /Usage: bun scripts\/quality\/scan\.ts/);
     assert.equal(formal.stderr, "");
     assert.equal(dogfood.stderr, "");

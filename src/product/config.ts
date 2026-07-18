@@ -8,6 +8,7 @@ import type { QualityConfig } from "./quality-core/src/model/schema.ts";
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const JSCPD_BIN_NAME = process.platform === "win32" ? "jscpd.cmd" : "jscpd";
 const DEFAULT_JSCPD_COMMAND = resolve(REPO_ROOT, "node_modules", ".bin", JSCPD_BIN_NAME);
+const DEFAULT_LIZARD_COMMAND = process.platform === "win32" ? "python" : "python3";
 
 function readJsonStringArrayEnv(name: string): string[] {
   const raw = process.env[name];
@@ -177,16 +178,26 @@ export const DEFAULT_CONFIG = Object.freeze({
 
   tools: {
     lizard: {
-      command: process.env.VIBE_CHECK_LIZARD_CMD || (process.platform === "win32" ? "python" : "python3"),
+      command: DEFAULT_LIZARD_COMMAND,
       args: ["-m", "lizard"]
     },
     scc: {
-      command: process.env.VIBE_CHECK_SCC_CMD || "scc",
-      args: readJsonStringArrayEnv("VIBE_CHECK_SCC_ARGS")
+      command: "scc",
+      args: []
     },
     jscpd: {
-      command: process.env.VIBE_CHECK_JSCPD_CMD || DEFAULT_JSCPD_COMMAND,
-      args: readJsonStringArrayEnv("VIBE_CHECK_JSCPD_ARGS")
+      command: DEFAULT_JSCPD_COMMAND,
+      args: []
     }
   }
 }) satisfies QualityConfig;
+
+export function createDefaultConfig(): QualityConfig {
+  const config: QualityConfig = structuredClone(DEFAULT_CONFIG);
+  config.tools.lizard.command = process.env.VIBE_CHECK_LIZARD_CMD || DEFAULT_LIZARD_COMMAND;
+  config.tools.scc.command = process.env.VIBE_CHECK_SCC_CMD || "scc";
+  config.tools.scc.args = readJsonStringArrayEnv("VIBE_CHECK_SCC_ARGS");
+  config.tools.jscpd.command = process.env.VIBE_CHECK_JSCPD_CMD || DEFAULT_JSCPD_COMMAND;
+  config.tools.jscpd.args = readJsonStringArrayEnv("VIBE_CHECK_JSCPD_ARGS");
+  return config;
+}
