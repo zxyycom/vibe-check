@@ -11,7 +11,7 @@ import {
   parseJscpdVersionOutput,
   scanWithJscpd
 } from "./scanners/jscpd/scanner.ts";
-import { parseSccCSV } from "./scanners/scc.ts";
+import { parseSccCSV, scanWithScc } from "./scanners/scc.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
 import { checkLizard } from "./scanners/tool-availability/lizard.ts";
 import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
@@ -122,6 +122,27 @@ describe("quality scanner output parsing", () => {
       assert.equal(invalidDuplicate.reason, "jscpd-parse-failure");
       assert.match(invalidDuplicate.error, /duplicate #1 must be an object/);
     }
+  });
+});
+
+describe("quality scc exact input projection", () => {
+  // @case AUX-QUALITY-SCC-WRAPPER-001
+  it("returns empty metrics without invoking scc when exact inputs are empty", () => {
+    const result = scanWithScc({
+      cwd: REPO_ROOT,
+      includePaths: [],
+      excludeDirs: [],
+      toolConfig: {
+        command: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`),
+        args: []
+      }
+    });
+
+    assert.deepEqual(result, {
+      ok: true,
+      files: [],
+      aggregates: { byLanguage: [] }
+    });
   });
 });
 

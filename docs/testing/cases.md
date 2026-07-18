@@ -117,6 +117,16 @@ Proves:
 - jscpd parser helpers 解析 version output 和 JSON duplicate fragment locations/token count，并把
   invalid JSON 或 invalid duplicate item 映射为 `jscpd-parse-failure`。
 
+### AUX-QUALITY-SCC-WRAPPER-001 Quality scc zero-input boundary 稳定
+Status: implemented
+Code: `src/product/quality-core/src/measurement/scanners.test.ts`
+
+Proves:
+- scc wrapper 收到空 exact input list 时直接返回 successful empty metrics，不启动 configured
+  process。
+- External scc 的 default-cwd traversal 不会把 normalized scan scope 未批准的文件重新加入
+  file metrics。
+
 ### AUX-QUALITY-JSCPD-WRAPPER-001 Quality jscpd wrapper failure projection 稳定
 Status: implemented
 Code: `src/product/quality-core/src/measurement/scanners.test.ts`

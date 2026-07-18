@@ -19,6 +19,10 @@ interface ScanWithSccOptions {
 }
 
 export function scanWithScc({ cwd, includePaths, excludeDirs, toolConfig }: ScanWithSccOptions): SccScanResult {
+  if (includePaths.length === 0) {
+    return { ok: true, files: [], aggregates: { byLanguage: [] } };
+  }
+
   const argv = buildSccArgs({ includePaths, excludeDirs, toolArgs: toolConfig.args });
 
   const child = runProcessSync(toolConfig.command, argv, {
