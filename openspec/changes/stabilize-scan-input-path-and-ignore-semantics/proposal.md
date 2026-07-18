@@ -1,16 +1,33 @@
-核心句：本 change 只在 `openspec/changes/stabilize-scan-input-path-and-ignore-semantics/` 下形成待审计临时计划，用于在实现前选择并稳定相对 `--changed-files` 输入路径基准与 fallback walker ignore 语义；它不影响现有其它文档或主规范。
-
 ## Why
 
-当前相对 `--changed-files` 文件路径按进程启动目录读取，而文件中的 entries 作为 project paths 使用；同时，Git-first collection 尊重 VCS ignore，fallback walker 只应用 include、exclude 与 generated 规则。产品化 change 为保持 pinned 行为不能擅自收敛这些差异，因此需要一个独立 owner 在兼容性审计后明确合同，避免调用位置或 Git 可用性悄然改变 scan input。
+`project-root` 已在 Product CLI 边界归一化，但相对 `--changed-files` 选项值仍由
+`readFileSync` 按 process launch cwd 读取；列表中的 entries 又按 project paths 使用。
+因此，同一个显式 project root 从不同目录启动时可能读取不同的列表文件。
+
+显式列表读取失败时，input boundary 会包装底层 filesystem error，但当前 wrapper 不保留
+`ENOENT` 分类，导致 missing input 无法进入 CLI 已定义的 exit `3` mapping。
+
+Current 与 baseline collection 都先运行 Git。Current collection 只在 Git command 失败时
+fallback；baseline collection 还会把成功的空结果改走 walker，可能把 Git 已正确排除的
+VCS-ignored file 重新带入 scope。Fallback 本身只应用 product config。路径、错误分类与
+两个 collector 的成功/fallback 边界需要形成一致、可测试的合同。
 
 ## What Changes
 
-- 审计并最终选择相对 `--changed-files` 文件路径的唯一基准（project root 或 launch cwd），随后要求 CLI 解析、错误呈现、文档和验证一致应用该选择。
-- 审计并最终选择 fallback walker 的 ignore 级别（维持 best-effort fallback 或实现与 Git-first collection 的 ignore parity），随后要求 scan scope、失败边界、文档和验证一致应用该选择。
-- 在选择完成前把两个问题保留为阻塞项；本 change 的 artifacts 完成只表示待审计临时计划已形成，不代表可以 apply。
-- **可能 BREAKING（待审计）**：若最终选择不同于现有 launch-cwd 路径读取或无 VCS-ignore parity 的 fallback 行为，依赖现状的调用者或无 Git 环境中的扫描集合可能变化；兼容策略必须在审计门禁中确认。
-- 不改变 metrics、warnings、report/artifact shape、summary status 或进程状态映射。
+- 相对 `--changed-files` 列表文件路径统一基于 normalized project root 解析；绝对列表路径
+  保持不变，列表 entries 继续作为 project paths 解释。
+- Changed-files input boundary 在包装 read failure 时保留底层 `ENOENT` 分类，使 missing
+  list file 按既有 CLI 合同退出 `3`；其它普通 read error 继续退出 `2`。
+- Product parser、正式入口与 dogfood wrapper 透传同一个选项值，不增加 wrapper-specific
+  rebasing 规则。
+- Current 与 baseline Git collection 的成功结果均直接成为候选集合，包括成功的空结果；
+  只有 Git command 失败才进入 fallback。
+- 两个 fallback walker 采用相同的 config-only best-effort 合同：只应用 include、exclude
+  与 generated-file 规则，不解析 `.gitignore` 或其它 VCS ignore source。
+- 增加正式入口、路径边界、error mapping、Git success/failure、current/baseline fallback
+  与 config exclusion 的定向测试，并同步 CLI、Scan Scope 与测试 owner。
+- Metrics、warnings、report/artifact shape、summary status 与 scanner input classification
+  保持不变；CLI 不新增 exit code，只把 missing list 归入既有 exit `3`。
 
 ## Capabilities
 
@@ -20,11 +37,16 @@
 
 ### Modified Capabilities
 
-- `cli-contract`：明确相对 `--changed-files` 输入文件路径必须基于经审计选定的唯一上下文解析，并在所有正式与 dogfood 入口一致。
-- `scan-scope`：明确 Git-first 与 fallback collection 的 ignore 合同必须采用经审计选定的兼容级别，并在对应收集路径一致执行。
+- `cli-contract`：规定相对 `--changed-files` 列表路径基于 normalized project root 解析，
+  并固定绝对路径、列表 entries、`ENOENT` 映射与 wrapper 透传边界。
+- `scan-scope`：规定 current/baseline Git success（包括空结果）均为权威结果，并把两个
+  failure fallback 固定为 config-only best-effort collector。
 
 ## Impact
 
-- 预期后续实现影响 TypeScript/Bun CLI 参数归一化、changed-files 输入读取、scan scope Git-first/fallback collection 及其定向测试。
-- 预期后续同步现有 CLI 与 scan scope owner 文档；不新建同义 capability。
-- 不引入新的 metrics、warning、artifact、status 或 output contract，也不在本提案阶段修改代码、主规范、文档或其它 change。
+- 预计修改 `src/product/quality-core/src/input/files.ts` 的 explicit changed-files 读取边界
+  与 baseline Git-success 分支，并扩展相邻 product/CLI tests。
+- 同步 `docs/cli.md`、`docs/scan-scope.md`、CLI help 和必要的测试 case 记录；不新建同义
+  capability 或 owner。
+- 不新增 runtime dependency、ignore parser、配置字段、CLI flag、scanner adapter 行为、
+  machine-readable 字段或 output mode。
