@@ -1,11 +1,13 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { runProductCli } from "./cli.ts";
+import { getChangedFileList } from "./quality-core/src/input/files.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -16,7 +18,16 @@ describe("product CLI routing", () => {
     const errors: string[] = [];
 
     const exitCode = await runProductCli(
-      ["scan", "../target-project", "--profile", "quick", "--artifact-dir", "artifacts/quick"],
+      [
+        "scan",
+        "../target-project",
+        "--profile",
+        "quick",
+        "--changed-files",
+        "inputs/changed.txt",
+        "--artifact-dir",
+        "artifacts/quick"
+      ],
       {
         cwd: () => startupCwd,
         error: (message) => errors.push(message),
@@ -30,7 +41,14 @@ describe("product CLI routing", () => {
     assert.equal(exitCode, 0);
     assert.deepEqual(errors, []);
     assert.deepEqual(calls, [{
-      argv: ["--profile", "quick", "--artifact-dir", "artifacts/quick"],
+      argv: [
+        "--profile",
+        "quick",
+        "--changed-files",
+        "inputs/changed.txt",
+        "--artifact-dir",
+        "artifacts/quick"
+      ],
       projectRoot: resolve(startupCwd, "../target-project")
     }]);
   });
@@ -119,8 +137,45 @@ describe("product CLI routing", () => {
   });
 });
 
-describe("formal and dogfood entrypoints", () => {
-  it("expose the same scan help through the product parser", () => {
+// @case BB-CLI-CHANGED-FILES-001
+describe("changed-files CLI contract", () => {
+  it("maps wrapped read errors to ordinary and missing-input exits", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-cli-errors-"));
+
+    try {
+      const cases = [
+        { changedFiles: ".", expectedExitCode: 2 },
+        { changedFiles: "missing.txt", expectedExitCode: 3 }
+      ] as const;
+
+      for (const testCase of cases) {
+        const errors: string[] = [];
+        const exitCode = await runProductCli(
+          ["scan", projectRoot, "--changed-files", testCase.changedFiles],
+          {
+            cwd: () => repoRoot,
+            error: (message) => errors.push(message),
+            scan: async (root, argv) => {
+              assert.deepEqual(argv, ["--changed-files", testCase.changedFiles]);
+              getChangedFileList({ changedFiles: testCase.changedFiles }, root);
+              return "passed";
+            }
+          }
+        );
+
+        assert.equal(exitCode, testCase.expectedExitCode, testCase.changedFiles);
+        assert.equal(errors.length, 1);
+        assert.match(
+          errors[0] ?? "",
+          /^Fatal error in quality scan: failed to read --changed-files/
+        );
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("exposes the same scan help through the product parser", () => {
     const formal = runBun([
       "run",
       "--silent",
@@ -136,11 +191,48 @@ describe("formal and dogfood entrypoints", () => {
     assertCommandSucceeded(dogfood, "dogfood wrapper");
     assert.equal(formal.stdout, dogfood.stdout);
     assert.match(formal.stdout, /Usage: bun run product:cli -- scan \[project-root\] \[options\]/);
+    assert.match(formal.stdout, /relative paths use project root/);
+    assert.match(formal.stdout, /Absolute list paths are kept; entries are project-relative/);
     assert.doesNotMatch(formal.stdout, /Usage: bun scripts\/quality\/scan\.ts/);
     assert.equal(formal.stderr, "");
     assert.equal(dogfood.stderr, "");
   });
 
+  it("resolves a relative changed-files list from an explicit project root", { timeout: 30_000 }, () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-cli-root-"));
+    const projectRoot = join(tempDir, "project");
+
+    try {
+      initializeRepository(projectRoot);
+      writeFixtureFile(projectRoot, "docs/example.md", "# Example\n");
+      writeFixtureFile(projectRoot, "inputs/changed.txt", "docs/example.md\n");
+      commitAll(projectRoot, "fixture");
+
+      const result = runBun([
+        "run",
+        "--silent",
+        "product:cli",
+        "--",
+        "scan",
+        projectRoot,
+        "--profile",
+        "quick",
+        "--changed-files",
+        "inputs/changed.txt",
+        "--artifact-dir",
+        "artifacts/quality"
+      ]);
+
+      assertCommandSucceeded(result, "formal product entry with relative changed-files");
+      assert.match(result.stdout, /Changed files in scan scope: 1/);
+      assert.equal(result.stderr, "");
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("formal and dogfood entrypoints", () => {
   it("keeps the dogfood wrapper pointed only at the product CLI", () => {
     const wrapper = readFileSync(resolve(repoRoot, "scripts/quality/scan.ts"), "utf8");
     const packageJson = readFileSync(resolve(repoRoot, "package.json"), "utf8");
@@ -180,4 +272,35 @@ function assertCommandSucceeded(result: CommandResult, label: string): void {
     0,
     `${label} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
   );
+}
+
+function writeFixtureFile(rootDir: string, relPath: string, content: string): void {
+  const absPath = join(rootDir, relPath);
+  mkdirSync(dirname(absPath), { recursive: true });
+  writeFileSync(absPath, content, "utf8");
+}
+
+function initializeRepository(repository: string): void {
+  mkdirSync(repository, { recursive: true });
+  git(repository, ["init", "--quiet"]);
+  git(repository, ["config", "user.email", "quality-test@example.invalid"]);
+  git(repository, ["config", "user.name", "Quality Test"]);
+}
+
+function commitAll(repository: string, message: string): void {
+  git(repository, ["add", "."]);
+  git(repository, ["commit", "--quiet", "-m", message]);
+}
+
+function git(repository: string, args: readonly string[]): string {
+  const result = spawnSync("git", args, {
+    cwd: repository,
+    encoding: "utf8"
+  });
+  assert.equal(
+    result.status,
+    0,
+    `git ${args.join(" ")} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+  );
+  return result.stdout.trim();
 }

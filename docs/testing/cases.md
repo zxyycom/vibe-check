@@ -4,6 +4,43 @@
 [测试用例维护](case-maintenance.md)。产品语义以 [文档导航](../navigation.md#规则所有权)
 指向的 owner 文档为准；本账本只记录测试证明目标。
 
+## Black-box CLI Cases
+
+### BB-CLI-CHANGED-FILES-001 Product changed-files CLI 路径与错误映射稳定
+Status: implemented
+Code: `src/product/cli.test.ts`
+
+Proves:
+- 正式入口与 dogfood wrapper 通过同一 product parser 展示 changed-files 路径和 entry
+  语义。
+- 正式入口从 project root 外启动时，相对 list path 仍基于显式 project root 读取，并把
+  project-relative entry 纳入 changed scope。
+- Missing list 保留 `failed to read --changed-files` diagnostic 并退出 `3`；其它普通 read
+  error 使用 exit `2`。
+
+## White-box Product Cases
+
+### WB-CLI-CHANGED-FILES-001 Product changed-file input 路径与错误边界稳定
+Status: implemented
+Code: `src/product/quality-core/src/input/files.test.ts`
+
+Proves:
+- 相对 explicit `--changed-files` list path 基于 normalized project root 解析；absolute
+  path 与基于 root 的 `..` path 可以指向 root 外。
+- 列表 entries 保持 project-relative，不改为相对于列表文件解释。
+- Unreadable explicit list 映射为保留 flag 名称、请求路径与原始 cause 的 thrown
+  diagnostic；missing list 同时保留 top-level `ENOENT` 分类。
+
+### WB-SCOPE-FILE-COLLECTION-001 Product current/baseline collection fallback 稳定
+Status: implemented
+Code: `src/product/quality-core/src/input/files.test.ts`
+
+Proves:
+- Current 与 baseline Git command 成功时直接使用 normalized result，包括成功的空集合。
+- Git command 失败时，current 与 baseline 都进入 config-only fallback；匹配 product
+  include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。
+- Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
+
 ## White-box Output Cases
 
 ### WB-OUTPUT-NOTICES-001 Product report notice 所有权和位置稳定
@@ -92,14 +129,6 @@ Code: `src/product/quality-core/src/input/files.test.ts`
 Proves:
 - quality input git pathspec 参数使用显式 `--` 分隔并保留 glob pathspec magic。
 - 空 pathspec 可按调用方需要保留 `--` 或完全省略。
-
-### AUX-QUALITY-CHANGED-FILES-001 Quality changed-file input explicit list failure 稳定
-Status: implemented
-Code: `src/product/quality-core/src/input/files.test.ts`
-
-Proves:
-- quality changed-file input 将 unreadable explicit `--changed-files` path 映射为 thrown
-  diagnostic，错误文本保留 flag 名称和请求的文件路径。
 
 ### AUX-QUALITY-REPORT-001 Quality report 排名和 changed-file 摘要稳定
 Status: implemented

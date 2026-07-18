@@ -49,13 +49,73 @@ describe("quality input git pathspecs", () => {
   });
 });
 
-// @case AUX-QUALITY-CHANGED-FILES-001
+// @case WB-CLI-CHANGED-FILES-001
 describe("quality changed file input", () => {
-  it("fails fast when an explicit changed-files list cannot be read", () => {
-    assert.throws(
-      () => getChangedFileList({ changedFiles: "missing-changed-files.txt" }, process.cwd()),
-      /failed to read --changed-files missing-changed-files\.txt/
-    );
+  it("resolves a relative changed-files list from the project root", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-changed-root-"));
+
+    try {
+      writeFixtureFile(
+        projectRoot,
+        "inputs/changed.txt",
+        "src/product/first.ts\nsrc/product/second.ts\n"
+      );
+
+      assert.deepEqual(
+        getChangedFileList({ changedFiles: "inputs/changed.txt" }, projectRoot),
+        ["src/product/first.ts", "src/product/second.ts"]
+      );
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("allows absolute and parent-relative list paths while keeping project-relative entries", () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-changed-outside-"));
+    const projectRoot = join(tempDir, "project");
+    const listRoot = join(tempDir, "lists");
+    const absoluteList = join(listRoot, "absolute.txt");
+
+    try {
+      mkdirSync(projectRoot, { recursive: true });
+      writeFixtureFile(listRoot, "absolute.txt", "src/product/absolute.ts\n");
+      writeFixtureFile(listRoot, "parent.txt", "src/product/parent.ts\n");
+
+      assert.deepEqual(
+        getChangedFileList({ changedFiles: absoluteList }, projectRoot),
+        ["src/product/absolute.ts"]
+      );
+      assert.deepEqual(
+        getChangedFileList({ changedFiles: "../lists/parent.txt" }, projectRoot),
+        ["src/product/parent.ts"]
+      );
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves the read failure cause and filesystem error code", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-changed-error-"));
+
+    try {
+      let thrown: unknown;
+      try {
+        getChangedFileList({ changedFiles: "missing-changed-files.txt" }, projectRoot);
+      } catch (error) {
+        thrown = error;
+      }
+
+      assert.ok(thrown instanceof Error);
+      assert.match(
+        thrown.message,
+        /failed to read --changed-files missing-changed-files\.txt/
+      );
+      assert.equal((thrown as Error & { code?: string }).code, "ENOENT");
+      assert.ok(thrown.cause instanceof Error);
+      assert.equal((thrown.cause as Error & { code?: string }).code, "ENOENT");
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 
   it("keeps current, changed, and baseline submodule files aligned", { timeout: 20_000 }, () => {
@@ -128,6 +188,49 @@ describe("quality changed file input", () => {
       );
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+});
+
+// @case WB-SCOPE-FILE-COLLECTION-001
+describe("quality input file collection", () => {
+  const config = {
+    excludeDirs: [".git", "vendor"],
+    generatedFiles: ["**/generated/**"],
+    include: ["src/**/*.ts"]
+  } satisfies ScanInputConfig;
+
+  it("treats successful empty Git results as authoritative for current and baseline", () => {
+    const repository = mkdtempSync(join(tmpdir(), "docnav-quality-git-empty-"));
+
+    try {
+      initializeRepository(repository);
+      writeFixtureFile(repository, ".gitignore", "src/ignored.ts\n");
+      writeFixtureFile(repository, "src/ignored.ts", "export const ignored = true;\n");
+
+      assert.deepEqual(collectScanFiles(repository, config), []);
+      assert.deepEqual(collectBaselineFiles(repository, config), []);
+    } finally {
+      rmSync(repository, { recursive: true, force: true });
+    }
+  });
+
+  it("uses config-only fallback for current and baseline when Git fails", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-git-fallback-"));
+
+    try {
+      writeFixtureFile(projectRoot, ".gitignore", "src/ignored.ts\n");
+      writeFixtureFile(projectRoot, "src/ignored.ts", "export const ignored = true;\n");
+      writeFixtureFile(projectRoot, "src/kept.ts", "export const kept = true;\n");
+      writeFixtureFile(projectRoot, "src/generated/excluded.ts", "export const generated = true;\n");
+      writeFixtureFile(projectRoot, "src/vendor/excluded.ts", "export const vendor = true;\n");
+      writeFixtureFile(projectRoot, "docs/excluded.md", "# Not included\n");
+
+      const expected = ["src/ignored.ts", "src/kept.ts"];
+      assert.deepEqual(collectScanFiles(projectRoot, config), expected);
+      assert.deepEqual(collectBaselineFiles(projectRoot, config), expected);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 });

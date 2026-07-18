@@ -44,7 +44,7 @@ bun run product:cli -- scan [project-root] --help
 | `--profile <quick\|full>` | 选择 quick 或 full；默认 `full` |
 | `--baseline <sha>` | 使用显式 commit 生成 baseline comparison |
 | `--with-baseline` | 自动选择已有 comparison 逻辑的 baseline |
-| `--changed-files <file>` | 读取每行一个 path 的显式 changed-file 输入 |
+| `--changed-files <file>` | 读取每行一个 project-relative path 的显式 changed-file 输入 |
 | `--top-n <n>` | 设置报告 ranking 数量 |
 | `--artifact-dir <dir>` | 设置 artifact 目录 |
 | `--skip-baseline` | 跳过 baseline 选择与扫描 |
@@ -54,6 +54,15 @@ bun run product:cli -- scan [project-root] --help
 Quick profile 继续拒绝 `--baseline` 和 `--with-baseline`。默认值、重复 flag precedence、
 正整数校验和错误文本保持当前 product parser 行为。Product CLI 不提供 `--format`、
 `--config` 或 `--version`。
+
+相对 `--changed-files` 列表文件路径基于 normalized project root 按平台原生规则解析，
+包括 `.` / `..` segments；解析结果可以位于 project root 外。绝对列表文件路径保持绝对。
+列表中的 entries 始终作为 normalized project root 下的 project paths 解释，不相对于列表
+文件所在目录解释。Product parser、正式入口和 dogfood wrapper 只透传该选项值，不增加
+其它 rebasing 基准。
+
+列表读取失败继续报告 `failed to read --changed-files`；错误分类与 exit mapping 由
+[进程状态](#进程状态)统一定义。
 
 ## CLI 边界
 
@@ -85,8 +94,8 @@ Product CLI 使用以下状态映射：
 - Core 返回 `passed` 或 `warning` 时退出 `0`；warning 仍是 non-blocking development
   result。
 - Core 返回 `failed` 时退出 `2`。
-- 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT` 或 config-related error 返回
-  `3`。
+- 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
+  `--changed-files` list）或 config-related error 返回 `3`。
 
 已退役 Rust CLI 的 gate exit `1` 和 output-failure exit `4` 不属于当前 CLI contract。
 

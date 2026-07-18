@@ -83,7 +83,8 @@ Options:
   --profile <quick|full>  Select quick or full quality check mode (default: full)
   --baseline <sha>        Generate baseline delta from an explicit commit SHA
   --with-baseline         Auto-detect and scan previous-code baseline
-  --changed-files <file>  File containing changed files, one path per line
+  --changed-files <file>  List file; relative paths use project root
+                          Absolute list paths are kept; entries are project-relative, one per line
   --top-n <n>             Top N for rankings (default: ${DEFAULT_CONFIG.report.topN})
   --artifact-dir <dir>    Artifact output directory (default: ${DEFAULT_CONFIG.artifactDir})
   --skip-baseline         Skip baseline commit detection and scan

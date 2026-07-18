@@ -43,11 +43,17 @@ cache、artifact、临时文件和日志目录。具体列表以当前 product c
 
 ## Ignore 与 changed-file scope
 
-Primary file collection 使用
+Current 与 baseline primary file collection 都使用
 `git ls-files --cached --others --exclude-standard`，因此遵守 Git pathspec 和 VCS ignore
-规则。Git collection 不可用时，core 使用当前 fallback walker；该路径继续应用 product
-config 的排除边界，但不承诺与 Git VCS ignore 完全等价。无论来自哪个 collector，被
-exclude 或 generated-file 规则排除的路径都不得因某个 scanner 自行遍历而重新进入。
+规则。Git command 成功时，其 normalized result 直接成为候选集合；成功的空集合也是权威
+结果，不触发 fallback walker。
+
+只有 Git command 失败时，对应 collector 才使用 config-only best-effort fallback。
+Fallback 只应用 product config 的 include、exclude directories 和 generated-file
+rules，不读取 `.gitignore`、`.git/info/exclude` 或 global Git excludes。需要稳定排除的
+path 必须由 Config / Scan Scope owner 维护，不能只依赖 VCS ignore source。无论来自哪个
+collector，被 config exclude 或 generated-file 规则排除的路径都不得因某个 scanner
+自行遍历而重新进入。
 
 Changed-file scope 可以来自现有 comparison 逻辑或调用者显式传入的文件列表。显式列表
 读取失败必须抛出可行动 error，不能静默回退为“没有 changed files”。Changed scope 只为
@@ -83,10 +89,10 @@ profile 明确跳过 duplicate detection 时，返回正常 no-finding，不产�
 
 ## Collection failure
 
-主 file collection 继续先运行 `git ls-files --cached --others --exclude-standard`；该命令
-失败时记录提示并使用现有 fallback walker，不把 fallback 重写成 fatal。Fingerprint 读取
-失败继续使用 pinned `file-not-readable` marker。显式 changed-file 输入读取失败则抛出可
-行动 error，不得静默变为 empty changed scope。
+上述 Git command failure 使用 config-only fallback，保持 recoverable outcome，不新增
+ignore-parse diagnostic。Fingerprint 读取失败继续使用 pinned `file-not-readable`
+marker。显式 changed-file 输入读取失败则抛出可行动 error，不得静默变为 empty changed
+scope。
 
 Scanner process / parse failure 由 scanner boundary 负责；scan scope 不重新分类这些
 failure 或 fallback，也不拥有 failure code、status、artifact 或 console output。
@@ -96,7 +102,8 @@ failure 或 fallback，也不拥有 failure code、status、artifact 或 console
 修改 scan scope 行为时，最低验证包括：
 
 - include / exclude、generated-file、fixture、vendor 和 cache 边界。
-- Git collection 与 fallback walker，以及 unreadable fingerprint marker。
+- Current/baseline Git success-empty、command-failure config-only fallback，以及 unreadable
+  fingerprint marker。
 - code-area classification、文件排序和 fingerprint 稳定性。
 - Git pathspec 与显式 `--changed-files` 失败。
 - `.ts` / `.d.ts` / `.rs` structural inputs 和 unsupported extensions。

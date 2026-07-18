@@ -58,28 +58,33 @@ export function collectBaselineFiles(workDir: string, config: ScanInputConfig): 
     maxBuffer: 1024 * 1024 * 64
   });
 
-  if (!processFailed(result) && result.stdout.trim()) {
-    return normalizeAndFilterFiles([
-      ...splitGitFileList(result.stdout),
-      ...collectSubmoduleWorktreeFiles(workDir, config.include)
-    ], config, workDir);
+  if (processFailed(result)) {
+    return collectBaselineFilesFallback(workDir, config);
   }
 
-  return collectBaselineFilesFallback(workDir, config);
+  return normalizeAndFilterFiles([
+    ...splitGitFileList(result.stdout),
+    ...collectSubmoduleWorktreeFiles(workDir, config.include)
+  ], config, workDir);
 }
 
 export function getChangedFileList(opts: ChangedFilesOptions, rootDir: string): string[] {
   if (opts.changedFiles) {
+    const changedFilesPath = resolve(rootDir, opts.changedFiles);
     try {
-      return readFileSync(opts.changedFiles, "utf8")
+      return readFileSync(changedFilesPath, "utf8")
         .split(/\r?\n/)
         .filter(Boolean)
         .map(toSlashPath);
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error);
-      throw new Error(`failed to read --changed-files ${opts.changedFiles}: ${reason}`, {
+      const readError = new Error(`failed to read --changed-files ${opts.changedFiles}: ${reason}`, {
         cause: error
       });
+      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+        Object.assign(readError, { code: "ENOENT" });
+      }
+      throw readError;
     }
   }
 

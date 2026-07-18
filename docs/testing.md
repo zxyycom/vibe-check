@@ -64,7 +64,8 @@ requirement。
   file ordering 和 current-scan fatal issue channel。
 - `measurement/cache.test.ts`：duplicate 与 baseline cache identity、cache hit 和 snapshot
   integrity。
-- `input/files.test.ts`：file fingerprint、Git pathspec 和 explicit changed-files failure。
+- `input/files.test.ts`：file fingerprint、Git pathspec、explicit changed-files
+  路径/错误边界，以及 current/baseline Git collection 与 config-only fallback。
 - `output/warnings/generator.test.ts`：file/function/duplicate thresholds、changed/regression
   channels 和 accepted warning behavior。
 - `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels 和
