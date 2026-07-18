@@ -1,15 +1,13 @@
-本 change 的目标是替换 TypeScript 产品人读报告中两类已过时的 Rust release-contract notice；本文仅形成待审计临时计划，不修改其它文档、主规范或现有行为。
-
 ## Why
 
-TypeScript/Bun CLI 已成为唯一产品运行时，但人读报告仍声称 Rust CLI、schema 和测试是 release contract，导致报告向用户描述已经退役的所有权。该文案应与当前产品边界一致，同时避免借机改变稳定的报告协议。
+TypeScript/Bun CLI 已成为唯一产品运行时，但人读报告的顶部和 footer notice 仍将已退役的 Rust CLI、schema 和测试描述为 release contract 或 release gates。这两处文案需要反映当前产品所有权，同时保持既有报告契约稳定。
 
 ## What Changes
 
-- 替换两类过时 notice：Rust CLI 功能仍是 release contract，以及 Rust schema/tests 仍是 release contract。
-- 新 notice 明确 TypeScript 产品拥有对应 release contract，不再把已删除的 Rust runtime 描述为当前 owner。
-- 保持 artifact shape、字段、status、section 顺序和报告结构不变。
-- 为两类替换后的 notice 增加聚焦测试，不引入新的报告抽象。
+- 顶部 notice 将 TypeScript/Bun 产品 CLI、报告契约和产品测试标识为当前 release contract。
+- Footer notice 将 TypeScript/Bun 产品测试和契约校验标识为当前 release gates。
+- 两处 notice 保留 non-blocking development snapshot 语义。
+- 聚焦测试证明新所有权文案及其渲染位置，并由既有验证保护报告结构和机器可读输出。
 
 ## Capabilities
 
@@ -23,6 +21,6 @@ TypeScript/Bun CLI 已成为唯一产品运行时，但人读报告仍声称 Rus
 
 ## Impact
 
-- 预计只修改 `src/product/config.ts` 中生成两类 notice 的文案及相邻聚焦测试。
-- 不修改机器可读 artifact、schema、字段、status、报告 section 结构、依赖或 CLI surface。
-- 所有计划 artifacts 仅位于 `openspec/changes/replace-retired-rust-report-notices/`。
+- 实现范围限于 `src/product/config.ts` 的两个 notice 字符串和对应产品层测试。
+- 可观察变化限于人读报告文案；artifact shape、字段、status、section 顺序和机器可读输出保持不变。
+- 配置模型、依赖和 CLI surface 保持不变。
