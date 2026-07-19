@@ -1,25 +1,35 @@
-本 delta 起草 completeness 对 metrics、warning 与最终 status 的控制；当前 change 仅在 `openspec/changes/make-scan-completeness-observable/` 下形成待审计临时计划，不影响现有其它文档或主规范。
-
 ## ADDED Requirements
 
-### Requirement: Quality status requires complete measurement
+### Requirement: Completeness controls scan outcome and quality evaluation
 
-Aggregation SHALL 保留 capability record 与缺失 measurement semantics，MUST NOT 用 zero、empty array 或 omitted field 把 `unavailable` / `failed` capability 投影为成功 measurement。只有 overall completeness 为 `complete` 或 `empty` 时，quality status 才能根据 normalized warnings 计算 `passed` 或 `warning`；completeness 为 `failed` 时 core MUST 返回 `failed`。
+Aggregation SHALL 保留 capability results 与 missing measurement semantics，MUST NOT 用 zero、empty array 或 omitted field 把 failed capability 投影为成功 measurement。
 
-#### Scenario: Missing scc does not become zero files passed
+Current overall completeness MUST 先于 quality evaluation 决定 core outcome：
 
-- **WHEN** file-metrics capability 有 eligible input但 scc unavailable
-- **THEN** metrics 记录 capability unavailable且 overall failed
+1. `complete`：根据 normalized quality warnings 返回 `passed` 或 `warning`。
+2. `empty`：不产生质量通过结论，core 固定返回 `warning`；该 warning MUST NOT 伪造成 normalized quality finding。
+3. `failed`：core 返回 `failed`；warning 数量和其它 succeeded capability data MUST NOT 覆盖该结果。
+
+#### Scenario: Missing file metrics does not become zero files passed
+
+- **WHEN** file-metrics capability 有 eligible input，但 measurement failed
+- **THEN** metrics 记录 capability 与 overall `failed`
 - **AND** file count zero 不得导致 quality status `passed`
 
-#### Scenario: Legitimate no-input can complete
+#### Scenario: Complete measurement determines quality outcome
 
-- **WHEN** normalized scope 对所有 planned capabilities 都没有 eligible input
-- **THEN** completeness 为 `empty`
-- **AND** output 可以表达合法 empty result而不伪造 scanner findings
+- **WHEN** overall completeness 为 `complete`
+- **THEN** normalized quality warnings 为空时 core 返回 `passed`
+- **AND** normalized quality warnings 非空时 core 返回 `warning`
 
-#### Scenario: Warning status follows completeness
+#### Scenario: Empty measurement is a non-fatal warning
 
-- **WHEN** completeness 为 `complete` 且 normalized warnings 非空
-- **THEN** quality status 为 `warning`
-- **AND** warning 计算不改变 capability records
+- **WHEN** overall completeness 为 `empty`
+- **THEN** core 返回 `warning`
+- **AND** output 表达质量未评价，normalized quality warning channels 不增加虚构 finding
+
+#### Scenario: Failed measurement cannot produce a quality verdict
+
+- **WHEN** 任一 capability failed，即使其它 capability 已产生 metrics 或 warnings
+- **THEN** overall 与 core outcome 都为 `failed`
+- **AND** 这些数据只能作为诊断，不能形成可信 `passed` 或 `warning` 质量结论

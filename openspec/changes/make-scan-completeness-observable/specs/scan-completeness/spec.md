@@ -1,47 +1,61 @@
-本 spec 起草 scanner capability planning 与结果完整性的长期 contract；当前 change 仅在 `openspec/changes/make-scan-completeness-observable/` 下形成待审计临时计划，不影响现有其它文档或主规范。
-
 ## ADDED Requirements
 
-### Requirement: Capability plan records every measurement responsibility
+### Requirement: Current capabilities produce one final result
 
-Product core SHALL 在 normalized scope 构造后建立本次 scan 的 capability plan，使用稳定 IDs `file-metrics`、`function-metrics` 与 `duplicate-detection`。每项 capability MUST 记录 profile 是否计划、eligible input 数量、component identity，以及封闭状态 `not-planned`、`no-input`、`succeeded`、`unavailable` 或 `failed`。
+Product core SHALL 使用稳定 IDs `file-metrics`、`function-metrics` 与 `duplicate-detection` 表达 current measurement responsibilities。Core MUST 在 normalized input 与 capability-specific eligibility 确定后，为每项 capability 产生且只产生一个 final result，状态为 `skipped`、`no-input`、`succeeded` 或 `failed`。
 
-#### Scenario: Quick profile plans only enabled capabilities
+`skipped` MUST 表示当前 profile 未请求该 capability；`no-input` MUST 表示 profile 已请求但没有 eligible input；两者 MUST NOT 解析或启动 component。`succeeded` MUST 表示全部 eligible work 已完成并得到有效 normalized result，且 zero findings MUST 保持为 `succeeded`。
+
+`failed` MUST 表示 required work 未完整完成，并包含 `kind`、`message` 与 `action`。`kind` MUST 为 `unavailable`、`execution` 或 `invalid-result`；component、phase 和其它 backend metadata MAY 作为诊断信息，但 MUST NOT 改变 capability identity 或 completeness 规则。
+
+#### Scenario: Quick profile skips duplicate detection
 
 - **WHEN** scan 使用 quick profile
-- **THEN** file metrics 与 function metrics 按 input 进入 plan
-- **AND** duplicate detection 状态为 `not-planned`，而不是 `no-input` 或 `unavailable`
+- **THEN** duplicate-detection final result 为 `skipped`
+- **AND** product 不解析或启动 duplicate component
 
-#### Scenario: Planned capability has no eligible input
+#### Scenario: Requested capability has no eligible input
 
-- **WHEN** profile 启用某项 capability但 normalized scope 没有 eligible input
-- **THEN** capability 状态为 `no-input`
-- **AND** product 不检查或启动对应 component
+- **WHEN** profile 请求某项 capability，但 normalized scope 没有对应 eligible input
+- **THEN** final result 为 `no-input`
+- **AND** product 不解析、检查或启动对应 component
 
-#### Scenario: Planned component cannot be resolved
+#### Scenario: Successful measurement can produce zero findings
 
-- **WHEN** capability 有 eligible input且 component availability check 失败
-- **THEN** capability 状态为 `unavailable`
-- **AND** record 保留 component、phase、reason 与可行动 error
+- **WHEN** capability 有 eligible input，measurement 正常完成并产生 zero findings
+- **THEN** final result 为 `succeeded`
+- **AND** zero findings 不被重新分类为 `no-input`
+
+#### Scenario: Required component is unavailable
+
+- **WHEN** capability 有 eligible input，但 required component 无法解析或启动
+- **THEN** final result 为 `failed` 且 failure kind 为 `unavailable`
+- **AND** diagnostic 说明原因和恢复动作
+
+#### Scenario: Measurement execution or result validation fails
+
+- **WHEN** capability measurement 启动后发生 execution failure，或 normalized result 无效
+- **THEN** final result 为 `failed`，kind 分别为 `execution` 或 `invalid-result`
+- **AND** 任何部分结果不能使该 capability 变成 `succeeded`
 
 ### Requirement: Overall completeness controls result trust
 
-Product core SHALL 从 capability records 计算 overall completeness。所有 planned capabilities 均为 `succeeded` 或 `no-input` 时，overall SHALL 为 `complete`；全部 planned capabilities 都为 `no-input` 时 SHALL 为 `empty`；任一 planned capability 为 `unavailable` 或 `failed` 时 SHALL 为 `failed`。`not-planned` MUST NOT 降低 completeness。
+Product core SHALL 只从 final capability results 计算 current overall completeness。任一 capability 为 `failed` 时，overall MUST 为 `failed`；没有 failure 且至少一项 capability 为 `succeeded` 时，overall MUST 为 `complete`；没有 capability 成功或失败时，overall MUST 为 `empty`。`skipped` MUST NOT 降低 completeness。
 
-#### Scenario: Every planned capability succeeds
+#### Scenario: Succeeded and no-input capabilities form a complete result
 
-- **WHEN** 本次 scan 的所有 planned capabilities 都成功或合法 no-input
-- **THEN** overall completeness 为 `complete`，或在全部 no-input 时为 `empty`
-- **AND** scan 可以继续计算 `passed` 或 `warning`
+- **WHEN** 本次 scan 至少一项 capability `succeeded`，其余 capability 为 `succeeded`、`no-input` 或 `skipped`
+- **THEN** overall completeness 为 `complete`
+- **AND** scan 可以继续计算可信质量结论
 
-#### Scenario: Required measurement is unavailable
+#### Scenario: No capability performs measurement
 
-- **WHEN** 任一有 eligible input 的 planned capability 状态为 `unavailable`
+- **WHEN** 本次 scan 的 capability results 只包含 `skipped` 或 `no-input`
+- **THEN** overall completeness 为 `empty`
+- **AND** scan 不声称质量通过
+
+#### Scenario: Any required measurement fails
+
+- **WHEN** 任一 capability final result 为 `failed`
 - **THEN** overall completeness 为 `failed`
-- **AND** scan 不得把缺失 measurement 表达为可信 zero 或 `passed`
-
-#### Scenario: Component starts and then fails
-
-- **WHEN** planned component 发生 execution、report、parse 或 normalized validation failure
-- **THEN** capability 与 overall completeness 均记录 failure
-- **AND** 该 capability 的部分 records 不参与可信 result
+- **AND** 其它 capability 的成功数据不能把 overall 提升为 `complete`

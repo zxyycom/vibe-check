@@ -1,68 +1,92 @@
-本 design 起草 scanner capability completeness 的统一模型；当前 change 仅在 `openspec/changes/make-scan-completeness-observable/` 下形成待审计临时计划，不影响现有其它文档或主规范。
-
 ## Context
 
-当前 runtime 在 scan scope 构造前检查全部工具，并把 unavailable component 记录为 skipped。后续 aggregation 使用空数组或缺失值继续执行，所以“profile 有意跳过”“没有 eligible input”“依赖缺失”和“component 失败”可能在最终 summary 中都表现为 zero metrics。最终 `passed` / `warning` 只由 warning 数量决定。
+当前 runtime 在 scan scope 构造前检查 measurement components，并把 unavailable component 记录为 skip。Current scan 随后使用初始化为空的 metric arrays 继续 aggregation；因此 profile skip、没有可执行输入、successful zero findings、component unavailable 和 execution failure 可能共享相似的 zero output。最终 `passed` / `warning` 仍主要由 warning 数量决定。
 
-本 change 在现有 exact-input 规范的实现缺口作为直接 bug fix 修复后，为 capability plan、执行状态和最终可信度建立 product-owned model。
+本 change 为 current measurement 增加 product-owned completeness model。稳定 contract 只描述用户能够观察并据此判断结果可信度的语义；scanner backend、cache、exact work unit 和 process sequencing 仍由实现 owner 管理。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 明确本次 profile 和 scope 计划运行哪些 capability。
-- 为 file metrics、function metrics、duplicate detection 记录稳定状态。
-- 只有完整或合法 empty 的 current measurement 可以得到成功 outcome。
-- console、report、machine artifact 和 CLI exit 从同一 completeness data 派生。
+- 在 normalized scope 之后判断每项 current capability 是 skipped、没有输入、成功还是失败。
+- 缺失 required measurement 时 fail closed，并提供可行动诊断。
+- 将 legitimate empty scan 表达为正常退出的 `warning`，而不是质量通过。
+- 让 aggregation、console、report、machine artifact 和 CLI exit 消费同一 completeness source。
+- 让新增 capability 复用同一 result type、归约和 output mapping。
 
 **Non-Goals:**
 
 - 不改变 scanner 算法、warning threshold 或 supported language。
-- 不在本 change 定义稳定公共 JSON schema；该工作由 `stabilize-machine-readable-output` 完成。
-- 不把 quick profile 有意跳过 jscpd 视为失败。
+- Eligibility work unit、cache behavior、backend metadata 与 invocation strategy 继续由 scanner implementation owner 管理。
+- 不在本 change 冻结公共 JSON schema version、字段兼容性或 examples；该工作由 `stabilize-machine-readable-output` 完成。
+- 不增加 quality gate；gate policy 与 exit `1` 由 `add-configurable-quality-gates` 完成。
+- 不改变 baseline comparison behavior；comparison completeness 与 failure policy 由独立 change 承接。
 
 ## Decisions
 
-### Decision 1: 使用 capability plan 后置 availability check
+### Decision 1: 每项 capability 只产生一个最小 final result
 
-Core 先完成 scope 和 per-capability input planning，再只检查本次真正需要启动的 components。固定 capability IDs 为 `file-metrics`、`function-metrics` 和 `duplicate-detection`。
+Current orchestrator 在 normalized scope 和 capability-specific eligibility 判断完成后，为稳定 IDs `file-metrics`、`function-metrics` 与 `duplicate-detection` 各产生一个 final result：
 
-### Decision 2: Capability 状态使用封闭枚举
+1. `skipped`：当前 profile 未请求该 capability；不解析或启动 component。
+2. `no-input`：profile 已请求，但没有 eligible input；不解析或启动 component。
+3. `succeeded`：全部 eligible work 完成并得到有效 normalized result；zero findings 仍属于成功。
+4. `failed`：required work 未完整完成。
 
-每项 capability 记录 `not-planned`、`no-input`、`succeeded`、`unavailable` 或 `failed`：
+Failed result 必须包含 normalized diagnostic：
 
-- `not-planned`：profile 明确不启用。
-- `no-input`：profile 启用，但 normalized scope 没有 eligible input。
-- `succeeded`：component 完成并通过 normalization。
-- `unavailable`：有输入且需要执行，但 preflight 无法解析或验证 component。
-- `failed`：启动后 execution、report、parse 或 validation 失败。
+- `kind` 使用 `unavailable`、`execution` 或 `invalid-result`。
+- `message` 说明失败原因。
+- `action` 给出下一步恢复方式。
 
-状态 record 同时包含 capability、component、phase 和 normalized diagnostic；不得用 zero metric 代替。
+Final result contract 只要求 capability ID、status 和 failed diagnostic。Component 和 phase 等实现信息可以作为额外诊断，但不参与 capability identity、状态归约或兼容性承诺。
 
-### Decision 3: Current measurement 只允许 complete、empty 或 failed
+### Decision 2: Overall completeness 使用简单归约
 
-所有 planned capability 均为 `succeeded` 或 `no-input` 时，overall completeness 为 `complete`；全部 planned capability 都是 `no-input` 时为 `empty`；任一 planned capability 为 `unavailable` 或 `failed` 时为 `failed`。`not-planned` 不降低 completeness。
+Core 只从 final capability results 计算 current overall completeness：
 
-第一版不提供“partial 但成功”的 outcome，避免调用者再次把残缺结果当作可信 snapshot。
+1. 任一 capability 为 `failed`，overall 为 `failed`。
+2. 没有 failure 且至少一项 capability 为 `succeeded`，overall 为 `complete`。
+3. 没有 capability 成功或失败，overall 为 `empty`。
 
-### Decision 4: Completeness 先于 warning status
+`skipped` 不降低 completeness；mixed `succeeded` + `no-input` 属于 `complete`。该归约不需要 capability-specific 分支。
 
-只有 completeness 为 `complete` 或 `empty` 时才计算最终 `passed` / `warning`。Completeness 为 `failed` 时 core 返回 `failed`，CLI 使用现有 runtime failure exit `2`；warning 数量不能覆盖该结果。
+### Decision 3: Completeness 先于质量结论和进程状态
+
+- `complete`：core 根据 normalized quality warnings 返回 `passed` 或 `warning`。
+- `empty`：core 固定返回 `warning`，CLI 退出 `0`；human conclusion 说明没有 eligible input、质量未评价，不输出绿色通过。
+- `failed`：core 返回 `failed`，CLI 退出 `2`；其它 capability 的成功数据不能形成可信质量结论。
+
+Empty warning 是 scan conclusion，不伪造 quality finding，也不写入 normalized quality warning channels。Failed capability 的缺失或部分数据不得作为 measured zero 参与可信质量评价；其 raw material 和缓存处理仍由 scanner implementation owner 决定。
+
+### Decision 4: Output 只投影 core-owned results
+
+Core-owned model 是 capability results 与 overall completeness 的唯一来源。`metrics.json`、`report.md`、console summary/completion 和 CLI 不得各自重算 status 或 overall。
+
+Machine artifact 必须提供 overall completeness、每项 capability 的 ID/status，以及 failed result 的 normalized diagnostic。Human output 必须区分 profile skip、no input、successful zero findings 与 failure，并为 empty/failed 使用非绿色结论。JSON schema identity、最终 nesting、兼容性和 examples 由 `stabilize-machine-readable-output` 决定。
+
+无法归属到 capability 的 serialization、artifact write 或其它 runtime failure 继续使用现有 top-level failure mapping。
+
+### Decision 5: 保留显式 orchestrator，只共享结果语义
+
+Current measurement 保留现有显式 orchestrator。各 adapter 或其薄 wrapper 返回相同 `CapabilityResult`，共享层只拥有 result type、overall reducer 和 output projection。
+
+新增 capability 时，开发者只需增加稳定 ID、eligibility/run mapping、domain metrics 与对应测试；overall reducer、quality outcome 和通用 output mapping 不增加 capability-specific 分支。
 
 ## Risks / Trade-offs
 
-- [缺少某个 tool 会从成功变为失败] → 这是有意的 correctness change；console 和 diagnostic 给出 component、安装/配置入口与重试方式。
-- [先收集 scope 再检查工具会改变进度顺序] → 同步更新 CLI/output owner 和入口测试，不把旧 banner 顺序当作更高优先级。
-- [后续可能需要 optional capability] → 先由 profile 决定 `not-planned`；若未来开放配置化 optional policy，再单独扩展 plan contract。
+- [缺少 required component 会从成功变为失败] → 这是有意的 correctness change；failed result 提供 failure kind、原因和恢复动作。
+- [Empty 返回 warning，但没有 quality finding] → output 同时表达 `overall: empty` 与“质量未评价”，consumer 不通过 warning-record 数量推断 completeness。
+- [失败 snapshot 可能包含诊断数据] → overall 与 human conclusion 始终 failed；consumer 只能在 `complete` 时把 metrics 当作可信质量评价。
+- [先收集 scope 再检查 component 会改变进度顺序] → 更新 CLI/output owner 和入口测试，不把旧 banner 顺序当作更高优先级 contract。
+- [Machine shape 尚未稳定] → 本 change 只固定 source semantics 和 required information，schema change 再固定字段名称、nesting 与兼容策略。
 
 ## Migration Plan
 
-1. 先直接修复 scc empty-input / out-of-scope regression 并把证明合入主分支；该符合性修复不另建 OpenSpec change。
-2. 引入 capability plan/status model 和 validation。
-3. 将 availability check 移到 input planning 后。
-4. 让 adapters、aggregation、output 和 CLI 消费同一 completeness。
-5. 更新 artifacts、docs、tests，并重放 missing-scc 与 no-input smoke。
+1. 保存当前 unavailable component 得到成功结果的 failing regression evidence。
+2. 引入 minimal capability result、failure diagnostic 与 overall reducer。
+3. 将 eligibility 判断放在 component resolution 前，并让 current adapters 产出 final results。
+4. 让 aggregation、quality outcome、output 和 CLI 原子切换到同一 completeness。
+5. 更新 owner docs、tests 和 case ledger，重放 skipped、no-input、zero findings、failed 与 complete scenarios。
 
-## Open Questions
-
-1. 用户显式要求 baseline（`--baseline <sha>`）但 baseline measurement 不完整时，是否必须让整个 scan `failed`；推荐“显式 baseline 失败、自动 baseline unavailable 仍保留 current 成功结果”。
+回滚必须同时撤销 producer model、output projection 和 CLI status mapping；不得保留只写新 completeness、但仍按旧逻辑返回绿色成功的混合版本。
