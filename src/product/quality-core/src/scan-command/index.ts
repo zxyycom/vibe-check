@@ -17,7 +17,6 @@ export {
 export {
   collectToolMetadata,
   getGitCommitTitle,
-  getGitSha,
-  initializeToolResults
+  getGitSha
 } from "./tool-metadata.ts";
 export { createTimings, type Timings } from "./timings.ts";

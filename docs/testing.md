@@ -28,8 +28,8 @@ Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或�
 | 层级 | 核心目标 |
 | --- | --- |
 | 文档 / schema | Markdown 链接、JSON 语法和 checked-in schema/examples 一致性；已退役历史材料不重新定义当前产品语义 |
-| Product unit | TypeScript model、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 report helper 的自定义不变量 |
-| Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、console、status 和 artifacts 到达同一 core |
+| Product unit | TypeScript model、completeness reducer、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 report helper 的自定义不变量 |
+| Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、console、status、completeness 和 artifacts 到达同一 core |
 | Script consumer | CI annotation、workspace verifier 和其它 `scripts/**` consumer 只消费产品 output，不成为第二套产品实现 |
 | Productization parity | 一次性证明上移前 pinned consumer 与当前产品入口在 quick、full、baseline 和 explicit changed-files 下等价 |
 | 综合验证 | docs、OpenSpec、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
@@ -61,8 +61,12 @@ requirement。
 
 - `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV、jscpd version/report parser，
   以及 jscpd unavailable / execution / report / parse failure。
+- `model/scan-completeness.test.ts`：stable current capability IDs，以及 shared reducer 对
+  succeeded、mixed、empty 和 failed results 的归约。
+- `measurement/current-revision/current-revision.test.ts`：current capability wrappers 的
+  successful zero result 与 unavailable / execution / invalid-result failure projection。
 - `measurement/scanners/jscpd/area-scans.test.ts`：per-code-area task planning、稳定 task /
-  file ordering 和 current-scan fatal issue channel。
+  file ordering、current failure collection 和 baseline throw behavior。
 - `measurement/cache.test.ts`：duplicate 与 baseline cache identity、cache hit 和 snapshot
   integrity。
 - `input/files.test.ts`：file fingerprint、Git pathspec、explicit changed-files
@@ -104,8 +108,9 @@ Rust CLI project fixtures 和 Rust dependency / grammar characterization fixture
 `fixtures/projects/configured-typescript/` 提供完整 config、eligible / excluded /
 generated source 和受控 scanner command。`src/product/configured-project.test.ts` 从
 fixture root 外调用正式入口，证明 selected config、路径、整体替换、CLI precedence、
-scope、code area、warning、artifact 与失败退出；受控 scanner 只提供 deterministic
-acceptance support，不定义稳定 Core / Output contract。
+scope、code area、warning、artifact、complete / empty / failed conclusion 与退出状态；
+受控 scanner 只提供 deterministic acceptance support，不定义稳定 Core / Output
+contract。
 
 ## 一次性 productization parity evidence
 
@@ -140,10 +145,14 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 - 正式入口与 wrapper 保持现有 flags、profile、console、artifact 和 status mapping。
 - 显式 config acceptance 使用 checked-in external project，证明相对 path、整体替换、
   selected scope、warning、artifact 与 config error exit `3`。
+- Formal entry 对代表性的 complete、legitimate empty 与 required component unavailable
+  scan，证明 core outcome、console conclusion、`metrics.json`、`report.md` 和 CLI exit
+  投影同一 completeness source。
 - Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
 
-入口 tests 不需要为每个 flag 复制完整 scanner matrix；选择能证明 routing、root 和 output
-边界的代表性路径。
+入口 tests 不需要为每个 flag 或 scanner failure kind 复制完整 matrix；result union、
+reducer 和 adapter mapping 由 unit tests 证明，正式入口只选择能证明 routing、root、
+cross-surface mapping 和 output 边界的代表性路径。
 
 ## 脚本与工具依赖
 
@@ -191,6 +200,8 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
 3. 已删除的 Rust tests / fixtures 没有进入 `src/product/**`。
 4. 测试文档不重新定义 threshold、warning、baseline、artifact 或 status。
 5. Case ledger 路径和 `implemented` 状态必须对应实际测试与唯一 `@case` marker。
-6. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。
-7. External project fixture 位于 `fixtures/projects/**`，不与 product unit fixture 混合。
-8. 发现既有缺陷或 coverage gap 时进入后续 change。
+6. Completeness tests 分层证明 model/reducer、adapter result 和 formal-entry
+   cross-surface mapping，不靠重复同一 scanner matrix 获得覆盖数量。
+7. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。
+8. External project fixture 位于 `fixtures/projects/**`，不与 product unit fixture 混合。
+9. 发现既有缺陷或 coverage gap 时进入后续 change。

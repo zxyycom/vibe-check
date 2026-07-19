@@ -47,8 +47,50 @@ export function scanInfo(metrics: QualityMetrics, options: ReportOptions): strin
     tools,
     "",
     `- **Baseline status**: \`${metrics.baseline.status}\``,
-    `- **Comparison status**: \`${metrics.comparisonStatus}\``
+    `- **Comparison status**: \`${metrics.comparisonStatus}\``,
+    "",
+    ...scanCompletenessInfo(metrics)
   ].join("\n");
+}
+
+function scanCompletenessInfo(metrics: QualityMetrics): string[] {
+  const lines = [
+    "### Scan completeness",
+    "",
+    `- **Overall**: \`${metrics.scanCompleteness.overall}\``
+  ];
+
+  for (const result of metrics.scanCompleteness.capabilities) {
+    if (result.status === "failed") {
+      lines.push(
+        `- **${result.capabilityId}**: \`failed\` (kind: \`${result.diagnostic.kind}\`)`,
+        `  - **Reason**: ${result.diagnostic.message}`,
+        `  - **Action**: ${result.diagnostic.action}`
+      );
+      continue;
+    }
+
+    const detail = result.status === "skipped"
+      ? "profile skipped"
+      : result.status === "no-input"
+        ? "no eligible input"
+        : "measurement succeeded";
+    lines.push(`- **${result.capabilityId}**: \`${result.status}\` (${detail})`);
+  }
+
+  if (metrics.scanCompleteness.overall === "empty") {
+    lines.push(
+      "",
+      "**⚠️ Quality was not evaluated because no capability had eligible measurement input.**"
+    );
+  } else if (metrics.scanCompleteness.overall === "failed") {
+    lines.push(
+      "",
+      "**❌ Quality was not evaluated because a required current measurement did not complete.**"
+    );
+  }
+
+  return lines;
 }
 
 export function comparisonInfo(metrics: QualityMetrics): string {

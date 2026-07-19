@@ -17,7 +17,6 @@ import {
   runProcessSync,
   type ProcessResult
 } from "../../../../../foundation/src/index.ts";
-import { isMissingExplicitCommand } from "../command-path.ts";
 import { parseJscpdJsonReport } from "./json-report.ts";
 import type { JscpdScanResult } from "./types.ts";
 
@@ -110,18 +109,6 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
     return { ok: false, result: { ok: true, fragments: [] } };
   }
 
-  if (isMissingExplicitCommand(toolConfig.command)) {
-    return {
-      ok: false,
-      result: {
-        ok: false,
-        skipped: true,
-        error: `jscpd not found: ${toolConfig.command}`,
-        reason: "tool-unavailable"
-      }
-    };
-  }
-
   return {
     ok: true,
     cwd,
@@ -197,7 +184,6 @@ function parseJscpdReportFile(reportPath: string, cwd: string): JscpdScanResult 
   } catch (error: unknown) {
     return {
       ok: false,
-      skipped: false,
       error: `jscpd JSON report missing: ${errorMessage(error)}`,
       reason: "jscpd-report-failure"
     };
@@ -206,7 +192,6 @@ function parseJscpdReportFile(reportPath: string, cwd: string): JscpdScanResult 
   if (!json.trim()) {
     return {
       ok: false,
-      skipped: false,
       error: "jscpd JSON report is empty",
       reason: "jscpd-report-failure"
     };
@@ -216,17 +201,8 @@ function parseJscpdReportFile(reportPath: string, cwd: string): JscpdScanResult 
 }
 
 function jscpdProcessError(error: Error): JscpdScanResult {
-  if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-    return {
-      ok: false,
-      skipped: true,
-      error: `jscpd not found: ${error.message}`,
-      reason: "tool-unavailable"
-    };
-  }
   return {
     ok: false,
-    skipped: false,
     error: `jscpd process error: ${error.message}`,
     reason: "jscpd-execution-error"
   };
@@ -235,7 +211,6 @@ function jscpdProcessError(error: Error): JscpdScanResult {
 function jscpdExecutionFailure(status: number, output: string): JscpdScanResult {
   return {
     ok: false,
-    skipped: false,
     error: `jscpd exit ${status}: ${output}`,
     reason: "jscpd-execution-error"
   };

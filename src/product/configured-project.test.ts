@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import {
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -25,6 +26,7 @@ const fixtureArtifactDir = resolve(fixtureRoot, "artifacts/configured-scan");
 
 // @case BB-CLI-CONFIG-FILE-001
 describe("formal CLI explicit configuration", () => {
+  // @case BB-RUNTIME-COMPLETENESS-001
   it("scans the checked-in project deterministically with only the configured inputs", { timeout: 30_000 }, () => {
     cleanupFixtureOutput();
 
@@ -45,10 +47,17 @@ describe("formal CLI explicit configuration", () => {
         firstMetrics.metadata.tools.map((tool) => [tool.name, tool.version]),
         [
           ["lizard", "lizard 1.17.10"],
-          ["scc", "scc version 3.7.0"],
-          ["jscpd", "5.0.11"]
+          ["scc", "scc version 3.7.0"]
         ]
       );
+      assert.deepEqual(firstMetrics.scanCompleteness, {
+        capabilities: [
+          { capabilityId: "file-metrics", status: "succeeded" },
+          { capabilityId: "function-metrics", status: "succeeded" },
+          { capabilityId: "duplicate-detection", status: "no-input" }
+        ],
+        overall: "complete"
+      });
       assert.deepEqual(firstMetrics.currentFingerprints["fixture-app"]?.fileList, [
         "src/eligible.ts"
       ]);
@@ -72,10 +81,17 @@ describe("formal CLI explicit configuration", () => {
       assert.ok(existsSync(resolve(fixtureArtifactDir, "metrics.json")));
       assert.ok(existsSync(resolve(fixtureArtifactDir, "report.md")));
       assert.ok(existsSync(resolve(fixtureArtifactDir, "warnings-all.ndjson")));
-      assert.match(
-        readFileSync(resolve(fixtureArtifactDir, "report.md"), "utf8"),
-        /^# Configured TypeScript Fixture Quality/
-      );
+      const firstReport = readFileSync(resolve(fixtureArtifactDir, "report.md"), "utf8");
+      assert.match(firstReport, /^# Configured TypeScript Fixture Quality/);
+      assert.match(firstReport, /Overall.*`complete`/);
+      assert.match(firstReport, /file-metrics.*`succeeded`/);
+      assert.match(firstReport, /function-metrics.*`succeeded`/);
+      assert.match(firstReport, /duplicate-detection.*`no-input`/);
+      assert.match(first.stdout, /Scan completeness: complete/);
+      assert.match(first.stdout, /file-metrics: succeeded/);
+      assert.match(first.stdout, /function-metrics: succeeded/);
+      assert.match(first.stdout, /duplicate-detection: no-input/);
+      assert.match(first.stdout, /Quality check status: warning/);
 
       const stableFirst = stableScanEvidence(firstMetrics);
       cleanupFixtureOutput();
@@ -213,6 +229,295 @@ describe("formal CLI explicit configuration", () => {
       rmSync(projectRoot, { force: true, recursive: true });
     }
   });
+
+  it("returns a warning without a quality verdict when no capability has eligible input", { timeout: 30_000 }, () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-empty-scan-"));
+    const projectRoot = join(tempRoot, "configured-project");
+    const configPath = join(projectRoot, "vibe-check.config.json");
+    const artifactDir = join(projectRoot, "artifacts/configured-scan");
+
+    try {
+      cpSync(fixtureRoot, projectRoot, { recursive: true });
+      const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+      config.include = ["missing/**/*.ts"];
+      config.acceptedWarnings = [
+        {
+          metric: "duplicate-tokens",
+          reason: "stale acceptance should not be evaluated for an empty scan",
+          ruleId: "jscpd-duplicate-code",
+          sourceTool: "jscpd",
+          value: 999
+        }
+      ];
+      config.tools = {
+        jscpd: { args: [], command: join(projectRoot, "tools", "missing-jscpd") },
+        lizard: { args: [], command: join(projectRoot, "tools", "missing-lizard") },
+        scc: { args: [], command: join(projectRoot, "tools", "missing-scc") }
+      };
+      writeFileSync(configPath, JSON.stringify(config), "utf8");
+
+      const result = runProductCli([
+        "scan",
+        projectRoot,
+        "--config",
+        "vibe-check.config.json",
+        "--profile",
+        "full",
+        "--skip-baseline"
+      ]);
+
+      assert.equal(
+        result.status,
+        0,
+        `legitimate empty scan failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+      );
+      assert.equal(result.stderr, "");
+      assert.match(result.stdout, /Scan completeness: empty/);
+      assert.doesNotMatch(result.stdout, /Generating warnings/);
+      assert.match(
+        result.stdout,
+        /Quality was not evaluated.*no capability had eligible measurement input/
+      );
+      assert.doesNotMatch(result.stdout, /Quality check status: passed/);
+      assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
+
+      const metrics = readMetricsArtifact(artifactDir);
+      assert.deepEqual(metrics.scanCompleteness, {
+        capabilities: [
+          { capabilityId: "file-metrics", status: "no-input" },
+          { capabilityId: "function-metrics", status: "no-input" },
+          { capabilityId: "duplicate-detection", status: "no-input" }
+        ],
+        overall: "empty"
+      });
+      assert.deepEqual(metrics.warnings, { all: [], changed: [], regressions: [] });
+
+      const report = readFileSync(join(artifactDir, "report.md"), "utf8");
+      assert.match(report, /Overall.*`empty`/);
+      assert.match(report, /file-metrics.*`no-input`/);
+      assert.match(report, /function-metrics.*`no-input`/);
+      assert.match(report, /duplicate-detection.*`no-input`/);
+      assert.match(
+        report,
+        /Quality was not evaluated.*no capability had eligible measurement input/
+      );
+    } finally {
+      rmSync(tempRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("treats a successful zero-finding quick scan as complete without resolving jscpd", { timeout: 30_000 }, () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-zero-findings-"));
+    const projectRoot = join(tempRoot, "configured-project");
+    const configPath = join(projectRoot, "vibe-check.config.json");
+    const artifactDir = join(projectRoot, "artifacts/configured-scan");
+
+    try {
+      cpSync(fixtureRoot, projectRoot, { recursive: true });
+      writeControlledLizard(projectRoot);
+      const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+      const tools = config.tools as Record<string, { args: string[]; command: string }>;
+      tools.lizard = {
+        args: ["tools/completeness-lizard.ts", "zero"],
+        command: "bun"
+      };
+      tools.jscpd = {
+        args: [],
+        command: join(projectRoot, "tools", "missing-jscpd")
+      };
+      raiseWarningFloors(config);
+      writeFileSync(configPath, JSON.stringify(config), "utf8");
+
+      const result = runProductCli([
+        "scan",
+        projectRoot,
+        "--config",
+        "vibe-check.config.json",
+        "--profile",
+        "quick",
+        "--skip-baseline"
+      ]);
+
+      assertCommandSucceeded(result, "successful zero-finding quick scan");
+      assert.equal(result.stderr, "");
+
+      const metrics = readMetricsArtifact(artifactDir);
+      const functionMetrics = metrics.scanCompleteness.capabilities.find(
+        (capability) => capability.capabilityId === "function-metrics"
+      );
+      const duplicateDetection = metrics.scanCompleteness.capabilities.find(
+        (capability) => capability.capabilityId === "duplicate-detection"
+      );
+      assert.equal(functionMetrics?.status, "succeeded");
+      assert.deepEqual(metrics.functionMetrics, []);
+      assert.equal(duplicateDetection?.status, "skipped");
+      assert.equal(metrics.scanCompleteness.overall, "complete");
+      assert.equal(
+        metrics.metadata.tools.some((tool) => tool.name === "jscpd"),
+        false
+      );
+
+      assert.match(result.stdout, /Scan completeness: complete/);
+      assert.match(result.stdout, /function-metrics: succeeded/);
+      assert.match(result.stdout, /duplicate-detection: skipped/);
+      assert.match(result.stdout, /Quality check status: passed/);
+      assert.doesNotMatch(result.stdout, /Scan completeness: (?:empty|failed)/);
+      assert.doesNotMatch(result.stdout, /Quality was not evaluated/);
+      assert.doesNotMatch(result.stdout, /jscpd validation failed/);
+
+      const report = readFileSync(join(artifactDir, "report.md"), "utf8");
+      assert.match(report, /Overall.*`complete`/);
+      assert.match(report, /function-metrics.*`succeeded`/);
+      assert.match(report, /duplicate-detection.*`skipped`/);
+      assert.doesNotMatch(report, /Overall.*`(?:empty|failed)`/);
+      assert.doesNotMatch(report, /Quality was not evaluated/);
+    } finally {
+      rmSync(tempRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("projects Lizard execution and invalid-result failures consistently", { timeout: 30_000 }, () => {
+    const variants = [
+      { diagnosticKind: "execution", mode: "execution" },
+      { diagnosticKind: "invalid-result", mode: "invalid" }
+    ] as const;
+
+    for (const variant of variants) {
+      const tempRoot = mkdtempSync(join(tmpdir(), `vibe-check-lizard-${variant.mode}-`));
+      const projectRoot = join(tempRoot, "configured-project");
+      const configPath = join(projectRoot, "vibe-check.config.json");
+      const artifactDir = join(projectRoot, "artifacts/configured-scan");
+
+      try {
+        cpSync(fixtureRoot, projectRoot, { recursive: true });
+        writeControlledLizard(projectRoot);
+        const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+        const tools = config.tools as Record<string, { args: string[]; command: string }>;
+        tools.lizard = {
+          args: ["tools/completeness-lizard.ts", variant.mode],
+          command: "bun"
+        };
+        raiseWarningFloors(config);
+        writeFileSync(configPath, JSON.stringify(config), "utf8");
+
+        const result = runProductCli([
+          "scan",
+          projectRoot,
+          "--config",
+          "vibe-check.config.json",
+          "--profile",
+          "quick",
+          "--skip-baseline"
+        ]);
+
+        assert.equal(
+          result.status,
+          2,
+          `${variant.mode} Lizard result did not fail closed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+        );
+
+        const metrics = readMetricsArtifact(artifactDir);
+        const functionMetrics = metrics.scanCompleteness.capabilities.find(
+          (capability) => capability.capabilityId === "function-metrics"
+        );
+        assert.ok(functionMetrics?.status === "failed");
+        assert.equal(functionMetrics.diagnostic.kind, variant.diagnosticKind);
+        assert.equal(metrics.scanCompleteness.overall, "failed");
+
+        assert.match(result.stdout, /Scan completeness: failed/);
+        assert.match(result.stdout, /function-metrics: failed/);
+        assert.ok(result.stdout.includes(functionMetrics.diagnostic.message));
+        assert.ok(result.stdout.includes(functionMetrics.diagnostic.action));
+        assert.match(result.stderr, /Incomplete current measurements:/);
+        assert.ok(result.stderr.includes(functionMetrics.diagnostic.message));
+        assert.doesNotMatch(result.stderr, /Fatal quality scan issues:/);
+        assert.doesNotMatch(result.stdout, /Quality check status: passed/);
+        assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
+
+        const report = readFileSync(join(artifactDir, "report.md"), "utf8");
+        assert.match(report, /Overall.*`failed`/);
+        assert.match(report, /function-metrics.*`failed`/);
+        assert.ok(report.includes(functionMetrics.diagnostic.message));
+        assert.ok(report.includes(functionMetrics.diagnostic.action));
+      } finally {
+        rmSync(tempRoot, { force: true, recursive: true });
+      }
+    }
+  });
+
+  it("fails closed when an eligible current measurement component is unavailable", { timeout: 30_000 }, () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-unavailable-component-"));
+    const projectRoot = join(tempRoot, "configured-project");
+    const configPath = join(projectRoot, "vibe-check.config.json");
+    const artifactDir = join(projectRoot, "artifacts/configured-scan");
+
+    try {
+      cpSync(fixtureRoot, projectRoot, { recursive: true });
+      const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
+      const tools = config.tools as Record<string, { args: string[]; command: string }>;
+      tools.scc = {
+        args: [],
+        command: join(projectRoot, "tools", "missing-scc")
+      };
+      raiseWarningFloors(config);
+      writeFileSync(configPath, JSON.stringify(config), "utf8");
+
+      const result = runProductCli([
+        "scan",
+        projectRoot,
+        "--config",
+        "vibe-check.config.json",
+        "--profile",
+        "quick",
+        "--skip-baseline"
+      ]);
+
+      assert.equal(
+        result.status,
+        2,
+        `unavailable required component did not fail closed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+      );
+      assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
+
+      const metrics = readMetricsArtifact(artifactDir);
+      assert.equal(metrics.scanCompleteness.overall, "failed");
+      assert.deepEqual(
+        metrics.scanCompleteness.capabilities.map((result) => [
+          result.capabilityId,
+          result.status
+        ]),
+        [
+          ["file-metrics", "failed"],
+          ["function-metrics", "succeeded"],
+          ["duplicate-detection", "skipped"]
+        ]
+      );
+      const fileMetrics = metrics.scanCompleteness.capabilities.find(
+        (result) => result.capabilityId === "file-metrics"
+      );
+      assert.equal(fileMetrics?.status, "failed");
+      assert.ok(fileMetrics?.status === "failed");
+      assert.equal(fileMetrics.diagnostic.kind, "unavailable");
+      assert.equal(typeof fileMetrics.diagnostic.message, "string");
+      assert.equal(typeof fileMetrics.diagnostic.action, "string");
+      assert.match(result.stdout, /Scan completeness: failed/);
+      assert.match(result.stdout, /file-metrics: failed/);
+      assert.ok(result.stdout.includes(fileMetrics.diagnostic.message));
+      assert.ok(result.stdout.includes(fileMetrics.diagnostic.action));
+      assert.match(result.stderr, /Incomplete current measurements:/);
+      assert.doesNotMatch(result.stderr, /Fatal quality scan issues:/);
+      assert.ok(result.stderr.includes(fileMetrics.diagnostic.message));
+      assert.ok(result.stderr.includes(fileMetrics.diagnostic.action));
+
+      const report = readFileSync(join(artifactDir, "report.md"), "utf8");
+      assert.match(report, /Overall.*`failed`/);
+      assert.match(report, /file-metrics.*`failed`/);
+      assert.ok(report.includes(fileMetrics.diagnostic.message));
+      assert.ok(report.includes(fileMetrics.diagnostic.action));
+    } finally {
+      rmSync(tempRoot, { force: true, recursive: true });
+    }
+  });
 });
 
 interface CommandResult {
@@ -272,8 +577,12 @@ function assertCommandSucceeded(result: CommandResult, label: string): void {
 }
 
 function readFixtureMetrics(): QualityMetrics {
+  return readMetricsArtifact(fixtureArtifactDir);
+}
+
+function readMetricsArtifact(artifactDir: string): QualityMetrics {
   const input = JSON.parse(
-    readFileSync(resolve(fixtureArtifactDir, "metrics.json"), "utf8")
+    readFileSync(resolve(artifactDir, "metrics.json"), "utf8")
   ) as unknown;
   const validation = validateMetrics(input);
   assert.deepEqual(validation.errors, []);
@@ -288,6 +597,7 @@ function stableScanEvidence(metrics: QualityMetrics): unknown {
     fileMetrics: metrics.fileMetrics,
     fingerprints: metrics.currentFingerprints,
     functionMetrics: metrics.functionMetrics,
+    scanCompleteness: metrics.scanCompleteness,
     scope: metrics.metadata.scope,
     tools: metrics.metadata.tools,
     version: metrics.metadata.configVersion,
@@ -304,4 +614,52 @@ function writeFixtureFile(rootDir: string, relPath: string, content: string): vo
   const absPath = join(rootDir, relPath);
   mkdirSync(dirname(absPath), { recursive: true });
   writeFileSync(absPath, content, "utf8");
+}
+
+function writeControlledLizard(rootDir: string): void {
+  writeFixtureFile(
+    rootDir,
+    "tools/completeness-lizard.ts",
+    [
+      "const mode = process.argv[2];",
+      "if (process.argv.includes(\"--version\")) {",
+      "  console.log(\"lizard 1.17.10\");",
+      "} else if (mode === \"zero\") {",
+      "  console.log(\"NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line\");",
+      "} else if (mode === \"execution\") {",
+      "  console.error(\"controlled Lizard execution failure\");",
+      "  process.exitCode = 7;",
+      "} else if (mode === \"invalid\") {",
+      "  console.log(\"NLOC,CCN,token count,parameter count\");",
+      "  console.log(\"12,4\");",
+      "} else {",
+      "  throw new Error(`unexpected controlled Lizard mode: ${mode ?? \"missing\"}`);",
+      "}",
+      ""
+    ].join("\n")
+  );
+}
+
+function raiseWarningFloors(config: Record<string, unknown>): void {
+  const lizard = config.lizard as {
+    cyclomaticComplexity: { absoluteFloor: number };
+    functionCodeDensity: {
+      absoluteFloor: number;
+      lowComplexityAllowance: { codeLineFloor: number };
+    };
+    parameterCount: { absoluteFloor: number };
+  };
+  const scc = config.scc as {
+    fileCodeLines: {
+      absoluteFloor: number;
+      lowDecisionTokenAllowance: { codeLineFloor: number };
+    };
+  };
+
+  lizard.cyclomaticComplexity.absoluteFloor = 10_000;
+  lizard.functionCodeDensity.absoluteFloor = 10_000;
+  lizard.functionCodeDensity.lowComplexityAllowance.codeLineFloor = 10_000;
+  lizard.parameterCount.absoluteFloor = 10_000;
+  scc.fileCodeLines.absoluteFloor = 10_000;
+  scc.fileCodeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
 }

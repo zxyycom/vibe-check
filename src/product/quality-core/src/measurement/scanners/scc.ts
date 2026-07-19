@@ -33,7 +33,8 @@ export function scanWithScc({ cwd, includePaths, excludeDirs, toolConfig }: Scan
   if (child.error) {
     return {
       ok: false,
-      error: `scc process error: ${child.error.message}`
+      error: `scc process error: ${child.error.message}`,
+      reason: "execution"
     };
   }
 
@@ -42,7 +43,8 @@ export function scanWithScc({ cwd, includePaths, excludeDirs, toolConfig }: Scan
     const stdout = (child.stdout || "").trim();
     return {
       ok: false,
-      error: `scc exit ${child.status}: ${stderr || stdout || "no output"}`
+      error: `scc exit ${child.status}: ${stderr || stdout || "no output"}`,
+      reason: "execution"
     };
   }
 

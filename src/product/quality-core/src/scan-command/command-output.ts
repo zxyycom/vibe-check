@@ -17,7 +17,7 @@ import type { QualityScanProfile } from "./command-model.ts";
 
 const WARNING_PREVIEW_LIMIT = 5;
 
-export type QualityCheckStatus = "passed" | "warning";
+export type QualityCheckStatus = "passed" | "warning" | "failed";
 
 export function prepareArtifactDirs(artifactDir: string): { rawDir: string } {
   const rawDir = join(artifactDir, "raw");
@@ -90,17 +90,36 @@ export function printSummary(metrics: QualityMetrics): void {
   console.log(`  Warnings: ${metrics.warnings.all.length} all`);
   console.log(`  Changed warnings: ${metrics.warnings.changed.length}`);
   console.log(`  Regression warnings: ${metrics.warnings.regressions.length}`);
+  console.log(`  Scan completeness: ${metrics.scanCompleteness.overall}`);
+  for (const result of metrics.scanCompleteness.capabilities) {
+    console.log(`    ${result.capabilityId}: ${result.status}`);
+    if (result.status === "failed") {
+      console.log(`      Reason: ${result.diagnostic.message}`);
+      console.log(`      Action: ${result.diagnostic.action}`);
+    }
+  }
   console.log(`  Baseline status: ${metrics.baseline.status}`);
   console.log(`  Comparison status: ${metrics.comparisonStatus}`);
   console.log("─".repeat(60));
 }
 
 export function qualityCheckStatus(metrics: QualityMetrics): QualityCheckStatus {
-  return metrics.warnings.all.length > 0 ? "warning" : "passed";
+  if (metrics.scanCompleteness.overall === "failed") {
+    return "failed";
+  }
+  return metrics.scanCompleteness.overall === "empty" || metrics.warnings.all.length > 0
+    ? "warning"
+    : "passed";
 }
 
 export function qualityVerificationStatus(metrics: QualityMetrics): QualityCheckStatus {
-  return warningsWithoutAcceptedReason(metrics.warnings.all).length > 0 ? "warning" : "passed";
+  if (metrics.scanCompleteness.overall === "failed") {
+    return "failed";
+  }
+  return metrics.scanCompleteness.overall === "empty" ||
+    warningsWithoutAcceptedReason(metrics.warnings.all).length > 0
+    ? "warning"
+    : "passed";
 }
 
 export function printWarningStatus({
@@ -118,6 +137,16 @@ export function printWarningStatus({
   const status = qualityCheckStatus(metrics);
 
   console.log("");
+  if (metrics.scanCompleteness.overall === "empty") {
+    const statusLabel = verificationOutput
+      ? "Quality verification status"
+      : "Quality check status";
+    console.log(`${statusLabel}: warning`);
+    console.log(
+      "⚠️ Quality was not evaluated because no capability had eligible measurement input."
+    );
+    return;
+  }
   if (verificationOutput) {
     printVerificationWarningStatus({ artifactDir, metrics });
     return;

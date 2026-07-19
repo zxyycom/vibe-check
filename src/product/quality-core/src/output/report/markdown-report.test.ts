@@ -142,6 +142,53 @@ describe("quality report", () => {
     assert.match(section, /\*\*\[scc\] code-lines\*\*: test warning/);
     assert.match(section, /Accepted reason: OperationArguments::operation/);
   });
+
+  it("shows completeness states and explains an empty quality evaluation", () => {
+    const metrics = qualityMetrics();
+    metrics.scanCompleteness = {
+      capabilities: [
+        { capabilityId: "file-metrics", status: "no-input" },
+        { capabilityId: "function-metrics", status: "no-input" },
+        { capabilityId: "duplicate-detection", status: "skipped" }
+      ],
+      overall: "empty"
+    };
+
+    const report = generateMarkdownReport(metrics);
+
+    assert.match(report, /Scan completeness/);
+    assert.match(report, /Overall.*`empty`/);
+    assert.match(report, /file-metrics.*`no-input`/);
+    assert.match(report, /duplicate-detection.*`skipped`/);
+    assert.match(report, /Quality was not evaluated.*no capability had eligible measurement input/);
+  });
+
+  it("shows actionable diagnostics for failed capabilities", () => {
+    const metrics = qualityMetrics();
+    metrics.scanCompleteness = {
+      capabilities: [
+        {
+          capabilityId: "file-metrics",
+          diagnostic: {
+            kind: "unavailable",
+            message: "scc was not found",
+            action: "Install scc or configure tools.scc"
+          },
+          status: "failed"
+        },
+        { capabilityId: "function-metrics", status: "succeeded" },
+        { capabilityId: "duplicate-detection", status: "skipped" }
+      ],
+      overall: "failed"
+    };
+
+    const report = generateMarkdownReport(metrics);
+
+    assert.match(report, /Overall.*`failed`/);
+    assert.match(report, /file-metrics.*`failed`/);
+    assert.match(report, /Reason.*scc was not found/);
+    assert.match(report, /Action.*Install scc or configure tools\.scc/);
+  });
 });
 
 function qualityMetrics(): QualityMetrics {

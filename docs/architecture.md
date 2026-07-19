@@ -34,8 +34,8 @@ import closure。
 ```text
 collect + classify
   -> fingerprint + changed scope
-  -> scan
-  -> aggregate
+  -> capability eligibility + scan
+  -> aggregate + current completeness
   -> baseline + compare
   -> warn
   -> write artifacts
@@ -90,6 +90,7 @@ shape。它不新增 `--format`、version operation、配置自动发现或第�
 - 建立 fingerprints、changed-file scope 和 optional baseline。
 - 调用 scc、Python/Lizard 和 jscpd adapters。
 - 将 scanner output 归一化为 Vibe Check-owned models。
+- 从每项 current capability 的 shared final result 归约 overall completeness。
 - 聚合 current/baseline metrics 并生成 all / changed / regression warnings。
 - 验证 metrics，写入 report data，并计算 `passed` / `warning` / `failed` outcome。
 
@@ -104,19 +105,22 @@ protocol 提升为 public model。
   [Scanner 依赖选择](scanner-dependencies.md) 维护。
 - 只消费 product core 已批准的 exact inputs。
 - 隔离 availability check、process invocation、CSV/JSON report 与 parser。
-- 返回 Vibe Check-owned metrics/fragments 或 normalized failure。
+- 返回 Vibe Check-owned metrics/fragments 和 shared capability result。
 - 保存复现问题所需的 raw material 或 normalized scanner artifact。
 
-Availability preflight 失败继续按现有 TypeScript behavior 记录并跳过该 component；已进入
-scanner invocation 后的 process/report/parse failure 不得伪装成 successful empty result。
-Scanner adapter 不拥有 warning、baseline、artifact envelope 或进程状态。
+Product core 先确定 capability eligibility；profile 未请求或没有 eligible input 时不解析、
+检查或启动 component。有 eligible input 时，dependency unavailable、process failure 与
+invalid result 进入 normalized failed capability result，不能伪装成 successful empty
+result。Scanner adapter 不拥有 overall reducer、warning、baseline、artifact envelope 或
+进程状态。
 
 ### Output
 
 负责：
 
 - 写入 `metrics.json`、`report.md`、warning NDJSON 和 raw artifacts。
-- 从同一 metrics data 生成 summary、ranking、warning preview 和 completion text。
+- 从同一 metrics data 与 completeness record 生成 summary、ranking、warning preview 和
+  completion text。
 - 维护 artifact 路径、JSON/NDJSON serialization、Markdown report 与 stdout/stderr
   placement。
 - 保持 quick/full、baseline 和 accepted-warning context 的输出一致。
@@ -147,7 +151,7 @@ caller
   -> product CLI：分流 scan、归一化 project root、解析 flags、选择完整 config
   -> product core：消费 selected config、收集文件、构造 scan context
   -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
-  <- product core：聚合、baseline comparison、warnings
+  <- product core：聚合 current results、归约 completeness、baseline comparison、warnings
   -> output：写 artifacts 与 summary
   -> product core：验证 metrics 并选择 final outcome
   -> output：写 warning completion 或 fatal status

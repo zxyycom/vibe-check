@@ -8,6 +8,8 @@ import { scanJscpdAreasWithCache } from "./scanners/jscpd/area-scans.ts";
 import { classifyFiles } from "../model/code-areas.ts";
 import { buildAggregates } from "./aggregate.ts";
 import { collectBaselineFiles, buildFingerprints } from "../input/files.ts";
+import { resolveEligibleTools } from "./current-revision/index.ts";
+import { selectJscpdTargetFileMap } from "./current-revision/jscpd.ts";
 import {
   isToolAvailable,
   normalizeFileMetrics,
@@ -29,6 +31,19 @@ import type {
 type BaselineScanOptions = {
   cacheRootDir?: string;
   commitSha?: string;
+  inputs?: BaselineRevisionScanInputs;
+};
+
+type BaselineRevisionScanInputs = {
+  baselineFiles: string[];
+  fingerprints: Record<string, CodeAreaFingerprint>;
+  jscpdTargetFileMap: CodeAreaFileMap;
+  lizardTargetFiles: string[];
+};
+
+type PreparedBaselineRevisionScan = {
+  inputs: BaselineRevisionScanInputs;
+  toolResults: ToolAvailability[];
 };
 
 type BaselineScanContext = {
@@ -52,14 +67,12 @@ export async function runBaselineRevisionScan(
   config: QualityConfig,
   options: BaselineScanOptions = {}
 ): Promise<BaselineSnapshot> {
-  const baselineFiles = collectBaselineFiles(workDir, config);
-  const fileMap = classifyFiles(baselineFiles, config.codeAreas, config.generatedFiles);
-  const fingerprints = buildFingerprints(fileMap, workDir);
+  const inputs = options.inputs ?? collectBaselineRevisionScanInputs(workDir, config);
   const context: BaselineScanContext = {
     workDir,
     toolResults,
     config,
-    fingerprints,
+    fingerprints: inputs.fingerprints,
     cacheRootDir: options.cacheRootDir ?? workDir,
     commitSha: options.commitSha ?? "baseline"
   };
@@ -70,15 +83,24 @@ export async function runBaselineRevisionScan(
   let byLanguage: LanguageAggregate[] = [];
 
   if (isToolAvailable(toolResults, "scc")) {
-    ({ fileMetrics, byLanguage } = scanBaselineScc({ context, baselineFiles }));
+    ({ fileMetrics, byLanguage } = scanBaselineScc({
+      context,
+      baselineFiles: inputs.baselineFiles
+    }));
   }
 
   if (isToolAvailable(toolResults, "lizard")) {
-    functionMetrics = scanBaselineLizard({ context, baselineFiles });
+    functionMetrics = scanBaselineLizard({
+      context,
+      targetFiles: inputs.lizardTargetFiles
+    });
   }
 
   if (isToolAvailable(toolResults, "jscpd")) {
-    duplicateCode = await scanBaselineJscpd({ context, fileMap });
+    duplicateCode = await scanBaselineJscpd({
+      context,
+      fileMap: inputs.jscpdTargetFileMap
+    });
   }
 
   const aggregates = buildAggregates({
@@ -89,7 +111,42 @@ export async function runBaselineRevisionScan(
     config
   });
 
-  return { fingerprints, fileMetrics, functionMetrics, duplicateCode, aggregates };
+  return {
+    fingerprints: inputs.fingerprints,
+    fileMetrics,
+    functionMetrics,
+    duplicateCode,
+    aggregates
+  };
+}
+
+export async function prepareBaselineRevisionScan(
+  workDir: string,
+  config: QualityConfig
+): Promise<PreparedBaselineRevisionScan> {
+  const inputs = collectBaselineRevisionScanInputs(workDir, config);
+  const toolResults = await resolveEligibleTools({
+    config,
+    jscpdTargetFileMap: inputs.jscpdTargetFileMap,
+    lizardTargetFiles: inputs.lizardTargetFiles,
+    root: workDir,
+    scanFiles: inputs.baselineFiles
+  });
+  return { inputs, toolResults };
+}
+
+function collectBaselineRevisionScanInputs(
+  workDir: string,
+  config: QualityConfig
+): BaselineRevisionScanInputs {
+  const baselineFiles = collectBaselineFiles(workDir, config);
+  const fileMap = classifyFiles(baselineFiles, config.codeAreas, config.generatedFiles);
+  return {
+    baselineFiles,
+    fingerprints: buildFingerprints(fileMap, workDir),
+    jscpdTargetFileMap: selectJscpdTargetFileMap(fileMap, config),
+    lizardTargetFiles: selectLizardTargetFiles(baselineFiles, config)
+  };
 }
 
 function scanBaselineScc({
@@ -118,13 +175,12 @@ function scanBaselineScc({
 
 function scanBaselineLizard({
   context,
-  baselineFiles
+  targetFiles
 }: {
   context: BaselineScanContext;
-  baselineFiles: string[];
+  targetFiles: string[];
 }): FunctionMetric[] {
   console.log("  Running baseline Lizard...");
-  const targetFiles = selectLizardTargetFiles(baselineFiles, context.config);
   const lizardResult = scanWithLizard({
     files: targetFiles,
     cwd: context.workDir,
@@ -153,11 +209,11 @@ async function scanBaselineJscpd({
     commitSha: context.commitSha,
     config: context.config,
     cwd: context.workDir,
-    failOnSkipped: true,
     fileMap,
     fingerprints: context.fingerprints,
     logPrefix: "    ",
     scanKind: "baseline",
+    throwOnFailure: true,
     toolResults: context.toolResults
   });
 

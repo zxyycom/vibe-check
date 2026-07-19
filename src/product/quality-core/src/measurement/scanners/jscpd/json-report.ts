@@ -37,7 +37,6 @@ export function parseJscpdJsonReport(json: string, cwd: string): JscpdScanResult
   } catch (error: unknown) {
     return {
       ok: false,
-      skipped: false,
       error: `Failed to parse jscpd JSON: ${errorMessage(error)}`,
       reason: "jscpd-parse-failure"
     };

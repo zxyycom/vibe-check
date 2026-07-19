@@ -1,3 +1,8 @@
+import type {
+  CapabilityResult,
+  ScanCompleteness
+} from "../scan-completeness.ts";
+
 export const METRICS_SCHEMA_VERSION = "0.4.0";
 
 export const BASELINE_STATUSES = Object.freeze([
@@ -293,6 +298,10 @@ export interface QualityMetrics {
   fileMetrics: FileMetric[];
   functionMetrics: FunctionMetric[];
   metadata: ScanMetadata;
+  scanCompleteness: {
+    capabilities: CapabilityResult[];
+    overall: ScanCompleteness;
+  };
   trends: TrendDelta[];
   warnings: WarningChannels;
 }

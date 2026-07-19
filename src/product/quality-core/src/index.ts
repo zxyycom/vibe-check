@@ -1,6 +1,15 @@
 export { runQualityScan, qualityScanErrorExitCode, type QualityScanRuntimeOptions } from "./engine.ts";
 export { classifyFiles } from "./model/code-areas.ts";
 export {
+  SCAN_CAPABILITY_IDS,
+  reduceScanCompleteness,
+  type CapabilityFailureDiagnostic,
+  type CapabilityFailureKind,
+  type CapabilityResult,
+  type ScanCapabilityId,
+  type ScanCompleteness
+} from "./model/scan-completeness.ts";
+export {
   BASELINE_STATUSES,
   COMPARISON_STATUSES,
   createEmptyMetrics,
@@ -63,7 +72,6 @@ export {
   formatFatalIssue,
   getGitCommitTitle,
   getGitSha,
-  initializeToolResults,
   logFingerprints,
   maybeScanBaselineRevision,
   prepareArtifactDirs,

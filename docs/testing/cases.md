@@ -36,6 +36,25 @@ Proves:
 - Missing list 保留 `failed to read --changed-files` diagnostic 并退出 `3`；其它普通 read
   error 使用 exit `2`。
 
+### BB-RUNTIME-COMPLETENESS-001 Product scan completeness 跨 surface 可观察
+Status: implemented
+Code: `src/product/configured-project.test.ts`
+Fixture: `fixtures/projects/configured-typescript/`
+
+Proves:
+- Formal product entry 将 capability result 与 overall 一致投影到 `metrics.json`、
+  `report.md` 和 console，并将 `complete` / `empty` 映射为 exit `0`、`failed` 映射为
+  exit `2`。
+- Eligible file / function measurement 成功且 duplicate detection 无输入时为 `complete`；
+  quick profile 的 zero-function result 仍为 `succeeded`，duplicate detection 为
+  `skipped` 且不解析 jscpd dependency，overall 仍为 `complete`。
+- 没有 capability 具备 eligible input 时，三项结果均为 `no-input`、overall 为 `empty`；
+  warning conclusion 明确质量未评价，不生成质量 warning 或绿色通过结论。
+- Lizard execution / invalid result 与 scc dependency unavailable 分别投影为
+  `execution`、`invalid-result` 与 `unavailable` diagnostic；其它 capability 保持各自
+  final status，overall 为 `failed`；metrics diagnostic 的 message / action 同步进入
+  report 与 stdout，stderr 保留 incomplete conclusion，且不显示绿色 completion。
+
 ## White-box Product Cases
 
 ### WB-CONFIG-FILE-001 Product 完整 JSON 配置 parsing 稳定
@@ -80,6 +99,34 @@ Proves:
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
 
+### WB-RUNTIME-COMPLETENESS-001 Product scan completeness 归约稳定
+Status: implemented
+Code: `src/product/quality-core/src/model/scan-completeness.test.ts`
+
+Proves:
+- Current measurement capability IDs 固定为 `file-metrics`、`function-metrics` 与
+  `duplicate-detection`。
+- 全部 succeeded，以及 succeeded 与 no-input / skipped 混合时归约为 `complete`。
+- 只有 skipped / no-input 时归约为 `empty`；任一 failed result 优先归约为 `failed`。
+- Shared reducer 只消费 final result status，不需要 capability-specific 规则。
+
+### WB-RUNTIME-CAPABILITY-RESULT-001 Product current capability result 投影稳定
+Status: implemented
+Code: `src/product/quality-core/src/measurement/current-revision/current-revision.test.ts`
+
+Proves:
+- Eligible current measurement 的有效 zero result 返回 `succeeded`，不误判为 `no-input` 或
+  failure。
+- Current wrappers 将代表性的 dependency unavailable、invocation / spawn failure 和
+  malformed / missing result 分别投影为 `unavailable`、`execution` 与 `invalid-result`
+  diagnostic。
+- Current wrapper failure 通过返回的 `CapabilityResult` 表达；malformed Lizard result
+  不向 runtime context 添加并行的 `fatalIssues` failure channel。
+- Current result 为 `execution` 或 `invalid-result` 时跳过 baseline scan；`unavailable`
+  保留 baseline materialization 流程。
+- Failure classification 使用 dependency、process 和 parser result，不根据 stderr 中的
+  诊断词推断 failure kind。
+
 ## White-box Output Cases
 
 ### WB-OUTPUT-NOTICES-001 Product report notice 所有权和位置稳定
@@ -110,8 +157,9 @@ Status: implemented
 Code: `src/product/quality-core/src/measurement/scanners.test.ts`
 
 Proves:
-- scc by-file CSV 解析 Provider path 和 decision-token value，并将未知 header 投影为 parser
-  failure。
+- scc by-file CSV 解析 Provider path 和 decision-token value；完整 header-only output
+  是合法 zero-file result，空输出、未知 header、截断或缺少必填字段、非法数值字段以及
+  合法行后的 malformed row 均 fail closed 为 `invalid-result`。
 - Lizard CSV row 解析 function name、file path、line range、NLOC、parameter count 和
   cyclomatic complexity。
 - jscpd parser helpers 解析 version output 和 JSON duplicate fragment locations/token count，并把
@@ -169,8 +217,8 @@ Code: `src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.t
 Proves:
 - jscpd 每个 code area 生成一个 scan task。
 - task id 和文件排序保持可复现。
-- current revision jscpd area scan 将 execution/report/parse failure 记录为 `fatalIssues` 的
-  `current-scan` failure channel，不静默降级为空 duplicate result。
+- Reporter output 缺失时，current scan 收集 area failure 供 wrapper 归一为一个 failed
+  `CapabilityResult`，不静默降级为空 duplicate result；baseline scan 对同类失败直接抛出。
 
 ### AUX-QUALITY-FINGERPRINT-001 Quality input fingerprint 稳定
 Status: implemented

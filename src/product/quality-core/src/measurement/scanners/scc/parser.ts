@@ -7,7 +7,7 @@ export const SCC_BY_FILE_CSV_HEADER = "Language,Provider,Filename,Lines,Code,Com
 
 export type SccScanResult =
   | { aggregates: { byLanguage: LanguageAggregate[] }; files: FileMetric[]; ok: true }
-  | { error: string; ok: false };
+  | { error: string; ok: false; reason: "execution" | "invalid-result" };
 
 interface SccColumnIndexes {
   blanks: number;
@@ -57,23 +57,24 @@ type SccRawRow = {
 export function parseSccCSV(csv: string, _cwd: string): SccScanResult {
   try {
     const rows = parseCsvRows(csv);
-    if (rows.length === 0) {
-      return { ok: true, files: [], aggregates: { byLanguage: [] } };
-    }
-
     const headerIdx = findSccHeaderIndex(rows);
     if (headerIdx < 0) {
       return {
         ok: false,
-        error: `expected scc ${SCC_VERSION} by-file CSV header "${SCC_BY_FILE_CSV_HEADER}", got "${observedSccHeader(rows)}"`
+        error: `expected scc ${SCC_VERSION} by-file CSV header "${SCC_BY_FILE_CSV_HEADER}", got "${observedSccHeader(rows)}"`,
+        reason: "invalid-result"
       };
     }
 
     const columns = sccColumnIndexes(rows[headerIdx] ?? []);
-    const parsed = parseSccMetrics(rows.slice(headerIdx + 1), columns);
+    const parsed = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2);
     return { ok: true, files: parsed.files, aggregates: { byLanguage: parsed.byLanguage } };
   } catch (error: unknown) {
-    return { ok: false, error: `Failed to parse scc CSV: ${errorMessage(error)}` };
+    return {
+      ok: false,
+      error: `Failed to parse scc CSV: ${errorMessage(error)}`,
+      reason: "invalid-result"
+    };
   }
 }
 
@@ -99,17 +100,15 @@ function sccColumnIndexes(headerCols: string[]): SccColumnIndexes {
   };
 }
 
-function parseSccMetrics(rows: string[][], columns: SccColumnIndexes): {
+function parseSccMetrics(rows: string[][], columns: SccColumnIndexes, firstRowNumber: number): {
   byLanguage: LanguageAggregate[];
   files: FileMetric[];
 } {
   const files: FileMetric[] = [];
   const langMap = new Map<string, LanguageAggregate>();
 
-  for (const row of rows) {
-    const metric = parseSccFileMetric(row, columns);
-    if (!metric) continue;
-
+  for (const [index, row] of rows.entries()) {
+    const metric = parseSccFileMetric(row, columns, firstRowNumber + index);
     files.push(metric);
     addLanguageMetric(langMap, metric);
   }
@@ -119,10 +118,12 @@ function parseSccMetrics(rows: string[][], columns: SccColumnIndexes): {
   return { files, byLanguage };
 }
 
-function parseSccFileMetric(parts: string[], columns: SccColumnIndexes): ParsedSccFileMetric | null {
-  const row = parseSccRow(parts, columns);
-  if (!row) return null;
-
+function parseSccFileMetric(
+  parts: string[],
+  columns: SccColumnIndexes,
+  rowNumber: number
+): ParsedSccFileMetric {
+  const row = parseSccRow(parts, columns, rowNumber);
   return {
     path: toSlashPath(row.path),
     language: row.language,
@@ -139,21 +140,24 @@ function parseSccFileMetric(parts: string[], columns: SccColumnIndexes): ParsedS
   };
 }
 
-function parseSccRow(parts: string[], columns: SccColumnIndexes): ParsedSccRow | null {
-  if (parts.length < Math.max(6, columns.filename + 1)) return null;
-
+function parseSccRow(parts: string[], columns: SccColumnIndexes, rowNumber: number): ParsedSccRow {
+  const expectedColumnCount = SCC_BY_FILE_CSV_HEADER.split(",").length;
+  if (parts.length !== expectedColumnCount) {
+    throw new Error(`row ${rowNumber} has ${parts.length} columns; expected ${expectedColumnCount}`);
+  }
   const rawRow = sccRawRow(parts, columns);
-  const lineCount = parseInt(rawRow.lineCount, 10);
-  if (isNaN(lineCount) || !rawRow.filename) return null;
+  if (!rawRow.filename) {
+    throw new Error(`row ${rowNumber} field Filename must not be empty`);
+  }
 
   return {
     path: rawRow.providerPath || rawRow.filename,
     language: rawRow.language,
-    lineCount,
-    codeLines: parseOptionalInt(rawRow.codeLines),
-    commentLines: parseOptionalInt(rawRow.commentLines),
-    blankLines: parseOptionalInt(rawRow.blankLines),
-    complexity: parseOptionalIntOrNull(rawRow.complexity)
+    lineCount: parseRequiredInteger(rawRow.lineCount, "Lines", rowNumber),
+    codeLines: parseRequiredInteger(rawRow.codeLines, "Code", rowNumber),
+    commentLines: parseRequiredInteger(rawRow.commentLines, "Comments", rowNumber),
+    blankLines: parseRequiredInteger(rawRow.blankLines, "Blanks", rowNumber),
+    complexity: parseOptionalInteger(rawRow.complexity, "Complexity", rowNumber)
   };
 }
 
@@ -202,18 +206,23 @@ function createLanguageAggregate(metric: ParsedSccFileMetric): LanguageAggregate
   };
 }
 
-function parseOptionalInt(value: string): number {
-  const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? 0 : parsed;
+function parseRequiredInteger(value: string, field: string, rowNumber: number): number {
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`row ${rowNumber} field ${field} must be a non-negative integer`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed)) {
+    throw new Error(`row ${rowNumber} field ${field} exceeds the supported integer range`);
+  }
+  return parsed;
 }
 
-function parseOptionalIntOrNull(value: string): number | null {
-  const parsed = parseInt(value, 10);
-  return isNaN(parsed) ? null : parsed;
+function parseOptionalInteger(value: string, field: string, rowNumber: number): number | null {
+  return value === "" ? null : parseRequiredInteger(value, field, rowNumber);
 }
 
 function sccColumnValue(parts: string[], index: number): string {
-  return index >= 0 ? parts[index] || "" : "";
+  return index >= 0 ? parts[index] ?? "" : "";
 }
 
 function isCsvRow(row: string[], expected: string[]): boolean {

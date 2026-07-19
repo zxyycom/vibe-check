@@ -1,3 +1,4 @@
+import { SCAN_CAPABILITY_IDS } from "../scan-completeness.ts";
 import { METRICS_SCHEMA_VERSION } from "./types.ts";
 import type {
   QualityMetrics,
@@ -32,6 +33,13 @@ export function createEmptyMetrics(options: {
     },
     comparisonStatus: "baseline-unavailable",
     currentFingerprints: {},
+    scanCompleteness: {
+      capabilities: SCAN_CAPABILITY_IDS.map((capabilityId) => ({
+        capabilityId,
+        status: "skipped"
+      })),
+      overall: "empty"
+    },
     fileMetrics: [],
     functionMetrics: [],
     duplicateCode: [],

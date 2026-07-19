@@ -1,8 +1,9 @@
 # Quality Metrics
 
-本文是 Vibe Check 基础质量指标、warning channels、baseline comparison 和质量状态的 owner
-文档。它维护 Product Core / Scanner 在 normalized scan scope 后如何生成 metrics、聚合
-report data、产生 warnings，并计算 `passed` / `warning` / `failed` 状态。
+本文是 Vibe Check 基础质量指标、scan completeness、warning channels、baseline
+comparison 和质量状态的 owner 文档。它维护 Product Core / Scanner 在 normalized scan
+scope 后如何表达 measurement 是否完整、生成 metrics、聚合 report data、产生 warnings，
+并计算 `passed` / `warning` / `failed` 状态。
 
 Output 只投影本文定义的 report data；CLI 只负责参数、入口和最终状态映射。本文不拥有
 project-root 解析、scan scope 路径规则、artifact 序列化格式或 scanner dependency 选择。
@@ -22,11 +23,13 @@ warning contract 不属于当前产品行为或测试来源。
 ```text
 collect + classify normalized scan scope
   -> build input fingerprints and changed-file scope
-  -> run scc + Python/Lizard (+ jscpd in enabled profiles)
-  -> normalize scanner results and raw artifacts
+  -> determine capability eligibility
+  -> resolve and run only requested capabilities with eligible input
+  -> normalize scanner results and final capability results
   -> aggregate metrics
+  -> reduce current scan completeness
   -> optionally scan/compare baseline
-  -> generate all / changed / regression warning channels
+  -> generate all / changed / regression warning channels when complete
   -> write report artifacts
   -> validate metrics
   -> calculate passed / warning / failed status
@@ -45,7 +48,12 @@ Product Core 使用仓库自有模型隔离 scanner protocol。现有模型包�
   parameter count、cyclomatic complexity 和 changed 标记。
 - `DuplicateCodeFragment`：stable id、token/line count、归一化 locations、涉及的 code
   areas 和 changed-scope 标记。
-- `FatalIssue`：tool、phase 和可行动 error。
+- `CapabilityResult`：stable capability ID、`skipped` / `no-input` / `succeeded` /
+  `failed` final status，以及 failed result 的 normalized diagnostic。
+- `ScanCompleteness`：由本次 current capability results 归约得到的 `complete` / `empty` /
+  `failed` overall。
+- `FatalIssue`：metrics validation 或其它无法归属 current capability 的顶层失败，包含
+  tool、phase 和可行动 error。
 
 这些类型属于 product core contract。scc CSV record、Lizard CSV row、jscpd reporter
 object、process result、临时 config 和 component-private data 不得越过 adapter boundary。
@@ -57,9 +65,9 @@ scc output 归一化为 `FileMetric`，并保留 file code lines、comment/blank
 和 decision-token input。
 
 scc 的 CSV header、language taxonomy、native error 和 process protocol 只属于 adapter。
-Availability preflight 失败继续按现有 behavior 记录并跳过 scc；已进入 invocation 后的
-未知 header、不可解析 output 或执行失败进入既有 normalized failure channel，不能被当成
-zero metrics。
+没有 eligible file input 时返回 `no-input`，不解析或启动 scc；有 eligible input 时，
+availability failure 返回 `failed` / `unavailable`，未知 header、不可解析 output 或执行
+失败返回对应 normalized failure，不能被当成 zero metrics。
 
 scc command、args、file-line thresholds、decision-token allowance、aggregate 公式和 raw
 artifact 都属于当前 product contract；修改时必须同步对应 owner 与测试。
@@ -99,8 +107,9 @@ stable product output field。
   area、format 和 minimum-token values 运行。
 - format 为 `null` 时省略 format override，并不跳过至少有两个 exact inputs 的 area；被
   scan scope 排除的 paths 不进入 task，没有足够 inputs 的 area 正常跳过。
-- availability preflight 失败继续记录并跳过 jscpd；已进入 invocation 后的 non-zero
-  execution、缺失 report 或 parse failure 不伪装成 successful empty duplicate result。
+- 有 eligible input 时，availability failure 产生 `failed` / `unavailable` result；已进入
+  invocation 后的 non-zero execution、缺失 report 或 parse failure 产生对应
+  `execution` / `invalid-result` failure，不伪装成 successful empty duplicate result。
 - duplicate fragments 的 location、token count、code area、ordering、cache identity 和
   warning mapping 保持 pinned TypeScript source 的实现。
 
@@ -119,6 +128,38 @@ Aggregation 只消费 Vibe Check-owned metrics，并保持现有 TypeScript shap
 缺失的可选 scanner value 保持现有 `null` / omitted semantics，不得用猜测值补齐。排序、
 fingerprint、baseline identity、cache key 和 comparison algorithm 由当前产品实现和测试
 共同验证。
+
+Failed capability 的缺失或部分数据不能被当作 measured zero，也不能生成可信质量结论。
+Successful measurement 即使得到 zero files、functions、duplicates 或 findings，仍保持
+`succeeded`；`no-input` 只表示 profile 请求了能力但 normalized scope 没有 eligible input。
+
+## Scan completeness
+
+Current measurement 使用以下稳定 capability IDs：
+
+- `file-metrics`
+- `function-metrics`
+- `duplicate-detection`
+
+每项 capability 对一次 scan 产生且只产生一个 final result：
+
+- `skipped`：当前 profile 未请求；不解析、检查或启动 component。
+- `no-input`：profile 已请求，但 normalized scope 没有 eligible input；不解析、检查或启动
+  component。
+- `succeeded`：全部 eligible work 正常完成并得到有效 normalized result；zero findings
+  仍是成功。
+- `failed`：required work 未完整完成。Diagnostic 的 `kind` 为 `unavailable`、
+  `execution` 或 `invalid-result`，并携带说明原因的 `message` 和恢复动作 `action`。
+
+Core 只按 final result status 归约 overall，不按 capability ID 增加特殊分支：
+
+1. 任一 result 为 `failed`，overall 为 `failed`。
+2. 没有 failure 且至少一项 result 为 `succeeded`，overall 为 `complete`。
+3. Results 只包含 `skipped` / `no-input` 时，overall 为 `empty`。
+
+`skipped` 不降低 completeness；`succeeded` 与 `no-input` / `skipped` 混合仍为
+`complete`。稳定 contract 不承诺 capability 展示顺序、diagnostic 精确措辞、额外
+diagnostic metadata 或 serialized schema version。
 
 ## Warning rules and channels
 
@@ -156,23 +197,29 @@ compared 状态，以及 current/baseline cache identity，都保持 pinned sour
 显式 changed-files input 与自动 changed scope 只影响 existing changed/regression context，
 不改变 full metrics inventory。
 
+`ScanCompleteness` 只归约 current measurement 的 final capability results。Baseline
+failure、comparison 与 cache 由 profile 和 baseline contract 决定，不参与 completeness
+归约。Baseline owner 读取 failed current capability 的 diagnostic kind：
+`execution` / `invalid-result` 跳过 baseline，`unavailable` 不单独阻止 baseline 流程。
+
 ## Status and failure
 
-质量扫描有三个 core outcomes：
+Current overall completeness 先于质量评价决定 core outcome：
 
-- `passed`：scan 完成且没有 warning records。
-- `warning`：scan 完成且存在 warning records；默认仍是 non-blocking development result。
-- `failed`：存在 scanner/runtime fatal issue 或 metrics validation failure。
+- `complete`：normalized quality warnings 为空时返回 `passed`，非空时返回 `warning`。
+- `empty`：固定返回 `warning`，不生成虚构 quality finding；human output 明确没有
+  eligible measurement input、质量未评价。CLI 正常退出 `0`，但不得显示绿色质量通过。
+- `failed`：返回 `failed`；其它 succeeded capability 的 metrics 或 warnings 只能用于诊断，
+  不能形成可信的 `passed` / `warning` 质量结论。CLI 退出 `2`。
 
-当前 consumer 只在 core 返回 `failed` 时映射非零质量扫描退出结果；`passed` 和 `warning`
-保持成功退出。Verification output 对带 accepted reason 的 warnings 使用既有过滤语义。
-未处理顶层 error 不产生 core outcome，由 CLI 保持既有 error mapping。新的 blocking
-gate、exit mapping 或 status 必须先更新对应 owner contract。
+Current scanner failure 只由 failed `CapabilityResult` 表达。Metrics validation 或其它
+无法归属 current capability 的顶层失败继续使用 `FatalIssue`，同样返回 `failed`。
+Verification output 对带 accepted reason 的 warnings 使用既有过滤语义，但不能把
+`empty` 变成 `passed`。未处理顶层 error 不产生 core outcome，由 CLI 保持既有 error
+mapping；新的 blocking gate 或 exit status 必须先更新对应 owner contract。
 
-无发现、没有 supported inputs、profile skip、availability preflight skip 和 invocation
-failure 必须保持不同的 observable context。现有 availability preflight skip 不产生 fatal
-issue；已调用 component 后的 execution/report/parse failure 和 invalid normalized output
-不能被归一化成 successful empty result。
+无发现、没有 eligible input、profile skip、component unavailable、execution failure 和
+invalid normalized result 必须保持不同的 observable context。
 
 ## Verification
 
@@ -181,10 +228,17 @@ Rust tests / fixtures 补建 coverage。现有证明资产包括：
 
 - scanner parser 与 wrapper tests：scc CSV、Lizard CSV、jscpd version/report，以及
   unavailable / execution / report / parse failures。
-- jscpd area task tests：per-area planning、稳定 task/file ordering 和 fatal issue channel。
+- scan completeness model tests：stable capability IDs 和不含 capability-specific 分支的
+  shared reducer。
+- current measurement tests：successful zero result、unavailable、execution 和
+  invalid-result failure projection，以及 eligibility 后的 component resolution。
+- jscpd area task tests：per-area planning、稳定 task/file ordering、current failure
+  collection 和 baseline throw behavior。
 - cache、fingerprint、Git pathspec 与 explicit changed-files tests。
 - warning generator tests：file、function、duplicate、accepted warning 与 channel semantics。
 - Markdown report tests：ranking、changed-file summary、accepted reason 和 scanner metrics。
+- 正式入口 tests：complete、legitimate empty 与 required component unavailable 在
+  metrics、report、console、core outcome 和 CLI exit 上使用同一 completeness source。
 
 日常交付按改动面运行 product import boundary、typecheck、lint、tests 和 dogfood
 verification。初次产品化已用同一隔离 Git project 对照迁移前 consumer 与当前产品入口的

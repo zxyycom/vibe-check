@@ -11,7 +11,7 @@ import {
   parseJscpdVersionOutput,
   scanWithJscpd
 } from "./scanners/jscpd/scanner.ts";
-import { parseSccCSV, scanWithScc } from "./scanners/scc.ts";
+import { SCC_BY_FILE_CSV_HEADER, parseSccCSV, scanWithScc } from "./scanners/scc.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
 import { checkLizard } from "./scanners/tool-availability/lizard.ts";
 import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
@@ -22,7 +22,7 @@ describe("quality scanner output parsing", () => {
   // @case AUX-QUALITY-PARSER-001
   it("parses scc 3.7 Provider paths and rejects unknown CSV headers", () => {
     const csv = [
-      "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC",
+      SCC_BY_FILE_CSV_HEADER,
       "Rust,crates/docnav/src/lib.rs,lib.rs,120,90,20,10,17,4096,70",
       "TypeScript,scripts/quality/scan.ts,scan.ts,60,50,5,5,8,2048,45"
     ].join("\n");
@@ -35,10 +35,68 @@ describe("quality scanner output parsing", () => {
       "scripts/quality/scan.ts"
     ]);
     assert.equal(result.files![0]!.decisionTokens.value, 17);
-    assert.equal(
-      parseSccCSV("Language,Location,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes\n", "/repo").ok,
-      false
+    const invalidResult = parseSccCSV(
+      "Language,Location,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes\n",
+      "/repo"
     );
+    assert.equal(invalidResult.ok, false);
+    if (!invalidResult.ok) {
+      assert.equal(invalidResult.reason, "invalid-result");
+    }
+  });
+
+  it("rejects malformed scc rows without losing valid zero-file output", () => {
+    assert.deepEqual(parseSccCSV(SCC_BY_FILE_CSV_HEADER, "/repo"), {
+      ok: true,
+      files: [],
+      aggregates: { byLanguage: [] }
+    });
+    for (const missingHeader of ["", " \n\t\n"]) {
+      const result = parseSccCSV(missingHeader, "/repo");
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.reason, "invalid-result");
+        assert.match(result.error, /header/i);
+      }
+    }
+
+    const validRow = "TypeScript,src/example.ts,example.ts,12,8,2,2,1,256,8";
+    assert.equal(parseSccCSV([SCC_BY_FILE_CSV_HEADER, validRow].join("\n"), "/repo").ok, true);
+    const emptyComplexityResult = parseSccCSV(
+      [SCC_BY_FILE_CSV_HEADER, "TypeScript,src/example.ts,example.ts,12,8,2,2,,256,8"].join("\n"),
+      "/repo"
+    );
+    assert.equal(emptyComplexityResult.ok, true);
+    if (emptyComplexityResult.ok) {
+      assert.equal(emptyComplexityResult.files[0]?.decisionTokens.value, null);
+    }
+
+    const malformedRows = [
+      "TypeScript,src/example.ts",
+      "TypeScript,src/example.ts,,12,8,2,2,1,256,8",
+      "TypeScript,src/example.ts,example.ts,invalid,8,2,2,1,256,8",
+      "TypeScript,src/example.ts,example.ts,12,invalid,2,2,1,256,8",
+      "TypeScript,src/example.ts,example.ts,12,8,invalid,2,1,256,8",
+      "TypeScript,src/example.ts,example.ts,12,8,2,invalid,1,256,8",
+      "TypeScript,src/example.ts,example.ts,12,8,2,2,invalid,256,8"
+    ];
+
+    for (const malformedRow of malformedRows) {
+      const result = parseSccCSV([SCC_BY_FILE_CSV_HEADER, malformedRow].join("\n"), "/repo");
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.reason, "invalid-result");
+        assert.match(result.error, /row|field/i);
+      }
+    }
+
+    const partialResult = parseSccCSV(
+      [SCC_BY_FILE_CSV_HEADER, validRow, malformedRows[0]].join("\n"),
+      "/repo"
+    );
+    assert.equal(partialResult.ok, false);
   });
 
   it("parses Lizard 1.23 function rows", () => {
@@ -63,6 +121,28 @@ describe("quality scanner output parsing", () => {
       },
       isChanged: false
     });
+  });
+
+  it("rejects malformed or partial Lizard CSV headers instead of treating them as zero functions", () => {
+    for (const csv of ["not,lizard,csv", "NLOC,CCN", "NLOC,CCN,garbage"]) {
+      const result = parseLizardCSV(csv);
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.reason, "invalid-result");
+        assert.match(result.error, /Failed to parse lizard CSV/);
+      }
+    }
+  });
+
+  it("keeps legitimate Lizard zero-function output successful", () => {
+    const emptyResult = parseLizardCSV("");
+    const headerOnlyResult = parseLizardCSV(
+      "NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line"
+    );
+
+    assert.deepEqual(emptyResult, { ok: true, functions: [] });
+    assert.deepEqual(headerOnlyResult, { ok: true, functions: [] });
   });
 
   it("parses jscpd version and JSON output", () => {
@@ -111,14 +191,12 @@ describe("quality scanner output parsing", () => {
     const invalidJson = parseJscpdJsonReport("{", "D:\\repo");
     assert.equal(invalidJson.ok, false);
     if (!invalidJson.ok) {
-      assert.equal(invalidJson.skipped, false);
       assert.equal(invalidJson.reason, "jscpd-parse-failure");
     }
 
     const invalidDuplicate = parseJscpdJsonReport(JSON.stringify({ duplicates: [null] }), "D:\\repo");
     assert.equal(invalidDuplicate.ok, false);
     if (!invalidDuplicate.ok) {
-      assert.equal(invalidDuplicate.skipped, false);
       assert.equal(invalidDuplicate.reason, "jscpd-parse-failure");
       assert.match(invalidDuplicate.error, /duplicate #1 must be an object/);
     }
@@ -143,6 +221,27 @@ describe("quality scc exact input projection", () => {
       files: [],
       aggregates: { byLanguage: [] }
     });
+  });
+
+  it("rejects a successful scc invocation that produces no CSV header", () => {
+    const toolConfig = createFakeSccToolConfig("");
+
+    try {
+      const result = scanWithScc({
+        cwd: REPO_ROOT,
+        includePaths: ["src"],
+        excludeDirs: [],
+        toolConfig
+      });
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.reason, "invalid-result");
+        assert.match(result.error, /header/i);
+      }
+    } finally {
+      toolConfig.cleanup();
+    }
   });
 });
 
@@ -196,7 +295,6 @@ describe("quality jscpd wrapper failure projection", () => {
 
       assert.equal(result.ok, false);
       if (!result.ok) {
-        assert.equal(result.skipped, false);
         assert.equal(result.reason, "jscpd-report-failure");
         assert.match(result.error, /jscpd JSON report missing/);
       }
@@ -224,7 +322,6 @@ describe("quality jscpd wrapper failure projection", () => {
 
       assert.equal(result.ok, false);
       if (!result.ok) {
-        assert.equal(result.skipped, false);
         assert.equal(result.reason, "jscpd-report-failure");
         assert.match(result.error, /jscpd JSON report is empty/);
       }
@@ -233,7 +330,7 @@ describe("quality jscpd wrapper failure projection", () => {
     }
   });
 
-  it("classifies missing jscpd tools as skipped unavailable scans", () => {
+  it("classifies commands missing after preflight as execution failures", () => {
     const result = scanWithJscpd({
       files: ["scripts/a.ts", "scripts/b.ts"],
       cwd: REPO_ROOT,
@@ -247,9 +344,8 @@ describe("quality jscpd wrapper failure projection", () => {
 
     assert.equal(result.ok, false);
     if (!result.ok) {
-      assert.equal(result.skipped, true);
-      assert.equal(result.reason, "tool-unavailable");
-      assert.match(result.error, /jscpd not found/);
+      assert.equal(result.reason, "jscpd-execution-error");
+      assert.match(result.error, /jscpd process error/);
     }
   });
 
@@ -308,7 +404,7 @@ describe("quality jscpd wrapper failure projection", () => {
     }
   });
 
-  it("classifies non-zero jscpd exits as execution failures, not skipped scans", () => {
+  it("classifies non-zero jscpd exits as execution failures", () => {
     const toolConfig = createFakeJscpdToolConfig({ stdout: "", stderr: "bad invocation", exitCode: 2 });
 
     try {
@@ -322,7 +418,6 @@ describe("quality jscpd wrapper failure projection", () => {
 
       assert.equal(result.ok, false);
       if (!result.ok) {
-        assert.equal(result.skipped, false);
         assert.equal(result.reason, "jscpd-execution-error");
         assert.match(result.error, /jscpd exit 2: bad invocation/);
       }
@@ -353,6 +448,19 @@ process.exit(${JSON.stringify(exitCode)});
   return {
     command: process.execPath,
     args: [fakeToolPath],
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
+  };
+}
+
+function createFakeSccToolConfig(stdout: string) {
+  const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-scc-"));
+  const fakeSccPath = join(tempDir, "fake-scc.ts");
+
+  writeFileSync(fakeSccPath, `process.stdout.write(${JSON.stringify(stdout)});\n`, "utf8");
+
+  return {
+    command: process.execPath,
+    args: [fakeSccPath],
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

@@ -80,10 +80,12 @@ Product CLI 只负责：
 - 把其余 flags 交给 product parser。
 - 在 core 启动前选择并校验默认或显式完整 config。
 - 把同一 selected config 交给 scan core。
-- 保持顶层 error、stdout/stderr 和进程状态映射。
+- 把 core outcome 映射为进程状态，并保持顶层 error 与 stdout/stderr 边界。
 
 CLI 不重新实现 file collection、scanner 调用、metrics、warning、baseline、artifact
-serialization 或 report rendering。产品源码不得导入 dogfood wrapper。
+serialization、scan completeness 归约或 report rendering。CLI 不按 capability ID/status
+增加分支，只消费 core 已决定的 `passed` / `warning` / `failed` outcome。产品源码不得导入
+dogfood wrapper。
 
 ## Console 与 artifacts
 
@@ -97,14 +99,19 @@ process 的原生 stdout/stderr 不直接成为产品 console contract。
 
 ## 进程状态
 
-Product CLI 使用以下状态映射：
+Product Core 先根据 current scan completeness 和质量评价产生 outcome，CLI 只做以下
+映射：
 
-- Core 返回 `passed` 或 `warning` 时退出 `0`；warning 仍是 non-blocking development
-  result。
-- Core 返回 `failed` 时退出 `2`。
-- 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
-  `--changed-files` list）或 config-related error 返回 `3`。显式 config 失败发生在 scan
-  banner、scanner、baseline 和 artifact generation 之前。
+| Core result | CLI exit |
+| --- | --- |
+| `complete` 对应的 `passed` / `warning` | `0` |
+| `empty` 对应的 `warning` | `0` |
+| `failed` completeness 或其它 runtime/output `failed` | `2` |
+
+`empty` 是 non-fatal warning，但 human completion 必须说明质量未评价，不能声称质量通过。
+未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
+`--changed-files` list）或 config-related error 返回 `3`。显式 config 失败发生在 scan
+banner、scanner、baseline 和 artifact generation 之前。
 
 已退役 Rust CLI 的 gate exit `1` 和 output-failure exit `4` 不属于当前 CLI contract。
 

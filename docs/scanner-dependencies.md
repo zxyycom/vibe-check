@@ -25,23 +25,33 @@ Product config 提供每个 component 的 command 和 args。调用者可以使�
 command / args；wrapper 不得新增第二套 dependency configuration。
 
 Scanner tools 是外部 components，不是 product public API。Product Core、Output 和
-consumer 只依赖 Vibe Check-owned metrics、warnings、fatal issue/status context 和
-normalized failure。
+consumer 只依赖 Vibe Check-owned metrics、final capability results、warnings、normalized
+diagnostics 和 status context。
 
 ## 共同 adapter contract
 
-每个 adapter 必须：
+Current measurement 的 orchestrator 与 thin adapter/wrapper 必须：
 
-1. 只接收 product core 已批准的 exact scan inputs。
-2. 检查并报告工具可用性；preflight unavailable 按现有 behavior 记录并跳过 component。
-3. 隔离 command line、process result、timeout、native error 和 raw report。
-4. 解析后返回 Vibe Check-owned model 或 normalized failure。
-5. 在需要复现 scanner behavior 时把 raw output 写为 scanner artifact，而不是 stable
+1. 先按 normalized scope 和 capability-specific rules 确定 eligibility。
+2. Profile 未请求时返回 `skipped`；已请求但没有 eligible input 时返回 `no-input`。这两种
+   情况不解析、检查或启动 component。
+3. 只为有 eligible input 的 capability 解析 dependency，并把 product core 已批准的 exact
+   inputs 交给 component。
+4. 隔离 command line、process result、timeout、native error 和 raw report；解析后返回
+   Vibe Check-owned model。
+5. 为每项 current capability 返回一个 shared final result：正常完成为 `succeeded`，
+   required work 未完成为 `failed`。Successful zero findings 仍是 `succeeded`。
+6. 将 dependency unavailable、execution failure 和 invalid normalized result 分别映射为
+   `unavailable`、`execution` 与 `invalid-result` diagnostic，并提供原因与恢复动作。
+7. 在需要复现 scanner behavior 时把 raw output 写为 scanner artifact，而不是 stable
    output field。
 
 External tool 的 stdout/stderr、CSV/JSON row、language enum、临时路径和 private config
-不得直接成为 product contract。无发现、profile skip、availability preflight skip、
-non-zero exit、missing report 和 parse failure 必须保持可区分。
+不得直接成为 product contract。无发现、profile skip、no input、unavailable、non-zero
+exit、missing report 和 parse failure 必须保持可区分。
+
+`CapabilityResult` 只描述 current measurement。Baseline comparison 与 measurement cache
+由 [Quality Metrics](quality-metrics.md#baseline-and-profiles) 统一定义。
 
 ## scc boundary
 
@@ -53,8 +63,9 @@ normalization、decision-token extraction 和 process failure。
 
 - exact scan file list 与 code-area classification。
 - file code/comment/blank lines 与 language mapping。
-- availability preflight skip，以及 invocation 后 unknown header、invalid row 和 non-zero
-  execution 的 failure projection。
+- 没有 eligible file 时不检查 scc；有 eligible input 时，unavailable、invocation 后
+  unknown header、invalid row 和 non-zero execution 分别进入 normalized failure
+  projection。
 - raw output、tool metadata、cache identity 和 aggregation input。
 
 当前产品不使用已退役 Rust LOC adapter 或 model。
@@ -72,7 +83,9 @@ protocol、CSV output 和 component-private data 留在 adapter 内。
 
 Current raw artifact 保存 normalized function metrics；process / CSV material 即使为复现而
 保存也只属于 scanner artifact，不是 stable product output field。Invocation 后的 non-zero
-exit 和 parse failure 返回现有 normalized failure，不降级为 zero functions。
+exit 和 parse failure 返回 normalized `execution` / `invalid-result` failure，不降级为
+zero functions。没有 eligible function input 时不检查 Python/Lizard；有 eligible input
+但 dependency 不可用时返回 `failed` / `unavailable`。
 
 当前产品不使用已退役 Rust structural API 或 grammar characterization，也不把 Lizard
 重写为 TypeScript。Function inventory、parser 和 warning 算法由当前 TypeScript 产品
@@ -91,8 +104,9 @@ locations、token/line count、code areas、changed-scope marker 和 stable orde
 Temporary config、reporter result structure、process protocol 和 private options 留在 adapter
 内。Raw JSON 可以作为 scanner artifact 保存，但不成为 stable product output field。
 Successful process without report、invalid report 和 non-zero execution 使用现有 distinct
-failure reason，不能投影为 successful empty duplicates。Availability preflight unavailable
-保持现有 skipped behavior。
+failure reason，不能投影为 successful empty duplicates。Quick profile 返回 `skipped`；
+full profile 没有 eligible duplicate task 时返回 `no-input`，两者都不检查 jscpd；有
+eligible task 但 dependency 不可用时返回 `failed` / `unavailable`。
 
 当前产品不使用已退役 Rust duplicate API；原 dependency characterization 与 fixtures
 不是 TypeScript tests 的证明来源。
@@ -118,14 +132,15 @@ data。
 
 以下情况不得等价处理：
 
-- zero supported inputs。
-- quick profile 跳过 jscpd。
-- scanner 正常完成但没有 findings。
-- availability preflight skip。
-- process、report 或 parser failure。
-- normalized output validation failure。
+- profile 未请求 capability：`skipped`。
+- profile 已请求但没有 eligible input：`no-input`。
+- scanner 正常完成但没有 findings：`succeeded`。
+- eligible capability 的 dependency 无法解析或启动：`failed` / `unavailable`。
+- process failure：`failed` / `execution`。
+- report、parser 或 normalized output validation failure：`failed` /
+  `invalid-result`。
 
-Scanner dependency 变更不得自行重新设计 fatal issue、console channel、artifact
+Scanner dependency 变更不得自行重新设计 completeness、console channel、artifact
 directory、status 或 exit code。
 
 ## 替换流程
@@ -147,10 +162,15 @@ directory、status 或 exit code。
 当前 scanner stack 的最低证明包括：
 
 - scc by-file CSV parser 与 failure mapping。
-- Lizard CSV function fields、process failure 和 supported exact inputs。
+- Lizard CSV function fields、process failure、successful zero-function result 和 supported
+  exact inputs。
 - jscpd version/report parser、真实 duplicate scan、unavailable / execution / report / parse
   failures。
-- jscpd per-area task planning、file ordering 和 fatal issue channel。
+- Eligibility 先于 dependency resolution，`skipped` / `no-input` 不检查或启动 component。
+- 三项 current capability 使用相同 final result contract；unavailable / execution /
+  invalid-result diagnostic 和 successful zero findings 保持可区分。
+- jscpd per-area task planning、file ordering、current failure collection 和 baseline throw
+  behavior。
 - raw scanner artifacts 不进入 stable product models。
 - product runtime import closure 不依赖 `scripts/**` 或 toolkit gitlink。
 - 正式入口与 dogfood wrapper 到达同一 product core。

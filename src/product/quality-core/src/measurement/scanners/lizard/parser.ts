@@ -3,7 +3,7 @@ import { errorMessage, parseCsvRows } from "../../../../../foundation/src/index.
 
 export type LizardScanResult =
   | { functions: FunctionMetric[]; ok: true }
-  | { error: string; ok: false };
+  | { error: string; ok: false; reason: "execution" | "invalid-result" };
 
 const LIZARD_COLUMNS = {
   nloc: 0,
@@ -35,24 +35,29 @@ export function parseLizardCSV(csv: string): LizardScanResult {
   try {
     const functions: FunctionMetric[] = [];
 
-    for (const row of lizardDataRows(parseCsvRows(csv))) {
+    for (const [index, row] of lizardDataRows(parseCsvRows(csv)).entries()) {
       const metric = functionMetricFromLizardRow(row);
-      if (metric) {
-        functions.push(metric);
+      if (!metric) {
+        throw new Error(`invalid Lizard 1.23 CSV row ${index + 1}`);
       }
+      functions.push(metric);
     }
 
     functions.sort(compareFunctionMetrics);
 
     return { ok: true, functions };
   } catch (error: unknown) {
-    return { ok: false, error: `Failed to parse lizard CSV: ${errorMessage(error)}` };
+    return {
+      ok: false,
+      error: `Failed to parse lizard CSV: ${errorMessage(error)}`,
+      reason: "invalid-result"
+    };
   }
 }
 
 function lizardDataRows(rows: string[][]): string[][] {
   const header = rows[0] ?? [];
-  return header.includes("NLOC") && header.includes("CCN") ? rows.slice(1) : rows;
+  return isLizard123Header(header) ? rows.slice(1) : rows;
 }
 
 function functionMetricFromLizardRow(parts: string[]): FunctionMetric | null {
@@ -105,6 +110,17 @@ function isLizard123Row(parts: string[]): boolean {
   return parts.length >= 11
     && isIntegerText(parts[LIZARD_COLUMNS.startLine])
     && isIntegerText(parts[LIZARD_COLUMNS.endLine]);
+}
+
+function isLizard123Header(parts: string[]): boolean {
+  return parts.length >= 11
+    && parts[LIZARD_COLUMNS.nloc] === "NLOC"
+    && parts[LIZARD_COLUMNS.ccn] === "CCN"
+    && parts[LIZARD_COLUMNS.parameterCount] === "parameter count"
+    && parts[LIZARD_COLUMNS.filePath] === "file path"
+    && parts[LIZARD_COLUMNS.functionName] === "function name"
+    && parts[LIZARD_COLUMNS.startLine] === "start line"
+    && parts[LIZARD_COLUMNS.endLine] === "end line";
 }
 
 function isIntegerText(value: string | undefined): boolean {

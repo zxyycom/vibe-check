@@ -15,10 +15,10 @@ import type {
   CodeAreaFileMap,
   CodeAreaFingerprint,
   DuplicateCodeFragment,
-  FatalIssue,
   QualityConfig,
   ToolAvailability
 } from "../../../model/schema.ts";
+import type { JscpdScanFailureReason } from "./types.ts";
 
 export type JscpdAreaScanInput = {
   area: string;
@@ -34,18 +34,23 @@ export type JscpdAreaScanTask = {
   minimumTokens: number;
 };
 
+export type JscpdAreaScanFailure = {
+  error: string;
+  reason: JscpdScanFailureReason;
+};
+
 type JscpdAreaScanOptions = {
   cacheRootDir: string;
   changedFiles?: string[];
   commitSha: string;
   config: QualityConfig;
   cwd: string;
-  failOnSkipped: boolean;
   fileMap: CodeAreaFileMap;
   fingerprints: Record<string, CodeAreaFingerprint>;
-  fatalIssues?: FatalIssue[];
   logPrefix: string;
   scanKind: ScanKind;
+  scannerFailures?: JscpdAreaScanFailure[];
+  throwOnFailure: boolean;
   toolResults: ToolAvailability[];
 };
 
@@ -225,31 +230,23 @@ function handleJscpdAreaScanFailure(
   task: JscpdAreaScanTask,
   result: Extract<JscpdScanResult, { ok: false }>
 ): void {
-  const failure = result.skipped
-    ? `jscpd scan skipped for task ${task.id}: ${result.error}`
-    : `jscpd scan failed for task ${task.id}: ${result.error}`;
-
-  if (result.skipped) {
-    if (options.failOnSkipped) {
-      throw new Error(`baseline ${failure}`);
-    }
-    recordCurrentJscpdFailure(options, failure);
-    console.log(`${options.logPrefix}❌ ${failure}`);
-    return;
-  }
-
-  if (options.failOnSkipped) {
+  const failure = `jscpd scan failed for task ${task.id}: ${result.error}`;
+  if (options.throwOnFailure) {
     throw new Error(`baseline ${failure}`);
   }
-  recordCurrentJscpdFailure(options, failure);
+  recordCurrentJscpdFailure(options, failure, result.reason);
   console.log(`${options.logPrefix}❌ ${failure}`);
 }
 
-function recordCurrentJscpdFailure(options: JscpdAreaScanOptions, failure: string): void {
-  if (!options.fatalIssues) {
+function recordCurrentJscpdFailure(
+  options: JscpdAreaScanOptions,
+  failure: string,
+  reason: JscpdScanFailureReason
+): void {
+  if (!options.scannerFailures) {
     throw new Error(failure);
   }
-  options.fatalIssues.push({ tool: "jscpd", phase: "current-scan", error: failure });
+  options.scannerFailures.push({ error: failure, reason });
 }
 
 function annotateJscpdFragments(

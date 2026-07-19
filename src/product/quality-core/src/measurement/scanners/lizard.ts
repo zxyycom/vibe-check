@@ -32,7 +32,8 @@ export function scanWithLizard({ files, cwd, toolConfig }: ScanWithLizardOptions
   if (child.error) {
     return {
       ok: false,
-      error: `lizard process error: ${child.error.message}`
+      error: `lizard process error: ${child.error.message}`,
+      reason: "execution"
     };
   }
 
@@ -40,7 +41,8 @@ export function scanWithLizard({ files, cwd, toolConfig }: ScanWithLizardOptions
     const stderr = (child.stderr || "").trim();
     return {
       ok: false,
-      error: `lizard exit ${child.status}: ${stderr || "command succeeded but returned non-zero"}`
+      error: `lizard exit ${child.status}: ${stderr || "command succeeded but returned non-zero"}`,
+      reason: "execution"
     };
   }
 

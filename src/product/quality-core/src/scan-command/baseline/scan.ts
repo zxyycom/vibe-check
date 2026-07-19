@@ -5,7 +5,10 @@ import { join } from "node:path";
 
 import { errorMessage } from "../../../../foundation/src/index.ts";
 import { materializeBaselineRevision } from "../../input/revisions.ts";
-import { runBaselineRevisionScan } from "../../measurement/baseline-revision.ts";
+import {
+  prepareBaselineRevisionScan,
+  runBaselineRevisionScan
+} from "../../measurement/baseline-revision.ts";
 import {
   createBaselineSnapshotCacheIdentity,
   loadBaselineSnapshotCacheEntry,
@@ -15,15 +18,14 @@ import {
 import { generateTrends } from "../../output/trends.ts";
 import type {
   BaselineSnapshot,
-  FatalIssue,
   QualityConfig,
   QualityMetrics,
   ToolAvailability
 } from "../../model/schema.ts";
 import { writeBaselineRawOutputs } from "../command-output.ts";
+import { collectToolMetadata } from "../tool-metadata.ts";
 
 export type BaselineScanRuntime = {
-  fatalIssues: FatalIssue[];
   metrics: QualityMetrics;
   rawDir: string;
   toolResults: ToolAvailability[];
@@ -31,13 +33,11 @@ export type BaselineScanRuntime = {
 
 type MaterializedBaselineScanOptions = {
   baselineCommitSha: string;
-  cacheIdentity: BaselineSnapshotCacheIdentity;
   baselineWorkDir: string;
   config: QualityConfig;
   metrics: QualityMetrics;
   rawDir: string;
   root: string;
-  toolResults: ToolAvailability[];
 };
 
 type CachedBaselineReuseOptions = {
@@ -63,9 +63,17 @@ export async function maybeScanBaselineRevision({
   root: string;
   runtime: BaselineScanRuntime;
 }): Promise<BaselineSnapshot | null> {
-  const { metrics, toolResults, rawDir, fatalIssues } = runtime;
-  if (fatalIssues.length > 0) {
-    console.log("Skipping baseline scan because fatal current-scan errors were detected.");
+  const { metrics, toolResults, rawDir } = runtime;
+  const currentMeasurementBlocksBaseline = metrics.scanCompleteness.capabilities.some(
+    (result) =>
+      result.status === "failed" &&
+      (
+        result.diagnostic.kind === "execution" ||
+        result.diagnostic.kind === "invalid-result"
+      )
+  );
+  if (currentMeasurementBlocksBaseline) {
+    console.log("Skipping baseline scan because current measurement failed.");
     return null;
   }
 
@@ -77,30 +85,35 @@ export async function maybeScanBaselineRevision({
   const equivalentBaseline = reuseCurrentSnapshotForUnchangedInput(metrics, rawDir);
   if (equivalentBaseline) return equivalentBaseline;
 
-  const cacheIdentity = createBaselineSnapshotCacheIdentity({
-    commitSha: baselineCommitSha,
-    config,
-    toolResults
-  });
-  const cachedBaseline = reuseCachedBaselineSnapshot({
+  if (hasEveryBaselineToolResult(toolResults)) {
+    const cachedBaseline = reuseCachedBaselineSnapshot({
+      baselineCommitSha,
+      cacheIdentity: createBaselineSnapshotCacheIdentity({
+        commitSha: baselineCommitSha,
+        config,
+        toolResults
+      }),
+      config,
+      metrics,
+      rawDir,
+      root
+    });
+    if (cachedBaseline) return cachedBaseline;
+  }
+
+  return scanTemporaryBaseline({
     baselineCommitSha,
-    cacheIdentity,
     config,
     metrics,
     rawDir,
     root
   });
-  if (cachedBaseline) return cachedBaseline;
+}
 
-  return scanTemporaryBaseline({
-    baselineCommitSha,
-    cacheIdentity,
-    config,
-    metrics,
-    rawDir,
-    root,
-    toolResults
-  });
+function hasEveryBaselineToolResult(toolResults: ToolAvailability[]): boolean {
+  return ["scc", "lizard", "jscpd"].every((name) =>
+    toolResults.some((tool) => tool.name === name)
+  );
 }
 
 function reuseCurrentSnapshotForUnchangedInput(
@@ -153,13 +166,11 @@ async function scanTemporaryBaseline(options: TemporaryBaselineScanOptions): Pro
 async function scanMaterializedBaseline(options: MaterializedBaselineScanOptions): Promise<BaselineSnapshot | null> {
   const {
     baselineCommitSha,
-    cacheIdentity,
     baselineWorkDir,
     config,
     metrics,
     rawDir,
-    root,
-    toolResults
+    root
   } = options;
 
   const matResult = materializeBaselineRevision({
@@ -178,10 +189,35 @@ async function scanMaterializedBaseline(options: MaterializedBaselineScanOptions
   console.log(`  Baseline materialized to ${matResult.workDir}`);
 
   try {
-    const baselineSnapshot = await runBaselineRevisionScan(matResult.workDir, toolResults, config, {
-      cacheRootDir: join(root, config.cacheDir),
-      commitSha: baselineCommitSha
+    const preparedScan = await prepareBaselineRevisionScan(matResult.workDir, config);
+    if (metrics.baseline.metadata) {
+      metrics.baseline.metadata.toolMetadata = collectToolMetadata(preparedScan.toolResults);
+    }
+    const cacheIdentity = createBaselineSnapshotCacheIdentity({
+      commitSha: baselineCommitSha,
+      config,
+      toolResults: preparedScan.toolResults
     });
+    const cachedBaseline = reuseCachedBaselineSnapshot({
+      baselineCommitSha,
+      cacheIdentity,
+      config,
+      metrics,
+      rawDir,
+      root
+    });
+    if (cachedBaseline) return cachedBaseline;
+
+    const baselineSnapshot = await runBaselineRevisionScan(
+      matResult.workDir,
+      preparedScan.toolResults,
+      config,
+      {
+        cacheRootDir: join(root, config.cacheDir),
+        commitSha: baselineCommitSha,
+        inputs: preparedScan.inputs
+      }
+    );
     const cacheEntry = writeBaselineSnapshotCacheEntry({
       rootDir: join(root, config.cacheDir),
       identity: cacheIdentity,
