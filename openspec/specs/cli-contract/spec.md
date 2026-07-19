@@ -27,19 +27,38 @@ CLI 契约 SHALL 拥有长期 owner 文档，该文档 MUST 记录正式入口 `
 - **AND** help 说明配置必须是完整 JSON config，不声称存在自动发现或 merge
 
 ### Requirement: Exit code mapping
-CLI SHALL 保持 pinned TypeScript consumer 的进程状态映射：core 返回 `passed` 或 `warning` 时退出 `0`；core 返回 `failed` 或发生普通未处理顶层 error 时退出 `2`；现有顶层 mapping 识别 `ENOENT` 或 config-related error 时退出 `3`。CLI MUST NOT 引入 Rust blocking-gate exit `1` 或 output-failure exit `4`。
 
-#### Scenario: Passed and warning outcomes remain successful
-- **WHEN** scan core 返回 `passed` 或 `warning`
+CLI SHALL 让 current completeness 与 core outcome 使用以下 exit mapping：
+
+1. `complete` 且 core 为 `passed` 或 `warning`：exit `0`。
+2. `empty` 且 core 为 `warning`：exit `0`。
+3. `failed` 或其它 runtime/output failure：exit `2`。
+4. 现有顶层 mapping 识别的 `ENOENT` 或 config-related error：exit `3`。
+
+CLI MUST NOT 在本 change 引入 blocking-gate exit `1` 或独立 output-failure exit `4`。
+
+#### Scenario: Complete passed and warning outcomes remain successful
+
+- **WHEN** current completeness 为 `complete`，且 scan core 返回 `passed` 或 `warning`
 - **THEN** CLI 以退出码 `0` 退出
 
-#### Scenario: Failed outcome and ordinary top-level error use exit two
-- **WHEN** scan core 返回 `failed`，或发生不匹配现有特殊 mapping 的未处理顶层 error
-- **THEN** CLI 以退出码 `2` 退出
+#### Scenario: Empty warning exits successfully
 
-#### Scenario: Existing missing-file or config error mapping uses exit three
-- **WHEN** 未处理顶层 error 匹配 pinned consumer 的 `ENOENT` 或 config-related error mapping
-- **THEN** CLI 以退出码 `3` 退出
+- **WHEN** current completeness 为 `empty`，且 scan core 返回 `warning`
+- **THEN** CLI 以退出码 `0` 退出
+- **AND** completion 不声称质量通过
+
+#### Scenario: Failed measurement uses exit two
+
+- **WHEN** current completeness 为 `failed`，或 core 因其它 runtime/output fatal issue 返回 `failed`
+- **THEN** CLI 以退出码 `2` 退出
+- **AND** stdout 不包含可信的绿色 completion
+
+#### Scenario: Existing top-level error mapping remains stable
+
+- **WHEN** ordinary top-level error 不匹配特殊 mapping
+- **THEN** CLI 以退出码 `2` 退出
+- **AND** 匹配现有 `ENOENT` 或 config-related mapping 时以退出码 `3` 退出
 
 ### Requirement: Standard stream boundaries
 CLI SHALL 将 banner、profile、scan progress、artifact paths、summary、warning preview 和 completion status 等既有 operational console text 写入 stdout，并将 normalized fatal details 与未处理顶层 errors 写入 stderr。机器和人读报告 SHALL 继续由既有 artifacts 交付，而不是成为 stdout mode；scanner process 的原生 stdout/stderr MUST NOT 直接成为产品 console contract。

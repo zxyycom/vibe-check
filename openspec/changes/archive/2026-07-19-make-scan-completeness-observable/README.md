@@ -10,4 +10,4 @@
 
 本 change 只处理 current measurement completeness。Baseline comparison、machine schema 兼容性、quality gate 和 scanner backend 迁移由各自 change 承接。
 
-本目录只包含待实现的 OpenSpec artifacts；归档前，`docs/` 与 main specs 仍描述当前产品行为。
+本目录保存已归档的 OpenSpec artifacts；长期产品语义由 `docs/` 与归档后同步的 main specs 承接。
