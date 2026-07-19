@@ -123,6 +123,57 @@ describe("quality scanner output parsing", () => {
     });
   });
 
+  it("rejects malformed Lizard rows without accepting partial output", () => {
+    const validParts = [
+      "12",
+      "2",
+      "30",
+      "1",
+      "12",
+      "example@1-12@src/example.ts",
+      "src/example.ts",
+      "example",
+      "example()",
+      "1",
+      "12"
+    ];
+    const rowWith = (column: number, value: string): string => {
+      const parts = [...validParts];
+      parts[column] = value;
+      return parts.join(",");
+    };
+    const validRow = validParts.join(",");
+    const malformedRows = [
+      ["partial NLOC integer", rowWith(0, "12junk")],
+      ["invalid parameter count", rowWith(3, "garbage")],
+      ["empty file path", rowWith(6, "")],
+      ["invalid optional CCN", rowWith(1, "garbage")],
+      ["unsafe integer", rowWith(0, "9007199254740992")],
+      ["negative NLOC", rowWith(0, "-1")],
+      ["negative parameter count", rowWith(3, "-1")],
+      ["zero start line", rowWith(9, "0")],
+      ["end line before start line", rowWith(9, "13")]
+    ] as const;
+
+    for (const [caseName, malformedRow] of malformedRows) {
+      const result = parseLizardCSV(malformedRow);
+
+      assert.equal(result.ok, false, caseName);
+      if (!result.ok) {
+        assert.equal(result.reason, "invalid-result", caseName);
+      }
+    }
+
+    const partialResult = parseLizardCSV([validRow, malformedRows[0][1]].join("\n"));
+    assert.equal(partialResult.ok, false);
+
+    const missingComplexityResult = parseLizardCSV(rowWith(1, ""));
+    assert.equal(missingComplexityResult.ok, true);
+    if (missingComplexityResult.ok) {
+      assert.equal(missingComplexityResult.functions[0]?.cyclomaticComplexity.value, null);
+    }
+  });
+
   it("rejects malformed or partial Lizard CSV headers instead of treating them as zero functions", () => {
     for (const csv of ["not,lizard,csv", "NLOC,CCN", "NLOC,CCN,garbage"]) {
       const result = parseLizardCSV(csv);

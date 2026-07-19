@@ -15,16 +15,6 @@ const LIZARD_COLUMNS = {
   endLine: 10
 } as const;
 
-type LizardMetricRow = {
-  ccn: number | null;
-  endLine: number | null;
-  filePath: string;
-  functionName: string;
-  nloc: number | null;
-  parameterCount: number | null;
-  startLine: number | null;
-};
-
 /**
  * 将 Lizard CSV 输出解析为 FunctionMetric 数组。
  *
@@ -61,34 +51,40 @@ function lizardDataRows(rows: string[][]): string[][] {
 }
 
 function functionMetricFromLizardRow(parts: string[]): FunctionMetric | null {
-  if (!isLizard123Row(parts)) {
+  if (parts.length < 11) {
     return null;
   }
 
-  const row: LizardMetricRow = {
-    ccn: parseOptionalInteger(parts[LIZARD_COLUMNS.ccn]),
-    endLine: parseOptionalInteger(parts[LIZARD_COLUMNS.endLine]),
-    filePath: parts[LIZARD_COLUMNS.filePath],
-    functionName: parts[LIZARD_COLUMNS.functionName],
-    nloc: parseOptionalInteger(parts[LIZARD_COLUMNS.nloc]),
-    parameterCount: parseOptionalInteger(parts[LIZARD_COLUMNS.parameterCount]),
-    startLine: parseOptionalInteger(parts[LIZARD_COLUMNS.startLine])
-  };
+  const ccnText = parts[LIZARD_COLUMNS.ccn].trim();
+  const ccn = ccnText === "" ? null : parseInteger(ccnText, 0);
+  const endLine = parseInteger(parts[LIZARD_COLUMNS.endLine], 1);
+  const filePath = parts[LIZARD_COLUMNS.filePath].trim();
+  const nloc = parseInteger(parts[LIZARD_COLUMNS.nloc], 0);
+  const parameterCount = parseInteger(parts[LIZARD_COLUMNS.parameterCount], 0);
+  const startLine = parseInteger(parts[LIZARD_COLUMNS.startLine], 1);
 
-  if (row.nloc === null || row.startLine === null) {
+  if (
+    (ccnText !== "" && ccn === null)
+    || endLine === null
+    || filePath === ""
+    || nloc === null
+    || parameterCount === null
+    || startLine === null
+    || endLine < startLine
+  ) {
     return null;
   }
 
   return {
-    name: row.functionName || "unknown",
-    file: row.filePath,
+    name: parts[LIZARD_COLUMNS.functionName] || "unknown",
+    file: filePath,
     codeArea: "unknown",
-    startLine: row.startLine,
-    endLine: row.endLine ?? row.startLine,
-    lines: row.nloc,
-    parameterCount: row.parameterCount ?? 0,
+    startLine,
+    endLine,
+    lines: nloc,
+    parameterCount,
     cyclomaticComplexity: {
-      value: row.ccn,
+      value: ccn,
       source: "lizard"
     },
     isChanged: false
@@ -101,15 +97,13 @@ function compareFunctionMetrics(a: FunctionMetric, b: FunctionMetric): number {
   return b.lines - a.lines;
 }
 
-function parseOptionalInteger(value: string | undefined): number | null {
-  const parsed = parseInt(String(value ?? ""), 10);
-  return isNaN(parsed) ? null : parsed;
-}
-
-function isLizard123Row(parts: string[]): boolean {
-  return parts.length >= 11
-    && isIntegerText(parts[LIZARD_COLUMNS.startLine])
-    && isIntegerText(parts[LIZARD_COLUMNS.endLine]);
+function parseInteger(value: string | undefined, minimum: number): number | null {
+  const text = String(value ?? "").trim();
+  if (!/^\d+$/.test(text)) {
+    return null;
+  }
+  const parsed = Number(text);
+  return Number.isSafeInteger(parsed) && parsed >= minimum ? parsed : null;
 }
 
 function isLizard123Header(parts: string[]): boolean {
@@ -121,8 +115,4 @@ function isLizard123Header(parts: string[]): boolean {
     && parts[LIZARD_COLUMNS.functionName] === "function name"
     && parts[LIZARD_COLUMNS.startLine] === "start line"
     && parts[LIZARD_COLUMNS.endLine] === "end line";
-}
-
-function isIntegerText(value: string | undefined): boolean {
-  return /^-?\d+$/.test(String(value ?? ""));
 }
