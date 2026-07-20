@@ -24,6 +24,7 @@
     "verify:vibe-check-workspace:full": "bun scripts/vibe-check-workspace/verify.ts --profile full",
     "quality:check": "bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick",
     "quality:full-check": "bun scripts/quality/scan.ts --profile full --with-baseline",
+    "quality:gate": "bun scripts/quality/scan.ts --profile full --gate regressions",
     "quality:scan": "bun scripts/quality/scan.ts",
     "quality:annotate": "bun scripts/quality/annotate.ts",
     "toolkit:foundation:typecheck": "bun run --cwd scripts/tools/foundation typecheck",

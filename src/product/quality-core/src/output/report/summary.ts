@@ -1,6 +1,7 @@
 export {
   comparisonInfo,
   footer,
+  qualityGateSummary,
   repositorySize,
   scanInfo,
   title

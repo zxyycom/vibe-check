@@ -13,6 +13,11 @@ export {
   BASELINE_STATUSES,
   COMPARISON_STATUSES,
   createEmptyMetrics,
+  GATE_NOT_EVALUATED_REASON_CODES,
+  GATE_POLICY_DESCRIPTORS,
+  GATE_POLICY_HELP,
+  GATE_POLICY_VALUES,
+  GATE_RESULT_STATUSES,
   METRICS_SCHEMA_VERSION,
   validateMetrics,
   WARNING_LEVELS,
@@ -30,12 +35,21 @@ export {
   type ComparisonStatus,
   type DuplicateCodeFragment,
   type DuplicateCodeLocation,
+  type DisabledGateResult,
+  type FailedGateResult,
   type FatalIssue,
   type FileMetric,
   type FunctionMetric,
+  type GateNotEvaluatedReasonCode,
+  type GatePolicy,
+  type GatePolicyDescriptor,
+  type GateResult,
+  type GateWarningChannel,
   type LanguageAggregate,
   type MetricValue,
   type MetricsValidationResult,
+  type NotEvaluatedGateResult,
+  type PassedGateResult,
   type QualityConfig,
   type QualityMetrics,
   type QualityThreshold,
@@ -64,7 +78,12 @@ export {
   collectScanFiles,
   buildFingerprints
 } from "./input/files.ts";
-export type { ChangeScope, QualityScanOptions, QualityScanProfile } from "./scan-command/command-model.ts";
+export type {
+  ChangeScope,
+  QualityScanOptions,
+  QualityScanProcessOutcome,
+  QualityScanProfile
+} from "./scan-command/command-model.ts";
 export {
   collectToolMetadata,
   configureBaseline,

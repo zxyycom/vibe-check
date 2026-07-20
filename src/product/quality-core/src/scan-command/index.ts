@@ -1,4 +1,8 @@
-export type { ChangeScope, QualityScanOptions } from "./command-model.ts";
+export type {
+  ChangeScope,
+  QualityScanOptions,
+  QualityScanProcessOutcome
+} from "./command-model.ts";
 export { configureBaseline, setComparisonStatus } from "./baseline/selection.ts";
 export { maybeScanBaselineRevision } from "./baseline/scan.ts";
 export { resolveChangedFilesForScan } from "./changed-files.ts";
@@ -6,6 +10,7 @@ export {
   formatFatalIssue,
   logFingerprints,
   prepareArtifactDirs,
+  printGateStatus,
   printWarningStatus,
   printSummary,
   qualityCheckStatus,

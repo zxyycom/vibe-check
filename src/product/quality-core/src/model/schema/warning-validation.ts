@@ -17,7 +17,11 @@ export function validateWarningChannels(warnings: unknown, errors: string[]): vo
   }
 }
 
-function validateWarningRecords(warnings: unknown[], prefix: string, errors: string[]): void {
+export function validateWarningRecords(
+  warnings: unknown[],
+  prefix: string,
+  errors: string[]
+): void {
   for (let i = 0; i < warnings.length; i++) {
     validateWarningRecord(warnings[i], `${prefix}[${i}]`, errors);
   }

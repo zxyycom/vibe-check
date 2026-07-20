@@ -170,6 +170,59 @@ export function printWarningStatus({
   console.log(`Warning records: ${join(artifactDir, "warnings-all.ndjson")}`);
 }
 
+export function printGateStatus({
+  metrics,
+  scanProfile
+}: {
+  metrics: QualityMetrics;
+  scanProfile: QualityScanProfile;
+}): void {
+  const gate = metrics.gate;
+  if (gate.status === "disabled") {
+    return;
+  }
+
+  if (gate.status === "not-evaluated") {
+    const profileQualifier =
+      gate.policy === "all" ? ` for the resolved ${scanProfile} profile` : "";
+    console.error(`❌ Quality gate was not evaluated${profileQualifier}.`);
+    console.error(`  Policy: ${gate.policy}`);
+    console.error(`  Status: ${gate.status}`);
+    console.error(`  Reason code: ${gate.reasonCode}`);
+
+    if (gate.reasonCode === "scan-incomplete") {
+      for (const result of metrics.scanCompleteness.capabilities) {
+        if (result.status !== "failed") continue;
+        console.error(`  Action (${result.capabilityId}): ${result.diagnostic.action}`);
+      }
+      return;
+    }
+    if (gate.reasonCode === "no-eligible-input") {
+      const includeScope = metrics.metadata.scope.include.join(", ") || "<empty>";
+      console.error(
+        `  Action: Adjust the resolved ${scanProfile} profile or configured include scope ` +
+        `(${includeScope}) so at least one requested capability has eligible input.`
+      );
+      return;
+    }
+    console.error(
+      `  Action: Resolve baseline status ${metrics.baseline.status} so comparison evidence ` +
+      "is available, then retry."
+    );
+    return;
+  }
+
+  const profileQualifier =
+    gate.policy === "all" ? ` for the resolved ${scanProfile} profile` : "";
+  const icon = gate.status === "passed" ? "✅" : "❌";
+  console.log(`${icon} Quality gate ${gate.status}${profileQualifier}.`);
+  console.log(`  Policy: ${gate.policy}`);
+  console.log(`  Status: ${gate.status}`);
+  console.log(`  Evaluated channel: ${gate.evaluatedChannel}`);
+  console.log(`  Evaluated warnings: ${gate.evaluatedWarningCount}`);
+  console.log(`  Blocking warnings: ${gate.blockingWarningCount}`);
+}
+
 function printVerificationWarningStatus({
   artifactDir,
   metrics

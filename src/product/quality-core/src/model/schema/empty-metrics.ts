@@ -33,6 +33,10 @@ export function createEmptyMetrics(options: {
     },
     comparisonStatus: "baseline-unavailable",
     currentFingerprints: {},
+    gate: {
+      policy: null,
+      status: "disabled"
+    },
     scanCompleteness: {
       capabilities: SCAN_CAPABILITY_IDS.map((capabilityId) => ({
         capabilityId,

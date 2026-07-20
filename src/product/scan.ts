@@ -4,14 +4,17 @@ import { parseArgs } from "./args.ts";
 import { loadQualityConfig } from "./config-file.ts";
 import { createDefaultConfig } from "./config.ts";
 import { runQualityScan } from "./quality-core/src/index.ts";
-import type { QualityScanOptions } from "./quality-core/src/index.ts";
+import type {
+  QualityScanOptions,
+  QualityScanProcessOutcome
+} from "./quality-core/src/index.ts";
 
-export type ScanStatus = Awaited<ReturnType<typeof runQualityScan>>;
+export type ScanOutcome = QualityScanProcessOutcome;
 
 export async function runScan(
   projectRoot: string,
   argv: readonly string[]
-): Promise<ScanStatus> {
+): Promise<ScanOutcome> {
   const root = resolve(projectRoot);
   const parsed = parseArgs([...argv]);
   const config = parsed.configFile === null
@@ -21,19 +24,21 @@ export async function runScan(
     artifactDir: parsed.artifactDir ?? config.artifactDir,
     baseline: parsed.baseline,
     changedFiles: parsed.changedFiles,
+    gatePolicy: parsed.gatePolicy,
     scanProfile: parsed.scanProfile,
     skipBaseline: parsed.skipBaseline,
     topN: parsed.topN ?? config.report.topN,
     verificationOutput: parsed.verificationOutput
   };
 
-  return runQualityScan({
+  const outcome = await runQualityScan({
     banner: printBanner,
     config,
     options,
     root,
     timingsEnabled: process.env.VIBE_CHECK_QUALITY_TIMINGS === "1"
   });
+  return outcome;
 }
 
 function printBanner(scanProfile: QualityScanOptions["scanProfile"]): void {

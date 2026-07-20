@@ -1,4 +1,9 @@
-import type { BaselineStatus, QualityMetrics } from "../../../model/schema.ts";
+import type {
+  BaselineStatus,
+  GateNotEvaluatedReasonCode,
+  QualityMetrics,
+  WarningRecord
+} from "../../../model/schema.ts";
 import { formatCommitDisplay, formatReportTimestamp, type ReportOptions } from "./formatting.ts";
 import {
   appendCodeAreaTable,
@@ -97,6 +102,54 @@ export function comparisonInfo(metrics: QualityMetrics): string {
   return comparisonSectionRenderers[metrics.comparisonStatus]?.(metrics) ?? "";
 }
 
+export function qualityGateSummary(metrics: QualityMetrics): string {
+  const gate = metrics.gate;
+  if (gate.status === "disabled") {
+    return "";
+  }
+
+  const lines = [
+    "## Quality Gate",
+    "",
+    `- **Policy**: \`${gate.policy}\``,
+    `- **Status**: \`${gate.status}\``
+  ];
+
+  if (gate.status === "not-evaluated") {
+    lines.push(
+      `- **Reason code**: \`${gate.reasonCode}\``,
+      `- **Action**: ${notEvaluatedGateAction(metrics, gate.reasonCode)}`
+    );
+    if (gate.policy === "all") {
+      lines.push(
+        "",
+        "- **Scope**: Only warnings produced by the resolved scan profile can be evaluated."
+      );
+    }
+    return lines.join("\n");
+  }
+
+  lines.push(
+    `- **Evaluated channel**: \`${gate.evaluatedChannel}\``,
+    `- **Evaluated warnings**: ${gate.evaluatedWarningCount}`,
+    `- **Blocking warnings**: ${gate.blockingWarningCount}`
+  );
+
+  if (gate.policy === "all") {
+    lines.push(
+      "",
+      "- **Scope**: Only warnings produced by the resolved scan profile were evaluated."
+    );
+  }
+
+  if (gate.status === "failed") {
+    lines.push("", "### Blocking warnings", "");
+    appendGateWarnings(lines, gate.blockingWarnings);
+  }
+
+  return lines.join("\n");
+}
+
 function inputUnchangedComparisonSection(): string {
   return [
     "## Comparison",
@@ -171,6 +224,43 @@ export function footer(metrics: QualityMetrics, options: ReportOptions): string 
     "",
     `*${options.footerNotice}*`
   ].join("\n");
+}
+
+function notEvaluatedGateAction(
+  metrics: QualityMetrics,
+  reasonCode: GateNotEvaluatedReasonCode
+): string {
+  if (reasonCode === "scan-incomplete") {
+    const actions = metrics.scanCompleteness.capabilities.flatMap((result) =>
+      result.status === "failed" ? [result.diagnostic.action] : []
+    );
+    return actions.length > 0
+      ? actions.join("; ")
+      : "Resolve the failed scan capabilities and rerun the gate.";
+  }
+
+  if (reasonCode === "no-eligible-input") {
+    const includeScope = metrics.metadata.scope.include.length > 0
+      ? metrics.metadata.scope.include.join(", ")
+      : "(no include patterns configured)";
+    return "Review the resolved profile and scan scope " +
+      `(\`${includeScope}\`) so at least one capability has eligible input.`;
+  }
+
+  return "Make baseline evidence available " +
+    `(current baseline status: \`${metrics.baseline.status}\`) and rerun the gate.`;
+}
+
+function appendGateWarnings(lines: string[], warnings: readonly WarningRecord[]): void {
+  for (const warning of warnings) {
+    lines.push(`- **[${warning.sourceTool}] ${warning.metric}**: ${warning.message}`);
+    if (warning.acceptedReason) {
+      lines.push(`  → Accepted reason: ${warning.acceptedReason}`);
+    }
+    if (warning.suggestion) {
+      lines.push(`  → ${warning.suggestion}`);
+    }
+  }
 }
 
 function baselineUnavailableReason(status: BaselineStatus | string): string {

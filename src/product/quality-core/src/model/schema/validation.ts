@@ -9,12 +9,22 @@ import {
   type ScanCompleteness
 } from "../scan-completeness.ts";
 import {
+  GATE_POLICY_DESCRIPTORS,
+  GATE_POLICY_VALUES,
+  type GatePolicyDescriptor
+} from "../gate-policy.ts";
+import {
   BASELINE_STATUSES,
   COMPARISON_STATUSES,
+  GATE_NOT_EVALUATED_REASON_CODES,
+  GATE_RESULT_STATUSES,
   METRICS_SCHEMA_VERSION
 } from "./types.ts";
 import type { MetricsValidationResult } from "./types.ts";
-import { validateWarningChannels } from "./warning-validation.ts";
+import {
+  validateWarningChannels,
+  validateWarningRecords
+} from "./warning-validation.ts";
 
 const CAPABILITY_RESULT_STATUSES = ["skipped", "no-input", "succeeded", "failed"] as const;
 const CAPABILITY_FAILURE_KINDS = ["unavailable", "execution", "invalid-result"] as const;
@@ -40,11 +50,200 @@ export function validateMetrics(metrics: unknown): MetricsValidationResult {
     "comparisonStatus",
     errors
   );
+  validateGate(metrics.gate, metrics.warnings, errors);
   validateRequiredObjects(metrics, errors);
   validateMetricArrays(metrics, errors);
   validateWarningChannels(metrics.warnings, errors);
 
   return { valid: errors.length === 0, errors };
+}
+
+function validateGate(
+  value: unknown,
+  warnings: unknown,
+  errors: string[]
+): void {
+  if (!isRecord(value)) {
+    errors.push("gate must be an object");
+    return;
+  }
+
+  const status = value.status;
+  if (!isGateResultStatus(status)) {
+    validateStatusField(status, GATE_RESULT_STATUSES, "gate.status", errors);
+    return;
+  }
+
+  if (status === "disabled") {
+    validateExactFields(value, ["policy", "status"], "gate", status, errors);
+    if (value.policy !== null) {
+      errors.push('gate.policy: must be null when status is "disabled"');
+    }
+    return;
+  }
+
+  if (status === "not-evaluated") {
+    validateExactFields(
+      value,
+      ["policy", "reasonCode", "status"],
+      "gate",
+      status,
+      errors
+    );
+    validateGatePolicy(value.policy, errors);
+    validateStatusField(
+      value.reasonCode,
+      GATE_NOT_EVALUATED_REASON_CODES,
+      "gate.reasonCode",
+      errors
+    );
+    return;
+  }
+
+  validateExactFields(
+    value,
+    [
+      "blockingWarningCount",
+      "blockingWarnings",
+      "evaluatedChannel",
+      "evaluatedWarningCount",
+      "policy",
+      "status"
+    ],
+    "gate",
+    status,
+    errors
+  );
+
+  const descriptor = validateGatePolicy(value.policy, errors);
+  const channelIsKnown = GATE_POLICY_DESCRIPTORS.some(
+    ({ evaluatedChannel }) => evaluatedChannel === value.evaluatedChannel
+  );
+  if (!channelIsKnown) {
+    errors.push(
+      `gate.evaluatedChannel: must be one of ${GATE_POLICY_DESCRIPTORS
+        .map(({ evaluatedChannel }) => evaluatedChannel)
+        .join(", ")}, got "${value.evaluatedChannel}"`
+    );
+  } else if (
+    descriptor &&
+    descriptor.evaluatedChannel !== value.evaluatedChannel
+  ) {
+    errors.push(
+      `gate.evaluatedChannel: expected "${descriptor.evaluatedChannel}" for policy "${descriptor.value}", got "${value.evaluatedChannel}"`
+    );
+  }
+
+  const evaluatedCountIsValid = validateNonNegativeInteger(
+    value.evaluatedWarningCount,
+    "gate.evaluatedWarningCount",
+    errors
+  );
+  const blockingCountIsValid = validateNonNegativeInteger(
+    value.blockingWarningCount,
+    "gate.blockingWarningCount",
+    errors
+  );
+  const blockingWarnings = isUnknownArray(value.blockingWarnings)
+    ? value.blockingWarnings
+    : null;
+  if (!blockingWarnings) {
+    errors.push("gate.blockingWarnings must be an array");
+  } else {
+    validateWarningRecords(blockingWarnings, "gate.blockingWarnings", errors);
+  }
+
+  const selectedWarnings =
+    channelIsKnown && isRecord(warnings)
+      ? warnings[value.evaluatedChannel as string]
+      : undefined;
+  if (
+    evaluatedCountIsValid &&
+    isUnknownArray(selectedWarnings) &&
+    value.evaluatedWarningCount !== selectedWarnings.length
+  ) {
+    errors.push(
+      `gate.evaluatedWarningCount: expected ${selectedWarnings.length} from warnings.${value.evaluatedChannel}, got ${value.evaluatedWarningCount}`
+    );
+  }
+
+  if (
+    blockingCountIsValid &&
+    blockingWarnings &&
+    value.blockingWarningCount !== blockingWarnings.length
+  ) {
+    errors.push(
+      `gate.blockingWarningCount: expected ${blockingWarnings.length} from gate.blockingWarnings, got ${value.blockingWarningCount}`
+    );
+  }
+
+  if (blockingCountIsValid) {
+    if (status === "passed" && value.blockingWarningCount !== 0) {
+      errors.push('gate.blockingWarningCount: must be 0 when status is "passed"');
+    }
+    if (status === "failed" && value.blockingWarningCount === 0) {
+      errors.push(
+        'gate.blockingWarningCount: must be greater than 0 when status is "failed"'
+      );
+    }
+  }
+}
+
+function validateGatePolicy(
+  value: unknown,
+  errors: string[]
+): GatePolicyDescriptor | undefined {
+  const descriptor = GATE_POLICY_DESCRIPTORS.find(
+    ({ value: policy }) => policy === value
+  );
+  if (!descriptor) {
+    errors.push(
+      `gate.policy: must be one of ${GATE_POLICY_VALUES.join(", ")}, got "${value}"`
+    );
+  }
+  return descriptor;
+}
+
+function validateExactFields(
+  value: Record<string, unknown>,
+  allowedFields: readonly string[],
+  prefix: string,
+  status: string,
+  errors: string[]
+): void {
+  for (const field of allowedFields) {
+    if (!Object.hasOwn(value, field)) {
+      errors.push(`${prefix}.${field} is required for status "${status}"`);
+    }
+  }
+  for (const field of Object.keys(value)) {
+    if (!allowedFields.includes(field)) {
+      errors.push(`${prefix}.${field} is not allowed for status "${status}"`);
+    }
+  }
+}
+
+function validateNonNegativeInteger(
+  value: unknown,
+  fieldName: string,
+  errors: string[]
+): boolean {
+  if (typeof value === "number" && Number.isInteger(value) && value >= 0) {
+    return true;
+  }
+  errors.push(`${fieldName}: must be a non-negative integer, got "${value}"`);
+  return false;
+}
+
+function isGateResultStatus(
+  value: unknown
+): value is typeof GATE_RESULT_STATUSES[number] {
+  return (
+    typeof value === "string" &&
+    GATE_RESULT_STATUSES.includes(
+      value as typeof GATE_RESULT_STATUSES[number]
+    )
+  );
 }
 
 function validateScanCompleteness(value: unknown, errors: string[]): void {

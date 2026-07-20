@@ -2,6 +2,7 @@ import type {
   CapabilityResult,
   ScanCompleteness
 } from "../scan-completeness.ts";
+import type { GatePolicy, GateWarningChannel } from "../gate-policy.ts";
 
 export const METRICS_SCHEMA_VERSION = "0.4.0";
 
@@ -30,9 +31,24 @@ export const WARNING_POLICIES = Object.freeze([
   "exclude-warnings"
 ]);
 
+export const GATE_NOT_EVALUATED_REASON_CODES = Object.freeze([
+  "scan-incomplete",
+  "no-eligible-input",
+  "comparison-unavailable"
+] as const);
+
+export const GATE_RESULT_STATUSES = Object.freeze([
+  "disabled",
+  "passed",
+  "failed",
+  "not-evaluated"
+] as const);
+
 export type BaselineStatus = typeof BASELINE_STATUSES[number];
 export type CodeAreaWarningPolicy = typeof WARNING_POLICIES[number];
 export type ComparisonStatus = typeof COMPARISON_STATUSES[number];
+export type GateNotEvaluatedReasonCode =
+  typeof GATE_NOT_EVALUATED_REASON_CODES[number];
 export type WarningLevel = typeof WARNING_LEVELS[number];
 
 export interface ToolInfo {
@@ -283,6 +299,41 @@ export interface WarningChannels {
   regressions: WarningRecord[];
 }
 
+export interface DisabledGateResult {
+  policy: null;
+  status: "disabled";
+}
+
+export interface PassedGateResult {
+  blockingWarningCount: number;
+  blockingWarnings: WarningRecord[];
+  evaluatedChannel: GateWarningChannel;
+  evaluatedWarningCount: number;
+  policy: GatePolicy;
+  status: "passed";
+}
+
+export interface FailedGateResult {
+  blockingWarningCount: number;
+  blockingWarnings: WarningRecord[];
+  evaluatedChannel: GateWarningChannel;
+  evaluatedWarningCount: number;
+  policy: GatePolicy;
+  status: "failed";
+}
+
+export interface NotEvaluatedGateResult {
+  policy: GatePolicy;
+  reasonCode: GateNotEvaluatedReasonCode;
+  status: "not-evaluated";
+}
+
+export type GateResult =
+  | DisabledGateResult
+  | PassedGateResult
+  | FailedGateResult
+  | NotEvaluatedGateResult;
+
 export interface QualityMetrics {
   aggregates: AggregateMetrics;
   baseline: {
@@ -297,6 +348,7 @@ export interface QualityMetrics {
   duplicateCode: DuplicateCodeFragment[];
   fileMetrics: FileMetric[];
   functionMetrics: FunctionMetric[];
+  gate: GateResult;
   metadata: ScanMetadata;
   scanCompleteness: {
     capabilities: CapabilityResult[];

@@ -10,6 +10,7 @@ import { changedFilesSection, warningsSection } from "./findings.ts";
 import { generateMarkdownReport } from "./markdown-report.ts";
 import { fileDecisionTokenRankings, fileRankings, functionSizeRankings } from "./rankings.ts";
 import { repositorySize } from "./summary.ts";
+import { qualityGateSummary } from "./summary/sections.ts";
 
 // @case AUX-QUALITY-REPORT-001
 describe("quality report", () => {
@@ -188,6 +189,152 @@ describe("quality report", () => {
     assert.match(report, /file-metrics.*`failed`/);
     assert.match(report, /Reason.*scc was not found/);
     assert.match(report, /Action.*Install scc or configure tools\.scc/);
+  });
+
+  it("keeps disabled gates silent in human reports", () => {
+    const metrics = qualityMetrics();
+
+    assert.equal(qualityGateSummary(metrics), "");
+    assert.doesNotMatch(generateMarkdownReport(metrics), /Quality Gate/);
+  });
+
+  it("projects a passed all gate for the resolved profile before detailed output", () => {
+    const metrics = qualityMetrics();
+    const acceptedWarning = warning("src/accepted.ts", "scc-file-code-lines", 240);
+    acceptedWarning.acceptedReason = "Reviewed generated compatibility shim.";
+    metrics.warnings.all = [acceptedWarning];
+    metrics.scanCompleteness = {
+      capabilities: [
+        { capabilityId: "file-metrics", status: "succeeded" },
+        { capabilityId: "function-metrics", status: "succeeded" },
+        { capabilityId: "duplicate-detection", status: "skipped" }
+      ],
+      overall: "complete"
+    };
+    metrics.gate = {
+      blockingWarningCount: 0,
+      blockingWarnings: [],
+      evaluatedChannel: "all",
+      evaluatedWarningCount: 1,
+      policy: "all",
+      status: "passed"
+    };
+
+    const section = qualityGateSummary(metrics);
+    const report = generateMarkdownReport(metrics);
+
+    assert.match(section, /Policy.*`all`/);
+    assert.match(section, /Status.*`passed`/);
+    assert.match(section, /Evaluated channel.*`all`/);
+    assert.match(section, /Evaluated warnings.*1/);
+    assert.match(section, /Blocking warnings.*0/);
+    assert.match(section, /resolved scan profile/);
+    assert.doesNotMatch(section, /Reason code/);
+    assert.doesNotMatch(section, /### Blocking warnings/);
+    assert.ok(report.indexOf("## Comparison") < report.indexOf("## Quality Gate"));
+    assert.ok(report.indexOf("## Quality Gate") < report.indexOf("## Top 10 文件"));
+    assert.match(report, /duplicate-detection.*`skipped`/);
+    assert.match(report, /Accepted reason: Reviewed generated compatibility shim/);
+  });
+
+  it("projects failed gate blocking warnings in GateResult order", () => {
+    const metrics = qualityMetrics();
+    const acceptedWarning = warning("src/accepted.ts", "scc-file-code-lines", 100);
+    acceptedWarning.acceptedReason = "Accepted for compatibility.";
+    const firstBlocking = warning("src/first.ts", "scc-file-code-lines", 300);
+    firstBlocking.message = "first blocking warning";
+    const secondBlocking = warning("src/second.ts", "scc-file-code-lines", 400);
+    secondBlocking.message = "second blocking warning";
+    metrics.warnings.all = [acceptedWarning, firstBlocking, secondBlocking];
+    metrics.gate = {
+      blockingWarningCount: 2,
+      blockingWarnings: [secondBlocking, firstBlocking],
+      evaluatedChannel: "all",
+      evaluatedWarningCount: 3,
+      policy: "all",
+      status: "failed"
+    };
+
+    const section = qualityGateSummary(metrics);
+    const report = generateMarkdownReport(metrics);
+
+    assert.match(section, /Policy.*`all`/);
+    assert.match(section, /Status.*`failed`/);
+    assert.match(section, /Evaluated channel.*`all`/);
+    assert.match(section, /Evaluated warnings.*3/);
+    assert.match(section, /Blocking warnings.*2/);
+    assert.doesNotMatch(section, /Reason code/);
+    assert.ok(section.indexOf("second blocking warning") < section.indexOf("first blocking warning"));
+    assert.doesNotMatch(section, /Accepted for compatibility/);
+    assert.match(report, /Accepted reason: Accepted for compatibility/);
+  });
+
+  it("uses failed capability actions for scan-incomplete gates", () => {
+    const metrics = qualityMetrics();
+    metrics.scanCompleteness = {
+      capabilities: [
+        {
+          capabilityId: "file-metrics",
+          diagnostic: {
+            kind: "unavailable",
+            message: "scc was not found",
+            action: "Install scc or configure tools.scc"
+          },
+          status: "failed"
+        },
+        { capabilityId: "function-metrics", status: "succeeded" },
+        { capabilityId: "duplicate-detection", status: "skipped" }
+      ],
+      overall: "failed"
+    };
+    metrics.gate = {
+      policy: "all",
+      reasonCode: "scan-incomplete",
+      status: "not-evaluated"
+    };
+
+    const section = qualityGateSummary(metrics);
+
+    assert.match(section, /Policy.*`all`/);
+    assert.match(section, /Status.*`not-evaluated`/);
+    assert.match(section, /Reason code.*`scan-incomplete`/);
+    assert.match(section, /Action.*Install scc or configure tools\.scc/);
+    assert.match(section, /resolved scan profile/);
+    assert.doesNotMatch(section, /Evaluated channel|Evaluated warnings|Blocking warnings/);
+  });
+
+  it("uses resolved profile and scan scope for no-eligible-input actions", () => {
+    const metrics = qualityMetrics();
+    metrics.metadata.scope.include = ["src/**/*.ts"];
+    metrics.gate = {
+      policy: "all",
+      reasonCode: "no-eligible-input",
+      status: "not-evaluated"
+    };
+
+    const section = qualityGateSummary(metrics);
+
+    assert.match(section, /Reason code.*`no-eligible-input`/);
+    assert.match(section, /Action.*resolved profile.*scan scope.*src\/\*\*\/\*\.ts/);
+    assert.doesNotMatch(section, /Evaluated channel|Evaluated warnings|Blocking warnings/);
+  });
+
+  it("uses baseline owner status for comparison-unavailable actions", () => {
+    const metrics = qualityMetrics();
+    metrics.baseline.status = "history-unavailable";
+    metrics.gate = {
+      policy: "regressions",
+      reasonCode: "comparison-unavailable",
+      status: "not-evaluated"
+    };
+
+    const section = qualityGateSummary(metrics);
+
+    assert.match(section, /Policy.*`regressions`/);
+    assert.match(section, /Status.*`not-evaluated`/);
+    assert.match(section, /Reason code.*`comparison-unavailable`/);
+    assert.match(section, /Action.*baseline.*`history-unavailable`/);
+    assert.doesNotMatch(section, /Evaluated channel|Evaluated warnings|Blocking warnings/);
   });
 });
 

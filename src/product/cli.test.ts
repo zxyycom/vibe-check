@@ -1,12 +1,21 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { runProductCli } from "./cli.ts";
+import { DEFAULT_CONFIG } from "./config.ts";
+import { CliUsageError } from "./foundation/src/errors.ts";
 import { getChangedFileList } from "./quality-core/src/input/files.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -33,7 +42,7 @@ describe("product CLI routing", () => {
         error: (message) => errors.push(message),
         scan: async (projectRoot, argv) => {
           calls.push({ argv, projectRoot });
-          return "passed";
+          return "success";
         }
       }
     );
@@ -64,7 +73,7 @@ describe("product CLI routing", () => {
         error: () => assert.fail("unexpected CLI error"),
         scan: async (projectRoot, argv) => {
           calls.push({ argv, projectRoot });
-          return "warning";
+          return "success";
         }
       }
     );
@@ -78,8 +87,8 @@ describe("product CLI routing", () => {
 
   it("maps scan outcomes to the pinned process status contract", async () => {
     const cases = [
-      ["passed", 0],
-      ["warning", 0],
+      ["success", 0],
+      ["gate-failed", 1],
       ["failed", 2]
     ] as const;
 
@@ -100,7 +109,8 @@ describe("product CLI routing", () => {
     }> = [
       { error: new Error("ordinary failure"), expectedExitCode: 2 },
       { error: Object.assign(new Error("missing input"), { code: "ENOENT" }), expectedExitCode: 3 },
-      { error: new Error("invalid config value"), expectedExitCode: 3 }
+      { error: new Error("invalid config value"), expectedExitCode: 3 },
+      { error: new CliUsageError("invalid --gate usage"), expectedExitCode: 3 }
     ];
 
     for (const testCase of cases) {
@@ -127,13 +137,86 @@ describe("product CLI routing", () => {
       error: (message) => errors.push(message),
       scan: async () => {
         scanStarted = true;
-        return "passed";
+        return "success";
       }
     });
 
     assert.equal(exitCode, 2);
     assert.equal(scanStarted, false);
     assert.deepEqual(errors, ["Fatal error in quality scan: unknown command: report"]);
+  });
+});
+
+// @case BB-CLI-GATE-USAGE-001
+describe("gate CLI usage contract", () => {
+  it("returns exit 3 before scanners or artifacts for every invalid gate form", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-invalid-gate-"));
+    const markerPath = join(projectRoot, "scanner-started");
+    const artifactDir = join(projectRoot, "artifacts/should-not-exist");
+    const config = JSON.parse(JSON.stringify(DEFAULT_CONFIG)) as Record<string, unknown>;
+    const scannerPath = join(projectRoot, "scanner.ts");
+    const cases = [
+      { args: ["--gate"], label: "missing value" },
+      {
+        args: ["--gate", "all", "--gate", "changed"],
+        label: "repeated option"
+      },
+      { args: ["--gate", "everything"], label: "unknown value" },
+      {
+        args: ["--profile", "quick", "--gate", "changed"],
+        label: "quick comparison conflict"
+      },
+      {
+        args: ["--gate", "regressions", "--skip-baseline"],
+        label: "explicit baseline skip conflict"
+      }
+    ] as const;
+
+    try {
+      writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
+      writeFileSync(
+        scannerPath,
+        `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(markerPath)}, "started");\n`,
+        "utf8"
+      );
+      config.artifactDir = "artifacts/should-not-exist";
+      config.tools = {
+        jscpd: { args: [scannerPath], command: process.execPath },
+        lizard: { args: [scannerPath], command: process.execPath },
+        scc: { args: [scannerPath], command: process.execPath }
+      };
+      writeFileSync(
+        join(projectRoot, "vibe-check.config.json"),
+        JSON.stringify(config),
+        "utf8"
+      );
+
+      for (const testCase of cases) {
+        const result = runBun([
+          "run",
+          "--silent",
+          "product:cli",
+          "--",
+          "scan",
+          projectRoot,
+          "--config",
+          "vibe-check.config.json",
+          ...testCase.args
+        ]);
+
+        assert.equal(
+          result.status,
+          3,
+          `${testCase.label}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+        );
+        assert.equal(result.stdout, "", testCase.label);
+        assert.match(result.stderr, /Fatal error in quality scan: .*--gate/i);
+        assert.equal(existsSync(markerPath), false, testCase.label);
+        assert.equal(existsSync(artifactDir), false, testCase.label);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
   });
 });
 
@@ -158,7 +241,7 @@ describe("changed-files CLI contract", () => {
             scan: async (root, argv) => {
               assert.deepEqual(argv, ["--changed-files", testCase.changedFiles]);
               getChangedFileList({ changedFiles: testCase.changedFiles }, root);
-              return "passed";
+              return "success";
             }
           }
         );
@@ -235,17 +318,30 @@ describe("changed-files CLI contract", () => {
   });
 });
 
+// @case AUX-QUALITY-DOGFOOD-001
 describe("formal and dogfood entrypoints", () => {
   it("keeps the dogfood wrapper pointed only at the product CLI", () => {
     const wrapper = readFileSync(resolve(repoRoot, "scripts/quality/scan.ts"), "utf8");
-    const packageJson = readFileSync(resolve(repoRoot, "package.json"), "utf8");
+    const packageJson = JSON.parse(
+      readFileSync(resolve(repoRoot, "package.json"), "utf8")
+    ) as { scripts: Record<string, string> };
 
     assert.match(wrapper, /from "\.\.\/\.\.\/src\/product\/cli\.ts"/);
     assert.match(wrapper, /runProductCli\(\["scan", root, \.\.\.process\.argv\.slice\(2\)\]\)/);
     assert.doesNotMatch(wrapper, /parseArgs|runQualityScan|DEFAULT_CONFIG|qualityScanErrorExitCode/);
-    assert.match(packageJson, /"quality:check": "bun scripts\/quality\/scan\.ts --profile quick --artifact-dir artifacts\/vibe-check-quality\/quick"/);
-    assert.match(packageJson, /"quality:full-check": "bun scripts\/quality\/scan\.ts --profile full --with-baseline"/);
-    assert.match(packageJson, /"quality:scan": "bun scripts\/quality\/scan\.ts"/);
+    assert.equal(
+      packageJson.scripts["quality:check"],
+      "bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick"
+    );
+    assert.equal(
+      packageJson.scripts["quality:full-check"],
+      "bun scripts/quality/scan.ts --profile full --with-baseline"
+    );
+    assert.equal(packageJson.scripts["quality:scan"], "bun scripts/quality/scan.ts");
+    assert.equal(
+      packageJson.scripts["quality:gate"],
+      "bun scripts/quality/scan.ts --profile full --gate regressions"
+    );
   });
 });
 

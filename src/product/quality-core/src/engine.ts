@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 
 import { errorMessage } from "../../foundation/src/index.ts";
 import { classifyFiles } from "./model/code-areas.ts";
+import { evaluateGate } from "./model/gate-evaluator.ts";
 import { reduceScanCompleteness } from "./model/scan-completeness.ts";
 import { createEmptyMetrics } from "./model/schema.ts";
 import type {
@@ -16,7 +17,11 @@ import { generateScanWarnings } from "./engine/warnings.ts";
 import { detectScanInputChange } from "./input/revisions.ts";
 import { buildFingerprints, collectScanFiles } from "./input/files.ts";
 import { runCurrentRevisionScan } from "./measurement/current-revision/index.ts";
-import type { ChangeScope, QualityScanOptions } from "./scan-command/index.ts";
+import type {
+  ChangeScope,
+  QualityScanOptions,
+  QualityScanProcessOutcome
+} from "./scan-command/index.ts";
 import {
   collectToolMetadata,
   configureBaseline,
@@ -27,6 +32,7 @@ import {
   logFingerprints,
   maybeScanBaselineRevision,
   prepareArtifactDirs,
+  printGateStatus,
   printSummary,
   printWarningStatus,
   qualityCheckStatus,
@@ -72,7 +78,7 @@ export async function runQualityScan({
   options,
   root,
   timingsEnabled
-}: QualityScanRuntimeOptions): Promise<"passed" | "warning" | "failed"> {
+}: QualityScanRuntimeOptions): Promise<QualityScanProcessOutcome> {
   const timings = createTimings(timingsEnabled);
   const opts = options;
 
@@ -109,6 +115,12 @@ export async function runQualityScan({
       timings
     });
   }
+  runtime.metrics.gate = evaluateGate(
+    opts.gatePolicy,
+    runtime.metrics.scanCompleteness.overall,
+    runtime.metrics.comparisonStatus,
+    runtime.metrics.warnings
+  );
   return finishScan({ artifactDir, runtime, timings });
 }
 
@@ -242,18 +254,28 @@ function finishScan({
   artifactDir: string;
   runtime: RuntimeContext;
   timings: Timings;
-}): "passed" | "warning" | "failed" {
+}): QualityScanProcessOutcome {
   const { fatalIssues, metrics, opts } = runtime;
 
-  timings.measure("write artifacts", () =>
-    writeArtifacts({
-      artifactDir,
-      metrics,
-      reportOptions: runtime.config.report,
-      reportTimeZone: runtime.config.report.timeZone,
-      topN: opts.topN
-    })
-  );
+  try {
+    timings.measure("write artifacts", () =>
+      writeArtifacts({
+        artifactDir,
+        metrics,
+        reportOptions: runtime.config.report,
+        reportTimeZone: runtime.config.report.timeZone,
+        topN: opts.topN
+      })
+    );
+  } catch (err: unknown) {
+    fatalIssues.push({
+      error: errorMessage(err),
+      phase: "write",
+      tool: "output"
+    });
+    finishFatalScan(artifactDir, fatalIssues);
+    return "failed";
+  }
   timings.measure("print summary", () => printSummary(metrics));
   const validation = timings.measure("validate output", () => validateOutput(metrics));
   recordValidationIssues(fatalIssues, validation.errors);
@@ -262,10 +284,13 @@ function finishScan({
     finishFatalScan(artifactDir, fatalIssues);
     return "failed";
   }
+  timings.measure("print gate status", () =>
+    printGateStatus({ metrics, scanProfile: opts.scanProfile })
+  );
   const status = qualityCheckStatus(metrics);
   if (status === "failed") {
     finishIncompleteScan(artifactDir, metrics);
-    return status;
+    return "failed";
   }
 
   timings.measure("print warning status", () =>
@@ -279,7 +304,10 @@ function finishScan({
   printSuccessfulScanCompletion(status, artifactDir);
 
   timings.print();
-  return status;
+  if (metrics.gate.status === "not-evaluated") {
+    return "failed";
+  }
+  return metrics.gate.status === "failed" ? "gate-failed" : "success";
 }
 
 function finishIncompleteScan(
