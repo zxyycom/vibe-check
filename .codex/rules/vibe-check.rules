@@ -32,10 +32,15 @@ prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace"], decision="all
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:required"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:full"], decision="allow")
 
-# Quality observation scripts.
+# Non-blocking quality observation commands.
 prefix_rule(pattern=["bun", "run", "quality:check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "quality:full-check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "quality:scan"], decision="allow")
+
+# Opt-in blocking quality gate.
+prefix_rule(pattern=["bun", "run", "quality:gate"], decision="allow")
+
+# Quality annotation can emit GitHub workflow commands.
 prefix_rule(pattern=["bun", "run", "quality:annotate"], decision="prompt")
 
 # Shared script toolkit checks.

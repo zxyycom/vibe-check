@@ -5,8 +5,9 @@
 - Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun
   代码质量检测 CLI；正式本地入口是
   `bun run product:cli -- scan [project-root]`。
-- `quality:check`、`quality:full-check`、`quality:scan` 和
-  `scripts/quality/scan.ts` 是显式传入仓库根并单向调用产品入口的 dogfood wrapper；
+- `quality:check`、`quality:full-check` 和 `quality:scan` 保持省略 gate 的观察行为；
+  `quality:gate` 通过 full `regressions` policy 显式启用阻断。它们与
+  `scripts/quality/scan.ts` 都是显式传入仓库根并单向调用产品入口的 dogfood wrapper；
   开发脚本行为参考本仓库 `scripts/**`。
 - `docs/` 是长期规范入口；OpenSpec 用于较大 change；代码、测试和 release artifact 证明实现状态。
 
