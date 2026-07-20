@@ -126,6 +126,26 @@ mapping；controlled acceptance cases 证明 blocking warning 的 exit `1`。
 既有 `quality:check`、`quality:full-check`、`quality:scan`、workspace verifier 与 CI
 invocations 保持省略 gate；required CI adoption 不在本 change 范围内。
 
+### Repository consumer inventory
+
+| Consumer | `gate` field | Exit `1` | Requested not-evaluated exit `2` | 本 change 同步 |
+| --- | --- | --- | --- | --- |
+| `scripts/quality/scan.ts` thin wrapper | 不读取；透明交给 Product CLI | 原样传播 | 原样传播 | wrapper 不改；只同步 CLI return type 与入口测试 |
+| 既有 `quality:check` / `quality:full-check` / `quality:scan` | 产物新增 `disabled` result；人读输出不新增 gate section | 默认 invocation 不产生 | 仅保留既有 runtime/completeness failure | 命令继续省略 gate；保留精确 package assertions |
+| 新 `quality:gate` | 消费 full `regressions` result | evaluated failed gate 阻断 | comparison unavailable、empty、incomplete 或 runtime/output failure 阻断 | 新增 package script、assertion、consumer classification 与 owner docs |
+| Workspace verifier | 不读取 `metrics.json`；现有 quick/full invocation 均省略 gate | 任意非零 child exit 仍归为 check failure | 同左，日志保留原始 child exit | 不改 task definitions、output filters 或 status model |
+| `quality:annotate` / CI annotation | 只读取 `warnings-all.ndjson`，不读取 gate | 不解释 scan exit | 不解释 scan exit | warning records/order/accepted reason 不变，annotation 代码不改 |
+| Product metrics、artifact 与 status consumers | `createEmptyMetrics`、validation、formal-entry readers 必须接受必填 discriminated result；JSON writer 直接序列化 | 仅 artifacts 写出并验证后的 `gate-failed` | `not-evaluated` 与 completeness/runtime/output failure | 同步 model/validator、report/console conditional projection、process mapping 及相邻 tests |
+| Retired Rust report schema/examples | 不是当前 TypeScript `metrics.json` consumer | 不适用 | 不适用 | 明确不改 |
+
+实施归属为 `src/product/quality-core/**` 的 model/validator/output tests、
+`src/product/cli.test.ts` 的 usage/entry assertions，以及
+`src/product/cli-gate-acceptance.test.ts` 和
+`src/product/cli-omitted-gate-baseline.test.ts` 的 formal-entry gate/compatibility
+assertions；同步材料为 `package.json` 和 Quality Metrics、CLI、Output、Testing、Script
+Tooling owner materials。仓库当前没有 CI workflow 文件；本 change 不新增 workflow、
+不把 `quality:gate` 纳入 workspace required checks，也不采纳 required CI policy。
+
 ## Risks / Trade-offs
 
 - Comparison gate 会增加 baseline 扫描成本；help 明确该 prerequisite，quick/skip
