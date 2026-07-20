@@ -2,7 +2,7 @@
 
 ### Requirement: Gate result projection
 
-Output layer SHALL 从 product core 产出的同一 discriminated `GateResult` 投影 `metrics.json`、Markdown report 与 console completion，且 MUST NOT 重新选择 warning channel、重新应用 `acceptedReason`、重新排序 records 或重新计算 blocking warnings。`metrics.json` MUST 总是记录完整 result；省略 gate 时 report 与 console MUST 保持既有人读结构且不显示 gate section；请求 gate 时 report MUST 在 summary area、detailed findings 前提供 deterministic gate section，console MUST 显示同一 policy、status 与 state-specific fields。`all` gate human output MUST 将结论限定在 resolved profile，并保留 skipped-capability evidence。`not-evaluated` output MUST 显示 closed reason code，并从 capability diagnostics 或 `metrics.baseline.status` 提供行动信息。
+Output layer SHALL 从 product core 产出的同一 discriminated `GateResult` 投影 `metrics.json`、Markdown report 与 console completion，且 MUST NOT 重新选择 warning channel、重新应用 `acceptedReason`、重新排序 records 或重新计算 blocking warnings。`metrics.json` MUST 总是记录完整 result；省略 gate 时 report 与 console MUST 保持既有人读结构且不显示 gate section；请求 gate 时 report MUST 在 summary area、detailed findings 前提供 deterministic gate section，console MUST 显示同一 policy、status 与 state-specific fields。`all` gate human output MUST 将结论限定在 resolved profile，并保留 skipped-capability evidence。`not-evaluated` output MUST 显示 closed reason code；行动信息来源 MUST 固定为：`scan-incomplete` → failed capability diagnostic，`no-eligible-input` → resolved profile/scan scope，`comparison-unavailable` → `metrics.baseline.status`。
 
 #### Scenario: Disabled gate does not claim success
 
@@ -20,7 +20,8 @@ Output layer SHALL 从 product core 产出的同一 discriminated `GateResult` �
 
 - **WHEN** requested gate result 为 `not-evaluated`
 - **THEN** metrics、report 与 console 显示同一 policy 与 reason code
-- **AND** human output 使用 owning diagnostic 提供行动信息，不显示 gate passed 或 failed
+- **AND** human output 的行动信息来源固定为：`scan-incomplete` → failed capability diagnostic，`no-eligible-input` → resolved profile/scan scope，`comparison-unavailable` → `metrics.baseline.status`
+- **AND** human output 不显示 gate passed 或 failed
 
 ### Requirement: Trustworthy gate publication
 

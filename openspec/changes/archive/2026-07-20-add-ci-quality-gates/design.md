@@ -59,8 +59,10 @@ Comparison policy 与 quick profile 或显式 `--skip-baseline` 是启动前可�
    fields。
 
 Closed reason codes 为 `scan-incomplete`、`no-eligible-input` 和
-`comparison-unavailable`。Actionable detail 来自 capability diagnostics 或
-`metrics.baseline.status`；gate model 不复制 free-form diagnostics。
+`comparison-unavailable`。行动信息来源固定为：`scan-incomplete` → failed capability
+diagnostic，`no-eligible-input` → resolved profile/scan scope，
+`comparison-unavailable` → `metrics.baseline.status`；gate model 不复制 free-form
+diagnostics。
 
 ### Decision 4: Policy descriptor 是扩展 owner
 
