@@ -13,9 +13,10 @@
 | 讨论或调整 scanner 依赖、结构扫描基座、LOC 或重复检测方案 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、`scripts/quality/**`、相关 adapter 验证和 fixture |
 | 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
 | 修改 TypeScript/Bun 产品实现、重构或 `src/product/**` 边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 对应 owner 文档、相邻代码和测试 |
-| 修改正式命令、project root、scan flags、console 或进程状态 | [CLI](cli.md)、[Output](output.md)、[编码规范](coding-style.md) | 产品入口测试、dogfood wrapper 测试 |
-| 修改质量扫描、指标、warning、baseline 或最终 status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
-| 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators 或 quality dogfood wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | `scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
+| 修改正式命令、project root、scan flags、gate planning 或进程状态 | [CLI](cli.md)、[编码规范](coding-style.md) | [Output](output.md)、产品入口测试、dogfood wrapper 测试 |
+| 修改 console、report、artifacts 或 stdout/stderr output channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、相邻 output tests |
+| 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
+| 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | `scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md) | [测试用例编号账本](testing/cases.md)、示例、schema、相邻测试 |
 | 审计历史或规划较大 change | `openspec/changes/` | 对应 proposal、design、tasks 和 spec delta |
 
@@ -37,11 +38,11 @@
 | 文档导航 | 本文档 | 定位任务主规范、规则 owner 和验证入口 |
 | 架构 | [架构](architecture.md) | 讨论组件职责、输出分层、调用链和运行边界 |
 | 工程规范 | [编码规范](coding-style.md) | 修改 TypeScript/Bun 产品、脚本、测试或验证工具 |
-| CLI | [CLI](cli.md) | 修改 operation、project root、scan flags、stdout/stderr 或进程状态 |
+| CLI | [CLI](cli.md) | 修改 operation、project root、scan flags、gate planning 或进程状态映射 |
 | Configuration | [Configuration](configuration.md) | 修改默认或显式完整配置、路径、替换、CLI precedence 或配置错误 |
 | Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
-| Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning 或最终 status |
-| Output | [Output](output.md) | 修改 console、metrics/report/warning/raw artifacts、empty/failure state 或通道 |
+| Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning、GateResult/evaluator 或 quality status |
+| Output | [Output](output.md) | 修改 console、GateResult projection、metrics/report/warning/raw artifacts、empty/failure state 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality dogfood wrapper 和脚本依赖 |
 | 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
@@ -59,8 +60,10 @@ OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同
 ### 当前产品状态
 
 产品 runtime 由 `src/product/**` 唯一拥有，正式入口是
-`bun run product:cli -- scan [project-root]`。`quality:*` 与
-`scripts/quality/scan.ts` 只作为显式传入 Vibe Check 仓库根的单向 dogfood wrapper。
+`bun run product:cli -- scan [project-root]`。`quality:check`、`quality:full-check` 与
+`quality:scan` 保持 omitted-gate 观察行为；`quality:gate` 显式请求 full
+`regressions`。所有 `quality:*` 与 `scripts/quality/scan.ts` 都只作为显式传入 Vibe
+Check 仓库根的单向 dogfood wrapper。
 Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当前实现和验证按
 [架构](architecture.md)、[CLI](cli.md) 与 [脚本工具](script-tooling.md) 的 TypeScript/Bun
 边界执行。
@@ -73,12 +76,12 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | --- | --- |
 | 组件职责、输出分层、调用链和运行边界 | [架构](architecture.md) |
 | 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
-| Product CLI operation、project root、scan flags、console 和进程状态 | [CLI](cli.md) |
+| Product CLI operation、project root、scan flags、gate planning 和进程状态映射 | [CLI](cli.md) |
 | 默认配置、显式完整 JSON 配置、选择、替换和配置错误 | [Configuration](configuration.md) |
 | 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
-| 扫描计划、指标模型、warning channels、baseline 和最终 status | [Quality Metrics](quality-metrics.md) |
+| 指标模型、warning channels、baseline、GateResult/evaluator 和最终 quality status | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
-| Console、metrics/report/warning/raw artifacts 和已退役 Rust schema 材料 | [Output](output.md) |
+| Console、GateResult projection、metrics/report/warning/raw artifacts 和已退役 Rust schema 材料 | [Output](output.md) |
 | 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality dogfood wrapper | [脚本工具](script-tooling.md) |
 | 测试层级、fixture、case 归属和验证脚本 | [测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md)、[测试用例编号账本](testing/cases.md) |
 
@@ -87,8 +90,8 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | 术语 | 定义 |
 | --- | --- |
 | owner 文档 | 某类规则的完整解释和维护位置；其它文档只保留摘要或引用。 |
-| Product CLI | `bun run product:cli -- scan [project-root]` 正式入口，负责 operation、project root、scan flags、console 和进程状态映射。 |
+| Product CLI | `bun run product:cli -- scan [project-root]` 正式入口，负责 operation、project root、scan flags、gate planning 和进程状态映射。 |
 | Dogfood wrapper | 显式传入 Vibe Check 仓库根并单向调用 Product CLI 的 `quality:*` 或脚本入口。 |
-| Core | 扫描计划、文件收集、指标聚合、warning 生成和报告数据的实现归属。 |
+| Core | 文件收集、指标聚合、warning、GateResult 和报告数据的实现归属。 |
 | Scanner | 内置检测或外部工具适配，负责采集、解析和归一化检测结果。 |
 | Output | 人读报告、机器输出、CI 摘要和 annotation 的实现归属。 |

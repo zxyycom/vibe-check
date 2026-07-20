@@ -36,6 +36,42 @@ Proves:
 - Missing list 保留 `failed to read --changed-files` diagnostic 并退出 `3`；其它普通 read
   error 使用 exit `2`。
 
+### BB-CLI-GATE-USAGE-001 Product gate usage failure 在启动前失败
+Status: implemented
+Code: `src/product/cli.test.ts`
+
+Proves:
+- Missing、duplicate、unknown gate value，以及 comparison policy 与 quick /
+  `--skip-baseline` 冲突，均通过正式 Product CLI 退出 `3`。
+- Usage failure 不写 stdout、不启动 controlled scanner，也不创建 artifact directory。
+
+### BB-CLI-GATE-ACCEPTANCE-001 Product gate 正式入口跨 surface 可观察
+Status: implemented
+Code: `src/product/cli-gate-acceptance.test.ts`
+Fixture: `fixtures/projects/configured-typescript/`
+
+Proves:
+- Quick `all` zero-warning gate 保留 skipped capability evidence 并退出 `0`；all-only warning
+  只从 `warnings.all` 形成 failed gate 并退出 `1`。
+- 受控 Git comparison 将 input-unchanged 作为有效 evidence；changed non-regression 与
+  regression 分别只按 `changed` / `regressions` channel 形成 GateResult。
+- Baseline unavailable 产生 `not-evaluated: comparison-unavailable` 并退出 `2`。
+- `metrics.json`、warning streams、requested-gate report/console 与 CLI exit 投影同一
+  GateResult 和 normalized warning records。
+
+### BB-CLI-GATE-OMITTED-001 Product omitted-gate 兼容性基线稳定
+Status: implemented
+Code: `src/product/cli-omitted-gate-baseline.test.ts`
+Fixture: `fixtures/projects/configured-typescript/`
+
+Proves:
+- 省略 `--gate` 的每组正式入口产物都保留精确
+  `gate: { policy: null, status: "disabled" }`，且 console / report 不增加 gate section。
+- Complete passed、complete warning、legitimate empty 与 completeness failed 分别保留既有
+  exit、artifact、warning conclusion 和 human-output 行为。
+- `--verification-output` 只切换 warning preview，不改变稳定化后的 artifacts、completion
+  message 或 omitted-gate 静默行为。
+
 ### BB-RUNTIME-COMPLETENESS-001 Product scan completeness 跨 surface 可观察
 Status: implemented
 Code: `src/product/configured-project.test.ts`
@@ -77,6 +113,20 @@ Proves:
   提供值。
 - Duplicate 或 missing-value `--config` 直接失败。
 
+### WB-CLI-GATE-PLANNING-001 Product gate parser、help 与 scan plan 稳定
+Status: implemented
+Code: `src/product/args.test.ts`
+
+Proves:
+- Omitted request 保持 gate disabled，三个 descriptor-derived policy values 均可解析；
+  missing、duplicate 和 unknown value 返回 actionable usage error。
+- `all` 保持 caller-selected profile 与 baseline plan；`changed` / `regressions` 使用 full
+  profile，并 auto-enable 或保留显式 comparison baseline。
+- Comparison policy 拒绝 quick / `--skip-baseline`；`--verification-output` 不改变 policy
+  或 scan plan。
+- Help 从 descriptor 派生 values 与 policy descriptions，并记录 accepted warning 与 exit
+  语义。
+
 ### WB-CLI-CHANGED-FILES-001 Product changed-file input 路径与错误边界稳定
 Status: implemented
 Code: `src/product/quality-core/src/input/files.test.ts`
@@ -110,6 +160,30 @@ Proves:
 - 只有 skipped / no-input 时归约为 `empty`；任一 failed result 优先归约为 `failed`。
 - Shared reducer 只消费 final result status，不需要 capability-specific 规则。
 
+### WB-METRICS-GATE-MODEL-001 Product gate descriptor 与 result validation 稳定
+Status: implemented
+Code: `src/product/quality-core/src/model/gate-policy.test.ts`
+
+Proves:
+- 单一 descriptor 派生 closed policy values、help、selected channels 和 comparison
+  prerequisites；GateResult/schema model 拥有 closed statuses 与 not-evaluated reason
+  codes。
+- Disabled、evaluated 与 not-evaluated GateResult shapes 通过 metrics validation。
+- Unknown enum、status-specific field、count/list、policy/channel 与 status/count invariant
+  violations 返回 path-aware validation error。
+
+### WB-METRICS-GATE-EVALUATOR-001 Product gate evaluation 稳定
+Status: implemented
+Code: `src/product/quality-core/src/model/gate-evaluator.test.ts`
+
+Proves:
+- Disabled、failed/empty completeness 与 comparison-unavailable 使用固定 prerequisite
+  priority；`all` 不把 comparison 当作 prerequisite。
+- `all`、`changed`、`regressions` 只选择 descriptor-owned channel，且
+  `input-unchanged` 是有效 comparison evidence。
+- Accepted warnings 保留在 evaluated membership；mixed warnings 只把 unaccepted records
+  按原 identity/order 放入 blocking set，不修改输入 channels。
+
 ### WB-RUNTIME-CAPABILITY-RESULT-001 Product current capability result 投影稳定
 Status: implemented
 Code: `src/product/quality-core/src/measurement/current-revision/current-revision.test.ts`
@@ -127,6 +201,20 @@ Proves:
 - Failure classification 使用 dependency、process 和 parser result，不根据 stderr 中的
   诊断词推断 failure kind。
 
+### WB-RUNTIME-GATE-OUTCOME-001 Product gate process outcome 与 output priority 稳定
+Status: implemented
+Code: `src/product/quality-core/src/engine.test.ts`
+Fixture: `fixtures/projects/configured-typescript/`
+
+Proves:
+- Disabled 与 evaluated gate 使用同一 final warning records；accepted records、warning
+  streams 和 report projection 不因 policy 改变。
+- Validated failed gate 产生 `gate-failed`；empty/incomplete requested gate 分别产生 closed
+  not-evaluated result 和 `failed` process outcome。
+- Artifact write 或 output validation failure 优先于已计算 failed gate，不发布未验证的
+  gate-failure evidence。
+- `--verification-output` 只改变 warning preview，不改变 GateResult 或 process outcome。
+
 ## White-box Output Cases
 
 ### WB-OUTPUT-NOTICES-001 Product report notice 所有权和位置稳定
@@ -140,6 +228,16 @@ Proves:
   gates。
 - 两处 notice 不再将已退役的 Rust CLI、schema 或测试标识为当前 release owner。
 
+### WB-OUTPUT-GATE-CONSOLE-001 Product gate console projection 稳定
+Status: implemented
+Code: `src/product/quality-core/src/scan-command/command-output.test.ts`
+
+Proves:
+- Disabled gate 不写 human gate output。
+- Evaluated passed/failed gate 将 state-specific policy、channel 和 counts 写 stdout。
+- Not-evaluated gate 将 closed reason 与 owner-derived action 写 stderr，不伪装成
+  evaluated conclusion。
+
 ## Auxiliary Script Cases
 
 ### AUX-PARALLEL-RUNNER-001 Parallel task runner 保持调度契约
@@ -151,6 +249,16 @@ Proves:
   expansion 保持稳定。
 - prepare strategy、invalid list metadata、duplicate id 和 unknown dependency failure 保持可诊
   断。
+
+### AUX-QUALITY-DOGFOOD-001 Quality dogfood package entries 保持 thin wrapper
+Status: implemented
+Code: `src/product/cli.test.ts`
+
+Proves:
+- `scripts/quality/scan.ts` 只导入 Product CLI，显式传入 repository root 并透明转发 argv；
+  不拥有 parser、config、scan core 或 exit mapping。
+- `quality:check`、`quality:full-check` 与 `quality:scan` 保持精确 omitted-gate invocation；
+  `quality:gate` 精确传入 `--profile full --gate regressions`。
 
 ### AUX-QUALITY-PARSER-001 Quality scanner parser fixtures 稳定
 Status: implemented
@@ -248,6 +356,10 @@ Proves:
 - Code Area 汇总表展示 decision-token count 和总量占比，用于定位热点区域。
 - 带 `acceptedReason` 的 warning 在报告中贴近对应 warning 展示原因，不从单独质量扫描中消
   失。
+- Disabled gate 保持 report human silence；requested gate section 位于 summary/comparison
+  context 与 detailed output 之间，并投影 state-specific fields。
+- Failed gate 按 GateResult ordering 展示 blocking warnings；not-evaluated action 分别来自
+  capability diagnostic、resolved profile/scope 或 baseline owner status。
 
 ### AUX-QUALITY-WARNINGS-001 Quality warning 阈值语义稳定
 Status: implemented

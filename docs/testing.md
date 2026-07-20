@@ -8,7 +8,8 @@
 - [测试用例编号账本](testing/cases.md)：最终 case 条目、证明目标和源码 `@case` 标记
   映射。
 
-稳定 CLI、scan scope、metrics、warning、baseline、artifact 和 output 语义以
+稳定 CLI、scan scope、metrics、warning、baseline、gate、process outcome、artifact 和
+output 语义以
 [文档导航](navigation.md#规则所有权) 指向的 owner 文档为准。测试文档只记录证明目标、
 测试归属和验收边界。
 
@@ -28,9 +29,9 @@ Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或�
 | 层级 | 核心目标 |
 | --- | --- |
 | 文档 / schema | Markdown 链接、JSON 语法和 checked-in schema/examples 一致性；已退役历史材料不重新定义当前产品语义 |
-| Product unit | TypeScript model、completeness reducer、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 report helper 的自定义不变量 |
-| Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、console、status、completeness 和 artifacts 到达同一 core |
-| Script consumer | CI annotation、workspace verifier 和其它 `scripts/**` consumer 只消费产品 output，不成为第二套产品实现 |
+| Product unit | TypeScript model、completeness/gate reducer、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 output helper 的自定义不变量 |
+| Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、scan plan、console、process outcome、completeness、gate 和 artifacts 到达同一 core |
+| Script consumer | Quality dogfood、CI annotation、workspace verifier 和其它 `scripts/**` consumer 只透传或消费产品 behavior，不成为第二套产品实现 |
 | Productization parity | 一次性证明上移前 pinned consumer 与当前产品入口在 quick、full、baseline 和 explicit changed-files 下等价 |
 | 综合验证 | docs、OpenSpec、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
 
@@ -42,9 +43,10 @@ Cargo 产品 gate。
 测试按“用户可观察 contract”和“自定义逻辑不变量”划分。一个行为只有在证明不同责任时
 才跨层测试：
 
-- Product unit tests 证明 normalized model、parser、ordering、cache identity 和 warning
-  algorithm。
-- Product entry tests 证明正式命令、显式完整 config 与 dogfood wrapper 的外部行为。
+- Product unit tests 证明 normalized model、parser、ordering、cache identity、warning
+  algorithm、GateResult evaluation 和 output projection。
+- Product entry tests 证明正式命令、显式完整 config、gate process outcome 与 dogfood
+  wrapper 的外部行为。
 - Productization parity 已一次性证明源码位置和入口改变没有修改 TypeScript behavior。
 - Workspace validation 证明 consumer、docs 和 automation 接线仍可工作。
 
@@ -63,6 +65,13 @@ requirement。
   以及 jscpd unavailable / execution / report / parse failure。
 - `model/scan-completeness.test.ts`：stable current capability IDs，以及 shared reducer 对
   succeeded、mixed、empty 和 failed results 的归约。
+- `model/gate-policy.test.ts` 与 `model/gate-evaluator.test.ts`：descriptor-derived policy、
+  discriminated GateResult validation、prerequisite priority、selected channel、accepted
+  warning 和 blocking ordering。
+- `engine.test.ts`：final warnings / GateResult、artifact validation priority、process outcome
+  和 verification preview orthogonality。
+- `scan-command/command-output.test.ts`：disabled/evaluated/not-evaluated console projection
+  与 stdout/stderr boundary。
 - `measurement/current-revision/current-revision.test.ts`：current capability wrappers 的
   successful zero result 与 unavailable / execution / invalid-result failure projection。
 - `measurement/scanners/jscpd/area-scans.test.ts`：per-code-area task planning、稳定 task /
@@ -73,9 +82,10 @@ requirement。
   路径/错误边界，以及 current/baseline Git collection 与 config-only fallback。
 - `output/warnings/generator.test.ts`：file/function/duplicate thresholds、changed/regression
   channels 和 accepted warning behavior。
-- `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels 和
-  accepted reason。
-- `config-file.test.ts` 与 `args.test.ts`：完整 JSON config parsing 与 option presence。
+- `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels、
+  accepted reason 与 requested-gate placement/action。
+- `config-file.test.ts` 与 `args.test.ts`：完整 JSON config parsing、option presence 与 gate
+  parser/help/scan-plan normalization。
 
 这些 tests 只依赖 Vibe Check-owned models。scc CSV row、Lizard CSV row 和 jscpd reporter
 objects 可以作为 parser fixture 输入，但不得成为 Core / Output contract。
@@ -112,6 +122,13 @@ scope、code area、warning、artifact、complete / empty / failed conclusion �
 受控 scanner 只提供 deterministic acceptance support，不定义稳定 Core / Output
 contract。
 
+Gate acceptance 复用同一 checked-in fixture，不新增平行 project fixture：
+`src/product/cli-omitted-gate-baseline.test.ts` 固定 omitted request 的既有行为；
+`src/product/cli-gate-acceptance.test.ts` 在临时 copy 中建立受控 Git comparison，证明
+quick `all`、all-only warning、input-unchanged、changed non-regression、regression 和
+comparison unavailable。Accepted/mixed warning、empty/incomplete 与 output failure 的
+owner 不变量由 evaluator/engine tests 证明，formal entry 不复制同一组合矩阵。
+
 ## 一次性 productization parity evidence
 
 初次产品化验收使用迁移后的现有 TypeScript fixture material 建立隔离 Git project，固定：
@@ -140,14 +157,20 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 
 - `bun run product:cli -- scan [project-root]` 到达唯一 product core。
 - 省略 project root 时使用启动 cwd。
-- `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan` 只作为
-  单向 wrapper，并显式传入 Vibe Check repository root。
-- 正式入口与 wrapper 保持现有 flags、profile、console、artifact 和 status mapping。
+- `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan`、
+  `quality:gate` 只作为单向 wrapper，并显式传入 Vibe Check repository root；前三个
+  package invocations 保持 omitted gate，`quality:gate` 固定 full `regressions` request。
+- 正式入口与 wrapper 保持 product-owned flags、profile、gate、console、artifact 和 process
+  status mapping。
 - 显式 config acceptance 使用 checked-in external project，证明相对 path、整体替换、
   selected scope、warning、artifact 与 config error exit `3`。
 - Formal entry 对代表性的 complete、legitimate empty 与 required component unavailable
   scan，证明 core outcome、console conclusion、`metrics.json`、`report.md` 和 CLI exit
   投影同一 completeness source。
+- Formal gate entry 对 disabled、evaluated passed/failed 与 comparison not-evaluated
+  representative branches，证明 GateResult、warning streams、report/console 和 exit
+  `0` / `1` / `2` 使用同一 evidence；usage conflicts 独立证明 exit `3` 且不启动 scanner
+  或 artifacts。
 - Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
 
 入口 tests 不需要为每个 flag 或 scanner failure kind 复制完整 matrix；result union、
@@ -161,8 +184,8 @@ cross-surface mapping 和 output 边界的代表性路径。
 
 - `bun run typecheck:scripts` 和 `bun run lint:scripts` 继续验证尚留在 `scripts/**` 的
   consumers / wrappers，不代替 product typecheck、lint 和 test。
-- `quality:check` / `quality:full-check` / `quality:scan` 调用
-  `src/product/**` 的同一 core。
+- `quality:check` / `quality:full-check` / `quality:scan` 省略 gate，`quality:gate` 显式请求
+  full `regressions`；它们均调用 `src/product/**` 的同一 core。
 - Foundation 只复制 product runtime 实际可达的 helper；仍在 submodule 中的开发 helper
   tests 不因此成为 product tests。
 - 新 checkout、Bun、pnpm 和 external scanner installation requirements 由 script tooling
@@ -183,6 +206,7 @@ TypeScript 产品交付验证按改动面覆盖：
 - product typecheck、lint 和 tests。
 - `bun run quality:check`。
 - `bun run quality:full-check`。
+- `bun run quality:gate`。
 - `bun run quality:scan`。
 - `bun run verify:vibe-check-workspace:full`。
 
@@ -204,4 +228,6 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
    cross-surface mapping，不靠重复同一 scanner matrix 获得覆盖数量。
 7. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。
 8. External project fixture 位于 `fixtures/projects/**`，不与 product unit fixture 混合。
-9. 发现既有缺陷或 coverage gap 时进入后续 change。
+9. Gate proof targets 按 descriptor/evaluator、CLI planning/usage、core/output 和 formal-entry
+   层级分配，不按 policy/status 做笛卡尔复制。
+10. 发现既有缺陷或 coverage gap 时进入后续 change。

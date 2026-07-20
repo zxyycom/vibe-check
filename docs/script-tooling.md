@@ -23,14 +23,15 @@ Vibe Check 拥有的开发脚本入口是：
 新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
 这些工具不属于产品 runtime contract。`quality:check`、`quality:full-check` 和
-`quality:scan` 是 package-level dogfood wrapper，不是第二套产品入口。
+`quality:scan` 是省略 gate 的观察命令；`quality:gate` 是显式 opt-in 的阻断命令。它们
+都是 package-level dogfood wrapper，不是第二套产品入口。
 
 ## 当前实现状态
 
 - `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并调用
   `src/product/cli.ts` 的正式入口。
-- `quality:check`、`quality:full-check` 和 `quality:scan` 通过该 wrapper 到达同一产品
-  core。
+- `quality:check`、`quality:full-check`、`quality:scan` 与 `quality:gate` 通过该
+  wrapper 到达同一产品 core；wrapper 只透明传递参数和产品 exit。
 - `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
   配置或扫描 core。
 - Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
@@ -88,12 +89,24 @@ JSON schema validator；产品扫描所需的 scanner 调用必须由 `src/produ
 ```bash
 bun run quality:check
 bun run quality:full-check
+bun run quality:gate
 bun run quality:scan
 ```
 
 这些命令与 `scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根并单向调用同一
-产品入口。默认 artifact 继续写入 `artifacts/vibe-check-quality/`，并作为 generated
-local state 忽略。
+产品入口。package consumer 分类为：
+
+| 命令 | Gate 行为 |
+| --- | --- |
+| `quality:check` | quick profile，省略 gate，warning 非阻断 |
+| `quality:full-check` | full profile 与 baseline，省略 gate，warning 非阻断 |
+| `quality:scan` | 不隐式选择 gate policy；调用者参数透明传递 |
+| `quality:gate` | full `regressions` gate；evaluated failure 或 evidence/runtime failure 按产品 exit 阻断 |
+
+Gate policy、evidence prerequisite、evaluation 与 process mapping 仍由产品实现拥有；
+`quality:gate` package script 显式传入 `--profile full --gate regressions`，thin wrapper
+只透明转发 `argv` 和产品 exit。默认 artifact 继续写入
+`artifacts/vibe-check-quality/`，并作为 generated local state 忽略。
 
 开发期 workspace 验证入口是：
 
@@ -106,13 +119,16 @@ release artifact。
 
 ## 配置所有权
 
-产品默认配置及其 profile、scanner、warning、baseline、artifact 和 gate 语义由
+产品默认配置及其 profile、scanner、warning、baseline 和 artifact 语义由
 `src/product/config.ts` 唯一拥有，包括：
 
 - Vibe Check source、docs、schemas 和 OpenSpec material 的 include / exclude globs。
 - code area 分组和 warning policy 名称。
 - lizard、scc 和 jscpd command discovery。
 - artifact 和 cache 路径。
+
+Gate policy 与 exit contract 由 Product CLI、Quality Metrics 和 Output owner 及其
+`src/product/**` 实现拥有，不属于 config、wrapper 或 package script。
 
 长期产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
 `docs/quality-metrics.md` 和 `docs/output.md` 拥有；已退役 schema/examples 的历史状态由
@@ -136,6 +152,7 @@ Output owner 说明。
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
+| Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | quality annotation | `bun run quality:annotate` |

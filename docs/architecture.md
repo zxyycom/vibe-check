@@ -7,12 +7,14 @@
 Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun 源码。
 `bun run product:cli -- scan [project-root]` 是正式本地入口，负责 operation 分流、
 project-root 归一化、现有 scan flags、顶层 error 和进程状态映射。扫描编排由 product core
-拥有，负责文件收集、scanner 调用、指标聚合、baseline comparison、warning、artifact 和
-最终 quality status。
+拥有，负责文件收集、scanner 调用、指标聚合、baseline comparison、warning、GateResult、
+artifact orchestration，以及彼此独立的 quality status 与 process outcome。
 
-仓库 dogfood 命令 `quality:check`、`quality:full-check`、`quality:scan` 及保留的
-`scripts/quality/scan.ts` 只作为单向薄 wrapper：它们显式传入 Vibe Check 仓库根并调用
-同一产品入口。`src/product/**` 不反向导入 `scripts/**` 或 toolkit gitlink。
+仓库 dogfood 命令 `quality:check`、`quality:full-check` 与 `quality:scan` 保持省略 gate
+的观察行为；`quality:gate` 通过 full `regressions` policy 显式 opt-in 阻断。所有
+`quality:*` 命令及保留的 `scripts/quality/scan.ts` 都只作为单向薄 wrapper：它们显式
+传入 Vibe Check 仓库根并调用同一产品入口。`src/product/**` 不反向导入 `scripts/**`
+或 toolkit gitlink。
 
 ### 当前实现状态
 
@@ -25,7 +27,8 @@ sections 和 path-aware primitive validation；
 直接拥有。
 
 `quality:*` 与 `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并单向调用正式
-产品入口。Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；
+产品入口；wrapper 不选择、评价或重写 gate result。Rust crate、根 Cargo 产品 workspace
+和 quality-core gitlink 已移除；
 `foundation` 与 `parallel-task-runner` gitlinks 只保留为开发脚本依赖，不进入产品 runtime
 import closure。
 
@@ -37,15 +40,24 @@ collect + classify
   -> capability eligibility + scan
   -> aggregate + current completeness
   -> baseline + compare
-  -> warn
-  -> write artifacts
-  -> passed | warning | failed
+  -> warnings
+  -> evaluate GateResult once
+  -> write + validate artifacts
+  -> calculate quality status
+  -> publish success | gate-failed | failed process outcome
 ```
+
+GateResult 只在 completeness、comparison 和 warning data 全部最终确定后评价一次，不回写
+quality status。`passed` / `warning` / `failed` quality status 描述扫描质量结论；
+`success` / `gate-failed` / `failed` process outcome 描述 CLI 执行结果。Product core 只有
+在 artifacts 写出并通过 output validation 后才计算 quality status，并结合 GateResult
+发布 process outcome；写入或验证失败直接发布 `failed`，未验证的 artifacts 不构成可信
+`gate-failed`。
 
 `project root` 定位被扫描项目；`scan scope` 表示 product config 解析后的文件集合；
 `scanner result` 表示检测能力的归一化输出；`quality metrics` 表示指标、聚合、baseline、
-warning channels 和 metadata。CLI 不解析 scanner 私有输出；Output 不重新计算指标；
-Scanner 不拥有 warning policy 或最终 status。
+warning channels、GateResult 和 metadata。CLI 不解析 scanner 私有输出；Output 不重新计算
+指标或 GateResult；Scanner 不拥有 warning policy、quality status 或 process outcome。
 
 ## 输出分层
 
@@ -59,9 +71,11 @@ TypeScript 产品扫描结果分为以下层次：
 | `raw/**` | 复现 scanner 与 baseline behavior | Scanner / Output |
 | CI annotation | 消费 warning NDJSON，不进入产品 runtime | `scripts/**` consumer |
 
-这些输出复用同一份 Vibe Check-owned metrics 和 warnings，但不共享稳定性承诺。Product
-Core 先完成扫描和业务计算，Output 再写 console 与 artifacts；CI consumer 只读取产品
-artifact，不形成第二条扫描管线。
+这些输出复用同一份 Vibe Check-owned metrics、warnings 和 GateResult，但不共享稳定性
+承诺。Product Core 在 final evidence 与 warnings 后只评价一次 GateResult；Output 投影该
+result、写入 artifacts 并执行 output validation。验证成功后，Product Core 才计算独立
+quality status 并发布 process outcome；写入或验证失败直接发布 `failed`。CI consumer
+只读取产品 artifact，不形成第二条扫描管线。
 
 scc CSV、Lizard CSV、jscpd reporter object、process result 和临时配置只属于 adapter
 boundary。需要复现时可以保存 raw material，但第三方私有结构不成为稳定 product field。
@@ -91,8 +105,12 @@ shape。它不新增 `--format`、version operation、配置自动发现或第�
 - 调用 scc、Python/Lizard 和 jscpd adapters。
 - 将 scanner output 归一化为 Vibe Check-owned models。
 - 从每项 current capability 的 shared final result 归约 overall completeness。
-- 聚合 current/baseline metrics 并生成 all / changed / regression warnings。
-- 验证 metrics，写入 report data，并计算 `passed` / `warning` / `failed` outcome。
+- 聚合 current/baseline metrics 并生成 warning channels。
+- 在 final completeness、comparison 和 warnings 后一次性评价 GateResult，不让 gate
+  evaluation 改写 quality status。
+- 协调 artifact 写入与 output validation；验证成功后计算独立 quality status，并发布
+  `success`、可信的 `gate-failed` 或 `failed` process outcome；写入或验证失败直接发布
+  `failed`。
 
 Product core 不解析 CLI operation 或 project-root positional，也不把 scanner-private
 protocol 提升为 public model。
@@ -119,15 +137,16 @@ result。Scanner adapter 不拥有 overall reducer、warning、baseline、artifa
 负责：
 
 - 写入 `metrics.json`、`report.md`、warning NDJSON 和 raw artifacts。
-- 从同一 metrics data 与 completeness record 生成 summary、ranking、warning preview 和
-  completion text。
+- 从同一 metrics data、completeness record 与 GateResult 生成 summary、ranking、warning
+  preview 和 completion text。
 - 维护 artifact 路径、JSON/NDJSON serialization、Markdown report 与 stdout/stderr
   placement。
+- 验证写出的 product output，并把 validation result 交还 product core。
 - 保持 quick/full、baseline 和 accepted-warning context 的输出一致。
 
-Output 不拥有 file collection、scanner invocation、metrics aggregation、warning generation
-或 status decision。Output 保持当前 TypeScript behavior；新增 schema、字段或 output mode
-必须作为独立 contract 变更处理。
+Output 不拥有 file collection、scanner invocation、metrics aggregation、warning generation、
+GateResult evaluation、quality status 或 process outcome decision。Output 保持当前
+TypeScript behavior；新增 schema、字段或 output mode 必须作为独立 contract 变更处理。
 
 ### 源码分组
 
@@ -138,8 +157,10 @@ Output 不拥有 file collection、scanner invocation、metrics aggregation、wa
 - `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
 - `measurement`：scc、Python/Lizard、jscpd adapters、cache 和 aggregation。
 - `warnings`：warning rules、channels、accepted reason 和 ordering。
-- `output`：artifacts、Markdown report、summary 和 status text。
-- `scan-command` / engine：runtime orchestration、baseline 和 final outcome。
+- `output`：artifacts、Markdown report、summary、GateResult projection、output validation
+  和 status text。
+- `scan-command` / engine：runtime orchestration、baseline、final evidence、一次性
+  GateResult evaluation 和 process outcome。
 
 这些是 owner 边界，不要求平行的 domain、adapter、service 或 provider hierarchy。新增
 共享模块必须有独立变化原因和验证证据，不能只为源码移动制造抽象。
@@ -151,10 +172,10 @@ caller
   -> product CLI：分流 scan、归一化 project root、解析 flags、选择完整 config
   -> product core：消费 selected config、收集文件、构造 scan context
   -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
-  <- product core：聚合 current results、归约 completeness、baseline comparison、warnings
-  -> output：写 artifacts 与 summary
-  -> product core：验证 metrics 并选择 final outcome
-  -> output：写 warning completion 或 fatal status
+  <- product core：聚合 current results、归约 completeness、comparison 与 warnings
+  -> product core：在 final evidence 与 warnings 后一次性评价 GateResult
+  -> output：投影同一 GateResult、写 artifacts 并执行 output validation
+  <- product core：验证成功后计算 quality status，并结合 GateResult 发布 success | gate-failed | failed；写入或验证失败直接发布 failed
   <- product CLI：保留 stdout/stderr 与进程状态 mapping
 ```
 

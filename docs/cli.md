@@ -32,8 +32,9 @@ bun run product:cli -- scan [project-root] --help
 `project-root` 是被扫描项目根目录。省略时使用启动 cwd；相对路径基于启动 cwd 解析，并在
 交给 scan core 前归一化。正式入口不得把 Vibe Check 仓库根硬编码为所有调用者的默认值。
 
-仓库 dogfood wrapper 是例外：`quality:check`、`quality:full-check`、`quality:scan` 和
-`scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根，以保持当前仓库自动化行为。
+仓库 dogfood wrapper 是例外：`quality:check`、`quality:full-check`、`quality:scan`、
+`quality:gate` 和 `scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根，以保持当前
+仓库自动化行为。
 
 ## Scan flags
 
@@ -49,12 +50,28 @@ bun run product:cli -- scan [project-root] --help
 | `--top-n <n>` | 设置报告 ranking 数量 |
 | `--artifact-dir <dir>` | 设置 artifact 目录 |
 | `--skip-baseline` | 跳过 baseline 选择与扫描 |
+| `--gate <all\|changed\|regressions>` | 显式选择 blocking gate；省略时 gate disabled |
 | `--verification-output` | 使用现有 accepted-warning-aware verification summary |
 | `--help` | 输出 scan help 并成功退出 |
 
 Quick profile 继续拒绝 `--baseline` 和 `--with-baseline`。默认值、重复 flag precedence、
 正整数校验和错误文本保持当前 product parser 行为；`--config` 是单值参数，重复传入直接
 失败。Product CLI 不提供 `--format` 或 `--version`。
+
+`--gate` 至多出现一次；合法 values 与 help text 从 product-owned policy descriptor 派生。
+省略时 CLI 传递 disabled request，warning 或 empty quality result 继续非阻断。Missing
+value、duplicate option 或 unknown value 是 usage error，在 scanner 和 artifacts 启动前
+退出 `3`。
+
+Gate scan planning 保持以下边界：
+
+- `all` 只评价 resolved profile 的 `warnings.all`，不改变调用者选择的 quick/full
+  capabilities 或 baseline plan。
+- `changed` / `regressions` 必须使用 full profile 与 comparison。省略显式 baseline option
+  时启用现有 auto-detection；`--baseline <sha>` 继续使用指定 commit。
+- Comparison policy 与 quick profile 或显式 `--skip-baseline` 冲突，在 scanner 和 artifacts
+  启动前作为 usage error 退出 `3`。
+- `--verification-output` 只改变人读 warning preview，不选择或覆盖 gate policy。
 
 相对 `--changed-files` 列表文件路径基于 normalized project root 按平台原生规则解析，
 包括 `.` / `..` segments；解析结果可以位于 project root 外。绝对列表文件路径保持绝对。
@@ -77,15 +94,15 @@ Product CLI 只负责：
 
 - 分流 `scan` operation。
 - 解析并归一化 project root。
-- 把其余 flags 交给 product parser。
+- 把其余 flags 交给 product parser，并归一化 gate prerequisite-aware scan plan。
 - 在 core 启动前选择并校验默认或显式完整 config。
-- 把同一 selected config 交给 scan core。
-- 把 core outcome 映射为进程状态，并保持顶层 error 与 stdout/stderr 边界。
+- 把同一 selected config 与 normalized gate request 交给 scan core。
+- 把 core process outcome 映射为进程状态，并保持顶层 error 边界。
 
 CLI 不重新实现 file collection、scanner 调用、metrics、warning、baseline、artifact
-serialization、scan completeness 归约或 report rendering。CLI 不按 capability ID/status
-增加分支，只消费 core 已决定的 `passed` / `warning` / `failed` outcome。产品源码不得导入
-dogfood wrapper。
+serialization、scan completeness、gate evaluation 或 report rendering。CLI 不按 capability
+ID/status 增加分支，只消费 core 已决定的 `success` / `gate-failed` / `failed` process
+outcome。产品源码不得导入 dogfood wrapper。
 
 ## Console 与 artifacts
 
@@ -99,24 +116,32 @@ process 的原生 stdout/stderr 不直接成为产品 console contract。
 
 ## 进程状态
 
-Product Core 先根据 current scan completeness 和质量评价产生 outcome，CLI 只做以下
-映射：
+Product Core 在 artifacts 写出并通过 output validation 后产生 process outcome，CLI 只做
+以下映射：
 
-| Core result | CLI exit |
+| Process outcome | CLI exit |
 | --- | --- |
-| `complete` 对应的 `passed` / `warning` | `0` |
-| `empty` 对应的 `warning` | `0` |
-| `failed` completeness 或其它 runtime/output `failed` | `2` |
+| `success`：gate disabled/passed，且 core/output 成功 | `0` |
+| `gate-failed`：evaluated gate failed，且 artifacts 已写出并验证 | `1` |
+| `failed`：gate not-evaluated，或 completeness/runtime/output failure | `2` |
 
-`empty` 是 non-fatal warning，但 human completion 必须说明质量未评价，不能声称质量通过。
+省略 gate 时，`empty` 仍是 non-fatal warning 并退出 `0`，但 human completion 必须说明
+质量未评价；requested gate 遇到 empty 时为 not-evaluated 并退出 `2`。Evaluated gate
+failure 本身不等于 runtime failure，只有已验证 artifacts 才能形成 exit `1`；artifact
+write 或 output validation failure 优先并退出 `2`。
+
 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
-`--changed-files` list）或 config-related error 返回 `3`。显式 config 失败发生在 scan
-banner、scanner、baseline 和 artifact generation 之前。
+`--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。显式 config
+与 usage failure 发生在 scanner、baseline 和 artifact generation 之前。
 
-已退役 Rust CLI 的 gate exit `1` 和 output-failure exit `4` 不属于当前 CLI contract。
+已退役 Rust CLI 的 output-failure exit `4` 不属于当前 CLI contract；当前 TypeScript
+Product CLI 的 exit `1` 只表示可信的 evaluated gate failure。
 
 ## Dogfood wrapper
 
 Dogfood wrapper 可以为仓库验证选择既有 profile、baseline 或 artifact 参数，但必须把用户
 参数、stdout、stderr 和进程状态透明传给正式入口。Wrapper 不得拥有第二套 parser、默认
-配置、scan core、output renderer 或 status mapping。
+配置、scan core、gate evaluator、output renderer 或 status mapping。`quality:check`、
+`quality:full-check` 与默认 `quality:scan` 保持省略 gate；`quality:gate` 只通过 thin wrapper
+固定传入 `--profile full --gate regressions`，具体 consumer contract 由
+[脚本工具](script-tooling.md) 维护。

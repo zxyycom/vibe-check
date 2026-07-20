@@ -1,8 +1,8 @@
 # 输出边界
 
-本文是 Vibe Check 输出边界的主规范。它固定 product report data、console channel 和
-artifacts 的责任，不重新计算 scan scope、metric、scan completeness、warning、baseline
-或 status。
+本文是 Vibe Check 输出边界的主规范。它固定 product report data、GateResult、console
+channel 和 artifacts 的投影责任，不重新计算 scan scope、metric、scan completeness、
+warning、baseline、gate 或 status。
 
 ## 当前产品输出
 
@@ -17,15 +17,18 @@ TypeScript product contract，也不用于声明当前 artifacts 符合该 envel
 ## TypeScript product output boundary
 
 Product Core 先产生 Vibe Check-owned metrics、final capability results、overall
-completeness、warning channels、baseline/comparison metadata 和 normalized fatal issues；
-Output 再写 artifacts 和 console summary。`metrics.json`、`report.md` 与 console 只投影
-同一份 core-owned completeness record，不在各 surface 重算 capability status 或 overall。
+completeness、warning channels、baseline/comparison metadata、GateResult 和 normalized
+fatal issues；Output 再写 artifacts 和 console summary。`metrics.json`、`report.md` 与
+console 只投影同一份 core-owned evidence，不在各 surface 重算 capability status、overall
+或 gate。
 
 Output 不得：
 
 - 重新收集文件或运行 scanner。
 - 重新计算 aggregate、capability status、overall completeness、warning、baseline 或
   status。
+- 重新选择 gate warning channel、重新应用 `acceptedReason`、重新排序 records 或重新计算
+  blocking warnings。
 - 把 scc CSV、Lizard CSV、jscpd reporter object 或 process result 直接提升为 product
   field。
 - 因源码位置变化改写 artifact name、warning channel 或 console conclusion。
@@ -34,8 +37,8 @@ Output 不得：
 
 | Artifact | Responsibility |
 | --- | --- |
-| `metrics.json` | current metrics、completeness、aggregates、baseline/comparison、warnings 和 metadata |
-| `report.md` | 从同一 metrics data 投影的 completeness 与人读报告 |
+| `metrics.json` | current metrics、completeness、aggregates、baseline/comparison、warnings、GateResult 和 metadata |
+| `report.md` | 从同一 metrics data 投影 completeness；requested gate 时投影 GateResult |
 | `warnings.ndjson` | existing `changed` warning channel |
 | `warnings-all.ndjson` | existing `all` warning channel |
 | `raw/**` | scanner 与 baseline reproduction material；当前包含 normalized scanner outputs、fingerprints 和 aggregates，不是 stable product output field |
@@ -52,6 +55,8 @@ ranking、accepted reason、timezone 和 top-N behavior 由当前 TypeScript 产
   preview 和 completion status。
 - Summary 显示 overall completeness 与每项 capability 的 ID/status；failed result 同时显示
   normalized reason 和恢复动作。
+- Gate disabled 时不增加 human gate 文本；requested gate 的 console 只投影同一
+  GateResult。
 - Normalized measurement failure 与 fatal issues 在 failure summary 中可见；top-level
   error 写 stderr。
 - scanner process 的原生 stdout/stderr 不直接成为 product console contract。
@@ -75,6 +80,31 @@ Human output 从同一 overall completeness 得出结论：
 Capability status 在各 surface 保持产品语义：profile 未请求为 `skipped`，已请求但没有
 eligible input 为 `no-input`，eligible work 正常完成即使 zero findings 也为 `succeeded`，
 required work 未完成为 `failed`。Output 不把这些状态互相推断或重分类。
+
+## Gate projection
+
+`metrics.json` 序列化完整 `GateResult`；只有 artifacts 写入和 output validation 均成功后，
+该 result 才构成可信 gate evidence。Human surfaces 按 state 条件投影：
+
+- `disabled`：report 与 console 保持 omitted-gate 既有结构，不增加空 gate section、
+  “gate passed”或 policy/status 文本。
+- `passed` / `failed`：report 的 `Quality Gate` section 位于 summary/comparison context
+  之后、detailed rankings 与 findings 之前；report 与 console 显示同一 policy、status、
+  evaluated channel、evaluated count 和 blocking count。Blocking warnings 保持
+  `GateResult` 顺序。
+- `not-evaluated`：report 与 console 显示同一 policy、status 和 closed reason code，并从
+  failed capability diagnostic、resolved profile/scope 或 `metrics.baseline.status` 提供
+  owner-derived action。
+
+`all` gate 的 human conclusion 必须限定为 resolved profile，并继续展示 skipped capability
+evidence。Evaluated passed/failed completion 写 stdout；evaluated gate failure 本身不写
+fatal stderr。Not-evaluated、runtime、completeness 与 output failure 使用 failure stderr
+boundary，且不得显示为 gate passed 或可信 evaluated gate failure。
+
+`warnings.ndjson` 与 `warnings-all.ndjson` 保持既有 channel、record ordering 和
+`acceptedReason`；selected policy 不删除 accepted、non-selected 或 non-blocking records。
+Artifact write 或 output validation failure 优先于已计算 GateResult，未通过验证的
+artifacts 不形成可信 `gate-failed` process outcome。
 
 `metrics.json` 与 `report.md` 在 model 可验证且 artifacts 可写时仍为 empty/failed scan 保存
 同一 completeness evidence。Scanner-private raw output 即使为复现而保存，也必须通过
@@ -143,9 +173,13 @@ contract 当作当前 `src/product/**` 的输出要求。
 - `metrics.json`、`report.md`、`warnings.ndjson`、`warnings-all.ndjson` 与 raw artifacts
   的名称、内容语义和生成条件保持。
 - Console summary、human conclusion、report 与 machine artifact 投影同一 capability
-  results、overall completeness 和 failed diagnostic。
+  results、overall completeness、GateResult 和 failed diagnostic。
 - Complete、legitimate empty 与 required measurement failed 分别保持可信质量结论、
   “质量未评价” warning 和 actionable failure，不把 zero findings 当成 no input。
+- Disabled gate 保持 human silence；evaluated passed/failed 和三个 not-evaluated reasons
+  投影 state-specific fields、owner action 与正确 stdout/stderr boundary。
+- Gate selection 不改变 warning streams、ordering 或 accepted reasons；output failure
+  优先于已计算 gate status。
 - warning preview、completion status 和 fatal issue channel 保持。
 - jscpd reporter JSON 与 Lizard CSV 留在 adapter-private boundary；当前 `raw/**` 中的
   normalized scanner artifacts 不被替换为 stable third-party output fields。
