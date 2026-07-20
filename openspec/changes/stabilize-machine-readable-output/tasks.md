@@ -2,7 +2,7 @@
 
 ## 1. 阻塞级实现前审计
 
-- [ ] 1.1 审计 proposal、design、output/test-fixtures deltas 与本 tasks 是否围绕“既有 metrics/warning artifacts 成为唯一 versioned machine contract”这一核心句；确认 `make-scan-completeness-observable` 与 `add-configurable-quality-gates` 已完成、验收并归档，最终 `QualityMetrics` / `WarningRecord` models 已进入 main specs，且本 change 未增加平行 result artifact、JSON stdout 或 scanner-private fields。该门禁完成前不得执行任何 2.x 及后续实现任务。
+- [ ] 1.1 审计 proposal、design、output/test-fixtures deltas 与本 tasks 是否围绕“既有 metrics/warning artifacts 成为唯一 versioned machine contract”这一核心句；确认 `make-scan-completeness-observable` 与 `add-ci-quality-gates` 已完成、验收并归档，最终 `QualityMetrics` / `WarningRecord` models 已进入 main specs，且本 change 未增加平行 result artifact、JSON stdout 或 scanner-private fields。该门禁完成前不得执行任何 2.x 及后续实现任务。
 - [ ] 1.2 盘点 `metrics.json`、warning streams、pre-contract `"0.4.0"`、retired Rust schema/examples，以及 CI annotation、workspace verifier、dogfood scripts 等全部 producer/consumer；记录 current/retired ownership 和迁移表。
 - [ ] 1.3 固定 v1 字段、requiredness、types、nullability、closed enums、单位、ordering 与 semantics 清单，并确认 dynamic maps、timestamps、paths 和 tool versions 的 schema/example 处理方式。
 

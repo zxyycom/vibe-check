@@ -26,6 +26,6 @@
 ## Impact
 
 - 影响 `src/product/quality-core/**` 的 input sequencing、adapter result、metrics model、aggregation 和 output，以及 Product CLI status mapping。
-- 本 change 必须先于 `add-configurable-quality-gates` 与 `stabilize-machine-readable-output` 落地；后两者分别消费 completeness 和冻结最终 serialized shape。
+- 本 change 必须先于 `add-ci-quality-gates` 与 `stabilize-machine-readable-output` 落地；后两者分别消费 completeness 和冻结最终 serialized shape。
 - Baseline comparison 保持当前行为，不参与 current completeness；其 failure policy 由独立 change 决定。
 - 不改变 scanner 算法、cache policy、threshold、warning rule、supported input、config discovery 或 public machine schema compatibility。

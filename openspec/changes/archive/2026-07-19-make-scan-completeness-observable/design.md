@@ -19,7 +19,7 @@
 - 不改变 scanner 算法、warning threshold 或 supported language。
 - Eligibility work unit、cache behavior、backend metadata 与 invocation strategy 继续由 scanner implementation owner 管理。
 - 不在本 change 冻结公共 JSON schema version、字段兼容性或 examples；该工作由 `stabilize-machine-readable-output` 完成。
-- 不增加 quality gate；gate policy 与 exit `1` 由 `add-configurable-quality-gates` 完成。
+- 不增加 quality gate；gate policy 与 exit `1` 由 `add-ci-quality-gates` 完成。
 - 不改变 baseline comparison behavior；comparison completeness 与 failure policy 由独立 change 承接。
 
 ## Decisions

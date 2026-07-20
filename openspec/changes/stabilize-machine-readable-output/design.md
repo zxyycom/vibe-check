@@ -4,7 +4,7 @@
 
 当前 Product CLI 把完整 `QualityMetrics` 写入 `metrics.json`，把 `warnings.changed` 与 `warnings.all` 分别写入 `warnings.ndjson` 和 `warnings-all.ndjson`。`metrics.metadata.schemaVersion` 目前为未承诺的 `"0.4.0"`，warning record 没有 schema identity；仓库现有 `vibe-check-report.schema.json` 与 JSON examples 则属于已退役 Rust stdout report，shape 与当前 artifacts 不同。
 
-本 change 在 `make-scan-completeness-observable` 与 `add-configurable-quality-gates` 收敛后稳定既有 artifacts。它不增加平行 result file，也不把 console 变成 JSON transport。
+本 change 在 `make-scan-completeness-observable` 与 `add-ci-quality-gates` 收敛后稳定既有 artifacts。它不增加平行 result file，也不把 console 变成 JSON transport。
 
 ## Goals / Non-Goals
 
@@ -80,7 +80,7 @@ CI annotation、workspace verifier 与 dogfood summary 只能读取 v1 schemas �
 
 ## Migration Plan
 
-1. 先归档 `make-scan-completeness-observable` 与 `add-configurable-quality-gates`，冻结最终 `QualityMetrics` / `WarningRecord` source model。
+1. 先归档 `make-scan-completeness-observable` 与 `add-ci-quality-gates`，冻结最终 `QualityMetrics` / `WarningRecord` source model。
 2. 审计 pre-contract `0.4.0` artifacts、retired Rust schemas/examples 和所有 repository consumers。
 3. 增加 namespaced v1 tokens、current-product schemas 与 serializer validation。
 4. 生成并验证 outcome examples与 cross-artifact consistency cases。
