@@ -1,94 +1,249 @@
-本 design 起草当前 TypeScript 产品既有 machine artifacts 的首个稳定 contract；当前 change 仅在 `openspec/changes/stabilize-machine-readable-output/` 下形成待审计临时计划，不影响现有其它文档或主规范。
-
 ## Context
 
-当前 Product CLI 把完整 `QualityMetrics` 写入 `metrics.json`，把 `warnings.changed` 与 `warnings.all` 分别写入 `warnings.ndjson` 和 `warnings-all.ndjson`。`metrics.metadata.schemaVersion` 目前为未承诺的 `"0.4.0"`，warning record 没有 schema identity；仓库现有 `vibe-check-report.schema.json` 与 JSON examples 则属于已退役 Rust stdout report，shape 与当前 artifacts 不同。
+当前 Product CLI 把 `QualityMetrics` 直接写入 `metrics.json`，把
+`warnings.changed` / `warnings.all` 分别写入 `warnings.ndjson` /
+`warnings-all.ndjson`。这些 files 已被产品帮助文本描述为 machine-readable artifacts，
+但没有 current-product schemas、稳定 transport identity 或统一 acceptance boundary。
 
-本 change 在 `make-scan-completeness-observable` 与 `add-ci-quality-gates` 收敛后稳定既有 artifacts。它不增加平行 result file，也不把 console 变成 JSON transport。
+当前 output validation 只检查 in-memory core model，并发生在 machine files 写出后。
+`quality:annotate` 是唯一实际解析 warning artifact 的 repository consumer；它只检查渲染
+所需字段并跳过 malformed records。Workspace verifier 只调度 child checks，dogfood
+wrappers 只把参数传给 Product CLI。
+
+前置 changes `make-scan-completeness-observable` 与 `add-ci-quality-gates` 已归档，
+completeness、warning channels、`GateResult` 与 process outcome 已进入 main specs。本
+change 固定这些数据的 machine projection，不重新设计业务语义。
+
+## Design Priorities
+
+1. **产品结果优先**：一个已完成 invocation 产生的 machine artifacts 必须能被产品和实际
+   automation 一致判断为可信；损坏 input 不产生成功或部分结果。
+2. **开发维护优先**：machine contract 与 core models 分离，字段定义只保留一个 runtime
+   owner；测试集中证明产品可观察行为和手写 invariants，不复制 schema validator 的全部
+   keyword matrix。
+3. **单一 current structure**：producer、schemas、examples、validators 与 direct consumer
+   同时使用一个 current contract。真正改变公开 projection 时整体硬切；core-only 变化
+   不触发 machine change。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 为当前 `metrics.json` 和 warning NDJSON 建立 versioned JSON Schema。
-- 固定 artifact 名称、channel semantics、cross-artifact consistency 与版本演进规则。
-- 提供可执行 examples 和 producer/consumer validation。
-- 让 repository automation 只读取声明为 stable 的 machine fields。
+- 为 `metrics.json` 和 warning NDJSON 建立 output-owned v1 DTO、schemas 与 validators。
+- 固定 identity、byte framing、cross-artifact invariants、failure mapping 和 direct
+  consumer behavior。
+- 让 checked-in schemas/examples 可以独立验证，并与 product runtime source 防漂移。
+- 保持新增 core 小功能、内部字段或重构不自动扩大 machine contract。
 
 **Non-Goals:**
 
-- 不恢复 retired Rust `vibe-check.report.v1` envelope 或 JSON stdout mode。
-- 不改变 scanner、warning、completeness、gate 或 exit semantics。
-- 不新增 `result.json`、manifest、regressions NDJSON 或其它平行 artifact。
-- 不把 raw scanner output 纳入 public contract。
+- Console、Markdown report 与 raw scanner artifacts 不成为 v1 machine transport。
+- 不增加 result envelope、manifest、JSON stdout、并行 contract、SDK 或 plugin API。
+- 不为当前不存在的跨进程 artifact discovery 或 concurrent writer workflow 增加发布协议。
+- 不为 JSON parser/library 已负责的每个通用语法分支建立产品自定义语义。
+
+## Contract Surface
+
+| Surface | Current contract | Owner |
+| --- | --- | --- |
+| `metrics.json` | `MachineMetricsV1` artifact-set root | Product Output |
+| `warnings.ndjson` | ordered `metrics.warnings.changed` stream | Product Output |
+| `warnings-all.ndjson` | ordered `metrics.warnings.all` stream | Product Output |
+| `quality:annotate` input | one current warning stream | Product warning-stream validator |
+| Published schemas/examples | external validation material | Product source + docs validation |
+| Console / `report.md` / `raw/**` | existing human/private boundaries | Existing Output/Scanner owners |
 
 ## Decisions
 
-### Decision 1: 稳定既有 artifact，而不是设计第二套 envelope
+### Decision 1: Machine DTO 隔离 core 与 human output
 
-`metrics.json` 继续序列化 product-owned `QualityMetrics`；`warnings.ndjson` 继续逐行投影 `metrics.warnings.changed`，`warnings-all.ndjson` 继续逐行投影 `metrics.warnings.all`。`report.md` 和 console 仍为人读 output，不受 JSON Schema 管辖。
+Output 定义 `MachineMetricsV1` 与 `MachineWarningV1`，从 final
+`QualityMetrics` / `WarningRecord` 一次性投影。V1 projection 保留 change 生效前
+`metrics.json` 已序列化的 field set、nesting 与业务含义，只固定以下 transport
+identity：
 
-新的 schemas 使用独立文件 `docs/schemas/vibe-check-metrics.schema.json` 与 `docs/schemas/vibe-check-warning.schema.json`。Retired `docs/schemas/vibe-check-report.schema.json` 不被改名或复用；navigation 必须把历史 contract 与 current-product schemas 分开。
+- `MachineMetricsV1.metadata.schemaVersion = "vibe-check.metrics.v1"`；
+- 每个 `MachineWarningV1.schemaVersion = "vibe-check.warning.v1"`。
 
-### Decision 2: 首个稳定 identity 使用 namespaced v1 token
+Metrics 中 `warnings.all`、`warnings.changed`、`warnings.regressions` 与 evaluated gate
+的 `blockingWarnings` 都使用同一 `MachineWarningV1` mapping。Core
+`WarningRecord` 不携带 transport identity；machine mapper 拥有 metrics identity，因此
+core model 与 Markdown report 不需要采用 machine version token。
 
-本 change 落地时：
+Producer 每次只构造一个 `MachineMetricsV1`。`warnings.ndjson` 与
+`warnings-all.ndjson` candidates 分别从该 DTO 的 `warnings.changed` /
+`warnings.all` 序列化，不再从 core warnings 建立另一条 projection path。
 
-- `metrics.metadata.schemaVersion` 从 pre-contract `"0.4.0"` 改为 `"vibe-check.metrics.v1"`。
-- 每个 `WarningRecord` 增加必填 `schemaVersion: "vibe-check.warning.v1"`，因此 NDJSON 单行可独立识别 contract。
-- 两个 JSON Schema 使用对应 token 作为 const，并使用稳定 `$id`。
+新增 core field、内部重构或 human-only option 不自动进入 DTO。只有明确需要提供给 machine
+consumer 的数据才修改 DTO 和 contract。
 
-同一 v1 token 下，字段名称、required/optional、类型、closed enum、nullability、单位、排序含义和语义全部冻结。任何新增/删除字段、requiredness 变化、类型变化、closed enum 扩展或语义变化都 MUST 发布新的 namespaced version、schema、examples 与迁移说明；纯说明澄清只有在不改变任何有效/无效 instance 集合和 consumer 语义时才能保留 v1。该严格规则优先于在 v1 内做“看似兼容”的 optional field 演进。
+### Decision 2: Runtime schema 是唯一字段定义 owner
 
-### Decision 3: Warning NDJSON 是 versioned record stream
+Product runtime 内的 JSON-serializable schema definitions 是 field set、requiredness、
+type、closed enum、nullability、numeric constraints 与 dynamic-map value shape 的 source
+of truth。`MachineMetricsV1` / `MachineWarningV1` TypeScript types 必须从该 source 派生，
+或通过 compile-time structural check 与其保持一致；不维护第二份手写 field inventory。
 
-两个 NDJSON artifacts 每个非空行都 MUST 独立通过 warning schema；零 warning 使用空文件，不写 header 或 sentinel。Record ordering 与 adjacent `metrics.json` 中对应 channel 完全一致：
+Published schemas 位于：
 
-- `warnings.ndjson` 等于 `metrics.warnings.changed`。
-- `warnings-all.ndjson` 等于 `metrics.warnings.all`。
+| Artifact | Instance identity | Schema `$id` | Canonical path |
+| --- | --- | --- | --- |
+| metrics | `vibe-check.metrics.v1` | `urn:vibe-check:schema:metrics:v1` | `docs/schemas/vibe-check-metrics.schema.json` |
+| warning | `vibe-check.warning.v1` | `urn:vibe-check:schema:warning:v1` | `docs/schemas/vibe-check-warning.schema.json` |
 
-第一版不增加 `warnings-regressions.ndjson`。需要 regression channel 的 consumer 从 versioned `metrics.json` 读取，避免扩大 artifact surface。
+Schemas 使用 JSON Schema 2020-12。Metrics schema 通过 warning schema 的 immutable URN
+引用同一 warning definition；runtime 与 docs registries 都显式注册两份 schemas。Fixed
+objects closed；真正 dynamic maps 使用 typed `additionalProperties`。
 
-### Decision 4: Producer validation 同时证明 schema 和跨 artifact invariant
+Published files 是 runtime definitions 的 deterministic projection。Drift validation 比较
+generated projection 与 checked-in files；product runtime 不读取 `docs/**` 或
+`scripts/**`。
 
-Output 在写入前先验证 product model invariants，写入后使用 current schemas 验证 `metrics.json` 和每行 warning record，并验证 version token、channel length、record ordering 与逐项 deep equality。Schema/output validation failure 继续属于 runtime/output failure，使用既有 exit `2`，不得降级为 gate failure或成功 artifact。
+### Decision 3: 正向 grammar 与公开 set invariants 定义 conformance
 
-Schemas 对 product-owned object 使用 closed fields，避免 typo 悄悄进入稳定 contract。动态 map 的 key space、明确标记的 metadata value 和 scanner-private raw files不因此成为 public extension points。
+Machine bytes 使用 UTF-8 without BOM：
 
-### Decision 5: Examples 按 observable outcome 组织
+- `metrics.json` 包含一个 JSON object；
+- warning stream 是 zero-byte input，或一个以上由 LF 结束的 JSON object records；
+- 每个 non-empty record segment 解析为一个 object，并通过 current warning schema；
+- Product serializer 为每个 warning 使用 compact JSON 并追加 LF；
+- JSON object key order 与 insignificant JSON whitespace 不改变 parsed conformance。
 
-Current-product examples 放在与 retired `docs/examples/json/` 分离的 `docs/examples/artifacts/`，至少覆盖：
+Artifact-set validator 在 schema validation 之外证明以下公开 invariants：
 
-- complete passed；
-- legitimate empty；
-- complete warning；
-- gate failed；
-- runtime/completeness failed。
+1. Parsed `warnings.ndjson` 与 `metrics.warnings.changed` 在 length、order 与 values 上
+   deep-equal。
+2. Parsed `warnings-all.ndjson` 与 `metrics.warnings.all` deep-equal。
+3. `scanCompleteness.overall` 与 serialized capability results 一致。
+4. Evaluated gate 的 policy/channel、evaluated count、blocking list/count、list order 与
+   passed/failed status 一致；`blockingWarnings` 等于 selected channel 中没有
+   `acceptedReason` 的 records，并保持原顺序。
 
-每个 example 包含可确定验证的 `metrics.json`，并在适用时包含对应 warning streams；动态 timestamp、absolute path 与 tool version 使用文档化 fixture values。Examples 由与生产 serializer 相同的 schema/invariant validator验证，不允许手工 drift。
+Core validator 在 projection 前继续证明其拥有的其它业务 semantics。Machine set validator
+不复制 scanner、warning generation、gate evaluation 或其它 core business logic。
 
-### Decision 6: Automation 只消费 stable fields
+### Decision 4: 一个 contract 提供两个实际边界入口
 
-CI annotation、workspace verifier 与 dogfood summary 只能读取 v1 schemas 声明的 fields，并在遇到未知 schema token、缺失 required field 或 schema-invalid record 时 fail closed。Consumer MUST NOT 解析 operational console、Markdown table 或 raw scanner artifact 取得 machine decision。
+Product 暴露两个 validator entrypoints：
+
+| Entrypoint | Input | Proof |
+| --- | --- | --- |
+| artifact-set validator | metrics bytes + changed/all warning bytes | 完整 schema、framing 与 set invariants |
+| warning-stream validator | one warning byte stream | warning framing、每个 record schema 与 all-or-nothing parse |
+
+两个入口复用同一 warning identity、schema definition、byte decoder、record parser 和
+diagnostic mapping。它们只接受 current v1 structure，但不会让 record-only consumer 承担
+adjacent metrics/set validation。
+
+Contract failure 返回 actionable diagnostic：包含 logical artifact，以及适用的 JSON
+Pointer 或 record line/index。具体 parser wording 不成为稳定 product contract。
+
+Docs validator 独立编译 checked-in schemas，并重新检查 examples 的 framing 与公开 set
+invariants；它不成为 product runtime dependency。
+
+### Decision 5: Producer 验证 candidate 后发布
+
+Producer 使用固定顺序：
+
+1. 验证 final core model。
+2. 投影一个 machine DTO，并从该 DTO 生成三个 candidate byte sequences。
+3. 对 candidate 调用 artifact-set validator。
+4. 清理同一路径的 prior canonical machine files 并写入全部 validated candidates。
+5. Publication 成功后才打印可信 artifact paths 并返回 `success` / `gate-failed`。
+
+Validation、cleanup 或 write failure 都使用现有 runtime/output failure，Product CLI exit
+`2`；已计算 GateResult 不覆盖 output failure。Files 的存在本身不证明 current run
+成功，调用者结合 producing invocation outcome 判断可信度。
+
+一个 Product CLI invocation 在运行期间拥有其 artifact directory；需要并行 scan 的调用者
+使用不同 artifact directories。本 change 不增加 manifest 或 multi-file transaction。
+Console、report 与 raw artifact 的既有生成边界不因 machine version 改变，相关 write
+failure 继续保持 output failure priority。
+
+### Decision 6: Annotation contract failure 是 infrastructure failure
+
+`quality:annotate` 以 bytes 读取一个 warning stream，并调用 product-owned
+warning-stream validator。Validator 对完整 input 返回 success 后，annotation 才映射 schema
+声明的 render fields：
+
+- conforming non-empty input：render filtered non-blocking annotations，exit `0`；
+- conforming zero-byte input：render zero annotations，exit `0`；
+- 参数、读取、decoding、framing 或 schema failure：render zero annotations，报告
+  actionable diagnostic，exit `2`。
+
+Quality warning 的内容仍不阻断 Product gate；exit `2` 表达 annotation infrastructure
+不可用，而不是 metric threshold failure。需要让 annotation step best-effort 的 CI 调用方
+在 orchestration 层选择 non-blocking step behavior。
+
+Workspace verifier 只调度 producer-to-annotation acceptance 并按 child exit 分类。
+Dogfood wrappers 与 package `quality:*` 继续传递 Product CLI args/outcome，不解析
+machine artifacts。
+
+### Decision 7: Examples 与 tests 证明产品行为，不复制 validator implementation
+
+Current examples 位于：
+
+```text
+docs/examples/artifacts/<outcome>/
+  metrics.json
+  warnings.ndjson
+  warnings-all.ndjson
+```
+
+固定 outcomes 为 `complete-passed`、`complete-warning`、`legitimate-empty`、
+`gate-failed` 与 `scan-incomplete`。每组 files 从 fixed core fixture values 经过 production
+DTO/serializer 生成；timestamp、repository/path、commit 与 tool version 在 serialization
+前注入固定值，重复 generation byte-stable。
+
+Required proofs 包括：
+
+- canonical sets 通过 runtime 与 independent docs validation；
+- identity、representative required/type/enum/closed-shape、byte framing 与
+  changed/all mismatch 会使 owning validator 返回 failure；
+- 每个手写 set invariant 有直接 success/failure test；
+- published schema drift 必须失败；
+- formal producer output 可以被实际 annotation CLI 消费，invalid input exit `2` 且没有
+  partial annotations。
+
+Tests 不为 schema 中每个 field/keyword 重复相同 mutation；AJV compilation、representative
+schema mutations、DTO/schema structural check 与 canonical examples 共同证明通用 field
+constraints。Projection baseline 只用于建立 regression tests，不进入 canonical example
+tree。
+
+Retired `vibe-check.report.v1` schema/examples 保持历史 path 和 ownership label，不进入
+current metrics/warning validation registry。
+
+### Decision 8: Observable contract change 执行仓库级硬切换
+
+任何 repository revision 只定义一个 current machine structure。未来若必须改变公开 field
+set、requiredness、type、nullability、enum、unit、semantic order 或 meaning，独立 change
+同时替换 DTO projection、instance identities、schema `$id`、canonical schemas/examples、
+validators、direct consumers、tests 与 owner docs。
+
+Canonical filenames 可以保持不变，但完成后的 repository 不保留另一个 accepted
+structure。Core-only 或 human-only change 只要 serialized projection 不变，就不触发
+machine contract 切换。
 
 ## Risks / Trade-offs
 
-- [v1 token 与 warning field 是一次 breaking migration] → 只在先行 completeness/gate fields 收敛后发布，并让 producer、examples 与 repository consumers 在同一 change 迁移。
-- [closed v1 contract 会提高后续字段演进成本] → 以明确 v2 change 换取 consumer 可预测性；内部 scanner data 继续留在 private boundary。
-- [写后 schema validation 增加少量 IO/CPU] → artifacts 规模相对 scanner 工作量很小；保留范围明确的 validation budget和 tests。
-- [历史 schema 与当前 schema 同目录可能被误用] → navigation、标题和 owner docs 明确 current/retired 状态，文件名不复用。
+- [首个 stable identity 改变 change 生效前的 bytes] → 所有 repository-owned producer、
+  schemas、examples 与 direct consumer 在同一 change 切换。
+- [Closed DTO 使公开 field 变更需要显式 hard cut] → Core/DTO 分离让普通内部功能和重构
+  不触发该成本。
+- [Runtime validation 增加少量 final-output work] → 只验证三个 candidate files，不重复
+  scanner work；真实 quick/full runs 用于确认没有明显产品回归。
+- [Runtime definitions 与 published projection 可能漂移] → deterministic generation 与
+  required drift check 阻断。
 
-## Migration Plan
+## Hard-cut Plan
 
-1. 先归档 `make-scan-completeness-observable` 与 `add-ci-quality-gates`，冻结最终 `QualityMetrics` / `WarningRecord` source model。
-2. 审计 pre-contract `0.4.0` artifacts、retired Rust schemas/examples 和所有 repository consumers。
-3. 增加 namespaced v1 tokens、current-product schemas 与 serializer validation。
-4. 生成并验证 outcome examples与 cross-artifact consistency cases。
-5. 原子迁移 CI annotation、workspace verifier、dogfood scripts 与 owner docs。
-6. 重放正式入口和 required workspace verification，拒绝 unknown-version 与 mutated fixtures。
+1. 保存 producer、consumer 与 observable output baseline，仅用于 projection tests。
+2. 建立 runtime schema source、machine DTO mapping 与 focused contract tests。
+3. 接入 byte validators、cross-artifact invariants 与 pre-publication validation。
+4. 生成 canonical schemas/examples，并接入 independent docs validation。
+5. 将 annotation consumer 硬切到 current warning-stream validator，接入 required
+   producer-to-consumer acceptance。
+6. 同步 owner docs/case ledger 并重放 formal entry、dogfood 与 workspace validation。
 
-回滚必须让 producer 与 repository consumers 回到同一 pre-contract revision；不得 dual-write 第二套 artifact，也不得让 v1 consumer 静默接受 `0.4.0`。
-
-## Open Questions
-
-无。Artifact surface、v1 identity、NDJSON framing、compatibility 与 migration order 均在本 design 中固定。
+回滚以 repository revision 为单位，同时恢复 producer、schemas/examples、annotation、
+tests/docs 与 required check，使每个 revision 内仍只有一个 current contract。
