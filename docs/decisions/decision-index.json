@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 3,
+  "records": [
+    {
+      "path": "workflow-policy/use-project-decision-records.md",
+      "status": "active",
+      "createdAt": "2026-07-21T04:02:02Z",
+      "title": "在项目内采用长期决策记录",
+      "purpose": "让长期工程取舍可恢复、可审阅，并能在后续任务中一致沿用。",
+      "background": "项目已有规范与 OpenSpec，但缺少跨任务长期判断的独立生命周期索引。",
+      "decision": "在仓库内安装 decision-records skill，并用 docs/decisions 维护确认过的长期判断。",
+      "relations": []
+    }
+  ]
+}

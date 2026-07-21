@@ -14,6 +14,12 @@ prefix_rule(pattern=["bun", "scripts/docs/validate.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/vibe-check-workspace/verify.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/quality/scan.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/quality/annotate.ts"], decision="prompt")
+prefix_rule(pattern=["bun", "scripts/decision-records.ts"], decision="prompt")
+
+# Decision record queries/checks are read-only; the generic entry can mutate lifecycle state.
+prefix_rule(pattern=["bun", "run", "decisions:list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "decisions:check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "decisions"], decision="prompt")
 
 # TypeScript product and script checks.
 prefix_rule(pattern=["bun", "run", "lint:product"], decision="allow")

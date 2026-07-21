@@ -56,6 +56,15 @@ docnav read <path> --ref "<ref>"
 
 `docnav` 不可运行时，回退到常规文件读取。
 
+### 长期决策
+
+1. 在形成或修改会持续影响后续行为、owner、边界、兼容性、风险处理或验收方式的判断前，
+   使用项目内的 `decision-records` skill，并先运行 `bun run decisions:list` 恢复相关活动决策。
+2. 只有已经明确确认、会作为后续工作依据且具有回放价值的取舍进入 `docs/decisions/`；代码、
+   配置、规范和项目文档继续承接当前事实与行为。
+3. 通过 `bun run decisions -- <command>` 写入记录或改变生命周期；任何写入完成后运行
+   `bun run decisions:check`。
+
 ### 代码结构
 
 - 理解调用关系优先用可用的 CodeGraph MCP。

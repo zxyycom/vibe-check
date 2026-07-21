@@ -17,6 +17,8 @@ Vibe Check 拥有的开发脚本入口是：
   Actions warning annotation。
 - `scripts/docs/validate.ts`：校验 Markdown 链接、JSON 语法、report schema
   编译和 report examples。
+- `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
+  `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
   `parallel-task-runner` 并行运行本地检查。
 
@@ -117,6 +119,23 @@ bun scripts/vibe-check-workspace/verify.ts --profile required
 验证日志写入 `.log/verify/workspace/`。日志和 artifact 只用于本地定位，不属于
 release artifact。
 
+## 长期决策适配器
+
+项目内安装的上游
+[`decision-records`](https://github.com/zxyycom/skills/tree/main/skills/decision-records)
+拥有决策记录格式、索引生命周期以及 CLI / ESM API 语义。Vibe Check-owned
+`scripts/decision-records.ts` 显式传入仓库根、转发 CLI 参数，并为模块调用暴露
+`runDecisionRecordsCli`、`scanDecisionRecords` 和 `validateDecisionRecords`。适配器不复制
+解析、校验、索引维护或关系语义，`src/product/**` 也不导入该开发工具。
+
+| 入口 | 用途 | 状态影响 |
+| --- | --- | --- |
+| `bun run decisions:list` | 列出活动决策的检索投影 | 只读 |
+| `bun run decisions:check` | 严格检查目录、Markdown、索引和关系 | 只读 |
+| `bun run decisions -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定；写命令按 skill 契约执行 |
+
+已确认的长期取舍位于 `docs/decisions/`；代码、配置和 owner 文档继续承接当前事实与行为。
+
 ## 配置所有权
 
 产品默认配置及其 profile、scanner、warning、baseline 和 artifact 语义由
@@ -151,6 +170,7 @@ Output owner 说明。
 | 改动面 | 命令 |
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
+| 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
 | Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |
