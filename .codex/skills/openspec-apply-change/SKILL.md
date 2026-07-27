@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  version: "2"
   generatedBy: "1.3.1"
 ---
 
@@ -36,17 +36,16 @@ metadata:
    - `openspec validate --specs --json --strict --no-interactive`：本轮改动触及主 specs 时运行。
 3. 兜底读取：
    - CLI 不可用、命令失败或 JSON 中缺少完成任务所需正文时，再读取 `contextFiles` 指向的文件。
-   - 维护本 skill、排查二次改写遗漏、或需要补回原始 OpenSpec skill 的维护语义时，只读同目录 `reference-original.md`。
+   - 需要参考改写前行为时，只读同目录 `reference-original.md`。
 
-## 执行前门禁
+## 执行前开放问题门禁
 
-OpenSpec change 可以作为未审计的临时计划存在；apply 不应把“artifact 已生成”误读成“方案已批准实现”。执行任何实现任务前必须确认 change 没有未完成的实现前置门禁：
+执行任何实现任务前必须确认 change 没有未回答开放问题：
 
-1. 按 `contextFiles` 读取 tasks 和包含 `## Open Questions` 的 artifact。
-2. 检查 tasks 中是否仍存在未完成的阻塞级审计任务；存在时立即暂停，不改代码、不勾选实现任务。未找到审计任务时，视为当前没有审计门禁。
-3. 发现未回答开放问题时立即暂停，不改代码、不勾选任务、不把问题当作实现假设。
-4. 对 `已收敛` 条目检查是否仍有待选择、待确认或影响实现的歧义；存在歧义时暂停。
-5. 用户回答后，先更新 artifact，并按归宿删除开放问题或标记为 `已收敛`，再重新进入 apply 流程。
+1. 按 `contextFiles` 读取包含 `## Open Questions` 的 artifact。
+2. 发现未回答问题时立即暂停，不改代码、不勾选任务、不把问题当作实现假设。
+3. 对 `已收敛` 条目检查是否仍有待选择、待确认或影响实现的歧义；存在歧义时暂停。
+4. 用户回答后，先更新 artifact，并按归宿删除开放问题或标记为 `已收敛`，再重新进入 apply 流程。
 
 ## 流程
 
@@ -59,7 +58,7 @@ OpenSpec change 可以作为未审计的临时计划存在；apply 不应把“a
    - 其他可执行状态：继续处理未完成任务。
 5. 运行 `openspec show "<name>" --type change --json --no-interactive`，用结构化 delta 理解 capability、operation 和 requirement 变化；只需要 delta 时加 `--deltas-only`。
 6. 对 CLI 未覆盖的 proposal、design、tasks 原文细节，按 `contextFiles` 精确读取对应文件。
-7. 按“执行前门禁”检查阻塞级审计任务和 `## Open Questions`；存在未完成审计门禁、未回答问题或已收敛歧义时停止在询问阶段。
+7. 按“执行前开放问题门禁”检查 `## Open Questions`；存在未回答问题或已收敛歧义时停止在询问阶段。
 8. 逐项实施未完成任务：
    - 说明当前任务。
    - 做与任务直接相关的最小必要改动。

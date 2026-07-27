@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  version: "2"
   generatedBy: "1.3.1"
 ---
 
@@ -58,9 +58,9 @@ Explore 是一种思考姿态，不是实现工作流。你可以阅读文件、
 
 5. 如果需要 proposal、design、tasks 等 CLI 不直接返回正文的 artifact，先尝试 `openspec instructions apply --change "<change>" --json` 获取 `contextFiles`，再按需读取其中列出的具体文件。
 6. 以上命令按探索问题选择，不是每次全量执行。
-7. CLI 不可用、命令失败或输出不足以支撑探索结论时，再读取目标 artifact 原文；维护本 skill、排查二次改写遗漏、或需要补回原始 OpenSpec skill 的维护语义时，只读同目录 `reference-original.md`。
+7. CLI 不可用、命令失败或输出不足以支撑探索结论时，再读取目标 artifact 原文；需要参考本 skill 原始行为时只读同目录 `reference-original.md`。
 8. 读取 OpenSpec 上下文后，把其中的目标、范围、任务、决策和当前讨论连接起来；发现偏差时说明偏差影响。
-9. 沉淀探索结果和修改已有 change 时，更新相关 OpenSpec artifacts。这属于记录思考，不属于实现应用代码；已写入的 change 仍是待审计临时计划，不代表可以直接进入实现。
+9. 沉淀探索结果和修改已有 change 时，更新相关 OpenSpec artifacts。这属于记录思考，不属于实现应用代码。
 10. 只记录用户确认的决策、决策变更和开放问题答案；关联 change 明确时直接写入。
 
 ## 决策记录

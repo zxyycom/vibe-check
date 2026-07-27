@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires openspec CLI.
 metadata:
   author: openspec
-  version: "1.0"
+  version: "2"
   generatedBy: "1.3.1"
 ---
 
@@ -40,7 +40,7 @@ metadata:
    - `--no-validate`：仅在用户明确跳过验证并接受风险时追加。
 4. 兜底读取：
    - OpenSpec CLI 负责归档移动和 spec 更新；常规流程中不手动创建 archive 目录或移动 change 目录。
-   - CLI 不可用或失败时，读取目标 change 文件用于诊断；维护本 skill、排查二次改写遗漏、或需要补回原始 OpenSpec skill 的维护语义时，再读取 `reference-original.md`。
+   - CLI 不可用或失败时，读取 `reference-original.md` 和目标 change 文件，报告失败命令、错误摘要和用户可确认的兜底方案。
 
 ## 流程
 
