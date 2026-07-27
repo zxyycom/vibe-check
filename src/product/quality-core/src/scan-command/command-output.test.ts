@@ -8,7 +8,6 @@ import {
 import type { QualityScanProfile } from "./command-model.ts";
 import { printGateStatus } from "./command-output.ts";
 
-// @case WB-OUTPUT-GATE-CONSOLE-001
 describe("gate console projection", () => {
   test("keeps disabled gates silent", () => {
     const metrics = createMetrics();

@@ -1,12 +1,12 @@
 # 测试策略
 
 本文定义 Vibe Check 自动化测试的层级、所有权、fixture 边界、统一验证入口和一致性审计
-规则。以下子文档维护测试用例流程和最终账本：
+规则。测试证据由以下项目材料维护：
 
-- [测试用例维护](testing/case-maintenance.md)：测试函数、fixture 证明目标和源码
-  `@case` 标记变更时的维护流程。
-- [测试用例编号账本](testing/cases.md)：最终 case 条目、证明目标和源码 `@case` 标记
-  映射。
+- [测试证据维护](testing/case-maintenance.md)：原生测试节点、fixture 证明目标、case
+  identity 和统一目录的维护流程。
+- `docs/test-evidence/`：受控 topic、每个原生测试节点一个 case 的 source files，以及
+  由统一 CLI 生成的派生索引。
 
 稳定 CLI、scan scope、metrics、warning、baseline、gate、process outcome、artifact 和
 output 语义以
@@ -18,7 +18,7 @@ output 语义以
 产品测试 owner 位于 `src/product/**`，测试对象是仓库自有 TypeScript/Bun source、正式
 product entry 和外部 scanner adapters。迁移后的 quality-core tests / fixtures 位于
 `src/product/quality-core/**`；可由正式入口扫描的 reusable external project fixture 位于
-`fixtures/projects/**`。`docs/testing/cases.md` 记录其当前路径。
+`fixtures/projects/**`。`docs/test-evidence/**` 把当前原生 test 节点映射到证明目标。
 
 Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或逐项映射到 TypeScript
 产品。新增 coverage、scanner characterization 或既有缺陷修复进入独立 change，不回填
@@ -58,8 +58,7 @@ requirement。
 
 ## Product unit tests
 
-当前 TypeScript tests 继续证明其职责。`docs/testing/cases.md` 记录的直接
-资产包括：
+当前 TypeScript tests 继续证明其职责。`docs/test-evidence/**` 记录的直接资产包括：
 
 - `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV、jscpd version/report parser，
   以及 jscpd unavailable / execution / report / parse failure。
@@ -197,6 +196,7 @@ cross-surface mapping 和 output 边界的代表性路径。
 
 ```bash
 bun run validate:docs
+bun run test-evidence:check
 bun run validate
 ```
 
@@ -220,10 +220,11 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
 交付前检查：
 
 1. 新增、删除或移动的 tests 能追溯到 owner 文档或明确 change requirement。
-2. 已迁移 TypeScript tests / fixtures 的证明目标和 case 映射保持可追溯。
+2. 已迁移 TypeScript tests / fixtures 的证明目标和 test-evidence case 映射保持可追溯。
 3. 已删除的 Rust tests / fixtures 没有进入 `src/product/**`。
 4. 测试文档不重新定义 threshold、warning、baseline、artifact 或 status。
-5. Case ledger 路径和 `implemented` 状态必须对应实际测试与唯一 `@case` marker。
+5. 每个进入验证范围的原生 test 节点对应一个且仅一个当前 case；Entry、case ID 和
+   source path 无重复，派生索引保持同步。
 6. Completeness tests 分层证明 model/reducer、adapter result 和 formal-entry
    cross-surface mapping，不靠重复同一 scanner matrix 获得覆盖数量。
 7. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。

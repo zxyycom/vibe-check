@@ -16,7 +16,6 @@ import { runQualityScan } from "./engine.ts";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 
-// @case WB-RUNTIME-GATE-OUTCOME-001
 describe("quality scan process outcome", () => {
   test("publishes the same warnings and GateResult across successful outputs", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-success-"));

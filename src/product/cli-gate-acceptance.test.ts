@@ -22,7 +22,6 @@ import {
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 
-// @case BB-CLI-GATE-ACCEPTANCE-001
 describe("formal CLI quality gate acceptance", () => {
   it("passes a zero-warning quick all gate while preserving skipped capability evidence", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("quick-all-zero");

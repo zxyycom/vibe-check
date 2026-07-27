@@ -19,6 +19,8 @@ Vibe Check 拥有的开发脚本入口是：
   编译和 report examples。
 - `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
+- `scripts/test-evidence.ts`：显式传入 Vibe Check 仓库根，复用项目内
+  `test-evidence-review` skill 的 ESM API，并提供测试证据查询、索引同步和严格检查入口。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
   `parallel-task-runner` 并行运行本地检查。
 
@@ -36,6 +38,8 @@ Vibe Check 拥有的开发脚本入口是：
   wrapper 到达同一产品 core；wrapper 只透明传递参数和产品 exit。
 - `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
   配置或扫描 core。
+- Required workspace verification 严格检查 decision records 与 test evidence 两个项目
+  catalog；wrapper 只固定仓库根，不复制上游 parser、validator 或索引实现。
 - Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
   `parallel-task-runner` gitlinks 仍服务开发脚本。
 
@@ -123,7 +127,7 @@ release artifact。
 
 项目内安装的上游
 [`decision-records`](https://github.com/zxyycom/skills/tree/main/skills/decision-records)
-拥有决策记录格式、索引生命周期以及 CLI / ESM API 语义。Vibe Check-owned
+拥有 domain catalog、决策记录格式、alignment、索引生命周期以及 CLI / ESM API 语义。Vibe Check-owned
 `scripts/decision-records.ts` 显式传入仓库根、转发 CLI 参数，并为模块调用暴露
 `runDecisionRecordsCli`、`scanDecisionRecords` 和 `validateDecisionRecords`。适配器不复制
 解析、校验、索引维护或关系语义，`src/product/**` 也不导入该开发工具。
@@ -135,6 +139,26 @@ release artifact。
 | `bun run decisions -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定；写命令按 skill 契约执行 |
 
 已确认的长期取舍位于 `docs/decisions/`；代码、配置和 owner 文档继续承接当前事实与行为。
+
+## 测试证据适配器
+
+项目内安装的上游
+[`test-evidence-review`](https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review)
+拥有 `docs/test-evidence/` 的固定结构、case parser、topic catalog、派生索引以及 CLI /
+ESM API 语义。Vibe Check-owned `scripts/test-evidence.ts` 只固定仓库根并转发调用，同时
+暴露 topics、query、show、sync-index 与 validate API；它不扫描测试源码，也不维护第二套
+marker 或聚合账本。
+
+| 入口 | 用途 | 状态影响 |
+| --- | --- | --- |
+| `bun run test-evidence:list` | 列出当前 case 的紧凑检索投影 | 只读 |
+| `bun run test-evidence:check` | 严格检查 topic、case source 与派生索引 | 只读 |
+| `bun run test-evidence:sync-index` | 从 case sources 重建派生索引 | 写入 `docs/test-evidence/test-evidence-index.json` |
+| `bun run test-evidence -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定 |
+
+测试层级和项目级维护规则由 [测试策略](testing.md) 与
+[测试证据维护](testing/case-maintenance.md) 拥有。每个 case 只映射一个最小原生 test
+节点；产品语义继续由对应行为 owner 定义。
 
 ## 配置所有权
 
@@ -157,8 +181,8 @@ Output owner 说明。
 现有 schema/example 路径，不重新定义 output contract。
 
 `scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的
-任务集合、profile 分层、warning output 识别和成功输出过滤。它不定义产品行为，
-只编排已有命令。
+任务集合、profile 分层、warning output 识别和成功输出过滤。Required profile 包含
+decision records 与 test evidence 的严格检查。它不定义产品行为，只编排已有命令。
 
 ## 验证入口
 
@@ -171,6 +195,7 @@ Output owner 说明。
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
+| 测试证据适配器或 case 集合 | `bun run test-evidence:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
 | Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |

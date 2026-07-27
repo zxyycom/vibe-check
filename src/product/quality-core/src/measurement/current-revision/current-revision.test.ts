@@ -16,7 +16,6 @@ import { runLizardScan } from "./lizard.ts";
 import type { ScanContext } from "./scan-context.ts";
 import { runSccScan } from "./scc.ts";
 
-// @case WB-RUNTIME-CAPABILITY-RESULT-001
 describe("current revision scanner failure projection", () => {
   it("keeps eligible Lizard zero-function output succeeded", async () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-empty-"));

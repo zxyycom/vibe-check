@@ -1,120 +1,103 @@
-# 测试用例维护
+# 测试证据维护
 
-本文定义测试函数、fixture 证明目标与源码 `@case` 标记变更时的维护流程。[测试用例编号
-账本](cases.md) 只保存最终 case 条目；本文拥有编号规则、case 归属判断和账本更新规
-则。
+本文定义 Vibe Check 项目如何把原生测试节点维护为可检索的测试证据。固定目录格式、case
+语法、派生索引和 CLI / ESM API 契约由项目内
+`test-evidence-review` skill 拥有；本文只负责项目级 topic、case identity、证明目标和
+测试变更流程。
+
+产品语义仍以 [文档导航](../navigation.md#规则所有权) 指向的 owner 文档为准。测试证据
+说明哪个可执行入口证明哪条契约，不重新定义产品行为。
+
+## 当前材料
+
+测试证据使用固定目录 `docs/test-evidence/`：
+
+- `test-evidence-topics.json` 是受控 topic 表。
+- `<topic-id>/<case-slug>.md` 是人工维护的 case source；每个文件只记录一个 case。
+- `test-evidence-index.json` 是由统一 CLI 生成的派生索引，不手工编辑。
+
+每个 case 必须只指向一个最小原生 runner 节点。一个文件、suite 或 fixture 可以服务多个
+case，但不能用一个聚合 case 代替多个原生 test / it 节点。Vibe Check-owned 源码不再
+保存 `@case` marker，也不存在 marker 与目录的双读关系。Pinned toolkit submodule
+内部仍可能带有其上游 revision 的历史 marker 注释；项目不读取这些注释，也不把它们视为
+Vibe Check 测试证据或当前 owner。
 
 ## 使用时机
 
-出现以下任一变更时，先按本文判断是否查看或更新对应 case 条目：
+出现以下任一变更时，检查并同步对应 case：
 
-1. 新增、删除、重命名或移动已登记的测试函数、测试模块或脚本测试入口。
-2. 修改测试断言，使测试证明目标、等价类或可观察结果发生变化。
-3. 新增、删除或移动源码 `@case` 标记。
-4. 把已有测试纳入或移出某个 case。
-5. 为修复、重构或验证工具链改动补稳定测试。
+1. 新增、删除、重命名或移动原生 test / it 节点。
+2. 修改断言，使测试证明目标、契约或可观察结果发生变化。
+3. 修改 test suite 名称，导致 runner identity 改变。
+4. 新增、删除或调整测试 fixture 的责任边界。
+5. 把测试迁入或迁出当前统一验证入口。
 
-只改测试内部实现细节，且证明目标、断言语义、`@case` 归属和源码路径都不变时，账本保
-持不变；交付前确认本次 diff 没有扩大测试职责。
+只改测试内部实现细节，且 runner identity、Contract、Proves 和 Entry 都不变时，无需改
+case；交付前仍要确认局部 diff 没有扩大测试职责。
 
-## 编号规则
+## Identity 与归属
 
-测试用例编号使用 `类别-责任域-证明意图-NNN`：
+Case ID 延续 `类别-责任域-证明意图-NNN` 的项目命名习惯，并满足 skill 的固定语法：
 
-1. `BB`：黑盒测试，从真实入口观察用户链路、进程边界或输出边界。
-2. `WB`：白盒测试，从 owner 边界、函数、fixture 或 conformance 入口证明内部语义。
-3. `AUX`：辅助脚本语义 case，证明测试、验证、质量观测或调度链路的当前工具链
-   contract。
+- `BB`：通过正式入口观察用户链路、进程或输出边界。
+- `WB`：通过 owner 函数、模型或 adapter 证明内部不变量。
+- `AUX`：证明开发脚本、验证、质量观测或调度工具链。
 
-责任域当前使用：
+同一稳定行为在移动或重命名时保留 case ID，只更新 title、Entry、Contract、Proves 和
+文件 slug。行为身份改变时建立新 case，并删除不再有原生入口的旧 case；已删除的 ID
+不得复用。新增责任面需要长期检索时，先在 `test-evidence-topics.json` 添加排序后的
+topic 定义。
 
-| 责任域 | 范围 |
-| --- | --- |
-| `CLI` | CLI 参数、路径、meta command、退出码和 stdout/stderr 边界 |
-| `CONFIG` | 默认或显式完整配置、严格 parsing、选择、替换和 precedence |
-| `SCOPE` | scan scope 收集、默认排除、supported file 分类和 collection diagnostic |
-| `METRICS` | LOC metrics、聚合、warning、gate 和 report summary |
-| `DUPLICATE` | Duplicate dependency characterization、adapter、pair normalization 和 warning contract |
-| `STRUCTURAL` | Structural dependency characterization、function adapter、parameter normalization、diagnostic 和 warning contract |
-| `OUTPUT` | 人读输出、JSON 输出、schema 示例和输出通道 |
-| `SCHEMA` | schema/example 验证材料 |
-| `RUNTIME` | pipeline runtime、collector/adapter handoff、fatal/recoverable failure 映射 |
-| `QUALITY` | 开发期 quality scanner、cache、warning、report 和 input helpers |
-| `PARALLEL` | parallel task runner 调度和 graph validation |
-| `WORKSPACE` | workspace verifier profile、输出过滤和日志边界 |
-| `TOOLKIT` | 共享 toolkit 基础 helper |
+Topic 表只按长期可检索的能力边界划分，不按单个文件、临时 change 或每个测试 suite
+扩张。当前 topic 以 `bun run test-evidence -- topics` 输出为准。
 
-新增责任域时，先在本文登记责任域，再同步账本条目和源码 `@case` 标记。
+## Case 编写流程
 
-## 测试变更流程
+1. 先按 [测试策略](../testing.md) 选择最窄测试层级，并从行为 owner 写出
+   “稳定契约 -> 可观察结果”。
+2. 运行或检查原生 runner，确认目标 test / it 节点具有可唯一定位的 path、suite 和
+   test name。
+3. 在对应 topic 下建立一个 case 文件；一个原生节点对应一个 case。
+4. `Entry` 精确定位该节点；`Contract` 引用 owner 承诺的语义；`Proves` 说明该节点实际
+   断言的可观察结果。
+5. 写入后重建派生索引并运行严格检查：
 
-1. 先按 [测试策略](../testing.md) 判断测试层级和 owner 边界。
-2. 在 [测试用例编号账本](cases.md) 查找最接近的 case 条目。
-3. 判断本次变更是否仍属于现有 case 的同一责任边界或同一行为链路。
-4. 证明目标属于现有 case 时，在同一 patch 更新该 case 的 `Proves:` 或 Mermaid 叶子断
-   言；嵌入已有 case 的新增断言必须共享该 case 的责任边界，并指向明文 owner 语义。
-5. 证明目标不同且需要独立的可执行证明时，新增或拆分 case，并添加源码 `@case` 标记。
-6. 新增、拆分或扩展测试断言前，先写出“owner 明确承诺的语义 -> 可观察结果”的证明目
-   标；涉及 strict public input、report shape、diagnostic 或 success payload shape
-   时，证明目标必须指向对应 owner 文档、schema/example 或相邻稳定实现。
-7. 历史回归、默认不存在或“没有发生某事”只能作为输入选择或风险说明，不能替代证明目
-   标，除非 owner 文档、schema、示例或测试策略明文要求校验该否定边界。
-8. 只提升重构信心的改动使用现有测试、局部验证命令或代码审查证明。
+   ```bash
+   bun run test-evidence:sync-index
+   bun run test-evidence:check
+   ```
 
-## Case 归属规则
+6. 运行目标测试。跨多个 owner、入口或 package 时，再运行
+   `bun run verify:vibe-check-workspace:required` 或更高层级验证。
 
-每个 `@case` 标记绑定一个测试用例；多个测试函数可以共享同一 case，前提是它们证明同
-一责任边界或同一行为链路。
-
-否定性断言只在 owner 文档把该行为定义为稳定契约、安全边界、诊断投影或输出通道边界时
-进入测试。该限制同时适用于新增 case、拆分 case、为已有 case 增加分支，以及在已有正向
-行为链路中增加辅助断言。
-
-CLI contract case 以外部链路类型作为归属基座：
-
-1. command、output mode、非法参数和 fixture 是覆盖维度，并入对应链路 case，不展开为笛
-   卡尔积 case。
-2. 连续链路可以在一个 case 内串行执行多个 CLI 命令。
-3. 只有独立链路才拆成独立 case。
-4. 账本 case id 只用于审计编号和证明目标，不要求测试函数名复用 case id。
-
-保留多分支 case 的条件：
-
-1. 多个分支共享同一初始状态、执行上下文或行为链路。
-2. 拆分会制造额外 fixture、状态同步或审计成本。
-3. `Proves:` 或 Mermaid 能写清共享基座、分支条件、处理阶段和各叶子断言。
-
-拆分 case 的条件：
-
-1. 变更证明了新的 owner 边界、外部入口、内部不变量或等价类。
-2. 存在清晰且稳定的共享基座、fixture builder 或状态获取函数。
-3. 拆分后能降低审计范围和维护成本。
-
-## 账本更新规则
-
-新增或调整账本条目时：
-
-1. 在 [测试用例编号账本](cases.md) 新增或更新一个 `### CASE-ID ...` entry，并填写
-   `Status:` 和 `Proves:`。
-2. `Status: implemented` 必须填写 `Code:`，并在负责该测试语义的入口位置添加唯一
-   `@case CASE-ID` 标记。
-3. `Status: planned` 可先不填写 `Code:`，也不得提前添加源码 `@case` 标记；实现时改为
-   `implemented`。
-4. 标记位置优先放在入口处：Rust `mod tests` 内的 case 段落开头、外部 integration
-   test 中同一语义分组的第一个测试前、TypeScript `describe(...)` 前，或负责该语义的
-   fixture/test harness 入口。
-5. 默认按单一路径描述 case：输入或触发 -> 被测行为 -> 可观察结果。
-6. 若同一 case 必须覆盖多个分支，使用 Mermaid `flowchart LR`，按“输入或触发 -> 分支
-   判断 -> 处理阶段 -> 可观察结果”组织；每个叶子节点应对应一个断言分支或验证点。
-7. 使用具体验证点替代“覆盖多种场景”这类概括。
-
-## 验证
-
-修改测试用例维护文档、账本、源码 `@case` 标记或 `Code:` 路径后，运行：
+需要检索或审阅现有 case 时使用：
 
 ```bash
-bun run validate:docs
+bun run test-evidence:list
+bun run test-evidence -- list --topic <topic-id> --query <text>
+bun run test-evidence -- show <case-id>
 ```
 
-若同时修改测试代码，继续运行覆盖该 owner 边界的最窄测试命令；跨多个验证入口时再运行
-`bun run verify:vibe-check-workspace:required` 或更高层级验证。
+目录结构、字段或索引诊断不清楚时，先读
+`.codex/skills/test-evidence-review/SKILL.md`，不要在项目脚本中复制 parser 或 validator。
+
+## Fixture 责任
+
+Case 只记录 fixture 与目标测试之间可验证的责任，不让 fixture metadata 成为产品 owner：
+
+1. External project fixture 位于 `fixtures/projects/**`，用于正式入口链路。
+2. Unit / scanner protocol support 与相邻测试放置，证明 parser 或 adapter 输入边界。
+3. 一个 fixture 可被多个 case 复用；每个 case 仍只绑定一个原生 test 节点。
+4. Fixture 变化若改变测试输入类别或可观察结果，同步更新所有受影响 case。
+
+## 交付审计
+
+测试或证据材料变更后确认：
+
+1. 每个当前 case 都能定位一个且仅一个原生 runner 节点。
+2. 每个进入项目验证范围的原生测试节点都有一个 case，ID、Entry 和 source path 无重复。
+3. `Contract` 可追溯到当前 owner 或明确 change requirement，`Proves` 不只写“覆盖了场景”。
+4. `test-evidence-index.json` 与 source files 同步，且没有手工维护的第二份账本或源码
+   marker。
+5. 目标测试与 `bun run test-evidence:check` 均通过；跨边界变更按风险补充 workspace
+   verification。

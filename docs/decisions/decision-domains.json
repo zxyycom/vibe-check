@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "domains": [
+    {
+      "id": "testing",
+      "description": "维护测试策略、测试证据、fixture 与证明责任的长期边界。"
+    },
+    {
+      "id": "workflow-policy",
+      "description": "维护项目开发流程、agent 协作和长期工作流的治理边界。"
+    }
+  ]
+}

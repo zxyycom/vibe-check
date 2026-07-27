@@ -8,7 +8,6 @@ import { loadQualityConfig } from "./config-file.ts";
 import { parseQualityConfig } from "./config-parser.ts";
 import { DEFAULT_CONFIG } from "./config.ts";
 
-// @case WB-CONFIG-FILE-001
 describe("complete quality config parsing", () => {
   it("returns a detached QualityConfig with the supplied values unchanged", () => {
     const input = configInput();

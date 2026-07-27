@@ -15,10 +15,16 @@ import type {
 } from "../.codex/skills/decision-records/scripts/decision-records.mjs";
 
 export type {
+  DecisionAlignment,
   DecisionDocument,
+  DecisionDomainDefinition,
   DecisionIndex,
   DecisionIndexEntry,
+  DecisionIndexMetadata,
+  DecisionIndexState,
+  DecisionListAlignment,
   DecisionListStatus,
+  DecisionMetadata,
   DecisionProjection,
   DecisionRecord,
   DecisionRelation,

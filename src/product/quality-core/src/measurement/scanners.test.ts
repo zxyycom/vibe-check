@@ -19,7 +19,6 @@ import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("quality scanner output parsing", () => {
-  // @case AUX-QUALITY-PARSER-001
   it("parses scc 3.7 Provider paths and rejects unknown CSV headers", () => {
     const csv = [
       SCC_BY_FILE_CSV_HEADER,
@@ -255,7 +254,6 @@ describe("quality scanner output parsing", () => {
 });
 
 describe("quality scc exact input projection", () => {
-  // @case AUX-QUALITY-SCC-WRAPPER-001
   it("returns empty metrics without invoking scc when exact inputs are empty", () => {
     const result = scanWithScc({
       cwd: REPO_ROOT,
@@ -297,7 +295,6 @@ describe("quality scc exact input projection", () => {
 });
 
 describe("quality lizard availability projection", () => {
-  // @case AUX-QUALITY-LIZARD-AVAILABILITY-001
   it("classifies non-zero version exits with stderr as execution failures", async () => {
     const toolConfig = createFakeVersionToolConfig({
       stdout: "",
@@ -331,7 +328,6 @@ describe("quality lizard availability projection", () => {
 });
 
 describe("quality jscpd wrapper failure projection", () => {
-  // @case AUX-QUALITY-JSCPD-WRAPPER-001
   it("does not treat a successful jscpd run without JSON as a successful empty scan", () => {
     const toolConfig = createFakeJscpdToolConfig({ stdout: "", stderr: "", exitCode: 0 });
 

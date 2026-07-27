@@ -17,8 +17,8 @@
 | 修改 console、report、artifacts 或 stdout/stderr output channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、相邻 output tests |
 | 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
 | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | `scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
-| 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md) | [测试用例编号账本](testing/cases.md)、示例、schema、相邻测试 |
-| 恢复、审阅或维护会跨任务沿用的长期判断 | `bun run decisions:list`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后运行 `bun run decisions:check` |
+| 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) | `docs/test-evidence/`、`.codex/skills/test-evidence-review/SKILL.md`、示例、schema、相邻测试 |
+| 恢复、审阅或维护会跨任务沿用的长期判断 | `bun run decisions:list`、`docs/decisions/decision-domains.json`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后同步索引并运行 `bun run decisions:check` |
 | 审计历史或规划较大 change | `openspec/changes/` | 对应 proposal、design、tasks 和 spec delta |
 
 ## 交付验证
@@ -27,6 +27,7 @@
 
 - 文档、schema、examples、OpenSpec 和 whitespace：`bun run validate`。
 - 长期决策集合结构与索引一致性：`bun run decisions:check`。
+- 测试证据 source、topic 和派生索引一致性：`bun run test-evidence:check`。
 - 跨产品行为、OpenSpec、schema、示例、输出边界或多个包边界：`bun run verify:vibe-check-workspace:required`。
 - 大范围重构、发布前或需要完整 quality 与产品测试：`bun run verify:vibe-check-workspace:full`。
 - 脚本工具细分命令见 [脚本工具](script-tooling.md)。
@@ -48,8 +49,8 @@
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality dogfood wrapper 和脚本依赖 |
 | 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
-| 测试资料 | [测试用例维护](testing/case-maintenance.md)、[测试用例编号账本](testing/cases.md) | 测试变更流程、case 条目、证明目标或 `@case` 标记 |
-| 长期决策 | `docs/decisions/` | 恢复、审阅和演进已确认的长期取舍，不替代当前事实或行为 owner |
+| 测试资料 | [测试证据维护](testing/case-maintenance.md)、`docs/test-evidence/` | 原生测试节点变更流程、topic、case source、证明目标和派生索引 |
+| 长期决策 | `docs/decisions/decision-domains.json`、各 domain 下的决策 Markdown 与 `decision-index.json` | 恢复、审阅和演进已确认的长期取舍，不替代当前事实或行为 owner |
 | 变更工作流 | `openspec/changes/` | 规划、验收、归档或审计较大 change |
 
 脚本和验证材料不重新定义产品语义。与主规范不一致时，先判断是主规范缺口、验证材料漂移还是有意 contract 变更。
@@ -88,8 +89,8 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
 | Console、GateResult projection、metrics/report/warning/raw artifacts 和已退役 Rust schema 材料 | [Output](output.md) |
 | 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality dogfood wrapper | [脚本工具](script-tooling.md) |
-| 测试层级、fixture、case 归属和验证脚本 | [测试策略](testing.md)、[测试用例维护](testing/case-maintenance.md)、[测试用例编号账本](testing/cases.md) |
-| 长期取舍的完整语义、生命周期、检索投影和演进关系 | 对应决策 Markdown（完整语义）与 `docs/decisions/decision-index.json`（生命周期和投影） |
+| 测试层级、fixture、case 归属和验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) 与 `docs/test-evidence/` case sources |
+| 长期取舍的 domain、完整语义、生命周期、alignment、检索投影和演进关系 | `docs/decisions/decision-domains.json`、对应决策 Markdown 与派生 `docs/decisions/decision-index.json` |
 
 ## 术语
 

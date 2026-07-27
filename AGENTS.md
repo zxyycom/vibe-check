@@ -34,6 +34,20 @@
 - 不为短期跑通引入长期难维护方案；确需临时处理时写清 TODO、范围和移除条件。
 - 风险高且不能可靠推断时，只问必要问题。
 
+### 工程判断 skill
+
+- 判断产品长期组件职责、owner、调用方向或运行边界时，使用
+  `product-architecture-judgment`。
+- 设计或审查依赖方向、适配层、共享库或 runtime/tooling 隔离时，使用
+  `dependency-boundary-design`。
+- 多个实现、平台或入口需要共同契约时，使用 `common-denominator-design`；不要用最低能力
+  偶然交集替代明确产品语义。
+- 目标和边界已经明确、需要选择最小完整实现时，使用 `minimal-implementation`；它不替代
+  owner、测试或迁移要求。
+- 需要把较长调查保存为可复核 artifact 时，使用 `investigation-report`，并区分当前事实、
+  历史证据、推断和建议。
+- 只使用当前判断所需的最小 skill 组合，不为简单改动机械叠加全部流程。
+
 ## 上下文获取
 
 ### 本仓库
@@ -65,6 +79,15 @@ docnav read <path> --ref "<ref>"
 3. 通过 `bun run decisions -- <command>` 写入记录或改变生命周期；任何写入完成后运行
    `bun run decisions:check`。
 
+### 测试证据
+
+1. 新增、删除、重命名、移动原生 test 节点，或修改其 Contract / Proves 时，使用项目内
+   `test-evidence-review` skill，并从 `bun run test-evidence:list` 恢复当前 case。
+2. `docs/test-evidence/` 是当前唯一 case catalog；每个 case 只映射一个最小原生 runner
+   节点。不要新增源码 `@case` marker、聚合账本或第二套 parser。
+3. 写入 case source 或 topic 后运行 `bun run test-evidence:sync-index`，随后运行
+   `bun run test-evidence:check`；测试代码有变化时继续运行最窄目标测试。
+
 ### 代码结构
 
 - 理解调用关系优先用可用的 CodeGraph MCP。
@@ -74,6 +97,9 @@ docnav read <path> --ref "<ref>"
 ### 变更材料
 
 - `openspec/changes/` 只在处理 change、审计、验收或用户明确要求时读取；涉及时先运行 `openspec list --json`。
+- OpenSpec 的探索、提案、实施和归档分别使用 `openspec-explore`、
+  `openspec-propose`、`openspec-apply-change` 与 `openspec-archive-change`；归档只在用户
+  明确要求或当前任务明确包含归档时执行。
 - 修改字段、示例、schema 或输出 shape 时，读取 `docs/schemas/` 和 `docs/examples/`；owner 缺失时先说明依据和落点。
 
 ## 实现与验证

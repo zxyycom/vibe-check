@@ -147,7 +147,6 @@ describe("product CLI routing", () => {
   });
 });
 
-// @case BB-CLI-GATE-USAGE-001
 describe("gate CLI usage contract", () => {
   it("returns exit 3 before scanners or artifacts for every invalid gate form", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-invalid-gate-"));
@@ -220,7 +219,6 @@ describe("gate CLI usage contract", () => {
   });
 });
 
-// @case BB-CLI-CHANGED-FILES-001
 describe("changed-files CLI contract", () => {
   it("maps wrapped read errors to ordinary and missing-input exits", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-cli-errors-"));
@@ -318,7 +316,6 @@ describe("changed-files CLI contract", () => {
   });
 });
 
-// @case AUX-QUALITY-DOGFOOD-001
 describe("formal and dogfood entrypoints", () => {
   it("keeps the dogfood wrapper pointed only at the product CLI", () => {
     const wrapper = readFileSync(resolve(repoRoot, "scripts/quality/scan.ts"), "utf8");

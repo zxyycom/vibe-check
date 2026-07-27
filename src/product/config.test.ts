@@ -12,7 +12,6 @@ const CURRENT_TOP_NOTICE =
 const CURRENT_FOOTER_NOTICE =
   "This report is a non-blocking development snapshot. Vibe Check TypeScript/Bun product tests and contract validation define the release gates.";
 
-// @case WB-OUTPUT-NOTICES-001
 describe("product report notices", () => {
   it("renders current TypeScript/Bun release ownership at the stable notice positions", () => {
     const report = generateMarkdownReport(

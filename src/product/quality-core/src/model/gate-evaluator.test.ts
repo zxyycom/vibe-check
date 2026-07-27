@@ -9,7 +9,6 @@ import type {
   WarningRecord
 } from "./schema.ts";
 
-// @case WB-METRICS-GATE-EVALUATOR-001
 describe("gate evaluator prerequisites", () => {
   test("applies the fixed disabled, completeness, and comparison priority", () => {
     const channels = createWarningChannels({

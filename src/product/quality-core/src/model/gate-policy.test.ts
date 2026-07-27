@@ -14,7 +14,6 @@ import {
   validateMetrics
 } from "../index.ts";
 
-// @case WB-METRICS-GATE-MODEL-001
 describe("gate policy descriptor", () => {
   test("derives closed policy values, help, channels, and prerequisites from one descriptor", () => {
     expect(GATE_POLICY_DESCRIPTORS).toEqual([

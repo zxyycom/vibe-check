@@ -24,9 +24,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 const fixtureArtifactDir = resolve(fixtureRoot, "artifacts/configured-scan");
 
-// @case BB-CLI-CONFIG-FILE-001
 describe("formal CLI explicit configuration", () => {
-  // @case BB-RUNTIME-COMPLETENESS-001
   it("scans the checked-in project deterministically with only the configured inputs", { timeout: 30_000 }, () => {
     cleanupFixtureOutput();
 

@@ -103,6 +103,32 @@ export const checks = defineChecks([
         tasks: docsValidatorChecks()
       },
       {
+        id: "repository-catalogs",
+        label: "repository catalog checks",
+        tasks: [
+          {
+            id: "decision-records",
+            label: "decision records",
+            command: "bun",
+            args: ["run", "decisions:check"],
+            ignoreOutput: [
+              /^\$ bun scripts\/decision-records\.ts check$/,
+              /^Decision records check passed \(\d+ domains, \d+ decisions, \d+ active, \d+ aligned, \d+ unaligned, \d+ archived\)\.$/
+            ]
+          },
+          {
+            id: "test-evidence",
+            label: "test evidence",
+            command: "bun",
+            args: ["run", "test-evidence:check"],
+            ignoreOutput: [
+              /^\$ bun scripts\/test-evidence\.ts check$/,
+              /^Test evidence check passed: \d+ topic\(s\), \d+ test case\(s\)\.$/
+            ]
+          }
+        ]
+      },
+      {
         id: "git-diff-whitespace",
         label: "git diff whitespace",
         command: "git",

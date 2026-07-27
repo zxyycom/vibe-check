@@ -61,7 +61,6 @@ const CASES: readonly CompletenessCase[] = [
   }
 ];
 
-// @case WB-RUNTIME-COMPLETENESS-001
 describe("scan completeness model", () => {
   it("defines the stable current measurement capability IDs", () => {
     assert.deepEqual(SCAN_CAPABILITY_IDS, [

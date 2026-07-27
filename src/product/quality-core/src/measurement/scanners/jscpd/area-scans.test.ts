@@ -12,7 +12,6 @@ import {
 } from "./area-scans.ts";
 import { TEST_QUALITY_CONFIG } from "../../../../test/config.ts";
 
-// @case AUX-QUALITY-JSCPD-TASK-001
 describe("jscpd tasks", () => {
   it("plans one scan task per code area", () => {
     const tasks = planJscpdAreaScanTasks([

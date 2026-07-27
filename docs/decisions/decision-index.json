@@ -1,15 +1,109 @@
 {
-  "schemaVersion": 3,
-  "records": [
+  "schemaVersion": 2,
+  "namespace": "decisions",
+  "definitionVersion": 3,
+  "metadata": {
+    "domains": [
+      {
+        "description": "维护测试策略、测试证据、fixture 与证明责任的长期边界。",
+        "id": "testing"
+      },
+      {
+        "description": "维护项目开发流程、agent 协作和长期工作流的治理边界。",
+        "id": "workflow-policy"
+      }
+    ]
+  },
+  "sourceRevision": "sha256:e65d051b496b18982d779961f4969fa996d63d509cd35bed7760dc84fafb25d0",
+  "keyDefinitions": [
     {
-      "path": "workflow-policy/use-project-decision-records.md",
-      "status": "active",
-      "createdAt": "2026-07-21T04:02:02Z",
-      "title": "在项目内采用长期决策记录",
-      "purpose": "让长期工程取舍可恢复、可审阅，并能在后续任务中一致沿用。",
-      "background": "项目已有规范与 OpenSpec，但缺少跨任务长期判断的独立生命周期索引。",
-      "decision": "在仓库内安装 decision-records skill，并用 docs/decisions 维护确认过的长期判断。",
-      "relations": []
+      "name": "domain",
+      "mode": "exact"
+    },
+    {
+      "name": "status",
+      "mode": "exact"
+    },
+    {
+      "name": "alignment",
+      "mode": "exact"
+    }
+  ],
+  "entries": [
+    {
+      "id": "testing/use-native-test-evidence-catalog.md",
+      "keys": {
+        "domain": [
+          "testing"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "testing/use-native-test-evidence-catalog.md",
+        "title": "采用一原生测试节点一条证据的统一目录",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-27T06:40:00Z",
+        "purpose": "让测试证明目标与实际 runner identity 一一对应，并通过统一索引持续校验。",
+        "background": "聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。",
+        "decision": "使用固定 test-evidence 目录维护单节点 case，并删除项目自有 marker 和双读。",
+        "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/use-project-decision-records.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/use-project-decision-records.md",
+        "title": "在项目内采用长期决策记录",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-21T04:02:02Z",
+        "purpose": "让长期工程取舍可恢复、可审阅，并能在后续任务中一致沿用。",
+        "background": "项目已有规范与 OpenSpec，但缺少跨任务长期判断的独立生命周期索引。",
+        "decision": "在仓库内安装 decision-records skill，并用 docs/decisions 维护确认过的长期判断。",
+        "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/use-upstream-project-skill-packages.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/use-upstream-project-skill-packages.md",
+        "title": "采用完整上游包维护项目工程 skills",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-27T06:40:00Z",
+        "purpose": "让项目工程判断 skill 可持续升级，同时保持上游分发内容与项目接线的清晰边界。",
+        "background": "项目需要 OpenSpec、架构边界、共同分母、最小实现和调查报告等专用工作流。",
+        "decision": "将选定上游 skill 作为完整分发单元安装，项目触发规则和适配只写在包外。",
+        "relations": []
+      }
     }
   ]
 }

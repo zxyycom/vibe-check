@@ -12,7 +12,6 @@ import { fileDecisionTokenRankings, fileRankings, functionSizeRankings } from ".
 import { repositorySize } from "./summary.ts";
 import { qualityGateSummary } from "./summary/sections.ts";
 
-// @case AUX-QUALITY-REPORT-001
 describe("quality report", () => {
   it("keeps changed-file watchlist useful without baseline annotations", () => {
     const metrics = qualityMetrics();

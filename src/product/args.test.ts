@@ -51,7 +51,6 @@ function captureScanHelp(): string {
   return output.join("\n");
 }
 
-// @case WB-CLI-CONFIG-OPTIONS-001
 describe("product config argument parsing", () => {
   it("preserves config path forms and explicit option presence", () => {
     const cases = [
@@ -93,7 +92,6 @@ describe("product config argument parsing", () => {
   });
 });
 
-// @case WB-CLI-GATE-PLANNING-001
 describe("quality gate argument parsing and scan planning", () => {
   it("keeps gate enforcement disabled when callers omit --gate", () => {
     const parsed = parseArgs([]);

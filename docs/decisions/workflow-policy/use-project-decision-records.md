@@ -1,9 +1,13 @@
-# 在项目内采用长期决策记录
-
-## 索引摘要
-- 目的: 让长期工程取舍可恢复、可审阅，并能在后续任务中一致沿用。
-- 背景: 项目已有规范与 OpenSpec，但缺少跨任务长期判断的独立生命周期索引。
-- 决策: 在仓库内安装 decision-records skill，并用 docs/decisions 维护确认过的长期判断。
+---
+title: 在项目内采用长期决策记录
+status: active
+alignment: aligned
+createdAt: 2026-07-21T04:02:02Z
+purpose: 让长期工程取舍可恢复、可审阅，并能在后续任务中一致沿用。
+background: 项目已有规范与 OpenSpec，但缺少跨任务长期判断的独立生命周期索引。
+decision: 在仓库内安装 decision-records skill，并用 docs/decisions 维护确认过的长期判断。
+relations: []
+---
 
 ## 目的
 - 为会持续影响后续工作的工程取舍保留可版本化、可检索、可演进的判断依据。

@@ -21,7 +21,6 @@ import {
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 
-// @case BB-CLI-GATE-OMITTED-001
 describe("formal CLI omitted-gate compatibility baseline", () => {
   it("preserves the complete passed exit, artifacts, and human output", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("passed");
