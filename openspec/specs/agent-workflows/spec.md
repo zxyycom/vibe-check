@@ -1,7 +1,8 @@
 # agent-workflows Specification
 
 ## Purpose
-TBD - created by archiving change refresh-project-skills-and-test-evidence. Update Purpose after archive.
+定义项目级 Codex skills 的来源追溯、完整分发、项目适配和 contract migration 规则，使
+通用 skill、项目 wrapper、owner 数据与已退役格式保持单一调用方向和单一当前事实源。
 ## Requirements
 ### Requirement: Project skills remain complete and traceable
 

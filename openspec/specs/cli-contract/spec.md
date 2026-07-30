@@ -1,7 +1,8 @@
 # cli-contract Specification
 
 ## Purpose
-TBD - created by archiving change define-mvp-cli-output-contract. Update Purpose after archive.
+定义正式 Product CLI 的 operation、project-root 与参数语义、scan planning、console /
+artifact 通道、process outcome 到 exit code 的映射，以及 dogfood wrapper 的单向调用边界。
 ## Requirements
 ### Requirement: CLI owner documentation
 
@@ -148,4 +149,3 @@ Product CLI SHALL 根据 policy descriptor 归一化 scan plan：`all` 只评价
 - **WHEN** 调用者把 comparison gate 与 quick profile 或显式 `--skip-baseline` 组合
 - **THEN** CLI 在 stderr 报告 comparison prerequisite 与可用修复方式，并退出 `3`
 - **AND** 不启动 scanner 或创建 scan artifacts
-

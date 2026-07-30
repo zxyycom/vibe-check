@@ -1,7 +1,9 @@
 # output-contract Specification
 
 ## Purpose
-TBD - created by archiving change define-mvp-cli-output-contract. Update Purpose after archive.
+定义 TypeScript/Bun 产品如何从同一 core 结果投影 console、metrics、Markdown、warning
+streams、completeness 与 GateResult，并固定 human/machine/raw 边界、可信发布条件和
+output failure 优先级。
 ## Requirements
 ### Requirement: Shared report data projection
 Output layer SHALL 按 pinned generation conditions 从 product core 产出的同一份 TypeScript metrics/report data 写出 `metrics.json`、`report.md`、`warnings.ndjson` 和 `warnings-all.ndjson`，并且 MUST NOT 独立重新计算 scanner metrics、warning channels、baseline/comparison 或 `passed` / `warning` / `failed` status。为复现 scanner behavior 保存的 raw artifacts SHALL 保持 adapter-private boundary，不得直接成为 stable product output field。
@@ -133,4 +135,3 @@ Evaluated gate completion SHALL 写 stdout，且 evaluated gate failure 本身 M
 - **WHEN** 同一 normalized warning data 使用 disabled request 或任一 gate policy
 - **THEN** warning streams 保持原 records、ordering 与 `acceptedReason`
 - **AND** blocking warnings 只由 `GateResult` 表达
-

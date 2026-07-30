@@ -1,7 +1,9 @@
 # scan-configuration Specification
 
 ## Purpose
-TBD - created by archiving change add-explicit-scan-config. Update Purpose after archive.
+定义 Product CLI 的完整 `QualityConfig` 选择、JSON 结构、路径基准、替换与 CLI precedence
+以及配置失败边界，使 current、baseline 和 fallback collection 使用同一份可信且经过严格
+校验的配置。
 ## Requirements
 ### Requirement: Explicit scan configuration selection
 

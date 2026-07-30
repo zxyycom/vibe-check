@@ -1,7 +1,9 @@
 # product-runtime Specification
 
 ## Purpose
-TBD - created by archiving change promote-typescript-quality-tooling-to-product. Update Purpose after archive.
+定义 `src/product/**` 作为唯一 TypeScript/Bun 产品运行时 owner，并固定正式 Product CLI、
+dogfood wrapper 与 product core 的单向调用关系，使已退役 Rust 路径和开发脚本不能成为
+并行产品实现或运行时依赖。
 ## Requirements
 ### Requirement: TypeScript 是唯一产品实现
 系统 MUST 由 `src/product/**` 下的仓库自有 TypeScript/Bun 源码提供质量扫描产品能力，并且 MUST 不保留 Rust 产品执行路径。

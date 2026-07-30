@@ -1,7 +1,9 @@
 # structural-scanning Specification
 
 ## Purpose
-TBD - created by archiving change integrate-rust-ast-grep-structural-adapter. Update Purpose after archive.
+定义 function-metrics structural scanning 的 supported exact-input selector、scan-scope
+边界、backend 隔离和 normalized `FunctionMetric` / failure contract，使 scanner 不会
+重新发现输入或把私有协议提升为产品语义。
 ## Requirements
 ### Requirement: Structural scanner adapter input
 Product core SHALL 从 Vibe Check normalized scan scope 运行 structural scanning。function-metrics adapter MUST 只接收已收集的 supported files，MUST NOT 扫描 project root、被 scan scope rules 排除的文件或 pinned TypeScript selector 判定为 unsupported 的文件。首次产品化的 structural inputs MUST 只包含 TypeScript `.ts` 和 Rust `.rs`；`.d.ts` MUST 按 TypeScript supported input 处理。
