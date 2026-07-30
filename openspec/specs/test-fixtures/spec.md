@@ -6,14 +6,16 @@
 ## Requirements
 ### Requirement: TypeScript product test assets remain traceable
 
-Vibe Check product unit tests 与 unit support fixtures SHALL 由 `src/product/**` 拥有，并且 SHALL 只证明当前 owner 定义的 TypeScript / Bun behavior。迁移后的 quality-core tests 与 unit support fixtures MUST 保留在 `src/product/quality-core/**`。可由正式入口扫描的 reusable external project fixtures SHALL 位于 `fixtures/projects/**`，并与 unit / scanner protocol support 保持可辨识边界。Testing owner materials MUST 使用受控 topic 下的一入口一 case 目录，将每个已记录的最小原生测试入口映射到实际 test path、稳定测试名称、契约背景和可观察证明结果。Scanner protocol samples 与 controlled tools MAY 作为 acceptance support，但 MUST NOT 定义稳定 Core 或 Output contract。
+Vibe Check product unit tests 与 unit support fixtures SHALL 由 `src/product/**` 拥有，并且 SHALL 只证明当前 owner 定义的 TypeScript / Bun behavior。迁移后的 quality-core tests 与 unit support fixtures MUST 保留在 `src/product/quality-core/**`。可由正式入口扫描的 reusable external project fixtures SHALL 位于 `fixtures/projects/**`，并与 unit / scanner protocol support 保持可辨识边界。Testing owner materials MUST 使用 `test-evidence-management` 定义的受控 topic、语义 Case 和当前实体闭合；每个 Case MUST 通过 `Owner`、`Entities` 与 `Proves` 把一个或多个当前测试实体关联到可观察证明责任，且不得把 Case/entity 关系限制为一对一。Scanner protocol samples 与 controlled tools MAY 作为 acceptance support，但 MUST NOT 定义稳定 Core 或 Output contract。
 
 #### Scenario: Product proof targets are auditable
 
 - **WHEN** reviewer 从 testing owner materials 检查已记录的 TypeScript product proof
   target
-- **THEN** case 的 `Entry` 精确定位实际 test path 与单个 runner 原生测试名称
-- **AND** case 的 `Contract` 与 `Proves` 能从对应 owner 和测试断言恢复
+- **THEN** Case 的 `Owner` 精确定位当前行为 owner，`Entities` 只引用 scanner
+  发现的当前测试实体
+- **AND** `Proves` 描述 owner 下可观察且可证伪的证明责任，完整关系通过 strict
+  many-to-many closure
 
 #### Scenario: External project fixtures remain distinct
 
@@ -53,7 +55,7 @@ Repository SHALL 在 `fixtures/projects/configured-typescript/` 提供最小、d
 
 ### Requirement: CI quality gate acceptance matrix
 
-Repository SHALL 提供 deterministic product-owned tests 与 fixtures，通过正式 Product CLI 和最窄 owner unit tests 证明 omitted disabled、`all`、`changed`、`regressions`、profile/comparison prerequisite、accepted warnings、complete/empty/failed completeness、output failure、cross-output projection 与 exit codes。Acceptance matrix MUST 至少包含 quick `all` 与 skipped capability、all-only warning、changed non-regression warning、regression warning、comparison `input-unchanged` / `baseline-unavailable`、accepted-only 与 accepted/unaccepted mixed warnings、complete zero-warning、legitimate empty、failed planned capability、quick/skip-baseline conflict 与 controlled output failure。每个已登记的最小原生测试入口 MUST 由唯一 case 文件把 proof target 映射到实际 test path、稳定测试名称和适用 fixture；acceptance MUST 使用 controlled warning/comparison data 或 checked-in external project，不得依赖网络、任意 console substring 或 scanner-private output shape。
+Repository SHALL 提供 deterministic product-owned tests 与 fixtures，通过正式 Product CLI 和最窄 owner unit tests 证明 omitted disabled、`all`、`changed`、`regressions`、profile/comparison prerequisite、accepted warnings、complete/empty/failed completeness、output failure、cross-output projection 与 exit codes。Acceptance matrix MUST 至少包含 quick `all` 与 skipped capability、all-only warning、changed non-regression warning、regression warning、comparison `input-unchanged` / `baseline-unavailable`、accepted-only 与 accepted/unaccepted mixed warnings、complete zero-warning、legitimate empty、failed planned capability、quick/skip-baseline conflict 与 controlled output failure。Acceptance 使用的每个当前测试实体 MUST 至少被一个语义 Case 覆盖，每个 Case MUST 引用当前实体并从 `Owner` 恢复证明责任；acceptance MUST 使用 controlled warning/comparison data 或 checked-in external project，不得依赖网络、任意 console substring 或 scanner-private output shape。
 
 #### Scenario: Omitted gate preserves existing behavior
 
