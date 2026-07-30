@@ -1,3 +1,13 @@
+## Change State
+
+本 change 已完成 planning audit，当前为 **implementation-ready**。前置 changes
+`make-scan-completeness-observable` 与 `add-ci-quality-gates` 已归档；本 change 的产品
+实现尚未开始，执行入口是 `tasks.md` 1.1。
+
+本 change 固定 implementation baseline 当时已经存在的 machine projection，不预留未来
+config provenance、scanner backend field 或其它 speculative metadata。相邻 change 只有在
+明确修改 output contract 时才能改变公开 projection。
+
 ## Why
 
 当前产品会写出 `metrics.json` 和 warning NDJSON，但这些 TypeScript artifacts 没有

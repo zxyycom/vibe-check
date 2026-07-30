@@ -1,38 +1,76 @@
-本 tasks 将 external project configuration workflow 拆成可验证步骤；当前 change 仅在 `openspec/changes/add-external-project-config-workflow/` 下形成待审计临时计划，不影响现有其它文档或主规范。
+执行约束：task 0.4 未完成时不得开始 section 1。关闭后按章节顺序推进；只有 implementation
+与指定证据都完成后才勾选任务。修改测试正文或实体时，同时执行当前 test-evidence
+review/check workflow。
 
-## 1. 阻塞级实现前审计
+## 0. Implementation Readiness
 
-- [ ] 1.1 审计 proposal、design、scan-configuration/CLI/scan-scope/test-fixtures deltas与本 tasks 是否围绕“每个外部项目显式拥有一份可发现或可生成的 config”这一核心句；确认 capability IDs合规、本 change仍是临时计划、未修改其它 docs/specs、验证覆盖 explicit/discovered/missing/init/dogfood migration，并确认现有 exact-input 规范的实现缺口已作为直接 bug fix 合入且有外部项目回归证明。该门禁完成前不得执行任何 2.x 及后续实现任务。
-- [ ] 1.2 回答 starter config 使用单一 mixed scope还是多个 presets的问题，将答案写入 Decision、help contract与fixtures，并删除已回答的 Open Question。
-- [ ] 1.3 审计当前 complete `QualityConfig` 中 tool paths、report text和code areas，列出不得进入repository-neutral starter的Vibe Check-specific values。
+- [x] 0.1 审计 proposal、design、deltas、当前 explicit-config implementation、owner docs
+  与 external fixture；确认 existing exact-input/config-path behavior 已实现并归档。
+- [x] 0.2 选择单一 mixed repository-neutral starter，排除 preset taxonomy、language
+  detection、network access 和 package-script mutation。
+- [x] 0.3 盘点 Vibe Check-specific default values，并为 selected config、declared
+  `VIBE_CHECK_*` tool overrides 与 CLI overrides 定义单一 owner/precedence。
+- [ ] 0.4 与 `port-lizard-function-metrics-to-typescript` 收敛最终
+  `QualityConfig.tools` shape：记录 port 已完成、已取消，或已明确延期且接受后续 config
+  migration。Rebase 后重跑 OpenSpec audit；本项关闭前不得实施。
 
-## 2. Configuration selection
+## 1. Config Selection and Provenance
 
-- [ ] 2.1 定义 config source/provenance model：explicit或discovered、resolved path和version。
-- [ ] 2.2 实现只在 normalized project root查找 `vibe-check.config.json` 的 discovery。
-- [ ] 2.3 保持 `--config`最高优先级，并证明 explicit与discovered configs不merge。
-- [ ] 2.4 在两种 config都缺失时，于scanner/banner/artifact前返回actionable config error。
-- [ ] 2.5 确认current、baseline与Git-fallback复用一次加载的selected config。
+- [ ] 1.1 在 Product Config owner 增加 `SelectedConfig` context，包含 parsed config、
+  source、normalized absolute path、version 与 applied tool override names。
+- [ ] 1.2 省略 `--config` 时，只发现
+  `<project-root>/vibe-check.config.json`。
+- [ ] 1.3 保持显式 `--config` 最高优先级，并证明 explicit/discovered configs 不 merge。
+- [ ] 1.4 File selection 后只应用受支持 `VIBE_CHECK_*` tool overrides，再应用既有显式
+  `--top-n` / `--artifact-dir`；证明没有其它 default/environment merge。
+- [ ] 1.5 Missing config 在 banner、scanner、baseline、cache 和 artifacts 前以 exit `3`
+  失败，并显示两条恢复命令。
+- [ ] 1.6 把一个 resolved config 交给 current、baseline 与 Git-fallback collection；tool
+  preflight 前打印 source、path、version、applied overrides，且不改变 machine v1。
 
-## 3. Initialization workflow
+## 2. Initialization Workflow
 
-- [ ] 3.1 增加 `init [project-root]` CLI routing和help，不进入scan core。
-- [ ] 3.2 实现deterministic complete starter config generator及JSON formatting。
-- [ ] 3.3 拒绝覆盖existing config，并保留原文件bytes。
-- [ ] 3.4 确认generated config不含source-checkout绝对路径或Vibe Check-specific globs/areas。
-- [ ] 3.5 输出created path、config source说明和下一步scan命令。
+- [ ] 2.1 增加 top-level `init [project-root]` routing 与 root/operation help，不进入 scan
+  core。
+- [ ] 2.2 为 neutral scope、areas、thresholds、report、artifact/cache paths 定义
+  deterministic complete starter values；port 完成时使用固定 PATH commands `scc` /
+  `jscpd` 与 empty args，否则按 task 0.4 记录的 tool shape 显式 rebase。
+- [ ] 2.3 用稳定 formatting 生成 UTF-8 JSON，并 exclusive create
+  `<project-root>/vibe-check.config.json`。
+- [ ] 2.4 对 missing/non-directory/unwritable roots 和 existing paths 返回 actionable
+  errors；证明原 bytes 不变。
+- [ ] 2.5 证明 generated config 不含 source-checkout absolute path 或 Vibe Check-specific
+  globs、areas、report text、artifact paths。
+- [ ] 2.6 打印 created path 与精确下一步 `scan` command；不检查语言、不扫描、不联网、不
+  修改 package scripts。
 
-## 4. Dogfood migration and fixtures
+## 3. Dogfood Migration and Acceptance
 
-- [ ] 4.1 把当前Vibe Check DEFAULT_CONFIG内容迁入checked-in dogfood config owner。
-- [ ] 4.2 让 `quality:*` 与wrapper显式传入repository root和dogfood config。
-- [ ] 4.3 扩展external project fixture以覆盖init、discovery、explicit precedence、missing config和launch-cwd independence。
-- [ ] 4.4 增加config source metadata、help、error text和no-scanner-on-failure assertions。
+- [ ] 3.1 把当前 repository-specific config values 迁入 checked-in
+  `<repo-root>/vibe-check.config.json`，并按最终 current tool shape rebase。
+- [ ] 3.2 让所有 `quality:*` wrappers 显式传入 repository root 与
+  `--config vibe-check.config.json`；wrapper 继续单向 pass-through。
+- [ ] 3.3 扩展 external fixture 的 temporary copy，覆盖 init 后 discovery、explicit
+  precedence、missing config、existing-file preservation 和 launch-cwd independence。
+- [ ] 3.4 增加 selected source/path/version/applied-override 与 no-scanner-before-config
+  assertions。
+- [ ] 3.5 增加 dogfood acceptance，证明 checked-in config、受支持 tool overrides 与
+  quick/full/gate wrapper outcomes 可用。
+- [ ] 3.6 更新所有 changed/new test entities 的 semantic Cases，并证明完整当前 entity
+  closure。
 
-## 5. Documentation and verification
+## 4. Owners and Delivery Verification
 
-- [ ] 5.1 更新CLI、Configuration、Scan Scope、Architecture、Testing与Script Tooling owner materials和case ledger。
-- [ ] 5.2 运行config/unit/entry/dogfood tests、typecheck与lint。
-- [ ] 5.3 从仓库外cwd重放init、discovered scan、explicit scan与missing-config smoke。
-- [ ] 5.4 运行 `bun run validate` 与 `bun run verify:vibe-check-workspace:required`。
-- [ ] 5.5 运行OpenSpec strict validation并汇总config precedence、provenance和dogfood isolation证据。
+- [ ] 4.1 更新 CLI、Configuration、Scan Scope、Architecture、Testing、Script Tooling 与
+  navigation owners，记录 discovery、exclusive init、precedence、provenance、dogfood path
+  和 machine boundary。
+- [ ] 4.2 运行 focused config/parser/CLI/entry/dogfood tests，再运行 product/scripts
+  typecheck 与 lint。
+- [ ] 4.3 从各 project root 外重放 init、discovered scan、explicit scan、missing-config
+  failure 与 dogfood wrapper smoke。
+- [ ] 4.4 运行完整 test-evidence strict check，确认 changed proof targets 保持语义映射。
+- [ ] 4.5 运行 `bun run validate` 与
+  `bun run verify:vibe-check-workspace:required`。
+- [ ] 4.6 运行 OpenSpec strict validation、`git diff --check` 与定向搜索，证明未引入
+  implicit `DEFAULT_CONFIG` fallback、wrapper-owned config merge、parent discovery 或
+  machine-v1 provenance field。

@@ -1,45 +1,83 @@
-本 tasks 按“逐文件翻译、逐文件验证、切换实现、删除 Python runtime”的顺序实施 Lizard TypeScript port。
+执行约束：sections 必须顺序执行。Translation 前完成 pinned source/license/closure
+baseline；切换 adapter 或删除旧路径前完成 differential parity。只有 implementation 与指定
+证据都存在时才勾选任务。修改测试正文或实体时，同时执行当前 test-evidence review/check
+workflow。
 
-## 1. 固定翻译基线
+## 0. Current-Contract Audit
 
-- [ ] 1.1 确认 `promote-typescript-quality-tooling-to-product` 已完成源码上移和正式入口接线，Python/Lizard adapter 及现有测试已由产品源码拥有。
-- [ ] 1.2 固定 Lizard 1.23.0、commit 06284ec87c1966fee4ddbf3f068ccf89b987b0f8，并记录 source archive 与适用 license。
-- [ ] 1.3 核对 design 中的逐文件 source map；发现必需依赖时先更新 map。
-- [ ] 1.4 为每个 source file 记录对应 upstream tests、known skips 和目标 TypeScript test。
-- [ ] 1.5 用现有 Python/Lizard adapter 保存四语言对照结果。
+- [x] 0.1 确认已归档 product-source promotion、当前 `.ts` / `.d.ts` / `.rs` selector、
+  当前 `FunctionMetric` fields、complete-config coupling 与 capability-level failure。
+- [x] 0.2 删除 stale four-language、token/kind、per-file partial 和 generic
+  scanner-backend obligations；只把它们作为有独立 trigger 的未来 change。
 
-## 2. 逐文件翻译 Core
+## 1. Pin the Migration Baseline
 
-- [ ] 2.1 将 lizard.py 中产品需要的 model、builder 和 analysis pipeline 翻译为 lizard.ts。
-- [ ] 2.2 将 code_reader.py 翻译为 languages/code-reader.ts，并迁入对应 tokenizer/state-machine tests。
-- [ ] 2.3 依次翻译 clike.py、golike.py、script_language.py 和 js_style_regex_expression.py。
-- [ ] 2.4 为 Python generator、collection 和 RegExp adaptation 增加最小等价测试。
-- [ ] 2.5 确认每个 core 文件都能追溯到上游 revision、license 和 translated tests。
-- [ ] 2.6 运行 core unit tests、typecheck 和 lint，修复所有未解释差异。
+- [ ] 1.1 固定 Lizard 1.23.0 与 commit
+  `06284ec87c1966fee4ddbf3f068ccf89b987b0f8`；记录 source archive integrity 与适用
+  license treatment，不把 secret 或未核实 source 写入仓库。
+- [ ] 1.2 计算 current TypeScript/Rust readers 的实际 upstream import/call closure，并在
+  translation 前更新 candidate source map。
+- [ ] 1.3 把每个 included upstream responsibility 映射到 upstream tests、known skips 与
+  target TypeScript tests。
+- [ ] 1.4 保存 deterministic `.ts`、`.d.ts`、`.rs` corpora 的当前 Python/Lizard results，
+  覆盖 function inventory、normalized fields/order、zero-function input 与 controlled
+  failures。
+- [ ] 1.5 保存当前 config、tool metadata、cache/scanner identity、warnings、aggregates、
+  gate、human 与 machine projection baselines。
 
-## 3. 逐文件翻译 Language Readers
+## 2. Translate the Verified Source Closure
 
-- [ ] 3.1 翻译 typescript.py 及对应 tests。
-- [ ] 3.2 翻译 go.py 及对应 tests。
-- [ ] 3.3 翻译 rust.py 及对应 tests。
-- [ ] 3.4 翻译 python.py 及对应 tests。
-- [ ] 3.5 翻译 languages/__init__.py 为 typed reader registry。
-- [ ] 3.6 在四语言 corpus 上逐字段比较 Python/Lizard 与 TypeScript port，清除所有未解释差异。
+- [ ] 2.1 从 `lizard.py` 翻译 required analysis model、builders 与 pipeline。
+- [ ] 2.2 从 `code_reader.py` 翻译 required reader/token/state base，并增加 focused tests。
+- [ ] 2.3 只翻译 task 1.2 证明可达的 shared C-like/script/regex helpers。
+- [ ] 2.4 翻译 `.ts` / `.d.ts` TypeScript reader 与 mapped tests。
+- [ ] 2.5 翻译 `.rs` Rust reader 与 mapped tests。
+- [ ] 2.6 为 verified closure 实际使用的 Python-to-TypeScript generator、collection 与
+  RegExp adaptations 增加最小 parity tests。
+- [ ] 2.7 为每个 translated file 记录 pinned revision/license/source path 与 owning tests。
+- [ ] 2.8 运行 translated core/reader tests、product typecheck 与 lint；integration 前清除
+  所有未解释差异。
 
-## 4. 合并到 TypeScript 扫描路径
+## 3. Prove Product Parity
 
-- [ ] 4.1 定义内部 typed analyze API，并让现有 function-metrics adapter 直接调用。
-- [ ] 4.2 保持现有 scan scope、FunctionMetric normalization、ordering 和 diagnostic mapping。
-- [ ] 4.3 运行现有 structural fixtures、warning、gate、human 和 JSON 回归测试。
-- [ ] 4.4 更新 scanner identity，并按现有规则处理旧 cache 和 baseline。
-- [ ] 4.5 在默认扫描和 required validation 中证明不解析或启动 Python/Lizard。
-- [ ] 4.6 删除 Lizard command/args、availability check、process wrapper、CSV parser 和对应 protocol tests。
-- [ ] 4.7 更新 scanner dependency、structural scanning 和测试文档。
+- [ ] 3.1 对完整 two-language corpus 逐项比较 function inventory、name、file、
+  start/end line、lines、parameter count、cyclomatic-complexity value/source 与
+  deterministic order。
+- [ ] 3.2 证明信任 port 所需的 internal tokenizer/state invariants，但不把 token count、
+  kind、long name 或 parser internals 提升为 `FunctionMetric`。
+- [ ] 3.3 证明 zero-function success 与现有 unavailable/execution/invalid-result failure
+  distinctions；任一 file/parse/invariant failure 都保持 capability-level，绝不成为成功
+  partial output。
 
-## 5. 最终验证
+## 4. Hard-Cut the Product Runtime
 
-- [ ] 5.1 运行受影响 TypeScript tests、typecheck 和 lint。
-- [ ] 5.2 运行四语言真实扫描，确认指标、warning、gate 和 output contract 不变。
-- [ ] 5.3 搜索 production imports、config 和 process calls，确认没有 Python/Lizard runtime 路径。
-- [ ] 5.4 运行 bun run validate 与 bun run verify:vibe-check-workspace:required。
-- [ ] 5.5 运行 OpenSpec strict validation，并汇总 source map、对照结果和验证证据。
+- [ ] 4.1 定义一个 internal typed analyze API，并让 current/baseline function-metrics
+  adapter 调用。
+- [ ] 4.2 保持 exact input selection、file/path/UTF-8 handling、normalization、code-area
+  mapping、changed-scope marking 与 ordering。
+- [ ] 4.3 对 switched adapter 重放 structural、completeness、warning、aggregate、gate、
+  human 与 machine regression tests。
+- [ ] 4.4 用 pinned upstream 加 port revision 更新 product tool metadata 与 cache/scanner
+  identity，并重放既有 incompatible-cache/baseline behavior。
+- [ ] 4.5 从 `QualityConfig`、default config、strict parser、environment overrides、
+  canonical external fixture、tests 与 owner docs 删除 `tools.lizard`；保留 top-level
+  `config.lizard` thresholds 与公开 `"lizard"` source labels。
+- [ ] 4.6 证明 formal current/baseline scans 不解析或启动 Python/Lizard。
+- [ ] 4.7 删除 production availability、command/args、process wrapper、CSV parser 与
+  obsolete protocol tests；migration-only oracle material 不进入 required runtime。
+- [ ] 4.8 更新所有 changed/new test entities 的 semantic Cases，并证明完整当前 closure。
+
+## 5. Delivery Verification
+
+- [ ] 5.1 运行 affected translated/adapter/config/product tests，再运行 product typecheck 与
+  lint。
+- [ ] 5.2 运行真实 `.ts`、`.d.ts`、`.rs` scans，并与 task 1 baselines 比较 metrics、
+  warnings、aggregates、gate、human 与 machine results。
+- [ ] 5.3 搜索 production imports、config fields、environment variables、commands 和 process
+  calls，证明没有 Python/Lizard runtime 或 CSV path。
+- [ ] 5.4 运行完整 test-evidence strict check，确认 source/test traceability 完整。
+- [ ] 5.5 运行 `bun run validate` 与
+  `bun run verify:vibe-check-workspace:required`。
+- [ ] 5.6 运行 OpenSpec strict validation、`git diff --check` 与 focused
+  diff/keyword audit；汇总 source map、license、differential、config hard cut 与 runtime
+  removal evidence。

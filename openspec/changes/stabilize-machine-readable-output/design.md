@@ -14,6 +14,19 @@ wrappers 只把参数传给 Product CLI。
 completeness、warning channels、`GateResult` 与 process outcome 已进入 main specs。本
 change 固定这些数据的 machine projection，不重新设计业务语义。
 
+## Dependencies and Change Boundaries
+
+| Relationship | Rule |
+| --- | --- |
+| Completed prerequisites | Scan completeness、warning channels、GateResult 与 process outcome 已由归档 changes 和主规范拥有。 |
+| External config workflow | Config source/path 可以属于 CLI/config runtime context 和 console；除非该 change 显式修改 output contract，否则不得自动进入 machine v1。 |
+| Lizard TypeScript port | Backend、tool metadata values 与 cache identity 可以在 scanner owner 内演进；Machine DTO field set、warning projection 和 artifact predicate 必须保持。 |
+| Future machine change | 公开 field、requiredness、type、enum、unit、order 或 meaning 改变时，必须执行新的 repository-wide version cut。 |
+
+这些关系只约束公开 transport，不阻止 core、CLI 或 scanner 在各自 owner 内增加 private
+state。实现代理不得从另一个 active change 的 proposal 推断本 change 已经拥有尚未实现的
+字段。
+
 ## Design Priorities
 
 1. **产品结果优先**：一个已完成 invocation 产生的 machine artifacts 必须能被产品和实际
@@ -76,6 +89,11 @@ Producer 每次只构造一个 `MachineMetricsV1`。`warnings.ndjson` 与
 
 新增 core field、内部重构或 human-only option 不自动进入 DTO。只有明确需要提供给 machine
 consumer 的数据才修改 DTO 和 contract。
+
+`MachineMetricsV1` 只固定 task 1.1 baseline 中已经存在的 metadata fields。未来
+`add-external-project-config-workflow` 提出的 config source/path 不预先进入 v1；如果它们
+后来需要成为 machine-visible contract，必须由显式 output change 决定 projection 与
+version，而不是通过 core object spread 泄漏。
 
 ### Decision 2: Runtime schema 是唯一字段定义 owner
 

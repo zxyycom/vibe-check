@@ -1,28 +1,50 @@
-本 delta 让 structural fixtures 同时证明逐文件 TypeScript 翻译与 Python-free 产品运行。
-
 ## ADDED Requirements
 
-### Requirement: Structural scanner characterization fixtures
-Checked-in fixture suite SHALL 为 Lizard-compatible TypeScript function-metrics module 提供 deterministic regression、normalization 和正式入口 proof targets。Fixtures MUST 覆盖 TypeScript、Go、Rust 和 Python，并证明 supported function forms、source ranges、stable names、kind、NLOC、cyclomatic complexity、token count、parameter semantics、diagnostics 和 deterministic ordering。
+### Requirement: TypeScript port traceability and parity proofs
 
-每个 translated upstream test MUST 能追溯到 Lizard 1.23.0 的 source/test 文件。迁移期 differential tests MUST 对相同 checked-in source 比较 Python/Lizard 与 TypeScript port；required validation MUST 只运行 TypeScript port 和 checked-in expectations。
+Repository SHALL 为每个 translated source responsibility 与 formal adapter switch 提供
+deterministic product-owned proofs。Checked-in corpora MUST 覆盖当前 TypeScript `.ts`、
+declaration `.d.ts` 与 Rust `.rs` inputs。Migration differential tests MUST 对 pinned
+Python/Lizard oracle 与 TypeScript port 比较 function inventory、全部 current normalized
+`FunctionMetric` fields/order。Switch 后的 required validation MUST 使用 checked-in
+source/expected results，且 MUST NOT 依赖 Python。
 
-#### Scenario: 每个翻译文件有对应测试
-- **WHEN** reviewer 检查 source map 中的一个 TypeScript port 文件
-- **THEN** test mapping 指向对应 upstream tests 或明确的 product fixture
-- **AND** 测试覆盖该文件承担的核心行为
+#### Scenario: Every translated responsibility is traceable
 
-#### Scenario: 四种语言具有 function-metrics proof targets
-- **WHEN** component contract tests 读取 structural fixtures
-- **THEN** fixtures 包含 TypeScript、Go、Rust 和 Python 的 supported functions 或 methods
-- **AND** tests 验证 name、range、NLOC、CCN、token 和 parameter results
+- **WHEN** reviewer 检查一个 translated source file
+- **THEN** 可以恢复 pinned upstream revision/path 与适用 license treatment
+- **AND** mapped translated tests 或 product differential fixtures 证明其 current
+  responsibility
 
-#### Scenario: Python/Lizard 与 TypeScript port 结果一致
-- **WHEN** 固定 Python/Lizard 1.23.0 和 TypeScript port 分析同一 corpus
-- **THEN** function inventory、raw fields 和 ordering 没有未解释差异
-- **AND** normalized FunctionMetric 满足同一 structural-scanning contract
+#### Scenario: Current language corpus preserves product fields
 
-#### Scenario: 正式 entry 不启动 Python
-- **WHEN** fixture-backed acceptance 通过默认 entry 扫描四语言项目
-- **THEN** scan 直接使用仓库内 TypeScript function-metrics module
-- **AND** dependency 与 process evidence 表明没有解析或启动 Python/Lizard
+- **WHEN** 迁移期 pinned Python/Lizard 与 TypeScript port 分析同一 `.ts`、`.d.ts`、`.rs`
+  corpus
+- **THEN** function inventory、name、file、ranges、lines、parameter count、complexity
+  source/value 与 order 没有未解释差异
+- **AND** Go/Python/JSX/TSX 或 internal-only fields 不被断言为 product support
+
+#### Scenario: Formal entry is Python-free after the switch
+
+- **WHEN** formal current/baseline scan 处理 eligible TypeScript/Rust fixture inputs
+- **THEN** product results 来自 repository-owned TypeScript module
+- **AND** process/config evidence 证明未到达 Python/Lizard command、availability check 或 CSV
+  parser
+
+#### Scenario: Failure remains all-or-nothing
+
+- **WHEN** controlled input 或 module behavior 阻止形成完整可信 result
+- **THEN** fixture proof 观察到既有 normalized capability failure
+- **AND** 没有 partial function set 被接受为成功
+
+### Requirement: Complete config fixture follows the internal backend
+
+Canonical configured external project fixture SHALL 使用 post-port complete config shape：
+top-level `lizard` thresholds 保持，`tools` 只包含 `scc` 与 `jscpd`。Formal-entry acceptance
+MUST 证明 fixture 能解析，且 function metrics 不依赖 Python/Lizard。
+
+#### Scenario: Post-port fixture config is current
+
+- **WHEN** formal-entry acceptance 加载 canonical external fixture config
+- **THEN** strict parser 接受其 thresholds 与 remaining tool fields
+- **AND** fixture 不包含 retired `tools.lizard` command/args

@@ -1,3 +1,7 @@
+执行约束：按章节顺序推进；1.1 的 current projection baseline 是后续 DTO/schema 的输入。
+只有实现、focused proof 和本 task 指定验证均完成后才勾选任务。新增、删除、重命名或修改
+测试正文时，同时遵循当前 test-evidence workflow 并在修改前后运行 strict check。
+
 ## 0. Change 审计门禁
 
 - [x] 0.1 审核 proposal、design、全部 delta specs 与 tasks：产品结果、开发维护边界、
@@ -17,8 +21,9 @@
 
 - [ ] 1.1 用正式 Product CLI 和现有 fixtures 建立 projection baseline，覆盖 current
   serialized fields、warning order、non-empty/empty bytes、complete/gate-failed/
-  scan-incomplete outcomes 与 controlled output failure。Baseline 只服务 projection
-  regression tests，不进入 canonical examples。
+  scan-incomplete outcomes 与 controlled output failure；明确记录 current metadata 只包含
+  已实现字段，不从 external-config 或 scanner-port proposals 预取未来字段。Baseline 只服务
+  projection regression tests，不进入 canonical examples。
 
 ## 2. Add output-owned DTO and schema source
 

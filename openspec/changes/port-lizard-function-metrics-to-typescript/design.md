@@ -1,79 +1,143 @@
-本 design 采用逐文件对照翻译，把 Lizard 1.23.0 的产品所需源码合并到 TypeScript quality tooling，并删除正式扫描路径中的 Python runtime。
+## 当前事实
 
-## Context
+| Surface | 当前已实现行为 |
+| --- | --- |
+| Supported input | `selectLizardTargetFiles` 接受 `.rs` 和以 `.ts` 结尾的 paths；因此 `.d.ts` 属于 TypeScript input。Go、Python、`.tsx`、`.js`、`.jsx` 不进入 selector。 |
+| Runtime | Scanner 解析 configured `tools.lizard`，检查 `--version`，用 exact files 加 `--csv` 启动 command，并解析 CSV。 |
+| Product model | `FunctionMetric` 暴露 code area、file、name、start/end line、lines、parameter count、changed flag 与 cyclomatic-complexity value/source。 |
+| Failure | Eligible dependency unavailable、process failure 或 invalid normalized output 会让整个 `function-metrics` capability 失败；没有 per-file partial contract。 |
+| Public identity | Function warnings 和 metric values 使用 `"lizard"` source labels；top-level `config.lizard` 拥有 thresholds。 |
+| Config coupling | Complete `QualityConfig.tools` 当前要求 `lizard`、`scc`、`jscpd`。 |
 
-当前 function-metrics adapter 执行 python -m lizard --csv，再把 CSV 转成 Vibe Check 的 FunctionMetric。前置 change `promote-typescript-quality-tooling-to-product` 负责将现有质量运行时上移为仓库自有产品源码；本 change 在该产品源码上替换 backend。
+以上事实定义 parity。Upstream Lizard 中未进入当前 selector/model 的 fields、languages 或
+tests 只属于迁移参考，不形成新 product obligation。
 
-翻译基线为 terryyin/lizard tag 1.23.0、commit 06284ec87c1966fee4ddbf3f068ccf89b987b0f8。
+## Goals / Non-Goals
 
-## Goals
+### Goals
 
-- 正式扫描只运行 Bun/TypeScript，不再需要 Python 或 Lizard package。
-- 每个迁入的 Python 文件都有明确对应的 TypeScript 文件和测试。
-- TypeScript port 保持 Lizard 1.23.0 在现有 TypeScript、Go、Rust、Python 扫描范围内的结果。
-- adapter 直接调用 TypeScript API，不再使用进程和 CSV 协议。
+- 从 formal current/baseline scans 删除 Python/Lizard process 与 CSV dependencies。
+- 保持当前 TypeScript/Rust inputs、normalized fields、ordering、diagnostics、warnings、
+  aggregates、gate、cache/baseline compatibility rules 与 machine projection。
+- 每个 translated source 都能追溯到一个 pinned upstream revision、license treatment 与
+  owning tests。
 
-## Non-Goals
+### Non-Goals
 
-- 不翻译产品未使用的语言 reader、CLI、reporter、extension 和 duplicate detector。
-- 不重写为新的 parser，也不顺便修复 Lizard 行为。
-- 不提供独立 npm package 或公共 API。
+- Go、Python、JavaScript/JSX/TSX 或其它当前未选择语言。
+- Token count、function kind、long name、raw parser nodes 或其它新 product fields。
+- Per-file warning/partial-report semantics，或 parser failure 后 best-effort continuation。
+- Generic scanner framework、provider selection、plugin API、npm package 或 public analyze
+  API。
+- Parity 期间顺带清理算法、改进 parser 或修复已知 Lizard behavior。
 
 ## Decisions
 
-### Decision 1: 以产品所需源码闭包为翻译范围
+### Decision 1: 只移植 verified current source closure
 
-先根据实际 import 和调用关系确认所需文件，再按一份上游文件对应一份主要 TypeScript 文件的方式迁入：
+最终 translated file list 由 pinned Lizard 1.23.0 中 TypeScript/Rust readers 所需的
+import/call closure 决定。下表只是 investigation candidate map，不证明每一行都必需：
 
-| Lizard source | TypeScript target |
-| --- | --- |
-| lizard.py | lizard.ts |
-| lizard_languages/code_reader.py | languages/code-reader.ts |
-| lizard_languages/clike.py | languages/clike.ts |
-| lizard_languages/golike.py | languages/golike.ts |
-| lizard_languages/script_language.py | languages/script-language.ts |
-| lizard_languages/js_style_regex_expression.py | languages/js-style-regex-expression.ts |
-| lizard_languages/typescript.py | languages/typescript.ts |
-| lizard_languages/go.py | languages/go.ts |
-| lizard_languages/rust.py | languages/rust.ts |
-| lizard_languages/python.py | languages/python.ts |
-| lizard_languages/__init__.py | languages/index.ts |
+| Role | Candidate upstream source | Inclusion rule |
+| --- | --- | --- |
+| Analysis model/pipeline | `lizard.py` | 只纳入 product-reachable model、builder 与 analysis behavior。 |
+| Reader/token base | `lizard_languages/code_reader.py` | 只纳入 current readers 可达 tokenizer/state behavior。 |
+| C-like support | `lizard_languages/clike.py` | 纳入 TypeScript/Rust 共享且可达的 behavior。 |
+| Script/regex support | `script_language.py`、`js_style_regex_expression.py` | 只有 pinned closure 证明 current TypeScript 可达时才纳入。 |
+| TypeScript reader | `lizard_languages/typescript.py` | 纳入 current `.ts` / `.d.ts` behavior。 |
+| Rust reader | `lizard_languages/rust.py` | 纳入 current `.rs` behavior。 |
+| Registry | `lizard_languages/__init__.py` | 只替换 current two-reader registration responsibility。 |
 
-如果翻译过程中发现新的必需依赖，先补充 source map 再迁入。每个文件记录上游 revision、license notice 和对应测试。
+`go.py`、`python.py`、`golike.py`、unused readers、CLI、reporter、extensions 和 duplicate
+detector 均不在范围内，除非 source-closure audit 证明某 shared file 是技术必需依赖。新增
+product language 需要独立 contract change。
 
-### Decision 2: 先对照翻译，再进行 TypeScript 化整理
+### Decision 2: 使用一个具体 internal dependency boundary
 
-第一阶段尽量保留原有类型职责、状态名称、token 顺序和控制流。Python generator、collection 和 regular expression 只做 TypeScript 所需的等价改写。无法直接对应的地方用注释和测试说明差异。
+Repository-owned module 暴露一个 internal typed analyze entry，输入 source/file 与 selected
+language。既有 function-metrics adapter 继续作为 consumer boundary，拥有 exact file
+input、UTF-8/file reads、path normalization、`FunctionMetric` mapping、capability failure 与
+raw reproduction artifacts。
 
-等价验证完成前不合并文件、不重排状态机，也不改变已知 parser 限制。后续若要重构，继续复用同一套对照测试。
+不增加 provider interface 或 implementation registry。只有出现第二个真实
+implementation/selection obligation 时才重新评估。
 
-### Decision 3: 直接作为内部 TypeScript 模块调用
+### Decision 3: 先对照翻译，再做 TypeScript cleanup
 
-port 暴露内部 analyze(source, language) 一类的 typed API，function-metrics adapter 读取已有 scan scope 中的文件后直接调用。port 不负责文件发现、配置、warning、gate 或输出。
+Translation 初期尽量保持 upstream state names、token order、control flow 和 algorithmic
+behavior。Python generator、collection 与 regular expression 只做等价 TypeScript execution
+所需 adaptation。Source comments 标明 non-obvious adaptation 与 pinned revision。
 
-adapter 继续负责路径、UTF-8、FunctionMetric 归一化和 diagnostic 映射。TypeScript port 抛出的不可恢复错误按现有 scanner fatal contract 处理。
+Differential parity 建立前不合并文件、不新增抽象、不重构算法；后续动作需要独立证据。
 
-### Decision 4: 用翻译测试和结果对照证明等价
+### Decision 4: Product parity 只覆盖当前 product contract
 
-每翻译一个上游文件，同时迁入对应单元测试。四语言 corpus 同时运行固定 Python/Lizard 1.23.0 和 TypeScript port，对照 function inventory、name、long name、range、NLOC、CCN、token count 和 parameters。
+Differential comparison 只在迁移期把 pinned Python/Lizard 当 oracle。对于 `.ts`、`.d.ts`、
+`.rs` corpus，它必须证明 function inventory 和全部 current normalized fields/order。
+Translated unit tests 可以证明信任 port 所需的 internal tokenizer/state invariants，但这些
+internals 不进入 product fields。
 
-Python/Lizard 只作为迁移期 oracle。required validation 使用提交到仓库的 source 和 expected results，不依赖 Python。存在未解释差异时不切换默认实现。
+存在未解释差异时不得切换。切换后的 required validation 只使用 checked-in source 与
+expected results，不依赖 Python。
 
-### Decision 5: 等价后一次性移除 Python runtime
+### Decision 5: 保留公开 Lizard-compatible identity
 
-对照通过后，adapter 切换到 TypeScript API，并删除 production Lizard command、args、availability check、process wrapper 和 CSV parser。scanner identity 更新，旧 backend 产生的 cache 或 baseline 按现有不兼容规则重新扫描。
+Port 删除不再需要的 `tools.lizard`，但明确保留：
 
-稳定的 FunctionMetric、sourceTool、warning、gate、diagnostic 和 human/JSON output 保持不变。
+- top-level `config.lizard` threshold names；
+- `MetricValue.source = "lizard"` 与 warning `sourceTool = "lizard"`；
+- 当前 rule IDs、warning semantics 与 machine field shape。
 
-## Implementation Order
+这些值标识 compatible metric algorithm，而不是 external process。Product tool metadata 与
+cache identity 记录 pinned upstream revision 加 TypeScript port revision，使 runtime
+provenance 真实，又不强制 machine-contract hard cut。
 
-1. 等待前置 change `promote-typescript-quality-tooling-to-product` 完成源码上移和正式入口接线。
-2. 固定上游 revision、source map、license 和对应 tests。
-3. 逐文件翻译 core、reader base 和共享 helper。
-4. 逐文件翻译四个 language reader。
-5. 运行单元测试、四语言 differential 和产品级回归。
-6. 切换 adapter，删除 Python/Lizard runtime 路径并更新文档。
+### Decision 6: 保持 capability-level failure semantics
+
+Internal module 要么为全部 exact supported inputs 返回完整可信 result，要么 adapter 返回
+既有 normalized capability failure。File read、decoding、parse、invariant 或 normalization
+failure 不得把 partial function set 发布为成功。
+
+Per-file partial continuation 会改变 completeness、warning、output 和 gate trust；只有出现
+真实 consumer need 时才进入独立 product change。
+
+### Decision 7: 一次切换并删除退休路径
+
+Parity 通过后，current 与 baseline adapters 同时切换。同一 revision 删除 availability
+checks、process invocation、CSV parsing、command/args config、dead tests 和 production
+imports。不保留 runtime fallback 或 dual-read path。
+
+## Dependencies and Ordering
+
+1. Product-source promotion 已完成。
+2. Machine-output stabilization 应先完成；port 保持其 DTO 与 artifact predicate。
+3. External config workflow 应在本 port 后 rebase，使 generated/dogfood complete configs
+   不含 `tools.lizard`。
+4. 如果本 port 被取消，external config task 0.4 记录该结果并改为 current Python/Lizard
+   config shape。
+
+## Verification Strategy
+
+- Pinned source archive/revision/license 与 verified two-language source/test map。
+- 当前 adapter 的 `.ts`、`.d.ts`、`.rs` baseline，包含 zero functions 和 failures。
+- 每项 translated source responsibility 的 unit tests。
+- Differential inventory 与 normalized field/order comparison。
+- 既有 scanner、completeness、warning、aggregate、gate、human、machine、cache 与
+  baseline regression tests。
+- Formal-entry evidence：eligible scans 不解析或启动 Python/Lizard。
+- Config parser/default/fixture tests：hard cut 后拒绝 `tools.lizard`，但保留
+  `config.lizard` thresholds。
+- Static search：production process/CSV/config path 已删除。
+
+## Deferred Triggers
+
+- 只有 scan-scope 与 structural-scanning owners 定义新的 supported input 和 proof targets
+  时，才增加其它语言。
+- 只有通过独立 completeness/diagnostic/output change，才增加 per-file partial results。
+- 只有第二个真实 implementation 必须履行同一 consumer contract 时，才增加 generic
+  scanner/provider boundary。
 
 ## Open Questions
 
-无。实现时只允许通过 source map 增补实际依赖文件，不扩大产品语言范围。
+Product-contract 层没有未决问题。Exact source closure 与 test mapping 是 tasks 1.2-1.4 的
+required baseline evidence，不允许借此扩大语言或 public fields。

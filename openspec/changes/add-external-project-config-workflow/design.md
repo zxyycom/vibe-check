@@ -1,65 +1,148 @@
-本 design 起草 external project 配置发现与初始化路径；当前 change 仅在 `openspec/changes/add-external-project-config-workflow/` 下形成待审计临时计划，不影响现有其它文档或主规范。
+## 当前事实
 
-## Context
+| Surface | 当前已实现行为 |
+| --- | --- |
+| CLI operations | 只路由 `scan`；`init` 是 unknown command。 |
+| Omitted config | `runScan` 调用 `createDefaultConfig()`，因此任意 project root 都会继承 Vibe Check-specific values。 |
+| Explicit config | `--config <file>` 选择一份完整 UTF-8 JSON `QualityConfig`；相对路径基于 normalized project root，且 file 整体替换 defaults。 |
+| Environment tools | `VIBE_CHECK_*` command/args overrides 目前只在创建 built-in default config 时应用。 |
+| Dogfood wrapper | `scripts/quality/scan.ts` 传入 repository root，但不传 config path。 |
+| External proof | `fixtures/projects/configured-typescript/` 证明从 fixture root 外显式选择完整 config。 |
+| Machine output | 当前 metadata 暴露 `configVersion`；稳定的 selected source/path provenance 尚未定义。 |
 
-正式 CLI 接受任意 project root，但省略 `--config` 时使用的 built-in config 只匹配 Vibe Check 自身目录。显式配置又必须完整包含 scope、threshold、report、cache 和 tool commands。当前行为适合 dogfood，不适合作为外部项目默认入口。
-
-本 change 以“明确选择项目配置”为边界，不同时解决稳定 machine output、发行包装或 scanner backend。
+以上是 implementation facts，不是目标行为。下述目标会替换 omitted-config fallback 与
+dogfood selection，同时保留既有 complete JSON field model。
 
 ## Goals / Non-Goals
 
-**Goals:**
+### Goals
 
-- 外部项目不会静默继承 Vibe Check 仓库专用 globs 和 code areas。
-- `--config`、project-root discovery 与 dogfood 配置具有单一 precedence。
-- 提供安全、确定、非交互的初始化命令。
-- config provenance 在 scanner 启动前可见并可测试。
+- 每次 formal scan 在 scanner work 前恰好选择一份可信 project config。
+- 外部项目无需复制内部 fixture，就能生成并发现 deterministic starter。
+- Explicit path、discovered path、environment tool override 和 CLI field precedence 清楚且
+  可观察。
+- Dogfood 复用同一 public config contract，不把 config 逻辑搬入 wrapper。
 
-**Non-Goals:**
+### Non-Goals
 
-- 不搜索父目录或用户 home。
-- 不支持多文件 extends、远程 config 或 plugin config。
-- 不在第一版引入任意深层 merge DSL。
-- 不改变 scanner、threshold 算法或 artifact schema。
+- Partial config、deep merge、inheritance、preset、executable config module 或 remote
+  config。
+- Parent-directory、launch-cwd、worktree 或 home discovery。
+- Package installation/distribution、dependency installation 或 package-script mutation。
+- Config source/path 的 machine DTO fields。
+- Scanner、threshold、warning、gate 或 artifact contract change。
 
 ## Decisions
 
-### Decision 1: 只发现 project root 下的固定文件
+### Decision 1: 只发现 normalized project root 的固定文件
 
-未传 `--config` 时，CLI 只检查 `<project-root>/vibe-check.config.json`。不向父目录、launch cwd 或 home 递归搜索，避免 monorepo 与嵌套 project 的隐式继承。
+省略 `--config` 时，`scan` 只检查 `<project-root>/vibe-check.config.json`。不搜索 parent、
+launch cwd、worktree root 或 home。显式 `--config` 保持最高优先级，并沿用当前 path
+resolution。
 
-显式 `--config` 始终最高优先级，并继续按 normalized project root 解析相对路径。
+### Decision 2: 缺少 config 时 fail closed
 
-### Decision 2: 没有配置时 fail closed
+显式与 discovered config 都不存在时，CLI 在 banner、scanner preflight、baseline、cache 和
+artifacts 前以 config/usage exit `3` 失败。Diagnostic 提供两条正向恢复路径：运行
+`init [project-root]`，或传入 `--config <file>`。
 
-正式 scan 若既没有显式 config，也没有 discovered config，则在启动 scanner 前退出 config error，并提示运行 `init` 或传入 `--config`。仓库 dogfood wrapper 改为显式传入 checked-in Vibe Check config。
+### Decision 3: Persisted config 继续使用完整 `QualityConfig`
 
-备选方案是提供 generic silent fallback。由于 scanner、code area 与 threshold 选择会直接影响结果可信度，第一版不采用静默 fallback。
+本 workflow v1 不创建第二套 public field model。Explicit、discovered、generated 和
+dogfood files 都包含当前完整 `QualityConfig`；现有 strict parser 继续拥有 field/type
+定义。
 
-### Decision 3: `init` 生成完整、可提交的 starter config
+Product Config owner 只在 parsed value 外增加一个小型 internal selection context：
 
-新增 `init [project-root]` operation，在固定 discovery path 不存在时生成满足当前完整 `QualityConfig` parser 的 JSON。初始化不扫描、不联网、不自动修改 package scripts，也不覆盖已有文件。
+```text
+SelectedConfig
+  config: QualityConfig
+  source: explicit | discovered
+  path: absolute normalized path
+  version: config.version
+  appliedToolOverrides: declared VIBE_CHECK_* names
+```
 
-第一版继续使用完整 config schema，不同时引入 partial merge；降低使用门槛依靠 deterministic generation 和 owner documentation。后续若完整配置维护成本仍过高，再独立设计 public partial config 与 resolved runtime config。
+该 context 只拥有 selection provenance。Core scan scope 接收 resolved `config`，不按
+`source` 分支。
 
-### Decision 4: Config source 成为 runtime metadata
+### Decision 4: `init` 生成单一 mixed repository-neutral starter
 
-Selected config 记录 `explicit` 或 `discovered` source、resolved path 和 config version。Console 在 tool preflight 前打印 source；current、baseline 和 fallback collection 复用同一 parsed object。
+`init [project-root]` 以 exclusive file creation 创建
+`<project-root>/vibe-check.config.json`。第一版只提供一个 mixed starter，不引入
+`--preset` taxonomy。Starter 是可编辑起点，不做 project inference：`init` 不检测语言、不
+运行 scanner、不联网、不修改 package scripts。
 
-## Risks / Trade-offs
+Generator 使用 implementation revision 的 current complete config schema，并且不得复制：
 
-- [完整 starter config 较长] → 生成文件按职责分组并附 schema/documentation link；不让用户手工从 fixture 复制。
-- [fail closed 会打破当前省略 config 的 formal CLI] → dogfood wrapper 在同一 change 迁移到 checked-in config，并在 CLI error 中给出迁移命令。
-- [generic starter globs 不适合所有项目] → 明确 starter 只是可编辑起点，初始化后首次 scan 打印 effective scope。
+| 当前 dogfood value 类别 | Starter 要求 |
+| --- | --- |
+| `src/product/**`、`scripts/**`、docs/OpenSpec include globs | 使用 repository-neutral source/generated scope。 |
+| Product/script/docs-specific code areas 与 jscpd area maps | 使用内部一致的 neutral area names。 |
+| Vibe Check report title/notices | 使用 product-neutral report text。 |
+| `artifacts/vibe-check-quality` 与 `.cache/vibe-check/quality` | 使用 project-local neutral paths。 |
+| Source-checkout absolute tool paths | Port 完成后的 starter 固定使用 `tools.scc = { command: "scc", args: [] }` 与 `tools.jscpd = { command: "jscpd", args: [] }`；declared environment overrides 可解析其它 local installation。 |
 
-## Migration Plan
+如果 task 0.4 记录 Lizard port 被取消或延期，implementation 必须先把本表、delta
+specs、starter fixture 和 dogfood config rebase 到当时完整 tool shape，不能在未定义跨平台
+Python command 的情况下直接生成 starter。
 
-1. 确定 starter config 内容与 checked-in Vibe Check dogfood config。
-2. 增加 config source model、root discovery 和 `init` routing。
-3. 迁移 dogfood wrapper 显式选择仓库 config。
-4. 更新 external fixture，覆盖 explicit、discovered、missing、existing-init 和 cwd independence。
-5. 更新 CLI/config/scan-scope owner 文档和验证入口。
+### Decision 5: Config precedence 只有一个 owner
+
+Product Config owner 按以下顺序应用 precedence：
+
+1. 选择并严格解析一份 explicit 或 discovered complete config；
+2. 只应用仍对应当前 config fields 的受支持 `VIBE_CHECK_*` tool command/args overrides；
+3. 应用显式 `--top-n` 与 `--artifact-dir` CLI overrides。
+
+其它 built-in value、file、environment variable 或 partial merge 都不参与。把既有 tool
+overrides 应用于所有 selected sources，可以保留 dogfood/platform resolution，且不把
+config mutation 移入 wrapper。Console preflight 列出 applied override names，避免隐式
+effective source。
+
+### Decision 6: Provenance 属于 runtime/console context，不属于 machine v1
+
+Config source、path、version 和 applied override names 在 `runQualityScan` 前可用，并在
+dependency preflight 前打印。本 change 不把它们加入 `MachineMetricsV1`。Machine consumer
+以后确有需要时，由显式 output-contract change 定义 projection 与 version。
+
+### Decision 7: Dogfood 显式选择 root config
+
+仓库拥有 `<repo-root>/vibe-check.config.json`。`scripts/quality/scan.ts` 继续只调用一次
+formal Product CLI，但始终传入 repository root 和 `--config vibe-check.config.json`。
+Wrapper 不解析、不 merge、不生成 config。
+
+## Dependencies and Ordering
+
+1. `stabilize-machine-readable-output` 可以先完成；本 change 不改变 machine v1。
+2. `port-lizard-function-metrics-to-typescript` 与本 change 都改变 complete-config/tool
+   expectations。两者同时 active 时，port 应先完成，避免 generated/dogfood config 立即保留
+   已退休的 `tools.lizard` command。
+3. Implementation 前，task 0.4 必须记录 port 已完成、已取消，或已明确延期且接受后续 config
+   migration。两个 hard cuts 不得并行实施。
+
+## Risks and Recovery
+
+- 完整 starter 较长。Deterministic generation 消除 copy/paste onboarding；只有真实维护
+  证据表明完整文件仍造成负担时，才独立设计 partial public config。
+- Fail-closed 改变 omitted-config behavior。Root discovery 加 `init` 是迁移路径；dogfood
+  在同一 revision 迁移。
+- Tool environment overrides 如果隐藏会令调用者意外。Allowed field set 与 precedence
+  closed，console preflight 显示 applied names。
+- Existing config 绝不能被覆盖。Exclusive creation 是 correctness boundary；先检查再普通
+  write 不足以满足该合同。
+
+Rollback 必须以 repository revision 为单位：同时恢复 built-in fallback、删除
+discovery/init、恢复 wrapper behavior 以及对应 help/tests/docs。
+
+## Deferred Triggers
+
+- 只有 generated complete configs 显示具体维护或兼容问题时，才新建 public partial-config
+  change。
+- 只有产品目标超出当前 formal local source-checkout entry 时，才新建
+  package/distribution change。
+- 只有通过 versioned output-contract change，才增加 machine-visible config provenance。
 
 ## Open Questions
 
-1. Starter config 应提供单一 mixed TypeScript/Rust scope，还是提供显式 `--preset typescript|rust|mixed`；推荐第一版只提供单一 mixed starter，避免在未建立真实用户样本前固化 preset taxonomy。
+目标设计无未决问题。Task 0.4 是 implementation-order gate，不是未确认 product choice。
