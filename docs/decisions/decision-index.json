@@ -14,7 +14,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:e65d051b496b18982d779961f4969fa996d63d509cd35bed7760dc84fafb25d0",
+  "sourceRevision": "sha256:28cd4b5cd21b674cd39eda8ed4c25ab3c3510cf0f4632deaa56b54e572e4be7e",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -37,6 +37,28 @@
           "testing"
         ],
         "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "testing/use-native-test-evidence-catalog.md",
+        "title": "采用一原生测试节点一条证据的统一目录",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-07-27T06:40:00Z",
+        "purpose": "让测试证明目标与实际 runner identity 一一对应，并通过统一索引持续校验。",
+        "background": "聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。",
+        "decision": "使用固定 test-evidence 目录维护单节点 case，并删除项目自有 marker 和双读。",
+        "relations": []
+      }
+    },
+    {
+      "id": "testing/use-semantic-test-case-closure.md",
+      "keys": {
+        "domain": [
+          "testing"
+        ],
+        "status": [
           "active"
         ],
         "alignment": [
@@ -44,15 +66,20 @@
         ]
       },
       "state": {
-        "path": "testing/use-native-test-evidence-catalog.md",
-        "title": "采用一原生测试节点一条证据的统一目录",
+        "path": "testing/use-semantic-test-case-closure.md",
+        "title": "采用完整测试实体与语义 Case 闭合",
         "status": "active",
         "alignment": "aligned",
-        "createdAt": "2026-07-27T06:40:00Z",
-        "purpose": "让测试证明目标与实际 runner identity 一一对应，并通过统一索引持续校验。",
-        "background": "聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。",
-        "decision": "使用固定 test-evidence 目录维护单节点 case，并删除项目自有 marker 和双读。",
-        "relations": []
+        "createdAt": "2026-07-30T03:24:22Z",
+        "purpose": "让完整当前测试事实与长期证明目的分别可靠维护，并持续证明两者没有遗漏或悬空。",
+        "background": "一原生节点一 Case 会把机械身份复制成大量模板账本，却仍不能证明测试正文与行为契约语义一致。",
+        "decision": "临时发现完整当前实体并与人工维护的语义 Case 双向闭合，允许 many-to-many 映射且不提交派生实体清单。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "testing/use-native-test-evidence-catalog.md"
+          }
+        ]
       }
     },
     {
@@ -87,6 +114,28 @@
           "workflow-policy"
         ],
         "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/use-upstream-project-skill-packages.md",
+        "title": "采用完整上游包维护项目工程 skills",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-07-27T06:40:00Z",
+        "purpose": "让项目工程判断 skill 可持续升级，同时保持上游分发内容与项目接线的清晰边界。",
+        "background": "项目需要 OpenSpec、架构边界、共同分母、最小实现和调查报告等专用工作流。",
+        "decision": "将选定上游 skill 作为完整分发单元安装，项目触发规则和适配只写在包外。",
+        "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/use-upstream-skills-with-project-local-exceptions.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
           "active"
         ],
         "alignment": [
@@ -94,15 +143,20 @@
         ]
       },
       "state": {
-        "path": "workflow-policy/use-upstream-project-skill-packages.md",
-        "title": "采用完整上游包维护项目工程 skills",
+        "path": "workflow-policy/use-upstream-skills-with-project-local-exceptions.md",
+        "title": "采用完整上游 Skill 包并允许显式项目本地例外",
         "status": "active",
         "alignment": "aligned",
-        "createdAt": "2026-07-27T06:40:00Z",
-        "purpose": "让项目工程判断 skill 可持续升级，同时保持上游分发内容与项目接线的清晰边界。",
-        "background": "项目需要 OpenSpec、架构边界、共同分母、最小实现和调查报告等专用工作流。",
-        "decision": "将选定上游 skill 作为完整分发单元安装，项目触发规则和适配只写在包外。",
-        "relations": []
+        "createdAt": "2026-07-30T03:24:22Z",
+        "purpose": "保持 Skill 来源和升级边界可审计，同时允许项目特有能力由本仓库完整拥有。",
+        "background": "完整替换上游包适合通用方法，但携带固定账本 runtime 的版本不能表达本项目的语义 Case 与全树闭合边界。",
+        "decision": "通用 Skill 默认按完整上游包维护；只有项目 owner 与验证入口已明确时，才登记并维护最小项目本地例外。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/use-upstream-project-skill-packages.md"
+          }
+        ]
       }
     }
   ]

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "topics": [
+    {
+      "id": "cli-interface",
+      "description": "产品 CLI 的命令路由、参数、路径、帮助、退出码与 stdout/stderr 可观察契约。"
+    },
+    {
+      "id": "quality-gate",
+      "description": "质量门禁的策略描述、参数规划、评估、进程结果与正式入口验收契约。"
+    },
+    {
+      "id": "quality-runtime",
+      "description": "扫描 completeness、capability result、缓存、baseline 与质量 core 运行时归约契约。"
+    },
+    {
+      "id": "report-output",
+      "description": "人读报告、console 投影、notice、排序、诊断和输出通道契约。"
+    },
+    {
+      "id": "repository-tooling",
+      "description": "开发期 thin wrapper、toolkit helper 与并行任务调度的仓库工具链契约。"
+    },
+    {
+      "id": "test-infrastructure",
+      "description": "测试实体发现、static/runtime closure、语义 Case parser 与查询门禁。"
+    },
+    {
+      "id": "scan-configuration",
+      "description": "显式配置、配置文件解析、选项 presence、默认值与配置失败边界。"
+    },
+    {
+      "id": "scan-scope",
+      "description": "输入 fingerprint、Git pathspec、changed-files 与 current/baseline 文件收集边界。"
+    },
+    {
+      "id": "scanner-adapters",
+      "description": "scc、Lizard 与 jscpd 的解析、可用性、任务规划、调用和失败投影契约。"
+    },
+    {
+      "id": "warning-generation",
+      "description": "质量 warning 的阈值、identity、accepted reason 与失配诊断契约。"
+    }
+  ]
+}

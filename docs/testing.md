@@ -3,10 +3,10 @@
 本文定义 Vibe Check 自动化测试的层级、所有权、fixture 边界、统一验证入口和一致性审计
 规则。测试证据由以下项目材料维护：
 
-- [测试证据维护](testing/case-maintenance.md)：原生测试节点、fixture 证明目标、case
-  identity 和统一目录的维护流程。
-- `docs/test-evidence/`：受控 topic、每个原生测试节点一个 case 的 source files，以及
-  由统一 CLI 生成的派生索引。
+- [测试证据维护](testing/case-maintenance.md)：当前测试实体发现、语义 Case、fixture
+  证明目标和全树闭合的维护流程。
+- `docs/testing/cases/`：受控 topic 与人工维护的语义 Case source；不提交派生实体清单
+  或查询索引。
 
 稳定 CLI、scan scope、metrics、warning、baseline、gate、process outcome、artifact 和
 output 语义以
@@ -18,7 +18,8 @@ output 语义以
 产品测试 owner 位于 `src/product/**`，测试对象是仓库自有 TypeScript/Bun source、正式
 product entry 和外部 scanner adapters。迁移后的 quality-core tests / fixtures 位于
 `src/product/quality-core/**`；可由正式入口扫描的 reusable external project fixture 位于
-`fixtures/projects/**`。`docs/test-evidence/**` 把当前原生 test 节点映射到证明目标。
+`fixtures/projects/**`。`docs/testing/cases/**` 按共同 owner 契约与可观察结果把当前
+test entities 映射到语义证明目标。
 
 Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或逐项映射到 TypeScript
 产品。新增 coverage、scanner characterization 或既有缺陷修复进入独立 change，不回填
@@ -58,7 +59,7 @@ requirement。
 
 ## Product unit tests
 
-当前 TypeScript tests 继续证明其职责。`docs/test-evidence/**` 记录的直接资产包括：
+当前 TypeScript tests 继续证明其职责。`docs/testing/cases/**` 覆盖的直接资产包括：
 
 - `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV、jscpd version/report parser，
   以及 jscpd unavailable / execution / report / parse failure。
@@ -223,8 +224,8 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
 2. 已迁移 TypeScript tests / fixtures 的证明目标和 test-evidence case 映射保持可追溯。
 3. 已删除的 Rust tests / fixtures 没有进入 `src/product/**`。
 4. 测试文档不重新定义 threshold、warning、baseline、artifact 或 status。
-5. 每个进入验证范围的原生 test 节点对应一个且仅一个当前 case；Entry、case ID 和
-   source path 无重复，派生索引保持同步。
+5. 完整当前 Bun test entity 集合全部进入至少一个真实语义 Case；每个 Case 只引用当前
+   实体，Owner、Proves、Case ID、topic 和 source 结构合法，且没有模板 Case 或派生清单。
 6. Completeness tests 分层证明 model/reducer、adapter result 和 formal-entry
    cross-surface mapping，不靠重复同一 scanner matrix 获得覆盖数量。
 7. Scanner raw fixture 只证明 adapter protocol，不成为 stable output model。

@@ -2,16 +2,6 @@ import { defineChecks } from "./normalization.ts";
 import { PROFILE_FULL, PROFILE_REQUIRED } from "./model.ts";
 import type { CheckDefinition } from "./model.ts";
 
-const testRunnerSuccessOutput = [
-  /^bun test v\d+\.\d+\.\d+ \([0-9a-f]+\)$/,
-  /^.*\.test\.ts:$/,
-  /^\(pass\) .+ \[[\d.]+(?:ms|s)\]$/,
-  /^\s*\d+ pass$/,
-  /^\s*0 fail$/,
-  /^\s*\d+ expect\(\) calls$/,
-  /^Ran \d+ tests? across \d+ files?\. \[[\d.]+(?:ms|s)\]$/
-];
-
 const qualityWarningOutput = [
   /^Quality check status: warning$/,
   /^Warnings: \d+ total \(\d+ changed, \d+ regressions\)$/,
@@ -118,14 +108,28 @@ export const checks = defineChecks([
           },
           {
             id: "test-evidence",
-            label: "test evidence",
+            label: "semantic Case ledger",
             command: "bun",
             args: ["run", "test-evidence:check"],
             ignoreOutput: [
-              /^\$ bun scripts\/test-evidence\.ts check$/,
-              /^Test evidence check passed: \d+ topic\(s\), \d+ test case\(s\)\.$/
+              /^\$ bun scripts\/test-evidence\/index\.ts check --root \.$/,
+              /^Test Case check passed: \d+ current test entities \(\d+ Bun\); \d+ mapped by \d+ semantic Cases across \d+ topics\.$/
             ]
           }
+        ]
+      },
+      {
+        id: "test-evidence-rule-tests",
+        label: "test evidence ast-grep rule tests",
+        command: "bun",
+        args: ["run", "test:test-evidence-rules"],
+        ignoreOutput: [
+          /^\$ bun scripts\/test-evidence\/test-rules\.ts$/,
+          /^ast-grep \d+\.\d+\.\d+$/,
+          /^Running \d+ tests$/,
+          /^-+ Case Details -+$/,
+          /^PASS .+$/,
+          /^test result: ok\. \d+ passed; 0 failed;$/
         ]
       },
       {
@@ -144,25 +148,6 @@ export const checks = defineChecks([
     type: PROFILE_FULL,
     tasks: [
       {
-        id: "toolkit-tests",
-        label: "toolkit tests",
-        tasks: [
-          toolkitTestCheck("toolkit-foundation-tests", "foundation toolkit tests", "toolkit:foundation:test"),
-          toolkitTestCheck("toolkit-parallel-tests", "parallel toolkit tests", "toolkit:parallel:test")
-        ]
-      },
-      {
-        id: "test-product",
-        label: "TypeScript product tests",
-        command: "bun",
-        args: ["run", "test:product"],
-        dependsOn: ["typecheck-product", "lint-product"],
-        ignoreOutput: [
-          /^\$ bun test src\/product$/,
-          ...testRunnerSuccessOutput
-        ]
-      },
-      {
         id: "quality-full-check",
         label: "quality full check",
         command: "bun",
@@ -176,7 +161,13 @@ export const checks = defineChecks([
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
-        dependsOn: ["test-product", "typecheck-scripts", "lint-scripts"],
+        dependsOn: [
+          "test-evidence",
+          "typecheck-product",
+          "lint-product",
+          "typecheck-scripts",
+          "lint-scripts"
+        ],
         allowOutput: [
           ...qualityVerificationWarningOutput
         ],
@@ -231,20 +222,6 @@ function docsValidatorCheck(
     ignoreOutput: [
       new RegExp(`^\\$ bun scripts\\/docs\\/validate\\.ts "?${target}"?$`),
       ...successOutput
-    ]
-  };
-}
-
-function toolkitTestCheck(id: string, label: string, scriptName: string): CheckDefinition {
-  return {
-    id,
-    label,
-    command: "bun",
-    args: ["run", scriptName],
-    ignoreOutput: [
-      new RegExp(`^\\$ bun run --cwd scripts\\/tools\\/[^ ]+ test$`),
-      /^\$ bun test test(?: src)?$/,
-      ...testRunnerSuccessOutput
     ]
   };
 }

@@ -19,8 +19,8 @@ Vibe Check 拥有的开发脚本入口是：
   编译和 report examples。
 - `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
-- `scripts/test-evidence.ts`：显式传入 Vibe Check 仓库根，复用项目内
-  `test-evidence-review` skill 的 ESM API，并提供测试证据查询、索引同步和严格检查入口。
+- `scripts/test-evidence/index.ts`：项目自有的测试实体发现、语义 Case 查询与全树闭合
+  入口；它运行受支持 Bun test surface，并校验 static/runtime/entity/Case 双向覆盖。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
   `parallel-task-runner` 并行运行本地检查。
 
@@ -38,8 +38,8 @@ Vibe Check 拥有的开发脚本入口是：
   wrapper 到达同一产品 core；wrapper 只透明传递参数和产品 exit。
 - `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
   配置或扫描 core。
-- Required workspace verification 严格检查 decision records 与 test evidence 两个项目
-  catalog；wrapper 只固定仓库根，不复制上游 parser、validator 或索引实现。
+- Required workspace verification 严格检查 decision records，并调用 test-evidence
+  check 执行完整 Bun 测试面及语义 Case 闭合。
 - Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
   `parallel-task-runner` gitlinks 仍服务开发脚本。
 
@@ -140,25 +140,26 @@ release artifact。
 
 已确认的长期取舍位于 `docs/decisions/`；代码、配置和 owner 文档继续承接当前事实与行为。
 
-## 测试证据适配器
+## 测试证据闭合工具
 
-项目内安装的上游
-[`test-evidence-review`](https://github.com/zxyycom/skills/tree/main/skills/test-evidence-review)
-拥有 `docs/test-evidence/` 的固定结构、case parser、topic catalog、派生索引以及 CLI /
-ESM API 语义。Vibe Check-owned `scripts/test-evidence.ts` 只固定仓库根并转发调用，同时
-暴露 topics、query、show、sync-index 与 validate API；它不扫描测试源码，也不维护第二套
-marker 或聚合账本。
+Vibe Check-owned [`scripts/test-evidence/`](../scripts/test-evidence/) 拥有 runner
+profile、ast-grep static scan、Bun JUnit runtime report、实体 identity、Case parser、
+topic catalog、查询和闭合诊断。项目内
+[`test-evidence-review` skill](../.codex/skills/test-evidence-review/SKILL.md) 只提供
+能力感知的语义评审方法，不携带项目路径、runner adapter、schema、CLI runtime 或第二套
+持久化格式。
 
 | 入口 | 用途 | 状态影响 |
 | --- | --- | --- |
-| `bun run test-evidence:list` | 列出当前 case 的紧凑检索投影 | 只读 |
-| `bun run test-evidence:check` | 严格检查 topic、case source 与派生索引 | 只读 |
-| `bun run test-evidence:sync-index` | 从 case sources 重建派生索引 | 写入 `docs/test-evidence/test-evidence-index.json` |
-| `bun run test-evidence -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定 |
+| `bun run test-evidence:list` | 列出当前语义 Case；需要有界筛选时使用完整 CLI | 只读 |
+| `bun run test-evidence -- topics\|list\|show --root .` | 按 topic、entity、owner、文本或 Case ID 查询 | 只读 |
+| `bun run test-evidence:check` | 运行完整 Bun 测试面并严格检查 static/runtime/entity/Case 闭合 | 只读 |
+| `bun run test:test-evidence-rules` | 验证 ast-grep Bun test 发现规则 | 只读 |
+| `bun run test:test-evidence` | 运行 test-evidence 工具 focused tests | 只读 |
 
 测试层级和项目级维护规则由 [测试策略](testing.md) 与
-[测试证据维护](testing/case-maintenance.md) 拥有。每个 case 只映射一个最小原生 test
-节点；产品语义继续由对应行为 owner 定义。
+[测试证据维护](testing/case-maintenance.md) 拥有。Case 按共同 owner 契约与可观察结果
+划分，并与完整当前实体集合 many-to-many 闭合；产品语义继续由对应行为 owner 定义。
 
 ## 配置所有权
 
@@ -195,7 +196,7 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
-| 测试证据适配器或 case 集合 | `bun run test-evidence:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
+| 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
 | Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |

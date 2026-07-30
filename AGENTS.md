@@ -81,12 +81,14 @@ docnav read <path> --ref "<ref>"
 
 ### 测试证据
 
-1. 新增、删除、重命名、移动原生 test 节点，或修改其 Contract / Proves 时，使用项目内
-   `test-evidence-review` skill，并从 `bun run test-evidence:list` 恢复当前 case。
-2. `docs/test-evidence/` 是当前唯一 case catalog；每个 case 只映射一个最小原生 runner
-   节点。不要新增源码 `@case` marker、聚合账本或第二套 parser。
-3. 写入 case source 或 topic 后运行 `bun run test-evidence:sync-index`，随后运行
-   `bun run test-evidence:check`；测试代码有变化时继续运行最窄目标测试。
+1. 新增、删除、重命名、移动原生 test 节点，修改测试正文或 Case 的 Owner / Proves 时，
+   使用项目内 `test-evidence-review` skill；修改前后都运行
+   `bun run test-evidence:check`，并用 `topics`、`list`、`show` 恢复相关 Case。
+2. `docs/testing/cases/` 是当前唯一语义 Case catalog。Case 按共同 owner 契约与可观察结果
+   划分；一个 Case 可以映射多个当前实体，一个实体也可以支持多个 Case。不要新增源码
+   `@case` marker、committed inventory/index、模板 Case 或第二套 parser。
+3. 测试代码变化时先运行最窄目标测试，再运行完整 `bun run test-evidence:check`；
+   Case 目录没有需要同步的派生制品。
 
 ### 代码结构
 

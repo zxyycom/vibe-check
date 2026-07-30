@@ -18,10 +18,11 @@
     "decisions": "bun scripts/decision-records.ts",
     "decisions:list": "bun scripts/decision-records.ts list",
     "decisions:check": "bun scripts/decision-records.ts check",
-    "test-evidence": "bun scripts/test-evidence.ts",
-    "test-evidence:list": "bun scripts/test-evidence.ts list",
-    "test-evidence:check": "bun scripts/test-evidence.ts check",
-    "test-evidence:sync-index": "bun scripts/test-evidence.ts sync-index --write",
+    "test:test-evidence-rules": "bun scripts/test-evidence/test-rules.ts",
+    "test:test-evidence": "bun test scripts/test-evidence",
+    "test-evidence": "bun scripts/test-evidence/index.ts",
+    "test-evidence:list": "bun scripts/test-evidence/index.ts list --root .",
+    "test-evidence:check": "bun scripts/test-evidence/index.ts check --root .",
     "validate": "bun run validate:docs && bun run validate:openspec && bun run validate:diff",
     "validate:docs": "bun scripts/docs/validate.ts",
     "validate:openspec": "openspec validate --all --strict",
@@ -42,6 +43,7 @@
     "toolkit:parallel:test": "bun run --cwd scripts/tools/parallel-task-runner test"
   },
   "devDependencies": {
+    "@ast-grep/cli": "0.45.0",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.13.2",
     "@typescript/native-preview": "7.0.0-dev.20260621.1",

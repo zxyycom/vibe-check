@@ -132,23 +132,31 @@ describe("script quality core", () => {
     ["complete", true, "warning"],
     ["complete", false, "passed"]
   ] as const;
-  for (const [overall, hasWarnings, expected] of statusCases) {
-    test(`maps ${overall} completeness with warnings=${hasWarnings} to ${expected}`, () => {
+  test("maps completeness and warning combinations to quality check status", () => {
+    for (const [overall, hasWarnings, expected] of statusCases) {
       const metrics = createMetricsForOutcome(overall);
       metrics.warnings.all = hasWarnings ? [TEST_WARNING] : [];
 
-      expect(qualityCheckStatus(metrics)).toBe(expected);
-    });
-  }
+      expect({
+        hasWarnings,
+        overall,
+        status: qualityCheckStatus(metrics)
+      }).toEqual({ hasWarnings, overall, status: expected });
+    }
+  });
 
-  for (const [overall, hasWarnings, expected] of statusCases) {
-    test(`maps ${overall} verification with warnings=${hasWarnings} to ${expected}`, () => {
+  test("maps completeness and warning combinations to verification status", () => {
+    for (const [overall, hasWarnings, expected] of statusCases) {
       const metrics = createMetricsForOutcome(overall);
       metrics.warnings.all = hasWarnings ? [TEST_WARNING] : [];
 
-      expect(qualityVerificationStatus(metrics)).toBe(expected);
-    });
-  }
+      expect({
+        hasWarnings,
+        overall,
+        status: qualityVerificationStatus(metrics)
+      }).toEqual({ hasWarnings, overall, status: expected });
+    }
+  });
 
   test("accepted warnings pass verification while the quality check remains a warning", () => {
     const metrics = createMetricsForOutcome("complete");

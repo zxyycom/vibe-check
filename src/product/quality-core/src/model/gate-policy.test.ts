@@ -279,18 +279,32 @@ describe("GateResult validation", () => {
     }
   ];
 
-  for (const invalidCase of invalidCases) {
-    test(`rejects ${invalidCase.name} with a path-aware error`, () => {
+  test("rejects invalid GateResult shapes with path-aware errors", () => {
+    for (const invalidCase of invalidCases) {
       const metrics = createValidMetrics();
       invalidCase.prepare?.(metrics);
       metrics.gate = invalidCase.gate as GateResult;
 
       const validation = validateMetrics(metrics);
 
-      expect(validation.valid).toBe(false);
-      expect(validation.errors.some((error) => error.includes(invalidCase.expectedPath))).toBe(true);
-    });
-  }
+      expect({
+        case: invalidCase.name,
+        valid: validation.valid
+      }).toEqual({
+        case: invalidCase.name,
+        valid: false
+      });
+      expect({
+        case: invalidCase.name,
+        hasExpectedPath: validation.errors.some((error) => (
+          error.includes(invalidCase.expectedPath)
+        ))
+      }).toEqual({
+        case: invalidCase.name,
+        hasExpectedPath: true
+      });
+    }
+  });
 });
 
 function createValidMetrics(): QualityMetrics {

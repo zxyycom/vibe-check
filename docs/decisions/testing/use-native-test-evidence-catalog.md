@@ -1,7 +1,7 @@
 ---
 title: 采用一原生测试节点一条证据的统一目录
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-27T06:40:00Z
 purpose: 让测试证明目标与实际 runner identity 一一对应，并通过统一索引持续校验。
 background: 聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。
