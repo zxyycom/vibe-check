@@ -1,5 +1,4 @@
-本 design 说明如何建立 semantic config 与 internal scanner dependency 的单向边界。目标
-public contract 已确认，但阻塞级 readiness audit 尚未闭合，产品实现尚未开始。
+本 design 说明如何建立 semantic config 与 internal scanner dependency 的单向边界。
 
 ## Context
 
@@ -10,6 +9,8 @@ public contract 已确认，但阻塞级 readiness audit 尚未闭合，产品�
 | Config document | `docs/configuration.md` 和 `src/product/config-parser.ts` 要求完整 tool-shaped JSON；`QualityConfig` 同时含 public policy 与 `tools` | 必须拆开 public document type、normalized product semantics 和 dependency execution type |
 | Scanner execution | `src/product/config.ts` 选择 platform command，并读取 `VIBE_CHECK_*`；current/baseline adapters 从 `QualityConfig.tools` 取 command/args | Operational resolution 必须集中且 invocation-scoped，不能只删除 schema fields |
 | Quality consumers | Scope、warnings、report、cache、current 与 baseline 都直接消费一个宽 `QualityConfig` | 分层后必须显式限制每个 consumer 能看见的 config slice，避免 command/args 再次扩散 |
+| Numeric validation | Current parser 对 thresholds、token values、report counts 与 accepted-warning value 只要求 finite number；除 time zone 与 warning-policy enum 外没有 range/integer validation | 本解耦不得顺带引入未确认的 positive/integer contract；schema 先保持 current finite-number acceptance |
+| Duplicate format | `formatByCodeArea` 被直接写入 jscpd `format`；对同一 `.ts` / `.rs` area，`typescript` 只扫描 `.ts`，省略 format 时 pinned jscpd 5.0.11 分别扫描两类 extension | 该 field 是 backend filter，不是 quality threshold；target adapter 省略 public filter，并让 pinned backend 从 exact paths 检测 format |
 | External workflow | `add-external-project-config-workflow` 规划 `.vibe-check/config.json`、comment-capable JSON、init/discovery 与 sibling schema | 本 change 只交付 semantic runtime schema/mapping；external workflow 组合 `$schema` metadata 和 file lifecycle |
 | Lizard port | `port-lizard-function-metrics-to-typescript` 已按活动决策延期 | 本 change 不实现 port；目标边界使未来 port 只改变 internal backend |
 | Machine output | Current warnings/metrics 仍包含 tool-derived source/rule metadata | Project config decoupling 不等于 output identity redesign；后者保持不变 |
@@ -21,7 +22,7 @@ public contract 已确认，但阻塞级 readiness audit 尚未闭合，产品�
 1. [proposal.md](proposal.md) 拥有问题、范围、capability 和 change ordering。
 2. `specs/**` 拥有可观察输入、失败、兼容与 handoff contract。
 3. 本 design 拥有 type/data-flow、owner、mapping、migration 与 implementation choices。
-4. [tasks.md](tasks.md) 在生成后只拥有执行顺序、readiness gate 和验证证据，不重新定义 field semantics。
+4. [tasks.md](tasks.md) 只拥有执行顺序、readiness gate 和验证证据，不重新定义 field semantics。
 5. 实现完成后，`docs/configuration.md`、`docs/scanner-dependencies.md`、runtime schema source 与对应 owner docs 接替 current behavior；active change artifacts 不成为长期事实源。
 
 ### Stable terms
@@ -31,9 +32,11 @@ public contract 已确认，但阻塞级 readiness audit 尚未闭合，产品�
 | Semantic config | Project-controlled Vibe Check scope、quality checks、acceptance/report 与 artifact/cache policy；不含 dependency execution settings |
 | `SemanticProjectConfigV1` | 从唯一 runtime schema source 派生的 complete public semantic value；`version` 固定为 `"1"` |
 | Resolved quality config | Semantic document 通过 schema、post-validation 和 explicit CLI overrides 后形成的 readonly domain value；Core consumers 只接收所需 slices |
-| Scanner dependency snapshot | Product 在 invocation 内一次解析的 backend executable/args、platform defaults、operational overrides、execution hints 和 concurrency；不是 project config |
+| Scanner dependency snapshot | Product 在 invocation 内一次解析的 backend executable/args、platform defaults、operational overrides、availability protocol inputs 和 bounded concurrency；不是 project config |
 | Semantic check ID | Config-only stable identity，用于 accepted-warning selection；target v1 包含五个 backend-neutral values |
 | Backend identity | Adapter/cache/diagnostic 所需的 internal implementation identity；不写回 project config |
+| Cache identity projection | 由各 measurement cache owner 从本 capability 的 semantic values、exact inputs 与 backend identity 生成；不存在全量 semantic-config fingerprint |
+| Operational override | Product 支持的 invocation-level environment input；不是 project config，invalid shape 是 ordinary runtime error / exit `2` |
 | External config workflow | 后置 change 所拥有的 `.vibe-check/config.json` filename、comment grammar、discovery、`init` 和 sibling schema lifecycle |
 
 ## Goals / Non-Goals
@@ -59,7 +62,7 @@ public contract 已确认，但阻塞级 readiness audit 尚未闭合，产品�
 
 | Owner | Responsibility introduced or changed here | Must not own |
 | --- | --- | --- |
-| Product Config (`src/product/**`) | Semantic runtime schema、derived type、unknown-input validation、semantic post-validation、legacy diagnostic、domain mapping、config fingerprint | Dependency command/args、availability、file discovery/init |
+| Product Config (`src/product/**`) | Semantic runtime schema、derived type、unknown-input validation、semantic post-validation、legacy diagnostic、domain mapping | Dependency command/args、availability、file discovery/init、measurement cache identity |
 | Product CLI / scan entry | Selected config path 的现有 routing、explicit CLI overrides、top-level controlled error mapping、把两个 snapshots 交给 orchestration | 重复 schema/parser、tool mapping、scanner protocol |
 | Scanner Dependencies (`src/product/**`) | Built-in backend settings、platform defaults、supported operational overrides、typed snapshot、dependency validation | Project scope/threshold/report、warning/output semantics |
 | Core orchestration | 按 eligibility 把 exact semantic settings 与 capability-specific dependency slice 交给 adapters；current/baseline 复用 snapshots | 读取 environment/schema/file，或向 warning/report 传播 executable settings |
@@ -83,17 +86,46 @@ Product runtime 继续位于 `src/product/**`，不得反向导入 `scripts/**`�
 
 ## Common-Denominator Analysis
 
-Public field grouping 按真实 consumer obligation，而不是当前 executable 名称：
+本分析以 current `QualityConfig` type、parser 和所有 production field accesses 为事实边界。
+下表逐项记录 public semantic owner 与 internal landing；current parser 接受某字段不自动证明它
+应继续公开。
 
-| Scenario | Shared public obligations | Stable local difference | Internal-only inputs |
-| --- | --- | --- | --- |
-| File quality | Absolute/changed code-line threshold；low-decision-token allowance | File-level metric names and allowance | CSV protocol、executable/args、availability |
-| Function quality | Absolute/changed thresholds；current/baseline comparison | Complexity、code lines、parameter count；low-complexity allowance | Python/process/CSV or future native backend |
-| Duplication quality | Minimum clone size by code area；fragment changed delta | Token-based sensitivity and per-area value | Parallelism、backend format hint、temporary report config |
+| Current field family | Consumer obligation | Target owner / representation |
+| --- | --- | --- |
+| `version` | Document contract identity 与 machine metadata | Public exact `version = "1"`；cache owner 不把它当 caller cache-bust label |
+| `include` | Current/baseline/Git-fallback candidate selection | Public semantic root，selected document 整体替换 built-in value |
+| `excludeDirs` | Collection 与 scanner exact-input exclusion | Public semantic root；adapter 不重复过滤或加入 hidden defaults |
+| `generatedFiles` | Collection、classification 与 scanner exact-input exclusion | Public semantic root |
+| `codeAreas.*` | Classification、warning policy、report grouping 与 per-area token override reference | Public semantic root；definition 保留 `description`、`globs`、`excludeGlobs`、`warningPolicy` |
+| `scc.fileCodeLines` | File code-line warning floors/delta 与 low-decision-token allowance | `checks.files.codeLines` |
+| `lizard.cyclomaticComplexity` | Function complexity warning floor/delta | `checks.functions.cyclomaticComplexity` |
+| `lizard.functionCodeDensity` | Function NLOC warning floor/delta 与 low-complexity allowance；不是 ratio | `checks.functions.codeLines` |
+| `lizard.parameterCount` | Function parameter warning floor/delta | `checks.functions.parameterCount` |
+| `jscpd.defaultMinimumTokens` | Default duplicate measurement sensitivity | `checks.duplication.defaultMinimumTokens` |
+| `jscpd.minimumTokens` | Per-code-area duplicate measurement sensitivity | `checks.duplication.minimumTokensByCodeArea`；keys 只能引用 defined code areas，missing entry 使用 default |
+| `jscpd.duplicateFragments.changedDelta` | Duplicate warning changed-delta policy | `checks.duplication.fragments.changedDelta` |
+| `acceptedWarnings.ruleId` | Accepted-warning check selection | Required semantic `checkId`，由 Config/Quality exhaustive mapper 投影 current machine rule identity |
+| `acceptedWarnings.sourceTool` | Optional backend-source filter | 删除；不映射、不双读 |
+| 其它 `acceptedWarnings` fields | Reason 与 backend-neutral warning filters | 保留 `reason`、`codeArea`、`messageIncludes`、`metric`、`path`、`suggestionIncludes`、`value` |
+| `report.*` | Human report content、time zone、ranking 与 watchlist presentation | Public `report` semantic root；保留 current closed fields |
+| `artifactDir` / `cacheDir` | Project-local output/cache location | Public semantic roots；CLI 只覆盖 `artifactDir` |
+| `jscpd.maxParallelTasks` | Backend work scheduling | Internal duplicate dependency default；不是 project policy |
+| `jscpd.formatByCodeArea` | jscpd format filter，决定 area 内哪些 extensions 被扫描 | 删除；target jscpd adapter 对 exact inputs 省略 format override，由 pinned backend 按 extension 检测；不建立 generic format abstraction |
+| `tools.lizard.command` | Python/Lizard executable selection | Internal default + `VIBE_CHECK_LIZARD_CMD` |
+| `tools.lizard.args` | 固定 Python module protocol | Internal fixed `-m lizard`；没有 public 或 environment args override |
+| `tools.scc.command` / `args` | scc executable 与 operational args | Internal defaults + `VIBE_CHECK_SCC_CMD` / `VIBE_CHECK_SCC_ARGS` |
+| `tools.jscpd.command` / `args` | jscpd executable 与 operational args | Internal defaults + `VIBE_CHECK_JSCPD_CMD` / `VIBE_CHECK_JSCPD_ARGS` |
 
-一个全局扁平 threshold map 会丢失合法 nested allowance；继续按三种 tool names 分组则把 backend replacement 暴露给用户。选择一个 `checks` shared root 加 `files` / `functions` / `duplication` 三个显式变体，既保留不同义务，又让全部 consumers 只依赖 product semantics。
+File、function 与 duplication checks 共享“Product-owned quality intent”生命周期，但合法
+threshold/allowance 结构不同。一个全局扁平 map 会丢失这些差异；继续按三个 tool names 分组
+则让 backend replacement 穿透 public contract。因此选择一个 `checks` root 加
+`files` / `functions` / `duplication` 三个显式变体。
 
-Operational settings 不满足同一生命周期：它们随 host、installation 与 backend revision 变化，而 project quality policy 应随 repository 协作。因此不把它们做成 `checks` optional fields，也不建立 public backend variant。
+全局共享、按 capability 变体和保持 tool-local 三类候选中，只有 capability variants 同时
+满足 consumer sufficiency 与变化隔离。Operational settings 随 host、installation 与 backend
+revision 变化，不与 repository quality policy 共享 lifecycle，因此保持 internal。Current
+semantic numeric fields 继续只承诺 finite numbers；本 change 不利用新 schema 顺带增加
+positive/integer limits。
 
 ## Decisions
 
@@ -154,20 +186,12 @@ artifactDir
 cacheDir
 ```
 
-现有 semantic subfields 尽量保留：thresholds 继续使用 `absoluteFloor` / `changedDelta`，allowances 保留 `codeLineFloor`、`maxDecisionTokens` 与 `maxCyclomaticComplexityExclusive`。以下 current fields 改为 internal：
-
-| Current field | Target owner / mapping |
-| --- | --- |
-| `lizard.cyclomaticComplexity` | `checks.functions.cyclomaticComplexity` |
-| `lizard.functionCodeDensity` | `checks.functions.codeLines`；修正“density”并非 ratio 的误导命名 |
-| `lizard.parameterCount` | `checks.functions.parameterCount` |
-| `scc.fileCodeLines` | `checks.files.codeLines` |
-| `jscpd.defaultMinimumTokens` | `checks.duplication.defaultMinimumTokens` |
-| `jscpd.minimumTokens` | `checks.duplication.minimumTokensByCodeArea` |
-| `jscpd.duplicateFragments` | `checks.duplication.fragments` |
-| `jscpd.maxParallelTasks` | Scanner Dependency bounded concurrency |
-| `jscpd.formatByCodeArea` | Adapter-owned backend hint，按 normalized eligible file language/extension resolution |
-| `tools.*` | Scanner Dependency executable/args and operational override |
+Exact current-to-target mapping 由上文
+[Common-Denominator Analysis](#common-denominator-analysis) 的 field audit 单点拥有。
+Thresholds 继续使用 `absoluteFloor` / `changedDelta`；allowances 保留 `codeLineFloor`、
+`maxDecisionTokens` 与 `maxCyclomaticComplexityExclusive`。`minimumTokensByCodeArea` 只允许
+引用已声明 code areas，缺少 entry 时使用 `defaultMinimumTokens`。Current semantic numeric
+fields 保持 finite-number acceptance，不在本 change 增加未确认的 positive/integer limits。
 
 `version` 是 exact document contract discriminator，不再是调用者自选 cache-bust string。Machine `metadata.configVersion` 继续是 required string 并记录 current semantic contract version；不新增 fingerprint machine field。
 
@@ -209,7 +233,19 @@ Scanner Dependency owner 从 built-in defaults 和 host platform 构造 internal
 - `VIBE_CHECK_JSCPD_CMD`
 - `VIBE_CHECK_JSCPD_ARGS`
 
-Environment 只在 invocation boundary 读取一次；array values 继续按 JSON string array 严格校验。Invalid operational input 映射为 typed dependency-configuration error 并在 scanner invocation 前给出 value-shape diagnostic；diagnostic 不得打印完整敏感 environment value。Platform executable defaults、fixed backend args、jscpd bounded concurrency 和 format inference 由该 owner 维护。
+Environment 只在 invocation boundary 读取一次。`*_CMD` 延续 current semantics：non-empty string
+替换 built-in executable，unset/empty 表示没有 override；executable 是否存在属于 eligible
+dependency 的 availability，不在 boundary validation 时探测。`VIBE_CHECK_SCC_ARGS` 与
+`VIBE_CHECK_JSCPD_ARGS` 的 non-empty value 必须解析为 JSON string array，unset/empty 产生空
+additional-args list。全部 supplied non-empty inputs 在 profile/eligibility 分流前完成 shape
+validation；即使对应 capability 后续为 `skipped` / `no-input`，malformed args 仍以 typed
+operational error、stderr 和 exit `2` 在 banner/cache/artifact 前失败。Diagnostic 不得打印完整
+environment value。Platform executable defaults、fixed backend args 与 jscpd bounded concurrency
+由 dependency owner 维护；duplicate per-path format detection 留在 adapter 内。
+
+`VIBE_CHECK_LIZARD_CMD` 只替换 executable；Lizard args 固定为 `-m lizard`。本 change 不新增
+`VIBE_CHECK_LIZARD_ARGS`，因此 legacy `tools.lizard.args` 的自定义值没有兼容 landing，迁移
+diagnostic 必须明确说明该能力被移除，而不是声称所有旧 args 都可转移。
 
 Formal-entry tests 用 declared operational overrides 指向 controlled scanner；lower-level tests 可以注入 typed dependency snapshot。两种方式都不增加 production project-config seam。
 
@@ -226,7 +262,7 @@ Invocation 顺序固定为：
 5. 每个 revision 先独立计算 eligibility；只有 eligible capability 才使用 snapshot 中的对应 dependency 做 availability/invocation。
 6. Warning/scope/report consumers 只接收 semantic slices；adapter 只接收 exact inputs、所需 semantic scan settings 和一个 dependency slice。
 
-Cache identity 不再把 caller-controlled `version` 当唯一 invalidation。各 cache owner 建立 consumer-specific deterministic projection：measurement-relevant semantic settings + normalized exact-input fingerprint + relevant backend version/args identity。Report text、accepted-warning text 等不影响 normalized measurement 的 fields 不应进入 scanner cache；全量 public config hash 也不能替代 capability-specific identity review。
+Cache identity 不再把 caller-controlled `version` 当唯一 invalidation。各 cache owner 建立 consumer-specific deterministic projection：measurement-relevant semantic settings + normalized exact-input fingerprint + relevant backend version/args identity。Report text、accepted-warning text 等不影响 normalized measurement 的 fields 不应进入 scanner cache；不存在 Product Config-owned 全量 fingerprint，全量 public config hash 也不能替代 capability-specific identity review。
 
 ### Decision 7: Use a fail-fast hard cut for legacy project configs
 
@@ -234,12 +270,16 @@ Cache identity 不再把 caller-controlled `version` 当唯一 invalidation。�
 
 不保留 legacy runtime reader。识别到 top-level `lizard`、`scc`、`jscpd` 或 `tools` 时，Config boundary 返回专门 migration diagnostic 并退出 `3`，且不解析/执行 legacy command。迁移 owner docs 提供：
 
-- exact old-to-new semantic field table（Decision 3）；
+- exact old-to-new semantic field table（Common-Denominator Analysis）；
 - `acceptedWarnings.ruleId` 到 `checkId` table；
 - `sourceTool` 删除说明；
-- command/args 迁移到 operational inputs 的说明；
+- supported command/args 到现有 `VIBE_CHECK_*` operational inputs 的逐项落点；明确
+  `tools.lizard.args` 没有 target override，固定 protocol 为 `-m lizard`；
+- `jscpd.formatByCodeArea` 的 filter 行为被移除，target 对 exact inputs 省略 format override；
+  `jscpd.maxParallelTasks` 改由 internal bounded-concurrency default 拥有；
 - `version` 改为 `"1"`；
-- canonical before/after example，但旧 example 不得作为 accepted schema fixture 保留。
+- 一个 canonical semantic v1 example；旧 shape 只通过逐字段 migration table 说明，不复制为
+  第二个完整 accepted-looking example。
 
 选择 hard cut 是因为 external discovery/init 尚未交付；先建立新 schema 可避免首次生成已知短命的 tool-shaped config。已有显式 config 调用者需要一次人工迁移，但不会遇到 command/args 被静默忽略或两个 parser precedence 不一致。
 
@@ -255,9 +295,8 @@ Rollback 以 binary + config pair 为单位：回退到 change 前 binary 时必
 4. `SelectedConfig` provenance 只含 explicit/discovered source、normalized path 和 semantic version；不输出 applied tool/dependency overrides。
 5. `init` comments 只解释 semantic sections，不提 backend/tool identity。
 
-Task 0.4 已完成 external change 的 planning rebase。后续修改必须继续保持该单向消费关系；
-一旦 external artifacts 重新定义 semantic field tree 或 dependency provenance，就必须先修复
-drift，不能进入产品实现。
+后续修改必须继续保持该单向消费关系；一旦 external artifacts 重新定义 semantic field tree
+或 dependency provenance，就必须先修复 drift，不能进入产品实现。
 
 ### Decision 9: Rebase the deferred Lizard port onto the internal boundary
 
@@ -269,8 +308,6 @@ drift，不能进入产品实现。
 - 如果要改 machine `sourceTool` / rule identity，另开 Output contract change。
 
 因此本 change 先兑现用户可见的长期 config stability，而不是把 port 当作其技术前置。
-Task 0.5 已完成 Lizard change 的 planning rebase；这不改变其延期状态，也不构成 implementation
-evidence。
 
 ## Error Model
 
@@ -278,7 +315,7 @@ evidence。
 | --- | --- |
 | Semantic document read/schema/post-validation | Config error，包含 selected path 与 field location；scanner/banner/artifacts 前 exit `3` |
 | Legacy tool-shaped document | Config migration error；不读取/执行 legacy executable；exit `3` |
-| Invalid operational override shape | Scanner Dependency configuration error；指出 override name/expected shape，隐藏完整 value；对应 scanner invocation 前受控失败 |
+| Invalid operational override shape | Ordinary operational runtime error；指出 override name/expected shape，隐藏完整 value；即使 capability 将 skip/no-input，也在 banner/cache/artifacts 前 exit `2` |
 | Eligible dependency unavailable | Adapter normalized `failed/unavailable`；进入 existing completeness/process outcome |
 | Backend process failure | Adapter normalized `failed/execution` |
 | Backend output invalid | Adapter normalized `failed/invalid-result` |
@@ -287,31 +324,19 @@ evidence。
 
 ## Migration Plan
 
-1. 完成剩余 tasks 0.x readiness audit。Tasks 0.4/0.5 已完成 dependent changes 的 planning
-   rebase；若 current facts 或 artifacts 变化，先恢复这两条单向关系。Readiness 未闭合前不改
-   产品代码。
-2. 建立 runtime semantic schema、derived type、post-validation、detached mapping 与 focused schema generation/validation proof；保留当前 explicit path 但切换为 semantic v1。
-3. 建立 Scanner Dependency snapshot 与 typed per-capability slices；把 environment/platform/default resolution 从 default project config 移入该 owner。
-4. 将 Core context、current、baseline、fallback、warnings、cache 和 adapters 逐层迁移到 semantic slices + dependency slices；删除 tool-shaped public type/parser paths 和剩余 project-to-command flow。
-5. 同一 change 迁移 built-in semantic defaults、explicit external fixture、formal-entry controls、dogfood acceptance、owner docs、canonical config-related examples 和 semantic Cases。
-6. 运行 full validation 并审计 public config/schema/example/help 不存在 scanner product/executable fields；保留 machine/output tool identities 作为明确 scope boundary。
-7. 只有本 change 实现验收完成后，进入 external workflow 的 config file/discovery/init 实现。
+1. 建立 runtime semantic schema、derived type、post-validation、detached mapping 与 focused schema generation/validation proof；保留当前 explicit path 但切换为 semantic v1。
+2. 建立 Scanner Dependency snapshot 与 typed per-capability slices；把 environment/platform/default resolution 从 default project config 移入该 owner。
+3. 将 Core context、current、baseline、fallback、warnings、cache 和 adapters 逐层迁移到 semantic slices + dependency slices；删除 tool-shaped public type/parser paths 和剩余 project-to-command flow。
+4. 同一 change 迁移 built-in semantic defaults、explicit external fixture、formal-entry controls、dogfood acceptance、owner docs、canonical config-related examples 和 semantic Cases。
+5. 运行 full validation 并审计 public config/schema/example/help 不存在 scanner product/executable fields；保留 machine/output tool identities 作为明确 scope boundary。
+6. 只有本 change 实现验收完成后，进入 external workflow 的 config file/discovery/init 实现。
 
 ## Risks / Trade-offs
 
 - **[Breaking explicit configs]** 现有完整 JSON 立即失效 → 提供 shape-aware exit `3` migration、逐字段表与 atomic binary/config 升级说明；不以 dual reader 延长风险。
 - **[Internal split touches many consumers]** 当前 `QualityConfig` 跨 scope、warnings、cache、adapters 广泛使用 → 按 consumer slice 增量迁移，并用 static search 证明 command/args 只到达 dependency owner/adapters。
-- **[Format inference changes duplicate behavior]** 移除 `formatByCodeArea` 后 mixed-language area 可能与当前结果不同 → readiness audit inventory current extension/language cases；实现 product-owned deterministic inference 并加入 parity/failure tests，无法保持语义时先收窄 supported combination 而不是恢复 backend field。
+- **[Removing format filter broadens mixed areas]** Current `formatByCodeArea` 会过滤 area 内其它 extensions；target 省略 override 后 pinned jscpd 会分别扫描其支持的 `.ts` / `.rs` 等 formats → 在 duplicate-scanning contract 与 migration table 明示该 breaking behavior，并用 pure/mixed-extension characterization 固定 exact-input handoff；不得恢复 public backend filter。
 - **[Operational overrides remain tool-named]** Environment escape hatch 仍随 backend 变化 → 明确其为 internal operational compatibility，不进入 schema/starter/provenance；backend replacement 在 dependency owner 集中迁移。
 - **[Two identity systems]** Config `checkId` 与 current machine `ruleId` 并存 → exhaustive single mapper + focused tests；machine redesign 保持独立，避免本 change 扩张。
 - **[Config version loses caller label]** `version = "1"` 不能手工 bust cache → capability-specific deterministic cache identity 取代该误用；metadata 只报告 contract version。
 - **[Dependent active changes drift]** 后续修改可能让 External/Lizard artifacts 重新描述旧 fields → task 5.5 与 final audit 必须定向搜索并先修复 drift。
-
-## Remaining readiness evidence
-
-Public-contract 层没有未决问题。Exact `version = "1"`、semantic `checkId` 与 legacy hard cut
-均已确认。
-
-`jscpd` format inference 的 exact extension matrix 仍是 readiness inventory 和 implementation
-characterization，不是新的产品选择；它不能自行改变已确认的 public field tree、owner 或
-migration 策略。

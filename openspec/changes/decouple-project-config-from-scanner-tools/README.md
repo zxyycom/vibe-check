@@ -2,13 +2,14 @@
 
 本 change 是 `add-external-project-config-workflow` 的语义配置前置：它把 public project config 固定为 Vibe Check-owned 质量意图，并把 scanner backend 执行收口到 Product-owned internal dependency boundary。
 
-## Current status
+## Artifact authority
 
-- 本目录是 OpenSpec planning artifact，不是 current product behavior owner。
-- Proposal、design、spec deltas 和 tasks 可以通过 `openspec status --change decouple-project-config-from-scanner-tools` 恢复结构状态；不要从本 README 复制 task count。
-- `tasks.md` 的 0.x 是阻塞级 readiness gate。0.x 未全部完成前，禁止修改产品代码或执行 1.x 及以后任务。
-- 三项 public-contract 选择已经确认并写入长期 decisions；dependent change planning rebase 已
-  完成，但 product runtime、fixture 与 owner docs 尚未通过本 change 修改。
+- 本目录定义 target contract，不是 current product behavior owner。
+- `tasks.md` 唯一拥有执行顺序、门禁勾选状态与验证任务；结构状态通过
+  `openspec status --change decouple-project-config-from-scanner-tools` 恢复。本 README 不复制
+  task count 或下一项任务。
+- Runtime、owner docs、tests 和 release artifacts 才能证明实现状态；checked planning task 不得
+  单独解释为产品行为已交付。
 
 ## Confirmed contract
 
@@ -29,9 +30,6 @@
 | `version` 固定为 exact `"1"` contract discriminator | [固定语义配置契约版本](../../../docs/decisions/configuration/use-fixed-semantic-config-version.md) | Schema version 与 caller-defined cache-bust label 分离；cache identity 按真实 measurement inputs 派生 |
 | `checks.files` / `checks.functions` / `checks.duplication`，accepted warnings 使用 semantic `checkId` | [语义 check ID](../../../docs/decisions/configuration/use-semantic-check-ids-in-project-config.md) | Threshold/acceptance 不依赖 backend 或 tool-named rule ID；machine identity 暂时保持兼容 |
 | Legacy tool-shaped config fail-fast hard cut | [Legacy hard cut](../../../docs/decisions/configuration/hard-cut-legacy-tool-shaped-config.md) | Project command/args 不被静默忽略或执行；不建立 dual-reader precedence |
-
-这些选择确认目标 contract，不表示产品代码已经实现，也不跳过其余 readiness、测试证据或
-验证任务。
 
 固定实施顺序为：本 change →
 [external config workflow](../add-external-project-config-workflow/README.md) → 延期的
@@ -62,6 +60,10 @@ Stable public responsibilities are grouped by actual consumers:
 
 Backend concurrency、syntax/format hint、executable、args、availability 与 process protocol 不是 project semantics。它们不得作为 optional public field 回流。
 
+Target jscpd adapter 对 Product-approved exact paths 省略 public format filter，让 pinned
+backend 按 extension 检测其支持的 formats；`duplicate-scanning` spec 拥有这一 exact-input
+behavior。该选择不创建通用 language/format registry，也不承诺跨 format clone matching。
+
 ## External workflow handoff
 
 本 change 只提供 semantic runtime schema、schema-derived type、validation 和 domain mapping seam。后置 `add-external-project-config-workflow` 必须：
@@ -80,24 +82,11 @@ Backend concurrency、syntax/format hint、executable、args、availability 与 
 
 1. [proposal.md](proposal.md)：为什么做、范围、capabilities 与 change ordering。
 2. [design.md](design.md)：owner、type/data flow、field mapping、已确认取舍、migration 与风险。
-3. [specs](specs)：可观察 target contract；重点从 `scan-configuration` 和 `scanner-dependencies` 开始。
-4. [tasks.md](tasks.md)：先完成 0.x readiness，再按 schema → dependency → consumers → fixture/docs → verification 实施。
+3. [specs](specs)：可观察 target contract；先读 `scan-configuration`、
+   `scanner-dependencies` 与 `duplicate-scanning`，再按 consumer 进入其它 deltas。
+4. [tasks.md](tasks.md)：唯一拥有执行顺序、门禁勾选状态与验证任务；按其 schema → dependency
+   → consumers → fixture/docs → verification 顺序实施。
 
-Proposal 不拥有 implementation detail；design 不替代 observable specs；tasks 不重新定义 fields；实现完成后 owner docs/runtime schema 接替 current fact ownership。
-
-## Coding-style constraints
-
-- 产品 runtime owner 只在 `src/product/**`；`scripts/**` 保持 thin one-way consumer。
-- External bytes/environment 先作为 `unknown` 在 boundary 解析、验证、归一化和映射；domain code 不处理 raw object 或 `any`。
-- Runtime semantic schema 是唯一 public field owner；derived type、generated schema 与 canonical material 从它派生。
-- Dependency boundary 使用具体 typed resolver/slices，不为假想多实现建立 plugin/provider framework。
-- Current/baseline/fallback 复用 invocation snapshots；不重新读 config/environment，也不按 source 分叉。
-- Failures 使用 typed/discriminated boundary mapping；不静默 fallback、不用空 metrics 掩盖 dependency 失败、不打印完整 environment value。
-- Cache identity 按 consumer-specific semantics 与 backend identity 投影，不用 caller label 或全量 config hash 替代责任审查。
-- 新增/修改 test entity/body 前后按 AGENTS.md 运行 test-evidence 恢复、最窄 tests 与完整 closure。
-
-## Next action
-
-继续执行 [tasks.md](tasks.md) 中未完成的 0.x：恢复 current facts，完成
-field/common-denominator、test-evidence 与最终 artifact readiness audit。0.2、0.4、0.5 已
-完成；全部 readiness 闭合后才从 semantic runtime schema 开始实现。
+Proposal 不拥有 implementation detail；design 不替代 observable specs；tasks 不重新定义 fields；
+实现还必须遵循仓库 `AGENTS.md` 与 `docs/coding-style.md`。实现完成后，owner docs/runtime schema
+接替 current fact ownership。

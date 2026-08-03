@@ -2,7 +2,16 @@
 
 ### Requirement: Configuration JSON matches complete QualityConfig
 
-Selected project configuration MUST 是一个完整 semantic document。Base semantic value 的 top level MUST 精确包含 `version`、`include`、`excludeDirs`、`generatedFiles`、`codeAreas`、`checks`、`acceptedWarnings`、`report`、`artifactDir` 与 `cacheDir`；后置 external workflow MAY 只组合 optional `$schema` metadata。`version` MUST 是 current contract discriminator `"1"`。Public runtime schema、generated schema、starter、examples 与 user-facing docs MUST NOT 声明 scanner product name、executable、argument list、dependency concurrency 或 backend format hint。
+Selected project configuration MUST 是一个完整 semantic document。Base semantic value 的 top level MUST 精确包含 `version`、`include`、`excludeDirs`、`generatedFiles`、`codeAreas`、`checks`、`acceptedWarnings`、`report`、`artifactDir` 与 `cacheDir`；后置 external workflow MAY 只组合 optional `$schema` metadata。`version` MUST 是 current contract discriminator `"1"`。Public runtime schema、generated schema、starter、examples 与 user-facing docs MUST NOT 声明 scanner product name、executable、argument list、dependency concurrency 或 backend format filter。
+
+Unchanged semantic roots MUST 保留 current complete-config shape：`include`、`excludeDirs` 与
+`generatedFiles` 是 string arrays；`codeAreas` 是 named record，每个 value 精确包含 string
+`description`、string-array `globs` / `excludeGlobs`，以及取值为 `strict`、`moderate`、`relaxed`、
+`watchlist-only` 或 `exclude-warnings` 的 string `warningPolicy`；`report` 精确包含
+`title`、`nonBlockingNotice`、`footerGeneratedBy`、`footerNotice`、finite-number `topN`、valid IANA
+time-zone string `timeZone`、boolean `showWatchlist` 与 finite-number `watchlistMax`；`artifactDir` / `cacheDir` 是
+strings。本 change 除下述已确认 version、field tree、identity 与 cross-field reference 外，MUST
+NOT 顺带收紧 current finite-number acceptance。
 
 `checks` MUST 是 closed object，并完整包含以下 backend-neutral sections：
 
@@ -12,7 +21,13 @@ Selected project configuration MUST 是一个完整 semantic document。Base sem
 - `checks.functions.parameterCount`：`absoluteFloor` 与 `changedDelta`。
 - `checks.duplication`：`defaultMinimumTokens`、`minimumTokensByCodeArea` 与 `fragments.changedDelta`。
 
-`acceptedWarnings[]` MUST 使用 required `checkId` 与 `reason`；`checkId` MUST 是 `file-code-lines`、`function-cyclomatic-complexity`、`function-code-lines`、`function-parameter-count` 或 `duplicate-code`。它 MAY 使用现有 semantic match fields `codeArea`、`messageIncludes`、`metric`、`path`、`suggestionIncludes` 与 `value`，但 MUST NOT 接受 dependency source matcher。
+每个 section、threshold、allowance 与 `fragments` object MUST 是 closed shape，并精确包含上列
+fields。
+上述 threshold、allowance、minimum-token 与 changed-delta values MUST 是 finite numbers。
+`minimumTokensByCodeArea` MUST 是 record；每个 key MUST 引用 `codeAreas` 中的 name，缺少某个
+area entry 时 duplicate scanning 使用 `defaultMinimumTokens`。
+
+`acceptedWarnings[]` MUST 使用 required string `checkId` 与 `reason`；`checkId` MUST 是 `file-code-lines`、`function-cyclomatic-complexity`、`function-code-lines`、`function-parameter-count` 或 `duplicate-code`。它 MAY 使用现有 semantic match fields string `codeArea` / `metric` / `path`、string-array `messageIncludes` / `suggestionIncludes` 与 finite-number `value`，但 MUST NOT 接受 dependency source matcher。
 
 Parser MUST 拒绝 missing、unknown、wrong-version 或 invalid fields，并返回 detached normalized semantic config；它 MUST NOT partial merge、从默认值补字段或把 project document 映射成 executable settings。
 
@@ -26,7 +41,8 @@ Parser MUST 拒绝 missing、unknown、wrong-version 或 invalid fields，并返
 
 - **WHEN** reviewer 检查 runtime schema、derived document type、generated schema、starter、canonical config、fixture config 与 user-facing configuration docs
 - **THEN** public field tree 使用 `checks.files`、`checks.functions` 与 `checks.duplication`
-- **AND** 这些 materials 不包含 `lizard`、`scc`、`jscpd`、`command` 或 `args`
+- **AND** 这些 materials 不包含 `lizard`、`scc`、`jscpd`、`command`、`args`、dependency
+  concurrency 或 backend format filter
 
 #### Scenario: Semantic accepted warning selects a stable check
 

@@ -26,7 +26,7 @@ Dependency name、command、args、availability 或 backend format MUST NOT 参�
 
 ### Requirement: Accepted warnings use stable semantic check identity
 
-Accepted-warning matching SHALL 以 public semantic `checkId` 作为 required check identity，并保留 optional `codeArea`、message、metric、path、suggestion 与 value filtering。Config owner MUST 将 check identity 映射到当前 internal warning rule；matcher MUST NOT 要求或接受 scanner source identity。
+Accepted-warning matching SHALL 以 public semantic `checkId` 作为 required check identity，并保留 optional `codeArea`、`messageIncludes`、`metric`、`path`、`suggestionIncludes` 与 `value` filtering。Config owner MUST 将 check identity 映射到当前 internal warning rule；matcher MUST NOT 要求或接受 scanner source identity。
 
 本 change MUST NOT 改写 machine warning `ruleId`、`sourceTool`、metric、ordering、channel membership 或 `acceptedReason` behavior。后续 machine identity redesign 必须作为独立 output-contract change。
 
