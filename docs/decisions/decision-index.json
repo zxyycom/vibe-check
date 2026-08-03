@@ -5,6 +5,14 @@
   "metadata": {
     "domains": [
       {
+        "description": "维护 public project config 的语义、格式、兼容性与底层依赖隔离边界。",
+        "id": "configuration"
+      },
+      {
+        "description": "维护产品价值排序、路线进入条件与高风险提升项的长期优先级边界。",
+        "id": "product-priority"
+      },
+      {
         "description": "维护测试策略、测试证据、fixture 与证明责任的长期边界。",
         "id": "testing"
       },
@@ -14,7 +22,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:28cd4b5cd21b674cd39eda8ed4c25ab3c3510cf0f4632deaa56b54e572e4be7e",
+  "sourceRevision": "sha256:83b2938f489bddbc4b2a57f6cac108d695e3f618b32a04eec00fb7e4c43b2901",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -30,6 +38,183 @@
     }
   ],
   "entries": [
+    {
+      "id": "configuration/hard-cut-legacy-tool-shaped-config.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/hard-cut-legacy-tool-shaped-config.md",
+        "title": "对旧 tool-shaped project config 执行 hard cut",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T09:23:47Z",
+        "purpose": "一次性建立无底层工具字段的语义配置边界，避免双读、静默忽略和 executable precedence 风险。",
+        "background": "旧配置包含 tool-named thresholds 与 command/args；兼容读取会延长 public coupling 和 executable precedence 风险。",
+        "decision": "新 runtime 在 scan work 前拒绝旧 shape 并提供迁移诊断，不兼容读取，也不执行旧 command/args。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/keep-public-config-tool-neutral.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/keep-public-config-tool-neutral.md",
+        "title": "让 public project config 保持 scanner-tool 中立",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T08:45:33Z",
+        "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
+        "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
+        "decision": "Public project config 只使用产品语义字段，底层 scanner 映射与 dependency resolution 由 Product 内部边界拥有。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-fixed-semantic-config-version.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-fixed-semantic-config-version.md",
+        "title": "使用固定语义配置契约版本",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T09:23:47Z",
+        "purpose": "让 project config version 稳定标识文档契约，而不是承担调用者自定义的缓存失效责任。",
+        "background": "当前 version 是任意字符串并参与 scanner cache identity；新的语义 schema 需要可验证的版本判别，同时缓存应由实际影响测量的输入决定。",
+        "decision": "Semantic project config v1 固定使用 version \"1\"，缓存身份改由相关语义设置、精确输入和内部 dependency identity 派生。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-json-filename-for-commented-config.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-json-filename-for-commented-config.md",
+        "title": "使用常规 JSON 文件名承载带注释配置",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T08:45:26Z",
+        "purpose": "降低项目配置的识别和采用门槛，同时保留注释、尾随逗号与 editor schema 辅助。",
+        "background": "JSONC 扩展名能精确标识语法，但相对不常见；固定工具目录和文件名已经能提供产品格式上下文。",
+        "decision": "发现文件固定为 .vibe-check/config.json，内容允许注释和尾随逗号，但不把它描述成严格 JSON。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-semantic-check-ids-in-project-config.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-semantic-check-ids-in-project-config.md",
+        "title": "在 project config 中使用语义 check ID",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T09:23:47Z",
+        "purpose": "让 accepted-warning 配置按 Vibe Check 质量检查语义匹配，而不是依赖当前 scanner identity。",
+        "background": "当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceTool，backend replacement 会继续迁移 project config。",
+        "decision": "Public acceptedWarnings 使用 closed checkId；内部映射 current warning identity，machine fields 保持不变。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-priority/defer-lizard-runtime-unification.md",
+      "keys": {
+        "domain": [
+          "product-priority"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-priority/defer-lizard-runtime-unification.md",
+        "title": "将 Lizard 运行时统一留到产品向工作之后",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-08-03T07:42:48Z",
+        "purpose": "先交付用户可感知的产品能力，再处理高风险且主要改善开发边界的运行时统一。",
+        "background": "Lizard TypeScript port 收益与风险都高，但用户感知有限，且活动 change 的技术排序曾被反复误当成产品优先级。",
+        "decision": "将 Lizard TypeScript port 定位为最终提升项，不作为默认近期任务，也不阻塞产品向工作。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+      "keys": {
+        "domain": [
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+        "title": "将 Lizard 运行时统一留到语义配置与产品工作之后",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T09:05:03Z",
+        "purpose": "先交付稳定的公共配置和用户可感知工作流，再处理高风险且主要改善开发边界的运行时统一。",
+        "background": "Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。",
+        "decision": "先完成语义配置与外部项目工作流，再把 Lizard port 作为最终内部提升项，且 port 不得改变公共配置契约。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-priority/defer-lizard-runtime-unification.md"
+          }
+        ]
+      }
+    },
     {
       "id": "testing/use-native-test-evidence-catalog.md",
       "keys": {
