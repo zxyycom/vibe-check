@@ -37,14 +37,11 @@ source/expected results，且 MUST NOT 依赖 Python。
 - **THEN** fixture proof 观察到既有 normalized capability failure
 - **AND** 没有 partial function set 被接受为成功
 
-### Requirement: Complete config fixture follows the internal backend
+#### Scenario: Backend replacement does not migrate semantic config
 
-Canonical configured external project fixture SHALL 使用 post-port complete config shape：
-top-level `lizard` thresholds 保持，`tools` 只包含 `scc` 与 `jscpd`。Formal-entry acceptance
-MUST 证明 fixture 能解析，且 function metrics 不依赖 Python/Lizard。
-
-#### Scenario: Post-port fixture config is current
-
-- **WHEN** formal-entry acceptance 加载 canonical external fixture config
-- **THEN** strict parser 接受其 thresholds 与 remaining tool fields
-- **AND** fixture 不包含 retired `tools.lizard` command/args
+- **WHEN** 相同 `.vibe-check/config.json` semantic fixture 分别运行 pre-switch baseline 与
+  post-switch TypeScript backend
+- **THEN** `checks.functions` thresholds、accepted-warning `checkId`、scope 与 report semantics
+  保持相同
+- **AND** fixture、runtime/generated schema 和 starter 不增加、删除或重命名 backend-specific
+  project field

@@ -1,7 +1,9 @@
-执行约束：sections 必须顺序执行。Translation 前完成 pinned source/license/closure
-baseline；切换 adapter 或删除旧路径前完成 differential parity。只有 implementation 与指定
-证据都存在时才勾选任务。修改测试正文或实体时，同时执行当前 test-evidence review/check
-workflow。
+执行约束：本 change 当前明确延期；task 0.3 是 implementation gate。未完成 semantic config /
+dependency boundary 前置，且产品向工作尚未完成或没有显式重新排序/直接阻塞证据时，不得
+开始 section 1。恢复后 sections 必须顺序执行；translation 前完成 pinned
+source/license/closure baseline，切换 adapter 或删除旧路径前完成 differential parity。只有
+implementation 与指定证据都存在时才勾选任务。修改测试正文或实体时，同时执行当前
+test-evidence review/check workflow。
 
 ## 0. Current-Contract Audit
 
@@ -9,6 +11,11 @@ workflow。
   当前 `FunctionMetric` fields、complete-config coupling 与 capability-level failure。
 - [x] 0.2 删除 stale four-language、token/kind、per-file partial 和 generic
   scanner-backend obligations；只把它们作为有独立 trigger 的未来 change。
+- [ ] 0.3 确认 `decouple-project-config-from-scanner-tools` 已实现并验证 semantic config、
+  accepted-warning `checkId`、internal dependency snapshot 与 migration boundary；确认
+  `add-external-project-config-workflow` 已按当前产品优先级完成，或记录用户显式重新排序/
+  直接阻塞证据。随后只按 current internal runtime facts rebase 本 change，证明不需要 public
+  config/schema/starter migration。
 
 ## 1. Pin the Migration Baseline
 
@@ -22,8 +29,8 @@ workflow。
 - [ ] 1.4 保存 deterministic `.ts`、`.d.ts`、`.rs` corpora 的当前 Python/Lizard results，
   覆盖 function inventory、normalized fields/order、zero-function input 与 controlled
   failures。
-- [ ] 1.5 保存当前 config、tool metadata、cache/scanner identity、warnings、aggregates、
-  gate、human 与 machine projection baselines。
+- [ ] 1.5 保存当前 semantic function-check inputs、internal dependency identity、tool metadata、
+  cache/scanner identity、warnings、aggregates、gate、human 与 machine projection baselines。
 
 ## 2. Translate the Verified Source Closure
 
@@ -59,9 +66,11 @@ workflow。
   human 与 machine regression tests。
 - [ ] 4.4 用 pinned upstream 加 port revision 更新 product tool metadata 与 cache/scanner
   identity，并重放既有 incompatible-cache/baseline behavior。
-- [ ] 4.5 从 `QualityConfig`、default config、strict parser、environment overrides、
-  canonical external fixture、tests 与 owner docs 删除 `tools.lizard`；保留 top-level
-  `config.lizard` thresholds 与公开 `"lizard"` source labels。
+- [ ] 4.5 从 internal dependency resolver/snapshot、operational overrides、availability
+  protocol、adapter tests 与 owner docs 删除 Python/Lizard executable/args settings；证明
+  semantic config version、`checks.functions`、accepted-warning `checkId`、runtime/generated
+  schema、starter、dogfood config 与 external fixture 不需要迁移，并保留公开 `"lizard"`
+  machine source labels。
 - [ ] 4.6 证明 formal current/baseline scans 不解析或启动 Python/Lizard。
 - [ ] 4.7 删除 production availability、command/args、process wrapper、CSV parser 与
   obsolete protocol tests；migration-only oracle material 不进入 required runtime。
@@ -69,15 +78,16 @@ workflow。
 
 ## 5. Delivery Verification
 
-- [ ] 5.1 运行 affected translated/adapter/config/product tests，再运行 product typecheck 与
-  lint。
+- [ ] 5.1 运行 affected translated/adapter/dependency/config-stability/product tests，再运行
+  product typecheck 与 lint。
 - [ ] 5.2 运行真实 `.ts`、`.d.ts`、`.rs` scans，并与 task 1 baselines 比较 metrics、
   warnings、aggregates、gate、human 与 machine results。
-- [ ] 5.3 搜索 production imports、config fields、environment variables、commands 和 process
-  calls，证明没有 Python/Lizard runtime 或 CSV path。
+- [ ] 5.3 搜索 production imports、internal dependency fields、operational overrides、commands
+  和 process calls，证明没有 Python/Lizard runtime 或 CSV path，且 public semantic config
+  materials 未新增 backend-specific field。
 - [ ] 5.4 运行完整 test-evidence strict check，确认 source/test traceability 完整。
 - [ ] 5.5 运行 `bun run validate` 与
   `bun run verify:vibe-check-workspace:required`。
 - [ ] 5.6 运行 OpenSpec strict validation、`git diff --check` 与 focused
-  diff/keyword audit；汇总 source map、license、differential、config hard cut 与 runtime
-  removal evidence。
+  diff/keyword audit；汇总 source map、license、differential、semantic-config stability 与
+  runtime removal evidence。

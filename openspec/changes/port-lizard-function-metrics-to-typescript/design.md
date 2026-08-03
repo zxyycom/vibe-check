@@ -1,16 +1,19 @@
-## 当前事实
+## 当前事实与实施入口
 
-| Surface | 当前已实现行为 |
-| --- | --- |
-| Supported input | `selectLizardTargetFiles` 接受 `.rs` 和以 `.ts` 结尾的 paths；因此 `.d.ts` 属于 TypeScript input。Go、Python、`.tsx`、`.js`、`.jsx` 不进入 selector。 |
-| Runtime | Scanner 解析 configured `tools.lizard`，检查 `--version`，用 exact files 加 `--csv` 启动 command，并解析 CSV。 |
-| Product model | `FunctionMetric` 暴露 code area、file、name、start/end line、lines、parameter count、changed flag 与 cyclomatic-complexity value/source。 |
-| Failure | Eligible dependency unavailable、process failure 或 invalid normalized output 会让整个 `function-metrics` capability 失败；没有 per-file partial contract。 |
-| Public identity | Function warnings 和 metric values 使用 `"lizard"` source labels；top-level `config.lizard` 拥有 thresholds。 |
-| Config coupling | Complete `QualityConfig.tools` 当前要求 `lizard`、`scc`、`jscpd`。 |
+| Surface | 本文记录时已实现行为 | Port 开始前必须成立的前置状态 |
+| --- | --- | --- |
+| Supported input | `selectLizardTargetFiles` 接受 `.rs` 和以 `.ts` 结尾的 paths；因此 `.d.ts` 属于 TypeScript input。Go、Python、`.tsx`、`.js`、`.jsx` 不进入 selector。 | 保持不变。 |
+| Runtime | Scanner 检查 Python/Lizard availability，用 exact files 加 `--csv` 启动 process，并解析 CSV。 | Execution settings 已由 internal dependency snapshot 拥有，不来自 project config。 |
+| Product model | `FunctionMetric` 暴露 code area、file、name、start/end line、lines、parameter count、changed flag 与 cyclomatic-complexity value/source。 | 保持不变。 |
+| Failure | Eligible dependency unavailable、process failure 或 invalid normalized output 会让整个 `function-metrics` capability 失败；没有 per-file partial contract。 | 保持 normalized capability semantics。 |
+| Public identity | Function warnings 和 metric values 使用 `"lizard"` source labels。 | Semantic project config 使用 `checks.functions` / `checkId`；现有 machine source labels 保持兼容。 |
+| Config coupling | 本文记录时的 `QualityConfig` 仍含 tool-named fields。 | `decouple-project-config-from-scanner-tools` 已完成 hard cut；该迁移不由本 port 实施。 |
 
-以上事实定义 parity。Upstream Lizard 中未进入当前 selector/model 的 fields、languages 或
-tests 只属于迁移参考，不形成新 product obligation。
+第一列当前事实定义 pre-switch parity，不授权在本 change 中保留 public tool coupling。第三列是
+implementation gate：task 0.3 未关闭前，不得从 section 1 开始。
+
+Upstream Lizard 中未进入当前 selector/model 的 fields、languages 或 tests 只属于迁移参考，
+不形成新 product obligation。
 
 ## Goals / Non-Goals
 
@@ -21,9 +24,11 @@ tests 只属于迁移参考，不形成新 product obligation。
   aggregates、gate、cache/baseline compatibility rules 与 machine projection。
 - 每个 translated source 都能追溯到一个 pinned upstream revision、license treatment 与
   owning tests。
+- 证明 backend replacement 不改变 semantic config contract 或 external config workflow。
 
 ### Non-Goals
 
+- Project config field、schema、version、starter、discovery、initializer 或迁移机制。
 - Go、Python、JavaScript/JSX/TSX 或其它当前未选择语言。
 - Token count、function kind、long name、raw parser nodes 或其它新 product fields。
 - Per-file warning/partial-report semantics，或 parser failure 后 best-effort continuation。
@@ -80,17 +85,20 @@ internals 不进入 product fields。
 存在未解释差异时不得切换。切换后的 required validation 只使用 checked-in source 与
 expected results，不依赖 Python。
 
-### Decision 5: 保留公开 Lizard-compatible identity
+### Decision 5: Backend replacement 不迁移 public config 或 output identity
 
-Port 删除不再需要的 `tools.lizard`，但明确保留：
+Port 前置 change 已让 project config 使用 semantic `checks.functions` 与 stable `checkId`，
+dependency execution settings 只存在于 internal snapshot。因此本 change：
 
-- top-level `config.lizard` threshold names；
-- `MetricValue.source = "lizard"` 与 warning `sourceTool = "lizard"`；
-- 当前 rule IDs、warning semantics 与 machine field shape。
+- 保持 semantic config field tree、version、runtime/generated schema、starter 与 examples；
+- 保持 `MetricValue.source = "lizard"` 与 warning `sourceTool = "lizard"`、当前 rule IDs、warning
+  semantics 和 machine field shape；
+- 只从 internal dependency resolver/snapshot 删除 Python/Lizard command、args、availability 与
+  process protocol。
 
-这些值标识 compatible metric algorithm，而不是 external process。Product tool metadata 与
-cache identity 记录 pinned upstream revision 加 TypeScript port revision，使 runtime
-provenance 真实，又不强制 machine-contract hard cut。
+Machine labels 标识 compatible metric algorithm，不是 project-level backend selection。
+Product tool metadata 与 cache identity 记录 pinned upstream revision 加 TypeScript port
+revision，使 runtime provenance 真实，又不强制 machine-contract hard cut。
 
 ### Decision 6: 保持 capability-level failure semantics
 
@@ -103,18 +111,29 @@ Per-file partial continuation 会改变 completeness、warning、output 和 gate
 
 ### Decision 7: 一次切换并删除退休路径
 
-Parity 通过后，current 与 baseline adapters 同时切换。同一 revision 删除 availability
-checks、process invocation、CSV parsing、command/args config、dead tests 和 production
-imports。不保留 runtime fallback 或 dual-read path。
+Parity 通过后，current 与 baseline adapters 同时切换。同一 revision 删除 internal
+Python/Lizard resolution、availability checks、process invocation、CSV parsing、dead tests 和
+production imports。不保留 runtime fallback 或 dual backend path。
+
+### Decision 8: 作为最终运行时统一提升项延期
+
+本 port 的工程收益、实现风险和验证成本都高，但它保持现有 function-metrics 产品契约，
+用户直接感知有限。它当前排在 semantic config 与 external config workflow 等产品向工作之后，
+不是默认近期任务。活动状态、规划完整或 dependency 实现仍存在都不能单独构成优先实施理由。
+
+前置 semantic config 先消除 public backend coupling，external workflow 直接发布最终 semantic
+schema；本 port 恢复时不再产生 config migration。只有用户显式重新排序，或出现直接阻塞
+产品交付、目标平台可用性、可靠性、安全或许可证合规的证据时，才提前重新评估。
 
 ## Dependencies and Ordering
 
-1. Product-source promotion 已完成。
-2. Machine-output stabilization 应先完成；port 保持其 DTO 与 artifact predicate。
-3. External config workflow 应在本 port 后 rebase，使 generated/dogfood complete configs
-   不含 `tools.lizard`。
-4. 如果本 port 被取消，external config task 0.4 记录该结果并改为 current Python/Lizard
-   config shape。
+1. Product-source promotion 与 machine-output stabilization 已完成。
+2. `decouple-project-config-from-scanner-tools` 必须先实现并验证 semantic config、internal
+   dependency snapshot 与 compatibility boundary。
+3. 按当前产品优先级，`add-external-project-config-workflow` 先交付；若用户显式重新排序或出现
+   Decision 8 的直接阻塞证据，必须先记录新的排序依据。
+4. 本 port 开始时只 rebase internal dependency/runtime facts，不修改已经发布的 semantic
+   config contract。
 
 ## Verification Strategy
 
@@ -125,9 +144,9 @@ imports。不保留 runtime fallback 或 dual-read path。
 - 既有 scanner、completeness、warning、aggregate、gate、human、machine、cache 与
   baseline regression tests。
 - Formal-entry evidence：eligible scans 不解析或启动 Python/Lizard。
-- Config parser/default/fixture tests：hard cut 后拒绝 `tools.lizard`，但保留
-  `config.lizard` thresholds。
-- Static search：production process/CSV/config path 已删除。
+- Config-stability evidence：semantic runtime/generated schema、starter、fixture 与 public
+  authoring contract 不因 backend replacement 变化。
+- Static search：production Python/Lizard process、CSV 与 internal dependency settings 已删除。
 
 ## Deferred Triggers
 
@@ -137,7 +156,7 @@ imports。不保留 runtime fallback 或 dual-read path。
 - 只有第二个真实 implementation 必须履行同一 consumer contract 时，才增加 generic
   scanner/provider boundary。
 
-## Open Questions
+## Remaining baseline evidence
 
 Product-contract 层没有未决问题。Exact source closure 与 test mapping 是 tasks 1.2-1.4 的
 required baseline evidence，不允许借此扩大语言或 public fields。

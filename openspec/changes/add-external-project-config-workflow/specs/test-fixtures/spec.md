@@ -3,16 +3,17 @@
 ### Requirement: External project configuration workflow fixture
 
 Repository SHALL 使用不含 Vibe Check repository structure 的 external project fixture
-temporary copy 提供 deterministic formal-entry proofs。Proofs SHALL 覆盖 init、root
-discovery、explicit priority、missing config、exclusive existing-file preservation、
-launch-cwd independence、declared tool overrides 和 no-scanner-before-config。Controlled
-scanner support MAY 保持结果 deterministic。
+temporary copy 提供 deterministic formal-entry proofs。Proofs SHALL 覆盖 init、tool-directory
+discovery、JSON comments/trailing commas、local schema generation、explicit priority、
+missing config、exclusive existing-directory preservation、partial-set prevention、launch-cwd
+independence、tool-neutral documents 和 no-scanner-before-config。Controlled scanner support
+MAY 保持结果 deterministic。
 
 #### Scenario: Initialized project can be discovered and scanned
 
 - **WHEN** acceptance 在 fixture copy 运行 `init`，再省略 `--config` 扫描
-- **THEN** CLI 发现 generated root config 并按 neutral scope 生成 artifacts
-- **AND** metrics 不含 Vibe Check repository-specific paths
+- **THEN** CLI 生成 `.vibe-check/config.json` 与 `config.schema.json`，再发现 commented config
+- **AND** schema link 有效、neutral scope 产生的 metrics 不含 Vibe Check-specific paths
 
 #### Scenario: Explicit path overrides fixture discovery
 
@@ -26,23 +27,38 @@ scanner support MAY 保持结果 deterministic。
 - **THEN** CLI 以 exit `3` 返回两条 recovery paths
 - **AND** controlled scanner invocation count 为零
 
-#### Scenario: Existing init target is byte-preserved
+#### Scenario: Existing init directory is byte-preserved
 
-- **WHEN** `init` 面对 existing file 或失去 concurrent exclusive-create race
-- **THEN** command 失败且不替换内容
-- **AND** acceptance 观察到 bytes 完全相同
+- **WHEN** `init` 面对 existing `.vibe-check` 或失去 concurrent exclusive-create race
+- **THEN** command 失败且不替换内容，也不留下 partial generated set
+- **AND** acceptance 观察到原有 entries 与 bytes 完全相同
 
-#### Scenario: Declared tool override is observable
+#### Scenario: Handled init write failure leaves no generated half-set
 
-- **WHEN** acceptance 提供受支持 `VIBE_CHECK_*` tool override
-- **THEN** selected-config context 记录其 name，scanner 接收 resolved tool value
-- **AND** unrelated environment values 不改变 config
+- **WHEN** acceptance 分别注入 first/second generated-file write failure
+- **THEN** command 失败并只清理由该 invocation 创建的固定 entries
+- **AND** project root 的其它 entries 与 bytes 保持不变，后续 clean init 可以成功
+
+#### Scenario: Generated schema is assistance, not authority
+
+- **WHEN** acceptance 删除或篡改 generated sibling schema 后扫描有效 `config.json`
+- **THEN** runtime 仍按 Product-owned config contract 接受 config
+- **AND** independent schema validation 另外证明原始 generated schema 与 runtime source 同步
+
+#### Scenario: Generated project config is tool-neutral
+
+- **WHEN** acceptance 检查 generated config、editor schema、help 与 selected-config provenance
+- **THEN** 它们只包含 semantic project fields 与 source/path/version
+- **AND** 不出现 scanner identity、command、args 或 applied tool override names
 
 ### Requirement: Repository dogfood config is isolated
 
-Repository SHALL 在 `<repo-root>/vibe-check.config.json` 保存 Vibe Check-specific
-scope/report values 与最终 current tool shape。所有 `quality:*` wrappers SHALL 通过 formal
-Product CLI 显式选择它。Wrapper MUST NOT 解析、merge、生成或重新解释 config。
+Repository SHALL 在 `<repo-root>/.vibe-check/config.json` 保存 Vibe Check-specific
+semantic scope/quality/report values，并保存对应 generated
+`config.schema.json`。所有 `quality:*` wrappers SHALL 通过 formal Product CLI 显式选择该
+JSON config。Checked-in config/schema MUST NOT 包含 scanner identity、command/args 或
+checkout-specific dependency path。Wrapper MUST NOT 解析、merge、生成、按 platform 改写或
+重新解释 config。
 
 #### Scenario: Dogfood wrapper selects repository config
 
