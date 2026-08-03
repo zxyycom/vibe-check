@@ -2,8 +2,14 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 import { validateMetrics } from "../model/schema.ts";
-import { toNdjson, writeTextFile } from "../../../foundation/src/index.ts";
+import { writeTextFile } from "../../../foundation/src/index.ts";
 import { writeQualityJsonArtifact } from "../output/artifacts.ts";
+import {
+  cleanupMachineArtifactPublicationV1,
+  projectMachineMetricsV1,
+  publishMachineArtifactCandidatesV1,
+  serializeMachineArtifactCandidatesV1
+} from "../output/machine/index.ts";
 import { generateMarkdownReport } from "../output/report/markdown-report.ts";
 import type {
   BaselineSnapshot,
@@ -60,24 +66,31 @@ export function writeArtifacts({
 }): void {
   console.log("Writing artifacts...");
 
-  const metricsPath = join(artifactDir, "metrics.json");
-  writeQualityJsonArtifact(metricsPath, metrics);
-  console.log(`  metrics.json → ${metricsPath}`);
+  const machineMetrics = projectMachineMetricsV1(metrics);
+  const candidates = serializeMachineArtifactCandidatesV1(machineMetrics);
+  const machinePaths = publishMachineArtifactCandidatesV1(
+    artifactDir,
+    candidates
+  );
 
   const reportPath = join(artifactDir, "report.md");
-  writeTextFile(
-    reportPath,
-    generateMarkdownReport(metrics, topN, { ...reportOptions, timeZone: reportTimeZone })
-  );
+  try {
+    writeTextFile(
+      reportPath,
+      generateMarkdownReport(metrics, topN, {
+        ...reportOptions,
+        timeZone: reportTimeZone
+      })
+    );
+  } catch (error: unknown) {
+    cleanupMachineArtifactPublicationV1(artifactDir);
+    throw error;
+  }
+
+  console.log(`  metrics.json → ${machinePaths.metricsPath}`);
   console.log(`  report.md → ${reportPath}`);
-
-  const warningsPath = join(artifactDir, "warnings.ndjson");
-  writeTextFile(warningsPath, toNdjson(metrics.warnings.changed));
-  console.log(`  warnings.ndjson → ${warningsPath}`);
-
-  const allWarningsPath = join(artifactDir, "warnings-all.ndjson");
-  writeTextFile(allWarningsPath, toNdjson(metrics.warnings.all));
-  console.log(`  warnings-all.ndjson → ${allWarningsPath}`);
+  console.log(`  warnings.ndjson → ${machinePaths.warningsPath}`);
+  console.log(`  warnings-all.ndjson → ${machinePaths.warningsAllPath}`);
 }
 
 export function printSummary(metrics: QualityMetrics): void {

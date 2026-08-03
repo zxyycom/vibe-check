@@ -3,19 +3,33 @@ import { TASK_NAMES } from "../tools/validators/config.ts";
 import { validateMarkdownLinks } from "../tools/validators/links.ts";
 import {
   validateJsonSyntax,
+  validatePublishedMachineArtifactExamples,
   validateReportExamples,
   validateSchemas
 } from "../tools/validators/schema/index.ts";
+import { checkPublishedMachineExamples } from "./machine-examples.ts";
+import { checkPublishedMachineSchemas } from "./machine-schemas.ts";
 
 const requested = new Set(process.argv.slice(2));
 const runAll = requested.size === 0;
 
 const tasks = {
   [TASK_NAMES.json]: validateJsonSyntax,
-  [TASK_NAMES.schema]: validateSchemas,
-  [TASK_NAMES.examples]: validateReportExamples,
+  [TASK_NAMES.schema]: validatePublishedSchemas,
+  [TASK_NAMES.examples]: validatePublishedExamples,
   [TASK_NAMES.links]: validateMarkdownLinks
 };
+
+function validatePublishedExamples(): void {
+  validatePublishedMachineArtifactExamples();
+  checkPublishedMachineExamples();
+  validateReportExamples();
+}
+
+function validatePublishedSchemas(): void {
+  checkPublishedMachineSchemas();
+  validateSchemas();
+}
 
 const selectedTasks = runAll ? Object.keys(tasks) : [...requested];
 for (const taskName of selectedTasks) {

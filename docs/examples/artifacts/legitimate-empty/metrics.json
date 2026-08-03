@@ -1,0 +1,88 @@
+{
+  "aggregates": {
+    "byCodeArea": [],
+    "byLanguage": [],
+    "overall": {
+      "totalCodeLines": 0,
+      "totalFiles": 0,
+      "totalFunctions": 0,
+      "totalLines": 0
+    }
+  },
+  "baseline": {
+    "commitDate": null,
+    "commitSha": null,
+    "metadata": null,
+    "status": "history-unavailable"
+  },
+  "comparisonStatus": "baseline-unavailable",
+  "currentFingerprints": {},
+  "duplicateCode": [],
+  "fileMetrics": [],
+  "functionMetrics": [],
+  "gate": {
+    "policy": null,
+    "status": "disabled"
+  },
+  "metadata": {
+    "commitSha": "0123456789abcdef0123456789abcdef01234567",
+    "commitTitle": "Canonical current revision",
+    "configVersion": "canonical-config-v1",
+    "repository": "/workspace/vibe-check-fixtures/canonical-project",
+    "schemaVersion": "vibe-check.metrics.v1",
+    "scope": {
+      "excludeDirs": [
+        "dist",
+        "node_modules"
+      ],
+      "generatedFiles": [
+        "src/generated.ts"
+      ],
+      "include": [
+        "src/**/*.ts"
+      ]
+    },
+    "timestamp": "2026-08-03T00:00:00.000Z",
+    "tools": [
+      {
+        "name": "scc",
+        "source": "configured",
+        "version": "3.6.0"
+      },
+      {
+        "name": "lizard",
+        "source": "configured",
+        "version": "1.17.31"
+      },
+      {
+        "name": "jscpd",
+        "source": "configured",
+        "version": "5.0.11"
+      }
+    ],
+    "commitDate": "2026-08-02T12:00:00.000Z"
+  },
+  "scanCompleteness": {
+    "capabilities": [
+      {
+        "capabilityId": "file-metrics",
+        "status": "no-input"
+      },
+      {
+        "capabilityId": "function-metrics",
+        "status": "no-input"
+      },
+      {
+        "capabilityId": "duplicate-detection",
+        "status": "no-input"
+      }
+    ],
+    "overall": "empty"
+  },
+  "trends": [],
+  "warnings": {
+    "all": [],
+    "changed": [],
+    "regressions": []
+  }
+}

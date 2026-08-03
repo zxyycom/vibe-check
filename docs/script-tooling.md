@@ -14,9 +14,10 @@ Vibe Check 拥有的开发脚本入口是：
 - `scripts/quality/scan.ts`：显式传入 Vibe Check 仓库根并委托
   `bun run product:cli -- scan [project-root]` 的 dogfood 薄 wrapper。
 - `scripts/quality/annotate.ts`：把 quality warning NDJSON 渲染为 GitHub
-  Actions warning annotation。
-- `scripts/docs/validate.ts`：校验 Markdown 链接、JSON 语法、report schema
-  编译和 report examples。
+  Actions non-blocking warning annotation；输入先经 Product warning-stream validator 完整
+  验证。
+- `scripts/docs/validate.ts`：校验 Markdown links、JSON syntax、current machine schemas/
+  examples、generation drift，以及隔离的 historical report schema/examples。
 - `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
 - `scripts/test-evidence/index.ts`：项目自有的测试实体发现、语义 Case 查询与全树闭合
@@ -39,7 +40,10 @@ Vibe Check 拥有的开发脚本入口是：
 - `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
   配置或扫描 core。
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
-  check 执行完整 Bun 测试面及语义 Case 闭合。
+  check 执行完整 Bun 测试面及语义 Case 闭合；required profile 还调度 formal
+  producer-to-actual-annotation acceptance child。
+- Current schema/examples checks 显式注册 metrics/warning v1，独立验证五组 canonical sets，
+  并把 `vibe-check.report.v1` historical materials 隔离在 historical registry/traversal。
 - Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
   `parallel-task-runner` gitlinks 仍服务开发脚本。
 
@@ -123,6 +127,59 @@ bun scripts/vibe-check-workspace/verify.ts --profile required
 验证日志写入 `.log/verify/workspace/`。日志和 artifact 只用于本地定位，不属于
 release artifact。
 
+## Quality annotation consumer
+
+Repository annotation entry 保持：
+
+```text
+bun run quality:annotate -- [warnings-path] [limit]
+```
+
+- Default warnings path 是
+  `artifacts/vibe-check-quality/warnings-all.ndjson`；default limit 是 `5`。
+- Limit 必须匹配 `^[1-9][0-9]*$` 且不超过 `Number.MAX_SAFE_INTEGER`；extra argument、
+  invalid limit 或 read failure 都是 handled infrastructure failure。
+- Consumer 以 bytes 读取 selected stream，并只通过 `src/product/machine-output.ts` shallow
+  boundary 调用 Product `MachineWarningV1` warning-stream validator。完整 validation 成功后
+  才过滤 `info`、应用 limit 并渲染 GitHub commands；script 不保留 render-only parser 或
+  deep-import quality-core internals。
+- Conforming non-empty stream 产生 filtered/limited annotations；zero-byte stream 产生 zero
+  commands；两者退出 `0`。
+- Argument/read/decoding/framing/syntax/schema failure 在 stdout 产生 zero annotation
+  commands，stderr 输出 actionable diagnostic，并退出 `2`。Validation 不返回 valid prefix，
+  因而不会产生 partial annotations。
+- Warning quality values 永不使 annotation 自身 non-zero。Annotations 始终是 non-blocking
+  GitHub warnings；需要 best-effort orchestration 时由 workflow 使 step non-blocking，不能
+  放宽 parser acceptance。
+
+Warning identities、field semantics 与 byte grammar 由
+[Output](output.md#validator-boundaries) 拥有；本节只拥有 direct script consumer 的参数、
+render timing 和 exit behavior。
+
+## Independent docs validation and workspace acceptance
+
+Docs validation 故意把 current product、independent acceptance 与 historical materials
+分开：
+
+1. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
+   metrics/warning published schemas；`--check` 按 bytes 检测 drift。
+2. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
+   serializers 生成五组 current examples；`--check` 检测 exact inventory 与 byte drift。
+3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
+   raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
+   acceptance implementation。
+4. `scripts/tools/validators/schema/registry.ts` 的 current registry 只显式注册 metrics/
+   warning v1。Historical `vibe-check.report.v1` 使用 separate registry，
+   `docs/examples/json/**` 不进入 current example traversal。
+5. `bun run validate:docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
+   compile、independent acceptance 与 generation drift。
+
+Required workspace profile 另外运行
+`scripts/quality/producer-annotation-acceptance.test.ts`：child 使用 formal Product CLI 产生
+non-empty/zero-byte streams，再调用 actual `quality:annotate`，并用 derived invalid input
+证明 exit `2` / zero partial annotation。Workspace verifier 只调度 child、保留 actionable
+output 并传播 result，不增加 artifact parser、schema registry 或 warning mapper。
+
 ## 长期决策适配器
 
 项目内安装的上游
@@ -179,7 +236,8 @@ Gate policy 与 exit contract 由 Product CLI、Quality Metrics 和 Output owner
 Output owner 说明。
 
 `scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它只登记
-现有 schema/example 路径，不重新定义 output contract。
+current metrics/warning schemas、historical report schema 与对应 example roots，不重新定义
+output contract。
 
 `scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的
 任务集合、profile 分层、warning output 识别和成功输出过滤。Required profile 包含
@@ -201,7 +259,9 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
-| quality annotation | `bun run quality:annotate` |
+| current schema/example generation drift | `bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
+| producer-to-annotation acceptance | `bun test scripts/quality/producer-annotation-acceptance.test.ts`；required workspace profile 也调度 |
+| quality annotation | `bun run quality:annotate -- [warnings-path] [limit]` |
 | toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test` |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

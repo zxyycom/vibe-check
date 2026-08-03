@@ -15,11 +15,11 @@
     },
     {
       "id": "report-output",
-      "description": "人读报告、console 投影、notice、排序、诊断和输出通道契约。"
+      "description": "Machine DTO/schema/validators/publication、人读报告、console 投影、notice、排序、诊断和输出通道契约。"
     },
     {
       "id": "repository-tooling",
-      "description": "开发期 thin wrapper、toolkit helper 与并行任务调度的仓库工具链契约。"
+      "description": "开发期 thin wrapper、annotation consumer、docs/workspace validation、toolkit helper 与并行任务调度契约。"
     },
     {
       "id": "test-infrastructure",

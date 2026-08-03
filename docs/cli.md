@@ -107,17 +107,22 @@ outcome。产品源码不得导入 dogfood wrapper。
 ## Console 与 artifacts
 
 Scan 继续把 banner、profile、进度、artifact paths、summary、warning preview 和 completion
-status 写入 stdout。Core 收集到的 fatal issues 和未处理顶层 error 写入 stderr；scanner
-process 的原生 stdout/stderr 不直接成为产品 console contract。
+status 写入 stdout。Machine paths 只有在一个 DTO 产生的 `metrics.json`、
+`warnings.ndjson`、`warnings-all.ndjson` candidates 通过 complete-set validation、三个
+canonical writes 和 human report write 都成功后才作为 trusted paths 输出。Core 收集到的
+fatal issues 和未处理顶层 error 写入 stderr；scanner process 的原生 stdout/stderr 不直接
+成为产品 console contract。
 
 产品不提供旧 Rust CLI 的 `human` / `json` stdout mode。机器与人读结果继续通过
 `metrics.json`、warnings NDJSON、`report.md` 和 raw artifacts 交付，具体语义由
-[输出边界](output.md) 维护。
+[输出边界](output.md) 维护。Current machine output 只有
+`vibe-check.metrics.v1` / `vibe-check.warning.v1` single-active structure；CLI 不选择 legacy
+format、schema version 或 alternate writer。
 
 ## 进程状态
 
-Product Core 在 artifacts 写出并通过 output validation 后产生 process outcome，CLI 只做
-以下映射：
+Product Core 在 final core validation、complete candidate-set validation、canonical
+publication 与 human report write 完成后产生 process outcome，CLI 只做以下映射：
 
 | Process outcome | CLI exit |
 | --- | --- |
@@ -129,6 +134,13 @@ Product Core 在 artifacts 写出并通过 output validation 后产生 process o
 质量未评价；requested gate 遇到 empty 时为 not-evaluated 并退出 `2`。Evaluated gate
 failure 本身不等于 runtime failure，只有已验证 artifacts 才能形成 exit `1`；artifact
 write 或 output validation failure 优先并退出 `2`。
+
+Output `failed` 包括 projection/candidate validation、publication cleanup、temp write、rename
+或 report write failure。Handled publication failure best-effort 清除三个 canonical machine
+files 与 product-owned temps，不打印 trusted machine paths；computed gate failure 不得把它
+改写成 exit `1`。这不构成 multi-file transaction，canonical files alone 也不证明 current
+run；publication/evidence 与 concurrent-writer 边界见
+[Validated publication and evidence](output.md#validated-publication-and-evidence)。
 
 未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
 `--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。显式 config

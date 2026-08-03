@@ -29,10 +29,10 @@ Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或�
 
 | 层级 | 核心目标 |
 | --- | --- |
-| 文档 / schema | Markdown 链接、JSON 语法和 checked-in schema/examples 一致性；已退役历史材料不重新定义当前产品语义 |
+| 文档 / schema | Markdown links、current JSON Schema 2020-12 strict compile、五组 canonical machine sets 的 independent acceptance、schema/example generation drift；历史 report materials 分离验证 |
 | Product unit | TypeScript model、completeness/gate reducer、file collection、scanner parser/wrapper、aggregation、baseline/cache、warning 和 output helper 的自定义不变量 |
 | Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、scan plan、console、process outcome、completeness、gate 和 artifacts 到达同一 core |
-| Script consumer | Quality dogfood、CI annotation、workspace verifier 和其它 `scripts/**` consumer 只透传或消费产品 behavior，不成为第二套产品实现 |
+| Script consumer | Quality dogfood、strict all-or-nothing annotation consumer、workspace verifier 和其它 `scripts/**` consumer 只透传或消费产品 behavior，不成为第二套产品实现 |
 | Productization parity | 一次性证明上移前 pinned consumer 与当前产品入口在 quick、full、baseline 和 explicit changed-files 下等价 |
 | 综合验证 | docs、OpenSpec、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
 
@@ -56,6 +56,50 @@ Cargo 产品 gate。
 requirement。
 
 已有缺陷或 coverage 缺口进入后续 change，不借 owner 搬移改变既有测试范围或预期结果。
+
+## Machine output proof layers
+
+Machine behavior contract 由 [Output](output.md) 拥有；tests 按不同 observable boundary 分层，
+不按每个 public field 建立独立 Case：
+
+1. Runtime schema/projection tests 证明唯一 current identities、canonical paths/URNs、
+   schema-derived DTO field inventory、explicit Core-to-DTO mapper 与 one-warning-mapper
+   boundary。
+2. Serializer/validator tests 证明 metrics/warning positive byte grammar，以及
+   decoding/framing/syntax/schema failure 的 all-or-nothing typed result 与 actionable
+   locations。
+3. Artifact-set tests 证明 stream/channel deep equality、warning subsequences、stable
+   capability exact membership/completeness reduction 与 evaluated-gate invariants。
+4. Publication tests 证明 candidate validation precedes canonical writes、prior/handled
+   cleanup、same-directory temp/rename behavior、trusted-path timing 与 output exit priority；
+   它们不把 publication 误报为 multi-file transaction。
+5. Formal entry outcome tests 对 complete-passed、complete-warning、legitimate-empty、
+   gate-failed、scan-incomplete 和 controlled output failure 读取原始 machine bytes，并调用
+   production artifact-set validator。Contract-valid scan-incomplete 与 output-contract failure
+   都可产生 exit `2`，但前者有 valid set，后者没有 trusted published set。
+
+Independent docs acceptance 不 import Product validator。它从 checked-in current schemas 与
+raw canonical example bytes 独立执行 strict schema compile、UTF-8/framing/schema 与全部
+set-invariant checks，并覆盖 focused accepted/rejected mutations。另一个 deterministic drift
+proof 比较 runtime-derived schemas/examples 与 checked-in files；任一 drift 使 owning docs
+check 失败。Current traversal 精确包含五组 `docs/examples/artifacts/**` sets，不包含
+`vibe-check.report.v1` historical examples。
+
+### Producer-to-consumer acceptance
+
+Required acceptance 使用实际 package boundaries，而不是 test-only parser：
+
+- Formal Product CLI 在隔离的 existing project fixture copies 中生成 non-empty 与 zero-byte
+  current warning streams。
+- Actual `quality:annotate` package CLI 消费两者并退出 `0`。
+- Acceptance 从 valid producer record 派生代表性 schema-invalid suffix，证明同一 Product
+  warning-stream validator 返回 exit `2`、stderr 有 line/pointer diagnostic，且 stdout 不含
+  valid-prefix partial annotation。
+- Required workspace profile 精确调度这个 focused test child；workspace verifier 只传播
+  child result/output，不复制 artifact parser、schema registry 或 warning mapper。
+
+相关 semantic Cases 继续按共同 owner contract 与可观察结果划分：一个 entity 可以支持多个
+Case，一个 Case 可以映射多个 entities；不得把 schema fields 当成 Case inventory。
 
 ## Product unit tests
 
@@ -84,6 +128,9 @@ requirement。
   channels 和 accepted warning behavior。
 - `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels、
   accepted reason 与 requested-gate placement/action。
+- `output/machine/machine-output.test.ts`、`validation.test.ts` 与 `publication.test.ts`：
+  schema/DTO projection、serializers、byte grammar、artifact-set predicates 与 validated
+  publication failure boundaries。
 - `config-file.test.ts` 与 `args.test.ts`：完整 JSON config parsing、option presence 与 gate
   parser/help/scan-plan normalization。
 
@@ -169,8 +216,8 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
   投影同一 completeness source。
 - Formal gate entry 对 disabled、evaluated passed/failed 与 comparison not-evaluated
   representative branches，证明 GateResult、warning streams、report/console 和 exit
-  `0` / `1` / `2` 使用同一 evidence；usage conflicts 独立证明 exit `3` 且不启动 scanner
-  或 artifacts。
+  `0` / `1` / `2` 使用同一 evidence；formal tests 还以原始 bytes 调用 production
+  artifact-set validator。Usage conflicts 独立证明 exit `3` 且不启动 scanner 或 artifacts。
 - Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
 
 入口 tests 不需要为每个 flag 或 scanner failure kind 复制完整 matrix；result union、
@@ -205,6 +252,8 @@ TypeScript 产品交付验证按改动面覆盖：
 
 - product import boundary。
 - product typecheck、lint 和 tests。
+- current schema/example generation drift 与 independent docs acceptance。
+- focused formal-producer-to-actual-annotation acceptance；它属于 required workspace profile。
 - `bun run quality:check`。
 - `bun run quality:full-check`。
 - `bun run quality:gate`。
@@ -233,3 +282,7 @@ productization parity 已完成，不属于日常统一验证入口。无法运�
 9. Gate proof targets 按 descriptor/evaluator、CLI planning/usage、core/output 和 formal-entry
    层级分配，不按 policy/status 做笛卡尔复制。
 10. 发现既有缺陷或 coverage gap 时进入后续 change。
+11. Machine-output Cases 按 schema/projection、grammar、set predicate、publication、docs
+    acceptance 与 direct consumer observable boundaries 划分，不按 public field 建 Case。
+12. Current schemas/examples 与 historical `vibe-check.report.v1` materials 分别注册、分别
+    traversal；required producer-to-consumer acceptance 到达 actual Product/annotation CLIs。

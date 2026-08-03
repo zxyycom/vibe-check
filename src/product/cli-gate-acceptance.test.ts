@@ -14,10 +14,13 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  validateMetrics,
-  type GatePolicy,
-  type QualityMetrics
+  type GatePolicy
 } from "./quality-core/src/index.ts";
+import {
+  validateMachineArtifactSetV1,
+  type MachineMetricsV1,
+  type MachineWarningV1
+} from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -132,6 +135,11 @@ describe("formal CLI quality gate acceptance", () => {
         "--artifact-dir",
         "artifacts/input-unchanged"
       ]);
+      assert.equal(
+        inputUnchanged.status,
+        0,
+        `stdout:\n${inputUnchanged.stdout}\nstderr:\n${inputUnchanged.stderr}`
+      );
       const inputUnchangedArtifacts = readFormalEntryArtifacts(
         inputUnchangedArtifactDir
       );
@@ -306,10 +314,10 @@ interface FixtureProject {
 }
 
 interface FormalEntryArtifacts {
-  readonly metrics: QualityMetrics;
+  readonly metrics: MachineMetricsV1;
   readonly report: string;
-  readonly warnings: readonly unknown[];
-  readonly warningsAll: readonly unknown[];
+  readonly warnings: readonly MachineWarningV1[];
+  readonly warningsAll: readonly MachineWarningV1[];
 }
 
 function createFixtureProject(label: string): FixtureProject {
@@ -392,18 +400,24 @@ function runFormalGateScan(
 }
 
 function readFormalEntryArtifacts(artifactDir: string): FormalEntryArtifacts {
-  const metricsInput = JSON.parse(
-    readFileSync(join(artifactDir, "metrics.json"), "utf8")
-  ) as unknown;
-  const validation = validateMetrics(metricsInput);
-  assert.deepEqual(validation, { errors: [], valid: true });
-  const metrics = metricsInput as QualityMetrics;
+  const metricsJson = readFileSync(join(artifactDir, "metrics.json"));
+  const warningsNdjson = readFileSync(join(artifactDir, "warnings.ndjson"));
+  const warningsAllNdjson = readFileSync(
+    join(artifactDir, "warnings-all.ndjson")
+  );
+  const validation = validateMachineArtifactSetV1({
+    metricsJson,
+    warningsAllNdjson,
+    warningsNdjson
+  });
+  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
+  const { metrics, warnings, warningsAll } = validation.value;
   const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-  const warnings = readNdjson(join(artifactDir, "warnings.ndjson"));
-  const warningsAll = readNdjson(join(artifactDir, "warnings-all.ndjson"));
 
+  assert.equal(metricsJson.toString("utf8"), JSON.stringify(metrics, null, 2));
   assert.deepEqual(warnings, metrics.warnings.changed);
   assert.deepEqual(warningsAll, metrics.warnings.all);
+  assert.doesNotMatch(report, /vibe-check\.(?:metrics|warning)\.v1/);
   assert.equal(existsSync(join(artifactDir, "raw")), true);
 
   return { metrics, report, warnings, warningsAll };
@@ -499,14 +513,6 @@ function assertNoEvaluatedGateCompletion(stdout: string): void {
       line.startsWith("❌ Quality gate")
   );
   assert.deepEqual(evaluatedGateLines, []);
-}
-
-function readNdjson(path: string): readonly unknown[] {
-  return readFileSync(path, "utf8")
-    .trim()
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as unknown);
 }
 
 function initializeRepository(repository: string): void {

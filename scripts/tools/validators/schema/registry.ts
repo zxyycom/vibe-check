@@ -3,7 +3,8 @@ import type { AnySchema, ValidateFunction } from "ajv";
 
 import { isRecord } from "../../foundation/src/type-guards.ts";
 import { assert } from "../assertions.ts";
-import { listSchemaJson, readJson } from "../json/files.ts";
+import { CURRENT_SCHEMAS, HISTORICAL_SCHEMAS } from "../config.ts";
+import { readJson } from "../json/files.ts";
 
 export function formatAjvErrors(validate: Pick<ValidateFunction, "errors">): string {
   return (validate.errors ?? [])
@@ -11,11 +12,17 @@ export function formatAjvErrors(validate: Pick<ValidateFunction, "errors">): str
     .join("; ");
 }
 
-export function createSchemaAjv(): Ajv2020 {
-  const ajv = new Ajv2020({ allErrors: true, strict: true });
-  for (const schemaRelPath of listSchemaJson()) {
+export function createCurrentSchemaAjv(): Ajv2020 {
+  const ajv = createStrictAjv();
+  for (const schemaRelPath of Object.values(CURRENT_SCHEMAS)) {
     ajv.addSchema(readSchema(schemaRelPath));
   }
+  return ajv;
+}
+
+export function createHistoricalReportAjv(): Ajv2020 {
+  const ajv = createStrictAjv();
+  ajv.addSchema(readSchema(HISTORICAL_SCHEMAS.report));
   return ajv;
 }
 
@@ -34,4 +41,8 @@ function readSchema(schemaRelPath: string): AnySchema {
   const schema = readJson(schemaRelPath);
   assert(isRecord(schema), `${schemaRelPath} schema root must be an object`);
   return schema as AnySchema;
+}
+
+function createStrictAjv(): Ajv2020 {
+  return new Ajv2020({ allErrors: true, strict: true });
 }

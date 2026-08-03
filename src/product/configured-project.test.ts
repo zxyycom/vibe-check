@@ -16,9 +16,9 @@ import { fileURLToPath } from "node:url";
 
 import { DEFAULT_CONFIG } from "./config.ts";
 import {
-  validateMetrics,
-  type QualityMetrics
-} from "./quality-core/src/index.ts";
+  validateMachineArtifactSetV1,
+  type MachineMetricsV1
+} from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -210,17 +210,10 @@ describe("formal CLI explicit configuration", () => {
       assertCommandSucceeded(result, "scan without --config");
       assert.equal(result.stderr, "");
 
-      const metrics = JSON.parse(
-        readFileSync(join(artifactDir, "metrics.json"), "utf8")
-      ) as {
-        metadata?: {
-          configVersion?: unknown;
-          tools?: Array<{ name?: unknown; version?: unknown }>;
-        };
-      };
-      assert.equal(metrics.metadata?.configVersion, DEFAULT_CONFIG.version);
+      const metrics = readMetricsArtifact(artifactDir);
+      assert.equal(metrics.metadata.configVersion, DEFAULT_CONFIG.version);
       assert.equal(
-        metrics.metadata?.tools?.find((tool) => tool.name === "scc")?.version,
+        metrics.metadata.tools.find((tool) => tool.name === "scc")?.version,
         "scc version 3.7.0"
       );
     } finally {
@@ -574,21 +567,23 @@ function assertCommandSucceeded(result: CommandResult, label: string): void {
   );
 }
 
-function readFixtureMetrics(): QualityMetrics {
+function readFixtureMetrics(): MachineMetricsV1 {
   return readMetricsArtifact(fixtureArtifactDir);
 }
 
-function readMetricsArtifact(artifactDir: string): QualityMetrics {
-  const input = JSON.parse(
-    readFileSync(resolve(artifactDir, "metrics.json"), "utf8")
-  ) as unknown;
-  const validation = validateMetrics(input);
-  assert.deepEqual(validation.errors, []);
-  assert.equal(validation.valid, true);
-  return input as QualityMetrics;
+function readMetricsArtifact(artifactDir: string): MachineMetricsV1 {
+  const validation = validateMachineArtifactSetV1({
+    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
+    warningsAllNdjson: readFileSync(
+      resolve(artifactDir, "warnings-all.ndjson")
+    ),
+    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
+  });
+  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
+  return validation.value.metrics;
 }
 
-function stableScanEvidence(metrics: QualityMetrics): unknown {
+function stableScanEvidence(metrics: MachineMetricsV1): unknown {
   return {
     aggregates: metrics.aggregates,
     duplicateCode: metrics.duplicateCode,

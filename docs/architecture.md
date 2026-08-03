@@ -8,7 +8,9 @@ Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScri
 `bun run product:cli -- scan [project-root]` 是正式本地入口，负责 operation 分流、
 project-root 归一化、现有 scan flags、顶层 error 和进程状态映射。扫描编排由 product core
 拥有，负责文件收集、scanner 调用、指标聚合、baseline comparison、warning、GateResult、
-artifact orchestration，以及彼此独立的 quality status 与 process outcome。
+artifact orchestration，以及彼此独立的 quality status 与 process outcome。Product Output
+在 Core business models 与 public machine transport 之间维持显式 DTO/schema boundary；完整
+machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥有。
 
 仓库 dogfood 命令 `quality:check`、`quality:full-check` 与 `quality:scan` 保持省略 gate
 的观察行为；`quality:gate` 通过 full `regressions` policy 显式 opt-in 阻断。所有
@@ -42,17 +44,22 @@ collect + classify
   -> baseline + compare
   -> warnings
   -> evaluate GateResult once
-  -> write + validate artifacts
+  -> validate final core model
+  -> project one machine DTO + serialize three in-memory candidates
+  -> validate complete candidate set + publish three canonical machine files
+  -> write human report
   -> calculate quality status
   -> publish success | gate-failed | failed process outcome
 ```
 
 GateResult 只在 completeness、comparison 和 warning data 全部最终确定后评价一次，不回写
 quality status。`passed` / `warning` / `failed` quality status 描述扫描质量结论；
-`success` / `gate-failed` / `failed` process outcome 描述 CLI 执行结果。Product core 只有
-在 artifacts 写出并通过 output validation 后才计算 quality status，并结合 GateResult
-发布 process outcome；写入或验证失败直接发布 `failed`，未验证的 artifacts 不构成可信
-`gate-failed`。
+`success` / `gate-failed` / `failed` process outcome 描述 CLI 执行结果。Core validation
+先于 machine projection；Output 从一个 DTO 生成三个 candidates，并在任何 canonical write
+前验证 complete set。三个 canonical machine writes 与 human report 完成后才打印 trusted
+paths 并发布 outcome；handled output failure 直接发布 `failed`，不能被 computed gate
+覆盖。Published files 还必须结合 producing invocation outcome 才构成 current-run evidence，
+完整模型见 [Validated publication and evidence](output.md#validated-publication-and-evidence)。
 
 `project root` 定位被扫描项目；`scan scope` 表示 product config 解析后的文件集合；
 `scanner result` 表示检测能力的归一化输出；`quality metrics` 表示指标、聚合、baseline、
@@ -66,16 +73,17 @@ TypeScript 产品扫描结果分为以下层次：
 | 输出 | 用途 | Owner |
 | --- | --- | --- |
 | Console summary | 本地进度、summary、warning preview、completion 与 fatal 定位 | Product CLI / Output |
-| `metrics.json` 与 warning NDJSON | 自动化、comparison 和 CI consumer | Output |
+| `metrics.json` 与 warning NDJSON | 单一 current machine v1 set，供自动化、comparison 和 CI consumer | Output runtime schema / DTO / validators |
 | `report.md` | 人读审查和定位 | Output |
 | `raw/**` | 复现 scanner 与 baseline behavior | Scanner / Output |
-| CI annotation | 消费 warning NDJSON，不进入产品 runtime | `scripts/**` consumer |
+| CI annotation | 经 Product warning-stream validator 完整验证后消费 warning NDJSON，不进入产品 runtime | `scripts/**` consumer |
 
-这些输出复用同一份 Vibe Check-owned metrics、warnings 和 GateResult，但不共享稳定性
-承诺。Product Core 在 final evidence 与 warnings 后只评价一次 GateResult；Output 投影该
-result、写入 artifacts 并执行 output validation。验证成功后，Product Core 才计算独立
-quality status 并发布 process outcome；写入或验证失败直接发布 `failed`。CI consumer
-只读取产品 artifact，不形成第二条扫描管线。
+这些输出复用同一份 Vibe Check-owned metrics、warnings 和 GateResult，但 machine v1、human
+report 与 scanner raw material 的稳定性承诺不同。Core 的 `QualityMetrics` /
+`WarningRecord` 不获得 transport identity；Output explicit mapper 产生 schema-derived
+`MachineMetricsV1` / `MachineWarningV1`，两个 streams 只从该 DTO channels 产生。Public
+field、byte grammar、set invariants、publication/evidence 与 schema/example index 统一由
+[Output](output.md) 维护。CI consumer 只读取并验证产品 artifact，不形成第二条扫描管线。
 
 scc CSV、Lizard CSV、jscpd reporter object、process result 和临时配置只属于 adapter
 boundary。需要复现时可以保存 raw material，但第三方私有结构不成为稳定 product field。
@@ -108,9 +116,10 @@ shape。它不新增 `--format`、version operation、配置自动发现或第�
 - 聚合 current/baseline metrics 并生成 warning channels。
 - 在 final completeness、comparison 和 warnings 后一次性评价 GateResult，不让 gate
   evaluation 改写 quality status。
-- 协调 artifact 写入与 output validation；验证成功后计算独立 quality status，并发布
-  `success`、可信的 `gate-failed` 或 `failed` process outcome；写入或验证失败直接发布
-  `failed`。
+- 先验证 final core model，再协调一个 machine DTO 的 candidate validation/publication 与
+  human report 写入；成功后计算独立 quality status，并发布 `success`、可信的
+  `gate-failed` 或 `failed` process outcome。Handled output failure 直接发布 `failed` / exit
+  `2`。
 
 Product core 不解析 CLI operation 或 project-root positional，也不把 scanner-private
 protocol 提升为 public model。
@@ -136,17 +145,25 @@ result。Scanner adapter 不拥有 overall reducer、warning、baseline、artifa
 
 负责：
 
-- 写入 `metrics.json`、`report.md`、warning NDJSON 和 raw artifacts。
+- 在 final core `QualityMetrics` / `WarningRecord` 与 public machine transport 间维持显式
+  mapper，不把 transport identity 写回 Core。
+- 维护 runtime schema 唯一 field owner、schema-derived DTO types、deterministic serializers、
+  warning-stream/artifact-set validators 与 `src/product/machine-output.ts` shallow export。
+- 从一个 DTO 产生并在 canonical write 前验证 `metrics.json` 与两个 warning streams；
+  published set 完成后写 `report.md`，并保持 handled failure cleanup / exit priority。
+- 写入 `report.md` 和 raw artifacts；raw material 不进入 machine v1 set。
 - 从同一 metrics data、completeness record 与 GateResult 生成 summary、ranking、warning
   preview 和 completion text。
 - 维护 artifact 路径、JSON/NDJSON serialization、Markdown report 与 stdout/stderr
   placement。
-- 验证写出的 product output，并把 validation result 交还 product core。
 - 保持 quick/full、baseline 和 accepted-warning context 的输出一致。
 
 Output 不拥有 file collection、scanner invocation、metrics aggregation、warning generation、
 GateResult evaluation、quality status 或 process outcome decision。Output 保持当前
-TypeScript behavior；新增 schema、字段或 output mode 必须作为独立 contract 变更处理。
+single-active v1；新增或改变 public field、unit、path、order、identity、schema 或 output mode
+必须作为独立 contract version change 处理。Multi-file transaction 与 same-directory
+concurrent writer support 不属于当前承诺，详见
+[Validated publication and evidence](output.md#validated-publication-and-evidence)。
 
 ### 源码分组
 
@@ -174,8 +191,9 @@ caller
   -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
   <- product core：聚合 current results、归约 completeness、comparison 与 warnings
   -> product core：在 final evidence 与 warnings 后一次性评价 GateResult
-  -> output：投影同一 GateResult、写 artifacts 并执行 output validation
-  <- product core：验证成功后计算 quality status，并结合 GateResult 发布 success | gate-failed | failed；写入或验证失败直接发布 failed
+  -> product core：验证 final QualityMetrics
+  -> output：投影一个 machine DTO、序列化并验证 complete candidate set、发布 canonical machine set、写 human report
+  <- product core：成功后计算 quality status，并结合 GateResult 发布 success | gate-failed | failed；handled output failure 直接发布 failed
   <- product CLI：保留 stdout/stderr 与进程状态 mapping
 ```
 
@@ -188,6 +206,9 @@ core，产品源码不得回调脚本入口。
   import `scripts/**` 或 toolkit gitlink。
 - Product runtime 只拥有静态可达的 foundation helper；开发脚本专用 helper 留在
   toolkit。
+- Machine schema/types/mappers/serializers/validators 位于 `src/product/**`，repository
+  consumer 只经 `src/product/machine-output.ts` shallow boundary 复用；product runtime 不读
+  `docs/**` / `scripts/**`，scripts 不 deep-import quality-core machine internals。
 - External scanner command、args、availability、process result 和 raw output 由 adapter
   隔离。
 - Scanner 依赖基线由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；架构层只要求

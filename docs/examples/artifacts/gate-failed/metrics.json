@@ -1,0 +1,272 @@
+{
+  "aggregates": {
+    "byCodeArea": [
+      {
+        "codeArea": "src",
+        "files": 1,
+        "functions": 1,
+        "lines": 80,
+        "warningPolicy": "strict",
+        "codeLines": 72,
+        "cyclomaticComplexity": 6,
+        "duplicateFragments": 0,
+        "fileDecisionTokens": 5,
+        "functionLines": 12,
+        "parameterCount": 2
+      }
+    ],
+    "byLanguage": [
+      {
+        "blankLines": 3,
+        "codeLines": 72,
+        "commentLines": 5,
+        "files": 1,
+        "language": "TypeScript",
+        "lines": 80,
+        "comments": 2
+      }
+    ],
+    "overall": {
+      "totalCodeLines": 72,
+      "totalFiles": 1,
+      "totalFunctions": 1,
+      "totalLines": 80,
+      "totalDuplicateFragments": 0,
+      "totalFileDecisionTokens": 5,
+      "totalFunctionCyclomaticComplexity": 6,
+      "totalFunctionLines": 12,
+      "totalFunctionParameters": 2
+    }
+  },
+  "baseline": {
+    "commitDate": "2026-07-31T12:00:00.000Z",
+    "commitSha": "89abcdef0123456789abcdef0123456789abcdef",
+    "metadata": {
+      "commitDate": "2026-07-31T12:00:00.000Z",
+      "commitSha": "89abcdef0123456789abcdef0123456789abcdef",
+      "commitTitle": "Canonical baseline revision",
+      "configVersion": "canonical-config-v1",
+      "selectionReason": "merge-base",
+      "toolMetadata": [
+        {
+          "name": "scc",
+          "source": "configured",
+          "version": "3.6.0"
+        },
+        {
+          "name": "lizard",
+          "source": "configured",
+          "version": "1.17.31"
+        },
+        {
+          "name": "jscpd",
+          "source": "configured",
+          "version": "5.0.11"
+        }
+      ]
+    },
+    "status": "generated"
+  },
+  "comparisonStatus": "compared",
+  "currentFingerprints": {
+    "src": {
+      "fileCount": 1,
+      "fileList": [
+        "src/example.ts"
+      ],
+      "fingerprint": "canonical-current-fingerprint"
+    }
+  },
+  "duplicateCode": [],
+  "fileMetrics": [
+    {
+      "codeArea": "src",
+      "decisionTokens": {
+        "source": "scc",
+        "value": 5
+      },
+      "isChanged": true,
+      "language": "TypeScript",
+      "lines": 80,
+      "path": "src/example.ts",
+      "blankLines": 3,
+      "codeLines": 72,
+      "commentLines": 5
+    }
+  ],
+  "functionMetrics": [
+    {
+      "codeArea": "src",
+      "cyclomaticComplexity": {
+        "source": "lizard",
+        "value": 6
+      },
+      "endLine": 21,
+      "file": "src/example.ts",
+      "isChanged": true,
+      "lines": 12,
+      "name": "canonicalExample",
+      "parameterCount": 2,
+      "startLine": 10
+    }
+  ],
+  "gate": {
+    "blockingWarningCount": 1,
+    "blockingWarnings": [
+      {
+        "baselineValue": 5,
+        "codeArea": "src",
+        "comparisonBasis": "baseline-delta",
+        "deltaValue": 3,
+        "isChanged": true,
+        "level": "warning",
+        "line": 12,
+        "message": "Function complexity regressed beyond the configured delta.",
+        "metric": "cyclomatic-complexity",
+        "path": "src/example.ts",
+        "ruleId": "function.cyclomatic-complexity.regression",
+        "schemaVersion": "vibe-check.warning.v1",
+        "sourceTool": "lizard",
+        "value": 8,
+        "suggestion": "Split the function into smaller responsibilities."
+      }
+    ],
+    "evaluatedChannel": "regressions",
+    "evaluatedWarningCount": 1,
+    "policy": "regressions",
+    "status": "failed"
+  },
+  "metadata": {
+    "commitSha": "0123456789abcdef0123456789abcdef01234567",
+    "commitTitle": "Canonical current revision",
+    "configVersion": "canonical-config-v1",
+    "repository": "/workspace/vibe-check-fixtures/canonical-project",
+    "schemaVersion": "vibe-check.metrics.v1",
+    "scope": {
+      "excludeDirs": [
+        "dist",
+        "node_modules"
+      ],
+      "generatedFiles": [
+        "src/generated.ts"
+      ],
+      "include": [
+        "src/**/*.ts"
+      ]
+    },
+    "timestamp": "2026-08-03T00:00:00.000Z",
+    "tools": [
+      {
+        "name": "scc",
+        "source": "configured",
+        "version": "3.6.0"
+      },
+      {
+        "name": "lizard",
+        "source": "configured",
+        "version": "1.17.31"
+      },
+      {
+        "name": "jscpd",
+        "source": "configured",
+        "version": "5.0.11"
+      }
+    ],
+    "commitDate": "2026-08-02T12:00:00.000Z"
+  },
+  "scanCompleteness": {
+    "capabilities": [
+      {
+        "capabilityId": "file-metrics",
+        "status": "succeeded"
+      },
+      {
+        "capabilityId": "function-metrics",
+        "status": "succeeded"
+      },
+      {
+        "capabilityId": "duplicate-detection",
+        "status": "succeeded"
+      }
+    ],
+    "overall": "complete"
+  },
+  "trends": [
+    {
+      "baseline": 5,
+      "current": 6,
+      "delta": 1,
+      "metric": "cyclomatic-complexity",
+      "percentChange": 20,
+      "unit": "count"
+    }
+  ],
+  "warnings": {
+    "all": [
+      {
+        "baselineValue": 5,
+        "codeArea": "src",
+        "comparisonBasis": "baseline-delta",
+        "deltaValue": 3,
+        "isChanged": true,
+        "level": "warning",
+        "line": 12,
+        "message": "Function complexity regressed beyond the configured delta.",
+        "metric": "cyclomatic-complexity",
+        "path": "src/example.ts",
+        "ruleId": "function.cyclomatic-complexity.regression",
+        "schemaVersion": "vibe-check.warning.v1",
+        "sourceTool": "lizard",
+        "value": 8,
+        "suggestion": "Split the function into smaller responsibilities."
+      }
+    ],
+    "changed": [
+      {
+        "baselineValue": 5,
+        "codeArea": "src",
+        "comparisonBasis": "baseline-delta",
+        "deltaValue": 3,
+        "isChanged": true,
+        "level": "warning",
+        "line": 12,
+        "message": "Function complexity regressed beyond the configured delta.",
+        "metric": "cyclomatic-complexity",
+        "path": "src/example.ts",
+        "ruleId": "function.cyclomatic-complexity.regression",
+        "schemaVersion": "vibe-check.warning.v1",
+        "sourceTool": "lizard",
+        "value": 8,
+        "suggestion": "Split the function into smaller responsibilities."
+      }
+    ],
+    "regressions": [
+      {
+        "baselineValue": 5,
+        "codeArea": "src",
+        "comparisonBasis": "baseline-delta",
+        "deltaValue": 3,
+        "isChanged": true,
+        "level": "warning",
+        "line": 12,
+        "message": "Function complexity regressed beyond the configured delta.",
+        "metric": "cyclomatic-complexity",
+        "path": "src/example.ts",
+        "ruleId": "function.cyclomatic-complexity.regression",
+        "schemaVersion": "vibe-check.warning.v1",
+        "sourceTool": "lizard",
+        "value": 8,
+        "suggestion": "Split the function into smaller responsibilities."
+      }
+    ]
+  },
+  "baselineFingerprints": {
+    "src": {
+      "fileCount": 1,
+      "fileList": [
+        "src/example.ts"
+      ],
+      "fingerprint": "canonical-baseline-fingerprint"
+    }
+  }
+}

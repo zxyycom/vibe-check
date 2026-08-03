@@ -133,6 +133,20 @@ export const checks = defineChecks([
         ]
       },
       {
+        id: "producer-annotation-acceptance",
+        label: "producer-to-annotation acceptance",
+        command: "bun",
+        args: ["test", "scripts/quality/producer-annotation-acceptance.test.ts"],
+        ignoreOutput: [
+          /^bun test v\d+\.\d+\.\d+ /,
+          /^scripts\/quality\/producer-annotation-acceptance\.test\.ts:$/,
+          /^\(pass\) producer-to-annotation acceptance > /,
+          /^\s*1 pass$/,
+          /^\s*0 fail$/,
+          /^Ran 1 test across 1 file\. /
+        ]
+      },
+      {
         id: "git-diff-whitespace",
         label: "git diff whitespace",
         command: "git",

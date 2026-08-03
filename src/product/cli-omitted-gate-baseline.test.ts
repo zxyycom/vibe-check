@@ -3,26 +3,29 @@ import { spawnSync } from "node:child_process";
 import {
   cpSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
   rmSync,
   writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  validateMetrics,
-  type QualityMetrics
-} from "./quality-core/src/index.ts";
+  validateMachineArtifactSetV1,
+  type MachineMetricsV1,
+  type MachineWarningV1
+} from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 
-describe("formal CLI omitted-gate compatibility baseline", () => {
-  it("preserves the complete passed exit, artifacts, and human output", { timeout: 30_000 }, () => {
+describe("formal CLI current projection regression baseline", () => {
+  it("records the complete-passed projection and outcome", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("passed");
 
     try {
@@ -36,6 +39,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
+      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
       assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
@@ -56,7 +60,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
     }
   });
 
-  it("preserves the complete warning exit, artifacts, and human output", { timeout: 30_000 }, () => {
+  it("records the complete-warning projection and outcome", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("warning");
 
     try {
@@ -66,10 +70,19 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
+      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
       assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
       assert.ok(artifacts.metrics.warnings.all.length > 0);
+      assert.deepEqual(
+        artifacts.metrics.warnings.all.map(({ ruleId }) => ruleId),
+        [
+          "lizard-function-code-density",
+          "scc-file-code-lines",
+          "lizard-cyclomatic-complexity"
+        ]
+      );
       assert.match(result.stdout, /Scan completeness: complete/);
       assert.match(result.stdout, /Quality check status: warning/);
       assert.match(result.stdout, /Warnings: \d+ total/);
@@ -84,7 +97,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
     }
   });
 
-  it("preserves the legitimate empty warning exit, artifacts, and human output", { timeout: 30_000 }, () => {
+  it("records the legitimate-empty projection and outcome", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("empty");
 
     try {
@@ -98,6 +111,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
+      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
       assert.equal(artifacts.metrics.scanCompleteness.overall, "empty");
@@ -125,7 +139,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
     }
   });
 
-  it("preserves the completeness failed exit, artifacts, and human output", { timeout: 30_000 }, () => {
+  it("records the scan-incomplete projection and outcome", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("failed");
 
     try {
@@ -146,6 +160,7 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
         (capability) => capability.status === "failed"
       );
 
+      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
       assert.equal(result.status, 2);
       assert.equal(artifacts.metrics.scanCompleteness.overall, "failed");
       assert.ok(failedCapability?.status === "failed");
@@ -165,9 +180,50 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
     }
   });
 
+  it("returns output failure without a partial canonical machine set", { timeout: 30_000 }, () => {
+    const fixture = createFixtureProject("output-failure");
+
+    try {
+      mkdirSync(join(fixture.artifactDir, "report.md"), { recursive: true });
+
+      const result = runOmittedGateScan(fixture.projectRoot, [
+        "--profile",
+        "quick"
+      ]);
+
+      assert.equal(result.status, 2);
+      assert.match(result.stdout, /❌ Quality scan failed\./);
+      assert.doesNotMatch(result.stdout, /(?:✅|⚠️) Quality scan complete/);
+      assert.doesNotMatch(
+        result.stdout,
+        /(?:metrics\.json|warnings(?:-all)?\.ndjson) →/
+      );
+      assert.match(result.stderr, /Fatal quality scan issues:/);
+      assert.match(result.stderr, /output write:/);
+      assert.equal(existsSync(join(fixture.artifactDir, "raw")), true);
+      for (const fileName of [
+        "metrics.json",
+        "warnings.ndjson",
+        "warnings-all.ndjson"
+      ]) {
+        assert.equal(existsSync(join(fixture.artifactDir, fileName)), false);
+      }
+      assert.equal(
+        readdirSync(fixture.artifactDir).some(
+          (fileName) =>
+            fileName.startsWith(".vibe-check-machine-") &&
+            fileName.endsWith(".tmp")
+        ),
+        false
+      );
+    } finally {
+      rmSync(fixture.tempRoot, { force: true, recursive: true });
+    }
+  });
+
   it("--verification-output changes only the warning preview", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("verification-preview");
-    const acceptedReason = "Reviewed warning retained in compatibility artifacts.";
+    const acceptedReason = "Reviewed warning retained in current projection artifacts.";
 
     try {
       const config = readFixtureConfig(fixture.projectRoot);
@@ -199,6 +255,11 @@ describe("formal CLI omitted-gate compatibility baseline", () => {
       ]);
       const verificationArtifacts = readFormalEntryArtifacts(verificationArtifactDir);
 
+      assertCurrentProjectionBaseline(normalArtifacts.metrics, fixture.projectRoot);
+      assertCurrentProjectionBaseline(
+        verificationArtifacts.metrics,
+        fixture.projectRoot
+      );
       assert.equal(normal.status, 0);
       assert.equal(verification.status, 0);
       assert.equal(normal.stderr, "");
@@ -266,10 +327,10 @@ interface FixtureProject {
 }
 
 interface FormalEntryArtifacts {
-  readonly metrics: QualityMetrics;
+  readonly metrics: MachineMetricsV1;
   readonly report: string;
-  readonly warnings: readonly unknown[];
-  readonly warningsAll: readonly unknown[];
+  readonly warnings: readonly MachineWarningV1[];
+  readonly warningsAll: readonly MachineWarningV1[];
 }
 
 function createFixtureProject(label: string): FixtureProject {
@@ -338,23 +399,32 @@ function runOmittedGateScan(
 }
 
 function readFormalEntryArtifacts(artifactDir: string): FormalEntryArtifacts {
-  const metricsInput = JSON.parse(
-    readFileSync(join(artifactDir, "metrics.json"), "utf8")
-  ) as unknown;
-  const validation = validateMetrics(metricsInput);
-  assert.equal(validation.valid, true);
-  assert.deepEqual(validation.errors, []);
-  const metrics = metricsInput as QualityMetrics;
+  const metricsJson = readFileSync(join(artifactDir, "metrics.json"));
+  const warningsNdjson = readFileSync(join(artifactDir, "warnings.ndjson"));
+  const warningsAllNdjson = readFileSync(
+    join(artifactDir, "warnings-all.ndjson")
+  );
+  const validation = validateMachineArtifactSetV1({
+    metricsJson,
+    warningsAllNdjson,
+    warningsNdjson
+  });
+  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
+  const { metrics, warnings, warningsAll } = validation.value;
+  assert.equal(metricsJson.toString("utf8"), JSON.stringify(metrics, null, 2));
   assert.deepEqual(metrics.gate, {
     policy: null,
     status: "disabled"
   });
   const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-  const warnings = parseNdjson(
-    readFileSync(join(artifactDir, "warnings.ndjson"), "utf8")
+  assert.doesNotMatch(report, /vibe-check\.(?:metrics|warning)\.v1/);
+  assertWarningStreamBytes(
+    warningsNdjson.toString("utf8"),
+    metrics.warnings.changed
   );
-  const warningsAll = parseNdjson(
-    readFileSync(join(artifactDir, "warnings-all.ndjson"), "utf8")
+  assertWarningStreamBytes(
+    warningsAllNdjson.toString("utf8"),
+    metrics.warnings.all
   );
 
   assert.deepEqual(warnings, metrics.warnings.changed);
@@ -364,13 +434,186 @@ function readFormalEntryArtifacts(artifactDir: string): FormalEntryArtifacts {
   return { metrics, report, warnings, warningsAll };
 }
 
-function parseNdjson(input: string): readonly unknown[] {
-  const lines = input.trim().split("\n").filter((line) => line.length > 0);
-  return lines.map((line) => JSON.parse(line) as unknown);
+function assertCurrentProjectionBaseline(
+  metrics: MachineMetricsV1,
+  projectRoot: string
+): void {
+  assertSerializedFields(
+    metrics,
+    [
+      "aggregates", "baseline", "comparisonStatus", "currentFingerprints",
+      "duplicateCode", "fileMetrics", "functionMetrics", "gate", "metadata",
+      "scanCompleteness", "trends", "warnings"
+    ],
+    ["baselineFingerprints"]
+  );
+  assertSerializedFields(
+    metrics.metadata,
+    [
+      "commitSha", "commitTitle", "configVersion", "repository",
+      "schemaVersion", "scope", "timestamp", "tools"
+    ],
+    ["commitDate"]
+  );
+  assert.equal(metrics.metadata.schemaVersion, "vibe-check.metrics.v1");
+  assert.match(
+    metrics.metadata.timestamp,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
+  );
+  assert.equal(metrics.metadata.repository, resolve(projectRoot));
+  assert.equal(isAbsolute(metrics.metadata.repository), true);
+  assert.equal(resolve(metrics.metadata.repository), metrics.metadata.repository);
+  assertSerializedFields(
+    metrics.metadata.scope,
+    ["excludeDirs", "generatedFiles", "include"]
+  );
+  for (const tool of metrics.metadata.tools) {
+    assertSerializedFields(tool, ["name", "source", "version"]);
+  }
+
+  assertSerializedFields(
+    metrics.baseline,
+    ["commitDate", "commitSha", "metadata", "status"]
+  );
+  assert.deepEqual(metrics.baseline, {
+    commitDate: null,
+    commitSha: null,
+    metadata: null,
+    status: "baseline-skipped"
+  });
+  assert.equal(Object.hasOwn(metrics, "baselineFingerprints"), false);
+  assert.equal(metrics.comparisonStatus, "baseline-unavailable");
+
+  for (const fingerprint of Object.values(metrics.currentFingerprints)) {
+    assertSerializedFields(fingerprint, ["fileCount", "fileList", "fingerprint"]);
+    for (const path of fingerprint.fileList) assertProjectRelativePath(path);
+  }
+
+  assertSerializedFields(metrics.scanCompleteness, ["capabilities", "overall"]);
+  assert.ok(
+    ["complete", "empty", "failed"].includes(metrics.scanCompleteness.overall)
+  );
+  assert.deepEqual(
+    metrics.scanCompleteness.capabilities
+      .map(({ capabilityId }) => capabilityId)
+      .sort(),
+    ["duplicate-detection", "file-metrics", "function-metrics"]
+  );
+  for (const capability of metrics.scanCompleteness.capabilities) {
+    assertSerializedFields(
+      capability,
+      ["capabilityId", "status"],
+      capability.status === "failed" ? ["diagnostic"] : []
+    );
+    assert.ok(
+      ["skipped", "no-input", "succeeded", "failed"].includes(capability.status)
+    );
+    if (capability.status === "failed") {
+      assertSerializedFields(capability.diagnostic, ["action", "kind", "message"]);
+    }
+  }
+
+  assertSerializedFields(
+    metrics.aggregates,
+    ["byCodeArea", "byLanguage", "overall"]
+  );
+  for (const aggregate of metrics.aggregates.byLanguage) {
+    assertSerializedFields(
+      aggregate,
+      ["blankLines", "codeLines", "commentLines", "files", "language", "lines"],
+      ["comments"]
+    );
+  }
+  for (const aggregate of metrics.aggregates.byCodeArea) {
+    assertSerializedFields(
+      aggregate,
+      ["codeArea", "files", "functions", "lines", "warningPolicy"],
+      [
+        "codeLines", "cyclomaticComplexity", "duplicateFragments",
+        "fileDecisionTokens", "functionLines", "parameterCount"
+      ]
+    );
+  }
+  assertSerializedFields(
+    metrics.aggregates.overall,
+    ["totalCodeLines", "totalFiles", "totalFunctions", "totalLines"],
+    [
+      "totalDuplicateFragments", "totalFileDecisionTokens",
+      "totalFunctionCyclomaticComplexity", "totalFunctionLines",
+      "totalFunctionParameters"
+    ]
+  );
+
+  for (const metric of metrics.fileMetrics) {
+    assertSerializedFields(
+      metric,
+      ["codeArea", "decisionTokens", "isChanged", "language", "lines", "path"],
+      ["blankLines", "codeLines", "commentLines"]
+    );
+    assertSerializedFields(metric.decisionTokens, ["source", "value"]);
+    assertProjectRelativePath(metric.path);
+  }
+  for (const metric of metrics.functionMetrics) {
+    assertSerializedFields(
+      metric,
+      [
+        "codeArea", "cyclomaticComplexity", "endLine", "file", "isChanged",
+        "lines", "name", "parameterCount", "startLine"
+      ]
+    );
+    assertSerializedFields(metric.cyclomaticComplexity, ["source", "value"]);
+    assertProjectRelativePath(metric.file);
+  }
+
+  assertSerializedFields(metrics.warnings, ["all", "changed", "regressions"]);
+  for (const warning of metrics.warnings.all) {
+    assertSerializedFields(
+      warning,
+      [
+        "baselineValue", "codeArea", "comparisonBasis", "deltaValue",
+        "isChanged", "level", "line", "message", "metric", "path", "ruleId",
+        "schemaVersion", "sourceTool", "value"
+      ],
+      ["acceptedReason", "suggestion"]
+    );
+    assert.ok(["info", "warning", "error"].includes(warning.level));
+    assert.equal(warning.schemaVersion, "vibe-check.warning.v1");
+    assertProjectRelativePath(warning.path);
+  }
+  assertSerializedFields(metrics.gate, ["policy", "status"]);
+}
+
+function assertSerializedFields(
+  value: object,
+  required: readonly string[],
+  optional: readonly string[] = []
+): void {
+  assert.deepEqual(
+    Object.keys(value).filter((field) => !optional.includes(field)).sort(),
+    [...required].sort()
+  );
+}
+
+function assertProjectRelativePath(path: string): void {
+  assert.equal(isAbsolute(path), false);
+  assert.doesNotMatch(path, /(?:^|\/)\.\.(?:\/|$)/);
+  assert.doesNotMatch(path, /\\/);
+}
+
+function assertWarningStreamBytes(
+  input: string,
+  expected: readonly unknown[]
+): void {
+  assert.equal(
+    input,
+    expected.length === 0
+      ? ""
+      : `${expected.map((warning) => JSON.stringify(warning)).join("\n")}\n`
+  );
 }
 
 function stableArtifactEvidence(artifacts: FormalEntryArtifacts): unknown {
-  const metrics = JSON.parse(JSON.stringify(artifacts.metrics)) as QualityMetrics;
+  const metrics = JSON.parse(JSON.stringify(artifacts.metrics)) as MachineMetricsV1;
   metrics.metadata.timestamp = "<timestamp>";
   return {
     metrics,

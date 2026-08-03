@@ -1,0 +1,1254 @@
+{
+  "type": "object",
+  "required": [
+    "aggregates",
+    "baseline",
+    "comparisonStatus",
+    "currentFingerprints",
+    "duplicateCode",
+    "fileMetrics",
+    "functionMetrics",
+    "gate",
+    "metadata",
+    "scanCompleteness",
+    "trends",
+    "warnings"
+  ],
+  "properties": {
+    "aggregates": {
+      "type": "object",
+      "required": [
+        "byCodeArea",
+        "byLanguage",
+        "overall"
+      ],
+      "properties": {
+        "byCodeArea": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "codeArea",
+              "files",
+              "functions",
+              "lines",
+              "warningPolicy"
+            ],
+            "properties": {
+              "codeArea": {
+                "type": "string",
+                "description": "Vibe Check code-area identifier.",
+                "minLength": 1
+              },
+              "codeLines": {
+                "type": "integer",
+                "description": "Optional total non-comment, non-blank code lines in this code area.",
+                "minimum": 0
+              },
+              "cyclomaticComplexity": {
+                "type": "number",
+                "description": "Optional sum of function cyclomatic-complexity counts in this code area.",
+                "minimum": 0
+              },
+              "duplicateFragments": {
+                "type": "integer",
+                "description": "Optional duplicate-fragment count associated with this code area.",
+                "minimum": 0
+              },
+              "fileDecisionTokens": {
+                "type": "number",
+                "description": "Optional sum of scc decision-token counts in this code area.",
+                "minimum": 0
+              },
+              "files": {
+                "type": "integer",
+                "description": "Number of measured files in this code area.",
+                "minimum": 0
+              },
+              "functionLines": {
+                "type": "number",
+                "description": "Optional sum of normalized function code lines in this code area.",
+                "minimum": 0
+              },
+              "functions": {
+                "type": "integer",
+                "description": "Number of measured functions in this code area.",
+                "minimum": 0
+              },
+              "lines": {
+                "type": "integer",
+                "description": "Total physical lines in measured files for this code area.",
+                "minimum": 0
+              },
+              "parameterCount": {
+                "type": "number",
+                "description": "Optional sum of function parameter counts in this code area.",
+                "minimum": 0
+              },
+              "warningPolicy": {
+                "enum": [
+                  "strict",
+                  "moderate",
+                  "relaxed",
+                  "watchlist-only",
+                  "exclude-warnings"
+                ],
+                "description": "Closed warning policy applied to this code area.",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Aggregate measurements for one Vibe Check code area."
+          },
+          "description": "Aggregates by code-area ID. Order is presentation-only; consumers identify entries by codeArea."
+        },
+        "byLanguage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "blankLines",
+              "codeLines",
+              "commentLines",
+              "files",
+              "language",
+              "lines"
+            ],
+            "properties": {
+              "blankLines": {
+                "type": "integer",
+                "description": "Total blank physical lines for this language.",
+                "minimum": 0
+              },
+              "codeLines": {
+                "type": "integer",
+                "description": "Total non-comment, non-blank code lines for this language.",
+                "minimum": 0
+              },
+              "commentLines": {
+                "type": "integer",
+                "description": "Total comment physical lines for this language.",
+                "minimum": 0
+              },
+              "comments": {
+                "type": "integer",
+                "description": "Optional scanner-provided comment count distinct from comment lines.",
+                "minimum": 0
+              },
+              "files": {
+                "type": "integer",
+                "description": "Number of measured files for this language.",
+                "minimum": 0
+              },
+              "language": {
+                "type": "string",
+                "description": "Normalized language name.",
+                "minLength": 1
+              },
+              "lines": {
+                "type": "integer",
+                "description": "Total physical lines for this language.",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false,
+            "description": "Aggregate file measurements for one normalized language."
+          },
+          "description": "Aggregates by normalized language name. Order is presentation-only; consumers identify entries by language."
+        },
+        "overall": {
+          "type": "object",
+          "required": [
+            "totalCodeLines",
+            "totalFiles",
+            "totalFunctions",
+            "totalLines"
+          ],
+          "properties": {
+            "totalCodeLines": {
+              "type": "integer",
+              "description": "Total non-comment, non-blank code lines.",
+              "minimum": 0
+            },
+            "totalDuplicateFragments": {
+              "type": "integer",
+              "description": "Optional total normalized duplicate-fragment count.",
+              "minimum": 0
+            },
+            "totalFileDecisionTokens": {
+              "type": "number",
+              "description": "Optional total scc decision-token count.",
+              "minimum": 0
+            },
+            "totalFiles": {
+              "type": "integer",
+              "description": "Total measured file count.",
+              "minimum": 0
+            },
+            "totalFunctionCyclomaticComplexity": {
+              "type": "number",
+              "description": "Optional sum of function cyclomatic-complexity counts.",
+              "minimum": 0
+            },
+            "totalFunctionLines": {
+              "type": "number",
+              "description": "Optional sum of normalized function code lines.",
+              "minimum": 0
+            },
+            "totalFunctionParameters": {
+              "type": "number",
+              "description": "Optional sum of function parameter counts.",
+              "minimum": 0
+            },
+            "totalFunctions": {
+              "type": "integer",
+              "description": "Total measured function count.",
+              "minimum": 0
+            },
+            "totalLines": {
+              "type": "integer",
+              "description": "Total physical line count.",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false,
+          "description": "Totals across all eligible current measurement inputs."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Aggregated current measurements by language, code area, and overall totals."
+    },
+    "baseline": {
+      "type": "object",
+      "required": [
+        "commitDate",
+        "commitSha",
+        "metadata",
+        "status"
+      ],
+      "properties": {
+        "commitDate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Baseline commit UTC timestamp, or null when no baseline commit was selected."
+        },
+        "commitSha": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Baseline commit identifier, or null when no baseline commit was selected."
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "commitDate",
+                "commitSha",
+                "commitTitle",
+                "configVersion",
+                "selectionReason",
+                "toolMetadata"
+              ],
+              "properties": {
+                "commitDate": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Selected baseline commit UTC timestamp, or null when unavailable."
+                },
+                "commitSha": {
+                  "type": "string",
+                  "description": "Selected baseline commit identifier.",
+                  "minLength": 1
+                },
+                "commitTitle": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Selected baseline commit title, or null when unavailable."
+                },
+                "configVersion": {
+                  "type": "string",
+                  "description": "Quality configuration version used for the baseline scan.",
+                  "minLength": 1
+                },
+                "selectionReason": {
+                  "type": "string",
+                  "description": "Producer-owned explanation of how the baseline commit was selected.",
+                  "minLength": 1
+                },
+                "toolMetadata": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "source",
+                      "version"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "Normalized tool name.",
+                        "minLength": 1
+                      },
+                      "source": {
+                        "type": "string",
+                        "description": "Producer-owned description of how the tool was resolved.",
+                        "minLength": 1
+                      },
+                      "version": {
+                        "type": "string",
+                        "description": "Normalized reported tool version.",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Normalized identity and version for one measurement tool."
+                  },
+                  "description": "Normalized baseline tool metadata. Order is presentation-only; consumers identify entries by name."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Normalized metadata for the selected baseline scan."
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Normalized selected-baseline metadata, or null when baseline materialization did not produce it."
+        },
+        "status": {
+          "enum": [
+            "generated",
+            "baseline-skipped",
+            "history-unavailable",
+            "no-baseline-commit",
+            "baseline-materialization-failed",
+            "baseline-scan-failed"
+          ],
+          "description": "Closed baseline selection/materialization status.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Baseline selection status and metadata for this invocation."
+    },
+    "baselineFingerprints": {
+      "type": "object",
+      "description": "Optional dynamic map of baseline code-area IDs to their input fingerprints; absent when no baseline fingerprints were produced.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "fileCount",
+          "fileList",
+          "fingerprint"
+        ],
+        "properties": {
+          "fileCount": {
+            "type": "integer",
+            "description": "Number of project-relative files included in this fingerprint.",
+            "minimum": 0
+          },
+          "fileList": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Product-normalized project-relative path using forward slashes.",
+              "minLength": 1
+            },
+            "description": "Product-normalized project-relative file paths. Order is semantic because it participates in deterministic fingerprint evidence."
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "Opaque deterministic fingerprint value owned by Product Core.",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Deterministic normalized input fingerprint for one code area."
+      }
+    },
+    "comparisonStatus": {
+      "enum": [
+        "compared",
+        "input-unchanged",
+        "baseline-unavailable"
+      ],
+      "description": "Closed state of current-to-baseline comparison evidence.",
+      "type": "string"
+    },
+    "currentFingerprints": {
+      "type": "object",
+      "description": "Dynamic map whose property names are Vibe Check code-area IDs and whose values are normalized fingerprints.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "fileCount",
+          "fileList",
+          "fingerprint"
+        ],
+        "properties": {
+          "fileCount": {
+            "type": "integer",
+            "description": "Number of project-relative files included in this fingerprint.",
+            "minimum": 0
+          },
+          "fileList": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Product-normalized project-relative path using forward slashes.",
+              "minLength": 1
+            },
+            "description": "Product-normalized project-relative file paths. Order is semantic because it participates in deterministic fingerprint evidence."
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "Opaque deterministic fingerprint value owned by Product Core.",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Deterministic normalized input fingerprint for one code area."
+      }
+    },
+    "duplicateCode": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "codeAreas",
+          "hitsChangedScope",
+          "id",
+          "lineCount",
+          "locations",
+          "tokenCount"
+        ],
+        "properties": {
+          "codeAreas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Vibe Check code-area identifier.",
+              "minLength": 1
+            },
+            "description": "Code areas touched by the fragment. Order is producer semantic and preserved from duplicate normalization."
+          },
+          "hitsChangedScope": {
+            "type": "boolean",
+            "description": "Whether any duplicate location intersects the changed-file scope."
+          },
+          "id": {
+            "type": "integer",
+            "description": "Producer-assigned duplicate-fragment numeric identifier.",
+            "minimum": 0
+          },
+          "lineCount": {
+            "type": "integer",
+            "description": "Normalized duplicated line count per fragment occurrence.",
+            "minimum": 0
+          },
+          "locations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "codeArea",
+                "endLine",
+                "path",
+                "startLine"
+              ],
+              "properties": {
+                "codeArea": {
+                  "type": "string",
+                  "description": "Vibe Check code-area identifier for this location.",
+                  "minLength": 1
+                },
+                "endLine": {
+                  "type": "integer",
+                  "description": "One-based inclusive end line in path.",
+                  "minimum": 1
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Product-normalized project-relative path using forward slashes.",
+                  "minLength": 1
+                },
+                "startLine": {
+                  "type": "integer",
+                  "description": "One-based inclusive start line in path.",
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false,
+              "description": "One normalized project-relative duplicate location."
+            },
+            "description": "Normalized source locations for the fragment. Order is semantic and preserved from duplicate normalization."
+          },
+          "tokenCount": {
+            "type": "integer",
+            "description": "Normalized duplicate token count per fragment occurrence.",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false,
+        "description": "One normalized duplicate-code fragment and its source locations."
+      },
+      "description": "Normalized duplicate fragments. Order is producer semantic and is preserved from scanner normalization."
+    },
+    "fileMetrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "codeArea",
+          "decisionTokens",
+          "isChanged",
+          "language",
+          "lines",
+          "path"
+        ],
+        "properties": {
+          "blankLines": {
+            "type": "integer",
+            "description": "Optional blank physical-line count reported by the file scanner.",
+            "minimum": 0
+          },
+          "codeArea": {
+            "type": "string",
+            "description": "Vibe Check code-area identifier for this file.",
+            "minLength": 1
+          },
+          "codeLines": {
+            "type": "integer",
+            "description": "Optional non-comment, non-blank code-line count reported by the file scanner.",
+            "minimum": 0
+          },
+          "commentLines": {
+            "type": "integer",
+            "description": "Optional comment physical-line count reported by the file scanner.",
+            "minimum": 0
+          },
+          "decisionTokens": {
+            "type": "object",
+            "required": [
+              "source",
+              "value"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Normalized measurement source name.",
+                "minLength": 1
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Observed numeric value, or null when the source could not provide one."
+              }
+            },
+            "additionalProperties": false,
+            "description": "scc decision-token count and normalized source for this file."
+          },
+          "isChanged": {
+            "type": "boolean",
+            "description": "Whether path is included in the invocation's changed-file scope."
+          },
+          "language": {
+            "type": "string",
+            "description": "Normalized source language name reported for this file.",
+            "minLength": 1
+          },
+          "lines": {
+            "type": "integer",
+            "description": "Total physical lines in this file.",
+            "minimum": 0
+          },
+          "path": {
+            "type": "string",
+            "description": "Product-normalized project-relative path using forward slashes.",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Normalized current measurements for one project-relative file."
+      },
+      "description": "Normalized file measurements. Order is producer semantic and is preserved from current measurement output."
+    },
+    "functionMetrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "codeArea",
+          "cyclomaticComplexity",
+          "endLine",
+          "file",
+          "isChanged",
+          "lines",
+          "name",
+          "parameterCount",
+          "startLine"
+        ],
+        "properties": {
+          "codeArea": {
+            "type": "string",
+            "description": "Vibe Check code-area identifier for this function.",
+            "minLength": 1
+          },
+          "cyclomaticComplexity": {
+            "type": "object",
+            "required": [
+              "source",
+              "value"
+            ],
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "Normalized measurement source name.",
+                "minLength": 1
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Observed numeric value, or null when the source could not provide one."
+              }
+            },
+            "additionalProperties": false,
+            "description": "Cyclomatic-complexity count and normalized source for this function."
+          },
+          "endLine": {
+            "type": "integer",
+            "description": "One-based inclusive function end line within file.",
+            "minimum": 1
+          },
+          "file": {
+            "type": "string",
+            "description": "Product-normalized project-relative path using forward slashes.",
+            "minLength": 1
+          },
+          "isChanged": {
+            "type": "boolean",
+            "description": "Whether file is included in the invocation's changed-file scope."
+          },
+          "lines": {
+            "type": "integer",
+            "description": "Normalized function code-line count.",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "Normalized function name reported by the function scanner."
+          },
+          "parameterCount": {
+            "type": "integer",
+            "description": "Function parameter count.",
+            "minimum": 0
+          },
+          "startLine": {
+            "type": "integer",
+            "description": "One-based inclusive function start line within file.",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "Normalized current measurements for one source function."
+      },
+      "description": "Normalized function measurements. Order is producer semantic and is preserved from current measurement output."
+    },
+    "gate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "policy",
+            "status"
+          ],
+          "properties": {
+            "policy": {
+              "type": "null",
+              "description": "No policy was requested."
+            },
+            "status": {
+              "type": "string",
+              "const": "disabled",
+              "description": "Gate evaluation was not requested."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "blockingWarningCount",
+            "blockingWarnings",
+            "evaluatedChannel",
+            "evaluatedWarningCount",
+            "policy",
+            "status"
+          ],
+          "properties": {
+            "blockingWarningCount": {
+              "type": "integer",
+              "description": "Number of unaccepted warnings in blockingWarnings.",
+              "minimum": 0
+            },
+            "blockingWarnings": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:vibe-check:schema:warning:v1"
+              },
+              "description": "Unaccepted warnings selected by the gate policy. Order is semantic and matches selected-channel order."
+            },
+            "evaluatedChannel": {
+              "enum": [
+                "all",
+                "changed",
+                "regressions"
+              ],
+              "description": "Warning channel selected by the requested gate policy.",
+              "type": "string"
+            },
+            "evaluatedWarningCount": {
+              "type": "integer",
+              "description": "Number of warnings in the evaluated channel, including accepted warnings.",
+              "minimum": 0
+            },
+            "policy": {
+              "enum": [
+                "all",
+                "changed",
+                "regressions"
+              ],
+              "description": "Requested gate policy.",
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "const": "passed",
+              "description": "The evaluated channel contained no blocking warnings."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "blockingWarningCount",
+            "blockingWarnings",
+            "evaluatedChannel",
+            "evaluatedWarningCount",
+            "policy",
+            "status"
+          ],
+          "properties": {
+            "blockingWarningCount": {
+              "type": "integer",
+              "description": "Number of unaccepted warnings in blockingWarnings.",
+              "minimum": 1
+            },
+            "blockingWarnings": {
+              "type": "array",
+              "items": {
+                "$ref": "urn:vibe-check:schema:warning:v1"
+              },
+              "description": "Unaccepted warnings selected by the gate policy. Order is semantic and matches selected-channel order.",
+              "minItems": 1
+            },
+            "evaluatedChannel": {
+              "enum": [
+                "all",
+                "changed",
+                "regressions"
+              ],
+              "description": "Warning channel selected by the requested gate policy.",
+              "type": "string"
+            },
+            "evaluatedWarningCount": {
+              "type": "integer",
+              "description": "Number of warnings in the evaluated channel, including accepted warnings.",
+              "minimum": 1
+            },
+            "policy": {
+              "enum": [
+                "all",
+                "changed",
+                "regressions"
+              ],
+              "description": "Requested gate policy.",
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "const": "failed",
+              "description": "The evaluated channel contained at least one blocking warning."
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "policy",
+            "reasonCode",
+            "status"
+          ],
+          "properties": {
+            "policy": {
+              "enum": [
+                "all",
+                "changed",
+                "regressions"
+              ],
+              "description": "Requested gate policy.",
+              "type": "string"
+            },
+            "reasonCode": {
+              "enum": [
+                "scan-incomplete",
+                "no-eligible-input",
+                "comparison-unavailable"
+              ],
+              "description": "Closed prerequisite reason that prevented gate evaluation.",
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "const": "not-evaluated",
+              "description": "The requested gate lacked prerequisite evidence."
+            }
+          },
+          "additionalProperties": false
+        }
+      ],
+      "description": "Discriminated final quality gate result."
+    },
+    "metadata": {
+      "type": "object",
+      "required": [
+        "commitSha",
+        "commitTitle",
+        "configVersion",
+        "repository",
+        "schemaVersion",
+        "scope",
+        "timestamp",
+        "tools"
+      ],
+      "properties": {
+        "commitDate": {
+          "type": "string",
+          "description": "Optional current commit UTC timestamp when repository metadata provides it."
+        },
+        "commitSha": {
+          "type": "string",
+          "description": "Current repository commit identifier used for the invocation.",
+          "minLength": 1
+        },
+        "commitTitle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Current commit title, or null when unavailable."
+        },
+        "configVersion": {
+          "type": "string",
+          "description": "Quality configuration version used for the invocation.",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "description": "Normalized absolute project root used by this invocation; this is host context, not a portable repository identity.",
+          "minLength": 1
+        },
+        "schemaVersion": {
+          "type": "string",
+          "const": "vibe-check.metrics.v1",
+          "description": "Current machine metrics instance identity."
+        },
+        "scope": {
+          "type": "object",
+          "required": [
+            "excludeDirs",
+            "generatedFiles",
+            "include"
+          ],
+          "properties": {
+            "excludeDirs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Configured excluded directory name or path."
+              },
+              "description": "Configured excluded directory names or paths. Order is configuration semantic and preserved from resolved config."
+            },
+            "generatedFiles": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Configured generated-file glob."
+              },
+              "description": "Configured generated-file globs. Order is configuration semantic and preserved from resolved config."
+            },
+            "include": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Configured include glob."
+              },
+              "description": "Configured include globs. Order is configuration semantic and preserved from resolved config."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Resolved include/exclude/generated scope configuration."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "UTC invocation instant in ISO-8601 form with millisecond precision.",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "source",
+              "version"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Normalized tool name.",
+                "minLength": 1
+              },
+              "source": {
+                "type": "string",
+                "description": "Producer-owned description of how the tool was resolved.",
+                "minLength": 1
+              },
+              "version": {
+                "type": "string",
+                "description": "Normalized reported tool version.",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false,
+            "description": "Normalized identity and version for one measurement tool."
+          },
+          "description": "Normalized current tool metadata. Order is presentation-only; consumers identify entries by name."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Invocation, repository, scope, tool, and transport identity metadata."
+    },
+    "scanCompleteness": {
+      "type": "object",
+      "required": [
+        "capabilities",
+        "overall"
+      ],
+      "properties": {
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "capabilityId",
+                  "status"
+                ],
+                "properties": {
+                  "capabilityId": {
+                    "enum": [
+                      "file-metrics",
+                      "function-metrics",
+                      "duplicate-detection"
+                    ],
+                    "description": "Stable measurement capability identifier.",
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "skipped",
+                    "description": "The resolved profile did not request this capability."
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "capabilityId",
+                  "status"
+                ],
+                "properties": {
+                  "capabilityId": {
+                    "enum": [
+                      "file-metrics",
+                      "function-metrics",
+                      "duplicate-detection"
+                    ],
+                    "description": "Stable measurement capability identifier.",
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "no-input",
+                    "description": "The capability had no eligible current input."
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "capabilityId",
+                  "status"
+                ],
+                "properties": {
+                  "capabilityId": {
+                    "enum": [
+                      "file-metrics",
+                      "function-metrics",
+                      "duplicate-detection"
+                    ],
+                    "description": "Stable measurement capability identifier.",
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "succeeded",
+                    "description": "Eligible current measurement completed successfully."
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "capabilityId",
+                  "diagnostic",
+                  "status"
+                ],
+                "properties": {
+                  "capabilityId": {
+                    "enum": [
+                      "file-metrics",
+                      "function-metrics",
+                      "duplicate-detection"
+                    ],
+                    "description": "Stable measurement capability identifier.",
+                    "type": "string"
+                  },
+                  "diagnostic": {
+                    "type": "object",
+                    "required": [
+                      "action",
+                      "kind",
+                      "message"
+                    ],
+                    "properties": {
+                      "action": {
+                        "type": "string",
+                        "description": "Action the owning operator can take to restore the capability.",
+                        "minLength": 1
+                      },
+                      "kind": {
+                        "enum": [
+                          "unavailable",
+                          "execution",
+                          "invalid-result"
+                        ],
+                        "description": "Closed normalized capability failure category.",
+                        "type": "string"
+                      },
+                      "message": {
+                        "type": "string",
+                        "description": "Human-readable normalized capability failure message.",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false,
+                    "description": "Normalized failure reason and owner action for one failed capability."
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "failed",
+                    "description": "Required eligible current measurement did not complete."
+                  }
+                },
+                "additionalProperties": false
+              }
+            ],
+            "description": "One stable measurement capability result."
+          },
+          "description": "Exactly one result per stable capability ID. Array order is not semantic; consumers identify members by capabilityId."
+        },
+        "overall": {
+          "enum": [
+            "complete",
+            "empty",
+            "failed"
+          ],
+          "description": "Closed shared reduction of current capability results.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Final capability evidence and shared overall completeness result."
+    },
+    "trends": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "baseline",
+          "current",
+          "delta",
+          "metric",
+          "percentChange",
+          "unit"
+        ],
+        "properties": {
+          "baseline": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Baseline value in unit, or null when unavailable."
+          },
+          "current": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current value in unit, or null when unavailable."
+          },
+          "delta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Current-minus-baseline value in unit, or null when unavailable."
+          },
+          "metric": {
+            "type": "string",
+            "description": "Stable normalized metric identifier.",
+            "minLength": 1
+          },
+          "percentChange": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Percentage change from baseline, or null when not computable."
+          },
+          "unit": {
+            "type": "string",
+            "description": "Normalized unit label for baseline, current, and delta values.",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false,
+        "description": "One normalized current-to-baseline metric delta."
+      },
+      "description": "Normalized current-to-baseline metric deltas. Order is producer semantic and is preserved from core trend generation."
+    },
+    "warnings": {
+      "type": "object",
+      "required": [
+        "all",
+        "changed",
+        "regressions"
+      ],
+      "properties": {
+        "all": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-check:schema:warning:v1"
+          },
+          "description": "All normalized warnings. Order is semantic and is the reference order for channel subsequences and consumers."
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-check:schema:warning:v1"
+          },
+          "description": "Warnings associated with changed code. Order is semantic and preserves their order from all."
+        },
+        "regressions": {
+          "type": "array",
+          "items": {
+            "$ref": "urn:vibe-check:schema:warning:v1"
+          },
+          "description": "Changed warnings that regress from baseline. Order is semantic and preserves their order from changed."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Final normalized warning channels used by report, stream, and gate projections."
+    }
+  },
+  "$id": "urn:vibe-check:schema:metrics:v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Current Vibe Check metrics artifact. Object member order and JSON whitespace have no instance meaning.",
+  "title": "Vibe Check machine metrics v1"
+}

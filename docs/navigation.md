@@ -14,9 +14,9 @@
 | 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
 | 修改 TypeScript/Bun 产品实现、重构或 `src/product/**` 边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 对应 owner 文档、相邻代码和测试 |
 | 修改正式命令、project root、scan flags、gate planning 或进程状态 | [CLI](cli.md)、[编码规范](coding-style.md) | [Output](output.md)、产品入口测试、dogfood wrapper 测试 |
-| 修改 console、report、artifacts 或 stdout/stderr output channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、相邻 output tests |
+| 修改 machine DTO/schema、serialization、validators、publication/evidence、console、report、artifacts 或 stdout/stderr channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、published schemas/examples、相邻 output tests |
 | 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
-| 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | `scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
+| 讨论或调整开发脚本工具、annotation consumer、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Output](output.md)、`scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) | `docs/testing/cases/`、`.codex/skills/test-evidence-review/SKILL.md`、示例、schema、相邻测试 |
 | 恢复、审阅或维护会跨任务沿用的长期判断 | `bun run decisions:list`、`docs/decisions/decision-domains.json`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后同步索引并运行 `bun run decisions:check` |
 | 审计历史或规划较大 change | `openspec/changes/` | 对应 proposal、design、tasks 和 spec delta |
@@ -25,7 +25,9 @@
 
 按改动面选择最窄验证。常用入口：
 
-- 文档、schema、examples、OpenSpec 和 whitespace：`bun run validate`。
+- 文档、schema、examples、OpenSpec 和 whitespace：`bun run validate`；局部 docs 可先用
+  `bun run validate:docs`，其中 current machine schemas/examples 同时接受 independent
+  validation 与 generation drift check。
 - 长期决策集合结构与索引一致性：`bun run decisions:check`。
 - 完整当前 Bun 测试实体与语义 Case 双向闭合：`bun run test-evidence:check`。
 - 跨产品行为、OpenSpec、schema、示例、输出边界或多个包边界：`bun run verify:vibe-check-workspace:required`。
@@ -45,7 +47,7 @@
 | Configuration | [Configuration](configuration.md) | 修改默认或显式完整配置、路径、替换、CLI precedence 或配置错误 |
 | Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
 | Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning、GateResult/evaluator 或 quality status |
-| Output | [Output](output.md) | 修改 console、GateResult projection、metrics/report/warning/raw artifacts、empty/failure state 或通道 |
+| Output | [Output](output.md) | 修改 Core-to-DTO projection、machine field/path/unit/order semantics、schemas、byte grammar、validators、publication/evidence、console、GateResult projection、metrics/report/warning/raw artifacts 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality dogfood wrapper 和脚本依赖 |
 | 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
@@ -74,6 +76,33 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 [架构](architecture.md)、[CLI](cli.md) 与 [脚本工具](script-tooling.md) 的 TypeScript/Bun
 边界执行。
 
+Current machine output 是 single-active
+`vibe-check.metrics.v1` / `vibe-check.warning.v1` contract。Runtime schema source、
+schema-derived types、shallow product export、canonical artifacts、validators、publication
+evidence 与 materials index 见 [Output](output.md#machine-v1-contract-and-ownership)。Repository
+不保留 legacy reader、dual writer 或 alternate accepted structure。Output 文档拥有 contract
+语义、byte grammar、validation 与 publication 边界；runtime schema source 单独拥有 exact
+public field constraints/descriptions，published schemas/examples 是可追溯的消费与证明材料。
+
+## Current machine schemas and examples
+
+完整 field/path/unit/optional/order semantics 与 validation/publication rules 只在
+[Output](output.md) 维护；本节只作导航索引。
+
+| Current material | Link |
+| --- | --- |
+| Metrics v1 JSON Schema 2020-12 | [vibe-check-metrics.schema.json](schemas/vibe-check-metrics.schema.json) |
+| Warning v1 JSON Schema 2020-12 | [vibe-check-warning.schema.json](schemas/vibe-check-warning.schema.json) |
+| Complete without warnings | [complete-passed](examples/artifacts/complete-passed/README.md) |
+| Complete with non-gating warning | [complete-warning](examples/artifacts/complete-warning/README.md) |
+| Legitimate empty input | [legitimate-empty](examples/artifacts/legitimate-empty/README.md) |
+| Evaluated gate failed | [gate-failed](examples/artifacts/gate-failed/README.md) |
+| Scan incomplete but artifact-set contract-valid | [scan-incomplete](examples/artifacts/scan-incomplete/README.md) |
+
+`vibe-check.report.v1` [schema](schemas/vibe-check-report.schema.json) 与
+[examples](examples/json/) 是已退役 Rust report 的 historical materials；它们使用 separate
+registry/traversal，不是 current machine material。
+
 ## 规则所有权
 
 关键规则只由一个主文档拥有，其它文档只摘要或引用。
@@ -87,7 +116,7 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
 | 指标模型、warning channels、baseline、GateResult/evaluator 和最终 quality status | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
-| Console、GateResult projection、metrics/report/warning/raw artifacts 和已退役 Rust schema 材料 | [Output](output.md) |
+| Core-to-machine DTO projection、runtime schema/derived types、machine identities/fields/byte grammar/validators/publication/evidence、console/report/warning/raw artifacts 和 historical Rust materials | [Output](output.md) |
 | 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality dogfood wrapper | [脚本工具](script-tooling.md) |
 | 测试层级、fixture、Case 归属和验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) 与 `docs/testing/cases/` |
 | 长期取舍的 domain、完整语义、生命周期、alignment、检索投影和演进关系 | `docs/decisions/decision-domains.json`、对应决策 Markdown 与派生 `docs/decisions/decision-index.json` |
@@ -101,4 +130,7 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 | Dogfood wrapper | 显式传入 Vibe Check 仓库根并单向调用 Product CLI 的 `quality:*` 或脚本入口。 |
 | Core | 文件收集、指标聚合、warning、GateResult 和报告数据的实现归属。 |
 | Scanner | 内置检测或外部工具适配，负责采集、解析和归一化检测结果。 |
-| Output | 人读报告、机器输出、CI 摘要和 annotation 的实现归属。 |
+| Machine DTO | Output 从 final Core `QualityMetrics` / `WarningRecord` 显式投影的 `MachineMetricsV1` / `MachineWarningV1` public serialization value。 |
+| Contract-valid set | `metrics.json` 与两个 warning streams 同时满足 current schemas、byte grammar 与 set invariants 的三件套。 |
+| Published set | 三个 canonical machine writes 都完成的 contract-valid set；current-run evidence 还必须包含 producing CLI outcome。 |
+| Output | Machine DTO/schema/validators/publication、人读报告与 machine artifacts 的实现归属；annotation 是 `scripts/**` direct consumer。 |

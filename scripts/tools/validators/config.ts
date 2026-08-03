@@ -1,5 +1,5 @@
-// Vibe Check docs validators keep stable paths and task names in one place.
-// Product semantics remain owned by docs/output.md, schemas, examples, and Rust tests.
+// Vibe Check docs validators keep validation paths and task names in one place.
+// Product semantics remain owned by the product runtime and owner docs.
 export const TASK_NAMES = {
   json: "json",
   schema: "schema",
@@ -30,7 +30,12 @@ export const FILE_SYSTEM = {
   schemaExtension: ".schema.json"
 };
 
-export const SCHEMAS = {
+export const CURRENT_SCHEMAS = {
+  metrics: "docs/schemas/vibe-check-metrics.schema.json",
+  warning: "docs/schemas/vibe-check-warning.schema.json"
+};
+
+export const HISTORICAL_SCHEMAS = {
   report: "docs/schemas/vibe-check-report.schema.json"
 };
 

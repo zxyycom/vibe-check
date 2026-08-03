@@ -1,7 +1,7 @@
-import type { RenderableWarning } from "./warnings.ts";
+import type { MachineWarningV1 } from "../../../src/product/machine-output.ts";
 
-export function renderGithubAnnotations(warnings: RenderableWarning[]): string[] {
-  return warnings.filter((warning) => warning.level !== "info").map((warning) => {
+export function renderGithubAnnotations(warnings: readonly MachineWarningV1[]): string[] {
+  return warnings.map((warning) => {
     const attrs = [
       ["file", warning.path],
       ["line", warning.line],
@@ -15,14 +15,14 @@ export function renderGithubAnnotations(warnings: RenderableWarning[]): string[]
   });
 }
 
-function annotationMessage(warning: RenderableWarning): string {
+function annotationMessage(warning: MachineWarningV1): string {
   return [
     warning.message,
     warning.comparisonBasis ? `basis=${warning.comparisonBasis}` : null,
-    warning.baselineValue !== null && warning.baselineValue !== undefined
+    warning.baselineValue !== null
       ? `baseline=${warning.baselineValue}`
       : null,
-    warning.deltaValue !== null && warning.deltaValue !== undefined
+    warning.deltaValue !== null
       ? `delta=${warning.deltaValue}`
       : null,
     warning.suggestion || null

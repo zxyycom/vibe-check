@@ -1,15 +1,25 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadQualityConfig } from "../../config-file.ts";
 import {
-  validateMetrics,
+  validateMachineArtifactSetV1,
+  type MachineMetricsV1
+} from "../../machine-output.ts";
+import {
   type GatePolicy,
-  type QualityConfig,
-  type QualityMetrics
+  type QualityConfig
 } from "./model/schema.ts";
 import { runQualityScan } from "./engine.ts";
 
@@ -116,6 +126,13 @@ describe("quality scan process outcome", () => {
       expect(requestedReport.includes("- **Evaluated channel**: `all`")).toBe(true);
       expect(requestedReport.includes("- **Evaluated warnings**: 3")).toBe(true);
       expect(requestedReport.includes("- **Blocking warnings**: 0")).toBe(true);
+      expect(omittedReport.includes("vibe-check.metrics.v1")).toBe(false);
+      expect(requestedReport.includes("vibe-check.warning.v1")).toBe(false);
+      const rawFileMetrics = JSON.parse(
+        readFileSync(resolve(requested.artifactDir, "raw", "scc-output.json"), "utf8")
+      ) as unknown;
+      expect(Array.isArray(rawFileMetrics)).toBe(true);
+      expect(JSON.stringify(rawFileMetrics).includes("schemaVersion")).toBe(false);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -138,7 +155,6 @@ describe("quality scan process outcome", () => {
       expect(result.metrics.scanCompleteness.overall).toBe("complete");
       expect(result.metrics.warnings.all.length > 0).toBe(true);
       expect(result.metrics.gate.status).toBe("failed");
-      expect(validateMetrics(result.metrics)).toEqual({ errors: [], valid: true });
       expect(result.outcome).toBe("gate-failed");
       expect(
         result.stdout.includes("❌ Quality gate failed for the resolved quick profile.")
@@ -237,7 +253,7 @@ describe("quality scan process outcome", () => {
       const config = await loadQualityConfig(
         resolve(fixtureRoot, "vibe-check.config.json")
       );
-      const result = await runFixtureScan({
+      const result = await runFixtureScanWithoutArtifacts({
         artifactName: "output-failure",
         config,
         gatePolicy: "all",
@@ -247,12 +263,13 @@ describe("quality scan process outcome", () => {
         tempRoot
       });
 
-      expect(result.metrics.gate.status).toBe("failed");
-      expect(validateMetrics(result.metrics)).toEqual({ errors: [], valid: true });
       expect(result.outcome).toBe("failed");
       expect(result.stdout.filter((line) => line.includes("Quality gate"))).toEqual([]);
       expect(result.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
       expect(result.stderr.includes("Fatal quality scan issues:")).toBe(true);
+      expect(existsSync(resolve(result.artifactDir, "raw"))).toBe(true);
+      expect(existsSync(resolve(result.artifactDir, "report.md"))).toBe(true);
+      assertNoMachinePublication(result.artifactDir, result.stdout);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -265,23 +282,25 @@ describe("quality scan process outcome", () => {
       const fixtureConfig = await loadQualityConfig(
         resolve(fixtureRoot, "vibe-check.config.json")
       );
-      const result = await runFixtureScan({
+      const result = await runFixtureScanWithoutArtifacts({
         artifactName: "validation-failure",
         config: {
           ...fixtureConfig,
           version: ""
         },
         gatePolicy: "all",
+        prepareArtifactDir: seedPriorMachinePublication,
         tempRoot
       });
 
-      expect(result.metrics.gate.status).toBe("failed");
-      expect(validateMetrics(result.metrics).valid).toBe(false);
       expect(result.outcome).toBe("failed");
       expect(result.stdout.filter((line) => line.includes("Quality gate"))).toEqual([]);
       expect(result.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
       expect(result.stderr.includes("Fatal quality scan issues:")).toBe(true);
       expect(result.stderr.some((line) => line.includes("metrics validation:"))).toBe(true);
+      expect(existsSync(resolve(result.artifactDir, "raw"))).toBe(true);
+      expect(existsSync(resolve(result.artifactDir, "report.md"))).toBe(false);
+      assertNoMachinePublication(result.artifactDir, result.stdout);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -360,7 +379,40 @@ async function runFixtureScan({
   verificationOutput?: boolean;
 }): Promise<{
   artifactDir: string;
-  metrics: QualityMetrics;
+  metrics: MachineMetricsV1;
+  outcome: Awaited<ReturnType<typeof runQualityScan>>;
+  stderr: string[];
+  stdout: string[];
+}> {
+  const output = await runFixtureScanWithoutArtifacts({
+    artifactName,
+    config,
+    gatePolicy,
+    prepareArtifactDir,
+    tempRoot,
+    verificationOutput
+  });
+  const metrics = readValidatedMachineArtifacts(output.artifactDir).metrics;
+
+  return { ...output, metrics };
+}
+
+async function runFixtureScanWithoutArtifacts({
+  artifactName,
+  config,
+  gatePolicy,
+  prepareArtifactDir,
+  tempRoot,
+  verificationOutput = false
+}: {
+  artifactName: string;
+  config: QualityConfig;
+  gatePolicy: GatePolicy | null;
+  prepareArtifactDir?: (artifactDir: string) => void;
+  tempRoot: string;
+  verificationOutput?: boolean;
+}): Promise<{
+  artifactDir: string;
   outcome: Awaited<ReturnType<typeof runQualityScan>>;
   stderr: string[];
   stdout: string[];
@@ -386,17 +438,61 @@ async function runFixtureScan({
       root: fixtureRoot
     })
   );
-  const metrics = JSON.parse(
-    readFileSync(resolve(artifactDir, "metrics.json"), "utf8")
-  ) as QualityMetrics;
 
   return {
     artifactDir,
-    metrics,
     outcome: output.result,
     stderr: output.stderr,
     stdout: output.stdout
   };
+}
+
+function readValidatedMachineArtifacts(artifactDir: string) {
+  const validation = validateMachineArtifactSetV1({
+    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
+    warningsAllNdjson: readFileSync(
+      resolve(artifactDir, "warnings-all.ndjson")
+    ),
+    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
+  });
+  if (!validation.ok) {
+    throw new Error(
+      `published machine artifact set did not validate: ${JSON.stringify(validation.diagnostic)}`
+    );
+  }
+  return validation.value;
+}
+
+function assertNoMachinePublication(
+  artifactDir: string,
+  stdout: readonly string[]
+): void {
+  for (const fileName of [
+    "metrics.json",
+    "warnings.ndjson",
+    "warnings-all.ndjson"
+  ]) {
+    expect(existsSync(resolve(artifactDir, fileName))).toBe(false);
+    expect(stdout.some((line) => line.includes(`${fileName} →`))).toBe(false);
+  }
+  expect(
+    readdirSync(artifactDir).some(
+      (fileName) =>
+        fileName.startsWith(".vibe-check-machine-") && fileName.endsWith(".tmp")
+    )
+  ).toBe(false);
+}
+
+function seedPriorMachinePublication(artifactDir: string): void {
+  mkdirSync(artifactDir, { recursive: true });
+  for (const fileName of [
+    "metrics.json",
+    "warnings.ndjson",
+    "warnings-all.ndjson",
+    ".vibe-check-machine-prior-metrics.json.tmp"
+  ]) {
+    writeFileSync(resolve(artifactDir, fileName), "stale", "utf8");
+  }
 }
 
 async function captureConsole<T>(run: () => Promise<T>): Promise<{

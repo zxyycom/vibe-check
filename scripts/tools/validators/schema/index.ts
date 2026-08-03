@@ -7,35 +7,18 @@ import { walk } from "../repo/files.ts";
 import { toAbs, toRel } from "../repo/paths.ts";
 import { assert } from "../assertions.ts";
 import {
+  CURRENT_SCHEMAS,
   FILE_SYSTEM,
-  SCHEMAS
+  HISTORICAL_SCHEMAS
 } from "../config.ts";
 import {
   compileRegisteredSchema,
-  createSchemaAjv,
+  createCurrentSchemaAjv,
+  createHistoricalReportAjv,
   formatAjvErrors
 } from "./registry.ts";
 
-export {
-  compileRegisteredSchema,
-  createSchemaAjv,
-  formatAjvErrors
-} from "./registry.ts";
-
-function validateWithSchema(
-  ajv: ReturnType<typeof createSchemaAjv>,
-  schemaRelPath: string,
-  dataRelPaths: string[]
-): void {
-  const validate = compileRegisteredSchema(ajv, schemaRelPath);
-  for (const dataRelPath of dataRelPaths) {
-    const data = readJson(dataRelPath);
-    if (!validate(data)) {
-      throw new Error(`${dataRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`);
-    }
-  }
-  console.log(`schema ok: ${schemaRelPath} (${dataRelPaths.length} file(s))`);
-}
+export { validatePublishedMachineArtifactExamples } from "./machine-artifacts.ts";
 
 export function validateJsonSyntax(): void {
   const jsonFiles = walk(toAbs(FILE_SYSTEM.docsDir), (filePath) =>
@@ -49,24 +32,48 @@ export function validateJsonSyntax(): void {
 
 export function validateSchemas(): void {
   const schemaRelPaths = listSchemaJson();
-  const expectedSchemas = Object.values(SCHEMAS);
+  const expectedSchemas = [
+    ...Object.values(CURRENT_SCHEMAS),
+    ...Object.values(HISTORICAL_SCHEMAS)
+  ];
 
   for (const expected of expectedSchemas) {
     assert(schemaRelPaths.includes(expected), `missing expected schema ${expected}`);
   }
-
-  const ajv = createSchemaAjv();
   for (const schemaRelPath of schemaRelPaths) {
-    compileRegisteredSchema(ajv, schemaRelPath);
+    assert(
+      expectedSchemas.includes(schemaRelPath),
+      `unregistered schema ${schemaRelPath}`
+    );
   }
-  console.log(`schema strict compile ok: ${schemaRelPaths.length} schema file(s)`);
+
+  const currentAjv = createCurrentSchemaAjv();
+  for (const schemaRelPath of Object.values(CURRENT_SCHEMAS)) {
+    compileRegisteredSchema(currentAjv, schemaRelPath);
+  }
+  const historicalAjv = createHistoricalReportAjv();
+  for (const schemaRelPath of Object.values(HISTORICAL_SCHEMAS)) {
+    compileRegisteredSchema(historicalAjv, schemaRelPath);
+  }
+  console.log(`schema strict compile ok: ${expectedSchemas.length} schema file(s)`);
 }
 
 export function validateReportExamples(): void {
   const exampleRelPaths = listExampleJson(/^[a-z-]+\.json$/);
   assert(exampleRelPaths.length > 0, "missing Vibe Check report examples");
 
-  const ajv = createSchemaAjv();
-  validateWithSchema(ajv, SCHEMAS.report, exampleRelPaths);
+  const schemaRelPath = HISTORICAL_SCHEMAS.report;
+  const ajv = createHistoricalReportAjv();
+  const validate = compileRegisteredSchema(ajv, schemaRelPath);
+  for (const exampleRelPath of exampleRelPaths) {
+    if (!validate(readJson(exampleRelPath))) {
+      throw new Error(
+        `${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`
+      );
+    }
+  }
+  console.log(
+    `schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`
+  );
   console.log(`report examples ok: ${exampleRelPaths.length} file(s)`);
 }

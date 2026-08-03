@@ -17,6 +17,7 @@ import { generateScanWarnings } from "./engine/warnings.ts";
 import { detectScanInputChange } from "./input/revisions.ts";
 import { buildFingerprints, collectScanFiles } from "./input/files.ts";
 import { runCurrentRevisionScan } from "./measurement/current-revision/index.ts";
+import { cleanupMachineArtifactPublicationV1 } from "./output/machine/index.ts";
 import type {
   ChangeScope,
   QualityScanOptions,
@@ -257,6 +258,14 @@ function finishScan({
 }): QualityScanProcessOutcome {
   const { fatalIssues, metrics, opts } = runtime;
 
+  const validation = timings.measure("validate output", () => validateOutput(metrics));
+  recordValidationIssues(fatalIssues, validation.errors);
+  if (fatalIssues.length > 0) {
+    cleanupMachineArtifactPublicationV1(artifactDir);
+    finishFatalScan(artifactDir, fatalIssues);
+    return "failed";
+  }
+
   try {
     timings.measure("write artifacts", () =>
       writeArtifacts({
@@ -277,13 +286,6 @@ function finishScan({
     return "failed";
   }
   timings.measure("print summary", () => printSummary(metrics));
-  const validation = timings.measure("validate output", () => validateOutput(metrics));
-  recordValidationIssues(fatalIssues, validation.errors);
-
-  if (fatalIssues.length > 0) {
-    finishFatalScan(artifactDir, fatalIssues);
-    return "failed";
-  }
   timings.measure("print gate status", () =>
     printGateStatus({ metrics, scanProfile: opts.scanProfile })
   );

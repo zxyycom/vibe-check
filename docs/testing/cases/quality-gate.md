@@ -11,19 +11,19 @@ Proves:
 - Quick `all` zero-warning gate 保留 skipped capability evidence 并退出 `0`；all-only warning 只从 `warnings.all` 形成 failed gate 并退出 `1`。
 - 受控 Git comparison 将 input-unchanged 作为有效 evidence；changed non-regression 与 regression 分别只按 `changed` / `regressions` channel 形成 GateResult。
 - Baseline unavailable 产生 `not-evaluated: comparison-unavailable` 并退出 `2`。
-- `metrics.json`、warning streams、requested-gate report/console 与 CLI exit 投影同一 GateResult 和 normalized warning records。
+- 三个 machine artifacts 的原始 bytes 通过 production artifact-set validator；validated metrics、warning streams、requested-gate report/console 与 CLI exit 投影同一 GateResult 和 normalized warning records。
 
-## Case BB-CLI-GATE-OMITTED-001: Product omitted-gate 兼容性基线稳定
+## Case BB-CLI-GATE-OMITTED-001: Product omitted-gate regression baseline 稳定
 Owner: `docs/quality-metrics.md#gate-policy-and-evaluation`
 Entities:
-- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI omitted-gate compatibility baseline > --verification-output changes only the warning preview`
-- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI omitted-gate compatibility baseline > preserves the complete passed exit, artifacts, and human output`
-- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI omitted-gate compatibility baseline > preserves the complete warning exit, artifacts, and human output`
-- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI omitted-gate compatibility baseline > preserves the completeness failed exit, artifacts, and human output`
-- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI omitted-gate compatibility baseline > preserves the legitimate empty warning exit, artifacts, and human output`
+- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI current projection regression baseline > --verification-output changes only the warning preview`
+- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI current projection regression baseline > records the complete-passed projection and outcome`
+- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI current projection regression baseline > records the complete-warning projection and outcome`
+- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI current projection regression baseline > records the legitimate-empty projection and outcome`
+- `bun|src/product/cli-omitted-gate-baseline.test.ts|formal CLI current projection regression baseline > records the scan-incomplete projection and outcome`
 Proves:
 - 省略 `--gate` 的每组正式入口产物都保留精确 `gate: { policy: null, status: "disabled" }`，且 console / report 不增加 gate section。
-- Complete passed、complete warning、legitimate empty 与 completeness failed 分别保留既有 exit、artifact、warning conclusion 和 human-output 行为。
+- Complete passed、complete warning、legitimate empty 与 scan-incomplete 的三个 machine artifact 原始 bytes 均通过 production artifact-set validator，并分别保留既有 exit、warning conclusion 和 human-output 行为。
 - `--verification-output` 只切换 warning preview，不改变稳定化后的 artifacts、completion message 或 omitted-gate 静默行为。
 
 ## Case BB-CLI-GATE-USAGE-001: Product gate usage failure 在启动前失败
@@ -92,5 +92,5 @@ Entities:
 Proves:
 - Disabled 与 evaluated gate 使用同一 final warning records；accepted records、warning streams 和 report projection 不因 policy 改变。
 - Validated failed gate 产生 `gate-failed`；empty/incomplete requested gate 分别产生 closed not-evaluated result 和 `failed` process outcome。
-- Artifact write 或 output validation failure 优先于已计算 failed gate，不发布未验证的 gate-failure evidence。
+- Artifact write 或 output validation failure 优先于已计算 failed gate，且不保留 partial canonical machine set、owned temps 或提前打印的 trusted machine paths。
 - `--verification-output` 只改变 warning preview，不改变 GateResult 或 process outcome。

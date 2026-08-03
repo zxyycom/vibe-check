@@ -25,6 +25,14 @@ Proves:
 - `scripts/quality/scan.ts` 只导入 Product CLI，显式传入 repository root 并透明转发 argv； 不拥有 parser、config、scan core 或 exit mapping。
 - `quality:check`、`quality:full-check` 与 `quality:scan` 保持精确 omitted-gate invocation； `quality:gate` 精确传入 `--profile full --gate regressions`。
 
+## Case AUX-QUALITY-ANNOTATION-WIRING-001: Required workspace 调度 focused acceptance child
+Owner: `docs/script-tooling.md#independent-docs-validation-and-workspace-acceptance`
+Entities:
+- `bun|scripts/quality/producer-annotation-acceptance.test.ts|producer-to-annotation acceptance > connects formal non-empty, zero-byte, and invalid producer streams to the actual consumer`
+Proves:
+- Required profile 精确调度 focused producer-to-annotation test child；child 自己运行正式 producer 与 actual consumer 并判断 machine boundary，workspace verifier 只使用既有 process result/output 编排。
+- Acceptance 使用隔离的临时 fixture copies 与 actual package consumer，workspace task 不增加 artifact parser、schema registry 或 warning mapper。
+
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`
 Entities:

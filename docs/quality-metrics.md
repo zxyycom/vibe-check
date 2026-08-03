@@ -7,8 +7,10 @@ data、产生 warnings，并计算 core-owned `GateResult` 与 `passed` / `warni
 质量状态。
 
 Output 只投影本文定义的 report data 与 `GateResult`；CLI 只负责参数、scan planning、
-入口和最终进程状态映射。本文不拥有 project-root 解析、scan scope 路径规则、artifact
-序列化格式或 scanner dependency 选择。
+入口和最终进程状态映射。本文拥有 Core `QualityMetrics` / `WarningRecord` business
+semantics，但不拥有 machine transport identity、public DTO field inventory、project-root
+解析、scan scope 路径规则、artifact serialization 或 scanner dependency 选择；这些
+machine-output 规则由 [Output](output.md#core-to-machine-projection) 维护。
 
 ## 实施状态
 
@@ -33,8 +35,9 @@ collect + classify normalized scan scope
   -> optionally scan/compare baseline
   -> generate all / changed / regression warning channels and accepted reasons when complete
   -> evaluate one core-owned GateResult
-  -> write report artifacts
-  -> validate metrics and output
+  -> validate final core QualityMetrics
+  -> Output projects one machine DTO and validates three in-memory candidates
+  -> publish canonical machine set and human report
   -> calculate quality status and process outcome
 ```
 
@@ -59,6 +62,9 @@ Product Core 使用仓库自有模型隔离 scanner protocol。现有模型包�
   `regressions` closed policy。
 - `GateResult`：一次 scan 的 `disabled` / `passed` / `failed` / `not-evaluated`
   discriminated result。
+- `QualityMetrics` / `WarningRecord`：final Core report data 与 normalized warning business
+  records；它们供 human output 和 explicit machine mapper 消费，本身不带 v1 transport
+  identity。
 - `FatalIssue`：metrics validation 或其它无法归属 current capability 的顶层失败，包含
   tool、phase 和可行动 error。
 
@@ -165,8 +171,10 @@ Core 只按 final result status 归约 overall，不按 capability ID 增加特�
 3. Results 只包含 `skipped` / `no-input` 时，overall 为 `empty`。
 
 `skipped` 不降低 completeness；`succeeded` 与 `no-input` / `skipped` 混合仍为
-`complete`。稳定 contract 不承诺 capability 展示顺序、diagnostic 精确措辞、额外
-diagnostic metadata 或 serialized schema version。
+`complete`。Core contract 不承诺 capability presentation order、diagnostic 精确措辞或额外
+private diagnostic metadata；machine v1 则固定 exact capability membership、schema identity
+与 array-order semantics，见
+[Public field semantics](output.md#public-field-semantics)。
 
 ## Warning rules and channels
 
@@ -193,7 +201,10 @@ exclude-warnings 行为。Accepted warning configuration 只给匹配 warning �
 configuration 是否产生 warning 继续由现有 validation option 决定。
 
 改变 rule id、message、metric、threshold、policy、排序、accepted reason 或 channel
-selection 时，必须作为 Quality Metrics contract 变更处理。
+selection 时，必须作为 Quality Metrics contract 变更处理。Machine projection 保留 Core
+warning channel semantic order，并用一个 `MachineWarningV1` mapper 产生 embedded/streamed
+records；其 public fields、path/unit/optional semantics 与 byte grammar 由
+[Output](output.md#machinewarningv1) 维护。
 
 ## Gate policy and evaluation
 
@@ -235,10 +246,12 @@ status。
 - `not-evaluated`：只包含 closed policy、`status` 与
   `scan-incomplete` / `no-eligible-input` / `comparison-unavailable` reason code。
 
-Runtime validation 拒绝 unknown enum、status 不拥有的 extra/missing field、负数或非整数
+Core runtime validation 拒绝 unknown enum、status 不拥有的 extra/missing field、负数或非整数
 count、count/list mismatch、policy/channel mismatch，以及 blocking count 与
 `passed` / `failed` 不一致。Output 只投影这个 validated result，不重新选择 channel、
-过滤 accepted warnings 或重算 blocking records。
+过滤 accepted warnings 或重算 blocking records；artifact-set validator 另在 serialized
+boundary 验证 channel/count/blocking relationships，见
+[Artifact-set validation](output.md#artifact-set-validation)。
 
 ## Baseline and profiles
 
@@ -272,7 +285,10 @@ Current scanner failure 只由 failed `CapabilityResult` 表达。Metrics valida
 Gate result 不替代 quality status：evaluated failed gate 可以与 quality `warning` 同时存在。
 Artifacts 写出并通过 output validation 后，disabled/passed gate 对应 `success` process
 outcome，evaluated failed gate 对应 `gate-failed`；not-evaluated、completeness、runtime 或
-output failure 对应 `failed`。Exit mapping 由 CLI owner 定义。
+output failure 对应 `failed`。Machine publication、output-failure precedence 与 current-run
+evidence 的完整模型由
+[Validated publication and evidence](output.md#validated-publication-and-evidence) 维护。Exit
+mapping 由 CLI owner 定义。
 
 Verification output 对带 accepted reason 的 warnings 使用既有 preview 过滤语义，但不选择
 policy、不改变 gate evaluation，也不能把 `empty` 变成 `passed`。未处理顶层 error 不产生
@@ -299,7 +315,10 @@ Rust tests / fixtures 补建 coverage。现有证明资产包括：
 - gate model/evaluator tests：descriptor-derived policy、discriminated validation、
   prerequisite priority、channel selection、accepted warning 与 blocking ordering。
 - process/output tests：GateResult、artifact validation priority、console/report projection 和
-  warning-stream preservation。
+  warning-stream preservation，以及 current v1 artifact-set publication。
+- machine output tests：Core-to-DTO explicit projection、schema-derived public contract、
+  serializers、byte grammar、set invariants 与 all-or-nothing diagnostics；完整 contract 见
+  [Output](output.md)。
 - Markdown report tests：ranking、changed-file summary、accepted reason、scanner metrics 和
   requested-gate section。
 - 正式入口 tests：complete、legitimate empty 与 required component unavailable 在
