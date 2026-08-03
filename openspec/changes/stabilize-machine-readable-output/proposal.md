@@ -1,60 +1,59 @@
-## Change State
-
-本 change 已完成 planning audit，当前为 **implementation-ready**。前置 changes
-`make-scan-completeness-observable` 与 `add-ci-quality-gates` 已归档；本 change 的产品
-实现尚未开始，执行入口是 `tasks.md` 1.1。
-
-本 change 固定 implementation baseline 当时已经存在的 machine projection，不预留未来
-config provenance、scanner backend field 或其它 speculative metadata。相邻 change 只有在
-明确修改 output contract 时才能改变公开 projection。
-
 ## Why
 
-当前产品会写出 `metrics.json` 和 warning NDJSON，但这些 TypeScript artifacts 没有
-current-product schema、稳定 identity 或统一接受条件。仓库中的 JSON schema/examples
-属于已退役 Rust report；`quality:annotate` 只检查少量字段并跳过 malformed records。
-调用者因此无法区分完整可信的 current output 与结构漂移或部分损坏的 output。
+产品已经写出 `metrics.json` 与 warning NDJSON，但这些 TypeScript artifacts 没有
+current-product schemas、稳定 transport identities 或统一 acceptance predicate。仓库现有
+report schema 与 examples 属于已退役 Rust 产品。当前 `quality:annotate` parser 只验证
+render 所需字段、跳过 malformed records，并可能把部分有效 prefix 当作成功结果输出。
 
-Scan completeness 与 quality gate 已稳定并归档。本 change 固定它们现有的 machine
-projection，使产品 automation 可以依赖 artifacts，同时避免把 core implementation
-细节直接变成 transport contract。
+因此 automation 无法可靠区分完整 current artifact set 与 schema drift、truncated output、
+mismatched warning stream 或宽松接受的 partial input。Scan completeness 与 quality gate
+semantics 已由归档 changes 和主规范拥有；本 change 只稳定其 machine projection，不把这些
+业务语义的 owner 移到 Output。
+
+产品处于早期开发阶段，没有需要保留的 legacy machine consumer 或历史 artifact reader。
+本 change 因此建立唯一正确的当前 contract，让 producer、schemas、examples、validators、
+direct consumer、tests 与 owner docs 同时 hard cut，不提供 legacy parsing、dual write 或
+migration window。
 
 ## What Changes
 
-- Output 从 final `QualityMetrics` / `WarningRecord` 投影
-  `MachineMetricsV1` / `MachineWarningV1`；core models 继续拥有业务语义，machine DTO
-  只拥有公开 serialization。
-- Canonical files 保持为 `metrics.json`、`warnings.ndjson` 与
-  `warnings-all.ndjson`。Metrics identity 固定为 `vibe-check.metrics.v1`，每个 serialized
-  warning identity 固定为 `vibe-check.warning.v1`。
-- Product-owned runtime schemas 成为 machine field、requiredness、type、enum、
-  nullability 与 numeric constraint 的 source of truth；checked-in JSON Schemas 与
-  TypeScript DTO 必须与其一致。
-- Producer 在写 canonical machine files 前验证 candidate bytes、schemas、warning
-  framing、cross-artifact equality 与公开 semantic invariants。Validation 或 publication
-  failure 保持 output failure / Product CLI exit `2`。
-- Product 提供一个 artifact-set validator 和一个 warning-stream validator；两者复用同一
-  current warning schema/framing definitions，分别服务 producer/set validation 与实际
-  annotation input boundary。
-- `quality:annotate` 对完整 byte input 做全量验证；valid non-empty/zero-byte input 退出
-  `0`，参数、读取或 contract failure 作为 infrastructure failure 退出 `2`，并且不渲染
-  部分 records。
-- `docs/examples/artifacts/` 提供 deterministic complete、warning、empty、gate-failed 与
-  scan-incomplete sets。Required validation 证明 schemas/examples 无 drift、关键
-  invariants 有直接测试、正式 producer output 能被实际 annotation consumer 使用。
-- Producer、canonical schemas/examples、validators、repository direct consumers、tests
-  与 owner docs 在同一 change 显式硬切到唯一 current structure。
+- Output 把 final `QualityMetrics` / `WarningRecord` 显式映射为 output-owned
+  `MachineMetricsV1` / `MachineWarningV1`。显式 mapping 防止 private core fields 因
+  object spread 意外公开。
+- V1 field scope 以实现前的 current serialized projection semantic audit 为输入，而不是
+  兼容义务；不预先采用 external-config、scanner backend port 或其它相邻 changes 拟议的
+  metadata。
+- Canonical filenames 保持 `metrics.json`、`warnings.ndjson`、
+  `warnings-all.ndjson`。Metrics identity 为 `vibe-check.metrics.v1`；每个 embedded 或
+  streamed warning identity 为 `vibe-check.warning.v1`。
+- Product runtime schema definitions 统一拥有 public field constraints 与 semantic
+  descriptions；DTO types、published JSON Schemas、validators 与 generated examples 都可
+  追溯到该 owner。
+- Machine conformance 由 strict UTF-8 decoding、positive JSON/NDJSON grammar、canonical
+  schemas、warning-channel relationships、cross-artifact equality、completeness reduction
+  与 `GateResult` invariants 共同定义。
+- Product 通过 shallow product-owned import boundary 暴露 artifact-set validator 与
+  warning-stream validator；两者共享 warning decoding、framing、schema 与 diagnostics。
+- Producer 在 canonical publication 前验证 candidate bytes。Handled cleanup/write failure
+  best-effort 移除 current machine set，并映射为 Product CLI exit `2`。
+- `quality:annotate` 在 render 前验证完整 byte input。Valid non-empty / zero-byte streams
+  退出 `0`；argument、read、decoding、framing 或 schema failure 不输出 annotation 并退出
+  `2`。
+- `docs/examples/artifacts/` 提供五组 deterministic、完整的 current-v1 sets 及明确的
+  scenario/outcome matrix。Required validation 证明 schema/example drift、代表性失败以及
+  正式 producer-to-consumer 行为。
 
-## Success Criteria
+## 产品与开发结果
 
-- 对同一次已完成 invocation，调用者可以用 canonical schemas 和公开 set rules 判断三个
-  machine files 是否形成可信 current artifact set。
-- Producer、published schemas、examples 与 `quality:annotate` 使用同一 warning
-  structure；required validation 能发现 source、published schema 或 consumer drift。
-- Contract/input failure 不产生成功或部分 annotation；Product CLI output failure 退出
-  `2`，annotation infrastructure failure 也退出 `2`。
-- Core 新增内部数据或重构时，只要 `MachineMetricsV1` / `MachineWarningV1` projection
-  不变，就无需修改 machine schemas、examples 或 consumers。
+- 调用方持有三个 files 与 producing invocation outcome 时，无需检查 core implementation
+  details 即可判断它们是否构成 current-run evidence。
+- Contract-valid set 可以表达 complete、legitimate empty、gate-failed 或
+  scan-incomplete 语义；contract failure 与这些 domain outcomes 保持区分。
+- Producer、published schemas、examples 与 direct annotation consumer 使用同一 warning
+  shape 和 byte grammar。
+- Explicit DTO projection 不变时，core fields 与 human output 可以演进而不触发 machine
+  contract 变化。
+- 未来真正的 machine change 执行新的显式 version cut，不通过 core refactor 意外泄漏。
 
 ## Capabilities
 
@@ -64,18 +63,34 @@ projection，使产品 automation 可以依赖 artifacts，同时避免把 core 
 
 ### Modified Capabilities
 
-- `output-contract`：把现有 TypeScript machine artifacts 提升为 single-active、
-  schema-validated、cross-artifact-consistent 的产品 contract。
-- `test-fixtures`：增加 canonical examples、focused contract proofs 与
-  producer-to-consumer acceptance。
+- `output-contract`：把当前 TypeScript machine artifacts 提升为 single-active、
+  schema-validated、byte-defined、cross-artifact-consistent 的产品 contract。
+- `test-fixtures`：增加 canonical current-product examples、focused contract proofs 与
+  required producer-to-consumer acceptance。
 
-## Impact
+## 范围与影响
 
-- 影响 Output DTO/serialization/validation、schema generation、docs validators、
-  `quality:annotate`、required workspace checks 和对应 tests/docs。
-- `src/product/**` 继续拥有 runtime contract source；product runtime 不读取 `docs/**` 或
-  `scripts/**`。Published schemas 由 product definitions 生成并通过 drift check。
-- Console、`report.md` 与 raw scanner artifacts 保持各自既有边界；machine identity 不改变
-  human report contract。
-- 不改变 scanner、threshold、warning generation、completeness、gate evaluation、config
-  selection、canonical artifact filenames 或 Product CLI process-outcome mapping。
+受影响 owner 包括 Product Output DTO/serialization/validation、schema generation、docs
+validation、`quality:annotate`、required workspace checks、tests、semantic Cases 与 owner
+docs。`src/product/**` 保持唯一 runtime source owner；product runtime 不读取 `docs/**` 或
+`scripts/**`。
+
+Scanner algorithms、thresholds、warning generation、completeness、gate evaluation、config
+selection、canonical filenames、Product CLI process-outcome kinds、console、`report.md` 与
+raw scanner artifacts 保持既有 owner 和 semantics。
+
+## 成功标准
+
+- Runtime 与 independent docs validation 接受每个 canonical example set，并以 actionable
+  location 拒绝 focused identity、schema、decoding、framing、channel、completeness 与 gate
+  mutations。
+- Product CLI 验证 final core data、只投影一个 DTO、验证全部 machine candidates，并仅在
+  publication 成功后报告 canonical paths。
+- `quality:annotate` 只在完整 input validation 后输出 annotations；infrastructure failure
+  不输出 partial annotation，退出 `2`。
+- Required workspace verification 执行 actual producer 与 direct consumer，不实现另一套
+  parser 或 schema registry。
+- Generated schemas/examples deterministic、checked in，并在 drift 时使 required validation
+  失败。
+- Owner docs 解释 public field semantics、path/order rules、identities、validator boundaries、
+  set invariants、process outcomes 与 single-active version policy。
