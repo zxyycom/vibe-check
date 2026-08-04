@@ -9,9 +9,11 @@ warning、baseline、artifact 和输出字段由各自 owner 维护。
 ## 实施状态
 
 `src/product/**` 下的 TypeScript/Bun core 从本次 invocation-owned
-`ResolvedQualityConfig` 构造 normalized scan scope，再按 capability 产生 exact inputs。
-Semantic document selection、整体替换与 CLI precedence 由
-[Configuration](configuration.md) 维护；`ScannerDependencySnapshot` 不参与 scope selection。
+`ResolvedQualityConfig` 构造 normalized scan scope，再按 capability 产生 exact inputs。Neutral
+default、explicit 与 discovered source 共用这一 pipeline；source 只影响 provenance，不改变
+scope consumer contract。Selection、complete-document replacement 与 CLI precedence 由
+[Configuration](configuration.md#selection-and-path-rules) 维护；`ScannerDependencySnapshot` 不参与
+scope selection。
 
 ## 职责边界
 
@@ -28,16 +30,17 @@ Scanner adapter 不接收 project root 来重新发现输入，也不重新解�
 ignore、generated-file 或 changed-file 规则。收集与分类结果使用 Vibe Check-owned model；
 文件系统、Git 或 matcher 的私有结果不进入 product output。
 
-## 配置与默认排除
+## Resolved 配置与排除
 
-Include、exclude directories、generated-file globs 和 code-area definitions 来自本次
-`ResolvedQualityConfig`。Semantic document 整体替换与 built-in behavior 由
-[Configuration](configuration.md#resolvedqualityconfig-and-precedence) 维护；本 owner 只维护这些
+Include、exclude directories、generated-file globs 和 code-area definitions 全部来自本次
+`ResolvedQualityConfig`。Neutral default 的 exact policy、file-backed complete replacement 与
+CLI precedence 由 [Configuration](configuration.md#neutral-default) 维护；本 owner 只维护这些
 resolved values 如何决定 scope。
 
-默认排除继续覆盖仓库元数据、构建产物、依赖、虚拟环境、vendor、generated、fixture、
-cache、artifact、临时文件和日志目录。具体列表以当前 product config 为实现
-依据；改变列表或 precedence 必须作为独立 Config / Scan Scope change 同步本文和测试。
+Scope collector 不叠加隐藏的 built-in exclusion list。Neutral default 使用 Configuration
+定义的 exclusions；explicit 或 discovered document 使用自身 complete values，不继承 neutral
+default 或 repository policy。改变 neutral policy 或 replacement precedence 进入 Configuration；
+改变 resolved values 的收集与分类效果才进入本 owner。
 
 普通文件只有在经过这些规则后才进入 normalized scan scope。目录、设备、管道和其它特殊
 文件不是 scanner input。
@@ -109,8 +112,8 @@ failure 或 fallback，也不拥有 failure code、status、artifact 或 console
 - `.ts` / `.d.ts` / `.rs` structural inputs 和 unsupported extensions。
 - Python/Lizard 与 jscpd 只接收 normalized exact inputs，不重新扫描 project root。
 - zero-supported-input、quick profile 跳过 jscpd 和 normal no-finding。
-- 显式 semantic document 的 include、exclude、generated-file 与 code-area 规则同时用于
-  current、baseline 和 Git-failure fallback；不继承隐藏的 built-in exclusions。
+- Default、explicit 与 discovered source 映射出的 include、exclude、generated-file 与 code-area
+  rules 都同时用于 current、baseline 和 Git-failure fallback，且不继承隐藏 exclusions。
 
 涉及 output shape 时必须同步 Output owner；本 owner 不单独新增 artifact、JSON 或 warning
 字段。

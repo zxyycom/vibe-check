@@ -14,14 +14,20 @@ Proves:
 ## Case BB-CLI-ROUTING-001: Product CLI routing 与进程映射稳定
 Owner: `docs/cli.md#cli-边界`
 Entities:
+- `bun|src/product/cli-init.test.ts|product CLI routing > maps init usage and runtime failures to operation-specific exit three diagnostics`
 - `bun|src/product/cli.test.ts|product CLI routing > maps scan outcomes to the pinned process status contract`
 - `bun|src/product/cli.test.ts|product CLI routing > normalizes an explicit project root and passes scan flags through unchanged`
+- `bun|src/product/cli-init.test.ts|product CLI routing > normalizes init roots and reports neutral paths plus discovery-ready state`
 - `bun|src/product/cli.test.ts|product CLI routing > rejects unknown commands before starting a scan`
+- `bun|src/product/cli-init.test.ts|product CLI routing > shows root and init help without starting either operation`
 - `bun|src/product/cli.test.ts|product CLI routing > uses the startup cwd when project root is omitted`
 - `bun|src/product/cli.test.ts|product CLI routing > writes top-level errors to stderr and preserves ordinary and special mappings`
 Proves:
 - 正式入口归一化显式 project root，省略时使用启动 cwd，并将 product-owned scan flags 原样交给唯一 core。
 - 未知命令在 scan 启动前失败；core outcome 与顶层 error 分别投影到固定 exit 和 stdout/stderr 边界。
+- Root 与 `init` help 成功退出并展示受支持的 scan/init 命令面、missing-target 补齐与 existing-target 保留语义，不启动任何 operation。
+- `init` 对显式 project root 和省略值分别按启动 cwd 归一化，不启动 scan；首次或重复成功时 stdout 只报告两个 fixed target paths 与 `discovery-ready` 状态。
+- `init` 的未知 option、多余 project root 与 runtime failure 不启动 scan，不写 stdout，并以 operation-specific stderr diagnostic 退出 `3`。
 
 ## Case WB-CLI-CHANGED-FILES-001: Product changed-file input 路径与错误边界稳定
 Owner: `docs/cli.md#scan-flags`

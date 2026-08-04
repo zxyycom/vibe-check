@@ -9,11 +9,11 @@
 | 角色 / 任务 | 必读 | 需要时再读 |
 | --- | --- | --- |
 | 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、[Configuration](configuration.md) |
-| 修改 semantic document schema/default、`ResolvedQualityConfig` mapping、选择/CLI precedence 或 legacy migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、[Scanner 依赖选择](scanner-dependencies.md)、相邻 config tests |
+| 修改 semantic document、neutral default、Vibe Check JSON/schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init` 或 legacy migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、[Scanner 依赖选择](scanner-dependencies.md)、相邻 config tests |
 | 修改 `ScannerDependencySnapshot`、operational override、eligibility、adapter handoff、cache backend identity 或 scanner 替换 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、相关 adapter 验证和 fixture |
 | 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
 | 修改 TypeScript/Bun 产品实现、重构或 `src/product/**` 边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 对应 owner 文档、相邻代码和测试 |
-| 修改正式命令、project root、scan flags、gate planning 或进程状态 | [CLI](cli.md)、[编码规范](coding-style.md) | [Output](output.md)、产品入口测试、dogfood wrapper 测试 |
+| 修改正式 command、project root、scan flags、`init` routing、gate planning 或进程状态 | [CLI](cli.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Output](output.md)、产品入口测试、dogfood wrapper 测试 |
 | 修改 machine DTO/schema、serialization、validators、publication/evidence、console、report、artifacts 或 stdout/stderr channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、published schemas/examples、相邻 output tests |
 | 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
 | 讨论或调整开发脚本工具、annotation consumer、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Output](output.md)、`scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
@@ -43,8 +43,8 @@
 | 文档导航 | 本文档 | 定位任务主规范、规则 owner 和验证入口 |
 | 架构 | [架构](architecture.md) | 讨论组件职责、输出分层、调用链和运行边界 |
 | 工程规范 | [编码规范](coding-style.md) | 修改 TypeScript/Bun 产品、脚本、测试或验证工具 |
-| CLI | [CLI](cli.md) | 修改 operation、project root、scan flags、gate planning 或进程状态映射 |
-| Configuration | [Configuration](configuration.md) | 修改 semantic document schema/default、`ResolvedQualityConfig`、显式选择、CLI precedence、迁移或配置错误 |
+| CLI | [CLI](cli.md) | 修改 command、project root、scan flags、`init` routing、gate planning 或进程状态映射 |
+| Configuration | [Configuration](configuration.md) | 修改 semantic document、neutral default、Vibe Check JSON/schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init`、迁移或配置错误 |
 | Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
 | Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning、GateResult/evaluator 或 quality status |
 | Output | [Output](output.md) | 修改 Core-to-DTO projection、machine field/path/unit/order semantics、schemas、byte grammar、validators、publication/evidence、console、GateResult projection、metrics/report/warning/raw artifacts 或通道 |
@@ -67,8 +67,9 @@ owner 判断：活动决策提供已确认长期取舍的默认依据，owner �
 
 ### 当前产品状态
 
-产品 runtime 由 `src/product/**` 唯一拥有，正式入口是
-`bun run product:cli -- scan [project-root]`。`quality:check`、`quality:full-check` 与
+产品 runtime 由 `src/product/**` 唯一拥有，正式入口提供
+`bun run product:cli -- scan [project-root]` 与
+`bun run product:cli -- init [project-root]`。`quality:check`、`quality:full-check` 与
 `quality:scan` 保持 omitted-gate 观察行为；`quality:gate` 显式请求 full
 `regressions`。所有 `quality:*` 与 `scripts/quality/scan.ts` 都只作为显式传入 Vibe
 Check 仓库根的单向 dogfood wrapper。
@@ -76,11 +77,14 @@ Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当
 [架构](architecture.md)、[CLI](cli.md) 与 [脚本工具](script-tooling.md) 的 TypeScript/Bun
 边界执行。
 
-Public project config 当前使用 complete、closed semantic document v1，`version` 固定为
-`"1"`；显式 document 或 built-in document 经同一 runtime schema 映射为 invocation-owned
-`ResolvedQualityConfig`。Scanner execution settings 独立解析为 `ScannerDependencySnapshot`。
-Current file workflow 只接受显式 strict-JSON `--config`；planned discovery、authoring 与 init
-边界见 [Configuration](configuration.md)。
+Public project config 使用 complete、closed semantic document v1，`version` 固定为 `"1"`。
+Scan 按 `explicit > discovered > default` 选择唯一 source；file-backed `config.json` 支持
+comments、trailing commas 与 strict JSON subset，任一 gate 要求 file-backed policy。
+`init` 确保 fixed config 与 sibling editor schema 存在：已有安全文件保持原字节，缺失文件分别
+由 neutral default 与 editor projection 补齐；runtime validation 由 embedded Product schema
+决定。完整 selection、default、schema、initialization 与 mapping contract 只见
+[Configuration](configuration.md)。Scanner execution settings 独立解析为
+`ScannerDependencySnapshot`。
 
 Current machine output 是 single-active
 `vibe-check.metrics.v1` / `vibe-check.warning.v1` contract。Runtime schema source、
@@ -92,12 +96,13 @@ public field constraints/descriptions，published schemas/examples 是可追溯�
 
 ## Current public config schema and example
 
-完整 field、version、selection、precedence 与 migration contract 只在
+完整 field、neutral default、document grammar/schema、selection、precedence、`init` 与 migration
+contract 只在
 [Configuration](configuration.md) 维护；本节只作 material 索引。
 
 | Current material | Link |
 | --- | --- |
-| Semantic config v1 JSON Schema 2020-12 | [vibe-check-config.schema.json](schemas/vibe-check-config.schema.json) |
+| Semantic config v1 field schema JSON Schema 2020-12 | [vibe-check-config.schema.json](schemas/vibe-check-config.schema.json) |
 | Canonical semantic config v1 | [vibe-check-config.json](examples/json/vibe-check-config.json) |
 
 ## Current machine schemas and examples
@@ -128,8 +133,8 @@ materials；它们使用 separate registry/traversal，不是 current config 或
 | --- | --- |
 | 组件职责、输出分层、调用链和运行边界 | [架构](architecture.md) |
 | 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
-| Product CLI operation、project root、scan flags、gate planning 和进程状态映射 | [CLI](cli.md) |
-| Semantic document schema/default、`ResolvedQualityConfig` mapping、选择/替换/CLI precedence、legacy migration 和配置错误 | [Configuration](configuration.md) |
+| Product CLI command、project root、scan flags、`init` routing、gate planning 和进程状态映射 | [CLI](cli.md) |
+| Semantic document、neutral default、Vibe Check JSON/runtime/editor schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init`、legacy migration 和配置错误 | [Configuration](configuration.md) |
 | 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
 | 指标模型、warning channels、baseline、GateResult/evaluator 和最终 quality status | [Quality Metrics](quality-metrics.md) |
 | 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
@@ -143,12 +148,12 @@ materials；它们使用 separate registry/traversal，不是 current config 或
 | 术语 | 定义 |
 | --- | --- |
 | owner 文档 | 某类规则的完整解释和维护位置；其它文档只保留摘要或引用。 |
-| Product CLI | `bun run product:cli -- scan [project-root]` 正式入口，负责 operation、project root、scan flags、gate planning 和进程状态映射。 |
+| Product CLI | 提供 `scan [project-root]` 与 `init [project-root]` 的正式入口，负责 command routing、project root、scan flags、gate planning、init result 和进程状态映射。 |
 | Dogfood wrapper | 显式传入 Vibe Check 仓库根并单向调用 Product CLI 的 `quality:*` 或脚本入口。 |
 | Core | 文件收集、指标聚合、warning、GateResult 和报告数据的实现归属。 |
 | Scanner | 内置检测或外部工具适配，负责采集、解析和归一化检测结果。 |
-| Semantic document | Configuration 定义的 complete、closed、backend-neutral public config v1 document。 |
-| `ResolvedQualityConfig` | 由 selected semantic document 与仅有的 public CLI overrides 显式映射出的 invocation-owned readonly product config。 |
+| Semantic document | Configuration 定义的 complete、closed、backend-neutral public config v1；file-backed document 只可额外包含 optional `$schema` editor metadata。 |
+| `ResolvedQualityConfig` | 由 selected semantic value 与仅有的 public CLI overrides 显式映射出的 invocation-owned readonly product config。 |
 | `ScannerDependencySnapshot` | 在 scan work 前解析一次、供 current/baseline 复用的 internal scanner executable/args/availability/concurrency settings。 |
 | Operational override | 只修改 `ScannerDependencySnapshot` 的 supported environment input；不参与 semantic document selection 或 `ResolvedQualityConfig` mapping。 |
 | Exact inputs | Product Core 从 normalized scan scope 为一个 capability 批准的精确 path 集合；adapter 不自行扩大集合。 |

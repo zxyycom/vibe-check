@@ -13,8 +13,8 @@ External project 需要通用观察起点，也需要由项目自身持有阻断
 - Explicit `--config` 优先；省略 flag 时只发现 `.vibe-check/config.json`。选中的 file 是本次
   scan 的 complete policy。
 - 任一 gate 使用 explicit 或 discovered file-backed config，并在 scan work 前完成配置校验。
-- `init [project-root]` 将 neutral default 完整 materialize 为 commented `config.json`，同时
-  生成 `config.schema.json`。
+- `init [project-root]` 确保 commented `config.json` 与 `config.schema.json` 存在；已有的 normal
+  non-symlink target 保持原字节，缺失 target 由 neutral default 与 editor schema 补齐。
 - Repository dogfood 把自身 policy 提交到 fixed discovery path，并继续通过正式 Product CLI。
 
 ## Scope and Boundaries
@@ -42,9 +42,10 @@ External project 需要通用观察起点，也需要由项目自身持有阻断
 - Clean external project 可以直接运行 ungated scan，scope 和报告只使用 project-neutral values。
 - Config validation 是 gate scan 的首个 runtime prerequisite；通过后才进入 dependency、scanner、
   baseline、cache 与 artifact work。
-- `init` 生成的 semantic value 与 in-memory neutral default 相等；两种 source 产生相同 scope、
-  checks 和 report settings。
-- Existing tool-directory entries 和 config targets 在 initialization failure/race 中保持安全。
+- `init` 新建的 config semantic value 与 in-memory neutral default 相等；两种 source 产生相同
+  scope、checks 和 report settings。
+- 首次与重复 `init` 都确保两个固定 target 存在：已有安全文件保持原字节，只补齐缺失文件；
+  unsafe target、create race 或 handled write failure 保持 ownership safety。
 - Product-owned schema 决定 runtime validation；sibling schema 由 editor/drift validation 独立负责。
 - `quality:*` 通过 discovery 使用 repository policy，并保持 profile、gate、args 和 process outcome
   pass-through。

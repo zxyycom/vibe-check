@@ -3,8 +3,9 @@
 ## 项目定位
 
 - Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun
-  代码质量检测 CLI；正式本地入口是
-  `bun run product:cli -- scan [project-root]`。
+  代码质量检测 CLI；正式本地入口提供
+  `bun run product:cli -- scan [project-root]` 与
+  `bun run product:cli -- init [project-root]`。
 - `quality:check`、`quality:full-check` 和 `quality:scan` 保持省略 gate 的观察行为；
   `quality:gate` 通过 full `regressions` policy 显式启用阻断。它们与
   `scripts/quality/scan.ts` 都是显式传入仓库根并单向调用产品入口的 dogfood wrapper；
@@ -13,8 +14,9 @@
 
 ### 当前实现状态
 
-- `src/product/**` 是唯一产品运行时源码 owner；参数、默认配置、扫描 core、scanner
-  adapters、warnings 和 output 均由该目录拥有。
+- `src/product/**` 是唯一产品运行时源码 owner；参数、neutral default、Vibe Check JSON
+  document/schema、配置选择与 discovery、`init`、扫描 core、scanner adapters、warnings 和
+  output 均由该目录拥有。
 - `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并单向调用产品入口；仓库已移除
   Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink。
 
@@ -24,7 +26,8 @@
 - Core：扫描计划、文件收集、指标模型、聚合、warning、报告数据。
 - Scanner：内置检测、外部工具适配、缓存、原始输出、解析错误。
 - Output：人读报告、机器输出、CI 摘要和 annotation。
-- Config：默认阈值、include/exclude、generated file、project profile。
+- Config：neutral default、complete document/schema、选择与 discovery、
+  `ResolvedQualityConfig` mapping、CLI precedence 和 `init`。
 
 ## 工作方式
 

@@ -1,9 +1,10 @@
 # Configuration
 
-本文是 Vibe Check public project configuration 的主规范。它完整维护 semantic document
-schema、内置默认值、显式选择、`ResolvedQualityConfig`、CLI precedence、迁移和配置失败边界。
-Scan scope、scanner dependency、quality warning、artifact 内容与 external file workflow 分别由
-对应 owner 维护；其它文档只摘要本层事实并链接本文。
+本文是 Vibe Check public project configuration 的主规范。它完整维护 semantic document、
+neutral default、Vibe Check JSON grammar、runtime/editor schema、配置选择与 discovery、
+`ResolvedQualityConfig`、CLI precedence、`init`、迁移和配置失败边界。Scan scope、scanner
+dependency、quality warning 与 artifact 内容由对应 owner 维护；其它文档只说明怎样消费本层
+结果并链接本文。
 
 ## Current semantic config v1
 
@@ -14,36 +15,193 @@ Scan scope、scanner dependency、quality warning、artifact 内容与 external 
 - [`src/product/config-schema.ts`](../src/product/config-schema.ts) 是 exact fields、required / optional
   status、closed shapes、types、enum 和描述的 runtime source。
 - [`vibe-check-config.schema.json`](schemas/vibe-check-config.schema.json) 是从同一 source 生成的
-  JSON Schema 2020-12 publication。
+  semantic field JSON Schema 2020-12 publication；它不是项目本地 sibling editor schema。
 - [`vibe-check-config.json`](examples/json/vibe-check-config.json) 是唯一 canonical semantic
   example。External fixture 的
   [`.vibe-check/config.json`](../fixtures/projects/configured-typescript/.vibe-check/config.json)
   只用于正式入口验收，不是第二个 canonical example。
-- `src/product/config.ts` 的 built-in document 通过同一 runtime schema 与 semantic
+- `src/product/config.ts` 的 `NeutralProjectConfig` 通过同一 runtime schema 与 semantic
   post-validation，再映射成默认 `ResolvedQualityConfig`；不存在宽松的第二套默认 schema。
+- File-backed document 可增加 optional `$schema` editor metadata；semantic v1 field tree 保持
+  complete、closed，且 scanner dependency provenance 不进入 `ResolvedQualityConfig` 或
+  machine output。
 
-Current file workflow 通过 `--config` 显式选择 UTF-8 strict JSON。Planned
-[external project config workflow](../openspec/changes/add-external-project-config-workflow/README.md)
-拥有 `.vibe-check/config.json` discovery、comment-capable grammar、initializer 与 `$schema`
-composition；它复用本节的 semantic runtime source，不复制 field tree，也不把 scanner
-dependency provenance 加入 `ResolvedQualityConfig` 或 machine output。
+## Neutral default
+
+`NeutralProjectConfig` 是 ungated scan 的 complete、repository-neutral policy，也是 `init` 创建
+缺失 config target 时使用的唯一 semantic value。本节是其 exact current value 的长期文档 owner：
+
+```json
+{
+  "acceptedWarnings": [],
+  "artifactDir": "artifacts/vibe-check",
+  "cacheDir": ".cache/vibe-check",
+  "checks": {
+    "duplication": {
+      "defaultMinimumTokens": 75,
+      "fragments": {
+        "changedDelta": 1
+      },
+      "minimumTokensByCodeArea": {}
+    },
+    "files": {
+      "codeLines": {
+        "absoluteFloor": 300,
+        "changedDelta": 80,
+        "lowDecisionTokenAllowance": {
+          "codeLineFloor": 500,
+          "maxDecisionTokens": 10
+        }
+      }
+    },
+    "functions": {
+      "codeLines": {
+        "absoluteFloor": 50,
+        "changedDelta": 20,
+        "lowComplexityAllowance": {
+          "codeLineFloor": 150,
+          "maxCyclomaticComplexityExclusive": 5
+        }
+      },
+      "cyclomaticComplexity": {
+        "absoluteFloor": 10,
+        "changedDelta": 5
+      },
+      "parameterCount": {
+        "absoluteFloor": 5,
+        "changedDelta": 2
+      }
+    }
+  },
+  "codeAreas": {
+    "project": {
+      "description": "This project",
+      "excludeGlobs": [],
+      "globs": ["**/*"],
+      "warningPolicy": "moderate"
+    }
+  },
+  "excludeDirs": [
+    ".git",
+    ".vibe-check",
+    ".cache",
+    ".venv",
+    "artifacts",
+    "build",
+    "dist",
+    "node_modules",
+    "target",
+    "vendor"
+  ],
+  "generatedFiles": ["**/generated/**", "**/*.generated.*"],
+  "include": ["**/*"],
+  "report": {
+    "footerGeneratedBy": "Vibe Check",
+    "footerNotice": "Review findings for this project.",
+    "nonBlockingNotice": "This project scan is observational unless a gate is explicitly enabled.",
+    "showWatchlist": true,
+    "timeZone": "UTC",
+    "title": "This project quality report",
+    "topN": 20,
+    "watchlistMax": 50
+  },
+  "version": "1"
+}
+```
+
+Default source 只用于没有 file-backed policy 的 ungated invocation，provenance 是
+`default (not persisted)`。每次 mapping 都产生 detached、invocation-owned value；显式 CLI
+overrides 仍按 [ResolvedQualityConfig and precedence](#resolvedqualityconfig-and-precedence)
+应用。`init` 新建的 config 移除 `$schema` 后必须与此 semantic value 相等。
 
 ## Selection and path rules
 
-正式入口的 current explicit form 是：
+正式 scan form 是：
 
 ```text
-bun run product:cli -- scan [project-root] --config <file>
+bun run product:cli -- scan [project-root] [--config <file>]
 ```
 
-`--config` 是单值参数，重复传入会在 scan work 前失败。相对 path 基于 normalized project
-root 按平台原生规则解析；绝对 path 保持绝对。相对 path 中的 `..` 仍只以 project root 为
-基准，不改用启动 cwd 或 config 文件所在目录。
+Product Config 在 dependency preflight 前按以下顺序选择唯一 source：
 
-省略 `--config` 时，本次 invocation 使用 built-in semantic document。当前 runtime 不在
-project root、父目录、启动 cwd、home 或 sibling file 中发现 config，也不组合多份 document。
-Operational overrides 不参与 semantic document selection 或 merge；其独立边界见
+1. `--config <file>` 指定的 explicit file。
+2. `<project-root>/.vibe-check/config.json` 中存在的 discovered file。
+3. 固定 candidate 不存在、gate disabled 时的 neutral default。
+
+Explicit 与 discovered 统称 file-backed source。任一 gate 必须使用 file-backed policy；两者
+都不存在时，gate 在 scan work 前失败，不回退 neutral default。`--config` 是单值参数，重复
+传入会在 scan work 前失败。Explicit relative path 基于 normalized project root 按平台原生
+规则解析；absolute path 保持 absolute。相对 path 中的 `..` 仍只以 project root 为基准，
+不改用启动 cwd 或 config 文件所在目录。
+
+Fixed path 是唯一 implicit candidate；runtime 不向父目录、启动 cwd、home 或 sibling file
+继续搜索。Explicit path 一经提供即为 final selection。省略 flag 时，fixed candidate 只在
+确实不存在时允许 gate-disabled invocation 使用 default；candidate inspection 的其它失败，
+以及 selected explicit/discovered file 的 missing、non-regular、unreadable 或 invalid result
+都是 terminal config error，不尝试其它 source。
+
+Selected file 每次 invocation 只加载、校验和映射一次。Readonly selection context 保存
+resolved config、`default` / `explicit` / `discovered` source，以及 file-backed source 的
+normalized absolute path；downstream scan stages 只消费 resolved config。Operational overrides
+不参与 selection 或 merge；其独立边界见
 [Scanner 依赖选择](scanner-dependencies.md#invocation-scoped-dependency-snapshot)。
+
+## Vibe Check JSON and schema authority
+
+File-backed `config.json` 使用 UTF-8 Vibe Check JSON。Production loader 执行 fatal UTF-8 decode，
+并接受 line comments、block comments、trailing commas 与 strict JSON subset；随后使用 embedded
+`ConfigDocumentSchema` 和 semantic post-validation。Optional `$schema` 只用于 editor linkage，
+loader 在 mapping 前移除它；其它 unknown field 仍被 closed document schema 拒绝。
+
+Schema authority 分为三个明确 surface：
+
+1. `SemanticProjectConfigV1Schema` 是 semantic field tree 的 runtime source；published
+   [`vibe-check-config.schema.json`](schemas/vibe-check-config.schema.json) 带稳定 `$id`，供
+   public schema consumer 与独立验证使用。
+2. Embedded `ConfigDocumentSchema` 在同一 semantic source 上只增加 optional `$schema`，并
+   单独决定 file-backed runtime acceptance。
+3. `init` 生成的 sibling `config.schema.json` 是 composed document schema 的 anonymous、
+   deterministic editor projection。Runtime 不读取或信任该 sibling；修改、缺失或损坏它
+   不改变 embedded runtime validation result。
+
+因此 `$schema` reference 不授权 external schema 改写字段契约，也不允许 runtime 在 sibling
+schema 与 embedded schema 之间选择。Strict JSON document 和等价的 annotated document 必须
+映射为相同 detached semantic value。
+
+## Initialization
+
+正式初始化入口是：
+
+```text
+bun run product:cli -- init [project-root]
+```
+
+省略 project root 时使用 startup cwd；relative root 基于 startup cwd 归一化。`init` 是
+non-interactive configuration operation，不启动 dependency、scanner、baseline、cache 或 scan
+artifact work。缺失 target 由 neutral default 与 editor projection materialize 为：
+
+```text
+<project-root>/.vibe-check/config.json
+<project-root>/.vibe-check/config.schema.json
+```
+
+两份 candidate 在任何 filesystem mutation 前于内存中完成 UTF-8/LF、schema projection 与
+neutral-value round-trip self-validation。`config.json` 使用 two-space indentation、section
+comments、trailing newline 和 `"$schema": "./config.schema.json"`；sibling schema 使用 JSON
+Schema 2020-12。
+
+`init` 是可重复的 ensure operation：
+
+1. Project root 必须是 existing directory。Missing `.vibe-check` 由本次 invocation 创建；已存在
+   的 normal、non-symlink directory 原样复用。
+2. Existing normal non-symlink target file 保持原 bytes；missing target 使用 exclusive creation
+   写入对应 candidate。两份 target 都已存在时不写文件并退出 `0`。
+3. Unsafe target 或 exclusive-create race 以 exit `3` 失败。Handled failure 只清理本 invocation
+   已创建的 target；tool directory 也只在本 invocation 创建且仍为空时尝试清理。
+
+Scan-time production loader 拥有 selected config 的内容校验；sibling schema 继续只服务 editor。
+成功时 stdout 报告两个 normalized absolute target paths 和 `discovery-ready` state；该 state
+表示固定 discovery paths 已就位，不替代 scan-time config validation。
 
 ## Complete semantic document
 
@@ -100,16 +258,16 @@ document，不修改 raw input，也不从 defaults 补字段。
 
 ## ResolvedQualityConfig and precedence
 
-Product Config 把 selected document 显式映射为 deeply readonly、invocation-owned
+Product Config 把 selected semantic value 显式映射为 deeply readonly、invocation-owned
 `ResolvedQualityConfig`。只有两个 public CLI overrides 在 mapper boundary 应用：
 
 1. `--top-n` 覆盖 `report.topN`。
 2. `--artifact-dir` 覆盖 `artifactDir`。
 
-调用者未显式传入这两个 options 时使用 selected document value；其它字段没有 CLI patch。
-显式 document 整体替换 built-in semantic document，不执行 partial merge。Current、baseline 与
-Git-failure fallback collection 复用同一个 resolved value，不重新读取文件、重建 defaults 或
-读取 scanner execution settings。
+调用者未显式传入这两个 options 时使用 selected semantic value；其它字段没有 CLI patch。
+Explicit 或 discovered document 是 complete policy，不执行 partial merge；neutral default 也
+通过同一 mapper。Current、baseline 与 Git-failure fallback collection 复用同一个 resolved
+value，不重新选择 source、读取文件、重建 defaults 或读取 scanner execution settings。
 
 Scanner executable、args、availability protocol、platform default 与 bounded concurrency 不属于
 `ResolvedQualityConfig`。它们由独立的 `ScannerDependencySnapshot` 承接；operational override
@@ -119,14 +277,19 @@ Scanner executable、args、availability protocol、platform default 与 bounded
 
 ## Failure and hard-cut behavior
 
-Config owner 在 banner、scanner、baseline、cache 和 artifact work 前完成 regular-file、UTF-8、
-strict JSON、runtime schema 与 semantic post-validation。文件不存在、不是 regular file、不可读、
-编码/JSON 无效或 contract 不匹配时：
+Config owner 在 banner、dependency preflight、scanner、baseline、cache 和 artifact work 前完成
+source selection，以及 file-backed source 的 regular-file、UTF-8、Vibe Check JSON、runtime
+document schema 与 semantic post-validation。Gate 缺少 file-backed policy，selected file
+不存在、不是 regular file、不可读、编码/syntax 无效或 contract 不匹配时：
 
 - stderr 报告包含 resolved config path 的 config error；
 - Product CLI 退出 `3`；
-- 不打印 scan banner，不启动 scanner/baseline，不创建 scan artifacts，也不回退 built-in
-  config。
+- 不打印 scan banner，不解析 scanner dependency，不启动 scanner/baseline，不创建 scan
+  artifacts，也不回退其它 config source。
+
+`init` 的 invalid root、unsafe tool-directory/target、exclusive-create race、write/close failure
+或 incomplete cleanup 同样以 operation/path/stage diagnostic 退出 `3`。Initialization failure
+不进入 scan pipeline；handled cleanup 只按 [Initialization](#initialization) 的 ownership 边界处理。
 
 包含 legacy top-level `lizard`、`scc`、`jscpd` 或 `tools` 的 object 执行 hard cut：新 binary
 以同样的 pre-scan exit `3` 拒绝，diagnostic 给出 current version、semantic landing 和
@@ -195,8 +358,9 @@ Rollback 以 binary/config pair 为单位：回退 old binary 时同时恢复与
 
 ## Change synchronization
 
-改变 public field、version、required status、enum、CLI precedence 或 migration behavior 时，
-必须在同一 change 同步 runtime schema source、derived type、generated schema、canonical
-example、本 owner 与对应 tests。External discovery/init/comment grammar 变化进入 external
-workflow；scanner executable/args/concurrency 变化进入 Scanner Dependencies；machine warning
-`ruleId` / `sourceTool` 或 serialized shape 变化必须进入独立 Output contract change。
+改变 public field、version、required status、enum、neutral default、Vibe Check JSON grammar、
+document/schema composition、selection/discovery、CLI precedence、initializer 或 migration
+behavior 时，必须在同一 change 同步 runtime source、derived type、published/generated schema、
+canonical example、本 owner 与对应 tests。Scanner executable/args/concurrency 变化进入 Scanner
+Dependencies；machine warning `ruleId` / `sourceTool` 或 serialized shape 变化必须进入独立
+Output contract change。

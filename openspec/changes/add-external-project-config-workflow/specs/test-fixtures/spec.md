@@ -3,9 +3,9 @@
 ### Requirement: External project configuration workflow fixture
 
 Repository SHALL 使用 existing external project fixture 的独立 temporary copies，通过正式 Product
-CLI 证明 zero-config observation、gate policy prerequisite、init/discovery、explicit precedence、
-document grammar、safe initialization 与 schema authority。Test-owned scanner support MAY 用于保持
-结果确定。
+CLI 证明 zero-config observation、gate policy prerequisite、init/discovery、repeat ensure、explicit
+precedence、document grammar、safe initialization 与 schema authority。Test-owned scanner support
+MAY 用于保持结果确定。
 
 #### Scenario: Clean project proves default and gate boundary
 
@@ -16,7 +16,7 @@ document grammar、safe initialization 与 schema authority。Test-owned scanner
 #### Scenario: Initialized project proves source equivalence
 
 - **WHEN** clean fixture copy 执行 init，再通过 fixed discovery 执行 scan
-- **THEN** production loader 发现并解析 generated config/schema
+- **THEN** production loader 发现并解析 generated config；sibling schema 独立证明 editor projection
 - **AND** semantic value、scope、exact inputs 与 report settings 等同于 in-memory neutral default
 
 #### Scenario: Explicit and invalid files prove selection finality
@@ -25,12 +25,14 @@ document grammar、safe initialization 与 schema authority。Test-owned scanner
 - **THEN** valid explicit file 控制 scan；invalid explicit file 返回该文件自身的 config error
 - **AND** 两条路径均保持 persisted inputs 原有内容
 
-#### Scenario: Initialization and schema boundaries preserve project state
+#### Scenario: Repeated initialization preserves and completes project state
 
-- **WHEN** acceptance 覆盖 existing tool-directory entries、target races、handled writes 与 changed
-  sibling schema
-- **THEN** initializer ownership rules 保留 existing bytes，并清理 invocation-owned partial entries
-- **AND** runtime validation 始终由 embedded Product schema 承担
+- **WHEN** acceptance 覆盖 two-target no-op、one-target fill、existing tool-directory entries、target
+  races、handled writes 与 changed sibling schema
+- **THEN** initializer 保留 existing file bytes，只补齐 missing file，并清理 invocation-owned
+  partial entries
+- **AND** existing normal targets 按 presence contract 保留；后续 runtime validation 始终由
+  embedded Product schema 承担
 
 ### Requirement: Repository dogfood config is isolated
 

@@ -46,8 +46,8 @@ Cargo 产品 gate。
 
 - Product unit tests 证明 normalized model、parser、ordering、cache identity、warning
   algorithm、GateResult evaluation 和 output projection。
-- Product entry tests 证明正式命令、显式 semantic document、gate process outcome 与 dogfood
-  wrapper 的外部行为。
+- Product entry tests 证明正式 command、configuration selection/init、gate process outcome 与
+  dogfood wrapper 的外部行为。
 - Productization parity 已一次性证明源码位置和入口改变没有修改 TypeScript behavior。
 - Workspace validation 证明 consumer、docs 和 automation 接线仍可工作。
 
@@ -57,15 +57,15 @@ requirement。
 
 已有缺陷或 coverage 缺口进入后续 change，不借 owner 搬移改变既有测试范围或预期结果。
 
-Semantic config evidence 按边界分层：Product tests 证明 runtime schema、detached document、
-`ResolvedQualityConfig` mapping、CLI precedence、legacy hard cut 与
-`ScannerDependencySnapshot` separation；docs validation 对
-[`vibe-check-config.schema.json`](schemas/vibe-check-config.schema.json) 和唯一
-[`vibe-check-config.json`](examples/json/vibe-check-config.json) 执行 generation drift 与
-independent acceptance；formal entry 显式扫描 external fixture。Discovery、comment-capable
-grammar、initializer 与 `$schema` composition 属于 planned
-[external config workflow](../openspec/changes/add-external-project-config-workflow/README.md)，不属于
-current Product tests。
+Semantic config evidence 按 owner boundary 分层。Product tests 证明
+[Configuration](configuration.md) 定义的 neutral default、embedded semantic/document schema、
+strict/annotated Vibe Check JSON equivalence、detached mapping、selection、CLI precedence、gate
+file prerequisite、legacy hard cut、repeat ensure / initializer ownership 与 `ScannerDependencySnapshot`
+separation。Docs validation 对 [`vibe-check-config.schema.json`](schemas/vibe-check-config.schema.json)
+和唯一 [`vibe-check-config.json`](examples/json/vibe-check-config.json) 执行 generation drift 与
+independent acceptance；它不把 generated sibling editor schema 提升为 runtime authority。
+Formal entry 与 dogfood evidence 只证明 public workflow 到达这些 Product boundaries，不复制
+Configuration 的 exact neutral value 或 selection contract。
 
 ## Machine output proof layers
 
@@ -141,9 +141,11 @@ Case，一个 Case 可以映射多个 entities；不得把 schema fields 当成 
 - `output/machine/machine-output.test.ts`、`validation.test.ts` 与 `publication.test.ts`：
   schema/DTO projection、serializers、byte grammar、artifact-set predicates 与 validated
   publication failure boundaries。
-- `config-file.test.ts`、`scanner-dependencies.test.ts` 与 `args.test.ts`：semantic document v1
-  parsing、`ResolvedQualityConfig` mapping、legacy hard cut、`ScannerDependencySnapshot`
-  resolution、option presence 与 gate parser/help/scan-plan normalization。
+- `config-document.test.ts`、`config-file.test.ts`、`config-selection.test.ts`、`config-init.test.ts`、
+  `scanner-dependencies.test.ts` 与 `args.test.ts`：semantic/document schema、Vibe Check JSON、
+  `ResolvedQualityConfig` mapping、config selection、repeat init / ownership、legacy hard cut、
+  `ScannerDependencySnapshot` resolution、option presence 与 gate parser/help/scan-plan
+  normalization。
 
 这些 tests 只依赖 Vibe Check-owned models。scc CSV row、Lizard CSV row 和 jscpd reporter
 objects 可以作为 parser fixture 输入，但不得成为 Core / Output contract。
@@ -174,13 +176,12 @@ Rust CLI project fixtures 和 Rust dependency / grammar characterization fixture
 现有 TypeScript test 无法证明某个长期 contract，先把缺口记录为后续 change。
 
 可由正式入口扫描的 external project fixture 与 unit/scanner protocol support 分开：
-`fixtures/projects/configured-typescript/` 提供 explicit `.vibe-check/config.json` semantic document
-v1、eligible/excluded/generated source 与受控 scanner support。
-`src/product/configured-project.test.ts` 从 fixture root 外显式传入
-`--config .vibe-check/config.json`，证明 path、整体替换、CLI precedence、scope、semantic
-checks、code area、warning、artifact、complete/empty/failed conclusion 与退出状态。受控 executable
-只通过 operational overrides 到达 `ScannerDependencySnapshot`，不进入 semantic document，也不
-定义稳定 Core/Output contract。
+`fixtures/projects/configured-typescript/` 提供 complete semantic project material、
+eligible/excluded/generated source 与受控 scanner support。Configuration workflow acceptance 在
+isolated temporary copies 中建立 clean、initialized、partially initialized、discovered 或 explicit
+state，再通过正式 Product CLI 证明 source selection 进入同一个 scope/scan pipeline。受控
+executable 只通过 operational overrides 到达 `ScannerDependencySnapshot`，不进入 semantic
+document，也不定义稳定 Core/Output contract。
 
 Gate acceptance 复用同一 checked-in fixture，不新增平行 project fixture：
 `src/product/cli-omitted-gate-baseline.test.ts` 固定 omitted request 的既有行为；
@@ -216,15 +217,18 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 入口 tests 必须证明：
 
 - `bun run product:cli -- scan [project-root]` 到达唯一 product core。
+- `bun run product:cli -- init [project-root]` 只确保 Product Config 拥有的 discovery paths
+  存在，不启动 scan work；重复执行保留 existing target bytes，并只补齐 missing target。
 - 省略 project root 时使用启动 cwd。
 - `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan`、
   `quality:gate` 只作为单向 wrapper，并显式传入 Vibe Check repository root；前三个
   package invocations 保持 omitted gate，`quality:gate` 固定 full `regressions` request。
 - 正式入口与 wrapper 保持 product-owned flags、profile、gate、console、artifact 和 process
   status mapping。
-- 显式 config acceptance 使用 checked-in external project 的
-  `.vibe-check/config.json`，证明 semantic document version/checks、相对 path、整体替换、resolved scope、
-  warning、artifact、legacy/invalid config exit `3`，且不依赖 implicit discovery。
+- Configuration acceptance 使用 isolated external project copies 证明 neutral observation、
+  file-backed gate prerequisite、repeat init、single-file fill、discovery、explicit precedence、
+  invalid selected document 与 sibling-schema independence；行为细节和安全边界只引用
+  [Configuration](configuration.md)，本 owner 只分配 proof responsibility。
 - Dependency acceptance 证明 supported operational overrides 只进入 `ScannerDependencySnapshot`；invalid
   `_ARGS` exit `2` 发生在 banner/cache/artifacts 前，而 skipped/no-input capability 不探测或启动
   executable。
@@ -249,7 +253,8 @@ cross-surface mapping 和 output 边界的代表性路径。
 - `bun run typecheck:scripts` 和 `bun run lint:scripts` 继续验证尚留在 `scripts/**` 的
   consumers / wrappers，不代替 product typecheck、lint 和 test。
 - `quality:check` / `quality:full-check` / `quality:scan` 省略 gate，`quality:gate` 显式请求
-  full `regressions`；它们均调用 `src/product/**` 的同一 core。
+  full `regressions`；它们均让 Product Config 从显式 repository root 发现同一 checked-in
+  policy，再调用 `src/product/**` 的同一 core。
 - Foundation 只复制 product runtime 实际可达的 helper；仍在 submodule 中的开发 helper
   tests 不因此成为 product tests。
 - 新 checkout、Bun、pnpm 和 external scanner installation requirements 由 script tooling

@@ -15,7 +15,6 @@ import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { DEFAULT_CONFIG } from "./config.ts";
 import {
   validateMachineArtifactSetV1,
   type MachineMetricsV1
@@ -156,7 +155,10 @@ describe("formal CLI explicit configuration", () => {
       ], markerEnvironment);
       assert.equal(invalid.status, 3);
       assert.equal(invalid.stdout, "");
-      assert.match(invalid.stderr, /Fatal error in quality scan: failed to load config/);
+      assert.match(
+        invalid.stderr,
+        /Fatal error in quality scan: selected explicit config: failed to load config/
+      );
       assert.ok(invalid.stderr.includes(configPath));
       assert.equal(existsSync(markerPath), false);
       assert.equal(existsSync(cacheDir), false);
@@ -219,42 +221,6 @@ describe("formal CLI explicit configuration", () => {
     }
   });
 
-  it("does not discover a project config when --config is omitted", { timeout: 30_000 }, () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-omitted-config-"));
-    const artifactDir = join(projectRoot, "artifacts/default-scan");
-
-    try {
-      writeFixtureFile(projectRoot, "vibe-check.config.json", "{");
-      writeFixtureFile(projectRoot, "docs/example.md", "# Default scan\n");
-
-      const result = runProductCli([
-        "scan",
-        projectRoot,
-        "--profile",
-        "quick",
-        "--artifact-dir",
-        "artifacts/default-scan"
-      ], {
-        VIBE_CHECK_SCC_ARGS: JSON.stringify([
-          resolve(fixtureRoot, "tools/controlled-scanner.ts"),
-          "scc"
-        ]),
-        VIBE_CHECK_SCC_CMD: "bun"
-      });
-      assertCommandSucceeded(result, "scan without --config");
-      assert.equal(result.stderr, "");
-
-      const metrics = readMetricsArtifact(artifactDir);
-      assert.equal(metrics.metadata.configVersion, DEFAULT_CONFIG.version);
-      assert.equal(
-        metrics.metadata.tools.find((tool) => tool.name === "scc")?.version,
-        "scc version 3.7.0"
-      );
-    } finally {
-      rmSync(projectRoot, { force: true, recursive: true });
-    }
-  });
-
   it("returns a warning without a quality verdict when no capability has eligible input", { timeout: 30_000 }, () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-empty-scan-"));
     const projectRoot = join(tempRoot, "configured-project");
@@ -299,7 +265,10 @@ describe("formal CLI explicit configuration", () => {
         VIBE_CHECK_SCC_ARGS: "not-json-private-value"
       });
       assert.equal(invalidOperational.status, 2);
-      assert.equal(invalidOperational.stdout, "");
+      assert.equal(
+        invalidOperational.stdout,
+        `Config: explicit ${configPath}\n`
+      );
       assert.match(invalidOperational.stderr, /VIBE_CHECK_SCC_ARGS/);
       assert.match(invalidOperational.stderr, /must be a JSON array of strings/);
       assert.match(invalidOperational.stderr, /provide a valid array or unset/);

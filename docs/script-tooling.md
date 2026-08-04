@@ -37,13 +37,18 @@ Vibe Check 拥有的开发脚本入口是：
   `src/product/cli.ts` 的正式入口。
 - `quality:check`、`quality:full-check`、`quality:scan` 与 `quality:gate` 通过该
   wrapper 到达同一产品 core；wrapper 只透明传递参数和产品 exit。
+- Wrapper 显式传入 repository root，但不传入默认 `--config`；Product Config 从
+  `<repo-root>/.vibe-check/config.json` 发现 checked-in repository policy。调用者提供
+  `--config` 时仍由 Product 保持 explicit precedence。
 - `src/product/**` 拥有 TypeScript 运行时闭包和唯一默认配置；开发脚本不保留第二套参数、
   配置或扫描 core。
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
   check 执行完整 Bun 测试面及语义 Case 闭合；required profile 还调度 formal
   producer-to-actual-annotation acceptance child。
-- Current schema/examples checks 显式注册 metrics/warning v1，独立验证五组 canonical sets，
-  并把 `vibe-check.report.v1` historical materials 隔离在 historical registry/traversal。
+- Current schema/examples checks 显式注册 semantic config 与 metrics/warning v1，验证 config
+  schema/example generation drift、semantic example independent acceptance 和五组 canonical
+  machine sets，并把 `vibe-check.report.v1` historical materials 隔离在 historical
+  registry/traversal。
 - Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
   `parallel-task-runner` gitlinks 仍服务开发脚本。
 
@@ -88,11 +93,13 @@ quality-core submodule。
 
 ```bash
 bun run product:cli -- scan [project-root]
+bun run product:cli -- init [project-root]
 ```
 
 省略 project root 时使用启动 cwd。开发脚本可以调用 lizard、scc、jscpd、OpenSpec 和
 JSON schema validator；产品扫描所需的 scanner 调用必须由 `src/product/**` 内的产品
-边界拥有，不能由 wrapper 重新实现。
+边界拥有，不能由 wrapper 重新实现。Dogfood wrapper 只调用 `scan`；`init` 是用户直接调用的
+Product Config operation，不属于 script tooling。
 
 仓库 dogfood 入口是：
 
@@ -104,7 +111,8 @@ bun run quality:scan
 ```
 
 这些命令与 `scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根并单向调用同一
-产品入口。package consumer 分类为：
+产品入口。它们不复制或生成 config，而是让 Product Config 发现 repository root 下的
+checked-in complete policy。Package consumer 分类为：
 
 | 命令 | Gate 行为 |
 | --- | --- |
@@ -161,17 +169,21 @@ render timing 和 exit behavior。
 Docs validation 故意把 current product、independent acceptance 与 historical materials
 分开：
 
-1. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
+1. `scripts/docs/config-schema.ts` 从 Product semantic runtime schema source deterministic
+   生成 published config schema；`--check` 检测 bytes drift。Independent schema/example
+   validation 只消费 checked-in publication 与 canonical semantic example，不把 project-local
+   sibling editor schema 当作 runtime authority。
+2. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
    metrics/warning published schemas；`--check` 按 bytes 检测 drift。
-2. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
+3. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
    serializers 生成五组 current examples；`--check` 检测 exact inventory 与 byte drift。
-3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
+4. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
    raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
    acceptance implementation。
-4. `scripts/tools/validators/schema/registry.ts` 的 current registry 只显式注册 metrics/
-   warning v1。Historical `vibe-check.report.v1` 使用 separate registry，
+5. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 config 与
+   metrics/warning v1。Historical `vibe-check.report.v1` 使用 separate registry，
    `docs/examples/json/**` 不进入 current example traversal。
-5. `bun run validate:docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
+6. `bun run validate:docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
    compile、independent acceptance 与 generation drift。
 
 Required workspace profile 另外运行
@@ -220,24 +232,24 @@ topic catalog、查询和闭合诊断。项目内
 
 ## 配置所有权
 
-产品默认配置及其 profile、scanner、warning、baseline 和 artifact 语义由
-`src/product/config.ts` 唯一拥有，包括：
+Public project configuration 的 neutral default、document/schema、selection/discovery、
+`ResolvedQualityConfig` mapping、CLI precedence 与 `init` 全部由
+[Configuration](configuration.md) 和 `src/product/**` 拥有。Scanner command/args/availability
+由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；gate evaluation 与 exit contract 由 Product
+CLI、Quality Metrics 和 Output owner 承接。
 
-- Vibe Check source、docs、schemas 和 OpenSpec material 的 include / exclude globs。
-- code area 分组和 warning policy 名称。
-- lizard、scc 和 jscpd command discovery。
-- artifact 和 cache 路径。
-
-Gate policy 与 exit contract 由 Product CLI、Quality Metrics 和 Output owner 及其
-`src/product/**` 实现拥有，不属于 config、wrapper 或 package script。
+Repository-owned complete policy 位于 `<repo-root>/.vibe-check/config.json`。Dogfood wrapper 只
+插入 repository root，因此 quick、full、default 与 gate entries 都通过正式 discovery 消费该
+policy；wrapper/package scripts 不保存第二套 default、field tree 或 selection logic。相邻
+`config.schema.json` 是 editor projection，不是 runtime authority，也不由 wrapper 读取。
 
 长期产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
 `docs/quality-metrics.md` 和 `docs/output.md` 拥有；已退役 schema/examples 的历史状态由
 Output owner 说明。
 
-`scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它只登记
-current metrics/warning schemas、historical report schema 与对应 example roots，不重新定义
-output contract。
+`scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它登记 current semantic
+config、metrics/warning schemas、historical report schema 与对应 example roots，不重新定义
+Configuration 或 Output contract。
 
 `scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的
 任务集合、profile 分层、warning output 识别和成功输出过滤。Required profile 包含
@@ -255,11 +267,11 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
-| 产品入口、dogfood wrapper 或配置接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
+| 产品入口、dogfood wrapper 或 repository config discovery 接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
 | Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
-| current schema/example generation drift | `bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
+| current schema/example generation drift | `bun scripts/docs/config-schema.ts --check`、`bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
 | producer-to-annotation acceptance | `bun test scripts/quality/producer-annotation-acceptance.test.ts`；required workspace profile 也调度 |
 | quality annotation | `bun run quality:annotate -- [warnings-path] [limit]` |
 | toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test` |

@@ -1,7 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 
 import {
-  parseSemanticProjectConfigV1,
+  parseConfigDocument,
   type SemanticProjectConfigV1
 } from "./config-schema.ts";
 import { errorMessage } from "./foundation/src/errors.ts";
@@ -58,15 +58,30 @@ export async function loadSemanticProjectConfig(
 
     const bytes = await readFile(configPath);
     const source = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    const input = JSON.parse(source) as unknown;
+    const input = parseVibeCheckJson(source);
     const legacyFields = legacyTopLevelFields(input);
     if (legacyFields.length > 0) {
       throw new LegacyProjectConfigError(configPath, legacyFields);
     }
-    return parseSemanticProjectConfigV1(input);
+    return parseConfigDocument(input);
   } catch (cause: unknown) {
     if (cause instanceof ProjectConfigError) throw cause;
     throw new ProjectConfigError(configPath, cause);
+  }
+}
+
+function parseVibeCheckJson(source: string): unknown {
+  try {
+    const bun = globalThis as typeof globalThis & {
+      readonly Bun: {
+        readonly JSONC: {
+          parse(input: string): unknown;
+        };
+      };
+    };
+    return bun.Bun.JSONC.parse(source);
+  } catch (cause: unknown) {
+    throw new Error(errorMessage(cause), { cause });
   }
 }
 

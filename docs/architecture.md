@@ -5,10 +5,11 @@
 ## 核心定位
 
 Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun 源码。
-`bun run product:cli -- scan [project-root]` 是正式本地入口，负责 operation 分流、
-project-root 归一化、现有 scan flags、顶层 error 和进程状态映射。扫描编排由 product core
-拥有，负责文件收集、scanner 调用、指标聚合、baseline comparison、warning、GateResult、
-artifact orchestration，以及彼此独立的 quality status 与 process outcome。Product Output
+Product CLI 的正式本地入口提供 `scan [project-root]` 与 `init [project-root]`，负责 command
+routing、project-root 归一化、scan flags、configuration initialization handoff、顶层 error 和
+进程状态映射。只有 `scan` 进入 product core；扫描编排由 product core 拥有，负责文件收集、
+scanner 调用、指标聚合、baseline comparison、warning、GateResult、artifact orchestration，
+以及彼此独立的 quality status 与 process outcome。Product Output
 在 Core business models 与 public machine transport 之间维持显式 DTO/schema boundary；完整
 machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥有。
 
@@ -21,8 +22,9 @@ machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥�
 ### 当前实现状态
 
 `src/product/**` 已拥有正式 CLI、参数解析、semantic config、扫描 core、scanner adapters、
-warnings 和 output。Product Config 把 built-in 或显式 semantic document 映射为
-`ResolvedQualityConfig`；`src/product/scanner-dependencies.ts` 独立构造
+warnings 和 output。Product Config 拥有 neutral default、Vibe Check JSON/document schema、
+`explicit > discovered > default` selection、`ResolvedQualityConfig` mapping 与 `init`；
+`src/product/scanner-dependencies.ts` 独立构造
 `ScannerDependencySnapshot`。完整 config 与 dependency contract 分别由
 [Configuration](configuration.md) 和 [Scanner 依赖选择](scanner-dependencies.md) 维护；
 `src/product/quality-core/**` 与产品静态可达的 `src/product/foundation/**` 闭包均由本仓库
@@ -96,15 +98,15 @@ TypeScript 迁移输入。
 
 负责：
 
-- 在 `src/product/**` 提供 `scan` operation 和正式入口。
-- 解析 project root，并把现有 scan flags 交给 product parser。
-- 在扫描前把 built-in 或显式 semantic document 映射为 `ResolvedQualityConfig`，再构造一次
+- 在 `src/product/**` 提供 `scan` / `init` operation 和正式入口。
+- 解析 project root，并只把 scan flags 交给 product parser。
+- 让 Product Config 在 scan work 前选择并映射一个 `ResolvedQualityConfig`，再构造一次
   `ScannerDependencySnapshot` 并调用 product core。
-- 保持 scan help、stdout/stderr、顶层 error 与进程状态映射。
+- 对 `init` 只调用 Product Config initializer，不进入 dependency 或 scan core。
+- 保持 root/scan/init help、stdout/stderr、顶层 error 与进程状态映射。
 
 Product CLI 不拥有 scan scope、scanner adapter、metrics、warning、baseline 或 artifact
-shape。Configuration file workflow 的 current/planned 边界由
-[Configuration](configuration.md) 维护。
+shape。Configuration workflow 的完整边界由 [Configuration](configuration.md) 维护。
 
 ### Product core
 
@@ -175,8 +177,9 @@ concurrent writer support 不属于当前承诺，详见
 
 当前产品源码保持既有文件分组、类型和控制流。逻辑职责包括：
 
-- `config`：semantic runtime schema、built-in document、explicit file loading、
-  `ResolvedQualityConfig`、code areas、checks、report 与 artifact/cache paths。
+- `config`：semantic/document runtime schema、neutral default、Vibe Check JSON loading、
+  explicit/discovered/default selection、`ResolvedQualityConfig`、init/editor projection、code
+  areas、checks、report 与 artifact/cache paths。
 - `scanner-dependencies`：platform defaults、supported operational overrides、availability inputs
   与 `ScannerDependencySnapshot` 的 capability-specific slices。
 - `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
@@ -194,7 +197,8 @@ concurrent writer support 不属于当前承诺，详见
 
 ```text
 caller
-  -> product CLI：分流 scan、归一化 project root、解析 flags、构造 ResolvedQualityConfig
+  -> product CLI：分流 scan、归一化 project root、解析 flags
+  -> Product Config：按 explicit > discovered > default 选择并构造一个 ResolvedQualityConfig
   -> product CLI：在 scan work 前构造一次 ScannerDependencySnapshot
   -> product core：消费同一个 ResolvedQualityConfig / ScannerDependencySnapshot、收集文件、构造 scan context
   -> product core：分别确定 current/baseline capability eligibility
@@ -206,6 +210,12 @@ caller
   <- product core：成功后计算 quality status，并结合 GateResult 发布 success | gate-failed | failed；handled output failure 直接发布 failed
   <- product CLI：保留 stdout/stderr 与进程状态 mapping
 ```
+
+`init` 在 command routing 后走独立短链：Product Config 生成并自校验 neutral config/editor
+schema candidates，在 fixed tool directory 保留 existing safe targets 并补齐 missing targets，再由
+CLI 投影 target paths、state 或 exit `3`。它不进入上述 scan/dependency/output chain；完整
+ensure、ownership 与 schema authority 边界只由
+[Configuration](configuration.md#initialization) 定义。
 
 Dogfood 调用只在链首增加一个显式传入仓库根的 wrapper。正式入口和 wrapper 必须到达同一
 core，产品源码不得回调脚本入口。

@@ -27,3 +27,10 @@ Proves:
 - Git command 失败时，current 与 baseline 都进入 config-only fallback；匹配 product include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
+
+## Case BB-SCOPE-CONFIG-EQUIVALENCE-001: Neutral configuration scope equivalence 稳定
+Owner: `docs/scan-scope.md#resolved-配置与排除`
+Entities:
+- `bun|src/product/config-default-workflow-acceptance.test.ts|formal CLI project configuration workflow > materializes the neutral default and discovers equivalent runtime inputs without trusting sibling schema`
+Proves:
+- 在同一 clean project 与 operational inputs 下，in-memory neutral default 与 `init` 后 fixed-path discovered document 具有等价 semantic settings，并产生相同 normalized scope、full file inventory / fingerprints、active file/function exact inputs 与 config-owned report settings；两者的 `default` / `discovered` provenance 可以不同。

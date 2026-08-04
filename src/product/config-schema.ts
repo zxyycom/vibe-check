@@ -260,6 +260,20 @@ export type SemanticProjectConfigV1 = Type.Static<
   typeof SemanticProjectConfigV1Schema
 >;
 
+export const ConfigDocumentSchema = Type.Object({
+  $schema: Type.Optional(Type.String({
+    description: "Relative or absolute editor schema reference for this document."
+  })),
+  ...SemanticProjectConfigV1Schema.properties
+}, {
+  additionalProperties: false,
+  description:
+    "Complete Vibe Check project configuration with optional editor metadata.",
+  title: "Vibe Check project config document v1"
+});
+
+export type ConfigDocument = Type.Static<typeof ConfigDocumentSchema>;
+
 /**
  * JSON Schema 2020-12 projection for editor and publication consumers.
  * `$schema` and `$id` describe this schema document; they do not add fields to
@@ -296,6 +310,15 @@ export function parseSemanticProjectConfigV1(
   validateTimeZone(config.report.timeZone);
   validateMinimumTokenCodeAreas(config);
   return config;
+}
+
+export function parseConfigDocument(input: unknown): SemanticProjectConfigV1 {
+  if (!Value.Check(ConfigDocumentSchema, input)) {
+    throw schemaValidationError(Value.Errors(ConfigDocumentSchema, input)[0]);
+  }
+
+  const { $schema: _schema, ...semanticConfig } = structuredClone(input);
+  return parseSemanticProjectConfigV1(semanticConfig);
 }
 
 export function resolveQualityConfig(

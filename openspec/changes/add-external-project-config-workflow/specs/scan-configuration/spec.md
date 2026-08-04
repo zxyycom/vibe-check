@@ -71,8 +71,10 @@ baseline 与 Git-failure fallback SHALL 共享最终 resolved config。
 
 ### Requirement: Neutral default configuration
 
-Product Config SHALL 持有以下完整、repository-neutral 的 exact semantic value；本 requirement 是
-该默认值的唯一数值 owner：
+Product Config SHALL 持有以下完整、repository-neutral 的 exact semantic value；本 requirement
+固定本 change 的 target value，交付后的 current value 由
+[Configuration](../../../../../docs/configuration.md#neutral-default) 与
+[Product runtime source](../../../../../src/product/config.ts) 维护：
 
 ```json
 {
@@ -161,20 +163,24 @@ Product Config SHALL 持有以下完整、repository-neutral 的 exact semantic 
 
 ### Requirement: Project configuration initialization
 
-Product CLI SHALL 提供 non-interactive `init [project-root]`。Init SHALL 以 UTF-8/LF 和确定性内容
-生成两个文件：`config.json` 包含完整 neutral default 及相对引用
+Product CLI SHALL 提供 non-interactive `init [project-root]`。Init SHALL 为两个 fixed target 生成
+UTF-8/LF deterministic candidate bytes：`config.json` 包含完整 neutral default 及相对引用
 `"$schema": "./config.schema.json"`，`config.schema.json` 使用 JSON Schema 2020-12。通过 production
-loader 重新加载生成的 config SHALL 得到 neutral semantic value。
+loader 重新加载由 init 新建的 config SHALL 得到 neutral semantic value。
 
 `.vibe-check` directory 尚不存在时，Init SHALL 创建它；已存在的 non-symlink directory SHALL 被
-复用。两个 target file SHALL 使用 exclusive creation。Handled failure cleanup SHALL 只处理本次
-invocation 创建的 entries；本次创建的 directory 仅在 empty 时清理。
+复用。Init SHALL 分别确保两个 fixed target 存在：existing normal non-symlink file SHALL 保持原
+bytes 并满足对应 target，missing target SHALL 使用 exclusive creation。两个 target 都已存在时，
+Init SHALL 作为 no-op 退出 `0`。后续 scan 由 production loader 校验 selected config。Unsafe target
+或 create race SHALL 形成 failure。
+Handled failure cleanup SHALL 只处理本次 invocation 创建的 entries；本次创建的 directory 仅在
+empty 时清理。
 
 #### Scenario: Init materializes neutral policy
 
 - **WHEN** project root 可写，且两个 target path 可创建
 - **THEN** init 创建内容确定且完整的 config/schema，并退出 `0`
-- **AND** stdout 报告两个 created paths 与 discovery-ready state
+- **AND** stdout 报告两个 absolute target paths 与 discovery-ready state
 
 #### Scenario: Existing tool directory is reusable
 
@@ -182,11 +188,24 @@ invocation 创建的 entries；本次创建的 directory 仅在 empty 时清理�
 - **THEN** init 在其中创建两个可用 target files
 - **AND** 既有 entries 保持原有 bytes
 
-#### Scenario: Existing target or handled write failure preserves state
+#### Scenario: Repeated init preserves and fills target files
 
-- **WHEN** 任一 target 已存在、concurrent creator 先创建 target，或 target write 失败
+- **WHEN** 两个 target 均为 existing normal non-symlink files，或其中一个 target missing
+- **THEN** init 保留所有 existing target bytes，只 exclusive-create missing target，并退出 `0`
+- **AND** 两个 target 均已存在时不执行 file write
+
+#### Scenario: Unsafe target or handled write failure preserves state
+
+- **WHEN** target 是 unsafe existing node、concurrent creator 先创建 missing target，或 target
+  write 失败
 - **THEN** init 保留既有 entries，并退出 `3`
 - **AND** invocation-owned partial entries 按 ownership rule 清理
+
+#### Scenario: Scan owns existing config validation
+
+- **WHEN** init 复用 existing config 或 sibling schema
+- **THEN** init 将 existing normal file 视为已满足的 target，保持其 bytes 并退出 `0`
+- **AND** 后续 scan 以 embedded Product schema 校验 selected config
 
 ### Requirement: Comment-capable JSON authoring and editor schema
 

@@ -176,9 +176,9 @@ Options:
   --changed-files <file>  List file; relative paths use project root
                           Absolute list paths are kept; entries are project-relative, one per line
   --config <file>         Complete semantic config v1; relative paths use project root
-                          Omit to use built-in semantic defaults; no discovery or merge
-  --top-n <n>             Top N for rankings (built-in default: ${DEFAULT_CONFIG.report.topN})
-  --artifact-dir <dir>    Artifact output directory (built-in default: ${DEFAULT_CONFIG.artifactDir})
+                          Explicit --config has highest precedence
+  --top-n <n>             Top N for rankings (neutral default: ${DEFAULT_CONFIG.report.topN})
+  --artifact-dir <dir>    Artifact output directory (neutral default: ${DEFAULT_CONFIG.artifactDir})
   --skip-baseline         Skip baseline commit detection and scan
   --verification-output   Print verifier-style status based on unaccepted warnings
   --help                  Show this help
@@ -193,6 +193,11 @@ Output:
 Profiles:
   quick                   Fast current-snapshot check; skips baseline and duplicate detection
   full                    Full check; runs all current capabilities and optional baseline comparison
+
+Config selection:
+  Otherwise .vibe-check/config.json is discovered from the normalized project root.
+  Without either file, ungated scans use the neutral default (not persisted).
+  Every gate requires a complete file-backed config from discovery or --config.
 
 Gate policies:
 ${gatePolicyHelp}

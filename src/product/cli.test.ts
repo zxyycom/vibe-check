@@ -16,8 +16,10 @@ import { fileURLToPath } from "node:url";
 import { runProductCli } from "./cli.ts";
 import { ProjectConfigError } from "./config-file.ts";
 import { DEFAULT_CONFIG } from "./config.ts";
+import { resolveProjectConfigPaths } from "./config-paths.ts";
 import { CliUsageError } from "./foundation/src/errors.ts";
 import { getChangedFileList } from "./quality-core/src/input/files.ts";
+import { GATE_POLICY_VALUES } from "./quality-core/src/model/gate-policy.ts";
 import { ScannerOperationalInputError } from "./scanner-dependencies.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -156,7 +158,9 @@ describe("product CLI routing", () => {
 
     assert.equal(exitCode, 2);
     assert.equal(scanStarted, false);
-    assert.deepEqual(errors, ["Fatal error in quality scan: unknown command: report"]);
+    assert.deepEqual(errors, [
+      "Fatal error in Vibe Check CLI: unknown command: report; expected scan or init"
+    ]);
   });
 });
 
@@ -232,6 +236,98 @@ describe("gate CLI usage contract", () => {
   });
 });
 
+describe("configuration workflow scan preflight", () => {
+  it("requires a file-backed policy before dependency preflight for every gate", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-config-"));
+    const artifactDir = join(projectRoot, "artifacts/should-not-exist");
+    const candidatePath = resolveProjectConfigPaths(projectRoot).configPath;
+
+    try {
+      writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
+      for (const gatePolicy of GATE_POLICY_VALUES) {
+        const result = runBun(
+          [
+            "run",
+            "--silent",
+            "product:cli",
+            "--",
+            "scan",
+            projectRoot,
+            "--gate",
+            gatePolicy,
+            "--artifact-dir",
+            "artifacts/should-not-exist"
+          ],
+          { VIBE_CHECK_SCC_ARGS: "not-json" }
+        );
+
+        assert.equal(result.status, 3, gatePolicy);
+        assert.equal(result.stdout, "", gatePolicy);
+        assert.match(result.stderr, new RegExp(escapeRegExp(candidatePath)));
+        assert.match(result.stderr, /init/);
+        assert.match(result.stderr, /--config/);
+        assert.doesNotMatch(result.stderr, /VIBE_CHECK_SCC_ARGS/);
+        assert.equal(existsSync(artifactDir), false, gatePolicy);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("prints selected config provenance before dependency preflight", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-provenance-"));
+    const paths = resolveProjectConfigPaths(projectRoot);
+    const explicitPath = join(projectRoot, "explicit.json");
+    const configSource = `${JSON.stringify(DEFAULT_CONFIG, null, 2)}\n`;
+
+    try {
+      writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
+      const defaultResult = runBun(
+        ["run", "--silent", "product:cli", "--", "scan", projectRoot],
+        { VIBE_CHECK_SCC_ARGS: "not-json" }
+      );
+      assert.equal(defaultResult.status, 2);
+      assert.equal(defaultResult.stdout, "Config: default (not persisted)\n");
+
+      writeFixtureFile(projectRoot, ".vibe-check/config.json", configSource);
+      const discoveredResult = runBun(
+        ["run", "--silent", "product:cli", "--", "scan", projectRoot],
+        { VIBE_CHECK_SCC_ARGS: "not-json" }
+      );
+      assert.equal(discoveredResult.status, 2);
+      assert.equal(
+        discoveredResult.stdout,
+        `Config: discovered ${paths.configPath}\n`
+      );
+
+      writeFileSync(explicitPath, configSource, "utf8");
+      const explicitResult = runBun(
+        [
+          "run",
+          "--silent",
+          "product:cli",
+          "--",
+          "scan",
+          projectRoot,
+          "--config",
+          "explicit.json"
+        ],
+        { VIBE_CHECK_SCC_ARGS: "not-json" }
+      );
+      assert.equal(explicitResult.status, 2);
+      assert.equal(
+        explicitResult.stdout,
+        `Config: explicit ${explicitPath}\n`
+      );
+      for (const result of [defaultResult, discoveredResult, explicitResult]) {
+        assert.match(result.stderr, /VIBE_CHECK_SCC_ARGS/);
+      }
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("changed-files CLI contract", () => {
   it("maps wrapped read errors to ordinary and missing-input exits", async () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-cli-errors-"));
@@ -289,7 +385,10 @@ describe("changed-files CLI contract", () => {
     assert.match(formal.stdout, /Absolute list paths are kept; entries are project-relative/);
     assert.match(formal.stdout, /--config <file>/);
     assert.match(formal.stdout, /Complete semantic config v1; relative paths use project root/);
-    assert.match(formal.stdout, /Omit to use built-in semantic defaults; no discovery or merge/);
+    assert.match(formal.stdout, /Explicit --config has highest precedence/);
+    assert.match(formal.stdout, /\.vibe-check\/config\.json is discovered/);
+    assert.match(formal.stdout, /neutral default \(not persisted\)/);
+    assert.match(formal.stdout, /Every gate requires a complete file-backed config/);
     assert.doesNotMatch(formal.stdout, /Usage: bun scripts\/quality\/scan\.ts/);
     assert.equal(formal.stderr, "");
     assert.equal(dogfood.stderr, "");
@@ -352,6 +451,17 @@ describe("formal and dogfood entrypoints", () => {
       packageJson.scripts["quality:gate"],
       "bun scripts/quality/scan.ts --profile full --gate regressions"
     );
+
+    const discovery = runBun(
+      ["scripts/quality/scan.ts"],
+      { VIBE_CHECK_SCC_ARGS: "not-json" }
+    );
+    assert.equal(discovery.status, 2);
+    assert.equal(
+      discovery.stdout,
+      `Config: discovered ${resolveProjectConfigPaths(repoRoot).configPath}\n`
+    );
+    assert.match(discovery.stderr, /VIBE_CHECK_SCC_ARGS/);
   });
 });
 
@@ -361,10 +471,14 @@ interface CommandResult {
   readonly stdout: string;
 }
 
-function runBun(args: readonly string[]): CommandResult {
+function runBun(
+  args: readonly string[],
+  environment: Readonly<Record<string, string>> = {}
+): CommandResult {
   const result = spawnSync(process.execPath, args, {
     cwd: repoRoot,
-    encoding: "utf8"
+    encoding: "utf8",
+    env: { ...process.env, ...environment }
   });
 
   assert.equal(result.error, undefined);
@@ -373,6 +487,10 @@ function runBun(args: readonly string[]): CommandResult {
     stderr: result.stderr,
     stdout: result.stdout
   };
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function assertCommandSucceeded(result: CommandResult, label: string): void {

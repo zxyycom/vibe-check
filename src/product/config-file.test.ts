@@ -300,6 +300,18 @@ describe("semantic project config file loading", () => {
       {
         path: join(tempDir, "incomplete.json"),
         prepare: (path: string) => writeFileSync(path, "{\"version\":\"only\"}", "utf8")
+      },
+      {
+        expectedCause: /config\.\$schema/,
+        path: join(tempDir, "invalid-schema-reference.json"),
+        prepare: (path: string) => writeFileSync(
+          path,
+          JSON.stringify({
+            ...semanticConfigInput(),
+            $schema: 1
+          }),
+          "utf8"
+        )
       }
     ] as const;
 
@@ -314,6 +326,9 @@ describe("semantic project config file loading", () => {
             assert.equal(error.configPath, testCase.path);
             assert.ok(error.message.includes(`config "${testCase.path}"`));
             assert.ok(error.cause instanceof Error);
+            if ("expectedCause" in testCase) {
+              assert.match(error.cause.message, testCase.expectedCause);
+            }
             return true;
           }
         );

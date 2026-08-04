@@ -1,36 +1,46 @@
 # CLI
 
-本文是 Vibe Check 产品 CLI 的主规范，固定正式命令、project root、scan flags、console
-通道和进程状态。Metrics、warning、baseline 与 artifact 内容由对应 owner 维护。
+本文是 Vibe Check 产品 CLI 的主规范，固定正式 command、project root、scan flags、`init`
+routing、console 通道和进程状态。Project config 内容、选择、schema 与 initialization safety
+由 [Configuration](configuration.md) 维护；metrics、warning、baseline 与 artifact 内容由对应
+owner 维护。
 
 ## 产品入口
 
 正式本地入口是：
 
 ```text
+bun run product:cli -- --help
 bun run product:cli -- scan [project-root] [options]
+bun run product:cli -- init [project-root]
 ```
 
-实现归属位于 `src/product/**`。入口只为现有 TypeScript/Bun scan 提供 operation、project-root
-分流、参数解析与进程状态映射；semantic document 的 current file workflow 由
-[Configuration](configuration.md) 维护。Rust CLI 和根 Cargo 产品入口已退役。
+实现归属位于 `src/product/**`。入口为 TypeScript/Bun product 提供 command routing、
+project-root 归一化、scan 参数解析、configuration initialization 与进程状态映射；具体 config
+workflow 由 [Configuration](configuration.md) 维护。Rust CLI 和根 Cargo 产品入口已退役。
 
 ## 命令面
 
-Product CLI 只提供 `scan` operation：
+Product CLI 提供两个独立 operation：
 
 ```text
 bun run product:cli -- scan [project-root] [options]
 bun run product:cli -- scan [project-root] --help
+bun run product:cli -- init [project-root]
+bun run product:cli -- init --help
 ```
 
-`scan` 调用唯一的 `runQualityScan` core。未知 operation 或 flag 必须在启动 scanner
-前失败；`--help` 成功时退出 `0`，不启动 scan pipeline。
+`scan` 调用唯一的 `runQualityScan` core；`init` 只执行 project-root validation、config/schema
+generation、target ensure 与 CLI result mapping。Root help 同时列出两者。未知
+operation 或 flag 必须在启动 scanner 前失败；任一 help 成功时退出 `0`，不启动 scan 或
+initialization mutation。
 
 ## Project root
 
-`project-root` 是被扫描项目根目录。省略时使用启动 cwd；相对路径基于启动 cwd 解析，并在
-交给 scan core 前归一化。正式入口不得把 Vibe Check 仓库根硬编码为所有调用者的默认值。
+`project-root` 是 scan target 或 initialization target。两个 operation 都接受零或一个
+positional；省略时使用 startup cwd，相对路径基于 startup cwd 解析并归一化。正式入口不得把
+Vibe Check 仓库根硬编码为所有调用者的默认值。`init` 要求 normalized root 已是 directory；
+完整 filesystem contract 见 [Initialization](configuration.md#initialization)。
 
 仓库 dogfood wrapper 是例外：`quality:check`、`quality:full-check`、`quality:scan`、
 `quality:gate` 和 `scripts/quality/scan.ts` 必须显式传入 Vibe Check 仓库根，以保持当前
@@ -46,7 +56,7 @@ bun run product:cli -- scan [project-root] --help
 | `--baseline <sha>` | 使用显式 commit 生成 baseline comparison |
 | `--with-baseline` | 自动选择已有 comparison 逻辑的 baseline |
 | `--changed-files <file>` | 读取每行一个 project-relative path 的显式 changed-file 输入 |
-| `--config <file>` | 显式选择一份 complete semantic document v1（UTF-8 strict JSON） |
+| `--config <file>` | 显式选择一份 complete semantic document v1（UTF-8 Vibe Check JSON） |
 | `--top-n <n>` | 设置报告 ranking 数量 |
 | `--artifact-dir <dir>` | 设置 artifact 目录 |
 | `--skip-baseline` | 跳过 baseline 选择与扫描 |
@@ -82,22 +92,25 @@ Gate scan planning 保持以下边界：
 列表读取失败继续报告 `failed to read --changed-files`；错误分类与 exit mapping 由
 [进程状态](#进程状态)统一定义。
 
-相对 `--config` path 同样基于 normalized project root 按平台原生规则解析；绝对 path保持
-绝对。Current CLI 显式选择一个 semantic document；省略时使用 built-in document。Document
-schema、selection、`ResolvedQualityConfig` mapping、CLI field precedence 与 planned external
-workflow 由 [Configuration](configuration.md) 维护。
+相对 `--config` path 同样基于 normalized project root 按平台原生规则解析；absolute path 保持
+absolute。Config selection 由 Product Config 在 scan work 前执行：explicit `--config` 优先，
+否则发现 fixed `.vibe-check/config.json`，两者都 absent 且 gate disabled 时使用 non-persisted
+neutral default。任一 gate 要求 complete file-backed policy。Vibe Check JSON grammar、selected
+file finality、`ResolvedQualityConfig` mapping 与 CLI field precedence 由
+[Configuration](configuration.md#selection-and-path-rules) 维护。
 
 ## CLI 边界
 
 Product CLI 只负责：
 
-- 分流 `scan` operation。
+- 分流 `scan` 与 `init` operation。
 - 解析并归一化 project root。
 - 把其余 flags 交给 product parser，并归一化 gate prerequisite-aware scan plan。
-- 在 core 启动前把 built-in 或显式 semantic document 映射为 `ResolvedQualityConfig`。
+- 让 Product Config 在 core 启动前选择并映射唯一 semantic value，再报告 config provenance。
 - 在 banner/cache/artifact work 前构造一次 `ScannerDependencySnapshot`。
 - 把同一 `ResolvedQualityConfig`、`ScannerDependencySnapshot` 与 normalized gate request 交给
   scan core。
+- 对 `init` 只调用 Product Config initializer，并投影 target paths、state 或 failure。
 - 把 core process outcome 映射为进程状态，并保持顶层 error 边界。
 
 CLI 不重新实现 file collection、scanner 调用、metrics、warning、baseline、artifact
@@ -107,12 +120,14 @@ outcome。产品源码不得导入 dogfood wrapper。
 
 ## Console 与 artifacts
 
-Scan 继续把 banner、profile、进度、artifact paths、summary、warning preview 和 completion
-status 写入 stdout。Machine paths 只有在一个 DTO 产生的 `metrics.json`、
+Scan 在 dependency preflight 前把 `default (not persisted)` 或 file-backed source/path provenance
+写入 stdout，随后继续写 banner、profile、进度、artifact paths、summary、warning preview 和
+completion status。Machine paths 只有在一个 DTO 产生的 `metrics.json`、
 `warnings.ndjson`、`warnings-all.ndjson` candidates 通过 complete-set validation、三个
 canonical writes 和 human report write 都成功后才作为 trusted paths 输出。Core 收集到的
 fatal issues 和未处理顶层 error 写入 stderr；scanner process 的原生 stdout/stderr 不直接
-成为产品 console contract。
+成为产品 console contract。首次或重复 `init` success 都向 stdout 中性地报告两个 absolute
+target paths 与 `discovery-ready` state；initialization diagnostic 写入 stderr。
 
 产品不提供旧 Rust CLI 的 `human` / `json` stdout mode。机器与人读结果继续通过
 `metrics.json`、warnings NDJSON、`report.md` 和 raw artifacts 交付，具体语义由
@@ -131,6 +146,14 @@ publication 与 human report write 完成后产生 process outcome，CLI 只做�
 | `gate-failed`：evaluated gate failed，且 artifacts 已写出并验证 | `1` |
 | `failed`：gate not-evaluated，或 completeness/runtime/output failure | `2` |
 
+Configuration workflow 在 scan process outcome 之前拥有独立 mapping：
+
+| Configuration result | CLI exit |
+| --- | --- |
+| `init` 确保两个 safe target files 存在，包括 repeated no-op 或 single-file fill | `0` |
+| Gate 缺少 file-backed policy，或 selected config 读取/校验失败 | `3` |
+| `init` usage、root、target、creation 或 handled cleanup failure | `3` |
+
 省略 gate 时，`empty` 仍是 non-fatal warning 并退出 `0`，但 human completion 必须说明
 质量未评价；requested gate 遇到 empty 时为 not-evaluated 并退出 `2`。Evaluated gate
 failure 本身不等于 runtime failure，只有已验证 artifacts 才能形成 exit `1`；artifact
@@ -143,10 +166,11 @@ files 与 product-owned temps，不打印 trusted machine paths；computed gate 
 run；publication/evidence 与 concurrent-writer 边界见
 [Validated publication and evidence](output.md#validated-publication-and-evidence)。
 
-未处理顶层 error 默认退出 `2`；typed operational override error 也退出 `2`，但发生在
+未处理 scan 顶层 error 默认退出 `2`；typed operational override error 也退出 `2`，但发生在
 banner、scanner、baseline、cache 和 artifact work 前。现有 mapping 对 `ENOENT`（包括 missing
-`--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。显式 config、
-legacy config 与 usage failure 同样在 scan work 前发生。详细 pre-work failure ownership 分别见
+`--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。Explicit/discovered
+config、gate prerequisite、legacy config 与 usage failure 同样在 scan work 前发生。详细
+pre-work failure ownership 分别见
 [Configuration](configuration.md#failure-and-hard-cut-behavior) 与
 [Scanner 依赖选择](scanner-dependencies.md#operational-overrides)。
 
@@ -159,5 +183,6 @@ Dogfood wrapper 可以为仓库验证选择既有 profile、baseline 或 artifac
 参数、stdout、stderr 和进程状态透明传给正式入口。Wrapper 不得拥有第二套 parser、默认
 配置、scan core、gate evaluator、output renderer 或 status mapping。`quality:check`、
 `quality:full-check` 与默认 `quality:scan` 保持省略 gate；`quality:gate` 只通过 thin wrapper
-固定传入 `--profile full --gate regressions`，具体 consumer contract 由
-[脚本工具](script-tooling.md) 维护。
+固定传入 `--profile full --gate regressions`。Wrapper 只显式传入 Vibe Check repository root，
+因此 Product Config 从该 root 发现 repository policy；调用者传入 `--config` 时仍保持 public
+explicit precedence。具体 consumer contract 由 [脚本工具](script-tooling.md) 维护。

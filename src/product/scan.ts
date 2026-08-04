@@ -1,9 +1,10 @@
 import { resolve } from "node:path";
 
 import { parseArgs } from "./args.ts";
-import { loadSemanticProjectConfig } from "./config-file.ts";
-import { resolveQualityConfig } from "./config-schema.ts";
-import { createDefaultConfig } from "./config.ts";
+import {
+  selectProjectConfig,
+  type SelectedConfig
+} from "./config-selection.ts";
 import { runQualityScan } from "./quality-core/src/index.ts";
 import { resolveScannerDependencySnapshot } from "./scanner-dependencies.ts";
 import type {
@@ -23,12 +24,14 @@ export async function runScan(
     ...(parsed.artifactDir === null ? {} : { artifactDir: parsed.artifactDir }),
     ...(parsed.topN === null ? {} : { topN: parsed.topN })
   };
-  const config = parsed.configFile === null
-    ? createDefaultConfig(cliOverrides)
-    : resolveQualityConfig(
-        await loadSemanticProjectConfig(resolve(root, parsed.configFile)),
-        cliOverrides
-      );
+  const selectedConfig = await selectProjectConfig({
+    cliOverrides,
+    explicitConfigFile: parsed.configFile,
+    gateRequested: parsed.gatePolicy !== null,
+    projectRoot: root
+  });
+  printConfigProvenance(selectedConfig);
+  const { config } = selectedConfig;
   const dependencies = resolveScannerDependencySnapshot(
     process.env,
     process.platform
@@ -53,6 +56,14 @@ export async function runScan(
     timingsEnabled: process.env.VIBE_CHECK_QUALITY_TIMINGS === "1"
   });
   return outcome;
+}
+
+function printConfigProvenance(selectedConfig: SelectedConfig): void {
+  if (selectedConfig.source === "default") {
+    console.log("Config: default (not persisted)");
+    return;
+  }
+  console.log(`Config: ${selectedConfig.source} ${selectedConfig.path}`);
 }
 
 function printBanner(scanProfile: QualityScanOptions["scanProfile"]): void {

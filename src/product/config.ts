@@ -6,29 +6,23 @@ import {
 } from "./config-schema.ts";
 import type { ResolvedQualityConfig } from "./quality-core/src/model/schema.ts";
 
-const BUILT_IN_CONFIG_DOCUMENT: SemanticProjectConfigV1 =
+export const NeutralProjectConfig: SemanticProjectConfigV1 =
   parseSemanticProjectConfigV1({
     acceptedWarnings: [],
-    artifactDir: "artifacts/vibe-check-quality",
-    cacheDir: ".cache/vibe-check/quality",
+    artifactDir: "artifacts/vibe-check",
+    cacheDir: ".cache/vibe-check",
     checks: {
       duplication: {
-        defaultMinimumTokens: 100,
+        defaultMinimumTokens: 75,
         fragments: {
-          changedDelta: 0
+          changedDelta: 1
         },
-        minimumTokensByCodeArea: {
-          "docs-specs": 150,
-          generated: 200,
-          "product-source": 75,
-          "schemas-examples": 150,
-          "script-tooling": 75
-        }
+        minimumTokensByCodeArea: {}
       },
       files: {
         codeLines: {
           absoluteFloor: 300,
-          changedDelta: 100,
+          changedDelta: 80,
           lowDecisionTokenAllowance: {
             codeLineFloor: 500,
             maxDecisionTokens: 10
@@ -55,97 +49,46 @@ const BUILT_IN_CONFIG_DOCUMENT: SemanticProjectConfigV1 =
       }
     },
     codeAreas: {
-      "docs-specs": {
-        description: "Long-term docs and OpenSpec change materials",
-        excludeGlobs: ["docs/examples/**", "docs/schemas/**"],
-        globs: ["docs/**/*.md", "openspec/**/*.md"],
-        warningPolicy: "watchlist-only"
-      },
-      generated: {
-        description: "Generated files",
+      project: {
+        description: "This project",
         excludeGlobs: [],
-        globs: ["**/generated/**"],
-        warningPolicy: "exclude-warnings"
-      },
-      "product-source": {
-        description: "Vibe Check TypeScript product source",
-        excludeGlobs: ["**/fixtures/**", "**/generated/**"],
-        globs: ["src/product/**/*.ts"],
-        warningPolicy: "moderate"
-      },
-      "schemas-examples": {
-        description: "Schemas and example artifacts",
-        excludeGlobs: ["**/generated/**"],
-        globs: ["docs/schemas/**", "docs/examples/**"],
-        warningPolicy: "watchlist-only"
-      },
-      "script-tooling": {
-        description: "Vibe Check TypeScript quality tooling",
-        excludeGlobs: [
-          "scripts/**/*.test.ts",
-          "**/fixtures/**",
-          "**/generated/**"
-        ],
-        globs: [
-          "scripts/docs/**/*.ts",
-          "scripts/quality/**/*.ts",
-          "scripts/tools/*.ts",
-          "scripts/tools/validators/**/*.ts",
-          "scripts/vibe-check-workspace/**/*.ts"
-        ],
+        globs: ["**/*"],
         warningPolicy: "moderate"
       }
     },
     excludeDirs: [
       ".git",
-      "target",
-      "node_modules",
-      ".venv",
-      ".uv-cache",
-      ".ruff_cache",
-      "dist",
-      "build",
-      "vendor",
-      "generated",
-      "fixtures",
+      ".vibe-check",
       ".cache",
-      "cache",
+      ".venv",
       "artifacts",
-      ".tmp",
-      ".log"
+      "build",
+      "dist",
+      "node_modules",
+      "target",
+      "vendor"
     ],
-    generatedFiles: ["**/generated/**"],
-    include: [
-      "src/product/**/*.ts",
-      "scripts/docs/**/*.ts",
-      "scripts/quality/**/*.ts",
-      "scripts/tools/*.ts",
-      "scripts/tools/validators/**/*.ts",
-      "scripts/vibe-check-workspace/**/*.ts",
-      "docs/**/*.md",
-      "docs/**/*.json",
-      "openspec/**/*.md"
-    ],
+    generatedFiles: ["**/generated/**", "**/*.generated.*"],
+    include: ["**/*"],
     report: {
-      footerGeneratedBy: "Vibe Check Quality Observability",
-      footerNotice:
-        "This report is a non-blocking development snapshot. Vibe Check TypeScript/Bun product tests and contract validation define the release gates.",
+      footerGeneratedBy: "Vibe Check",
+      footerNotice: "Review findings for this project.",
       nonBlockingNotice:
-        "Non-blocking development quality snapshot. The Vibe Check TypeScript/Bun product CLI, report contract, and product tests define the release contract.",
+        "This project scan is observational unless a gate is explicitly enabled.",
       showWatchlist: true,
-      timeZone: "Asia/Shanghai",
-      title: "Vibe Check Quality Snapshot",
-      topN: 10,
-      watchlistMax: 20
+      timeZone: "UTC",
+      title: "This project quality report",
+      topN: 20,
+      watchlistMax: 50
     },
     version: "1"
   });
 
 export const DEFAULT_CONFIG: ResolvedQualityConfig =
-  resolveQualityConfig(BUILT_IN_CONFIG_DOCUMENT);
+  resolveQualityConfig(NeutralProjectConfig);
 
 export function createDefaultConfig(
   overrides: QualityConfigCliOverrides = {}
 ): ResolvedQualityConfig {
-  return resolveQualityConfig(BUILT_IN_CONFIG_DOCUMENT, overrides);
+  return resolveQualityConfig(NeutralProjectConfig, overrides);
 }

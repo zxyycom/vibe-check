@@ -211,6 +211,11 @@ describe("quality gate argument parsing and scan planning", () => {
   it("derives gate values and policy descriptions in scan help from the descriptor", () => {
     const help = captureScanHelp();
 
+    assert.match(help, /explicit --config.*highest precedence/i);
+    assert.match(help, /\.vibe-check\/config\.json.*discover/i);
+    assert.match(help, /neutral default.*not persisted/i);
+    assert.match(help, /every gate.*file-backed/i);
+    assert.doesNotMatch(help, /no discovery/);
     assert.ok(help.includes(`--gate <${GATE_POLICY_VALUES.join("|")}>`));
     for (const policyHelp of GATE_POLICY_HELP) {
       assert.ok(help.includes(policyHelp), `missing descriptor help: ${policyHelp}`);

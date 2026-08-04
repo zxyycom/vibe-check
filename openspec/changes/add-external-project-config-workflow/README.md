@@ -7,7 +7,8 @@
 
 1. 非 gate scan 可直接使用中性默认值完成全项目观察。
 2. Gate scan 使用 explicit `--config` 或 `.vibe-check/config.json` 中的项目政策。
-3. `init [project-root]` 将中性默认值完整写入 `.vibe-check/config.json`，并生成 editor schema。
+3. `init [project-root]` 确保 `.vibe-check/config.json` 与 editor schema 存在：已有安全文件原样
+   保留，缺失 config/schema 分别由中性默认值与 editor projection 补齐。
 4. Explicit、discovered 和 default source 进入同一个 config validation、mapping 和 scan pipeline。
 
 ## Artifact owner
@@ -32,7 +33,7 @@
 | Phase | Result |
 | --- | --- |
 | 1. Default and document foundation | 单一中性默认值、document schema 和 Vibe Check JSON loader |
-| 2. Initialization | `init` 生成完整 config/schema，并安全写入 tool directory |
+| 2. Initialization | `init` 以可重复的 ensure operation 建立或补齐 config/schema |
 | 3. Selection and dogfood | explicit/discovery/default selection、gate prerequisite 和 repository policy |
 | 4. Acceptance | 正式入口、fixture、schema authority 和 dogfood 证据 |
 | 5. Owners and verification | 长期 owner、Cases 和 workspace validation 同步 |
