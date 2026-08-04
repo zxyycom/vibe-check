@@ -2,11 +2,11 @@ import type {
   DuplicateCodeFragment,
   FileMetric,
   FunctionMetric,
-  QualityConfig
+  ResolvedQualityConfig
 } from "../../model/schema.ts";
 import type { WarningBaseline, WarningContext } from "./warning-model.ts";
 
-export function buildWarningContext(config: QualityConfig, baseline: WarningBaseline): WarningContext {
+export function buildWarningContext(config: ResolvedQualityConfig, baseline: WarningBaseline): WarningContext {
   const baselineFiles = buildFileBaselineMap(baseline?.files || []);
   const baselineFunctions = buildFunctionBaselineMap(baseline?.functions || []);
   const baselineDuplicateIndex = buildDuplicateBaselineIndex(baseline?.duplicates || []);

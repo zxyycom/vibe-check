@@ -1,17 +1,34 @@
 # scanner-adapters
 
+## Case WB-SCANNER-DEPENDENCY-RESOLUTION-001: Scanner dependency operational resolution 稳定
+Owner: `docs/scanner-dependencies.md#scanner-依赖选择`
+Entities:
+- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > returns a warning without a quality verdict when no capability has eligible input`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > applies supported operational overrides without probing executables`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects malformed or non-string-array argument overrides without exposing values`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > resolves platform defaults, availability arguments, and bounded concurrency`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > treats unset and empty operational inputs as no override`
+Proves:
+- Product-owned resolver 按 host platform 构造 file、function 与 duplication dependency slices，固定 Lizard module/availability args，并把 duplicate concurrency 保持为有界 internal setting。
+- Non-empty supported command/args operational inputs 只替换对应 executable 或 additional args，resolver 不探测 executable existence，也不接受 Lizard args override。
+- Unset/empty override 使用 Product-owned defaults；malformed 或非 string-array args 产生带 input name、expected shape 与修复动作的 typed operational error，且不暴露 supplied value。
+- CLI 在任何 banner、availability probe、cache 或 artifact write 前为每次 invocation 解析一次 `ScannerDependencySnapshot`；malformed args 即使 semantic scope 没有 eligible input 也 typed-exit `2`，而 valid snapshot 中不可用但 ineligible 的 commands 不被探测或执行。
+
 ## Case AUX-QUALITY-JSCPD-TASK-001: Quality jscpd task planning 稳定
-Owner: `docs/scanner-dependencies.md#jscpd-boundary`
+Owner: `docs/scanner-dependencies.md#duplicate-measurement-boundary`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > plans one scan task per code area`
+- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > hands exact TypeScript, Rust, and mixed paths to jscpd without format overrides`
 - `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > records current failures and throws baseline failures for invalid jscpd output`
 Proves:
 - jscpd 每个 code area 生成一个 scan task。
 - task id 和文件排序保持可复现。
+- Pure TypeScript、pure Rust 与同 area mixed TypeScript/Rust inputs 均以 filtered exact paths 进入一次 area invocation；private config 与 argv 均不包含 format override，不承诺 cross-format clone matching。
+- Per-area minimum-token override 与 semantic default 分别进入 private config；excluded/generated paths 不会重新进入 adapter，过滤后少于两个 exact paths 的 area 不启动 process。
 - Reporter output 缺失时，current scan 收集 area failure 供 wrapper 归一为一个 failed `CapabilityResult`，不静默降级为空 duplicate result；baseline scan 对同类失败直接抛出。
 
 ## Case AUX-QUALITY-JSCPD-WRAPPER-001: Quality jscpd wrapper failure projection 稳定
-Owner: `docs/scanner-dependencies.md#jscpd-boundary`
+Owner: `docs/scanner-dependencies.md#duplicate-measurement-boundary`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies commands missing after preflight as execution failures`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies empty jscpd JSON reports as report failures`
@@ -26,7 +43,7 @@ Proves:
 - jscpd wrapper 将 non-zero execution 映射为 `jscpd-execution-error`，不把执行失败标成 skipped scan。
 
 ## Case AUX-QUALITY-LIZARD-AVAILABILITY-001: Quality Lizard availability failure projection 稳定
-Owner: `docs/scanner-dependencies.md#pythonlizard-boundary`
+Owner: `docs/scanner-dependencies.md#function-measurement-boundary`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality lizard availability projection > classifies missing dependency commands as unavailable tools`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality lizard availability projection > classifies non-zero version exits with stderr as execution failures`
@@ -35,7 +52,7 @@ Proves:
 - 配置的 Lizard dependency command 不存在时映射为 `tool-unavailable`，不进入实际扫描。
 
 ## Case AUX-QUALITY-PARSER-001: Quality scanner parser fixtures 稳定
-Owner: `docs/scanner-dependencies.md#共同-adapter-contract`
+Owner: `docs/scanner-dependencies.md#eligibility-and-adapter-handoff`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scanner output parsing > classifies invalid jscpd JSON and duplicate items as parse failures`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scanner output parsing > keeps legitimate Lizard zero-function output successful`
@@ -51,7 +68,7 @@ Proves:
 - jscpd parser helpers 解析 version output 和 JSON duplicate fragment locations/token count，并把 invalid JSON 或 invalid duplicate item 映射为 `jscpd-parse-failure`。
 
 ## Case AUX-QUALITY-SCC-WRAPPER-001: Quality scc zero-input boundary 稳定
-Owner: `docs/scanner-dependencies.md#scc-boundary`
+Owner: `docs/scanner-dependencies.md#file-measurement-boundary`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scc exact input projection > rejects a successful scc invocation that produces no CSV header`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`

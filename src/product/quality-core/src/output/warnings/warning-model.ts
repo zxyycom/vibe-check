@@ -2,7 +2,7 @@ import type {
   DuplicateCodeFragment,
   FileMetric,
   FunctionMetric,
-  QualityConfig,
+  ResolvedQualityConfig,
   WarningRecord
 } from "../../model/schema.ts";
 
@@ -15,7 +15,7 @@ export type WarningBaseline = {
 export type GenerateWarningsParams = {
   baseline: WarningBaseline;
   comparisonStatus: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   duplicates: DuplicateCodeFragment[];
   files: FileMetric[];
   functions: FunctionMetric[];
@@ -50,7 +50,7 @@ export type WarningContext = {
   baselineDuplicateIndex: Map<string, number>;
   baselineFiles: Map<string, FileMetric>;
   baselineFunctions: Map<string, FunctionMetric>;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   hasBaselineDuplicates: boolean;
   hasBaselineFiles: boolean;
   hasBaselineFunctions: boolean;

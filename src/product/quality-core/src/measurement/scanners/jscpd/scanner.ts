@@ -10,7 +10,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import type { ToolConfig } from "../../../model/schema.ts";
+import type { DuplicationScannerDependency } from "../../../../../scanner-dependencies.ts";
 import {
   errorMessage,
   runProcess,
@@ -34,10 +34,9 @@ export function parseJscpdVersionOutput(output: string): string {
 
 interface ScanWithJscpdOptions {
   cwd: string;
+  dependency: DuplicationScannerDependency;
   files: string[];
-  format?: string | null;
   minimumTokens: number;
-  toolConfig: ToolConfig;
 }
 
 type PreparedJscpdInvocation = {
@@ -50,9 +49,9 @@ type PreparedJscpdInvocation = {
 type PreparedJscpdScan =
   | {
       cwd: string;
+      dependency: DuplicationScannerDependency;
       invocation: PreparedJscpdInvocation;
       ok: true;
-      toolConfig: ToolConfig;
     }
   | { ok: false; result: JscpdScanResult };
 
@@ -61,7 +60,7 @@ export function scanWithJscpd(options: ScanWithJscpdOptions): JscpdScanResult {
   if (!scan.ok) return scan.result;
 
   try {
-    const child = runProcessSync(scan.toolConfig.command, scan.invocation.argv, {
+    const child = runProcessSync(scan.dependency.executable, scan.invocation.argv, {
       cwd: scan.cwd,
       encoding: "utf8",
       windowsHide: true,
@@ -82,7 +81,7 @@ export async function scanWithJscpdAsync(options: ScanWithJscpdOptions): Promise
   try {
     const child = await runProcess({
       args: scan.invocation.argv,
-      command: scan.toolConfig.command,
+      command: scan.dependency.executable,
       cwd: scan.cwd,
       label: "jscpd",
       maxBuffer: JSCPD_PROCESS_MAX_BUFFER,
@@ -100,8 +99,7 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
   const {
     files,
     cwd,
-    format = null,
-    toolConfig,
+    dependency,
     minimumTokens
   } = options;
 
@@ -112,21 +110,23 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
   return {
     ok: true,
     cwd,
-    toolConfig,
-    invocation: prepareJscpdInvocation({ files, toolConfig, minimumTokens, format })
+    dependency,
+    invocation: prepareJscpdInvocation({
+      dependencyArgs: dependency.args,
+      files,
+      minimumTokens
+    })
   };
 }
 
 function prepareJscpdInvocation({
+  dependencyArgs,
   files,
-  format,
-  toolConfig,
   minimumTokens
 }: {
+  dependencyArgs: readonly string[];
   files: string[];
-  format: string | null;
   minimumTokens: number;
-  toolConfig: ToolConfig;
 }): PreparedJscpdInvocation {
   const tempDir = mkdtempSync(join(tmpdir(), "quality-jscpd-"));
   const outputDir = join(tempDir, "report");
@@ -138,8 +138,7 @@ function prepareJscpdInvocation({
     minLines: 1,
     absolute: true,
     silent: true,
-    noTips: true,
-    ...(format ? { format: [format] } : {})
+    noTips: true
   };
 
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
@@ -148,7 +147,7 @@ function prepareJscpdInvocation({
     outputDir,
     configPath,
     argv: [
-      ...toolConfig.args,
+      ...dependencyArgs,
       "--config",
       configPath,
       "--output",

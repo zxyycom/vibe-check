@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 
 import { errorMessage } from "../../foundation/src/index.ts";
+import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
 import { classifyFiles } from "./model/code-areas.ts";
 import { evaluateGate } from "./model/gate-evaluator.ts";
 import { reduceScanCompleteness } from "./model/scan-completeness.ts";
@@ -9,7 +10,7 @@ import type {
   CodeAreaFileMap,
   CodeAreaFingerprint,
   FatalIssue,
-  QualityConfig,
+  ResolvedQualityConfig,
   QualityMetrics,
   ToolAvailability
 } from "./model/schema.ts";
@@ -45,7 +46,8 @@ import {
 } from "./scan-command/index.ts";
 
 export type QualityScanRuntimeOptions = {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
   root: string;
   options: QualityScanOptions;
   banner?: (scanProfile: QualityScanOptions["scanProfile"]) => void;
@@ -64,7 +66,8 @@ type ChangedInputScope = {
 };
 
 type RuntimeContext = {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
   fatalIssues: FatalIssue[];
   metrics: QualityMetrics;
   opts: QualityScanOptions;
@@ -76,6 +79,7 @@ type RuntimeContext = {
 export async function runQualityScan({
   banner,
   config,
+  dependencies,
   options,
   root,
   timingsEnabled
@@ -87,7 +91,14 @@ export async function runQualityScan({
 
   const artifactDir = resolve(root, opts.artifactDir);
   const { rawDir } = timings.measure("prepare artifact dirs", () => prepareArtifactDirs(artifactDir));
-  const runtime = prepareRuntimeContext({ config, opts, rawDir, root, timings });
+  const runtime = prepareRuntimeContext({
+    config,
+    dependencies,
+    opts,
+    rawDir,
+    root,
+    timings
+  });
   const inputs = collectScanInputs({ config, root, timings });
   attachFingerprints(runtime.metrics, inputs.fingerprints);
 
@@ -127,12 +138,14 @@ export async function runQualityScan({
 
 function prepareRuntimeContext({
   config,
+  dependencies,
   opts,
   rawDir,
   root,
   timings
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
   opts: QualityScanOptions;
   rawDir: string;
   root: string;
@@ -147,13 +160,22 @@ function prepareRuntimeContext({
     configVersion: config.version,
     tools: [],
     scope: {
-      include: config.include,
-      excludeDirs: config.excludeDirs,
-      generatedFiles: config.generatedFiles
+      include: [...config.include],
+      excludeDirs: [...config.excludeDirs],
+      generatedFiles: [...config.generatedFiles]
     }
   }));
 
-  return { config, fatalIssues: [], metrics, opts, rawDir, root, toolResults: [] };
+  return {
+    config,
+    dependencies,
+    fatalIssues: [],
+    metrics,
+    opts,
+    rawDir,
+    root,
+    toolResults: []
+  };
 }
 
 function collectScanInputs({
@@ -161,7 +183,7 @@ function collectScanInputs({
   root,
   timings
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   root: string;
   timings: Timings;
 }): ScanInputs {
@@ -195,7 +217,7 @@ function detectChangedInputScope({
   root,
   timings
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   metrics: QualityMetrics;
   opts: QualityScanOptions;
   root: string;
@@ -204,7 +226,7 @@ function detectChangedInputScope({
   const inputScope = timings.measure("detect changed scan inputs", () => detectScanInputChange({
     baselineSha: metrics.baseline.commitSha,
     cwd: root,
-    scanInputPaths: config.include
+    scanInputPaths: [...config.include]
   }));
   const changedFiles = timings.measure("resolve changed files", () =>
     resolveChangedFilesForScan({ config, opts, root, scope: inputScope })
@@ -227,8 +249,9 @@ async function scanCurrentRevision(
       rawDir: runtime.rawDir,
       root: runtime.root,
       cacheRootDir: resolve(runtime.root, runtime.config.cacheDir),
-      fingerprints: inputs.fingerprints,
-      config: runtime.config
+      config: runtime.config,
+      dependencies: runtime.dependencies,
+      fingerprints: inputs.fingerprints
     },
     scanFiles: inputs.scanFiles,
     fileMap: inputs.fileMap,

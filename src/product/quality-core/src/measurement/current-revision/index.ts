@@ -17,10 +17,10 @@ import type { ScanContext } from "./scan-context.ts";
 import type { CapabilityResult } from "../../model/scan-completeness.ts";
 import type {
   CodeAreaFileMap,
-  QualityConfig,
   ToolAvailability
 } from "../../model/schema.ts";
 import type { QualityScanProfile } from "../../scan-command/command-model.ts";
+import type { ScannerDependencySnapshot } from "../../../../scanner-dependencies.ts";
 
 export async function runCurrentRevisionScan({
   context,
@@ -38,7 +38,7 @@ export async function runCurrentRevisionScan({
     ? selectJscpdTargetFileMap(fileMap, context.config)
     : new Map<string, string[]>();
   context.toolResults.push(...await resolveEligibleTools({
-    config: context.config,
+    dependencies: context.dependencies,
     jscpdTargetFileMap,
     lizardTargetFiles,
     root: context.root,
@@ -71,13 +71,13 @@ export async function runCurrentRevisionScan({
 }
 
 export async function resolveEligibleTools({
-  config,
+  dependencies,
   jscpdTargetFileMap,
   lizardTargetFiles,
   root,
   scanFiles
 }: {
-  config: QualityConfig;
+  dependencies: ScannerDependencySnapshot;
   jscpdTargetFileMap: CodeAreaFileMap;
   lizardTargetFiles: string[];
   root: string;
@@ -85,13 +85,13 @@ export async function resolveEligibleTools({
 }): Promise<ToolAvailability[]> {
   const checks: Array<Promise<ToolAvailability>> = [];
   if (lizardTargetFiles.length > 0) {
-    checks.push(checkLizard(root, config.tools.lizard));
+    checks.push(checkLizard(root, dependencies.function));
   }
   if (scanFiles.length > 0) {
-    checks.push(checkScc(root, config.tools.scc));
+    checks.push(checkScc(root, dependencies.file));
   }
   if (jscpdTargetFileMap.size > 0) {
-    checks.push(checkJscpd(root, config.tools.jscpd));
+    checks.push(checkJscpd(root, dependencies.duplication));
   }
 
   console.log("Checking tool availability...");

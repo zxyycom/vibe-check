@@ -12,11 +12,15 @@ import { describe, it } from "node:test";
 
 import { classifyFiles } from "../model/code-areas.ts";
 import { createEmptyMetrics } from "../model/schema.ts";
-import type { QualityConfig } from "../model/schema.ts";
+import type { ResolvedQualityConfig } from "../model/schema.ts";
 import { buildFingerprints, collectScanFiles } from "../input/files.ts";
 import { maybeScanBaselineRevision } from "../scan-command/baseline/scan.ts";
 import { collectToolMetadata } from "../scan-command/tool-metadata.ts";
-import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
+import {
+  TEST_QUALITY_CONFIG,
+  TEST_SCANNER_DEPENDENCIES
+} from "../../test/config.ts";
+import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
 import { runCurrentRevisionScan } from "./current-revision/index.ts";
 import type { ScanContext } from "./current-revision/scan-context.ts";
 
@@ -28,7 +32,11 @@ describe("baseline revision capability eligibility", () => {
     const cacheRootDir = join(tempDir, "cache");
     const fakeSccPath = join(tempDir, "fake-scc.ts");
     const fakeJscpdPath = join(tempDir, "fake-jscpd.ts");
-    const config = baselineEligibilityConfig(fakeJscpdPath, fakeSccPath);
+    const config = baselineEligibilityConfig();
+    const dependencies = baselineEligibilityDependencies(
+      fakeJscpdPath,
+      fakeSccPath
+    );
 
     try {
       mkdirSync(repository, { recursive: true });
@@ -48,6 +56,7 @@ describe("baseline revision capability eligibility", () => {
       const context = createScanContext({
         cacheRootDir,
         config,
+        dependencies,
         fingerprints,
         rawDir,
         repository
@@ -143,10 +152,7 @@ The baseline measurement must resolve its own component after materializing
 the baseline revision instead of reusing current revision eligibility.
 `;
 
-function baselineEligibilityConfig(
-  fakeJscpdPath: string,
-  fakeSccPath: string
-): QualityConfig {
+function baselineEligibilityConfig(): ResolvedQualityConfig {
   return {
     ...TEST_QUALITY_CONFIG,
     cacheDir: ".cache/quality",
@@ -160,22 +166,33 @@ function baselineEligibilityConfig(
     },
     generatedFiles: [],
     include: ["docs/**/*.md"],
-    jscpd: {
-      ...TEST_QUALITY_CONFIG.jscpd,
-      defaultMinimumTokens: 5,
-      formatByCodeArea: { docs: "markdown" },
-      minimumTokens: { docs: 5 }
-    },
-    tools: {
-      ...TEST_QUALITY_CONFIG.tools,
-      jscpd: {
-        args: [fakeJscpdPath],
-        command: process.execPath
-      },
-      scc: {
-        args: [fakeSccPath],
-        command: process.execPath
+    checks: {
+      ...TEST_QUALITY_CONFIG.checks,
+      duplication: {
+        ...TEST_QUALITY_CONFIG.checks.duplication,
+        defaultMinimumTokens: 5,
+        minimumTokensByCodeArea: { docs: 5 }
       }
+    }
+  };
+}
+
+function baselineEligibilityDependencies(
+  fakeJscpdPath: string,
+  fakeSccPath: string
+): ScannerDependencySnapshot {
+  return {
+    ...TEST_SCANNER_DEPENDENCIES,
+    duplication: {
+      args: [fakeJscpdPath],
+      availabilityArgs: [fakeJscpdPath, "--version"],
+      executable: process.execPath,
+      maxConcurrency: 2
+    },
+    file: {
+      args: [fakeSccPath],
+      availabilityArgs: [fakeSccPath, "--version"],
+      executable: process.execPath
     }
   };
 }
@@ -211,12 +228,14 @@ function writeFakeJscpd(filePath: string): void {
 function createScanContext({
   cacheRootDir,
   config,
+  dependencies,
   fingerprints,
   rawDir,
   repository
 }: {
   cacheRootDir: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
   fingerprints: ScanContext["fingerprints"];
   rawDir: string;
   repository: string;
@@ -225,15 +244,16 @@ function createScanContext({
     cacheRootDir,
     changedFiles: [],
     config,
+    dependencies,
     fingerprints,
     metrics: createEmptyMetrics({
       configVersion: config.version,
       commitSha: git(repository, ["rev-parse", "HEAD"]),
       repository,
       scope: {
-        excludeDirs: config.excludeDirs,
-        generatedFiles: config.generatedFiles,
-        include: config.include
+        excludeDirs: [...config.excludeDirs],
+        generatedFiles: [...config.generatedFiles],
+        include: [...config.include]
       },
       tools: []
     }),

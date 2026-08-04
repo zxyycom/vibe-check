@@ -20,11 +20,11 @@ machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥�
 
 ### 当前实现状态
 
-`src/product/**` 已拥有正式 CLI、参数解析、默认与显式完整配置、扫描 core、scanner
-adapters、warnings 和 output。`src/product/config.ts` 拥有内置默认值，
-`src/product/config-file.ts`、`config-parser.ts`、`config-thresholds.ts` 与
-`config-validation.ts` 分别拥有显式 JSON 的 file boundary、完整结构 mapping、threshold
-sections 和 path-aware primitive validation；
+`src/product/**` 已拥有正式 CLI、参数解析、semantic config、扫描 core、scanner adapters、
+warnings 和 output。Product Config 把 built-in 或显式 semantic document 映射为
+`ResolvedQualityConfig`；`src/product/scanner-dependencies.ts` 独立构造
+`ScannerDependencySnapshot`。完整 config 与 dependency contract 分别由
+[Configuration](configuration.md) 和 [Scanner 依赖选择](scanner-dependencies.md) 维护；
 `src/product/quality-core/**` 与产品静态可达的 `src/product/foundation/**` 闭包均由本仓库
 直接拥有。
 
@@ -98,19 +98,23 @@ TypeScript 迁移输入。
 
 - 在 `src/product/**` 提供 `scan` operation 和正式入口。
 - 解析 project root，并把现有 scan flags 交给 product parser。
-- 在扫描前选择内置默认或显式完整 config，调用 product core。
+- 在扫描前把 built-in 或显式 semantic document 映射为 `ResolvedQualityConfig`，再构造一次
+  `ScannerDependencySnapshot` 并调用 product core。
 - 保持 scan help、stdout/stderr、顶层 error 与进程状态映射。
 
 Product CLI 不拥有 scan scope、scanner adapter、metrics、warning、baseline 或 artifact
-shape。它不新增 `--format`、version operation、配置自动发现或第二套 output renderer。
+shape。Configuration file workflow 的 current/planned 边界由
+[Configuration](configuration.md) 维护。
 
 ### Product core
 
 负责：
 
-- 从 product config 构造 normalized scan scope 和 code areas。
+- 从 invocation-owned `ResolvedQualityConfig` 构造 normalized scan scope、code areas 与 semantic
+  checks。
 - 建立 fingerprints、changed-file scope 和 optional baseline。
-- 调用 scc、Python/Lizard 和 jscpd adapters。
+- 先按 current/baseline 各自 exact inputs 确定 capability eligibility，再把同一个
+  `ScannerDependencySnapshot` 的对应 slice 交给 eligible adapter。
 - 将 scanner output 归一化为 Vibe Check-owned models。
 - 从每项 current capability 的 shared final result 归约 overall completeness。
 - 聚合 current/baseline metrics 并生成 warning channels。
@@ -128,9 +132,11 @@ protocol 提升为 public model。
 
 负责：
 
-- 使用 product config 选择的 external component 提供检测能力；默认 stack 由
+- 使用 `ScannerDependencySnapshot` 中本 capability 的 dependency slice 提供检测能力；默认
+  stack、operational overrides 与 snapshot lifecycle 由
   [Scanner 依赖选择](scanner-dependencies.md) 维护。
 - 只消费 product core 已批准的 exact inputs。
+- 只接收本 capability 所需的 semantic measurement settings 与自己的 dependency slice。
 - 隔离 availability check、process invocation、CSV/JSON report 与 parser。
 - 返回 Vibe Check-owned metrics/fragments 和 shared capability result。
 - 保存复现问题所需的 raw material 或 normalized scanner artifact。
@@ -169,8 +175,10 @@ concurrent writer support 不属于当前承诺，详见
 
 当前产品源码保持既有文件分组、类型和控制流。逻辑职责包括：
 
-- `config`：default config、完整 JSON parsing、code areas、thresholds、scanner commands
-  和 artifact paths。
+- `config`：semantic runtime schema、built-in document、explicit file loading、
+  `ResolvedQualityConfig`、code areas、checks、report 与 artifact/cache paths。
+- `scanner-dependencies`：platform defaults、supported operational overrides、availability inputs
+  与 `ScannerDependencySnapshot` 的 capability-specific slices。
 - `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
 - `measurement`：scc、Python/Lizard、jscpd adapters、cache 和 aggregation。
 - `warnings`：warning rules、channels、accepted reason 和 ordering。
@@ -186,9 +194,11 @@ concurrent writer support 不属于当前承诺，详见
 
 ```text
 caller
-  -> product CLI：分流 scan、归一化 project root、解析 flags、选择完整 config
-  -> product core：消费 selected config、收集文件、构造 scan context
-  -> scanner adapters：执行 scc / Python-Lizard / jscpd 并归一化结果
+  -> product CLI：分流 scan、归一化 project root、解析 flags、构造 ResolvedQualityConfig
+  -> product CLI：在 scan work 前构造一次 ScannerDependencySnapshot
+  -> product core：消费同一个 ResolvedQualityConfig / ScannerDependencySnapshot、收集文件、构造 scan context
+  -> product core：分别确定 current/baseline capability eligibility
+  -> scanner adapters：只对 eligible exact inputs 使用对应 dependency slice并归一化结果
   <- product core：聚合 current results、归约 completeness、comparison 与 warnings
   -> product core：在 final evidence 与 warnings 后一次性评价 GateResult
   -> product core：验证 final QualityMetrics
@@ -209,7 +219,8 @@ core，产品源码不得回调脚本入口。
 - Machine schema/types/mappers/serializers/validators 位于 `src/product/**`，repository
   consumer 只经 `src/product/machine-output.ts` shallow boundary 复用；product runtime 不读
   `docs/**` / `scripts/**`，scripts 不 deep-import quality-core machine internals。
-- External scanner command、args、availability、process result 和 raw output 由 adapter
+- External scanner executable、args、availability protocol 与 bounded concurrency 由
+  `ScannerDependencySnapshot` 拥有；process result、private report 和 raw output 由 adapter
   隔离。
 - Scanner 依赖基线由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；架构层只要求
   product core 消费 Vibe Check-owned result。

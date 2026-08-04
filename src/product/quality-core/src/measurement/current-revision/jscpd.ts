@@ -16,7 +16,7 @@ import type {
 import type { ScanContext } from "./scan-context.ts";
 import type {
   CodeAreaFileMap,
-  QualityConfig
+  ResolvedQualityConfig
 } from "../../model/schema.ts";
 
 export async function runJscpdScan(
@@ -49,6 +49,7 @@ export async function runJscpdScan(
     commitSha: metrics.metadata.commitSha,
     config,
     cwd: root,
+    dependency: context.dependencies.duplication,
     fileMap,
     fingerprints: context.fingerprints,
     logPrefix: "  ",
@@ -76,7 +77,7 @@ export async function runJscpdScan(
 
 export function selectJscpdTargetFileMap(
   fileMap: CodeAreaFileMap,
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): CodeAreaFileMap {
   const tasks = planJscpdAreaScanTasks(
     Array.from(fileMap, ([area, areaFiles]) => ({
@@ -84,8 +85,8 @@ export function selectJscpdTargetFileMap(
       files: areaFiles.filter(
         (file) => !isExcluded(file, config.excludeDirs, config.generatedFiles)
       ),
-      minimumTokens: config.jscpd.minimumTokens[area] ??
-        config.jscpd.defaultMinimumTokens
+      minimumTokens: config.checks.duplication.minimumTokensByCodeArea[area] ??
+        config.checks.duplication.defaultMinimumTokens
     }))
   );
   return new Map(tasks.map((task) => [task.area, task.files]));

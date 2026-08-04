@@ -14,7 +14,7 @@ import {
 import { SCC_BY_FILE_CSV_HEADER, parseSccCSV, scanWithScc } from "./scanners/scc.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
 import { checkLizard } from "./scanners/tool-availability/lizard.ts";
-import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
+import { TEST_SCANNER_DEPENDENCIES } from "../../test/config.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -259,9 +259,10 @@ describe("quality scc exact input projection", () => {
       cwd: REPO_ROOT,
       includePaths: [],
       excludeDirs: [],
-      toolConfig: {
-        command: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`),
-        args: []
+      dependency: {
+        args: [],
+        availabilityArgs: ["--version"],
+        executable: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`)
       }
     });
 
@@ -273,14 +274,14 @@ describe("quality scc exact input projection", () => {
   });
 
   it("rejects a successful scc invocation that produces no CSV header", () => {
-    const toolConfig = createFakeSccToolConfig("");
+    const dependency = createFakeSccToolConfig("");
 
     try {
       const result = scanWithScc({
         cwd: REPO_ROOT,
         includePaths: ["src"],
         excludeDirs: [],
-        toolConfig
+        dependency
       });
 
       assert.equal(result.ok, false);
@@ -289,35 +290,36 @@ describe("quality scc exact input projection", () => {
         assert.match(result.error, /header/i);
       }
     } finally {
-      toolConfig.cleanup();
+      dependency.cleanup();
     }
   });
 });
 
 describe("quality lizard availability projection", () => {
   it("classifies non-zero version exits with stderr as execution failures", async () => {
-    const toolConfig = createFakeVersionToolConfig({
+    const dependency = createFakeVersionToolConfig({
       stdout: "",
       stderr: "No module named lizard",
       exitCode: 1
     });
 
     try {
-      const result = await checkLizard(REPO_ROOT, toolConfig);
+      const result = await checkLizard(REPO_ROOT, dependency);
 
       assert.equal(result.available, false);
       assert.equal(result.reason, "execution-error");
       assert.equal(result.version, null);
       assert.match(result.error ?? "", /lizard --version failed, exit 1: No module named lizard/);
     } finally {
-      toolConfig.cleanup();
+      dependency.cleanup();
     }
   });
 
   it("classifies missing dependency commands as unavailable tools", async () => {
     const result = await checkLizard(REPO_ROOT, {
-      command: join(REPO_ROOT, `vibe-check-missing-lizard-${process.pid}.cmd`),
-      args: []
+      args: [],
+      availabilityArgs: ["--version"],
+      executable: join(REPO_ROOT, `vibe-check-missing-lizard-${process.pid}.cmd`)
     });
 
     assert.equal(result.available, false);
@@ -329,15 +331,14 @@ describe("quality lizard availability projection", () => {
 
 describe("quality jscpd wrapper failure projection", () => {
   it("does not treat a successful jscpd run without JSON as a successful empty scan", () => {
-    const toolConfig = createFakeJscpdToolConfig({ stdout: "", stderr: "", exitCode: 0 });
+    const dependency = createFakeJscpdToolConfig({ stdout: "", stderr: "", exitCode: 0 });
 
     try {
       const result = scanWithJscpd({
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
-        toolConfig,
+        dependency,
         minimumTokens: 75,
-        format: TEST_QUALITY_CONFIG.jscpd.formatByCodeArea["typescript-production-scripts"]
       });
 
       assert.equal(result.ok, false);
@@ -346,12 +347,12 @@ describe("quality jscpd wrapper failure projection", () => {
         assert.match(result.error, /jscpd JSON report missing/);
       }
     } finally {
-      toolConfig.cleanup();
+      dependency.cleanup();
     }
   });
 
   it("classifies empty jscpd JSON reports as report failures", () => {
-    const toolConfig = createFakeJscpdToolConfig({
+    const dependency = createFakeJscpdToolConfig({
       stdout: "",
       stderr: "",
       exitCode: 0,
@@ -362,9 +363,8 @@ describe("quality jscpd wrapper failure projection", () => {
       const result = scanWithJscpd({
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
-        toolConfig,
+        dependency,
         minimumTokens: 75,
-        format: TEST_QUALITY_CONFIG.jscpd.formatByCodeArea["typescript-production-scripts"]
       });
 
       assert.equal(result.ok, false);
@@ -373,7 +373,7 @@ describe("quality jscpd wrapper failure projection", () => {
         assert.match(result.error, /jscpd JSON report is empty/);
       }
     } finally {
-      toolConfig.cleanup();
+      dependency.cleanup();
     }
   });
 
@@ -381,12 +381,13 @@ describe("quality jscpd wrapper failure projection", () => {
     const result = scanWithJscpd({
       files: ["scripts/a.ts", "scripts/b.ts"],
       cwd: REPO_ROOT,
-      toolConfig: {
-        command: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-        args: []
+      dependency: {
+        args: [],
+        availabilityArgs: ["--version"],
+        executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
+        maxConcurrency: 1
       },
       minimumTokens: 75,
-      format: TEST_QUALITY_CONFIG.jscpd.formatByCodeArea["typescript-production-scripts"]
     });
 
     assert.equal(result.ok, false);
@@ -398,8 +399,10 @@ describe("quality jscpd wrapper failure projection", () => {
 
   it("classifies unavailable jscpd dependency binaries in tool availability", async () => {
     const result = await checkJscpd(REPO_ROOT, {
-      command: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-      args: []
+      args: [],
+      availabilityArgs: ["--version"],
+      executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
+      maxConcurrency: 1
     });
 
     assert.equal(result.available, false);
@@ -434,8 +437,7 @@ describe("quality jscpd wrapper failure projection", () => {
       const result = scanWithJscpd({
         files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
         cwd: tempDir,
-        toolConfig: TEST_QUALITY_CONFIG.tools.jscpd,
-        format: TEST_QUALITY_CONFIG.jscpd.formatByCodeArea["typescript-production-scripts"],
+        dependency: TEST_SCANNER_DEPENDENCIES.duplication,
         minimumTokens: 20
       });
 
@@ -452,15 +454,14 @@ describe("quality jscpd wrapper failure projection", () => {
   });
 
   it("classifies non-zero jscpd exits as execution failures", () => {
-    const toolConfig = createFakeJscpdToolConfig({ stdout: "", stderr: "bad invocation", exitCode: 2 });
+    const dependency = createFakeJscpdToolConfig({ stdout: "", stderr: "bad invocation", exitCode: 2 });
 
     try {
       const result = scanWithJscpd({
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
-        toolConfig,
+        dependency,
         minimumTokens: 50,
-        format: TEST_QUALITY_CONFIG.jscpd.formatByCodeArea["typescript-production-scripts"]
       });
 
       assert.equal(result.ok, false);
@@ -469,7 +470,7 @@ describe("quality jscpd wrapper failure projection", () => {
         assert.match(result.error, /jscpd exit 2: bad invocation/);
       }
     } finally {
-      toolConfig.cleanup();
+      dependency.cleanup();
     }
   });
 });
@@ -493,8 +494,9 @@ process.exit(${JSON.stringify(exitCode)});
 `, "utf8");
 
   return {
-    command: process.execPath,
     args: [fakeToolPath],
+    availabilityArgs: [fakeToolPath, "--version"],
+    executable: process.execPath,
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }
@@ -506,8 +508,9 @@ function createFakeSccToolConfig(stdout: string) {
   writeFileSync(fakeSccPath, `process.stdout.write(${JSON.stringify(stdout)});\n`, "utf8");
 
   return {
-    command: process.execPath,
     args: [fakeSccPath],
+    availabilityArgs: [fakeSccPath, "--version"],
+    executable: process.execPath,
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }
@@ -541,8 +544,10 @@ process.exit(${JSON.stringify(exitCode)});
 `, "utf8");
 
   return {
-    command: process.execPath,
     args: [fakeJscpdPath],
+    availabilityArgs: [fakeJscpdPath, "--version"],
+    executable: process.execPath,
+    maxConcurrency: 1,
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

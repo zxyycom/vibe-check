@@ -10,7 +10,7 @@ import type {
 import type { ScanContext } from "./scan-context.ts";
 
 export function runSccScan(context: ScanContext, scanFiles: string[]): CapabilityResult {
-  const { metrics, toolResults, rawDir, root, config } = context;
+  const { metrics, toolResults, rawDir, root, config, dependencies } = context;
   if (scanFiles.length === 0) {
     return { capabilityId: "file-metrics", status: "no-input" };
   }
@@ -31,9 +31,9 @@ export function runSccScan(context: ScanContext, scanFiles: string[]): Capabilit
 
   const sccResult = scanWithScc({
     cwd: root,
+    dependency: dependencies.file,
     includePaths: scanFiles,
-    excludeDirs: config.excludeDirs,
-    toolConfig: config.tools.scc
+    excludeDirs: config.excludeDirs
   });
 
   if (!sccResult.ok) {

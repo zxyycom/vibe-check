@@ -11,9 +11,9 @@
 bun run product:cli -- scan [project-root] [options]
 ```
 
-实现归属位于 `src/product/**`。入口只为现有 TypeScript/Bun scan 提供最薄的 operation 与
-project-root 分流，并可显式选择一份完整 JSON config；不提供配置自动发现、输出 mode、
-version operation 或另一套参数语义。Rust CLI 和根 Cargo 产品入口已退役。
+实现归属位于 `src/product/**`。入口只为现有 TypeScript/Bun scan 提供 operation、project-root
+分流、参数解析与进程状态映射；semantic document 的 current file workflow 由
+[Configuration](configuration.md) 维护。Rust CLI 和根 Cargo 产品入口已退役。
 
 ## 命令面
 
@@ -46,7 +46,7 @@ bun run product:cli -- scan [project-root] --help
 | `--baseline <sha>` | 使用显式 commit 生成 baseline comparison |
 | `--with-baseline` | 自动选择已有 comparison 逻辑的 baseline |
 | `--changed-files <file>` | 读取每行一个 project-relative path 的显式 changed-file 输入 |
-| `--config <file>` | 读取并整体采用一份完整 JSON `QualityConfig` |
+| `--config <file>` | 显式选择一份 complete semantic document v1（UTF-8 strict JSON） |
 | `--top-n <n>` | 设置报告 ranking 数量 |
 | `--artifact-dir <dir>` | 设置 artifact 目录 |
 | `--skip-baseline` | 跳过 baseline 选择与扫描 |
@@ -82,11 +82,10 @@ Gate scan planning 保持以下边界：
 列表读取失败继续报告 `failed to read --changed-files`；错误分类与 exit mapping 由
 [进程状态](#进程状态)统一定义。
 
-相对 `--config` path 同样基于 normalized project root 按平台原生规则解析；绝对 path
-保持绝对。配置必须完整匹配当前 `QualityConfig`，未指定时继续使用
-`DEFAULT_CONFIG`，且不自动发现或 merge。完整字段、整体替换、`--top-n` /
-`--artifact-dir` precedence、可信工具命令与错误行为由
-[Configuration](configuration.md) 维护。
+相对 `--config` path 同样基于 normalized project root 按平台原生规则解析；绝对 path保持
+绝对。Current CLI 显式选择一个 semantic document；省略时使用 built-in document。Document
+schema、selection、`ResolvedQualityConfig` mapping、CLI field precedence 与 planned external
+workflow 由 [Configuration](configuration.md) 维护。
 
 ## CLI 边界
 
@@ -95,8 +94,10 @@ Product CLI 只负责：
 - 分流 `scan` operation。
 - 解析并归一化 project root。
 - 把其余 flags 交给 product parser，并归一化 gate prerequisite-aware scan plan。
-- 在 core 启动前选择并校验默认或显式完整 config。
-- 把同一 selected config 与 normalized gate request 交给 scan core。
+- 在 core 启动前把 built-in 或显式 semantic document 映射为 `ResolvedQualityConfig`。
+- 在 banner/cache/artifact work 前构造一次 `ScannerDependencySnapshot`。
+- 把同一 `ResolvedQualityConfig`、`ScannerDependencySnapshot` 与 normalized gate request 交给
+  scan core。
 - 把 core process outcome 映射为进程状态，并保持顶层 error 边界。
 
 CLI 不重新实现 file collection、scanner 调用、metrics、warning、baseline、artifact
@@ -142,9 +143,12 @@ files 与 product-owned temps，不打印 trusted machine paths；computed gate 
 run；publication/evidence 与 concurrent-writer 边界见
 [Validated publication and evidence](output.md#validated-publication-and-evidence)。
 
-未处理顶层 error 默认退出 `2`；现有 mapping 对 `ENOENT`（包括 missing
-`--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。显式 config
-与 usage failure 发生在 scanner、baseline 和 artifact generation 之前。
+未处理顶层 error 默认退出 `2`；typed operational override error 也退出 `2`，但发生在
+banner、scanner、baseline、cache 和 artifact work 前。现有 mapping 对 `ENOENT`（包括 missing
+`--changed-files` list）、config-related error 或 CLI usage error 返回 `3`。显式 config、
+legacy config 与 usage failure 同样在 scan work 前发生。详细 pre-work failure ownership 分别见
+[Configuration](configuration.md#failure-and-hard-cut-behavior) 与
+[Scanner 依赖选择](scanner-dependencies.md#operational-overrides)。
 
 已退役 Rust CLI 的 output-failure exit `4` 不属于当前 CLI contract；当前 TypeScript
 Product CLI 的 exit `1` 只表示可信的 evaluated gate failure。

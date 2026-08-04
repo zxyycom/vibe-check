@@ -39,8 +39,8 @@ export function generateFunctionWarnings(functions: FunctionMetric[], context: W
 
 function buildFunctionComplexityWarning(input: FunctionWarningInput): WarningCandidate | null {
   const { areaPolicy, baselineFunc, context, func } = input;
-  const ccFloor = context.config.lizard?.cyclomaticComplexity?.absoluteFloor ?? 10;
-  const ccDelta = context.config.lizard?.cyclomaticComplexity?.changedDelta ?? 5;
+  const ccFloor = context.config.checks.functions.cyclomaticComplexity.absoluteFloor;
+  const ccDelta = context.config.checks.functions.cyclomaticComplexity.changedDelta;
   const baselineCc = baselineFunc?.cyclomaticComplexity?.value ?? (context.hasBaselineFunctions ? 0 : null);
   const functionComplexity = func.cyclomaticComplexity.value;
   const ccDeltaValue = deltaFrom(functionComplexity, baselineCc);
@@ -66,9 +66,9 @@ function buildFunctionComplexityWarning(input: FunctionWarningInput): WarningCan
 
 function buildFunctionCodeDensityWarning(input: FunctionWarningInput): WarningCandidate | null {
   const { areaPolicy, baselineFunc, context, func } = input;
-  const densityConfig = context.config.lizard?.functionCodeDensity;
+  const densityConfig = context.config.checks.functions.codeLines;
   const lineFloor = functionCodeDensityFloor(func, context);
-  const lineDeltaCfg = densityConfig?.changedDelta ?? 20;
+  const lineDeltaCfg = densityConfig.changedDelta;
   const baselineFunctionLines = baselineFunc?.lines ?? (context.hasBaselineFunctions ? 0 : null);
   const functionLineDelta = deltaFrom(func.lines, baselineFunctionLines);
   const complexity = func.cyclomaticComplexity.value;
@@ -93,9 +93,9 @@ function buildFunctionCodeDensityWarning(input: FunctionWarningInput): WarningCa
 }
 
 function functionCodeDensityFloor(func: FunctionMetric, context: WarningContext): number {
-  const densityConfig = context.config.lizard?.functionCodeDensity;
-  const baseFloor = densityConfig?.absoluteFloor ?? 50;
-  const allowance = densityConfig?.lowComplexityAllowance;
+  const densityConfig = context.config.checks.functions.codeLines;
+  const baseFloor = densityConfig.absoluteFloor;
+  const allowance = densityConfig.lowComplexityAllowance;
   const complexity = func.cyclomaticComplexity.value;
 
   if (
@@ -110,8 +110,8 @@ function functionCodeDensityFloor(func: FunctionMetric, context: WarningContext)
 }
 
 function functionCodeDensityThresholdLabel(func: FunctionMetric, context: WarningContext): string {
-  const densityConfig = context.config.lizard?.functionCodeDensity;
-  const allowance = densityConfig?.lowComplexityAllowance;
+  const densityConfig = context.config.checks.functions.codeLines;
+  const allowance = densityConfig.lowComplexityAllowance;
   const floor = functionCodeDensityFloor(func, context);
   const complexity = func.cyclomaticComplexity.value;
 
@@ -128,8 +128,8 @@ function functionCodeDensityThresholdLabel(func: FunctionMetric, context: Warnin
 
 function buildFunctionParameterWarning(input: FunctionWarningInput): WarningCandidate | null {
   const { areaPolicy, baselineFunc, context, func } = input;
-  const paramFloor = context.config.lizard?.parameterCount?.absoluteFloor ?? 5;
-  const paramDeltaCfg = context.config.lizard?.parameterCount?.changedDelta ?? 2;
+  const paramFloor = context.config.checks.functions.parameterCount.absoluteFloor;
+  const paramDeltaCfg = context.config.checks.functions.parameterCount.changedDelta;
   const baselineParameterCount = baselineFunc?.parameterCount ?? (context.hasBaselineFunctions ? 0 : null);
   const paramDeltaValue = deltaFrom(func.parameterCount, baselineParameterCount);
 

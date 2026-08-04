@@ -5,26 +5,26 @@
  * 圈复杂度、路径和排序。
  */
 
-import type { ToolConfig } from "../../model/schema.ts";
 import { runProcessSync } from "../../../../foundation/src/index.ts";
+import type { FunctionScannerDependency } from "../../../../scanner-dependencies.ts";
 import { parseLizardCSV, type LizardScanResult } from "./lizard/parser.ts";
 
 export { parseLizardCSV } from "./lizard/parser.ts";
 
 interface ScanWithLizardOptions {
   cwd: string;
-  files: string[];
-  toolConfig: ToolConfig;
+  dependency: FunctionScannerDependency;
+  files: readonly string[];
 }
 
-export function scanWithLizard({ files, cwd, toolConfig }: ScanWithLizardOptions): LizardScanResult {
+export function scanWithLizard({ files, cwd, dependency }: ScanWithLizardOptions): LizardScanResult {
   if (files.length === 0) {
     return { ok: true, functions: [] };
   }
 
-  const argv = [...toolConfig.args, ...files, "--csv"];
+  const argv = [...dependency.args, ...files, "--csv"];
 
-  const child = runProcessSync(toolConfig.command, argv, {
+  const child = runProcessSync(dependency.executable, argv, {
     cwd,
     timeout: 300_000
   });

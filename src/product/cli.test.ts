@@ -14,9 +14,11 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { runProductCli } from "./cli.ts";
+import { ProjectConfigError } from "./config-file.ts";
 import { DEFAULT_CONFIG } from "./config.ts";
 import { CliUsageError } from "./foundation/src/errors.ts";
 import { getChangedFileList } from "./quality-core/src/input/files.ts";
+import { ScannerOperationalInputError } from "./scanner-dependencies.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -110,7 +112,18 @@ describe("product CLI routing", () => {
       { error: new Error("ordinary failure"), expectedExitCode: 2 },
       { error: Object.assign(new Error("missing input"), { code: "ENOENT" }), expectedExitCode: 3 },
       { error: new Error("invalid config value"), expectedExitCode: 3 },
-      { error: new CliUsageError("invalid --gate usage"), expectedExitCode: 3 }
+      { error: new CliUsageError("invalid --gate usage"), expectedExitCode: 3 },
+      {
+        error: new ProjectConfigError(
+          "/project/.vibe-check/config.json",
+          new Error("invalid semantic document")
+        ),
+        expectedExitCode: 3
+      },
+      {
+        error: new ScannerOperationalInputError("VIBE_CHECK_SCC_ARGS"),
+        expectedExitCode: 2
+      }
     ];
 
     for (const testCase of cases) {
@@ -275,8 +288,8 @@ describe("changed-files CLI contract", () => {
     assert.match(formal.stdout, /relative paths use project root/);
     assert.match(formal.stdout, /Absolute list paths are kept; entries are project-relative/);
     assert.match(formal.stdout, /--config <file>/);
-    assert.match(formal.stdout, /Complete JSON config; relative paths use project root/);
-    assert.match(formal.stdout, /Omit to use built-in defaults; no discovery or merge is performed/);
+    assert.match(formal.stdout, /Complete semantic config v1; relative paths use project root/);
+    assert.match(formal.stdout, /Omit to use built-in semantic defaults; no discovery or merge/);
     assert.doesNotMatch(formal.stdout, /Usage: bun scripts\/quality\/scan\.ts/);
     assert.equal(formal.stderr, "");
     assert.equal(dogfood.stderr, "");

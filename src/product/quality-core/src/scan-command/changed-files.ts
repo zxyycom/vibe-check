@@ -1,10 +1,10 @@
 import { getChangedFileList, type ChangedFilesOptions } from "../input/files.ts";
 import type { ChangeScope } from "./command-model.ts";
-import type { QualityConfig } from "../model/schema.ts";
+import type { ResolvedQualityConfig } from "../model/schema.ts";
 
 export type ResolveChangedFilesForScanOptions = {
   collectChangedFiles?: (opts: ChangedFilesOptions, rootDir: string) => string[];
-  config?: Pick<QualityConfig, "include">;
+  config?: Pick<ResolvedQualityConfig, "include">;
   opts: Pick<ChangedFilesOptions, "changedFiles">;
   root: string;
   scope: ChangeScope;

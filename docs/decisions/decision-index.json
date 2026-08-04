@@ -22,7 +22,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:83b2938f489bddbc4b2a57f6cac108d695e3f618b32a04eec00fb7e4c43b2901",
+  "sourceRevision": "sha256:91a9dc7355e0b307dce63bc8e9cc0fe77b9d35e0260d6aca36d4e4ce861626db",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -48,14 +48,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "configuration/hard-cut-legacy-tool-shaped-config.md",
         "title": "对旧 tool-shaped project config 执行 hard cut",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "一次性建立无底层工具字段的语义配置边界，避免双读、静默忽略和 executable precedence 风险。",
         "background": "旧配置包含 tool-named thresholds 与 command/args；兼容读取会延长 public coupling 和 executable precedence 风险。",
@@ -73,14 +73,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "configuration/keep-public-config-tool-neutral.md",
         "title": "让 public project config 保持 scanner-tool 中立",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T08:45:33Z",
         "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
         "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
@@ -98,14 +98,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "configuration/use-fixed-semantic-config-version.md",
         "title": "使用固定语义配置契约版本",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "让 project config version 稳定标识文档契约，而不是承担调用者自定义的缓存失效责任。",
         "background": "当前 version 是任意字符串并参与 scanner cache identity；新的语义 schema 需要可验证的版本判别，同时缓存应由实际影响测量的输入决定。",
@@ -148,14 +148,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "configuration/use-semantic-check-ids-in-project-config.md",
         "title": "在 project config 中使用语义 check ID",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "让 accepted-warning 配置按 Vibe Check 质量检查语义匹配，而不是依赖当前 scanner identity。",
         "background": "当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceTool，backend replacement 会继续迁移 project config。",

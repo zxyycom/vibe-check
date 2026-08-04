@@ -1,4 +1,5 @@
-import type { ToolAvailability, ToolConfig } from "../../../model/schema.ts";
+import type { FileScannerDependency } from "../../../../../scanner-dependencies.ts";
+import type { ToolAvailability } from "../../../model/schema.ts";
 import { SCC_VERSION_OUTPUT } from "../scc.ts";
 import {
   processFailure,
@@ -7,9 +8,16 @@ import {
   type ToolCommandResult
 } from "./command.ts";
 
-export async function checkScc(rootDir: string, toolConfig: ToolConfig): Promise<ToolAvailability> {
+export async function checkScc(
+  rootDir: string,
+  dependency: FileScannerDependency
+): Promise<ToolAvailability> {
   try {
-    const result = await runToolCommand(rootDir, toolConfig, ["--version"]);
+    const result = await runToolCommand(
+      rootDir,
+      dependency.executable,
+      dependency.availabilityArgs
+    );
     return sccAvailabilityFromVersionResult(result);
   } catch {
     return unavailableScc("unknown error", "execution-error");

@@ -1,12 +1,15 @@
 import { runProcess } from "../../../../../foundation/src/index.ts";
-import type { ToolConfig } from "../../../model/schema.ts";
 
 export type ToolCommandResult = Awaited<ReturnType<typeof runToolCommand>>;
 
-export function runToolCommand(rootDir: string, toolConfig: ToolConfig, args: string[]) {
+export function runToolCommand(
+  rootDir: string,
+  executable: string,
+  args: readonly string[]
+) {
   return runProcess({
-    args: [...toolConfig.args, ...args],
-    command: toolConfig.command,
+    args: [...args],
+    command: executable,
     cwd: rootDir
   });
 }

@@ -175,8 +175,8 @@ Options:
   --with-baseline         Auto-detect and scan previous-code baseline
   --changed-files <file>  List file; relative paths use project root
                           Absolute list paths are kept; entries are project-relative, one per line
-  --config <file>         Complete JSON config; relative paths use project root
-                          Omit to use built-in defaults; no discovery or merge is performed
+  --config <file>         Complete semantic config v1; relative paths use project root
+                          Omit to use built-in semantic defaults; no discovery or merge
   --top-n <n>             Top N for rankings (built-in default: ${DEFAULT_CONFIG.report.topN})
   --artifact-dir <dir>    Artifact output directory (built-in default: ${DEFAULT_CONFIG.artifactDir})
   --skip-baseline         Skip baseline commit detection and scan
@@ -191,8 +191,8 @@ Output:
   raw/                    Raw scanner outputs
 
 Profiles:
-  quick                   Fast current-snapshot check; skips baseline and jscpd
-  full                    Full check; runs all configured scanners and optional baseline comparison
+  quick                   Fast current-snapshot check; skips baseline and duplicate detection
+  full                    Full check; runs all current capabilities and optional baseline comparison
 
 Gate policies:
 ${gatePolicyHelp}

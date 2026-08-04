@@ -5,27 +5,27 @@
  * 路径和排序。
  */
 
-import type { ToolConfig } from "../../model/schema.ts";
 import { runProcessSync } from "../../../../foundation/src/index.ts";
+import type { FileScannerDependency } from "../../../../scanner-dependencies.ts";
 import { parseSccCSV, type SccScanResult } from "./scc/parser.ts";
 
 export { SCC_VERSION, SCC_VERSION_OUTPUT, SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./scc/parser.ts";
 
 interface ScanWithSccOptions {
   cwd: string;
-  excludeDirs: string[];
-  includePaths: string[];
-  toolConfig: ToolConfig;
+  dependency: FileScannerDependency;
+  excludeDirs: readonly string[];
+  includePaths: readonly string[];
 }
 
-export function scanWithScc({ cwd, includePaths, excludeDirs, toolConfig }: ScanWithSccOptions): SccScanResult {
+export function scanWithScc({ cwd, dependency, includePaths, excludeDirs }: ScanWithSccOptions): SccScanResult {
   if (includePaths.length === 0) {
     return { ok: true, files: [], aggregates: { byLanguage: [] } };
   }
 
-  const argv = buildSccArgs({ includePaths, excludeDirs, toolArgs: toolConfig.args });
+  const argv = buildSccArgs({ includePaths, excludeDirs, dependencyArgs: dependency.args });
 
-  const child = runProcessSync(toolConfig.command, argv, {
+  const child = runProcessSync(dependency.executable, argv, {
     cwd,
     timeout: 300_000
   });
@@ -55,12 +55,12 @@ export function scanWithScc({ cwd, includePaths, excludeDirs, toolConfig }: Scan
 export function buildSccArgs({
   includePaths,
   excludeDirs,
-  toolArgs
+  dependencyArgs
 }: {
-  excludeDirs: string[];
-  includePaths: string[];
-  toolArgs: string[];
+  dependencyArgs: readonly string[];
+  excludeDirs: readonly string[];
+  includePaths: readonly string[];
 }): string[] {
   const excludeArgs = excludeDirs.flatMap((d) => ["--exclude-dir", d]);
-  return [...toolArgs, "--by-file", "--format", "csv", ...excludeArgs, ...includePaths];
+  return [...dependencyArgs, "--by-file", "--format", "csv", ...excludeArgs, ...includePaths];
 }

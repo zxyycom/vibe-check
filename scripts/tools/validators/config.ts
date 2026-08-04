@@ -31,6 +31,7 @@ export const FILE_SYSTEM = {
 };
 
 export const CURRENT_SCHEMAS = {
+  config: "docs/schemas/vibe-check-config.schema.json",
   metrics: "docs/schemas/vibe-check-metrics.schema.json",
   warning: "docs/schemas/vibe-check-warning.schema.json"
 };
@@ -40,5 +41,6 @@ export const HISTORICAL_SCHEMAS = {
 };
 
 export const EXAMPLES = {
+  semanticConfig: "docs/examples/json/vibe-check-config.json",
   reportExamplesDir: FILE_SYSTEM.examplesJsonDir
 };

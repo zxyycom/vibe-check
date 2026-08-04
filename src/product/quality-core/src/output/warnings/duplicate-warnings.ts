@@ -35,7 +35,8 @@ function buildDuplicateWarning(input: DuplicateWarningInput): WarningCandidate |
     context.hasBaselineDuplicates
   );
   const duplicateDelta = baselineDuplicateCount === null ? null : 1 - baselineDuplicateCount;
-  const duplicateDeltaFloor = context.config.jscpd?.duplicateFragments?.changedDelta ?? 0;
+  const duplicateDeltaFloor =
+    context.config.checks.duplication.fragments.changedDelta;
   const locations = dup.locations.map(formatDuplicateWarningLocation).join(", ");
 
   return buildMetricWarning({

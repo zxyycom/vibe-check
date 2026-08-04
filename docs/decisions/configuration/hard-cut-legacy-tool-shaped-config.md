@@ -1,7 +1,7 @@
 ---
 title: 对旧 tool-shaped project config 执行 hard cut
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-03T09:23:47Z
 purpose: 一次性建立无底层工具字段的语义配置边界，避免双读、静默忽略和 executable precedence 风险。
 background: 旧配置包含 tool-named thresholds 与 command/args；兼容读取会延长 public coupling 和 executable precedence 风险。

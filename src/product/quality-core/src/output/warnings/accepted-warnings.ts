@@ -1,8 +1,17 @@
 import type {
   AcceptedWarningConfig,
+  SemanticCheckId,
   WarningChannels,
   WarningRecord
 } from "../../model/schema.ts";
+
+const RULE_ID_BY_CHECK_ID = {
+  "duplicate-code": "jscpd-duplicate-code",
+  "file-code-lines": "scc-file-code-lines",
+  "function-code-lines": "lizard-function-code-density",
+  "function-cyclomatic-complexity": "lizard-cyclomatic-complexity",
+  "function-parameter-count": "lizard-parameter-count"
+} satisfies Readonly<Record<SemanticCheckId, string>>;
 
 export function applyAcceptedWarningReasons(
   warnings: WarningChannels,
@@ -32,8 +41,7 @@ export function applyAcceptedWarningReasons(
 
 function warningMatchesAcceptance(warning: WarningRecord, acceptance: AcceptedWarningConfig): boolean {
   const scalarMatches = [
-    warning.ruleId === acceptance.ruleId,
-    optionalMatch(acceptance.sourceTool, warning.sourceTool),
+    warning.ruleId === RULE_ID_BY_CHECK_ID[acceptance.checkId],
     optionalMatch(acceptance.path, warning.path),
     optionalMatch(acceptance.codeArea, warning.codeArea),
     optionalMatch(acceptance.metric, warning.metric),
@@ -79,8 +87,7 @@ function unmatchedAcceptedWarning(acceptance: AcceptedWarningConfig): WarningRec
 
 function formatAcceptanceLabel(acceptance: AcceptedWarningConfig): string {
   const parts = [
-    `ruleId=${acceptance.ruleId}`,
-    acceptance.sourceTool ? `sourceTool=${acceptance.sourceTool}` : null,
+    `checkId=${acceptance.checkId}`,
     acceptance.metric ? `metric=${acceptance.metric}` : null,
     acceptance.value === undefined ? null : `value=${acceptance.value}`,
     acceptance.codeArea ? `codeArea=${acceptance.codeArea}` : null,

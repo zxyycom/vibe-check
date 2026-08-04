@@ -1,4 +1,5 @@
-import type { ToolAvailability, ToolConfig } from "../../../model/schema.ts";
+import type { DuplicationScannerDependency } from "../../../../../scanner-dependencies.ts";
+import type { ToolAvailability } from "../../../model/schema.ts";
 import { isMissingExplicitCommand } from "../command-path.ts";
 import { parseJscpdVersionOutput } from "../jscpd/scanner.ts";
 import {
@@ -10,14 +11,18 @@ import {
 
 export async function checkJscpd(
   rootDir: string,
-  toolConfig: ToolConfig
+  dependency: DuplicationScannerDependency
 ): Promise<ToolAvailability> {
-  if (isMissingExplicitCommand(toolConfig.command)) {
+  if (isMissingExplicitCommand(dependency.executable)) {
     return unavailableJscpd("jscpd dependency binary unavailable", "tool-unavailable");
   }
 
   try {
-    const result = await runToolCommand(rootDir, toolConfig, ["--version"]);
+    const result = await runToolCommand(
+      rootDir,
+      dependency.executable,
+      dependency.availabilityArgs
+    );
     return jscpdAvailabilityFromVersionResult(result);
   } catch (error: unknown) {
     return error instanceof Error

@@ -3,7 +3,7 @@ import type {
   DuplicateCodeFragment,
   FileMetric,
   FunctionMetric,
-  QualityConfig
+  ResolvedQualityConfig
 } from "../../model/schema.ts";
 
 interface FunctionAreaTotals {
@@ -19,7 +19,7 @@ export function buildCodeAreaAggregates({
   fileMetrics,
   functionMetrics
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   duplicateCode: DuplicateCodeFragment[];
   fileMetrics: FileMetric[];
   functionMetrics: FunctionMetric[];
@@ -34,7 +34,7 @@ export function buildCodeAreaAggregates({
 function addFileMetrics(
   areaAggMap: Map<string, CodeAreaAggregate>,
   fileMetrics: FileMetric[],
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): void {
   for (const file of fileMetrics) {
     const existing = ensureCodeAreaAggregate(areaAggMap, file.codeArea, config);
@@ -48,7 +48,7 @@ function addFileMetrics(
 function addFunctionTotals(
   areaAggMap: Map<string, CodeAreaAggregate>,
   functionByArea: Map<string, FunctionAreaTotals>,
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): void {
   for (const [area, funcAgg] of functionByArea.entries()) {
     const existing = ensureCodeAreaAggregate(areaAggMap, area, config);
@@ -62,7 +62,7 @@ function addFunctionTotals(
 function addDuplicateCounts(
   areaAggMap: Map<string, CodeAreaAggregate>,
   duplicateByArea: Map<string, number>,
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): void {
   for (const [area, count] of duplicateByArea.entries()) {
     const existing = ensureCodeAreaAggregate(areaAggMap, area, config);
@@ -105,7 +105,7 @@ function emptyFunctionAreaTotals(): FunctionAreaTotals {
 function ensureCodeAreaAggregate(
   areaAggMap: Map<string, CodeAreaAggregate>,
   codeArea: string,
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): CodeAreaAggregate {
   const existing = areaAggMap.get(codeArea);
   if (existing) return existing;
@@ -115,7 +115,7 @@ function ensureCodeAreaAggregate(
   return created;
 }
 
-function createCodeAreaAggregate(codeArea: string, config: QualityConfig): CodeAreaAggregate {
+function createCodeAreaAggregate(codeArea: string, config: ResolvedQualityConfig): CodeAreaAggregate {
   return {
     codeArea,
     files: 0,

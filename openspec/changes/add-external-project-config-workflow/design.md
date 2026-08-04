@@ -11,23 +11,16 @@ document metadata、初始化、选择 provenance、安全写入和验证分层�
 | --- | --- |
 | CLI operations | Product CLI 只路由 `scan`；`init` 是 unknown command。 |
 | Omitted config | `runScan` 调用 `createDefaultConfig()`，任意 project root 都会继承 Vibe Check-specific values。 |
-| Explicit config | `--config <file>` 选择完整 UTF-8 strict JSON `QualityConfig`；相对路径基于 normalized project root。 |
-| Public config coupling | 当前 fields 直接暴露 `lizard`、`scc`、`jscpd` 和 `tools.<name>.command/args`。 |
-| Parser | `config-file.ts` 使用 fatal UTF-8 decoding、`JSON.parse` 与手写 exact-field validation。 |
+| Explicit config | `--config <file>` 选择 complete UTF-8 strict-JSON semantic config v1；相对路径基于 normalized project root。 |
+| Public config coupling | Current closed semantic document 使用 `checks.files/functions/duplication` 与 accepted-warning `checkId`；Product Config 映射为 `ResolvedQualityConfig`，scanner execution settings 位于 `ScannerDependencySnapshot`。 |
+| Parser | `config-file.ts` 使用 fatal UTF-8 decoding 与 `JSON.parse`，再交给 Product-owned runtime schema/post-validation；legacy tool-shaped top-level fields hard-fail。 |
 | Dogfood wrapper | `scripts/quality/scan.ts` 传入 repository root，但不传 config path。 |
 | Machine output | metadata 已有 `configVersion`；selected source/path 不是 stable machine fields。 |
 
-这些事实不是本 change 的目标实现起点。开始 section 1 前，前置 semantic-config change 必须
-已经：
-
-1. 用 tool-neutral semantic fields 替换 public tool-named config；
-2. 建立 Product-owned runtime semantic schema 与 typed mapping；
-3. 把 scanner command/args、platform resolution 和 operational overrides 收口到内部 dependency
-   boundary；
-4. 完成 legacy explicit config、existing fixtures/examples、docs 和 tests 的语义迁移，并提供
-   external workflow 生成 dogfood config 所需的 final repository semantic values。
-
-本 change 随后只在该 semantic contract 上增加文件工作流，不能恢复 tool-named public fields。
+前置 semantic-config change 已 `all_done`；current field、mapping、migration 与 dependency
+contract 分别由 [Configuration](../../../docs/configuration.md) 和
+[Scanner Dependencies](../../../docs/scanner-dependencies.md) 维护。本 change 的 readiness task
+0.7 只需依据最终交付事实关闭 handoff，不重新设计这些契约；section 1 随后只增加文件工作流。
 
 ## 目标不变量
 
@@ -48,12 +41,12 @@ document metadata、初始化、选择 provenance、安全写入和验证分层�
 
 | 实现归属 | 本 change 中的责任 | 明确禁止 |
 | --- | --- | --- |
-| Semantic Config owner（前置 change） | Public semantic fields、runtime schema、typed mapping、semantic validation 和 internal dependency handoff | 在本 change 复制 field tree 或恢复 tool-named public fields |
+| Semantic Config owner（已实现前置） | Semantic document fields、runtime schema、`ResolvedQualityConfig` mapping 与 semantic validation | 在本 change 复制 field tree 或重新定义 semantic checks |
 | Product CLI (`src/product/**`) | operation routing、project-root normalization、help、top-level error/exit mapping | 在 CLI 内复制 schema、scanner 或 config merge |
 | External Config workflow (`src/product/**`) | 固定路径、document `$schema` composition、comment-capable loader、selection、`SelectedConfig`、starter/schema bytes 和 init filesystem operation | 设计 semantic fields、解析 scanner dependency、读取 sibling schema |
-| Scan orchestration (`src/product/**`) | 在 dependency preflight 前打印 config provenance，把一个 resolved semantic config 交给 current/baseline/fallback | 按 source 分支或重新读取配置 |
-| Internal dependency boundary（前置 change） | 把 product semantics 映射到当前 scanner，并处理 command/args/platform/operational inputs | 修改 selected project config 或进入 generated config/schema/help |
-| Product Core / Scanner | 消费 normalized product semantics 和已解析 dependency | 发现 config、解释 document grammar 或读取 editor schema |
+| Scan orchestration (`src/product/**`) | 在 dependency preflight 前打印 config context，把一个 `ResolvedQualityConfig` 交给 current/baseline/fallback | 按 source 分支或重新读取配置 |
+| Internal dependency boundary（前置 change） | 构造 `ScannerDependencySnapshot`，处理 command/args/platform/operational overrides | 修改 `SelectedConfig` 或进入 generated config/schema/help |
+| Product Core / Scanner | 消费 `ResolvedQualityConfig` 与 `ScannerDependencySnapshot` | 发现 config、解释 document grammar 或读取 editor schema |
 | Dogfood wrapper (`scripts/**`) | 显式传入 repository root 与 `--config .vibe-check/config.json`，透明传递 args/output/status | 解析、生成、merge 或按 platform 改写 config |
 
 调用方向保持 `scripts/** -> src/product/**`。新增模块只按现有 Product Config 职责和变化原因
@@ -65,28 +58,27 @@ bucket。
 三个概念保持分离：
 
 ```text
-Semantic project config
+Semantic document
   = prerequisite-owned complete, tool-neutral product fields
 
 ConfigDocument
-  = Semantic project config
+  = Semantic document
   + optional "$schema": string metadata
 
 SelectedConfig (readonly internal context)
-  config: resolved semantic project config
+  config: ResolvedQualityConfig
   source: "explicit" | "discovered"
   path: normalized absolute config path
   version: config.version
 ```
 
-`ConfigDocument` 与 `SelectedConfig` 使用显式 TypeScript 类型；external bytes 先以 `unknown`
+`ConfigDocument` 与 `SelectedConfig` 使用显式 TypeScript types；external bytes 先以 `unknown`
 进入 parser/schema boundary。`$schema` 只属于 document，绝不进入 Core、dependency resolution、
 cache identity 或 machine DTO。Current、baseline 和 Git-failure fallback 共享同一 resolved
 config 语义。
 
-Scanner identity、command、args、platform executable 和 operational override 不是 project
-config field，也不进入 `SelectedConfig`。Dependency boundary 可以在 scan preflight 解析这些
-内部运行输入，但不得修改 project config 或把 applied tool names 混入 config provenance。
+Operational overrides 只参与 `ScannerDependencySnapshot` construction，不进入
+`ConfigDocument`、`SelectedConfig` 或 `ResolvedQualityConfig`。
 
 ## 选择、解析与 precedence 数据流
 
@@ -101,15 +93,16 @@ Product CLI 与 External Config workflow 按固定顺序完成一次边界归一
 5. Composed runtime document schema 复用 prerequisite semantic schema，并只增加 optional
    `$schema` metadata；schema 验证完整 fields、closed objects、types、enums 和可表达 constraints。
 6. Semantic Config owner 执行其 runtime-only post-validation；workflow 不复制这些规则。
-7. Boundary mapper 去除 `$schema`，产生新的 typed semantic config；不修改 raw input，不从
-   built-in config 补字段。
-8. Product Config/CLI 只应用显式 `--top-n` 和 `--artifact-dir` project-field overrides。
+7. Boundary mapper 去除 `$schema`，产生 detached semantic document；不修改 raw input，不从
+   built-in document 补字段。
+8. Product Config/CLI 只应用显式 `--top-n` 和 `--artifact-dir` field overrides，产生
+   `ResolvedQualityConfig`。
 9. 创建 readonly `SelectedConfig`，在 dependency preflight 前向 human console 输出 source、
    path 和 version。
-10. Scan orchestration 只把 `SelectedConfig.config` 交给 current、baseline 和 fallback；后续
+10. Scan orchestration 只把同一个 `SelectedConfig.config` 交给 current、baseline 和 fallback；后续
     阶段不重新查找文件、读取 schema 或按 source 分支。
-11. Internal dependency boundary 独立解析当前 scanner runtime inputs；其结果不回写 project
-    config，不改变步骤 1-10 的 precedence/provenance。
+11. Internal dependency boundary 独立构造 `ScannerDependencySnapshot`；其结果不改变步骤 1-10
+    的 selection、precedence 或 context。
 
 Project-config precedence 只有：
 
@@ -230,8 +223,8 @@ closure。具体命令和勾选证据由 `tasks.md` 维护。
 ## Dependencies and ordering
 
 1. 已归档 explicit-config capability 是当前实现基线。
-2. `decouple-project-config-from-scanner-tools` 必须先实施、验证并同步 owner docs；本 change
-   task 0.7 随后按最终 semantic schema rebase artifacts，才可开始 section 1。
+2. `decouple-project-config-from-scanner-tools` 已实施、验证并同步 owner docs；本 change task
+   0.7 仍须按最终 semantic schema 完成 handoff closure，才可开始 section 1。
 3. Stable machine v1 不变，不需要 output-contract change。
 4. `port-lizard-function-metrics-to-typescript` 继续延期且不阻塞产品向工作。完成 semantic
    decoupling 后，port 只改变 internal dependency/runtime，不再拥有 public config migration。
@@ -264,5 +257,4 @@ init/schema workflow、恢复 wrapper behavior，并同步 help/tests/docs。不
 ## Contract status
 
 本 workflow 没有独立产品未决问题。前置 change 的 semantic field、`version`、`checkId` 与
-legacy migration 选择已经确认；在该 change 完成实现、owner sync 和验证，并关闭本 change
-task 0.7 前，仍不得开始本 workflow 的 section 1。
+legacy migration 已实现并验证；关闭本 change 的 readiness task 0.7 后，才可开始 section 1。

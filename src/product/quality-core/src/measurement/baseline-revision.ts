@@ -24,9 +24,10 @@ import type {
   FileMetric,
   FunctionMetric,
   LanguageAggregate,
-  QualityConfig,
+  ResolvedQualityConfig,
   ToolAvailability
 } from "../model/schema.ts";
+import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
 
 type BaselineScanOptions = {
   cacheRootDir?: string;
@@ -49,7 +50,8 @@ type PreparedBaselineRevisionScan = {
 type BaselineScanContext = {
   cacheRootDir: string;
   commitSha: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
   fingerprints: Record<string, CodeAreaFingerprint>;
   toolResults: ToolAvailability[];
   workDir: string;
@@ -64,7 +66,8 @@ type BaselineScanContext = {
 export async function runBaselineRevisionScan(
   workDir: string,
   toolResults: ToolAvailability[],
-  config: QualityConfig,
+  config: ResolvedQualityConfig,
+  dependencies: ScannerDependencySnapshot,
   options: BaselineScanOptions = {}
 ): Promise<BaselineSnapshot> {
   const inputs = options.inputs ?? collectBaselineRevisionScanInputs(workDir, config);
@@ -72,6 +75,7 @@ export async function runBaselineRevisionScan(
     workDir,
     toolResults,
     config,
+    dependencies,
     fingerprints: inputs.fingerprints,
     cacheRootDir: options.cacheRootDir ?? workDir,
     commitSha: options.commitSha ?? "baseline"
@@ -122,11 +126,12 @@ export async function runBaselineRevisionScan(
 
 export async function prepareBaselineRevisionScan(
   workDir: string,
-  config: QualityConfig
+  config: ResolvedQualityConfig,
+  dependencies: ScannerDependencySnapshot
 ): Promise<PreparedBaselineRevisionScan> {
   const inputs = collectBaselineRevisionScanInputs(workDir, config);
   const toolResults = await resolveEligibleTools({
-    config,
+    dependencies,
     jscpdTargetFileMap: inputs.jscpdTargetFileMap,
     lizardTargetFiles: inputs.lizardTargetFiles,
     root: workDir,
@@ -137,7 +142,7 @@ export async function prepareBaselineRevisionScan(
 
 function collectBaselineRevisionScanInputs(
   workDir: string,
-  config: QualityConfig
+  config: ResolvedQualityConfig
 ): BaselineRevisionScanInputs {
   const baselineFiles = collectBaselineFiles(workDir, config);
   const fileMap = classifyFiles(baselineFiles, config.codeAreas, config.generatedFiles);
@@ -159,9 +164,9 @@ function scanBaselineScc({
   console.log("  Running baseline scc...");
   const sccResult = scanWithScc({
     cwd: context.workDir,
+    dependency: context.dependencies.file,
     includePaths: baselineFiles,
-    excludeDirs: context.config.excludeDirs,
-    toolConfig: context.config.tools.scc
+    excludeDirs: context.config.excludeDirs
   });
 
   if (!sccResult.ok) {
@@ -184,7 +189,7 @@ function scanBaselineLizard({
   const lizardResult = scanWithLizard({
     files: targetFiles,
     cwd: context.workDir,
-    toolConfig: context.config.tools.lizard
+    dependency: context.dependencies.function
   });
 
   if (!lizardResult.ok) {
@@ -209,6 +214,7 @@ async function scanBaselineJscpd({
     commitSha: context.commitSha,
     config: context.config,
     cwd: context.workDir,
+    dependency: context.dependencies.duplication,
     fileMap,
     fingerprints: context.fingerprints,
     logPrefix: "    ",

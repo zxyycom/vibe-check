@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
 
-import type { AcceptedWarningConfig, DuplicateCodeFragment, FileMetric, FunctionMetric, QualityConfig } from "../../model/schema.ts";
+import type { AcceptedWarningConfig, DuplicateCodeFragment, FileMetric, FunctionMetric, ResolvedQualityConfig } from "../../model/schema.ts";
 import { generateWarningChannels } from "./generator.ts";
 import { TEST_QUALITY_CONFIG } from "../../../test/config.ts";
 
@@ -86,14 +86,13 @@ describe("quality warning generation", () => {
     assert.deepEqual(warnings.regressions, []);
   });
 
-  it("warns when an accepted warning rule no longer matches any generated warning", () => {
+  it("warns when an accepted semantic check no longer matches any generated warning", () => {
     const warnings = generateWarningChannels({
       baseline: null,
       comparisonStatus: "baseline-unavailable",
       config: configWithAcceptedWarnings([
         {
-          ruleId: "jscpd-duplicate-code",
-          sourceTool: "jscpd",
+          checkId: "duplicate-code",
           metric: "duplicate-tokens",
           value: 999,
           reason: "stale acceptance for test"
@@ -176,8 +175,7 @@ function acceptedProtocolOperationDuplicate({
 
 function acceptedProtocolOperationDuplicateAcceptance(): AcceptedWarningConfig {
   return {
-    ruleId: "jscpd-duplicate-code",
-    sourceTool: "jscpd",
+    checkId: "duplicate-code",
     codeArea: "rust-production",
     metric: "duplicate-tokens",
     suggestionIncludes: [
@@ -189,7 +187,7 @@ function acceptedProtocolOperationDuplicateAcceptance(): AcceptedWarningConfig {
   };
 }
 
-function configWithAcceptedWarnings(acceptedWarnings: AcceptedWarningConfig[]): QualityConfig {
+function configWithAcceptedWarnings(acceptedWarnings: AcceptedWarningConfig[]): ResolvedQualityConfig {
   return {
     ...TEST_QUALITY_CONFIG,
     acceptedWarnings

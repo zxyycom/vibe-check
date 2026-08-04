@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import {
+  chmodSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -36,7 +37,7 @@ describe("formal CLI explicit configuration", () => {
       assert.equal(first.stderr, "");
       assert.match(first.stdout, /Found 1 files in scan scope/);
       assert.match(first.stdout, /Code areas: fixture-app/);
-      assert.equal(firstMetrics.metadata.configVersion, "configured-typescript-1");
+      assert.equal(firstMetrics.metadata.configVersion, "1");
       assert.deepEqual(firstMetrics.metadata.scope.include, [
         "src/**/*.ts",
         "excluded/**/*.ts"
@@ -93,13 +94,13 @@ describe("formal CLI explicit configuration", () => {
 
       const stableFirst = stableScanEvidence(firstMetrics);
       cleanupFixtureOutput();
-      const second = runConfiguredFixture("../configured-typescript/vibe-check.config.json");
+      const second = runConfiguredFixture("../configured-typescript/.vibe-check/config.json");
       assertCommandSucceeded(second, "second configured fixture scan");
       assert.deepEqual(stableScanEvidence(readFixtureMetrics()), stableFirst);
 
       cleanupFixtureOutput();
       const overridden = runConfiguredFixture(
-        resolve(fixtureRoot, "vibe-check.config.json"),
+        resolve(fixtureRoot, ".vibe-check", "config.json"),
         ["--artifact-dir", "artifacts/cli-override", "--top-n", "1"]
       );
       assertCommandSucceeded(overridden, "configured fixture scan with CLI overrides");
@@ -118,24 +119,31 @@ describe("formal CLI explicit configuration", () => {
   it("reports config failures with exit 3 before scanners or artifacts start", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-invalid-config-"));
     const markerPath = join(projectRoot, "scanner-started");
+    const scannerPath = join(projectRoot, "scanner.ts");
     const artifactDir = join(projectRoot, "artifacts/should-not-exist");
+    const cacheDir = join(projectRoot, ".cache/should-not-exist");
     const configPath = join(projectRoot, "invalid.json");
+    const markerEnvironment = {
+      VIBE_CHECK_SCC_ARGS: JSON.stringify([scannerPath]),
+      VIBE_CHECK_SCC_CMD: process.execPath
+    };
 
     try {
+      writeFixtureFile(
+        projectRoot,
+        "src/eligible.ts",
+        "export const eligible = true;\n"
+      );
       writeFixtureFile(
         projectRoot,
         "scanner.ts",
         `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(markerPath)}, "started");\n`
       );
       const config = JSON.parse(
-        readFileSync(resolve(fixtureRoot, "vibe-check.config.json"), "utf8")
+        readFileSync(resolve(fixtureRoot, ".vibe-check", "config.json"), "utf8")
       ) as Record<string, unknown>;
       config.artifactDir = "artifacts/should-not-exist";
-      config.tools = {
-        jscpd: { args: ["scanner.ts"], command: "bun" },
-        lizard: { args: ["scanner.ts"], command: "bun" },
-        scc: { args: ["scanner.ts"], command: "bun" }
-      };
+      config.cacheDir = ".cache/should-not-exist";
       config.unexpected = true;
       writeFileSync(configPath, JSON.stringify(config), "utf8");
 
@@ -145,15 +153,39 @@ describe("formal CLI explicit configuration", () => {
         "--config",
         "invalid.json",
         "--skip-baseline"
-      ]);
+      ], markerEnvironment);
       assert.equal(invalid.status, 3);
       assert.equal(invalid.stdout, "");
       assert.match(invalid.stderr, /Fatal error in quality scan: failed to load config/);
       assert.ok(invalid.stderr.includes(configPath));
       assert.equal(existsSync(markerPath), false);
+      assert.equal(existsSync(cacheDir), false);
       assert.equal(existsSync(artifactDir), false);
 
       delete config.unexpected;
+      (config.report as Record<string, unknown>).timeZone = "UTC";
+      config.tools = {
+        lizard: { args: ["scanner.ts", "private-argument"], command: process.execPath }
+      };
+      writeFileSync(configPath, JSON.stringify(config), "utf8");
+      const legacy = runProductCli([
+        "scan",
+        projectRoot,
+        "--config",
+        "invalid.json",
+        "--skip-baseline"
+      ], markerEnvironment);
+      assert.equal(legacy.status, 3);
+      assert.equal(legacy.stdout, "");
+      assert.match(legacy.stderr, /version "1"/);
+      assert.match(legacy.stderr, /checks\.functions/);
+      assert.match(legacy.stderr, /VIBE_CHECK_LIZARD_CMD/);
+      assert.doesNotMatch(legacy.stderr, /private-argument/);
+      assert.equal(existsSync(markerPath), false);
+      assert.equal(existsSync(cacheDir), false);
+      assert.equal(existsSync(artifactDir), false);
+
+      delete config.tools;
       (config.report as Record<string, unknown>).timeZone = "Not/A_Real_Zone";
       writeFileSync(configPath, JSON.stringify(config), "utf8");
       const invalidTimeZone = runProductCli([
@@ -162,11 +194,12 @@ describe("formal CLI explicit configuration", () => {
         "--config",
         "invalid.json",
         "--skip-baseline"
-      ]);
+      ], markerEnvironment);
       assert.equal(invalidTimeZone.status, 3);
       assert.equal(invalidTimeZone.stdout, "");
       assert.match(invalidTimeZone.stderr, /config\.report\.timeZone must be a valid time zone/);
       assert.equal(existsSync(markerPath), false);
+      assert.equal(existsSync(cacheDir), false);
       assert.equal(existsSync(artifactDir), false);
 
       const missing = runProductCli([
@@ -174,11 +207,12 @@ describe("formal CLI explicit configuration", () => {
         projectRoot,
         "--config",
         "missing.json"
-      ]);
+      ], markerEnvironment);
       assert.equal(missing.status, 3);
       assert.equal(missing.stdout, "");
       assert.ok(missing.stderr.includes(join(projectRoot, "missing.json")));
       assert.equal(existsSync(markerPath), false);
+      assert.equal(existsSync(cacheDir), false);
       assert.equal(existsSync(artifactDir), false);
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
@@ -224,38 +258,63 @@ describe("formal CLI explicit configuration", () => {
   it("returns a warning without a quality verdict when no capability has eligible input", { timeout: 30_000 }, () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-empty-scan-"));
     const projectRoot = join(tempRoot, "configured-project");
-    const configPath = join(projectRoot, "vibe-check.config.json");
+    const configPath = join(projectRoot, ".vibe-check", "config.json");
+    const markerPath = join(projectRoot, "scanner-started");
+    const markerScannerPath = join(projectRoot, "tools", "operational-marker.ts");
     const artifactDir = join(projectRoot, "artifacts/configured-scan");
+    const cacheDir = join(projectRoot, ".cache/configured-scan");
 
     try {
       cpSync(fixtureRoot, projectRoot, { recursive: true });
+      writeFileSync(
+        markerScannerPath,
+        `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(markerPath)}, "started");\n`,
+        "utf8"
+      );
       const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
       config.include = ["missing/**/*.ts"];
       config.acceptedWarnings = [
         {
+          checkId: "duplicate-code",
           metric: "duplicate-tokens",
           reason: "stale acceptance should not be evaluated for an empty scan",
-          ruleId: "jscpd-duplicate-code",
-          sourceTool: "jscpd",
           value: 999
         }
       ];
-      config.tools = {
-        jscpd: { args: [], command: join(projectRoot, "tools", "missing-jscpd") },
-        lizard: { args: [], command: join(projectRoot, "tools", "missing-lizard") },
-        scc: { args: [], command: join(projectRoot, "tools", "missing-scc") }
-      };
       writeFileSync(configPath, JSON.stringify(config), "utf8");
 
-      const result = runProductCli([
+      const scanArgs = [
         "scan",
         projectRoot,
         "--config",
-        "vibe-check.config.json",
+        ".vibe-check/config.json",
         "--profile",
         "full",
         "--skip-baseline"
-      ]);
+      ] as const;
+      const invalidOperational = runProductCli(scanArgs, {
+        ...configuredScannerEnvironment(projectRoot),
+        VIBE_CHECK_JSCPD_ARGS: JSON.stringify([markerScannerPath]),
+        VIBE_CHECK_JSCPD_CMD: process.execPath,
+        VIBE_CHECK_SCC_ARGS: "not-json-private-value"
+      });
+      assert.equal(invalidOperational.status, 2);
+      assert.equal(invalidOperational.stdout, "");
+      assert.match(invalidOperational.stderr, /VIBE_CHECK_SCC_ARGS/);
+      assert.match(invalidOperational.stderr, /must be a JSON array of strings/);
+      assert.match(invalidOperational.stderr, /provide a valid array or unset/);
+      assert.doesNotMatch(invalidOperational.stderr, /not-json-private-value/);
+      assert.equal(existsSync(markerPath), false);
+      assert.equal(existsSync(cacheDir), false);
+      assert.equal(existsSync(artifactDir), false);
+
+      const result = runProductCli(scanArgs, {
+        VIBE_CHECK_JSCPD_ARGS: "[]",
+        VIBE_CHECK_JSCPD_CMD: join(projectRoot, "tools", "missing-jscpd"),
+        VIBE_CHECK_LIZARD_CMD: join(projectRoot, "tools", "missing-lizard"),
+        VIBE_CHECK_SCC_ARGS: "[]",
+        VIBE_CHECK_SCC_CMD: join(projectRoot, "tools", "missing-scc")
+      });
 
       assert.equal(
         result.status,
@@ -300,22 +359,13 @@ describe("formal CLI explicit configuration", () => {
   it("treats a successful zero-finding quick scan as complete without resolving jscpd", { timeout: 30_000 }, () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-zero-findings-"));
     const projectRoot = join(tempRoot, "configured-project");
-    const configPath = join(projectRoot, "vibe-check.config.json");
+    const configPath = join(projectRoot, ".vibe-check", "config.json");
     const artifactDir = join(projectRoot, "artifacts/configured-scan");
 
     try {
       cpSync(fixtureRoot, projectRoot, { recursive: true });
-      writeControlledLizard(projectRoot);
+      const lizardCommand = writeControlledLizard(projectRoot, "zero");
       const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-      const tools = config.tools as Record<string, { args: string[]; command: string }>;
-      tools.lizard = {
-        args: ["tools/completeness-lizard.ts", "zero"],
-        command: "bun"
-      };
-      tools.jscpd = {
-        args: [],
-        command: join(projectRoot, "tools", "missing-jscpd")
-      };
       raiseWarningFloors(config);
       writeFileSync(configPath, JSON.stringify(config), "utf8");
 
@@ -323,11 +373,15 @@ describe("formal CLI explicit configuration", () => {
         "scan",
         projectRoot,
         "--config",
-        "vibe-check.config.json",
+        ".vibe-check/config.json",
         "--profile",
         "quick",
         "--skip-baseline"
-      ]);
+      ], {
+        ...configuredScannerEnvironment(projectRoot),
+        VIBE_CHECK_JSCPD_CMD: join(projectRoot, "tools", "missing-jscpd"),
+        VIBE_CHECK_LIZARD_CMD: lizardCommand
+      });
 
       assertCommandSucceeded(result, "successful zero-finding quick scan");
       assert.equal(result.stderr, "");
@@ -376,18 +430,13 @@ describe("formal CLI explicit configuration", () => {
     for (const variant of variants) {
       const tempRoot = mkdtempSync(join(tmpdir(), `vibe-check-lizard-${variant.mode}-`));
       const projectRoot = join(tempRoot, "configured-project");
-      const configPath = join(projectRoot, "vibe-check.config.json");
+      const configPath = join(projectRoot, ".vibe-check", "config.json");
       const artifactDir = join(projectRoot, "artifacts/configured-scan");
 
       try {
         cpSync(fixtureRoot, projectRoot, { recursive: true });
-        writeControlledLizard(projectRoot);
+        const lizardCommand = writeControlledLizard(projectRoot, variant.mode);
         const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-        const tools = config.tools as Record<string, { args: string[]; command: string }>;
-        tools.lizard = {
-          args: ["tools/completeness-lizard.ts", variant.mode],
-          command: "bun"
-        };
         raiseWarningFloors(config);
         writeFileSync(configPath, JSON.stringify(config), "utf8");
 
@@ -395,11 +444,14 @@ describe("formal CLI explicit configuration", () => {
           "scan",
           projectRoot,
           "--config",
-          "vibe-check.config.json",
+          ".vibe-check/config.json",
           "--profile",
           "quick",
           "--skip-baseline"
-        ]);
+        ], {
+          ...configuredScannerEnvironment(projectRoot),
+          VIBE_CHECK_LIZARD_CMD: lizardCommand
+        });
 
         assert.equal(
           result.status,
@@ -439,17 +491,12 @@ describe("formal CLI explicit configuration", () => {
   it("fails closed when an eligible current measurement component is unavailable", { timeout: 30_000 }, () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-unavailable-component-"));
     const projectRoot = join(tempRoot, "configured-project");
-    const configPath = join(projectRoot, "vibe-check.config.json");
+    const configPath = join(projectRoot, ".vibe-check", "config.json");
     const artifactDir = join(projectRoot, "artifacts/configured-scan");
 
     try {
       cpSync(fixtureRoot, projectRoot, { recursive: true });
       const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
-      const tools = config.tools as Record<string, { args: string[]; command: string }>;
-      tools.scc = {
-        args: [],
-        command: join(projectRoot, "tools", "missing-scc")
-      };
       raiseWarningFloors(config);
       writeFileSync(configPath, JSON.stringify(config), "utf8");
 
@@ -457,11 +504,15 @@ describe("formal CLI explicit configuration", () => {
         "scan",
         projectRoot,
         "--config",
-        "vibe-check.config.json",
+        ".vibe-check/config.json",
         "--profile",
         "quick",
         "--skip-baseline"
-      ]);
+      ], {
+        ...configuredScannerEnvironment(projectRoot),
+        VIBE_CHECK_SCC_ARGS: "[]",
+        VIBE_CHECK_SCC_CMD: join(projectRoot, "tools", "missing-scc")
+      });
 
       assert.equal(
         result.status,
@@ -518,7 +569,7 @@ interface CommandResult {
 }
 
 function runConfiguredFixture(
-  configPath = "vibe-check.config.json",
+  configPath = ".vibe-check/config.json",
   extraArgs: readonly string[] = []
 ): CommandResult {
   return runProductCli([
@@ -529,11 +580,7 @@ function runConfiguredFixture(
     "--skip-baseline",
     ...extraArgs
   ], {
-    VIBE_CHECK_JSCPD_ARGS: "not-json",
-    VIBE_CHECK_JSCPD_CMD: "must-not-replace-explicit-jscpd",
-    VIBE_CHECK_LIZARD_CMD: "must-not-replace-explicit-lizard",
-    VIBE_CHECK_SCC_ARGS: "not-json",
-    VIBE_CHECK_SCC_CMD: "must-not-replace-explicit-scc"
+    ...configuredScannerEnvironment(fixtureRoot)
   });
 }
 
@@ -609,12 +656,17 @@ function writeFixtureFile(rootDir: string, relPath: string, content: string): vo
   writeFileSync(absPath, content, "utf8");
 }
 
-function writeControlledLizard(rootDir: string): void {
+function writeControlledLizard(
+  rootDir: string,
+  mode: "execution" | "invalid" | "zero"
+): string {
+  const scriptPath = join(rootDir, "tools", "completeness-lizard.ts");
   writeFixtureFile(
     rootDir,
     "tools/completeness-lizard.ts",
     [
-      "const mode = process.argv[2];",
+      "#!/usr/bin/env bun",
+      `const mode = ${JSON.stringify(mode)};`,
       "if (process.argv.includes(\"--version\")) {",
       "  console.log(\"lizard 1.17.10\");",
       "} else if (mode === \"zero\") {",
@@ -631,28 +683,53 @@ function writeControlledLizard(rootDir: string): void {
       ""
     ].join("\n")
   );
+  chmodSync(scriptPath, 0o755);
+  if (process.platform !== "win32") return scriptPath;
+
+  const commandPath = join(rootDir, "tools", "completeness-lizard.cmd");
+  writeFileSync(
+    commandPath,
+    '@echo off\nbun "%~dp0completeness-lizard.ts" %*\n',
+    "utf8"
+  );
+  return commandPath;
 }
 
 function raiseWarningFloors(config: Record<string, unknown>): void {
-  const lizard = config.lizard as {
-    cyclomaticComplexity: { absoluteFloor: number };
-    functionCodeDensity: {
-      absoluteFloor: number;
-      lowComplexityAllowance: { codeLineFloor: number };
+  const checks = config.checks as {
+    files: {
+      codeLines: {
+        absoluteFloor: number;
+        lowDecisionTokenAllowance: { codeLineFloor: number };
+      };
     };
-    parameterCount: { absoluteFloor: number };
-  };
-  const scc = config.scc as {
-    fileCodeLines: {
-      absoluteFloor: number;
-      lowDecisionTokenAllowance: { codeLineFloor: number };
+    functions: {
+      cyclomaticComplexity: { absoluteFloor: number };
+      codeLines: {
+        absoluteFloor: number;
+        lowComplexityAllowance: { codeLineFloor: number };
+      };
+      parameterCount: { absoluteFloor: number };
     };
   };
 
-  lizard.cyclomaticComplexity.absoluteFloor = 10_000;
-  lizard.functionCodeDensity.absoluteFloor = 10_000;
-  lizard.functionCodeDensity.lowComplexityAllowance.codeLineFloor = 10_000;
-  lizard.parameterCount.absoluteFloor = 10_000;
-  scc.fileCodeLines.absoluteFloor = 10_000;
-  scc.fileCodeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
+  checks.functions.cyclomaticComplexity.absoluteFloor = 10_000;
+  checks.functions.codeLines.absoluteFloor = 10_000;
+  checks.functions.codeLines.lowComplexityAllowance.codeLineFloor = 10_000;
+  checks.functions.parameterCount.absoluteFloor = 10_000;
+  checks.files.codeLines.absoluteFloor = 10_000;
+  checks.files.codeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
+}
+
+function configuredScannerEnvironment(_projectRoot: string): NodeJS.ProcessEnv {
+  return {
+    VIBE_CHECK_JSCPD_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "jscpd"]),
+    VIBE_CHECK_JSCPD_CMD: process.execPath,
+    VIBE_CHECK_LIZARD_CMD: join(
+      "tools",
+      process.platform === "win32" ? "controlled-lizard.cmd" : "controlled-lizard"
+    ),
+    VIBE_CHECK_SCC_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "scc"]),
+    VIBE_CHECK_SCC_CMD: process.execPath
+  };
 }

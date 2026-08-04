@@ -105,11 +105,11 @@ function runProductCli(projectRoot: string): CommandResult {
     "scan",
     projectRoot,
     "--config",
-    "vibe-check.config.json",
+    ".vibe-check/config.json",
     "--profile",
     "quick",
     "--skip-baseline"
-  ]);
+  ], configuredScannerEnvironment());
 }
 
 function runAnnotationCli(warnings: string): CommandResult {
@@ -122,12 +122,16 @@ function runAnnotationCli(warnings: string): CommandResult {
   ]);
 }
 
-function runBun(args: readonly string[]): CommandResult {
+function runBun(
+  args: readonly string[],
+  environment: NodeJS.ProcessEnv = {}
+): CommandResult {
   const result = spawnSync(process.execPath, args, {
     cwd: repoRoot,
     encoding: "utf8",
     env: {
       ...process.env,
+      ...environment,
       VIBE_CHECK_QUALITY_TIMINGS: "0"
     }
   });
@@ -158,10 +162,23 @@ function warningsPath(projectRoot: string): string {
 }
 
 function selectNoInput(projectRoot: string): void {
-  const configPath = join(projectRoot, "vibe-check.config.json");
+  const configPath = join(projectRoot, ".vibe-check", "config.json");
   const config = JSON.parse(readFileSync(configPath, "utf8")) as Record<string, unknown>;
   config.include = ["missing/**/*.ts"];
   writeFileSync(configPath, JSON.stringify(config), "utf8");
+}
+
+function configuredScannerEnvironment(): NodeJS.ProcessEnv {
+  return {
+    VIBE_CHECK_JSCPD_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "jscpd"]),
+    VIBE_CHECK_JSCPD_CMD: process.execPath,
+    VIBE_CHECK_LIZARD_CMD: join(
+      "tools",
+      process.platform === "win32" ? "controlled-lizard.cmd" : "controlled-lizard"
+    ),
+    VIBE_CHECK_SCC_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "scc"]),
+    VIBE_CHECK_SCC_CMD: process.execPath
+  };
 }
 
 function annotationCommands(stdout: string): string[] {

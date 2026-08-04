@@ -10,7 +10,7 @@ import type {
   FileMetric,
   FunctionMetric,
   LanguageAggregate,
-  QualityConfig
+  ResolvedQualityConfig
 } from "../model/schema.ts";
 import { buildCodeAreaAggregates } from "./aggregate/area.ts";
 import { buildOverallAggregates } from "./aggregate/overall.ts";
@@ -23,7 +23,7 @@ export function buildAggregates({
   config
 }: {
   byLanguage: LanguageAggregate[];
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   duplicateCode: DuplicateCodeFragment[];
   fileMetrics: FileMetric[];
   functionMetrics: FunctionMetric[];

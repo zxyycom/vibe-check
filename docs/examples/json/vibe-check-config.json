@@ -1,0 +1,89 @@
+{
+  "acceptedWarnings": [
+    {
+      "checkId": "function-cyclomatic-complexity",
+      "codeArea": "application",
+      "path": "src/application.ts",
+      "reason": "Reviewed complexity retained at the application boundary."
+    }
+  ],
+  "artifactDir": "artifacts/vibe-check",
+  "cacheDir": ".cache/vibe-check",
+  "checks": {
+    "duplication": {
+      "defaultMinimumTokens": 75,
+      "fragments": {
+        "changedDelta": 1
+      },
+      "minimumTokensByCodeArea": {
+        "application": 90
+      }
+    },
+    "files": {
+      "codeLines": {
+        "absoluteFloor": 300,
+        "changedDelta": 80,
+        "lowDecisionTokenAllowance": {
+          "codeLineFloor": 500,
+          "maxDecisionTokens": 10
+        }
+      }
+    },
+    "functions": {
+      "codeLines": {
+        "absoluteFloor": 50,
+        "changedDelta": 20,
+        "lowComplexityAllowance": {
+          "codeLineFloor": 150,
+          "maxCyclomaticComplexityExclusive": 5
+        }
+      },
+      "cyclomaticComplexity": {
+        "absoluteFloor": 10,
+        "changedDelta": 5
+      },
+      "parameterCount": {
+        "absoluteFloor": 5,
+        "changedDelta": 2
+      }
+    }
+  },
+  "codeAreas": {
+    "application": {
+      "description": "Application source",
+      "excludeGlobs": [
+        "**/*.generated.ts"
+      ],
+      "globs": [
+        "src/**/*.ts",
+        "src/**/*.tsx"
+      ],
+      "warningPolicy": "moderate"
+    }
+  },
+  "excludeDirs": [
+    ".cache",
+    "dist",
+    "node_modules",
+    "vendor"
+  ],
+  "generatedFiles": [
+    "**/*.generated.ts",
+    "**/generated/**"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "report": {
+    "footerGeneratedBy": "Vibe Check",
+    "footerNotice": "Review findings with the owning team.",
+    "nonBlockingNotice": "This report is observational unless a gate is explicitly enabled.",
+    "showWatchlist": true,
+    "timeZone": "UTC",
+    "title": "Project Quality Report",
+    "topN": 20,
+    "watchlistMax": 50
+  },
+  "version": "1"
+}

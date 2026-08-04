@@ -1,16 +1,16 @@
-## 当前事实与实施入口
+## Port 前当前事实与目标边界
 
-| Surface | 本文记录时已实现行为 | Port 开始前必须成立的前置状态 |
+| Surface | 当前已实现行为 | Port 必须保持或达到的目标边界 |
 | --- | --- | --- |
 | Supported input | `selectLizardTargetFiles` 接受 `.rs` 和以 `.ts` 结尾的 paths；因此 `.d.ts` 属于 TypeScript input。Go、Python、`.tsx`、`.js`、`.jsx` 不进入 selector。 | 保持不变。 |
-| Runtime | Scanner 检查 Python/Lizard availability，用 exact files 加 `--csv` 启动 process，并解析 CSV。 | Execution settings 已由 internal dependency snapshot 拥有，不来自 project config。 |
+| Runtime | Scanner 检查 Python/Lizard availability，用 exact inputs 加 `--csv` 启动 process，并解析 CSV。 | Backend replacement 只改变 `ScannerDependencySnapshot` 与 adapter internals。 |
 | Product model | `FunctionMetric` 暴露 code area、file、name、start/end line、lines、parameter count、changed flag 与 cyclomatic-complexity value/source。 | 保持不变。 |
 | Failure | Eligible dependency unavailable、process failure 或 invalid normalized output 会让整个 `function-metrics` capability 失败；没有 per-file partial contract。 | 保持 normalized capability semantics。 |
 | Public identity | Function warnings 和 metric values 使用 `"lizard"` source labels。 | Semantic project config 使用 `checks.functions` / `checkId`；现有 machine source labels 保持兼容。 |
-| Config coupling | 本文记录时的 `QualityConfig` 仍含 tool-named fields。 | `decouple-project-config-from-scanner-tools` 已完成 hard cut；该迁移不由本 port 实施。 |
+| Config coupling | Current semantic document 已使用 `checks.functions` 与 accepted-warning `checkId`；Product Config 映射为 `ResolvedQualityConfig`，execution settings 由 `ScannerDependencySnapshot` 拥有。 | 保持 semantic field tree/version/schema/example 不变；该迁移不由本 port 实施。 |
 
-第一列当前事实定义 pre-switch parity，不授权在本 change 中保留 public tool coupling。第三列是
-implementation gate：task 0.3 未关闭前，不得从 section 1 开始。
+第一列当前事实定义 pre-switch parity；第三列定义 port 必须保持的边界。Task 0.3 未关闭前，
+不得从 section 1 开始。
 
 Upstream Lizard 中未进入当前 selector/model 的 fields、languages 或 tests 只属于迁移参考，
 不形成新 product obligation。
@@ -87,13 +87,13 @@ expected results，不依赖 Python。
 
 ### Decision 5: Backend replacement 不迁移 public config 或 output identity
 
-Port 前置 change 已让 project config 使用 semantic `checks.functions` 与 stable `checkId`，
-dependency execution settings 只存在于 internal snapshot。因此本 change：
+Port 前置 change 已让 semantic document 使用 `checks.functions` 与 stable `checkId`，dependency
+execution settings 只存在于 `ScannerDependencySnapshot`。因此本 change：
 
 - 保持 semantic config field tree、version、runtime/generated schema、starter 与 examples；
 - 保持 `MetricValue.source = "lizard"` 与 warning `sourceTool = "lizard"`、当前 rule IDs、warning
   semantics 和 machine field shape；
-- 只从 internal dependency resolver/snapshot 删除 Python/Lizard command、args、availability 与
+- 只从 `ScannerDependencySnapshot` resolver 删除 Python/Lizard command、args、availability 与
   process protocol。
 
 Machine labels 标识 compatible metric algorithm，不是 project-level backend selection。
@@ -121,15 +121,16 @@ production imports。不保留 runtime fallback 或 dual backend path。
 用户直接感知有限。它当前排在 semantic config 与 external config workflow 等产品向工作之后，
 不是默认近期任务。活动状态、规划完整或 dependency 实现仍存在都不能单独构成优先实施理由。
 
-前置 semantic config 先消除 public backend coupling，external workflow 直接发布最终 semantic
+前置 semantic config 已消除 public backend coupling，external workflow 将直接使用最终 semantic
 schema；本 port 恢复时不再产生 config migration。只有用户显式重新排序，或出现直接阻塞
 产品交付、目标平台可用性、可靠性、安全或许可证合规的证据时，才提前重新评估。
 
 ## Dependencies and Ordering
 
 1. Product-source promotion 与 machine-output stabilization 已完成。
-2. `decouple-project-config-from-scanner-tools` 必须先实现并验证 semantic config、internal
-   dependency snapshot 与 compatibility boundary。
+2. `decouple-project-config-from-scanner-tools` 已实现 semantic document、
+   `ResolvedQualityConfig`、`ScannerDependencySnapshot` 与 compatibility boundary；本 change 的
+   task 0.3 仍须在 port 开始前核对最终验证证据。
 3. 按当前产品优先级，`add-external-project-config-workflow` 先交付；若用户显式重新排序或出现
    Decision 8 的直接阻塞证据，必须先记录新的排序依据。
 4. 本 port 开始时只 rebase internal dependency/runtime facts，不修改已经发布的 semantic

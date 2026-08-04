@@ -12,42 +12,61 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { loadQualityConfig } from "../../config-file.ts";
+import { loadSemanticProjectConfig } from "../../config-file.ts";
+import { resolveQualityConfig } from "../../config-schema.ts";
+import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
 import {
   validateMachineArtifactSetV1,
   type MachineMetricsV1
 } from "../../machine-output.ts";
 import {
   type GatePolicy,
-  type QualityConfig
+  type ResolvedQualityConfig
 } from "./model/schema.ts";
 import { runQualityScan } from "./engine.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
+const controlledScanner = resolve(fixtureRoot, "tools/controlled-scanner.ts");
+const FIXTURE_DEPENDENCIES: ScannerDependencySnapshot = {
+  duplication: {
+    args: [controlledScanner, "jscpd"],
+    availabilityArgs: [controlledScanner, "jscpd", "--version"],
+    executable: process.execPath,
+    maxConcurrency: 4
+  },
+  file: {
+    args: [controlledScanner, "scc"],
+    availabilityArgs: [controlledScanner, "scc", "--version"],
+    executable: process.execPath
+  },
+  function: {
+    args: [controlledScanner, "lizard"],
+    availabilityArgs: [controlledScanner, "lizard", "--version"],
+    executable: process.execPath
+  }
+};
 
 describe("quality scan process outcome", () => {
   test("publishes the same warnings and GateResult across successful outputs", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-success-"));
 
     try {
-      const fixtureConfig = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
-      const config: QualityConfig = {
+      const fixtureConfig = await loadFixtureConfig();
+      const config: ResolvedQualityConfig = {
         ...fixtureConfig,
         acceptedWarnings: [
           {
+            checkId: "function-cyclomatic-complexity",
             reason: "Accepted by the core gate integration fixture.",
-            ruleId: "lizard-cyclomatic-complexity"
           },
           {
+            checkId: "function-code-lines",
             reason: "Accepted by the core gate integration fixture.",
-            ruleId: "lizard-function-code-density"
           },
           {
+            checkId: "file-code-lines",
             reason: "Accepted by the core gate integration fixture.",
-            ruleId: "scc-file-code-lines"
           }
         ]
       };
@@ -142,9 +161,7 @@ describe("quality scan process outcome", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-failed-"));
 
     try {
-      const config = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
+      const config = await loadFixtureConfig();
       const result = await runFixtureScan({
         artifactName: "failed-gate",
         config,
@@ -175,9 +192,7 @@ describe("quality scan process outcome", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-not-evaluated-"));
 
     try {
-      const fixtureConfig = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
+      const fixtureConfig = await loadFixtureConfig();
       const empty = await runFixtureScan({
         artifactName: "empty",
         config: {
@@ -189,14 +204,13 @@ describe("quality scan process outcome", () => {
       });
       const incomplete = await runFixtureScan({
         artifactName: "incomplete",
-        config: {
-          ...fixtureConfig,
-          tools: {
-            ...fixtureConfig.tools,
-            scc: {
-              args: [],
-              command: resolve(tempRoot, "missing-scc")
-            }
+        config: fixtureConfig,
+        dependencies: {
+          ...FIXTURE_DEPENDENCIES,
+          file: {
+            args: [],
+            availabilityArgs: ["--version"],
+            executable: resolve(tempRoot, "missing-scc")
           }
         },
         gatePolicy: "all",
@@ -250,9 +264,7 @@ describe("quality scan process outcome", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-output-failure-"));
 
     try {
-      const config = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
+      const config = await loadFixtureConfig();
       const result = await runFixtureScanWithoutArtifacts({
         artifactName: "output-failure",
         config,
@@ -279,15 +291,13 @@ describe("quality scan process outcome", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-validation-failure-"));
 
     try {
-      const fixtureConfig = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
+      const fixtureConfig = await loadFixtureConfig();
       const result = await runFixtureScanWithoutArtifacts({
         artifactName: "validation-failure",
         config: {
           ...fixtureConfig,
           version: ""
-        },
+        } as unknown as ResolvedQualityConfig,
         gatePolicy: "all",
         prepareArtifactDir: seedPriorMachinePublication,
         tempRoot
@@ -310,23 +320,21 @@ describe("quality scan process outcome", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-verification-output-"));
 
     try {
-      const fixtureConfig = await loadQualityConfig(
-        resolve(fixtureRoot, "vibe-check.config.json")
-      );
-      const config: QualityConfig = {
+      const fixtureConfig = await loadFixtureConfig();
+      const config: ResolvedQualityConfig = {
         ...fixtureConfig,
         acceptedWarnings: [
           {
+            checkId: "function-cyclomatic-complexity",
             reason: "Accepted by the gate verification-output fixture.",
-            ruleId: "lizard-cyclomatic-complexity"
           },
           {
+            checkId: "function-code-lines",
             reason: "Accepted by the gate verification-output fixture.",
-            ruleId: "lizard-function-code-density"
           },
           {
+            checkId: "file-code-lines",
             reason: "Accepted by the gate verification-output fixture.",
-            ruleId: "scc-file-code-lines"
           }
         ]
       };
@@ -363,16 +371,26 @@ describe("quality scan process outcome", () => {
   });
 });
 
+async function loadFixtureConfig(): Promise<ResolvedQualityConfig> {
+  return resolveQualityConfig(
+    await loadSemanticProjectConfig(
+      resolve(fixtureRoot, ".vibe-check", "config.json")
+    )
+  );
+}
+
 async function runFixtureScan({
   artifactName,
   config,
+  dependencies,
   gatePolicy,
   prepareArtifactDir,
   tempRoot,
   verificationOutput = false
 }: {
   artifactName: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies?: ScannerDependencySnapshot;
   gatePolicy: GatePolicy | null;
   prepareArtifactDir?: (artifactDir: string) => void;
   tempRoot: string;
@@ -387,6 +405,7 @@ async function runFixtureScan({
   const output = await runFixtureScanWithoutArtifacts({
     artifactName,
     config,
+    dependencies,
     gatePolicy,
     prepareArtifactDir,
     tempRoot,
@@ -400,13 +419,15 @@ async function runFixtureScan({
 async function runFixtureScanWithoutArtifacts({
   artifactName,
   config,
+  dependencies = FIXTURE_DEPENDENCIES,
   gatePolicy,
   prepareArtifactDir,
   tempRoot,
   verificationOutput = false
 }: {
   artifactName: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies?: ScannerDependencySnapshot;
   gatePolicy: GatePolicy | null;
   prepareArtifactDir?: (artifactDir: string) => void;
   tempRoot: string;
@@ -425,6 +446,7 @@ async function runFixtureScanWithoutArtifacts({
         ...config,
         cacheDir: resolve(tempRoot, `${artifactName}-cache`)
       },
+      dependencies,
       options: {
         artifactDir,
         baseline: null,

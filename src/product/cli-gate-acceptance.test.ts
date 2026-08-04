@@ -329,7 +329,7 @@ function createFixtureProject(label: string): FixtureProject {
 
 function readFixtureConfig(projectRoot: string): Record<string, unknown> {
   return JSON.parse(
-    readFileSync(join(projectRoot, "vibe-check.config.json"), "utf8")
+    readFileSync(join(projectRoot, ".vibe-check", "config.json"), "utf8")
   ) as Record<string, unknown>;
 }
 
@@ -338,7 +338,7 @@ function writeFixtureConfig(
   config: Record<string, unknown>
 ): void {
   writeFileSync(
-    join(projectRoot, "vibe-check.config.json"),
+    join(projectRoot, ".vibe-check", "config.json"),
     JSON.stringify(config),
     "utf8"
   );
@@ -378,7 +378,7 @@ function runFormalGateScan(
       "scan",
       projectRoot,
       "--config",
-      "vibe-check.config.json",
+      ".vibe-check/config.json",
       ...args
     ],
     {
@@ -386,6 +386,7 @@ function runFormalGateScan(
       encoding: "utf8",
       env: {
         ...process.env,
+        ...configuredScannerEnvironment(),
         VIBE_CHECK_QUALITY_TIMINGS: "0"
       }
     }
@@ -571,25 +572,40 @@ function increaseControlledMetrics(projectRoot: string): void {
 }
 
 function raiseWarningFloors(config: Record<string, unknown>): void {
-  const lizard = config.lizard as {
-    cyclomaticComplexity: { absoluteFloor: number };
-    functionCodeDensity: {
-      absoluteFloor: number;
-      lowComplexityAllowance: { codeLineFloor: number };
+  const checks = config.checks as {
+    files: {
+      codeLines: {
+        absoluteFloor: number;
+        lowDecisionTokenAllowance: { codeLineFloor: number };
+      };
     };
-    parameterCount: { absoluteFloor: number };
-  };
-  const scc = config.scc as {
-    fileCodeLines: {
-      absoluteFloor: number;
-      lowDecisionTokenAllowance: { codeLineFloor: number };
+    functions: {
+      codeLines: {
+        absoluteFloor: number;
+        lowComplexityAllowance: { codeLineFloor: number };
+      };
+      cyclomaticComplexity: { absoluteFloor: number };
+      parameterCount: { absoluteFloor: number };
     };
   };
 
-  lizard.cyclomaticComplexity.absoluteFloor = 10_000;
-  lizard.functionCodeDensity.absoluteFloor = 10_000;
-  lizard.functionCodeDensity.lowComplexityAllowance.codeLineFloor = 10_000;
-  lizard.parameterCount.absoluteFloor = 10_000;
-  scc.fileCodeLines.absoluteFloor = 10_000;
-  scc.fileCodeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
+  checks.functions.cyclomaticComplexity.absoluteFloor = 10_000;
+  checks.functions.codeLines.absoluteFloor = 10_000;
+  checks.functions.codeLines.lowComplexityAllowance.codeLineFloor = 10_000;
+  checks.functions.parameterCount.absoluteFloor = 10_000;
+  checks.files.codeLines.absoluteFloor = 10_000;
+  checks.files.codeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
+}
+
+function configuredScannerEnvironment(): NodeJS.ProcessEnv {
+  return {
+    VIBE_CHECK_JSCPD_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "jscpd"]),
+    VIBE_CHECK_JSCPD_CMD: process.execPath,
+    VIBE_CHECK_LIZARD_CMD: join(
+      "tools",
+      process.platform === "win32" ? "controlled-lizard.cmd" : "controlled-lizard"
+    ),
+    VIBE_CHECK_SCC_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "scc"]),
+    VIBE_CHECK_SCC_CMD: process.execPath
+  };
 }

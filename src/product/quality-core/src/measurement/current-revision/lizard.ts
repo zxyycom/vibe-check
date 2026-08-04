@@ -16,7 +16,7 @@ export function runLizardScan(
   context: ScanContext,
   targetFiles: string[]
 ): CapabilityResult {
-  const { metrics, toolResults, rawDir, root, config } = context;
+  const { metrics, toolResults, rawDir, root, config, dependencies } = context;
   if (targetFiles.length === 0) {
     return { capabilityId: "function-metrics", status: "no-input" };
   }
@@ -39,7 +39,7 @@ export function runLizardScan(
   const lizardResult = scanWithLizard({
     files: targetFiles,
     cwd: root,
-    toolConfig: config.tools.lizard
+    dependency: dependencies.function
   });
 
   if (!lizardResult.ok) {

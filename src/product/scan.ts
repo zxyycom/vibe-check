@@ -1,9 +1,11 @@
 import { resolve } from "node:path";
 
 import { parseArgs } from "./args.ts";
-import { loadQualityConfig } from "./config-file.ts";
+import { loadSemanticProjectConfig } from "./config-file.ts";
+import { resolveQualityConfig } from "./config-schema.ts";
 import { createDefaultConfig } from "./config.ts";
 import { runQualityScan } from "./quality-core/src/index.ts";
+import { resolveScannerDependencySnapshot } from "./scanner-dependencies.ts";
 import type {
   QualityScanOptions,
   QualityScanProcessOutcome
@@ -17,23 +19,35 @@ export async function runScan(
 ): Promise<ScanOutcome> {
   const root = resolve(projectRoot);
   const parsed = parseArgs([...argv]);
+  const cliOverrides = {
+    ...(parsed.artifactDir === null ? {} : { artifactDir: parsed.artifactDir }),
+    ...(parsed.topN === null ? {} : { topN: parsed.topN })
+  };
   const config = parsed.configFile === null
-    ? createDefaultConfig()
-    : await loadQualityConfig(resolve(root, parsed.configFile));
+    ? createDefaultConfig(cliOverrides)
+    : resolveQualityConfig(
+        await loadSemanticProjectConfig(resolve(root, parsed.configFile)),
+        cliOverrides
+      );
+  const dependencies = resolveScannerDependencySnapshot(
+    process.env,
+    process.platform
+  );
   const options: QualityScanOptions = {
-    artifactDir: parsed.artifactDir ?? config.artifactDir,
+    artifactDir: config.artifactDir,
     baseline: parsed.baseline,
     changedFiles: parsed.changedFiles,
     gatePolicy: parsed.gatePolicy,
     scanProfile: parsed.scanProfile,
     skipBaseline: parsed.skipBaseline,
-    topN: parsed.topN ?? config.report.topN,
+    topN: config.report.topN,
     verificationOutput: parsed.verificationOutput
   };
 
   const outcome = await runQualityScan({
     banner: printBanner,
     config,
+    dependencies,
     options,
     root,
     timingsEnabled: process.env.VIBE_CHECK_QUALITY_TIMINGS === "1"

@@ -15,8 +15,16 @@ import {
   type BaselineSnapshotCacheIdentity,
   type DuplicateCodeCacheIdentity
 } from "./cache.ts";
-import type { BaselineSnapshot, DuplicateCodeFragment } from "../model/schema.ts";
-import { TEST_QUALITY_CONFIG } from "../../test/config.ts";
+import type {
+  BaselineSnapshot,
+  DuplicateCodeFragment,
+  ResolvedQualityConfig
+} from "../model/schema.ts";
+import {
+  TEST_QUALITY_CONFIG,
+  TEST_SCANNER_DEPENDENCIES
+} from "../../test/config.ts";
+import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
 
 const TEST_CODE_AREA = "typescript-production-scripts";
 const BASELINE_SNAPSHOT: BaselineSnapshot = {
@@ -143,7 +151,43 @@ describe("quality measurement cache", () => {
       const baseKey = buildBaselineSnapshotCacheKey(identity);
       assert.notEqual(
         baseKey,
-        buildBaselineSnapshotCacheKey(baselineSnapshotIdentity("1.24.0"))
+        buildBaselineSnapshotCacheKey(
+          baselineSnapshotIdentity({ lizardVersion: "1.24.0" })
+        )
+      );
+      assert.notEqual(
+        baseKey,
+        buildBaselineSnapshotCacheKey(
+          baselineSnapshotIdentity({
+            dependencies: {
+              ...TEST_SCANNER_DEPENDENCIES,
+              file: {
+                ...TEST_SCANNER_DEPENDENCIES.file,
+                executable: "/opt/alternate-scc"
+              }
+            }
+          })
+        )
+      );
+      assert.notEqual(
+        baseKey,
+        buildBaselineSnapshotCacheKey(
+          baselineSnapshotIdentity({
+            inputFingerprints: {
+              ...BASELINE_SNAPSHOT.fingerprints,
+              [TEST_CODE_AREA]: {
+                ...BASELINE_SNAPSHOT.fingerprints[TEST_CODE_AREA]!,
+                fingerprint: "sha256:changed-baseline:1"
+              }
+            }
+          })
+        )
+      );
+      assert.equal(
+        baseKey,
+        buildBaselineSnapshotCacheKey(
+          baselineSnapshotIdentity({ config: configWithIrrelevantChanges() })
+        )
       );
 
       const written = writeBaselineSnapshotCacheEntry({ rootDir: tempDir, identity, snapshot });
@@ -201,10 +245,21 @@ function duplicateFragment(): DuplicateCodeFragment {
   };
 }
 
-function baselineSnapshotIdentity(lizardVersion = "1.23.0"): BaselineSnapshotCacheIdentity {
+function baselineSnapshotIdentity({
+  config = TEST_QUALITY_CONFIG,
+  dependencies = TEST_SCANNER_DEPENDENCIES,
+  inputFingerprints = BASELINE_SNAPSHOT.fingerprints,
+  lizardVersion = "1.23.0"
+}: {
+  config?: ResolvedQualityConfig;
+  dependencies?: ScannerDependencySnapshot;
+  inputFingerprints?: BaselineSnapshot["fingerprints"];
+  lizardVersion?: string;
+} = {}): BaselineSnapshotCacheIdentity {
   return createBaselineSnapshotCacheIdentity({
-    commitSha: "abc123",
-    config: TEST_QUALITY_CONFIG,
+    config,
+    dependencies,
+    inputFingerprints,
     toolResults: [
       {
         name: "lizard",
@@ -229,4 +284,28 @@ function baselineSnapshotIdentity(lizardVersion = "1.23.0"): BaselineSnapshotCac
       }
     ]
   });
+}
+
+function configWithIrrelevantChanges(): ResolvedQualityConfig {
+  return {
+    ...TEST_QUALITY_CONFIG,
+    acceptedWarnings: [{
+      checkId: "file-code-lines",
+      reason: "does not change baseline measurement"
+    }],
+    checks: {
+      ...TEST_QUALITY_CONFIG.checks,
+      files: {
+        codeLines: {
+          ...TEST_QUALITY_CONFIG.checks.files.codeLines,
+          absoluteFloor: 999
+        }
+      }
+    },
+    report: {
+      ...TEST_QUALITY_CONFIG.report,
+      title: "Unrelated report title"
+    },
+    version: "unrelated-contract-version"
+  } as unknown as ResolvedQualityConfig;
 }

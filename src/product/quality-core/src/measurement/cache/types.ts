@@ -1,9 +1,8 @@
 import type {
   BaselineSnapshot,
   CodeAreaFingerprint,
-  CodeAreaDefinition,
-  DuplicateCodeFragment,
-  ToolAvailability
+  CodeAreaWarningPolicy,
+  DuplicateCodeFragment
 } from "../../model/schema.ts";
 
 export const SCAN_CACHE_VERSION = "quality-scan-cache-v1";
@@ -51,24 +50,19 @@ export type ScanCachePayload = {
   toolVersion: string;
 };
 
+export type BaselineBackendIdentity = {
+  args: string[];
+  executable: string;
+  version: string | null;
+};
+
 export type BaselineSnapshotCacheIdentity = {
-  codeAreas: Record<string, CodeAreaDefinition>;
-  commitSha: string;
-  configVersion: string;
-  excludeDirs: string[];
-  generatedFiles: string[];
-  include: string[];
-  jscpd: {
-    defaultMinimumTokens: number;
-    formatByCodeArea: Record<string, string | null>;
-    minimumTokens: Record<string, number>;
+  backends: Partial<Record<"duplication" | "file" | "function", BaselineBackendIdentity>>;
+  inputFingerprints: Record<string, CodeAreaFingerprint>;
+  measurementSettings: {
+    codeAreaWarningPolicies: Record<string, CodeAreaWarningPolicy>;
+    duplicationMinimumTokens: Record<string, number>;
   };
-  toolArgs: {
-    lizard: string[];
-    jscpd: string[];
-    scc: string[];
-  };
-  tools: Pick<ToolAvailability, "available" | "name" | "source" | "version">[];
 };
 
 export type BaselineSnapshotCacheHit = {

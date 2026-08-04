@@ -1,9 +1,11 @@
 ## Change 状态
 
-本 change 的 workflow planning 已完成，但 implementation 必须等待
-`decouple-project-config-from-scanner-tools` 先交付最终 semantic project config。当前产品只
-实现了显式、tool-coupled、完整 JSON `--config`；本文其余行为都是目标状态，不得写成已经
-生效。
+本 change 的 workflow planning 已完成。`decouple-project-config-from-scanner-tools` 已交付并验证
+semantic document v1、published schema/example、`ResolvedQualityConfig` 与
+`ScannerDependencySnapshot`。本 change 的 readiness task 0.7 仍须依据这些最终事实完成 handoff
+closure。当前产品只实现显式、complete strict-JSON semantic `--config` 与 built-in semantic
+document；本文的 discovery、comment grammar、`$schema` composition、initializer 和 selected
+config context 都是未来目标。
 
 Lizard TypeScript port 已明确延期且不阻塞产品向工作。前置 semantic-config change 先把
 public fields 与 scanner identity/command 隔离；本 change 随后只生成和选择 tool-neutral
@@ -12,9 +14,10 @@ config，因此未来 port 不再要求用户迁移 project config。
 ## Why
 
 调用者省略 `--config` 时，Product CLI 当前会创建 Vibe Check 仓库专用
-`DEFAULT_CONFIG`。其中包含 Vibe Check-specific include globs、code areas、report text、
-artifact paths 和 dependency commands。调用者只有手写并显式选择一份较长的完整
-`QualityConfig`，才能安全扫描其它项目。
+`DEFAULT_CONFIG`。其中包含 Vibe Check-specific include globs、code areas、report text 和
+artifact paths。调用者只有手写并显式选择一份完整 semantic document，才能安全扫描其它
+项目；scanner execution settings 已在 `ScannerDependencySnapshot`，不是本 workflow 的 field
+或 provenance。
 
 缺少的产品结果不是另一种 fallback，而是一条明确的项目配置工作流：配置集中在工具目录，
 可以生成、审阅和提交；注释说明填写意图，editor schema 提供字段提示；扫描只采用调用者
@@ -32,8 +35,8 @@ artifact paths 和 dependency commands。调用者只有手写并显式选择一
   `.vibe-check/config.json` 与对应 `.vibe-check/config.schema.json`。
 - Product Config 复用前置 change 建立的 semantic runtime schema，同时驱动 structural
   validation 和 editor schema generation；可编辑的 sibling schema 不参与运行时验证。
-- Product Config 统一 config selection、既有 CLI field overrides 和 selected-config
-  provenance；底层 dependency resolution 不进入 project config precedence。
+- Product Config 统一 config selection、既有 CLI field overrides 和 `SelectedConfig` context；
+  operational overrides 不进入 project config precedence。
 - Vibe Check 仓库提交自己的 tool-directory config/schema；所有 `quality:*` wrappers 都通过
   formal Product CLI 显式选择它。
 
@@ -109,9 +112,10 @@ artifact paths 和 dependency commands。调用者只有手写并显式选择一
 
 ## Dependencies and Impact
 
-- 依赖已归档的 explicit-config capability，并以
-  `decouple-project-config-from-scanner-tools` 的 semantic runtime schema 为 implementation
-  prerequisite；不依赖 Lizard port 或 machine-output change。
+- 依赖已归档的 explicit-config capability，并消费已交付
+  `decouple-project-config-from-scanner-tools` 的 semantic runtime schema 与
+  `ResolvedQualityConfig`。本 change 自己的 readiness task 0.7 仍是进入 implementation 的
+  delivery gate；本 change 不依赖 Lizard port 或 machine-output change。
 - 影响 Product CLI routing、Product Config boundary、scan orchestration、help、dogfood wrapper
   args、fixtures、owner docs 和 tests。
 - 不改变 scanner adapters、Core metrics model、warning/gate semantics 或 stable machine v1。

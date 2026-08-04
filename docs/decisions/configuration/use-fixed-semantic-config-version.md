@@ -1,7 +1,7 @@
 ---
 title: 使用固定语义配置契约版本
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-03T09:23:47Z
 purpose: 让 project config version 稳定标识文档契约，而不是承担调用者自定义的缓存失效责任。
 background: 当前 version 是任意字符串并参与 scanner cache identity；新的语义 schema 需要可验证的版本判别，同时缓存应由实际影响测量的输入决定。

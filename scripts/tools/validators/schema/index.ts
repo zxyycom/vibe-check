@@ -8,6 +8,7 @@ import { toAbs, toRel } from "../repo/paths.ts";
 import { assert } from "../assertions.ts";
 import {
   CURRENT_SCHEMAS,
+  EXAMPLES,
   FILE_SYSTEM,
   HISTORICAL_SCHEMAS
 } from "../config.ts";
@@ -59,7 +60,7 @@ export function validateSchemas(): void {
 }
 
 export function validateReportExamples(): void {
-  const exampleRelPaths = listExampleJson(/^[a-z-]+\.json$/);
+  const exampleRelPaths = listExampleJson(/^[a-z-]+-report\.json$/);
   assert(exampleRelPaths.length > 0, "missing Vibe Check report examples");
 
   const schemaRelPath = HISTORICAL_SCHEMAS.report;
@@ -76,4 +77,17 @@ export function validateReportExamples(): void {
     `schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`
   );
   console.log(`report examples ok: ${exampleRelPaths.length} file(s)`);
+}
+
+export function validateSemanticConfigExample(): void {
+  const schemaRelPath = CURRENT_SCHEMAS.config;
+  const exampleRelPath = EXAMPLES.semanticConfig;
+  const ajv = createCurrentSchemaAjv();
+  const validate = compileRegisteredSchema(ajv, schemaRelPath);
+  if (!validate(readJson(exampleRelPath))) {
+    throw new Error(
+      `${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`
+    );
+  }
+  console.log(`schema ok: ${schemaRelPath} (${exampleRelPath})`);
 }

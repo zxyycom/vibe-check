@@ -9,9 +9,10 @@ import { readJsonFile, writeJsonFile } from "../../../foundation/src/index.ts";
 import type {
   BaselineSnapshot,
   DuplicateCodeFragment,
-  QualityConfig,
+  ResolvedQualityConfig,
   ToolAvailability
 } from "../model/schema.ts";
+import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
 import {
   buildBaselineSnapshotCacheKey,
   buildScanCacheKey,
@@ -114,39 +115,89 @@ export function writeScanCacheEntry({
 }
 
 export function createBaselineSnapshotCacheIdentity({
-  commitSha,
   config,
+  dependencies,
+  inputFingerprints,
   toolResults
 }: {
-  commitSha: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
+  inputFingerprints: BaselineSnapshot["fingerprints"];
   toolResults: ToolAvailability[];
 }): BaselineSnapshotCacheIdentity {
+  const inputAreas = Object.keys(inputFingerprints).sort();
+
   return {
-    commitSha,
-    configVersion: config.version,
-    include: [...config.include],
-    excludeDirs: [...config.excludeDirs],
-    generatedFiles: [...config.generatedFiles],
-    codeAreas: config.codeAreas,
-    jscpd: {
-      defaultMinimumTokens: config.jscpd.defaultMinimumTokens,
-      formatByCodeArea: { ...config.jscpd.formatByCodeArea },
-      minimumTokens: { ...config.jscpd.minimumTokens }
-    },
-    toolArgs: {
-      lizard: [...config.tools.lizard.args],
-      jscpd: [...config.tools.jscpd.args],
-      scc: [...config.tools.scc.args]
-    },
-    tools: toolResults
-      .map((tool) => ({
-        available: tool.available,
-        name: tool.name,
-        source: tool.source,
-        version: tool.version
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name))
+    backends: baselineBackendIdentities(dependencies, toolResults),
+    inputFingerprints: Object.fromEntries(
+      inputAreas.map((codeArea) => {
+        const fingerprint = inputFingerprints[codeArea]!;
+        return [codeArea, { ...fingerprint, fileList: [...fingerprint.fileList] }];
+      })
+    ),
+    measurementSettings: {
+      codeAreaWarningPolicies: Object.fromEntries(
+        inputAreas.map((codeArea) => [
+          codeArea,
+          config.codeAreas[codeArea]?.warningPolicy ?? "moderate"
+        ])
+      ),
+      duplicationMinimumTokens: Object.fromEntries(
+        inputAreas
+          .filter((codeArea) => inputFingerprints[codeArea]!.fileCount >= 2)
+          .map((codeArea) => [
+            codeArea,
+            config.checks.duplication.minimumTokensByCodeArea[codeArea] ??
+              config.checks.duplication.defaultMinimumTokens
+          ])
+      )
+    }
+  };
+}
+
+function baselineBackendIdentities(
+  dependencies: ScannerDependencySnapshot,
+  toolResults: ToolAvailability[]
+): BaselineSnapshotCacheIdentity["backends"] {
+  const backends: BaselineSnapshotCacheIdentity["backends"] = {};
+  const fileVersion = baselineBackendVersion(toolResults, "scc");
+  const functionVersion = baselineBackendVersion(toolResults, "lizard");
+  const duplicationVersion = baselineBackendVersion(toolResults, "jscpd");
+
+  if (fileVersion.present) {
+    backends.file = {
+      args: [...dependencies.file.args],
+      executable: dependencies.file.executable,
+      version: fileVersion.version
+    };
+  }
+  if (functionVersion.present) {
+    backends.function = {
+      args: [...dependencies.function.args],
+      executable: dependencies.function.executable,
+      version: functionVersion.version
+    };
+  }
+  if (duplicationVersion.present) {
+    backends.duplication = {
+      args: [...dependencies.duplication.args],
+      executable: dependencies.duplication.executable,
+      version: duplicationVersion.version
+    };
+  }
+
+  return backends;
+}
+
+function baselineBackendVersion(
+  toolResults: ToolAvailability[],
+  name: "jscpd" | "lizard" | "scc"
+): { present: false } | { present: true; version: string | null } {
+  const result = toolResults.find((tool) => tool.name === name);
+  if (!result) return { present: false };
+  return {
+    present: true,
+    version: result.available ? result.version ?? "unknown" : null
   };
 }
 

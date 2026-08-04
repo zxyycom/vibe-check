@@ -14,11 +14,13 @@ machine-output 规则由 [Output](output.md#core-to-machine-projection) 维护�
 
 ## 实施状态
 
-当前 owner 是 `src/product/**` 下的 TypeScript/Bun quality core。默认 thresholds、code
-areas、scanner commands、artifact paths 和 profiles 由 `src/product/config.ts` 唯一拥有；
-`src/product/quality-core/**` 提供 quick / full、optional baseline comparison、scc、
-Python/Lizard、jscpd、warning channels、gate policy descriptor / evaluator、cache 和
-artifacts。已退役的 Rust metrics / warning contract 不属于当前产品行为或测试来源。
+当前 owner 是 `src/product/**` 下的 TypeScript/Bun quality core。Semantic thresholds、code
+areas、warning acceptance 与 report/artifact settings 来自一次 invocation-owned
+`ResolvedQualityConfig`；完整 field contract 由 [Configuration](configuration.md) 维护。
+Scanner executable/args 与 availability 来自 `ScannerDependencySnapshot`，见
+[Scanner 依赖选择](scanner-dependencies.md)。`src/product/quality-core/**` 提供 quick / full、
+optional baseline comparison、file/function/duplication metrics、warning channels、gate policy
+descriptor/evaluator、cache 和 artifacts。已退役 Rust contract 不属于当前产品行为或测试来源。
 
 ## Pipeline boundary
 
@@ -73,31 +75,22 @@ object、process result、临时 config 和 component-private data 不得越过 
 
 ## scc file metrics boundary
 
-现有 TypeScript product config 解析 scc command。Adapter 运行 by-file measurement，把
-scc output 归一化为 `FileMetric`，并保留 file code lines、comment/blank lines、language
-和 decision-token input。
+File measurement 归一化为 `FileMetric`，保留 file code lines、comment/blank lines、language 与
+decision-token input。`checks.files.codeLines` 提供 warning floor、changed delta 与
+low-decision-token allowance；file-line thresholds、aggregate 公式和 normalized result 属于本
+metrics contract。
 
-scc 的 CSV header、language taxonomy、native error 和 process protocol 只属于 adapter。
-没有 eligible file input 时返回 `no-input`，不解析或启动 scc；有 eligible input 时，
-availability failure 返回 `failed` / `unavailable`，未知 header、不可解析 output 或执行
-失败返回对应 normalized failure，不能被当成 zero metrics。
-
-scc command、args、file-line thresholds、decision-token allowance、aggregate 公式和 raw
-artifact 都属于当前 product contract；修改时必须同步对应 owner 与测试。
+Product-approved exact inputs、scc dependency slice、availability/process/CSV failure 与 zero-result
+边界由 [Scanner 依赖选择](scanner-dependencies.md#file-measurement-boundary) 维护。Raw material 由
+Scanner/Output 承接，不进入 `FileMetric` contract。
 
 ## Python/Lizard function metrics boundary
 
-Structural scanning 使用 product config 解析的 Python/Lizard component。当前产品
-通过 Python command 与 `-m lizard` 调用 Lizard，并解析 CSV；process 和 parser behavior
-由现有 adapter tests 验证。
-
-Product core 只向 adapter 传递 normalized scan scope 中受支持的 `.ts` / `.d.ts` 和 `.rs`
-exact paths。`.go`、`.py`、`.tsx`、`.js` 和 `.jsx` 不在 pinned TypeScript selector 中。
-Adapter 不扫描 project root，也不接收被 scope rules 排除或 unsupported 的文件。
-
-Adapter 向 core 返回 Vibe Check-owned `FunctionMetric` 或 normalized failure。Lizard
-process protocol、CSV output 和 private fields 留在 adapter 内；为了复现行为保存的 raw
-material 只属于 scanner artifact，不成为稳定 product output field。
+Function measurement 归一化为 `FunctionMetric`；`checks.functions` 提供
+cyclomatic-complexity、function-code-line 与 parameter-count semantics。Supported file
+classification 与 exact inputs 由 [Scan Scope](scan-scope.md#supported-input-分类) 维护；dependency
+slice、availability/process/CSV failure 与 zero-result 边界由
+[Scanner 依赖选择](scanner-dependencies.md#function-measurement-boundary) 维护。
 
 现有 parser 归一化 function name、file path、line range、NLOC、parameter count 和
 cyclomatic complexity。Lizard 保持 external component；parser、function identity、
@@ -105,28 +98,14 @@ threshold 或 warning algorithm 的变化必须作为对应 scanner / metrics co
 
 ## jscpd duplicate boundary
 
-Duplicate scanning 使用 product config 解析的 jscpd component。当前 TypeScript adapter
-按 code area 规划任务，把 product core 已批准的 exact paths 写入私有临时 config，调用
-repository-managed jscpd CLI，并解析 JSON reporter output。
+Duplicate measurement 归一化为 `DuplicateCodeFragment`。`checks.duplication` 提供 default/per-area
+minimum-token values 与 fragment warning semantics；fragment location、token count、code area、
+ordering、aggregation 和 warning mapping 属于本 metrics contract。
 
-Adapter 向 core 返回 Vibe Check-owned `DuplicateCodeFragment` records 或 normalized
-failure。临时 config、CLI process protocol、reporter JSON 和 private configuration 留在
-adapter 内；raw reporter output 即使为复现而保存也只能作为 scanner artifact，不能成为
-stable product output field。
-
-以下边界保持现有行为：
-
-- quick profile 跳过 jscpd；启用 duplicate scanning 的 profile 继续按 configured code
-  area、format 和 minimum-token values 运行。
-- format 为 `null` 时省略 format override，并不跳过至少有两个 exact inputs 的 area；被
-  scan scope 排除的 paths 不进入 task，没有足够 inputs 的 area 正常跳过。
-- 有 eligible input 时，availability failure 产生 `failed` / `unavailable` result；已进入
-  invocation 后的 non-zero execution、缺失 report 或 parse failure 产生对应
-  `execution` / `invalid-result` failure，不伪装成 successful empty duplicate result。
-- duplicate fragments 的 location、token count、code area、ordering、cache identity 和
-  warning mapping 保持 pinned TypeScript source 的实现。
-
-当前产品不采用或保留已退役 Rust duplicate integration contract。
+Quick/full capability selection、per-area exact inputs、format detection、
+`ScannerDependencySnapshot` slice、private config/reporter 以及 normalized failure 由
+[Scanner 依赖选择](scanner-dependencies.md#duplicate-measurement-boundary) 和
+[`duplicate-scanning` spec](../openspec/specs/duplicate-scanning/spec.md) 维护。
 
 ## Aggregation
 
@@ -185,20 +164,27 @@ private diagnostic metadata；machine v1 则固定 exact capability membership�
 - `changed`：按现有 scope / comparison policy 选出的 changed warnings。
 - `regressions`：超过 configured delta floor 的 changed warnings。
 
-规则集合保持 pinned source 与 product config 不变：
+Public config 以 semantic `checkId` 选择 check；Core 使用 exhaustive mapping 保持 current warning
+identity：
 
-| Rule | Source |
-| --- | --- |
-| `scc-file-code-lines` | file code lines 与 decision-token-aware floor |
-| `lizard-cyclomatic-complexity` | function cyclomatic complexity |
-| `lizard-function-code-density` | Lizard NLOC 与 complexity-aware floor |
-| `lizard-parameter-count` | function parameter count |
-| `jscpd-duplicate-code` | normalized duplicate fragment |
+| Semantic `checkId` | Current warning `ruleId` | Product semantic |
+| --- | --- | --- |
+| `file-code-lines` | `scc-file-code-lines` | file code lines 与 decision-token-aware floor |
+| `function-cyclomatic-complexity` | `lizard-cyclomatic-complexity` | function cyclomatic complexity |
+| `function-code-lines` | `lizard-function-code-density` | function code lines 与 complexity-aware floor |
+| `function-parameter-count` | `lizard-parameter-count` | function parameter count |
+| `duplicate-code` | `jscpd-duplicate-code` | normalized duplicate fragment |
 
 Code-area warning policy 继续控制 strict、moderate、relaxed、watchlist-only 和
-exclude-warnings 行为。Accepted warning configuration 只给匹配 warning 增加
-`acceptedReason`；不删除 `all` / `changed` / `regressions` records。未匹配的 accepted
-configuration 是否产生 warning 继续由现有 validation option 决定。
+exclude-warnings 行为。Accepted warning configuration 以 `checkId` 加 backend-neutral optional
+filters匹配，只给 matched warning 增加 `acceptedReason`；不删除 `all` / `changed` /
+`regressions` records，也不接受 project `sourceTool` matcher。未匹配 acceptance 是否产生
+warning 继续由现有 validation option 决定。完整 accepted-warning field 与 legacy migration 只在
+[Configuration](configuration.md) 维护。
+
+Current Core/machine warning 的 `ruleId`、`sourceTool`、metric、ordering、channel membership 与
+`acceptedReason` behavior 保持现有 output compatibility。Scanner-bearing identity 不是 semantic
+document field；future machine identity rename 必须作为独立 Output contract change。
 
 改变 rule id、message、metric、threshold、policy、排序、accepted reason 或 channel
 selection 时，必须作为 Quality Metrics contract 变更处理。Machine projection 保留 Core
@@ -255,8 +241,8 @@ boundary 验证 channel/count/blocking relationships，见
 
 ## Baseline and profiles
 
-Quick profile 继续跳过 baseline comparison 和 jscpd。Full profile 运行全部 configured
-scanners。普通 scan 的 baseline comparison 继续由显式 baseline option 选择；
+Quick profile 继续跳过 baseline comparison 和 duplicate detection。Full profile 请求全部
+current measurement capabilities。普通 scan 的 baseline comparison 继续由显式 baseline option 选择；
 `changed` / `regressions` gate 的 auto-detection 由 CLI scan plan 启用。Baseline
 unavailable、input unchanged 和 compared 状态，以及 current/baseline cache identity，
 都保持 current product behavior。

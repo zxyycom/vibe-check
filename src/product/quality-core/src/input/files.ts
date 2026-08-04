@@ -12,9 +12,9 @@ import { collectSubmoduleWorktreeFiles } from "./revision-tree.ts";
 import { getRevisionChangedFiles, getWorkingTreeChangedFiles } from "./revisions.ts";
 import { gitGlobPathspecArgs } from "./git-pathspec.ts";
 import { processFailed, runGit, splitGitFileList, toSlashPath, walkFiles } from "../../../foundation/src/index.ts";
-import type { CodeAreaFileMap, CodeAreaFingerprint, QualityConfig } from "../model/schema.ts";
+import type { CodeAreaFileMap, CodeAreaFingerprint, ResolvedQualityConfig } from "../model/schema.ts";
 
-export type ScanInputConfig = Pick<QualityConfig, "excludeDirs" | "generatedFiles" | "include">;
+export type ScanInputConfig = Pick<ResolvedQualityConfig, "excludeDirs" | "generatedFiles" | "include">;
 
 export type ChangedFilesOptions = {
   changedFiles?: string | null;

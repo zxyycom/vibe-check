@@ -4,10 +4,11 @@
 不是默认近期任务，也不得阻塞产品向 change。只有用户显式重新排序，或出现直接阻塞产品
 交付、目标平台可用性、可靠性、安全或许可证合规的证据时，才提前恢复实施。
 
-前置 product-source promotion 已完成。Current-contract audit 已把 port scope 修正为已实现的
-TypeScript/Rust selector 和当前 `FunctionMetric` model；尚未实现 translated source 或
-runtime switch。开始 implementation 前，还必须完成
-`decouple-project-config-from-scanner-tools` 并按其 internal dependency boundary rebase。
+前置 product-source promotion 与 `decouple-project-config-from-scanner-tools` runtime cut 已
+完成。Current-contract audit 已把 port scope 修正为已实现的 TypeScript/Rust selector、当前
+`FunctionMetric` model、`ResolvedQualityConfig` 与 `ScannerDependencySnapshot`；尚未实现
+translated source 或 runtime switch。开始 implementation 前，本 change 的 task 0.3 仍须核对
+最终交付证据。
 
 Implementation 从 pinned upstream/license/source-closure evidence 开始。不得沿用历史四语言
 计划，也不得把 provisional source map 当成已核实 closure。
@@ -19,8 +20,8 @@ path 增加 Python/package installation、process startup、availability check�
 差异与 CSV validation。
 
 产品需要在不依赖该 runtime 的前提下保持相同 current function metrics，而不需要重新设计
-structural-analysis product contract。Project config 与 dependency execution 的隔离由前置
-semantic-config change 完成；本 port 不再承担 public config migration。
+structural-analysis product contract。Project config 与 dependency execution 已由 semantic-config
+change 隔离；本 port 不承担 public config migration。
 
 ## What Changes
 
@@ -32,7 +33,7 @@ semantic-config change 完成；本 port 不再承担 public config migration。
 - 暴露一个 internal typed analyze API；file discovery、supported-input selection、
   normalization、warning、gate 与 output 留在既有 owner。
 - Parity 与 failure behavior 通过后一次切换 adapter。
-- 从 internal dependency resolver/snapshot 删除 Python/Lizard executable、args、availability、
+- 从 `ScannerDependencySnapshot` resolver 删除 Python/Lizard executable、args、availability、
   process wrapper 与 CSV parser；不修改 semantic project config/schema/starter。
 - 保留 serialized `sourceTool: "lizard"` / metric source labels，作为当前兼容算法 identity；
   machine-output identity redesign 不属于本 change。
@@ -68,8 +69,9 @@ semantic-config change 完成；本 port 不再承担 public config migration。
 ## Dependencies and Impact
 
 - 依赖已归档的 TypeScript/Bun product-source promotion。
-- 依赖 `decouple-project-config-from-scanner-tools` 已实现 semantic config 与 internal
-  dependency snapshot；本 change 不重新定义或迁移 public config。
+- 依赖 `decouple-project-config-from-scanner-tools` 已实现 semantic document、
+  `ResolvedQualityConfig` 与 `ScannerDependencySnapshot`；本 change 不重新定义或迁移 public
+  config。
 - 按当前产品优先级，`add-external-project-config-workflow` 先于本 change 交付；只有显式重新
   排序或直接阻塞证据才能改变这一排序。
 - Machine-output stabilization 已完成；port 必须保持 published DTO shape 与 warning contract。

@@ -1,14 +1,15 @@
 # quality-runtime
 
 ## Case AUX-QUALITY-CACHE-001: Quality measurement cache identity 稳定
-Owner: `docs/quality-metrics.md#baseline-and-profiles`
+Owner: `docs/scanner-dependencies.md#cache-identity`
 Entities:
 - `bun|src/product/quality-core/src/measurement/cache.test.ts|quality measurement cache > keys duplicate-code cache by scan identity and strips changed-scope annotations`
 - `bun|src/product/quality-core/src/measurement/cache.test.ts|quality measurement cache > reuses baseline snapshots only when identity and snapshot hash match`
 Proves:
 - duplicate-code cache key changes for tested code area、input fingerprint、tool name/version 和 normalized args differences。
 - cache hit 返回不带 changed-scope annotation 的 metric，保持复用扫描与当前 diff 语义分离。
-- baseline snapshot cache key changes for tested tool version differences，命中时通过 snapshot hash 防止错读缓存内容。
+- baseline snapshot cache identity 由 materialized exact-input fingerprints、有效 code-area/duplication measurement settings 与 eligible backend executable/args/version 构成；tested input、executable 或 tool version 变化时 key 改变。
+- accepted-warning、report、sibling file-check 与 project-config contract version 变化不影响 baseline measurement cache key；命中时通过 snapshot hash 防止错读缓存内容。
 
 ## Case BB-RUNTIME-COMPLETENESS-001: Product scan completeness 跨 surface 可观察
 Owner: `docs/quality-metrics.md#scan-completeness`

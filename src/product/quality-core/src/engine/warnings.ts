@@ -1,6 +1,6 @@
 import type {
   BaselineSnapshot,
-  QualityConfig,
+  ResolvedQualityConfig,
   QualityMetrics
 } from "../model/schema.ts";
 import { generateWarningChannels } from "../output/warnings/generator.ts";
@@ -12,7 +12,7 @@ import type {
 
 type GenerateScanWarningsOptions = {
   baselineSnapshot: BaselineSnapshot | null;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   metrics: QualityMetrics;
   scanProfile: QualityScanOptions["scanProfile"];
   scope: ChangeScope;

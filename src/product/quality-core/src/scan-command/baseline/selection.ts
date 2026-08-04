@@ -4,7 +4,7 @@ import {
   gitCommitTitle as readGitCommitTitle
 } from "../../../../foundation/src/index.ts";
 import type { QualityScanOptions } from "../command-model.ts";
-import type { QualityConfig, QualityMetrics, ToolInfo } from "../../model/schema.ts";
+import type { ResolvedQualityConfig, QualityMetrics, ToolInfo } from "../../model/schema.ts";
 
 type ChangeScope = {
   changed: boolean;
@@ -18,7 +18,7 @@ export function configureBaseline({
   tools,
   root
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   metrics: QualityMetrics;
   opts: QualityScanOptions;
   root: string;
@@ -70,7 +70,7 @@ function configureAutoDetectedBaseline({
   tools,
   root
 }: {
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   metrics: QualityMetrics;
   root: string;
   tools: ToolInfo[];
@@ -78,7 +78,7 @@ function configureAutoDetectedBaseline({
   console.log("Locating baseline commit...");
   const baselineResult = locateBaselineCommit({
     cwd: root,
-    scanInputPaths: config.include
+    scanInputPaths: [...config.include]
   });
 
   if (!baselineResult.ok) {

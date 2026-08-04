@@ -1,4 +1,5 @@
-import type { ToolAvailability, ToolConfig } from "../../../model/schema.ts";
+import type { FunctionScannerDependency } from "../../../../../scanner-dependencies.ts";
+import type { ToolAvailability } from "../../../model/schema.ts";
 import {
   processFailure,
   runToolCommand,
@@ -6,9 +7,16 @@ import {
   type ToolCommandResult
 } from "./command.ts";
 
-export async function checkLizard(rootDir: string, toolConfig: ToolConfig): Promise<ToolAvailability> {
+export async function checkLizard(
+  rootDir: string,
+  dependency: FunctionScannerDependency
+): Promise<ToolAvailability> {
   try {
-    const result = await runToolCommand(rootDir, toolConfig, ["--version"]);
+    const result = await runToolCommand(
+      rootDir,
+      dependency.executable,
+      dependency.availabilityArgs
+    );
     return lizardAvailabilityFromVersionResult(result);
   } catch (error: unknown) {
     return error instanceof Error

@@ -66,85 +66,83 @@ export interface ToolAvailability {
   version: string | null;
 }
 
-export interface ToolConfig {
-  args: string[];
-  command: string;
-}
-
 export interface CodeAreaDefinition {
-  description: string;
-  excludeGlobs: string[];
-  globs: string[];
-  warningPolicy: CodeAreaWarningPolicy;
+  readonly description: string;
+  readonly excludeGlobs: readonly string[];
+  readonly globs: readonly string[];
+  readonly warningPolicy: CodeAreaWarningPolicy;
 }
 
-export interface QualityConfig {
-  acceptedWarnings: readonly AcceptedWarningConfig[];
-  artifactDir: string;
-  cacheDir: string;
-  codeAreas: Record<string, CodeAreaDefinition>;
-  excludeDirs: string[];
-  generatedFiles: string[];
-  include: string[];
-  lizard: {
-    cyclomaticComplexity: QualityThreshold;
-    functionCodeDensity: FunctionCodeDensityThreshold;
-    parameterCount: QualityThreshold;
-  };
-  jscpd: {
-    defaultMinimumTokens: number;
-    duplicateFragments: { changedDelta: number };
-    formatByCodeArea: Record<string, string | null>;
-    maxParallelTasks: number;
-    minimumTokens: Record<string, number>;
-  };
-  report: {
-    footerGeneratedBy: string;
-    footerNotice: string;
-    nonBlockingNotice: string;
-    showWatchlist: boolean;
-    timeZone: string;
-    title: string;
-    topN: number;
-    watchlistMax: number;
-  };
-  scc: {
-    fileCodeLines: QualityThreshold & {
-      lowDecisionTokenAllowance: {
-        codeLineFloor: number;
-        maxDecisionTokens: number;
+export type SemanticCheckId =
+  | "duplicate-code"
+  | "file-code-lines"
+  | "function-code-lines"
+  | "function-cyclomatic-complexity"
+  | "function-parameter-count";
+
+export interface ResolvedQualityConfig {
+  readonly acceptedWarnings: readonly AcceptedWarningConfig[];
+  readonly artifactDir: string;
+  readonly cacheDir: string;
+  readonly checks: {
+    readonly duplication: {
+      readonly defaultMinimumTokens: number;
+      readonly fragments: {
+        readonly changedDelta: number;
+      };
+      readonly minimumTokensByCodeArea: Readonly<Record<string, number>>;
+    };
+    readonly files: {
+      readonly codeLines: QualityThreshold & {
+        readonly lowDecisionTokenAllowance: {
+          readonly codeLineFloor: number;
+          readonly maxDecisionTokens: number;
+        };
       };
     };
+    readonly functions: {
+      readonly codeLines: FunctionCodeLinesThreshold;
+      readonly cyclomaticComplexity: QualityThreshold;
+      readonly parameterCount: QualityThreshold;
+    };
   };
-  tools: {
-    lizard: ToolConfig;
-    jscpd: ToolConfig;
-    scc: ToolConfig;
+  readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
+  readonly excludeDirs: readonly string[];
+  readonly generatedFiles: readonly string[];
+  readonly include: readonly string[];
+  readonly report: {
+    readonly footerGeneratedBy: string;
+    readonly footerNotice: string;
+    readonly nonBlockingNotice: string;
+    readonly showWatchlist: boolean;
+    readonly timeZone: string;
+    readonly title: string;
+    readonly topN: number;
+    readonly watchlistMax: number;
   };
-  version: string;
+  readonly version: "1";
 }
 
 export interface AcceptedWarningConfig {
-  codeArea?: string;
-  messageIncludes?: readonly string[];
-  metric?: string;
-  path?: string;
-  reason: string;
-  ruleId: string;
-  sourceTool?: string;
-  suggestionIncludes?: readonly string[];
-  value?: number;
+  readonly checkId: SemanticCheckId;
+  readonly codeArea?: string;
+  readonly messageIncludes?: readonly string[];
+  readonly metric?: string;
+  readonly path?: string;
+  readonly reason: string;
+  readonly suggestionIncludes?: readonly string[];
+  readonly value?: number;
 }
 
 export interface QualityThreshold {
-  absoluteFloor: number;
-  changedDelta: number;
+  readonly absoluteFloor: number;
+  readonly changedDelta: number;
 }
 
-export interface FunctionCodeDensityThreshold extends QualityThreshold {
-  lowComplexityAllowance: {
-    codeLineFloor: number;
-    maxCyclomaticComplexityExclusive: number;
+export interface FunctionCodeLinesThreshold extends QualityThreshold {
+  readonly lowComplexityAllowance: {
+    readonly codeLineFloor: number;
+    readonly maxCyclomaticComplexityExclusive: number;
   };
 }
 

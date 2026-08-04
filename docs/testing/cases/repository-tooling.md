@@ -32,6 +32,7 @@ Entities:
 Proves:
 - Required profile 精确调度 focused producer-to-annotation test child；child 自己运行正式 producer 与 actual consumer 并判断 machine boundary，workspace verifier 只使用既有 process result/output 编排。
 - Acceptance 使用隔离的临时 fixture copies 与 actual package consumer，workspace task 不增加 artifact parser、schema registry 或 warning mapper。
+- Producer 读取 fixture 的 semantic `.vibe-check/config.json`，controlled scanner execution 只通过 Product-owned operational environment 注入，不把 command / args 写回 project config。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`

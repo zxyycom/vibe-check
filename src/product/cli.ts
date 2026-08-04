@@ -4,7 +4,9 @@ import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { CliUsageError, errorMessage } from "./foundation/src/errors.ts";
+import { ProjectConfigError } from "./config-file.ts";
 import { qualityScanErrorExitCode } from "./quality-core/src/index.ts";
+import { ScannerOperationalInputError } from "./scanner-dependencies.ts";
 import { runScan } from "./scan.ts";
 import type { ScanOutcome } from "./scan.ts";
 
@@ -45,7 +47,9 @@ export async function runProductCli(
     return SCAN_OUTCOME_EXIT_CODE[outcome];
   } catch (err: unknown) {
     runtime.error(`Fatal error in quality scan: ${errorMessage(err)}`);
-    return err instanceof CliUsageError ? 3 : qualityScanErrorExitCode(err);
+    if (err instanceof CliUsageError || err instanceof ProjectConfigError) return 3;
+    if (err instanceof ScannerOperationalInputError) return 2;
+    return qualityScanErrorExitCode(err);
   }
 }
 

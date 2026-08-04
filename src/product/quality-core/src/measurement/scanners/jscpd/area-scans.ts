@@ -15,20 +15,20 @@ import type {
   CodeAreaFileMap,
   CodeAreaFingerprint,
   DuplicateCodeFragment,
-  QualityConfig,
+  ResolvedQualityConfig,
   ToolAvailability
 } from "../../../model/schema.ts";
 import type { JscpdScanFailureReason } from "./types.ts";
+import type { DuplicationScannerDependency } from "../../../../../scanner-dependencies.ts";
 
-export type JscpdAreaScanInput = {
+type JscpdAreaScanInput = {
   area: string;
   files: string[];
   minimumTokens: number;
 };
 
-export type JscpdAreaScanTask = {
+type JscpdAreaScanTask = {
   area: string;
-  codeArea: string;
   files: string[];
   id: string;
   minimumTokens: number;
@@ -43,8 +43,9 @@ type JscpdAreaScanOptions = {
   cacheRootDir: string;
   changedFiles?: string[];
   commitSha: string;
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
   cwd: string;
+  dependency: DuplicationScannerDependency;
   fileMap: CodeAreaFileMap;
   fingerprints: Record<string, CodeAreaFingerprint>;
   logPrefix: string;
@@ -73,7 +74,7 @@ export async function scanJscpdAreasWithCache(options: JscpdAreaScanOptions): Pr
   const tasks = planJscpdAreaScanTasks(work.misses);
   const taskResults = await runBoundedTasks(
     tasks,
-    options.config.jscpd.maxParallelTasks,
+    options.dependency.maxConcurrency,
     async (task) => runJscpdAreaScanTask(options, task)
   );
 
@@ -87,8 +88,9 @@ function collectJscpdAreaScanWork(options: JscpdAreaScanOptions): JscpdAreaScanW
     const targetFiles = areaFiles.filter(
       (file) => !isExcluded(file, options.config.excludeDirs, options.config.generatedFiles)
     );
-    const minTokens = options.config.jscpd.minimumTokens[area] ??
-      options.config.jscpd.defaultMinimumTokens;
+    const minTokens =
+      options.config.checks.duplication.minimumTokensByCodeArea[area] ??
+      options.config.checks.duplication.defaultMinimumTokens;
     const identity = createJscpdCacheIdentity(options, area, minTokens);
     const cached = loadScanCacheEntry({
       rootDir: options.cacheRootDir,
@@ -148,7 +150,6 @@ export function planJscpdAreaScanTasks(areas: JscpdAreaScanInput[]): JscpdAreaSc
     .filter((area) => area.files.length >= 2)
     .map((area) => ({
       area: area.area,
-      codeArea: area.area,
       files: uniqueSorted(area.files),
       id: `jscpd:${area.area}`,
       minimumTokens: area.minimumTokens
@@ -169,7 +170,7 @@ function createJscpdCacheIdentity(
     scanKind: options.scanKind,
     toolName: "jscpd",
     toolVersion,
-    normalizedToolArgs: jscpdCacheArgs(options.config, codeArea, minTokens),
+    normalizedToolArgs: jscpdCacheArgs(options.dependency, minTokens),
     configVersion: options.config.version,
     codeArea,
     commitSha: options.commitSha,
@@ -185,19 +186,20 @@ function toolVersionFor(toolResults: ToolAvailability[], name: string): string |
   return toolResults.find((tool) => tool.name === name && tool.available)?.version ?? null;
 }
 
-function jscpdCacheArgs(config: QualityConfig, codeArea: string, minTokens: number): string[] {
-  const format = config.jscpd.formatByCodeArea[codeArea] ?? null;
+function jscpdCacheArgs(
+  dependency: DuplicationScannerDependency,
+  minTokens: number
+): string[] {
   return [
-    normalizedJscpdCommandForCache(config.tools.jscpd.command),
-    ...config.tools.jscpd.args,
+    normalizedJscpdCommandForCache(dependency.executable),
+    ...dependency.args,
     "--config",
     "<jscpd-config-with-input-fingerprint>",
     "--min-tokens",
     String(minTokens),
     "--reporters",
     "json",
-    "--absolute",
-    ...(format ? ["--format", format] : [])
+    "--absolute"
   ];
 }
 
@@ -217,9 +219,8 @@ async function runJscpdAreaScanTask(options: JscpdAreaScanOptions, task: JscpdAr
   const result = await scanWithJscpdAsync({
     files: task.files,
     cwd: options.cwd,
-    toolConfig: options.config.tools.jscpd,
-    minimumTokens: task.minimumTokens,
-    format: options.config.jscpd.formatByCodeArea[task.codeArea] ?? null
+    dependency: options.dependency,
+    minimumTokens: task.minimumTokens
   });
 
   return { task, result };

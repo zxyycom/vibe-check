@@ -3,11 +3,11 @@
  */
 
 import { classifyFile, isExcluded } from "../model/code-areas.ts";
-import type { FileMetric, FunctionMetric, QualityConfig, ToolAvailability } from "../model/schema.ts";
+import type { FileMetric, FunctionMetric, ResolvedQualityConfig, ToolAvailability } from "../model/schema.ts";
 
 type NormalizeMetricOptions = {
   changedFiles?: readonly string[];
-  config: QualityConfig;
+  config: ResolvedQualityConfig;
 };
 
 export function normalizeFileMetrics(files: FileMetric[], options: NormalizeMetricOptions): FileMetric[] {
@@ -39,7 +39,7 @@ export function normalizeFunctionMetrics(
   );
 }
 
-export function selectLizardTargetFiles(files: string[], config: QualityConfig): string[] {
+export function selectLizardTargetFiles(files: string[], config: ResolvedQualityConfig): string[] {
   return files.filter(
     (file) => isLizardTarget(file) && !isExcluded(file, config.excludeDirs, config.generatedFiles)
   );

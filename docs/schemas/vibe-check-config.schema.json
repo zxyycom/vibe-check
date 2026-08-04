@@ -1,0 +1,410 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-check:schema:config:v1",
+  "type": "object",
+  "required": [
+    "acceptedWarnings",
+    "artifactDir",
+    "cacheDir",
+    "checks",
+    "codeAreas",
+    "excludeDirs",
+    "generatedFiles",
+    "include",
+    "report",
+    "version"
+  ],
+  "properties": {
+    "acceptedWarnings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "checkId",
+          "reason"
+        ],
+        "properties": {
+          "checkId": {
+            "enum": [
+              "file-code-lines",
+              "function-cyclomatic-complexity",
+              "function-code-lines",
+              "function-parameter-count",
+              "duplicate-code"
+            ],
+            "description": "Stable Vibe Check semantic check identity.",
+            "type": "string"
+          },
+          "codeArea": {
+            "type": "string",
+            "description": "Optional exact code-area filter."
+          },
+          "messageIncludes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Text fragment required in the warning message."
+            },
+            "description": "Optional warning-message fragments that must all match."
+          },
+          "metric": {
+            "type": "string",
+            "description": "Optional exact normalized metric filter."
+          },
+          "path": {
+            "type": "string",
+            "description": "Optional exact project-relative path filter."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Owner-supplied reason for accepting the matched warning."
+          },
+          "suggestionIncludes": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Text fragment required in the warning suggestion."
+            },
+            "description": "Optional warning-suggestion fragments that must all match."
+          },
+          "value": {
+            "type": "number",
+            "description": "Optional exact finite warning value filter."
+          }
+        },
+        "additionalProperties": false,
+        "description": "One backend-neutral accepted-warning matcher."
+      },
+      "description": "Owner-reviewed semantic warning acceptances."
+    },
+    "artifactDir": {
+      "type": "string",
+      "description": "Project-root-relative directory for scan artifacts."
+    },
+    "cacheDir": {
+      "type": "string",
+      "description": "Project-root-relative directory for measurement caches."
+    },
+    "checks": {
+      "type": "object",
+      "required": [
+        "duplication",
+        "files",
+        "functions"
+      ],
+      "properties": {
+        "duplication": {
+          "type": "object",
+          "required": [
+            "defaultMinimumTokens",
+            "fragments",
+            "minimumTokensByCodeArea"
+          ],
+          "properties": {
+            "defaultMinimumTokens": {
+              "type": "number",
+              "description": "Default duplicate-detection token sensitivity."
+            },
+            "fragments": {
+              "type": "object",
+              "required": [
+                "changedDelta"
+              ],
+              "properties": {
+                "changedDelta": {
+                  "type": "number",
+                  "description": "Changed duplicate-fragment warning delta."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Duplicate-fragment warning settings."
+            },
+            "minimumTokensByCodeArea": {
+              "type": "object",
+              "patternProperties": {
+                "^.*$": {
+                  "type": "number",
+                  "description": "Duplicate-detection token sensitivity for one code area."
+                }
+              },
+              "description": "Per-code-area duplicate-detection sensitivity; keys must reference declared code areas."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Product-owned duplicate measurement and warning settings."
+        },
+        "files": {
+          "type": "object",
+          "required": [
+            "codeLines"
+          ],
+          "properties": {
+            "codeLines": {
+              "type": "object",
+              "required": [
+                "absoluteFloor",
+                "changedDelta",
+                "lowDecisionTokenAllowance"
+              ],
+              "properties": {
+                "absoluteFloor": {
+                  "type": "number",
+                  "description": "Absolute file code-line warning floor."
+                },
+                "changedDelta": {
+                  "type": "number",
+                  "description": "Changed file code-line warning delta."
+                },
+                "lowDecisionTokenAllowance": {
+                  "type": "object",
+                  "required": [
+                    "codeLineFloor",
+                    "maxDecisionTokens"
+                  ],
+                  "properties": {
+                    "codeLineFloor": {
+                      "type": "number",
+                      "description": "Code-line floor at which the low-decision-token allowance applies."
+                    },
+                    "maxDecisionTokens": {
+                      "type": "number",
+                      "description": "Maximum decision-token value allowed by the file exception."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Allowance for large files with low decision-token counts."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Product-owned file code-line warning settings."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Product-owned file quality checks."
+        },
+        "functions": {
+          "type": "object",
+          "required": [
+            "codeLines",
+            "cyclomaticComplexity",
+            "parameterCount"
+          ],
+          "properties": {
+            "codeLines": {
+              "type": "object",
+              "required": [
+                "absoluteFloor",
+                "changedDelta",
+                "lowComplexityAllowance"
+              ],
+              "properties": {
+                "absoluteFloor": {
+                  "type": "number",
+                  "description": "Absolute function code-line warning floor."
+                },
+                "changedDelta": {
+                  "type": "number",
+                  "description": "Changed function code-line warning delta."
+                },
+                "lowComplexityAllowance": {
+                  "type": "object",
+                  "required": [
+                    "codeLineFloor",
+                    "maxCyclomaticComplexityExclusive"
+                  ],
+                  "properties": {
+                    "codeLineFloor": {
+                      "type": "number",
+                      "description": "Code-line floor at which the low-complexity allowance applies."
+                    },
+                    "maxCyclomaticComplexityExclusive": {
+                      "type": "number",
+                      "description": "Exclusive cyclomatic-complexity ceiling for the allowance."
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "Allowance for long functions with low cyclomatic complexity."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Product-owned function code-line warning settings."
+            },
+            "cyclomaticComplexity": {
+              "type": "object",
+              "required": [
+                "absoluteFloor",
+                "changedDelta"
+              ],
+              "properties": {
+                "absoluteFloor": {
+                  "type": "number",
+                  "description": "Absolute warning floor for this quality check."
+                },
+                "changedDelta": {
+                  "type": "number",
+                  "description": "Changed-value delta used by this quality check."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Absolute and changed-delta thresholds for one quality check."
+            },
+            "parameterCount": {
+              "type": "object",
+              "required": [
+                "absoluteFloor",
+                "changedDelta"
+              ],
+              "properties": {
+                "absoluteFloor": {
+                  "type": "number",
+                  "description": "Absolute warning floor for this quality check."
+                },
+                "changedDelta": {
+                  "type": "number",
+                  "description": "Changed-value delta used by this quality check."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Absolute and changed-delta thresholds for one quality check."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Product-owned function quality checks."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Backend-neutral Vibe Check quality settings."
+    },
+    "codeAreas": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "required": [
+            "description",
+            "excludeGlobs",
+            "globs",
+            "warningPolicy"
+          ],
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Human-readable description of this code area."
+            },
+            "excludeGlobs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Glob excluded from this code area."
+              },
+              "description": "Globs excluded after this code area's positive globs match."
+            },
+            "globs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "description": "Glob that assigns matching project files to this code area."
+              },
+              "description": "Globs that select project files for this code area."
+            },
+            "warningPolicy": {
+              "enum": [
+                "strict",
+                "moderate",
+                "relaxed",
+                "watchlist-only",
+                "exclude-warnings"
+              ],
+              "description": "Warning policy applied to files classified into this code area.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "description": "One named Vibe Check code-area definition."
+        }
+      },
+      "description": "Named project code areas used by scope, warning, and report semantics."
+    },
+    "excludeDirs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Directory name or path excluded from scan scope."
+      },
+      "description": "Directories excluded from project file collection."
+    },
+    "generatedFiles": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Glob that classifies a project file as generated."
+      },
+      "description": "Generated-file globs excluded from ordinary scanner input."
+    },
+    "include": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Glob included in project scan scope."
+      },
+      "description": "Project-root-relative include globs."
+    },
+    "report": {
+      "type": "object",
+      "required": [
+        "footerGeneratedBy",
+        "footerNotice",
+        "nonBlockingNotice",
+        "showWatchlist",
+        "timeZone",
+        "title",
+        "topN",
+        "watchlistMax"
+      ],
+      "properties": {
+        "footerGeneratedBy": {
+          "type": "string",
+          "description": "Generated-by footer text."
+        },
+        "footerNotice": {
+          "type": "string",
+          "description": "Report footer notice."
+        },
+        "nonBlockingNotice": {
+          "type": "string",
+          "description": "Non-blocking report notice."
+        },
+        "showWatchlist": {
+          "type": "boolean",
+          "description": "Whether the changed-files watchlist is rendered."
+        },
+        "timeZone": {
+          "type": "string",
+          "description": "IANA time-zone name used for report timestamps."
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable report title."
+        },
+        "topN": {
+          "type": "number",
+          "description": "Number of entries requested for ranked report sections."
+        },
+        "watchlistMax": {
+          "type": "number",
+          "description": "Maximum number of changed-file watchlist entries."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Human-readable report presentation settings."
+    },
+    "version": {
+      "type": "string",
+      "const": "1",
+      "description": "Exact semantic project-config contract discriminator."
+    }
+  },
+  "additionalProperties": false,
+  "description": "Complete Vibe Check semantic project configuration v1.",
+  "title": "Vibe Check semantic project config v1"
+}

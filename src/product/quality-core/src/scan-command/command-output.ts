@@ -16,7 +16,7 @@ import type {
   CodeAreaFingerprint,
   FatalIssue,
   QualityMetrics,
-  QualityConfig,
+  ResolvedQualityConfig,
   WarningRecord
 } from "../model/schema.ts";
 import type { QualityScanProfile } from "./command-model.ts";
@@ -60,7 +60,7 @@ export function writeArtifacts({
 }: {
   artifactDir: string;
   metrics: QualityMetrics;
-  reportOptions: QualityConfig["report"];
+  reportOptions: ResolvedQualityConfig["report"];
   reportTimeZone: string;
   topN: number;
 }): void {

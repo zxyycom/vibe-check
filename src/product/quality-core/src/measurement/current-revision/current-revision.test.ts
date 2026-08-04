@@ -6,11 +6,15 @@ import { describe, it } from "node:test";
 
 import { createEmptyMetrics } from "../../model/schema.ts";
 import type {
-  QualityConfig,
+  ResolvedQualityConfig,
   ToolAvailability
 } from "../../model/schema.ts";
 import { maybeScanBaselineRevision } from "../../scan-command/baseline/scan.ts";
-import { TEST_QUALITY_CONFIG } from "../../../test/config.ts";
+import {
+  TEST_QUALITY_CONFIG,
+  TEST_SCANNER_DEPENDENCIES
+} from "../../../test/config.ts";
+import type { ScannerDependencySnapshot } from "../../../../scanner-dependencies.ts";
 import { runJscpdScan } from "./jscpd.ts";
 import { runLizardScan } from "./lizard.ts";
 import type { ScanContext } from "./scan-context.ts";
@@ -21,8 +25,8 @@ describe("current revision scanner failure projection", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-empty-"));
     const fakeLizardPath = join(tempDir, "fake-lizard.ts");
     writeFileSync(fakeLizardPath, 'process.stdout.write("");\n', "utf8");
-    const config = configWithTool("lizard", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, config, [availableTool("lizard")]);
+    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -43,8 +47,8 @@ describe("current revision scanner failure projection", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-"));
     const fakeLizardPath = join(tempDir, "fake-lizard.ts");
     writeFileSync(fakeLizardPath, 'process.stdout.write("not,lizard,csv");\n', "utf8");
-    const config = configWithTool("lizard", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, config, [availableTool("lizard")]);
+    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
     context.metrics.baseline.status = "generated";
     context.metrics.baseline.commitSha = "invalid-baseline";
     context.metrics.comparisonStatus = "compared";
@@ -72,8 +76,8 @@ describe("current revision scanner failure projection", () => {
       'console.error("parse report expected after invocation");\nprocess.exit(2);\n',
       "utf8"
     );
-    const config = configWithTool("lizard", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, config, [availableTool("lizard")]);
+    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -103,8 +107,8 @@ describe("current revision scanner failure projection", () => {
       'console.error("expected scc report parse output");\nprocess.exit(2);\n',
       "utf8"
     );
-    const config = configWithTool("scc", process.execPath, [fakeSccPath]);
-    const context = createScanContext(tempDir, config, [availableTool("scc")]);
+    const dependencies = dependenciesWithScanner("file", process.execPath, [fakeSccPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("scc")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -130,8 +134,8 @@ describe("current revision scanner failure projection", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-scc-"));
     const fakeSccPath = join(tempDir, "fake-scc.ts");
     writeFileSync(fakeSccPath, 'process.stdout.write("not,scc,csv");\n', "utf8");
-    const config = configWithTool("scc", process.execPath, [fakeSccPath]);
-    const context = createScanContext(tempDir, config, [availableTool("scc")]);
+    const dependencies = dependenciesWithScanner("file", process.execPath, [fakeSccPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("scc")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -151,8 +155,8 @@ describe("current revision scanner failure projection", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-jscpd-"));
     const fakeJscpdPath = join(tempDir, "fake-jscpd.ts");
     writeFileSync(fakeJscpdPath, "process.exit(0);\n", "utf8");
-    const config = configWithTool("jscpd", process.execPath, [fakeJscpdPath]);
-    const context = createScanContext(tempDir, config, [availableTool("jscpd")]);
+    const dependencies = dependenciesWithScanner("duplication", process.execPath, [fakeJscpdPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("jscpd")], dependencies);
     context.fingerprints["typescript-production-scripts"] = {
       fileCount: 2,
       fileList: ["scripts/a.ts", "scripts/b.ts"],
@@ -186,8 +190,8 @@ describe("current revision scanner failure projection", () => {
       'console.error("parse report expected after invocation");\nprocess.exit(2);\n',
       "utf8"
     );
-    const config = configWithTool("jscpd", process.execPath, [fakeJscpdPath]);
-    const context = createScanContext(tempDir, config, [availableTool("jscpd")]);
+    const dependencies = dependenciesWithScanner("duplication", process.execPath, [fakeJscpdPath]);
+    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("jscpd")], dependencies);
     context.fingerprints["typescript-production-scripts"] = {
       fileCount: 2,
       fileList: ["scripts/a.ts", "scripts/b.ts"],
@@ -221,18 +225,21 @@ describe("current revision scanner failure projection", () => {
     const missingCommand = `vibe-check-missing-scanner-${process.pid}`;
     const sccContext = createScanContext(
       tempDir,
-      configWithTool("scc", `${missingCommand}-scc`, []),
-      [availableTool("scc")]
+      TEST_QUALITY_CONFIG,
+      [availableTool("scc")],
+      dependenciesWithScanner("file", `${missingCommand}-scc`, []),
     );
     const lizardContext = createScanContext(
       tempDir,
-      configWithTool("lizard", `${missingCommand}-lizard`, []),
-      [availableTool("lizard")]
+      TEST_QUALITY_CONFIG,
+      [availableTool("lizard")],
+      dependenciesWithScanner("function", `${missingCommand}-lizard`, []),
     );
     const jscpdContext = createScanContext(
       tempDir,
-      configWithTool("jscpd", `${missingCommand}-jscpd`, []),
-      [availableTool("jscpd")]
+      TEST_QUALITY_CONFIG,
+      [availableTool("jscpd")],
+      dependenciesWithScanner("duplication", `${missingCommand}-jscpd`, []),
     );
     jscpdContext.fingerprints["typescript-production-scripts"] = {
       fileCount: 2,
@@ -346,8 +353,9 @@ describe("current revision scanner failure projection", () => {
 
 function createScanContext(
   root: string,
-  config: QualityConfig,
-  toolResults: ToolAvailability[]
+  config: ResolvedQualityConfig,
+  toolResults: ToolAvailability[],
+  dependencies: ScannerDependencySnapshot = TEST_SCANNER_DEPENDENCIES
 ): ScanContext {
   const rawDir = join(root, "raw");
   mkdirSync(rawDir, { recursive: true });
@@ -355,15 +363,16 @@ function createScanContext(
     cacheRootDir: join(root, "cache"),
     changedFiles: [],
     config,
+    dependencies,
     fingerprints: {},
     metrics: createEmptyMetrics({
       configVersion: config.version,
       commitSha: "abc123",
       repository: root,
       scope: {
-        excludeDirs: config.excludeDirs,
-        generatedFiles: config.generatedFiles,
-        include: config.include
+        excludeDirs: [...config.excludeDirs],
+        generatedFiles: [...config.generatedFiles],
+        include: [...config.include]
       },
       tools: []
     }),
@@ -373,16 +382,18 @@ function createScanContext(
   };
 }
 
-function configWithTool(
-  tool: keyof QualityConfig["tools"],
-  command: string,
+function dependenciesWithScanner(
+  scanner: keyof ScannerDependencySnapshot,
+  executable: string,
   args: string[]
-): QualityConfig {
+): ScannerDependencySnapshot {
   return {
-    ...TEST_QUALITY_CONFIG,
-    tools: {
-      ...TEST_QUALITY_CONFIG.tools,
-      [tool]: { command, args }
+    ...TEST_SCANNER_DEPENDENCIES,
+    [scanner]: {
+      ...TEST_SCANNER_DEPENDENCIES[scanner],
+      args,
+      availabilityArgs: [...args, "--version"],
+      executable
     }
   };
 }
