@@ -12,37 +12,30 @@ import type {
   FatalIssue,
   ResolvedQualityConfig,
   QualityMetrics,
-  ToolAvailability
+  ToolAvailability,
 } from "./model/schema.ts";
 import { generateScanWarnings } from "./engine/warnings.ts";
+import { finishScan } from "./engine/scan-finisher.ts";
 import { detectScanInputChange } from "./input/revisions.ts";
 import { buildFingerprints, collectScanFiles } from "./input/files.ts";
 import { runCurrentRevisionScan } from "./measurement/current-revision/index.ts";
-import { cleanupMachineArtifactPublicationV1 } from "./output/machine/index.ts";
 import type {
   ChangeScope,
   QualityScanOptions,
-  QualityScanProcessOutcome
+  QualityScanProcessOutcome,
 } from "./scan-command/index.ts";
 import {
   collectToolMetadata,
   configureBaseline,
   createTimings,
-  formatFatalIssue,
   getGitCommitTitle,
   getGitSha,
   logFingerprints,
   maybeScanBaselineRevision,
   prepareArtifactDirs,
-  printGateStatus,
-  printSummary,
-  printWarningStatus,
-  qualityCheckStatus,
   resolveChangedFilesForScan,
   setComparisonStatus,
-  validateOutput,
-  writeArtifacts,
-  type Timings
+  type Timings,
 } from "./scan-command/index.ts";
 
 export type QualityScanRuntimeOptions = {
@@ -76,46 +69,69 @@ type RuntimeContext = {
   toolResults: ToolAvailability[];
 };
 
-export async function runQualityScan({
-  banner,
-  config,
-  dependencies,
-  options,
-  root,
-  timingsEnabled
-}: QualityScanRuntimeOptions): Promise<QualityScanProcessOutcome> {
+type RuntimeContextParameters = {
+  config: ResolvedQualityConfig;
+  dependencies: ScannerDependencySnapshot;
+  opts: QualityScanOptions;
+  rawDir: string;
+  root: string;
+  timings: Timings;
+};
+
+export async function runQualityScan(
+  runtimeOptions: QualityScanRuntimeOptions,
+): Promise<QualityScanProcessOutcome> {
+  const { banner, config, dependencies, options, root, timingsEnabled } =
+    runtimeOptions;
   const timings = createTimings(timingsEnabled);
   const opts = options;
 
   banner?.(opts.scanProfile);
 
   const artifactDir = resolve(root, opts.artifactDir);
-  const { rawDir } = timings.measure("prepare artifact dirs", () => prepareArtifactDirs(artifactDir));
+  const { rawDir } = timings.measure("prepare artifact dirs", () =>
+    prepareArtifactDirs(artifactDir),
+  );
   const runtime = prepareRuntimeContext({
     config,
     dependencies,
     opts,
     rawDir,
     root,
-    timings
+    timings,
   });
   const inputs = collectScanInputs({ config, root, timings });
   attachFingerprints(runtime.metrics, inputs.fingerprints);
 
-  timings.measure("configure baseline", () => configureBaseline({
+  timings.measure("configure baseline", () =>
+    configureBaseline({
+      config,
+      metrics: runtime.metrics,
+      opts,
+      tools: runtime.metrics.metadata.tools,
+      root,
+    }),
+  );
+
+  const changedInput = detectChangedInputScope({
     config,
     metrics: runtime.metrics,
     opts,
-    tools: runtime.metrics.metadata.tools,
-    root
-  }));
-
-  const changedInput = detectChangedInputScope({ config, metrics: runtime.metrics, opts, root, timings });
-  await scanCurrentRevision(runtime, inputs, changedInput.changedFiles, timings);
-  timings.measure("set comparison status", () => setComparisonStatus(runtime.metrics, changedInput.inputScope));
+    root,
+    timings,
+  });
+  await scanCurrentRevision(
+    runtime,
+    inputs,
+    changedInput.changedFiles,
+    timings,
+  );
+  timings.measure("set comparison status", () =>
+    setComparisonStatus(runtime.metrics, changedInput.inputScope),
+  );
 
   const baselineSnapshot = await timings.measureAsync("baseline snapshot", () =>
-    maybeScanBaselineRevision({ config, root, runtime })
+    maybeScanBaselineRevision({ config, root, runtime }),
   );
   if (runtime.metrics.scanCompleteness.overall === "complete") {
     generateScanWarnings({
@@ -124,47 +140,42 @@ export async function runQualityScan({
       metrics: runtime.metrics,
       scanProfile: opts.scanProfile,
       scope: changedInput.inputScope,
-      timings
+      timings,
     });
   }
   runtime.metrics.gate = evaluateGate(
     opts.gatePolicy,
     runtime.metrics.scanCompleteness.overall,
     runtime.metrics.comparisonStatus,
-    runtime.metrics.warnings
+    runtime.metrics.warnings,
   );
   return finishScan({ artifactDir, runtime, timings });
 }
 
-function prepareRuntimeContext({
-  config,
-  dependencies,
-  opts,
-  rawDir,
-  root,
-  timings
-}: {
-  config: ResolvedQualityConfig;
-  dependencies: ScannerDependencySnapshot;
-  opts: QualityScanOptions;
-  rawDir: string;
-  root: string;
-  timings: Timings;
-}): RuntimeContext {
-  const commitSha = timings.measure("git rev-parse HEAD", () => getGitSha(root));
-  const commitTitle = timings.measure("git commit title", () => getGitCommitTitle(commitSha, root));
-  const metrics = timings.measure("create metrics envelope", () => createEmptyMetrics({
-    repository: root,
-    commitSha,
-    commitTitle,
-    configVersion: config.version,
-    tools: [],
-    scope: {
-      include: [...config.include],
-      excludeDirs: [...config.excludeDirs],
-      generatedFiles: [...config.generatedFiles]
-    }
-  }));
+function prepareRuntimeContext(
+  parameters: RuntimeContextParameters,
+): RuntimeContext {
+  const { config, dependencies, opts, rawDir, root, timings } = parameters;
+  const commitSha = timings.measure("git rev-parse HEAD", () =>
+    getGitSha(root),
+  );
+  const commitTitle = timings.measure("git commit title", () =>
+    getGitCommitTitle(commitSha, root),
+  );
+  const metrics = timings.measure("create metrics envelope", () =>
+    createEmptyMetrics({
+      repository: root,
+      commitSha,
+      commitTitle,
+      configVersion: config.version,
+      tools: [],
+      scope: {
+        include: [...config.include],
+        excludeDirs: [...config.excludeDirs],
+        generatedFiles: [...config.generatedFiles],
+      },
+    }),
+  );
 
   return {
     config,
@@ -174,30 +185,34 @@ function prepareRuntimeContext({
     opts,
     rawDir,
     root,
-    toolResults: []
+    toolResults: [],
   };
 }
 
 function collectScanInputs({
   config,
   root,
-  timings
+  timings,
 }: {
   config: ResolvedQualityConfig;
   root: string;
   timings: Timings;
 }): ScanInputs {
   console.log("Collecting scan inputs...");
-  const scanFiles = timings.measure("collect scan files", () => collectScanFiles(root, config));
+  const scanFiles = timings.measure("collect scan files", () =>
+    collectScanFiles(root, config),
+  );
   console.log(`  Found ${scanFiles.length} files in scan scope`);
 
   const fileMap = timings.measure("classify scan files", () =>
-    classifyFiles(scanFiles, config.codeAreas, config.generatedFiles)
+    classifyFiles(scanFiles, config.codeAreas, config.generatedFiles),
   );
   const areaNames = Array.from(fileMap.keys());
   console.log(`  Code areas: ${areaNames.join(", ")}`);
 
-  const fingerprints = timings.measure("build fingerprints", () => buildFingerprints(fileMap, root));
+  const fingerprints = timings.measure("build fingerprints", () =>
+    buildFingerprints(fileMap, root),
+  );
   logFingerprints(fingerprints);
 
   return { fileMap, fingerprints, scanFiles };
@@ -205,31 +220,28 @@ function collectScanInputs({
 
 function attachFingerprints(
   metrics: QualityMetrics,
-  fingerprints: Record<string, CodeAreaFingerprint>
+  fingerprints: Record<string, CodeAreaFingerprint>,
 ): void {
   metrics.currentFingerprints = fingerprints;
 }
 
-function detectChangedInputScope({
-  config,
-  metrics,
-  opts,
-  root,
-  timings
-}: {
+function detectChangedInputScope(options: {
   config: ResolvedQualityConfig;
   metrics: QualityMetrics;
   opts: QualityScanOptions;
   root: string;
   timings: Timings;
 }): ChangedInputScope {
-  const inputScope = timings.measure("detect changed scan inputs", () => detectScanInputChange({
-    baselineSha: metrics.baseline.commitSha,
-    cwd: root,
-    scanInputPaths: [...config.include]
-  }));
+  const { config, metrics, opts, root, timings } = options;
+  const inputScope = timings.measure("detect changed scan inputs", () =>
+    detectScanInputChange({
+      baselineSha: metrics.baseline.commitSha,
+      cwd: root,
+      scanInputPaths: [...config.include],
+    }),
+  );
   const changedFiles = timings.measure("resolve changed files", () =>
-    resolveChangedFilesForScan({ config, opts, root, scope: inputScope })
+    resolveChangedFilesForScan({ config, opts, root, scope: inputScope }),
   );
   console.log(`  Changed files in scan scope: ${changedFiles.length}`);
   return { changedFiles, inputScope };
@@ -239,30 +251,34 @@ async function scanCurrentRevision(
   runtime: RuntimeContext,
   inputs: ScanInputs,
   changedFiles: string[],
-  timings: Timings
+  timings: Timings,
 ): Promise<void> {
-  const capabilityResults = await timings.measureAsync("scan current revision", () => runCurrentRevisionScan({
-    context: {
-      metrics: runtime.metrics,
-      toolResults: runtime.toolResults,
-      changedFiles,
-      rawDir: runtime.rawDir,
-      root: runtime.root,
-      cacheRootDir: resolve(runtime.root, runtime.config.cacheDir),
-      config: runtime.config,
-      dependencies: runtime.dependencies,
-      fingerprints: inputs.fingerprints
-    },
-    scanFiles: inputs.scanFiles,
-    fileMap: inputs.fileMap,
-    scanProfile: runtime.opts.scanProfile
-  }));
+  const capabilityResults = await timings.measureAsync(
+    "scan current revision",
+    () =>
+      runCurrentRevisionScan({
+        context: {
+          metrics: runtime.metrics,
+          toolResults: runtime.toolResults,
+          changedFiles,
+          rawDir: runtime.rawDir,
+          root: runtime.root,
+          cacheRootDir: resolve(runtime.root, runtime.config.cacheDir),
+          config: runtime.config,
+          dependencies: runtime.dependencies,
+          fingerprints: inputs.fingerprints,
+        },
+        scanFiles: inputs.scanFiles,
+        fileMap: inputs.fileMap,
+        scanProfile: runtime.opts.scanProfile,
+      }),
+  );
   runtime.metrics.scanCompleteness = {
     capabilities: capabilityResults,
-    overall: reduceScanCompleteness(capabilityResults)
+    overall: reduceScanCompleteness(capabilityResults),
   };
   const tools = timings.measure("tool metadata", () =>
-    collectToolMetadata(runtime.toolResults)
+    collectToolMetadata(runtime.toolResults),
   );
   runtime.metrics.metadata.tools = tools;
   if (runtime.metrics.baseline.metadata) {
@@ -270,123 +286,10 @@ async function scanCurrentRevision(
   }
 }
 
-function finishScan({
-  artifactDir,
-  runtime,
-  timings
-}: {
-  artifactDir: string;
-  runtime: RuntimeContext;
-  timings: Timings;
-}): QualityScanProcessOutcome {
-  const { fatalIssues, metrics, opts } = runtime;
-
-  const validation = timings.measure("validate output", () => validateOutput(metrics));
-  recordValidationIssues(fatalIssues, validation.errors);
-  if (fatalIssues.length > 0) {
-    cleanupMachineArtifactPublicationV1(artifactDir);
-    finishFatalScan(artifactDir, fatalIssues);
-    return "failed";
-  }
-
-  try {
-    timings.measure("write artifacts", () =>
-      writeArtifacts({
-        artifactDir,
-        metrics,
-        reportOptions: runtime.config.report,
-        reportTimeZone: runtime.config.report.timeZone,
-        topN: opts.topN
-      })
-    );
-  } catch (err: unknown) {
-    fatalIssues.push({
-      error: errorMessage(err),
-      phase: "write",
-      tool: "output"
-    });
-    finishFatalScan(artifactDir, fatalIssues);
-    return "failed";
-  }
-  timings.measure("print summary", () => printSummary(metrics));
-  timings.measure("print gate status", () =>
-    printGateStatus({ metrics, scanProfile: opts.scanProfile })
-  );
-  const status = qualityCheckStatus(metrics);
-  if (status === "failed") {
-    finishIncompleteScan(artifactDir, metrics);
-    return "failed";
-  }
-
-  timings.measure("print warning status", () =>
-    printWarningStatus({
-      artifactDir,
-      metrics,
-      scanProfile: opts.scanProfile,
-      verificationOutput: opts.verificationOutput
-    })
-  );
-  printSuccessfulScanCompletion(status, artifactDir);
-
-  timings.print();
-  if (metrics.gate.status === "not-evaluated") {
-    return "failed";
-  }
-  return metrics.gate.status === "failed" ? "gate-failed" : "success";
-}
-
-function finishIncompleteScan(
-  artifactDir: string,
-  metrics: QualityMetrics
-): void {
-  console.log("");
-  console.log("❌ Quality scan failed.");
-  console.log(`Artifacts in: ${artifactDir}/`);
-  console.error("Incomplete current measurements:");
-  for (const result of metrics.scanCompleteness.capabilities) {
-    if (result.status !== "failed") continue;
-    console.error(
-      `  - ${result.capabilityId}: ${result.diagnostic.message} ` +
-      `Action: ${result.diagnostic.action}`
-    );
-  }
-}
-
-function recordValidationIssues(fatalIssues: FatalIssue[], validationErrors: string[]): void {
-  if (validationErrors.length === 0) {
-    return;
-  }
-  fatalIssues.push({
-    tool: "metrics",
-    phase: "validation",
-    error: validationErrors.join("; ")
-  });
-}
-
-function finishFatalScan(artifactDir: string, fatalIssues: FatalIssue[]): void {
-  console.log("");
-  console.log("❌ Quality scan failed.");
-  console.log(`Artifacts in: ${artifactDir}/`);
-  console.error("Fatal quality scan issues:");
-  for (const issue of fatalIssues) {
-    console.error(`  - ${formatFatalIssue(issue)}`);
-  }
-}
-
-function printSuccessfulScanCompletion(status: "passed" | "warning", artifactDir: string): void {
-  console.log("");
-  console.log(successfulScanMessage(status));
-  console.log(`Artifacts in: ${artifactDir}/`);
-}
-
-function successfulScanMessage(status: "passed" | "warning"): string {
-  if (status === "warning") {
-    return "⚠️ Quality scan complete with warnings.";
-  }
-  return "✅ Quality scan complete.";
-}
-
 export function qualityScanErrorExitCode(err: unknown): 2 | 3 {
   const message = errorMessage(err);
-  return (err instanceof Error && "code" in err && err.code === "ENOENT") || message.includes("config") ? 3 : 2;
+  return (err instanceof Error && "code" in err && err.code === "ENOENT") ||
+    message.includes("config")
+    ? 3
+    : 2;
 }

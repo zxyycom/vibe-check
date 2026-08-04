@@ -225,21 +225,24 @@ function writeFakeJscpd(filePath: string): void {
   );
 }
 
-function createScanContext({
-  cacheRootDir,
-  config,
-  dependencies,
-  fingerprints,
-  rawDir,
-  repository
-}: {
-  cacheRootDir: string;
-  config: ResolvedQualityConfig;
-  dependencies: ScannerDependencySnapshot;
-  fingerprints: ScanContext["fingerprints"];
-  rawDir: string;
-  repository: string;
-}): ScanContext {
+function createScanContext(
+  options: {
+    cacheRootDir: string;
+    config: ResolvedQualityConfig;
+    dependencies: ScannerDependencySnapshot;
+    fingerprints: ScanContext["fingerprints"];
+    rawDir: string;
+    repository: string;
+  }
+): ScanContext {
+  const {
+    cacheRootDir,
+    config,
+    dependencies,
+    fingerprints,
+    rawDir,
+    repository
+  } = options;
   return {
     cacheRootDir,
     changedFiles: [],

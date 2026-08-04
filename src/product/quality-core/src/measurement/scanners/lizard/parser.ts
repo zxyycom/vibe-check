@@ -1,5 +1,8 @@
 import type { FunctionMetric } from "../../../model/schema.ts";
-import { errorMessage, parseCsvRows } from "../../../../../foundation/src/index.ts";
+import {
+  errorMessage,
+  parseCsvRows,
+} from "../../../../../foundation/src/index.ts";
 
 export type LizardScanResult =
   | { functions: FunctionMetric[]; ok: true }
@@ -12,7 +15,7 @@ const LIZARD_COLUMNS = {
   filePath: 6,
   functionName: 7,
   startLine: 9,
-  endLine: 10
+  endLine: 10,
 } as const;
 
 /**
@@ -40,7 +43,7 @@ export function parseLizardCSV(csv: string): LizardScanResult {
     return {
       ok: false,
       error: `Failed to parse lizard CSV: ${errorMessage(error)}`,
-      reason: "invalid-result"
+      reason: "invalid-result",
     };
   }
 }
@@ -55,23 +58,13 @@ function functionMetricFromLizardRow(parts: string[]): FunctionMetric | null {
     return null;
   }
 
-  const ccnText = parts[LIZARD_COLUMNS.ccn].trim();
-  const ccn = ccnText === "" ? null : parseInteger(ccnText, 0);
-  const endLine = parseInteger(parts[LIZARD_COLUMNS.endLine], 1);
-  const filePath = parts[LIZARD_COLUMNS.filePath].trim();
-  const nloc = parseInteger(parts[LIZARD_COLUMNS.nloc], 0);
-  const parameterCount = parseInteger(parts[LIZARD_COLUMNS.parameterCount], 0);
-  const startLine = parseInteger(parts[LIZARD_COLUMNS.startLine], 1);
+  const values = parseLizardMetricValues(parts);
+  if (!values) {
+    return null;
+  }
 
-  if (
-    (ccnText !== "" && ccn === null)
-    || endLine === null
-    || filePath === ""
-    || nloc === null
-    || parameterCount === null
-    || startLine === null
-    || endLine < startLine
-  ) {
+  const filePath = parts[LIZARD_COLUMNS.filePath].trim();
+  if (filePath === "" || values.endLine < values.startLine) {
     return null;
   }
 
@@ -79,25 +72,61 @@ function functionMetricFromLizardRow(parts: string[]): FunctionMetric | null {
     name: parts[LIZARD_COLUMNS.functionName] || "unknown",
     file: filePath,
     codeArea: "unknown",
-    startLine,
-    endLine,
-    lines: nloc,
-    parameterCount,
+    startLine: values.startLine,
+    endLine: values.endLine,
+    lines: values.nloc,
+    parameterCount: values.parameterCount,
     cyclomaticComplexity: {
-      value: ccn,
-      source: "lizard"
+      value: values.ccn,
+      source: "lizard",
     },
-    isChanged: false
+    isChanged: false,
+  };
+}
+
+type LizardMetricValues = {
+  ccn: number | null;
+  endLine: number;
+  nloc: number;
+  parameterCount: number;
+  startLine: number;
+};
+
+function parseLizardMetricValues(parts: string[]): LizardMetricValues | null {
+  const ccnText = parts[LIZARD_COLUMNS.ccn].trim();
+  const ccn = ccnText === "" ? null : parseInteger(ccnText, 0);
+  const endLine = parseInteger(parts[LIZARD_COLUMNS.endLine], 1);
+  const nloc = parseInteger(parts[LIZARD_COLUMNS.nloc], 0);
+  const parameterCount = parseInteger(parts[LIZARD_COLUMNS.parameterCount], 0);
+  const startLine = parseInteger(parts[LIZARD_COLUMNS.startLine], 1);
+
+  if (
+    (ccnText !== "" && ccn === null) ||
+    [endLine, nloc, parameterCount, startLine].some((value) => value === null)
+  ) {
+    return null;
+  }
+
+  return {
+    ccn,
+    endLine: endLine as number,
+    nloc: nloc as number,
+    parameterCount: parameterCount as number,
+    startLine: startLine as number,
   };
 }
 
 function compareFunctionMetrics(a: FunctionMetric, b: FunctionMetric): number {
-  const ccDiff = (b.cyclomaticComplexity.value ?? 0) - (a.cyclomaticComplexity.value ?? 0);
+  const ccDiff =
+    (b.cyclomaticComplexity.value ?? 0) - (a.cyclomaticComplexity.value ?? 0);
   if (ccDiff !== 0) return ccDiff;
   return b.lines - a.lines;
 }
 
-function parseInteger(value: string | undefined, minimum: number): number | null {
+function parseInteger(
+  value: string | undefined,
+  minimum: number,
+): number | null {
   const text = String(value ?? "").trim();
   if (!/^\d+$/.test(text)) {
     return null;
@@ -107,12 +136,14 @@ function parseInteger(value: string | undefined, minimum: number): number | null
 }
 
 function isLizard123Header(parts: string[]): boolean {
-  return parts.length >= 11
-    && parts[LIZARD_COLUMNS.nloc] === "NLOC"
-    && parts[LIZARD_COLUMNS.ccn] === "CCN"
-    && parts[LIZARD_COLUMNS.parameterCount] === "parameter count"
-    && parts[LIZARD_COLUMNS.filePath] === "file path"
-    && parts[LIZARD_COLUMNS.functionName] === "function name"
-    && parts[LIZARD_COLUMNS.startLine] === "start line"
-    && parts[LIZARD_COLUMNS.endLine] === "end line";
+  return (
+    parts.length >= 11 &&
+    parts[LIZARD_COLUMNS.nloc] === "NLOC" &&
+    parts[LIZARD_COLUMNS.ccn] === "CCN" &&
+    parts[LIZARD_COLUMNS.parameterCount] === "parameter count" &&
+    parts[LIZARD_COLUMNS.filePath] === "file path" &&
+    parts[LIZARD_COLUMNS.functionName] === "function name" &&
+    parts[LIZARD_COLUMNS.startLine] === "start line" &&
+    parts[LIZARD_COLUMNS.endLine] === "end line"
+  );
 }

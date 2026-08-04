@@ -4,9 +4,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync
+  rmSync
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -15,15 +13,20 @@ import { fileURLToPath } from "node:url";
 import { loadSemanticProjectConfig } from "../../config-file.ts";
 import { resolveQualityConfig } from "../../config-resolution.ts";
 import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
-import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1
-} from "../../machine-output.ts";
+import { type MachineMetricsV1 } from "../../machine-output.ts";
 import {
   type GatePolicy,
   type ResolvedQualityConfig
 } from "./model/schema.ts";
 import { runQualityScan } from "./engine.ts";
+import {
+  assertNoMachinePublication,
+  captureConsole,
+  gateOutput,
+  readNdjson,
+  readValidatedMachineArtifacts,
+  seedPriorMachinePublication
+} from "./engine.test-support.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -379,15 +382,7 @@ async function loadFixtureConfig(): Promise<ResolvedQualityConfig> {
   );
 }
 
-async function runFixtureScan({
-  artifactName,
-  config,
-  dependencies,
-  gatePolicy,
-  prepareArtifactDir,
-  tempRoot,
-  verificationOutput = false
-}: {
+type RunFixtureScanOptions = {
   artifactName: string;
   config: ResolvedQualityConfig;
   dependencies?: ScannerDependencySnapshot;
@@ -395,13 +390,26 @@ async function runFixtureScan({
   prepareArtifactDir?: (artifactDir: string) => void;
   tempRoot: string;
   verificationOutput?: boolean;
-}): Promise<{
+};
+
+async function runFixtureScan(
+  options: RunFixtureScanOptions
+): Promise<{
   artifactDir: string;
   metrics: MachineMetricsV1;
   outcome: Awaited<ReturnType<typeof runQualityScan>>;
   stderr: string[];
   stdout: string[];
 }> {
+  const {
+    artifactName,
+    config,
+    dependencies,
+    gatePolicy,
+    prepareArtifactDir,
+    tempRoot,
+    verificationOutput = false
+  } = options;
   const output = await runFixtureScanWithoutArtifacts({
     artifactName,
     config,
@@ -416,28 +424,23 @@ async function runFixtureScan({
   return { ...output, metrics };
 }
 
-async function runFixtureScanWithoutArtifacts({
-  artifactName,
-  config,
-  dependencies = FIXTURE_DEPENDENCIES,
-  gatePolicy,
-  prepareArtifactDir,
-  tempRoot,
-  verificationOutput = false
-}: {
-  artifactName: string;
-  config: ResolvedQualityConfig;
-  dependencies?: ScannerDependencySnapshot;
-  gatePolicy: GatePolicy | null;
-  prepareArtifactDir?: (artifactDir: string) => void;
-  tempRoot: string;
-  verificationOutput?: boolean;
-}): Promise<{
+async function runFixtureScanWithoutArtifacts(
+  options: RunFixtureScanOptions
+): Promise<{
   artifactDir: string;
   outcome: Awaited<ReturnType<typeof runQualityScan>>;
   stderr: string[];
   stdout: string[];
 }> {
+  const {
+    artifactName,
+    config,
+    dependencies = FIXTURE_DEPENDENCIES,
+    gatePolicy,
+    prepareArtifactDir,
+    tempRoot,
+    verificationOutput = false
+  } = options;
   const artifactDir = resolve(tempRoot, artifactName);
   prepareArtifactDir?.(artifactDir);
   const output = await captureConsole(() =>
@@ -466,97 +469,4 @@ async function runFixtureScanWithoutArtifacts({
     stderr: output.stderr,
     stdout: output.stdout
   };
-}
-
-function readValidatedMachineArtifacts(artifactDir: string) {
-  const validation = validateMachineArtifactSetV1({
-    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
-    warningsAllNdjson: readFileSync(
-      resolve(artifactDir, "warnings-all.ndjson")
-    ),
-    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
-  });
-  if (!validation.ok) {
-    throw new Error(
-      `published machine artifact set did not validate: ${JSON.stringify(validation.diagnostic)}`
-    );
-  }
-  return validation.value;
-}
-
-function assertNoMachinePublication(
-  artifactDir: string,
-  stdout: readonly string[]
-): void {
-  for (const fileName of [
-    "metrics.json",
-    "warnings.ndjson",
-    "warnings-all.ndjson"
-  ]) {
-    expect(existsSync(resolve(artifactDir, fileName))).toBe(false);
-    expect(stdout.some((line) => line.includes(`${fileName} →`))).toBe(false);
-  }
-  expect(
-    readdirSync(artifactDir).some(
-      (fileName) =>
-        fileName.startsWith(".vibe-check-machine-") && fileName.endsWith(".tmp")
-    )
-  ).toBe(false);
-}
-
-function seedPriorMachinePublication(artifactDir: string): void {
-  mkdirSync(artifactDir, { recursive: true });
-  for (const fileName of [
-    "metrics.json",
-    "warnings.ndjson",
-    "warnings-all.ndjson",
-    ".vibe-check-machine-prior-metrics.json.tmp"
-  ]) {
-    writeFileSync(resolve(artifactDir, fileName), "stale", "utf8");
-  }
-}
-
-async function captureConsole<T>(run: () => Promise<T>): Promise<{
-  result: T;
-  stderr: string[];
-  stdout: string[];
-}> {
-  const stderr: string[] = [];
-  const stdout: string[] = [];
-  const originalError = console.error;
-  const originalLog = console.log;
-  console.error = (...values: unknown[]) => {
-    stderr.push(values.map(String).join(" "));
-  };
-  console.log = (...values: unknown[]) => {
-    stdout.push(values.map(String).join(" "));
-  };
-
-  try {
-    const result = await run();
-    return { result, stderr, stdout };
-  } finally {
-    console.error = originalError;
-    console.log = originalLog;
-  }
-}
-
-function gateOutput(lines: string[]): string[] {
-  return lines.filter(
-    (line) =>
-      line.includes("Quality gate") ||
-      line.startsWith("  Policy:") ||
-      line.startsWith("  Status:") ||
-      line.startsWith("  Evaluated channel:") ||
-      line.startsWith("  Evaluated warnings:") ||
-      line.startsWith("  Blocking warnings:")
-  );
-}
-
-function readNdjson(path: string): unknown[] {
-  return readFileSync(path, "utf8")
-    .trim()
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as unknown);
 }
