@@ -25,7 +25,7 @@ import { generateFunctionWarnings } from "./function-warnings.ts";
 export function generateWarningChannels(params: GenerateWarningsParams): WarningChannels {
   const { files, functions, duplicates, config, baseline, comparisonStatus } = params;
 
-  const context = buildWarningContext(config, baseline);
+  const context = buildWarningContext(config, baseline, functions);
   const candidates = [
     ...generateFileWarnings(files, context),
     ...generateFunctionWarnings(functions, context),

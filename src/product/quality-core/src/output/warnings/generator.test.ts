@@ -130,18 +130,25 @@ function qualityFile(
 
 function qualityFunction(
   path: string,
-  options: { complexity: number; lines: number }
+  options: {
+    complexity: number | null;
+    isChanged?: boolean;
+    lines: number;
+    name?: string;
+    startLine?: number;
+  }
 ): FunctionMetric {
+  const startLine = options.startLine ?? 1;
   return {
     file: path,
-    name: "example",
+    name: options.name ?? "example",
     codeArea: "typescript-production-scripts",
-    startLine: 1,
-    endLine: options.lines,
+    startLine,
+    endLine: startLine + Math.max(options.lines - 1, 0),
     lines: options.lines,
     parameterCount: 1,
     cyclomaticComplexity: { value: options.complexity, source: "lizard" },
-    isChanged: false
+    isChanged: options.isChanged ?? false
   };
 }
 

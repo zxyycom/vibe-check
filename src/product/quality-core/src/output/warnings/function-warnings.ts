@@ -1,12 +1,17 @@
 import type { FunctionMetric } from "../../model/schema.ts";
 import { metricAreaWarningPolicy } from "./area-policy.ts";
-import { functionKey } from "./baseline-context.ts";
+import { functionBaselineComparison } from "./baseline-context.ts";
 import { buildMetricWarning, deltaFrom } from "./metric-warning.ts";
-import type { AreaWarningPolicy, WarningCandidate, WarningContext } from "./warning-model.ts";
+import type {
+  AreaWarningPolicy,
+  FunctionBaselineComparison,
+  WarningCandidate,
+  WarningContext
+} from "./warning-model.ts";
 
 type FunctionWarningInput = {
   areaPolicy: AreaWarningPolicy;
-  baselineFunc: FunctionMetric | undefined;
+  baselineComparison: FunctionBaselineComparison;
   context: WarningContext;
   func: FunctionMetric;
 };
@@ -26,8 +31,8 @@ export function generateFunctionWarnings(functions: FunctionMetric[], context: W
     const areaPolicy = metricAreaWarningPolicy(context.config, func.codeArea);
     if (!areaPolicy) continue;
 
-    const baselineFunc = context.baselineFunctions.get(functionKey(func));
-    const warningInput = { areaPolicy, baselineFunc, context, func };
+    const baselineComparison = functionBaselineComparison(func, context);
+    const warningInput = { areaPolicy, baselineComparison, context, func };
     for (const buildWarning of FUNCTION_WARNING_BUILDERS) {
       const warning = buildWarning(warningInput);
       if (warning) warnings.push(warning);
@@ -38,10 +43,13 @@ export function generateFunctionWarnings(functions: FunctionMetric[], context: W
 }
 
 function buildFunctionComplexityWarning(input: FunctionWarningInput): WarningCandidate | null {
-  const { areaPolicy, baselineFunc, context, func } = input;
+  const { areaPolicy, baselineComparison, context, func } = input;
   const ccFloor = context.config.checks.functions.cyclomaticComplexity.absoluteFloor;
   const ccDelta = context.config.checks.functions.cyclomaticComplexity.changedDelta;
-  const baselineCc = baselineFunc?.cyclomaticComplexity?.value ?? (context.hasBaselineFunctions ? 0 : null);
+  const baselineCc = functionBaselineValue(
+    baselineComparison,
+    (baseline) => baseline.cyclomaticComplexity.value
+  );
   const functionComplexity = func.cyclomaticComplexity.value;
   const ccDeltaValue = deltaFrom(functionComplexity, baselineCc);
 
@@ -65,11 +73,14 @@ function buildFunctionComplexityWarning(input: FunctionWarningInput): WarningCan
 }
 
 function buildFunctionCodeDensityWarning(input: FunctionWarningInput): WarningCandidate | null {
-  const { areaPolicy, baselineFunc, context, func } = input;
+  const { areaPolicy, baselineComparison, context, func } = input;
   const densityConfig = context.config.checks.functions.codeLines;
   const lineFloor = functionCodeDensityFloor(func, context);
   const lineDeltaCfg = densityConfig.changedDelta;
-  const baselineFunctionLines = baselineFunc?.lines ?? (context.hasBaselineFunctions ? 0 : null);
+  const baselineFunctionLines = functionBaselineValue(
+    baselineComparison,
+    (baseline) => baseline.lines
+  );
   const functionLineDelta = deltaFrom(func.lines, baselineFunctionLines);
   const complexity = func.cyclomaticComplexity.value;
 
@@ -127,10 +138,13 @@ function functionCodeDensityThresholdLabel(func: FunctionMetric, context: Warnin
 }
 
 function buildFunctionParameterWarning(input: FunctionWarningInput): WarningCandidate | null {
-  const { areaPolicy, baselineFunc, context, func } = input;
+  const { areaPolicy, baselineComparison, context, func } = input;
   const paramFloor = context.config.checks.functions.parameterCount.absoluteFloor;
   const paramDeltaCfg = context.config.checks.functions.parameterCount.changedDelta;
-  const baselineParameterCount = baselineFunc?.parameterCount ?? (context.hasBaselineFunctions ? 0 : null);
+  const baselineParameterCount = functionBaselineValue(
+    baselineComparison,
+    (baseline) => baseline.parameterCount
+  );
   const paramDeltaValue = deltaFrom(func.parameterCount, baselineParameterCount);
 
   return buildMetricWarning({
@@ -150,4 +164,14 @@ function buildFunctionParameterWarning(input: FunctionWarningInput): WarningCand
     suggestion: "Consider using a parameter object or splitting the function",
     value: func.parameterCount
   });
+}
+
+function functionBaselineValue(
+  comparison: FunctionBaselineComparison,
+  selectValue: (baseline: FunctionMetric) => number | null
+): number | null {
+  if (comparison.kind === "matched") {
+    return selectValue(comparison.baseline);
+  }
+  return comparison.kind === "new" ? 0 : null;
 }

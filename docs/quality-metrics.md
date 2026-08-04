@@ -52,7 +52,7 @@ Product Core 使用仓库自有模型隔离 scanner protocol。现有模型包�
 
 - `FileMetric`：path、language、code area、changed 标记、lines、可用的 code/comment/blank
   lines，以及 Vibe Check-owned decision-token metric。
-- `FunctionMetric`：file、code area、stable function name、start/end line、Lizard NLOC、
+- `FunctionMetric`：file、code area、normalized function name、start/end line、Lizard NLOC、
   parameter count、cyclomatic complexity 和 changed 标记。
 - `DuplicateCodeFragment`：stable id、token/line count、归一化 locations、涉及的 code
   areas 和 changed-scope 标记。
@@ -93,7 +93,8 @@ slice、availability/process/CSV failure 与 zero-result 边界由
 [Scanner 依赖选择](scanner-dependencies.md#function-measurement-boundary) 维护。
 
 现有 parser 归一化 function name、file path、line range、NLOC、parameter count 和
-cyclomatic complexity。Lizard 保持 external component；parser、function identity、
+cyclomatic complexity；name 仍可能是不可识别的 `(anonymous)` 或 fallback `unknown`。
+Lizard 保持 external component；parser、function identity、
 threshold 或 warning algorithm 的变化必须作为对应 scanner / metrics contract 变更处理。
 
 ## jscpd duplicate boundary
@@ -177,10 +178,25 @@ identity：
 
 Code-area warning policy 继续控制 strict、moderate、relaxed、watchlist-only 和
 exclude-warnings 行为。Accepted warning configuration 以 `checkId` 加 backend-neutral optional
-filters匹配，只给 matched warning 增加 `acceptedReason`；不删除 `all` / `changed` /
+filters 匹配，只给 matched warning 增加 `acceptedReason`；不删除 `all` / `changed` /
 `regressions` records，也不接受 project `sourceTool` matcher。未匹配 acceptance 是否产生
 warning 继续由现有 validation option 决定。完整 accepted-warning field 与 legacy migration 只在
 [Configuration](configuration.md) 维护。
+
+Function baseline comparison 不把源码位置当作 identity。Current 与 baseline 分别按
+normalized file path 与 exact function name 分组，并使用以下 closed matching states：
+
+- `matched`：名称可识别，且 current/baseline 两侧该 identity 都恰好一项；使用真实 baseline
+  metric，baseline complexity 为 `null` 时仍保持 `null`，不得改写为 zero。
+- `new`：同文件唯一的具名 current function 在 baseline 没有该 identity；沿用 baseline-zero
+  new-function semantics，因而可以按 delta policy 进入 regressions。Rename 或跨文件移动也
+  保守地落入该状态，不做全仓库猜测。
+- `not-comparable`：任一侧同文件重名，或名称是 `(anonymous)`、`unknown`、空白；warning
+  继续留在 `all`，属于 changed scope 时也留在 `changed`，但 `baselineValue` /
+  `deltaValue` 为 `null`，不进入 `regressions`。
+
+`startLine` / `endLine` 只服务 current warning location、排序和报告；它们不参与 baseline
+identity。实现不得用 exact-line fallback、nearest line、候选顺序或 metric 相似度消除歧义。
 
 Current Core/machine warning 的 `ruleId`、`sourceTool`、metric、ordering、channel membership 与
 `acceptedReason` behavior 保持现有 output compatibility。Scanner-bearing identity 不是 semantic

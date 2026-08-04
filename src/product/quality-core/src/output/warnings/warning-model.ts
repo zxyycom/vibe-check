@@ -28,6 +28,16 @@ export type AreaWarningPolicy = {
   level: "info" | "warning";
 };
 
+export type FunctionBaselineComparison =
+  | { baseline: FunctionMetric; kind: "matched" }
+  | { kind: "new" }
+  | { kind: "not-comparable" };
+
+export type FunctionBaselineComparisonIndex = Map<
+  string,
+  Map<string, FunctionBaselineComparison>
+>;
+
 export type MetricWarningSpec = {
   areaPolicy: AreaWarningPolicy;
   baselineValue: number | null;
@@ -49,11 +59,10 @@ export type MetricWarningSpec = {
 export type WarningContext = {
   baselineDuplicateIndex: Map<string, number>;
   baselineFiles: Map<string, FileMetric>;
-  baselineFunctions: Map<string, FunctionMetric>;
   config: ResolvedQualityConfig;
+  functionBaselineComparisons: FunctionBaselineComparisonIndex;
   hasBaselineDuplicates: boolean;
   hasBaselineFiles: boolean;
-  hasBaselineFunctions: boolean;
 };
 
 export type WarningCandidate = {
