@@ -14,10 +14,10 @@ Proves:
 ## Case BB-RUNTIME-COMPLETENESS-001: Product scan completeness 跨 surface 可观察
 Owner: `docs/quality-metrics.md#scan-completeness`
 Entities:
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > fails closed when an eligible current measurement component is unavailable`
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > projects Lizard execution and invalid-result failures consistently`
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > returns a warning without a quality verdict when no capability has eligible input`
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > treats a successful zero-finding quick scan as complete without resolving jscpd`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > fails closed when an eligible current measurement component is unavailable`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > projects Lizard execution and invalid-result failures consistently`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > returns a warning without a quality verdict when no capability has eligible input`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > treats a successful zero-finding quick scan as complete without resolving jscpd`
 Proves:
 - Formal product entry 将 capability result 与 overall 一致投影到 `metrics.json`、 `report.md` 和 console，并将 `complete` / `empty` 映射为 exit `0`、`failed` 映射为 exit `2`。
 - Eligible file / function measurement 成功且 duplicate detection 无输入时为 `complete`； quick profile 的 zero-function result 仍为 `succeeded`，duplicate detection 为 `skipped` 且不解析 jscpd dependency，overall 仍为 `complete`。

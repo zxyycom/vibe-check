@@ -7,7 +7,7 @@ Entities:
 - `bun|src/product/config-default-workflow-acceptance.test.ts|formal CLI project configuration workflow > materializes the neutral default and discovers equivalent runtime inputs without trusting sibling schema`
 - `bun|src/product/config-selection-workflow-acceptance.test.ts|formal CLI project configuration workflow > keeps explicit selection authoritative and invalid explicit files final`
 - `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > reports config failures with exit 3 before scanners or artifacts start`
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > returns a warning without a quality verdict when no capability has eligible input`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > returns a warning without a quality verdict when no capability has eligible input`
 - `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > scans the checked-in project deterministically with only the configured inputs`
 Proves:
 - Clean project 的 ungated scan 使用 `default (not persisted)` neutral policy；任一 gate 都要求 file-backed policy，缺失时在 dependency、scanner、cache 与 artifact work 前以 exit `3` 失败，并同时给出 `init` 与 `--config` recovery path。

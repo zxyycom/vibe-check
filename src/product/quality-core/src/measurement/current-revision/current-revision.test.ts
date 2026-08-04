@@ -1,32 +1,31 @@
 import { strict as assert } from "node:assert";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createEmptyMetrics } from "../../model/schema.ts";
-import type {
-  ResolvedQualityConfig,
-  ToolAvailability
-} from "../../model/schema.ts";
 import { maybeScanBaselineRevision } from "../../scan-command/baseline/scan.ts";
-import {
-  TEST_QUALITY_CONFIG,
-  TEST_SCANNER_DEPENDENCIES
-} from "../../../test/config.ts";
-import type { ScannerDependencySnapshot } from "../../../../scanner-dependencies.ts";
+import { TEST_QUALITY_CONFIG } from "../../../test/config.ts";
 import { runJscpdScan } from "./jscpd.ts";
 import { runLizardScan } from "./lizard.ts";
-import type { ScanContext } from "./scan-context.ts";
 import { runSccScan } from "./scc.ts";
+import {
+  availableTool,
+  captureConsoleLogs,
+  createScanContext,
+  createJscpdTestContext,
+  createLizardTestContext,
+  createSccTestContext,
+  dependenciesWithScanner,
+  withMutedConsoleLog
+} from "./current-revision-test-support.ts";
 
 describe("current revision scanner failure projection", () => {
   it("keeps eligible Lizard zero-function output succeeded", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-empty-"));
-    const fakeLizardPath = join(tempDir, "fake-lizard.ts");
-    writeFileSync(fakeLizardPath, 'process.stdout.write("");\n', "utf8");
-    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
+    const { context, tempDir } = createLizardTestContext(
+      "vibe-check-current-lizard-empty-",
+      'process.stdout.write("");\n'
+    );
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -44,11 +43,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("returns malformed Lizard output through CapabilityResult only", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-"));
-    const fakeLizardPath = join(tempDir, "fake-lizard.ts");
-    writeFileSync(fakeLizardPath, 'process.stdout.write("not,lizard,csv");\n', "utf8");
-    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
+    const { context, tempDir } = createLizardTestContext(
+      "vibe-check-current-lizard-",
+      'process.stdout.write("not,lizard,csv");\n'
+    );
     context.metrics.baseline.status = "generated";
     context.metrics.baseline.commitSha = "invalid-baseline";
     context.metrics.comparisonStatus = "compared";
@@ -69,15 +67,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("returns Lizard execution failures through CapabilityResult only", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-lizard-execution-"));
-    const fakeLizardPath = join(tempDir, "fake-lizard.ts");
-    writeFileSync(
-      fakeLizardPath,
-      'console.error("parse report expected after invocation");\nprocess.exit(2);\n',
-      "utf8"
+    const { context, tempDir } = createLizardTestContext(
+      "vibe-check-current-lizard-execution-",
+      'console.error("parse report expected after invocation");\nprocess.exit(2);\n'
     );
-    const dependencies = dependenciesWithScanner("function", process.execPath, [fakeLizardPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("lizard")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -100,15 +93,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("keeps scc non-zero exits as execution failures when stderr looks like a parser error", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-scc-execution-"));
-    const fakeSccPath = join(tempDir, "fake-scc.ts");
-    writeFileSync(
-      fakeSccPath,
-      'console.error("expected scc report parse output");\nprocess.exit(2);\n',
-      "utf8"
+    const { context, tempDir } = createSccTestContext(
+      "vibe-check-current-scc-execution-",
+      'console.error("expected scc report parse output");\nprocess.exit(2);\n'
     );
-    const dependencies = dependenciesWithScanner("file", process.execPath, [fakeSccPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("scc")], dependencies);
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -131,11 +119,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("returns scc parse failures through CapabilityResult only", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-scc-"));
-    const fakeSccPath = join(tempDir, "fake-scc.ts");
-    writeFileSync(fakeSccPath, 'process.stdout.write("not,scc,csv");\n', "utf8");
-    const dependencies = dependenciesWithScanner("file", process.execPath, [fakeSccPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("scc")], dependencies);
+    const { context, tempDir } = createSccTestContext(
+      "vibe-check-current-scc-",
+      'process.stdout.write("not,scc,csv");\n'
+    );
 
     try {
       const result = await withMutedConsoleLog(async () =>
@@ -152,16 +139,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("returns jscpd report failures through CapabilityResult only", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-jscpd-"));
-    const fakeJscpdPath = join(tempDir, "fake-jscpd.ts");
-    writeFileSync(fakeJscpdPath, "process.exit(0);\n", "utf8");
-    const dependencies = dependenciesWithScanner("duplication", process.execPath, [fakeJscpdPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("jscpd")], dependencies);
-    context.fingerprints["typescript-production-scripts"] = {
-      fileCount: 2,
-      fileList: ["scripts/a.ts", "scripts/b.ts"],
-      fingerprint: "sha256:test"
-    };
+    const { context, tempDir } = createJscpdTestContext(
+      "vibe-check-current-jscpd-",
+      "process.exit(0);\n"
+    );
 
     try {
       const result = await withMutedConsoleLog(() =>
@@ -183,20 +164,10 @@ describe("current revision scanner failure projection", () => {
   });
 
   it("keeps jscpd non-zero exits as execution failures when stderr mentions reports", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-current-jscpd-execution-"));
-    const fakeJscpdPath = join(tempDir, "fake-jscpd.ts");
-    writeFileSync(
-      fakeJscpdPath,
-      'console.error("parse report expected after invocation");\nprocess.exit(2);\n',
-      "utf8"
+    const { context, tempDir } = createJscpdTestContext(
+      "vibe-check-current-jscpd-execution-",
+      'console.error("parse report expected after invocation");\nprocess.exit(2);\n'
     );
-    const dependencies = dependenciesWithScanner("duplication", process.execPath, [fakeJscpdPath]);
-    const context = createScanContext(tempDir, TEST_QUALITY_CONFIG, [availableTool("jscpd")], dependencies);
-    context.fingerprints["typescript-production-scripts"] = {
-      fileCount: 2,
-      fileList: ["scripts/a.ts", "scripts/b.ts"],
-      fingerprint: "sha256:test"
-    };
 
     try {
       const result = await withMutedConsoleLog(() =>
@@ -350,85 +321,3 @@ describe("current revision scanner failure projection", () => {
     }
   });
 });
-
-function createScanContext(
-  root: string,
-  config: ResolvedQualityConfig,
-  toolResults: ToolAvailability[],
-  dependencies: ScannerDependencySnapshot = TEST_SCANNER_DEPENDENCIES
-): ScanContext {
-  const rawDir = join(root, "raw");
-  mkdirSync(rawDir, { recursive: true });
-  return {
-    cacheRootDir: join(root, "cache"),
-    changedFiles: [],
-    config,
-    dependencies,
-    fingerprints: {},
-    metrics: createEmptyMetrics({
-      configVersion: config.version,
-      commitSha: "abc123",
-      repository: root,
-      scope: {
-        excludeDirs: [...config.excludeDirs],
-        generatedFiles: [...config.generatedFiles],
-        include: [...config.include]
-      },
-      tools: []
-    }),
-    rawDir,
-    root,
-    toolResults
-  };
-}
-
-function dependenciesWithScanner(
-  scanner: keyof ScannerDependencySnapshot,
-  executable: string,
-  args: string[]
-): ScannerDependencySnapshot {
-  return {
-    ...TEST_SCANNER_DEPENDENCIES,
-    [scanner]: {
-      ...TEST_SCANNER_DEPENDENCIES[scanner],
-      args,
-      availabilityArgs: [...args, "--version"],
-      executable
-    }
-  };
-}
-
-function availableTool(name: ToolAvailability["name"]): ToolAvailability {
-  return {
-    available: true,
-    error: null,
-    name,
-    source: "test",
-    version: "test"
-  };
-}
-
-async function withMutedConsoleLog<T>(callback: () => Promise<T>): Promise<T> {
-  const originalLog: typeof console.log = console.log;
-  console.log = () => undefined;
-  try {
-    return await callback();
-  } finally {
-    console.log = originalLog;
-  }
-}
-
-async function captureConsoleLogs<T>(
-  callback: () => Promise<T>
-): Promise<{ logs: string[]; result: T }> {
-  const logs: string[] = [];
-  const originalLog: typeof console.log = console.log;
-  console.log = (...values: unknown[]) => {
-    logs.push(values.map(String).join(" "));
-  };
-  try {
-    return { logs, result: await callback() };
-  } finally {
-    console.log = originalLog;
-  }
-}

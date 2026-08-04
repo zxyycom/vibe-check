@@ -1,14 +1,11 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import {
-  cpSync,
   existsSync,
-  mkdtempSync,
   readFileSync,
   rmSync,
   writeFileSync
 } from "node:fs";
-import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
@@ -17,24 +14,31 @@ import {
   type GatePolicy
 } from "./quality-core/src/index.ts";
 import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1,
-  type MachineWarningV1
-} from "./machine-output.ts";
+  createFixtureProject,
+  readFixtureConfig,
+  readFormalEntryArtifacts,
+  runFormalGateScan,
+  setFixtureCacheDir,
+  setFixtureWarningPolicy,
+  writeFixtureConfig,
+  type CommandResult,
+  type FormalEntryArtifacts
+} from "./cli-gate-acceptance.test-support.ts";
+import { type MachineWarningV1 } from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
 
 describe("formal CLI quality gate acceptance", () => {
   it("passes a zero-warning quick all gate while preserving skipped capability evidence", { timeout: 30_000 }, () => {
-    const fixture = createFixtureProject("quick-all-zero");
+    const fixture = createFixtureProject(fixtureRoot, "quick-all-zero");
 
     try {
       const config = readFixtureConfig(fixture.projectRoot);
       raiseWarningFloors(config);
       writeFixtureConfig(fixture.projectRoot, config);
       const artifactDir = join(fixture.projectRoot, "artifacts", "quick-all-zero");
-      const result = runFormalGateScan(fixture.projectRoot, [
+      const result = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "quick",
         "--gate",
@@ -79,11 +83,11 @@ describe("formal CLI quality gate acceptance", () => {
   });
 
   it("fails an all gate for an all-only warning channel", { timeout: 30_000 }, () => {
-    const fixture = createFixtureProject("all-only");
+    const fixture = createFixtureProject(fixtureRoot, "all-only");
 
     try {
       const artifactDir = join(fixture.projectRoot, "artifacts", "all-only");
-      const result = runFormalGateScan(fixture.projectRoot, [
+      const result = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "quick",
         "--gate",
@@ -112,7 +116,7 @@ describe("formal CLI quality gate acceptance", () => {
   });
 
   it("distinguishes input-unchanged, changed non-regression, and regression evidence", { timeout: 60_000 }, () => {
-    const fixture = createFixtureProject("comparison");
+    const fixture = createFixtureProject(fixtureRoot, "comparison");
 
     try {
       initializeRepository(fixture.projectRoot);
@@ -126,7 +130,7 @@ describe("formal CLI quality gate acceptance", () => {
         "artifacts",
         "input-unchanged"
       );
-      const inputUnchanged = runFormalGateScan(fixture.projectRoot, [
+      const inputUnchanged = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "full",
         "--gate",
@@ -181,7 +185,7 @@ describe("formal CLI quality gate acceptance", () => {
         "artifacts",
         "changed-non-regression"
       );
-      const changed = runFormalGateScan(fixture.projectRoot, [
+      const changed = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "full",
         "--gate",
@@ -222,7 +226,7 @@ describe("formal CLI quality gate acceptance", () => {
         "artifacts",
         "regression"
       );
-      const regression = runFormalGateScan(fixture.projectRoot, [
+      const regression = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "full",
         "--gate",
@@ -253,7 +257,7 @@ describe("formal CLI quality gate acceptance", () => {
   });
 
   it("rejects a comparison gate without an explicit baseline before scan work", { timeout: 30_000 }, () => {
-    const fixture = createFixtureProject("comparison-unavailable");
+    const fixture = createFixtureProject(fixtureRoot, "comparison-unavailable");
 
     try {
       const artifactDir = join(
@@ -261,7 +265,7 @@ describe("formal CLI quality gate acceptance", () => {
         "artifacts",
         "comparison-unavailable"
       );
-      const result = runFormalGateScan(fixture.projectRoot, [
+      const result = runFormalGateScan(repoRoot, fixture.projectRoot, [
         "--profile",
         "full",
         "--gate",
@@ -282,146 +286,43 @@ describe("formal CLI quality gate acceptance", () => {
   });
 });
 
-interface CommandResult {
-  readonly status: number | null;
-  readonly stderr: string;
-  readonly stdout: string;
-}
-
-interface FixtureProject {
-  readonly projectRoot: string;
-  readonly tempRoot: string;
-}
-
-interface FormalEntryArtifacts {
-  readonly metrics: MachineMetricsV1;
-  readonly report: string;
-  readonly warnings: readonly MachineWarningV1[];
-  readonly warningsAll: readonly MachineWarningV1[];
-}
-
-function createFixtureProject(label: string): FixtureProject {
-  const tempRoot = mkdtempSync(join(tmpdir(), `vibe-check-gate-${label}-`));
-  const projectRoot = join(tempRoot, "configured-project");
-  cpSync(fixtureRoot, projectRoot, { recursive: true });
-  return { projectRoot, tempRoot };
-}
-
-function readFixtureConfig(projectRoot: string): Record<string, unknown> {
-  return JSON.parse(
-    readFileSync(join(projectRoot, ".vibe-check", "config.json"), "utf8")
-  ) as Record<string, unknown>;
-}
-
-function writeFixtureConfig(
-  projectRoot: string,
-  config: Record<string, unknown>
+function assertEvaluatedGateProjection(
+  options: {
+    artifacts: FormalEntryArtifacts;
+    evaluatedChannel: "all" | "changed" | "regressions";
+    expectedExit: 0 | 1;
+    policy: GatePolicy;
+    result: CommandResult;
+    scanProfile: "quick" | "full";
+    status: "passed" | "failed";
+  }
 ): void {
-  writeFileSync(
-    join(projectRoot, ".vibe-check", "config.json"),
-    JSON.stringify(config),
-    "utf8"
-  );
+  const {
+    artifacts,
+    evaluatedChannel,
+    expectedExit,
+    policy,
+    result,
+    scanProfile,
+    status
+  } = options;
+  const selectedWarnings = artifacts.metrics.warnings[evaluatedChannel];
+  assertGateMetrics({ artifacts, evaluatedChannel, expectedExit, policy, result, selectedWarnings, status });
+  assertGateStdout({ evaluatedChannel, policy, stdout: result.stdout, scanProfile, warningCount: selectedWarnings.length, status });
+  assertGateReport({ report: artifacts.report, evaluatedChannel, policy, warningCount: selectedWarnings.length, status });
+  assertBlockingGateReport({ report: artifacts.report, selectedWarnings, status });
 }
 
-function setFixtureCacheDir(projectRoot: string, cacheDir: string): void {
-  const config = readFixtureConfig(projectRoot);
-  config.cacheDir = cacheDir;
-  writeFixtureConfig(projectRoot, config);
-}
-
-function setFixtureWarningPolicy(
-  projectRoot: string,
-  warningPolicy: string
-): void {
-  const config = readFixtureConfig(projectRoot);
-  const codeAreas = config.codeAreas as Record<
-    string,
-    { warningPolicy: string }
-  >;
-  codeAreas["fixture-app"]!.warningPolicy = warningPolicy;
-  writeFixtureConfig(projectRoot, config);
-}
-
-function runFormalGateScan(
-  projectRoot: string,
-  args: readonly string[]
-): CommandResult {
-  assert.equal(args.includes("--gate"), true);
-  const result = spawnSync(
-    process.execPath,
-    [
-      "run",
-      "--silent",
-      "product:cli",
-      "--",
-      "scan",
-      projectRoot,
-      "--config",
-      ".vibe-check/config.json",
-      ...args
-    ],
-    {
-      cwd: repoRoot,
-      encoding: "utf8",
-      env: {
-        ...process.env,
-        ...configuredScannerEnvironment(),
-        VIBE_CHECK_QUALITY_TIMINGS: "0"
-      }
-    }
-  );
-
-  assert.equal(result.error, undefined);
-  return {
-    status: result.status,
-    stderr: result.stderr,
-    stdout: result.stdout
-  };
-}
-
-function readFormalEntryArtifacts(artifactDir: string): FormalEntryArtifacts {
-  const metricsJson = readFileSync(join(artifactDir, "metrics.json"));
-  const warningsNdjson = readFileSync(join(artifactDir, "warnings.ndjson"));
-  const warningsAllNdjson = readFileSync(
-    join(artifactDir, "warnings-all.ndjson")
-  );
-  const validation = validateMachineArtifactSetV1({
-    metricsJson,
-    warningsAllNdjson,
-    warningsNdjson
-  });
-  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  const { metrics, warnings, warningsAll } = validation.value;
-  const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-
-  assert.equal(metricsJson.toString("utf8"), JSON.stringify(metrics, null, 2));
-  assert.deepEqual(warnings, metrics.warnings.changed);
-  assert.deepEqual(warningsAll, metrics.warnings.all);
-  assert.doesNotMatch(report, /vibe-check\.(?:metrics|warning)\.v1/);
-  assert.equal(existsSync(join(artifactDir, "raw")), true);
-
-  return { metrics, report, warnings, warningsAll };
-}
-
-function assertEvaluatedGateProjection({
-  artifacts,
-  evaluatedChannel,
-  expectedExit,
-  policy,
-  result,
-  scanProfile,
-  status
-}: {
+function assertGateMetrics(options: {
   artifacts: FormalEntryArtifacts;
   evaluatedChannel: "all" | "changed" | "regressions";
   expectedExit: 0 | 1;
   policy: GatePolicy;
   result: CommandResult;
-  scanProfile: "quick" | "full";
+  selectedWarnings: readonly MachineWarningV1[];
   status: "passed" | "failed";
 }): void {
-  const selectedWarnings = artifacts.metrics.warnings[evaluatedChannel];
+  const { artifacts, evaluatedChannel, expectedExit, policy, result, selectedWarnings, status } = options;
   assert.equal(result.status, expectedExit);
   assert.equal(result.stderr, "");
   assert.deepEqual(artifacts.metrics.gate, {
@@ -432,48 +333,74 @@ function assertEvaluatedGateProjection({
     policy,
     status
   });
+}
 
+function assertGateStdout(options: {
+  evaluatedChannel: "all" | "changed" | "regressions";
+  policy: GatePolicy;
+  stdout: string;
+  scanProfile: "quick" | "full";
+  warningCount: number;
+  status: "passed" | "failed";
+}): void {
+  const { evaluatedChannel, policy, stdout, scanProfile, warningCount, status } = options;
   const profileQualifier = policy === "all"
     ? ` for the resolved ${scanProfile} profile`
     : "";
   const icon = status === "passed" ? "✅" : "❌";
   assertExactLine(
-    result.stdout,
+    stdout,
     `${icon} Quality gate ${status}${profileQualifier}.`
   );
-  assertExactLine(result.stdout, `  Policy: ${policy}`);
-  assertExactLine(result.stdout, `  Status: ${status}`);
-  assertExactLine(result.stdout, `  Evaluated channel: ${evaluatedChannel}`);
+  assertExactLine(stdout, `  Policy: ${policy}`);
+  assertExactLine(stdout, `  Status: ${status}`);
+  assertExactLine(stdout, `  Evaluated channel: ${evaluatedChannel}`);
   assertExactLine(
-    result.stdout,
-    `  Evaluated warnings: ${selectedWarnings.length}`
+    stdout,
+    `  Evaluated warnings: ${warningCount}`
   );
   assertExactLine(
-    result.stdout,
-    `  Blocking warnings: ${selectedWarnings.length}`
+    stdout,
+    `  Blocking warnings: ${warningCount}`
   );
+}
 
-  assertExactLine(artifacts.report, "## Quality Gate");
-  assertExactLine(artifacts.report, `- **Policy**: \`${policy}\``);
-  assertExactLine(artifacts.report, `- **Status**: \`${status}\``);
+function assertGateReport(options: {
+  report: string;
+  evaluatedChannel: "all" | "changed" | "regressions";
+  policy: GatePolicy;
+  warningCount: number;
+  status: "passed" | "failed";
+}): void {
+  const { report, evaluatedChannel, policy, warningCount, status } = options;
+  assertExactLine(report, "## Quality Gate");
+  assertExactLine(report, `- **Policy**: \`${policy}\``);
+  assertExactLine(report, `- **Status**: \`${status}\``);
   assertExactLine(
-    artifacts.report,
+    report,
     `- **Evaluated channel**: \`${evaluatedChannel}\``
   );
   assertExactLine(
-    artifacts.report,
-    `- **Evaluated warnings**: ${selectedWarnings.length}`
+    report,
+    `- **Evaluated warnings**: ${warningCount}`
   );
   assertExactLine(
-    artifacts.report,
-    `- **Blocking warnings**: ${selectedWarnings.length}`
+    report,
+    `- **Blocking warnings**: ${warningCount}`
   );
+}
 
+function assertBlockingGateReport(options: {
+  report: string;
+  selectedWarnings: readonly MachineWarningV1[];
+  status: "passed" | "failed";
+}): void {
+  const { report, selectedWarnings, status } = options;
   if (status === "failed") {
-    assertExactLine(artifacts.report, "### Blocking warnings");
+    assertExactLine(report, "### Blocking warnings");
     for (const warning of selectedWarnings) {
       assertExactLine(
-        artifacts.report,
+        report,
         `- **[${warning.sourceTool}] ${warning.metric}**: ${warning.message}`
       );
     }
@@ -566,17 +493,4 @@ function raiseWarningFloors(config: Record<string, unknown>): void {
   checks.functions.parameterCount.absoluteFloor = 10_000;
   checks.files.codeLines.absoluteFloor = 10_000;
   checks.files.codeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
-}
-
-function configuredScannerEnvironment(): NodeJS.ProcessEnv {
-  return {
-    VIBE_CHECK_JSCPD_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "jscpd"]),
-    VIBE_CHECK_JSCPD_CMD: process.execPath,
-    VIBE_CHECK_LIZARD_CMD: join(
-      "tools",
-      process.platform === "win32" ? "controlled-lizard.cmd" : "controlled-lizard"
-    ),
-    VIBE_CHECK_SCC_ARGS: JSON.stringify(["tools/controlled-scanner.ts", "scc"]),
-    VIBE_CHECK_SCC_CMD: process.execPath
-  };
 }

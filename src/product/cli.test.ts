@@ -1,8 +1,6 @@
 import { strict as assert } from "node:assert";
-import { spawnSync } from "node:child_process";
 import {
   existsSync,
-  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -21,6 +19,16 @@ import { CliUsageError } from "./foundation/src/errors.ts";
 import { getChangedFileList } from "./quality-core/src/input/files.ts";
 import { GATE_POLICY_VALUES } from "./quality-core/src/model/gate-policy.ts";
 import { ScannerOperationalInputError } from "./scanner-dependencies.ts";
+import {
+  assertCommandSucceeded,
+  assertInvalidGateForms,
+  commitAll,
+  escapeRegExp,
+  git,
+  initializeRepository,
+  runBun,
+  writeFixtureFile
+} from "./cli.test-support.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -166,114 +174,7 @@ describe("product CLI routing", () => {
 
 describe("gate CLI usage contract", () => {
   it("returns exit 3 before scanners or artifacts for every invalid gate form", { timeout: 15_000 }, () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-invalid-gate-"));
-    const markerPath = join(projectRoot, "scanner-started");
-    const artifactDir = join(projectRoot, "artifacts/should-not-exist");
-    const config = JSON.parse(JSON.stringify(DEFAULT_CONFIG)) as Record<string, unknown>;
-    const scannerPath = join(projectRoot, "scanner.ts");
-    const cases: ReadonlyArray<{
-      args: readonly string[];
-      expectedError: RegExp;
-      label: string;
-    }> = [
-      {
-        args: ["--gate"],
-        expectedError: /--gate/i,
-        label: "missing value"
-      },
-      {
-        args: ["--gate", "all", "--gate", "changed"],
-        expectedError: /--gate/i,
-        label: "repeated option"
-      },
-      {
-        args: ["--gate", "everything"],
-        expectedError: /--gate/i,
-        label: "unknown value"
-      },
-      {
-        args: ["--profile", "quick", "--gate", "changed"],
-        expectedError: /--gate changed.*--profile full/i,
-        label: "quick comparison conflict"
-      },
-      {
-        args: ["--gate", "regressions", "--skip-baseline"],
-        expectedError: /--gate regressions.*--skip-baseline.*--baseline <revision>/i,
-        label: "comparison baseline skip conflict"
-      },
-      {
-        args: ["--gate", "changed"],
-        expectedError: /--gate changed.*--baseline <revision>/i,
-        label: "changed gate missing explicit baseline"
-      },
-      {
-        args: ["--gate", "regressions"],
-        expectedError: /--gate regressions.*--baseline <revision>/i,
-        label: "regressions gate missing explicit baseline"
-      },
-      {
-        args: ["--gate", "regressions", "--baseline", "HEAD", "--skip-baseline"],
-        expectedError: /--baseline.*--skip-baseline.*cannot be combined/i,
-        label: "contradictory baseline options"
-      },
-      {
-        args: ["--with-baseline"],
-        expectedError: /--with-baseline.*removed.*--baseline <revision>/i,
-        label: "retired baseline option"
-      },
-      {
-        args: ["--gate", "regressions", "--baseline", "missing-revision"],
-        expectedError: /--baseline.*locally available commit/i,
-        label: "invalid explicit baseline revision"
-      }
-    ];
-
-    try {
-      writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
-      writeFileSync(
-        scannerPath,
-        `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(markerPath)}, "started");\n`,
-        "utf8"
-      );
-      config.artifactDir = "artifacts/should-not-exist";
-      config.tools = {
-        jscpd: { args: [scannerPath], command: process.execPath },
-        lizard: { args: [scannerPath], command: process.execPath },
-        scc: { args: [scannerPath], command: process.execPath }
-      };
-      writeFileSync(
-        join(projectRoot, "vibe-check.config.json"),
-        JSON.stringify(config),
-        "utf8"
-      );
-
-      for (const testCase of cases) {
-        const result = runBun([
-          "run",
-          "--silent",
-          "product:cli",
-          "--",
-          "scan",
-          projectRoot,
-          "--config",
-          "vibe-check.config.json",
-          ...testCase.args
-        ]);
-
-        assert.equal(
-          result.status,
-          3,
-          `${testCase.label}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-        );
-        assert.equal(result.stdout, "", testCase.label);
-        assert.match(result.stderr, /Fatal error in quality scan:/i);
-        assert.match(result.stderr, testCase.expectedError, testCase.label);
-        assert.equal(existsSync(markerPath), false, testCase.label);
-        assert.equal(existsSync(artifactDir), false, testCase.label);
-      }
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
+    assertInvalidGateForms(repoRoot);
   });
 });
 
@@ -283,7 +184,7 @@ describe("baseline resolution CLI contract", () => {
     const missingProjectRoot = join(tempRoot, "missing-project-root");
 
     try {
-      const result = runBun([
+      const result = runBun(repoRoot, [
         "run",
         "--silent",
         "product:cli",
@@ -320,6 +221,7 @@ describe("configuration workflow scan preflight", () => {
           ? []
           : ["--baseline", baselineSha];
         const result = runBun(
+          repoRoot,
           [
             "run",
             "--silent",
@@ -358,6 +260,7 @@ describe("configuration workflow scan preflight", () => {
     try {
       writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
       const defaultResult = runBun(
+        repoRoot,
         ["run", "--silent", "product:cli", "--", "scan", projectRoot],
         { VIBE_CHECK_SCC_ARGS: "not-json" }
       );
@@ -366,6 +269,7 @@ describe("configuration workflow scan preflight", () => {
 
       writeFixtureFile(projectRoot, ".vibe-check/config.json", configSource);
       const discoveredResult = runBun(
+        repoRoot,
         ["run", "--silent", "product:cli", "--", "scan", projectRoot],
         { VIBE_CHECK_SCC_ARGS: "not-json" }
       );
@@ -377,6 +281,7 @@ describe("configuration workflow scan preflight", () => {
 
       writeFileSync(explicitPath, configSource, "utf8");
       const explicitResult = runBun(
+        repoRoot,
         [
           "run",
           "--silent",
@@ -441,7 +346,7 @@ describe("changed-files CLI contract", () => {
   });
 
   it("exposes the same scan help through the product parser", () => {
-    const formal = runBun([
+    const formal = runBun(repoRoot, [
       "run",
       "--silent",
       "product:cli",
@@ -450,7 +355,7 @@ describe("changed-files CLI contract", () => {
       repoRoot,
       "--help"
     ]);
-    const dogfood = runBun(["scripts/quality/scan.ts", "--help"]);
+    const dogfood = runBun(repoRoot, ["scripts/quality/scan.ts", "--help"]);
 
     assertCommandSucceeded(formal, "formal product entry");
     assertCommandSucceeded(dogfood, "dogfood wrapper");
@@ -479,7 +384,7 @@ describe("changed-files CLI contract", () => {
       writeFixtureFile(projectRoot, "inputs/changed.txt", "docs/example.md\n");
       commitAll(projectRoot, "fixture");
 
-      const result = runBun([
+      const result = runBun(repoRoot, [
         "run",
         "--silent",
         "product:cli",
@@ -528,6 +433,7 @@ describe("formal and dogfood entrypoints", () => {
     );
 
     const discovery = runBun(
+      repoRoot,
       ["scripts/quality/scan.ts"],
       { VIBE_CHECK_SCC_ARGS: "not-json" }
     );
@@ -539,70 +445,3 @@ describe("formal and dogfood entrypoints", () => {
     assert.match(discovery.stderr, /VIBE_CHECK_SCC_ARGS/);
   });
 });
-
-interface CommandResult {
-  readonly status: number | null;
-  readonly stderr: string;
-  readonly stdout: string;
-}
-
-function runBun(
-  args: readonly string[],
-  environment: Readonly<Record<string, string>> = {}
-): CommandResult {
-  const result = spawnSync(process.execPath, args, {
-    cwd: repoRoot,
-    encoding: "utf8",
-    env: { ...process.env, ...environment }
-  });
-
-  assert.equal(result.error, undefined);
-  return {
-    status: result.status,
-    stderr: result.stderr,
-    stdout: result.stdout
-  };
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function assertCommandSucceeded(result: CommandResult, label: string): void {
-  assert.equal(
-    result.status,
-    0,
-    `${label} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-  );
-}
-
-function writeFixtureFile(rootDir: string, relPath: string, content: string): void {
-  const absPath = join(rootDir, relPath);
-  mkdirSync(dirname(absPath), { recursive: true });
-  writeFileSync(absPath, content, "utf8");
-}
-
-function initializeRepository(repository: string): void {
-  mkdirSync(repository, { recursive: true });
-  git(repository, ["init", "--quiet"]);
-  git(repository, ["config", "user.email", "quality-test@example.invalid"]);
-  git(repository, ["config", "user.name", "Quality Test"]);
-}
-
-function commitAll(repository: string, message: string): void {
-  git(repository, ["add", "."]);
-  git(repository, ["commit", "--quiet", "-m", message]);
-}
-
-function git(repository: string, args: readonly string[]): string {
-  const result = spawnSync("git", args, {
-    cwd: repository,
-    encoding: "utf8"
-  });
-  assert.equal(
-    result.status,
-    0,
-    `git ${args.join(" ")} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-  );
-  return result.stdout.trim();
-}

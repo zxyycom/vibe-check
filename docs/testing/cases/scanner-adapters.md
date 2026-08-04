@@ -3,7 +3,7 @@
 ## Case WB-SCANNER-DEPENDENCY-RESOLUTION-001: Scanner dependency operational resolution 稳定
 Owner: `docs/scanner-dependencies.md#scanner-依赖选择`
 Entities:
-- `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > returns a warning without a quality verdict when no capability has eligible input`
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > returns a warning without a quality verdict when no capability has eligible input`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > applies supported operational overrides without probing executables`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects malformed or non-string-array argument overrides without exposing values`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > resolves platform defaults, availability arguments, and bounded concurrency`
@@ -30,12 +30,12 @@ Proves:
 ## Case AUX-QUALITY-JSCPD-WRAPPER-001: Quality jscpd wrapper failure projection 稳定
 Owner: `docs/scanner-dependencies.md#duplicate-measurement-boundary`
 Entities:
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies commands missing after preflight as execution failures`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies empty jscpd JSON reports as report failures`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies non-zero jscpd exits as execution failures`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > classifies unavailable jscpd dependency binaries in tool availability`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > does not treat a successful jscpd run without JSON as a successful empty scan`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality jscpd wrapper failure projection > keeps real duplicate findings non-fatal and normalizes jscpd JSON`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > classifies commands missing after preflight as execution failures`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > classifies empty jscpd JSON reports as report failures`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > classifies non-zero jscpd exits as execution failures`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > classifies unavailable jscpd dependency binaries in tool availability`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > does not treat a successful jscpd run without JSON as a successful empty scan`
+- `bun|src/product/quality-core/src/measurement/scanners-jscpd.test.ts|quality jscpd wrapper failure projection > keeps real duplicate findings non-fatal and normalizes jscpd JSON`
 Proves:
 - jscpd wrapper 将 successful process without JSON report 映射为 `jscpd-report-failure`，不把缺失或空 JSON 当作 successful empty duplicate-code result。
 - jscpd wrapper 使用真实 `jscpd` duplicate scan 证明发现重复代码时仍解析 JSON 并生成 `DuplicateCodeFragment`。
@@ -45,8 +45,8 @@ Proves:
 ## Case AUX-QUALITY-LIZARD-AVAILABILITY-001: Quality Lizard availability failure projection 稳定
 Owner: `docs/scanner-dependencies.md#function-measurement-boundary`
 Entities:
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality lizard availability projection > classifies missing dependency commands as unavailable tools`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality lizard availability projection > classifies non-zero version exits with stderr as execution failures`
+- `bun|src/product/quality-core/src/measurement/scanners-lizard.test.ts|quality lizard availability projection > classifies missing dependency commands as unavailable tools`
+- `bun|src/product/quality-core/src/measurement/scanners-lizard.test.ts|quality lizard availability projection > classifies non-zero version exits with stderr as execution failures`
 Proves:
 - Lizard version command 非零退出时，即使 stderr 非空也映射为不可用的 `execution-error`，并保留退出状态和诊断内容。
 - 配置的 Lizard dependency command 不存在时映射为 `tool-unavailable`，不进入实际扫描。
@@ -70,8 +70,8 @@ Proves:
 ## Case AUX-QUALITY-SCC-WRAPPER-001: Quality scc zero-input boundary 稳定
 Owner: `docs/scanner-dependencies.md#file-measurement-boundary`
 Entities:
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scc exact input projection > rejects a successful scc invocation that produces no CSV header`
-- `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
+- `bun|src/product/quality-core/src/measurement/scanners-scc.test.ts|quality scc exact input projection > rejects a successful scc invocation that produces no CSV header`
+- `bun|src/product/quality-core/src/measurement/scanners-scc.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
 Proves:
 - scc wrapper 收到空 exact input list 时直接返回 successful empty metrics，不启动 configured process。
 - External scc 的 default-cwd traversal 不会把 normalized scan scope 未批准的文件重新加入 file metrics。
