@@ -9,13 +9,15 @@ import type { SelectedConfig } from "./config-selection.ts";
 import { NeutralProjectConfig } from "./config.ts";
 import {
   ConfigDocumentSchema,
-  parseConfigDocument,
-  parseSemanticProjectConfigV1,
-  resolveQualityConfig,
   SemanticProjectConfigV1Schema,
   type ConfigDocument,
   type SemanticProjectConfigV1
 } from "./config-schema.ts";
+import { resolveQualityConfig } from "./config-resolution.ts";
+import {
+  parseConfigDocument,
+  parseSemanticProjectConfigV1
+} from "./config-validation.ts";
 
 describe("neutral project config foundation", () => {
   it("pins the complete neutral semantic value and maps a detached runtime config", () => {

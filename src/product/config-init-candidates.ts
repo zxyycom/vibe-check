@@ -5,9 +5,9 @@ import { NeutralProjectConfig } from "./config.ts";
 import { CONFIG_SCHEMA_REFERENCE } from "./config-paths.ts";
 import {
   ConfigDocumentSchema,
-  parseConfigDocument,
   type ConfigDocument
 } from "./config-schema.ts";
+import { parseConfigDocument } from "./config-validation.ts";
 
 const JSON_SCHEMA_2020_12 = "https://json-schema.org/draft/2020-12/schema";
 const TEXT_ENCODER = new TextEncoder();

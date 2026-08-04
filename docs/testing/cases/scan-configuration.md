@@ -52,11 +52,11 @@ Owner: `docs/configuration.md#configuration`
 Entities:
 - `bun|src/product/config-document.test.ts|neutral project config foundation > composes optional authoring metadata over the closed semantic schema and detaches it`
 - `bun|src/product/config-document.test.ts|neutral project config foundation > pins the complete neutral semantic value and maps a detached runtime config`
-- `bun|src/product/config-file.test.ts|semantic project config v1 schema > accepts a complete tool-neutral document and returns a detached value`
-- `bun|src/product/config-file.test.ts|semantic project config v1 schema > exposes only closed product-semantic fields`
-- `bun|src/product/config-file.test.ts|semantic project config v1 schema > maps the document to a frozen resolved config and applies only CLI overrides`
-- `bun|src/product/config-file.test.ts|semantic project config v1 schema > publishes the editor schema and canonical config from the runtime source`
-- `bun|src/product/config-file.test.ts|semantic project config v1 schema > rejects structural and semantic failures with field paths`
+- `bun|src/product/config-validation.test.ts|semantic project config v1 schema > accepts a complete tool-neutral document and returns a detached value`
+- `bun|src/product/config-schema.test.ts|semantic project config v1 schema > exposes only closed product-semantic fields`
+- `bun|src/product/config-validation.test.ts|semantic project config v1 schema > maps the document to a frozen resolved config and applies only CLI overrides`
+- `bun|src/product/config-schema.test.ts|semantic project config v1 schema > publishes the editor schema and canonical config from the runtime source`
+- `bun|src/product/config-validation.test.ts|semantic project config v1 schema > rejects structural and semantic failures with field paths`
 - `bun|src/product/config-file.test.ts|semantic project config file loading > loads and validates a complete UTF-8 semantic document`
 - `bun|src/product/config-document.test.ts|semantic project config file loading > loads equivalent strict and annotated documents through one detached semantic mapping`
 - `bun|src/product/config-file.test.ts|semantic project config file loading > rejects legacy tool-shaped documents with actionable migration guidance`

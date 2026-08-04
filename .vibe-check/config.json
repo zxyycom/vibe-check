@@ -5,16 +5,6 @@
       "checkId": "function-code-lines",
       "codeArea": "product-source",
       "messageIncludes": [
-        "Function \"resolveQualityConfig\""
-      ],
-      "metric": "function-code-density",
-      "path": "src/product/config-schema.ts",
-      "reason": "The resolver is an explicit field-by-field projection of the complete configuration document. Its function body is unchanged from the comparison baseline; the reported regression comes from its source location moving after document-schema declarations were added."
-    },
-    {
-      "checkId": "function-code-lines",
-      "codeArea": "product-source",
-      "messageIncludes": [
         "Function \"initializeProjectConfig\""
       ],
       "metric": "function-code-density",

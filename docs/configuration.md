@@ -13,15 +13,21 @@ dependency、quality warning 与 artifact 内容由对应 owner 维护；其它�
 - `version` 必须精确等于字符串 `"1"`，表示 document contract，不是调用者可编辑的 cache
   bust label。
 - [`src/product/config-schema.ts`](../src/product/config-schema.ts) 是 exact fields、required / optional
-  status、closed shapes、types、enum 和描述的 runtime source。
+  status、closed shapes、types、enum、描述与 editor projection 的唯一 runtime schema source。
+- [`src/product/config-validation.ts`](../src/product/config-validation.ts) 使用上述 schema 将
+  unknown semantic/document input 校验为 detached value，并拥有 time-zone、code-area
+  reference 等 semantic post-validation 与 field-path error mapping。
+- [`src/product/config-resolution.ts`](../src/product/config-resolution.ts) 只把已验证 semantic
+  value 显式映射为 deeply frozen `ResolvedQualityConfig`，并只应用 artifact directory 与
+  top-N 两项 CLI overrides；它不复制 schema 或 default value。
 - [`vibe-check-config.schema.json`](schemas/vibe-check-config.schema.json) 是从同一 source 生成的
   semantic field JSON Schema 2020-12 publication；它不是项目本地 sibling editor schema。
 - [`vibe-check-config.json`](examples/json/vibe-check-config.json) 是唯一 canonical semantic
   example。External fixture 的
   [`.vibe-check/config.json`](../fixtures/projects/configured-typescript/.vibe-check/config.json)
   只用于正式入口验收，不是第二个 canonical example。
-- `src/product/config.ts` 的 `NeutralProjectConfig` 通过同一 runtime schema 与 semantic
-  post-validation，再映射成默认 `ResolvedQualityConfig`；不存在宽松的第二套默认 schema。
+- `src/product/config.ts` 的 `NeutralProjectConfig` 通过上述 validation 与 resolution 边界映射
+  成默认 `ResolvedQualityConfig`；不存在宽松的第二套 schema、default 或 mapper。
 - File-backed document 可增加 optional `$schema` editor metadata；semantic v1 field tree 保持
   complete、closed，且 scanner dependency provenance 不进入 `ResolvedQualityConfig` 或
   machine output。

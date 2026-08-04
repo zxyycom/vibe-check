@@ -141,7 +141,8 @@ Case，一个 Case 可以映射多个 entities；不得把 schema fields 当成 
 - `output/machine/machine-output.test.ts`、`validation.test.ts` 与 `publication.test.ts`：
   schema/DTO projection、serializers、byte grammar、artifact-set predicates 与 validated
   publication failure boundaries。
-- `config-document.test.ts`、`config-file.test.ts`、`config-selection.test.ts`、`config-init.test.ts`、
+- `config-schema.test.ts`、`config-validation.test.ts`、`config-document.test.ts`、
+  `config-file.test.ts`、`config-selection.test.ts`、`config-init.test.ts`、
   `scanner-dependencies.test.ts` 与 `args.test.ts`：semantic/document schema、Vibe Check JSON、
   `ResolvedQualityConfig` mapping、config selection、repeat init / ownership、legacy hard cut、
   `ScannerDependencySnapshot` resolution、option presence 与 gate parser/help/scan-plan

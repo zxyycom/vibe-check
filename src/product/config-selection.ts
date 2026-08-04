@@ -7,10 +7,9 @@ import {
 } from "./config-file.ts";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
 import {
-  resolveQualityConfig,
-  type QualityConfigCliOverrides,
   type SemanticProjectConfigV1
 } from "./config-schema.ts";
+import { resolveQualityConfig, type QualityConfigCliOverrides } from "./config-resolution.ts";
 import { createDefaultConfig } from "./config.ts";
 import type { ResolvedQualityConfig } from "./quality-core/src/model/schema.ts";
 

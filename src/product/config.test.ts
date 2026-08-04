@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { loadSemanticProjectConfig } from "./config-file.ts";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
-import { resolveQualityConfig } from "./config-schema.ts";
+import { resolveQualityConfig } from "./config-resolution.ts";
 import {
   createEmptyMetrics,
   generateMarkdownReport

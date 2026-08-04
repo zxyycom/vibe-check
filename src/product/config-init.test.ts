@@ -29,7 +29,7 @@ import {
   CONFIG_SCHEMA_REFERENCE,
   resolveProjectConfigPaths
 } from "./config-paths.ts";
-import { parseConfigDocument } from "./config-schema.ts";
+import { parseConfigDocument } from "./config-validation.ts";
 
 const CONFIG_SHA256 =
   "93bb299a33e4e012904875c06529b9295197144217a13d9224e37dc30dc97c15";

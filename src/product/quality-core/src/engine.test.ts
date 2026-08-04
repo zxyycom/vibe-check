@@ -13,7 +13,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadSemanticProjectConfig } from "../../config-file.ts";
-import { resolveQualityConfig } from "../../config-schema.ts";
+import { resolveQualityConfig } from "../../config-resolution.ts";
 import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
 import {
   validateMachineArtifactSetV1,

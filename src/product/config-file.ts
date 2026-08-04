@@ -1,9 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 
-import {
-  parseConfigDocument,
-  type SemanticProjectConfigV1
-} from "./config-schema.ts";
+import type { SemanticProjectConfigV1 } from "./config-schema.ts";
+import { parseConfigDocument } from "./config-validation.ts";
 import { errorMessage } from "./foundation/src/errors.ts";
 import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
 

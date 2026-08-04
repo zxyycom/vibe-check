@@ -1,9 +1,8 @@
 import {
-  parseSemanticProjectConfigV1,
-  resolveQualityConfig,
-  type QualityConfigCliOverrides,
   type SemanticProjectConfigV1
 } from "./config-schema.ts";
+import { resolveQualityConfig, type QualityConfigCliOverrides } from "./config-resolution.ts";
+import { parseSemanticProjectConfigV1 } from "./config-validation.ts";
 import type { ResolvedQualityConfig } from "./quality-core/src/model/schema.ts";
 
 export const NeutralProjectConfig: SemanticProjectConfigV1 =

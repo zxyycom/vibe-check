@@ -11,7 +11,7 @@ import {
 } from "./config-file.ts";
 import { createConfigInitCandidates } from "./config-init.ts";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
-import { resolveQualityConfig } from "./config-schema.ts";
+import { resolveQualityConfig } from "./config-resolution.ts";
 import {
   ProjectConfigRequiredError,
   selectProjectConfig
