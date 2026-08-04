@@ -149,3 +149,44 @@ Product CLI SHALL 根据 policy descriptor 归一化 scan plan：`all` 只评价
 - **WHEN** 调用者把 comparison gate 与 quick profile 或显式 `--skip-baseline` 组合
 - **THEN** CLI 在 stderr 报告 comparison prerequisite 与可用修复方式，并退出 `3`
 - **AND** 不启动 scanner 或创建 scan artifacts
+
+### Requirement: Configuration workflow command
+
+Product CLI SHALL 将 `scan [project-root]` 与 `init [project-root]` 路由为独立 operation。Root、scan
+与 init help SHALL 共同呈现一条 workflow：ungated default observation、explicit/fixed config
+selection、file-backed gate policy 与 safe initialization。Init execution SHALL 只执行 root
+validation、config/schema generation、target ensure 与 CLI result mapping。`init` SHALL
+接受零或一个 project-root positional，以及 `--help`；省略 project root 时使用 startup cwd，显式
+relative root 基于 startup cwd 解析。
+
+#### Scenario: Root help exposes both operations
+
+- **WHEN** 调用者运行 root `--help`
+- **THEN** help 列出 `scan [project-root]` 与 `init [project-root]`
+- **AND** 每个 operation 均说明自己的用途
+
+#### Scenario: Scan help explains configuration selection
+
+- **WHEN** 调用者运行 `scan --help`
+- **THEN** help 说明 explicit `--config`、fixed `.vibe-check/config.json` discovery 和 neutral
+  default observation
+- **AND** help 说明任一 gate 使用 complete file-backed config
+
+#### Scenario: Init help explains ensured state
+
+- **WHEN** 调用者运行 `init --help`
+- **THEN** help 标明 config/schema paths 和 missing-file complete-default materialization
+- **AND** help 说明 existing-directory reuse、existing-file preservation 和 missing-file fill
+
+#### Scenario: Init remains a configuration operation
+
+- **WHEN** init 成功或返回 handled failure
+- **THEN** CLI 只执行 initialization responsibility，并返回对应 success/handled-failure result
+- **AND** 首次或重复 success 都输出两个 target paths 与 discovery-ready state
+
+#### Scenario: Configuration workflow failures use exit three
+
+- **WHEN** gated scan 缺少 file-backed policy、selected config validation 失败，或 init 未确保
+  safe target set
+- **THEN** CLI 向 stderr 写入 operation/path/reason diagnostic 并退出 `3`
+- **AND** diagnostic 提供可执行的 config recovery path

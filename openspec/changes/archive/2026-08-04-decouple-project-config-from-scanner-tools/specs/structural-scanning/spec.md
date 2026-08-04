@@ -26,7 +26,7 @@ Product core SHALL 从 Vibe Check normalized scan scope 运行 structural scanni
 
 Structural scanning SHALL 从 Product-owned scanner dependency snapshot 接收 function-metrics backend execution settings；project config MUST 只提供 `checks.functions` quality semantics，不得选择 backend、executable 或 args。Adapter MUST 将 availability、process protocol、private output 和 component-private data 限制在 adapter boundary 内，并向 product core 返回 Vibe Check-owned `FunctionMetric` records 或 normalized failure。
 
-#### Scenario: Backend result 被归一化
+#### Scenario: Python/Lizard result 被归一化
 
 - **WHEN** resolved internal function-metrics backend 扫描 supported exact input
 - **THEN** product core 只接收 Vibe Check-owned `FunctionMetric` records 或 normalized capability failure

@@ -31,7 +31,7 @@ area entry 时 duplicate scanning 使用 `defaultMinimumTokens`。
 
 Parser MUST 拒绝 missing、unknown、wrong-version 或 invalid fields，并返回 detached normalized semantic config；它 MUST NOT partial merge、从默认值补字段或把 project document 映射成 executable settings。
 
-#### Scenario: Complete semantic configuration is accepted
+#### Scenario: Complete configuration is accepted unchanged
 
 - **WHEN** selected document 完整满足 current semantic runtime schema
 - **THEN** parser 返回 detached normalized config，且 scope、checks、accepted-warning、report 与 artifact/cache values 对应输入
@@ -44,13 +44,19 @@ Parser MUST 拒绝 missing、unknown、wrong-version 或 invalid fields，并返
 - **AND** 这些 materials 不包含 `lizard`、`scc`、`jscpd`、`command`、`args`、dependency
   concurrency 或 backend format filter
 
+#### Scenario: Tool settings remain part of the complete config
+
+- **WHEN** complete product invocation 需要执行 scanner dependencies
+- **THEN** executable、args 与 concurrency 只保留在独立解析的 Product-owned dependency snapshot
+- **AND** project document、public runtime schema 与 normalized semantic config 不包含这些 settings
+
 #### Scenario: Semantic accepted warning selects a stable check
 
 - **WHEN** config 使用 `checkId = "function-cyclomatic-complexity"` 和其它 optional semantic match fields
 - **THEN** accepted-warning matching targets the corresponding Vibe Check-owned check
 - **AND** config 不需要知道 internal warning source、scanner name 或 executable
 
-#### Scenario: Invalid semantic document is rejected
+#### Scenario: Incomplete or invalid configuration is rejected
 
 - **WHEN** document 缺少 required field、包含 unknown field、version 不是 `"1"`，或 nested value 无效
 - **THEN** parser 在 scan 启动前失败并报告 path-aware reason
@@ -62,19 +68,19 @@ Parser MUST 拒绝 missing、unknown、wrong-version 或 invalid fields，并返
 
 现有显式 CLI options 保持最高 public precedence：`--top-n` MUST 覆盖 `config.report.topN`，`--artifact-dir` MUST 覆盖 `config.artifactDir`；未显式提供时 MUST 使用 selected semantic config 中的值。
 
-#### Scenario: Explicit semantic config is authoritative for product policy
+#### Scenario: Explicit config is authoritative
 
 - **WHEN** valid explicit semantic config 的 scope、checks、accepted-warning、report 或 artifact/cache fields 与 built-in semantic config 不同
 - **THEN** 本次 scan 使用 explicit document 解析出的 values
 - **AND** built-in public values 不参与该 scan
 
-#### Scenario: Explicit CLI option overrides its semantic config field
+#### Scenario: Explicit CLI option overrides its config field
 
 - **WHEN** 调用者同时传入 valid config 与显式 `--top-n` 或 `--artifact-dir`
 - **THEN** 本次运行使用显式 CLI value
 - **AND** 其它 public fields 保持来自 selected semantic config
 
-#### Scenario: One semantic config serves current baseline and fallback
+#### Scenario: Current and baseline share one config
 
 - **WHEN** 一次 invocation 执行 current、baseline 或 Git-failure fallback collection
 - **THEN** 所有阶段使用 invocation 开始时得到的同一个 resolved semantic config snapshot
@@ -98,7 +104,7 @@ Config owner SHALL 在调用 scan core 前完成 file read、UTF-8、document sy
 - **THEN** CLI 直接报告 resolved config path 与 read error
 - **AND** scan 不启动并退出 `3`
 
-#### Scenario: Semantic configuration cannot be parsed
+#### Scenario: Configuration content cannot be parsed
 
 - **WHEN** 配置不是 valid UTF-8 document 或不满足 current semantic schema / post-validation
 - **THEN** CLI 报告 selected path 与 actionable failure location/reason

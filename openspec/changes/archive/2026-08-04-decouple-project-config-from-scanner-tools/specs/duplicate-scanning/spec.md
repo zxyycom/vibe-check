@@ -17,7 +17,7 @@ backend 按 path extension 选择其支持的 formats。不同 format 的 paths 
 一次 invocation；本 contract 不要求跨 format clone matching。更换 backend 或 supported-format
 behavior 时必须在 adapter 内处理并同步本 capability，不得恢复 public format field。
 
-#### Scenario: Semantic minimum-token values drive an area task
+#### Scenario: Semantic minimum-token override drives an area task
 
 - **WHEN** code area `app` 至少包含两个 approved exact paths，且
   `minimumTokensByCodeArea.app` 有值

@@ -4,9 +4,9 @@ External project 需要通用观察起点，也需要由项目自身持有阻断
 结果：调用者可以直接获得中性观察；阻断行为由项目持有的 complete policy 驱动。
 
 长期选择记录在
-[`use-neutral-default-for-observation-and-file-policy-for-gates`](../../../docs/decisions/configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md)。
+[`use-neutral-default-for-observation-and-file-policy-for-gates`](../../../../docs/decisions/configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md)。
 
-## Target Outcomes
+## What Changes
 
 - Ungated scan 在没有 config file 时使用 Product-owned neutral default，扫描全部受支持的项目
   文件并使用中性报告文本。

@@ -32,26 +32,34 @@ Vibe Check product unit tests 与 unit support fixtures SHALL 由 `src/product/*
 
 ### Requirement: Configured external project fixture
 
-Repository SHALL 在 `fixtures/projects/configured-typescript/` 提供最小、deterministic、checked-in project，包含完整 JSON `QualityConfig`、eligible TypeScript source、excluded / generated controls、可产生现有 warning 的 source 与 fixture README。Fixture-backed acceptance MUST 通过正式 Product CLI 显式传入 project root 与 `--config`，并验证 config version、effective scope、code area、warning 与 artifacts。Fixture config MAY 使用 controlled tool settings 保证测试确定性。
+Repository SHALL 在 `fixtures/projects/configured-typescript/` 提供最小、deterministic、checked-in project，包含 current version `"1"` semantic config、eligible TypeScript source、excluded/generated controls、可产生现有 warning 的 source 与 fixture README。Fixture config 与其 schema/example material MUST 只包含 public semantic fields，并 MUST NOT 包含 scanner product name、command 或 args。
+
+Fixture-backed acceptance MUST 通过正式 Product CLI 显式传入 project root 与 `--config`，并验证 config version、effective scope、code area、semantic check、warning 与 artifacts。Deterministic backend control MUST 通过 Product-owned dependency test seam 或 declared operational overrides 完成，且不得把 controlled executable 重新写入 project config。
 
 #### Scenario: Formal entry scans according to fixture config
 
 - **WHEN** acceptance 从 fixture root 外启动
-  `bun run product:cli -- scan <fixture-root> --config vibe-check.config.json`
-- **THEN** metrics 只包含 config 批准的 files，并使用 config 声明的 code area 与 version
-- **AND** warning 与 artifacts 对应 explicit config 而不是 `DEFAULT_CONFIG`
+  `bun run product:cli -- scan <fixture-root> --config .vibe-check/config.json`
+- **THEN** metrics 只包含 config 批准的 files，并使用 config 声明的 code area、version 与 semantic checks
+- **AND** warning 与 artifacts 对应 explicit config 而不是 built-in semantic values
+
+#### Scenario: Fixture config does not expose scanner tools
+
+- **WHEN** reviewer 检查 fixture config、corresponding schema 与 README config example
+- **THEN** material 使用 `checks.files`、`checks.functions`、`checks.duplication` 与 semantic `checkId`
+- **AND** material 不包含 `lizard`、`scc`、`jscpd`、`command` 或 `args`
 
 #### Scenario: Excluded fixture inputs remain excluded
 
-- **WHEN** fixture 同时包含 eligible source 与匹配 exclude / generated rules 的 controls
+- **WHEN** fixture 同时包含 eligible source 与匹配 exclude/generated rules 的 controls
 - **THEN** eligible source 进入 normalized scanner inputs
-- **AND** excluded / generated files 不进入 metrics、warnings 或 scanner exact inputs
+- **AND** excluded/generated files 不进入 metrics、warnings 或 scanner exact inputs
 
 #### Scenario: Acceptance remains deterministic
 
 - **WHEN** required product validation 重复运行 configured fixture acceptance
-- **THEN** controlled tools 产生稳定 Vibe Check-owned metrics、warning ordering 与 artifacts
-- **AND** acceptance 不依赖网络或未固定第三方 output
+- **THEN** Product-owned dependency test control 产生稳定 Vibe Check-owned metrics、warning ordering 与 artifacts
+- **AND** acceptance 不依赖网络、未固定第三方 output 或 project-level executable settings
 
 ### Requirement: CI quality gate acceptance matrix
 
@@ -205,3 +213,71 @@ parse machine artifacts。Dogfood wrappers SHALL 保持 Product CLI pass-through
 - **WHEN** required profile 执行 producer-to-consumer acceptance
 - **THEN** verifier 根据 child result 报告 pass/fail 并保留 actionable output
 - **AND** verifier 不维护 schema registry、artifact parser 或 warning mapper
+
+### Requirement: External workflow fixtures consume the semantic config owner
+
+`add-external-project-config-workflow` 的 init/discovery acceptance SHALL 使用 `.vibe-check/config.json` 与本 change 建立的 semantic runtime schema。Fixture 可以使用 comment-capable JSON content，但 filename、discovery、initializer safety 与 sibling schema lifecycle 仍由 external workflow owner；本 change MUST NOT 建立平行 file workflow。
+
+#### Scenario: Initialized external config is semantic
+
+- **WHEN** external workflow acceptance 初始化并扫描 fixture copy
+- **THEN** `.vibe-check/config.json` 通过 semantic runtime schema，并产生与显式选择同义的 resolved config
+- **AND** initializer 不生成 tool-named threshold tree、commands、args 或 applied dependency-override provenance
+
+#### Scenario: Explicit and discovered selection share one semantic schema
+
+- **WHEN** 同一 semantic document 分别经 explicit path 与 external-workflow discovery 选择
+- **THEN** 两次选择产生相同 public scope、checks、report 与 artifact/cache semantics
+- **AND** config selection source 不改变 internal dependency resolution
+
+### Requirement: External project configuration workflow fixture
+
+Repository SHALL 使用 existing external project fixture 的独立 temporary copies，通过正式 Product
+CLI 证明 zero-config observation、gate policy prerequisite、init/discovery、repeat ensure、explicit
+precedence、document grammar、safe initialization 与 schema authority。Test-owned scanner support
+MAY 用于保持结果确定。
+
+#### Scenario: Clean project proves default and gate boundary
+
+- **WHEN** clean fixture copy 先执行 ungated scan，再在同一未配置状态执行 gated scan
+- **THEN** ungated scan 使用 neutral default；gated scan 在 dependency/scanner work 前退出 `3`
+- **AND** evidence 同时标识 neutral scope 与 file-policy recovery path
+
+#### Scenario: Initialized project proves source equivalence
+
+- **WHEN** clean fixture copy 执行 init，再通过 fixed discovery 执行 scan
+- **THEN** production loader 发现并解析 generated config；sibling schema 独立证明 editor projection
+- **AND** semantic value、scope、exact inputs 与 report settings 等同于 in-memory neutral default
+
+#### Scenario: Explicit and invalid files prove selection finality
+
+- **WHEN** fixture 已有 discovered config，调用者另行选择 explicit file
+- **THEN** valid explicit file 控制 scan；invalid explicit file 返回该文件自身的 config error
+- **AND** 两条路径均保持 persisted inputs 原有内容
+
+#### Scenario: Repeated initialization preserves and completes project state
+
+- **WHEN** acceptance 覆盖 two-target no-op、one-target fill、existing tool-directory entries、target
+  races、handled writes 与 changed sibling schema
+- **THEN** initializer 保留 existing file bytes，只补齐 missing file，并清理 invocation-owned
+  partial entries
+- **AND** existing normal targets 按 presence contract 保留；后续 runtime validation 始终由
+  embedded Product schema 承担
+
+### Requirement: Repository dogfood config is isolated
+
+Repository SHALL 将完整政策保存于 `<repo-root>/.vibe-check/config.json`，并保存对应 generated
+schema。`quality:*` SHALL 通过正式 discovery 获得该政策；root-only wrapper SHALL 原样传递 caller
+arguments、streams 与 process outcome。
+
+#### Scenario: Dogfood exercises discovery
+
+- **WHEN** quick、full、default 或 gate dogfood entry 运行
+- **THEN** Product CLI 报告 discovered repository config
+- **AND** entry-specific profile/gate settings 与 product outcome 保持既有行为
+
+#### Scenario: Explicit wrapper input retains public precedence
+
+- **WHEN** 调用者通过 `quality:scan` 传入 `--config`
+- **THEN** Product CLI 选择 explicit file
+- **AND** wrapper 继续作为 transparent root adapter

@@ -12,11 +12,18 @@ Product CLI SHALL 按以下顺序为每次 invocation 选择唯一配置来源�
 该文件的读取与校验结果 SHALL 决定本次 invocation 的配置结果；固定路径是唯一 implicit file
 candidate。
 
-#### Scenario: Explicit path has highest precedence
+#### Scenario: Relative configuration uses project root
 
-- **WHEN** 调用者传入相对或绝对 `--config`，同时 discovery/default 也可用
-- **THEN** CLI 只解析并校验 explicit path
-- **AND** 相对路径基于 normalized project root，而不是 launch cwd
+- **WHEN** 调用者从 project root 外启动正式入口，并传入显式 project root 与相对
+  `--config`，同时 discovery/default 也可用
+- **THEN** CLI 只解析并校验 normalized project root 下的 explicit path
+- **AND** 更换 process launch cwd 不改变配置定位
+
+#### Scenario: Explicit external configuration path is preserved
+
+- **WHEN** 调用者传入绝对 config path 或包含 `..` 的相对 config path
+- **THEN** CLI 按 normalized project root 与平台原生 path resolution 读取指定文件
+- **AND** CLI 不搜索或替换该配置
 
 #### Scenario: Tool-directory config is discovered
 
@@ -24,11 +31,11 @@ candidate。
 - **THEN** CLI 将该文件选为 `discovered`
 - **AND** dependency preflight 前只加载一次该文件
 
-#### Scenario: Ungated scan uses neutral default
+#### Scenario: Omitted configuration preserves current behavior
 
 - **WHEN** 调用者省略 `--config`、固定路径尚未配置，且 gate disabled
 - **THEN** CLI 选择完整 neutral default
-- **AND** console 报告 default provenance，scan 直接进入观察流程
+- **AND** console 报告 default provenance，且 CLI 不搜索 project root 父目录或启动 cwd
 
 #### Scenario: Gate requires project policy
 
@@ -49,23 +56,31 @@ Explicit 或 discovered document SHALL 提供一份完整 semantic project confi
 Document validation 完成后，显式 `--top-n` 和 `--artifact-dir` SHALL 覆盖对应字段。Current、
 baseline 与 Git-failure fallback SHALL 共享最终 resolved config。
 
-#### Scenario: File-backed document is complete and authoritative
+#### Scenario: Explicit config is authoritative
 
-- **WHEN** selected document 通过校验
+- **WHEN** selected explicit 或 discovered document 通过校验
 - **THEN** 每个 project-policy field 都来自该 document，再应用 CLI field overrides
 - **AND** loader 将 `$schema` 分离为 authoring metadata，resolved semantic config 只包含政策字段
 
-#### Scenario: CLI fields retain highest precedence
+#### Scenario: Explicit CLI option overrides its config field
 
 - **WHEN** 调用者显式传入 `--top-n` 或 `--artifact-dir`
 - **THEN** resolved config 对应字段使用 CLI value
 - **AND** 其余字段保持 selected semantic value
 
-#### Scenario: One config serves the whole scan
+#### Scenario: Current and baseline share one config
 
 - **WHEN** invocation 执行 current、baseline 或 Git-failure fallback collection
 - **THEN** 每个阶段接收同一份 invocation-owned resolved config
 - **AND** config selection 只执行一次
+
+#### Scenario: Operational override is independent of project selection
+
+- **WHEN** 同一 invocation 同时具有 selected semantic config 与 supported operational dependency
+  override
+- **THEN** semantic config 只决定 project policy，operational override 只决定 internal dependency
+  execution
+- **AND** 任一方都不覆盖或序列化另一方的 fields
 
 ## ADDED Requirements
 
@@ -73,8 +88,8 @@ baseline 与 Git-failure fallback SHALL 共享最终 resolved config。
 
 Product Config SHALL 持有以下完整、repository-neutral 的 exact semantic value；本 requirement
 固定本 change 的 target value，交付后的 current value 由
-[Configuration](../../../../../docs/configuration.md#neutral-default) 与
-[Product runtime source](../../../../../src/product/config.ts) 维护：
+[Configuration](../../../../../../docs/configuration.md#neutral-default) 与
+[Product runtime source](../../../../../../src/product/config.ts) 维护：
 
 ```json
 {

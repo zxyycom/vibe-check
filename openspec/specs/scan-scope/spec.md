@@ -12,42 +12,41 @@ Scan scope behavior SHALL have a long-term owner document under `docs/` that rec
 
 ### Requirement: Real project file collection
 
-Core scan pipeline SHALL 从 normalized project root 下的 selected complete config include paths 构造 scan scope。Selected config 可以是未指定 `--config` 时的当前 `DEFAULT_CONFIG`，或从显式 JSON 解析的完整 `QualityConfig`。Collection MUST 先运行 `git ls-files --cached --others --exclude-standard` 取得候选 paths；该命令失败时 SHALL 保持现有提示并使用当前 fallback walker。Git 与 fallback results MUST 进入同一 selected-config filtering 与 code-area classification。
+Core scan pipeline SHALL 从 normalized project root 与 selected semantic config 的 include paths 构造 scan scope。Selected document 必须先通过 Product Config runtime contract 并归一化为 invocation-owned config；collection 不得读取 scanner dependency settings。Collection MUST 先运行 `git ls-files --cached --others --exclude-standard` 取得候选 paths；该命令失败时 SHALL 保持现有提示并使用当前 fallback walker。Git、fallback、current 与 baseline MUST 使用同一 resolved semantic scope 和 code-area classification。
 
 #### Scenario: Git collection uses selected include paths
 
-- **WHEN** Git collection 成功且 selected config include paths 匹配 ordinary project files
+- **WHEN** Git collection 成功且 selected semantic config include paths 匹配 ordinary project files
 - **THEN** core 从 Git 返回的 candidate paths 构造 scope
-- **AND** 只保留符合 selected config rules 的 paths
+- **AND** 只保留符合同一 resolved scope rules 的 paths
 
 #### Scenario: Explicit config changes candidate eligibility
 
-- **WHEN** explicit config 的 include paths 与 `DEFAULT_CONFIG` 不同
+- **WHEN** explicit semantic config 的 include paths 与 built-in semantic config 不同
 - **THEN** collection 使用 explicit config include paths
-- **AND** `DEFAULT_CONFIG` include paths 不参与该 scan
+- **AND** built-in include paths 和 scanner dependency settings 不参与 scope
 
 #### Scenario: Git failure keeps selected config
 
-- **WHEN** Git collection command 失败
-- **THEN** core 保持现有提示并使用当前 fallback walker
-- **AND** fallback 应用同一个 selected config
+- **WHEN** current 或 baseline Git collection command 失败
+- **THEN** core 保持现有提示并使用 fallback walker
+- **AND** fallback 复用 invocation 开始时解析的同一个 semantic config snapshot
 
 ### Requirement: Default exclusion baseline
 
-Scan scope collection SHALL 在构造 scanner exact inputs 前应用 selected complete config 的 exclude directories、generated-file globs 与 code-area boundaries。未指定 `--config` 时 MUST 保持当前 `DEFAULT_CONFIG` values 与 behavior；指定配置时 MUST 只应用 explicit config，不得同时应用 built-in exclusions。
+Scan scope collection SHALL 在构造 scanner exact inputs 前应用 selected semantic config 的 exclude directories、generated-file globs 与 code-area boundaries。使用 built-in config 时 MUST 保持 current default scope behavior；使用 explicit 或 external-workflow-discovered config 时 MUST 只应用该 selected document 解析出的 public scope，不得同时应用 built-in exclusions 或 dependency-private filtering rules。
 
 #### Scenario: Selected exclusions do not reach scanner inputs
 
-- **WHEN** candidate path 匹配 selected config 的 excluded directory 或 generated-file rule
+- **WHEN** candidate path 匹配 selected semantic config 的 excluded directory 或 generated-file rule
 - **THEN** 该 path 不进入 normalized scanner exact inputs
-- **AND** scanner adapter 不得通过自行遍历重新加入该 path
+- **AND** dependency resolver 或 adapter 不得通过自行遍历重新加入该 path
 
 #### Scenario: Explicit config does not inherit hidden exclusions
 
-- **WHEN** path 匹配 `DEFAULT_CONFIG` exclusion，但满足 explicit include 且不匹配
-  explicit exclude / generated rule
+- **WHEN** path 匹配 built-in exclusion，但满足 selected external include 且不匹配 selected external exclude / generated rule
 - **THEN** 该 path 保持 eligible
-- **AND** core 不把 built-in exclusion 与 explicit config 合并
+- **AND** core 不把 built-in 或 backend-private exclusion 与 selected semantic config 合并
 
 ### Requirement: Ignore file handling
 
@@ -73,3 +72,27 @@ Scan scope 的 current 与 baseline Git collection SHALL 通过 `--exclude-stand
   匹配 selected exclude / generated-file rule
 - **THEN** fallback walker 排除该 path
 - **AND** downstream scanner 不得让该 path 重新进入 scan scope
+
+### Requirement: Every project scan uses one complete selected config
+
+Scan scope SHALL 消费 Product Config 选出的唯一完整 config。Default、explicit 与 discovered source
+SHALL 共用同一套 normalization、collection、classification 和 exact-input pipeline；selection
+source 只影响 provenance。
+
+#### Scenario: Neutral default covers supported project files
+
+- **WHEN** ungated scan 选择 neutral default
+- **THEN** 既有 Git/fallback collection 应用 `**/*`、default exclusions 与 `project` area
+- **AND** supported eligible files 进入常规 scanner exact-input pipeline
+
+#### Scenario: Materialized default preserves scope
+
+- **WHEN** 同一 neutral value 先以内存 default、再以 initialized discovered document 参与 scan
+- **THEN** 两次 invocation 产生相同 normalized scope、code areas 与 scanner exact inputs
+- **AND** provenance 分别表达实际 selection source
+
+#### Scenario: File-backed policy controls scope
+
+- **WHEN** explicit 或 discovered config 定义 include、exclude 与 code-area values
+- **THEN** collection 和 classification 使用该完整 selected value
+- **AND** current、baseline 与 Git-failure fallback 共享同一 scope policy

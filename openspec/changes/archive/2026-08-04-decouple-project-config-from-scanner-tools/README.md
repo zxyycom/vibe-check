@@ -17,23 +17,23 @@
 
 1. Public project config 不暴露 `lizard`、`scc`、`jscpd`、`command` 或 `args`。
 2. Project config 只表达稳定产品语义；dependency command/args、availability、platform resolution 与 operational overrides 留在 Product-owned internal boundary。
-3. 该解耦先于 [external config workflow](../add-external-project-config-workflow/README.md)
+3. 该解耦先于 [external config workflow](../2026-08-04-add-external-project-config-workflow/README.md)
    实现，避免先生成 tool-shaped config 再迁移。
 4. External workflow 继续拥有 `.vibe-check/config.json`、comment-capable JSON、explicit/discovered selection、`init` 与 sibling schema lifecycle；本 change 不复制这些行为。
-5. [Lizard TypeScript port](../port-lizard-function-metrics-to-typescript/README.md) 继续是延期的
+5. [Lizard TypeScript port](../../port-lizard-function-metrics-to-typescript/README.md) 继续是延期的
    最终提升项，不作为本 change 前置。
 
 以下 public-contract 选择已经确认：
 
 | Confirmed choice | Long-term owner | Contract consequence |
 | --- | --- | --- |
-| `version` 固定为 exact `"1"` contract discriminator | [固定语义配置契约版本](../../../docs/decisions/configuration/use-fixed-semantic-config-version.md) | Schema version 与 caller-defined cache-bust label 分离；cache identity 按真实 measurement inputs 派生 |
-| `checks.files` / `checks.functions` / `checks.duplication`，accepted warnings 使用 semantic `checkId` | [语义 check ID](../../../docs/decisions/configuration/use-semantic-check-ids-in-project-config.md) | Threshold/acceptance 不依赖 backend 或 tool-named rule ID；machine identity 暂时保持兼容 |
-| Legacy tool-shaped config fail-fast hard cut | [Legacy hard cut](../../../docs/decisions/configuration/hard-cut-legacy-tool-shaped-config.md) | Project command/args 不被静默忽略或执行；不建立 dual-reader precedence |
+| `version` 固定为 exact `"1"` contract discriminator | [固定语义配置契约版本](../../../../docs/decisions/configuration/use-fixed-semantic-config-version.md) | Schema version 与 caller-defined cache-bust label 分离；cache identity 按真实 measurement inputs 派生 |
+| `checks.files` / `checks.functions` / `checks.duplication`，accepted warnings 使用 semantic `checkId` | [语义 check ID](../../../../docs/decisions/configuration/use-semantic-check-ids-in-project-config.md) | Threshold/acceptance 不依赖 backend 或 tool-named rule ID；machine identity 暂时保持兼容 |
+| Legacy tool-shaped config fail-fast hard cut | [Legacy hard cut](../../../../docs/decisions/configuration/hard-cut-legacy-tool-shaped-config.md) | Project command/args 不被静默忽略或执行；不建立 dual-reader precedence |
 
 固定实施顺序为：本 change →
-[external config workflow](../add-external-project-config-workflow/README.md) → 延期的
-[Lizard TypeScript port](../port-lizard-function-metrics-to-typescript/README.md)。后两者不能
+[external config workflow](../2026-08-04-add-external-project-config-workflow/README.md) → 延期的
+[Lizard TypeScript port](../../port-lizard-function-metrics-to-typescript/README.md)。后两者不能
 反向定义或迁移 public semantic config。
 
 ## Target boundaries

@@ -6,7 +6,7 @@ Repository SHALL 在 `fixtures/projects/configured-typescript/` 提供最小、d
 
 Fixture-backed acceptance MUST 通过正式 Product CLI 显式传入 project root 与 `--config`，并验证 config version、effective scope、code area、semantic check、warning 与 artifacts。Deterministic backend control MUST 通过 Product-owned dependency test seam 或 declared operational overrides 完成，且不得把 controlled executable 重新写入 project config。
 
-#### Scenario: Formal entry scans according to semantic fixture config
+#### Scenario: Formal entry scans according to fixture config
 
 - **WHEN** acceptance 从 fixture root 外启动
   `bun run product:cli -- scan <fixture-root> --config .vibe-check/config.json`
@@ -25,7 +25,7 @@ Fixture-backed acceptance MUST 通过正式 Product CLI 显式传入 project roo
 - **THEN** eligible source 进入 normalized scanner inputs
 - **AND** excluded/generated files 不进入 metrics、warnings 或 scanner exact inputs
 
-#### Scenario: Acceptance remains deterministic through the dependency boundary
+#### Scenario: Acceptance remains deterministic
 
 - **WHEN** required product validation 重复运行 configured fixture acceptance
 - **THEN** Product-owned dependency test control 产生稳定 Vibe Check-owned metrics、warning ordering 与 artifacts
