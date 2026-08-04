@@ -1,11 +1,13 @@
 import { resolve } from "node:path";
 
 import { parseArgs } from "./args.ts";
+import { CliUsageError } from "./foundation/src/errors.ts";
 import {
   selectProjectConfig,
   type SelectedConfig
 } from "./config-selection.ts";
 import { runQualityScan } from "./quality-core/src/index.ts";
+import { resolveBaselineCommitSha } from "./quality-core/src/input/revisions.ts";
 import { resolveScannerDependencySnapshot } from "./scanner-dependencies.ts";
 import type {
   QualityScanOptions,
@@ -20,6 +22,10 @@ export async function runScan(
 ): Promise<ScanOutcome> {
   const root = resolve(projectRoot);
   const parsed = parseArgs([...argv]);
+  const baselineCommitSha = resolveExplicitBaseline({
+    revision: parsed.baselineRevision,
+    root
+  });
   const cliOverrides = {
     ...(parsed.artifactDir === null ? {} : { artifactDir: parsed.artifactDir }),
     ...(parsed.topN === null ? {} : { topN: parsed.topN })
@@ -38,11 +44,10 @@ export async function runScan(
   );
   const options: QualityScanOptions = {
     artifactDir: config.artifactDir,
-    baseline: parsed.baseline,
+    baselineCommitSha,
     changedFiles: parsed.changedFiles,
     gatePolicy: parsed.gatePolicy,
     scanProfile: parsed.scanProfile,
-    skipBaseline: parsed.skipBaseline,
     topN: config.report.topN,
     verificationOutput: parsed.verificationOutput
   };
@@ -56,6 +61,20 @@ export async function runScan(
     timingsEnabled: process.env.VIBE_CHECK_QUALITY_TIMINGS === "1"
   });
   return outcome;
+}
+
+function resolveExplicitBaseline({
+  revision,
+  root
+}: {
+  revision: string | null;
+  root: string;
+}): string | null {
+  if (revision === null) return null;
+
+  const result = resolveBaselineCommitSha({ cwd: root, revision });
+  if (result.ok) return result.commitSha;
+  throw new CliUsageError(result.error);
 }
 
 function printConfigProvenance(selectedConfig: SelectedConfig): void {
@@ -72,7 +91,7 @@ function printBanner(scanProfile: QualityScanOptions["scanProfile"]): void {
   if (scanProfile === "quick") {
     console.log("Quick check: skips baseline comparison and jscpd duplicate detection.");
   } else {
-    console.log("Full check: runs all configured scanners; baseline comparison is opt-in.");
+    console.log("Full check: runs all configured scanners; comparison requires explicit --baseline.");
   }
   console.log("");
 }

@@ -373,7 +373,6 @@ function runOmittedGateScan(
       projectRoot,
       "--config",
       ".vibe-check/config.json",
-      "--skip-baseline",
       ...args
     ],
     {

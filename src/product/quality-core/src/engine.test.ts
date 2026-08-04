@@ -449,11 +449,10 @@ async function runFixtureScanWithoutArtifacts({
       dependencies,
       options: {
         artifactDir,
-        baseline: null,
+        baselineCommitSha: null,
         changedFiles: null,
         gatePolicy,
         scanProfile: "quick",
-        skipBaseline: true,
         topN: config.report.topN,
         verificationOutput
       },

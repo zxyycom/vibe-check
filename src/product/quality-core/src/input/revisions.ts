@@ -1,18 +1,15 @@
 /**
- * Baseline commit 定位与 materialization。
+ * Explicit baseline revision resolution 与 materialization。
  *
- * 从 git history 定位 previous-code baseline commit，并在临时隔离目录中
- * 用当前配置和当前 wrapper/tool 扫描 baseline commit。
+ * 调用方选择的 revision 在 scan work 前解析为 commit SHA；materialization
+ * 只消费该 invocation-owned identity。
  */
 
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { minimatch } from "minimatch";
 
-import { gitGlobPathspecArgs } from "./git-pathspec.ts";
 import {
-  gitCommitDate,
-  gitHeadSha,
   processFailed,
   runGit,
   runProcessSync,
@@ -21,14 +18,9 @@ import {
 import {
   collectRevisionChanges,
   collectWorkingTreeChanges,
-  submoduleHistoryPaths,
   uniqueSortedPaths
 } from "./revision-tree.ts";
 import { materializeRevisionGitlinks } from "./revision-materialization.ts";
-
-type BaselineCommitResult =
-  | { date: string | null; ok: true; reason: string; sha: string }
-  | { error: string; ok: false };
 
 type MaterializeBaselineResult =
   | { ok: true; workDir: string }
@@ -39,47 +31,51 @@ type ChangeScope = {
   changedFiles: string[];
 };
 
-/**
- * 定位 previous-code baseline commit。
- *
- * 规则：
- * 1. 先确定当前配置的 scan inputs（纳入扫描的 code inputs）
- * 2. 如果 current revision 修改了任何 scan input → baseline 是 current revision 之前的最近代码提交
- * 3. 如果 current revision 没修改 scan input → baseline 是最近代码提交
- */
-export function locateBaselineCommit({
+export type BaselineCommitResolution =
+  | { commitSha: string; ok: true }
+  | { error: string; ok: false };
+
+export function resolveBaselineCommitSha({
   cwd,
-  scanInputPaths
+  revision
 }: {
   cwd: string;
-  scanInputPaths: string[];
-}): BaselineCommitResult {
-  const headSha = gitHeadSha(cwd);
-  if (!headSha) {
-    return { ok: false, error: "git rev-parse HEAD failed: no git repository" };
+  revision: string;
+}): BaselineCommitResolution {
+  if (revision.length === 0) {
+    return unavailableBaselineRevision();
   }
 
-  if (!hasParentCommit(cwd, headSha)) {
-    return { ok: false, error: "no-baseline-commit: repository has only one commit" };
+  const result = runGit([
+    "rev-parse",
+    "--verify",
+    "--quiet",
+    "--end-of-options",
+    `${revision}^{commit}`
+  ], { cwd });
+  if (result.error) {
+    throw new Error(
+      "failed to resolve --baseline revision because Git could not run; verify Git and project root access",
+      { cause: result.error }
+    );
+  }
+  if (result.status !== 0) {
+    return unavailableBaselineRevision();
   }
 
-  const historyPaths = [
-    ...scanInputPaths,
-    ...submoduleHistoryPaths(cwd, headSha, scanInputPaths)
-  ];
-  const patternArgs = gitGlobPathspecArgs([...new Set(historyPaths)], { omitWhenEmpty: true });
-
-  const headModifiedScanInputs = commitModifiesScanInputs({
-    cwd,
-    headSha,
-    scanInputPaths
-  });
-
-  if (headModifiedScanInputs) {
-    return baselineForChangedHead(cwd, headSha, patternArgs);
+  const commitSha = result.stdout.trim();
+  if (!/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u.test(commitSha)) {
+    return unavailableBaselineRevision();
   }
+  return { commitSha, ok: true };
+}
 
-  return baselineForUnchangedHead(cwd, headSha, patternArgs);
+function unavailableBaselineRevision(): BaselineCommitResolution {
+  return {
+    error:
+      "--baseline must resolve to a locally available commit; fetch the intended revision or provide another revision",
+    ok: false
+  };
 }
 
 /**
@@ -197,92 +193,6 @@ export function getRevisionChangedFiles(
     scanInputPaths,
     toRevision
   }));
-}
-
-function hasParentCommit(cwd: string, headSha: string): boolean {
-  const parentCount = runGit(["rev-list", "--count", "--max-count=1", `${headSha}^`], { cwd });
-  return parentCount.status === 0 && parseInt(parentCount.stdout.trim(), 10) > 0;
-}
-
-function baselineForChangedHead(cwd: string, headSha: string, patternArgs: string[]): BaselineCommitResult {
-  const baselineSha = latestCodeCommitBeforeHead(cwd, headSha, patternArgs);
-  if (baselineSha) {
-    return baselineCommit(cwd, baselineSha, "previous-code-commit");
-  }
-
-  const parentBaseline = parentBaselineCommit(cwd, headSha, "parent-commit");
-  if (parentBaseline) {
-    return parentBaseline;
-  }
-
-  return { ok: false, error: "no-baseline-commit: no previous commit found" };
-}
-
-function baselineForUnchangedHead(cwd: string, headSha: string, patternArgs: string[]): BaselineCommitResult {
-  const baselineSha = latestCodeCommit(cwd, patternArgs);
-  if (baselineSha) {
-    return baselineCommit(cwd, baselineSha, "nearest-code-commit");
-  }
-
-  const parentBaseline = parentBaselineCommit(cwd, headSha, "parent-commit-fallback");
-  if (parentBaseline) {
-    return parentBaseline;
-  }
-
-  return { ok: false, error: "no-baseline-commit: no previous code commit found" };
-}
-
-function commitModifiesScanInputs({
-  cwd,
-  headSha,
-  scanInputPaths
-}: {
-  cwd: string;
-  headSha: string;
-  scanInputPaths: string[];
-}): boolean {
-  const parent = `${headSha}^`;
-  return getRevisionChangedFiles(cwd, parent, headSha, scanInputPaths).length > 0;
-}
-
-function latestCodeCommitBeforeHead(cwd: string, headSha: string, patternArgs: string[]): string | null {
-  return latestCommit(cwd, [
-    "log",
-    "--format=%H",
-    "--max-count=1",
-    "--skip=0",
-    `${headSha}~1`,
-    ...patternArgs
-  ]);
-}
-
-function latestCodeCommit(cwd: string, patternArgs: string[]): string | null {
-  return latestCommit(cwd, ["log", "--format=%H", "--max-count=1", ...patternArgs]);
-}
-
-function latestCommit(cwd: string, args: string[]): string | null {
-  const logResult = runGit(args, { cwd });
-  return trimStdout(logResult.stdout);
-}
-
-function parentBaselineCommit(cwd: string, headSha: string, reason: string): BaselineCommitResult | null {
-  const parentResult = runGit(["rev-parse", `${headSha}~1`], { cwd });
-  const parentSha = parentResult.status === 0 ? trimStdout(parentResult.stdout) : null;
-  return parentSha ? baselineCommit(cwd, parentSha, reason) : null;
-}
-
-function baselineCommit(cwd: string, sha: string, reason: string): BaselineCommitResult {
-  return {
-    ok: true,
-    sha,
-    date: gitCommitDate(sha, cwd),
-    reason
-  };
-}
-
-function trimStdout(stdout: string | null | undefined): string | null {
-  const value = (stdout || "").trim();
-  return value || null;
 }
 
 function fileMatchesPattern(filePath: string, pattern: string): boolean {

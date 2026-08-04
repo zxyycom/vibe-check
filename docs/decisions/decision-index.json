@@ -22,7 +22,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:b3bd79c9788bf8ec38cfa6d241b07d5061e9eb3d654ea63eec0fa1e7ecc9299c",
+  "sourceRevision": "sha256:63d8f225464e5592ebeed2c28aefa335990407119092a29ca415ce23c49e34cf",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -290,6 +290,31 @@
             "target": "testing/use-native-test-evidence-catalog.md"
           }
         ]
+      }
+    },
+    {
+      "id": "workflow-policy/require-explicit-quality-baselines.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/require-explicit-quality-baselines.md",
+        "title": "质量比较只接受显式基线",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-04T07:18:16Z",
+        "purpose": "让质量比较和阻断结果始终绑定到调用者明确选择且可复现的代码基线。",
+        "background": "自动选择上一代码提交无法可靠表达分支或发布比较目标，并可能让同一最终提交因历史形状不同得到误导性门禁结果。",
+        "decision": "省略 baseline 的扫描只生成当前快照；只有显式 baseline 才启用比较，comparison gate 缺少它时在扫描工作前失败。",
+        "relations": []
       }
     },
     {

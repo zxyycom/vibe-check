@@ -8,11 +8,10 @@ export type QualityScanProcessOutcome = "success" | "gate-failed" | "failed";
 
 export type QualityScanOptions = {
   artifactDir: string;
-  baseline: string | null;
+  baselineCommitSha: string | null;
   changedFiles: string | null;
   gatePolicy: GatePolicy | null;
   scanProfile: QualityScanProfile;
-  skipBaseline: boolean;
   topN: number;
   verificationOutput: boolean;
 };

@@ -13,20 +13,24 @@ import {
   type GatePolicy
 } from "./quality-core/src/model/gate-policy.ts";
 
-export type ParsedScanArgs = Omit<QualityScanOptions, "artifactDir" | "topN"> & {
+export type ParsedScanArgs = Omit<
+  QualityScanOptions,
+  "artifactDir" | "baselineCommitSha" | "topN"
+> & {
   artifactDir: string | null;
+  baselineRevision: string | null;
   configFile: string | null;
   gatePolicy: GatePolicy | null;
   topN: number | null;
 };
 
-const skipBaselineByToken: Partial<Record<string, boolean>> = {
-  baseline: false,
-  "skip-baseline": true,
-  "with-baseline": false
-};
-
 export function parseArgs(argv: readonly string[] = process.argv.slice(2)): ParsedScanArgs {
+  if (hasRetiredWithBaselineOption(argv)) {
+    throw new CliUsageError(
+      "--with-baseline was removed; use --baseline <revision> for comparison or omit it for a current snapshot"
+    );
+  }
+
   let parsed: ReturnType<typeof parseScriptArgs>;
   try {
     parsed = parseScriptArgs({
@@ -41,7 +45,6 @@ export function parseArgs(argv: readonly string[] = process.argv.slice(2)): Pars
         profile: { type: "string" },
         "skip-baseline": { type: "boolean" },
         "verification-output": { type: "boolean" },
-        "with-baseline": { type: "boolean" },
         help: { type: "boolean" }
       }
     });
@@ -49,9 +52,13 @@ export function parseArgs(argv: readonly string[] = process.argv.slice(2)): Pars
     if (isMissingGateValueError(error)) {
       throw gateUsageError("--gate requires a value");
     }
+    if (isMissingOptionValueError(error, "baseline")) {
+      throw new CliUsageError("--baseline requires a non-empty revision");
+    }
     throw error;
   }
   assertSingleOption(parsed.tokens, "config");
+  assertSingleOption(parsed.tokens, "baseline");
   assertSingleGateOption(parsed.tokens);
 
   if (booleanOption(parsed.values, "help")) {
@@ -59,39 +66,48 @@ export function parseArgs(argv: readonly string[] = process.argv.slice(2)): Pars
     process.exit(0);
   }
 
-  const baseline = stringOption(parsed.values, "baseline") ?? null;
+  const baselineRevision = stringOption(parsed.values, "baseline") ?? null;
   const gatePolicy = parseGatePolicy(stringOption(parsed.values, "gate"));
   const topN = stringOption(parsed.values, "top-n");
   const scanProfile = parseScanProfile(stringOption(parsed.values, "profile") ?? "full");
   const gateDescriptor = gatePolicy === null
     ? null
     : GATE_POLICY_DESCRIPTORS.find(({ value }) => value === gatePolicy)!;
+  const skipsBaseline = hasOption(parsed.tokens, "skip-baseline");
+  if (baselineRevision === "") {
+    throw new CliUsageError("--baseline requires a non-empty revision");
+  }
+  if (baselineRevision !== null && skipsBaseline) {
+    throw new CliUsageError("--baseline and --skip-baseline cannot be combined");
+  }
   if (gateDescriptor?.requiresComparison === true && scanProfile === "quick") {
     throw new CliUsageError(
       `--gate ${gatePolicy} requires --profile full; use --profile full or choose --gate all`
     );
   }
-  if (gateDescriptor?.requiresComparison === true && hasOption(parsed.tokens, "skip-baseline")) {
+  if (gateDescriptor?.requiresComparison === true && baselineRevision === null) {
+    if (skipsBaseline) {
+      throw new CliUsageError(
+        `--gate ${gatePolicy} cannot be combined with --skip-baseline; remove --skip-baseline and provide --baseline <revision>`
+      );
+    }
     throw new CliUsageError(
-      `--gate ${gatePolicy} requires baseline comparison and cannot be combined with --skip-baseline; remove --skip-baseline`
+      `--gate ${gatePolicy} requires an explicit --baseline <revision>; provide one to enable comparison`
     );
   }
-  if (scanProfile === "quick" && hasBaselineOption(parsed.tokens)) {
-    throw new Error("quick quality check does not support baseline options; use --profile full for baseline comparison");
+  if (scanProfile === "quick" && baselineRevision !== null) {
+    throw new CliUsageError(
+      "quick quality check does not support --baseline; use --profile full for baseline comparison"
+    );
   }
 
   return {
     artifactDir: stringOption(parsed.values, "artifact-dir") ?? null,
-    baseline,
+    baselineRevision,
     changedFiles: stringOption(parsed.values, "changed-files") ?? null,
     configFile: stringOption(parsed.values, "config") ?? null,
     gatePolicy,
     scanProfile,
-    skipBaseline: scanProfile === "quick"
-      ? true
-      : gateDescriptor?.requiresComparison === true
-        ? false
-        : resolveSkipBaseline(parsed.tokens, baseline === null),
     topN: topN === undefined ? null : parsePositiveInteger(topN, "--top-n"),
     verificationOutput: booleanOption(parsed.values, "verification-output")
   };
@@ -112,22 +128,6 @@ function parseScanProfile(value: string): QualityScanProfile {
   throw new Error(`unknown quality scan profile: ${value}`);
 }
 
-function resolveSkipBaseline(tokens: readonly ScriptArgToken[], defaultValue: boolean): boolean {
-  let skipBaseline = defaultValue;
-  for (const token of tokens) {
-    if (token.kind !== "option" || token.name === undefined) continue;
-    skipBaseline = skipBaselineByToken[token.name] ?? skipBaseline;
-  }
-  return skipBaseline;
-}
-
-function hasBaselineOption(tokens: readonly ScriptArgToken[]): boolean {
-  return tokens.some((token) =>
-    token.kind === "option" &&
-    (token.name === "baseline" || token.name === "with-baseline")
-  );
-}
-
 function hasOption(tokens: readonly ScriptArgToken[], name: string): boolean {
   return tokens.some((token) => token.kind === "option" && token.name === name);
 }
@@ -143,7 +143,7 @@ function assertSingleOption(tokens: readonly ScriptArgToken[], name: string): vo
     (token) => token.kind === "option" && token.name === name
   ).length;
   if (count > 1) {
-    throw new Error(`--${name} may only be provided once`);
+    throw new CliUsageError(`--${name} may only be provided once`);
   }
 }
 
@@ -155,10 +155,20 @@ function gateUsageError(reason: string): CliUsageError {
 }
 
 function isMissingGateValueError(error: unknown): boolean {
+  return isMissingOptionValueError(error, "gate");
+}
+
+function isMissingOptionValueError(error: unknown, name: string): boolean {
   return error instanceof Error &&
     "code" in error &&
     error.code === "ERR_PARSE_ARGS_INVALID_OPTION_VALUE" &&
-    error.message.includes("--gate");
+    error.message.includes(`--${name}`);
+}
+
+function hasRetiredWithBaselineOption(argv: readonly string[]): boolean {
+  return argv.some((argument) =>
+    argument === "--with-baseline" || argument.startsWith("--with-baseline=")
+  );
 }
 
 function printHelp(): void {
@@ -171,15 +181,14 @@ Usage: bun run product:cli -- scan [project-root] [options]
 Options:
   --profile <quick|full>  Select quick or full quality check mode (default: full)
   --gate <${GATE_POLICY_VALUES.join("|")}>  Evaluate one warning scope as a CI quality gate
-  --baseline <sha>        Generate baseline delta from an explicit commit SHA
-  --with-baseline         Auto-detect and scan previous-code baseline
+  --baseline <revision>   Compare with an explicit locally available Git revision
   --changed-files <file>  List file; relative paths use project root
                           Absolute list paths are kept; entries are project-relative, one per line
   --config <file>         Complete semantic config v1; relative paths use project root
                           Explicit --config has highest precedence
   --top-n <n>             Top N for rankings (neutral default: ${DEFAULT_CONFIG.report.topN})
   --artifact-dir <dir>    Artifact output directory (neutral default: ${DEFAULT_CONFIG.artifactDir})
-  --skip-baseline         Skip baseline commit detection and scan
+  --skip-baseline         Request the default current-snapshot-only scan
   --verification-output   Print verifier-style status based on unaccepted warnings
   --help                  Show this help
 
@@ -192,7 +201,7 @@ Output:
 
 Profiles:
   quick                   Fast current-snapshot check; skips baseline and duplicate detection
-  full                    Full check; runs all current capabilities and optional baseline comparison
+  full                    Full check; comparison runs only with explicit --baseline
 
 Config selection:
   Otherwise .vibe-check/config.json is discovered from the normalized project root.
@@ -202,6 +211,7 @@ Config selection:
 Gate policies:
 ${gatePolicyHelp}
   Accepted warnings remain visible and do not block the gate.
+  changed and regressions require --profile full and explicit --baseline <revision>.
   Exit 1 when an evaluated gate failed after artifacts validate.
   Exit 2 when a requested gate could not be evaluated or the scan/output failed.
 `);

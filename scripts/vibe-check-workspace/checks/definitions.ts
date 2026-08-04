@@ -169,7 +169,6 @@ export const checks = defineChecks([
           "scripts/quality/scan.ts",
           "--profile",
           "full",
-          "--with-baseline",
           "--verification-output"
         ],
         env: {

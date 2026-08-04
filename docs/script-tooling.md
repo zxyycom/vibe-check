@@ -106,7 +106,7 @@ Product Config operation，不属于 script tooling。
 ```bash
 bun run quality:check
 bun run quality:full-check
-bun run quality:gate
+bun run quality:gate -- --baseline <revision>
 bun run quality:scan
 ```
 
@@ -117,13 +117,15 @@ checked-in complete policy。Package consumer 分类为：
 | 命令 | Gate 行为 |
 | --- | --- |
 | `quality:check` | quick profile，省略 gate，warning 非阻断 |
-| `quality:full-check` | full profile 与 baseline，省略 gate，warning 非阻断 |
+| `quality:full-check` | full profile current snapshot，省略 baseline 与 gate，warning 非阻断 |
 | `quality:scan` | 不隐式选择 gate policy；调用者参数透明传递 |
-| `quality:gate` | full `regressions` gate；evaluated failure 或 evidence/runtime failure 按产品 exit 阻断 |
+| `quality:gate` | 固定 full `regressions` policy；调用者必须透传显式 baseline，evaluated failure 或 evidence/runtime failure 按产品 exit 阻断 |
 
 Gate policy、evidence prerequisite、evaluation 与 process mapping 仍由产品实现拥有；
 `quality:gate` package script 显式传入 `--profile full --gate regressions`，thin wrapper
-只透明转发 `argv` 和产品 exit。默认 artifact 继续写入
+只透明转发调用者的 `--baseline <revision>`、其它 `argv` 和产品 exit，不推断 branch、merge
+base、upstream 或 remote。没有显式 baseline 时，正式 CLI 在 scan work 前以 usage exit `3`
+拒绝该 gate。默认 artifact 继续写入
 `artifacts/vibe-check-quality/`，并作为 generated local state 忽略。
 
 开发期 workspace 验证入口是：
@@ -268,7 +270,7 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或 repository config discovery 接线 | `bun run quality:check`，并按影响面补充产品入口测试 |
-| Opt-in repository gate | `bun run quality:gate`；该真实 gate 可按产品 contract 退出 `1` 或 `2` |
+| Opt-in repository gate | `bun run quality:gate -- --baseline <revision>`；该真实 gate 可按产品 contract 退出 `0`、`1` 或 `2`，缺少/无效 baseline 退出 `3` |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | current schema/example generation drift | `bun scripts/docs/config-schema.ts --check`、`bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |

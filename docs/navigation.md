@@ -70,8 +70,9 @@ owner 判断：活动决策提供已确认长期取舍的默认依据，owner �
 产品 runtime 由 `src/product/**` 唯一拥有，正式入口提供
 `bun run product:cli -- scan [project-root]` 与
 `bun run product:cli -- init [project-root]`。`quality:check`、`quality:full-check` 与
-`quality:scan` 保持 omitted-gate 观察行为；`quality:gate` 显式请求 full
-`regressions`。所有 `quality:*` 与 `scripts/quality/scan.ts` 都只作为显式传入 Vibe
+`quality:scan` 保持 omitted-gate 观察行为，`quality:full-check` 只扫描 full current
+snapshot；`quality:gate` 显式请求 full `regressions`，调用者必须透传
+`--baseline <revision>`。所有 `quality:*` 与 `scripts/quality/scan.ts` 都只作为显式传入 Vibe
 Check 仓库根的单向 dogfood wrapper。
 Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当前实现和验证按
 [架构](architecture.md)、[CLI](cli.md) 与 [脚本工具](script-tooling.md) 的 TypeScript/Bun

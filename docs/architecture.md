@@ -14,9 +14,12 @@ scanner 调用、指标聚合、baseline comparison、warning、GateResult、art
 machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥有。
 
 仓库 dogfood 命令 `quality:check`、`quality:full-check` 与 `quality:scan` 保持省略 gate
-的观察行为；`quality:gate` 通过 full `regressions` policy 显式 opt-in 阻断。所有
+的观察行为，其中 `quality:full-check` 是无 baseline 的 full current snapshot；
+`quality:gate` 通过 full `regressions` policy 显式 opt-in 阻断，并要求调用者透传
+`--baseline <revision>`。所有
 `quality:*` 命令及保留的 `scripts/quality/scan.ts` 都只作为单向薄 wrapper：它们显式
-传入 Vibe Check 仓库根并调用同一产品入口。`src/product/**` 不反向导入 `scripts/**`
+传入 Vibe Check 仓库根并调用同一产品入口，不推断 comparison target。
+`src/product/**` 不反向导入 `scripts/**`
 或 toolkit gitlink。
 
 ### 当前实现状态
@@ -43,7 +46,7 @@ collect + classify
   -> fingerprint + changed scope
   -> capability eligibility + scan
   -> aggregate + current completeness
-  -> baseline + compare
+  -> optional explicit baseline + compare
   -> warnings
   -> evaluate GateResult once
   -> validate final core model

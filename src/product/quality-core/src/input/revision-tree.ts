@@ -106,35 +106,6 @@ export function collectSubmoduleWorktreeFiles(
   return uniqueSortedPaths(files);
 }
 
-export function submoduleHistoryPaths(
-  cwd: string,
-  headSha: string,
-  scanInputPaths: string[]
-): string[] {
-  const candidates = [
-    ...(gitlinksAtRevision(cwd, headSha) ?? []),
-    ...(gitlinksAtRevision(cwd, `${headSha}^`) ?? [])
-  ];
-  const paths = new Set<string>();
-
-  for (const gitlink of candidates) {
-    const submoduleRepository = resolve(cwd, gitlink.path);
-    if (!existsSync(submoduleRepository)) {
-      paths.add(gitlink.path);
-      continue;
-    }
-    const files = collectRevisionFiles(
-      submoduleRepository,
-      gitlink.sha,
-      gitlink.path,
-      scanInputPaths
-    );
-    if (files.length > 0) paths.add(gitlink.path);
-  }
-
-  return [...paths].sort();
-}
-
 export function uniqueSortedPaths(files: string[]): string[] {
   return [...new Set(files.map(toSlashPath))].sort();
 }

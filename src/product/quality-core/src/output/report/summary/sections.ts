@@ -30,7 +30,7 @@ const comparisonSectionRenderers: Partial<Record<string, ComparisonSectionRender
 const baselineUnavailableReasons: Partial<Record<string, string>> = {
   "baseline-skipped": "Baseline scan was skipped",
   "history-unavailable": "Git history 不足",
-  "no-baseline-commit": "找不到 previous-code baseline commit",
+  "no-baseline-commit": "找不到可用的 baseline commit",
   "baseline-materialization-failed": "Baseline commit 导出失败",
   "baseline-scan-failed": "Baseline 扫描失败"
 };

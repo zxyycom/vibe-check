@@ -118,6 +118,7 @@ describe("formal CLI quality gate acceptance", () => {
       initializeRepository(fixture.projectRoot);
       commitAll(fixture.projectRoot, "baseline fixture");
       const baselineSha = git(fixture.projectRoot, ["rev-parse", "HEAD"]);
+      git(fixture.projectRoot, ["branch", "baseline-ref", baselineSha]);
 
       setFixtureCacheDir(fixture.projectRoot, ".cache/input-unchanged");
       const inputUnchangedArtifactDir = join(
@@ -131,7 +132,7 @@ describe("formal CLI quality gate acceptance", () => {
         "--gate",
         "regressions",
         "--baseline",
-        baselineSha,
+        "baseline-ref",
         "--artifact-dir",
         "artifacts/input-unchanged"
       ]);
@@ -147,6 +148,11 @@ describe("formal CLI quality gate acceptance", () => {
       assert.equal(
         inputUnchangedArtifacts.metrics.comparisonStatus,
         "input-unchanged"
+      );
+      assert.equal(inputUnchangedArtifacts.metrics.baseline.commitSha, baselineSha);
+      assert.equal(
+        inputUnchangedArtifacts.metrics.baseline.metadata?.commitSha,
+        baselineSha
       );
       assert.deepEqual(inputUnchangedArtifacts.metrics.warnings.regressions, []);
       assertEvaluatedGateProjection({
@@ -181,7 +187,7 @@ describe("formal CLI quality gate acceptance", () => {
         "--gate",
         "changed",
         "--baseline",
-        baselineSha,
+        "baseline-ref",
         "--artifact-dir",
         "artifacts/changed-non-regression"
       ]);
@@ -222,7 +228,7 @@ describe("formal CLI quality gate acceptance", () => {
         "--gate",
         "regressions",
         "--baseline",
-        baselineSha,
+        "baseline-ref",
         "--artifact-dir",
         "artifacts/regression"
       ]);
@@ -246,7 +252,7 @@ describe("formal CLI quality gate acceptance", () => {
     }
   });
 
-  it("fails closed when a comparison gate has no baseline evidence", { timeout: 30_000 }, () => {
+  it("rejects a comparison gate without an explicit baseline before scan work", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject("comparison-unavailable");
 
     try {
@@ -263,39 +269,13 @@ describe("formal CLI quality gate acceptance", () => {
         "--artifact-dir",
         "artifacts/comparison-unavailable"
       ]);
-      const artifacts = readFormalEntryArtifacts(artifactDir);
-
-      assert.equal(result.status, 2);
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
-      assert.equal(artifacts.metrics.comparisonStatus, "baseline-unavailable");
-      assert.deepEqual(artifacts.metrics.gate, {
-        policy: "regressions",
-        reasonCode: "comparison-unavailable",
-        status: "not-evaluated"
-      });
-      assertExactLine(
+      assert.equal(result.status, 3);
+      assert.equal(result.stdout, "");
+      assert.match(
         result.stderr,
-        "❌ Quality gate was not evaluated."
+        /Fatal error in quality scan: .*--gate regressions.*--baseline <revision>/i
       );
-      assertExactLine(result.stderr, "  Policy: regressions");
-      assertExactLine(result.stderr, "  Status: not-evaluated");
-      assertExactLine(result.stderr, "  Reason code: comparison-unavailable");
-      assertExactLine(
-        result.stderr,
-        `  Action: Resolve baseline status ${artifacts.metrics.baseline.status} so comparison evidence is available, then retry.`
-      );
-      assertNoEvaluatedGateCompletion(result.stdout);
-      assertExactLine(artifacts.report, "## Quality Gate");
-      assertExactLine(artifacts.report, "- **Policy**: `regressions`");
-      assertExactLine(artifacts.report, "- **Status**: `not-evaluated`");
-      assertExactLine(
-        artifacts.report,
-        "- **Reason code**: `comparison-unavailable`"
-      );
-      assertExactLine(
-        artifacts.report,
-        `- **Action**: Make baseline evidence available (current baseline status: \`${artifacts.metrics.baseline.status}\`) and rerun the gate.`
-      );
+      assert.equal(existsSync(artifactDir), false);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -505,15 +485,6 @@ function assertExactLine(output: string, expectedLine: string): void {
     output.split(/\r?\n/).includes(expectedLine),
     `missing exact output line: ${expectedLine}`
   );
-}
-
-function assertNoEvaluatedGateCompletion(stdout: string): void {
-  const evaluatedGateLines = stdout.split(/\r?\n/).filter(
-    (line) =>
-      line.startsWith("✅ Quality gate") ||
-      line.startsWith("❌ Quality gate")
-  );
-  assert.deepEqual(evaluatedGateLines, []);
 }
 
 function initializeRepository(repository: string): void {

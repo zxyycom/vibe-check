@@ -98,12 +98,17 @@ describe("quality gate argument parsing and scan planning", () => {
 
     assert.equal(parsed.gatePolicy, null);
     assert.equal(parsed.scanProfile, "full");
-    assert.equal(parsed.skipBaseline, true);
+    assert.equal(parsed.baselineRevision, null);
   });
 
   it("accepts every descriptor-derived gate policy value", () => {
     for (const gatePolicy of GATE_POLICY_VALUES) {
-      const parsed = parseArgs(["--gate", gatePolicy]);
+      const parsed = parseArgs([
+        "--gate",
+        gatePolicy,
+        "--baseline",
+        "base-revision"
+      ]);
 
       assert.equal(parsed.gatePolicy, gatePolicy);
     }
@@ -121,23 +126,30 @@ describe("quality gate argument parsing and scan planning", () => {
   it("keeps the selected profile and baseline plan for the all policy", () => {
     const cases: ReadonlyArray<{
       argv: readonly string[];
+      expectedBaselineRevision: string | null;
       expectedProfile: "full" | "quick";
-      expectedSkipBaseline: boolean;
     }> = [
       {
         argv: ["--profile", "quick", "--gate", "all"],
-        expectedProfile: "quick",
-        expectedSkipBaseline: true
+        expectedBaselineRevision: null,
+        expectedProfile: "quick"
       },
       {
         argv: ["--profile", "full", "--gate", "all"],
-        expectedProfile: "full",
-        expectedSkipBaseline: true
+        expectedBaselineRevision: null,
+        expectedProfile: "full"
       },
       {
-        argv: ["--profile", "full", "--gate", "all", "--with-baseline"],
-        expectedProfile: "full",
-        expectedSkipBaseline: false
+        argv: [
+          "--profile",
+          "full",
+          "--gate",
+          "all",
+          "--baseline",
+          "base-revision"
+        ],
+        expectedBaselineRevision: "base-revision",
+        expectedProfile: "full"
       }
     ];
 
@@ -145,23 +157,21 @@ describe("quality gate argument parsing and scan planning", () => {
       const parsed = parseArgs(testCase.argv);
 
       assert.equal(parsed.gatePolicy, "all");
+      assert.equal(parsed.baselineRevision, testCase.expectedBaselineRevision);
       assert.equal(parsed.scanProfile, testCase.expectedProfile);
-      assert.equal(parsed.skipBaseline, testCase.expectedSkipBaseline);
     }
   });
 
-  it("auto-enables baseline comparison for comparison policies", () => {
+  it("requires an explicit baseline for comparison policies", () => {
     for (const gatePolicy of ["changed", "regressions"] as const) {
-      const parsed = parseArgs(["--gate", gatePolicy]);
-
-      assert.equal(parsed.gatePolicy, gatePolicy);
-      assert.equal(parsed.scanProfile, "full");
-      assert.equal(parsed.baseline, null);
-      assert.equal(parsed.skipBaseline, false);
+      assert.throws(
+        () => parseArgs(["--gate", gatePolicy]),
+        new RegExp(`--gate ${gatePolicy}.*--baseline <revision>`, "i")
+      );
     }
   });
 
-  it("retains an explicit baseline for comparison policies", () => {
+  it("retains an explicit baseline revision for comparison policies", () => {
     for (const gatePolicy of ["changed", "regressions"] as const) {
       const parsed = parseArgs([
         "--profile",
@@ -173,8 +183,7 @@ describe("quality gate argument parsing and scan planning", () => {
       ]);
 
       assert.equal(parsed.gatePolicy, gatePolicy);
-      assert.equal(parsed.baseline, "base-sha");
-      assert.equal(parsed.skipBaseline, false);
+      assert.equal(parsed.baselineRevision, "base-sha");
     }
   });
 
@@ -191,12 +200,47 @@ describe("quality gate argument parsing and scan planning", () => {
     }
   });
 
+  it("rejects retired and contradictory baseline options", () => {
+    assert.throws(
+      () => parseArgs(["--with-baseline"]),
+      /--with-baseline.*removed.*--baseline <revision>/i
+    );
+    assert.throws(
+      () => parseArgs(["--baseline", "HEAD", "--skip-baseline"]),
+      /--baseline.*--skip-baseline.*cannot be combined/i
+    );
+    assert.throws(
+      () => parseArgs(["--baseline", "HEAD", "--baseline", "HEAD~1"]),
+      /--baseline may only be provided once/i
+    );
+    assert.throws(
+      () => parseArgs(["--baseline="]),
+      /--baseline.*non-empty revision/i
+    );
+  });
+
+  it("keeps --skip-baseline as a CLI-only current-snapshot compatibility flag", () => {
+    const omitted = parseArgs([]);
+    const skipped = parseArgs(["--skip-baseline"]);
+
+    assert.deepEqual(skipped, omitted);
+    assert.equal(Object.hasOwn(skipped, "skipBaseline"), false);
+  });
+
   it("keeps verification output orthogonal to gate policy and scan planning", () => {
     for (const gatePolicy of GATE_POLICY_VALUES) {
-      const withoutVerification = parseArgs(["--gate", gatePolicy]);
+      const baselineArgs = gatePolicy === "all"
+        ? []
+        : ["--baseline", "base-revision"];
+      const withoutVerification = parseArgs([
+        "--gate",
+        gatePolicy,
+        ...baselineArgs
+      ]);
       const withVerification = parseArgs([
         "--gate",
         gatePolicy,
+        ...baselineArgs,
         "--verification-output"
       ]);
 
@@ -223,5 +267,7 @@ describe("quality gate argument parsing and scan planning", () => {
     assert.match(help, /accepted warnings.*do not block/i);
     assert.match(help, /exit 1.*gate.*failed/i);
     assert.match(help, /exit 2.*could not be evaluated/i);
+    assert.match(help, /--baseline <revision>.*explicit/i);
+    assert.doesNotMatch(help, /--with-baseline/);
   });
 });

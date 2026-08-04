@@ -176,11 +176,18 @@ Fingerprint `fileList` entries 是 product-normalized project-relative paths，�
 | Public path | Presence / value | Meaning |
 | --- | --- | --- |
 | `baseline.status` | Required closed enum | `generated`、`baseline-skipped`、`history-unavailable`、`no-baseline-commit`、`baseline-materialization-failed` 或 `baseline-scan-failed`。 |
-| `baseline.commitSha` / `commitDate` | Required string or `null` | Selected baseline commit identity/time；没有 selected commit 时为 `null`。 |
-| `baseline.metadata` | Required object or `null` | Materialized baseline metadata；未产生时为 `null`。Object 包含 required `commitSha`, nullable `commitDate` / `commitTitle`, `configVersion`, `selectionReason`, `toolMetadata`。 |
+| `baseline.commitSha` | Required string or `null` | Explicit revision 一次解析得到的 canonical full commit object ID；没有 selected commit 时为 `null`。 |
+| `baseline.commitDate` | Required string or `null` | 从 selected canonical commit 读取的 commit time；没有 selected commit 或读取失败时为 `null`。 |
+| `baseline.metadata` | Required object or `null` | Materialized baseline metadata；未产生时为 `null`。Object 包含 required canonical `commitSha`, nullable `commitDate` / `commitTitle`, `configVersion`, `selectionReason`, `toolMetadata`。 |
 | `baseline.metadata.toolMetadata[]` | Required inside non-null metadata | `{name, source, version}` normalized baseline tool metadata。 |
 | `comparisonStatus` | Required closed enum | `compared`、`input-unchanged` 或 `baseline-unavailable`。 |
 | `trends[]` | Required array | 每项 required `metric`, `unit`, nullable `baseline`, `current`, `delta`, `percentChange`；`delta` 是 current minus baseline，前三个数值使用 `unit`，`percentChange` 使用 percentage。 |
+
+当前 explicit-only producer 在省略 baseline 时写入 `baseline-skipped`，显式 revision 选择成功时
+写入 `generated`，并把 `baseline.metadata.selectionReason` 固定为 `explicit`；只有随后发生的
+materialization 或 baseline scan failure 才写入对应 failure status。`history-unavailable` 与
+`no-baseline-commit` 继续保留在 machine v1 closed enum 中用于 shape compatibility，但不表示
+产品仍会自动检查历史或推断 baseline。
 
 ### Completeness, warning channels and gate
 

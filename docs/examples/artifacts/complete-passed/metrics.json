@@ -46,7 +46,7 @@
       "commitSha": "89abcdef0123456789abcdef0123456789abcdef",
       "commitTitle": "Canonical baseline revision",
       "configVersion": "canonical-config-v1",
-      "selectionReason": "merge-base",
+      "selectionReason": "explicit",
       "toolMetadata": [
         {
           "name": "scc",

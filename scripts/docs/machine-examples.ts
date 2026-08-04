@@ -266,7 +266,7 @@ function createMeasuredFixture(): CoreMetricsFixture {
         commitSha: FIXED_INPUT.baselineCommitSha,
         commitTitle: "Canonical baseline revision",
         configVersion: FIXED_INPUT.configVersion,
-        selectionReason: "merge-base",
+        selectionReason: "explicit",
         toolMetadata: fixedTools()
       },
       status: "generated"

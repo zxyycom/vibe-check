@@ -165,28 +165,68 @@ describe("product CLI routing", () => {
 });
 
 describe("gate CLI usage contract", () => {
-  it("returns exit 3 before scanners or artifacts for every invalid gate form", () => {
+  it("returns exit 3 before scanners or artifacts for every invalid gate form", { timeout: 15_000 }, () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-invalid-gate-"));
     const markerPath = join(projectRoot, "scanner-started");
     const artifactDir = join(projectRoot, "artifacts/should-not-exist");
     const config = JSON.parse(JSON.stringify(DEFAULT_CONFIG)) as Record<string, unknown>;
     const scannerPath = join(projectRoot, "scanner.ts");
-    const cases = [
-      { args: ["--gate"], label: "missing value" },
+    const cases: ReadonlyArray<{
+      args: readonly string[];
+      expectedError: RegExp;
+      label: string;
+    }> = [
+      {
+        args: ["--gate"],
+        expectedError: /--gate/i,
+        label: "missing value"
+      },
       {
         args: ["--gate", "all", "--gate", "changed"],
+        expectedError: /--gate/i,
         label: "repeated option"
       },
-      { args: ["--gate", "everything"], label: "unknown value" },
+      {
+        args: ["--gate", "everything"],
+        expectedError: /--gate/i,
+        label: "unknown value"
+      },
       {
         args: ["--profile", "quick", "--gate", "changed"],
+        expectedError: /--gate changed.*--profile full/i,
         label: "quick comparison conflict"
       },
       {
         args: ["--gate", "regressions", "--skip-baseline"],
-        label: "explicit baseline skip conflict"
+        expectedError: /--gate regressions.*--skip-baseline.*--baseline <revision>/i,
+        label: "comparison baseline skip conflict"
+      },
+      {
+        args: ["--gate", "changed"],
+        expectedError: /--gate changed.*--baseline <revision>/i,
+        label: "changed gate missing explicit baseline"
+      },
+      {
+        args: ["--gate", "regressions"],
+        expectedError: /--gate regressions.*--baseline <revision>/i,
+        label: "regressions gate missing explicit baseline"
+      },
+      {
+        args: ["--gate", "regressions", "--baseline", "HEAD", "--skip-baseline"],
+        expectedError: /--baseline.*--skip-baseline.*cannot be combined/i,
+        label: "contradictory baseline options"
+      },
+      {
+        args: ["--with-baseline"],
+        expectedError: /--with-baseline.*removed.*--baseline <revision>/i,
+        label: "retired baseline option"
+      },
+      {
+        args: ["--gate", "regressions", "--baseline", "missing-revision"],
+        expectedError: /--baseline.*locally available commit/i,
+        label: "invalid explicit baseline revision"
       }
-    ] as const;
+    ];
 
     try {
       writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
@@ -226,12 +266,40 @@ describe("gate CLI usage contract", () => {
           `${testCase.label}\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
         );
         assert.equal(result.stdout, "", testCase.label);
-        assert.match(result.stderr, /Fatal error in quality scan: .*--gate/i);
+        assert.match(result.stderr, /Fatal error in quality scan:/i);
+        assert.match(result.stderr, testCase.expectedError, testCase.label);
         assert.equal(existsSync(markerPath), false, testCase.label);
         assert.equal(existsSync(artifactDir), false, testCase.label);
       }
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("baseline resolution CLI contract", () => {
+  it("maps Git execution failures to runtime exit 2 before scan work", { timeout: 15_000 }, () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-baseline-runtime-"));
+    const missingProjectRoot = join(tempRoot, "missing-project-root");
+
+    try {
+      const result = runBun([
+        "run",
+        "--silent",
+        "product:cli",
+        "--",
+        "scan",
+        missingProjectRoot,
+        "--baseline",
+        "HEAD"
+      ]);
+
+      assert.equal(result.status, 2);
+      assert.equal(result.stdout, "");
+      assert.match(result.stderr, /Fatal error in quality scan: .*Git could not run/i);
+      assert.equal(existsSync(missingProjectRoot), false);
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
     }
   });
 });
@@ -244,7 +312,13 @@ describe("configuration workflow scan preflight", () => {
 
     try {
       writeFixtureFile(projectRoot, "src/input.ts", "export const input = true;\n");
+      initializeRepository(projectRoot);
+      commitAll(projectRoot, "gate config preflight fixture");
+      const baselineSha = git(projectRoot, ["rev-parse", "HEAD"]);
       for (const gatePolicy of GATE_POLICY_VALUES) {
+        const baselineArgs = gatePolicy === "all"
+          ? []
+          : ["--baseline", baselineSha];
         const result = runBun(
           [
             "run",
@@ -255,6 +329,7 @@ describe("configuration workflow scan preflight", () => {
             projectRoot,
             "--gate",
             gatePolicy,
+            ...baselineArgs,
             "--artifact-dir",
             "artifacts/should-not-exist"
           ],
@@ -444,7 +519,7 @@ describe("formal and dogfood entrypoints", () => {
     );
     assert.equal(
       packageJson.scripts["quality:full-check"],
-      "bun scripts/quality/scan.ts --profile full --with-baseline"
+      "bun scripts/quality/scan.ts --profile full"
     );
     assert.equal(packageJson.scripts["quality:scan"], "bun scripts/quality/scan.ts");
     assert.equal(

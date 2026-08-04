@@ -19,7 +19,7 @@ areas、warning acceptance 与 report/artifact settings 来自一次 invocation-
 `ResolvedQualityConfig`；完整 field contract 由 [Configuration](configuration.md) 维护。
 Scanner executable/args 与 availability 来自 `ScannerDependencySnapshot`，见
 [Scanner 依赖选择](scanner-dependencies.md)。`src/product/quality-core/**` 提供 quick / full、
-optional baseline comparison、file/function/duplication metrics、warning channels、gate policy
+explicit optional baseline comparison、file/function/duplication metrics、warning channels、gate policy
 descriptor/evaluator、cache 和 artifacts。已退役 Rust contract 不属于当前产品行为或测试来源。
 
 ## Pipeline boundary
@@ -213,8 +213,9 @@ overall completeness、final comparison status 和 final warning channels。Eval
    `scan-incomplete`。
 3. Requested gate 遇到 `empty` completeness，产生 `not-evaluated` /
    `no-eligible-input`。
-4. `changed` / `regressions` 遇到 `baseline-unavailable`，产生 `not-evaluated` /
-   `comparison-unavailable`；`input-unchanged` 是有效 comparison evidence。
+4. 已通过显式 baseline request validation 的 `changed` / `regressions`，若后续
+   materialization 或 baseline scan 使 comparison 为 `baseline-unavailable`，产生
+   `not-evaluated` / `comparison-unavailable`；`input-unchanged` 是有效 comparison evidence。
 5. 其余 request 只评价 descriptor 指定的一个 final channel。
 
 Gate evaluation 发生在 accepted warning reasons 已应用之后。Selected channel 中全部
@@ -242,10 +243,18 @@ boundary 验证 channel/count/blocking relationships，见
 ## Baseline and profiles
 
 Quick profile 继续跳过 baseline comparison 和 duplicate detection。Full profile 请求全部
-current measurement capabilities。普通 scan 的 baseline comparison 继续由显式 baseline option 选择；
-`changed` / `regressions` gate 的 auto-detection 由 CLI scan plan 启用。Baseline
-unavailable、input unchanged 和 compared 状态，以及 current/baseline cache identity，
-都保持 current product behavior。
+current measurement capabilities，但省略 `--baseline` 时仍只生成 current snapshot。只有
+显式 `--baseline <revision>` 启用 comparison；`changed` / `regressions` gate 缺少它时由 CLI
+在 scan work 前以 usage error 拒绝。产品不推断 previous commit、nearest code commit、merge
+base、upstream、branch 或 remote target。
+
+CLI 在 invocation 开始时把 raw revision 解析一次为 canonical full commit object ID；core 的
+normalized plan 只接收该 SHA 或 `null`。Materialization、changed-input detection、baseline
+cache identity、metadata、diagnostic 与 artifacts 全部复用同一个 SHA，不重新读取 mutable
+ref，也不 fetch。省略 baseline 时，metrics 使用 `baseline.status = baseline-skipped` 与
+`comparisonStatus = baseline-unavailable` 表达 current-only context；只有已接受显式输入后发生的
+materialization 或 baseline scan failure 才能让 comparison gate 产生
+`comparison-unavailable`。
 
 显式 changed-files input 与自动 changed scope 只影响 existing changed/regression context，
 不改变 full metrics inventory。

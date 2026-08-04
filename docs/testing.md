@@ -187,9 +187,10 @@ document，也不定义稳定 Core/Output contract。
 Gate acceptance 复用同一 checked-in fixture，不新增平行 project fixture：
 `src/product/cli-omitted-gate-baseline.test.ts` 固定 omitted request 的既有行为；
 `src/product/cli-gate-acceptance.test.ts` 在临时 copy 中建立受控 Git comparison，证明
-quick `all`、all-only warning、input-unchanged、changed non-regression、regression 和
-comparison unavailable。Accepted/mixed warning、empty/incomplete 与 output failure 的
-owner 不变量由 evaluator/engine tests 证明，formal entry 不复制同一组合矩阵。
+quick `all`、all-only warning、input-unchanged、changed non-regression、regression 和缺少显式
+baseline 的 pre-work failure。Invalid baseline 与 revision canonicalization 由 formal pre-work
+acceptance 证明；显式 baseline 接受后的 runtime comparison unavailable、accepted/mixed warning、
+empty/incomplete 与 output failure 由 evaluator/engine tests 证明，formal entry 不复制同一组合矩阵。
 
 ## 一次性 productization parity evidence
 
@@ -200,8 +201,9 @@ owner 不变量由 evaluator/engine tests 证明，formal entry 不复制同一�
 - explicit changed-files input。
 - invocation-owned `ScannerDependencySnapshot` 与 `ResolvedQualityConfig`。
 
-上移前 pinned consumer 与当前 product entry 扫描同一个 fixture project。Quick、full、
-with-baseline 和 explicit changed-files runs 已比较：
+上移前 pinned consumer 与当时的 product entry 扫描同一个 fixture project。Quick、full、
+当时支持的 `--with-baseline` 和 explicit changed-files runs 已完成一次性比较；这段历史证据
+不定义当前 CLI flags：
 
 - metrics、aggregates 和 fingerprints。
 - baseline / comparison status 与 trends。
@@ -223,7 +225,9 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 - 省略 project root 时使用启动 cwd。
 - `scripts/quality/scan.ts` 与 `quality:check`、`quality:full-check`、`quality:scan`、
   `quality:gate` 只作为单向 wrapper，并显式传入 Vibe Check repository root；前三个
-  package invocations 保持 omitted gate，`quality:gate` 固定 full `regressions` request。
+  package invocations 保持 omitted gate，`quality:full-check` 也是无 baseline 的 current full
+  snapshot；`quality:gate` 固定 full `regressions` request，但只透明接收调用者显式
+  `--baseline <revision>`。
 - 正式入口与 wrapper 保持 product-owned flags、profile、gate、console、artifact 和 process
   status mapping。
 - Configuration acceptance 使用 isolated external project copies 证明 neutral observation、
@@ -239,7 +243,9 @@ Parity fixture 只用于证明搬移，不扩展 scanner feature coverage；完�
 - Formal gate entry 对 disabled、evaluated passed/failed 与 comparison not-evaluated
   representative branches，证明 GateResult、warning streams、report/console 和 exit
   `0` / `1` / `2` 使用同一 evidence；formal tests 还以原始 bytes 调用 production
-  artifact-set validator。Usage conflicts 独立证明 exit `3` 且不启动 scanner 或 artifacts。
+  artifact-set validator。Missing/empty/duplicate/invalid baseline、retired auto-baseline flag 与
+  profile/skip conflicts 独立证明 exit `3`，且不选择 config、不启动 scanner/cache 或创建
+  artifacts；成功输入证明 raw revision 在一次 invocation 中固定为一个 full commit OID。
 - Product runtime import closure 不反向导入 `scripts/**` 或 toolkit gitlink。
 
 入口 tests 不需要为每个 flag 或 scanner failure kind 复制完整 matrix；result union、
@@ -254,8 +260,9 @@ cross-surface mapping 和 output 边界的代表性路径。
 - `bun run typecheck:scripts` 和 `bun run lint:scripts` 继续验证尚留在 `scripts/**` 的
   consumers / wrappers，不代替 product typecheck、lint 和 test。
 - `quality:check` / `quality:full-check` / `quality:scan` 省略 gate，`quality:gate` 显式请求
-  full `regressions`；它们均让 Product Config 从显式 repository root 发现同一 checked-in
-  policy，再调用 `src/product/**` 的同一 core。
+  full `regressions` 并要求调用者透传 baseline；它们均让 Product Config 从显式 repository
+  root 发现同一 checked-in policy，再调用 `src/product/**` 的同一 core。Wrapper 不推断
+  comparison target。
 - Foundation 只复制 product runtime 实际可达的 helper；仍在 submodule 中的开发 helper
   tests 不因此成为 product tests。
 - 新 checkout、Bun、pnpm 和 external scanner installation requirements 由 script tooling
@@ -279,7 +286,7 @@ TypeScript 产品交付验证按改动面覆盖：
 - focused formal-producer-to-actual-annotation acceptance；它属于 required workspace profile。
 - `bun run quality:check`。
 - `bun run quality:full-check`。
-- `bun run quality:gate`。
+- `bun run quality:gate -- --baseline <revision>`。
 - `bun run quality:scan`。
 - `bun run verify:vibe-check-workspace:full`。
 
