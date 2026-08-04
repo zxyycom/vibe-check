@@ -9,6 +9,10 @@
         "id": "configuration"
       },
       {
+        "description": "维护产品能力、稳定身份、机器输出和高风险扫描边界的长期可观察契约。",
+        "id": "product-contract"
+      },
+      {
         "description": "维护产品价值排序、路线进入条件与高风险提升项的长期优先级边界。",
         "id": "product-priority"
       },
@@ -22,7 +26,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:63d8f225464e5592ebeed2c28aefa335990407119092a29ca415ce23c49e34cf",
+  "sourceRevision": "sha256:9ebc48ecd49f368fe62b78e5b40acfef6eb397f7266096176339786921793980",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -89,7 +93,7 @@
       }
     },
     {
-      "id": "configuration/use-fixed-semantic-config-version.md",
+      "id": "configuration/use-file-policy-overrides.md",
       "keys": {
         "domain": [
           "configuration"
@@ -98,14 +102,66 @@
           "active"
         ],
         "alignment": [
-          "aligned"
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-file-policy-overrides.md",
+        "title": "使用显式文件政策覆盖",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:12Z",
+        "purpose": "让不同文件和目录在同一项目范围内使用可解释且可验证的质量政策。",
+        "background": "单一项目政策不能合理覆盖 README、长篇设计文档、生成示例和普通源码，任意深合并又难以解释结果。",
+        "decision": "在完整基础政策上应用有序、类型化的文件覆盖，且覆盖不能扩大范围或创建基础政策中缺失的能力。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-fixed-semantic-config-v2.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-fixed-semantic-config-v2.md",
+        "title": "将文件政策契约升级为固定配置 v2",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:12Z",
+        "purpose": "用明确版本边界承载文件覆盖和可组合功能政策，避免静默改变既有配置含义。",
+        "background": "当前固定 v1 是完整且封闭的文档，加入 overrides 和 optional feature sections 已构成新的公共配置契约。",
+        "decision": "采用 single-active 固定 semantic config v2，并对 file-backed v1 提供明确拒绝和迁移诊断。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-fixed-semantic-config-version.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "configuration/use-fixed-semantic-config-version.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-fixed-semantic-config-version.md",
         "title": "使用固定语义配置契约版本",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "让 project config version 稳定标识文档契约，而不是承担调用者自定义的缓存失效责任。",
         "background": "当前 version 是任意字符串并参与 scanner cache identity；新的语义 schema 需要可验证的版本判别，同时缓存应由实际影响测量的输入决定。",
@@ -189,6 +245,106 @@
       }
     },
     {
+      "id": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+        "title": "让敏感扫描材料保持临时且不可持久化",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:13Z",
+        "purpose": "防止秘密检测和外链验证把待检查的敏感内容扩散到质量产物或诊断系统。",
+        "background": "Secret bytes、URL query values 和 userinfo 可能包含凭据，扫描流程自身不能成为新的泄露渠道。",
+        "decision": "原始敏感材料只存在于调用期受限内存，持久和公开边界只接收安全语义身份与脱敏证据。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-contract/require-explicit-network-link-checking.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/require-explicit-network-link-checking.md",
+        "title": "网络链接检查必须显式启用",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:13Z",
+        "purpose": "防止普通质量扫描隐式访问网络，并让外链结果具备明确的安全和可复现边界。",
+        "background": "DNS 和 HTTP 会引入 SSRF、环境凭据、临时故障与不可复现结果，不能由 profile 或 gate 自动开启。",
+        "decision": "网络外链能力默认离线，只有 file-backed policy 显式选择 online 才可执行受限请求。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-contract/use-generic-machine-v2-for-content-findings.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-generic-machine-v2-for-content-findings.md",
+        "title": "使用通用 machine v2 承载内容检查",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:12Z",
+        "purpose": "让数值指标、内容问题和安全问题通过一套可验证且可演进的机器契约发布。",
+        "background": "Current machine v1 固定为数值 warning 和三项 capability，无法无损表达非数值 finding、观察值和动态能力成员。",
+        "decision": "采用 single-active generic machine v2，并用语义注册表指纹标识 producing revision 的能力目录。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-contract/use-location-independent-finding-identities.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-location-independent-finding-identities.md",
+        "title": "稳定质量身份不使用源码位置",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:12Z",
+        "purpose": "让质量 finding 在只发生行移动或排版变化时保持稳定身份和比较结果。",
+        "background": "行号、列号和 byte offset 是当前定位信息，不是问题本身的稳定语义，写入 key 会制造虚假新增和回归。",
+        "decision": "稳定 key 和 fingerprint 只使用规范化语义身份，源码位置只用于当前展示和导航。",
+        "relations": []
+      }
+    },
+    {
       "id": "product-priority/defer-lizard-runtime-unification.md",
       "keys": {
         "domain": [
@@ -238,6 +394,31 @@
             "target": "product-priority/defer-lizard-runtime-unification.md"
           }
         ]
+      }
+    },
+    {
+      "id": "product-priority/expand-format-aware-quality-checks.md",
+      "keys": {
+        "domain": [
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-priority/expand-format-aware-quality-checks.md",
+        "title": "扩展格式感知的非代码质量检查",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-04T15:02:11Z",
+        "purpose": "让 Vibe Check 对文档和结构化资料执行与文件类型匹配的质量检查。",
+        "background": "非代码文件不适合进入代码指标，但其链接、结构、格式和敏感内容具有独立质量风险。",
+        "decision": "将 Markdown、路径引用、JSON、JSON Schema、秘密与网络外链作为可独立选择的产品能力。",
+        "relations": []
       }
     },
     {
