@@ -29,6 +29,60 @@ const CANONICAL_FILES = [
 ] as const;
 const OWNED_TEMP = ".vibe-check-machine-prior-metrics.json.tmp";
 
+const PUBLICATION_FAILURE_CASES = [
+  {
+    inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
+      let failed = false;
+      return {
+        ...ops,
+        remove(path) {
+          if (!failed && path.endsWith("metrics.json")) {
+            failed = true;
+            throw new Error("controlled cleanup failure");
+          }
+          ops.remove(path);
+        }
+      };
+    },
+    label: "prior cleanup",
+    message: /controlled cleanup failure/,
+    seedPrior: true
+  },
+  {
+    inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
+      let writes = 0;
+      return {
+        ...ops,
+        write(path, bytes) {
+          writes += 1;
+          if (writes === 2) throw new Error("controlled temp write failure");
+          ops.write(path, bytes);
+        }
+      };
+    },
+    label: "temp write",
+    message: /controlled temp write failure/,
+    seedPrior: false
+  },
+  {
+    inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
+      let renames = 0;
+      return {
+        ...ops,
+        rename(from, to) {
+          renames += 1;
+          if (renames === 2) throw new Error("controlled rename failure");
+          ops.rename(from, to);
+        }
+      };
+    },
+    label: "rename",
+    message: /controlled rename failure/,
+    seedPrior: false
+  }
+] as const;
+
+
 describe("validated machine artifact publication", () => {
   it("rejects an invalid candidate set before writing canonical files", () => {
     const artifactDir = mkdtempSync(join(tmpdir(), "vibe-check-publication-invalid-"));
@@ -120,107 +174,63 @@ describe("validated machine artifact publication", () => {
   });
 
   it("best-effort cleans every canonical and owned temp after handled file failures", () => {
-    const failureCases = [
-      {
-        inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
-          let failed = false;
-          return {
-            ...ops,
-            remove(path) {
-              if (!failed && path.endsWith("metrics.json")) {
-                failed = true;
-                throw new Error("controlled cleanup failure");
-              }
-              ops.remove(path);
-            }
-          };
-        },
-        label: "prior cleanup",
-        message: /controlled cleanup failure/,
-        seedPrior: true
-      },
-      {
-        inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
-          let writes = 0;
-          return {
-            ...ops,
-            write(path, bytes) {
-              writes += 1;
-              if (writes === 2) throw new Error("controlled temp write failure");
-              ops.write(path, bytes);
-            }
-          };
-        },
-        label: "temp write",
-        message: /controlled temp write failure/,
-        seedPrior: false
-      },
-      {
-        inject(ops: MachinePublicationFileOps): MachinePublicationFileOps {
-          let renames = 0;
-          return {
-            ...ops,
-            rename(from, to) {
-              renames += 1;
-              if (renames === 2) throw new Error("controlled rename failure");
-              ops.rename(from, to);
-            }
-          };
-        },
-        label: "rename",
-        message: /controlled rename failure/,
-        seedPrior: false
-      }
-    ] as const;
-
-    for (const testCase of failureCases) {
-      const artifactDir = mkdtempSync(
-        join(tmpdir(), `vibe-check-publication-${testCase.label.replace(" ", "-")}-`)
-      );
-      const operations: string[] = [];
-      const baseOps = recordingFileOps(operations);
-
-      try {
-        if (testCase.seedPrior) {
-          for (const fileName of CANONICAL_FILES) {
-            writeFileSync(join(artifactDir, fileName), "stale", "utf8");
-          }
-          writeFileSync(join(artifactDir, OWNED_TEMP), "stale", "utf8");
-        }
-
-        assert.throws(
-          () => publishMachineArtifactCandidatesV1(
-            artifactDir,
-            validCandidates(),
-            testCase.inject(baseOps)
-          ),
-          testCase.message,
-          testCase.label
-        );
-        for (const fileName of CANONICAL_FILES) {
-          assert.equal(
-            existsSync(join(artifactDir, fileName)),
-            false,
-            `${testCase.label}: ${fileName}`
-          );
-        }
-        assert.equal(
-          readdirSync(artifactDir).some(isOwnedMachineTemp),
-          false,
-          `${testCase.label}: owned temp`
-        );
-        if (testCase.label === "prior cleanup") {
-          assert.equal(
-            operations.some((operation) => operation.startsWith("write:")),
-            false
-          );
-        }
-      } finally {
-        rmSync(artifactDir, { force: true, recursive: true });
-      }
+    for (const testCase of PUBLICATION_FAILURE_CASES) {
+      assertPublicationFailureCleanup(testCase);
     }
   });
 });
+
+
+type PublicationFailureCase = typeof PUBLICATION_FAILURE_CASES[number];
+
+function assertPublicationFailureCleanup(
+  testCase: PublicationFailureCase
+): void {
+  const artifactDir = mkdtempSync(
+    join(tmpdir(), `vibe-check-publication-${testCase.label.replace(" ", "-")}-`)
+  );
+  const operations: string[] = [];
+  const baseOps = recordingFileOps(operations);
+
+  try {
+    if (testCase.seedPrior) {
+      for (const fileName of CANONICAL_FILES) {
+        writeFileSync(join(artifactDir, fileName), "stale", "utf8");
+      }
+      writeFileSync(join(artifactDir, OWNED_TEMP), "stale", "utf8");
+    }
+
+    assert.throws(
+      () => publishMachineArtifactCandidatesV1(
+        artifactDir,
+        validCandidates(),
+        testCase.inject(baseOps)
+      ),
+      testCase.message,
+      testCase.label
+    );
+    for (const fileName of CANONICAL_FILES) {
+      assert.equal(
+        existsSync(join(artifactDir, fileName)),
+        false,
+        `${testCase.label}: ${fileName}`
+      );
+    }
+    assert.equal(
+      readdirSync(artifactDir).some(isOwnedMachineTemp),
+      false,
+      `${testCase.label}: owned temp`
+    );
+    if (testCase.label === "prior cleanup") {
+      assert.equal(
+        operations.some((operation) => operation.startsWith("write:")),
+        false
+      );
+    }
+  } finally {
+    rmSync(artifactDir, { force: true, recursive: true });
+  }
+}
 
 function validCandidates(): ReturnType<typeof serializeMachineArtifactCandidatesV1> {
   const metrics = createEmptyMetrics({
