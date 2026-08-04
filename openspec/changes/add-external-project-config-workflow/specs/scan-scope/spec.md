@@ -1,19 +1,25 @@
 ## ADDED Requirements
 
-### Requirement: Every project scan has one selected complete config
+### Requirement: Every project scan uses one complete selected config
 
-Scan scope SHALL 只消费 Product Config 已选择并解析的一份 complete config。Core MUST NOT
-读取 built-in dogfood values、发现 config files、解析 scanner dependency，或按 selection
-source 改变 include/exclude semantics。
+Scan scope SHALL 消费 Product Config 选出的唯一完整 config。Default、explicit 与 discovered source
+SHALL 共用同一套 normalization、collection、classification 和 exact-input pipeline；selection
+source 只影响 provenance。
 
-#### Scenario: Explicit and tool-directory configs share scope behavior
+#### Scenario: Neutral default covers supported project files
 
-- **WHEN** 相同 complete config 内容分别通过 explicit path 与 tool-directory discovery 选择
-- **THEN** 两次 scan 产生相同 normalized scope、code areas 与 scanner exact inputs
-- **AND** source 只影响 config diagnostics 与 console provenance
+- **WHEN** ungated scan 选择 neutral default
+- **THEN** 既有 Git/fallback collection 应用 `**/*`、default exclusions 与 `project` area
+- **AND** supported eligible files 进入常规 scanner exact-input pipeline
 
-#### Scenario: Dogfood config is explicit
+#### Scenario: Materialized default preserves scope
 
-- **WHEN** repository `quality:*` wrapper 启动 Product CLI
-- **THEN** 它传入 repository root 与 `--config .vibe-check/config.json`
-- **AND** scan scope 通过同一 selected-config path 消费 parsed config
+- **WHEN** 同一 neutral value 先以内存 default、再以 initialized discovered document 参与 scan
+- **THEN** 两次 invocation 产生相同 normalized scope、code areas 与 scanner exact inputs
+- **AND** provenance 分别表达实际 selection source
+
+#### Scenario: File-backed policy controls scope
+
+- **WHEN** explicit 或 discovered config 定义 include、exclude 与 code-area values
+- **THEN** collection 和 classification 使用该完整 selected value
+- **AND** current、baseline 与 Git-failure fallback 共享同一 scope policy

@@ -2,177 +2,233 @@
 
 ### Requirement: Explicit scan configuration selection
 
-Product CLI SHALL 接受一个 `--config <file>`。相对 config path MUST 基于 normalized
-project root 按平台原生语义解析，绝对路径 MUST 保持绝对。省略 `--config` 时，scan SHALL
-只检查 `<project-root>/.vibe-check/config.json`，MUST NOT 搜索 project-root legacy file、
-parent、launch cwd、worktree root 或 home。显式 config MUST 优先于 discovery。两种来源都
-不存在时，CLI MUST 在 scan work 前失败，且 MUST NOT 使用 Vibe Check repository fallback。
+Product CLI SHALL 按以下顺序为每次 invocation 选择唯一配置来源：
 
-#### Scenario: Relative explicit configuration uses project root
+1. `--config <file>` 指定的文件；相对路径基于 normalized project root 解析。
+2. 固定路径 `<project-root>/.vibe-check/config.json` 中已存在的文件。
+3. gate disabled 且固定路径尚未配置时，由 Product Config 提供的 neutral default。
 
-- **WHEN** 调用者从 project root 外启动并传入
-  `--config config/custom.json`
-- **THEN** CLI 读取 `<project-root>/config/custom.json`
-- **AND** 更换 launch cwd 不改变定位
+来源 1 和 2 统称 file-backed source。任一 gate SHALL 使用 file-backed source。文件路径一旦被选中，
+该文件的读取与校验结果 SHALL 决定本次 invocation 的配置结果；固定路径是唯一 implicit file
+candidate。
 
-#### Scenario: Absolute or parent-segment explicit path is preserved
+#### Scenario: Explicit path has highest precedence
 
-- **WHEN** 调用者传入 absolute path 或包含 `..` 的 relative path
-- **THEN** CLI 沿用 existing project-root path resolution，不替换为 discovery
-- **AND** discovery file 不参与
+- **WHEN** 调用者传入相对或绝对 `--config`，同时 discovery/default 也可用
+- **THEN** CLI 只解析并校验 explicit path
+- **AND** 相对路径基于 normalized project root，而不是 launch cwd
 
-#### Scenario: Omitted flag discovers one tool-directory config
+#### Scenario: Tool-directory config is discovered
 
-- **WHEN** 省略 `--config` 且 project root 包含 `.vibe-check/config.json`
-- **THEN** CLI 只读取并验证该文件一次
-- **AND** 不查询 root legacy file、parent、launch-cwd、worktree 或 home config
+- **WHEN** 调用者省略 `--config`，且 `.vibe-check/config.json` 已存在
+- **THEN** CLI 将该文件选为 `discovered`
+- **AND** dependency preflight 前只加载一次该文件
 
-#### Scenario: Explicit config wins over discovered config
+#### Scenario: Ungated scan uses neutral default
 
-- **WHEN** discovery file 与显式 `--config` 同时存在
-- **THEN** 只有显式 file 提供 persisted config values
-- **AND** 两个 files 不 merge
+- **WHEN** 调用者省略 `--config`、固定路径尚未配置，且 gate disabled
+- **THEN** CLI 选择完整 neutral default
+- **AND** console 报告 default provenance，scan 直接进入观察流程
 
-#### Scenario: Missing project config fails before scan
+#### Scenario: Gate requires project policy
 
-- **WHEN** explicit 与 discovery config 都不存在
-- **THEN** CLI 退出 `3` 并提示 `init [project-root]` 和 `--config <file>`
-- **AND** banner、scanner、baseline、cache 与成功 artifacts 均不存在
+- **WHEN** 调用者启用任一 gate，而 explicit/discovered config 均不可用
+- **THEN** CLI 在 scan work 前退出 `3`
+- **AND** diagnostic 指向 `init` 和 `--config` 两条恢复路径
+
+#### Scenario: Selected file determines the result
+
+- **WHEN** selected explicit/discovered path 缺失、不是 regular file、不可读或内容无效
+- **THEN** CLI 保持该 selected path 为本次配置来源，并以 path/reason diagnostic 退出 `3`
+- **AND** 该 selection result 对本次 invocation 保持 final
 
 ### Requirement: Explicit configuration replaces defaults
 
-Selected explicit 或 discovered JSON document SHALL 提供前置 semantic-config contract 定义的
-一份完整 semantic project config 并替换 built-in project values；document MAY 额外提供
-optional `$schema` string metadata。Document、generated starter 和 editor schema MUST NOT
-包含 scanner identity、command 或 args。既有显式 CLI precedence 保持：
-`--top-n` 覆盖 `config.report.topN`，`--artifact-dir` 覆盖
-`config.artifactDir`。Environment value、built-in project value 或其它 file MUST NOT merge 进
-selected project config。底层 dependency resolution MUST 保持在 Product internal boundary，
-不得成为 project-config precedence。Current、baseline 与 fallback collection MUST 接收同一
-resolved semantic value。
+Explicit 或 discovered document SHALL 提供一份完整 semantic project config，并且 MAY 包含可选
+`$schema` authoring metadata。该 document SHALL 是本次 invocation 唯一 project-policy source。
+Document validation 完成后，显式 `--top-n` 和 `--artifact-dir` SHALL 覆盖对应字段。Current、
+baseline 与 Git-failure fallback SHALL 共享最终 resolved config。
 
-#### Scenario: Selected file supplies the complete config
+#### Scenario: File-backed document is complete and authoritative
 
-- **WHEN** 选择有效 explicit 或 discovered config
-- **THEN** 除 `--top-n` / `--artifact-dir` 外，每个 project-config field 都来自该 file
-- **AND** `$schema` 不进入 resolved semantic config，missing fields 不从 built-in config 补齐
+- **WHEN** selected document 通过校验
+- **THEN** 每个 project-policy field 都来自该 document，再应用 CLI field overrides
+- **AND** loader 将 `$schema` 分离为 authoring metadata，resolved semantic config 只包含政策字段
 
-#### Scenario: Dependency details cannot enter project config selection
+#### Scenario: CLI fields retain highest precedence
 
-- **WHEN** Product internal dependency resolution 使用 host 或 operational inputs
-- **THEN** selected semantic config、source/path/version provenance 与 project-field precedence 不变
-- **AND** project document/schema/help 不暴露 scanner name、command、args 或 applied tool override
+- **WHEN** 调用者显式传入 `--top-n` 或 `--artifact-dir`
+- **THEN** resolved config 对应字段使用 CLI value
+- **AND** 其余字段保持 selected semantic value
 
-#### Scenario: CLI report options remain highest priority
+#### Scenario: One config serves the whole scan
 
-- **WHEN** selected config 与 CLI 同时提供 top-N 或 artifact directory
-- **THEN** 显式 CLI values 胜出
-- **AND** current、baseline 与 fallback 仍共享一份 resolved config
+- **WHEN** invocation 执行 current、baseline 或 Git-failure fallback collection
+- **THEN** 每个阶段接收同一份 invocation-owned resolved config
+- **AND** config selection 只执行一次
 
 ## ADDED Requirements
 
+### Requirement: Neutral default configuration
+
+Product Config SHALL 持有以下完整、repository-neutral 的 exact semantic value；本 requirement 是
+该默认值的唯一数值 owner：
+
+```json
+{
+  "acceptedWarnings": [],
+  "artifactDir": "artifacts/vibe-check",
+  "cacheDir": ".cache/vibe-check",
+  "checks": {
+    "duplication": {
+      "defaultMinimumTokens": 75,
+      "fragments": {
+        "changedDelta": 1
+      },
+      "minimumTokensByCodeArea": {}
+    },
+    "files": {
+      "codeLines": {
+        "absoluteFloor": 300,
+        "changedDelta": 80,
+        "lowDecisionTokenAllowance": {
+          "codeLineFloor": 500,
+          "maxDecisionTokens": 10
+        }
+      }
+    },
+    "functions": {
+      "codeLines": {
+        "absoluteFloor": 50,
+        "changedDelta": 20,
+        "lowComplexityAllowance": {
+          "codeLineFloor": 150,
+          "maxCyclomaticComplexityExclusive": 5
+        }
+      },
+      "cyclomaticComplexity": {
+        "absoluteFloor": 10,
+        "changedDelta": 5
+      },
+      "parameterCount": {
+        "absoluteFloor": 5,
+        "changedDelta": 2
+      }
+    }
+  },
+  "codeAreas": {
+    "project": {
+      "description": "This project",
+      "excludeGlobs": [],
+      "globs": ["**/*"],
+      "warningPolicy": "moderate"
+    }
+  },
+  "excludeDirs": [
+    ".git",
+    ".vibe-check",
+    ".cache",
+    ".venv",
+    "artifacts",
+    "build",
+    "dist",
+    "node_modules",
+    "target",
+    "vendor"
+  ],
+  "generatedFiles": ["**/generated/**", "**/*.generated.*"],
+  "include": ["**/*"],
+  "report": {
+    "footerGeneratedBy": "Vibe Check",
+    "footerNotice": "Review findings for this project.",
+    "nonBlockingNotice": "This project scan is observational unless a gate is explicitly enabled.",
+    "showWatchlist": true,
+    "timeZone": "UTC",
+    "title": "This project quality report",
+    "topN": 20,
+    "watchlistMax": 50
+  },
+  "version": "1"
+}
+```
+
+#### Scenario: Default provides neutral full-project policy
+
+- **WHEN** Product Config 映射 neutral default
+- **THEN** 该值通过 semantic v1 validation，并将所有 supported、eligible project files 归入
+  `project` area
+- **AND** runtime 获得一份 detached、invocation-owned config
+
 ### Requirement: Project configuration initialization
 
-Product CLI SHALL 提供非交互 `init [project-root]`。它 MUST 以 all-or-nothing exclusive
-creation 创建 `<project-root>/.vibe-check/`，并写出 deterministic UTF-8 commented
-`config.json` 与 JSON Schema 2020-12 `config.schema.json`。Starter MUST repository-neutral、
-完整提供前置 change 定义的 semantic project config、以相对 `$schema` 关联 sibling schema，
-并能通过 current Product Config loader。Initializer MUST NOT 扫描、检测项目语言、解析
-scanner dependency、联网、修改 package scripts 或覆盖
-任何已有 `.vibe-check` path。All-or-nothing promise SHALL 覆盖 command success 与受控
-generation/write failures；它 MUST NOT 被描述为 process termination 或掉电下的 crash-safe
-multi-file transaction。
+Product CLI SHALL 提供 non-interactive `init [project-root]`。Init SHALL 以 UTF-8/LF 和确定性内容
+生成两个文件：`config.json` 包含完整 neutral default 及相对引用
+`"$schema": "./config.schema.json"`，`config.schema.json` 使用 JSON Schema 2020-12。通过 production
+loader 重新加载生成的 config SHALL 得到 neutral semantic value。
 
-Generated config/schema MUST NOT 包含 `lizard`、`scc`、`jscpd`、scanner command/args 或
-source-checkout dependency path。同一 product revision 的 generated bytes MUST 跨 host
-platform 相同。
+`.vibe-check` directory 尚不存在时，Init SHALL 创建它；已存在的 non-symlink directory SHALL 被
+复用。两个 target file SHALL 使用 exclusive creation。Handled failure cleanup SHALL 只处理本次
+invocation 创建的 entries；本次创建的 directory 仅在 empty 时清理。
 
-#### Scenario: Initialize a new project config
+#### Scenario: Init materializes neutral policy
 
-- **WHEN** normalized project root 是 writable directory 且 `.vibe-check` 不存在
-- **THEN** `init` exclusive create deterministic valid config/schema artifact set
-- **AND** 打印两个 created paths 与精确下一步 scan command 后 exit `0`
+- **WHEN** project root 可写，且两个 target path 可创建
+- **THEN** init 创建内容确定且完整的 config/schema，并退出 `0`
+- **AND** stdout 报告两个 created paths 与 discovery-ready state
 
-#### Scenario: Existing path is preserved
+#### Scenario: Existing tool directory is reusable
 
-- **WHEN** `.vibe-check` 已存在或在并发中先被创建
-- **THEN** exclusive creation 失败且不替换它，也不留下 partial generated set
-- **AND** existing directory entries 与 bytes 保持不变
+- **WHEN** `.vibe-check` 是包含其它 entries 的既有 normal directory
+- **THEN** init 在其中创建两个可用 target files
+- **AND** 既有 entries 保持原有 bytes
 
-#### Scenario: Handled write failure removes only initializer-owned entries
+#### Scenario: Existing target or handled write failure preserves state
 
-- **WHEN** initializer exclusive 创建 tool directory 后，任一 config/schema write 发生受控失败
-- **THEN** command 退出 `3`，并移除本 invocation 已创建的固定 files 与仍为空的 owned directory
-- **AND** cleanup 不递归删除、不使用通配符，也不修改 project root 中的其它 entry
-
-#### Scenario: Generated config is repository-neutral
-
-- **WHEN** reviewer 或 acceptance 解析 generated config
-- **THEN** 它包含 neutral 且内部一致的 semantic scope/area/quality/report/artifact values
-- **AND** 不含 Vibe Check-specific globs/text、scanner identities 或 host/source-checkout paths
+- **WHEN** 任一 target 已存在、concurrent creator 先创建 target，或 target write 失败
+- **THEN** init 保留既有 entries，并退出 `3`
+- **AND** invocation-owned partial entries 按 ownership rule 清理
 
 ### Requirement: Comment-capable JSON authoring and editor schema
 
-Product Config SHALL 以 Vibe Check JSON content contract 接受 UTF-8 line comments、block
-comments 与 trailing commas，并继续接受不含 comments 的既有 strict JSON explicit configs。
-User-facing discovery/init filename SHALL 保持 `config.json`；extension MUST NOT 切换 parser、
-schema 或 precedence。一个
-前置 semantic-config change 的 Product-owned runtime schema source SHALL 拥有 exact project
-fields、required/optional、types、closed-object constraints、enums、descriptions 与可表达的
-numeric constraints；本 change MAY 只组合 optional `$schema` document metadata。Loader
-structural validation 与 `init` schema bytes MUST 从该 composed source 派生。Runtime-only
-semantic validation 继续由 Product Config owner 承接。
+Product Config SHALL 解析 UTF-8 Vibe Check JSON，包括 line comments、block comments 与 trailing
+commas；strict JSON SHALL 作为其 subset 获得支持。Product-owned semantic runtime schema SHALL
+持有 project fields，composed document schema 在其上增加可选 `$schema`。Generated editor schema
+SHALL 是 composed source 的 deterministic projection。每次 runtime config validation SHALL 使用
+embedded Product schema。
 
-Generated sibling `config.schema.json` SHALL 只用于 editor assistance。Scan MUST NOT 读取或
-信任该 file 来改变 validation，且 MUST NOT 因它缺失、被编辑或无效而拒绝一个由内置 runtime
-contract 判定有效的 config。
+#### Scenario: Annotated and strict documents share one loader
 
-#### Scenario: Annotated JSON loads as one complete config
+- **WHEN** 两份等价的完整 document 分别使用 annotated Vibe Check JSON 与 strict JSON
+- **THEN** production loader 为二者生成相同 detached semantic value
+- **AND** 可选 `$schema` 只提供 editor linkage
 
-- **WHEN** selected document 包含 line/block comments、trailing commas 与相对 `$schema`
-- **THEN** loader 解析 comments 之外的完整 config fields 并执行现有 strict validation
-- **AND** comments 与 `$schema` 不改变 resolved scan semantics 或 precedence
+#### Scenario: Invalid document fails before scan work
 
-#### Scenario: Existing strict JSON remains compatible
+- **WHEN** selected bytes 未通过 UTF-8、syntax、structural 或 semantic validation
+- **THEN** CLI 在 scan work 前以 exit `3` 报告 selected path 与可定位的 reason
+- **AND** diagnostic 保留本次 selected source，便于直接修复该 document
 
-- **WHEN** 显式 `--config` 选择既有 UTF-8 JSON document，且它不含 `$schema`
-- **THEN** 同一 content-based loader 接受这个 JSON 子集
-- **AND** parsed semantic project config 与相同 fields 的 commented document 保持相同
+#### Scenario: Runtime schema authority is embedded
 
-#### Scenario: Invalid config document fails before scan
-
-- **WHEN** selected file 的 UTF-8、Vibe Check JSON syntax、runtime schema 或 semantic validation 无效
-- **THEN** Product CLI 以 exit `3` 报告 normalized selected path 与可行动 failure location/reason
-- **AND** 不打印 scan banner，不调用 scanner/baseline，也不创建 scan artifacts
-
-#### Scenario: Local schema cannot change runtime validation
-
-- **WHEN** selected `config.json` 有效，但 sibling schema 缺失、被编辑或无效
-- **THEN** scan 仍只按 Product-owned runtime schema 与 semantic checks 验证 config
-- **AND** sibling schema 不成为 runtime dependency 或第二个 config owner
+- **WHEN** runtime 加载一份 semantic content 有效的 config
+- **THEN** embedded Product schema 单独决定 runtime validation 结果
+- **AND** sibling generated schema 由独立 drift validation 负责 editor consistency
 
 ### Requirement: Selected configuration context
 
-Product Config SHALL 创建一个 internal selection context，包含 resolved complete semantic
-config、source（`explicit` 或 `discovered`）、normalized absolute path 与 config version。
-Console SHALL 在 dependency preflight 前显示该 context。Scan
-scope、current、baseline 与 fallback MUST 复用同一 resolved config，且 MUST NOT 按 source
-分支。本 requirement SHALL NOT 给 stable machine DTO 增加 config source/path fields。
+Product Config SHALL 创建一个 readonly context，其中包含 resolved config、source（`default`、
+`explicit` 或 `discovered`），以及 file-backed source 的 normalized absolute path。Console SHALL 在
+dependency preflight 前报告简洁 provenance。Downstream scan stages SHALL 只消费 resolved config；
+stable machine v1 output SHALL 保持现有 shape。
 
-#### Scenario: Runtime reports tool-directory config
+#### Scenario: Default provenance is pathless
 
-- **WHEN** scan 使用 tool-directory discovered config
-- **THEN** preflight console 标明 `discovered`、normalized path 与 version
-- **AND** 后续阶段不再搜索或加载 config
+- **WHEN** neutral default 被选中
+- **THEN** console 报告 `default (not persisted)`
+- **AND** selection context 使用 pathless default source
 
-#### Scenario: Runtime reports explicit config
+#### Scenario: File-backed provenance identifies selected path
 
-- **WHEN** scan 使用 `--config`
-- **THEN** preflight console 标明 `explicit` 与 selected normalized path
-- **AND** discovery path 不进入 selection context
-
-#### Scenario: Machine projection stays independent
-
-- **WHEN** runtime context 已包含 selection source/path
-- **THEN** scan 只把它用于 config diagnostics 与 console provenance
-- **AND** 未经显式 output-contract change 不进入 machine v1
+- **WHEN** explicit 或 discovered config 被选中
+- **THEN** console 报告 source 与 normalized path
+- **AND** downstream scan 使用该 context 中的 resolved config
