@@ -146,7 +146,6 @@
     "scripts/tools/validators/**/*.ts",
     "scripts/vibe-check-workspace/**/*.ts",
     "docs/**/*.md",
-    "docs/**/*.json",
     "openspec/**/*.md"
   ],
   "report": {
