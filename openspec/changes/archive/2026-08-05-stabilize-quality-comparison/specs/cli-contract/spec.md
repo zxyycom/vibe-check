@@ -52,6 +52,12 @@ Product CLI SHALL 根据 policy descriptor 归一化 scan plan：`all` 只评价
 - **THEN** CLI 在 stderr 报告需要 `--baseline <revision>` 的修复方式并退出 `3`
 - **AND** 不启动 scanner、cache 或创建 scan artifacts
 
+#### Scenario: Comparison gate enables baseline in full profile
+
+- **WHEN** 调用者在 full profile 传入 `--gate changed` 或 `--gate regressions`，并提供可解析的显式 `--baseline <revision>`
+- **THEN** CLI 启用 baseline comparison，并使用该 revision 的 canonical full commit SHA
+- **AND** gate planning 不从 repository history、branch、upstream 或 remote state 推断其他 baseline
+
 #### Scenario: Explicit baseline is canonicalized once
 
 - **WHEN** full scan 收到可解析为 commit 的 `--baseline <revision>`

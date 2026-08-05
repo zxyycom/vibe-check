@@ -18,7 +18,7 @@ dogfood wrapper 与 product core 的单向调用关系，使已退役 Rust 路�
 
 ### Requirement: 正式入口和 dogfood 入口共享同一核心
 
-系统 SHALL 提供 `bun run product:cli -- scan [project-root]` 作为正式本地入口，并 SHALL 让仓库 `quality:*` 命令通过薄 wrapper 调用同一产品实现。Repository SHALL 新增 opt-in `bun run quality:gate`，通过 wrapper 对仓库根执行 full `regressions` gate；既有 `quality:check`、`quality:full-check` 与 `quality:scan` MUST 保持省略 gate 的观察行为。
+系统 SHALL 提供 `bun run product:cli -- scan [project-root]` 作为正式本地入口，并 SHALL 让仓库 `quality:*` 命令通过薄 wrapper 调用同一产品实现。Repository SHALL 提供 opt-in `bun run quality:gate`，通过 wrapper 对仓库根执行 full `regressions` gate，并要求调用者透传显式 `--baseline <revision>`；wrapper MUST NOT 选择或推断 revision。既有 `quality:check`、`quality:full-check` 与 `quality:scan` MUST 保持省略 gate 的观察行为，其中 `quality:full-check` MUST 是无 baseline 的 full current snapshot。
 
 #### Scenario: 正式入口执行扫描
 
@@ -34,10 +34,22 @@ dogfood wrapper 与 product core 的单向调用关系，使已退役 Rust 路�
 
 - **WHEN** 仓库 automation 调用 `quality:check`、`quality:full-check` 或 `quality:scan`
 - **THEN** wrapper 显式传入 Vibe Check 仓库根并执行同一扫描核心
-- **AND** invocation 不隐式选择 gate policy
+- **AND** invocation 不隐式选择 gate policy 或 baseline
+
+#### Scenario: Full check is a current snapshot
+
+- **WHEN** 调用者运行 `bun run quality:full-check`
+- **THEN** thin wrapper 执行 full profile 的当前快照扫描
+- **AND** invocation 不选择、推断或扫描 baseline
 
 #### Scenario: 仓库显式 dogfood regression gate
 
-- **WHEN** 调用者运行 `bun run quality:gate`
-- **THEN** thin wrapper 对 Vibe Check 仓库根执行 `--profile full --gate regressions`
+- **WHEN** 调用者通过 `bun run quality:gate` 透传 `--baseline <revision>`
+- **THEN** thin wrapper 对 Vibe Check 仓库根执行 `--profile full --gate regressions --baseline <revision>`
 - **AND** comparison prerequisite、GateResult 与 process exit 使用正式产品 contract
+
+#### Scenario: Dogfood gate does not infer a missing baseline
+
+- **WHEN** 调用者运行 `bun run quality:gate` 但没有透传 `--baseline`
+- **THEN** 正式 Product CLI 以 missing comparison prerequisite 退出 `3`
+- **AND** wrapper 不读取 Git history、branch、upstream 或 remote 来补全 baseline

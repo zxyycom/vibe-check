@@ -16,10 +16,10 @@ Repository SHALL 提供 deterministic product-owned tests 与 fixtures，通过�
 - **THEN** `all`、`changed` 与 `regressions` 只按对应 descriptor channel 产生 blocking set
 - **AND** evaluated passed gate 退出 `0`，evaluated failed gate 退出 `1`
 
-#### Scenario: Comparison evidence is distinguished from request input
+#### Scenario: Comparison evidence is distinguished from an empty channel
 
 - **WHEN** matrix 运行显式 baseline 的 `input-unchanged`、runtime `baseline-unavailable` 与 missing baseline request cases
-- **THEN** `input-unchanged` 评价 empty changed/regressions channel并通过，runtime `baseline-unavailable` 产生 `not-evaluated: comparison-unavailable` 并退出 `2`
+- **THEN** `input-unchanged` 评价 empty changed/regressions channel 并通过，runtime `baseline-unavailable` 产生 `not-evaluated: comparison-unavailable` 并退出 `2`
 - **AND** missing baseline request 在 scan work 前作为 usage error 退出 `3`，不产生 comparison artifacts
 
 #### Scenario: Explicit revision resolution is pinned
