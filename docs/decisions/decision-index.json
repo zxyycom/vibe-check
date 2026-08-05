@@ -26,7 +26,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:9ebc48ecd49f368fe62b78e5b40acfef6eb397f7266096176339786921793980",
+  "sourceRevision": "sha256:260570906977181e067e76b3c7ff6867a229765a8f4141a4fd8ef1afb3a61d71",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -89,6 +89,31 @@
         "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
         "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
         "decision": "Public project config 只使用产品语义字段，底层 scanner 映射与 dependency resolution 由 Product 内部边界拥有。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-declarative-quality-decision-policies.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-declarative-quality-decision-policies.md",
+        "title": "使用声明式质量决策策略",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T06:43:25Z",
+        "purpose": "让多个质量能力的标准记录与运行状态能够通过可审阅配置组合成查询、接受和门禁结果。",
+        "background": "固定 channels、overall completeness 和 gate prerequisite 无法表达不同能力、coverage 与 comparison 的逻辑组合。",
+        "decision": "Public config 投影能力设置与声明式 DecisionPolicy；能力输出最终语义，Core 只执行通用组合逻辑。",
         "relations": []
       }
     },
@@ -226,22 +251,49 @@
           "configuration"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-semantic-check-ids-in-project-config.md",
         "title": "在 project config 中使用语义 check ID",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "让 accepted-warning 配置按 Vibe Check 质量检查语义匹配，而不是依赖当前 scanner identity。",
         "background": "当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceTool，backend replacement 会继续迁移 project config。",
         "decision": "Public acceptedWarnings 使用 closed checkId；内部映射 current warning identity，machine fields 保持不变。",
         "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-semantic-check-ids-in-quality-records.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-semantic-check-ids-in-quality-records.md",
+        "title": "让语义 check ID 直接属于质量记录目录",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T07:09:36Z",
+        "purpose": "让project config、能力输出和决策策略共同引用同一个稳定质量检查身份，而不经过旧warning或scanner identity映射。",
+        "background": "QualityRecord已直接携带final check语义，继续映射旧warning fields会保留第二套身份owner。",
+        "decision": "Registry catalog直接拥有checkId；config selector与acceptance annotation引用它，不保留旧warning身份映射。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "configuration/use-semantic-check-ids-in-project-config.md"
+          }
+        ]
       }
     },
     {
@@ -301,17 +353,14 @@
           "product-contract"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "product-contract/use-generic-machine-v2-for-content-findings.md",
         "title": "使用通用 machine v2 承载内容检查",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T15:02:12Z",
         "purpose": "让数值指标、内容问题和安全问题通过一套可验证且可演进的机器契约发布。",
         "background": "Current machine v1 固定为数值 warning 和三项 capability，无法无损表达非数值 finding、观察值和动态能力成员。",
@@ -342,6 +391,36 @@
         "background": "行号、列号和 byte offset 是当前定位信息，不是问题本身的稳定语义，写入 key 会制造虚假新增和回归。",
         "decision": "稳定 key 和 fingerprint 只使用规范化语义身份，源码位置只用于当前展示和导航。",
         "relations": []
+      }
+    },
+    {
+      "id": "product-contract/use-standard-quality-record-stream.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-standard-quality-record-stream.md",
+        "title": "使用统一质量记录流与独立能力运行状态",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T06:43:16Z",
+        "purpose": "让所有内置质量能力通过同一标准数据协议逐条发布最终语义，并让有效记录不再被能力整体完成状态覆盖。",
+        "background": "按 metric、content、security 划分结果形状并要求能力原子提交，会让 Core 持续承担领域分支，也会在后续工作失败时丢失已经可信的数据。",
+        "decision": "编译期 capability 逐条输出统一 QualityRecord，CapabilityRun 独立表达状态与覆盖；Core 只验证、汇集、执行策略并发布 machine v2。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "product-contract/use-generic-machine-v2-for-content-findings.md"
+          }
+        ]
       }
     },
     {
@@ -480,22 +559,49 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "workflow-policy/require-explicit-quality-baselines.md",
         "title": "质量比较只接受显式基线",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T07:18:16Z",
         "purpose": "让质量比较和阻断结果始终绑定到调用者明确选择且可复现的代码基线。",
         "background": "自动选择上一代码提交无法可靠表达分支或发布比较目标，并可能让同一最终提交因历史形状不同得到误导性门禁结果。",
         "decision": "省略 baseline 的扫描只生成当前快照；只有显式 baseline 才启用比较，comparison gate 缺少它时在扫描工作前失败。",
         "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/require-explicit-quality-comparison-references.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/require-explicit-quality-comparison-references.md",
+        "title": "质量比较只接受显式命名参考",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T06:43:22Z",
+        "purpose": "让任意质量变化视图和门禁都绑定到调用者明确选择、可复现且有名称的比较参考。",
+        "background": "单一 baseline 与固定 changed/regressions channel 不能表达多个比较参考，但自动推断历史、分支或远端仍会产生不可复现结论。",
+        "decision": "每项 comparison policy 声明显式参考并在 invocation 开始时固定身份；partial evidence 的 verdict 由 policy 处理。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/require-explicit-quality-baselines.md"
+          }
+        ]
       }
     },
     {

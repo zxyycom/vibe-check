@@ -1,7 +1,7 @@
 ---
 title: 在 project config 中使用语义 check ID
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-08-03T09:23:47Z
 purpose: 让 accepted-warning 配置按 Vibe Check 质量检查语义匹配，而不是依赖当前 scanner identity。
 background: 当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceTool，backend replacement 会继续迁移 project config。

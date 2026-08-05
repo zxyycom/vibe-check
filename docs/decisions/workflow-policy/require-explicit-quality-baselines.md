@@ -1,7 +1,7 @@
 ---
 title: 质量比较只接受显式基线
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T07:18:16Z
 purpose: 让质量比较和阻断结果始终绑定到调用者明确选择且可复现的代码基线。
 background: 自动选择上一代码提交无法可靠表达分支或发布比较目标，并可能让同一最终提交因历史形状不同得到误导性门禁结果。

@@ -1,7 +1,7 @@
 ---
 title: 使用通用 machine v2 承载内容检查
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T15:02:12Z
 purpose: 让数值指标、内容问题和安全问题通过一套可验证且可演进的机器契约发布。
 background: Current machine v1 固定为数值 warning 和三项 capability，无法无损表达非数值 finding、观察值和动态能力成员。
