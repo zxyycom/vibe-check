@@ -4,7 +4,7 @@ This design defines the single config-v2 owner and deterministic per-file policy
 
 Current Product Config owns one closed, complete semantic config and supplies the same resolved value to current, baseline, and fallback work. Scan scope creates one normalized inventory, while capability behavior currently reads project-wide check settings. See `proposal.md` for the need to vary those settings by file.
 
-This change follows `introduce-content-quality-foundation`: capability descriptors select exact inputs, findings have explicit variants, and cache projections belong to the producing capability. It must preserve the global inventory boundary and the existing separation between public policy and operational scanner configuration.
+This change follows `standardize-quality-capability-contract`: capability descriptors select exact inputs, findings have explicit variants, and cache projections belong to the producing capability. It must preserve the global inventory boundary and the existing separation between public policy and operational scanner configuration.
 
 ## Goals / Non-Goals
 

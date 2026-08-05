@@ -26,7 +26,7 @@ JSON Schema横跨public config、schema dialect/meta-schema、compile/reference 
 
 ### Decision 1: JSON Schema change严格位于三个prerequisites之后
 
-实现顺序为 `introduce-content-quality-foundation` → `add-file-policy-overrides` → `add-json-validation` → 本change。Schema capability复用exact-input/finding/completeness/machine v2、config v2 patch/path grammar以及strict JSON parsed document/location index。阻塞审计必须读取这些changes的最终artifacts/归档spec；发现漂移先修订本change，禁止添加并行registry、parser或machine shape。
+实现顺序为 `standardize-quality-capability-contract` → `add-file-policy-overrides` → `add-json-validation` → 本change。Schema capability复用exact-input/finding/completeness/machine v2、config v2 patch/path grammar以及strict JSON parsed document/location index。阻塞审计必须读取这些changes的最终artifacts/归档spec；发现漂移先修订本change，禁止添加并行registry、parser或machine shape。
 
 直接把scripts validator搬进Product会违反runtime owner、root traversal与fixed registry边界，因此拒绝。
 

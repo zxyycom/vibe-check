@@ -13,7 +13,7 @@
 - Overrides 只可修改 capability-owned check settings；不得修改 `version`、global include/exclude/generated scope、code areas、acceptance、report、artifact/cache paths、config source 或 scanner dependency settings。
 - Config/Core 为 normalized inventory 中每个文件解析一个 immutable `ResolvedFilePolicy`；capability selector可据 `enabled`/target settings缩小 exact inputs，但 override不得把 global scope 外文件重新加入。Current、baseline与 fallback对同一路径使用同一 resolution chain。
 - 新增只读 `explain-config [project-root] <file>` CLI，用 base 与 matched override names/declared leaves解释最终 file policy；该命令不启动 scanner、baseline、cache或 artifact work。
-- 本 change 依赖 `introduce-content-quality-foundation` 的 descriptor/exact-input与 capability-specific cache projection，但不加入任何具体 Markdown、JSON、schema、path、secret或network fields。
+- 本 change 依赖 `standardize-quality-capability-contract` 的 descriptor/exact-input与 capability-specific cache projection，但不加入任何具体 Markdown、JSON、schema、path、secret或network fields。
 
 ## Capabilities
 

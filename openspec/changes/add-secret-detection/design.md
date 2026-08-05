@@ -2,7 +2,7 @@
 
 ## Context
 
-当前 Product 只注册 file/function/duplicate 三个数值 capability，public config v1 与 machine v1 都是 closed/single-active contract。`introduce-content-quality-foundation` 将 descriptor registry、security finding、通用 channels/completeness/gate 与 machine v2 作为共同 owner；`add-file-policy-overrides` 将拥有 config v2 composition 和 file patch precedence。本 change 只补充 secret selector、detector、配置 slice、安全 identity 与验收。
+当前 Product 只注册 file/function/duplicate 三个数值 capability，public config v1 与 machine v1 都是 closed/single-active contract。`standardize-quality-capability-contract` 将 descriptor registry、security finding、通用 channels/completeness/gate 与 machine v2 作为共同 owner；`add-file-policy-overrides` 将拥有 config v2 composition 和 file patch precedence。本 change 只补充 secret selector、detector、配置 slice、安全 identity 与验收。
 
 Secret scanning 与普通 scanner 最大区别是 raw match 本身属于不得持久化的高敏输入。现有 raw artifact、process stderr、cache 与通用错误包装都必须默认视为不安全，不能在实现后再做字符串清理补救。
 
@@ -27,7 +27,7 @@ Secret scanning 与普通 scanner 最大区别是 raw match 本身属于不得�
 
 ### Decision 1: 依赖 change 先闭合共同 owner，本 change 只注册具体 capability
 
-实现前必须审计 `introduce-content-quality-foundation` 的 final registry/FindingRecord/ObservationRecord/machine-v2 contract 与 `add-file-policy-overrides` 的 final config-v2/patch contract。通过后，本 change 只注册 `secret-detection` capability、两个 check IDs、三个 observation metric IDs、empty security evidence catalog、coverage typed evidence catalog和自己的 config fragment；catalog变化更新sorted canonical `semanticRegistryFingerprint` expected value、examples与validator fixtures，但不修改immutable machine schema bytes、通用 channel、completeness reducer、machine union或patch precedence。
+实现前必须审计 `standardize-quality-capability-contract` 的 final registry/FindingRecord/ObservationRecord/machine-v2 contract 与 `add-file-policy-overrides` 的 final config-v2/patch contract。通过后，本 change 只注册 `secret-detection` capability、两个 check IDs、三个 observation metric IDs、empty security evidence catalog、coverage typed evidence catalog和自己的 config fragment；catalog变化更新sorted canonical `semanticRegistryFingerprint` expected value、examples与validator fixtures，但不修改immutable machine schema bytes、通用 channel、completeness reducer、machine union或patch precedence。
 
 备选是本 change 独立增加warning shape和config merge。那会形成第二个foundation与第二套config owner，故不采用。
 

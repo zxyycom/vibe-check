@@ -12,6 +12,6 @@
 
 ## 直接依赖
 
-- `introduce-content-quality-foundation`
+- `standardize-quality-capability-contract`
 - `add-file-policy-overrides`
 - `add-network-link-validation` 是下游消费者，不是实现前置。

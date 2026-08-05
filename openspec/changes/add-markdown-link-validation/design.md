@@ -2,7 +2,7 @@
 
 ## Context
 
-本临时 change artifact 设计离线 Markdown 链接验证；动机见 `proposal.md`，可观察契约见 `specs/markdown-link-validation/spec.md`。现有 `scripts/**` validator 以 regex 只检查部分相对路径、跳过 anchors 和 URL，不能代表产品行为。实现依赖 `introduce-content-quality-foundation` 与 `add-file-policy-overrides`，但不依赖 `add-markdown-structure-validation`。
+本临时 change artifact 设计离线 Markdown 链接验证；动机见 `proposal.md`，可观察契约见 `specs/markdown-link-validation/spec.md`。现有 `scripts/**` validator 以 regex 只检查部分相对路径、跳过 anchors 和 URL，不能代表产品行为。实现依赖 `standardize-quality-capability-contract` 与 `add-file-policy-overrides`，但不依赖 `add-markdown-structure-validation`。
 
 ## Goals / Non-Goals
 
@@ -31,9 +31,9 @@ relative target 先以引用文件所在目录词法归一化，再在存在目�
 
 实现建立按 `gfm-heading-slug-v1` 生成的每文件 heading index；该版本化算法与 Markdown structure check 共享必要的文本语义但不共享政策或阈值。替代的 parser 默认 id 或浏览器默认 id 随实现变化，不能作为稳定的跨文件链接契约。
 
-### Decision 4: `introduce-content-quality-foundation` 只提供共同接点
+### Decision 4: `standardize-quality-capability-contract` 只提供共同接点
 
-本change拥有`checks.markdownLinks`完整schema、neutral contribution、override metadata与stable capability/check IDs；`introduce-content-quality-foundation`只拥有descriptor/Finding/machine common shape，`add-file-policy-overrides`只拥有typed patch/resolution。本feature descriptor从normalized inventory和resolved section选择exact inputs并投影结果。替代的foundation-owned feature fields或link-only merge/output旁路会破坏owner与tool-neutral contract。
+本change拥有`checks.markdownLinks`完整schema、neutral contribution、override metadata与stable capability/check IDs；`standardize-quality-capability-contract`只拥有descriptor/Finding/machine common shape，`add-file-policy-overrides`只拥有typed patch/resolution。本feature descriptor从normalized inventory和resolved section选择exact inputs并投影结果。替代的foundation-owned feature fields或link-only merge/output旁路会破坏owner与tool-neutral contract。
 
 ### Decision 5: 网络检查只消费外链候选而不反向影响离线结论
 
@@ -60,7 +60,7 @@ relative target 先以引用文件所在目录词法归一化，再在存在目�
 
 ## Migration Plan
 
-1. 完成tasks 1.1，对`introduce-content-quality-foundation`、`add-file-policy-overrides`与`add-network-link-validation` handoff做阻塞审计。
+1. 完成tasks 1.1，对`standardize-quality-capability-contract`、`add-file-policy-overrides`与`add-network-link-validation` handoff做阻塞审计。
 2. 注册config fragment/descriptor并实现AST提取、classification、受控local resolution、heading index、typed evidence、causal path set与sanitized external candidate，为每个类别建立fixtures。
 3. 同步最终 config/schema/examples/docs，运行产品 CLI、契约与 workspace 验证；回退时撤销本 check 接入，保留既有扫描能力。
 

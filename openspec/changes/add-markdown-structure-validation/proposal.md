@@ -10,7 +10,7 @@
 - 定义 heading depth、跳级与 H1 规则，以及 front matter、代码块、表格和列表对解析与行定位的影响。
 - 使文档总量、section 与 paragraph 的 words/chars 阈值及`requireSingleH1`、`requireFirstHeadingH1`、depth-skip、maximum-depth规则可由文件政策覆盖，同时保持度量与 finding 分离。
 - 为四个stable checks固定finding codes与closed typed evidence catalogs，使subject/rule/actual/threshold/expected/unit无需解析message即可消费，并保持location不参与identity。
-- 本 feature 自行注册 stable capability/check/metric IDs、optional complete `checks.markdownStructure` config-v2 fragment、neutral contribution、profile/request semantics 与 overrideable leaves；依赖 `introduce-content-quality-foundation` 的 registry/observation/finding/output 挂点和 `add-file-policy-overrides` 的 typed patch/resolution 规则。
+- 本 feature 自行注册 stable capability/check/metric IDs、optional complete `checks.markdownStructure` config-v2 fragment、neutral contribution、profile/request semantics 与 overrideable leaves；依赖 `standardize-quality-capability-contract` 的 registry/observation/finding/output 挂点和 `add-file-policy-overrides` 的 typed patch/resolution 规则。
 
 ## Capabilities
 

@@ -11,7 +11,7 @@
 - 定义链接目标的 URL 解码、query/fragment 拆分、slug 方言、symlink 与 root escape 的确定性处理。
 - 为三个stable checks固定finding codes与closed typed evidence；local/anchor findings以source和实际target组成causal path set，任一命中changed scope即可进入changed。
 - 向`add-network-link-validation`交付精确只含sourcePath/linkKind/classification/safe scheme-host-port-path-query-key shape/ordinal/semantic identity的external candidates；location与raw/full URL分别只留在identity-keyed bounded ephemeral lookups，且不进入candidate、log、cache、artifact或public DTO。
-- 本 feature 自行注册 stable capability/check IDs、optional complete `checks.markdownLinks` config-v2 fragment、neutral contribution、profile/request semantics 与 overrideable leaves；依赖 `introduce-content-quality-foundation` 的 registry/finding/output 挂点和 `add-file-policy-overrides` 的 typed patch/resolution，且不依赖 `add-markdown-structure-validation` 的阈值语义。
+- 本 feature 自行注册 stable capability/check IDs、optional complete `checks.markdownLinks` config-v2 fragment、neutral contribution、profile/request semantics 与 overrideable leaves；依赖 `standardize-quality-capability-contract` 的 registry/finding/output 挂点和 `add-file-policy-overrides` 的 typed patch/resolution，且不依赖 `add-markdown-structure-validation` 的阈值语义。
 
 ## Capabilities
 

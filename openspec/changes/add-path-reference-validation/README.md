@@ -12,6 +12,6 @@
 
 ## 直接依赖
 
-- `introduce-content-quality-foundation`
+- `standardize-quality-capability-contract`
 - `add-file-policy-overrides`
 - `add-markdown-link-validation` 的 destination ownership 契约；不依赖该 capability 在运行时启用。

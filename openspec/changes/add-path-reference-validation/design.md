@@ -2,7 +2,7 @@
 
 ## Context
 
-本临时 change artifact 设计文本路径引用检查；动机见 `proposal.md`，可观察契约见 `specs/path-reference-validation/spec.md`。用户所称“核心路径”存在与 import/dependency graph 混同的风险，本 design 已将它收敛为文本 absolute/workspace path 与配置化 forbidden literal。本feature descriptor拥有exact-input selector与config/check catalog，并消费`introduce-content-quality-foundation`的registry/finding/output挂点及`add-file-policy-overrides` resolver。
+本临时 change artifact 设计文本路径引用检查；动机见 `proposal.md`，可观察契约见 `specs/path-reference-validation/spec.md`。用户所称“核心路径”存在与 import/dependency graph 混同的风险，本 design 已将它收敛为文本 absolute/workspace path 与配置化 forbidden literal。本feature descriptor拥有exact-input selector与config/check catalog，并消费`standardize-quality-capability-contract`的registry/finding/output挂点及`add-file-policy-overrides` resolver。
 
 ## Goals / Non-Goals
 
@@ -33,7 +33,7 @@ Markdown 由 parser adapter 分成 prose、code、front matter 等语义区段�
 
 ### Decision 4: 例外属于 file policy，而不是 detector special case
 
-`allowedLiterals`、`forbiddenLiterals`、absolute reporting与code/example inclusion由本change的完整`checks.pathReferences` schema拥有，通过Product Config/`add-file-policy-overrides` resolver形成effective policy；detector返回事实与匹配理由。`introduce-content-quality-foundation`只拥有common descriptor/finding/output shape。替代的foundation-owned feature fields、硬编码仓库路径或parser/tool name开关会混淆owner并违背tool-neutral决策。
+`allowedLiterals`、`forbiddenLiterals`、absolute reporting与code/example inclusion由本change的完整`checks.pathReferences` schema拥有，通过Product Config/`add-file-policy-overrides` resolver形成effective policy；detector返回事实与匹配理由。`standardize-quality-capability-contract`只拥有common descriptor/finding/output shape。替代的foundation-owned feature fields、硬编码仓库路径或parser/tool name开关会混淆owner并违背tool-neutral决策。
 
 ### Decision 5: Markdown destination metadata由link owner独占
 
@@ -56,7 +56,7 @@ Semantic segmentation排除Markdown link destination和autolink metadata，不�
 
 ## Migration Plan
 
-1. 完成tasks 1.1，对`introduce-content-quality-foundation`、`add-file-policy-overrides`和`add-markdown-link-validation` destination ownership做阻塞审计。
+1. 完成tasks 1.1，对`standardize-quality-capability-contract`、`add-file-policy-overrides`和`add-markdown-link-validation` destination ownership做阻塞审计。
 2. 注册config fragment/descriptor并添加Markdown/text segmentation、path classifier、policy evaluation和redacted result projection，以POSIX/Windows/file URI/code-example fixtures覆盖。
 3. 同步产品 config/schema/examples/docs，运行产品与 workspace 验证；回退时撤销此 check 的接入，不触碰 import/dependency 功能。
 

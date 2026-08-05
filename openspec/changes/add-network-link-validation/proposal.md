@@ -15,7 +15,7 @@
 - 将经 GET 确认的稳定 404/410、redirect loop/limit 与安全策略阻断建模为各自稳定 finding；DNS/transport/TLS timeout、429、5xx 和其它临时结果保持 operational indeterminate，不伪装为 broken link。
 - 明确 401/403 protected endpoint、429 rate limit、Retry-After、temporary failure、HEAD 不支持/不可信与 bounded GET fallback 的结果语义，以及 current、显式-baseline-only、changed、regressions、gate 与 completeness 的归约方式；省略baseline不得推断network regression。
 - **BREAKING**：依赖 `add-file-policy-overrides` 的 single-active public config v2 hard cut 增加 closed、tool-neutral 的联网 policy 字段；v1 file-backed input 在 scan work 前拒绝，不提供 dual reader，也不通过 implicit environment 或 gate 自动启用网络。
-- 本 change 依赖 `introduce-content-quality-foundation` 的通用 finding/completeness/gate/output contract、`add-markdown-link-validation` 的sanitized line-independent semantic occurrence/request-material handoff，以及 `add-file-policy-overrides` 的 config v2 per-file patch；feature 只注册capability/check/evidence catalogs，使expected `semanticRegistryFingerprint`与examples/validator fixtures更新，但不修改immutable machine v2 schema bytes。
+- 本 change 依赖 `standardize-quality-capability-contract` 的通用 finding/completeness/gate/output contract、`add-markdown-link-validation` 的sanitized line-independent semantic occurrence/request-material handoff，以及 `add-file-policy-overrides` 的 config v2 per-file patch；feature 只注册capability/check/evidence catalogs，使expected `semanticRegistryFingerprint`与examples/validator fixtures更新，但不修改immutable machine v2 schema bytes。
 
 ## Capabilities
 

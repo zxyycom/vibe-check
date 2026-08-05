@@ -2,7 +2,7 @@
 
 ## Context
 
-`add-markdown-link-validation`计划拥有Markdown解析和确定性分类，并把external HTTP(S) occurrence作为internal record交给下游；它绝不联网。`introduce-content-quality-foundation`拥有capability registry、finding variants、channels/completeness/gate和machine v2。`add-file-policy-overrides`拥有config v2 composition与patch precedence。本change必须在这三者之上增加网络policy与transport，而不能重建parser、finding DTO或config merge。
+`add-markdown-link-validation`计划拥有Markdown解析和确定性分类，并把external HTTP(S) occurrence作为internal record交给下游；它绝不联网。`standardize-quality-capability-contract`拥有capability registry、finding variants、channels/completeness/gate和machine v2。`add-file-policy-overrides`拥有config v2 composition与patch precedence。本change必须在这三者之上增加网络policy与transport，而不能重建parser、finding DTO或config merge。
 
 普通high-level fetch会在redirect、DNS与代理层隐藏实际连接地址，无法单靠URL字符串防SSRF。外链状态又天然随时间变化，因此“请求失败”不能直接等于“broken”。这两个约束决定实现需要显式state machine与窄terminal result模型。
 

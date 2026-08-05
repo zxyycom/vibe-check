@@ -2,7 +2,7 @@
 
 ## Context
 
-当前 Product Core 从 normalized scope 构造三个 code-measurement capabilities 的 exact inputs，generic runtime 不校验项目 JSON；`scripts/**` 的 docs validator 只遍历本仓库固定 materials 并使用显式 registry，不是产品入口。Prerequisite `introduce-content-quality-foundation` 将提供 registry-owned capability selectors、通用 finding/completeness 和 machine v2；`add-file-policy-overrides` 将提供 semantic config v2 的 per-file check patches。Configuration 当前固定 v1、complete/closed/tool-neutral，不能原地增加字段。
+当前 Product Core 从 normalized scope 构造三个 code-measurement capabilities 的 exact inputs，generic runtime 不校验项目 JSON；`scripts/**` 的 docs validator 只遍历本仓库固定 materials 并使用显式 registry，不是产品入口。Prerequisite `standardize-quality-capability-contract` 将提供 registry-owned capability selectors、通用 finding/completeness 和 machine v2；`add-file-policy-overrides` 将提供 semantic config v2 的 per-file check patches。Configuration 当前固定 v1、complete/closed/tool-neutral，不能原地增加字段。
 
 JSON 文件同时跨越 byte decoding、grammar、source location、file policy、comparison 与 cache 边界。实现必须让 content defect 成为 finding、runtime defect 成为 capability failure，并避免 JSON suffix 反向扩大 code scanner scope。
 
@@ -26,7 +26,7 @@ JSON 文件同时跨越 byte decoding、grammar、source location、file policy�
 
 ### Decision 1: 先完成共享 foundation 与 file-policy prerequisites
 
-实现顺序固定为 `introduce-content-quality-foundation`、`add-file-policy-overrides`，然后才是本 change。JSON capability只注册 descriptor、selector、rules 与 adapter，不复制通用 `FindingRecord`、capability reducer、machine v2 或 per-file patch grammar。若 prerequisites 的最终 contract 与本 artifacts 不一致，阻塞审计必须先修订本 change，不能用兼容 glue 同时支持两套模型。
+实现顺序固定为 `standardize-quality-capability-contract`、`add-file-policy-overrides`，然后才是本 change。JSON capability只注册 descriptor、selector、rules 与 adapter，不复制通用 `FindingRecord`、capability reducer、machine v2 或 per-file patch grammar。若 prerequisites 的最终 contract 与本 artifacts 不一致，阻塞审计必须先修订本 change，不能用兼容 glue 同时支持两套模型。
 
 替代方案是在当前固定三 capability/machine v1 上直接添加 JSON warning；这会制造临时 output shape、重复 completeness 逻辑和后续迁移，因此拒绝。
 
@@ -86,7 +86,7 @@ Parser允许所有strict JSON insignificant whitespace与key order，不产生st
 
 ## Migration Plan
 
-1. 完成并审计 `introduce-content-quality-foundation` 与 `add-file-policy-overrides`，确认其长期 specs/docs/source已生效。
+1. 完成并审计 `standardize-quality-capability-contract` 与 `add-file-policy-overrides`，确认其长期 specs/docs/source已生效。
 2. 在semantic config v2的common check schema注册JSON base/partial patch与semantic check IDs，同步neutral default、init/editor/example/docs；v1继续按hard cut拒绝。
 3. 实现internal parser boundary、descriptor selector、finding normalization与single-file cache，先用direct fixtures证明byte/grammar/location。
 4. 接入current/baseline、channels/gate与machine/human output，补formal Product CLI acceptance。

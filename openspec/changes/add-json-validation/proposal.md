@@ -24,6 +24,6 @@ Vibe Check 当前不会判断普通 JSON 文件能否被可靠解码与解析，
 
 ## Impact
 
-- 依赖 `introduce-content-quality-foundation` 与 `add-file-policy-overrides` 先完成其 apply 前审计和实现。
+- 依赖 `standardize-quality-capability-contract` 与 `add-file-policy-overrides` 先完成其 apply 前审计和实现。
 - 影响 Product Core capability registry/selector、JSON parser boundary、finding normalization、baseline comparison、cache identity、human/machine output 与对应测试/fixtures。
 - Public config 只引用稳定的 JSON 产品语义与 semantic check ID；不得出现 parser/backend 名称。若依赖 change 未先建立兼容的 v2 complete/closed document，本能力不得向现有 v1 偷加字段；override不得重新纳入global generated/excluded scope。

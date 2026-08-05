@@ -13,7 +13,7 @@
 - 三个disposition使用line-independent file subject与path/metric semantic order发布generic machine-v2 observations；coverage finding按closed typed catalog发布`actualBytes`/`maximumFileBytes`，secret security finding使用empty evidence。Message不承载必需机器语义，任何evidence都不含raw secret bytes。
 - 将 secret finding 接入 current、显式 baseline、changed、regressions、gate 与 completeness；dependency、执行或 normalized-result 失败产生 incomplete evidence，不能发布“未发现秘密”的可信结论。
 - **BREAKING**：依赖 `add-file-policy-overrides` 的 single-active public config v2 hard cut 增加 closed、tool-neutral 的 secret check 与安全 allowlist 字段；v1 file-backed input 在 scan work 前拒绝，不提供 dual reader、宽松吸收或 partial merge。
-- 本 change 依赖 `introduce-content-quality-foundation` 提供通用 Finding/Observation/typed evidence、capability-specific exact inputs 及 completeness/gate/output 集成，并依赖 `add-file-policy-overrides` 提供 config v2 per-file patch；feature 只向 foundation catalog 注册 capability/check/metric/evidence semantics，使 expected `semanticRegistryFingerprint` 与 examples/validator fixtures更新，但不修改 immutable machine v2 schema bytes。
+- 本 change 依赖 `standardize-quality-capability-contract` 提供通用 Finding/Observation/typed evidence、capability-specific exact inputs 及 completeness/gate/output 集成，并依赖 `add-file-policy-overrides` 提供 config v2 per-file patch；feature 只向 foundation catalog 注册 capability/check/metric/evidence semantics，使 expected `semanticRegistryFingerprint` 与 examples/validator fixtures更新，但不修改 immutable machine v2 schema bytes。
 
 ## Capabilities
 

@@ -2,7 +2,7 @@
 
 ## Context
 
-本临时 change artifact 设计 Markdown 结构检查的实现边界；动机见 `proposal.md`，可观察契约见 `specs/markdown-structure-validation/spec.md`。当前仓库 `scripts/**` 的正则校验只服务 repo 开发流程，不能成为产品解析、配置或输出契约。实现依赖尚在并行起草的 `introduce-content-quality-foundation` 与 `add-file-policy-overrides`。
+本临时 change artifact 设计 Markdown 结构检查的实现边界；动机见 `proposal.md`，可观察契约见 `specs/markdown-structure-validation/spec.md`。当前仓库 `scripts/**` 的正则校验只服务 repo 开发流程，不能成为产品解析、配置或输出契约。实现依赖尚在并行起草的 `standardize-quality-capability-contract` 与 `add-file-policy-overrides`。
 
 ## Goals / Non-Goals
 

@@ -25,6 +25,6 @@
 
 ## Impact
 
-- 依赖 `introduce-content-quality-foundation`、`add-file-policy-overrides` 与 `add-json-validation` 先完成其 apply 前审计和实现。
+- 依赖 `standardize-quality-capability-contract`、`add-file-policy-overrides` 与 `add-json-validation` 先完成其 apply 前审计和实现。
 - 影响 Product Config v2 schema/default/mapping/init materials、Core capability selector、schema dependency boundary、reference resolver、finding/completeness/comparison/cache、machine/human output 与对应 tests/fixtures。
 - 该显式配置 shape 必须与 `add-file-policy-overrides` 的 single-active semantic config v2 原子交付并对 v1 执行 hard cut；不得让 v1 静默接受未知字段，也不得另建 merge engine 或在 public config 中暴露 schema engine/backend 名称。
