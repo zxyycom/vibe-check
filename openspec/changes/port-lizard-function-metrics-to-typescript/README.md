@@ -1,46 +1,26 @@
 # port-lizard-function-metrics-to-typescript
 
-## 状态
+> **核心句：**本 change 保留一个已延期的未来方向：将 function metrics 的 Python/Lizard backend 替换为 Product-owned TypeScript 实现，同时保持恢复实施时确认的产品行为。
 
-- **就绪度**：规划保留，但当前明确延期；尚无 translated runtime。
-- **进度**：current-contract/scope audit 已完成；implementation tasks 尚未开始。
-- **架构前置**：
-  [semantic-config prerequisite](../decouple-project-config-from-scanner-tools/README.md) 已
-  `all_done`，并交付 semantic document、`ResolvedQualityConfig` 与
-  `ScannerDependencySnapshot`；开始 port 前仍须通过本 change 的 task 0.3 核对最终证据。
-- **产品优先级**：这是当前产品向能力和体验工作之后的最终运行时统一提升项，不是默认下一项
-  工作，也不阻塞
-  [external config workflow](../add-external-project-config-workflow/README.md)。只有显式重新排序
-  或出现直接产品/发布阻塞证据时才提前恢复。
+## 当前状态
 
-## 目标结果
+这是尚未排期、未实施且不能直接执行的 intent-level OpenSpec change。早期审计曾确认当时产品仍通过外部 Python/Lizard 处理 TypeScript/Rust 输入，且尚无 translated runtime；该观测只描述历史背景，不是当前实现契约或迁移基线。
 
-完成本 change 后，TypeScript 与 Rust function metrics 由 repository-owned、Lizard-compatible
-TypeScript module 产生；formal scans 不再解析或启动 Python/Lizard，也不再解析其 CSV
-protocol。这是目标状态，不是当前 runtime。
+`tasks.md` 1.1 是阻塞门禁。它完成前不得开始 parser port、runtime switch 或旧 backend 删除。
 
-## 范围边界
+## 恢复前置
 
-Port 保持 current selector（`.ts`、`.d.ts`、`.rs`）、normalized `FunctionMetric` fields、
-warning/source semantics、ordering、completeness、failure mapping、gate behavior 和 machine
-DTO。它只删除 internal Lizard dependency settings 与 private process/CSV implementation。
+实际实施必须等待以下基础 change 已实施或同步到可依赖状态，并由当前产品优先级明确恢复：
 
-Public project config 在本 change 开始前已经是 backend-neutral semantic config。本 port 不修改
-其 field tree、version、starter、generated schema、`.vibe-check/config.json` authoring contract
-或 accepted-warning `checkId`，也不引入任何 project-level executable setting。
+- `establish-check-record-core`
+- `establish-check-task-orchestration`
+- `adopt-typescript-project-definition`
 
-它不增加 Go/Python/JavaScript inputs、per-file partial result、新 metric fields、generic
-scanner provider API 或 public package。
+恢复后必须重新读取届时的主规范、源码与活动决策，采集 current behavior baseline，再细化 parser、identity、performance、license 和测试契约。
 
-## AI 执行路径
+## 阅读顺序
 
-1. 先恢复
-   [Lizard 优先级决策](../../../docs/decisions/product-priority/defer-lizard-until-after-semantic-config-workflow.md)
-   与 configuration active decisions；未满足恢复条件时，不得把本 change 推荐为默认近期工作
-   或开始 implementation。
-2. 完成本 change 的 `tasks.md` 0.3，核对 `ResolvedQualityConfig` /
-   `ScannerDependencySnapshot` 最终证据，并判断产品优先级前置是否已完成或已有显式重新排序。
-3. 读 `proposal.md` 恢复 behavior-preserving result，再读 `design.md` 恢复 owner、parity 与
-   hard-cut boundary。
-4. 翻译文件前完成 section 1。Candidate source map 不证明 final upstream import closure。
-5. 把 `specs/**` 作为可观察目标，并为 changed/new test entities 更新 semantic Cases。
+1. `proposal.md`
+2. `specs/structural-scanning/spec.md`
+3. `design.md`
+4. `tasks.md` 1.1

@@ -1,17 +1,21 @@
 # add-path-reference-validation
 
-为文本中的文件系统路径引用提供可配置的策略检查。
+未来检查项目文本中的 project-local path references。
 
 ## 当前状态
 
-这是临时且未审计的 OpenSpec change。`tasks.md` 的 1.1 是唯一实现入口；完成前不得实施或视为已批准。
+这是尚未排期、未实施的方向性 OpenSpec change。它只固定产品结果、owner 与安全边界；`tasks.md` 1.1 完成前不得细化为实现或开始编码。
 
 ## 阅读顺序
 
-1. `tasks.md` 1.1；2. `proposal.md`；3. `design.md` 的 numbered decisions；4. `specs/**/spec.md`。
+1. `proposal.md`
+2. `design.md`
+3. `specs/path-reference-validation/spec.md`
+4. `tasks.md`
 
 ## 直接依赖
 
-- `standardize-quality-capability-contract`
-- `add-file-policy-overrides`
-- `add-markdown-link-validation` 的 destination ownership 契约；不依赖该 capability 在运行时启用。
+- `establish-check-record-core`：`quality-checks`、`quality-records`
+- `adopt-typescript-project-definition`：`project-definition`
+
+`add-markdown-link-validation` 是相邻 occurrence owner；它不是本能力运行时启用的前置条件。

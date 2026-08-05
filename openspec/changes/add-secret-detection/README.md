@@ -1,16 +1,17 @@
 # add-secret-detection
 
-在所有批准文本输入中安全检测秘密并以脱敏 finding 参与完整性、比较和 gate
+在项目批准的内容中检测疑似秘密，并只发布安全、脱敏的结果。
 
 ## 当前状态
 
-这是临时且未审计的 OpenSpec change。`tasks.md` 的 1.1 是唯一实现入口；完成前不得实施或视为已批准。
+这是仅保存未来方向的临时 OpenSpec change。它尚未按新的 Check/Record 与 Project Definition 契约完成安全重基线，`tasks.md` 1.1 完成前不得实施。
 
 ## 阅读顺序
 
-1. `tasks.md` 1.1；2. `proposal.md`；3. `design.md` 的 numbered decisions；4. `specs/**/spec.md`。
+1. `proposal.md`；2. `specs/secret-detection/spec.md`；3. `design.md`；4. `tasks.md`。
 
 ## 直接依赖
 
-- `standardize-quality-capability-contract`
-- `add-file-policy-overrides`
+- `establish-check-record-core`
+- `adopt-typescript-project-definition`
+- `establish-check-task-orchestration`（仅在实施方案需要并行任务时）

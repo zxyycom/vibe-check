@@ -1,35 +1,24 @@
-本临时且未审计的 change proposal 目标是在所有批准文本输入中安全检测秘密，并以不含秘密原文的 finding 与 coverage evidence 参与质量观察和门禁。
+> **核心句：**本 change 保留“在项目批准的内容中检测疑似秘密并只发布脱敏结果”的未来产品方向；检测规则与公共契约必须在新基础落地后重新基线，当前不得实施。
 
 ## Why
 
-现有 file、function、duplicate 指标无法发现误提交的凭据、令牌或私钥等高影响内容风险；如果直接复用现有数值 warning、缓存或 raw-output 路径，又可能让检测本身成为新的泄露渠道。
+Vibe-coding 项目容易把访问令牌、私钥或其它凭据误写进源码、文档和配置。Vibe Check 应提供开箱即用的秘密检测，并让用户在统一 Check/Record 输出中定位和处置风险，同时保证检查本身不会再次泄露秘密。
 
 ## What Changes
 
-- 新增 tool-neutral 的 `secret-detection` capability，对 current 与显式 baseline 的全部批准文本 exact inputs 执行规则检测，而不是只扫描 Markdown。
-- Secret finding 只公开稳定产品规则 ID、项目相对位置、完全不依赖 secret bytes 的稳定 occurrence 指纹和脱敏证据；同一 structural occurrence 的 secret rotation/line movement 不制造 regression，新 occurrence 才获得新 identity。检测到的秘密原文不得进入 fingerprint input、console、report、machine artifact、stream、raw artifact、cache、错误、trace 或日志。
-- secret acceptance / allowlist 只按稳定指纹、项目相对路径或 glob、产品规则 ID 等安全身份匹配，并要求理由；不提供 secret value、substring、regex 或 message-text matcher。
-- 明确 generated、vendor、binary、oversized、unreadable 与无效文本输入边界；`maximumFileBytes`固定为`1..67108864`且neutral为`1048576`。Oversized input只读取Product-owned 8192-byte classification prefix：prefix能证明NUL/invalid UTF-8时归non-text，否则保守产生可由安全allowlist处理且可阻断的`secret-scan-coverage` finding，绝不全读来证明suffix是text或交给detector。
-- 三个disposition使用line-independent file subject与path/metric semantic order发布generic machine-v2 observations；coverage finding按closed typed catalog发布`actualBytes`/`maximumFileBytes`，secret security finding使用empty evidence。Message不承载必需机器语义，任何evidence都不含raw secret bytes。
-- 将 secret finding 接入 current、显式 baseline、changed、regressions、gate 与 completeness；dependency、执行或 normalized-result 失败产生 incomplete evidence，不能发布“未发现秘密”的可信结论。
-- **BREAKING**：依赖 `add-file-policy-overrides` 的 single-active public config v2 hard cut 增加 closed、tool-neutral 的 secret check 与安全 allowlist 字段；v1 file-backed input 在 scan work 前拒绝，不提供 dual reader、宽松吸收或 partial merge。
-- 本 change 依赖 `standardize-quality-capability-contract` 提供通用 Finding/Observation/typed evidence、capability-specific exact inputs 及 completeness/gate/output 集成，并依赖 `add-file-policy-overrides` 提供 config v2 per-file patch；feature 只向 foundation catalog 注册 capability/check/metric/evidence semantics，使 expected `semanticRegistryFingerprint` 与 examples/validator fixtures更新，但不修改 immutable machine v2 schema bytes。
+- 新增 Secret Detection Check，对 Project Definition 批准的项目内容执行领域检测，并产生 final `QualityRecord` 与 `CheckResult`。
+- 原始疑似秘密材料只能存在于受限的调用期内存；公开 record、diagnostic、artifact 与人读输出必须使用不可逆的安全表示。
+- 已提交 final records 与 CheckRun 执行/覆盖状态保持独立；后续执行失败不得撤销已提交记录，也不得把未完成工作伪装成完整检查。
+- detector 组合、规则集、allow/suppression authoring、record fields、identity、比较、缓存和测试矩阵推迟到实现前安全审计。
 
 ## Capabilities
 
 ### New Capabilities
 
-- `secret-detection`：定义批准文本输入、secret rule/finding、脱敏、稳定身份、allowlist、comparison、gate、completeness 与失败语义。
-
-### Modified Capabilities
-
-- `scan-configuration`：在 config v2 中加入 closed、tool-neutral 的 secret check/allowlist 字段，并保持 neutral default、完整文档、selection、init 与 hard-cut 规则一致。
-- `scanner-dependencies`：加入不向 public config 暴露实现名称或命令的 secret detector dependency slice、失败归一化和 cache/raw-material 安全边界。
-- `test-fixtures`：增加只使用合成假秘密的 secret detection、脱敏、allowlist、scope、comparison、gate 与 dependency-failure 证明矩阵。
+- `secret-detection`: 对批准的项目内容检测疑似秘密，并提供可定位、可处置且不暴露原始秘密的结果。
 
 ## Impact
 
-- Product Config/runtime schema/editor projection/canonical example 将由依赖 change 建立的 v2 owner 扩展 secret-specific fields；v1 只作为 unsupported migration source，不继续成为 current reader。
-- Product Core、scan scope 分类、secret detector adapter、dependency snapshot、finding comparison、gate、human/machine output 与 CI consumer 都需要在 foundation contract 上接入新 capability。
-- 测试与 fixture 必须只使用明确标记的合成占位秘密，并审计limit endpoints、bounded prefix/full-read、observation order、typed evidence以及 stdout、stderr、artifacts、cache、raw material 与失败路径中不存在原文。
-- 不新增 secret-specific CLI flag，不把 detector/library/executable 名称写入 public config，也不授权本 proposal 阶段修改源码、主 specs 或长期文档。
+- 领域实现 owner 是 `src/product/**` 中的 Secret Detection Check 与私有 detector boundary；共享 Core 不解释秘密类型或置信规则。
+- 直接依赖 `establish-check-record-core` 与 `adopt-typescript-project-definition` 的已实施契约；若采用并行任务，必须复用 `establish-check-task-orchestration` 而非建立 feature-local scheduler。
+- 不修改共享配置、scanner dependency、fixture 主 spec 或产品代码；`tasks.md` 1.1 完成前不得进入实现。

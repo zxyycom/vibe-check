@@ -1,29 +1,30 @@
-本 proposal 仅为文本路径字面量政策检查锚定临时变更范围，尚未完成实现前审计或获准实现。
+> **核心句：**本 change 仅保留“检查项目文本中的 project-local path references”的未来产品方向；精确语法、规则和数据契约必须在排期实施前重新收敛。
 
 ## Why
 
-本临时 change artifact 的目标是检查文本中泄露或禁止的文件系统路径字面量，明确把“核心路径”收敛为文本路径引用，而不把它扩展成 import 或依赖图分析。现有产品没有这一可配置能力，且简单字符串搜索无法可靠控制代码样例和跨平台误报。
+Vibe coding 经常在说明、注释或其它文本中生成指向项目文件和目录的引用；文件移动或生成内容失真后，这些引用容易变得无效。Vibe Check 应能发现这类项目内路径问题，并以安全的 project-relative 结果帮助定位，而不是把它扩大为依赖图分析。
+
+当前能力尚未排期，也从未实施。现阶段只需要固定产品问题、owner 和扫描边界，不应提前冻结 path grammar、allowlist、record fields、配置结构或匹配算法。
 
 ## What Changes
 
-- 新增对文本中绝对 filesystem/workspace 路径与配置化 forbidden path literals 的解析、脱敏和 finding 生成能力。
-- 定义 Markdown 代码块/示例的检查政策、项目根表示、POSIX、Windows 与 file URI 形式，以及 allowlist 与 false-positive 控制。
-- 为两个stable checks固定exact finding codes与closed typed evidence，使classification、policyRule与sanitized display无需解析message即可消费，且raw root/absolute/literal不穿过machine boundary。
-- 明确初始范围不解析 import、模块解析、包依赖或架构依赖图；这些问题由其它能力拥有。
-- 本 feature 自行注册 stable capability/check IDs、optional complete `checks.pathReferences` config-v2 fragment、neutral contribution、profile/request semantics 与 overrideable leaves；依赖 `standardize-quality-capability-contract` 的 registry/finding/output 挂点和 `add-file-policy-overrides` 的 typed patch/resolution。
+- 新增一个未来的内置 path reference check，检查获准文本中意图指向项目内文件或目录的引用。
+- 结果只使用安全、规范化的 project-relative 信息；runner 不扫描 resolved global scope 之外的文件。
+- CheckRunner 通过 `quality-records` 发布最终领域 records；`quality-checks` 管理运行与结果，Core 不解析文本路径或重判 record 语义。
+- Project Definition 负责 check 的项目 authoring；具体支持的文本类型、引用语法、规则和 record contract 留待实施前重新基线。
 
 ## Capabilities
 
 ### New Capabilities
-- `path-reference-validation`: 对受批准文本输入检查绝对路径和禁止路径字面量，并产生经过项目根脱敏的 finding。
+
+- `path-reference-validation`: 检查获准文本中的项目本地路径引用，并以安全的 project-relative 结果报告问题。
 
 ### Modified Capabilities
 
-- `scan-configuration`: 组合 optional complete `checks.pathReferences` section、neutral contribution、稳定 check IDs 与 override metadata，而不修改 required core sections。
+无。本 change 不推测性修改共享主 spec。
 
 ## Impact
 
-- 预期实现归属为 `src/product/**` 的 Core/Scanner、Config 与 Output 接点，以及对应产品测试、schema/example 与文档 owner。
-- 需要稳定的文本/Markdown 解析边界和跨平台路径分类，不以 import graph 或依赖分析替代文本检测。
-- Markdown destination与autolink metadata由canonical `add-markdown-link-validation`独占，本change只检查可见label/text。
-- 依赖 `standardize-quality-capability-contract` 和 `add-file-policy-overrides` 的最终契约，并与 `add-markdown-link-validation` 固定 destination ownership 边界；阻塞审计未完成时不得开始实现。
+- 直接依赖 `establish-check-record-core` 的 `quality-checks` 与 `quality-records` 契约，以及 `adopt-typescript-project-definition` 的 `project-definition` authoring/resolution 边界。
+- 未来实现应位于 `src/product/**`，作为内置 CheckRunner 接入；支持的文本范围、引用语义、规则和测试矩阵均留待实现前审计。
+- 本 change 当前只是方向性 artifact，不能据此开始实现。

@@ -1,64 +1,52 @@
-本 design 仅说明 Markdown 结构 feature fragment、parser与observation/finding接入方案；它是临时未审计 artifact，不表示方案已获准实现。
+> **核心句：**本 design 只固定 Markdown structure check 的长期 owner 与不可跨越边界，不把尚未验证的 feature 细节写成实现契约。
 
 ## Context
 
-本临时 change artifact 设计 Markdown 结构检查的实现边界；动机见 `proposal.md`，可观察契约见 `specs/markdown-structure-validation/spec.md`。当前仓库 `scripts/**` 的正则校验只服务 repo 开发流程，不能成为产品解析、配置或输出契约。实现依赖尚在并行起草的 `standardize-quality-capability-contract` 与 `add-file-policy-overrides`。
+该能力仍是未来方向。新的基础架构把 Check 与 Record 分开，并允许 Project Definition 组合内置和自定义 checks；因此 Markdown 解析和领域判断应留在内置 runner，而不是继续扩展 Core 的领域分支。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 在 `src/product/**` 建立 parser-adapter 到 content-quality Core 的单向边界，由本feature descriptor从normalized inventory与resolved policy选择精确 Markdown paths，输出 registered observations 与可定位 findings。
-- 让解析语义、稳定单位、阈值选择和 finding 投影可独立测试，并让 per-file override 仅在政策决策层生效。
-- 将 GFM 方言作为产品行为固定，而不将任一 parser package、版本或 AST 类型暴露为 public config。
+- 发现会影响 Markdown 阅读和维护的结构问题，并提供可定位、可理解的最终 records。
+- 只处理 resolved invocation 批准的 Markdown 输入。
+- 让共享 Core 只管理 Check/Record 生命周期，让 Project Definition 只承担 authoring 与 resolution。
 
 **Non-Goals:**
 
-- 不把仓库 script validator 迁移为产品实现，不做格式化、自动修复、Markdown lint 规则全集或外部链接网络请求。
-- 不重定义 foundation 的 registry/Observation/Finding/machine DTO common shape，也不改写 file-policy patch与resolution算法；本change只拥有自己的optional config-v2 fragment和semantic catalogs。
+- 当前不固定具体 parser、Markdown 方言、阈值、rule/check/type ID、record fields、identity、排序、缓存或比较语义。
+- 不做 Markdown formatter、自动修复、内容事实审查、链接验证或通用 Markdown lint 全集。
+- 不把 `scripts/**` 中的仓库专用规则直接提升为产品契约。
+
+## Ownership Boundary
+
+| Owner | 高层责任 |
+| --- | --- |
+| Project Definition | 声明是否采用该内置 check 及其届时支持的产品规则。 |
+| `quality-checks` | 提供 resolved invocation、运行生命周期和最终 CheckResult 边界。 |
+| Markdown structure CheckRunner | 解析获准输入、判断领域问题并决定最终 record 内容与级别。 |
+| `quality-records` | 校验、提交和发布 runner 产生的最终 records。 |
+| Decision policy | 在共同快照上组合结果；本 feature 不固定 channel 或 comparison。 |
 
 ## Decisions
 
-### Decision 1: 以产品定义的 GFM 语义隔离 parser
+### Decision 1: Markdown 语义归内置 runner
 
-实现 SHALL 通过内部 parser adapter 取得含 source location 的 Markdown semantic tree；Core 只消费产品内部的节点/文本投影。选择 GFM 是因为项目文档常用 table、task list 等扩展，且比让每个项目或检查选择 parser 更可复现。替代的 CommonMark-only 会错误处理既有 GFM 文档；让配置选择 parser 会泄露实现并破坏 tool-neutral public contract。
+Markdown structure CheckRunner 拥有解析、结构判断和 record 生成。Core 不解析 Markdown，也不把领域事实重新转换为 warning 或其它结果。
 
-### Decision 2: 先计算 metrics，再由有效政策判定 finding
+### Decision 2: 配置入口归 Project Definition
 
-扫描阶段计算 document/section/paragraph 与 heading facts，政策阶段在Product Config解析的effective `checks.markdownStructure`（含 file override）上判定发现。这样 neutral observation 可以输出事实，而 gate/项目政策可以独立选择阈值。替代的“未配置阈值就不计算”会把观测与阻断耦合，也无法解释 override 的影响。
+项目侧 authoring 通过 `project-definition` 进入 resolved check contract。本 change 只声明需要可配置的产品规则，不提前设计 TypeScript 对象或字段。
 
-### Decision 3: prose 计量不把代码与表格内容伪装成文档长度
+### Decision 3: 实现细节延后到实施前审计
 
-文本投影遵从 spec 所列 AST 节点，front matter/code/table 内容不贡献这些长度度量，list prose 贡献 document/section 且 list item paragraph 可单独评估。替代的整文件字符数或 regex 行计数会把标记、代码和数据表混入内容质量，且无法提供稳定结构位置。
-
-### Decision 4: 依赖 change 是实现前置而非复制的契约来源
-
-本change注册自身 capability/check/metric IDs、`checks.markdownStructure`完整schema与neutral/override metadata，并消费foundation的descriptor/Observation/Finding/output common shape和file-policy的typed patch/precedence。替代的foundation-owned feature fields或第二份merge/output shape会混淆owner。
-
-### Decision 5: Observation catalog与顺序由feature descriptor固定
-
-Descriptor固定六个metric IDs及unit/subject组合，并以path → document → source-ordered sections → source-ordered paragraphs、每个subject words先于characters排序。Subject identity使用document或AST ordinal，不使用absolute path、line number或parser node ID。替代的mapper排序或parser-native identity会使相同core facts在machine/human/cache边界漂移。
-
-### Decision 6: Catalog注册改变semantic fingerprint而不改变machine schema
-
-注册structure capability、四个check IDs与六个metric catalog entries必须进入foundation的sorted canonical registry projection并更新expected `semanticRegistryFingerprint`、examples与producing-revision validators。Immutable machine-v2 schema继续只验证non-empty identifier和record shape，其bytes/shape不得因本feature新增catalog ID改变。替代的把IDs枚举进schema会把revision membership与portable transport shape错误耦合。
-
-### Decision 7: Finding evidence按check封闭且message只负责人读
-
-四个checks分别注册exact finding-code集合与ordered typed evidence；size checks统一发布subject kind/identity、rule、actual、threshold、unit，heading check统一发布subject identity、rule、actual、expected、unit。Catalog明确required/kind/order/identity/redaction，Product validator拒绝任何漂移；message/suggestion只从同一normalized finding渲染，不成为机器语义source。`requireFirstHeadingH1`作为第四个heading leaf独立于single-H1，并与其余十六个leaves同样可override。
+Parser 选择、具体规则、record types、位置语义、错误处理和测试证明都依赖届时已落地的基础契约。Git 历史保留旧猜测，本 change 不为未实施内容建立兼容层。
 
 ## Risks / Trade-offs
 
-- [GFM parser 的实现差异或升级] → 固化产品观察语义与 fixture corpus，隔离第三方 AST，并在升级时运行语义回归。
-- [Unicode word/character 边界与读者预期不同] → 用 spec 的 text-node/Unicode 定义和覆盖中英文、emoji、链接文字的测试样例公开证明。
-- [feature fragment/evidence 与共同composition实现漂移] → tasks 1.1逐项核对十七个leaves、check/metric/evidence catalogs与foundation/file-policy最终挂点，随后用schema/editor/example/validator drift tests证明单一source。
-
-## Migration Plan
-
-1. 完成tasks 1.1的阻塞审计，确认两个依赖change与本feature fragment/catalog无冲突。
-2. 在产品 runtime注册config fragment/descriptor并添加内部解析与observation/finding管线，同步schema、owner docs和示例。
-3. 用 fixture、产品 CLI 和跨边界 workspace 验证证明 observation 与 gate 下的结果一致；发生回退时移除该新 check 的接入而不更改既有检查。
+- 不同 Markdown 语义可能产生不同结果；实施前必须用真实项目样本确定产品语义，而不是从旧 artifact 继承算法。
+- “可读性”范围容易无限扩张；实施前应优先选择少量、高价值且可解释的问题，不以规则数量衡量完成度。
 
 ## Open Questions
 
-无未回答开放问题；tasks 1.1仍须完成，审计前不得实现。
+无需要在当前方向阶段回答的问题。实现细节将在 `tasks.md` 1.1 的重新基线与阻塞审计中确定。

@@ -1,69 +1,57 @@
-本 design 仅说明离线 Markdown 链接feature fragment、解析验证与外链handoff；它是临时未审计 artifact，不表示方案已获准实现。
+> **核心句：**本 design 只固定离线 Markdown link check 的 owner、项目范围和隐私边界，不提前设计解析算法或外链协议。
 
 ## Context
 
-本临时 change artifact 设计离线 Markdown 链接验证；动机见 `proposal.md`，可观察契约见 `specs/markdown-link-validation/spec.md`。现有 `scripts/**` validator 以 regex 只检查部分相对路径、跳过 anchors 和 URL，不能代表产品行为。实现依赖 `standardize-quality-capability-contract` 与 `add-file-policy-overrides`，但不依赖 `add-markdown-structure-validation`。
+本地链接正确性与网络可达性具有不同的确定性、安全成本和运行边界。新的 Check/Record Core 允许 Markdown link runner 自行产生最终领域 records，因此两类问题无需再被塞进一个 Core pipeline。
 
 ## Goals / Non-Goals
 
 **Goals:**
 
-- 在 `src/product/**` 以 parser-adapter、URL 分类、project-root-aware local resolver 和 anchor index 组成单向管线。
-- 对每个链接给出确定类别及 source location；所有本地读取在 root containment/symlink 检查后才发生。
-- 固定 `gfm-heading-slug-v1`，使本地/跨文件 anchor 验证可复现且与 structure threshold 无关。
+- 离线发现获准 Markdown 中失效或越界的项目本地目标与锚点。
+- 让结果使用安全的项目相对定位，不读取项目允许范围之外的目标。
+- 识别非本地链接并为未来独立 network check 保留清楚的 owner 边界。
 
 **Non-Goals:**
 
-- 不执行 HTTP/DNS/TLS、重定向、重试、缓存或任何 external reachability 检查。
-- 不把本 change 与结构检查的 parser package、阈值、finding 或启用状态耦合，也不采用 repo script 的 regex 作为产品实现。
+- 不执行 DNS、HTTP、TLS、重定向、重试或其它网络工作。
+- 当前不固定 parser、Markdown 方言、anchor slug 算法、URL normalization、candidate/record fields、identity、排序、缓存或 comparison。
+- 不持久化 raw/full URL、userinfo、query values 或其它可能敏感的请求材料。
+- 不依赖 Markdown structure check 的启用、规则或实现。
+
+## Ownership Boundary
+
+| Owner | 高层责任 |
+| --- | --- |
+| Project Definition | 声明是否采用该内置 check 及其届时支持的离线规则。 |
+| `quality-checks` | 提供 resolved invocation、运行生命周期和最终 CheckResult 边界。 |
+| Markdown link CheckRunner | 解析获准 Markdown，分类链接，验证本地目标/锚点并决定最终 records。 |
+| `quality-records` | 校验、提交和发布本地链接 runner 产生的最终 records。 |
+| Future network check | 独立决定网络请求与网络结果；不得反向改变本地验证事实。 |
 
 ## Decisions
 
-### Decision 1: 链接解析、分类与验证分层
+### Decision 1: 本 change 保持离线
 
-先从 Markdown AST 提取 link occurrences，再按 URL 语义分类，最后只对 project-local/same-document 类做 filesystem 或 heading 验证。选择分层可使无网络情况下 external 值仍可观察且每条链接恰有一个结果。替代的“未知链接直接跳过”会掩盖 policy 风险；网络验证会引入不确定性并越出范围。
+本能力只验证项目本地目标和锚点。非本地链接可以分类，但不得由该 runner 发起网络请求或产生网络可达性结论。
 
-### Decision 2: 本地解析以 project root 和 realpath 双重约束
+### Decision 2: 项目根与扫描范围先于目标读取
 
-relative target 先以引用文件所在目录词法归一化，再在存在目标时检查 realpath 是否仍在 project root 内；任何 lexical escape、绝对路径或 symlink escape 都不读取。替代的简单 `exists` 检查存在 traversal/symlink 漏洞，且会让扫描越过用户批准的项目边界。
+Runner 只解析 resolved invocation 批准的源文件，并在读取本地目标前确认其位于允许的项目范围内。越界目标只形成安全结果，不得作为扫描输入继续打开。
 
-### Decision 3: Heading slug 固化为独立产品 dialect
+### Decision 3: 敏感 URL 材料不进入持久边界
 
-实现建立按 `gfm-heading-slug-v1` 生成的每文件 heading index；该版本化算法与 Markdown structure check 共享必要的文本语义但不共享政策或阈值。替代的 parser 默认 id 或浏览器默认 id 随实现变化，不能作为稳定的跨文件链接契约。
+若未来 network check 需要外链 handoff，实施前必须设计只传递必要信息的临时边界。Raw/full URL、凭据和 query values 不进入 records、日志、cache 或持久 artifacts。
 
-### Decision 4: `standardize-quality-capability-contract` 只提供共同接点
+### Decision 4: 实现细节延后到实施前审计
 
-本change拥有`checks.markdownLinks`完整schema、neutral contribution、override metadata与stable capability/check IDs；`standardize-quality-capability-contract`只拥有descriptor/Finding/machine common shape，`add-file-policy-overrides`只拥有typed patch/resolution。本feature descriptor从normalized inventory和resolved section选择exact inputs并投影结果。替代的foundation-owned feature fields或link-only merge/output旁路会破坏owner与tool-neutral contract。
-
-### Decision 5: 网络检查只消费外链候选而不反向影响离线结论
-
-本change向`add-network-link-validation`交付唯一 sanitized `ExternalLinkCandidate`：source path、link kind、external classification、closed safe URL shape、同shape occurrence ordinal与由这些safe fields派生的semantic identity。Location与closed raw/canonical request material分别保存在identity-keyed bounded ephemeral lookups，不属于candidate；network request boundary按identity读取后释放。Query value、userinfo、fragment和location均不参与identity，raw/full URL不进入log、cache、artifact、public DTO或persistent derived key。替代的candidate内嵌request material或canonical full URL identity会让两侧exact DTO漂移、query value轮换制造regression并把credential material带入持久边界；source start也会让空行移动制造新identity。
-
-### Decision 6: Complete policy leaves控制finding而不删除classification
-
-`checks.markdownLinks`用enabled和closed local/anchors/boundary booleans表达全部可配置政策；neutral contribution完整启用deterministic checks。Nested rule关闭只禁止owning finding，不删除链接分类或enabled capability的external handoff；只有section absent/effectively disabled/profile quick才skip整个capability。替代的partial section或按finding开关删除candidate会让network handoff、no-input与config provenance不可解释。
-
-### Decision 7: Catalog注册改变semantic fingerprint而不改变machine schema
-
-注册link capability、三个check IDs及其finding-code/evidence catalogs必须进入foundation的sorted canonical registry projection并更新expected `semanticRegistryFingerprint`、examples与producing-revision validators。Immutable machine-v2 schema bytes/shape保持不变；external candidate仍是internal handoff，不加入public evidence catalog或DTO。替代的在portable schema枚举check/evidence IDs或公开candidate会错误扩大transport contract。
-
-### Decision 8: Evidence与changed membership由descriptor拥有
-
-三个checks各自注册exact codes和ordered typed evidence，sanitized target/path/anchor提供机器语义，message只负责人读；raw query/userinfo/absolute host path永不进入finding。Descriptor为local/anchor finding形成source+actual/intended target causal path set，boundary finding只用source；changed取causal set与resolved changed scope的交集，regressions保持changed的order-preserving subsequence且要求显式baseline。替代的source-only changed判断会漏报只修改目标文档导致的broken anchor。
+Parser、anchor 语义、目标解析、record types 和外链交接协议都需要依据届时实现与依赖重新确定。Git 历史保留旧猜测，本 change 不为未实施内容建立兼容层。
 
 ## Risks / Trade-offs
 
-- [不同平台 URL/path 边界不一致] → 以 OS 无关的 URL 分类和显式 POSIX/Windows/file URI fixture 覆盖，再在 filesystem boundary 处理平台路径。
-- [GFM slug 与用户预期不符] → 固化版本名、算法和重复 heading 规则，并加入 Unicode/encoded fragment 回归样例。
-- [sanitized shape仍意外携带secret material] → fixture覆盖userinfo/query values/fragments并对logs/cache/artifacts/public DTO执行canary byte search，identity只断言query-key shape。
-- [feature fragment 与共同composition/handoff漂移] → tasks 1.1核对section/check/evidence catalogs、causal paths、override metadata、foundation mapper与`add-network-link-validation` candidate字段，禁止临时兼容字段。
-
-## Migration Plan
-
-1. 完成tasks 1.1，对`standardize-quality-capability-contract`、`add-file-policy-overrides`与`add-network-link-validation` handoff做阻塞审计。
-2. 注册config fragment/descriptor并实现AST提取、classification、受控local resolution、heading index、typed evidence、causal path set与sanitized external candidate，为每个类别建立fixtures。
-3. 同步最终 config/schema/examples/docs，运行产品 CLI、契约与 workspace 验证；回退时撤销本 check 接入，保留既有扫描能力。
+- Markdown 工具间的 anchor 规则可能不同；实施前必须从目标用户与真实文档基线选择语义。
+- 外链分类仍可能接触敏感文本；实现前隐私审计必须先确定最小 transient material，再允许下游消费。
 
 ## Open Questions
 
-无未回答开放问题；tasks 1.1仍须完成，审计前不得实现。
+无需要在当前方向阶段回答的问题。实现细节将在 `tasks.md` 1.1 的重新基线与阻塞审计中确定。

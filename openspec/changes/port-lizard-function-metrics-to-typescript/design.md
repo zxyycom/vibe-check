@@ -1,163 +1,62 @@
-## Port 前当前事实与目标边界
+> **核心句：**本设计只固定最终 runtime 方向和重新基线义务；parser 结构、迁移步骤与精确兼容契约必须等新基础落地且功能恢复排期后确定。
 
-| Surface | 当前已实现行为 | Port 必须保持或达到的目标边界 |
-| --- | --- | --- |
-| Supported input | `selectLizardTargetFiles` 接受 `.rs` 和以 `.ts` 结尾的 paths；因此 `.d.ts` 属于 TypeScript input。Go、Python、`.tsx`、`.js`、`.jsx` 不进入 selector。 | 保持不变。 |
-| Runtime | Scanner 检查 Python/Lizard availability，用 exact inputs 加 `--csv` 启动 process，并解析 CSV。 | Backend replacement 只改变 `ScannerDependencySnapshot` 与 adapter internals。 |
-| Product model | `FunctionMetric` 暴露 code area、file、name、start/end line、lines、parameter count、changed flag 与 cyclomatic-complexity value/source。 | 保持不变。 |
-| Failure | Eligible dependency unavailable、process failure 或 invalid normalized output 会让整个 `function-metrics` capability 失败；没有 per-file partial contract。 | 保持 normalized capability semantics。 |
-| Public identity | Function warnings 和 metric values 使用 `"lizard"` source labels。 | Semantic project config 使用 `checks.functions` / `checkId`；现有 machine source labels 保持兼容。 |
-| Config coupling | Current semantic document 已使用 `checks.functions` 与 accepted-warning `checkId`；Product Config 映射为 `ResolvedQualityConfig`，execution settings 由 `ScannerDependencySnapshot` 拥有。 | 保持 semantic field tree/version/schema/example 不变；该迁移不由本 port 实施。 |
+## Context
 
-第一列当前事实定义 pre-switch parity；第三列定义 port 必须保持的边界。Task 0.3 未关闭前，
-不得从 section 1 开始。
+早期审计曾把 then-current port scope 收窄到 TypeScript/Rust function metrics，并确认产品仍依赖 Python/Lizard process、私有输出解析且没有 translated runtime。这些事实说明了迁移动机，但它们形成于旧 capability/output/config 架构下，不能作为未来实现的 current contract。
 
-Upstream Lizard 中未进入当前 selector/model 的 fields、languages 或 tests 只属于迁移参考，
-不形成新 product obligation。
+新的 `quality-checks` 与 `quality-records` 基础将 Check execution、CheckResult 和逐条记录分开；共享任务编排与 TypeScript Project Definition 也会改变运行和 authoring 边界。因此，本 change 当前只保留 future intent。
 
 ## Goals / Non-Goals
 
-### Goals
+**Goals:**
 
-- 从 formal current/baseline scans 删除 Python/Lizard process 与 CSV dependencies。
-- 保持当前 TypeScript/Rust inputs、normalized fields、ordering、diagnostics、warnings、
-  aggregates、gate、cache/baseline compatibility rules 与 machine projection。
-- 每个 translated source 都能追溯到一个 pinned upstream revision、license treatment 与
-  owning tests。
-- 证明 backend replacement 不改变 semantic config contract 或 external config workflow。
+- 最终由 Product-owned TypeScript implementation 产生 function metrics，不再依赖 formal runtime 中的外部 Python/Lizard execution。
+- Backend replacement 不主动改变恢复实施时已经存在的 function-metrics 产品行为。
+- 在实现前重新建立 parser compatibility、public identity、failure、performance、source provenance 与 test evidence 基线。
 
-### Non-Goals
+**Non-Goals:**
 
-- Project config field、schema、version、starter、discovery、initializer 或迁移机制。
-- Go、Python、JavaScript/JSX/TSX 或其它当前未选择语言。
-- Token count、function kind、long name、raw parser nodes 或其它新 product fields。
-- Per-file warning/partial-report semantics，或 parser failure 后 best-effort continuation。
-- Generic scanner framework、provider selection、plugin API、npm package 或 public analyze
-  API。
-- Parity 期间顺带清理算法、改进 parser 或修复已知 Lizard behavior。
+- 现在确定 parser 模块拆分、内部文件清单、exact API、切换步骤或测试矩阵。
+- 借 port 增加语言、指标、记录类型、Check policy、并行模型或动态 provider。
+- 修改三个基础 change、Project Definition、decision policy 或 output contract。
+- 把历史审计的 selector、字段或失败模型继续当作当前规范。
 
 ## Decisions
 
-### Decision 1: 只移植 verified current source closure
+### Decision 1: Port 在新基础落地后重新基线
 
-最终 translated file list 由 pinned Lizard 1.23.0 中 TypeScript/Rust readers 所需的
-import/call closure 决定。下表只是 investigation candidate map，不证明每一行都必需：
+实施必须等待 `establish-check-record-core`、`establish-check-task-orchestration` 与 `adopt-typescript-project-definition` 已实施或同步到可依赖状态，并由届时产品优先级明确恢复。恢复后的第一步是从主规范、源码和可重复运行中采集 current behavior，而不是沿用本 change 的历史快照。
 
-| Role | Candidate upstream source | Inclusion rule |
-| --- | --- | --- |
-| Analysis model/pipeline | `lizard.py` | 只纳入 product-reachable model、builder 与 analysis behavior。 |
-| Reader/token base | `lizard_languages/code_reader.py` | 只纳入 current readers 可达 tokenizer/state behavior。 |
-| C-like support | `lizard_languages/clike.py` | 纳入 TypeScript/Rust 共享且可达的 behavior。 |
-| Script/regex support | `script_language.py`、`js_style_regex_expression.py` | 只有 pinned closure 证明 current TypeScript 可达时才纳入。 |
-| TypeScript reader | `lizard_languages/typescript.py` | 纳入 current `.ts` / `.d.ts` behavior。 |
-| Rust reader | `lizard_languages/rust.py` | 纳入 current `.rs` behavior。 |
-| Registry | `lizard_languages/__init__.py` | 只替换 current two-reader registration responsibility。 |
+重新基线至少要明确 supported inputs、function/record identity、measurement 与 ordering、CheckRun/CheckResult/QualityRecord failure behavior、parser edge cases、性能约束、source/license provenance 和证明策略。完成前不得翻译 parser 或切换 backend。
 
-`go.py`、`python.py`、`golike.py`、unused readers、CLI、reporter、extensions 和 duplicate
-detector 均不在范围内，除非 source-closure audit 证明某 shared file 是技术必需依赖。新增
-product language 需要独立 contract change。
+### Decision 2: TypeScript parser 是 function-metrics Check 的私有 backend
 
-### Decision 2: 使用一个具体 internal dependency boundary
+最终 Product-owned TypeScript implementation 通过届时 structural-scanning boundary 为 `function-metrics` Check 提供领域数据或执行失败。Check manager、Record manager、task scheduler 和 decision policy 继续由各自基础 owner 定义；本 port 不建立第二套 provider 或结果模型。
 
-Repository-owned module 暴露一个 internal typed analyze entry，输入 source/file 与 selected
-language。既有 function-metrics adapter 继续作为 consumer boundary，拥有 exact file
-input、UTF-8/file reads、path normalization、`FunctionMetric` mapping、capability failure 与
-raw reproduction artifacts。
+若届时 Check 使用 shared task orchestration，port 只消费已经落地的 planning/execution contract，不为 parser 工作单元创建公共 Check 或 Record identity。
 
-不增加 provider interface 或 implementation registry。只有出现第二个真实
-implementation/selection obligation 时才重新评估。
+### Decision 3: 兼容目标由 fresh product baseline 定义
 
-### Decision 3: 先对照翻译，再做 TypeScript cleanup
+Backend replacement 的行为不变目标以恢复时采集的 current `quality-checks` / `quality-records` 观测为准，包括输入选择、领域身份和值、稳定顺序、无结果情况以及失败如何进入 Check execution boundary。历史结果模型不能替代 fresh baseline。
 
-Translation 初期尽量保持 upstream state names、token order、control flow 和 algorithmic
-behavior。Python generator、collection 与 regular expression 只做等价 TypeScript execution
-所需 adaptation。Source comments 标明 non-obvious adaptation 与 pinned revision。
+具体 parser 内部结构不属于兼容面。只有会改变 CheckResult、QualityRecord、可观察诊断或受支持输入的差异才需要在切换前解决或通过独立产品 change 接受。
 
-Differential parity 建立前不合并文件、不新增抽象、不重构算法；后续动作需要独立证据。
+### Decision 4: 最终产品路径不依赖外部 Python/Lizard runtime
 
-### Decision 4: Product parity 只覆盖当前 product contract
+完成后的 formal product path 不启动或解析外部 Python/Lizard。是否使用 pinned implementation 作为迁移期 oracle、如何切换以及何时删除旧材料，由实现前审计根据届时测试与回退能力确定；本 artifact 不提前规定 exact cut sequence。
 
-Differential comparison 只在迁移期把 pinned Python/Lizard 当 oracle。对于 `.ts`、`.d.ts`、
-`.rs` corpus，它必须证明 function inventory 和全部 current normalized fields/order。
-Translated unit tests 可以证明信任 port 所需的 internal tokenizer/state invariants，但这些
-internals 不进入 product fields。
+### Decision 5: 来源与许可证是实施阻塞证据
 
-存在未解释差异时不得切换。切换后的 required validation 只使用 checked-in source 与
-expected results，不依赖 Python。
+如果 TypeScript implementation 翻译或派生自 Lizard source，实施前必须确认届时采用的 upstream revision、实际 source responsibility、许可证义务和可追溯测试。当前不固定版本、文件清单或翻译方法。
 
-### Decision 5: Backend replacement 不迁移 public config 或 output identity
+## Risks / Trade-offs
 
-Port 前置 change 已让 semantic document 使用 `checks.functions` 与 stable `checkId`，dependency
-execution settings 只存在于 `ScannerDependencySnapshot`。因此本 change：
+- **[Tokenizer 或语言状态差异改变函数边界和指标]** → 重新采集代表性 corpus 与 edge cases，再为实际 parser contract 建立 differential evidence。
+- **[Record identity、ordering 或 failure semantics 随基础重写而变化]** → 只以基础落地后的 current snapshots 和主规范作为 parity owner。
+- **[同进程 parser 带来 CPU、内存或阻塞回归]** → 实施前测量 current baseline 并定义与调用场景相称的 performance acceptance。
+- **[移植来源或许可证处理不清]** → 在任何翻译写入产品源码前完成 provenance/license 审计。
+- **[未来 agent 将规划完整误读为可实施]** → `tasks.md` 1.1 保持未完成，并要求先重写全部 artifacts 到 apply-ready 状态。
 
-- 保持 semantic config field tree、version、runtime/generated schema、starter 与 examples；
-- 保持 `MetricValue.source = "lizard"` 与 warning `sourceTool = "lizard"`、当前 rule IDs、warning
-  semantics 和 machine field shape；
-- 只从 `ScannerDependencySnapshot` resolver 删除 Python/Lizard command、args、availability 与
-  process protocol。
+## Open Questions
 
-Machine labels 标识 compatible metric algorithm，不是 project-level backend selection。
-Product tool metadata 与 cache identity 记录 pinned upstream revision 加 TypeScript port
-revision，使 runtime provenance 真实，又不强制 machine-contract hard cut。
-
-### Decision 6: 保持 capability-level failure semantics
-
-Internal module 要么为全部 exact supported inputs 返回完整可信 result，要么 adapter 返回
-既有 normalized capability failure。File read、decoding、parse、invariant 或 normalization
-failure 不得把 partial function set 发布为成功。
-
-Per-file partial continuation 会改变 completeness、warning、output 和 gate trust；只有出现
-真实 consumer need 时才进入独立 product change。
-
-### Decision 7: 一次切换并删除退休路径
-
-Parity 通过后，current 与 baseline adapters 同时切换。同一 revision 删除 internal
-Python/Lizard resolution、availability checks、process invocation、CSV parsing、dead tests 和
-production imports。不保留 runtime fallback 或 dual backend path。
-
-### Decision 8: 作为最终运行时统一提升项延期
-
-本 port 的工程收益、实现风险和验证成本都高，但它保持现有 function-metrics 产品契约，
-用户直接感知有限。它当前排在 semantic config 与 external config workflow 等产品向工作之后，
-不是默认近期任务。活动状态、规划完整或 dependency 实现仍存在都不能单独构成优先实施理由。
-
-前置 semantic config 已消除 public backend coupling，external workflow 将直接使用最终 semantic
-schema；本 port 恢复时不再产生 config migration。只有用户显式重新排序，或出现直接阻塞
-产品交付、目标平台可用性、可靠性、安全或许可证合规的证据时，才提前重新评估。
-
-## Dependencies and Ordering
-
-1. Product-source promotion 与 machine-output stabilization 已完成。
-2. `decouple-project-config-from-scanner-tools` 已实现 semantic document、
-   `ResolvedQualityConfig`、`ScannerDependencySnapshot` 与 compatibility boundary；本 change 的
-   task 0.3 仍须在 port 开始前核对最终验证证据。
-3. 按当前产品优先级，`add-external-project-config-workflow` 先交付；若用户显式重新排序或出现
-   Decision 8 的直接阻塞证据，必须先记录新的排序依据。
-4. 本 port 开始时只 rebase internal dependency/runtime facts，不修改已经发布的 semantic
-   config contract。
-
-## Verification Strategy
-
-- Pinned source archive/revision/license 与 verified two-language source/test map。
-- 当前 adapter 的 `.ts`、`.d.ts`、`.rs` baseline，包含 zero functions 和 failures。
-- 每项 translated source responsibility 的 unit tests。
-- Differential inventory 与 normalized field/order comparison。
-- 既有 scanner、completeness、warning、aggregate、gate、human、machine、cache 与
-  baseline regression tests。
-- Formal-entry evidence：eligible scans 不解析或启动 Python/Lizard。
-- Config-stability evidence：semantic runtime/generated schema、starter、fixture 与 public
-  authoring contract 不因 backend replacement 变化。
-- Static search：production Python/Lizard process、CSV 与 internal dependency settings 已删除。
-
-## Deferred Triggers
-
-- 只有 scan-scope 与 structural-scanning owners 定义新的 supported input 和 proof targets
-  时，才增加其它语言。
-- 只有通过独立 completeness/diagnostic/output change，才增加 per-file partial results。
-- 只有第二个真实 implementation 必须履行同一 consumer contract 时，才增加 generic
-  scanner/provider boundary。
-
-## Remaining baseline evidence
-
-Product-contract 层没有未决问题。Exact source closure 与 test mapping 是 tasks 1.2-1.4 的
-required baseline evidence，不允许借此扩大语言或 public fields。
+无待当前阶段回答的问题。Exact parser、identity、performance 与 test contract 是重新基线后的实施准备事项，不是当前已确认设计。
