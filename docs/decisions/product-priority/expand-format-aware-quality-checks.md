@@ -1,7 +1,7 @@
 ---
 title: 扩展格式感知的非代码质量检查
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T15:02:11Z
 purpose: 让 Vibe Check 对文档和结构化资料执行与文件类型匹配的质量检查。
 background: 非代码文件不适合进入代码指标，但其链接、结构、格式和敏感内容具有独立质量风险。

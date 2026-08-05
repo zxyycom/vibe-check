@@ -26,7 +26,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:260570906977181e067e76b3c7ff6867a229765a8f4141a4fd8ef1afb3a61d71",
+  "sourceRevision": "sha256:5439b7f866d36f82c262b7cc5a11c9c08e9e03593333a6b643ce493525aa45a5",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -68,32 +68,7 @@
       }
     },
     {
-      "id": "configuration/keep-public-config-tool-neutral.md",
-      "keys": {
-        "domain": [
-          "configuration"
-        ],
-        "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
-        ]
-      },
-      "state": {
-        "path": "configuration/keep-public-config-tool-neutral.md",
-        "title": "让 public project config 保持 scanner-tool 中立",
-        "status": "active",
-        "alignment": "aligned",
-        "createdAt": "2026-08-03T08:45:33Z",
-        "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
-        "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
-        "decision": "Public project config 只使用产品语义字段，底层 scanner 映射与 dependency resolution 由 Product 内部边界拥有。",
-        "relations": []
-      }
-    },
-    {
-      "id": "configuration/use-declarative-quality-decision-policies.md",
+      "id": "configuration/keep-decision-policies-closed-and-declarative.md",
       "keys": {
         "domain": [
           "configuration"
@@ -106,10 +81,123 @@
         ]
       },
       "state": {
-        "path": "configuration/use-declarative-quality-decision-policies.md",
-        "title": "使用声明式质量决策策略",
+        "path": "configuration/keep-decision-policies-closed-and-declarative.md",
+        "title": "保持质量决策策略封闭且声明式",
         "status": "active",
         "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:35Z",
+        "purpose": "让可执行检查仍由可验证、可审阅且确定性的通用政策完成最终决断。",
+        "background": "TypeScript Project Definition 可以构造检查和政策，但任意政策函数会形成第二套不可预检的执行系统。",
+        "decision": "DecisionPolicy 保持命名、封闭和声明式；TypeScript helper 只构造待验证数据，Core 对 Check 与 Record 快照执行通用求值。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-declarative-quality-decision-policies.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "configuration/keep-public-config-tool-neutral.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "configuration/keep-public-config-tool-neutral.md",
+        "title": "让 public project config 保持 scanner-tool 中立",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-08-03T08:45:33Z",
+        "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
+        "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
+        "decision": "Public project config 只使用产品语义字段，底层 scanner 映射与 dependency resolution 由 Product 内部边界拥有。",
+        "relations": []
+      }
+    },
+    {
+      "id": "configuration/limit-tool-neutrality-to-built-in-checks.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/limit-tool-neutrality-to-built-in-checks.md",
+        "title": "将工具中立约束限定于内置检查配置",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:36Z",
+        "purpose": "隔离内置 scanner 实现细节，同时允许项目自定义 Check 自己选择执行方式。",
+        "background": "全局禁止 executable 或工具信息会阻断 TypeScript custom runner，而内置检查仍需要稳定的产品语义配置。",
+        "decision": "内置检查政策保持 scanner-tool 中立；项目自定义 runner 是明确可执行边界，可自行调用函数、库或命令。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/keep-public-config-tool-neutral.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "configuration/use-bun-typescript-project-definition.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-bun-typescript-project-definition.md",
+        "title": "使用 Bun 托管的 TypeScript Project Definition",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:35Z",
+        "purpose": "用一个可执行且类型化的项目入口组合政策、内置检查和项目自定义检查。",
+        "background": "JSON 配置只能表达固定数据，无法自然组合运行时 Check 与其函数绑定，继续扩展会形成第二套动态接入协议。",
+        "decision": "固定发现 .vibe-check/config.ts，以 Bun 加载 Project Definition 并在执行前归一化冻结；不保留 JSON 双读或固定 semantic config v2。",
+        "relations": [
+          {
+            "type": "归并",
+            "target": "configuration/use-json-filename-for-commented-config.md"
+          },
+          {
+            "type": "归并",
+            "target": "configuration/use-fixed-semantic-config-v2.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "configuration/use-declarative-quality-decision-policies.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-declarative-quality-decision-policies.md",
+        "title": "使用声明式质量决策策略",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-05T06:43:25Z",
         "purpose": "让多个质量能力的标准记录与运行状态能够通过可审阅配置组合成查询、接受和门禁结果。",
         "background": "固定 channels、overall completeness 和 gate prerequisite 无法表达不同能力、coverage 与 comparison 的逻辑组合。",
@@ -149,17 +237,14 @@
           "configuration"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-fixed-semantic-config-v2.md",
         "title": "将文件政策契约升级为固定配置 v2",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T15:02:12Z",
         "purpose": "用明确版本边界承载文件覆盖和可组合功能政策，避免静默改变既有配置含义。",
         "background": "当前固定 v1 是完整且封闭的文档，加入 overrides 和 optional feature sections 已构成新的公共配置契约。",
@@ -201,17 +286,14 @@
           "configuration"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-json-filename-for-commented-config.md",
         "title": "使用常规 JSON 文件名承载带注释配置",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-03T08:45:26Z",
         "purpose": "降低项目配置的识别和采用门槛，同时保留注释、尾随逗号与 editor schema 辅助。",
         "background": "JSONC 扩展名能精确标识语法，但相对不常见；固定工具目录和文件名已经能提供产品格式上下文。",
@@ -226,22 +308,49 @@
           "configuration"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md",
         "title": "观察使用中性默认，阻断使用文件政策",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T03:37:21Z",
         "purpose": "让外部项目直接获得中性质量观察，并让阻断行为由项目持有的完整政策驱动。",
         "background": "观察需要通用起点；阻断需要可审阅、可提交且完整记录实际 scope、threshold 和 report policy 的配置。",
         "decision": "非 gate 扫描可直接使用中性默认；任一 gate 使用完整文件配置；init 完整落盘同一默认值。",
         "relations": []
+      }
+    },
+    {
+      "id": "configuration/use-neutral-observation-and-project-definition-gates.md",
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-neutral-observation-and-project-definition-gates.md",
+        "title": "观察使用中性定义，门禁要求 Project Definition",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:36Z",
+        "purpose": "让项目无需配置即可观察，同时让阻断行为始终由项目持有且已验证的政策驱动。",
+        "background": "观察需要通用起点；门禁需要可审阅政策，但其权威入口已从 JSON 文件转为 TypeScript Project Definition。",
+        "decision": "无 Project Definition 的非门禁运行使用 Product 中性定义；任一 gate 在工作前要求成功解析并验证项目定义中的 named policy。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md"
+          }
+        ]
       }
     },
     {
@@ -273,17 +382,14 @@
           "configuration"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "configuration/use-semantic-check-ids-in-quality-records.md",
         "title": "让语义 check ID 直接属于质量记录目录",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-05T07:09:36Z",
         "purpose": "让project config、能力输出和决策策略共同引用同一个稳定质量检查身份，而不经过旧warning或scanner identity映射。",
         "background": "QualityRecord已直接携带final check语义，继续映射旧warning fields会保留第二套身份owner。",
@@ -297,7 +403,7 @@
       }
     },
     {
-      "id": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+      "id": "product-contract/keep-sensitive-quality-record-material-ephemeral.md",
       "keys": {
         "domain": [
           "product-contract"
@@ -310,15 +416,72 @@
         ]
       },
       "state": {
-        "path": "product-contract/keep-sensitive-scan-material-ephemeral.md",
-        "title": "让敏感扫描材料保持临时且不可持久化",
+        "path": "product-contract/keep-sensitive-quality-record-material-ephemeral.md",
+        "title": "让 QualityRecord 的敏感源材料保持临时",
         "status": "active",
         "alignment": "unaligned",
+        "createdAt": "2026-08-05T11:15:26Z",
+        "purpose": "防止秘密和 credential URL 在产生质量记录时扩散到持久产物与诊断边界。",
+        "background": "Producing Check 必须短暂读取敏感值，但 QualityRecord、CheckRun 和输出不应成为新的秘密副本。",
+        "decision": "Product-owned Check 只在调用期受限内存处理原始敏感材料，公共 Check/Record 边界仅接收安全身份与脱敏证据。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/keep-sensitive-scan-material-ephemeral.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+        "title": "让敏感扫描材料保持临时且不可持久化",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T15:02:13Z",
         "purpose": "防止秘密检测和外链验证把待检查的敏感内容扩散到质量产物或诊断系统。",
         "background": "Secret bytes、URL query values 和 userinfo 可能包含凭据，扫描流程自身不能成为新的泄露渠道。",
         "decision": "原始敏感材料只存在于调用期受限内存，持久和公开边界只接收安全语义身份与脱敏证据。",
         "relations": []
+      }
+    },
+    {
+      "id": "product-contract/require-explicit-network-check-authorization.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/require-explicit-network-check-authorization.md",
+        "title": "网络 Check 必须获得显式声明式授权",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T11:15:25Z",
+        "purpose": "防止 Product-owned 网络检查被隐式启用，并保持网络安全、结果和执行失败语义可审阅。",
+        "background": "Project Definition 可以组合 Check，但网络访问仍有 SSRF、环境权限、临时故障和不可复现风险。",
+        "decision": "中性定义保持离线；只有已验证 Project Definition 的声明式政策可授权网络 Check，结果由 CheckRun、QualityRecord 和 selected policy 表达。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/require-explicit-network-link-checking.md"
+          }
+        ]
       }
     },
     {
@@ -328,6 +491,28 @@
           "product-contract"
         ],
         "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-contract/require-explicit-network-link-checking.md",
+        "title": "网络链接检查必须显式启用",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-08-04T15:02:13Z",
+        "purpose": "防止普通质量扫描隐式访问网络，并让外链结果具备明确的安全和可复现边界。",
+        "background": "DNS 和 HTTP 会引入 SSRF、环境凭据、临时故障与不可复现结果，不能由 profile 或 gate 自动开启。",
+        "decision": "网络外链能力默认离线，只有 file-backed policy 显式选择 online 才可执行受限请求。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-contract/separate-check-and-record-type-identities.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
           "active"
         ],
         "alignment": [
@@ -335,14 +520,44 @@
         ]
       },
       "state": {
-        "path": "product-contract/require-explicit-network-link-checking.md",
-        "title": "网络链接检查必须显式启用",
+        "path": "product-contract/separate-check-and-record-type-identities.md",
+        "title": "分离 Check 身份与 Record 类型身份",
         "status": "active",
         "alignment": "unaligned",
-        "createdAt": "2026-08-04T15:02:13Z",
-        "purpose": "防止普通质量扫描隐式访问网络，并让外链结果具备明确的安全和可复现边界。",
-        "background": "DNS 和 HTTP 会引入 SSRF、环境凭据、临时故障与不可复现结果，不能由 profile 或 gate 自动开启。",
-        "decision": "网络外链能力默认离线，只有 file-backed policy 显式选择 online 才可执行受限请求。",
+        "createdAt": "2026-08-05T10:31:35Z",
+        "purpose": "让检查执行单元和其产生的数据种类分别拥有稳定且可查询的身份。",
+        "background": "一个 Check 可以产生多种 Record，共用同一层身份会混淆执行对象、数据类型和策略选择。",
+        "decision": "checkId 标识 Check，recordTypeId 标识其记录类型；Record 绑定所属 CheckRun，消费者按目标层级显式引用。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "configuration/use-semantic-check-ids-in-quality-records.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-contract/treat-project-definitions-as-trusted-code.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/treat-project-definitions-as-trusted-code.md",
+        "title": "将 Project Definition 与自定义 Runner 视为受信任代码",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:36Z",
+        "purpose": "诚实界定动态 Check 的权限、故障恢复和不可信项目调用边界。",
+        "background": "导入 TypeScript module 并调用同进程函数会执行项目代码，函数入口本身不提供 sandbox、隔离或强制终止。",
+        "decision": "Project Definition 与 custom runner 以调用者权限同进程执行；产品不声称隔离，并为不可信项目提供完全跳过项目代码的显式路径。",
         "relations": []
       }
     },
@@ -375,17 +590,14 @@
           "product-contract"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "product-contract/use-location-independent-finding-identities.md",
         "title": "稳定质量身份不使用源码位置",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T15:02:12Z",
         "purpose": "让质量 finding 在只发生行移动或排版变化时保持稳定身份和比较结果。",
         "background": "行号、列号和 byte offset 是当前定位信息，不是问题本身的稳定语义，写入 key 会制造虚假新增和回归。",
@@ -394,7 +606,7 @@
       }
     },
     {
-      "id": "product-contract/use-standard-quality-record-stream.md",
+      "id": "product-contract/use-location-independent-record-identities.md",
       "keys": {
         "domain": [
           "product-contract"
@@ -407,10 +619,67 @@
         ]
       },
       "state": {
-        "path": "product-contract/use-standard-quality-record-stream.md",
-        "title": "使用统一质量记录流与独立能力运行状态",
+        "path": "product-contract/use-location-independent-record-identities.md",
+        "title": "QualityRecord 稳定身份不使用当前源码位置",
         "status": "active",
         "alignment": "unaligned",
+        "createdAt": "2026-08-05T11:15:26Z",
+        "purpose": "让记录在仅发生行移动或排版变化时保持稳定 identity、acceptance 和 comparison 结果。",
+        "background": "行列与 byte offset 是当前导航信息，不是 Record 的稳定领域语义，写入身份会制造虚假变化。",
+        "decision": "Record identity 只使用 catalog 声明的规范化语义字段；当前位置独立用于展示和导航。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/use-location-independent-finding-identities.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-contract/use-runtime-resolved-check-and-record-core.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-runtime-resolved-check-and-record-core.md",
+        "title": "使用运行时解析的 Check 与 QualityRecord 核心",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:20Z",
+        "purpose": "让内置与项目自定义检查共享两个独立、可组合且可观察的产品对象。",
+        "background": "编译期 capability 同时承载执行、质量结论和记录，限制动态接入并混淆失败语义。",
+        "decision": "执行前解析并冻结 Check 目录；CheckRun、CheckResult 与逐条 QualityRecord 分别管理，已提交记录不因后续失败撤销。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "product-contract/use-standard-quality-record-stream.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-contract/use-standard-quality-record-stream.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-standard-quality-record-stream.md",
+        "title": "使用统一质量记录流与独立能力运行状态",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-05T06:43:16Z",
         "purpose": "让所有内置质量能力通过同一标准数据协议逐条发布最终语义，并让有效记录不再被能力整体完成状态覆盖。",
         "background": "按 metric、content、security 划分结果形状并要求能力原子提交，会让 Core 持续承担领域分支，也会在后续工作失败时丢失已经可信的数据。",
@@ -421,6 +690,31 @@
             "target": "product-contract/use-generic-machine-v2-for-content-findings.md"
           }
         ]
+      }
+    },
+    {
+      "id": "product-contract/use-static-check-task-plans-with-shared-scheduling.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-static-check-task-plans-with-shared-scheduling.md",
+        "title": "使用静态 Check TaskPlan 与共享调度器",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:36Z",
+        "purpose": "让自定义 Check 以简单任务图获得全局有界的并行、依赖和资源协调。",
+        "background": "每个 runner 自行并行会造成资源超卖，而执行中修改任务图又无法完整预检和稳定收敛。",
+        "decision": "Check 在执行前贡献静态 TaskPlan，由 invocation 共享调度器统一安排；Task 保持私有执行单元，不进入政策或产品结果。",
+        "relations": []
       }
     },
     {
@@ -446,7 +740,7 @@
       }
     },
     {
-      "id": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+      "id": "product-priority/defer-lizard-until-after-check-foundations.md",
       "keys": {
         "domain": [
           "product-priority"
@@ -459,10 +753,37 @@
         ]
       },
       "state": {
-        "path": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
-        "title": "将 Lizard 运行时统一留到语义配置与产品工作之后",
+        "path": "product-priority/defer-lizard-until-after-check-foundations.md",
+        "title": "将 Lizard 统一后置于 Check 产品基础",
         "status": "active",
         "alignment": "unaligned",
+        "createdAt": "2026-08-05T11:15:25Z",
+        "purpose": "先建立新的 Check 产品运行边界，再重基线高风险且用户收益较低的 Lizard 迁移。",
+        "background": "Lizard port 主要改善内部依赖，而 Check/Record、执行编排和 Project Definition 正在替换其旧前置路线。",
+        "decision": "先落地 Check/Record、执行编排与 TypeScript Project Definition，再重审 Lizard port。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-priority/defer-lizard-until-after-semantic-config-workflow.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+      "keys": {
+        "domain": [
+          "product-priority"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+        "title": "将 Lizard 运行时统一留到语义配置与产品工作之后",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-03T09:05:03Z",
         "purpose": "先交付稳定的公共配置和用户可感知工作流，再处理高风险且主要改善开发边界的运行时统一。",
         "background": "Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。",
@@ -476,7 +797,7 @@
       }
     },
     {
-      "id": "product-priority/expand-format-aware-quality-checks.md",
+      "id": "product-priority/expand-format-aware-built-in-checks.md",
       "keys": {
         "domain": [
           "product-priority"
@@ -489,10 +810,37 @@
         ]
       },
       "state": {
-        "path": "product-priority/expand-format-aware-quality-checks.md",
-        "title": "扩展格式感知的非代码质量检查",
+        "path": "product-priority/expand-format-aware-built-in-checks.md",
+        "title": "扩展格式感知的内置 Checks",
         "status": "active",
         "alignment": "unaligned",
+        "createdAt": "2026-08-05T11:15:25Z",
+        "purpose": "让 Vibe Check 为常见文档和结构化资料风险提供开箱即用的格式感知检查。",
+        "background": "Markdown、路径、JSON、Schema、秘密和网络链接是常见项目问题，但不属于通用代码指标。",
+        "decision": "将这些方向作为可独立选择的未来 built-in Checks；执行由 CheckManager 管理，领域结论和记录由 producing Check 拥有。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-priority/expand-format-aware-quality-checks.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "product-priority/expand-format-aware-quality-checks.md",
+      "keys": {
+        "domain": [
+          "product-priority"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "product-priority/expand-format-aware-quality-checks.md",
+        "title": "扩展格式感知的非代码质量检查",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-04T15:02:11Z",
         "purpose": "让 Vibe Check 对文档和结构化资料执行与文件类型匹配的质量检查。",
         "background": "非代码文件不适合进入代码指标，但其链接、结构、格式和敏感内容具有独立质量风险。",
@@ -553,6 +901,61 @@
       }
     },
     {
+      "id": "workflow-policy/defer-future-feature-detail-until-prioritized.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/defer-future-feature-detail-until-prioritized.md",
+        "title": "延后未来功能 change 的契约细化",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T09:25:08Z",
+        "purpose": "避免尚未排期和实施的未来功能过早固化推测性协议，并把细化成本留到真实实现准备阶段。",
+        "background": "多个未来 feature changes 从未进入实现，过细的字段、算法、状态机和测试矩阵会随基础架构演进反复失效并掩盖真正产品方向。",
+        "decision": "未准备实施的 feature change 只保留产品意图、关键边界、依赖、风险和高层验收；进入实现前必须基于届时事实重新细化并完成阻塞审计。",
+        "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/require-explicit-named-comparison-references.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/require-explicit-named-comparison-references.md",
+        "title": "比较只使用显式命名并冻结的参考",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-05T10:31:35Z",
+        "purpose": "让 Check、Record 和门禁中的变化判断都绑定到调用者明确选择且可复现的参考。",
+        "background": "Project Definition 可以声明比较需求，但从分支、历史、远端或政策名称猜测参考仍会产生不稳定结果。",
+        "decision": "每个比较引用稳定名称和显式输入，调用开始时解析并冻结；Check 产生关系，声明式政策决定不完整证据的结果。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/require-explicit-quality-comparison-references.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "workflow-policy/require-explicit-quality-baselines.md",
       "keys": {
         "domain": [
@@ -581,17 +984,14 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "workflow-policy/require-explicit-quality-comparison-references.md",
         "title": "质量比较只接受显式命名参考",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-05T06:43:22Z",
         "purpose": "让任意质量变化视图和门禁都绑定到调用者明确选择、可复现且有名称的比较参考。",
         "background": "单一 baseline 与固定 changed/regressions channel 不能表达多个比较参考，但自动推断历史、分支或远端仍会产生不可复现结论。",

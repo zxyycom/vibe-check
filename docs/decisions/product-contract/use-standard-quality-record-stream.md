@@ -1,7 +1,7 @@
 ---
 title: 使用统一质量记录流与独立能力运行状态
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-05T06:43:16Z
 purpose: 让所有内置质量能力通过同一标准数据协议逐条发布最终语义，并让有效记录不再被能力整体完成状态覆盖。
 background: 按 metric、content、security 划分结果形状并要求能力原子提交，会让 Core 持续承担领域分支，也会在后续工作失败时丢失已经可信的数据。

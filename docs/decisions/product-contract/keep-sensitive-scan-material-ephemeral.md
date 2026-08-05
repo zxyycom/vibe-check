@@ -1,7 +1,7 @@
 ---
 title: 让敏感扫描材料保持临时且不可持久化
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T15:02:13Z
 purpose: 防止秘密检测和外链验证把待检查的敏感内容扩散到质量产物或诊断系统。
 background: Secret bytes、URL query values 和 userinfo 可能包含凭据，扫描流程自身不能成为新的泄露渠道。

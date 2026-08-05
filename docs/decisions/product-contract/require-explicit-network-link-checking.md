@@ -1,7 +1,7 @@
 ---
 title: 网络链接检查必须显式启用
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T15:02:13Z
 purpose: 防止普通质量扫描隐式访问网络，并让外链结果具备明确的安全和可复现边界。
 background: DNS 和 HTTP 会引入 SSRF、环境凭据、临时故障与不可复现结果，不能由 profile 或 gate 自动开启。

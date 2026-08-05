@@ -1,7 +1,7 @@
 ---
 title: 质量比较只接受显式命名参考
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-05T06:43:22Z
 purpose: 让任意质量变化视图和门禁都绑定到调用者明确选择、可复现且有名称的比较参考。
 background: 单一 baseline 与固定 changed/regressions channel 不能表达多个比较参考，但自动推断历史、分支或远端仍会产生不可复现结论。

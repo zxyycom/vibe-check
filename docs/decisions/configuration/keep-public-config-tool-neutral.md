@@ -1,7 +1,7 @@
 ---
 title: 让 public project config 保持 scanner-tool 中立
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-08-03T08:45:33Z
 purpose: 让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。
 background: 当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。

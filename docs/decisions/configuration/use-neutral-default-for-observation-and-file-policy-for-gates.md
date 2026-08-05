@@ -1,7 +1,7 @@
 ---
 title: 观察使用中性默认，阻断使用文件政策
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-08-04T03:37:21Z
 purpose: 让外部项目直接获得中性质量观察，并让阻断行为由项目持有的完整政策驱动。
 background: 观察需要通用起点；阻断需要可审阅、可提交且完整记录实际 scope、threshold 和 report policy 的配置。

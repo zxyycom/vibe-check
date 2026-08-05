@@ -1,7 +1,7 @@
 ---
 title: 将 Lizard 运行时统一留到语义配置与产品工作之后
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-03T09:05:03Z
 purpose: 先交付稳定的公共配置和用户可感知工作流，再处理高风险且主要改善开发边界的运行时统一。
 background: Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。

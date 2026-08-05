@@ -1,7 +1,7 @@
 ---
 title: 让语义 check ID 直接属于质量记录目录
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-05T07:09:36Z
 purpose: 让project config、能力输出和决策策略共同引用同一个稳定质量检查身份，而不经过旧warning或scanner identity映射。
 background: QualityRecord已直接携带final check语义，继续映射旧warning fields会保留第二套身份owner。
