@@ -18,8 +18,8 @@
 | 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
 | 讨论或调整开发脚本工具、annotation consumer、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Output](output.md)、`scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
 | 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) | `docs/testing/cases/`、`.codex/skills/test-evidence-review/SKILL.md`、示例、schema、相邻测试 |
-| 恢复、审阅或维护会跨任务沿用的长期判断 | `bun run decisions:list`、`docs/decisions/decision-domains.json`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后同步索引并运行 `bun run decisions:check` |
-| 审计历史或规划较大 change | `openspec/changes/` | 对应 proposal、design、tasks 和 spec delta |
+| 恢复、审阅或维护会跨任务沿用的长期判断 | [决策与 Change 治理](decision-and-change-governance.md)、`bun run decisions:list`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后同步索引并运行 `bun run decisions:check` |
+| 探索、准备、实施、验收或审计较大 change | [决策与 Change 治理](decision-and-change-governance.md)、`openspec/changes/` | 对应阶段的 proposal、design、tasks、spec delta 和 OpenSpec skill |
 
 ## 交付验证
 
@@ -50,10 +50,11 @@
 | Output | [Output](output.md) | 修改 Core-to-DTO projection、machine field/path/unit/order semantics、schemas、byte grammar、validators、publication/evidence、console、GateResult projection、metrics/report/warning/raw artifacts 或通道 |
 | Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
 | 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality dogfood wrapper 和脚本依赖 |
+| 决策与 Change 治理 | [决策与 Change 治理](decision-and-change-governance.md) | 处理当前事实、长期决策与 OpenSpec change 的分工、阶段、同步和一致性 |
 | 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
 | 测试资料 | [测试证据维护](testing/case-maintenance.md)、`docs/testing/cases/` | 当前测试实体发现、语义 Case、topic、证明目标和全树闭合 |
-| 长期决策 | `docs/decisions/decision-domains.json`、各 domain 下的决策 Markdown 与 `decision-index.json` | 恢复、审阅和演进已确认的长期取舍，不替代当前事实或行为 owner |
-| 变更工作流 | `openspec/changes/` | 规划、验收、归档或审计较大 change |
+| 长期决策材料 | `docs/decisions/decision-domains.json`、各 domain 下的决策 Markdown 与 `decision-index.json` | 恢复、审阅和演进已确认的长期取舍 |
+| OpenSpec change 材料 | `openspec/changes/` | 保存对应阶段的探索、实施准备、任务、验收与审计上下文 |
 
 脚本和验证材料不重新定义产品语义。与主规范不一致时，先判断是主规范缺口、验证材料漂移还是有意 contract 变更。
 
@@ -61,11 +62,12 @@
 
 `docs/` 是长期规范基础；代码、测试和 release artifact 证明实现状态。除非文档明确标注 Current 或已实现，目标性 `MUST` / `SHALL` 表示目标契约或决策要求，不自动表示当前二进制已经支持。
 
-OpenSpec 用于按 change 规划和审计较大改动；小功能可以直接同步 docs、代码和测试。冲突时按
-owner 判断：活动决策提供已确认长期取舍的默认依据，owner 主规范承接当前可执行规则，代码和
-测试证明实现状态，schema、示例和脚本默认作为验证材料同步。
+OpenSpec 用于按 change 探索、准备、实施、验收和审计较大改动；小功能可以直接同步 docs、代码和测试。
+活动决策承接已确认的跨 change 方向，owner 主规范承接当前稳定规则，代码、测试和 release
+artifact 证明实现状态。详细分工、阶段和一致性处理见
+[决策与 Change 治理](decision-and-change-governance.md)。
 
-### 当前产品状态
+## 当前产品状态
 
 产品 runtime 由 `src/product/**` 唯一拥有，正式入口提供
 `bun run product:cli -- scan [project-root]` 与
@@ -142,6 +144,7 @@ materials；它们使用 separate registry/traversal，不是 current config 或
 | Core-to-machine DTO projection、runtime schema/derived types、machine identities/fields/byte grammar/validators/publication/evidence、console/report/warning/raw artifacts 和 historical Rust materials | [Output](output.md) |
 | 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality dogfood wrapper | [脚本工具](script-tooling.md) |
 | 测试层级、fixture、Case 归属和验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) 与 `docs/testing/cases/` |
+| 当前基线、长期决策、OpenSpec change 的分工、阶段、同步顺序和一致性处理 | [决策与 Change 治理](decision-and-change-governance.md) |
 | 长期取舍的 domain、完整语义、生命周期、alignment、检索投影和演进关系 | `docs/decisions/decision-domains.json`、对应决策 Markdown 与派生 `docs/decisions/decision-index.json` |
 
 ## 术语

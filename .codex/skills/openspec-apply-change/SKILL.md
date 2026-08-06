@@ -40,12 +40,21 @@ metadata:
 
 ## 执行前开放问题门禁
 
-执行任何实现任务前必须确认 change 没有未回答开放问题：
+实现入口要求 change 的开放问题已经收敛：
 
 1. 按 `contextFiles` 读取包含 `## Open Questions` 的 artifact。
-2. 发现未回答问题时立即暂停，不改代码、不勾选任务、不把问题当作实现假设。
-3. 对 `已收敛` 条目检查是否仍有待选择、待确认或影响实现的歧义；存在歧义时暂停。
+2. 未回答问题保持在 `## Open Questions`，向用户请求会改变实现结果的最小决定。
+3. `已收敛` 条目必须指向持久 owner，且不再包含待选择、待确认或影响实现的歧义；仍有歧义时按开放问题处理。
 4. 用户回答后，先更新 artifact，并按归宿删除开放问题或标记为 `已收敛`，再重新进入 apply 流程。
+
+## 实施准备门禁
+
+OpenSpec artifact 状态说明工具要求的文件是否完备。实现入口还要求：
+
+1. `change` 在暂停后恢复，或相关 owner 文档、活动决策、实现基线发生变化时，对照当前事实复核 proposal、design、specs 和 tasks。
+2. 方向仍需收敛时由 `$openspec-explore` 承接；方向已收敛但缺少当前设计、可执行任务或验收依据时由 `$openspec-propose` 补全。
+3. `tasks` 中的阻塞级审计任务先于实现任务完成并同步 checkbox；审计发现缺口时先修正 artifacts，再重新执行审计。
+4. 开放问题已经收敛、仍需使用的 artifacts 与当前事实一致、阻塞级审计完成后，开始实现任务。
 
 ## 流程
 
@@ -58,17 +67,18 @@ metadata:
    - 其他可执行状态：继续处理未完成任务。
 5. 运行 `openspec show "<name>" --type change --json --no-interactive`，用结构化 delta 理解 capability、operation 和 requirement 变化；只需要 delta 时加 `--deltas-only`。
 6. 对 CLI 未覆盖的 proposal、design、tasks 原文细节，按 `contextFiles` 精确读取对应文件。
-7. 按“执行前开放问题门禁”检查 `## Open Questions`；存在未回答问题或已收敛歧义时停止在询问阶段。
-8. 逐项实施未完成任务：
+7. 按“执行前开放问题门禁”检查 `## Open Questions`；问题收敛并更新 artifact 后继续。
+8. 按“实施准备门禁”复核当前 artifacts，完成 tasks 中的阻塞级审计任务，再进入实现任务。
+9. 逐项实施未完成任务：
    - 说明当前任务。
    - 做与任务直接相关的最小必要改动。
    - 完成后立刻在 tasks 文件中把对应 checkbox 标为完成。
    - 长任务分段推进时持续报告当前任务编号和进度。
-9. 运行与改动范围匹配的验证：
+10. 运行与改动范围匹配的验证：
    - OpenSpec change 自身先运行 change 验证。
    - 涉及主 specs 时运行 specs 验证。
    - 涉及代码时运行相应格式化、静态检查、单元或集成测试。
-10. 收尾时输出 change、schema、完成任务、总进度、验证结果、剩余项和阻塞点。
+11. 收尾时输出 change、schema、完成任务、总进度、验证结果、剩余项和阻塞点。
 
 ## 边界
 

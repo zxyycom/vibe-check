@@ -194,11 +194,29 @@ non-empty/zero-byte streams，再调用 actual `quality:annotate`，并用 deriv
 证明 exit `2` / zero partial annotation。Workspace verifier 只调度 child、保留 actionable
 output 并传播 result，不增加 artifact parser、schema registry 或 warning mapper。
 
+## 项目级 Skill 维护
+
+项目级 Skill 默认保存完整、可追溯的上游分发单元。方法层需要读取 Vibe Check-owned 治理
+语义，且已有 owner、长期决策和仓库验证入口时，表中项目维护文件承接显式本地例外；覆盖
+范围外的工具、数据和产品职责继续由现有 owner 承接。
+
+| 项目本地例外 | 项目维护文件 | 覆盖范围外的职责 |
+| --- | --- | --- |
+| 决策与当前任务分工 | `.codex/skills/decision-records/SKILL.md`、`.codex/skills/decision-records/agents/openai.yaml`、`.codex/skills/decision-records/references/decision-record-rules.md` | 上游包继续拥有 CLI、ESM、schema、declarations、updater 与恢复实现。 |
+| Change 探索、实施准备与恢复审计 | `.codex/skills/openspec-explore/SKILL.md`、`.codex/skills/openspec-propose/SKILL.md`、`.codex/skills/openspec-apply-change/SKILL.md` | 上游包继续拥有其它分发材料与 OpenSpec CLI。 |
+| 能力感知的测试证据评审 | `.codex/skills/test-evidence-review/SKILL.md`、`.codex/skills/test-evidence-review/agents/openai.yaml` | 项目测试证据 owner 继续拥有 Runner、Case、CLI 和闭合 runtime。 |
+
+同步上游 Skill 前按表逐项比较项目语义。上游已经满足对应语义时，通过决策演进缩小或取消
+例外；仍需项目语义时，只重放表中登记的文件。该表是当前项目本地例外的完整边界。
+
 ## 长期决策适配器
 
-项目内安装的上游
+项目内安装的
 [`decision-records`](https://github.com/zxyycom/skills/tree/main/skills/decision-records)
-拥有 domain catalog、决策记录格式、alignment、索引生命周期以及 CLI / ESM API 语义。Vibe Check-owned
+工具实现拥有 domain catalog、决策记录格式、索引生命周期以及 CLI / ESM API 精确语义；
+项目方法层覆盖按
+[决策与 Change 治理](decision-and-change-governance.md#活动决策与当前任务)解释 `alignment`
+如何影响当前任务。Vibe Check-owned
 `scripts/decision-records.ts` 显式传入仓库根、转发 CLI 参数，并为模块调用暴露
 `runDecisionRecordsCli`、`scanDecisionRecords` 和 `validateDecisionRecords`。适配器不复制
 解析、校验、索引维护或关系语义，`src/product/**` 也不导入该开发工具。

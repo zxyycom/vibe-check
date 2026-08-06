@@ -79,7 +79,10 @@ docnav read <path> --ref "<ref>"
    使用项目内的 `decision-records` skill，并先运行 `bun run decisions:list` 恢复相关活动决策。
 2. 只有已经明确确认、会作为后续工作依据且具有回放价值的取舍进入 `docs/decisions/`；代码、
    配置、规范和项目文档继续承接当前事实与行为。
-3. 通过 `bun run decisions -- <command>` 写入记录或改变生命周期；任何写入完成后运行
+3. 活动决策已经确认；`aligned` 表示完整方向已成为当前基线，`unaligned` 表示尚待未来实现的
+   方向。当前任务提供实施范围和优先级；未对齐方向相关时，在完整满足当前任务的可行方案中
+   优先选择保留演进路径的方案，实施工作保持在当前任务明确要求内。
+4. 通过 `bun run decisions -- <command>` 写入记录或改变生命周期；任何写入完成后运行
    `bun run decisions:check`。
 
 ### 测试证据
@@ -105,6 +108,9 @@ docnav read <path> --ref "<ref>"
 - OpenSpec 的探索、提案、实施和归档分别使用 `openspec-explore`、
   `openspec-propose`、`openspec-apply-change` 与 `openspec-archive-change`；归档只在用户
   明确要求或当前任务明确包含归档时执行。
+- `docs/decision-and-change-governance.md` 完整拥有当前事实、长期决策与 OpenSpec change 的载体分工、阶段、
+  同步和一致性处理。探索阶段保存恢复方向所需的信息；实施准备阶段基于届时事实形成设计、
+  任务和验收依据；暂停后的详细 artifacts 在恢复时重新核对。
 - 修改字段、示例、schema 或输出 shape 时，读取 `docs/schemas/` 和 `docs/examples/`；owner 缺失时先说明依据和落点。
 
 ## 实现与验证

@@ -26,7 +26,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:5439b7f866d36f82c262b7cc5a11c9c08e9e03593333a6b643ce493525aa45a5",
+  "sourceRevision": "sha256:bdc5f11428fdc2be8d0b3bca3f5a9e018126a1b8fce4749dcb9c9abeba861466",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -907,22 +907,79 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "unaligned"
+          "archived"
         ]
       },
       "state": {
         "path": "workflow-policy/defer-future-feature-detail-until-prioritized.md",
         "title": "延后未来功能 change 的契约细化",
-        "status": "active",
-        "alignment": "unaligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-08-05T09:25:08Z",
         "purpose": "避免尚未排期和实施的未来功能过早固化推测性协议，并把细化成本留到真实实现准备阶段。",
         "background": "多个未来 feature changes 从未进入实现，过细的字段、算法、状态机和测试矩阵会随基础架构演进反复失效并掩盖真正产品方向。",
         "decision": "未准备实施的 feature change 只保留产品意图、关键边界、依赖、风险和高层验收；进入实现前必须基于届时事实重新细化并完成阻塞审计。",
         "relations": []
+      }
+    },
+    {
+      "id": "workflow-policy/keep-project-workflow-skill-overrides-bounded.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/keep-project-workflow-skill-overrides-bounded.md",
+        "title": "保持项目工作流 Skill 语义覆盖有界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T01:44:09Z",
+        "purpose": "让项目治理语义可靠进入 agent 方法层，同时保持上游工具实现和本地例外边界可追溯。",
+        "background": "完整上游包适合通用能力，但项目对决策、change 和测试证据的 owner 分工需要更具体的方法指引。",
+        "decision": "Skill 默认保持完整上游分发；项目登记并维护由 owner 与验证支撑的最小方法层覆盖，工具 runtime 与数据契约继续由上游拥有。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/use-upstream-skills-with-project-local-exceptions.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "workflow-policy/match-change-detail-to-current-phase.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/match-change-detail-to-current-phase.md",
+        "title": "让 change 细节服务当前阶段",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T01:44:08Z",
+        "purpose": "让 change 在探索阶段保留支持方向判断的信息，并在进入实施准备后形成可执行细节。",
+        "background": "探索需要约束、证据和开放问题，实施方案依赖届时基线，而暂停后的详细 artifacts 仍有审计价值。",
+        "decision": "change 按当前阶段保存必要信息；探索保留方向依据，实施准备形成设计与任务，暂停后恢复时重新核对仍需使用的内容。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/defer-future-feature-detail-until-prioritized.md"
+          }
+        ]
       }
     },
     {
@@ -1005,6 +1062,31 @@
       }
     },
     {
+      "id": "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md",
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md",
+        "title": "将活动未对齐决策作为未来演进输入",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T01:44:08Z",
+        "purpose": "让已确认但尚未成为当前事实的方向参与相关选择，同时由当前任务限定实施范围。",
+        "background": "未对齐状态需要同时表达方向已经确认、尚未成为当前基线，以及相关工作应怎样使用它。",
+        "decision": "活动未对齐决策作为未来演进输入；在完整满足当前任务的方案中优先保留演进路径，实施范围遵循当前任务。",
+        "relations": []
+      }
+    },
+    {
       "id": "workflow-policy/use-project-decision-records.md",
       "keys": {
         "domain": [
@@ -1058,17 +1140,14 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "workflow-policy/use-upstream-skills-with-project-local-exceptions.md",
         "title": "采用完整上游 Skill 包并允许显式项目本地例外",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-30T03:24:22Z",
         "purpose": "保持 Skill 来源和升级边界可审计，同时允许项目特有能力由本仓库完整拥有。",
         "background": "完整替换上游包适合通用方法，但携带固定账本 runtime 的版本不能表达本项目的语义 Case 与全树闭合边界。",

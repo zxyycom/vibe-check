@@ -1,7 +1,7 @@
 ---
 title: 采用完整上游 Skill 包并允许显式项目本地例外
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-30T03:24:22Z
 purpose: 保持 Skill 来源和升级边界可审计，同时允许项目特有能力由本仓库完整拥有。
 background: 完整替换上游包适合通用方法，但携带固定账本 runtime 的版本不能表达本项目的语义 Case 与全树闭合边界。

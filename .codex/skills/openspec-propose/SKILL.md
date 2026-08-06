@@ -1,6 +1,6 @@
 ---
 name: openspec-propose
-description: 为新的 OpenSpec change 生成可进入实现阶段的 proposal、design、tasks 等 artifacts。用于用户给出 change name 或需求描述，并希望一次性完成提案材料。
+description: 为准备进入实现的 OpenSpec change 生成或补全 proposal、design、tasks 等 artifacts。用于用户明确要求创建或补全可实施提案。
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:
@@ -11,11 +11,17 @@ metadata:
 
 # OpenSpec Propose
 
-核心：新增 change 只在 `openspec/changes/<name>/` 内生成临时 artifacts，用一句话锚定目标，并以阻塞级审计任务作为实现前置门禁。
-
 ## 目标
 
-根据用户给出的 change name 或需求描述，创建一个新的 OpenSpec change，并生成进入实现阶段所需的 artifacts。完成后，该 change 应满足 `openspec status --change "<name>" --json` 中 `applyRequires` 指向的 artifacts 全部为 `done`；但在阻塞级审计任务完成前，该 change 只达到 artifact 准备状态，不可进入实现执行。
+根据用户给出的 change name 或需求描述创建新 change，或补全已有 change，并在 `openspec/changes/<name>/` 内生成实施准备所需的临时 artifacts。完成后，`applyRequires` 指向的 artifacts 全部为 `done`，tasks 包含实现前阻塞级审计。
+
+`$openspec-explore` 承接探索阶段的方向、依据与开放问题，`$decision-records` 承接已确认且跨 change 有长期影响的判断；本 skill 只承接已经进入实施准备的提案生成。
+
+## 进入条件与状态含义
+
+1. 当前请求明确要求创建或补全可实施提案，且目标、范围、关键约束和启动条件足以进入实施准备时，使用本 skill。
+2. 方向、范围、关键边界、依赖、风险、证据、开放问题或启动条件仍需收敛时，由 `$openspec-explore` 继续承接；收敛后再进入本 skill。
+3. `applyRequires` 全部为 `done` 表示工具要求的 artifacts 已完备。实现从当前任务授权、开放问题收敛、artifacts 与当前事实一致且阻塞级审计完成后开始。
 
 ## 输入
 
@@ -26,7 +32,7 @@ metadata:
 
 当用户只提供需求描述时，从描述中派生简短、稳定、语义明确的 kebab-case 名称。名称应使用英文小写、数字和连字符，并表达 change 的核心行为。
 
-当需求目标、范围或名称无法可靠判断时，直接向用户提问，要求补充“要构建或修复什么”。在理解目标前先暂停，不创建 change。
+需求目标、范围和名称需要能够可靠判断；缺少其中任一项时，向用户提问“要构建或修复什么”，获得答案后继续。
 
 ## CLI 使用策略
 
@@ -80,13 +86,13 @@ OpenSpec change name 和 capability ID 是不同概念：
 
 ## 决策记录
 
-创建和更新 change 时，把用户已确认的范围、方案、边界、依赖、验证和兼容性取舍记录到 `## Decisions`。
+创建和更新 change 时，把只约束本次 change 的已确认范围、方案、边界、依赖、验证和兼容性取舍记录到 `## Decisions`；跨 change 仍有长期影响的判断写入 `$decision-records`。
 
 1. 使用连续编号：`### Decision 1: <short title>`、`### Decision 2: <short title>`；已有编号不重排，新增决策追加。
-2. 决策正文只写决定和影响，避免重复解释理由。
+2. 决策正文集中表达决定和影响，理由继续由 proposal、design 或长期决策 owner 承接。
 3. 用户回答 `## Open Questions` 后，先把答案落到持久 owner：新增 Decision、更新已有 Decision，或修正 artifact 正文。
 4. 已进入新增或已有 Decision 的问题，从 `## Open Questions` 删除；仅由措辞或误解引起的问题，改为 `已收敛：<位置> 已调整，无待确认项`。
-5. 未回答问题保留在 `## Open Questions`；没有未回答问题且已收敛条目无歧义时，写明“无未回答开放问题，可以进入实现前审计”。
+5. 未回答问题保留在 `## Open Questions`；全部问题已有持久归宿且已收敛条目含义明确时，写明“开放问题已收敛，可以进入实现前审计”。
 
 ## 工作流程
 
@@ -100,8 +106,9 @@ OpenSpec change name 和 capability ID 是不同概念：
    - 用 active change 列表检查名称冲突和相关在途工作。
    - 从用户输入识别现成的 kebab-case 名称，或从需求描述派生名称。
    - 将用户需求压缩成一句目标说明，作为后续 artifact 写作的主线。
+   - 按“进入条件与状态含义”确认本次请求已经进入实施准备。
    - 运行 `openspec list --specs --json`，记录现有 capability ID，并按“Capability ID 命名规则”初步判断本 change 应修改或新增哪些 capability。
-   - 如果同名 change 已存在，先确认用户要继续该 change，还是改用新名称；得到选择后再继续。
+   - 如果同名 change 已存在，确认用户要继续该 change 还是改用新名称；继续时进入“补全已有 change”模式并复用现有目录，改名时进入“创建新 change”模式。
    - 需要确认可用 workflow schema 时，运行：
 
      ```text
@@ -110,7 +117,7 @@ OpenSpec change name 和 capability ID 是不同概念：
 
    - 用户未指定 schema 时，使用项目默认 schema；需要查看模板来源时运行 `openspec templates --schema "<schema>" --json`。
 
-2. 创建 change
+2. 创建新 change（补全已有 change 时跳过）
    - 运行：
 
      ```text
@@ -121,7 +128,7 @@ OpenSpec change name 和 capability ID 是不同概念：
    - 如果没有可用的一句话描述，可以省略 `--description`，但应优先传入用户目标摘要。
    - 预期生成 `openspec/changes/<name>/` 和 `.openspec.yaml`。
    - 创建后确认 change 目录存在。
-   - 创建阶段只写入当前 change 目录；除用户明确要求外，不修改现有 specs、docs、schemas、examples 或其它 change。
+   - 创建阶段的写入范围是当前 change 目录；其它 specs、docs、schemas、examples 或 change 需要当前任务另行明确。
 
 3. 读取 artifact 状态
    - 运行：
@@ -135,7 +142,7 @@ OpenSpec change name 和 capability ID 是不同概念：
      - `artifacts`：每个 artifact 的状态、依赖和可写条件。
    - 记录 artifact 进度，按依赖关系选择当前可生成的 artifact。
 
-4. 生成 apply-ready artifacts
+4. 生成实施准备 artifacts
    - 持续处理 artifact，直到 `applyRequires` 中所有 artifact 的状态都是 `done`。
    - 每次只处理状态允许生成、依赖已经满足的 artifact。
    - 对每个 artifact 运行：
@@ -155,8 +162,8 @@ OpenSpec change name 和 capability ID 是不同概念：
    - 涉及已有主 spec 或 change delta 时，使用 CLI 使用策略中的 `openspec show` 命令获取结构化内容。
    - artifact 内容应服务于用户需求和 change 目标，避免把平台说明、内部流程、上下文块或规则块写成正文。
    - 生成或更新 design 时，按“决策记录”维护 `## Decisions` 和 `## Open Questions`。
-   - 生成 tasks artifact 时，必须在实现任务前加入阻塞级审计任务，写清“审计未完成前不得执行任何实现任务”。
-   - 阻塞级审计任务必须检查：proposal、design、specs 和 tasks 是否围绕开头核心句；capability ID 是否符合命名规则；当前 change 是否没有把临时 artifacts 表述为已批准或可直接实现；是否没有越过 change 目录修改现有长期文档或其它 change；`## Open Questions` 是否没有未回答问题或已收敛歧义。
+   - 生成 tasks artifact 时，把阻塞级审计作为第一个任务，并让后续实现任务显式依赖该审计完成。
+   - 阻塞级审计任务检查：proposal、design、specs 和 tasks 围绕开头核心句；capability ID 符合命名规则；artifacts 准确表达临时、待审计状态；本轮写入保持在当前 change 目录；`## Open Questions` 已经收敛。
    - 如果某个 artifact 的关键决策无法从用户需求、依赖 artifact 或 instructions 中确定，直接向用户提一个具体问题；得到答案后继续生成。
 
 5. 每个 artifact 写完后验证
@@ -183,20 +190,20 @@ OpenSpec change name 和 capability ID 是不同概念：
      openspec validate "<name>" --type change --json --strict --no-interactive
      ```
 
-   - 汇报 change 是否已经达到可进入实现的状态。
+   - 分别汇报 artifacts 完备状态和阻塞级审计状态，并按“进入条件与状态含义”给出下一步。
 
 ## Artifact 写作要求
 
-1. 严格使用 `template` 给出的结构，填充真实内容，不保留空模板说明。
+1. 严格使用 `template` 给出的结构，填充真实内容并移除空模板说明。
 2. 遵循 `instruction` 中的 schema 和写作规则。
 3. 写作前读取已完成依赖 artifact，保持 proposal、design、tasks 等文件之间目标一致。
-4. `context`、`rules`、`project_context` 等内容只用于约束判断，不作为 artifact 的段落、引用块或清单输出。
+4. `context`、`rules`、`project_context` 等内容用于约束判断；artifact 正文只承接 change 内容。
 5. 内容应具体到可执行和可验收：proposal 写清 what 与 why，design 写清关键方案和取舍，tasks 写成可逐项完成的实现步骤。
 6. 对不影响范围、协议、架构边界或验收标准的细节，选择与项目现有规范一致的默认；对会改变这些边界的缺口，先问用户。
 7. 需要读取现有 specs 时，优先使用 CLI 使用策略中的主 spec 命令；CLI 输出不足时再读取 `openspec/specs/<spec>/spec.md`。
 8. Artifact 正文优先沿用用户输入语言或项目既有语言约定；用户明确指定语言时按用户要求。
-9. 每个 artifact 文件正文开头必须写一句核心句，说明本 change 的目标和当前文档性质，防止后续内容偏离范围。
-10. Artifact 不得表达该 change 已批准、已审计或可直接实现；需要说明状态时，按模板或项目约定表述为临时 change artifact。
+9. 每个 artifact 文件正文开头必须写一句核心句，说明本 change 的目标和当前文档性质，使后续内容保持在该范围内。
+10. Artifact 按模板或项目约定表述为临时 change artifact；批准、审计和实施状态只按实际状态报告。
 11. tasks artifact 必须把阻塞级审计任务放在所有实现任务之前；后续实现任务必须以该审计完成为前置条件。
 
 ## 完成标准
@@ -207,9 +214,9 @@ OpenSpec change name 和 capability ID 是不同概念：
 2. `openspec status --change "<name>" --json` 可读取。
 3. `applyRequires` 中列出的每个 artifact 都已写入文件，且状态为 `done`。
 4. 每个已生成 artifact 的文件路径来自对应 instructions 的 `outputPath`，并已验证存在。
-5. artifact 正文没有复制 `context`、`rules` 或内部流程说明。
+5. artifact 正文只包含 change 内容，`context`、`rules` 和内部流程保持为写作约束。
 6. `openspec validate "<name>" --type change --json --strict --no-interactive` 通过；无法运行时说明失败原因和影响。
-7. tasks artifact 包含阻塞级审计任务，并明确审计未完成前不可执行实现任务。
+7. tasks artifact 包含阻塞级审计任务，后续实现任务以该审计完成为前置条件。
 8. proposal Capabilities 和 specs 目录使用的 capability ID 符合命名规则，且已有能力修改使用现有主 spec ID。
 9. 最终回复包含 change 名称、change 路径、已创建 artifacts、最终状态、审计门禁状态和下一步入口。
 
@@ -219,6 +226,6 @@ OpenSpec change name 和 capability ID 是不同概念：
 
 1. Change：`<name>`，位置 `openspec/changes/<name>/`。
 2. Artifacts：列出创建或更新的 artifact 文件及作用。
-3. 状态：说明是否已满足 apply-ready；如未满足，列出阻塞原因和需要用户补充的问题。
-4. 审计门禁：说明阻塞级审计任务是否已完成；未完成时明确不能进入实现执行。
-5. 下一步：审计未完成、存在未回答问题或已收敛歧义时先完成确认；确认完成后再进入实现流程。
+3. 状态：说明 `applyRequires` 指向的 artifacts 是否完备；如未完备，列出阻塞原因和需要用户补充的问题。
+4. 审计门禁：说明阻塞级审计任务状态，以及实现入口是否已经满足。
+5. 下一步：按开放问题、artifact 完备状态和审计状态给出继续探索、补全提案、执行审计或进入实现的入口。

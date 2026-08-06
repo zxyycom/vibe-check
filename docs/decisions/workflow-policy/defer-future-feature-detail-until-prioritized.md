@@ -1,7 +1,7 @@
 ---
 title: 延后未来功能 change 的契约细化
-status: active
-alignment: unaligned
+status: archived
+alignment: null
 createdAt: 2026-08-05T09:25:08Z
 purpose: 避免尚未排期和实施的未来功能过早固化推测性协议，并把细化成本留到真实实现准备阶段。
 background: 多个未来 feature changes 从未进入实现，过细的字段、算法、状态机和测试矩阵会随基础架构演进反复失效并掩盖真正产品方向。
