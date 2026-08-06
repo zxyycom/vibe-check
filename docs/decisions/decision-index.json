@@ -26,7 +26,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:bdc5f11428fdc2be8d0b3bca3f5a9e018126a1b8fce4749dcb9c9abeba861466",
+  "sourceRevision": "sha256:0ee775235ca1cd95d307456c053d8d650cf7a97517aea08554b9848eb3ec65f6",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -403,6 +403,31 @@
       }
     },
     {
+      "id": "product-contract/keep-prestable-releases-on-0-0-x.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/keep-prestable-releases-on-0-0-x.md",
+        "title": "在稳定承诺前保持 0.0.x 版本线",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T03:03:02Z",
+        "purpose": "让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。",
+        "background": "产品的公共 API、声明文件与资源仍在形成，当前阶段的大多数相邻 package versions 可能包含破坏式更新。",
+        "decision": "稳定承诺前，Vibe Check package version 保持 `0.0.x`；跨 patch 不承诺包级兼容，进入非零 minor 版本线须由产品 owner 明确确认。",
+        "relations": []
+      }
+    },
+    {
       "id": "product-contract/keep-sensitive-quality-record-material-ephemeral.md",
       "keys": {
         "domain": [
@@ -714,6 +739,31 @@
         "purpose": "让自定义 Check 以简单任务图获得全局有界的并行、依赖和资源协调。",
         "background": "每个 runner 自行并行会造成资源超卖，而执行中修改任务图又无法完整预检和稳定收敛。",
         "decision": "Check 在执行前贡献静态 TaskPlan，由 invocation 共享调度器统一安排；Task 保持私有执行单元，不进入政策或产品结果。",
+        "relations": []
+      }
+    },
+    {
+      "id": "product-contract/use-versioned-npm-package-release-unit.md",
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-versioned-npm-package-release-unit.md",
+        "title": "使用版本化 npm package 作为产品发布单元",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T02:57:00Z",
+        "purpose": "让 CLI、公共 TypeScript 声明文件与必要产品资源作为同一 package version 可靠发布。",
+        "background": "Project Definition、自定义 Check、公共类型与资源要求消费者获得彼此匹配的执行与 authoring 材料，单一 CLI 入口已不足以承接完整发布边界。",
+        "decision": "Vibe Check 以 npm package 作为版本化发布单元，同一版本交付 CLI、公共声明文件和产品资源；CLI 是主要执行界面而非完整产品边界。",
         "relations": []
       }
     },
