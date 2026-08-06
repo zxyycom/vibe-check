@@ -6,8 +6,9 @@
 ## 当前状态
 
 本 change 仍在探索阶段。`proposal.md` 与 `package-release` delta spec 只固定已确认的
-发布方向；`design.md` 和 `tasks.md` 尚未形成。在设计问题收敛、实施任务形成并完成
-阻塞级审计前，不得实施本 change。
+发布方向；`proposal.md` 同时记录当前基线、发布阶段边界、跨 change 交互与开放问题。
+`design.md` 和 `tasks.md` 尚未形成。在开放问题收敛、实施任务形成并完成阻塞级审计前，
+不得实施本 change。
 
 ## 阅读顺序与权威性
 
@@ -16,8 +17,11 @@
    确立 npm package 发布单元与 CLI 主要执行界面的关系；
    [`keep-prestable-releases-on-0-0-x`](../../../docs/decisions/product-contract/keep-prestable-releases-on-0-0-x.md)
    确立稳定承诺前的 `0.0.x` package-level 版本策略。
-2. [`proposal.md`](proposal.md) 说明本 change 为何存在、已确认范围、影响面与尚待收敛的设计边界。
+2. [`proposal.md`](proposal.md) 说明本 change 为何存在、当前基线、已确认范围、术语、
+   跨 change ownership、影响面与尚待收敛的问题。后续讨论和实施准备以其中的
+   `Open Questions` 为收敛清单。
 3. [`specs/package-release/spec.md`](specs/package-release/spec.md) 承接本 change 当前已形成的规范性目标。
 
 本 README 只是阶段状态与阅读入口，不单独定义发布契约。后续讨论应先收敛
-`proposal.md` 列出的未决设计边界，再形成 design 和 tasks。
+`proposal.md` 列出的开放问题；进入实施准备时再基于届时的 package metadata、产品实现、
+active changes 与 npm 官方发布约束形成 design 和 tasks。
