@@ -10,7 +10,7 @@
 
 稳定 CLI、scan scope、metrics、warning、baseline、gate、process outcome、artifact 和
 output 语义以
-[文档导航](navigation.md#规则所有权) 指向的 owner 文档为准。测试文档只记录证明目标、
+[文档导航](navigation.md#如何阅读这些文档) 指向的 owner 文档为准。测试文档只记录证明目标、
 测试归属和验收边界。
 
 ## 实施状态
@@ -34,7 +34,7 @@ Rust tests / fixtures 已随 Rust 产品删除，不迁移、复制、改写或�
 | Product entry | 通过正式 `product:cli` 与 dogfood wrapper 验证 project root、flags、scan plan、console、process outcome、completeness、gate 和 artifacts 到达同一 core |
 | Script consumer | Quality dogfood、strict all-or-nothing annotation consumer、workspace verifier 和其它 `scripts/**` consumer 只透传或消费产品 behavior，不成为第二套产品实现 |
 | Productization parity | 一次性证明上移前 pinned consumer 与当前产品入口在 quick、full、baseline 和 explicit changed-files 下等价 |
-| 综合验证 | docs、OpenSpec、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
+| 综合验证 | docs、长期决策、目标 Change Plan、TypeScript product/tooling、quality dogfood 和 workspace gates 证明交付边界没有漂移 |
 
 当前 workspace verifier 使用 TypeScript product checks，不保留空跑或不可达的 Rust /
 Cargo 产品 gate。

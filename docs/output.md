@@ -444,10 +444,16 @@ TypeScript product contract 或迁移输入。
 diagnostics envelope。完整历史材料是：
 
 - [Historical report schema](schemas/vibe-check-report.schema.json)
-- [Historical JSON examples](examples/json/)
+- [diagnostic-report.json](examples/json/diagnostic-report.json)：`vibe-check.report.v1` historical example。
+- [empty-scope-report.json](examples/json/empty-scope-report.json)：`vibe-check.report.v1` historical example。
+- [gate-failing-report.json](examples/json/gate-failing-report.json)：`vibe-check.report.v1` historical example。
+- [passing-report.json](examples/json/passing-report.json)：`vibe-check.report.v1` historical example。
 
-它们与 current metrics/warning schemas 分别注册、分别验证，不进入 current artifact
-example traversal。
+同目录的 `vibe-check-config.json` 是 current semantic config v1 canonical example，不属于历史
+report materials；其完整语义只见 [Configuration](configuration.md#current-semantic-config-v1)。
+
+上述 historical report schema/examples 与 current metrics/warning schemas 分别注册、分别验证，
+不进入 current artifact example traversal。
 
 ### `human`
 

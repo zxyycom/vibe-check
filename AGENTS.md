@@ -1,140 +1,53 @@
 # AGENTS.md
 
-## 项目定位
+## 项目边界与入口
 
-- Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun
-  代码质量检测 CLI；正式本地入口提供
-  `bun run product:cli -- scan [project-root]` 与
-  `bun run product:cli -- init [project-root]`。
-- `quality:check`、`quality:full-check` 和 `quality:scan` 保持省略 gate 的观察行为；
-  `quality:gate` 通过 full `regressions` policy 显式启用阻断。它们与
-  `scripts/quality/scan.ts` 都是显式传入仓库根并单向调用产品入口的 dogfood wrapper；
-  开发脚本行为参考本仓库 `scripts/**`。
-- `docs/` 是长期规范入口；OpenSpec 用于较大 change；代码、测试和 release artifact 证明实现状态。
+- Vibe Check 的产品运行时是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun CLI；正式入口是
+  `bun run product:cli -- scan [project-root]` 与 `bun run product:cli -- init [project-root]`。
+- `quality:check`、`quality:full-check`、`quality:scan`、`quality:gate` 和
+  `scripts/quality/scan.ts` 是显式传入仓库根并单向调用产品入口的 dogfood wrapper；开发脚本由
+  `scripts/**` 拥有。
+- 项目文档从 [`docs/navigation.md`](docs/navigation.md) 进入。先按任务定位唯一 owner 和验证入口，
+  再读取相邻源码与测试；不要为获取上下文扫描全部文档。
+- 历史材料不参与当前规范、计划或验证。只有任务明确要求历史审计、恢复形成时依据或比较演进时，
+  才按[决策与 Change 治理](docs/decision-and-change-governance.md)进入归档。
 
-### 当前实现状态
+## 任务路由
 
-- `src/product/**` 是唯一产品运行时源码 owner；参数、neutral default、Vibe Check JSON
-  document/schema、配置选择与 discovery、`init`、扫描 core、scanner adapters、warnings 和
-  output 均由该目录拥有。
-- `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并单向调用产品入口；仓库已移除
-  Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink。
+| 触发条件 | 必须采用的入口与动作 |
+| --- | --- |
+| 修改产品实现、脚本、测试工具或跨模块结构 | 从[文档导航](docs/navigation.md#如何阅读这些文档)选择行为 owner，并读取 [`docs/coding-style.md`](docs/coding-style.md) 与相邻源码、测试。 |
+| 修改 schema、示例、CLI、scanner 或 output contract | 读取文档导航指向的领域 owner，并同步受影响的 schema、示例和验证材料。 |
+| 形成或修改会持续影响后续行为、owner、边界、兼容性、风险处理或验收方式的判断 | 使用 `decision-records` skill，先运行 `bun run decisions:list`；涉及 Change 交接时再读[决策与 Change 治理](docs/decision-and-change-governance.md)，维护后运行 `bun run decisions:check`。 |
+| 明确 change 需要跨文件、owner 或验证阶段持久交接 | 使用 `change-plan` skill，先运行 `bun run change-plan:list`，再读取目标 `changes/<change>/`；归档只在当前任务明确授权时执行。 |
+| 新增、删除、重命名或移动原生 test 节点，修改测试正文，或修改 Case 的 Owner / Proves | 使用 `test-evidence-review` skill，修改前后运行 `bun run test-evidence:check`，并运行最窄目标测试。 |
+| 用户明确要求保存、更新或审阅持久调查报告 | 使用 `investigation-report` skill；普通调查不创建报告 artifact。 |
 
-## 架构边界
+## 工程判断 skill
 
-- CLI：参数、配置、路径、退出码、输出模式、错误映射。
-- Core：扫描计划、文件收集、指标模型、聚合、warning、报告数据。
-- Scanner：内置检测、外部工具适配、缓存、原始输出、解析错误。
-- Output：人读报告、机器输出、CI 摘要和 annotation。
-- Config：neutral default、complete document/schema、选择与 discovery、
-  `ResolvedQualityConfig` mapping、CLI precedence 和 `init`。
-
-## 工作方式
-
-- 能从文档、OpenSpec、本仓库脚本实现或相邻代码可靠推断时，说明假设后继续。
-- 方案影响 CLI、schema、scanner contract、退出码或长期架构时，先区分目标、现有方案、可选方案和推荐方案。
-- 多条路径影响兼容性、跨平台或维护成本时，先比较复杂度、风险和开发成本。
-- 不为短期跑通引入长期难维护方案；确需临时处理时写清 TODO、范围和移除条件。
-- 风险高且不能可靠推断时，只问必要问题。
-
-### 工程判断 skill
-
-- 判断产品长期组件职责、owner、调用方向或运行边界时，使用
-  `product-architecture-judgment`。
+- 判断长期组件职责、owner、调用方向或运行边界时，使用 `product-architecture-judgment`。
 - 设计或审查依赖方向、适配层、共享库或 runtime/tooling 隔离时，使用
   `dependency-boundary-design`。
-- 多个实现、平台或入口需要共同契约时，使用 `common-denominator-design`；不要用最低能力
-  偶然交集替代明确产品语义。
-- 目标和边界已经明确、需要选择最小完整实现时，使用 `minimal-implementation`；它不替代
-  owner、测试或迁移要求。
-- 需要把较长调查保存为可复核 artifact 时，使用 `investigation-report`，并区分当前事实、
-  历史证据、推断和建议。
-- 只使用当前判断所需的最小 skill 组合，不为简单改动机械叠加全部流程。
+- 多个实现、平台或入口需要共同契约时，使用 `common-denominator-design`。
+- 目标、契约和责任已经明确，需要选择最小完整实现时，使用 `minimal-implementation`。
+- 只使用当前判断所需的最小 skill 组合；简单局部改动不为形式创建 Decision、Change 或报告。
 
-## 上下文获取
+## 上下文与工具
 
-### 本仓库
+- 缺少 owner 文档时，以近邻代码、测试、示例和当前请求为依据，并说明会影响结果的假设。
+- 理解调用关系优先使用可用的 CodeGraph MCP；不可用、索引不足或结果不足时，使用带路径过滤的
+  `rg` / `rg --files`。
+- 处理大型 Markdown 或层级文档时，可用 `docnav outline <path>` 和
+  `docnav read <path> --ref "<ref>"`；不可运行时回退到常规文件读取。
+- 新增 Node/TypeScript 依赖使用 `pnpm`，运行项目脚本使用 `bun run`，Python 工具使用 `uv`。
+- 修改后检查局部 diff，只保留目标范围；不得把未授权的 Git add、commit、归档或外部写入视为
+  实施步骤。
 
-1. 先读本文件，以及贴近编辑路径的项目文档、源码或测试。
-2. 项目文档从 `docs/navigation.md` 进入，只读本任务需要的主规范。
-3. 缺少对应 owner 文档时，使用近邻代码、测试、示例和用户上下文作为依据。
-4. 修改产品实现时，先读 `src/product/**` 及对应 owner 文档；修改开发脚本或 dogfood
-   wrapper 时，先读对应 `scripts/**` 入口。
-5. 短小配置、入口提示词和工具说明可直接读取。
+## 验证
 
-### Markdown 与文档
-
-处理大型 Markdown 或层级文档时，可使用可用的文档导航命令辅助定位：
-
-```powershell
-docnav outline <path>
-docnav read <path> --ref "<ref>"
-```
-
-`docnav` 不可运行时，回退到常规文件读取。
-
-### 长期决策
-
-1. 在形成或修改会持续影响后续行为、owner、边界、兼容性、风险处理或验收方式的判断前，
-   使用项目内的 `decision-records` skill，并先运行 `bun run decisions:list` 恢复相关活动决策。
-2. 只有已经明确确认、会作为后续工作依据且具有回放价值的取舍进入 `docs/decisions/`；代码、
-   配置、规范和项目文档继续承接当前事实与行为。
-3. 活动决策已经确认；`aligned` 表示完整方向已成为当前基线，`unaligned` 表示尚待未来实现的
-   方向。当前任务提供实施范围和优先级；未对齐方向相关时，在完整满足当前任务的可行方案中
-   优先选择保留演进路径的方案，实施工作保持在当前任务明确要求内。
-4. 通过 `bun run decisions -- <command>` 写入记录或改变生命周期；任何写入完成后运行
-   `bun run decisions:check`。
-
-### 测试证据
-
-1. 新增、删除、重命名、移动原生 test 节点，修改测试正文或 Case 的 Owner / Proves 时，
-   使用项目内 `test-evidence-review` skill；修改前后都运行
-   `bun run test-evidence:check`，并用 `topics`、`list`、`show` 恢复相关 Case。
-2. `docs/testing/cases/` 是当前唯一语义 Case catalog。Case 按共同 owner 契约与可观察结果
-   划分；一个 Case 可以映射多个当前实体，一个实体也可以支持多个 Case。不要新增源码
-   `@case` marker、committed inventory/index、模板 Case 或第二套 parser。
-3. 测试代码变化时先运行最窄目标测试，再运行完整 `bun run test-evidence:check`；
-   Case 目录没有需要同步的派生制品。
-
-### 代码结构
-
-- 理解调用关系优先用可用的 CodeGraph MCP。
-- CodeGraph 不可用、索引缺失或结果不足时，用带路径过滤的 `rg` / `rg --files`。
-- 搜索排除 `.git`、`target`、`node_modules`、`.venv`、`dist`、`build` 和缓存目录。
-
-### 变更材料
-
-- `openspec/changes/` 只在处理 change、审计、验收或用户明确要求时读取；涉及时先运行 `openspec list --json`。
-- OpenSpec 的探索、提案、实施和归档分别使用 `openspec-explore`、
-  `openspec-propose`、`openspec-apply-change` 与 `openspec-archive-change`；归档只在用户
-  明确要求或当前任务明确包含归档时执行。
-- `docs/decision-and-change-governance.md` 完整拥有当前事实、长期决策与 OpenSpec change 的载体分工、阶段、
-  同步和一致性处理。探索阶段保存恢复方向所需的信息；实施准备阶段基于届时事实形成设计、
-  任务和验收依据；暂停后的详细 artifacts 在恢复时重新核对。
-- 修改字段、示例、schema 或输出 shape 时，读取 `docs/schemas/` 和 `docs/examples/`；owner 缺失时先说明依据和落点。
-
-## 实现与验证
-
-### 变更前
-
-- 涉及实现、重构、测试脚本、验证脚本或跨模块修改时，先读对应主规范和 `docs/coding-style.md`。
-- 缺少对应主规范时，按现有代码、TypeScript/Bun 社区惯例和相邻实现执行，并在需要时补文档。
-- 涉及架构、数据模型、CLI surface、scanner 边界、依赖或验证链路时，先说明影响范围和验证方式。
-
-### 测试与契约
-
-- 新增或修改测试前，明确证明目标；没有明文契约时，不新增臆测断言。
-- 涉及 schema、示例、CLI 或 scanner 输出时，同步更新对应规范和验证材料。
-- 发现实现与 docs、OpenSpec、schema 或 examples 偏离时，先判断是实现缺口、目标能力、计划中 change、历史记录还是冲突。
-
-### 命令与验证
-
-- CLI 命令优先只读、可复现、范围明确。
-- TypeScript/Bun 产品行为改动后，按范围运行 product import、typecheck、lint、test、
-  dependency 和入口检查，以仓库 package scripts 为准。
-- 文档、schema、examples、OpenSpec 或 whitespace 改动后，优先运行 `bun run validate`；局部文档校验可用 `bun run validate:docs`。
-- 脚本工具改动后，按影响面选择 `bun run typecheck:scripts`、`bun run lint:scripts`、`bun run quality:check` 或对应验证命令。
-- 跨产品行为、OpenSpec、schema、示例、输出边界或多个包边界时，优先运行 `bun run verify:vibe-check-workspace:required`；发布前或大范围重构运行 `bun run verify:vibe-check-workspace:full`。
-- 说明文档改动还要用局部 diff、关键词搜索或文档导航命令确认结构和范围。
-- 新增 Node/TypeScript 依赖用 `pnpm`；运行项目脚本用 `bun run`；Python 工具用 `uv`。
-- 修改后用局部 diff 确认只改目标范围；无法运行的验证在最终说明中写明。
+- 按[文档导航的交付验证](docs/navigation.md#交付验证)选择最窄且覆盖受影响边界的命令。
+- 产品行为先运行目标测试，再按 package scripts 补 typecheck、lint、dependency 与入口检查。
+- 跨产品行为、Change Plan、schema、示例、输出或多个包边界时，运行
+  `bun run verify:vibe-check-workspace:required`；发布前或大范围重构运行
+  `bun run verify:vibe-check-workspace:full`。
+- 最终说明实际运行的验证、未运行项及其影响。

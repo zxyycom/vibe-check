@@ -1,167 +1,52 @@
 # 文档导航
 
-改动前用本文定位任务主规范、规则 owner 和交付验证入口；规则细节进入对应 owner 文档。
+本文只负责把任务路由到稳定规则的唯一 owner、必要工作流和交付验证入口。行为细节、当前实现
+快照、schema 字段和工具机械契约均在对应 owner 中维护，不在本文复述。
 
 ## 如何阅读这些文档
 
-按任务进入对应主规范；跨模块、边界、状态或规则归属不清时，补读“规范状态与实现状态”和“规则所有权”。
+先按任务读取“主入口”，再读取目标附近的源码与测试。“需要时再读”只用于确实跨越对应边界的
+任务；不要为获取上下文遍历全部文档。
 
-| 角色 / 任务 | 必读 | 需要时再读 |
+| 任务 | 主入口 | 需要时再读 |
 | --- | --- | --- |
-| 讨论或调整组件职责、输出分层、调用链和运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | [CLI](cli.md)、Core / Scanner、[Output](output.md)、[Configuration](configuration.md) |
-| 修改 semantic document、neutral default、Vibe Check JSON/schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init` 或 legacy migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、[Scanner 依赖选择](scanner-dependencies.md)、相邻 config tests |
-| 修改 `ScannerDependencySnapshot`、operational override、eligibility、adapter handoff、cache backend identity 或 scanner 替换 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、相关 adapter 验证和 fixture |
-| 讨论或调整文件收集、scan scope、默认排除、supported file 分类或 scope diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md) |
-| 修改 TypeScript/Bun 产品实现、重构或 `src/product/**` 边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 对应 owner 文档、相邻代码和测试 |
-| 修改正式 command、project root、scan flags、`init` routing、gate planning 或进程状态 | [CLI](cli.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Output](output.md)、产品入口测试、dogfood wrapper 测试 |
-| 修改 machine DTO/schema、serialization、validators、publication/evidence、console、report、artifacts 或 stdout/stderr channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、published schemas/examples、相邻 output tests |
-| 修改质量扫描、指标、warning、baseline、GateResult 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)、`src/product/**` |
-| 讨论或调整开发脚本工具、annotation consumer、共享 toolkit、workspace verifier、docs validators 或 quality dogfood/gate wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | [Output](output.md)、`scripts/tools/**`、`scripts/vibe-check-workspace/**`、正式产品入口 |
-| 新增或修改测试、fixture 或验证脚本 | [编码规范](coding-style.md)、[测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) | `docs/testing/cases/`、`.codex/skills/test-evidence-review/SKILL.md`、示例、schema、相邻测试 |
-| 恢复、审阅或维护会跨任务沿用的长期判断 | [决策与 Change 治理](decision-and-change-governance.md)、`bun run decisions:list`、相关行为 owner | 需要展开或维护时读 `.codex/skills/decision-records/SKILL.md`；写入后同步索引并运行 `bun run decisions:check` |
-| 探索、准备、实施、验收或审计较大 change | [决策与 Change 治理](decision-and-change-governance.md)、`openspec/changes/` | 对应阶段的 proposal、design、tasks、spec delta 和 OpenSpec skill |
+| 修改 TypeScript/Bun 产品实现、组件职责、调用链或运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 下列对应行为 owner、`src/product/**` 与相邻测试 |
+| 修改正式 command、project root、scan flags、`init` routing、gate planning、退出码或进程状态映射 | [CLI](cli.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Output](output.md)、产品入口与 wrapper 测试 |
+| 修改 semantic document、Vibe Check JSON/schema、neutral default、`ResolvedQualityConfig`、选择/discovery、precedence、`init` 或 migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、`docs/schemas/`、`docs/examples/` 与 config tests |
+| 修改文件收集、scan scope、默认排除、supported file 分类、exact inputs 或 collection diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md)与 collection tests |
+| 修改指标、warning、baseline、GateResult、evaluator 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)与相关测试 |
+| 修改 `ScannerDependencySnapshot`、operational override、eligibility、adapter handoff、cache identity 或 scanner 替换 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、相关 adapter tests 与 fixtures |
+| 修改 machine DTO/schema、contract-valid set / published set、serialization、validator、publication/evidence、console/report、artifact 或 stdout/stderr channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、`docs/schemas/`、`docs/examples/` 与 output tests |
+| 修改开发脚本、annotation consumer、共享 toolkit、workspace verifier、docs validator 或 quality wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | 对应 `scripts/**`、正式产品入口及其 consumer contract |
+| 新增或修改测试、fixture、Case 或验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](coding-style.md) | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试 |
+| 恢复、审阅或维护跨任务沿用的长期判断 | `decision-records` skill、`bun run decisions:list`、目标决策与相关行为 owner | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md) |
+| 创建、恢复、实施、搁置、验收或归档较大 change | `change-plan` skill、`bun run change-plan:list`、目标 `changes/<change>/` | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner |
+| 创建、更新或审阅持久调查报告 | `investigation-report` skill | [Investigation Report CLI](script-tooling.md#investigation-report-cli)、目标报告与按需随附资源 |
+
+## 权威性与状态
+
+`docs/` owner 文档承接当前稳定规则；代码、测试和 release artifact 证明当前实现状态；活动决策
+承接已确认且跨 change 持续有效的方向；active Change Plan 承接单次 change 的实施上下文；调查
+报告保存形成时认识。完整载体分工、Decision / Change 协作和历史读取边界只见
+[决策与 Change 治理](decision-and-change-governance.md)。
+
+除非文档明确标注 Current 或已实现，目标性 `MUST` / `SHALL` 只表示目标契约或决策要求，不证明
+当前二进制已经支持。发现材料不一致时，先判断它是稳定规则、未来方向、当前计划、实现证据还是
+历史记录，再更新对应 owner；归档材料不参与当前规范、计划或验证。
 
 ## 交付验证
 
-按改动面选择最窄验证。常用入口：
+先运行最窄验证，再按改动跨越的边界升级：
 
-- 文档、schema、examples、OpenSpec 和 whitespace：`bun run validate`；局部 docs 可先用
-  `bun run validate:docs`，其中 current config 和 machine schemas/examples 同时接受
-  independent validation 与 generation drift check。
-- 长期决策集合结构与索引一致性：`bun run decisions:check`。
-- 完整当前 Bun 测试实体与语义 Case 双向闭合：`bun run test-evidence:check`。
-- 跨产品行为、OpenSpec、schema、示例、输出边界或多个包边界：`bun run verify:vibe-check-workspace:required`。
-- 大范围重构、发布前或需要完整 quality 与产品测试：`bun run verify:vibe-check-workspace:full`。
-- 脚本工具细分命令见 [脚本工具](script-tooling.md)。
-
-局部改动可以选择更窄命令，但验证必须覆盖受影响边界。文档改动至少用 `bun run validate:docs`、局部 diff 或关键词搜索确认结构和范围。
-
-## 文档分层
-
-| 类型 | 文档 | 使用时机 |
-| --- | --- | --- |
-| 文档导航 | 本文档 | 定位任务主规范、规则 owner 和验证入口 |
-| 架构 | [架构](architecture.md) | 讨论组件职责、输出分层、调用链和运行边界 |
-| 工程规范 | [编码规范](coding-style.md) | 修改 TypeScript/Bun 产品、脚本、测试或验证工具 |
-| CLI | [CLI](cli.md) | 修改 command、project root、scan flags、`init` routing、gate planning 或进程状态映射 |
-| Configuration | [Configuration](configuration.md) | 修改 semantic document、neutral default、Vibe Check JSON/schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init`、迁移或配置错误 |
-| Scan Scope | [Scan Scope](scan-scope.md) | 修改文件收集、默认排除、supported file 分类、ignore 规则处理或 collection diagnostic |
-| Quality Metrics | [Quality Metrics](quality-metrics.md) | 修改 metrics aggregation、warning channels、baseline、accepted warning、GateResult/evaluator 或 quality status |
-| Output | [Output](output.md) | 修改 Core-to-DTO projection、machine field/path/unit/order semantics、schemas、byte grammar、validators、publication/evidence、console、GateResult projection、metrics/report/warning/raw artifacts 或通道 |
-| Scanner 依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) | 讨论或调整多语言结构扫描、LOC 统计和重复检测依赖 |
-| 脚本工具 | [脚本工具](script-tooling.md) | 讨论或调整开发脚本工具、共享 toolkit、workspace verifier、docs validators、quality dogfood wrapper 和脚本依赖 |
-| 决策与 Change 治理 | [决策与 Change 治理](decision-and-change-governance.md) | 处理当前事实、长期决策与 OpenSpec change 的分工、阶段、同步和一致性 |
-| 测试策略 | [测试策略](testing.md) | 新增或修改测试、fixture、测试归属、覆盖目标或验证入口 |
-| 测试资料 | [测试证据维护](testing/case-maintenance.md)、`docs/testing/cases/` | 当前测试实体发现、语义 Case、topic、证明目标和全树闭合 |
-| 长期决策材料 | `docs/decisions/decision-domains.json`、各 domain 下的决策 Markdown 与 `decision-index.json` | 恢复、审阅和演进已确认的长期取舍 |
-| OpenSpec change 材料 | `openspec/changes/` | 保存对应阶段的探索、实施准备、任务、验收与审计上下文 |
-
-脚本和验证材料不重新定义产品语义。与主规范不一致时，先判断是主规范缺口、验证材料漂移还是有意 contract 变更。
-
-## 规范状态与实现状态
-
-`docs/` 是长期规范基础；代码、测试和 release artifact 证明实现状态。除非文档明确标注 Current 或已实现，目标性 `MUST` / `SHALL` 表示目标契约或决策要求，不自动表示当前二进制已经支持。
-
-OpenSpec 用于按 change 探索、准备、实施、验收和审计较大改动；小功能可以直接同步 docs、代码和测试。
-活动决策承接已确认的跨 change 方向，owner 主规范承接当前稳定规则，代码、测试和 release
-artifact 证明实现状态。详细分工、阶段和一致性处理见
-[决策与 Change 治理](decision-and-change-governance.md)。
-
-## 当前产品状态
-
-产品 runtime 由 `src/product/**` 唯一拥有，正式入口提供
-`bun run product:cli -- scan [project-root]` 与
-`bun run product:cli -- init [project-root]`。`quality:check`、`quality:full-check` 与
-`quality:scan` 保持 omitted-gate 观察行为，`quality:full-check` 只扫描 full current
-snapshot；`quality:gate` 显式请求 full `regressions`，调用者必须透传
-`--baseline <revision>`。所有 `quality:*` 与 `scripts/quality/scan.ts` 都只作为显式传入 Vibe
-Check 仓库根的单向 dogfood wrapper。
-Rust crate、根 Cargo 产品 workspace 和 quality-core gitlink 已移除；当前实现和验证按
-[架构](architecture.md)、[CLI](cli.md) 与 [脚本工具](script-tooling.md) 的 TypeScript/Bun
-边界执行。
-
-Public project config 使用 complete、closed semantic document v1，`version` 固定为 `"1"`。
-Scan 按 `explicit > discovered > default` 选择唯一 source；file-backed `config.json` 支持
-comments、trailing commas 与 strict JSON subset，任一 gate 要求 file-backed policy。
-`init` 确保 fixed config 与 sibling editor schema 存在：已有安全文件保持原字节，缺失文件分别
-由 neutral default 与 editor projection 补齐；runtime validation 由 embedded Product schema
-决定。完整 selection、default、schema、initialization 与 mapping contract 只见
-[Configuration](configuration.md)。Scanner execution settings 独立解析为
-`ScannerDependencySnapshot`。
-
-Current machine output 是 single-active
-`vibe-check.metrics.v1` / `vibe-check.warning.v1` contract。Runtime schema source、
-schema-derived types、shallow product export、canonical artifacts、validators、publication
-evidence 与 materials index 见 [Output](output.md#machine-v1-contract-and-ownership)。Repository
-不保留 legacy reader、dual writer 或 alternate accepted structure。Output 文档拥有 contract
-语义、byte grammar、validation 与 publication 边界；runtime schema source 单独拥有 exact
-public field constraints/descriptions，published schemas/examples 是可追溯的消费与证明材料。
-
-## Current public config schema and example
-
-完整 field、neutral default、document grammar/schema、selection、precedence、`init` 与 migration
-contract 只在
-[Configuration](configuration.md) 维护；本节只作 material 索引。
-
-| Current material | Link |
+| 改动面 | 验证入口 |
 | --- | --- |
-| Semantic config v1 field schema JSON Schema 2020-12 | [vibe-check-config.schema.json](schemas/vibe-check-config.schema.json) |
-| Canonical semantic config v1 | [vibe-check-config.json](examples/json/vibe-check-config.json) |
+| 文档、schema、examples 或 whitespace | `bun run validate`；局部 docs 可先运行 `bun run validate:docs` |
+| 决策 Markdown、生命周期、关系或索引 | `bun run decisions:check` |
+| Change Plan | `bun run change-plan -- check changes/<change>` |
+| 测试正文、实体或语义 Case | 最窄目标测试，再运行 `bun run test-evidence:check` |
+| 产品行为或脚本工具 | 按 owner 与 package scripts 运行目标 test、typecheck、lint、dependency 和入口检查 |
+| 跨产品行为、Change Plan、schema、示例、输出或多个包边界 | `bun run verify:vibe-check-workspace:required` |
+| 大范围重构、发布前或完整 quality / 产品验收 | `bun run verify:vibe-check-workspace:full` |
 
-## Current machine schemas and examples
-
-完整 field/path/unit/optional/order semantics 与 validation/publication rules 只在
-[Output](output.md) 维护；本节只作导航索引。
-
-| Current material | Link |
-| --- | --- |
-| Metrics v1 JSON Schema 2020-12 | [vibe-check-metrics.schema.json](schemas/vibe-check-metrics.schema.json) |
-| Warning v1 JSON Schema 2020-12 | [vibe-check-warning.schema.json](schemas/vibe-check-warning.schema.json) |
-| Complete without warnings | [complete-passed](examples/artifacts/complete-passed/README.md) |
-| Complete with non-gating warning | [complete-warning](examples/artifacts/complete-warning/README.md) |
-| Legitimate empty input | [legitimate-empty](examples/artifacts/legitimate-empty/README.md) |
-| Evaluated gate failed | [gate-failed](examples/artifacts/gate-failed/README.md) |
-| Scan incomplete but artifact-set contract-valid | [scan-incomplete](examples/artifacts/scan-incomplete/README.md) |
-
-`vibe-check.report.v1` [schema](schemas/vibe-check-report.schema.json) 与
-`docs/examples/json/` 下的 `diagnostic-report.json`、`empty-scope-report.json`、
-`gate-failing-report.json`、`passing-report.json` 是已退役 Rust report 的 historical
-materials；它们使用 separate registry/traversal，不是 current config 或 machine material。
-
-## 规则所有权
-
-关键规则只由一个主文档拥有，其它文档只摘要或引用。
-
-| 规则面 | Owner |
-| --- | --- |
-| 组件职责、输出分层、调用链和运行边界 | [架构](architecture.md) |
-| 实现质量、边界处理、模块组织和验证层级 | [编码规范](coding-style.md) |
-| Product CLI command、project root、scan flags、`init` routing、gate planning 和进程状态映射 | [CLI](cli.md) |
-| Semantic document、neutral default、Vibe Check JSON/runtime/editor schema、选择/discovery、`ResolvedQualityConfig`、CLI precedence、`init`、legacy migration 和配置错误 | [Configuration](configuration.md) |
-| 文件收集、scan scope、默认排除、supported file 分类和 collection diagnostic | [Scan Scope](scan-scope.md) |
-| 指标模型、warning channels、baseline、GateResult/evaluator 和最终 quality status | [Quality Metrics](quality-metrics.md) |
-| 多语言结构扫描基座、LOC 统计和重复检测依赖选择 | [Scanner 依赖选择](scanner-dependencies.md) |
-| Core-to-machine DTO projection、runtime schema/derived types、machine identities/fields/byte grammar/validators/publication/evidence、console/report/warning/raw artifacts 和 historical Rust materials | [Output](output.md) |
-| 开发脚本工具、共享 toolkit、workspace verifier、docs validators 和 quality dogfood wrapper | [脚本工具](script-tooling.md) |
-| 测试层级、fixture、Case 归属和验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md) 与 `docs/testing/cases/` |
-| 当前基线、长期决策、OpenSpec change 的分工、阶段、同步顺序和一致性处理 | [决策与 Change 治理](decision-and-change-governance.md) |
-| 长期取舍的 domain、完整语义、生命周期、alignment、检索投影和演进关系 | `docs/decisions/decision-domains.json`、对应决策 Markdown 与派生 `docs/decisions/decision-index.json` |
-
-## 术语
-
-| 术语 | 定义 |
-| --- | --- |
-| owner 文档 | 某类规则的完整解释和维护位置；其它文档只保留摘要或引用。 |
-| Product CLI | 提供 `scan [project-root]` 与 `init [project-root]` 的正式入口，负责 command routing、project root、scan flags、gate planning、init result 和进程状态映射。 |
-| Dogfood wrapper | 显式传入 Vibe Check 仓库根并单向调用 Product CLI 的 `quality:*` 或脚本入口。 |
-| Core | 文件收集、指标聚合、warning、GateResult 和报告数据的实现归属。 |
-| Scanner | 内置检测或外部工具适配，负责采集、解析和归一化检测结果。 |
-| Semantic document | Configuration 定义的 complete、closed、backend-neutral public config v1；file-backed document 只可额外包含 optional `$schema` editor metadata。 |
-| `ResolvedQualityConfig` | 由 selected semantic value 与仅有的 public CLI overrides 显式映射出的 invocation-owned readonly product config。 |
-| `ScannerDependencySnapshot` | 在 scan work 前解析一次、供 current/baseline 复用的 internal scanner executable/args/availability/concurrency settings。 |
-| Operational override | 只修改 `ScannerDependencySnapshot` 的 supported environment input；不参与 semantic document selection 或 `ResolvedQualityConfig` mapping。 |
-| Exact inputs | Product Core 从 normalized scan scope 为一个 capability 批准的精确 path 集合；adapter 不自行扩大集合。 |
-| Machine DTO | Output 从 final Core `QualityMetrics` / `WarningRecord` 显式投影的 `MachineMetricsV1` / `MachineWarningV1` public serialization value。 |
-| Contract-valid set | `metrics.json` 与两个 warning streams 同时满足 current schemas、byte grammar 与 set invariants 的三件套。 |
-| Published set | 三个 canonical machine writes 都完成的 contract-valid set；current-run evidence 还必须包含 producing CLI outcome。 |
-| Output | Machine DTO/schema/validators/publication、人读报告与 machine artifacts 的实现归属；annotation 是 `scripts/**` direct consumer。 |
+验证必须覆盖受影响边界；无法运行的检查及其影响应在交付时明确说明。脚本工具的细分命令见
+[脚本工具](script-tooling.md#验证入口)。
