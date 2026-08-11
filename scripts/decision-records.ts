@@ -16,22 +16,29 @@ import type {
 
 export type {
   DecisionAlignment,
+  DecisionCandidateDocument,
   DecisionDocument,
   DecisionDomainDefinition,
   DecisionIndex,
   DecisionIndexEntry,
   DecisionIndexMetadata,
   DecisionIndexState,
+  DecisionIndexStoredEntry,
   DecisionListAlignment,
   DecisionListStatus,
   DecisionMetadata,
   DecisionProjection,
   DecisionRecord,
+  DecisionRecordSource,
   DecisionRelation,
+  DecisionRelationOverride,
   DecisionRelationType,
   DecisionScan,
   DecisionScanOptions,
+  DecisionSourceRevision,
   DecisionStatus,
+  DecisionSuccessor,
+  EstablishedDecisionStatus,
   DecisionValidationResult
 } from "../.codex/skills/decision-records/scripts/decision-records.mjs";
 

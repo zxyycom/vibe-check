@@ -1,0 +1,4 @@
+interface:
+  display_name: "Change Plan"
+  short_description: "维护可审阅、可搁置并按阶段推进的 Change 计划"
+  default_prompt: "使用 $change-plan 为明确 Change 创建或维护 proposal、design、tasks 与阶段元数据，恢复相关 owner 和决策，按 draft、plan、implementation、shelved 阶段推进；复核 Git 距离产生的搁置候选，再选择重新 plan、显式 shelve 或 reconcile。"
