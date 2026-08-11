@@ -94,7 +94,7 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 
 ## 当前与历史边界
 
-账本只保存有当前直接测试实体支持的 implemented Case。Git 历史、OpenSpec change、
+账本只保存有当前直接测试实体支持的 implemented Case。Git 历史、历史计划材料、
 旧账本或事故记录只用于迁移审计、风险识别和代表输入选择；它们不创建当前 Case、
 当前实体或产品测试义务，也不参与 `check` 的当前覆盖计算。
 
@@ -102,7 +102,7 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 是否新增产品测试按[测试策略的测试所有权](../testing.md#测试所有权)在独立 change 中
 评估；在形成当前直接证据前，不创建空 Case、名义 Case 或为迁移反向补测试。
 
-尚无当前实体的 planned test intention 留在行为 owner 或 active OpenSpec change，
+尚无当前实体的 planned test intention 留在行为 owner、活动决策或 active Change Plan，
 不在 Case 文档中增加 `Status` 或空映射。
 
 ## 全树闭合

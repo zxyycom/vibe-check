@@ -1,0 +1,15 @@
+# Historical materials are excluded from routine current-context searches.
+# Use `rg --hidden --no-ignore-dot` with an explicit path for historical review.
+/archive/legacy/openspec/
+/archive/legacy/historical-openspec-materials.md
+/changes/archive/
+
+# Derived decision views and superseded OpenSpec-era decisions are queried through
+# the decision-records CLI or an explicit historical path search.
+/docs/decisions/decision-index.json
+/docs/decisions/product-priority/defer-lizard-runtime-unification.md
+/docs/decisions/testing/use-native-test-evidence-catalog.md
+/docs/decisions/workflow-policy/keep-project-workflow-skill-overrides-bounded.md
+/docs/decisions/workflow-policy/match-change-detail-to-current-phase.md
+/docs/decisions/workflow-policy/use-upstream-project-skill-packages.md
+/docs/decisions/workflow-policy/use-upstream-skills-with-project-local-exceptions.md

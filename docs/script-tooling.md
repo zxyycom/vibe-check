@@ -27,6 +27,10 @@ Vibe Check 拥有的开发脚本入口是：
 
 新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
+项目另外通过 package scripts 调用完整上游 Skill CLI：`change-plan` 管理 `changes/`，
+`investigations` 管理按需建立的 `docs/investigations/`。这些入口不复制上游 parser、metadata、
+索引或生命周期实现，也不属于 `scripts/**` consumer。
+
 这些工具不属于产品 runtime contract。`quality:check`、`quality:full-check` 和
 `quality:scan` 是省略 gate 的观察命令；`quality:gate` 是显式 opt-in 的阻断命令。它们
 都是 package-level dogfood wrapper，不是第二套产品入口。
@@ -96,8 +100,9 @@ bun run product:cli -- scan [project-root]
 bun run product:cli -- init [project-root]
 ```
 
-省略 project root 时使用启动 cwd。开发脚本可以调用 lizard、scc、jscpd、OpenSpec 和
-JSON schema validator；产品扫描所需的 scanner 调用必须由 `src/product/**` 内的产品
+省略 project root 时使用启动 cwd。开发脚本可以调用 lizard、scc、jscpd 和 JSON schema
+validator；项目治理入口可以调用安装在 `.codex/skills/` 的 decision、change-plan 与
+investigation CLI。产品扫描所需的 scanner 调用必须由 `src/product/**` 内的产品
 边界拥有，不能由 wrapper 重新实现。Dogfood wrapper 只调用 `scan`；`init` 是用户直接调用的
 Product Config operation，不属于 script tooling。
 
@@ -196,27 +201,37 @@ output 并传播 result，不增加 artifact parser、schema registry 或 warnin
 
 ## 项目级 Skill 维护
 
-项目级 Skill 默认保存完整、可追溯的上游分发单元。方法层需要读取 Vibe Check-owned 治理
-语义，且已有 owner、长期决策和仓库验证入口时，表中项目维护文件承接显式本地例外；覆盖
-范围外的工具、数据和产品职责继续由现有 owner 承接。
+项目级 Skill 默认保存完整、可追溯的上游分发单元。Vibe Check 的触发规则、owner 路由、
+默认存储位置、package scripts、适配器和验证入口留在包外；上游包内的 Skill、agent 指引、
+契约、schema、runtime、声明、source map 和 updater 保持同一 release。
+
+| 完整上游包 | 项目接线 |
+| --- | --- |
+| `.codex/skills/change-plan/` | `changes/`、`change-plan*` package scripts 与[决策和 Change 治理](decision-and-change-governance.md) |
+| `.codex/skills/decision-records/` | `docs/decisions/`、`scripts/decision-records.ts` 与 `decisions*` package scripts |
+| `.codex/skills/investigation-report/` | 按需建立的 `docs/investigations/` 与 `investigations*` package scripts |
+
+同步这些包时使用各包 updater 或同一 release asset 完整替换，先核对目标 release，再运行包的
+机械检查、项目文档检查、脚本检查及受影响 workspace 验证。项目不在包内重放本地语义覆盖。
+
+当前唯一登记的项目方法层 Skill 例外是：
 
 | 项目本地例外 | 项目维护文件 | 覆盖范围外的职责 |
 | --- | --- | --- |
-| 决策与当前任务分工 | `.codex/skills/decision-records/SKILL.md`、`.codex/skills/decision-records/agents/openai.yaml`、`.codex/skills/decision-records/references/decision-record-rules.md` | 上游包继续拥有 CLI、ESM、schema、declarations、updater 与恢复实现。 |
-| Change 探索、实施准备与恢复审计 | `.codex/skills/openspec-explore/SKILL.md`、`.codex/skills/openspec-propose/SKILL.md`、`.codex/skills/openspec-apply-change/SKILL.md` | 上游包继续拥有其它分发材料与 OpenSpec CLI。 |
 | 能力感知的测试证据评审 | `.codex/skills/test-evidence-review/SKILL.md`、`.codex/skills/test-evidence-review/agents/openai.yaml` | 项目测试证据 owner 继续拥有 Runner、Case、CLI 和闭合 runtime。 |
 
-同步上游 Skill 前按表逐项比较项目语义。上游已经满足对应语义时，通过决策演进缩小或取消
-例外；仍需项目语义时，只重放表中登记的文件。该表是当前项目本地例外的完整边界。
+该表是项目本地例外的完整边界。后续只有项目特有 owner 与验证入口能证明上游方法不适用时，
+才通过新的决策演进增加例外；工具 runtime、schema、索引和产品行为仍不得 fork 到方法层。
 
 ## 长期决策适配器
 
 项目内安装的
 [`decision-records`](https://github.com/zxyycom/skills/tree/main/skills/decision-records)
-工具实现拥有 domain catalog、决策记录格式、索引生命周期以及 CLI / ESM API 精确语义；
-项目方法层覆盖按
-[决策与 Change 治理](decision-and-change-governance.md#活动决策与当前任务)解释 `alignment`
-如何影响当前任务。Vibe Check-owned
+工具契约拥有 domain catalog 与决策记录的固定格式、通用 lifecycle 与关系事务、索引生成以及
+CLI / ESM API 精确语义；项目的 `decision-domains.json` 和决策 Markdown 分别拥有实际 domain
+边界与每条决策的内容和状态。项目 owner 按
+[决策与 Change 治理](decision-and-change-governance.md)路由当前事实、长期方向和单次计划。
+Vibe Check-owned
 `scripts/decision-records.ts` 显式传入仓库根、转发 CLI 参数，并为模块调用暴露
 `runDecisionRecordsCli`、`scanDecisionRecords` 和 `validateDecisionRecords`。适配器不复制
 解析、校验、索引维护或关系语义，`src/product/**` 也不导入该开发工具。
@@ -227,7 +242,33 @@ output 并传播 result，不增加 artifact parser、schema registry 或 warnin
 | `bun run decisions:check` | 严格检查目录、Markdown、索引和关系 | 只读 |
 | `bun run decisions -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定；写命令按 skill 契约执行 |
 
-已确认的长期取舍位于 `docs/decisions/`；代码、配置和 owner 文档继续承接当前事实与行为。
+## Change Plan CLI
+
+项目内完整上游 [`change-plan`](../.codex/skills/change-plan/SKILL.md) 拥有 Change 目录、固定
+artifacts、metadata、stage、assessment、Git 距离与 lifecycle CLI。项目只固定 `changes/` 根和
+package scripts：
+
+| 入口 | 用途 | 状态影响 |
+| --- | --- | --- |
+| `bun run change-plan:list` | 列出 `changes/` 下 active Change | 只读；发现 invalid member 不等于验收通过 |
+| `bun run change-plan -- show changes/<change>` | 展开一个 Change、assessment、任务进度和 artifacts | 只读 |
+| `bun run change-plan -- check changes/<change>` | 按当前 stage 机械检查目标 Change | 只读 |
+| `bun run change-plan -- <lifecycle> changes/<change>` | 调用 plan、implement、shelve、reconcile、resume 或 archive | 按命令改变 metadata 或目录；仍需语义审阅和当前授权 |
+
+CLI 使用稳定的命令与 JSON 输出边界；项目不依赖其未承诺稳定的直接 import API。
+
+## Investigation Report CLI
+
+项目内完整上游 [`investigation-report`](../.codex/skills/investigation-report/SKILL.md) 拥有主题、
+可选随附资源、派生索引、同步、查询与 `stage-index`。集合只在用户明确要求沉淀调查时建立；
+不存在的 `docs/investigations/` 不用空目录或空索引伪装为合法集合。
+
+| 入口 | 用途 | 状态影响 |
+| --- | --- | --- |
+| `bun run investigations:list` | 从已核对新鲜度的索引查询主题 | 只读 |
+| `bun run investigations:check` | 全量检查主题、资源与派生索引 | 只读 |
+| `bun run investigations -- sync-index` | 从主题和资源重建工作树索引 | 写派生索引，不写主题或资源 |
+| `bun run investigations -- stage-index <topic-id...>` | 只把选中主题对应的索引变化写入 pending | 写版本管理 pending，不暂存主题或资源 |
 
 ## 测试证据闭合工具
 

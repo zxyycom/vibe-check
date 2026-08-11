@@ -41,7 +41,7 @@ describe("repository configuration policy", () => {
       "scripts/tools/validators/**/*.ts",
       "scripts/vibe-check-workspace/**/*.ts",
       "docs/**/*.md",
-      "openspec/**/*.md"
+      "changes/**/*.md"
     ]);
     assert.deepEqual(Object.keys(resolvedConfig.codeAreas), [
       "docs-specs",

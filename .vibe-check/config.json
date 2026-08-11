@@ -59,14 +59,14 @@
   },
   "codeAreas": {
     "docs-specs": {
-      "description": "Long-term docs and OpenSpec change materials",
+      "description": "Long-term docs and current Change Plan materials",
       "excludeGlobs": [
         "docs/examples/**",
         "docs/schemas/**"
       ],
       "globs": [
         "docs/**/*.md",
-        "openspec/**/*.md"
+        "changes/**/*.md"
       ],
       "warningPolicy": "watchlist-only"
     },
@@ -119,6 +119,7 @@
   },
   "excludeDirs": [
     ".git",
+    "archive",
     "target",
     "node_modules",
     ".venv",
@@ -146,7 +147,7 @@
     "scripts/tools/validators/**/*.ts",
     "scripts/vibe-check-workspace/**/*.ts",
     "docs/**/*.md",
-    "openspec/**/*.md"
+    "changes/**/*.md"
   ],
   "report": {
     "footerGeneratedBy": "Vibe Check Quality Observability",

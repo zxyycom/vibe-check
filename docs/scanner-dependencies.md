@@ -109,7 +109,8 @@ Python invocation、Lizard CSV 和 private fields 留在 adapter；Core 只接�
 normalized failure。Future TypeScript port 只替换这个 internal dependency/process boundary，
 不得改变 `checks.functions`、accepted-warning `checkId`、public schema/example/fixture 或 current
 machine source identity；其独立计划见
-[port-lizard-function-metrics-to-typescript](../openspec/changes/port-lizard-function-metrics-to-typescript/README.md)。
+[将 Lizard 统一后置于 Check 产品基础](decisions/product-priority/defer-lizard-until-after-check-foundations.md)
+决策；其实施上下文通过 `bun run change-plan:list` 查询，本依赖 owner 不创建或命名 Change Plan。
 
 ## Duplicate measurement boundary
 
@@ -128,8 +129,8 @@ adapter。Successful process without report、invalid report 与 non-zero execut
 normalized failure；quick profile skipped、insufficient/no input、successful zero duplicates 和
 dependency unavailable也保持可区分。
 
-完整 duplicate capability contract 见
-[`duplicate-scanning` spec](../openspec/specs/duplicate-scanning/spec.md)。
+Duplicate input、依赖与 failure contract 由本节拥有；fragment、aggregation 与 warning 语义由
+[Quality Metrics](quality-metrics.md#jscpd-duplicate-boundary)拥有。
 
 ## Cache identity
 

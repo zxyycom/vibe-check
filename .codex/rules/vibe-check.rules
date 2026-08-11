@@ -21,6 +21,17 @@ prefix_rule(pattern=["bun", "run", "decisions:list"], decision="allow")
 prefix_rule(pattern=["bun", "run", "decisions:check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "decisions"], decision="prompt")
 
+# Change Plan discovery and target inspection are read-only; lifecycle commands can mutate metadata or move directories.
+prefix_rule(pattern=["bun", "run", "change-plan:list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "change-plan", "--", "show"], decision="allow")
+prefix_rule(pattern=["bun", "run", "change-plan", "--", "check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "change-plan"], decision="prompt")
+
+# Investigation queries/checks are read-only; sync-index and stage-index write workspace or pending state.
+prefix_rule(pattern=["bun", "run", "investigations:list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "investigations:check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "investigations"], decision="prompt")
+
 # TypeScript product and script checks.
 prefix_rule(pattern=["bun", "run", "lint:product"], decision="allow")
 prefix_rule(pattern=["bun", "run", "typecheck:product"], decision="allow")
@@ -32,7 +43,6 @@ prefix_rule(pattern=["bun", "run", "typecheck:scripts:tsc"], decision="allow")
 # Workspace validation and verification.
 prefix_rule(pattern=["bun", "run", "validate"], decision="allow")
 prefix_rule(pattern=["bun", "run", "validate:docs"], decision="allow")
-prefix_rule(pattern=["bun", "run", "validate:openspec"], decision="allow")
 prefix_rule(pattern=["bun", "run", "validate:diff"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:required"], decision="allow")
@@ -70,13 +80,3 @@ prefix_rule(pattern=["pnpm", "remove"], decision="prompt")
 prefix_rule(pattern=["pnpm", "update"], decision="prompt")
 prefix_rule(pattern=["pnpm", "exec"], decision="prompt")
 prefix_rule(pattern=["pnpm", "dlx"], decision="prompt")
-
-# OpenSpec inspection and validation.
-prefix_rule(pattern=["openspec", "list"], decision="allow")
-prefix_rule(pattern=["openspec", "show"], decision="allow")
-prefix_rule(pattern=["openspec", "status"], decision="allow")
-prefix_rule(pattern=["openspec", "instructions"], decision="allow")
-prefix_rule(pattern=["openspec", "validate"], decision="allow")
-
-# OpenSpec commands that mutate change state or specs.
-prefix_rule(pattern=["openspec", "archive"], decision="prompt")

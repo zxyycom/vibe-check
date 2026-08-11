@@ -187,17 +187,6 @@ export const checks = defineChecks([
         warningOutput: [
           /^Quality verification status: warning$/m
         ]
-      },
-      {
-        id: "openspec",
-        label: "openspec",
-        command: "openspec",
-        args: ["validate", "--all", "--strict"],
-        ignoreOutput: [
-          /^✓ /,
-          /^Totals: \d+ passed, 0 failed .*$/,
-          /^- Validating\.\.\.$/
-        ]
       }
     ]
   }

@@ -105,8 +105,7 @@ ordering、aggregation 和 warning mapping 属于本 metrics contract。
 
 Quick/full capability selection、per-area exact inputs、format detection、
 `ScannerDependencySnapshot` slice、private config/reporter 以及 normalized failure 由
-[Scanner 依赖选择](scanner-dependencies.md#duplicate-measurement-boundary) 和
-[`duplicate-scanning` spec](../openspec/specs/duplicate-scanning/spec.md) 维护。
+[Scanner 依赖选择](scanner-dependencies.md#duplicate-measurement-boundary)维护。
 
 ## Aggregation
 
