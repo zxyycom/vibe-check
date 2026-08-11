@@ -8,8 +8,10 @@ import {
   type DuplicateCodeCacheIdentity,
   type ScanKind
 } from "../../cache.ts";
+import { acceptScopedMeasurements } from "../../scoped-measurement.ts";
 import { isExcluded } from "../../../model/code-areas.ts";
 import { scanWithJscpdAsync, type JscpdScanResult } from "./scanner.ts";
+import { toScopedJscpdMeasurements } from "./scoped-fragments.ts";
 import { runBoundedTasks } from "./parallel.ts";
 import type {
   CodeAreaFileMap,
@@ -98,10 +100,21 @@ function collectJscpdAreaScanWork(options: JscpdAreaScanOptions): JscpdAreaScanW
     });
 
     if (cached.hit) {
-      const fragments = annotateJscpdFragments(cached.metrics, area, options.changedFiles);
-      work.allFragments.push(...fragments);
-      console.log(`${options.logPrefix}jscpd ${area}: ${fragments.length} duplicate fragments from cache`);
-      continue;
+      const scopeAcceptance = acceptScopedMeasurements(
+        toScopedJscpdMeasurements(cached.metrics),
+        targetFiles
+      );
+      if (scopeAcceptance.ok) {
+        const fragments = annotateJscpdFragments(
+          scopeAcceptance.payloads,
+          area,
+          options.changedFiles
+        );
+        work.allFragments.push(...fragments);
+        console.log(`${options.logPrefix}jscpd ${area}: ${fragments.length} duplicate fragments from cache`);
+        continue;
+      }
+      console.log(`${options.logPrefix}Ignoring jscpd ${area} cache: ${scopeAcceptance.error}`);
     }
 
     if (targetFiles.length < 2) {
@@ -131,7 +144,21 @@ function appendJscpdAreaScanResults(
       const miss = missByArea.get(task.area);
       if (!miss) continue;
 
-      const fragments = annotateJscpdFragments(result.fragments ?? [], task.area, options.changedFiles);
+      const scopeAcceptance = acceptScopedMeasurements(result.measurements, task.files);
+      if (!scopeAcceptance.ok) {
+        handleJscpdAreaScanFailure(options, task, {
+          error: scopeAcceptance.error,
+          ok: false,
+          reason: "jscpd-parse-failure"
+        });
+        continue;
+      }
+
+      const fragments = annotateJscpdFragments(
+        scopeAcceptance.payloads,
+        task.area,
+        options.changedFiles
+      );
       work.allFragments.push(...fragments);
       writeScanCacheEntry({
         rootDir: options.cacheRootDir,
@@ -251,7 +278,7 @@ function recordCurrentJscpdFailure(
 }
 
 function annotateJscpdFragments(
-  fragments: DuplicateCodeFragment[],
+  fragments: readonly DuplicateCodeFragment[],
   area: string,
   changedFiles: string[] | undefined
 ): DuplicateCodeFragment[] {

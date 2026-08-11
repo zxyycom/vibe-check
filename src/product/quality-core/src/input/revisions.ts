@@ -7,7 +7,6 @@
 
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
-import { minimatch } from "minimatch";
 
 import {
   processFailed,
@@ -21,6 +20,7 @@ import {
   uniqueSortedPaths
 } from "./revision-tree.ts";
 import { materializeRevisionGitlinks } from "./revision-materialization.ts";
+import { matchesAnyConfigGlob } from "../model/config-glob.ts";
 
 type MaterializeBaselineResult =
   | { ok: true; workDir: string }
@@ -162,8 +162,8 @@ export function detectScanInputChange({
     ...getWorkingTreeChangedFiles(cwd, scanInputPaths)
   ].map(toSlashPath);
   const uniqueChangedFiles = uniqueSortedPaths(changedFiles);
-  const scanInputChanged = changedFiles.some((f) =>
-    scanInputPaths.some((p) => fileMatchesPattern(f, p))
+  const scanInputChanged = changedFiles.some((filePath) =>
+    matchesAnyConfigGlob(filePath, scanInputPaths)
   );
 
   return { changed: scanInputChanged, changedFiles: uniqueChangedFiles };
@@ -193,8 +193,4 @@ export function getRevisionChangedFiles(
     scanInputPaths,
     toRevision
   }));
-}
-
-function fileMatchesPattern(filePath: string, pattern: string): boolean {
-  return minimatch(toSlashPath(filePath), pattern);
 }

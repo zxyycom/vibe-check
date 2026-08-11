@@ -5,6 +5,9 @@ export const SEMANTIC_PROJECT_CONFIG_V1_SCHEMA_ID =
 export const SEMANTIC_PROJECT_CONFIG_V1_SCHEMA_PATH =
   "docs/schemas/vibe-check-config.schema.json";
 
+const CONFIG_GLOB_DESCRIPTION =
+  "Project-root-relative slash-form config glob interpreted with minimatch default options.";
+
 const WarningPolicySchema = Type.Enum([
   "strict",
   "moderate",
@@ -21,12 +24,12 @@ const CodeAreaSchema = Type.Object({
     description: "Human-readable description of this code area."
   }),
   excludeGlobs: Type.Array(Type.String({
-    description: "Glob excluded from this code area."
+    description: CONFIG_GLOB_DESCRIPTION
   }), {
     description: "Globs excluded after this code area's positive globs match."
   }),
   globs: Type.Array(Type.String({
-    description: "Glob that assigns matching project files to this code area."
+    description: CONFIG_GLOB_DESCRIPTION
   }), {
     description: "Globs that select project files for this code area."
   }),
@@ -229,12 +232,12 @@ export const SemanticProjectConfigV1Schema = Type.Object({
     description: "Directories excluded from project file collection."
   }),
   generatedFiles: Type.Array(Type.String({
-    description: "Glob that classifies a project file as generated."
+    description: CONFIG_GLOB_DESCRIPTION
   }), {
     description: "Generated-file globs excluded from ordinary scanner input."
   }),
   include: Type.Array(Type.String({
-    description: "Glob included in project scan scope."
+    description: CONFIG_GLOB_DESCRIPTION
   }), {
     description: "Project-root-relative include globs."
   }),

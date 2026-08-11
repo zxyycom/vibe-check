@@ -21,10 +21,53 @@ import {
   TEST_SCANNER_DEPENDENCIES
 } from "../../test/config.ts";
 import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
+import { runBaselineRevisionScan } from "./baseline-revision.ts";
 import { runCurrentRevisionScan } from "./current-revision/index.ts";
 import type { ScanContext } from "./current-revision/scan-context.ts";
 
 describe("baseline revision capability eligibility", () => {
+  it("rejects scanner measurements outside baseline exact inputs", async () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-baseline-scope-"));
+    const fakeSccPath = join(tempDir, "fake-scc.ts");
+    const dependencies: ScannerDependencySnapshot = {
+      ...TEST_SCANNER_DEPENDENCIES,
+      file: {
+        args: [fakeSccPath],
+        availabilityArgs: [fakeSccPath, "--version"],
+        executable: process.execPath
+      }
+    };
+    writeOutOfScopeScc(fakeSccPath);
+
+    try {
+      await assert.rejects(
+        withMutedConsoleLog(() => runBaselineRevisionScan(
+          tempDir,
+          [{
+            available: true,
+            error: null,
+            name: "scc",
+            source: "test",
+            version: "3.7.0"
+          }],
+          TEST_QUALITY_CONFIG,
+          dependencies,
+          {
+            inputs: {
+              baselineFiles: ["src/approved.ts"],
+              fingerprints: {},
+              jscpdTargetFileMap: new Map(),
+              lizardTargetFiles: []
+            }
+          }
+        )),
+        /baseline scc scan failed: scanner measurement #1 references unapproved input path "\.\.\/outside\.ts"/
+      );
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
   it("resolves an eligible baseline tool when the current revision has no input for it", async () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-baseline-eligibility-"));
     const repository = join(tempDir, "repository");
@@ -278,6 +321,19 @@ function writeFakeScc(filePath: string): void {
       "    \"Markdown,,docs/a.md,8,6,0,2,0,100,6\\n\"",
       "  );",
       "}"
+    ].join("\n"),
+    "utf8"
+  );
+}
+
+function writeOutOfScopeScc(filePath: string): void {
+  writeFileSync(
+    filePath,
+    [
+      "process.stdout.write(",
+      "  \"Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\\n\" +",
+      "  \"TypeScript,../outside.ts,outside.ts,8,6,0,2,0,100,6\\n\"",
+      ");"
     ].join("\n"),
     "utf8"
   );

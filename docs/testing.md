@@ -115,8 +115,10 @@ Case，一个 Case 可以映射多个 entities；不得把 schema fields 当成 
 
 当前 TypeScript tests 继续证明其职责。`docs/testing/cases/**` 覆盖的直接资产包括：
 
-- `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV、jscpd version/report parser，
-  以及 jscpd unavailable / execution / report / parse failure。
+- `measurement/scanners.test.ts`：scc by-file CSV、Lizard CSV 与 jscpd version/report parser。
+- `measurement/scanners-scc.test.ts`、`measurement/scanners-lizard.test.ts` 与
+  `measurement/scanners-jscpd.test.ts`：scanner availability、execution、report 与 normalized
+  failure projection。
 - `model/scan-completeness.test.ts`：stable current capability IDs，以及 shared reducer 对
   succeeded、mixed、empty 和 failed results 的归约。
 - `model/gate-policy.test.ts` 与 `model/gate-evaluator.test.ts`：descriptor-derived policy、
@@ -128,12 +130,19 @@ Case，一个 Case 可以映射多个 entities；不得把 schema fields 当成 
   与 stdout/stderr boundary。
 - `measurement/current-revision/current-revision.test.ts`：current capability wrappers 的
   successful zero result 与 unavailable / execution / invalid-result failure projection。
+- `measurement/scoped-measurement.test.ts` 与
+  `measurement/current-revision/scanner-scope.test.ts`：source-scoped measurement contract、
+  opaque payload handling，以及 current SCC / Lizard / jscpd exact-result rejection。
+- `measurement/baseline-revision.test.ts`：baseline eligibility、dependency resolution 与
+  exact-result rejection。
 - `measurement/scanners/jscpd/area-scans.test.ts`：per-code-area task planning、稳定 task /
-  file ordering、current failure collection 和 baseline throw behavior。
+  file ordering、current failure collection、baseline throw behavior 和 cached fragment scope
+  revalidation。
 - `measurement/cache.test.ts`：duplicate 与 baseline cache identity、cache hit 和 snapshot
   integrity。
-- `input/files.test.ts`：file fingerprint、Git pathspec、explicit changed-files
-  路径/错误边界，以及 current/baseline Git collection 与 config-only fallback。
+- `input/files.test.ts`：file fingerprint、Git NUL candidate enumeration、config glob include、
+  explicit changed-files 路径/错误边界，以及 current/baseline Git collection 与 config-only
+  fallback。
 - `output/warnings/generator.test.ts`：file/function/duplicate thresholds、changed/regression
   channels 和 accepted warning behavior。
 - `output/report/markdown-report.test.ts`：ranking、changed-file summary、metric labels、

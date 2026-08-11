@@ -8,13 +8,14 @@ Proves:
 - quality input fingerprint 使用排序后的文件内容生成稳定 SHA-256。
 - 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
 
-## Case AUX-QUALITY-GIT-PATHSPEC-001: Quality git pathspec 参数稳定
+## Case WB-SCOPE-GIT-CANDIDATES-001: Git candidate identity 与 config glob 语义稳定
 Owner: `docs/scan-scope.md#ignore-与-changed-file-scope`
 Entities:
-- `bun|src/product/quality-core/src/input/files.test.ts|quality input git pathspecs > builds explicit git pathspec arguments and can omit empty pathspecs`
+- `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
+- `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
 Proves:
-- quality input git pathspec 参数使用显式 `--` 分隔并保留 glob pathspec magic。
-- 空 pathspec 可按调用方需要保留 `--` 或完全省略。
+- Git 只以 NUL-delimited protocol 枚举 ignore-aware candidate paths，换行不会改变文件身份。
+- Product include 只由 config glob contract 解释；brace、globstar 等 minimatch default semantics 在 current、baseline 与 Git-failure fallback 中一致。
 
 ## Case WB-SCOPE-FILE-COLLECTION-001: Product current/baseline collection fallback 稳定
 Owner: `docs/scan-scope.md#ignore-与-changed-file-scope`

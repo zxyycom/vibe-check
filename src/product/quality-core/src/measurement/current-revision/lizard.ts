@@ -6,17 +6,24 @@ import {
   isToolAvailable,
   normalizeFunctionMetrics
 } from "../metrics.ts";
+import { acceptScopedMeasurements } from "../scoped-measurement.ts";
 import type {
   CapabilityFailureKind,
-  CapabilityResult
+  CapabilityResult,
+  FailedCapabilityResult
 } from "../../model/scan-completeness.ts";
+import type { FunctionMetric } from "../../model/schema.ts";
 import type { ScanContext } from "./scan-context.ts";
+
+type LizardExactInputResult =
+  | { readonly ok: true; readonly payloads: readonly FunctionMetric[] }
+  | { readonly failure: FailedCapabilityResult; readonly ok: false };
 
 export function runLizardScan(
   context: ScanContext,
-  targetFiles: string[]
+  targetFiles: readonly string[]
 ): CapabilityResult {
-  const { metrics, toolResults, rawDir, root, config, dependencies } = context;
+  const { metrics, toolResults, rawDir, config } = context;
   if (targetFiles.length === 0) {
     return { capabilityId: "function-metrics", status: "no-input" };
   }
@@ -35,28 +42,10 @@ export function runLizardScan(
 
   console.log("Running Lizard...");
   console.log(`  Lizard targets: ${targetFiles.length} files`);
+  const exactInputResult = measureLizardExactInputs(context, targetFiles);
+  if (!exactInputResult.ok) return exactInputResult.failure;
 
-  const lizardResult = scanWithLizard({
-    files: targetFiles,
-    cwd: root,
-    dependency: dependencies.function
-  });
-
-  if (!lizardResult.ok) {
-    console.log(`  ❌ Lizard execution/config/schema error: ${lizardResult.error}`);
-    return failedLizardResult(
-      lizardResult.error,
-      lizardResult.reason
-    );
-  }
-  if (!Array.isArray(lizardResult.functions)) {
-    return failedLizardResult(
-      "Lizard returned an invalid normalized result",
-      "invalid-result"
-    );
-  }
-
-  metrics.functionMetrics = normalizeFunctionMetrics(lizardResult.functions, {
+  metrics.functionMetrics = normalizeFunctionMetrics(exactInputResult.payloads, {
     changedFiles: context.changedFiles,
     config
   });
@@ -67,10 +56,41 @@ export function runLizardScan(
   return { capabilityId: "function-metrics", status: "succeeded" };
 }
 
+function measureLizardExactInputs(
+  context: ScanContext,
+  targetFiles: readonly string[]
+): LizardExactInputResult {
+  const scannerResult = scanWithLizard({
+    files: targetFiles,
+    cwd: context.root,
+    dependency: context.dependencies.function
+  });
+  if (!scannerResult.ok) {
+    console.log(`  ❌ Lizard execution/config/schema error: ${scannerResult.error}`);
+    return {
+      failure: failedLizardResult(scannerResult.error, scannerResult.reason),
+      ok: false
+    };
+  }
+
+  const scopeAcceptance = acceptScopedMeasurements(
+    scannerResult.measurements,
+    targetFiles
+  );
+  if (!scopeAcceptance.ok) {
+    return {
+      failure: failedLizardResult(scopeAcceptance.error, "invalid-result"),
+      ok: false
+    };
+  }
+
+  return { ok: true, payloads: scopeAcceptance.payloads };
+}
+
 function failedLizardResult(
   message: string,
   kind: CapabilityFailureKind
-): CapabilityResult {
+): FailedCapabilityResult {
   return {
     capabilityId: "function-metrics",
     status: "failed",

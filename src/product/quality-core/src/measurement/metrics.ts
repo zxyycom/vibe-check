@@ -10,7 +10,10 @@ type NormalizeMetricOptions = {
   config: ResolvedQualityConfig;
 };
 
-export function normalizeFileMetrics(files: FileMetric[], options: NormalizeMetricOptions): FileMetric[] {
+export function normalizeFileMetrics(
+  files: readonly FileMetric[],
+  options: NormalizeMetricOptions
+): FileMetric[] {
   return sortFileMetrics(
     files
       .map((file) => ({
@@ -24,7 +27,7 @@ export function normalizeFileMetrics(files: FileMetric[], options: NormalizeMetr
 }
 
 export function normalizeFunctionMetrics(
-  functions: FunctionMetric[],
+  functions: readonly FunctionMetric[],
   options: NormalizeMetricOptions
 ): FunctionMetric[] {
   return sortFunctionMetrics(

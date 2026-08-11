@@ -1,7 +1,8 @@
-import path from "node:path";
-
 import type { DuplicateCodeFragment, DuplicateCodeLocation } from "../../../model/schema.ts";
-import { errorMessage, isNonArrayRecord, toSlashPath } from "../../../../../foundation/src/index.ts";
+import type { ScopedMeasurement } from "../../scoped-measurement.ts";
+import { errorMessage, isNonArrayRecord } from "../../../../../foundation/src/index.ts";
+import { normalizeScannerReportedPath } from "../source-path.ts";
+import { toScopedJscpdMeasurement } from "./scoped-fragments.ts";
 import type { JscpdScanResult } from "./types.ts";
 
 type JscpdFileLocation = {
@@ -24,16 +25,7 @@ export function parseJscpdJsonReport(json: string, cwd: string): JscpdScanResult
       throw new Error("jscpd JSON report must include duplicates array");
     }
 
-    const fragments = duplicates
-      .map((duplication, index) => {
-        if (!isNonArrayRecord(duplication)) {
-          throw new Error(`jscpd duplicate #${index + 1} must be an object`);
-        }
-        return parseJscpdFragment(duplication, cwd, index + 1);
-      })
-      .sort((a, b) => b.tokenCount - a.tokenCount);
-
-    return { ok: true, fragments };
+    return { ok: true, measurements: parseJscpdMeasurements(duplicates, cwd) };
   } catch (error: unknown) {
     return {
       ok: false,
@@ -41,6 +33,23 @@ export function parseJscpdJsonReport(json: string, cwd: string): JscpdScanResult
       reason: "jscpd-parse-failure"
     };
   }
+}
+
+function parseJscpdMeasurements(
+  duplicates: readonly unknown[],
+  cwd: string
+): ScopedMeasurement<DuplicateCodeFragment>[] {
+  const measurements: ScopedMeasurement<DuplicateCodeFragment>[] = [];
+
+  for (const [index, duplication] of duplicates.entries()) {
+    if (!isNonArrayRecord(duplication)) {
+      throw new Error(`jscpd duplicate #${index + 1} must be an object`);
+    }
+    const fragment = parseJscpdFragment(duplication, cwd, index + 1);
+    measurements.push(toScopedJscpdMeasurement(fragment));
+  }
+
+  return measurements.sort((a, b) => b.payload.tokenCount - a.payload.tokenCount);
 }
 
 function parseJscpdFragment(
@@ -90,7 +99,7 @@ function parseJscpdLocation(
   const endLine = nestedIntegerField(location, "endLoc", "line") ?? integerField(location, "end");
 
   return {
-    path: normalizeJscpdPath(filePath, cwd),
+    path: normalizeScannerReportedPath(filePath, cwd),
     startLine,
     endLine: endLine || startLine + Math.max(0, lineCount - 1),
     codeArea: "unknown"
@@ -121,41 +130,4 @@ function stringField(record: Record<string, unknown>, name: string): string {
     throw new Error(`jscpd field "${name}" must be a non-empty string`);
   }
   return value;
-}
-
-function normalizeJscpdPath(filePath: string, cwd: string): string {
-  const withoutExtendedPrefix = stripWindowsExtendedPathPrefix(filePath);
-  const normalizedCwd = stripWindowsExtendedPathPrefix(cwd);
-  const pathApi = pathApiForJscpdPath(withoutExtendedPrefix, normalizedCwd);
-
-  if (!pathApi.isAbsolute(withoutExtendedPrefix)) {
-    return toSlashPath(withoutExtendedPrefix);
-  }
-
-  const relativePath = pathApi.relative(normalizedCwd, withoutExtendedPrefix);
-  if (relativePath === "") {
-    return ".";
-  }
-  if (!relativePath.startsWith("..") && !pathApi.isAbsolute(relativePath)) {
-    return toSlashPath(relativePath);
-  }
-  return toSlashPath(withoutExtendedPrefix);
-}
-
-function stripWindowsExtendedPathPrefix(filePath: string): string {
-  if (filePath.startsWith("\\\\?\\UNC\\")) {
-    return `\\\\${filePath.slice(8)}`;
-  }
-  if (filePath.startsWith("\\\\?\\")) {
-    return filePath.slice(4);
-  }
-  return filePath;
-}
-
-function pathApiForJscpdPath(filePath: string, cwd: string): path.PlatformPath {
-  return isWindowsAbsolutePath(filePath) || isWindowsAbsolutePath(cwd) ? path.win32 : path;
-}
-
-function isWindowsAbsolutePath(filePath: string): boolean {
-  return /^[A-Za-z]:[\\/]/.test(filePath) || filePath.startsWith("\\\\");
 }

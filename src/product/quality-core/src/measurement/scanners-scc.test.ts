@@ -27,7 +27,7 @@ describe("quality scc exact input projection", () => {
 
     assert.deepEqual(result, {
       ok: true,
-      files: [],
+      measurements: [],
       aggregates: { byLanguage: [] },
     });
   });

@@ -20,7 +20,7 @@ interface ScanWithSccOptions {
 
 export function scanWithScc({ cwd, dependency, includePaths, excludeDirs }: ScanWithSccOptions): SccScanResult {
   if (includePaths.length === 0) {
-    return { ok: true, files: [], aggregates: { byLanguage: [] } };
+    return { ok: true, measurements: [], aggregates: { byLanguage: [] } };
   }
 
   const argv = buildSccArgs({ includePaths, excludeDirs, dependencyArgs: dependency.args });

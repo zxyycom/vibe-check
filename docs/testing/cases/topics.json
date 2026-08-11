@@ -31,7 +31,7 @@
     },
     {
       "id": "scan-scope",
-      "description": "输入 fingerprint、Git pathspec、changed-files 与 current/baseline 文件收集边界。"
+      "description": "输入 fingerprint、Git candidate identity、config glob、changed-files 与 current/baseline 文件收集边界。"
     },
     {
       "id": "scanner-adapters",

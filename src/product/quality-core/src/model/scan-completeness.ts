@@ -33,6 +33,8 @@ export type CapabilityResult =
     readonly status: "failed";
   };
 
+export type FailedCapabilityResult = Extract<CapabilityResult, { status: "failed" }>;
+
 export function reduceScanCompleteness(
   results: readonly CapabilityResult[]
 ): ScanCompleteness {

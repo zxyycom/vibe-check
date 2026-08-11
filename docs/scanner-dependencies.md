@@ -86,8 +86,36 @@ capability 的 work：
    所需的 semantic slice，以及自己的 dependency slice。
 
 Adapters 隔离 availability、process、timeout、native failure、CSV/JSON/private report 和 raw
-material，只返回 Vibe Check-owned result 或 normalized capability failure。这里不建立 generic
-scanner/provider/plugin abstraction：三个 slices 只有各自消费者需要的 concrete fields。
+material。每条成功 measurement 使用以下 internal contract 返回：
+
+```ts
+type ScopedMeasurement<T> = {
+  readonly payload: T;
+  readonly sourcePaths: readonly string[];
+};
+```
+
+本 contract 中，approved exact inputs 是 Core 为当前 capability invocation 交给 adapter 的
+完整 path list。Adapter 与 Core 分别承担以下不变量：
+
+1. Adapter 从构造 payload 的同一组 CSV / JSON location values 生成 `sourcePaths`，并使用
+   slash-form normalization；合法 measurement 的每个 declared path 必须与一个
+   project-root-relative approved exact input 完全相等。Payload-specific location 与 declared
+   source identity 的一致性由 adapter 保证。
+2. 每条 measurement 至少声明一个 source path。一个 measurement 可以声明多个 paths，例如
+   duplicate fragment 的两个 locations。
+3. Source-scope acceptance 把 `payload` 当作 opaque Vibe Check-owned value，只检查每个 declared
+   path 是否精确属于 approved exact inputs；它不读取 `FileMetric.path`、`FunctionMetric.file`
+   或 duplicate locations 来重建 adapter 语义。验收成功后，capability consumer 再按对应
+   Vibe Check-owned model 使用 payload。
+4. 任一路径不属于 approved set 时，Core 拒绝该 invocation 的全部 measurements。Current
+   capability 映射为 `invalid-result` 且不写入部分 metrics；baseline measurement 同样 fail
+   closed。
+
+`ScopedMeasurement<T>` 只统一 source identity handoff，不统一 capability payload 或 failure
+protocol。它不进入 `QualityMetrics` 或 public machine output，也不建立 generic
+scanner/provider/plugin hierarchy；三个 dependency slices、payloads 与 scanner-native failure
+仍只包含各自消费者需要的 concrete fields。
 
 ## File measurement boundary
 
@@ -128,6 +156,10 @@ Temporary config、format detection、reporter structure、process protocol 与 
 adapter。Successful process without report、invalid report 与 non-zero execution 保持 distinct
 normalized failure；quick profile skipped、insufficient/no input、successful zero duplicates 和
 dependency unavailable也保持可区分。
+
+jscpd per-area cache 命中后，从 cached fragment locations 重新构造 `ScopedMeasurement`，并再次
+对该 area 的 approved exact inputs 验收。包含未批准来源路径的 cache hit 被忽略并重新扫描；
+只有重新扫描返回的 measurements 通过同一 contract 后才能进入 metrics 和新 cache entry。
 
 Duplicate input、依赖与 failure contract 由本节拥有；fragment、aggregation 与 warning 语义由
 [Quality Metrics](quality-metrics.md#jscpd-duplicate-boundary)拥有。

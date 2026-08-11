@@ -104,7 +104,7 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
   } = options;
 
   if (files.length < 2) {
-    return { ok: false, result: { ok: true, fragments: [] } };
+    return { ok: false, result: { ok: true, measurements: [] } };
   }
 
   return {

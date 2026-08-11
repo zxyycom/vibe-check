@@ -3,14 +3,28 @@ import { join } from "node:path";
 import { writeQualityJsonArtifact } from "../../output/artifacts.ts";
 import { scanWithScc } from "../scanners/scc.ts";
 import { isToolAvailable, normalizeFileMetrics } from "../metrics.ts";
+import { acceptScopedMeasurements } from "../scoped-measurement.ts";
 import type {
   CapabilityFailureKind,
-  CapabilityResult
+  CapabilityResult,
+  FailedCapabilityResult
 } from "../../model/scan-completeness.ts";
+import type { FileMetric, LanguageAggregate } from "../../model/schema.ts";
 import type { ScanContext } from "./scan-context.ts";
 
-export function runSccScan(context: ScanContext, scanFiles: string[]): CapabilityResult {
-  const { metrics, toolResults, rawDir, root, config, dependencies } = context;
+type SccExactInputResult =
+  | {
+      readonly byLanguage: readonly LanguageAggregate[];
+      readonly ok: true;
+      readonly payloads: readonly FileMetric[];
+    }
+  | { readonly failure: FailedCapabilityResult; readonly ok: false };
+
+export function runSccScan(
+  context: ScanContext,
+  scanFiles: readonly string[]
+): CapabilityResult {
+  const { metrics, toolResults, rawDir, config } = context;
   if (scanFiles.length === 0) {
     return { capabilityId: "file-metrics", status: "no-input" };
   }
@@ -28,42 +42,59 @@ export function runSccScan(context: ScanContext, scanFiles: string[]): Capabilit
   }
 
   console.log("Running scc...");
+  const exactInputResult = measureSccExactInputs(context, scanFiles);
+  if (!exactInputResult.ok) return exactInputResult.failure;
 
-  const sccResult = scanWithScc({
-    cwd: root,
-    dependency: dependencies.file,
-    includePaths: scanFiles,
-    excludeDirs: config.excludeDirs
-  });
-
-  if (!sccResult.ok) {
-    console.log(`  ❌ scc execution/config/schema error: ${sccResult.error}`);
-    return failedSccResult(
-      sccResult.error,
-      sccResult.reason
-    );
-  }
-  if (!Array.isArray(sccResult.files) || !Array.isArray(sccResult.aggregates.byLanguage)) {
-    return failedSccResult(
-      "scc returned an invalid normalized result",
-      "invalid-result"
-    );
-  }
-
-  metrics.fileMetrics = normalizeFileMetrics(sccResult.files, {
+  metrics.fileMetrics = normalizeFileMetrics(exactInputResult.payloads, {
     changedFiles: context.changedFiles,
     config
   });
-  metrics.aggregates.byLanguage = sccResult.aggregates.byLanguage;
+  metrics.aggregates.byLanguage = [...exactInputResult.byLanguage];
   console.log(`  scc: ${metrics.fileMetrics.length} files, ${metrics.aggregates.byLanguage.length} languages`);
   writeQualityJsonArtifact(join(rawDir, "scc-output.json"), metrics.fileMetrics);
   return { capabilityId: "file-metrics", status: "succeeded" };
 }
 
+function measureSccExactInputs(
+  context: ScanContext,
+  scanFiles: readonly string[]
+): SccExactInputResult {
+  const scannerResult = scanWithScc({
+    cwd: context.root,
+    dependency: context.dependencies.file,
+    includePaths: scanFiles,
+    excludeDirs: context.config.excludeDirs
+  });
+  if (!scannerResult.ok) {
+    console.log(`  ❌ scc execution/config/schema error: ${scannerResult.error}`);
+    return {
+      failure: failedSccResult(scannerResult.error, scannerResult.reason),
+      ok: false
+    };
+  }
+
+  const scopeAcceptance = acceptScopedMeasurements(
+    scannerResult.measurements,
+    scanFiles
+  );
+  if (!scopeAcceptance.ok) {
+    return {
+      failure: failedSccResult(scopeAcceptance.error, "invalid-result"),
+      ok: false
+    };
+  }
+
+  return {
+    byLanguage: scannerResult.aggregates.byLanguage,
+    ok: true,
+    payloads: scopeAcceptance.payloads
+  };
+}
+
 function failedSccResult(
   message: string,
   kind: CapabilityFailureKind
-): CapabilityResult {
+): FailedCapabilityResult {
   return {
     capabilityId: "file-metrics",
     status: "failed",

@@ -28,6 +28,13 @@ export function splitGitFileList(stdout: string): string[] {
     .map(toSlashPath);
 }
 
+export function splitNulDelimitedGitFileList(stdout: string): string[] {
+  return stdout
+    .split("\0")
+    .filter((filePath) => filePath.length > 0)
+    .map(toSlashPath);
+}
+
 export function parseGitStatusPaths(stdout: string): string[] {
   return stdout
     .split(/\r?\n/)

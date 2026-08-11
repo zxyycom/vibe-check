@@ -7,6 +7,7 @@ import { scanWithScc } from "./scanners/scc.ts";
 import { scanJscpdAreasWithCache } from "./scanners/jscpd/area-scans.ts";
 import { classifyFiles } from "../model/code-areas.ts";
 import { buildAggregates } from "./aggregate.ts";
+import { acceptScopedMeasurements } from "./scoped-measurement.ts";
 import { collectBaselineFiles, buildFingerprints } from "../input/files.ts";
 import { resolveEligibleTools } from "./current-revision/index.ts";
 import { selectJscpdTargetFileMap } from "./current-revision/jscpd.ts";
@@ -191,12 +192,19 @@ function scanBaselineScc({
   if (!sccResult.ok) {
     throw new Error(`baseline scc scan failed: ${sccResult.error}`);
   }
+  const scopeAcceptance = acceptScopedMeasurements(
+    sccResult.measurements,
+    baselineFiles,
+  );
+  if (!scopeAcceptance.ok) {
+    throw new Error(`baseline scc scan failed: ${scopeAcceptance.error}`);
+  }
 
-  const fileMetrics = normalizeFileMetrics(sccResult.files ?? [], {
+  const fileMetrics = normalizeFileMetrics(scopeAcceptance.payloads, {
     config: context.config,
   });
   console.log(`    Baseline scc: ${fileMetrics.length} files`);
-  return { fileMetrics, byLanguage: sccResult.aggregates?.byLanguage ?? [] };
+  return { fileMetrics, byLanguage: [...sccResult.aggregates.byLanguage] };
 }
 
 function scanBaselineLizard({
@@ -216,9 +224,16 @@ function scanBaselineLizard({
   if (!lizardResult.ok) {
     throw new Error(`baseline lizard scan failed: ${lizardResult.error}`);
   }
+  const scopeAcceptance = acceptScopedMeasurements(
+    lizardResult.measurements,
+    targetFiles,
+  );
+  if (!scopeAcceptance.ok) {
+    throw new Error(`baseline lizard scan failed: ${scopeAcceptance.error}`);
+  }
 
   const functionMetrics = normalizeFunctionMetrics(
-    lizardResult.functions ?? [],
+    scopeAcceptance.payloads,
     { config: context.config },
   );
   console.log(`    Baseline Lizard: ${functionMetrics.length} functions`);

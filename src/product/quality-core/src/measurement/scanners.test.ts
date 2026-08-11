@@ -14,16 +14,31 @@ describe("quality scanner output parsing", () => {
       SCC_BY_FILE_CSV_HEADER,
       "Rust,crates/docnav/src/lib.rs,lib.rs,120,90,20,10,17,4096,70",
       "TypeScript,scripts/quality/scan.ts,scan.ts,60,50,5,5,8,2048,45",
+      "TypeScript,/repo/src/absolute.ts,absolute.ts,40,30,5,5,4,1024,25",
     ].join("\n");
 
     const result = parseSccCSV(csv, "/repo");
 
-    assert.equal(result.ok, true);
+    if (!result.ok) {
+      assert.fail(result.error);
+    }
     assert.deepEqual(
-      result.files!.map((f) => f.path),
-      ["crates/docnav/src/lib.rs", "scripts/quality/scan.ts"],
+      result.measurements.map((measurement) => measurement.payload.path),
+      [
+        "crates/docnav/src/lib.rs",
+        "scripts/quality/scan.ts",
+        "src/absolute.ts",
+      ],
     );
-    assert.equal(result.files![0]!.decisionTokens.value, 17);
+    assert.deepEqual(
+      result.measurements.map((measurement) => measurement.sourcePaths),
+      [
+        ["crates/docnav/src/lib.rs"],
+        ["scripts/quality/scan.ts"],
+        ["src/absolute.ts"],
+      ],
+    );
+    assert.equal(result.measurements[0]!.payload.decisionTokens.value, 17);
     const invalidResult = parseSccCSV(
       "Language,Location,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes\n",
       "/repo",
@@ -44,22 +59,29 @@ describe("quality scanner output parsing", () => {
       '271,88,1887,7,326,"generateWarnings@35-360@scripts/tools/quality-core/src/output/warnings/generator.ts","scripts/tools/quality-core/src/output/warnings/generator.ts","generateWarnings","generateWarnings ( files , functions , duplicates , config , scope , baseline , comparisonStatus )",35,360',
     ].join("\n");
 
-    const result = parseLizardCSV(csv);
+    const result = parseLizardCSV(csv, "/repo");
 
-    assert.equal(result.ok, true);
-    assert.deepEqual(result.functions![0], {
-      name: "generateWarnings",
-      file: "scripts/tools/quality-core/src/output/warnings/generator.ts",
-      codeArea: "unknown",
-      startLine: 35,
-      endLine: 360,
-      lines: 271,
-      parameterCount: 7,
-      cyclomaticComplexity: {
-        value: 88,
-        source: "lizard",
+    if (!result.ok) {
+      assert.fail(result.error);
+    }
+    assert.deepEqual(result.measurements[0], {
+      sourcePaths: [
+        "scripts/tools/quality-core/src/output/warnings/generator.ts",
+      ],
+      payload: {
+        name: "generateWarnings",
+        file: "scripts/tools/quality-core/src/output/warnings/generator.ts",
+        codeArea: "unknown",
+        startLine: 35,
+        endLine: 360,
+        lines: 271,
+        parameterCount: 7,
+        cyclomaticComplexity: {
+          value: 88,
+          source: "lizard",
+        },
+        isChanged: false,
       },
-      isChanged: false,
     });
   });
 
@@ -96,7 +118,7 @@ describe("quality scanner output parsing", () => {
     ] as const;
 
     for (const [caseName, malformedRow] of malformedRows) {
-      const result = parseLizardCSV(malformedRow);
+      const result = parseLizardCSV(malformedRow, "/repo");
 
       assert.equal(result.ok, false, caseName);
       if (!result.ok) {
@@ -106,14 +128,15 @@ describe("quality scanner output parsing", () => {
 
     const partialResult = parseLizardCSV(
       [validRow, malformedRows[0][1]].join("\n"),
+      "/repo",
     );
     assert.equal(partialResult.ok, false);
 
-    const missingComplexityResult = parseLizardCSV(rowWith(1, ""));
+    const missingComplexityResult = parseLizardCSV(rowWith(1, ""), "/repo");
     assert.equal(missingComplexityResult.ok, true);
     if (missingComplexityResult.ok) {
       assert.equal(
-        missingComplexityResult.functions[0]?.cyclomaticComplexity.value,
+        missingComplexityResult.measurements[0]?.payload.cyclomaticComplexity.value,
         null,
       );
     }
@@ -121,7 +144,7 @@ describe("quality scanner output parsing", () => {
 
   it("rejects malformed or partial Lizard CSV headers instead of treating them as zero functions", () => {
     for (const csv of ["not,lizard,csv", "NLOC,CCN", "NLOC,CCN,garbage"]) {
-      const result = parseLizardCSV(csv);
+      const result = parseLizardCSV(csv, "/repo");
 
       assert.equal(result.ok, false);
       if (!result.ok) {
@@ -132,13 +155,14 @@ describe("quality scanner output parsing", () => {
   });
 
   it("keeps legitimate Lizard zero-function output successful", () => {
-    const emptyResult = parseLizardCSV("");
+    const emptyResult = parseLizardCSV("", "/repo");
     const headerOnlyResult = parseLizardCSV(
       "NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line",
+      "/repo",
     );
 
-    assert.deepEqual(emptyResult, { ok: true, functions: [] });
-    assert.deepEqual(headerOnlyResult, { ok: true, functions: [] });
+    assert.deepEqual(emptyResult, { ok: true, measurements: [] });
+    assert.deepEqual(headerOnlyResult, { ok: true, measurements: [] });
   });
 
   it("parses jscpd version and JSON output", () => {
@@ -170,15 +194,21 @@ describe("quality scanner output parsing", () => {
 
     // jscpd 5.x delegates to its bundled Rust binary, which reports a cpd prefix.
     assert.equal(parseJscpdVersionOutput("cpd 5.0.11"), "5.0.11");
-    assert.equal(result.ok, true);
-    assert.equal(result.fragments[0]!.tokenCount, 50);
-    assert.equal(result.fragments[0]!.lineCount, 10);
+    if (!result.ok) {
+      assert.fail(result.error);
+    }
+    assert.equal(result.measurements[0]!.payload.tokenCount, 50);
+    assert.equal(result.measurements[0]!.payload.lineCount, 10);
     assert.deepEqual(
-      result.fragments[0]!.locations.map((location) => location.path),
+      result.measurements[0]!.payload.locations.map((location) => location.path),
       ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"],
     );
     assert.deepEqual(
-      result.fragments[0]!.locations.map((location) => [
+      result.measurements[0]!.sourcePaths,
+      ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"],
+    );
+    assert.deepEqual(
+      result.measurements[0]!.payload.locations.map((location) => [
         location.startLine,
         location.endLine,
       ]),
@@ -211,7 +241,7 @@ describe("quality scanner output parsing", () => {
 function assertSccEmptyAndValidOutputs(): void {
   assert.deepEqual(parseSccCSV(SCC_BY_FILE_CSV_HEADER, "/repo"), {
     ok: true,
-    files: [],
+    measurements: [],
     aggregates: { byLanguage: [] },
   });
   for (const missingHeader of ["", " \n\t\n"]) {
@@ -237,7 +267,10 @@ function assertSccEmptyAndValidOutputs(): void {
   );
   assert.equal(emptyComplexityResult.ok, true);
   if (emptyComplexityResult.ok) {
-    assert.equal(emptyComplexityResult.files[0]?.decisionTokens.value, null);
+    assert.equal(
+      emptyComplexityResult.measurements[0]?.payload.decisionTokens.value,
+      null,
+    );
   }
 }
 

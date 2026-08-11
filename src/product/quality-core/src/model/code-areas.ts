@@ -5,8 +5,9 @@
  * 同时负责路径过滤和 generated files 识别。
  */
 
-import { minimatch } from "minimatch";
 import { createHash } from "node:crypto";
+
+import { matchesAnyConfigGlob } from "./config-glob.ts";
 import type { CodeAreaDefinition, CodeAreaFileMap, CodeAreaFingerprint } from "./schema.ts";
 
 /**
@@ -22,17 +23,17 @@ export function classifyFile(
   codeAreas: Record<string, CodeAreaDefinition>,
   generatedFileGlobs: readonly string[]
 ): string {
-  if (generatedFileGlobs.some((g) => minimatch(filePath, g))) {
+  if (matchesAnyConfigGlob(filePath, generatedFileGlobs)) {
     return "generated";
   }
 
   for (const [name, def] of Object.entries(codeAreas)) {
     if (name === "generated") continue;
 
-    if (def.excludeGlobs.some((g) => minimatch(filePath, g))) {
+    if (matchesAnyConfigGlob(filePath, def.excludeGlobs)) {
       continue;
     }
-    if (def.globs.some((g) => minimatch(filePath, g))) {
+    if (matchesAnyConfigGlob(filePath, def.globs)) {
       return name;
     }
   }
@@ -47,7 +48,7 @@ export function isExcluded(filePath: string, excludeDirs: readonly string[], gen
     return true;
   }
 
-  if (generatedFileGlobs.some((g) => minimatch(filePath, g))) {
+  if (matchesAnyConfigGlob(filePath, generatedFileGlobs)) {
     return true;
   }
 

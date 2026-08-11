@@ -48,16 +48,21 @@ default 或 repository policy。改变 neutral policy 或 replacement precedence
 ## Ignore 与 changed-file scope
 
 Current 与 baseline primary file collection 都使用
-`git ls-files --cached --others --exclude-standard`，因此遵守 Git pathspec 和 VCS ignore
-规则。Git command 成功时，其 normalized result 直接成为候选集合；成功的空集合也是权威
-结果，不触发 fallback walker。
+`git ls-files -z --cached --others --exclude-standard --`。Git 只负责按 NUL-delimited protocol
+枚举 tracked / untracked candidate identity 并应用 VCS ignore。Product 对候选路径完成 slash
+normalization 后，按 [Configuration 的 config glob contract](configuration.md#complete-semantic-document)
+解释 `include`，再应用 resolved exclude / generated-file rules。Git 不解释 config glob，也不预先
+缩小 include 候选集合。
+
+Git command 成功时，经过 Product 过滤的结果就是权威 scan scope；无论候选集合在过滤前还是
+过滤后为空，都不触发 fallback walker。
 
 只有 Git command 失败时，对应 collector 才使用 config-only best-effort fallback。
-Fallback 只应用同一 `ResolvedQualityConfig` 的 include、exclude directories 和 generated-file
-rules，不读取 `.gitignore`、`.git/info/exclude` 或 global Git excludes。需要稳定排除的
-path 必须由 Config / Scan Scope owner 维护，不能只依赖 VCS ignore source。无论来自哪个
-collector，被 config exclude 或 generated-file 规则排除的路径都不得因某个 scanner
-自行遍历而重新进入。
+Fallback 只替换 candidate enumeration：后续仍使用同一 config glob contract 和同一
+`ResolvedQualityConfig` exclude / generated-file rules。Fallback 不读取 `.gitignore`、
+`.git/info/exclude` 或 global Git excludes。需要稳定排除的 path 必须由 Config / Scan Scope
+owner 维护，不能只依赖 VCS ignore source。无论来自哪个 collector，被 config exclude 或
+generated-file 规则排除的路径都不得因某个 scanner 自行遍历而重新进入。
 
 Changed-file scope 可以来自现有 comparison 逻辑或调用者显式传入的文件列表。显式列表
 读取失败必须抛出可行动 error，不能静默回退为“没有 changed files”。Changed scope 只为
@@ -108,7 +113,7 @@ failure 或 fallback，也不拥有 failure code、status、artifact 或 console
 - Current/baseline Git success-empty、command-failure config-only fallback，以及 unreadable
   fingerprint marker。
 - code-area classification、文件排序和 fingerprint 稳定性。
-- Git pathspec 与显式 `--changed-files` 失败。
+- Git NUL candidate identity、config glob contract 与显式 `--changed-files` 失败。
 - `.ts` / `.d.ts` / `.rs` structural inputs 和 unsupported extensions。
 - Python/Lizard 与 jscpd 只接收 normalized exact inputs，不重新扫描 project root。
 - zero-supported-input、quick profile 跳过 jscpd 和 normal no-finding。

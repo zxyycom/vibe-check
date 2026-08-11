@@ -19,7 +19,7 @@ interface ScanWithLizardOptions {
 
 export function scanWithLizard({ files, cwd, dependency }: ScanWithLizardOptions): LizardScanResult {
   if (files.length === 0) {
-    return { ok: true, functions: [] };
+    return { ok: true, measurements: [] };
   }
 
   const argv = [...dependency.args, ...files, "--csv"];
@@ -47,5 +47,5 @@ export function scanWithLizard({ files, cwd, dependency }: ScanWithLizardOptions
   }
 
   const output = child.stdout || "";
-  return parseLizardCSV(output);
+  return parseLizardCSV(output, cwd);
 }

@@ -1,6 +1,12 @@
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -219,6 +225,82 @@ describe("jscpd tasks", () => {
       rmSync(tempDir, { recursive: true, force: true });
     }
   });
+
+  it("revalidates cached fragment source paths against exact area inputs", async () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-jscpd-cache-scope-"));
+    const cacheRootDir = join(tempDir, "cache");
+    const capturePath = join(tempDir, "invocations.ndjson");
+    const fakeJscpdPath = join(tempDir, "reporting-jscpd.ts");
+    const fileMap = new Map([
+      ["typescript-production-scripts", ["scripts/a.ts", "scripts/b.ts"]]
+    ]);
+    const fingerprints = {
+      "typescript-production-scripts": {
+        fileCount: 2,
+        fileList: ["scripts/a.ts", "scripts/b.ts"],
+        fingerprint: "sha256:cache-scope"
+      }
+    };
+    const options = {
+      cacheRootDir,
+      commitSha: "cache-scope",
+      config: TEST_QUALITY_CONFIG,
+      cwd: tempDir,
+      dependency: {
+        args: [fakeJscpdPath],
+        availabilityArgs: [fakeJscpdPath, "--version"],
+        executable: process.execPath,
+        maxConcurrency: 1
+      },
+      fileMap,
+      fingerprints,
+      logPrefix: "",
+      scanKind: "current" as const,
+      throwOnFailure: true,
+      toolResults: availableJscpd()
+    };
+
+    writeFileSync(
+      fakeJscpdPath,
+      reportingJscpdSource(capturePath),
+      "utf8"
+    );
+
+    try {
+      const first = await withMutedConsoleLog(() =>
+        scanJscpdAreasWithCache(options)
+      );
+      assert.deepEqual(
+        first[0]?.locations.map((location) => location.path),
+        ["scripts/a.ts", "scripts/b.ts"]
+      );
+
+      const cacheDir = join(cacheRootDir, "quality-scan-cache-v1");
+      const cacheFile = readdirSync(cacheDir).find((entry) => entry.endsWith(".json"));
+      assert.ok(cacheFile);
+      const cachePath = join(cacheDir, cacheFile);
+      const cached = JSON.parse(readFileSync(cachePath, "utf8")) as {
+        metrics: Array<{ locations: Array<{ path: string }> }>;
+      };
+      cached.metrics[0]!.locations[0]!.path = "../outside.ts";
+      writeFileSync(cachePath, `${JSON.stringify(cached)}\n`, "utf8");
+
+      const second = await withMutedConsoleLog(() =>
+        scanJscpdAreasWithCache(options)
+      );
+      assert.deepEqual(
+        second[0]?.locations.map((location) => location.path),
+        ["scripts/a.ts", "scripts/b.ts"]
+      );
+      assert.equal(
+        readFileSync(capturePath, "utf8").trim().split("\n").length,
+        2,
+        "an out-of-scope cache hit must be ignored and rescanned"
+      );
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
 });
 
 async function withMutedConsoleLog<T>(callback: () => Promise<T>): Promise<T> {
@@ -263,6 +345,27 @@ appendFileSync(
 const outputDir = process.argv[outputIndex + 1];
 mkdirSync(outputDir, { recursive: true });
 writeFileSync(join(outputDir, "jscpd-report.json"), '{"duplicates":[]}', "utf8");
+`;
+}
+
+function reportingJscpdSource(capturePath: string): string {
+  return `
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const configPath = process.argv[process.argv.indexOf("--config") + 1];
+const outputDir = process.argv[process.argv.indexOf("--output") + 1];
+const config = JSON.parse(readFileSync(configPath, "utf8"));
+appendFileSync(${JSON.stringify(capturePath)}, "scan\\n", "utf8");
+mkdirSync(outputDir, { recursive: true });
+writeFileSync(join(outputDir, "jscpd-report.json"), JSON.stringify({
+  duplicates: [{
+    lines: 3,
+    tokens: 12,
+    firstFile: { name: config.path[0], start: 1, end: 3 },
+    secondFile: { name: config.path[1], start: 1, end: 3 }
+  }]
+}), "utf8");
 `;
 }
 

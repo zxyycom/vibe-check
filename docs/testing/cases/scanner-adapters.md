@@ -65,7 +65,20 @@ Entities:
 Proves:
 - scc by-file CSV 解析 Provider path 和 decision-token value；完整 header-only output 是合法 zero-file result，空输出、未知 header、截断或缺少必填字段、非法数值字段以及合法行后的 malformed row 均 fail closed 为 `invalid-result`。
 - Lizard CSV row 解析 function name、file path、line range、NLOC、parameter count 和 cyclomatic complexity。
+- SCC、Lizard 与 jscpd parser 从构造 payload 的同一组私有 location values 生成 `ScopedMeasurement`；payload-specific path shape 不需要由 Core 重新解释。
 - jscpd parser helpers 解析 version output 和 JSON duplicate fragment locations/token count，并把 invalid JSON 或 invalid duplicate item 映射为 `jscpd-parse-failure`。
+
+## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner result exact-input scope 稳定
+Owner: `docs/scanner-dependencies.md#eligibility-and-adapter-handoff`
+Entities:
+- `bun|src/product/quality-core/src/measurement/baseline-revision.test.ts|baseline revision capability eligibility > rejects scanner measurements outside baseline exact inputs`
+- `bun|src/product/quality-core/src/measurement/current-revision/scanner-scope.test.ts|current scanner exact-result scope > rejects measurements that reference paths outside approved exact inputs`
+- `bun|src/product/quality-core/src/measurement/scoped-measurement.test.ts|scoped measurement acceptance > validates declared source paths without inspecting payload shape`
+- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > revalidates cached fragment source paths against exact area inputs`
+Proves:
+- Adapter 从构造 payload 的同一组 normalized locations 生成 `sourcePaths`；source-scope acceptance 只读取 `ScopedMeasurement.sourcePaths` 并把 payload 当作 opaque value。每条 measurement 至少声明一个 source path，且所有 paths 必须属于本 capability invocation 的 approved exact inputs。
+- Current SCC、Lizard 与 jscpd 的任一越界 measurement 都使整个 capability 以 `invalid-result` 失败，不写入部分 metrics；baseline measurement 同样 fail closed。
+- jscpd cache hit 会重新经过相同 exact-input scope 验收；包含未批准路径的缓存不会重新进入 metrics，而是被忽略并重新扫描。
 
 ## Case AUX-QUALITY-SCC-WRAPPER-001: Quality scc zero-input boundary 稳定
 Owner: `docs/scanner-dependencies.md#file-measurement-boundary`
@@ -74,4 +87,3 @@ Entities:
 - `bun|src/product/quality-core/src/measurement/scanners-scc.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
 Proves:
 - scc wrapper 收到空 exact input list 时直接返回 successful empty metrics，不启动 configured process。
-- External scc 的 default-cwd traversal 不会把 normalized scan scope 未批准的文件重新加入 file metrics。

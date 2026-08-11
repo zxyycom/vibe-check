@@ -216,9 +216,9 @@ Base semantic document 顶层精确包含以下字段：
 | Field | Contract |
 | --- | --- |
 | `version` | literal string `"1"` |
-| `include` | project-root-relative include glob string array |
+| `include` | project-root-relative config glob string array |
 | `excludeDirs` | excluded directory name/path string array |
-| `generatedFiles` | generated-file glob string array |
+| `generatedFiles` | project-root-relative generated-file config glob string array |
 | `codeAreas` | named code-area definitions |
 | `checks` | file、function 与 duplication quality semantics |
 | `acceptedWarnings` | semantic warning acceptances |
@@ -235,6 +235,13 @@ Base semantic document 顶层精确包含以下字段：
 | `checks.functions.codeLines` | `absoluteFloor`、`changedDelta`、`lowComplexityAllowance.codeLineFloor`、`lowComplexityAllowance.maxCyclomaticComplexityExclusive` |
 | `checks.functions.parameterCount` | `absoluteFloor`、`changedDelta` |
 | `checks.duplication` | `defaultMinimumTokens`、`minimumTokensByCodeArea`、`fragments.changedDelta` |
+
+`include`、`generatedFiles`、`codeAreas.<name>.globs` 与
+`codeAreas.<name>.excludeGlobs` 共用一个 config glob contract：pattern 与 candidate path 都是
+project-root-relative slash-form strings，Product 使用 minimatch default options 匹配，不为不同
+字段或 collector 增加第二套 glob 解释。`include` 选择 scan candidates；`generatedFiles` 排除
+generated inputs；code-area `globs` / `excludeGlobs` 只负责分类。Git candidate enumeration 与
+fallback 的职责见 [Scan Scope](scan-scope.md#ignore-与-changed-file-scope)。
 
 `codeAreas.<name>` 精确包含 `description`、`globs`、`excludeGlobs` 与 `warningPolicy`。
 `warningPolicy` 的 closed values 是 `strict`、`moderate`、`relaxed`、`watchlist-only` 和

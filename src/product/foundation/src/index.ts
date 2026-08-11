@@ -12,7 +12,8 @@ export {
   gitHeadSha,
   parseGitStatusPaths,
   runGit,
-  splitGitFileList
+  splitGitFileList,
+  splitNulDelimitedGitFileList
 } from "./git.ts";
 export { toNdjson } from "./ndjson.ts";
 export {

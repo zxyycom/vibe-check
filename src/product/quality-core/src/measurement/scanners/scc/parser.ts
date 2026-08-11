@@ -1,13 +1,23 @@
 import type { FileMetric, LanguageAggregate } from "../../../model/schema.ts";
-import { errorMessage, parseCsvRows, toSlashPath } from "../../../../../foundation/src/index.ts";
+import type { ScopedMeasurement } from "../../scoped-measurement.ts";
+import { errorMessage, parseCsvRows } from "../../../../../foundation/src/index.ts";
+import { normalizeScannerReportedPath } from "../source-path.ts";
 
 export const SCC_VERSION = "3.7.0";
 export const SCC_VERSION_OUTPUT = `scc version ${SCC_VERSION}`;
 export const SCC_BY_FILE_CSV_HEADER = "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC";
 
 export type SccScanResult =
-  | { aggregates: { byLanguage: LanguageAggregate[] }; files: FileMetric[]; ok: true }
-  | { error: string; ok: false; reason: "execution" | "invalid-result" };
+  | {
+      readonly aggregates: { readonly byLanguage: readonly LanguageAggregate[] };
+      readonly measurements: readonly ScopedMeasurement<FileMetric>[];
+      readonly ok: true;
+    }
+  | {
+      readonly error: string;
+      readonly ok: false;
+      readonly reason: "execution" | "invalid-result";
+    };
 
 interface SccColumnIndexes {
   blanks: number;
@@ -54,7 +64,7 @@ type SccRawRow = {
  * - Complexity 是 scc complexitychecks token 命中数，不是完整语言解析后的函数级 CC
  * - ULOC (Usable Lines of Code) 由 3.7.0 输出，但首期不进入稳定 metrics
  */
-export function parseSccCSV(csv: string, _cwd: string): SccScanResult {
+export function parseSccCSV(csv: string, cwd: string): SccScanResult {
   try {
     const rows = parseCsvRows(csv);
     const headerIdx = findSccHeaderIndex(rows);
@@ -67,8 +77,17 @@ export function parseSccCSV(csv: string, _cwd: string): SccScanResult {
     }
 
     const columns = sccColumnIndexes(rows[headerIdx] ?? []);
-    const parsed = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2);
-    return { ok: true, files: parsed.files, aggregates: { byLanguage: parsed.byLanguage } };
+    const parsed = parseSccMetrics(
+      rows.slice(headerIdx + 1),
+      columns,
+      headerIdx + 2,
+      cwd
+    );
+    return {
+      ok: true,
+      measurements: parsed.measurements,
+      aggregates: { byLanguage: parsed.byLanguage }
+    };
   } catch (error: unknown) {
     return {
       ok: false,
@@ -100,43 +119,58 @@ function sccColumnIndexes(headerCols: string[]): SccColumnIndexes {
   };
 }
 
-function parseSccMetrics(rows: string[][], columns: SccColumnIndexes, firstRowNumber: number): {
+function parseSccMetrics(
+  rows: string[][],
+  columns: SccColumnIndexes,
+  firstRowNumber: number,
+  cwd: string
+): {
   byLanguage: LanguageAggregate[];
-  files: FileMetric[];
+  measurements: ScopedMeasurement<FileMetric>[];
 } {
-  const files: FileMetric[] = [];
+  const measurements: ScopedMeasurement<FileMetric>[] = [];
   const langMap = new Map<string, LanguageAggregate>();
 
   for (const [index, row] of rows.entries()) {
-    const metric = parseSccFileMetric(row, columns, firstRowNumber + index);
-    files.push(metric);
-    addLanguageMetric(langMap, metric);
+    const measurement = parseSccFileMetric(
+      row,
+      columns,
+      firstRowNumber + index,
+      cwd
+    );
+    measurements.push(measurement);
+    addLanguageMetric(langMap, measurement.payload);
   }
 
-  files.sort((a, b) => b.lines - a.lines);
+  measurements.sort((a, b) => b.payload.lines - a.payload.lines);
   const byLanguage = Array.from(langMap.values()).sort((a, b) => b.lines - a.lines);
-  return { files, byLanguage };
+  return { measurements, byLanguage };
 }
 
 function parseSccFileMetric(
   parts: string[],
   columns: SccColumnIndexes,
-  rowNumber: number
-): ParsedSccFileMetric {
+  rowNumber: number,
+  cwd: string
+): ScopedMeasurement<ParsedSccFileMetric> {
   const row = parseSccRow(parts, columns, rowNumber);
+  const sourcePath = normalizeScannerReportedPath(row.path, cwd);
   return {
-    path: toSlashPath(row.path),
-    language: row.language,
-    codeArea: "unknown",
-    lines: row.lineCount,
-    codeLines: row.codeLines,
-    commentLines: row.commentLines,
-    blankLines: row.blankLines,
-    decisionTokens: {
-      value: row.complexity,
-      source: "scc"
-    },
-    isChanged: false
+    sourcePaths: [sourcePath],
+    payload: {
+      path: sourcePath,
+      language: row.language,
+      codeArea: "unknown",
+      lines: row.lineCount,
+      codeLines: row.codeLines,
+      commentLines: row.commentLines,
+      blankLines: row.blankLines,
+      decisionTokens: {
+        value: row.complexity,
+        source: "scc"
+      },
+      isChanged: false
+    }
   };
 }
 

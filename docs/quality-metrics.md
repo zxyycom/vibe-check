@@ -320,7 +320,7 @@ Rust tests / fixtures 补建 coverage。现有证明资产包括：
   invalid-result failure projection，以及 eligibility 后的 component resolution。
 - jscpd area task tests：per-area planning、稳定 task/file ordering、current failure
   collection 和 baseline throw behavior。
-- cache、fingerprint、Git pathspec 与 explicit changed-files tests。
+- cache、fingerprint、Git candidate / config glob 与 explicit changed-files tests。
 - warning generator tests：file、function、duplicate、accepted warning 与 channel semantics。
 - gate model/evaluator tests：descriptor-derived policy、discriminated validation、
   prerequisite priority、channel selection、accepted warning 与 blocking ordering。

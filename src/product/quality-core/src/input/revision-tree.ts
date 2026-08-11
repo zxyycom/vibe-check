@@ -2,15 +2,16 @@
 
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { minimatch } from "minimatch";
 
 import {
   parseGitStatusPaths,
   processFailed,
   runGit,
   splitGitFileList,
+  splitNulDelimitedGitFileList,
   toSlashPath
 } from "../../../foundation/src/index.ts";
+import { matchesAnyConfigGlob } from "../model/config-glob.ts";
 
 export type Gitlink = {
   path: string;
@@ -192,13 +193,17 @@ function collectWorktreeFiles(
   prefix: string,
   scanInputPaths: string[] | readonly string[]
 ): string[] {
-  const result = runGit(["ls-files", "--cached", "--others", "--exclude-standard"], {
+  const result = runGit(["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--"], {
     cwd: repository,
     maxBuffer: 1024 * 1024 * 64
   });
   if (processFailed(result)) return [];
 
-  const files = prefixAndFilter(splitGitFileList(result.stdout), prefix, scanInputPaths);
+  const files = prefixAndFilter(
+    splitNulDelimitedGitFileList(result.stdout),
+    prefix,
+    scanInputPaths
+  );
   const revision = stdoutValue(runGit(["rev-parse", "HEAD"], { cwd: repository }).stdout);
   if (!revision) return uniqueSortedPaths(files);
 
@@ -244,8 +249,9 @@ function prefixAndFilter(
 ): string[] {
   return files
     .map((file) => joinSlash(prefix, file))
-    .filter((file) => scanInputPaths.length === 0 ||
-      scanInputPaths.some((pattern) => minimatch(file, pattern)));
+    .filter((file) =>
+      scanInputPaths.length === 0 || matchesAnyConfigGlob(file, scanInputPaths)
+    );
 }
 
 function joinSlash(prefix: string, path: string): string {

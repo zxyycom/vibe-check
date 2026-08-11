@@ -120,7 +120,10 @@ shape。Configuration workflow 的完整边界由 [Configuration](configuration.
 - 建立 fingerprints、changed-file scope 和 optional baseline。
 - 先按 current/baseline 各自 exact inputs 确定 capability eligibility，再把同一个
   `ScannerDependencySnapshot` 的对应 slice 交给 eligible adapter。
-- 将 scanner output 归一化为 Vibe Check-owned models。
+- 通过 internal source-scoped measurement contract 验收 adapter 返回的 Vibe Check-owned models；
+  Core 只校验 declared source paths 是否属于该次调用的 exact inputs，不解析
+  payload-specific location fields。完整 handoff contract 由
+  [Scanner 依赖选择](scanner-dependencies.md#eligibility-and-adapter-handoff)维护。
 - 从每项 current capability 的 shared final result 归约 overall completeness。
 - 聚合 current/baseline metrics 并生成 warning channels。
 - 在 final completeness、comparison 和 warnings 后一次性评价 GateResult，不让 gate
@@ -143,7 +146,9 @@ protocol 提升为 public model。
 - 只消费 product core 已批准的 exact inputs。
 - 只接收本 capability 所需的 semantic measurement settings 与自己的 dependency slice。
 - 隔离 availability check、process invocation、CSV/JSON report 与 parser。
-- 返回 Vibe Check-owned metrics/fragments 和 shared capability result。
+- 从构造 payload 的同一组 scanner-private locations 生成 slash-form source paths，并通过
+  internal source-scoped measurement contract 返回 Vibe Check-owned metrics/fragments；locations
+  与 payload 的一致性留在 adapter，payload-specific shape 不进入 Core contract。
 - 保存复现问题所需的 raw material 或 normalized scanner artifact。
 
 Product core 先确定 capability eligibility；profile 未请求或没有 eligible input 时不解析、

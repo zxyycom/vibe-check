@@ -129,13 +129,14 @@ describe("quality jscpd wrapper failure projection", () => {
 
       assert.equal(result.ok, true);
       if (result.ok) {
-        assert.equal(result.fragments.length, 1);
-        assert.equal(result.fragments[0]!.locations.length, 2);
+        assert.equal(result.measurements.length, 1);
+        assert.equal(result.measurements[0]!.payload.locations.length, 2);
         assert.deepEqual(
-          result.fragments[0]!.locations.map((location) => location.path),
+          result.measurements[0]!.payload.locations.map((location) => location.path),
           ["a.ts", "b.ts"],
         );
-        assert.equal(result.fragments[0]!.hitsChangedScope, false);
+        assert.deepEqual(result.measurements[0]!.sourcePaths, ["a.ts", "b.ts"]);
+        assert.equal(result.measurements[0]!.payload.hitsChangedScope, false);
       }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

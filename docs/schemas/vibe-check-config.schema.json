@@ -295,7 +295,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "description": "Glob excluded from this code area."
+                "description": "Project-root-relative slash-form config glob interpreted with minimatch default options."
               },
               "description": "Globs excluded after this code area's positive globs match."
             },
@@ -303,7 +303,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "description": "Glob that assigns matching project files to this code area."
+                "description": "Project-root-relative slash-form config glob interpreted with minimatch default options."
               },
               "description": "Globs that select project files for this code area."
             },
@@ -337,7 +337,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "description": "Glob that classifies a project file as generated."
+        "description": "Project-root-relative slash-form config glob interpreted with minimatch default options."
       },
       "description": "Generated-file globs excluded from ordinary scanner input."
     },
@@ -345,7 +345,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "description": "Glob included in project scan scope."
+        "description": "Project-root-relative slash-form config glob interpreted with minimatch default options."
       },
       "description": "Project-root-relative include globs."
     },

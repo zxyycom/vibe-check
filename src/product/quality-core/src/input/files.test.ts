@@ -12,7 +12,6 @@ import {
   getChangedFileList,
   type ScanInputConfig
 } from "./files.ts";
-import { gitGlobPathspecArgs } from "./git-pathspec.ts";
 import { detectScanInputChange, materializeBaselineRevision } from "./revisions.ts";
 
 describe("quality input fingerprints", () => {
@@ -36,14 +35,6 @@ describe("quality input fingerprints", () => {
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
-  });
-});
-
-describe("quality input git pathspecs", () => {
-  it("builds explicit git pathspec arguments and can omit empty pathspecs", () => {
-    assert.deepEqual(gitGlobPathspecArgs(["scripts/**/*.ts"]), ["--", ":(glob)scripts/**/*.ts"]);
-    assert.deepEqual(gitGlobPathspecArgs([]), ["--"]);
-    assert.deepEqual(gitGlobPathspecArgs([], { omitWhenEmpty: true }), []);
   });
 });
 
@@ -249,6 +240,57 @@ describe("quality input file collection", () => {
       ]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("uses minimatch include semantics for Git and fallback candidates", () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-glob-owner-"));
+    const repository = join(tempDir, "repository");
+    const fallbackRoot = join(tempDir, "fallback");
+    const braceConfig = {
+      excludeDirs: [".git"],
+      generatedFiles: [],
+      include: ["src/**/*.{ts,tsx}"]
+    } satisfies ScanInputConfig;
+
+    try {
+      initializeRepository(repository);
+      for (const root of [repository, fallbackRoot]) {
+        writeFixtureFile(root, "src/component.tsx", "export const component = true;\n");
+        writeFixtureFile(root, "src/nested/module.ts", "export const module = true;\n");
+        writeFixtureFile(root, "src/ignored.js", "export const ignored = true;\n");
+        writeFixtureFile(root, "docs/outside.ts", "export const outside = true;\n");
+      }
+      commitAll(repository, "glob candidates");
+      writeFixtureFile(repository, "src/untracked.ts", "export const untracked = true;\n");
+      writeFixtureFile(fallbackRoot, "src/untracked.ts", "export const untracked = true;\n");
+
+      const expected = [
+        "src/component.tsx",
+        "src/nested/module.ts",
+        "src/untracked.ts"
+      ];
+      assert.deepEqual(collectScanFiles(repository, braceConfig), expected);
+      assert.deepEqual(collectBaselineFiles(repository, braceConfig), expected);
+      assert.deepEqual(collectScanFiles(fallbackRoot, braceConfig), expected);
+      assert.deepEqual(collectBaselineFiles(fallbackRoot, braceConfig), expected);
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves NUL-delimited Git candidate paths containing newlines", () => {
+    const repository = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-paths-"));
+    const newlinePath = "src/line\nbreak.ts";
+
+    try {
+      initializeRepository(repository);
+      writeFixtureFile(repository, newlinePath, "export const newline = true;\n");
+
+      assert.deepEqual(collectScanFiles(repository, config), [newlinePath]);
+      assert.deepEqual(collectBaselineFiles(repository, config), [newlinePath]);
+    } finally {
+      rmSync(repository, { recursive: true, force: true });
     }
   });
 });

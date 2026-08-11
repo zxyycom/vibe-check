@@ -5,13 +5,17 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
-import { minimatch } from "minimatch";
-
 import { buildFingerprint, isExcluded } from "../model/code-areas.ts";
+import { matchesAnyConfigGlob } from "../model/config-glob.ts";
 import { collectSubmoduleWorktreeFiles } from "./revision-tree.ts";
 import { getRevisionChangedFiles, getWorkingTreeChangedFiles } from "./revisions.ts";
-import { gitGlobPathspecArgs } from "./git-pathspec.ts";
-import { processFailed, runGit, splitGitFileList, toSlashPath, walkFiles } from "../../../foundation/src/index.ts";
+import {
+  processFailed,
+  runGit,
+  splitNulDelimitedGitFileList,
+  toSlashPath,
+  walkFiles
+} from "../../../foundation/src/index.ts";
 import type { CodeAreaFileMap, CodeAreaFingerprint, ResolvedQualityConfig } from "../model/schema.ts";
 
 export type ScanInputConfig = Pick<ResolvedQualityConfig, "excludeDirs" | "generatedFiles" | "include">;
@@ -22,13 +26,13 @@ export type ChangedFilesOptions = {
 };
 
 export function collectScanFiles(rootDir: string, config: ScanInputConfig): string[] {
-  const pathspecArgs = gitGlobPathspecArgs(config.include);
   const result = runGit([
     "ls-files",
+    "-z",
     "--cached",
     "--others",
     "--exclude-standard",
-    ...pathspecArgs
+    "--"
   ], {
     cwd: rootDir,
     maxBuffer: 1024 * 1024 * 64
@@ -40,19 +44,19 @@ export function collectScanFiles(rootDir: string, config: ScanInputConfig): stri
   }
 
   return normalizeAndFilterFiles([
-    ...splitGitFileList(result.stdout),
+    ...splitNulDelimitedGitFileList(result.stdout),
     ...collectSubmoduleWorktreeFiles(rootDir, config.include)
   ], config, rootDir);
 }
 
 export function collectBaselineFiles(workDir: string, config: ScanInputConfig): string[] {
-  const pathspecArgs = gitGlobPathspecArgs(config.include);
   const result = runGit([
     "ls-files",
+    "-z",
     "--cached",
     "--others",
     "--exclude-standard",
-    ...pathspecArgs
+    "--"
   ], {
     cwd: workDir,
     maxBuffer: 1024 * 1024 * 64
@@ -63,7 +67,7 @@ export function collectBaselineFiles(workDir: string, config: ScanInputConfig): 
   }
 
   return normalizeAndFilterFiles([
-    ...splitGitFileList(result.stdout),
+    ...splitNulDelimitedGitFileList(result.stdout),
     ...collectSubmoduleWorktreeFiles(workDir, config.include)
   ], config, workDir);
 }
@@ -158,7 +162,7 @@ function normalizeAndFilterFiles(files: string[], config: ScanInputConfig, rootD
 
 function isScanInputFile(filePath: string, config: ScanInputConfig): boolean {
   const normalized = toSlashPath(filePath);
-  return config.include.some((pattern) => minimatch(normalized, pattern)) &&
+  return matchesAnyConfigGlob(normalized, config.include) &&
     !isExcluded(normalized, config.excludeDirs, config.generatedFiles);
 }
 
