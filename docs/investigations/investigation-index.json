@@ -1,0 +1,126 @@
+{
+  "definitionVersion": 3,
+  "entries": {
+    "implementation-libraries/functional-utilities-and-data-structures.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786434874000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript 函数式工具与专用数据结构库调查",
+          "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
+          "采用 Remeda 与 Mnemonist，保留原生集合默认"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-11T07:54:34Z",
+        "path": "implementation-libraries/functional-utilities-and-data-structures.md",
+        "question": "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
+        "reportCount": 1,
+        "reportTitles": [
+          "采用 Remeda 与 Mnemonist，保留原生集合默认"
+        ],
+        "resourceReferences": [],
+        "status": "已结束",
+        "title": "TypeScript 函数式工具与专用数据结构库调查"
+      }
+    },
+    "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786434874000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript 穷尽匹配与轻量状态建模库调查",
+          "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
+          "采用 ts-pattern，状态机保持按需调查"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-11T07:54:34Z",
+        "path": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+        "question": "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
+        "reportCount": 1,
+        "reportTitles": [
+          "采用 ts-pattern，状态机保持按需调查"
+        ],
+        "resourceReferences": [],
+        "status": "已结束",
+        "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
+      }
+    },
+    "implementation-libraries/result-and-option-libraries.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786434874000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript Result 与 Option 库调查",
+          "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
+          "采用 neverthrow 与项目自有 Option"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-11T07:54:34Z",
+        "path": "implementation-libraries/result-and-option-libraries.md",
+        "question": "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
+        "reportCount": 1,
+        "reportTitles": [
+          "采用 neverthrow 与项目自有 Option"
+        ],
+        "resourceReferences": [],
+        "status": "已结束",
+        "title": "TypeScript Result 与 Option 库调查"
+      }
+    }
+  },
+  "keyDefinitions": [
+    {
+      "name": "category",
+      "mode": "exact"
+    },
+    {
+      "name": "latest-report-at",
+      "mode": "range"
+    },
+    {
+      "name": "status",
+      "mode": "exact"
+    },
+    {
+      "name": "text",
+      "mode": "text"
+    }
+  ],
+  "metadata": {
+    "resources": []
+  },
+  "namespace": "investigations",
+  "schemaVersion": 3,
+  "sourceRevision": {
+    "entries": {
+      "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:35d28f35b357753db86def36fec343a6e4a58e9a2f293c2c918d308ab7862f5d",
+      "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:899f54ebce5815e09153f3d93a41af1f72f57ca1f379adf5cc0baafe11c92a53",
+      "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53"
+    },
+    "metadata": "sha256:f2eeeea961c759a41e8ff539dcbad3ff02c179a17a9e1028d65131273facf3a9"
+  }
+}

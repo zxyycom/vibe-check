@@ -15,6 +15,15 @@ export {
   splitGitFileList
 } from "./git.ts";
 export { toNdjson } from "./ndjson.ts";
+export {
+  fromNullable,
+  none,
+  some,
+  type IOption,
+  type None,
+  type Option,
+  type Some
+} from "./option.ts";
 export { toSlashPath } from "./path.ts";
 export {
   processFailed,

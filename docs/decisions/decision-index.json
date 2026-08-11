@@ -63,9 +63,11 @@
       "product-priority/expand-format-aware-quality-checks.md": "sha256:97ce11aded742310ab3d99c345e14be467b55d7b118ac849695308fd53b65ff1",
       "testing/use-native-test-evidence-catalog.md": "sha256:26bf9ce29b0092468e04bb949f72f35fa4bce3d5efb0d951009aaa35d859fffd",
       "testing/use-semantic-test-case-closure.md": "sha256:1ab178ae7a1ada84bdd0617576c7ea86dd77db888ef2ac72b0ff694705d03794",
+      "workflow-policy/choose-implementation-style-by-problem-shape.md": "sha256:3c0e833ff981fe576db37caed3d1bb2ec3cd8f153f45a4430360d5c68fd2bc8d",
       "workflow-policy/defer-future-feature-detail-until-prioritized.md": "sha256:95c85b91ee55f96ec785ef7030348091614400e76ad4f973cdff71608a4f4bca",
       "workflow-policy/keep-project-workflow-skill-overrides-bounded.md": "sha256:bb4f7f3625dd5a1dc362728a84940836a3d65a1603f1d729f4de14aadbfc4566",
       "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
+      "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:e4d58a585d4f83b4ae7ee67d86598623191f93b36bfcfc814f5342598f0954bb",
       "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d44a538391d8995f6ebf02b0b6bbd4b3993f6a1306bc0939205dc3212d83746a",
       "workflow-policy/require-explicit-quality-baselines.md": "sha256:9e4a8654935dd513b8d45fc23e91db6227608e2c444dadfa1ea124d54007aa63",
       "workflow-policy/require-explicit-quality-comparison-references.md": "sha256:93842412f9db3ef513464b37fdf43b388c5e4698e27f638c6a3164b34853b798",
@@ -966,6 +968,30 @@
         ]
       }
     },
+    "workflow-policy/choose-implementation-style-by-problem-shape.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/choose-implementation-style-by-problem-shape.md",
+        "title": "按问题形态约束实现风格",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T07:32:31Z",
+        "purpose": "让实现风格由问题结构和可审查质量决定，而不是由局部习惯或可用语法随机决定。",
+        "background": "现有编码规范已约束 owner、边界、类型和验证，但没有把问题形态映射到优先实现模型，也缺少控制流、数据转换、mutation 和异步表达的共同审查边界。",
+        "decision": "由编码规范统一定义问题形态到实现模型的选择及局部表达约束；偏离需要具体契约或证据，不用固定行数、强制抽象或特定依赖代替工程判断。",
+        "relations": []
+      }
+    },
     "workflow-policy/defer-future-feature-detail-until-prioritized.md": {
       "keys": {
         "domain": [
@@ -1043,6 +1069,30 @@
             "target": "workflow-policy/defer-future-feature-detail-until-prioritized.md"
           }
         ]
+      }
+    },
+    "workflow-policy/preinstall-selected-typescript-capabilities.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/preinstall-selected-typescript-capabilities.md",
+        "title": "预置有限的 TypeScript 实现能力",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T07:39:34Z",
+        "purpose": "让常见实现问题有稳定且边界明确的项目能力，避免每次实现临时选库或并存多套等价抽象。",
+        "background": "编码规范已按问题形态选择模型；重复临时选库会扩大维护面，并让同类实现产生不一致表达。",
+        "decision": "预置 neverthrow、ts-pattern、Remeda、Mnemonist 和产品自制 Option；只按对应问题形态使用，不引入重叠替代。",
+        "relations": []
       }
     },
     "workflow-policy/require-explicit-named-comparison-references.md": {

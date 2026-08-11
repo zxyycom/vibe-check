@@ -1,5 +1,16 @@
 # quality-runtime
 
+## Case AUX-RUNTIME-OPTION-001: Product Option 显式区分值存在与缺失
+Owner: `docs/coding-style.md#5-按问题形态选择实现模型`
+Entities:
+- `bun|src/product/foundation/src/option.test.ts|product Option > composes present values without entering absence branches`
+- `bun|src/product/foundation/src/option.test.ts|product Option > keeps absence stable and evaluates only fallback branches`
+- `bun|src/product/foundation/src/option.test.ts|product Option > converts nullable inputs and Result boundaries without losing values or errors`
+Proves:
+- `Some` 的 type guard、映射、链式组合、过滤、匹配和 fallback 保持存在值，并且只执行存在分支副作用。
+- 单例 `None` 在映射、链式组合和过滤中保持缺失，通过 `or`、`orElse`、`unwrapOr` 和 `match` 显式进入 fallback，并且只执行缺失分支副作用。
+- `fromNullable` 只把 `null` 与 `undefined` 转成缺失，保留 falsy 值；`toResult` 分别保留存在值和指定的缺失错误。
+
 ## Case AUX-QUALITY-CACHE-001: Quality measurement cache identity 稳定
 Owner: `docs/scanner-dependencies.md#cache-identity`
 Entities:

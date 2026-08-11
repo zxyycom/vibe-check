@@ -31,9 +31,9 @@ The pinned quality-core tree has no separate fixture directory. Its
 `test/config.ts` support fixture and inline scanner samples remain in the
 copied source and test trees.
 
-## Extracted foundation closure
+## Extracted foundation closure and product extension
 
-The copied foundation file closure is:
+The product foundation file set is:
 
 - `args.ts`
 - `csv.ts`
@@ -41,14 +41,16 @@ The copied foundation file closure is:
 - `fs.ts`
 - `git.ts`
 - `ndjson.ts`
+- `option.ts` (repository-owned `Option` primitive)
 - `path.ts`
 - `process.ts` and `process/*.ts`
 - `type-guards.ts`
 
-`foundation/src/index.ts` is a mechanically reduced re-export surface for the
-symbols imported by quality-core. Consumer code imports `args.ts`, `errors.ts`,
-and `type-guards.ts` directly. Unused foundation modules, package metadata,
-tests, and `json/value.ts` were not copied.
+`foundation/src/index.ts` exports the mechanically reduced surface imported by
+quality-core plus the project-owned `Option` primitive. Consumer code imports
+`args.ts`, `errors.ts`, and `type-guards.ts` directly. Unused modules from the
+pinned foundation revision, package metadata, tests, and `json/value.ts` were
+not copied.
 
 ## Ownership and lift adjustments
 
@@ -71,8 +73,11 @@ The lift uses two review categories:
      warnings with the `src/product/**` source area, without changing the
      pinned threshold, profile, scanner, warning, baseline, artifact, or
      status algorithms;
-   - `foundation/src/index.ts` exports only symbols used by the product
-     runtime closure;
+   - `foundation/src/index.ts` exports the product runtime closure and the
+     preinstalled product-owned `Option` primitive;
+   - `foundation/src/option.ts` uses an explicit readonly field assignment
+     instead of a constructor parameter property to satisfy this repository's
+     `erasableSyntaxOnly` type policy;
    - `scripts/quality/scan.ts` remains only as a repository-root wrapper around
      the product CLI.
 
