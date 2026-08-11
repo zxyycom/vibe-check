@@ -1,6 +1,6 @@
 ---
 title: 保持项目工作流 Skill 语义覆盖有界
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T01:44:09Z
 purpose: 让项目治理语义可靠进入 agent 方法层，同时保持上游工具实现和本地例外边界可追溯。

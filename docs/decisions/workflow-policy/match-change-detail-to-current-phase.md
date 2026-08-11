@@ -1,6 +1,6 @@
 ---
 title: 让 change 细节服务当前阶段
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T01:44:08Z
 purpose: 让 change 在探索阶段保留支持方向判断的信息，并在进入实施准备后形成可执行细节。

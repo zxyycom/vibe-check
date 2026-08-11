@@ -1,7 +1,7 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "namespace": "decisions",
-  "definitionVersion": 3,
+  "definitionVersion": 5,
   "metadata": {
     "domains": [
       {
@@ -26,7 +26,58 @@
       }
     ]
   },
-  "sourceRevision": "sha256:0ee775235ca1cd95d307456c053d8d650cf7a97517aea08554b9848eb3ec65f6",
+  "sourceRevision": {
+    "entries": {
+      "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
+      "configuration/keep-decision-policies-closed-and-declarative.md": "sha256:c6400e00aeb86d71a9e04205cfda0988af734d800b0a2039b60b0a91bcd0a543",
+      "configuration/keep-public-config-tool-neutral.md": "sha256:cd197d7d2b948728ef60e27014049bcafc09f4f502c5f1c056c524c3f63b42fc",
+      "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:d5fd2725c3266b2140ec77d97fc4da4a1068b29fc7366ed2e1fbfdade05ab81b",
+      "configuration/use-bun-typescript-project-definition.md": "sha256:7fb8a6944322dfe5adcae29789b20a4c7df031505b25d5d54b36b194f80f2dda",
+      "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
+      "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
+      "configuration/use-fixed-semantic-config-v2.md": "sha256:fd6663bfd81e0e8d9b5744291d626cccde0897ad8c13b1019cca04c373f5d25e",
+      "configuration/use-fixed-semantic-config-version.md": "sha256:489d686e22f8424356f6c606b8b7c51d14bc3c0b908359daa7721fa3906e2689",
+      "configuration/use-json-filename-for-commented-config.md": "sha256:1f5feeb9b578372c346f4fb3e8ad1fa7cf1ccf54168444909f2559f63f895413",
+      "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:854b995a24d8a52266cb9f5a741402f93e1779a25bd1fd38c8c2bc8ee1582fe4",
+      "configuration/use-neutral-observation-and-project-definition-gates.md": "sha256:2d103c1b9298b29f43ccc762ff6e48bbd6081ff43a61408a00f1855fd463a3f3",
+      "configuration/use-semantic-check-ids-in-project-config.md": "sha256:2b89578ce595fbdc346f9fc63fab9babaeadd5581d623661f2fe0616b7097e25",
+      "configuration/use-semantic-check-ids-in-quality-records.md": "sha256:dc98b971264efa095f938dc8804105f6c4f6b3cebe0529e969f2db4dc06fc6fa",
+      "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:a29bbf1bd60f02b367ba9d2d758e21e17298db1e6c028265c0f0f318381ad3ea",
+      "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:bfa67371661c27c7166c286fce4397b920420d81e25ae35c99f7b384f5d89d5e",
+      "product-contract/keep-sensitive-scan-material-ephemeral.md": "sha256:9aaf69fd491bdbb92a35b788cfb45b4388738a4d6a62c42294b502acbed13a2d",
+      "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
+      "product-contract/require-explicit-network-link-checking.md": "sha256:a0bb88fe9532045abf0e021fe4835d1b0155271bd431bd189553f9ccd06e4cf8",
+      "product-contract/separate-check-and-record-type-identities.md": "sha256:f3ade7369159134625a211258c6a0ecb7b47322ade49d82a21d1ca100fedc406",
+      "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:4e97ec98122bef09a15811a68c32a8093d059fc66bf6bd23d6823e55ec3cf0e3",
+      "product-contract/use-generic-machine-v2-for-content-findings.md": "sha256:d4f263110afc8b43cf845576ddd088fe72f62c5ce1423c989311d29ee9f4737e",
+      "product-contract/use-location-independent-finding-identities.md": "sha256:9b2f3c245f699d8a4ea52bffa52cd38c2ec76a97dddc865a7f7e5556dd1f3436",
+      "product-contract/use-location-independent-record-identities.md": "sha256:fe07524b598a7ad8803a0b1ad7b4c214751ca7fc4852f2bf88dfa2aba2267205",
+      "product-contract/use-runtime-resolved-check-and-record-core.md": "sha256:eba6b5559feafcb640ceb3360e7034e347137090e5e9cf937197d0447be7d85b",
+      "product-contract/use-standard-quality-record-stream.md": "sha256:e978f149f275a66c071887d1df17845c9712614e4a2b147a4795f17e65b2ea41",
+      "product-contract/use-static-check-task-plans-with-shared-scheduling.md": "sha256:e1f4f91c7d0155b0d848b8cc6a7978e8bf73ceb2338b961b34e0b63b78089786",
+      "product-contract/use-versioned-npm-package-release-unit.md": "sha256:60cc184bc42afab1f627480ad158e37d193eba72a9253c3f3a2bb0138befcdbf",
+      "product-priority/defer-lizard-runtime-unification.md": "sha256:f4437d3cde624ebf3050bae39640fc476e97a3f06a6d8614270a9ba0029857d7",
+      "product-priority/defer-lizard-until-after-check-foundations.md": "sha256:1b7078c06f18132648acf5087f8e09071a0d792bbf250246df949475715788aa",
+      "product-priority/defer-lizard-until-after-semantic-config-workflow.md": "sha256:656fa8cca68a115615d3c9215ca03804a8d0696c6b096c4fbd3478067b68e938",
+      "product-priority/expand-format-aware-built-in-checks.md": "sha256:a8f162f6e26cbecc57255324ae135ba768dad286874ba77e60b0518459fae5ea",
+      "product-priority/expand-format-aware-quality-checks.md": "sha256:97ce11aded742310ab3d99c345e14be467b55d7b118ac849695308fd53b65ff1",
+      "testing/use-native-test-evidence-catalog.md": "sha256:26bf9ce29b0092468e04bb949f72f35fa4bce3d5efb0d951009aaa35d859fffd",
+      "testing/use-semantic-test-case-closure.md": "sha256:1ab178ae7a1ada84bdd0617576c7ea86dd77db888ef2ac72b0ff694705d03794",
+      "workflow-policy/defer-future-feature-detail-until-prioritized.md": "sha256:95c85b91ee55f96ec785ef7030348091614400e76ad4f973cdff71608a4f4bca",
+      "workflow-policy/keep-project-workflow-skill-overrides-bounded.md": "sha256:bb4f7f3625dd5a1dc362728a84940836a3d65a1603f1d729f4de14aadbfc4566",
+      "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
+      "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d44a538391d8995f6ebf02b0b6bbd4b3993f6a1306bc0939205dc3212d83746a",
+      "workflow-policy/require-explicit-quality-baselines.md": "sha256:9e4a8654935dd513b8d45fc23e91db6227608e2c444dadfa1ea124d54007aa63",
+      "workflow-policy/require-explicit-quality-comparison-references.md": "sha256:93842412f9db3ef513464b37fdf43b388c5e4698e27f638c6a3164b34853b798",
+      "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md": "sha256:199be5163704ae2301b94e8ef82b02ef05ca8014784073c975010c41fd37a1a2",
+      "workflow-policy/use-complete-upstream-governance-skills.md": "sha256:2752a8a78a6f3f15feee276b9c07642aee2369e0fc45214987762cfd313a640c",
+      "workflow-policy/use-decision-led-change-plans-and-archive-openspec.md": "sha256:6e886c0b462889aa768f717a3dcac02c865c999565fc243d7993093538896d98",
+      "workflow-policy/use-project-decision-records.md": "sha256:5fb580bcbc3e6ab2676d1db0cfb1b7182214d4cffdb0091e04074fb3adadeaae",
+      "workflow-policy/use-upstream-project-skill-packages.md": "sha256:3a82f9665381923e5ccec896b47de83842edf5b620720515e4d3a8a6a318387f",
+      "workflow-policy/use-upstream-skills-with-project-local-exceptions.md": "sha256:def63a311fb5e36e1a340abde71393b69252d5878949d6e10204941040895675"
+    },
+    "metadata": "sha256:276aa611e3d3dfce7512847fcd091db35317d02bc30e398c12a1df397648d1c1"
+  },
   "keyDefinitions": [
     {
       "name": "domain",
@@ -41,9 +92,8 @@
       "mode": "exact"
     }
   ],
-  "entries": [
-    {
-      "id": "configuration/hard-cut-legacy-tool-shaped-config.md",
+  "entries": {
+    "configuration/hard-cut-legacy-tool-shaped-config.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -67,8 +117,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/keep-decision-policies-closed-and-declarative.md",
+    "configuration/keep-decision-policies-closed-and-declarative.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -97,8 +146,7 @@
         ]
       }
     },
-    {
-      "id": "configuration/keep-public-config-tool-neutral.md",
+    "configuration/keep-public-config-tool-neutral.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -119,8 +167,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/limit-tool-neutrality-to-built-in-checks.md",
+    "configuration/limit-tool-neutrality-to-built-in-checks.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -149,8 +196,7 @@
         ]
       }
     },
-    {
-      "id": "configuration/use-bun-typescript-project-definition.md",
+    "configuration/use-bun-typescript-project-definition.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -183,8 +229,7 @@
         ]
       }
     },
-    {
-      "id": "configuration/use-declarative-quality-decision-policies.md",
+    "configuration/use-declarative-quality-decision-policies.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -205,8 +250,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-file-policy-overrides.md",
+    "configuration/use-file-policy-overrides.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -230,8 +274,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-fixed-semantic-config-v2.md",
+    "configuration/use-fixed-semantic-config-v2.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -257,8 +300,7 @@
         ]
       }
     },
-    {
-      "id": "configuration/use-fixed-semantic-config-version.md",
+    "configuration/use-fixed-semantic-config-version.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -279,8 +321,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-json-filename-for-commented-config.md",
+    "configuration/use-json-filename-for-commented-config.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -301,8 +342,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md",
+    "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -323,8 +363,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-neutral-observation-and-project-definition-gates.md",
+    "configuration/use-neutral-observation-and-project-definition-gates.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -353,8 +392,7 @@
         ]
       }
     },
-    {
-      "id": "configuration/use-semantic-check-ids-in-project-config.md",
+    "configuration/use-semantic-check-ids-in-project-config.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -375,8 +413,7 @@
         "relations": []
       }
     },
-    {
-      "id": "configuration/use-semantic-check-ids-in-quality-records.md",
+    "configuration/use-semantic-check-ids-in-quality-records.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -402,8 +439,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/keep-prestable-releases-on-0-0-x.md",
+    "product-contract/keep-prestable-releases-on-0-0-x.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -427,8 +463,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/keep-sensitive-quality-record-material-ephemeral.md",
+    "product-contract/keep-sensitive-quality-record-material-ephemeral.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -457,8 +492,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/keep-sensitive-scan-material-ephemeral.md",
+    "product-contract/keep-sensitive-scan-material-ephemeral.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -479,8 +513,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/require-explicit-network-check-authorization.md",
+    "product-contract/require-explicit-network-check-authorization.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -509,8 +542,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/require-explicit-network-link-checking.md",
+    "product-contract/require-explicit-network-link-checking.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -531,8 +563,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/separate-check-and-record-type-identities.md",
+    "product-contract/separate-check-and-record-type-identities.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -561,8 +592,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/treat-project-definitions-as-trusted-code.md",
+    "product-contract/treat-project-definitions-as-trusted-code.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -586,8 +616,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/use-generic-machine-v2-for-content-findings.md",
+    "product-contract/use-generic-machine-v2-for-content-findings.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -608,8 +637,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/use-location-independent-finding-identities.md",
+    "product-contract/use-location-independent-finding-identities.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -630,8 +658,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/use-location-independent-record-identities.md",
+    "product-contract/use-location-independent-record-identities.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -660,8 +687,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/use-runtime-resolved-check-and-record-core.md",
+    "product-contract/use-runtime-resolved-check-and-record-core.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -690,8 +716,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/use-standard-quality-record-stream.md",
+    "product-contract/use-standard-quality-record-stream.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -717,8 +742,7 @@
         ]
       }
     },
-    {
-      "id": "product-contract/use-static-check-task-plans-with-shared-scheduling.md",
+    "product-contract/use-static-check-task-plans-with-shared-scheduling.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -742,8 +766,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-contract/use-versioned-npm-package-release-unit.md",
+    "product-contract/use-versioned-npm-package-release-unit.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -767,8 +790,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-priority/defer-lizard-runtime-unification.md",
+    "product-priority/defer-lizard-runtime-unification.md": {
       "keys": {
         "domain": [
           "product-priority"
@@ -789,8 +811,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-priority/defer-lizard-until-after-check-foundations.md",
+    "product-priority/defer-lizard-until-after-check-foundations.md": {
       "keys": {
         "domain": [
           "product-priority"
@@ -819,8 +840,7 @@
         ]
       }
     },
-    {
-      "id": "product-priority/defer-lizard-until-after-semantic-config-workflow.md",
+    "product-priority/defer-lizard-until-after-semantic-config-workflow.md": {
       "keys": {
         "domain": [
           "product-priority"
@@ -846,8 +866,7 @@
         ]
       }
     },
-    {
-      "id": "product-priority/expand-format-aware-built-in-checks.md",
+    "product-priority/expand-format-aware-built-in-checks.md": {
       "keys": {
         "domain": [
           "product-priority"
@@ -876,8 +895,7 @@
         ]
       }
     },
-    {
-      "id": "product-priority/expand-format-aware-quality-checks.md",
+    "product-priority/expand-format-aware-quality-checks.md": {
       "keys": {
         "domain": [
           "product-priority"
@@ -898,8 +916,7 @@
         "relations": []
       }
     },
-    {
-      "id": "testing/use-native-test-evidence-catalog.md",
+    "testing/use-native-test-evidence-catalog.md": {
       "keys": {
         "domain": [
           "testing"
@@ -920,8 +937,7 @@
         "relations": []
       }
     },
-    {
-      "id": "testing/use-semantic-test-case-closure.md",
+    "testing/use-semantic-test-case-closure.md": {
       "keys": {
         "domain": [
           "testing"
@@ -950,8 +966,7 @@
         ]
       }
     },
-    {
-      "id": "workflow-policy/defer-future-feature-detail-until-prioritized.md",
+    "workflow-policy/defer-future-feature-detail-until-prioritized.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -972,14 +987,13 @@
         "relations": []
       }
     },
-    {
-      "id": "workflow-policy/keep-project-workflow-skill-overrides-bounded.md",
+    "workflow-policy/keep-project-workflow-skill-overrides-bounded.md": {
       "keys": {
         "domain": [
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -988,7 +1002,7 @@
       "state": {
         "path": "workflow-policy/keep-project-workflow-skill-overrides-bounded.md",
         "title": "保持项目工作流 Skill 语义覆盖有界",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T01:44:09Z",
         "purpose": "让项目治理语义可靠进入 agent 方法层，同时保持上游工具实现和本地例外边界可追溯。",
@@ -1002,14 +1016,13 @@
         ]
       }
     },
-    {
-      "id": "workflow-policy/match-change-detail-to-current-phase.md",
+    "workflow-policy/match-change-detail-to-current-phase.md": {
       "keys": {
         "domain": [
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -1018,7 +1031,7 @@
       "state": {
         "path": "workflow-policy/match-change-detail-to-current-phase.md",
         "title": "让 change 细节服务当前阶段",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T01:44:08Z",
         "purpose": "让 change 在探索阶段保留支持方向判断的信息，并在进入实施准备后形成可执行细节。",
@@ -1032,8 +1045,7 @@
         ]
       }
     },
-    {
-      "id": "workflow-policy/require-explicit-named-comparison-references.md",
+    "workflow-policy/require-explicit-named-comparison-references.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1062,8 +1074,7 @@
         ]
       }
     },
-    {
-      "id": "workflow-policy/require-explicit-quality-baselines.md",
+    "workflow-policy/require-explicit-quality-baselines.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1084,8 +1095,7 @@
         "relations": []
       }
     },
-    {
-      "id": "workflow-policy/require-explicit-quality-comparison-references.md",
+    "workflow-policy/require-explicit-quality-comparison-references.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1111,8 +1121,7 @@
         ]
       }
     },
-    {
-      "id": "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md",
+    "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1136,8 +1145,65 @@
         "relations": []
       }
     },
-    {
-      "id": "workflow-policy/use-project-decision-records.md",
+    "workflow-policy/use-complete-upstream-governance-skills.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/use-complete-upstream-governance-skills.md",
+        "title": "使用完整上游治理 Skill 包",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T02:39:52Z",
+        "purpose": "让成熟治理能力按完整上游分发单元接入，同时把项目 owner、入口和少量必要例外留在包外。",
+        "background": "change-plan、decision-records 与 investigation-report 已覆盖项目所需的生命周期、关系事务、资源和分段暂存语义，原有方法层覆盖不再必要。",
+        "decision": "三个治理 Skill 使用完整上游包且不作项目内修改；项目只在包外接线，现有显式本地例外缩减为 test-evidence-review。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/keep-project-workflow-skill-overrides-bounded.md"
+          }
+        ]
+      }
+    },
+    "workflow-policy/use-decision-led-change-plans-and-archive-openspec.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/use-decision-led-change-plans-and-archive-openspec.md",
+        "title": "使用决策驱动的 Change Plan 并完整归档 OpenSpec",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T02:50:06Z",
+        "purpose": "让长期方向直接作为跨 change 规格依据，以持久 Change Plan 管理实施，并让 OpenSpec 只保留一个深层历史 owner。",
+        "background": "决策记录和 Change Plan 已能分别承接长期方向与单次实施，继续暴露或复制 OpenSpec 会增加载体同步与默认上下文成本。",
+        "decision": "长期方向由决策记录承接，单次 change 由 Change Plan 承接；OpenSpec 完整下沉到深层归档，原活动方向重新建立为 draft Change。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/match-change-detail-to-current-phase.md"
+          }
+        ]
+      }
+    },
+    "workflow-policy/use-project-decision-records.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1161,8 +1227,7 @@
         "relations": []
       }
     },
-    {
-      "id": "workflow-policy/use-upstream-project-skill-packages.md",
+    "workflow-policy/use-upstream-project-skill-packages.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1183,8 +1248,7 @@
         "relations": []
       }
     },
-    {
-      "id": "workflow-policy/use-upstream-skills-with-project-local-exceptions.md",
+    "workflow-policy/use-upstream-skills-with-project-local-exceptions.md": {
       "keys": {
         "domain": [
           "workflow-policy"
@@ -1210,5 +1274,5 @@
         ]
       }
     }
-  ]
+  }
 }
