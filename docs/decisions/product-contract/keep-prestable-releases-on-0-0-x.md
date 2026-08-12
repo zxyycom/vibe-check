@@ -1,6 +1,6 @@
 ---
 title: 在稳定承诺前保持 0.0.x 版本线
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-06T03:03:02Z
 purpose: 让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。

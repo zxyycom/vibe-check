@@ -2,7 +2,7 @@
   "baseCommit": "b72db0c4141eee986260414b013452aec1b129a0",
   "shelf": {
     "atCommit": "b72db0c4141eee986260414b013452aec1b129a0",
-    "reason": "等待 API-only npm product boundary 确认宿主与执行边界、公开操作模型及公共名称后再实施",
+    "reason": "等待确认宿主 runtime、嵌入式执行边界、默认副作用与公开操作模型后再冻结公共名称和实施计划",
     "source": "explicit"
   },
   "stage": "shelved"

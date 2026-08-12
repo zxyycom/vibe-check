@@ -28,11 +28,12 @@
   },
   "sourceRevision": {
     "entries": {
+      "configuration/drive-product-execution-from-project-definition.md": "sha256:fd5a389bb47968f3418b89345975f0e13057e973b83b6cf82f02b06b1d70befd",
       "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
       "configuration/keep-decision-policies-closed-and-declarative.md": "sha256:c6400e00aeb86d71a9e04205cfda0988af734d800b0a2039b60b0a91bcd0a543",
       "configuration/keep-public-config-tool-neutral.md": "sha256:cd197d7d2b948728ef60e27014049bcafc09f4f502c5f1c056c524c3f63b42fc",
       "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:d5fd2725c3266b2140ec77d97fc4da4a1068b29fc7366ed2e1fbfdade05ab81b",
-      "configuration/use-bun-typescript-project-definition.md": "sha256:7fb8a6944322dfe5adcae29789b20a4c7df031505b25d5d54b36b194f80f2dda",
+      "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
       "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
       "configuration/use-fixed-semantic-config-v2.md": "sha256:fd6663bfd81e0e8d9b5744291d626cccde0897ad8c13b1019cca04c373f5d25e",
@@ -42,20 +43,30 @@
       "configuration/use-neutral-observation-and-project-definition-gates.md": "sha256:2d103c1b9298b29f43ccc762ff6e48bbd6081ff43a61408a00f1855fd463a3f3",
       "configuration/use-semantic-check-ids-in-project-config.md": "sha256:2b89578ce595fbdc346f9fc63fab9babaeadd5581d623661f2fe0616b7097e25",
       "configuration/use-semantic-check-ids-in-quality-records.md": "sha256:dc98b971264efa095f938dc8804105f6c4f6b3cebe0529e969f2db4dc06fc6fa",
-      "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:a29bbf1bd60f02b367ba9d2d758e21e17298db1e6c028265c0f0f318381ad3ea",
+      "configuration/use-single-typescript-project-definition.md": "sha256:141830302bea3491dd35c7d3b14ba3b10baf28f6caabbe9211fb5478955fc002",
+      "product-contract/approve-public-names-before-publication.md": "sha256:28a4aca786a464c6289250360c806d8572b762f6b5bdd0f34f562394e8ea32f0",
+      "product-contract/confirm-package-contract-names-before-publication.md": "sha256:201b30643e26fcbffaecbb5133de129f3c8c64dd37f1b58735c7efe23d6dcd57",
+      "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:e7120e7299bf640f0a297bbe0cfb38fcbb51cf04edf1feecd8ced47994e047c4",
+      "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
+      "product-contract/expose-two-public-operations.md": "sha256:f84453478704eab5b470c024cf748f3f76e76572b573a099d1b1bc615a47a294",
+      "product-contract/keep-prestable-package-releases-on-0-0-x.md": "sha256:9eca819c8cd3fbbae67be86f40742e70a4c0a4692a6f850e654441e7892f3b28",
+      "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:e260d419b748c1a41d2e8bef6c8074fea7732673c3ce18dfc94e77972d843571",
       "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:bfa67371661c27c7166c286fce4397b920420d81e25ae35c99f7b384f5d89d5e",
       "product-contract/keep-sensitive-scan-material-ephemeral.md": "sha256:9aaf69fd491bdbb92a35b788cfb45b4388738a4d6a62c42294b502acbed13a2d",
+      "product-contract/release-one-versioned-npm-product-unit.md": "sha256:cc1b6cddf7eb3ee089fbf3c026e8d5c74812d41dee997e34a172e00ee0a16c29",
       "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
       "product-contract/require-explicit-network-link-checking.md": "sha256:a0bb88fe9532045abf0e021fe4835d1b0155271bd431bd189553f9ccd06e4cf8",
       "product-contract/separate-check-and-record-type-identities.md": "sha256:1491434208c8804457e00cd7a60e2f35d171441322095f3a50b3f7fca6b0f24e",
-      "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:4e97ec98122bef09a15811a68c32a8093d059fc66bf6bd23d6823e55ec3cf0e3",
+      "product-contract/support-bun-as-the-package-host.md": "sha256:d88504e532d86c904d6c739288ebeb1cc5247a68e1977f1fb9ce6ba4c6aa8bc9",
+      "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:9e2227749543f6fa171d0a400ef053f2a90dcfa2a598322679a5ad97462adb74",
       "product-contract/use-generic-machine-v2-for-content-findings.md": "sha256:d4f263110afc8b43cf845576ddd088fe72f62c5ce1423c989311d29ee9f4737e",
       "product-contract/use-location-independent-finding-identities.md": "sha256:9b2f3c245f699d8a4ea52bffa52cd38c2ec76a97dddc865a7f7e5556dd1f3436",
       "product-contract/use-location-independent-record-identities.md": "sha256:fb2d9e3b1ffccb554184fcf3082031970566567f5b7b801a62a8f02295afcb57",
+      "product-contract/use-programmatic-api-as-product-entry.md": "sha256:cbc211ed6755d40a015d1f9ebcc0838e6d2c836f7d28a04ee6c1ce636e91da6f",
       "product-contract/use-runtime-resolved-check-and-record-core.md": "sha256:eba6b5559feafcb640ceb3360e7034e347137090e5e9cf937197d0447be7d85b",
       "product-contract/use-standard-quality-record-stream.md": "sha256:e978f149f275a66c071887d1df17845c9712614e4a2b147a4795f17e65b2ea41",
       "product-contract/use-static-check-task-plans-with-shared-scheduling.md": "sha256:e1f4f91c7d0155b0d848b8cc6a7978e8bf73ceb2338b961b34e0b63b78089786",
-      "product-contract/use-versioned-npm-package-release-unit.md": "sha256:60cc184bc42afab1f627480ad158e37d193eba72a9253c3f3a2bb0138befcdbf",
+      "product-contract/use-versioned-npm-package-release-unit.md": "sha256:7b8cd21ce11328163f8cc154010ffa298c8ed9753aa7c7bd06bc27e0879d2e6f",
       "product-priority/defer-lizard-runtime-unification.md": "sha256:f4437d3cde624ebf3050bae39640fc476e97a3f06a6d8614270a9ba0029857d7",
       "product-priority/defer-lizard-until-after-check-foundations.md": "sha256:1b7078c06f18132648acf5087f8e09071a0d792bbf250246df949475715788aa",
       "product-priority/defer-lizard-until-after-semantic-config-workflow.md": "sha256:656fa8cca68a115615d3c9215ca03804a8d0696c6b096c4fbd3478067b68e938",
@@ -96,6 +107,30 @@
     }
   ],
   "entries": {
+    "configuration/drive-product-execution-from-project-definition.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/drive-product-execution-from-project-definition.md",
+        "title": "由 Project Definition 驱动产品执行",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T10:30:34Z",
+        "purpose": "让工具行为由一个类型化项目定义统一配置，而不是把公开 API 设计成第二套命令或操作语法。",
+        "background": "产品核心是配置驱动的质量工具；把 scan、gate、reporting、cache 和 output 重复编码成调用方法或 command union 会形成并行行为 owner。",
+        "decision": "Project Definition 拥有执行配置；public package API 只加载并运行它，另接收必要的当次上下文。",
+        "relations": []
+      }
+    },
     "configuration/hard-cut-legacy-tool-shaped-config.md": {
       "keys": {
         "domain": [
@@ -205,7 +240,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -214,7 +249,7 @@
       "state": {
         "path": "configuration/use-bun-typescript-project-definition.md",
         "title": "使用 Bun 托管的 TypeScript Project Definition",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:35Z",
         "purpose": "用一个可执行且类型化的项目入口组合政策、内置检查和项目自定义检查。",
@@ -442,7 +477,65 @@
         ]
       }
     },
-    "product-contract/keep-prestable-releases-on-0-0-x.md": {
+    "configuration/use-single-typescript-project-definition.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-single-typescript-project-definition.md",
+        "title": "使用单一 TypeScript Project Definition",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T09:38:14Z",
+        "purpose": "用一个可执行且类型化的项目入口组合政策、内置检查和项目自定义检查。",
+        "background": "JSON 配置无法自然组合运行时 Check 与函数绑定；固定发现仍需要独立确认未来公共路径名称。",
+        "decision": "只选择一个 TypeScript Project Definition 并由 Bun 在执行前加载、归一化和冻结；固定路径名称在发布前另行确认。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-bun-typescript-project-definition.md"
+          }
+        ]
+      }
+    },
+    "product-contract/approve-public-names-before-publication.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/approve-public-names-before-publication.md",
+        "title": "发布前显式确认每个公共名称",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T09:12:51Z",
+        "purpose": "防止 repository、源码或示例中的现有名称未经产品判断就成为首个公开兼容性承诺。",
+        "background": "Product name、registry identity、import specifier、固定项目路径与公共 symbol 会先于行为细节成为消费者发现和依赖产品的稳定入口。",
+        "decision": "所有 package 与配置 publication 名称必须在发布前逐项确认；现有内部名称不提供默认值，本决策本身不选择任何具体名称。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "product-contract/use-versioned-npm-package-release-unit.md"
+          }
+        ]
+      }
+    },
+    "product-contract/confirm-package-contract-names-before-publication.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -455,9 +548,144 @@
         ]
       },
       "state": {
+        "path": "product-contract/confirm-package-contract-names-before-publication.md",
+        "title": "发布前确认 package 公共契约名称",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T11:07:30Z",
+        "purpose": "防止 package、import、symbol、固定路径和运行标识从内部实现偶然进入首个公开契约。",
+        "background": "Vibe Check 已是产品身份；npm package 与 API 标识承担不同的安装、调用和配置承诺，不能由产品显示名或当前源码布局自动推导。",
+        "decision": "发布候选形成前逐项确认全部 package 公共契约名称；Vibe Check 继续作为产品显示名，本决策不选择其它具体字符串。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/approve-public-names-before-publication.md"
+          }
+        ]
+      }
+    },
+    "product-contract/contain-project-code-behind-private-runtime-boundary.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/contain-project-code-behind-private-runtime-boundary.md",
+        "title": "在私有运行边界内执行项目代码",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T10:30:38Z",
+        "purpose": "让嵌入式调用方只依赖 public package API，而由 package 私有运行边界承接 Project Definition 与 custom runner 的执行故障。",
+        "background": "同进程项目代码可以退出、挂起或污染编辑器、服务和 agent 等长生命周期宿主；内部执行协议不应扩展成第二个公开入口。",
+        "decision": "项目代码在 package-private runtime 中执行；外部只调用 public package API，不公开内部协议或入口。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/treat-project-definitions-as-trusted-code.md"
+          }
+        ]
+      }
+    },
+    "product-contract/enable-tool-effects-by-default.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/enable-tool-effects-by-default.md",
+        "title": "默认启用工具运行副作用",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T10:30:31Z",
+        "purpose": "让 public package API 默认完成工具本身应提供的日志、缓存和输出工作，而不是退化为只返回内存数据的无状态计算函数。",
+        "background": "产品是执行型质量工具；程序化调用改变集成入口，但不取消工具对可观察进度、可复用缓存和持久输出的责任。",
+        "decision": "Public package API 默认通过 Product-owned runtime 启用受控日志、缓存和工具输出，并同时返回结构化结果；调用方可用公开配置显式调整或关闭这些效果。",
+        "relations": []
+      }
+    },
+    "product-contract/expose-two-public-operations.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/expose-two-public-operations.md",
+        "title": "只公开配置定义与工具运行两个操作",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T10:54:44Z",
+        "purpose": "让使用者只调用一个 TypeScript 配置定义操作和一个配置驱动的工具运行操作。",
+        "background": "额外 callable helper、CLI、bootstrap、资源入口或内部协议都会形成第三种产品操作和新的兼容承诺。",
+        "decision": "Public package API 恰好公开配置定义与工具运行两个 callable operations；必要 public types 不计为操作，具体名称另行确认。",
+        "relations": []
+      }
+    },
+    "product-contract/keep-prestable-package-releases-on-0-0-x.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/keep-prestable-package-releases-on-0-0-x.md",
+        "title": "在稳定承诺前让 package 保持 0.0.x 版本线",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T09:27:03Z",
+        "purpose": "让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。",
+        "background": "Public package API、公共声明、名称与运行行为仍在形成，相邻预稳定 package versions 可能包含破坏式变化。",
+        "decision": "稳定承诺前，产品 package version 保持 `0.0.x`；跨 patch 不承诺包级兼容，进入非零 minor 版本线须由产品 owner 明确确认。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/keep-prestable-releases-on-0-0-x.md"
+          }
+        ]
+      }
+    },
+    "product-contract/keep-prestable-releases-on-0-0-x.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/keep-prestable-releases-on-0-0-x.md",
         "title": "在稳定承诺前保持 0.0.x 版本线",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-06T03:03:02Z",
         "purpose": "让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。",
@@ -514,6 +742,35 @@
         "background": "Secret bytes、URL query values 和 userinfo 可能包含凭据，扫描流程自身不能成为新的泄露渠道。",
         "decision": "原始敏感材料只存在于调用期受限内存，持久和公开边界只接收安全语义身份与脱敏证据。",
         "relations": []
+      }
+    },
+    "product-contract/release-one-versioned-npm-product-unit.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/release-one-versioned-npm-product-unit.md",
+        "title": "以版本化 npm package 交付完整产品单元",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T09:12:51Z",
+        "purpose": "让消费者从一个明确版本获得彼此匹配的执行实现、公共声明与已承诺 package materials。",
+        "background": "产品执行、类型化 authoring 与必要 package materials 需要统一版本边界，而源码树入口不能证明可安装产物完整。",
+        "decision": "使用一个版本化 npm package 作为产品发布单元；同版本交付全部已承诺材料，具体公共 surface 与名称由各自决策承接。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "product-contract/use-versioned-npm-package-release-unit.md"
+          }
+        ]
       }
     },
     "product-contract/require-explicit-network-check-authorization.md": {
@@ -595,7 +852,7 @@
         ]
       }
     },
-    "product-contract/treat-project-definitions-as-trusted-code.md": {
+    "product-contract/support-bun-as-the-package-host.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -608,9 +865,33 @@
         ]
       },
       "state": {
+        "path": "product-contract/support-bun-as-the-package-host.md",
+        "title": "首个 package 只支持 Bun 宿主",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T10:30:27Z",
+        "purpose": "让首个 npm package 的可运行宿主与当前 TypeScript Project Definition 和产品运行时能力保持一致。",
+        "background": "npm 是分发机制，不代表 package 已经能够由 Node.js 直接加载和执行；同时承诺多个宿主会扩大构建、依赖和验收责任。",
+        "decision": "首个公开 package 只承诺由 Bun 直接 import 和执行；Node.js 与 dual-runtime 支持必须作为独立后续方向建立。",
+        "relations": []
+      }
+    },
+    "product-contract/treat-project-definitions-as-trusted-code.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/treat-project-definitions-as-trusted-code.md",
         "title": "将 Project Definition 与自定义 Runner 视为受信任代码",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:36Z",
         "purpose": "诚实界定动态 Check 的权限、故障恢复和不可信项目调用边界。",
@@ -686,6 +967,35 @@
           {
             "type": "修订",
             "target": "product-contract/use-location-independent-finding-identities.md"
+          }
+        ]
+      }
+    },
+    "product-contract/use-programmatic-api-as-product-entry.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-programmatic-api-as-product-entry.md",
+        "title": "让程序化 API 成为唯一正式产品执行入口",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T09:12:51Z",
+        "purpose": "让 package 消费者通过类型化调用获得稳定结果，而不依赖产品拥有的 argv、console 或退出码协议。",
+        "background": "使用方需要把产品组合进自己的工具与流程；正式 CLI 会把调用方差异固化为额外产品契约。",
+        "decision": "版本化 package 只以 public package API 提供正式执行入口；产品不发布 CLI 或 bin，并提供可直接使用的默认 runtime。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "product-contract/use-versioned-npm-package-release-unit.md"
           }
         ]
       }
@@ -775,7 +1085,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -784,7 +1094,7 @@
       "state": {
         "path": "product-contract/use-versioned-npm-package-release-unit.md",
         "title": "使用版本化 npm package 作为产品发布单元",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-06T02:57:00Z",
         "purpose": "让 CLI、公共 TypeScript 声明文件与必要产品资源作为同一 package version 可靠发布。",

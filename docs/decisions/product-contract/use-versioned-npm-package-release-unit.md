@@ -1,6 +1,6 @@
 ---
 title: 使用版本化 npm package 作为产品发布单元
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-06T02:57:00Z
 purpose: 让 CLI、公共 TypeScript 声明文件与必要产品资源作为同一 package version 可靠发布。

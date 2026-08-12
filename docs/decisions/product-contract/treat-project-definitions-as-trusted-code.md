@@ -1,6 +1,6 @@
 ---
 title: 将 Project Definition 与自定义 Runner 视为受信任代码
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
 purpose: 诚实界定动态 Check 的权限、故障恢复和不可信项目调用边界。

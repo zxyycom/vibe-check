@@ -1,6 +1,6 @@
 ---
 title: 使用 Bun 托管的 TypeScript Project Definition
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 用一个可执行且类型化的项目入口组合政策、内置检查和项目自定义检查。
