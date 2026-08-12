@@ -23,15 +23,6 @@
 | 新增、删除、重命名或移动原生 test 节点，修改测试正文，或修改 Case 的 Owner / Proves | 使用 `test-evidence-review` skill，修改前后运行 `bun run test-evidence:check`，并运行最窄目标测试。 |
 | 用户明确要求保存、更新或审阅持久调查报告 | 使用 `investigation-report` skill；普通调查不创建报告 artifact。 |
 
-## 工程判断 skill
-
-- 判断长期组件职责、owner、调用方向或运行边界时，使用 `product-architecture-judgment`。
-- 设计或审查依赖方向、适配层、共享库或 runtime/tooling 隔离时，使用
-  `dependency-boundary-design`。
-- 多个实现、平台或入口需要共同契约时，使用 `common-denominator-design`。
-- 目标、契约和责任已经明确，需要选择最小完整实现时，使用 `minimal-implementation`。
-- 只使用当前判断所需的最小 skill 组合；简单局部改动不为形式创建 Decision、Change 或报告。
-
 ## 上下文与工具
 
 - 缺少 owner 文档时，以近邻代码、测试、示例和当前请求为依据，并说明会影响结果的假设。

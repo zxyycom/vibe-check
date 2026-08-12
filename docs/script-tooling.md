@@ -201,27 +201,26 @@ output 并传播 result，不增加 artifact parser、schema registry 或 warnin
 
 ## 项目级 Skill 维护
 
-项目级 Skill 默认保存完整、可追溯的上游分发单元。Vibe Check 的触发规则、owner 路由、
-默认存储位置、package scripts、适配器和验证入口留在包外；上游包内的 Skill、agent 指引、
-契约、schema、runtime、声明、source map 和 updater 保持同一 release。
+`.codex/skills/` 只保存项目长期选择的七项 Skill。各 Skill 的入口描述拥有通用触发条件；
+[`AGENTS.md`](../AGENTS.md) 只补充项目专属路由和命令。本节只拥有当前安装清单、分发边界和
+项目接线，不复制各 Skill 的执行方法。
 
-| 完整上游包 | 项目接线 |
-| --- | --- |
-| `.codex/skills/change-plan/` | `changes/`、`change-plan*` package scripts 与[决策和 Change 治理](decision-and-change-governance.md) |
-| `.codex/skills/decision-records/` | `docs/decisions/`、`scripts/decision-records.ts` 与 `decisions*` package scripts |
-| `.codex/skills/investigation-report/` | 按需建立的 `docs/investigations/` 与 `investigations*` package scripts |
-
-同步这些包时使用各包 updater 或同一 release asset 完整替换，先核对目标 release，再运行包的
-机械检查、项目文档检查、脚本检查及受影响 workspace 验证。项目不在包内重放本地语义覆盖。
-
-当前唯一登记的项目方法层 Skill 例外是：
-
-| 项目本地例外 | 项目维护文件 | 覆盖范围外的职责 |
+| 类型 | Skill | 当前维护与项目接线 |
 | --- | --- | --- |
-| 能力感知的测试证据评审 | `.codex/skills/test-evidence-review/SKILL.md`、`.codex/skills/test-evidence-review/agents/openai.yaml` | 项目测试证据 owner 继续拥有 Runner、Case、CLI 和闭合 runtime。 |
+| 完整上游治理包 | `.codex/skills/change-plan/` | `changes/`、`change-plan*` package scripts 与[决策和 Change 治理](decision-and-change-governance.md) |
+| 完整上游治理包 | `.codex/skills/decision-records/` | `docs/decisions/`、`scripts/decision-records.ts` 与 `decisions*` package scripts |
+| 完整上游治理包 | `.codex/skills/investigation-report/` | 按需建立的 `docs/investigations/` 与 `investigations*` package scripts |
+| 完整上游判断包 | `.codex/skills/common-denominator-design/` | 无项目 runtime；项目 owner 和验证入口始终从包外读取 |
+| 完整上游判断包 | `.codex/skills/product-architecture-judgment/` | 无项目 runtime；项目 owner 和验证入口始终从包外读取 |
+| 独立方法包 | `.codex/skills/performance-optimization/` | 无 CLI、schema 或 runtime；目录内入口与 references 共同构成当前文件集 |
+| 项目方法层 | `.codex/skills/test-evidence-review/` | 只维护能力感知的评审方法；项目测试 owner 继续拥有 Runner、Case、CLI 和闭合 runtime |
 
-该表是项目本地例外的完整边界。后续只有项目特有 owner 与验证入口能证明上游方法不适用时，
-才通过新的决策演进增加例外；工具 runtime、schema、索引和产品行为仍不得 fork 到方法层。
+五个带 updater 的完整上游包使用各自 updater 或同一 release asset 整包替换。更新时只选择目标
+包，先核对 release，再运行包的机械检查、项目文档检查、脚本检查及受影响 workspace 验证；
+项目触发规则和 owner 语义不写回包内。`performance-optimization` 作为无 runtime 的完整目录维护，
+修改时同步核对入口与 references。`test-evidence-review` 是唯一登记的项目特有方法层 Skill；
+后续只有项目 owner 与验证入口能证明新增能力无法由现有七项或编码规范承接时，才通过新的决策
+演进扩大安装集合。
 
 ## 长期决策适配器
 

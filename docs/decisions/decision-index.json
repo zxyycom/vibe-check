@@ -66,13 +66,14 @@
       "workflow-policy/choose-implementation-style-by-problem-shape.md": "sha256:3c0e833ff981fe576db37caed3d1bb2ec3cd8f153f45a4430360d5c68fd2bc8d",
       "workflow-policy/defer-future-feature-detail-until-prioritized.md": "sha256:95c85b91ee55f96ec785ef7030348091614400e76ad4f973cdff71608a4f4bca",
       "workflow-policy/keep-project-workflow-skill-overrides-bounded.md": "sha256:bb4f7f3625dd5a1dc362728a84940836a3d65a1603f1d729f4de14aadbfc4566",
+      "workflow-policy/keep-seven-distinct-project-skills.md": "sha256:348de7e60d4bd787e150ef0f440fe35a42f59717e57daabeab4936869109c2f3",
       "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
       "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:e4d58a585d4f83b4ae7ee67d86598623191f93b36bfcfc814f5342598f0954bb",
       "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d44a538391d8995f6ebf02b0b6bbd4b3993f6a1306bc0939205dc3212d83746a",
       "workflow-policy/require-explicit-quality-baselines.md": "sha256:9e4a8654935dd513b8d45fc23e91db6227608e2c444dadfa1ea124d54007aa63",
       "workflow-policy/require-explicit-quality-comparison-references.md": "sha256:93842412f9db3ef513464b37fdf43b388c5e4698e27f638c6a3164b34853b798",
       "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md": "sha256:199be5163704ae2301b94e8ef82b02ef05ca8014784073c975010c41fd37a1a2",
-      "workflow-policy/use-complete-upstream-governance-skills.md": "sha256:2752a8a78a6f3f15feee276b9c07642aee2369e0fc45214987762cfd313a640c",
+      "workflow-policy/use-complete-upstream-governance-skills.md": "sha256:b71f08ae72dc0ed89353f633e473bdd208e34c084d71c7061708461c72aa2b3a",
       "workflow-policy/use-decision-led-change-plans-and-archive-openspec.md": "sha256:6e886c0b462889aa768f717a3dcac02c865c999565fc243d7993093538896d98",
       "workflow-policy/use-project-decision-records.md": "sha256:5fb580bcbc3e6ab2676d1db0cfb1b7182214d4cffdb0091e04074fb3adadeaae",
       "workflow-policy/use-upstream-project-skill-packages.md": "sha256:3a82f9665381923e5ccec896b47de83842edf5b620720515e4d3a8a6a318387f",
@@ -1042,6 +1043,35 @@
         ]
       }
     },
+    "workflow-policy/keep-seven-distinct-project-skills.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/keep-seven-distinct-project-skills.md",
+        "title": "只保留七项独立项目 Skill",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-12T05:41:33Z",
+        "purpose": "让项目只维护具有独立治理、证据或工程判断职责的 Skill，通用编码方法由行为 owner 和编码规范承接。",
+        "background": "编码规范已经统一实现模型和代码质量边界，继续安装同义编码 Skill 会形成重复指令和维护面。",
+        "decision": "项目只保留三项治理、测试证据、共享契约、产品架构和性能优化七项能力，不再安装通用编码方法 Skill。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "workflow-policy/use-complete-upstream-governance-skills.md"
+          }
+        ]
+      }
+    },
     "workflow-policy/match-change-detail-to-current-phase.md": {
       "keys": {
         "domain": [
@@ -1201,7 +1231,7 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -1210,7 +1240,7 @@
       "state": {
         "path": "workflow-policy/use-complete-upstream-governance-skills.md",
         "title": "使用完整上游治理 Skill 包",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T02:39:52Z",
         "purpose": "让成熟治理能力按完整上游分发单元接入，同时把项目 owner、入口和少量必要例外留在包外。",

@@ -1,6 +1,6 @@
 ---
 title: 使用完整上游治理 Skill 包
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:39:52Z
 purpose: 让成熟治理能力按完整上游分发单元接入，同时把项目 owner、入口和少量必要例外留在包外。
