@@ -17,9 +17,9 @@ import { loadSemanticProjectConfig } from "./config-file.ts";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
 import { NeutralProjectConfig } from "./config.ts";
 import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1
-} from "./machine-output.ts";
+  readMachinePublication,
+  stableScanEvidence
+} from "./configured-project-test-support.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -55,13 +55,9 @@ describe("formal CLI project configuration workflow", () => {
       assert.equal(neutral.stderr, "");
       assert.ok(neutral.stdout.startsWith("Config: default (not persisted)\n"));
 
-      const neutralMetrics = readMetricsArtifact(artifactDir);
-      assert.equal(neutralMetrics.scanCompleteness.overall, "complete");
-      assert.deepEqual(neutralMetrics.metadata.scope, {
-        excludeDirs: NeutralProjectConfig.excludeDirs,
-        generatedFiles: NeutralProjectConfig.generatedFiles,
-        include: NeutralProjectConfig.include
-      });
+      const neutralPublication = readMachinePublication(artifactDir);
+      assert.equal(neutralPublication.run.completeness.status, "complete");
+      assert.equal(neutralPublication.run.integrity.status, "valid");
 
       rmSync(artifactDir, { force: true, recursive: true });
       rmSync(cacheDir, { force: true, recursive: true });
@@ -118,43 +114,23 @@ describe("formal CLI project configuration workflow", () => {
       assert.equal(neutral.stderr, "");
       assert.ok(neutral.stdout.startsWith("Config: default (not persisted)\n"));
 
-      const neutralMetrics = readMetricsArtifact(artifactDir);
+      const neutralPublication = readMachinePublication(artifactDir);
       const neutralReport = readFileSync(join(artifactDir, "report.md"), "utf8");
-      assert.deepEqual(neutralMetrics.currentFingerprints.project?.fileList, [
-        "README.md",
-        "excluded/ignored.ts",
-        "src/eligible.ts",
-        "tools/controlled-lizard",
-        "tools/controlled-lizard.cmd",
-        "tools/controlled-scanner.ts"
-      ]);
-      const expectedExactInputs = [
-        ["excluded/ignored.ts", "project"],
-        ["src/eligible.ts", "project"],
-        ["tools/controlled-scanner.ts", "project"]
-      ];
-      assert.deepEqual(activeExactInputEvidence(neutralMetrics), {
-        fileMetrics: expectedExactInputs,
-        functionMetrics: expectedExactInputs
-      });
-      assert.ok(
-        neutralReport.startsWith(`# ${NeutralProjectConfig.report.title}\n`)
+      assert.equal(neutralPublication.run.completeness.status, "complete");
+      assert.equal(
+        neutralPublication.records.every((record) =>
+          record.location === null || [
+            "excluded/ignored.ts",
+            "src/eligible.ts",
+            "tools/controlled-scanner.ts"
+          ].includes(record.location.path)
+        ),
+        true
       );
-      assert.ok(
-        neutralReport.includes(
-          `**${NeutralProjectConfig.report.nonBlockingNotice}**`
-        )
-      );
-      assert.ok(
-        neutralReport.includes(`## Top ${NeutralProjectConfig.report.topN} 文件`)
-      );
-      assert.ok(neutralReport.includes("## Changed Files Watchlist"));
-      assert.ok(
-        neutralReport.includes(`by ${NeutralProjectConfig.report.footerGeneratedBy}`)
-      );
-      assert.ok(
-        neutralReport.includes(`*${NeutralProjectConfig.report.footerNotice}*`)
-      );
+      assert.ok(neutralReport.startsWith(`# ${NeutralProjectConfig.report.title}\n`));
+      assert.ok(neutralReport.includes("## Check runs"));
+      assert.ok(neutralReport.includes("## Unaccepted records"));
+      assert.ok(neutralReport.includes("## Accepted records"));
 
       const initialized = runProductCli(["init", projectRoot]);
       assertCommandSucceeded(initialized, "neutral project initialization");
@@ -209,18 +185,14 @@ describe("formal CLI project configuration workflow", () => {
         discovered.stdout.startsWith(`Config: discovered ${paths.configPath}\n`)
       );
 
-      const discoveredMetrics = readMetricsArtifact(artifactDir);
+      const discoveredPublication = readMachinePublication(artifactDir);
       const discoveredReport = readFileSync(
         join(artifactDir, "report.md"),
         "utf8"
       );
       assert.deepEqual(
-        stableFullScanEvidence(discoveredMetrics),
-        stableFullScanEvidence(neutralMetrics)
-      );
-      assert.deepEqual(
-        activeExactInputEvidence(discoveredMetrics),
-        activeExactInputEvidence(neutralMetrics)
+        stableScanEvidence(discoveredPublication),
+        stableScanEvidence(neutralPublication)
       );
       assert.equal(
         stableReportEvidence(discoveredReport),
@@ -274,47 +246,13 @@ function assertCommandSucceeded(result: CommandResult, label: string): void {
   );
 }
 
-function readMetricsArtifact(artifactDir: string): MachineMetricsV1 {
-  const validation = validateMachineArtifactSetV1({
-    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
-    warningsAllNdjson: readFileSync(
-      resolve(artifactDir, "warnings-all.ndjson")
-    ),
-    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
-  });
-  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  return validation.value.metrics;
-}
-
-function activeExactInputEvidence(metrics: MachineMetricsV1): unknown {
-  return {
-    fileMetrics: metrics.fileMetrics.map((metric) => [
-      metric.path,
-      metric.codeArea
-    ]),
-    functionMetrics: metrics.functionMetrics.map((metric) => [
-      metric.file,
-      metric.codeArea
-    ])
-  };
-}
-
-function stableFullScanEvidence(metrics: MachineMetricsV1): unknown {
-  return {
-    ...metrics,
-    metadata: {
-      ...metrics.metadata,
-      timestamp: "<timestamp>"
-    }
-  };
-}
-
 function stableReportEvidence(report: string): string {
   return report
     .replace(/^- \*\*Timestamp\*\*: .*$/m, "- **Timestamp**: <timestamp>")
+    .replace(/^- \*\*Invocation\*\*: .*$/m, "- **Invocation**: <invocation>")
     .replace(
-      /^\*Report generated at .* by /m,
-      "*Report generated at <timestamp> by "
+      /^\*Report generated at .* by (.+)\*$/m,
+      "*Report generated at <timestamp> by $1*"
     );
 }
 

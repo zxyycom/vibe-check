@@ -17,9 +17,8 @@ import { fileURLToPath } from "node:url";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
 import { NeutralProjectConfig } from "./config.ts";
 import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1
-} from "./machine-output.ts";
+  readMachinePublication
+} from "./configured-project-test-support.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -78,21 +77,31 @@ describe("formal CLI project configuration workflow", () => {
       );
       assert.equal(existsSync(discoveredArtifactDir), false);
 
-      const explicitMetrics = readMetricsArtifact(explicitArtifactDir);
-      assert.deepEqual(explicitMetrics.metadata.scope.include, ["src/eligible.ts"]);
-      assert.deepEqual(explicitMetrics.currentFingerprints.project?.fileList, [
-        "src/eligible.ts"
-      ]);
-      assert.deepEqual(activeExactInputEvidence(explicitMetrics), {
-        fileMetrics: [["src/eligible.ts", "project"]],
-        functionMetrics: [["src/eligible.ts", "project"]]
-      });
+      const explicitPublication = readMachinePublication(explicitArtifactDir);
+      assert.equal(explicitPublication.run.completeness.status, "complete");
+      assert.equal(
+        explicitPublication.records.every(
+          (record) =>
+            record.location?.path === "src/eligible.ts" &&
+            record.fields.codeArea === "project"
+        ),
+        true
+      );
+      assert.deepEqual(
+        explicitPublication.run.runs
+          .filter(({ checkId }) => checkId !== "duplicate-detection")
+          .map(({ checkId, coverage, status }) => [checkId, coverage, status]),
+        [
+          ["file-metrics", { acknowledgedWorkCount: 1, plannedWorkCount: 1 }, "completed"],
+          ["function-metrics", { acknowledgedWorkCount: 1, plannedWorkCount: 1 }, "completed"]
+        ]
+      );
       const explicitReport = readFileSync(
         join(explicitArtifactDir, "report.md"),
         "utf8"
       );
       assert.match(explicitReport, /^# Explicit project policy report$/m);
-      assert.match(explicitReport, /^## Top 1 文件/m);
+      assert.match(explicitReport, /^## Check runs$/m);
       assert.deepEqual(readFileSync(paths.configPath), discoveredBytes);
       assert.deepEqual(readFileSync(explicitConfigPath), explicitBytes);
       assert.deepEqual(readFileSync(invalidConfigPath), invalidBytes);
@@ -158,31 +167,6 @@ function assertCommandSucceeded(result: CommandResult, label: string): void {
     0,
     `${label} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
   );
-}
-
-function readMetricsArtifact(artifactDir: string): MachineMetricsV1 {
-  const validation = validateMachineArtifactSetV1({
-    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
-    warningsAllNdjson: readFileSync(
-      resolve(artifactDir, "warnings-all.ndjson")
-    ),
-    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
-  });
-  if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  return validation.value.metrics;
-}
-
-function activeExactInputEvidence(metrics: MachineMetricsV1): unknown {
-  return {
-    fileMetrics: metrics.fileMetrics.map((metric) => [
-      metric.path,
-      metric.codeArea
-    ]),
-    functionMetrics: metrics.functionMetrics.map((metric) => [
-      metric.file,
-      metric.codeArea
-    ])
-  };
 }
 
 function writeFixtureFile(rootDir: string, relPath: string, content: string): void {

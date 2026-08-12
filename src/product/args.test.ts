@@ -264,7 +264,7 @@ describe("quality gate argument parsing and scan planning", () => {
     for (const policyHelp of GATE_POLICY_HELP) {
       assert.ok(help.includes(policyHelp), `missing descriptor help: ${policyHelp}`);
     }
-    assert.match(help, /accepted warnings.*do not block/i);
+    assert.match(help, /accepted records.*do not block/i);
     assert.match(help, /exit 1.*gate.*failed/i);
     assert.match(help, /exit 2.*could not be evaluated/i);
     assert.match(help, /--baseline <revision>.*explicit/i);

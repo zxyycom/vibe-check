@@ -1,42 +1,46 @@
-import { resolve } from "node:path";
+import { createHash, randomUUID } from "node:crypto";
+import { rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 import { errorMessage } from "../../foundation/src/index.ts";
 import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
+import {
+  composeCurrentCheckRecords,
+  type CurrentBuiltinCheckId,
+  type CurrentCompositionExactInputs,
+  type CurrentCompositionReferenceInputs
+} from "./check-record/current-composition.ts";
+import type { NamedReferenceIdentity } from "./check-record/policy-model.ts";
+import { materializeBaselineRevision } from "./input/revisions.ts";
+import { detectScanInputChange } from "./input/revisions.ts";
+import {
+  buildFingerprints,
+  collectBaselineFiles,
+  collectScanFiles
+} from "./input/files.ts";
 import { classifyFiles } from "./model/code-areas.ts";
-import { evaluateGate } from "./model/gate-evaluator.ts";
-import { reduceScanCompleteness } from "./model/scan-completeness.ts";
-import { createEmptyMetrics } from "./model/schema.ts";
 import type {
   CodeAreaFileMap,
   CodeAreaFingerprint,
-  FatalIssue,
-  ResolvedQualityConfig,
-  QualityMetrics,
-  ToolAvailability,
+  ResolvedQualityConfig
 } from "./model/schema.ts";
-import { generateScanWarnings } from "./engine/warnings.ts";
-import { finishScan } from "./engine/scan-finisher.ts";
-import { detectScanInputChange } from "./input/revisions.ts";
-import { buildFingerprints, collectScanFiles } from "./input/files.ts";
-import { runCurrentRevisionScan } from "./measurement/current-revision/index.ts";
+import { selectJscpdTargetFileMap } from "./measurement/current-revision/jscpd.ts";
+import { selectLizardTargetFiles } from "./measurement/metrics.ts";
+import { createPublicationModelV2 } from "./output/publication-v2/index.ts";
 import type {
-  ChangeScope,
   QualityScanOptions,
-  QualityScanProcessOutcome,
+  QualityScanProcessOutcome
 } from "./scan-command/index.ts";
 import {
-  collectToolMetadata,
-  configureBaseline,
   createTimings,
-  getGitCommitTitle,
   getGitSha,
-  logFingerprints,
-  maybeScanBaselineRevision,
-  prepareArtifactDirs,
-  resolveChangedFilesForScan,
-  setComparisonStatus,
-  type Timings,
+  resolveChangedFilesForScan
 } from "./scan-command/index.ts";
+import {
+  cleanupPublicationV2BestEffort,
+  publishScanV2
+} from "./scan-command/publication-v2.ts";
 
 export type QualityScanRuntimeOptions = {
   config: ResolvedQualityConfig;
@@ -47,243 +51,262 @@ export type QualityScanRuntimeOptions = {
   timingsEnabled?: boolean;
 };
 
-type ScanInputs = {
-  fileMap: CodeAreaFileMap;
-  fingerprints: Record<string, CodeAreaFingerprint>;
-  scanFiles: string[];
-};
-
-type ChangedInputScope = {
-  changedFiles: string[];
-  inputScope: ChangeScope;
-};
-
-type RuntimeContext = {
-  config: ResolvedQualityConfig;
-  dependencies: ScannerDependencySnapshot;
-  fatalIssues: FatalIssue[];
-  metrics: QualityMetrics;
-  opts: QualityScanOptions;
-  rawDir: string;
-  root: string;
-  toolResults: ToolAvailability[];
-};
-
-type RuntimeContextParameters = {
-  config: ResolvedQualityConfig;
-  dependencies: ScannerDependencySnapshot;
-  opts: QualityScanOptions;
-  rawDir: string;
-  root: string;
-  timings: Timings;
-};
+interface PreparedReference {
+  readonly input: CurrentCompositionReferenceInputs;
+  readonly temporaryRoot: string;
+}
 
 export async function runQualityScan(
-  runtimeOptions: QualityScanRuntimeOptions,
+  runtimeOptions: QualityScanRuntimeOptions
 ): Promise<QualityScanProcessOutcome> {
   const { banner, config, dependencies, options, root, timingsEnabled } =
     runtimeOptions;
   const timings = createTimings(timingsEnabled);
-  const opts = options;
-
-  banner?.(opts.scanProfile);
-
-  const artifactDir = resolve(root, opts.artifactDir);
-  const { rawDir } = timings.measure("prepare artifact dirs", () =>
-    prepareArtifactDirs(artifactDir),
-  );
-  const runtime = prepareRuntimeContext({
-    config,
-    dependencies,
-    opts,
-    rawDir,
-    root,
-    timings,
-  });
-  const inputs = collectScanInputs({ config, root, timings });
-  attachFingerprints(runtime.metrics, inputs.fingerprints);
-
-  timings.measure("configure baseline", () =>
-    configureBaseline({
-      config,
-      metrics: runtime.metrics,
-      opts,
-      tools: runtime.metrics.metadata.tools,
-      root,
-    }),
-  );
-
-  const changedInput = detectChangedInputScope({
-    config,
-    metrics: runtime.metrics,
-    opts,
-    root,
-    timings,
-  });
-  await scanCurrentRevision(
-    runtime,
-    inputs,
-    changedInput.changedFiles,
-    timings,
-  );
-  timings.measure("set comparison status", () =>
-    setComparisonStatus(runtime.metrics, changedInput.inputScope),
-  );
-
-  const baselineSnapshot = await timings.measureAsync("baseline snapshot", () =>
-    maybeScanBaselineRevision({ config, root, runtime }),
-  );
-  if (runtime.metrics.scanCompleteness.overall === "complete") {
-    generateScanWarnings({
-      baselineSnapshot,
-      config,
-      metrics: runtime.metrics,
-      scanProfile: opts.scanProfile,
-      scope: changedInput.inputScope,
-      timings,
-    });
-  }
-  runtime.metrics.gate = evaluateGate(
-    opts.gatePolicy,
-    runtime.metrics.scanCompleteness.overall,
-    runtime.metrics.comparisonStatus,
-    runtime.metrics.warnings,
-  );
-  return finishScan({ artifactDir, runtime, timings });
-}
-
-function prepareRuntimeContext(
-  parameters: RuntimeContextParameters,
-): RuntimeContext {
-  const { config, dependencies, opts, rawDir, root, timings } = parameters;
-  const commitSha = timings.measure("git rev-parse HEAD", () =>
-    getGitSha(root),
-  );
-  const commitTitle = timings.measure("git commit title", () =>
-    getGitCommitTitle(commitSha, root),
-  );
-  const metrics = timings.measure("create metrics envelope", () =>
-    createEmptyMetrics({
-      repository: root,
-      commitSha,
-      commitTitle,
-      configVersion: config.version,
-      tools: [],
-      scope: {
-        include: [...config.include],
-        excludeDirs: [...config.excludeDirs],
-        generatedFiles: [...config.generatedFiles],
-      },
-    }),
-  );
-
-  return {
-    config,
-    dependencies,
-    fatalIssues: [],
-    metrics,
-    opts,
-    rawDir,
-    root,
-    toolResults: [],
-  };
-}
-
-function collectScanInputs({
-  config,
-  root,
-  timings,
-}: {
-  config: ResolvedQualityConfig;
-  root: string;
-  timings: Timings;
-}): ScanInputs {
-  console.log("Collecting scan inputs...");
-  const scanFiles = timings.measure("collect scan files", () =>
-    collectScanFiles(root, config),
-  );
-  console.log(`  Found ${scanFiles.length} files in scan scope`);
-
-  const fileMap = timings.measure("classify scan files", () =>
-    classifyFiles(scanFiles, config.codeAreas, config.generatedFiles),
-  );
-  const areaNames = Array.from(fileMap.keys());
-  console.log(`  Code areas: ${areaNames.join(", ")}`);
-
-  const fingerprints = timings.measure("build fingerprints", () =>
-    buildFingerprints(fileMap, root),
-  );
-  logFingerprints(fingerprints);
-
-  return { fileMap, fingerprints, scanFiles };
-}
-
-function attachFingerprints(
-  metrics: QualityMetrics,
-  fingerprints: Record<string, CodeAreaFingerprint>,
-): void {
-  metrics.currentFingerprints = fingerprints;
-}
-
-function detectChangedInputScope(options: {
-  config: ResolvedQualityConfig;
-  metrics: QualityMetrics;
-  opts: QualityScanOptions;
-  root: string;
-  timings: Timings;
-}): ChangedInputScope {
-  const { config, metrics, opts, root, timings } = options;
-  const inputScope = timings.measure("detect changed scan inputs", () =>
+  const artifactDir = resolve(root, options.artifactDir);
+  const invocationId = `invocation/v1:${randomUUID()}`;
+  const commitSha = timings.measure("git rev-parse HEAD", () => getGitSha(root));
+  const changeScope = timings.measure("detect changed scan inputs", () =>
     detectScanInputChange({
-      baselineSha: metrics.baseline.commitSha,
+      baselineSha: options.baselineCommitSha,
       cwd: root,
-      scanInputPaths: [...config.include],
-    }),
+      scanInputPaths: [...config.include]
+    })
   );
   const changedFiles = timings.measure("resolve changed files", () =>
-    resolveChangedFilesForScan({ config, opts, root, scope: inputScope }),
+    resolveChangedFilesForScan({ config, opts: options, root, scope: changeScope })
   );
-  console.log(`  Changed files in scan scope: ${changedFiles.length}`);
-  return { changedFiles, inputScope };
+  console.log(`Changed files in scan scope: ${changedFiles.length}`);
+
+  banner?.(options.scanProfile);
+  const current = timings.measure("prepare exact current inputs", () =>
+    prepareCurrentInputs({ config, root, commitSha })
+  );
+  const reference = timings.measure("prepare explicit reference", () =>
+    prepareReference({
+      commitSha: options.baselineCommitSha,
+      config,
+      gate: options.gatePolicy,
+      repositoryRoot: root
+    })
+  );
+
+  try {
+    const selectedCheckIds = selectedChecks(options.scanProfile);
+    const composition = await timings.measureAsync("compose Check records", () =>
+      composeCurrentCheckRecords({
+        baseline: reference?.input ?? null,
+        changedFiles,
+        config,
+        current,
+        dependencies,
+        gate: options.gatePolicy,
+        invocationKey: invocationId,
+        selectedCheckIds,
+        verificationOutput: options.verificationOutput
+      })
+    );
+    const references = reference === null ||
+        (options.gatePolicy !== "changed" && options.gatePolicy !== "regressions")
+      ? []
+      : [reference.input.identity];
+    const model = timings.measure("validate publication model", () =>
+      createPublicationModelV2({
+        decision: composition.decision,
+        humanStatus: composition.humanStatus,
+        invocation: {
+          invocationId,
+          projectRoot: ".",
+          timestamp: new Date().toISOString()
+        },
+        referenceFacts: composition.referenceFacts,
+        references,
+        snapshot: composition.snapshot,
+        verificationOutput: options.verificationOutput
+      })
+    );
+    const published = timings.measure("publish v2 artifacts", () =>
+      publishScanV2({
+        artifactDir,
+        changedFiles,
+        model,
+        reportPresentation: {
+          ...config.report,
+          topN: options.topN
+        }
+      })
+    );
+    timings.print();
+    return published.outcome;
+  } catch (error: unknown) {
+    cleanupPublicationV2BestEffort(artifactDir);
+    console.log("");
+    console.log("❌ Quality scan failed.");
+    console.log(`Artifacts in: ${artifactDir}/`);
+    console.error(`Fatal quality scan issue: ${errorMessage(error)}`);
+    return "failed";
+  } finally {
+    if (reference !== null) {
+      rmSync(reference.temporaryRoot, { recursive: true, force: true });
+    }
+  }
 }
 
-async function scanCurrentRevision(
-  runtime: RuntimeContext,
-  inputs: ScanInputs,
-  changedFiles: string[],
-  timings: Timings,
-): Promise<void> {
-  const capabilityResults = await timings.measureAsync(
-    "scan current revision",
-    () =>
-      runCurrentRevisionScan({
-        context: {
-          metrics: runtime.metrics,
-          toolResults: runtime.toolResults,
-          changedFiles,
-          rawDir: runtime.rawDir,
-          root: runtime.root,
-          cacheRootDir: resolve(runtime.root, runtime.config.cacheDir),
-          config: runtime.config,
-          dependencies: runtime.dependencies,
-          fingerprints: inputs.fingerprints,
-        },
-        scanFiles: inputs.scanFiles,
-        fileMap: inputs.fileMap,
-        scanProfile: runtime.opts.scanProfile,
-      }),
+function prepareCurrentInputs(input: Readonly<{
+  commitSha: string;
+  config: ResolvedQualityConfig;
+  root: string;
+}>): CurrentCompositionExactInputs {
+  console.log("Collecting scan inputs...");
+  const scanFiles = collectScanFiles(input.root, input.config);
+  const fileMap = classifyFiles(
+    scanFiles,
+    input.config.codeAreas,
+    input.config.generatedFiles
   );
-  runtime.metrics.scanCompleteness = {
-    capabilities: capabilityResults,
-    overall: reduceScanCompleteness(capabilityResults),
-  };
-  const tools = timings.measure("tool metadata", () =>
-    collectToolMetadata(runtime.toolResults),
-  );
-  runtime.metrics.metadata.tools = tools;
-  if (runtime.metrics.baseline.metadata) {
-    runtime.metrics.baseline.metadata.toolMetadata = tools;
+  const fingerprints = buildFingerprints(fileMap, input.root);
+  console.log(`  Found ${scanFiles.length} files in scan scope`);
+  console.log(`  Code areas: ${Array.from(fileMap.keys()).join(", ")}`);
+  return exactInputs({
+    cacheRootDir: resolve(input.root, input.config.cacheDir),
+    commitSha: input.commitSha,
+    config: input.config,
+    fileMap,
+    fingerprints,
+    rootDir: input.root,
+    scanFiles
+  });
+}
+
+function prepareReference(input: Readonly<{
+  commitSha: string | null;
+  config: ResolvedQualityConfig;
+  gate: QualityScanOptions["gatePolicy"];
+  repositoryRoot: string;
+}>): PreparedReference | null {
+  if (input.commitSha === null ||
+      (input.gate !== "changed" && input.gate !== "regressions")) {
+    return null;
   }
+  const temporaryRoot = join(tmpdir(), `quality-reference-${randomUUID()}`);
+  const identity = referenceIdentity(input.commitSha);
+  const materialized = materializeBaselineRevision({
+    baselineWorkDir: temporaryRoot,
+    commitSha: input.commitSha,
+    cwd: input.repositoryRoot
+  });
+  if (!materialized.ok) {
+    return Object.freeze({
+      temporaryRoot,
+      input: Object.freeze({
+        ...emptyExactInputs({
+          cacheRootDir: resolve(input.repositoryRoot, input.config.cacheDir),
+          commitSha: input.commitSha,
+          rootDir: temporaryRoot
+        }),
+        identity,
+        status: "unavailable" as const
+      })
+    });
+  }
+
+  const scanFiles = collectBaselineFiles(materialized.workDir, input.config);
+  const fileMap = classifyFiles(
+    scanFiles,
+    input.config.codeAreas,
+    input.config.generatedFiles
+  );
+  const fingerprints = buildFingerprints(fileMap, materialized.workDir);
+  return Object.freeze({
+    temporaryRoot,
+    input: Object.freeze({
+      ...exactInputs({
+        cacheRootDir: resolve(input.repositoryRoot, input.config.cacheDir),
+        commitSha: input.commitSha,
+        config: input.config,
+        fileMap,
+        fingerprints,
+        rootDir: materialized.workDir,
+        scanFiles
+      }),
+      identity
+    })
+  });
+}
+
+function exactInputs(input: Readonly<{
+  cacheRootDir: string;
+  commitSha: string;
+  config: ResolvedQualityConfig;
+  fileMap: CodeAreaFileMap;
+  fingerprints: Readonly<Record<string, CodeAreaFingerprint>>;
+  rootDir: string;
+  scanFiles: readonly string[];
+}>): CurrentCompositionExactInputs {
+  const duplicateFileMap = selectJscpdTargetFileMap(input.fileMap, input.config);
+  return Object.freeze({
+    duplicateDetection: Object.freeze({
+      areas: Object.freeze(Array.from(duplicateFileMap, ([codeArea, files]) =>
+        Object.freeze({
+          approvedExactPaths: Object.freeze([...files]),
+          codeArea,
+          inputFingerprint: Object.freeze(input.fingerprints[codeArea] ?? {
+            fileCount: 0,
+            fileList: [],
+            fingerprint: "empty"
+          })
+        })
+      )),
+      cacheRootDir: input.cacheRootDir,
+      commitSha: input.commitSha,
+      rootDir: input.rootDir
+    }),
+    fileMetrics: Object.freeze({
+      approvedExactPaths: Object.freeze([...input.scanFiles]),
+      rootDir: input.rootDir
+    }),
+    functionMetrics: Object.freeze({
+      approvedExactPaths: Object.freeze(
+        selectLizardTargetFiles([...input.scanFiles], input.config)
+      ),
+      rootDir: input.rootDir
+    })
+  });
+}
+
+function emptyExactInputs(input: Readonly<{
+  cacheRootDir: string;
+  commitSha: string;
+  rootDir: string;
+}>): CurrentCompositionExactInputs {
+  return Object.freeze({
+    duplicateDetection: Object.freeze({
+      areas: Object.freeze([]),
+      cacheRootDir: input.cacheRootDir,
+      commitSha: input.commitSha,
+      rootDir: input.rootDir
+    }),
+    fileMetrics: Object.freeze({ approvedExactPaths: Object.freeze([]), rootDir: input.rootDir }),
+    functionMetrics: Object.freeze({
+      approvedExactPaths: Object.freeze([]),
+      rootDir: input.rootDir
+    })
+  });
+}
+
+function referenceIdentity(commitSha: string): NamedReferenceIdentity {
+  const digest = createHash("sha256").update(commitSha).digest("hex");
+  return Object.freeze({
+    referenceId: `reference/v1/sha256:${digest}`,
+    referenceName: "baseline"
+  });
+}
+
+function selectedChecks(
+  profile: QualityScanOptions["scanProfile"]
+): readonly CurrentBuiltinCheckId[] {
+  return profile === "quick"
+    ? Object.freeze(["file-metrics", "function-metrics"])
+    : Object.freeze(["duplicate-detection", "file-metrics", "function-metrics"]);
 }
 
 export function qualityScanErrorExitCode(err: unknown): 2 | 3 {

@@ -1,0 +1,108 @@
+{
+  "type": "object",
+  "required": [
+    "checkId",
+    "checkRunId",
+    "fields",
+    "level",
+    "location",
+    "message",
+    "recordId",
+    "recordTypeId",
+    "schemaVersion",
+    "semanticSubject"
+  ],
+  "properties": {
+    "checkId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "checkRunId": {
+      "type": "string",
+      "pattern": "^check-run/v1:[a-f0-9]{64}$"
+    },
+    "fields": {
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "Dynamic record fields constrained by the owning published record-type descriptor."
+    },
+    "level": {
+      "enum": [
+        "info",
+        "warning",
+        "error"
+      ],
+      "type": "string"
+    },
+    "location": {
+      "anyOf": [
+        {
+          "type": "object",
+          "required": [
+            "column",
+            "line",
+            "path"
+          ],
+          "properties": {
+            "column": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "line": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recordId": {
+      "type": "string",
+      "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+    },
+    "recordTypeId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "vibe-check.record.v2"
+    },
+    "semanticSubject": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "$id": "urn:vibe-check:schema:record:v2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "title": "Vibe Check machine record v2"
+}

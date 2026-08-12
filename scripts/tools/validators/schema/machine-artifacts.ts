@@ -1,21 +1,14 @@
 import fs from "node:fs";
 
 import { toAbs } from "../repo/paths.ts";
-import {
-  artifactPath,
-  formatDiagnostic
-} from "./machine-artifact-diagnostics.ts";
+import { artifactPath, formatDiagnostic } from "./machine-artifact-diagnostics.ts";
 import { validateArtifactSetInvariants } from "./machine-artifact-invariants.ts";
-import {
-  validateMetrics,
-  validateWarningStream
-} from "./machine-artifact-parsing.ts";
+import { validateRecordStream, validateRun } from "./machine-artifact-parsing.ts";
 import {
   CURRENT_MACHINE_EXAMPLES_ROOT,
   CURRENT_MACHINE_OUTCOMES,
-  METRICS_ARTIFACT,
-  WARNINGS_ALL_ARTIFACT,
-  WARNINGS_ARTIFACT,
+  RECORDS_ARTIFACT,
+  RUN_ARTIFACT,
   type DocsMachineArtifactBytes,
   type DocsMachineValidationResult
 } from "./machine-artifact-types.ts";
@@ -33,12 +26,8 @@ export function validatePublishedMachineArtifactExamples(): number {
   for (const outcome of CURRENT_MACHINE_OUTCOMES) {
     const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${outcome}`;
     const result = validateDocsMachineArtifactSet({
-      metricsJson: readArtifactBytes(artifactRoot, METRICS_ARTIFACT),
-      warningsAllNdjson: readArtifactBytes(
-        artifactRoot,
-        WARNINGS_ALL_ARTIFACT
-      ),
-      warningsNdjson: readArtifactBytes(artifactRoot, WARNINGS_ARTIFACT)
+      runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
+      recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
     }, artifactRoot);
     if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
   }
@@ -52,39 +41,19 @@ export function validateDocsMachineArtifactSet(
   artifacts: DocsMachineArtifactBytes,
   artifactRoot: string
 ): DocsMachineValidationResult {
-  const metricsResult = validateMetrics(artifacts.metricsJson, artifactRoot);
-  if (!metricsResult.ok) return metricsResult;
-
-  const warningsResult = validateWarningStream(
-    artifacts.warningsNdjson,
-    artifactRoot,
-    WARNINGS_ARTIFACT
-  );
-  if (!warningsResult.ok) return warningsResult;
-
-  const warningsAllResult = validateWarningStream(
-    artifacts.warningsAllNdjson,
-    artifactRoot,
-    WARNINGS_ALL_ARTIFACT
-  );
-  if (!warningsAllResult.ok) return warningsAllResult;
-
-  const metrics = metricsResult.value;
+  const runResult = validateRun(artifacts.runJson, artifactRoot);
+  if (!runResult.ok) return runResult;
+  const recordsResult = validateRecordStream(artifacts.recordsNdjson, artifactRoot);
+  if (!recordsResult.ok) return recordsResult;
   const invariantFailure = validateArtifactSetInvariants(
-    metrics,
-    warningsResult.value,
-    warningsAllResult.value,
+    runResult.value,
+    recordsResult.value,
     artifactRoot
   );
   if (invariantFailure) return invariantFailure;
-
   return {
     ok: true,
-    value: {
-      metrics,
-      warnings: warningsResult.value,
-      warningsAll: warningsAllResult.value
-    }
+    value: { run: runResult.value, records: recordsResult.value }
   };
 }
 
@@ -99,7 +68,6 @@ function assertExactOutcomeInventory(): void {
       `current machine artifact example root is missing or unreadable: ${CURRENT_MACHINE_EXAMPLES_ROOT}`
     );
   }
-
   const expected = new Set<string>(CURRENT_MACHINE_OUTCOMES);
   for (const entry of entries) {
     if (!entry.isDirectory() || !expected.has(entry.name)) {
@@ -117,10 +85,7 @@ function assertExactOutcomeInventory(): void {
   }
 }
 
-function readArtifactBytes(
-  artifactRoot: string,
-  logicalArtifact: string
-): Buffer {
+function readArtifactBytes(artifactRoot: string, logicalArtifact: string): Buffer {
   const relativePath = artifactPath(artifactRoot, logicalArtifact);
   try {
     return fs.readFileSync(toAbs(relativePath));

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {
   cpSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -19,7 +20,7 @@ const fixtureRoot = join(repoRoot, "fixtures", "projects", "configured-typescrip
 const acceptanceTestPath = "scripts/quality/producer-annotation-acceptance.test.ts";
 
 describe("producer-to-annotation acceptance", () => {
-  it("connects formal non-empty, zero-byte, and invalid producer streams to the actual consumer", { timeout: 60_000 }, () => {
+  it("connects formal non-empty, zero-record, and invalid v2 artifact sets to the actual consumer", { timeout: 60_000 }, () => {
     const requiredChild = checks.find(({ id }) => id === "producer-annotation-acceptance");
     assert.deepEqual(
       requiredChild && {
@@ -44,46 +45,49 @@ describe("producer-to-annotation acceptance", () => {
 
       const warningScan = runProductCli(warningProject);
       assertSucceeded(warningScan, "non-empty producer");
-      const warningStream = warningsPath(warningProject);
-      const warningBytes = readFileSync(warningStream);
-      assert.ok(warningBytes.byteLength > 0);
+      const warningArtifacts = artifactDirectory(warningProject);
+      const warningRecords = readFileSync(join(warningArtifacts, "records.ndjson"));
+      assert.ok(warningRecords.byteLength > 0);
+      assert.ok(readFileSync(join(warningArtifacts, "run.json")).byteLength > 0);
 
-      const warningAnnotation = runAnnotationCli(warningStream);
+      const warningAnnotation = runAnnotationCli(warningArtifacts);
       assertSucceeded(warningAnnotation, "non-empty annotation consumer");
       assert.ok(annotationCommands(warningAnnotation.stdout).length > 0);
       assert.equal(warningAnnotation.stderr, "");
 
       selectNoInput(zeroProject);
       const zeroScan = runProductCli(zeroProject);
-      assertSucceeded(zeroScan, "zero-warning producer");
-      const zeroStream = warningsPath(zeroProject);
-      assert.equal(readFileSync(zeroStream).byteLength, 0);
+      assertSucceeded(zeroScan, "zero-record producer");
+      const zeroArtifacts = artifactDirectory(zeroProject);
+      assert.equal(readFileSync(join(zeroArtifacts, "records.ndjson")).byteLength, 0);
+      assert.ok(readFileSync(join(zeroArtifacts, "run.json")).byteLength > 0);
 
-      const zeroAnnotation = runAnnotationCli(zeroStream);
-      assertSucceeded(zeroAnnotation, "zero-warning annotation consumer");
+      const zeroAnnotation = runAnnotationCli(zeroArtifacts);
+      assertSucceeded(zeroAnnotation, "zero-record annotation consumer");
       assert.equal(zeroAnnotation.stdout, "");
       assert.equal(zeroAnnotation.stderr, "");
 
-      const invalidWarning = JSON.parse(
-        warningBytes.toString("utf8").split("\n")[0] ?? "null"
+      const invalidRecord = JSON.parse(
+        warningRecords.toString("utf8").split("\n")[0] ?? "null"
       ) as Record<string, unknown>;
-      delete invalidWarning.schemaVersion;
-      const validRecordCount = warningBytes.toString("utf8").split("\n").filter(Boolean).length;
-      const invalidStream = join(tempRoot, "invalid-warnings.ndjson");
+      delete invalidRecord.schemaVersion;
+      const validRecordCount = warningRecords.toString("utf8").split("\n").filter(Boolean).length;
+      const invalidArtifacts = join(tempRoot, "invalid-artifacts");
+      mkdirSync(invalidArtifacts);
+      writeFileSync(join(invalidArtifacts, "run.json"), readFileSync(join(warningArtifacts, "run.json")));
       writeFileSync(
-        invalidStream,
+        join(invalidArtifacts, "records.ndjson"),
         Buffer.concat([
-          warningBytes,
-          Buffer.from(`${JSON.stringify(invalidWarning)}\n`, "utf8")
+          warningRecords,
+          Buffer.from(`${JSON.stringify(invalidRecord)}\n`, "utf8")
         ])
       );
 
-      const invalidAnnotation = runAnnotationCli(invalidStream);
+      const invalidAnnotation = runAnnotationCli(invalidArtifacts);
       assert.equal(invalidAnnotation.status, 2);
       assert.equal(invalidAnnotation.stdout, "");
-      assert.match(invalidAnnotation.stderr, /schema/i);
+      assert.match(invalidAnnotation.stderr, /records\.ndjson: schema/i);
       assert.match(invalidAnnotation.stderr, new RegExp(`line ${validRecordCount + 1}\\b`));
-      assert.match(invalidAnnotation.stderr, /\/schemaVersion/);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -112,13 +116,13 @@ function runProductCli(projectRoot: string): CommandResult {
   ], configuredScannerEnvironment());
 }
 
-function runAnnotationCli(warnings: string): CommandResult {
+function runAnnotationCli(artifactDirectory: string): CommandResult {
   return runBun([
     "run",
     "--silent",
     "quality:annotate",
     "--",
-    warnings
+    artifactDirectory
   ]);
 }
 
@@ -152,13 +156,8 @@ function assertSucceeded(result: CommandResult, label: string): void {
   );
 }
 
-function warningsPath(projectRoot: string): string {
-  return join(
-    projectRoot,
-    "artifacts",
-    "configured-scan",
-    "warnings-all.ndjson"
-  );
+function artifactDirectory(projectRoot: string): string {
+  return join(projectRoot, "artifacts", "configured-scan");
 }
 
 function selectNoInput(projectRoot: string): void {

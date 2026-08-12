@@ -12,14 +12,14 @@ import {
   assertCommandSucceeded,
   configuredScannerEnvironment,
   createConfiguredProjectFixture,
-  readMetricsArtifact,
+  readMachinePublication,
   raiseWarningFloors,
   runProductCli,
   writeControlledLizard
 } from "./configured-project-test-support.ts";
 
 describe("formal CLI configured scan completeness", () => {
-  it("returns a warning without a quality verdict when no capability has eligible input", { timeout: 30_000 }, () => {
+  it("returns a warning when all selected Checks are not applicable", { timeout: 30_000 }, () => {
     const { artifactDir, configPath, projectRoot, tempRoot } =
       createConfiguredProjectFixture("vibe-check-empty-scan-");
     const markerPath = join(projectRoot, "scanner-started");
@@ -86,35 +86,29 @@ describe("formal CLI configured scan completeness", () => {
         `legitimate empty scan failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
       );
       assert.equal(result.stderr, "");
-      assert.match(result.stdout, /Scan completeness: empty/);
-      assert.doesNotMatch(result.stdout, /Generating warnings/);
-      assert.match(
-        result.stdout,
-        /Quality was not evaluated.*no capability had eligible measurement input/
-      );
+      assert.match(result.stdout, /Snapshot completeness: complete/);
+      assert.match(result.stdout, /Records: 0/);
       assert.doesNotMatch(result.stdout, /Quality check status: passed/);
       assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
 
-      const metrics = readMetricsArtifact(artifactDir);
-      assert.deepEqual(metrics.scanCompleteness, {
-        capabilities: [
-          { capabilityId: "file-metrics", status: "no-input" },
-          { capabilityId: "function-metrics", status: "no-input" },
-          { capabilityId: "duplicate-detection", status: "no-input" }
-        ],
-        overall: "empty"
-      });
-      assert.deepEqual(metrics.warnings, { all: [], changed: [], regressions: [] });
+      const machine = readMachinePublication(artifactDir);
+      assert.equal(machine.run.completeness.status, "complete");
+      assert.deepEqual(machine.records, []);
+      assert.deepEqual(
+        machine.run.runs.map((run) => [run.checkId, run.status, run.result?.verdict]),
+        [
+          ["duplicate-detection", "completed", "not-applicable"],
+          ["file-metrics", "completed", "not-applicable"],
+          ["function-metrics", "completed", "not-applicable"]
+        ]
+      );
 
       const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-      assert.match(report, /Overall.*`empty`/);
-      assert.match(report, /file-metrics.*`no-input`/);
-      assert.match(report, /function-metrics.*`no-input`/);
-      assert.match(report, /duplicate-detection.*`no-input`/);
-      assert.match(
-        report,
-        /Quality was not evaluated.*no capability had eligible measurement input/
-      );
+      assert.match(report, /Snapshot completeness\*\*: complete/);
+      assert.match(report, /file-metrics`: completed \/ not-applicable/);
+      assert.match(report, /function-metrics`: completed \/ not-applicable/);
+      assert.match(report, /duplicate-detection`: completed \/ not-applicable/);
+      assert.match(report, /## Unaccepted records\n\nNone\./);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -147,36 +141,27 @@ describe("formal CLI configured scan completeness", () => {
       assertCommandSucceeded(result, "successful zero-finding quick scan");
       assert.equal(result.stderr, "");
 
-      const metrics = readMetricsArtifact(artifactDir);
-      const functionMetrics = metrics.scanCompleteness.capabilities.find(
-        (capability) => capability.capabilityId === "function-metrics"
+      const machine = readMachinePublication(artifactDir);
+      const functionRun = machine.run.runs.find(
+        (run) => run.checkId === "function-metrics"
       );
-      const duplicateDetection = metrics.scanCompleteness.capabilities.find(
-        (capability) => capability.capabilityId === "duplicate-detection"
+      const duplicateRun = machine.run.runs.find(
+        (run) => run.checkId === "duplicate-detection"
       );
-      assert.equal(functionMetrics?.status, "succeeded");
-      assert.deepEqual(metrics.functionMetrics, []);
-      assert.equal(duplicateDetection?.status, "skipped");
-      assert.equal(metrics.scanCompleteness.overall, "complete");
-      assert.equal(
-        metrics.metadata.tools.some((tool) => tool.name === "jscpd"),
-        false
-      );
+      assert.deepEqual(functionRun?.result, { verdict: "passed" });
+      assert.equal(duplicateRun?.status, "skipped");
+      assert.equal(machine.run.completeness.status, "complete");
+      assert.deepEqual(machine.records, []);
 
-      assert.match(result.stdout, /Scan completeness: complete/);
-      assert.match(result.stdout, /function-metrics: succeeded/);
-      assert.match(result.stdout, /duplicate-detection: skipped/);
+      assert.match(result.stdout, /Snapshot completeness: complete/);
       assert.match(result.stdout, /Quality check status: passed/);
-      assert.doesNotMatch(result.stdout, /Scan completeness: (?:empty|failed)/);
-      assert.doesNotMatch(result.stdout, /Quality was not evaluated/);
+      assert.doesNotMatch(result.stdout, /Snapshot completeness: incomplete/);
       assert.doesNotMatch(result.stdout, /jscpd validation failed/);
 
       const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-      assert.match(report, /Overall.*`complete`/);
-      assert.match(report, /function-metrics.*`succeeded`/);
-      assert.match(report, /duplicate-detection.*`skipped`/);
-      assert.doesNotMatch(report, /Overall.*`(?:empty|failed)`/);
-      assert.doesNotMatch(report, /Quality was not evaluated/);
+      assert.match(report, /Snapshot completeness\*\*: complete/);
+      assert.match(report, /function-metrics`: completed \/ passed/);
+      assert.match(report, /duplicate-detection`: skipped/);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -184,7 +169,7 @@ describe("formal CLI configured scan completeness", () => {
 
   it("projects Lizard execution and invalid-result failures consistently", { timeout: 30_000 }, () => {
     const variants = [
-      { diagnosticKind: "execution", mode: "execution" },
+      { diagnosticKind: "execution-failed", mode: "execution" },
       { diagnosticKind: "invalid-result", mode: "invalid" }
     ] as const;
 
@@ -217,29 +202,22 @@ describe("formal CLI configured scan completeness", () => {
           `${variant.mode} Lizard result did not fail closed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
         );
 
-        const metrics = readMetricsArtifact(artifactDir);
-        const functionMetrics = metrics.scanCompleteness.capabilities.find(
-          (capability) => capability.capabilityId === "function-metrics"
+        const machine = readMachinePublication(artifactDir);
+        const functionRun = machine.run.runs.find(
+          (run) => run.checkId === "function-metrics"
         );
-        assert.ok(functionMetrics?.status === "failed");
-        assert.equal(functionMetrics.diagnostic.kind, variant.diagnosticKind);
-        assert.equal(metrics.scanCompleteness.overall, "failed");
+        assert.equal(functionRun?.status, "failed");
+        assert.equal(functionRun?.diagnostic?.category, variant.diagnosticKind);
+        assert.equal(machine.run.completeness.status, "incomplete");
 
-        assert.match(result.stdout, /Scan completeness: failed/);
-        assert.match(result.stdout, /function-metrics: failed/);
-        assert.ok(result.stdout.includes(functionMetrics.diagnostic.message));
-        assert.ok(result.stdout.includes(functionMetrics.diagnostic.action));
-        assert.match(result.stderr, /Incomplete current measurements:/);
-        assert.ok(result.stderr.includes(functionMetrics.diagnostic.message));
-        assert.doesNotMatch(result.stderr, /Fatal quality scan issues:/);
+        assert.match(result.stdout, /Snapshot completeness: incomplete/);
+        assert.equal(result.stderr, "");
         assert.doesNotMatch(result.stdout, /Quality check status: passed/);
         assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
 
         const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-        assert.match(report, /Overall.*`failed`/);
-        assert.match(report, /function-metrics.*`failed`/);
-        assert.ok(report.includes(functionMetrics.diagnostic.message));
-        assert.ok(report.includes(functionMetrics.diagnostic.action));
+        assert.match(report, /Snapshot completeness\*\*: incomplete/);
+        assert.match(report, /function-metrics`: failed/);
       } finally {
         rmSync(tempRoot, { force: true, recursive: true });
       }
@@ -276,41 +254,30 @@ describe("formal CLI configured scan completeness", () => {
       );
       assert.doesNotMatch(result.stdout, /✅ Quality scan complete\./);
 
-      const metrics = readMetricsArtifact(artifactDir);
-      assert.equal(metrics.scanCompleteness.overall, "failed");
+      const machine = readMachinePublication(artifactDir);
+      assert.equal(machine.run.completeness.status, "incomplete");
       assert.deepEqual(
-        metrics.scanCompleteness.capabilities.map((result) => [
-          result.capabilityId,
-          result.status
+        machine.run.runs.map((run) => [
+          run.checkId,
+          run.status
         ]),
         [
+          ["duplicate-detection", "skipped"],
           ["file-metrics", "failed"],
-          ["function-metrics", "succeeded"],
-          ["duplicate-detection", "skipped"]
+          ["function-metrics", "completed"]
         ]
       );
-      const fileMetrics = metrics.scanCompleteness.capabilities.find(
-        (result) => result.capabilityId === "file-metrics"
+      const fileRun = machine.run.runs.find(
+        (run) => run.checkId === "file-metrics"
       );
-      assert.equal(fileMetrics?.status, "failed");
-      assert.ok(fileMetrics?.status === "failed");
-      assert.equal(fileMetrics.diagnostic.kind, "unavailable");
-      assert.equal(typeof fileMetrics.diagnostic.message, "string");
-      assert.equal(typeof fileMetrics.diagnostic.action, "string");
-      assert.match(result.stdout, /Scan completeness: failed/);
-      assert.match(result.stdout, /file-metrics: failed/);
-      assert.ok(result.stdout.includes(fileMetrics.diagnostic.message));
-      assert.ok(result.stdout.includes(fileMetrics.diagnostic.action));
-      assert.match(result.stderr, /Incomplete current measurements:/);
-      assert.doesNotMatch(result.stderr, /Fatal quality scan issues:/);
-      assert.ok(result.stderr.includes(fileMetrics.diagnostic.message));
-      assert.ok(result.stderr.includes(fileMetrics.diagnostic.action));
+      assert.equal(fileRun?.status, "failed");
+      assert.equal(fileRun?.diagnostic?.category, "unavailable");
+      assert.match(result.stdout, /Snapshot completeness: incomplete/);
+      assert.equal(result.stderr, "");
 
       const report = readFileSync(join(artifactDir, "report.md"), "utf8");
-      assert.match(report, /Overall.*`failed`/);
-      assert.match(report, /file-metrics.*`failed`/);
-      assert.ok(report.includes(fileMetrics.diagnostic.message));
-      assert.ok(report.includes(fileMetrics.diagnostic.action));
+      assert.match(report, /Snapshot completeness\*\*: incomplete/);
+      assert.match(report, /file-metrics`: failed/);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }

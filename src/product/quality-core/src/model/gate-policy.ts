@@ -1,19 +1,16 @@
 export const GATE_POLICY_DESCRIPTORS = Object.freeze([
   {
-    evaluatedChannel: "all",
-    help: "Evaluate all warnings produced by the resolved scan profile.",
+    help: "Evaluate all records produced by the resolved scan profile.",
     requiresComparison: false,
     value: "all"
   },
   {
-    evaluatedChannel: "changed",
-    help: "Evaluate warnings associated with changed code.",
+    help: "Evaluate records associated with changed code.",
     requiresComparison: true,
     value: "changed"
   },
   {
-    evaluatedChannel: "regressions",
-    help: "Evaluate changed warnings that regress from the baseline.",
+    help: "Evaluate changed records that regress from the baseline.",
     requiresComparison: true,
     value: "regressions"
   }
@@ -21,7 +18,6 @@ export const GATE_POLICY_DESCRIPTORS = Object.freeze([
 
 export type GatePolicyDescriptor = typeof GATE_POLICY_DESCRIPTORS[number];
 export type GatePolicy = GatePolicyDescriptor["value"];
-export type GateWarningChannel = GatePolicyDescriptor["evaluatedChannel"];
 
 export const GATE_POLICY_VALUES: readonly GatePolicy[] = Object.freeze(
   GATE_POLICY_DESCRIPTORS.map(({ value }) => value)

@@ -1,4 +1,7 @@
-import { projectMachineMetricsV1 } from "../../src/product/machine-output.ts";
+import type {
+  MachinePublicationV2,
+  ValidatedPublicationModelV2
+} from "../../src/product/quality-core/src/output/publication-v2/index.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
 export const MACHINE_EXAMPLE_REGENERATE_COMMAND =
@@ -12,42 +15,26 @@ export const MACHINE_EXAMPLE_OUTCOMES = [
 ] as const;
 export const MACHINE_EXAMPLE_ARTIFACT_FILES = [
   "README.md",
-  "metrics.json",
-  "warnings-all.ndjson",
-  "warnings.ndjson"
+  "records.ndjson",
+  "run.json"
 ] as const;
 
 export const FIXED_MACHINE_EXAMPLE_INPUT = {
-  baselineCommitDate: "2026-07-31T12:00:00.000Z",
-  baselineCommitSha: "89abcdef0123456789abcdef0123456789abcdef",
-  commitDate: "2026-08-02T12:00:00.000Z",
-  commitSha: "0123456789abcdef0123456789abcdef01234567",
-  configVersion: "canonical-config-v1",
-  paths: ["src/example.ts", "src/generated.ts"] as const,
-  repository: "/workspace/vibe-check-fixtures/canonical-project",
-  timestamp: "2026-08-03T00:00:00.000Z",
-  tools: [
-    { name: "scc", source: "configured", version: "3.6.0" },
-    { name: "lizard", source: "configured", version: "1.17.31" },
-    { name: "jscpd", source: "configured", version: "5.0.11" }
-  ]
+  path: "src/example.ts",
+  projectRoot: "." as const,
+  timestamp: "2026-08-12T00:00:00.000Z"
 } as const;
 
-export type CoreMetricsFixture = Parameters<typeof projectMachineMetricsV1>[0];
-export type CoreWarningFixture = CoreMetricsFixture["warnings"]["all"][number];
 export type MachineExampleOutcome = typeof MACHINE_EXAMPLE_OUTCOMES[number];
 
 export interface CanonicalMachineExample {
-  readonly contractReason: string;
   readonly expectedExit: 0 | 1 | 2;
   readonly expectedProcessOutcome: "failed" | "gate-failed" | "success";
-  readonly fixedInput: {
-    readonly paths: readonly string[];
-    readonly summary: string;
-  };
+  readonly fixedInputSummary: string;
   readonly gateRequest: string;
-  readonly metrics: CoreMetricsFixture;
+  readonly model: ValidatedPublicationModelV2;
   readonly outcome: MachineExampleOutcome;
+  readonly publication: MachinePublicationV2;
   readonly title: string;
 }
 

@@ -11,9 +11,6 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  type GatePolicy
-} from "./quality-core/src/index.ts";
-import {
   createFixtureProject,
   readFixtureConfig,
   readFormalEntryArtifacts,
@@ -22,15 +19,16 @@ import {
   setFixtureWarningPolicy,
   writeFixtureConfig,
   type CommandResult,
-  type FormalEntryArtifacts
+  type FormalEntryArtifacts,
+  type MachinePublicationV2
 } from "./cli-gate-acceptance.test-support.ts";
-import { type MachineWarningV1 } from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
+type GatePolicy = "all" | "changed" | "regressions";
 
 describe("formal CLI quality gate acceptance", () => {
-  it("passes a zero-warning quick all gate while preserving skipped capability evidence", { timeout: 30_000 }, () => {
+  it("passes a zero-record quick all gate while preserving the skipped Check run", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject(fixtureRoot, "quick-all-zero");
 
     try {
@@ -48,41 +46,40 @@ describe("formal CLI quality gate acceptance", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(artifactDir);
 
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
-      assert.deepEqual(artifacts.metrics.warnings, {
-        all: [],
-        changed: [],
-        regressions: []
-      });
+      assert.equal(artifacts.machine.run.completeness.status, "complete");
+      assert.deepEqual(artifacts.machine.records, []);
       assert.deepEqual(
-        artifacts.metrics.scanCompleteness.capabilities.find(
-          ({ capabilityId }) => capabilityId === "duplicate-detection"
+        artifacts.machine.run.runs.find(
+          ({ checkId }) => checkId === "duplicate-detection"
         ),
-        { capabilityId: "duplicate-detection", status: "skipped" }
+        {
+          applicability: null,
+          checkId: "duplicate-detection",
+          checkRunId: artifacts.machine.run.runs[0]?.checkRunId,
+          coverage: null,
+          diagnostic: null,
+          result: null,
+          selection: "unselected",
+          status: "skipped"
+        }
       );
       assertEvaluatedGateProjection({
         artifacts,
-        evaluatedChannel: "all",
         expectedExit: 0,
         policy: "all",
         result,
-        scanProfile: "quick",
         status: "passed"
       });
       assertExactLine(
-        result.stdout,
-        "    duplicate-detection: skipped"
-      );
-      assertExactLine(
         artifacts.report,
-        "- **duplicate-detection**: `skipped` (profile skipped)"
+        "- `duplicate-detection`: skipped"
       );
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
   });
 
-  it("fails an all gate for an all-only warning channel", { timeout: 30_000 }, () => {
+  it("fails an all gate when the unaccepted all-current view is non-empty", { timeout: 30_000 }, () => {
     const fixture = createFixtureProject(fixtureRoot, "all-only");
 
     try {
@@ -97,17 +94,13 @@ describe("formal CLI quality gate acceptance", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(artifactDir);
 
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
-      assert.ok(artifacts.metrics.warnings.all.length > 0);
-      assert.deepEqual(artifacts.metrics.warnings.changed, []);
-      assert.deepEqual(artifacts.metrics.warnings.regressions, []);
+      assert.equal(artifacts.machine.run.completeness.status, "complete");
+      assert.ok(artifacts.machine.records.length > 0);
       assertEvaluatedGateProjection({
         artifacts,
-        evaluatedChannel: "all",
         expectedExit: 1,
         policy: "all",
         result,
-        scanProfile: "quick",
         status: "failed"
       });
     } finally {
@@ -140,32 +133,29 @@ describe("formal CLI quality gate acceptance", () => {
         "--artifact-dir",
         "artifacts/input-unchanged"
       ]);
-      assert.equal(
-        inputUnchanged.status,
-        0,
-        `stdout:\n${inputUnchanged.stdout}\nstderr:\n${inputUnchanged.stderr}`
-      );
       const inputUnchangedArtifacts = readFormalEntryArtifacts(
         inputUnchangedArtifactDir
       );
 
       assert.equal(
-        inputUnchangedArtifacts.metrics.comparisonStatus,
-        "input-unchanged"
+        inputUnchanged.status,
+        0,
+        `references:\n${JSON.stringify(inputUnchangedArtifacts.machine.run.references, null, 2)}\n` +
+        `stdout:\n${inputUnchanged.stdout}\nstderr:\n${inputUnchanged.stderr}`
       );
-      assert.equal(inputUnchangedArtifacts.metrics.baseline.commitSha, baselineSha);
+      assert.equal(inputUnchangedArtifacts.machine.run.references.identities.length, 1);
       assert.equal(
-        inputUnchangedArtifacts.metrics.baseline.metadata?.commitSha,
-        baselineSha
+        inputUnchangedArtifacts.machine.run.references.evidence.every(
+          ({ status }) => status === "complete"
+        ),
+        true
       );
-      assert.deepEqual(inputUnchangedArtifacts.metrics.warnings.regressions, []);
+      assert.deepEqual(inputUnchangedArtifacts.machine.run.references.relations, []);
       assertEvaluatedGateProjection({
         artifacts: inputUnchangedArtifacts,
-        evaluatedChannel: "regressions",
         expectedExit: 0,
         policy: "regressions",
         result: inputUnchanged,
-        scanProfile: "full",
         status: "passed"
       });
 
@@ -197,16 +187,22 @@ describe("formal CLI quality gate acceptance", () => {
       ]);
       const changedArtifacts = readFormalEntryArtifacts(changedArtifactDir);
 
-      assert.equal(changedArtifacts.metrics.comparisonStatus, "compared");
-      assert.ok(changedArtifacts.metrics.warnings.changed.length > 0);
-      assert.deepEqual(changedArtifacts.metrics.warnings.regressions, []);
+      assert.ok(
+        changedArtifacts.machine.run.references.relations.some(
+          ({ relationId }) => relationId === "changed"
+        )
+      );
+      assert.equal(
+        changedArtifacts.machine.run.references.relations.some(
+          ({ relationId }) => relationId === "regression"
+        ),
+        false
+      );
       assertEvaluatedGateProjection({
         artifacts: changedArtifacts,
-        evaluatedChannel: "changed",
         expectedExit: 1,
         policy: "changed",
         result: changed,
-        scanProfile: "full",
         status: "failed"
       });
 
@@ -240,15 +236,16 @@ describe("formal CLI quality gate acceptance", () => {
         regressionArtifactDir
       );
 
-      assert.equal(regressionArtifacts.metrics.comparisonStatus, "compared");
-      assert.ok(regressionArtifacts.metrics.warnings.regressions.length > 0);
+      assert.ok(
+        regressionArtifacts.machine.run.references.relations.some(
+          ({ relationId }) => relationId === "regression"
+        )
+      );
       assertEvaluatedGateProjection({
         artifacts: regressionArtifacts,
-        evaluatedChannel: "regressions",
         expectedExit: 1,
         policy: "regressions",
         result: regression,
-        scanProfile: "full",
         status: "failed"
       });
     } finally {
@@ -289,122 +286,98 @@ describe("formal CLI quality gate acceptance", () => {
 function assertEvaluatedGateProjection(
   options: {
     artifacts: FormalEntryArtifacts;
-    evaluatedChannel: "all" | "changed" | "regressions";
     expectedExit: 0 | 1;
     policy: GatePolicy;
     result: CommandResult;
-    scanProfile: "quick" | "full";
     status: "passed" | "failed";
   }
 ): void {
   const {
     artifacts,
-    evaluatedChannel,
     expectedExit,
     policy,
     result,
-    scanProfile,
     status
   } = options;
-  const selectedWarnings = artifacts.metrics.warnings[evaluatedChannel];
-  assertGateMetrics({ artifacts, evaluatedChannel, expectedExit, policy, result, selectedWarnings, status });
-  assertGateStdout({ evaluatedChannel, policy, stdout: result.stdout, scanProfile, warningCount: selectedWarnings.length, status });
-  assertGateReport({ report: artifacts.report, evaluatedChannel, policy, warningCount: selectedWarnings.length, status });
-  assertBlockingGateReport({ report: artifacts.report, selectedWarnings, status });
+  const gate = artifacts.machine.run.decision.gate;
+  assert.ok(gate.status === "passed" || gate.status === "failed");
+  const blockingRecords = recordsById(artifacts.machine, gate.blockingRecordIds);
+  assertGateMachine({ artifacts, expectedExit, policy, result, status });
+  assertGateStdout({ policy, stdout: result.stdout, recordCount: blockingRecords.length, status });
+  assertGateReport({ report: artifacts.report, policy, status });
+  assertBlockingGateReport({ report: artifacts.report, blockingRecords, status });
 }
 
-function assertGateMetrics(options: {
+function assertGateMachine(options: {
   artifacts: FormalEntryArtifacts;
-  evaluatedChannel: "all" | "changed" | "regressions";
   expectedExit: 0 | 1;
   policy: GatePolicy;
   result: CommandResult;
-  selectedWarnings: readonly MachineWarningV1[];
   status: "passed" | "failed";
 }): void {
-  const { artifacts, evaluatedChannel, expectedExit, policy, result, selectedWarnings, status } = options;
+  const { artifacts, expectedExit, policy, result, status } = options;
   assert.equal(result.status, expectedExit);
   assert.equal(result.stderr, "");
-  assert.deepEqual(artifacts.metrics.gate, {
-    blockingWarningCount: selectedWarnings.length,
-    blockingWarnings: selectedWarnings,
-    evaluatedChannel,
-    evaluatedWarningCount: selectedWarnings.length,
-    policy,
-    status
-  });
+  const gate = artifacts.machine.run.decision.gate;
+  assert.equal(gate.status, status);
+  assert.equal(gate.policyId, policy);
+  assert.ok(gate.status === "passed" || gate.status === "failed");
+  assert.deepEqual(
+    gate.blockingRecordIds,
+    artifacts.machine.run.decision.blockWhen?.blockingRecordIds
+  );
 }
 
 function assertGateStdout(options: {
-  evaluatedChannel: "all" | "changed" | "regressions";
   policy: GatePolicy;
   stdout: string;
-  scanProfile: "quick" | "full";
-  warningCount: number;
+  recordCount: number;
   status: "passed" | "failed";
 }): void {
-  const { evaluatedChannel, policy, stdout, scanProfile, warningCount, status } = options;
-  const profileQualifier = policy === "all"
-    ? ` for the resolved ${scanProfile} profile`
-    : "";
+  const { policy, stdout, recordCount, status } = options;
   const icon = status === "passed" ? "✅" : "❌";
   assertExactLine(
     stdout,
-    `${icon} Quality gate ${status}${profileQualifier}.`
+    `${icon} Quality gate ${status}.`
   );
   assertExactLine(stdout, `  Policy: ${policy}`);
   assertExactLine(stdout, `  Status: ${status}`);
-  assertExactLine(stdout, `  Evaluated channel: ${evaluatedChannel}`);
-  assertExactLine(
-    stdout,
-    `  Evaluated warnings: ${warningCount}`
-  );
-  assertExactLine(
-    stdout,
-    `  Blocking warnings: ${warningCount}`
-  );
+  assertExactLine(stdout, `  Blocking records: ${recordCount}`);
 }
 
 function assertGateReport(options: {
   report: string;
-  evaluatedChannel: "all" | "changed" | "regressions";
   policy: GatePolicy;
-  warningCount: number;
   status: "passed" | "failed";
 }): void {
-  const { report, evaluatedChannel, policy, warningCount, status } = options;
-  assertExactLine(report, "## Quality Gate");
-  assertExactLine(report, `- **Policy**: \`${policy}\``);
-  assertExactLine(report, `- **Status**: \`${status}\``);
-  assertExactLine(
-    report,
-    `- **Evaluated channel**: \`${evaluatedChannel}\``
-  );
-  assertExactLine(
-    report,
-    `- **Evaluated warnings**: ${warningCount}`
-  );
-  assertExactLine(
-    report,
-    `- **Blocking warnings**: ${warningCount}`
-  );
+  const { report, policy, status } = options;
+  assertExactLine(report, `- **Gate status**: ${status}`);
+  assertExactLine(report, `- **Policy**: ${policy}`);
 }
 
 function assertBlockingGateReport(options: {
   report: string;
-  selectedWarnings: readonly MachineWarningV1[];
+  blockingRecords: readonly MachinePublicationV2["records"][number][];
   status: "passed" | "failed";
 }): void {
-  const { report, selectedWarnings, status } = options;
+  const { report, blockingRecords, status } = options;
   if (status === "failed") {
-    assertExactLine(report, "### Blocking warnings");
-    for (const warning of selectedWarnings) {
-      assertExactLine(
-        report,
-        `- **[${warning.sourceTool}] ${warning.metric}**: ${warning.message}`
-      );
+    for (const record of blockingRecords) {
+      assert.ok(report.includes(record.message));
     }
   }
+}
+
+function recordsById(
+  machine: MachinePublicationV2,
+  recordIds: readonly string[]
+): MachinePublicationV2["records"][number][] {
+  const byId = new Map(machine.records.map((record) => [record.recordId, record]));
+  return recordIds.map((recordId) => {
+    const record = byId.get(recordId);
+    assert.ok(record, `missing blocking record ${recordId}`);
+    return record;
+  });
 }
 
 function assertExactLine(output: string, expectedLine: string): void {

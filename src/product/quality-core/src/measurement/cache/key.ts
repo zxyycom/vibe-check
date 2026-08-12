@@ -3,9 +3,7 @@ import { join } from "node:path";
 
 import { isNonArrayRecord } from "../../../../foundation/src/index.ts";
 import {
-  BASELINE_SNAPSHOT_CACHE_KIND,
   SCAN_CACHE_VERSION,
-  type BaselineSnapshotCacheIdentity,
   type DuplicateCodeCacheIdentity
 } from "./types.ts";
 
@@ -25,22 +23,8 @@ export function buildScanCacheKey(identity: DuplicateCodeCacheIdentity): string 
   return hashStable(keyInput);
 }
 
-export function buildBaselineSnapshotCacheKey(identity: BaselineSnapshotCacheIdentity): string {
-  const keyInput = {
-    scan_cache_version: SCAN_CACHE_VERSION,
-    cache_kind: BASELINE_SNAPSHOT_CACHE_KIND,
-    identity
-  };
-
-  return hashStable(keyInput);
-}
-
 export function getScanCachePath(rootDir: string, cacheKey: string): string {
   return join(getQualityCacheRoot(rootDir), `${cacheKey}.json`);
-}
-
-export function getBaselineSnapshotCacheDir(rootDir: string, cacheKey: string): string {
-  return join(getQualityCacheRoot(rootDir), "baseline-snapshots", cacheKey);
 }
 
 function getQualityCacheRoot(rootDir: string): string {

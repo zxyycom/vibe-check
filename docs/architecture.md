@@ -1,245 +1,87 @@
 # 架构
 
-本文是 Vibe Check 组件职责、源码所有权、输出分层、scanner 边界和运行边界的主规范。
+本文是 Vibe Check 产品运行时的组件职责与运行边界 owner。正式入口是
+`bun run product:cli -- scan [project-root]` 和 `bun run product:cli -- init [project-root]`；产品
+运行时只位于 `src/product/**`。
 
 ## 核心定位
 
-Vibe Check 的产品实现是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun 源码。
-Product CLI 的正式本地入口提供 `scan [project-root]` 与 `init [project-root]`，负责 command
-routing、project-root 归一化、scan flags、configuration initialization handoff、顶层 error 和
-进程状态映射。只有 `scan` 进入 product core；扫描编排由 product core 拥有，负责文件收集、
-scanner 调用、指标聚合、baseline comparison、warning、GateResult、artifact orchestration，
-以及彼此独立的 quality status 与 process outcome。Product Output
-在 Core business models 与 public machine transport 之间维持显式 DTO/schema boundary；完整
-machine contract 由 [Output](output.md#machine-v1-contract-and-ownership) 拥有。
+一次 `scan` 在 work 前选择配置、冻结 Check catalog、private bindings、selected policy 与可选的
+named baseline reference。三个内置 Check（`file-metrics`、`function-metrics`、
+`duplicate-detection`）只经其 private adapter 产生 Check run、record 和 reference facts。Core 的
+最终事实是 `FinalCoreSnapshot`：definitions、runs、records、integrity 与由 run/coverage 得出的
+snapshot completeness。它不把 scanner payload、runner、cache 或路径位置提升为公共事实。
 
-仓库 dogfood 命令 `quality:check`、`quality:full-check` 与 `quality:scan` 保持省略 gate
-的观察行为，其中 `quality:full-check` 是无 baseline 的 full current snapshot；
-`quality:gate` 通过 full `regressions` policy 显式 opt-in 阻断，并要求调用者透传
-`--baseline <revision>`。所有
-`quality:*` 命令及保留的 `scripts/quality/scan.ts` 都只作为单向薄 wrapper：它们显式
-传入 Vibe Check 仓库根并调用同一产品入口，不推断 comparison target。
-`src/product/**` 不反向导入 `scripts/**`
-或 toolkit gitlink。
+`DecisionPolicy` 在 final snapshot 和 named reference facts 上产生 decision evidence 与
+`GateResult`。Output 的 validated publication model 在构造时核对并冻结 human status projection；
+machine set、`report.md`、console 与 process outcome 只消费该 model。质量状态与 process outcome 是
+不同投影。
 
-### 当前实现状态
+## 当前实现状态
 
-`src/product/**` 已拥有正式 CLI、参数解析、semantic config、扫描 core、scanner adapters、
-warnings 和 output。Product Config 拥有 neutral default、Vibe Check JSON/document schema、
-`explicit > discovered > default` selection、`ResolvedQualityConfig` mapping 与 `init`；
-`src/product/scanner-dependencies.ts` 独立构造
-`ScannerDependencySnapshot`。完整 config 与 dependency contract 分别由
-[Configuration](configuration.md) 和 [Scanner 依赖选择](scanner-dependencies.md) 维护；
-`src/product/quality-core/**` 与产品静态可达的 `src/product/foundation/**` 闭包均由本仓库
-直接拥有。
+`src/product/**` 拥有 CLI、semantic config、scope collection、scanner adapters、Check/Record Core 和
+publication。`scripts/**` 只拥有开发自动化及已验证 artifact 的 consumer；`quality:*` 和
+`scripts/quality/scan.ts` 显式传入仓库根并单向调用产品入口。产品不反向导入 scripts 或 toolkit。
 
-`quality:*` 与 `scripts/quality/scan.ts` 只显式传入 Vibe Check 仓库根并单向调用正式
-产品入口；wrapper 不选择、评价或重写 gate result。Rust crate、根 Cargo 产品 workspace
-和 quality-core gitlink 已移除；
-`foundation` 与 `parallel-task-runner` gitlinks 只保留为开发脚本依赖，不进入产品 runtime
-import closure。
-
-核心流程保持产品化时固定的 TypeScript consumer 顺序：
+## 调用链
 
 ```text
-collect + classify
-  -> fingerprint + changed scope
-  -> capability eligibility + scan
-  -> aggregate + current completeness
-  -> optional explicit baseline + compare
-  -> warnings
-  -> evaluate GateResult once
-  -> validate final core model
-  -> project one machine DTO + serialize three in-memory candidates
-  -> validate complete candidate set + publish three canonical machine files
-  -> write human report
-  -> calculate quality status
-  -> publish success | gate-failed | failed process outcome
+CLI -> config selection -> dependency snapshot -> normalized exact inputs
+    -> frozen catalog / bindings / policy / references
+    -> private scanner adapters -> final Core snapshot + decision evidence
+    -> validated publication model
+    -> run.json + records.ndjson + report.md + console
+    -> success | gate-failed | failed
 ```
 
-GateResult 只在 completeness、comparison 和 warning data 全部最终确定后评价一次，不回写
-quality status。`passed` / `warning` / `failed` quality status 描述扫描质量结论；
-`success` / `gate-failed` / `failed` process outcome 描述 CLI 执行结果。Core validation
-先于 machine projection；Output 从一个 DTO 生成三个 candidates，并在任何 canonical write
-前验证 complete set。三个 canonical machine writes 与 human report 完成后才打印 trusted
-paths 并发布 outcome；handled output failure 直接发布 `failed`，不能被 computed gate
-覆盖。Published files 还必须结合 producing invocation outcome 才构成 current-run evidence，
-完整模型见 [Validated publication and evidence](output.md#validated-publication-and-evidence)。
-
-`project root` 定位被扫描项目；`scan scope` 表示 product config 解析后的文件集合；
-`scanner result` 表示检测能力的归一化输出；`quality metrics` 表示指标、聚合、baseline、
-warning channels、GateResult 和 metadata。CLI 不解析 scanner 私有输出；Output 不重新计算
-指标或 GateResult；Scanner 不拥有 warning policy、quality status 或 process outcome。
+`init` 只进入 Configuration initializer，不进入 scan、dependency 或 publication 链。
 
 ## 输出分层
 
-TypeScript 产品扫描结果分为以下层次：
-
 | 输出 | 用途 | Owner |
 | --- | --- | --- |
-| Console summary | 本地进度、summary、warning preview、completion 与 fatal 定位 | Product CLI / Output |
-| `metrics.json` 与 warning NDJSON | 单一 current machine v1 set，供自动化、comparison 和 CI consumer | Output runtime schema / DTO / validators |
-| `report.md` | 人读审查和定位 | Output |
-| `raw/**` | 复现 scanner 与 baseline behavior | Scanner / Output |
-| CI annotation | 经 Product warning-stream validator 完整验证后消费 warning NDJSON，不进入产品 runtime | `scripts/**` consumer |
+| `run.json` + `records.ndjson` | 唯一 canonical machine set | Output runtime schemas / validator |
+| `report.md` 与 console | 同源的人读投影 | Output / CLI |
+| `raw/**` | scanner-private 复现材料；不属于 machine set | scanner adapter / Output |
+| CI annotation | 严格验证 two-file machine set 后的 script consumer | `scripts/**` |
 
-这些输出复用同一份 Vibe Check-owned metrics、warnings 和 GateResult，但 machine v1、human
-report 与 scanner raw material 的稳定性承诺不同。Core 的 `QualityMetrics` /
-`WarningRecord` 不获得 transport identity；Output explicit mapper 产生 schema-derived
-`MachineMetricsV1` / `MachineWarningV1`，两个 streams 只从该 DTO channels 产生。Public
-field、byte grammar、set invariants、publication/evidence 与 schema/example index 统一由
-[Output](output.md) 维护。CI consumer 只读取并验证产品 artifact，不形成第二条扫描管线。
-
-scc CSV、Lizard CSV、jscpd reporter object、process result 和临时配置只属于 adapter
-boundary。需要复现时可以保存 raw material，但第三方私有结构不成为稳定 product field。
-旧 Rust CLI 的 human/JSON renderer、`vibe-check.report.v1` schema 和 examples 不是
-TypeScript 迁移输入。
+Output 不重新计算 Core 或 decision。machine artifacts 只有在 complete two-file set 通过验证并完成
+canonical publication 后才是 trusted；输出失败不会被 GateResult 覆盖。
 
 ## 组件职责
 
 ### Product CLI
 
-负责：
-
-- 在 `src/product/**` 提供 `scan` / `init` operation 和正式入口。
-- 解析 project root，并只把 scan flags 交给 product parser。
-- 让 Product Config 在 scan work 前选择并映射一个 `ResolvedQualityConfig`，再构造一次
-  `ScannerDependencySnapshot` 并调用 product core。
-- 对 `init` 只调用 Product Config initializer，不进入 dependency 或 scan core。
-- 保持 root/scan/init help、stdout/stderr、顶层 error 与进程状态映射。
-
-Product CLI 不拥有 scan scope、scanner adapter、metrics、warning、baseline 或 artifact
-shape。Configuration workflow 的完整边界由 [Configuration](configuration.md) 维护。
+负责 command routing、project root、flags、scan 前 usage/config failure 与 exit mapping。它不解释
+scanner output、Check 结果、records 或 artifact fields。
 
 ### Product core
 
-负责：
-
-- 从 invocation-owned `ResolvedQualityConfig` 构造 normalized scan scope、code areas 与 semantic
-  checks。
-- 建立 fingerprints、changed-file scope 和 optional baseline。
-- 先按 current/baseline 各自 exact inputs 确定 capability eligibility，再把同一个
-  `ScannerDependencySnapshot` 的对应 slice 交给 eligible adapter。
-- 通过 internal source-scoped measurement contract 验收 adapter 返回的 Vibe Check-owned models；
-  Core 只校验 declared source paths 是否属于该次调用的 exact inputs，不解析
-  payload-specific location fields。完整 handoff contract 由
-  [Scanner 依赖选择](scanner-dependencies.md#eligibility-and-adapter-handoff)维护。
-- 从每项 current capability 的 shared final result 归约 overall completeness。
-- 聚合 current/baseline metrics 并生成 warning channels。
-- 在 final completeness、comparison 和 warnings 后一次性评价 GateResult，不让 gate
-  evaluation 改写 quality status。
-- 先验证 final core model，再协调一个 machine DTO 的 candidate validation/publication 与
-  human report 写入；成功后计算独立 quality status，并发布 `success`、可信的
-  `gate-failed` 或 `failed` process outcome。Handled output failure 直接发布 `failed` / exit
-  `2`。
-
-Product core 不解析 CLI operation 或 project-root positional，也不把 scanner-private
-protocol 提升为 public model。
+负责把 resolved config、exact inputs 和 dependency snapshot 组合为一次冻结执行；CheckManager 和
+RecordManager 分别拥有 run lifecycle/coverage 与 record provenance/identity/integrity。Core 不保留
+全局 quality reducer；policy readiness 只属于选定 `DecisionPolicy`。
 
 ### Scanner adapter
 
-负责：
-
-- 使用 `ScannerDependencySnapshot` 中本 capability 的 dependency slice 提供检测能力；默认
-  stack、operational overrides 与 snapshot lifecycle 由
-  [Scanner 依赖选择](scanner-dependencies.md) 维护。
-- 只消费 product core 已批准的 exact inputs。
-- 只接收本 capability 所需的 semantic measurement settings 与自己的 dependency slice。
-- 隔离 availability check、process invocation、CSV/JSON report 与 parser。
-- 从构造 payload 的同一组 scanner-private locations 生成 slash-form source paths，并通过
-  internal source-scoped measurement contract 返回 Vibe Check-owned metrics/fragments；locations
-  与 payload 的一致性留在 adapter，payload-specific shape 不进入 Core contract。
-- 保存复现问题所需的 raw material 或 normalized scanner artifact。
-
-Product core 先确定 capability eligibility；profile 未请求或没有 eligible input 时不解析、
-检查或启动 component。有 eligible input 时，dependency unavailable、process failure 与
-invalid result 进入 normalized failed capability result，不能伪装成 successful empty
-result。Scanner adapter 不拥有 overall reducer、warning、baseline、artifact envelope 或
-进程状态。
+adapter 仅消费 Product 批准的 exact inputs 和自己的 dependency slice。它隔离 availability、process、
+parser、private payload 和 raw material，并以 Check-owned contribution、records 或 reference facts
+交给 Core。越界 source batch 必须在 record conversion 前被拒绝；有效的早先 records 不因后续
+failure 撤销。
 
 ### Output
 
-负责：
-
-- 在 final core `QualityMetrics` / `WarningRecord` 与 public machine transport 间维持显式
-  mapper，不把 transport identity 写回 Core。
-- 维护 runtime schema 唯一 field owner、schema-derived DTO types、deterministic serializers、
-  warning-stream/artifact-set validators 与 `src/product/machine-output.ts` shallow export。
-- 从一个 DTO 产生并在 canonical write 前验证 `metrics.json` 与两个 warning streams；
-  published set 完成后写 `report.md`，并保持 handled failure cleanup / exit priority。
-- 写入 `report.md` 和 raw artifacts；raw material 不进入 machine v1 set。
-- 从同一 metrics data、completeness record 与 GateResult 生成 summary、ranking、warning
-  preview 和 completion text。
-- 维护 artifact 路径、JSON/NDJSON serialization、Markdown report 与 stdout/stderr
-  placement。
-- 保持 quick/full、baseline 和 accepted-warning context 的输出一致。
-
-Output 不拥有 file collection、scanner invocation、metrics aggregation、warning generation、
-GateResult evaluation、quality status 或 process outcome decision。Output 保持当前
-single-active v1；新增或改变 public field、unit、path、order、identity、schema 或 output mode
-必须作为独立 contract version change 处理。Multi-file transaction 与 same-directory
-concurrent writer support 不属于当前承诺，详见
-[Validated publication and evidence](output.md#validated-publication-and-evidence)。
-
-### 源码分组
-
-当前产品源码保持既有文件分组、类型和控制流。逻辑职责包括：
-
-- `config`：semantic/document runtime schema、neutral default、Vibe Check JSON loading、
-  explicit/discovered/default selection、`ResolvedQualityConfig`、init/editor projection、code
-  areas、checks、report 与 artifact/cache paths。
-- `scanner-dependencies`：platform defaults、supported operational overrides、availability inputs
-  与 `ScannerDependencySnapshot` 的 capability-specific slices。
-- `input` / `model`：file collection、fingerprints、changed scope 和 Vibe Check-owned types。
-- `measurement`：scc、Python/Lizard、jscpd adapters、cache 和 aggregation。
-- `warnings`：warning rules、channels、accepted reason 和 ordering。
-- `output`：artifacts、Markdown report、summary、GateResult projection、output validation
-  和 status text。
-- `scan-command` / engine：runtime orchestration、baseline、final evidence、一次性
-  GateResult evaluation 和 process outcome。
-
-这些是 owner 边界，不要求平行的 domain、adapter、service 或 provider hierarchy。新增
-共享模块必须有独立变化原因和验证证据，不能只为源码移动制造抽象。
-
-## 调用链
-
-```text
-caller
-  -> product CLI：分流 scan、归一化 project root、解析 flags
-  -> Product Config：按 explicit > discovered > default 选择并构造一个 ResolvedQualityConfig
-  -> product CLI：在 scan work 前构造一次 ScannerDependencySnapshot
-  -> product core：消费同一个 ResolvedQualityConfig / ScannerDependencySnapshot、收集文件、构造 scan context
-  -> product core：分别确定 current/baseline capability eligibility
-  -> scanner adapters：只对 eligible exact inputs 使用对应 dependency slice并归一化结果
-  <- product core：聚合 current results、归约 completeness、comparison 与 warnings
-  -> product core：在 final evidence 与 warnings 后一次性评价 GateResult
-  -> product core：验证 final QualityMetrics
-  -> output：投影一个 machine DTO、序列化并验证 complete candidate set、发布 canonical machine set、写 human report
-  <- product core：成功后计算 quality status，并结合 GateResult 发布 success | gate-failed | failed；handled output failure 直接发布 failed
-  <- product CLI：保留 stdout/stderr 与进程状态 mapping
-```
-
-`init` 在 command routing 后走独立短链：Product Config 生成并自校验 neutral config/editor
-schema candidates，在 fixed tool directory 保留 existing safe targets 并补齐 missing targets，再由
-CLI 投影 target paths、state 或 exit `3`。它不进入上述 scan/dependency/output chain；完整
-ensure、ownership 与 schema authority 边界只由
-[Configuration](configuration.md#initialization) 定义。
-
-Dogfood 调用只在链首增加一个显式传入仓库根的 wrapper。正式入口和 wrapper 必须到达同一
-core，产品源码不得回调脚本入口。
+Output 拥有 publication model 的 machine mapper、runtime schemas、serializers、two-file validator、
+artifact lifecycle、readable projection 和 `src/product/machine-output.ts` shallow boundary。它在写入前
+验证 candidate，使用同目录 owned temps，handled publication failure 清理 canonical files、`report.md`
+和 owned temps；`raw/**` 可按 scanner 需要保留。
 
 ## 运行边界
 
-- 产品运行时源码闭包全部位于 `src/product/**`，由本仓库直接拥有；正式入口不得在运行时
-  import `scripts/**` 或 toolkit gitlink。
-- Product runtime 只拥有静态可达的 foundation helper；开发脚本专用 helper 留在
-  toolkit。
-- Machine schema/types/mappers/serializers/validators 位于 `src/product/**`，repository
-  consumer 只经 `src/product/machine-output.ts` shallow boundary 复用；product runtime 不读
-  `docs/**` / `scripts/**`，scripts 不 deep-import quality-core machine internals。
-- External scanner executable、args、availability protocol 与 bounded concurrency 由
-  `ScannerDependencySnapshot` 拥有；process result、private report 和 raw output 由 adapter
-  隔离。
-- Scanner 依赖基线由 [Scanner 依赖选择](scanner-dependencies.md) 拥有；架构层只要求
-  product core 消费 Vibe Check-owned result。
-- 当前 runtime 不保留已退役 Rust 产品的 config、scanner、output 或 status contract。
+- public catalog 只含 serializable Check/record-type metadata；bindings、runner、scanner payload 与
+  executable 不进入 catalog、policy 或 machine set。
+- 每个 definition 恰有一个 Check run；`not-applicable` 只来自 pre-work applicability，execution
+  failure 的 run 没有 result。quality `failed` verdict 仍是 completed run 的领域结果。
+- record identity 不依赖 location、message、arrival 或 checkRunId；RecordManager 保留独立的已提交
+  records，并以 integrity evidence 表达 invalid candidate 或 conflict。
+- machine schema/types/mappers/serializers/validator 位于 `src/product/**`。consumer 只经
+  `src/product/machine-output.ts` 使用 validator；产品不读取 `docs/**` 或 `scripts/**`。

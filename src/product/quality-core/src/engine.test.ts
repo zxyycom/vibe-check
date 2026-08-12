@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  rmSync
+  rmSync,
+  writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -13,17 +15,12 @@ import { fileURLToPath } from "node:url";
 import { loadSemanticProjectConfig } from "../../config-file.ts";
 import { resolveQualityConfig } from "../../config-resolution.ts";
 import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
-import { type MachineMetricsV1 } from "../../machine-output.ts";
-import {
-  type GatePolicy,
-  type ResolvedQualityConfig
-} from "./model/schema.ts";
+import type { GatePolicy, ResolvedQualityConfig } from "./model/schema.ts";
 import { runQualityScan } from "./engine.ts";
 import {
   assertNoMachinePublication,
   captureConsole,
   gateOutput,
-  readNdjson,
   readValidatedMachineArtifacts,
   seedPriorMachinePublication
 } from "./engine.test-support.ts";
@@ -53,27 +50,8 @@ const FIXTURE_DEPENDENCIES: ScannerDependencySnapshot = {
 describe("quality scan process outcome", () => {
   test("publishes the same warnings and GateResult across successful outputs", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-success-"));
-
     try {
-      const fixtureConfig = await loadFixtureConfig();
-      const config: ResolvedQualityConfig = {
-        ...fixtureConfig,
-        acceptedWarnings: [
-          {
-            checkId: "function-cyclomatic-complexity",
-            reason: "Accepted by the core gate integration fixture.",
-          },
-          {
-            checkId: "function-code-lines",
-            reason: "Accepted by the core gate integration fixture.",
-          },
-          {
-            checkId: "file-code-lines",
-            reason: "Accepted by the core gate integration fixture.",
-          }
-        ]
-      };
-
+      const config = acceptedFixtureConfig(await loadFixtureConfig());
       const omitted = await runFixtureScan({
         artifactName: "omitted",
         config,
@@ -84,77 +62,46 @@ describe("quality scan process outcome", () => {
         artifactName: "requested",
         config,
         gatePolicy: "all",
+        prepareArtifactDir: seedPriorMachinePublication,
         tempRoot
       });
-      const omittedReport = readFileSync(
-        resolve(omitted.artifactDir, "report.md"),
-        "utf8"
-      );
-      const requestedReport = readFileSync(
-        resolve(requested.artifactDir, "report.md"),
-        "utf8"
-      );
-      const omittedWarningArtifacts = {
-        all: readNdjson(resolve(omitted.artifactDir, "warnings-all.ndjson")),
-        changed: readNdjson(resolve(omitted.artifactDir, "warnings.ndjson"))
-      };
-      const requestedWarningArtifacts = {
-        all: readNdjson(resolve(requested.artifactDir, "warnings-all.ndjson")),
-        changed: readNdjson(resolve(requested.artifactDir, "warnings.ndjson"))
-      };
+      const clean = await runFixtureScan({
+        artifactName: "clean",
+        config: cleanFixtureConfig(config),
+        gatePolicy: null,
+        tempRoot
+      });
 
-      expect(omitted.metrics.gate).toEqual({
-        policy: null,
+      expect(omitted.machine.run.decision.gate).toEqual({
+        policyId: null,
         status: "disabled"
       });
-      expect(requested.metrics.warnings).toEqual(omitted.metrics.warnings);
-      expect(requestedWarningArtifacts).toEqual(omittedWarningArtifacts);
-      expect(requestedWarningArtifacts).toEqual({
-        all: requested.metrics.warnings.all,
-        changed: requested.metrics.warnings.changed
-      });
-      expect(requested.metrics.warnings.all).toHaveLength(3);
-      expect(
-        requested.metrics.warnings.all.every(
-          ({ acceptedReason }) =>
-            acceptedReason === "Accepted by the core gate integration fixture."
-        )
-      ).toBe(true);
-      expect(requested.metrics.gate).toEqual({
-        blockingWarningCount: 0,
-        blockingWarnings: [],
-        evaluatedChannel: "all",
-        evaluatedWarningCount: requested.metrics.warnings.all.length,
-        policy: "all",
-        status: "passed"
-      });
+      expect(requested.machine.run.decision.gate.status).toBe("passed");
+      expect(requested.machine.records.map(({ recordId }) => recordId)).toEqual(
+        omitted.machine.records.map(({ recordId }) => recordId)
+      );
+      expect(requested.machine.records).toHaveLength(3);
+      expect(requested.machine.run.acceptance).toHaveLength(3);
       expect(omitted.outcome).toBe("success");
       expect(requested.outcome).toBe("success");
-      expect(omitted.stdout.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(omitted.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
+      expect(clean.outcome).toBe("success");
+      expect(clean.machine.records).toEqual([]);
+      expect(clean.stdout.includes("Quality check status: passed")).toBe(true);
+      expect(omitted.stdout.includes("Quality check status: warning")).toBe(true);
+      expect(gateOutput(requested.stdout)).toEqual([
+        "✅ Quality gate passed.",
+        "  Policy: all",
+        "  Status: passed",
+        "  Blocking records: 0"
+      ]);
       expect(
-        requested.stdout.includes("✅ Quality gate passed for the resolved quick profile.")
+        readFileSync(resolve(requested.artifactDir, "report.md"), "utf8")
+          .includes("- **Gate status**: passed")
       ).toBe(true);
-      expect(requested.stdout.includes("  Policy: all")).toBe(true);
-      expect(requested.stdout.includes("  Status: passed")).toBe(true);
-      expect(requested.stdout.includes("  Evaluated channel: all")).toBe(true);
-      expect(requested.stdout.includes("  Evaluated warnings: 3")).toBe(true);
-      expect(requested.stdout.includes("  Blocking warnings: 0")).toBe(true);
-      expect(requested.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(omittedReport.includes("## Quality Gate")).toBe(false);
-      expect(requestedReport.includes("## Quality Gate")).toBe(true);
-      expect(requestedReport.includes("- **Policy**: `all`")).toBe(true);
-      expect(requestedReport.includes("- **Status**: `passed`")).toBe(true);
-      expect(requestedReport.includes("- **Evaluated channel**: `all`")).toBe(true);
-      expect(requestedReport.includes("- **Evaluated warnings**: 3")).toBe(true);
-      expect(requestedReport.includes("- **Blocking warnings**: 0")).toBe(true);
-      expect(omittedReport.includes("vibe-check.metrics.v1")).toBe(false);
-      expect(requestedReport.includes("vibe-check.warning.v1")).toBe(false);
-      const rawFileMetrics = JSON.parse(
-        readFileSync(resolve(requested.artifactDir, "raw", "scc-output.json"), "utf8")
-      ) as unknown;
-      expect(Array.isArray(rawFileMetrics)).toBe(true);
-      expect(JSON.stringify(rawFileMetrics).includes("schemaVersion")).toBe(false);
+      expect(existsSync(resolve(requested.artifactDir, "metrics.json"))).toBe(false);
+      expect(existsSync(resolve(requested.artifactDir, "warnings.ndjson"))).toBe(false);
+      expect(existsSync(resolve(requested.artifactDir, "warnings-all.ndjson"))).toBe(false);
+      expect(existsSync(resolve(requested.artifactDir, "raw"))).toBe(true);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -162,30 +109,22 @@ describe("quality scan process outcome", () => {
 
   test("returns gate-failed only after the written failed-gate metrics validate", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-failed-"));
-
     try {
-      const config = await loadFixtureConfig();
       const result = await runFixtureScan({
         artifactName: "failed-gate",
-        config,
+        config: await loadFixtureConfig(),
         gatePolicy: "all",
         tempRoot
       });
 
-      expect(result.metrics.scanCompleteness.overall).toBe("complete");
-      expect(result.metrics.warnings.all.length > 0).toBe(true);
-      expect(result.metrics.gate.status).toBe("failed");
+      expect(result.machine.run.completeness.status).toBe("complete");
+      expect(result.machine.records.length > 0).toBe(true);
+      expect(result.machine.run.decision.gate.status).toBe("failed");
       expect(result.outcome).toBe("gate-failed");
-      expect(
-        result.stdout.includes("❌ Quality gate failed for the resolved quick profile.")
-      ).toBe(true);
-      expect(result.stdout.includes("  Status: failed")).toBe(true);
-      expect(
-        result.stdout.includes(
-          `  Blocking warnings: ${result.metrics.warnings.all.length}`
-        )
-      ).toBe(true);
-      expect(result.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
+      expect(result.stdout.includes("❌ Quality gate failed.")).toBe(true);
+      expect(result.stdout.includes(
+        `  Blocking records: ${result.machine.records.length}`
+      )).toBe(true);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -193,16 +132,22 @@ describe("quality scan process outcome", () => {
 
   test("returns failed for requested gates without complete evidence", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-not-evaluated-"));
-
     try {
       const fixtureConfig = await loadFixtureConfig();
+      const emptyConfig = {
+        ...fixtureConfig,
+        include: ["does-not-exist/**/*.ts"]
+      };
       const empty = await runFixtureScan({
         artifactName: "empty",
-        config: {
-          ...fixtureConfig,
-          include: ["does-not-exist/**/*.ts"]
-        },
+        config: emptyConfig,
         gatePolicy: "all",
+        tempRoot
+      });
+      const ungatedEmpty = await runFixtureScan({
+        artifactName: "ungated-empty",
+        config: emptyConfig,
+        gatePolicy: null,
         tempRoot
       });
       const incomplete = await runFixtureScan({
@@ -219,45 +164,33 @@ describe("quality scan process outcome", () => {
         gatePolicy: "all",
         tempRoot
       });
-
-      expect(empty.metrics.scanCompleteness.overall).toBe("empty");
-      expect(empty.metrics.gate).toEqual({
-        policy: "all",
-        reasonCode: "no-eligible-input",
-        status: "not-evaluated"
+      const unavailableReference = await runFixtureScan({
+        artifactName: "unavailable-reference",
+        baselineCommitSha: "a".repeat(40),
+        config: fixtureConfig,
+        gatePolicy: "changed",
+        scanProfile: "full",
+        tempRoot
       });
+
+      expect(empty.machine.run.decision.gate.status).toBe("not-evaluated");
       expect(empty.outcome).toBe("failed");
-      expect(
-        empty.stderr.includes(
-          "❌ Quality gate was not evaluated for the resolved quick profile."
-        )
-      ).toBe(true);
-      expect(empty.stderr.includes("  Reason code: no-eligible-input")).toBe(true);
-      expect(
-        empty.stderr.includes(
-          "  Action: Adjust the resolved quick profile or configured include scope (does-not-exist/**/*.ts) so at least one requested capability has eligible input."
-        )
-      ).toBe(true);
-
-      expect(incomplete.metrics.scanCompleteness.overall).toBe("failed");
-      expect(incomplete.metrics.gate).toEqual({
-        policy: "all",
-        reasonCode: "scan-incomplete",
-        status: "not-evaluated"
-      });
+      expect(empty.stderr.includes("  Reason: no-eligible-input")).toBe(true);
+      expect(ungatedEmpty.machine.run.completeness.status).toBe("complete");
+      expect(ungatedEmpty.machine.records).toEqual([]);
+      expect(ungatedEmpty.outcome).toBe("success");
+      expect(ungatedEmpty.stdout.includes("Quality check status: warning")).toBe(true);
+      expect(incomplete.machine.run.completeness.status).toBe("incomplete");
+      expect(incomplete.machine.run.decision.gate.status).toBe("not-evaluated");
       expect(incomplete.outcome).toBe("failed");
-      const failedCapability = incomplete.metrics.scanCompleteness.capabilities.find(
-        (result) => result.status === "failed"
-      );
-      expect(failedCapability?.status).toBe("failed");
-      if (failedCapability?.status === "failed") {
-        expect(
-          incomplete.stderr.includes(
-            `  Action (${failedCapability.capabilityId}): ${failedCapability.diagnostic.action}`
-          )
-        ).toBe(true);
-      }
-      expect(incomplete.stderr.includes("  Reason code: scan-incomplete")).toBe(true);
+      expect(incomplete.stderr.includes("  Reason: scan-incomplete")).toBe(true);
+      expect(unavailableReference.machine.run.completeness.status).toBe("complete");
+      expect(unavailableReference.machine.run.references.evidence.every(
+        ({ status }) => status === "unavailable"
+      )).toBe(true);
+      expect(unavailableReference.machine.run.decision.gate.status).toBe("not-evaluated");
+      expect(unavailableReference.stderr.includes("  Reason: comparison-unavailable"))
+        .toBe(true);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -265,26 +198,44 @@ describe("quality scan process outcome", () => {
 
   test("returns failed when artifact output fails after a failed gate was computed", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-output-failure-"));
-
     try {
-      const config = await loadFixtureConfig();
       const result = await runFixtureScanWithoutArtifacts({
         artifactName: "output-failure",
-        config,
+        config: await loadFixtureConfig(),
         gatePolicy: "all",
-        prepareArtifactDir: (artifactDir) => {
-          mkdirSync(resolve(artifactDir, "report.md"), { recursive: true });
-        },
+        prepareArtifactDir: (artifactDir) => writeFileSync(artifactDir, "blocked", "utf8"),
         tempRoot
       });
 
       expect(result.outcome).toBe("failed");
-      expect(result.stdout.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(result.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(result.stderr.includes("Fatal quality scan issues:")).toBe(true);
-      expect(existsSync(resolve(result.artifactDir, "raw"))).toBe(true);
-      expect(existsSync(resolve(result.artifactDir, "report.md"))).toBe(true);
+      expect(gateOutput(result.stdout)).toEqual([]);
+      expect(result.stderr.some((line) => line.includes("Fatal quality scan issue:"))).toBe(true);
       assertNoMachinePublication(result.artifactDir, result.stdout);
+
+      if (process.platform !== "win32") {
+        const cleanupArtifactDir = resolve(tempRoot, "cleanup-failure");
+        seedPriorMachinePublication(cleanupArtifactDir);
+        mkdirSync(resolve(cleanupArtifactDir, "raw"));
+        chmodSync(cleanupArtifactDir, 0o300);
+        try {
+          const cleanupFailure = await runFixtureScanWithoutArtifacts({
+            artifactName: "cleanup-failure",
+            config: await loadFixtureConfig(),
+            gatePolicy: "all",
+            tempRoot
+          });
+
+          chmodSync(cleanupArtifactDir, 0o700);
+          expect(cleanupFailure.outcome).toBe("failed");
+          expect(gateOutput(cleanupFailure.stdout)).toEqual([]);
+          expect(cleanupFailure.stdout.some((line) => line.includes(" → "))).toBe(false);
+          expect(readFileSync(resolve(cleanupArtifactDir, "run.json"), "utf8")).toBe("stale");
+          expect(readFileSync(resolve(cleanupArtifactDir, "records.ndjson"), "utf8"))
+            .toBe("stale");
+        } finally {
+          chmodSync(cleanupArtifactDir, 0o700);
+        }
+      }
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -292,27 +243,24 @@ describe("quality scan process outcome", () => {
 
   test("does not publish a computed failed gate when output validation fails", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-validation-failure-"));
-
     try {
-      const fixtureConfig = await loadFixtureConfig();
+      const config = await loadFixtureConfig();
       const result = await runFixtureScanWithoutArtifacts({
         artifactName: "validation-failure",
         config: {
-          ...fixtureConfig,
-          version: ""
-        } as unknown as ResolvedQualityConfig,
+          ...config,
+          acceptedWarnings: [{
+            checkId: "file-code-lines",
+            reason: ""
+          }]
+        },
         gatePolicy: "all",
         prepareArtifactDir: seedPriorMachinePublication,
         tempRoot
       });
 
       expect(result.outcome).toBe("failed");
-      expect(result.stdout.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(result.stderr.filter((line) => line.includes("Quality gate"))).toEqual([]);
-      expect(result.stderr.includes("Fatal quality scan issues:")).toBe(true);
-      expect(result.stderr.some((line) => line.includes("metrics validation:"))).toBe(true);
-      expect(existsSync(resolve(result.artifactDir, "raw"))).toBe(true);
-      expect(existsSync(resolve(result.artifactDir, "report.md"))).toBe(false);
+      expect(gateOutput(result.stdout)).toEqual([]);
       assertNoMachinePublication(result.artifactDir, result.stdout);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
@@ -321,26 +269,8 @@ describe("quality scan process outcome", () => {
 
   test("keeps gate projection independent from verification warning preview", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-verification-output-"));
-
     try {
-      const fixtureConfig = await loadFixtureConfig();
-      const config: ResolvedQualityConfig = {
-        ...fixtureConfig,
-        acceptedWarnings: [
-          {
-            checkId: "function-cyclomatic-complexity",
-            reason: "Accepted by the gate verification-output fixture.",
-          },
-          {
-            checkId: "function-code-lines",
-            reason: "Accepted by the gate verification-output fixture.",
-          },
-          {
-            checkId: "file-code-lines",
-            reason: "Accepted by the gate verification-output fixture.",
-          }
-        ]
-      };
+      const config = acceptedFixtureConfig(await loadFixtureConfig());
       const normal = await runFixtureScan({
         artifactName: "normal-preview",
         config,
@@ -356,18 +286,15 @@ describe("quality scan process outcome", () => {
       });
 
       expect(gateOutput(normal.stdout)).toEqual(gateOutput(verification.stdout));
-      expect(gateOutput(normal.stdout)).toEqual([
-        "✅ Quality gate passed for the resolved quick profile.",
-        "  Policy: all",
-        "  Status: passed",
-        "  Evaluated channel: all",
-        "  Evaluated warnings: 3",
-        "  Blocking warnings: 0"
-      ]);
+      expect(normal.machine.records.map(stableRecordProjection)).toEqual(
+        verification.machine.records.map(stableRecordProjection)
+      );
+      expect(normal.machine.run.decision.gate.status).toBe(
+        verification.machine.run.decision.gate.status
+      );
+      expect(normal.outcome).toBe(verification.outcome);
       expect(normal.stdout.includes("Quality check status: warning")).toBe(true);
-      expect(
-        verification.stdout.includes("Quality verification status: passed")
-      ).toBe(true);
+      expect(verification.stdout.includes("Quality verification status: passed")).toBe(true);
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }
@@ -376,97 +303,119 @@ describe("quality scan process outcome", () => {
 
 async function loadFixtureConfig(): Promise<ResolvedQualityConfig> {
   return resolveQualityConfig(
-    await loadSemanticProjectConfig(
-      resolve(fixtureRoot, ".vibe-check", "config.json")
-    )
+    await loadSemanticProjectConfig(resolve(fixtureRoot, ".vibe-check", "config.json"))
   );
+}
+
+function acceptedFixtureConfig(config: ResolvedQualityConfig): ResolvedQualityConfig {
+  return {
+    ...config,
+    acceptedWarnings: [
+      "file-code-lines",
+      "function-code-lines",
+      "function-cyclomatic-complexity"
+    ].map((checkId) => ({
+      checkId: checkId as ResolvedQualityConfig["acceptedWarnings"][number]["checkId"],
+      reason: "Accepted by the core gate integration fixture."
+    }))
+  };
+}
+
+function cleanFixtureConfig(config: ResolvedQualityConfig): ResolvedQualityConfig {
+  return {
+    ...config,
+    acceptedWarnings: [],
+    checks: {
+      ...config.checks,
+      files: {
+        codeLines: {
+          ...config.checks.files.codeLines,
+          absoluteFloor: 1_000_000,
+          lowDecisionTokenAllowance: {
+            ...config.checks.files.codeLines.lowDecisionTokenAllowance,
+            codeLineFloor: 1_000_000
+          }
+        }
+      },
+      functions: {
+        codeLines: {
+          ...config.checks.functions.codeLines,
+          absoluteFloor: 1_000_000,
+          lowComplexityAllowance: {
+            ...config.checks.functions.codeLines.lowComplexityAllowance,
+            codeLineFloor: 1_000_000
+          }
+        },
+        cyclomaticComplexity: {
+          ...config.checks.functions.cyclomaticComplexity,
+          absoluteFloor: 1_000_000
+        },
+        parameterCount: {
+          ...config.checks.functions.parameterCount,
+          absoluteFloor: 1_000_000
+        }
+      }
+    }
+  };
 }
 
 type RunFixtureScanOptions = {
   artifactName: string;
+  baselineCommitSha?: string | null;
   config: ResolvedQualityConfig;
   dependencies?: ScannerDependencySnapshot;
   gatePolicy: GatePolicy | null;
   prepareArtifactDir?: (artifactDir: string) => void;
+  scanProfile?: "full" | "quick";
   tempRoot: string;
   verificationOutput?: boolean;
 };
 
-async function runFixtureScan(
-  options: RunFixtureScanOptions
-): Promise<{
-  artifactDir: string;
-  metrics: MachineMetricsV1;
-  outcome: Awaited<ReturnType<typeof runQualityScan>>;
-  stderr: string[];
-  stdout: string[];
-}> {
-  const {
-    artifactName,
-    config,
-    dependencies,
-    gatePolicy,
-    prepareArtifactDir,
-    tempRoot,
-    verificationOutput = false
-  } = options;
-  const output = await runFixtureScanWithoutArtifacts({
-    artifactName,
-    config,
-    dependencies,
-    gatePolicy,
-    prepareArtifactDir,
-    tempRoot,
-    verificationOutput
-  });
-  const metrics = readValidatedMachineArtifacts(output.artifactDir).metrics;
-
-  return { ...output, metrics };
+async function runFixtureScan(options: RunFixtureScanOptions) {
+  const output = await runFixtureScanWithoutArtifacts(options);
+  if (!existsSync(resolve(output.artifactDir, "run.json"))) {
+    throw new Error(`fixture scan did not publish: ${output.stderr.join(" | ")}`);
+  }
+  return {
+    ...output,
+    machine: readValidatedMachineArtifacts(output.artifactDir)
+  };
 }
 
-async function runFixtureScanWithoutArtifacts(
-  options: RunFixtureScanOptions
-): Promise<{
-  artifactDir: string;
-  outcome: Awaited<ReturnType<typeof runQualityScan>>;
-  stderr: string[];
-  stdout: string[];
-}> {
-  const {
-    artifactName,
-    config,
-    dependencies = FIXTURE_DEPENDENCIES,
-    gatePolicy,
-    prepareArtifactDir,
-    tempRoot,
-    verificationOutput = false
-  } = options;
-  const artifactDir = resolve(tempRoot, artifactName);
-  prepareArtifactDir?.(artifactDir);
+async function runFixtureScanWithoutArtifacts(options: RunFixtureScanOptions) {
+  const artifactDir = resolve(options.tempRoot, options.artifactName);
+  options.prepareArtifactDir?.(artifactDir);
   const output = await captureConsole(() =>
     runQualityScan({
       config: {
-        ...config,
-        cacheDir: resolve(tempRoot, `${artifactName}-cache`)
+        ...options.config,
+        cacheDir: resolve(options.tempRoot, `${options.artifactName}-cache`)
       },
-      dependencies,
+      dependencies: options.dependencies ?? FIXTURE_DEPENDENCIES,
       options: {
         artifactDir,
-        baselineCommitSha: null,
+        baselineCommitSha: options.baselineCommitSha ?? null,
         changedFiles: null,
-        gatePolicy,
-        scanProfile: "quick",
-        topN: config.report.topN,
-        verificationOutput
+        gatePolicy: options.gatePolicy,
+        scanProfile: options.scanProfile ?? "quick",
+        topN: options.config.report.topN,
+        verificationOutput: options.verificationOutput ?? false
       },
       root: fixtureRoot
     })
   );
-
   return {
     artifactDir,
     outcome: output.result,
     stderr: output.stderr,
     stdout: output.stdout
   };
+}
+
+function stableRecordProjection(record: {
+  readonly fields: object;
+  readonly message: string;
+  readonly recordId: string;
+}) {
+  return { fields: record.fields, message: record.message, recordId: record.recordId };
 }

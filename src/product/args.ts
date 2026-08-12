@@ -180,23 +180,22 @@ Usage: bun run product:cli -- scan [project-root] [options]
 
 Options:
   --profile <quick|full>  Select quick or full quality check mode (default: full)
-  --gate <${GATE_POLICY_VALUES.join("|")}>  Evaluate one warning scope as a CI quality gate
+  --gate <${GATE_POLICY_VALUES.join("|")}>  Evaluate a named record policy as a CI quality gate
   --baseline <revision>   Compare with an explicit locally available Git revision
   --changed-files <file>  List file; relative paths use project root
                           Absolute list paths are kept; entries are project-relative, one per line
   --config <file>         Complete semantic config v1; relative paths use project root
                           Explicit --config has highest precedence
-  --top-n <n>             Top N for rankings (neutral default: ${DEFAULT_CONFIG.report.topN})
+  --top-n <n>             Records per report section (neutral default: ${DEFAULT_CONFIG.report.topN})
   --artifact-dir <dir>    Artifact output directory (neutral default: ${DEFAULT_CONFIG.artifactDir})
   --skip-baseline         Request the default current-snapshot-only scan
   --verification-output   Print verifier-style status based on unaccepted warnings
   --help                  Show this help
 
 Output:
-  metrics.json            Machine-readable quality metrics
+  run.json                Machine-readable run, reference, and decision evidence
+  records.ndjson          Machine-readable quality records
   report.md               Human-readable Markdown summary
-  warnings.ndjson         Changed warning records when baseline comparison is enabled
-  warnings-all.ndjson     Full warning records for local review
   raw/                    Raw scanner outputs
 
 Profiles:
@@ -210,7 +209,7 @@ Config selection:
 
 Gate policies:
 ${gatePolicyHelp}
-  Accepted warnings remain visible and do not block the gate.
+  Accepted records remain visible and do not block the gate.
   changed and regressions require --profile full and explicit --baseline <revision>.
   Exit 1 when an evaluated gate failed after artifacts validate.
   Exit 2 when a requested gate could not be evaluated or the scan/output failed.

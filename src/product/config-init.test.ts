@@ -34,7 +34,7 @@ import { parseConfigDocument } from "./config-validation.ts";
 const CONFIG_SHA256 =
   "93bb299a33e4e012904875c06529b9295197144217a13d9224e37dc30dc97c15";
 const SCHEMA_SHA256 =
-  "735015931638d709d2f5c43361c690fddbaaed43ae5a42c2505ea46224fa401f";
+  "c174601062ac4e11cfde844bc86df9580841fd1e2ea7983ba0be99bd423bbedc";
 
 describe("project configuration initialization", () => {
   it("generates deterministic commented config and an anonymous editor schema", () => {

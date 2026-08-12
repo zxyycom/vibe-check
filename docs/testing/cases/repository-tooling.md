@@ -31,7 +31,7 @@ Proves:
 ## Case AUX-QUALITY-ANNOTATION-WIRING-001: Required workspace 调度 focused acceptance child
 Owner: `docs/script-tooling.md#independent-docs-validation-and-workspace-acceptance`
 Entities:
-- `bun|scripts/quality/producer-annotation-acceptance.test.ts|producer-to-annotation acceptance > connects formal non-empty, zero-byte, and invalid producer streams to the actual consumer`
+- `bun|scripts/quality/producer-annotation-acceptance.test.ts|producer-to-annotation acceptance > connects formal non-empty, zero-record, and invalid v2 artifact sets to the actual consumer`
 Proves:
 - Required profile 精确调度 focused producer-to-annotation test child；child 自己运行正式 producer 与 actual consumer 并判断 machine boundary，workspace verifier 只使用既有 process result/output 编排。
 - Acceptance 使用隔离的临时 fixture copies 与 actual package consumer，workspace task 不增加 artifact parser、schema registry 或 warning mapper。

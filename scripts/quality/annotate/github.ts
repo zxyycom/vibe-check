@@ -1,34 +1,20 @@
-import type { MachineWarningV1 } from "../../../src/product/machine-output.ts";
+import type { MachineRecordV2 } from "../../../src/product/machine-output.ts";
 
-export function renderGithubAnnotations(warnings: readonly MachineWarningV1[]): string[] {
-  return warnings.map((warning) => {
+type AnnotationRecord = Pick<MachineRecordV2, "location" | "message" | "recordTypeId">;
+
+export function renderGithubAnnotations(records: readonly AnnotationRecord[]): string[] {
+  return records.map((record) => {
     const attrs = [
-      ["file", warning.path],
-      ["line", warning.line],
-      ["title", warning.ruleId]
+      ["file", record.location?.path],
+      ["line", record.location?.line],
+      ["title", record.recordTypeId]
     ]
       .filter(([, value]) => value !== null && value !== undefined && value !== "")
       .map(([key, value]) => `${key}=${escapeProperty(String(value))}`)
       .join(",");
 
-    return `::warning ${attrs}::${escapeData(annotationMessage(warning))}`;
+    return `::warning ${attrs}::${escapeData(record.message)}`;
   });
-}
-
-function annotationMessage(warning: MachineWarningV1): string {
-  return [
-    warning.message,
-    warning.comparisonBasis ? `basis=${warning.comparisonBasis}` : null,
-    warning.baselineValue !== null
-      ? `baseline=${warning.baselineValue}`
-      : null,
-    warning.deltaValue !== null
-      ? `delta=${warning.deltaValue}`
-      : null,
-    warning.suggestion || null
-  ]
-    .filter(Boolean)
-    .join(" | ");
 }
 
 function escapeData(value: string): string {

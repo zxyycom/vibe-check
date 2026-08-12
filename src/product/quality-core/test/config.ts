@@ -1,7 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { ResolvedQualityConfig } from "../src/index.ts";
+import type { ResolvedQualityConfig } from "../src/model/schema.ts";
 import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
 
 const JSCPD_ENTRY = resolve(

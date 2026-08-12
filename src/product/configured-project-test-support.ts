@@ -14,9 +14,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1
+  validateMachinePublicationSetV2
 } from "./machine-output.ts";
+
+export type MachinePublicationV2 = Extract<
+  ReturnType<typeof validateMachinePublicationSetV2>,
+  { ok: true }
+>["value"];
 
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 export const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -35,6 +39,8 @@ export function createConfiguredProjectFixture(
   const tempRoot = mkdtempSync(join(tmpdir(), tempPrefix));
   const projectRoot = join(tempRoot, "configured-project");
   cpSync(fixtureRoot, projectRoot, { recursive: true });
+  rmSync(join(projectRoot, "artifacts"), { force: true, recursive: true });
+  rmSync(join(projectRoot, ".cache"), { force: true, recursive: true });
   return {
     artifactDir: join(projectRoot, "artifacts/configured-scan"),
     configPath: join(projectRoot, ".vibe-check", "config.json"),
@@ -95,34 +101,33 @@ export function assertCommandSucceeded(result: CommandResult, label: string): vo
   );
 }
 
-export function readFixtureMetrics(): MachineMetricsV1 {
-  return readMetricsArtifact(fixtureArtifactDir);
+export function readFixturePublication(): MachinePublicationV2 {
+  return readMachinePublication(fixtureArtifactDir);
 }
 
-export function readMetricsArtifact(artifactDir: string): MachineMetricsV1 {
-  const validation = validateMachineArtifactSetV1({
-    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
-    warningsAllNdjson: readFileSync(
-      resolve(artifactDir, "warnings-all.ndjson")
-    ),
-    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
+export function readMachinePublication(
+  artifactDir: string
+): MachinePublicationV2 {
+  const validation = validateMachinePublicationSetV2({
+    recordsNdjson: readFileSync(resolve(artifactDir, "records.ndjson")),
+    runJson: readFileSync(resolve(artifactDir, "run.json"))
   });
   if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  return validation.value.metrics;
+  return validation.value;
 }
 
-export function stableScanEvidence(metrics: MachineMetricsV1): unknown {
+export function stableScanEvidence(publication: MachinePublicationV2): unknown {
   return {
-    aggregates: metrics.aggregates,
-    duplicateCode: metrics.duplicateCode,
-    fileMetrics: metrics.fileMetrics,
-    fingerprints: metrics.currentFingerprints,
-    functionMetrics: metrics.functionMetrics,
-    scanCompleteness: metrics.scanCompleteness,
-    scope: metrics.metadata.scope,
-    tools: metrics.metadata.tools,
-    version: metrics.metadata.configVersion,
-    warnings: metrics.warnings
+    records: publication.records.map(({ checkRunId: _, ...record }) => record),
+    run: {
+      ...publication.run,
+      invocation: {
+        ...publication.run.invocation,
+        invocationId: "<invocation>",
+        timestamp: "<timestamp>"
+      },
+      runs: publication.run.runs.map(({ checkRunId: _, ...run }) => run)
+    }
   };
 }
 

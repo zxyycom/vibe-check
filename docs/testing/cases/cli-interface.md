@@ -12,7 +12,7 @@ Proves:
 - Missing list 保留 `failed to read --changed-files` diagnostic 并退出 `3`；其它普通 read error 使用 exit `2`。
 
 ## Case BB-CLI-ROUTING-001: Product CLI routing 与进程映射稳定
-Owner: `docs/cli.md#cli-边界`
+Owner: `docs/cli.md#产品入口`
 Entities:
 - `bun|src/product/cli-init.test.ts|product CLI routing > maps init usage and runtime failures to operation-specific exit three diagnostics`
 - `bun|src/product/cli.test.ts|product CLI routing > maps scan outcomes to the pinned process status contract`

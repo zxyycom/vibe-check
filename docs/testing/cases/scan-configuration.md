@@ -1,13 +1,21 @@
 # scan-configuration
 
+## Case WB-CONFIG-CURRENT-ACCEPTANCE-ADAPTER-001: Semantic accepted warning filters stay catalog-bound
+Owner: `docs/configuration.md#acceptance-adapter`
+Entities:
+- `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > maps all five legacy acceptance IDs to their owning Check and same record type through registered predicates`
+- `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > rejects a legacy filter that the owning catalog surface does not expose instead of walking record data`
+Proves:
+- All five semantic `acceptedWarnings[].checkId` values map exhaustively to an explicit owning Check ID plus same-named record type; they are not aliases in the public Check catalog.
+- Config filters compile only to operands registered by the resolved catalog surface. A missing field does not trigger arbitrary record/message/property traversal and rejects the adapter before evaluation.
+
 ## Case BB-CLI-CONFIG-FILE-001: Product configuration workflow 正式入口稳定
-Owner: `docs/configuration.md#configuration`
+Owner: `docs/configuration.md#current-semantic-config-v1`
 Entities:
 - `bun|src/product/config-default-workflow-acceptance.test.ts|formal CLI project configuration workflow > observes a clean project with neutral defaults and requires file policy for a gate`
 - `bun|src/product/config-default-workflow-acceptance.test.ts|formal CLI project configuration workflow > materializes the neutral default and discovers equivalent runtime inputs without trusting sibling schema`
 - `bun|src/product/config-selection-workflow-acceptance.test.ts|formal CLI project configuration workflow > keeps explicit selection authoritative and invalid explicit files final`
 - `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > reports config failures with exit 3 before scanners or artifacts start`
-- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > returns a warning without a quality verdict when no capability has eligible input`
 - `bun|src/product/configured-project.test.ts|formal CLI explicit configuration > scans the checked-in project deterministically with only the configured inputs`
 Proves:
 - Clean project 的 ungated scan 使用 `default (not persisted)` neutral policy；任一 gate 都要求 file-backed policy，缺失时在 dependency、scanner、cache 与 artifact work 前以 exit `3` 失败，并同时给出 `init` 与 `--config` recovery path。
@@ -48,7 +56,7 @@ Proves:
 - CLI 在 dependency preflight 前精确输出 `default`、`discovered` 或 `explicit` provenance；file-backed source 输出 resolved path，neutral default 明确标记为未持久化。
 
 ## Case WB-CONFIG-FILE-001: Product semantic config/document parsing 稳定
-Owner: `docs/configuration.md#configuration`
+Owner: `docs/configuration.md#current-semantic-config-v1`
 Entities:
 - `bun|src/product/config-document.test.ts|neutral project config foundation > composes optional authoring metadata over the closed semantic schema and detaches it`
 - `bun|src/product/config-document.test.ts|neutral project config foundation > pins the complete neutral semantic value and maps a detached runtime config`
@@ -73,7 +81,7 @@ Proves:
 - File-level error 保留 resolved config path 与原始 cause。
 
 ## Case WB-CONFIG-INIT-001: Product project configuration initialization 稳定
-Owner: `docs/configuration.md#initialization`
+Owner: `docs/configuration.md#selection-and-path-rules`
 Entities:
 - `bun|src/product/config-init.test.ts|project configuration initialization > cleans only invocation-owned files and removes an owned directory only when empty`
 - `bun|src/product/config-init.test.ts|project configuration initialization > creates a complete discovery-ready file set in a new project`

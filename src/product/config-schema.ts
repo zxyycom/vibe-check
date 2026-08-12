@@ -158,10 +158,10 @@ const ReportSchema = Type.Object({
     description: "Human-readable report title."
   }),
   topN: Type.Number({
-    description: "Number of entries requested for ranked report sections."
+    description: "Maximum records rendered in each report record section."
   }),
   watchlistMax: Type.Number({
-    description: "Maximum number of changed-file watchlist entries."
+    description: "Maximum number of changed-record watchlist entries."
   })
 }, {
   additionalProperties: false,

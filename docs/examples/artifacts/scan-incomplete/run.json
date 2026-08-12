@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "vibe-check.run.v2",
+  "invocation": {
+    "invocationId": "invocation/v1:docs-scan-incomplete",
+    "projectRoot": ".",
+    "timestamp": "2026-08-12T00:00:00.000Z"
+  },
+  "catalogFingerprint": "check-record/v1/catalog/sha256:5934100b0b24ad9b283e9a9c022a83d14925cf08fc351d075c142690d98b274e",
+  "definitions": [
+    {
+      "checkId": "docs-example",
+      "displayName": "Documentation Example",
+      "recordTypes": [
+        {
+          "recordTypeId": "example-finding",
+          "fields": [
+            {
+              "fieldId": "category",
+              "valueType": "string",
+              "required": true
+            },
+            {
+              "fieldId": "value",
+              "valueType": "integer",
+              "required": true
+            }
+          ],
+          "identityFields": [
+            "category",
+            "value"
+          ],
+          "policy": {
+            "operands": [
+              {
+                "operandId": "category",
+                "valueType": "string",
+                "source": {
+                  "kind": "field",
+                  "fieldId": "category"
+                }
+              }
+            ],
+            "relations": [
+              "regression"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "checkId": "docs-example",
+      "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d",
+      "selection": "selected",
+      "applicability": "applicable",
+      "status": "failed",
+      "result": null,
+      "coverage": {
+        "plannedWorkCount": 1,
+        "acknowledgedWorkCount": 0
+      },
+      "diagnostic": {
+        "category": "unavailable",
+        "tieBreakKey": "dependency/v1:docs-example"
+      }
+    }
+  ],
+  "integrity": {
+    "status": "valid",
+    "invalidRecords": [],
+    "conflicts": []
+  },
+  "completeness": {
+    "status": "incomplete",
+    "selectedRunCount": 1,
+    "completedRunCount": 0,
+    "failedRunCount": 1,
+    "plannedWorkCount": 1,
+    "acknowledgedWorkCount": 0
+  },
+  "references": {
+    "identities": [],
+    "evidence": [],
+    "relations": []
+  },
+  "acceptance": [],
+  "decision": {
+    "policyId": "all-current",
+    "views": [],
+    "readiness": [
+      {
+        "readinessId": "current-complete",
+        "status": "failed",
+        "reason": "scan-incomplete",
+        "evidenceRefs": [
+          {
+            "kind": "run",
+            "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d"
+          },
+          {
+            "kind": "readiness",
+            "readinessId": "current-complete"
+          }
+        ]
+      }
+    ],
+    "blockWhen": null,
+    "gate": {
+      "status": "not-evaluated",
+      "policyId": "all-current",
+      "reason": "scan-incomplete",
+      "evidenceRefs": [
+        {
+          "kind": "run",
+          "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d"
+        },
+        {
+          "kind": "readiness",
+          "readinessId": "current-complete"
+        }
+      ]
+    }
+  }
+}

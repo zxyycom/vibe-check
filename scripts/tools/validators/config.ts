@@ -32,8 +32,8 @@ export const FILE_SYSTEM = {
 
 export const CURRENT_SCHEMAS = {
   config: "docs/schemas/vibe-check-config.schema.json",
-  metrics: "docs/schemas/vibe-check-metrics.schema.json",
-  warning: "docs/schemas/vibe-check-warning.schema.json"
+  record: "docs/schemas/vibe-check-record.schema.json",
+  run: "docs/schemas/vibe-check-run.schema.json"
 };
 
 export const HISTORICAL_SCHEMAS = {

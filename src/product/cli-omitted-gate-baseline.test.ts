@@ -6,7 +6,6 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
-  readdirSync,
   rmSync,
   writeFileSync
 } from "node:fs";
@@ -16,14 +15,10 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
-  assertCurrentProjectionBaseline,
-  assertWarningStreamBytes
+  assertCurrentPublicationBaseline,
+  type MachinePublicationV2
 } from "./cli-omitted-gate-baseline.test-support.ts";
-import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1,
-  type MachineWarningV1
-} from "./machine-output.ts";
+import { validateMachinePublicationSetV2 } from "./machine-output.ts";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const fixtureRoot = resolve(repoRoot, "fixtures/projects/configured-typescript");
@@ -43,22 +38,16 @@ describe("formal CLI current projection regression baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
-      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
+      assertCurrentPublicationBaseline(artifacts.machine);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
-      assert.deepEqual(artifacts.metrics.warnings, {
-        all: [],
-        changed: [],
-        regressions: []
-      });
-      assert.match(result.stdout, /Scan completeness: complete/);
+      assert.equal(artifacts.machine.run.completeness.status, "complete");
+      assert.deepEqual(artifacts.machine.records, []);
+      assert.match(result.stdout, /Snapshot completeness: complete/);
       assert.match(result.stdout, /Quality check status: passed/);
       assert.match(result.stdout, /✅ Quality scan complete\./);
-      assert.doesNotMatch(result.stdout, /Quality was not evaluated/);
-      assert.match(artifacts.report, /Overall.*`complete`/);
-      assert.doesNotMatch(artifacts.report, /Quality was not evaluated/);
-      assertOmittedGateHumanSilence(result.stdout, artifacts.report);
+      assert.match(artifacts.report, /Snapshot completeness\*\*: complete/);
+      assertOmittedGateObservation(artifacts, result.stdout);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -74,28 +63,27 @@ describe("formal CLI current projection regression baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
-      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
+      assertCurrentPublicationBaseline(artifacts.machine);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "complete");
-      assert.ok(artifacts.metrics.warnings.all.length > 0);
+      assert.equal(artifacts.machine.run.completeness.status, "complete");
+      assert.ok(artifacts.machine.records.length > 0);
       assert.deepEqual(
-        artifacts.metrics.warnings.all.map(({ ruleId }) => ruleId),
+        artifacts.machine.records.map(({ recordTypeId }) => recordTypeId).sort(),
         [
-          "lizard-function-code-density",
-          "scc-file-code-lines",
-          "lizard-cyclomatic-complexity"
-        ]
+          "file-code-lines",
+          "function-code-lines",
+          "function-cyclomatic-complexity"
+        ].sort()
       );
-      assert.match(result.stdout, /Scan completeness: complete/);
+      assert.match(result.stdout, /Snapshot completeness: complete/);
       assert.match(result.stdout, /Quality check status: warning/);
-      assert.match(result.stdout, /Warnings: \d+ total/);
       assert.match(result.stdout, /⚠️ Quality scan complete with warnings\./);
-      assert.match(artifacts.report, /Overall.*`complete`/);
+      assert.match(artifacts.report, /Snapshot completeness\*\*: complete/);
       assert.ok(
-        artifacts.report.includes(artifacts.metrics.warnings.all[0]?.message ?? "missing warning")
+        artifacts.report.includes(artifacts.machine.records[0]?.message ?? "missing record")
       );
-      assertOmittedGateHumanSilence(result.stdout, artifacts.report);
+      assertOmittedGateObservation(artifacts, result.stdout);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -115,29 +103,23 @@ describe("formal CLI current projection regression baseline", () => {
       ]);
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
 
-      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
+      assertCurrentPublicationBaseline(artifacts.machine);
       assert.equal(result.status, 0);
       assert.equal(result.stderr, "");
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "empty");
-      assert.deepEqual(artifacts.metrics.warnings, {
-        all: [],
-        changed: [],
-        regressions: []
-      });
-      assert.match(result.stdout, /Scan completeness: empty/);
-      assert.match(result.stdout, /Quality check status: warning/);
-      assert.match(
-        result.stdout,
-        /Quality was not evaluated.*no capability had eligible measurement input/
+      assert.equal(artifacts.machine.run.completeness.status, "complete");
+      assert.deepEqual(artifacts.machine.records, []);
+      assert.equal(
+        artifacts.machine.run.runs.every(
+          (run) => run.result?.verdict === "not-applicable"
+        ),
+        true
       );
+      assert.match(result.stdout, /Snapshot completeness: complete/);
+      assert.match(result.stdout, /Quality check status: warning/);
       assert.match(result.stdout, /⚠️ Quality scan complete with warnings\./);
       assert.doesNotMatch(result.stdout, /Quality check status: passed/);
-      assert.match(artifacts.report, /Overall.*`empty`/);
-      assert.match(
-        artifacts.report,
-        /Quality was not evaluated.*no capability had eligible measurement input/
-      );
-      assertOmittedGateHumanSilence(result.stdout, artifacts.report);
+      assert.match(artifacts.report, /Snapshot completeness\*\*: complete/);
+      assertOmittedGateObservation(artifacts, result.stdout);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -155,25 +137,22 @@ describe("formal CLI current projection regression baseline", () => {
         VIBE_CHECK_SCC_CMD: join(fixture.projectRoot, "tools", "missing-scc")
       });
       const artifacts = readFormalEntryArtifacts(fixture.artifactDir);
-      const failedCapability = artifacts.metrics.scanCompleteness.capabilities.find(
-        (capability) => capability.status === "failed"
+      const failedRun = artifacts.machine.run.runs.find(
+        (run) => run.status === "failed"
       );
 
-      assertCurrentProjectionBaseline(artifacts.metrics, fixture.projectRoot);
+      assertCurrentPublicationBaseline(artifacts.machine);
       assert.equal(result.status, 2);
-      assert.equal(artifacts.metrics.scanCompleteness.overall, "failed");
-      assert.ok(failedCapability?.status === "failed");
-      assert.match(result.stdout, /Scan completeness: failed/);
+      assert.equal(result.stderr, "");
+      assert.equal(artifacts.machine.run.completeness.status, "incomplete");
+      assert.ok(failedRun?.status === "failed");
+      assert.equal(failedRun.diagnostic.category, "unavailable");
+      assert.match(result.stdout, /Snapshot completeness: incomplete/);
       assert.match(result.stdout, /❌ Quality scan failed\./);
       assert.doesNotMatch(result.stdout, /Quality check status: (?:passed|warning)/);
-      assert.match(result.stderr, /Incomplete current measurements:/);
-      assert.ok(result.stderr.includes(failedCapability.diagnostic.message));
-      assert.ok(result.stderr.includes(failedCapability.diagnostic.action));
-      assert.doesNotMatch(result.stderr, /Fatal error in quality scan:/);
-      assert.match(artifacts.report, /Overall.*`failed`/);
-      assert.ok(artifacts.report.includes(failedCapability.diagnostic.message));
-      assert.ok(artifacts.report.includes(failedCapability.diagnostic.action));
-      assertOmittedGateHumanSilence(result.stdout, artifacts.report);
+      assert.match(artifacts.report, /Snapshot completeness\*\*: incomplete/);
+      assert.match(artifacts.report, /file-metrics`: failed/);
+      assertOmittedGateObservation(artifacts, result.stdout);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -183,7 +162,8 @@ describe("formal CLI current projection regression baseline", () => {
     const fixture = createFixtureProject("output-failure");
 
     try {
-      mkdirSync(join(fixture.artifactDir, "report.md"), { recursive: true });
+      mkdirSync(resolve(fixture.artifactDir, ".."), { recursive: true });
+      writeFileSync(fixture.artifactDir, "blocked", "utf8");
 
       const result = runOmittedGateScan(fixture.projectRoot, [
         "--profile",
@@ -195,26 +175,20 @@ describe("formal CLI current projection regression baseline", () => {
       assert.doesNotMatch(result.stdout, /(?:✅|⚠️) Quality scan complete/);
       assert.doesNotMatch(
         result.stdout,
-        /(?:metrics\.json|warnings(?:-all)?\.ndjson) →/
+        /(?:run\.json|records\.ndjson|report\.md) →/
       );
-      assert.match(result.stderr, /Fatal quality scan issues:/);
-      assert.match(result.stderr, /output write:/);
-      assert.equal(existsSync(join(fixture.artifactDir, "raw")), true);
+      assert.match(result.stderr, /Fatal quality scan issue:/);
       for (const fileName of [
+        "run.json",
+        "records.ndjson",
+        "report.md",
         "metrics.json",
         "warnings.ndjson",
         "warnings-all.ndjson"
       ]) {
         assert.equal(existsSync(join(fixture.artifactDir, fileName)), false);
       }
-      assert.equal(
-        readdirSync(fixture.artifactDir).some(
-          (fileName) =>
-            fileName.startsWith(".vibe-check-machine-") &&
-            fileName.endsWith(".tmp")
-        ),
-        false
-      );
+      assert.equal(readFileSync(fixture.artifactDir, "utf8"), "blocked");
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -254,11 +228,8 @@ describe("formal CLI current projection regression baseline", () => {
       ]);
       const verificationArtifacts = readFormalEntryArtifacts(verificationArtifactDir);
 
-      assertCurrentProjectionBaseline(normalArtifacts.metrics, fixture.projectRoot);
-      assertCurrentProjectionBaseline(
-        verificationArtifacts.metrics,
-        fixture.projectRoot
-      );
+      assertCurrentPublicationBaseline(normalArtifacts.machine);
+      assertCurrentPublicationBaseline(verificationArtifacts.machine);
       assert.equal(normal.status, 0);
       assert.equal(verification.status, 0);
       assert.equal(normal.stderr, "");
@@ -267,46 +238,23 @@ describe("formal CLI current projection regression baseline", () => {
         stableArtifactEvidence(verificationArtifacts),
         stableArtifactEvidence(normalArtifacts)
       );
-      assert.equal(
-        stdoutWithoutWarningPreview(
-          verification.stdout,
-          verificationArtifactDir
-        ),
-        stdoutWithoutWarningPreview(normal.stdout, normalArtifactDir)
+      const acceptedRecordIds = new Set(
+        normalArtifacts.machine.run.acceptance.map(({ recordId }) => recordId)
       );
-
-      const acceptedWarnings = normalArtifacts.metrics.warnings.all.filter(
-        (warning) => warning.acceptedReason === acceptedReason
-      );
-      const unacceptedWarningCount = normalArtifacts.metrics.warnings.all.length -
-        acceptedWarnings.length;
-      assert.equal(acceptedWarnings.length, 1);
-      assert.ok(unacceptedWarningCount > 0);
+      assert.equal(acceptedRecordIds.size, 1);
+      assert.ok(normalArtifacts.machine.records.length > acceptedRecordIds.size);
 
       assert.match(normal.stdout, /Quality check status: warning/);
-      assert.match(
-        normal.stdout,
-        new RegExp(`Warnings: ${normalArtifacts.metrics.warnings.all.length} total`)
-      );
-      assert.match(normal.stdout, /Showing first \d+ warnings:/);
       assert.ok(normal.stdout.includes(acceptedReason));
 
       assert.match(verification.stdout, /Quality verification status: warning/);
-      assert.match(
-        verification.stdout,
-        new RegExp(`Warnings without accepted reason: ${unacceptedWarningCount} total`)
-      );
-      assert.match(
-        verification.stdout,
-        /Showing first \d+ warnings without accepted reason:/
-      );
       assert.doesNotMatch(verification.stdout, /Accepted reason:/);
       assert.doesNotMatch(verification.stdout, /Quality check status:/);
 
       assert.match(normal.stdout, /⚠️ Quality scan complete with warnings\./);
       assert.match(verification.stdout, /⚠️ Quality scan complete with warnings\./);
-      assertOmittedGateHumanSilence(normal.stdout, normalArtifacts.report);
-      assertOmittedGateHumanSilence(verification.stdout, verificationArtifacts.report);
+      assertOmittedGateObservation(normalArtifacts, normal.stdout);
+      assertOmittedGateObservation(verificationArtifacts, verification.stdout);
     } finally {
       rmSync(fixture.tempRoot, { force: true, recursive: true });
     }
@@ -326,10 +274,8 @@ interface FixtureProject {
 }
 
 interface FormalEntryArtifacts {
-  readonly metrics: MachineMetricsV1;
+  readonly machine: MachinePublicationV2;
   readonly report: string;
-  readonly warnings: readonly MachineWarningV1[];
-  readonly warningsAll: readonly MachineWarningV1[];
 }
 
 function createFixtureProject(label: string): FixtureProject {
@@ -400,84 +346,78 @@ function runOmittedGateScan(
 }
 
 function readFormalEntryArtifacts(artifactDir: string): FormalEntryArtifacts {
-  const metricsJson = readFileSync(join(artifactDir, "metrics.json"));
-  const warningsNdjson = readFileSync(join(artifactDir, "warnings.ndjson"));
-  const warningsAllNdjson = readFileSync(
-    join(artifactDir, "warnings-all.ndjson")
-  );
-  const validation = validateMachineArtifactSetV1({
-    metricsJson,
-    warningsAllNdjson,
-    warningsNdjson
+  const runJson = readFileSync(join(artifactDir, "run.json"));
+  const recordsNdjson = readFileSync(join(artifactDir, "records.ndjson"));
+  const validation = validateMachinePublicationSetV2({
+    recordsNdjson,
+    runJson
   });
   if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  const { metrics, warnings, warningsAll } = validation.value;
-  assert.equal(metricsJson.toString("utf8"), JSON.stringify(metrics, null, 2));
-  assert.deepEqual(metrics.gate, {
-    policy: null,
+  const machine = validation.value;
+  assert.equal(runJson.toString("utf8"), JSON.stringify(machine.run, null, 2));
+  assert.deepEqual(machine.run.decision.gate, {
+    policyId: null,
     status: "disabled"
   });
   const report = readFileSync(join(artifactDir, "report.md"), "utf8");
   assert.doesNotMatch(report, /vibe-check\.(?:metrics|warning)\.v1/);
-  assertWarningStreamBytes(
-    warningsNdjson.toString("utf8"),
-    metrics.warnings.changed
+  assert.equal(
+    recordsNdjson.toString("utf8"),
+    machine.records.length === 0
+      ? ""
+      : `${machine.records.map((record) => JSON.stringify(record)).join("\n")}\n`
   );
-  assertWarningStreamBytes(
-    warningsAllNdjson.toString("utf8"),
-    metrics.warnings.all
-  );
-
-  assert.deepEqual(warnings, metrics.warnings.changed);
-  assert.deepEqual(warningsAll, metrics.warnings.all);
   assert.equal(existsSync(join(artifactDir, "raw")), true);
+  for (const retiredName of [
+    "metrics.json",
+    "warnings.ndjson",
+    "warnings-all.ndjson"
+  ]) {
+    assert.equal(existsSync(join(artifactDir, retiredName)), false);
+  }
 
-  return { metrics, report, warnings, warningsAll };
+  return { machine, report };
 }
 
 function stableArtifactEvidence(artifacts: FormalEntryArtifacts): unknown {
-  const metrics = JSON.parse(JSON.stringify(artifacts.metrics)) as MachineMetricsV1;
-  metrics.metadata.timestamp = "<timestamp>";
   return {
-    metrics,
+    machine: {
+      records: artifacts.machine.records.map(({ checkRunId: _, ...record }) => record),
+      run: {
+        ...artifacts.machine.run,
+        invocation: {
+          ...artifacts.machine.run.invocation,
+          invocationId: "<invocation>",
+          timestamp: "<timestamp>"
+        },
+        runs: artifacts.machine.run.runs.map(({ checkRunId: _, ...run }) => run)
+      }
+    },
     report: normalizeReportTimestamp(artifacts.report),
-    warnings: artifacts.warnings,
-    warningsAll: artifacts.warningsAll
   };
 }
 
 function normalizeReportTimestamp(report: string): string {
   return report
     .replace(/^- \*\*Timestamp\*\*: .*$/m, "- **Timestamp**: <timestamp>")
+    .replace(/^- \*\*Invocation\*\*: .*$/m, "- **Invocation**: <invocation>")
     .replace(
       /^\*Report generated at .* by (.+)\*$/m,
       "*Report generated at <timestamp> by $1*"
     );
 }
 
-function stdoutWithoutWarningPreview(
-  stdout: string,
-  artifactDir: string
-): string {
-  const lines = stdout.replaceAll(artifactDir, "<artifact-dir>").split("\n");
-  const previewStart = lines.findIndex((line) =>
-    /^Quality (?:check|verification) status:/.test(line)
-  );
-  const previewEnd = lines.findIndex(
-    (line, index) =>
-      index > previewStart && line.startsWith("Warning records: ")
-  );
-
-  assert.notEqual(previewStart, -1);
-  assert.notEqual(previewEnd, -1);
-  return [...lines.slice(0, previewStart), ...lines.slice(previewEnd + 1)].join(
-    "\n"
-  );
-}
-
-function assertOmittedGateHumanSilence(stdout: string, report: string): void {
+function assertOmittedGateObservation(
+  artifacts: FormalEntryArtifacts,
+  stdout: string
+): void {
+  assert.deepEqual(artifacts.machine.run.decision.gate, {
+    policyId: null,
+    status: "disabled"
+  });
   assert.doesNotMatch(stdout, /Quality gate|Gate (?:policy|status)/i);
-  assert.doesNotMatch(report, /## (?:CI )?Gate|Gate (?:policy|status)/i);
+  assert.match(artifacts.report, /- \*\*Gate status\*\*: disabled/);
+  assert.match(artifacts.report, /- \*\*Policy\*\*: disabled/);
 }
 
 function raiseWarningFloors(config: Record<string, unknown>): void {

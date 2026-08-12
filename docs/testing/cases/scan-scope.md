@@ -1,7 +1,7 @@
 # scan-scope
 
 ## Case AUX-QUALITY-FINGERPRINT-001: Quality input fingerprint 稳定
-Owner: `docs/scan-scope.md#职责边界`
+Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 - `bun|src/product/quality-core/src/input/files.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
 Proves:
@@ -9,7 +9,7 @@ Proves:
 - 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
 
 ## Case WB-SCOPE-GIT-CANDIDATES-001: Git candidate identity 与 config glob 语义稳定
-Owner: `docs/scan-scope.md#ignore-与-changed-file-scope`
+Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 - `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
 - `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
@@ -18,7 +18,7 @@ Proves:
 - Product include 只由 config glob contract 解释；brace、globstar 等 minimatch default semantics 在 current、baseline 与 Git-failure fallback 中一致。
 
 ## Case WB-SCOPE-FILE-COLLECTION-001: Product current/baseline collection fallback 稳定
-Owner: `docs/scan-scope.md#ignore-与-changed-file-scope`
+Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 - `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
 - `bun|src/product/quality-core/src/input/files.test.ts|quality input file collection > treats successful empty Git results as authoritative for current and baseline`
@@ -30,7 +30,7 @@ Proves:
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
 
 ## Case BB-SCOPE-CONFIG-EQUIVALENCE-001: Neutral configuration scope equivalence 稳定
-Owner: `docs/scan-scope.md#resolved-配置与排除`
+Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 - `bun|src/product/config-default-workflow-acceptance.test.ts|formal CLI project configuration workflow > materializes the neutral default and discovers equivalent runtime inputs without trusting sibling schema`
 Proves:

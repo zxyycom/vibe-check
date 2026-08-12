@@ -1,32 +1,26 @@
-# Complete scan with a non-gating warning
+# Complete scan with a non-gating finding
 
-This directory is a deterministic current-product artifact example. Regenerate it with
-`bun run generate:machine-examples`.
+This directory is a deterministic current-product machine publication example. Regenerate it
+with `bun run generate:machine-examples`.
 
-## Fixed input
+## Fixed scenario
 
-- Scenario: Measured TypeScript input with all three stable capabilities succeeded and one unchanged warning.
-- Project-relative input paths: `src/example.ts`
-- Repository root: `/workspace/vibe-check-fixtures/canonical-project`
-- Timestamp: `2026-08-03T00:00:00.000Z`
-- Current commit: `0123456789abcdef0123456789abcdef01234567` at `2026-08-02T12:00:00.000Z`
-- Baseline commit: `89abcdef0123456789abcdef0123456789abcdef` at `2026-07-31T12:00:00.000Z`
-- Config version: `canonical-config-v1`
-- Tool metadata: scc 3.6.0 (configured); lizard 1.17.31 (configured); jscpd 5.0.11 (configured)
-- Configured include globs: `src/**/*.ts`
-- Configured exclude directories: `dist`, `node_modules`
-- Configured generated-file paths: `src/generated.ts`
+- Input: One applicable Check completed with one warning record.
+- Invocation: `invocation/v1:docs-complete-warning`
+- Project root: `.`
+- Timestamp: `2026-08-12T00:00:00.000Z`
+- Selected policy: `disabled`
 
-## Requested gate and process result
+## Expected user result
 
-- Gate request: none (gate disabled)
-- Expected process outcome: `success`
-- Expected exit code: `0`
+- Gate request: none (policy disabled for this scenario projection)
+- Process outcome: `success`
+- Exit code: `0`
 
-## Why this set is contract-valid
+## Canonical publication
 
-Completeness reduces to `complete`; `warnings.all` contains one warning while changed and regressions remain ordered empty subsequences, each stream exactly matches its owning channel, and the gate is disabled.
+- `run.json` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.
+- `records.ndjson` contains 1 canonical record(s) in recordId order.
 
-The three artifact files are produced from fixed core values through the production mapper and
-serializers, then accepted by the production artifact-set validator. The process outcome and exit
-code above are scenario metadata; they cannot be inferred from the files alone.
+Both files are produced from the current Check / Record publication model and accepted together
+by the formal machine-v2 validator. They are one publication set; neither file is trusted alone.

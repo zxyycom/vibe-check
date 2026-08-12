@@ -11,10 +11,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
-  validateMachineArtifactSetV1,
-  type MachineMetricsV1,
-  type MachineWarningV1
+  validateMachinePublicationSetV2
 } from "./machine-output.ts";
+
+export type MachinePublicationV2 = Extract<
+  ReturnType<typeof validateMachinePublicationSetV2>,
+  { ok: true }
+>["value"];
 
 export interface CommandResult {
   readonly status: number | null;
@@ -28,10 +31,8 @@ export interface FixtureProject {
 }
 
 export interface FormalEntryArtifacts {
-  readonly metrics: MachineMetricsV1;
+  readonly machine: MachinePublicationV2;
   readonly report: string;
-  readonly warnings: readonly MachineWarningV1[];
-  readonly warningsAll: readonly MachineWarningV1[];
 }
 
 export function createFixtureProject(
@@ -111,27 +112,34 @@ export function runFormalGateScan(
 export function readFormalEntryArtifacts(
   artifactDir: string
 ): FormalEntryArtifacts {
-  const metricsJson = readFileSync(join(artifactDir, "metrics.json"));
-  const warningsNdjson = readFileSync(join(artifactDir, "warnings.ndjson"));
-  const warningsAllNdjson = readFileSync(
-    join(artifactDir, "warnings-all.ndjson")
-  );
-  const validation = validateMachineArtifactSetV1({
-    metricsJson,
-    warningsAllNdjson,
-    warningsNdjson
+  const runJson = readFileSync(join(artifactDir, "run.json"));
+  const recordsNdjson = readFileSync(join(artifactDir, "records.ndjson"));
+  const validation = validateMachinePublicationSetV2({
+    recordsNdjson,
+    runJson
   });
   if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
-  const { metrics, warnings, warningsAll } = validation.value;
+  const machine = validation.value;
   const report = readFileSync(join(artifactDir, "report.md"), "utf8");
 
-  assert.equal(metricsJson.toString("utf8"), JSON.stringify(metrics, null, 2));
-  assert.deepEqual(warnings, metrics.warnings.changed);
-  assert.deepEqual(warningsAll, metrics.warnings.all);
+  assert.equal(runJson.toString("utf8"), JSON.stringify(machine.run, null, 2));
+  assert.equal(
+    recordsNdjson.toString("utf8"),
+    machine.records.length === 0
+      ? ""
+      : `${machine.records.map((record) => JSON.stringify(record)).join("\n")}\n`
+  );
   assert.doesNotMatch(report, /vibe-check\.(?:metrics|warning)\.v1/);
   assert.equal(existsSync(join(artifactDir, "raw")), true);
+  for (const retiredName of [
+    "metrics.json",
+    "warnings.ndjson",
+    "warnings-all.ndjson"
+  ]) {
+    assert.equal(existsSync(join(artifactDir, retiredName)), false);
+  }
 
-  return { metrics, report, warnings, warningsAll };
+  return { machine, report };
 }
 
 function configuredScannerEnvironment(): NodeJS.ProcessEnv {

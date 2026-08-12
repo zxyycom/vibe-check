@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "vibe-check.run.v2",
+  "invocation": {
+    "invocationId": "invocation/v1:docs-complete-passed",
+    "projectRoot": ".",
+    "timestamp": "2026-08-12T00:00:00.000Z"
+  },
+  "catalogFingerprint": "check-record/v1/catalog/sha256:5934100b0b24ad9b283e9a9c022a83d14925cf08fc351d075c142690d98b274e",
+  "definitions": [
+    {
+      "checkId": "docs-example",
+      "displayName": "Documentation Example",
+      "recordTypes": [
+        {
+          "recordTypeId": "example-finding",
+          "fields": [
+            {
+              "fieldId": "category",
+              "valueType": "string",
+              "required": true
+            },
+            {
+              "fieldId": "value",
+              "valueType": "integer",
+              "required": true
+            }
+          ],
+          "identityFields": [
+            "category",
+            "value"
+          ],
+          "policy": {
+            "operands": [
+              {
+                "operandId": "category",
+                "valueType": "string",
+                "source": {
+                  "kind": "field",
+                  "fieldId": "category"
+                }
+              }
+            ],
+            "relations": [
+              "regression"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "checkId": "docs-example",
+      "checkRunId": "check-run/v1:21c0c0f3449ccf0efe8abf116824922336b803ccf3988439282509d7197dfc7f",
+      "selection": "selected",
+      "applicability": "applicable",
+      "status": "completed",
+      "result": {
+        "verdict": "passed"
+      },
+      "coverage": {
+        "plannedWorkCount": 1,
+        "acknowledgedWorkCount": 1
+      },
+      "diagnostic": null
+    }
+  ],
+  "integrity": {
+    "status": "valid",
+    "invalidRecords": [],
+    "conflicts": []
+  },
+  "completeness": {
+    "status": "complete",
+    "selectedRunCount": 1,
+    "completedRunCount": 1,
+    "failedRunCount": 0,
+    "plannedWorkCount": 1,
+    "acknowledgedWorkCount": 1
+  },
+  "references": {
+    "identities": [],
+    "evidence": [],
+    "relations": []
+  },
+  "acceptance": [],
+  "decision": {
+    "policyId": null,
+    "views": [],
+    "readiness": [],
+    "blockWhen": null,
+    "gate": {
+      "status": "disabled",
+      "policyId": null
+    }
+  }
+}

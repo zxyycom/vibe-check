@@ -15,7 +15,8 @@ import {
   cleanupFixtureOutput,
   fixtureArtifactDir,
   fixtureRoot,
-  readFixtureMetrics,
+  readFixturePublication,
+  readMachinePublication,
   runConfiguredFixture,
   runProductCli,
   stableScanEvidence,
@@ -29,71 +30,69 @@ describe("formal CLI explicit configuration", () => {
     try {
       const first = runConfiguredFixture();
       assertCommandSucceeded(first, "first configured fixture scan");
-      const firstMetrics = readFixtureMetrics();
+      const firstPublication = readFixturePublication();
 
       assert.equal(first.stderr, "");
       assert.match(first.stdout, /Found 1 files in scan scope/);
       assert.match(first.stdout, /Code areas: fixture-app/);
-      assert.equal(firstMetrics.metadata.configVersion, "1");
-      assert.deepEqual(firstMetrics.metadata.scope.include, [
-        "src/**/*.ts",
-        "excluded/**/*.ts"
-      ]);
       assert.deepEqual(
-        firstMetrics.metadata.tools.map((tool) => [tool.name, tool.version]),
+        firstPublication.run.runs.map((run) => [
+          run.checkId,
+          run.status,
+          run.result?.verdict ?? null
+        ]),
         [
-          ["lizard", "lizard 1.17.10"],
-          ["scc", "scc version 3.7.0"]
+          ["duplicate-detection", "completed", "not-applicable"],
+          ["file-metrics", "completed", "failed"],
+          ["function-metrics", "completed", "failed"]
         ]
       );
-      assert.deepEqual(firstMetrics.scanCompleteness, {
-        capabilities: [
-          { capabilityId: "file-metrics", status: "succeeded" },
-          { capabilityId: "function-metrics", status: "succeeded" },
-          { capabilityId: "duplicate-detection", status: "no-input" }
-        ],
-        overall: "complete"
-      });
-      assert.deepEqual(firstMetrics.currentFingerprints["fixture-app"]?.fileList, [
-        "src/eligible.ts"
-      ]);
-      assert.deepEqual(
-        firstMetrics.fileMetrics.map((metric) => [metric.path, metric.codeArea]),
-        [["src/eligible.ts", "fixture-app"]]
-      );
-      assert.deepEqual(
-        firstMetrics.functionMetrics.map((metric) => [metric.file, metric.codeArea]),
-        [["src/eligible.ts", "fixture-app"]]
-      );
+      assert.equal(firstPublication.run.completeness.status, "complete");
       assert.ok(
-        firstMetrics.warnings.all.some(
-          (warning) =>
-            warning.path === "src/eligible.ts" &&
-            warning.ruleId === "scc-file-code-lines"
+        firstPublication.records.some(
+          (record) =>
+            record.location?.path === "src/eligible.ts" &&
+            record.recordTypeId === "file-code-lines" &&
+            record.fields.codeArea === "fixture-app"
         )
       );
-      assert.doesNotMatch(JSON.stringify(firstMetrics), /ignored\.generated|excluded\/ignored/);
+      assert.doesNotMatch(
+        JSON.stringify(firstPublication),
+        /ignored\.generated|excluded\/ignored/
+      );
 
-      assert.ok(existsSync(resolve(fixtureArtifactDir, "metrics.json")));
+      assert.ok(existsSync(resolve(fixtureArtifactDir, "run.json")));
+      assert.ok(existsSync(resolve(fixtureArtifactDir, "records.ndjson")));
       assert.ok(existsSync(resolve(fixtureArtifactDir, "report.md")));
-      assert.ok(existsSync(resolve(fixtureArtifactDir, "warnings-all.ndjson")));
+      assert.equal(existsSync(resolve(fixtureArtifactDir, "metrics.json")), false);
+      assert.equal(existsSync(resolve(fixtureArtifactDir, "warnings-all.ndjson")), false);
       const firstReport = readFileSync(resolve(fixtureArtifactDir, "report.md"), "utf8");
-      assert.match(firstReport, /^# Configured TypeScript Fixture Quality/);
-      assert.match(firstReport, /Overall.*`complete`/);
-      assert.match(firstReport, /file-metrics.*`succeeded`/);
-      assert.match(firstReport, /function-metrics.*`succeeded`/);
-      assert.match(firstReport, /duplicate-detection.*`no-input`/);
-      assert.match(first.stdout, /Scan completeness: complete/);
-      assert.match(first.stdout, /file-metrics: succeeded/);
-      assert.match(first.stdout, /function-metrics: succeeded/);
-      assert.match(first.stdout, /duplicate-detection: no-input/);
+      assert.match(firstReport, /^# Configured TypeScript Fixture Quality/m);
+      assert.match(
+        firstReport,
+        /\*\*Deterministic explicit-configuration acceptance fixture\.\*\*/
+      );
+      assert.match(firstReport, /Timestamp.*\(UTC; source /);
+      assert.match(firstReport, /Snapshot completeness\*\*: complete/);
+      assert.match(firstReport, /file-metrics`: completed \/ failed/);
+      assert.match(firstReport, /function-metrics`: completed \/ failed/);
+      assert.match(firstReport, /duplicate-detection`: completed \/ not-applicable/);
+      assert.match(firstReport, /^## Changed record watchlist$/m);
+      assert.match(firstReport, /by Vibe Check Config Fixture\*/);
+      assert.match(
+        firstReport,
+        /\*Generated only for explicit configuration acceptance\.\*/
+      );
+      assert.equal(reportRecordLines(firstReport, "Unaccepted records").length, 3);
+      assert.match(first.stdout, /Snapshot completeness: complete/);
       assert.match(first.stdout, /Quality check status: warning/);
+      assert.equal(consoleRecordLines(first.stdout).length, 3);
 
-      const stableFirst = stableScanEvidence(firstMetrics);
+      const stableFirst = stableScanEvidence(firstPublication);
       cleanupFixtureOutput();
       const second = runConfiguredFixture("../configured-typescript/.vibe-check/config.json");
       assertCommandSucceeded(second, "second configured fixture scan");
-      assert.deepEqual(stableScanEvidence(readFixtureMetrics()), stableFirst);
+      assert.deepEqual(stableScanEvidence(readFixturePublication()), stableFirst);
 
       cleanupFixtureOutput();
       const overridden = runConfiguredFixture(
@@ -106,8 +105,14 @@ describe("formal CLI explicit configuration", () => {
         resolve(fixtureRoot, "artifacts/cli-override/report.md"),
         "utf8"
       );
-      assert.match(overriddenReport, /## Top 1 函数 \(按圈复杂度\)/);
-      assert.doesNotMatch(overriddenReport, /## Top 3 函数 \(按圈复杂度\)/);
+      const overriddenPublication = readMachinePublication(
+        resolve(fixtureRoot, "artifacts/cli-override")
+      );
+      assert.match(overriddenReport, /## Check runs/);
+      assert.match(overriddenReport, /## Unaccepted records/);
+      assert.equal(reportRecordLines(overriddenReport, "Unaccepted records").length, 1);
+      assert.equal(consoleRecordLines(overridden.stdout).length, 3);
+      assert.deepEqual(stableScanEvidence(overriddenPublication), stableFirst);
     } finally {
       cleanupFixtureOutput();
     }
@@ -219,3 +224,12 @@ describe("formal CLI explicit configuration", () => {
     }
   });
 });
+
+function reportRecordLines(report: string, section: string): string[] {
+  const body = report.split(`## ${section}\n`, 2)[1]?.split("\n## ", 1)[0] ?? "";
+  return body.split("\n").filter((line) => line.startsWith("- **"));
+}
+
+function consoleRecordLines(output: string): string[] {
+  return output.split("\n").filter((line) => /^ {2}\d+\. \[/.test(line));
+}

@@ -1,23 +1,7 @@
+/** Minimal public boundary for machine-publication consumers. */
+
 export {
-  MACHINE_METRICS_V1_SCHEMA,
-  MACHINE_METRICS_V1_SCHEMA_ID,
-  MACHINE_METRICS_V1_SCHEMA_PATH,
-  MACHINE_WARNING_V1_SCHEMA,
-  MACHINE_WARNING_V1_SCHEMA_ID,
-  MACHINE_WARNING_V1_SCHEMA_PATH,
-  projectMachineMetricsV1,
-  projectMachineWarningV1,
-  serializeMachineArtifactCandidatesV1,
-  serializeMachineMetricsV1,
-  serializeMachineWarningStreamV1,
-  validateMachineArtifactSetV1,
-  validateMachineWarningStreamV1,
-  type MachineArtifactBytesV1,
-  type MachineMetricsV1,
-  type MachineSetRelationship,
-  type MachineValidationCategory,
-  type MachineValidationDiagnostic,
-  type MachineValidationResult,
-  type MachineWarningV1,
-  type ValidatedMachineArtifactSetV1
-} from "./quality-core/src/output/machine/index.ts";
+  validateMachinePublicationSetV2,
+  type MachinePublicationValidationDiagnostic,
+  type MachineRecordV2
+} from "./quality-core/src/output/publication-v2/index.ts";

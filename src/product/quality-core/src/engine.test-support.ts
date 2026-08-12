@@ -4,19 +4,22 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  statSync,
   writeFileSync
 } from "node:fs";
 import { resolve } from "node:path";
 
-import { validateMachineArtifactSetV1 } from "../../machine-output.ts";
+import {
+  validateMachinePublicationSetV2,
+  type MachinePublicationV2
+} from "./output/publication-v2/index.ts";
 
-export function readValidatedMachineArtifacts(artifactDir: string) {
-  const validation = validateMachineArtifactSetV1({
-    metricsJson: readFileSync(resolve(artifactDir, "metrics.json")),
-    warningsAllNdjson: readFileSync(
-      resolve(artifactDir, "warnings-all.ndjson")
-    ),
-    warningsNdjson: readFileSync(resolve(artifactDir, "warnings.ndjson"))
+export function readValidatedMachineArtifacts(
+  artifactDir: string
+): MachinePublicationV2 {
+  const validation = validateMachinePublicationSetV2({
+    recordsNdjson: readFileSync(resolve(artifactDir, "records.ndjson")),
+    runJson: readFileSync(resolve(artifactDir, "run.json"))
   });
   if (!validation.ok) {
     throw new Error(
@@ -31,6 +34,9 @@ export function assertNoMachinePublication(
   stdout: readonly string[]
 ): void {
   for (const fileName of [
+    "run.json",
+    "records.ndjson",
+    "report.md",
     "metrics.json",
     "warnings.ndjson",
     "warnings-all.ndjson"
@@ -38,10 +44,10 @@ export function assertNoMachinePublication(
     expect(existsSync(resolve(artifactDir, fileName))).toBe(false);
     expect(stdout.some((line) => line.includes(`${fileName} →`))).toBe(false);
   }
+  if (!existsSync(artifactDir) || !statSync(artifactDir).isDirectory()) return;
   expect(
-    readdirSync(artifactDir).some(
-      (fileName) =>
-        fileName.startsWith(".vibe-check-machine-") && fileName.endsWith(".tmp")
+    readdirSync(artifactDir).some((fileName) =>
+      fileName.startsWith(".vibe-check-publication-")
     )
   ).toBe(false);
 }
@@ -49,10 +55,13 @@ export function assertNoMachinePublication(
 export function seedPriorMachinePublication(artifactDir: string): void {
   mkdirSync(artifactDir, { recursive: true });
   for (const fileName of [
+    "run.json",
+    "records.ndjson",
+    "report.md",
     "metrics.json",
     "warnings.ndjson",
     "warnings-all.ndjson",
-    ".vibe-check-machine-prior-metrics.json.tmp"
+    ".vibe-check-publication-prior-run.json.tmp"
   ]) {
     writeFileSync(resolve(artifactDir, fileName), "stale", "utf8");
   }
@@ -83,22 +92,11 @@ export async function captureConsole<T>(run: () => Promise<T>): Promise<{
   }
 }
 
-export function gateOutput(lines: string[]): string[] {
-  return lines.filter(
-    (line) =>
-      line.includes("Quality gate") ||
-      line.startsWith("  Policy:") ||
-      line.startsWith("  Status:") ||
-      line.startsWith("  Evaluated channel:") ||
-      line.startsWith("  Evaluated warnings:") ||
-      line.startsWith("  Blocking warnings:")
+export function gateOutput(lines: readonly string[]): string[] {
+  return lines.filter((line) =>
+    line.includes("Quality gate") ||
+    line.startsWith("  Policy:") ||
+    line.startsWith("  Status:") ||
+    line.startsWith("  Blocking records:")
   );
-}
-
-export function readNdjson(path: string): unknown[] {
-  return readFileSync(path, "utf8")
-    .trim()
-    .split("\n")
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as unknown);
 }

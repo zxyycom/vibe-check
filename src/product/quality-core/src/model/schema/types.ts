@@ -1,61 +1,12 @@
-import type {
-  CapabilityResult,
-  ScanCompleteness
-} from "../scan-completeness.ts";
-import type { GatePolicy, GateWarningChannel } from "../gate-policy.ts";
-
-export const METRICS_SCHEMA_VERSION = "0.4.0";
-
-export const BASELINE_STATUSES = Object.freeze([
-  "generated",
-  "baseline-skipped",
-  "history-unavailable",
-  "no-baseline-commit",
-  "baseline-materialization-failed",
-  "baseline-scan-failed"
-]);
-
-export const COMPARISON_STATUSES = Object.freeze([
-  "compared",
-  "input-unchanged",
-  "baseline-unavailable"
-]);
-
-export const WARNING_LEVELS = Object.freeze(["info", "warning", "error"]);
-
 export const WARNING_POLICIES = Object.freeze([
   "strict",
   "moderate",
   "relaxed",
   "watchlist-only",
   "exclude-warnings"
-]);
-
-export const GATE_NOT_EVALUATED_REASON_CODES = Object.freeze([
-  "scan-incomplete",
-  "no-eligible-input",
-  "comparison-unavailable"
 ] as const);
 
-export const GATE_RESULT_STATUSES = Object.freeze([
-  "disabled",
-  "passed",
-  "failed",
-  "not-evaluated"
-] as const);
-
-export type BaselineStatus = typeof BASELINE_STATUSES[number];
 export type CodeAreaWarningPolicy = typeof WARNING_POLICIES[number];
-export type ComparisonStatus = typeof COMPARISON_STATUSES[number];
-export type GateNotEvaluatedReasonCode =
-  typeof GATE_NOT_EVALUATED_REASON_CODES[number];
-export type WarningLevel = typeof WARNING_LEVELS[number];
-
-export interface ToolInfo {
-  name: string;
-  source: string;
-  version: string;
-}
 
 export interface ToolAvailability {
   available: boolean;
@@ -80,6 +31,22 @@ export type SemanticCheckId =
   | "function-cyclomatic-complexity"
   | "function-parameter-count";
 
+export interface AcceptedWarningConfig {
+  readonly checkId: SemanticCheckId;
+  readonly codeArea?: string;
+  readonly messageIncludes?: readonly string[];
+  readonly metric?: string;
+  readonly path?: string;
+  readonly reason: string;
+  readonly suggestionIncludes?: readonly string[];
+  readonly value?: number;
+}
+
+export interface QualityThreshold {
+  readonly absoluteFloor: number;
+  readonly changedDelta: number;
+}
+
 export interface ResolvedQualityConfig {
   readonly acceptedWarnings: readonly AcceptedWarningConfig[];
   readonly artifactDir: string;
@@ -101,7 +68,12 @@ export interface ResolvedQualityConfig {
       };
     };
     readonly functions: {
-      readonly codeLines: FunctionCodeLinesThreshold;
+      readonly codeLines: QualityThreshold & {
+        readonly lowComplexityAllowance: {
+          readonly codeLineFloor: number;
+          readonly maxCyclomaticComplexityExclusive: number;
+        };
+      };
       readonly cyclomaticComplexity: QualityThreshold;
       readonly parameterCount: QualityThreshold;
     };
@@ -123,45 +95,6 @@ export interface ResolvedQualityConfig {
   readonly version: "1";
 }
 
-export interface AcceptedWarningConfig {
-  readonly checkId: SemanticCheckId;
-  readonly codeArea?: string;
-  readonly messageIncludes?: readonly string[];
-  readonly metric?: string;
-  readonly path?: string;
-  readonly reason: string;
-  readonly suggestionIncludes?: readonly string[];
-  readonly value?: number;
-}
-
-export interface QualityThreshold {
-  readonly absoluteFloor: number;
-  readonly changedDelta: number;
-}
-
-export interface FunctionCodeLinesThreshold extends QualityThreshold {
-  readonly lowComplexityAllowance: {
-    readonly codeLineFloor: number;
-    readonly maxCyclomaticComplexityExclusive: number;
-  };
-}
-
-export interface ScanMetadata {
-  commitDate?: string;
-  commitSha: string;
-  commitTitle: string | null;
-  configVersion: string;
-  repository: string;
-  schemaVersion: string;
-  scope: {
-    excludeDirs: string[];
-    generatedFiles: string[];
-    include: string[];
-  };
-  timestamp: string;
-  tools: ToolInfo[];
-}
-
 export interface CodeAreaFingerprint {
   fileCount: number;
   fileList: string[];
@@ -169,15 +102,6 @@ export interface CodeAreaFingerprint {
 }
 
 export type CodeAreaFileMap = Map<string, string[]>;
-
-export interface BaselineMetadata {
-  commitDate: string | null;
-  commitSha: string;
-  commitTitle: string | null;
-  configVersion: string;
-  selectionReason: string;
-  toolMetadata: ToolInfo[];
-}
 
 export interface MetricValue {
   source: string;
@@ -232,145 +156,4 @@ export interface LanguageAggregate {
   files: number;
   language: string;
   lines: number;
-}
-
-export interface CodeAreaAggregate {
-  codeArea: string;
-  codeLines?: number;
-  cyclomaticComplexity?: number;
-  duplicateFragments?: number;
-  fileDecisionTokens?: number;
-  files: number;
-  functionLines?: number;
-  functions: number;
-  lines: number;
-  parameterCount?: number;
-  warningPolicy: CodeAreaWarningPolicy | string;
-}
-
-export interface AggregateMetrics {
-  byCodeArea: CodeAreaAggregate[];
-  byLanguage: LanguageAggregate[];
-  overall: {
-    totalCodeLines: number;
-    totalDuplicateFragments?: number;
-    totalFileDecisionTokens?: number;
-    totalFiles: number;
-    totalFunctionCyclomaticComplexity?: number;
-    totalFunctionLines?: number;
-    totalFunctionParameters?: number;
-    totalFunctions: number;
-    totalLines: number;
-  };
-}
-
-export interface TrendDelta {
-  baseline: number | null;
-  current: number | null;
-  delta: number | null;
-  metric: string;
-  percentChange: number | null;
-  unit: string;
-}
-
-export interface WarningRecord {
-  acceptedReason?: string;
-  baselineValue: number | null;
-  codeArea: string;
-  comparisonBasis: string;
-  deltaValue: number | null;
-  isChanged: boolean;
-  level: WarningLevel | string;
-  line: number | null;
-  message: string;
-  metric: string;
-  path: string;
-  ruleId: string;
-  sourceTool: string;
-  suggestion?: string;
-  value: number;
-}
-
-export interface WarningChannels {
-  all: WarningRecord[];
-  changed: WarningRecord[];
-  regressions: WarningRecord[];
-}
-
-export interface DisabledGateResult {
-  policy: null;
-  status: "disabled";
-}
-
-export interface PassedGateResult {
-  blockingWarningCount: number;
-  blockingWarnings: WarningRecord[];
-  evaluatedChannel: GateWarningChannel;
-  evaluatedWarningCount: number;
-  policy: GatePolicy;
-  status: "passed";
-}
-
-export interface FailedGateResult {
-  blockingWarningCount: number;
-  blockingWarnings: WarningRecord[];
-  evaluatedChannel: GateWarningChannel;
-  evaluatedWarningCount: number;
-  policy: GatePolicy;
-  status: "failed";
-}
-
-export interface NotEvaluatedGateResult {
-  policy: GatePolicy;
-  reasonCode: GateNotEvaluatedReasonCode;
-  status: "not-evaluated";
-}
-
-export type GateResult =
-  | DisabledGateResult
-  | PassedGateResult
-  | FailedGateResult
-  | NotEvaluatedGateResult;
-
-export interface QualityMetrics {
-  aggregates: AggregateMetrics;
-  baseline: {
-    commitDate: string | null;
-    commitSha: string | null;
-    metadata: BaselineMetadata | null;
-    status: BaselineStatus | string;
-  };
-  baselineFingerprints?: Record<string, CodeAreaFingerprint>;
-  comparisonStatus: ComparisonStatus | string;
-  currentFingerprints: Record<string, CodeAreaFingerprint>;
-  duplicateCode: DuplicateCodeFragment[];
-  fileMetrics: FileMetric[];
-  functionMetrics: FunctionMetric[];
-  gate: GateResult;
-  metadata: ScanMetadata;
-  scanCompleteness: {
-    capabilities: CapabilityResult[];
-    overall: ScanCompleteness;
-  };
-  trends: TrendDelta[];
-  warnings: WarningChannels;
-}
-
-export interface BaselineSnapshot {
-  aggregates: AggregateMetrics;
-  duplicateCode: DuplicateCodeFragment[];
-  fileMetrics: FileMetric[];
-  fingerprints: Record<string, CodeAreaFingerprint>;
-  functionMetrics: FunctionMetric[];
-}
-
-export interface FatalIssue {
-  error: string;
-  phase: string;
-  tool: string;
-}
-
-export interface MetricsValidationResult {
-  errors: string[];
-  valid: boolean;
 }

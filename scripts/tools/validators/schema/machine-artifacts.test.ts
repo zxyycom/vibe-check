@@ -2,12 +2,8 @@ import { strict as assert } from "node:assert";
 import fs from "node:fs";
 import { describe, it } from "node:test";
 
-import {
-  checkPublishedMachineExamples
-} from "../../../docs/machine-examples.ts";
-import {
-  checkPublishedMachineSchemas
-} from "../../../docs/machine-schemas.ts";
+import { checkPublishedMachineExamples } from "../../../docs/machine-examples.ts";
+import { checkPublishedMachineSchemas } from "../../../docs/machine-schemas.ts";
 import { toAbs } from "../repo/paths.ts";
 import {
   validateDocsMachineArtifactSet,
@@ -21,29 +17,13 @@ const BOM = new Uint8Array([0xef, 0xbb, 0xbf]);
 
 type JsonRecord = Record<string, unknown>;
 
-interface MutableMetrics extends JsonRecord {
-  gate: JsonRecord;
-  metadata: JsonRecord;
-  scanCompleteness: {
-    capabilities: JsonRecord[];
-    overall: unknown;
-  };
-  warnings: {
-    all: JsonRecord[];
-    changed: JsonRecord[];
-    regressions: JsonRecord[];
-  };
-}
-
-interface MutableArtifactBytes {
-  metricsJson: Uint8Array;
-  warningsAllNdjson: Uint8Array;
-  warningsNdjson: Uint8Array;
-}
-
 interface MutationContext {
-  artifacts: MutableArtifactBytes;
-  metrics: MutableMetrics;
+  artifacts: {
+    recordsNdjson: Uint8Array;
+    runJson: Uint8Array;
+  };
+  records: JsonRecord[];
+  run: JsonRecord;
 }
 
 describe("independent docs machine artifact validation", () => {
@@ -51,44 +31,22 @@ describe("independent docs machine artifact validation", () => {
     assert.equal(validatePublishedMachineArtifactExamples(), 5);
 
     const reordered = loadContext("gate-failed");
-    const reorderedMetrics = Object.fromEntries(
-      Object.entries(reordered.metrics).reverse()
+    reordered.artifacts.runJson = bytes(
+      `\t\r\n ${JSON.stringify(Object.fromEntries(Object.entries(reordered.run).reverse()))} \r\n`
     );
-    const reorderedWarning = Object.fromEntries(
-      Object.entries(reordered.metrics.warnings.all[0]!).reverse()
-    );
-    reordered.artifacts.metricsJson = bytes(
-      `\t\r\n ${JSON.stringify(reorderedMetrics)} \r\n`
-    );
-    reordered.artifacts.warningsAllNdjson = bytes(
-      `\t ${JSON.stringify(reorderedWarning)}\r\n`
-    );
-    reordered.artifacts.warningsNdjson = bytes(
-      `\t ${JSON.stringify(reorderedWarning)}\r\n`
+    reordered.artifacts.recordsNdjson = bytes(
+      `\t ${JSON.stringify(Object.fromEntries(Object.entries(reordered.records[0]!).reverse()))}\r\n`
     );
     expectSuccess(validateDocsMachineArtifactSet(
       reordered.artifacts,
-      "positive/reordered-and-crlf"
+      "positive/reordered-properties-and-crlf"
     ));
 
-    const emptyReason = loadContext("gate-failed");
-    setAcceptedReasonOnWarningCopies(emptyReason.metrics, "");
-    syncArtifactSet(emptyReason);
-    expectSuccess(validateDocsMachineArtifactSet(
-      emptyReason.artifacts,
-      "positive/empty-accepted-reason-remains-blocking"
-    ));
-
-    const whitespaceReason = loadContext("gate-failed");
-    setAcceptedReasonOnWarningCopies(whitespaceReason.metrics, "   ");
-    whitespaceReason.metrics.gate.blockingWarningCount = 0;
-    whitespaceReason.metrics.gate.blockingWarnings = [];
-    whitespaceReason.metrics.gate.status = "passed";
-    syncArtifactSet(whitespaceReason);
-    expectSuccess(validateDocsMachineArtifactSet(
-      whitespaceReason.artifacts,
-      "positive/nonempty-whitespace-reason-is-accepted"
-    ));
+    for (const outcome of ["complete-passed", "legitimate-empty", "scan-incomplete"]) {
+      const context = loadContext(outcome);
+      assert.equal(context.artifacts.recordsNdjson.byteLength, 0, outcome);
+      expectSuccess(validateDocsMachineArtifactSet(context.artifacts, `positive/${outcome}`));
+    }
   });
 
   it("rejects focused mutations with locations and detects reversible generated drift", () => {
@@ -98,461 +56,225 @@ describe("independent docs machine artifact validation", () => {
         logicalArtifact: string;
       };
       label: string;
+      outcome?: string;
       mutate: (context: MutationContext) => void;
     };
 
     const failureCases: FailureCase[] = [
       {
+        label: "run identity schema",
         expected: {
           category: "schema",
-          logicalArtifact: "metrics.json",
-          pointer: "/metadata/schemaVersion"
-        },
-        label: "metrics identity",
-        mutate: (context) => {
-          context.metrics.metadata.schemaVersion = "invalid.metrics.identity";
-          syncMetrics(context);
-        }
-      },
-      {
-        expected: {
-          category: "schema",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson",
+          logicalArtifact: "run.json",
           pointer: "/schemaVersion"
         },
-        label: "warning identity",
         mutate: (context) => {
-          const warning = firstWarning(context);
-          warning.schemaVersion = "invalid.warning.identity";
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
+          context.run.schemaVersion = "invalid.run.identity";
+          syncRun(context);
         }
       },
       {
+        label: "record identity schema",
         expected: {
           category: "schema",
+          logicalArtifact: "records.ndjson",
           index: 0,
           line: 1,
-          logicalArtifact: "warnings-all.ndjson",
+          pointer: "/schemaVersion"
+        },
+        mutate: (context) => {
+          context.records[0]!.schemaVersion = "invalid.record.identity";
+          syncRecords(context);
+        }
+      },
+      {
+        label: "record required field",
+        expected: {
+          category: "schema",
+          logicalArtifact: "records.ndjson",
+          index: 0,
+          line: 1,
           pointer: "/message"
         },
-        label: "representative required field",
         mutate: (context) => {
-          const warning = firstWarning(context);
-          delete warning.message;
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
+          delete context.records[0]!.message;
+          syncRecords(context);
         }
       },
       {
-        expected: {
-          category: "schema",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson",
-          pointer: "/value"
-        },
-        label: "representative field type",
+        label: "run invalid UTF-8",
+        expected: { category: "decoding", logicalArtifact: "run.json" },
         mutate: (context) => {
-          const warning = firstWarning(context);
-          warning.value = "8";
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
+          context.artifacts.runJson = new Uint8Array([0xc3, 0x28]);
         }
       },
       {
-        expected: {
-          category: "schema",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson",
-          pointer: "/level"
-        },
-        label: "representative closed enum",
+        label: "records leading BOM",
+        expected: { category: "decoding", logicalArtifact: "records.ndjson" },
         mutate: (context) => {
-          const warning = firstWarning(context);
-          warning.level = "urgent";
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
-        }
-      },
-      {
-        expected: {
-          category: "schema",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson",
-          pointer: "/baselineValue"
-        },
-        label: "representative nullability",
-        mutate: (context) => {
-          const warning = firstWarning(context);
-          warning.baselineValue = false;
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
-        }
-      },
-      {
-        expected: {
-          category: "schema",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson",
-          pointer: "/unexpected"
-        },
-        label: "representative closed shape",
-        mutate: (context) => {
-          const warning = firstWarning(context);
-          warning.unexpected = true;
-          context.artifacts.warningsAllNdjson = warningStream([warning]);
-        }
-      },
-      {
-        expected: {
-          category: "decoding",
-          logicalArtifact: "metrics.json"
-        },
-        label: "metrics invalid UTF-8",
-        mutate: (context) => {
-          context.artifacts.metricsJson = new Uint8Array([0xc3, 0x28]);
-        }
-      },
-      {
-        expected: {
-          category: "decoding",
-          logicalArtifact: "metrics.json"
-        },
-        label: "metrics leading BOM",
-        mutate: (context) => {
-          context.artifacts.metricsJson = concatBytes(
+          context.artifacts.recordsNdjson = concatBytes(
             BOM,
-            context.artifacts.metricsJson
+            context.artifacts.recordsNdjson
           );
         }
       },
       {
-        expected: {
-          category: "schema",
-          logicalArtifact: "metrics.json",
-          pointer: ""
-        },
-        label: "metrics non-object root",
+        label: "records missing final LF",
+        expected: { category: "framing", logicalArtifact: "records.ndjson", line: 1 },
         mutate: (context) => {
-          context.artifacts.metricsJson = bytes("[]");
+          context.artifacts.recordsNdjson = context.artifacts.recordsNdjson.slice(0, -1);
         }
       },
       {
-        expected: {
-          category: "syntax",
-          logicalArtifact: "metrics.json"
-        },
-        label: "metrics second root",
-        mutate: (context) => {
-          context.artifacts.metricsJson = concatBytes(
-            context.artifacts.metricsJson,
-            bytes("\n{}")
-          );
-        }
-      },
-      {
-        expected: {
-          category: "decoding",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson"
-        },
-        label: "warning invalid UTF-8",
-        mutate: (context) => {
-          context.artifacts.warningsAllNdjson = new Uint8Array([
-            0xc3,
-            0x28,
-            0x0a
-          ]);
-        }
-      },
-      {
-        expected: {
-          category: "decoding",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson"
-        },
-        label: "warning leading BOM",
-        mutate: (context) => {
-          context.artifacts.warningsAllNdjson = concatBytes(
-            BOM,
-            context.artifacts.warningsAllNdjson
-          );
-        }
-      },
-      {
+        label: "records blank suffix",
         expected: {
           category: "framing",
-          index: 0,
-          line: 1,
-          logicalArtifact: "warnings-all.ndjson"
-        },
-        label: "warning missing final LF",
-        mutate: (context) => {
-          context.artifacts.warningsAllNdjson =
-            context.artifacts.warningsAllNdjson.slice(0, -1);
-        }
-      },
-      {
-        expected: {
-          category: "framing",
+          logicalArtifact: "records.ndjson",
           index: 1,
-          line: 2,
-          logicalArtifact: "warnings-all.ndjson"
+          line: 2
         },
-        label: "warning extra final LF",
         mutate: (context) => {
-          context.artifacts.warningsAllNdjson = concatBytes(
-            context.artifacts.warningsAllNdjson,
-            bytes("\n")
-          );
-        }
-      },
-      {
-        expected: {
-          category: "framing",
-          index: 1,
-          line: 2,
-          logicalArtifact: "warnings-all.ndjson"
-        },
-        label: "warning blank record",
-        mutate: (context) => {
-          context.artifacts.warningsAllNdjson = concatBytes(
-            context.artifacts.warningsAllNdjson,
+          context.artifacts.recordsNdjson = concatBytes(
+            context.artifacts.recordsNdjson,
             bytes(" \t\r\n")
           );
         }
       },
       {
+        label: "records malformed suffix",
         expected: {
           category: "syntax",
+          logicalArtifact: "records.ndjson",
           index: 1,
-          line: 2,
-          logicalArtifact: "warnings-all.ndjson"
+          line: 2
         },
-        label: "warning malformed record after valid prefix",
         mutate: (context) => {
-          context.artifacts.warningsAllNdjson = concatBytes(
-            context.artifacts.warningsAllNdjson,
+          context.artifacts.recordsNdjson = concatBytes(
+            context.artifacts.recordsNdjson,
             bytes("{]\n")
           );
         }
       },
       {
+        label: "catalog fingerprint",
         expected: {
-          category: "schema",
+          category: "set-invariant",
+          logicalArtifact: "run.json",
+          relationship: "catalog-fingerprint"
+        },
+        mutate: (context) => {
+          context.run.catalogFingerprint = `check-record/v1/catalog/sha256:${"f".repeat(64)}`;
+          syncRun(context);
+        }
+      },
+      {
+        label: "record ownership",
+        expected: {
+          category: "set-invariant",
+          logicalArtifact: "records.ndjson",
           index: 0,
           line: 1,
-          logicalArtifact: "warnings-all.ndjson",
-          pointer: ""
+          relationship: "record-run-ownership"
         },
-        label: "warning non-object record",
         mutate: (context) => {
-          context.artifacts.warningsAllNdjson = bytes("[]\n");
+          context.records[0]!.checkRunId = `check-run/v1:${"f".repeat(64)}`;
+          syncRecords(context);
         }
       },
       {
+        label: "record semantic identity",
         expected: {
           category: "set-invariant",
+          logicalArtifact: "records.ndjson",
           index: 0,
-          logicalArtifact: "warnings.ndjson",
-          relationship: "warnings-stream-equals-changed"
+          line: 1,
+          relationship: "record-identity"
         },
-        label: "changed stream equality",
         mutate: (context) => {
-          context.artifacts.warningsNdjson = new Uint8Array();
+          context.records[0]!.recordId = `check-record/v1/record/sha256:${"f".repeat(64)}`;
+          syncRecords(context);
         }
       },
       {
+        label: "record canonical order",
         expected: {
           category: "set-invariant",
-          index: 0,
-          logicalArtifact: "warnings-all.ndjson",
-          relationship: "warnings-all-stream-equals-all"
+          logicalArtifact: "records.ndjson",
+          index: 1,
+          line: 2,
+          relationship: "record-canonical-order"
         },
-        label: "all stream equality",
         mutate: (context) => {
-          context.artifacts.warningsAllNdjson = new Uint8Array();
+          context.records.push(structuredClone(context.records[0]!));
+          syncRecords(context);
         }
       },
       {
+        label: "completeness reduction",
         expected: {
           category: "set-invariant",
-          index: 0,
-          logicalArtifact: "metrics.json",
-          pointer: "/warnings/changed/0",
-          relationship: "changed-subsequence-of-all"
-        },
-        label: "changed channel subsequence",
-        mutate: (context) => {
-          context.metrics.warnings.all = [];
-          syncArtifactSet(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          index: 0,
-          logicalArtifact: "metrics.json",
-          pointer: "/warnings/regressions/0",
-          relationship: "regressions-subsequence-of-changed"
-        },
-        label: "regressions channel subsequence",
-        mutate: (context) => {
-          context.metrics.warnings.changed = [];
-          syncArtifactSet(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          index: 2,
-          logicalArtifact: "metrics.json",
-          pointer: "/scanCompleteness/capabilities/2/capabilityId",
-          relationship: "capability-membership"
-        },
-        label: "duplicate stable capability",
-        mutate: (context) => {
-          context.metrics.scanCompleteness.capabilities[2] = structuredClone(
-            context.metrics.scanCompleteness.capabilities[1]!
-          );
-          syncMetrics(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/scanCompleteness/capabilities",
-          relationship: "capability-membership"
-        },
-        label: "missing stable capability",
-        mutate: (context) => {
-          context.metrics.scanCompleteness.capabilities.pop();
-          syncMetrics(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/scanCompleteness/overall",
+          logicalArtifact: "run.json",
           relationship: "completeness-reduction"
         },
-        label: "completeness reduction",
         mutate: (context) => {
-          context.metrics.scanCompleteness.overall = "empty";
-          syncMetrics(context);
+          (context.run.completeness as JsonRecord).selectedRunCount = 2;
+          syncRun(context);
         }
       },
       {
+        label: "dangling decision record",
         expected: {
           category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/evaluatedChannel",
-          relationship: "gate-policy-channel"
+          logicalArtifact: "run.json",
+          relationship: "decision-record-reference"
         },
-        label: "evaluated gate policy channel",
         mutate: (context) => {
-          context.metrics.gate.evaluatedChannel = "all";
-          syncMetrics(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/evaluatedWarningCount",
-          relationship: "gate-evaluated-count"
-        },
-        label: "evaluated gate channel count",
-        mutate: (context) => {
-          context.metrics.gate.evaluatedWarningCount = 2;
-          syncMetrics(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          index: 0,
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/blockingWarnings",
-          relationship: "gate-blocking-warnings"
-        },
-        label: "empty accepted reason remains blocking",
-        mutate: (context) => {
-          setAcceptedReasonOnWarningCopies(context.metrics, "");
-          context.metrics.gate.blockingWarningCount = 0;
-          context.metrics.gate.blockingWarnings = [];
-          context.metrics.gate.status = "passed";
-          syncArtifactSet(context);
-        }
-      },
-      {
-        expected: {
-          category: "set-invariant",
-          index: 0,
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/blockingWarnings",
-          relationship: "gate-blocking-warnings"
-        },
-        label: "evaluated gate blocking order",
-        mutate: (context) => {
-          const original = firstWarning(context);
-          const second = structuredClone(original);
-          second.ruleId = "second.blocking.warning";
-          second.message = "Second blocking warning.";
-          for (const channel of ["all", "changed", "regressions"] as const) {
-            context.metrics.warnings[channel].push(structuredClone(second));
-          }
-          context.metrics.gate.blockingWarningCount = 2;
-          context.metrics.gate.blockingWarnings = [
-            structuredClone(second),
-            structuredClone(original)
+          const decision = context.run.decision as JsonRecord;
+          const views = decision.views as JsonRecord[];
+          views[0]!.recordIds = [
+            `check-record/v1/record/sha256:${"f".repeat(64)}`
           ];
-          context.metrics.gate.evaluatedWarningCount = 2;
-          syncArtifactSet(context);
+          syncRun(context);
         }
       },
       {
+        label: "gate decision state",
         expected: {
           category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/blockingWarningCount",
-          relationship: "gate-blocking-count"
+          logicalArtifact: "run.json",
+          relationship: "decision-state"
         },
-        label: "evaluated gate blocking count",
         mutate: (context) => {
-          context.metrics.gate.blockingWarningCount = 2;
-          syncMetrics(context);
+          const decision = context.run.decision as JsonRecord;
+          (decision.gate as JsonRecord).status = "passed";
+          syncRun(context);
         }
       },
       {
+        label: "incomplete gate readiness state",
+        outcome: "scan-incomplete",
         expected: {
           category: "set-invariant",
-          logicalArtifact: "metrics.json",
-          pointer: "/gate/status",
-          relationship: "gate-status"
+          logicalArtifact: "run.json",
+          relationship: "decision-state"
         },
-        label: "evaluated gate status",
         mutate: (context) => {
-          context.metrics.gate.status = "passed";
-          syncMetrics(context);
+          const decision = context.run.decision as JsonRecord;
+          const readiness = decision.readiness as JsonRecord[];
+          readiness[0]!.reason = "no-eligible-input";
+          syncRun(context);
         }
       }
     ];
 
     for (const testCase of failureCases) {
-      const context = loadContext("gate-failed");
+      const context = loadContext(testCase.outcome ?? "gate-failed");
       testCase.mutate(context);
       const artifactRoot = `mutations/${slug(testCase.label)}`;
-      const result = validateDocsMachineArtifactSet(
-        context.artifacts,
-        artifactRoot
+      const diagnostic = expectFailure(
+        validateDocsMachineArtifactSet(context.artifacts, artifactRoot),
+        testCase.label
       );
-      const diagnostic = expectFailure(result, testCase.label);
       assert.equal(
         diagnostic.path,
         `${artifactRoot}/${testCase.expected.logicalArtifact}`,
@@ -569,66 +291,41 @@ describe("independent docs machine artifact validation", () => {
     }
 
     proveGeneratedDrift(
-      "docs/schemas/vibe-check-warning.schema.json",
+      "docs/schemas/vibe-check-record.schema.json",
       checkPublishedMachineSchemas,
-      /docs\/schemas\/vibe-check-warning\.schema\.json/
+      /docs\/schemas\/vibe-check-record\.schema\.json/
     );
     proveGeneratedDrift(
-      "docs/examples/artifacts/complete-passed/metrics.json",
+      "docs/examples/artifacts/complete-passed/run.json",
       checkPublishedMachineExamples,
-      /docs\/examples\/artifacts\/complete-passed\/metrics\.json/
+      /docs\/examples\/artifacts\/complete-passed\/run\.json/
     );
   });
 });
 
 function loadContext(outcome: string): MutationContext {
   const root = `docs/examples/artifacts/${outcome}`;
-  const artifacts: MutableArtifactBytes = {
-    metricsJson: fs.readFileSync(toAbs(`${root}/metrics.json`)),
-    warningsAllNdjson: fs.readFileSync(toAbs(`${root}/warnings-all.ndjson`)),
-    warningsNdjson: fs.readFileSync(toAbs(`${root}/warnings.ndjson`))
+  const artifacts = {
+    runJson: fs.readFileSync(toAbs(`${root}/run.json`)),
+    recordsNdjson: fs.readFileSync(toAbs(`${root}/records.ndjson`))
   };
-  const metrics = JSON.parse(decoder.decode(artifacts.metricsJson)) as MutableMetrics;
-  return { artifacts, metrics };
+  return {
+    artifacts,
+    run: JSON.parse(decoder.decode(artifacts.runJson)) as JsonRecord,
+    records: decoder.decode(artifacts.recordsNdjson).trimEnd().split("\n")
+      .filter((line) => line.length > 0)
+      .map((line) => JSON.parse(line) as JsonRecord)
+  };
 }
 
-function firstWarning(context: MutationContext): JsonRecord {
-  return structuredClone(context.metrics.warnings.all[0]!);
+function syncRun(context: MutationContext): void {
+  context.artifacts.runJson = bytes(JSON.stringify(context.run));
 }
 
-function setAcceptedReasonOnWarningCopies(
-  metrics: MutableMetrics,
-  acceptedReason: string
-): void {
-  const gateBlocking = metrics.gate.blockingWarnings as JsonRecord[];
-  for (const warnings of [
-    metrics.warnings.all,
-    metrics.warnings.changed,
-    metrics.warnings.regressions,
-    gateBlocking
-  ]) {
-    warnings[0]!.acceptedReason = acceptedReason;
-  }
-}
-
-function syncArtifactSet(context: MutationContext): void {
-  syncMetrics(context);
-  context.artifacts.warningsAllNdjson = warningStream(
-    context.metrics.warnings.all
-  );
-  context.artifacts.warningsNdjson = warningStream(
-    context.metrics.warnings.changed
-  );
-}
-
-function syncMetrics(context: MutationContext): void {
-  context.artifacts.metricsJson = bytes(JSON.stringify(context.metrics));
-}
-
-function warningStream(warnings: readonly JsonRecord[]): Uint8Array {
-  return warnings.length === 0
+function syncRecords(context: MutationContext): void {
+  context.artifacts.recordsNdjson = context.records.length === 0
     ? new Uint8Array()
-    : bytes(`${warnings.map((warning) => JSON.stringify(warning)).join("\n")}\n`);
+    : bytes(`${context.records.map((record) => JSON.stringify(record)).join("\n")}\n`);
 }
 
 function bytes(source: string): Uint8Array {
@@ -636,9 +333,7 @@ function bytes(source: string): Uint8Array {
 }
 
 function concatBytes(...parts: readonly Uint8Array[]): Uint8Array {
-  const result = new Uint8Array(
-    parts.reduce((length, part) => length + part.byteLength, 0)
-  );
+  const result = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0));
   let offset = 0;
   for (const part of parts) {
     result.set(part, offset);
@@ -650,9 +345,7 @@ function concatBytes(...parts: readonly Uint8Array[]): Uint8Array {
 function expectSuccess(
   result: ReturnType<typeof validateDocsMachineArtifactSet>
 ): void {
-  if (!result.ok) {
-    assert.fail(`${result.diagnostic.path}: ${result.diagnostic.message}`);
-  }
+  if (!result.ok) assert.fail(`${result.diagnostic.path}: ${result.diagnostic.message}`);
 }
 
 function expectFailure(
@@ -675,9 +368,7 @@ function proveGeneratedDrift(
     const actual = Reflect.apply(originalReadFileSync, fs, args) as unknown;
     if (args[0] !== absolutePath) return actual;
     if (typeof actual === "string") return `${actual} `;
-    if (Buffer.isBuffer(actual)) {
-      return Buffer.concat([actual, Buffer.from(" ")]);
-    }
+    if (Buffer.isBuffer(actual)) return Buffer.concat([actual, Buffer.from(" ")]);
     return concatBytes(actual as Uint8Array, bytes(" "));
   }) as typeof fs.readFileSync;
   try {

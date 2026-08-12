@@ -6,56 +6,34 @@ import {
 export function renderMachineExampleReadme(
   example: CanonicalMachineExample
 ): string {
-  const metadata = example.metrics.metadata;
-  const toolSummary = metadata.tools
-    .map((tool) => `${tool.name} ${tool.version} (${tool.source})`)
-    .join("; ");
-  const currentCommitDate = metadata.commitDate === undefined
-    ? ""
-    : ` at \`${metadata.commitDate}\``;
-  const baseline = example.metrics.baseline;
-  const baselineLine = baseline.commitSha === null
-    ? `- Baseline input: none (\`${baseline.status}\`)`
-    : `- Baseline commit: \`${baseline.commitSha}\`${
-      baseline.commitDate === null ? "" : ` at \`${baseline.commitDate}\``
-    }`;
+  const run = example.publication.run;
   return `# ${example.title}
 
-This directory is a deterministic current-product artifact example. Regenerate it with
-\`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
+This directory is a deterministic current-product machine publication example. Regenerate it
+with \`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
 
-## Fixed input
+## Fixed scenario
 
-- Scenario: ${example.fixedInput.summary}
-- Project-relative input paths: ${renderCodeValues(example.fixedInput.paths)}
-- Repository root: \`${metadata.repository}\`
-- Timestamp: \`${metadata.timestamp}\`
-- Current commit: \`${metadata.commitSha}\`${currentCommitDate}
-${baselineLine}
-- Config version: \`${metadata.configVersion}\`
-- Tool metadata: ${toolSummary}
-- Configured include globs: ${renderCodeValues(metadata.scope.include)}
-- Configured exclude directories: ${renderCodeValues(metadata.scope.excludeDirs)}
-- Configured generated-file paths: ${renderCodeValues(metadata.scope.generatedFiles)}
+- Input: ${example.fixedInputSummary}
+- Invocation: \`${run.invocation.invocationId}\`
+- Project root: \`${run.invocation.projectRoot}\`
+- Timestamp: \`${run.invocation.timestamp}\`
+- Selected policy: \`${run.decision.policyId ?? "disabled"}\`
 
-## Requested gate and process result
+## Expected user result
 
 - Gate request: ${example.gateRequest}
-- Expected process outcome: \`${example.expectedProcessOutcome}\`
-- Expected exit code: \`${example.expectedExit}\`
+- Process outcome: \`${example.expectedProcessOutcome}\`
+- Exit code: \`${example.expectedExit}\`
 
-## Why this set is contract-valid
+## Canonical publication
 
-${example.contractReason}
+- \`run.json\` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.
+- \`records.ndjson\` contains ${example.publication.records.length} canonical record(s)${
+    example.publication.records.length === 0 ? " and is exactly zero bytes" : " in recordId order"
+  }.
 
-The three artifact files are produced from fixed core values through the production mapper and
-serializers, then accepted by the production artifact-set validator. The process outcome and exit
-code above are scenario metadata; they cannot be inferred from the files alone.
+Both files are produced from the current Check / Record publication model and accepted together
+by the formal machine-v2 validator. They are one publication set; neither file is trusted alone.
 `;
-}
-
-function renderCodeValues(values: readonly string[]): string {
-  return values.length === 0
-    ? "none"
-    : values.map((value) => `\`${value}\``).join(", ");
 }

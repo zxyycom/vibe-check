@@ -1,97 +1,18 @@
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, relative } from "node:path";
 
 import {
-  buildBaselineSnapshotCacheKey,
   buildScanCacheKey,
-  createBaselineSnapshotCacheIdentity,
-  loadBaselineSnapshotCacheEntry,
   loadScanCacheEntry,
-  writeBaselineSnapshotCacheEntry,
   writeScanCacheEntry,
-  type BaselineSnapshotCacheIdentity,
   type DuplicateCodeCacheIdentity
 } from "./cache.ts";
-import type {
-  BaselineSnapshot,
-  DuplicateCodeFragment,
-  ResolvedQualityConfig
-} from "../model/schema.ts";
-import {
-  TEST_QUALITY_CONFIG,
-  TEST_SCANNER_DEPENDENCIES
-} from "../../test/config.ts";
-import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
+import type { DuplicateCodeFragment } from "../model/schema.ts";
 
 const TEST_CODE_AREA = "typescript-production-scripts";
-const BASELINE_SNAPSHOT: BaselineSnapshot = {
-  fingerprints: {
-    [TEST_CODE_AREA]: {
-      fileCount: 1,
-      fileList: ["scripts/risky.ts"],
-      fingerprint: "sha256:baseline:1"
-    }
-  },
-  fileMetrics: [{
-    path: "scripts/risky.ts",
-    language: "TypeScript",
-    lines: 12,
-    codeLines: 10,
-    codeArea: TEST_CODE_AREA,
-    isChanged: false,
-    decisionTokens: { value: 2, source: "scc" }
-  }],
-  functionMetrics: [{
-    name: "risky",
-    file: "scripts/risky.ts",
-    codeArea: TEST_CODE_AREA,
-    startLine: 1,
-    endLine: 10,
-    lines: 10,
-    parameterCount: 1,
-    cyclomaticComplexity: { value: 2, source: "lizard" },
-    isChanged: false
-  }],
-  duplicateCode: [],
-  aggregates: {
-    byLanguage: [{
-      language: "TypeScript",
-      files: 1,
-      lines: 12,
-      codeLines: 10,
-      commentLines: 1,
-      blankLines: 1
-    }],
-    byCodeArea: [{
-      codeArea: TEST_CODE_AREA,
-      files: 1,
-      lines: 12,
-      codeLines: 10,
-      fileDecisionTokens: 2,
-      functions: 1,
-      functionLines: 10,
-      parameterCount: 1,
-      cyclomaticComplexity: 2,
-      duplicateFragments: 0,
-      warningPolicy: "moderate"
-    }],
-    overall: {
-      totalFiles: 1,
-      totalLines: 12,
-      totalCodeLines: 10,
-      totalFileDecisionTokens: 2,
-      totalFunctions: 1,
-      totalFunctionLines: 10,
-      totalFunctionParameters: 1,
-      totalFunctionCyclomaticComplexity: 2,
-      totalDuplicateFragments: 0
-    }
-  }
-};
-
 describe("quality measurement cache", () => {
   it("keys duplicate-code cache by scan identity and strips changed-scope annotations", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-cache-"));
@@ -141,77 +62,6 @@ describe("quality measurement cache", () => {
       rmSync(tempDir, { recursive: true, force: true });
     }
   });
-
-  it("reuses baseline snapshots only when identity and snapshot hash match", () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-baseline-cache-"));
-    const identity = baselineSnapshotIdentity();
-    const snapshot = BASELINE_SNAPSHOT;
-
-    try {
-      const baseKey = buildBaselineSnapshotCacheKey(identity);
-      assert.notEqual(
-        baseKey,
-        buildBaselineSnapshotCacheKey(
-          baselineSnapshotIdentity({ lizardVersion: "1.24.0" })
-        )
-      );
-      assert.notEqual(
-        baseKey,
-        buildBaselineSnapshotCacheKey(
-          baselineSnapshotIdentity({
-            dependencies: {
-              ...TEST_SCANNER_DEPENDENCIES,
-              file: {
-                ...TEST_SCANNER_DEPENDENCIES.file,
-                executable: "/opt/alternate-scc"
-              }
-            }
-          })
-        )
-      );
-      assert.notEqual(
-        baseKey,
-        buildBaselineSnapshotCacheKey(
-          baselineSnapshotIdentity({
-            inputFingerprints: {
-              ...BASELINE_SNAPSHOT.fingerprints,
-              [TEST_CODE_AREA]: {
-                ...BASELINE_SNAPSHOT.fingerprints[TEST_CODE_AREA]!,
-                fingerprint: "sha256:changed-baseline:1"
-              }
-            }
-          })
-        )
-      );
-      assert.equal(
-        baseKey,
-        buildBaselineSnapshotCacheKey(
-          baselineSnapshotIdentity({ config: configWithIrrelevantChanges() })
-        )
-      );
-
-      const written = writeBaselineSnapshotCacheEntry({ rootDir: tempDir, identity, snapshot });
-      const hit = loadBaselineSnapshotCacheEntry({ rootDir: tempDir, identity });
-      assert.equal(hit.hit, true);
-      assert.deepEqual(hit.hit ? hit.snapshot : null, snapshot);
-
-      const modifiedSnapshot = {
-        ...snapshot,
-        fileMetrics: []
-      };
-      writeFileSync(
-        join(written.cacheDir, "snapshot.json"),
-        `${JSON.stringify(modifiedSnapshot, null, 2)}\n`,
-        "utf8"
-      );
-
-      const mismatched = loadBaselineSnapshotCacheEntry({ rootDir: tempDir, identity });
-      assert.equal(mismatched.hit, false);
-      assert.equal(mismatched.hit ? "" : mismatched.reason, "cache-snapshot-hash-mismatch");
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
 });
 
 function cacheIdentity(): DuplicateCodeCacheIdentity {
@@ -243,69 +93,4 @@ function duplicateFragment(): DuplicateCodeFragment {
       { path: "src/b.ts", startLine: 11, endLine: 21, codeArea: "unknown" }
     ]
   };
-}
-
-function baselineSnapshotIdentity({
-  config = TEST_QUALITY_CONFIG,
-  dependencies = TEST_SCANNER_DEPENDENCIES,
-  inputFingerprints = BASELINE_SNAPSHOT.fingerprints,
-  lizardVersion = "1.23.0"
-}: {
-  config?: ResolvedQualityConfig;
-  dependencies?: ScannerDependencySnapshot;
-  inputFingerprints?: BaselineSnapshot["fingerprints"];
-  lizardVersion?: string;
-} = {}): BaselineSnapshotCacheIdentity {
-  return createBaselineSnapshotCacheIdentity({
-    config,
-    dependencies,
-    inputFingerprints,
-    toolResults: [
-      {
-        name: "lizard",
-        available: true,
-        version: lizardVersion,
-        error: null,
-        source: "uv"
-      },
-      {
-        name: "scc",
-        available: true,
-        version: "3.7.0",
-        error: null,
-        source: "system"
-      },
-      {
-        name: "jscpd",
-        available: true,
-        version: "5.0.11",
-        error: null,
-        source: "repository devDependency"
-      }
-    ]
-  });
-}
-
-function configWithIrrelevantChanges(): ResolvedQualityConfig {
-  return {
-    ...TEST_QUALITY_CONFIG,
-    acceptedWarnings: [{
-      checkId: "file-code-lines",
-      reason: "does not change baseline measurement"
-    }],
-    checks: {
-      ...TEST_QUALITY_CONFIG.checks,
-      files: {
-        codeLines: {
-          ...TEST_QUALITY_CONFIG.checks.files.codeLines,
-          absoluteFloor: 999
-        }
-      }
-    },
-    report: {
-      ...TEST_QUALITY_CONFIG.report,
-      title: "Unrelated report title"
-    },
-    version: "unrelated-contract-version"
-  } as unknown as ResolvedQualityConfig;
 }

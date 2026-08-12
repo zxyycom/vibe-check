@@ -1,32 +1,26 @@
-# Complete scan without warnings
+# Complete scan without findings
 
-This directory is a deterministic current-product artifact example. Regenerate it with
-`bun run generate:machine-examples`.
+This directory is a deterministic current-product machine publication example. Regenerate it
+with `bun run generate:machine-examples`.
 
-## Fixed input
+## Fixed scenario
 
-- Scenario: Measured TypeScript input with all three stable capabilities succeeded and no warnings.
-- Project-relative input paths: `src/example.ts`
-- Repository root: `/workspace/vibe-check-fixtures/canonical-project`
-- Timestamp: `2026-08-03T00:00:00.000Z`
-- Current commit: `0123456789abcdef0123456789abcdef01234567` at `2026-08-02T12:00:00.000Z`
-- Baseline commit: `89abcdef0123456789abcdef0123456789abcdef` at `2026-07-31T12:00:00.000Z`
-- Config version: `canonical-config-v1`
-- Tool metadata: scc 3.6.0 (configured); lizard 1.17.31 (configured); jscpd 5.0.11 (configured)
-- Configured include globs: `src/**/*.ts`
-- Configured exclude directories: `dist`, `node_modules`
-- Configured generated-file paths: `src/generated.ts`
+- Input: One applicable Check completed its work without records.
+- Invocation: `invocation/v1:docs-complete-passed`
+- Project root: `.`
+- Timestamp: `2026-08-12T00:00:00.000Z`
+- Selected policy: `disabled`
 
-## Requested gate and process result
+## Expected user result
 
-- Gate request: none (gate disabled)
-- Expected process outcome: `success`
-- Expected exit code: `0`
+- Gate request: none (policy disabled)
+- Process outcome: `success`
+- Exit code: `0`
 
-## Why this set is contract-valid
+## Canonical publication
 
-Every stable capability succeeded, so completeness reduces to `complete`; all warning channels and both streams are empty, and the closed disabled-gate shape is valid.
+- `run.json` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.
+- `records.ndjson` contains 0 canonical record(s) and is exactly zero bytes.
 
-The three artifact files are produced from fixed core values through the production mapper and
-serializers, then accepted by the production artifact-set validator. The process outcome and exit
-code above are scenario metadata; they cannot be inferred from the files alone.
+Both files are produced from the current Check / Record publication model and accepted together
+by the formal machine-v2 validator. They are one publication set; neither file is trusted alone.

@@ -13,8 +13,8 @@ Vibe Check 拥有的开发脚本入口是：
 
 - `scripts/quality/scan.ts`：显式传入 Vibe Check 仓库根并委托
   `bun run product:cli -- scan [project-root]` 的 dogfood 薄 wrapper。
-- `scripts/quality/annotate.ts`：把 quality warning NDJSON 渲染为 GitHub
-  Actions non-blocking warning annotation；输入先经 Product warning-stream validator 完整
+- `scripts/quality/annotate.ts`：把 validated quality records 渲染为 GitHub
+  Actions non-blocking warning annotation；输入先经 Product two-file set validator 完整
   验证。
 - `scripts/docs/validate.ts`：校验 Markdown links、JSON syntax、current machine schemas/
   examples、generation drift，以及隔离的 historical report schema/examples。
@@ -147,28 +147,25 @@ release artifact。
 Repository annotation entry 保持：
 
 ```text
-bun run quality:annotate -- [warnings-path] [limit]
+bun run quality:annotate -- [artifact-directory] [limit]
 ```
 
-- Default warnings path 是
-  `artifacts/vibe-check-quality/warnings-all.ndjson`；default limit 是 `5`。
+- Default artifact directory 是 `artifacts/vibe-check-quality/`；default limit 是 `5`。
 - Limit 必须匹配 `^[1-9][0-9]*$` 且不超过 `Number.MAX_SAFE_INTEGER`；extra argument、
   invalid limit 或 read failure 都是 handled infrastructure failure。
-- Consumer 以 bytes 读取 selected stream，并只通过 `src/product/machine-output.ts` shallow
-  boundary 调用 Product `MachineWarningV1` warning-stream validator。完整 validation 成功后
-  才过滤 `info`、应用 limit 并渲染 GitHub commands；script 不保留 render-only parser 或
+- Consumer 从该 directory 读取 `run.json` 与 `records.ndjson`，并只通过
+  `src/product/machine-output.ts` shallow boundary 验证完整 two-file machine set。完整 validation
+  成功后才过滤 `info`、应用 limit 并渲染 GitHub commands；script 不保留 render-only parser 或
   deep-import quality-core internals。
-- Conforming non-empty stream 产生 filtered/limited annotations；zero-byte stream 产生 zero
-  commands；两者退出 `0`。
-- Argument/read/decoding/framing/syntax/schema failure 在 stdout 产生 zero annotation
-  commands，stderr 输出 actionable diagnostic，并退出 `2`。Validation 不返回 valid prefix，
+- Conforming set 产生 filtered/limited annotations；empty records set 产生 zero commands；两者退出 `0`。
+- Argument/read/decoding/framing/syntax/schema/set-invariant failure 在 stdout 产生 zero annotation
+  commands，stderr 输出 actionable diagnostic，并退出 `2`。Validation 不返回可消费的部分结果，
   因而不会产生 partial annotations。
-- Warning quality values 永不使 annotation 自身 non-zero。Annotations 始终是 non-blocking
+- Record level 永不使 annotation 自身 non-zero。Annotations 始终是 non-blocking
   GitHub warnings；需要 best-effort orchestration 时由 workflow 使 step non-blocking，不能
   放宽 parser acceptance。
 
-Warning identities、field semantics 与 byte grammar 由
-[Output](output.md#validator-boundaries) 拥有；本节只拥有 direct script consumer 的参数、
+Machine identities、field semantics 与 byte grammar 由 [Output](output.md) 拥有；本节只拥有 direct script consumer 的参数、
 render timing 和 exit behavior。
 
 ## Independent docs validation and workspace acceptance
@@ -333,7 +330,7 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | current schema/example generation drift | `bun scripts/docs/config-schema.ts --check`、`bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
 | producer-to-annotation acceptance | `bun test scripts/quality/producer-annotation-acceptance.test.ts`；required workspace profile 也调度 |
-| quality annotation | `bun run quality:annotate -- [warnings-path] [limit]` |
+| quality annotation | `bun run quality:annotate -- [artifact-directory] [limit]` |
 | toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test` |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

@@ -1,32 +1,26 @@
-# Incomplete scan with a fixed capability diagnostic
+# Incomplete scan with retained run evidence
 
-This directory is a deterministic current-product artifact example. Regenerate it with
-`bun run generate:machine-examples`.
+This directory is a deterministic current-product machine publication example. Regenerate it
+with `bun run generate:machine-examples`.
 
-## Fixed input
+## Fixed scenario
 
-- Scenario: Measured TypeScript input whose file and function capabilities succeeded but duplicate detection returned the fixed unavailable diagnostic.
-- Project-relative input paths: `src/example.ts`
-- Repository root: `/workspace/vibe-check-fixtures/canonical-project`
-- Timestamp: `2026-08-03T00:00:00.000Z`
-- Current commit: `0123456789abcdef0123456789abcdef01234567` at `2026-08-02T12:00:00.000Z`
-- Baseline commit: `89abcdef0123456789abcdef0123456789abcdef` at `2026-07-31T12:00:00.000Z`
-- Config version: `canonical-config-v1`
-- Tool metadata: scc 3.6.0 (configured); lizard 1.17.31 (configured); jscpd 5.0.11 (configured)
-- Configured include globs: `src/**/*.ts`
-- Configured exclude directories: `dist`, `node_modules`
-- Configured generated-file paths: `src/generated.ts`
+- Input: The selected Check could not run because its dependency was unavailable.
+- Invocation: `invocation/v1:docs-scan-incomplete`
+- Project root: `.`
+- Timestamp: `2026-08-12T00:00:00.000Z`
+- Selected policy: `all-current`
 
-## Requested gate and process result
+## Expected user result
 
-- Gate request: all (not evaluated: scan-incomplete)
-- Expected process outcome: `failed`
-- Expected exit code: `2`
+- Gate request: all-current (not evaluated: scan-incomplete)
+- Process outcome: `failed`
+- Exit code: `2`
 
-## Why this set is contract-valid
+## Canonical publication
 
-The fixed duplicate-detection diagnostic makes completeness reduce to `failed`; the requested all-warnings gate is explicitly not evaluated for `scan-incomplete`, while the warning channels and streams remain mutually consistent. This is a contract-valid domain failure, not an output-contract failure.
+- `run.json` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.
+- `records.ndjson` contains 0 canonical record(s) and is exactly zero bytes.
 
-The three artifact files are produced from fixed core values through the production mapper and
-serializers, then accepted by the production artifact-set validator. The process outcome and exit
-code above are scenario metadata; they cannot be inferred from the files alone.
+Both files are produced from the current Check / Record publication model and accepted together
+by the formal machine-v2 validator. They are one publication set; neither file is trusted alone.
