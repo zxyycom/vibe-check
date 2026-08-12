@@ -78,6 +78,7 @@
       "workflow-policy/defer-future-feature-detail-until-prioritized.md": "sha256:95c85b91ee55f96ec785ef7030348091614400e76ad4f973cdff71608a4f4bca",
       "workflow-policy/keep-project-workflow-skill-overrides-bounded.md": "sha256:bb4f7f3625dd5a1dc362728a84940836a3d65a1603f1d729f4de14aadbfc4566",
       "workflow-policy/keep-seven-distinct-project-skills.md": "sha256:348de7e60d4bd787e150ef0f440fe35a42f59717e57daabeab4936869109c2f3",
+      "workflow-policy/make-bun-entries-use-pinned-tools.md": "sha256:722da28e883819c11f391049ce89e944273999ed07da1191189881f904c2b6f7",
       "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
       "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:e4d58a585d4f83b4ae7ee67d86598623191f93b36bfcfc814f5342598f0954bb",
       "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d09c1c67ccdcb26d663567b82dc6afc38303a82347a2d5a224d4cff0a6879e1c",
@@ -1380,6 +1381,30 @@
             "target": "workflow-policy/use-complete-upstream-governance-skills.md"
           }
         ]
+      }
+    },
+    "workflow-policy/make-bun-entries-use-pinned-tools.md": {
+      "keys": {
+        "domain": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "workflow-policy/make-bun-entries-use-pinned-tools.md",
+        "title": "让 Bun 入口自行绑定项目锁定工具",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-12T15:04:30Z",
+        "purpose": "让正式 Bun 命令可复现地使用仓库锁定工具，并拒绝执行 ambient PATH 中的同名程序。",
+        "background": "项目虽用 mise 锁定 Lizard 与 scc，但普通 Bun 入口曾依赖调用 shell 注入 binding，缺失时 Product 会退回全局命令。",
+        "decision": "消费锁定外部工具的正式 Bun package entry 自行进入 mise；Product dependency boundary 要求显式 binding，缺失时在 work 前失败。",
+        "relations": []
       }
     },
     "workflow-policy/match-change-detail-to-current-phase.md": {

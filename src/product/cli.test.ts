@@ -1,4 +1,5 @@
 import { strict as assert } from "node:assert";
+import { spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdtempSync,
@@ -15,6 +16,11 @@ import { runProductCli } from "./cli.ts";
 import { ProjectConfigError } from "./config-file.ts";
 import { DEFAULT_CONFIG } from "./config.ts";
 import { resolveProjectConfigPaths } from "./config-paths.ts";
+import {
+  configuredScanArgs,
+  createConfiguredProjectFixture,
+  readMachinePublication
+} from "./configured-project-test-support.ts";
 import { CliUsageError } from "./foundation/src/errors.ts";
 import { getChangedFileList } from "./quality-core/src/input/files.ts";
 import { GATE_POLICY_VALUES } from "./quality-core/src/model/gate-policy.ts";
@@ -409,7 +415,7 @@ describe("changed-files CLI contract", () => {
 });
 
 describe("formal and dogfood entrypoints", () => {
-  it("keeps the dogfood wrapper pointed only at the product CLI", () => {
+  it("keeps the wrapper thin while package entries bind the pinned environment", () => {
     const wrapper = readFileSync(resolve(repoRoot, "scripts/quality/scan.ts"), "utf8");
     const packageJson = JSON.parse(
       readFileSync(resolve(repoRoot, "package.json"), "utf8")
@@ -419,17 +425,24 @@ describe("formal and dogfood entrypoints", () => {
     assert.match(wrapper, /runProductCli\(\["scan", root, \.\.\.process\.argv\.slice\(2\)\]\)/);
     assert.doesNotMatch(wrapper, /parseArgs|runQualityScan|DEFAULT_CONFIG|qualityScanErrorExitCode/);
     assert.equal(
+      packageJson.scripts["product:cli"],
+      "mise exec -- bun src/product/cli.ts"
+    );
+    assert.equal(
       packageJson.scripts["quality:check"],
-      "bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick"
+      "mise exec -- bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick"
     );
     assert.equal(
       packageJson.scripts["quality:full-check"],
-      "bun scripts/quality/scan.ts --profile full"
+      "mise exec -- bun scripts/quality/scan.ts --profile full"
     );
-    assert.equal(packageJson.scripts["quality:scan"], "bun scripts/quality/scan.ts");
+    assert.equal(
+      packageJson.scripts["quality:scan"],
+      "mise exec -- bun scripts/quality/scan.ts"
+    );
     assert.equal(
       packageJson.scripts["quality:gate"],
-      "bun scripts/quality/scan.ts --profile full --gate regressions"
+      "mise exec -- bun scripts/quality/scan.ts --profile full --gate regressions"
     );
 
     const discovery = runBun(
@@ -443,5 +456,67 @@ describe("formal and dogfood entrypoints", () => {
       `Config: discovered ${resolveProjectConfigPaths(repoRoot).configPath}\n`
     );
     assert.match(discovery.stderr, /VIBE_CHECK_SCC_ARGS/);
+  });
+
+  it("runs the ordinary Bun quality entry without ambient scanner bindings", { timeout: 30_000 }, () => {
+    const result = runBun(
+      repoRoot,
+      ["run", "--silent", "quality:check"],
+      {
+        VIBE_CHECK_LIZARD_CMD: "",
+        VIBE_CHECK_SCC_CMD: ""
+      }
+    );
+
+    assertCommandSucceeded(result, "ordinary Bun quality entry");
+    assert.match(result.stdout, /Snapshot completeness: complete/);
+    assert.doesNotMatch(
+      `${result.stdout}\n${result.stderr}`,
+      /No module named lizard|dependency\/v1:lizard|dependency\/v1:scc/
+    );
+  });
+
+  it("preserves explicit scanner overrides through nested pinned environments", { timeout: 30_000 }, () => {
+    const fixture = createConfiguredProjectFixture("vibe-check-nested-pinned-entry-");
+    const missingScc = join(fixture.projectRoot, "tools", "missing-scc");
+
+    try {
+      const result = spawnSync(
+        "mise",
+        [
+          "exec",
+          "--",
+          "bun",
+          "run",
+          "--silent",
+          "product:cli",
+          "--",
+          ...configuredScanArgs(fixture.projectRoot, "quick")
+        ],
+        {
+          cwd: repoRoot,
+          encoding: "utf8",
+          env: {
+            ...process.env,
+            VIBE_CHECK_SCC_ARGS: "[]",
+            VIBE_CHECK_SCC_CMD: missingScc
+          }
+        }
+      );
+
+      assert.equal(result.error, undefined);
+      assert.equal(
+        result.status,
+        2,
+        `nested package entry ignored the explicit scanner override\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+      );
+      assert.match(result.stdout, /Snapshot completeness: incomplete/);
+      const fileRun = readMachinePublication(fixture.artifactDir).run.runs.find(
+        (run) => run.checkId === "file-metrics"
+      );
+      assert.equal(fileRun?.status, "failed");
+    } finally {
+      rmSync(fixture.tempRoot, { recursive: true, force: true });
+    }
   });
 });

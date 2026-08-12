@@ -15,6 +15,10 @@ type ScannerArgsInputName =
   | "VIBE_CHECK_JSCPD_ARGS"
   | "VIBE_CHECK_SCC_ARGS";
 
+type RequiredScannerCommandInputName =
+  | "VIBE_CHECK_LIZARD_CMD"
+  | "VIBE_CHECK_SCC_CMD";
+
 export interface FileScannerDependency {
   readonly args: readonly string[];
   readonly availabilityArgs: readonly string[];
@@ -42,11 +46,16 @@ export interface ScannerDependencySnapshot {
 
 export class ScannerOperationalInputError extends Error {
   readonly code = "invalid-scanner-operational-input";
-  readonly inputName: ScannerArgsInputName;
+  readonly inputName: ScannerArgsInputName | RequiredScannerCommandInputName;
 
-  constructor(inputName: ScannerArgsInputName) {
+  constructor(
+    inputName: ScannerArgsInputName | RequiredScannerCommandInputName,
+    reason: "invalid-args" | "missing-command" = "invalid-args"
+  ) {
     super(
-      `${inputName} must be a JSON array of strings; provide a valid array or unset the variable`
+      reason === "missing-command"
+        ? `${inputName} is missing; the package host must provide an explicit scanner binding`
+        : `${inputName} must be a JSON array of strings; provide a valid array or unset the variable`
     );
     this.name = "ScannerOperationalInputError";
     this.inputName = inputName;
@@ -61,6 +70,8 @@ export function resolveScannerDependencySnapshot(
     VIBE_CHECK_JSCPD_ARGS: jscpdArgsInput,
     VIBE_CHECK_JSCPD_CMD: jscpdCommandInput,
     VIBE_CHECK_LIZARD_CMD: lizardCommandInput,
+    VIBE_CHECK_PINNED_LIZARD_CMD: pinnedLizardCommandInput,
+    VIBE_CHECK_PINNED_SCC_CMD: pinnedSccCommandInput,
     VIBE_CHECK_SCC_ARGS: sccArgsInput,
     VIBE_CHECK_SCC_CMD: sccCommandInput
   } = env;
@@ -70,6 +81,16 @@ export function resolveScannerDependencySnapshot(
     jscpdArgsInput
   );
   const jscpdBinary = platform === "win32" ? "jscpd.cmd" : "jscpd";
+  const lizardCommand = requireScannerCommand(
+    "VIBE_CHECK_LIZARD_CMD",
+    lizardCommandInput,
+    pinnedLizardCommandInput
+  );
+  const sccCommand = requireScannerCommand(
+    "VIBE_CHECK_SCC_CMD",
+    sccCommandInput,
+    pinnedSccCommandInput
+  );
 
   return Object.freeze({
     duplication: Object.freeze({
@@ -82,14 +103,24 @@ export function resolveScannerDependencySnapshot(
     file: Object.freeze({
       args: fileArgs,
       availabilityArgs: Object.freeze([...fileArgs, "--version"]),
-      executable: sccCommandInput || "scc"
+      executable: sccCommand
     }),
     function: Object.freeze({
       args: FUNCTION_ARGS,
       availabilityArgs: FUNCTION_AVAILABILITY_ARGS,
-      executable: lizardCommandInput || (platform === "win32" ? "python" : "python3")
+      executable: lizardCommand
     })
   });
+}
+
+function requireScannerCommand(
+  inputName: RequiredScannerCommandInputName,
+  override: string | undefined,
+  pinnedBinding: string | undefined
+): string {
+  if (override) return override;
+  if (pinnedBinding) return pinnedBinding;
+  throw new ScannerOperationalInputError(inputName, "missing-command");
 }
 
 function parseAdditionalArgs(

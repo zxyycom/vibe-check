@@ -140,12 +140,18 @@ bun run env:check
 
 ### 命令环境边界
 
-顶层 mise 环境在调用方没有显式覆盖时，把 pinned `pipx:lizard` 虚拟环境中的 Python
-interpreter 设为 `VIBE_CHECK_LIZARD_CMD`；Product 仍按固定的 `-m lizard` 协议调用它。
-override 的产品语义由 [Scanner 依赖选择](scanner-dependencies.md#operational-overrides) 拥有。
+顶层 mise 环境把 pinned `pipx:lizard` 虚拟环境中的 Python interpreter 和 pinned scc
+executable 分别设为 package-private `VIBE_CHECK_PINNED_LIZARD_CMD` 与
+`VIBE_CHECK_PINNED_SCC_CMD`；Product 对前者仍按固定的 `-m lizard` 协议调用。公开
+`VIBE_CHECK_LIZARD_CMD` 与 `VIBE_CHECK_SCC_CMD` 是优先级更高的显式 operational override，
+不由 mise 管理，因而在嵌套激活中不会被项目默认值覆盖。正式
+`product:cli` 与 `quality:*` scan package scripts 自行通过 `mise exec` 进入该环境，所以普通
+`bun run` 不依赖调用 shell 预先激活 mise。缺少绑定时 Product 在 work 前失败，不退回 PATH
+中的全局程序。override 的产品语义由
+[Scanner 依赖选择](scanner-dependencies.md#operational-overrides)拥有。
 
-`verify:vibe-check-workspace*` 在顶层 mise 环境中运行。日常其它命令保持普通 `bun run`
-入口；shell 未激活 mise 时，使用 `mise exec -- bun run <script>` 显式进入该环境。
+`verify:vibe-check-workspace*` 同样在顶层 mise 环境中运行。其它不消费锁定外部 scanner 的
+日常命令保持普通 `bun run` 入口。
 
 ## Runtime 边界
 

@@ -6,11 +6,19 @@
 
 一次 invocation 在 config/usage validation 后构造一个 readonly snapshot。current 与 explicit reference 使用同一 snapshot，但各自依照自己的 approved exact inputs 决定 Check applicability/work。snapshot 有三个 private slices：scc 用于 file、Python/Lizard 用于 function、jscpd 用于 duplication；scanner executable、args、availability、process protocol、CSV/JSON reporter 与 raw output 永不进入 public catalog 或 machine set。
 
-defaults 是 `scc`、Windows `python`/其它 `python3` 加固定 `-m lizard`、以及 repository `node_modules/.bin/jscpd`（Windows `.cmd`）；jscpd bounded concurrency 是 `4`。snapshot construction 不探测 executable，只有 applicable Check 才做 availability/work。
+内置 command binding 必须由正式 package host 在 invocation 前显式提供：仓库 Bun 入口通过
+`mise.toml` 的 package-private `VIBE_CHECK_PINNED_SCC_CMD` 与
+`VIBE_CHECK_PINNED_LIZARD_CMD` 注入锁定的 scc executable 与 Lizard virtualenv Python，并对
+后者追加固定 `-m lizard`；受支持的公开 operational override 优先于对应 private binding，
+因此嵌套或已激活的 mise 环境不会吞掉调用方显式选择。jscpd 固定使用 repository
+`node_modules/.bin/jscpd`（Windows `.cmd`）。缺失
+Lizard 或 scc binding 是 pre-work operational failure，不得退回 `PATH` 中的 `python`、
+`python3`、`scc` 或其它同名全局程序；jscpd bounded concurrency 是 `4`。snapshot construction
+不探测 executable，只有 applicable Check 才做 availability/work。
 
 ## Operational overrides
 
-支持 `VIBE_CHECK_SCC_CMD`、`VIBE_CHECK_SCC_ARGS`、`VIBE_CHECK_LIZARD_CMD`、`VIBE_CHECK_JSCPD_CMD`、`VIBE_CHECK_JSCPD_ARGS`。non-empty `_ARGS` 必须是 strings JSON array，在 snapshot boundary 一次解析；非法值以 typed operational failure/exit `2` 返回而不回显内容。override 不进入 semantic config、report 或 machine provenance。
+支持 `VIBE_CHECK_SCC_CMD`、`VIBE_CHECK_SCC_ARGS`、`VIBE_CHECK_LIZARD_CMD`、`VIBE_CHECK_JSCPD_CMD`、`VIBE_CHECK_JSCPD_ARGS`。non-empty `_CMD` 覆盖 package-private pinned binding；non-empty `_ARGS` 必须是 strings JSON array，在 snapshot boundary 一次解析；非法值以 typed operational failure/exit `2` 返回而不回显内容。override 不进入 semantic config、report 或 machine provenance。
 
 ## Exact-input adapter handoff
 

@@ -10,18 +10,22 @@ import {
 const repoRoot = resolve(import.meta.dirname, "../..");
 
 describe("scanner dependency resolution", () => {
-  it("resolves platform defaults, availability arguments, and bounded concurrency", () => {
-    const posix = resolveScannerDependencySnapshot({}, "linux");
+  it("requires explicit built-in command bindings and resolves fixed protocols without probing", () => {
+    const commands = {
+      VIBE_CHECK_PINNED_LIZARD_CMD: "/project-tools/lizard-python",
+      VIBE_CHECK_PINNED_SCC_CMD: "/project-tools/scc"
+    };
+    const posix = resolveScannerDependencySnapshot(commands, "linux");
     assert.deepEqual(posix, {
       file: {
         args: [],
         availabilityArgs: ["--version"],
-        executable: "scc"
+        executable: "/project-tools/scc"
       },
       function: {
         args: ["-m", "lizard"],
         availabilityArgs: ["-m", "lizard", "--version"],
-        executable: "python3"
+        executable: "/project-tools/lizard-python"
       },
       duplication: {
         args: [],
@@ -31,8 +35,8 @@ describe("scanner dependency resolution", () => {
       }
     });
 
-    const windows = resolveScannerDependencySnapshot({}, "win32");
-    assert.equal(windows.function.executable, "python");
+    const windows = resolveScannerDependencySnapshot(commands, "win32");
+    assert.equal(windows.function.executable, "/project-tools/lizard-python");
     assert.equal(
       windows.duplication.executable,
       resolve(repoRoot, "node_modules", ".bin", "jscpd.cmd")
@@ -45,6 +49,8 @@ describe("scanner dependency resolution", () => {
       VIBE_CHECK_JSCPD_CMD: "/does/not/exist/jscpd",
       VIBE_CHECK_LIZARD_ARGS: '["must", "remain", "unsupported"]',
       VIBE_CHECK_LIZARD_CMD: "/does/not/exist/python",
+      VIBE_CHECK_PINNED_LIZARD_CMD: "/project-tools/lizard-python",
+      VIBE_CHECK_PINNED_SCC_CMD: "/project-tools/scc",
       VIBE_CHECK_SCC_ARGS: '["--format", "csv"]',
       VIBE_CHECK_SCC_CMD: "/does/not/exist/scc"
     }, "linux");
@@ -67,17 +73,41 @@ describe("scanner dependency resolution", () => {
     });
   });
 
-  it("treats unset and empty operational inputs as no override", () => {
-    const unset = resolveScannerDependencySnapshot({}, "linux");
+  it("treats unset and empty optional arguments as no override", () => {
+    const commands = {
+      VIBE_CHECK_PINNED_LIZARD_CMD: "/project-tools/lizard-python",
+      VIBE_CHECK_PINNED_SCC_CMD: "/project-tools/scc"
+    };
+    const unset = resolveScannerDependencySnapshot(commands, "linux");
     const empty = resolveScannerDependencySnapshot({
+      ...commands,
       VIBE_CHECK_JSCPD_ARGS: "",
       VIBE_CHECK_JSCPD_CMD: "",
-      VIBE_CHECK_LIZARD_CMD: "",
       VIBE_CHECK_SCC_ARGS: "",
-      VIBE_CHECK_SCC_CMD: ""
     }, "linux");
 
     assert.deepEqual(empty, unset);
+  });
+
+  it("rejects missing built-in command bindings instead of resolving ambient PATH tools", () => {
+    const cases = [
+      [{ VIBE_CHECK_PINNED_SCC_CMD: "/project-tools/scc" }, "VIBE_CHECK_LIZARD_CMD"],
+      [{ VIBE_CHECK_PINNED_LIZARD_CMD: "/project-tools/lizard-python" }, "VIBE_CHECK_SCC_CMD"],
+      [{ VIBE_CHECK_LIZARD_CMD: "", VIBE_CHECK_SCC_CMD: "" }, "VIBE_CHECK_LIZARD_CMD"]
+    ] as const;
+
+    for (const [environment, inputName] of cases) {
+      assert.throws(
+        () => resolveScannerDependencySnapshot(environment, "linux"),
+        (error: unknown) => {
+          assert.ok(error instanceof ScannerOperationalInputError);
+          assert.equal(error.inputName, inputName);
+          assert.match(error.message, /package host.*explicit scanner binding/);
+          assert.doesNotMatch(error.message, /python3|\bscc\b/);
+          return true;
+        }
+      );
+    }
   });
 
   it("rejects malformed or non-string-array argument overrides without exposing values", () => {

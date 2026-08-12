@@ -2,7 +2,7 @@
 
 ## 产品入口
 
-正式入口为 `bun run product:cli -- scan [project-root]` 与 `bun run product:cli -- init [project-root]`。`scan` 归一化 project root，先验证参数和 explicit baseline，再选择 configuration，最后调用 Product Core；`init` 不启动 scan work。
+正式入口为 `bun run product:cli -- scan [project-root]` 与 `bun run product:cli -- init [project-root]`。package script 自行进入仓库锁定的 mise 环境；`scan` 归一化 project root，先验证参数和 explicit baseline，再选择 configuration、冻结显式 scanner binding，最后调用 Product Core；`init` 不启动 scan work。
 
 ## Scan flags
 
@@ -36,4 +36,7 @@ Output failure 优先于 computed policy。`--verification-output` 不改变 art
 
 ## Dogfood wrapper
 
-`quality:check`、`quality:full-check`、`quality:scan` 与 `quality:gate` 以及 `scripts/quality/scan.ts` 都显式传入仓库 root 并单向调用本入口。前三者保持 omitted gate；`quality:gate` 请求 full `regressions` 并只透明转发调用者显式 baseline，不推断 comparison target。
+`quality:check`、`quality:full-check`、`quality:scan` 与 `quality:gate` 的 package scripts 自行进入
+仓库锁定的 mise 环境；`scripts/quality/scan.ts` 仍只显式传入仓库 root 并单向调用本入口。
+前三者保持 omitted gate；`quality:gate` 请求 full `regressions` 并只透明转发调用者显式
+baseline，不推断 comparison target。

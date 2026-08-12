@@ -6,10 +6,11 @@ Entities:
 - `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > rejects malformed operational input before an empty scan starts`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > applies supported operational overrides without probing executables`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects malformed or non-string-array argument overrides without exposing values`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > resolves platform defaults, availability arguments, and bounded concurrency`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > treats unset and empty operational inputs as no override`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > requires explicit built-in command bindings and resolves fixed protocols without probing`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > treats unset and empty optional arguments as no override`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects missing built-in command bindings instead of resolving ambient PATH tools`
 Proves:
-- One invocation-owned snapshot resolves supported overrides without probing; malformed arguments fail before scanner/artifact work and do not disclose their values.
+- One invocation-owned snapshot resolves a public command override before its package-private pin without probing; Lizard and scc require one of those explicit host bindings and never fall back to ambient PATH tools; missing bindings or malformed arguments fail before scanner/artifact work without disclosing values.
 
 ## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner exact input scope
 Owner: `docs/scanner-dependencies.md#exact-input-adapter-handoff`

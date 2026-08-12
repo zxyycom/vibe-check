@@ -56,10 +56,25 @@ function checkEnvironment(): void {
   checkSubmodules();
   runMiseCommand(["ls", "--current", ...MISE_TOOLS]);
   runCommandInMise(resolveLizardInterpreterPath(), ["-m", "lizard", "--version"]);
-  runCommandInMise("scc", ["--version"]);
+  runCommandInMise(resolveSccExecutablePath(), ["--version"]);
   runCommandInMise("bun", ["run", "jscpd", "--version"]);
   runCommandInMise("codegraph", ["--version"]);
   runCommandInMise("codegraph", ["status", "."]);
+}
+
+function resolveSccExecutablePath(): string {
+  const sccToolRoot = runMiseCommand(
+    ["where", "go:github.com/boyter/scc/v3"],
+    { shouldCaptureOutput: true }
+  ).trim();
+  if (!sccToolRoot) {
+    throw new Error("mise where go:github.com/boyter/scc/v3 returned no installation path");
+  }
+  return resolve(
+    sccToolRoot,
+    "bin",
+    process.platform === "win32" ? "scc.exe" : "scc"
+  );
 }
 
 function trustRepositoryMiseConfig(): void {
