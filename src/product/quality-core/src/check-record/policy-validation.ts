@@ -40,7 +40,10 @@ const UNSAFE_POLICY_INPUT_MESSAGE = "Policy input must be plain JSON data";
 class UnsafePolicyInputError extends TypeError {}
 
 function issue(path: string, code: ValidationIssue["code"], message: string): ValidationResult<never> {
-  return Object.freeze({ ok: false, issues: Object.freeze([{ path, code, message }]) });
+  const issues: readonly [ValidationIssue] = Object.freeze([
+    Object.freeze({ path, code, message })
+  ]);
+  return Object.freeze({ ok: false, issues });
 }
 
 function materializePlainData(value: unknown, ancestors: Set<object>): JsonValue {
@@ -147,12 +150,26 @@ function isStableId(value: unknown): value is string {
   return typeof value === "string" && STABLE_ID_PATTERN.test(value);
 }
 
+function isReferenceEvidenceStatus(value: unknown): value is CheckReferenceEvidence["status"] {
+  return REFERENCE_EVIDENCE_STATUSES.some((status) => status === value);
+}
+
+function isGateNotEvaluatedReason(value: unknown): value is ReadinessClause["reason"] {
+  return GATE_NOT_EVALUATED_REASONS.some((reason) => reason === value);
+}
+
 function isSafeAcceptanceReason(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0 && !/[\p{Cc}\p{Cs}]/u.test(value);
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
 
 function selectorKey(selector: RecordSelector): string {
@@ -186,12 +203,6 @@ function validateSelector(
   return accepted(selector);
 }
 
-function valueMatchesType(value: unknown, valueType: RecordOperandDefinition["valueType"]): boolean {
-  return valueType === "number"
-    ? typeof value === "number" && Number.isFinite(value)
-    : typeof value === valueType;
-}
-
 interface PredicateContext {
   readonly surfacesBySelector: ReadonlyMap<string, RecordPolicySurface>;
   readonly selectors: readonly RecordSelector[];
@@ -207,8 +218,7 @@ function validateRecordPredicate(
     return issue(path, "invalid-value", "Record predicate must be a closed predicate");
   }
   if (value.kind === "operand-equals" || value.kind === "operand-includes") {
-    const fields = value.kind === "operand-equals" ? ["kind", "operandId", "value"] : ["kind", "operandId", "value"];
-    const shape = closed(value, path, fields);
+    const shape = closed(value, path, ["kind", "operandId", "value"]);
     if (!shape.ok) return shape;
     if (typeof shape.value.operandId !== "string") {
       return issue(`${path}.operandId`, "invalid-value", "operandId must be a string");
@@ -216,18 +226,35 @@ function validateRecordPredicate(
     const operands = context.selectors.map((selector) => (
       context.surfacesBySelector.get(selectorKey(selector))?.operands.find((operand) => operand.operandId === shape.value.operandId)
     ));
-    if (operands.some((operand) => operand === undefined)) {
+    const firstOperand = operands[0];
+    if (firstOperand === undefined || operands.some((operand) => operand === undefined)) {
       return issue(`${path}.operandId`, "identity-mismatch", "Operand is not registered for every selected record type");
     }
-    const expectedType = operands[0]!.valueType;
-    if (operands.some((operand) => operand!.valueType !== expectedType)
-      || !valueMatchesType(shape.value.value, expectedType)
-      || (value.kind === "operand-includes" && expectedType !== "string")) {
+    const expectedType = firstOperand.valueType;
+    if (operands.some((operand) => operand?.valueType !== expectedType)) {
       return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
     }
-    return accepted(value.kind === "operand-equals"
-      ? { kind: "operand-equals", operandId: shape.value.operandId, value: shape.value.value as Exclude<JsonPrimitive, null> }
-      : { kind: "operand-includes", operandId: shape.value.operandId, value: shape.value.value as string });
+    const predicateValue = shape.value.value;
+    if (expectedType === "number") {
+      if (value.kind === "operand-includes"
+        || typeof predicateValue !== "number" || !Number.isFinite(predicateValue)) {
+        return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+      }
+      return accepted({ kind: "operand-equals", operandId: shape.value.operandId, value: predicateValue });
+    }
+    if (expectedType === "boolean") {
+      if (value.kind === "operand-includes" || typeof predicateValue !== "boolean") {
+        return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+      }
+      return accepted({ kind: "operand-equals", operandId: shape.value.operandId, value: predicateValue });
+    }
+    if (typeof predicateValue !== "string") {
+      return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+    }
+    if (value.kind === "operand-includes") {
+      return accepted({ kind: "operand-includes", operandId: shape.value.operandId, value: predicateValue });
+    }
+    return accepted({ kind: "operand-equals", operandId: shape.value.operandId, value: predicateValue });
   }
   if (value.kind === "relation-is") {
     const shape = closed(value, path, ["kind", "referenceName", "relationId"]);
@@ -236,16 +263,17 @@ function validateRecordPredicate(
       || !context.selectors.every((selector) => context.referenceRequirements.has(`${selector.checkId}\u0000${shape.value.referenceName}`))) {
       return issue(`${path}.referenceName`, "identity-mismatch", "Relation reference is not declared for every selected Check");
     }
-    if (!isStableId(shape.value.relationId)
+    const relationId = shape.value.relationId;
+    if (!isStableId(relationId)
       || !context.selectors.every((selector) => (
-        context.surfacesBySelector.get(selectorKey(selector))?.relations.includes(shape.value.relationId as string)
+        context.surfacesBySelector.get(selectorKey(selector))?.relations.includes(relationId)
       ))) {
       return issue(`${path}.relationId`, "identity-mismatch", "Relation is not registered for every selected record type");
     }
     return accepted({
       kind: "relation-is",
       referenceName: shape.value.referenceName,
-      relationId: shape.value.relationId
+      relationId
     });
   }
   if (value.kind === "relation-kind-in") {
@@ -353,23 +381,28 @@ function validateRunIdentity(checkId: unknown, path: string, definitions: readon
   return accepted(checkId);
 }
 
-function validateReferenceOperand(
+function validateReferenceStatusPredicate(
   value: Record<string, unknown>,
   path: string,
   requiredPairs: ReadonlySet<string>
-): ValidationResult<ReadinessPredicate | BlockWhen> {
+): ValidationResult<Readonly<{
+  kind: "reference-status";
+  checkId: string;
+  referenceName: string;
+  status: CheckReferenceEvidence["status"];
+}>> {
   if (!isStableId(value.checkId) || !isStableId(value.referenceName)
     || !requiredPairs.has(`${value.checkId}\u0000${value.referenceName}`)) {
     return issue(`${path}.referenceName`, "identity-mismatch", "Unknown required Check/reference operand");
   }
-  if (!REFERENCE_EVIDENCE_STATUSES.includes(value.status as never)) {
+  if (!isReferenceEvidenceStatus(value.status)) {
     return issue(`${path}.status`, "invalid-value", "Unknown reference evidence status");
   }
   return accepted({
     kind: "reference-status",
     checkId: value.checkId,
     referenceName: value.referenceName,
-    status: value.status as CheckReferenceEvidence["status"]
+    status: value.status
   });
 }
 
@@ -410,7 +443,7 @@ function validateReadinessPredicate(
   if (value.kind === "reference-status") {
     const shape = closed(value, path, ["kind", "checkId", "referenceName", "status"]);
     if (!shape.ok) return shape;
-    return validateReferenceOperand(shape.value, path, requiredPairs) as ValidationResult<ReadinessPredicate>;
+    return validateReferenceStatusPredicate(shape.value, path, requiredPairs);
   }
   if (value.kind === "view-empty") {
     const shape = closed(value, path, ["kind", "viewId"]);
@@ -452,7 +485,7 @@ function validateBlockWhen(
   if (value.kind === "reference-status") {
     const shape = closed(value, path, ["kind", "checkId", "referenceName", "status"]);
     if (!shape.ok) return shape;
-    return validateReferenceOperand(shape.value, path, requiredPairs) as ValidationResult<BlockWhen>;
+    return validateReferenceStatusPredicate(shape.value, path, requiredPairs);
   }
   return issue(`${path}.kind`, "invalid-value", "Unknown blockWhen predicate");
 }
@@ -549,7 +582,7 @@ function validateDecisionPolicy(
     if (!clauseShape.ok) return clauseShape;
     if (!isStableId(clauseShape.value.readinessId)) return issue(`${path}.readinessId`, "invalid-value", "Invalid readinessId");
     if (readinessIds.has(clauseShape.value.readinessId)) return issue(`${path}.readinessId`, "duplicate", "Duplicate readinessId");
-    if (!GATE_NOT_EVALUATED_REASONS.includes(clauseShape.value.reason as never)) {
+    if (!isGateNotEvaluatedReason(clauseShape.value.reason)) {
       return issue(`${path}.reason`, "invalid-value", "Unknown not-evaluated reason");
     }
     const predicate = validateReadinessPredicate(clauseShape.value.predicate, `${path}.predicate`, definitions, viewIds, requiredPairs);
@@ -558,7 +591,7 @@ function validateDecisionPolicy(
     readiness.push({
       readinessId: clauseShape.value.readinessId,
       predicate: predicate.value,
-      reason: clauseShape.value.reason as ReadinessClause["reason"]
+      reason: clauseShape.value.reason
     });
   }
   const blockWhen = validateBlockWhen(shape.value.blockWhen, definitions, viewIds, requiredPairs);
@@ -706,13 +739,13 @@ export function validateReferenceFacts(
     const pair = `${evidenceShape.value.checkId}\u0000${evidenceShape.value.referenceName}`;
     if (!requiredPairs.has(pair)) return issue(path, "identity-mismatch", "Reference evidence is not required by the selected policy");
     if (evidenceByPair.has(pair)) return issue(path, "duplicate", "Duplicate Check/reference evidence");
-    if (!REFERENCE_EVIDENCE_STATUSES.includes(evidenceShape.value.status as never)) {
+    if (!isReferenceEvidenceStatus(evidenceShape.value.status)) {
       return issue(`${path}.status`, "invalid-value", "Unknown reference evidence status");
     }
     const normalized: CheckReferenceEvidence = {
       checkId: evidenceShape.value.checkId,
       referenceName: evidenceShape.value.referenceName,
-      status: evidenceShape.value.status as CheckReferenceEvidence["status"]
+      status: evidenceShape.value.status
     };
     evidence.push(normalized);
     evidenceByPair.set(pair, normalized);
@@ -765,5 +798,5 @@ export function readRecordOperand(record: QualityRecord, operand: RecordOperandD
   if (operand.source.kind === "level") return record.level;
   if (operand.source.kind === "message") return record.message;
   if (operand.source.kind === "location-path") return record.location?.path ?? null;
-  return record.fields[operand.source.fieldId] as Exclude<JsonPrimitive, null> | undefined ?? null;
+  return record.fields[operand.source.fieldId] ?? null;
 }

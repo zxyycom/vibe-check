@@ -88,7 +88,7 @@ export class CheckManager {
         this.#addAckViolation(checkId, workHandle);
         return "rejected";
       }
-      const acknowledged = this.#acknowledged.get(checkId)!;
+      const acknowledged = this.#acknowledgementsFor(checkId);
       if (acknowledged.has(workHandle)) {
         return "duplicate";
       }
@@ -117,17 +117,17 @@ export class CheckManager {
         continue;
       }
       this.#closedRuns.add(check.definition.checkId);
-      const acknowledged = this.#acknowledged.get(check.definition.checkId)!;
+      const acknowledged = this.#acknowledgementsFor(check.definition.checkId);
       for (const workHandle of check.workHandles) {
         if (!acknowledged.has(workHandle)) {
-          this.#diagnostics.get(check.definition.checkId)!.push({
+          this.#diagnosticsFor(check.definition.checkId).push({
             category: "ack-protocol",
             tieBreakKey: workHandle
           });
         }
       }
       for (const diagnostic of additionalDiagnostics.get(check.definition.checkId) ?? []) {
-        this.#diagnostics.get(check.definition.checkId)!.push(freezeDiagnostic(diagnostic));
+        this.#diagnosticsFor(check.definition.checkId).push(freezeDiagnostic(diagnostic));
       }
     }
 
@@ -144,15 +144,31 @@ export class CheckManager {
     ));
   }
 
+  #acknowledgementsFor(checkId: string): Set<string> {
+    const acknowledged = this.#acknowledged.get(checkId);
+    if (acknowledged === undefined) {
+      throw new TypeError(`CheckManager has no applicable acknowledgement owner: ${checkId}`);
+    }
+    return acknowledged;
+  }
+
+  #diagnosticsFor(checkId: string): RunDiagnostic[] {
+    const diagnostics = this.#diagnostics.get(checkId);
+    if (diagnostics === undefined) {
+      throw new TypeError(`CheckManager has no applicable diagnostic owner: ${checkId}`);
+    }
+    return diagnostics;
+  }
+
   #addAckViolation(checkId: string, workHandle: unknown): void {
     const tieBreakKey = typeof workHandle === "string" && WORK_HANDLE_PATTERN.test(workHandle)
       ? workHandle
       : "work-handle/v1:unknown";
-    this.#diagnostics.get(checkId)?.push({ category: "ack-protocol", tieBreakKey });
+    this.#diagnosticsFor(checkId).push({ category: "ack-protocol", tieBreakKey });
   }
 
   #addTerminalReportViolation(checkId: string, kind: "duplicate" | "missing" | "unknown"): void {
-    this.#diagnostics.get(checkId)?.push({
+    this.#diagnosticsFor(checkId).push({
       category: "terminal-report-set",
       tieBreakKey: kind === "unknown"
         ? "terminal-report/v1:unknown"
@@ -204,7 +220,7 @@ export class CheckManager {
             dependencyId: report.dependencyId
           }));
         } else {
-          this.#diagnostics.get(checkId)!.push({
+          this.#diagnosticsFor(checkId).push({
             category: "invalid-result",
             tieBreakKey: `result/v1:${checkId}`
           });
@@ -219,7 +235,7 @@ export class CheckManager {
             executionId: report.executionId
           }));
         } else {
-          this.#diagnostics.get(checkId)!.push({
+          this.#diagnosticsFor(checkId).push({
             category: "invalid-result",
             tieBreakKey: `result/v1:${checkId}`
           });
@@ -269,12 +285,12 @@ export class CheckManager {
     const checkId = check.definition.checkId;
     const outcome = outcomes.get(checkId);
     if (outcome?.kind === "unavailable") {
-      this.#diagnostics.get(checkId)!.push({
+      this.#diagnosticsFor(checkId).push({
         category: "unavailable",
         tieBreakKey: `dependency/v1:${outcome.dependencyId}`
       });
     } else if (outcome?.kind === "execution-failed") {
-      this.#diagnostics.get(checkId)!.push({
+      this.#diagnosticsFor(checkId).push({
         category: "execution-failed",
         tieBreakKey: outcome.executionId
       });
@@ -282,7 +298,7 @@ export class CheckManager {
       const candidate = snapshotData(outcome.result);
       if (candidate === undefined || !hasExactKeys(candidate, ["verdict"])
         || (candidate.verdict !== "passed" && candidate.verdict !== "failed")) {
-        this.#diagnostics.get(checkId)!.push({
+        this.#diagnosticsFor(checkId).push({
           category: "invalid-result",
           tieBreakKey: `result/v1:${checkId}`
         });
@@ -291,9 +307,9 @@ export class CheckManager {
 
     const coverage = Object.freeze({
       plannedWorkCount: check.workHandles.length,
-      acknowledgedWorkCount: this.#acknowledged.get(checkId)!.size
+      acknowledgedWorkCount: this.#acknowledgementsFor(checkId).size
     });
-    const diagnostics = this.#diagnostics.get(checkId)!.sort(compareRunDiagnostics);
+    const diagnostics = this.#diagnosticsFor(checkId).sort(compareRunDiagnostics);
     const diagnostic = diagnostics[0];
     if (diagnostic !== undefined) {
       return Object.freeze({
@@ -309,7 +325,10 @@ export class CheckManager {
     if (outcome?.kind !== "returned") {
       throw new TypeError("CheckManager terminal report resolution is inconsistent");
     }
-    const result = snapshotData(outcome.result)!;
+    const result = snapshotData(outcome.result);
+    if (result === undefined || (result.verdict !== "passed" && result.verdict !== "failed")) {
+      throw new TypeError("CheckManager completed result validation is inconsistent");
+    }
     return Object.freeze({
       ...base,
       selection: "selected",

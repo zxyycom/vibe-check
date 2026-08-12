@@ -257,11 +257,7 @@ function printPublishedScan(input: Readonly<{
   }
 
   console.log("");
-  console.log(status === "failed"
-    ? "❌ Quality scan failed."
-    : status === "warning"
-      ? "⚠️ Quality scan complete with warnings."
-      : "✅ Quality scan complete.");
+  console.log(scanCompletionMessage(status));
   console.log(`Artifacts in: ${input.artifactDir}/`);
   console.log(`  run.json → ${join(input.artifactDir, "run.json")}`);
   console.log(`  records.ndjson → ${join(input.artifactDir, "records.ndjson")}`);
@@ -281,4 +277,10 @@ function printGate(gate: GateResult): void {
   console.log(`  Policy: ${gate.policyId}`);
   console.log(`  Status: ${gate.status}`);
   console.log(`  Blocking records: ${gate.blockingRecordRefs.length}`);
+}
+
+function scanCompletionMessage(status: ValidatedPublicationModelV2["humanStatus"]["selected"]): string {
+  if (status === "failed") return "❌ Quality scan failed.";
+  if (status === "warning") return "⚠️ Quality scan complete with warnings.";
+  return "✅ Quality scan complete.";
 }

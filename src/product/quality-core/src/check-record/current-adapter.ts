@@ -4,7 +4,9 @@ import type {
   AcceptanceRule,
   NamedRecordView,
   NamedReferenceIdentity,
+  PolicyReferenceRequirement,
   PolicyResolution,
+  ReadinessClause,
   RecordPredicate,
   RecordSelector
 } from "./policy-model.ts";
@@ -63,10 +65,6 @@ export function resolveCurrentPolicy(input: Readonly<{
   if (input.gate === null) {
     return acceptedResolution({ policy: null, references: [] }, input.catalog);
   }
-  if (input.gate !== "all" && input.baseline === null) {
-    return failed("baseline-required");
-  }
-
   const allSelectors = input.catalog.definitions.flatMap((definition) => (
     definition.recordTypes.map((recordType): RecordSelector => ({
       checkId: definition.checkId,
@@ -87,23 +85,45 @@ export function resolveCurrentPolicy(input: Readonly<{
       predicate: { kind: "run-status", checkId, status: "completed" },
       reason: "scan-incomplete"
     }));
-  const references = input.gate === "all" ? [] : [input.baseline!];
   const comparisonCheckIds = eligibleCheckIds;
-  const referenceRequirements = input.gate === "all" ? [] : [{
-    referenceName: input.baseline!.referenceName,
-    checkIds: comparisonCheckIds
-  }];
-  const relationPredicates = input.gate === "all" ? [] : [input.gate === "changed"
-    ? {
-      kind: "relation-kind-in" as const,
-      referenceName: input.baseline!.referenceName,
-      values: ["changed", "regression"]
+  const references: NamedReferenceIdentity[] = [];
+  const referenceRequirements: PolicyReferenceRequirement[] = [];
+  const relationPredicates: RecordPredicate[] = [];
+  const referenceReadiness: ReadinessClause[] = [];
+  if (input.gate !== "all") {
+    const baseline = input.baseline;
+    if (baseline === null) {
+      return failed("baseline-required");
     }
-    : {
-      kind: "relation-is" as const,
-      referenceName: input.baseline!.referenceName,
-      relationId: "regression"
-    }];
+    references.push(baseline);
+    referenceRequirements.push({
+      referenceName: baseline.referenceName,
+      checkIds: comparisonCheckIds
+    });
+    if (input.gate === "changed") {
+      relationPredicates.push({
+        kind: "relation-kind-in",
+        referenceName: baseline.referenceName,
+        values: ["changed", "regression"]
+      });
+    } else {
+      relationPredicates.push({
+        kind: "relation-is",
+        referenceName: baseline.referenceName,
+        relationId: "regression"
+      });
+    }
+    referenceReadiness.push(...comparisonCheckIds.map((checkId): ReadinessClause => ({
+      readinessId: `reference-baseline-${checkId}-complete`,
+      predicate: {
+        kind: "reference-status",
+        checkId,
+        referenceName: baseline.referenceName,
+        status: "complete"
+      },
+      reason: "comparison-unavailable"
+    })));
+  }
   const policy = {
     policyId: input.gate,
     references: referenceRequirements,
@@ -126,16 +146,7 @@ export function resolveCurrentPolicy(input: Readonly<{
     }],
     readiness: [
       ...readiness,
-      ...(input.gate === "all" ? [] : comparisonCheckIds.map((checkId) => ({
-        readinessId: `reference-baseline-${checkId}-complete`,
-        predicate: {
-          kind: "reference-status",
-          checkId,
-          referenceName: input.baseline!.referenceName,
-          status: "complete"
-        },
-        reason: "comparison-unavailable"
-      })))
+      ...referenceReadiness
     ],
     blockWhen: { kind: "view-not-empty", viewId: `${input.gate}-unaccepted` }
   };

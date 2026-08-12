@@ -21,11 +21,10 @@ interface CurrentSchemaValidators {
   readonly run: ValidateFunction;
 }
 
-let currentSchemas: CurrentSchemaValidators | undefined;
-
 export function validateRun(
   bytes: Uint8Array,
-  artifactRoot: string
+  artifactRoot: string,
+  schemas: CurrentSchemaValidators
 ): ParsedArtifactResult<RunShape> {
   const decoded = decode(bytes, artifactRoot, RUN_ARTIFACT);
   if (!decoded.ok) return decoded;
@@ -38,7 +37,7 @@ export function validateRun(
       message: "Run artifact must contain exactly one JSON value."
     });
   }
-  const validate = getCurrentSchemas().run;
+  const validate = schemas.run;
   if (!validate(value)) {
     const pointer = schemaErrorPointer(validate.errors);
     return failure(artifactRoot, RUN_ARTIFACT, {
@@ -52,7 +51,8 @@ export function validateRun(
 
 export function validateRecordStream(
   bytes: Uint8Array,
-  artifactRoot: string
+  artifactRoot: string,
+  schemas: CurrentSchemaValidators
 ): ParsedArtifactResult<RecordShape[]> {
   if (bytes.byteLength === 0) return { ok: true, value: [] };
   if (bytes[bytes.byteLength - 1] !== 0x0a) {
@@ -86,7 +86,7 @@ export function validateRecordStream(
         message: "Record segment must contain exactly one JSON value."
       });
     }
-    const validate = getCurrentSchemas().record;
+    const validate = schemas.record;
     if (!validate(value)) {
       const pointer = schemaErrorPointer(validate.errors);
       return failure(artifactRoot, RECORDS_ARTIFACT, {
@@ -102,12 +102,7 @@ export function validateRecordStream(
   return { ok: true, value: records };
 }
 
-function getCurrentSchemas(): CurrentSchemaValidators {
-  currentSchemas ??= compileCurrentSchemas();
-  return currentSchemas;
-}
-
-function compileCurrentSchemas(): CurrentSchemaValidators {
+export function createCurrentSchemaValidators(): CurrentSchemaValidators {
   const ajv = createCurrentSchemaAjv();
   return {
     record: compileRegisteredSchema(ajv, CURRENT_SCHEMAS.record),

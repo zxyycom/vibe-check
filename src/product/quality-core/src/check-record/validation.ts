@@ -10,7 +10,6 @@ import {
   type PolicyOperandDefinition,
   type PolicyOperandSource,
   type QualityRecord,
-  type RecordFields,
   type RecordConflictEvidence,
   type RecordFieldDefinition,
   type RecordLocation,
@@ -37,7 +36,7 @@ export interface ValidationIssue {
 
 export type ValidationResult<T> = Readonly<
   | { ok: true; value: T }
-  | { ok: false; issues: readonly ValidationIssue[] }
+  | { ok: false; issues: readonly [ValidationIssue, ...ValidationIssue[]] }
 >;
 
 const STABLE_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -62,7 +61,10 @@ function issue(
   code: ValidationIssue["code"],
   message: string
 ): ValidationResult<never> {
-  return Object.freeze({ ok: false, issues: Object.freeze([{ path, code, message }]) });
+  const issues: readonly [ValidationIssue] = Object.freeze([
+    Object.freeze({ path, code, message })
+  ]);
+  return Object.freeze({ ok: false, issues });
 }
 
 function deepFreeze<T>(value: T): T {
@@ -136,8 +138,39 @@ function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
+function isRecordFieldValueType(value: unknown): value is RecordFieldDefinition["valueType"] {
+  return RECORD_FIELD_VALUE_TYPES.some((valueType) => valueType === value);
+}
+
+function isRunFailureCategory(value: unknown): value is RunDiagnostic["category"] {
+  return RUN_FAILURE_CATEGORIES.some((category) => category === value);
+}
+
+function isCompletedVerdict(value: unknown): value is "failed" | "passed" {
+  return CHECK_RESULT_VERDICTS.some((verdict) => verdict === value)
+    && value !== "not-applicable";
+}
+
+function isRecordLevel(value: unknown): value is QualityRecord["level"] {
+  return RECORD_LEVELS.some((level) => level === value);
+}
+
+function isNonNegativeSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+
+function isPositiveSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
+}
+
 function compareCanonicalText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
 
 function materializeUnknown(value: unknown): ValidationResult<unknown> {
@@ -157,7 +190,7 @@ function validateFieldDefinition(value: unknown, path: string): ValidationResult
   if (!isFieldId(field.fieldId)) {
     return issue(`${path}.fieldId`, "invalid-value", "fieldId must use stable lower-camel identity grammar");
   }
-  if (!RECORD_FIELD_VALUE_TYPES.includes(field.valueType as never)) {
+  if (!isRecordFieldValueType(field.valueType)) {
     return issue(`${path}.valueType`, "invalid-value", "Unknown record field value type");
   }
   if (typeof field.required !== "boolean") {
@@ -165,7 +198,7 @@ function validateFieldDefinition(value: unknown, path: string): ValidationResult
   }
   return accepted({
     fieldId: field.fieldId,
-    valueType: field.valueType as RecordFieldDefinition["valueType"],
+    valueType: field.valueType,
     required: field.required
   });
 }
@@ -183,7 +216,10 @@ function validatePolicyOperandSource(
     const closed = validateClosedRecord(value, path, ["kind", "fieldId"]);
     if (!closed.ok) return closed;
     const field = fields.find((candidate) => candidate.fieldId === closed.value.fieldId);
-    const fieldValueType = field?.valueType === "integer" ? "number" : field?.valueType;
+    let fieldValueType = field?.valueType;
+    if (fieldValueType === "integer") {
+      fieldValueType = "number";
+    }
     if (field === undefined || fieldValueType !== valueType) {
       return issue(`${path}.fieldId`, "identity-mismatch", "Policy operand must bind a compatible declared field");
     }
@@ -372,17 +408,16 @@ function validateCoverage(value: unknown, path: string): ValidationResult<RunCov
     return closed;
   }
   const coverage = closed.value;
-  if (!Number.isSafeInteger(coverage.plannedWorkCount) || (coverage.plannedWorkCount as number) < 0) {
+  if (!isNonNegativeSafeInteger(coverage.plannedWorkCount)) {
     return issue(`${path}.plannedWorkCount`, "invalid-value", "plannedWorkCount must be a non-negative safe integer");
   }
-  if (!Number.isSafeInteger(coverage.acknowledgedWorkCount)
-    || (coverage.acknowledgedWorkCount as number) < 0
-    || (coverage.acknowledgedWorkCount as number) > (coverage.plannedWorkCount as number)) {
+  if (!isNonNegativeSafeInteger(coverage.acknowledgedWorkCount)
+    || coverage.acknowledgedWorkCount > coverage.plannedWorkCount) {
     return issue(`${path}.acknowledgedWorkCount`, "invalid-value", "acknowledgedWorkCount must be between zero and plannedWorkCount");
   }
   return accepted({
-    plannedWorkCount: coverage.plannedWorkCount as number,
-    acknowledgedWorkCount: coverage.acknowledgedWorkCount as number
+    plannedWorkCount: coverage.plannedWorkCount,
+    acknowledgedWorkCount: coverage.acknowledgedWorkCount
   });
 }
 
@@ -392,18 +427,17 @@ function validateDiagnostic(value: unknown, path: string): ValidationResult<RunD
     return closed;
   }
   const diagnostic = closed.value;
-  if (!RUN_FAILURE_CATEGORIES.includes(diagnostic.category as never)) {
+  if (!isRunFailureCategory(diagnostic.category)) {
     return issue(`${path}.category`, "invalid-value", "Unknown run failure category");
   }
   if (!isNonEmptyString(diagnostic.tieBreakKey)) {
     return issue(`${path}.tieBreakKey`, "invalid-value", "tieBreakKey must be non-empty");
   }
-  const category = diagnostic.category as RunDiagnostic["category"];
-  if (!RUN_DIAGNOSTIC_ID_PATTERN[category].test(diagnostic.tieBreakKey)) {
+  if (!RUN_DIAGNOSTIC_ID_PATTERN[diagnostic.category].test(diagnostic.tieBreakKey)) {
     return issue(`${path}.tieBreakKey`, "invalid-value", "Diagnostic identity does not match its category grammar");
   }
   return accepted({
-    category,
+    category: diagnostic.category,
     tieBreakKey: diagnostic.tieBreakKey
   });
 }
@@ -475,8 +509,7 @@ function validateMaterializedCheckRun(value: unknown): ValidationResult<CheckRun
   }
   if (run.status === "completed") {
     if (!isRecord(run.result) || Object.keys(run.result).length !== 1
-      || !CHECK_RESULT_VERDICTS.includes(run.result.verdict as never)
-      || run.result.verdict === "not-applicable" || run.diagnostic !== null
+      || !isCompletedVerdict(run.result.verdict) || run.diagnostic !== null
       || coverage.value.acknowledgedWorkCount !== coverage.value.plannedWorkCount) {
       return issue("$", "invalid-value", "Completed applicable runs require passed or failed result, complete coverage, and no diagnostic");
     }
@@ -486,7 +519,7 @@ function validateMaterializedCheckRun(value: unknown): ValidationResult<CheckRun
       selection: "selected",
       applicability: "applicable",
       status: "completed",
-      result: { verdict: run.result.verdict as "failed" | "passed" },
+      result: { verdict: run.result.verdict },
       coverage: coverage.value,
       diagnostic: null
     });
@@ -523,16 +556,21 @@ function validateFieldValue(
   definition: RecordFieldDefinition,
   path: string
 ): ValidationResult<boolean | number | string> {
-  const isValid = definition.valueType === "string"
-    ? typeof value === "string"
-    : definition.valueType === "boolean"
-      ? typeof value === "boolean"
-      : definition.valueType === "integer"
-        ? Number.isSafeInteger(value)
-        : typeof value === "number" && Number.isFinite(value);
-  return isValid
-    ? accepted(value as boolean | number | string)
-    : issue(path, "invalid-value", `Expected ${definition.valueType}`);
+  if (definition.valueType === "string" && typeof value === "string") {
+    return accepted(value);
+  }
+  if (definition.valueType === "boolean" && typeof value === "boolean") {
+    return accepted(value);
+  }
+  if (definition.valueType === "integer"
+    && typeof value === "number" && Number.isSafeInteger(value)) {
+    return accepted(value);
+  }
+  if (definition.valueType === "number"
+    && typeof value === "number" && Number.isFinite(value)) {
+    return accepted(value);
+  }
+  return issue(path, "invalid-value", `Expected ${definition.valueType}`);
 }
 
 function validateLocation(value: unknown): ValidationResult<RecordLocation | null> {
@@ -545,14 +583,14 @@ function validateLocation(value: unknown): ValidationResult<RecordLocation | nul
   }
   const location = closed.value;
   if (!isNonEmptyString(location.path)
-    || !Number.isSafeInteger(location.line) || (location.line as number) < 1
-    || !Number.isSafeInteger(location.column) || (location.column as number) < 1) {
+    || !isPositiveSafeInteger(location.line)
+    || !isPositiveSafeInteger(location.column)) {
     return issue("$.location", "invalid-value", "Location requires path and positive line/column integers");
   }
   return accepted({
     path: location.path,
-    line: location.line as number,
-    column: location.column as number
+    line: location.line,
+    column: location.column
   });
 }
 
@@ -586,7 +624,7 @@ function validateMaterializedQualityRecord(
   if (recordType === undefined) {
     return issue("$.recordTypeId", "identity-mismatch", "Unknown recordTypeId for Check");
   }
-  if (!RECORD_LEVELS.includes(record.level as never)
+  if (!isRecordLevel(record.level)
     || !isNonEmptyString(record.semanticSubject)
     || !isNonEmptyString(record.message)
     || !isRecord(record.fields)) {
@@ -621,10 +659,10 @@ function validateMaterializedQualityRecord(
     checkId: definition.checkId,
     checkRunId: record.checkRunId,
     recordTypeId: recordType.recordTypeId,
-    level: record.level as QualityRecord["level"],
+    level: record.level,
     semanticSubject: normalizeSemanticSubject(record.semanticSubject),
     message: record.message,
-    fields: validatedFields as RecordFields,
+    fields: validatedFields,
     location: location.value
   };
   const expectedRecordId = createRecordId(normalizedRecord, recordType).recordId;
@@ -665,7 +703,13 @@ function validateInvalidRecordEvidence(
     || !INVALID_RECORD_EVIDENCE_ID_PATTERN.test(evidence.evidenceId)) {
     return issue(path, "invalid-value", "Invalid invalid-record evidence");
   }
-  return accepted(evidence as unknown as InvalidRecordEvidence);
+  return accepted({
+    kind: "invalid-record",
+    checkId: evidence.checkId,
+    checkRunId: evidence.checkRunId,
+    recordTypeId: evidence.recordTypeId,
+    evidenceId: evidence.evidenceId
+  });
 }
 
 function validateConflictEvidence(
@@ -691,13 +735,13 @@ function validateConflictEvidence(
     || evidence.bodyFingerprints.length < 2) {
     return issue(path, "invalid-value", "Invalid record-conflict evidence");
   }
-  const bodyFingerprints = evidence.bodyFingerprints as readonly unknown[];
-  if (!bodyFingerprints.every((fingerprint): fingerprint is string => (
-    typeof fingerprint === "string" && BODY_FINGERPRINT_PATTERN.test(fingerprint)
-  ))) {
-    return issue(`${path}.bodyFingerprints`, "invalid-value", "Conflict body fingerprints must be SHA-256 identities");
+  const validatedBodyFingerprints: string[] = [];
+  for (const fingerprint of evidence.bodyFingerprints) {
+    if (typeof fingerprint !== "string" || !BODY_FINGERPRINT_PATTERN.test(fingerprint)) {
+      return issue(`${path}.bodyFingerprints`, "invalid-value", "Conflict body fingerprints must be SHA-256 identities");
+    }
+    validatedBodyFingerprints.push(fingerprint);
   }
-  const validatedBodyFingerprints = bodyFingerprints as readonly string[];
   if (new Set(validatedBodyFingerprints).size !== validatedBodyFingerprints.length
     || validatedBodyFingerprints.some((fingerprint, index) => (
       index > 0 && validatedBodyFingerprints[index - 1]! >= fingerprint
@@ -739,11 +783,13 @@ function validateIntegrity(value: unknown): ValidationResult<SnapshotIntegrity> 
     }
     conflicts.push(validated.value);
   }
-  const expectedStatus = conflicts.length > 0
-    ? "conflicted"
-    : invalidRecords.length > 0
-      ? "invalid"
-      : "valid";
+  let expectedStatus: SnapshotIntegrity["status"] = "valid";
+  if (invalidRecords.length > 0) {
+    expectedStatus = "invalid";
+  }
+  if (conflicts.length > 0) {
+    expectedStatus = "conflicted";
+  }
   if (integrity.status !== expectedStatus) {
     return issue("$.integrity.status", "invalid-value", `Integrity status must be ${expectedStatus}`);
   }
@@ -773,7 +819,7 @@ function validateCompleteness(
     "failedRunCount",
     "plannedWorkCount",
     "acknowledgedWorkCount"
-  ];
+  ] as const;
   const closed = validateClosedRecord(value, "$.completeness", fields);
   if (!closed.ok) {
     return closed;
@@ -788,7 +834,7 @@ function validateCompleteness(
     acknowledgedWorkCount: selectedRuns.reduce((sum, run) => sum + run.coverage.acknowledgedWorkCount, 0)
   };
   for (const field of fields) {
-    if (closed.value[field] !== expected[field as keyof SnapshotCompleteness]) {
+    if (closed.value[field] !== expected[field]) {
       return issue(`$.completeness.${field}`, "invalid-value", "Completeness must equal manager-derived run facts");
     }
   }
@@ -812,7 +858,7 @@ function validateMaterializedFinalCoreSnapshot(value: unknown): ValidationResult
   for (let index = 0; index < snapshot.definitions.length; index += 1) {
     const validated = validateMaterializedCheckDefinition(snapshot.definitions[index]);
     if (!validated.ok) {
-      return issue(`$.definitions[${index}]`, validated.issues[0]!.code, validated.issues[0]!.message);
+      return issue(`$.definitions[${index}]`, validated.issues[0].code, validated.issues[0].message);
     }
     if (checkIds.has(validated.value.checkId)) {
       return issue(`$.definitions[${index}].checkId`, "duplicate", "Duplicate checkId");
@@ -828,7 +874,7 @@ function validateMaterializedFinalCoreSnapshot(value: unknown): ValidationResult
   for (let index = 0; index < snapshot.runs.length; index += 1) {
     const validated = validateMaterializedCheckRun(snapshot.runs[index]);
     if (!validated.ok) {
-      return issue(`$.runs[${index}]`, validated.issues[0]!.code, validated.issues[0]!.message);
+      return issue(`$.runs[${index}]`, validated.issues[0].code, validated.issues[0].message);
     }
     if (!checkIds.has(validated.value.checkId) || runsByCheckId.has(validated.value.checkId)) {
       return issue(`$.runs[${index}].checkId`, "identity-mismatch", "Each definition requires exactly one owned run");
@@ -841,7 +887,7 @@ function validateMaterializedFinalCoreSnapshot(value: unknown): ValidationResult
   }
   const records: QualityRecord[] = [];
   const recordIds = new Set<string>();
-  const rawRecords = snapshot.records as readonly unknown[];
+  const rawRecords: readonly unknown[] = snapshot.records;
   for (let index = 0; index < rawRecords.length; index += 1) {
     const rawRecord = rawRecords[index];
     const definition = isRecord(rawRecord)
@@ -852,9 +898,12 @@ function validateMaterializedFinalCoreSnapshot(value: unknown): ValidationResult
     }
     const validated = validateMaterializedQualityRecord(rawRecord, definition);
     if (!validated.ok) {
-      return issue(`$.records[${index}]`, validated.issues[0]!.code, validated.issues[0]!.message);
+      return issue(`$.records[${index}]`, validated.issues[0].code, validated.issues[0].message);
     }
-    const run = runsByCheckId.get(validated.value.checkId)!;
+    const run = runsByCheckId.get(validated.value.checkId);
+    if (run === undefined) {
+      return issue(`$.records[${index}].checkRunId`, "identity-mismatch", "Record has no owning run");
+    }
     if (validated.value.checkRunId !== run.checkRunId || run.applicability !== "applicable") {
       return issue(`$.records[${index}].checkRunId`, "identity-mismatch", "Record has no applicable owning run");
     }

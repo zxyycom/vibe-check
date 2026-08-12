@@ -477,7 +477,10 @@ function buildRecordCandidates(
     if (!isValidFragment(fragment)) {
       return undefined;
     }
-    const subject = subjects[index]!;
+    const subject = subjects[index];
+    if (subject === undefined) {
+      return undefined;
+    }
 
     const locations = sortedLocations(fragment.locations);
     const codeAreas = uniqueSorted(locations.map((location) => location.codeArea));
@@ -485,7 +488,10 @@ function buildRecordCandidates(
     if (level === null) {
       continue;
     }
-    const primaryLocation = locations[0]!;
+    const primaryLocation = locations[0];
+    if (primaryLocation === undefined) {
+      return undefined;
+    }
     const suggestion = `Consider extracting shared code into a common function or module. Locations: ${locations.map(formatLocation).join(", ")}`;
     candidates.push(Object.freeze({
       isChanged: fragment.hitsChangedScope,
@@ -666,5 +672,11 @@ function uniqueSorted(values: readonly string[]): string[] {
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }

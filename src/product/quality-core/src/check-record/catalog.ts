@@ -16,11 +16,6 @@ export type CheckExecutionBinding = (
   ports: CheckExecutionPorts
 ) => unknown | Promise<unknown>;
 
-export interface CheckExecutionBindingEntry {
-  readonly checkId: string;
-  readonly execute: CheckExecutionBinding;
-}
-
 export interface ResolvedCheck {
   readonly definition: CheckDefinition;
   readonly binding: CheckExecutionBinding;
@@ -57,7 +52,13 @@ function failed(stage: CatalogResolutionStage): CatalogResolutionResult {
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -210,7 +211,10 @@ export function resolveCheckCatalog(input: Readonly<{
   const ownedWorkHandles = new Set<string>();
   const checks: ResolvedCheck[] = [];
   for (const definition of definitions) {
-    const binding = bindings.get(definition.checkId)!;
+    const binding = bindings.get(definition.checkId);
+    if (binding === undefined) {
+      return failed("bindings");
+    }
     const checkRunId = createDeterministicCheckRunId({
       invocationKey: input.invocationKey,
       checkId: definition.checkId

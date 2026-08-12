@@ -137,9 +137,7 @@ function validateIntegrity(
   records: readonly RecordShape[],
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  const expectedStatus = run.integrity.conflicts.length > 0
-    ? "conflicted"
-    : run.integrity.invalidRecords.length > 0 ? "invalid" : "valid";
+  const expectedStatus = expectedIntegrityStatus(run);
   if (run.integrity.status !== expectedStatus) {
     return integrityFailure(artifactRoot, "Integrity status must match its evidence arrays.");
   }
@@ -527,5 +525,13 @@ function isCanonical<Value>(values: readonly Value[], key: (value: Value) => str
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+function expectedIntegrityStatus(run: RunShape): RunShape["integrity"]["status"] {
+  if (run.integrity.conflicts.length > 0) return "conflicted";
+  if (run.integrity.invalidRecords.length > 0) return "invalid";
+  return "valid";
 }

@@ -156,16 +156,25 @@ export function mapPublicationOutcomeV2(input: Readonly<{
       trustedArtifactNames: Object.freeze([] as string[])
     });
   }
-  const outcome = input.model.humanStatus.normal === "failed"
-    ? "failed" as const
-    : input.model.decision.gate.status === "failed"
-      ? "gate-failed" as const
-      : input.model.decision.gate.status === "not-evaluated"
-        ? "failed" as const
-        : "success" as const;
+  const outcome = completedPublicationOutcome(input.model);
   return Object.freeze({
-    exitCode: outcome === "gate-failed" ? 1 as const : outcome === "failed" ? 2 as const : 0 as const,
+    exitCode: publicationExitCode(outcome),
     outcome,
     trustedArtifactNames: TRUSTED_ARTIFACT_NAMES
   });
+}
+
+function completedPublicationOutcome(
+  model: ValidatedPublicationModelV2
+): "failed" | "gate-failed" | "success" {
+  if (model.humanStatus.normal === "failed") return "failed";
+  if (model.decision.gate.status === "failed") return "gate-failed";
+  if (model.decision.gate.status === "not-evaluated") return "failed";
+  return "success";
+}
+
+function publicationExitCode(outcome: "failed" | "gate-failed" | "success"): 0 | 1 | 2 {
+  if (outcome === "gate-failed") return 1;
+  if (outcome === "failed") return 2;
+  return 0;
 }

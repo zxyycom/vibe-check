@@ -119,11 +119,13 @@ export function compareRunDiagnostics(left: RunDiagnostic, right: RunDiagnostic)
   if (rankDifference !== 0) {
     return rankDifference;
   }
-  return left.tieBreakKey < right.tieBreakKey
-    ? -1
-    : left.tieBreakKey > right.tieBreakKey
-      ? 1
-      : 0;
+  if (left.tieBreakKey < right.tieBreakKey) {
+    return -1;
+  }
+  if (left.tieBreakKey > right.tieBreakKey) {
+    return 1;
+  }
+  return 0;
 }
 
 interface CheckRunBase {

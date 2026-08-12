@@ -3,7 +3,11 @@ import fs from "node:fs";
 import { toAbs } from "../repo/paths.ts";
 import { artifactPath, formatDiagnostic } from "./machine-artifact-diagnostics.ts";
 import { validateArtifactSetInvariants } from "./machine-artifact-invariants.ts";
-import { validateRecordStream, validateRun } from "./machine-artifact-parsing.ts";
+import {
+  createCurrentSchemaValidators,
+  validateRecordStream,
+  validateRun
+} from "./machine-artifact-parsing.ts";
 import {
   CURRENT_MACHINE_EXAMPLES_ROOT,
   CURRENT_MACHINE_OUTCOMES,
@@ -23,12 +27,13 @@ export type {
 
 export function validatePublishedMachineArtifactExamples(): number {
   assertExactOutcomeInventory();
+  const schemas = createCurrentSchemaValidators();
   for (const outcome of CURRENT_MACHINE_OUTCOMES) {
     const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${outcome}`;
-    const result = validateDocsMachineArtifactSet({
+    const result = validateDocsMachineArtifactSetWithSchemas({
       runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
       recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
-    }, artifactRoot);
+    }, artifactRoot, schemas);
     if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
   }
   console.log(
@@ -41,9 +46,21 @@ export function validateDocsMachineArtifactSet(
   artifacts: DocsMachineArtifactBytes,
   artifactRoot: string
 ): DocsMachineValidationResult {
-  const runResult = validateRun(artifacts.runJson, artifactRoot);
+  return validateDocsMachineArtifactSetWithSchemas(
+    artifacts,
+    artifactRoot,
+    createCurrentSchemaValidators()
+  );
+}
+
+function validateDocsMachineArtifactSetWithSchemas(
+  artifacts: DocsMachineArtifactBytes,
+  artifactRoot: string,
+  schemas: ReturnType<typeof createCurrentSchemaValidators>
+): DocsMachineValidationResult {
+  const runResult = validateRun(artifacts.runJson, artifactRoot, schemas);
   if (!runResult.ok) return runResult;
-  const recordsResult = validateRecordStream(artifacts.recordsNdjson, artifactRoot);
+  const recordsResult = validateRecordStream(artifacts.recordsNdjson, artifactRoot, schemas);
   if (!recordsResult.ok) return recordsResult;
   const invariantFailure = validateArtifactSetInvariants(
     runResult.value,

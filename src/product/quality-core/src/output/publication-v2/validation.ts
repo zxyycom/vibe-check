@@ -6,7 +6,10 @@ import type {
   QualityRecord
 } from "../../check-record/model.ts";
 import type { EvidenceRef } from "../../check-record/policy-model.ts";
-import { validateFinalCoreSnapshot } from "../../check-record/validation.ts";
+import {
+  validateFinalCoreSnapshot,
+  type ValidationIssue
+} from "../../check-record/validation.ts";
 import type { MachinePublicationV2 } from "./mapper.ts";
 import {
   MACHINE_RECORD_V2_SCHEMA,
@@ -168,18 +171,7 @@ function validateInvariants(
   } satisfies FinalCoreSnapshot);
   if (!coreSnapshot.ok) {
     const issue = coreSnapshot.issues[0];
-    const relationship = issue?.path.includes("catalogFingerprint")
-      ? "catalog-fingerprint"
-      : issue?.path.includes("runs") && issue.code === "missing-field"
-        ? "catalog-run-membership"
-        : issue?.path.includes("records") && issue.path.includes("recordId")
-          ? "record-identity"
-          : issue?.path.includes("records")
-            ? "record-run-ownership"
-            : "core-snapshot";
-    return setFailure(relationship, issue?.path.includes("records")
-      ? "records.ndjson"
-      : "run.json", issue?.message ?? "Final Core snapshot is invalid.");
+    return coreSnapshotFailure(issue);
   }
   for (const [index, record] of records.entries()) {
     if (index > 0 && records[index - 1]!.recordId >= record.recordId) {
@@ -416,7 +408,30 @@ function isCanonical<Value>(values: readonly Value[], key: (value: Value) => str
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
+}
+
+function coreSnapshotFailure(
+  issue: ValidationIssue | undefined
+): Extract<MachinePublicationValidationResult, { ok: false }> {
+  const logicalArtifact = issue?.path.includes("records")
+    ? "records.ndjson"
+    : "run.json";
+  if (issue?.path.includes("catalogFingerprint")) {
+    return setFailure("catalog-fingerprint", logicalArtifact, issue.message);
+  }
+  if (issue?.path.includes("runs") && issue.code === "missing-field") {
+    return setFailure("catalog-run-membership", logicalArtifact, issue.message);
+  }
+  if (issue?.path.includes("records") && issue.path.includes("recordId")) {
+    return setFailure("record-identity", logicalArtifact, issue.message);
+  }
+  if (issue?.path.includes("records")) {
+    return setFailure("record-run-ownership", logicalArtifact, issue.message);
+  }
+  return setFailure("core-snapshot", logicalArtifact, issue?.message ?? "Final Core snapshot is invalid.");
 }
 
 function decode(

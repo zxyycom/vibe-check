@@ -84,7 +84,13 @@ function snapshotData(
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
 
 function recordBody(record: QualityRecord): JsonObject {
@@ -168,8 +174,15 @@ export class RecordManager {
       })));
     const conflicts = Object.freeze([...this.#conflicts.values()]
       .sort((left, right) => compareText(left.recordId, right.recordId)));
+    let integrityStatus: SnapshotIntegrity["status"] = "valid";
+    if (invalidRecords.length > 0) {
+      integrityStatus = "invalid";
+    }
+    if (conflicts.length > 0) {
+      integrityStatus = "conflicted";
+    }
     const integrity: SnapshotIntegrity = Object.freeze({
-      status: conflicts.length > 0 ? "conflicted" : invalidRecords.length > 0 ? "invalid" : "valid",
+      status: integrityStatus,
       invalidRecords,
       conflicts
     });

@@ -244,8 +244,9 @@ function buildRecordCandidates(
   const seenPaths = new Set<string>();
   const candidates: FileRecordCandidate[] = [];
   for (const metric of metrics) {
+    const codeLines = metric.codeLines;
     if (typeof metric.path !== "string" || metric.path.length === 0
-      || !Number.isSafeInteger(metric.codeLines) || (metric.codeLines ?? -1) < 0
+      || typeof codeLines !== "number" || !Number.isSafeInteger(codeLines) || codeLines < 0
       || seenPaths.has(metric.path)) {
       return undefined;
     }
@@ -260,7 +261,6 @@ function buildRecordCandidates(
       continue;
     }
     const limit = fileCodeLineFloor(metric, semantics);
-    const codeLines = metric.codeLines!;
     if (codeLines <= limit) {
       continue;
     }
@@ -301,12 +301,13 @@ function fileCodeLineFloor(metric: FileMetric, semantics: FileMetricsSemantics):
 function codeLinesByPath(metrics: readonly FileMetric[]): ReadonlyMap<string, number> | undefined {
   const values = new Map<string, number>();
   for (const metric of metrics) {
+    const codeLines = metric.codeLines;
     if (typeof metric.path !== "string" || metric.path.length === 0
-      || !Number.isSafeInteger(metric.codeLines) || (metric.codeLines ?? -1) < 0
+      || typeof codeLines !== "number" || !Number.isSafeInteger(codeLines) || codeLines < 0
       || values.has(metric.path)) {
       return undefined;
     }
-    values.set(metric.path, metric.codeLines!);
+    values.set(metric.path, codeLines);
   }
   return values;
 }
@@ -376,5 +377,11 @@ function buildReferenceFacts(
 }
 
 function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }
