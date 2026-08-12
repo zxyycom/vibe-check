@@ -22,6 +22,8 @@ Vibe Check 拥有的开发脚本入口是：
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
 - `scripts/test-evidence/index.ts`：项目自有的测试实体发现、语义 Case 查询与全树闭合
   入口；它运行受支持 Bun test surface，并校验 static/runtime/entity/Case 双向覆盖。
+- `scripts/project-environment/index.ts`：在不依赖尚未初始化的 toolkit submodule 的前提下，
+  配置或只读检查锁定的开发工具、包依赖、submodule 与 CodeGraph 索引。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
   `parallel-task-runner` 并行运行本地检查。
 
@@ -78,18 +80,72 @@ reference/cache primitives 和必要 `foundation` helper 闭包归属 `src/produ
 `src/product/README.md`。`foundation` 与 `parallel-task-runner` gitlinks 不是产品 runtime
 依赖。
 
-## 新 checkout 初始化
+## 项目环境自举与检查
 
-在新的 checkout 里运行仍由开发脚本消费的 toolkit 前，先初始化对应 submodule，并安装
-lockfile 固定的 Node 依赖：
+根目录 `mise.toml` 声明 Node.js、Bun、pnpm、uv、Go、Lizard、scc 与 CodeGraph，
+`mise.lock` 固定 mise 可锁定的解析结果。项目环境入口由
+`scripts/project-environment/index.ts` 拥有；调用方必须已经提供 Git、Bun 与 mise，并在首次
+信任仓库配置前审阅 `mise.toml`。
+
+### 配置环境
+
+首次检出仓库、`mise.toml` 的工具 pin 变化或本地环境缺失时运行：
 
 ```bash
-git submodule update --init --recursive
-pnpm install --frozen-lockfile
+bun run env:setup
 ```
 
-这些命令只准备本地开发工具，不构建也不修改 `src/product/**`；quality dogfood 不依赖
-quality-core submodule。
+`env:setup` 按顺序完成以下操作；任一步失败都会停止，不继续执行后续步骤：
+
+1. 信任当前仓库的 `mise.toml`。
+2. 递归初始化 toolkit submodule，并检出父仓库固定的 revision。
+3. 按 `mise.lock` 安装工具，按 `pnpm-lock.yaml` 安装 Node 依赖。
+4. 初始化或同步当前 checkout 的 CodeGraph 索引。
+
+该命令允许写入或更新用户级 mise 信任状态与工具安装目录，以及 checkout 内的 submodule
+worktree、`node_modules` 和 `.codegraph`；它不构建或修改 `src/product/**`。入口本身只使用
+Bun/Node 内置进程 API，不依赖尚未初始化的 toolkit submodule。
+
+Codex 提供两个 checkout 环境：
+
+- `vibe-check` 由 `.codex/environments/environment.toml` 依次运行 `env:setup` 和
+  `verify:vibe-check-workspace`，不执行 Git restore/clean。
+- `clear` 由 `.codex/environments/environment-2.toml` 先丢弃目标 worktree 中已暂存和未暂存
+  的 tracked 变更，并删除未跟踪且未被 ignore 的文件与目录，再运行同一组自举和验证入口。
+  该环境不可恢复地清除上述工作，只有明确需要丢弃 worktree 内容时才能选择；ignored cache
+  与依赖目录、submodule 内部的本地修改不属于它的清理范围。
+
+两个环境都只以 Codex 提供的 `CODEX_WORKTREE_PATH` 为目标，要求该路径是 Git worktree
+根目录；任一步失败都会停止，不继续验证未配置完成的环境。
+
+### 检查环境
+
+环境已经配置后，只检查当前状态时运行：
+
+```bash
+bun run env:check
+```
+
+`env:check` 确认以下条件：
+
+- `mise.toml` 中声明的 tool pin 已安装并处于当前环境。
+- 递归 submodule 已初始化并位于父仓库固定的 revision；固定 revision 上的本地内容改动不
+  单独判为环境失败。
+- Lizard、scc、当前仓库安装的 jscpd 与 CodeGraph 可执行。
+- 当前 checkout 的 CodeGraph 索引存在且状态可用。
+
+该检查不执行 mise trust、工具或 Node 包安装、submodule 更新或 CodeGraph init/sync。若
+检查失败，先运行 `bun run env:setup`，再重新检查。`env:setup` 与 `env:check` 都通过
+`MISE_GLOBAL_CONFIG_FILE` 隔离用户全局 mise 配置。
+
+### 命令环境边界
+
+顶层 mise 环境在调用方没有显式覆盖时，把 pinned `pipx:lizard` 虚拟环境中的 Python
+interpreter 设为 `VIBE_CHECK_LIZARD_CMD`；Product 仍按固定的 `-m lizard` 协议调用它。
+override 的产品语义由 [Scanner 依赖选择](scanner-dependencies.md#operational-overrides) 拥有。
+
+`verify:vibe-check-workspace*` 在顶层 mise 环境中运行。日常其它命令保持普通 `bun run`
+入口；shell 未激活 mise 时，使用 `mise exec -- bun run <script>` 显式进入该环境。
 
 ## Runtime 边界
 
@@ -322,6 +378,7 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | 改动面 | 命令 |
 | --- | --- |
 | 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
+| 项目环境、工具 pin 或 Codex checkout 自举 | `bun run env:check`、`bun run typecheck:scripts`、`bun run lint:scripts`、`bun run verify:vibe-check-workspace` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 产品入口、dogfood wrapper 或 repository config discovery 接线 | `bun run quality:check`，并按影响面补充产品入口测试 |

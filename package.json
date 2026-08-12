@@ -8,6 +8,8 @@
     "node": ">=24 <25"
   },
   "scripts": {
+    "env:check": "bun scripts/project-environment/index.ts check",
+    "env:setup": "bun scripts/project-environment/index.ts setup",
     "product:cli": "bun src/product/cli.ts",
     "lint:product": "eslint --max-warnings 0 --cache --cache-location .cache/eslint/product --cache-strategy content \"src/product/**/*.ts\"",
     "lint:scripts": "eslint --max-warnings 0 --cache --cache-location .eslintcache --cache-strategy content \"eslint.config.ts\" \"scripts/**/*.ts\"",
@@ -33,9 +35,9 @@
     "validate": "bun run validate:docs && bun run validate:diff",
     "validate:docs": "bun scripts/docs/validate.ts",
     "validate:diff": "git diff --check",
-    "verify:vibe-check-workspace": "bun scripts/vibe-check-workspace/verify.ts",
-    "verify:vibe-check-workspace:required": "bun scripts/vibe-check-workspace/verify.ts --profile required",
-    "verify:vibe-check-workspace:full": "bun scripts/vibe-check-workspace/verify.ts --profile full",
+    "verify:vibe-check-workspace": "mise exec -- bun scripts/vibe-check-workspace/verify.ts",
+    "verify:vibe-check-workspace:required": "mise exec -- bun scripts/vibe-check-workspace/verify.ts --profile required",
+    "verify:vibe-check-workspace:full": "mise exec -- bun scripts/vibe-check-workspace/verify.ts --profile full",
     "quality:check": "bun scripts/quality/scan.ts --profile quick --artifact-dir artifacts/vibe-check-quality/quick",
     "quality:full-check": "bun scripts/quality/scan.ts --profile full",
     "quality:gate": "bun scripts/quality/scan.ts --profile full --gate regressions",
