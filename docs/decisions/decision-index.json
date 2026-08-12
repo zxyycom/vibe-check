@@ -47,11 +47,11 @@
       "product-contract/keep-sensitive-scan-material-ephemeral.md": "sha256:9aaf69fd491bdbb92a35b788cfb45b4388738a4d6a62c42294b502acbed13a2d",
       "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
       "product-contract/require-explicit-network-link-checking.md": "sha256:a0bb88fe9532045abf0e021fe4835d1b0155271bd431bd189553f9ccd06e4cf8",
-      "product-contract/separate-check-and-record-type-identities.md": "sha256:f3ade7369159134625a211258c6a0ecb7b47322ade49d82a21d1ca100fedc406",
+      "product-contract/separate-check-and-record-type-identities.md": "sha256:1491434208c8804457e00cd7a60e2f35d171441322095f3a50b3f7fca6b0f24e",
       "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:4e97ec98122bef09a15811a68c32a8093d059fc66bf6bd23d6823e55ec3cf0e3",
       "product-contract/use-generic-machine-v2-for-content-findings.md": "sha256:d4f263110afc8b43cf845576ddd088fe72f62c5ce1423c989311d29ee9f4737e",
       "product-contract/use-location-independent-finding-identities.md": "sha256:9b2f3c245f699d8a4ea52bffa52cd38c2ec76a97dddc865a7f7e5556dd1f3436",
-      "product-contract/use-location-independent-record-identities.md": "sha256:fe07524b598a7ad8803a0b1ad7b4c214751ca7fc4852f2bf88dfa2aba2267205",
+      "product-contract/use-location-independent-record-identities.md": "sha256:fb2d9e3b1ffccb554184fcf3082031970566567f5b7b801a62a8f02295afcb57",
       "product-contract/use-runtime-resolved-check-and-record-core.md": "sha256:eba6b5559feafcb640ceb3360e7034e347137090e5e9cf937197d0447be7d85b",
       "product-contract/use-standard-quality-record-stream.md": "sha256:e978f149f275a66c071887d1df17845c9712614e4a2b147a4795f17e65b2ea41",
       "product-contract/use-static-check-task-plans-with-shared-scheduling.md": "sha256:e1f4f91c7d0155b0d848b8cc6a7978e8bf73ceb2338b961b34e0b63b78089786",
@@ -69,7 +69,7 @@
       "workflow-policy/keep-seven-distinct-project-skills.md": "sha256:348de7e60d4bd787e150ef0f440fe35a42f59717e57daabeab4936869109c2f3",
       "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
       "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:e4d58a585d4f83b4ae7ee67d86598623191f93b36bfcfc814f5342598f0954bb",
-      "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d44a538391d8995f6ebf02b0b6bbd4b3993f6a1306bc0939205dc3212d83746a",
+      "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d09c1c67ccdcb26d663567b82dc6afc38303a82347a2d5a224d4cff0a6879e1c",
       "workflow-policy/require-explicit-quality-baselines.md": "sha256:9e4a8654935dd513b8d45fc23e91db6227608e2c444dadfa1ea124d54007aa63",
       "workflow-policy/require-explicit-quality-comparison-references.md": "sha256:93842412f9db3ef513464b37fdf43b388c5e4698e27f638c6a3164b34853b798",
       "workflow-policy/treat-unaligned-decisions-as-future-direction-input.md": "sha256:199be5163704ae2301b94e8ef82b02ef05ca8014784073c975010c41fd37a1a2",
@@ -575,14 +575,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "product-contract/separate-check-and-record-type-identities.md",
         "title": "分离 Check 身份与 Record 类型身份",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-05T10:31:35Z",
         "purpose": "让检查执行单元和其产生的数据种类分别拥有稳定且可查询的身份。",
         "background": "一个 Check 可以产生多种 Record，共用同一层身份会混淆执行对象、数据类型和策略选择。",
@@ -670,14 +670,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "product-contract/use-location-independent-record-identities.md",
         "title": "QualityRecord 稳定身份不使用当前源码位置",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-05T11:15:26Z",
         "purpose": "让记录在仅发生行移动或排版变化时保持稳定 identity、acceptance 和 comparison 结果。",
         "background": "行列与 byte offset 是当前导航信息，不是 Record 的稳定领域语义，写入身份会制造虚假变化。",
@@ -1134,14 +1134,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "workflow-policy/require-explicit-named-comparison-references.md",
         "title": "比较只使用显式命名并冻结的参考",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-05T10:31:35Z",
         "purpose": "让 Check、Record 和门禁中的变化判断都绑定到调用者明确选择且可复现的参考。",
         "background": "Project Definition 可以声明比较需求，但从分支、历史、远端或政策名称猜测参考仍会产生不稳定结果。",

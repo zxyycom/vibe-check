@@ -86,11 +86,20 @@
   },
   "acceptance": [],
   "decision": {
-    "policyId": "all-current",
-    "views": [],
+    "policyId": "all",
+    "views": [
+      {
+        "viewId": "all-current",
+        "recordIds": []
+      },
+      {
+        "viewId": "all-unaccepted",
+        "recordIds": []
+      }
+    ],
     "readiness": [
       {
-        "readinessId": "current-complete",
+        "readinessId": "current-docs-example-complete",
         "status": "failed",
         "reason": "scan-incomplete",
         "evidenceRefs": [
@@ -100,7 +109,7 @@
           },
           {
             "kind": "readiness",
-            "readinessId": "current-complete"
+            "readinessId": "current-docs-example-complete"
           }
         ]
       }
@@ -108,7 +117,7 @@
     "blockWhen": null,
     "gate": {
       "status": "not-evaluated",
-      "policyId": "all-current",
+      "policyId": "all",
       "reason": "scan-incomplete",
       "evidenceRefs": [
         {
@@ -117,7 +126,7 @@
         },
         {
           "kind": "readiness",
-          "readinessId": "current-complete"
+          "readinessId": "current-docs-example-complete"
         }
       ]
     }

@@ -86,7 +86,12 @@
   "acceptance": [],
   "decision": {
     "policyId": null,
-    "views": [],
+    "views": [
+      {
+        "viewId": "all-current",
+        "recordIds": []
+      }
+    ],
     "readiness": [],
     "blockWhen": null,
     "gate": {

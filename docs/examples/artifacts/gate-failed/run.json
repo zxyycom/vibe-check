@@ -85,10 +85,16 @@
   },
   "acceptance": [],
   "decision": {
-    "policyId": "all-current",
+    "policyId": "all",
     "views": [
       {
         "viewId": "all-current",
+        "recordIds": [
+          "check-record/v1/record/sha256:1925271c3cf35975961ab888092c9523ca1452c21c5aaf82b15439e956b00d29"
+        ]
+      },
+      {
+        "viewId": "all-unaccepted",
         "recordIds": [
           "check-record/v1/record/sha256:1925271c3cf35975961ab888092c9523ca1452c21c5aaf82b15439e956b00d29"
         ]
@@ -96,7 +102,7 @@
     ],
     "readiness": [
       {
-        "readinessId": "current-complete",
+        "readinessId": "current-docs-example-complete",
         "status": "passed",
         "reason": null,
         "evidenceRefs": [
@@ -106,7 +112,7 @@
           },
           {
             "kind": "readiness",
-            "readinessId": "current-complete"
+            "readinessId": "current-docs-example-complete"
           }
         ]
       }
@@ -120,7 +126,7 @@
         },
         {
           "kind": "view",
-          "viewId": "all-current"
+          "viewId": "all-unaccepted"
         }
       ],
       "blockingRecordIds": [
@@ -129,7 +135,7 @@
     },
     "gate": {
       "status": "failed",
-      "policyId": "all-current",
+      "policyId": "all",
       "evidenceRefs": [
         {
           "kind": "run",
@@ -141,11 +147,11 @@
         },
         {
           "kind": "view",
-          "viewId": "all-current"
+          "viewId": "all-unaccepted"
         },
         {
           "kind": "readiness",
-          "readinessId": "current-complete"
+          "readinessId": "current-docs-example-complete"
         }
       ],
       "blockingRecordIds": [

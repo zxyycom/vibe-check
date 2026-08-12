@@ -9,13 +9,16 @@ with `bun run generate:machine-examples`.
 - Invocation: `invocation/v1:docs-scan-incomplete`
 - Project root: `.`
 - Timestamp: `2026-08-12T00:00:00.000Z`
-- Selected policy: `all-current`
+- Selected policy: `all`
 
 ## Expected user result
 
-- Gate request: all-current (not evaluated: scan-incomplete)
+- Gate request: all
 - Process outcome: `failed`
 - Exit code: `2`
+
+The expected process outcome and exit code are scenario metadata, not facts inferable from the
+two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
 
 ## Canonical publication
 

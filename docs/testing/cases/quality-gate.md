@@ -92,11 +92,19 @@ Entities:
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > rejects missing or duplicate references and unknown qualified selectors, operands, relations, and fields`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > requires a non-empty safe acceptance reason and rejects unknown acceptance fields`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record reference fact validation > binds one status to each required check/reference pair and accepts only registered relation variants`
+Proves:
+- Named reference facts remain separate from current runs; catalog-bound acceptance, relation matching, named views and ordered readiness produce canonical policy evidence without a global completeness or comparison reducer.
+- Failed-run and unavailable-reference facts affect a policy only through its declared operands/readiness; an omitted gate stays disabled while the acceptance-applied `all-current` view remains available to human verification projection.
+
+## Case BB-CURRENT-POLICY-PUBLICATION-001: Publication preserves policy outcome priority
+Owner: `docs/output.md#core-to-machine-projection`
+Entities:
 - `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > does not publish a computed failed gate when output validation fails`
 - `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > keeps gate projection independent from verification warning preview`
-- `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > publishes the same warnings and GateResult across successful outputs`
+- `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > publishes the same records and GateResult across successful outputs`
 - `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > returns failed for requested gates without complete evidence`
 - `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > returns failed when artifact output fails after a failed gate was computed`
-- `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > returns gate-failed only after the written failed-gate metrics validate`
+- `bun|src/product/quality-core/src/engine.test.ts|quality scan process outcome > returns gate-failed only after the written failed-gate publication validates`
 Proves:
-- Current entities preserve the owner contract at their observable boundary.
+- A computed policy result reaches console, machine artifacts and process outcome only through a validated publication model; validation/publication failure suppresses gate projection and takes the failed outcome.
+- Successful outputs preserve the same records and `GateResult`; `--verification-output` changes only the readable preview, while not-evaluated evidence remains a failed process outcome and a validated failed gate becomes `gate-failed`.

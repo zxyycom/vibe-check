@@ -1,7 +1,7 @@
 ---
 title: 分离 Check 身份与 Record 类型身份
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 让检查执行单元和其产生的数据种类分别拥有稳定且可查询的身份。
 background: 一个 Check 可以产生多种 Record，共用同一层身份会混淆执行对象、数据类型和策略选择。

@@ -1,7 +1,7 @@
 ---
 title: QualityRecord 稳定身份不使用当前源码位置
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-05T11:15:26Z
 purpose: 让记录在仅发生行移动或排版变化时保持稳定 identity、acceptance 和 comparison 结果。
 background: 行列与 byte offset 是当前导航信息，不是 Record 的稳定领域语义，写入身份会制造虚假变化。

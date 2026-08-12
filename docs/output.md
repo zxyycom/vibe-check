@@ -55,6 +55,6 @@ footer、每个 accepted / unaccepted record section 的 `topN` 以及独立的 
 
 当前 schemas 位于 `docs/schemas/`，examples 位于 `docs/examples/artifacts/**`；每个 example directory
 含 `run.json`、`records.ndjson` 和 README。docs tooling 独立检查 schema/example，runtime drift check
-确认发布材料与 runtime schemas/serializers 一致。目标 tests 覆盖 JSON/NDJSON grammar、two-file
+确认发布材料与 runtime schemas/serializers 一致。当前 tests 覆盖 JSON/NDJSON grammar、two-file
 relationships、candidate-before-write、prior/report/temp cleanup、readable parity、CLI outcome 和 actual
 annotation consumer。

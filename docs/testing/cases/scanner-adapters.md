@@ -76,4 +76,5 @@ Entities:
 - `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > plans one scan task per code area`
 - `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > records current failures and throws baseline failures for invalid jscpd output`
 Proves:
-- Current entities preserve the owner contract at their observable boundary.
+- SCC, Lizard and jscpd wrappers keep availability, process, parser/reporter and zero-result semantics private: unavailable, non-zero, missing or malformed output fails closed, while valid zero-function/zero-file output and real duplicate findings remain successful data.
+- Parsers accept the pinned SCC/Lizard/jscpd wire shapes and reject malformed or partial rows/items without a trusted prefix; jscpd area planning hands deterministic approved exact paths without format overrides and preserves distinct current/reference failure handling.

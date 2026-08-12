@@ -17,6 +17,9 @@ with `bun run generate:machine-examples`.
 - Process outcome: `success`
 - Exit code: `0`
 
+The expected process outcome and exit code are scenario metadata, not facts inferable from the
+two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
+
 ## Canonical publication
 
 - `run.json` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.

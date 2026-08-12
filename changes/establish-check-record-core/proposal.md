@@ -4,11 +4,11 @@
 
 ## Why
 
-当前产品以 `CapabilityResult`、`QualityMetrics`、warning channels 和固定 gate reducer 串联 file、function 与 duplicate measurement。新增内置或项目自定义检查时，Core 仍需理解每项检查的领域数据、warning 和完整性分支，且“执行失败”“领域判断失败”“逐条证据已产生”无法独立表达。Vibe Check 需要先建立通用 Check / Record 边界，后续 Project Definition、TaskPlan 和格式检查才能只接入各自拥有的实现与记录语义。
+本 Change 启动时的产品基线以 `CapabilityResult`、`QualityMetrics`、warning channels 和固定 gate reducer 串联 file、function 与 duplicate measurement。该基线要求 Core 理解每项检查的领域数据、warning 和完整性分支，且“执行失败”“领域判断失败”“逐条证据已产生”无法独立表达，因此需要建立通用 Check / Record 边界。当前稳定产品事实已由本 Change 同步到下列 owner；本段只保存开展 Change 的形成时理由，不描述现行 runtime。
 
 ## Outcome
 
-一次 invocation 在 work 前验证并冻结公共 Check / record-type catalog、一对一私有 execution bindings、selection、applicability、domain work、named references 与 selected policy。私有 execution 只通过 manager-owned ports 产生最终 Core snapshot：CheckManager 拥有每个 `CheckRun` / `CheckResult` 与 coverage，RecordManager 拥有逐条 `QualityRecord`、稳定 identity 和 integrity；已有效提交的 records 不会因稍后的 runner failure 被撤销。`DecisionPolicy` 从该 Core snapshot 产生 decision evidence 与 `GateResult`，Output 再把两者组合成一个 validated publication set，供 CLI、machine output、report、console 和 annotation 投影。
+一次 invocation 在 work 前验证并冻结公共 Check / record-type catalog、一对一私有 execution bindings、selection、applicability、domain work、named references 与 selected policy。私有 execution 只通过 manager-owned ports 产生最终 Core snapshot：CheckManager 拥有每个 `CheckRun` / `CheckResult` 与 coverage，RecordManager 拥有逐条 `QualityRecord`、稳定 identity 和 integrity；已有效提交的 records 不会因稍后的 runner failure 被撤销。Named reference identities / facts 与该 snapshot 分离；`DecisionPolicy` 同时消费两者并产生 decision evidence 与 `GateResult`。Output 再把 snapshot、reference inputs 和 decision evidence 组合成一个 validated publication model，供 CLI、machine output、report、console 和 annotation 投影。
 
 实施依次锁定 foundation contract 与 policy / reference contract，以 `file-metrics` 打通真实纵向路径，再迁移其余 built-ins 与 policy；publication contract 锁定后执行 public hard cut。完成时，所有正式 consumer 只依赖新的 Core / publication facts，旧 capability、warning channel 和 machine-v1 路径全部退出。
 
@@ -42,6 +42,6 @@
 
 - `docs/architecture.md`、`docs/quality-metrics.md`、`docs/output.md` 与 `docs/cli.md`：Core、决策、输出、publication evidence 和进程状态的当前稳定 owner。
 - `docs/scan-scope.md`、`docs/scanner-dependencies.md` 与 `docs/configuration.md`：exact inputs、source-scoped handoff、私有 backend 以及迁移期 config / gate / reference adapter 边界。
-- `src/product/quality-core/**`、`src/product/config*.ts`、`src/product/scan.ts`、`src/product/cli.ts`、`src/product/machine-output.ts` 与 `src/product/scanner-dependencies.ts`：唯一产品 runtime、public shallow boundary 和当前迁移入口。
+- `src/product/quality-core/**`、`src/product/config*.ts`、`src/product/scan.ts`、`src/product/cli.ts`、`src/product/machine-output.ts` 与 `src/product/scanner-dependencies.ts`：唯一产品 runtime、public shallow boundary 和本 Change 的实施面。
 - `scripts/quality/**` 与 `quality:*` package scripts：只消费正式产品入口或 validated machine set 的 dogfood / annotation boundary。
 - `docs/testing.md`、`docs/testing/cases/**`、`docs/schemas/**`、`docs/examples/**` 与相关 product / consumer tests：语义证明、schema / example acceptance 和发布材料。

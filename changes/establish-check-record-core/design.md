@@ -4,17 +4,17 @@
 
 ## Context
 
-当前事实由 `docs/quality-metrics.md`、`docs/output.md`、`docs/cli.md` 和 `src/product/**` 承接：运行时仍以三个编译期 capability、`QualityMetrics`、warning channels、machine v1 和 JSON semantic config 为主干。`src/product/**` 是唯一 runtime owner，scanner command / protocol 保持 adapter-private，comparison reference 必须显式提供，敏感原始材料不得进入公共 artifact。
+本 Change 启动时的已提交基线仍以三个编译期 capability、`QualityMetrics`、warning channels、machine v1 和 JSON semantic config 为主干。该描述只保存设计形成时要替换的 surface，不是现行产品事实。Checkpoint 4 已完成 public hard cut；当前稳定事实只从 `docs/quality-metrics.md`、`docs/output.md`、`docs/cli.md` 和 `src/product/**` 恢复。
 
-当前 Scan Scope 与 Scanner Dependency owner 固定 exact-input handoff：Product 统一解释 config glob 并批准 current / baseline exact inputs，adapter 通过 source-scoped measurement 声明 payload 来源，Core 对未批准路径 fail closed，但不读取 payload-specific location 重建领域语义。Check / Record 迁移必须保留这项不变量，不能以通用 Record envelope 重新放宽 scanner 输入或结果范围。
+设计形成时与当前稳定 owner 共同要求保持 exact-input handoff：Product 统一解释 config glob 并批准 current / baseline exact inputs，adapter 通过 source-scoped measurement 声明 payload 来源，Core 对未批准路径 fail closed，但不读取 payload-specific location 重建领域语义。本 Change 的 Check / Record 迁移保留了这项不变量，没有以通用 Record envelope 放宽 scanner 输入或结果范围。
 
-活动未对齐决策已经确认目标边界：`use-runtime-resolved-check-and-record-core`、`separate-check-and-record-type-identities`、`use-location-independent-record-identities`、`keep-sensitive-quality-record-material-ephemeral`、`require-explicit-named-comparison-references`、`keep-decision-policies-closed-and-declarative` 与 `limit-tool-neutrality-to-built-in-checks`。本 Change 实施这些方向；当前 owner 在实现完成并核对前仍描述现行产品事实。
+计划形成时，下列活动未对齐决策确认了目标边界：`use-runtime-resolved-check-and-record-core`、`separate-check-and-record-type-identities`、`use-location-independent-record-identities`、`keep-sensitive-quality-record-material-ephemeral`、`require-explicit-named-comparison-references`、`keep-decision-policies-closed-and-declarative` 与 `limit-tool-neutrality-to-built-in-checks`。本 Change 已按 `tasks.md` 实施这些方向；决策当前状态应从 Decision owner 恢复，不从本段推断。
 
-活动已对齐 workflow 决策要求按问题形态选择实现模型并只在触发条件成立时使用预置 TypeScript 能力。实现应让 manager 的稳定身份和生命周期由明确 state owner 承接，让 closed unions 穷尽表达结果与失败，并让 projection、ordering 与 fingerprint 保持纯转换；不得因预装依赖而建立额外 framework 或平行基础原语。
+计划形成时已对齐的 workflow 决策要求按问题形态选择实现模型，并只在触发条件成立时使用预置 TypeScript 能力。本 Change 因而让 manager 的稳定身份和生命周期由明确 state owner 承接，让 closed unions 穷尽表达结果与失败，并让 projection、ordering 与 fingerprint 保持纯转换；没有因预装依赖建立额外 framework 或平行基础原语。
 
-本文拥有本 Change 的目标状态与迁移约束。实施代理先以当前 owner / code / tests 恢复 baseline，再以本文 Decisions 解释将被替换的 surface，并按 `tasks.md` 推进；当前 legacy 实现与目标设计不同不是自行扩大范围的理由。若实施发现本文没有覆盖、且会改变 public behavior、owner、compatibility 或验收的选择，必须先更新 proposal / design / tasks，而不是在 consumer 或 adapter 中隐式决定。
+本文只拥有本 Change 的目标设计、迁移约束和实施观察，不是当前稳定事实的第二 owner。实施已按 `tasks.md` 完成；后续审阅先从当前 owner / code / tests 恢复现状，再把本文用于解释形成时选择与迁移证据。若继续修复本 Change 时发现会改变 public behavior、owner、compatibility 或验收的新选择，必须先同步 proposal / design / tasks，而不是在 consumer 或 adapter 中隐式决定。
 
-后续 `establish-check-task-orchestration` 只消费本设计的 opaque execution seam，`adopt-typescript-project-definition` 只向 resolution 贡献已验证的 public metadata、policy data 与 private bindings。本设计不提前拥有二者的 authoring 或 scheduler contract。
+`establish-check-task-orchestration` 与 `adopt-typescript-project-definition` 不属于本 Change：前者只能消费本设计的 opaque execution seam，后者只能向 resolution 贡献已验证的 public metadata、policy data 与 private bindings。本设计不拥有二者的 authoring 或 scheduler contract，也不证明它们已经实施。
 
 ## Goals / Non-Goals
 
@@ -47,11 +47,12 @@
 | `CheckDefinition` / record-type definition | 可序列化 public metadata。前者标识执行与结果语义；后者标识所属 Check 可产生的 record 语义、closed field validation、identity fields、policy-visible operands 与 comparison relation shape。它们不含 executable 或运行状态。 |
 | `CheckExecutionBinding` | 与一个 resolved Check 一对一的 private executable binding。它只能经 bound record / acknowledgement ports 与一个 terminal execution report影响 Core。 |
 | `CheckRun` / `CheckResult` | CheckManager 拥有的 execution lifecycle、coverage、diagnostic 与独立领域 verdict；quality `failed` result 不是 execution failure。 |
-| `QualityRecord` | RecordManager 拥有的 immutable final domain row，包含 Core-bound provenance、stable `recordId`、record-type fields、current location 与可验证 comparison relations。 |
+| `QualityRecord` | RecordManager 拥有的 immutable final domain row，包含 Core-bound provenance、stable `recordId`、record-type fields 与 current location；comparison relations 属于独立的 named reference facts。 |
 | Terminal execution report | Coordinator 对每个 applicable contribution 恰好返回一个的 private `returned | unavailable | execution-failed` report；它不是 `report.md`，也不携带自报 coverage 或 record count。 |
-| Final Core snapshot | 冻结 catalog、final CheckRuns / nullable CheckResults、manager-derived coverage、committed immutable records、reference metadata / evidence status 的只读集合。它不含 policy acceptance annotations、policy body、GateResult 或 output DTO。 |
-| Decision evidence | Closed `DecisionPolicy` 从 final Core snapshot 产生的 acceptance / view memberships、readiness evaluation、deterministic typed evidence refs 与一个 `GateResult`；policy 不修改 Core facts，也不复制 Record / Run body。 |
-| Validated publication set | Output 将 final Core snapshot 与 decision evidence 投影、schema / relationship validation 后得到的唯一发布模型。Machine files、report、console 与 annotation 共享业务事实，但保留各自 transport / readable contract。 |
+| Final Core snapshot | 冻结 catalog、final CheckRuns / nullable CheckResults、manager-derived coverage 与 committed immutable records 的只读集合。Named reference identities / facts 是 policy 与 publication 的独立输入，不属于该 snapshot；snapshot 也不含 policy acceptance annotations、policy body、GateResult 或 output DTO。 |
+| Named reference identities / facts | Caller 在 work 前冻结的 safe reference identities，以及 producing Checks 提供的 per-Check evidence status 和 comparison relations。它们不伪造第二个 public run，也不进入 `QualityRecord` body。 |
+| Decision evidence | Closed `DecisionPolicy` 从 final Core snapshot 与 named reference facts 产生的 acceptance / view memberships、readiness evaluation、deterministic typed evidence refs 与一个 `GateResult`；policy 不修改输入事实，也不复制 Record / Run body。 |
+| Validated publication model | Output 将 final Core snapshot、named reference identities / facts 与 decision evidence 组合并验证后得到的唯一发布模型。Machine two-file set、report、console 与 annotation 共享业务事实，但保留各自 transport / readable contract。 |
 
 目标数据流只有一个方向：
 
@@ -59,7 +60,7 @@
 frozen resolution inputs
   -> private bindings / coordinator
   -> CheckManager + RecordManager finalization
-  -> final Core snapshot
+  -> final Core snapshot + named reference identities / facts
   -> DecisionPolicy evaluation
   -> decision evidence + GateResult
   -> Output validation / publication
@@ -96,7 +97,7 @@ Selection 和 applicability 在 contribution building 前冻结。Applicable zer
 
 ### 4. RecordManager 独立提交 final domain rows
 
-Runner 通过已绑定当前 check / run 的 sink 提交 record candidate。Producing Check 选择 `recordTypeId`、level、semantic subject、safe message、typed fields、current location 与 comparison relations；RecordManager 添加不可伪造的 owner provenance，按 resolved record-type definition 验证并提交 immutable `QualityRecord`。
+Runner 通过已绑定当前 check / run 的 sink 提交 record candidate。Producing Check 选择 `recordTypeId`、level、semantic subject、safe message、typed fields 与 current location；RecordManager 添加不可伪造的 owner provenance，按 resolved record-type definition 验证并提交 immutable `QualityRecord`。Producing Check 另行产生绑定 committed `recordId` 的 comparison relations，由 named reference facts 边界验证，不进入 `QualityRecord` body。
 
 稳定 `recordId` 只使用 `checkId`、`recordTypeId`、规范化 semantic subject 与 catalog 明确声明的 identity fields；line、column、range、byte offset、message、arrival order 和 `checkRunId` 不参与。等价 same-ID replay 幂等；same-ID / different-body 是 arrival-neutral integrity conflict，不能让任一先到值成为可信输出。普通 invalid candidate 被拒绝并使 owning run 进入 integrity failure；identity conflict 还使 publication set 不可信。两者都不回滚其它此前已由 RecordManager 独立验证并提交的 records，且最终 ordering 不依赖 arrival。
 
@@ -197,12 +198,14 @@ Exact public / internal grammar只在对应 owner中维护，Change不复制第�
 
 ### 迁移盘点的基线与使用方式
 
-本矩阵记录 Implementation 1.1 开始时的稳定现状，以及 public hard cut 完成时必须能
-审计的替换和删除证据。`Current evidence` 指向本 Change 开始时的已提交 product
+本矩阵记录 Implementation 1.1 开始时的已提交基线，以及 public hard cut 完成时用于
+审计的替换和删除证据。`Pre-cut evidence` 指向本 Change 开始时的已提交 product
 owner、直接 consumer 和现有语义 Case；它不把 `src/product/quality-core/**` 中并行实施
-的未提交内容当作现状。`Target owner` 只指向本文已经决定的 Check / Record / policy /
-publication 责任，不复制其字段契约。每一行的删除证据必须与迁移后的目标测试和
-owner 同时成立；只删除旧名而没有新 owner 的可观察证明不构成 hard cut。
+的未提交内容当作基线。`Target owner` 只指向本文已经决定的 Check / Record / policy /
+publication 责任，不复制其字段契约。矩阵第一列和其中的 `Current` 字样均是形成时
+快照，不得用于恢复现行 runtime；现行事实只看稳定 owner、代码与测试。每一行的删除
+证据已与迁移后的测试和 owner 同时核对；只删除旧名而没有新 owner 的可观察证明不构成
+hard cut。
 
 下列术语用于审查，不增加另一套 runtime contract：
 
@@ -214,9 +217,9 @@ owner 同时成立；只删除旧名而没有新 owner 的可观察证明不构�
 - **目标测试 / Case 迁移** 表示更新现有能证明该行为的测试实体及其 Case owner / Proves，
   不把历史 Case 当作当前 coverage，也不为旧实现保留平行 Case。
 
-### Current-to-target hard-cut matrix
+### Pre-cut-to-target hard-cut matrix
 
-| Current surface and evidence | Target owner after the cut | Required migration and deletion evidence |
+| Pre-cut surface and evidence | Target owner after the cut | Migration and deletion evidence required during implementation |
 | --- | --- | --- |
 | **Capability invocation.** `runQualityScan` calls `runCurrentRevisionScan`; the latter assembles the fixed `file-metrics`, `function-metrics`, and `duplicate-detection` `CapabilityResult[]` in `src/product/quality-core/src/engine.ts` and `src/product/quality-core/src/measurement/current-revision/index.ts`. Current result grammar and direct failure tests are owned by `model/scan-completeness.ts`, `measurement/current-revision/*.ts`, and `docs/testing/cases/quality-runtime.md`. | Resolved built-in `CheckDefinition`s, one private binding per definition, and CheckManager-owned `CheckRun` / nullable `CheckResult`; scanner adapters remain private producers of records and reference evidence. | Migrate all three built-ins through the frozen binding/coordinator seam. Remove `CapabilityResult`, its fixed-array assembly, and any public/current-run dependence on capability status; prove run/result legality, private adapter failure, and each built-in's source-scoped path with target tests. The Case entries for runtime capability results must instead identify the new manager or built-in owner and observable result. |
 | **Completeness and current failure conclusion.** `reduceScanCompleteness` reduces `skipped | no-input | succeeded | failed` into `empty | complete | failed`; `metrics.scanCompleteness` drives validation, report/console labels, incomplete stderr, and process failure in `engine.ts`, `model/scan-completeness.ts`, `engine/scan-finisher.ts`, and `scan-command/command-output*.ts`. Formal CLI coverage is in `configured-project-completeness.test.ts` and the runtime Cases. | Final Core snapshot integrity/completeness derived by CheckManager from frozen work handles, acknowledgements, terminal reports, and final runs; readable status is an Output projection of that snapshot. | Replace reducer and `scanCompleteness` projection rather than translating its result into a second legacy field. Target tests must distinguish pre-work not-applicable, skipped, completed quality failure, execution/integrity failure, zero eligible work, and retained earlier records. Remove legacy completeness validation, report/console branches, and Case Proves after the corresponding final-Core and readable-output evidence exists. |
@@ -241,5 +244,5 @@ evidence, not a compatibility exception, and must not reintroduce a reader or wr
 
 - **Checkpoint 1 — Contract foundation:** contract与manager tests通过46项，Test Evidence闭合268个实体；Product typecheck、lint和required workspace verifier通过。Catalog fingerprint覆盖record-type policy surface；unknown boundary在任何field读取前拒绝accessor / Proxy并脱敏；invalid-record evidence按manager-owned safe facts确定性去重。两名未参与对应修复的代理分别重放这三项集成P1反例，均确认清除。`check-record/**`未接入legacy engine、public export、output双轨或scheduler抽象。
 - **Checkpoint 2 — `file-metrics` walking skeleton:** 真实受控SCC current / reference exact inputs经`ScopedMeasurement`整批验收后进入private binding、Check / Record managers、safe reference evidence与in-memory policy evaluation。Focused scanner / baseline / scope测试19项、完整`check-record`测试51项及Test Evidence闭合273个实体；Product typecheck、lint通过。独立审查确认越界batch零partial records、current failure为failed/null、reference不伪造第二run或改写current facts、prior records保留且location不进入identity；未接入public flag、output双写或compatibility path。
-- **Checkpoint 3 — Built-ins and policy:** current config、scanner dependencies、approved exact inputs、selection与显式baseline通过单一内部composition连接三个built-in Checks、五个record types、validated reference facts、closed policy decision与human projection；`all | changed | regressions`、omitted gate acceptance observation及reference incomplete均由目标测试覆盖。完整`check-record`测试75项通过；独立reviewer重放32项相关测试后确认无P0/P1，function / duplicate多实例identity保持location-independent，changed scope、source-scope与jscpd cache/backend边界无回归。该路径仍未接入正式engine或public output，不形成dual path；Checkpoint 4只从这一composition和publication contract执行一次hard cut。
+- **Checkpoint 3 — Built-ins and policy:** current config、scanner dependencies、approved exact inputs、selection与显式baseline通过单一内部composition连接三个built-in Checks、五个record types、validated reference facts、closed policy decision与human projection；`all | changed | regressions`、omitted gate acceptance observation及reference incomplete均由目标测试覆盖。完整`check-record`测试75项通过；独立reviewer重放32项相关测试后确认无P0/P1，function / duplicate多实例identity保持location-independent，changed scope、source-scope与jscpd cache/backend边界无回归。Checkpoint 3 形成时该路径尚未接入正式engine或public output，因此不构成dual path；Checkpoint 4 随后从这一composition和publication contract执行了唯一一次hard cut。
 - **Checkpoint 4 — Public hard cut:** 正式engine、CLI、report / console、annotation与dogfood只消费final Core snapshot、decision evidence及同一validated publication model；current machine set固定为`run.json`与`records.ndjson`，runtime schema、五组示例和独立docs validator同步。旧capability / completeness、warning-channel与machine-v1实现和只证明旧路径的测试已删除；retired artifact names仅保留于publication cleanup及对应测试。独立验收审查暴露并关闭了runner terminal boundary、report configuration、human-status单一事实源、mandatory cleanup及watchlist exact-path五项P1，最终复核无剩余P0/P1。目标publication / CLI / annotation tests、Product全套210项、Test Evidence 238/238实体、controlled CLI smoke、owner / Case legacy search、required / full workspace verifier与full dogfood均通过；两个workspace profile各有一个既有quality warning、零failed，最小范围审查确认没有dual-consumer或额外framework。

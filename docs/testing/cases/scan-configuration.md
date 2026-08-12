@@ -22,7 +22,7 @@ Proves:
 - `init` 首次确保 discovery-ready config/schema 存在；单个 target 缺失时只补齐该文件，完整重复执行为 no-op，且两种重复路径都保持已有 target bytes。随后 omitted-config scan 选择 fixed `discovered` config，production loader 使用 embedded schema 校验 config，sibling editor schema 不参与 runtime acceptance。
 - Explicit config 在 fixed discovered candidate 之上保持 authoritative，其 include、artifact 与 report settings 进入可观察扫描结果；invalid explicit file 是 final selection，以 exit `3` 失败且不回退 discovered source、不产生 artifact 或修改任一 candidate bytes。
 - 正式入口从 fixture root 外按 normalized project root 读取 relative、absolute 与含 `..` 的 `--config`，并使用 exact version `"1"` 的 semantic checks、scope、code area、report 与 artifact settings；scanner process controls 只由 supported operational environment 提供。
-- Eligible source 进入 metrics / warnings，explicit exclude 与 generated controls 不进入 scanner inputs；重复运行产生相同 Vibe Check-owned evidence。
+- Eligible source 进入 selected Check runs / records，explicit exclude 与 generated controls 不进入 scanner inputs；重复运行产生相同 Vibe Check-owned evidence。
 - Config 的 artifact/top-N defaults 生效，显式 `--artifact-dir` / `--top-n` 只覆盖对应 resolved output fields，其他 semantic settings 保持不变。
 - Config read / parse failure 以及 legacy top-level scanner/process fields 在 banner、scanner、cache 与 artifact 前写脱敏 stderr 并退出 `3`；formal proof 使用 eligible source 与 marker-backed operational dependency，证明不回退默认 config，也不执行 legacy command / args。
 - Malformed supported `_ARGS` 即使 semantic scope 没有 eligible input，仍在 banner、scanner、cache 与 artifact 前写 actionable、脱敏 stderr 并退出 `2`。

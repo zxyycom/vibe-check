@@ -48,7 +48,7 @@ const FIXTURE_DEPENDENCIES: ScannerDependencySnapshot = {
 };
 
 describe("quality scan process outcome", () => {
-  test("publishes the same warnings and GateResult across successful outputs", async () => {
+  test("publishes the same records and GateResult across successful outputs", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-success-"));
     try {
       const config = acceptedFixtureConfig(await loadFixtureConfig());
@@ -107,7 +107,7 @@ describe("quality scan process outcome", () => {
     }
   });
 
-  test("returns gate-failed only after the written failed-gate metrics validate", async () => {
+  test("returns gate-failed only after the written failed-gate publication validates", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-failed-"));
     try {
       const result = await runFixtureScan({

@@ -49,7 +49,7 @@ Vibe Check 拥有的开发脚本入口是：
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
   check 执行完整 Bun 测试面及语义 Case 闭合；required profile 还调度 formal
   producer-to-actual-annotation acceptance child。
-- Current schema/examples checks 显式注册 semantic config 与 metrics/warning v1，验证 config
+- Current schema/examples checks 显式注册 semantic config 与 run/record v2，验证 config
   schema/example generation drift、semantic example independent acceptance 和五组 canonical
   machine sets，并把 `vibe-check.report.v1` historical materials 隔离在 historical
   registry/traversal。
@@ -69,8 +69,8 @@ Vibe Check 拥有的开发脚本入口是：
 package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact
 路径。
 
-质量产品的 schema/types、scanner adapters、metrics、warnings、reports、
-baseline/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
+质量产品的 schema/types、scanner adapters、Check/Record/DecisionPolicy、publication/readable output、
+reference/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
 不是开发脚本 toolkit。开发脚本可以单向调用产品入口，但产品运行时不得 import
 `scripts/**`、`foundation` gitlink 或其它 toolkit gitlink。
 
@@ -178,14 +178,14 @@ Docs validation 故意把 current product、independent acceptance 与 historica
    validation 只消费 checked-in publication 与 canonical semantic example，不把 project-local
    sibling editor schema 当作 runtime authority。
 2. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
-   metrics/warning published schemas；`--check` 按 bytes 检测 drift。
+   run/record v2 published schemas；`--check` 按 bytes 检测 drift。
 3. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
    serializers 生成五组 current examples；`--check` 检测 exact inventory 与 byte drift。
 4. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
    raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
    acceptance implementation。
 5. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 config 与
-   metrics/warning v1。Historical `vibe-check.report.v1` 使用 separate registry，
+   run/record v2。Historical `vibe-check.report.v1` 使用 separate registry，
    `docs/examples/json/**` 不进入 current example traversal。
 6. `bun run validate:docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
    compile、independent acceptance 与 generation drift。
@@ -300,12 +300,12 @@ Repository-owned complete policy 位于 `<repo-root>/.vibe-check/config.json`。
 policy；wrapper/package scripts 不保存第二套 default、field tree 或 selection logic。相邻
 `config.schema.json` 是 editor projection，不是 runtime authority，也不由 wrapper 读取。
 
-长期产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
-`docs/quality-metrics.md` 和 `docs/output.md` 拥有；已退役 schema/examples 的历史状态由
-Output owner 说明。
+当前产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
+`docs/quality-metrics.md` 和 `docs/output.md` 拥有。隔离的 historical report schema/examples
+只参与下述开发期验证 registry，不构成当前 Output contract。
 
 `scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它登记 current semantic
-config、metrics/warning schemas、historical report schema 与对应 example roots，不重新定义
+config、run/record v2 schemas、historical report schema 与对应 example roots，不重新定义
 Configuration 或 Output contract。
 
 `scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的

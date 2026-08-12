@@ -13,9 +13,12 @@ with `bun run generate:machine-examples`.
 
 ## Expected user result
 
-- Gate request: none (policy disabled for this scenario projection)
+- Gate request: none (policy disabled)
 - Process outcome: `success`
 - Exit code: `0`
+
+The expected process outcome and exit code are scenario metadata, not facts inferable from the
+two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
 
 ## Canonical publication
 

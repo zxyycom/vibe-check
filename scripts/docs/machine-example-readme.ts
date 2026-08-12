@@ -22,9 +22,12 @@ with \`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
 
 ## Expected user result
 
-- Gate request: ${example.gateRequest}
+- Gate request: ${example.gateRequest ?? "none (policy disabled)"}
 - Process outcome: \`${example.expectedProcessOutcome}\`
 - Exit code: \`${example.expectedExit}\`
+
+The expected process outcome and exit code are scenario metadata, not facts inferable from the
+two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
 
 ## Canonical publication
 

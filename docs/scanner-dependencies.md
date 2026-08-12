@@ -20,4 +20,4 @@ function adapter 只处理 `.ts`、`.d.ts`、`.rs`；duplicate adapter 按 code 
 
 ## 验证
 
-目标测试覆盖 snapshot single-read、override validation、current/reference reuse、zero-work no probe、scanner failure、source-scope rejection、jscpd area/cache/concurrency 与 runtime import closure。替换 scanner 必须保持 exact-input、normalized Check contribution 与 cache identity contract。
+当前测试覆盖 snapshot single-read、override validation、current/reference reuse、zero-work no probe、scanner failure、source-scope rejection、jscpd area/cache/concurrency 与 runtime import closure。替换 scanner 必须保持 exact-input、normalized Check contribution 与 cache identity contract。

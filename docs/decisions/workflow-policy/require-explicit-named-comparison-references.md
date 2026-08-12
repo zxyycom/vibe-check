@@ -1,7 +1,7 @@
 ---
 title: 比较只使用显式命名并冻结的参考
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 让 Check、Record 和门禁中的变化判断都绑定到调用者明确选择且可复现的参考。
 background: Project Definition 可以声明比较需求，但从分支、历史、远端或政策名称猜测参考仍会产生不稳定结果。

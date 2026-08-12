@@ -4,15 +4,23 @@ import type {
   FinalCoreSnapshot,
   QualityRecord
 } from "../../src/product/quality-core/src/check-record/model.ts";
+import {
+  resolveCheckCatalog,
+  type ResolvedCheckCatalog
+} from "../../src/product/quality-core/src/check-record/catalog.ts";
+import {
+  resolveCurrentObservation,
+  resolveCurrentPolicy
+} from "../../src/product/quality-core/src/check-record/current-adapter.ts";
+import {
+  evaluateDecisionPolicy,
+  evaluateRecordObservation
+} from "../../src/product/quality-core/src/check-record/policy-evaluator.ts";
 import type {
   DecisionEvidence,
   ReferenceFacts
 } from "../../src/product/quality-core/src/check-record/policy-model.ts";
-import {
-  createCatalogFingerprint,
-  createDeterministicCheckRunId,
-  createRecordId
-} from "../../src/product/quality-core/src/check-record/identity.ts";
+import { createRecordId } from "../../src/product/quality-core/src/check-record/identity.ts";
 import { projectHumanStatus } from "../../src/product/quality-core/src/check-record/human-status.ts";
 import {
   createPublicationModelV2,
@@ -21,6 +29,7 @@ import {
 import {
   FIXED_MACHINE_EXAMPLE_INPUT,
   type CanonicalMachineExample,
+  type MachineExampleGateRequest,
   type MachineExampleOutcome
 } from "./machine-example-model.ts";
 
@@ -51,17 +60,18 @@ export function buildCanonicalMachineExample(input: Readonly<{
   expectedExit: 0 | 1 | 2;
   expectedProcessOutcome: "failed" | "gate-failed" | "success";
   fixedInputSummary: string;
-  gateRequest: string;
+  gateRequest: MachineExampleGateRequest;
   outcome: MachineExampleOutcome;
   state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning";
   title: string;
 }>): CanonicalMachineExample {
-  const run = createRun(input.outcome, input.state);
+  const catalog = createCatalog(input.outcome, input.state);
+  const run = createRun(catalog, input.state);
   const records = input.state === "warning" || input.state === "gate-failed"
     ? [createExampleRecord(run)]
     : [];
-  const snapshot = createSnapshot(run, records);
-  const decision = createDecision(input.state, run, records[0]);
+  const snapshot = createSnapshot(catalog, run, records);
+  const decision = createDecision(input.gateRequest, catalog, snapshot);
   const verificationOutput = false;
   const model = createPublicationModelV2({
     humanStatus: projectHumanStatus({ snapshot, decision, verificationOutput }),
@@ -88,14 +98,30 @@ export function buildCanonicalMachineExample(input: Readonly<{
   };
 }
 
-function createRun(
+function createCatalog(
   outcome: MachineExampleOutcome,
   state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning"
-): CheckRun {
-  const checkRunId = createDeterministicCheckRunId({
+): ResolvedCheckCatalog {
+  const resolved = resolveCheckCatalog({
     invocationKey: `docs-${outcome}`,
-    checkId: definition.checkId
+    definitions: [definition],
+    bindings: [{ checkId: definition.checkId, execute: () => ({ verdict: "passed" }) }],
+    selectedCheckIds: [definition.checkId],
+    resolveApplicability: () => state === "empty"
+      ? { status: "not-applicable" }
+      : { status: "applicable", workHandles: ["work-handle/v1:docs-example"] }
   });
+  if (!resolved.ok) {
+    throw new TypeError(`Canonical example catalog failed at ${resolved.error.stage}`);
+  }
+  return resolved.value;
+}
+
+function createRun(
+  catalog: ResolvedCheckCatalog,
+  state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning"
+): CheckRun {
+  const checkRunId = catalog.checks[0]!.checkRunId;
   if (state === "empty") {
     return {
       checkId: definition.checkId,
@@ -151,6 +177,7 @@ function createExampleRecord(run: CheckRun): QualityRecord {
 }
 
 function createSnapshot(
+  catalog: ResolvedCheckCatalog,
   run: CheckRun,
   records: readonly QualityRecord[]
 ): FinalCoreSnapshot {
@@ -158,8 +185,8 @@ function createSnapshot(
     throw new TypeError("Canonical selected example run requires coverage");
   }
   return {
-    catalogFingerprint: createCatalogFingerprint([definition]).catalogFingerprint,
-    definitions: [definition],
+    catalogFingerprint: catalog.catalogFingerprint,
+    definitions: catalog.definitions,
     runs: [run],
     records,
     integrity: { status: "valid", invalidRecords: [], conflicts: [] },
@@ -175,76 +202,33 @@ function createSnapshot(
 }
 
 function createDecision(
-  state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning",
-  run: CheckRun,
-  record: QualityRecord | undefined
+  gateRequest: MachineExampleGateRequest,
+  catalog: ResolvedCheckCatalog,
+  snapshot: FinalCoreSnapshot
 ): DecisionEvidence {
-  if (state === "incomplete") {
-    const evidenceRefs = [
-      { kind: "run" as const, checkRunId: run.checkRunId },
-      { kind: "readiness" as const, readinessId: "current-complete" }
-    ];
-    return {
-      policyId: "all-current",
-      acceptance: [],
-      views: [],
-      readiness: [{
-        readinessId: "current-complete",
-        status: "failed",
-        reason: "scan-incomplete",
-        evidenceRefs
-      }],
-      blockWhen: null,
-      gate: {
-        status: "not-evaluated",
-        policyId: "all-current",
-        reason: "scan-incomplete",
-        evidenceRefs
-      }
-    };
+  const policyResult = resolveCurrentPolicy({
+    acceptedWarnings: [],
+    baseline: null,
+    catalog,
+    gate: gateRequest
+  });
+  const observationResult = resolveCurrentObservation({ acceptedWarnings: [], catalog });
+  if (!policyResult.ok) {
+    throw new TypeError(`Canonical example policy failed: ${policyResult.error.reason}`);
   }
-  if (state !== "gate-failed" || record === undefined) {
-    return disabledDecision();
+  if (!observationResult.ok) {
+    throw new TypeError(`Canonical example observation failed: ${observationResult.error.reason}`);
   }
-  const recordRef = { kind: "record" as const, recordId: record.recordId };
-  return {
-    policyId: "all-current",
-    acceptance: [],
-    views: [{ viewId: "all-current", recordRefs: [recordRef] }],
-    readiness: [{
-      readinessId: "current-complete",
-      status: "passed",
-      evidenceRefs: [
-        { kind: "run", checkRunId: run.checkRunId },
-        { kind: "readiness", readinessId: "current-complete" }
-      ]
-    }],
-    blockWhen: {
-      status: "matched",
-      evidenceRefs: [recordRef, { kind: "view", viewId: "all-current" }],
-      blockingRecordRefs: [recordRef]
-    },
-    gate: {
-      status: "failed",
-      policyId: "all-current",
-      evidenceRefs: [
-        { kind: "run", checkRunId: run.checkRunId },
-        recordRef,
-        { kind: "view", viewId: "all-current" },
-        { kind: "readiness", readinessId: "current-complete" }
-      ],
-      blockingRecordRefs: [recordRef]
-    }
-  };
-}
-
-function disabledDecision(): DecisionEvidence {
-  return {
-    policyId: null,
-    acceptance: [],
-    views: [],
-    readiness: [],
-    blockWhen: null,
-    gate: { status: "disabled", policyId: null }
-  };
+  const decision = evaluateDecisionPolicy(policyResult.value, snapshot, emptyReferenceFacts);
+  if (decision.gate.status !== "disabled") return decision;
+  const observation = evaluateRecordObservation(
+    observationResult.value,
+    snapshot,
+    emptyReferenceFacts
+  );
+  return Object.freeze({
+    ...decision,
+    acceptance: observation.acceptance,
+    views: observation.views
+  });
 }

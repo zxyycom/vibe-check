@@ -5,7 +5,7 @@
 ## Readiness
 
 - [x] 0.1 已核对 proposal、design 与 tasks 指向“独立 Check / Record managers，policy 只消费 final Core snapshot，所有 public surfaces 只投影一个 validated publication model”这一目标；范围不包含 Project Definition、TaskPlan 或 feature algorithms。
-- [x] 0.2 已读取当前 `docs/` owners、`src/product/**` 实现和直接相关活动决策，并区分 current capability / machine-v1事实与本 Change 的目标 delta；历史材料不作为当前实现输入。
+- [x] 0.2 已读取实施前 `docs/` owners、`src/product/**` 基线和直接相关活动决策，并区分 pre-cut capability / machine-v1 事实与本 Change 的目标 delta；历史材料不作为实施输入。
 - [x] 0.3 已复核 Scan Scope / Scanner Dependency handoff：Product-owned config glob与 current / baseline exact inputs、source-scoped result acceptance、payload-private location、cache与 backend identity必须在 built-in迁移中保持。
 - [x] 0.4 已复核直接下游 `establish-check-task-orchestration` 与 `adopt-typescript-project-definition` 的依赖 seam；本 Change只提供 frozen catalog / binding、manager ports、terminal reports、finalization、closed policy与 public / private identity边界，不提前实现 scheduler或 authoring loader。
 - [x] 0.5 已确认 current `all | changed | regressions` intent、显式 baseline prerequisite、existing flags / profiles、`--verification-output` preview-only行为、human quality / verification status、GateResult / process-exit mapping与 `raw/**`定位保持；machine v2、legacy artifact cleanup、warning / capability移除是 intentional hard cut，不提供 dual path。
@@ -13,7 +13,7 @@
 
 ## Implementation
 
-- [x] 1.1 在修改测试正文 / test nodes / Cases前运行 `bun run test-evidence:check`，按 `test-evidence-review` 恢复相关 Cases；实施开始后，在 `design.md` 追加的 `Implementation Observations` 中持续维护迁移矩阵，逐项映射 current capability result、completeness、warning channels、gate modes、machine-v1 artifacts、report / console、CLI / annotation / dogfood consumers到目标 Check / Record / policy / machine-v2 owner及其删除证据。
+- [x] 1.1 在修改测试正文 / test nodes / Cases前运行 `bun run test-evidence:check`，按 `test-evidence-review` 恢复相关 Cases；实施期间在 `design.md` 的 `Implementation Observations` 中维护迁移矩阵，逐项映射 pre-cut capability result、completeness、warning channels、gate modes、machine-v1 artifacts、report / console、CLI / annotation / dogfood consumers 到目标 Check / Record / policy / machine-v2 owner及其删除证据。
 - [x] 1.2 完成 foundation contract lock：以 model / validator目标测试固定 `CheckDefinition`、record-type descriptor、`CheckRun` / `CheckResult`、`QualityRecord`、reference-free final Core snapshot及其 integrity / completeness状态的 normalized grammar，以及 check / record-type / run / record identities、canonical identity bytes、catalog fingerprint、diagnostic categories与 same-run failure precedence；先确认 contract tests能拒绝错误实现并完成 contract diff审阅，再实现 managers。
 - [x] 1.3 在 `src/product/**` 实现 serializable Check / record-type catalog、canonical validation / fingerprint与独立 private binding registry；在 work前拒绝非法 identity / descriptor、unknown / duplicate catalog成员和 missing / extra binding，并冻结完整 definitions、bindings、selection与 applicability。
 - [x] 1.4 实现 CheckManager的每-definition单一 invocation run、pre-work applicability-owned `not-applicable`、opaque domain-work handles、bound acknowledgement port、contribution correlation、terminal report-set validation与单点 finalization；目标测试证明 skipped / not-applicable zero binding calls、zero-work applicable return，以及 `skipped | failed -> result null`、`completed -> exactly one result`。

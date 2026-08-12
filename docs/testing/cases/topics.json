@@ -11,7 +11,7 @@
     },
     {
       "id": "quality-runtime",
-      "description": "扫描 completeness、capability result、缓存、baseline 与质量 core 运行时归约契约。"
+      "description": "Check / Record 生命周期、coverage、完整性证据、缓存、reference 与质量 Core 运行时契约。"
     },
     {
       "id": "report-output",

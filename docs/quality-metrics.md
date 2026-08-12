@@ -35,7 +35,7 @@ named policy；Core 不根据这些拼写分支。`changed` 与 `regressions` �
 baseline。policy 的 readiness 明确表示 incomplete scan、no eligible input 或 unavailable comparison，
 不会由 Core 的全局 reducer 推断。
 
-`acceptedWarnings[]` 是迁移期 semantic input：每个 legacy `checkId` 必须映射为 owning Check 与同名
+`acceptedWarnings[]` 是现行 semantic config 中保留 legacy 命名的 input：每个 `checkId` 必须映射为 owning Check 与同名
 `recordTypeId` 的 typed selector，其他 filters 只可使用该 record type catalog 声明的 operands 或
 relations。acceptance 只影响 policy evidence，不删除 record。
 
@@ -50,6 +50,6 @@ completed quality-failed verdict 时为 `warning`；其余为 `passed`。verific
 
 ## 验证
 
-目标测试应覆盖 catalog/binding freeze、run/result legality、coverage、record identity/conflict/retention、
+当前测试覆盖 catalog/binding freeze、run/result legality、coverage、record identity/conflict/retention、
 built-in exact inputs、reference evidence、policy validation/evaluation、acceptance、readiness 与 human
 status projection。machine bytes 和 publication 由 [Output](output.md) 证明。
