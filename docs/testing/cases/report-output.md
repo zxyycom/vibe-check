@@ -6,20 +6,41 @@ Entities:
 - `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > derives exact closed DTOs from runtime schemas and one validated publication model`
 - `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > serializes canonical JSON and NDJSON and validates the complete two-file set`
 - `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > preserves an absent record policy and allows disabled decisions to retain acceptance and views`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > rejects byte schema and cross-file invariant failures without a trusted prefix`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > reuses final Core validation for legal run coverage and canonical snapshot facts`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > closes named-reference identities evidence relations and canonical arrays`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > closes decision identity types canonical arrays and gate evidence state`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > binds reference evidence refs to a published Check/reference evidence pair`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > requires not-evaluated readiness to stop at its unique first failure`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > generates canonical schema and example candidates that validate independently`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > locks shared readable previews annotation set input lifecycle and process mapping`
-- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.test.ts|machine publication v2 contract > plans exact prior-v2 stale-v1 report and owned-temp cleanup without touching unrelated files`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > rejects byte schema and cross-file invariant failures without a trusted prefix`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > reuses final Core validation for legal run coverage and canonical snapshot facts`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > closes named-reference identities evidence relations and canonical arrays`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > closes decision identity types canonical arrays and gate evidence state`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > binds reference evidence refs to a published Check/reference evidence pair`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.validation.test.ts|machine publication v2 contract > requires not-evaluated readiness to stop at its unique first failure`
 Proves:
 - Runtime schemas own exact v2 DTO identities, fields, enums and byte grammar; `run.json` and `records.ndjson` validate only as one complete set.
 - Machine validation closes final snapshot, record/run/reference/decision relationships and canonical ordering without a partial consumer result.
 - Publication model construction rejects mismatched or illegal human status candidates before any trusted projection; readable output and process outcome consume only the frozen model status.
-- Resolved report presentation controls title、notice、timestamp time zone、footer、record `topN` 与独立 changed-record watchlist visibility / limit；这些 projection choices 不改变完整 console records、machine bytes、GateResult 或 process outcome。
+
+## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated publication materials remain canonical
+Owner: `docs/output.md#published-materials-and-verification`
+Entities:
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.contract-materials.test.ts|machine publication v2 contract > generates canonical schema and example candidates that validate independently`
+Proves:
+- Runtime schema and example candidates are canonical, independently valid publication materials rather than a second machine contract.
+
+## Case WB-OUTPUT-READABLE-PROJECTION-001: Readable consumers share one validated projection
+Owner: `docs/output.md#readable-output-and-annotation`
+Entities:
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.readable.test.ts|machine publication v2 readable contract > projects shared statuses accepted previews and presentation from one model`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.readable.test.ts|machine publication v2 readable contract > applies report preview and changed-record limits without truncating console records`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.readable.test.ts|machine publication v2 readable contract > pins annotation consumption to one validated two-file artifact directory`
+Proves:
+- Report, console and annotation consume the same validated model/set boundary; presentation limits affect only their declared readable projections and never truncate machine or console facts.
+
+## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
+Owner: `docs/output.md#publication-lifecycle-and-evidence`
+Entities:
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.lifecycle.test.ts|machine publication v2 lifecycle > pins candidate artifact and handled-failure lifecycle stages`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.lifecycle.test.ts|machine publication v2 lifecycle > maps process outcomes from only publication status and the validated model gate`
+- `bun|src/product/quality-core/src/output/publication-v2/publication-v2.lifecycle.test.ts|machine publication v2 lifecycle > plans exact prior-v2 stale-v1 report and owned-temp cleanup without touching unrelated files`
+Proves:
+- Candidate validation precedes canonical writes; handled failure and cleanup affect only owned artifacts, and process outcome consumes only publication status plus the validated gate.
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v2 example acceptance
 Owner: `docs/output.md#published-materials-and-verification`

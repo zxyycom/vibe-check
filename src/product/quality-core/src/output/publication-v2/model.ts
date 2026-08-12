@@ -4,6 +4,7 @@ import type {
 } from "../../check-record/model.ts";
 import type {
   DecisionEvidence,
+  EvidenceRef,
   NamedReferenceIdentity,
   ReferenceFacts
 } from "../../check-record/policy-model.ts";
@@ -28,6 +29,14 @@ export interface ValidatedPublicationModelV2 {
   readonly references: readonly NamedReferenceIdentity[];
   readonly snapshot: FinalCoreSnapshot;
   readonly verificationOutput: boolean;
+}
+
+interface PublicationEvidenceIndex {
+  readonly definitionIds: ReadonlySet<string>;
+  readonly recordIds: ReadonlySet<string>;
+  readonly referenceEvidencePairs: ReadonlySet<string>;
+  readonly referenceKeys: ReadonlySet<string>;
+  readonly runIds: ReadonlySet<string>;
 }
 
 export function createPublicationModelV2(input: Readonly<{
@@ -104,33 +113,55 @@ function validatePublicationEvidence(
   referenceFacts: ReferenceFacts,
   decision: DecisionEvidence
 ): void {
-  const recordIds = new Set(snapshot.records.map((record) => record.recordId));
-  const runIds = new Set(snapshot.runs.map((run) => run.checkRunId));
-  const definitionIds = new Set(snapshot.definitions.map((definition) => definition.checkId));
-  const referenceKeys = new Set(references.map((reference) => (
-    `${reference.referenceName}\u0000${reference.referenceId}`
-  )));
-  const referenceEvidencePairs = new Set(referenceFacts.evidence.map((evidence) => (
-    `${evidence.checkId}\u0000${evidence.referenceName}`
-  )));
-  if (referenceKeys.size !== references.length
-    || referenceFacts.relations.some((relation) => !recordIds.has(relation.recordId))) {
+  const index = buildPublicationEvidenceIndex(snapshot, references, referenceFacts);
+  if (index.referenceKeys.size !== references.length
+    || referenceFacts.relations.some((relation) => !index.recordIds.has(relation.recordId))) {
     throw new TypeError("Publication reference evidence is invalid");
   }
   for (const reference of decisionEvidenceRefs(decision)) {
-    if (reference.kind === "record" && !recordIds.has(reference.recordId)) {
+    validateDecisionEvidenceReference(reference, index);
+  }
+}
+
+function buildPublicationEvidenceIndex(
+  snapshot: FinalCoreSnapshot,
+  references: readonly NamedReferenceIdentity[],
+  referenceFacts: ReferenceFacts
+): PublicationEvidenceIndex {
+  return {
+    recordIds: new Set(snapshot.records.map((record) => record.recordId)),
+    runIds: new Set(snapshot.runs.map((run) => run.checkRunId)),
+    definitionIds: new Set(snapshot.definitions.map((definition) => definition.checkId)),
+    referenceKeys: new Set(references.map((reference) => (
+      `${reference.referenceName}\u0000${reference.referenceId}`
+    ))),
+    referenceEvidencePairs: new Set(referenceFacts.evidence.map((evidence) => (
+      `${evidence.checkId}\u0000${evidence.referenceName}`
+    )))
+  };
+}
+
+function validateDecisionEvidenceReference(
+  reference: EvidenceRef,
+  index: PublicationEvidenceIndex
+): void {
+  if (reference.kind === "record") {
+    if (!index.recordIds.has(reference.recordId)) {
       throw new TypeError("Publication decision references an unknown record");
     }
-    if (reference.kind === "run" && !runIds.has(reference.checkRunId)) {
+    return;
+  }
+  if (reference.kind === "run") {
+    if (!index.runIds.has(reference.checkRunId)) {
       throw new TypeError("Publication decision references an unknown run");
     }
-    if (reference.kind === "reference") {
-      if (!referenceKeys.has(`${reference.referenceName}\u0000${reference.referenceId}`)
-        || !definitionIds.has(reference.checkId)
-        || !referenceEvidencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`)) {
-        throw new TypeError("Publication decision references an unknown Check/reference pair");
-      }
-    }
+    return;
+  }
+  if (reference.kind !== "reference") return;
+  if (!index.referenceKeys.has(`${reference.referenceName}\u0000${reference.referenceId}`)
+    || !index.definitionIds.has(reference.checkId)
+    || !index.referenceEvidencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`)) {
+    throw new TypeError("Publication decision references an unknown Check/reference pair");
   }
 }
 
