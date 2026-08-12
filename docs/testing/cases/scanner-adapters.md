@@ -3,6 +3,7 @@
 ## Case WB-SCANNER-DEPENDENCY-RESOLUTION-001: Scanner dependency resolution
 Owner: `docs/scanner-dependencies.md#current-dependency-boundary`
 Entities:
+- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > rejects malformed operational input before an empty scan starts`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > applies supported operational overrides without probing executables`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects malformed or non-string-array argument overrides without exposing values`
 - `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > resolves platform defaults, availability arguments, and bounded concurrency`

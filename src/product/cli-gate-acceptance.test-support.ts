@@ -78,6 +78,32 @@ export function setFixtureWarningPolicy(
   writeFixtureConfig(projectRoot, config);
 }
 
+export function raiseWarningFloors(config: Record<string, unknown>): void {
+  const checks = config.checks as {
+    files: {
+      codeLines: {
+        absoluteFloor: number;
+        lowDecisionTokenAllowance: { codeLineFloor: number };
+      };
+    };
+    functions: {
+      codeLines: {
+        absoluteFloor: number;
+        lowComplexityAllowance: { codeLineFloor: number };
+      };
+      cyclomaticComplexity: { absoluteFloor: number };
+      parameterCount: { absoluteFloor: number };
+    };
+  };
+
+  checks.functions.cyclomaticComplexity.absoluteFloor = 10_000;
+  checks.functions.codeLines.absoluteFloor = 10_000;
+  checks.functions.codeLines.lowComplexityAllowance.codeLineFloor = 10_000;
+  checks.functions.parameterCount.absoluteFloor = 10_000;
+  checks.files.codeLines.absoluteFloor = 10_000;
+  checks.files.codeLines.lowDecisionTokenAllowance.codeLineFloor = 10_000;
+}
+
 export function runFormalGateScan(
   repoRoot: string,
   projectRoot: string,

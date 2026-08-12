@@ -36,7 +36,9 @@ Owner: `docs/cli.md#scan-flags`
 Entities:
 - `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > passes a zero-record quick all gate while preserving the skipped Check run`
 - `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > fails an all gate when the unaccepted all-current view is non-empty`
-- `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > distinguishes input-unchanged, changed non-regression, and regression evidence`
+- `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > keeps input-unchanged evidence relation-free for a regression gate`
+- `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > projects changed non-regression evidence for a changed gate`
+- `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > projects regression evidence for a regressions gate`
 - `bun|src/product/cli-gate-acceptance.test.ts|formal CLI quality gate acceptance > rejects a comparison gate without an explicit baseline before scan work`
 Proves:
 - Formal CLI preserves policy result/reference evidence across the validated v2 set and rejects missing explicit comparison input before work.

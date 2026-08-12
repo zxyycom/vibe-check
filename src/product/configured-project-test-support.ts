@@ -49,6 +49,62 @@ export function createConfiguredProjectFixture(
   };
 }
 
+export function configureNoEligibleInput(
+  fixture: ConfiguredProjectFixture
+): void {
+  const config = JSON.parse(
+    readFileSync(fixture.configPath, "utf8")
+  ) as Record<string, unknown>;
+  config.include = ["missing/**/*.ts"];
+  config.acceptedWarnings = [
+    {
+      checkId: "duplicate-code",
+      metric: "duplicate-tokens",
+      reason: "stale acceptance should not be evaluated for an empty scan",
+      value: 999
+    }
+  ];
+  writeFileSync(fixture.configPath, JSON.stringify(config), "utf8");
+}
+
+export function configureRaisedWarningFloors(
+  fixture: ConfiguredProjectFixture
+): void {
+  const config = JSON.parse(
+    readFileSync(fixture.configPath, "utf8")
+  ) as Record<string, unknown>;
+  raiseWarningFloors(config);
+  writeFileSync(fixture.configPath, JSON.stringify(config), "utf8");
+}
+
+export function configuredScanArgs(
+  projectRoot: string,
+  profile: "full" | "quick"
+): readonly string[] {
+  return [
+    "scan",
+    projectRoot,
+    "--config",
+    ".vibe-check/config.json",
+    "--profile",
+    profile,
+    "--skip-baseline"
+  ];
+}
+
+export function writeOperationalMarker(
+  projectRoot: string,
+  markerPath: string
+): string {
+  const scannerPath = join(projectRoot, "tools", "operational-marker.ts");
+  writeFileSync(
+    scannerPath,
+    `import { writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(markerPath)}, "started");\n`,
+    "utf8"
+  );
+  return scannerPath;
+}
+
 export interface CommandResult {
   readonly status: number | null;
   readonly stderr: string;
@@ -114,6 +170,25 @@ export function readMachinePublication(
   });
   if (!validation.ok) assert.fail(JSON.stringify(validation.diagnostic));
   return validation.value;
+}
+
+export function findCheckRun(
+  machine: MachinePublicationV2,
+  checkId: string
+): MachinePublicationV2["run"]["runs"][number] | undefined {
+  return machine.run.runs.find((run) => run.checkId === checkId);
+}
+
+export function summarizeCheckRun(
+  run: MachinePublicationV2["run"]["runs"][number]
+): readonly [string, string, string | undefined] {
+  return [run.checkId, run.status, run.result?.verdict];
+}
+
+export function summarizeCheckStatus(
+  run: MachinePublicationV2["run"]["runs"][number]
+): readonly [string, string] {
+  return [run.checkId, run.status];
 }
 
 export function stableScanEvidence(publication: MachinePublicationV2): unknown {
