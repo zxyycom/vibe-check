@@ -97,7 +97,7 @@ describe("check-record current policy adapter", () => {
     });
   });
 
-  it("turns omitted gate into disabled and the three spellings into ordinary policies with current and comparison readiness", () => {
+  it("turns an omitted gate into a disabled policy while retaining current observation", () => {
     const catalog = createCatalog({ selected: ["file-metrics", "function-metrics", "duplicate-detection"] });
     const disabled = resolveCurrentPolicy({ acceptedWarnings: [], baseline: null, catalog, gate: null });
     assert.equal(disabled.ok, true);
@@ -118,7 +118,10 @@ describe("check-record current policy adapter", () => {
     if (!observation.ok) throw new Error("Expected current record observation");
     assert.equal(observation.value.acceptance[0]?.reason, "Current file observation accepted");
     assert.deepEqual(observation.value.views.map((view) => view.viewId), ["all-current"]);
+  });
 
+  it("turns all three enabled gate spellings into ordinary policies with scoped readiness", () => {
+    const catalog = createCatalog({ selected: ["file-metrics", "function-metrics", "duplicate-detection"] });
     const policies = ["all", "changed", "regressions"] as const;
     for (const gate of policies) {
       const result = resolveCurrentPolicy({ acceptedWarnings: [], baseline, catalog, gate });

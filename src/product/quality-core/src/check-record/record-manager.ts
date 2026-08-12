@@ -15,6 +15,7 @@ import {
   type RunDiagnostic,
   type SnapshotIntegrity
 } from "./model.ts";
+import { hasExactPlainRecordKeys, snapshotPlainRecord } from "./plain-record-values.ts";
 import { validateQualityRecord } from "./validation.ts";
 
 type SubmissionResult = "committed" | "replayed" | "conflicted" | "rejected";
@@ -48,41 +49,6 @@ const CANDIDATE_FIELDS = [
   "location"
 ] as const;
 
-function snapshotData(
-  value: unknown,
-  expectedKeys?: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  try {
-    if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      return undefined;
-    }
-    const prototype = Object.getPrototypeOf(value) as object | null;
-    if (prototype !== Object.prototype && prototype !== null) {
-      return undefined;
-    }
-    const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
-      Record<string, PropertyDescriptor>
-    >;
-    if (Object.values(descriptors).some((descriptor) => (
-      descriptor.get !== undefined || descriptor.set !== undefined
-    ))) {
-      return undefined;
-    }
-    const entries = Object.entries(descriptors)
-      .filter(([, descriptor]) => descriptor.enumerable === true);
-    if (expectedKeys !== undefined && (entries.length !== expectedKeys.length
-      || entries.some(([key]) => !expectedKeys.includes(key)))) {
-      return undefined;
-    }
-    return Object.fromEntries(entries.map(([key, descriptor]) => [
-      key,
-      descriptor.value as unknown
-    ]));
-  } catch {
-    return undefined;
-  }
-}
-
 function compareText(left: string, right: string): number {
   if (left < right) {
     return -1;
@@ -109,6 +75,56 @@ function recordBody(record: QualityRecord): JsonObject {
 
 function bodyKey(body: JsonObject): string {
   return new TextDecoder().decode(canonicalJsonBytes(body));
+}
+
+function finalizeIntegrity(
+  invalidViolations: ReadonlyMap<string, InvalidRecordViolation>,
+  conflictsByRecordId: ReadonlyMap<string, RecordConflictEvidence>
+): SnapshotIntegrity {
+  const invalidRecords = Object.freeze([...invalidViolations.entries()]
+    .sort(([left], [right]) => compareText(left, right))
+    .map(([, violation], index): InvalidRecordEvidence => Object.freeze({
+      kind: "invalid-record",
+      checkId: violation.checkId,
+      checkRunId: violation.checkRunId,
+      recordTypeId: violation.recordTypeId,
+      evidenceId: `invalid-record/v1:${String(index + 1).padStart(6, "0")}`
+    })));
+  const conflicts = Object.freeze([...conflictsByRecordId.values()]
+    .sort((left, right) => compareText(left.recordId, right.recordId)));
+  const status: SnapshotIntegrity["status"] = conflicts.length > 0
+    ? "conflicted"
+    : invalidRecords.length > 0 ? "invalid" : "valid";
+  return Object.freeze({ status, invalidRecords, conflicts });
+}
+
+function finalizeDiagnostics(
+  catalog: ResolvedCheckCatalog,
+  integrity: SnapshotIntegrity
+): ReadonlyMap<string, readonly RunDiagnostic[]> {
+  const diagnostics = new Map<string, readonly RunDiagnostic[]>();
+  for (const check of catalog.checks) {
+    if (check.applicability !== "applicable") {
+      continue;
+    }
+    const checkId = check.definition.checkId;
+    const values: RunDiagnostic[] = [
+      ...integrity.conflicts
+        .filter((conflict) => conflict.checkId === checkId)
+        .map((conflict): RunDiagnostic => ({
+          category: "record-conflict",
+          tieBreakKey: conflict.recordId
+        })),
+      ...integrity.invalidRecords
+        .filter((invalidRecord) => invalidRecord.checkId === checkId)
+        .map((invalidRecord): RunDiagnostic => ({
+          category: "invalid-record",
+          tieBreakKey: invalidRecord.evidenceId
+        }))
+    ].sort(compareRunDiagnostics).map((diagnostic) => Object.freeze(diagnostic));
+    diagnostics.set(checkId, Object.freeze(values));
+  }
+  return diagnostics;
 }
 
 export class RecordManager {
@@ -163,51 +179,8 @@ export class RecordManager {
         this.#closedRuns.add(check.definition.checkId);
       }
     }
-    const invalidRecords = Object.freeze([...this.#invalidViolations.entries()]
-      .sort(([left], [right]) => compareText(left, right))
-      .map(([, violation], index): InvalidRecordEvidence => Object.freeze({
-        kind: "invalid-record",
-        checkId: violation.checkId,
-        checkRunId: violation.checkRunId,
-        recordTypeId: violation.recordTypeId,
-        evidenceId: `invalid-record/v1:${String(index + 1).padStart(6, "0")}`
-      })));
-    const conflicts = Object.freeze([...this.#conflicts.values()]
-      .sort((left, right) => compareText(left.recordId, right.recordId)));
-    let integrityStatus: SnapshotIntegrity["status"] = "valid";
-    if (invalidRecords.length > 0) {
-      integrityStatus = "invalid";
-    }
-    if (conflicts.length > 0) {
-      integrityStatus = "conflicted";
-    }
-    const integrity: SnapshotIntegrity = Object.freeze({
-      status: integrityStatus,
-      invalidRecords,
-      conflicts
-    });
-    const diagnostics = new Map<string, readonly RunDiagnostic[]>();
-    for (const check of this.#catalog.checks) {
-      if (check.applicability !== "applicable") {
-        continue;
-      }
-      const checkId = check.definition.checkId;
-      const values: RunDiagnostic[] = [
-        ...conflicts
-          .filter((conflict) => conflict.checkId === checkId)
-          .map((conflict): RunDiagnostic => ({
-            category: "record-conflict",
-            tieBreakKey: conflict.recordId
-          })),
-        ...invalidRecords
-          .filter((invalidRecord) => invalidRecord.checkId === checkId)
-          .map((invalidRecord): RunDiagnostic => ({
-            category: "invalid-record",
-            tieBreakKey: invalidRecord.evidenceId
-          }))
-      ].sort(compareRunDiagnostics).map((diagnostic) => Object.freeze(diagnostic));
-      diagnostics.set(checkId, Object.freeze(values));
-    }
+    const integrity = finalizeIntegrity(this.#invalidViolations, this.#conflicts);
+    const diagnostics = finalizeDiagnostics(this.#catalog, integrity);
     this.#finalState = Object.freeze({
       records: this.records(),
       integrity,
@@ -225,8 +198,9 @@ export class RecordManager {
   }
 
   #submit(check: ResolvedCheck, rawCandidate: unknown): SubmissionResult {
-    const candidate = snapshotData(rawCandidate, CANDIDATE_FIELDS);
-    if (candidate === undefined || typeof candidate.recordTypeId !== "string") {
+    const candidate = snapshotPlainRecord(rawCandidate);
+    if (candidate === undefined || !hasExactPlainRecordKeys(candidate, CANDIDATE_FIELDS)
+      || typeof candidate.recordTypeId !== "string") {
       return this.#rejectInvalid(check, this.#canonicalRecordTypeId(check), "candidate-shape");
     }
     const recordType = check.definition.recordTypes.find((item) => (
@@ -236,28 +210,10 @@ export class RecordManager {
       return this.#rejectInvalid(check, this.#canonicalRecordTypeId(check), "candidate-shape");
     }
 
-    let validated: ReturnType<typeof validateQualityRecord>;
-    try {
-      const boundCandidate: ManagerBoundQualityRecordCandidate = {
-        checkId: check.definition.checkId,
-        checkRunId: check.checkRunId,
-        recordTypeId: candidate.recordTypeId,
-        level: candidate.level as QualityRecordCandidate["level"],
-        semanticSubject: candidate.semanticSubject as string,
-        message: candidate.message as string,
-        fields: candidate.fields as QualityRecordCandidate["fields"],
-        location: candidate.location as QualityRecordCandidate["location"]
-      };
-      const recordId = createRecordId(boundCandidate, recordType).recordId;
-      validated = validateQualityRecord({ ...boundCandidate, recordId }, check.definition);
-    } catch {
+    const record = this.#validateCandidate(check, candidate, recordType);
+    if (record === undefined) {
       return this.#rejectInvalid(check, recordType.recordTypeId, "candidate-validation");
     }
-    if (!validated.ok) {
-      return this.#rejectInvalid(check, recordType.recordTypeId, "candidate-validation");
-    }
-
-    const record = validated.value;
     const body = recordBody(record);
     const key = bodyKey(body);
     const state = this.#recordStates.get(record.recordId);
@@ -283,6 +239,30 @@ export class RecordManager {
       bodies: [...state.bodies.values()]
     }));
     return "conflicted";
+  }
+
+  #validateCandidate(
+    check: ResolvedCheck,
+    candidate: Readonly<Record<string, unknown>>,
+    recordType: ResolvedCheck["definition"]["recordTypes"][number]
+  ): QualityRecord | undefined {
+    try {
+      const boundCandidate: ManagerBoundQualityRecordCandidate = {
+        checkId: check.definition.checkId,
+        checkRunId: check.checkRunId,
+        recordTypeId: candidate.recordTypeId as string,
+        level: candidate.level as QualityRecordCandidate["level"],
+        semanticSubject: candidate.semanticSubject as string,
+        message: candidate.message as string,
+        fields: candidate.fields as QualityRecordCandidate["fields"],
+        location: candidate.location as QualityRecordCandidate["location"]
+      };
+      const recordId = createRecordId(boundCandidate, recordType).recordId;
+      const validated = validateQualityRecord({ ...boundCandidate, recordId }, check.definition);
+      return validated.ok ? validated.value : undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   #canonicalRecordTypeId(check: ResolvedCheck): string | undefined {

@@ -1,17 +1,21 @@
 import type { FileScannerDependency } from "../../../../scanner-dependencies.ts";
-import { classifyFile } from "../../model/code-areas.ts";
-import type { CodeAreaDefinition, FileMetric } from "../../model/schema.ts";
-import { scanWithScc } from "../../measurement/scanners/scc.ts";
-import { checkScc } from "../../measurement/scanners/tool-availability/scc.ts";
-import { acceptScopedMeasurements } from "../../measurement/scoped-measurement.ts";
-import type { CheckExecutionBinding } from "../catalog.ts";
-import type {
-  CheckDefinition,
-  FinalCoreSnapshot,
-  QualityRecordCandidate,
-  RecordLevel
-} from "../model.ts";
+import type { CodeAreaDefinition } from "../../model/schema.ts";
+import type { CheckExecutionBinding, CheckExecutionPorts } from "../catalog.ts";
+import type { CheckDefinition, FinalCoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
+import { type ReferenceStatus, type RelationId } from "./builtin-support.ts";
+import {
+  detachFileMetricsInput,
+  measureFileMetrics,
+  type FileMeasurementResult
+} from "./file-metrics-measurement.ts";
+import { buildFileReferenceFacts } from "./file-metrics-reference.ts";
+import {
+  buildFileRecordCandidates,
+  buildFileRelations,
+  codeLinesByPath,
+  type FileRecordCandidate
+} from "./file-metrics-records.ts";
 
 const FILE_METRICS_WORK_HANDLE = "work-handle/v1:file-metrics";
 
@@ -81,14 +85,19 @@ export interface FileMetricsBindingRuntime {
   readonly referenceFacts: (snapshot: FinalCoreSnapshot) => ReferenceFacts;
 }
 
-type MeasurementResult = Readonly<
-  | { kind: "complete"; metrics: readonly FileMetric[] }
-  | { kind: "execution-failed" }
-  | { kind: "invalid-result" }
-  | { kind: "unavailable" }
->;
+interface FileReferenceState {
+  relationsBySubject: Map<string, readonly RelationId[]>;
+  status: ReferenceStatus | null;
+}
 
-type ReferenceStatus = "complete" | "incomplete" | "unavailable";
+interface FileBindingContext {
+  readonly changedFiles: readonly string[];
+  readonly current: FileMetricsExactInputSet;
+  readonly dependency: FileScannerDependency;
+  readonly reference: FileMetricsReferenceInput | null;
+  readonly referenceState: FileReferenceState;
+  readonly semantics: FileMetricsSemantics;
+}
 
 export function resolveFileMetricsApplicability(
   approvedExactPaths: readonly string[]
@@ -111,277 +120,111 @@ export function createFileMetricsBinding(input: Readonly<{
   reference: FileMetricsReferenceInput | null;
   semantics: FileMetricsSemantics;
 }>): FileMetricsBindingRuntime {
-  const current = detachedInputSet(input.current);
-  const changedFiles = Object.freeze([...input.changedFiles]);
-  const reference = input.reference === null
-    ? null
-    : Object.freeze({
-      ...detachedInputSet(input.reference),
-      referenceName: input.reference.referenceName
-    });
-  let referenceStatus: ReferenceStatus | null = reference === null ? null : "incomplete";
-  let relationsBySubject = new Map<string, readonly ("changed" | "regression")[]>();
-
+  const context = createBindingContext(input);
   const binding: CheckExecutionBinding = async (ports) => {
     try {
-      const currentMeasurement = await measureExactInputs(
-        current,
-        input.dependency
-      );
-      if (currentMeasurement.kind === "unavailable") {
-        return { status: "unavailable", dependencyId: "scc" };
-      }
-      if (currentMeasurement.kind === "execution-failed") {
-        throw new Error("file-metrics scanner execution failed");
-      }
-      if (currentMeasurement.kind === "invalid-result") {
-        return { verdict: "invalid" };
-      }
-
-      const candidates = buildRecordCandidates(
-        currentMeasurement.metrics,
-        changedFiles,
-        input.semantics
-      );
-      if (candidates === undefined) {
-        return { verdict: "invalid" };
-      }
-      for (const candidate of candidates) {
-        ports.submitRecord(candidate.record);
-      }
-
-      if (reference !== null) {
-        const referenceMeasurement = await measureExactInputs(reference, input.dependency);
-        if (referenceMeasurement.kind === "unavailable") {
-          referenceStatus = "unavailable";
-        } else if (referenceMeasurement.kind !== "complete") {
-          referenceStatus = "incomplete";
-        } else {
-          const referenceValues = codeLinesByPath(referenceMeasurement.metrics);
-          if (referenceValues === undefined) {
-            referenceStatus = "incomplete";
-          } else {
-            referenceStatus = "complete";
-            relationsBySubject = buildRelations(candidates, referenceValues, input.semantics);
-          }
-        }
-      }
-
-      return { verdict: candidates.length > 0 ? "failed" : "passed" };
+      return await executeFileMetrics(context, ports);
     } finally {
       for (const workHandle of ports.workHandles) {
         ports.acknowledge(workHandle);
       }
     }
   };
-
   return Object.freeze({
     binding,
-    referenceFacts: (snapshot: FinalCoreSnapshot) => buildReferenceFacts(
+    referenceFacts: (snapshot: FinalCoreSnapshot) => buildFileReferenceFacts(
       snapshot,
-      reference?.referenceName ?? null,
-      referenceStatus,
-      relationsBySubject
+      context.reference?.referenceName ?? null,
+      context.referenceState.status,
+      context.referenceState.relationsBySubject
     )
   });
 }
 
-function detachedInputSet(input: FileMetricsExactInputSet): FileMetricsExactInputSet {
-  return Object.freeze({
-    rootDir: input.rootDir,
-    approvedExactPaths: Object.freeze([...input.approvedExactPaths])
-  });
-}
-
-async function measureExactInputs(
-  input: FileMetricsExactInputSet,
-  dependency: FileScannerDependency
-): Promise<MeasurementResult> {
-  if (input.approvedExactPaths.length === 0) {
-    return Object.freeze({ kind: "complete", metrics: Object.freeze([]) });
-  }
-  const availability = await checkScc(input.rootDir, dependency);
-  if (!availability.available) {
-    return Object.freeze({ kind: "unavailable" });
-  }
-
-  let result: ReturnType<typeof scanWithScc>;
-  try {
-    result = scanWithScc({
-      cwd: input.rootDir,
-      dependency,
-      includePaths: input.approvedExactPaths,
-      excludeDirs: []
+function createBindingContext(input: Readonly<{
+  changedFiles: readonly string[];
+  current: FileMetricsExactInputSet;
+  dependency: FileScannerDependency;
+  reference: FileMetricsReferenceInput | null;
+  semantics: FileMetricsSemantics;
+}>): FileBindingContext {
+  const reference = input.reference === null
+    ? null
+    : Object.freeze({
+      ...detachFileMetricsInput(input.reference),
+      referenceName: input.reference.referenceName
     });
-  } catch {
-    return Object.freeze({ kind: "execution-failed" });
+  return {
+    changedFiles: Object.freeze([...input.changedFiles]),
+    current: detachFileMetricsInput(input.current),
+    dependency: input.dependency,
+    reference,
+    referenceState: {
+      status: reference === null ? null : "incomplete",
+      relationsBySubject: new Map()
+    },
+    semantics: input.semantics
+  };
+}
+
+async function executeFileMetrics(
+  context: FileBindingContext,
+  ports: CheckExecutionPorts
+) {
+  const measurement = await measureFileMetrics(context.current, context.dependency);
+  if (measurement.kind !== "complete") {
+    return currentMeasurementFailure(measurement);
   }
-  if (!result.ok) {
-    return Object.freeze({ kind: result.reason === "execution"
-      ? "execution-failed"
-      : "invalid-result" });
-  }
-  const accepted = acceptScopedMeasurements(
-    result.measurements,
-    input.approvedExactPaths
+  const candidates = buildFileRecordCandidates(
+    measurement.metrics,
+    context.changedFiles,
+    context.semantics
   );
-  return accepted.ok
-    ? Object.freeze({ kind: "complete", metrics: Object.freeze([...accepted.payloads]) })
-    : Object.freeze({ kind: "invalid-result" });
-}
-
-interface FileRecordCandidate {
-  readonly codeLines: number;
-  readonly isChanged: boolean;
-  readonly record: QualityRecordCandidate;
-}
-
-function buildRecordCandidates(
-  metrics: readonly FileMetric[],
-  changedFiles: readonly string[],
-  semantics: FileMetricsSemantics
-): readonly FileRecordCandidate[] | undefined {
-  const seenPaths = new Set<string>();
-  const candidates: FileRecordCandidate[] = [];
-  for (const metric of metrics) {
-    const codeLines = metric.codeLines;
-    if (typeof metric.path !== "string" || metric.path.length === 0
-      || typeof codeLines !== "number" || !Number.isSafeInteger(codeLines) || codeLines < 0
-      || seenPaths.has(metric.path)) {
-      return undefined;
-    }
-    seenPaths.add(metric.path);
-    const codeArea = classifyFile(
-      metric.path,
-      semantics.codeAreas as Record<string, CodeAreaDefinition>,
-      semantics.generatedFiles
-    );
-    const area = semantics.codeAreas[codeArea];
-    if (area === undefined || area.warningPolicy === "exclude-warnings") {
-      continue;
-    }
-    const limit = fileCodeLineFloor(metric, semantics);
-    if (codeLines <= limit) {
-      continue;
-    }
-    const level: RecordLevel = area.warningPolicy === "watchlist-only" ? "info" : "warning";
-    candidates.push(Object.freeze({
-      codeLines,
-      isChanged: isInChangedScope(metric.path, changedFiles),
-      record: Object.freeze({
-        recordTypeId: "file-code-lines",
-        level,
-        semanticSubject: metric.path,
-        message: `File ${metric.path} has ${codeLines} code lines (threshold: ${limit})`,
-        fields: Object.freeze({
-          codeArea,
-          limit,
-          metric: "code-lines",
-          value: codeLines
-        }),
-        location: Object.freeze({ path: metric.path, line: 1, column: 1 })
-      })
-    }));
+  if (candidates === undefined) {
+    return { verdict: "invalid" } as const;
   }
-  candidates.sort((left, right) => compareText(
-    left.record.semanticSubject,
-    right.record.semanticSubject
-  ));
-  return Object.freeze(candidates);
-}
-
-function fileCodeLineFloor(metric: FileMetric, semantics: FileMetricsSemantics): number {
-  const allowance = semantics.codeLines.lowDecisionTokenAllowance;
-  const decisionTokens = metric.decisionTokens.value;
-  return decisionTokens !== null && decisionTokens <= allowance.maxDecisionTokens
-    ? allowance.codeLineFloor
-    : semantics.codeLines.absoluteFloor;
-}
-
-function codeLinesByPath(metrics: readonly FileMetric[]): ReadonlyMap<string, number> | undefined {
-  const values = new Map<string, number>();
-  for (const metric of metrics) {
-    const codeLines = metric.codeLines;
-    if (typeof metric.path !== "string" || metric.path.length === 0
-      || typeof codeLines !== "number" || !Number.isSafeInteger(codeLines) || codeLines < 0
-      || values.has(metric.path)) {
-      return undefined;
-    }
-    values.set(metric.path, codeLines);
-  }
-  return values;
-}
-
-function buildRelations(
-  candidates: readonly FileRecordCandidate[],
-  referenceValues: ReadonlyMap<string, number>,
-  semantics: FileMetricsSemantics
-): Map<string, readonly ("changed" | "regression")[]> {
-  const relations = new Map<string, readonly ("changed" | "regression")[]>();
   for (const candidate of candidates) {
-    if (!candidate.isChanged) {
-      relations.set(candidate.record.semanticSubject, Object.freeze([]));
-      continue;
-    }
-    const baselineValue = referenceValues.get(candidate.record.semanticSubject) ?? 0;
-    const delta = candidate.codeLines - baselineValue;
-    const variants: ("changed" | "regression")[] = [];
-    if (delta > semantics.codeLines.changedDelta) {
-      variants.push("regression");
-    } else {
-      variants.push("changed");
-    }
-    relations.set(candidate.record.semanticSubject, Object.freeze(variants));
+    ports.submitRecord(candidate.record);
   }
-  return relations;
+  await compareFileReference(context, candidates);
+  return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
 }
 
-function isInChangedScope(filePath: string, changedFiles: readonly string[]): boolean {
-  return changedFiles.some((changedFile) => (
-    filePath.includes(changedFile) || changedFile.includes(filePath)
-  ));
+function currentMeasurementFailure(
+  measurement: Exclude<FileMeasurementResult, { kind: "complete" }>
+) {
+  if (measurement.kind === "unavailable") {
+    return { status: "unavailable", dependencyId: "scc" } as const;
+  }
+  if (measurement.kind === "execution-failed") {
+    throw new Error("file-metrics scanner execution failed");
+  }
+  return { verdict: "invalid" } as const;
 }
 
-function buildReferenceFacts(
-  snapshot: FinalCoreSnapshot,
-  referenceName: string | null,
-  referenceStatus: ReferenceStatus | null,
-  relationsBySubject: ReadonlyMap<string, readonly ("changed" | "regression")[]>
-): ReferenceFacts {
-  if (referenceName === null || referenceStatus === null) {
-    return Object.freeze({ evidence: Object.freeze([]), relations: Object.freeze([]) });
+async function compareFileReference(
+  context: FileBindingContext,
+  candidates: readonly FileRecordCandidate[]
+): Promise<void> {
+  if (context.reference === null) {
+    return;
   }
-  const relations = snapshot.records
-    .filter((record) => (
-      record.checkId === "file-metrics" && record.recordTypeId === "file-code-lines"
-    ))
-    .flatMap((record) => (
-      (relationsBySubject.get(record.semanticSubject) ?? []).map((relationId) => Object.freeze({
-        recordId: record.recordId,
-        referenceName,
-        relationId
-      }))
-    ))
-    .sort((left, right) => compareText(
-      `${left.recordId}\u0000${left.relationId}`,
-      `${right.recordId}\u0000${right.relationId}`
-    ));
-  return Object.freeze({
-    evidence: Object.freeze([Object.freeze({
-      checkId: "file-metrics",
-      referenceName,
-      status: referenceStatus
-    })]),
-    relations: Object.freeze(relations)
-  });
-}
-
-function compareText(left: string, right: string): number {
-  if (left < right) {
-    return -1;
+  const measurement = await measureFileMetrics(context.reference, context.dependency);
+  if (measurement.kind !== "complete") {
+    context.referenceState.status = measurement.kind === "unavailable"
+      ? "unavailable"
+      : "incomplete";
+    return;
   }
-  if (left > right) {
-    return 1;
+  const referenceValues = codeLinesByPath(measurement.metrics);
+  if (referenceValues === undefined) {
+    context.referenceState.status = "incomplete";
+    return;
   }
-  return 0;
+  context.referenceState.status = "complete";
+  context.referenceState.relationsBySubject = buildFileRelations(
+    candidates,
+    referenceValues,
+    context.semantics
+  );
 }

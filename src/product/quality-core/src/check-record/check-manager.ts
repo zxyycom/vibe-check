@@ -4,6 +4,10 @@ import {
   type CheckRun,
   type RunDiagnostic
 } from "./model.ts";
+import {
+  hasExactPlainRecordKeys,
+  snapshotPlainRecord
+} from "./plain-record-values.ts";
 
 const WORK_HANDLE_PATTERN = /^work-handle\/v1:[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const STABLE_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -16,36 +20,6 @@ type TerminalOutcome = Readonly<
   | { kind: "unavailable"; dependencyId: string }
   | { kind: "execution-failed"; executionId: string }
 >;
-
-function snapshotData(value: unknown): Readonly<Record<string, unknown>> | undefined {
-  try {
-    if (value === null || typeof value !== "object" || Array.isArray(value)) {
-      return undefined;
-    }
-    const prototype = Object.getPrototypeOf(value) as object | null;
-    if (prototype !== Object.prototype && prototype !== null) {
-      return undefined;
-    }
-    const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
-      Record<string, PropertyDescriptor>
-    >;
-    if (Object.values(descriptors).some((descriptor) => (
-      descriptor.get !== undefined || descriptor.set !== undefined
-    ))) {
-      return undefined;
-    }
-    return Object.fromEntries(Object.entries(descriptors)
-      .filter(([, descriptor]) => descriptor.enumerable === true)
-      .map(([key, descriptor]) => [key, descriptor.value as unknown]));
-  } catch {
-    return undefined;
-  }
-}
-
-function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
-  const actualKeys = Object.keys(value);
-  return actualKeys.length === keys.length && actualKeys.every((key) => keys.includes(key));
-}
 
 function freezeDiagnostic(diagnostic: RunDiagnostic): RunDiagnostic {
   return Object.freeze({ ...diagnostic });
@@ -182,7 +156,7 @@ export class CheckManager {
     const seen = new Set<string>();
 
     for (const rawReport of rawReports) {
-      const report = snapshotData(rawReport);
+      const report = snapshotPlainRecord(rawReport);
       if (report === undefined) {
         const first = applicableChecks[0];
         if (first !== undefined) {
@@ -208,12 +182,12 @@ export class CheckManager {
       seen.add(checkId);
 
       if (report.status === "returned"
-        && hasExactKeys(report, ["checkId", "checkRunId", "status", "result"])) {
+        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "result"])) {
         outcomes.set(checkId, Object.freeze({ kind: "returned", result: report.result }));
         continue;
       }
       if (report.status === "unavailable"
-        && hasExactKeys(report, ["checkId", "checkRunId", "status", "dependencyId"])) {
+        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "dependencyId"])) {
         if (typeof report.dependencyId === "string" && STABLE_ID_PATTERN.test(report.dependencyId)) {
           outcomes.set(checkId, Object.freeze({
             kind: "unavailable",
@@ -228,7 +202,7 @@ export class CheckManager {
         continue;
       }
       if (report.status === "execution-failed"
-        && hasExactKeys(report, ["checkId", "checkRunId", "status", "executionId"])) {
+        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "executionId"])) {
         if (typeof report.executionId === "string" && EXECUTION_ID_PATTERN.test(report.executionId)) {
           outcomes.set(checkId, Object.freeze({
             kind: "execution-failed",
@@ -295,8 +269,8 @@ export class CheckManager {
         tieBreakKey: outcome.executionId
       });
     } else if (outcome?.kind === "returned") {
-      const candidate = snapshotData(outcome.result);
-      if (candidate === undefined || !hasExactKeys(candidate, ["verdict"])
+      const candidate = snapshotPlainRecord(outcome.result);
+      if (candidate === undefined || !hasExactPlainRecordKeys(candidate, ["verdict"])
         || (candidate.verdict !== "passed" && candidate.verdict !== "failed")) {
         this.#diagnosticsFor(checkId).push({
           category: "invalid-result",
@@ -325,7 +299,7 @@ export class CheckManager {
     if (outcome?.kind !== "returned") {
       throw new TypeError("CheckManager terminal report resolution is inconsistent");
     }
-    const result = snapshotData(outcome.result);
+    const result = snapshotPlainRecord(outcome.result);
     if (result === undefined || (result.verdict !== "passed" && result.verdict !== "failed")) {
       throw new TypeError("CheckManager completed result validation is inconsistent");
     }

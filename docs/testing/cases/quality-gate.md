@@ -5,7 +5,8 @@ Owner: `docs/quality-metrics.md#decisionpolicy`
 Entities:
 - `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > maps all five legacy acceptance IDs to their owning Check and same record type through registered predicates`
 - `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > rejects a legacy filter that the owning catalog surface does not expose instead of walking record data`
-- `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > turns omitted gate into disabled and the three spellings into ordinary policies with current and comparison readiness`
+- `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > turns an omitted gate into a disabled policy while retaining current observation`
+- `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > turns all three enabled gate spellings into ordinary policies with scoped readiness`
 - `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > uses its own readiness to preserve no-eligible current gate semantics without a Core gate-name switch`
 - `bun|src/product/quality-core/src/check-record/current-adapter.test.ts|check-record current policy adapter > requires reference evidence only for current-applicable Checks`
 Proves:
@@ -83,13 +84,17 @@ Entities:
 - `bun|src/product/quality-core/src/check-record/current-composition.test.ts|current Check/Record composition > retains the complete current snapshot when one reference is incomplete and stops comparison policy readiness`
 - `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > allows another closed policy to treat the same run failure as an ordinary blocking operand`
 - `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > binds policy surfaces to the resolved catalog fingerprint instead of a replaceable registry`
-- `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > keeps disabled closed and makes unavailable reference evidence policy-local`
+- `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > keeps a disabled policy closed without blockWhen evidence`
+- `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > makes unavailable reference evidence policy-local without changing Core facts`
+- `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > passes a ready policy when complete reference facts leave its view empty`
 - `bun|src/product/quality-core/src/check-record/policy-evaluator.test.ts|check-record policy evaluation > matches relation-kind-in membership so regressions enter changed views and unchanged records stay out`
-- `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > accepts only non-empty unique canonical registered relation-kind-in values`
+- `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > accepts canonical registered relation-kind-in values as frozen policy data`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > derives the detached policy surface only from the resolved fingerprinted catalog`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > keeps validation execution-free even when rejected data contains callable material`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > rejects accessors and reflection failures without invocation or credential disclosure`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > rejects missing or duplicate references and unknown qualified selectors, operands, relations, and fields`
+- `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > rejects relation-kind-in values not shared by every selected record surface`
+- `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > rejects unknown relation predicates and invalid relation-kind-in value sets`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record policy pre-work validation > requires a non-empty safe acceptance reason and rejects unknown acceptance fields`
 - `bun|src/product/quality-core/src/check-record/policy-validation.test.ts|check-record reference fact validation > binds one status to each required check/reference pair and accepts only registered relation variants`
 Proves:

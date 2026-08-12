@@ -1,172 +1,22 @@
 import { describe, expect, test } from "bun:test";
 
-import { resolveCheckCatalog } from "./catalog.ts";
-import { createCatalogFingerprint, createDeterministicCheckRunId, createRecordId } from "./identity.ts";
-import type {
-  CheckDefinition,
-  FinalCoreSnapshot,
-  ManagerBoundQualityRecordCandidate,
-  QualityRecord,
-} from "./model.ts";
 import {
   createPolicySurfaceRegistry,
   validatePolicyResolution,
   validateReferenceFacts
 } from "./policy-validation.ts";
-
-const referenceId = `reference/v1/sha256:${"a".repeat(64)}`;
-
-const definitions = [
-  {
-    checkId: "alpha-check",
-    displayName: "Alpha",
-    recordTypes: [{
-      recordTypeId: "finding",
-      fields: [
-        { fieldId: "area", valueType: "string", required: true },
-        { fieldId: "score", valueType: "number", required: true }
-      ],
-      identityFields: ["area"],
-      policy: {
-        operands: [{ operandId: "area", valueType: "string", source: { kind: "field", fieldId: "area" } }],
-        relations: ["changed", "regression"]
-      }
-    }]
-  },
-  {
-    checkId: "beta-check",
-    displayName: "Beta",
-    recordTypes: [{
-      recordTypeId: "finding",
-      fields: [{ fieldId: "area", valueType: "string", required: true }],
-      identityFields: ["area"],
-      policy: {
-        operands: [{ operandId: "beta-area", valueType: "string", source: { kind: "field", fieldId: "area" } }],
-        relations: []
-      }
-    }]
-  }
-] as const satisfies readonly CheckDefinition[];
-
-function makeCatalog(source: unknown = definitions) {
-  const resolved = resolveCheckCatalog({
-    invocationKey: "policy-validation",
-    definitions: source,
-    bindings: definitions.map((definition) => ({ checkId: definition.checkId, execute: () => undefined })),
-    selectedCheckIds: [],
-    resolveApplicability: () => ({ status: "not-applicable" })
-  });
-  if (!resolved.ok) throw new Error("Policy catalog fixture must resolve");
-  return resolved.value;
-}
-
-const policyResolution = {
-  references: [{ referenceName: "baseline", referenceId }],
-  policy: {
-    policyId: "current-style",
-    references: [{ referenceName: "baseline", checkIds: ["alpha-check"] }],
-    acceptance: [{
-      acceptanceId: "accept-generated",
-      reason: "Generated finding is reviewed.",
-      selector: { checkId: "alpha-check", recordTypeId: "finding" },
-      predicates: [{ kind: "operand-equals", operandId: "area", value: "generated" }]
-    }],
-    views: [{
-      viewId: "blocking",
-      selectors: [{ checkId: "alpha-check", recordTypeId: "finding" }],
-      acceptance: "unaccepted",
-      predicates: [{ kind: "relation-is", referenceName: "baseline", relationId: "regression" }]
-    }],
-    readiness: [{
-      readinessId: "alpha-completed",
-      predicate: { kind: "run-status", checkId: "alpha-check", status: "completed" },
-      reason: "scan-incomplete"
-    }, {
-      readinessId: "baseline-complete",
-      predicate: {
-        kind: "reference-status",
-        checkId: "alpha-check",
-        referenceName: "baseline",
-        status: "complete"
-      },
-      reason: "comparison-unavailable"
-    }],
-    blockWhen: { kind: "view-not-empty", viewId: "blocking" }
-  }
-} as const;
-
-function mutableObject(value: unknown): Record<string, unknown> {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError("Expected mutable test object");
-  }
-  return value as Record<string, unknown>;
-}
-
-function mutableArray(value: unknown): unknown[] {
-  if (!Array.isArray(value)) throw new TypeError("Expected mutable test array");
-  return value;
-}
-
-function childObject(value: unknown, field: string): Record<string, unknown> {
-  return mutableObject(mutableObject(value)[field]);
-}
-
-function arrayObject(value: unknown, field: string, index: number): Record<string, unknown> {
-  return mutableObject(mutableArray(mutableObject(value)[field])[index]);
-}
-
-function makeRecord(area: string): QualityRecord {
-  const runId = createDeterministicCheckRunId({ invocationKey: "validation", checkId: "alpha-check" });
-  const candidate: ManagerBoundQualityRecordCandidate = {
-    checkId: "alpha-check",
-    checkRunId: runId,
-    recordTypeId: "finding",
-    level: "warning",
-    semanticSubject: area,
-    message: `${area} finding`,
-    fields: { area, score: 3 },
-    location: null
-  };
-  return { ...candidate, recordId: createRecordId(candidate, definitions[0].recordTypes[0]).recordId };
-}
-
-function makeSnapshot(record: QualityRecord): FinalCoreSnapshot {
-  const alphaRunId = record.checkRunId;
-  const betaRunId = createDeterministicCheckRunId({ invocationKey: "validation", checkId: "beta-check" });
-  return {
-    catalogFingerprint: createCatalogFingerprint(definitions).catalogFingerprint,
-    definitions,
-    runs: [{
-      checkId: "alpha-check",
-      checkRunId: alphaRunId,
-      selection: "selected",
-      applicability: "applicable",
-      status: "completed",
-      result: { verdict: "passed" },
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-      diagnostic: null
-    }, {
-      checkId: "beta-check",
-      checkRunId: betaRunId,
-      selection: "unselected",
-      applicability: null,
-      status: "skipped",
-      result: null,
-      coverage: null,
-      diagnostic: null
-    }],
-    records: [record],
-    integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-    completeness: {
-      status: "complete",
-      selectedRunCount: 1,
-      completedRunCount: 1,
-      failedRunCount: 0,
-      plannedWorkCount: 1,
-      acknowledgedWorkCount: 1
-    }
-  };
-}
+import {
+  arrayObject,
+  childObject,
+  definitions,
+  makeCatalog,
+  makeRecord,
+  makeSnapshot,
+  mutableArray,
+  mutableObject,
+  policyResolution,
+  relationKindPolicyInput
+} from "./policy-validation.test-support.ts";
 
 describe("check-record policy pre-work validation", () => {
   test("derives the detached policy surface only from the resolved fingerprinted catalog", () => {
@@ -225,17 +75,9 @@ describe("check-record policy pre-work validation", () => {
     if (!rejected.ok) expect(rejected.issues[0]?.path).toBe("$.policy.acceptance[0]");
   });
 
-  test("accepts only non-empty unique canonical registered relation-kind-in values", () => {
+  test("accepts canonical registered relation-kind-in values as frozen policy data", () => {
     const catalog = makeCatalog();
-    const valid: unknown = structuredClone(policyResolution);
-    const validPredicates = mutableArray(
-      arrayObject(childObject(valid, "policy"), "views", 0).predicates
-    );
-    validPredicates[0] = {
-      kind: "relation-kind-in",
-      referenceName: "baseline",
-      values: ["changed", "regression"]
-    };
+    const valid = relationKindPolicyInput();
 
     const accepted = validatePolicyResolution(valid, catalog);
 
@@ -250,6 +92,11 @@ describe("check-record policy pre-work validation", () => {
     expect(predicate?.kind).toBe("relation-kind-in");
     if (predicate?.kind !== "relation-kind-in") return;
     expect(Object.isFrozen(predicate.values)).toBe(true);
+  });
+
+  test("rejects unknown relation predicates and invalid relation-kind-in value sets", () => {
+    const catalog = makeCatalog();
+    const valid = relationKindPolicyInput();
 
     const unknownKind: unknown = structuredClone(valid);
     const unknownPredicate = mutableObject(mutableArray(
@@ -286,7 +133,11 @@ describe("check-record policy pre-work validation", () => {
         expect(rejected.issues[0]?.code).toBe(expectedCode);
       }
     }
+  });
 
+  test("rejects relation-kind-in values not shared by every selected record surface", () => {
+    const catalog = makeCatalog();
+    const valid = relationKindPolicyInput();
     const crossSelector: unknown = structuredClone(valid);
     mutableArray(arrayObject(childObject(crossSelector, "policy"), "views", 0).selectors).push({
       checkId: "beta-check",

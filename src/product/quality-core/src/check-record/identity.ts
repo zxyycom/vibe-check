@@ -18,90 +18,126 @@ const UNSAFE_MATERIALIZATION_MESSAGE = "Canonical JSON could not safely material
 
 class CanonicalJsonValidationError extends TypeError {}
 
+type PrimitiveMaterialization = Readonly<
+  | { kind: "non-primitive" }
+  | { kind: "value"; value: boolean | number | string | null }
+>;
+
 function materializePlainData(
   value: unknown,
   ancestors: Set<object>,
   preserveInvalidLeaf: boolean
 ): unknown {
-  if (value === null || typeof value === "boolean" || typeof value === "string") {
-    return value;
-  }
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) {
-      throw new CanonicalJsonValidationError("Canonical JSON accepts only finite numbers");
-    }
-    return value;
-  }
+  const primitive = materializePrimitive(value);
+  if (primitive.kind === "value") return primitive.value;
   if (typeof value !== "object") {
     if (preserveInvalidLeaf) {
       return value;
     }
     throw new CanonicalJsonValidationError("Canonical JSON accepts only JSON-safe values");
   }
-  if (ancestors.has(value)) {
+  // `materializePrimitive` has already returned for null, but that fact is not
+  // represented as a TypeScript narrowing across the helper boundary.
+  const objectValue = value as object;
+  if (ancestors.has(objectValue)) {
     throw new CanonicalJsonValidationError("Canonical JSON does not accept cyclic values");
   }
   try {
-    const prototype = Object.getPrototypeOf(value) as object | null;
-    if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
-      throw new CanonicalJsonValidationError("Canonical JSON accepts only plain objects");
-    }
-    ancestors.add(value);
-    const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
+    rejectUnsupportedPrototype(objectValue);
+    const descriptors = Object.getOwnPropertyDescriptors(objectValue) as Readonly<
       Record<string, PropertyDescriptor>
     >;
-    for (const descriptor of Object.values(descriptors)) {
-      if (descriptor.get !== undefined || descriptor.set !== undefined) {
-        throw new CanonicalJsonValidationError("Canonical JSON does not accept accessors");
-      }
-    }
-    if (Array.isArray(value)) {
-      const lengthDescriptor = descriptors.length;
-      const length = lengthDescriptor?.value as unknown;
-      if (typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) {
-        throw new CanonicalJsonValidationError("Canonical JSON array length is invalid");
-      }
-      const entries: JsonValue[] = [];
-      for (let index = 0; index < length; index += 1) {
-        const descriptor = descriptors[String(index)];
-        if (descriptor === undefined) {
-          throw new CanonicalJsonValidationError("Canonical JSON does not accept sparse arrays");
-        }
-        entries.push(materializePlainData(
-          descriptor.value as unknown,
-          ancestors,
-          preserveInvalidLeaf
-        ) as JsonValue);
-      }
-      const extraEnumerableField = Object.entries(descriptors).find(([key, descriptor]) => (
-        descriptor.enumerable === true && !/^(?:0|[1-9][0-9]*)$/.test(key)
-      ));
-      if (extraEnumerableField !== undefined) {
-        throw new CanonicalJsonValidationError("Canonical JSON arrays do not accept named fields");
-      }
-      ancestors.delete(value);
-      return entries;
-    }
-    const snapshot: Record<string, JsonValue> = {};
-    for (const [key, descriptor] of Object.entries(descriptors)) {
-      if (descriptor.enumerable === true) {
-        snapshot[key] = materializePlainData(
-          descriptor.value as unknown,
-          ancestors,
-          preserveInvalidLeaf
-        ) as JsonValue;
-      }
-    }
-    ancestors.delete(value);
-    return snapshot;
+    rejectAccessors(descriptors);
+    ancestors.add(objectValue);
+    return Array.isArray(objectValue)
+      ? materializeArray(descriptors, ancestors, preserveInvalidLeaf)
+      : materializeObject(descriptors, ancestors, preserveInvalidLeaf);
   } catch (error: unknown) {
-    ancestors.delete(value);
     if (error instanceof CanonicalJsonValidationError) {
       throw error;
     }
     // eslint-disable-next-line preserve-caught-error -- Untrusted reflection errors must not cross this boundary.
     throw new TypeError(UNSAFE_MATERIALIZATION_MESSAGE);
+  } finally {
+    ancestors.delete(objectValue);
   }
+}
+
+function rejectUnsupportedPrototype(value: object): void {
+  const prototype = Object.getPrototypeOf(value) as object | null;
+  if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
+    throw new CanonicalJsonValidationError("Canonical JSON accepts only plain objects");
+  }
+}
+
+function materializePrimitive(value: unknown): PrimitiveMaterialization {
+  if (value === null || typeof value === "boolean" || typeof value === "string") {
+    return { kind: "value", value };
+  }
+  if (typeof value !== "number") return { kind: "non-primitive" };
+  if (!Number.isFinite(value)) {
+    throw new CanonicalJsonValidationError("Canonical JSON accepts only finite numbers");
+  }
+  return { kind: "value", value };
+}
+
+function rejectAccessors(
+  descriptors: Readonly<Record<string, PropertyDescriptor>>
+): void {
+  const hasAccessor = Object.values(descriptors).some((descriptor) => (
+    descriptor.get !== undefined || descriptor.set !== undefined
+  ));
+  if (hasAccessor) {
+    throw new CanonicalJsonValidationError("Canonical JSON does not accept accessors");
+  }
+}
+
+function materializeArray(
+  descriptors: Readonly<Record<string, PropertyDescriptor>>,
+  ancestors: Set<object>,
+  preserveInvalidLeaf: boolean
+): JsonValue[] {
+  const length = descriptors.length?.value as unknown;
+  if (typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) {
+    throw new CanonicalJsonValidationError("Canonical JSON array length is invalid");
+  }
+  const entries: JsonValue[] = [];
+  for (let index = 0; index < length; index += 1) {
+    const descriptor = descriptors[String(index)];
+    if (descriptor === undefined) {
+      throw new CanonicalJsonValidationError("Canonical JSON does not accept sparse arrays");
+    }
+    entries.push(materializePlainData(
+      descriptor.value as unknown,
+      ancestors,
+      preserveInvalidLeaf
+    ) as JsonValue);
+  }
+  const hasNamedField = Object.entries(descriptors).some(([key, descriptor]) => (
+    descriptor.enumerable === true && !/^(?:0|[1-9][0-9]*)$/.test(key)
+  ));
+  if (hasNamedField) {
+    throw new CanonicalJsonValidationError("Canonical JSON arrays do not accept named fields");
+  }
+  return entries;
+}
+
+function materializeObject(
+  descriptors: Readonly<Record<string, PropertyDescriptor>>,
+  ancestors: Set<object>,
+  preserveInvalidLeaf: boolean
+): JsonObject {
+  const snapshot: Record<string, JsonValue> = {};
+  for (const [key, descriptor] of Object.entries(descriptors)) {
+    if (descriptor.enumerable === true) {
+      snapshot[key] = materializePlainData(
+        descriptor.value as unknown,
+        ancestors,
+        preserveInvalidLeaf
+      ) as JsonValue;
+    }
+  }
+  return snapshot;
 }
 
 function materializeCanonicalJsonValue(value: unknown): JsonValue {

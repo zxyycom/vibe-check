@@ -14,6 +14,9 @@ import { validatePolicyResolution } from "./policy-validation.ts";
 
 export type CurrentGateRequest = "all" | "changed" | "regressions" | null;
 
+type EnabledCurrentGateRequest = Exclude<CurrentGateRequest, null>;
+type ComparisonCurrentGateRequest = Exclude<EnabledCurrentGateRequest, "all">;
+
 export type CurrentPolicyAdapterResult = Readonly<
   | { ok: true; value: PolicyResolution }
   | {
@@ -56,6 +59,25 @@ const SELECTOR_BY_SEMANTIC_CHECK_ID = {
   }
 } as const satisfies Readonly<Record<SemanticCheckId, RecordSelector>>;
 
+interface CurrentPolicyScope {
+  readonly allSelectors: readonly RecordSelector[];
+  readonly comparisonCheckIds: readonly string[];
+  readonly comparisonSelectors: readonly RecordSelector[];
+  readonly currentReadiness: readonly ReadinessClause[];
+}
+
+interface CurrentPolicyComparison {
+  readonly references: readonly NamedReferenceIdentity[];
+  readonly requirements: readonly PolicyReferenceRequirement[];
+  readonly predicates: readonly RecordPredicate[];
+  readonly readiness: readonly ReadinessClause[];
+}
+
+type CurrentPolicyComparisonResult = Readonly<
+  | { ok: true; value: CurrentPolicyComparison }
+  | { ok: false; reason: "baseline-required" }
+>;
+
 export function resolveCurrentPolicy(input: Readonly<{
   acceptedWarnings: readonly AcceptedWarningConfig[];
   baseline: NamedReferenceIdentity | null;
@@ -65,68 +87,18 @@ export function resolveCurrentPolicy(input: Readonly<{
   if (input.gate === null) {
     return acceptedResolution({ policy: null, references: [] }, input.catalog);
   }
-  const allSelectors = input.catalog.definitions.flatMap((definition) => (
-    definition.recordTypes.map((recordType): RecordSelector => ({
-      checkId: definition.checkId,
-      recordTypeId: recordType.recordTypeId
-    }))
-  ));
-  const selectedChecks = input.catalog.checks.filter((check) => check.selection === "selected");
-  const selectedCheckIds = selectedChecks.map((check) => check.definition.checkId);
-  const eligibleChecks = selectedChecks.filter((check) => check.applicability === "applicable");
-  const eligibleCheckIds = eligibleChecks.map((check) => check.definition.checkId);
-  const comparisonSelectors = input.gate === "all"
-    ? allSelectors
-    : allSelectors.filter((selector) => eligibleCheckIds.includes(selector.checkId));
-  const readiness = eligibleChecks.length === 0
-    ? noEligibleReadiness(selectedChecks, input.catalog)
-    : selectedCheckIds.map((checkId) => ({
-      readinessId: `current-${checkId}-complete`,
-      predicate: { kind: "run-status", checkId, status: "completed" },
-      reason: "scan-incomplete"
-    }));
-  const comparisonCheckIds = eligibleCheckIds;
-  const references: NamedReferenceIdentity[] = [];
-  const referenceRequirements: PolicyReferenceRequirement[] = [];
-  const relationPredicates: RecordPredicate[] = [];
-  const referenceReadiness: ReadinessClause[] = [];
-  if (input.gate !== "all") {
-    const baseline = input.baseline;
-    if (baseline === null) {
-      return failed("baseline-required");
-    }
-    references.push(baseline);
-    referenceRequirements.push({
-      referenceName: baseline.referenceName,
-      checkIds: comparisonCheckIds
-    });
-    if (input.gate === "changed") {
-      relationPredicates.push({
-        kind: "relation-kind-in",
-        referenceName: baseline.referenceName,
-        values: ["changed", "regression"]
-      });
-    } else {
-      relationPredicates.push({
-        kind: "relation-is",
-        referenceName: baseline.referenceName,
-        relationId: "regression"
-      });
-    }
-    referenceReadiness.push(...comparisonCheckIds.map((checkId): ReadinessClause => ({
-      readinessId: `reference-baseline-${checkId}-complete`,
-      predicate: {
-        kind: "reference-status",
-        checkId,
-        referenceName: baseline.referenceName,
-        status: "complete"
-      },
-      reason: "comparison-unavailable"
-    })));
+  const scope = resolveCurrentPolicyScope(input.catalog, input.gate);
+  const comparison = resolveCurrentPolicyComparison(
+    input.gate,
+    input.baseline,
+    scope.comparisonCheckIds
+  );
+  if (!comparison.ok) {
+    return failed(comparison.reason);
   }
   const policy = {
     policyId: input.gate,
-    references: referenceRequirements,
+    references: comparison.value.requirements,
     acceptance: input.acceptedWarnings.map((warning, index) => ({
       acceptanceId: `accepted-warning-${index + 1}`,
       reason: warning.reason,
@@ -135,22 +107,95 @@ export function resolveCurrentPolicy(input: Readonly<{
     })),
     views: [{
       viewId: "all-current",
-      selectors: allSelectors,
+      selectors: scope.allSelectors,
       acceptance: "all",
       predicates: []
     }, {
       viewId: `${input.gate}-unaccepted`,
-      selectors: comparisonSelectors,
+      selectors: scope.comparisonSelectors,
       acceptance: "unaccepted",
-      predicates: relationPredicates
+      predicates: comparison.value.predicates
     }],
     readiness: [
-      ...readiness,
-      ...referenceReadiness
+      ...scope.currentReadiness,
+      ...comparison.value.readiness
     ],
     blockWhen: { kind: "view-not-empty", viewId: `${input.gate}-unaccepted` }
   };
-  return acceptedResolution({ policy, references }, input.catalog);
+  return acceptedResolution({ policy, references: comparison.value.references }, input.catalog);
+}
+
+function resolveCurrentPolicyScope(
+  catalog: ResolvedCheckCatalog,
+  gate: EnabledCurrentGateRequest
+): CurrentPolicyScope {
+  const allSelectors = catalog.definitions.flatMap((definition) => (
+    definition.recordTypes.map((recordType): RecordSelector => ({
+      checkId: definition.checkId,
+      recordTypeId: recordType.recordTypeId
+    }))
+  ));
+  const selectedChecks = catalog.checks.filter((check) => check.selection === "selected");
+  const selectedCheckIds = selectedChecks.map((check) => check.definition.checkId);
+  const eligibleChecks = selectedChecks.filter((check) => check.applicability === "applicable");
+  const comparisonCheckIds = eligibleChecks.map((check) => check.definition.checkId);
+  const comparisonSelectors = gate === "all"
+    ? allSelectors
+    : allSelectors.filter((selector) => comparisonCheckIds.includes(selector.checkId));
+  const currentReadiness = eligibleChecks.length === 0
+    ? noEligibleReadiness(selectedChecks, catalog)
+    : selectedCheckIds.map((checkId): ReadinessClause => ({
+      readinessId: `current-${checkId}-complete`,
+      predicate: { kind: "run-status", checkId, status: "completed" },
+      reason: "scan-incomplete"
+    }));
+  return { allSelectors, comparisonCheckIds, comparisonSelectors, currentReadiness };
+}
+
+function resolveCurrentPolicyComparison(
+  gate: EnabledCurrentGateRequest,
+  baseline: NamedReferenceIdentity | null,
+  comparisonCheckIds: readonly string[]
+): CurrentPolicyComparisonResult {
+  if (gate === "all") {
+    return {
+      ok: true,
+      value: { references: [], requirements: [], predicates: [], readiness: [] }
+    };
+  }
+  if (baseline === null) {
+    return { ok: false, reason: "baseline-required" };
+  }
+  return {
+    ok: true,
+    value: {
+      references: [baseline],
+      requirements: [{
+        referenceName: baseline.referenceName,
+        checkIds: comparisonCheckIds
+      }],
+      predicates: [comparisonPredicate(gate, baseline.referenceName)],
+      readiness: comparisonCheckIds.map((checkId): ReadinessClause => ({
+        readinessId: `reference-baseline-${checkId}-complete`,
+        predicate: {
+          kind: "reference-status",
+          checkId,
+          referenceName: baseline.referenceName,
+          status: "complete"
+        },
+        reason: "comparison-unavailable"
+      }))
+    }
+  };
+}
+
+function comparisonPredicate(
+  gate: ComparisonCurrentGateRequest,
+  referenceName: string
+): RecordPredicate {
+  return gate === "changed"
+    ? { kind: "relation-kind-in", referenceName, values: ["changed", "regression"] }
+    : { kind: "relation-is", referenceName, relationId: "regression" };
 }
 
 export function resolveCurrentObservation(input: Readonly<{
@@ -187,7 +232,7 @@ export function resolveCurrentObservation(input: Readonly<{
 function noEligibleReadiness(
   selectedChecks: readonly ResolvedCheckCatalog["checks"][number][],
   catalog: ResolvedCheckCatalog
-) {
+): readonly ReadinessClause[] {
   const checkId = selectedChecks[0]?.definition.checkId ?? catalog.definitions[0]?.checkId;
   if (checkId === undefined) return [];
   return [{

@@ -1,22 +1,15 @@
 import type { ScannerDependencySnapshot } from "../../../scanner-dependencies.ts";
 import type { ResolvedQualityConfig } from "../model/schema.ts";
 import {
-  createDuplicateDetectionBinding,
   DUPLICATE_DETECTION_CHECK_DEFINITION,
-  type DuplicateDetectionAreaInput,
-  type DuplicateDetectionExactInputSet,
   resolveDuplicateDetectionApplicability
 } from "./builtins/duplicate-detection.ts";
 import {
-  createFileMetricsBinding,
   FILE_METRICS_CHECK_DEFINITION,
-  type FileMetricsExactInputSet,
   resolveFileMetricsApplicability
 } from "./builtins/file-metrics.ts";
 import {
-  createFunctionMetricsBinding,
   FUNCTION_METRICS_CHECK_DEFINITION,
-  type FunctionMetricsExactInputSet,
   resolveFunctionMetricsApplicability
 } from "./builtins/function-metrics.ts";
 import { resolveCheckCatalog } from "./catalog.ts";
@@ -26,6 +19,13 @@ import {
   resolveCurrentPolicy,
   type CurrentGateRequest
 } from "./current-adapter.ts";
+import {
+  createCurrentRuntimes,
+  resolveDuplicateDetectionInput,
+  type CurrentCompositionExactInputs,
+  type CurrentCompositionReferenceInputs,
+  type CurrentRuntimes
+} from "./current-runtime-bindings.ts";
 import { projectHumanStatus, type HumanStatusProjection } from "./human-status.ts";
 import type { FinalCoreSnapshot } from "./model.ts";
 import {
@@ -34,35 +34,19 @@ import {
 } from "./policy-evaluator.ts";
 import type {
   DecisionEvidence,
-  NamedReferenceIdentity,
   ReferenceFacts
 } from "./policy-model.ts";
 import { validateReferenceFacts } from "./policy-validation.ts";
+
+export type {
+  CurrentCompositionExactInputs,
+  CurrentCompositionReferenceInputs
+} from "./current-runtime-bindings.ts";
 
 export type CurrentBuiltinCheckId =
   | "duplicate-detection"
   | "file-metrics"
   | "function-metrics";
-
-type DuplicateAreaExactInput = Readonly<
-  Omit<DuplicateDetectionAreaInput, "minimumTokens">
->;
-
-export interface CurrentCompositionExactInputs {
-  readonly duplicateDetection: Readonly<{
-    areas: readonly DuplicateAreaExactInput[];
-    cacheRootDir: string;
-    commitSha: string;
-    rootDir: string;
-  }>;
-  readonly fileMetrics: FileMetricsExactInputSet;
-  readonly functionMetrics: FunctionMetricsExactInputSet;
-}
-
-export interface CurrentCompositionReferenceInputs extends CurrentCompositionExactInputs {
-  readonly identity: NamedReferenceIdentity;
-  readonly status?: "available" | "unavailable";
-}
 
 export interface CurrentCompositionResult {
   readonly snapshot: FinalCoreSnapshot;
@@ -77,7 +61,7 @@ const CURRENT_CHECK_DEFINITIONS = Object.freeze([
   FUNCTION_METRICS_CHECK_DEFINITION
 ]);
 
-export async function composeCurrentCheckRecords(input: Readonly<{
+type CurrentCompositionInput = Readonly<{
   baseline: CurrentCompositionReferenceInputs | null;
   changedFiles: readonly string[];
   config: ResolvedQualityConfig;
@@ -87,72 +71,50 @@ export async function composeCurrentCheckRecords(input: Readonly<{
   invocationKey: string;
   selectedCheckIds: readonly CurrentBuiltinCheckId[];
   verificationOutput: boolean;
-}>): Promise<CurrentCompositionResult> {
+}>;
+
+export async function composeCurrentCheckRecords(
+  input: CurrentCompositionInput
+): Promise<CurrentCompositionResult> {
   const reference = input.gate === "changed" || input.gate === "regressions"
     ? input.baseline
     : null;
-  const measurementReference = reference?.status === "unavailable" ? null : reference;
-  const fileMetrics = createFileMetricsBinding({
-    changedFiles: input.changedFiles,
-    current: input.current.fileMetrics,
-    dependency: input.dependencies.file,
-    reference: measurementReference === null ? null : {
-      ...measurementReference.fileMetrics,
-      referenceName: measurementReference.identity.referenceName
-    },
-    semantics: {
-      codeAreas: input.config.codeAreas,
-      generatedFiles: input.config.generatedFiles,
-      codeLines: input.config.checks.files.codeLines
-    }
+  const runtimes = createCurrentRuntimes(input, reference);
+  const catalog = resolveCurrentCatalog(input, runtimes);
+  const { observation, policy } = resolveCurrentPolicies(input, catalog, reference);
+  const snapshot = await coordinateCheckRecords(catalog);
+  const referenceFacts = resolveReferenceFacts(input, reference, runtimes, snapshot, policy);
+  const gateDecision = evaluateDecisionPolicy(policy, snapshot, referenceFacts);
+  const decision = gateDecision.gate.status === "disabled"
+    ? disabledDecisionWithObservation(gateDecision, observation, snapshot, referenceFacts)
+    : gateDecision;
+  return Object.freeze({
+    snapshot,
+    referenceFacts,
+    decision,
+    humanStatus: projectHumanStatus({ decision, snapshot, verificationOutput: input.verificationOutput })
   });
-  const functionMetrics = createFunctionMetricsBinding({
-    changedFiles: input.changedFiles,
-    current: input.current.functionMetrics,
-    dependency: input.dependencies.function,
-    reference: measurementReference === null ? null : {
-      ...measurementReference.functionMetrics,
-      referenceName: measurementReference.identity.referenceName
-    },
-    semantics: {
-      codeAreas: input.config.codeAreas,
-      generatedFiles: input.config.generatedFiles,
-      functions: input.config.checks.functions
-    }
-  });
-  const duplicateDetection = createDuplicateDetectionBinding({
-    changedFiles: input.changedFiles,
-    current: duplicateInput(input.current.duplicateDetection, input.config),
-    dependency: input.dependencies.duplication,
-    reference: measurementReference === null ? null : {
-      ...duplicateInput(measurementReference.duplicateDetection, input.config),
-      referenceName: measurementReference.identity.referenceName
-    },
-    semantics: {
-      changedDelta: input.config.checks.duplication.fragments.changedDelta,
-      codeAreas: input.config.codeAreas,
-      configVersion: input.config.version
-    }
-  });
-  const runtimes = Object.freeze({ duplicateDetection, fileMetrics, functionMetrics });
+}
+
+function resolveCurrentCatalog(input: CurrentCompositionInput, runtimes: CurrentRuntimes) {
   const catalogResult = resolveCheckCatalog({
     invocationKey: input.invocationKey,
     definitions: CURRENT_CHECK_DEFINITIONS,
     bindings: [{
       checkId: "duplicate-detection",
-      execute: duplicateDetection.binding
+      execute: runtimes.duplicateDetection.binding
     }, {
       checkId: "file-metrics",
-      execute: fileMetrics.binding
+      execute: runtimes.fileMetrics.binding
     }, {
       checkId: "function-metrics",
-      execute: functionMetrics.binding
+      execute: runtimes.functionMetrics.binding
     }],
     selectedCheckIds: input.selectedCheckIds,
     resolveApplicability: (definition) => {
       if (definition.checkId === "duplicate-detection") {
         return resolveDuplicateDetectionApplicability(
-          duplicateInput(input.current.duplicateDetection, input.config).areas
+          resolveDuplicateDetectionInput(input.current.duplicateDetection, input.config).areas
         );
       }
       if (definition.checkId === "file-metrics") {
@@ -166,7 +128,14 @@ export async function composeCurrentCheckRecords(input: Readonly<{
   if (!catalogResult.ok) {
     throw new TypeError(`Current Check catalog resolution failed at ${catalogResult.error.stage}`);
   }
-  const catalog = catalogResult.value;
+  return catalogResult.value;
+}
+
+function resolveCurrentPolicies(
+  input: CurrentCompositionInput,
+  catalog: ReturnType<typeof resolveCurrentCatalog>,
+  reference: CurrentCompositionReferenceInputs | null
+) {
   const policyResult = resolveCurrentPolicy({
     acceptedWarnings: input.config.acceptedWarnings,
     baseline: reference?.identity ?? null,
@@ -183,10 +152,18 @@ export async function composeCurrentCheckRecords(input: Readonly<{
   if (!observationResult.ok) {
     throw new TypeError(`Current policy resolution failed: ${observationResult.error.reason}`);
   }
+  return { observation: observationResult.value, policy: policyResult.value };
+}
 
-  const snapshot = await coordinateCheckRecords(catalog);
+function resolveReferenceFacts(
+  input: CurrentCompositionInput,
+  reference: CurrentCompositionReferenceInputs | null,
+  runtimes: CurrentRuntimes,
+  snapshot: FinalCoreSnapshot,
+  policy: Parameters<typeof evaluateDecisionPolicy>[0]
+): ReferenceFacts {
   const requiredReferenceCheckIds = new Set(
-    policyResult.value.policy?.references.flatMap((requirement) => requirement.checkIds) ?? []
+    policy.policy?.references.flatMap((requirement) => requirement.checkIds) ?? []
   );
   const referenceCheckIds = input.selectedCheckIds.filter((checkId) => (
     requiredReferenceCheckIds.has(checkId)
@@ -197,55 +174,16 @@ export async function composeCurrentCheckRecords(input: Readonly<{
     snapshot,
     reference?.status === "unavailable" ? reference.identity.referenceName : null
   );
-  const factsResult = validateReferenceFacts(rawReferenceFacts, policyResult.value, snapshot);
+  const factsResult = validateReferenceFacts(rawReferenceFacts, policy, snapshot);
   if (!factsResult.ok) {
     throw new TypeError("Current reference facts failed validation");
   }
-  const referenceFacts = factsResult.value;
-  const gateDecision = evaluateDecisionPolicy(policyResult.value, snapshot, referenceFacts);
-  const decision = gateDecision.gate.status === "disabled"
-    ? disabledDecisionWithObservation(
-      gateDecision,
-      observationResult.value,
-      snapshot,
-      referenceFacts
-    )
-    : gateDecision;
-  return Object.freeze({
-    snapshot,
-    referenceFacts,
-    decision,
-    humanStatus: projectHumanStatus({
-      decision,
-      snapshot,
-      verificationOutput: input.verificationOutput
-    })
-  });
-}
-
-function duplicateInput(
-  input: CurrentCompositionExactInputs["duplicateDetection"],
-  config: ResolvedQualityConfig
-): DuplicateDetectionExactInputSet {
-  return Object.freeze({
-    cacheRootDir: input.cacheRootDir,
-    commitSha: input.commitSha,
-    rootDir: input.rootDir,
-    areas: Object.freeze(input.areas.map((area) => Object.freeze({
-      ...area,
-      minimumTokens: config.checks.duplication.minimumTokensByCodeArea[area.codeArea]
-        ?? config.checks.duplication.defaultMinimumTokens
-    })))
-  });
+  return factsResult.value;
 }
 
 function mergeReferenceFacts(
   referenceCheckIds: readonly CurrentBuiltinCheckId[],
-  runtimes: Readonly<{
-    duplicateDetection: ReturnType<typeof createDuplicateDetectionBinding>;
-    fileMetrics: ReturnType<typeof createFileMetricsBinding>;
-    functionMetrics: ReturnType<typeof createFunctionMetricsBinding>;
-  }>,
+  runtimes: CurrentRuntimes,
   snapshot: FinalCoreSnapshot,
   unavailableReferenceName: string | null
 ): ReferenceFacts {

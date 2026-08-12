@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -11,7 +11,11 @@ import {
   type CurrentCompositionExactInputs,
   type CurrentCompositionReferenceInputs
 } from "./check-record/current-composition.ts";
-import type { NamedReferenceIdentity } from "./check-record/policy-model.ts";
+import {
+  baselineReferenceIdentity,
+  emptyCompositionExactInputs,
+  exactCompositionInputs
+} from "./engine-input-preparation.ts";
 import { materializeBaselineRevision } from "./input/revisions.ts";
 import { detectScanInputChange } from "./input/revisions.ts";
 import {
@@ -20,13 +24,7 @@ import {
   collectScanFiles
 } from "./input/files.ts";
 import { classifyFiles } from "./model/code-areas.ts";
-import type {
-  CodeAreaFileMap,
-  CodeAreaFingerprint,
-  ResolvedQualityConfig
-} from "./model/schema.ts";
-import { selectJscpdTargetFileMap } from "./measurement/current-revision/jscpd.ts";
-import { selectLizardTargetFiles } from "./measurement/metrics.ts";
+import type { ResolvedQualityConfig } from "./model/schema.ts";
 import { createPublicationModelV2 } from "./output/publication-v2/index.ts";
 import type {
   QualityScanOptions,
@@ -166,7 +164,7 @@ function prepareCurrentInputs(input: Readonly<{
   const fingerprints = buildFingerprints(fileMap, input.root);
   console.log(`  Found ${scanFiles.length} files in scan scope`);
   console.log(`  Code areas: ${Array.from(fileMap.keys()).join(", ")}`);
-  return exactInputs({
+  return exactCompositionInputs({
     cacheRootDir: resolve(input.root, input.config.cacheDir),
     commitSha: input.commitSha,
     config: input.config,
@@ -188,7 +186,7 @@ function prepareReference(input: Readonly<{
     return null;
   }
   const temporaryRoot = join(tmpdir(), `quality-reference-${randomUUID()}`);
-  const identity = referenceIdentity(input.commitSha);
+  const identity = baselineReferenceIdentity(input.commitSha);
   const materialized = materializeBaselineRevision({
     baselineWorkDir: temporaryRoot,
     commitSha: input.commitSha,
@@ -198,7 +196,7 @@ function prepareReference(input: Readonly<{
     return Object.freeze({
       temporaryRoot,
       input: Object.freeze({
-        ...emptyExactInputs({
+        ...emptyCompositionExactInputs({
           cacheRootDir: resolve(input.repositoryRoot, input.config.cacheDir),
           commitSha: input.commitSha,
           rootDir: temporaryRoot
@@ -219,7 +217,7 @@ function prepareReference(input: Readonly<{
   return Object.freeze({
     temporaryRoot,
     input: Object.freeze({
-      ...exactInputs({
+      ...exactCompositionInputs({
         cacheRootDir: resolve(input.repositoryRoot, input.config.cacheDir),
         commitSha: input.commitSha,
         config: input.config,
@@ -230,74 +228,6 @@ function prepareReference(input: Readonly<{
       }),
       identity
     })
-  });
-}
-
-function exactInputs(input: Readonly<{
-  cacheRootDir: string;
-  commitSha: string;
-  config: ResolvedQualityConfig;
-  fileMap: CodeAreaFileMap;
-  fingerprints: Readonly<Record<string, CodeAreaFingerprint>>;
-  rootDir: string;
-  scanFiles: readonly string[];
-}>): CurrentCompositionExactInputs {
-  const duplicateFileMap = selectJscpdTargetFileMap(input.fileMap, input.config);
-  return Object.freeze({
-    duplicateDetection: Object.freeze({
-      areas: Object.freeze(Array.from(duplicateFileMap, ([codeArea, files]) =>
-        Object.freeze({
-          approvedExactPaths: Object.freeze([...files]),
-          codeArea,
-          inputFingerprint: Object.freeze(input.fingerprints[codeArea] ?? {
-            fileCount: 0,
-            fileList: [],
-            fingerprint: "empty"
-          })
-        })
-      )),
-      cacheRootDir: input.cacheRootDir,
-      commitSha: input.commitSha,
-      rootDir: input.rootDir
-    }),
-    fileMetrics: Object.freeze({
-      approvedExactPaths: Object.freeze([...input.scanFiles]),
-      rootDir: input.rootDir
-    }),
-    functionMetrics: Object.freeze({
-      approvedExactPaths: Object.freeze(
-        selectLizardTargetFiles([...input.scanFiles], input.config)
-      ),
-      rootDir: input.rootDir
-    })
-  });
-}
-
-function emptyExactInputs(input: Readonly<{
-  cacheRootDir: string;
-  commitSha: string;
-  rootDir: string;
-}>): CurrentCompositionExactInputs {
-  return Object.freeze({
-    duplicateDetection: Object.freeze({
-      areas: Object.freeze([]),
-      cacheRootDir: input.cacheRootDir,
-      commitSha: input.commitSha,
-      rootDir: input.rootDir
-    }),
-    fileMetrics: Object.freeze({ approvedExactPaths: Object.freeze([]), rootDir: input.rootDir }),
-    functionMetrics: Object.freeze({
-      approvedExactPaths: Object.freeze([]),
-      rootDir: input.rootDir
-    })
-  });
-}
-
-function referenceIdentity(commitSha: string): NamedReferenceIdentity {
-  const digest = createHash("sha256").update(commitSha).digest("hex");
-  return Object.freeze({
-    referenceId: `reference/v1/sha256:${digest}`,
-    referenceName: "baseline"
   });
 }
 

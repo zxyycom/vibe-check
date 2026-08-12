@@ -1,45 +1,28 @@
 import { strict as assert } from "node:assert";
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { DuplicationScannerDependency } from "../../../../scanner-dependencies.ts";
-import { resolveCheckCatalog, type ResolvedCheckCatalog } from "../catalog.ts";
 import { coordinateCheckRecords } from "../coordinator.ts";
 import {
   DUPLICATE_DETECTION_CHECK_DEFINITION,
-  createDuplicateDetectionBinding,
-  resolveDuplicateDetectionApplicability,
-  type DuplicateDetectionExactInputSet,
-  type DuplicateDetectionReferenceInput
+  createDuplicateDetectionBinding
 } from "./duplicate-detection.ts";
-
-const semantics = {
-  codeAreas: {
-    source: {
-      description: "Source",
-      excludeGlobs: [],
-      globs: ["src/**/*.ts"],
-      warningPolicy: "moderate"
-    },
-    tests: {
-      description: "Tests",
-      excludeGlobs: [],
-      globs: ["test/**/*.ts"],
-      warningPolicy: "moderate"
-    }
-  },
-  changedDelta: 0,
-  configVersion: "1"
-} as const;
+import {
+  createDuplicateOutcomeFixtures,
+  createDuplicateTestRuntime as createRuntime,
+  createJscpdFixture,
+  currentDuplicateInput as currentInput,
+  duplicateArea as area,
+  duplicateDetectionSemantics as semantics,
+  duplicateReport,
+  duplicateReports,
+  emptyDuplicateInput as emptyInput,
+  emptyDuplicateReport as emptyReport,
+  referenceDuplicateInput as referenceInput,
+  resolveDuplicateTestCatalog as resolveRuntimeCatalog,
+  scanInvocationCount
+} from "./duplicate-detection-test-support.ts";
 
 describe("duplicate-detection built-in Check", () => {
   it("produces a private cached duplicate record and reference regression fact", async () => {
@@ -131,71 +114,35 @@ describe("duplicate-detection built-in Check", () => {
   });
 
   it("distinguishes zero findings and no input and fails unavailable invalid and out-of-scope batches", async () => {
-    const zero = createJscpdFixture({
-      currentReports: { "src/a.ts": emptyReport() },
-      referenceReports: {}
-    });
-    const invalid = createJscpdFixture({
-      currentReports: { "src/a.ts": "{" },
-      referenceReports: {}
-    });
-    const outside = createJscpdFixture({
-      currentReports: {
-        "src/a.ts": duplicateReport("src/a.ts", "../outside.ts", 80, 12)
-      },
-      referenceReports: {}
-    });
-    const unavailableRoot = mkdtempSync(join(tmpdir(), "vibe-check-duplicate-unavailable-"));
-    const unavailableDependency: DuplicationScannerDependency = {
-      executable: join(unavailableRoot, "missing-jscpd"),
-      args: [],
-      availabilityArgs: ["--version"],
-      maxConcurrency: 1
-    };
+    const fixtures = createDuplicateOutcomeFixtures();
     try {
-      const zeroRuntime = createRuntime(zero, currentInput(zero), null);
+      const zeroRuntime = createRuntime(fixtures.zero, currentInput(fixtures.zero), null);
       const zeroSnapshot = await coordinateCheckRecords(
-        resolveRuntimeCatalog(zeroRuntime.binding, currentInput(zero))
+        resolveRuntimeCatalog(zeroRuntime.binding, currentInput(fixtures.zero))
       );
       const noInputSnapshot = await coordinateCheckRecords(
-        resolveRuntimeCatalog(zeroRuntime.binding, emptyInput(zero))
+        resolveRuntimeCatalog(zeroRuntime.binding, emptyInput(fixtures.zero))
       );
       assert.deepEqual(zeroSnapshot.runs[0]?.result, { verdict: "passed" });
       assert.equal(noInputSnapshot.runs[0]?.applicability, "not-applicable");
 
-      for (const [fixture, expected] of [
-        [invalid, "invalid-result"],
-        [outside, "invalid-result"]
-      ] as const) {
+      for (const { expectedCategory, fixture } of fixtures.failures) {
         const runtime = createRuntime(fixture, currentInput(fixture), null);
         const snapshot = await coordinateCheckRecords(
           resolveRuntimeCatalog(runtime.binding, currentInput(fixture))
         );
         assert.equal(snapshot.runs[0]?.status, "failed");
-        assert.equal(snapshot.runs[0]?.diagnostic?.category, expected);
+        assert.equal(snapshot.runs[0]?.diagnostic?.category, expectedCategory);
         assert.deepEqual(snapshot.records, []);
       }
 
-      const unavailableRuntime = createDuplicateDetectionBinding({
-        changedFiles: [],
-        current: {
-          ...currentInput(zero),
-          rootDir: unavailableRoot
-        },
-        dependency: unavailableDependency,
-        reference: null,
-        semantics
-      });
       const unavailableSnapshot = await coordinateCheckRecords(
-        resolveRuntimeCatalog(unavailableRuntime.binding, currentInput(zero))
+        resolveRuntimeCatalog(fixtures.unavailable.runtime.binding, fixtures.unavailable.input)
       );
       assert.equal(unavailableSnapshot.runs[0]?.diagnostic?.category, "unavailable");
       assert.deepEqual(unavailableSnapshot.records, []);
     } finally {
-      zero.cleanup();
-      invalid.cleanup();
-      outside.cleanup();
-      rmSync(unavailableRoot, { recursive: true, force: true });
+      fixtures.cleanup();
     }
   });
 
@@ -320,192 +267,3 @@ describe("duplicate-detection built-in Check", () => {
     }
   });
 });
-
-type JscpdFixture = ReturnType<typeof createJscpdFixture>;
-
-function createRuntime(
-  fixture: JscpdFixture,
-  current: DuplicateDetectionExactInputSet,
-  reference: DuplicateDetectionReferenceInput | null,
-  changedFiles: readonly string[] = current.areas.flatMap((areaInput) => (
-    areaInput.approvedExactPaths
-  ))
-) {
-  return createDuplicateDetectionBinding({
-    changedFiles,
-    current,
-    dependency: fixture.dependency,
-    reference,
-    semantics
-  });
-}
-
-function resolveRuntimeCatalog(
-  binding: ReturnType<typeof createDuplicateDetectionBinding>["binding"],
-  input: DuplicateDetectionExactInputSet
-): ResolvedCheckCatalog {
-  const catalog = resolveCheckCatalog({
-    invocationKey: "duplicate-detection-test",
-    definitions: [DUPLICATE_DETECTION_CHECK_DEFINITION],
-    bindings: [{ checkId: "duplicate-detection", execute: binding }],
-    selectedCheckIds: ["duplicate-detection"],
-    resolveApplicability: () => resolveDuplicateDetectionApplicability(input.areas)
-  });
-  if (!catalog.ok) throw new Error("Expected duplicate-detection catalog to resolve");
-  return catalog.value;
-}
-
-function currentInput(fixture: JscpdFixture) {
-  return {
-    rootDir: fixture.currentRoot,
-    cacheRootDir: fixture.cacheRoot,
-    commitSha: "current-commit",
-    areas: [area("source", ["src/a.ts", "src/b.ts"])]
-  } as const;
-}
-
-function emptyInput(fixture: JscpdFixture) {
-  return {
-    rootDir: fixture.currentRoot,
-    cacheRootDir: fixture.cacheRoot,
-    commitSha: "current-commit",
-    areas: []
-  } as const;
-}
-
-function referenceInput(fixture: JscpdFixture) {
-  return {
-    referenceName: "baseline",
-    rootDir: fixture.referenceRoot,
-    cacheRootDir: fixture.cacheRoot,
-    commitSha: "reference-commit",
-    areas: [area("source", ["src/a.ts", "src/b.ts"])]
-  } as const;
-}
-
-function area(codeArea: string, paths: readonly string[]) {
-  return {
-    codeArea,
-    approvedExactPaths: [...paths],
-    minimumTokens: 50,
-    inputFingerprint: {
-      fileCount: paths.length,
-      fileList: [...paths],
-      fingerprint: `sha256:${codeArea}:${paths.join("|")}`
-    }
-  } as const;
-}
-
-function createJscpdFixture(input: Readonly<{
-  currentReports: Readonly<Record<string, string>>;
-  referenceReports: Readonly<Record<string, string>>;
-}>) {
-  const root = mkdtempSync(join(tmpdir(), "vibe-check-duplicate-detection-"));
-  const currentRoot = join(root, "current");
-  const referenceRoot = join(root, "reference");
-  const cacheRoot = join(root, "cache");
-  const capturePath = join(root, "scans.ndjson");
-  const scannerPath = join(root, "controlled-jscpd.ts");
-  mkdirSync(currentRoot, { recursive: true });
-  mkdirSync(referenceRoot, { recursive: true });
-  mkdirSync(cacheRoot, { recursive: true });
-  writeFileSync(scannerPath, controlledJscpdSource(input, capturePath), "utf8");
-  return {
-    cacheRoot,
-    capturePath,
-    currentRoot,
-    referenceRoot,
-    dependency: {
-      executable: process.execPath,
-      args: [scannerPath],
-      availabilityArgs: [scannerPath, "--version"],
-      maxConcurrency: 1
-    } satisfies DuplicationScannerDependency,
-    cleanup: () => rmSync(root, { recursive: true, force: true })
-  };
-}
-
-function controlledJscpdSource(
-  input: Readonly<{
-    currentReports: Readonly<Record<string, string>>;
-    referenceReports: Readonly<Record<string, string>>;
-  }>,
-  capturePath: string
-): string {
-  return `
-import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-if (process.argv.includes("--version")) {
-  process.stdout.write("cpd 5.0.11\\n");
-} else {
-  const configPath = process.argv[process.argv.indexOf("--config") + 1];
-  const outputDir = process.argv[process.argv.indexOf("--output") + 1];
-  const config = JSON.parse(readFileSync(configPath, "utf8"));
-  const reports = process.cwd().endsWith("/reference")
-    ? ${JSON.stringify(input.referenceReports)}
-    : ${JSON.stringify(input.currentReports)};
-  const report = reports[config.path[0]] ?? ${JSON.stringify(emptyReport())};
-  appendFileSync(${JSON.stringify(capturePath)}, JSON.stringify(config.path) + "\\n", "utf8");
-  mkdirSync(outputDir, { recursive: true });
-  writeFileSync(join(outputDir, "jscpd-report.json"), report, "utf8");
-}
-`;
-}
-
-function duplicateReport(
-  firstPath: string,
-  secondPath: string,
-  tokens: number,
-  lines: number
-): string {
-  return duplicateReports([{ firstStart: 10, secondStart: 20 }], {
-    firstPath,
-    lines,
-    secondPath,
-    tokens
-  });
-}
-
-function duplicateReports(
-  locations: readonly Readonly<{ firstStart: number; secondStart: number }>[],
-  shape: Readonly<{
-    firstPath: string;
-    lines: number;
-    secondPath: string;
-    tokens: number;
-  }> = {
-    firstPath: "src/a.ts",
-    lines: 12,
-    secondPath: "src/b.ts",
-    tokens: 80
-  }
-): string {
-  return JSON.stringify({
-    duplicates: locations.map(({ firstStart, secondStart }) => ({
-      firstFile: {
-        name: shape.firstPath,
-        startLoc: { line: firstStart },
-        endLoc: { line: firstStart + shape.lines - 1 }
-      },
-      secondFile: {
-        name: shape.secondPath,
-        startLoc: { line: secondStart },
-        endLoc: { line: secondStart + shape.lines - 1 }
-      },
-      lines: shape.lines,
-      tokens: shape.tokens
-    }))
-  });
-}
-
-function emptyReport(): string {
-  return JSON.stringify({ duplicates: [] });
-}
-
-function scanInvocationCount(path: string): number {
-  try {
-    return readFileSync(path, "utf8").trim().split("\n").filter(Boolean).length;
-  } catch {
-    return 0;
-  }
-}
