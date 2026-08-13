@@ -5,9 +5,10 @@ Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚�
 
 ## 范围
 
-Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/*`
-提供共享 helper source import；consumer、默认配置、profile 和 package scripts
-由 Vibe Check 拥有。
+Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation`
+提供共享 helper source import；workspace verifier 从
+`src/product/task-orchestration/**` 消费 repository-internal task runner。consumer、默认配置、
+profile 和 package scripts 由 Vibe Check 拥有。
 
 Vibe Check 拥有的开发脚本入口是：
 
@@ -25,7 +26,7 @@ Vibe Check 拥有的开发脚本入口是：
 - `scripts/project-environment/index.ts`：在不依赖尚未初始化的 toolkit submodule 的前提下，
   配置或只读检查锁定的开发工具、包依赖、submodule 与 CodeGraph 索引。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
-  `parallel-task-runner` 并行运行本地检查。
+  Product-owned task runner 并行运行本地检查。
 
 新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
@@ -55,8 +56,8 @@ Vibe Check 拥有的开发脚本入口是：
   schema/example generation drift、semantic example independent acceptance 和五组 canonical
   machine sets，并把 `vibe-check.report.v1` historical materials 隔离在 historical
   registry/traversal。
-- Rust 产品构建 helper 与 quality-core gitlink 已移除；`foundation` 和
-  `parallel-task-runner` gitlinks 仍服务开发脚本。
+- `foundation` 是开发脚本唯一保留的 toolkit gitlink。Product-owned source 的 pinned lift provenance
+  与已经退出的 toolkit owner 由 `src/product/README.md` 记录。
 
 ## 工具来源
 
@@ -64,21 +65,22 @@ Vibe Check 拥有的开发脚本入口是：
 
 - `foundation`：process、Git、path、filesystem、JSON、CSV、NDJSON、
   argument、error 和 type guard helpers。
-- `parallel-task-runner`：task normalization、dependency graph validation、
-  concurrency、mutex scheduling 和 lifecycle hooks。
 
-每个 toolkit 都通过 `scripts/tools/*/src` 的源码 import 被消费。它们不是 npm
-package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact
-路径。
+`src/product/task-orchestration/**` 是 Vibe Check-owned repository-internal task runner：它
+拥有 task normalization、dependency graph validation、concurrency、mutex scheduling 和
+lifecycle hooks。`scripts/vibe-check-workspace/**` 只单向 import 这个 Product source owner，
+不保留另一份 scheduler。
+
+`foundation` 通过 `scripts/tools/foundation/src` 的源码 import 被开发脚本消费；它不是 npm
+package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact 路径。
 
 质量产品的 schema/types、scanner adapters、Check/Record/DecisionPolicy、publication/readable output、
 reference/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
 不是开发脚本 toolkit。开发脚本可以单向调用产品入口，但产品运行时不得 import
 `scripts/**`、`foundation` gitlink 或其它 toolkit gitlink。
 
-已移除 quality-core gitlink 的来源 revision 和产品内 foundation helper 闭包记录在
-`src/product/README.md`。`foundation` 与 `parallel-task-runner` gitlinks 不是产品 runtime
-依赖。
+已移除 quality-core 和 parallel-task-runner gitlink 的来源 revision 以及产品内 foundation
+helper 闭包记录在 `src/product/README.md`。`foundation` gitlink 不是产品 runtime 依赖。
 
 ## 项目环境自举与检查
 
@@ -394,6 +396,6 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | current schema/example generation drift | `bun scripts/docs/config-schema.ts --check`、`bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
 | producer-to-annotation acceptance | `bun test scripts/quality/producer-annotation-acceptance.test.ts`；required workspace profile 也调度 |
 | quality annotation | `bun run quality:annotate -- [artifact-directory] [limit]` |
-| toolkit pin、checkout 或 import | `bun run toolkit:foundation:test`、`bun run toolkit:parallel:test` |
+| toolkit pin、checkout 或 Product-owned runner import | `bun run toolkit:foundation:test`、`bun test src/product/task-orchestration/test` |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

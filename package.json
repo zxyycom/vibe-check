@@ -45,10 +45,7 @@
     "quality:annotate": "bun scripts/quality/annotate.ts",
     "toolkit:foundation:typecheck": "bun run --cwd scripts/tools/foundation typecheck",
     "toolkit:foundation:lint": "bun run --cwd scripts/tools/foundation lint",
-    "toolkit:foundation:test": "bun run --cwd scripts/tools/foundation test",
-    "toolkit:parallel:typecheck": "bun run --cwd scripts/tools/parallel-task-runner typecheck",
-    "toolkit:parallel:lint": "bun run --cwd scripts/tools/parallel-task-runner lint",
-    "toolkit:parallel:test": "bun run --cwd scripts/tools/parallel-task-runner test"
+    "toolkit:foundation:test": "bun run --cwd scripts/tools/foundation test"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.0",

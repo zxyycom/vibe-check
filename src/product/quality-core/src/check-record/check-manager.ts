@@ -21,6 +21,29 @@ type TerminalOutcome = Readonly<
   | { kind: "execution-failed"; executionId: string }
 >;
 
+export type CheckTerminalReport = Readonly<
+  | { status: "returned"; result: unknown }
+  | { status: "unavailable"; dependencyId: string }
+  | { status: "execution-failed"; executionId: string }
+>;
+
+export type CheckRunSettlement = Readonly<{
+  availability: "available" | "unavailable";
+}>;
+
+export interface CheckRunSettlementInput {
+  readonly checkId: string;
+  readonly checkRunId: string;
+  readonly report: unknown;
+  readonly hasRecordFailure: boolean;
+}
+
+interface RunSettlementState {
+  readonly availability: CheckRunSettlement["availability"];
+  readonly outcome: TerminalOutcome | undefined;
+  readonly hasRecordFailure: boolean;
+}
+
 function freezeDiagnostic(diagnostic: RunDiagnostic): RunDiagnostic {
   return Object.freeze({ ...diagnostic });
 }
@@ -28,7 +51,7 @@ function freezeDiagnostic(diagnostic: RunDiagnostic): RunDiagnostic {
 export class CheckManager {
   readonly #catalog: ResolvedCheckCatalog;
   readonly #acknowledged = new Map<string, Set<string>>();
-  readonly #closedRuns = new Set<string>();
+  readonly #settlements = new Map<string, RunSettlementState>();
   readonly #diagnostics = new Map<string, RunDiagnostic[]>();
   #isFinalized = false;
 
@@ -54,8 +77,7 @@ export class CheckManager {
       if (this.#isFinalized) {
         return "rejected";
       }
-      if (this.#closedRuns.has(checkId)) {
-        this.#addAckViolation(checkId, workHandle);
+      if (this.#settlements.has(checkId)) {
         return "rejected";
       }
       if (!check.workHandles.includes(workHandle)) {
@@ -71,14 +93,43 @@ export class CheckManager {
     };
   }
 
-  public closeRun(checkId: string, checkRunId: string): void {
-    if (!this.#isFinalized && this.#findApplicableCheck(checkId, checkRunId) !== undefined) {
-      this.#closedRuns.add(checkId);
+  public settleRun(input: CheckRunSettlementInput): CheckRunSettlement {
+    const { checkId, checkRunId, report, hasRecordFailure } = input;
+    const check = this.#findApplicableCheck(checkId, checkRunId);
+    if (this.#isFinalized || check === undefined || this.#settlements.has(checkId)
+      || typeof hasRecordFailure !== "boolean") {
+      throw new TypeError("Check run settlement requires one unsettled applicable owned run");
     }
+
+    // Revoke the acknowledgement capability before deriving any terminal fact.
+    // This transition is synchronous, so no caller can observe availability while
+    // a port is still able to mutate its run.
+    this.#settlements.set(checkId, Object.freeze({
+      availability: "unavailable",
+      outcome: undefined,
+      hasRecordFailure
+    }));
+    const acknowledged = this.#acknowledgementsFor(checkId);
+    for (const workHandle of check.workHandles) {
+      if (!acknowledged.has(workHandle)) {
+        this.#diagnosticsFor(checkId).push({ category: "ack-protocol", tieBreakKey: workHandle });
+      }
+    }
+    const outcome = this.#resolveTerminalReport(check, report);
+    const availability = outcome?.kind === "returned"
+      && this.#diagnosticsFor(checkId).length === 0
+      && !hasRecordFailure
+      ? "available"
+      : "unavailable";
+    this.#settlements.set(checkId, Object.freeze({
+      availability,
+      outcome,
+      hasRecordFailure
+    }));
+    return Object.freeze({ availability });
   }
 
   public finalize(
-    rawReports: readonly unknown[],
     additionalDiagnostics: ReadonlyMap<string, readonly RunDiagnostic[]> = new Map()
   ): readonly CheckRun[] {
     if (this.#isFinalized) {
@@ -90,23 +141,32 @@ export class CheckManager {
       if (check.applicability !== "applicable") {
         continue;
       }
-      this.#closedRuns.add(check.definition.checkId);
-      const acknowledged = this.#acknowledgementsFor(check.definition.checkId);
-      for (const workHandle of check.workHandles) {
-        if (!acknowledged.has(workHandle)) {
-          this.#diagnosticsFor(check.definition.checkId).push({
-            category: "ack-protocol",
-            tieBreakKey: workHandle
-          });
-        }
+      const checkId = check.definition.checkId;
+      const settlement = this.#settlements.get(checkId);
+      if (settlement === undefined) {
+        throw new TypeError("CheckManager cannot finalize before every applicable run settles");
       }
-      for (const diagnostic of additionalDiagnostics.get(check.definition.checkId) ?? []) {
-        this.#diagnosticsFor(check.definition.checkId).push(freezeDiagnostic(diagnostic));
+      const recordDiagnostics = additionalDiagnostics.get(checkId) ?? [];
+      if (settlement.hasRecordFailure !== (recordDiagnostics.length > 0)) {
+        throw new TypeError("Check and Record settlement facts are inconsistent");
+      }
+      for (const diagnostic of recordDiagnostics) {
+        this.#diagnosticsFor(checkId).push(freezeDiagnostic(diagnostic));
       }
     }
 
-    const outcomes = this.#resolveTerminalReports(rawReports);
+    const outcomes = new Map([...this.#settlements.entries()]
+      .flatMap(([checkId, settlement]) => settlement.outcome === undefined
+        ? []
+        : [[checkId, settlement.outcome] as const]));
     const runs = this.#catalog.checks.map((check) => this.#finalizeRun(check, outcomes));
+    for (const run of runs) {
+      if (run.applicability !== "applicable") continue;
+      const availability = this.#settlements.get(run.checkId)?.availability;
+      if ((availability === "available") !== (run.status === "completed")) {
+        throw new TypeError("Check settlement availability differs from final run status");
+      }
+    }
     return Object.freeze(runs);
   }
 
@@ -141,91 +201,55 @@ export class CheckManager {
     this.#diagnosticsFor(checkId).push({ category: "ack-protocol", tieBreakKey });
   }
 
-  #addTerminalReportViolation(checkId: string, kind: "duplicate" | "missing" | "unknown"): void {
+  #resolveTerminalReport(check: ResolvedCheck, rawReport: unknown): TerminalOutcome | undefined {
+    const checkId = check.definition.checkId;
+    const report = snapshotPlainRecord(rawReport);
+    if (report?.status === "returned"
+      && hasExactPlainRecordKeys(report, ["status", "result"])) {
+      const outcome = Object.freeze({ kind: "returned", result: report.result }) as TerminalOutcome;
+      const candidate = snapshotPlainRecord(report.result);
+      if (candidate === undefined || !hasExactPlainRecordKeys(candidate, ["verdict"])
+        || (candidate.verdict !== "passed" && candidate.verdict !== "failed")) {
+        this.#diagnosticsFor(checkId).push({
+          category: "invalid-result",
+          tieBreakKey: `result/v1:${checkId}`
+        });
+      }
+      return outcome;
+    }
+    if (report?.status === "unavailable"
+      && hasExactPlainRecordKeys(report, ["status", "dependencyId"])
+      && typeof report.dependencyId === "string"
+      && STABLE_ID_PATTERN.test(report.dependencyId)) {
+      const outcome = Object.freeze({
+        kind: "unavailable",
+        dependencyId: report.dependencyId
+      }) as TerminalOutcome;
+      this.#diagnosticsFor(checkId).push({
+        category: "unavailable",
+        tieBreakKey: `dependency/v1:${report.dependencyId}`
+      });
+      return outcome;
+    }
+    if (report?.status === "execution-failed"
+      && hasExactPlainRecordKeys(report, ["status", "executionId"])
+      && typeof report.executionId === "string"
+      && EXECUTION_ID_PATTERN.test(report.executionId)) {
+      const outcome = Object.freeze({
+        kind: "execution-failed",
+        executionId: report.executionId
+      }) as TerminalOutcome;
+      this.#diagnosticsFor(checkId).push({
+        category: "execution-failed",
+        tieBreakKey: report.executionId
+      });
+      return outcome;
+    }
     this.#diagnosticsFor(checkId).push({
-      category: "terminal-report-set",
-      tieBreakKey: kind === "unknown"
-        ? "terminal-report/v1:unknown"
-        : `terminal-report/v1:${kind}-${checkId}`
+      category: "invalid-result",
+      tieBreakKey: `result/v1:${checkId}`
     });
-  }
-
-  #resolveTerminalReports(rawReports: readonly unknown[]): ReadonlyMap<string, TerminalOutcome> {
-    const applicableChecks = this.#catalog.checks.filter((check) => check.applicability === "applicable");
-    const outcomes = new Map<string, TerminalOutcome>();
-    const seen = new Set<string>();
-
-    for (const rawReport of rawReports) {
-      const report = snapshotPlainRecord(rawReport);
-      if (report === undefined) {
-        const first = applicableChecks[0];
-        if (first !== undefined) {
-          this.#addTerminalReportViolation(first.definition.checkId, "unknown");
-        }
-        continue;
-      }
-      const check = typeof report.checkId === "string" && typeof report.checkRunId === "string"
-        ? this.#findApplicableCheck(report.checkId, report.checkRunId)
-        : undefined;
-      if (check === undefined) {
-        const first = applicableChecks[0];
-        if (first !== undefined) {
-          this.#addTerminalReportViolation(first.definition.checkId, "unknown");
-        }
-        continue;
-      }
-      const checkId = check.definition.checkId;
-      if (seen.has(checkId)) {
-        this.#addTerminalReportViolation(checkId, "duplicate");
-        continue;
-      }
-      seen.add(checkId);
-
-      if (report.status === "returned"
-        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "result"])) {
-        outcomes.set(checkId, Object.freeze({ kind: "returned", result: report.result }));
-        continue;
-      }
-      if (report.status === "unavailable"
-        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "dependencyId"])) {
-        if (typeof report.dependencyId === "string" && STABLE_ID_PATTERN.test(report.dependencyId)) {
-          outcomes.set(checkId, Object.freeze({
-            kind: "unavailable",
-            dependencyId: report.dependencyId
-          }));
-        } else {
-          this.#diagnosticsFor(checkId).push({
-            category: "invalid-result",
-            tieBreakKey: `result/v1:${checkId}`
-          });
-        }
-        continue;
-      }
-      if (report.status === "execution-failed"
-        && hasExactPlainRecordKeys(report, ["checkId", "checkRunId", "status", "executionId"])) {
-        if (typeof report.executionId === "string" && EXECUTION_ID_PATTERN.test(report.executionId)) {
-          outcomes.set(checkId, Object.freeze({
-            kind: "execution-failed",
-            executionId: report.executionId
-          }));
-        } else {
-          this.#diagnosticsFor(checkId).push({
-            category: "invalid-result",
-            tieBreakKey: `result/v1:${checkId}`
-          });
-        }
-        continue;
-      }
-      this.#addTerminalReportViolation(checkId, "unknown");
-    }
-
-    for (const check of applicableChecks) {
-      const checkId = check.definition.checkId;
-      if (!seen.has(checkId)) {
-        this.#addTerminalReportViolation(checkId, "missing");
-      }
-    }
-    return outcomes;
+    return undefined;
   }
 
   #finalizeRun(check: ResolvedCheck, outcomes: ReadonlyMap<string, TerminalOutcome>): CheckRun {
@@ -258,27 +282,6 @@ export class CheckManager {
 
     const checkId = check.definition.checkId;
     const outcome = outcomes.get(checkId);
-    if (outcome?.kind === "unavailable") {
-      this.#diagnosticsFor(checkId).push({
-        category: "unavailable",
-        tieBreakKey: `dependency/v1:${outcome.dependencyId}`
-      });
-    } else if (outcome?.kind === "execution-failed") {
-      this.#diagnosticsFor(checkId).push({
-        category: "execution-failed",
-        tieBreakKey: outcome.executionId
-      });
-    } else if (outcome?.kind === "returned") {
-      const candidate = snapshotPlainRecord(outcome.result);
-      if (candidate === undefined || !hasExactPlainRecordKeys(candidate, ["verdict"])
-        || (candidate.verdict !== "passed" && candidate.verdict !== "failed")) {
-        this.#diagnosticsFor(checkId).push({
-          category: "invalid-result",
-          tieBreakKey: `result/v1:${checkId}`
-        });
-      }
-    }
-
     const coverage = Object.freeze({
       plannedWorkCount: check.workHandles.length,
       acknowledgedWorkCount: this.#acknowledgementsFor(checkId).size

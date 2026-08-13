@@ -7,10 +7,14 @@
 ## 核心定位
 
 一次 `scan` 在 work 前选择配置、冻结 Check catalog、private bindings、selected policy 与可选的
-named baseline reference。三个内置 Check（`file-metrics`、`function-metrics`、
-`duplicate-detection`）只经其 private adapter 产生 Check run、record 和 reference facts。Core 的
-最终事实是 `FinalCoreSnapshot`：definitions、runs、records、integrity 与由 run/coverage 得出的
-snapshot completeness。它不把 scanner payload、runner、cache 或路径位置提升为公共事实。
+named baseline reference。Product 唯一拥有的 generic runner 位于
+`src/product/task-orchestration/**`；它只调度私有 Task，保留既有的 group、父 metadata 继承、dependency、
+mutex、并发和 opaque resolved-value 语义。Check adapter 在这个 generic contract 之上把 closed
+Check binding、static TaskPlan 和 `requiresChecks` 归一化为同一 invocation 的任务图；它不改变 runner
+如何解释 Task value。三个内置 Check（`file-metrics`、`function-metrics`、`duplicate-detection`）只经其
+private adapter 产生 Check run、record 和 reference facts。Core 的最终事实是 `FinalCoreSnapshot`：
+definitions、runs、records、integrity 与由 run/coverage 得出的 snapshot completeness。它不把 scanner
+payload、Task、runner、cache 或路径位置提升为公共事实。
 
 `DecisionPolicy` 在 final snapshot 和 named reference facts 上产生 decision evidence 与
 `GateResult`。Output 的 validated publication model 在构造时核对并冻结 human status projection；
@@ -27,8 +31,9 @@ publication。`scripts/**` 只拥有开发自动化及已验证 artifact 的 con
 
 ```text
 CLI -> config selection -> dependency snapshot -> normalized exact inputs
-    -> frozen catalog / bindings / policy / references
-    -> private scanner adapters -> final Core snapshot + decision evidence
+    -> frozen catalog / bindings / schedules / policy / references
+    -> private Check adapter + Product-owned runner
+    -> final Core snapshot + decision evidence
     -> validated publication model
     -> run.json + records.ndjson + report.md + console
     -> success | gate-failed | failed
@@ -57,9 +62,13 @@ scanner output、Check 结果、records 或 artifact fields。
 
 ### Product core
 
-负责把 resolved config、exact inputs 和 dependency snapshot 组合为一次冻结执行；CheckManager 和
-RecordManager 分别拥有 run lifecycle/coverage 与 record provenance/identity/integrity。Core 不保留
-全局 quality reducer；policy readiness 只属于选定 `DecisionPolicy`。
+负责把 resolved config、exact inputs 和 dependency snapshot 组合为一次冻结执行。它在任何 user-managed
+function 开始前验证并冻结 closed Check schedule、TaskPlan 和唯一 `SchedulerPolicy`；factory、planning 或
+graph 验证失败时不开始 user work。每个 direct binding 是直接形成 terminal result 的一个 Task；TaskPlan
+的 leaf 保持私有，且每个 TaskPlan 只在其全部 leaf 都可用时调用一次 Check-level
+`complete(outcomes)`。CheckManager 和
+RecordManager 分别拥有 run lifecycle/coverage 与 record provenance/identity/integrity。Core 不保留全局
+quality reducer；policy readiness 只属于选定 `DecisionPolicy`。
 
 ### Scanner adapter
 
@@ -77,11 +86,15 @@ artifact lifecycle、readable projection 和 `src/product/machine-output.ts` sha
 
 ## 运行边界
 
-- public catalog 只含 serializable Check/record-type metadata；bindings、runner、scanner payload 与
-  executable 不进入 catalog、policy 或 machine set。
+- public catalog 只含 serializable Check/record-type metadata；bindings、TaskPlan、Task identity、runner、
+  scheduler state、scanner payload 与 executable 不进入 catalog、policy 或 machine set。
 - 每个 definition 恰有一个 Check run；`not-applicable` 只来自 pre-work applicability，execution
   failure 的 run 没有 result。quality `failed` verdict 仍是 completed run 的领域结果。
 - record identity 不依赖 location、message、arrival 或 checkRunId；RecordManager 保留独立的已提交
   records，并以 integrity evidence 表达 invalid candidate 或 conflict。
+- Check execution 的 work handles、ack ports、function-scoped record sinks、Task outcomes 和 settlement
+  availability 都是 invocation-private capability 或 state。`QualityRecord` 保持 record contract；
+  `CheckRun`、coverage、integrity 和 completeness 保持 run/snapshot contract，不记录 capability 或 event
+  identity。
 - machine schema/types/mappers/serializers/validator 位于 `src/product/**`。consumer 只经
   `src/product/machine-output.ts` 使用 validator；产品不读取 `docs/**` 或 `scripts/**`。

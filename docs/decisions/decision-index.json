@@ -57,6 +57,7 @@
       "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
       "product-contract/require-explicit-network-link-checking.md": "sha256:a0bb88fe9532045abf0e021fe4835d1b0155271bd431bd189553f9ccd06e4cf8",
       "product-contract/separate-check-and-record-type-identities.md": "sha256:1491434208c8804457e00cd7a60e2f35d171441322095f3a50b3f7fca6b0f24e",
+      "product-contract/settle-check-execution-before-availability.md": "sha256:5ad52b1918accce22a1f03950179a86b62e69703309528a2e96e46a0149c424e",
       "product-contract/support-bun-as-the-package-host.md": "sha256:d88504e532d86c904d6c739288ebeb1cc5247a68e1977f1fb9ce6ba4c6aa8bc9",
       "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:9e2227749543f6fa171d0a400ef053f2a90dcfa2a598322679a5ad97462adb74",
       "product-contract/use-generic-machine-v2-for-content-findings.md": "sha256:d4f263110afc8b43cf845576ddd088fe72f62c5ce1423c989311d29ee9f4737e",
@@ -851,6 +852,30 @@
             "target": "configuration/use-semantic-check-ids-in-quality-records.md"
           }
         ]
+      }
+    },
+    "product-contract/settle-check-execution-before-availability.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/settle-check-execution-before-availability.md",
+        "title": "在 Check availability 前结算执行 capability",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-13T07:05:49Z",
+        "purpose": "让 requiresChecks 只依赖不可被保留执行 capability 追溯改写的 Check availability。",
+        "background": "availability 判定后仍可写入的 ack 或 record 会让已放行 dependent 的前提变得可追溯，破坏任务图的可信依赖边界。",
+        "decision": "settlement 在返回 availability 前原子地关闭 Check 的执行 ports、冻结事实并据此计算 availability；late 调用被拒绝且不改变最终执行或完整性事实。",
+        "relations": []
       }
     },
     "product-contract/support-bun-as-the-package-host.md": {

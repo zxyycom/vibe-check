@@ -42,6 +42,7 @@ export function makeCatalog(source: unknown = [definition]) {
     invocationKey: "policy-evaluation",
     definitions: source,
     bindings: [{ checkId: "file-metrics", execute: () => undefined }],
+    schedules: [{ checkId: "file-metrics", requiresChecks: [] }],
     selectedCheckIds: ["file-metrics"],
     resolveApplicability: () => ({ status: "applicable", workHandles: [] })
   });

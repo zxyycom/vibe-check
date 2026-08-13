@@ -301,6 +301,7 @@ function createCatalog(input: Readonly<{
     invocationKey: "current-policy-adapter",
     definitions,
     bindings: definitions.map(({ checkId }) => ({ checkId, execute: () => ({ verdict: "passed" }) })),
+    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
     selectedCheckIds: input.selected,
     resolveApplicability: ({ checkId }) => input.notApplicable?.includes(checkId)
       ? ({ status: "not-applicable" })

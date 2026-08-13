@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { coordinateCheckRecords } from "../coordinator.ts";
+import { coordinateCheckRecordsWithTestPolicy } from "../coordinator-test-support.ts";
 import { createFunctionMetricsBinding } from "./function-metrics.ts";
 import {
   assertAmbiguousFunctionRelations,
@@ -39,7 +39,7 @@ describe("function-metrics built-in Check", () => {
         },
         semantics
       });
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, ["src/a.ts"])
       );
 
@@ -75,7 +75,7 @@ describe("function-metrics built-in Check", () => {
       });
       changedFiles.splice(0, changedFiles.length, "src/not-current.ts");
 
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, ["src/a.ts"])
       );
       const facts = runtime.referenceFacts(snapshot);
@@ -89,7 +89,7 @@ describe("function-metrics built-in Check", () => {
         reference: null,
         semantics
       });
-      const movedSnapshot = await coordinateCheckRecords(
+      const movedSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(movedRuntime.binding, ["src/a.ts"])
       );
       assert.deepEqual(
@@ -115,10 +115,10 @@ describe("function-metrics built-in Check", () => {
         reference: null,
         semantics
       });
-      const zeroSnapshot = await coordinateCheckRecords(
+      const zeroSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, ["src/a.ts"])
       );
-      const noInputSnapshot = await coordinateCheckRecords(
+      const noInputSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, [])
       );
 
@@ -143,7 +143,7 @@ describe("function-metrics built-in Check", () => {
           reference: null,
           semantics
         });
-        const snapshot = await coordinateCheckRecords(
+        const snapshot = await coordinateCheckRecordsWithTestPolicy(
           resolveRuntimeCatalog(runtime.binding, ["src/a.ts"])
         );
         assert.equal(snapshot.runs[0]?.status, "failed");
@@ -178,7 +178,7 @@ describe("function-metrics built-in Check", () => {
         },
         semantics
       });
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, ["src/a.ts"])
       );
 

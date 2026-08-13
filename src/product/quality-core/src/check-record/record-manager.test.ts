@@ -34,6 +34,7 @@ function catalogForDefinitions(
       checkId,
       execute: () => ({ verdict: "passed" })
     })),
+    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
     selectedCheckIds: definitions.map(({ checkId }) => checkId),
     resolveApplicability: () => ({
       status: "applicable",
@@ -60,6 +61,17 @@ function boundSink(manager: RecordManager, catalogValue: ResolvedCheckCatalog) {
   return manager.createBoundSink(check.definition.checkId, check.checkRunId);
 }
 
+function settleAll(manager: RecordManager, catalogValue: ResolvedCheckCatalog): void {
+  for (const check of catalogValue.checks) {
+    if (check.applicability === "applicable") {
+      manager.settleRun({
+        checkId: check.definition.checkId,
+        checkRunId: check.checkRunId
+      });
+    }
+  }
+}
+
 describe("check-record RecordManager", () => {
   it("adds unforgeable provenance validates descriptors commits immediately and replays idempotently", () => {
     const catalogValue = catalog();
@@ -76,6 +88,7 @@ describe("check-record RecordManager", () => {
 
     assert.equal(submit({ ...finding, checkId: "forged-check" } as never), "rejected");
     assert.equal(submit({ ...finding, fields: { codeArea: "source", limit: Number.NaN } }), "rejected");
+    settleAll(manager, catalogValue);
     const state = manager.finalize();
     assert.equal(state.records.length, 1);
     assert.equal(state.integrity.status, "invalid");
@@ -105,6 +118,7 @@ describe("check-record RecordManager", () => {
     assert.equal(firstSubmit(independent), "committed");
     assert.equal(firstSubmit(finding), "committed");
     assert.equal(firstSubmit(conflicting), "conflicted");
+    settleAll(firstManager, firstCatalog);
     const firstState = firstManager.finalize();
     assert.deepEqual(firstState.records.map((record) => record.semanticSubject), ["src/independent.ts"]);
     assert.equal(firstState.integrity.status, "conflicted");
@@ -118,6 +132,7 @@ describe("check-record RecordManager", () => {
     const secondSubmit = boundSink(secondManager, secondCatalog);
     assert.equal(secondSubmit(conflicting), "committed");
     assert.equal(secondSubmit(finding), "conflicted");
+    settleAll(secondManager, secondCatalog);
     const secondState = secondManager.finalize();
     assert.deepEqual(secondState.integrity.conflicts, firstState.integrity.conflicts);
     assert.equal(JSON.stringify(firstState.integrity).includes("Reworded finding"), false);
@@ -129,15 +144,18 @@ describe("check-record RecordManager", () => {
     const manager = new RecordManager(catalogValue);
     const submit = boundSink(manager, catalogValue);
     const check = catalogValue.checks[0]!;
-    manager.closeRun(check.definition.checkId, check.checkRunId);
+    manager.settleRun({
+      checkId: check.definition.checkId,
+      checkRunId: check.checkRunId
+    });
 
     assert.equal(submit({
       ...finding,
       message: "https://user:secret-token@example.test/private"
     }), "rejected");
     const state = manager.finalize();
-    assert.equal(state.integrity.status, "invalid");
-    assert.equal(state.diagnostics.get(definition.checkId)?.[0]?.category, "invalid-record");
+    assert.equal(state.integrity.status, "valid");
+    assert.equal(state.diagnostics.get(definition.checkId)?.length, 0);
     assert.equal(JSON.stringify(state).includes("secret-token"), false);
     assert.equal(submit(finding), "rejected");
     assert.deepEqual(manager.records(), []);
@@ -157,6 +175,7 @@ describe("check-record RecordManager", () => {
       for (const item of order) {
         assert.equal(submit(item === "shape" ? invalidShape : invalidField), "rejected");
       }
+      settleAll(manager, catalogValue);
       const state = manager.finalize();
       return {
         invalidRecords: state.integrity.invalidRecords,
@@ -190,19 +209,22 @@ describe("check-record RecordManager", () => {
       assert.equal(submitAlpha(invalid), "rejected");
     }
     assert.equal(submitBeta(invalid), "rejected");
+    settleAll(manager, catalogValue);
     const state = manager.finalize();
 
     assert.equal(state.integrity.invalidRecords.length, 2);
     assert.equal(new Set(state.integrity.invalidRecords.map((evidence) => evidence.evidenceId)).size, 2);
 
     const checkManager = new CheckManager(catalogValue);
-    const reports = catalogValue.checks.map((check) => ({
-      checkId: check.definition.checkId,
-      checkRunId: check.checkRunId,
-      status: "returned",
-      result: { verdict: "passed" }
-    }));
-    const runs = checkManager.finalize(reports, state.diagnostics);
+    for (const check of catalogValue.checks) {
+      checkManager.settleRun({
+        checkId: check.definition.checkId,
+        checkRunId: check.checkRunId,
+        report: { status: "returned", result: { verdict: "passed" } },
+        hasRecordFailure: true
+      });
+    }
+    const runs = checkManager.finalize(state.diagnostics);
     const validation = validateFinalCoreSnapshot({
       catalogFingerprint: catalogValue.catalogFingerprint,
       definitions: catalogValue.definitions,

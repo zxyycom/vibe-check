@@ -61,6 +61,7 @@ export function makeCatalog(source: unknown = definitions) {
       checkId: definition.checkId,
       execute: () => undefined
     })),
+    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
     selectedCheckIds: [],
     resolveApplicability: () => ({ status: "not-applicable" })
   });

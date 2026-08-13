@@ -1,7 +1,5 @@
 packages:
   - "scripts/tools/foundation"
-  - "scripts/tools/parallel-task-runner"
-
 allowBuilds:
   '@ast-grep/cli': true
 

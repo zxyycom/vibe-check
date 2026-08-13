@@ -1,6 +1,8 @@
 import { createCatalogFingerprint, createDeterministicCheckRunId } from "./identity.ts";
 import type { CheckDefinition, QualityRecordCandidate, RecordTypeDefinition } from "./model.ts";
 import { validateCheckDefinition } from "./validation.ts";
+import { resolveCheckSchedules, resolveCheckSelection } from "./check-schedule.ts";
+import { snapshotClosedArray, snapshotClosedRecord } from "./plain-record-values.ts";
 
 const WORK_HANDLE_PATTERN = /^work-handle\/v1:[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -16,10 +18,29 @@ export type CheckExecutionBinding = (
   ports: CheckExecutionPorts
 ) => unknown | Promise<unknown>;
 
+export interface TaskExecutionPorts {
+  readonly workHandles: readonly string[];
+  readonly submitRecord: CheckExecutionPorts["submitRecord"];
+}
+
+export interface CheckTaskPlanningInput {
+  readonly definition: CheckDefinition;
+  readonly checkRunId: string;
+  readonly workHandles: readonly string[];
+}
+
+export type CheckTaskPlanFactory = (input: CheckTaskPlanningInput) => unknown;
+
+export type ResolvedCheckBinding = Readonly<
+  | { kind: "direct"; execute: CheckExecutionBinding }
+  | { kind: "task-plan"; createTaskPlan: CheckTaskPlanFactory }
+>;
+
 export interface ResolvedCheck {
   readonly definition: CheckDefinition;
-  readonly binding: CheckExecutionBinding;
+  readonly binding: ResolvedCheckBinding;
   readonly checkRunId: string;
+  readonly requiresChecks: readonly string[];
   readonly selection: "selected" | "unselected";
   readonly applicability: "applicable" | "not-applicable" | null;
   readonly workHandles: readonly string[];
@@ -31,7 +52,12 @@ export interface ResolvedCheckCatalog {
   readonly checks: readonly ResolvedCheck[];
 }
 
-type CatalogResolutionStage = "catalog" | "bindings" | "selection" | "applicability";
+export type CatalogResolutionStage =
+  | "catalog"
+  | "bindings"
+  | "schedule"
+  | "selection"
+  | "applicability";
 
 export type CatalogResolutionResult = Readonly<
   | { ok: true; value: ResolvedCheckCatalog }
@@ -61,47 +87,24 @@ function compareText(left: string, right: string): number {
   return 0;
 }
 
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    return false;
-  }
-  const prototype = Object.getPrototypeOf(value) as object | null;
-  return prototype === Object.prototype || prototype === null;
-}
-
 function ownData(
   value: unknown,
   expectedKeys: readonly string[]
 ): Readonly<Record<string, unknown>> | undefined {
-  try {
-    if (!isPlainRecord(value)) {
-      return undefined;
-    }
-    const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
-      Record<string, PropertyDescriptor>
-    >;
-    if (Object.values(descriptors).some((descriptor) => (
-      descriptor.get !== undefined || descriptor.set !== undefined
-    ))) {
-      return undefined;
-    }
-    const keys = Object.keys(descriptors).filter((key) => descriptors[key]!.enumerable === true);
-    if (keys.length !== expectedKeys.length || keys.some((key) => !expectedKeys.includes(key))) {
-      return undefined;
-    }
-    return Object.fromEntries(keys.map((key) => [key, descriptors[key]!.value as unknown]));
-  } catch {
-    return undefined;
-  }
+  const data = snapshotClosedRecord(value);
+  if (data === undefined) return undefined;
+  const keys = Object.keys(data);
+  return keys.length === expectedKeys.length && keys.every((key) => expectedKeys.includes(key))
+    ? data
+    : undefined;
 }
 
 function resolveDefinitions(value: unknown): readonly CheckDefinition[] | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
+  const candidates = snapshotClosedArray(value);
+  if (candidates === undefined) return undefined;
   const definitions: CheckDefinition[] = [];
   const checkIds = new Set<string>();
-  for (const candidate of value as readonly unknown[]) {
+  for (const candidate of candidates) {
     let validated: ReturnType<typeof validateCheckDefinition>;
     try {
       validated = validateCheckDefinition(candidate);
@@ -118,44 +121,41 @@ function resolveDefinitions(value: unknown): readonly CheckDefinition[] | undefi
   return Object.freeze(definitions);
 }
 
+function resolveBindingEntry(
+  candidate: unknown,
+  knownCheckIds: ReadonlySet<string>
+): readonly [string, ResolvedCheckBinding] | undefined {
+  const direct = ownData(candidate, ["checkId", "execute"]);
+  if (typeof direct?.checkId === "string" && knownCheckIds.has(direct.checkId)
+    && typeof direct.execute === "function") {
+    return [direct.checkId, Object.freeze({
+      kind: "direct",
+      execute: direct.execute as CheckExecutionBinding
+    })];
+  }
+  const taskPlan = ownData(candidate, ["checkId", "createTaskPlan"]);
+  if (typeof taskPlan?.checkId !== "string" || !knownCheckIds.has(taskPlan.checkId)
+    || typeof taskPlan.createTaskPlan !== "function") return undefined;
+  return [taskPlan.checkId, Object.freeze({
+    kind: "task-plan",
+    createTaskPlan: taskPlan.createTaskPlan as CheckTaskPlanFactory
+  })];
+}
+
 function resolveBindings(
   value: unknown,
   definitions: readonly CheckDefinition[]
-): ReadonlyMap<string, CheckExecutionBinding> | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
+): ReadonlyMap<string, ResolvedCheckBinding> | undefined {
+  const candidates = snapshotClosedArray(value);
+  if (candidates === undefined) return undefined;
   const knownCheckIds = new Set(definitions.map((definition) => definition.checkId));
-  const bindings = new Map<string, CheckExecutionBinding>();
-  for (const candidate of value as readonly unknown[]) {
-    const data = ownData(candidate, ["checkId", "execute"]);
-    if (data === undefined || typeof data.checkId !== "string"
-      || !knownCheckIds.has(data.checkId) || typeof data.execute !== "function"
-      || bindings.has(data.checkId)) {
-      return undefined;
-    }
-    bindings.set(data.checkId, data.execute as CheckExecutionBinding);
+  const bindings = new Map<string, ResolvedCheckBinding>();
+  for (const candidate of candidates) {
+    const entry = resolveBindingEntry(candidate, knownCheckIds);
+    if (entry === undefined || bindings.has(entry[0])) return undefined;
+    bindings.set(...entry);
   }
   return bindings.size === definitions.length ? bindings : undefined;
-}
-
-function resolveSelection(
-  value: unknown,
-  definitions: readonly CheckDefinition[]
-): ReadonlySet<string> | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-  const knownCheckIds = new Set(definitions.map((definition) => definition.checkId));
-  const selectedCheckIds = new Set<string>();
-  for (const checkId of value as readonly unknown[]) {
-    if (typeof checkId !== "string" || !knownCheckIds.has(checkId)
-      || selectedCheckIds.has(checkId)) {
-      return undefined;
-    }
-    selectedCheckIds.add(checkId);
-  }
-  return selectedCheckIds;
 }
 
 function resolveApplicability(value: unknown): Readonly<{
@@ -167,12 +167,15 @@ function resolveApplicability(value: unknown): Readonly<{
     return Object.freeze({ applicability: "not-applicable", workHandles: Object.freeze([]) });
   }
   const applicable = ownData(value, ["status", "workHandles"]);
-  if (applicable?.status !== "applicable" || !Array.isArray(applicable.workHandles)) {
+  const handleItems = applicable === undefined
+    ? undefined
+    : snapshotClosedArray(applicable.workHandles);
+  if (applicable?.status !== "applicable" || handleItems === undefined) {
     return undefined;
   }
   const workHandles: string[] = [];
   const seen = new Set<string>();
-  for (const workHandle of applicable.workHandles as readonly unknown[]) {
+  for (const workHandle of handleItems) {
     if (typeof workHandle !== "string" || !WORK_HANDLE_PATTERN.test(workHandle)
       || seen.has(workHandle)) {
       return undefined;
@@ -187,10 +190,22 @@ function resolveApplicability(value: unknown): Readonly<{
   });
 }
 
+function requiredChecksFor(
+  schedules: ReadonlyMap<string, readonly string[]>,
+  checkId: string
+): readonly string[] {
+  const requiredChecks = schedules.get(checkId);
+  if (requiredChecks === undefined) {
+    throw new TypeError(`Resolved Check schedule is missing: ${checkId}`);
+  }
+  return requiredChecks;
+}
+
 export function resolveCheckCatalog(input: Readonly<{
   invocationKey: string;
   definitions: unknown;
   bindings: unknown;
+  schedules: unknown;
   selectedCheckIds: unknown;
   resolveApplicability: (definition: CheckDefinition) => unknown;
 }>): CatalogResolutionResult {
@@ -203,7 +218,11 @@ export function resolveCheckCatalog(input: Readonly<{
   if (bindings === undefined) {
     return failed("bindings");
   }
-  const selectedCheckIds = resolveSelection(input.selectedCheckIds, definitions);
+  const schedules = resolveCheckSchedules(input.schedules, definitions);
+  if (schedules === undefined) {
+    return failed("schedule");
+  }
+  const selectedCheckIds = resolveCheckSelection(input.selectedCheckIds, definitions, schedules);
   if (selectedCheckIds === undefined || typeof input.resolveApplicability !== "function") {
     return failed("selection");
   }
@@ -224,6 +243,7 @@ export function resolveCheckCatalog(input: Readonly<{
         definition,
         binding,
         checkRunId,
+        requiresChecks: requiredChecksFor(schedules, definition.checkId),
         selection: "unselected",
         applicability: null,
         workHandles: Object.freeze([])
@@ -248,6 +268,7 @@ export function resolveCheckCatalog(input: Readonly<{
       definition,
       binding,
       checkRunId,
+      requiresChecks: requiredChecksFor(schedules, definition.checkId),
       selection: "selected",
       applicability: applicability.applicability,
       workHandles: applicability.workHandles

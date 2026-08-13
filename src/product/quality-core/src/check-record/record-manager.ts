@@ -26,12 +26,14 @@ export interface FinalRecordManagerState {
   readonly diagnostics: ReadonlyMap<string, readonly RunDiagnostic[]>;
 }
 
+export type RecordRunSettlement = Readonly<{ hasRecordFailure: boolean }>;
+
 interface RecordState {
   readonly recordTypeId: string;
   readonly bodies: Map<string, JsonObject>;
 }
 
-type InvalidRecordReason = "candidate-shape" | "candidate-validation" | "run-terminal";
+type InvalidRecordReason = "candidate-shape" | "candidate-validation";
 
 interface InvalidRecordViolation {
   readonly checkId: string;
@@ -133,7 +135,7 @@ export class RecordManager {
   readonly #recordStates = new Map<string, RecordState>();
   readonly #invalidViolations = new Map<string, InvalidRecordViolation>();
   readonly #conflicts = new Map<string, RecordConflictEvidence>();
-  readonly #closedRuns = new Set<string>();
+  readonly #settledRuns = new Set<string>();
   #finalState: FinalRecordManagerState | undefined;
 
   public constructor(catalog: ResolvedCheckCatalog) {
@@ -152,17 +154,29 @@ export class RecordManager {
       if (this.#finalState !== undefined) {
         return "rejected";
       }
-      if (this.#closedRuns.has(checkId)) {
-        return this.#rejectInvalid(check, this.#canonicalRecordTypeId(check), "run-terminal");
+      if (this.#settledRuns.has(checkId)) {
+        return "rejected";
       }
       return this.#submit(check, candidate);
     };
   }
 
-  public closeRun(checkId: string, checkRunId: string): void {
-    if (this.#finalState === undefined && this.#findApplicableCheck(checkId, checkRunId) !== undefined) {
-      this.#closedRuns.add(checkId);
+  public settleRun(input: Readonly<{
+    checkId: string;
+    checkRunId: string;
+  }>): RecordRunSettlement {
+    const { checkId, checkRunId } = input;
+    const check = this.#findApplicableCheck(checkId, checkRunId);
+    if (this.#finalState !== undefined || check === undefined || this.#settledRuns.has(checkId)) {
+      throw new TypeError("Record run settlement requires one unsettled applicable owned run");
     }
+    // Revocation and fact freezing are one synchronous transition. A retained sink
+    // can only observe the settled bit after this method returns.
+    this.#settledRuns.add(checkId);
+    return Object.freeze({
+      hasRecordFailure: [...this.#invalidViolations.values()].some((item) => item.checkId === checkId)
+        || [...this.#conflicts.values()].some((item) => item.checkId === checkId)
+    });
   }
 
   public records(): readonly QualityRecord[] {
@@ -174,10 +188,11 @@ export class RecordManager {
     if (this.#finalState !== undefined) {
       return this.#finalState;
     }
-    for (const check of this.#catalog.checks) {
-      if (check.applicability === "applicable") {
-        this.#closedRuns.add(check.definition.checkId);
-      }
+    const applicableCheckIds = this.#catalog.checks
+      .filter((check) => check.applicability === "applicable")
+      .map((check) => check.definition.checkId);
+    if (applicableCheckIds.some((checkId) => !this.#settledRuns.has(checkId))) {
+      throw new TypeError("RecordManager cannot finalize before every applicable run settles");
     }
     const integrity = finalizeIntegrity(this.#invalidViolations, this.#conflicts);
     const diagnostics = finalizeDiagnostics(this.#catalog, integrity);

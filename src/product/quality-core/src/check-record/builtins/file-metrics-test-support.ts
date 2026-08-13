@@ -42,6 +42,7 @@ export function resolveFileMetricsTestCatalog(
     invocationKey: "file-metrics-test",
     definitions: [FILE_METRICS_CHECK_DEFINITION],
     bindings: [{ checkId: "file-metrics", execute: binding }],
+    schedules: [{ checkId: "file-metrics", requiresChecks: [] }],
     selectedCheckIds: ["file-metrics"],
     resolveApplicability: () => resolveFileMetricsApplicability(approvedExactPaths)
   });

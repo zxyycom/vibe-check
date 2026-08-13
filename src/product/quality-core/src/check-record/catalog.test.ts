@@ -5,6 +5,7 @@ import { createCatalogFingerprint } from "./identity.ts";
 import {
   resolveCheckCatalog,
   resolveRecordTypeDefinition,
+  type CatalogResolutionStage,
   type CheckExecutionBinding
 } from "./catalog.ts";
 
@@ -53,6 +54,53 @@ function binding(checkId: string, calls: string[]): Readonly<{
   };
 }
 
+interface InvalidCatalogFixture {
+  readonly definitions?: unknown;
+  readonly bindings?: unknown;
+  readonly selectedCheckIds?: unknown;
+  readonly applicability?: unknown;
+  readonly stage: CatalogResolutionStage;
+}
+
+function invalidCatalogFixtures(
+  validBindings: readonly unknown[],
+  calls: string[]
+): readonly InvalidCatalogFixture[] {
+  return [
+    { definitions: [{ ...fileDefinition, backend: "scc" }], stage: "catalog" },
+    { definitions: [fileDefinition, fileDefinition], stage: "catalog" },
+    { definitions: [{ ...fileDefinition, checkId: "Not Valid" }], stage: "catalog" },
+    { bindings: [validBindings[0]], stage: "bindings" },
+    { bindings: [...validBindings, binding("duplicate-detection", calls)], stage: "bindings" },
+    { bindings: [validBindings[0], validBindings[0]], stage: "bindings" },
+    { bindings: [{ checkId: "file-metrics", execute: "not-a-function" }, validBindings[1]], stage: "bindings" },
+    { selectedCheckIds: ["unknown-check"], stage: "selection" },
+    { selectedCheckIds: ["file-metrics", "file-metrics"], stage: "selection" },
+    { applicability: { status: "applicable", workHandles: ["not-opaque"] }, stage: "applicability" }
+  ];
+}
+
+function assertCatalogFailure(
+  fixture: InvalidCatalogFixture,
+  validBindings: readonly unknown[]
+): void {
+  const resolved = resolveCheckCatalog({
+    invocationKey: "invalid-fixture",
+    definitions: fixture.definitions ?? [fileDefinition, functionDefinition],
+    bindings: fixture.bindings ?? validBindings,
+    schedules: [fileDefinition, functionDefinition].map(({ checkId }) => ({
+      checkId,
+      requiresChecks: []
+    })),
+    selectedCheckIds: fixture.selectedCheckIds ?? ["file-metrics"],
+    resolveApplicability: () => fixture.applicability ?? { status: "not-applicable" }
+  });
+  assert.deepEqual(resolved, {
+    ok: false,
+    error: { kind: "catalog-resolution-failed", stage: fixture.stage }
+  });
+}
+
 describe("check-record catalog resolution", () => {
   it("freezes a canonical public catalog and resolves qualified record types and selected applicability", () => {
     const calls: string[] = [];
@@ -62,6 +110,10 @@ describe("check-record catalog resolution", () => {
       invocationKey: "catalog-fixture",
       definitions: mutableDefinitions,
       bindings: [binding("function-metrics", calls), binding("file-metrics", calls)],
+      schedules: [functionDefinition, fileDefinition].map(({ checkId }) => ({
+        checkId,
+        requiresChecks: []
+      })),
       selectedCheckIds: ["file-metrics"],
       resolveApplicability: (definition) => {
         applicabilityCalls.push(definition.checkId);
@@ -117,37 +169,57 @@ describe("check-record catalog resolution", () => {
   it("fails pre-work for invalid catalogs bindings selections and applicability without executing bindings", () => {
     const calls: string[] = [];
     const validBindings = [binding("file-metrics", calls), binding("function-metrics", calls)];
-    const cases: readonly Readonly<{
-      definitions?: unknown;
-      bindings?: unknown;
-      selectedCheckIds?: unknown;
-      applicability?: unknown;
-      stage: string;
-    }>[] = [
-      { definitions: [{ ...fileDefinition, backend: "scc" }], stage: "catalog" },
-      { definitions: [fileDefinition, fileDefinition], stage: "catalog" },
-      { definitions: [{ ...fileDefinition, checkId: "Not Valid" }], stage: "catalog" },
-      { bindings: [validBindings[0]], stage: "bindings" },
-      { bindings: [...validBindings, binding("duplicate-detection", calls)], stage: "bindings" },
-      { bindings: [validBindings[0], validBindings[0]], stage: "bindings" },
-      { bindings: [{ checkId: "file-metrics", execute: "not-a-function" }, validBindings[1]], stage: "bindings" },
-      { selectedCheckIds: ["unknown-check"], stage: "selection" },
-      { selectedCheckIds: ["file-metrics", "file-metrics"], stage: "selection" },
-      { applicability: { status: "applicable", workHandles: ["not-opaque"] }, stage: "applicability" }
-    ];
+    for (const fixture of invalidCatalogFixtures(validBindings, calls)) {
+      assertCatalogFailure(fixture, validBindings);
+    }
+    assert.deepEqual(calls, []);
+  });
 
-    for (const fixture of cases) {
-      const resolved = resolveCheckCatalog({
-        invocationKey: "invalid-fixture",
-        definitions: fixture.definitions ?? [fileDefinition, functionDefinition],
-        bindings: fixture.bindings ?? validBindings,
-        selectedCheckIds: fixture.selectedCheckIds ?? ["file-metrics"],
-        resolveApplicability: () => fixture.applicability ?? { status: "not-applicable" }
-      });
-      assert.deepEqual(resolved, {
-        ok: false,
-        error: { kind: "catalog-resolution-failed", stage: fixture.stage }
-      });
+  it("closes requiresChecks before applicability and rejects invalid schedules with zero execution", () => {
+    const calls: string[] = [];
+    const applicabilityCalls: string[] = [];
+    const resolved = resolveCheckCatalog({
+      invocationKey: "schedule-fixture",
+      definitions: [fileDefinition, functionDefinition],
+      bindings: [binding("file-metrics", calls), binding("function-metrics", calls)],
+      schedules: [{ checkId: "file-metrics", requiresChecks: [] }, {
+        checkId: "function-metrics", requiresChecks: ["file-metrics"]
+      }],
+      selectedCheckIds: ["function-metrics"],
+      resolveApplicability: ({ checkId }) => {
+        applicabilityCalls.push(checkId);
+        return checkId === "file-metrics"
+          ? { status: "not-applicable" }
+          : { status: "applicable", workHandles: [] };
+      }
+    });
+    assert.equal(resolved.ok, true);
+    if (!resolved.ok) throw new Error("Expected schedule closure");
+    assert.deepEqual(resolved.value.checks.map((check) => ({
+      checkId: check.definition.checkId,
+      selection: check.selection,
+      requiresChecks: check.requiresChecks
+    })), [{ checkId: "file-metrics", selection: "selected", requiresChecks: [] },
+      { checkId: "function-metrics", selection: "selected", requiresChecks: ["file-metrics"] }]);
+    assert.deepEqual(applicabilityCalls, ["file-metrics", "function-metrics"]);
+
+    const schedules: readonly unknown[] = [
+      [{ checkId: "file-metrics", requiresChecks: ["file-metrics"] },
+        { checkId: "function-metrics", requiresChecks: [] }],
+      [{ checkId: "file-metrics", requiresChecks: ["unknown-check"] },
+        { checkId: "function-metrics", requiresChecks: [] }],
+      [{ checkId: "file-metrics", requiresChecks: ["function-metrics"] },
+        { checkId: "function-metrics", requiresChecks: ["file-metrics"] }]
+    ];
+    for (const schedule of schedules) {
+      assert.deepEqual(resolveCheckCatalog({
+        invocationKey: "invalid-schedule",
+        definitions: [fileDefinition, functionDefinition],
+        bindings: [binding("file-metrics", calls), binding("function-metrics", calls)],
+        schedules: schedule,
+        selectedCheckIds: ["file-metrics"],
+        resolveApplicability: () => { throw new Error("must not resolve"); }
+      }), { ok: false, error: { kind: "catalog-resolution-failed", stage: "schedule" } });
     }
     assert.deepEqual(calls, []);
   });

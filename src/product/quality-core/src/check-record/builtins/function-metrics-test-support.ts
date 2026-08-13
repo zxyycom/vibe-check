@@ -46,6 +46,7 @@ export function resolveFunctionMetricsTestCatalog(
     invocationKey: "function-metrics-test",
     definitions: [FUNCTION_METRICS_CHECK_DEFINITION],
     bindings: [{ checkId: "function-metrics", execute: binding }],
+    schedules: [{ checkId: "function-metrics", requiresChecks: [] }],
     selectedCheckIds: ["function-metrics"],
     resolveApplicability: () => resolveFunctionMetricsApplicability(approvedExactPaths)
   });

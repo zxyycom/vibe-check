@@ -1,4 +1,4 @@
-import type { NormalizedTask, TaskDefinition } from "../../tools/parallel-task-runner/src/index.ts";
+import type { NormalizedTask, TaskDefinition } from "../../../src/product/task-orchestration/src/index.ts";
 
 export const PROFILE_REQUIRED = "required";
 export const PROFILE_FULL = "full";

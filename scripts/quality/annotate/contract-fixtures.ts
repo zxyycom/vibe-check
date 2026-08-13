@@ -15,6 +15,9 @@ import {
   serializeMachinePublicationV2
 } from "../../../src/product/quality-core/src/output/publication-v2/index.ts";
 
+const ANNOTATION_FIXTURE_WORK_HANDLE = "work-handle/v1:annotation-consumer";
+const ANNOTATION_FIXTURE_SCHEDULER_POLICY = Object.freeze({ maxParallel: 4 });
+
 export interface FixtureRecord {
   readonly level: "error" | "info" | "warning";
   readonly message: string;
@@ -44,9 +47,9 @@ export async function writeCanonicalPublicationFixture(
         location: { path: `src/fixture-${index + 1}.ts`, line: index + 1, column: 1 }
       });
     }
-    if (records.length > 0) ports.acknowledge(ports.workHandles[0]!);
+    if (records.length > 0) ports.acknowledge(ANNOTATION_FIXTURE_WORK_HANDLE);
     return records.length === 0 ? { verdict: "not-applicable" } : { verdict: "failed" };
-  }, records.length > 0));
+  }, records.length > 0), { schedulerPolicy: ANNOTATION_FIXTURE_SCHEDULER_POLICY });
   const decision: DecisionEvidence = {
     policyId: null,
     acceptance: [],
@@ -84,9 +87,10 @@ function catalogFor(
     invocationKey: `annotation-consumer-${applicable}`,
     definitions: [definition],
     bindings: [{ checkId: definition.checkId, execute }],
+    schedules: [{ checkId: definition.checkId, requiresChecks: [] }],
     selectedCheckIds: [definition.checkId],
     resolveApplicability: () => applicable
-      ? { status: "applicable", workHandles: ["work-handle/v1:annotation-consumer"] }
+      ? { status: "applicable", workHandles: [ANNOTATION_FIXTURE_WORK_HANDLE] }
       : { status: "not-applicable" }
   });
   if (!catalog.ok) throw new Error("Expected valid annotation publication fixture catalog");

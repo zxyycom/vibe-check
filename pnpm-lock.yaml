@@ -68,8 +68,6 @@ importers:
 
   scripts/tools/foundation: {}
 
-  scripts/tools/parallel-task-runner: {}
-
 packages:
 
   '@ast-grep/cli-darwin-arm64@0.45.0':

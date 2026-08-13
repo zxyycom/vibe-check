@@ -65,6 +65,7 @@ export function resolveDuplicateTestCatalog(
     invocationKey: "duplicate-detection-test",
     definitions: [DUPLICATE_DETECTION_CHECK_DEFINITION],
     bindings: [{ checkId: "duplicate-detection", execute: binding }],
+    schedules: [{ checkId: "duplicate-detection", requiresChecks: [] }],
     selectedCheckIds: ["duplicate-detection"],
     resolveApplicability: () => resolveDuplicateDetectionApplicability(input.areas)
   });

@@ -14,6 +14,7 @@ import {
 } from "./builtins/function-metrics.ts";
 import { resolveCheckCatalog } from "./catalog.ts";
 import { coordinateCheckRecords } from "./coordinator.ts";
+import type { SchedulerPolicy } from "./task-orchestrator.ts";
 import {
   resolveCurrentObservation,
   resolveCurrentPolicy,
@@ -61,6 +62,8 @@ const CURRENT_CHECK_DEFINITIONS = Object.freeze([
   FUNCTION_METRICS_CHECK_DEFINITION
 ]);
 
+const CURRENT_CHECK_SCHEDULER_POLICY: SchedulerPolicy = Object.freeze({ maxParallel: 4 });
+
 type CurrentCompositionInput = Readonly<{
   baseline: CurrentCompositionReferenceInputs | null;
   changedFiles: readonly string[];
@@ -82,7 +85,9 @@ export async function composeCurrentCheckRecords(
   const runtimes = createCurrentRuntimes(input, reference);
   const catalog = resolveCurrentCatalog(input, runtimes);
   const { observation, policy } = resolveCurrentPolicies(input, catalog, reference);
-  const snapshot = await coordinateCheckRecords(catalog);
+  const snapshot = await coordinateCheckRecords(catalog, {
+    schedulerPolicy: CURRENT_CHECK_SCHEDULER_POLICY
+  });
   const referenceFacts = resolveReferenceFacts(input, reference, runtimes, snapshot, policy);
   const gateDecision = evaluateDecisionPolicy(policy, snapshot, referenceFacts);
   const decision = gateDecision.gate.status === "disabled"
@@ -110,6 +115,10 @@ function resolveCurrentCatalog(input: CurrentCompositionInput, runtimes: Current
       checkId: "function-metrics",
       execute: runtimes.functionMetrics.binding
     }],
+    schedules: CURRENT_CHECK_DEFINITIONS.map(({ checkId }) => ({
+      checkId,
+      requiresChecks: []
+    })),
     selectedCheckIds: input.selectedCheckIds,
     resolveApplicability: (definition) => {
       if (definition.checkId === "duplicate-detection") {

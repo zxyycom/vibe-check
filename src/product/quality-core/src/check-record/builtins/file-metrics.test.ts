@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { coordinateCheckRecords } from "../coordinator.ts";
+import { coordinateCheckRecordsWithTestPolicy } from "../coordinator-test-support.ts";
 import { createRecordId } from "../identity.ts";
 import { evaluateDecisionPolicy } from "../policy-evaluator.ts";
 import {
@@ -43,7 +43,7 @@ describe("file-metrics built-in Check", () => {
       });
       const catalog = resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"]);
 
-      const snapshot = await coordinateCheckRecords(catalog);
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(catalog);
       assertExpectedFileWarning(snapshot);
 
       const policy = validatePolicyResolution(fileRegressionPolicy(), catalog);
@@ -103,7 +103,7 @@ describe("file-metrics built-in Check", () => {
       });
       changedFiles.splice(0, changedFiles.length, "src/b.ts");
 
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts", "src/b.ts"])
       );
       const facts = runtime.referenceFacts(snapshot);
@@ -131,7 +131,7 @@ describe("file-metrics built-in Check", () => {
           reference: null,
           semantics: fileMetricsSemantics
         });
-        const snapshot = await coordinateCheckRecords(
+        const snapshot = await coordinateCheckRecordsWithTestPolicy(
           resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"])
         );
         assert.equal(snapshot.runs[0]?.status, "failed");
@@ -161,12 +161,9 @@ describe("file-metrics built-in Check", () => {
         reference: null,
         semantics: fileMetricsSemantics
       });
-      const snapshot = await coordinateCheckRecords(
-        resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"]),
-        {
-          coordinate: async ([contribution]) => {
-            if (contribution === undefined) throw new Error("Expected contribution");
-            assert.equal(contribution.ports.submitRecord({
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
+        resolveFileMetricsTestCatalog(async (ports) => {
+          assert.equal(ports.submitRecord({
               recordTypeId: "file-code-lines",
               level: "warning",
               semanticSubject: "src/prior.ts",
@@ -178,16 +175,9 @@ describe("file-metrics built-in Check", () => {
                 value: 350
               },
               location: { path: "src/prior.ts", line: 1, column: 1 }
-            }), "committed");
-            const result = await contribution.execute(contribution.ports);
-            return [{
-              checkId: contribution.checkId,
-              checkRunId: contribution.checkRunId,
-              status: "returned",
-              result
-            }];
-          }
-        }
+          }), "committed");
+          return runtime.binding(ports);
+        }, ["src/a.ts"])
       );
 
       assert.equal(snapshot.runs[0]?.status, "failed");
@@ -218,7 +208,7 @@ describe("file-metrics built-in Check", () => {
         semantics: fileMetricsSemantics
       });
       const catalog = resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"]);
-      const snapshot = await coordinateCheckRecords(catalog);
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(catalog);
       const policy = validatePolicyResolution(fileRegressionPolicy(), catalog);
       assert.equal(policy.ok, true);
       if (!policy.ok) throw new Error("Expected policy to resolve");
@@ -261,7 +251,7 @@ describe("file-metrics built-in Check", () => {
         reference: null,
         semantics: fileMetricsSemantics
       });
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"])
       );
       const record = snapshot.records[0]!;

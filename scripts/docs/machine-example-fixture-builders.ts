@@ -106,6 +106,7 @@ function createCatalog(
     invocationKey: `docs-${outcome}`,
     definitions: [definition],
     bindings: [{ checkId: definition.checkId, execute: () => ({ verdict: "passed" }) }],
+    schedules: [{ checkId: definition.checkId, requiresChecks: [] }],
     selectedCheckIds: [definition.checkId],
     resolveApplicability: () => state === "empty"
       ? { status: "not-applicable" }

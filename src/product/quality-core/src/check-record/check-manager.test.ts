@@ -32,17 +32,13 @@ function catalog(input: Readonly<{
       checkId,
       execute: () => ({ verdict: "passed" })
     })),
+    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
     selectedCheckIds: input.selected,
-    resolveApplicability: ({ checkId }) => {
-      const applicability = input.applicability[checkId];
-      return applicability === "not-applicable"
-        ? { status: "not-applicable" }
-        : { status: "applicable", workHandles: applicability };
-    }
+    resolveApplicability: ({ checkId }) => input.applicability[checkId] === "not-applicable"
+      ? { status: "not-applicable" }
+      : { status: "applicable", workHandles: input.applicability[checkId] }
   });
-  if (!resolved.ok) {
-    throw new Error(`Unexpected ${resolved.error.stage} fixture failure`);
-  }
+  if (!resolved.ok) throw new Error(`Unexpected ${resolved.error.stage} fixture failure`);
   return resolved.value;
 }
 
@@ -61,12 +57,13 @@ describe("check-record CheckManager", () => {
     });
     const applicable = applicableRun(catalogValue, "applicable-check");
     const manager = new CheckManager(catalogValue);
-    const runs = manager.finalize([{
+    assert.deepEqual(manager.settleRun({
       checkId: applicable.definition.checkId,
       checkRunId: applicable.checkRunId,
-      status: "returned",
-      result: { verdict: "failed" }
-    }]);
+      report: { status: "returned", result: { verdict: "failed" } },
+      hasRecordFailure: false
+    }), { availability: "available" });
+    const runs = manager.finalize();
 
     assert.deepEqual(runs.map((run) => ({
       checkId: run.checkId,
@@ -76,31 +73,21 @@ describe("check-record CheckManager", () => {
       result: run.result,
       coverage: run.coverage
     })), [{
-      checkId: "applicable-check",
-      selection: "selected",
-      applicability: "applicable",
-      status: "completed",
-      result: { verdict: "failed" },
+      checkId: "applicable-check", selection: "selected", applicability: "applicable",
+      status: "completed", result: { verdict: "failed" },
       coverage: { plannedWorkCount: 0, acknowledgedWorkCount: 0 }
     }, {
-      checkId: "not-applicable-check",
-      selection: "selected",
-      applicability: "not-applicable",
-      status: "completed",
-      result: { verdict: "not-applicable" },
+      checkId: "not-applicable-check", selection: "selected", applicability: "not-applicable",
+      status: "completed", result: { verdict: "not-applicable" },
       coverage: { plannedWorkCount: 0, acknowledgedWorkCount: 0 }
     }, {
-      checkId: "skipped-check",
-      selection: "unselected",
-      applicability: null,
-      status: "skipped",
-      result: null,
-      coverage: null
+      checkId: "skipped-check", selection: "unselected", applicability: null,
+      status: "skipped", result: null, coverage: null
     }]);
-    assert.throws(() => manager.finalize([]), /already finalized/);
+    assert.throws(() => manager.finalize(), /already finalized/);
   });
 
-  it("derives coverage only from owned handles and treats duplicate acknowledgements idempotently", () => {
+  it("freezes acknowledgement facts at settlement and rejects retained ports without changing them", () => {
     const catalogValue = catalog({
       selected: ["alpha-check", "beta-check"],
       applicability: {
@@ -113,123 +100,92 @@ describe("check-record CheckManager", () => {
     const manager = new CheckManager(catalogValue);
     const acknowledgeAlpha = manager.createAcknowledgementPort(alpha.definition.checkId, alpha.checkRunId);
     const acknowledgeBeta = manager.createAcknowledgementPort(beta.definition.checkId, beta.checkRunId);
-
     assert.equal(acknowledgeAlpha("work-handle/v1:alpha"), "accepted");
     assert.equal(acknowledgeAlpha("work-handle/v1:alpha"), "duplicate");
-    assert.equal(acknowledgeAlpha("work-handle/v1:beta"), "rejected");
-    assert.equal(acknowledgeAlpha("https://user:secret@example.test/private"), "rejected");
-    manager.closeRun(alpha.definition.checkId, alpha.checkRunId);
+    assert.deepEqual(manager.settleRun({
+      checkId: alpha.definition.checkId,
+      checkRunId: alpha.checkRunId,
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: false
+    }), { availability: "available" });
     assert.equal(acknowledgeAlpha("work-handle/v1:alpha"), "rejected");
     assert.equal(acknowledgeBeta("work-handle/v1:beta"), "accepted");
-
-    const runs = manager.finalize([alpha, beta].map((check) => ({
-      checkId: check.definition.checkId,
-      checkRunId: check.checkRunId,
-      status: "returned",
-      result: { verdict: "passed" }
-    })));
-    assert.deepEqual(runs.map((run) => ({
-      checkId: run.checkId,
-      status: run.status,
-      coverage: run.coverage,
-      diagnostic: run.diagnostic
-    })), [{
-      checkId: "alpha-check",
-      status: "failed",
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-      diagnostic: { category: "ack-protocol", tieBreakKey: "work-handle/v1:alpha" }
-    }, {
-      checkId: "beta-check",
-      status: "completed",
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-      diagnostic: null
-    }, {
-      checkId: "skipped-check",
-      status: "skipped",
-      coverage: null,
-      diagnostic: null
-    }]);
-    assert.equal(JSON.stringify(runs).includes("secret"), false);
+    manager.settleRun({
+      checkId: beta.definition.checkId,
+      checkRunId: beta.checkRunId,
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: false
+    });
+    assert.deepEqual(manager.finalize().map((run) => run.status), ["completed", "completed", "skipped"]);
   });
 
-  it("fails closed on terminal report and result violations with canonical diagnostic precedence", () => {
+  it("makes availability exactly match final completed status under result ack and record failures", () => {
     const recordConflict: RunDiagnostic = {
       category: "record-conflict",
       tieBreakKey: "check-record/v1/record/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     };
-    const fixtures: readonly Readonly<{
-      reports: (check: ReturnType<typeof applicableRun>) => readonly unknown[];
-      diagnostics?: readonly RunDiagnostic[];
-      expectedCategory: string;
-    }>[] = [
-      { reports: () => [], expectedCategory: "terminal-report-set" },
-      {
-        reports: (check) => [{
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "returned",
-          result: { verdict: "passed" }
-        }, {
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "returned",
-          result: { verdict: "passed" }
-        }],
-        expectedCategory: "terminal-report-set"
-      },
-      {
-        reports: (check) => [{
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "returned",
-          result: { verdict: "not-applicable" }
-        }],
-        expectedCategory: "invalid-result"
-      },
-      {
-        reports: (check) => [{
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "unavailable",
-          dependencyId: "scanner"
-        }],
-        expectedCategory: "unavailable"
-      },
-      {
-        reports: (check) => [{
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "execution-failed",
-          executionId: "execution/v1:runner-check"
-        }],
-        expectedCategory: "execution-failed"
-      },
-      {
-        reports: (check) => [{
-          checkId: check.definition.checkId,
-          checkRunId: check.checkRunId,
-          status: "returned",
-          result: { verdict: "not-applicable" }
-        }],
-        diagnostics: [recordConflict],
-        expectedCategory: "record-conflict"
-      }
-    ];
+    const fixtures = [{
+      report: { status: "returned", result: { verdict: "not-applicable" } },
+      hasRecordFailure: false,
+      diagnostics: [] as RunDiagnostic[],
+      category: "invalid-result"
+    }, {
+      report: { status: "unavailable", dependencyId: "scanner" },
+      hasRecordFailure: false,
+      diagnostics: [] as RunDiagnostic[],
+      category: "unavailable"
+    }, {
+      report: { status: "execution-failed", executionId: "execution/v1:runner-check" },
+      hasRecordFailure: false,
+      diagnostics: [] as RunDiagnostic[],
+      category: "execution-failed"
+    }, {
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: true,
+      diagnostics: [recordConflict],
+      category: "record-conflict"
+    }] as const;
 
     for (const fixture of fixtures) {
-      const catalogValue = catalog({
-        selected: ["runner-check"],
-        applicability: { "runner-check": [] }
-      });
+      const catalogValue = catalog({ selected: ["runner-check"], applicability: { "runner-check": [] } });
       const check = applicableRun(catalogValue, "runner-check");
       const manager = new CheckManager(catalogValue);
-      const runs = manager.finalize(fixture.reports(check), new Map([
-        ["runner-check", fixture.diagnostics ?? []]
-      ]));
-      const run = runs.find((candidate) => candidate.checkId === "runner-check")!;
+      assert.deepEqual(manager.settleRun({
+        checkId: check.definition.checkId,
+        checkRunId: check.checkRunId,
+        report: fixture.report,
+        hasRecordFailure: fixture.hasRecordFailure
+      }), { availability: "unavailable" });
+      const run = manager.finalize(new Map([["runner-check", fixture.diagnostics]]))[0]!;
       assert.equal(run.status, "failed");
-      assert.equal(run.result, null);
-      assert.equal(run.diagnostic?.category, fixture.expectedCategory);
+      assert.equal(run.diagnostic?.category, fixture.category);
     }
+  });
+
+  it("treats duplicate unknown and missing settlement as trusted invariant failures", () => {
+    const catalogValue = catalog({ selected: ["runner-check"], applicability: { "runner-check": [] } });
+    const check = applicableRun(catalogValue, "runner-check");
+    const manager = new CheckManager(catalogValue);
+    assert.throws(() => manager.settleRun({
+      checkId: "unknown-check",
+      checkRunId: check.checkRunId,
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: false
+    }), /one unsettled applicable owned run/);
+    assert.throws(() => manager.finalize(), /before every applicable run settles/);
+
+    const duplicateManager = new CheckManager(catalogValue);
+    duplicateManager.settleRun({
+      checkId: check.definition.checkId,
+      checkRunId: check.checkRunId,
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: false
+    });
+    assert.throws(() => duplicateManager.settleRun({
+      checkId: check.definition.checkId,
+      checkRunId: check.checkRunId,
+      report: { status: "returned", result: { verdict: "passed" } },
+      hasRecordFailure: false
+    }), /one unsettled applicable owned run/);
   });
 });

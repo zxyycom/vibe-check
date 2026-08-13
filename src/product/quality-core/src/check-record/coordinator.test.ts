@@ -8,8 +8,8 @@ import {
   type ResolvedCheckCatalog
 } from "./catalog.ts";
 import {
-  coordinateCheckRecords
-} from "./coordinator.ts";
+  coordinateCheckRecordsWithTestPolicy
+} from "./coordinator-test-support.ts";
 
 function definition(checkId: string) {
   return {
@@ -35,6 +35,7 @@ function resolveFixture(input: Readonly<{
     invocationKey: input.invocationKey ?? "coordinator-fixture",
     definitions,
     bindings: definitions.map(({ checkId }) => ({ checkId, execute: input.bindings[checkId]! })),
+    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
     selectedCheckIds: input.selected ?? input.checkIds,
     resolveApplicability: ({ checkId }) => input.work?.[checkId] === "not-applicable"
       ? { status: "not-applicable" }
@@ -94,7 +95,7 @@ describe("check-record contribution coordinator", () => {
           "not-applicable-check": "not-applicable"
         }
       });
-      return { snapshot: await coordinateCheckRecords(catalogValue), calls };
+      return { snapshot: await coordinateCheckRecordsWithTestPolicy(catalogValue), calls };
     }
 
     const first = await snapshot({ "file-metrics": 10, "function-metrics": 0 });
@@ -148,7 +149,7 @@ describe("check-record contribution coordinator", () => {
         "unavailable-check": () => ({ status: "unavailable", dependencyId: "scanner" })
       }
     });
-    const snapshot = await coordinateCheckRecords(catalogValue);
+    const snapshot = await coordinateCheckRecordsWithTestPolicy(catalogValue);
     const facts = Object.fromEntries(snapshot.runs.map((run) => [run.checkId, {
       status: run.status,
       result: run.result,
@@ -195,7 +196,7 @@ describe("check-record contribution coordinator", () => {
         "fast-check": ["work-handle/v1:fast", "work-handle/v1:late"]
       }
     });
-    const parallelSnapshotPromise = coordinateCheckRecords(parallelCatalog);
+    const parallelSnapshotPromise = coordinateCheckRecordsWithTestPolicy(parallelCatalog);
     await fastRunnerReturned;
     await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -225,59 +226,36 @@ describe("check-record contribution coordinator", () => {
       checkId: "fast-check",
       status: "failed",
       coverage: { plannedWorkCount: 2, acknowledgedWorkCount: 1 },
-      diagnostic: "invalid-record"
+      diagnostic: "ack-protocol"
     }]);
-    assert.equal(parallelSnapshot.integrity.status, "invalid");
-    assert.equal(parallelSnapshot.integrity.invalidRecords.length, 1);
+    assert.equal(parallelSnapshot.integrity.status, "valid");
+    assert.equal(parallelSnapshot.integrity.invalidRecords.length, 0);
   });
 
-  it("validates the complete frozen report batch and preserves records under ranked combined failures", async () => {
+  it("preserves records under ranked combined failures", async () => {
     const catalogValue = resolveFixture({
       checkIds: ["alpha-check", "beta-check"],
       bindings: {
-        "alpha-check": () => ({ verdict: "passed" }),
-        "beta-check": () => ({ verdict: "passed" })
+        "alpha-check": (ports) => {
+          assert.equal(Object.isFrozen(ports), true);
+          ports.submitRecord(finding("retained-alpha"));
+          ports.submitRecord(finding("conflict", "first body"));
+          ports.submitRecord(finding("conflict", "second body"));
+          ports.submitRecord({ ...finding("invalid"), fields: { kind: Number.NaN } } as never);
+          ports.acknowledge("work-handle/v1:unknown");
+          return { verdict: "not-applicable" };
+        },
+        "beta-check": (ports) => {
+          ports.submitRecord(finding("retained-beta"));
+          return { verdict: "passed" };
+        }
       },
       work: {
         "alpha-check": ["work-handle/v1:alpha"],
         "beta-check": ["work-handle/v1:beta"]
       }
     });
-    const snapshot = await coordinateCheckRecords(catalogValue, {
-      coordinate: (contributions) => {
-        assert.equal(Object.isFrozen(contributions), true);
-        assert.equal(contributions.every((contribution) => Object.isFrozen(contribution)), true);
-        assert.deepEqual(contributions.map((contribution) => contribution.checkId), [
-          "alpha-check",
-          "beta-check"
-        ]);
-        const alpha = contributions[0]!;
-        const beta = contributions[1]!;
-        alpha.ports.submitRecord(finding("retained-alpha"));
-        alpha.ports.submitRecord(finding("conflict", "first body"));
-        alpha.ports.submitRecord(finding("conflict", "second body"));
-        alpha.ports.submitRecord({ ...finding("invalid"), fields: { kind: Number.NaN } } as never);
-        alpha.ports.acknowledge("work-handle/v1:unknown");
-        beta.ports.submitRecord(finding("retained-beta"));
-
-        const alphaReport = {
-          checkId: alpha.checkId,
-          checkRunId: alpha.checkRunId,
-          status: "returned",
-          result: { verdict: "not-applicable" }
-        };
-        return [
-          alphaReport,
-          alphaReport,
-          {
-            checkId: "https://user:secret-token@example.test/private",
-            checkRunId: "unknown",
-            status: "returned",
-            result: { verdict: "passed" }
-          }
-        ];
-      }
-    });
+    const snapshot = await coordinateCheckRecordsWithTestPolicy(catalogValue);
 
     assert.deepEqual(snapshot.runs.map((run) => ({
       checkId: run.checkId,

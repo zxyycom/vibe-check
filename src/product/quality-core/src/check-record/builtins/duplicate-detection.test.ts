@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { coordinateCheckRecords } from "../coordinator.ts";
+import { coordinateCheckRecordsWithTestPolicy } from "../coordinator-test-support.ts";
 import {
   DUPLICATE_DETECTION_CHECK_DEFINITION,
   createDuplicateDetectionBinding
@@ -32,7 +32,7 @@ describe("duplicate-detection built-in Check", () => {
     });
     try {
       const runtime = createRuntime(fixture, currentInput(fixture), referenceInput(fixture));
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, currentInput(fixture))
       );
 
@@ -88,7 +88,7 @@ describe("duplicate-detection built-in Check", () => {
         changedFiles
       );
       changedFiles.splice(0, changedFiles.length, "test/not-current.ts");
-      const snapshot = await coordinateCheckRecords(
+      const snapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(runtime.binding, currentInput(fixture))
       );
 
@@ -100,7 +100,7 @@ describe("duplicate-detection built-in Check", () => {
       );
 
       const movedRuntime = createRuntime(movedFixture, currentInput(movedFixture), null, []);
-      const movedSnapshot = await coordinateCheckRecords(
+      const movedSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(movedRuntime.binding, currentInput(movedFixture))
       );
       assert.deepEqual(
@@ -117,10 +117,10 @@ describe("duplicate-detection built-in Check", () => {
     const fixtures = createDuplicateOutcomeFixtures();
     try {
       const zeroRuntime = createRuntime(fixtures.zero, currentInput(fixtures.zero), null);
-      const zeroSnapshot = await coordinateCheckRecords(
+      const zeroSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(zeroRuntime.binding, currentInput(fixtures.zero))
       );
-      const noInputSnapshot = await coordinateCheckRecords(
+      const noInputSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(zeroRuntime.binding, emptyInput(fixtures.zero))
       );
       assert.deepEqual(zeroSnapshot.runs[0]?.result, { verdict: "passed" });
@@ -128,7 +128,7 @@ describe("duplicate-detection built-in Check", () => {
 
       for (const { expectedCategory, fixture } of fixtures.failures) {
         const runtime = createRuntime(fixture, currentInput(fixture), null);
-        const snapshot = await coordinateCheckRecords(
+        const snapshot = await coordinateCheckRecordsWithTestPolicy(
           resolveRuntimeCatalog(runtime.binding, currentInput(fixture))
         );
         assert.equal(snapshot.runs[0]?.status, "failed");
@@ -136,7 +136,7 @@ describe("duplicate-detection built-in Check", () => {
         assert.deepEqual(snapshot.records, []);
       }
 
-      const unavailableSnapshot = await coordinateCheckRecords(
+      const unavailableSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(fixtures.unavailable.runtime.binding, fixtures.unavailable.input)
       );
       assert.equal(unavailableSnapshot.runs[0]?.diagnostic?.category, "unavailable");
@@ -154,7 +154,7 @@ describe("duplicate-detection built-in Check", () => {
     try {
       for (let index = 0; index < 2; index += 1) {
         const runtime = createRuntime(fixture, currentInput(fixture), null);
-        await coordinateCheckRecords(resolveRuntimeCatalog(runtime.binding, currentInput(fixture)));
+        await coordinateCheckRecordsWithTestPolicy(resolveRuntimeCatalog(runtime.binding, currentInput(fixture)));
       }
       assert.equal(scanInvocationCount(fixture.capturePath), 1, "second run must use cache");
 
@@ -169,7 +169,7 @@ describe("duplicate-detection built-in Check", () => {
       writeFileSync(cachePath, `${JSON.stringify(cached)}\n`, "utf8");
 
       const revalidating = createRuntime(fixture, currentInput(fixture), null);
-      await coordinateCheckRecords(
+      await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(revalidating.binding, currentInput(fixture))
       );
       assert.equal(scanInvocationCount(fixture.capturePath), 2, "out-of-scope cache must rescan");
@@ -185,7 +185,7 @@ describe("duplicate-detection built-in Check", () => {
         reference: null,
         semantics
       });
-      await coordinateCheckRecords(resolveRuntimeCatalog(alternate.binding, currentInput(fixture)));
+      await coordinateCheckRecordsWithTestPolicy(resolveRuntimeCatalog(alternate.binding, currentInput(fixture)));
       assert.equal(scanInvocationCount(fixture.capturePath), 3, "backend args must change cache identity");
     } finally {
       fixture.cleanup();
@@ -211,12 +211,9 @@ describe("duplicate-detection built-in Check", () => {
     } as const;
     try {
       const failing = createRuntime(fixture, twoAreaInput, null);
-      const retained = await coordinateCheckRecords(
-        resolveRuntimeCatalog(failing.binding, twoAreaInput),
-        {
-          coordinate: async ([contribution]) => {
-            if (contribution === undefined) throw new Error("Expected contribution");
-            assert.equal(contribution.ports.submitRecord({
+      const retained = await coordinateCheckRecordsWithTestPolicy(
+        resolveRuntimeCatalog(async (ports) => {
+          assert.equal(ports.submitRecord({
               recordTypeId: "duplicate-code",
               level: "warning",
               semanticSubject: "duplicate:{\"lineCount\":1,\"paths\":[\"prior/a.ts\",\"prior/b.ts\"],\"tokenCount\":1}",
@@ -230,16 +227,9 @@ describe("duplicate-detection built-in Check", () => {
                 value: 1
               },
               location: { path: "prior/a.ts", line: 1, column: 1 }
-            }), "committed");
-            const result = await contribution.execute(contribution.ports);
-            return [{
-              checkId: contribution.checkId,
-              checkRunId: contribution.checkRunId,
-              status: "returned",
-              result
-            }];
-          }
-        }
+          }), "committed");
+          return failing.binding(ports);
+        }, twoAreaInput)
       );
       assert.equal(retained.runs[0]?.diagnostic?.category, "invalid-result");
       assert.deepEqual(retained.records.map(({ message }) => message), ["Prior committed duplicate"]);
@@ -249,7 +239,7 @@ describe("duplicate-detection built-in Check", () => {
         currentInput(fixture),
         referenceInput(fixture)
       );
-      const currentSnapshot = await coordinateCheckRecords(
+      const currentSnapshot = await coordinateCheckRecordsWithTestPolicy(
         resolveRuntimeCatalog(referenceRuntime.binding, currentInput(fixture))
       );
       assert.equal(currentSnapshot.runs[0]?.status, "completed");

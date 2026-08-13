@@ -4,7 +4,7 @@ import {
   resolveCheckCatalog,
   type CheckExecutionBinding
 } from "../../check-record/catalog.ts";
-import { coordinateCheckRecords } from "../../check-record/coordinator.ts";
+import { coordinateCheckRecordsWithTestPolicy } from "../../check-record/coordinator-test-support.ts";
 import { projectHumanStatus } from "../../check-record/human-status.ts";
 import type { CheckDefinition, FinalCoreSnapshot } from "../../check-record/model.ts";
 import type {
@@ -147,7 +147,7 @@ export async function noPolicyPublicationInput() {
       identityFields: []
     }]
   };
-  const snapshot = await coordinateCheckRecords(catalogFor(
+  const snapshot = await coordinateCheckRecordsWithTestPolicy(catalogFor(
     noPolicyDefinition,
     () => ({ verdict: "passed" }),
     true
@@ -204,7 +204,7 @@ async function snapshotWithRecord(): Promise<FinalCoreSnapshot> {
 }
 
 async function snapshotWithRecords(paths: readonly string[]): Promise<FinalCoreSnapshot> {
-  return coordinateCheckRecords(catalog(async (ports) => {
+  return coordinateCheckRecordsWithTestPolicy(catalog(async (ports) => {
     for (const [index, path] of paths.entries()) {
       ports.submitRecord({
         recordTypeId: "publication-record",
@@ -221,7 +221,7 @@ async function snapshotWithRecords(paths: readonly string[]): Promise<FinalCoreS
 }
 
 async function snapshotWithoutRecords(): Promise<FinalCoreSnapshot> {
-  return coordinateCheckRecords(catalog(() => ({ verdict: "not-applicable" }), false));
+  return coordinateCheckRecordsWithTestPolicy(catalog(() => ({ verdict: "not-applicable" }), false));
 }
 
 function catalog(execute: CheckExecutionBinding, applicable: boolean) {
@@ -238,6 +238,7 @@ function catalogFor(
     invocationKey: `publication-${applicable}`,
     definitions: [checkDefinition],
     bindings: [{ checkId: checkDefinition.checkId, execute }],
+    schedules: [{ checkId: checkDefinition.checkId, requiresChecks: [] }],
     selectedCheckIds: [checkDefinition.checkId],
     resolveApplicability: () => applicable
       ? { status: "applicable", workHandles: ["work-handle/v1:publication-check"] }
