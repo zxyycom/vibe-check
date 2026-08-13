@@ -1,88 +1,146 @@
 # Design
 
-本设计把 Task orchestration 实现为 private `CheckExecutionBinding`/coordinator adapter；foundation 继续独占公共 Check/Record 模型、受控 ports、terminal reports 和 finalization。
+本设计以“机械迁移现有 runner，再增加 Check adapter”为唯一主线：通用调度语义只有一个实现 owner，Product-specific planning、failure containment 和 foundation lifecycle 留在边缘层。
 
 ## Context
 
-本 Change 的 implementation 依赖 `establish-check-record-core` 已建立并同步以下 seam：serializable `CheckDefinition` 与 private `CheckExecutionBinding` 分离；selection/applicability freeze；opaque domain-work handles；bound record sink 和 incremental ack port；完整 contribution batch 与 closed terminal report set；CheckManager/RecordManager finalization。依赖是实施顺序，不阻止本计划先被确认。
+`scripts/tools/parallel-task-runner` 当前是 revision `025af7350e2d624eeded23784f411bec5f4a1473` 的 gitlink。它已经通过自身 tests 证明 task normalization、nested group expansion、父组 `type` / `mutex` / `dependsOn` / `env` / `envFile` 继承、group dependency 到全部 descendant leaves 的展开、unknown/duplicate dependency validation、explicit concurrency、mutex exclusion，以及 `run + onComplete` 都 resolve 后才完成 dependency。Resolved result 对 scheduler opaque。
 
-活动未对齐决策 `use-static-check-task-plans-with-shared-scheduling` 已确认静态计划、invocation shared scheduler 和 Task 私有身份方向。`src/product/**` 仍是唯一 Product runtime owner；`scripts/tools/parallel-task-runner` 是开发脚本实现，当前 Product dependency rule 禁止 runtime 反向 import。后续 Project Definition 只 author task binding/schedule data，不拥有本设计的 runtime semantics。
+该 runner 不是无人使用的历史材料。`scripts/vibe-check-workspace/checks/normalization.ts`、`checks/model.ts` 和 `verify/runner.ts` 直接 import 它；root package scripts、pnpm workspace/lockfile、Script Tooling owner 和 repository-tooling Cases 也引用旧路径。因此“迁入 Product”必须同时迁移这些 consumers 并退出 gitlink，不能复制一份后让两处继续演进。
+
+仓库已有明确的 source-lift precedent：`src/product/README.md` 用 pinned provenance、byte-preserved source/tests 和独立 integration adjustments 建立 Product ownership。本 Change 沿用同一方法，把 runner 放到 `src/product/task-orchestration/**`。迁入后，原 `../../foundation/src/index.ts` dependency 解析到 Product-owned foundation；它不再经过 `scripts/**`。
+
+当前 Check/Record foundation 已经拥有 public definitions、private bindings、selection/applicability、owned work handles、acknowledgement ports、record sinks、CheckRun、snapshot integrity 和 completeness。`QualityRecord` 本身只含 record content 与 manager-bound identities；coverage/integrity 是 run/snapshot facts。活动决策另已确认静态 `TaskPlan`、invocation-scoped shared scheduler 和 Task 私有身份。
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- 让 direct 与 TaskPlan private bindings 共享一次 invocation 的 scheduler 与 foundation report seam。
-- 在任何 function execution 前闭合 Check dependencies，并构造、验证和冻结全部 applicable TaskPlans。
-- 用最小 `needs`、global slots 与 exclusive resources 治理跨 Check 声明 work。
-- 经 foundation ack/sink/report ports 保留 partial progress 和 records，不让 Task 成为公共产品对象。
-- 普通 failure 隔离影响；只有 scheduler-owned fatal invariant/admission failure停止 admission 并真实 drain started work。
+- 机械迁移并保留现有 runner 的完整可观察 behavior，而不是根据 behavior 另写一份实现。
+- 让 script tooling 与 Product Check orchestration 消费同一 Product-owned source owner。
+- 用 closed Product adapter 把静态 TaskPlan 接到 runner；scheduler 不理解 Check、Record、work handle 或 quality verdict。
+- 在任何 user-managed function 前完成完整 Check/Task planning、validation 与 freeze。
+- 保持 foundation 与 publication contract 不变，并明确区分私有执行结构、稳定 run/snapshot facts 和单条 record content。
 
 **Non-Goals**
 
-- 重新定义 CheckDefinition、CheckRun、CheckResult、QualityRecord、DecisionPolicy 或 ExecutionReport。
-- caller cancellation、timeout、hard termination 或 bounded drain。
-- runtime Task registration、dependent value passing、cross-Check Task edge 或 result-driven graph expansion。
-- command/process/worker/remote execution、retry、priority、capacity resource 或 per-Check budget。
-- 控制 admitted function 内部自行创建的 Promise、thread、worker 或 subprocess。
+- 在 source lift 同时重设原 runner 的通用 authoring 或 normal scheduling semantics。
+- 把 runner deep source path、Task identity、manager ports 或 scheduler state 变成 public product API。
+- 让 Product TaskPlan 接受原 runner 的 open arbitrary metadata，或让 script-only `type` / `env` / `envFile` 进入 Check/Record contract。
+- 增加动态 graph、cancellation、timeout、retry、priority、capacity resources、per-Check concurrency 或内部 fan-out governance。
 
 ## Decisions
 
-### 1. Task 是 private execution identity
+### 1. Source migration 与 Product adjustment 分成两个可审阅阶段
 
-Task 仅以 invocation-private `(checkId, taskId)` 用于 plan validation、admission、diagnostic 和 completion lookup。它不进入 `CheckDefinition`、QualityRecord identity、policy selector、comparison、coverage 或 machine artifact。Task 的拆分和合并因此仍是 private implementation change。
+迁移目标固定为 `src/product/task-orchestration/**`，并按以下顺序实施：
 
-### 2. TaskPlan 在 applicable invocation 后构造
+1. 从 pinned gitlink object 提取 runner 的 `src/**` 与 `test/**`，在新位置保持 byte identity；在 `src/product/README.md` 记录 revision、提取来源和 byte-preserved file set。
+2. 把 package/test configuration、consumer imports 和 foundation dependency 接到 repository Product boundary；这些文件或行属于明确列出的 integration adjustments，不伪装成 byte-preserved 内容。
+3. 运行迁入后的原 tests 与 workspace verifier acceptance，证明 source ownership 变化没有改变行为。
+4. 只有迁移基线成立后，才增加 closed Product planning 与 Check adapters；每项 Product delta 使用独立 tests，与原 runner parity tests 分开。
+5. 所有 consumers 切换后，移除 `scripts/tools/parallel-task-runner` gitlink、`.gitmodules` entry、旧 pnpm workspace/lockfile importer 和过时 root toolkit scripts。仓库最终只保留一个 implementation owner。
 
-Resolution 注册 private TaskPlan binding、serializable schedule metadata 与 factory；不在 module load 或 public definition 中创建 TaskPlan。Foundation 把 Check 判为 applicable 后，factory 才接收 immutable approved planning context 与 opaque domain-work handles。Factory 不能访问 sink、ack port、manager、output writer 或 runtime registration port。
+这不是 vendor snapshot：迁入后源码由 Vibe Check Product 持续拥有。Pinned provenance 只说明形成时来源和 byte-preserved 基线，不建立第二个 live upstream owner。
 
-Coordinator 收集所有 applicable payload：direct binding 归一化为一个 managed direct work，Task binding 保持 structured plan。全 batch 在任一 managed function 启动前完成 ID、handle ownership、edges、cycles、resources、policy 和 mutation validation并冻结。Skipped/not-applicable Check 不调用 factory；applicable empty plan 直接进入 owning completion，不能从 emptiness 推断结果。
+### 2. 一份 runner source 服务两类 repository-internal consumer
 
-### 3. `requiresChecks` 在 selection 前闭合
+迁入的通用 runner 保留现有 `TaskDefinition` / `NormalizedTask`、`expandTasks`、`validateTaskGraph` 和 `runParallelTasks` 行为，以免 workspace verifier 因 Product 接线丢失 `type`、`env`、`envFile` 等 script metadata。
 
-每个 private schedule declaration 可以列出 Check-level `requiresChecks`。Planner 从 initial caller/policy request 计算 transitive closure，拒绝 unknown ID、self edge 和 cycle，再冻结 selection。
+Check orchestration 不直接接受这个 open `TaskDefinition` 作为 Product contract。它拥有一个 closed private TaskPlan validator，只允许 Check scheduling 所需的 group/leaf ID、`dependsOn`、`mutex`、owned work assignment 和 functions；验证通过后再映射为 runner tasks。这样：
 
-Dependency 表达 lifecycle readiness，不表达 quality policy：preclosed not-applicable、合法 `passed` 和合法 `failed` result 都满足依赖；unavailable、execution-failed 或 invalid returned candidate 阻止 dependent functions，并为 dependent binding产生一个 foundation `execution-failed` report。若 dependent 需要具体领域材料，应由自身 applicability 说明，不由 scheduler 读取 records。
+- group expansion、dependency scheduling、concurrency 和 mutex 算法只有迁入 runner 一份；
+- script consumer 继续获得原有完整 metadata；
+- Product adapter 不把 open bag、script command metadata 或 runner types 提升为 public Check API；
+- `src/product/task-orchestration/**` 是 repository-internal source owner，不加入 public package exports。
 
-### 4. 一个 scheduler 只治理自己调用的 functions
+### 3. 原 runner 的 normal scheduling contract 原样保留
 
-`SchedulerPolicy.maxParallel` 是 invocation-owned positive integer。Direct adapter、Task 和 completion 每个在被 scheduler 调用且 promise 未 settled 时占一个 slot。函数内部创建的 Promise、thread、worker 或 subprocess 不计入，也不获得全局保证。
+| Runner capability | 迁移后保持的 contract |
+| --- | --- |
+| Parent group | Descendant leaves 继承累计的 `type`、`mutex`、`dependsOn`、`env` 与 `envFile`；group 自身不执行。 |
+| Group dependency | 对 group ID 的依赖展开为其全部 descendant leaf IDs。 |
+| Dependency completion | `run` 与 `onComplete` 都 resolve 后才满足 `dependsOn`；resolved value 内容不参与判断。 |
+| Parallelism | Ready 且 mutex-compatible 的 independent tasks 可以并行；显式 concurrency 限制 active task 数。 |
+| Mutex | 一个 task 的全部 mutex 在 admission 时共同可用才启动，并持有到 lifecycle completion。 |
+| Result | Scheduler 只收集 opaque resolved values，不解释 `{ verdict: "failed" }`、`{ ok: false }` 或 Product outcome。 |
 
-Task `resources` 是 invocation-global ASCII lower-kebab exclusive names。一个 work 的所有 resources 在 admission 时原子获取、settlement 时释放，避免 hold-and-wait。Ready work 按 canonical discriminated key 考察；先出现但 resource-blocked 的 work 不阻止后续 compatible work 使用空 slot。首版没有 capacity、读写模式、priority 或 per-Check limit。
+Pinned runner 只预检 duplicate/unknown dependency，cycle 会在 schedule blocked 时暴露。静态 Product TaskPlan 需要更强的 pre-work guarantee，因此 full cycle detection 属于 closed Product plan validator；它不通过改写 generic runner contract 来实现。Product 总是显式提供 `SchedulerPolicy.maxParallel`，不依赖 runner 的 omitted-concurrency behavior。
 
-### 5. `needs` 只表示同 Check successful fulfillment
+### 4. Product planning 在调用 runner 前闭合
 
-Task `needs` 只能引用同一 Check 的 Task。Fulfilled 才解锁 dependent；throw 形成 private dependency-blocked propagation。Dependent Task 不读取 predecessor value。Scheduler 把 fulfilled values 存入 invocation-private readonly map，仅在全部 Tasks fulfilled 后交给 owning completion；不会 parse、serialize、hash、cache 或跨 Check share，binding terminal 后释放引用。
+一次 invocation 按以下顺序形成执行输入：
 
-Task 通过 foundation-bound execution context/record sink 提交 final records；ack port 只由 adapter 持有。一个 Task 静态关联零到多个 domain-work handles，function fulfilled 后 adapter 才逐项 ack；throw/block 不 ack。Task 数量、identity、value 和 completion work不形成 public coverage。
+1. Validate/freeze public Check definitions、private direct/task bindings、closed schedule declarations 和 positive-safe-integer `SchedulerPolicy.maxParallel`。
+2. Validate 完整 `requiresChecks` graph，拒绝 unknown/self/cycle，并从 initial selected Checks 计算 prerequisite closure。
+3. 只为 selected Checks 解析 applicability；unselected 与 not-applicable Checks 不调用 binding 或 factory。
+4. 按 canonical Check ID 同步调用 applicable TaskPlan factories。Factory 只获得 owning frozen planning input，不获得 sink、ack manager 或动态 registration port。
+5. 对所有 plans 执行 closed shape、unique ID、known dependency、full cycle、group expansion、function 与 exact owned-work partition validation，再 detached freeze。
+6. 任一 catalog、applicability、factory 或 plan failure使 planning 整体失败；在该阶段 user-managed execution function zero calls。
+7. 全部 plans 合法后，adapter 才生成一个 invocation-wide runner task list并调用迁入的 scheduler。
 
-### 6. Failure 映射到 foundation reports
+TaskPlan 可以使用 nested groups。Product group/leaf 的 `dependsOn` 和 `mutex` 直接映射到 runner 同名字段；parent inheritance 与 group-dependency expansion 复用 `expandTasks`。所有 runner IDs 在 invocation 内私有 namespace 中唯一，避免不同 Check 的 local task IDs 冲突。
 
-所有 Tasks fulfilled 后执行 completion；合法 return 形成 `ExecutionReport.returned(candidate)`，Task throw/dependency block/completion throw 或 rejection 形成 `execution-failed`，pre-admission binding dependency unavailable 可以形成 `unavailable`。Foundation 仍是 result candidate、ack、record integrity 和 run failure precedence 的唯一 validator/finalizer。
+### 5. Direct、Task 与 Check completion 只在 adapter 中不同
 
-普通 Task/Check failure 不停止 unrelated admission。Existing valid records 与 accepted acknowledgements 保留，且每个 applicable contribution 仍返回一个 terminal report。Scheduler 不用质量 verdict控制 admission，也不复制 record identity conflict 或 primary diagnostic 逻辑。
+Adapter 生成三类私有 runner task，但 scheduler 不读取其类别：
 
-### 7. 只有 scheduler-owned fatal error 才停止并 drain
+- applicable direct binding 生成一个 task，执行现有 binding 并形成 owning Check terminal outcome；
+- TaskPlan leaf 生成普通 task，拥有该 leaf 的 private work assignment，执行时获得 function-scoped record sink；
+- 每个 TaskPlan Check 生成一个 synthetic completion task，依赖全部 owning leaves；它读取仅属于该 Check 的 opaque leaf outcomes并形成 terminal outcome。
 
-若 scheduler 在已有 functions 启动后发现自己的 fatal invariant/admission failure，它停止新 admission，等待每个 scheduler-started function 实际 settle，再向 foundation 报告 Product execution-integrity failure；不构造 cancelled Task 或部分可信 report set。同进程 non-settling function 可能让 drain 永久 pending，因此不承诺 bounded latency、timeout 或强制终止。
+`requiresChecks` 连接到 prerequisite Check 的 synthetic/direct terminal task，而不是连接任意内部 leaf，也不允许跨 Check 读取 Task value。Selected not-applicable Check 由 planning 预先形成可信 terminal outcome，无需 runner task。
 
-### 8. Live progress 与 final identity 分离
+Repository built-ins 在本 Change 中保持 direct binding，并通过同一 runner 占用 global slot。其函数内部现有 `Promise.all` 或 scanner fan-out 仍是未声明内部工作，不获得额外 scheduler guarantee；本 Change 不为了展示 TaskPlan 而拆分它们。
 
-Scheduler 可以按 observed start/settlement order 发出仅供 live progress 的事件；private outcomes 仍按 frozen canonical keys 存放。Observed order 不进入 Check/Task/Record identity、coverage 或 artifact ordering。最终事实继续由 foundation snapshot canonicalize。
+### 6. Ordinary failure 由 Product adapter 收敛，不改写 scheduler success model
 
-### 9. Product 内重新实现最小 kernel
+Product adapter 不让 project-code 或 ordinary Check protocol failure直接 reject generic scheduler。每个 wrapper 把调用结果收敛成 invocation-private outcome；runner 仍只看到一个 resolved opaque value。
 
-实现位于 `src/product/**` private execution boundary，只包含 dependency closure、plan validation、bounded scheduler、exclusive resources、opaque values、ack/report mapping 和 fatal drain。`scripts/tools/parallel-task-runner` 可以作为已证明需求的对照，但不能 runtime import、vendor、复制或变成 public type source。
+| Upstream situation | Foundation / adapter meaning | Dependent user function |
+| --- | --- | --- |
+| Task 正常 resolve 任意 value | Private fulfilled outcome；value 不被 scheduler 解释。 | 可以执行。 |
+| Check 合法完成并返回 `passed` 或 quality `failed` | 形成可信 completed CheckRun。 | `requiresChecks` 已满足，可以执行；是否门禁失败由 DecisionPolicy 决定。 |
+| Check 为 `not-applicable` | 形成可信 zero-work terminal CheckRun。 | `requiresChecks` 已满足，可以执行。 |
+| Task/Check function throw/reject，或 result/record/ack protocol 无法形成可信 terminal CheckRun | Adapter 记录 failed outcome；owning Check 最终使用既有 failed/unavailable facts。 | 依赖该 outcome 的 wrapper 不调用 project function，直接形成 blocked/unavailable outcome。 |
+| Trusted adapter/manager invariant 破坏 | 标记 invocation-fatal；后续 wrapper 不再调用 user function，已启动 wrapper完成收敛。 | 不执行；scheduler drain 后整个 invocation 不发布 trusted snapshot。 |
+
+因此 failure isolation 是 Check adapter 的 Product delta，不是给 scheduler 增加 `failed | blocked` 公共状态，也不是改变“resolved value opaque”的原语义。Unrelated wrappers 没有 failed dependency，仍由原 scheduler 正常 admission。
+
+### 7. Stable facts 与 invocation-private structure 严格分层
+
+| Object / layer | 内容与 owner | 稳定性和输出 |
+| --- | --- | --- |
+| `QualityRecord` | RecordManager 绑定的 record content：`recordTypeId`、`level`、`semanticSubject`、`message`、`fields`、`location`，以及 `checkId`、`checkRunId`、`recordId`。 | 稳定 record contract，发布到 `records.ndjson`；本 Change 不增加字段。 |
+| `CheckRun` / coverage | CheckManager 产生 selection、applicability、status、result、diagnostic，以及 aggregate `plannedWorkCount` / `acknowledgedWorkCount`。 | 稳定 run facts，发布到 `run.json`；不发布单个 work handle 或 ack event。 |
+| `SnapshotIntegrity` / completeness | RecordManager 与 Core 对 invalid records、conflicts 和 aggregate run/coverage 的最终证据。 | 稳定 snapshot-level facts，发布到 `run.json`；integrity 不是单条 record 的属性。 |
+| Work handles、ack ports、record sinks、terminal-settlement calls | Foundation-owned invocation capabilities，用于验证 owned work、提交记录并形成 CheckRun。 | 只存在于执行内存；输出只保留其既有派生事实，不保留 capability/event identity。 |
+| Task/group IDs、dependency/mutex state、opaque Task values、private outcomes、observed order | Runner 与 Check adapter 的 invocation state。 | 完全私有；不进入 catalog fingerprint、policy、cache、report、`run.json` 或 `records.ndjson`。 |
+
+“terminal settlement”表示 adapter 关闭 ports并把返回值交给现有 manager 形成 CheckRun 的内部步骤；它本身不是新 artifact 或 record field。“record integrity”则是 foundation 已有且有稳定机器意义的 snapshot evidence，只是它属于 `run.json`，不属于单条 `QualityRecord`。
+
+### 8. Foundation 仍是 result、coverage 与 integrity 的唯一判断 owner
+
+Task leaf 只在其 user function 正常完成后，通过 adapter acknowledgement 其静态 owned work；throw、blocked 或 unavailable leaf 不伪造 acknowledgement。Valid record 一经 RecordManager 提交，later ordinary failure 不撤销。
+
+Check terminal task 不自行解释 candidate result、ack completeness 或 record validity。它关闭 function-scoped ports并调用 foundation seam，由 CheckManager/RecordManager 形成 existing CheckRun、diagnostic、integrity 与 completeness。Orchestration 只依据“是否形成可信 terminal CheckRun”决定 `requiresChecks` 的 availability，不依据 quality verdict 决定产品门禁。
+
+### 9. Concurrency 与 lifetime 只有一个 owner
+
+`SchedulerPolicy.maxParallel` 必须满足 `Number.isSafeInteger(value) && value > 0`。每个 runner-started wrapper 从 `onStart` 到 `onComplete` settlement 占一个 global slot；planning factory、applicability 和函数内部自行 fan-out 不占额外声明 slot。
+
+Product named exclusive resources 映射到 runner `mutex`。一个 task 的全部 mutex 原子检查；mutex-blocked task 不阻止 later compatible ready task使用空余 slot。首版不增加 priority、capacity/read-write mode、fairness knob 或 per-Check override。
+
+Orchestrator 只接收一个已经验证并冻结的 private `SchedulerPolicy`。Repository composition 显式传入 `{ maxParallel: 4 }`；Project Definition integration 必须把 required validated `scheduler.maxParallel` 归一化到同一 policy。两种 composition 都不得建立隐式 default、第二并发预算或 per-Check override。
 
 ## Risks / Trade-offs
 
-- **Same-process function 可以 hang 或破坏 global state。** 本 Change不声称隔离或取消；Project Definition trust owner 提供跳过项目代码的路径。
-- **`maxParallel` 不控制函数内部 fan-out。** 文档和 diagnostics 明示计数边界；需要治理的 work 应显式拆成 Tasks。
-- **Opaque values 会保留到 completion。** 值只在 owning binding 内可见，terminal report 后释放引用。
-- **一个粗 Task throw 时可能已处理多个领域单元。** Valid records 保留但 handles 不 ack；作者需要更细 coverage 时拆分静态 Tasks。
-- **Success-only `needs` 不支持 failure cleanup graph。** Cleanup 留在 started function 的 `try/finally`；只有真实 consumer 证明需求后才扩展 lifecycle。
-- **Global resource name 可能意外碰撞。** 碰撞安全地序列化 work；不按 Check 自动 namespace，以保留跨 Check exclusion。
+- **Ownership migration 会同时触及 Product 与 script tooling。** 这是消除 gitlink 和双 owner 的必要范围；用 byte-provenance audit、迁入 runner tests 和 workspace verifier acceptance 分别证明来源与 consumer behavior。
+- **Generic runner 仍接受 open metadata。** Workspace verifier 依赖这一兼容性；closed Product validator 是隔离边界，不能把 generic input type 当 public TaskPlan contract。
+- **Product adapter 需要维护 private outcome 与 terminal gate。** 这比让 scheduler 解释 Check failure 多一层映射，但保住了 scheduler opacity、原 runner semantics 和 DecisionPolicy owner。
+- **同进程 function 仍可能永久 pending 或内部过度并行。** 本 Change没有 cancellation、timeout、sandbox 或内部 fan-out 强制治理，因此 shared budget只覆盖 runner实际启动的 wrappers。
+- **Provenance 容易被后续改动冲淡。** `src/product/README.md` 必须区分 byte-preserved set 与 integration adjustments；迁入源码发生 Product change 后按新差异正常审阅，不继续宣称这些文件与 pinned upstream byte-equal。
 
 ## Open Questions
 
-无。Public Project Definition authoring shape 与 Product-owned `maxParallel` default 由后续 Project Definition owner承接；它们不会改变本 Change 已确定的 normalized scheduler semantics。
+无。实施使用 `src/product/task-orchestration/**` 作为唯一 runner source owner；work handles、ack 和 settlement 保持 invocation-private，snapshot integrity 保持既有 run-level stable fact。
