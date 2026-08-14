@@ -4,7 +4,7 @@
 
 - Vibe Check 的产品运行时是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun Product runtime；正式集成入口是项目拥有的 TypeScript Project Definition 与 bound Project Run；Product CLI 仅保留 legacy migration diagnostic。
 - `quality:check`、`quality:full-check`、`quality:scan` 和
-  `scripts/quality/scan.ts` 是显式传入仓库根并单向调用产品入口的 dogfood wrapper；开发脚本由
+  `scripts/quality/scan.ts` 是调用仓库 Project Run 的 dogfood aliases；它们不解析参数、不发现配置，开发脚本由
   `scripts/**` 拥有。
 - 项目文档从 [`docs/navigation.md`](docs/navigation.md) 进入。先按任务定位唯一 owner 和验证入口，
   再读取相邻源码与测试；不要为获取上下文扫描全部文档。

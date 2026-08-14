@@ -1,7 +1,8 @@
 # Configuration
 
 Vibe Check configuration is a project-owned TypeScript **Project Definition**. This document owns
-the authoring and invocation boundary; individual quality, policy, Check, scheduler, dependency, and
+the authoring and invocation boundary: `defineConfig` returns the plain definition, and Package Run
+receives `run(definition, controls)`. Individual quality, policy, Check, scheduler, dependency, and
 output owners continue to define their own field semantics.
 
 ## Two-file integration
@@ -28,9 +29,9 @@ export function run(controls: RunControls = {}) {
 ```
 
 The configuration module owns stable project semantics and default-exports the plain value returned
-by `defineConfig`. The project Run imports and binds that value. Other callers invoke the project Run;
-they do not supply, discover, or reload another definition. These example paths are not package-owned
-discovery conventions.
+by `defineConfig`. The project Run imports and binds that value. Other callers invoke the project Run
+with only the controls that this project exposes. They cannot supply, discover, or reload another
+definition. These example paths are not package-owned discovery conventions.
 
 ## Validation and controls
 

@@ -137,13 +137,15 @@ bun run env:check
 
 ### 命令环境边界
 
-顶层 mise 环境把 pinned `pipx:lizard` 虚拟环境中的 Python interpreter 和 pinned scc
-executable 分别设为受支持的 `VIBE_CHECK_LIZARD_CMD` 与 `VIBE_CHECK_SCC_CMD`；Product 对
-前者仍追加固定 `-m lizard` 协议。Repository Project Definition 显式绑定本仓库的 jscpd
-executable。`quality:*` package scripts 自行通过 `mise exec` 进入该环境，所以普通调用 shell
-不必预先激活 mise。缺少 required binding 时 Package Run 在 work 前失败，不退回 ambient
-`PATH`、repository state 或旧 pinned variables。precedence 由
-[Scanner 依赖选择](scanner-dependencies.md#current-dependency-boundary)拥有。
+顶层 `mise.toml` 将 pinned Lizard Python interpreter 和 scc executable 写入 Package Run
+明确支持的 `VIBE_CHECK_LIZARD_CMD` 与 `VIBE_CHECK_SCC_CMD` 环境输入；仓库 Project
+Definition 直接绑定 jscpd executable。`quality:*` aliases 通过 `mise exec` 获得这两个
+supported-environment values。Package Run 再按 [Scanner 依赖选择](scanner-dependencies.md#current-dependency-boundary)
+中的 `Run Controls > supported environment > Project Definition` 顺序解析 binding。
+
+`mise.toml` 的工具安装或 repository state 本身不是隐式 resolution source。缺少
+required binding 时，Package Run 在 work 前失败；wrapper 不从 ambient `PATH`、旧 pinned
+variables 或未受支持的环境名补齐 binding。
 
 `verify:vibe-check-workspace*` 同样在顶层 mise 环境中运行。其它不消费锁定外部 scanner 的
 日常命令保持普通 `bun run` 入口。
