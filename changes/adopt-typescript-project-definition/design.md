@@ -8,7 +8,7 @@
 
 活动未对齐决策已经确认：single TypeScript Project Definition 取代 JSON；Project Definition 驱动 policy/gate、Checks、scheduler、reporting、cache 和 output；首个 package 只支持 Bun；project-owned code 在 package-private runtime 中执行；普通 invocation 默认启用工具 effects；使用者只接触配置定义与工具运行两个操作。Vibe Check 产品显示名保持不变，fixed path、public imports/symbols、effect paths 和 environment identifiers 仍待上游确认。
 
-Runtime integration 依赖 Check/Record foundation 与 Task orchestration 提供 public catalog/private binding、closed policy、`requiresChecks`、applicability-time factory、TaskPlan validation 和 shared scheduler seams。这些是实施前置事实，不是本 Change 重新选择的产品方向。Metadata 中的 `shelf.reason` 保存执行 `shelve` 时的原始触发条件；当前恢复门禁以本设计的 Open Questions、Resume Conditions 和 Tasks Readiness 为准。
+Runtime integration 依赖 Check/Record foundation 与 Task orchestration 提供 public catalog/private binding、closed policy、`requiresChecks`、applicability-time factory、TaskPlan validation 和 shared scheduler seams。这些是实施前置事实，不是本 Change 重新选择的产品方向。本 Change 的暂停原因与恢复门禁记录在本设计的 `Implementation Observations`、Open Questions、Resume Conditions 和 Tasks Readiness 中。
 
 ## Goals / Non-Goals
 
@@ -126,4 +126,12 @@ Missing target、legacy JSON、unsafe node 或 invalid module 都返回 typed ac
 - Check/Record、Task orchestration 与 reporting/cache/output foundation seams 已成为可用 current facts，或实施顺序已明确等待它们且不会猜测接口。
 - 上游已把两个公开操作所需的 path/import/symbol/effect/environment identifiers 建立到唯一 current public-contract source；没有 bootstrap/resource/internal runtime export。
 - Proposal、Design 与 Tasks 已按 confirmed identifiers 同步。
-- 执行 `resume` 后重新运行 `plan` 记录新 Git baseline；在此之前不得进入 implementation。
+- 重新审阅三个 artifacts、当前 owner、活动决策与实施事实后运行 `plan` 记录新 Git baseline；在此之前不得开始实施。
+
+## Implementation Observations
+
+### 当前状态
+
+本 Change 当前暂缓实施。`.change-plan.json` 保持 `plan`，只表示三个 artifacts 已形成可恢复的计划结构；它不表示 Readiness 已完成、实施已获授权或存在独立的暂停 stage。
+
+原始暂停原因是等待 foundation seams、fixed discovery path 与 public API identifiers 闭合。满足上述恢复条件后，先重新核对三个 artifacts、当前 owner、活动决策与实现事实，再完成未勾选的 Readiness，并运行 `plan` 刷新 Git baseline；在此之前不开始 Implementation 任务。

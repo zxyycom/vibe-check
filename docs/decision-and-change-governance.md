@@ -44,14 +44,14 @@ Decision 与 Change 之间的项目级交接：
 owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
 
 项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan:list` 定位当前计划。固定 artifact、
-metadata、stage、assessment、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
+严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
 [脚本工具](script-tooling.md#change-plan-cli)。
 
 ## 内容归属与同步
 
 1. 已确认且跨 change 持续有效的判断写入 `docs/decisions/`；未确认草稿留在对话或 Change 中。
-2. 只约束当前 change 的范围、设计、开放问题、任务、验证和进度写入对应 `changes/<change>/`。
+2. 只约束当前 change 的范围、设计、开放问题、任务、验证、进度、暂停原因和恢复条件写入对应 `changes/<change>/`；metadata 只使用上游 skill 定义的规范 stage，不以 stage 另建暂停状态。
 3. 已成为当前稳定规则的结果写入对应 `docs/` owner 文档。
 4. 当前实现及其证明由代码、测试和 release artifact 承接。
 5. 用户明确要求沉淀的时点调查进入 `docs/investigations/`；形成下游方向或任务时交接给对应 owner。

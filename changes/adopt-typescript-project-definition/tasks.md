@@ -1,6 +1,6 @@
 # Tasks
 
-本 Change 在 foundation seams、fixed path 与 public API identifiers 闭合前保持 shelved；恢复后按 authoring shape、private loader、foundation handoff、JSON hard cut 和 evidence 的顺序实施。
+本 Change 当前暂缓实施；暂停原因与恢复条件记录在 Design 的 `Implementation Observations`。metadata 保持 `plan`，不以 stage 表示暂停；条件闭合并完成重新审阅后，再按 authoring shape、private loader、foundation handoff、JSON hard cut 和 evidence 的顺序实施。
 
 ## Readiness
 
@@ -9,7 +9,7 @@
 - [x] 0.3 上游已确认 Bun-only host、package-private project-code containment、default logs/cache/output effects，以及只公开配置定义与工具运行两个操作；配置文件由使用者创建，不公开 bootstrap/init 或 resource operation。
 - [ ] 0.4 Check/Record foundation、Task orchestration 与 reporting/cache/output owners 已提供 public catalog/private binding、closed policy/effect declarations、`requiresChecks`、applicability-time factory、TaskPlan validation 和 shared scheduler seams。
 - [ ] 0.5 Fixed discovery path、public imports/exports、两个操作及必要类型的 symbols、default effect paths 与 supported environment identifiers 已由上游确认，并进入唯一 current public-contract source；本 Change 没有 local alias、placeholder、bootstrap 或 resource export。
-- [ ] 0.6 已重新核对 single-source selection、private-runtime handoff、global scheduler、effects、fingerprint/cache、missing-config diagnostics 与 JSON hard cut，不存在 blocking Open Questions；随后执行 `resume` 和 `plan`，未完成前不得进入 implementation。
+- [ ] 0.6 已重新核对 single-source selection、private-runtime handoff、global scheduler、effects、fingerprint/cache、missing-config diagnostics 与 JSON hard cut，不存在 blocking Open Questions；随后运行 `plan` 刷新 Git baseline，未完成前不得开始实施。
 
 ## Implementation
 

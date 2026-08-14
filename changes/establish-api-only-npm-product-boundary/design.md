@@ -17,7 +17,7 @@
 - `expose-two-public-operations`：public callable surface 恰好包含配置定义与工具运行两个操作；
 - `confirm-package-contract-names-before-publication`：Vibe Check 显示名保持不变，其它 package 公共契约名称在 candidate 前逐项确认。
 
-这些决策约束本 Change，但尚未成为实现事实。Metadata 中的 `shelf.reason` 保存执行 `shelve` 时的原始触发条件，其中部分判断现已关闭；当前仍未闭合的是 package/API/path/environment identifiers、唯一 current public-contract source 和实现前置 seams。
+这些决策约束本 Change，但尚未成为实现事实。本 Change 的暂停原因与恢复门禁记录在本设计的 `Implementation Observations`、Open Questions、Resume Conditions 和 Tasks Readiness 中；当前仍未闭合的是 package/API/path/environment identifiers、唯一 current public-contract source 和实现前置 seams。
 
 ### Terms
 
@@ -56,11 +56,11 @@
 
 当前行为只从 current-fact owners 恢复；未来方向从 active decisions 恢复；本 Change 只拥有实施范围、顺序、风险、开放问题和验证。Vibe Check 是已建立的产品显示名；root manifest、repository path、source file、Change 名称和语义角色都不能自动决定其它 package 公共名称。
 
-恢复 implementation 前必须完成三项工作：
+开始实施前必须完成三项工作：
 
 1. 确认 registry package、imports/exports、两个操作和必要类型的 symbols、fixed Project Definition path、default effect paths 与 supported environment identifiers；
 2. 建立唯一 current public-contract source，并明确所有 generated/public consumers；
-3. 核对 foundation seams，更新三个 artifacts，执行 `resume` 后重新运行 `plan`。
+3. 核对 foundation seams，更新三个 artifacts，并在语义复核后运行 `plan` 刷新 Git baseline。
 
 ### 2. Public package API 恰好包含两个操作
 
@@ -129,4 +129,12 @@ Project scripts 只提供 deterministic build、pack 和 verify。真实 `npm pu
 - 两个公开操作及其必要 package/API/path/environment identifiers 已确认；没有 bootstrap、resource、CLI 或 internal runtime public export。
 - Current public-contract source 的 owner、结构和全部派生消费者已明确。
 - Foundation seams 已成为可用 current facts，或任务依赖顺序已明确且不会猜测接口。
-- Proposal、Design 与 Tasks 已按 confirmed identifiers 同步；随后执行 `resume` 和 `plan` 记录新 Git baseline。在此之前不得进入 implementation。
+- Proposal、Design 与 Tasks 已按 confirmed identifiers 同步；随后重新审阅当前 owner、活动决策与实现事实，并运行 `plan` 记录新 Git baseline。在此之前不得开始实施。
+
+## Implementation Observations
+
+### 当前状态
+
+本 Change 当前暂缓实施。`.change-plan.json` 保持 `plan`，只表示三个 artifacts 已形成可恢复的计划结构；它不表示 Readiness 已完成、实施已获授权或存在独立的暂停 stage。
+
+原始暂停原因是等待宿主 runtime、嵌入式执行边界、默认工具副作用与公开操作模型确认后再冻结公共名称和实施计划。其中宿主、私有执行边界、默认副作用与两操作模型已成为活动方向；当前仍等待 package/API/path/environment identifiers、唯一 current public-contract source 与 foundation seams。满足上述恢复条件后，先重新核对三个 artifacts、当前 owner、活动决策与实现事实，再完成未勾选的 Readiness，并运行 `plan` 刷新 Git baseline；在此之前不开始 Implementation 任务。

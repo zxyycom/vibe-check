@@ -1,6 +1,6 @@
 # Tasks
 
-本 Change 在 package 公共契约名称、current public-contract source 和 foundation readiness 闭合前保持 shelved；恢复后按 API/runtime、CLI hard cut、package staging、exact-tarball evidence 的顺序实施。
+本 Change 当前暂缓实施；暂停原因与恢复条件记录在 Design 的 `Implementation Observations`。metadata 保持 `plan`，不以 stage 表示暂停；条件闭合并完成重新审阅后，再按 API/runtime、CLI hard cut、package staging、exact-tarball evidence 的顺序实施。
 
 ## Readiness
 
@@ -12,7 +12,7 @@
 - [x] 0.6 产品 owner 已确认 Project Definition 拥有 policy、Checks、gate、scheduler、reporting、cache 和 output configuration；public package API 不复制 command/method grammar。
 - [x] 0.7 产品 owner 已确认 public callable surface 恰好包含配置定义与工具运行两个操作；必要公共类型不计为操作，配置文件由使用者创建和拥有，不公开 bootstrap/init、resource、CLI 或 private runtime surface。
 - [ ] 0.8 分别确认 registry package、public imports/exports、两个操作及必要类型的 symbols、fixed Project Definition path、default effect paths 与 supported environment identifiers；不得从 `vibe-check` root name、源码或示例自动推导。
-- [ ] 0.9 建立唯一 current public-contract source，核对 foundation seams、Open Questions 和派生消费者；更新三个 artifacts 后执行 `resume` 与 `plan`，未完成前不得进入 implementation。
+- [ ] 0.9 建立唯一 current public-contract source，核对 foundation seams、Open Questions 和派生消费者；更新三个 artifacts 后重新审阅并运行 `plan` 刷新 Git baseline，未完成前不得开始实施。
 
 ## Implementation
 

@@ -1,6 +1,6 @@
 ---
 title: 使用决策驱动的 Change Plan 并完整归档 OpenSpec
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:50:06Z
 purpose: 让长期方向直接作为跨 change 规格依据，以持久 Change Plan 管理实施，并让 OpenSpec 只保留一个深层历史 owner。

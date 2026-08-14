@@ -1,9 +1,4 @@
 {
-  "baseCommit": "b72db0c4141eee986260414b013452aec1b129a0",
-  "shelf": {
-    "atCommit": "b72db0c4141eee986260414b013452aec1b129a0",
-    "reason": "等待确认宿主 runtime、嵌入式执行边界、默认副作用与公开操作模型后再冻结公共名称和实施计划",
-    "source": "explicit"
-  },
-  "stage": "shelved"
+  "stage": "plan",
+  "baseCommit": "b72db0c4141eee986260414b013452aec1b129a0"
 }
