@@ -7,9 +7,9 @@ import {
   normalizeProjectDefinition
 } from "./project-definition.ts";
 import {
-  validateProjectDefinition,
-  validateRunControls
+  validateProjectDefinition
 } from "./project-definition-validation.ts";
+import { validateRunControls } from "./run-control-validation.ts";
 
 describe("Project Definition", () => {
   it("creates a plain value with product-owned authoring defaults", () => {
@@ -57,6 +57,27 @@ describe("Project Definition", () => {
       error: {
         kind: "invalid-project-definition",
         path: "definition.quality",
+        reason: "invalid-value"
+      }
+    });
+    assert.deepEqual(validateProjectDefinition({
+      ...definition,
+      operationalDependencies: { file: { executable: "scc", extra: true } }
+    }), {
+      ok: false,
+      error: {
+        kind: "invalid-project-definition",
+        path: "definition.operationalDependencies",
+        reason: "invalid-value"
+      }
+    });
+    assert.deepEqual(validateRunControls({
+      operationalDependencies: { file: { executable: "scc", extra: true } }
+    }), {
+      ok: false,
+      error: {
+        kind: "invalid-run-controls",
+        path: "controls.operationalDependencies",
         reason: "invalid-value"
       }
     });

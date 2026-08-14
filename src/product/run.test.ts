@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineConfig, type CustomCheckDeclaration } from "./project-definition.ts";
-import { projectMachinePublicationV2 } from "./quality-core/src/output/publication-v2/index.ts";
 import { run } from "./run.ts";
+import { assertPublishedResult } from "./run-test-support.ts";
 
 describe("Package Run", () => {
   it("rejects invalid closed controls before project applicability or runner functions", async () => {
@@ -79,24 +79,7 @@ describe("Package Run", () => {
         }
       });
 
-      assert.equal(result.kind, "completed");
-      if (result.kind !== "completed") return;
-      assert.equal(result.decision.policyId, "project-gate");
-      assert.equal(result.decision.gate.status, "passed");
-      assert.equal(result.snapshot.runs[0]?.result?.verdict, "passed");
-      assert.deepEqual(result.effects, {
-        cache: { enabled: true, status: "not-run" },
-        logs: { enabled: false, status: "disabled" },
-        output: { enabled: true, status: "succeeded" },
-        progress: { enabled: false, status: "disabled" }
-      });
-      const machine = JSON.parse(readFileSync(join(root, "published", "run.json"), "utf8")) as {
-        catalogFingerprint: string;
-        decision: unknown;
-      };
-      assert.equal(machine.catalogFingerprint, result.model.snapshot.catalogFingerprint);
-      assert.deepEqual(machine.decision, projectMachinePublicationV2(result.model).run.decision);
-      assert.doesNotMatch(JSON.stringify(result), /createTaskPlan|"execute"/);
+      assertPublishedResult(result, root);
 
       const disabled = await run(source, {
         projectRoot: root,

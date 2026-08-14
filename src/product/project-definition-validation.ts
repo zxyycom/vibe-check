@@ -1,15 +1,9 @@
 import { createHash } from "node:crypto";
 
-import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
 import { isNonArrayRecord, isStringArray, isUnknownArray } from "./foundation/src/type-guards.ts";
-import {
-  parseQualityConfiguration,
-  type ProjectQualityConfiguration
-} from "./quality-configuration.ts";
-import {
-  parseEffects,
-  parseEffectsOverride
-} from "./project-effect-validation.ts";
+import { parseQualityConfiguration } from "./quality-configuration.ts";
+import { parseEffects } from "./project-effect-validation.ts";
+import { parseOperationalDependencies } from "./scanner-dependencies.ts";
 import type { CheckExecutionBinding, CheckTaskPlanFactory } from "./quality-core/src/check-record/catalog.ts";
 import type { CheckDefinition } from "./quality-core/src/check-record/model.ts";
 import { createCatalogFingerprint } from "./quality-core/src/check-record/identity.ts";
@@ -26,12 +20,9 @@ import {
   type BuiltInCheckId,
   type CheckApplicabilityBinding,
   type CustomCheckDeclaration,
-  type OperationalDependencies,
-  type OperationalDependencyBinding,
   type ProjectChecks,
   type ProjectDefinition,
   type ProjectDefinitionDiagnostic,
-  type RunControls,
   type ValidationResult
 } from "./project-definition.ts";
 
@@ -46,14 +37,10 @@ const PROJECT_DEFINITION_KEYS = [
   "selectedPolicy"
 ] as const;
 
-const RUN_CONTROL_KEYS = [
-  "changedFiles",
-  "comparison",
-  "effects",
-  "operationalDependencies",
-  "projectRoot",
-  "signal"
-] as const;
+type PolicyReferenceIdentity = Readonly<{
+  readonly referenceId: string;
+  readonly referenceName: string;
+}>;
 
 export function validateProjectDefinition(value: unknown): ValidationResult<ProjectDefinition> {
   try {
@@ -64,36 +51,33 @@ export function validateProjectDefinition(value: unknown): ValidationResult<Proj
 }
 
 function validateProjectDefinitionValue(value: unknown): ValidationResult<ProjectDefinition> {
-  const data = exactRecord(value, PROJECT_DEFINITION_KEYS, "invalid-project-definition", "definition");
+  const data = exactProjectDefinition(value);
   if (!data.ok) return data;
-  if (data.value.apiVersion !== "1") return invalidDefinition("definition.apiVersion");
-  const quality = parseQuality(data.value.quality);
+  const quality = parseQualityConfiguration(data.value.quality);
   if (quality === undefined) return invalidDefinition("definition.quality");
   const checks = parseProjectChecks(data.value.checks);
   if (checks === undefined) return invalidDefinition("definition.checks");
-  const effects = parseEffects(data.value.effects);
-  if (effects === undefined) return invalidDefinition("definition.effects");
-  const dependencies = parseDependencies(data.value.operationalDependencies);
-  if (dependencies === undefined) return invalidDefinition("definition.operationalDependencies");
-  const policies = parsePolicies(data.value.policies);
-  if (policies === undefined) return invalidDefinition("definition.policies");
   const definitions = [
     ...checks.builtIn.map((checkId) => BUILT_IN_CHECK_DEFINITIONS[checkId]),
     ...checks.custom.map((custom) => custom.definition)
   ];
-  if (!validPolicyCatalog(policies, definitions)) {
-    return invalidDefinition("definition.policies");
-  }
+  const effects = parseEffects(data.value.effects);
+  if (effects === undefined) return invalidDefinition("definition.effects");
+  const dependencies = parseOperationalDependencies(data.value.operationalDependencies);
+  if (dependencies === undefined) return invalidDefinition("definition.operationalDependencies");
+  const policies = parsePolicies(data.value.policies, definitions);
+  if (policies === undefined) return invalidDefinition("definition.policies");
   const scheduler = parseScheduler(data.value.scheduler);
   if (scheduler === undefined) return invalidDefinition("definition.scheduler");
   const selectedPolicy = data.value.selectedPolicy;
-  if (selectedPolicy !== null && (typeof selectedPolicy !== "string" || !Object.hasOwn(policies, selectedPolicy))) {
+  if (!isSelectedPolicy(selectedPolicy, policies)) {
     return invalidDefinition("definition.selectedPolicy");
   }
+  const apiVersion: ProjectDefinition["apiVersion"] = "1";
   return Object.freeze({
     ok: true,
     value: {
-      apiVersion: "1" as const,
+      apiVersion,
       checks,
       effects,
       operationalDependencies: dependencies,
@@ -105,85 +89,43 @@ function validateProjectDefinitionValue(value: unknown): ValidationResult<Projec
   });
 }
 
-export function validateRunControls(value: unknown = {}): ValidationResult<RunControls> {
-  try {
-    return validateRunControlsValue(value);
-  } catch {
-    return invalidControls("controls");
-  }
-}
-
-function validateRunControlsValue(value: unknown = {}): ValidationResult<RunControls> {
-  const data = exactRecord(value, RUN_CONTROL_KEYS, "invalid-run-controls", "controls");
+function exactProjectDefinition(value: unknown): ValidationResult<Readonly<Record<string, unknown>>> {
+  const data = exactRecord(value, PROJECT_DEFINITION_KEYS, "invalid-project-definition", "definition");
   if (!data.ok) return data;
-  if (data.value.projectRoot !== undefined && typeof data.value.projectRoot !== "string") {
-    return invalidControls("controls.projectRoot");
-  }
-  if (data.value.changedFiles !== undefined && !isStringArray(data.value.changedFiles)) {
-    return invalidControls("controls.changedFiles");
-  }
-  const comparison = parseComparison(data.value.comparison);
-  if (data.value.comparison !== undefined && comparison === undefined) return invalidControls("controls.comparison");
-  const effects = parseEffectsOverride(data.value.effects);
-  if (data.value.effects !== undefined && effects === undefined) return invalidControls("controls.effects");
-  const dependencies = parseDependencies(data.value.operationalDependencies);
-  if (data.value.operationalDependencies !== undefined && dependencies === undefined) {
-    return invalidControls("controls.operationalDependencies");
-  }
-  if (data.value.signal !== undefined && !isAbortSignal(data.value.signal)) {
-    return invalidControls("controls.signal");
-  }
-  return Object.freeze({
-    ok: true,
-    value: Object.freeze({
-      ...(data.value.changedFiles === undefined ? {} : { changedFiles: Object.freeze([...data.value.changedFiles]) }),
-      ...(comparison === undefined ? {} : { comparison }),
-      ...(effects === undefined ? {} : { effects }),
-      ...(dependencies === undefined ? {} : { operationalDependencies: dependencies }),
-      ...(data.value.projectRoot === undefined ? {} : { projectRoot: data.value.projectRoot }),
-      ...(data.value.signal === undefined ? {} : { signal: data.value.signal as AbortSignal })
-    })
-  });
+  return data.value.apiVersion === "1"
+    ? data
+    : invalidDefinition("definition.apiVersion");
 }
 
-function exactRecord<T extends readonly string[]>(
+function exactRecord(
   value: unknown,
-  allowedKeys: T,
+  allowedKeys: readonly string[],
   kind: ProjectDefinitionDiagnostic["kind"],
   path: string
-): ValidationResult<Readonly<Record<T[number], unknown>>> {
+): ValidationResult<Readonly<Record<string, unknown>>> {
   if (!isNonArrayRecord(value)) return invalid(kind, path, "invalid-value");
   const unknownKey = Object.keys(value).find((key) => !allowedKeys.includes(key));
   if (unknownKey !== undefined) return invalid(kind, `${path}.${unknownKey}`, "unknown-key");
-  return Object.freeze({ ok: true, value: value as Readonly<Record<T[number], unknown>> });
-}
-
-function parseQuality(value: unknown): ProjectQualityConfiguration | undefined {
-  return parseQualityConfiguration(value);
+  return Object.freeze({ ok: true, value });
 }
 
 function parseProjectChecks(value: unknown): ProjectChecks | undefined {
   const data = exactKeys(value, ["builtIn", "custom", "schedules", "selected"]);
-  if (data === undefined || !isUnknownArray(data.builtIn) || !isUnknownArray(data.custom)
-    || !isUnknownArray(data.schedules) || !isStringArray(data.selected)) return undefined;
-  const builtIn = parseBuiltInCheckIds(data.builtIn);
+  if (data === undefined) return undefined;
+  const arrays = parseCheckArrays(data);
+  if (arrays === undefined) return undefined;
+  const builtIn = parseBuiltInCheckIds(arrays.builtIn);
   if (builtIn === undefined) return undefined;
-  const custom: CustomCheckDeclaration[] = [];
-  for (const candidate of data.custom) {
-    const definition = parseCustomCheck(candidate);
-    if (definition === undefined) return undefined;
-    custom.push(definition);
-  }
+  const custom = parseCustomChecks(arrays.custom);
+  if (custom === undefined) return undefined;
   const definitions = [
     ...builtIn.map((checkId) => BUILT_IN_CHECK_DEFINITIONS[checkId]),
     ...custom.map((item) => item.definition)
   ];
   if (new Set(definitions.map((definition) => definition.checkId)).size !== definitions.length) return undefined;
-  const scheduleMap = resolveCheckSchedules(data.schedules, definitions);
-  const selection = scheduleMap === undefined
-    ? undefined
-    : resolveCheckSelection(data.selected, definitions, scheduleMap);
-  if (scheduleMap === undefined || selection === undefined) return undefined;
+  const scheduleMap = resolveCheckSchedules(arrays.schedules, definitions);
+  if (scheduleMap === undefined) return undefined;
+  if (resolveCheckSelection(arrays.selected, definitions, scheduleMap) === undefined) return undefined;
   const schedules = Object.freeze(definitions.map((definition) => Object.freeze({
     checkId: definition.checkId,
     requiresChecks: scheduleMap.get(definition.checkId) ?? Object.freeze([])
@@ -192,8 +134,29 @@ function parseProjectChecks(value: unknown): ProjectChecks | undefined {
     builtIn: Object.freeze(builtIn),
     custom: Object.freeze(custom),
     schedules,
-    selected: Object.freeze([...data.selected])
+    selected: Object.freeze([...arrays.selected])
   });
+}
+
+function parseCheckArrays(data: Readonly<Record<string, unknown>>) {
+  if (!isUnknownArray(data.builtIn) || !isUnknownArray(data.custom)) return undefined;
+  if (!isUnknownArray(data.schedules) || !isStringArray(data.selected)) return undefined;
+  return Object.freeze({
+    builtIn: data.builtIn,
+    custom: data.custom,
+    schedules: data.schedules,
+    selected: data.selected
+  });
+}
+
+function parseCustomChecks(value: readonly unknown[]): readonly CustomCheckDeclaration[] | undefined {
+  const custom: CustomCheckDeclaration[] = [];
+  for (const candidate of value) {
+    const definition = parseCustomCheck(candidate);
+    if (definition === undefined) return undefined;
+    custom.push(definition);
+  }
+  return Object.freeze(custom);
 }
 
 function parseBuiltInCheckIds(value: unknown): readonly BuiltInCheckId[] | undefined {
@@ -201,11 +164,11 @@ function parseBuiltInCheckIds(value: unknown): readonly BuiltInCheckId[] | undef
   const seen = new Set<string>();
   const builtIn: BuiltInCheckId[] = [];
   for (const checkId of value) {
-    if (!Object.hasOwn(BUILT_IN_CHECK_DEFINITIONS, checkId) || seen.has(checkId)) {
+    if (!isBuiltInCheckId(checkId) || seen.has(checkId)) {
       return undefined;
     }
     seen.add(checkId);
-    builtIn.push(checkId as BuiltInCheckId);
+    builtIn.push(checkId);
   }
   return Object.freeze(builtIn);
 }
@@ -218,9 +181,9 @@ function parseCheckDefinition(value: unknown): CheckDefinition | undefined {
 function parseCustomCheck(value: unknown): CustomCheckDeclaration | undefined {
   const data = exactKeys(value, ["applicability", "binding", "definition"]);
   const definition = data === undefined ? undefined : parseCheckDefinition(data.definition);
-  const applicability = data === undefined || typeof data.applicability !== "function"
+  const applicability = data === undefined || !isCheckApplicabilityBinding(data.applicability)
     ? undefined
-    : data.applicability as CheckApplicabilityBinding;
+    : data.applicability;
   const binding = data === undefined ? undefined : parseBinding(data.binding);
   return definition === undefined || applicability === undefined || binding === undefined
     ? undefined
@@ -229,58 +192,63 @@ function parseCustomCheck(value: unknown): CustomCheckDeclaration | undefined {
 
 function parseBinding(value: unknown): CustomCheckDeclaration["binding"] | undefined {
   const direct = exactKeys(value, ["execute", "kind"]);
-  if (direct?.kind === "direct" && typeof direct.execute === "function") {
-    return Object.freeze({ kind: "direct", execute: direct.execute as CheckExecutionBinding });
+  if (direct?.kind === "direct" && isCheckExecutionBinding(direct.execute)) {
+    return Object.freeze({ kind: "direct", execute: direct.execute });
   }
   const taskPlan = exactKeys(value, ["createTaskPlan", "kind"]);
-  if (taskPlan?.kind === "task-plan" && typeof taskPlan.createTaskPlan === "function") {
-    return Object.freeze({ kind: "task-plan", createTaskPlan: taskPlan.createTaskPlan as CheckTaskPlanFactory });
+  if (taskPlan?.kind === "task-plan" && isCheckTaskPlanFactory(taskPlan.createTaskPlan)) {
+    return Object.freeze({ kind: "task-plan", createTaskPlan: taskPlan.createTaskPlan });
   }
   return undefined;
 }
 
-function parseDependencies(value: unknown): OperationalDependencies | undefined {
-  if (!isNonArrayRecord(value)) return undefined;
-  const identifiers = Object.keys(CURRENT_PUBLIC_CONTRACT.operationalDependencies);
-  if (Object.keys(value).some((key) => !identifiers.includes(key))) return undefined;
-  const resolved: Partial<Record<OperationalDependencyId, OperationalDependencyBinding>> = {};
-  for (const identifier of identifiers as OperationalDependencyId[]) {
-    const binding = value[identifier];
-    if (binding === undefined) continue;
-    const data = exactKeys(binding, ["executable"]);
-    if (typeof data?.executable !== "string") return undefined;
-    resolved[identifier] = Object.freeze({ executable: data.executable });
-  }
-  return Object.freeze(resolved);
-}
-
-function parsePolicies(value: unknown): Readonly<Record<string, DecisionPolicy>> | undefined {
-  if (!isNonArrayRecord(value)) return undefined;
-  if (Object.values(value).some((policy) => !isNonArrayRecord(policy))) return undefined;
-  return Object.freeze({ ...value }) as Readonly<Record<string, DecisionPolicy>>;
-}
-
-function validPolicyCatalog(
-  policies: Readonly<Record<string, DecisionPolicy>>,
+function parsePolicies(
+  value: unknown,
   definitions: readonly CheckDefinition[]
-): boolean {
+): Readonly<Record<string, DecisionPolicy>> | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
   const catalog = Object.freeze({
     catalogFingerprint: createCatalogFingerprint(definitions).catalogFingerprint,
     definitions
   });
-  for (const policy of Object.values(policies)) {
-    const referenceNames = new Set(
-      policy.references?.map((reference) => reference.referenceName) ?? []
-    );
-    if (referenceNames.size > 1) return false;
-    const references = policy.references?.map((reference) => Object.freeze({
-      referenceId: `reference/v1/sha256:${createHash("sha256")
-        .update(`${policy.policyId}\u0000${reference.referenceName}`).digest("hex")}`,
-      referenceName: reference.referenceName
-    })) ?? [];
-    if (!validatePolicyResolution({ policy, references }, catalog).ok) return false;
+  const policies: Record<string, DecisionPolicy> = {};
+  for (const [name, policy] of Object.entries(value)) {
+    const references = policyReferences(policy);
+    if (references === undefined) return undefined;
+    const validated = validatePolicyResolution({ policy, references }, catalog);
+    if (!validated.ok || validated.value.policy === null) return undefined;
+    policies[name] = validated.value.policy;
   }
-  return true;
+  return Object.freeze(policies);
+}
+
+function policyReferences(
+  policy: unknown
+): readonly PolicyReferenceIdentity[] | undefined {
+  if (!isNonArrayRecord(policy) || typeof policy.policyId !== "string" || !isUnknownArray(policy.references)) {
+    return undefined;
+  }
+  const policyId = policy.policyId;
+  const referenceNames: string[] = [];
+  for (const reference of policy.references) {
+    if (!isNonArrayRecord(reference) || typeof reference.referenceName !== "string") return undefined;
+    referenceNames.push(reference.referenceName);
+  }
+  return hasSingleReferenceName(referenceNames)
+    ? Object.freeze(referenceNames.map((referenceName) => policyReference(policyId, referenceName)))
+    : undefined;
+}
+
+function hasSingleReferenceName(referenceNames: readonly string[]): boolean {
+  return new Set(referenceNames).size <= 1;
+}
+
+function policyReference(policyId: string, referenceName: string): PolicyReferenceIdentity {
+  return Object.freeze({
+    referenceId: `reference/v1/sha256:${createHash("sha256")
+      .update(`${policyId}\u0000${referenceName}`).digest("hex")}`,
+    referenceName
+  });
 }
 
 function parseScheduler(value: unknown): SchedulerPolicy | undefined {
@@ -291,16 +259,27 @@ function parseScheduler(value: unknown): SchedulerPolicy | undefined {
     : undefined;
 }
 
-function parseComparison(value: unknown): RunControls["comparison"] | undefined {
-  const data = exactKeys(value, ["referenceName", "revision"]);
-  return typeof data?.referenceName === "string" && typeof data.revision === "string"
-    ? Object.freeze({ referenceName: data.referenceName, revision: data.revision })
-    : undefined;
+function isBuiltInCheckId(value: string): value is BuiltInCheckId {
+  return Object.hasOwn(BUILT_IN_CHECK_DEFINITIONS, value);
 }
 
-function isAbortSignal(value: unknown): boolean {
-  return isNonArrayRecord(value) && typeof value.aborted === "boolean"
-    && typeof value.addEventListener === "function";
+function isCheckApplicabilityBinding(value: unknown): value is CheckApplicabilityBinding {
+  return typeof value === "function";
+}
+
+function isCheckExecutionBinding(value: unknown): value is CheckExecutionBinding {
+  return typeof value === "function";
+}
+
+function isCheckTaskPlanFactory(value: unknown): value is CheckTaskPlanFactory {
+  return typeof value === "function";
+}
+
+function isSelectedPolicy(
+  selectedPolicy: unknown,
+  policies: Readonly<Record<string, DecisionPolicy>>
+): selectedPolicy is string | null {
+  return selectedPolicy === null || (typeof selectedPolicy === "string" && Object.hasOwn(policies, selectedPolicy));
 }
 
 function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<string, unknown>> | undefined {
@@ -312,10 +291,6 @@ function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<str
 
 function invalidDefinition(path: string): ValidationResult<never> {
   return invalid("invalid-project-definition", path, "invalid-value");
-}
-
-function invalidControls(path: string): ValidationResult<never> {
-  return invalid("invalid-run-controls", path, "invalid-value");
 }
 
 function invalid(

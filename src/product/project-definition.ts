@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 
-import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
+import {
+  CURRENT_PUBLIC_CONTRACT,
+  OPERATIONAL_DEPENDENCY_IDS,
+  type OperationalDependencyId
+} from "./current-public-contract.ts";
 import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
 import type {
   CheckExecutionBinding,
@@ -223,9 +227,9 @@ function freezeDeclarativeSnapshot(definition: ProjectDefinition): DeclarativePr
       selected: definition.checks.selected
     },
     effects: definition.effects,
-    operationalDependencyIds: Object.freeze(
-      Object.keys(definition.operationalDependencies).sort() as OperationalDependencyId[]
-    ),
+    operationalDependencyIds: Object.freeze(OPERATIONAL_DEPENDENCY_IDS.filter(
+      (dependencyId) => definition.operationalDependencies[dependencyId] !== undefined
+    )),
     policyNames: Object.freeze(Object.keys(definition.policies).sort()),
     quality: definition.quality,
     scheduler: definition.scheduler,

@@ -17,7 +17,7 @@ export function parseEffects(value: unknown): ProjectEffects | undefined {
 
 export function parseEffectsOverride(value: unknown): RunControls["effects"] | undefined {
   if (!isNonArrayRecord(value)
-    || Object.keys(value).some((key) => !EFFECT_NAMES.includes(key as never))) {
+    || Object.keys(value).some((key) => !isEffectName(key))) {
     return undefined;
   }
   const cache = optionalEffect(value, "cache", parseDirectoryEffectOverride);
@@ -31,6 +31,10 @@ export function parseEffectsOverride(value: unknown): RunControls["effects"] | u
     ...(output.value === undefined ? {} : { output: output.value }),
     ...(progress.value === undefined ? {} : { progress: progress.value })
   });
+}
+
+function isEffectName(value: string): boolean {
+  return EFFECT_NAMES.some((effectName) => effectName === value);
 }
 
 function optionalEffect<T>(

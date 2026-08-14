@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./current-public-contract.ts";
+import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
 import { defineConfig } from "./project-definition.ts";
 import { run } from "./run.ts";
 
@@ -36,11 +37,11 @@ describe("current public contract", () => {
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.packageRun);
     assert.deepEqual(defineConfig({}).effects, CURRENT_PUBLIC_CONTRACT.effectDefaults);
 
-    const packageManifest = JSON.parse(readFileSync(
+    const packageManifest = packageManifestName(readFileSync(
       fileURLToPath(new URL("../../package.json", import.meta.url)),
       "utf8"
-    )) as { name?: unknown };
-    assert.equal(packageManifest.name, CURRENT_PUBLIC_CONTRACT.packageImport);
+    ));
+    assert.equal(packageManifest, CURRENT_PUBLIC_CONTRACT.packageImport);
 
     const ownerSource = readFileSync(fileURLToPath(new URL(
       "./current-public-contract.ts",
@@ -50,3 +51,11 @@ describe("current public contract", () => {
     assert.doesNotMatch(ownerSource, /\b(?:host|legal|license|manifest|version)\b/i);
   });
 });
+
+function packageManifestName(source: string): string {
+  const parsed: unknown = JSON.parse(source);
+  if (!isNonArrayRecord(parsed) || typeof parsed.name !== "string") {
+    throw new TypeError("Package manifest must declare a string name");
+  }
+  return parsed.name;
+}

@@ -1,6 +1,8 @@
 import { isNonArrayRecord, isStringArray } from "./foundation/src/type-guards.ts";
 import {
   WARNING_POLICIES,
+  type CodeAreaDefinition,
+  type CodeAreaWarningPolicy,
   type ResolvedQualityConfig
 } from "./quality-core/src/model/schema.ts";
 
@@ -79,92 +81,147 @@ export function parseQualityConfiguration(value: unknown): ProjectQualityConfigu
     "include",
     "report"
   ]);
-  if (root === undefined || !validRootFields(root)) return undefined;
-  const minimumTokenAreas = exactKeys(
-    exactKeys(root.checks, ["duplication", "files", "functions"])?.duplication,
-    ["defaultMinimumTokens", "fragments", "minimumTokensByCodeArea"]
-  )?.minimumTokensByCodeArea;
-  const codeAreas = root.codeAreas as Readonly<Record<string, unknown>>;
-  if (!isNonArrayRecord(minimumTokenAreas)
-    || Object.keys(minimumTokenAreas).some((area) => !Object.hasOwn(codeAreas, area))) {
+  if (root === undefined) return undefined;
+  const checks = parseChecks(root.checks);
+  const codeAreas = parseCodeAreas(root.codeAreas);
+  const excludeDirs = parseStringArray(root.excludeDirs);
+  const generatedFiles = parseStringArray(root.generatedFiles);
+  const include = parseStringArray(root.include);
+  const report = parseReport(root.report);
+  if (checks === undefined || codeAreas === undefined || excludeDirs === undefined
+    || generatedFiles === undefined || include === undefined || report === undefined
+    || !minimumTokenAreasAreKnown(checks, codeAreas) || !isValidTimeZone(report.timeZone)) {
     return undefined;
   }
-  try {
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: (root.report as Readonly<Record<string, unknown>>).timeZone as string
-    }).format(0);
-    return deepFreeze(structuredClone(root)) as unknown as ProjectQualityConfiguration;
-  } catch {
-    return undefined;
-  }
+  return deepFreeze({ checks, codeAreas, excludeDirs, generatedFiles, include, report });
 }
 
-function validChecks(value: unknown): boolean {
+function parseChecks(value: unknown): ProjectQualityConfiguration["checks"] | undefined {
   const checks = exactKeys(value, ["duplication", "files", "functions"]);
-  return checks !== undefined && validDuplicationChecks(checks.duplication)
-    && validFileChecks(checks.files) && validFunctionChecks(checks.functions);
+  if (checks === undefined) return undefined;
+  const duplication = parseDuplicationChecks(checks.duplication);
+  const files = parseFileChecks(checks.files);
+  const functions = parseFunctionChecks(checks.functions);
+  return duplication === undefined || files === undefined || functions === undefined
+    ? undefined
+    : Object.freeze({ duplication, files, functions });
 }
 
-function validDuplicationChecks(value: unknown): boolean {
+function parseDuplicationChecks(
+  value: unknown
+): ProjectQualityConfiguration["checks"]["duplication"] | undefined {
   const duplication = exactKeys(
     value,
     ["defaultMinimumTokens", "fragments", "minimumTokensByCodeArea"]
   );
   const fragments = exactKeys(duplication?.fragments, ["changedDelta"]);
-  return duplication !== undefined && fragments !== undefined
-    && numericValues(duplication.minimumTokensByCodeArea)
-    && finiteNumber(duplication.defaultMinimumTokens)
-    && finiteNumber(fragments.changedDelta);
-}
-
-function validFileChecks(value: unknown): boolean {
-  const files = exactKeys(value, ["codeLines"]);
-  const fileLines = exactKeys(
-    files?.codeLines,
-    ["absoluteFloor", "changedDelta", "lowDecisionTokenAllowance"]
-  );
-  const decisionAllowance = exactKeys(
-    fileLines?.lowDecisionTokenAllowance,
-    ["codeLineFloor", "maxDecisionTokens"]
-  );
-  return threshold(fileLines) && numericRecord(decisionAllowance);
-}
-
-function validFunctionChecks(value: unknown): boolean {
-  const functions = exactKeys(
-    value,
-    ["codeLines", "cyclomaticComplexity", "parameterCount"]
-  );
-  const functionLines = exactKeys(
-    functions?.codeLines,
-    ["absoluteFloor", "changedDelta", "lowComplexityAllowance"]
-  );
-  const complexityAllowance = exactKeys(
-    functionLines?.lowComplexityAllowance,
-    ["codeLineFloor", "maxCyclomaticComplexityExclusive"]
-  );
-  return threshold(functionLines) && numericRecord(complexityAllowance)
-    && threshold(exactKeys(functions?.cyclomaticComplexity, ["absoluteFloor", "changedDelta"]))
-    && threshold(exactKeys(functions?.parameterCount, ["absoluteFloor", "changedDelta"]));
-}
-
-function validRootFields(root: Readonly<Record<string, unknown>>): boolean {
-  return isStringArray(root.excludeDirs) && isStringArray(root.generatedFiles)
-    && isStringArray(root.include) && validChecks(root.checks)
-    && validCodeAreas(root.codeAreas) && validReport(root.report);
-}
-
-function validCodeAreas(value: unknown): boolean {
-  if (!isNonArrayRecord(value)) return false;
-  return Object.values(value).every((candidate) => {
-    const area = exactKeys(candidate, ["description", "excludeGlobs", "globs", "warningPolicy"]);
-    return typeof area?.description === "string" && isStringArray(area.excludeGlobs)
-      && isStringArray(area.globs) && typeof area.warningPolicy === "string"
-      && WARNING_POLICIES.includes(area.warningPolicy as never);
+  const minimumTokensByCodeArea = duplication === undefined
+    ? undefined
+    : parseNumberRecord(duplication.minimumTokensByCodeArea);
+  if (duplication === undefined || fragments === undefined || minimumTokensByCodeArea === undefined
+    || !finiteNumber(duplication.defaultMinimumTokens) || !finiteNumber(fragments.changedDelta)) {
+    return undefined;
+  }
+  return Object.freeze({
+    defaultMinimumTokens: duplication.defaultMinimumTokens,
+    fragments: Object.freeze({ changedDelta: fragments.changedDelta }),
+    minimumTokensByCodeArea
   });
 }
 
-function validReport(value: unknown): boolean {
+function parseFileChecks(
+  value: unknown
+): ProjectQualityConfiguration["checks"]["files"] | undefined {
+  const files = exactKeys(value, ["codeLines"]);
+  const codeLines = exactKeys(
+    files?.codeLines,
+    ["absoluteFloor", "changedDelta", "lowDecisionTokenAllowance"]
+  );
+  const allowance = exactKeys(
+    codeLines?.lowDecisionTokenAllowance,
+    ["codeLineFloor", "maxDecisionTokens"]
+  );
+  if (codeLines === undefined || allowance === undefined || !threshold(codeLines)
+    || !finiteNumber(allowance.codeLineFloor) || !finiteNumber(allowance.maxDecisionTokens)) {
+    return undefined;
+  }
+  return Object.freeze({
+    codeLines: Object.freeze({
+      absoluteFloor: codeLines.absoluteFloor,
+      changedDelta: codeLines.changedDelta,
+      lowDecisionTokenAllowance: Object.freeze({
+        codeLineFloor: allowance.codeLineFloor,
+        maxDecisionTokens: allowance.maxDecisionTokens
+      })
+    })
+  });
+}
+
+function parseFunctionChecks(
+  value: unknown
+): ProjectQualityConfiguration["checks"]["functions"] | undefined {
+  const functions = exactKeys(value, ["codeLines", "cyclomaticComplexity", "parameterCount"]);
+  const codeLines = exactKeys(
+    functions?.codeLines,
+    ["absoluteFloor", "changedDelta", "lowComplexityAllowance"]
+  );
+  const allowance = exactKeys(
+    codeLines?.lowComplexityAllowance,
+    ["codeLineFloor", "maxCyclomaticComplexityExclusive"]
+  );
+  const cyclomaticComplexity = exactKeys(
+    functions?.cyclomaticComplexity,
+    ["absoluteFloor", "changedDelta"]
+  );
+  const parameterCount = exactKeys(functions?.parameterCount, ["absoluteFloor", "changedDelta"]);
+  if (codeLines === undefined || allowance === undefined || cyclomaticComplexity === undefined
+    || parameterCount === undefined || !threshold(codeLines) || !threshold(cyclomaticComplexity)
+    || !threshold(parameterCount) || !finiteNumber(allowance.codeLineFloor)
+    || !finiteNumber(allowance.maxCyclomaticComplexityExclusive)) {
+    return undefined;
+  }
+  return Object.freeze({
+    codeLines: Object.freeze({
+      absoluteFloor: codeLines.absoluteFloor,
+      changedDelta: codeLines.changedDelta,
+      lowComplexityAllowance: Object.freeze({
+        codeLineFloor: allowance.codeLineFloor,
+        maxCyclomaticComplexityExclusive: allowance.maxCyclomaticComplexityExclusive
+      })
+    }),
+    cyclomaticComplexity: Object.freeze({
+      absoluteFloor: cyclomaticComplexity.absoluteFloor,
+      changedDelta: cyclomaticComplexity.changedDelta
+    }),
+    parameterCount: Object.freeze({
+      absoluteFloor: parameterCount.absoluteFloor,
+      changedDelta: parameterCount.changedDelta
+    })
+  });
+}
+
+function parseCodeAreas(value: unknown): ProjectQualityConfiguration["codeAreas"] | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
+  const areas: Record<string, CodeAreaDefinition> = {};
+  for (const [name, candidate] of Object.entries(value)) {
+    const area = exactKeys(candidate, ["description", "excludeGlobs", "globs", "warningPolicy"]);
+    const excludeGlobs = area === undefined ? undefined : parseStringArray(area.excludeGlobs);
+    const globs = area === undefined ? undefined : parseStringArray(area.globs);
+    if (area === undefined || excludeGlobs === undefined || globs === undefined
+      || typeof area.description !== "string" || !isWarningPolicy(area.warningPolicy)) {
+      return undefined;
+    }
+    areas[name] = Object.freeze({
+      description: area.description,
+      excludeGlobs,
+      globs,
+      warningPolicy: area.warningPolicy
+    });
+  }
+  return Object.freeze(areas);
+}
+
+function parseReport(value: unknown): ProjectQualityConfiguration["report"] | undefined {
   const report = exactKeys(value, [
     "footerGeneratedBy",
     "footerNotice",
@@ -175,26 +232,67 @@ function validReport(value: unknown): boolean {
     "topN",
     "watchlistMax"
   ]);
-  return typeof report?.footerGeneratedBy === "string"
-    && typeof report.footerNotice === "string"
-    && typeof report.nonBlockingNotice === "string"
-    && typeof report.showWatchlist === "boolean"
-    && typeof report.timeZone === "string"
-    && typeof report.title === "string"
-    && finiteNumber(report.topN)
-    && finiteNumber(report.watchlistMax);
+  if (report === undefined || typeof report.footerGeneratedBy !== "string"
+    || typeof report.footerNotice !== "string" || typeof report.nonBlockingNotice !== "string"
+    || typeof report.showWatchlist !== "boolean" || typeof report.timeZone !== "string"
+    || typeof report.title !== "string" || !finiteNumber(report.topN)
+    || !finiteNumber(report.watchlistMax)) {
+    return undefined;
+  }
+  return Object.freeze({
+    footerGeneratedBy: report.footerGeneratedBy,
+    footerNotice: report.footerNotice,
+    nonBlockingNotice: report.nonBlockingNotice,
+    showWatchlist: report.showWatchlist,
+    timeZone: report.timeZone,
+    title: report.title,
+    topN: report.topN,
+    watchlistMax: report.watchlistMax
+  });
 }
 
-function threshold(value: Readonly<Record<string, unknown>> | undefined): boolean {
-  return finiteNumber(value?.absoluteFloor) && finiteNumber(value?.changedDelta);
+function minimumTokenAreasAreKnown(
+  checks: ProjectQualityConfiguration["checks"],
+  codeAreas: ProjectQualityConfiguration["codeAreas"]
+): boolean {
+  return Object.keys(checks.duplication.minimumTokensByCodeArea)
+    .every((area) => Object.hasOwn(codeAreas, area));
 }
 
-function numericRecord(value: Readonly<Record<string, unknown>> | undefined): boolean {
-  return value !== undefined && Object.values(value).every(finiteNumber);
+function parseNumberRecord(value: unknown): Readonly<Record<string, number>> | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
+  const record: Record<string, number> = {};
+  for (const [key, candidate] of Object.entries(value)) {
+    if (!finiteNumber(candidate)) return undefined;
+    record[key] = candidate;
+  }
+  return Object.freeze(record);
 }
 
-function numericValues(value: unknown): boolean {
-  return isNonArrayRecord(value) && Object.values(value).every(finiteNumber);
+function parseStringArray(value: unknown): readonly string[] | undefined {
+  return isStringArray(value) ? Object.freeze([...value]) : undefined;
+}
+
+function isWarningPolicy(value: unknown): value is CodeAreaWarningPolicy {
+  return typeof value === "string" && WARNING_POLICIES.some((policy) => policy === value);
+}
+
+function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone }).format(0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function threshold(
+  value: Readonly<Record<string, unknown>>
+): value is Readonly<Record<string, unknown>> & Readonly<{
+  readonly absoluteFloor: number;
+  readonly changedDelta: number;
+}> {
+  return finiteNumber(value.absoluteFloor) && finiteNumber(value.changedDelta);
 }
 
 function finiteNumber(value: unknown): value is number {

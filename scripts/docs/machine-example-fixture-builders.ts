@@ -117,7 +117,7 @@ function createRun(
   catalog: ResolvedCheckCatalog,
   state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning"
 ): CheckRun {
-  const checkRunId = catalog.checks[0]!.checkRunId;
+  const checkRunId = requiredCatalogCheck(catalog).checkRunId;
   if (state === "empty") {
     return {
       checkId: definition.checkId,
@@ -158,7 +158,7 @@ function createRun(
 }
 
 function createExampleRecord(run: CheckRun): QualityRecord {
-  const recordType = definition.recordTypes[0]!;
+  const recordType = requiredExampleRecordType();
   const candidate = {
     checkId: definition.checkId,
     checkRunId: run.checkRunId,
@@ -212,6 +212,22 @@ function createDecision(
   return evaluateDecisionPolicy(policyResult.value, snapshot, emptyReferenceFacts);
 }
 
+function requiredCatalogCheck(catalog: ResolvedCheckCatalog): ResolvedCheckCatalog["checks"][number] {
+  const [check] = catalog.checks;
+  if (check === undefined || catalog.checks.length !== 1) {
+    throw new TypeError("Canonical example catalog must contain exactly one Check");
+  }
+  return check;
+}
+
+function requiredExampleRecordType(): CheckDefinition["recordTypes"][number] {
+  const [recordType] = definition.recordTypes;
+  if (recordType === undefined || definition.recordTypes.length !== 1) {
+    throw new TypeError("Canonical example definition must contain exactly one record type");
+  }
+  return recordType;
+}
+
 function docsGatePolicy(): DecisionPolicy {
   return Object.freeze({
     policyId: "docs-gate",
@@ -221,7 +237,7 @@ function docsGatePolicy(): DecisionPolicy {
       viewId: "all-current",
       selectors: Object.freeze([Object.freeze({
         checkId: definition.checkId,
-        recordTypeId: definition.recordTypes[0]!.recordTypeId
+        recordTypeId: requiredExampleRecordType().recordTypeId
       })]),
       acceptance: "all" as const,
       predicates: Object.freeze([])

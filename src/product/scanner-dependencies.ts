@@ -1,5 +1,13 @@
-import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
-import type { OperationalDependencies } from "./project-definition.ts";
+import {
+  CURRENT_PUBLIC_CONTRACT,
+  OPERATIONAL_DEPENDENCY_IDS,
+  type OperationalDependencyId
+} from "./current-public-contract.ts";
+import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
+import type {
+  OperationalDependencies,
+  OperationalDependencyBinding
+} from "./project-definition.ts";
 
 const DUPLICATION_MAX_CONCURRENCY = 4;
 const FUNCTION_ARGS = Object.freeze(["-m", "lizard"] as const);
@@ -41,6 +49,19 @@ export interface ScannerDependencyResolutionInput {
 
 export type SelectedScannerDependencySnapshot = Readonly<Partial<ScannerDependencySnapshot>>;
 
+export function parseOperationalDependencies(value: unknown): OperationalDependencies | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
+  const dependencies: Partial<Record<OperationalDependencyId, OperationalDependencyBinding>> = {};
+  for (const [dependencyId, binding] of Object.entries(value)) {
+    if (!isOperationalDependencyId(dependencyId) || !isNonArrayRecord(binding)
+      || Object.keys(binding).length !== 1 || typeof binding.executable !== "string") {
+      return undefined;
+    }
+    dependencies[dependencyId] = Object.freeze({ executable: binding.executable });
+  }
+  return Object.freeze(dependencies);
+}
+
 export class ScannerOperationalInputError extends Error {
   readonly code = "invalid-scanner-operational-input";
   readonly dependencyId: OperationalDependencyId | undefined;
@@ -61,9 +82,13 @@ export function resolveScannerDependencySnapshot(
 ): ScannerDependencySnapshot {
   const selected = resolveSelectedScannerDependencySnapshot(
     input,
-    dependencyIds()
+    OPERATIONAL_DEPENDENCY_IDS
   );
-  return selected as ScannerDependencySnapshot;
+  return Object.freeze({
+    duplication: requiredDuplicationDependency(selected),
+    file: requiredFileDependency(selected),
+    function: requiredFunctionDependency(selected)
+  });
 }
 
 /**
@@ -76,30 +101,30 @@ export function resolveSelectedScannerDependencySnapshot(
 ): SelectedScannerDependencySnapshot {
   const selected = new Set(selectedDependencyIds);
   if (selected.size !== selectedDependencyIds.length
-    || selectedDependencyIds.some((dependencyId) => !dependencyIds().includes(dependencyId))) {
+    || selectedDependencyIds.some((dependencyId) => !OPERATIONAL_DEPENDENCY_IDS.includes(dependencyId))) {
     throw new ScannerOperationalInputError("operationalDependencies");
   }
-  const executableByDependency = new Map(selectedDependencyIds.map((dependencyId) => [
-    dependencyId,
-    resolveExecutable(dependencyId, input)
-  ]));
+  const executables = new Map<OperationalDependencyId, string>();
+  for (const dependencyId of selectedDependencyIds) {
+    executables.set(dependencyId, resolveExecutable(dependencyId, input));
+  }
 
   return Object.freeze({
-    ...(executableByDependency.has("duplication") ? { duplication: Object.freeze({
+    ...(executables.has("duplication") ? { duplication: Object.freeze({
       args: Object.freeze([]),
       availabilityArgs: Object.freeze(["--version"]),
-      executable: executableByDependency.get("duplication")!,
+      executable: requiredExecutable(executables, "duplication"),
       maxConcurrency: DUPLICATION_MAX_CONCURRENCY
     }) } : {}),
-    ...(executableByDependency.has("file") ? { file: Object.freeze({
+    ...(executables.has("file") ? { file: Object.freeze({
       args: Object.freeze([]),
       availabilityArgs: Object.freeze(["--version"]),
-      executable: executableByDependency.get("file")!
+      executable: requiredExecutable(executables, "file")
     }) } : {}),
-    ...(executableByDependency.has("function") ? { function: Object.freeze({
+    ...(executables.has("function") ? { function: Object.freeze({
       args: FUNCTION_ARGS,
       availabilityArgs: FUNCTION_AVAILABILITY_ARGS,
-      executable: executableByDependency.get("function")!
+      executable: requiredExecutable(executables, "function")
     }) } : {})
   });
 }
@@ -118,12 +143,37 @@ function resolveExecutable(
   throw new ScannerOperationalInputError(dependencyId);
 }
 
-function dependencyIds(): OperationalDependencyId[] {
-  return Object.keys(CURRENT_PUBLIC_CONTRACT.operationalDependencies) as OperationalDependencyId[];
+function requiredDuplicationDependency(
+  snapshot: SelectedScannerDependencySnapshot
+): DuplicationScannerDependency {
+  const dependency = snapshot.duplication;
+  if (dependency === undefined) throw new ScannerOperationalInputError("duplication");
+  return dependency;
+}
+
+function requiredFileDependency(snapshot: SelectedScannerDependencySnapshot): FileScannerDependency {
+  const dependency = snapshot.file;
+  if (dependency === undefined) throw new ScannerOperationalInputError("file");
+  return dependency;
+}
+
+function requiredFunctionDependency(snapshot: SelectedScannerDependencySnapshot): FunctionScannerDependency {
+  const dependency = snapshot.function;
+  if (dependency === undefined) throw new ScannerOperationalInputError("function");
+  return dependency;
+}
+
+function requiredExecutable(
+  executables: ReadonlyMap<OperationalDependencyId, string>,
+  dependencyId: OperationalDependencyId
+): string {
+  const executable = executables.get(dependencyId);
+  if (executable === undefined) throw new ScannerOperationalInputError(dependencyId);
+  return executable;
 }
 
 function isOperationalDependencyId(value: string): value is OperationalDependencyId {
-  return dependencyIds().includes(value as OperationalDependencyId);
+  return Object.hasOwn(CURRENT_PUBLIC_CONTRACT.operationalDependencies, value);
 }
 
 function isNonEmptyString(value: unknown): value is string {

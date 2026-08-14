@@ -1,7 +1,4 @@
-import { randomUUID } from "node:crypto";
-import { rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import {
   BUILT_IN_CHECK_DEFINITIONS,
@@ -9,7 +6,13 @@ import {
   type ProjectEffects,
   type RunControls
 } from "./project-definition.ts";
-import { referenceIdentity } from "./run-policy.ts";
+import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
+import {
+  prepareComparisonReference,
+  prepareCurrentBuiltInInputs,
+  type BuiltInExactInputs,
+  type ComparisonReference
+} from "./run-built-in-inputs.ts";
 import { resolveSelectedScannerDependencySnapshot } from "./scanner-dependencies.ts";
 import {
   createDuplicateDetectionBinding,
@@ -24,47 +27,41 @@ import {
   resolveFunctionMetricsApplicability
 } from "./quality-core/src/check-record/builtins/function-metrics.ts";
 import type { FinalCoreSnapshot } from "./quality-core/src/check-record/model.ts";
+import type { CheckExecutionBinding } from "./quality-core/src/check-record/catalog.ts";
 import type { ReferenceFacts } from "./quality-core/src/check-record/policy-model.ts";
-import {
-  prepareBuiltInExactInputs,
-  type BuiltInReferenceInputs
-} from "./quality-core/src/engine-input-preparation.ts";
-import {
-  buildFingerprints,
-  collectBaselineFiles,
-  collectScanFiles
-} from "./quality-core/src/input/files.ts";
-import {
-  materializeBaselineRevision,
-  resolveBaselineCommitSha
-} from "./quality-core/src/input/revisions.ts";
-import { classifyFiles } from "./quality-core/src/model/code-areas.ts";
-import { getGitSha } from "./quality-core/src/scan-command/tool-metadata.ts";
 
 export interface BuiltInRuntime {
-  readonly applicability: ReadonlyMap<string, () => unknown>;
-  readonly bindings: ReadonlyMap<string, unknown>;
+  readonly applicability: ReadonlyMap<string, BuiltInApplicability>;
+  readonly bindings: ReadonlyMap<string, BuiltInBinding>;
   readonly cleanup: () => void;
   readonly referenceFacts: ReadonlyMap<string, (snapshot: FinalCoreSnapshot) => ReferenceFacts>;
 }
 
 interface RuntimeMaps {
-  readonly applicability: Map<string, () => unknown>;
-  readonly bindings: Map<string, unknown>;
+  readonly applicability: Map<string, BuiltInApplicability>;
+  readonly bindings: Map<string, BuiltInBinding>;
   readonly referenceFacts: Map<string, (snapshot: FinalCoreSnapshot) => ReferenceFacts>;
 }
-type ExactInputs = ReturnType<typeof prepareBuiltInExactInputs>;
+type ExactInputs = BuiltInExactInputs;
+type BuiltInApplicability = () => Readonly<
+  | { readonly status: "not-applicable" }
+  | { readonly status: "applicable"; readonly workHandles: readonly string[] }
+>;
+type BuiltInBinding = Readonly<{ readonly checkId: string; readonly execute: CheckExecutionBinding }>;
+const BUILT_IN_DEPENDENCIES = Object.freeze({
+  "duplicate-detection": "duplication",
+  "file-metrics": "file",
+  "function-metrics": "function"
+} as const satisfies Readonly<Record<keyof typeof BUILT_IN_CHECK_DEFINITIONS, OperationalDependencyId>>);
 
-export function prepareBuiltInRuntime(
-  definition: ProjectDefinition,
-  controls: RunControls,
-  selectedCheckIds: readonly string[],
-  cache: ProjectEffects["cache"],
-  onCacheActivity: (activity: "failed" | "read" | "write") => void
-): BuiltInRuntime {
-  const selectedBuiltIns = selectedCheckIds.filter((checkId) => (
-    Object.hasOwn(BUILT_IN_CHECK_DEFINITIONS, checkId)
-  ));
+export function prepareBuiltInRuntime(input: Readonly<{
+  cache: ProjectEffects["cache"];
+  controls: RunControls;
+  definition: ProjectDefinition;
+  onCacheActivity: (activity: "failed" | "read" | "write") => void;
+  selectedCheckIds: readonly string[];
+}>): BuiltInRuntime {
+  const selectedBuiltIns = selectedBuiltInCheckIds(input.selectedCheckIds);
   if (selectedBuiltIns.length === 0) {
     return Object.freeze({
       applicability: new Map(),
@@ -73,38 +70,44 @@ export function prepareBuiltInRuntime(
       referenceFacts: new Map()
     });
   }
-  const requiredDependencies = selectedBuiltIns.map((checkId) => (
-    checkId === "duplicate-detection" ? "duplication"
-      : checkId === "file-metrics" ? "file" : "function"
-  )) as ("duplication" | "file" | "function")[];
+  const requiredDependencies = selectedBuiltIns.map((checkId) => BUILT_IN_DEPENDENCIES[checkId]);
   const dependencies = resolveSelectedScannerDependencySnapshot({
-    controls: controls.operationalDependencies,
-    definition: definition.operationalDependencies,
+    controls: input.controls.operationalDependencies,
+    definition: input.definition.operationalDependencies,
     environment: supportedEnvironmentSnapshot()
   }, requiredDependencies);
-  const root = resolve(controls.projectRoot ?? process.cwd());
-  const config = definition.quality;
-  const current = prepareExactInputs(root, config, resolve(root, cache.directory));
-  const comparison = controls.comparison === undefined
+  const root = resolve(input.controls.projectRoot ?? process.cwd());
+  const config = input.definition.quality;
+  const current = prepareCurrentBuiltInInputs({
+    cacheDirectory: input.cache.directory,
+    config,
+    root
+  });
+  const comparison = input.controls.comparison === undefined
     ? null
-    : prepareComparisonReference(root, config, controls.comparison, cache.directory);
+    : prepareComparisonReference({
+      cacheDirectory: input.cache.directory,
+      comparison: input.controls.comparison,
+      config,
+      root
+    });
   try {
     const maps: RuntimeMaps = {
       applicability: new Map(),
       bindings: new Map(),
       referenceFacts: new Map()
     };
-    const changedFiles = controls.changedFiles ?? [];
+    const changedFiles = input.controls.changedFiles ?? [];
     if (selectedBuiltIns.includes("duplicate-detection")) {
       addDuplicateRuntime(maps, {
-        cache,
+        cache: input.cache,
         changedFiles,
         comparison,
         config,
-        configVersion: definition.apiVersion,
+        configVersion: input.definition.apiVersion,
         current,
-        dependency: dependencies.duplication!,
-        onCacheActivity
+        dependency: requiredDependency(dependencies, "duplication"),
+        onCacheActivity: input.onCacheActivity
       });
     }
     if (selectedBuiltIns.includes("file-metrics")) {
@@ -113,7 +116,7 @@ export function prepareBuiltInRuntime(
         comparison,
         config,
         current,
-        dependency: dependencies.file!
+        dependency: requiredDependency(dependencies, "file")
       });
     }
     if (selectedBuiltIns.includes("function-metrics")) {
@@ -122,7 +125,7 @@ export function prepareBuiltInRuntime(
         comparison,
         config,
         current,
-        dependency: dependencies.function!
+        dependency: requiredDependency(dependencies, "function")
       });
     }
     return Object.freeze({
@@ -133,6 +136,23 @@ export function prepareBuiltInRuntime(
     comparison?.cleanup();
     throw error;
   }
+}
+
+function selectedBuiltInCheckIds(
+  selectedCheckIds: readonly string[]
+): readonly (keyof typeof BUILT_IN_CHECK_DEFINITIONS)[] {
+  return selectedCheckIds.filter((checkId): checkId is keyof typeof BUILT_IN_CHECK_DEFINITIONS => (
+    Object.hasOwn(BUILT_IN_CHECK_DEFINITIONS, checkId)
+  ));
+}
+
+function requiredDependency<Id extends OperationalDependencyId>(
+  dependencies: ReturnType<typeof resolveSelectedScannerDependencySnapshot>,
+  dependencyId: Id
+): NonNullable<ReturnType<typeof resolveSelectedScannerDependencySnapshot>[Id]> {
+  const dependency = dependencies[dependencyId];
+  if (dependency === undefined) throw new TypeError(`Missing selected dependency ${dependencyId}`);
+  return dependency;
 }
 
 function addDuplicateRuntime(maps: RuntimeMaps, input: Readonly<{
@@ -229,67 +249,6 @@ interface CommonRuntimeInput {
   readonly current: ExactInputs;
 }
 
-type ComparisonReference = Readonly<{
-  readonly cleanup: () => void;
-  readonly input: BuiltInReferenceInputs;
-}>;
-
-function prepareComparisonReference(
-  root: string,
-  config: ProjectDefinition["quality"],
-  comparison: NonNullable<RunControls["comparison"]>,
-  cacheDirectory: string
-): ComparisonReference {
-  const resolved = resolveBaselineCommitSha({ cwd: root, revision: comparison.revision });
-  if (!resolved.ok) throw new TypeError("Explicit comparison revision is unavailable");
-  const temporaryRoot = join(tmpdir(), `vibe-check-reference-${randomUUID()}`);
-  const materialized = materializeBaselineRevision({
-    baselineWorkDir: temporaryRoot,
-    commitSha: resolved.commitSha,
-    cwd: root
-  });
-  if (!materialized.ok) {
-    rmSync(temporaryRoot, { recursive: true, force: true });
-    throw new TypeError("Explicit comparison revision could not be materialized");
-  }
-  try {
-    return Object.freeze({
-      cleanup: () => rmSync(temporaryRoot, { recursive: true, force: true }),
-      input: Object.freeze({
-        ...prepareExactInputs(
-          materialized.workDir,
-          config,
-          resolve(root, cacheDirectory),
-          collectBaselineFiles
-        ),
-        identity: referenceIdentity(comparison)
-      })
-    });
-  } catch (error) {
-    rmSync(temporaryRoot, { recursive: true, force: true });
-    throw error;
-  }
-}
-
-function prepareExactInputs(
-  root: string,
-  config: ProjectDefinition["quality"],
-  cacheRootDir: string,
-  collectFiles: typeof collectScanFiles = collectScanFiles
-): ExactInputs {
-  const scanFiles = collectFiles(root, config);
-  const fileMap = classifyFiles(scanFiles, config.codeAreas, config.generatedFiles);
-  return prepareBuiltInExactInputs({
-    cacheRootDir,
-    commitSha: getGitSha(root),
-    config,
-    fileMap,
-    fingerprints: buildFingerprints(fileMap, root),
-    rootDir: root,
-    scanFiles
-  });
-}
-
 function duplicateInput(
   input: ExactInputs["duplicateDetection"],
   config: ProjectDefinition["quality"]
@@ -307,9 +266,9 @@ function duplicateInput(
 }
 
 function supportedEnvironmentSnapshot(): Readonly<Record<string, string | undefined>> {
-  return Object.freeze({
-    VIBE_CHECK_JSCPD_CMD: process.env.VIBE_CHECK_JSCPD_CMD,
-    VIBE_CHECK_LIZARD_CMD: process.env.VIBE_CHECK_LIZARD_CMD,
-    VIBE_CHECK_SCC_CMD: process.env.VIBE_CHECK_SCC_CMD
-  });
+  return Object.freeze(Object.fromEntries(
+    Object.values(CURRENT_PUBLIC_CONTRACT.operationalDependencies).map(({ environment }) => (
+      [environment, process.env[environment]] as const
+    ))
+  ));
 }

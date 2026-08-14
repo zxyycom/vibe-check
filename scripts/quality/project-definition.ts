@@ -29,110 +29,110 @@ export default defineConfig({
   },
   scheduler: { maxParallel: 4 },
   quality: {
-    "checks": {
-      "duplication": {
-        "defaultMinimumTokens": 100,
-        "fragments": {
-          "changedDelta": 0
+    checks: {
+      duplication: {
+        defaultMinimumTokens: 100,
+        fragments: {
+          changedDelta: 0
         },
-        "minimumTokensByCodeArea": {
+        minimumTokensByCodeArea: {
           "docs-specs": 150,
-          "generated": 200,
+          generated: 200,
           "product-source": 75,
           "schemas-examples": 150,
           "script-tooling": 75
         }
       },
-      "files": {
-        "codeLines": {
-          "absoluteFloor": 300,
-          "changedDelta": 100,
-          "lowDecisionTokenAllowance": {
-            "codeLineFloor": 500,
-            "maxDecisionTokens": 10
+      files: {
+        codeLines: {
+          absoluteFloor: 300,
+          changedDelta: 100,
+          lowDecisionTokenAllowance: {
+            codeLineFloor: 500,
+            maxDecisionTokens: 10
           }
         }
       },
-      "functions": {
-        "codeLines": {
-          "absoluteFloor": 50,
-          "changedDelta": 20,
-          "lowComplexityAllowance": {
-            "codeLineFloor": 150,
-            "maxCyclomaticComplexityExclusive": 5
+      functions: {
+        codeLines: {
+          absoluteFloor: 50,
+          changedDelta: 20,
+          lowComplexityAllowance: {
+            codeLineFloor: 150,
+            maxCyclomaticComplexityExclusive: 5
           }
         },
-        "cyclomaticComplexity": {
-          "absoluteFloor": 10,
-          "changedDelta": 5
+        cyclomaticComplexity: {
+          absoluteFloor: 10,
+          changedDelta: 5
         },
-        "parameterCount": {
-          "absoluteFloor": 5,
-          "changedDelta": 2
+        parameterCount: {
+          absoluteFloor: 5,
+          changedDelta: 2
         }
       }
     },
-    "codeAreas": {
+    codeAreas: {
       "docs-specs": {
-        "description": "Long-term docs and current Change Plan materials",
-        "excludeGlobs": [
+        description: "Long-term docs and current Change Plan materials",
+        excludeGlobs: [
           "docs/examples/**",
           "docs/schemas/**"
         ],
-        "globs": [
+        globs: [
           "docs/**/*.md",
           "changes/**/*.md"
         ],
-        "warningPolicy": "watchlist-only"
+        warningPolicy: "watchlist-only"
       },
-      "generated": {
-        "description": "Generated files",
-        "excludeGlobs": [],
-        "globs": [
+      generated: {
+        description: "Generated files",
+        excludeGlobs: [],
+        globs: [
           "**/generated/**"
         ],
-        "warningPolicy": "exclude-warnings"
+        warningPolicy: "exclude-warnings"
       },
       "product-source": {
-        "description": "Vibe Check TypeScript product source",
-        "excludeGlobs": [
+        description: "Vibe Check TypeScript product source",
+        excludeGlobs: [
           "**/fixtures/**",
           "**/generated/**"
         ],
-        "globs": [
+        globs: [
           "src/product/**/*.ts"
         ],
-        "warningPolicy": "moderate"
+        warningPolicy: "moderate"
       },
       "schemas-examples": {
-        "description": "Schemas and example artifacts",
-        "excludeGlobs": [
+        description: "Schemas and example artifacts",
+        excludeGlobs: [
           "**/generated/**"
         ],
-        "globs": [
+        globs: [
           "docs/schemas/**",
           "docs/examples/**"
         ],
-        "warningPolicy": "watchlist-only"
+        warningPolicy: "watchlist-only"
       },
       "script-tooling": {
-        "description": "Vibe Check TypeScript quality tooling",
-        "excludeGlobs": [
+        description: "Vibe Check TypeScript quality tooling",
+        excludeGlobs: [
           "scripts/**/*.test.ts",
           "**/fixtures/**",
           "**/generated/**"
         ],
-        "globs": [
+        globs: [
           "scripts/docs/**/*.ts",
           "scripts/quality/**/*.ts",
           "scripts/tools/*.ts",
           "scripts/tools/validators/**/*.ts",
           "scripts/vibe-check-workspace/**/*.ts"
         ],
-        "warningPolicy": "moderate"
+        warningPolicy: "moderate"
       }
     },
-    "excludeDirs": [
+    excludeDirs: [
       ".git",
       "archive",
       "target",
@@ -151,10 +151,10 @@ export default defineConfig({
       ".tmp",
       ".log"
     ],
-    "generatedFiles": [
+    generatedFiles: [
       "**/generated/**"
     ],
-    "include": [
+    include: [
       "src/product/**/*.ts",
       "scripts/docs/**/*.ts",
       "scripts/quality/**/*.ts",
@@ -164,15 +164,15 @@ export default defineConfig({
       "docs/**/*.md",
       "changes/**/*.md"
     ],
-    "report": {
-      "footerGeneratedBy": "Vibe Check Quality Observability",
-      "footerNotice": "This report is a non-blocking development snapshot. Vibe Check Package Run, product tests, and contract validation define the release gates.",
-      "nonBlockingNotice": "Non-blocking development quality snapshot. Package Run, the report contract, and product tests define the release contract.",
-      "showWatchlist": true,
-      "timeZone": "Asia/Shanghai",
-      "title": "Vibe Check Quality Snapshot",
-      "topN": 10,
-      "watchlistMax": 20
+    report: {
+      footerGeneratedBy: "Vibe Check Quality Observability",
+      footerNotice: "This report is a non-blocking development snapshot. Vibe Check Package Run, product tests, and contract validation define the release gates.",
+      nonBlockingNotice: "Non-blocking development quality snapshot. Package Run, the report contract, and product tests define the release contract.",
+      showWatchlist: true,
+      timeZone: "Asia/Shanghai",
+      title: "Vibe Check Quality Snapshot",
+      topN: 10,
+      watchlistMax: 20
     }
   }
 });

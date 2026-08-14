@@ -73,7 +73,7 @@ export function effectFailure(
 }
 
 export function isCancelled(controls: RunControls): boolean {
-  return Boolean((controls.signal as AbortSignal | undefined)?.aborted);
+  return controls.signal?.aborted === true;
 }
 
 export function planning(

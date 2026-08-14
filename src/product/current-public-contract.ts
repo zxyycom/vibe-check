@@ -1,9 +1,25 @@
 /**
  * The single definition-facing owner for values that a project imports or
- * observes before the package/release projection exists.  This is deliberately
- * package-private: a later public entry projects these literals as exports and
- * declarations without introducing a second list of names.
+ * observes before invoking Package Run. This is deliberately package-private:
+ * Product modules consume these literals directly rather than maintaining a
+ * second list of public names and defaults.
  */
+export const OPERATIONAL_DEPENDENCY_IDS = Object.freeze([
+  "duplication",
+  "file",
+  "function"
+] as const);
+
+export type OperationalDependencyId = typeof OPERATIONAL_DEPENDENCY_IDS[number];
+
+const OPERATIONAL_DEPENDENCIES = Object.freeze({
+  duplication: Object.freeze({ environment: "VIBE_CHECK_JSCPD_CMD" }),
+  file: Object.freeze({ environment: "VIBE_CHECK_SCC_CMD" }),
+  function: Object.freeze({ environment: "VIBE_CHECK_LIZARD_CMD" })
+} as const satisfies Readonly<Record<OperationalDependencyId, Readonly<{
+  environment: string;
+}>>>);
+
 export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   packageImport: "vibe-check",
   operations: Object.freeze({
@@ -27,11 +43,5 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     }),
     progress: Object.freeze({ enabled: true })
   }),
-  operationalDependencies: Object.freeze({
-    duplication: Object.freeze({ environment: "VIBE_CHECK_JSCPD_CMD" }),
-    file: Object.freeze({ environment: "VIBE_CHECK_SCC_CMD" }),
-    function: Object.freeze({ environment: "VIBE_CHECK_LIZARD_CMD" })
-  })
+  operationalDependencies: OPERATIONAL_DEPENDENCIES
 } as const);
-
-export type OperationalDependencyId = keyof typeof CURRENT_PUBLIC_CONTRACT.operationalDependencies;
