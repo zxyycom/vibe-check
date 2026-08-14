@@ -11,25 +11,13 @@ import { join } from "node:path";
 import {
   processFailed,
   runGit,
-  runProcessSync,
-  toSlashPath
+  runProcessSync
 } from "../../../foundation/src/index.ts";
-import {
-  collectRevisionChanges,
-  collectWorkingTreeChanges,
-  uniqueSortedPaths
-} from "./revision-tree.ts";
 import { materializeRevisionGitlinks } from "./revision-materialization.ts";
-import { matchesAnyConfigGlob } from "../model/config-glob.ts";
 
 type MaterializeBaselineResult =
   | { ok: true; workDir: string }
   | { error: string; ok: false; reason: string };
-
-type ChangeScope = {
-  changed: boolean;
-  changedFiles: string[];
-};
 
 export type BaselineCommitResolution =
   | { commitSha: string; ok: true }
@@ -55,7 +43,7 @@ export function resolveBaselineCommitSha({
   ], { cwd });
   if (result.error) {
     throw new Error(
-      "failed to resolve --baseline revision because Git could not run; verify Git and project root access",
+      "failed to resolve comparison revision because Git could not run; verify Git and project root access",
       { cause: result.error }
     );
   }
@@ -73,7 +61,7 @@ export function resolveBaselineCommitSha({
 function unavailableBaselineRevision(): BaselineCommitResolution {
   return {
     error:
-      "--baseline must resolve to a locally available commit; fetch the intended revision or provide another revision",
+      "comparison revision must resolve to a locally available commit; fetch it or provide another revision",
     ok: false
   };
 }
@@ -142,55 +130,4 @@ export function materializeBaselineRevision({
   }
 
   return { ok: true, workDir: untarDir };
-}
-
-export function detectScanInputChange({
-  baselineSha,
-  cwd,
-  scanInputPaths
-}: {
-  baselineSha: string | null;
-  cwd: string;
-  scanInputPaths: string[];
-}): ChangeScope {
-  if (!baselineSha) {
-    return { changed: true, changedFiles: [] };
-  }
-
-  const changedFiles = [
-    ...getRevisionChangedFiles(cwd, baselineSha, "HEAD", scanInputPaths),
-    ...getWorkingTreeChangedFiles(cwd, scanInputPaths)
-  ].map(toSlashPath);
-  const uniqueChangedFiles = uniqueSortedPaths(changedFiles);
-  const scanInputChanged = changedFiles.some((filePath) =>
-    matchesAnyConfigGlob(filePath, scanInputPaths)
-  );
-
-  return { changed: scanInputChanged, changedFiles: uniqueChangedFiles };
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────
-
-export function getWorkingTreeChangedFiles(cwd: string, scanInputPaths: string[]): string[] {
-  return uniqueSortedPaths(collectWorkingTreeChanges({
-    prefix: "",
-    repository: cwd,
-    revision: "HEAD",
-    scanInputPaths
-  }));
-}
-
-export function getRevisionChangedFiles(
-  cwd: string,
-  fromRevision: string,
-  toRevision: string,
-  scanInputPaths: string[] | readonly string[]
-): string[] {
-  return uniqueSortedPaths(collectRevisionChanges({
-    fromRevision,
-    prefix: "",
-    repository: cwd,
-    scanInputPaths,
-    toRevision
-  }));
 }

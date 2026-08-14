@@ -9,17 +9,16 @@ import {
   type ResolvedCheckCatalog
 } from "../../src/product/quality-core/src/check-record/catalog.ts";
 import {
-  resolveCurrentObservation,
-  resolveCurrentPolicy
-} from "../../src/product/quality-core/src/check-record/current-adapter.ts";
-import {
-  evaluateDecisionPolicy,
-  evaluateRecordObservation
+  evaluateDecisionPolicy
 } from "../../src/product/quality-core/src/check-record/policy-evaluator.ts";
 import type {
   DecisionEvidence,
+  DecisionPolicy,
   ReferenceFacts
 } from "../../src/product/quality-core/src/check-record/policy-model.ts";
+import {
+  validatePolicyResolution
+} from "../../src/product/quality-core/src/check-record/policy-validation.ts";
 import { createRecordId } from "../../src/product/quality-core/src/check-record/identity.ts";
 import { projectHumanStatus } from "../../src/product/quality-core/src/check-record/human-status.ts";
 import {
@@ -29,8 +28,8 @@ import {
 import {
   FIXED_MACHINE_EXAMPLE_INPUT,
   type CanonicalMachineExample,
-  type MachineExampleGateRequest,
-  type MachineExampleOutcome
+  type MachineExampleOutcome,
+  type MachineExampleSelectedPolicy
 } from "./machine-example-model.ts";
 
 const definition: CheckDefinition = {
@@ -57,11 +56,9 @@ const definition: CheckDefinition = {
 const emptyReferenceFacts: ReferenceFacts = { evidence: [], relations: [] };
 
 export function buildCanonicalMachineExample(input: Readonly<{
-  expectedExit: 0 | 1 | 2;
-  expectedProcessOutcome: "failed" | "gate-failed" | "success";
   fixedInputSummary: string;
-  gateRequest: MachineExampleGateRequest;
   outcome: MachineExampleOutcome;
+  selectedPolicy: MachineExampleSelectedPolicy;
   state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning";
   title: string;
 }>): CanonicalMachineExample {
@@ -71,7 +68,7 @@ export function buildCanonicalMachineExample(input: Readonly<{
     ? [createExampleRecord(run)]
     : [];
   const snapshot = createSnapshot(catalog, run, records);
-  const decision = createDecision(input.gateRequest, catalog, snapshot);
+  const decision = createDecision(input.selectedPolicy, catalog, snapshot);
   const verificationOutput = false;
   const model = createPublicationModelV2({
     humanStatus: projectHumanStatus({ snapshot, decision, verificationOutput }),
@@ -87,13 +84,11 @@ export function buildCanonicalMachineExample(input: Readonly<{
     verificationOutput
   });
   return {
-    expectedExit: input.expectedExit,
-    expectedProcessOutcome: input.expectedProcessOutcome,
     fixedInputSummary: input.fixedInputSummary,
-    gateRequest: input.gateRequest,
     model,
     outcome: input.outcome,
     publication: projectMachinePublicationV2(model),
+    selectedPolicy: input.selectedPolicy,
     title: input.title
   };
 }
@@ -203,33 +198,43 @@ function createSnapshot(
 }
 
 function createDecision(
-  gateRequest: MachineExampleGateRequest,
+  selectedPolicy: MachineExampleSelectedPolicy,
   catalog: ResolvedCheckCatalog,
   snapshot: FinalCoreSnapshot
 ): DecisionEvidence {
-  const policyResult = resolveCurrentPolicy({
-    acceptedWarnings: [],
-    baseline: null,
-    catalog,
-    gate: gateRequest
-  });
-  const observationResult = resolveCurrentObservation({ acceptedWarnings: [], catalog });
+  const policyResult = validatePolicyResolution({
+    policy: selectedPolicy === null ? null : docsGatePolicy(),
+    references: []
+  }, catalog);
   if (!policyResult.ok) {
-    throw new TypeError(`Canonical example policy failed: ${policyResult.error.reason}`);
+    throw new TypeError("Canonical example policy failed validation");
   }
-  if (!observationResult.ok) {
-    throw new TypeError(`Canonical example observation failed: ${observationResult.error.reason}`);
-  }
-  const decision = evaluateDecisionPolicy(policyResult.value, snapshot, emptyReferenceFacts);
-  if (decision.gate.status !== "disabled") return decision;
-  const observation = evaluateRecordObservation(
-    observationResult.value,
-    snapshot,
-    emptyReferenceFacts
-  );
+  return evaluateDecisionPolicy(policyResult.value, snapshot, emptyReferenceFacts);
+}
+
+function docsGatePolicy(): DecisionPolicy {
   return Object.freeze({
-    ...decision,
-    acceptance: observation.acceptance,
-    views: observation.views
+    policyId: "docs-gate",
+    references: Object.freeze([]),
+    acceptance: Object.freeze([]),
+    views: Object.freeze([Object.freeze({
+      viewId: "all-current",
+      selectors: Object.freeze([Object.freeze({
+        checkId: definition.checkId,
+        recordTypeId: definition.recordTypes[0]!.recordTypeId
+      })]),
+      acceptance: "all" as const,
+      predicates: Object.freeze([])
+    })]),
+    readiness: Object.freeze([Object.freeze({
+      readinessId: "scan-complete",
+      predicate: Object.freeze({
+        kind: "run-status" as const,
+        checkId: definition.checkId,
+        status: "completed" as const
+      }),
+      reason: "scan-incomplete" as const
+    })]),
+    blockWhen: Object.freeze({ kind: "view-not-empty" as const, viewId: "all-current" })
   });
 }

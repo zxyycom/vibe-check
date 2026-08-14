@@ -7,9 +7,9 @@
 | 层级 | 证明 |
 | --- | --- |
 | Core/unit | catalog/binding/schedule/TaskPlan、run/record manager、Check adapter、Product-owned runner、built-in adapter、policy、publication schema/validator 的局部不变量 |
-| Product entry | 正式 CLI 的 config、flags、baseline、outcome、console 与 artifacts 交叉边界 |
+| Product entry | Project Definition/Run Controls validation、Package Run result、project Run binding、console 与 artifacts 交叉边界 |
 | Consumer | docs schema/example 独立 acceptance 与 actual annotation CLI 对 two-file set 的消费 |
-| Dogfood | wrapper 到同一正式入口的单向 routing |
+| Dogfood | wrapper 到 repository Project Run 的单向 routing |
 
 ## Case 账本
 
@@ -22,7 +22,7 @@ runner 不解释领域 value，以及 adapter 对 unavailable prerequisite 的 g
 completion、function-scoped ports 和 settlement；不得把 Task identity 或 capability event 当作 machine-output
 断言。
 Output Cases 覆盖 v2 runtime schema、JSON/NDJSON grammar、two-file relationships、publication cleanup、readable
-parity、CLI outcome 与 annotation consumer。
+parity、structured Run Result 与 annotation consumer。
 
 ## 验证入口
 

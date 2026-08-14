@@ -1,12 +1,10 @@
 import { assert } from "../tools/validators/assertions.ts";
 import { TASK_NAMES } from "../tools/validators/config.ts";
 import { validateMarkdownLinks } from "../tools/validators/links.ts";
-import { checkPublishedConfigSchema } from "./config-schema.ts";
 import {
   validateJsonSyntax,
   validatePublishedMachineArtifactExamples,
   validateReportExamples,
-  validateSemanticConfigExample,
   validateSchemas
 } from "../tools/validators/schema/index.ts";
 import { checkPublishedMachineExamples } from "./machine-examples.ts";
@@ -23,14 +21,12 @@ const tasks = {
 };
 
 function validatePublishedExamples(): void {
-  validateSemanticConfigExample();
   validatePublishedMachineArtifactExamples();
   checkPublishedMachineExamples();
   validateReportExamples();
 }
 
 function validatePublishedSchemas(): void {
-  checkPublishedConfigSchema();
   checkPublishedMachineSchemas();
   validateSchemas();
 }

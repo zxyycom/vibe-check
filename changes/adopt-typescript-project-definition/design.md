@@ -17,8 +17,6 @@
 - `configuration/bind-external-programs-outside-check-semantics.md`：operational dependency binding 与 built-in Check policy 分离。
 - `product-contract/confirm-config-run-and-package-names-before-publication.md`：exact package names 在 publishable candidate 前确认。
 
-当前实现仍使用 JSON config、config discovery、schema generation 和 Product CLI `init`。上述 target contract 在本 Change 完成前不是当前产品事实。
-
 ### Stable Terms
 
 | 术语 | 精确定义 |

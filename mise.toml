@@ -5,14 +5,14 @@ lockfile = true
 package_manager = "npm"
 
 [env]
-VIBE_CHECK_PINNED_LIZARD_CMD = { tools = true, value = """
+VIBE_CHECK_LIZARD_CMD = { tools = true, value = """
 {%- if os() == 'windows' -%}
 {{ tools['pipx:lizard'].path }}/lizard/Scripts/python.exe
 {%- else -%}
 {{ tools['pipx:lizard'].path }}/lizard/bin/python
 {%- endif -%}
 """ }
-VIBE_CHECK_PINNED_SCC_CMD = { tools = true, value = """
+VIBE_CHECK_SCC_CMD = { tools = true, value = """
 {%- if os() == 'windows' -%}
 {{ tools['go:github.com/boyter/scc/v3'].path }}/bin/scc.exe
 {%- else -%}

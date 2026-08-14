@@ -18,16 +18,17 @@ with \`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
 - Invocation: \`${run.invocation.invocationId}\`
 - Project root: \`${run.invocation.projectRoot}\`
 - Timestamp: \`${run.invocation.timestamp}\`
-- Selected policy: \`${run.decision.policyId ?? "disabled"}\`
+- Selected policy: \`${example.selectedPolicy ?? "none (neutral observation)"}\`
 
-## Expected user result
+## Package Run result
 
-- Gate request: ${example.gateRequest ?? "none (policy disabled)"}
-- Process outcome: \`${example.expectedProcessOutcome}\`
-- Exit code: \`${example.expectedExit}\`
+- Result variant: \`completed\`
+- Gate status: \`${run.decision.gate.status}\`
 
-The expected process outcome and exit code are scenario metadata, not facts inferable from the
-two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
+The artifact set is a projection of the same validated model returned by Package Run. Effect status
+and other result-variant fields are not inferred from these two files; API consumers use the
+structured Run Result. A project-owned command adapter may map that result to process behavior, but
+process exit codes are not part of this publication example.
 
 ## Canonical publication
 

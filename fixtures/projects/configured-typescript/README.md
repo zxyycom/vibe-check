@@ -1,22 +1,14 @@
 # Configured TypeScript Fixture
 
-This checked-in project proves the formal Product CLI can explicitly load a complete semantic
-document from the scanned project root.
+This checked-in project is scan input for Project Definition and Package Run tests. Product does
+not discover configuration inside the fixture.
 
 - `src/eligible.ts` is the only file that enters the configured scan scope.
 - `src/ignored.generated.ts` is removed by `generatedFiles`.
 - `excluded/ignored.ts` is removed by `excludeDirs`.
 - The one-file fixture intentionally leaves duplicate detection without an eligible multi-file
-  area. Formal tests provide deterministic measurement results through operational overrides that
-  only affect `ScannerDependencySnapshot`; they are not semantic document fields.
+  area. Tests can provide deterministic scanner bindings through Run Controls; those bindings are
+  operational inputs, not project policy.
 
-From the Vibe Check repository root, the explicit semantic-config invocation is:
-
-```bash
-bun run product:cli -- scan fixtures/projects/configured-typescript \
-  --config .vibe-check/config.json \
-  --skip-baseline
-```
-
-The config writes disposable output beneath `artifacts/configured-scan/` and cache
-data beneath `.cache/configured-scan/`.
+A caller imports a project-owned Run and passes this fixture path only when that Run exposes a
+project-root control. There is no JSON file, discovery step, or `--config` compatibility path.

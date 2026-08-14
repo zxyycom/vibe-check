@@ -11,12 +11,12 @@
 | 任务 | 主入口 | 需要时再读 |
 | --- | --- | --- |
 | 修改 TypeScript/Bun 产品实现、组件职责、调用链或运行边界 | [架构](architecture.md)、[编码规范](coding-style.md) | 下列对应行为 owner、`src/product/**` 与相邻测试 |
-| 修改正式 command、project root、scan flags、`init` routing、gate planning、退出码或进程状态映射 | [CLI](cli.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Output](output.md)、产品入口与 wrapper 测试 |
-| 修改 semantic document、Vibe Check JSON/schema、neutral default、`ResolvedQualityConfig`、选择/discovery、precedence、`init` 或 migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)、`docs/schemas/`、`docs/examples/` 与 config tests |
+| 修改项目 Run adapter、project root、Run Controls 或 legacy CLI migration diagnostic | [Configuration](configuration.md)、[CLI](cli.md)、[编码规范](coding-style.md) | [Output](output.md)、产品入口与 wrapper 测试 |
+| 修改 Project Definition、`defineConfig` defaults、quality semantics、validation、normalization、precedence 或 legacy JSON migration | [Configuration](configuration.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Scan Scope](scan-scope.md)与 Project Definition tests |
 | 修改文件收集、scan scope、默认排除、supported file 分类、exact inputs 或 collection diagnostic | [Scan Scope](scan-scope.md)、[编码规范](coding-style.md) | [架构](architecture.md)、[Scanner 依赖选择](scanner-dependencies.md)与 collection tests |
 | 修改指标、warning、baseline、GateResult、evaluator 或最终 quality status | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md) | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)与相关测试 |
 | 修改 `ScannerDependencySnapshot`、operational override、eligibility、adapter handoff、cache identity 或 scanner 替换 | [Scanner 依赖选择](scanner-dependencies.md)、[架构](architecture.md) | [Quality Metrics](quality-metrics.md)、相关 adapter tests 与 fixtures |
-| 修改 machine DTO/schema、contract-valid set / published set、serialization、validator、publication/evidence、console/report、artifact 或 stdout/stderr channel | [Output](output.md)、[编码规范](coding-style.md) | [CLI](cli.md)、[Quality Metrics](quality-metrics.md)、`docs/schemas/`、`docs/examples/` 与 output tests |
+| 修改 machine DTO/schema、contract-valid set / published set、serialization、validator、publication/evidence、console/report、artifact 或 effect status | [Output](output.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Quality Metrics](quality-metrics.md)、`docs/schemas/`、`docs/examples/` 与 output tests |
 | 修改开发脚本、annotation consumer、共享 toolkit、workspace verifier、docs validator 或 quality wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | 对应 `scripts/**`、正式产品入口及其 consumer contract |
 | 新增或修改测试、fixture、Case 或验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](coding-style.md) | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试 |
 | 恢复、审阅或维护跨任务沿用的长期判断 | `decision-records` skill、`bun run decisions:list`、目标决策与相关行为 owner | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md) |

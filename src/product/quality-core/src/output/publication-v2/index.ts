@@ -44,8 +44,6 @@ export {
   PUBLICATION_ANNOTATION_INPUT_V2,
   PUBLICATION_V2_FAILURE_STAGES,
   PUBLICATION_V2_LIFECYCLE,
-  mapPublicationFailureV2,
-  mapPublicationOutcomeV2,
   projectReadablePublicationV2,
   type PublicationFailureStageV2,
   type ReadablePublicationContractV2,

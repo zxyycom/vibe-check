@@ -31,7 +31,6 @@ export const FILE_SYSTEM = {
 };
 
 export const CURRENT_SCHEMAS = {
-  config: "docs/schemas/vibe-check-config.schema.json",
   record: "docs/schemas/vibe-check-record.schema.json",
   run: "docs/schemas/vibe-check-run.schema.json"
 };
@@ -40,7 +39,4 @@ export const HISTORICAL_SCHEMAS = {
   report: "docs/schemas/vibe-check-report.schema.json"
 };
 
-export const EXAMPLES = {
-  semanticConfig: "docs/examples/json/vibe-check-config.json",
-  reportExamplesDir: FILE_SYSTEM.examplesJsonDir
-};
+export const EXAMPLES = { reportExamplesDir: FILE_SYSTEM.examplesJsonDir };

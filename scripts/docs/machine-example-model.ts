@@ -26,16 +26,14 @@ export const FIXED_MACHINE_EXAMPLE_INPUT = {
 } as const;
 
 export type MachineExampleOutcome = typeof MACHINE_EXAMPLE_OUTCOMES[number];
-export type MachineExampleGateRequest = "all" | null;
+export type MachineExampleSelectedPolicy = "docs-gate" | null;
 
 export interface CanonicalMachineExample {
-  readonly expectedExit: 0 | 1 | 2;
-  readonly expectedProcessOutcome: "failed" | "gate-failed" | "success";
   readonly fixedInputSummary: string;
-  readonly gateRequest: MachineExampleGateRequest;
   readonly model: ValidatedPublicationModelV2;
   readonly outcome: MachineExampleOutcome;
   readonly publication: MachinePublicationV2;
+  readonly selectedPolicy: MachineExampleSelectedPolicy;
   readonly title: string;
 }
 

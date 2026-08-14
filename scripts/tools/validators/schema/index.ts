@@ -8,7 +8,6 @@ import { toAbs, toRel } from "../repo/paths.ts";
 import { assert } from "../assertions.ts";
 import {
   CURRENT_SCHEMAS,
-  EXAMPLES,
   FILE_SYSTEM,
   HISTORICAL_SCHEMAS
 } from "../config.ts";
@@ -77,17 +76,4 @@ export function validateReportExamples(): void {
     `schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`
   );
   console.log(`report examples ok: ${exampleRelPaths.length} file(s)`);
-}
-
-export function validateSemanticConfigExample(): void {
-  const schemaRelPath = CURRENT_SCHEMAS.config;
-  const exampleRelPath = EXAMPLES.semanticConfig;
-  const ajv = createCurrentSchemaAjv();
-  const validate = compileRegisteredSchema(ajv, schemaRelPath);
-  if (!validate(readJson(exampleRelPath))) {
-    throw new Error(
-      `${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`
-    );
-  }
-  console.log(`schema ok: ${schemaRelPath} (${exampleRelPath})`);
 }

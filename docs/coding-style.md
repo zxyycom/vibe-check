@@ -13,9 +13,7 @@
 `scripts/**` 只保留开发自动化、CI consumer 和指向产品入口的薄 wrapper。产品源码不得
 反向导入 `scripts/**` 或 toolkit gitlink。
 
-正式入口是 `bun run product:cli -- scan [project-root]`。`scripts/quality/scan.ts`
-只负责显式传入 Vibe Check 仓库根并单向调用产品入口；默认配置和扫描行为由
-`src/product/**` 拥有。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
+正式集成入口是项目拥有的 Project Run。`scripts/quality/scan.ts` 只调用仓库 Project Run；Product CLI 仅提供 legacy migration diagnostic。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
 TypeScript 产品的实现来源或兼容层。
 
 ## 1. 文档边界与使用方式
@@ -207,7 +205,7 @@ TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 
 
 当实现发现规则缺失、冲突或过期时，先判断 owner：
 
-1. CLI operation、scan flags、project root、console 和进程状态由 CLI / Output owner 定义。
+1. Project Definition、Run Controls、project root、console 和 structured result 由 Configuration / Output owner 定义；项目自有 command adapter 才拥有自己的进程状态映射。
 2. 指标模型、warning 语义和报告数据由 Core / Scanner owner 定义。
 3. 已有 owner schema 的稳定 JSON 字段由 schema 定义；当前 TypeScript quality artifacts
    使用产品 runtime validation，不套用已退役的 Rust report schema。
@@ -222,7 +220,7 @@ TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 
 触及对应范围时，最低要求：
 
 1. 内部语义有单元测试或等价局部验证。
-2. CLI 行为有集成测试或等价命令验证。
+2. Package Run 或 retained CLI migration diagnostic 有集成测试或等价入口验证。
 3. 触及 owner schema/examples 时保持二者可互相映射；TypeScript machine artifacts 运行
    既有 runtime validation 和相应契约测试。
 4. 输出层边界和 stderr/stdout 边界有测试或脚本检查。

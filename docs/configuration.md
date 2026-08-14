@@ -1,29 +1,59 @@
 # Configuration
 
-本文是 Vibe Check semantic configuration、runtime schema、selection 与 `init` 的 owner。它不定义 Check/Record policy internals、scope collection、scanner executable 或 machine output fields。
+Vibe Check configuration is a project-owned TypeScript **Project Definition**. This document owns
+the authoring and invocation boundary; individual quality, policy, Check, scheduler, dependency, and
+output owners continue to define their own field semantics.
 
-## Current semantic config v1
+## Two-file integration
 
-complete document 是 version `1` 的 JSON；runtime schema 是唯一 config field owner。它解析为 detached readonly `ResolvedQualityConfig`，包含 scan scope、code areas、check thresholds、report/artifact settings、cache settings 与 `acceptedWarnings`。published schema/example 由 docs tooling 从 runtime owner 检查 drift。
+The project maintains two modules with different responsibilities:
 
-`report` 是 `report.md` 的 presentation input：`title`、`nonBlockingNotice`、`timeZone`、
-`footerGeneratedBy` 与 `footerNotice` 控制标题、notice、格式化 timestamp 和 footer；`topN`
-限制每个 accepted / unaccepted record section 的条数；`showWatchlist` 控制 changed-record
-watchlist 是否出现，`watchlistMax` 独立限制该 section 的条数。这些字段不改变 machine v2、
-console preview、DecisionPolicy、GateResult 或 process outcome。
+```ts
+// project-definition.ts
+import { defineConfig } from "vibe-check";
 
-## Neutral default
+export default defineConfig({
+  // quality, checks, policies, scheduler, effects, operationalDependencies
+});
+```
 
-没有 file-backed config 且未请求 gate 时，scan 使用未持久化 neutral default。gate 必须选择完整 file-backed config（discovered 或 explicit）。default 不会被 explicit/discovered document 继承或叠加。
+```ts
+// project-run.ts
+import { run as runVibeCheck, type RunControls } from "vibe-check";
+import projectDefinition from "./project-definition.ts";
 
-## Selection and path rules
+export function run(controls: RunControls = {}) {
+  return runVibeCheck(projectDefinition, controls);
+}
+```
 
-优先级是 explicit `--config` > discovered `.vibe-check/config.json` > neutral default。relative config、artifact、cache 和 changed-file paths 相对 normalized project root；input validation 必须在 consumer work 前完成。`init` 只确保 Configuration-owned targets，保留 existing safe bytes 并补齐缺失 target。
+The configuration module owns stable project semantics and default-exports the plain value returned
+by `defineConfig`. The project Run imports and binds that value. Other callers invoke the project Run;
+they do not supply, discover, or reload another definition. These example paths are not package-owned
+discovery conventions.
+
+## Validation and controls
+
+Package Run validates exactly one Project Definition and one closed Run Controls object before any
+project function, dependency preparation, cache, scanner, reporter, or output work. Expected invalid
+input returns a typed configuration result without executing the valid subset.
+
+Run Controls contain only invocation context: project root, changed files, explicit comparison,
+cooperative cancellation, effect overrides, and operational dependency overrides. They cannot
+register Checks, select another definition, rewrite a policy, or replace the scheduler.
+
+Project functions are trusted project code and run directly in the Bun runtime that called Package
+Run. Their direct work or static `TaskPlan` is handed to the Product Task system; the configuration is
+not serialized, re-evaluated, or moved into a whole-invocation worker.
 
 ## Acceptance adapter
 
-`acceptedWarnings[]` 是 current semantic input，含 `checkId`、`reason` 与可选 catalog-supported filters。每个 `checkId` 由 adapter 穷尽映射为 owning Check + 同名 `recordTypeId` selector；filter 仅转换为该 record type 声明的 typed operands/relations。该映射不为 public catalog 增加 alias，也不建立第二套 policy language。acceptance 由 [Quality Metrics](quality-metrics.md) 的 DecisionPolicy 消费。
+Record acceptance belongs to named `DecisionPolicy.acceptance` entries in the Project Definition.
+Quality scope and thresholds do not carry a second acceptance, artifact, cache, or version source;
+effects own artifact/cache destinations and `apiVersion` owns the definition version.
 
-## Failure and validation
+## Retired configuration paths
 
-schema、selection、path 或 gate file prerequisite failure 都是 configuration/usage failure（exit `3`），不会启动 scanner 或 artifact publication。configuration tests 覆盖 neutral/default、strict parsing、detached resolution、explicit/discovered precedence、init idempotence 和 acceptance adapter。
+JSON/JSONC configuration, editor configuration schemas, file discovery, and configuration `init` are
+not active inputs. The retained Product CLI only emits the migration diagnostic directing callers to
+a TypeScript Project Definition and bound project Run; it does not convert or execute legacy input.

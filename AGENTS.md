@@ -2,9 +2,8 @@
 
 ## 项目边界与入口
 
-- Vibe Check 的产品运行时是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun CLI；正式入口是
-  `bun run product:cli -- scan [project-root]` 与 `bun run product:cli -- init [project-root]`。
-- `quality:check`、`quality:full-check`、`quality:scan`、`quality:gate` 和
+- Vibe Check 的产品运行时是 `src/product/**` 下由本仓库拥有的 TypeScript/Bun Product runtime；正式集成入口是项目拥有的 TypeScript Project Definition 与 bound Project Run；Product CLI 仅保留 legacy migration diagnostic。
+- `quality:check`、`quality:full-check`、`quality:scan` 和
   `scripts/quality/scan.ts` 是显式传入仓库根并单向调用产品入口的 dogfood wrapper；开发脚本由
   `scripts/**` 拥有。
 - 项目文档从 [`docs/navigation.md`](docs/navigation.md) 进入。先按任务定位唯一 owner 和验证入口，

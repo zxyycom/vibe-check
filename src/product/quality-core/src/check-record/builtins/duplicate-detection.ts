@@ -92,6 +92,20 @@ export interface DuplicateDetectionReferenceInput extends DuplicateDetectionExac
   readonly referenceName: string;
 }
 
+export interface DuplicateCacheOptions {
+  readonly enabled: boolean;
+  readonly onActivity?: (activity: "read" | "write" | "failed") => void;
+}
+
+export interface DuplicateMeasurementInput {
+  readonly cache?: DuplicateCacheOptions;
+  readonly changedFiles: readonly string[];
+  readonly dependency: DuplicationScannerDependency;
+  readonly input: DuplicateDetectionExactInputSet;
+  readonly scanKind: "baseline" | "current";
+  readonly semantics: DuplicateDetectionSemantics;
+}
+
 export interface DuplicateDetectionBindingRuntime {
   readonly binding: CheckExecutionBinding;
   readonly referenceFacts: (snapshot: FinalCoreSnapshot) => ReferenceFacts;
@@ -103,6 +117,7 @@ interface DuplicateReferenceState {
 }
 
 interface DuplicateBindingContext {
+  readonly cache: DuplicateCacheOptions;
   readonly changedFiles: readonly string[];
   readonly current: DuplicateDetectionExactInputSet;
   readonly dependency: DuplicationScannerDependency;
@@ -126,6 +141,7 @@ export function resolveDuplicateDetectionApplicability(
 }
 
 export function createDuplicateDetectionBinding(input: Readonly<{
+  cache?: DuplicateCacheOptions;
   changedFiles: readonly string[];
   current: DuplicateDetectionExactInputSet;
   dependency: DuplicationScannerDependency;
@@ -154,6 +170,7 @@ export function createDuplicateDetectionBinding(input: Readonly<{
 }
 
 function createBindingContext(input: Readonly<{
+  cache?: DuplicateCacheOptions;
   changedFiles: readonly string[];
   current: DuplicateDetectionExactInputSet;
   dependency: DuplicationScannerDependency;
@@ -167,6 +184,7 @@ function createBindingContext(input: Readonly<{
       referenceName: input.reference.referenceName
     });
   return {
+    cache: input.cache ?? Object.freeze({ enabled: true }),
     changedFiles: Object.freeze([...input.changedFiles]),
     current: detachDuplicateDetectionInput(input.current),
     dependency: input.dependency,
@@ -183,13 +201,14 @@ async function executeDuplicateDetection(
   context: DuplicateBindingContext,
   ports: CheckExecutionPorts
 ) {
-  const measurement = await measureDuplicateDetection(
-    context.current,
-    context.dependency,
-    context.semantics,
-    "current",
-    context.changedFiles
-  );
+  const measurement = await measureDuplicateDetection({
+    cache: context.cache,
+    changedFiles: context.changedFiles,
+    dependency: context.dependency,
+    input: context.current,
+    scanKind: "current",
+    semantics: context.semantics
+  });
   if (measurement.kind !== "complete") {
     return currentMeasurementFailure(measurement);
   }
@@ -223,13 +242,14 @@ async function compareDuplicateReference(
   if (context.reference === null) {
     return;
   }
-  const measurement = await measureDuplicateDetection(
-    context.reference,
-    context.dependency,
-    context.semantics,
-    "baseline",
-    Object.freeze([])
-  );
+  const measurement = await measureDuplicateDetection({
+    cache: context.cache,
+    changedFiles: Object.freeze([]),
+    dependency: context.dependency,
+    input: context.reference,
+    scanKind: "baseline",
+    semantics: context.semantics
+  });
   if (measurement.kind !== "complete") {
     context.referenceState.status = measurement.kind === "unavailable"
       ? "unavailable"

@@ -9,16 +9,17 @@ with `bun run generate:machine-examples`.
 - Invocation: `invocation/v1:docs-complete-passed`
 - Project root: `.`
 - Timestamp: `2026-08-12T00:00:00.000Z`
-- Selected policy: `disabled`
+- Selected policy: `none (neutral observation)`
 
-## Expected user result
+## Package Run result
 
-- Gate request: none (policy disabled)
-- Process outcome: `success`
-- Exit code: `0`
+- Result variant: `completed`
+- Gate status: `disabled`
 
-The expected process outcome and exit code are scenario metadata, not facts inferable from the
-two-file machine set. Consumers must interpret the set together with the producing CLI outcome.
+The artifact set is a projection of the same validated model returned by Package Run. Effect status
+and other result-variant fields are not inferred from these two files; API consumers use the
+structured Run Result. A project-owned command adapter may map that result to process behavior, but
+process exit codes are not part of this publication example.
 
 ## Canonical publication
 

@@ -5,7 +5,10 @@
 import { isExcluded } from "../model/code-areas.ts";
 import type { ResolvedQualityConfig } from "../model/schema.ts";
 
-export function selectLizardTargetFiles(files: string[], config: ResolvedQualityConfig): string[] {
+export function selectLizardTargetFiles(
+  files: string[],
+  config: Pick<ResolvedQualityConfig, "excludeDirs" | "generatedFiles">
+): string[] {
   return files.filter(
     (file) => isLizardTarget(file) && !isExcluded(file, config.excludeDirs, config.generatedFiles)
   );

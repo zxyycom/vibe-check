@@ -24,33 +24,12 @@ export interface CodeAreaDefinition {
   readonly warningPolicy: CodeAreaWarningPolicy;
 }
 
-export type SemanticCheckId =
-  | "duplicate-code"
-  | "file-code-lines"
-  | "function-code-lines"
-  | "function-cyclomatic-complexity"
-  | "function-parameter-count";
-
-export interface AcceptedWarningConfig {
-  readonly checkId: SemanticCheckId;
-  readonly codeArea?: string;
-  readonly messageIncludes?: readonly string[];
-  readonly metric?: string;
-  readonly path?: string;
-  readonly reason: string;
-  readonly suggestionIncludes?: readonly string[];
-  readonly value?: number;
-}
-
 export interface QualityThreshold {
   readonly absoluteFloor: number;
   readonly changedDelta: number;
 }
 
 export interface ResolvedQualityConfig {
-  readonly acceptedWarnings: readonly AcceptedWarningConfig[];
-  readonly artifactDir: string;
-  readonly cacheDir: string;
   readonly checks: {
     readonly duplication: {
       readonly defaultMinimumTokens: number;
@@ -92,7 +71,6 @@ export interface ResolvedQualityConfig {
     readonly topN: number;
     readonly watchlistMax: number;
   };
-  readonly version: "1";
 }
 
 export interface CodeAreaFingerprint {

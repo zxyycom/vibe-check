@@ -86,14 +86,7 @@
   "acceptance": [],
   "decision": {
     "policyId": null,
-    "views": [
-      {
-        "viewId": "all-current",
-        "recordIds": [
-          "check-record/v1/record/sha256:1925271c3cf35975961ab888092c9523ca1452c21c5aaf82b15439e956b00d29"
-        ]
-      }
-    ],
+    "views": [],
     "readiness": [],
     "blockWhen": null,
     "gate": {

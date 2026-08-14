@@ -10,9 +10,6 @@ const JSCPD_ENTRY = resolve(
 );
 
 export const TEST_QUALITY_CONFIG: ResolvedQualityConfig = {
-  acceptedWarnings: [],
-  artifactDir: "artifacts/quality",
-  cacheDir: ".cache/quality",
   checks: {
     duplication: {
       defaultMinimumTokens: 100,
@@ -71,8 +68,7 @@ export const TEST_QUALITY_CONFIG: ResolvedQualityConfig = {
     timeZone: "UTC",
     topN: 5,
     watchlistMax: 10
-  },
-  version: "1"
+  }
 };
 
 export const TEST_SCANNER_DEPENDENCIES: ScannerDependencySnapshot = {

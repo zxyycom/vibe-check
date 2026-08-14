@@ -3,25 +3,19 @@ import { PROFILE_FULL, PROFILE_REQUIRED } from "./model.ts";
 import type { CheckDefinition } from "./model.ts";
 
 const qualityWarningOutput = [
+  /^─+$/,
+  /^Summary:$/,
+  /^ {2}Check runs: \d+$/,
+  /^ {2}Records: \d+$/,
+  /^ {2}Snapshot completeness: (?:complete|incomplete)$/,
   /^Quality check status: warning$/,
-  /^Warnings: \d+ total \(\d+ changed, \d+ regressions\)$/,
-  /^This is a quick quality check, not a full quality scan\.$/,
-  /^Showing first \d+ warnings:$/,
-  /^\s*\d+\. \[.+\] .+$/,
-  /^\s*Accepted reason: .+$/,
-  /^\s*\.\.\. and \d+ more warnings$/,
-  /^Detailed report: .+$/,
-  /^Warning records: .+$/
-];
-
-const qualityVerificationWarningOutput = [
-  /^Quality verification status: warning$/,
-  /^Warnings without accepted reason: \d+ total \(\d+ changed, \d+ regressions\)$/,
-  /^Showing first \d+ warnings without accepted reason:$/,
-  /^\s*\d+\. \[.+\] .+$/,
-  /^\s*\.\.\. and \d+ more warnings without accepted reason$/,
-  /^Detailed report: .+$/,
-  /^Warning records: .+$/
+  /^ {2}\d+\. \[(?:error|info|warning)\] .+$/,
+  /^ {2}\.\.\. and \d+ more records$/,
+  /^⚠️ Quality scan complete with warnings\.$/,
+  /^Artifacts in: .+$/,
+  /^ {2}run\.json → .+$/,
+  /^ {2}records\.ndjson → .+$/,
+  /^ {2}report\.md → .+$/
 ];
 
 export const checks = defineChecks([
@@ -67,14 +61,10 @@ export const checks = defineChecks([
       },
       {
         id: "quality-quick-check",
-        label: "quality quick check",
+        label: "repository Package Run dogfood",
         command: "bun",
         args: [
-          "scripts/quality/scan.ts",
-          "--profile",
-          "quick",
-          "--artifact-dir",
-          "artifacts/vibe-check-quality/quick"
+          "scripts/quality/scan.ts"
         ],
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
@@ -133,20 +123,6 @@ export const checks = defineChecks([
         ]
       },
       {
-        id: "producer-annotation-acceptance",
-        label: "producer-to-annotation acceptance",
-        command: "bun",
-        args: ["test", "scripts/quality/producer-annotation-acceptance.test.ts"],
-        ignoreOutput: [
-          /^bun test v\d+\.\d+\.\d+ /,
-          /^scripts\/quality\/producer-annotation-acceptance\.test\.ts:$/,
-          /^\(pass\) producer-to-annotation acceptance > /,
-          /^\s*1 pass$/,
-          /^\s*0 fail$/,
-          /^Ran 1 test across 1 file\. /
-        ]
-      },
-      {
         id: "git-diff-whitespace",
         label: "git diff whitespace",
         command: "git",
@@ -163,13 +139,10 @@ export const checks = defineChecks([
     tasks: [
       {
         id: "quality-full-check",
-        label: "quality full check",
+        label: "repository Package Run full-profile dogfood",
         command: "bun",
         args: [
-          "scripts/quality/scan.ts",
-          "--profile",
-          "full",
-          "--verification-output"
+          "scripts/quality/scan.ts"
         ],
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
@@ -182,10 +155,10 @@ export const checks = defineChecks([
           "lint-scripts"
         ],
         allowOutput: [
-          ...qualityVerificationWarningOutput
+          ...qualityWarningOutput
         ],
         warningOutput: [
-          /^Quality verification status: warning$/m
+          /^Quality check status: warning$/m
         ]
       }
     ]

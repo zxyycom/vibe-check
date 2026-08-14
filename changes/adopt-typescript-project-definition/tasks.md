@@ -14,25 +14,25 @@
 
 ## Implementation
 
-- [ ] 1.1 使用 `test-evidence-review` 恢复 Configuration、Package Run、Check/Record、Task orchestration、scanner dependency、effects、项目 Run 和 fixture Cases；运行 `bun run test-evidence:check`，明确保留、迁移和删除的 Case 集合。
-- [ ] 1.2 先形成 package name/consumer comparison，再在 `src/product/**` 建立唯一 current public-contract source；确定 package import、config-definition/Package Run symbols、必要 types、effect defaults、environment 和 dependency identifiers；不写项目文件路径或 version/host/legal/manifest placeholders。
-- [ ] 1.3 实现配置定义函数、Project Definition authoring types 和 plain return value；支持 exact-key inference 和 owned authoring defaults，不建立 brand、builder、registration 或 file ownership。
-- [ ] 1.4 实现 Product 运行内核的 `(Project Definition, Run Controls)` input contract、runtime validation 和 typed pre-work failures；一次 invocation 恰好一个 definition，controls 只接受 Design 声明的当次输入类别。
-- [ ] 1.5 将 valid Project Definition 归一化为 frozen declarative snapshot、foundation-owned public Check catalog 和一一对应的 custom function bindings；functions/closures/Tasks/internal ports 不进入 public data。
-- [ ] 1.6 按 `explicit Run Control > supported environment > Project Definition/Product default` 解析一个 `ScannerDependencySnapshot`；在 work 前验证 required bindings，禁止 repository state 或 ambient `PATH` fallback，并保持 diagnostics secret-safe。
-- [ ] 1.7 建立 declarative fingerprint 和 custom-result-cache exclusion；function source、closure、module graph、project file path、ambient environment、resolved executable path、Task value 和 policy body 不进入 fingerprint/machine output。
-- [ ] 1.8 实现 explicit Project Definition requirement、neutral observation authoring、gate named-policy prerequisite，以及 Run Controls 对 effects/references/dependencies 的 closed precedence。
-- [ ] 1.9 将 custom selection、policy/reference inputs、`requiresChecks` closure、direct runner 和 applicability-time `TaskPlan` factory 接入 existing owners；证明 skipped/not-applicable 不调用 factory，execution 不动态注册 Check/Task。
-- [ ] 1.10 接通 shared scheduler：一个 `SchedulerPolicy.maxParallel` 管理 direct/Task/completion work；task dependencies 决定等待，named resources 决定互斥，可运行 tasks 在预算内并行。
-- [ ] 1.11 建立 canonical 项目配置文件和项目运行脚本；项目 Run 绑定 definition，只暴露允许的 controls。迁移 repository dogfood，并删除 Product config discovery/init/create path。
-- [ ] 1.12 删除 JSON reader/comment grammar、runtime/editor schemas、sibling generation、dual-source fixtures 和旧 selection；legacy JSON 只产生 migration diagnostic。
-- [ ] 1.13 同步 Configuration、Architecture、Scanner Dependencies、Output、Testing/navigation、examples 和 Case catalog；记录下游 Readiness `0.15` 所需的 current-contract、Product 运行内核、Task/dependency、JSON hard cut 和 canonical usage evidence。
+- [x] 1.1 使用 `test-evidence-review` 恢复 Configuration、Package Run、Check/Record、Task orchestration、scanner dependency、effects、项目 Run 和 fixture Cases；运行 `bun run test-evidence:check`，明确保留、迁移和删除的 Case 集合。
+- [x] 1.2 先形成 package name/consumer comparison，再在 `src/product/**` 建立唯一 current public-contract source；确定 package import、config-definition/Package Run symbols、必要 types、effect defaults、environment 和 dependency identifiers；不写项目文件路径或 version/host/legal/manifest placeholders。
+- [x] 1.3 实现配置定义函数、Project Definition authoring types 和 plain return value；支持 exact-key inference 和 owned authoring defaults，不建立 brand、builder、registration 或 file ownership。
+- [x] 1.4 实现 Product 运行内核的 `(Project Definition, Run Controls)` input contract、runtime validation 和 typed pre-work failures；一次 invocation 恰好一个 definition，controls 只接受 Design 声明的当次输入类别。
+- [x] 1.5 将 valid Project Definition 归一化为 frozen declarative snapshot、foundation-owned public Check catalog 和一一对应的 custom function bindings；functions/closures/Tasks/internal ports 不进入 public data。
+- [x] 1.6 按 `explicit Run Control > supported environment > Project Definition/Product default` 解析一个 `ScannerDependencySnapshot`；在 work 前验证 required bindings，禁止 repository state 或 ambient `PATH` fallback，并保持 diagnostics secret-safe。
+- [x] 1.7 建立 declarative fingerprint 和 custom-result-cache exclusion；function source、closure、module graph、project file path、ambient environment、resolved executable path、Task value 和 policy body 不进入 fingerprint/machine output。
+- [x] 1.8 实现 explicit Project Definition requirement、neutral observation authoring、gate named-policy prerequisite，以及 Run Controls 对 effects/references/dependencies 的 closed precedence。
+- [x] 1.9 将 custom selection、policy/reference inputs、`requiresChecks` closure、direct runner 和 applicability-time `TaskPlan` factory 接入 existing owners；证明 skipped/not-applicable 不调用 factory，execution 不动态注册 Check/Task。
+- [x] 1.10 接通 shared scheduler：一个 `SchedulerPolicy.maxParallel` 管理 direct/Task/completion work；task dependencies 决定等待，named resources 决定互斥，可运行 tasks 在预算内并行。
+- [x] 1.11 建立 canonical 项目配置文件和项目运行脚本；项目 Run 绑定 definition，只暴露允许的 controls。迁移 repository dogfood，并删除 Product config discovery/init/create path。
+- [x] 1.12 删除 JSON reader/comment grammar、runtime/editor schemas、sibling generation、dual-source fixtures 和旧 selection；legacy JSON 只产生 migration diagnostic。
+- [x] 1.13 同步 Configuration、Architecture、Scanner Dependencies、Output、Testing/navigation、examples 和 Case catalog；记录下游 Readiness `0.15` 所需的 current-contract、Product 运行内核、Task/dependency、JSON hard cut 和 canonical usage evidence。
 
 ## Verification
 
-- [ ] 2.1 对 current public-contract source 执行 owner-to-consumer comparison；证明 package symbols/types/defaults/environment/dependency identifiers 只有一个 owner，且 source 不含项目文件路径或 package/release placeholders。
-- [ ] 2.2 运行配置定义 authoring、Project Definition/Run Controls validation、normalization、function-slot、neutral/gate、operational dependency、effects、fingerprint 和 typed failure tests。
-- [ ] 2.3 运行完整调用链 acceptance：其他调用方只调用项目 Run；Package Run 调用 project functions；direct work 和 `TaskPlan` 按 dependency、parallel budget 和 named resources 执行。
-- [ ] 2.4 运行 product import boundary、`bun run typecheck:product`、`bun run lint:product`、`bun run test:product` 和 `bun run test-evidence:check`。
-- [ ] 2.5 运行 `bun run decisions:check`、`bun run validate` 和两个 active Changes 的 `change-plan -- check`；确认下游只消费本 Change 的 current facts。
-- [ ] 2.6 运行 `bun run verify:vibe-check-workspace:full` 和 full dogfood；focused audit 证明 active JSON/schema/discovery/init、dual source、function serialization/reload、whole-invocation execution protocol、custom-result cache、ambient dependency fallback 和跨 Change 反向 handoff均已退出。
+- [x] 2.1 对 current public-contract source 执行 owner-to-consumer comparison；证明 package symbols/types/defaults/environment/dependency identifiers 只有一个 owner，且 source 不含项目文件路径或 package/release placeholders。
+- [x] 2.2 运行配置定义 authoring、Project Definition/Run Controls validation、normalization、function-slot、neutral/gate、operational dependency、effects、fingerprint 和 typed failure tests。
+- [x] 2.3 运行完整调用链 acceptance：其他调用方只调用项目 Run；Package Run 调用 project functions；direct work 和 `TaskPlan` 按 dependency、parallel budget 和 named resources 执行。
+- [x] 2.4 运行 product import boundary、`bun run typecheck:product`、`bun run lint:product`、`bun run test:product` 和 `bun run test-evidence:check`。
+- [x] 2.5 运行 `bun run decisions:check`、`bun run validate` 和两个 active Changes 的 `change-plan -- check`；确认下游只消费本 Change 的 current facts。
+- [x] 2.6 运行 `bun run verify:vibe-check-workspace:full` 和 full dogfood；focused audit 证明 active JSON/schema/discovery/init、dual source、function serialization/reload、whole-invocation execution protocol、custom-result cache、ambient dependency fallback 和跨 Change 反向 handoff均已退出。

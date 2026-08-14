@@ -1,100 +1,78 @@
 # 架构
 
-本文是 Vibe Check 产品运行时的组件职责与运行边界 owner。正式入口是
-`bun run product:cli -- scan [project-root]` 和 `bun run product:cli -- init [project-root]`；产品
-运行时只位于 `src/product/**`。
+本文是 Vibe Check Product runtime 的组件职责与调用边界 owner。支持的调用方向是：
+
+```text
+其他调用方 → 项目 Run → Package Run → 项目函数 → Check/Task 系统
+                                      → validated model → effects/result
+```
+
+项目 Run 已绑定一个项目拥有的 TypeScript Project Definition；其他调用方只提供该项目允许的
+Run Controls。Product source 拥有 package operations 和 runtime behavior，不拥有项目 module 路径，
+也不发现或重新加载配置文件。
 
 ## 核心定位
 
-一次 `scan` 在 work 前选择配置、冻结 Check catalog、private bindings、selected policy 与可选的
-named baseline reference。Product 唯一拥有的 generic runner 位于
-`src/product/task-orchestration/**`；它只调度私有 Task，保留既有的 group、父 metadata 继承、dependency、
-mutex、并发和 opaque resolved-value 语义。Check adapter 在这个 generic contract 之上把 closed
-Check binding、static TaskPlan 和 `requiresChecks` 归一化为同一 invocation 的任务图；它不改变 runner
-如何解释 Task value。三个内置 Check（`file-metrics`、`function-metrics`、`duplicate-detection`）只经其
-private adapter 产生 Check run、record 和 reference facts。Core 的最终事实是 `FinalCoreSnapshot`：
-definitions、runs、records、integrity 与由 run/coverage 得出的 snapshot completeness。它不把 scanner
-payload、Task、runner、cache 或路径位置提升为公共事实。
+Package Run 在任何 project function、dependency preparation、cache、scanner、reporter 或 output work
+之前验证完整 Project Definition 与 closed Run Controls。验证成功后，它把 frozen declarative data 与
+trusted function bindings 分开：前者参与 catalog、fingerprint 和 machine projection，后者只留在当前
+Bun runtime 的 execution owner 中。
 
-`DecisionPolicy` 在 final snapshot 和 named reference facts 上产生 decision evidence 与
-`GateResult`。Output 的 validated publication model 在构造时核对并冻结 human status projection；
-machine set、`report.md`、console 与 process outcome 只消费该 model。质量状态与 process outcome 是
-不同投影。
-
-## 当前实现状态
-
-`src/product/**` 拥有 CLI、semantic config、scope collection、scanner adapters、Check/Record Core 和
-publication。`scripts/**` 只拥有开发自动化及已验证 artifact 的 consumer；`quality:*` 和
-`scripts/quality/scan.ts` 显式传入仓库根并单向调用产品入口。产品不反向导入 scripts 或 toolkit。
+现有 Check/Task foundation 是唯一执行系统。Package Run 不建立第二个 scheduler、manager、worker
+protocol 或 custom-result cache。
 
 ## 调用链
 
-```text
-CLI -> config selection -> dependency snapshot -> normalized exact inputs
-    -> frozen catalog / bindings / schedules / policy / references
-    -> private Check adapter + Product-owned runner
-    -> final Core snapshot + decision evidence
-    -> validated publication model
-    -> run.json + records.ndjson + report.md + console
-    -> success | gate-failed | failed
-```
-
-`init` 只进入 Configuration initializer，不进入 scan、dependency 或 publication 链。
-
-## 输出分层
-
-| 输出 | 用途 | Owner |
-| --- | --- | --- |
-| `run.json` + `records.ndjson` | 唯一 canonical machine set | Output runtime schemas / validator |
-| `report.md` 与 console | 同源的人读投影 | Output / CLI |
-| `raw/**` | scanner-private 复现材料；不属于 machine set | scanner adapter / Output |
-| CI annotation | 严格验证 two-file machine set 后的 script consumer | `scripts/**` |
-
-Output 不重新计算 Core 或 decision。machine artifacts 只有在 complete two-file set 通过验证并完成
-canonical publication 后才是 trusted；输出失败不会被 GateResult 覆盖。
+1. 项目配置 module 调用 `defineConfig` 并 default-export plain Project Definition value。
+2. 项目 Run 普通 import 该 value，调用 Package Run，并决定向其他调用方暴露哪些 controls。
+3. Package Run 验证 definition/controls，归一化 public Check catalog、selection、schedules、policy、
+   effects、scheduler 与 operational dependency inputs。
+4. Package Run 直接调用 applicable custom runner 或 applicability-time `TaskPlan` factory；未选择或
+   not-applicable Check 不调用 factory。
+5. Check adapter 把 direct work、Task leaves 与 completion work 交给 shared scheduler。
+6. Final Core snapshot、reference facts 和 validated named policy 形成 decision 与 publication model；
+   logs、progress、cache、files 和 structured Run Result 都投影自同一次 invocation facts。
 
 ## 组件职责
 
-### Product CLI
+### Package Run
 
-负责 command routing、project root、flags、scan 前 usage/config failure 与 exit mapping。它不解释
-scanner output、Check 结果、records 或 artifact fields。
+- 要求每次 invocation 恰好一个 Project Definition；缺失或无效输入返回 typed configuration result。
+- Run Controls 只拥有 project root、changed files、一个 explicit comparison、cancellation、effect override
+  和 operational dependency override；不能注册 Check、替换 scheduler 或改写 policy。
+- 只允许 Project Definition 中已经验证的 `selectedPolicy`；neutral observation 使用 `null`。
+- 在 selected built-in work 前解析 dependency snapshot，并在所有路径上返回 distinct result variant 与
+  effect status。
 
-### Product core
+### Check/Task system
 
-负责把 resolved config、exact inputs 和 dependency snapshot 组合为一次冻结执行。它在任何 user-managed
-function 开始前验证并冻结 closed Check schedule、TaskPlan 和唯一 `SchedulerPolicy`；factory、planning 或
-graph 验证失败时不开始 user work。每个 direct binding 是直接形成 terminal result 的一个 Task；TaskPlan
-的 leaf 保持私有，且每个 TaskPlan 只在其全部 leaf 都可用时调用一次 Check-level
-`complete(outcomes)`。CheckManager 和
-RecordManager 分别拥有 run lifecycle/coverage 与 record provenance/identity/integrity。Core 不保留全局
-quality reducer；policy readiness 只属于选定 `DecisionPolicy`。
+- Public catalog 只含 Check/record metadata；bindings、TaskPlan、Task value、ports、scheduler state 和
+  executable 不进入 public data。
+- `requiresChecks` 在 execution 前闭合 Check dependency。合法 `passed`、quality `failed` 和
+  `not-applicable` 可满足 prerequisite；execution/result/record/ack failure 会阻断 dependent user work。
+- Shared scheduler 使用一个 `SchedulerPolicy.maxParallel`，同时管理 direct work、Task leaves 和
+  completion work；task dependencies 决定等待，named resources 决定互斥。
+- `FinalCoreSnapshot` 是 definitions、runs、records、integrity 和 completeness 的唯一 Core facts。
 
-### Scanner adapter
+### Scanner adapters
 
-adapter 仅消费 Product 批准的 exact inputs 和自己的 dependency slice。它隔离 availability、process、
-parser、private payload 和 raw material，并以 Check-owned contribution、records 或 reference facts
-交给 Core。越界 source batch 必须在 record conversion 前被拒绝；有效的早先 records 不因后续
-failure 撤销。
+Adapter 只消费 Product 批准的 exact inputs 和自己的 dependency slice。它隔离 availability、subprocess、
+parser、private payload、cache/backend identity 和 raw material；越界 source batch 在 record conversion
+前整体拒绝。单个 adapter 可以使用 subprocess 或内部并行，但不能改变 Product task graph。
 
-### Output
+### Output and effects
 
-Output 拥有 publication model 的 machine mapper、runtime schemas、serializers、two-file validator、
-artifact lifecycle、readable projection 和 `src/product/machine-output.ts` shallow boundary。它在写入前
-验证 candidate，使用同目录 owned temps，handled publication failure 清理 canonical files、`report.md`
-和 owned temps；`raw/**` 可按 scanner 需要保留。
+Output 从 validated snapshot、reference facts 与 decision 构造一个 publication model。Machine set、
+`report.md` 和 console 不重新计算 Check、record、policy 或 gate facts。Output failure 使用 typed effect
+result；pre-work configuration failure 不产生 output I/O。Machine schema 与 artifact lifecycle 的精确
+契约见 [Output](output.md)。
 
-## 运行边界
+## Runtime 边界
 
-- public catalog 只含 serializable Check/record-type metadata；bindings、TaskPlan、Task identity、runner、
-  scheduler state、scanner payload 与 executable 不进入 catalog、policy 或 machine set。
-- 每个 definition 恰有一个 Check run；`not-applicable` 只来自 pre-work applicability，execution
-  failure 的 run 没有 result。quality `failed` verdict 仍是 completed run 的领域结果。
-- record identity 不依赖 location、message、arrival 或 checkRunId；RecordManager 保留独立的已提交
-  records，并以 integrity evidence 表达 invalid candidate 或 conflict。
-- Check execution 的 work handles、ack ports、function-scoped record sinks、Task outcomes 和 settlement
-  availability 都是 invocation-private capability 或 state。`QualityRecord` 保持 record contract；
-  `CheckRun`、coverage、integrity 和 completeness 保持 run/snapshot contract，不记录 capability 或 event
-  identity。
-- machine schema/types/mappers/serializers/validator 位于 `src/product/**`。consumer 只经
-  `src/product/machine-output.ts` 使用 validator；产品不读取 `docs/**` 或 `scripts/**`。
+- Project functions、imports 和 closures 在调用 Package Run 的同一 Bun runtime 中执行；Product 不通过
+  source serialization、module reload、IPC 或 whole-invocation worker 重建它们。
+- Project functions 是 trusted project code。Product 不承诺隔离 `process.exit`、同步无限循环、global
+  mutation 或 non-cooperative work；cancellation 只在 Product 拥有的阶段边界被观察。
+- Product runtime 不 import `scripts/**`、docs、fixtures 或 toolkit gitlink。Repository dogfood 由
+  `scripts/quality/project-run.ts` 单向调用 Product。
+- Project module paths 只是各项目 convention，不属于 current public contract 或 discovery protocol。

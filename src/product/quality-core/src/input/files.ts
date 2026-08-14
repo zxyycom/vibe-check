@@ -8,7 +8,6 @@ import { createHash } from "node:crypto";
 import { buildFingerprint, isExcluded } from "../model/code-areas.ts";
 import { matchesAnyConfigGlob } from "../model/config-glob.ts";
 import { collectSubmoduleWorktreeFiles } from "./revision-tree.ts";
-import { getRevisionChangedFiles, getWorkingTreeChangedFiles } from "./revisions.ts";
 import {
   processFailed,
   runGit,
@@ -19,11 +18,6 @@ import {
 import type { CodeAreaFileMap, CodeAreaFingerprint, ResolvedQualityConfig } from "../model/schema.ts";
 
 export type ScanInputConfig = Pick<ResolvedQualityConfig, "excludeDirs" | "generatedFiles" | "include">;
-
-export type ChangedFilesOptions = {
-  changedFiles?: string | null;
-  scanInputPaths?: string[] | readonly string[];
-};
 
 export function collectScanFiles(rootDir: string, config: ScanInputConfig): string[] {
   const result = runGit([
@@ -70,39 +64,6 @@ export function collectBaselineFiles(workDir: string, config: ScanInputConfig): 
     ...splitNulDelimitedGitFileList(result.stdout),
     ...collectSubmoduleWorktreeFiles(workDir, config.include)
   ], config, workDir);
-}
-
-export function getChangedFileList(opts: ChangedFilesOptions, rootDir: string): string[] {
-  if (opts.changedFiles) {
-    const changedFilesPath = resolve(rootDir, opts.changedFiles);
-    try {
-      return readFileSync(changedFilesPath, "utf8")
-        .split(/\r?\n/)
-        .filter(Boolean)
-        .map(toSlashPath);
-    } catch (error) {
-      const reason = error instanceof Error ? error.message : String(error);
-      const readError = new Error(`failed to read --changed-files ${opts.changedFiles}: ${reason}`, {
-        cause: error
-      });
-      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-        Object.assign(readError, { code: "ENOENT" });
-      }
-      throw readError;
-    }
-  }
-
-  const scanInputPaths = opts.scanInputPaths ?? [];
-  const committedChangedFiles = getRevisionChangedFiles(
-    rootDir,
-    "HEAD~1",
-    "HEAD",
-    scanInputPaths
-  );
-  const workingTreeChangedFiles = getWorkingTreeChangedFiles(rootDir, [...(opts.scanInputPaths ?? [])])
-    .map(toSlashPath);
-
-  return uniqueSorted([...committedChangedFiles, ...workingTreeChangedFiles]);
 }
 
 export function buildFingerprints(fileMap: CodeAreaFileMap, rootDir: string): Record<string, CodeAreaFingerprint> {

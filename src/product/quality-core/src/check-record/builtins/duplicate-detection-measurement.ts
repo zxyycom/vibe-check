@@ -18,6 +18,8 @@ import { compareText, isInChangedScope } from "./builtin-support.ts";
 import type {
   DuplicateDetectionAreaInput,
   DuplicateDetectionExactInputSet,
+  DuplicateMeasurementInput,
+  DuplicateCacheOptions,
   DuplicateDetectionSemantics
 } from "./duplicate-detection.ts";
 import { isValidDuplicateFragment } from "./duplicate-detection-records.ts";
@@ -37,6 +39,7 @@ type AreaMeasurementResult = Readonly<
 
 interface AreaMeasurementInput {
   readonly area: DuplicateDetectionAreaInput;
+  readonly cache: DuplicateCacheOptions;
   readonly cacheRootDir: string;
   readonly changedFiles: readonly string[];
   readonly commitSha: string;
@@ -72,12 +75,10 @@ function detachAreaInput(area: DuplicateDetectionAreaInput): DuplicateDetectionA
 }
 
 export async function measureDuplicateDetection(
-  input: DuplicateDetectionExactInputSet,
-  dependency: DuplicationScannerDependency,
-  semantics: DuplicateDetectionSemantics,
-  scanKind: ScanKind,
-  changedFiles: readonly string[]
+  options: DuplicateMeasurementInput
 ): Promise<DuplicateMeasurementResult> {
+  const cache = options.cache ?? { enabled: true };
+  const { changedFiles, dependency, input, scanKind, semantics } = options;
   if (!validAreaInputs(input.areas)) {
     return Object.freeze({ kind: "invalid-result" });
   }
@@ -91,6 +92,7 @@ export async function measureDuplicateDetection(
   }
   return measureAreas({
     areas,
+    cache,
     changedFiles,
     dependency,
     input,
@@ -110,6 +112,7 @@ function measurableAreas(
 
 async function measureAreas(options: Readonly<{
   areas: readonly DuplicateDetectionAreaInput[];
+  cache: DuplicateCacheOptions;
   changedFiles: readonly string[];
   dependency: DuplicationScannerDependency;
   input: DuplicateDetectionExactInputSet;
@@ -124,6 +127,7 @@ async function measureAreas(options: Readonly<{
       options.dependency.maxConcurrency,
       (area) => measureArea({
         area,
+        cache: options.cache,
         cacheRootDir: options.input.cacheRootDir,
         commitSha: options.input.commitSha,
         configVersion: options.semantics.configVersion,
@@ -178,9 +182,12 @@ function validFingerprint(fingerprint: DuplicateDetectionAreaInput["inputFingerp
 async function measureArea(input: AreaMeasurementInput): Promise<AreaMeasurementResult> {
   const files = uniqueSorted(input.area.approvedExactPaths);
   const identity = createCacheIdentity(input);
-  const cachedFragments = loadValidCachedFragments(input, identity, files);
-  if (cachedFragments !== null) {
-    return Object.freeze({ kind: "complete", fragments: cachedFragments });
+  if (input.cache.enabled) {
+    input.cache.onActivity?.("read");
+    const cachedFragments = loadValidCachedFragments(input, identity, files);
+    if (cachedFragments !== null) {
+      return Object.freeze({ kind: "complete", fragments: cachedFragments });
+    }
   }
   return scanAndCacheArea(input, identity, files);
 }
@@ -230,7 +237,15 @@ async function scanAndCacheArea(
     input.area.codeArea,
     input.changedFiles
   );
-  writeScanCacheEntry({ rootDir: input.cacheRootDir, identity, metrics: fragments });
+  if (input.cache.enabled) {
+    try {
+      writeScanCacheEntry({ rootDir: input.cacheRootDir, identity, metrics: fragments });
+      input.cache.onActivity?.("write");
+    } catch {
+      input.cache.onActivity?.("failed");
+      throw new Error("Duplicate-detection cache write failed");
+    }
+  }
   return Object.freeze({ kind: "complete", fragments: Object.freeze(fragments) });
 }
 

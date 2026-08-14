@@ -1,23 +1,12 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
+import type { OperationalDependencies } from "./project-definition.ts";
 
-import { isStringArray } from "./foundation/src/type-guards.ts";
-
-const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const DUPLICATION_MAX_CONCURRENCY = 4;
 const FUNCTION_ARGS = Object.freeze(["-m", "lizard"] as const);
 const FUNCTION_AVAILABILITY_ARGS = Object.freeze([
   ...FUNCTION_ARGS,
   "--version"
 ] as const);
-
-type ScannerArgsInputName =
-  | "VIBE_CHECK_JSCPD_ARGS"
-  | "VIBE_CHECK_SCC_ARGS";
-
-type RequiredScannerCommandInputName =
-  | "VIBE_CHECK_LIZARD_CMD"
-  | "VIBE_CHECK_SCC_CMD";
 
 export interface FileScannerDependency {
   readonly args: readonly string[];
@@ -44,99 +33,99 @@ export interface ScannerDependencySnapshot {
   readonly function: FunctionScannerDependency;
 }
 
+export interface ScannerDependencyResolutionInput {
+  readonly controls?: OperationalDependencies;
+  readonly definition?: OperationalDependencies;
+  readonly environment?: Readonly<Record<string, string | undefined>>;
+}
+
+export type SelectedScannerDependencySnapshot = Readonly<Partial<ScannerDependencySnapshot>>;
+
 export class ScannerOperationalInputError extends Error {
   readonly code = "invalid-scanner-operational-input";
-  readonly inputName: ScannerArgsInputName | RequiredScannerCommandInputName;
+  readonly dependencyId: OperationalDependencyId | undefined;
+  readonly inputName: string;
 
-  constructor(
-    inputName: ScannerArgsInputName | RequiredScannerCommandInputName,
-    reason: "invalid-args" | "missing-command" = "invalid-args"
-  ) {
-    super(
-      reason === "missing-command"
-        ? `${inputName} is missing; the package host must provide an explicit scanner binding`
-        : `${inputName} must be a JSON array of strings; provide a valid array or unset the variable`
-    );
+  constructor(inputName: string) {
+    super(inputName.startsWith("VIBE_CHECK_")
+      ? `${inputName} is invalid`
+      : `Missing explicit scanner binding for ${inputName}`);
     this.name = "ScannerOperationalInputError";
+    this.dependencyId = isOperationalDependencyId(inputName) ? inputName : undefined;
     this.inputName = inputName;
   }
 }
 
 export function resolveScannerDependencySnapshot(
-  env: Readonly<Record<string, string | undefined>>,
-  platform: NodeJS.Platform
+  input: ScannerDependencyResolutionInput
 ): ScannerDependencySnapshot {
-  const {
-    VIBE_CHECK_JSCPD_ARGS: jscpdArgsInput,
-    VIBE_CHECK_JSCPD_CMD: jscpdCommandInput,
-    VIBE_CHECK_LIZARD_CMD: lizardCommandInput,
-    VIBE_CHECK_PINNED_LIZARD_CMD: pinnedLizardCommandInput,
-    VIBE_CHECK_PINNED_SCC_CMD: pinnedSccCommandInput,
-    VIBE_CHECK_SCC_ARGS: sccArgsInput,
-    VIBE_CHECK_SCC_CMD: sccCommandInput
-  } = env;
-  const fileArgs = parseAdditionalArgs("VIBE_CHECK_SCC_ARGS", sccArgsInput);
-  const duplicationArgs = parseAdditionalArgs(
-    "VIBE_CHECK_JSCPD_ARGS",
-    jscpdArgsInput
+  const selected = resolveSelectedScannerDependencySnapshot(
+    input,
+    dependencyIds()
   );
-  const jscpdBinary = platform === "win32" ? "jscpd.cmd" : "jscpd";
-  const lizardCommand = requireScannerCommand(
-    "VIBE_CHECK_LIZARD_CMD",
-    lizardCommandInput,
-    pinnedLizardCommandInput
-  );
-  const sccCommand = requireScannerCommand(
-    "VIBE_CHECK_SCC_CMD",
-    sccCommandInput,
-    pinnedSccCommandInput
-  );
+  return selected as ScannerDependencySnapshot;
+}
+
+/**
+ * Resolves only dependencies required by this invocation. This makes the
+ * Package Run pre-work boundary independent from unselected built-in Checks.
+ */
+export function resolveSelectedScannerDependencySnapshot(
+  input: ScannerDependencyResolutionInput,
+  selectedDependencyIds: readonly OperationalDependencyId[]
+): SelectedScannerDependencySnapshot {
+  const selected = new Set(selectedDependencyIds);
+  if (selected.size !== selectedDependencyIds.length
+    || selectedDependencyIds.some((dependencyId) => !dependencyIds().includes(dependencyId))) {
+    throw new ScannerOperationalInputError("operationalDependencies");
+  }
+  const executableByDependency = new Map(selectedDependencyIds.map((dependencyId) => [
+    dependencyId,
+    resolveExecutable(dependencyId, input)
+  ]));
 
   return Object.freeze({
-    duplication: Object.freeze({
-      args: duplicationArgs,
-      availabilityArgs: Object.freeze([...duplicationArgs, "--version"]),
-      executable: jscpdCommandInput ||
-        resolve(REPO_ROOT, "node_modules", ".bin", jscpdBinary),
+    ...(executableByDependency.has("duplication") ? { duplication: Object.freeze({
+      args: Object.freeze([]),
+      availabilityArgs: Object.freeze(["--version"]),
+      executable: executableByDependency.get("duplication")!,
       maxConcurrency: DUPLICATION_MAX_CONCURRENCY
-    }),
-    file: Object.freeze({
-      args: fileArgs,
-      availabilityArgs: Object.freeze([...fileArgs, "--version"]),
-      executable: sccCommand
-    }),
-    function: Object.freeze({
+    }) } : {}),
+    ...(executableByDependency.has("file") ? { file: Object.freeze({
+      args: Object.freeze([]),
+      availabilityArgs: Object.freeze(["--version"]),
+      executable: executableByDependency.get("file")!
+    }) } : {}),
+    ...(executableByDependency.has("function") ? { function: Object.freeze({
       args: FUNCTION_ARGS,
       availabilityArgs: FUNCTION_AVAILABILITY_ARGS,
-      executable: lizardCommand
-    })
+      executable: executableByDependency.get("function")!
+    }) } : {})
   });
 }
 
-function requireScannerCommand(
-  inputName: RequiredScannerCommandInputName,
-  override: string | undefined,
-  pinnedBinding: string | undefined
+function resolveExecutable(
+  dependencyId: OperationalDependencyId,
+  sources: ScannerDependencyResolutionInput
 ): string {
-  if (override) return override;
-  if (pinnedBinding) return pinnedBinding;
-  throw new ScannerOperationalInputError(inputName, "missing-command");
+  const fromControls = sources.controls?.[dependencyId]?.executable;
+  if (isNonEmptyString(fromControls)) return fromControls;
+  const environmentName = CURRENT_PUBLIC_CONTRACT.operationalDependencies[dependencyId].environment;
+  const fromEnvironment = sources.environment?.[environmentName];
+  if (isNonEmptyString(fromEnvironment)) return fromEnvironment;
+  const fromDefinition = sources.definition?.[dependencyId]?.executable;
+  if (isNonEmptyString(fromDefinition)) return fromDefinition;
+  throw new ScannerOperationalInputError(dependencyId);
 }
 
-function parseAdditionalArgs(
-  inputName: ScannerArgsInputName,
-  raw: string | undefined
-): readonly string[] {
-  if (!raw) return Object.freeze([]);
+function dependencyIds(): OperationalDependencyId[] {
+  return Object.keys(CURRENT_PUBLIC_CONTRACT.operationalDependencies) as OperationalDependencyId[];
+}
 
-  let value: unknown;
-  try {
-    value = JSON.parse(raw) as unknown;
-  } catch {
-    throw new ScannerOperationalInputError(inputName);
-  }
-  if (!isStringArray(value)) {
-    throw new ScannerOperationalInputError(inputName);
-  }
-  return Object.freeze([...value]);
+function isOperationalDependencyId(value: string): value is OperationalDependencyId {
+  return dependencyIds().includes(value as OperationalDependencyId);
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
 }

@@ -1,12 +1,8 @@
 #!/usr/bin/env bun
 
-import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { run } from "./project-run.ts";
 
-import { runProductCli } from "../../src/product/cli.ts";
-
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exit(await runProductCli(["scan", root, ...process.argv.slice(2)]));
+if (import.meta.main) {
+  const result = await run();
+  process.exitCode = result.kind === "completed" ? 0 : result.kind === "configuration" ? 3 : 2;
 }

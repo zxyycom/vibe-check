@@ -11,7 +11,6 @@ import type { GateResult } from "../check-record/policy-model.ts";
 import type { ResolvedQualityConfig } from "../model/schema.ts";
 import {
   planPublicationCleanupV2,
-  mapPublicationOutcomeV2,
   projectMachinePublicationV2,
   projectReadablePublicationV2,
   serializeMachinePublicationV2,
@@ -20,12 +19,10 @@ import {
   type ReadableReportContractV2,
   type ValidatedPublicationModelV2
 } from "../output/publication-v2/index.ts";
-import type { QualityScanProcessOutcome } from "./command-model.ts";
 
 const PREVIEW_LIMIT = 5;
 
 export interface PublishedScanV2 {
-  readonly outcome: QualityScanProcessOutcome;
   readonly readable: ReadablePublicationContractV2;
 }
 
@@ -33,6 +30,7 @@ export function publishScanV2(input: Readonly<{
   artifactDir: string;
   changedFiles: readonly string[];
   model: ValidatedPublicationModelV2;
+  print?: boolean;
   reportPresentation: ResolvedQualityConfig["report"];
 }>): PublishedScanV2 {
   const machine = projectMachinePublicationV2(input.model);
@@ -60,17 +58,13 @@ export function publishScanV2(input: Readonly<{
     report,
     runJson: candidates.runJson
   });
-  printPublishedScan({
+  if (input.print ?? true) printPublicationSummaryV2({
     artifactDir: input.artifactDir,
     model: input.model,
     readable: readable.console
   });
 
-  const { outcome } = mapPublicationOutcomeV2({
-    model: input.model,
-    publicationStatus: "succeeded"
-  });
-  return Object.freeze({ outcome, readable: readable.console });
+  return Object.freeze({ readable: readable.console });
 }
 
 export function cleanupPublicationV2(artifactDir: string): void {
@@ -220,8 +214,8 @@ function reportRecords(
   });
 }
 
-function printPublishedScan(input: Readonly<{
-  artifactDir: string;
+export function printPublicationSummaryV2(input: Readonly<{
+  artifactDir?: string;
   model: ValidatedPublicationModelV2;
   readable: ReadablePublicationContractV2;
 }>): void {
@@ -258,10 +252,12 @@ function printPublishedScan(input: Readonly<{
 
   console.log("");
   console.log(scanCompletionMessage(status));
-  console.log(`Artifacts in: ${input.artifactDir}/`);
-  console.log(`  run.json → ${join(input.artifactDir, "run.json")}`);
-  console.log(`  records.ndjson → ${join(input.artifactDir, "records.ndjson")}`);
-  console.log(`  report.md → ${join(input.artifactDir, "report.md")}`);
+  if (input.artifactDir !== undefined) {
+    console.log(`Artifacts in: ${input.artifactDir}/`);
+    console.log(`  run.json → ${join(input.artifactDir, "run.json")}`);
+    console.log(`  records.ndjson → ${join(input.artifactDir, "records.ndjson")}`);
+    console.log(`  report.md → ${join(input.artifactDir, "report.md")}`);
+  }
 }
 
 function printGate(gate: GateResult): void {

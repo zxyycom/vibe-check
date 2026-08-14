@@ -3,22 +3,18 @@
 ## Case WB-SCANNER-DEPENDENCY-RESOLUTION-001: Scanner dependency resolution
 Owner: `docs/scanner-dependencies.md#current-dependency-boundary`
 Entities:
-- `bun|src/product/configured-project-completeness.test.ts|formal CLI configured scan completeness > rejects malformed operational input before an empty scan starts`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > applies supported operational overrides without probing executables`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects malformed or non-string-array argument overrides without exposing values`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > requires explicit built-in command bindings and resolves fixed protocols without probing`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > treats unset and empty optional arguments as no override`
-- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > rejects missing built-in command bindings instead of resolving ambient PATH tools`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > uses explicit controls before supported environment and definition bindings`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > fails before work without repository, pinned-environment, or PATH fallback`
+- `bun|src/product/scanner-dependencies.test.ts|scanner dependency resolution > resolves only the selected built-in dependency bindings`
 Proves:
-- One invocation-owned snapshot resolves a public command override before its package-private pin without probing; Lizard and scc require one of those explicit host bindings and never fall back to ambient PATH tools; missing bindings or malformed arguments fail before scanner/artifact work without disclosing values.
+- Explicit controls, allowlisted environment, and Project Definition bindings are the only source order; no pinned, repository, argument, or PATH fallback exists.
 
 ## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner exact input scope
 Owner: `docs/scanner-dependencies.md#exact-input-adapter-handoff`
 Entities:
 - `bun|src/product/quality-core/src/measurement/scoped-measurement.test.ts|scoped measurement acceptance > validates declared source paths without inspecting payload shape`
-- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > revalidates cached fragment source paths against exact area inputs`
 Proves:
-- Source acceptance uses only declared source paths and rejects a complete out-of-scope batch before record conversion; cached duplicate paths are revalidated.
+- Source acceptance uses only declared source paths and rejects a complete out-of-scope batch before record conversion.
 
 ## Case WB-SCANNER-FILE-METRICS-CHECK-001: File Check owns SCC handoff
 Owner: `docs/quality-metrics.md#built-in-checks-与-exact-inputs`
@@ -74,9 +70,6 @@ Entities:
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scanner output parsing > rejects malformed Lizard rows without accepting partial output`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scanner output parsing > rejects malformed or partial Lizard CSV headers instead of treating them as zero functions`
 - `bun|src/product/quality-core/src/measurement/scanners.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
-- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > hands exact TypeScript, Rust, and mixed paths to jscpd without format overrides`
-- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > plans one scan task per code area`
-- `bun|src/product/quality-core/src/measurement/scanners/jscpd/area-scans.test.ts|jscpd tasks > records current failures and throws baseline failures for invalid jscpd output`
 Proves:
 - SCC, Lizard and jscpd wrappers keep availability, process, parser/reporter and zero-result semantics private: unavailable, non-zero, missing or malformed output fails closed, while valid zero-function/zero-file output and real duplicate findings remain successful data.
-- Parsers accept the pinned SCC/Lizard/jscpd wire shapes and reject malformed or partial rows/items without a trusted prefix; jscpd area planning hands deterministic approved exact paths without format overrides and preserves distinct current/reference failure handling.
+- Parsers accept the SCC/Lizard/jscpd wire shapes and reject malformed or partial rows/items without a trusted prefix.

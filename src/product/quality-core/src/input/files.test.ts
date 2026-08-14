@@ -9,10 +9,9 @@ import {
   buildFingerprints,
   collectBaselineFiles,
   collectScanFiles,
-  getChangedFileList,
   type ScanInputConfig
 } from "./files.ts";
-import { detectScanInputChange, materializeBaselineRevision } from "./revisions.ts";
+import { materializeBaselineRevision } from "./revisions.ts";
 
 describe("quality input fingerprints", () => {
   it("uses stable SHA-256 fingerprints for sorted file content", () => {
@@ -38,75 +37,8 @@ describe("quality input fingerprints", () => {
   });
 });
 
-describe("quality changed file input", () => {
-  it("resolves a relative changed-files list from the project root", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-changed-root-"));
-
-    try {
-      writeFixtureFile(
-        projectRoot,
-        "inputs/changed.txt",
-        "src/product/first.ts\nsrc/product/second.ts\n"
-      );
-
-      assert.deepEqual(
-        getChangedFileList({ changedFiles: "inputs/changed.txt" }, projectRoot),
-        ["src/product/first.ts", "src/product/second.ts"]
-      );
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("allows absolute and parent-relative list paths while keeping project-relative entries", () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-changed-outside-"));
-    const projectRoot = join(tempDir, "project");
-    const listRoot = join(tempDir, "lists");
-    const absoluteList = join(listRoot, "absolute.txt");
-
-    try {
-      mkdirSync(projectRoot, { recursive: true });
-      writeFixtureFile(listRoot, "absolute.txt", "src/product/absolute.ts\n");
-      writeFixtureFile(listRoot, "parent.txt", "src/product/parent.ts\n");
-
-      assert.deepEqual(
-        getChangedFileList({ changedFiles: absoluteList }, projectRoot),
-        ["src/product/absolute.ts"]
-      );
-      assert.deepEqual(
-        getChangedFileList({ changedFiles: "../lists/parent.txt" }, projectRoot),
-        ["src/product/parent.ts"]
-      );
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  it("preserves the read failure cause and filesystem error code", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-changed-error-"));
-
-    try {
-      let thrown: unknown;
-      try {
-        getChangedFileList({ changedFiles: "missing-changed-files.txt" }, projectRoot);
-      } catch (error) {
-        thrown = error;
-      }
-
-      assert.ok(thrown instanceof Error);
-      assert.match(
-        thrown.message,
-        /failed to read --changed-files missing-changed-files\.txt/
-      );
-      assert.equal((thrown as Error & { code?: string }).code, "ENOENT");
-      assert.ok(thrown.cause instanceof Error);
-      assert.equal((thrown.cause as Error & { code?: string }).code, "ENOENT");
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("keeps current, changed, and baseline submodule files aligned", { timeout: 20_000 }, () => {
+describe("quality submodule input", () => {
+  it("keeps current and baseline submodule files aligned", { timeout: 20_000 }, () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-submodule-"));
     const submoduleOrigin = join(tempDir, "submodule-origin");
     const repository = join(tempDir, "repository");
@@ -146,18 +78,6 @@ describe("quality changed file input", () => {
 
       assert.deepEqual(
         collectScanFiles(repository, config),
-        [committedPath, untrackedPath, workingPath]
-      );
-
-      const scope = detectScanInputChange({
-        baselineSha: baselineRootSha,
-        cwd: repository,
-        scanInputPaths: config.include
-      });
-      assert.equal(scope.changed, true);
-      assert.deepEqual(scope.changedFiles.sort(), [committedPath, untrackedPath, workingPath]);
-      assert.deepEqual(
-        getChangedFileList({ scanInputPaths: config.include }, repository).sort(),
         [committedPath, untrackedPath, workingPath]
       );
 

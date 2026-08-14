@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
@@ -147,11 +147,31 @@ describe("duplicate-detection built-in Check", () => {
   });
 
   it("reuses cache revalidates cached paths and keys backend arguments privately", async () => {
+    const disabledFixture = createJscpdFixture({
+      currentReports: { "src/a.ts": duplicateReport("src/a.ts", "src/b.ts", 80, 12) },
+      referenceReports: {}
+    });
     const fixture = createJscpdFixture({
       currentReports: { "src/a.ts": duplicateReport("src/a.ts", "src/b.ts", 80, 12) },
       referenceReports: {}
     });
     try {
+      const activities: string[] = [];
+      const cacheDisabled = createDuplicateDetectionBinding({
+        cache: { enabled: false, onActivity: (activity) => activities.push(activity) },
+        changedFiles: [],
+        current: currentInput(disabledFixture),
+        dependency: disabledFixture.dependency,
+        reference: null,
+        semantics
+      });
+      await coordinateCheckRecordsWithTestPolicy(
+        resolveRuntimeCatalog(cacheDisabled.binding, currentInput(disabledFixture))
+      );
+      assert.equal(scanInvocationCount(disabledFixture.capturePath), 1);
+      assert.deepEqual(activities, []);
+      assert.equal(existsSync(join(disabledFixture.cacheRoot, "quality-scan-cache-v1")), false);
+
       for (let index = 0; index < 2; index += 1) {
         const runtime = createRuntime(fixture, currentInput(fixture), null);
         await coordinateCheckRecordsWithTestPolicy(resolveRuntimeCatalog(runtime.binding, currentInput(fixture)));
@@ -188,6 +208,7 @@ describe("duplicate-detection built-in Check", () => {
       await coordinateCheckRecordsWithTestPolicy(resolveRuntimeCatalog(alternate.binding, currentInput(fixture)));
       assert.equal(scanInvocationCount(fixture.capturePath), 3, "backend args must change cache identity");
     } finally {
+      disabledFixture.cleanup();
       fixture.cleanup();
     }
   });
