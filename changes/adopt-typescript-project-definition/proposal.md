@@ -31,7 +31,7 @@ Check/Record、DecisionPolicy、`TaskPlan` 和 shared scheduler 已有当前 own
 | 项目 Run | 使用项目 | 绑定 Project Definition，只向其他调用方暴露项目允许的控制参数 |
 | Task 系统 | Vibe Check Product | 执行 direct work 或静态 `TaskPlan`，统一管理依赖、并行和资源 |
 
-文档示例使用 `defineConfig` 和 `run` 表示两个 package operation 的语义角色；Task `1.2` 才确认 exact public symbols。示例文件名也不构成固定路径契约。
+当前 public-contract source 确认配置定义 operation 为 `defineConfig`、Package Run 为 `run`；示例文件名仍不构成固定路径契约。
 
 ## Outcome
 

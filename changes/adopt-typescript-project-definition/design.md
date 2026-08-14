@@ -31,7 +31,7 @@
 | **Product 运行内核** | 本 Change 在 `src/product/**` 建立、由下游 Package Run 公开的实现 boundary |
 | **Task 系统** | 当前 `TaskPlan`、shared scheduler 和 execution owners；管理依赖、并行上限和命名资源 |
 
-后文只按这些含义使用 `run` 相关术语。代码示例中的 `defineConfig` 和 package `run` 是语义示例，不提前确认 exact public symbols。
+后文只按这些含义使用 `run` 相关术语。当前 public-contract source 将 `defineConfig` 定义为配置 operation、将 `run` 定义为 Package Run；项目文件名和路径仍由项目拥有。
 
 ### Consumer Call Path
 
@@ -90,7 +90,7 @@ const result = await run({
 });
 ```
 
-这些名称和文件路径只证明调用关系。Task `1.2` 选择 package symbols；项目自行选择两个文件的路径和 public wrapper convention。
+这些文件名只证明调用关系；项目自行选择两个 module 的路径和 public wrapper convention。
 
 ## Goals / Non-Goals
 
