@@ -305,15 +305,17 @@ Vibe Check-owned
 ## Change Plan CLI
 
 项目内完整上游 [`change-plan`](../.codex/skills/change-plan/SKILL.md) 拥有 Change 目录、固定
-artifacts、metadata、stage、assessment、Git 距离与 lifecycle CLI。项目只固定 `changes/` 根和
+artifacts、严格 metadata、stage、Git 距离与六个 CLI 命令。项目只固定 `changes/` 根和
 package scripts：
 
 | 入口 | 用途 | 状态影响 |
 | --- | --- | --- |
 | `bun run change-plan:list` | 列出 `changes/` 下 active Change | 只读；发现 invalid member 不等于验收通过 |
-| `bun run change-plan -- show changes/<change>` | 展开一个 Change、assessment、任务进度和 artifacts | 只读 |
+| `bun run change-plan -- show changes/<change>` | 展开一个 Change 的 status、stage、任务进度、Plan Git 距离与 artifacts | 只读 |
 | `bun run change-plan -- check changes/<change>` | 按当前 stage 机械检查目标 Change | 只读 |
-| `bun run change-plan -- <lifecycle> changes/<change>` | 调用 plan、implement、shelve、reconcile、resume 或 archive | 按命令改变 metadata 或目录；仍需语义审阅和当前授权 |
+| `bun run change-plan -- check-all [changes]` | 门禁所选 Change 根中的 active Change；`--archived` 或 `--all` 显式扩大集合 | 只读 |
+| `bun run change-plan -- plan changes/<change>` | 在语义复核后写入规范 Plan metadata 与当前 Git baseline | 写 metadata；不表示实施已获授权 |
+| `bun run change-plan -- archive changes/<change>` | 归档已满足机械门禁的 active Plan | 移动 Change 目录；仍需当前任务明确授权 |
 
 CLI 使用稳定的命令与 JSON 输出边界；项目不依赖其未承诺稳定的直接 import API。
 
