@@ -1,6 +1,6 @@
 ---
 title: 公开配置定义函数与 Package Run
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:33Z
 purpose: 让 package 只提供配置定义函数与 Package Run，并由项目运行脚本向其他调用方提供已绑定入口。

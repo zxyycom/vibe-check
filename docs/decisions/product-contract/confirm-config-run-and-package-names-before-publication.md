@@ -1,6 +1,6 @@
 ---
 title: 发布前确认配置定义、Package Run 与 package 契约名称
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:33Z
 purpose: 防止 package、配置定义函数、Package Run、类型和运行标识偶然成为首个公开契约。

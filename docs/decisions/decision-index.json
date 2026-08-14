@@ -32,11 +32,14 @@
       "configuration/drive-product-execution-from-project-definition.md": "sha256:1dceb13a5c0419348453092f9f056cdbd2b74ea21ae5f39ffe3bf3e1f11a6ac3",
       "configuration/drive-run-from-project-definition-value.md": "sha256:2cbb2ec30080d4db9269881bc2a0854bb283053f42601c9bdbb8297fbbf12617",
       "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
+      "configuration/keep-built-in-options-owned-and-tool-neutral.md": "sha256:f5bcf798d43626c11e337c64fe474caaae057fdb3c97d629c7ccdac8c27e706f",
       "configuration/keep-decision-policies-closed-and-declarative.md": "sha256:c6400e00aeb86d71a9e04205cfda0988af734d800b0a2039b60b0a91bcd0a543",
       "configuration/keep-public-config-tool-neutral.md": "sha256:cd197d7d2b948728ef60e27014049bcafc09f4f502c5f1c056c524c3f63b42fc",
       "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:d5fd2725c3266b2140ec77d97fc4da4a1068b29fc7366ed2e1fbfdade05ab81b",
       "configuration/pass-project-definition-value-to-run.md": "sha256:8704b38604a3141c1360abc541037843fca8c30d2289ad91becb1798704fcd3d",
       "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
+      "configuration/use-check-scoped-invocation-wide-parallel-limits.md": "sha256:dfdb6f219542f6403a3f76f4dc7a84cf6a85b6ce0468d650e798505594dc327b",
+      "configuration/use-composable-check-tree-in-project-definition.md": "sha256:642df7d20ac83ea07b73bb1e600ae379cc78974d8ca7f48d5496f5f16a686baf",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
       "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
       "configuration/use-fixed-semantic-config-v2.md": "sha256:fd6663bfd81e0e8d9b5744291d626cccde0897ad8c13b1019cca04c373f5d25e",
@@ -49,12 +52,14 @@
       "configuration/use-single-typescript-project-definition.md": "sha256:53463a9e141e76bdaac10a86c76ac9ee0178c590a615b9a5645e9cd60c859537",
       "configuration/use-user-owned-definition-for-observation-and-gates.md": "sha256:7802cc82af817dbf6a4bbbd2051b01066bc16211ee6bb0e1b4aa02774d8e2641",
       "product-contract/approve-public-names-before-publication.md": "sha256:28a4aca786a464c6289250360c806d8572b762f6b5bdd0f34f562394e8ea32f0",
-      "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:085a3d721d293d8ca9bde72a294054850fd9598ef2db56fbb9c35ae3f16235a3",
+      "product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:4853d1abf735127f96b4b15f3b485ebff77a1d1ee1b40b23c85727237d52f73f",
+      "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:c8eee6ebd2522aed58a3b15d42e4307358bc9cf828b6a72a28cd2788c61576f0",
       "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
       "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:d3853a121e5e3613d3477320110825fdf07c22b27e79612e35444ebabfd04c28",
       "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
       "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:23e433ca885151fe9a2df09a784877baef093c4b1727e25bc101529043a9014f",
-      "product-contract/expose-config-definition-and-project-run-operations.md": "sha256:a5e78f1569c44f29014a42888045e0a42de7eaa18f7bdd3ae58da294e92faecc",
+      "product-contract/expose-built-in-check-values-alongside-config-and-run.md": "sha256:26223bde17980e508ecde6cb591b79b84d9b76a41cbe0d33e5032508d868b71e",
+      "product-contract/expose-config-definition-and-project-run-operations.md": "sha256:da45f7bc2cfe804727260d7292ec343321fad78431b39f92177a7b7edd5e749b",
       "product-contract/expose-two-public-operations.md": "sha256:8a85ecca42ac5163ad154ebc963aeb1e22c447db036e9ce6ee59bd66f478c9cf",
       "product-contract/keep-prestable-package-releases-on-0-0-x.md": "sha256:9eca819c8cd3fbbae67be86f40742e70a4c0a4692a6f850e654441e7892f3b28",
       "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:e260d419b748c1a41d2e8bef6c8074fea7732673c3ce18dfc94e77972d843571",
@@ -220,6 +225,30 @@
         "relations": []
       }
     },
+    "configuration/keep-built-in-options-owned-and-tool-neutral.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/keep-built-in-options-owned-and-tool-neutral.md",
+        "title": "保持内置 Check options 受 descriptor owner 约束且工具中立",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-14T13:50:47Z",
+        "purpose": "让 exported built-in Check descriptor 支持可类型化的项目级调整，而不把 scanner 私有实现、通用深合并或第二份质量配置暴露给项目。",
+        "background": "内置 Check 的可调整语义因能力不同；任意 options record 或 generic deep merge 会让未知字段、数组和工具参数在没有 owner 的情况下进入长期配置契约。",
+        "decision": "内置 descriptor 提供完整 typed defaults；项目显式 spread，project-wide quality 留在顶层。",
+        "relations": []
+      }
+    },
     "configuration/keep-decision-policies-closed-and-declarative.md": {
       "keys": {
         "domain": [
@@ -359,6 +388,54 @@
             "target": "configuration/use-fixed-semantic-config-v2.md"
           }
         ]
+      }
+    },
+    "configuration/use-check-scoped-invocation-wide-parallel-limits.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-check-scoped-invocation-wide-parallel-limits.md",
+        "title": "使用 Check scoped invocation-wide 并行上限",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-14T13:50:48Z",
+        "purpose": "让单个 Check 能在自己的执行 span 内安全收紧整次 invocation 的 task 并行上限。",
+        "background": "root scheduler 只有固定上限，无法表达一个 Check 执行期间要求更低全局容量，同时不能以第二 scheduler 破坏已有依赖和 mutex 协调。",
+        "decision": "Check 可声明 maxParallel；同一 scheduler 在 active span 内取最小 cap，并用非抢占 reservation/drain 收紧。",
+        "relations": []
+      }
+    },
+    "configuration/use-composable-check-tree-in-project-definition.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-composable-check-tree-in-project-definition.md",
+        "title": "在 Project Definition 使用可组合 Check tree",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-14T13:50:47Z",
+        "purpose": "让项目通过嵌套、Task-like Check authoring 直接选择和组织内置与自定义 Checks，同时保持默认并发和稳定的扁平运行模型。",
+        "background": "扁平 builtIn、selected 与完整 schedules 数组重复描述同一 Check；项目需要组合父级约束、子级覆写和任务式依赖资源语义，而不应维护内部 catalog。",
+        "decision": "Project Definition checks 使用 authoring-only tree；leaf presence 表示选择，groups 继承 context 后验证并 flatten。",
+        "relations": []
       }
     },
     "configuration/use-declarative-quality-decision-policies.md": {
@@ -658,7 +735,7 @@
         ]
       }
     },
-    "product-contract/confirm-config-run-and-package-names-before-publication.md": {
+    "product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -671,9 +748,38 @@
         ]
       },
       "state": {
+        "path": "product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md",
+        "title": "发布前确认内置 Check 值与 Check tree 类型名称",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T13:50:34Z",
+        "purpose": "防止内置 Check value 与 Check tree 类型偶然成为首个 npm 公开契约。",
+        "background": "descriptor value、类型与项目文件路径的兼容成本不同；前者是 package surface，后者不是。",
+        "decision": "发布候选前确认三项 built-in values、必要 Check tree types 及其 exports，并由 current public-contract source 单一拥有。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/confirm-config-run-and-package-names-before-publication.md"
+          }
+        ]
+      }
+    },
+    "product-contract/confirm-config-run-and-package-names-before-publication.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/confirm-config-run-and-package-names-before-publication.md",
         "title": "发布前确认配置定义、Package Run 与 package 契约名称",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:33Z",
         "purpose": "防止 package、配置定义函数、Package Run、类型和运行标识偶然成为首个公开契约。",
@@ -798,7 +904,7 @@
         ]
       }
     },
-    "product-contract/expose-config-definition-and-project-run-operations.md": {
+    "product-contract/expose-built-in-check-values-alongside-config-and-run.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -811,9 +917,38 @@
         ]
       },
       "state": {
+        "path": "product-contract/expose-built-in-check-values-alongside-config-and-run.md",
+        "title": "在配置与运行操作旁公开内置 Check 值",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T13:50:34Z",
+        "purpose": "让项目直接组合 Vibe Check 提供的三个内置 Check，而不重述内置目录或私有执行绑定。",
+        "background": "内置 Check 是稳定的项目 authoring 起点；仅公开配置定义函数和运行函数会迫使项目以字符串目录再次声明同一能力。",
+        "decision": "Package 保留两个 callable operations，并额外导出三个 frozen non-callable built-in Check descriptor values。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/expose-config-definition-and-project-run-operations.md"
+          }
+        ]
+      }
+    },
+    "product-contract/expose-config-definition-and-project-run-operations.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/expose-config-definition-and-project-run-operations.md",
         "title": "公开配置定义函数与 Package Run",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:33Z",
         "purpose": "让 package 只提供配置定义函数与 Package Run，并由项目运行脚本向其他调用方提供已绑定入口。",
