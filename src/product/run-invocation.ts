@@ -20,10 +20,6 @@ import {
 } from "./run-result.ts";
 import { ScannerOperationalInputError } from "./scanner-dependencies.ts";
 import { resolveCheckCatalog } from "./quality-core/src/check-record/catalog.ts";
-import {
-  resolveCheckSchedules,
-  resolveCheckSelection
-} from "./quality-core/src/check-record/check-schedule.ts";
 import { coordinateCheckRecords } from "./quality-core/src/check-record/coordinator.ts";
 import type { CheckDefinition, FinalCoreSnapshot } from "./quality-core/src/check-record/model.ts";
 import type { PolicyResolution, ReferenceFacts } from "./quality-core/src/check-record/policy-model.ts";
@@ -79,18 +75,8 @@ function createInvocation(definition: ProjectDefinition, controls: RunControls):
 }
 
 function resolveInvocationPlan(invocation: Invocation): PlannedInvocation | RunResult {
-  const definitions = Object.freeze([
-    ...invocation.normalized.declarative.checks.builtIn,
-    ...invocation.normalized.declarative.checks.custom
-  ]);
-  const schedules = resolveCheckSchedules(invocation.normalized.declarative.checks.schedules, definitions);
-  if (schedules === undefined) return planningResult(invocation, "catalog-resolution-failed");
-  const selectedCheckIds = resolveCheckSelection(
-    invocation.normalized.declarative.checks.selected,
-    definitions,
-    schedules
-  );
-  if (selectedCheckIds === undefined) return planningResult(invocation, "catalog-resolution-failed");
+  const definitions = invocation.normalized.declarative.checks.definitions;
+  const selectedCheckIds = new Set(invocation.normalized.declarative.checks.selected);
   const policy = resolveSelectedPolicy(invocation.definition, invocation.controls, definitions);
   if (policy === undefined) return invalidComparisonResult();
   return Object.freeze({ definitions, policy, selectedCheckIds });
@@ -124,6 +110,7 @@ function prepareRuntime(
       controls: invocation.controls,
       definition: invocation.definition,
       onCacheActivity: (activity) => invocation.effects.cache(activity),
+      builtInOptions: invocation.normalized.builtInOptions,
       selectedCheckIds: [...selectedCheckIds]
     });
   } catch (error: unknown) {
@@ -147,6 +134,7 @@ async function executeCore(
     let snapshot: FinalCoreSnapshot;
     try {
       snapshot = await coordinateCheckRecords(catalog.value, {
+        checkMaxParallelById: invocation.normalized.checkMaxParallelById,
         schedulerPolicy: invocation.normalized.declarative.scheduler
       });
     } catch (_error: unknown) {
@@ -171,6 +159,7 @@ function resolveCatalog(
     definitions,
     bindings: definitions.map((definition) => resolveBinding(invocation, runtime, definition)),
     schedules: invocation.normalized.declarative.checks.schedules,
+    mutexes: invocation.normalized.declarative.checks.mutexes,
     selectedCheckIds: invocation.normalized.declarative.checks.selected,
     resolveApplicability: (definition) => resolveApplicability(invocation, runtime, definition)
   });

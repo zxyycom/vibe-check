@@ -1,7 +1,7 @@
 import { createCatalogFingerprint, createDeterministicCheckRunId } from "./identity.ts";
 import type { CheckDefinition, QualityRecordCandidate, RecordTypeDefinition } from "./model.ts";
 import { validateCheckDefinition } from "./validation.ts";
-import { resolveCheckSchedules, resolveCheckSelection } from "./check-schedule.ts";
+import { resolveCheckMutexes, resolveCheckSchedules, resolveCheckSelection } from "./check-schedule.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "./plain-record-values.ts";
 
 const WORK_HANDLE_PATTERN = /^work-handle\/v1:[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -41,6 +41,7 @@ export interface ResolvedCheck {
   readonly binding: ResolvedCheckBinding;
   readonly checkRunId: string;
   readonly requiresChecks: readonly string[];
+  readonly mutex: readonly string[];
   readonly selection: "selected" | "unselected";
   readonly applicability: "applicable" | "not-applicable" | null;
   readonly workHandles: readonly string[];
@@ -190,6 +191,15 @@ function resolveApplicability(value: unknown): Readonly<{
   });
 }
 
+function mutexesFor(
+  mutexes: ReadonlyMap<string, readonly string[]>,
+  checkId: string
+): readonly string[] {
+  const value = mutexes.get(checkId);
+  if (value === undefined) throw new TypeError(`Resolved Check mutex is missing: ${checkId}`);
+  return value;
+}
+
 function requiredChecksFor(
   schedules: ReadonlyMap<string, readonly string[]>,
   checkId: string
@@ -207,6 +217,7 @@ export function resolveCheckCatalog(input: Readonly<{
   bindings: unknown;
   schedules: unknown;
   selectedCheckIds: unknown;
+  mutexes?: unknown;
   resolveApplicability: (definition: CheckDefinition) => unknown;
 }>): CatalogResolutionResult {
   const definitions = resolveDefinitions(input.definitions);
@@ -219,7 +230,8 @@ export function resolveCheckCatalog(input: Readonly<{
     return failed("bindings");
   }
   const schedules = resolveCheckSchedules(input.schedules, definitions);
-  if (schedules === undefined) {
+  const mutexes = resolveCheckMutexes(input.mutexes, definitions);
+  if (schedules === undefined || mutexes === undefined) {
     return failed("schedule");
   }
   const selectedCheckIds = resolveCheckSelection(input.selectedCheckIds, definitions, schedules);
@@ -244,6 +256,7 @@ export function resolveCheckCatalog(input: Readonly<{
         binding,
         checkRunId,
         requiresChecks: requiredChecksFor(schedules, definition.checkId),
+        mutex: mutexesFor(mutexes, definition.checkId),
         selection: "unselected",
         applicability: null,
         workHandles: Object.freeze([])
@@ -269,6 +282,7 @@ export function resolveCheckCatalog(input: Readonly<{
       binding,
       checkRunId,
       requiresChecks: requiredChecksFor(schedules, definition.checkId),
+      mutex: mutexesFor(mutexes, definition.checkId),
       selection: "selected",
       applicability: applicability.applicability,
       workHandles: applicability.workHandles

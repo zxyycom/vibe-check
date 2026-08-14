@@ -48,9 +48,11 @@ snapshot。
 批准的 current 或 named-reference exact inputs；adapter-private scanner data 不进入 Check catalog 或
 record contract。source-scope acceptance 拒绝任一越界 batch，避免 partial record conversion。
 
-Project Definition 明确选择 built-ins；Package Run 不从 quick/full profile 隐式改写 selection。需要比较的
-named policy 通过与其唯一 reference name 匹配的 Run Control comparison 建立 reference input。reference
-evidence 独立于 current run，不能伪造第二个 public run 或改写 current facts。
+Project Definition 在 Check tree 中直接放入 built-in 或 custom leaf 来选择它们；Package Run 不从
+quick/full profile、tree array order 或 Run Controls 隐式改写 selection。tree group 只在 authoring 时存在，
+归一化后不成为 Check/Record identity。需要比较的 named policy 通过与其唯一 reference name 匹配的 Run
+Control comparison 建立 reference input。reference evidence 独立于 current run，不能伪造第二个 public
+run 或改写 current facts。
 
 ## DecisionPolicy
 

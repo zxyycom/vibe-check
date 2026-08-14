@@ -3,7 +3,8 @@ import { rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
-import type { ProjectDefinition, RunControls } from "./project-definition.ts";
+import type { RunControls } from "./project-definition.ts";
+import type { ResolvedQualityConfig } from "./quality-core/src/model/schema.ts";
 import { referenceIdentity } from "./run-policy.ts";
 import {
   prepareBuiltInExactInputs,
@@ -30,7 +31,7 @@ export type ComparisonReference = Readonly<{
 
 export function prepareCurrentBuiltInInputs(input: Readonly<{
   cacheDirectory: string;
-  config: ProjectDefinition["quality"];
+  config: ResolvedQualityConfig;
   root: string;
 }>): BuiltInExactInputs {
   return prepareExactInputs({
@@ -44,7 +45,7 @@ export function prepareCurrentBuiltInInputs(input: Readonly<{
 export function prepareComparisonReference(input: Readonly<{
   cacheDirectory: string;
   comparison: NonNullable<RunControls["comparison"]>;
-  config: ProjectDefinition["quality"];
+  config: ResolvedQualityConfig;
   root: string;
 }>): ComparisonReference {
   const resolved = resolveBaselineCommitSha({ cwd: input.root, revision: input.comparison.revision });
@@ -81,7 +82,7 @@ export function prepareComparisonReference(input: Readonly<{
 function prepareExactInputs(input: Readonly<{
   cacheRootDir: string;
   collectFiles: typeof collectScanFiles;
-  config: ProjectDefinition["quality"];
+  config: ResolvedQualityConfig;
   root: string;
 }>): BuiltInExactInputs {
   const scanFiles = input.collectFiles(input.root, input.config);

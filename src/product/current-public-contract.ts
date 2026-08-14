@@ -26,7 +26,16 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     configDefinition: "defineConfig",
     packageRun: "run"
   }),
+  values: Object.freeze({
+    duplicateDetection: "duplicateDetection",
+    fileMetrics: "fileMetrics",
+    functionMetrics: "functionMetrics"
+  }),
   types: Object.freeze({
+    builtInCheckDescriptor: "BuiltInCheckDescriptor",
+    checkGroup: "CheckGroup",
+    checkNode: "CheckNode",
+    customCheck: "CustomCheck",
     projectDefinition: "ProjectDefinition",
     runControls: "RunControls",
     runResult: "RunResult"

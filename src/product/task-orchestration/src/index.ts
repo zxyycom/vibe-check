@@ -5,7 +5,10 @@ import {
   type TaskDefinition
 } from "./tasks/planning.ts";
 import { validateTaskGraph } from "./tasks/graph.ts";
-import { runTaskScheduler } from "./tasks/scheduler.ts";
+import {
+  runTaskScheduler,
+  type TaskAdmissionController
+} from "./tasks/scheduler.ts";
 
 export {
   expandTasks,
@@ -16,13 +19,15 @@ export {
   type TaskEnv
 } from "./tasks/planning.ts";
 export { validateTaskGraph } from "./tasks/graph.ts";
+export type { TaskAdmissionController } from "./tasks/scheduler.ts";
 
-interface RunParallelTaskOptions<TResult> {
+export interface RunParallelTaskOptions<TResult> {
   prepareTasks?: (taskList: readonly TaskDefinition[]) => NormalizedTask[];
   execute?: (task: NormalizedTask) => TResult | Promise<TResult>;
   onStart?: (task: NormalizedTask) => unknown | Promise<unknown>;
   onComplete?: (result: TResult, task: NormalizedTask) => unknown | Promise<unknown>;
   concurrency?: string | number | null;
+  admissionController?: TaskAdmissionController;
 }
 
 export async function runParallelTasks<TResult = unknown>(
@@ -37,7 +42,8 @@ export async function runParallelTasks<TResult = unknown>(
     concurrency,
     execute: options.execute ?? (executeTask as (task: NormalizedTask) => TResult | Promise<TResult>),
     onStart: options.onStart ?? noop,
-    onComplete: options.onComplete ?? noop
+    onComplete: options.onComplete ?? noop,
+    admissionController: options.admissionController
   });
 }
 

@@ -1,5 +1,5 @@
-import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
 import type { ProjectEffects, RunControls } from "./project-definition.ts";
+import { snapshotClosedRecord } from "./quality-core/src/check-record/plain-record-values.ts";
 
 const EFFECT_NAMES = ["cache", "logs", "output", "progress"] as const;
 
@@ -16,14 +16,14 @@ export function parseEffects(value: unknown): ProjectEffects | undefined {
 }
 
 export function parseEffectsOverride(value: unknown): RunControls["effects"] | undefined {
-  if (!isNonArrayRecord(value)
-    || Object.keys(value).some((key) => !isEffectName(key))) {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || Object.keys(data).some((key) => !isEffectName(key))) {
     return undefined;
   }
-  const cache = optionalEffect(value, "cache", parseDirectoryEffectOverride);
-  const logs = optionalEffect(value, "logs", parseSwitchEffectOverride);
-  const output = optionalEffect(value, "output", parseDirectoryEffectOverride);
-  const progress = optionalEffect(value, "progress", parseSwitchEffectOverride);
+  const cache = optionalEffect(data, "cache", parseDirectoryEffectOverride);
+  const logs = optionalEffect(data, "logs", parseSwitchEffectOverride);
+  const output = optionalEffect(data, "output", parseDirectoryEffectOverride);
+  const progress = optionalEffect(data, "progress", parseSwitchEffectOverride);
   if (!cache.ok || !logs.ok || !output.ok || !progress.ok) return undefined;
   return Object.freeze({
     ...(cache.value === undefined ? {} : { cache: cache.value }),
@@ -66,34 +66,36 @@ function parseSwitchEffect(value: unknown): Readonly<{ readonly enabled: boolean
 function parseDirectoryEffectOverride(
   value: unknown
 ): Partial<ProjectEffects["cache"]> | undefined {
-  if (!isNonArrayRecord(value)
-    || Object.keys(value).some((key) => key !== "directory" && key !== "enabled")) {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || Object.keys(data).some((key) => key !== "directory" && key !== "enabled")) {
     return undefined;
   }
-  if (value.directory !== undefined && typeof value.directory !== "string") return undefined;
-  if (value.enabled !== undefined && typeof value.enabled !== "boolean") return undefined;
+  if (data.directory !== undefined && typeof data.directory !== "string") return undefined;
+  if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
   return Object.freeze({
-    ...(value.directory === undefined ? {} : { directory: value.directory }),
-    ...(value.enabled === undefined ? {} : { enabled: value.enabled })
+    ...(data.directory === undefined ? {} : { directory: data.directory }),
+    ...(data.enabled === undefined ? {} : { enabled: data.enabled })
   });
 }
 
 function parseSwitchEffectOverride(
   value: unknown
 ): Partial<ProjectEffects["logs"]> | undefined {
-  if (!isNonArrayRecord(value) || Object.keys(value).some((key) => key !== "enabled")) {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) {
     return undefined;
   }
-  if (value.enabled !== undefined && typeof value.enabled !== "boolean") return undefined;
-  return Object.freeze(value.enabled === undefined ? {} : { enabled: value.enabled });
+  if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
+  return Object.freeze(data.enabled === undefined ? {} : { enabled: data.enabled });
 }
 
 function exactKeys(
   value: unknown,
   keys: readonly string[]
 ): Readonly<Record<string, unknown>> | undefined {
-  return isNonArrayRecord(value) && Object.keys(value).length === keys.length
-    && keys.every((key) => Object.hasOwn(value, key))
-    ? value
+  const data = snapshotClosedRecord(value);
+  return data !== undefined && Object.keys(data).length === keys.length
+    && keys.every((key) => Object.hasOwn(data, key))
+    ? data
     : undefined;
 }

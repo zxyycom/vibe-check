@@ -139,6 +139,7 @@ export function createDirectTask(
   return Object.freeze({
     id: taskId,
     dependsOn,
+    mutex: check.mutex,
     run: createGuardedTaskRun(state, async () => {
       const unavailableRequiredCheckId = findUnavailableRequiredCheckId(check, invocation);
       if (unavailableRequiredCheckId !== undefined) {
@@ -182,7 +183,7 @@ export function createLeafTask(
   return Object.freeze({
     id: taskId,
     dependsOn,
-    mutex: leaf.mutex,
+    mutex: Object.freeze([...new Set([...leaf.mutex, ...contribution.check.mutex])]),
     run: createGuardedTaskRun(state, async () => {
       if (findUnavailableRequiredCheckId(contribution.check, invocation) !== undefined
         || leaf.dependsOn.some((dependency) => (
@@ -245,6 +246,7 @@ export function createCompletionTask(
   return Object.freeze({
     id: taskId,
     dependsOn: Object.freeze([...requiredTaskIds, ...localTaskIds.values()]),
+    mutex: contribution.check.mutex,
     run: createGuardedTaskRun(state, async () => {
       const unavailableRequiredCheckId = findUnavailableRequiredCheckId(
         contribution.check,

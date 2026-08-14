@@ -104,6 +104,16 @@ Proves:
 - `requiresChecks` 只消费 settlement 后的 availability：合法 completed quality `failed` 与 `not-applicable` 放行 dependent；execution、result、record 或 acknowledgement failure 使 dependent 及其 transitive dependent unavailable 且不调用其 user function；unrelated work 继续。hidden、symbol 或其它 unavailable returned field 只拒绝 owning Check，不阻止无依赖的有效 Check。
 - 每个 leaf 只拿到 work handles 和 function-scoped record sink；adapter 只在 leaf 正常完成后自动推进 acknowledgement。return 或 throw 后 retained sink 被拒绝，早先 committed record 保留。trusted invariant failure 停止尚未开始的 user function、drain 已开始 wrapper，随后拒绝 trusted publication。
 
+## Case CHECK-SCOPED-CONCURRENCY-001: Check-scoped cap 在 shared scheduler 内临时收紧 invocation
+Owner: `docs/architecture.md#checktask-system`
+Entities:
+- `bun|src/product/quality-core/src/check-record/task-orchestration.test.ts|check-scoped concurrency > keeps a TaskPlan cap active through completion before restoring root concurrency`
+- `bun|src/product/quality-core/src/check-record/task-orchestration.test.ts|check-scoped concurrency > does not activate a cap for zero-leaf completion work`
+- `bun|src/product/quality-core/src/check-record/task-orchestration.test.ts|check-scoped concurrency > uses the minimum active cap and ignores caps for not-applicable Checks`
+- `bun|src/product/quality-core/src/check-record/task-orchestration.test.ts|check-scoped concurrency > reserves capacity for a newly ready lower cap instead of starving it behind active leaves`
+Proves:
+- A Check-scoped `maxParallel` begins at the first admitted direct/leaf task and releases only at direct/terminal settlement; zero-leaf completion and not-applicable Checks add no cap, active caps take their minimum with root, and a newly ready lower cap reserves/drains the same scheduler before active continuation can starve it.
+
 ## Case WB-RUNTIME-CHECKPOINT-001: Frozen contribution batch 形成 canonical final Core snapshot
 Owner: `docs/architecture.md#核心定位`
 Entities:

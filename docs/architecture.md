@@ -25,10 +25,11 @@ protocol 或 custom-result cache。
 
 1. 项目配置 module 调用 `defineConfig` 并 default-export plain Project Definition value。
 2. 项目 Run 普通 import 该 value，调用 Package Run，并决定向其他调用方暴露哪些 controls。
-3. Package Run 验证 definition/controls，归一化 public Check catalog、selection、schedules、policy、
-   effects、scheduler 与 operational dependency inputs。
-4. Package Run 直接调用 applicable custom runner 或 applicability-time `TaskPlan` factory；未选择或
-   not-applicable Check 不调用 factory。
+3. Package Run 验证 definition/controls，将 authoring-only Check tree 归一化为 flat public Check catalog、
+   resolved dependencies/mutex/caps、policy、effects、scheduler 与 operational dependency inputs。absent leaf
+   不进入 catalog；tree group 不进入 CheckRun、Record、policy 或 machine output。
+4. Package Run 直接调用 applicable custom runner 或 applicability-time `TaskPlan` factory；not-applicable
+   Check 不调用 factory。
 5. Check adapter 把 direct work、Task leaves 与 completion work 交给 shared scheduler。
 6. Final Core snapshot、reference facts 和 validated named policy 形成 decision 与 publication model；
    logs、progress、cache、files 和 structured Run Result 都投影自同一次 invocation facts。
@@ -48,17 +49,25 @@ protocol 或 custom-result cache。
 
 - Public catalog 只含 Check/record metadata；bindings、TaskPlan、Task value、ports、scheduler state 和
   executable 不进入 public data。
+- Project Definition 直接组合 frozen built-in descriptor 和 custom leaves。leaf presence 表示选择；tree
+  array order 不表达执行顺序。group/leaf 的 `dependsOn` 与 `mutex` 向下追加、去重；只有前者表达
+  Check prerequisite，后者表达 named resource。
 - `requiresChecks` 在 execution 前闭合 Check dependency。合法 `passed`、quality `failed` 和
   `not-applicable` 可满足 prerequisite；execution/result/record/ack failure 会阻断 dependent user work。
-- Shared scheduler 使用一个 `SchedulerPolicy.maxParallel`，同时管理 direct work、Task leaves 和
-  completion work；task dependencies 决定等待，named resources 决定互斥。
+- Shared scheduler 使用一个 root `SchedulerPolicy.maxParallel`，同时管理 direct work、Task leaves 和
+  completion work；task dependencies 决定等待，named resources 决定互斥。一个 resolved Check 可从最近
+  group/leaf `maxParallel` 按最近值继承或覆写 root budget；整条路径未声明时才使用 root。它从 first executable direct/leaf admission 到
+  direct/terminal completion settlement 期间临时收紧整个 invocation，所有 active caps 与 root 取最小。
+  低 cap ready 时同一 scheduler reservation 后非抢占 drain；active constrained Check 的 ready task 优先。
+  cap 只存在于 private scheduler handoff，不进入 CheckDefinition、TaskDefinition、policy、Record 或 output。
 - `FinalCoreSnapshot` 是 definitions、runs、records、integrity 和 completeness 的唯一 Core facts。
 
 ### Scanner adapters
 
 Adapter 只消费 Product 批准的 exact inputs 和自己的 dependency slice。它隔离 availability、subprocess、
 parser、private payload、cache/backend identity 和 raw material；越界 source batch 在 record conversion
-前整体拒绝。单个 adapter 可以使用 subprocess 或内部并行，但不能改变 Product task graph。
+前整体拒绝。单个 adapter 可以使用 subprocess 或内部并行，但不能改变 Product task graph、shared
+scheduler，或 Check-scoped cap 所管理的 Product Task slots。
 
 ### Output and effects
 

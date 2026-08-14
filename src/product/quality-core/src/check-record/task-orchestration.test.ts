@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
 import { coordinateCheckRecords } from "./coordinator.ts";
-import { catalog, finding } from "./task-orchestration.test-support.ts";
+import { catalog, finding, waitFor } from "./task-orchestration.test-support.ts";
 
 describe("check-record task orchestration", () => {
   it("enforces one global slot budget and mutex across direct leaves and synthetic completion", async () => {
@@ -171,5 +171,222 @@ describe("check-record task orchestration", () => {
       { checkId: "invalid-result-dependent", diagnostic: "unavailable" },
       { checkId: "missing-ack", diagnostic: "ack-protocol" },
       { checkId: "missing-ack-dependent", diagnostic: "unavailable" }]);
+  });
+});
+
+// @case CHECK-SCOPED-CONCURRENCY-001
+describe("check-scoped concurrency", () => {
+  it("keeps a TaskPlan cap active through completion before restoring root concurrency", async () => {
+    let active = 0;
+    let maxActive = 0;
+    const events: string[] = [];
+    const body = async (name: string) => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      events.push(`start:${name}`);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      events.push(`end:${name}`);
+      active -= 1;
+      return name;
+    };
+    const taskCatalog = catalog({
+      checkIds: ["restricted", "wide-one", "wide-two"],
+      bindings: [{
+        checkId: "restricted",
+        createTaskPlan: () => ({
+          tasks: [
+            { id: "one", workHandles: [], run: () => body("restricted-one") },
+            { id: "two", workHandles: [], run: () => body("restricted-two") }
+          ],
+          complete: async () => {
+            await body("restricted-complete");
+            return { verdict: "passed" };
+          }
+        })
+      }, {
+        checkId: "wide-one",
+        execute: async () => { await body("wide-one"); return { verdict: "passed" }; }
+      }, {
+        checkId: "wide-two",
+        execute: async () => { await body("wide-two"); return { verdict: "passed" }; }
+      }]
+    });
+
+    await coordinateCheckRecords(taskCatalog, {
+      schedulerPolicy: { maxParallel: 2 },
+      checkMaxParallelById: { restricted: 1, "wide-one": 2, "wide-two": 2 }
+    });
+
+    assert.equal(maxActive, 2);
+    const completionEnd = events.indexOf("end:restricted-complete");
+    assert.ok(completionEnd !== -1);
+    assert.ok(events.indexOf("start:wide-one") > completionEnd);
+    assert.ok(events.indexOf("start:wide-two") > completionEnd);
+  });
+
+  it("does not activate a cap for zero-leaf completion work", async () => {
+    let active = 0;
+    let maxActive = 0;
+    const started: string[] = [];
+    const release = Promise.withResolvers<void>();
+    const body = async (name: string) => {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      started.push(name);
+      await release.promise;
+      active -= 1;
+      return { verdict: "passed" };
+    };
+    const taskCatalog = catalog({
+      checkIds: ["restricted", "wide-one", "wide-two"],
+      bindings: [{
+        checkId: "restricted",
+        createTaskPlan: () => ({
+          tasks: [],
+          complete: () => body("completion")
+        })
+      }, {
+        checkId: "wide-one",
+        execute: () => body("wide-one")
+      }, {
+        checkId: "wide-two",
+        execute: () => body("wide-two")
+      }]
+    });
+    const running = coordinateCheckRecords(taskCatalog, {
+      schedulerPolicy: { maxParallel: 3 },
+      checkMaxParallelById: { restricted: 1, "wide-one": 3, "wide-two": 3 }
+    });
+
+    await waitFor(() => started.length === 3);
+    assert.deepEqual(started.sort(), ["completion", "wide-one", "wide-two"]);
+    assert.equal(maxActive, 3);
+    release.resolve();
+    await running;
+  });
+
+  it("uses the minimum active cap and ignores caps for not-applicable Checks", async () => {
+    const events: string[] = [];
+    const releaseWide = Promise.withResolvers<void>();
+    const releaseLimited = Promise.withResolvers<void>();
+    const activeCatalog = catalog({
+      checkIds: ["a-wide", "b-limited", "c-pending"],
+      bindings: [{
+        checkId: "a-wide",
+        execute: async () => {
+          events.push("start:wide");
+          await releaseWide.promise;
+          return { verdict: "passed" };
+        }
+      }, {
+        checkId: "b-limited",
+        execute: async () => {
+          events.push("start:limited");
+          await releaseLimited.promise;
+          return { verdict: "passed" };
+        }
+      }, {
+        checkId: "c-pending",
+        execute: () => { events.push("start:pending"); return { verdict: "passed" }; }
+      }]
+    });
+    const activeRun = coordinateCheckRecords(activeCatalog, {
+      schedulerPolicy: { maxParallel: 3 },
+      checkMaxParallelById: { "a-wide": 3, "b-limited": 2, "c-pending": 3 }
+    });
+    await waitFor(() => events.includes("start:wide") && events.includes("start:limited"));
+    assert.equal(events.includes("start:pending"), false);
+    releaseWide.resolve();
+    releaseLimited.resolve();
+    await activeRun;
+
+    let active = 0;
+    let maxActive = 0;
+    const notApplicableCatalog = catalog({
+      checkIds: ["not-applicable", "wide-one", "wide-two"],
+      bindings: [{
+        checkId: "not-applicable",
+        execute: () => { throw new Error("must not execute"); }
+      }, {
+        checkId: "wide-one",
+        execute: async () => {
+          active += 1;
+          maxActive = Math.max(maxActive, active);
+          await new Promise((resolve) => setTimeout(resolve, 5));
+          active -= 1;
+          return { verdict: "passed" };
+        }
+      }, {
+        checkId: "wide-two",
+        execute: async () => {
+          active += 1;
+          maxActive = Math.max(maxActive, active);
+          await new Promise((resolve) => setTimeout(resolve, 5));
+          active -= 1;
+          return { verdict: "passed" };
+        }
+      }],
+      work: { "not-applicable": "not-applicable" }
+    });
+    await coordinateCheckRecords(notApplicableCatalog, {
+      schedulerPolicy: { maxParallel: 2 },
+      checkMaxParallelById: { "not-applicable": 1, "wide-one": 2, "wide-two": 2 }
+    });
+    assert.equal(maxActive, 2);
+  });
+
+  it("reserves capacity for a newly ready lower cap instead of starving it behind active leaves", async () => {
+    const events: string[] = [];
+    const releaseFirstWide = Promise.withResolvers<void>();
+    const taskCatalog = catalog({
+      checkIds: ["gate", "wide", "low"],
+      bindings: [{
+        checkId: "gate",
+        execute: async () => {
+          await waitFor(() => events.includes("start:wide-one"));
+          events.push("end:gate");
+          return { verdict: "passed" };
+        }
+      }, {
+        checkId: "wide",
+        createTaskPlan: () => ({
+          tasks: [{
+            id: "one",
+            workHandles: [],
+            run: async () => {
+              events.push("start:wide-one");
+              await releaseFirstWide.promise;
+              events.push("end:wide-one");
+            }
+          }, {
+            id: "two",
+            workHandles: [],
+            run: () => { events.push("start:wide-two"); }
+          }, {
+            id: "three",
+            workHandles: [],
+            run: () => { events.push("start:wide-three"); }
+          }],
+          complete: () => ({ verdict: "passed" })
+        })
+      }, {
+        checkId: "low",
+        execute: () => { events.push("start:low"); return { verdict: "passed" }; }
+      }],
+      requires: { low: ["gate"] }
+    });
+
+    const running = coordinateCheckRecords(taskCatalog, {
+      schedulerPolicy: { maxParallel: 2 },
+      checkMaxParallelById: { gate: 2, wide: 2, low: 1 }
+    });
+    await waitFor(() => events.includes("end:gate"));
+    await new Promise((resolve) => setTimeout(resolve, 1));
+    assert.equal(events.includes("start:wide-two"), false);
+    assert.equal(events.includes("start:low"), false);
+
+    releaseFirstWide.resolve();
+    await running;
+    assert.ok(events.indexOf("start:low") < events.indexOf("start:wide-two"));
   });
 });

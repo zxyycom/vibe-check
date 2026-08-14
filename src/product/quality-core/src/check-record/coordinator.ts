@@ -27,7 +27,10 @@ function deriveCompleteness(snapshotRuns: FinalCoreSnapshot["runs"]): SnapshotCo
 
 export async function coordinateCheckRecords(
   catalog: ResolvedCheckCatalog,
-  options: Readonly<{ schedulerPolicy: unknown }>
+  options: Readonly<{
+    checkMaxParallelById?: Readonly<Record<string, number>>;
+    schedulerPolicy: unknown;
+  }>
 ): Promise<FinalCoreSnapshot> {
   const checkManager = new CheckManager(catalog);
   const recordManager = new RecordManager(catalog);
@@ -64,7 +67,12 @@ export async function coordinateCheckRecords(
       });
     }));
 
-  await runCheckOrchestration({ catalog, contributions, schedulerPolicy: options.schedulerPolicy });
+  await runCheckOrchestration({
+    catalog,
+    checkMaxParallelById: options.checkMaxParallelById,
+    contributions,
+    schedulerPolicy: options.schedulerPolicy
+  });
   const recordState = recordManager.finalize();
   const runs = checkManager.finalize(recordState.diagnostics);
   const candidate: FinalCoreSnapshot = {

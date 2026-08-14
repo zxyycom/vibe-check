@@ -3,11 +3,11 @@ import {
   OPERATIONAL_DEPENDENCY_IDS,
   type OperationalDependencyId
 } from "./current-public-contract.ts";
-import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
 import type {
   OperationalDependencies,
   OperationalDependencyBinding
 } from "./project-definition.ts";
+import { snapshotClosedRecord } from "./quality-core/src/check-record/plain-record-values.ts";
 
 const DUPLICATION_MAX_CONCURRENCY = 4;
 const FUNCTION_ARGS = Object.freeze(["-m", "lizard"] as const);
@@ -50,14 +50,16 @@ export interface ScannerDependencyResolutionInput {
 export type SelectedScannerDependencySnapshot = Readonly<Partial<ScannerDependencySnapshot>>;
 
 export function parseOperationalDependencies(value: unknown): OperationalDependencies | undefined {
-  if (!isNonArrayRecord(value)) return undefined;
+  const data = snapshotClosedRecord(value);
+  if (data === undefined) return undefined;
   const dependencies: Partial<Record<OperationalDependencyId, OperationalDependencyBinding>> = {};
-  for (const [dependencyId, binding] of Object.entries(value)) {
-    if (!isOperationalDependencyId(dependencyId) || !isNonArrayRecord(binding)
-      || Object.keys(binding).length !== 1 || typeof binding.executable !== "string") {
+  for (const [dependencyId, binding] of Object.entries(data)) {
+    const bindingData = snapshotClosedRecord(binding);
+    if (!isOperationalDependencyId(dependencyId) || bindingData === undefined
+      || Object.keys(bindingData).length !== 1 || typeof bindingData.executable !== "string") {
       return undefined;
     }
-    dependencies[dependencyId] = Object.freeze({ executable: binding.executable });
+    dependencies[dependencyId] = Object.freeze({ executable: bindingData.executable });
   }
   return Object.freeze(dependencies);
 }

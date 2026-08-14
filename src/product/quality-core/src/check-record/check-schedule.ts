@@ -48,6 +48,29 @@ function resolveScheduleEntry(
   return required === undefined ? undefined : [data.checkId, required];
 }
 
+function resolveMutexNames(value: unknown): readonly string[] | undefined {
+  const items = snapshotClosedArray(value);
+  if (items === undefined) return undefined;
+  const mutexes: string[] = [];
+  const seen = new Set<string>();
+  for (const mutex of items) {
+    if (typeof mutex !== "string" || mutex.length === 0 || seen.has(mutex)) return undefined;
+    seen.add(mutex);
+    mutexes.push(mutex);
+  }
+  return Object.freeze(mutexes);
+}
+
+function resolveMutexEntry(
+  candidate: unknown,
+  knownCheckIds: ReadonlySet<string>
+): readonly [string, readonly string[]] | undefined {
+  const data = exactData(candidate, ["checkId", "mutex"]);
+  if (typeof data?.checkId !== "string" || !knownCheckIds.has(data.checkId)) return undefined;
+  const mutexes = resolveMutexNames(data.mutex);
+  return mutexes === undefined ? undefined : [data.checkId, mutexes];
+}
+
 function hasScheduleCycle(schedules: ReadonlyMap<string, readonly string[]>): boolean {
   const visiting = new Set<string>();
   const visited = new Set<string>();
@@ -81,6 +104,25 @@ export function resolveCheckSchedules(
   return schedules.size === definitions.length && !hasScheduleCycle(schedules)
     ? schedules
     : undefined;
+}
+
+export function resolveCheckMutexes(
+  value: unknown,
+  definitions: readonly CheckDefinition[]
+): ReadonlyMap<string, readonly string[]> | undefined {
+  if (value === undefined) {
+    return new Map(definitions.map(({ checkId }) => [checkId, Object.freeze([])] as const));
+  }
+  const candidates = snapshotClosedArray(value);
+  if (candidates === undefined) return undefined;
+  const knownCheckIds = new Set(definitions.map((definition) => definition.checkId));
+  const mutexes = new Map<string, readonly string[]>();
+  for (const candidate of candidates) {
+    const entry = resolveMutexEntry(candidate, knownCheckIds);
+    if (entry === undefined || mutexes.has(entry[0])) return undefined;
+    mutexes.set(...entry);
+  }
+  return mutexes.size === definitions.length ? mutexes : undefined;
 }
 
 function resolveInitialSelection(

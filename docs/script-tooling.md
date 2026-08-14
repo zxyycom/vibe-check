@@ -40,7 +40,8 @@ package-level dogfood aliases，不是第二套产品入口或隐式 profile/gat
 
 ## 当前实现状态
 
-- `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition；
+- `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition，并直接组合
+  built-in descriptors、project-wide quality、scheduler、effects 和 operational dependency defaults；
   `scripts/quality/project-run.ts` import 并绑定该值，导出只接收项目允许 controls 的 Run。
 - `scripts/quality/scan.ts` 只调用 bound Project Run，并把 structured result 映射为该脚本的
   process exit；它不调用 Product CLI、发现配置或转发 argv。
@@ -62,9 +63,9 @@ package-level dogfood aliases，不是第二套产品入口或隐式 profile/gat
   argument、error 和 type guard helpers。
 
 `src/product/task-orchestration/**` 是 Vibe Check-owned repository-internal task runner：它
-拥有 task normalization、dependency graph validation、concurrency、mutex scheduling 和
-lifecycle hooks。`scripts/vibe-check-workspace/**` 只单向 import 这个 Product source owner，
-不保留另一份 scheduler。
+拥有 task normalization、dependency graph validation、root/Check-scoped concurrency、mutex scheduling 和
+lifecycle hooks。Check-scoped cap 经 private handoff 由同一 scheduler 实施；`scripts/vibe-check-workspace/**`
+只单向 import 这个 Product source owner，不保留另一份 scheduler。
 
 `foundation` 通过 `scripts/tools/foundation/src` 的源码 import 被开发脚本消费；它不是 npm
 package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact 路径。
@@ -162,8 +163,8 @@ variables 或未受支持的环境名补齐 binding。
 
 Repository canonical files 是：
 
-- `scripts/quality/project-definition.ts`：拥有 repository policy、Checks、scheduler、effects 和
-  operational dependency defaults。
+- `scripts/quality/project-definition.ts`：拥有 repository policy、direct built-in/custom Check tree、
+  scheduler、effects 和 operational dependency defaults。
 - `scripts/quality/project-run.ts`：绑定 Project Definition 与 repository root，导出项目允许的
   controls subset。
 - `scripts/quality/scan.ts`：调用项目 Run 的 process adapter；不接受另一份配置。

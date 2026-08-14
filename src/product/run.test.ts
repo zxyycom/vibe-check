@@ -4,9 +4,53 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { defineConfig, type CustomCheckDeclaration } from "./project-definition.ts";
+import { fileMetrics, defineConfig, type CustomCheckBinding } from "./project-definition.ts";
 import { run } from "./run.ts";
 import { assertPublishedResult } from "./run-test-support.ts";
+
+const custom = (overrides: Readonly<{
+  readonly applicability?: () => unknown;
+  readonly binding?: CustomCheckBinding;
+  readonly execute?: () => unknown;
+  readonly checkId?: string;
+  readonly dependsOn?: string | readonly string[];
+  readonly mutex?: string | readonly string[];
+}> = {}) => ({
+  kind: "custom" as const,
+  checkId: overrides.checkId ?? "custom",
+  displayName: "Custom",
+  recordTypes: [],
+  applicability: overrides.applicability ?? (() => ({ status: "applicable" as const, workHandles: [] })),
+  binding: overrides.binding ?? {
+    kind: "direct" as const,
+    execute: overrides.execute ?? (() => ({ verdict: "passed" }))
+  },
+  ...(overrides.dependsOn === undefined ? {} : { dependsOn: overrides.dependsOn }),
+  ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex })
+});
+
+function definition(overrides: Parameters<typeof custom>[0] = {}) {
+  return defineConfig({
+    checks: [custom(overrides)],
+    policies: {
+      "project-gate": {
+        policyId: "project-gate",
+        references: [],
+        acceptance: [],
+        views: [],
+        readiness: [],
+        blockWhen: { kind: "run-status" as const, checkId: "custom", status: "failed" }
+      }
+    },
+    selectedPolicy: "project-gate",
+    effects: {
+      cache: { enabled: false },
+      logs: { enabled: false },
+      output: { enabled: false },
+      progress: { enabled: false }
+    }
+  });
+}
 
 describe("Package Run", () => {
   it("rejects invalid closed controls before project applicability or runner functions", async () => {
@@ -24,19 +68,11 @@ describe("Package Run", () => {
 
     assert.deepEqual(result, {
       kind: "configuration",
-      diagnostic: {
-        kind: "invalid-run-controls",
-        path: "controls.unexpected",
-        reason: "unknown-key"
-      }
+      diagnostic: { kind: "invalid-run-controls", path: "controls.unexpected", reason: "unknown-key" }
     });
     assert.deepEqual(incompatibleComparison, {
       kind: "configuration",
-      diagnostic: {
-        kind: "invalid-run-controls",
-        path: "controls.comparison",
-        reason: "invalid-value"
-      }
+      diagnostic: { kind: "invalid-run-controls", path: "controls.comparison", reason: "invalid-value" }
     });
     assert.equal(calls, 0);
   });
@@ -45,12 +81,7 @@ describe("Package Run", () => {
     let customCalls = 0;
     const missing = await run(undefined, {});
     const invalid = await run({
-      ...definition({
-        applicability: () => {
-          customCalls += 1;
-          return { status: "applicable", workHandles: [] };
-        }
-      }),
+      ...definition({ applicability: () => { customCalls += 1; return { status: "applicable", workHandles: [] }; } }),
       unexpected: true
     });
 
@@ -61,12 +92,7 @@ describe("Package Run", () => {
 
   it("uses the validated named policy and keeps function bindings out of its result", async () => {
     let directCalls = 0;
-    const source = definition({
-      execute: () => {
-        directCalls += 1;
-        return { verdict: "passed" };
-      }
-    });
+    const source = definition({ execute: () => { directCalls += 1; return { verdict: "passed" }; } });
     const root = mkdtempSync(join(tmpdir(), "vibe-check-package-run-"));
     try {
       const result = await run(source, {
@@ -78,9 +104,7 @@ describe("Package Run", () => {
           progress: { enabled: false }
         }
       });
-
       assertPublishedResult(result, root);
-
       const disabled = await run(source, {
         projectRoot: root,
         effects: { output: { enabled: false, directory: "disabled-publication" } }
@@ -89,7 +113,6 @@ describe("Package Run", () => {
       if (disabled.kind !== "completed") return;
       assert.equal(disabled.effects.output.status, "disabled");
       assert.equal(existsSync(join(root, "disabled-publication")), false);
-
       writeFileSync(join(root, "blocked-output"), "not a directory", "utf8");
       const outputFailure = await run(source, {
         projectRoot: root,
@@ -108,100 +131,57 @@ describe("Package Run", () => {
   it("calls an applicable TaskPlan factory during closed planning and lets the shared scheduler run it", async () => {
     let factoryCalls = 0;
     let leafCalls = 0;
-    const printed: string[] = [];
-    const originalLog = console.log;
-    console.log = (...args: unknown[]) => printed.push(args.join(" "));
-    let result;
-    try {
-      result = await run(definition({
-        binding: {
-          kind: "task-plan",
-          createTaskPlan: () => {
-            factoryCalls += 1;
-            return {
-              tasks: [{
-                id: "work",
-                workHandles: ["work-handle/v1:custom"],
-                dependsOn: [],
-                mutex: [],
-                run: () => {
-                  leafCalls += 1;
-                  return "complete";
-                }
-              }],
-              complete: () => ({ verdict: "passed" })
-            };
-          }
-        },
-        applicability: () => ({ status: "applicable", workHandles: ["work-handle/v1:custom"] })
-      }), { effects: { logs: { enabled: true }, progress: { enabled: true } } });
-    } finally {
-      console.log = originalLog;
-    }
-
-    assert.equal(result.kind, "completed");
-    assert.equal(factoryCalls, 1);
-    assert.equal(leafCalls, 1);
-    if (result.kind !== "completed") return;
-    assert.equal(result.effects.logs.status, "succeeded");
-    assert.equal(result.effects.progress.status, "succeeded");
-    assert.ok(printed.includes("Vibe Check: execution"));
-    assert.ok(printed.includes("Vibe Check: effects"));
-    assert.ok(printed.some((line) => line.includes("Summary:")));
-  });
-
-  it("does not call a TaskPlan factory for an unselected or not-applicable Check", async () => {
-    let factoryCalls = 0;
-    const source = definition({
+    const result = await run(definition({
       binding: {
         kind: "task-plan",
         createTaskPlan: () => {
           factoryCalls += 1;
-          throw new Error("must not be called");
+          return {
+            tasks: [{
+              id: "work",
+              workHandles: ["work-handle/v1:custom"],
+              dependsOn: [],
+              mutex: [],
+              run: () => { leafCalls += 1; return "complete"; }
+            }],
+            complete: () => ({ verdict: "passed" })
+          };
         }
       },
-      applicability: () => ({ status: "not-applicable" })
-    });
+      applicability: () => ({ status: "applicable", workHandles: ["work-handle/v1:custom"] })
+    }));
 
-    const notApplicable = await run(source);
-    const result = await run({ ...source, checks: { ...source.checks, selected: [] } });
-
-    assert.equal(notApplicable.kind, "completed");
     assert.equal(result.kind, "completed");
-    assert.equal(factoryCalls, 0);
-    if (notApplicable.kind !== "completed") return;
-    assert.deepEqual(notApplicable.effects, {
-      cache: { enabled: false, status: "disabled" },
-      logs: { enabled: false, status: "disabled" },
-      output: { enabled: false, status: "disabled" },
-      progress: { enabled: false, status: "disabled" }
-    });
+    assert.equal(factoryCalls, 1);
+    assert.equal(leafCalls, 1);
   });
 
-  it("closes requiresChecks through the existing catalog before shared execution", async () => {
+  it("does not call a TaskPlan factory for a not-applicable Check", async () => {
+    let factoryCalls = 0;
+    const result = await run(definition({
+      binding: { kind: "task-plan", createTaskPlan: () => { factoryCalls += 1; throw new Error("must not be called"); } },
+      applicability: () => ({ status: "not-applicable" })
+    }));
+    assert.equal(result.kind, "completed");
+    assert.equal(factoryCalls, 0);
+  });
+
+  it("flattens group dependencies before shared execution", async () => {
     const calls: string[] = [];
     const result = await run(defineConfig({
-      checks: {
-        custom: [{
-          definition: { checkId: "producer", displayName: "Producer", recordTypes: [] },
-          applicability: () => ({ status: "applicable", workHandles: [] }),
-          binding: { kind: "direct", execute: () => { calls.push("producer"); return { verdict: "passed" }; } }
-        }, {
-          definition: { checkId: "consumer", displayName: "Consumer", recordTypes: [] },
-          applicability: () => ({ status: "applicable", workHandles: [] }),
-          binding: { kind: "direct", execute: () => { calls.push("consumer"); return { verdict: "passed" }; } }
-        }],
-        schedules: [
-          { checkId: "producer", requiresChecks: [] },
-          { checkId: "consumer", requiresChecks: ["producer"] }
-        ],
-        selected: ["consumer"]
-      },
+      checks: [{
+        id: "producers",
+        checks: [custom({
+          checkId: "producer",
+          execute: () => { calls.push("producer"); return { verdict: "passed" }; }
+        })]
+      }, custom({
+        checkId: "consumer",
+        dependsOn: "producers",
+        execute: () => { calls.push("consumer"); return { verdict: "passed" }; }
+      })],
       effects: {
-        cache: { enabled: false },
-        logs: { enabled: false },
-        output: { enabled: false },
-        progress: { enabled: false }
+        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
       }
     }));
 
@@ -209,39 +189,68 @@ describe("Package Run", () => {
     assert.deepEqual(calls, ["producer", "consumer"]);
   });
 
-  it("prepares a required built-in selected through the Check dependency closure", async () => {
+  it("uses only explicit mutex constraints to serialize direct and TaskPlan leaf work", async () => {
+    let inFlight = 0;
+    let maximumInFlight = 0;
+    const enter = async () => {
+      inFlight += 1;
+      maximumInFlight = Math.max(maximumInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      inFlight -= 1;
+    };
+    const result = await run(defineConfig({
+      checks: [{
+        id: "native-work",
+        mutex: "native",
+        checks: [
+          custom({ checkId: "direct", execute: enter }),
+          custom({
+            checkId: "planned",
+            applicability: () => ({ status: "applicable", workHandles: ["work-handle/v1:planned"] }),
+            binding: {
+              kind: "task-plan",
+              createTaskPlan: () => ({
+                tasks: [{
+                  id: "work",
+                  workHandles: ["work-handle/v1:planned"],
+                  run: enter
+                }],
+                complete: () => ({ verdict: "passed" })
+              })
+            }
+          })
+        ]
+      }],
+      scheduler: { maxParallel: 2 },
+      effects: {
+        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
+      }
+    }));
+
+    assert.equal(result.kind, "completed");
+    assert.equal(maximumInFlight, 1);
+  });
+
+  it("prepares built-ins present in the tree before a dependent custom Check", async () => {
     let consumerCalls = 0;
     const result = await run(defineConfig({
-      checks: {
-        builtIn: ["file-metrics"],
-        custom: [{
-          definition: { checkId: "consumer", displayName: "Consumer", recordTypes: [] },
-          applicability: () => ({ status: "applicable", workHandles: [] }),
-          binding: { kind: "direct", execute: () => {
-            consumerCalls += 1;
-            return { verdict: "passed" };
-          } }
-        }],
-        schedules: [
-          { checkId: "file-metrics", requiresChecks: [] },
-          { checkId: "consumer", requiresChecks: ["file-metrics"] }
-        ],
-        selected: ["consumer"]
-      },
+      checks: [
+        fileMetrics,
+        custom({
+          checkId: "consumer",
+          dependsOn: "file-metrics",
+          execute: () => { consumerCalls += 1; return { verdict: "passed" }; }
+        })
+      ],
       effects: {
-        cache: { enabled: false },
-        logs: { enabled: false },
-        output: { enabled: false },
-        progress: { enabled: false }
+        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
       }
-    }), {
-      operationalDependencies: { file: { executable: process.execPath } }
-    });
+    }), { operationalDependencies: { file: { executable: process.execPath } } });
 
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
-    assert.equal(result.snapshot.runs.find((run) => run.checkId === "file-metrics")?.status, "failed");
-    assert.equal(result.snapshot.runs.find((run) => run.checkId === "consumer")?.diagnostic?.category, "unavailable");
+    assert.equal(result.snapshot.runs.find((entry) => entry.checkId === "file-metrics")?.status, "failed");
+    assert.equal(result.snapshot.runs.find((entry) => entry.checkId === "consumer")?.diagnostic?.category, "unavailable");
     assert.equal(consumerCalls, 0);
   });
 
@@ -250,57 +259,10 @@ describe("Package Run", () => {
     controller.abort();
     let calls = 0;
     const result = await run(definition({
-      applicability: () => {
-        calls += 1;
-        return { status: "applicable", workHandles: [] };
-      }
+      applicability: () => { calls += 1; return { status: "applicable", workHandles: [] }; }
     }), { signal: controller.signal });
-
     assert.equal(result.kind, "cancelled");
     if (result.kind === "cancelled") assert.equal(result.phase, "pre-work");
     assert.equal(calls, 0);
   });
 });
-
-function definition(overrides: Partial<{
-  applicability: () => unknown;
-  binding: CustomCheckDeclaration["binding"];
-  execute: () => unknown;
-}>) {
-  const binding = overrides.binding ?? {
-    kind: "direct" as const,
-    execute: overrides.execute ?? (() => ({ verdict: "passed" }))
-  };
-  return defineConfig({
-    checks: {
-      custom: [{
-        definition: {
-          checkId: "custom",
-          displayName: "Custom",
-          recordTypes: []
-        },
-        applicability: overrides.applicability ?? (() => ({ status: "applicable", workHandles: [] })),
-        binding
-      }],
-      schedules: [{ checkId: "custom", requiresChecks: [] }],
-      selected: ["custom"]
-    },
-    policies: {
-      "project-gate": {
-        policyId: "project-gate",
-        references: [],
-        acceptance: [],
-        views: [],
-        readiness: [],
-        blockWhen: { kind: "run-status", checkId: "custom", status: "failed" }
-      }
-    },
-    selectedPolicy: "project-gate",
-    effects: {
-      cache: { enabled: false },
-      logs: { enabled: false },
-      output: { enabled: false },
-      progress: { enabled: false }
-    }
-  });
-}

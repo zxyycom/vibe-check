@@ -6,6 +6,13 @@ import {
   type ProjectEffects,
   type RunControls
 } from "./project-definition.ts";
+import {
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics,
+  type BuiltInCheckOptionsById
+} from "./built-in-checks.ts";
+import { resolveQualityConfiguration } from "./quality-configuration.ts";
 import { CURRENT_PUBLIC_CONTRACT, type OperationalDependencyId } from "./current-public-contract.ts";
 import {
   prepareComparisonReference,
@@ -27,6 +34,7 @@ import {
   resolveFunctionMetricsApplicability
 } from "./quality-core/src/check-record/builtins/function-metrics.ts";
 import type { FinalCoreSnapshot } from "./quality-core/src/check-record/model.ts";
+import type { ResolvedQualityConfig } from "./quality-core/src/model/schema.ts";
 import type { CheckExecutionBinding } from "./quality-core/src/check-record/catalog.ts";
 import type { ReferenceFacts } from "./quality-core/src/check-record/policy-model.ts";
 
@@ -56,6 +64,7 @@ const BUILT_IN_DEPENDENCIES = Object.freeze({
 
 export function prepareBuiltInRuntime(input: Readonly<{
   cache: ProjectEffects["cache"];
+  builtInOptions: Readonly<Partial<BuiltInCheckOptionsById>>;
   controls: RunControls;
   definition: ProjectDefinition;
   onCacheActivity: (activity: "failed" | "read" | "write") => void;
@@ -77,7 +86,14 @@ export function prepareBuiltInRuntime(input: Readonly<{
     environment: supportedEnvironmentSnapshot()
   }, requiredDependencies);
   const root = resolve(input.controls.projectRoot ?? process.cwd());
-  const config = input.definition.quality;
+  const config = resolveQualityConfiguration({
+    project: input.definition.quality,
+    checks: {
+      duplication: input.builtInOptions["duplicate-detection"] ?? duplicateDetection.options,
+      files: input.builtInOptions["file-metrics"] ?? fileMetrics.options,
+      functions: input.builtInOptions["function-metrics"] ?? functionMetrics.options
+    }
+  });
   const current = prepareCurrentBuiltInInputs({
     cacheDirectory: input.cache.directory,
     config,
@@ -159,7 +175,7 @@ function addDuplicateRuntime(maps: RuntimeMaps, input: Readonly<{
   cache: ProjectEffects["cache"];
   changedFiles: readonly string[];
   comparison: ComparisonReference | null;
-  config: ProjectDefinition["quality"];
+  config: ResolvedQualityConfig;
   configVersion: ProjectDefinition["apiVersion"];
   current: ExactInputs;
   dependency: Parameters<typeof createDuplicateDetectionBinding>[0]["dependency"];
@@ -245,13 +261,13 @@ function addFunctionRuntime(maps: RuntimeMaps, input: CommonRuntimeInput & Reado
 interface CommonRuntimeInput {
   readonly changedFiles: readonly string[];
   readonly comparison: ComparisonReference | null;
-  readonly config: ProjectDefinition["quality"];
+  readonly config: ResolvedQualityConfig;
   readonly current: ExactInputs;
 }
 
 function duplicateInput(
   input: ExactInputs["duplicateDetection"],
-  config: ProjectDefinition["quality"]
+  config: ResolvedQualityConfig
 ) {
   return Object.freeze({
     areas: Object.freeze(input.areas.map((area) => Object.freeze({

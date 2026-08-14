@@ -1,21 +1,50 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { defineConfig } from "../../src/product/project-definition.ts";
+import {
+  defineConfig,
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics
+} from "../../src/product/project-definition.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 /** Repository-owned Vibe Check policy. Product code never discovers this file. */
 export default defineConfig({
-  checks: {
-    builtIn: ["duplicate-detection", "file-metrics", "function-metrics"],
-    schedules: [
-      { checkId: "duplicate-detection", requiresChecks: [] },
-      { checkId: "file-metrics", requiresChecks: [] },
-      { checkId: "function-metrics", requiresChecks: [] }
-    ],
-    selected: ["duplicate-detection", "file-metrics", "function-metrics"]
-  },
+  checks: [{
+    id: "repository-quality",
+    maxParallel: 2,
+    checks: [{
+      ...duplicateDetection,
+      options: {
+        ...duplicateDetection.options,
+        defaultMinimumTokens: 100,
+        fragments: {
+          ...duplicateDetection.options.fragments,
+          changedDelta: 0
+        },
+        minimumTokensByCodeArea: {
+          ...duplicateDetection.options.minimumTokensByCodeArea,
+          "docs-specs": 150,
+          generated: 200,
+          "product-source": 75,
+          "schemas-examples": 150,
+          "script-tooling": 75
+        }
+      }
+    }, {
+      ...fileMetrics,
+      maxParallel: 1,
+      options: {
+        ...fileMetrics.options,
+        codeLines: {
+          ...fileMetrics.options.codeLines,
+          changedDelta: 100
+        }
+      }
+    }, functionMetrics]
+  }],
   effects: {
     cache: { directory: ".cache/vibe-check/quality", enabled: true },
     logs: { enabled: true },
@@ -29,49 +58,6 @@ export default defineConfig({
   },
   scheduler: { maxParallel: 4 },
   quality: {
-    checks: {
-      duplication: {
-        defaultMinimumTokens: 100,
-        fragments: {
-          changedDelta: 0
-        },
-        minimumTokensByCodeArea: {
-          "docs-specs": 150,
-          generated: 200,
-          "product-source": 75,
-          "schemas-examples": 150,
-          "script-tooling": 75
-        }
-      },
-      files: {
-        codeLines: {
-          absoluteFloor: 300,
-          changedDelta: 100,
-          lowDecisionTokenAllowance: {
-            codeLineFloor: 500,
-            maxDecisionTokens: 10
-          }
-        }
-      },
-      functions: {
-        codeLines: {
-          absoluteFloor: 50,
-          changedDelta: 20,
-          lowComplexityAllowance: {
-            codeLineFloor: 150,
-            maxCyclomaticComplexityExclusive: 5
-          }
-        },
-        cyclomaticComplexity: {
-          absoluteFloor: 10,
-          changedDelta: 5
-        },
-        parameterCount: {
-          absoluteFloor: 5,
-          changedDelta: 2
-        }
-      }
-    },
     codeAreas: {
       "docs-specs": {
         description: "Long-term docs and current Change Plan materials",

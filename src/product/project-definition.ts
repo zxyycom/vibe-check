@@ -1,57 +1,66 @@
 import { createHash } from "node:crypto";
 
 import {
+  BUILT_IN_CHECKS,
+  builtInDefinition,
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics,
+  type BuiltInCheckDescriptor,
+  type BuiltInCheckId,
+  type BuiltInCheckOptions,
+  type BuiltInCheckOptionsById
+} from "./built-in-checks.ts";
+import {
+  resolveCheckTree,
+  type CheckApplicabilityBinding,
+  type CheckGroup,
+  type CheckNode,
+  type CheckScheduling,
+  type CustomCheck,
+  type CustomCheckBinding,
+  type ResolvedCheckTree
+} from "./check-tree.ts";
+import {
   CURRENT_PUBLIC_CONTRACT,
   OPERATIONAL_DEPENDENCY_IDS,
   type OperationalDependencyId
 } from "./current-public-contract.ts";
 import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
-import type {
-  CheckExecutionBinding,
-  CheckTaskPlanFactory
-} from "./quality-core/src/check-record/catalog.ts";
 import type { CheckDefinition } from "./quality-core/src/check-record/model.ts";
 import type { DecisionPolicy } from "./quality-core/src/check-record/policy-model.ts";
 import type { SchedulerPolicy } from "./quality-core/src/check-record/task-orchestrator.ts";
-import { DUPLICATE_DETECTION_CHECK_DEFINITION } from "./quality-core/src/check-record/builtins/duplicate-detection.ts";
-import { FILE_METRICS_CHECK_DEFINITION } from "./quality-core/src/check-record/builtins/file-metrics.ts";
-import { FUNCTION_METRICS_CHECK_DEFINITION } from "./quality-core/src/check-record/builtins/function-metrics.ts";
 import {
   NEUTRAL_QUALITY_CONFIGURATION,
-  type ProjectQualityConfiguration,
+  type ProjectQualityConfiguration
 } from "./quality-configuration.ts";
+
+export {
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics,
+  type BuiltInCheckDescriptor,
+  type CheckApplicabilityBinding,
+  type CheckGroup,
+  type CheckNode,
+  type CheckScheduling,
+  type CustomCheck,
+  type CustomCheckBinding
+};
+
+/** Internal canonical definitions used to prepare Product-owned built-in runtime bindings. */
+export const BUILT_IN_CHECK_DEFINITIONS = Object.freeze(Object.fromEntries(
+  Object.values(BUILT_IN_CHECKS).map((descriptor) => [
+    descriptor.checkId,
+    builtInDefinition(descriptor.checkId)
+  ])
+) as Record<BuiltInCheckId, CheckDefinition>);
+
+export type { BuiltInCheckId };
 
 export interface CheckSchedule {
   readonly checkId: string;
   readonly requiresChecks: readonly string[];
-}
-
-/** Product-owned Check identities. Project definitions select these identities;
- * they never reproduce the internal CheckDefinition data. */
-export const BUILT_IN_CHECK_DEFINITIONS = Object.freeze({
-  "duplicate-detection": DUPLICATE_DETECTION_CHECK_DEFINITION,
-  "file-metrics": FILE_METRICS_CHECK_DEFINITION,
-  "function-metrics": FUNCTION_METRICS_CHECK_DEFINITION
-} as const satisfies Readonly<Record<string, CheckDefinition>>);
-
-export type BuiltInCheckId = keyof typeof BUILT_IN_CHECK_DEFINITIONS;
-
-export type CheckApplicabilityBinding = (definition: CheckDefinition) => unknown;
-
-export interface CustomCheckDeclaration {
-  readonly definition: CheckDefinition;
-  readonly applicability: CheckApplicabilityBinding;
-  readonly binding: Readonly<
-    | { readonly kind: "direct"; readonly execute: CheckExecutionBinding }
-    | { readonly kind: "task-plan"; readonly createTaskPlan: CheckTaskPlanFactory }
-  >;
-}
-
-export interface ProjectChecks {
-  readonly builtIn: readonly BuiltInCheckId[];
-  readonly custom: readonly CustomCheckDeclaration[];
-  readonly schedules: readonly CheckSchedule[];
-  readonly selected: readonly string[];
 }
 
 export interface ProjectEffects {
@@ -71,7 +80,7 @@ export type OperationalDependencies = Readonly<
 
 export interface ProjectDefinition {
   readonly apiVersion: "1";
-  readonly checks: ProjectChecks;
+  readonly checks: readonly CheckNode[];
   readonly effects: ProjectEffects;
   readonly operationalDependencies: OperationalDependencies;
   readonly policies: Readonly<Record<string, DecisionPolicy>>;
@@ -82,7 +91,7 @@ export interface ProjectDefinition {
 
 type ProjectDefinitionInput = Readonly<{
   apiVersion?: "1";
-  checks?: Partial<ProjectChecks>;
+  checks?: readonly CheckNode[];
   effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
     logs: Partial<ProjectEffects["logs"]>;
@@ -125,8 +134,10 @@ export type ValidationResult<T> = Readonly<
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
   readonly checks: Readonly<{
-    readonly builtIn: readonly CheckDefinition[];
-    readonly custom: readonly CheckDefinition[];
+    readonly definitions: readonly CheckDefinition[];
+    readonly maxParallel: readonly Readonly<{ readonly checkId: string; readonly maxParallel: number }>[];
+    readonly mutexes: readonly Readonly<{ readonly checkId: string; readonly mutex: readonly string[] }>[];
+    readonly options: readonly Readonly<{ readonly checkId: BuiltInCheckId; readonly options: BuiltInCheckOptions }>[];
     readonly schedules: readonly CheckSchedule[];
     readonly selected: readonly string[];
   }>;
@@ -140,7 +151,7 @@ export interface DeclarativeProjectSnapshot {
 
 export interface CustomCheckExecutionBinding {
   readonly applicability: CheckApplicabilityBinding;
-  readonly binding: CustomCheckDeclaration["binding"];
+  readonly binding: CustomCheckBinding;
 }
 
 export interface ProjectExecutionBindings {
@@ -148,25 +159,22 @@ export interface ProjectExecutionBindings {
 }
 
 export interface NormalizedProjectDefinition {
+  readonly builtInOptions: Readonly<Partial<BuiltInCheckOptionsById>>;
+  readonly checkMaxParallelById: Readonly<Record<string, number>>;
   readonly declarative: DeclarativeProjectSnapshot;
   readonly bindings: ProjectExecutionBindings;
 }
 
 /**
  * Defines a plain Project Definition. Defaults are authoring conveniences only;
- * the Package Run boundary still validates unknown values before doing work.
+ * Package Run validates the closed tree before any project function can run.
  */
 export function defineConfig<const T extends ProjectDefinitionInput>(
   value: T & Record<Exclude<keyof T, keyof ProjectDefinitionInput>, never>
 ): ProjectDefinition {
   return {
     apiVersion: value.apiVersion ?? "1",
-    checks: {
-      builtIn: value.checks?.builtIn ?? [],
-      custom: value.checks?.custom ?? [],
-      schedules: value.checks?.schedules ?? [],
-      selected: value.checks?.selected ?? []
-    },
+    checks: value.checks ?? [],
     effects: {
       cache: {
         directory: value.effects?.cache?.directory
@@ -200,16 +208,34 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
 export function normalizeProjectDefinition(
   definition: ProjectDefinition
 ): NormalizedProjectDefinition {
-  const customChecks = new Map<string, CustomCheckExecutionBinding>();
-  for (const custom of definition.checks.custom) {
-    customChecks.set(custom.definition.checkId, Object.freeze({
-      applicability: custom.applicability,
-      binding: custom.binding
-    }));
+  const tree = resolveCheckTree(definition.checks, definition.scheduler.maxParallel);
+  if (tree === undefined) throw new TypeError("Project Definition Check tree failed closed normalization");
+  return normalizeResolvedTree(definition, tree);
+}
+
+function normalizeResolvedTree(
+  definition: ProjectDefinition,
+  tree: ResolvedCheckTree
+): NormalizedProjectDefinition {
+  const customChecks = new Map<string, CustomCheckExecutionBinding>(tree.customBindings);
+  const checkMaxParallelById = Object.freeze(Object.fromEntries(tree.leaves.map((leaf) => (
+    [leaf.definition.checkId, leaf.maxParallel] as const
+  ))));
+  const builtInOptions: { -readonly [Id in keyof BuiltInCheckOptionsById]?: BuiltInCheckOptionsById[Id] } = {};
+  for (const leaf of tree.leaves) {
+    if (leaf.builtIn === "duplicate-detection" && leaf.options !== null) {
+      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["duplicate-detection"];
+    } else if (leaf.builtIn === "file-metrics" && leaf.options !== null) {
+      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["file-metrics"];
+    } else if (leaf.builtIn === "function-metrics" && leaf.options !== null) {
+      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["function-metrics"];
+    }
   }
   return Object.freeze({
     bindings: Object.freeze({ customChecks }),
-    declarative: freezeDeclarativeSnapshot(definition)
+    builtInOptions: Object.freeze(builtInOptions),
+    checkMaxParallelById,
+    declarative: freezeDeclarativeSnapshot(definition, tree)
   });
 }
 
@@ -217,14 +243,33 @@ export function createDeclarativeFingerprint(snapshot: DeclarativeProjectSnapsho
   return createHash("sha256").update(stableJson(snapshot)).digest("hex");
 }
 
-function freezeDeclarativeSnapshot(definition: ProjectDefinition): DeclarativeProjectSnapshot {
+function freezeDeclarativeSnapshot(
+  definition: ProjectDefinition,
+  tree: ResolvedCheckTree
+): DeclarativeProjectSnapshot {
+  const leaves = [...tree.leaves].sort((left, right) => (
+    compareText(left.definition.checkId, right.definition.checkId)
+  ));
   return deepFreeze({
     apiVersion: definition.apiVersion,
     checks: {
-      builtIn: definition.checks.builtIn.map((checkId) => BUILT_IN_CHECK_DEFINITIONS[checkId]),
-      custom: definition.checks.custom.map((check) => check.definition),
-      schedules: definition.checks.schedules,
-      selected: definition.checks.selected
+      definitions: leaves.map((leaf) => leaf.definition),
+      maxParallel: leaves.map((leaf) => ({
+        checkId: leaf.definition.checkId,
+        maxParallel: leaf.maxParallel
+      })),
+      mutexes: leaves.map((leaf) => ({
+        checkId: leaf.definition.checkId,
+        mutex: [...leaf.mutex].sort()
+      })),
+      options: leaves.flatMap((leaf) => leaf.builtIn === null || leaf.options === null
+        ? []
+        : [{ checkId: leaf.builtIn, options: leaf.options }]),
+      schedules: leaves.map((leaf) => ({
+        checkId: leaf.definition.checkId,
+        requiresChecks: [...leaf.dependsOn].sort()
+      })),
+      selected: leaves.map((leaf) => leaf.definition.checkId)
     },
     effects: definition.effects,
     operationalDependencyIds: Object.freeze(OPERATIONAL_DEPENDENCY_IDS.filter(
@@ -235,6 +280,10 @@ function freezeDeclarativeSnapshot(definition: ProjectDefinition): DeclarativePr
     scheduler: definition.scheduler,
     selectedPolicy: definition.selectedPolicy
   });
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function deepFreeze<T>(value: T): T {

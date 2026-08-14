@@ -5,7 +5,12 @@ import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./current-public-contract.ts";
 import { isNonArrayRecord } from "./foundation/src/type-guards.ts";
-import { defineConfig } from "./project-definition.ts";
+import {
+  defineConfig,
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics
+} from "./project-definition.ts";
 import { run } from "./run.ts";
 
 describe("current public contract", () => {
@@ -16,7 +21,16 @@ describe("current public contract", () => {
         configDefinition: "defineConfig",
         packageRun: "run"
       },
+      values: {
+        duplicateDetection: "duplicateDetection",
+        fileMetrics: "fileMetrics",
+        functionMetrics: "functionMetrics"
+      },
       types: {
+        builtInCheckDescriptor: "BuiltInCheckDescriptor",
+        checkGroup: "CheckGroup",
+        checkNode: "CheckNode",
+        customCheck: "CustomCheck",
         projectDefinition: "ProjectDefinition",
         runControls: "RunControls",
         runResult: "RunResult"
@@ -35,6 +49,12 @@ describe("current public contract", () => {
     });
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.configDefinition);
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.packageRun);
+    assert.equal(Object.isFrozen(duplicateDetection), true);
+    assert.equal(Object.isFrozen(fileMetrics), true);
+    assert.equal(Object.isFrozen(functionMetrics), true);
+    assert.equal(typeof duplicateDetection, "object");
+    assert.equal(typeof fileMetrics, "object");
+    assert.equal(typeof functionMetrics, "object");
     assert.deepEqual(defineConfig({}).effects, CURRENT_PUBLIC_CONTRACT.effectDefaults);
 
     const packageManifest = packageManifestName(readFileSync(

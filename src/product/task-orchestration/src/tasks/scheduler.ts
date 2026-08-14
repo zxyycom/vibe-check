@@ -1,6 +1,17 @@
 import type { NormalizedTask } from "./definition/types.ts";
 
+export interface TaskAdmissionController {
+  selectNextReadyTask(input: Readonly<{
+    readonly activeCount: number;
+    readonly concurrency: number;
+    readonly readyTasks: readonly NormalizedTask[];
+  }>): NormalizedTask | undefined;
+  onTaskAdmitted(task: NormalizedTask): void;
+  onTaskSettled(task: NormalizedTask): void;
+}
+
 export interface TaskSchedulerOptions<TResult> {
+  admissionController?: TaskAdmissionController;
   pending: NormalizedTask[];
   concurrency: number;
   execute: (task: NormalizedTask) => TResult | Promise<TResult>;
@@ -16,9 +27,8 @@ interface StartTaskOptions<TResult> {
   completedIds: Set<string>;
   runningMutexes: Set<string>;
   results: TResult[];
-  onSettled: () => void;
+  onSettled: (task: NormalizedTask) => void;
   onError: (error: unknown) => void;
-  isSettled: () => boolean;
 }
 
 interface TaskScheduler<TResult> extends TaskSchedulerOptions<TResult> {
@@ -46,18 +56,23 @@ export async function runTaskScheduler<TResult>(options: TaskSchedulerOptions<TR
     };
 
     const schedule = () => {
-      scheduleReadyTasks(scheduler, {
-        onSettled: () => {
-          scheduler.activeCount -= 1;
-          schedule();
-          finishIfDone();
-        },
-        onError: fail,
-        isSettled: () => scheduler.settled
-      });
+      if (scheduler.settled) return;
+      try {
+        scheduleReadyTasks(scheduler, {
+          onSettled: (task) => {
+            scheduler.activeCount -= 1;
+            scheduler.admissionController?.onTaskSettled(task);
+            schedule();
+            finishIfDone();
+          },
+          onError: fail
+        });
 
-      failIfBlocked(scheduler, fail);
-      finishIfDone();
+        failIfBlocked(scheduler, fail);
+        finishIfDone();
+      } catch (error) {
+        fail(error);
+      }
     };
 
     schedule();
@@ -79,15 +94,22 @@ function createTaskScheduler<TResult>(options: TaskSchedulerOptions<TResult>): T
 
 function scheduleReadyTasks<TResult>(
   scheduler: TaskScheduler<TResult>,
-  callbacks: Pick<StartTaskOptions<TResult>, "onSettled" | "onError" | "isSettled">
+  callbacks: Pick<StartTaskOptions<TResult>, "onSettled" | "onError">
 ): void {
   while (scheduler.activeCount < scheduler.concurrency) {
-    const nextIndex = scheduler.pending.findIndex((task) => canRunTask(task, scheduler.completedIds, scheduler.runningMutexes));
-    if (nextIndex === -1) {
+    const readyTasks = scheduler.pending.filter((task) => (
+      canRunTask(task, scheduler.completedIds, scheduler.runningMutexes)
+    ));
+    const task = selectNextReadyTask(scheduler, readyTasks);
+    if (task === undefined) {
       break;
     }
-
-    const [task] = scheduler.pending.splice(nextIndex, 1);
+    const nextIndex = scheduler.pending.indexOf(task);
+    if (nextIndex === -1 || !readyTasks.includes(task)) {
+      throw new TypeError("Task admission selected a task that is not ready");
+    }
+    scheduler.pending.splice(nextIndex, 1);
+    scheduler.admissionController?.onTaskAdmitted(task);
     startTask({
       task,
       execute: scheduler.execute,
@@ -106,6 +128,24 @@ function failIfBlocked<TResult>(scheduler: TaskScheduler<TResult>, fail: (error:
   if (scheduler.activeCount === 0 && scheduler.pending.length > 0) {
     fail(new Error(`unable to schedule tasks; unresolved dependencies or cycle: ${describePendingTasks(scheduler.pending, scheduler.completedIds)}`));
   }
+}
+
+function selectNextReadyTask<TResult>(
+  scheduler: TaskScheduler<TResult>,
+  readyTasks: readonly NormalizedTask[]
+): NormalizedTask | undefined {
+  if (readyTasks.length === 0) return undefined;
+  const controller = scheduler.admissionController;
+  if (controller === undefined) return readyTasks[0];
+  const task = controller.selectNextReadyTask({
+    activeCount: scheduler.activeCount,
+    concurrency: scheduler.concurrency,
+    readyTasks
+  });
+  if (task === undefined && scheduler.activeCount === 0) {
+    throw new TypeError("Task admission controller blocked all ready tasks");
+  }
+  return task;
 }
 
 function completeSchedulerIfDone<TResult>(scheduler: TaskScheduler<TResult>): boolean {
@@ -133,8 +173,7 @@ function startTask<TResult>({
   runningMutexes,
   results,
   onSettled,
-  onError,
-  isSettled
+  onError
 }: StartTaskOptions<TResult>): void {
   for (const mutex of task.mutex) {
     runningMutexes.add(mutex);
@@ -152,13 +191,14 @@ function startTask<TResult>({
     })
     .catch(onError)
     .finally(() => {
-      if (isSettled()) {
-        return;
-      }
       for (const mutex of task.mutex) {
         runningMutexes.delete(mutex);
       }
-      onSettled();
+      try {
+        onSettled(task);
+      } catch (error) {
+        onError(error);
+      }
     });
 }
 
