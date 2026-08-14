@@ -1,149 +1,320 @@
 # Design
 
-本设计先建立唯一 current public-contract source 及 Project Definition 所需的 definition-facing fields，再把 TypeScript definition 解析到既有 Check/Record、orchestration、policy 与 effect owners，形成可由 API-only package 单向消费的 package-private runtime seam。
+本 Design 把项目持有的 TypeScript Project Definition 接入既有 Vibe Check Product：项目运行脚本将配置绑定到 Package Run，Package Run 调用项目函数，并把 work 交给既有 Task 系统。
 
 ## Context
 
-当前事实由 `docs/configuration.md` 与 `src/product/config*.ts` 承接：产品仍使用 complete semantic JSON v1、`explicit > discovered > default` selection、sibling editor schema 和 JSON initialization，并由 Product CLI 传入选择参数。当前 `.vibe-check/config.json`、CLI options 和 diagnostics 只证明现行实现。
+### Document Authority
 
-Check/Record Core 与 Product-owned Task orchestration 已成为当前实现事实：public catalog/private binding、closed policy、`requiresChecks` closure、applicability-time TaskPlan factory、plan validation 和 shared scheduler 均有源码、测试、owner 文档与已归档 Change 证据。Reporting、cache 与 output 的当前行为也有各自 owner；本 Change 只把它们组合成 closed Project Definition fields，不复制其算法。
+本 Design 规定 `adopt-typescript-project-definition` 的实现契约、owner 边界、任务顺序和下游 handoff。长期方向由下列 active decisions 拥有；本 Design 只把它们映射为当前 Change 的工程行为：
 
-活动未对齐决策已经确认：single TypeScript Project Definition 取代 JSON；Project Definition 驱动 policy/gate、Checks、scheduler、reporting、cache 和 output；首个 package 只支持 Bun；project-owned code 在 package-private runtime 中执行；普通 invocation 默认启用工具 effects；使用者只接触配置定义与工具运行两个操作。API-only package Change 还已确认 unscoped `vibe-check`、MIT、public distribution、`0.0.x` prestable 与 configured external prerequisites，并把 exact identifiers、paths 和 environment names 委托给工程闭合。
+- `configuration/pass-project-definition-value-to-run.md`：项目运行脚本把普通 import 得到的 Project Definition value 交给 Package Run。
+- `configuration/drive-run-from-project-definition-value.md`：Project Definition 拥有稳定执行语义，run controls 只补充当次信息。
+- `configuration/use-user-owned-definition-for-observation-and-gates.md`：每次运行都使用项目持有的 definition；gate 选择其中的 named policy。
+- `product-contract/expose-config-definition-and-project-run-operations.md`：package 公开配置定义函数与 Package Run 两个 callable operations。
+- `product-contract/execute-project-functions-through-task-system-in-caller-runtime.md`：Package Run 直接调用项目函数，Task 系统管理执行。
+- `product-contract/use-static-check-task-plans-with-shared-scheduling.md`：静态 `TaskPlan` 和 shared scheduler 拥有 Product task scheduling。
+- `configuration/bind-external-programs-outside-check-semantics.md`：operational dependency binding 与 built-in Check policy 分离。
+- `product-contract/confirm-config-run-and-package-names-before-publication.md`：exact package names 在 publishable candidate 前确认。
 
-执行只采用 Project Definition → API package 的单向顺序：本 Change 当前可执行，在 `src/product/**` 建立唯一 current public-contract source 的 definition-facing fields 并完整交付 Project Definition；API Change 必须等本 Change 完成并归档后，才消费同一 source 和 runtime seam、添加 package/release fields。执行期间不在两个 Change 之间切换。
+当前实现仍使用 JSON config、config discovery、schema generation 和 Product CLI `init`。上述 target contract 在本 Change 完成前不是当前产品事实。
 
-### Terms
+### Stable Terms
 
-- **Current public-contract source**：计划在 `src/product/**` 建立的唯一 package-private 当前值 owner；决策记录保存选择理由，不复制 literal values。该 source 目前尚未成为实现事实。
-- **Definition-facing fields**：本 Change 在上述唯一 source 中建立并验证的 identifiers、fixed/default paths、environment 与 dependency-binding names；它们不是另一份 source。
-- **Package/release fields**：API-only package Change 在前置交付完成后，依据 release history 和 exact-tarball evidence 添加到同一 source 的 version、support、manifest 与 release values。
-- **Package-private runtime seam**：本 Change 交付给后续 API Change 的稳定调用边界；worker/process module、IPC 和 executable bindings 不属于该 seam 的 public contract。
+| 术语 | 精确定义 |
+| --- | --- |
+| **Project Definition** | 配置定义函数返回的 plain typed value；包含声明式配置和明确允许的项目函数 |
+| **项目配置文件** | 项目持有的 TypeScript module；default export Project Definition |
+| **配置定义函数** | Package operation；提供 authoring inference，返回 Project Definition |
+| **Package Run** | Package operation；接收 `(Project Definition, Run Controls)` 并执行完整 Vibe Check |
+| **项目运行脚本** | 项目持有的 module；导入 Project Definition，调用 Package Run，导出项目 Run |
+| **项目 Run** | 项目运行脚本导出的已绑定入口；其他调用方只传项目允许的 controls |
+| **Run Controls** | 只对本次运行有效的 context/overrides，不拥有项目政策 |
+| **Product 运行内核** | 本 Change 在 `src/product/**` 建立、由下游 Package Run 公开的实现 boundary |
+| **Task 系统** | 当前 `TaskPlan`、shared scheduler 和 execution owners；管理依赖、并行上限和命名资源 |
+
+后文只按这些含义使用 `run` 相关术语。代码示例中的 `defineConfig` 和 package `run` 是语义示例，不提前确认 exact public symbols。
+
+### Consumer Call Path
+
+```text
+其他调用方
+  │ 只传项目允许的 Run Controls
+  ▼
+项目 Run
+  │ 已绑定 Project Definition
+  ▼
+Package Run
+  │ 验证 definition 与 controls
+  │ 调用 custom runner / TaskPlan factory
+  ▼
+Task 系统
+  │ 执行 direct work 或静态 TaskPlan
+  ▼
+Task / Check / Record / decision / effect results
+```
+
+关键关系：
+
+1. 项目运行脚本，而不是 Product，负责 import 项目配置文件。
+2. 其他调用方调用项目 Run，而不是直接重新组装 Project Definition。
+3. Package Run 自己调用配置中明确函数槽位里的函数。
+4. Task 系统决定 task dependency、可并行工作、全局并行上限和 named resources。
+5. Product 不根据文件路径发现或重新 evaluate 项目配置。
+
+### Canonical Usage
+
+```ts
+// project-definition.ts
+import { defineConfig } from "vibe-check";
+
+export default defineConfig({
+  // policies, checks, scheduler, effects, operational dependencies
+});
+```
+
+```ts
+// run.ts
+import projectDefinition from "./project-definition";
+import { run as runVibeCheck } from "vibe-check";
+
+export function run(controls = {}) {
+  return runVibeCheck(projectDefinition, controls);
+}
+```
+
+```ts
+// another caller
+import { run } from "./run";
+
+const result = await run({
+  // only controls exposed by this project
+});
+```
+
+这些名称和文件路径只证明调用关系。Task `1.2` 选择 package symbols；项目自行选择两个文件的路径和 public wrapper convention。
 
 ## Goals / Non-Goals
 
-**Goals**
+### Goals
 
-- 建立唯一 package-private typed current public-contract source，并让 Project Definition 的 fixed path、authoring/import identifiers、default effect paths、environment 与 dependency-binding names 从该 owner 取得当前值。
-- 用一个 selected TypeScript module 组合 policy、built-in refs、custom Checks、scheduler 和 tool-effect configuration，并在 work 前 validate/freeze declarative inputs。
-- 让 explicit locator、fixed discovery target、neutral definition 与 disabled selection 通过 package-private execution input 表达，不依赖 Product-owned argv contract。
-- 在 package-private Bun runtime 中加载和运行 Project Definition/custom runners，隔离它们对调用宿主的进程故障。
-- 用 required closed `scheduler: { maxParallel }` 定义唯一 invocation-wide concurrency budget。
-- 把每个 custom declaration 解析成 public metadata 与恰好一个 private direct/task binding。
-- 为 project-code bypass、default effects、dynamic policy diagnostics、provenance/fingerprint 和 custom-cache exclusion 提供可测试行为。
-- 原子删除 JSON selection/schema/init workflow，不让 Core 同时理解两种配置模型。
-- 向 API-only package Change 交付稳定的 contract source 和经过目标测试验证的 package-private runtime seam，不保留反向 handoff。
+- 用一个 Project Definition 组合 policy、Checks、custom functions、scheduler、effects 和 operational dependencies。
+- 让项目只维护配置文件和运行脚本，并让其他调用方只调用项目 Run。
+- 在 work 前验证 Project Definition 与 Run Controls，并建立一个确定的 invocation snapshot。
+- 复用当前 Check/Record foundation、`TaskPlan` 和 shared scheduler。
+- 建立下游可直接公开的 Product 运行内核和 current public-contract source。
+- 原子迁移 JSON/schema/init、fixtures、dogfood、owners 和 Cases。
 
-**Non-Goals**
+### Non-Goals
 
-- 构建 public package entry、candidate manifest、declarations、legal/release materials、staging、pack 或 exact-tarball consumer。
-- 删除剩余 Product CLI、承诺 Node.js direct import，或公开 worker/process protocol。
-- 在本 Change 中生成 evidence-derived host matrix、选择 candidate version 或证明 registry authority。
-- 提供 command provider、public operation union、generic subprocess protocol、custom exit-code mapping、hot reload 或 plugin marketplace。
-- 提供 filesystem/network/credential sandbox、public process lifecycle control 或 execution-time Check/Task registration。
-- 支持 function-based policy、custom-result cache、file-policy algorithm 或 future feature fields。
-- 增加 retry/priority、per-Check concurrency budget 或由 Check declaration 覆盖 global budget。
+- 构建或发布 npm candidate；下游 Change 拥有 package projection 和 release evidence。
+- 固定项目配置文件或运行脚本的名称和位置。
+- 把项目 Run 提升为 Product CLI、`bin` 或第二套 Product contract。
+- 公开 internal managers、scheduler、Tasks、bindings 或 execution protocol。
+- 为整次 invocation 提供进程隔离或权限 sandbox。
 
 ## Decisions
 
-### 1. 实施范围与单向完成顺序
+### 1. Two Project Files Have Different Owners and Inputs
 
-本 Change 的实施范围是 Project Definition authoring、selection、private loading/normalization、foundation handoff、JSON hard cut，以及建立这些行为所需的 current public-contract source definition-facing fields。稳定 literal values 由 `src/product/**` 的 source 承接，长期方向由活动决策承接；“实施范围”不建立第二个长期 owner。
+项目配置文件拥有稳定项目语义。它 default export 一个 Project Definition，并可以引用项目本地 functions、imports 和 closures。
 
-`establish-api-only-npm-product-boundary` 在本 Change 完成前不实施 public entry、package host、CLI hard cut 或 staging。它随后只消费已验证的 runtime seam，并在同一 current public-contract source 中补全 package version、support evidence、manifest projection 和 release-facing values。两个 Change 不再通过中间任务相互恢复。
+项目运行脚本拥有集成方式。它 import Project Definition，调用 Package Run，并决定：
 
-### 2. 唯一 current public-contract source 按证据逐步闭合
+- 哪些 Run Controls 对其他调用方可见；
+- 哪些 controls 使用项目默认值；
+- 是否另外提供项目自有 CLI、service、agent 或 editor adapter。
 
-本 Change 在 `src/product/**` package-private boundary 建立 typed current public-contract source。由本 Change 添加的 definition-facing fields 只保存已经由工程选择且由当前消费者使用的值：unscoped package identity 与 MIT identifier、public export/symbol plan、fixed Project Definition path、default output/cache paths、supported environment identifiers 和 operational dependency-binding names。
+项目运行脚本不能复制 Project Definition policy，也不能重新实现 Product execution。
 
-Source 只保存当前已经选定的值，不为 candidate version、host matrix、legal provenance 或 package inventory 写 placeholder。API Change 后续在同一 owner 中增加有实现或 evidence 支撑的 package/release fields。Canonical Project Definition example、loader、diagnostics 和后续 public entry 从该 source 生成，或由方向明确的 comparison check 做单向核对；handwritten files 不复制名称集合。
+### 2. Configuration Definition Is an Authoring Helper
 
-Source 保持 package-private，不通过 public exports 暴露，也不因提前存在而证明 package 已可安装或已发布。配置定义与工具运行两个 operation identifiers 可以在 source 中冻结，但本 Change 只实现前者所需的 package-private authoring seam；后续 API Change 才建立 exact public entry。
+配置定义函数提供：
 
-### 3. 每次 invocation 只选择一个 serializable source
+- exact-key TypeScript authoring；
+- field/type inference；
+- Product 已拥有的 authoring defaults；
+- plain Project Definition value。
 
-Source selection 按 explicit serializable Project Definition locator、fixed discovery target、ungated Product neutral definition 的优先级产生一个 final source。Typed disabled selection 在任何 project import 前绕过 fixed discovery；它与 explicit source 或任何 gate 冲突。Gate 必须从成功加载并归一化的 Project Definition 中选择 named policy。
+它不建立 brand、builder state、registration lifecycle、module identity 或 file ownership。需要 project root、environment 或 executable context 的 validation 由 Package Run 在 work 前完成。
 
-Fixed target 的目录和文件名来自 current public-contract source；Configuration owner 只拥有“project root 下恰好一个 fixed TypeScript discovery target”的语义。现行 JSON path 仅用于 migration diagnostic，不能成为未来 TypeScript path 的命名依据。
+### 3. Package Run Accepts One Definition and Closed Controls
 
-Package-private input 不接受 function、module namespace、closure、worker handle 或其它不能稳定跨越 private boundary 的 host object。普通 local/bare imports 由 private Bun runtime 相对 selected project module 解析。
+Package Run 的语义输入固定为：
 
-本 Change 删除 JSON reader、comment grammar、`$schema`、runtime/editor JSON schemas、sibling schema 与 JSON initialization。Legacy JSON、missing definition 或 explicit-source failure 只返回 actionable diagnostic，不自动转换、创建文件或尝试 alternate source。
+```ts
+packageRun(projectDefinition, runControls)
+```
 
-### 4. Runtime authority 是 closed plain export
+`projectDefinition` 是必需输入，每次 invocation 恰好一个。`runControls` 是 closed object，只允许以下类别：
 
-Selected module 在 private Bun runtime 中 evaluate；default export 是 closed plain object，包含 literal `apiVersion: "1"`、policy catalog、ordered Check declarations、required `scheduler: { maxParallel }` 和 tool-effect configuration。Bun 可以执行 top-level await，但最终 default value 不能是 function、Promise 或 unknown envelope。Runtime validator 是唯一 loading authority。
+- project root 和 changed-file context；
+- explicit comparison/reference；
+- cancellation；
+- effect destination/disable override；
+- operational dependency override。
 
-`scheduler.maxParallel` 必须满足 `Number.isSafeInteger(maxParallel) && maxParallel > 0`；missing、unknown 或 invalid value 都在 work 前产生 typed diagnostic。Product neutral definition 与 canonical example 显式使用 `scheduler: { maxParallel: 4 }`，selected project module 不获得隐式补值。
+Run Controls 不能注册 Check、修改 Project Definition policy、替换 scheduler、选择另一份 definition 或提升 gate/network/security authorization。
 
-Loader 把该值归一化为 orchestration-owned `SchedulerPolicy.maxParallel`。Direct、Task 与 completion work 共同服从这一预算；Check declaration 与 schedule metadata 不能覆盖或放大它。
+项目 Run 可以隐藏、固定或转发这些 controls 的一个子集。
 
-Project Definition 还组合 reporting、cache 和 output owners 定义的 closed configuration。各 owner 决定字段、defaults 和 validation；Configuration 不复制 reporter、cache invalidation 或 publication algorithms。
+### 4. Runtime Validation Owns Executable Input Safety
 
-### 5. 配置 authoring 与 resolved execution 分离
+Package Run 在任何 Check、dependency probe、cache read、reporter 或 output work 前：
 
-Project Check entry 是 serializable built-in reference 或 custom declaration。Built-in ref 由 Product registry 解析；custom declaration 包含 public metadata candidate、serializable schedule metadata 与一个 execution variant。Private runtime 把 metadata 交给 Check owner 生成 public `CheckDefinition`，并把 direct function 或 task factory 保存在 private execution table。
+1. 验证 Project Definition top-level shape、`apiVersion`、policies、Checks、scheduler、effects 和 operational dependencies。
+2. 验证 Run Controls 及其 precedence。
+3. 拒绝 unknown keys、invalid identifiers、invalid function slots 和 incompatible gate/reference requests。
+4. 只在完整输入有效时继续。
 
-Foundation 验证并冻结 catalog 与 binding table 的一对一关系。Function、closure、Task/completion handle 和 internal port 不进入 public result，也不跨到 public host。Loader 不暴露 manager、record sink、ack port 或 contribution envelope。
+Expected invalid input 返回 typed configuration result，不执行 valid subset，也不依赖 exception text、console 或 exit code。
 
-配置定义操作提供构造 closed Project Definition 所需的最小 runtime function 和 types。它只返回同一 plain input shape，不添加 brand、builder state 或额外 runtime authority；普通 definition 可以使用 Bun local/bare imports。该 operation 的当前 symbol 来自 current public-contract source，但本 Change 不建立最终 package export。
+### 5. Normalization Produces Data and Function Bindings
 
-### 6. Selected module 每次 invocation 只加载一次
+Validation 后产生两个不同对象：
 
-同一 private-runtime invocation 对 selected definition 只 import/evaluate 一次，并只 normalize default value 一次。Syntax、resolution、evaluation、export、API 或 validation failure 都在 work 前映射为 typed configuration diagnostic，不执行 valid subset。
+| 对象 | 内容 | 可以流向哪里 |
+| --- | --- | --- |
+| Declarative snapshot | Frozen policy、public Check metadata、schedule metadata、scheduler、effects 和 dependency config | Core、fingerprint、machine result、effect owners |
+| Execution bindings | Custom runner 与 `TaskPlan` factory function references | 当前 Bun runtime 中的 Check/Task execution owners |
 
-Public host 与 private runtime 维持一对一 invocation semantics。Warm worker reuse 可以是 package-private optimization，但不能改变 single-invocation evaluation、cache invalidation、cancellation、cleanup 或 diagnostics。
+Function、closure、`Task` value 和 internal port 不进入 declarative snapshot、fingerprint、machine output 或 public result。
 
-### 7. Custom Check selection 与 TaskPlan timing 保持最小
+### 6. Package Run Calls Project Functions Through Existing Owners
 
-Selected definition 中每个 custom declaration 进入 initial requested set。Built-in Checks 继续遵循 Product request rules；selected policy requirements 与 private `requiresChecks` 在 applicability 前闭合。首版不增加 custom profile、priority、include/exclude selector 或 name-based implicit selection。
+每个 custom Check declaration 解析为：
 
-Module resolution 只保存 serializable schedule metadata 与 private task-factory binding，不创建 TaskPlan。Foundation 完成 selection/applicability 后，orchestration 才调用 factory、验证并冻结完整 plan；skipped/not-applicable Check 不调用 factory，execution context 不提供 registration port。
+- 一个 foundation-owned public `CheckDefinition`；
+- 恰好一个 direct runner 或 `TaskPlan` factory binding。
 
-### 8. Declarative identity 与 executable code 分离
+Package Run 在 resolution/planning 阶段调用必要的 project function：
 
-Policy、built-in refs、custom public metadata、schedule metadata 和 effect configuration 经过 detached copy、owner validation 与 freeze。Direct runner、factory、Task/completion function、imports、closure 与 private runtime environment 保持 private。
+- direct runner 产生该 Check 的受控 work/result；
+- `TaskPlan` factory 在 applicability 确认后返回完整静态 plan；
+- skipped 或 not-applicable Check 不调用 factory；
+- execution 开始后不能注册、删除或重写 Check/Task。
 
-Definition fingerprint 只 canonicalize validated declarative data，不包含 function source、module graph、absolute path 或 ambient environment。首版 custom binding 每次 invocation 都执行，不使用 custom-result cache；fingerprint 不被表述成 executable identity、code attestation 或 replay guarantee。
+Package Run 不解释函数源码，也不通过 `Function#toString`、IPC 或 module reload 重建函数。
 
-### 9. Private runtime 提供故障 containment，不提供权限 sandbox
+### 7. The Task System Owns Serial and Parallel Execution
 
-Package-private Bun worker/child process 承接 Project Definition evaluation、custom execution、planning 和 private bindings。Package-private host 只发送 serializable source/context，并接收稳定 result/effect/failure projection；worker module、IPC、arguments 和 exit code 不进入后续 package exports 或 `bin`。
+`scheduler.maxParallel` 归一化为一个 invocation-scoped `SchedulerPolicy`，它是 Product task work 的唯一全局并行上限。
 
-Product 负责 startup、cancellation、termination、cleanup 与 abnormal-exit normalization。Worker/process 选择和 wire protocol 可以内部演进，只要 package-private seam 的可观察行为不变。
+Task system 按以下规则执行：
 
-Project code 仍可使用 private runtime 获得的 filesystem、network、environment 和 subprocess permissions。Typed disabled selection 完全跳过 module import、runner registration 和其它 project code，只运行 Product neutral observation；需要 project policy 的 gate 不可在该模式运行。
+1. Explicit task dependency 决定必须等待的顺序。
+2. 没有未满足依赖且 named resources 不冲突的 tasks 可以并行。
+3. Shared scheduler 不超过 `SchedulerPolicy.maxParallel`。
+4. Direct work、Task work 和 completion work 共享同一 Product budget。
+5. Custom runner 自行创建的未声明并行不获得 shared scheduler guarantee。
 
-### 10. Diagnostics、effects 和 output 只呈现稳定事实
+单个 Task 或 scanner adapter 可以按自身 owner 使用 subprocess、worker 或内部并行；这不改变 Product task graph，也不把整次 invocation 移入另一 runtime。
 
-Static authoring declarations 不加载 project module，也不枚举 dynamic policy IDs；definition resolution 后遇到 unknown policy ID 时，typed diagnostic 才列出本次 resolved policy catalog。Pre-load diagnostic 可以说明 source kind、Bun prerequisite 与 containment boundary。
+### 8. Project Definition Owns Semantics; Controls Own Invocation Context
 
-Resolved context 记录 safe source kind、API version 与 declarative fingerprint。Human logs 可以按 configured reporter 显示 selected absolute path；machine output 不发布 absolute host path、policy body、runner/factory、imports、module graph 或 private protocol。
+Project Definition 拥有：
 
-Default reporter、cache 与 canonical output 都返回 explicit effect status。Effect failure 不重写领域 gate result；atomicity、cleanup、sensitive material 与 partial publication 由 output/cache owners 承接。
+- policy catalog 和 selected gate policy；
+- built-in/custom Check declarations and selection；
+- scheduler；
+- reporting、cache 和 output configuration；
+- operational dependency defaults。
 
-### 11. Project Definition file 由使用者创建和拥有
+Run Controls 只在本次 invocation 覆盖已允许的 operational fields。Precedence 固定为：
 
-使用者通过配置定义 operation 自行定义 closed TypeScript value，并把文件放在 current public-contract source 指定的 fixed target。Product 不写入、scaffold 或初始化该文件。Canonical docs/fixture example 证明完整 authoring shape，但不是 package resource、生成模板或名称 owner。
+```text
+explicit Run Control
+  > supported environment value
+  > Project Definition / Product default
+```
 
-Missing target、legacy JSON、unsafe node 或 invalid module 都返回 typed actionable diagnostic，不创建 second config。Repository tooling 如需生成或维护本仓库 definition，只能在 `scripts/**` 自行拥有实现，不能恢复 Product `init` command、bootstrap export 或 command union。
+Gate 只能选择 Project Definition 中已验证的 named `DecisionPolicy`。Observation 也必须传入明确 Project Definition；Package Run 不在缺失 definition 时静默创建另一份配置。
+
+### 9. Operational Dependencies Resolve Before Work
+
+Operational dependency fields 与 built-in Check policy 分离。它们可以指定 executable location 和 owner 明确允许的 operational values，但不能携带 scanner-native policy、raw flags、exit mapping 或 result semantics。
+
+Package Run 从 definition、supported environment snapshot 和 controls 构造一个 `ScannerDependencySnapshot`。Missing/invalid required binding 在 work 前失败；resolution 不读取 repository mise state，也不回退 ambient `PATH`。
+
+下游 package Change 只决定 installed delivery、supported hosts 和 executable/version evidence，不重新定义 fields、precedence 或 snapshot semantics。
+
+### 10. Effects and Results Share One Validated Model
+
+普通 invocation 默认启用 Product-owned logs/progress、适用 cache 和 canonical output。Project Definition 与 Run Controls 按各自 owner 控制 targets、verbosity 和 explicit disable。
+
+Structured result 区分：
+
+- configuration/validation；
+- planning；
+- execution；
+- gate decision；
+- cancellation；
+- each effect status。
+
+API result 与 files 是同一次 invocation 对 validated Task/Check/Record model 的不同 projection；它们不能分别计算 identity、records、decision 或 gate facts。
+
+### 11. Runtime Boundary Matches the Project-Owned Entry
+
+项目运行脚本普通 import 配置，因此配置 module top-level code 和配置中的 functions 都在项目调用 Package Run 的 Bun runtime 中执行。Product 对这些 project functions 按 trusted project code 处理。
+
+Product 不承诺隔离 `process.exit`、同步无限循环、global mutation 或 non-cooperative cancellation。Product-owned Task/subprocess adapters 仍应支持其既有 cancellation 和 cleanup contract。
+
+### 12. Package Names and Project File Paths Have Different Owners
+
+Current public-contract source 可以拥有：
+
+- package import/export specifier；
+- config-definition 与 Package Run symbols；
+- Project Definition、Run Controls 和 result type symbols；
+- default output/cache paths；
+- supported environment identifiers；
+- operational dependency identifiers。
+
+它不能拥有项目配置文件或项目运行脚本路径。Canonical examples 不是 discovery contract。Version、host matrix、MIT/legal 和 manifest fields 由下游 Change 在有证据时补充。
+
+### 13. JSON Migration Is a Hard Cut
+
+本 Change 删除：
+
+- JSON reader 和 comment grammar；
+- runtime/editor JSON schemas 与 sibling generation；
+- JSON discovery/selection；
+- Product config `init`；
+- dual-source fixtures 和 dogfood。
+
+Legacy JSON 只触发 actionable migration diagnostic，不自动转换、不执行旧 commands/args，也不选择 alternate source。
+
+### 14. Change Ownership and Handoff
+
+| 能力 | 本 Change | 下游 API package Change |
+| --- | --- | --- |
+| Project Definition authoring/validation | 建立并验证 | 公开 declarations/exports |
+| Product 运行内核 | 建立 definition + controls direct boundary | 作为 Package Run 公开 |
+| Task/Check/dependency semantics | 建立并验证 handoff | 直接消费，不重新定义 |
+| Project config/run examples | 建立 source-tree canonical pattern | 在 exact tarball 中验证 |
+| Package/release fields | 不写 placeholder | 按 evidence 补全 |
+| Product CLI hard cut | 不执行 | replacement acceptance 后执行 |
+| Pack/publish | 不执行 | build/pack/verify；publish 仍需单独授权 |
+
+### 15. Engineering Closure
+
+| 工程项 | 必须保持的边界 | 证据 |
+| --- | --- | --- |
+| Current-contract module/fields | 一个 package-private literal owner；无 placeholder | owner-to-consumer comparison |
+| Package symbols/types | 两个 callable operations + 必要 types；不从 root/example 偶然继承 | config/run type tests |
+| Config-definition input/output | Plain value；无 brand/builder/registration | authoring + runtime validation tests |
+| Package Run inputs/results | One definition + closed controls + typed result | type/runtime tests |
+| Project config/run examples | 证明 owner 和调用链；不固定路径 | dogfood + docs comparison |
+| Effect defaults | 对应 effect owner 的 write/collision/cleanup contract | focused effect tests |
+| Environment/dependency identifiers | Closed allowlist；既定 precedence；secret-safe | snapshot/pre-work failure tests |
 
 ## Risks / Trade-offs
 
-- **Private runtime 增加 IPC、lifecycle 与 serialization 成本。** 它保护调用宿主免受 project-code process failure；package-private input 因而只接受 serializable source/context。
-- **Containment 不是权限 sandbox。** Docs 与 diagnostics 必须准确说明 project-code permissions。
-- **Project Definition 成为多个配置领域的组合入口。** Reporting/cache/output 算法仍由各自 owner 承接。
-- **Current public-contract source 早于 public package 建立。** Source 保持 package-private，只保存已有当前值且不含 placeholder；docs 不把它表述成可安装或已发布证据。
-- **同一 source 会由后续 Change 扩展。** Definition-facing fields 由本 Change 固定并接受回归检查；API Change 只能增加 package/release evidence fields，不能静默重命名已交付的 Project Definition contract。
-- **使用者需要自行创建配置文件。** 配置定义 operation、types 与 canonical example 提供引导，Product 不维护 file-creation lifecycle。
-- **Dynamic module 可跨 invocation 产生不同数据。** 每次 invocation 只 snapshot 一次，custom executable 不进入 fingerprint 或 cache。
-- **JSON hard cut 影响现有 fixtures 与 dogfood。** Config docs、schemas、fixtures 和 repository dogfood 必须在同一 implementation 中迁移。
+- Project functions 保留 imports/closures 且调用直接，但它们可以影响项目调用 Package Run 的 runtime；文档不得暗示 whole-run process containment。
+- 项目多维护一个运行脚本，但其他调用方因此只依赖一个已绑定配置的项目入口。
+- Project Definition 组合多个配置领域；各领域算法仍由原 owner 定义，本 Change 只负责组合、validation 和 precedence。
+- JSON hard cut 会同时影响 fixtures、dogfood 和 CLI init，必须在同一 implementation 中迁移。
 
 ## Open Questions
 
-无。产品与架构方向已经确认，具体 identifiers、paths 与 environment names 由本 Change 在唯一 current public-contract source 中按最小公共表面和当前消费者闭合；package version、host matrix 和 release evidence 留给后续 API-only package Change。
-
-## Implementation Observations
-
-### 当前状态
-
-在这两个 Change 中，只有本 Change 当前可进入 Implementation；current public-contract source 与 Project Definition runtime 尚未实现，正文中相关描述均是本 Change 的目标状态。下一执行任务是 `1.1` 的测试证据恢复，随后由 `1.2` 建立唯一 source 及其 definition-facing fields；之后按 Tasks 顺序连续完成 `1.3`—`2.6` 并归档。归档前不切换到 API-only package Change。
+无。Exact package symbols、Run Controls 字段编码、authoring defaulting 细节和 internal module layout 已委托给 Tasks 中的 engineering closure；它们不得改变本 Design 的 owner 和调用方向。
