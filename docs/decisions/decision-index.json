@@ -29,11 +29,13 @@
   "sourceRevision": {
     "entries": {
       "configuration/bind-external-programs-outside-check-semantics.md": "sha256:0db635ccf2e6357a34aa786e5ff457a7a73d874e0db2856675db559e612c207a",
-      "configuration/drive-product-execution-from-project-definition.md": "sha256:fd5a389bb47968f3418b89345975f0e13057e973b83b6cf82f02b06b1d70befd",
+      "configuration/drive-product-execution-from-project-definition.md": "sha256:1dceb13a5c0419348453092f9f056cdbd2b74ea21ae5f39ffe3bf3e1f11a6ac3",
+      "configuration/drive-run-from-project-definition-value.md": "sha256:2cbb2ec30080d4db9269881bc2a0854bb283053f42601c9bdbb8297fbbf12617",
       "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
       "configuration/keep-decision-policies-closed-and-declarative.md": "sha256:c6400e00aeb86d71a9e04205cfda0988af734d800b0a2039b60b0a91bcd0a543",
       "configuration/keep-public-config-tool-neutral.md": "sha256:cd197d7d2b948728ef60e27014049bcafc09f4f502c5f1c056c524c3f63b42fc",
       "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:d5fd2725c3266b2140ec77d97fc4da4a1068b29fc7366ed2e1fbfdade05ab81b",
+      "configuration/pass-project-definition-value-to-run.md": "sha256:8704b38604a3141c1360abc541037843fca8c30d2289ad91becb1798704fcd3d",
       "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
       "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
@@ -41,15 +43,19 @@
       "configuration/use-fixed-semantic-config-version.md": "sha256:489d686e22f8424356f6c606b8b7c51d14bc3c0b908359daa7721fa3906e2689",
       "configuration/use-json-filename-for-commented-config.md": "sha256:1f5feeb9b578372c346f4fb3e8ad1fa7cf1ccf54168444909f2559f63f895413",
       "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:854b995a24d8a52266cb9f5a741402f93e1779a25bd1fd38c8c2bc8ee1582fe4",
-      "configuration/use-neutral-observation-and-project-definition-gates.md": "sha256:2d103c1b9298b29f43ccc762ff6e48bbd6081ff43a61408a00f1855fd463a3f3",
+      "configuration/use-neutral-observation-and-project-definition-gates.md": "sha256:0e20cb1766ac1e938d412200f10b53ae40438bf45c65299f9187aeaeb3e241cf",
       "configuration/use-semantic-check-ids-in-project-config.md": "sha256:2b89578ce595fbdc346f9fc63fab9babaeadd5581d623661f2fe0616b7097e25",
       "configuration/use-semantic-check-ids-in-quality-records.md": "sha256:dc98b971264efa095f938dc8804105f6c4f6b3cebe0529e969f2db4dc06fc6fa",
-      "configuration/use-single-typescript-project-definition.md": "sha256:141830302bea3491dd35c7d3b14ba3b10baf28f6caabbe9211fb5478955fc002",
+      "configuration/use-single-typescript-project-definition.md": "sha256:53463a9e141e76bdaac10a86c76ac9ee0178c590a615b9a5645e9cd60c859537",
+      "configuration/use-user-owned-definition-for-observation-and-gates.md": "sha256:7802cc82af817dbf6a4bbbd2051b01066bc16211ee6bb0e1b4aa02774d8e2641",
       "product-contract/approve-public-names-before-publication.md": "sha256:28a4aca786a464c6289250360c806d8572b762f6b5bdd0f34f562394e8ea32f0",
-      "product-contract/confirm-package-contract-names-before-publication.md": "sha256:201b30643e26fcbffaecbb5133de129f3c8c64dd37f1b58735c7efe23d6dcd57",
-      "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:e7120e7299bf640f0a297bbe0cfb38fcbb51cf04edf1feecd8ced47994e047c4",
+      "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:085a3d721d293d8ca9bde72a294054850fd9598ef2db56fbb9c35ae3f16235a3",
+      "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
+      "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:d3853a121e5e3613d3477320110825fdf07c22b27e79612e35444ebabfd04c28",
       "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
-      "product-contract/expose-two-public-operations.md": "sha256:f84453478704eab5b470c024cf748f3f76e76572b573a099d1b1bc615a47a294",
+      "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:23e433ca885151fe9a2df09a784877baef093c4b1727e25bc101529043a9014f",
+      "product-contract/expose-config-definition-and-project-run-operations.md": "sha256:a5e78f1569c44f29014a42888045e0a42de7eaa18f7bdd3ae58da294e92faecc",
+      "product-contract/expose-two-public-operations.md": "sha256:8a85ecca42ac5163ad154ebc963aeb1e22c447db036e9ce6ee59bd66f478c9cf",
       "product-contract/keep-prestable-package-releases-on-0-0-x.md": "sha256:9eca819c8cd3fbbae67be86f40742e70a4c0a4692a6f850e654441e7892f3b28",
       "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:e260d419b748c1a41d2e8bef6c8074fea7732673c3ce18dfc94e77972d843571",
       "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:bfa67371661c27c7166c286fce4397b920420d81e25ae35c99f7b384f5d89d5e",
@@ -143,7 +149,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -152,13 +158,42 @@
       "state": {
         "path": "configuration/drive-product-execution-from-project-definition.md",
         "title": "由 Project Definition 驱动产品执行",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T10:30:34Z",
         "purpose": "让工具行为由一个类型化项目定义统一配置，而不是把公开 API 设计成第二套命令或操作语法。",
         "background": "产品核心是配置驱动的质量工具；把 scan、gate、reporting、cache 和 output 重复编码成调用方法或 command union 会形成并行行为 owner。",
         "decision": "Project Definition 拥有执行配置；public package API 只加载并运行它，另接收必要的当次上下文。",
         "relations": []
+      }
+    },
+    "configuration/drive-run-from-project-definition-value.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/drive-run-from-project-definition-value.md",
+        "title": "由 Project Definition 值驱动 Package Run",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:34Z",
+        "purpose": "让一个已导入的项目定义值拥有运行语义，而 Package Run 只补充当次控制参数。",
+        "background": "项目运行脚本已经绑定配置；再次传入 source selection 或命令语法会复制配置 owner。",
+        "decision": "Package Run 接收 Project Definition 值和少量 Run Controls，并由该定义驱动完整 Task 执行与效果。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/drive-product-execution-from-project-definition.md"
+          }
+        ]
       }
     },
     "configuration/hard-cut-legacy-tool-shaped-config.md": {
@@ -260,6 +295,35 @@
           {
             "type": "修订",
             "target": "configuration/keep-public-config-tool-neutral.md"
+          }
+        ]
+      }
+    },
+    "configuration/pass-project-definition-value-to-run.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/pass-project-definition-value-to-run.md",
+        "title": "将 Project Definition 值交给 Package Run",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:34Z",
+        "purpose": "让项目用普通 TypeScript 导入配置，并把完整定义值直接交给 Package Run。",
+        "background": "项目已经拥有配置文件和运行脚本；Product 无需再次发现、加载或传输其中的函数。",
+        "decision": "项目运行脚本导入唯一 Project Definition 并把该值传给 Package Run；Product 验证定义但不拥有配置文件发现或加载。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-single-typescript-project-definition.md"
           }
         ]
       }
@@ -437,7 +501,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -446,7 +510,7 @@
       "state": {
         "path": "configuration/use-neutral-observation-and-project-definition-gates.md",
         "title": "观察使用中性定义，门禁要求 Project Definition",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:36Z",
         "purpose": "让项目无需配置即可观察，同时让阻断行为始终由项目持有且已验证的政策驱动。",
@@ -513,7 +577,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -522,7 +586,7 @@
       "state": {
         "path": "configuration/use-single-typescript-project-definition.md",
         "title": "使用单一 TypeScript Project Definition",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T09:38:14Z",
         "purpose": "用一个可执行且类型化的项目入口组合政策、内置检查和项目自定义检查。",
@@ -532,6 +596,35 @@
           {
             "type": "修订",
             "target": "configuration/use-bun-typescript-project-definition.md"
+          }
+        ]
+      }
+    },
+    "configuration/use-user-owned-definition-for-observation-and-gates.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-user-owned-definition-for-observation-and-gates.md",
+        "title": "观察与门禁都使用项目持有的 Project Definition",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:33Z",
+        "purpose": "让项目运行脚本始终绑定一个明确配置，同时让门禁只使用其中已验证的政策。",
+        "background": "项目同时持有配置文件和运行脚本；无配置发现与 Product 文件生成不再属于运行模型。",
+        "decision": "每次项目运行都传入使用者持有的 Project Definition；观察可采用中性配置，gate 必须选择其中的 named policy。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-neutral-observation-and-project-definition-gates.md"
           }
         ]
       }
@@ -565,7 +658,7 @@
         ]
       }
     },
-    "product-contract/confirm-package-contract-names-before-publication.md": {
+    "product-contract/confirm-config-run-and-package-names-before-publication.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -578,9 +671,38 @@
         ]
       },
       "state": {
+        "path": "product-contract/confirm-config-run-and-package-names-before-publication.md",
+        "title": "发布前确认配置定义、Package Run 与 package 契约名称",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:33Z",
+        "purpose": "防止 package、配置定义函数、Package Run、类型和运行标识偶然成为首个公开契约。",
+        "background": "产品显示名与 npm 安装名、两个 API roles 和 operational identifiers 承担不同兼容承诺。",
+        "decision": "发布候选前逐项确认 package、配置定义函数、Package Run、必要类型与运行标识的公共名称。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/confirm-package-contract-names-before-publication.md"
+          }
+        ]
+      }
+    },
+    "product-contract/confirm-package-contract-names-before-publication.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/confirm-package-contract-names-before-publication.md",
         "title": "发布前确认 package 公共契约名称",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T11:07:30Z",
         "purpose": "防止 package、import、symbol、固定路径和运行标识从内部实现偶然进入首个公开契约。",
@@ -600,7 +722,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -609,7 +731,7 @@
       "state": {
         "path": "product-contract/contain-project-code-behind-private-runtime-boundary.md",
         "title": "在私有运行边界内执行项目代码",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T10:30:38Z",
         "purpose": "让嵌入式调用方只依赖 public package API，而由 package 私有运行边界承接 Project Definition 与 custom runner 的执行故障。",
@@ -647,7 +769,7 @@
         "relations": []
       }
     },
-    "product-contract/expose-two-public-operations.md": {
+    "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -660,9 +782,67 @@
         ]
       },
       "state": {
+        "path": "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md",
+        "title": "在调用方 runtime 中通过 Task 系统执行项目函数",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:35Z",
+        "purpose": "让 Package Run 直接消费项目配置函数，并由既有 Task 系统统一管理依赖与并行。",
+        "background": "项目运行脚本已普通导入配置；整次运行再跨 worker 或进程会重复加载并阻断函数与 closure 的直接调用。",
+        "decision": "Package Run 在调用方 Bun runtime 中调用配置函数并提交 TaskPlan；不为整次 invocation 强制建立 Product-owned 隔离进程。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "product-contract/contain-project-code-behind-private-runtime-boundary.md"
+          }
+        ]
+      }
+    },
+    "product-contract/expose-config-definition-and-project-run-operations.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/expose-config-definition-and-project-run-operations.md",
+        "title": "公开配置定义函数与 Package Run",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-14T08:18:33Z",
+        "purpose": "让 package 只提供配置定义函数与 Package Run，并由项目运行脚本向其他调用方提供已绑定入口。",
+        "background": "配置 authoring 与一次运行是两个稳定角色；文件生成、CLI 和私有协议不属于 package API。",
+        "decision": "Package 公开配置定义函数与 Package Run 两个 callable operations；项目运行脚本绑定配置并向其他调用方暴露项目 Run。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/expose-two-public-operations.md"
+          }
+        ]
+      }
+    },
+    "product-contract/expose-two-public-operations.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/expose-two-public-operations.md",
         "title": "只公开配置定义与工具运行两个操作",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T10:54:44Z",
         "purpose": "让使用者只调用一个 TypeScript 配置定义操作和一个配置驱动的工具运行操作。",

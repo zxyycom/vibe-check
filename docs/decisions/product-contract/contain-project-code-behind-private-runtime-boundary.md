@@ -1,6 +1,6 @@
 ---
 title: 在私有运行边界内执行项目代码
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:30:38Z
 purpose: 让嵌入式调用方只依赖 public package API，而由 package 私有运行边界承接 Project Definition 与 custom runner 的执行故障。

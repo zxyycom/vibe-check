@@ -1,6 +1,6 @@
 ---
 title: 由 Project Definition 驱动产品执行
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:30:34Z
 purpose: 让工具行为由一个类型化项目定义统一配置，而不是把公开 API 设计成第二套命令或操作语法。

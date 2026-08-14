@@ -1,6 +1,6 @@
 ---
 title: 发布前确认 package 公共契约名称
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-12T11:07:30Z
 purpose: 防止 package、import、symbol、固定路径和运行标识从内部实现偶然进入首个公开契约。

@@ -1,6 +1,6 @@
 ---
 title: 观察使用中性定义，门禁要求 Project Definition
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
 purpose: 让项目无需配置即可观察，同时让阻断行为始终由项目持有且已验证的政策驱动。

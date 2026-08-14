@@ -1,6 +1,6 @@
 ---
 title: 只公开配置定义与工具运行两个操作
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:54:44Z
 purpose: 让使用者只调用一个 TypeScript 配置定义操作和一个配置驱动的工具运行操作。
