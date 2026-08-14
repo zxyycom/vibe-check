@@ -20,13 +20,13 @@
 - `license-package-under-mit`：package manifest 与 legal materials 使用 MIT；
 - `bind-external-programs-outside-check-semantics`：configuration 可在 operational dependency boundary 显式绑定外部程序，built-in Check policy 仍保持工具中立。
 
-这些决策约束本 Change，但尚未成为实现事实。本 Change 的产品输入、工程闭合、阶段门禁与下一执行入口分别记录在本设计的 `Confirmed Product and Architecture Inputs`、`Required Engineering Closure`、`Execution Gates`、`Current Execution State` 和 Tasks Readiness 中。
+这些决策约束本 Change，但尚未成为实现事实。本 Change 的产品输入、剩余工程闭合、前置门禁与下一执行入口分别记录在本设计的 `Confirmed Product and Architecture Inputs`、`Required Engineering Closure`、`Execution Gates`、`Current Execution State` 和 Tasks Readiness 中。
 
-当前实现证据已经变化：`docs/architecture.md` 描述 Check/Record 与 Product-owned task orchestration 为当前事实，`establish-check-task-orchestration` 已归档；但 `adopt-typescript-project-definition` 仍是 active Plan，现行 Configuration 仍使用 JSON/CLI selection。该 Change 已明确拥有 Project Definition authoring、private loading/normalization、JSON hard cut 与 foundation handoff。本 Change 不再把这些工作复制成自己的 Implementation tasks。
+当前实现证据已经变化：`docs/architecture.md` 描述 Check/Record 与 Product-owned task orchestration 为当前事实，`establish-check-task-orchestration` 已归档；但 `adopt-typescript-project-definition` 仍是 active Plan，现行 Configuration 仍使用 JSON/CLI selection。前置 Change 的实施范围包括 Project Definition authoring、private loading/normalization、JSON hard cut、foundation handoff，以及唯一 current public-contract source 的 definition-facing fields。本 Change 在该 Change 完成前保持等待，不先实施 package contract engineering。
 
 Current package host 通过 repository-owned `mise.toml` 注入 scc/Lizard bindings，并从 workspace `node_modules` 解析 jscpd；root manifest 把 Product runtime dependencies 全部放在 `devDependencies`，repository 也没有 package legal file。Exact tarball 因而尚未证明 ordinary consumer 的 dependency closure、license 或 platform support。Registry 查询在 2026-08-14 对 unscoped `vibe-check` 返回 `E404`；这只表示当时未解析到公开 package，不证明名称所有权、私有占用或未来可用性。
 
-本 Change 所需的产品与架构方向已经确认。尚未闭合的是工程选择和证据：current public-contract source、公开标识与路径、external dependency resolver、legal/registry authority、实际 host support、downstream handoff，以及 package integration。
+本 Change 所需的产品与架构方向已经确认。尚未闭合的是前置 Project Definition/runtime seam，以及本 Change 后续负责的 package/release source fields、external dependency resolver、legal/registry authority、实际 host support、public entry 和 package integration。
 
 ### Terms
 
@@ -35,8 +35,9 @@ Current package host 通过 repository-owned `mise.toml` 注入 scc/Lizard bindi
 - **配置定义操作**：在使用者拥有的 TypeScript Project Definition 中调用，返回 Product 可直接验证的同一 closed plain definition shape。
 - **工具运行操作**：加载 selected Project Definition 并运行完整工具的唯一正式执行操作。
 - **Public package API**：上述两个 callable operations 与支撑它们的必要公共类型；它不包含 CLI、bootstrap、resource API 或 internal runtime surface。
-- **Current public-contract source**：实施后唯一拥有 registry package、exports、symbols、固定路径和 operational identifiers 当前值的 source；决策记录只保存选择理由。
-- **Contract freeze**：产品与架构边界已经确认，工程选定的全部 public values 已进入唯一 current public-contract source，并由全部 manifest/import/declaration/layout/environment/documentation consumer 单向派生或核对；它不要求产品 owner 逐项命名实现标识。
+- **Current public-contract source**：计划由前置 Change 在 `src/product/**` 建立的唯一 package-private 当前值 owner；它目前尚未成为实现事实。决策记录只保存选择理由，不复制 literal values。
+- **Definition-facing fields**：前置 Change 在上述唯一 source 中建立并验证的 identifiers、fixed/default paths、environment 与 dependency-binding names；它们不是另一份 source，也不包含没有 package/release evidence 的 placeholder。
+- **Package/release fields**：本 Change 在依赖满足后，依据 owned release history 与 exact-tarball evidence 添加到同一 source 的 version、support、manifest 与 release values。
 - **Operational dependency binding**：Configuration 中与 built-in Check policy 分离的 closed runtime section；它显式提供外部 executable location，只影响依赖解析，不改变 Check identity、policy 或 result semantics。
 - **Installed consumer**：只获得 exact packed tarball、声明的 package dependencies 与明确列出的系统前提，不可读取 repository root、mise、workspace devDependencies、tests 或 scripts。
 - **Consumer adapter**：repository tooling 或外部使用方拥有的 argv、console 与 exit-code wrapper；它调用 public package API，但不属于 Product contract。
@@ -50,7 +51,7 @@ Current package host 通过 repository-owned `mise.toml` 注入 scc/Lizard bindi
 - 让调用方只定义 Project Definition 并运行工具，不接触 argv protocol、host ports、worker protocol 或 internal Core。
 - 让 Product 提供 default runtime、默认工具 effects 和 project-code failure containment，同时返回结构化结果。
 - 让全部 public artifact 从单一 Product source 与单一 public-contract source 生成或核对。
-- 让 Project Definition Change 与 package boundary Change 使用单向 handoff，不重复拥有 loader、JSON migration 或 private binding implementation。
+- 只在 Project Definition Change 完成并归档后开始 package implementation，单向消费其 current public-contract source 与 runtime seam。
 - 在 API、private runtime 和 exact-tarball acceptance 可用的同一实施边界删除 Product CLI。
 - 对 staging tree 和 exact tarball 执行 public-surface inventory、dependency audit 与 isolated Bun consumer acceptance。
 - 给 installed consumer 一个明确的 public/MIT registry contract、Bun host contract、system prerequisite 与 scanner dependency binding contract。
@@ -58,7 +59,7 @@ Current package host 通过 repository-owned `mise.toml` 注入 scc/Lizard bindi
 **Non-Goals**
 
 - 重新命名 Vibe Check，改变 unscoped `vibe-check` public distribution、MIT license 或 `0.0.x` prestable direction。
-- 要求产品 owner 逐项选择 export、symbol、fixed path、effect path、environment identifier、failure encoding 或 host matrix；这些值由工程按已确认边界闭合并接受验证。
+- 要求产品 owner 逐项选择 export、symbol、fixed path、effect path、environment identifier、failure encoding 或 host matrix；definition-facing values 由前置 Change 按已确认边界闭合，本 Change 只补全 package/release evidence fields。
 - 支持 Node.js direct import 或 dual-runtime build。
 - 重复实现 `adopt-typescript-project-definition` 已拥有的 Project Definition selection、loader、normalization、JSON hard cut 或 foundation handoff。
 - 把 private runtime 表述成 filesystem、network、credential 或 OS-permission sandbox。
@@ -68,17 +69,16 @@ Current package host 通过 repository-owned `mise.toml` 注入 scc/Lizard bindi
 
 ## Decisions
 
-### 1. Owner 与三阶段 handoff
+### 1. 实施范围与单向完成顺序
 
-当前行为只从 current-fact owners 恢复；未来方向从 active decisions 恢复；本 Change 只拥有 public package contract、package host/projection、CLI hard cut、release candidate 与 installed-consumer evidence。Vibe Check 是已建立的产品显示名；root manifest、repository path、source file、Change 名称和语义角色都不能自动决定其它 package 公共名称。
+当前行为只从 current-fact owners 恢复，未来方向从 active decisions 恢复。本 Change 的实施范围是 public package contract、package host/projection、CLI hard cut、release candidate 与 installed-consumer evidence；“实施范围”不建立第二个长期 owner。Vibe Check 是已建立的产品显示名；root manifest、repository path、source file、Change 名称和语义角色都不能自动决定其它 package 公共名称。
 
-实施使用以下单向顺序，后序不得反向让前序猜测接口：
+实施只使用以下单向顺序：
 
-1. **Contract freeze（本 Change）**：按已确认的产品/架构方向，由工程选择并验证 public exports/symbols、fixed/effect paths、operational identifiers、runtime bindings 和 host evidence；把具有长期回放价值的方向交给 Decision owner，把当前值写入唯一 current public-contract source，并明确全部 generated/compared consumers。该阶段不等待 Project Definition foundation seams。
-2. **Project Definition runtime（`adopt-typescript-project-definition`）**：消费已闭合的 path/import/symbol/effect/environment/dependency-binding contract，完成 authoring、selection、private loading/normalization、foundation handoff 与 JSON hard cut。它不选择 registry identity、创建第二份 name set 或实现 staging/publish workflow。
-3. **Package integration and hard cut（本 Change）**：只在上一步提供可用、已验证的 internal seam 后，建立 public entry/package host、scanner dependency closure、staging/pack、repository adapter 与 exact-tarball acceptance，并原子删除 Product CLI。
+1. **Project Definition runtime（`adopt-typescript-project-definition`）**：建立唯一 current public-contract source 的 definition-facing fields，完成 authoring、selection、private loading/normalization、foundation handoff 与 JSON hard cut，并以目标测试和 owner 文档证明 package-private seam 后归档。
+2. **Package integration and hard cut（本 Change）**：消费前一步的 source 与 seam，在同一 source 中补全 package/release evidence fields，建立 public entry/package host、scanner dependency closure、staging/pack、repository adapter 与 exact-tarball acceptance，并原子删除 Product CLI。
 
-`adopt-typescript-project-definition` 完成是第三阶段的 dependency gate，不是第一阶段确认名称和建立 contract source 的前置条件。三个 artifacts 在每次跨阶段 handoff 时同步；只有完成当时的语义复核后才运行 `plan` 刷新 Git baseline。
+本 Change 不在前置 Change 完成前实施中间 contract tasks，也不要求前置 Change 在归档后恢复。依赖门禁满足后，本 Change 重新审阅当前事实并运行 `plan` 刷新 Git baseline，然后连续实施到归档。
 
 ### 2. Public package API 恰好包含两个操作
 
@@ -122,11 +122,11 @@ Product 拥有 startup、cancellation、termination、abnormal-exit handling、r
 
 ### 6. Current public-contract source 是唯一公共值 owner
 
-Contract freeze 后，在 `src/product/**` 的 package-private Product boundary 建立一个 typed current public-contract source。它至少完整拥有：unscoped `vibe-check` public registry access、package version input、MIT license identifier、public export map、两个 runtime symbols、必要 public type symbols、fixed Project Definition path、default output/cache paths、supported environment identifiers、operational dependency-binding contract、经过验证的 Bun/platform support matrix 与声明的 system prerequisites。
+`adopt-typescript-project-definition` 先在 `src/product/**` 的 package-private Product boundary 建立 typed current public-contract source，拥有 unscoped `vibe-check`/MIT identity、public export/symbol plan、fixed Project Definition path、default output/cache paths、supported environment identifiers 和 operational dependency-binding names。本 Change 只能消费这些已交付值，并根据 owned release history 与 exact-tarball evidence 在同一 source 中增加 package version input、Bun/platform support matrix、system prerequisites 和其它 package/release fields；不得静默重命名 definition-facing contract。
 
 该 source 不通过 package exports 暴露，也不形成第三个 runtime operation。Candidate manifest、public entry/declarations、docs、canonical Project Definition example、repository adapter fixtures 与 exact-tarball acceptance 必须从它生成，或由一个有明确方向的 comparison check 对它做单向核对。TypeScript identifier 无法仅靠运行时 data 动态导出时，可以生成薄 public entry；不得在 handwritten entry、manifest template、docs 与 test fixtures 各维护一份名称集合。
 
-Package version 的下一个 `0.0.<patch>` 仍由 owned release history 派生；source 记录本次 candidate 的当前值，但不让 Change 进度或 root workspace version 成为版本 owner。Registry authority、MIT legal text/copyright metadata 与 platform/tool materials 仍需对应 owner 或 acceptance 的真实证据，不能由字符串字段自证。
+Source 只保存已经有实现或 evidence 支撑的当前值，不为尚未验证的 package/release facts 写 placeholder。Package version 的下一个 `0.0.<patch>` 仍由 owned release history 派生；source 记录本次 candidate 的当前值，但不让 Change 进度或 root workspace version 成为版本 owner。Registry authority、MIT legal text/copyright metadata 与 platform/tool materials 仍需对应 owner 或 acceptance 的真实证据，不能由字符串字段自证。
 
 ### 7. Root manifest 保持 private，candidate 从 staging tree 形成
 
@@ -154,7 +154,7 @@ Project scripts 只提供 deterministic build、pack 和 verify。真实 `npm pu
 - **Private runtime 增加 lifecycle 与 serialization 成本。** 它保护调用宿主免受 project-code process failure，但不伪造权限 sandbox。
 - **默认 effects 会写日志、cache 和 output。** Closed configuration、显式禁用、structured effect status 和 Product-owned ownership rules 使副作用可预测。
 - **Project Definition 承担更多配置责任。** 各领域字段仍由对应 owner 定义；public package API 不建立第二份 policy。
-- **两个 active Change 共享最终产品路径。** 三阶段 handoff 让本 Change 只冻结/包装 public contract，Project Definition Change 只实现其 runtime；跨阶段时同步 artifacts，避免重复任务和循环等待。
+- **两个 active Change 共享最终产品路径。** 单向完成顺序让 Project Definition Change 先完整归档，本 Change 后续只消费 current facts；代价是 package integration 必须等待前置 Change，但不再承担跨 Change 往返与双基线协调。
 - **命名门禁会延后 publishable candidate。** 产品 owner 不逐项命名，但工程仍须在 current public-contract source 中选择最小、闭合且经过 acceptance 的 package/API/path/environment identifiers。
 - **External prerequisites 增加安装与复现成本。** 显式 configuration、pre-work validation 和 Product-owned diagnostics 使过渡实现可观察；Check policy 与结果不能随具体 scanner binding 漂移。
 - **Public/MIT 方向不等于已获 registry authority。** Candidate 仍须核验 unscoped name 控制权、authentication、matching legal material 与 publish authorization，不能把 E404 或 repository visibility 解释成发布许可。
@@ -163,9 +163,9 @@ Project scripts 只提供 deterministic build、pack 和 verify。真实 `npm pu
 
 ## Open Questions
 
-**产品与架构层面没有剩余开放问题。** 本节保留 `Open Questions` 固定标题以满足 Change Plan artifact contract；以下内容只保存已确认输入，不建立新的 owner gate。
+无。产品与架构输入已经闭合；前置依赖与剩余工程工作分别由 `Execution Gates` 和 `Required Engineering Closure` 承接，不属于开放问题。
 
-### Confirmed Product and Architecture Inputs
+## Confirmed Product and Architecture Inputs
 
 本 Change 不再把 public strings、host matrix 或 runtime failure encoding 逐项升级成产品 owner 问题。当前产品与架构输入已经闭合：
 
@@ -180,35 +180,34 @@ Product owner 已把 exact export/type symbols、fixed paths、default paths、e
 
 ## Required Engineering Closure
 
-以下都是本 Change owner 的工程工作，不再作为产品输入阻塞，也不要求用户替实现选择文件布局、名称或测试细节：
+以下都是本 Change owner 在前置 Project Definition Change 完成后的工程工作，不再作为产品输入阻塞，也不要求用户替实现选择文件布局、名称或测试细节：
 
-1. 建立 typed current public-contract source 及 manifest/public entry/declarations/docs/fixture/acceptance 的完整 consumer map。
-2. 把 confirmed contract 单向交接给 `adopt-typescript-project-definition`，从两个 Plans 删除重复 loader、private runtime、JSON hard cut 和 public-name ownership。
-3. 从 staged runtime graph 生成 production dependency inventory，选择 package-owned 与 configured-external dependency mix，并在每个实际声明的 host 上证明 Bun/system/scanner prerequisites；不从 root devDependencies、mise 或 ambient `PATH` 成功推断 package closure。
-4. 为 external prerequisite 建立显式 typed configuration、pre-work executable/version validation 和 normalized diagnostics；binding 不能进入 built-in Check policy semantics。
-5. 让 API result 与 canonical output 共同消费 validated Task/Check/Record owner model，并用 runtime/type/tarball acceptance 证明 exact public surface、failure、cancellation、concurrency 与 effect semantics。
-6. 选择 owned release history 中唯一 next `0.0.<patch>`，核对 registry authority、MIT legal/provenance materials；这些证据完成前只称 candidate，不称 published package。
+1. 核对既有 current public-contract source 与 package-private runtime seam 的完整性，在同一 source 中补全 package version、support matrix、manifest/release fields 与 package consumer map；不重建或改名已交付的 definition-facing fields。
+2. 从 staged runtime graph 生成 production dependency inventory，选择 package-owned 与 configured-external dependency mix，并在每个实际声明的 host 上证明 Bun/system/scanner prerequisites；不从 root devDependencies、mise 或 ambient `PATH` 成功推断 package closure。
+3. 为 external prerequisite 建立显式 typed configuration、pre-work executable/version validation 和 normalized diagnostics；binding 不能进入 built-in Check policy semantics。
+4. 让 API result 与 canonical output 共同消费 validated Task/Check/Record owner model，并用 runtime/type/tarball acceptance 证明 exact public surface、failure、cancellation、concurrency 与 effect semantics。
+5. 选择 owned release history 中唯一 next `0.0.<patch>`，核对 registry authority、MIT legal/provenance materials；这些证据完成前只称 candidate，不称 published package。
 
 ## Execution Gates
 
-本 Change 使用两个顺序门禁。Gate A 允许 contract engineering 在下游 runtime 完成前推进；Gate B 防止 package integration 和 CLI hard cut 猜测尚未交付的下游 seam。
+本 Change 使用两个顺序门禁。Gate A 防止本 Change 在前置 Project Definition/current-contract facts 尚未交付时启动；Gate B 防止 CLI hard cut 早于可安装 replacement。
 
-**Gate A — Contract engineering：**
+**Gate A — Project Definition dependency：**
 
-- 产品与架构输入已经按 `Confirmed Product and Architecture Inputs` 闭合，不再存在逐项 owner-name 或 platform-choice 门禁。
-- Proposal、Design 与 Tasks 已按 confirmed boundary 同步；public unscoped package、MIT license 与 semantic-tool-neutral/operational-binding 已进入活动未对齐决策集合。
-- 执行者先完成 Readiness `0.14` 和 `0.15`，再从 Implementation `1.1` 建立 current public-contract source；这一步不要求 Project Definition runtime 已完成。
+- `adopt-typescript-project-definition` 已完成并归档，相关 owner 文档已同步。
+- 唯一 current public-contract source 的 definition-facing fields、consumer comparison 与 package-private Project Definition/runtime seam 已通过目标测试；本 Change 不猜测或反向修改其接口。
+- 执行者按 Tasks 依次完成 Readiness `0.15` 和 `0.16`：核对交付证据，重新审阅当前 owner、活动决策、两个 Change artifacts 与实现事实，并运行 `plan` 记录新 Git baseline；之后才开始 Implementation `1.1`。
 
-**Gate B — Package integration / CLI hard cut：**
+**Gate B — CLI hard cut：**
 
-- Current public-contract source、consumer map 与 consistency check 已可用。
-- `adopt-typescript-project-definition` 已消费 confirmed contract，并提供经过目标 tests 验证的 Project Definition/private runtime seam；本 Change 不猜测其接口。
-- Package-owned/configured-external dependency mix、evidence-derived host matrix 与 MIT legal material 有可构建方案和验证环境。
-- 重新审阅当前 owner、活动决策、两个 Change artifacts 与实现事实后运行 `plan` 记录新 Git baseline，再开始 package integration；CLI 只在 exact-tarball replacement 已通过时删除。
+- Public entry、closed API result、package-owned/configured-external dependency mix、evidence-derived host matrix、MIT legal material 与 deterministic staging 已形成可安装 replacement。
+- Exact-tarball consumer 已证明 selected Project Definition、default effects、代表性 gate 与 failure containment；只有这时才能删除 Product CLI 和迁移 repository adapter。
 
 ## Current Execution State
 
 - Product input gate 已解除：Bun host、私有执行边界、默认副作用、两个公开操作、public/MIT distribution、完整 API+file result、configured external prerequisites 和 tool-neutral semantic boundary 均有活动决策或产品确认。
-- 尚未实施 current public-contract source 或 package runtime。下一任务固定为 Readiness `0.14`，随后是 `0.15` 和 Implementation `1.1`；执行者不得从 public entry、package staging 或 CLI 删除开始。
-- Gate B 尚未满足：`adopt-typescript-project-definition` 仍需交付并验证 Project Definition/private-runtime seam，package dependency mix、host evidence 和 MIT legal material 也尚未形成可构建方案。
-- `.change-plan.json` 的 `stage: plan` 与 `baseCommit` 只承接计划成熟度和复核基线。它们不证明任何 Implementation/Verification task 已完成，也不授权 registry publish。
+- 本 Change 当前不可进入 Implementation，正在等待 `adopt-typescript-project-definition` 完成并归档；等待期间不实施 public entry、package staging、CLI hard cut 或另一份 contract source。
+- Gate A 尚未满足：唯一 current public-contract source 的 definition-facing fields 与 Project Definition/private-runtime seam 仍需由前置 Change 交付。本 Change 当前没有可执行任务；依赖满足后依次执行 Readiness `0.15`、`0.16`，两项完成后才从 Implementation `1.1` 核对并扩展同一 source。
+- Gate B 也尚未满足：package dependency mix、host evidence、MIT legal material 与 exact-tarball replacement 尚未形成。
+- 本节与 Tasks checkbox 共同承接可执行状态；完成 `0.15`/`0.16` 时必须同步更新本节，避免保留过期的“等待”描述。
+- `.change-plan.json` 的 `stage: plan` 与 `baseCommit` 只承接计划成熟度和复核基线。它们不证明任何 Implementation/Verification task 已完成，也不解除 Gate A 或授权 registry publish。
