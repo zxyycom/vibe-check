@@ -29,6 +29,7 @@
   "sourceRevision": {
     "entries": {
       "configuration/bind-external-programs-outside-check-semantics.md": "sha256:0db635ccf2e6357a34aa786e5ff457a7a73d874e0db2856675db559e612c207a",
+      "configuration/carry-check-parallel-limit-in-task-scope.md": "sha256:7a580253c714d2d3c3c1ffcbbf871107a05351610fb33e1be2f59dd9c742060d",
       "configuration/drive-product-execution-from-project-definition.md": "sha256:1dceb13a5c0419348453092f9f056cdbd2b74ea21ae5f39ffe3bf3e1f11a6ac3",
       "configuration/drive-run-from-project-definition-value.md": "sha256:2cbb2ec30080d4db9269881bc2a0854bb283053f42601c9bdbb8297fbbf12617",
       "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
@@ -38,7 +39,7 @@
       "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:d5fd2725c3266b2140ec77d97fc4da4a1068b29fc7366ed2e1fbfdade05ab81b",
       "configuration/pass-project-definition-value-to-run.md": "sha256:8704b38604a3141c1360abc541037843fca8c30d2289ad91becb1798704fcd3d",
       "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
-      "configuration/use-check-scoped-invocation-wide-parallel-limits.md": "sha256:dfdb6f219542f6403a3f76f4dc7a84cf6a85b6ce0468d650e798505594dc327b",
+      "configuration/use-check-scoped-invocation-wide-parallel-limits.md": "sha256:b0916fa8b658c790dfb3d61f155fb7fba4fc2fbd5bb0e9a6451d7b7bc8038658",
       "configuration/use-composable-check-tree-in-project-definition.md": "sha256:eb7468a2c514db8f0aca45fe639fb0314d85051d3f21962609f7d601ff1bc865",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
       "configuration/use-field-aware-built-in-check-adjustments.md": "sha256:ede262198318ad54bc49dd29fec522fe4d9c42d2f2f4b4a1f61d0fd4925e63a0",
@@ -58,10 +59,12 @@
       "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
       "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:d3853a121e5e3613d3477320110825fdf07c22b27e79612e35444ebabfd04c28",
       "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
+      "product-contract/execute-check-scopes-through-one-task-graph.md": "sha256:11380493591864ed7609c5f3f44d97609c04862f16496e5cfe9de73c31b15b84",
       "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:23e433ca885151fe9a2df09a784877baef093c4b1727e25bc101529043a9014f",
       "product-contract/expose-built-in-check-values-alongside-config-and-run.md": "sha256:ea700798c5e9e0273fdf2df38c21ec1db7d18b667f687cc360c67191925819f3",
       "product-contract/expose-config-definition-and-project-run-operations.md": "sha256:da45f7bc2cfe804727260d7292ec343321fad78431b39f92177a7b7edd5e749b",
       "product-contract/expose-two-public-operations.md": "sha256:8a85ecca42ac5163ad154ebc963aeb1e22c447db036e9ce6ee59bd66f478c9cf",
+      "product-contract/hard-cut-prestable-machine-contracts.md": "sha256:1827b3f491cddf075f12375b385f0d4885154435c8f20e6aa58c4ec4d831d21e",
       "product-contract/keep-prestable-package-releases-on-0-0-x.md": "sha256:9eca819c8cd3fbbae67be86f40742e70a4c0a4692a6f850e654441e7892f3b28",
       "product-contract/keep-prestable-releases-on-0-0-x.md": "sha256:e260d419b748c1a41d2e8bef6c8074fea7732673c3ce18dfc94e77972d843571",
       "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:bfa67371661c27c7166c286fce4397b920420d81e25ae35c99f7b384f5d89d5e",
@@ -71,17 +74,18 @@
       "product-contract/release-one-versioned-npm-product-unit.md": "sha256:cc1b6cddf7eb3ee089fbf3c026e8d5c74812d41dee997e34a172e00ee0a16c29",
       "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
       "product-contract/require-explicit-network-link-checking.md": "sha256:a0bb88fe9532045abf0e021fe4835d1b0155271bd431bd189553f9ccd06e4cf8",
-      "product-contract/separate-check-and-record-type-identities.md": "sha256:1491434208c8804457e00cd7a60e2f35d171441322095f3a50b3f7fca6b0f24e",
-      "product-contract/settle-check-execution-before-availability.md": "sha256:5ad52b1918accce22a1f03950179a86b62e69703309528a2e96e46a0149c424e",
+      "product-contract/separate-check-and-record-type-identities.md": "sha256:665d82b512c51aa69ab3ec7ab0bc8e0b33ccbba4ecb80608061fd23ce7ebb2b6",
+      "product-contract/settle-check-execution-before-availability.md": "sha256:7c482b563a590a290e6cafeab714a6bda4e63ea75f2f1440df99aaf3710e9ca1",
       "product-contract/support-bun-as-the-package-host.md": "sha256:d88504e532d86c904d6c739288ebeb1cc5247a68e1977f1fb9ce6ba4c6aa8bc9",
       "product-contract/treat-project-definitions-as-trusted-code.md": "sha256:9e2227749543f6fa171d0a400ef053f2a90dcfa2a598322679a5ad97462adb74",
+      "product-contract/use-core-check-and-quality-record-facts.md": "sha256:d212abbf57ffa295ac19fb9fbcadf6e6443607e162e459621a3dedded6534bbd",
       "product-contract/use-generic-machine-v2-for-content-findings.md": "sha256:d4f263110afc8b43cf845576ddd088fe72f62c5ce1423c989311d29ee9f4737e",
       "product-contract/use-location-independent-finding-identities.md": "sha256:9b2f3c245f699d8a4ea52bffa52cd38c2ec76a97dddc865a7f7e5556dd1f3436",
       "product-contract/use-location-independent-record-identities.md": "sha256:fb2d9e3b1ffccb554184fcf3082031970566567f5b7b801a62a8f02295afcb57",
       "product-contract/use-programmatic-api-as-product-entry.md": "sha256:cbc211ed6755d40a015d1f9ebcc0838e6d2c836f7d28a04ee6c1ce636e91da6f",
-      "product-contract/use-runtime-resolved-check-and-record-core.md": "sha256:eba6b5559feafcb640ceb3360e7034e347137090e5e9cf937197d0447be7d85b",
+      "product-contract/use-runtime-resolved-check-and-record-core.md": "sha256:2f975cdfbe73e035b0d6e0939bb28e63941a36be16ae38d87612d71f33955887",
       "product-contract/use-standard-quality-record-stream.md": "sha256:e978f149f275a66c071887d1df17845c9712614e4a2b147a4795f17e65b2ea41",
-      "product-contract/use-static-check-task-plans-with-shared-scheduling.md": "sha256:e1f4f91c7d0155b0d848b8cc6a7978e8bf73ceb2338b961b34e0b63b78089786",
+      "product-contract/use-static-check-task-plans-with-shared-scheduling.md": "sha256:50e6ad2aa3c741fc30bc188cbeba87effd7897774405c63666fd8c70ee03217c",
       "product-contract/use-versioned-npm-package-release-unit.md": "sha256:7b8cd21ce11328163f8cc154010ffa298c8ed9753aa7c7bd06bc27e0879d2e6f",
       "product-priority/defer-lizard-runtime-unification.md": "sha256:f4437d3cde624ebf3050bae39640fc476e97a3f06a6d8614270a9ba0029857d7",
       "product-priority/defer-lizard-until-after-check-foundations.md": "sha256:1b7078c06f18132648acf5087f8e09071a0d792bbf250246df949475715788aa",
@@ -147,6 +151,35 @@
         "background": "Package 形成阶段仍需 Python、scc 等实现；禁止具体 binding 会阻断 installed consumer，直接把工具字段写入 Check policy 又会形成短命产品语义。",
         "decision": "Configuration 显式绑定外部程序；Check policy 保持工具中立，Product 继续拥有能力、诊断和结果。",
         "relations": []
+      }
+    },
+    "configuration/carry-check-parallel-limit-in-task-scope.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/carry-check-parallel-limit-in-task-scope.md",
+        "title": "在 Task scope 中承载 Check 并行上限",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T03:47:07Z",
+        "purpose": "让 Check maxParallel 由同一 Task graph 的 scope metadata 进入唯一 scheduler，而不依赖按 ID 重组的 side map。",
+        "background": "scoped cap 行为已成立，但 keyed task-to-Check metadata 与 canonical Task scope 目标重复表达 ownership。",
+        "decision": "保留 active-span 最小 cap 与 reservation/drain，并由 planned Task scope 直接拥有 validated cap metadata。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-check-scoped-invocation-wide-parallel-limits.md"
+          }
+        ]
       }
     },
     "configuration/drive-product-execution-from-project-definition.md": {
@@ -397,7 +430,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -406,7 +439,7 @@
       "state": {
         "path": "configuration/use-check-scoped-invocation-wide-parallel-limits.md",
         "title": "使用 Check scoped invocation-wide 并行上限",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-14T13:50:48Z",
         "purpose": "让单个 Check 能在自己的执行 span 内安全收紧整次 invocation 的 task 并行上限。",
@@ -905,6 +938,39 @@
         "relations": []
       }
     },
+    "product-contract/execute-check-scopes-through-one-task-graph.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/execute-check-scopes-through-one-task-graph.md",
+        "title": "通过单一 Task graph 执行 Check scope",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T03:46:59Z",
+        "purpose": "让 direct Check 与 TaskPlan Check 由同一静态 Task engine 执行，并通过 scoped capability 提交 Core facts。",
+        "background": "shared scheduler 已能结算静态 Task，另设 work-handle acknowledgement 和 CheckManager 会重复记录同一执行完整性。",
+        "decision": "Check 是静态 Task graph 的 execution scope；Task settlement 是唯一执行记账，scope 内 Task 只通过受控 RecordSink 提交记录。",
+        "relations": [
+          {
+            "type": "归并",
+            "target": "product-contract/use-static-check-task-plans-with-shared-scheduling.md"
+          },
+          {
+            "type": "归并",
+            "target": "product-contract/settle-check-execution-before-availability.md"
+          }
+        ]
+      }
+    },
     "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": {
       "keys": {
         "domain": [
@@ -1013,6 +1079,30 @@
         "purpose": "让使用者只调用一个 TypeScript 配置定义操作和一个配置驱动的工具运行操作。",
         "background": "额外 callable helper、CLI、bootstrap、资源入口或内部协议都会形成第三种产品操作和新的兼容承诺。",
         "decision": "Public package API 恰好公开配置定义与工具运行两个 callable operations；必要 public types 不计为操作，具体名称另行确认。",
+        "relations": []
+      }
+    },
+    "product-contract/hard-cut-prestable-machine-contracts.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/hard-cut-prestable-machine-contracts.md",
+        "title": "对预正式 machine contract 执行单版本硬切",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T03:47:14Z",
+        "purpose": "让正式稳定版本前的 breaking machine shape 使用真实新版本身份，而不承担旧版本兼容实现。",
+        "background": "产品与 package 尚未进入稳定版本，保留 dual writer、reader 或 migration shim 会固化短命 schema 并扩大验证成本。",
+        "decision": "预正式阶段的 breaking machine contract 递增 schema version 后单版本硬切；旧 writer、reader 和兼容路径同时退出。",
         "relations": []
       }
     },
@@ -1252,7 +1342,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -1261,7 +1351,7 @@
       "state": {
         "path": "product-contract/separate-check-and-record-type-identities.md",
         "title": "分离 Check 身份与 Record 类型身份",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-05T10:31:35Z",
         "purpose": "让检查执行单元和其产生的数据种类分别拥有稳定且可查询的身份。",
@@ -1281,7 +1371,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -1290,7 +1380,7 @@
       "state": {
         "path": "product-contract/settle-check-execution-before-availability.md",
         "title": "在 Check availability 前结算执行 capability",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-13T07:05:49Z",
         "purpose": "让 requiresChecks 只依赖不可被保留执行 capability 追溯改写的 Check availability。",
@@ -1345,6 +1435,39 @@
         "background": "导入 TypeScript module 并调用同进程函数会执行项目代码，函数入口本身不提供 sandbox、隔离或强制终止。",
         "decision": "Project Definition 与 custom runner 以调用者权限同进程执行；产品不声称隔离，并为不可信项目提供完全跳过项目代码的显式路径。",
         "relations": []
+      }
+    },
+    "product-contract/use-core-check-and-quality-record-facts.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/use-core-check-and-quality-record-facts.md",
+        "title": "使用 Core Check 与 QualityRecord 两类事实",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T03:46:51Z",
+        "purpose": "让每个 resolved Check 以一个 Core Check 表达声明与结论，并让最终快照只保留 Check 和 QualityRecord。",
+        "background": "definitions 与 CheckRun 平行投影重复关联同一 checkId，Project Definition leaf presence 已经表达本次选择。",
+        "decision": "每个 canonical resolved Check 恰有一个 Core Check，QualityRecord 直接绑定 checkId，快照只保留 checks 和 records。",
+        "relations": [
+          {
+            "type": "归并",
+            "target": "product-contract/use-runtime-resolved-check-and-record-core.md"
+          },
+          {
+            "type": "归并",
+            "target": "product-contract/separate-check-and-record-type-identities.md"
+          }
+        ]
       }
     },
     "product-contract/use-generic-machine-v2-for-content-findings.md": {
@@ -1453,7 +1576,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1462,7 +1585,7 @@
       "state": {
         "path": "product-contract/use-runtime-resolved-check-and-record-core.md",
         "title": "使用运行时解析的 Check 与 QualityRecord 核心",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:20Z",
         "purpose": "让内置与项目自定义检查共享两个独立、可组合且可观察的产品对象。",
@@ -1508,7 +1631,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1517,7 +1640,7 @@
       "state": {
         "path": "product-contract/use-static-check-task-plans-with-shared-scheduling.md",
         "title": "使用静态 Check TaskPlan 与共享调度器",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:36Z",
         "purpose": "让自定义 Check 以简单任务图获得全局有界的并行、依赖和资源协调。",

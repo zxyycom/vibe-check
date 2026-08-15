@@ -1,6 +1,6 @@
 ---
 title: 在 Check availability 前结算执行 capability
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-13T07:05:49Z
 purpose: 让 requiresChecks 只依赖不可被保留执行 capability 追溯改写的 Check availability。

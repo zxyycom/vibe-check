@@ -1,6 +1,6 @@
 ---
 title: 使用运行时解析的 Check 与 QualityRecord 核心
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:20Z
 purpose: 让内置与项目自定义检查共享两个独立、可组合且可观察的产品对象。

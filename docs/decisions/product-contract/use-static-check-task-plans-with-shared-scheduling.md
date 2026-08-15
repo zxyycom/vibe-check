@@ -1,6 +1,6 @@
 ---
 title: 使用静态 Check TaskPlan 与共享调度器
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
 purpose: 让自定义 Check 以简单任务图获得全局有界的并行、依赖和资源协调。

@@ -1,6 +1,6 @@
 ---
 title: 使用 Check scoped invocation-wide 并行上限
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:48Z
 purpose: 让单个 Check 能在自己的执行 span 内安全收紧整次 invocation 的 task 并行上限。

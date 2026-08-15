@@ -1,6 +1,6 @@
 ---
 title: 分离 Check 身份与 Record 类型身份
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 让检查执行单元和其产生的数据种类分别拥有稳定且可查询的身份。
