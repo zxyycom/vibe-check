@@ -1,6 +1,6 @@
 ---
 title: 在 Project Definition 使用可组合 Check tree
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:47Z
 purpose: 让项目通过嵌套、Task-like Check authoring 直接选择和组织内置与自定义 Checks，同时保持默认并发和稳定的扁平运行模型。

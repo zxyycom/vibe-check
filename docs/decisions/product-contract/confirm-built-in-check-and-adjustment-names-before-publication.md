@@ -27,6 +27,6 @@ relations:
 - 采用: public runtime function names 为 `defineConfig`、`run`、`replace` 与 `append`。前两项分别拥有 Project Definition construction 与 Product Run；后两项拥有内置 Check replacement 与 append。
 - 采用: public built-in Check value names 为 `duplicateDetection`、`fileMetrics` 与 `functionMetrics`。
 - 采用: 普通内置 Check 数据的 public type name 为 `BuiltInCheck`；必要 Check tree types 继续使用 `CheckGroup`、`CheckNode` 与 `CustomCheck`。只为 supported signatures 和 consumer authoring 所必需的其它类型可以进入 public contract。
-- 采用: `src/product/public-contract/current.ts` 完整拥有这些 names、roles 与 package import relation。manifest、runtime entry、declarations、docs、fixtures 和 acceptance 只能从该 owner 派生或单向核对。
+- 采用: `src/product/public-contract/current.ts` 完整拥有这些 names、roles 与目标 package import relation；它是 definition-facing source，不表示 package 当前已安装或可导入。manifest、runtime entry、declarations、docs、fixtures 和 acceptance 只能从该 owner 派生或单向核对。
 - 采用: package candidate 发布前必须核对名称含义、导入方式、declaration inference、并存或迁移成本和 exact export inventory；source filename、example variable、registry availability 或 internal re-export 不替代确认。
 - 不采用: `BuiltInCheckDescriptor` compatibility alias、value-owned `.replace/.append` member names、wildcard/internal subpath export、project file paths 或临时 type alias。

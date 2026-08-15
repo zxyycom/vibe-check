@@ -13,7 +13,7 @@
 ## Outcome
 
 - `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是预先构造的普通内置 Check 数据，可直接放入统一的 Check tree。
-- package 顶层提供 `replace` 与 `append` 两个纯配置辅助函数。每次调用返回新的同类内置 Check 数据，不修改输入或共享默认值。
+- current definition-facing contract 提供 `replace` 与 `append` 两个纯配置辅助函数；下游 package Change 必须投影它们。每次调用返回新的同类内置 Check 数据，不修改输入或共享默认值。
 - `replace` 根据具体 `checkId` 提供字段感知的替换；`append` 只追加 owner 明确声明为可追加的集合。
 - 内置 Check 的合法性由公开数据结构、受支持的 `checkId`、canonical metadata 与对应 options contract 决定，不依赖对象来源、私有 brand、methods 或 frozen state。
 - Check tree normalization 使用统一的普通记录入口，再分别校验 group、built-in 和 custom variants；`defineConfig` 仍只构造 Project Definition value，完整运行前校验仍由 Package Run pre-work 承担。
@@ -44,12 +44,12 @@
 - `replace` 拒绝 owner 未声明的字段和非法值；`append` 当前只接受叶子自有的 `dependsOn` 与 `mutex`，并按首次出现顺序去重。
 - Check tree parser 直接解析普通闭合记录；declarative normalization 只按 `checkId` 验证 canonical metadata/options。Package Run pre-work 再按已选 `checkId` 构造私有 runtime binding，并在任何 project function、dependency preparation、cache、scanner、reporter 或 output work 前拒绝非法 tree。
 - 当前 source、tests 和非历史 docs 不再把 value-owned `.replace/.append`、签发身份、materialization、dynamic receiver 或 copy recovery 描述为受支持行为。
-- public surface 一致表达四个顶层 functions 的不同责任：`defineConfig` 构造 Project Definition，`run` 执行 Product Run，`replace` / `append` 调整内置 Check；另有三个普通 non-callable 内置 Check values，公开数据类型名为 `BuiltInCheck`。
+- current definition-facing contract 与目标 package projection 一致表达四个顶层 functions 的不同责任：`defineConfig` 构造 Project Definition，`run` 执行 Product Run，`replace` / `append` 调整内置 Check；另有三个普通 non-callable 内置 Check values，公开数据类型名为 `BuiltInCheck`。
 - 目标 tests、Case evidence、decision validation、docs validation、typecheck、lint 和 workspace required verification 全部通过。
 
 ## Affected Owners
 
-- Configuration decisions：`docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 拥有普通内置 Check 与字段调整语义；`docs/decisions/configuration/use-composable-check-tree-in-project-definition.md` 继续拥有统一 Check tree。
+- Configuration decisions：`docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 拥有普通内置 Check 与字段调整语义；`docs/decisions/configuration/use-composable-check-tree-with-run-owned-bindings.md` 拥有统一 Check tree 与 runtime binding 责任边界。
 - Product Contract decisions：`docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 拥有 runtime export surface；`docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 拥有公开名称。
 - 稳定说明与 current contract：`docs/configuration.md`、`src/product/public-contract/current.ts` 及其相邻 tests。
 - Product implementation：`src/product/definition/adjustments.ts`、`adjustment-patches.ts`、`built-ins.ts`、`check-tree/**` 和相邻 Project Definition / Package Run tests。

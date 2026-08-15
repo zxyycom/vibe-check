@@ -40,7 +40,8 @@
       "configuration/pass-project-definition-value-to-run.md": "sha256:8704b38604a3141c1360abc541037843fca8c30d2289ad91becb1798704fcd3d",
       "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
       "configuration/use-check-scoped-invocation-wide-parallel-limits.md": "sha256:b0916fa8b658c790dfb3d61f155fb7fba4fc2fbd5bb0e9a6451d7b7bc8038658",
-      "configuration/use-composable-check-tree-in-project-definition.md": "sha256:0498bb7c5aa4220a9c00abfa31bb9decfdaca1a77e33cbf2a8609c9dbef0a014",
+      "configuration/use-composable-check-tree-in-project-definition.md": "sha256:d92b18a5d74f260e564d0535cc8777f149c3c9fff41218341d1bace1921bc91b",
+      "configuration/use-composable-check-tree-with-run-owned-bindings.md": "sha256:ab5c7a118c9df68fa63909fe0e48273168a47421a2b9c349f8ad72903d70bebb",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
       "configuration/use-field-aware-built-in-check-adjustments.md": "sha256:0a835800e314722e7ccf02758cf35b194985b684fad38208bb115be9f1dc9b12",
       "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
@@ -55,7 +56,7 @@
       "configuration/use-standalone-built-in-check-adjustment-functions.md": "sha256:23bf51086cb4d5bf7609dba7a44b0abab703288cc20775d62f50c5786d2c8cd1",
       "configuration/use-user-owned-definition-for-observation-and-gates.md": "sha256:7802cc82af817dbf6a4bbbd2051b01066bc16211ee6bb0e1b4aa02774d8e2641",
       "product-contract/approve-public-names-before-publication.md": "sha256:28a4aca786a464c6289250360c806d8572b762f6b5bdd0f34f562394e8ea32f0",
-      "product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:e15ee8f4161e3ec2770019cf8c11aac6511c2040b1675b16da4656a1aa3efae1",
+      "product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:28ddc1f736978d8ba30c5c00183bd58c34322dccc80f54a166ad96eaabe6a0e3",
       "product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:fca2ead85a279e0e036d8bca17c00bc9991ced3959347f432b04bc10edcc07c7",
       "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:c8eee6ebd2522aed58a3b15d42e4307358bc9cf828b6a72a28cd2788c61576f0",
       "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
@@ -457,7 +458,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -466,13 +467,42 @@
       "state": {
         "path": "configuration/use-composable-check-tree-in-project-definition.md",
         "title": "在 Project Definition 使用可组合 Check tree",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-14T13:50:47Z",
         "purpose": "让项目通过嵌套、Task-like Check authoring 直接选择和组织内置与自定义 Checks，同时保持默认并发和稳定的扁平运行模型。",
         "background": "扁平 builtIn、selected 与完整 schedules 数组重复描述同一 Check；项目需要组合父级约束、子级覆写和任务式依赖资源语义，而不应维护内部 catalog。",
         "decision": "Project Definition checks 使用 authoring-only tree；leaf presence 表示选择，groups 继承 context 后验证并 flatten。",
         "relations": []
+      }
+    },
+    "configuration/use-composable-check-tree-with-run-owned-bindings.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-composable-check-tree-with-run-owned-bindings.md",
+        "title": "在 Project Definition 使用可组合 Check tree 并由 Package Run 构造内置绑定",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-15T07:34:24Z",
+        "purpose": "让项目通过可组合 Check tree 选择和组织 Checks，同时让声明式规范化与私有运行时绑定各有明确 owner。",
+        "background": "Check tree 需要在 work 前形成稳定声明式模型，而内置 binding 依赖当次运行输入，不应成为 normalization 产物。",
+        "decision": "使用 authoring-only Check tree；normalization flatten 声明式数据，Package Run 构造内置 binding。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-composable-check-tree-in-project-definition.md"
+          }
+        ]
       }
     },
     "configuration/use-declarative-quality-decision-policies.md": {

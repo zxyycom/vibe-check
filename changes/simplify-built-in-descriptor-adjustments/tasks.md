@@ -12,7 +12,7 @@ Readiness 先让长期 decision owners 与目标 API 对齐；Implementation 再
 - [x] 0.4 已按 `test-evidence-review` 读取测试策略、Case maintenance、`WB-PROJECT-DEFINITION-001` 与目标 tests，并运行起点 `bun run test-evidence:check`；实施保留 typed patch、replace/append semantics、non-mutation、invalid-input/accessor safety、normalization、custom routing 和 fingerprint evidence。
 - [x] 0.5 Readiness 审计曾识别与当前 helper-surface 方向直接冲突的既有判断；后继 decisions 接管具体 public direction，本 Change 不把旧 carrier 细节作为实现前提。
 - [x] 0.6 已确认 helper scope：`replace` / `append` 只支持 Product-owned built-in Checks；custom Check author 继续拥有并构造自己的完整 data、functions、binding 和 options policy。
-- [x] 0.7 已通过 `decision-records` 建立 `use-standalone-built-in-check-adjustment-functions` 后继并归档旧 method decision；它在 Readiness 时以 `active + unaligned` 建立，实施与验证完成后已标记 `aligned`。composable-tree contract 无语义冲突，archived built-in-options predecessor 无需改写。
+- [x] 0.7 已通过 `decision-records` 建立并对齐 `use-standalone-built-in-check-adjustment-functions`；`use-composable-check-tree-with-run-owned-bindings` 随后修订旧 tree decision，明确 normalization 只形成声明式模型、Package Run 构造 private binding。archived method、built-in-options 与旧 tree decisions 只保留被修订的历史依据。
 - [x] 0.8 已建立 `expose-built-in-check-values-and-adjustment-functions` 与 `confirm-built-in-check-and-adjustment-names-before-publication` 两条 `active + unaligned` 后继，归档冲突的前序方向，并通过 `bun run decisions:check`。
 
 ## Implementation

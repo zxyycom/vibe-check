@@ -11,7 +11,7 @@
 | 内容 | 当前状态 | 本 Change 的处理 |
 | --- | --- | --- |
 | 当前 source、current contract 与下游 Plan | 内置值已经是普通 `BuiltInCheck` 数据；顶层 `replace` / `append`、统一定义表、closed-record parser 与 private runtime lookup 已落地；current contract、Configuration、Architecture、repository dogfood 和下游 package Plan 已同步四个 functions、三个 values 与 `BuiltInCheck`。 | 这是本 Change 已验证的当前事实；下游 package 仍按自己的 Plan 交付真实 runtime entry、declarations 与 exact-tarball acceptance。 |
-| active Configuration direction | `docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 已是 `active + aligned`，拥有普通内置 Check、`replace` / `append` 字段语义与 non-mutation boundary。 | source、tests、Case 与稳定 docs 已完整兑现该方向。 |
+| active Configuration baselines | `use-standalone-built-in-check-adjustment-functions` 拥有普通内置 Check、`replace` / `append` 字段语义与 non-mutation boundary；`use-composable-check-tree-with-run-owned-bindings` 拥有统一 tree、declarative normalization 与 Package Run private binding 责任。两者均为 `active + aligned`。 | source、tests、Case 与稳定 docs 已完整兑现两个可独立维护的方向。 |
 | active Product Contract directions | `docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 与 `docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 仍为 `active + unaligned`。 | current source、contract 和下游 Plan 已采用这些方向；真实 package entry、declarations 与 exact-tarball acceptance 尚由下游 Change 实施，因此本 Change 不提前标记 aligned。 |
 | package availability | repository root 仍是 private workspace，尚无已发布的 installable package。 | 对 current-source API 采用 hard cut，不建立 methods 与 functions 并存的 compatibility layer。 |
 
