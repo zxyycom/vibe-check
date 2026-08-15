@@ -16,7 +16,7 @@ relations: []
 
 ## 背景
 
-- 当前 Project Definition 用 `builtIn`、`custom`、`selected` 与 `schedules` 多次表达同一运行选择，且把 Product 的内部 catalog normalization 变成了项目维护责任。
+- 该决策形成前，Project Definition 用 `builtIn`、`custom`、`selected` 与 `schedules` 多次表达同一运行选择，且把 Product 的内部 catalog normalization 变成了项目维护责任。
 - Product 已有 Task system，它负责依赖、全局 bounded concurrency 与 named resource coordination；“默认并发”不需要一个每 Check 的 `parallel` 开关。
 - Check group 的组织价值属于 authoring；把每个 group 变成 runtime Check 会额外产生 CheckRun、record/policy identity 和 output coverage，改变不相关的产品语义。
 

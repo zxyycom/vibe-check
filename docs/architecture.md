@@ -7,9 +7,14 @@
                                       → validated model → effects/result
 ```
 
+本文中的 **Package Run** 是架构角色：当前由 `src/product/run.ts` 的
+`run(Project Definition, Run Controls)` Product operation 实现。它不表示仓库目前已经提供可安装的
+npm package；root manifest 仍是 private workspace，installable projection 由下游
+`establish-api-only-npm-product-boundary` Change 交付。
+
 项目 Run 已绑定一个项目拥有的 TypeScript Project Definition；其他调用方只提供该项目允许的
-Run Controls。Product source 拥有 package operations 和 runtime behavior，不拥有项目 module 路径，
-也不发现或重新加载配置文件。
+Run Controls。Product source 拥有 definition/run operations 和 runtime behavior；下游 package 只能
+投影这些 operations，不能重新定义它们。Product 不拥有项目 module 路径，也不发现或重新加载配置文件。
 
 ## 核心定位
 
@@ -52,6 +57,9 @@ protocol 或 custom-result cache。
 - Project Definition 直接组合 frozen built-in descriptor 和 custom leaves。leaf presence 表示选择；tree
   array order 不表达执行顺序。group/leaf 的 `dependsOn` 与 `mutex` 向下追加、去重；只有前者表达
   Check prerequisite，后者表达 named resource。
+- Built-in descriptor values own immutable `.replace()` / `.append()` authoring conveniences. Product
+  materializes only its own descriptors back to closed data before tree validation, so these methods do
+  not enter fingerprints, Core, bindings, scheduling state, or output.
 - `requiresChecks` 在 execution 前闭合 Check dependency。合法 `passed`、quality `failed` 和
   `not-applicable` 可满足 prerequisite；execution/result/record/ack failure 会阻断 dependent user work。
 - Shared scheduler 使用一个 root `SchedulerPolicy.maxParallel`，同时管理 direct work、Task leaves 和

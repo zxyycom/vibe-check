@@ -26,6 +26,10 @@ describe("current public contract", () => {
         fileMetrics: "fileMetrics",
         functionMetrics: "functionMetrics"
       },
+      builtInDescriptorMethods: {
+        replace: "replace",
+        append: "append"
+      },
       types: {
         builtInCheckDescriptor: "BuiltInCheckDescriptor",
         checkGroup: "CheckGroup",
@@ -55,6 +59,10 @@ describe("current public contract", () => {
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof fileMetrics, "object");
     assert.equal(typeof functionMetrics, "object");
+    for (const descriptor of [duplicateDetection, fileMetrics, functionMetrics]) {
+      assert.equal(typeof descriptor[CURRENT_PUBLIC_CONTRACT.builtInDescriptorMethods.replace], "function");
+      assert.equal(typeof descriptor[CURRENT_PUBLIC_CONTRACT.builtInDescriptorMethods.append], "function");
+    }
     assert.deepEqual(defineConfig({}).effects, CURRENT_PUBLIC_CONTRACT.effectDefaults);
 
     const packageManifest = packageManifestName(readFileSync(

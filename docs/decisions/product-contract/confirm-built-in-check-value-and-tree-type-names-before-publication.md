@@ -18,9 +18,10 @@ relations:
 
 ## 背景
 
-- `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 将进入项目源代码和 package export surface；改名、并存或退役都具有独立兼容成本。
+- `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 已进入 current definition-facing source，并将在 package Change 完成后进入 package export surface；改名、并存或退役都具有独立兼容成本。
 - Check tree 的 authoring types 同样是 consumer contract；把内部 catalog、binding、scheduler 或 Task 类型错误地作为 tree type 导出会扩大长期 API。
 - 项目配置文件、项目运行脚本及其路径仍由使用项目拥有，不能因为 canonical example 出现而成为 package 名称。
+- current public-contract source 可以在 package build 前确认名称，但只有下游 candidate entry、declarations 与 exact-tarball acceptance 通过后，这些名称才成为可安装 package surface。`from "vibe-check"` 示例在此之前只是 target consumer contract。
 
 ## 决策
 

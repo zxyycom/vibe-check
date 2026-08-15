@@ -35,8 +35,9 @@ Vibe Check 拥有的开发脚本入口是：
 索引或生命周期实现，也不属于 `scripts/**` consumer。
 
 这些工具不属于产品 runtime contract。`quality:check`、`quality:full-check` 和
-`quality:scan` 都调用 repository Project Run 的同一 neutral observation；它们是
-package-level dogfood aliases，不是第二套产品入口或隐式 profile/gate selector。
+`quality:scan` 都调用 repository Project Run 的同一 neutral observation；它们是 root
+package-script dogfood aliases，不是已安装 npm package 的入口，也不是第二套产品入口或隐式
+profile/gate selector。
 
 ## 当前实现状态
 
@@ -45,7 +46,7 @@ package-level dogfood aliases，不是第二套产品入口或隐式 profile/gat
   `scripts/quality/project-run.ts` import 并绑定该值，导出只接收项目允许 controls 的 Run。
 - `scripts/quality/scan.ts` 只调用 bound Project Run，并把 structured result 映射为该脚本的
   process exit；它不调用 Product CLI、发现配置或转发 argv。
-- `quality:check`、`quality:full-check` 与 `quality:scan` 通过同一 wrapper 到达同一 Package Run；
+- `quality:check`、`quality:full-check` 与 `quality:scan` 通过同一 wrapper 到达同一 Product `run` operation；
   repository policy、built-in selection 和 effects 只有 Project Definition 一个 owner。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
@@ -138,14 +139,14 @@ bun run env:check
 
 ### 命令环境边界
 
-顶层 `mise.toml` 将 pinned Lizard Python interpreter 和 scc executable 写入 Package Run
+顶层 `mise.toml` 将 pinned Lizard Python interpreter 和 scc executable 写入 Product `run`
 明确支持的 `VIBE_CHECK_LIZARD_CMD` 与 `VIBE_CHECK_SCC_CMD` 环境输入；仓库 Project
 Definition 直接绑定 jscpd executable。`quality:*` aliases 通过 `mise exec` 获得这两个
-supported-environment values。Package Run 再按 [Scanner 依赖选择](scanner-dependencies.md#current-dependency-boundary)
+supported-environment values。Product `run` 再按 [Scanner 依赖选择](scanner-dependencies.md#current-dependency-boundary)
 中的 `Run Controls > supported environment > Project Definition` 顺序解析 binding。
 
 `mise.toml` 的工具安装或 repository state 本身不是隐式 resolution source。缺少
-required binding 时，Package Run 在 work 前失败；wrapper 不从 ambient `PATH`、旧 pinned
+required binding 时，Product `run` 在 work 前失败；wrapper 不从 ambient `PATH`、旧 pinned
 variables 或未受支持的环境名补齐 binding。
 
 `verify:vibe-check-workspace*` 同样在顶层 mise 环境中运行。其它不消费锁定外部 scanner 的
@@ -153,7 +154,7 @@ variables 或未受支持的环境名补齐 binding。
 
 ## Runtime 边界
 
-`src/product/**` 是 TypeScript/Bun 产品 runtime 的唯一源码 owner。Package operation 接收
+`src/product/**` 是 TypeScript/Bun 产品 runtime 的唯一源码 owner。Product `run` operation 接收
 `(Project Definition, Run Controls)`；项目运行脚本普通 import 配置值并调用该 operation。开发
 脚本可以调用 lizard、scc、jscpd 和 machine schema validator；项目治理入口可以调用安装在
 `.codex/skills/` 的 decision、change-plan 与 investigation CLI。scanner 调用必须由
@@ -370,7 +371,7 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | 项目环境、工具 pin 或 Codex checkout 自举 | `bun run env:check`、`bun run typecheck:scripts`、`bun run lint:scripts`、`bun run verify:vibe-check-workspace` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
-| Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality:check`，并按影响面补 Package Run 测试 |
+| Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality:check`，并按影响面补 Product `run` 测试 |
 | 文档校验 | `bun run validate:docs` |
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | current schema/example generation drift | `bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |

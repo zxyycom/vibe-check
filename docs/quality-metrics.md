@@ -48,7 +48,7 @@ snapshot。
 批准的 current 或 named-reference exact inputs；adapter-private scanner data 不进入 Check catalog 或
 record contract。source-scope acceptance 拒绝任一越界 batch，避免 partial record conversion。
 
-Project Definition 在 Check tree 中直接放入 built-in 或 custom leaf 来选择它们；Package Run 不从
+Project Definition 在 Check tree 中直接放入 built-in 或 custom leaf 来选择它们；Product `run` 不从
 quick/full profile、tree array order 或 Run Controls 隐式改写 selection。tree group 只在 authoring 时存在，
 归一化后不成为 Check/Record identity。需要比较的 named policy 通过与其唯一 reference name 匹配的 Run
 Control comparison 建立 reference input。reference evidence 独立于 current run，不能伪造第二个 public
@@ -60,7 +60,7 @@ run 或改写 current facts。
 `blockWhen` 都在 policy data 中。evaluator 只消费 final snapshot、reference facts 和 policy，产生
 auditable `DecisionEvidence` 与 `GateResult`。
 
-Project Definition 直接声明 named policies 并用 `selectedPolicy` 选择一个；Package Run 不保留
+Project Definition 直接声明 named policies 并用 `selectedPolicy` 选择一个；Product `run` 不保留
 `all`、`changed` 或 `regressions` 等 adapter spellings。引用型 policy 只能使用与 closed comparison
 control 匹配的一个 reference name。policy readiness 明确表示 incomplete scan、no eligible input 或
 unavailable comparison，不会由 Core 的全局 reducer 推断。
@@ -74,9 +74,10 @@ accepted-warning input。
 Output 从 final snapshot 与 decision evidence 纯投影 `Quality check status` 和 verification status。
 snapshot incomplete 为 `failed`；没有 applicable selected run 或有 completed quality-failed verdict 时为
 `warning`；其余为 `passed`。verification 只额外检查 policy 提供的 `all-current` view 中未被 acceptance
-覆盖的 records。Package Run 的当前 publication 选择普通 quality status；没有 CLI flag 可以改写该选择。
+覆盖的 records。Product `run` 的当前 publication 选择普通 quality status；没有 CLI flag 可以改写该选择。
 Output 在 publication model 构造阶段核对并冻结全部 projection，后续 report、console 与 structured
-result 不接受第二份 status 事实。
+result 不接受第二份 status 事实。这里的 Product `run` 是当前 runtime operation；未来 Package Run
+只投影同一结果语义，不建立第二套 quality 状态 owner。
 
 ## 验证
 

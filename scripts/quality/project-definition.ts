@@ -15,17 +15,11 @@ export default defineConfig({
   checks: [{
     id: "repository-quality",
     maxParallel: 2,
-    checks: [{
-      ...duplicateDetection,
+    checks: [duplicateDetection.replace({
       options: {
-        ...duplicateDetection.options,
         defaultMinimumTokens: 100,
-        fragments: {
-          ...duplicateDetection.options.fragments,
-          changedDelta: 0
-        },
+        fragments: { changedDelta: 0 },
         minimumTokensByCodeArea: {
-          ...duplicateDetection.options.minimumTokensByCodeArea,
           "docs-specs": 150,
           generated: 200,
           "product-source": 75,
@@ -33,17 +27,10 @@ export default defineConfig({
           "script-tooling": 75
         }
       }
-    }, {
-      ...fileMetrics,
+    }), fileMetrics.replace({
       maxParallel: 1,
-      options: {
-        ...fileMetrics.options,
-        codeLines: {
-          ...fileMetrics.options.codeLines,
-          changedDelta: 100
-        }
-      }
-    }, functionMetrics]
+      options: { codeLines: { changedDelta: 100 } }
+    }), functionMetrics]
   }],
   effects: {
     cache: { directory: ".cache/vibe-check/quality", enabled: true },

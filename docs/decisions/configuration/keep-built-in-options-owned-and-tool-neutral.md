@@ -1,6 +1,6 @@
 ---
 title: 保持内置 Check options 受 descriptor owner 约束且工具中立
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:47Z
 purpose: 让 exported built-in Check descriptor 支持可类型化的项目级调整，而不把 scanner 私有实现、通用深合并或第二份质量配置暴露给项目。

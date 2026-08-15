@@ -6,7 +6,8 @@ Entities:
 - `bun|src/product/current-public-contract.test.ts|current public contract > owns exactly the definition-facing names, defaults, and operational identifiers`
 - `bun|src/product/project-definition.test.ts|Project Definition > creates a plain value with product-owned authoring defaults`
 - `bun|src/product/project-definition.test.ts|Project Definition > accepts direct built-ins and normalizes nested inherited tree scheduling`
-- `bun|src/product/project-definition.test.ts|Project Definition > exports frozen non-callable built-in defaults for ordinary TypeScript composition`
+- `bun|src/product/project-definition.test.ts|Project Definition > provides frozen chainable built-in adjustments without expanding defaults`
+- `bun|src/product/project-definition.test.ts|Project Definition > rejects unknown descriptor adjustments without reading accessors or freezing inputs`
 - `bun|src/product/project-definition.test.ts|Project Definition > validates closed definitions and controls without reflecting sensitive values`
 - `bun|src/product/project-definition.test.ts|Project Definition > separates frozen declarative data from function bindings and fingerprints neither binding`
 - `bun|src/product/run.test.ts|Package Run > rejects invalid closed controls before project applicability or runner functions`
@@ -19,4 +20,4 @@ Entities:
 - `bun|src/product/run.test.ts|Package Run > prepares built-ins present in the tree before a dependent custom Check`
 - `bun|src/product/run.test.ts|Package Run > observes cooperative cancellation after input validation and before planning work`
 Proves:
-- Project Definition is a closed plain TypeScript value; its direct built-in/custom Check tree validates inherited scheduling metadata before work, canonicalizes equivalent source ordering for fingerprints, keeps bindings out of public data, and delegates applicable work to existing scheduling owners.
+- Project Definition is a closed plain TypeScript value; its direct built-in/custom Check tree accepts Product-issued frozen descriptor adjustments while rejecting unknown patches, accessors, and lookalike methods without mutating caller input, validates inherited scheduling metadata before work, canonicalizes equivalent descriptor data for fingerprints, keeps bindings out of public data, and delegates applicable work to existing scheduling owners.

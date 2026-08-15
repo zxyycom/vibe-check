@@ -31,6 +31,10 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     fileMetrics: "fileMetrics",
     functionMetrics: "functionMetrics"
   }),
+  builtInDescriptorMethods: Object.freeze({
+    replace: "replace",
+    append: "append"
+  }),
   types: Object.freeze({
     builtInCheckDescriptor: "BuiltInCheckDescriptor",
     checkGroup: "CheckGroup",

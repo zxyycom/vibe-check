@@ -1,6 +1,8 @@
+import { isCheckTreeReferenceId } from "./check-tree-identity.ts";
 import {
   builtInDefinition,
   isBuiltInCheckId,
+  materializeBuiltInDescriptor,
   type BuiltInCheckId,
   type BuiltInCheckOptions
 } from "./built-in-checks.ts";
@@ -19,8 +21,6 @@ import {
   snapshotClosedRecord
 } from "./quality-core/src/check-record/plain-record-values.ts";
 import { validateCheckDefinition } from "./quality-core/src/check-record/validation.ts";
-
-const ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
 export interface ParsedHeader {
   readonly dependsOn: readonly string[];
@@ -85,7 +85,7 @@ function parseSchedulingList(value: unknown, kind: "dependsOn" | "mutex"): reado
   if (items === undefined || items.length === 0) return undefined;
   const values: string[] = [];
   for (const item of items) {
-    const valid = typeof item === "string" && (kind === "mutex" ? item.length > 0 : ID_PATTERN.test(item));
+    const valid = typeof item === "string" && (kind === "mutex" ? item.length > 0 : isCheckTreeReferenceId(item));
     if (!valid) return undefined;
     if (!values.includes(item)) values.push(item);
   }
@@ -123,7 +123,7 @@ function parseGroup(value: unknown, state: ParseState): ParsedGroup | undefined 
 }
 
 function parseBuiltIn(value: unknown, state: ParseState): ParsedBuiltIn | undefined {
-  const data = exactData(value, ["kind", "checkId", "displayName", "recordTypes", "options"], ["dependsOn", "maxParallel", "mutex"]);
+  const data = exactData(materializeBuiltInDescriptor(value), ["kind", "checkId", "displayName", "recordTypes", "options"], ["dependsOn", "maxParallel", "mutex"]);
   if (data?.kind !== "built-in" || typeof data.checkId !== "string" || !isBuiltInCheckId(data.checkId)
     || !registerId(data.checkId, state) || !canonicalMetadataMatches(data, data.checkId)) return undefined;
   const header = parseHeader(data);
@@ -175,7 +175,7 @@ function parseCustomBinding(value: unknown): CustomCheckBinding | undefined {
 }
 
 function parseNode(value: unknown, state: ParseState): ParsedNode | undefined {
-  const data = snapshotClosedRecord(value);
+  const data = snapshotClosedRecord(materializeBuiltInDescriptor(value));
   if (data === undefined) return undefined;
   return Object.hasOwn(data, "checks")
     ? parseGroup(data, state)
@@ -185,7 +185,7 @@ function parseNode(value: unknown, state: ParseState): ParsedNode | undefined {
 }
 
 function registerId(id: string, state: ParseState): boolean {
-  if (!ID_PATTERN.test(id) || state.ids.has(id)) return false;
+  if (!isCheckTreeReferenceId(id) || state.ids.has(id)) return false;
   state.ids.add(id);
   return true;
 }
