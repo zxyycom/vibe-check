@@ -4,7 +4,7 @@
 
 ## Readiness
 
-- [x] 0.1 运行 `bun run change-plan:list`，确认 `adopt-composable-check-tree` 是本 Change 的直接前置，且不修改、重开或归档它与其他现有 Change。
+- [x] 0.1 运行 `bun run change-plan:list`，确认 `adopt-composable-check-tree` 是本 Change 的直接前置；不重开或归档它，也不把 cap 的实施/验收任务回填到前置计划，前置文档只保留独立后继关系摘要。
 - [x] 0.2 使用 `decision-records`：先运行 `bun run decisions:list`，审阅或建立 Check-scoped invocation cap、dynamic reservation/drain、public authoring field与 scheduler-private handoff所需长期 decision；运行 `bun run decisions:check`。
 - [x] 0.3 使用 `test-evidence-review` 恢复 Check tree、Project Definition validation、Task scheduler、direct Check、TaskPlan terminal、dependency/mutex、unavailable/failure、Run phase-boundary cancellation 和 dogfood Cases；运行 `bun run test-evidence:check`。
 - [x] 0.4 从 docs navigation 读取 Project Definition、Check/Record、Task orchestration、output、coding-style与 current public-contract owners；确认 cap不进入 CheckDefinition/TaskDefinition/Record/policy/output，shared scheduler是唯一 admission owner。

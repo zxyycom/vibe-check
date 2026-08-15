@@ -20,7 +20,10 @@
 
 ## Why
 
-当前正式产品入口仍是 `src/product/**` 下的 Bun CLI，行为依赖 argv、console 和 exit code；root `package.json` 也是 `private: true` 的 workspace manifest。这些事实不能证明普通项目可以安装、导入并运行一个依赖闭合的 package。
+当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run.ts` 的 Product run
+operation；保留的 Bun CLI 只返回迁移 diagnostic。root `package.json` 仍是 `private: true` 的 workspace
+manifest，也没有 installed-consumer package entry。这些事实不能证明普通项目可以安装、导入并运行一个
+依赖闭合的 package。
 
 前置 Changes 已负责 Project Definition authoring/validation、Package Run 的 Product 运行内核、项目函数
 调用、composable Check tree、built-in descriptor options、Check-scoped concurrency、Task 调度、operational
@@ -30,7 +33,7 @@ dependency snapshot、JSON hard cut 和两文件使用模式。本 Change 不重
 - 提供 Bun default host 和 installed dependency closure；
 - 从唯一 current public-contract source 生成可审计 candidate；
 - 用 exact tarball 证明真实项目的配置文件、运行脚本和外部调用方可以协作；
-- replacement 通过后删除 Product CLI contract。
+- replacement 通过后删除保留的 Product CLI migration diagnostic contract。
 
 当前 repository 通过 mise、workspace dependencies 和开发环境提供 `scc`、Lizard、jscpd 等 scanner 条件。Installed consumer 不具备这些隐含条件，因此每项 runtime dependency 必须成为 package production material，或成为文档化、可验证且由配置显式绑定的 external prerequisite。
 
@@ -63,7 +66,7 @@ Candidate package 具有以下边界：
 - 闭合 package-owned 或 configured-external scanner dependencies；
 - 从 authoritative sources 生成 runtime、declarations、candidate manifest、MIT materials、inventory、provenance 和 digest；
 - 建立 exact-tarball installed project 与 separate-caller acceptance；
-- replacement acceptance 通过后 hard cut Product CLI、argv/help/exit contract 和 package `bin`；
+- replacement acceptance 通过后 hard cut 保留的 Product CLI migration diagnostic、argv/help/exit contract 和 package `bin`；
 - 同步 architecture、configuration、output、testing、script tooling、CI/workspace gate 和 release procedure owners。
 
 不纳入范围：
@@ -87,7 +90,7 @@ Candidate package 具有以下边界：
 - Public symbols、default paths、environment identifiers、dependency identifiers 和 package/release values 各有唯一 current owner；项目文件路径不进入 package contract。
 - 最低 Bun、OS/architecture、system prerequisites 和 scanner dependency closure 都有 exact-tarball evidence；external executables 不从 repository state、workspace devDependencies 或 ambient `PATH` 隐式获得。
 - Candidate manifest、entry、declarations、docs、examples 和 acceptance 从 current public-contract source 生成或单向核对，不包含 `bin` 或 unsupported imports。
-- Product CLI 与 argv/help/exit contract 只在 exact-tarball replacement 通过后删除；repository commands 改为调用项目 Run 的 adapter。
+- 保留的 Product CLI migration diagnostic 与 argv/help/exit contract 只在 exact-tarball replacement 通过后删除；repository commands 继续调用项目 Run 的 adapter。
 - Repeated clean build 产生一致的 allowlisted artifacts；tarball 不包含 tests、credentials、cache、临时 artifacts 或 undeclared workspace material。
 - 未获得单独外部写入授权时，只执行 build、pack 和 verify，不读取 registry credentials，也不把 pack 描述成 publish。
 

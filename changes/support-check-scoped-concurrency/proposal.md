@@ -1,6 +1,6 @@
 # Proposal
 
-本 Change 在 composable Check tree 之上增加每个 resolved Check 的 invocation-wide `maxParallel`，由既有 shared scheduler 动态 admission 与 non-preemptive drain；它不重开、修改或归档任何前置 Change。
+本 Change 在 composable Check tree 之上增加每个 resolved Check 的 invocation-wide `maxParallel`，由既有 shared scheduler 动态 admission 与 non-preemptive drain；它不重开或归档前置 Change，也不把 cap 的实施与验收任务回填到前置计划。前置 tree 文档只保留对本独立后继关系的摘要。
 
 ## Why
 
@@ -26,7 +26,7 @@
 
 不纳入范围：
 
-- 改变 `adopt-composable-check-tree`、`adopt-typescript-project-definition` 或其他前置 Change 的生命周期，或把本 Change 的任务回写进其 artifacts；前者交付的 Check tree 是本 Change 的直接前置输入；
+- 改变 `adopt-composable-check-tree`、`adopt-typescript-project-definition` 或其他前置 Change 的生命周期，或把本 Change 的实施/验收任务回写进其 artifacts；前者交付的 Check tree 是本 Change 的直接前置输入；
 - 改变 `CheckDefinition`、`TaskDefinition`、Record、policy、machine output、TaskPlan public metadata 或每个 Task 的 authoring shape；
 - 新建 scheduler、worker、queue、parallel mode、boolean 开关、抢占、取消或动态 Task/Check registration；
 - 以 array order 推断执行顺序，或改变 root `scheduler.maxParallel` 的 invocation-wide owner；
@@ -44,7 +44,7 @@
 
 ## Affected Owners
 
-- `adopt-composable-check-tree` 的既有交付：Check tree node shapes、group inheritance和 downstream handoff的直接前置输入；本 Change 不回写该 Change 的 artifacts。
+- `adopt-composable-check-tree` 的既有交付：Check tree node shapes、group inheritance和 downstream handoff的直接前置输入；该前置文档只引用本独立后继，不承担 cap 的实施/验收任务或 lifecycle。
 - `src/product/project-definition*.ts` 与 Check-tree normalization owner：authoring scalar、validation、resolved cap 与 diagnostic/fingerprint mapping。
 - `src/product/quality-core/src/check-record/**`：resolved Check lifecycle、orchestration-to-scheduler handoff；Check/Record catalog identity 保持 flat。
 - `src/product/task-orchestration/**`：唯一 shared scheduler 的 ready selection、reservation、drain、active cap 和 deterministic admission owner；TaskDefinition 不扩张。

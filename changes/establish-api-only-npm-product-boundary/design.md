@@ -18,17 +18,19 @@
 | Definition-facing public names | 前置 Change 建立的 current public-contract source | 原样消费；不得从示例推断 |
 | Package/release names、manifest fields、support evidence | 本 Change 扩展后的同一 current public-contract source | 形成 candidate 并单向投影 |
 | Staging、tarball、installed-consumer evidence | 本 Change | 完整拥有 |
-| Product CLI removal | 本 Change | replacement 通过后 hard cut |
+| Retained Product CLI migration diagnostic removal | 本 Change | replacement 通过后 hard cut |
 
 长期方向由 active decisions 拥有，尤其是：
 
 - `release-one-versioned-npm-product-unit`、`use-programmatic-api-as-product-entry` 和 `support-bun-as-the-package-host`；
-- `expose-config-definition-and-project-run-operations`、`pass-project-definition-value-to-run` 和 `drive-run-from-project-definition-value`；
+- `expose-built-in-check-values-alongside-config-and-run`、`pass-project-definition-value-to-run` 和 `drive-run-from-project-definition-value`；
 - `execute-project-functions-through-task-system-in-caller-runtime` 和 `enable-tool-effects-by-default`；
-- `confirm-config-run-and-package-names-before-publication`；
+- `confirm-built-in-check-value-and-tree-type-names-before-publication`；
 - `publish-unscoped-vibe-check-publicly`、`license-package-under-mit` 和 `bind-external-programs-outside-check-semantics`。
 
-当前正式入口仍是 Bun CLI，root manifest 仍是 private workspace。前置 Change 尚未完成，因此本 Design 描述的是 target contract，不是当前可用 package。
+当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run.ts` 的 Product run
+operation；保留的 Bun CLI 只返回 migration diagnostic。root manifest 仍是 private workspace，三个前置
+Changes 虽已完成任务但尚未归档，因此本 Design 描述的是 downstream target contract，不是当前可用 package。
 
 ### Stable Terms
 
@@ -37,13 +39,14 @@
 | **配置定义函数** | Package 公开的 authoring helper；返回 plain Project Definition |
 | **Package Run** | Package 公开的执行函数；接收 `(Project Definition, Run Controls)` |
 | **项目 Run** | 使用项目的运行脚本导出的已绑定入口；不属于 package export |
-| **built-in descriptor** | 可直接放入 Project Definition Check tree 的 frozen non-callable package value |
+| **built-in descriptor** | 可直接放入 Project Definition Check tree 的 frozen non-callable package value；它带 value-owned `.replace()` / `.append()` authoring conveniences，但自身不是 callable operation。 |
 | **current public-contract source** | `src/product/**` 中 public/package current values 的唯一 owner |
 | **candidate** | 已 build、pack、verify 但未因此自动发布的 package artifact |
 | **exact-tarball consumer** | 只获得目标 tarball、declared dependencies 和明确系统前提的临时 Bun project |
 
 代码示例中的 `defineConfig`、`run` 和文件路径只说明角色与调用关系。Exact callable symbols、three
-built-in descriptor values 与必要 types 由 current public-contract source 确认；项目文件路径始终由使用项目拥有。
+built-in descriptor values、其 `.replace()` / `.append()` member names 与必要 types 由 current public-contract
+source 确认；项目文件路径始终由使用项目拥有。
 
 ### Package Consumer Path
 
@@ -69,7 +72,7 @@ Package projection 必须保持这条调用链。它不能把项目 Run 误作�
 - 为普通 installed consumer 提供完整 default host、effects、dependency diagnostics 和 structured result。
 - 让 public artifacts 从唯一 current public-contract source 生成或单向核对。
 - 用 exact tarball 证明项目配置文件、项目运行脚本和 separate caller 的真实使用路径。
-- 在 installable replacement 可用后原子删除 Product CLI contract。
+- 在 installable replacement 可用后原子删除保留的 Product CLI migration diagnostic contract。
 - 形成 deterministic、allowlisted、可追溯且未发布的 `0.0.x` MIT candidate。
 
 ### Non-Goals
@@ -119,7 +122,7 @@ export default defineConfig({
   checks: [{
     id: "source",
     maxParallel: 2,
-    checks: [{ ...fileMetrics, maxParallel: 1 }]
+    checks: [fileMetrics.replace({ maxParallel: 1 })]
   }],
   scheduler: { maxParallel: 4 }
 });
@@ -177,7 +180,8 @@ Concurrent invocation、failure 和 cancellation 必须同时反映在 structure
 ### 7. One Current Source Drives Every Public Artifact
 
 前置 Changes 建立 current public-contract source，并拥有 definition-facing names、built-in descriptor values/
-types/options、defaults、environment identifiers 和 dependency identifiers。本 Change在同一 source 中补充有实现或 evidence 支持的：
+types/options、`.replace()` / `.append()` member names、defaults、environment identifiers 和 dependency identifiers。
+本 Change在同一 source 中补充有实现或 evidence 支持的：
 
 - unscoped package name `vibe-check`；
 - exact public symbols 和 export map；
@@ -204,7 +208,7 @@ Acceptance 按顺序执行：
 4. 创建项目配置文件并使用配置定义函数。
 5. 创建项目运行脚本，将该 Project Definition 绑定到 Package Run。
 6. 从 separate caller 只导入项目 Run 并传入项目允许的 controls。
-7. 直接导入三个 built-in values，验证 descriptor spread options、mixed Check tree、leaf/group cap override、
+7. 直接导入三个 built-in values，验证 descriptor `.replace()` / `.append()`、mixed Check tree、leaf/group cap override、
    active-cap min、reservation/drain、representative `TaskPlan` scheduling、default effects、complete result、
    failures、cancellation 和 concurrent invocation。
 8. 审计 runtime exports、declarations、manifest、filesystem access 和 dependency resolution，确认只有两个
@@ -214,7 +218,7 @@ Acceptance 必须使用将要交付的同一个 tarball，不能用 workspace so
 
 ### 10. Product CLI Is Removed Only After Replacement Acceptance
 
-当两个 public operations、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和正式 argv/help/exit contract。
+当两个 public operations、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和保留的 migration argv/help/exit diagnostic contract。
 
 只证明 argv、help、exit 和 console mapping 的 Cases 随 Product surface 退役。Configuration、gate、scan completeness、Task scheduling 和 output evidence 迁移到 package API、项目运行脚本或 exact-tarball acceptance。Repository command 留在 `scripts/**`，作为调用项目 Run 的 adapter；不保留 deprecated forwarding、argv shim 或 dual Product entry。
 
@@ -229,11 +233,11 @@ Build、pack 和 verify 不证明 registry identity、名称控制或发布成�
 | Area | 必须闭合的证据 |
 | --- | --- |
 | Upstream handoff | 三个前置 Changes 已归档；source、run kernel、tree/options、Check-scoped cap、Task/dependency、operational 和 usage contracts 有 owner docs 与目标 tests |
-| Public API | 两个 callable exports、三个 non-callable built-in values 与必要 types来自 current public-contract source；exact export inventory 通过 |
+| Public API | 两个 callable exports、三个 non-callable built-in values、其 `.replace()` / `.append()` member names 与必要 types来自 current public-contract source；exact export inventory 通过 |
 | Bun host | Filesystem、Git、environment、subprocess、cache、reporter、output 和 dependency diagnostics 在 installed consumer 中可用 |
 | Artifacts | Runtime、declarations、manifest、MIT materials、inventory、provenance 和 digest 可重复生成 |
 | Consumer usage | Exact-tarball project 的配置文件与运行脚本可用；separate caller 只调用项目 Run |
-| CLI hard cut | Replacement 通过后移除 Product CLI；repository adapter消费项目 Run |
+| CLI hard cut | Replacement 通过后移除 retained Product CLI migration diagnostic；repository adapter消费项目 Run |
 | Release boundary | Candidate version、support、license 和 registry authority有证据；未执行未经授权的 publish |
 
 ### 13. Execution Gates
@@ -248,7 +252,7 @@ Build、pack 和 verify 不证明 registry identity、名称控制或发布成�
 
 - 两个 public operations、closed result、Bun host、dependency mix、MIT materials 和 deterministic staging 已形成 installable replacement。
 - Exact-tarball project + separate caller 已证明调用链、descriptor/tree/options、Check-scoped cap、project functions、Task execution、effects、results 和 representative failures。
-- Gate B 满足后才能删除 Product CLI。
+- Gate B 满足后才能删除 retained Product CLI migration diagnostic。
 
 ## Risks / Trade-offs
 

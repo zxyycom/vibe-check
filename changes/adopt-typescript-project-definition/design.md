@@ -1,6 +1,6 @@
 # Design
 
-本 Design 把项目持有的 TypeScript Project Definition 接入既有 Vibe Check Product：项目运行脚本将配置绑定到 Package Run，Package Run 调用项目函数，并把 work 交给既有 Task 系统。
+本 Design 把项目持有的 TypeScript Project Definition 接入既有 Vibe Check Product：项目运行脚本将配置绑定到 Product run operation，后者调用项目函数，并把 work 交给既有 Task 系统。**Package Run** 是该 operation 的下游 public projection；当前 root workspace 仍 private，尚无 installable package entry。
 
 ## Context
 
@@ -11,11 +11,11 @@
 - `configuration/pass-project-definition-value-to-run.md`：项目运行脚本把普通 import 得到的 Project Definition value 交给 Package Run。
 - `configuration/drive-run-from-project-definition-value.md`：Project Definition 拥有稳定执行语义，run controls 只补充当次信息。
 - `configuration/use-user-owned-definition-for-observation-and-gates.md`：每次运行都使用项目持有的 definition；gate 选择其中的 named policy。
-- `product-contract/expose-config-definition-and-project-run-operations.md`：package 公开配置定义函数与 Package Run 两个 callable operations。
+- `product-contract/expose-built-in-check-values-alongside-config-and-run.md`：目标 package 保持配置定义函数与 Package Run 两个 callable operations，并在旁导出三个 non-callable built-in values；它修订了原 operation-only 决策。
 - `product-contract/execute-project-functions-through-task-system-in-caller-runtime.md`：Package Run 直接调用项目函数，Task 系统管理执行。
 - `product-contract/use-static-check-task-plans-with-shared-scheduling.md`：静态 `TaskPlan` 和 shared scheduler 拥有 Product task scheduling。
 - `configuration/bind-external-programs-outside-check-semantics.md`：operational dependency binding 与 built-in Check policy 分离。
-- `product-contract/confirm-config-run-and-package-names-before-publication.md`：exact package names 在 publishable candidate 前确认。
+- `product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md`：operation、built-in value 与必要 tree type names 在 publishable candidate 前从 current public-contract source 确认；它修订了原 name-confirmation 决策。
 
 ### Stable Terms
 
@@ -23,15 +23,15 @@
 | --- | --- |
 | **Project Definition** | 配置定义函数返回的 plain typed value；包含声明式配置和明确允许的项目函数 |
 | **项目配置文件** | 项目持有的 TypeScript module；default export Project Definition |
-| **配置定义函数** | Package operation；提供 authoring inference，返回 Project Definition |
-| **Package Run** | Package operation；接收 `(Project Definition, Run Controls)` 并执行完整 Vibe Check |
+| **配置定义函数** | current definition-facing operation；提供 authoring inference，返回 Project Definition；下游 package 必须原样投影 |
+| **Package Run** | 当前由 `src/product/run.ts` 实现、下游 package 将公开的 operation；接收 `(Project Definition, Run Controls)` 并执行完整 Vibe Check |
 | **项目运行脚本** | 项目持有的 module；导入 Project Definition，调用 Package Run，导出项目 Run |
 | **项目 Run** | 项目运行脚本导出的已绑定入口；其他调用方只传项目允许的 controls |
 | **Run Controls** | 只对本次运行有效的 context/overrides，不拥有项目政策 |
 | **Product 运行内核** | 本 Change 在 `src/product/**` 建立、由下游 Package Run 公开的实现 boundary |
 | **Task 系统** | 当前 `TaskPlan`、shared scheduler 和 execution owners；管理依赖、并行上限和命名资源 |
 
-后文只按这些含义使用 `run` 相关术语。当前 public-contract source 将 `defineConfig` 定义为配置 operation、将 `run` 定义为 Package Run；项目文件名和路径仍由项目拥有。
+后文只按这些含义使用 `run` 相关术语。当前 public-contract source 将 `defineConfig` 定义为配置 operation、将 `run` 定义为目标 Package Run；项目文件名和路径仍由项目拥有。source operation 已实现不等于 npm package 已交付。
 
 ### Consumer Call Path
 
@@ -61,6 +61,10 @@ Task / Check / Record / decision / effect results
 5. Product 不根据文件路径发现或重新 evaluate 项目配置。
 
 ### Canonical Usage
+
+以下代码固定两文件调用关系和下游 target import；在
+`establish-api-only-npm-product-boundary` 完成 exact-tarball acceptance 前，`from "vibe-check"` 不是
+当前可安装入口。当前 repository dogfood 通过 source-relative imports 证明同一调用关系。
 
 ```ts
 // project-definition.ts

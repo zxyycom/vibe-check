@@ -6,7 +6,7 @@
 
 ### Upstream Input and Authority
 
-`adopt-composable-check-tree` 是本 Change 的直接前置：它定义 Task-like `checks` tree、group authoring-only flattening、leaf selection、parent-to-child `dependsOn`/`mutex` append-dedupe、default concurrency，以及 flat Core catalog/private bindings。该 Change 尚未被本 Change 修改、重开或归档；本 Design 只消费它完成后提供的 normalized resolved Check metadata boundary。
+`adopt-composable-check-tree` 是本 Change 的直接前置：它定义 Task-like `checks` tree、group authoring-only flattening、leaf selection、parent-to-child `dependsOn`/`mutex` append-dedupe、default concurrency，以及 flat Core catalog/private bindings。本 Change 不改变其 lifecycle，也不把 cap 的实施/验收任务并入前置计划；前置文档只引用本独立后继。本 Design 消费其 normalized resolved Check metadata boundary。
 
 既有 root `scheduler.maxParallel` 是 invocation-wide shared scheduler 的唯一固定预算。existing Task scheduler 已拥有 ready detection、dependency、named mutex、bounded admission、completion与 failure propagation。CheckDefinition 仅表达 stable Check/Record metadata；TaskDefinition 仅表达 Task graph metadata。Check-scoped cap 既不是新的 Check/Record identity，也不是每个 Task 的 authoring field。
 
