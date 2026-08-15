@@ -18,7 +18,7 @@ relations:
 
 ## 背景
 
-- Project Definition 已被选择为组合 policy、built-in Checks、custom functions、TaskPlan、scheduler 和 effects 的单一 TypeScript value。
+- Project Definition 已被选择为组合 policy、Product-provided 与项目提供的 Checks/functions、TaskPlan、scheduler 和 effects 的单一 TypeScript value。
 - 项目运行脚本已经用普通 import 获得该值，因此 public API 不需要 project root 下的配置发现、source selector 或 module-loading protocol。
 - Changed files、reference、effect destination、取消信号等信息只在特定 invocation 才存在，适合作为 run controls；它们不应重新拥有稳定项目政策。
 

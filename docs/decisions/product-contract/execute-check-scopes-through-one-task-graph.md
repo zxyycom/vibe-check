@@ -1,6 +1,6 @@
 ---
 title: 通过单一 Task graph 执行 Check scope
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:46:59Z
 purpose: 让 direct Check 与 TaskPlan Check 由同一静态 Task engine 执行，并通过 scoped capability 提交 Core facts。

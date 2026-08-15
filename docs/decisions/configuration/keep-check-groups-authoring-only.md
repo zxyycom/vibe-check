@@ -1,6 +1,6 @@
 ---
 title: 保持 Check group 仅为 authoring context
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T12:28:01Z
 purpose: 让 Project Definition 用可组合 Check tree 表达 leaf 选择与继承，同时保持声明式规范化和 Run-owned 执行准备的边界。

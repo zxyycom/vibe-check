@@ -1,6 +1,6 @@
 ---
 title: 发布前确认内置 Check 与调整 API 名称
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T06:16:25Z
 purpose: 让内置 Check values、独立调整 functions 和 Check tree types 使用一套明确且单一拥有的 public names。

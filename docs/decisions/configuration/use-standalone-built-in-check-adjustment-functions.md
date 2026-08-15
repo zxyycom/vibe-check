@@ -1,6 +1,6 @@
 ---
 title: 使用独立函数调整普通内置 Check 数据
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T06:16:05Z
 purpose: 让项目从普通内置 Check 默认值出发，以字段感知函数覆写或追加所需配置。

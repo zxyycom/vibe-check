@@ -1,6 +1,6 @@
 ---
 title: 公开内置 Check 值与独立调整函数
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T06:16:14Z
 purpose: 让 package 同时提供 Project Definition 构造、Product Run 和普通内置 Check 的字段调整能力。

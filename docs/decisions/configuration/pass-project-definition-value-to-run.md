@@ -13,7 +13,7 @@ relations:
 
 ## 目的
 
-- 让项目用普通 TypeScript 组合政策、内置 Checks、自定义函数和 TaskPlan factories，并以一个配置值驱动一次完整运行。
+- 让项目用普通 TypeScript 组合政策、Product-provided 与项目提供的 Checks、functions 和 TaskPlan factories，并以一个配置值驱动一次完整运行。
 - 让配置文件与运行脚本各自只有一个清楚责任，不让 Product 复制 Bun module loading、固定路径发现或函数传输机制。
 
 ## 背景
@@ -27,7 +27,7 @@ relations:
 
 - 采用: 项目自行创建并持有一个 TypeScript Project Definition 文件；canonical authoring 通过配置定义函数形成 closed definition，并由该文件 default export。
 - 采用: 项目自行创建并持有一个运行脚本。该脚本用普通 TypeScript import 获得 Project Definition 值，并把它作为 Package Run 的第一个语义输入；一次 invocation 只接受一个 definition value。
-- 采用: Product 在任何 Check work 前验证 authoring value、归一化并冻结 declarative policy/metadata/scheduler/effect data，再把明确 function slots 中的 custom runner 与 TaskPlan factory 直接交给既有 execution owners；执行中仍不得注册新的 Check 或 Task。
+- 采用: Product 在任何 Check work 前验证 authoring value、归一化并冻结 declarative policy/metadata/scheduler/effect data，再经同一 trusted construction/binding handoff 把项目提供的 function 和 TaskPlan factory 直接交给既有 execution owners；执行中仍不得注册新的 Check 或 Task。
 - 采用: Product 不发现、选择、import 或重新 evaluate 使用者的配置文件，也不拥有其固定路径。项目可以自行命名和组织配置文件与运行脚本；文档示例不是路径兼容承诺。
 - 采用: 当前 JSON reader、comment grammar、JSON Schema 与旧配置选择退出目标 contract；不建立 dual reader、自动转换或静默 fallback。
 - 不采用: 用 module URL、配置文件路径、worker message、function serialization 或 Product-owned loader 代替项目运行脚本已经完成的普通 import。
