@@ -4,7 +4,7 @@
 
 ## Context
 
-当前事实由`docs/quality-metrics.md`、`docs/scanner-dependencies.md`和`src/product/quality-core/src/measurement/**/lizard*.ts`承接：function capability对`.ts`（包括`.d.ts`）与`.rs`exact inputs调用resolved Python executable和fixed `-m lizard`，解析Lizard 1.23 CSV为name/file/start/end/NLOC/parameter-count/cyclomatic-complexity，并把unavailable、execution与invalid-result分开。本设计把届时 Scan Scope owner 批准并交付的集合称为 approved exact inputs；当前集合只包括`.ts`（含`.d.ts`）与`.rs`，`.tsx`、`.js`、`.jsx`不因使用相邻语法而自动纳入。当前模型仍是旧capability/machine-v1事实，不能直接替代新Check/Recordcontract。
+当前事实由`docs/quality-metrics.md`、`docs/scanner-dependencies.md`和`src/product/quality-core/measurement/**/lizard*.ts`承接：function capability对`.ts`（包括`.d.ts`）与`.rs`exact inputs调用resolved Python executable和fixed `-m lizard`，解析Lizard 1.23 CSV为name/file/start/end/NLOC/parameter-count/cyclomatic-complexity，并把unavailable、execution与invalid-result分开。本设计把届时 Scan Scope owner 批准并交付的集合称为 approved exact inputs；当前集合只包括`.ts`（含`.d.ts`）与`.rs`，`.tsx`、`.js`、`.jsx`不因使用相邻语法而自动纳入。当前模型仍是旧capability/machine-v1事实，不能直接替代新Check/Recordcontract。
 
 活动未对齐决策`defer-lizard-until-after-check-foundations`确认实施顺序和private-backend边界：先完成Check/Record Core、Task orchestration和TypeScript Project Definition，再基于届时事实重新baseline并port。该顺序不把本Change降级为占位计划；fresh baseline capture、implementation和hard cut均由下方任务定义。
 

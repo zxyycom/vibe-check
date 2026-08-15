@@ -1,4 +1,4 @@
-import type { NormalizedTask, TaskDefinition } from "../../../src/product/task-orchestration/src/index.ts";
+import type { NormalizedTask, TaskDefinition } from "../../../src/product/task-scheduler/index.ts";
 
 export const PROFILE_REQUIRED = "required";
 export const PROFILE_FULL = "full";

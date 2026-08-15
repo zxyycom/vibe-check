@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import {
   serializeMachinePublicationV2,
   validateMachinePublicationSetV2
-} from "../../src/product/quality-core/src/output/publication-v2/index.ts";
+} from "../../src/product/quality-core/output/publication-v2/index.ts";
 import { canonicalMachineExamples } from "./machine-example-fixtures.ts";
 import {
   MACHINE_EXAMPLES_ROOT,

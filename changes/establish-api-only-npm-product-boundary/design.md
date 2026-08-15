@@ -28,7 +28,7 @@
 - `confirm-built-in-check-value-and-tree-type-names-before-publication`；
 - `publish-unscoped-vibe-check-publicly`、`license-package-under-mit` 和 `bind-external-programs-outside-check-semantics`。
 
-当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run.ts` 的 Product run
+当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run/index.ts` 的 Product run
 operation；保留的 Bun CLI 只返回 migration diagnostic。root manifest 仍是 private workspace，三个前置
 Changes 虽已完成任务但尚未归档，因此本 Design 描述的是 downstream target contract，不是当前可用 package。
 
@@ -218,7 +218,7 @@ Acceptance 必须使用将要交付的同一个 tarball，不能用 workspace so
 
 ### 10. Product CLI Is Removed Only After Replacement Acceptance
 
-当两个 public operations、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和保留的 migration argv/help/exit diagnostic contract。
+当两个 public operations、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli/index.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和保留的 migration argv/help/exit diagnostic contract。
 
 只证明 argv、help、exit 和 console mapping 的 Cases 随 Product surface 退役。Configuration、gate、scan completeness、Task scheduling 和 output evidence 迁移到 package API、项目运行脚本或 exact-tarball acceptance。Repository command 留在 `scripts/**`，作为调用项目 Run 的 adapter；不保留 deprecated forwarding、argv shim 或 dual Product entry。
 

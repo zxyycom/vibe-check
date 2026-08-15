@@ -7,7 +7,7 @@ artifact bytes、CLI parsing、scope collection 或 scanner executable。
 
 一次 invocation 在 work 前冻结 public `CheckDefinition` catalog、每个 definition 的一个 private
 binding、selection、applicability、closed `requiresChecks` schedule、static TaskPlan 与 policy resolution。
-Product 使用 `src/product/task-orchestration/**` 的唯一 generic runner；它继续只调度 opaque private Task
+Product 使用 `src/product/task-scheduler/**` 的唯一 generic runner；它继续只调度 opaque private Task
 value。Check adapter 是闭合 Product 层：direct binding 是直接形成 terminal result 的一个 Task，TaskPlan
 leaf 归一化为 ordinary Task，而每个 TaskPlan 的 Check-level `complete(outcomes)` 只在全部 leaf 可用后
 恰好调用一次。Task、group、Task dependency、mutex 和 Task outcome 不进入产品输出。

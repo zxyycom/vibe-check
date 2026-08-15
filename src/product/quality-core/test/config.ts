@@ -1,8 +1,8 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { ResolvedQualityConfig } from "../src/model/schema.ts";
-import type { ScannerDependencySnapshot } from "../../scanner-dependencies.ts";
+import type { ResolvedQualityConfig } from "../model/schema.ts";
+import type { ScannerDependencySnapshot } from "../../scanner-dependencies/index.ts";
 
 const JSCPD_ENTRY = resolve(
   dirname(fileURLToPath(import.meta.resolve("jscpd/package.json"))),

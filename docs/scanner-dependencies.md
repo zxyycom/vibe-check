@@ -46,6 +46,6 @@ exact-input acceptance、normalized Check contribution 和 cache identity contra
 
 ## 验证
 
-`src/product/scanner-dependencies.test.ts` 证明 closed precedence、selected-only resolution、secret-safe
+`src/product/scanner-dependencies/index.test.ts` 证明 closed precedence、selected-only resolution、secret-safe
 missing input 及没有 repository/PATH fallback；built-in Check tests 证明 availability、exact scope、zero work、
 reference 和 cache behavior。

@@ -10,7 +10,7 @@
   "scripts": {
     "env:check": "bun scripts/project-environment/index.ts check",
     "env:setup": "bun scripts/project-environment/index.ts setup",
-    "product:cli": "mise exec -- bun src/product/cli.ts",
+    "product:cli": "mise exec -- bun src/product/cli/index.ts",
     "lint:product": "eslint --max-warnings 0 --cache --cache-location .cache/eslint/product --cache-strategy content \"src/product/**/*.ts\"",
     "lint:scripts": "eslint --max-warnings 0 --cache --cache-location .eslintcache --cache-strategy content \"eslint.config.ts\" \"scripts/**/*.ts\"",
     "typecheck:product": "tsgo -p tsconfig.product.json",

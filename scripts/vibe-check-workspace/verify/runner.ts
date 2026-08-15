@@ -1,4 +1,4 @@
-import { runParallelTasks } from "../../../src/product/task-orchestration/src/index.ts";
+import { runParallelTasks } from "../../../src/product/task-scheduler/index.ts";
 import {
   asCheckTask,
   checksForProfile,

@@ -22,7 +22,7 @@ relations: []
 ## 决策
 - 采用: 根项目精确锁定 `neverthrow`、`ts-pattern`、`remeda` 和 `mnemonist`；当前版本由
   `package.json` 与 lockfile 承接，不在决策中复制可变版本事实。
-- 采用: `src/product/foundation/src/option.ts` 单点拥有项目自制 `Option`，以存在/缺失语义
+- 采用: `src/product/foundation/option.ts` 单点拥有项目自制 `Option`，以存在/缺失语义
   补充 `neverthrow` 的成功/失败语义，并通过 `toResult` 在边界衔接；脚本或消费方不得复制
   第二份实现。
 - 采用: 各能力只在 `docs/coding-style.md` 声明的问题信号出现时使用。预置不构成迁移要求，

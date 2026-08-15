@@ -4,16 +4,16 @@ import { join } from "node:path";
 import {
   resolveCheckCatalog,
   type CheckExecutionBinding
-} from "../../../src/product/quality-core/src/check-record/catalog.ts";
-import { coordinateCheckRecords } from "../../../src/product/quality-core/src/check-record/coordinator.ts";
-import { projectHumanStatus } from "../../../src/product/quality-core/src/check-record/human-status.ts";
-import type { CheckDefinition } from "../../../src/product/quality-core/src/check-record/model.ts";
-import type { DecisionEvidence, ReferenceFacts } from "../../../src/product/quality-core/src/check-record/policy-model.ts";
+} from "../../../src/product/quality-core/check-record/catalog.ts";
+import { coordinateCheckRecords } from "../../../src/product/quality-core/check-record/coordinator.ts";
+import { projectHumanStatus } from "../../../src/product/quality-core/check-record/human-status.ts";
+import type { CheckDefinition } from "../../../src/product/quality-core/check-record/model.ts";
+import type { DecisionEvidence, ReferenceFacts } from "../../../src/product/quality-core/check-record/policy-model.ts";
 import {
   createPublicationModelV2,
   projectMachinePublicationV2,
   serializeMachinePublicationV2
-} from "../../../src/product/quality-core/src/output/publication-v2/index.ts";
+} from "../../../src/product/quality-core/output/publication-v2/index.ts";
 
 const ANNOTATION_FIXTURE_WORK_HANDLE = "work-handle/v1:annotation-consumer";
 const ANNOTATION_FIXTURE_SCHEDULER_POLICY = Object.freeze({ maxParallel: 4 });

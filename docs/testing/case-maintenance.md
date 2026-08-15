@@ -82,7 +82,7 @@ Case 不是完整契约文档。`Owner` 指向完整规则，`Proves` 只记录�
 ## Case WB-METRICS-GATE-EVALUATOR-001: Product gate evaluation 稳定
 Owner: `docs/quality-metrics.md#gate-policy-and-evaluation`
 Entities:
-- `bun|src/product/quality-core/src/model/gate-evaluator.test.ts|gate evaluator prerequisites > applies the fixed disabled, completeness, and comparison priority`
+- `bun|src/product/quality-core/model/gate-evaluator.test.ts|gate evaluator prerequisites > applies the fixed disabled, completeness, and comparison priority`
 Proves:
 - Disabled、completeness failure 与 comparison unavailable 使用固定 prerequisite priority。
 ```

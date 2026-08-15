@@ -20,7 +20,7 @@
 
 ## Why
 
-当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run.ts` 的 Product run
+当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run/index.ts` 的 Product run
 operation；保留的 Bun CLI 只返回迁移 diagnostic。root `package.json` 仍是 `private: true` 的 workspace
 manifest，也没有 installed-consumer package entry。这些事实不能证明普通项目可以安装、导入并运行一个
 依赖闭合的 package。

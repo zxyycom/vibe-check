@@ -7,7 +7,7 @@ Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚�
 
 Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation`
 提供共享 helper source import；workspace verifier 从
-`src/product/task-orchestration/**` 消费 repository-internal task runner。consumer、默认配置、
+`src/product/task-scheduler/**` 消费 repository-internal task runner。consumer、默认配置、
 profile 和 package scripts 由 Vibe Check 拥有。
 
 Vibe Check 拥有的开发脚本入口是：
@@ -63,7 +63,7 @@ profile/gate selector。
 - `foundation`：process、Git、path、filesystem、JSON、CSV、NDJSON、
   argument、error 和 type guard helpers。
 
-`src/product/task-orchestration/**` 是 Vibe Check-owned repository-internal task runner：它
+`src/product/task-scheduler/**` 是 Vibe Check-owned repository-internal task runner：它
 拥有 task normalization、dependency graph validation、root/Check-scoped concurrency、mutex scheduling 和
 lifecycle hooks。Check-scoped cap 经 private handoff 由同一 scheduler 实施；`scripts/vibe-check-workspace/**`
 只单向 import 这个 Product source owner，不保留另一份 scheduler。
@@ -211,7 +211,7 @@ bun run quality:annotate -- [artifact-directory] [limit]
 - Limit 必须匹配 `^[1-9][0-9]*$` 且不超过 `Number.MAX_SAFE_INTEGER`；extra argument、
   invalid limit 或 read failure 都是 handled infrastructure failure。
 - Consumer 从该 directory 读取 `run.json` 与 `records.ndjson`，并只通过
-  `src/product/machine-output.ts` shallow boundary 验证完整 two-file machine set。完整 validation
+  `src/product/run/machine-output.ts` shallow boundary 验证完整 two-file machine set。完整 validation
   成功后才过滤 `info`、应用 limit 并渲染 GitHub commands；script 不保留 render-only parser 或
   deep-import quality-core internals。
 - Conforming set 产生 filtered/limited annotations；empty records set 产生 zero commands；两者退出 `0`。
@@ -376,6 +376,6 @@ decision records 与 test evidence 的严格检查。它不定义产品行为，
 | workspace verifier | `bun run verify:vibe-check-workspace:required` |
 | current schema/example generation drift | `bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
 | quality annotation | `bun run quality:annotate -- [artifact-directory] [limit]` |
-| toolkit pin、checkout 或 Product-owned runner import | `bun run toolkit:foundation:test`、`bun test src/product/task-orchestration/test` |
+| toolkit pin、checkout 或 Product-owned runner import | `bun run toolkit:foundation:test`、`bun test src/product/task-scheduler/test` |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

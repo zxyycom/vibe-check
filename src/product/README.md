@@ -19,10 +19,10 @@ behavior was used as migration input.
   `src/**` and `test/**` trees. They now live under `quality-core/`.
 - foundation revision
   `f593edbf55fd03be7db54ef44a38d0a9feda4dbd` supplied the statically
-  reachable helper files under `foundation/src/`.
+  reachable helper files under `foundation/`.
 - parallel-task-runner revision
   `025af7350e2d624eeded23784f411bec5f4a1473` supplied its complete `src/**`
-  and `test/**` trees. They now live under `task-orchestration/`; the precise
+  and `test/**` trees. They now live under `task-scheduler/`; the precise
   byte-preserved subset and integration adjustments are defined below.
 
 The consumer files and test declaration were read from commit-qualified
@@ -52,7 +52,7 @@ The product foundation file set is:
 - `process.ts` and `process/*.ts`
 - `type-guards.ts`
 
-`foundation/src/index.ts` exports the mechanically reduced surface imported by
+`foundation/index.ts` exports the mechanically reduced surface imported by
 quality-core plus the project-owned `Option` primitive. Consumer code imports
 `args.ts`, `errors.ts`, and `type-guards.ts` directly. Unused modules from the
 pinned foundation revision, package metadata, tests, and `json/value.ts` were
@@ -67,30 +67,31 @@ packages; they must not resolve through `scripts/**` or a toolkit gitlink.
 The lift uses two review categories:
 
 1. Byte-preserved sources:
-   - quality-core `src/**` and `test/**`;
+   - quality-core source and `test/**`;
    - the consumer `scripts/tools/bun-test.d.ts` declaration;
-   - the 14 copied foundation helper files other than `foundation/src/index.ts`;
-   - task-orchestration `src/tasks/**` and `test/index.test.ts`.
+   - the 14 copied foundation helper files other than `foundation/index.ts`;
+   - task-scheduler `definition/**`, `graph.ts`, `planning.ts`, `scheduler.ts`, and
+     `test/index.test.ts`.
 2. Repository integration adjustments:
    - consumer imports now resolve inside `src/product/**`;
    - scan execution is exposed as `runScan(projectRoot, argv)`, while top-level
-     command routing and error/status mapping live in `cli.ts`;
+     command routing and error/status mapping live in `cli/index.ts`;
    - CLI help names the formal `product:cli` entry;
    - the dogfood config replaces retired Rust/Cargo source areas and accepted
      warnings with the `src/product/**` source area, without changing the
      pinned threshold, profile, scanner, warning, baseline, artifact, or
      status algorithms;
-   - `foundation/src/index.ts` exports the product runtime closure and the
+   - `foundation/index.ts` exports the product runtime closure and the
      preinstalled product-owned `Option` primitive;
-   - `foundation/src/option.ts` uses an explicit readonly field assignment
+   - `foundation/option.ts` uses an explicit readonly field assignment
      instead of a constructor parameter property to satisfy this repository's
      `erasableSyntaxOnly` type policy;
    - `scripts/quality/scan.ts` remains only as a repository-root wrapper around
      the product CLI;
    - the root Product test/typecheck/lint boundaries include
-     `task-orchestration/**`, while the moved runner no longer owns a standalone
+     `task-scheduler/**`, while the moved runner no longer owns a standalone
      package or TypeScript configuration;
-   - `task-orchestration/src/index.ts` imports `parsePositiveInteger` directly
+   - `task-scheduler/index.ts` imports `parsePositiveInteger` directly
      from the existing Product foundation `args.ts` module because the Product
      foundation barrel deliberately does not expose the broader script argument
      surface used by the pinned runner;

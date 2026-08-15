@@ -10,18 +10,18 @@ Proves:
 ## Case AUX-PARALLEL-RUNNER-001: Parallel task runner 保持调度契约
 Owner: `docs/script-tooling.md#工具来源`
 Entities:
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > accepts a task preparation strategy before graph validation and scheduling`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > does not limit concurrency when no explicit concurrency is provided`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > expands nested task groups with inherited metadata and group dependencies`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > normalizes task metadata and supports task.run as the execution body`
-- `bun|src/product/task-orchestration/test/admission-controller.test.ts|parallel task admission controller > rejects a pending task that is not in the current ready set`
-- `bun|src/product/task-orchestration/test/admission-controller.test.ts|parallel task admission controller > rejects synchronous admission callbacks and execution failures without pending work`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > rejects duplicate ids and unknown dependencies`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > rejects invalid task list metadata at the normalization boundary`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > respects an explicit concurrency limit`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > runs independent tasks concurrently but serializes matching mutexes`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > waits for onComplete while treating resolved result values as opaque`
-- `bun|src/product/task-orchestration/test/index.test.ts|parallel task runner > waits for topological dependencies before starting dependent tasks`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > accepts a task preparation strategy before graph validation and scheduling`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > does not limit concurrency when no explicit concurrency is provided`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > expands nested task groups with inherited metadata and group dependencies`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > normalizes task metadata and supports task.run as the execution body`
+- `bun|src/product/task-scheduler/test/admission-controller.test.ts|parallel task admission controller > rejects a pending task that is not in the current ready set`
+- `bun|src/product/task-scheduler/test/admission-controller.test.ts|parallel task admission controller > rejects synchronous admission callbacks and execution failures without pending work`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > rejects duplicate ids and unknown dependencies`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > rejects invalid task list metadata at the normalization boundary`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > respects an explicit concurrency limit`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > runs independent tasks concurrently but serializes matching mutexes`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for onComplete while treating resolved result values as opaque`
+- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for topological dependencies before starting dependent tasks`
 Proves:
 - source lift 后 task normalization、concurrency、mutex serialization、dependency ordering 和 nested task expansion 保持稳定。
 - prepare strategy、invalid list metadata、duplicate id、unknown dependency，以及 admission seam 选中 blocked task 或同步失败都保持可诊断，并在 execution failure 后不启动 pending work。

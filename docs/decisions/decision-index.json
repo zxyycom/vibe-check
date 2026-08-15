@@ -96,7 +96,7 @@
       "workflow-policy/keep-seven-distinct-project-skills.md": "sha256:348de7e60d4bd787e150ef0f440fe35a42f59717e57daabeab4936869109c2f3",
       "workflow-policy/make-bun-entries-use-pinned-tools.md": "sha256:722da28e883819c11f391049ce89e944273999ed07da1191189881f904c2b6f7",
       "workflow-policy/match-change-detail-to-current-phase.md": "sha256:50a797048db4cb57fe035ac4e12767f287f54b14f50e8e92f38f15963e793d8b",
-      "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:e4d58a585d4f83b4ae7ee67d86598623191f93b36bfcfc814f5342598f0954bb",
+      "workflow-policy/preinstall-selected-typescript-capabilities.md": "sha256:a68f7615589192ad700607d30610a1b3d7918663d7b3fe9afc57b7a51ac7d83e",
       "workflow-policy/record-paused-change-state-in-artifacts.md": "sha256:d89f821f12af19eb6872d5ade06769ab7bb7a302c02baecd09a6de6d9babac8c",
       "workflow-policy/require-explicit-named-comparison-references.md": "sha256:d09c1c67ccdcb26d663567b82dc6afc38303a82347a2d5a224d4cff0a6879e1c",
       "workflow-policy/require-explicit-quality-baselines.md": "sha256:9e4a8654935dd513b8d45fc23e91db6227608e2c444dadfa1ea124d54007aa63",

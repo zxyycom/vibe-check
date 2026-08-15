@@ -3,28 +3,28 @@ import type {
   CheckRun,
   FinalCoreSnapshot,
   QualityRecord
-} from "../../src/product/quality-core/src/check-record/model.ts";
+} from "../../src/product/quality-core/check-record/model.ts";
 import {
   resolveCheckCatalog,
   type ResolvedCheckCatalog
-} from "../../src/product/quality-core/src/check-record/catalog.ts";
+} from "../../src/product/quality-core/check-record/catalog.ts";
 import {
   evaluateDecisionPolicy
-} from "../../src/product/quality-core/src/check-record/policy-evaluator.ts";
+} from "../../src/product/quality-core/check-record/policy-evaluator.ts";
 import type {
   DecisionEvidence,
   DecisionPolicy,
   ReferenceFacts
-} from "../../src/product/quality-core/src/check-record/policy-model.ts";
+} from "../../src/product/quality-core/check-record/policy-model.ts";
 import {
   validatePolicyResolution
-} from "../../src/product/quality-core/src/check-record/policy-validation.ts";
-import { createRecordId } from "../../src/product/quality-core/src/check-record/identity.ts";
-import { projectHumanStatus } from "../../src/product/quality-core/src/check-record/human-status.ts";
+} from "../../src/product/quality-core/check-record/policy-validation.ts";
+import { createRecordId } from "../../src/product/quality-core/check-record/identity.ts";
+import { projectHumanStatus } from "../../src/product/quality-core/check-record/human-status.ts";
 import {
   createPublicationModelV2,
   projectMachinePublicationV2
-} from "../../src/product/quality-core/src/output/publication-v2/index.ts";
+} from "../../src/product/quality-core/output/publication-v2/index.ts";
 import {
   FIXED_MACHINE_EXAMPLE_INPUT,
   type CanonicalMachineExample,

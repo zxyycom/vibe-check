@@ -1,7 +1,7 @@
 import type {
   MachinePublicationV2,
   ValidatedPublicationModelV2
-} from "../../src/product/quality-core/src/output/publication-v2/index.ts";
+} from "../../src/product/quality-core/output/publication-v2/index.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
 export const MACHINE_EXAMPLE_REGENERATE_COMMAND =

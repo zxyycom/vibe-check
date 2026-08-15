@@ -9,7 +9,7 @@ import { pathToFileURL } from "node:url";
 import {
   validateMachinePublicationSetV2,
   type MachinePublicationValidationDiagnostic
-} from "../../src/product/machine-output.ts";
+} from "../../src/product/run/machine-output.ts";
 import { errorMessage } from "../tools/foundation/src/errors.ts";
 import { renderGithubAnnotations } from "./annotate/github.ts";
 

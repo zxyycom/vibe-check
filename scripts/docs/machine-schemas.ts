@@ -9,7 +9,7 @@ import {
   MACHINE_RECORD_V2_SCHEMA_PATH,
   MACHINE_RUN_V2_SCHEMA,
   MACHINE_RUN_V2_SCHEMA_PATH
-} from "../../src/product/quality-core/src/output/publication-v2/index.ts";
+} from "../../src/product/quality-core/output/publication-v2/index.ts";
 
 const workspaceRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

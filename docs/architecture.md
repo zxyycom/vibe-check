@@ -7,7 +7,7 @@
                                       → validated model → effects/result
 ```
 
-本文中的 **Package Run** 是架构角色：当前由 `src/product/run.ts` 的
+本文中的 **Package Run** 是架构角色：当前由 `src/product/run/index.ts` 的
 `run(Project Definition, Run Controls)` Product operation 实现。它不表示仓库目前已经提供可安装的
 npm package；root manifest 仍是 private workspace，installable projection 由下游
 `establish-api-only-npm-product-boundary` Change 交付。

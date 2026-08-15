@@ -6,7 +6,7 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics
-} from "../../src/product/project-definition.ts";
+} from "../../src/product/definition/project.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 

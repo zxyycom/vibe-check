@@ -25,7 +25,7 @@ Core 先验证 `FinalCoreSnapshot`，Output 再创建一个 validated publicatio
 structured Run Result 只消费该 model，不再接收可独立漂移的 status 或 GateResult 事实。Output 不重新计算
 Check result、record、reference、policy、quality status 或 GateResult。
 
-`src/product/machine-output.ts` 是外部 consumer 的 shallow boundary，导出
+`src/product/run/machine-output.ts` 是外部 consumer 的 shallow boundary，导出
 `validateMachinePublicationSetV2`。validator 接收一个 artifact directory 的 two-file bytes，完整返回
 validated set 或一个 typed diagnostic；绝不返回可供 partial consumer 使用的 prefix。
 
