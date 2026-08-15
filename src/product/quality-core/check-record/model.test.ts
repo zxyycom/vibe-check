@@ -1,18 +1,11 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import {
-  RUN_FAILURE_RANK,
-  compareRunDiagnostics,
-  type CheckRun,
-  type FinalCoreSnapshot,
-  type QualityRecordCandidate
-} from "./model.ts";
-import { createCatalogFingerprint } from "./identity.ts";
+import type { QualityRecordCandidate } from "./model.ts";
+import { createRecordId } from "./identity.ts";
 import {
   validateCheckDefinition,
-  validateCheckRun,
-  validateFinalCoreSnapshot
+  validateCoreSnapshot
 } from "./validation.ts";
 
 const definition = {
@@ -39,7 +32,7 @@ const definition = {
 } as const;
 
 describe("check-record foundation model", () => {
-  it("keeps producer candidates free of manager provenance and complex field values", () => {
+  it("keeps producer candidates free of Core ownership and lifecycle provenance", () => {
     const producerCandidate: QualityRecordCandidate = {
       recordTypeId: "line-budget",
       level: "warning",
@@ -96,136 +89,62 @@ describe("check-record foundation model", () => {
     }).ok, false);
   });
 
-  it("enforces the closed selected applicability run and result matrix", () => {
-    const legalRuns: readonly unknown[] = [
-      {
-        checkId: "file-metrics",
-        checkRunId: "check-run/v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        selection: "unselected",
-        applicability: null,
-        status: "skipped",
-        result: null,
-        coverage: null,
-        diagnostic: null
-      },
-      {
-        checkId: "file-metrics",
-        checkRunId: "check-run/v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        selection: "selected",
-        applicability: "not-applicable",
-        status: "completed",
-        result: { verdict: "not-applicable" },
-        coverage: { plannedWorkCount: 0, acknowledgedWorkCount: 0 },
-        diagnostic: null
-      },
-      {
-        checkId: "file-metrics",
-        checkRunId: "check-run/v1:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-        selection: "selected",
-        applicability: "applicable",
-        status: "completed",
-        result: { verdict: "failed" },
-        coverage: { plannedWorkCount: 2, acknowledgedWorkCount: 2 },
-        diagnostic: null
-      },
-      {
-        checkId: "file-metrics",
-        checkRunId: "check-run/v1:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-        selection: "selected",
-        applicability: "applicable",
-        status: "failed",
-        result: null,
-        coverage: { plannedWorkCount: 2, acknowledgedWorkCount: 1 },
-        diagnostic: { category: "execution-failed", tieBreakKey: "execution/v1:worker-02" }
-      }
-    ];
+  it("accepts exactly one closed terminal outcome for each Core Check", () => {
+    const outcomes = [
+      { kind: "not-applicable" },
+      { kind: "completed", verdict: "passed" },
+      { kind: "completed", verdict: "failed" },
+      ...[
+        "record-conflict",
+        "invalid-record",
+        "capability-protocol",
+        "invalid-result",
+        "dependency-unavailable",
+        "execution-failed",
+        "cancelled"
+      ].map((category) => ({ kind: "unavailable", diagnostic: { category } }))
+    ] as const;
 
-    for (const run of legalRuns) {
-      assert.equal(validateCheckRun(run).ok, true);
+    for (const outcome of outcomes) {
+      assert.equal(validateCoreSnapshot({
+        checks: [{ ...definition, outcome }],
+        records: []
+      }).ok, true);
     }
 
-    const invalidRuns = [
-      { ...legalRuns[0] as object, applicability: "applicable" },
-      { ...legalRuns[1] as object, result: null },
-      { ...legalRuns[2] as object, result: { verdict: "not-applicable" } },
-      { ...legalRuns[2] as object, coverage: { plannedWorkCount: 2, acknowledgedWorkCount: 1 } },
-      { ...legalRuns[3] as object, result: { verdict: "passed" } },
-      { ...legalRuns[3] as object, diagnostic: null }
-    ];
-
-    for (const run of invalidRuns) {
-      assert.equal(validateCheckRun(run).ok, false);
+    const valid = { checks: [{ ...definition, outcome: outcomes[1] }], records: [] };
+    for (const invalid of [
+      { kind: "completed", verdict: "not-applicable" },
+      { kind: "unavailable", diagnostic: { category: "ack-protocol" } },
+      { kind: "not-applicable", diagnostic: null },
+      { kind: "unknown" }
+    ]) {
+      assert.equal(validateCoreSnapshot({
+        ...valid,
+        checks: [{ ...definition, outcome: invalid }]
+      }).ok, false);
     }
   });
 
-  it("fixes diagnostic precedence and canonical same-category tie breaking", () => {
-    assert.deepEqual(RUN_FAILURE_RANK, {
-      "record-conflict": 0,
-      "invalid-record": 1,
-      "ack-protocol": 2,
-      "terminal-report-set": 3,
-      "invalid-result": 4,
-      unavailable: 5,
-      "execution-failed": 6
-    });
-
-    assert.ok(compareRunDiagnostics(
-      { category: "invalid-result", tieBreakKey: "result/v1:result-z" },
-      { category: "ack-protocol", tieBreakKey: "work-handle/v1:handle-z" }
-    ) > 0);
-    assert.ok(compareRunDiagnostics(
-      { category: "ack-protocol", tieBreakKey: "work-handle/v1:handle-02" },
-      { category: "ack-protocol", tieBreakKey: "work-handle/v1:handle-10" }
-    ) < 0);
-    assert.equal(validateCheckRun({
-      checkId: "file-metrics",
-      checkRunId: "check-run/v1:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-      selection: "selected",
-      applicability: "applicable",
-      status: "failed",
-      result: null,
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 0 },
-      diagnostic: {
-        category: "execution-failed",
-        tieBreakKey: "https://user:secret-token@example.test/private"
-      }
-    }).ok, false);
-  });
-
-  it("validates mechanical snapshot integrity and coverage without reducing quality", () => {
-    const runs: readonly CheckRun[] = [
-      {
-        checkId: "file-metrics",
-        checkRunId: "check-run/v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        selection: "unselected",
-        applicability: null,
-        status: "skipped",
-        result: null,
-        coverage: null,
-        diagnostic: null
-      }
-    ];
-    const snapshot: FinalCoreSnapshot = {
-      catalogFingerprint: createCatalogFingerprint([definition]).catalogFingerprint,
-      definitions: [definition],
-      runs,
-      records: [],
-      integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-      completeness: {
-        status: "complete",
-        selectedRunCount: 0,
-        completedRunCount: 0,
-        failedRunCount: 0,
-        plannedWorkCount: 0,
-        acknowledgedWorkCount: 0
-      }
+  it("validates an exact canonical two-entity snapshot without lifecycle projections", () => {
+    const candidate = {
+      checkId: definition.checkId,
+      recordTypeId: "line-budget",
+      level: "warning" as const,
+      semanticSubject: "src/a.ts",
+      message: "Too many lines",
+      fields: { codeArea: "source", limit: 200 },
+      location: null
+    };
+    const snapshot = {
+      checks: [{ ...definition, outcome: { kind: "completed", verdict: "failed" } }],
+      records: [{ ...candidate, recordId: createRecordId(candidate, definition.recordTypes[0]).recordId }]
     };
 
-    assert.equal(validateFinalCoreSnapshot(snapshot).ok, true);
-    assert.equal(validateFinalCoreSnapshot({
-      ...snapshot,
-      completeness: { ...snapshot.completeness, failedRunCount: 1 }
-    }).ok, false);
-    assert.equal("qualityVerdict" in snapshot.completeness, false);
+    assert.equal(validateCoreSnapshot(snapshot).ok, true);
+    assert.equal(validateCoreSnapshot({ ...snapshot, runs: [] }).ok, false);
+    assert.equal(validateCoreSnapshot({ ...snapshot, integrity: { status: "valid" } }).ok, false);
+    assert.equal("definitions" in snapshot, false);
+    assert.equal("completeness" in snapshot, false);
   });
 });

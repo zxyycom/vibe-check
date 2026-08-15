@@ -1,6 +1,6 @@
 import { createCatalogFingerprint } from "./identity.ts";
 import type {
-  FinalCoreSnapshot,
+  CoreSnapshot,
   JsonPrimitive,
   QualityRecord
 } from "./model.ts";
@@ -85,16 +85,20 @@ export function validatePolicyResolution(
 export function validateReferenceFacts(
   value: unknown,
   resolution: PolicyResolution,
-  snapshot: FinalCoreSnapshot
+  snapshot: CoreSnapshot
 ): ValidationResult<ReferenceFacts> {
-  if (resolution.catalogFingerprint !== snapshot.catalogFingerprint) {
+  const catalogFingerprint = createCatalogFingerprint(snapshot.checks).catalogFingerprint;
+  if (resolution.catalogFingerprint !== catalogFingerprint) {
     return issue(
       "$.catalogFingerprint",
       "identity-mismatch",
       "Policy resolution catalog does not match the final snapshot"
     );
   }
-  const registry = resolvePolicySurfaceRegistry(snapshot, "Final snapshot catalog fingerprint is invalid");
+  const registry = resolvePolicySurfaceRegistry({
+    catalogFingerprint,
+    definitions: snapshot.checks
+  }, "Final snapshot catalog fingerprint is invalid");
   if (!registry.ok) return registry;
   return validateReferenceFactsData(value, resolution, snapshot, registry.value.recordTypes);
 }

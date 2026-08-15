@@ -8,7 +8,6 @@ import {
 } from "../model.ts";
 import {
   createRecordId,
-  isCheckRunId,
   normalizeSemanticSubject
 } from "../identity.ts";
 import {
@@ -26,7 +25,6 @@ import {
 const QUALITY_RECORD_FIELDS = [
   "recordId",
   "checkId",
-  "checkRunId",
   "recordTypeId",
   "level",
   "semanticSubject",
@@ -37,7 +35,6 @@ const QUALITY_RECORD_FIELDS = [
 
 interface ValidatedRecordBinding {
   readonly recordId: string;
-  readonly checkRunId: string;
   readonly recordType: RecordTypeDefinition;
 }
 
@@ -103,7 +100,7 @@ function validateRecordBinding(
   record: Readonly<Record<string, unknown>>,
   definition: CheckDefinition
 ): ValidationResult<ValidatedRecordBinding> {
-  if (record.checkId !== definition.checkId || !isCheckRunId(record.checkRunId)) {
+  if (record.checkId !== definition.checkId) {
     return issue("$.checkId", "identity-mismatch", "Record provenance does not match its Check definition");
   }
   if (typeof record.recordId !== "string" || !RECORD_ID_PATTERN.test(record.recordId)) {
@@ -117,7 +114,6 @@ function validateRecordBinding(
   }
   return accepted({
     recordId: record.recordId,
-    checkRunId: record.checkRunId,
     recordType
   });
 }
@@ -192,7 +188,6 @@ export function validateMaterializedQualityRecord(
   const normalizedRecord: QualityRecord = {
     recordId: binding.value.recordId,
     checkId: definition.checkId,
-    checkRunId: binding.value.checkRunId,
     recordTypeId: binding.value.recordType.recordTypeId,
     level: content.value.level,
     semanticSubject: normalizeSemanticSubject(content.value.semanticSubject),

@@ -6,12 +6,11 @@ const QUICK_QUALITY_CHECK_ID = "quality-quick-check";
 const ANSI_ESCAPE = String.fromCharCode(0x1b);
 const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-?]*[ -/]*[@-~]`, "g");
 
-export { asCheckTask } from "./normalization.ts";
 export { checks } from "./definitions.ts";
 export { PROFILE_FULL, PROFILE_REQUIRED, profiles } from "./model.ts";
 export type { CheckDefinition, CheckReportRef, CheckStatus, CheckTask, Profile } from "./model.ts";
 
-export function checksForProfile(profile: Profile): CheckTask[] {
+export function checksForProfile(profile: Profile): readonly CheckTask[] {
   assertProfile(profile);
   if (profile === PROFILE_REQUIRED) {
     return checks.filter((check) => check.type === PROFILE_REQUIRED);
@@ -27,11 +26,11 @@ export function reportCountForChecks(checkList: readonly CheckTask[]): number {
 }
 
 export function reportIdForCheck(check: CheckTask): string {
-  return check.reportId ?? check.id;
+  return check.reportId;
 }
 
 export function reportLabelForCheck(check: CheckTask): string {
-  return check.reportLabel ?? check.label;
+  return check.reportLabel;
 }
 
 export function parseProfile(profile: string): Profile {
@@ -52,7 +51,7 @@ export function visibleOutputLines(check: CheckTask, output: string, status: Che
 
 export function isAllowedOutput(check: Pick<CheckTask, "allowOutput">, line: string, status: CheckStatus): boolean {
   const normalizedLine = normalizeOutputLine(line);
-  if (status === "failed" || !check.allowOutput || check.allowOutput.length === 0) {
+  if (status === "failed" || check.allowOutput.length === 0) {
     return true;
   }
   return check.allowOutput.some((pattern) => pattern.test(normalizedLine));
@@ -60,7 +59,7 @@ export function isAllowedOutput(check: Pick<CheckTask, "allowOutput">, line: str
 
 export function isIgnoredOutput(check: Pick<CheckTask, "ignoreOutput">, line: string): boolean {
   const normalizedLine = normalizeOutputLine(line);
-  return normalizedLine.length === 0 || (check.ignoreOutput ?? []).some((pattern) => pattern.test(normalizedLine));
+  return normalizedLine.length === 0 || check.ignoreOutput.some((pattern) => pattern.test(normalizedLine));
 }
 
 function lines(output: string): string[] {

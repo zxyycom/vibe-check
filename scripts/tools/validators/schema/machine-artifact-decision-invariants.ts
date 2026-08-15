@@ -12,13 +12,15 @@ import {
   RUN_ARTIFACT,
   type DocsMachineValidationFailure,
   type EvidenceRefShape,
+  type GateShape,
   type RecordShape,
+  type ReadinessEvidenceShape,
   type RunShape
 } from "./machine-artifact-types.ts";
 
 interface EvidenceReferenceSets {
+  readonly checkIds: ReadonlySet<string>;
   readonly recordIds: ReadonlySet<string>;
-  readonly runIds: ReadonlySet<string>;
   readonly viewIds: ReadonlySet<string>;
   readonly readinessIds: ReadonlySet<string>;
   readonly referenceByName: ReadonlyMap<string, { referenceId: string }>;
@@ -55,8 +57,8 @@ function createEvidenceReferenceSets(
   recordIds: ReadonlySet<string>
 ): EvidenceReferenceSets {
   return {
+    checkIds: new Set(run.checks.map(({ checkId }) => checkId)),
     recordIds,
-    runIds: new Set(run.runs.map(({ checkRunId }) => checkRunId)),
     viewIds: new Set(run.decision.views.map(({ viewId }) => viewId)),
     readinessIds: new Set(run.decision.readiness.map(({ readinessId }) => readinessId)),
     referenceByName: new Map(run.references.identities.map((identity) => [
@@ -72,9 +74,7 @@ function allEvidenceReferences(run: RunShape): readonly EvidenceRefShape[] {
   return [
     ...decision.readiness.flatMap(({ evidenceRefs }) => evidenceRefs),
     ...(decision.blockWhen?.evidenceRefs ?? []),
-    ...(decision.gate.status === "disabled"
-      ? []
-      : decision.gate.evidenceRefs as readonly EvidenceRefShape[])
+    ...(decision.gate.status === "disabled" ? [] : decision.gate.evidenceRefs)
   ];
 }
 
@@ -83,43 +83,43 @@ function validateEvidenceRef(
   sets: EvidenceReferenceSets,
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  if (reference.kind === "record") {
-    return sets.recordIds.has(reference.recordId as string)
-      ? null
-      : decisionFailure(artifactRoot, "decision-record-reference", "Unknown record evidence ref.");
+  switch (reference.kind) {
+    case "record":
+      return sets.recordIds.has(reference.recordId)
+        ? null
+        : decisionFailure(artifactRoot, "decision-record-reference", "Unknown record evidence ref.");
+    case "check":
+      return sets.checkIds.has(reference.checkId)
+        ? null
+        : decisionFailure(artifactRoot, "decision-check-reference", "Unknown Check evidence ref.");
+    case "view":
+      return sets.viewIds.has(reference.viewId)
+        ? null
+        : decisionFailure(artifactRoot, "decision-view-reference", "Unknown view evidence ref.");
+    case "readiness":
+      return sets.readinessIds.has(reference.readinessId)
+        ? null
+        : decisionFailure(
+          artifactRoot,
+          "decision-readiness-reference",
+          "Unknown readiness evidence ref."
+        );
+    case "reference":
+      return validateNamedReference(reference, sets, artifactRoot);
   }
-  if (reference.kind === "run") {
-    return sets.runIds.has(reference.checkRunId as string)
-      ? null
-      : decisionFailure(artifactRoot, "decision-run-reference", "Unknown run evidence ref.");
-  }
-  if (reference.kind === "view") {
-    return sets.viewIds.has(reference.viewId as string)
-      ? null
-      : decisionFailure(artifactRoot, "decision-view-reference", "Unknown view evidence ref.");
-  }
-  if (reference.kind === "readiness") {
-    return sets.readinessIds.has(reference.readinessId as string)
-      ? null
-      : decisionFailure(
-        artifactRoot,
-        "decision-readiness-reference",
-        "Unknown readiness evidence ref."
-      );
-  }
-  return validateNamedReference(reference, sets, artifactRoot);
+  return unreachableEvidenceRef(reference);
 }
 
 function validateNamedReference(
-  reference: EvidenceRefShape,
+  reference: Extract<EvidenceRefShape, { readonly kind: "reference" }>,
   sets: EvidenceReferenceSets,
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  const referenceName = reference.referenceName as string;
-  const identity = sets.referenceByName.get(referenceName);
+  const identity = sets.referenceByName.get(reference.referenceName);
   if (
     identity?.referenceId === reference.referenceId &&
-    sets.referencePairs.has(`${String(reference.checkId)}\u0000${referenceName}`)
+    sets.checkIds.has(reference.checkId) &&
+    sets.referencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`)
   ) return null;
   return decisionFailure(
     artifactRoot,
@@ -140,7 +140,7 @@ function validateDecisionRecordReferences(
     ...decision.views.flatMap(({ recordIds: ids }) => ids),
     ...(decision.blockWhen?.blockingRecordIds ?? []),
     ...((decision.gate.status === "passed" || decision.gate.status === "failed")
-      ? decision.gate.blockingRecordIds as readonly string[]
+      ? decision.gate.blockingRecordIds
       : [])
   ];
   if (referencedRecordIds.every((recordId) => recordIds.has(recordId))) return null;
@@ -181,9 +181,8 @@ function isCanonicalBlockWhen(blockWhen: RunShape["decision"]["blockWhen"]): boo
 
 function isCanonicalGate(gate: RunShape["decision"]["gate"]): boolean {
   if (gate.status === "disabled") return true;
-  if (!isCanonical(gate.evidenceRefs as readonly EvidenceRefShape[], evidenceKey)) return false;
-  if (gate.status !== "passed" && gate.status !== "failed") return true;
-  return isCanonicalText(gate.blockingRecordIds as readonly string[]);
+  if (!isCanonical(gate.evidenceRefs, evidenceKey)) return false;
+  return gate.status === "not-evaluated" || isCanonicalText(gate.blockingRecordIds);
 }
 
 function validateDecisionState(
@@ -192,9 +191,9 @@ function validateDecisionState(
 ): DocsMachineValidationFailure | null {
   const decision = run.decision;
   const gate = decision.gate;
-  const failedReadiness = decision.readiness
-    .map((evidence, index) => ({ evidence, index }))
-    .filter(({ evidence }) => evidence.status === "failed");
+  const failedReadiness: FailedReadiness = decision.readiness.flatMap((evidence, index) => (
+    evidence.status === "failed" ? [{ evidence, index }] : []
+  ));
   if (gate.status === "disabled") {
     return validateDisabledDecision(run, artifactRoot);
   }
@@ -202,9 +201,9 @@ function validateDecisionState(
     return decisionFailure(artifactRoot, "decision-state", "Gate policy identity is inconsistent.");
   }
   if (gate.status === "not-evaluated") {
-    return validateNotEvaluatedDecision(run, failedReadiness, artifactRoot);
+    return validateNotEvaluatedDecision(run, gate, failedReadiness, artifactRoot);
   }
-  return validateEvaluatedDecision(run, failedReadiness, artifactRoot);
+  return validateEvaluatedDecision(run, gate, failedReadiness, artifactRoot);
 }
 
 function validateDisabledDecision(
@@ -212,25 +211,24 @@ function validateDisabledDecision(
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
   const decision = run.decision;
-  const gate = decision.gate;
   return decision.policyId === null && decision.readiness.length === 0
-    && decision.blockWhen === null && gate.policyId === null
+    && decision.blockWhen === null
     ? null
     : decisionFailure(artifactRoot, "decision-state", "Disabled decision is inconsistent.");
 }
 
 type FailedReadiness = readonly {
-  readonly evidence: RunShape["decision"]["readiness"][number];
+  readonly evidence: Extract<ReadinessEvidenceShape, { readonly status: "failed" }>;
   readonly index: number;
 }[];
 
 function validateNotEvaluatedDecision(
   run: RunShape,
+  gate: Extract<GateShape, { readonly status: "not-evaluated" }>,
   failedReadiness: FailedReadiness,
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
   const { decision } = run;
-  const gate = decision.gate;
   const failed = failedReadiness[0];
   if (
     failedReadiness.length === 1 &&
@@ -239,7 +237,7 @@ function validateNotEvaluatedDecision(
     decision.blockWhen === null &&
     failed.evidence.reason === gate.reason &&
     sameEvidence(
-      gate.evidenceRefs as readonly EvidenceRefShape[],
+      gate.evidenceRefs,
       readinessEvidencePrefix(decision.readiness.slice(0, failed.index + 1))
     )
   ) return null;
@@ -252,18 +250,18 @@ function validateNotEvaluatedDecision(
 
 function validateEvaluatedDecision(
   run: RunShape,
+  gate: Extract<GateShape, { readonly status: "passed" | "failed" }>,
   failedReadiness: FailedReadiness,
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
   const { decision } = run;
-  const gate = decision.gate;
   const blockWhen = decision.blockWhen;
   if (
     failedReadiness.length === 0 &&
     blockWhen !== null &&
     (gate.status === "failed") === (blockWhen.status === "matched") &&
-    sameText(gate.blockingRecordIds as readonly string[], blockWhen.blockingRecordIds) &&
-    sameEvidence(gate.evidenceRefs as readonly EvidenceRefShape[], [
+    sameText(gate.blockingRecordIds, blockWhen.blockingRecordIds) &&
+    sameEvidence(gate.evidenceRefs, [
       ...readinessEvidencePrefix(decision.readiness),
       ...blockWhen.evidenceRefs
     ])
@@ -285,4 +283,8 @@ function decisionFailure(
     pointer: "/decision",
     relationship
   });
+}
+
+function unreachableEvidenceRef(reference: never): never {
+  throw new TypeError(`Unknown decision evidence reference: ${JSON.stringify(reference)}`);
 }

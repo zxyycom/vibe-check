@@ -35,12 +35,17 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   }),
   types: Object.freeze({
     builtInCheck: "BuiltInCheck",
+    checkDefinition: "CheckDefinition",
     checkGroup: "CheckGroup",
     checkNode: "CheckNode",
+    checkPlanningContext: "CheckPlanningContext",
+    checkResult: "CheckResult",
     customCheck: "CustomCheck",
     projectDefinition: "ProjectDefinition",
+    qualityRecordCandidate: "QualityRecordCandidate",
     runControls: "RunControls",
-    runResult: "RunResult"
+    runResult: "RunResult",
+    taskPlan: "TaskPlan"
   }),
   effectDefaults: Object.freeze({
     cache: Object.freeze({

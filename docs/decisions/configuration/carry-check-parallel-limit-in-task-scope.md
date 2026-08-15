@@ -1,7 +1,7 @@
 ---
 title: 在 Task scope 中承载 Check 并行上限
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-15T03:47:07Z
 purpose: 让 Check maxParallel 由同一 Task graph 的 scope metadata 进入唯一 scheduler，而不依赖按 ID 重组的 side map。
 background: scoped cap 行为已成立，但 keyed task-to-Check metadata 与 canonical Task scope 目标重复表达 ownership。

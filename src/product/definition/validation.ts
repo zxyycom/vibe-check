@@ -6,18 +6,18 @@ import {
   type CheckNode,
   type ProjectDefinition,
   type ProjectDefinitionDiagnostic,
+  type SchedulerPolicy,
   type ValidationResult
 } from "./project.ts";
 import { parseQualityConfiguration } from "./quality.ts";
 import { createCatalogFingerprint } from "../quality-core/check-record/identity.ts";
-import type { CheckDefinition } from "../quality-core/check-record/model.ts";
+import type { CheckDefinition } from "./check-definition.ts";
 import type { DecisionPolicy } from "../quality-core/check-record/policy-model.ts";
 import { validatePolicyResolution } from "../quality-core/check-record/policy-validation.ts";
 import {
   snapshotClosedArray,
   snapshotClosedRecord
 } from "../quality-core/check-record/plain-record-values.ts";
-import type { SchedulerPolicy } from "../quality-core/check-record/task-orchestrator.ts";
 import { parseOperationalDependencies } from "../scanner-dependencies/index.ts";
 
 const PROJECT_DEFINITION_KEYS = [

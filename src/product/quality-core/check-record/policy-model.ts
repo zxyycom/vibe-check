@@ -1,6 +1,5 @@
 import type {
   CheckDefinition,
-  CheckResultVerdict,
   JsonPrimitive,
   PolicyOperandDefinition,
   PolicyOperandSource
@@ -74,9 +73,12 @@ export interface PolicyReferenceRequirement {
 }
 
 export type ReadinessPredicate = Readonly<
-  | { kind: "run-status"; checkId: string; status: "completed" | "failed" | "skipped" }
-  | { kind: "run-verdict"; checkId: string; verdict: CheckResultVerdict }
-  | { kind: "run-coverage-complete"; checkId: string }
+  | {
+    kind: "check-outcome";
+    checkId: string;
+    outcome: "not-applicable" | "completed" | "unavailable";
+  }
+  | { kind: "check-verdict"; checkId: string; verdict: "passed" | "failed" }
   | {
     kind: "reference-status";
     checkId: string;
@@ -94,7 +96,11 @@ export interface ReadinessClause {
 
 export type BlockWhen = Readonly<
   | { kind: "view-not-empty"; viewId: string }
-  | { kind: "run-status"; checkId: string; status: "completed" | "failed" | "skipped" }
+  | {
+    kind: "check-outcome";
+    checkId: string;
+    outcome: "not-applicable" | "completed" | "unavailable";
+  }
   | {
     kind: "reference-status";
     checkId: string;
@@ -136,7 +142,7 @@ export interface ReferenceFacts {
 }
 
 export type EvidenceRef = Readonly<
-  | { kind: "run"; checkRunId: string }
+  | { kind: "check"; checkId: string }
   | { kind: "record"; recordId: string }
   | { kind: "reference"; checkId: string; referenceName: string; referenceId: string }
   | { kind: "view"; viewId: string }

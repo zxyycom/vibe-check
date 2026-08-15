@@ -1,13 +1,10 @@
-import { resolveCheckCatalog } from "./catalog.ts";
 import {
   createCatalogFingerprint,
-  createDeterministicCheckRunId,
   createRecordId
 } from "./identity.ts";
 import type {
   CheckDefinition,
-  FinalCoreSnapshot,
-  ManagerBoundQualityRecordCandidate,
+  CoreSnapshot,
   QualityRecord
 } from "./model.ts";
 
@@ -54,19 +51,11 @@ export const definitions = [
 ] as const satisfies readonly CheckDefinition[];
 
 export function makeCatalog(source: unknown = definitions) {
-  const resolved = resolveCheckCatalog({
-    invocationKey: "policy-validation",
-    definitions: source,
-    bindings: definitions.map((definition) => ({
-      checkId: definition.checkId,
-      execute: () => undefined
-    })),
-    schedules: definitions.map(({ checkId }) => ({ checkId, requiresChecks: [] })),
-    selectedCheckIds: [],
-    resolveApplicability: () => ({ status: "not-applicable" })
-  });
-  if (!resolved.ok) throw new Error("Policy catalog fixture must resolve");
-  return resolved.value;
+  const sourceDefinitions = source as readonly CheckDefinition[];
+  return {
+    catalogFingerprint: createCatalogFingerprint(sourceDefinitions).catalogFingerprint,
+    definitions: sourceDefinitions
+  };
 }
 
 export const policyResolution = {
@@ -92,7 +81,7 @@ export const policyResolution = {
     }],
     readiness: [{
       readinessId: "alpha-completed",
-      predicate: { kind: "run-status", checkId: "alpha-check", status: "completed" },
+      predicate: { kind: "check-outcome", checkId: "alpha-check", outcome: "completed" },
       reason: "scan-incomplete"
     }, {
       readinessId: "baseline-complete",
@@ -146,62 +135,30 @@ export function relationKindPolicyInput(): unknown {
 }
 
 export function makeRecord(area: string): QualityRecord {
-  const runId = createDeterministicCheckRunId({
-    invocationKey: "validation",
-    checkId: "alpha-check"
-  });
-  const candidate: ManagerBoundQualityRecordCandidate = {
+  const candidate = {
     checkId: "alpha-check",
-    checkRunId: runId,
     recordTypeId: "finding",
     level: "warning",
     semanticSubject: area,
     message: `${area} finding`,
     fields: { area, score: 3 },
     location: null
-  };
+  } as const;
   return {
     ...candidate,
     recordId: createRecordId(candidate, definitions[0].recordTypes[0]).recordId
   };
 }
 
-export function makeSnapshot(record: QualityRecord): FinalCoreSnapshot {
-  const betaRunId = createDeterministicCheckRunId({
-    invocationKey: "validation",
-    checkId: "beta-check"
-  });
+export function makeSnapshot(record: QualityRecord): CoreSnapshot {
   return {
-    catalogFingerprint: createCatalogFingerprint(definitions).catalogFingerprint,
-    definitions,
-    runs: [{
-      checkId: "alpha-check",
-      checkRunId: record.checkRunId,
-      selection: "selected",
-      applicability: "applicable",
-      status: "completed",
-      result: { verdict: "passed" },
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-      diagnostic: null
+    checks: [{
+      ...definitions[0],
+      outcome: { kind: "completed", verdict: "passed" }
     }, {
-      checkId: "beta-check",
-      checkRunId: betaRunId,
-      selection: "unselected",
-      applicability: null,
-      status: "skipped",
-      result: null,
-      coverage: null,
-      diagnostic: null
+      ...definitions[1],
+      outcome: { kind: "not-applicable" }
     }],
-    records: [record],
-    integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-    completeness: {
-      status: "complete",
-      selectedRunCount: 1,
-      completedRunCount: 1,
-      failedRunCount: 0,
-      plannedWorkCount: 1,
-      acknowledgedWorkCount: 1
-    }
+    records: [record]
   };
 }

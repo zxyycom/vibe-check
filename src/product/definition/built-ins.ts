@@ -8,7 +8,7 @@ import {
   FUNCTION_METRICS_CHECK_DEFINITION
 } from "../quality-core/check-record/builtins/function-metrics.ts";
 import { createCatalogFingerprint } from "../quality-core/check-record/identity.ts";
-import type { CheckDefinition } from "../quality-core/check-record/model.ts";
+import type { CheckDefinition } from "./check-definition.ts";
 import {
   snapshotClosedRecord
 } from "../quality-core/check-record/plain-record-values.ts";

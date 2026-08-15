@@ -2,8 +2,9 @@ import {
   catalogFingerprint,
   isCanonicalText,
   recordIdentity,
-  sameText
+  recordsFingerprint
 } from "./machine-artifact-canonical.ts";
+import { validateCheckDefinitionInvariants } from "./machine-artifact-definition-invariants.ts";
 import { validateDecision } from "./machine-artifact-decision-invariants.ts";
 import { setFailure } from "./machine-artifact-diagnostics.ts";
 import { validateReferences } from "./machine-artifact-reference-invariants.ts";
@@ -11,7 +12,9 @@ import {
   RECORDS_ARTIFACT,
   RUN_ARTIFACT,
   type DocsMachineValidationFailure,
+  type RecordFieldValueType,
   type RecordShape,
+  type RecordTypeShape,
   type RunShape
 } from "./machine-artifact-types.ts";
 
@@ -20,54 +23,48 @@ export function validateArtifactSetInvariants(
   records: readonly RecordShape[],
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  let failure = validateCatalogAndRuns(run, artifactRoot);
+  let failure = validateCheckDefinitionInvariants(run, artifactRoot);
+  if (failure !== null) return failure;
+  failure = validateCatalogAndChecks(run, artifactRoot);
   if (failure !== null) return failure;
   failure = validateRecords(run, records, artifactRoot);
   if (failure !== null) return failure;
-  failure = validateCompleteness(run, artifactRoot);
-  if (failure !== null) return failure;
-  failure = validateIntegrity(run, records, artifactRoot);
+  failure = validateRecordsFingerprint(run, records, artifactRoot);
   if (failure !== null) return failure;
   failure = validateReferences(run, records, artifactRoot);
   if (failure !== null) return failure;
   return validateDecision(run, records, artifactRoot);
 }
 
-function validateCatalogAndRuns(
+function validateRecordsFingerprint(
+  run: RunShape,
+  records: readonly RecordShape[],
+  artifactRoot: string
+): DocsMachineValidationFailure | null {
+  if (recordsFingerprint(records) === run.recordsFingerprint) return null;
+  return setFailure(artifactRoot, RECORDS_ARTIFACT, {
+    message: "Records fingerprint must match the complete canonical Record row set.",
+    relationship: "records-fingerprint"
+  });
+}
+
+function validateCatalogAndChecks(
   run: RunShape,
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  if (catalogFingerprint(run.definitions) !== run.catalogFingerprint) {
+  if (catalogFingerprint(run.checks) !== run.catalogFingerprint) {
     return setFailure(artifactRoot, RUN_ARTIFACT, {
-      message: "Catalog fingerprint must match the published definitions.",
+      message: "Catalog fingerprint must match the published Check projections.",
       pointer: "/catalogFingerprint",
       relationship: "catalog-fingerprint"
     });
   }
-  const definitionIds = run.definitions.map(({ checkId }) => checkId);
-  const runIds = run.runs.map(({ checkId }) => checkId);
-  if (!isCanonicalText(definitionIds) || !sameText(definitionIds, runIds)) {
-    return setFailure(artifactRoot, RUN_ARTIFACT, {
-      message: "Every definition requires exactly one canonically ordered owned run.",
-      pointer: "/runs",
-      relationship: "catalog-run-membership"
-    });
-  }
-  for (const checkRun of run.runs) {
-    if (checkRun.coverage !== null && (
-      checkRun.coverage.acknowledgedWorkCount > checkRun.coverage.plannedWorkCount
-      || (checkRun.status === "completed"
-        && checkRun.applicability === "applicable"
-        && checkRun.coverage.acknowledgedWorkCount !== checkRun.coverage.plannedWorkCount)
-    )) {
-      return setFailure(artifactRoot, RUN_ARTIFACT, {
-        message: "Run coverage must be manager-complete for completed applicable work.",
-        pointer: "/runs",
-        relationship: "catalog-run-membership"
-      });
-    }
-  }
-  return null;
+  if (isCanonicalText(run.checks.map(({ checkId }) => checkId))) return null;
+  return setFailure(artifactRoot, RUN_ARTIFACT, {
+    message: "Checks must be uniquely sorted by checkId.",
+    pointer: "/checks",
+    relationship: "check-canonical-order"
+  });
 }
 
 function validateRecords(
@@ -75,8 +72,9 @@ function validateRecords(
   records: readonly RecordShape[],
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
+  let previousRecordId: string | undefined;
   for (const [index, record] of records.entries()) {
-    if (index > 0 && records[index - 1]!.recordId >= record.recordId) {
+    if (previousRecordId !== undefined && previousRecordId >= record.recordId) {
       return setFailure(artifactRoot, RECORDS_ARTIFACT, {
         index,
         line: index + 1,
@@ -84,23 +82,21 @@ function validateRecords(
         relationship: "record-canonical-order"
       });
     }
-    const definition = run.definitions.find(({ checkId }) => checkId === record.checkId);
-    const recordType = definition?.recordTypes.find(
+    previousRecordId = record.recordId;
+    const check = run.checks.find(({ checkId }) => checkId === record.checkId);
+    const recordType = check?.recordTypes.find(
       ({ recordTypeId }) => recordTypeId === record.recordTypeId
     );
-    const owner = run.runs.find(({ checkId }) => checkId === record.checkId);
-    if (
-      recordType === undefined ||
-      owner?.checkRunId !== record.checkRunId ||
-      owner.applicability !== "applicable"
-    ) {
+    if (recordType === undefined || check?.outcome.kind === "not-applicable") {
       return setFailure(artifactRoot, RECORDS_ARTIFACT, {
         index,
         line: index + 1,
-        message: "Record must belong to a published record type and applicable owning run.",
-        relationship: "record-run-ownership"
+        message: "Record must belong to a published record type and owning Check.",
+        relationship: "record-check-ownership"
       });
     }
+    const fieldFailure = validateRecordFields(record, recordType, artifactRoot, index);
+    if (fieldFailure !== null) return fieldFailure;
     if (recordIdentity(record, recordType) !== record.recordId) {
       return setFailure(artifactRoot, RECORDS_ARTIFACT, {
         index,
@@ -113,76 +109,73 @@ function validateRecords(
   return null;
 }
 
-function validateCompleteness(
-  run: RunShape,
-  artifactRoot: string
+function validateRecordFields(
+  record: RecordShape,
+  recordType: RecordTypeShape,
+  artifactRoot: string,
+  index: number
 ): DocsMachineValidationFailure | null {
-  const selected = run.runs.filter(({ selection }) => selection === "selected");
-  const expected = {
-    status: selected.some(({ status }) => status === "failed") ? "incomplete" : "complete",
-    selectedRunCount: selected.length,
-    completedRunCount: selected.filter(({ status }) => status === "completed").length,
-    failedRunCount: selected.filter(({ status }) => status === "failed").length,
-    plannedWorkCount: selected.reduce((sum, item) => sum + item.coverage!.plannedWorkCount, 0),
-    acknowledgedWorkCount: selected.reduce(
-      (sum, item) => sum + item.coverage!.acknowledgedWorkCount,
-      0
-    )
-  };
-  if (Object.entries(expected).every(([key, value]) => (
-    run.completeness[key as keyof typeof expected] === value
-  ))) return null;
-  return setFailure(artifactRoot, RUN_ARTIFACT, {
-    message: "Completeness must equal the independent reduction of selected runs.",
-    pointer: "/completeness",
-    relationship: "completeness-reduction"
-  });
-}
-
-function validateIntegrity(
-  run: RunShape,
-  records: readonly RecordShape[],
-  artifactRoot: string
-): DocsMachineValidationFailure | null {
-  const expectedStatus = expectedIntegrityStatus(run);
-  if (run.integrity.status !== expectedStatus) {
-    return integrityFailure(artifactRoot, "Integrity status must match its evidence arrays.");
-  }
-  const recordIds = new Set(records.map(({ recordId }) => recordId));
-  for (const evidence of [
-    ...run.integrity.invalidRecords,
-    ...run.integrity.conflicts
-  ]) {
-    const owner = run.runs.find(({ checkId }) => checkId === evidence.checkId);
-    const definition = run.definitions.find(({ checkId }) => checkId === evidence.checkId);
-    const ownsType = definition?.recordTypes.some(
-      ({ recordTypeId }) => recordTypeId === evidence.recordTypeId
+  const definitions = new Map(recordType.fields.map((field) => [field.fieldId, field]));
+  const unknownField = Object.keys(record.fields).find((fieldId) => !definitions.has(fieldId));
+  if (unknownField !== undefined) {
+    return recordFieldFailure(
+      artifactRoot,
+      index,
+      unknownField,
+      "Record fields contain an undeclared field."
     );
-    if (
-      owner?.status !== "failed" ||
-      owner.checkRunId !== evidence.checkRunId ||
-      ownsType !== true ||
-      (typeof evidence.recordId === "string" && recordIds.has(evidence.recordId))
-    ) {
-      return integrityFailure(
+  }
+  for (const definition of recordType.fields) {
+    if (!Object.hasOwn(record.fields, definition.fieldId)) {
+      if (!definition.required) continue;
+      return recordFieldFailure(
         artifactRoot,
-        "Integrity evidence must belong to its failed run and record type."
+        index,
+        definition.fieldId,
+        "Record is missing a required field."
+      );
+    }
+    if (!isExpectedFieldValue(record.fields[definition.fieldId], definition.valueType)) {
+      return recordFieldFailure(
+        artifactRoot,
+        index,
+        definition.fieldId,
+        `Record field must match declared ${definition.valueType} type.`
       );
     }
   }
   return null;
 }
 
-function integrityFailure(artifactRoot: string, message: string) {
-  return setFailure(artifactRoot, RUN_ARTIFACT, {
+function isExpectedFieldValue(value: unknown, valueType: RecordFieldValueType): boolean {
+  switch (valueType) {
+    case "boolean":
+      return typeof value === "boolean";
+    case "integer":
+      return typeof value === "number" && Number.isSafeInteger(value);
+    case "number":
+      return typeof value === "number" && Number.isFinite(value);
+    case "string":
+      return typeof value === "string";
+  }
+  return unreachableRecordFieldValueType(valueType);
+}
+
+function recordFieldFailure(
+  artifactRoot: string,
+  index: number,
+  fieldId: string,
+  message: string
+): DocsMachineValidationFailure {
+  return setFailure(artifactRoot, RECORDS_ARTIFACT, {
+    index,
+    line: index + 1,
     message,
-    pointer: "/integrity",
-    relationship: "integrity-evidence"
+    pointer: `/fields/${fieldId.replaceAll("~", "~0").replaceAll("/", "~1")}`,
+    relationship: "record-field-contract"
   });
 }
 
-function expectedIntegrityStatus(run: RunShape): RunShape["integrity"]["status"] {
-  if (run.integrity.conflicts.length > 0) return "conflicted";
-  if (run.integrity.invalidRecords.length > 0) return "invalid";
-  return "valid";
+function unreachableRecordFieldValueType(valueType: never): never {
+  throw new TypeError(`Unknown machine Record field value type: ${valueType}`);
 }

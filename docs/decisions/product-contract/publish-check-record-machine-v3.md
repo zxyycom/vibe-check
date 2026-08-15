@@ -1,6 +1,6 @@
 ---
 title: 在 machine v3 只发布 Check、Record 与运行元数据
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T08:26:56Z
 purpose: 让 canonical machine output 直接表达 Check 与 Record 事实，不再发布重复的生命周期或完整性摘要。

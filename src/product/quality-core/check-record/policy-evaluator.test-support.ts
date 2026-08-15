@@ -1,13 +1,11 @@
-import { resolveCheckCatalog } from "./catalog.ts";
 import {
   createCatalogFingerprint,
-  createDeterministicCheckRunId,
   createRecordId
 } from "./identity.ts";
 import type {
   CheckDefinition,
-  FinalCoreSnapshot,
-  ManagerBoundQualityRecordCandidate
+  CoreSnapshot,
+  QualityRecord
 } from "./model.ts";
 import {
   validatePolicyResolution,
@@ -21,9 +19,9 @@ export const definition = {
   recordTypes: [{
     recordTypeId: "file-code-lines",
     fields: [
-      { fieldId: "path", valueType: "string", required: true },
+      { fieldId: "approved", valueType: "boolean", required: true },
       { fieldId: "generated", valueType: "boolean", required: true },
-      { fieldId: "approved", valueType: "boolean", required: true }
+      { fieldId: "path", valueType: "string", required: true }
     ],
     identityFields: ["path"],
     policy: {
@@ -37,71 +35,44 @@ export const definition = {
   }]
 } as const satisfies CheckDefinition;
 
-export function makeCatalog(source: unknown = [definition]) {
-  const resolved = resolveCheckCatalog({
-    invocationKey: "policy-evaluation",
-    definitions: source,
-    bindings: [{ checkId: "file-metrics", execute: () => undefined }],
-    schedules: [{ checkId: "file-metrics", requiresChecks: [] }],
-    selectedCheckIds: ["file-metrics"],
-    resolveApplicability: () => ({ status: "applicable", workHandles: [] })
-  });
-  if (!resolved.ok) throw new Error("Policy catalog fixture must resolve");
-  return resolved.value;
+export function makeCatalog(source: readonly CheckDefinition[] = [definition]) {
+  return {
+    catalogFingerprint: createCatalogFingerprint(source).catalogFingerprint,
+    definitions: source
+  };
 }
 
-function record(path: string, generated: boolean, runId: string) {
-  const candidate: ManagerBoundQualityRecordCandidate = {
+function record(path: string, generated: boolean): QualityRecord {
+  const candidate = {
     checkId: "file-metrics",
-    checkRunId: runId,
     recordTypeId: "file-code-lines",
     level: "warning",
     semanticSubject: path,
     message: `${path} is long`,
     fields: { path, generated, approved: false },
     location: { path, line: 10, column: 1 }
-  };
+  } as const;
   return {
     ...candidate,
     recordId: createRecordId(candidate, definition.recordTypes[0]).recordId
   };
 }
 
-export function snapshot(status: "completed" | "failed"): FinalCoreSnapshot {
-  const checkRunId = createDeterministicCheckRunId({
-    invocationKey: "evaluation",
-    checkId: "file-metrics"
-  });
+export function snapshot(status: "completed" | "unavailable"): CoreSnapshot {
   const records = [
-    record("src/z.ts", false, checkRunId),
-    record("src/a.ts", true, checkRunId),
-    record("src/m.ts", false, checkRunId)
-  ];
-  const failed = status === "failed";
+    record("src/z.ts", false),
+    record("src/a.ts", true),
+    record("src/m.ts", false)
+  ].sort((left, right) => left.recordId.localeCompare(right.recordId));
   return {
-    catalogFingerprint: createCatalogFingerprint([definition]).catalogFingerprint,
-    definitions: [definition],
-    runs: [{
-      checkId: "file-metrics",
-      checkRunId,
-      selection: "selected",
-      applicability: "applicable",
-      status,
-      result: failed ? null : { verdict: "passed" },
-      coverage: { plannedWorkCount: 3, acknowledgedWorkCount: failed ? 2 : 3 },
-      diagnostic: failed ? { category: "execution-failed", tieBreakKey: "runner" } : null
+    checks: [{
+      ...definition,
+      outcome: status === "completed"
+        ? { kind: "completed", verdict: "passed" }
+        : { kind: "unavailable", diagnostic: { category: "execution-failed" } }
     }],
-    records,
-    integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-    completeness: {
-      status: failed ? "incomplete" : "complete",
-      selectedRunCount: 1,
-      completedRunCount: failed ? 0 : 1,
-      failedRunCount: failed ? 1 : 0,
-      plannedWorkCount: 3,
-      acknowledgedWorkCount: failed ? 2 : 3
-    }
-  } as FinalCoreSnapshot;
+    records
+  };
 }
 
 export function currentPolicy() {
@@ -128,7 +99,7 @@ export function currentPolicy() {
       }],
       readiness: [{
         readinessId: "current-complete",
-        predicate: { kind: "run-status", checkId: "file-metrics", status: "completed" },
+        predicate: { kind: "check-outcome", checkId: "file-metrics", outcome: "completed" },
         reason: "scan-incomplete"
       }, {
         readinessId: "comparison-complete",
@@ -177,7 +148,7 @@ export function relationPolicy(
   } as const;
 }
 
-export function changedAndRegressionFacts(core: FinalCoreSnapshot) {
+export function changedAndRegressionFacts(core: CoreSnapshot) {
   return {
     evidence: [{
       checkId: "file-metrics",
@@ -197,7 +168,7 @@ export function changedAndRegressionFacts(core: FinalCoreSnapshot) {
 }
 
 export function validateInputs(
-  core: FinalCoreSnapshot,
+  core: CoreSnapshot,
   evidenceStatus: "complete" | "unavailable" = "complete"
 ) {
   const resolution = validatePolicyResolution(currentPolicy(), makeCatalog());

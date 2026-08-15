@@ -1,12 +1,14 @@
 # Proposal
 
+本文件保留本 Change 的目标与形成时问题；当前实现事实由稳定 owner、源码和测试拥有。下文 `Why` 中的旧 lifecycle 是 Readiness 时的 migration baseline，不是完成 hard cut 后的 runtime 描述。
+
 本 Change 将 Product runtime 收敛为一条执行链：Definition normalization 只形成声明式 Check 事实，Package Run pre-work 再形成唯一 invocation-scoped Resolved Check collection；同一静态 Task engine 执行全部 Product Tasks；Core 只冻结 Check 与 QualityRecord 两类产品实体。迁移采用一次 hard cut，不保留独立 CheckRun lifecycle 或长期存在的 catalog 重组层。
 
 ## Why
 
-当前 Product 已使用 shared task scheduler，但 Project Definition、resolved catalog、CheckManager、Check orchestration 与 Core snapshot 仍分别保存或重组 definitions、selection、bindings、scheduling constraints、CheckRun、integrity 和 completeness。同一 `checkId` 因此跨多个 owner 重复关联，direct Check 与 TaskPlan Check 也通过不同 adapter 回到同一个 scheduler。
+在本 Change 的 Readiness 时，Product 已使用 shared task scheduler，但 Project Definition、resolved catalog、CheckManager、Check orchestration 与 Core snapshot 仍分别保存或重组 definitions、selection、bindings、scheduling constraints、CheckRun、integrity 和 completeness。同一 `checkId` 因此跨多个 owner 重复关联，direct Check 与 TaskPlan Check 也通过不同 adapter 回到同一个 scheduler。
 
-当前已对齐的 Check tree contract 还明确区分两层责任：Definition normalization 冻结声明式 Check 数据与约束，Package Run pre-work 才构造 built-in private binding、applicability 与 operational dependency snapshot。本 Change 必须沿用这个边界，不能为了得到“单一 collection”而把 functions 或 runtime capability 塞回 declarative snapshot。
+Readiness 已对齐的 Check tree contract 明确区分两层责任：Definition normalization 冻结声明式 Check 数据与约束，Package Run pre-work 才构造 built-in private binding、applicability 与 operational dependency snapshot。本 Change 必须沿用这个边界，不能为了得到“单一 collection”而把 functions 或 runtime capability 塞回 declarative snapshot。
 
 目标不是删除 npm package API，而是让 package 作者只面对稳定的 Project Definition、Check authoring、Run 与 result contract；Task、capability 和 scheduler bookkeeping 继续保持内部实现细节。
 
@@ -18,7 +20,7 @@
 4. 每个 applicable Check graph scope 使用 Core 签发的不可伪造 capability。scope 内 Task 只能通过绑定归属的 `RecordSink` 提交 QualityRecord；只有受信 terminal path 可以唯一结算 Core Check。not-applicable Check 不创建 executable scope，但仍直接形成一个 Core Check。Check/Record facts 在执行中成立并可交付，最终 snapshot 只是它们的闭合投影。
 5. 每个 canonical Resolved Check 在成功冻结的 snapshot 中恰好产生一个 Core Check；不存在于 Check tree 的 leaf 不产生 `unselected` fact。Core snapshot 的实体集合恰好为 `checks` 与 `records`；只有 report/console 可以从 validated model 派生人读摘要。
 6. Policy、publication、effects 与 Run result 只消费冻结后的 Core snapshot，不再消费 definitions+runs 双投影或 `checkRunId`。
-7. Canonical machine v3 继续原子发布 `run.json` + `records.ndjson`，但内容只保留 Checks、Record rows 与解释 invocation/reference/acceptance/decision 所需的元数据；不发布 definitions/runs、integrity/completeness 或其它 lifecycle summary。
+7. Canonical machine v3 发布经过整体验证、由 Record-set fingerprint 绑定的 `run.json` + `records.ndjson`；内容只保留 Checks、Record rows 与解释 invocation/reference/acceptance/decision 所需的元数据，不发布 definitions/runs、integrity/completeness 或其它 lifecycle summary。两个固定路径不虚构跨路径 OS 原子快照保证。
 
 ## Scope
 
@@ -29,7 +31,7 @@
 - 在 `src/product/quality-core/check-record/**` 建立最小 Check/QualityRecord capability boundary，并保持 record identity、provenance、duplicate/conflict、accepted-record retention 与 settlement-before-availability 语义。
 - 删除 `workHandles`、acknowledgement ports 与 planned/acknowledged coverage；Task settlement 成为唯一 execution accounting，临时进度只从 Task events 派生。
 - 迁移 policy、Run result、human output、machine publication、effects、validators、schemas、examples、tests 与 Case evidence，使其消费两类 Core 实体。
-- 按已确认的 cooperative graph cancellation 关闭执行流：abort 后停止新 admission、收尾已启动 Tasks、保留已成立事实，并将未完成 Check 关闭为 cancelled unavailable。
+- 按已确认的 cooperative graph cancellation 关闭执行流：abort 后停止新 admission、按普通 settlement 收尾已启动 Tasks、保留已成立事实与更具体 failure/dependency 原因，并将其余仍未关闭的 Check 关闭为 cancelled unavailable。
 
 ### Out of Scope
 
@@ -49,7 +51,7 @@
 - Core snapshot 的 entity collections 只有 `checks` 和 `records`；machine v3 不发布 completeness、integrity 或其它 derived lifecycle view，report/console 可读摘要只从 validated model 临时派生。
 - machine publication 单版本硬切到 run/record v3；schema、mapper、validator、examples、current output docs 与 structured result 同步，不维护 v2 runtime writer/reader、fallback 或 dual path，且历史 v2 schema identity/bytes 不被改写。
 - npm package 继续提供 definition/run authoring 与 structured result；internal Task rows、functions、capabilities 和 scheduler metadata 不进入 public declarations、fingerprint 或 output。
-- Readiness 的行为映射与 consumer inventory 完成后才开始 integrated hard cut；cooperative graph cancellation 与 v3 projection contract 均已由活动决策和 Design matrix 闭合。
+- integrated hard cut 在 Readiness 的行为映射与 consumer inventory 闭合后才开始；cooperative graph cancellation 与 v3 projection contract 均由活动决策和 Design matrix 闭合。
 
 ## Affected Owners
 
@@ -58,7 +60,7 @@
 - `src/product/task-scheduler/**`：唯一通用 Task engine；Product Check adapter 与 scripts adapter 只消费它的共享 contract。
 - `src/product/quality-core/check-record/**`：Core Check、QualityRecord、policy inputs 与 capability settlement。
 - `docs/quality-metrics.md`、`docs/scanner-dependencies.md`：quality/execution distinction、policy/reference consumption 与 scanner operational handoff。
-- `docs/output.md`、当前 `src/product/quality-core/output/publication-v2/**`、`src/product/quality-core/scan-command/publication-v2.ts`、`docs/schemas/**`、`docs/examples/**`：现有 machine contract、历史 v2 identity 与 v3 successor migration。
+- `docs/output.md`、`src/product/quality-core/output/publication-v3/**`、`src/product/quality-core/scan-command/publication-v3.ts`、`docs/schemas/**`、`docs/examples/**`：当前 v3 machine contract、历史 v2 identity 的隔离边界与发布材料。
 - `src/product/public-contract/current.ts` 及其 tests：definition/run/result-facing current public contract，不导出 Task/Core internals。
 - `scripts/vibe-check-workspace/**`、`docs/script-tooling.md`：scripts-only task authoring 经 adapter 使用 Product Task engine。
 - `docs/testing.md`、`docs/testing/case-maintenance.md`、tests 与 `docs/testing/cases/**`：behavior、schema、artifact 与 semantic evidence verification。

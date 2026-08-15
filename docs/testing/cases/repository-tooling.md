@@ -7,24 +7,27 @@ Entities:
 Proves:
 - The repository Run imports and binds the repository Project Definition; another caller supplies only the controls that Run exposes.
 
-## Case AUX-PARALLEL-RUNNER-001: Parallel task runner 保持调度契约
+## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
+Owner: `docs/architecture.md#checktask-system`
+Entities:
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > uses one root budget for dependency order and named mutex admission`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
+Proves:
+- Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。
+- Executor failure 只阻断 dependent Task，unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting。
+
+## Case AUX-WORKSPACE-TASK-ENGINE-ADAPTER-001: Workspace scripts fields 只经本地 adapter 进入 shared engine
 Owner: `docs/script-tooling.md#工具来源`
 Entities:
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > accepts a task preparation strategy before graph validation and scheduling`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > does not limit concurrency when no explicit concurrency is provided`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > expands nested task groups with inherited metadata and group dependencies`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > normalizes task metadata and supports task.run as the execution body`
-- `bun|src/product/task-scheduler/test/admission-controller.test.ts|parallel task admission controller > rejects a pending task that is not in the current ready set`
-- `bun|src/product/task-scheduler/test/admission-controller.test.ts|parallel task admission controller > rejects synchronous admission callbacks and execution failures without pending work`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > rejects duplicate ids and unknown dependencies`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > rejects invalid task list metadata at the normalization boundary`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > respects an explicit concurrency limit`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > runs independent tasks concurrently but serializes matching mutexes`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for onComplete while treating resolved result values as opaque`
-- `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for topological dependencies before starting dependent tasks`
+- `bun|scripts/vibe-check-workspace/task-engine-adapter.test.ts|workspace task engine adapter > projects scripts-owned command fields into one graph without leaking them into the engine`
+- `bun|scripts/vibe-check-workspace/task-engine-adapter.test.ts|workspace task engine adapter > rejects malformed dynamic Check authoring before task-graph projection`
 Proves:
-- Task normalization、concurrency、mutex serialization、dependency ordering 和 nested task expansion 保持稳定。
-- prepare strategy、invalid list metadata、duplicate id、unknown dependency，以及 admission seam 选中 blocked task 或同步失败都保持可诊断，并在 execution failure 后不启动 pending work。
+- Workspace verifier 先在 scripts-owned group/leaf authoring boundary 拒绝缺失 command、混合 group/leaf 字段和 malformed dynamic values，再把 dependency/mutex 投影为 graph；command、args、environment 和 report fields 留在 adapter 外，shared engine 不获得 Product Check/Core 或 scripts execution semantics。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`

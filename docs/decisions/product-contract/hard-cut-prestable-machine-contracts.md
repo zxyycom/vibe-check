@@ -1,7 +1,7 @@
 ---
 title: 对预正式 machine contract 执行单版本硬切
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-15T03:47:14Z
 purpose: 让正式稳定版本前的 breaking machine shape 使用真实新版本身份，而不承担旧版本兼容实现。
 background: 产品与 package 尚未进入稳定版本，保留 dual writer、reader 或 migration shim 会固化短命 schema 并扩大验证成本。
@@ -14,7 +14,7 @@ relations: []
 - 让 schema identity 如实区分 breaking shape，同时避免维护未发布旧版本的运行时兼容层。
 
 ## 背景
-- 当前 machine contract 仍处于产品形成阶段，Core 从 definitions/runs 迁移到 checks/records 会改变 run document、Record owner 和 reference shape。
+- 该决策形成时，machine contract 仍处于产品形成阶段，计划中的 Core definitions/runs → checks/records 迁移会改变 run document、Record owner 和 reference shape。
 - 在同一 URN 下改写 schema bytes 会让保存的 artifact 含义漂移；同时维护旧新 writer/reader 又会形成双 owner 和额外测试矩阵。
 - 版本号递增只表达 machine shape identity，不等于继续支持读取或生成旧版本。
 

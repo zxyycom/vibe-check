@@ -5,11 +5,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  MACHINE_RECORD_V2_SCHEMA,
-  MACHINE_RECORD_V2_SCHEMA_PATH,
-  MACHINE_RUN_V2_SCHEMA,
-  MACHINE_RUN_V2_SCHEMA_PATH
-} from "../../src/product/quality-core/output/publication-v2/index.ts";
+  MACHINE_RECORD_V3_SCHEMA,
+  MACHINE_RECORD_V3_SCHEMA_PATH,
+  MACHINE_RUN_V3_SCHEMA,
+  MACHINE_RUN_V3_SCHEMA_PATH
+} from "../../src/product/quality-core/output/publication-v3/index.ts";
 
 const workspaceRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -19,12 +19,12 @@ const regenerateCommand = "bun run generate:machine-schemas";
 
 const publishedSchemas = [
   {
-    path: MACHINE_RUN_V2_SCHEMA_PATH,
-    schema: MACHINE_RUN_V2_SCHEMA
+    path: MACHINE_RUN_V3_SCHEMA_PATH,
+    schema: MACHINE_RUN_V3_SCHEMA
   },
   {
-    path: MACHINE_RECORD_V2_SCHEMA_PATH,
-    schema: MACHINE_RECORD_V2_SCHEMA
+    path: MACHINE_RECORD_V3_SCHEMA_PATH,
+    schema: MACHINE_RECORD_V3_SCHEMA
   }
 ] as const;
 

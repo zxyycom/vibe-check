@@ -1,9 +1,14 @@
 import type { FunctionScannerDependency } from "../../../scanner-dependencies/index.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckExecutionBinding, CheckExecutionPorts } from "../catalog.ts";
-import type { CheckDefinition, FinalCoreSnapshot } from "../model.ts";
+import type { CheckDefinition, CoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
-import { type ReferenceStatus, type RelationId } from "./builtin-support.ts";
+import {
+  type BuiltInCheckBinding,
+  type BuiltInCheckExecutionContext,
+  type BuiltInCheckExecutionResult,
+  type ReferenceStatus,
+  type RelationId
+} from "./builtin-support.ts";
 import {
   analyzeFunctionMetrics,
   type FunctionMetricAnalysis
@@ -21,8 +26,6 @@ import {
   buildFunctionRecordCandidates,
   type FunctionRecordCandidate
 } from "./function-metrics-records.ts";
-
-const FUNCTION_METRICS_WORK_HANDLE = "work-handle/v1:function-metrics";
 
 const FUNCTION_RECORD_FIELDS = [
   { fieldId: "codeArea", valueType: "string", required: true },
@@ -112,8 +115,8 @@ export interface FunctionMetricsReferenceInput extends FunctionMetricsExactInput
 }
 
 export interface FunctionMetricsBindingRuntime {
-  readonly binding: CheckExecutionBinding;
-  readonly referenceFacts: (snapshot: FinalCoreSnapshot) => ReferenceFacts;
+  readonly binding: BuiltInCheckBinding;
+  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
 }
 
 interface FunctionReferenceState {
@@ -132,16 +135,10 @@ interface FunctionBindingContext {
 
 export function resolveFunctionMetricsApplicability(
   approvedExactPaths: readonly string[]
-): Readonly<
-  | { status: "not-applicable" }
-  | { status: "applicable"; workHandles: readonly string[] }
-> {
+): "applicable" | "not-applicable" {
   return approvedExactPaths.length === 0
-    ? Object.freeze({ status: "not-applicable" })
-    : Object.freeze({
-      status: "applicable",
-      workHandles: Object.freeze([FUNCTION_METRICS_WORK_HANDLE])
-    });
+    ? "not-applicable"
+    : "applicable";
 }
 
 export function createFunctionMetricsBinding(input: Readonly<{
@@ -152,18 +149,10 @@ export function createFunctionMetricsBinding(input: Readonly<{
   semantics: FunctionMetricsSemantics;
 }>): FunctionMetricsBindingRuntime {
   const context = createBindingContext(input);
-  const binding: CheckExecutionBinding = async (ports) => {
-    try {
-      return await executeFunctionMetrics(context, ports);
-    } finally {
-      for (const workHandle of ports.workHandles) {
-        ports.acknowledge(workHandle);
-      }
-    }
-  };
+  const binding: BuiltInCheckBinding = (execution) => executeFunctionMetrics(context, execution);
   return Object.freeze({
     binding,
-    referenceFacts: (snapshot: FinalCoreSnapshot) => buildFunctionReferenceFacts(
+    referenceFacts: (snapshot: CoreSnapshot) => buildFunctionReferenceFacts(
       snapshot,
       context.reference?.referenceName ?? null,
       context.referenceState.status,
@@ -200,15 +189,15 @@ function createBindingContext(input: Readonly<{
 
 async function executeFunctionMetrics(
   context: FunctionBindingContext,
-  ports: CheckExecutionPorts
-) {
+  execution: BuiltInCheckExecutionContext
+): Promise<BuiltInCheckExecutionResult> {
   const measurement = await measureFunctionMetrics(context.current, context.dependency);
   if (measurement.kind !== "complete") {
     return currentMeasurementFailure(measurement);
   }
   const currentAnalysis = analyzeFunctionMetrics(measurement.metrics);
   if (currentAnalysis === undefined) {
-    return { verdict: "invalid" } as const;
+    return { kind: "unavailable", category: "invalid-result" };
   }
   const candidates = buildFunctionRecordCandidates(
     currentAnalysis,
@@ -216,7 +205,7 @@ async function executeFunctionMetrics(
     context.semantics
   );
   for (const candidate of candidates) {
-    ports.submitRecord(candidate.record);
+    execution.results.report(candidate.record);
   }
   await compareFunctionReference(context, currentAnalysis, candidates);
   return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
@@ -224,14 +213,14 @@ async function executeFunctionMetrics(
 
 function currentMeasurementFailure(
   measurement: Exclude<FunctionMeasurementResult, { kind: "complete" }>
-) {
+): BuiltInCheckExecutionResult {
   if (measurement.kind === "unavailable") {
-    return { status: "unavailable", dependencyId: "lizard" } as const;
+    return { kind: "unavailable", category: "dependency-unavailable" };
   }
   if (measurement.kind === "execution-failed") {
     throw new Error("function-metrics scanner execution failed");
   }
-  return { verdict: "invalid" } as const;
+  return { kind: "unavailable", category: "invalid-result" };
 }
 
 async function compareFunctionReference(

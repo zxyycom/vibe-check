@@ -1,0 +1,1557 @@
+{
+  "type": "object",
+  "required": [
+    "acceptance",
+    "catalogFingerprint",
+    "completeness",
+    "decision",
+    "definitions",
+    "integrity",
+    "invocation",
+    "references",
+    "runs",
+    "schemaVersion"
+  ],
+  "properties": {
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "acceptanceId",
+          "reason",
+          "recordId"
+        ],
+        "properties": {
+          "acceptanceId": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recordId": {
+            "type": "string",
+            "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "catalogFingerprint": {
+      "type": "string",
+      "pattern": "^check-record/v1/catalog/sha256:[a-f0-9]{64}$"
+    },
+    "completeness": {
+      "type": "object",
+      "required": [
+        "acknowledgedWorkCount",
+        "completedRunCount",
+        "failedRunCount",
+        "plannedWorkCount",
+        "selectedRunCount",
+        "status"
+      ],
+      "properties": {
+        "acknowledgedWorkCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completedRunCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failedRunCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plannedWorkCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selectedRunCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "incomplete"
+          ],
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "blockWhen",
+        "gate",
+        "policyId",
+        "readiness",
+        "views"
+      ],
+      "properties": {
+        "blockWhen": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "blockingRecordIds",
+                "evidenceRefs",
+                "status"
+              ],
+              "properties": {
+                "blockingRecordIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                  }
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkRunId",
+                          "kind"
+                        ],
+                        "properties": {
+                          "checkRunId": {
+                            "type": "string",
+                            "pattern": "^check-run/v1:[a-f0-9]{64}$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "run"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "recordId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "record"
+                          },
+                          "recordId": {
+                            "type": "string",
+                            "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkId",
+                          "kind",
+                          "referenceId",
+                          "referenceName"
+                        ],
+                        "properties": {
+                          "checkId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "reference"
+                          },
+                          "referenceId": {
+                            "type": "string",
+                            "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+                          },
+                          "referenceName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "viewId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "view"
+                          },
+                          "viewId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "readinessId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "readiness"
+                          },
+                          "readinessId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "status": {
+                  "enum": [
+                    "matched",
+                    "not-matched"
+                  ],
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gate": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "policyId",
+                "status"
+              ],
+              "properties": {
+                "policyId": {
+                  "type": "null"
+                },
+                "status": {
+                  "type": "string",
+                  "const": "disabled"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": [
+                "blockingRecordIds",
+                "evidenceRefs",
+                "policyId",
+                "status"
+              ],
+              "properties": {
+                "blockingRecordIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                  }
+                },
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkRunId",
+                          "kind"
+                        ],
+                        "properties": {
+                          "checkRunId": {
+                            "type": "string",
+                            "pattern": "^check-run/v1:[a-f0-9]{64}$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "run"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "recordId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "record"
+                          },
+                          "recordId": {
+                            "type": "string",
+                            "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkId",
+                          "kind",
+                          "referenceId",
+                          "referenceName"
+                        ],
+                        "properties": {
+                          "checkId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "reference"
+                          },
+                          "referenceId": {
+                            "type": "string",
+                            "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+                          },
+                          "referenceName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "viewId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "view"
+                          },
+                          "viewId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "readinessId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "readiness"
+                          },
+                          "readinessId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "policyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                },
+                "status": {
+                  "enum": [
+                    "passed",
+                    "failed"
+                  ],
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "required": [
+                "evidenceRefs",
+                "policyId",
+                "reason",
+                "status"
+              ],
+              "properties": {
+                "evidenceRefs": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkRunId",
+                          "kind"
+                        ],
+                        "properties": {
+                          "checkRunId": {
+                            "type": "string",
+                            "pattern": "^check-run/v1:[a-f0-9]{64}$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "run"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "recordId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "record"
+                          },
+                          "recordId": {
+                            "type": "string",
+                            "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "checkId",
+                          "kind",
+                          "referenceId",
+                          "referenceName"
+                        ],
+                        "properties": {
+                          "checkId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "const": "reference"
+                          },
+                          "referenceId": {
+                            "type": "string",
+                            "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+                          },
+                          "referenceName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "viewId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "view"
+                          },
+                          "viewId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "readinessId"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "readiness"
+                          },
+                          "readinessId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "policyId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                },
+                "reason": {
+                  "enum": [
+                    "scan-incomplete",
+                    "no-eligible-input",
+                    "comparison-unavailable"
+                  ],
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "const": "not-evaluated"
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "policyId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "readiness": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "evidenceRefs",
+                  "readinessId",
+                  "reason",
+                  "status"
+                ],
+                "properties": {
+                  "evidenceRefs": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "required": [
+                            "checkRunId",
+                            "kind"
+                          ],
+                          "properties": {
+                            "checkRunId": {
+                              "type": "string",
+                              "pattern": "^check-run/v1:[a-f0-9]{64}$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "run"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "recordId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "record"
+                            },
+                            "recordId": {
+                              "type": "string",
+                              "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "checkId",
+                            "kind",
+                            "referenceId",
+                            "referenceName"
+                          ],
+                          "properties": {
+                            "checkId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "reference"
+                            },
+                            "referenceId": {
+                              "type": "string",
+                              "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+                            },
+                            "referenceName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "viewId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "view"
+                            },
+                            "viewId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "readinessId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "readiness"
+                            },
+                            "readinessId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "readinessId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                  },
+                  "reason": {
+                    "type": "null"
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "passed"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "evidenceRefs",
+                  "readinessId",
+                  "reason",
+                  "status"
+                ],
+                "properties": {
+                  "evidenceRefs": {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "required": [
+                            "checkRunId",
+                            "kind"
+                          ],
+                          "properties": {
+                            "checkRunId": {
+                              "type": "string",
+                              "pattern": "^check-run/v1:[a-f0-9]{64}$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "run"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "recordId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "record"
+                            },
+                            "recordId": {
+                              "type": "string",
+                              "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "checkId",
+                            "kind",
+                            "referenceId",
+                            "referenceName"
+                          ],
+                          "properties": {
+                            "checkId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            },
+                            "kind": {
+                              "type": "string",
+                              "const": "reference"
+                            },
+                            "referenceId": {
+                              "type": "string",
+                              "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+                            },
+                            "referenceName": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "viewId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "view"
+                            },
+                            "viewId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "required": [
+                            "kind",
+                            "readinessId"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "readiness"
+                            },
+                            "readinessId": {
+                              "type": "string",
+                              "minLength": 1,
+                              "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "readinessId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                  },
+                  "reason": {
+                    "enum": [
+                      "scan-incomplete",
+                      "no-eligible-input",
+                      "comparison-unavailable"
+                    ],
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string",
+                    "const": "failed"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "recordIds",
+              "viewId"
+            ],
+            "properties": {
+              "recordIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+                }
+              },
+              "viewId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "definitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "checkId",
+          "displayName",
+          "recordTypes"
+        ],
+        "properties": {
+          "checkId": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "displayName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recordTypes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "fields",
+                "identityFields",
+                "recordTypeId"
+              ],
+              "properties": {
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "fieldId",
+                      "required",
+                      "valueType"
+                    ],
+                    "properties": {
+                      "fieldId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[a-z][A-Za-z0-9]*$"
+                      },
+                      "required": {
+                        "type": "boolean"
+                      },
+                      "valueType": {
+                        "enum": [
+                          "boolean",
+                          "integer",
+                          "number",
+                          "string"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "identityFields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^[a-z][A-Za-z0-9]*$"
+                  }
+                },
+                "policy": {
+                  "type": "object",
+                  "required": [
+                    "operands",
+                    "relations"
+                  ],
+                  "properties": {
+                    "operands": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "operandId",
+                          "source",
+                          "valueType"
+                        ],
+                        "properties": {
+                          "operandId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "pattern": "^[a-z][A-Za-z0-9]*(?:-[a-z0-9]+)*$"
+                          },
+                          "source": {
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "required": [
+                                  "kind"
+                                ],
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "level"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "kind"
+                                ],
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "message"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "kind"
+                                ],
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "location-path"
+                                  }
+                                },
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "required": [
+                                  "fieldId",
+                                  "kind"
+                                ],
+                                "properties": {
+                                  "fieldId": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "pattern": "^[a-z][A-Za-z0-9]*$"
+                                  },
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "field"
+                                  }
+                                },
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          "valueType": {
+                            "enum": [
+                              "boolean",
+                              "number",
+                              "string"
+                            ],
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    },
+                    "relations": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                      }
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "recordTypeId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "required": [
+        "conflicts",
+        "invalidRecords",
+        "status"
+      ],
+      "properties": {
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "bodyFingerprints",
+              "checkId",
+              "checkRunId",
+              "kind",
+              "recordId",
+              "recordTypeId"
+            ],
+            "properties": {
+              "bodyFingerprints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "checkId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "checkRunId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "const": "record-conflict"
+              },
+              "recordId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "recordTypeId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "invalidRecords": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "checkId",
+              "checkRunId",
+              "evidenceId",
+              "kind",
+              "recordTypeId"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "checkRunId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidenceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "type": "string",
+                "const": "invalid-record"
+              },
+              "recordTypeId": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "status": {
+          "enum": [
+            "valid",
+            "invalid",
+            "conflicted"
+          ],
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "invocation": {
+      "type": "object",
+      "required": [
+        "invocationId",
+        "projectRoot",
+        "timestamp"
+      ],
+      "properties": {
+        "invocationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectRoot": {
+          "type": "string",
+          "const": "."
+        },
+        "timestamp": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+        }
+      },
+      "additionalProperties": false
+    },
+    "references": {
+      "type": "object",
+      "required": [
+        "evidence",
+        "identities",
+        "relations"
+      ],
+      "properties": {
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "checkId",
+              "referenceName",
+              "status"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "referenceName": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "status": {
+                "enum": [
+                  "complete",
+                  "unavailable",
+                  "incomplete"
+                ],
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "identities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "referenceId",
+              "referenceName"
+            ],
+            "properties": {
+              "referenceId": {
+                "type": "string",
+                "pattern": "^reference/v1/sha256:[a-f0-9]{64}$"
+              },
+              "referenceName": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "recordId",
+              "referenceName",
+              "relationId"
+            ],
+            "properties": {
+              "recordId": {
+                "type": "string",
+                "pattern": "^check-record/v1/record/sha256:[a-f0-9]{64}$"
+              },
+              "referenceName": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "relationId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "required": [
+              "checkId",
+              "checkRunId",
+              "applicability",
+              "coverage",
+              "diagnostic",
+              "result",
+              "selection",
+              "status"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "checkRunId": {
+                "type": "string",
+                "pattern": "^check-run/v1:[a-f0-9]{64}$"
+              },
+              "applicability": {
+                "type": "null"
+              },
+              "coverage": {
+                "type": "null"
+              },
+              "diagnostic": {
+                "type": "null"
+              },
+              "result": {
+                "type": "null"
+              },
+              "selection": {
+                "type": "string",
+                "const": "unselected"
+              },
+              "status": {
+                "type": "string",
+                "const": "skipped"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "checkId",
+              "checkRunId",
+              "applicability",
+              "coverage",
+              "diagnostic",
+              "result",
+              "selection",
+              "status"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "checkRunId": {
+                "type": "string",
+                "pattern": "^check-run/v1:[a-f0-9]{64}$"
+              },
+              "applicability": {
+                "type": "string",
+                "const": "not-applicable"
+              },
+              "coverage": {
+                "type": "object",
+                "required": [
+                  "acknowledgedWorkCount",
+                  "plannedWorkCount"
+                ],
+                "properties": {
+                  "acknowledgedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "plannedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false
+              },
+              "diagnostic": {
+                "type": "null"
+              },
+              "result": {
+                "type": "object",
+                "required": [
+                  "verdict"
+                ],
+                "properties": {
+                  "verdict": {
+                    "type": "string",
+                    "const": "not-applicable"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "selection": {
+                "type": "string",
+                "const": "selected"
+              },
+              "status": {
+                "type": "string",
+                "const": "completed"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "checkId",
+              "checkRunId",
+              "applicability",
+              "coverage",
+              "diagnostic",
+              "result",
+              "selection",
+              "status"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "checkRunId": {
+                "type": "string",
+                "pattern": "^check-run/v1:[a-f0-9]{64}$"
+              },
+              "applicability": {
+                "type": "string",
+                "const": "applicable"
+              },
+              "coverage": {
+                "type": "object",
+                "required": [
+                  "acknowledgedWorkCount",
+                  "plannedWorkCount"
+                ],
+                "properties": {
+                  "acknowledgedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "plannedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false
+              },
+              "diagnostic": {
+                "type": "null"
+              },
+              "result": {
+                "type": "object",
+                "required": [
+                  "verdict"
+                ],
+                "properties": {
+                  "verdict": {
+                    "enum": [
+                      "passed",
+                      "failed"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "selection": {
+                "type": "string",
+                "const": "selected"
+              },
+              "status": {
+                "type": "string",
+                "const": "completed"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "checkId",
+              "checkRunId",
+              "applicability",
+              "coverage",
+              "diagnostic",
+              "result",
+              "selection",
+              "status"
+            ],
+            "properties": {
+              "checkId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "checkRunId": {
+                "type": "string",
+                "pattern": "^check-run/v1:[a-f0-9]{64}$"
+              },
+              "applicability": {
+                "type": "string",
+                "const": "applicable"
+              },
+              "coverage": {
+                "type": "object",
+                "required": [
+                  "acknowledgedWorkCount",
+                  "plannedWorkCount"
+                ],
+                "properties": {
+                  "acknowledgedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "plannedWorkCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false
+              },
+              "diagnostic": {
+                "type": "object",
+                "required": [
+                  "category",
+                  "tieBreakKey"
+                ],
+                "properties": {
+                  "category": {
+                    "enum": [
+                      "record-conflict",
+                      "invalid-record",
+                      "ack-protocol",
+                      "terminal-report-set",
+                      "invalid-result",
+                      "unavailable",
+                      "execution-failed"
+                    ],
+                    "type": "string"
+                  },
+                  "tieBreakKey": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              },
+              "result": {
+                "type": "null"
+              },
+              "selection": {
+                "type": "string",
+                "const": "selected"
+              },
+              "status": {
+                "type": "string",
+                "const": "failed"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "schemaVersion": {
+      "type": "string",
+      "const": "vibe-check.run.v2"
+    }
+  },
+  "$id": "urn:vibe-check:schema:run:v2",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "title": "Vibe Check machine run v2"
+}

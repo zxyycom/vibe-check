@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 
+import type { CheckDefinition } from "../definition/check-definition.ts";
 import type { ProjectDefinition, RunControls } from "../definition/project.ts";
-import type { BuiltInRuntime } from "./built-ins.ts";
 import { createCatalogFingerprint } from "../quality-core/check-record/identity.ts";
-import type { FinalCoreSnapshot } from "../quality-core/check-record/model.ts";
+import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import type {
   NamedReferenceIdentity,
   PolicyResolution,
@@ -13,16 +13,17 @@ import {
   validatePolicyResolution,
   validateReferenceFacts
 } from "../quality-core/check-record/policy-validation.ts";
+import type { ResolvedCheck } from "./resolved-check.ts";
 
 type PublicCatalog = Readonly<{
   readonly catalogFingerprint: string;
-  readonly definitions: readonly FinalCoreSnapshot["definitions"][number][];
+  readonly definitions: readonly CheckDefinition[];
 }>;
 
 export function resolveSelectedPolicy(
   definition: ProjectDefinition,
   controls: RunControls,
-  definitions: readonly FinalCoreSnapshot["definitions"][number][]
+  definitions: readonly CheckDefinition[]
 ): PolicyResolution | undefined {
   const catalog = Object.freeze({
     catalogFingerprint: createCatalogFingerprint(definitions).catalogFingerprint,
@@ -42,10 +43,14 @@ export function resolveSelectedPolicy(
   return resolution.ok ? resolution.value : undefined;
 }
 
+/**
+ * Reference callbacks live on the canonical Resolved Check that created them;
+ * no post-join built-in lookup collection is retained.
+ */
 export function resolveReferenceFacts(
   policy: PolicyResolution,
-  snapshot: FinalCoreSnapshot,
-  builtIns: BuiltInRuntime
+  snapshot: CoreSnapshot,
+  checks: readonly ResolvedCheck[]
 ): ReferenceFacts | undefined {
   const required = policy.policy?.references.flatMap((requirement) => (
     requirement.checkIds.map((checkId) => ({
@@ -56,25 +61,24 @@ export function resolveReferenceFacts(
   const requiredPairs = new Set(required.map(({ checkId, referenceName }) => (
     `${checkId}\u0000${referenceName}`
   )));
-  const runtimeFacts = new Map(
-    [...builtIns.referenceFacts].map(([checkId, resolveFacts]) => (
-      [checkId, resolveFacts(snapshot)] as const
-    ))
-  );
+  const runtimeFacts = checks.flatMap((check) => {
+    const resolver = check.binding.kind === "direct" ? check.binding.referenceFacts : undefined;
+    return resolver === undefined ? [] : [Object.freeze({
+      checkId: check.definition.checkId,
+      facts: resolver(snapshot)
+    })];
+  });
   const evidence = required.map(({ checkId, referenceName }) => {
-    const facts = runtimeFacts.get(checkId);
+    const facts = runtimeFacts.find((candidate) => candidate.checkId === checkId)?.facts;
     return facts?.evidence.find((candidate) => (
       candidate.checkId === checkId && candidate.referenceName === referenceName
     )) ?? { checkId, referenceName, status: "unavailable" as const };
   });
-  const recordCheckIds = new Map(
-    snapshot.records.map((record) => [record.recordId, record.checkId])
-  );
-  const relations = [...runtimeFacts.values()].flatMap((facts) => (
+  const relations = runtimeFacts.flatMap(({ facts }) => (
     facts.relations.filter((relation) => {
-      const checkId = recordCheckIds.get(relation.recordId);
-      return checkId !== undefined
-        && requiredPairs.has(`${checkId}\u0000${relation.referenceName}`);
+      const record = snapshot.records.find((candidate) => candidate.recordId === relation.recordId);
+      return record !== undefined
+        && requiredPairs.has(`${record.checkId}\u0000${relation.referenceName}`);
     })
   ));
   const result = validateReferenceFacts({ evidence, relations }, policy, snapshot);

@@ -1,20 +1,20 @@
 # quality-gate
 
 ## Case WB-POLICY-RUNTIME-001: Retained policy runtime evidence
-Owner: `docs/architecture.md#核心定位`
+Owner: `docs/quality-metrics.md#decisionpolicy`
 Entities:
 - `bun|src/product/quality-core/check-record/builtins/file-metrics.test.ts|file-metrics built-in Check > keeps current facts complete when reference scope is incomplete and policy readiness stops evaluation`
-- `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > does not let verification output turn incomplete or no-eligible current work into passed`
-- `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > projects incomplete, no-eligible, completed quality failure, and passed current snapshots without changing them`
+- `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > does not let verification output turn unavailable or no-completed current work into passed`
+- `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > projects unavailable, no-completed, quality failure, and passed Core snapshots without changing them`
 - `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > uses the acceptance-applied all view only for verification projection and keeps decision evidence unchanged`
-- `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > allows another closed policy to treat the same run failure as an ordinary blocking operand`
+- `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > allows another closed policy to treat the same unavailable Check as an ordinary blocking operand`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > applies acceptance before views and preserves canonical blocking record and evidence order`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > binds policy surfaces to the resolved catalog fingerprint instead of a replaceable registry`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > keeps a disabled policy closed without blockWhen evidence`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > makes unavailable reference evidence policy-local without changing Core facts`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > matches relation-kind-in membership so regressions enter changed views and unchanged records stay out`
 - `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > passes a ready policy when complete reference facts leave its view empty`
-- `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > stops at the first readiness failure while retaining failed-run records as not evaluated`
+- `bun|src/product/quality-core/check-record/policy-evaluator.test.ts|check-record policy evaluation > stops at the first readiness failure while retaining unavailable-Check records as not evaluated`
 - `bun|src/product/quality-core/check-record/policy-model.test.ts|check-record policy model > exposes only the closed reference, gate, and not-evaluated states`
 - `bun|src/product/quality-core/check-record/policy-validation.test.ts|check-record policy pre-work validation > accepts canonical registered relation-kind-in values as frozen policy data`
 - `bun|src/product/quality-core/check-record/policy-validation.test.ts|check-record policy pre-work validation > derives the detached policy surface only from the resolved fingerprinted catalog`
@@ -30,4 +30,5 @@ Entities:
 - `bun|src/product/quality-core/input/revisions.test.ts|explicit baseline revision resolution > keeps Git execution failures as runtime errors`
 - `bun|src/product/quality-core/input/revisions.test.ts|explicit baseline revision resolution > rejects missing, non-commit, and option-like revisions`
 Proves:
-- Named-policy validation/evaluation, reference facts, human status, and baseline resolution remain owned by Package Run foundations rather than a JSON/CLI adapter.
+- Named-policy validation/evaluation consumes frozen Core Check/Record facts and named reference facts rather than a JSON/CLI adapter or execution bookkeeping.
+- unavailable Check/reference evidence remains policy-local and observable in readiness/gate status; human status never turns unavailable or no-completed current work into passed, while acceptance affects only its declared verification projection.

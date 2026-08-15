@@ -1,9 +1,14 @@
 import type { FileScannerDependency } from "../../../scanner-dependencies/index.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckExecutionBinding, CheckExecutionPorts } from "../catalog.ts";
-import type { CheckDefinition, FinalCoreSnapshot } from "../model.ts";
+import type { CheckDefinition, CoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
-import { type ReferenceStatus, type RelationId } from "./builtin-support.ts";
+import {
+  type BuiltInCheckBinding,
+  type BuiltInCheckExecutionContext,
+  type BuiltInCheckExecutionResult,
+  type ReferenceStatus,
+  type RelationId
+} from "./builtin-support.ts";
 import {
   detachFileMetricsInput,
   measureFileMetrics,
@@ -16,8 +21,6 @@ import {
   codeLinesByPath,
   type FileRecordCandidate
 } from "./file-metrics-records.ts";
-
-const FILE_METRICS_WORK_HANDLE = "work-handle/v1:file-metrics";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
   checkId: "file-metrics",
@@ -81,8 +84,8 @@ export interface FileMetricsReferenceInput extends FileMetricsExactInputSet {
 }
 
 export interface FileMetricsBindingRuntime {
-  readonly binding: CheckExecutionBinding;
-  readonly referenceFacts: (snapshot: FinalCoreSnapshot) => ReferenceFacts;
+  readonly binding: BuiltInCheckBinding;
+  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
 }
 
 interface FileReferenceState {
@@ -101,16 +104,10 @@ interface FileBindingContext {
 
 export function resolveFileMetricsApplicability(
   approvedExactPaths: readonly string[]
-): Readonly<
-  | { status: "not-applicable" }
-  | { status: "applicable"; workHandles: readonly string[] }
-> {
+): "applicable" | "not-applicable" {
   return approvedExactPaths.length === 0
-    ? Object.freeze({ status: "not-applicable" })
-    : Object.freeze({
-      status: "applicable",
-      workHandles: Object.freeze([FILE_METRICS_WORK_HANDLE])
-    });
+    ? "not-applicable"
+    : "applicable";
 }
 
 export function createFileMetricsBinding(input: Readonly<{
@@ -121,18 +118,10 @@ export function createFileMetricsBinding(input: Readonly<{
   semantics: FileMetricsSemantics;
 }>): FileMetricsBindingRuntime {
   const context = createBindingContext(input);
-  const binding: CheckExecutionBinding = async (ports) => {
-    try {
-      return await executeFileMetrics(context, ports);
-    } finally {
-      for (const workHandle of ports.workHandles) {
-        ports.acknowledge(workHandle);
-      }
-    }
-  };
+  const binding: BuiltInCheckBinding = (execution) => executeFileMetrics(context, execution);
   return Object.freeze({
     binding,
-    referenceFacts: (snapshot: FinalCoreSnapshot) => buildFileReferenceFacts(
+    referenceFacts: (snapshot: CoreSnapshot) => buildFileReferenceFacts(
       snapshot,
       context.reference?.referenceName ?? null,
       context.referenceState.status,
@@ -169,8 +158,8 @@ function createBindingContext(input: Readonly<{
 
 async function executeFileMetrics(
   context: FileBindingContext,
-  ports: CheckExecutionPorts
-) {
+  execution: BuiltInCheckExecutionContext
+): Promise<BuiltInCheckExecutionResult> {
   const measurement = await measureFileMetrics(context.current, context.dependency);
   if (measurement.kind !== "complete") {
     return currentMeasurementFailure(measurement);
@@ -181,10 +170,10 @@ async function executeFileMetrics(
     context.semantics
   );
   if (candidates === undefined) {
-    return { verdict: "invalid" } as const;
+    return { kind: "unavailable", category: "invalid-result" };
   }
   for (const candidate of candidates) {
-    ports.submitRecord(candidate.record);
+    execution.results.report(candidate.record);
   }
   await compareFileReference(context, candidates);
   return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
@@ -192,14 +181,14 @@ async function executeFileMetrics(
 
 function currentMeasurementFailure(
   measurement: Exclude<FileMeasurementResult, { kind: "complete" }>
-) {
+): BuiltInCheckExecutionResult {
   if (measurement.kind === "unavailable") {
-    return { status: "unavailable", dependencyId: "scc" } as const;
+    return { kind: "unavailable", category: "dependency-unavailable" };
   }
   if (measurement.kind === "execution-failed") {
     throw new Error("file-metrics scanner execution failed");
   }
-  return { verdict: "invalid" } as const;
+  return { kind: "unavailable", category: "invalid-result" };
 }
 
 async function compareFileReference(

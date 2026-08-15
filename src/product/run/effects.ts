@@ -4,10 +4,10 @@ import type {
   RunControls
 } from "../definition/project.ts";
 import {
-  projectReadablePublicationV2,
-  type ValidatedPublicationModelV2
-} from "../quality-core/output/publication-v2/index.ts";
-import { publishScanV2 } from "../quality-core/scan-command/publication-v2.ts";
+  projectReadablePublicationV3,
+  type ValidatedPublicationModelV3
+} from "../quality-core/output/publication-v3/index.ts";
+import { publishScanV3 } from "../quality-core/scan-command/publication-v3.ts";
 
 export interface RunEffectStatus {
   readonly enabled: boolean;
@@ -89,12 +89,12 @@ export function publishOutput(input: Readonly<{
   changedFiles: readonly string[];
   effectConfiguration: ProjectEffects;
   effects: EffectStatuses;
-  model: ValidatedPublicationModelV2;
+  model: ValidatedPublicationModelV3;
   outputDirectory: string;
   reportPresentation: ProjectDefinition["quality"]["report"];
 }>) {
   if (!input.effectConfiguration.output.enabled) {
-    return projectReadablePublicationV2({
+    return projectReadablePublicationV3({
       model: input.model,
       report: {
         changedFiles: input.changedFiles,
@@ -103,7 +103,7 @@ export function publishOutput(input: Readonly<{
     }).console;
   }
   try {
-    const published = publishScanV2({
+    const published = publishScanV3({
       artifactDir: input.outputDirectory,
       changedFiles: input.changedFiles,
       model: input.model,

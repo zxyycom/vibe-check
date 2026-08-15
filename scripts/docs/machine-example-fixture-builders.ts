@@ -1,38 +1,25 @@
+import { createCoreCheckSession } from "../../src/product/quality-core/check-record/core-session.ts";
+import { projectHumanStatus } from "../../src/product/quality-core/check-record/human-status.ts";
 import type {
   CheckDefinition,
-  CheckRun,
-  FinalCoreSnapshot,
-  QualityRecord
+  CoreSnapshot
 } from "../../src/product/quality-core/check-record/model.ts";
-import {
-  resolveCheckCatalog,
-  type ResolvedCheckCatalog
-} from "../../src/product/quality-core/check-record/catalog.ts";
-import {
-  evaluateDecisionPolicy
-} from "../../src/product/quality-core/check-record/policy-evaluator.ts";
 import type {
   DecisionEvidence,
-  DecisionPolicy,
   ReferenceFacts
 } from "../../src/product/quality-core/check-record/policy-model.ts";
 import {
-  validatePolicyResolution
-} from "../../src/product/quality-core/check-record/policy-validation.ts";
-import { createRecordId } from "../../src/product/quality-core/check-record/identity.ts";
-import { projectHumanStatus } from "../../src/product/quality-core/check-record/human-status.ts";
-import {
-  createPublicationModelV2,
-  projectMachinePublicationV2
-} from "../../src/product/quality-core/output/publication-v2/index.ts";
+  createPublicationModelV3,
+  projectMachinePublicationV3
+} from "../../src/product/quality-core/output/publication-v3/index.ts";
 import {
   FIXED_MACHINE_EXAMPLE_INPUT,
   type CanonicalMachineExample,
-  type MachineExampleOutcome,
-  type MachineExampleSelectedPolicy
+  type MachineExampleScenario,
+  type MachineExampleState
 } from "./machine-example-model.ts";
 
-const definition: CheckDefinition = {
+const definition = {
   checkId: "docs-example",
   displayName: "Documentation Example",
   recordTypes: [{
@@ -51,26 +38,20 @@ const definition: CheckDefinition = {
       relations: ["regression"]
     }
   }]
-};
+} as const satisfies CheckDefinition;
 
-const emptyReferenceFacts: ReferenceFacts = { evidence: [], relations: [] };
+const EMPTY_REFERENCE_FACTS = {
+  evidence: [],
+  relations: []
+} as const satisfies ReferenceFacts;
 
-export function buildCanonicalMachineExample(input: Readonly<{
-  fixedInputSummary: string;
-  outcome: MachineExampleOutcome;
-  selectedPolicy: MachineExampleSelectedPolicy;
-  state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning";
-  title: string;
-}>): CanonicalMachineExample {
-  const catalog = createCatalog(input.outcome, input.state);
-  const run = createRun(catalog, input.state);
-  const records = input.state === "warning" || input.state === "gate-failed"
-    ? [createExampleRecord(run)]
-    : [];
-  const snapshot = createSnapshot(catalog, run, records);
-  const decision = createDecision(input.selectedPolicy, catalog, snapshot);
+type SelectedPolicyId = Exclude<MachineExampleScenario["selectedPolicy"], null>;
+
+export function buildCanonicalMachineExample(input: MachineExampleScenario): CanonicalMachineExample {
+  const snapshot = createSnapshot(input.state);
+  const decision = createDecision(input, snapshot);
   const verificationOutput = false;
-  const model = createPublicationModelV2({
+  const model = createPublicationModelV3({
     humanStatus: projectHumanStatus({ snapshot, decision, verificationOutput }),
     invocation: {
       invocationId: `invocation/v1:docs-${input.outcome}`,
@@ -79,178 +60,148 @@ export function buildCanonicalMachineExample(input: Readonly<{
     },
     snapshot,
     references: [],
-    referenceFacts: emptyReferenceFacts,
+    referenceFacts: EMPTY_REFERENCE_FACTS,
     decision,
     verificationOutput
   });
-  return {
-    fixedInputSummary: input.fixedInputSummary,
+  return Object.freeze({
+    ...input,
     model,
-    outcome: input.outcome,
-    publication: projectMachinePublicationV2(model),
-    selectedPolicy: input.selectedPolicy,
-    title: input.title
-  };
-}
-
-function createCatalog(
-  outcome: MachineExampleOutcome,
-  state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning"
-): ResolvedCheckCatalog {
-  const resolved = resolveCheckCatalog({
-    invocationKey: `docs-${outcome}`,
-    definitions: [definition],
-    bindings: [{ checkId: definition.checkId, execute: () => ({ verdict: "passed" }) }],
-    schedules: [{ checkId: definition.checkId, requiresChecks: [] }],
-    selectedCheckIds: [definition.checkId],
-    resolveApplicability: () => state === "empty"
-      ? { status: "not-applicable" }
-      : { status: "applicable", workHandles: ["work-handle/v1:docs-example"] }
+    publication: projectMachinePublicationV3(model)
   });
-  if (!resolved.ok) {
-    throw new TypeError(`Canonical example catalog failed at ${resolved.error.stage}`);
-  }
-  return resolved.value;
 }
 
-function createRun(
-  catalog: ResolvedCheckCatalog,
-  state: "empty" | "gate-failed" | "incomplete" | "passed" | "warning"
-): CheckRun {
-  const checkRunId = requiredCatalogCheck(catalog).checkRunId;
-  if (state === "empty") {
-    return {
-      checkId: definition.checkId,
-      checkRunId,
-      selection: "selected",
-      applicability: "not-applicable",
-      status: "completed",
-      result: { verdict: "not-applicable" },
-      coverage: { plannedWorkCount: 0, acknowledgedWorkCount: 0 },
-      diagnostic: null
-    };
+function createSnapshot(state: MachineExampleState): CoreSnapshot {
+  const applicability = state === "empty" ? "not-applicable" : "applicable";
+  const session = createCoreCheckSession([{ definition, applicability }]);
+  if (applicability === "not-applicable") {
+    session.closeNotApplicable(definition.checkId);
+    return session.freeze();
+  }
+  const scope = session.openApplicableScope(definition.checkId);
+  if (state === "warning" || state === "gate-failed") {
+    scope.records.report({
+      recordTypeId: definition.recordTypes[0].recordTypeId,
+      level: "warning",
+      semanticSubject: "src/example.ts#canonical",
+      message: "The canonical documentation example requires review.",
+      fields: { category: "maintainability", value: 7 },
+      location: { path: FIXED_MACHINE_EXAMPLE_INPUT.path, line: 7, column: 1 }
+    });
   }
   if (state === "incomplete") {
-    return {
-      checkId: definition.checkId,
-      checkRunId,
-      selection: "selected",
-      applicability: "applicable",
+    scope.settle({
+      kind: "unavailable",
+      diagnostic: { category: "dependency-unavailable" }
+    });
+  } else {
+    scope.settle({
+      kind: "completed",
+      verdict: state === "warning" || state === "gate-failed" ? "failed" : "passed"
+    });
+  }
+  return session.freeze();
+}
+
+function createDecision(
+  scenario: MachineExampleScenario,
+  snapshot: CoreSnapshot
+): DecisionEvidence {
+  if (scenario.selectedPolicy === null) return disabledDecision();
+  switch (scenario.outcome) {
+    case "gate-failed":
+      return failedGateDecision(scenario.selectedPolicy, snapshot);
+    case "scan-incomplete":
+      return incompleteDecision(scenario.selectedPolicy, requiredCheck(snapshot).checkId);
+  }
+  return unreachablePolicyScenario(scenario);
+}
+
+function incompleteDecision(policyId: SelectedPolicyId, checkId: string): DecisionEvidence {
+  const readinessId = "scan-complete";
+  const evidenceRefs = [{ kind: "check" as const, checkId }, {
+    kind: "readiness" as const,
+    readinessId
+  }];
+  return {
+    policyId,
+    acceptance: [],
+    views: [],
+    readiness: [{
+      readinessId,
       status: "failed",
-      result: null,
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 0 },
-      diagnostic: {
-        category: "unavailable",
-        tieBreakKey: "dependency/v1:docs-example"
-      }
-    };
-  }
-  return {
-    checkId: definition.checkId,
-    checkRunId,
-    selection: "selected",
-    applicability: "applicable",
-    status: "completed",
-    result: { verdict: state === "warning" || state === "gate-failed" ? "failed" : "passed" },
-    coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-    diagnostic: null
-  };
-}
-
-function createExampleRecord(run: CheckRun): QualityRecord {
-  const recordType = requiredExampleRecordType();
-  const candidate = {
-    checkId: definition.checkId,
-    checkRunId: run.checkRunId,
-    recordTypeId: recordType.recordTypeId,
-    level: "warning" as const,
-    semanticSubject: "src/example.ts#canonical",
-    message: "The canonical documentation example requires review.",
-    fields: { category: "maintainability", value: 7 },
-    location: { path: FIXED_MACHINE_EXAMPLE_INPUT.path, line: 7, column: 1 }
-  };
-  return { ...candidate, recordId: createRecordId(candidate, recordType).recordId };
-}
-
-function createSnapshot(
-  catalog: ResolvedCheckCatalog,
-  run: CheckRun,
-  records: readonly QualityRecord[]
-): FinalCoreSnapshot {
-  if (run.coverage === null) {
-    throw new TypeError("Canonical selected example run requires coverage");
-  }
-  return {
-    catalogFingerprint: catalog.catalogFingerprint,
-    definitions: catalog.definitions,
-    runs: [run],
-    records,
-    integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-    completeness: {
-      status: run.status === "failed" ? "incomplete" : "complete",
-      selectedRunCount: 1,
-      completedRunCount: run.status === "completed" ? 1 : 0,
-      failedRunCount: run.status === "failed" ? 1 : 0,
-      plannedWorkCount: run.coverage.plannedWorkCount,
-      acknowledgedWorkCount: run.coverage.acknowledgedWorkCount
+      reason: "scan-incomplete",
+      evidenceRefs
+    }],
+    blockWhen: null,
+    gate: {
+      status: "not-evaluated",
+      policyId,
+      reason: "scan-incomplete",
+      evidenceRefs
     }
   };
 }
 
-function createDecision(
-  selectedPolicy: MachineExampleSelectedPolicy,
-  catalog: ResolvedCheckCatalog,
-  snapshot: FinalCoreSnapshot
+function failedGateDecision(
+  policyId: SelectedPolicyId,
+  snapshot: CoreSnapshot
 ): DecisionEvidence {
-  const policyResult = validatePolicyResolution({
-    policy: selectedPolicy === null ? null : docsGatePolicy(),
-    references: []
-  }, catalog);
-  if (!policyResult.ok) {
-    throw new TypeError("Canonical example policy failed validation");
-  }
-  return evaluateDecisionPolicy(policyResult.value, snapshot, emptyReferenceFacts);
+  const checkId = requiredCheck(snapshot).checkId;
+  const recordId = snapshot.records[0]?.recordId;
+  if (recordId === undefined) throw new TypeError("Gate-failed example requires one record");
+  const readinessId = "scan-complete";
+  const readinessRefs = [{ kind: "check" as const, checkId }, {
+    kind: "readiness" as const,
+    readinessId
+  }];
+  const blockRefs = [{ kind: "record" as const, recordId }, {
+    kind: "view" as const,
+    viewId: "all-current"
+  }];
+  return {
+    policyId,
+    acceptance: [],
+    views: [{ viewId: "all-current", recordRefs: [{ kind: "record", recordId }] }],
+    readiness: [{ readinessId, status: "passed", evidenceRefs: readinessRefs }],
+    blockWhen: {
+      status: "matched",
+      evidenceRefs: blockRefs,
+      blockingRecordRefs: [{ kind: "record", recordId }]
+    },
+    gate: {
+      status: "failed",
+      policyId,
+      evidenceRefs: [
+        { kind: "check", checkId },
+        { kind: "record", recordId },
+        { kind: "view", viewId: "all-current" },
+        { kind: "readiness", readinessId }
+      ],
+      blockingRecordRefs: [{ kind: "record", recordId }]
+    }
+  };
 }
 
-function requiredCatalogCheck(catalog: ResolvedCheckCatalog): ResolvedCheckCatalog["checks"][number] {
-  const [check] = catalog.checks;
-  if (check === undefined || catalog.checks.length !== 1) {
-    throw new TypeError("Canonical example catalog must contain exactly one Check");
+function disabledDecision(): DecisionEvidence {
+  return {
+    policyId: null,
+    acceptance: [],
+    views: [],
+    readiness: [],
+    blockWhen: null,
+    gate: { status: "disabled", policyId: null }
+  };
+}
+
+function requiredCheck(snapshot: CoreSnapshot): CoreSnapshot["checks"][number] {
+  const [check] = snapshot.checks;
+  if (check === undefined || snapshot.checks.length !== 1) {
+    throw new TypeError("Documentation example requires one Core Check");
   }
   return check;
 }
 
-function requiredExampleRecordType(): CheckDefinition["recordTypes"][number] {
-  const [recordType] = definition.recordTypes;
-  if (recordType === undefined || definition.recordTypes.length !== 1) {
-    throw new TypeError("Canonical example definition must contain exactly one record type");
-  }
-  return recordType;
-}
-
-function docsGatePolicy(): DecisionPolicy {
-  return Object.freeze({
-    policyId: "docs-gate",
-    references: Object.freeze([]),
-    acceptance: Object.freeze([]),
-    views: Object.freeze([Object.freeze({
-      viewId: "all-current",
-      selectors: Object.freeze([Object.freeze({
-        checkId: definition.checkId,
-        recordTypeId: requiredExampleRecordType().recordTypeId
-      })]),
-      acceptance: "all" as const,
-      predicates: Object.freeze([])
-    })]),
-    readiness: Object.freeze([Object.freeze({
-      readinessId: "scan-complete",
-      predicate: Object.freeze({
-        kind: "run-status" as const,
-        checkId: definition.checkId,
-        status: "completed" as const
-      }),
-      reason: "scan-incomplete" as const
-    })]),
-    blockWhen: Object.freeze({ kind: "view-not-empty" as const, viewId: "all-current" })
-  });
+function unreachablePolicyScenario(scenario: never): never {
+  throw new TypeError(`Unexpected selected-policy example scenario: ${JSON.stringify(scenario)}`);
 }

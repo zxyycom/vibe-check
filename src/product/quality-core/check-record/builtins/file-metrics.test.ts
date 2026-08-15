@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { coordinateCheckRecordsWithTestPolicy } from "../coordinator-test-support.ts";
+import { runBuiltInTestRun } from "./builtin-test-support.ts";
 import { createRecordId } from "../identity.ts";
 import { evaluateDecisionPolicy } from "../policy-evaluator.ts";
 import {
@@ -18,7 +18,7 @@ import {
   createSccFixture,
   fileMetricsSemantics,
   fileRegressionPolicy,
-  resolveFileMetricsTestCatalog,
+  createFileMetricsTestRun,
   sccRow
 } from "./file-metrics-test-support.ts";
 
@@ -41,9 +41,9 @@ describe("file-metrics built-in Check", () => {
         },
         semantics: fileMetricsSemantics
       });
-      const catalog = resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"]);
+      const catalog = createFileMetricsTestRun(runtime.binding, ["src/a.ts"]);
 
-      const snapshot = await coordinateCheckRecordsWithTestPolicy(catalog);
+      const snapshot = await runBuiltInTestRun(catalog);
       assertExpectedFileWarning(snapshot);
 
       const policy = validatePolicyResolution(fileRegressionPolicy(), catalog);
@@ -103,8 +103,8 @@ describe("file-metrics built-in Check", () => {
       });
       changedFiles.splice(0, changedFiles.length, "src/b.ts");
 
-      const snapshot = await coordinateCheckRecordsWithTestPolicy(
-        resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts", "src/b.ts"])
+      const snapshot = await runBuiltInTestRun(
+        createFileMetricsTestRun(runtime.binding, ["src/a.ts", "src/b.ts"])
       );
       const facts = runtime.referenceFacts(snapshot);
       const relatedRecords = facts.relations.map((relation) => ({
@@ -131,12 +131,13 @@ describe("file-metrics built-in Check", () => {
           reference: null,
           semantics: fileMetricsSemantics
         });
-        const snapshot = await coordinateCheckRecordsWithTestPolicy(
-          resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"])
+        const snapshot = await runBuiltInTestRun(
+          createFileMetricsTestRun(runtime.binding, ["src/a.ts"])
         );
-        assert.equal(snapshot.runs[0]?.status, "failed");
-        assert.equal(snapshot.runs[0]?.result, null);
-        assert.equal(snapshot.runs[0]?.diagnostic?.category, fixture.expectedCategory);
+        assert.deepEqual(snapshot.checks[0]?.outcome, {
+          kind: "unavailable",
+          diagnostic: { category: fixture.expectedCategory }
+        });
         assert.deepEqual(snapshot.records, []);
       }
     } finally {
@@ -161,28 +162,29 @@ describe("file-metrics built-in Check", () => {
         reference: null,
         semantics: fileMetricsSemantics
       });
-      const snapshot = await coordinateCheckRecordsWithTestPolicy(
-        resolveFileMetricsTestCatalog(async (ports) => {
-          assert.equal(ports.submitRecord({
-              recordTypeId: "file-code-lines",
-              level: "warning",
-              semanticSubject: "src/prior.ts",
-              message: "Prior valid record",
-              fields: {
-                codeArea: "source",
-                limit: 300,
-                metric: "code-lines",
-                value: 350
-              },
-              location: { path: "src/prior.ts", line: 1, column: 1 }
-          }), "committed");
-          return runtime.binding(ports);
+      const snapshot = await runBuiltInTestRun(
+        createFileMetricsTestRun(async (execution) => {
+          execution.results.report({
+            recordTypeId: "file-code-lines",
+            level: "warning",
+            semanticSubject: "src/prior.ts",
+            message: "Prior valid record",
+            fields: {
+              codeArea: "source",
+              limit: 300,
+              metric: "code-lines",
+              value: 350
+            },
+            location: { path: "src/prior.ts", line: 1, column: 1 }
+          });
+          return runtime.binding(execution);
         }, ["src/a.ts"])
       );
 
-      assert.equal(snapshot.runs[0]?.status, "failed");
-      assert.equal(snapshot.runs[0]?.result, null);
-      assert.equal(snapshot.runs[0]?.diagnostic?.category, "invalid-result");
+      assert.deepEqual(snapshot.checks[0]?.outcome, {
+        kind: "unavailable",
+        diagnostic: { category: "invalid-result" }
+      });
       assert.deepEqual(snapshot.records.map((record) => record.semanticSubject), ["src/prior.ts"]);
     } finally {
       fixture.cleanup();
@@ -207,8 +209,8 @@ describe("file-metrics built-in Check", () => {
         },
         semantics: fileMetricsSemantics
       });
-      const catalog = resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"]);
-      const snapshot = await coordinateCheckRecordsWithTestPolicy(catalog);
+      const catalog = createFileMetricsTestRun(runtime.binding, ["src/a.ts"]);
+      const snapshot = await runBuiltInTestRun(catalog);
       const policy = validatePolicyResolution(fileRegressionPolicy(), catalog);
       assert.equal(policy.ok, true);
       if (!policy.ok) throw new Error("Expected policy to resolve");
@@ -217,10 +219,8 @@ describe("file-metrics built-in Check", () => {
       if (!facts.ok) throw new Error("Expected incomplete facts to validate");
       const decision = evaluateDecisionPolicy(policy.value, snapshot, facts.value);
 
-      assert.equal(snapshot.runs.length, 1);
-      assert.equal(snapshot.runs[0]?.status, "completed");
-      assert.deepEqual(snapshot.runs[0]?.result, { verdict: "failed" });
-      assert.equal(snapshot.completeness.status, "complete");
+      assert.equal(snapshot.checks.length, 1);
+      assert.deepEqual(snapshot.checks[0]?.outcome, { kind: "completed", verdict: "failed" });
       assert.equal(snapshot.records.length, 1);
       assert.deepEqual(facts.value, {
         evidence: [{ checkId: "file-metrics", referenceName: "baseline", status: "incomplete" }],
@@ -251,8 +251,8 @@ describe("file-metrics built-in Check", () => {
         reference: null,
         semantics: fileMetricsSemantics
       });
-      const snapshot = await coordinateCheckRecordsWithTestPolicy(
-        resolveFileMetricsTestCatalog(runtime.binding, ["src/a.ts"])
+      const snapshot = await runBuiltInTestRun(
+        createFileMetricsTestRun(runtime.binding, ["src/a.ts"])
       );
       const record = snapshot.records[0]!;
       const recordType = FILE_METRICS_CHECK_DEFINITION.recordTypes[0];

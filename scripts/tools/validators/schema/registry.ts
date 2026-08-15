@@ -20,9 +20,11 @@ export function createCurrentSchemaAjv(): Ajv2020 {
   return ajv;
 }
 
-export function createHistoricalReportAjv(): Ajv2020 {
+export function createHistoricalSchemaAjv(): Ajv2020 {
   const ajv = createStrictAjv();
-  ajv.addSchema(readSchema(HISTORICAL_SCHEMAS.report));
+  for (const schemaRelPath of Object.values(HISTORICAL_SCHEMAS)) {
+    ajv.addSchema(readSchema(schemaRelPath));
+  }
   return ajv;
 }
 

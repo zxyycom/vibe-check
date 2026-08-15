@@ -1,7 +1,7 @@
 /** Minimal public boundary for machine-publication consumers. */
 
 export {
-  validateMachinePublicationSetV2,
+  validateMachinePublicationSetV3,
   type MachinePublicationValidationDiagnostic,
-  type MachineRecordV2
-} from "../quality-core/output/publication-v2/index.ts";
+  type MachineRecordV3
+} from "../quality-core/output/publication-v3/index.ts";

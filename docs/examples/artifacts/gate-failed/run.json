@@ -1,12 +1,13 @@
 {
-  "schemaVersion": "vibe-check.run.v2",
+  "schemaVersion": "vibe-check.run.v3",
   "invocation": {
     "invocationId": "invocation/v1:docs-gate-failed",
     "projectRoot": ".",
     "timestamp": "2026-08-12T00:00:00.000Z"
   },
   "catalogFingerprint": "check-record/v1/catalog/sha256:5934100b0b24ad9b283e9a9c022a83d14925cf08fc351d075c142690d98b274e",
-  "definitions": [
+  "recordsFingerprint": "check-record/v1/records/sha256:daeeb9ae9f1c446bd4617fb681fe1d6bb69e4bf39bbd908effa4d6d84cfe2bd0",
+  "checks": [
     {
       "checkId": "docs-example",
       "displayName": "Documentation Example",
@@ -45,39 +46,13 @@
             ]
           }
         }
-      ]
-    }
-  ],
-  "runs": [
-    {
-      "checkId": "docs-example",
-      "checkRunId": "check-run/v1:fb5dc724f7d5cd0fb9ee4bfd39ea0f8df06c048f5766b10cc8e8bb905a09a79e",
-      "selection": "selected",
-      "applicability": "applicable",
-      "status": "completed",
-      "result": {
+      ],
+      "outcome": {
+        "kind": "completed",
         "verdict": "failed"
-      },
-      "coverage": {
-        "plannedWorkCount": 1,
-        "acknowledgedWorkCount": 1
-      },
-      "diagnostic": null
+      }
     }
   ],
-  "integrity": {
-    "status": "valid",
-    "invalidRecords": [],
-    "conflicts": []
-  },
-  "completeness": {
-    "status": "complete",
-    "selectedRunCount": 1,
-    "completedRunCount": 1,
-    "failedRunCount": 0,
-    "plannedWorkCount": 1,
-    "acknowledgedWorkCount": 1
-  },
   "references": {
     "identities": [],
     "evidence": [],
@@ -101,8 +76,8 @@
         "reason": null,
         "evidenceRefs": [
           {
-            "kind": "run",
-            "checkRunId": "check-run/v1:fb5dc724f7d5cd0fb9ee4bfd39ea0f8df06c048f5766b10cc8e8bb905a09a79e"
+            "kind": "check",
+            "checkId": "docs-example"
           },
           {
             "kind": "readiness",
@@ -132,8 +107,8 @@
       "policyId": "docs-gate",
       "evidenceRefs": [
         {
-          "kind": "run",
-          "checkRunId": "check-run/v1:fb5dc724f7d5cd0fb9ee4bfd39ea0f8df06c048f5766b10cc8e8bb905a09a79e"
+          "kind": "check",
+          "checkId": "docs-example"
         },
         {
           "kind": "record",

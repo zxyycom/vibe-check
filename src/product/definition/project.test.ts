@@ -9,7 +9,8 @@ import {
   replace,
   createDeclarativeFingerprint,
   defineConfig,
-  normalizeProjectDefinition
+  normalizeProjectDefinition,
+  type CustomCheck
 } from "./project.ts";
 import { validateProjectDefinition } from "./validation.ts";
 import { validateRunControls } from "../run/control-validation.ts";
@@ -19,8 +20,8 @@ const customLeaf = (overrides: Readonly<Record<string, unknown>> = {}) => ({
   checkId: "custom-check",
   displayName: "Custom check",
   recordTypes: [],
-  applicability: () => ({ status: "applicable" as const, workHandles: [] }),
-  binding: { kind: "direct" as const, execute: () => undefined },
+  applicability: () => ({ status: "applicable" as const }),
+  binding: { kind: "direct" as const, execute: () => ({ verdict: "passed" as const }) },
   ...overrides
 });
 
@@ -59,35 +60,33 @@ describe("Project Definition", () => {
       }]
     });
     const normalized = normalizeProjectDefinition(definition);
-    const file = normalized.declarative.checks.schedules.find(({ checkId }) => checkId === "file-metrics");
-    const duplicate = normalized.declarative.checks.schedules.find(({ checkId }) => checkId === "duplicate-detection");
+    const file = normalized.declarative.checks.find(({ definition }) => definition.checkId === "file-metrics");
+    const duplicate = normalized.declarative.checks.find(({ definition }) => definition.checkId === "duplicate-detection");
 
-    assert.deepEqual(file?.requiresChecks, ["custom-check"]);
-    assert.deepEqual(duplicate?.requiresChecks, ["custom-check"]);
-    assert.deepEqual(normalized.declarative.checks.mutexes.find(({ checkId }) => checkId === "file-metrics")?.mutex, ["metrics", "native"]);
-    assert.deepEqual([...normalized.declarative.checks.selected].sort(), [
+    assert.deepEqual(file?.dependsOn, ["custom-check"]);
+    assert.deepEqual(duplicate?.dependsOn, ["custom-check"]);
+    assert.deepEqual(file?.mutex, ["metrics", "native"]);
+    assert.deepEqual(normalized.declarative.checks.map(({ definition }) => definition.checkId), [
       "custom-check",
       "duplicate-detection",
       "file-metrics",
       "function-metrics"
     ]);
-    assert.equal(normalized.builtInOptions["file-metrics"]?.codeLines.absoluteFloor, 300);
-    assert.deepEqual(normalized.checkMaxParallelById, {
-      "custom-check": 4,
-      "duplicate-detection": 2,
-      "file-metrics": 1,
-      "function-metrics": 4
-    });
-    assert.deepEqual(normalized.declarative.checks.maxParallel, [
+    assert.equal(file?.kind, "built-in");
+    if (file?.kind !== "built-in" || file.definition.checkId !== "file-metrics") {
+      throw new TypeError("file-metrics must remain a normalized built-in Check");
+    }
+    assert.deepEqual(file.options, fileMetrics.options);
+    assert.deepEqual(normalized.declarative.checks.map(({ definition, maxParallel }) => ({
+      checkId: definition.checkId,
+      maxParallel
+    })), [
       { checkId: "custom-check", maxParallel: 4 },
       { checkId: "duplicate-detection", maxParallel: 2 },
       { checkId: "file-metrics", maxParallel: 1 },
       { checkId: "function-metrics", maxParallel: 4 }
     ]);
-    assert.deepEqual(normalized.declarative.checks.mutexes.find(({ checkId }) => checkId === "function-metrics"), {
-      checkId: "function-metrics",
-      mutex: ["functions"]
-    });
+    assert.deepEqual(normalized.declarative.checks.find(({ definition }) => definition.checkId === "function-metrics")?.mutex, ["functions"]);
   });
 
   it("adjusts ordinary built-in data without mutating defaults", () => {
@@ -117,18 +116,10 @@ describe("Project Definition", () => {
     assert.equal(functions.options.parameterCount.changedDelta, 7);
     assert.equal(functions.options.codeLines.changedDelta, 20);
     assert.equal(fileMetrics.options.codeLines.changedDelta, 80);
-    assert.deepEqual(normalized.declarative.checks.schedules.find(({ checkId }) => checkId === "file-metrics"), {
-      checkId: "file-metrics",
-      requiresChecks: ["custom-check"]
-    });
-    assert.deepEqual(normalized.declarative.checks.mutexes.find(({ checkId }) => checkId === "file-metrics"), {
-      checkId: "file-metrics",
-      mutex: ["metrics"]
-    });
-    assert.deepEqual(normalized.declarative.checks.options.find(({ checkId }) => checkId === "file-metrics"), {
-      checkId: "file-metrics",
-      options: adjusted.options
-    });
+    const file = normalized.declarative.checks.find(({ definition }) => definition.checkId === "file-metrics");
+    assert.deepEqual(file?.dependsOn, ["custom-check"]);
+    assert.deepEqual(file?.mutex, ["metrics"]);
+    assert.deepEqual(file?.kind === "built-in" ? file.options : undefined, adjusted.options);
   });
 
   it("rejects invalid built-in adjustments without reading accessors or freezing inputs", () => {
@@ -351,13 +342,13 @@ describe("Project Definition", () => {
 
   it("separates frozen declarative data from function bindings and fingerprints neither binding", () => {
     const first = defineConfig({
-      checks: [customLeaf({ binding: { kind: "direct", execute: () => undefined } })],
+      checks: [customLeaf({ binding: { kind: "direct", execute: () => ({ verdict: "passed" as const }) } })],
       operationalDependencies: { file: { executable: "/first/scc" } },
-      policies: { gate: policy("failed") },
+      policies: { gate: policy("unavailable") },
       selectedPolicy: "gate"
     });
     const second = defineConfig({
-      checks: [customLeaf({ binding: { kind: "direct", execute: () => Promise.resolve() } })],
+      checks: [customLeaf({ binding: { kind: "direct", execute: () => Promise.resolve({ verdict: "passed" as const }) } })],
       operationalDependencies: { file: { executable: "/second/scc" } },
       policies: { gate: policy("completed") },
       selectedPolicy: "gate"
@@ -427,13 +418,67 @@ function _typeCheckBuiltInAdjustments() {
   append(duplicateDetection, { maxParallel: 1 });
 }
 
-function policy(status: "completed" | "failed") {
+function _typeCheckCustomCheckAuthoring() {
+  const _custom: CustomCheck = {
+    kind: "custom",
+    checkId: "typed-custom",
+    displayName: "Typed custom",
+    recordTypes: [],
+    applicability: (context) => {
+      void context.definition.checkId;
+      return { status: "applicable" };
+    },
+    binding: {
+      kind: "task-plan",
+      createTaskPlan: (context) => {
+        void context.definition;
+        return {
+          tasks: [{
+          id: "measure",
+          run: ({ results, signal }) => {
+            void signal.aborted;
+            results.report({
+              recordTypeId: "typed-record",
+              level: "warning",
+              semanticSubject: "subject",
+              message: "message",
+              fields: {},
+              location: null
+            });
+          }
+          }],
+          complete: (outcomes, { signal }) => {
+            void outcomes.measure;
+            void signal.aborted;
+            return { verdict: "passed" };
+          }
+        };
+      }
+    }
+  };
+
+  // @ts-expect-error scheduler-private Task definitions are not authoring exports.
+  type _NoSchedulerTaskDefinition = import("./project.ts").TaskDefinition;
+  const _noProvenance: import("./project.ts").QualityRecordCandidate = {
+    // @ts-expect-error user code cannot supply Core-owned Check identity on a record candidate.
+    checkId: "typed-custom",
+    recordTypeId: "typed-record",
+    level: "info",
+    semanticSubject: "subject",
+    message: "message",
+    fields: {},
+    location: null
+  };
+  void _noProvenance;
+}
+
+function policy(outcome: "completed" | "unavailable") {
   return {
     policyId: "gate",
     references: [],
     acceptance: [],
     views: [],
     readiness: [],
-    blockWhen: { kind: "run-status" as const, checkId: "custom-check", status }
+    blockWhen: { kind: "check-outcome" as const, checkId: "custom-check", outcome }
   };
 }

@@ -7,11 +7,7 @@ import type {
   CheckApplicabilityBinding,
   CustomCheckBinding
 } from "./index.ts";
-import type {
-  CheckExecutionBinding,
-  CheckTaskPlanFactory
-} from "../../quality-core/check-record/catalog.ts";
-import type { CheckDefinition } from "../../quality-core/check-record/model.ts";
+import type { CheckDefinition } from "../check-definition.ts";
 import {
   snapshotClosedArray,
   snapshotClosedRecord
@@ -161,36 +157,46 @@ function parseCustom(data: Readonly<Record<string, unknown>>, state: ParseState)
     recordTypes: custom.recordTypes
   });
   const binding = parseCustomBinding(custom.binding);
-  return header === undefined || !definition.ok || typeof custom.applicability !== "function" || binding === undefined
-    ? undefined
-    : Object.freeze({
-      ...header,
-      kind: "custom",
-      definition: definition.value,
-      applicability: custom.applicability as CheckApplicabilityBinding,
-      binding
-    });
+  if (header === undefined || !definition.ok
+    || typeof custom.applicability !== "function" || binding === undefined) {
+    return undefined;
+  }
+  return Object.freeze({
+    ...header,
+    kind: "custom",
+    definition: definition.value,
+    applicability: custom.applicability as CheckApplicabilityBinding,
+    binding
+  });
 }
 
 function parseCustomBinding(value: unknown): CustomCheckBinding | undefined {
   const direct = exactData(value, ["kind", "execute"]);
   if (direct?.kind === "direct" && typeof direct.execute === "function") {
-    return Object.freeze({ kind: "direct", execute: direct.execute as CheckExecutionBinding });
+    return Object.freeze({
+      kind: "direct",
+      execute: direct.execute as Extract<CustomCheckBinding, { readonly kind: "direct" }>["execute"]
+    });
   }
   const taskPlan = exactData(value, ["kind", "createTaskPlan"]);
-  return taskPlan?.kind === "task-plan" && typeof taskPlan.createTaskPlan === "function"
-    ? Object.freeze({ kind: "task-plan", createTaskPlan: taskPlan.createTaskPlan as CheckTaskPlanFactory })
-    : undefined;
+  if (taskPlan?.kind !== "task-plan" || typeof taskPlan.createTaskPlan !== "function") {
+    return undefined;
+  }
+  return Object.freeze({
+    kind: "task-plan",
+    createTaskPlan: taskPlan.createTaskPlan as Extract<
+      CustomCheckBinding,
+      { readonly kind: "task-plan" }
+    >["createTaskPlan"]
+  });
 }
 
 function parseNode(value: unknown, state: ParseState): ParsedNode | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined) return undefined;
-  return Object.hasOwn(data, "checks")
-    ? parseGroup(data, state)
-    : data.kind === "built-in"
-      ? parseBuiltIn(data, state)
-      : parseCustom(data, state);
+  if (Object.hasOwn(data, "checks")) return parseGroup(data, state);
+  if (data.kind === "built-in") return parseBuiltIn(data, state);
+  return parseCustom(data, state);
 }
 
 function registerId(id: string, state: ParseState): boolean {

@@ -1,12 +1,13 @@
 {
-  "schemaVersion": "vibe-check.run.v2",
+  "schemaVersion": "vibe-check.run.v3",
   "invocation": {
     "invocationId": "invocation/v1:docs-legitimate-empty",
     "projectRoot": ".",
     "timestamp": "2026-08-12T00:00:00.000Z"
   },
   "catalogFingerprint": "check-record/v1/catalog/sha256:5934100b0b24ad9b283e9a9c022a83d14925cf08fc351d075c142690d98b274e",
-  "definitions": [
+  "recordsFingerprint": "check-record/v1/records/sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "checks": [
     {
       "checkId": "docs-example",
       "displayName": "Documentation Example",
@@ -45,39 +46,12 @@
             ]
           }
         }
-      ]
+      ],
+      "outcome": {
+        "kind": "not-applicable"
+      }
     }
   ],
-  "runs": [
-    {
-      "checkId": "docs-example",
-      "checkRunId": "check-run/v1:7eee847e03626f18bb4954407962bd1f89c773551f06d733f5c0d6df80fac756",
-      "selection": "selected",
-      "applicability": "not-applicable",
-      "status": "completed",
-      "result": {
-        "verdict": "not-applicable"
-      },
-      "coverage": {
-        "plannedWorkCount": 0,
-        "acknowledgedWorkCount": 0
-      },
-      "diagnostic": null
-    }
-  ],
-  "integrity": {
-    "status": "valid",
-    "invalidRecords": [],
-    "conflicts": []
-  },
-  "completeness": {
-    "status": "complete",
-    "selectedRunCount": 1,
-    "completedRunCount": 1,
-    "failedRunCount": 0,
-    "plannedWorkCount": 0,
-    "acknowledgedWorkCount": 0
-  },
   "references": {
     "identities": [],
     "evidence": [],

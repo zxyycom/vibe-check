@@ -14,7 +14,7 @@ import {
 import {
   compileRegisteredSchema,
   createCurrentSchemaAjv,
-  createHistoricalReportAjv,
+  createHistoricalSchemaAjv,
   formatAjvErrors
 } from "./registry.ts";
 
@@ -51,7 +51,7 @@ export function validateSchemas(): void {
   for (const schemaRelPath of Object.values(CURRENT_SCHEMAS)) {
     compileRegisteredSchema(currentAjv, schemaRelPath);
   }
-  const historicalAjv = createHistoricalReportAjv();
+  const historicalAjv = createHistoricalSchemaAjv();
   for (const schemaRelPath of Object.values(HISTORICAL_SCHEMAS)) {
     compileRegisteredSchema(historicalAjv, schemaRelPath);
   }
@@ -63,7 +63,7 @@ export function validateReportExamples(): void {
   assert(exampleRelPaths.length > 0, "missing Vibe Check report examples");
 
   const schemaRelPath = HISTORICAL_SCHEMAS.report;
-  const ajv = createHistoricalReportAjv();
+  const ajv = createHistoricalSchemaAjv();
   const validate = compileRegisteredSchema(ajv, schemaRelPath);
   for (const exampleRelPath of exampleRelPaths) {
     if (!validate(readJson(exampleRelPath))) {

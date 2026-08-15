@@ -32,12 +32,17 @@ describe("current public contract", () => {
       },
       types: {
         builtInCheck: "BuiltInCheck",
+        checkDefinition: "CheckDefinition",
         checkGroup: "CheckGroup",
         checkNode: "CheckNode",
+        checkPlanningContext: "CheckPlanningContext",
+        checkResult: "CheckResult",
         customCheck: "CustomCheck",
         projectDefinition: "ProjectDefinition",
+        qualityRecordCandidate: "QualityRecordCandidate",
         runControls: "RunControls",
-        runResult: "RunResult"
+        runResult: "RunResult",
+        taskPlan: "TaskPlan"
       },
       effectDefaults: {
         cache: { directory: ".cache/vibe-check", enabled: true },

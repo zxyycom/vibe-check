@@ -1,4 +1,4 @@
-import type { CheckDefinition } from "../quality-core/check-record/model.ts";
+import type { CheckDefinition } from "./check-definition.ts";
 import type {
   BuiltInCheckReplacement,
   DuplicateDetectionOptionsReplacement,

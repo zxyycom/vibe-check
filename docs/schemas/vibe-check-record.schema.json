@@ -2,7 +2,6 @@
   "type": "object",
   "required": [
     "checkId",
-    "checkRunId",
     "fields",
     "level",
     "location",
@@ -17,10 +16,6 @@
       "type": "string",
       "minLength": 1,
       "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
-    },
-    "checkRunId": {
-      "type": "string",
-      "pattern": "^check-run/v1:[a-f0-9]{64}$"
     },
     "fields": {
       "type": "object",
@@ -39,7 +34,7 @@
           ]
         }
       },
-      "description": "Dynamic record fields constrained by the owning published record-type descriptor."
+      "description": "Dynamic record fields constrained by the owning published Check record-type descriptor."
     },
     "level": {
       "enum": [
@@ -94,15 +89,15 @@
     },
     "schemaVersion": {
       "type": "string",
-      "const": "vibe-check.record.v2"
+      "const": "vibe-check.record.v3"
     },
     "semanticSubject": {
       "type": "string",
       "minLength": 1
     }
   },
-  "$id": "urn:vibe-check:schema:record:v2",
+  "$id": "urn:vibe-check:schema:record:v3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "title": "Vibe Check machine record v2"
+  "title": "Vibe Check machine record v3"
 }

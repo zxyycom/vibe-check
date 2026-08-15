@@ -1,6 +1,6 @@
-import type { MachineRecordV2 } from "../../../src/product/run/machine-output.ts";
+import type { MachineRecordV3 } from "../../../src/product/run/machine-output.ts";
 
-type AnnotationRecord = Pick<MachineRecordV2, "location" | "message" | "recordTypeId">;
+type AnnotationRecord = Pick<MachineRecordV3, "location" | "message" | "recordTypeId">;
 
 export function renderGithubAnnotations(records: readonly AnnotationRecord[]): string[] {
   return records.map((record) => {

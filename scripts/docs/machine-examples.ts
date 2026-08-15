@@ -4,9 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  serializeMachinePublicationV2,
-  validateMachinePublicationSetV2
-} from "../../src/product/quality-core/output/publication-v2/index.ts";
+  serializeMachinePublicationV3,
+  validateMachinePublicationSetV3
+} from "../../src/product/quality-core/output/publication-v3/index.ts";
 import { canonicalMachineExamples } from "./machine-example-fixtures.ts";
 import {
   MACHINE_EXAMPLES_ROOT,
@@ -28,10 +28,10 @@ export function checkPublishedMachineExamples(): void {
   checkPublishedMachineExampleFiles(generatedFiles());
 }
 
-function generatedFiles(): GeneratedMachineExampleFile[] {
+function generatedFiles(): readonly GeneratedMachineExampleFile[] {
   return canonicalMachineExamples().flatMap((example) => {
-    const candidates = serializeMachinePublicationV2(example.publication);
-    const validation = validateMachinePublicationSetV2({
+    const candidates = serializeMachinePublicationV3(example.publication);
+    const validation = validateMachinePublicationSetV3({
       runJson: encoder.encode(candidates.runJson),
       recordsNdjson: encoder.encode(candidates.recordsNdjson)
     });

@@ -23,8 +23,10 @@ process exit codes are not part of this publication example.
 
 ## Canonical publication
 
-- `run.json` contains the Check catalog, runs, integrity/completeness, reference facts and decision evidence.
+- `run.json` contains v3 Check outcomes, the declarative catalog fingerprint, the canonical
+  Record-set fingerprint, reference facts, acceptance and decision evidence. It contains no
+  execution run, integrity, completeness or effect view.
 - `records.ndjson` contains 1 canonical record(s) in recordId order.
 
 Both files are produced from the current Check / Record publication model and accepted together
-by the formal machine-v2 validator. They are one publication set; neither file is trusted alone.
+by the formal machine-v3 validator. They are one publication set; neither file is trusted alone.

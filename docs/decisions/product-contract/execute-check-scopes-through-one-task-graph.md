@@ -1,10 +1,10 @@
 ---
 title: 通过单一 Task graph 执行 Check scope
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-15T03:46:59Z
 purpose: 让 direct Check 与 TaskPlan Check 由同一静态 Task engine 执行，并通过 scoped capability 提交 Core facts。
-background: shared scheduler 已能结算静态 Task，另设 work-handle acknowledgement 和 CheckManager 会重复记录同一执行完整性。
+background: 该决策形成时，shared scheduler 已能结算静态 Task，另设 work-handle acknowledgement 和 CheckManager 会重复记录同一执行完整性。
 decision: Check 是静态 Task graph 的 execution scope；Task settlement 是唯一执行记账，scope 内 Task 只通过受控 RecordSink 提交记录。
 relations:
   - type: 归并
@@ -18,8 +18,8 @@ relations:
 - 让任意属于 Check scope 的 Task 能提交 QualityRecord，同时只有受信 adapter 能结算对应 Core Check。
 
 ## 背景
-- direct Check、TaskPlan leaves 与 completion 已经进入 shared scheduler，但 Check orchestration 仍另外维护 CheckManager、work handles、acknowledgement ports 和 terminal lifecycle。
-- Work-handle acknowledgement 不是 UI progress；它要求执行方预先声明逻辑工作单元并在结束前逐个确认。静态 Task graph 已经拥有 planned work 与 terminal settlement，继续保留两套机制会产生重复完整性状态。
+- 该决策形成时，direct Check、TaskPlan leaves 与 completion 已经进入 shared scheduler，但 Check orchestration 仍另外维护 CheckManager、work handles、acknowledgement ports 和 terminal lifecycle。
+- 当时的 Work-handle acknowledgement 不是 UI progress；它要求执行方预先声明逻辑工作单元并在结束前逐个确认。静态 Task graph 已经拥有 planned work 与 terminal settlement，继续保留两套机制会产生重复完整性状态。
 - Project Definition 需要公开 typed TaskPlan authoring，但 scheduler Task identity、retry 和 admission bookkeeping 不应成为 package 或 machine contract。
 
 ## 决策

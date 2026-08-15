@@ -23,7 +23,7 @@ interface CheckExecutionData {
 export async function executeCheck(check: CheckTask): Promise<CheckResult> {
   const startedAtMs = Date.now();
   const result = await runProcess({
-    args: check.args,
+    args: [...check.args],
     command: check.command,
     cwd: root,
     env: environmentForCheck(check),

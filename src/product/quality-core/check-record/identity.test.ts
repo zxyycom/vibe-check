@@ -1,14 +1,11 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import type { CheckDefinition, ManagerBoundQualityRecordCandidate } from "./model.ts";
+import type { CheckDefinition, QualityRecordCandidate } from "./model.ts";
 import {
   canonicalJsonBytes,
   createCatalogFingerprint,
-  createDeterministicCheckRunId,
-  createRecordConflictEvidence,
   createRecordId,
-  isCheckRunId,
   normalizeSemanticSubject
 } from "./identity.ts";
 
@@ -33,9 +30,7 @@ const definition: CheckDefinition = {
   }]
 };
 
-const candidate: ManagerBoundQualityRecordCandidate = {
-  checkId: "file-metrics",
-  checkRunId: "check-run/v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+const candidate: QualityRecordCandidate = {
   recordTypeId: "line-budget",
   level: "warning",
   semanticSubject: "cafe\u0301",
@@ -43,6 +38,8 @@ const candidate: ManagerBoundQualityRecordCandidate = {
   fields: { codeArea: "source", limit: 200 },
   location: { path: "src/a.ts", line: 10, column: 2 }
 };
+
+const ownedCandidate = { ...candidate, checkId: definition.checkId };
 
 describe("check-record foundation identity", () => {
   it("emits exact versioned canonical UTF-8 JSON bytes and rejects non-JSON values", () => {
@@ -120,7 +117,7 @@ describe("check-record foundation identity", () => {
   });
 
   it("matches exact golden record identity bytes and ID", () => {
-    const first = createRecordId(candidate, definition.recordTypes[0]);
+    const first = createRecordId(ownedCandidate, definition.recordTypes[0]);
 
     assert.equal(new TextDecoder().decode(first.bytes),
       "{\"checkId\":\"file-metrics\",\"identityFields\":{\"codeArea\":\"source\"},\"recordTypeId\":\"line-budget\",\"semanticSubject\":\"café\"}"
@@ -130,17 +127,16 @@ describe("check-record foundation identity", () => {
     );
   });
 
-  it("excludes location message and checkRunId while identity fields change recordId", () => {
-    const first = createRecordId(candidate, definition.recordTypes[0]).recordId;
+  it("excludes location and message while identity fields change recordId", () => {
+    const first = createRecordId(ownedCandidate, definition.recordTypes[0]).recordId;
     const relocated = createRecordId({
-      ...candidate,
-      checkRunId: "check-run/v1:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      ...ownedCandidate,
       message: "A revised message",
       location: { path: "src/a.ts", line: 99, column: 1 }
     }, definition.recordTypes[0]).recordId;
     const changedIdentity = createRecordId({
-      ...candidate,
-      fields: { ...candidate.fields, codeArea: "tests" }
+      ...ownedCandidate,
+      fields: { ...ownedCandidate.fields, codeArea: "tests" }
     }, definition.recordTypes[0]).recordId;
 
     assert.equal(relocated, first);
@@ -180,31 +176,4 @@ describe("check-record foundation identity", () => {
     assert.notEqual(rebound.catalogFingerprint, first.catalogFingerprint);
   });
 
-  it("constructs valid deterministic opaque run IDs and arrival-neutral conflict evidence", () => {
-    const runId = createDeterministicCheckRunId({
-      invocationKey: "fixture-invocation-1",
-      checkId: "file-metrics"
-    });
-    const left = createRecordConflictEvidence({
-      checkId: candidate.checkId,
-      checkRunId: candidate.checkRunId,
-      recordTypeId: candidate.recordTypeId,
-      recordId: createRecordId(candidate, definition.recordTypes[0]).recordId,
-      bodies: [{ message: "z" }, { message: "a" }, { message: "z" }]
-    });
-    const right = createRecordConflictEvidence({
-      checkId: candidate.checkId,
-      checkRunId: candidate.checkRunId,
-      recordTypeId: candidate.recordTypeId,
-      recordId: createRecordId(candidate, definition.recordTypes[0]).recordId,
-      bodies: [{ message: "a" }, { message: "z" }]
-    });
-
-    assert.equal(runId, "check-run/v1:cd558a2ab7795d39cae35539982dcbc01ea30c25814088de8a150c0f8f93e841");
-    assert.equal(isCheckRunId(runId), true);
-    assert.equal(isCheckRunId("check-run/v1:not-a-digest"), false);
-    assert.deepEqual(right, left);
-    assert.equal(left.bodyFingerprints.length, 2);
-    assert.ok(left.bodyFingerprints[0]! < left.bodyFingerprints[1]!);
-  });
 });

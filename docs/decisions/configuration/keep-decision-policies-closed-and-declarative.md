@@ -1,6 +1,6 @@
 ---
 title: 保持质量决策策略封闭且声明式
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 让可执行检查仍由可验证、可审阅且确定性的通用政策完成最终决断。

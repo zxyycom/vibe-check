@@ -76,15 +76,17 @@ Case 不是完整契约文档。`Owner` 指向完整规则，`Proves` 只记录�
   `## Case <CASE-ID>: <title>` blocks。仅含 H1 的文件表示合法空 topic；malformed
   Case H2、其它 H2 或 Case block 外正文都会阻断解析。
 
-```markdown
-# quality-gate
+以下代码块只说明格式，不是当前账本的 Case、owner 或实体快照；写入 topic 文件时必须替换所有尖括号内容，并使用实际可发现的 entity key。
 
-## Case WB-METRICS-GATE-EVALUATOR-001: Product gate evaluation 稳定
-Owner: `docs/quality-metrics.md#gate-policy-and-evaluation`
+```markdown
+# <topic>
+
+## Case <CASE-ID>: <title>
+Owner: `<relative-current-owner.md#heading>`
 Entities:
-- `bun|src/product/quality-core/model/gate-evaluator.test.ts|gate evaluator prerequisites > applies the fixed disabled, completeness, and comparison priority`
+- `bun|<workspace-relative-test-file>|<current test name>`
 Proves:
-- Disabled、completeness failure 与 comparison unavailable 使用固定 prerequisite priority。
+- <owner 承诺且可由该实体证伪的当前行为>
 ```
 
 字段顺序固定为 `Owner`、`Entities`、`Proves`，避免解析结果依赖启发式推断。

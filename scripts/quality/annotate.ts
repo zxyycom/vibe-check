@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 
-/** Renders a validated machine-v2 publication as non-blocking GitHub annotations. */
+/** Renders a validated machine-v3 publication as non-blocking GitHub annotations. */
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
-  validateMachinePublicationSetV2,
+  validateMachinePublicationSetV3,
   type MachinePublicationValidationDiagnostic
 } from "../../src/product/run/machine-output.ts";
 import { errorMessage } from "../tools/foundation/src/errors.ts";
@@ -20,7 +20,7 @@ const POSITIVE_DECIMAL_PATTERN = /^[1-9][0-9]*$/;
 function main(args: readonly string[]): number {
   try {
     const { artifactDirectory, limit } = parseArguments(args);
-    const validation = validateMachinePublicationSetV2({
+    const validation = validateMachinePublicationSetV3({
       runJson: readArtifact(artifactDirectory, "run.json"),
       recordsNdjson: readArtifact(artifactDirectory, "records.ndjson")
     });

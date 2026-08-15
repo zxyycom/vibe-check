@@ -12,11 +12,12 @@ import {
   type ParsedNode
 } from "./authoring.ts";
 import { resolveCheckTreeDependencies } from "./dependencies.ts";
+import type { CheckDefinition } from "../check-definition.ts";
 import type {
-  CheckExecutionBinding,
-  CheckTaskPlanFactory
-} from "../../quality-core/check-record/catalog.ts";
-import type { CheckDefinition } from "../../quality-core/check-record/model.ts";
+  CheckApplicabilityBinding,
+  CustomCheck,
+  CustomCheckBinding
+} from "../custom-check.ts";
 
 export type CheckSchedulingValue = string | readonly string[];
 
@@ -31,18 +32,7 @@ export interface CheckGroup extends CheckScheduling {
   readonly checks: readonly CheckNode[];
 }
 
-export type CustomCheckBinding = Readonly<
-  | { readonly kind: "direct"; readonly execute: CheckExecutionBinding }
-  | { readonly kind: "task-plan"; readonly createTaskPlan: CheckTaskPlanFactory }
->;
-
-export type CheckApplicabilityBinding = (definition: CheckDefinition) => unknown;
-
-export interface CustomCheck extends CheckDefinition, CheckScheduling {
-  readonly kind: "custom";
-  readonly applicability: CheckApplicabilityBinding;
-  readonly binding: CustomCheckBinding;
-}
+export type { CheckApplicabilityBinding, CustomCheck, CustomCheckBinding };
 
 export type CheckNode = CheckGroup | BuiltInCheck | CustomCheck;
 
@@ -74,7 +64,10 @@ export interface ResolvedCheckTree {
 function collectDescendants(node: ParsedNode, descendants: Map<string, readonly string[]>): readonly string[] {
   if (node.kind === "built-in") return [node.checkId];
   if (node.kind === "custom") return [node.definition.checkId];
-  const leaves = node.checks.flatMap((child) => collectDescendants(child, descendants));
+  const leaves: string[] = [];
+  for (const child of node.checks) {
+    leaves.push(...collectDescendants(child, descendants));
+  }
   descendants.set(node.id, Object.freeze(leaves));
   return leaves;
 }
@@ -133,7 +126,9 @@ export function resolveCheckTree(value: unknown, rootMaxParallel: number): Resol
   const roots = parseCheckTreeAuthoring(value);
   if (roots === undefined) return undefined;
   const descendants = new Map<string, readonly string[]>();
-  roots.forEach((node) => collectDescendants(node, descendants));
+  for (const node of roots) {
+    collectDescendants(node, descendants);
+  }
   const leaves: ResolvedCheckTreeLeaf[] = [];
   const customBindings = new Map<string, Readonly<{
     readonly applicability: CheckApplicabilityBinding;
@@ -144,7 +139,9 @@ export function resolveCheckTree(value: unknown, rootMaxParallel: number): Resol
     maxParallel: rootMaxParallel,
     mutex: Object.freeze([])
   });
-  roots.forEach((node) => flattenNode(node, empty, leaves, customBindings));
+  for (const node of roots) {
+    flattenNode(node, empty, leaves, customBindings);
+  }
   const resolved = resolveCheckTreeDependencies(leaves, descendants);
   return resolved === undefined || resolved.some((leaf) => leaf.maxParallel > rootMaxParallel)
     ? undefined

@@ -1,6 +1,6 @@
 ---
 title: 使用 Core Check 与 QualityRecord 两类事实
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T03:46:51Z
 purpose: 让每个 resolved Check 以一个 Core Check 表达声明与结论，并让最终快照只保留 Check 和 QualityRecord。

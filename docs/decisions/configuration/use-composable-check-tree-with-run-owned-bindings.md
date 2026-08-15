@@ -1,6 +1,6 @@
 ---
 title: 在 Project Definition 使用可组合 Check tree 并由 Package Run 构造内置绑定
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T07:34:24Z
 purpose: 让项目通过可组合 Check tree 选择和组织 Checks，同时让声明式规范化与私有运行时绑定各有明确 owner。

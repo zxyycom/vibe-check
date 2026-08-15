@@ -1,6 +1,6 @@
 ---
 title: 在 Task admission 边界协作式取消运行
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T08:14:41Z
 purpose: 让一次 invocation 的取消由唯一 Task engine 停止新 admission，同时保留已经形成的 Check 与 Record 事实。

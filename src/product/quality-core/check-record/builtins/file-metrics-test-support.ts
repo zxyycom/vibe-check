@@ -4,8 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { FileScannerDependency } from "../../../scanner-dependencies/index.ts";
-import { resolveCheckCatalog, type ResolvedCheckCatalog } from "../catalog.ts";
-import type { FinalCoreSnapshot } from "../model.ts";
+import type { CoreSnapshot } from "../model.ts";
+import { createBuiltInTestRun, type BuiltInTestRun } from "./builtin-test-support.ts";
 import {
   FILE_METRICS_CHECK_DEFINITION,
   createFileMetricsBinding,
@@ -34,20 +34,15 @@ export const fileMetricsSemantics = {
 
 const referenceId = "reference/v1/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-export function resolveFileMetricsTestCatalog(
+export function createFileMetricsTestRun(
   binding: ReturnType<typeof createFileMetricsBinding>["binding"],
   approvedExactPaths: readonly string[]
-): ResolvedCheckCatalog {
-  const catalog = resolveCheckCatalog({
-    invocationKey: "file-metrics-test",
-    definitions: [FILE_METRICS_CHECK_DEFINITION],
-    bindings: [{ checkId: "file-metrics", execute: binding }],
-    schedules: [{ checkId: "file-metrics", requiresChecks: [] }],
-    selectedCheckIds: ["file-metrics"],
-    resolveApplicability: () => resolveFileMetricsApplicability(approvedExactPaths)
+): BuiltInTestRun {
+  return createBuiltInTestRun({
+    applicability: resolveFileMetricsApplicability(approvedExactPaths),
+    binding,
+    definition: FILE_METRICS_CHECK_DEFINITION
   });
-  if (!catalog.ok) throw new Error("Expected file-metrics catalog to resolve");
-  return catalog.value;
 }
 
 export function fileRegressionPolicy() {
@@ -69,7 +64,7 @@ export function fileRegressionPolicy() {
       }],
       readiness: [{
         readinessId: "current-complete",
-        predicate: { kind: "run-status", checkId: "file-metrics", status: "completed" },
+        predicate: { kind: "check-outcome", checkId: "file-metrics", outcome: "completed" },
         reason: "scan-incomplete"
       }, {
         readinessId: "comparison-complete",
@@ -86,14 +81,13 @@ export function fileRegressionPolicy() {
   } as const;
 }
 
-export function assertExpectedFileWarning(snapshot: FinalCoreSnapshot): void {
-  assert.equal(snapshot.runs.length, 1);
-  assert.deepEqual(snapshot.runs[0]?.result, { verdict: "failed" });
+export function assertExpectedFileWarning(snapshot: CoreSnapshot): void {
+  assert.equal(snapshot.checks.length, 1);
+  assert.deepEqual(snapshot.checks[0]?.outcome, { kind: "completed", verdict: "failed" });
   assert.equal(snapshot.records.length, 1);
   assert.deepEqual(snapshot.records[0], {
     recordId: snapshot.records[0]?.recordId,
     checkId: "file-metrics",
-    checkRunId: snapshot.runs[0]?.checkRunId,
     recordTypeId: "file-code-lines",
     level: "warning",
     semanticSubject: "src/a.ts",
@@ -169,7 +163,7 @@ export function createSccFailureFixtures(): readonly SccFailureFixture[] {
   const unavailableRoot = mkdtempSync(join(tmpdir(), "vibe-check-file-metrics-unavailable-"));
   return [
     {
-      expectedCategory: "unavailable",
+      expectedCategory: "dependency-unavailable",
       rootDir: unavailableRoot,
       dependency: {
         executable: join(unavailableRoot, "missing-scc"),

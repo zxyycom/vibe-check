@@ -36,7 +36,9 @@ export const CURRENT_SCHEMAS = {
 };
 
 export const HISTORICAL_SCHEMAS = {
-  report: "docs/schemas/vibe-check-report.schema.json"
+  report: "docs/schemas/vibe-check-report.schema.json",
+  machineRecordV2: "docs/schemas/historical/v2/vibe-check-record.schema.json",
+  machineRunV2: "docs/schemas/historical/v2/vibe-check-run.schema.json"
 };
 
 export const EXAMPLES = { reportExamplesDir: FILE_SYSTEM.examplesJsonDir };

@@ -1,9 +1,14 @@
 import type { DuplicationScannerDependency } from "../../../scanner-dependencies/index.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckExecutionBinding, CheckExecutionPorts } from "../catalog.ts";
-import type { CheckDefinition, FinalCoreSnapshot } from "../model.ts";
+import type { CheckDefinition, CoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
-import { type ReferenceStatus, type RelationId } from "./builtin-support.ts";
+import {
+  type BuiltInCheckBinding,
+  type BuiltInCheckExecutionContext,
+  type BuiltInCheckExecutionResult,
+  type ReferenceStatus,
+  type RelationId
+} from "./builtin-support.ts";
 import {
   detachDuplicateDetectionInput,
   measureDuplicateDetection,
@@ -16,8 +21,6 @@ import {
   duplicateSubjects,
   type DuplicateRecordCandidate
 } from "./duplicate-detection-records.ts";
-
-const DUPLICATE_DETECTION_WORK_HANDLE = "work-handle/v1:duplicate-detection";
 
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   checkId: "duplicate-detection",
@@ -32,7 +35,7 @@ export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
       { fieldId: "suggestion", valueType: "string", required: true },
       { fieldId: "value", valueType: "integer", required: true }
     ],
-    identityFields: ["metric", "lineCount", "locationCount"],
+    identityFields: ["lineCount", "locationCount", "metric"],
     policy: {
       operands: [{
         operandId: "codeArea",
@@ -107,8 +110,8 @@ export interface DuplicateMeasurementInput {
 }
 
 export interface DuplicateDetectionBindingRuntime {
-  readonly binding: CheckExecutionBinding;
-  readonly referenceFacts: (snapshot: FinalCoreSnapshot) => ReferenceFacts;
+  readonly binding: BuiltInCheckBinding;
+  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
 }
 
 interface DuplicateReferenceState {
@@ -128,16 +131,10 @@ interface DuplicateBindingContext {
 
 export function resolveDuplicateDetectionApplicability(
   areas: readonly DuplicateDetectionAreaInput[]
-): Readonly<
-  | { status: "not-applicable" }
-  | { status: "applicable"; workHandles: readonly string[] }
-> {
+): "applicable" | "not-applicable" {
   return areas.every((area) => area.approvedExactPaths.length === 0)
-    ? Object.freeze({ status: "not-applicable" })
-    : Object.freeze({
-      status: "applicable",
-      workHandles: Object.freeze([DUPLICATE_DETECTION_WORK_HANDLE])
-    });
+    ? "not-applicable"
+    : "applicable";
 }
 
 export function createDuplicateDetectionBinding(input: Readonly<{
@@ -149,18 +146,10 @@ export function createDuplicateDetectionBinding(input: Readonly<{
   semantics: DuplicateDetectionSemantics;
 }>): DuplicateDetectionBindingRuntime {
   const context = createBindingContext(input);
-  const binding: CheckExecutionBinding = async (ports) => {
-    try {
-      return await executeDuplicateDetection(context, ports);
-    } finally {
-      for (const workHandle of ports.workHandles) {
-        ports.acknowledge(workHandle);
-      }
-    }
-  };
+  const binding: BuiltInCheckBinding = (execution) => executeDuplicateDetection(context, execution);
   return Object.freeze({
     binding,
-    referenceFacts: (snapshot: FinalCoreSnapshot) => buildDuplicateReferenceFacts(
+    referenceFacts: (snapshot: CoreSnapshot) => buildDuplicateReferenceFacts(
       snapshot,
       context.reference?.referenceName ?? null,
       context.referenceState.status,
@@ -199,8 +188,8 @@ function createBindingContext(input: Readonly<{
 
 async function executeDuplicateDetection(
   context: DuplicateBindingContext,
-  ports: CheckExecutionPorts
-) {
+  execution: BuiltInCheckExecutionContext
+): Promise<BuiltInCheckExecutionResult> {
   const measurement = await measureDuplicateDetection({
     cache: context.cache,
     changedFiles: context.changedFiles,
@@ -214,10 +203,10 @@ async function executeDuplicateDetection(
   }
   const candidates = buildDuplicateRecordCandidates(measurement.fragments, context.semantics);
   if (candidates === undefined) {
-    return { verdict: "invalid" } as const;
+    return { kind: "unavailable", category: "invalid-result" };
   }
   for (const candidate of candidates) {
-    ports.submitRecord(candidate.record);
+    execution.results.report(candidate.record);
   }
   await compareDuplicateReference(context, candidates);
   return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
@@ -225,14 +214,14 @@ async function executeDuplicateDetection(
 
 function currentMeasurementFailure(
   measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
-) {
+): BuiltInCheckExecutionResult {
   if (measurement.kind === "unavailable") {
-    return { status: "unavailable", dependencyId: "jscpd" } as const;
+    return { kind: "unavailable", category: "dependency-unavailable" };
   }
   if (measurement.kind === "execution-failed") {
     throw new Error("duplicate-detection scanner execution failed");
   }
-  return { verdict: "invalid" } as const;
+  return { kind: "unavailable", category: "invalid-result" };
 }
 
 async function compareDuplicateReference(

@@ -5,9 +5,8 @@ import type { CheckDefinition } from "./model.ts";
 const qualityWarningOutput = [
   /^─+$/,
   /^Summary:$/,
-  /^ {2}Check runs: \d+$/,
+  /^ {2}Checks: \d+$/,
   /^ {2}Records: \d+$/,
-  /^ {2}Snapshot completeness: (?:complete|incomplete)$/,
   /^Quality check status: warning$/,
   /^ {2}\d+\. \[(?:error|info|warning)\] .+$/,
   /^ {2}\.\.\. and \d+ more records$/,
@@ -165,7 +164,7 @@ export const checks = defineChecks([
   }
 ]);
 
-function docsValidatorChecks(): CheckDefinition[] {
+function docsValidatorChecks(): readonly CheckDefinition[] {
   return [
     docsValidatorCheck("docs-json-validator", "docs json validator", "json", [
       /^json syntax ok:/

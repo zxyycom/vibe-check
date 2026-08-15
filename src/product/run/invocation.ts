@@ -8,21 +8,26 @@ import {
   type ProjectDefinition,
   type RunControls
 } from "../definition/project.ts";
+import { ScannerOperationalInputError } from "../scanner-dependencies/index.ts";
+import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
+import type { PolicyResolution, ReferenceFacts } from "../quality-core/check-record/policy-model.ts";
+import {
+  executeResolvedChecks,
+  type ResolvedCheckExecution
+} from "./check-execution.ts";
 import { prepareBuiltInRuntime, type BuiltInRuntime } from "./built-ins.ts";
 import { createEffectStatuses, effectiveEffects, emitProgress, type EffectStatuses } from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
 import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
 import {
-  cancelled,
+  executionCancellation,
   isCancelled,
   planning,
+  preExecutionCancellation,
+  type RunDiagnostic,
   type RunResult
 } from "./result.ts";
-import { ScannerOperationalInputError } from "../scanner-dependencies/index.ts";
-import { resolveCheckCatalog } from "../quality-core/check-record/catalog.ts";
-import { coordinateCheckRecords } from "../quality-core/check-record/coordinator.ts";
-import type { CheckDefinition, FinalCoreSnapshot } from "../quality-core/check-record/model.ts";
-import type { PolicyResolution, ReferenceFacts } from "../quality-core/check-record/policy-model.ts";
+import { resolveChecks, type ResolvedCheck } from "./resolved-check.ts";
 
 export type Invocation = Readonly<{
   controls: RunControls;
@@ -35,15 +40,11 @@ export type Invocation = Readonly<{
   projectRoot: string;
 }>;
 
-type PlannedInvocation = Readonly<{
-  definitions: readonly CheckDefinition[];
-  policy: PolicyResolution;
-  selectedCheckIds: ReadonlySet<string>;
-}>;
+type PlannedInvocation = Readonly<{ policy: PolicyResolution }>;
 
 export type CoreExecution = Readonly<{
   referenceFacts: ReferenceFacts;
-  snapshot: FinalCoreSnapshot;
+  snapshot: CoreSnapshot;
 }>;
 
 export async function executeValidatedRun(
@@ -52,7 +53,7 @@ export async function executeValidatedRun(
 ): Promise<RunResult> {
   const invocation = createInvocation(definition, controls);
   if (isCancelled(controls)) {
-    return cancelled(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
+    return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
   }
   const plan = resolveInvocationPlan(invocation);
   if (isRunResult(plan)) return plan;
@@ -75,11 +76,10 @@ function createInvocation(definition: ProjectDefinition, controls: RunControls):
 }
 
 function resolveInvocationPlan(invocation: Invocation): PlannedInvocation | RunResult {
-  const definitions = invocation.normalized.declarative.checks.definitions;
-  const selectedCheckIds = new Set(invocation.normalized.declarative.checks.selected);
+  const definitions = invocation.normalized.declarative.checks.map((check) => check.definition);
   const policy = resolveSelectedPolicy(invocation.definition, invocation.controls, definitions);
   if (policy === undefined) return invalidComparisonResult();
-  return Object.freeze({ definitions, policy, selectedCheckIds });
+  return Object.freeze({ policy });
 }
 
 async function executePlannedInvocation(
@@ -87,31 +87,56 @@ async function executePlannedInvocation(
   plan: PlannedInvocation
 ): Promise<RunResult> {
   if (isCancelled(invocation.controls)) {
-    return cancelled(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
+    return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
   }
-  const runtime = prepareRuntime(invocation, plan.selectedCheckIds);
+  const runtime = prepareRuntime(invocation);
   if (isRunResult(runtime)) return runtime;
-  if (isCancelled(invocation.controls)) {
+
+  try {
+    if (isCancelled(invocation.controls)) {
+      return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
+    }
+    const checks = resolveInvocationChecks(invocation, runtime);
+    if (isRunResult(checks)) return checks;
+    if (isCancelled(invocation.controls)) {
+      return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "planning");
+    }
+    if (!emitProgress(invocation.effects, "execution")) {
+      return executionResult(invocation, "progress-failed");
+    }
+    const executed = await executeChecks(invocation, checks);
+    if (isExecutionRunResult(executed)) return executed;
+    if (executed.kind === "cancelled") {
+      return executionCancellation(
+        invocation.declarativeFingerprint,
+        invocation.effects.value(),
+        executed.snapshot
+      );
+    }
+    let referenceFacts: ReferenceFacts | undefined;
+    try {
+      referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, checks);
+    } catch {
+      return executionResult(invocation, "policy-validation-failed");
+    }
+    if (referenceFacts === undefined) return executionResult(invocation, "policy-validation-failed");
+    return completeInvocation(invocation, plan.policy, Object.freeze({
+      referenceFacts,
+      snapshot: executed.snapshot
+    }));
+  } finally {
     runtime.cleanup();
-    return cancelled(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
   }
-  const core = await executeCore(invocation, plan, runtime);
-  if (isRunResult(core)) return core;
-  return completeInvocation(invocation, plan.policy, core);
 }
 
-function prepareRuntime(
-  invocation: Invocation,
-  selectedCheckIds: ReadonlySet<string>
-): BuiltInRuntime | RunResult {
+function prepareRuntime(invocation: Invocation): BuiltInRuntime | RunResult {
   try {
     return prepareBuiltInRuntime({
       cache: invocation.effectConfiguration.cache,
+      checks: invocation.normalized.declarative.checks,
       controls: invocation.controls,
       definition: invocation.definition,
-      onCacheActivity: (activity) => invocation.effects.cache(activity),
-      builtInOptions: invocation.normalized.builtInOptions,
-      selectedCheckIds: [...selectedCheckIds]
+      onCacheActivity: (activity) => invocation.effects.cache(activity)
     });
   } catch (error: unknown) {
     if (error instanceof ScannerOperationalInputError) return scannerConfigurationResult(error);
@@ -119,78 +144,45 @@ function prepareRuntime(
   }
 }
 
-async function executeCore(
+function resolveInvocationChecks(
   invocation: Invocation,
-  plan: PlannedInvocation,
-  runtime: BuiltInRuntime
-): Promise<CoreExecution | RunResult> {
-  try {
-    const catalog = resolveCatalog(invocation, plan.definitions, runtime);
-    if (!catalog.ok) return planningResult(invocation, "catalog-resolution-failed");
-    if (isCancelled(invocation.controls)) {
-      return cancelled(invocation.declarativeFingerprint, invocation.effects.value(), "planning");
-    }
-    if (!emitProgress(invocation.effects, "execution")) return executionResult(invocation, "progress-failed");
-    let snapshot: FinalCoreSnapshot;
-    try {
-      snapshot = await coordinateCheckRecords(catalog.value, {
-        checkMaxParallelById: invocation.normalized.checkMaxParallelById,
-        schedulerPolicy: invocation.normalized.declarative.scheduler
-      });
-    } catch (_error: unknown) {
-      return executionResult(invocation, "task-execution-failed");
-    }
-    const referenceFacts = resolveReferenceFacts(plan.policy, snapshot, runtime);
-    return referenceFacts === undefined
-      ? planningResult(invocation, "policy-validation-failed")
-      : Object.freeze({ referenceFacts, snapshot });
-  } finally {
-    runtime.cleanup();
-  }
-}
-
-function resolveCatalog(
-  invocation: Invocation,
-  definitions: readonly CheckDefinition[],
   runtime: BuiltInRuntime
 ) {
-  return resolveCheckCatalog({
-    invocationKey: invocation.invocationId,
-    definitions,
-    bindings: definitions.map((definition) => resolveBinding(invocation, runtime, definition)),
-    schedules: invocation.normalized.declarative.checks.schedules,
-    mutexes: invocation.normalized.declarative.checks.mutexes,
-    selectedCheckIds: invocation.normalized.declarative.checks.selected,
-    resolveApplicability: (definition) => resolveApplicability(invocation, runtime, definition)
-  });
-}
-
-function resolveBinding(invocation: Invocation, runtime: BuiltInRuntime, definition: CheckDefinition) {
-  const custom = invocation.normalized.bindings.customChecks.get(definition.checkId);
-  if (custom === undefined) {
-    return runtime.bindings.get(definition.checkId)
-      ?? { checkId: definition.checkId, execute: unavailableBuiltinBinding };
+  try {
+    return resolveChecks({ builtIns: runtime, normalized: invocation.normalized });
+  } catch {
+    return planningResult(invocation, "resolved-check-planning-failed");
   }
-  return custom.binding.kind === "direct"
-    ? { checkId: definition.checkId, execute: custom.binding.execute }
-    : { checkId: definition.checkId, createTaskPlan: custom.binding.createTaskPlan };
 }
 
-function resolveApplicability(invocation: Invocation, runtime: BuiltInRuntime, definition: CheckDefinition) {
-  const custom = invocation.normalized.bindings.customChecks.get(definition.checkId);
-  return custom === undefined
-    ? runtime.applicability.get(definition.checkId)?.() ?? { status: "not-applicable" }
-    : custom.applicability(definition);
+async function executeChecks(
+  invocation: Invocation,
+  checks: readonly ResolvedCheck[]
+): Promise<ResolvedCheckExecution | RunResult> {
+  try {
+    return await executeResolvedChecks({
+      checks,
+      maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
+      signal: invocation.controls.signal
+    });
+  } catch {
+    return executionResult(invocation, "task-execution-failed");
+  }
 }
 
 function planningResult(
   invocation: Invocation,
-  code: Parameters<typeof planning>[2]
+  code: Extract<RunDiagnostic["code"],
+    "builtin-preparation-failed" | "policy-validation-failed" | "resolved-check-planning-failed">
 ): RunResult {
   return planning(invocation.declarativeFingerprint, invocation.effects.value(), code);
 }
 
-function executionResult(invocation: Invocation, code: "progress-failed" | "publication-model-failed" | "task-execution-failed"): RunResult {
+function executionResult(
+  invocation: Invocation,
+  code: Extract<RunDiagnostic["code"],
+    "progress-failed" | "publication-model-failed" | "policy-validation-failed" | "task-execution-failed">
+): RunResult {
   return Object.freeze({
     kind: "execution",
     declarativeFingerprint: invocation.declarativeFingerprint,
@@ -221,10 +213,12 @@ function scannerConfigurationResult(error: ScannerOperationalInputError): RunRes
   });
 }
 
-function isRunResult(value: PlannedInvocation | BuiltInRuntime | CoreExecution | RunResult): value is RunResult {
-  return "kind" in value;
+function isRunResult(value: unknown): value is RunResult {
+  return typeof value === "object" && value !== null && "kind" in value;
 }
 
-function unavailableBuiltinBinding(): never {
-  throw new TypeError("Built-in Check binding was scheduled without Product runtime preparation");
+function isExecutionRunResult(
+  value: ResolvedCheckExecution | RunResult
+): value is RunResult {
+  return "declarativeFingerprint" in value;
 }

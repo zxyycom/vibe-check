@@ -1,4 +1,5 @@
-import type { FinalCoreSnapshot, QualityRecord } from "./model.ts";
+import { createCatalogFingerprint } from "./identity.ts";
+import type { CoreSnapshot, QualityRecord } from "./model.ts";
 import type {
   AcceptanceEvidence,
   AcceptanceRule,
@@ -23,7 +24,7 @@ export function evaluateRecordObservation(
     catalogFingerprint: string;
     views: readonly NamedRecordView[];
   }>,
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   referenceFacts: ReferenceFacts
 ): RecordObservationEvidence {
   const surfacesBySelector = resolveObservationSurfaces(input.catalogFingerprint, snapshot);
@@ -33,12 +34,15 @@ export function evaluateRecordObservation(
   return deepFreeze({ acceptance, views });
 }
 
-function resolveObservationSurfaces(catalogFingerprint: string, snapshot: FinalCoreSnapshot) {
-  if (catalogFingerprint !== snapshot.catalogFingerprint) {
+function resolveObservationSurfaces(catalogFingerprint: string, snapshot: CoreSnapshot) {
+  if (catalogFingerprint !== createCatalogFingerprint(snapshot.checks).catalogFingerprint) {
     throw new TypeError("Record observation catalog does not match the final snapshot");
   }
   try {
-    return new Map(createPolicySurfaceRegistry(snapshot).recordTypes.map((surface) => [
+    return new Map(createPolicySurfaceRegistry({
+      catalogFingerprint,
+      definitions: snapshot.checks
+    }).recordTypes.map((surface) => [
       selectorKey(surface), surface
     ]));
   } catch {

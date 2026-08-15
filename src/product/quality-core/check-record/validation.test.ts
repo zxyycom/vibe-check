@@ -2,10 +2,10 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
 import type { CheckDefinition } from "./model.ts";
-import { createCatalogFingerprint, createRecordId } from "./identity.ts";
+import { createRecordId } from "./identity.ts";
 import {
   validateCheckDefinition,
-  validateFinalCoreSnapshot,
+  validateCoreSnapshot,
   validateQualityRecord
 } from "./validation.ts";
 
@@ -32,16 +32,27 @@ const definition: CheckDefinition = {
 
 const candidate = {
   checkId: "file-metrics",
-  checkRunId: "check-run/v1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   recordTypeId: "line-budget",
-  level: "warning",
+  level: "warning" as const,
   semanticSubject: "src/a.ts",
   message: "Too many lines",
   fields: { codeArea: "source", limit: 200 },
   location: { path: "src/a.ts", line: 10, column: 2 }
-} as const;
-const identity = createRecordId(candidate, definition.recordTypes[0]);
-const record = { ...candidate, recordId: identity.recordId };
+};
+const record = {
+  ...candidate,
+  recordId: createRecordId(candidate, definition.recordTypes[0]!).recordId
+};
+
+function snapshot(outcome: unknown = { kind: "completed", verdict: "passed" }): {
+  readonly checks: readonly unknown[];
+  readonly records: readonly unknown[];
+} {
+  return {
+    checks: [{ ...definition, outcome }],
+    records: [record]
+  };
+}
 
 describe("check-record foundation runtime validation", () => {
   it("rejects CheckDefinition accessors without executing them", () => {
@@ -86,9 +97,7 @@ describe("check-record foundation runtime validation", () => {
     const validated = validateQualityRecord(input, definition);
 
     assert.equal(validated.ok, true);
-    if (!validated.ok) {
-      throw new Error("Expected a valid record");
-    }
+    if (!validated.ok) throw new Error("Expected a valid record");
 
     input.message = "mutated";
     input.fields.codeArea = "mutated";
@@ -114,172 +123,113 @@ describe("check-record foundation runtime validation", () => {
     assert.equal(JSON.stringify(credentialResult).includes("credential-value"), false);
   });
 
-  it("rejects records and integrity evidence inconsistent with the owning run", () => {
-    const catalogFingerprint = createCatalogFingerprint([definition]).catalogFingerprint;
-    const baseSnapshot = {
-      catalogFingerprint,
-      definitions: [definition],
-      runs: [{
-        checkId: "file-metrics",
-        checkRunId: candidate.checkRunId,
-        selection: "selected",
-        applicability: "not-applicable",
-        status: "completed",
-        result: { verdict: "not-applicable" },
-        coverage: { plannedWorkCount: 0, acknowledgedWorkCount: 0 },
-        diagnostic: null
-      }],
-      records: [record],
-      integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-      completeness: {
-        status: "complete",
-        selectedRunCount: 1,
-        completedRunCount: 1,
-        failedRunCount: 0,
-        plannedWorkCount: 0,
-        acknowledgedWorkCount: 0
-      }
-    };
-    assert.equal(validateFinalCoreSnapshot(baseSnapshot).ok, false);
-
-    const passedWithInvalidEvidence = {
-      ...baseSnapshot,
-      runs: [{
-        ...baseSnapshot.runs[0],
-        applicability: "applicable",
-        result: { verdict: "passed" },
-        coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 }
-      }],
-      records: [],
-      integrity: {
-        status: "invalid",
-        invalidRecords: [{
-          kind: "invalid-record",
-          checkId: "file-metrics",
-          checkRunId: candidate.checkRunId,
-          recordTypeId: "line-budget",
-          evidenceId: "invalid-record/v1:000001"
-        }],
-        conflicts: []
-      },
-      completeness: {
-        ...baseSnapshot.completeness,
-        plannedWorkCount: 1,
-        acknowledgedWorkCount: 1
-      }
-    };
-    assert.equal(validateFinalCoreSnapshot(passedWithInvalidEvidence).ok, false);
-  });
-
-  it("requires unique integrity evidence that closes the primary record diagnostic", () => {
-    const catalogFingerprint = createCatalogFingerprint([definition]).catalogFingerprint;
-    const failedRun = {
-      checkId: "file-metrics",
-      checkRunId: candidate.checkRunId,
-      selection: "selected",
-      applicability: "applicable",
-      status: "failed",
-      result: null,
-      coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-      diagnostic: { category: "record-conflict", tieBreakKey: identity.recordId }
-    };
-    const baseSnapshot = {
-      catalogFingerprint,
-      definitions: [definition],
-      runs: [failedRun],
-      records: [],
-      integrity: { status: "valid", invalidRecords: [], conflicts: [] },
-      completeness: {
-        status: "incomplete",
-        selectedRunCount: 1,
-        completedRunCount: 0,
-        failedRunCount: 1,
-        plannedWorkCount: 1,
-        acknowledgedWorkCount: 1
-      }
-    };
-    assert.equal(validateFinalCoreSnapshot(baseSnapshot).ok, false);
-
-    const conflict = {
-      kind: "record-conflict",
-      checkId: "file-metrics",
-      checkRunId: candidate.checkRunId,
-      recordId: identity.recordId,
-      recordTypeId: "line-budget",
-      bodyFingerprints: [
-        "check-record/v1/body/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "check-record/v1/body/sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-      ]
-    };
-    assert.equal(validateFinalCoreSnapshot({
-      ...baseSnapshot,
-      integrity: { status: "conflicted", invalidRecords: [], conflicts: [conflict, conflict] }
+  it("requires a known non-not-applicable owner and canonical entity order", () => {
+    assert.equal(validateCoreSnapshot(snapshot()).ok, true);
+    assert.equal(validateCoreSnapshot({
+      checks: [{ ...definition, outcome: { kind: "not-applicable" } }],
+      records: [record]
+    }).ok, false);
+    assert.equal(validateCoreSnapshot({
+      checks: [],
+      records: [record]
     }).ok, false);
 
-    const legacyDigestEvidence = {
-      kind: "invalid-record",
-      checkId: "file-metrics",
-      checkRunId: candidate.checkRunId,
-      candidateFingerprint: "check-record/v1/body/sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    };
-    assert.equal(validateFinalCoreSnapshot({
-      ...baseSnapshot,
-      runs: [{
-        ...failedRun,
-        diagnostic: { category: "invalid-record", tieBreakKey: legacyDigestEvidence.candidateFingerprint }
-      }],
-      integrity: { status: "invalid", invalidRecords: [legacyDigestEvidence], conflicts: [] }
+    const laterDefinition = { ...definition, checkId: "z-check" };
+    assert.equal(validateCoreSnapshot({
+      checks: [
+        { ...laterDefinition, outcome: { kind: "completed", verdict: "passed" } },
+        { ...definition, outcome: { kind: "completed", verdict: "passed" } }
+      ],
+      records: []
     }).ok, false);
+    assert.equal(validateCoreSnapshot({
+      checks: [{ ...definition, outcome: { kind: "completed", verdict: "passed" } }],
+      records: [record, record]
+    }).ok, false);
+
+    const canonicalDefinition = {
+      checkId: "canonical-check",
+      displayName: "Canonical Check",
+      recordTypes: [{
+        recordTypeId: "alpha-record",
+        fields: [
+          { fieldId: "alpha", valueType: "string", required: true },
+          { fieldId: "beta", valueType: "integer", required: true }
+        ],
+        identityFields: ["alpha", "beta"],
+        policy: {
+          operands: [{
+            operandId: "alpha",
+            valueType: "string",
+            source: { kind: "field", fieldId: "alpha" }
+          }, {
+            operandId: "beta",
+            valueType: "number",
+            source: { kind: "field", fieldId: "beta" }
+          }],
+          relations: ["alpha", "beta"]
+        }
+      }, {
+        recordTypeId: "beta-record",
+        fields: [],
+        identityFields: []
+      }]
+    };
+    const primaryRecordType = canonicalDefinition.recordTypes[0]!;
+    const primaryPolicy = primaryRecordType.policy;
+    if (primaryPolicy === undefined) throw new Error("Canonical definition requires a policy surface");
+    const nonCanonicalDefinitions = [
+      { ...canonicalDefinition, recordTypes: [...canonicalDefinition.recordTypes].reverse() },
+      {
+        ...canonicalDefinition,
+        recordTypes: [{
+          ...primaryRecordType,
+          fields: [...primaryRecordType.fields].reverse()
+        }, canonicalDefinition.recordTypes[1]!]
+      },
+      {
+        ...canonicalDefinition,
+        recordTypes: [{
+          ...primaryRecordType,
+          identityFields: [...primaryRecordType.identityFields].reverse()
+        }, canonicalDefinition.recordTypes[1]!]
+      },
+      {
+        ...canonicalDefinition,
+        recordTypes: [{
+          ...primaryRecordType,
+          policy: {
+            ...primaryPolicy,
+            operands: [...primaryPolicy.operands].reverse()
+          }
+        }, canonicalDefinition.recordTypes[1]!]
+      },
+      {
+        ...canonicalDefinition,
+        recordTypes: [{
+          ...primaryRecordType,
+          policy: {
+            ...primaryPolicy,
+            relations: [...primaryPolicy.relations].reverse()
+          }
+        }, canonicalDefinition.recordTypes[1]!]
+      }
+    ];
+    for (const nonCanonicalDefinition of nonCanonicalDefinitions) {
+      assert.equal(validateCheckDefinition(nonCanonicalDefinition).ok, false);
+    }
   });
 
-  it("keeps conflict IDs out of trusted records while retaining independent integrity evidence", () => {
-    const catalog = createCatalogFingerprint([definition]);
-    const snapshot = {
-      catalogFingerprint: catalog.catalogFingerprint,
-      definitions: [definition],
-      runs: [{
-        checkId: "file-metrics",
-        checkRunId: candidate.checkRunId,
-        selection: "selected",
-        applicability: "applicable",
-        status: "failed",
-        result: null,
-        coverage: { plannedWorkCount: 1, acknowledgedWorkCount: 1 },
-        diagnostic: { category: "record-conflict", tieBreakKey: identity.recordId }
-      }],
-      records: [record],
-      integrity: {
-        status: "conflicted",
-        invalidRecords: [{
-          kind: "invalid-record",
-          checkId: "file-metrics",
-          checkRunId: candidate.checkRunId,
-          recordTypeId: "line-budget",
-          evidenceId: "invalid-record/v1:000001"
-        }],
-        conflicts: [{
-          kind: "record-conflict",
-          checkId: "file-metrics",
-          checkRunId: candidate.checkRunId,
-          recordTypeId: "line-budget",
-          recordId: identity.recordId,
-          bodyFingerprints: [
-            "check-record/v1/body/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-            "check-record/v1/body/sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
-          ]
-        }]
-      },
-      completeness: {
-        status: "incomplete",
-        selectedRunCount: 1,
-        completedRunCount: 0,
-        failedRunCount: 1,
-        plannedWorkCount: 1,
-        acknowledgedWorkCount: 1
-      }
-    };
-
-    assert.equal(validateFinalCoreSnapshot(snapshot).ok, false);
-    assert.equal(validateFinalCoreSnapshot({ ...snapshot, records: [] }).ok, true);
+  it("accepts only the target unavailable taxonomy and exact snapshot fields", () => {
+    assert.equal(validateCoreSnapshot(snapshot({
+      kind: "unavailable",
+      diagnostic: { category: "dependency-unavailable" }
+    })).ok, true);
+    assert.equal(validateCoreSnapshot(snapshot({
+      kind: "unavailable",
+      diagnostic: { category: "ack-protocol" }
+    })).ok, false);
+    assert.equal(validateCoreSnapshot({ ...snapshot(), definitions: [definition] }).ok, false);
+    assert.equal(validateCoreSnapshot({ ...snapshot(), runs: [] }).ok, false);
   });
 });

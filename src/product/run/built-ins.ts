@@ -1,9 +1,10 @@
 import { resolve } from "node:path";
 
-import {
-  type ProjectDefinition,
-  type ProjectEffects,
-  type RunControls
+import type {
+  NormalizedCheck,
+  ProjectDefinition,
+  ProjectEffects,
+  RunControls
 } from "../definition/project.ts";
 import {
   duplicateDetection,
@@ -34,29 +35,28 @@ import {
   createFunctionMetricsBinding,
   resolveFunctionMetricsApplicability
 } from "../quality-core/check-record/builtins/function-metrics.ts";
-import type { FinalCoreSnapshot } from "../quality-core/check-record/model.ts";
+import type { BuiltInCheckBinding } from "../quality-core/check-record/builtins/builtin-support.ts";
+import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import type { ResolvedQualityConfig } from "../quality-core/model/schema.ts";
-import type { CheckExecutionBinding } from "../quality-core/check-record/catalog.ts";
 import type { ReferenceFacts } from "../quality-core/check-record/policy-model.ts";
 
+/**
+ * Built-in preparation is Run pre-work only. `resolve` is consumed exactly
+ * once while joining a canonical Normalized Check to its Resolved Check.
+ */
 export interface BuiltInRuntime {
-  readonly applicability: ReadonlyMap<string, BuiltInApplicability>;
-  readonly bindings: ReadonlyMap<string, BuiltInBinding>;
   readonly cleanup: () => void;
-  readonly referenceFacts: ReadonlyMap<string, (snapshot: FinalCoreSnapshot) => ReferenceFacts>;
+  readonly resolve: (checkId: string) => BuiltInRuntimeEntry | undefined;
 }
 
-interface RuntimeMaps {
-  readonly applicability: Map<string, BuiltInApplicability>;
-  readonly bindings: Map<string, BuiltInBinding>;
-  readonly referenceFacts: Map<string, (snapshot: FinalCoreSnapshot) => ReferenceFacts>;
+export interface BuiltInRuntimeEntry {
+  readonly applicability: "applicable" | "not-applicable";
+  readonly execute: BuiltInCheckBinding;
+  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
 }
+
 type ExactInputs = BuiltInExactInputs;
-type BuiltInApplicability = () => Readonly<
-  | { readonly status: "not-applicable" }
-  | { readonly status: "applicable"; readonly workHandles: readonly string[] }
->;
-type BuiltInBinding = Readonly<{ readonly checkId: string; readonly execute: CheckExecutionBinding }>;
+
 const BUILT_IN_DEPENDENCIES = Object.freeze({
   "duplicate-detection": "duplication",
   "file-metrics": "file",
@@ -65,21 +65,14 @@ const BUILT_IN_DEPENDENCIES = Object.freeze({
 
 export function prepareBuiltInRuntime(input: Readonly<{
   cache: ProjectEffects["cache"];
-  builtInOptions: Readonly<Partial<BuiltInCheckOptionsById>>;
+  checks: readonly NormalizedCheck[];
   controls: RunControls;
   definition: ProjectDefinition;
   onCacheActivity: (activity: "failed" | "read" | "write") => void;
-  selectedCheckIds: readonly string[];
 }>): BuiltInRuntime {
-  const selectedBuiltIns = selectedBuiltInCheckIds(input.selectedCheckIds);
-  if (selectedBuiltIns.length === 0) {
-    return Object.freeze({
-      applicability: new Map(),
-      bindings: new Map(),
-      cleanup: () => undefined,
-      referenceFacts: new Map()
-    });
-  }
+  const selectedBuiltIns = selectedBuiltInCheckIds(input.checks);
+  if (selectedBuiltIns.length === 0) return emptyRuntime();
+
   const requiredDependencies = selectedBuiltIns.map((checkId) => BUILT_IN_DEPENDENCIES[checkId]);
   const dependencies = resolveSelectedScannerDependencySnapshot({
     controls: input.controls.operationalDependencies,
@@ -90,9 +83,9 @@ export function prepareBuiltInRuntime(input: Readonly<{
   const config = resolveQualityConfiguration({
     project: input.definition.quality,
     checks: {
-      duplication: input.builtInOptions["duplicate-detection"] ?? duplicateDetection.options,
-      files: input.builtInOptions["file-metrics"] ?? fileMetrics.options,
-      functions: input.builtInOptions["function-metrics"] ?? functionMetrics.options
+      duplication: builtInOptions(input.checks, "duplicate-detection") ?? duplicateDetection.options,
+      files: builtInOptions(input.checks, "file-metrics") ?? fileMetrics.options,
+      functions: builtInOptions(input.checks, "function-metrics") ?? functionMetrics.options
     }
   });
   const current = prepareCurrentBuiltInInputs({
@@ -108,15 +101,12 @@ export function prepareBuiltInRuntime(input: Readonly<{
       config,
       root
     });
+
   try {
-    const maps: RuntimeMaps = {
-      applicability: new Map(),
-      bindings: new Map(),
-      referenceFacts: new Map()
-    };
+    const entries = new Map<string, BuiltInRuntimeEntry>();
     const changedFiles = input.controls.changedFiles ?? [];
     if (selectedBuiltIns.includes("duplicate-detection")) {
-      addDuplicateRuntime(maps, {
+      addDuplicateRuntime(entries, {
         cache: input.cache,
         changedFiles,
         comparison,
@@ -128,7 +118,7 @@ export function prepareBuiltInRuntime(input: Readonly<{
       });
     }
     if (selectedBuiltIns.includes("file-metrics")) {
-      addFileRuntime(maps, {
+      addFileRuntime(entries, {
         changedFiles,
         comparison,
         config,
@@ -137,7 +127,7 @@ export function prepareBuiltInRuntime(input: Readonly<{
       });
     }
     if (selectedBuiltIns.includes("function-metrics")) {
-      addFunctionRuntime(maps, {
+      addFunctionRuntime(entries, {
         changedFiles,
         comparison,
         config,
@@ -146,8 +136,8 @@ export function prepareBuiltInRuntime(input: Readonly<{
       });
     }
     return Object.freeze({
-      ...maps,
-      cleanup: comparison === null ? () => undefined : comparison.cleanup
+      cleanup: comparison === null ? () => undefined : comparison.cleanup,
+      resolve: (checkId: string) => entries.get(checkId)
     });
   } catch (error) {
     comparison?.cleanup();
@@ -155,10 +145,30 @@ export function prepareBuiltInRuntime(input: Readonly<{
   }
 }
 
-function selectedBuiltInCheckIds(
-  selectedCheckIds: readonly string[]
-): readonly BuiltInCheckId[] {
-  return selectedCheckIds.filter(isBuiltInCheckId);
+function emptyRuntime(): BuiltInRuntime {
+  return Object.freeze({ cleanup: () => undefined, resolve: () => undefined });
+}
+
+function selectedBuiltInCheckIds(checks: readonly NormalizedCheck[]): readonly BuiltInCheckId[] {
+  const ids: BuiltInCheckId[] = [];
+  for (const check of checks) {
+    if (check.kind !== "built-in") continue;
+    if (!isBuiltInCheckId(check.definition.checkId)) {
+      throw new TypeError("Normalized built-in Check has an unknown identity");
+    }
+    ids.push(check.definition.checkId);
+  }
+  return Object.freeze(ids);
+}
+
+function builtInOptions<Id extends BuiltInCheckId>(
+  checks: readonly NormalizedCheck[],
+  checkId: Id
+): BuiltInCheckOptionsById[Id] | undefined {
+  const check = checks.find((candidate): candidate is Extract<NormalizedCheck, {
+    readonly kind: "built-in";
+  }> => candidate.kind === "built-in" && candidate.definition.checkId === checkId);
+  return check === undefined ? undefined : check.options as BuiltInCheckOptionsById[Id];
 }
 
 function requiredDependency<Id extends OperationalDependencyId>(
@@ -170,7 +180,7 @@ function requiredDependency<Id extends OperationalDependencyId>(
   return dependency;
 }
 
-function addDuplicateRuntime(maps: RuntimeMaps, input: Readonly<{
+function addDuplicateRuntime(entries: Map<string, BuiltInRuntimeEntry>, input: Readonly<{
   cache: ProjectEffects["cache"];
   changedFiles: readonly string[];
   comparison: ComparisonReference | null;
@@ -196,17 +206,14 @@ function addDuplicateRuntime(maps: RuntimeMaps, input: Readonly<{
       configVersion: input.configVersion
     }
   });
-  maps.applicability.set("duplicate-detection", () => (
-    resolveDuplicateDetectionApplicability(current.areas)
-  ));
-  maps.bindings.set("duplicate-detection", {
-    checkId: "duplicate-detection",
-    execute: runtime.binding
-  });
-  maps.referenceFacts.set("duplicate-detection", runtime.referenceFacts);
+  entries.set("duplicate-detection", Object.freeze({
+    applicability: resolveDuplicateDetectionApplicability(current.areas),
+    execute: runtime.binding,
+    referenceFacts: runtime.referenceFacts
+  }));
 }
 
-function addFileRuntime(maps: RuntimeMaps, input: CommonRuntimeInput & Readonly<{
+function addFileRuntime(entries: Map<string, BuiltInRuntimeEntry>, input: CommonRuntimeInput & Readonly<{
   dependency: Parameters<typeof createFileMetricsBinding>[0]["dependency"];
 }>): void {
   const runtime = createFileMetricsBinding({
@@ -223,14 +230,14 @@ function addFileRuntime(maps: RuntimeMaps, input: CommonRuntimeInput & Readonly<
       codeLines: input.config.checks.files.codeLines
     }
   });
-  maps.applicability.set("file-metrics", () => (
-    resolveFileMetricsApplicability(input.current.fileMetrics.approvedExactPaths)
-  ));
-  maps.bindings.set("file-metrics", { checkId: "file-metrics", execute: runtime.binding });
-  maps.referenceFacts.set("file-metrics", runtime.referenceFacts);
+  entries.set("file-metrics", Object.freeze({
+    applicability: resolveFileMetricsApplicability(input.current.fileMetrics.approvedExactPaths),
+    execute: runtime.binding,
+    referenceFacts: runtime.referenceFacts
+  }));
 }
 
-function addFunctionRuntime(maps: RuntimeMaps, input: CommonRuntimeInput & Readonly<{
+function addFunctionRuntime(entries: Map<string, BuiltInRuntimeEntry>, input: CommonRuntimeInput & Readonly<{
   dependency: Parameters<typeof createFunctionMetricsBinding>[0]["dependency"];
 }>): void {
   const runtime = createFunctionMetricsBinding({
@@ -247,14 +254,11 @@ function addFunctionRuntime(maps: RuntimeMaps, input: CommonRuntimeInput & Reado
       functions: input.config.checks.functions
     }
   });
-  maps.applicability.set("function-metrics", () => (
-    resolveFunctionMetricsApplicability(input.current.functionMetrics.approvedExactPaths)
-  ));
-  maps.bindings.set("function-metrics", {
-    checkId: "function-metrics",
-    execute: runtime.binding
-  });
-  maps.referenceFacts.set("function-metrics", runtime.referenceFacts);
+  entries.set("function-metrics", Object.freeze({
+    applicability: resolveFunctionMetricsApplicability(input.current.functionMetrics.approvedExactPaths),
+    execute: runtime.binding,
+    referenceFacts: runtime.referenceFacts
+  }));
 }
 
 interface CommonRuntimeInput {

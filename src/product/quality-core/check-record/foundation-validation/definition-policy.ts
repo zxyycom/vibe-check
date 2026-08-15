@@ -6,6 +6,7 @@ import type {
 } from "../model.ts";
 import {
   accepted,
+  compareCanonicalText,
   isRecord,
   isStableId,
   issue,
@@ -76,6 +77,7 @@ function validatePolicyOperands(
 ): ValidationResult<readonly PolicyOperandDefinition[]> {
   const operands: PolicyOperandDefinition[] = [];
   const operandIds = new Set<string>();
+  let previousOperandId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const operandPath = `${path}.operands[${index}]`;
     const operand = validateClosedRecord(values[index], operandPath, ["operandId", "valueType", "source"]);
@@ -88,6 +90,14 @@ function validatePolicyOperands(
     }
     if (operandIds.has(operand.value.operandId)) {
       return issue(`${operandPath}.operandId`, "duplicate", "Duplicate policy operand identity");
+    }
+    if (previousOperandId !== undefined
+      && compareCanonicalText(previousOperandId, operand.value.operandId) >= 0) {
+      return issue(
+        `${path}.operands`,
+        "invalid-value",
+        "Policy operands must use canonical unique operandId order"
+      );
     }
     if (!isPolicyOperandValueType(operand.value.valueType)) {
       return issue(`${operandPath}.valueType`, "invalid-value", "Unknown policy operand value type");
@@ -102,6 +112,7 @@ function validatePolicyOperands(
       return source;
     }
     operandIds.add(operand.value.operandId);
+    previousOperandId = operand.value.operandId;
     operands.push({
       operandId: operand.value.operandId,
       valueType: operand.value.valueType,
@@ -117,6 +128,7 @@ function validatePolicyRelations(
 ): ValidationResult<readonly string[]> {
   const relations: string[] = [];
   const relationIds = new Set<string>();
+  let previousRelationId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const relationId = values[index];
     if (!isStableId(relationId)) {
@@ -125,7 +137,15 @@ function validatePolicyRelations(
     if (relationIds.has(relationId)) {
       return issue(`${path}.relations[${index}]`, "duplicate", "Duplicate policy relation identity");
     }
+    if (previousRelationId !== undefined && compareCanonicalText(previousRelationId, relationId) >= 0) {
+      return issue(
+        `${path}.relations`,
+        "invalid-value",
+        "Policy relations must use canonical unique relationId order"
+      );
+    }
     relationIds.add(relationId);
+    previousRelationId = relationId;
     relations.push(relationId);
   }
   return accepted(relations);

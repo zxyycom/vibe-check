@@ -1,10 +1,10 @@
-import type { NormalizedTask, TaskDefinition } from "../../../src/product/task-scheduler/index.ts";
-
 export const PROFILE_REQUIRED = "required";
 export const PROFILE_FULL = "full";
 
 export type Profile = typeof PROFILE_REQUIRED | typeof PROFILE_FULL;
 export type CheckStatus = "passed" | "warning" | "failed";
+export type CheckEnvironment = Readonly<Record<string, string | undefined>>;
+export type StringList = string | readonly string[] | undefined;
 
 export const profiles = Object.freeze({
   [PROFILE_REQUIRED]: {
@@ -17,26 +17,58 @@ export const profiles = Object.freeze({
   }
 });
 
-export type CheckDefinition = TaskDefinition & {
-  allowOutput?: RegExp[];
-  args?: string[];
-  command?: string;
-  ignoreOutput?: RegExp[];
-  tasks?: readonly CheckDefinition[];
-  warningOutput?: RegExp[];
-};
+/** Shared scripts-owned authoring context inherited by groups and leaves. */
+interface CheckDefinitionContext {
+  readonly id: string;
+  readonly label?: string;
+  readonly type?: Profile;
+  readonly mutex?: StringList;
+  readonly dependsOn?: StringList;
+  readonly env?: CheckEnvironment;
+  readonly envFile?: string;
+}
 
-export interface CheckTask extends NormalizedTask {
-  allowOutput?: RegExp[];
-  args: string[];
-  command: string;
-  ignoreOutput: RegExp[];
-  reportId?: string;
-  reportLabel?: string;
-  warningOutput: RegExp[];
+/** Scripts-only group context. It is flattened before command execution. */
+export interface CheckGroupDefinition extends CheckDefinitionContext {
+  readonly tasks: readonly CheckDefinition[];
+  readonly allowOutput?: never;
+  readonly args?: never;
+  readonly command?: never;
+  readonly ignoreOutput?: never;
+  readonly warningOutput?: never;
+}
+
+/** Scripts-only command leaf. Only leaves can carry process execution fields. */
+export interface CheckLeafDefinition extends CheckDefinitionContext {
+  readonly tasks?: never;
+  readonly allowOutput?: readonly RegExp[];
+  readonly args?: readonly string[];
+  readonly command: string;
+  readonly ignoreOutput?: readonly RegExp[];
+  readonly warningOutput?: readonly RegExp[];
+}
+
+/** Scripts-owned authoring shape projected to the Product task graph by a local adapter. */
+export type CheckDefinition = CheckGroupDefinition | CheckLeafDefinition;
+
+export interface CheckTask {
+  readonly id: string;
+  readonly label: string;
+  readonly type: Profile;
+  readonly mutex: readonly string[];
+  readonly dependsOn: readonly string[];
+  readonly env: CheckEnvironment | undefined;
+  readonly envFile: string | undefined;
+  readonly allowOutput: readonly RegExp[];
+  readonly args: readonly string[];
+  readonly command: string;
+  readonly ignoreOutput: readonly RegExp[];
+  readonly reportId: string;
+  readonly reportLabel: string;
+  readonly warningOutput: readonly RegExp[];
 }
 
 export interface CheckReportRef {
-  id: string;
-  label: string;
+  readonly id: string;
+  readonly label: string;
 }

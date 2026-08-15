@@ -3,10 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  projectMachinePublicationV2,
-  validateMachinePublicationSetV2
-} from "../quality-core/output/publication-v2/index.ts";
-import { createDeterministicCheckRunId } from "../quality-core/check-record/identity.ts";
+  validateMachinePublicationSetV3
+} from "../quality-core/output/publication-v3/index.ts";
+import { createCatalogFingerprint } from "../quality-core/check-record/identity.ts";
 import { type run } from "./index.ts";
 
 export function assertPublishedResult(result: Awaited<ReturnType<typeof run>>, root: string): void {
@@ -14,13 +13,9 @@ export function assertPublishedResult(result: Awaited<ReturnType<typeof run>>, r
   if (result.kind !== "completed") throw new Error("Expected completed Package Run result");
   assert.equal(result.decision.policyId, "project-gate");
   assert.equal(result.decision.gate.status, "passed");
-  const [checkRun] = result.snapshot.runs;
-  if (checkRun === undefined) throw new Error("Expected Package Run to produce a Check Run");
-  assert.equal(checkRun.result?.verdict, "passed");
-  assert.equal(checkRun.checkRunId, createDeterministicCheckRunId({
-    checkId: checkRun.checkId,
-    invocationKey: result.model.invocation.invocationId
-  }));
+  const [check] = result.snapshot.checks;
+  if (check === undefined) throw new Error("Expected Package Run to produce a Core Check");
+  assert.deepEqual(check.outcome, { kind: "completed", verdict: "passed" });
   assert.deepEqual(result.effects, {
     cache: { enabled: true, status: "not-run" },
     logs: { enabled: false, status: "disabled" },
@@ -28,14 +23,19 @@ export function assertPublishedResult(result: Awaited<ReturnType<typeof run>>, r
     progress: { enabled: false, status: "disabled" }
   });
   const machine = readMachinePublication(root);
-  assert.equal(machine.run.catalogFingerprint, result.model.snapshot.catalogFingerprint);
-  assert.deepEqual(machine.run.decision, projectMachinePublicationV2(result.model).run.decision);
+  assert.equal(
+    machine.run.catalogFingerprint,
+    createCatalogFingerprint(result.snapshot.checks).catalogFingerprint
+  );
+  assert.deepEqual(machine.run.checks, result.snapshot.checks);
+  assert.equal(machine.run.decision.policyId, result.decision.policyId);
+  assert.equal(machine.run.decision.gate.status, result.decision.gate.status);
   assert.doesNotMatch(JSON.stringify(result), /createTaskPlan|"execute"/);
 }
 
 function readMachinePublication(root: string) {
   const directory = join(root, "published");
-  const validated = validateMachinePublicationSetV2({
+  const validated = validateMachinePublicationSetV3({
     recordsNdjson: readFileSync(join(directory, "records.ndjson")),
     runJson: readFileSync(join(directory, "run.json"))
   });

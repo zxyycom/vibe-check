@@ -1,4 +1,4 @@
-import type { FinalCoreSnapshot } from "./model.ts";
+import type { CoreSnapshot } from "./model.ts";
 import type { DecisionEvidence } from "./policy-model.ts";
 
 export type HumanQualityStatus = "failed" | "passed" | "warning";
@@ -11,7 +11,7 @@ export interface HumanStatusProjection {
 
 export function projectHumanStatus(input: Readonly<{
   decision: DecisionEvidence;
-  snapshot: FinalCoreSnapshot;
+  snapshot: CoreSnapshot;
   verificationOutput: boolean;
 }>): HumanStatusProjection {
   const normal = normalStatus(input.snapshot);
@@ -23,22 +23,24 @@ export function projectHumanStatus(input: Readonly<{
   });
 }
 
-function normalStatus(snapshot: FinalCoreSnapshot): HumanQualityStatus {
-  if (snapshot.completeness.status === "incomplete") return "failed";
-  const selectedRuns = snapshot.runs.filter((run) => run.selection === "selected");
-  if (!selectedRuns.some((run) => run.applicability === "applicable")) return "warning";
-  return selectedRuns.some((run) => run.status === "completed" && run.result?.verdict === "failed")
+function normalStatus(snapshot: CoreSnapshot): HumanQualityStatus {
+  if (snapshot.checks.some((check) => check.outcome.kind === "unavailable")) return "failed";
+  const completedChecks = snapshot.checks.filter((check): check is typeof check & {
+    readonly outcome: Extract<typeof check.outcome, { readonly kind: "completed" }>;
+  } => check.outcome.kind === "completed");
+  if (completedChecks.length === 0) return "warning";
+  return completedChecks.some((check) => check.outcome.verdict === "failed")
     ? "warning"
     : "passed";
 }
 
 function verificationStatus(
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   decision: DecisionEvidence,
   normal: HumanQualityStatus
 ): HumanQualityStatus {
   if (normal === "failed") return "failed";
-  if (normal === "warning" && !snapshot.runs.some((run) => run.applicability === "applicable")) {
+  if (normal === "warning" && !snapshot.checks.some((check) => check.outcome.kind === "completed")) {
     return "warning";
   }
   const allCurrent = decision.views.find((view) => view.viewId === "all-current");

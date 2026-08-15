@@ -1,4 +1,4 @@
-import type { FinalCoreSnapshot, QualityRecordCandidate } from "../model.ts";
+import type { CoreSnapshot, QualityRecordCandidate } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
 import { compareText, type ReferenceStatus, type RelationId } from "./builtin-support.ts";
 import type {
@@ -106,7 +106,7 @@ function changedDeltaForRecordType(
 }
 
 export function buildFunctionReferenceFacts(
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   referenceName: string | null,
   referenceStatus: ReferenceStatus | null,
   relationsByRecordKey: ReadonlyMap<string, readonly RelationId[]>

@@ -18,7 +18,7 @@ const annotateEntrypoint = join(repoRoot, "scripts", "quality", "annotate.ts");
 const defaultArtifactDirectory = join("artifacts", "vibe-check-quality");
 
 describe("quality annotation CLI", () => {
-  it("accepts the complete v2 set, defaults, filtering, and limit matrix", async () => {
+  it("accepts the complete v3 set, defaults, filtering, and limit matrix", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-annotate-valid-"));
 
     try {
@@ -30,7 +30,7 @@ describe("quality annotation CLI", () => {
         }))
       ];
       const defaultInput = join(tempRoot, defaultArtifactDirectory);
-      await writeCanonicalPublicationFixture(defaultInput, records);
+      writeCanonicalPublicationFixture(defaultInput, records);
 
       const defaults = runAnnotation([], tempRoot);
       assert.equal(defaults.status, 0);
@@ -54,7 +54,7 @@ describe("quality annotation CLI", () => {
       );
 
       const zeroInput = join(tempRoot, "zero-artifacts");
-      await writeCanonicalPublicationFixture(zeroInput, []);
+      writeCanonicalPublicationFixture(zeroInput, []);
       const zero = runAnnotation([zeroInput]);
       assert.equal(zero.status, 0);
       assert.equal(zero.stdout, "");
@@ -64,12 +64,12 @@ describe("quality annotation CLI", () => {
     }
   });
 
-  it("fails closed for argument, set read, decoding, framing, syntax, schema, and invariant errors", async () => {
+  it("fails closed for argument, set read, decoding, framing, syntax, schema, and invariant errors", () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "vibe-check-annotate-invalid-"));
 
     try {
       const validInput = join(tempRoot, "valid-artifacts");
-      const candidates = await writeCanonicalPublicationFixture(validInput, [
+      const candidates = writeCanonicalPublicationFixture(validInput, [
         { level: "warning", message: "valid record" }
       ]);
       const invalidRecord = JSON.parse(candidates.recordsNdjson.trim()) as Record<string, unknown>;

@@ -61,7 +61,7 @@ function validateReferenceEvidence(
   const referenceNames = new Set(
     run.references.identities.map(({ referenceName }) => referenceName)
   );
-  const checkIds = new Set(run.definitions.map(({ checkId }) => checkId));
+  const checkIds = new Set(run.checks.map(({ checkId }) => checkId));
   const hasUnknownPair = run.references.evidence.some((item) => (
     !referenceNames.has(item.referenceName) || !checkIds.has(item.checkId)
   ));
@@ -83,7 +83,7 @@ function validateReferenceRelations(
   );
   for (const relation of run.references.relations) {
     const record = records.find(({ recordId }) => recordId === relation.recordId);
-    const recordType = run.definitions
+    const recordType = run.checks
       .find(({ checkId }) => checkId === record?.checkId)
       ?.recordTypes.find(({ recordTypeId }) => recordTypeId === record?.recordTypeId);
     const pair = record === undefined

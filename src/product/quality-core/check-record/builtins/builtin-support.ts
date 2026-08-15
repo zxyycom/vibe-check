@@ -1,5 +1,24 @@
+import type { QualityRecordCandidate } from "../model.ts";
+
 export type ReferenceStatus = "complete" | "incomplete" | "unavailable";
 export type RelationId = "changed" | "regression";
+
+/** Private Run-owned binding shape for Product-provided built-in Checks. */
+export interface BuiltInCheckExecutionContext {
+  readonly signal: AbortSignal;
+  readonly results: Readonly<{
+    report(candidate: QualityRecordCandidate): void;
+  }>;
+}
+
+export type BuiltInCheckExecutionResult = Readonly<
+  | { verdict: "passed" | "failed" }
+  | { kind: "unavailable"; category: "dependency-unavailable" | "invalid-result" }
+>;
+
+export type BuiltInCheckBinding = (
+  context: BuiltInCheckExecutionContext
+) => BuiltInCheckExecutionResult | Promise<BuiltInCheckExecutionResult>;
 
 export function isInChangedScope(
   filePath: string,

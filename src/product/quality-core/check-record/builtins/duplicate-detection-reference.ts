@@ -1,9 +1,9 @@
-import type { FinalCoreSnapshot } from "../model.ts";
+import type { CoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
 import { compareText, type ReferenceStatus, type RelationId } from "./builtin-support.ts";
 
 export function buildDuplicateReferenceFacts(
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   referenceName: string | null,
   referenceStatus: ReferenceStatus | null,
   relationsBySubject: ReadonlyMap<string, readonly RelationId[]>

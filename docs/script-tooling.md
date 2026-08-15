@@ -6,8 +6,8 @@ Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚�
 ## 范围
 
 Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation`
-提供共享 helper source import；workspace verifier 从
-`src/product/task-scheduler/**` 消费 repository-internal task runner。consumer、默认配置、
+提供共享 helper source import；workspace verifier 通过自己的 adapter 从
+`src/product/task-scheduler/**` 消费 repository-internal static Task engine。consumer、默认配置、
 profile 和 package scripts 由 Vibe Check 拥有。
 
 Vibe Check 拥有的开发脚本入口是：
@@ -25,8 +25,8 @@ Vibe Check 拥有的开发脚本入口是：
   入口；它运行受支持 Bun test surface，并校验 static/runtime/entity/Case 双向覆盖。
 - `scripts/project-environment/index.ts`：在不依赖尚未初始化的 toolkit submodule 的前提下，
   配置或只读检查锁定的开发工具、包依赖、submodule 与 CodeGraph 索引。
-- `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，使用
-  Product-owned task runner 并行运行本地检查。
+- `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，经 scripts adapter 使用
+  shared Task engine 并行运行本地检查。
 
 新增任何 Vibe Check-owned consumer 时，必须在本文补充入口、owner 和验证命令。
 
@@ -42,7 +42,7 @@ profile/gate selector。
 ## 当前实现状态
 
 - `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition，并直接组合
-  built-in descriptors、project-wide quality、scheduler、effects 和 operational dependency defaults；
+  built-in Check values、project-wide quality、scheduler、effects 和 operational dependency defaults；
   `scripts/quality/project-run.ts` import 并绑定该值，导出只接收项目允许 controls 的 Run。
 - `scripts/quality/scan.ts` 只调用 bound Project Run，并把 structured result 映射为该脚本的
   process exit；它不调用 Product CLI、发现配置或转发 argv。
@@ -51,8 +51,8 @@ profile/gate selector。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
   check 执行完整 Bun 测试面及语义 Case 闭合；同一 profile 调用 repository Project Run dogfood。
-- Current schema/examples checks 显式注册 run/record v2，验证五组 canonical machine sets，
-  并把 `vibe-check.report.v1` historical materials 隔离在 historical registry/traversal。
+- Current schema/examples checks 显式注册 run/record v3，验证五组 canonical machine sets；historical
+  v2 schema bytes 只在显式 archival path/registry 中验证，不进入 current traversal 或 consumer path。
 - `foundation` 是开发脚本唯一保留的 toolkit gitlink。Product-owned source 的 pinned lift provenance
   与已经退出的 toolkit owner 由 `src/product/README.md` 记录。
 
@@ -63,10 +63,11 @@ profile/gate selector。
 - `foundation`：process、Git、path、filesystem、JSON、CSV、NDJSON、
   argument、error 和 type guard helpers。
 
-`src/product/task-scheduler/**` 是 Vibe Check-owned repository-internal task runner：它
-拥有 task normalization、dependency graph validation、root/Check-scoped concurrency、mutex scheduling 和
-lifecycle hooks。Check-scoped cap 经 private handoff 由同一 scheduler 实施；`scripts/vibe-check-workspace/**`
-只单向 import 这个 Product source owner，不保留另一份 scheduler。
+`src/product/task-scheduler/**` 是 Vibe Check-owned repository-internal static Task engine：它拥有 graph
+validation、dependency、mutex、root admission、generic scope cap、abort observation 和 Task settlement。它只接受
+graph/scope/executor data，不理解 Product Check/Core 或 scripts command/env/report fields。Product Check adapter
+投影 Check layout；`scripts/vibe-check-workspace/task-engine-adapter.ts` 投影 scripts-owned command fields，二者
+都只单向 import 这个 engine，不保留另一份 scheduler。
 
 `foundation` 通过 `scripts/tools/foundation/src` 的源码 import 被开发脚本消费；它不是 npm
 package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact 路径。
@@ -160,6 +161,10 @@ variables 或未受支持的环境名补齐 binding。
 `.codex/skills/` 的 decision、change-plan 与 investigation CLI。scanner 调用必须由
 `src/product/**` 内的产品边界拥有，不能由 wrapper 重新实现。
 
+workspace verifier 的 Task adapter 只把其 own `id`、dependency 和 mutex 投影给 engine，并在 adapter 外
+保留 command、args、environment、report/status 与 process execution。它不是 Product Check adapter，不创建
+Core facts，也不获得 Check scope、RecordSink 或 terminal capability。
+
 ## Repository Project Run
 
 Repository canonical files 是：
@@ -231,15 +236,15 @@ Docs validation 故意把 current product、independent acceptance 与 historica
 分开：
 
 1. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
-   run/record v2 published schemas；`--check` 按 bytes 检测 drift。
+   run/record v3 published schemas；`--check` 按 bytes 检测 drift。
 2. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
    serializers 生成五组 current examples；`--check` 检测 exact inventory 与 byte drift。
 3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
    raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
    acceptance implementation。
-4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v2。
-   Historical `vibe-check.report.v1` 使用 separate registry，
-   `docs/examples/json/**` 不进入 current example traversal。
+4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v3。historical
+   v2 run/record schemas 使用 separate archival registry，`docs/examples/json/**` 不进入 current example
+   traversal。
 5. `bun run validate:docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
    compile、independent acceptance 与 generation drift。
 
@@ -352,11 +357,12 @@ selection 或 discovery logic；TypeScript 文件路径是 repository convention
 只参与下述开发期验证 registry，不构成当前 Output contract。
 
 `scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它登记 current
-run/record v2 schemas、historical report schema 与对应 example roots，不重新定义 Output contract。
+run/record v3 schemas、historical v2 schema material 与对应 example roots，不重新定义 Output contract。
 
-`scripts/vibe-check-workspace/checks/definitions.ts` 拥有 workspace verifier 的
-任务集合、profile 分层、warning output 识别和成功输出过滤。Required profile 包含
-decision records 与 test evidence 的严格检查。它不定义产品行为，只编排已有命令。
+`scripts/vibe-check-workspace/checks/definitions.ts` 与相邻 normalization/model files 拥有 workspace verifier
+的 scripts-only task authoring、profile 分层、warning output 识别和成功输出过滤；`task-engine-adapter.ts` 是其到
+shared engine 的唯一投影。Required profile 包含 decision records 与 test evidence 的严格检查。它们不定义
+产品行为、Check scope 或 Core facts，只编排已有命令。
 
 ## 验证入口
 

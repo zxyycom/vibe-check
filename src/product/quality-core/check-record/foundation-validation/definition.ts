@@ -8,6 +8,7 @@ import {
 import {
   accepted,
   acceptedDomain,
+  compareCanonicalText,
   isFieldId,
   isNonEmptyString,
   isRecord,
@@ -53,6 +54,7 @@ function validateRecordFields(
 ): ValidationResult<readonly RecordFieldDefinition[]> {
   const fields: RecordFieldDefinition[] = [];
   const fieldIds = new Set<string>();
+  let previousFieldId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const validated = validateFieldDefinition(values[index], `${path}.fields[${index}]`);
     if (!validated.ok) {
@@ -61,6 +63,15 @@ function validateRecordFields(
     if (fieldIds.has(validated.value.fieldId)) {
       return issue(`${path}.fields[${index}].fieldId`, "duplicate", "Duplicate fieldId");
     }
+    if (previousFieldId !== undefined
+      && compareCanonicalText(previousFieldId, validated.value.fieldId) >= 0) {
+      return issue(
+        `${path}.fields`,
+        "invalid-value",
+        "Field definitions must use canonical unique fieldId order"
+      );
+    }
+    previousFieldId = validated.value.fieldId;
     fieldIds.add(validated.value.fieldId);
     fields.push(validated.value);
   }
@@ -75,6 +86,7 @@ function validateIdentityFields(
   const fieldById = new Map(fields.map((field) => [field.fieldId, field]));
   const identityFields: string[] = [];
   const identityFieldIds = new Set<string>();
+  let previousFieldId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const fieldId = values[index];
     if (!isFieldId(fieldId)) {
@@ -90,6 +102,14 @@ function validateIdentityFields(
     if (identityFieldIds.has(fieldId)) {
       return issue(`${path}.identityFields[${index}]`, "duplicate", "Duplicate identity field");
     }
+    if (previousFieldId !== undefined && compareCanonicalText(previousFieldId, fieldId) >= 0) {
+      return issue(
+        `${path}.identityFields`,
+        "invalid-value",
+        "Identity fields must use canonical unique fieldId order"
+      );
+    }
+    previousFieldId = fieldId;
     identityFieldIds.add(fieldId);
     identityFields.push(fieldId);
   }
@@ -171,6 +191,7 @@ export function validateMaterializedCheckDefinition(
   }
   const recordTypes: RecordTypeDefinition[] = [];
   const recordTypeIds = new Set<string>();
+  let previousRecordTypeId: string | undefined;
   for (let index = 0; index < definition.recordTypes.length; index += 1) {
     const validated = validateRecordTypeDefinition(definition.recordTypes[index], `$.recordTypes[${index}]`);
     if (!validated.ok) {
@@ -179,6 +200,15 @@ export function validateMaterializedCheckDefinition(
     if (recordTypeIds.has(validated.value.recordTypeId)) {
       return issue(`$.recordTypes[${index}].recordTypeId`, "duplicate", "Duplicate recordTypeId within Check");
     }
+    if (previousRecordTypeId !== undefined
+      && compareCanonicalText(previousRecordTypeId, validated.value.recordTypeId) >= 0) {
+      return issue(
+        "$.recordTypes",
+        "invalid-value",
+        "Record type definitions must use canonical unique recordTypeId order"
+      );
+    }
+    previousRecordTypeId = validated.value.recordTypeId;
     recordTypeIds.add(validated.value.recordTypeId);
     recordTypes.push(validated.value);
   }

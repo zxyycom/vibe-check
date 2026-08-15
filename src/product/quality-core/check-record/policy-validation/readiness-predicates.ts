@@ -21,7 +21,7 @@ export interface ReadinessContext {
   readonly requiredPairs: ReadonlySet<string>;
 }
 
-function validateRunIdentity(
+function validateCheckIdentity(
   checkId: unknown,
   path: string,
   definitions: readonly CheckDefinition[]
@@ -57,47 +57,36 @@ function validateReferenceStatusPredicate(
   });
 }
 
-function validateRunStatus(
+function validateCheckOutcome(
   value: Record<string, unknown>,
   path: string,
   definitions: readonly CheckDefinition[]
-): ValidationResult<Extract<ReadinessPredicate, { kind: "run-status" }>> {
-  const shape = closed(value, path, ["kind", "checkId", "status"]);
+): ValidationResult<Extract<ReadinessPredicate, { kind: "check-outcome" }>> {
+  const shape = closed(value, path, ["kind", "checkId", "outcome"]);
   if (!shape.ok) return shape;
-  const checkId = validateRunIdentity(shape.value.checkId, `${path}.checkId`, definitions);
+  const checkId = validateCheckIdentity(shape.value.checkId, `${path}.checkId`, definitions);
   if (!checkId.ok) return checkId;
-  const status = shape.value.status;
-  if (status !== "completed" && status !== "failed" && status !== "skipped") {
-    return issue(`${path}.status`, "invalid-value", "Unknown run status");
+  const outcome = shape.value.outcome;
+  if (outcome !== "not-applicable" && outcome !== "completed" && outcome !== "unavailable") {
+    return issue(`${path}.outcome`, "invalid-value", "Unknown Core Check outcome");
   }
-  return accepted({ kind: "run-status", checkId: checkId.value, status });
+  return accepted({ kind: "check-outcome", checkId: checkId.value, outcome });
 }
 
-function validateRunVerdict(
+function validateCheckVerdict(
   value: Record<string, unknown>,
   path: string,
   definitions: readonly CheckDefinition[]
-): ValidationResult<Extract<ReadinessPredicate, { kind: "run-verdict" }>> {
+): ValidationResult<Extract<ReadinessPredicate, { kind: "check-verdict" }>> {
   const shape = closed(value, path, ["kind", "checkId", "verdict"]);
   if (!shape.ok) return shape;
-  const checkId = validateRunIdentity(shape.value.checkId, `${path}.checkId`, definitions);
+  const checkId = validateCheckIdentity(shape.value.checkId, `${path}.checkId`, definitions);
   if (!checkId.ok) return checkId;
   const verdict = shape.value.verdict;
-  if (verdict !== "passed" && verdict !== "failed" && verdict !== "not-applicable") {
-    return issue(`${path}.verdict`, "invalid-value", "Unknown run verdict");
+  if (verdict !== "passed" && verdict !== "failed") {
+    return issue(`${path}.verdict`, "invalid-value", "Completed Check verdict must be passed or failed");
   }
-  return accepted({ kind: "run-verdict", checkId: checkId.value, verdict });
-}
-
-function validateRunCoverageComplete(
-  value: Record<string, unknown>,
-  path: string,
-  definitions: readonly CheckDefinition[]
-): ValidationResult<Extract<ReadinessPredicate, { kind: "run-coverage-complete" }>> {
-  const shape = closed(value, path, ["kind", "checkId"]);
-  if (!shape.ok) return shape;
-  const checkId = validateRunIdentity(shape.value.checkId, `${path}.checkId`, definitions);
-  return checkId.ok ? accepted({ kind: "run-coverage-complete", checkId: checkId.value }) : checkId;
+  return accepted({ kind: "check-verdict", checkId: checkId.value, verdict });
 }
 
 function validateReadinessReferenceStatus(
@@ -128,12 +117,10 @@ function validateKnownReadinessPredicate(
   context: ReadinessContext
 ): ValidationResult<ReadinessPredicate> {
   switch (value.kind) {
-    case "run-status":
-      return validateRunStatus(value, path, context.definitions);
-    case "run-verdict":
-      return validateRunVerdict(value, path, context.definitions);
-    case "run-coverage-complete":
-      return validateRunCoverageComplete(value, path, context.definitions);
+    case "check-outcome":
+      return validateCheckOutcome(value, path, context.definitions);
+    case "check-verdict":
+      return validateCheckVerdict(value, path, context.definitions);
     case "reference-status":
       return validateReadinessReferenceStatus(value, path, context.requiredPairs);
     case "view-empty":
@@ -188,8 +175,8 @@ function validateKnownBlockWhen(
   switch (value.kind) {
     case "view-not-empty":
       return validateViewNotEmpty(value, path, context.viewIds);
-    case "run-status":
-      return validateRunStatus(value, path, context.definitions);
+    case "check-outcome":
+      return validateCheckOutcome(value, path, context.definitions);
     case "reference-status":
       return validateBlockReferenceStatus(value, path, context.requiredPairs);
     default:

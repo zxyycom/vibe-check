@@ -1,12 +1,13 @@
 {
-  "schemaVersion": "vibe-check.run.v2",
+  "schemaVersion": "vibe-check.run.v3",
   "invocation": {
     "invocationId": "invocation/v1:docs-scan-incomplete",
     "projectRoot": ".",
     "timestamp": "2026-08-12T00:00:00.000Z"
   },
   "catalogFingerprint": "check-record/v1/catalog/sha256:5934100b0b24ad9b283e9a9c022a83d14925cf08fc351d075c142690d98b274e",
-  "definitions": [
+  "recordsFingerprint": "check-record/v1/records/sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "checks": [
     {
       "checkId": "docs-example",
       "displayName": "Documentation Example",
@@ -45,40 +46,15 @@
             ]
           }
         }
-      ]
-    }
-  ],
-  "runs": [
-    {
-      "checkId": "docs-example",
-      "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d",
-      "selection": "selected",
-      "applicability": "applicable",
-      "status": "failed",
-      "result": null,
-      "coverage": {
-        "plannedWorkCount": 1,
-        "acknowledgedWorkCount": 0
-      },
-      "diagnostic": {
-        "category": "unavailable",
-        "tieBreakKey": "dependency/v1:docs-example"
+      ],
+      "outcome": {
+        "kind": "unavailable",
+        "diagnostic": {
+          "category": "dependency-unavailable"
+        }
       }
     }
   ],
-  "integrity": {
-    "status": "valid",
-    "invalidRecords": [],
-    "conflicts": []
-  },
-  "completeness": {
-    "status": "incomplete",
-    "selectedRunCount": 1,
-    "completedRunCount": 0,
-    "failedRunCount": 1,
-    "plannedWorkCount": 1,
-    "acknowledgedWorkCount": 0
-  },
   "references": {
     "identities": [],
     "evidence": [],
@@ -87,12 +63,7 @@
   "acceptance": [],
   "decision": {
     "policyId": "docs-gate",
-    "views": [
-      {
-        "viewId": "all-current",
-        "recordIds": []
-      }
-    ],
+    "views": [],
     "readiness": [
       {
         "readinessId": "scan-complete",
@@ -100,8 +71,8 @@
         "reason": "scan-incomplete",
         "evidenceRefs": [
           {
-            "kind": "run",
-            "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d"
+            "kind": "check",
+            "checkId": "docs-example"
           },
           {
             "kind": "readiness",
@@ -117,8 +88,8 @@
       "reason": "scan-incomplete",
       "evidenceRefs": [
         {
-          "kind": "run",
-          "checkRunId": "check-run/v1:77c94bf51f8324104089ea92c388ad6903f51e702d55ea07e7b1f81d1e9e5b8d"
+          "kind": "check",
+          "checkId": "docs-example"
         },
         {
           "kind": "readiness",

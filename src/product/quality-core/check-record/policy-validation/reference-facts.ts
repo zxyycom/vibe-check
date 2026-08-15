@@ -1,4 +1,4 @@
-import type { FinalCoreSnapshot, QualityRecord } from "../model.ts";
+import type { CoreSnapshot, QualityRecord } from "../model.ts";
 import type {
   CheckReferenceEvidence,
   ComparisonRelation,
@@ -175,7 +175,7 @@ function sortedFacts(
 export function validateReferenceFactsData(
   value: unknown,
   resolution: PolicyResolution,
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   surfaces: readonly RecordPolicySurface[]
 ): ValidationResult<ReferenceFacts> {
   const materialized = safePolicyInput(value);

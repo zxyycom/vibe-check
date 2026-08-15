@@ -1,16 +1,19 @@
 # TypeScript/Bun product source
 
-This directory is the Vibe Check-owned product source. It was established by
-mechanically lifting the existing TypeScript/Bun scanner and its checked-in
-tests into the repository product boundary. No Rust source, test, fixture, or
-behavior was used as migration input.
+This directory is the Vibe Check-owned product source. This file preserves the
+formation-time provenance of its initial TypeScript/Bun lift; it is not the
+owner of the current module inventory, runtime behavior, or review contract.
+For current owners and reading order, start with the repository
+[documentation navigation](../../docs/navigation.md) and
+[architecture](../../docs/architecture.md).
 
-## Pinned provenance
+## Initial lift provenance (historical)
 
 - Consumer repository revision
   `eae25aee64a5b4ecef4b02e8e86d8d39c4ab122d` supplied
   `scripts/quality/scan.ts`, `scripts/quality/args.ts`, and
-  `scripts/quality/config.ts`. They now live at the root of this directory.
+  `scripts/quality/config.ts`. These names describe the initial lift input;
+  they do not promise current paths or module ownership.
   Its `scripts/tools/bun-test.d.ts`, referenced by the pinned quality-core
   test configuration, now lives at `quality-core/bun-test.d.ts` as test-only
   support.
@@ -22,8 +25,8 @@ behavior was used as migration input.
   reachable helper files under `foundation/`.
 - parallel-task-runner revision
   `025af7350e2d624eeded23784f411bec5f4a1473` supplied its complete `src/**`
-  and `test/**` trees. They now live under `task-scheduler/`; the precise
-  byte-preserved subset and integration adjustments are defined below.
+  and `test/**` trees. This is initial-lift provenance, not a claim that the
+  current `task-scheduler/` tree retains those files or their bytes.
 
 The consumer files and test declaration were read from commit-qualified
 objects in this repository. quality-core and foundation were read from their
@@ -37,9 +40,9 @@ The pinned quality-core tree has no separate fixture directory. Its
 `test/config.ts` support fixture and inline scanner samples remain in the
 copied source and test trees.
 
-## Extracted foundation closure and product extension
+## Initial foundation closure and product extension (historical)
 
-The product foundation file set is:
+At the initial lift, the product foundation file set was:
 
 - `args.ts`
 - `csv.ts`
@@ -52,19 +55,15 @@ The product foundation file set is:
 - `process.ts` and `process/*.ts`
 - `type-guards.ts`
 
-`foundation/index.ts` exports the mechanically reduced surface imported by
-quality-core plus the project-owned `Option` primitive. Consumer code imports
-`args.ts`, `errors.ts`, and `type-guards.ts` directly. Unused modules from the
-pinned foundation revision, package metadata, tests, and `json/value.ts` were
-not copied.
+At that formation point, `foundation/index.ts` exported the mechanically reduced
+surface imported by quality-core plus the project-owned `Option` primitive.
+Consumer code imported `args.ts`, `errors.ts`, and `type-guards.ts` directly.
+Unused modules from the pinned foundation revision, package metadata, tests, and
+`json/value.ts` were not copied.
 
-## Ownership and lift adjustments
+## Initial lift adjustments (historical)
 
-Vibe Check now owns the copied source and tests in this repository. Product
-runtime imports must resolve within `src/product/**` or to declared external
-packages; they must not resolve through `scripts/**` or a toolkit gitlink.
-
-The lift uses two review categories:
+During the initial extraction, reviewers recorded two categories:
 
 1. Byte-preserved sources:
    - quality-core source and `test/**`;
@@ -99,7 +98,8 @@ The lift uses two review categories:
      root toolkit entries, pnpm workspace/lockfile importer, and gitlink for
      the former parallel-task-runner package are removed.
 
-Provenance reviews should compare byte-preserved files with the commits above
-and treat only the listed integration adjustments as expected differences.
-Any other source or behavior difference requires an independently reviewed
-change.
+This list records the initial extraction only. It does not assert that current
+files are byte-preserved, nor does it define the current module layout or
+change-review gate. For current implementation and validation work, use the
+[documentation navigation](../../docs/navigation.md) to locate the owner, then
+read the [architecture](../../docs/architecture.md) and adjacent source/tests.

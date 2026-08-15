@@ -1,12 +1,11 @@
-import type {
-  CheckDefinition,
-  CheckRun,
-  FinalCoreSnapshot,
-  QualityRecord,
-  RecordConflictEvidence,
-  SnapshotIntegrity
+import {
+  CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES,
+  type CheckOutcome,
+  type CheckUnavailableDiagnosticCategory,
+  type CoreCheck,
+  type CoreSnapshot,
+  type QualityRecord
 } from "../model.ts";
-import { createCatalogFingerprint } from "../identity.ts";
 import {
   accepted,
   acceptedDomain,
@@ -17,292 +16,171 @@ import {
   type ValidationResult
 } from "./common.ts";
 import { validateMaterializedCheckDefinition } from "./definition.ts";
-import { validateMaterializedCheckRun } from "./check-run.ts";
 import { validateMaterializedQualityRecord } from "./quality-record.ts";
-import { validateCompleteness, validateIntegrity } from "./snapshot-integrity.ts";
 
-const CATALOG_FINGERPRINT_PATTERN = /^check-record\/v1\/catalog\/sha256:[a-f0-9]{64}$/;
-const SNAPSHOT_FIELDS = [
-  "catalogFingerprint",
-  "definitions",
-  "runs",
-  "records",
-  "integrity",
-  "completeness"
-];
+const SNAPSHOT_FIELDS = ["checks", "records"];
 
 interface SnapshotHeader {
-  readonly catalogFingerprint: string;
-  readonly definitions: readonly unknown[];
-  readonly runs: readonly unknown[];
+  readonly checks: readonly unknown[];
   readonly records: readonly unknown[];
-  readonly integrity: unknown;
-  readonly completeness: unknown;
-}
-
-interface ValidatedCatalog {
-  readonly definitions: readonly CheckDefinition[];
-  readonly checkIds: ReadonlySet<string>;
-}
-
-interface ValidatedRuns {
-  readonly runs: readonly CheckRun[];
-  readonly byCheckId: ReadonlyMap<string, CheckRun>;
 }
 
 function validateSnapshotHeader(value: unknown): ValidationResult<SnapshotHeader> {
   const closed = validateClosedRecord(value, "$", SNAPSHOT_FIELDS);
-  if (!closed.ok) {
-    return closed;
+  if (!closed.ok) return closed;
+  if (!Array.isArray(closed.value.checks) || !Array.isArray(closed.value.records)) {
+    return issue("$", "invalid-value", "Snapshot checks and records must be arrays");
   }
-  const snapshot = closed.value;
-  if (typeof snapshot.catalogFingerprint !== "string"
-    || !CATALOG_FINGERPRINT_PATTERN.test(snapshot.catalogFingerprint)
-    || !Array.isArray(snapshot.definitions)
-    || !Array.isArray(snapshot.runs)
-    || !Array.isArray(snapshot.records)) {
-    return issue("$", "invalid-value", "Snapshot catalog, definitions, runs, or records are invalid");
+  return accepted({ checks: closed.value.checks, records: closed.value.records });
+}
+
+function validateOutcome(value: unknown, path: string): ValidationResult<CheckOutcome> {
+  if (!isRecord(value) || typeof value.kind !== "string") {
+    return issue(path, "invalid-value", "Check outcome must be a closed outcome object");
   }
-  return accepted({
-    catalogFingerprint: snapshot.catalogFingerprint,
-    definitions: snapshot.definitions,
-    runs: snapshot.runs,
-    records: snapshot.records,
-    integrity: snapshot.integrity,
-    completeness: snapshot.completeness
+  switch (value.kind) {
+    case "not-applicable":
+      return validateNotApplicableOutcome(value, path);
+    case "completed":
+      return validateCompletedOutcome(value, path);
+    case "unavailable":
+      return validateUnavailableOutcome(value, path);
+    default:
+      return issue(`${path}.kind`, "invalid-value", "Unknown Check outcome kind");
+  }
+}
+
+function validateNotApplicableOutcome(
+  value: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
+  const closed = validateClosedRecord(value, path, ["kind"]);
+  if (!closed.ok) return closed;
+  return accepted<CheckOutcome>({ kind: "not-applicable" });
+}
+
+function validateCompletedOutcome(
+  value: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
+  const closed = validateClosedRecord(value, path, ["kind", "verdict"]);
+  if (!closed.ok) return closed;
+  const verdict = closed.value.verdict;
+  if (verdict !== "passed" && verdict !== "failed") {
+    return issue(`${path}.verdict`, "invalid-value", "Completed Check verdict must be passed or failed");
+  }
+  return accepted<CheckOutcome>({ kind: "completed", verdict });
+}
+
+function validateUnavailableOutcome(
+  value: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
+  const closed = validateClosedRecord(value, path, ["kind", "diagnostic"]);
+  if (!closed.ok) return closed;
+  const diagnostic = validateClosedRecord(closed.value.diagnostic, `${path}.diagnostic`, ["category"]);
+  if (!diagnostic.ok) return diagnostic;
+  const category = diagnostic.value.category;
+  if (!isUnavailableDiagnosticCategory(category)) {
+    return issue(`${path}.diagnostic.category`, "invalid-value", "Unknown unavailable diagnostic category");
+  }
+  return accepted<CheckOutcome>({
+    kind: "unavailable",
+    diagnostic: { category }
   });
 }
 
-function validateDefinitions(
-  values: readonly unknown[]
-): ValidationResult<ValidatedCatalog> {
-  const definitions: CheckDefinition[] = [];
-  const checkIds = new Set<string>();
-  for (let index = 0; index < values.length; index += 1) {
-    const validated = validateMaterializedCheckDefinition(values[index]);
-    if (!validated.ok) {
-      return issue(`$.definitions[${index}]`, validated.issues[0].code, validated.issues[0].message);
-    }
-    if (checkIds.has(validated.value.checkId)) {
-      return issue(`$.definitions[${index}].checkId`, "duplicate", "Duplicate checkId");
-    }
-    checkIds.add(validated.value.checkId);
-    definitions.push(validated.value);
-  }
-  return accepted({ definitions, checkIds });
+function isUnavailableDiagnosticCategory(
+  value: unknown
+): value is CheckUnavailableDiagnosticCategory {
+  return typeof value === "string" && CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES.some(
+    (category) => category === value
+  );
 }
 
-function validateCatalog(header: SnapshotHeader): ValidationResult<ValidatedCatalog> {
-  const catalog = validateDefinitions(header.definitions);
-  if (!catalog.ok) {
-    return catalog;
+function validateCoreCheck(value: unknown, path: string): ValidationResult<CoreCheck> {
+  const closed = validateClosedRecord(value, path, ["checkId", "displayName", "recordTypes", "outcome"]);
+  if (!closed.ok) return closed;
+  const definition = validateMaterializedCheckDefinition({
+    checkId: closed.value.checkId,
+    displayName: closed.value.displayName,
+    recordTypes: closed.value.recordTypes
+  });
+  if (!definition.ok) {
+    return issue(path, definition.issues[0].code, definition.issues[0].message);
   }
-  const expectedFingerprint = createCatalogFingerprint(catalog.value.definitions).catalogFingerprint;
-  return expectedFingerprint === header.catalogFingerprint
-    ? catalog
-    : issue("$.catalogFingerprint", "identity-mismatch", "Catalog fingerprint does not match definitions");
+  const outcome = validateOutcome(closed.value.outcome, `${path}.outcome`);
+  if (!outcome.ok) return outcome;
+  return accepted({ ...definition.value, outcome: outcome.value });
 }
 
-function validateRuns(
-  values: readonly unknown[],
-  catalog: ValidatedCatalog
-): ValidationResult<ValidatedRuns> {
-  const runs: CheckRun[] = [];
-  const byCheckId = new Map<string, CheckRun>();
+interface ValidatedChecks {
+  readonly checks: readonly CoreCheck[];
+  readonly byCheckId: ReadonlyMap<string, CoreCheck>;
+}
+
+function validateChecks(values: readonly unknown[]): ValidationResult<ValidatedChecks> {
+  const checks: CoreCheck[] = [];
+  const byCheckId = new Map<string, CoreCheck>();
+  let previousCheckId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
-    const validated = validateMaterializedCheckRun(values[index]);
-    if (!validated.ok) {
-      return issue(`$.runs[${index}]`, validated.issues[0].code, validated.issues[0].message);
+    const validated = validateCoreCheck(values[index], `$.checks[${index}]`);
+    if (!validated.ok) return validated;
+    const { checkId } = validated.value;
+    if (byCheckId.has(checkId)) {
+      return issue(`$.checks[${index}].checkId`, "duplicate", "Duplicate Core Check checkId");
     }
-    if (!catalog.checkIds.has(validated.value.checkId) || byCheckId.has(validated.value.checkId)) {
-      return issue(`$.runs[${index}].checkId`, "identity-mismatch", "Each definition requires exactly one owned run");
+    if (previousCheckId !== undefined && compareCanonicalText(previousCheckId, checkId) >= 0) {
+      return issue(`$.checks[${index}].checkId`, "invalid-value", "Core Checks must be sorted by checkId");
     }
-    byCheckId.set(validated.value.checkId, validated.value);
-    runs.push(validated.value);
+    previousCheckId = checkId;
+    byCheckId.set(checkId, validated.value);
+    checks.push(validated.value);
   }
-  if (byCheckId.size !== catalog.definitions.length) {
-    return issue("$.runs", "missing-field", "Each definition requires exactly one run");
-  }
-  return accepted({ runs, byCheckId });
+  return accepted({ checks, byCheckId });
 }
 
 function validateRecords(
   values: readonly unknown[],
-  catalog: ValidatedCatalog,
-  runs: ValidatedRuns
+  checks: ValidatedChecks
 ): ValidationResult<readonly QualityRecord[]> {
   const records: QualityRecord[] = [];
   const recordIds = new Set<string>();
+  let previousRecordId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const rawRecord = values[index];
-    const definition = isRecord(rawRecord)
-      ? catalog.definitions.find((candidate) => candidate.checkId === rawRecord.checkId)
-      : undefined;
-    if (definition === undefined) {
-      return issue(`$.records[${index}].checkId`, "identity-mismatch", "Record has no owning definition");
+    const checkId = isRecord(rawRecord) ? rawRecord.checkId : undefined;
+    const check = typeof checkId === "string" ? checks.byCheckId.get(checkId) : undefined;
+    if (check === undefined) {
+      return issue(`$.records[${index}].checkId`, "identity-mismatch", "Record has no owning Core Check");
     }
-    const validated = validateMaterializedQualityRecord(rawRecord, definition);
+    if (check.outcome.kind === "not-applicable") {
+      return issue(`$.records[${index}].checkId`, "identity-mismatch", "Not-applicable Check cannot own records");
+    }
+    const validated = validateMaterializedQualityRecord(rawRecord, check);
     if (!validated.ok) {
       return issue(`$.records[${index}]`, validated.issues[0].code, validated.issues[0].message);
     }
-    const run = runs.byCheckId.get(validated.value.checkId);
-    if (run === undefined) {
-      return issue(`$.records[${index}].checkRunId`, "identity-mismatch", "Record has no owning run");
-    }
-    if (validated.value.checkRunId !== run.checkRunId || run.applicability !== "applicable") {
-      return issue(`$.records[${index}].checkRunId`, "identity-mismatch", "Record has no applicable owning run");
-    }
     if (recordIds.has(validated.value.recordId)) {
-      return issue(`$.records[${index}].recordId`, "duplicate", "Trusted records require unique recordIds");
+      return issue(`$.records[${index}].recordId`, "duplicate", "Duplicate QualityRecord recordId");
     }
+    if (previousRecordId !== undefined
+      && compareCanonicalText(previousRecordId, validated.value.recordId) >= 0) {
+      return issue(`$.records[${index}].recordId`, "invalid-value", "QualityRecords must be sorted by recordId");
+    }
+    previousRecordId = validated.value.recordId;
     recordIds.add(validated.value.recordId);
     records.push(validated.value);
   }
   return accepted(records);
 }
 
-function ownsRecordType(
-  definitions: readonly CheckDefinition[],
-  checkId: string,
-  recordTypeId: string
-): boolean {
-  return definitions.find((definition) => definition.checkId === checkId)
-    ?.recordTypes.some((recordType) => recordType.recordTypeId === recordTypeId) === true;
-}
-
-function validateConflictOwnership(
-  conflicts: readonly RecordConflictEvidence[],
-  catalog: ValidatedCatalog,
-  runs: ValidatedRuns,
-  recordIds: ReadonlySet<string>
-): ValidationResult<null> {
-  for (const conflict of conflicts) {
-    const run = runs.byCheckId.get(conflict.checkId);
-    if (run?.checkRunId !== conflict.checkRunId || run.status !== "failed"
-      || !ownsRecordType(catalog.definitions, conflict.checkId, conflict.recordTypeId)
-      || recordIds.has(conflict.recordId)) {
-      return issue("$.integrity.conflicts", "identity-mismatch", "Conflict evidence has no failed run and record-type owner");
-    }
-  }
-  return accepted(null);
-}
-
-function validateInvalidRecordOwnership(
-  integrity: SnapshotIntegrity,
-  catalog: ValidatedCatalog,
-  runs: ValidatedRuns
-): ValidationResult<null> {
-  for (const invalidRecord of integrity.invalidRecords) {
-    const run = runs.byCheckId.get(invalidRecord.checkId);
-    if (run?.checkRunId !== invalidRecord.checkRunId || run.status !== "failed"
-      || !ownsRecordType(catalog.definitions, invalidRecord.checkId, invalidRecord.recordTypeId)) {
-      return issue("$.integrity.invalidRecords", "identity-mismatch", "Invalid-record evidence has no failed run and record-type owner");
-    }
-  }
-  return accepted(null);
-}
-
-function validateIntegrityOwnership(
-  integrity: SnapshotIntegrity,
-  catalog: ValidatedCatalog,
-  runs: ValidatedRuns,
-  records: readonly QualityRecord[]
-): ValidationResult<null> {
-  const recordIds = new Set(records.map((record) => record.recordId));
-  const conflicts = validateConflictOwnership(integrity.conflicts, catalog, runs, recordIds);
-  return conflicts.ok
-    ? validateInvalidRecordOwnership(integrity, catalog, runs)
-    : conflicts;
-}
-
-function validatePrimaryConflictDiagnostic(
-  run: CheckRun,
-  primaryRecordId: string
-): ValidationResult<null> {
-  if (run.status !== "failed" || run.diagnostic.category !== "record-conflict"
-    || run.diagnostic.tieBreakKey !== primaryRecordId) {
-    return issue("$.runs", "identity-mismatch", "Run diagnostic does not identify its primary conflict evidence");
-  }
-  return accepted(null);
-}
-
-function validatePrimaryInvalidRecordDiagnostic(
-  run: CheckRun,
-  primaryEvidenceId: string
-): ValidationResult<null> {
-  if (run.status !== "failed" || run.diagnostic.category !== "invalid-record"
-    || run.diagnostic.tieBreakKey !== primaryEvidenceId) {
-    return issue("$.runs", "identity-mismatch", "Run diagnostic does not identify its primary invalid-record evidence");
-  }
-  return accepted(null);
-}
-
-function validateUnbackedIntegrityDiagnostic(run: CheckRun): ValidationResult<null> {
-  if (run.status === "failed"
-    && (run.diagnostic.category === "record-conflict" || run.diagnostic.category === "invalid-record")) {
-    return issue("$.runs", "identity-mismatch", "Record-integrity diagnostic requires corresponding evidence");
-  }
-  return accepted(null);
-}
-
-function validateRunEvidenceDiagnostic(
-  run: CheckRun,
-  integrity: SnapshotIntegrity
-): ValidationResult<null> {
-  const conflicts = integrity.conflicts.filter((evidence) => evidence.checkId === run.checkId);
-  if (conflicts.length > 0) {
-    return validatePrimaryConflictDiagnostic(run, conflicts[0]!.recordId);
-  }
-  const invalidRecords = integrity.invalidRecords.filter((evidence) => evidence.checkId === run.checkId);
-  return invalidRecords.length > 0
-    ? validatePrimaryInvalidRecordDiagnostic(run, invalidRecords[0]!.evidenceId)
-    : validateUnbackedIntegrityDiagnostic(run);
-}
-
-function validateRunEvidenceDiagnostics(
-  runs: readonly CheckRun[],
-  integrity: SnapshotIntegrity
-): ValidationResult<null> {
-  for (const run of runs) {
-    const validated = validateRunEvidenceDiagnostic(run, integrity);
-    if (!validated.ok) {
-      return validated;
-    }
-  }
-  return accepted(null);
-}
-
-export function validateMaterializedFinalCoreSnapshot(
-  value: unknown
-): ValidationResult<FinalCoreSnapshot> {
+export function validateMaterializedCoreSnapshot(value: unknown): ValidationResult<CoreSnapshot> {
   const header = validateSnapshotHeader(value);
   if (!header.ok) return header;
-  const catalog = validateCatalog(header.value);
-  if (!catalog.ok) return catalog;
-  const runs = validateRuns(header.value.runs, catalog.value);
-  if (!runs.ok) return runs;
-  const records = validateRecords(header.value.records, catalog.value, runs.value);
+  const checks = validateChecks(header.value.checks);
+  if (!checks.ok) return checks;
+  const records = validateRecords(header.value.records, checks.value);
   if (!records.ok) return records;
-  const integrity = validateIntegrity(header.value.integrity);
-  if (!integrity.ok) return integrity;
-  const ownership = validateIntegrityOwnership(integrity.value, catalog.value, runs.value, records.value);
-  if (!ownership.ok) return ownership;
-  const diagnostics = validateRunEvidenceDiagnostics(runs.value.runs, integrity.value);
-  if (!diagnostics.ok) return diagnostics;
-  const completeness = validateCompleteness(header.value.completeness, runs.value.runs);
-  if (!completeness.ok) return completeness;
-  return acceptedDomain({
-    catalogFingerprint: header.value.catalogFingerprint,
-    definitions: [...catalog.value.definitions].sort(
-      (left, right) => compareCanonicalText(left.checkId, right.checkId)
-    ),
-    runs: [...runs.value.runs].sort(
-      (left, right) => compareCanonicalText(left.checkId, right.checkId)
-    ),
-    records: [...records.value].sort(
-      (left, right) => compareCanonicalText(left.recordId, right.recordId)
-    ),
-    integrity: integrity.value,
-    completeness: completeness.value
-  });
+  return acceptedDomain({ checks: checks.value.checks, records: records.value });
 }

@@ -4,16 +4,12 @@ import type {
   CheckDefinition,
   JsonObject,
   JsonValue,
-  ManagerBoundQualityRecordCandidate,
-  RecordConflictEvidence,
+  QualityRecord,
   RecordTypeDefinition
 } from "./model.ts";
 
 const RECORD_ID_PREFIX = "check-record/v1/record/sha256:";
 const CATALOG_FINGERPRINT_PREFIX = "check-record/v1/catalog/sha256:";
-const BODY_FINGERPRINT_PREFIX = "check-record/v1/body/sha256:";
-const CHECK_RUN_ID_PREFIX = "check-run/v1:";
-const SHA_256_HEX_PATTERN = /^[a-f0-9]{64}$/;
 const UNSAFE_MATERIALIZATION_MESSAGE = "Canonical JSON could not safely materialize the input";
 
 class CanonicalJsonValidationError extends TypeError {}
@@ -163,7 +159,7 @@ function canonicalJsonText(value: JsonValue): string {
   return `{${entries.join(",")}}`;
 }
 
-export function canonicalJsonBytes(value: JsonValue): Uint8Array {
+export function canonicalJsonBytes(value: unknown): Uint8Array {
   const snapshot = materializeCanonicalJsonValue(value);
   return new TextEncoder().encode(canonicalJsonText(snapshot));
 }
@@ -191,8 +187,10 @@ export interface RecordIdentityResult {
   readonly recordId: string;
 }
 
-export function createRecordId(
-  candidate: ManagerBoundQualityRecordCandidate,
+export function createRecordId<
+  Candidate extends Pick<QualityRecord, "checkId" | "recordTypeId" | "semanticSubject" | "fields">
+>(
+  candidate: Candidate,
   recordType: RecordTypeDefinition
 ): RecordIdentityResult {
   if (candidate.recordTypeId !== recordType.recordTypeId) {
@@ -260,43 +258,4 @@ export function createCatalogFingerprint(
     bytes,
     catalogFingerprint: `${CATALOG_FINGERPRINT_PREFIX}${digest(bytes)}`
   });
-}
-
-function createRecordBodyFingerprint(body: JsonObject): string {
-  return `${BODY_FINGERPRINT_PREFIX}${digest(canonicalJsonBytes(body))}`;
-}
-
-export function createRecordConflictEvidence(input: Readonly<{
-  checkId: string;
-  checkRunId: string;
-  recordTypeId: string;
-  recordId: string;
-  bodies: readonly JsonObject[];
-}>): RecordConflictEvidence {
-  const bodyFingerprints = [...new Set(input.bodies.map(createRecordBodyFingerprint))].sort();
-  if (bodyFingerprints.length < 2) {
-    throw new TypeError("Record conflict evidence requires at least two distinct bodies");
-  }
-  return Object.freeze({
-    kind: "record-conflict",
-    checkId: input.checkId,
-    checkRunId: input.checkRunId,
-    recordTypeId: input.recordTypeId,
-    recordId: input.recordId,
-    bodyFingerprints: Object.freeze(bodyFingerprints)
-  });
-}
-
-export function createDeterministicCheckRunId(input: Readonly<{
-  invocationKey: string;
-  checkId: string;
-}>): string {
-  const bytes = canonicalJsonBytes({ checkId: input.checkId, invocationKey: input.invocationKey });
-  return `${CHECK_RUN_ID_PREFIX}${digest(bytes)}`;
-}
-
-export function isCheckRunId(value: unknown): value is string {
-  return typeof value === "string"
-    && value.startsWith(CHECK_RUN_ID_PREFIX)
-    && SHA_256_HEX_PATTERN.test(value.slice(CHECK_RUN_ID_PREFIX.length));
 }

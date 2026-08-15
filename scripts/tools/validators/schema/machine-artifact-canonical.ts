@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type {
-  DefinitionShape,
+  CheckShape,
   EvidenceRefShape,
   JsonRecord,
   RecordShape,
@@ -9,23 +9,27 @@ import type {
   RunShape
 } from "./machine-artifact-types.ts";
 
-export function catalogFingerprint(definitions: readonly DefinitionShape[]): string {
-  const canonical = definitions.map((definition) => ({
-    checkId: definition.checkId,
-    displayName: definition.displayName,
-    recordTypes: definition.recordTypes.map((recordType) => ({
+export function catalogFingerprint(checks: readonly CheckShape[]): string {
+  const canonical = checks.map((check) => ({
+    checkId: check.checkId,
+    displayName: check.displayName,
+    recordTypes: check.recordTypes.map((recordType) => ({
       fields: recordType.fields.map((field) => ({ ...field }))
         .sort((left, right) => compareText(left.fieldId, right.fieldId)),
       identityFields: [...recordType.identityFields].sort(),
       policy: {
         operands: [...(recordType.policy?.operands ?? [])]
-          .sort((left, right) => compareText(String(left.operandId), String(right.operandId))),
+          .sort((left, right) => compareText(left.operandId, right.operandId)),
         relations: [...(recordType.policy?.relations ?? [])].sort()
       },
       recordTypeId: recordType.recordTypeId
     })).sort((left, right) => compareText(left.recordTypeId, right.recordTypeId))
   })).sort((left, right) => compareText(left.checkId, right.checkId));
   return `check-record/v1/catalog/sha256:${digest(canonical)}`;
+}
+
+export function recordsFingerprint(records: readonly RecordShape[]): string {
+  return `check-record/v1/records/sha256:${digest(records)}`;
 }
 
 export function recordIdentity(record: RecordShape, recordType: RecordTypeShape): string {
@@ -45,13 +49,19 @@ export function recordIdentity(record: RecordShape, recordType: RecordTypeShape)
 }
 
 export function evidenceKey(reference: EvidenceRefShape): string {
-  if (reference.kind === "run") return `0\u0000${String(reference.checkRunId)}`;
-  if (reference.kind === "record") return `1\u0000${String(reference.recordId)}`;
-  if (reference.kind === "reference") {
-    return `2\u0000${String(reference.checkId)}\u0000${String(reference.referenceName)}\u0000${String(reference.referenceId)}`;
+  switch (reference.kind) {
+    case "check":
+      return `0\u0000${reference.checkId}`;
+    case "record":
+      return `1\u0000${reference.recordId}`;
+    case "reference":
+      return `2\u0000${reference.checkId}\u0000${reference.referenceName}\u0000${reference.referenceId}`;
+    case "view":
+      return `3\u0000${reference.viewId}`;
+    case "readiness":
+      return `4\u0000${reference.readinessId}`;
   }
-  if (reference.kind === "view") return `3\u0000${String(reference.viewId)}`;
-  return `4\u0000${String(reference.readinessId)}`;
+  return unreachableEvidenceRef(reference);
 }
 
 export function referenceEvidenceKey(
@@ -97,7 +107,15 @@ export function isCanonical<Value>(
   values: readonly Value[],
   key: (value: Value) => string
 ): boolean {
-  return values.every((value, index) => index === 0 || key(values[index - 1]!) < key(value));
+  let previousKey: string | undefined;
+  for (const value of values) {
+    const currentKey = key(value);
+    if (previousKey !== undefined && previousKey >= currentKey) {
+      return false;
+    }
+    previousKey = currentKey;
+  }
+  return true;
 }
 
 function digest(value: unknown): string {
@@ -117,4 +135,8 @@ function compareText(left: string, right: string): number {
   if (left < right) return -1;
   if (left > right) return 1;
   return 0;
+}
+
+function unreachableEvidenceRef(reference: never): never {
+  throw new TypeError(`Unknown machine evidence reference: ${JSON.stringify(reference)}`);
 }

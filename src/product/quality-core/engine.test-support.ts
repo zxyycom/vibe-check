@@ -10,14 +10,14 @@ import {
 import { resolve } from "node:path";
 
 import {
-  validateMachinePublicationSetV2,
-  type MachinePublicationV2
-} from "./output/publication-v2/index.ts";
+  validateMachinePublicationSetV3,
+  type MachinePublicationV3
+} from "./output/publication-v3/index.ts";
 
 export function readValidatedMachineArtifacts(
   artifactDir: string
-): MachinePublicationV2 {
-  const validation = validateMachinePublicationSetV2({
+): MachinePublicationV3 {
+  const validation = validateMachinePublicationSetV3({
     recordsNdjson: readFileSync(resolve(artifactDir, "records.ndjson")),
     runJson: readFileSync(resolve(artifactDir, "run.json"))
   });

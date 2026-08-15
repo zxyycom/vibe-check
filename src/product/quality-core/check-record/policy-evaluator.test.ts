@@ -77,7 +77,7 @@ describe("check-record policy evaluation", () => {
       status: "failed",
       policyId: "current-regressions",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         ...expectedBlocking,
         { kind: "reference", checkId: "file-metrics", referenceName: "baseline", referenceId },
         { kind: "view", viewId: "unaccepted-regressions" },
@@ -90,14 +90,14 @@ describe("check-record policy evaluation", () => {
     expect(result.acceptance).toEqual([{
       acceptanceId: "accept-generated",
       reason: "Generated finding is reviewed.",
-      recordId: core.records[1]!.recordId
+      recordId: core.records.find((entry) => entry.fields.generated === true)!.recordId
     }]);
     expect(result.views[0]?.recordRefs).toEqual(expectedBlocking);
     expect(result.readiness).toEqual([{
       readinessId: "current-complete",
       status: "passed",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         { kind: "readiness", readinessId: "current-complete" }
       ]
     }, {
@@ -126,8 +126,8 @@ describe("check-record policy evaluation", () => {
     expect(evaluateDecisionPolicy(resolution, core, facts)).toEqual(result);
   });
 
-  test("stops at the first readiness failure while retaining failed-run records as not evaluated", () => {
-    const core = snapshot("failed");
+  test("stops at the first readiness failure while retaining unavailable-Check records as not evaluated", () => {
+    const core = snapshot("unavailable");
     const { resolution, facts } = validateInputs(core);
 
     const result = evaluateDecisionPolicy(resolution, core, facts);
@@ -137,7 +137,7 @@ describe("check-record policy evaluation", () => {
       status: "failed",
       reason: "scan-incomplete",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         { kind: "readiness", readinessId: "current-complete" }
       ]
     }]);
@@ -147,24 +147,24 @@ describe("check-record policy evaluation", () => {
       policyId: "current-regressions",
       reason: "scan-incomplete",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         { kind: "readiness", readinessId: "current-complete" }
       ]
     });
     expect(result.views[0]?.recordRefs.length).toBe(2);
   });
 
-  test("allows another closed policy to treat the same run failure as an ordinary blocking operand", () => {
-    const core = snapshot("failed");
+  test("allows another closed policy to treat the same unavailable Check as an ordinary blocking operand", () => {
+    const core = snapshot("unavailable");
     const input = {
       references: [],
       policy: {
-        policyId: "block-run-failure",
+        policyId: "block-check-unavailable",
         references: [],
         acceptance: [],
         views: [],
         readiness: [],
-        blockWhen: { kind: "run-status", checkId: "file-metrics", status: "failed" }
+        blockWhen: { kind: "check-outcome", checkId: "file-metrics", outcome: "unavailable" }
       }
     } as const;
     const resolution = validatePolicyResolution(input, makeCatalog());
@@ -177,13 +177,13 @@ describe("check-record policy evaluation", () => {
     const decision = evaluateDecisionPolicy(resolution.value, core, facts.value);
     expect(decision.gate).toEqual({
       status: "failed",
-      policyId: "block-run-failure",
-      evidenceRefs: [{ kind: "run", checkRunId: core.runs[0]!.checkRunId }],
+      policyId: "block-check-unavailable",
+      evidenceRefs: [{ kind: "check", checkId: "file-metrics" }],
       blockingRecordRefs: []
     });
     expect(decision.blockWhen).toEqual({
       status: "matched",
-      evidenceRefs: [{ kind: "run", checkRunId: core.runs[0]!.checkRunId }],
+      evidenceRefs: [{ kind: "check", checkId: "file-metrics" }],
       blockingRecordRefs: []
     });
   });
@@ -227,7 +227,7 @@ describe("check-record policy evaluation", () => {
       status: "passed",
       policyId: "current-regressions",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         { kind: "reference", checkId: "file-metrics", referenceName: "baseline", referenceId },
         { kind: "view", viewId: "unaccepted-regressions" },
         { kind: "readiness", readinessId: "comparison-complete" },
@@ -252,13 +252,13 @@ describe("check-record policy evaluation", () => {
       policyId: "current-regressions",
       reason: "comparison-unavailable",
       evidenceRefs: [
-        { kind: "run", checkRunId: core.runs[0]!.checkRunId },
+        { kind: "check", checkId: "file-metrics" },
         { kind: "reference", checkId: "file-metrics", referenceName: "baseline", referenceId },
         { kind: "readiness", readinessId: "comparison-complete" },
         { kind: "readiness", readinessId: "current-complete" }
       ]
     });
-    expect(core.runs[0]?.status).toBe("completed");
+    expect(core.checks[0]?.outcome.kind).toBe("completed");
     expect(core.records).toHaveLength(3);
   });
 

@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { FunctionScannerDependency } from "../../../scanner-dependencies/index.ts";
-import { resolveCheckCatalog, type ResolvedCheckCatalog } from "../catalog.ts";
 import { createRecordId } from "../identity.ts";
-import type { FinalCoreSnapshot } from "../model.ts";
+import type { CoreSnapshot } from "../model.ts";
 import type { ReferenceFacts } from "../policy-model.ts";
+import { createBuiltInTestRun, type BuiltInTestRun } from "./builtin-test-support.ts";
 import {
   FUNCTION_METRICS_CHECK_DEFINITION,
   createFunctionMetricsBinding,
@@ -38,23 +38,18 @@ export const functionMetricsSemantics = {
   }
 } as const;
 
-export function resolveFunctionMetricsTestCatalog(
+export function createFunctionMetricsTestRun(
   binding: ReturnType<typeof createFunctionMetricsBinding>["binding"],
   approvedExactPaths: readonly string[]
-): ResolvedCheckCatalog {
-  const catalog = resolveCheckCatalog({
-    invocationKey: "function-metrics-test",
-    definitions: [FUNCTION_METRICS_CHECK_DEFINITION],
-    bindings: [{ checkId: "function-metrics", execute: binding }],
-    schedules: [{ checkId: "function-metrics", requiresChecks: [] }],
-    selectedCheckIds: ["function-metrics"],
-    resolveApplicability: () => resolveFunctionMetricsApplicability(approvedExactPaths)
+): BuiltInTestRun {
+  return createBuiltInTestRun({
+    applicability: resolveFunctionMetricsApplicability(approvedExactPaths),
+    binding,
+    definition: FUNCTION_METRICS_CHECK_DEFINITION
   });
-  if (!catalog.ok) throw new Error("Expected function-metrics catalog to resolve");
-  return catalog.value;
 }
 
-export function assertFunctionRecordsAndStableIdentity(snapshot: FinalCoreSnapshot): void {
+export function assertFunctionRecordsAndStableIdentity(snapshot: CoreSnapshot): void {
   assert.deepEqual(
     FUNCTION_METRICS_CHECK_DEFINITION.recordTypes.map(({ recordTypeId }) => recordTypeId),
     [
@@ -67,8 +62,7 @@ export function assertFunctionRecordsAndStableIdentity(snapshot: FinalCoreSnapsh
     JSON.stringify(FUNCTION_METRICS_CHECK_DEFINITION).includes("controlled-lizard"),
     false
   );
-  assert.equal(snapshot.runs[0]?.status, "completed");
-  assert.deepEqual(snapshot.runs[0]?.result, { verdict: "failed" });
+  assert.deepEqual(snapshot.checks[0]?.outcome, { kind: "completed", verdict: "failed" });
   assert.deepEqual(
     snapshot.records.map(({ recordTypeId }) => recordTypeId).sort(),
     [
@@ -89,11 +83,11 @@ export function assertFunctionRecordsAndStableIdentity(snapshot: FinalCoreSnapsh
 }
 
 export function assertAmbiguousFunctionRelations(
-  snapshot: FinalCoreSnapshot,
+  snapshot: CoreSnapshot,
   facts: ReferenceFacts,
   expectedFunctionCount: number
 ): void {
-  assert.equal(snapshot.runs[0]?.status, "completed");
+  assert.equal(snapshot.checks[0]?.outcome.kind, "completed");
   assert.equal(snapshot.records.length, expectedFunctionCount * 3);
   assert.equal(new Set(snapshot.records.map((record) => record.recordId)).size, snapshot.records.length);
   assert.equal(facts.relations.length, snapshot.records.length);
@@ -167,7 +161,7 @@ export function createFunctionFailureFixtures(): readonly FunctionFailureFixture
         args: [],
         availabilityArgs: ["--version"]
       },
-      expected: "unavailable",
+      expected: "dependency-unavailable",
       cleanup: () => rmSync(unavailableRoot, { recursive: true, force: true })
     },
     functionFailureFixture(createLizardFixture({

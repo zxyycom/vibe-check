@@ -1,126 +1,102 @@
 # quality-runtime
 
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check 与 Record foundation contract 精确且封闭
-Owner: `docs/architecture.md#核心定位`
+Owner: `docs/quality-metrics.md#当前模型`
 Entities:
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > canonicalizes catalog order and fixes the exact fingerprint`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > constructs valid deterministic opaque run IDs and arrival-neutral conflict evidence`
 - `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > emits exact versioned canonical UTF-8 JSON bytes and rejects non-JSON values`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > excludes location message and checkRunId while identity fields change recordId`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > matches exact golden record identity bytes and ID`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > normalizes semantic subjects explicitly without case or whitespace folding`
+- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > rejects accessors before changing getters can corrupt canonical bytes`
 - `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > redacts credential TypeErrors thrown by Proxy reflection traps`
 - `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > redacts ordinary errors thrown by Proxy reflection traps`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > rejects accessors before changing getters can corrupt canonical bytes`
+- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > normalizes semantic subjects explicitly without case or whitespace folding`
+- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > matches exact golden record identity bytes and ID`
+- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > excludes location and message while identity fields change recordId`
+- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > canonicalizes catalog order and fixes the exact fingerprint`
+- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > keeps producer candidates free of Core ownership and lifecycle provenance`
 - `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > accepts only closed foundation descriptors with check-qualified record type identities`
-- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > enforces the closed selected applicability run and result matrix`
-- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > fixes diagnostic precedence and canonical same-category tie breaking`
-- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > keeps producer candidates free of manager provenance and complex field values`
-- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > validates mechanical snapshot integrity and coverage without reducing quality`
-- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > keeps conflict IDs out of trusted records while retaining independent integrity evidence`
-- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > redacts credential Proxy traps before foundation validation reads fields`
-- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > rejects unknown fields private material functions and invalid finite primitives`
+- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > accepts exactly one closed terminal outcome for each Core Check`
+- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot without lifecycle projections`
 - `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > rejects CheckDefinition accessors without executing them`
-- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > rejects records and integrity evidence inconsistent with the owning run`
-- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > requires unique integrity evidence that closes the primary record diagnostic`
+- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > redacts credential Proxy traps before foundation validation reads fields`
 - `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > validates unknown into a closed detached deeply readonly quality record`
+- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > rejects unknown fields private material functions and invalid finite primitives`
+- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > requires a known non-not-applicable owner and canonical entity order`
+- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > accepts only the target unavailable taxonomy and exact snapshot fields`
 Proves:
-- Foundation descriptor 只接受 serializable Check metadata、Check-qualified record-type identity、closed field/identity descriptor 与 closed policy-visible operand/relation surface；不接纳 runner、backend、Task、function 或其它私有执行材料。
-- Canonical JSON 递归排序 object keys、保留 array 顺序并拒绝非 finite JSON 值；golden bytes、Unicode/semantic subject normalization、versioned SHA-256 record identity 与包含 policy binding 的 catalog fingerprint 精确固定。
-- `checkRunId` 是 invocation-scoped opaque correlation identity，不进入 `recordId`；location、message 与 arrival 不改变稳定 record identity，catalog identity 与 conflict evidence 不依赖输入顺序。
-- Selection/applicability 与 `skipped | completed | failed` / nullable result 组合封闭；snapshot completeness 只核对 manager-derived run/coverage facts，不产生全局 quality verdict。
-- Producer candidate 不携带 manager provenance，validated field type 与 descriptor 的 primitive runtime 域一致；runtime validation 从 `unknown` 产生 detached deeply readonly domain values。
-- Conflict record ID 不进入 trusted records，records、record-type、run、diagnostic 与独立 integrity evidence 双向闭合且 canonical；category-specific diagnostic identity、invalid-record evidence 与 validation issue 不暴露未受信敏感材料。
+- Definition descriptors and producer candidates accept only serializable public Check/Record material; functions, private execution data and Core ownership are rejected or remain outside the candidate shape.
+- Canonical bytes, semantic subject normalization, stable record identity and declarative fingerprint are deterministic, reject accessor/Proxy/non-JSON traps without leaking sensitive material, and do not use current location or message as identity.
+- A Core Check has exactly one closed `not-applicable`、`completed` or `unavailable` outcome. Validation accepts exactly canonical `{ checks, records }` facts, direct Record ownership and the safe unavailable taxonomy, not a parallel lifecycle projection.
 
-## Case WB-RUNTIME-CHECK-CATALOG-001: Check catalog 与 private binding 在 work 前完整冻结
+## Case WB-RUNTIME-CHECK-CATALOG-001: Two-phase Check resolution 在 work 前形成唯一 planning input
+Owner: `docs/configuration.md#two-phase-resolution`
+Entities:
+- `bun|src/product/definition/project.test.ts|Project Definition > separates frozen declarative data from function bindings and fingerprints neither binding`
+- `bun|src/product/run/index.test.ts|Package Run > calls an applicable TaskPlan factory during closed planning and lets the shared scheduler run it`
+- `bun|src/product/run/index.test.ts|Package Run > does not call a TaskPlan factory for a not-applicable Check`
+- `bun|src/product/run/index.test.ts|Package Run > prepares built-ins present in the tree before a dependent custom Check`
+Proves:
+- Definition normalization freezes sorted declarative Checks while trusted functions, operational binding and policy execution material stay outside the fingerprint and public facts.
+- Package Run resolves each selected Check once before graph execution: it prepares only needed built-ins, calls an applicable TaskPlan factory during closed planning, and does not invoke a not-applicable factory.
+
+## Case WB-RUNTIME-CHECK-LIFECYCLE-001: 每个 Resolved Check 形成一个闭合 Core Check
 Owner: `docs/quality-metrics.md#当前模型`
 Entities:
-- `bun|src/product/quality-core/check-record/catalog.test.ts|check-record catalog resolution > fails pre-work for invalid catalogs bindings selections and applicability without executing bindings`
-- `bun|src/product/quality-core/check-record/catalog.test.ts|check-record catalog resolution > freezes a canonical public catalog and resolves qualified record types and selected applicability`
-- `bun|src/product/quality-core/check-record/catalog.test.ts|check-record catalog resolution > closes requiresChecks before applicability and rejects invalid schedules with zero execution`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes only canonical Check and Record facts`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > maps malformed terminal values to a contained unavailable result and cancellation closes unresolved scopes`
 Proves:
-- Catalog resolution 从 `unknown` 生成 detached、deeply readonly、canonical definitions 与 fingerprint；相同 `recordTypeId` 只按 owning `checkId` qualified 解析，resolved record descriptor 保留 fingerprinted policy surface，public definition 不携带 executable 或 backend。
-- Definition / descriptor、binding 一对一关系、selection、closed `requiresChecks` schedule 与 selected applicability 任一非法时在 work 前失败且 binding zero calls；selection 先闭包 prerequisite，未选择 Check 不解析 applicability，applicable work handles 在执行前冻结。
+- 每个已注册 Check 恰好一次关闭；not-applicable 不建立 executable scope，applicable Check 通过 trusted terminal path 形成 completed 或 unavailable outcome。
+- malformed terminal 被 contained unavailable 吸收；取消只关闭仍未完成的 applicable scope，最终 snapshot 仍只含排序的 Check 与已接受的 Record facts。
 
-## Case WB-RUNTIME-CHECK-LIFECYCLE-001: CheckManager 每 definition 形成一个合法 run
+## Case WB-RUNTIME-RECORD-MANAGER-001: Check-scoped RecordSink 独立验证并提交可信 Records
 Owner: `docs/quality-metrics.md#当前模型`
 Entities:
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > creates one run per definition and keeps skipped not-applicable and applicable zero-work states distinct`
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > freezes acknowledgement facts at settlement and rejects retained ports without changing them`
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > makes availability exactly match final completed status under result ack and record failures`
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > treats duplicate unknown and missing settlement as trusted invariant failures`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > binds record ownership, retains accepted independent Records, and gives record failures precedence`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > rejects scope-external, duplicate, and late mutation without revising facts`
 Proves:
-- 每个 definition 恰有一个 run；unselected 为 `skipped / null`，selected not-applicable 在 pre-work 完成且 zero coverage，applicable zero-work 仍消费 terminal result并可形成独立 `passed | failed` quality verdict。
-- 每个 applicable Check 恰好 settlement 一次；settlement 先冻结 acknowledgement/result/record-failure facts，再返回 private availability。合法 quality `failed` 是 available completed run；invalid result、ack 或 record failure 是 unavailable failed run，failed run 不保留 lower-layer candidate。
-- settlement 后 retained acknowledgement port 被拒绝，不能改写 frozen coverage、availability 或最终 run；final CheckRun 只在全部 settlement 后形成一次。
+- Scope-bound RecordSink 自动绑定 owning Check 与声明的 record type；valid submission 立即提交、equivalent replay 幂等，而 conflict/invalid submission 选择 owning Check 的 safe unavailable terminal，独立已提交 Records 保留。
+- scope-external、duplicate settlement、terminal 后与 snapshot 冻结后的 submission 均被拒绝，不能改写已经形成的 Check 或 Record facts。
 
-## Case WB-RUNTIME-CHECK-COVERAGE-001: CheckManager coverage 只由 owned handles 与 acknowledgement 决定
+## Case WB-RUNTIME-CHECK-FAILURE-001: Contained Check failure 保持安全 terminal 语义
 Owner: `docs/quality-metrics.md#当前模型`
 Entities:
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > freezes acknowledgement facts at settlement and rejects retained ports without changing them`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > binds record ownership, retains accepted independent Records, and gives record failures precedence`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > maps malformed terminal values to a contained unavailable result and cancellation closes unresolved scopes`
+- `bun|src/product/run/index.test.ts|Package Run > calls an applicable TaskPlan factory during closed planning and lets the shared scheduler run it`
 Proves:
-- 首次 owned-handle acknowledgement 增加 coverage，duplicate acknowledgement 幂等；settlement 前的 unknown、foreign acknowledgement 形成 owning run protocol failure，但不伪造 coverage。settlement 后 retained acknowledgement 被拒绝，不改变 frozen coverage、availability 或 final run。
-- Ack diagnostic 只发布安全 opaque handle identity；未受信 candidate material不进入 run facts。
+- invalid result、record conflict、TaskPlan leaf failure 和 cancellation 各自归入 owning Check 的 safe unavailable outcome；合法 quality `failed` 仍是 completed outcome。
+- 已经提交的 Records 在后续 ordinary failure 下保留；Core trusted invariant 会抛出 fatal failure，而不是伪装成普通 Check fact。Package Run 对逃逸 trusted failure 的 execution-result 映射由 Run boundary 的结构审计承担，不从这些不可由合法项目输入触发的测试实体推断。
 
-## Case WB-RUNTIME-RECORD-MANAGER-001: RecordManager 独立验证并提交可信 records
+## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Product Check adapter 在同一 graph 上执行 direct 与 TaskPlan
 Owner: `docs/quality-metrics.md#当前模型`
 Entities:
-- `bun|src/product/quality-core/check-record/record-manager.test.ts|check-record RecordManager > adds unforgeable provenance validates descriptors commits immediately and replays idempotently`
-- `bun|src/product/quality-core/check-record/record-manager.test.ts|check-record RecordManager > canonicalizes invalid evidence independently of arrival and deduplicates the same safe violation`
-- `bun|src/product/quality-core/check-record/record-manager.test.ts|check-record RecordManager > keeps evidence distinct across definitions after more than 10000 repeated submissions`
-- `bun|src/product/quality-core/check-record/record-manager.test.ts|check-record RecordManager > isolates same-ID different-body conflicts with arrival-neutral evidence and retains independent records`
-- `bun|src/product/quality-core/check-record/record-manager.test.ts|check-record RecordManager > rejects submissions after a run terminal boundary without leaking candidate material`
+- `bun|src/product/run/index.test.ts|Package Run > calls an applicable TaskPlan factory during closed planning and lets the shared scheduler run it`
+- `bun|src/product/run/index.test.ts|Package Run > does not call a TaskPlan factory for a not-applicable Check`
+- `bun|src/product/run/index.test.ts|Package Run > flattens group dependencies before shared execution`
+- `bun|src/product/run/index.test.ts|Package Run > uses only explicit mutex constraints to serialize direct and TaskPlan leaf work`
+- `bun|src/product/run/index.test.ts|Package Run > prepares built-ins present in the tree before a dependent custom Check`
+- `bun|src/product/run/index.test.ts|Package Run > observes cooperative cancellation after input validation and before planning work`
 Proves:
-- Bound sink 添加不可伪造的 `checkId / checkRunId`，按 qualified descriptor 验证 candidate并用 foundation identity owner创建 `recordId`；valid record即时提交，equivalent replay幂等，invalid candidate形成 owning-run integrity evidence。
-- Same-ID / different-body 不让先到 body 留在 trusted records，conflict evidence 与 arrival order无关；此前独立 valid records保留，terminal 后 candidate只被拒绝、不新增 integrity evidence 或其它事实，diagnostic不暴露 message、location或敏感材料。
-- Invalid-record evidence 只按 manager-owned run / Check / qualified known record type / closed reason形成canonical安全事实；到达顺序不改变evidence，相同安全违规幂等归并，跨definition与超过10,000次重复提交仍保持唯一合法identity并通过snapshot validation。
+- direct Check、static TaskPlan 和 zero-child completion 使用一个 prevalidated static graph；普通 child Task 不形成 Product Check，且 not-applicable Check 不创建 scope。
+- group dependency、explicit mutex 和 settled prerequisite availability 在同一 engine 中协作。completed quality `failed` 与 not-applicable 可放行 dependent；unavailable 会阻断 dependent user work，unrelated work 仍可完成。
+- execution-phase abort 停止新的 admission、drain 已开始 work，并保留已形成 facts；未关闭 Check 在冻结前以 cancelled unavailable outcome 关闭。
 
-## Case WB-RUNTIME-CHECK-FAILURE-001: Manager 与 coordinator 单点收敛 execution failure precedence
-Owner: `docs/quality-metrics.md#当前模型`
-Entities:
-- `bun|src/product/quality-core/check-record/check-manager.test.ts|check-record CheckManager > makes availability exactly match final completed status under result ack and record failures`
-- `bun|src/product/quality-core/check-record/coordinator.test.ts|check-record contribution coordinator > normalizes direct returned unavailable throws and rejections into closed terminal run facts`
-- `bun|src/product/quality-core/check-record/coordinator.test.ts|check-record contribution coordinator > preserves records under ranked combined failures`
-Proves:
-- Ordinary unavailable、sync throw、async rejection与非法 returned candidate归一为closed terminal run facts；failed run始终 `result = null`，而合法 quality `failed`仍是completed run。缺失、duplicate 或 unknown settlement则属于 trusted foundation invariant failure，不发布 snapshot。
-- Record conflict / invalid record、ack protocol 与 invalid result组合只由 foundation rank及canonical tie-break选出primary diagnostic；已验证 records和acks保留，诊断不携带runner exception或unknown correlation材料。
-
-## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Closed Check adapter 在共享 runner 上形成可信依赖边界
-Owner: `docs/quality-metrics.md#当前模型`
-Entities:
-- `bun|src/product/quality-core/check-record/task-planning.test.ts|check-record task orchestration > plans a closed detached graph before execution and namespaces group leaves with exact work`
-- `bun|src/product/quality-core/check-record/task-planning.test.ts|check-record task orchestration > rejects cycles ancestor self dependencies open shapes and work partition gaps before user execution`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-record task orchestration > enforces one global slot budget and mutex across direct leaves and synthetic completion`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-record task orchestration > isolates ordinary failures blocks transitive dependents and accepts quality failure prerequisites`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-record task orchestration > uses foundation availability for invalid result record and acknowledgement prerequisites`
-- `bun|src/product/quality-core/check-record/task-planning.test.ts|check-record task orchestration > runs one zero-leaf completion and blocks dependent leaves plus completion after leaf failure`
-- `bun|src/product/quality-core/check-record/task-execution-lifecycle.test.ts|check-record task orchestration > treats hidden and symbol unavailable fields as invalid results before dependent execution`
-- `bun|src/product/quality-core/check-record/task-execution-lifecycle.test.ts|check-record task orchestration > blocks dependent leaves and completion when a task record submission fails`
-- `bun|src/product/quality-core/check-record/task-execution-lifecycle.test.ts|check-record task orchestration > revokes function-scoped sinks on return and throw while retaining committed records`
-- `bun|src/product/quality-core/check-record/task-execution-lifecycle.test.ts|check-record task orchestration > drains started wrappers and stops new user calls after a trusted invariant failure`
-Proves:
-- Adapter 在 user work 前解析、验证、detached freeze closed TaskPlan；拒绝 open shape、self/ancestor/cycle、unknown dependency 与 exact work partition 缺口，planning 失败时不调用 user function。Task/group identity 保持 invocation-private。
-- Direct binding、TaskPlan leaves 和唯一 synthetic completion 共用 Product-owned generic runner 的单一 `maxParallel` slot budget 与 mutex；零-leaf plan 也只调用一次 completion，leaf execution 或 record submission failed、或 leaf blocked 时不调用 dependent leaf 与 completion。completion 接收按叶 ID 形成的 opaque outcomes。
-- `requiresChecks` 只消费 settlement 后的 availability：合法 completed quality `failed` 与 `not-applicable` 放行 dependent；execution、result、record 或 acknowledgement failure 使 dependent 及其 transitive dependent unavailable 且不调用其 user function；unrelated work 继续。hidden、symbol 或其它 unavailable returned field 只拒绝 owning Check，不阻止无依赖的有效 Check。
-- 每个 leaf 只拿到 work handles 和 function-scoped record sink；adapter 只在 leaf 正常完成后自动推进 acknowledgement。return 或 throw 后 retained sink 被拒绝，早先 committed record 保留。trusted invariant failure 停止尚未开始的 user function、drain 已开始 wrapper，随后拒绝 trusted publication。
-
-## Case CHECK-SCOPED-CONCURRENCY-001: Check-scoped cap 在 shared scheduler 内临时收紧 invocation
+## Case CHECK-SCOPED-CONCURRENCY-001: Check-scoped cap 在 shared Task engine 内临时收紧 invocation
 Owner: `docs/architecture.md#checktask-system`
 Entities:
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-scoped concurrency > keeps a TaskPlan cap active through completion before restoring root concurrency`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-scoped concurrency > does not activate a cap for zero-leaf completion work`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-scoped concurrency > uses the minimum active cap and ignores caps for not-applicable Checks`
-- `bun|src/product/quality-core/check-record/task-orchestration.test.ts|check-scoped concurrency > reserves capacity for a newly ready lower cap instead of starving it behind active leaves`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
 Proves:
-- A Check-scoped `maxParallel` begins at the first admitted direct/leaf task and releases only at direct/terminal settlement; zero-leaf completion and not-applicable Checks add no cap, active caps take their minimum with root, and a newly ready lower cap reserves/drains the same scheduler before active continuation can starve it.
+- Product layout can project an effective Check cap as generic graph scope metadata: active scope caps take their minimum with root capacity and last from first admission through terminal settlement.
+- A newly ready tighter scope reserves/drains deterministic capacity without preemption; an active constrained continuation is preferred. A scope without an activation Task does not tighten capacity.
 
-## Case WB-RUNTIME-CHECKPOINT-001: Frozen contribution batch 形成 canonical final Core snapshot
+## Case WB-RUNTIME-CHECKPOINT-001: Frozen Core snapshot 形成 canonical two-entity fact projection
 Owner: `docs/architecture.md#核心定位`
 Entities:
-- `bun|src/product/quality-core/check-record/coordinator.test.ts|check-record contribution coordinator > produces one canonical integrated snapshot regardless of direct runner completion order`
+- `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes only canonical Check and Record facts`
+- `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot without lifecycle projections`
+- `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > requires a known non-not-applicable owner and canonical entity order`
 Proves:
-- 完整 applicable contribution batch 在调用 coordinator 前冻结；skipped与not-applicable binding zero calls，applicable zero-work binding仍调用且一个 definition只产生一个run。
-- 多 definition execution在runner completion order置换后产生相同canonical runs、records、integrity与manager-derived completeness snapshot；final Core不包含policy、output或legacy projection。
+- frozen snapshot 的实体集合恰好为 `checks` 与 `records`，以 canonical order 表达 one-Check-one-outcome 与 direct Record ownership；policy、output 与 private execution data 不成为第三事实源。
 
 ## Case AUX-RUNTIME-OPTION-001: Product Option 显式区分值存在与缺失
 Owner: `docs/coding-style.md#5-按问题形态选择实现模型`

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { DuplicationScannerDependency } from "../../../scanner-dependencies/index.ts";
-import { resolveCheckCatalog, type ResolvedCheckCatalog } from "../catalog.ts";
+import { createBuiltInTestRun, type BuiltInTestRun } from "./builtin-test-support.ts";
 import {
   DUPLICATE_DETECTION_CHECK_DEFINITION,
   createDuplicateDetectionBinding,
@@ -57,20 +57,15 @@ export function createDuplicateTestRuntime(
   });
 }
 
-export function resolveDuplicateTestCatalog(
+export function createDuplicateTestRun(
   binding: ReturnType<typeof createDuplicateDetectionBinding>["binding"],
   input: DuplicateDetectionExactInputSet
-): ResolvedCheckCatalog {
-  const catalog = resolveCheckCatalog({
-    invocationKey: "duplicate-detection-test",
-    definitions: [DUPLICATE_DETECTION_CHECK_DEFINITION],
-    bindings: [{ checkId: "duplicate-detection", execute: binding }],
-    schedules: [{ checkId: "duplicate-detection", requiresChecks: [] }],
-    selectedCheckIds: ["duplicate-detection"],
-    resolveApplicability: () => resolveDuplicateDetectionApplicability(input.areas)
+): BuiltInTestRun {
+  return createBuiltInTestRun({
+    applicability: resolveDuplicateDetectionApplicability(input.areas),
+    binding,
+    definition: DUPLICATE_DETECTION_CHECK_DEFINITION
   });
-  if (!catalog.ok) throw new Error("Expected duplicate-detection catalog to resolve");
-  return catalog.value;
 }
 
 export function currentDuplicateInput(fixture: JscpdFixture) {
