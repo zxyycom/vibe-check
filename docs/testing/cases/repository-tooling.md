@@ -23,7 +23,7 @@ Entities:
 - `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for onComplete while treating resolved result values as opaque`
 - `bun|src/product/task-scheduler/test/index.test.ts|parallel task runner > waits for topological dependencies before starting dependent tasks`
 Proves:
-- source lift 后 task normalization、concurrency、mutex serialization、dependency ordering 和 nested task expansion 保持稳定。
+- Task normalization、concurrency、mutex serialization、dependency ordering 和 nested task expansion 保持稳定。
 - prepare strategy、invalid list metadata、duplicate id、unknown dependency，以及 admission seam 选中 blocked task 或同步失败都保持可诊断，并在 execution failure 后不启动 pending work。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定

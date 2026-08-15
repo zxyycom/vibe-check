@@ -61,6 +61,7 @@
       "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:c8eee6ebd2522aed58a3b15d42e4307358bc9cf828b6a72a28cd2788c61576f0",
       "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
       "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:d3853a121e5e3613d3477320110825fdf07c22b27e79612e35444ebabfd04c28",
+      "product-contract/cooperatively-cancel-task-graphs.md": "sha256:24526365c0081dad3655da179cb2961863fcd55a7f516d68c9faaf6f579be3d4",
       "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
       "product-contract/execute-check-scopes-through-one-task-graph.md": "sha256:11380493591864ed7609c5f3f44d97609c04862f16496e5cfe9de73c31b15b84",
       "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:23e433ca885151fe9a2df09a784877baef093c4b1727e25bc101529043a9014f",
@@ -74,6 +75,7 @@
       "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:bfa67371661c27c7166c286fce4397b920420d81e25ae35c99f7b384f5d89d5e",
       "product-contract/keep-sensitive-scan-material-ephemeral.md": "sha256:9aaf69fd491bdbb92a35b788cfb45b4388738a4d6a62c42294b502acbed13a2d",
       "product-contract/license-package-under-mit.md": "sha256:7537f269ba4af1f3248e8c728f93cde28361857e88e39f6354d468bdfbb8f466",
+      "product-contract/publish-check-record-machine-v3.md": "sha256:f9ad1e11fcdeed1786ce6512c896f71b5cb00dd2c4719df83b7b93ef88984ada",
       "product-contract/publish-unscoped-vibe-check-publicly.md": "sha256:1049cae458ff4218d07f5e8061519354968fbcdbd6259b74027929513562031c",
       "product-contract/release-one-versioned-npm-product-unit.md": "sha256:cc1b6cddf7eb3ee089fbf3c026e8d5c74812d41dee997e34a172e00ee0a16c29",
       "product-contract/require-explicit-network-check-authorization.md": "sha256:e48abb9281738e47099071328bc00ed9c9924b34d85e5772b72843a2e0235676",
@@ -1005,6 +1007,30 @@
         ]
       }
     },
+    "product-contract/cooperatively-cancel-task-graphs.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/cooperatively-cancel-task-graphs.md",
+        "title": "在 Task admission 边界协作式取消运行",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T08:14:41Z",
+        "purpose": "让一次 invocation 的取消由唯一 Task engine 停止新 admission，同时保留已经形成的 Check 与 Record 事实。",
+        "background": "Check 与 Record 在执行中逐步形成，回滚事实、强杀项目代码或把取消混同依赖阻断都会破坏可解释的终态。",
+        "decision": "Task engine 在 admission 边界观察 AbortSignal，停止新 Task、收尾已启动 Task，并将未完成 Check 关闭为 cancelled。",
+        "relations": []
+      }
+    },
     "product-contract/enable-tool-effects-by-default.md": {
       "keys": {
         "domain": [
@@ -1350,6 +1376,30 @@
         "purpose": "让公开 package 的使用、分发和法律材料使用一个明确的开放源码许可边界。",
         "background": "Public npm package 的 manifest、legal text 和 provenance 必须使用一致许可，不能从 repository visibility 推断。",
         "decision": "`vibe-check` package 使用 SPDX `MIT`；candidate 和发布材料必须包含匹配的许可文本及权利人信息。",
+        "relations": []
+      }
+    },
+    "product-contract/publish-check-record-machine-v3.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/publish-check-record-machine-v3.md",
+        "title": "在 machine v3 只发布 Check、Record 与运行元数据",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-15T08:26:56Z",
+        "purpose": "让 canonical machine output 直接表达 Check 与 Record 事实，不再发布重复的生命周期或完整性摘要。",
+        "background": "v2 definitions、runs、integrity 与 completeness 重复投影 Core 状态，且 checkRunId 让 Record 依赖将退出的运行实例身份。",
+        "decision": "machine v3 原子发布 Checks、Records 与解释本次运行所需的元数据，不保留 definitions、runs、integrity 或 completeness。",
         "relations": []
       }
     },
