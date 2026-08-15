@@ -1,6 +1,6 @@
 ---
 title: 在配置与运行操作旁公开内置 Check 值
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T13:50:34Z
 purpose: 让项目直接组合 Vibe Check 提供的三个内置 Check，而不重述内置目录或私有执行绑定。

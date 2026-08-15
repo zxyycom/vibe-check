@@ -1,47 +1,57 @@
 # Proposal
 
-本 Change 保留 built-in descriptor 的正式声明式 `.replace()` / `.append()` API，并删除只为 object-spread method recovery 与任意对象重建存在的反射、全局 registry 和 dynamic-`this` 协议。
+本 Change 将内置 Check 表示收敛为普通 Check 数据，并用顶层 `replace(check, replacement)` 与 `append(check, additions)` 辅助函数提供字段感知的配置调整。
 
 ## Why
 
-项目作者需要的是：从 Product-owned built-in 默认值出发，以类型安全、不可变、字段感知的方式修改 options 和 leaf-local scheduling fields。当前实现额外支持 `{ ...descriptor }.replace(...)`，因此 methods 必须可枚举，并通过 `descriptorInputs`、WeakMap、property descriptor scan、Reflect 和 metadata recovery 从 copied object 反推原 descriptor state。
+项目作者应能直接导入 Product 提供的内置 Check，把它与自定义 Check 一样放入 Project Definition 的 Check tree，并只调整该内置 Check 允许配置的 options 或叶子排程字段。
 
-spread copy recovery 没有增加新的声明式配置能力，却扩大了输入信任边界、实现复杂度和测试矩阵。用户已经明确：`.replace/.append` 必须保留；spread copy 不需要继续拥有 adjustment methods。
+当前实现把调整能力放在对象自身的 `.replace()` / `.append()` methods 上，并为复制后的对象维护私有签发身份、receiver 恢复和 materialization。该实现把“由 Product 预先提供默认值”误建模为“必须由 Product 签发的特殊对象”，使普通数据复制、公开 API、校验路径和下游 package surface 都承担了不必要的特殊规则。
+
+本 Change 保留真正需要的产品能力：Product 拥有内置 Check 的 identity、metadata、默认 options、字段调整语义和私有执行绑定；项目作者通过普通数据与独立辅助函数完成配置；Package Run 在开始任何项目工作前校验完整 Check tree。
 
 ## Outcome
 
-- Product-issued frozen descriptor 可直接作为 Check leaf，并具有 non-enumerable、closure-bound 的 `.replace()` 与 `.append()`。
-- 每次 adjustment 返回新的 Product-issued frozen descriptor，保持 built-in identity、private binding、immutability、chainability 与现有 field-aware semantics。
-- `{ ...descriptor }` 是普通 JavaScript data copy，没有 adjustment methods，也不是有效的 Product-issued built-in descriptor。若它以 `kind: "built-in"` 进入 Check tree/`defineConfig`，validation 必须 fail closed。
-- 合法 custom Check node 继续按自己的 closed contract 验证，不因 built-in issuance boundary 被误拒绝。
+- `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是预先构造的普通内置 Check 数据，可直接放入统一的 Check tree。
+- package 顶层提供 `replace` 与 `append` 两个纯配置辅助函数。每次调用返回新的同类内置 Check 数据，不修改输入或共享默认值。
+- `replace` 根据具体 `checkId` 提供字段感知的替换；`append` 只追加 owner 明确声明为可追加的集合。
+- 内置 Check 的合法性由公开数据结构、受支持的 `checkId`、canonical metadata 与对应 options contract 决定，不依赖对象来源、私有 brand、methods 或 frozen state。
+- Check tree normalization 使用统一的普通记录入口，再分别校验 group、built-in 和 custom variants；`defineConfig` 仍只构造 Project Definition value，完整运行前校验仍由 Package Run pre-work 承担。
+- 现有 value-owned methods、签发身份、materialization 和复制恢复路径退出当前契约；长期 decisions、Configuration、current public contract、tests、semantic Case 与下游 package Plan 同步到新模型。
 
 ## Scope
 
-- 简化 `src/product/definition/adjustments.ts` 的 descriptor issuance、method binding、materialization 和 validation path。
-- 保持 descriptor-specific typed patches、fixed/scalar replacement、omitted branch preservation、open-map whole-field replacement，以及 `dependsOn`/`mutex` append+stable-dedupe。
-- 删除 spread-copy chaining tests 和只服务该行为的 `descriptorInputs`、dynamic receiver、Reflect/property-descriptor recovery。
-- 保留并调整 forged/accessor/invalid patch tests，使它们证明新的 issuance 与 closed-validation boundary。
-- 同步 Configuration、current public-contract、examples 和 test Case evidence；只读核对下游 package acceptance，不修改 package Change。
+纳入范围：
 
-### Out of Scope
+- 调整 `src/product/definition/**` 中的内置 Check 数据类型、内置定义表、字段调整逻辑和 Check tree parser。
+- 新增顶层 `replace` / `append` 辅助函数，并让 TypeScript 根据传入内置 Check 的 `checkId` 推导合法 patch 与返回 variant。
+- 保持 scalar 与固定嵌套字段替换、未提供 branch 保留、open map 整字段替换、叶子排程字段替换，以及 `dependsOn` / `mutex` 追加后按首次出现顺序去重。
+- 删除 value-owned methods、`descriptorData`、只用于来源恢复的 `descriptorInputs`、dynamic receiver、`materializeBuiltInDescriptor` 和 descriptor copy reconstruction。
+- 演进直接冲突的 Configuration 与 Product Contract decisions，并同步 `src/product/public-contract/current.ts`、Configuration、目标 tests、`WB-PROJECT-DEFINITION-001` 和下游 `establish-api-only-npm-product-boundary` Plan。
 
-- 不新增 generic deep merge、builder、registry 或 package-level helper API。
-- 不改变 built-in identity/defaults、Check tree inheritance、Task/Core architecture、public callable export inventory 或 package consumer model。
-- 不支持 borrowed methods、serialization/rehydration、Proxy/class descriptors 或 copied-object recovery。
+不纳入范围：
+
+- 不把 `replace` / `append` 扩展为任意自定义 Check 的通用编辑器；自定义 Check author 继续拥有其完整数据、functions、binding 和 options policy。
+- 不新增 generic deep merge、mutable registry、builder lifecycle、Check registration API 或 executable built-in object。
+- 不改变 group inheritance、Task/Core architecture、scanner binding、Package Run、Project-owned Run 或 package 发布流程。
+- 不把 runtime freeze、serialization round-trip、module instance 来源或 exact object identity 设为公开契约。
 
 ## Success Criteria
 
-- Product-issued descriptor 上的 `.replace()`/`.append()` 保持类型安全、immutable、chainable、field-aware 和 deterministic。
-- Adjustment methods 不可枚举，不进入 normalized declarative data、fingerprint、Core、output 或 private binding projection。
-- non-issued built-in-like object 在 Check tree/`defineConfig` fail closed；合法 custom node 仍由自己的 validator 接受或拒绝。
-- 实现中不存在 global `descriptorInputs`、dynamic-`this` source recovery 或 Reflect/property-descriptor reconstruction path。
-- public-contract tests、Case evidence、typecheck、lint 与 workspace verification 证明 supported authoring API 未退化。
+- 直接导入的内置 Check、辅助函数返回值及其普通数据副本，只要满足同一个闭合公开结构，就按相同规则被接受或拒绝；校验不查询对象来源或 frozen state。
+- `replace` / `append` 对三个内置 Check 都保持精确的 TypeScript patch inference、字段语义和确定性结果；`append(replace(fileMetrics, patch), additions)` 是受支持的普通函数组合。
+- 两个辅助函数不修改输入、嵌套默认值或 module-shared defaults。实现可以 freeze 值，但 tests 和调用方不得把 freeze 作为合法性或兼容性条件。
+- `replace` 拒绝 owner 未声明的字段和非法值；`append` 当前只接受叶子自有的 `dependsOn` 与 `mutex`，并按首次出现顺序去重。
+- Check tree parser 直接解析普通闭合记录；recognized built-in 以 `checkId` 选择 options validator 和私有执行绑定，并在任何 project function、dependency preparation、cache、scanner、reporter 或 output work 前拒绝非法 tree。
+- 当前 source、tests 和非历史 docs 不再把 value-owned `.replace/.append`、签发身份、materialization、dynamic receiver 或 copy recovery 描述为受支持行为。
+- public surface 一致表达四个顶层 functions 的不同责任：`defineConfig` 构造 Project Definition，`run` 执行 Product Run，`replace` / `append` 调整内置 Check；另有三个普通 non-callable 内置 Check values，公开数据类型名为 `BuiltInCheck`。
+- 目标 tests、Case evidence、decision validation、docs validation、typecheck、lint 和 workspace required verification 全部通过。
 
 ## Affected Owners
 
-- `src/product/definition/adjustments.ts`、`adjustment-patches.ts`：descriptor issuance 与 patch semantics。
-- `src/product/definition/built-ins.ts`、`project.ts`、Check tree normalization：creation/materialization/closed-validation boundary。
-- `src/product/definition/project.test.ts`、相邻 descriptor tests、`docs/testing/cases/**`：semantic evidence。
-- `docs/configuration.md`、`src/product/public-contract/current.ts`：正式 authoring contract。
-- `docs/decisions/configuration/use-field-aware-built-in-check-adjustments.md`：已对齐的长期 API direction。
-- `changes/establish-api-only-npm-product-boundary/**`：只读 downstream handoff；后续 candidate acceptance 只验证 supported chains，不依赖 spread-copy behavior。
+- Configuration decisions：`docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 拥有普通内置 Check 与字段调整语义；`docs/decisions/configuration/use-composable-check-tree-in-project-definition.md` 继续拥有统一 Check tree。
+- Product Contract decisions：`docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 拥有 runtime export surface；`docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 拥有公开名称。
+- 稳定说明与 current contract：`docs/configuration.md`、`src/product/public-contract/current.ts` 及其相邻 tests。
+- Product implementation：`src/product/definition/adjustments.ts`、`adjustment-patches.ts`、`built-ins.ts`、`check-tree/**` 和相邻 Project Definition / Package Run tests。
+- 测试证据：`docs/testing/cases/scan-configuration.md` 中的 `WB-PROJECT-DEFINITION-001`。
+- 下游交接：`changes/establish-api-only-npm-product-boundary/**` 的 runtime entry、declarations、inventory、examples 与 exact-tarball acceptance。

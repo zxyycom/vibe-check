@@ -1,6 +1,6 @@
 ---
 title: 使用字段感知的内置 Check 调整方法
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T15:25:27Z
 purpose: 让项目从内置 Check 默认值声明式地覆写或追加所需字段，而不展开完整嵌套对象。

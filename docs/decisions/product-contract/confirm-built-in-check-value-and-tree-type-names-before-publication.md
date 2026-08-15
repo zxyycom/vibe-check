@@ -1,6 +1,6 @@
 ---
 title: 发布前确认内置 Check 值与 Check tree 类型名称
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T13:50:34Z
 purpose: 防止内置 Check value 与 Check tree 类型偶然成为首个 npm 公开契约。
