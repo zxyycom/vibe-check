@@ -24,19 +24,17 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   packageImport: "vibe-check",
   operations: Object.freeze({
     configDefinition: "defineConfig",
-    packageRun: "run"
+    packageRun: "run",
+    builtInCheckReplacement: "replace",
+    builtInCheckAppend: "append"
   }),
   values: Object.freeze({
     duplicateDetection: "duplicateDetection",
     fileMetrics: "fileMetrics",
     functionMetrics: "functionMetrics"
   }),
-  builtInDescriptorMethods: Object.freeze({
-    replace: "replace",
-    append: "append"
-  }),
   types: Object.freeze({
-    builtInCheckDescriptor: "BuiltInCheckDescriptor",
+    builtInCheck: "BuiltInCheck",
     checkGroup: "CheckGroup",
     checkNode: "CheckNode",
     customCheck: "CustomCheck",

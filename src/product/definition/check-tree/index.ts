@@ -1,8 +1,7 @@
 import {
   builtInDefinition,
-  type BuiltInCheckDescriptor,
-  type BuiltInCheckId,
-  type BuiltInCheckOptions
+  type BuiltInCheck,
+  type BuiltInCheckData,
 } from "../built-ins.ts";
 import {
   builtInOptionCodeAreasAreKnown,
@@ -45,16 +44,24 @@ export interface CustomCheck extends CheckDefinition, CheckScheduling {
   readonly binding: CustomCheckBinding;
 }
 
-export type CheckNode = CheckGroup | BuiltInCheckDescriptor | CustomCheck;
+export type CheckNode = CheckGroup | BuiltInCheck | CustomCheck;
 
-export interface ResolvedCheckTreeLeaf {
+interface ResolvedLeafScheduling {
   readonly definition: CheckDefinition;
   readonly dependsOn: readonly string[];
   readonly maxParallel: number;
   readonly mutex: readonly string[];
-  readonly builtIn: BuiltInCheckId | null;
-  readonly options: BuiltInCheckOptions | null;
 }
+
+type ResolvedBuiltInCheckTreeLeaf = ResolvedLeafScheduling & Readonly<{
+  readonly builtIn: BuiltInCheckData;
+}>;
+
+type ResolvedCustomCheckTreeLeaf = ResolvedLeafScheduling & Readonly<{
+  readonly builtIn: null;
+}>;
+
+export type ResolvedCheckTreeLeaf = ResolvedBuiltInCheckTreeLeaf | ResolvedCustomCheckTreeLeaf;
 
 export interface ResolvedCheckTree {
   readonly leaves: readonly ResolvedCheckTreeLeaf[];
@@ -104,8 +111,7 @@ function flattenNode(
       dependsOn: header.dependsOn,
       maxParallel: requireMaxParallel(header),
       mutex: header.mutex,
-      builtIn: node.checkId,
-      options: node.options
+      builtIn: node
     }));
     return;
   }
@@ -114,8 +120,7 @@ function flattenNode(
     dependsOn: header.dependsOn,
     maxParallel: requireMaxParallel(header),
     mutex: header.mutex,
-    builtIn: null,
-    options: null
+    builtIn: null
   }));
   customBindings.set(node.definition.checkId, Object.freeze({
     applicability: node.applicability,
@@ -157,7 +162,6 @@ export function validateBuiltInOptionCodeAreas(
 ): boolean {
   return tree.leaves.every((leaf) => builtInOptionCodeAreasAreKnown(
     leaf.builtIn,
-    leaf.options,
     codeAreas
   ));
 }

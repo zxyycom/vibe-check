@@ -6,32 +6,32 @@ import { describe, it } from "node:test";
 import { CURRENT_PUBLIC_CONTRACT } from "./current.ts";
 import { isNonArrayRecord } from "../foundation/type-guards.ts";
 import {
+  append,
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  replace
 } from "../definition/project.ts";
 import { run } from "../run/index.ts";
 
 describe("current public contract", () => {
-  it("owns exactly the definition-facing names, defaults, and operational identifiers", () => {
+  it("owns four function exports, three non-callable built-in values, types, defaults, and operational identifiers", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
         configDefinition: "defineConfig",
-        packageRun: "run"
+        packageRun: "run",
+        builtInCheckReplacement: "replace",
+        builtInCheckAppend: "append"
       },
       values: {
         duplicateDetection: "duplicateDetection",
         fileMetrics: "fileMetrics",
         functionMetrics: "functionMetrics"
       },
-      builtInDescriptorMethods: {
-        replace: "replace",
-        append: "append"
-      },
       types: {
-        builtInCheckDescriptor: "BuiltInCheckDescriptor",
+        builtInCheck: "BuiltInCheck",
         checkGroup: "CheckGroup",
         checkNode: "CheckNode",
         customCheck: "CustomCheck",
@@ -53,15 +53,14 @@ describe("current public contract", () => {
     });
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.configDefinition);
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.packageRun);
-    assert.equal(Object.isFrozen(duplicateDetection), true);
-    assert.equal(Object.isFrozen(fileMetrics), true);
-    assert.equal(Object.isFrozen(functionMetrics), true);
+    assert.equal(replace.name, CURRENT_PUBLIC_CONTRACT.operations.builtInCheckReplacement);
+    assert.equal(append.name, CURRENT_PUBLIC_CONTRACT.operations.builtInCheckAppend);
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof fileMetrics, "object");
     assert.equal(typeof functionMetrics, "object");
-    for (const descriptor of [duplicateDetection, fileMetrics, functionMetrics]) {
-      assert.equal(typeof descriptor[CURRENT_PUBLIC_CONTRACT.builtInDescriptorMethods.replace], "function");
-      assert.equal(typeof descriptor[CURRENT_PUBLIC_CONTRACT.builtInDescriptorMethods.append], "function");
+    for (const builtInCheck of [duplicateDetection, fileMetrics, functionMetrics]) {
+      assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
+      assert.equal(Object.hasOwn(builtInCheck, "append"), false);
     }
     assert.deepEqual(defineConfig({}).effects, CURRENT_PUBLIC_CONTRACT.effectDefaults);
 

@@ -1,7 +1,6 @@
 import { resolve } from "node:path";
 
 import {
-  BUILT_IN_CHECK_DEFINITIONS,
   type ProjectDefinition,
   type ProjectEffects,
   type RunControls
@@ -10,6 +9,8 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  isBuiltInCheckId,
+  type BuiltInCheckId,
   type BuiltInCheckOptionsById
 } from "../definition/built-ins.ts";
 import { resolveQualityConfiguration } from "../definition/quality.ts";
@@ -60,7 +61,7 @@ const BUILT_IN_DEPENDENCIES = Object.freeze({
   "duplicate-detection": "duplication",
   "file-metrics": "file",
   "function-metrics": "function"
-} as const satisfies Readonly<Record<keyof typeof BUILT_IN_CHECK_DEFINITIONS, OperationalDependencyId>>);
+} as const satisfies Readonly<Record<BuiltInCheckId, OperationalDependencyId>>);
 
 export function prepareBuiltInRuntime(input: Readonly<{
   cache: ProjectEffects["cache"];
@@ -156,10 +157,8 @@ export function prepareBuiltInRuntime(input: Readonly<{
 
 function selectedBuiltInCheckIds(
   selectedCheckIds: readonly string[]
-): readonly (keyof typeof BUILT_IN_CHECK_DEFINITIONS)[] {
-  return selectedCheckIds.filter((checkId): checkId is keyof typeof BUILT_IN_CHECK_DEFINITIONS => (
-    Object.hasOwn(BUILT_IN_CHECK_DEFINITIONS, checkId)
-  ));
+): readonly BuiltInCheckId[] {
+  return selectedCheckIds.filter(isBuiltInCheckId);
 }
 
 function requiredDependency<Id extends OperationalDependencyId>(

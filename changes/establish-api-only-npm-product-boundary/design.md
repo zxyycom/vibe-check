@@ -11,7 +11,7 @@
 | Concern | 权威 owner | 本 Change 的动作 |
 | --- | --- | --- |
 | Project Definition / Package Run / Run Controls | `adopt-typescript-project-definition` | 消费并公开，不重新定义 |
-| Built-in descriptor values/options、Check tree authoring | `adopt-composable-check-tree` | 投影 values/types，并由 consumer acceptance 证明组合 |
+| Built-in Check values/options、Check tree authoring | `adopt-composable-check-tree` | 投影 values/types，并由 consumer acceptance 证明组合 |
 | Check-scoped cap、admission/drain、shared scheduler handoff | `support-check-scoped-concurrency` | 消费语义并通过 acceptance 证明，不复制 scheduler |
 | 项目函数调用、`TaskPlan`、dependency、并行与 named resources | 前置 Changes 与既有 Task owners | 通过 acceptance 证明保真，不复制 scheduler |
 | Operational fields、precedence 与 snapshot | 前置 Change和 scanner dependency owner | 决定 installed delivery 并验证 prerequisites |
@@ -23,7 +23,7 @@
 长期方向由 active decisions 拥有，尤其是：
 
 - `release-one-versioned-npm-product-unit`、`use-programmatic-api-as-product-entry` 和 `support-bun-as-the-package-host`；
-- `expose-built-in-check-values-alongside-config-and-run`、`pass-project-definition-value-to-run` 和 `drive-run-from-project-definition-value`；
+- `expose-built-in-check-values-and-adjustment-functions`、`confirm-built-in-check-and-adjustment-names-before-publication`、`pass-project-definition-value-to-run` 和 `drive-run-from-project-definition-value`；
 - `execute-project-functions-through-task-system-in-caller-runtime` 和 `enable-tool-effects-by-default`；
 - `confirm-built-in-check-value-and-tree-type-names-before-publication`；
 - `publish-unscoped-vibe-check-publicly`、`license-package-under-mit` 和 `bind-external-programs-outside-check-semantics`。
@@ -39,14 +39,14 @@ Changes 虽已完成任务但尚未归档，因此本 Design 描述的是 downst
 | **配置定义函数** | Package 公开的 authoring helper；返回 plain Project Definition |
 | **Package Run** | Package 公开的执行函数；接收 `(Project Definition, Run Controls)` |
 | **项目 Run** | 使用项目的运行脚本导出的已绑定入口；不属于 package export |
-| **built-in descriptor** | 可直接放入 Project Definition Check tree 的 frozen non-callable package value；它带 value-owned `.replace()` / `.append()` authoring conveniences，但自身不是 callable operation。 |
-| **current public-contract source** | `src/product/**` 中 public/package current values 的唯一 owner |
+| **BuiltInCheck** | 目标 package 将投影的 non-callable value：可直接放入 Project Definition Check tree，包含公开 metadata、typed options 与可选叶子排程字段，可由顶层 `replace` / `append` 调整。 |
+| **current public-contract source** | `src/product/**` 中 definition-facing current contract 与 target package projection 的唯一 owner |
 | **candidate** | 已 build、pack、verify 但未因此自动发布的 package artifact |
 | **exact-tarball consumer** | 只获得目标 tarball、declared dependencies 和明确系统前提的临时 Bun project |
 
-代码示例中的 `defineConfig`、`run` 和文件路径只说明角色与调用关系。Exact callable symbols、three
-built-in descriptor values、其 `.replace()` / `.append()` member names 与必要 types 由 current public-contract
-source 确认；项目文件路径始终由使用项目拥有。
+代码示例中的 `defineConfig`、`run`、`replace`、`append` 和文件路径只说明角色与调用关系。四个
+callable symbols、三个 built-in Check values、`BuiltInCheck` 与必要 types 由 current public-contract source
+确认；项目文件路径始终由使用项目拥有。
 
 ### Package Consumer Path
 
@@ -68,7 +68,7 @@ Package projection 必须保持这条调用链。它不能把项目 Run 误作�
 
 ### Goals
 
-- 用一个 package version 交付匹配的 Bun runtime、两个 callable exports 和 public declarations。
+- 用一个 package version 交付匹配的 Bun runtime、四个 callable exports 和 public declarations。
 - 为普通 installed consumer 提供完整 default host、effects、dependency diagnostics 和 structured result。
 - 让 public artifacts 从唯一 current public-contract source 生成或单向核对。
 - 用 exact tarball 证明项目配置文件、项目运行脚本和 separate caller 的真实使用路径。
@@ -89,24 +89,27 @@ Package projection 必须保持这条调用链。它不能把项目 Run 误作�
 
 实施顺序固定为：
 
-1. `adopt-typescript-project-definition` 建立并验证 current public-contract source、Project Definition、Product 运行内核、Task/dependency semantics、operational snapshot、canonical two-file usage 和 JSON hard cut；`adopt-composable-check-tree` 随后建立 built-in descriptor values/options 与 Check tree；`support-check-scoped-concurrency` 再建立 Check-scoped active caps、reservation/drain 与 shared scheduler handoff。三个 Change 都完成并归档。
+1. `adopt-typescript-project-definition` 建立并验证 current public-contract source、Project Definition、Product 运行内核、Task/dependency semantics、operational snapshot、canonical two-file usage 和 JSON hard cut；`adopt-composable-check-tree` 随后建立 built-in Check values/options 与 Check tree；`support-check-scoped-concurrency` 再建立 Check-scoped active caps、reservation/drain 与 shared scheduler handoff。三个 Change 都完成并归档。
 2. 本 Change 执行 Readiness `0.15`、`0.16`，重新核对 owner 与 artifacts，运行 `plan` 刷新 baseline。
 3. 本 Change 从 `1.1` 开始连续实施 package projection、host、artifacts、acceptance 和 CLI hard cut。
 
 本 Change 不与前置 Change 交替修改同一 contract，也不在依赖未满足时创建 provisional public API。
 
-### 2. Public Runtime Surface Has Exactly Two Callable Exports
+### 2. Public Runtime Surface Has Four Callable Exports
 
 Package 公开：
 
-1. 配置定义函数；
-2. Package Run；
-3. frozen non-callable `duplicateDetection`、`fileMetrics`、`functionMetrics` values；
-4. 上述 authoring/run 所需的 Project Definition、Check tree、Run Controls 和 result types。
+1. `defineConfig` 配置定义函数；
+2. `run` Package Run；
+3. `replace` 内置 Check replacement helper；
+4. `append` 内置 Check append helper；
+5. non-callable `duplicateDetection`、`fileMetrics`、`functionMetrics` values；
+6. `BuiltInCheck` 与上述 authoring/run 所需的 Project Definition、Check tree、Run Controls 和 result types。
 
-只有前两项是 runtime callable operations。三个 built-in values 直接进入 Check tree，但不是 runner、builder
-或 registry operation。Package Run 接收一个 Project Definition 和 closed Run Controls；项目 Run 是使用项目的
-wrapper，不是第三个 package export。
+前四项是 runtime callable functions，且责任不同：`defineConfig` 只构造值，`run` 是唯一执行 Product
+工作的 function，`replace` / `append` 只返回新的内置 Check 数据。三个 built-in values 直接进入 Check
+tree，但不是 runner、builder 或 registry operation。Package Run 接收一个 Project Definition 和 closed Run
+Controls；项目 Run 是使用项目的 wrapper，不是额外 package export。
 
 Public surface 不包含 Product `init`、resource/bootstrap、Core、manager、scanner adapter、scheduler、Task、worker/process entry、IPC、registry、class 或 convenience factory。Manifest 不包含 `bin` 或 undeclared subpath export。
 
@@ -116,13 +119,13 @@ Installed project 采用以下关系：
 
 ```ts
 // project-definition.ts
-import { defineConfig, fileMetrics } from "vibe-check";
+import { defineConfig, fileMetrics, replace } from "vibe-check";
 
 export default defineConfig({
   checks: [{
     id: "source",
     maxParallel: 2,
-    checks: [fileMetrics.replace({ maxParallel: 1 })]
+    checks: [replace(fileMetrics, { maxParallel: 1 })]
   }],
   scheduler: { maxParallel: 4 }
 });
@@ -155,7 +158,7 @@ Public Package Run 调用前置 Change 交付的 Product 运行内核。它保�
 
 - definition/control validation；
 - custom runner 与 `TaskPlan` factory invocation；
-- Check-tree leaf selection、descriptor options、Task dependency、bounded parallelism、Check-scoped active
+- Check-tree leaf selection、built-in Check options、Task dependency、bounded parallelism、Check-scoped active
   caps/reservation/drain 与 named resource coordination；
 - operational dependency resolution；
 - cooperative cancellation；
@@ -179,8 +182,8 @@ Concurrent invocation、failure 和 cancellation 必须同时反映在 structure
 
 ### 7. One Current Source Drives Every Public Artifact
 
-前置 Changes 建立 current public-contract source，并拥有 definition-facing names、built-in descriptor values/
-types/options、`.replace()` / `.append()` member names、defaults、environment identifiers 和 dependency identifiers。
+前置 Changes 建立 current public-contract source，并拥有 definition-facing names、四个 function exports、
+built-in Check values/types/options、defaults、environment identifiers 和 dependency identifiers。
 本 Change在同一 source 中补充有实现或 evidence 支持的：
 
 - unscoped package name `vibe-check`；
@@ -208,17 +211,17 @@ Acceptance 按顺序执行：
 4. 创建项目配置文件并使用配置定义函数。
 5. 创建项目运行脚本，将该 Project Definition 绑定到 Package Run。
 6. 从 separate caller 只导入项目 Run 并传入项目允许的 controls。
-7. 直接导入三个 built-in values，验证 descriptor `.replace()` / `.append()`、mixed Check tree、leaf/group cap override、
+7. 直接导入三个 built-in values、`replace`、`append` 与 `BuiltInCheck`，验证 `append(replace(...), additions)`、mixed Check tree、leaf/group cap override、
    active-cap min、reservation/drain、representative `TaskPlan` scheduling、default effects、complete result、
    failures、cancellation 和 concurrent invocation。
-8. 审计 runtime exports、declarations、manifest、filesystem access 和 dependency resolution，确认只有两个
-   callable exports，三个 descriptor values 和必要 types。
+8. 审计 runtime exports、declarations、manifest、filesystem access 和 dependency resolution，确认恰好四个
+   callable exports、三个 non-callable built-in Check values、`BuiltInCheck` 和必要 types。
 
 Acceptance 必须使用将要交付的同一个 tarball，不能用 workspace source、symlink、repository scripts 或 devDependencies 替代。
 
 ### 10. Product CLI Is Removed Only After Replacement Acceptance
 
-当两个 public operations、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli/index.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和保留的 migration argv/help/exit diagnostic contract。
+当四个 public functions、Bun host、dependency closure、semantic tests 和 exact-tarball acceptance 同时通过后，原子删除 `src/product/cli/index.ts`、`src/product/args.ts`、CLI-only support/tests、`product:cli` script 和保留的 migration argv/help/exit diagnostic contract。
 
 只证明 argv、help、exit 和 console mapping 的 Cases 随 Product surface 退役。Configuration、gate、scan completeness、Task scheduling 和 output evidence 迁移到 package API、项目运行脚本或 exact-tarball acceptance。Repository command 留在 `scripts/**`，作为调用项目 Run 的 adapter；不保留 deprecated forwarding、argv shim 或 dual Product entry。
 
@@ -233,7 +236,7 @@ Build、pack 和 verify 不证明 registry identity、名称控制或发布成�
 | Area | 必须闭合的证据 |
 | --- | --- |
 | Upstream handoff | 三个前置 Changes 已归档；source、run kernel、tree/options、Check-scoped cap、Task/dependency、operational 和 usage contracts 有 owner docs 与目标 tests |
-| Public API | 两个 callable exports、三个 non-callable built-in values、其 `.replace()` / `.append()` member names 与必要 types来自 current public-contract source；exact export inventory 通过 |
+| Public API | 四个 callable exports、三个 non-callable built-in Check values、`BuiltInCheck` 与必要 types 来自 current public-contract source；exact export inventory 通过 |
 | Bun host | Filesystem、Git、environment、subprocess、cache、reporter、output 和 dependency diagnostics 在 installed consumer 中可用 |
 | Artifacts | Runtime、declarations、manifest、MIT materials、inventory、provenance 和 digest 可重复生成 |
 | Consumer usage | Exact-tarball project 的配置文件与运行脚本可用；separate caller 只调用项目 Run |
@@ -245,13 +248,13 @@ Build、pack 和 verify 不证明 registry identity、名称控制或发布成�
 #### Gate A — Upstream Handoff
 
 - `adopt-typescript-project-definition`、`adopt-composable-check-tree` 与 `support-check-scoped-concurrency` 已完成并归档，稳定 owners 已同步。
-- Current-contract fields、Project Definition validator、Product 运行内核、descriptor/tree/options、Check-scoped cap/admission-drain、Task/dependency semantics、operational snapshot、JSON hard cut 和两文件 usage 有目标测试。
+- Current-contract fields、Project Definition validator、Product 运行内核、built-in Check/tree/options、Check-scoped cap/admission-drain、Task/dependency semantics、operational snapshot、JSON hard cut 和两文件 usage 有目标测试。
 - 完成 Readiness `0.15`、`0.16` 并运行 `plan` 刷新 baseline 后，才能开始 `1.1`。
 
 #### Gate B — CLI Hard Cut
 
-- 两个 public operations、closed result、Bun host、dependency mix、MIT materials 和 deterministic staging 已形成 installable replacement。
-- Exact-tarball project + separate caller 已证明调用链、descriptor/tree/options、Check-scoped cap、project functions、Task execution、effects、results 和 representative failures。
+- 四个 public functions、closed result、Bun host、dependency mix、MIT materials 和 deterministic staging 已形成 installable replacement。
+- Exact-tarball project + separate caller 已证明调用链、built-in Check/tree/options、helper composition、Check-scoped cap、project functions、Task execution、effects、results 和 representative failures。
 - Gate B 满足后才能删除 retained Product CLI migration diagnostic。
 
 ## Risks / Trade-offs

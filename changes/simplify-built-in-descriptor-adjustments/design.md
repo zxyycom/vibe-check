@@ -1,6 +1,6 @@
 # Design
 
-本 Design 定义目标数据模型、辅助函数、校验责任和 owner 迁移顺序，使实现者能在不恢复特殊 descriptor carrier 的前提下完成 proposal。
+本 Design 记录已实施的普通 `BuiltInCheck` 数据模型、辅助函数、校验边界和 owner 迁移顺序。它保留 proposal 的实现依据；已完成的验证证据见 tasks。
 
 ## Context
 
@@ -10,15 +10,14 @@
 
 | 内容 | 当前状态 | 本 Change 的处理 |
 | --- | --- | --- |
-| 当前 source、current contract 与下游 Plan | 内置值仍带 `.replace/.append` methods；`adjustments.ts` 仍使用 WeakMap、dynamic receiver 和 descriptor materialization；current contract 把 `replace` / `append` 记录为 descriptor methods；下游 package Plan 仍要求 exactly two callable exports。 | 这是 implementation migration 起点；不能把新的 active directions 描述成已经落地。 |
-| active Configuration direction | `docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 是 `active + unaligned`，拥有普通内置 Check、`replace` / `append` 字段语义与 non-mutation boundary。 | implementation 按该方向替换 value-owned methods；完整落地前保持 unaligned。 |
-| active Product Contract directions | `docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 与 `docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 均为 `active + unaligned`。 | implementation 同步四个 function exports、三个 values、`BuiltInCheck`、declarations 与 acceptance 后再核对 alignment。 |
-| 相邻 decision audit | `use-composable-check-tree-in-project-definition` 的 tree contract 与新方向兼容；其 descriptor 用词已编辑为普通内置 Check value。`keep-built-in-options-owned-and-tool-neutral` 已是 archived predecessor。 | 不建立无语义变化的额外后继，也不改写 archived history。 |
+| 当前 source、current contract 与下游 Plan | 内置值已经是普通 `BuiltInCheck` 数据；顶层 `replace` / `append`、统一定义表、closed-record parser 与 private runtime lookup 已落地；current contract、Configuration、Architecture、repository dogfood 和下游 package Plan 已同步四个 functions、三个 values 与 `BuiltInCheck`。 | 这是本 Change 已验证的当前事实；下游 package 仍按自己的 Plan 交付真实 runtime entry、declarations 与 exact-tarball acceptance。 |
+| active Configuration direction | `docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 已是 `active + aligned`，拥有普通内置 Check、`replace` / `append` 字段语义与 non-mutation boundary。 | source、tests、Case 与稳定 docs 已完整兑现该方向。 |
+| active Product Contract directions | `docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 与 `docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 仍为 `active + unaligned`。 | current source、contract 和下游 Plan 已采用这些方向；真实 package entry、declarations 与 exact-tarball acceptance 尚由下游 Change 实施，因此本 Change 不提前标记 aligned。 |
 | package availability | repository root 仍是 private workspace，尚无已发布的 installable package。 | 对 current-source API 采用 hard cut，不建立 methods 与 functions 并存的 compatibility layer。 |
 
-`defineConfig` 只构造 Project Definition value。辅助函数只校验当前调用所需的内置 Check 和 patch。完整 Check tree 的权威运行时校验发生在 normalization / Package Run pre-work，并且必须早于 project functions、dependency preparation、effects 和 scanner work。
+`defineConfig` 只构造 Project Definition value。辅助函数只校验当前调用所需的内置 Check 和 patch。declarative normalization 验证完整 Check tree；Package Run pre-work 随后按已选 `checkId` 构造 private runtime binding。两者都必须早于 project functions、dependency preparation、effects 和 scanner work。
 
-当前 semantic Case `WB-PROJECT-DEFINITION-001` 覆盖 adjustment、closed Project Definition、Package Run pre-work、public contract 与 fingerprint。实施时保留这些语义证据，把 method、enumerability 和 issuance assertions 改为 standalone helper、普通结构数据与 non-mutation assertions。
+当前 semantic Case `WB-PROJECT-DEFINITION-001` 覆盖 standalone adjustment、closed Project Definition、Package Run pre-work、public contract 与 fingerprint；原 method、enumerability 和 issuance assertions 已替换为普通结构数据、closed-record safety 与 non-mutation assertions。
 
 ### Terminology
 
@@ -28,14 +27,14 @@
 | Built-in Check / 内置 Check | Product 预先构造的 `BuiltInCheck` 数据 variant。它包含 recognized `kind` / `checkId`、canonical public metadata、完整 typed options 和可选叶子排程字段。 |
 | 普通闭合记录 | prototype 为 `Object.prototype` 或 `null`，只含允许的 string-keyed enumerable data properties，不含 accessors、symbol keys 或额外字段的普通记录。其合法性不依赖 Product-specific prototype、object identity、private brand、methods 或 frozen state。 |
 | 配置辅助函数 | 顶层 pure function `replace` 或 `append`。它解析一个受支持的内置 Check 和本次操作输入，返回新的普通内置 Check 数据，不修改或认证输入。 |
-| 内置定义表 | Product-owned、按稳定 `checkId` 封闭的 metadata、default options、options parser、replacement policy 与 private execution binding mapping。它是内置 variants 的事实源，不是可变 registry 或 object-provenance store。 |
-| 完整校验边界 | Check tree normalization / Package Run pre-work 对整个 Project Definition 执行的权威 runtime acceptance。辅助函数成功不替代该校验。 |
+| 内置数据 owner | `built-in-data-model.ts` 拥有普通 `BuiltInCheck` 判别联合与 `checkId` 到 options/replacement 的类型关联；`built-ins.ts` 拥有唯一 metadata/defaults 表、closed parser 与构造路由。逐 Check replacement algorithms 位于相邻独立模块；这些边界不形成可变 registry 或 object-provenance store。 |
+| 完整校验与 runtime 边界 | Check tree normalization 对完整 declarative Project Definition 执行公开数据 acceptance；Package Run pre-work 按已选 `checkId` 从 `run/built-ins.ts` 查找并构造 private runtime binding。辅助函数成功不替代任一边界。 |
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 让内置 Check 与自定义 Check 共用同一个 Check tree 入口；内置差异只由公开 discriminant 对应的 options policy 和 private binding resolution 承接。
+- 让内置 Check 与自定义 Check 共用同一个 Check tree 入口；内置差异由公开 discriminant 对应的 options policy，以及 Package Run pre-work 的 private binding construction 承接。
 - 让 `replace` 与 `append` 各自表达稳定的字段语义，同时共享内置定义查询、普通记录解析和结果构造。
 - 保持 built-in-specific TypeScript patch inference 和 runtime closed-input behavior，不退化为 generic object merge。
 - 让 decisions、current contract、Configuration、source、tests 和下游 package Plan 使用同一 public surface 分类。
@@ -89,7 +88,7 @@ Check tree parser 按以下顺序工作：
 1. 对输入执行一次 safe plain-record snapshot；非法 prototype、accessor、symbol key、非 enumerable property、额外字段或 snapshot error 均 fail closed。accessor getter 不得被调用；Proxy 抛出的异常按非法输入处理。
 2. 根据公开字段选择 group、built-in 或 custom parser。
 3. built-in parser 根据 `checkId` 查询内置定义表，并校验 canonical metadata、完整 options 和排程字段。
-4. normalization 形成 resolved leaf 时，再从同一个内置定义表取得 private execution binding。
+4. normalization 只形成 declarative resolved leaf；Package Run pre-work 再按已选 `checkId` 从 `run/built-ins.ts` 查找并构造 private execution binding。
 
 parser 不调用 `materializeBuiltInDescriptor`，不查询 object identity，也不从 exported singleton 或 copied metadata 恢复输入。
 
@@ -124,7 +123,8 @@ append<Id extends BuiltInCheckId>(
 | --- | --- | --- |
 | `replace` / `append` call | 输入是 structurally valid supported built-in Check；operation input 是对应 `checkId` 的 closed patch；构造过程不执行 accessor getter。 | 不证明 Check tree 中的 id 唯一性、dependency reference、group inheritance、root cap 或完整 Project Definition 合法。 |
 | `defineConfig` | 只提供 TypeScript 构造入口并返回 Project Definition value。 | 不执行完整 runtime validation，也不为任何 Check 盖章。 |
-| Check tree normalization / Package Run pre-work | 完整 closed Project Definition、所有 node variants、cross-node identity/dependency/cap constraints 和 built-in options。 | 不改变或修复非法输入。 |
+| Check tree normalization | 完整 closed Project Definition、所有 node variants、cross-node identity/dependency/cap constraints，以及 built-in canonical metadata/options。 | 不改变或修复非法输入，也不保存或解析 private execution binding。 |
+| Package Run pre-work | 使用 normalization 已选的 built-in `checkId`，从 `run/built-ins.ts` 查找并构造 private runtime binding。 | 不改变 declarative validation 规则或修复非法输入。 |
 
 helper 可以对非法输入抛出 `TypeError`；具体 message 不属于 public contract。完整 tree validation 仍须在任何 project work 前 fail closed，并保持 zero project-work side effects。
 
@@ -140,8 +140,8 @@ helper 可以对非法输入抛出 `TypeError`；具体 message 不属于 public
 
 ### Implementation-local choices
 
-- 内置定义表的文件拆分、mapped type 与 overload 形式、result constructor，以及 defaults/results 是否 runtime frozen，由最小实现和现有 coding style 决定。
-- 共享 built-in parser 可以位于 `built-ins.ts`、`adjustments.ts` 的后继模块或 check-tree 相邻 owner；只能保留一个 built-in data validation source，避免 helper 与 tree parser 漂移。
+- definition layer 只保留一套 built-in data contract：`built-in-data-model.ts` 表达判别联合，`built-ins.ts` 是唯一 metadata/defaults table、closed parser 与 constructor owner。逐 Check replacement algorithms、overload 形式以及 defaults/results 是否 runtime frozen，由最小实现和编码规范决定。
+- `run/built-ins.ts` 是 runtime factory/lookup owner；公开数据 parser 不与它交换 binding。helper 与 tree parser 只能共用一个 built-in data validation source，避免漂移。
 - error message 文本不进入 current public contract；tests 证明 error category、zero accessor-getter calls、zero project work 和 closed-input behavior。
 
 ## Risks / Trade-offs
@@ -154,4 +154,4 @@ helper 可以对非法输入抛出 `TypeError`；具体 message 不属于 public
 
 ## Open Questions
 
-无。普通内置 Check、standalone `replace` / `append`、built-in-only scope 和 public names 已由三条 `active + unaligned` decisions 拥有；source 与 current contract 尚未实施这些方向。
+无。普通内置 Check、standalone `replace` / `append` 与 built-in-only scope 已成为当前事实；package surface 与 publication naming 的剩余对齐证据明确属于下游 `establish-api-only-npm-product-boundary` Change，不阻塞本 Change 验收。

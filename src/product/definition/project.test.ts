@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
+  append,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  replace,
   createDeclarativeFingerprint,
   defineConfig,
   normalizeProjectDefinition
@@ -41,7 +43,7 @@ describe("Project Definition", () => {
 
   it("accepts direct built-ins and normalizes nested inherited tree scheduling", () => {
     const definition = defineConfig({
-      checks: [customLeaf(), {
+      checks: [customLeaf(), { ...functionMetrics, mutex: "functions" }, {
         id: "analysis",
         dependsOn: "custom-check",
         maxParallel: 2,
@@ -66,40 +68,46 @@ describe("Project Definition", () => {
     assert.deepEqual([...normalized.declarative.checks.selected].sort(), [
       "custom-check",
       "duplicate-detection",
-      "file-metrics"
+      "file-metrics",
+      "function-metrics"
     ]);
     assert.equal(normalized.builtInOptions["file-metrics"]?.codeLines.absoluteFloor, 300);
     assert.deepEqual(normalized.checkMaxParallelById, {
       "custom-check": 4,
       "duplicate-detection": 2,
-      "file-metrics": 1
+      "file-metrics": 1,
+      "function-metrics": 4
     });
     assert.deepEqual(normalized.declarative.checks.maxParallel, [
       { checkId: "custom-check", maxParallel: 4 },
       { checkId: "duplicate-detection", maxParallel: 2 },
-      { checkId: "file-metrics", maxParallel: 1 }
+      { checkId: "file-metrics", maxParallel: 1 },
+      { checkId: "function-metrics", maxParallel: 4 }
     ]);
+    assert.deepEqual(normalized.declarative.checks.mutexes.find(({ checkId }) => checkId === "function-metrics"), {
+      checkId: "function-metrics",
+      mutex: ["functions"]
+    });
   });
 
-  it("provides frozen chainable built-in adjustments without expanding defaults", () => {
-    const adjusted = fileMetrics
-      .replace({ maxParallel: 1, options: { codeLines: { changedDelta: 100 } } })
-      .append({ dependsOn: ["custom-check", "custom-check"], mutex: ["metrics", "metrics"] });
-    const duplicate = duplicateDetection.replace({
+  it("adjusts ordinary built-in data without mutating defaults", () => {
+    const adjusted = append(
+      replace(fileMetrics, { maxParallel: 1, options: { codeLines: { changedDelta: 100 } } }),
+      { dependsOn: ["custom-check", "custom-check"], mutex: ["metrics", "metrics"] }
+    );
+    const duplicate = replace(duplicateDetection, {
       options: { defaultMinimumTokens: 100, minimumTokensByCodeArea: { docs: 150 } }
     });
-    const functions = functionMetrics.replace({ options: { parameterCount: { changedDelta: 7 } } });
+    const functions = replace(functionMetrics, { options: { parameterCount: { changedDelta: 7 } } });
     const normalized = normalizeProjectDefinition(defineConfig({
       checks: [customLeaf(), adjusted, duplicate, functions],
       scheduler: { maxParallel: 2 }
     }));
 
-    assert.equal(Object.isFrozen(duplicateDetection), true);
-    assert.equal(Object.isFrozen(adjusted), true);
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof (duplicateDetection as unknown), "object");
-    assert.equal(Object.prototype.propertyIsEnumerable.call(adjusted, "replace"), true);
-    assert.equal(Object.prototype.propertyIsEnumerable.call(adjusted, "append"), true);
+    assert.equal("replace" in adjusted, false);
+    assert.equal("append" in adjusted, false);
     assert.equal(adjusted.options.codeLines.changedDelta, 100);
     assert.equal(adjusted.options.codeLines.absoluteFloor, 300);
     assert.deepEqual(adjusted.dependsOn, ["custom-check"]);
@@ -123,13 +131,14 @@ describe("Project Definition", () => {
     });
   });
 
-  it("rejects unknown descriptor adjustments without reading accessors or freezing inputs", () => {
+  it("rejects invalid built-in adjustments without reading accessors or freezing inputs", () => {
     const codeAreaThresholds = { docs: 150 };
     const dependencies = ["custom-check"];
     const mutexes = ["metrics"];
-    const adjusted = duplicateDetection
-      .replace({ options: { minimumTokensByCodeArea: codeAreaThresholds } })
-      .append({ dependsOn: dependencies, mutex: mutexes });
+    const adjusted = append(
+      replace(duplicateDetection, { options: { minimumTokensByCodeArea: codeAreaThresholds } }),
+      { dependsOn: dependencies, mutex: mutexes }
+    );
     const outerAccessor: Record<string, unknown> = {};
     const nestedAccessor: Record<string, unknown> = {};
     let reads = 0;
@@ -164,20 +173,25 @@ describe("Project Definition", () => {
     assert.deepEqual(adjusted.options.minimumTokensByCodeArea, { docs: 150 });
     assert.deepEqual(adjusted.dependsOn, ["custom-check"]);
     assert.deepEqual(adjusted.mutex, ["metrics"]);
-    assert.throws(() => duplicateDetection.replace({ unknown: true } as never), TypeError);
-    assert.throws(() => duplicateDetection.replace({
+    assert.throws(() => unsafeReplace(duplicateDetection, { unknown: true }), TypeError);
+    assert.throws(() => unsafeReplace(duplicateDetection, {
       options: { fragments: { unknown: 1 } }
-    } as never), TypeError);
-    assert.throws(() => duplicateDetection.append({ maxParallel: 1 } as never), TypeError);
-    assert.throws(() => duplicateDetection.replace({ dependsOn: "not a check id" } as never), TypeError);
-    assert.throws(() => duplicateDetection.append({ dependsOn: "not a check id" } as never), TypeError);
-    assert.throws(() => duplicateDetection.replace(outerAccessor as never), TypeError);
-    assert.throws(() => duplicateDetection.replace({
+    }), TypeError);
+    assert.throws(() => unsafeAppend(duplicateDetection, { maxParallel: 1 }), TypeError);
+    assert.throws(() => unsafeReplace(duplicateDetection, { dependsOn: "not a check id" }), TypeError);
+    assert.throws(() => unsafeAppend(duplicateDetection, { dependsOn: "not a check id" }), TypeError);
+    assert.throws(() => unsafeReplace(duplicateDetection, outerAccessor), TypeError);
+    assert.throws(() => unsafeReplace(duplicateDetection, {
       options: { fragments: nestedAccessor }
-    } as never), TypeError);
-    assert.throws(() => forgedName.replace({}), TypeError);
-    assert.throws(() => forgedRecordTypes.append({ mutex: "metrics" }), TypeError);
-    assert.throws(() => recordTypesAccessor.replace({}), TypeError);
+    }), TypeError);
+    assert.throws(() => replace(forgedName, {}), TypeError);
+    assert.throws(() => append(forgedRecordTypes, { mutex: "metrics" }), TypeError);
+    assert.throws(() => replace(recordTypesAccessor, {}), TypeError);
+    assert.throws(() => replace(new Proxy(duplicateDetection, {
+      ownKeys: () => {
+        throw new Error("proxy trap");
+      }
+    }), {}), TypeError);
     assert.equal(reads, 0);
   });
 
@@ -317,16 +331,21 @@ describe("Project Definition", () => {
       assert.equal(reads, 0);
     }
     {
-      const unregisteredDescriptor = { ...fileMetrics };
-      Object.defineProperty(unregisteredDescriptor, "replace", {
-        enumerable: false,
-        value: () => fileMetrics
-      });
+      const plainCopy = { ...fileMetrics };
+      assert.equal(Object.isFrozen(plainCopy), false);
+      assert.equal(validateProjectDefinition({ ...definition, checks: [plainCopy] }).ok, true);
+    }
+    {
+      const symbolKey = { ...fileMetrics };
+      const hiddenKey = { ...fileMetrics };
+      const invalidPrototype = { ...fileMetrics };
+      Object.setPrototypeOf(invalidPrototype, {});
+      Object.defineProperty(symbolKey, Symbol("not-public"), { enumerable: true, value: true });
+      Object.defineProperty(hiddenKey, "not-public", { enumerable: false, value: true });
 
-      assert.deepEqual(validateProjectDefinition({ ...definition, checks: [unregisteredDescriptor] }), {
-        ok: false,
-        error: { kind: "invalid-project-definition", path: "definition.checks", reason: "invalid-value" }
-      });
+      assert.equal(validateProjectDefinition({ ...definition, checks: [symbolKey] }).ok, false);
+      assert.equal(validateProjectDefinition({ ...definition, checks: [hiddenKey] }).ok, false);
+      assert.equal(validateProjectDefinition({ ...definition, checks: [invalidPrototype] }).ok, false);
     }
   });
 
@@ -367,14 +386,14 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(reordered).declarative)
     );
 
-    const descriptorAdjusted = defineConfig({
-      checks: [fileMetrics.replace({ options: { codeLines: { absoluteFloor: 123 } } })]
+    const adjustedDefinition = defineConfig({
+      checks: [replace(fileMetrics, { options: { codeLines: { absoluteFloor: 123 } } })]
     });
     const spreadAdjusted = defineConfig({
-      checks: [{ ...fileMetrics }.replace({ options: { codeLines: { absoluteFloor: 123 } } })]
+      checks: [replace({ ...fileMetrics }, { options: { codeLines: { absoluteFloor: 123 } } })]
     });
     assert.equal(
-      createDeclarativeFingerprint(normalizeProjectDefinition(descriptorAdjusted).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(adjustedDefinition).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(spreadAdjusted).declarative)
     );
   });
@@ -383,11 +402,29 @@ describe("Project Definition", () => {
   defineConfig({ unsupported: true });
 });
 
+function unsafeReplace(check: unknown, replacement: unknown): unknown {
+  return Reflect.apply(replace, undefined, [check, replacement]);
+}
+
+function unsafeAppend(check: unknown, additions: unknown): unknown {
+  return Reflect.apply(append, undefined, [check, additions]);
+}
+
 function _typeCheckBuiltInAdjustments() {
-  // @ts-expect-error a descriptor replacement cannot introduce unknown public options.
-  duplicateDetection.replace({ options: { unsupported: true } });
+  const _duplicate: typeof duplicateDetection = replace(duplicateDetection, {
+    options: { fragments: { changedDelta: 2 } }
+  });
+  const _file: typeof fileMetrics = replace(fileMetrics, {
+    options: { codeLines: { absoluteFloor: 123 } }
+  });
+  const _functions: typeof functionMetrics = replace(functionMetrics, {
+    options: { cyclomaticComplexity: { changedDelta: 4 } }
+  });
+
+  // @ts-expect-error a built-in replacement cannot introduce unknown public options.
+  replace(duplicateDetection, { options: { unsupported: true } });
   // @ts-expect-error append is only for collection scheduling fields.
-  duplicateDetection.append({ maxParallel: 1 });
+  append(duplicateDetection, { maxParallel: 1 });
 }
 
 function policy(status: "completed" | "failed") {

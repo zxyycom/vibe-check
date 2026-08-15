@@ -5,7 +5,8 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  replace
 } from "../../src/product/definition/project.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -15,7 +16,7 @@ export default defineConfig({
   checks: [{
     id: "repository-quality",
     maxParallel: 2,
-    checks: [duplicateDetection.replace({
+    checks: [replace(duplicateDetection, {
       options: {
         defaultMinimumTokens: 100,
         fragments: { changedDelta: 0 },
@@ -27,7 +28,7 @@ export default defineConfig({
           "script-tooling": 75
         }
       }
-    }), fileMetrics.replace({
+    }), replace(fileMetrics, {
       maxParallel: 1,
       options: { codeLines: { changedDelta: 100 } }
     }), functionMetrics]

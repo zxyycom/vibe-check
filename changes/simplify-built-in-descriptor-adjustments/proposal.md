@@ -6,9 +6,9 @@
 
 项目作者应能直接导入 Product 提供的内置 Check，把它与自定义 Check 一样放入 Project Definition 的 Check tree，并只调整该内置 Check 允许配置的 options 或叶子排程字段。
 
-当前实现把调整能力放在对象自身的 `.replace()` / `.append()` methods 上，并为复制后的对象维护私有签发身份、receiver 恢复和 materialization。该实现把“由 Product 预先提供默认值”误建模为“必须由 Product 签发的特殊对象”，使普通数据复制、公开 API、校验路径和下游 package surface 都承担了不必要的特殊规则。
+本 Change 实施前，调整能力位于对象自身的 `.replace()` / `.append()` methods，并为复制后的对象维护私有签发身份、receiver 恢复和 materialization。该实现把“由 Product 预先提供默认值”误建模为“必须由 Product 签发的特殊对象”，使普通数据复制、公开 API、校验路径和下游 package surface 都承担了不必要的特殊规则。
 
-本 Change 保留真正需要的产品能力：Product 拥有内置 Check 的 identity、metadata、默认 options、字段调整语义和私有执行绑定；项目作者通过普通数据与独立辅助函数完成配置；Package Run 在开始任何项目工作前校验完整 Check tree。
+本 Change 保留真正需要的产品能力：Product 拥有内置 Check 的 `checkId`、metadata、默认 options 与字段调整语义；项目作者通过普通数据与独立辅助函数完成配置；Package Run pre-work 在开始任何项目工作前校验完整 Check tree，并按已选 `checkId` 构造私有 runtime binding。
 
 ## Outcome
 
@@ -42,7 +42,7 @@
 - `replace` / `append` 对三个内置 Check 都保持精确的 TypeScript patch inference、字段语义和确定性结果；`append(replace(fileMetrics, patch), additions)` 是受支持的普通函数组合。
 - 两个辅助函数不修改输入、嵌套默认值或 module-shared defaults。实现可以 freeze 值，但 tests 和调用方不得把 freeze 作为合法性或兼容性条件。
 - `replace` 拒绝 owner 未声明的字段和非法值；`append` 当前只接受叶子自有的 `dependsOn` 与 `mutex`，并按首次出现顺序去重。
-- Check tree parser 直接解析普通闭合记录；recognized built-in 以 `checkId` 选择 options validator 和私有执行绑定，并在任何 project function、dependency preparation、cache、scanner、reporter 或 output work 前拒绝非法 tree。
+- Check tree parser 直接解析普通闭合记录；declarative normalization 只按 `checkId` 验证 canonical metadata/options。Package Run pre-work 再按已选 `checkId` 构造私有 runtime binding，并在任何 project function、dependency preparation、cache、scanner、reporter 或 output work 前拒绝非法 tree。
 - 当前 source、tests 和非历史 docs 不再把 value-owned `.replace/.append`、签发身份、materialization、dynamic receiver 或 copy recovery 描述为受支持行为。
 - public surface 一致表达四个顶层 functions 的不同责任：`defineConfig` 构造 Project Definition，`run` 执行 Product Run，`replace` / `append` 调整内置 Check；另有三个普通 non-callable 内置 Check values，公开数据类型名为 `BuiltInCheck`。
 - 目标 tests、Case evidence、decision validation、docs validation、typecheck、lint 和 workspace required verification 全部通过。

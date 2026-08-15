@@ -54,12 +54,13 @@ protocol 或 custom-result cache。
 
 - Public catalog 只含 Check/record metadata；bindings、TaskPlan、Task value、ports、scheduler state 和
   executable 不进入 public data。
-- Project Definition 直接组合 frozen built-in descriptor 和 custom leaves。leaf presence 表示选择；tree
+- Project Definition 直接组合普通 `BuiltInCheck` 数据和 custom leaves。leaf presence 表示选择；tree
   array order 不表达执行顺序。group/leaf 的 `dependsOn` 与 `mutex` 向下追加、去重；只有前者表达
   Check prerequisite，后者表达 named resource。
-- Built-in descriptor values own immutable `.replace()` / `.append()` authoring conveniences. Product
-  materializes only its own descriptors back to closed data before tree validation, so these methods do
-  not enter fingerprints, Core, bindings, scheduling state, or output.
+- 三个 Product-provided built-in values 与 `replace` / `append` 返回值使用同一组闭合公开字段和 `checkId`
+  对应的 canonical metadata/options。declarative normalization 只验证并保留这些公开数据；Package Run pre-work
+  再按已选 `checkId` 查找并构造 private execution binding。该 binding 不进入 fingerprints、Core、scheduling state
+  或 output。
 - `requiresChecks` 在 execution 前闭合 Check dependency。合法 `passed`、quality `failed` 和
   `not-applicable` 可满足 prerequisite；execution/result/record/ack failure 会阻断 dependent user work。
 - Shared scheduler 使用一个 root `SchedulerPolicy.maxParallel`，同时管理 direct work、Task leaves 和

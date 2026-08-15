@@ -5,7 +5,9 @@
 首个 package 只支持 Bun，runtime callable exports 恰好是：
 
 1. **配置定义函数**：帮助项目作者形成 typed Project Definition；
-2. **Package Run**：接收 `(Project Definition, Run Controls)` 并执行 Vibe Check。
+2. **Package Run**：接收 `(Project Definition, Run Controls)` 并执行 Vibe Check；
+3. **Built-in Check replacement**：以 `replace` 产生带替换 options 的 `BuiltInCheck`；
+4. **Built-in Check append**：以 `append` 产生带追加 options 的 `BuiltInCheck`。
 
 使用项目自行维护项目配置文件和项目运行脚本。项目运行脚本把 Project Definition 绑定到 Package Run，并导出“项目 Run”；其他调用方只调用项目 Run，不需要再次导入或传入配置。
 
@@ -26,7 +28,7 @@ manifest，也没有 installed-consumer package entry。这些事实不能证明
 依赖闭合的 package。
 
 前置 Changes 已负责 Project Definition authoring/validation、Package Run 的 Product 运行内核、项目函数
-调用、composable Check tree、built-in descriptor options、Check-scoped concurrency、Task 调度、operational
+调用、composable Check tree、built-in Check options、Check-scoped concurrency、Task 调度、operational
 dependency snapshot、JSON hard cut 和两文件使用模式。本 Change 不重新设计这些语义，只负责：
 
 - 公开正确且最小的 package surface；
@@ -43,8 +45,8 @@ Repository root 保持 `private: true`。受控 build 从 Product source 和 cur
 
 Candidate package 具有以下边界：
 
-- public runtime callable exports 只有配置定义函数和 Package Run；另导出三个 non-callable built-in
-  descriptor values 与必要 public types；
+- public runtime callable exports 是 `defineConfig`、`run`、`replace` 与 `append`；另导出三个 non-callable
+  built-in Check values、`BuiltInCheck` 与必要 public types；
 - manifest 不含 `bin`，也不公开 Product `init`、resource/bootstrap、Core、manager、scheduler、Task、worker 或 IPC surface；
 - Package Run 直接消费前置 Change 的运行内核，不插入配置 discovery、module loader、函数序列化或 whole-invocation worker；
 - Bun default host 提供 filesystem、Git、environment、subprocess、cache、reporter 和 output 能力；
@@ -61,7 +63,7 @@ Candidate package 具有以下边界：
 - 验证并消费前置 Changes 交付的 Product 运行内核、current-contract fields、composable Check tree、
   Check-scoped concurrency 与 canonical usage；
 - 在同一 current public-contract source 中补全 package/release fields、license、candidate version inputs、support matrix、system prerequisites 和 consumer map；
-- 建立两个 public callable exports、三个 non-callable built-in descriptor values、必要 types、Bun default
+- 建立四个 public callable exports、三个 non-callable built-in Check values、`BuiltInCheck` 与必要 types、Bun default
   host 和 structured result projection；
 - 闭合 package-owned 或 configured-external scanner dependencies；
 - 从 authoritative sources 生成 runtime、declarations、candidate manifest、MIT materials、inventory、provenance 和 digest；
@@ -83,8 +85,9 @@ Candidate package 具有以下边界：
 - 三个前置 Changes 已完成并归档；本 Change 只消费其 owner docs、current-contract fields、Product
   运行内核、Check tree/cap semantics 和目标测试，不建立竞争 owner。
 - AI 或工程实现者能从 Design 区分配置定义函数、Package Run 和项目 Run，并恢复完整调用方向。
-- Public runtime callable export inventory 恰好包含配置定义函数和 Package Run；`duplicateDetection`、
-  `fileMetrics`、`functionMetrics` 是额外的 frozen non-callable values，必要 types 不形成额外 operation。
+- Public runtime callable export inventory 恰好包含 `defineConfig`、`run`、`replace` 与 `append`；
+  `duplicateDetection`、`fileMetrics`、`functionMetrics` 是额外的 non-callable values，`BuiltInCheck` 与必要
+  types 不形成额外 operation。
 - Installed project 可以自行创建配置文件与运行脚本；独立 caller 只传项目允许的 controls 并获得完整 result。
 - Package Run 保持上游的同-runtime 项目函数调用与 Task 系统语义，不宣称 whole-invocation isolation。
 - Public symbols、default paths、environment identifiers、dependency identifiers 和 package/release values 各有唯一 current owner；项目文件路径不进入 package contract。
@@ -97,7 +100,7 @@ Candidate package 具有以下边界：
 ## Affected Owners
 
 - `adopt-typescript-project-definition`：Project Definition、Package Run 内核、项目函数、Task/dependency 和 canonical 两文件模式的前置 owner。
-- `adopt-composable-check-tree`：built-in descriptor values/options、Check tree、leaf selection、group
+- `adopt-composable-check-tree`：built-in Check values/options、Check tree、leaf selection、group
   flattening 与 flat catalog/private binding handoff 的前置 owner。
 - `support-check-scoped-concurrency`：Check `maxParallel` inheritance、active-cap admission/drain 与 single
   shared scheduler handoff 的前置 owner。

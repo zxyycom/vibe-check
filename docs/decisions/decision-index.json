@@ -52,7 +52,7 @@
       "configuration/use-semantic-check-ids-in-project-config.md": "sha256:2b89578ce595fbdc346f9fc63fab9babaeadd5581d623661f2fe0616b7097e25",
       "configuration/use-semantic-check-ids-in-quality-records.md": "sha256:dc98b971264efa095f938dc8804105f6c4f6b3cebe0529e969f2db4dc06fc6fa",
       "configuration/use-single-typescript-project-definition.md": "sha256:53463a9e141e76bdaac10a86c76ac9ee0178c590a615b9a5645e9cd60c859537",
-      "configuration/use-standalone-built-in-check-adjustment-functions.md": "sha256:0f7633d115ae1b8ffe6080ea9263c8dcd593a4e63d584f316b4943b3fad3b0e9",
+      "configuration/use-standalone-built-in-check-adjustment-functions.md": "sha256:23bf51086cb4d5bf7609dba7a44b0abab703288cc20775d62f50c5786d2c8cd1",
       "configuration/use-user-owned-definition-for-observation-and-gates.md": "sha256:7802cc82af817dbf6a4bbbd2051b01066bc16211ee6bb0e1b4aa02774d8e2641",
       "product-contract/approve-public-names-before-publication.md": "sha256:28a4aca786a464c6289250360c806d8572b762f6b5bdd0f34f562394e8ea32f0",
       "product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:e15ee8f4161e3ec2770019cf8c11aac6511c2040b1675b16da4656a1aa3efae1",
@@ -752,14 +752,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "configuration/use-standalone-built-in-check-adjustment-functions.md",
         "title": "使用独立函数调整普通内置 Check 数据",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-15T06:16:05Z",
         "purpose": "让项目从普通内置 Check 默认值出发，以字段感知函数覆写或追加所需配置。",
         "background": "对象方法把 Product 提供默认值误塑成特殊 carrier，且扩大了复制、校验和公开 API 责任。",

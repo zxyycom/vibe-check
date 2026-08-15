@@ -1,16 +1,15 @@
 import { createHash } from "node:crypto";
 
 import {
-  BUILT_IN_CHECKS,
-  builtInDefinition,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  type BuiltInCheckDescriptor,
+  type BuiltInCheck,
   type BuiltInCheckId,
   type BuiltInCheckOptions,
   type BuiltInCheckOptionsById
 } from "./built-ins.ts";
+import { append, replace } from "./adjustments.ts";
 import {
   resolveCheckTree,
   type CheckApplicabilityBinding,
@@ -36,10 +35,12 @@ import {
 } from "./quality.ts";
 
 export {
+  append,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  type BuiltInCheckDescriptor,
+  replace,
+  type BuiltInCheck,
   type CheckApplicabilityBinding,
   type CheckGroup,
   type CheckNode,
@@ -47,14 +48,6 @@ export {
   type CustomCheck,
   type CustomCheckBinding
 };
-
-/** Internal canonical definitions used to prepare Product-owned built-in runtime bindings. */
-export const BUILT_IN_CHECK_DEFINITIONS = Object.freeze(Object.fromEntries(
-  Object.values(BUILT_IN_CHECKS).map((descriptor) => [
-    descriptor.checkId,
-    builtInDefinition(descriptor.checkId)
-  ])
-) as Record<BuiltInCheckId, CheckDefinition>);
 
 export type { BuiltInCheckId };
 
@@ -223,12 +216,13 @@ function normalizeResolvedTree(
   ))));
   const builtInOptions: { -readonly [Id in keyof BuiltInCheckOptionsById]?: BuiltInCheckOptionsById[Id] } = {};
   for (const leaf of tree.leaves) {
-    if (leaf.builtIn === "duplicate-detection" && leaf.options !== null) {
-      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["duplicate-detection"];
-    } else if (leaf.builtIn === "file-metrics" && leaf.options !== null) {
-      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["file-metrics"];
-    } else if (leaf.builtIn === "function-metrics" && leaf.options !== null) {
-      builtInOptions[leaf.builtIn] = leaf.options as BuiltInCheckOptionsById["function-metrics"];
+    const builtIn = leaf.builtIn;
+    if (builtIn?.checkId === "duplicate-detection") {
+      builtInOptions[builtIn.checkId] = builtIn.options;
+    } else if (builtIn?.checkId === "file-metrics") {
+      builtInOptions[builtIn.checkId] = builtIn.options;
+    } else if (builtIn?.checkId === "function-metrics") {
+      builtInOptions[builtIn.checkId] = builtIn.options;
     }
   }
   return Object.freeze({
@@ -262,9 +256,9 @@ function freezeDeclarativeSnapshot(
         checkId: leaf.definition.checkId,
         mutex: [...leaf.mutex].sort()
       })),
-      options: leaves.flatMap((leaf) => leaf.builtIn === null || leaf.options === null
+      options: leaves.flatMap((leaf) => leaf.builtIn === null
         ? []
-        : [{ checkId: leaf.builtIn, options: leaf.options }]),
+        : [{ checkId: leaf.builtIn.checkId, options: leaf.builtIn.options }]),
       schedules: leaves.map((leaf) => ({
         checkId: leaf.definition.checkId,
         requiresChecks: [...leaf.dependsOn].sort()

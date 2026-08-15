@@ -1,12 +1,25 @@
 import type {
   BuiltInCheckId,
+  BuiltInCheckData,
   BuiltInCheckOptions,
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions
-} from "./built-ins.ts";
+} from "./built-in-data-model.ts";
 import { snapshotClosedRecord } from "../quality-core/check-record/plain-record-values.ts";
 
+export function parseBuiltInCheckOptions(
+  checkId: "duplicate-detection",
+  value: unknown
+): DuplicateDetectionOptions | undefined;
+export function parseBuiltInCheckOptions(
+  checkId: "file-metrics",
+  value: unknown
+): FileMetricsOptions | undefined;
+export function parseBuiltInCheckOptions(
+  checkId: "function-metrics",
+  value: unknown
+): FunctionMetricsOptions | undefined;
 export function parseBuiltInCheckOptions(
   checkId: BuiltInCheckId,
   value: unknown
@@ -19,13 +32,11 @@ export function parseBuiltInCheckOptions(
 }
 
 export function builtInOptionCodeAreasAreKnown(
-  checkId: BuiltInCheckId | null,
-  options: BuiltInCheckOptions | null,
+  check: BuiltInCheckData | null,
   codeAreas: Readonly<Record<string, unknown>>
 ): boolean {
-  return checkId !== "duplicate-detection" || options === null
-    || Object.keys((options as DuplicateDetectionOptions).minimumTokensByCodeArea)
-      .every((area) => Object.hasOwn(codeAreas, area));
+  return check === null || check.checkId !== "duplicate-detection"
+    || Object.keys(check.options.minimumTokensByCodeArea).every((area) => Object.hasOwn(codeAreas, area));
 }
 
 function parseDuplicateDetectionOptions(

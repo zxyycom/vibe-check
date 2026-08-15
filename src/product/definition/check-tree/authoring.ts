@@ -1,12 +1,8 @@
 import { isCheckTreeReferenceId } from "./identity.ts";
 import {
-  builtInDefinition,
-  isBuiltInCheckId,
-  materializeBuiltInDescriptor,
-  type BuiltInCheckId,
-  type BuiltInCheckOptions
+  parseBuiltInCheckData,
+  type BuiltInCheckData
 } from "../built-ins.ts";
-import { parseBuiltInCheckOptions } from "../built-in-options.ts";
 import type {
   CheckApplicabilityBinding,
   CustomCheckBinding
@@ -34,11 +30,7 @@ export interface ParsedGroup extends ParsedHeader {
   readonly checks: readonly ParsedNode[];
 }
 
-export interface ParsedBuiltIn extends ParsedHeader {
-  readonly kind: "built-in";
-  readonly checkId: BuiltInCheckId;
-  readonly options: BuiltInCheckOptions;
-}
+export type ParsedBuiltIn = ParsedHeader & BuiltInCheckData;
 
 export interface ParsedCustom extends ParsedHeader {
   readonly kind: "custom";
@@ -73,11 +65,25 @@ function exactData(
 ): Readonly<Record<string, unknown>> | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined) return undefined;
+  return hasExactKeys(data, requiredKeys, optionalKeys) ? data : undefined;
+}
+
+function exactNodeData(
+  data: Readonly<Record<string, unknown>>,
+  requiredKeys: readonly string[],
+  optionalKeys: readonly string[] = []
+): Readonly<Record<string, unknown>> | undefined {
+  return hasExactKeys(data, requiredKeys, optionalKeys) ? data : undefined;
+}
+
+function hasExactKeys(
+  data: Readonly<Record<string, unknown>>,
+  requiredKeys: readonly string[],
+  optionalKeys: readonly string[]
+): boolean {
   const keys = Object.keys(data);
   return requiredKeys.every((key) => keys.includes(key))
-    && keys.every((key) => requiredKeys.includes(key) || optionalKeys.includes(key))
-    ? data
-    : undefined;
+    && keys.every((key) => requiredKeys.includes(key) || optionalKeys.includes(key));
 }
 
 function parseSchedulingList(value: unknown, kind: "dependsOn" | "mutex"): readonly string[] | undefined {
@@ -106,12 +112,12 @@ function parseHeader(data: Readonly<Record<string, unknown>>): ParsedHeader | un
   return Object.freeze({ dependsOn, maxParallel, mutex });
 }
 
-function parseGroup(value: unknown, state: ParseState): ParsedGroup | undefined {
-  const data = exactData(value, ["id", "checks"], ["dependsOn", "maxParallel", "mutex"]);
-  const checks = data === undefined ? undefined : snapshotClosedArray(data.checks);
-  if (data === undefined || typeof data.id !== "string" || !registerId(data.id, state)
+function parseGroup(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedGroup | undefined {
+  const group = exactNodeData(data, ["id", "checks"], ["dependsOn", "maxParallel", "mutex"]);
+  const checks = group === undefined ? undefined : snapshotClosedArray(group.checks);
+  if (group === undefined || typeof group.id !== "string" || !registerId(group.id, state)
     || checks === undefined || checks.length === 0) return undefined;
-  const header = parseHeader(data);
+  const header = parseHeader(group);
   if (header === undefined) return undefined;
   const parsedChecks: ParsedNode[] = [];
   for (const child of checks) {
@@ -119,22 +125,25 @@ function parseGroup(value: unknown, state: ParseState): ParsedGroup | undefined 
     if (parsed === undefined) return undefined;
     parsedChecks.push(parsed);
   }
-  return Object.freeze({ ...header, kind: "group", id: data.id, checks: Object.freeze(parsedChecks) });
+  return Object.freeze({ ...header, kind: "group", id: group.id, checks: Object.freeze(parsedChecks) });
 }
 
-function parseBuiltIn(value: unknown, state: ParseState): ParsedBuiltIn | undefined {
-  const data = exactData(materializeBuiltInDescriptor(value), ["kind", "checkId", "displayName", "recordTypes", "options"], ["dependsOn", "maxParallel", "mutex"]);
-  if (data?.kind !== "built-in" || typeof data.checkId !== "string" || !isBuiltInCheckId(data.checkId)
-    || !registerId(data.checkId, state) || !canonicalMetadataMatches(data, data.checkId)) return undefined;
+function parseBuiltIn(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedBuiltIn | undefined {
+  const builtIn = parseBuiltInCheckData(data);
+  if (builtIn === undefined || !registerId(builtIn.checkId, state)) return undefined;
   const header = parseHeader(data);
-  const options = parseBuiltInCheckOptions(data.checkId, data.options);
-  return header === undefined || options === undefined
-    ? undefined
-    : Object.freeze({ ...header, kind: "built-in", checkId: data.checkId, options });
+  if (header === undefined) return undefined;
+  if (builtIn.checkId === "duplicate-detection") {
+    return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
+  }
+  if (builtIn.checkId === "file-metrics") {
+    return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
+  }
+  return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
 }
 
-function parseCustom(value: unknown, state: ParseState): ParsedCustom | undefined {
-  const data = exactData(value, [
+function parseCustom(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedCustom | undefined {
+  const custom = exactNodeData(data, [
     "kind",
     "checkId",
     "displayName",
@@ -142,23 +151,23 @@ function parseCustom(value: unknown, state: ParseState): ParsedCustom | undefine
     "applicability",
     "binding"
   ], ["dependsOn", "maxParallel", "mutex"]);
-  if (data?.kind !== "custom" || typeof data.checkId !== "string" || !registerId(data.checkId, state)) {
+  if (custom?.kind !== "custom" || typeof custom.checkId !== "string" || !registerId(custom.checkId, state)) {
     return undefined;
   }
-  const header = parseHeader(data);
+  const header = parseHeader(custom);
   const definition = validateCheckDefinition({
-    checkId: data.checkId,
-    displayName: data.displayName,
-    recordTypes: data.recordTypes
+    checkId: custom.checkId,
+    displayName: custom.displayName,
+    recordTypes: custom.recordTypes
   });
-  const binding = parseCustomBinding(data.binding);
-  return header === undefined || !definition.ok || typeof data.applicability !== "function" || binding === undefined
+  const binding = parseCustomBinding(custom.binding);
+  return header === undefined || !definition.ok || typeof custom.applicability !== "function" || binding === undefined
     ? undefined
     : Object.freeze({
       ...header,
       kind: "custom",
       definition: definition.value,
-      applicability: data.applicability as CheckApplicabilityBinding,
+      applicability: custom.applicability as CheckApplicabilityBinding,
       binding
     });
 }
@@ -175,7 +184,7 @@ function parseCustomBinding(value: unknown): CustomCheckBinding | undefined {
 }
 
 function parseNode(value: unknown, state: ParseState): ParsedNode | undefined {
-  const data = snapshotClosedRecord(materializeBuiltInDescriptor(value));
+  const data = snapshotClosedRecord(value);
   if (data === undefined) return undefined;
   return Object.hasOwn(data, "checks")
     ? parseGroup(data, state)
@@ -188,29 +197,4 @@ function registerId(id: string, state: ParseState): boolean {
   if (!isCheckTreeReferenceId(id) || state.ids.has(id)) return false;
   state.ids.add(id);
   return true;
-}
-
-function canonicalMetadataMatches(
-  candidate: Readonly<Record<string, unknown>>,
-  checkId: BuiltInCheckId
-): boolean {
-  const candidateDefinition = validateCheckDefinition({
-    checkId,
-    displayName: candidate.displayName,
-    recordTypes: candidate.recordTypes
-  });
-  if (!candidateDefinition.ok) return false;
-  const definition = builtInDefinition(checkId);
-  return candidateDefinition.value.displayName === definition.displayName
-    && stableJson(candidateDefinition.value.recordTypes) === stableJson(definition.recordTypes);
-}
-
-function stableJson(value: unknown): string {
-  const array = snapshotClosedArray(value);
-  if (array !== undefined) return `[${array.map(stableJson).join(",")}]`;
-  const data = snapshotClosedRecord(value);
-  if (data !== undefined) {
-    return `{${Object.keys(data).sort().map((key) => `${JSON.stringify(key)}:${stableJson(data[key])}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
 }

@@ -13,7 +13,7 @@ private workspace: there is not yet an installable `vibe-check` package entry. T
 evidence. In this document, **Package Run** means the future public export of the existing Product run
 operation; it does not imply that npm delivery is already available.
 
-## Target two-file package integration
+## Future two-file package integration
 
 After the downstream package Change passes installed-consumer acceptance, a project maintains two
 modules with different responsibilities:
@@ -21,10 +21,12 @@ modules with different responsibilities:
 ```ts
 // project-definition.ts
 import {
+  append,
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  replace
 } from "vibe-check";
 
 export default defineConfig({
@@ -32,17 +34,18 @@ export default defineConfig({
     id: "source-analysis",
     maxParallel: 2,
     checks: [
-      duplicateDetection.replace({
+      replace(duplicateDetection, {
         options: { defaultMinimumTokens: 100 }
       }),
-      fileMetrics
-        .replace({
+      append(
+        replace(fileMetrics, {
           maxParallel: 1,
           options: {
             codeLines: { changedDelta: 100 }
           }
-        })
-        .append({ mutex: "metrics-scanner" }),
+        }),
+        { mutex: "metrics-scanner" }
+      ),
       functionMetrics
     ]
   }],
@@ -84,9 +87,10 @@ configuration is not serialized, re-evaluated, or moved into a whole-invocation 
 
 ## Check tree and scheduler
 
-The current definition-facing source exports three frozen, non-callable built-in descriptor values:
-`duplicateDetection`, `fileMetrics`, and `functionMetrics`; the downstream package must re-export the
-same values. Put these values and any custom Check leaves directly in the
+The current definition-facing source exports three non-callable built-in Check values:
+`duplicateDetection`, `fileMetrics`, and `functionMetrics`. The downstream package Plan must project
+`defineConfig`, `run`, `replace`, `append`, these values, and the `BuiltInCheck` type without creating
+a second metadata or option contract. Put these values and any custom Check leaves directly in the
 `checks` tree. A leaf is selected by appearing in the tree; no separate built-in catalog, selected
 list, or schedule list is authored. A group is authoring-only and is flattened before execution, so it
 does not create a CheckRun, Record, policy identity, or output row.
@@ -97,15 +101,17 @@ and de-duplicates both parent and child lists. A `dependsOn` reference can name 
 group `id`; a group reference expands to all of that group's leaves. `dependsOn` is the only Check
 ordering constraint, and `mutex` is the named resource constraint.
 
-Each built-in descriptor includes complete typed default `options` and two immutable, chainable
-authoring methods. `.replace()` takes only that descriptor's field-aware replacement shape: supplied
-scalar or fixed nested fields replace their defaults while omitted branches stay unchanged. An open
-option map, such as `minimumTokensByCodeArea`, is replaced as one complete field rather than merged
-entry-by-entry. `.replace()` can also replace a leaf's `maxParallel`, `dependsOn`, or `mutex` value.
-`.append()` accepts only leaf `dependsOn` and `mutex`; it appends and stably de-duplicates those local
-collections before normal group-to-leaf inheritance runs. Neither method is a third run operation or a
-generic runtime deep merge. Built-in options own only that Check's public semantics, such as its
-thresholds. Project-wide code areas, file scope, generated-file classification, report presentation,
+Each `BuiltInCheck` includes complete typed default `options`. `replace(check, replacement)` takes
+only that Check's field-aware replacement shape: supplied scalar or fixed nested fields replace their
+defaults while omitted branches stay unchanged. An open option map, such as `minimumTokensByCodeArea`,
+is replaced as one complete field rather than merged entry-by-entry. `replace` can also replace a
+leaf's `maxParallel`, `dependsOn`, or `mutex` value. `append(check, additions)` accepts only leaf
+`dependsOn` and `mutex`; it appends and stably de-duplicates those local collections before normal
+group-to-leaf inheritance runs. Both helpers return a new built-in Check value, so they compose as
+`append(replace(fileMetrics, patch), additions)` without mutating the input or shared defaults.
+`replace` and `append` construct adjusted built-in Check values; `run` executes Product work. Built-in
+options own only that Check's public semantics, such as its thresholds. Project-wide code areas, file
+scope, generated-file classification, report presentation,
 policies, effects, scheduler, and operational dependencies remain top-level Project Definition fields.
 Scanner commands, arguments, exit mapping, adapters, and bindings remain private.
 

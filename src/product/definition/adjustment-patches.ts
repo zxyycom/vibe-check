@@ -1,11 +1,4 @@
 import { isCheckTreeReferenceId } from "./check-tree/identity.ts";
-import type {
-  BuiltInCheckId,
-  DuplicateDetectionOptions,
-  FileMetricsOptions,
-  FunctionMetricsOptions
-} from "./built-ins.ts";
-import { parseBuiltInCheckOptions } from "./built-in-options.ts";
 import {
   snapshotClosedArray,
   snapshotClosedRecord
@@ -62,7 +55,7 @@ export interface BuiltInCheckSchedulingAppend {
 
 type SchedulingField = "dependsOn" | "mutex";
 
-export function parseDescriptorReplacement<OptionsReplacement>(
+export function parseBuiltInReplacement<OptionsReplacement>(
   value: unknown,
   parseOptions: (value: unknown) => OptionsReplacement
 ): BuiltInCheckReplacement<OptionsReplacement> {
@@ -133,14 +126,6 @@ export function parseFunctionMetricsOptionsReplacement(value: unknown): Function
       ? { parameterCount: parseNumberFields(data.parameterCount, ["absoluteFloor", "changedDelta"]) }
       : {})
   };
-}
-
-export function validatedBuiltInOptions(checkId: BuiltInCheckId, value: unknown):
-  | DuplicateDetectionOptions
-  | FileMetricsOptions
-  | FunctionMetricsOptions {
-  const options = parseBuiltInCheckOptions(checkId, value);
-  return options === undefined ? invalidAdjustment() : options;
 }
 
 export function appendScheduling(
@@ -217,5 +202,5 @@ function finiteNumber(value: unknown): number {
 }
 
 function invalidAdjustment(): never {
-  throw new TypeError("Invalid built-in descriptor adjustment");
+  throw new TypeError("Invalid built-in Check adjustment");
 }
