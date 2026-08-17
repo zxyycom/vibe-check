@@ -1,6 +1,6 @@
 ---
 title: 在 Task scope 中承载递归 Check 并行上限
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:20Z
 purpose: 让每个递归 Check 的 maxParallel 沿用现有 Task scope 进入唯一 scheduler，而不让 containment 改变 scope 或 cap 机制。

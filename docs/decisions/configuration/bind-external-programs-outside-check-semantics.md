@@ -1,6 +1,6 @@
 ---
 title: 在 Check 语义外显式绑定外部程序
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T05:52:51Z
 purpose: 允许过渡 runtime 使用外部程序，同时保持 Product-provided Check 配置与结果不受具体 scanner 塑形。

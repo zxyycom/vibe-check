@@ -1,6 +1,6 @@
 ---
 title: 对旧 tool-shaped project config 执行 hard cut
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-03T09:23:47Z
 purpose: 一次性建立无底层工具字段的语义配置边界，避免双读、静默忽略和 executable precedence 风险。

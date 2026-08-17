@@ -1,6 +1,6 @@
 ---
 title: 将 Project Definition 值交给 Package Run
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:34Z
 purpose: 让项目用普通 TypeScript 导入配置，并把完整定义值直接交给 Package Run。

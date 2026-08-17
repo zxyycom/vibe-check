@@ -1,6 +1,6 @@
 ---
 title: 在调用方 runtime 中通过 Task 系统执行项目函数
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:35Z
 purpose: 让 Package Run 直接消费项目配置函数，并由既有 Task 系统统一管理依赖与并行。

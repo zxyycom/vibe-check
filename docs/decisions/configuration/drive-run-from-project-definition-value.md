@@ -1,6 +1,6 @@
 ---
 title: 由 Project Definition 值驱动 Package Run
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:34Z
 purpose: 让一个已导入的项目定义值拥有运行语义，而 Package Run 只补充当次控制参数。

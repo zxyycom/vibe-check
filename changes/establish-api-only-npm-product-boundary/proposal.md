@@ -1,112 +1,68 @@
 # Proposal
 
-本 Change 在 `adopt-typescript-project-definition`、`adopt-composable-check-tree` 与
-`support-check-scoped-concurrency` 完成并归档后，把其 Product 运行内核投影为 API-only npm package。
-首个 package 只支持 Bun，runtime callable exports 恰好是：
-
-1. **配置定义函数**：帮助项目作者形成 typed Project Definition；
-2. **Package Run**：接收 `(Project Definition, Run Controls)` 并执行 Vibe Check；
-3. **Built-in Check replacement**：以 `replace` 产生带替换 options 的 `BuiltInCheck`；
-4. **Built-in Check append**：以 `append` 产生带追加 options 的 `BuiltInCheck`。
-
-使用项目自行维护项目配置文件和项目运行脚本。项目运行脚本把 Project Definition 绑定到 Package Run，并导出“项目 Run”；其他调用方只调用项目 Run，不需要再次导入或传入配置。
-
-```text
-其他调用方
-  → 项目 Run（项目拥有）
-  → Package Run（package 公开）
-  → Product 运行内核（前置 Change 交付）
-  → 配置中的项目函数
-  → 既有 Task 系统
-```
+本 Plan 在 `unify-check-authoring-and-execution` 完成后，把已验证的 Product runtime 投影为只支持 Bun 的 API-only `vibe-check` npm package；package 不重新解释 Check、Run、Task、Core 或 scanner semantics。
 
 ## Why
 
-当前正式集成入口是项目拥有的 bound Project Run，它调用 `src/product/run/index.ts` 的 Product run
-operation；保留的 Bun CLI 只返回迁移 diagnostic。root `package.json` 仍是 `private: true` 的 workspace
-manifest，也没有 installed-consumer package entry。这些事实不能证明普通项目可以安装、导入并运行一个
-依赖闭合的 package。
+仓库当前正式入口是项目拥有的 bound Project Run，root manifest 仍为 `private: true`，也没有 exact-tarball consumer evidence。即使 Product runtime 在仓库内工作，也不能据此证明普通项目可以安装、导入并运行一个依赖闭合的 package。
 
-前置 Changes 已负责 Project Definition authoring/validation、Package Run 的 Product 运行内核、项目函数
-调用、composable Check tree、built-in Check options、Check-scoped concurrency、Task 调度、operational
-dependency snapshot、JSON hard cut 和两文件使用模式。本 Change 不重新设计这些语义，只负责：
+上游 Check Change 将最终 public contract 收敛为：
 
-- 公开正确且最小的 package surface；
-- 提供 Bun default host 和 installed dependency closure；
-- 从唯一 current public-contract source 生成可审计 candidate；
-- 用 exact tarball 证明真实项目的配置文件、运行脚本和外部调用方可以协作；
-- replacement 通过后删除保留的 Product CLI migration diagnostic contract。
+- runtime functions：`defineConfig`、`defineCheck`、`inherit`、`run`；
+- ordinary default Check values：`duplicateDetection`、`fileMetrics`、`functionMetrics`；
+- one recursive `Check` family、direct execution、structured outcomes、native object customization；
+- scanner executable 等 Check-specific dependencies 位于各默认 Check options；Run Controls 不再提供 operational dependency override。
 
-当前 repository 通过 mise、workspace dependencies 和开发环境提供 `scc`、Lizard、jscpd 等 scanner 条件。Installed consumer 不具备这些隐含条件，因此每项 runtime dependency 必须成为 package production material，或成为文档化、可验证且由配置显式绑定的 external prerequisite。
+本 Change 只负责 package projection、Bun host、dependency delivery、deterministic staging、exact-tarball acceptance 和 legacy Product CLI hard cut。它不能保留上游已经取消的 `BuiltInCheck`、`replace` / `append`、TaskPlan 或 operational dependency map 作为 package compatibility layer。
 
 ## Outcome
 
-Repository root 保持 `private: true`。受控 build 从 Product source 和 current public-contract source 生成 staging tree；`npm pack` 只针对 staging root。
-
-Candidate package 具有以下边界：
-
-- public runtime callable exports 是 `defineConfig`、`run`、`replace` 与 `append`；另导出三个 non-callable
-  built-in Check values、`BuiltInCheck` 与必要 public types；
-- manifest 不含 `bin`，也不公开 Product `init`、resource/bootstrap、Core、manager、scheduler、Task、worker 或 IPC surface；
-- Package Run 直接消费前置 Change 的运行内核，不插入配置 discovery、module loader、函数序列化或 whole-invocation worker；
-- Bun default host 提供 filesystem、Git、environment、subprocess、cache、reporter 和 output 能力；
-- 普通 invocation 保留上游定义的 structured result、default effects、Task scheduling 和 operational dependency semantics；
-- canonical installed example 包含项目配置文件、项目运行脚本和一个只调用项目 Run 的独立 caller；
-- repository dogfood command 位于 `scripts/**`，作为 project-owned adapter 消费同一 package API；
-- package identity 为公开的 unscoped `vibe-check`，使用 MIT 和 `0.0.x` prestable version；
-- release workflow 止于 deterministic build、pack 和 exact-tarball acceptance，真实 `npm publish` 不属于本 Change。
+- Repository root 保持 `private: true`；受控 build 从 Product/current-contract owners 生成 staging tree，只在 staging root 执行 `npm pack`。
+- Candidate package 的 runtime callable exports 恰好是 `defineConfig`、`defineCheck`、`inherit` 与 `run`；三个 default Checks 是 non-callable ordinary values。
+- Public types 与上游 final inventory 一致；不公开 Core、Task、scheduler、scanner adapter、binding 或 legacy adjustment types。
+- Installed project 自己维护 Project Definition 和 bound Project Run；separate caller 只调用项目 Run。
+- Exact-tarball acceptance 证明 recursive authoring、typed Check helper、inheritance、native default-object spread、Check-owned executable options、direct execution/results、effects 和 cancellation。
+- Manifest 无 `bin`；installable replacement 通过后删除 retained Product CLI migration diagnostic。
+- Candidate 使用 unscoped `vibe-check`、MIT 与 `0.0.x`，但 build/pack/verify 不构成 registry publish。
 
 ## Scope
 
-纳入范围：
+### In scope
 
-- 验证并消费前置 Changes 交付的 Product 运行内核、current-contract fields、composable Check tree、
-  Check-scoped concurrency 与 canonical usage；
-- 在同一 current public-contract source 中补全 package/release fields、license、candidate version inputs、support matrix、system prerequisites 和 consumer map；
-- 建立四个 public callable exports、三个 non-callable built-in Check values、`BuiltInCheck` 与必要 types、Bun default
-  host 和 structured result projection；
-- 闭合 package-owned 或 configured-external scanner dependencies；
-- 从 authoritative sources 生成 runtime、declarations、candidate manifest、MIT materials、inventory、provenance 和 digest；
-- 建立 exact-tarball installed project 与 separate-caller acceptance；
-- replacement acceptance 通过后 hard cut 保留的 Product CLI migration diagnostic、argv/help/exit contract 和 package `bin`；
-- 同步 architecture、configuration、output、testing、script tooling、CI/workspace gate 和 release procedure owners。
+- 消费并核对 `unify-check-authoring-and-execution` 的 final owners、source、tests、public inventory 与 dogfood；
+- 建立 Bun runtime entry、declarations、manifest、MIT materials、support/prerequisite metadata 和 consumer map；
+- 闭合 package-owned 或 Check-options-configured external scanner dependencies；
+- deterministic staging、allowlisted inventory、provenance、digest 和 exact-tarball installed acceptance；
+- project definition file → bound project Run → separate caller 的 canonical usage；
+- replacement acceptance 后删除 retained Product CLI contract；
+- 同步 architecture、configuration、scanner dependencies、output、testing、script tooling、CI 与 release procedure owners。
 
-不纳入范围：
+### Out of scope
 
-- 重新定义 Project Definition、Package Run、Task scheduler、operational precedence 或 JSON migration；
-- 固定消费者项目的配置文件或运行脚本路径；
-- 支持 Node.js direct import 或 dual-runtime build；
-- 提供 whole-invocation process isolation 或 permission sandbox；
-- 公开内部 execution surface 或建立第二套 Product CLI；
-- 管理 registry credentials、配置 Trusted Publishing 或执行 `npm publish`。
+- 重新设计 recursive Check、direct execution/result、Task scheduling、Core facts、policy、output 或 scanner protocol；
+- 恢复 adjustment APIs、TaskPlan、operational precedence maps 或配置 discovery；
+- 固定 consumer 项目的文件路径或 wrapper convention；
+- Node.js direct import、dual runtime、whole-invocation sandbox、plugin system 或 public Product CLI；
+- registry credentials、Trusted Publishing 或 `npm publish`。
 
 ## Success Criteria
 
-- 三个前置 Changes 已完成并归档；本 Change 只消费其 owner docs、current-contract fields、Product
-  运行内核、Check tree/cap semantics 和目标测试，不建立竞争 owner。
-- AI 或工程实现者能从 Design 区分配置定义函数、Package Run 和项目 Run，并恢复完整调用方向。
-- Public runtime callable export inventory 恰好包含 `defineConfig`、`run`、`replace` 与 `append`；
-  `duplicateDetection`、`fileMetrics`、`functionMetrics` 是额外的 non-callable values，`BuiltInCheck` 与必要
-  types 不形成额外 operation。
-- Installed project 可以自行创建配置文件与运行脚本；独立 caller 只传项目允许的 controls 并获得完整 result。
-- Package Run 保持上游的同-runtime 项目函数调用与 Task 系统语义，不宣称 whole-invocation isolation。
-- Public symbols、default paths、environment identifiers、dependency identifiers 和 package/release values 各有唯一 current owner；项目文件路径不进入 package contract。
-- 最低 Bun、OS/architecture、system prerequisites 和 scanner dependency closure 都有 exact-tarball evidence；external executables 不从 repository state、workspace devDependencies 或 ambient `PATH` 隐式获得。
-- Candidate manifest、entry、declarations、docs、examples 和 acceptance 从 current public-contract source 生成或单向核对，不包含 `bin` 或 unsupported imports。
-- 保留的 Product CLI migration diagnostic 与 argv/help/exit contract 只在 exact-tarball replacement 通过后删除；repository commands 继续调用项目 Run 的 adapter。
-- Repeated clean build 产生一致的 allowlisted artifacts；tarball 不包含 tests、credentials、cache、临时 artifacts 或 undeclared workspace material。
-- 未获得单独外部写入授权时，只执行 build、pack 和 verify，不读取 registry credentials，也不把 pack 描述成 publish。
+- 上游 Change 已完成、稳定 owners 已同步，且 package implementation 不在未完成 contract 上建立 provisional exports。
+- Runtime callable export inventory 恰好是 `defineConfig`、`defineCheck`、`inherit`、`run`；三个 ordinary default Check values 不是额外 operations。
+- Public type export inventory与上游 decision/current-contract source 一致，旧 role/source/TaskPlan/adjustment/operational types 无法导入。
+- Exact tarball 中的 Project Definition 可以声明 information-only root、execution-with-children、option-aware child、default Check children、全部 `inherit` states 与 native scanner/threshold overrides。
+- Package Run 在 caller Bun runtime 中执行 project Check functions，并保留 one-Check-one-Task、structured outcome、Record/reference、dependency/mutex/cap、cancellation 和 effect semantics。
+- Scanner executable/args 只来自对应 Check options；installed execution 不读取 repository mise、workspace devDependencies、old environment precedence registry 或 ambient repository paths。
+- Manifest、entry、declarations、docs、examples 与 acceptance 单向核对 current public-contract source；tarball 无 tests、credentials、cache、logs 或 undeclared workspace files。
+- Legacy Product CLI 只在 exact-tarball replacement 通过后删除；repository dogfood 继续调用 bound Project Run。
+- 未获得单独授权时不读取 registry credentials、不配置外部发布，也不执行 `npm publish`。
 
 ## Affected Owners
 
-- `adopt-typescript-project-definition`：Project Definition、Package Run 内核、项目函数、Task/dependency 和 canonical 两文件模式的前置 owner。
-- `adopt-composable-check-tree`：built-in Check values/options、Check tree、leaf selection、group
-  flattening 与 flat catalog/private binding handoff 的前置 owner。
-- `support-check-scoped-concurrency`：Check `maxParallel` inheritance、active-cap admission/drain 与 single
-  shared scheduler handoff 的前置 owner。
-- `docs/decisions/product-contract/**` 与 `docs/decisions/configuration/**`：API-only、Bun host、public/MIT、effects、naming 和 runtime boundary 的长期方向。
-- `src/product/**`：current public-contract source、public projection 和 Bun default host。
-- Root `package.json`、lockfile、build/declaration config 与 release scripts：private workspace、staging、pack 和 acceptance。
-- `docs/scanner-dependencies.md` 与 production dependency owners：installed dependency closure。
-- `scripts/**`：repository-owned project Run adapter 与 dogfood command。
-- Architecture、CLI、configuration、output、testing、script-tooling、navigation、CI 和 release procedure owners：入口、验收与发布边界。
+- [`unify-check-authoring-and-execution`](../unify-check-authoring-and-execution/)：唯一上游 authoring/execution/public inventory handoff；
+- `src/product/public-contract/**` 与 public entry：package symbol、defaults、support 与 release projection；
+- `src/product/**`：Bun runtime/declaration closure；
+- root manifest、lockfile、build/declaration configs 与 package scripts；
+- `docs/scanner-dependencies.md` 与 default Check options：installed external prerequisite boundary；
+- `scripts/**`：repository project Run adapter、staging、pack 与 acceptance；
+- Architecture、CLI、Configuration、Output、Testing、Script Tooling、navigation、CI 与 release procedure owners。

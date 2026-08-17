@@ -1,6 +1,6 @@
 ---
 title: 使用带递归 composition 的单一 Check shape
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:09Z
 purpose: 让 Project Definition 只用一种可执行 Check 表达 Product 预先提供和项目提供的 Check，并用同形 checks 组合递归选择。

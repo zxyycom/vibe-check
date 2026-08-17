@@ -1,6 +1,6 @@
 ---
 title: 发布前确认单一 Check authoring 与派生名称
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:40Z
 purpose: 让公开 authoring surface 用同一种 Check value 表达 Product 与项目提供的 Check，并在发布前确认 base-value composition 的名称。

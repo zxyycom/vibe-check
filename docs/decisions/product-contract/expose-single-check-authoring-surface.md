@@ -1,6 +1,6 @@
 ---
 title: 公开单一 Check authoring surface
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:38:42Z
 purpose: 让 package 以同一种 Check value 暴露 Product 预先提供和项目提供的 Check，并只保留一个产品执行入口。

@@ -1,6 +1,6 @@
 ---
 title: 通过单一 Task graph 执行递归 Check
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:30Z
 purpose: 让每个递归 Check node 在既有单一静态 Task graph 中独立执行、提交事实和结算，而 containment 不增添调度协议。

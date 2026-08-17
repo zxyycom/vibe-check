@@ -1,6 +1,6 @@
 ---
 title: 使用基于 Check 值的派生契约
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:38:33Z
 purpose: 让所有 Check 都能从明确 base Check 值以字段 owner 规则派生新值，而不按来源分裂 adjustment 能力。

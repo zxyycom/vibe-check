@@ -28,34 +28,43 @@
   },
   "sourceRevision": {
     "entries": {
-      "configuration/bind-external-programs-outside-check-semantics.md": "sha256:a5cdeec0f86a765fc2a56c52249485a2e9bf8e553fd4e537a36e54983ffa1bae",
+      "configuration/allow-empty-information-checks-with-warning.md": "sha256:0e965f3cb73d2067c55e5795e54972539f66554146859f7291c94c36660fb6ef",
+      "configuration/apply-check-parallel-limit-while-task-runs.md": "sha256:48ea2e388bfcfdaacbe6b47e98f72c3d470a55600a99282e0cd66f2ec5299203",
+      "configuration/bind-external-programs-outside-check-semantics.md": "sha256:31264f030fafb61890851cabb4919cd23a4a4226889c20d029d8901c97df354b",
       "configuration/carry-check-parallel-limit-in-task-scope.md": "sha256:ac2aaa56c88d263006cb89d2f4026c1f30327bd330a114b062375683c050811f",
-      "configuration/carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:4f60cf0c9525c34e28f9404531d99bea8e39d36b33c04f465fc0aacc8dd4260d",
+      "configuration/carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:c941c1930492fda6b4efe240d6cfc20035d53a3eb436d00a3aaf3449854ba640",
       "configuration/drive-product-execution-from-project-definition.md": "sha256:1dceb13a5c0419348453092f9f056cdbd2b74ea21ae5f39ffe3bf3e1f11a6ac3",
-      "configuration/drive-run-from-project-definition-value.md": "sha256:dbf9214f137e5f52c04aebf45121110039e31ce58a684d45ddf00616a408cde0",
+      "configuration/drive-run-from-check-owned-execution-options.md": "sha256:a7aac8fc17c5e50fc6eb80e7e92e72e67402530d969681960c33fd46fb489b89",
+      "configuration/drive-run-from-project-definition-value.md": "sha256:42afb462d6681c6b963539d0a956d42bb04afee532de7e803b2605ef67eba1e4",
       "configuration/evaluate-decision-policies-from-core-facts.md": "sha256:f72d91bd193da97c201eba3eb4bdc0813cac288efd54630700067ab1b1f537d9",
-      "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:bd5665973554e58970a0709c47468ac3e776ebc00939bb79eef6be49ae9297ba",
+      "configuration/hard-cut-legacy-tool-shaped-config.md": "sha256:f4ba3f5a0b55679aaaef6d8556d1b4830c283cdfcefabe8b6c11d4dbd768a503",
       "configuration/keep-built-in-options-owned-and-tool-neutral.md": "sha256:2f8edbb38c55adeb99988e9d725c91d6a4c152e0a6b55be2e97a19dc75e2b7ec",
       "configuration/keep-check-groups-authoring-only.md": "sha256:7e9ca89249b588ff4a4e60cd9ea59e23f3aa679496c5f989cd0486041a8fa08b",
       "configuration/keep-decision-policies-closed-and-declarative.md": "sha256:1fbed5cf78acc49e74a1b69a099eda9138e285e19045989e79add161ce19b5f6",
       "configuration/keep-public-config-tool-neutral.md": "sha256:cd197d7d2b948728ef60e27014049bcafc09f4f502c5f1c056c524c3f63b42fc",
-      "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:79122cf16cbcfbc62608dea309dfbdfaf1d7407f65efefd8308f5ba3acefad2d",
-      "configuration/pass-project-definition-value-to-run.md": "sha256:3f416d3d7eaa46737a67cc3955c4d932ba0b1f5039701ec05d1eec9e20ebe245",
+      "configuration/let-check-options-own-execution-dependencies.md": "sha256:39d3ff44d53f0f0202aa48c5ad5cc90eba4e85e40166ea751864237e6b78964f",
+      "configuration/limit-tool-neutrality-to-built-in-checks.md": "sha256:c2aeba47944b82aa3c32280b7f9b812797a416bc35b6acc98ce4ffc0a0e8b3bb",
+      "configuration/pass-project-definition-check-functions-to-run.md": "sha256:6da1d69d5e72f5e8288cf76d4c6bba2df546a10615d609e5c4fb033fcbdd176f",
+      "configuration/pass-project-definition-value-to-run.md": "sha256:656aecccf5f82b6f793e07b96125d04f7c39539e4d7e7fb9a54fb66b20e413bc",
       "configuration/use-bun-typescript-project-definition.md": "sha256:2cd6f9089e22f81fb3b2b8557538f1941d94e8d0de551c756c4445cd6b2fe460",
       "configuration/use-check-scoped-invocation-wide-parallel-limits.md": "sha256:b0916fa8b658c790dfb3d61f155fb7fba4fc2fbd5bb0e9a6451d7b7bc8038658",
-      "configuration/use-check-value-derivation-contract.md": "sha256:90f1f1ad87ac14ca6a23fb36a728b83092d7cdfd1a7290bf4f2d9d3fafe221ab",
-      "configuration/use-closed-inheritable-check-collection-expressions.md": "sha256:ecd7418a071872c5107d44927eed2dc3b98fb75675bab68fc4096a81907fb940",
+      "configuration/use-check-value-derivation-contract.md": "sha256:92865089b0ab6a781eb43a219932a67adaf021e6d365caf7a1382cd0cbf9df27",
+      "configuration/use-closed-inheritable-check-collection-expressions.md": "sha256:70f45038b32418dc85fde3189cbf147e1ea75ba398483217d88c7ba088a7c647",
       "configuration/use-composable-check-tree-in-project-definition.md": "sha256:d92b18a5d74f260e564d0535cc8777f149c3c9fff41218341d1bace1921bc91b",
       "configuration/use-composable-check-tree-with-run-owned-bindings.md": "sha256:a121c8a414859650c8eca74817b7e2d61c8cfe216e1f1c5e365de96b9240071b",
       "configuration/use-declarative-quality-decision-policies.md": "sha256:0d358d22c384ee7d53198a2eec2605bda0ce81bb7893b373261f1767c99672ee",
+      "configuration/use-direct-check-execution-with-structured-results.md": "sha256:8862c177d619ab7b3664309f893bd2b95174e60ebbea6f165092d93aa34f8cff",
       "configuration/use-field-aware-built-in-check-adjustments.md": "sha256:0a835800e314722e7ccf02758cf35b194985b684fad38208bb115be9f1dc9b12",
       "configuration/use-file-policy-overrides.md": "sha256:0a96e9adc82b8c167378f096ffe9875d2151ddee34eb0e97cf8b90e3b3eb2740",
       "configuration/use-fixed-semantic-config-v2.md": "sha256:fd6663bfd81e0e8d9b5744291d626cccde0897ad8c13b1019cca04c373f5d25e",
       "configuration/use-fixed-semantic-config-version.md": "sha256:489d686e22f8424356f6c606b8b7c51d14bc3c0b908359daa7721fa3906e2689",
+      "configuration/use-inherit-for-check-collection-edits.md": "sha256:e017aedcaa816197e80b930b7b790f420e722a9261f9ce578aa34160f3c8e300",
       "configuration/use-json-filename-for-commented-config.md": "sha256:1f5feeb9b578372c346f4fb3e8ad1fa7cf1ccf54168444909f2559f63f895413",
+      "configuration/use-native-object-composition-for-check-customization.md": "sha256:65bb192f08d24f51a50e337990f46da41009c5bd1914514430ca71f7e2d29256",
       "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:854b995a24d8a52266cb9f5a741402f93e1779a25bd1fd38c8c2bc8ee1582fe4",
       "configuration/use-neutral-observation-and-project-definition-gates.md": "sha256:0e20cb1766ac1e938d412200f10b53ae40438bf45c65299f9187aeaeb3e241cf",
-      "configuration/use-one-check-shape-with-recursive-composition.md": "sha256:e6d2e1a0f916e02d48bed6cd06e4dfe470ca124287030cfe84f6466923b28c5e",
+      "configuration/use-one-check-shape-with-recursive-composition.md": "sha256:df91916ab3900382c0dde961d9e6ec191701f531d5328bbebd29a4eafcbd6d9a",
+      "configuration/use-recursive-check-values-with-optional-execution.md": "sha256:3d65a8a79f8aa79dae9392e40471c93dca1bf0cda9e2a21a68be5259d07ac866",
       "configuration/use-semantic-check-ids-in-project-config.md": "sha256:2b89578ce595fbdc346f9fc63fab9babaeadd5581d623661f2fe0616b7097e25",
       "configuration/use-semantic-check-ids-in-quality-records.md": "sha256:dc98b971264efa095f938dc8804105f6c4f6b3cebe0529e969f2db4dc06fc6fa",
       "configuration/use-single-typescript-project-definition.md": "sha256:53463a9e141e76bdaac10a86c76ac9ee0178c590a615b9a5645e9cd60c859537",
@@ -67,17 +76,20 @@
       "product-contract/confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:fca2ead85a279e0e036d8bca17c00bc9991ced3959347f432b04bc10edcc07c7",
       "product-contract/confirm-config-run-and-package-names-before-publication.md": "sha256:c8eee6ebd2522aed58a3b15d42e4307358bc9cf828b6a72a28cd2788c61576f0",
       "product-contract/confirm-package-contract-names-before-publication.md": "sha256:3258c90b726f38816b8b3e8a116170597ed780e52a0c16037066e8e5866ed225",
-      "product-contract/confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:aadf98b6eab7af8fb0af46e11d2efb96ad66fa9b98aa88a41a433b3e8ec728e9",
+      "product-contract/confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:774ee05fb8ac406b372c398df3f7fe52c75571372918199630ae505979ff8cbc",
       "product-contract/contain-project-code-behind-private-runtime-boundary.md": "sha256:d3853a121e5e3613d3477320110825fdf07c22b27e79612e35444ebabfd04c28",
       "product-contract/cooperatively-cancel-task-graphs.md": "sha256:976342b6915ce731f9d8d5a32fb8ed75ec92c06376ea0132bd744cd9d46c8b3b",
       "product-contract/enable-tool-effects-by-default.md": "sha256:e4c4e08486a060d943e9d7d089d038a37502fcb6edf154bf486e82875622f5bd",
+      "product-contract/execute-check-functions-in-caller-runtime.md": "sha256:1ae3876ca3b25ffa248ee16e860c284ef5a425c80085360ebfba1a0429ee9afa",
       "product-contract/execute-check-scopes-through-one-task-graph.md": "sha256:8cd79ccae6889f7fe91f2c194c64222dea407d70f175238d808a721eb8e28d71",
-      "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:8679448d177a0d192aa1bd0690865920fc55c97a6e5e874bf2fc5e45a533a224",
-      "product-contract/execute-recursive-checks-through-one-task-graph.md": "sha256:31594b90e952fd9beaeafdf8f61617d433940dbde8f4929612c0dd2f7ae7fd1b",
+      "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:9f712d3720d986fbdd9c7552526e317eef8555d3d7b5756ad679f7c324ec8a93",
+      "product-contract/execute-recursive-checks-through-one-task-graph.md": "sha256:45a91cba043c6f770b563fda5de77d5332dc0010d574ec600fa4c6b810ed6993",
       "product-contract/expose-built-in-check-values-alongside-config-and-run.md": "sha256:94e204f0617e3af29561b80e158bdb1166d0fd64267dee0259f9000c96ee0274",
       "product-contract/expose-built-in-check-values-and-adjustment-functions.md": "sha256:4fa6d29464175c3ad24900597ec00d8ce0b55285aa58d561434d46c77b09fd07",
       "product-contract/expose-config-definition-and-project-run-operations.md": "sha256:da45f7bc2cfe804727260d7292ec343321fad78431b39f92177a7b7edd5e749b",
-      "product-contract/expose-single-check-authoring-surface.md": "sha256:9081705b1df97b2c9d742de549927bccc1dfe24680afa2d38a03333f8813d6ea",
+      "product-contract/expose-ordinary-check-values-with-define-check.md": "sha256:b80d54e5c40de175d1e0e3e7ebba9e3f14531168b9675226cc934b375269bcc2",
+      "product-contract/expose-recursive-check-authoring-and-run-surface.md": "sha256:cdde1a1647a9c4815b57f464f29026ab60324205ff41c9525506e61130ee2aa1",
+      "product-contract/expose-single-check-authoring-surface.md": "sha256:fdd0da65ff1e8864ed05aebb1ca003a0a1513d2eecee14d02391383a2645f402",
       "product-contract/expose-two-public-operations.md": "sha256:8a85ecca42ac5163ad154ebc963aeb1e22c447db036e9ce6ee59bd66f478c9cf",
       "product-contract/hard-cut-prestable-machine-contracts.md": "sha256:1fc1d76508ce2a538ef1d2b9ed51dd95c5d9f0300890932883d88afd458a2a17",
       "product-contract/keep-prestable-package-releases-on-0-0-x.md": "sha256:9eca819c8cd3fbbae67be86f40742e70a4c0a4692a6f850e654441e7892f3b28",
@@ -85,6 +97,7 @@
       "product-contract/keep-sensitive-quality-record-material-ephemeral.md": "sha256:a63a97dc14fbe94693e5016d7b83f50cb31e5a0892abd3318296c08ba6ed5e40",
       "product-contract/keep-sensitive-scan-material-ephemeral.md": "sha256:9aaf69fd491bdbb92a35b788cfb45b4388738a4d6a62c42294b502acbed13a2d",
       "product-contract/license-package-under-mit.md": "sha256:7537f269ba4af1f3248e8c728f93cde28361857e88e39f6354d468bdfbb8f466",
+      "product-contract/project-executable-checks-into-validated-task-graph.md": "sha256:dbb0bae0cb808995c03e6b0704d95a5ead9df5d73d55c0f397bb0512264a0732",
       "product-contract/publish-check-record-machine-v3.md": "sha256:976570259eebac6b03206f12e24cc84a0586ed3e8eb66128b4c1873b620c42e1",
       "product-contract/publish-fingerprint-bound-check-record-machine-v3.md": "sha256:0bea019595a63d701ec605dfe6c4a987af4ff239843a447bf5a35d781fd9061d",
       "product-contract/publish-unscoped-vibe-check-publicly.md": "sha256:1049cae458ff4218d07f5e8061519354968fbcdbd6259b74027929513562031c",
@@ -147,7 +160,7 @@
     }
   ],
   "entries": {
-    "configuration/bind-external-programs-outside-check-semantics.md": {
+    "configuration/allow-empty-information-checks-with-warning.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -160,9 +173,62 @@
         ]
       },
       "state": {
+        "path": "configuration/allow-empty-information-checks-with-warning.md",
+        "title": "允许空 information Check 并给出提示",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:37:57Z",
+        "purpose": "让递归 Check authoring 接受暂时没有 execution 或 children 的节点，同时明确提示它当前不产生任何作用。",
+        "background": "空节点可能来自渐进配置或对象组合；把它当成无效输入会增加修改成本，静默接受又容易掩盖无意义声明。",
+        "decision": "空 information Check 合法且不产生 runtime fact；Definition 对它给出非阻断的无意义 Check warning。",
+        "relations": []
+      }
+    },
+    "configuration/apply-check-parallel-limit-while-task-runs.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/apply-check-parallel-limit-while-task-runs.md",
+        "title": "在 Check Task 运行期间应用并行上限",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:28:17Z",
+        "purpose": "让每个 executable Check 的 maxParallel 在其 Task admission 和运行期间约束 Product 总并发。",
+        "background": "一个 execution 只形成一个 Task；maxParallel 限制该 Task 活跃时的 Product 总并发，而非 descendant group size。",
+        "decision": "每个 Check Task 携带 inherited maxParallel；admission 加入自身后不得超限，运行期间该上限持续限制后续 Task。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/carry-recursive-check-parallel-limits-through-task-scopes.md"
+          }
+        ]
+      }
+    },
+    "configuration/bind-external-programs-outside-check-semantics.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "configuration/bind-external-programs-outside-check-semantics.md",
         "title": "在 Check 语义外显式绑定外部程序",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T05:52:51Z",
         "purpose": "允许过渡 runtime 使用外部程序，同时保持 Product-provided Check 配置与结果不受具体 scanner 塑形。",
@@ -206,7 +272,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -215,7 +281,7 @@
       "state": {
         "path": "configuration/carry-recursive-check-parallel-limits-through-task-scopes.md",
         "title": "在 Task scope 中承载递归 Check 并行上限",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:31:20Z",
         "purpose": "让每个递归 Check 的 maxParallel 沿用现有 Task scope 进入唯一 scheduler，而不让 containment 改变 scope 或 cap 机制。",
@@ -253,7 +319,7 @@
         "relations": []
       }
     },
-    "configuration/drive-run-from-project-definition-value.md": {
+    "configuration/drive-run-from-check-owned-execution-options.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -266,9 +332,38 @@
         ]
       },
       "state": {
+        "path": "configuration/drive-run-from-check-owned-execution-options.md",
+        "title": "由 Check-owned execution options 驱动 Run",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T16:29:26Z",
+        "purpose": "让 Project Definition 中的普通 Check functions 和各自完整 options 驱动执行，而 Run Controls 只补充共享 invocation 输入。",
+        "background": "executable Check 已拥有 execution 和依赖配置；Run dependency override 会复制配置 owner 并恢复隐式 binding。",
+        "decision": "Run 执行 definition 中的 Check values；options 拥有执行依赖，Run Controls 只提供共享 invocation 输入。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/drive-run-from-project-definition-value.md"
+          }
+        ]
+      }
+    },
+    "configuration/drive-run-from-project-definition-value.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "configuration/drive-run-from-project-definition-value.md",
         "title": "由 Project Definition 值驱动 Package Run",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:34Z",
         "purpose": "让一个已导入的项目定义值拥有运行语义，而 Package Run 只补充当次控制参数。",
@@ -317,7 +412,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -326,7 +421,7 @@
       "state": {
         "path": "configuration/hard-cut-legacy-tool-shaped-config.md",
         "title": "对旧 tool-shaped project config 执行 hard cut",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-03T09:23:47Z",
         "purpose": "一次性建立无底层工具字段的语义配置边界，避免双读、静默忽略和 executable precedence 风险。",
@@ -438,7 +533,7 @@
         "relations": []
       }
     },
-    "configuration/limit-tool-neutrality-to-built-in-checks.md": {
+    "configuration/let-check-options-own-execution-dependencies.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -451,9 +546,46 @@
         ]
       },
       "state": {
+        "path": "configuration/let-check-options-own-execution-dependencies.md",
+        "title": "让 Check options 拥有执行依赖",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T16:29:25Z",
+        "purpose": "让每个普通 Check 通过自己的 options 持有外部程序等执行配置，并由自己的 execution 负责使用。",
+        "background": "分离的 operational binding 会让 Run 按 Check 来源或身份重建实现，而普通 Check 已能通过完整 options 表达并原生覆盖自身配置。",
+        "decision": "Check options 拥有 Check-specific execution dependencies；Run 只传 effective options，不维护来源专属 binding。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "configuration/bind-external-programs-outside-check-semantics.md"
+          },
+          {
+            "type": "替代",
+            "target": "configuration/limit-tool-neutrality-to-built-in-checks.md"
+          },
+          {
+            "type": "修订",
+            "target": "configuration/hard-cut-legacy-tool-shaped-config.md"
+          }
+        ]
+      }
+    },
+    "configuration/limit-tool-neutrality-to-built-in-checks.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "configuration/limit-tool-neutrality-to-built-in-checks.md",
         "title": "将工具中立约束限定于 Product-provided Check 配置",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T10:31:36Z",
         "purpose": "隔离 Product-provided scanner 实现细节，同时允许项目 Check binding 自主选择执行方式。",
@@ -467,7 +599,7 @@
         ]
       }
     },
-    "configuration/pass-project-definition-value-to-run.md": {
+    "configuration/pass-project-definition-check-functions-to-run.md": {
       "keys": {
         "domain": [
           "configuration"
@@ -480,9 +612,38 @@
         ]
       },
       "state": {
+        "path": "configuration/pass-project-definition-check-functions-to-run.md",
+        "title": "将 Project Definition 的 Check functions 交给 Run",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:28:18Z",
+        "purpose": "让项目导入唯一 Project Definition value，并把其中的普通 Check execution functions 直接交给 Package Run。",
+        "background": "项目已经负责加载配置 module；Product 无需重新发现文件或把 functions 传输到另一 runtime。",
+        "decision": "项目运行脚本把完整 definition value 传给 Run；Product 验证数据并在调用方 runtime 执行其中的 Check functions。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/pass-project-definition-value-to-run.md"
+          }
+        ]
+      }
+    },
+    "configuration/pass-project-definition-value-to-run.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "configuration/pass-project-definition-value-to-run.md",
         "title": "将 Project Definition 值交给 Package Run",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:34Z",
         "purpose": "让项目用普通 TypeScript 导入配置，并把完整定义值直接交给 Package Run。",
@@ -559,7 +720,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -568,7 +729,7 @@
       "state": {
         "path": "configuration/use-check-value-derivation-contract.md",
         "title": "使用基于 Check 值的派生契约",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:38:33Z",
         "purpose": "让所有 Check 都能从明确 base Check 值以字段 owner 规则派生新值，而不按来源分裂 adjustment 能力。",
@@ -588,7 +749,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -597,7 +758,7 @@
       "state": {
         "path": "configuration/use-closed-inheritable-check-collection-expressions.md",
         "title": "使用闭合的可继承 Check 集合表达式",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:31:54Z",
         "purpose": "让递归 Check composition 中真正可集合化的公共字段具有明确、可验证且不依赖 deep merge 的继承与编辑语义。",
@@ -677,6 +838,30 @@
         "purpose": "让多个质量能力的标准记录与运行状态能够通过可审阅配置组合成查询、接受和门禁结果。",
         "background": "固定 channels、overall completeness 和 gate prerequisite 无法表达不同能力、coverage 与 comparison 的逻辑组合。",
         "decision": "Public config 投影能力设置与声明式 DecisionPolicy；能力输出最终语义，Core 只执行通用组合逻辑。",
+        "relations": []
+      }
+    },
+    "configuration/use-direct-check-execution-with-structured-results.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-direct-check-execution-with-structured-results.md",
+        "title": "使用直接 Check execution 与结构化结果",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T16:29:25Z",
+        "purpose": "让普通 Check 用一个直接 callback 读取当前配置和运行输入，并以分层状态表达完成、不适用或无法执行。",
+        "background": "passed 和 failed 是完成后的质量 verdict，not-applicable 与 unavailable 是不同执行状态；把它们压入一个 verdict 会丢失原因和恢复语义。",
+        "decision": "execution 返回三类结构化结果；Check 可主动 unavailable，Product failures 保留独立 typed reasons。",
         "relations": []
       }
     },
@@ -780,6 +965,35 @@
         "relations": []
       }
     },
+    "configuration/use-inherit-for-check-collection-edits.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-inherit-for-check-collection-edits.md",
+        "title": "使用 inherit 编辑可继承 Check 集合",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T14:42:02Z",
+        "purpose": "让 Check 的集合型调度字段通过固定的 inherit 表达式继承并编辑 parent effective collection。",
+        "background": "集合继承语义已经确定，但未固定 public spelling 会让实现与示例继续在 helper、raw object 和隐式数组追加之间漂移。",
+        "decision": "dependsOn 与 mutex 使用字段缺失、精确数组或 inherit({ add?, remove? }) 三种输入，不提供同义的 parent-relative 编辑写法。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-closed-inheritable-check-collection-expressions.md"
+          }
+        ]
+      }
+    },
     "configuration/use-json-filename-for-commented-config.md": {
       "keys": {
         "domain": [
@@ -799,6 +1013,35 @@
         "background": "JSONC 扩展名能精确标识语法，但相对不常见；固定工具目录和文件名已经能提供产品格式上下文。",
         "decision": "发现文件固定为 .vibe-check/config.json，内容允许注释和尾随逗号，但不把它描述成严格 JSON。",
         "relations": []
+      }
+    },
+    "configuration/use-native-object-composition-for-check-customization.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-native-object-composition-for-check-customization.md",
+        "title": "使用原生对象组合自定义 Check",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T09:18:05Z",
+        "purpose": "让项目直接用 TypeScript 对象展开、解构和数组操作修改 Product 默认 Check，而不维护产品专属调整 API。",
+        "background": "Product 默认 Check 已是完整普通对象；partial parser 和派生 helper 会为语言已有的对象组合能力增加第二套语义。",
+        "decision": "Product 只提供完整默认 Check；项目用原生对象操作形成另一个完整 Check，Definition 只验证最终对象，不补全 partial override。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "configuration/use-check-value-derivation-contract.md"
+          }
+        ]
       }
     },
     "configuration/use-neutral-default-for-observation-and-file-policy-for-gates.md": {
@@ -857,7 +1100,7 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -866,7 +1109,7 @@
       "state": {
         "path": "configuration/use-one-check-shape-with-recursive-composition.md",
         "title": "使用带递归 composition 的单一 Check shape",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:31:09Z",
         "purpose": "让 Project Definition 只用一种可执行 Check 表达 Product 预先提供和项目提供的 Check，并用同形 checks 组合递归选择。",
@@ -876,6 +1119,35 @@
           {
             "type": "替代",
             "target": "configuration/keep-check-groups-authoring-only.md"
+          }
+        ]
+      }
+    },
+    "configuration/use-recursive-check-values-with-optional-execution.md": {
+      "keys": {
+        "domain": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "configuration/use-recursive-check-values-with-optional-execution.md",
+        "title": "使用可选 execution 的递归 Check 普通对象",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:28:16Z",
+        "purpose": "让同一种递归 Check 对象同时表达独立执行节点和只负责组织与继承的信息节点。",
+        "background": "每个递归节点都执行会把 composition 误写成运行事实，也容易引入父子 completion 和聚合语义。",
+        "decision": "Check 使用普通递归对象；有 execution 的节点独立执行，children 继续展开，无 execution 的节点只传递组织与继承上下文。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "configuration/use-one-check-shape-with-recursive-composition.md"
           }
         ]
       }
@@ -1194,7 +1466,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1203,7 +1475,7 @@
       "state": {
         "path": "product-contract/confirm-single-check-authoring-and-derivation-names-before-publication.md",
         "title": "发布前确认单一 Check authoring 与派生名称",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:31:40Z",
         "purpose": "让公开 authoring surface 用同一种 Check value 表达 Product 与项目提供的 Check，并在发布前确认 base-value composition 的名称。",
@@ -1294,6 +1566,35 @@
         "relations": []
       }
     },
+    "product-contract/execute-check-functions-in-caller-runtime.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/execute-check-functions-in-caller-runtime.md",
+        "title": "在调用方 runtime 中执行 Check functions",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:28:19Z",
+        "purpose": "让 Package Run 直接调用 Project Definition 中的 Check functions，并由唯一 Task system 管理调度。",
+        "background": "Functions 已随项目 import 存在于调用方 Bun runtime；跨进程重载会复制配置和改变 closure 语义。",
+        "decision": "每个 Check function 在调用方 runtime 中作为独立 Product Task 执行，不建立 TaskPlan 或整次运行隔离层。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md"
+          }
+        ]
+      }
+    },
     "product-contract/execute-check-scopes-through-one-task-graph.md": {
       "keys": {
         "domain": [
@@ -1333,7 +1634,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1342,7 +1643,7 @@
       "state": {
         "path": "product-contract/execute-project-functions-through-task-system-in-caller-runtime.md",
         "title": "在调用方 runtime 中通过 Task 系统执行项目函数",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:35Z",
         "purpose": "让 Package Run 直接消费项目配置函数，并由既有 Task 系统统一管理依赖与并行。",
@@ -1362,7 +1663,7 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1371,7 +1672,7 @@
       "state": {
         "path": "product-contract/execute-recursive-checks-through-one-task-graph.md",
         "title": "通过单一 Task graph 执行递归 Check",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:31:30Z",
         "purpose": "让每个递归 Check node 在既有单一静态 Task graph 中独立执行、提交事实和结算，而 containment 不增添调度协议。",
@@ -1472,7 +1773,7 @@
         ]
       }
     },
-    "product-contract/expose-single-check-authoring-surface.md": {
+    "product-contract/expose-ordinary-check-values-with-define-check.md": {
       "keys": {
         "domain": [
           "product-contract"
@@ -1485,9 +1786,67 @@
         ]
       },
       "state": {
+        "path": "product-contract/expose-ordinary-check-values-with-define-check.md",
+        "title": "公开普通 Check 值与 defineCheck authoring helper",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:00:43Z",
+        "purpose": "让 package 同时提供普通默认 Check、独立声明的类型辅助和唯一产品运行入口，而不恢复对象调整 API。",
+        "background": "独立 option-aware Check 需要 contextual typing 才能关联 options、execution context 与结构化 result；运行时仍只接受普通对象。",
+        "decision": "Package 公开可选的 defineCheck authoring helper；它只改善独立 Check 的 TypeScript authoring，不改变对象语义或替代最终校验。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "product-contract/expose-single-check-authoring-surface.md"
+          }
+        ]
+      }
+    },
+    "product-contract/expose-recursive-check-authoring-and-run-surface.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/expose-recursive-check-authoring-and-run-surface.md",
+        "title": "公开递归 Check authoring 与 Run surface",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T16:53:01Z",
+        "purpose": "让 package 只公开一种递归 Check authoring model、三个普通默认值和唯一 Run，并提供实际 consumer 需要的类型根。",
+        "background": "已确认 authoring helpers；来源、TaskPlan 或 adjustment inventory 会把已取消的模型带入 package。",
+        "decision": "固定四个 runtime functions、三个普通默认 Check values，以及单一 Check/Result/Record/Project/Run type roots。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "product-contract/confirm-single-check-authoring-and-derivation-names-before-publication.md"
+          }
+        ]
+      }
+    },
+    "product-contract/expose-single-check-authoring-surface.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "product-contract/expose-single-check-authoring-surface.md",
         "title": "公开单一 Check authoring surface",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-15T15:38:42Z",
         "purpose": "让 package 以同一种 Check value 暴露 Product 预先提供和项目提供的 Check，并只保留一个产品执行入口。",
@@ -1674,6 +2033,35 @@
         "background": "Public npm package 的 manifest、legal text 和 provenance 必须使用一致许可，不能从 repository visibility 推断。",
         "decision": "`vibe-check` package 使用 SPDX `MIT`；candidate 和发布材料必须包含匹配的许可文本及权利人信息。",
         "relations": []
+      }
+    },
+    "product-contract/project-executable-checks-into-validated-task-graph.md": {
+      "keys": {
+        "domain": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "product-contract/project-executable-checks-into-validated-task-graph.md",
+        "title": "将 executable Check 直接投影到已验证 Task graph",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-17T15:47:47Z",
+        "purpose": "让 Check 只声明 Task 输入，由唯一静态 Task graph 负责依赖、互斥、并发和关系合法性。",
+        "background": "Information-only Check 不形成 Task；在 Check traversal 中展开依赖目标会复制并扭曲 generic Task graph 的责任。",
+        "decision": "每个 executable Check 投影一个 Task 并透传调度字段；Task graph 在执行前统一拒绝缺失依赖、环和其它非法结构。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "product-contract/execute-recursive-checks-through-one-task-graph.md"
+          }
+        ]
       }
     },
     "product-contract/publish-check-record-machine-v3.md": {

@@ -1,6 +1,6 @@
 ---
 title: 将工具中立约束限定于 Product-provided Check 配置
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
 purpose: 隔离 Product-provided scanner 实现细节，同时允许项目 Check binding 自主选择执行方式。

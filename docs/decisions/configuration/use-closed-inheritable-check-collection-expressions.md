@@ -1,6 +1,6 @@
 ---
 title: 使用闭合的可继承 Check 集合表达式
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:54Z
 purpose: 让递归 Check composition 中真正可集合化的公共字段具有明确、可验证且不依赖 deep merge 的继承与编辑语义。
