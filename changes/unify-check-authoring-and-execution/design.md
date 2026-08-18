@@ -575,3 +575,10 @@ Before changing test entities, bodies, Owners or Proves, run `bun run test-evide
 ## Open Questions
 
 无。Readiness 已通过 current-source、test-evidence、TypeScript prototype、inheritance、public inventory 与 downstream handoff 审计；Implementation 从 task 1.1 开始。
+
+## Implementation Observations
+
+- 2026-08-18 已完成 recursive Check、direct execution、one-Task projection、Check-owned default scanner options，以及旧 variant/TaskPlan/adjustment/operational-resolution hard cut；information-only warnings、Record/reference reporter 和 distinct unavailable reasons 均由当前 Product tests 覆盖。
+- Public inventory、repository dogfood、current machine schema/examples、stable owner docs 与 semantic Cases 已迁移到同一 contract；测试证据闭合为 147 个当前 Bun entities / 37 个 Cases。
+- 相关 configuration 与 product-contract future decisions 已在实现和 owner docs 对照后标记为 aligned；下游 package Change 已验证为使用该 surface，仍保留其自身 package-delivery 工作。
+- 最终验证包括 product test/typecheck/lint、docs/schema/example checks、test-evidence、decision/change-plan checks，以及 required/full workspace verifier；本 Plan 保持 active，归档需另行授权。
