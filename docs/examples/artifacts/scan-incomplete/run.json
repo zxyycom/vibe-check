@@ -48,9 +48,9 @@
         }
       ],
       "outcome": {
-        "kind": "unavailable",
-        "diagnostic": {
-          "category": "dependency-unavailable"
+        "status": "unavailable",
+        "reason": {
+          "code": "dependency-unavailable"
         }
       }
     }

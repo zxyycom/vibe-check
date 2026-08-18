@@ -1,511 +1,234 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
-  fileMetrics,
   defineConfig,
-  type CustomCheckBinding
+  type Check,
+  type CheckExecution,
+  type QualityRecordCandidate
 } from "../definition/project.ts";
-import type {
-  CheckApplicability,
-  CheckExecutionContext,
-  CheckResult,
-  QualityRecordCandidate
-} from "../definition/custom-check.ts";
 import { run } from "./index.ts";
-import { assertPublishedResult } from "./test-support.ts";
 
-const custom = (overrides: Readonly<{
-  readonly applicability?: () => CheckApplicability;
-  readonly binding?: CustomCheckBinding;
-  readonly execute?: () => CheckResult | Promise<CheckResult>;
+const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+
+function check(overrides: Readonly<{
   readonly checkId?: string;
-  readonly dependsOn?: string | readonly string[];
-  readonly mutex?: string | readonly string[];
-}> = {}) => ({
-  kind: "custom" as const,
-  checkId: overrides.checkId ?? "custom",
-  displayName: "Custom",
-  recordTypes: [],
-  applicability: overrides.applicability ?? (() => ({ status: "applicable" as const })),
-  binding: overrides.binding ?? {
-    kind: "direct" as const,
-    execute: overrides.execute ?? (() => ({ verdict: "passed" }))
-  },
-  ...(overrides.dependsOn === undefined ? {} : { dependsOn: overrides.dependsOn }),
-  ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex })
-});
+  readonly dependsOn?: readonly string[];
+  readonly execution?: CheckExecution<object>;
+  readonly maxParallel?: number;
+  readonly mutex?: readonly string[];
+  readonly recordTypes?: Check<object>["recordTypes"];
+}> = {}): Check<object> {
+  return {
+    checkId: overrides.checkId ?? "custom",
+    displayName: overrides.checkId ?? "Custom",
+    execution: overrides.execution ?? (() => COMPLETED),
+    ...(overrides.dependsOn === undefined ? {} : { dependsOn: overrides.dependsOn }),
+    ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
+    ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex }),
+    recordTypes: overrides.recordTypes ?? []
+  };
+}
 
-const LATE_RECORD_CANDIDATE = Object.freeze({
-  recordTypeId: "late-record",
-  level: "warning",
-  semanticSubject: "late-submission",
-  message: "Late submissions must not reach Core",
-  fields: Object.freeze({}),
-  location: null
-}) satisfies QualityRecordCandidate;
-
-function definition(overrides: Parameters<typeof custom>[0] = {}) {
+function definition(checks: readonly Check<object>[]) {
   return defineConfig({
-    checks: [custom(overrides)],
-    policies: {
-      "project-gate": {
-        policyId: "project-gate",
-        references: [],
-        acceptance: [],
-        views: [],
-        readiness: [],
-        blockWhen: { kind: "check-outcome" as const, checkId: "custom", outcome: "unavailable" }
-      }
-    },
-    selectedPolicy: "project-gate",
+    checks,
     effects: {
       cache: { enabled: false },
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
-    }
+    },
+    selectedPolicy: null
   });
 }
 
-describe("Package Run", () => {
-  it("rejects invalid closed controls before project applicability or runner functions", async () => {
-    let calls = 0;
-    const source = definition({
-      applicability: () => {
-        calls += 1;
-        return { status: "applicable" };
-      }
-    });
-    const result = await run(source, { unexpected: true });
-    const incompatibleComparison = await run(source, {
-      comparison: { referenceName: "baseline", revision: "HEAD" }
-    });
+const RECORD_CANDIDATE = Object.freeze({
+  recordTypeId: "finding",
+  level: "warning",
+  semanticSubject: "src/a.ts",
+  message: "A direct Check finding",
+  fields: Object.freeze({ metric: "score" }),
+  location: Object.freeze({ path: "src/a.ts", line: 1, column: 1 })
+}) satisfies QualityRecordCandidate;
 
-    assert.deepEqual(result, {
+const RECORD_TYPES = [{
+  recordTypeId: "finding",
+  fields: [{ fieldId: "metric", valueType: "string", required: true }],
+  identityFields: ["metric"]
+}] as const;
+
+describe("Package Run", () => {
+  it("rejects invalid closed controls and definitions before any Check callback", async () => {
+    let calls = 0;
+    const source = definition([check({ execution: () => {
+      calls += 1;
+      return COMPLETED;
+    } })]);
+
+    const badControls = await run(source, { unexpected: true });
+    const badDefinition = await run({ ...source, unexpected: true }, {});
+
+    assert.deepEqual(badControls, {
       kind: "configuration",
+      definitionWarnings: [],
       diagnostic: { kind: "invalid-run-controls", path: "controls.unexpected", reason: "unknown-key" }
     });
-    assert.deepEqual(incompatibleComparison, {
-      kind: "configuration",
-      diagnostic: { kind: "invalid-run-controls", path: "controls.comparison", reason: "invalid-value" }
-    });
+    assert.equal(badDefinition.kind, "configuration");
     assert.equal(calls, 0);
   });
 
-  it("requires the definition itself before any project function", async () => {
-    let customCalls = 0;
-    const missing = await run(undefined, {});
-    const invalid = await run({
-      ...definition({ applicability: () => { customCalls += 1; return { status: "applicable" }; } }),
-      unexpected: true
-    });
-
-    assert.equal(missing.kind, "configuration");
-    assert.equal(invalid.kind, "configuration");
-    assert.equal(customCalls, 0);
-  });
-
-  it("uses the validated named policy and keeps function bindings out of its result", async () => {
-    let directCalls = 0;
-    const source = definition({ execute: () => { directCalls += 1; return { verdict: "passed" }; } });
-    const root = mkdtempSync(join(tmpdir(), "vibe-check-package-run-"));
+  it("executes each normalized Check directly with the public callback context", async () => {
+    let received: Readonly<{
+      readonly changedFiles: readonly string[];
+      readonly options: object;
+      readonly root: string;
+      readonly signal: AbortSignal;
+    }> | undefined;
+    const source = definition([check({ execution: (context) => {
+      received = {
+        changedFiles: context.project.changedFiles,
+        options: context.options,
+        root: context.project.root,
+        signal: context.signal
+      };
+      return COMPLETED;
+    } })]);
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-direct-run-"));
     try {
-      const result = await run(source, {
-        projectRoot: root,
-        effects: {
-          cache: { enabled: true, directory: "cache" },
-          logs: { enabled: false },
-          output: { enabled: true, directory: "published" },
-          progress: { enabled: false }
-        }
-      });
-      assertPublishedResult(result, root);
-      const disabled = await run(source, {
-        projectRoot: root,
-        effects: { output: { enabled: false, directory: "disabled-publication" } }
-      });
-      assert.equal(disabled.kind, "completed");
-      if (disabled.kind !== "completed") return;
-      assert.equal(disabled.effects.output.status, "disabled");
-      assert.equal(existsSync(join(root, "disabled-publication")), false);
-      writeFileSync(join(root, "blocked-output"), "not a directory", "utf8");
-      const outputFailure = await run(source, {
-        projectRoot: root,
-        effects: { output: { enabled: true, directory: "blocked-output" } }
-      });
-      assert.equal(outputFailure.kind, "effect");
-      if (outputFailure.kind !== "effect") return;
-      assert.deepEqual(outputFailure.diagnostic, { effect: "output", code: "effect-failed" });
-      assert.equal(outputFailure.effects.output.status, "failed");
-      assert.equal(directCalls, 3);
+      const result = await run(source, { changedFiles: ["src/a.ts"], projectRoot: root });
+      assert.equal(result.kind, "completed");
+      assert.deepEqual(received?.changedFiles, ["src/a.ts"]);
+      assert.deepEqual(received?.options, {});
+      assert.equal(received?.root, root);
+      assert.equal(received?.signal.aborted, false);
+      if (result.kind !== "completed") return;
+      assert.deepEqual(result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })), [{
+        checkId: "custom", outcome: COMPLETED
+      }]);
+      assert.deepEqual(result.definitionWarnings, []);
+      assert.doesNotMatch(JSON.stringify(result), /createTaskPlan|binding|operationalDependencies/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  it("calls an applicable TaskPlan factory during closed planning and lets the shared scheduler run it", async () => {
-    let factoryCalls = 0;
-    let leafCalls = 0;
-    const result = await run(definition({
-      binding: {
-        kind: "task-plan",
-        createTaskPlan: () => {
-          factoryCalls += 1;
-          return {
-            tasks: [{
-              id: "work",
-              dependsOn: [],
-              mutex: [],
-              run: () => { leafCalls += 1; return "complete"; }
-            }],
-            complete: () => ({ verdict: "passed" })
-          };
+  it("projects direct dependencies to generic tasks and gives skipped dependents a prerequisite reason", async () => {
+    let dependentCalls = 0;
+    const source = definition([
+      check({
+        checkId: "unavailable",
+        execution: () => ({ status: "unavailable", reason: { code: "source-unavailable" } })
+      }),
+      check({
+        checkId: "dependent",
+        dependsOn: ["unavailable"],
+        execution: () => {
+          dependentCalls += 1;
+          return COMPLETED;
         }
-      },
-      applicability: () => ({ status: "applicable" })
-    }));
+      })
+    ]);
 
-    assert.equal(result.kind, "completed");
-    assert.equal(factoryCalls, 1);
-    assert.equal(leafCalls, 1);
-
-    let zeroChildCompletionCalls = 0;
-    const zeroChild = await run(definition({
-      binding: {
-        kind: "task-plan",
-        createTaskPlan: () => ({
-          tasks: [],
-          complete: () => {
-            zeroChildCompletionCalls += 1;
-            return { verdict: "passed" };
-          }
-        })
-      }
-    }));
-    assert.equal(zeroChild.kind, "completed");
-    if (zeroChild.kind !== "completed") return;
-    assert.equal(zeroChildCompletionCalls, 1);
-    assert.deepEqual(zeroChild.snapshot.checks[0]?.outcome, {
-      kind: "completed",
-      verdict: "passed"
-    });
-    assert.deepEqual(zeroChild.snapshot.records, []);
-
-    let dependentLeafCalls = 0;
-    let completionCalls = 0;
-    let unrelatedCalls = 0;
-    const containedFailure = await run(defineConfig({
-      checks: [
-        custom({
-          checkId: "planned",
-          binding: {
-            kind: "task-plan",
-            createTaskPlan: () => ({
-              tasks: [{
-                id: "producer",
-                run: () => { throw new Error("expected contained leaf failure"); }
-              }, {
-                id: "dependent",
-                dependsOn: ["producer"],
-                run: () => { dependentLeafCalls += 1; }
-              }],
-              complete: () => {
-                completionCalls += 1;
-                return { verdict: "passed" };
-              }
-            })
-          }
-        }),
-        custom({
-          checkId: "unrelated",
-          execute: () => { unrelatedCalls += 1; return { verdict: "passed" }; }
-        })
-      ],
-      scheduler: { maxParallel: 2 },
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
-      }
-    }));
-    assert.equal(containedFailure.kind, "completed");
-    if (containedFailure.kind !== "completed") return;
-    assert.equal(dependentLeafCalls, 0);
-    assert.equal(completionCalls, 0);
-    assert.equal(unrelatedCalls, 1);
-    assert.deepEqual(
-      containedFailure.snapshot.checks.find((check) => check.checkId === "planned")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "execution-failed" } }
-    );
-    assert.deepEqual(
-      containedFailure.snapshot.checks.find((check) => check.checkId === "unrelated")?.outcome,
-      { kind: "completed", verdict: "passed" }
-    );
-
-    const guardStarted = Promise.withResolvers<void>();
-    const releaseGuard = Promise.withResolvers<void>();
-    let retainedBeforeTerminal: CheckExecutionContext | undefined;
-    const lateBeforeTerminalRun = run(defineConfig({
-      checks: [custom({
-        checkId: "late-before-terminal",
-        binding: {
-          kind: "task-plan",
-          createTaskPlan: () => ({
-            tasks: [{
-              id: "capture",
-              run: (context) => {
-                retainedBeforeTerminal = context;
-                return "captured";
-              }
-            }, {
-              id: "guard",
-              dependsOn: ["capture"],
-              run: async () => {
-                guardStarted.resolve();
-                await releaseGuard.promise;
-              }
-            }],
-            complete: () => ({ verdict: "passed" })
-          })
-        }
-      })],
-      scheduler: { maxParallel: 2 },
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
-      }
-    }));
-    await guardStarted.promise;
-    const beforeTerminalContext = retainedBeforeTerminal;
-    if (beforeTerminalContext === undefined) throw new Error("Expected retained leaf context");
-    beforeTerminalContext.results.report(LATE_RECORD_CANDIDATE);
-    releaseGuard.resolve();
-    const lateBeforeTerminal = await lateBeforeTerminalRun;
-    assert.equal(lateBeforeTerminal.kind, "completed");
-    if (lateBeforeTerminal.kind !== "completed") return;
-    assert.deepEqual(lateBeforeTerminal.snapshot.records, []);
-    assert.deepEqual(lateBeforeTerminal.snapshot.checks[0]?.outcome, {
-      kind: "unavailable",
-      diagnostic: { category: "capability-protocol" }
-    });
-
-    let retainedAfterTerminal: CheckExecutionContext | undefined;
-    const lateAfterTerminal = await run(definition({
-      binding: {
-        kind: "task-plan",
-        createTaskPlan: () => ({
-          tasks: [{
-            id: "capture",
-            run: (context) => {
-              retainedAfterTerminal = context;
-              return "captured";
-            }
-          }],
-          complete: () => ({ verdict: "passed" })
-        })
-      }
-    }));
-    assert.equal(lateAfterTerminal.kind, "completed");
-    if (lateAfterTerminal.kind !== "completed") return;
-    const snapshotBeforeLateCall = structuredClone(lateAfterTerminal.snapshot);
-    const afterTerminalContext = retainedAfterTerminal;
-    if (afterTerminalContext === undefined) throw new Error("Expected retained terminal context");
-    afterTerminalContext.results.report(LATE_RECORD_CANDIDATE);
-    assert.deepEqual(lateAfterTerminal.snapshot, snapshotBeforeLateCall);
-  });
-
-  it("does not call a TaskPlan factory for a not-applicable Check", async () => {
-    let factoryCalls = 0;
-    const result = await run(definition({
-      binding: { kind: "task-plan", createTaskPlan: () => { factoryCalls += 1; throw new Error("must not be called"); } },
-      applicability: () => ({ status: "not-applicable" })
-    }));
-    assert.equal(result.kind, "completed");
-    assert.equal(factoryCalls, 0);
-  });
-
-  it("flattens group dependencies before shared execution", async () => {
-    const calls: string[] = [];
-    const result = await run(defineConfig({
-      checks: [{
-        id: "producers",
-        checks: [custom({
-          checkId: "producer",
-          execute: () => { calls.push("producer"); return { verdict: "passed" }; }
-        })]
-      }, custom({
-        checkId: "consumer",
-        dependsOn: "producers",
-        execute: () => { calls.push("consumer"); return { verdict: "passed" }; }
-      })],
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
-      }
-    }));
-
-    assert.equal(result.kind, "completed");
-    assert.deepEqual(calls, ["producer", "consumer"]);
-  });
-
-  it("uses only explicit mutex constraints to serialize direct and TaskPlan leaf work", async () => {
-    let inFlight = 0;
-    let maximumInFlight = 0;
-    const enter = async () => {
-      inFlight += 1;
-      maximumInFlight = Math.max(maximumInFlight, inFlight);
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      inFlight -= 1;
-    };
-    const result = await run(defineConfig({
-      checks: [{
-        id: "native-work",
-        mutex: "native",
-        checks: [
-          custom({
-            checkId: "direct",
-            execute: async () => {
-              await enter();
-              return { verdict: "passed" };
-            }
-          }),
-          custom({
-            checkId: "planned",
-            applicability: () => ({ status: "applicable" }),
-            binding: {
-              kind: "task-plan",
-              createTaskPlan: () => ({
-                tasks: [{
-                  id: "work",
-                  run: enter
-                }],
-                complete: () => ({ verdict: "passed" })
-              })
-            }
-          })
-        ]
-      }],
-      scheduler: { maxParallel: 2 },
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
-      }
-    }));
-
-    assert.equal(result.kind, "completed");
-    assert.equal(maximumInFlight, 1);
-  });
-
-  it("prepares built-ins present in the tree before a dependent custom Check", async () => {
-    let consumerCalls = 0;
-    const result = await run(defineConfig({
-      checks: [
-        fileMetrics,
-        custom({
-          checkId: "consumer",
-          dependsOn: "file-metrics",
-          execute: () => { consumerCalls += 1; return { verdict: "passed" }; }
-        })
-      ],
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
-      }
-    }), { operationalDependencies: { file: { executable: process.execPath } } });
-
+    const result = await run(source);
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
-    assert.equal(
-      result.snapshot.checks.find((entry) => entry.checkId === "file-metrics")?.outcome.kind,
-      "unavailable"
-    );
-    assert.deepEqual(
-      result.snapshot.checks.find((entry) => entry.checkId === "consumer")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "dependency-unavailable" } }
-    );
-    assert.equal(consumerCalls, 0);
+    assert.equal(dependentCalls, 0);
+    assert.deepEqual(result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })), [{
+      checkId: "dependent",
+      outcome: {
+        status: "unavailable",
+        reason: { code: "prerequisite-unavailable", checkIds: ["unavailable"] }
+      }
+    }, {
+      checkId: "unavailable",
+      outcome: { status: "unavailable", reason: { code: "source-unavailable" } }
+    }]);
   });
 
-  it("observes cooperative cancellation after input validation and before planning work", async () => {
-    const controller = new AbortController();
-    controller.abort();
+  it("rejects an invalid projected generic Task graph before any Check callback runs", async () => {
     let calls = 0;
-    const result = await run(definition({
-      applicability: () => { calls += 1; return { status: "applicable" }; }
-    }), { signal: controller.signal });
-    assert.equal(result.kind, "cancelled");
-    if (result.kind === "cancelled") assert.equal(result.phase, "pre-work");
-    assert.equal(calls, 0);
-
-    const executionController = new AbortController();
-    const leafStarted = Promise.withResolvers<void>();
-    const releaseLeaf = Promise.withResolvers<void>();
-    let completionCalls = 0;
-    let pendingCalls = 0;
-    const executionRun = run(defineConfig({
-      checks: [
-        custom({
-          checkId: "a-planned",
-          binding: {
-            kind: "task-plan",
-            createTaskPlan: () => ({
-              tasks: [{
-                id: "fails-while-draining",
-                run: async () => {
-                  leafStarted.resolve();
-                  await releaseLeaf.promise;
-                  throw new Error("expected drain failure");
-                }
-              }],
-              complete: () => {
-                completionCalls += 1;
-                return { verdict: "passed" };
-              }
-            })
-          }
-        }),
-        custom({
-          checkId: "b-pending",
-          dependsOn: "a-planned",
-          execute: () => { pendingCalls += 1; return { verdict: "passed" }; }
-        }),
-        custom({
-          checkId: "c-transitive",
-          dependsOn: "b-pending",
-          execute: () => { pendingCalls += 1; return { verdict: "passed" }; }
-        }),
-        custom({
-          checkId: "d-unrelated",
-          execute: () => { pendingCalls += 1; return { verdict: "passed" }; }
-        })
-      ],
-      scheduler: { maxParallel: 1 },
-      effects: {
-        cache: { enabled: false }, logs: { enabled: false }, output: { enabled: false }, progress: { enabled: false }
+    const result = await run(definition([check({
+      dependsOn: ["missing-check"],
+      execution: () => {
+        calls += 1;
+        return COMPLETED;
       }
-    }), { signal: executionController.signal });
-    await leafStarted.promise;
-    executionController.abort();
-    releaseLeaf.resolve();
-    const executionCancelled = await executionRun;
-    assert.equal(executionCancelled.kind, "cancelled");
-    if (executionCancelled.kind !== "cancelled") return;
-    assert.equal(executionCancelled.phase, "execution");
-    assert.equal(completionCalls, 0);
-    assert.equal(pendingCalls, 0);
-    assert.deepEqual(
-      executionCancelled.snapshot.checks.find((check) => check.checkId === "a-planned")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "execution-failed" } }
-    );
-    assert.deepEqual(
-      executionCancelled.snapshot.checks.find((check) => check.checkId === "b-pending")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "dependency-unavailable" } }
-    );
-    assert.deepEqual(
-      executionCancelled.snapshot.checks.find((check) => check.checkId === "c-transitive")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "dependency-unavailable" } }
-    );
-    assert.deepEqual(
-      executionCancelled.snapshot.checks.find((check) => check.checkId === "d-unrelated")?.outcome,
-      { kind: "unavailable", diagnostic: { category: "cancelled" } }
-    );
+    })]));
+    assert.deepEqual(result.kind === "planning" ? result.diagnostic : result, {
+      code: "task-graph-invalid"
+    });
+    assert.equal(calls, 0);
+  });
+
+  it("contains invalid callback outcomes and record misuse in the Check outcome", async () => {
+    const invalidResult = await run(definition([check({ execution: () => ({ status: "unexpected" } as never) })]));
+    assert.equal(invalidResult.kind, "completed");
+    if (invalidResult.kind !== "completed") return;
+    assert.deepEqual(invalidResult.snapshot.checks[0]?.outcome, {
+      status: "unavailable", reason: { code: "invalid-execution-result" }
+    });
+
+    const invalidRecord = await run(definition([check({
+      recordTypes: RECORD_TYPES,
+      execution: (context) => {
+        context.records.report({ ...RECORD_CANDIDATE, recordTypeId: "unknown" });
+        return COMPLETED;
+      }
+    })]));
+    assert.equal(invalidRecord.kind, "completed");
+    if (invalidRecord.kind !== "completed") return;
+    assert.deepEqual(invalidRecord.snapshot.checks[0]?.outcome, {
+      status: "unavailable", reason: { code: "record-invalid" }
+    });
+
+    const contradictoryReference = await run(definition([check({ execution: (context) => {
+      context.records.reportReference({
+        referenceName: "baseline",
+        relations: [],
+        status: "unavailable"
+      });
+      return { status: "not-applicable" };
+    } })]));
+    assert.equal(contradictoryReference.kind, "completed");
+    if (contradictoryReference.kind !== "completed") return;
+    assert.deepEqual(contradictoryReference.snapshot.checks[0]?.outcome, {
+      status: "unavailable", reason: { code: "record-invalid" }
+    });
+  });
+
+  it("commits Check-owned records and closes its reporter when the callback settles", async () => {
+    let retainedReporter: Readonly<{ report(candidate: QualityRecordCandidate): void }> | undefined;
+    const result = await run(definition([check({
+      recordTypes: RECORD_TYPES,
+      execution: (context) => {
+        retainedReporter = context.records;
+        context.records.report(RECORD_CANDIDATE);
+        return COMPLETED;
+      }
+    })]));
+    assert.equal(result.kind, "completed");
+    if (result.kind !== "completed") return;
+    assert.equal(result.snapshot.records.length, 1);
+    assert.throws(() => retainedReporter?.report(RECORD_CANDIDATE), /reporter is closed/);
+  });
+
+  it("publishes the direct Check snapshot without retaining executable callbacks", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-publication-"));
+    try {
+      const result = await run(definition([check()]), {
+        projectRoot: root,
+        effects: { output: { enabled: true, directory: "published" } }
+      });
+      assert.equal(result.kind, "completed");
+      assert.equal(existsSync(join(root, "published", "run.json")), true);
+      assert.equal(existsSync(join(root, "published", "records.ndjson")), true);
+      assert.doesNotMatch(JSON.stringify(result), /"execution"\s*:/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });

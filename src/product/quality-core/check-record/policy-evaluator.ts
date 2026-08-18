@@ -172,12 +172,12 @@ function evaluateReadinessPredicate(
   }
   if (predicate.kind === "check-outcome") {
     const check = requiredCheck(snapshot, predicate.checkId);
-    return { isMatched: check.outcome.kind === predicate.outcome, evidenceRefs: [checkRef(check)] };
+    return { isMatched: check.outcome.status === predicate.outcome, evidenceRefs: [checkRef(check)] };
   }
   if (predicate.kind === "check-verdict") {
     const check = requiredCheck(snapshot, predicate.checkId);
     return {
-      isMatched: check.outcome.kind === "completed" && check.outcome.verdict === predicate.verdict,
+      isMatched: check.outcome.status === "completed" && check.outcome.verdict === predicate.verdict,
       evidenceRefs: [checkRef(check)]
     };
   }
@@ -210,7 +210,7 @@ function evaluateBlockWhen(
   if (blockWhen.kind === "check-outcome") {
     const check = requiredCheck(snapshot, blockWhen.checkId);
     return {
-      isMatched: check.outcome.kind === blockWhen.outcome,
+      isMatched: check.outcome.status === blockWhen.outcome,
       evidenceRefs: [checkRef(check)],
       blockingRecordRefs: []
     };

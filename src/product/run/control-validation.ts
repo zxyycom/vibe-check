@@ -5,13 +5,11 @@ import type {
   RunControls,
   ValidationResult
 } from "../definition/project.ts";
-import { parseOperationalDependencies } from "../scanner-dependencies/index.ts";
 
 const RUN_CONTROL_KEYS = [
   "changedFiles",
   "comparison",
   "effects",
-  "operationalDependencies",
   "projectRoot",
   "signal"
 ] as const;
@@ -33,12 +31,6 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
   if (!comparison.ok) return comparison;
   const effects = optionalControl(data.value.effects, parseEffectsOverride, "controls.effects");
   if (!effects.ok) return effects;
-  const dependencies = optionalControl(
-    data.value.operationalDependencies,
-    parseOperationalDependencies,
-    "controls.operationalDependencies"
-  );
-  if (!dependencies.ok) return dependencies;
   const projectRoot = optionalControl(data.value.projectRoot, parseString, "controls.projectRoot");
   if (!projectRoot.ok) return projectRoot;
   const signal = optionalControl(data.value.signal, parseAbortSignal, "controls.signal");
@@ -49,7 +41,6 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
       ...(changedFiles.value === undefined ? {} : { changedFiles: Object.freeze([...changedFiles.value]) }),
       ...(comparison.value === undefined ? {} : { comparison: comparison.value }),
       ...(effects.value === undefined ? {} : { effects: effects.value }),
-      ...(dependencies.value === undefined ? {} : { operationalDependencies: dependencies.value }),
       ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
       ...(signal.value === undefined ? {} : { signal: signal.value })
     })

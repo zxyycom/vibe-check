@@ -8,7 +8,7 @@ Proves:
 - The repository Run imports and binds the repository Project Definition; another caller supplies only the controls that Run exposes.
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
-Owner: `docs/architecture.md#checktask-system`
+Owner: `docs/architecture.md#execution-boundary`
 Entities:
 - `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
 - `bun|src/product/task-scheduler/test/task-engine.test.ts|static task engine > uses one root budget for dependency order and named mutex admission`

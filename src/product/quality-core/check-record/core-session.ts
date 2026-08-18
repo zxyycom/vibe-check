@@ -1,12 +1,7 @@
-import {
-  canonicalJsonBytes,
-  createRecordId
-} from "./identity.ts";
+import { canonicalJsonBytes, createRecordId } from "./identity.ts";
 import type {
   CheckDefinition,
   CheckOutcome,
-  CheckUnavailableDiagnosticCategory,
-  CoreCheck,
   CoreSnapshot,
   JsonObject,
   QualityRecord,
@@ -29,51 +24,37 @@ const CANDIDATE_FIELDS = [
   "location"
 ] as const;
 
-const DIAGNOSTIC_RANK: Readonly<Record<CheckUnavailableDiagnosticCategory, number>> = Object.freeze({
-  "record-conflict": 0,
-  "invalid-record": 1,
-  "capability-protocol": 2,
-  "invalid-result": 3,
-  "dependency-unavailable": 4,
-  "execution-failed": 5,
-  cancelled: 6
-});
+const REFERENCE_RECORD_FIELDS = ["recordTypeId", "semanticSubject", "fields"] as const;
 
-export type CoreCheckApplicability = "applicable" | "not-applicable";
-
-/** The minimal Run-owned projection Core needs for one canonical Resolved Check. */
 export interface CoreCheckRegistration {
   readonly definition: CheckDefinition;
-  readonly applicability: CoreCheckApplicability;
 }
 
 export type RecordSubmissionResult = "committed" | "replayed" | "conflicted" | "rejected";
 
-/**
- * This closure is bound to one Check slot. Candidate authors cannot provide or
- * revise the owning `checkId`.
- */
+/** Internal Record port bound to one currently executing Check. */
 export interface RecordSink {
   report(candidate: QualityRecordCandidate): RecordSubmissionResult;
 }
 
-export type CoreCheckTerminalOutcome = Exclude<CheckOutcome, { kind: "not-applicable" }>;
-export type CheckAvailability = "available" | "unavailable";
-
-/** Only the Product direct/terminal adapter receives this capability. */
-export interface TrustedApplicableCheckScope {
+/** Only the Product Task adapter receives this Core lifecycle capability. */
+export interface TrustedCheckScope {
   readonly records: RecordSink;
-  readonly settle: (outcome: CoreCheckTerminalOutcome) => CheckAvailability;
+  /** Resolves an already retained Record identity for a reporter relation. */
+  readonly recordIdForReference: (candidate: unknown) => Readonly<{
+    readonly recordId: string;
+    readonly recordTypeId: string;
+  }> | undefined;
+  readonly settle: (outcome: CheckOutcome) => CheckOutcome;
 }
 
 export interface CoreCheckSession {
-  closeNotApplicable(checkId: string): void;
-  openApplicableScope(checkId: string): TrustedApplicableCheckScope;
+  openCheckScope(checkId: string): TrustedCheckScope;
   closeUnresolvedAsCancelled(): void;
   freeze(): CoreSnapshot;
 }
 
-/** A trusted integration bug is fatal to the invocation, not an ordinary Check outcome. */
+/** A trusted integration bug is fatal to the invocation, not a Check outcome. */
 export class CoreInvariantFailure extends Error {
   public constructor(message: string) {
     super(message);
@@ -81,14 +62,11 @@ export class CoreInvariantFailure extends Error {
   }
 }
 
-interface SlotDiagnostic {
-  readonly category: CheckUnavailableDiagnosticCategory;
-  readonly tieBreakKey: string;
-}
-
 interface RecordState {
   readonly bodies: Map<string, JsonObject>;
 }
+
+type RecordDiagnostic = "record-conflict" | "record-invalid";
 
 type CoreSlotLifecycle = Readonly<
   | { readonly kind: "registered" }
@@ -98,8 +76,8 @@ type CoreSlotLifecycle = Readonly<
 
 interface CoreSlot {
   readonly definition: CheckDefinition;
-  readonly applicability: CoreCheckApplicability;
-  readonly diagnostics: SlotDiagnostic[];
+  readonly diagnostics: Set<RecordDiagnostic>;
+  readonly recordIds: Set<string>;
   lifecycle: CoreSlotLifecycle;
 }
 
@@ -113,10 +91,7 @@ function coreInvariant(message: string): never {
   throw new CoreInvariantFailure(message);
 }
 
-function candidateRecordType(
-  slot: CoreSlot,
-  recordTypeId: string
-): RecordTypeDefinition | undefined {
+function candidateRecordType(slot: CoreSlot, recordTypeId: string): RecordTypeDefinition | undefined {
   return slot.definition.recordTypes.find((recordType) => recordType.recordTypeId === recordTypeId);
 }
 
@@ -137,69 +112,24 @@ function bodyKey(body: JsonObject): string {
   return new TextDecoder().decode(canonicalJsonBytes(body));
 }
 
-function normalizedTerminalOutcome(value: unknown): CoreCheckTerminalOutcome {
-  const terminal = snapshotPlainRecord(value);
-  if (terminal?.kind === "completed"
-    && hasExactPlainRecordKeys(terminal, ["kind", "verdict"])
-    && (terminal.verdict === "passed" || terminal.verdict === "failed")) {
-    return Object.freeze({ kind: "completed", verdict: terminal.verdict });
-  }
-  if (terminal?.kind === "unavailable"
-    && hasExactPlainRecordKeys(terminal, ["kind", "diagnostic"])) {
-    const diagnostic = snapshotPlainRecord(terminal.diagnostic);
-    const category = diagnostic?.category;
-    if (diagnostic !== undefined
-      && hasExactPlainRecordKeys(diagnostic, ["category"])
-      && isUnavailableCategory(category)) {
-      return Object.freeze({
-        kind: "unavailable" as const,
-        diagnostic: { category }
-      });
-    }
-  }
-  return Object.freeze({
-    kind: "unavailable" as const,
-    diagnostic: { category: "invalid-result" as const }
-  });
-}
-
-function isUnavailableCategory(value: unknown): value is CheckUnavailableDiagnosticCategory {
-  return typeof value === "string" && Object.hasOwn(DIAGNOSTIC_RANK, value);
-}
-
-function availabilityFor(outcome: CheckOutcome): CheckAvailability {
-  return outcome.kind === "unavailable" ? "unavailable" : "available";
-}
-
-function chooseDiagnostic(diagnostics: readonly SlotDiagnostic[]): SlotDiagnostic | undefined {
-  return [...diagnostics].sort((left, right) => (
-    DIAGNOSTIC_RANK[left.category] - DIAGNOSTIC_RANK[right.category]
-      || compareText(left.tieBreakKey, right.tieBreakKey)
-  ))[0];
-}
-
 function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[] {
   const slots: CoreSlot[] = [];
   const checkIds = new Set<string>();
   for (const registration of registrations) {
-    if (registration === null || typeof registration !== "object"
-      || (registration.applicability !== "applicable"
-        && registration.applicability !== "not-applicable")) {
+    if (registration === null || typeof registration !== "object") {
       coreInvariant("Core Check registration is invalid");
     }
     const definition = validateCheckDefinition(registration.definition);
-    if (!definition.ok) {
-      coreInvariant("Core Check registration definition is invalid");
-    }
+    if (!definition.ok) coreInvariant("Core Check registration definition is invalid");
     if (checkIds.has(definition.value.checkId)) {
       coreInvariant("Core Check registration has a duplicate checkId");
     }
     checkIds.add(definition.value.checkId);
     slots.push({
       definition: definition.value,
-      applicability: registration.applicability,
-      diagnostics: [],
-      lifecycle: { kind: "registered" }
+      diagnostics: new Set(),
+      lifecycle: { kind: "registered" },
+      recordIds: new Set()
     });
   }
   return slots.sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
@@ -209,41 +139,29 @@ class CoreCheckSessionImpl implements CoreCheckSession {
   readonly #slots: CoreSlot[];
   readonly #records = new Map<string, QualityRecord>();
   readonly #recordStates = new Map<string, RecordState>();
-  #invalidRecordCount = 0;
   #snapshot: CoreSnapshot | undefined;
 
   public constructor(registrations: readonly CoreCheckRegistration[]) {
     this.#slots = createSlots(registrations);
   }
 
-  public closeNotApplicable(checkId: string): void {
+  public openCheckScope(checkId: string): TrustedCheckScope {
     const slot = this.#slotFor(checkId);
-    if (this.#snapshot !== undefined || slot.applicability !== "not-applicable"
-      || slot.lifecycle.kind !== "registered") {
-      coreInvariant("Not-applicable Core Check closure is not available");
-    }
-    slot.lifecycle = Object.freeze({
-      kind: "settled",
-      outcome: Object.freeze({ kind: "not-applicable" })
-    });
-  }
-
-  public openApplicableScope(checkId: string): TrustedApplicableCheckScope {
-    const slot = this.#slotFor(checkId);
-    if (this.#snapshot !== undefined || slot.applicability !== "applicable"
-      || slot.lifecycle.kind !== "registered") {
-      coreInvariant("Applicable Core Check scope is not available");
+    if (this.#snapshot !== undefined || slot.lifecycle.kind !== "registered") {
+      coreInvariant("Core Check scope is not available");
     }
     slot.lifecycle = Object.freeze({ kind: "open" });
-    const records: RecordSink = Object.freeze({
-      report: (candidate: QualityRecordCandidate): RecordSubmissionResult => {
-        if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") return "rejected";
-        return this.#reportRecord(slot, candidate);
-      }
-    });
     return Object.freeze({
-      records,
-      settle: (outcome: CoreCheckTerminalOutcome): CheckAvailability => this.#settleApplicableSlot(slot, outcome)
+      records: Object.freeze({
+        report: (candidate: QualityRecordCandidate): RecordSubmissionResult => {
+          if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") return "rejected";
+          return this.#reportRecord(slot, candidate);
+        }
+      }),
+      recordIdForReference: (candidate: unknown) => (
+        this.#recordIdForReference(slot, candidate)
+      ),
+      settle: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome)
     });
   }
 
@@ -252,10 +170,10 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       coreInvariant("Cancelled closure cannot mutate a frozen Core snapshot");
     }
     for (const slot of this.#slots) {
-      if (slot.applicability === "applicable" && slot.lifecycle.kind !== "settled") {
+      if (slot.lifecycle.kind !== "settled") {
         this.#commitTerminal(slot, Object.freeze({
-          kind: "unavailable" as const,
-          diagnostic: { category: "cancelled" as const }
+          status: "unavailable",
+          reason: { code: "execution-cancelled" }
         }));
       }
     }
@@ -263,20 +181,21 @@ class CoreCheckSessionImpl implements CoreCheckSession {
 
   public freeze(): CoreSnapshot {
     if (this.#snapshot !== undefined) return this.#snapshot;
-    const checks: CoreCheck[] = [];
+    const checks: { readonly definition: CheckDefinition; readonly outcome: CheckOutcome }[] = [];
     for (const slot of this.#slots) {
       if (slot.lifecycle.kind !== "settled") {
         return coreInvariant("Core snapshot cannot freeze before every Check slot closes");
       }
-      checks.push({ ...slot.definition, outcome: slot.lifecycle.outcome });
+      checks.push({ definition: slot.definition, outcome: slot.lifecycle.outcome });
     }
     const records = [...this.#records.values()].sort((left, right) => (
       compareText(left.recordId, right.recordId)
     ));
-    const validated = validateCoreSnapshot({ checks, records });
-    if (!validated.ok) {
-      return coreInvariant("Core snapshot violates its trusted fact invariant");
-    }
+    const validated = validateCoreSnapshot({
+      checks: checks.map(({ definition, outcome }) => ({ ...definition, outcome })),
+      records
+    });
+    if (!validated.ok) return coreInvariant("Core snapshot violates its trusted fact invariant");
     this.#snapshot = validated.value;
     return this.#snapshot;
   }
@@ -287,29 +206,28 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     return slot ?? coreInvariant("Core Check scope does not own this checkId");
   }
 
-  #settleApplicableSlot(slot: CoreSlot, rawOutcome: unknown): CheckAvailability {
+  #settleSlot(slot: CoreSlot, outcome: CheckOutcome): CheckOutcome {
     if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") {
       return coreInvariant("Trusted Core Check settlement is duplicate, late, or out of scope");
     }
-    return this.#commitTerminal(slot, normalizedTerminalOutcome(rawOutcome));
+    return this.#commitTerminal(slot, outcome);
   }
 
-  #commitTerminal(slot: CoreSlot, terminal: CoreCheckTerminalOutcome): CheckAvailability {
-    if (slot.lifecycle.kind === "settled") {
-      return coreInvariant("Core Check terminal closure is duplicate");
+  #commitTerminal(slot: CoreSlot, terminal: CheckOutcome): CheckOutcome {
+    if (slot.lifecycle.kind === "settled") coreInvariant("Core Check terminal closure is duplicate");
+    if (terminal.status === "not-applicable" && slot.recordIds.size > 0) {
+      slot.diagnostics.add("record-invalid");
     }
-    if (terminal.kind === "unavailable") {
-      slot.diagnostics.push({
-        category: terminal.diagnostic.category,
-        tieBreakKey: `terminal/${terminal.diagnostic.category}`
-      });
-    }
-    const diagnostic = chooseDiagnostic(slot.diagnostics);
+    const diagnostic = slot.diagnostics.has("record-conflict")
+      ? "record-conflict"
+      : slot.diagnostics.has("record-invalid")
+        ? "record-invalid"
+        : undefined;
     const outcome = diagnostic === undefined
       ? terminal
-      : Object.freeze({ kind: "unavailable", diagnostic: { category: diagnostic.category } });
+      : Object.freeze({ status: "unavailable" as const, reason: { code: diagnostic } });
     slot.lifecycle = Object.freeze({ kind: "settled", outcome });
-    return availabilityFor(outcome);
+    return outcome;
   }
 
   #reportRecord(slot: CoreSlot, rawCandidate: unknown): RecordSubmissionResult {
@@ -329,15 +247,40 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     if (state === undefined) {
       this.#recordStates.set(record.recordId, { bodies: new Map([[key, body]]) });
       this.#records.set(record.recordId, record);
+      slot.recordIds.add(record.recordId);
       return "committed";
     }
-    if (state.bodies.has(key)) {
-      return this.#records.has(record.recordId) ? "replayed" : "conflicted";
-    }
+    if (state.bodies.has(key)) return this.#records.has(record.recordId) ? "replayed" : "conflicted";
     state.bodies.set(key, body);
     this.#records.delete(record.recordId);
-    slot.diagnostics.push({ category: "record-conflict", tieBreakKey: record.recordId });
+    slot.diagnostics.add("record-conflict");
     return "conflicted";
+  }
+
+  #recordIdForReference(slot: CoreSlot, rawCandidate: unknown): Readonly<{
+    readonly recordId: string;
+    readonly recordTypeId: string;
+  }> | undefined {
+    try {
+      const candidate = snapshotPlainRecord(rawCandidate);
+      if (candidate === undefined || !hasExactPlainRecordKeys(candidate, REFERENCE_RECORD_FIELDS)
+        || typeof candidate.recordTypeId !== "string" || typeof candidate.semanticSubject !== "string") {
+        return undefined;
+      }
+      const recordType = candidateRecordType(slot, candidate.recordTypeId);
+      if (recordType === undefined) return undefined;
+      const recordId = createRecordId({
+        checkId: slot.definition.checkId,
+        fields: candidate.fields as QualityRecordCandidate["fields"],
+        recordTypeId: candidate.recordTypeId,
+        semanticSubject: candidate.semanticSubject
+      }, recordType).recordId;
+      return this.#records.has(recordId)
+        ? Object.freeze({ recordId, recordTypeId: recordType.recordTypeId })
+        : undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   #validateRecord(
@@ -364,11 +307,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
   }
 
   #rejectInvalidRecord(slot: CoreSlot): "rejected" {
-    this.#invalidRecordCount += 1;
-    slot.diagnostics.push({
-      category: "invalid-record",
-      tieBreakKey: `invalid-record/${String(this.#invalidRecordCount).padStart(12, "0")}`
-    });
+    slot.diagnostics.add("record-invalid");
     return "rejected";
   }
 }

@@ -258,7 +258,7 @@ describe("check-record policy evaluation", () => {
         { kind: "readiness", readinessId: "current-complete" }
       ]
     });
-    expect(core.checks[0]?.outcome.kind).toBe("completed");
+    expect(core.checks[0]?.outcome.status).toBe("completed");
     expect(core.records).toHaveLength(3);
   });
 

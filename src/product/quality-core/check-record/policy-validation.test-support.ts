@@ -154,10 +154,10 @@ export function makeSnapshot(record: QualityRecord): CoreSnapshot {
   return {
     checks: [{
       ...definitions[0],
-      outcome: { kind: "completed", verdict: "passed" }
+      outcome: { status: "completed", verdict: "passed" }
     }, {
       ...definitions[1],
-      outcome: { kind: "not-applicable" }
+      outcome: { status: "not-applicable" }
     }],
     records: [record]
   };

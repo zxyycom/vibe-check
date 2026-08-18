@@ -1,20 +1,18 @@
+import { resolve } from "node:path";
+
+import type { DuplicateDetectionOptions } from "../../../definition/built-ins.ts";
+import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
 import type { DuplicationScannerDependency } from "../../../scanner-dependencies/index.ts";
+import { buildFingerprints, collectScanFiles } from "../../input/files.ts";
+import { classifyFiles } from "../../model/code-areas.ts";
+import { getGitSha } from "../../scan-command/tool-metadata.ts";
+import { selectJscpdTargetFileMap } from "../../measurement/current-revision/jscpd.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckDefinition, CoreSnapshot } from "../model.ts";
-import type { ReferenceFacts } from "../policy-model.ts";
+import type { CheckDefinition } from "../model.ts";
 import {
-  type BuiltInCheckBinding,
-  type BuiltInCheckExecutionContext,
-  type BuiltInCheckExecutionResult,
-  type ReferenceStatus,
-  type RelationId
-} from "./builtin-support.ts";
-import {
-  detachDuplicateDetectionInput,
   measureDuplicateDetection,
   type DuplicateMeasurementResult
 } from "./duplicate-detection-measurement.ts";
-import { buildDuplicateReferenceFacts } from "./duplicate-detection-reference.ts";
 import {
   buildDuplicateRecordCandidates,
   buildDuplicateRelations,
@@ -91,10 +89,6 @@ export interface DuplicateDetectionExactInputSet {
   readonly rootDir: string;
 }
 
-export interface DuplicateDetectionReferenceInput extends DuplicateDetectionExactInputSet {
-  readonly referenceName: string;
-}
-
 export interface DuplicateCacheOptions {
   readonly enabled: boolean;
   readonly onActivity?: (activity: "read" | "write" | "failed") => void;
@@ -109,151 +103,127 @@ export interface DuplicateMeasurementInput {
   readonly semantics: DuplicateDetectionSemantics;
 }
 
-export interface DuplicateDetectionBindingRuntime {
-  readonly binding: BuiltInCheckBinding;
-  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
-}
-
-interface DuplicateReferenceState {
-  relationsBySubject: Map<string, readonly RelationId[]>;
-  status: ReferenceStatus | null;
-}
-
-interface DuplicateBindingContext {
-  readonly cache: DuplicateCacheOptions;
-  readonly changedFiles: readonly string[];
-  readonly current: DuplicateDetectionExactInputSet;
-  readonly dependency: DuplicationScannerDependency;
-  readonly reference: DuplicateDetectionReferenceInput | null;
-  readonly referenceState: DuplicateReferenceState;
-  readonly semantics: DuplicateDetectionSemantics;
-}
-
-export function resolveDuplicateDetectionApplicability(
-  areas: readonly DuplicateDetectionAreaInput[]
-): "applicable" | "not-applicable" {
-  return areas.every((area) => area.approvedExactPaths.length === 0)
-    ? "not-applicable"
-    : "applicable";
-}
-
-export function createDuplicateDetectionBinding(input: Readonly<{
-  cache?: DuplicateCacheOptions;
-  changedFiles: readonly string[];
-  current: DuplicateDetectionExactInputSet;
-  dependency: DuplicationScannerDependency;
-  reference: DuplicateDetectionReferenceInput | null;
-  semantics: DuplicateDetectionSemantics;
-}>): DuplicateDetectionBindingRuntime {
-  const context = createBindingContext(input);
-  const binding: BuiltInCheckBinding = (execution) => executeDuplicateDetection(context, execution);
-  return Object.freeze({
-    binding,
-    referenceFacts: (snapshot: CoreSnapshot) => buildDuplicateReferenceFacts(
-      snapshot,
-      context.reference?.referenceName ?? null,
-      context.referenceState.status,
-      context.referenceState.relationsBySubject
-    )
-  });
-}
-
-function createBindingContext(input: Readonly<{
-  cache?: DuplicateCacheOptions;
-  changedFiles: readonly string[];
-  current: DuplicateDetectionExactInputSet;
-  dependency: DuplicationScannerDependency;
-  reference: DuplicateDetectionReferenceInput | null;
-  semantics: DuplicateDetectionSemantics;
-}>): DuplicateBindingContext {
-  const reference = input.reference === null
-    ? null
-    : Object.freeze({
-      ...detachDuplicateDetectionInput(input.reference),
-      referenceName: input.reference.referenceName
-    });
-  return {
-    cache: input.cache ?? Object.freeze({ enabled: true }),
-    changedFiles: Object.freeze([...input.changedFiles]),
-    current: detachDuplicateDetectionInput(input.current),
-    dependency: input.dependency,
-    reference,
-    referenceState: {
-      status: reference === null ? null : "incomplete",
-      relationsBySubject: new Map()
-    },
-    semantics: input.semantics
+/** Default Check callback; it owns scanner configuration through its options. */
+export async function executeDuplicateDetection(
+  context: CheckExecutionContext<DuplicateDetectionOptions>
+): Promise<CheckResult> {
+  const current = prepareDirectInput(context.project.root, context);
+  if (current.areas.every((area) => area.approvedExactPaths.length === 0)) {
+    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+  }
+  const dependency: DuplicationScannerDependency = context.options.scanner;
+  const semantics: DuplicateDetectionSemantics = {
+    changedDelta: context.options.fragments.changedDelta,
+    codeAreas: context.project.files.codeAreas,
+    configVersion: "1"
   };
-}
-
-async function executeDuplicateDetection(
-  context: DuplicateBindingContext,
-  execution: BuiltInCheckExecutionContext
-): Promise<BuiltInCheckExecutionResult> {
   const measurement = await measureDuplicateDetection({
-    cache: context.cache,
-    changedFiles: context.changedFiles,
-    dependency: context.dependency,
-    input: context.current,
+    cache: {
+      enabled: context.project.cache.enabled,
+      onActivity: context.project.cache.reportActivity
+    },
+    changedFiles: context.project.changedFiles,
+    dependency,
+    input: current,
     scanKind: "current",
-    semantics: context.semantics
+    semantics
   });
-  if (measurement.kind !== "complete") {
-    return currentMeasurementFailure(measurement);
-  }
-  const candidates = buildDuplicateRecordCandidates(measurement.fragments, context.semantics);
-  if (candidates === undefined) {
-    return { kind: "unavailable", category: "invalid-result" };
-  }
-  for (const candidate of candidates) {
-    execution.results.report(candidate.record);
-  }
-  await compareDuplicateReference(context, candidates);
-  return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
+  if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
+  const candidates = buildDuplicateRecordCandidates(measurement.fragments, semantics);
+  if (candidates === undefined) return unavailable("external-result-invalid");
+  for (const candidate of candidates) context.records.report(candidate.record);
+  await reportDuplicateReference(context, candidates, dependency, semantics);
+  return Object.freeze({ status: "completed", verdict: candidates.length > 0 ? "failed" : "passed" });
 }
 
-function currentMeasurementFailure(
-  measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
-): BuiltInCheckExecutionResult {
-  if (measurement.kind === "unavailable") {
-    return { kind: "unavailable", category: "dependency-unavailable" };
-  }
-  if (measurement.kind === "execution-failed") {
-    throw new Error("duplicate-detection scanner execution failed");
-  }
-  return { kind: "unavailable", category: "invalid-result" };
-}
-
-async function compareDuplicateReference(
-  context: DuplicateBindingContext,
-  candidates: readonly DuplicateRecordCandidate[]
-): Promise<void> {
-  if (context.reference === null) {
-    return;
-  }
-  const measurement = await measureDuplicateDetection({
-    cache: context.cache,
-    changedFiles: Object.freeze([]),
-    dependency: context.dependency,
-    input: context.reference,
-    scanKind: "baseline",
-    semantics: context.semantics
-  });
-  if (measurement.kind !== "complete") {
-    context.referenceState.status = measurement.kind === "unavailable"
-      ? "unavailable"
-      : "incomplete";
-    return;
-  }
-  const referenceSubjects = duplicateSubjects(measurement.fragments);
-  if (referenceSubjects === undefined) {
-    context.referenceState.status = "incomplete";
-    return;
-  }
-  context.referenceState.status = "complete";
-  context.referenceState.relationsBySubject = buildDuplicateRelations(
-    candidates,
-    referenceSubjects,
-    context.semantics.changedDelta
+function prepareDirectInput(
+  root: string,
+  context: CheckExecutionContext<DuplicateDetectionOptions>
+): DuplicateDetectionExactInputSet {
+  const scanFiles = collectScanFiles(root, context.project.files);
+  const fileMap = classifyFiles(
+    scanFiles,
+    context.project.files.codeAreas,
+    context.project.files.generatedFiles
   );
+  const targets = selectJscpdTargetFileMap(fileMap, context.project.files);
+  const fingerprints = buildFingerprints(fileMap, root);
+  return Object.freeze({
+    areas: Object.freeze(Array.from(targets, ([codeArea, approvedExactPaths]) => Object.freeze({
+      approvedExactPaths: Object.freeze([...approvedExactPaths]),
+      codeArea,
+      inputFingerprint: Object.freeze(fingerprints[codeArea] ?? {
+        fileCount: 0,
+        fileList: Object.freeze([]),
+        fingerprint: "empty"
+      }),
+      minimumTokens: context.options.minimumTokensByCodeArea[codeArea]
+        ?? context.options.defaultMinimumTokens
+    }))),
+    cacheRootDir: resolve(root, context.project.cache.directory),
+    commitSha: getGitSha(root),
+    rootDir: root
+  });
+}
+
+function directMeasurementFailure(
+  measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
+): CheckResult {
+  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
+  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
+  return unavailable("external-result-invalid");
+}
+
+async function reportDuplicateReference(
+  context: CheckExecutionContext<DuplicateDetectionOptions>,
+  candidates: readonly DuplicateRecordCandidate[],
+  dependency: DuplicationScannerDependency,
+  semantics: DuplicateDetectionSemantics
+): Promise<void> {
+  if (context.project.comparison === null) return;
+  const reference = prepareDirectInput(context.project.comparison.root, context);
+  const measurement = await measureDuplicateDetection({
+    cache: {
+      enabled: context.project.cache.enabled,
+      onActivity: context.project.cache.reportActivity
+    },
+    changedFiles: Object.freeze([]),
+    dependency,
+    input: reference,
+    scanKind: "baseline",
+    semantics
+  });
+  if (measurement.kind !== "complete") {
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
+    }));
+    return;
+  }
+  const subjects = duplicateSubjects(measurement.fragments);
+  if (subjects === undefined) {
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: "incomplete"
+    }));
+    return;
+  }
+  const relationsBySubject = buildDuplicateRelations(candidates, subjects, semantics.changedDelta);
+  const relations = candidates.flatMap((candidate) => (
+    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) => Object.freeze({
+      record: candidate.record,
+      relationId
+    }))
+  ));
+  context.records.reportReference(Object.freeze({
+    referenceName: context.project.comparison.referenceName,
+    relations: Object.freeze(relations),
+    status: "complete"
+  }));
+}
+
+function unavailable(code: string): CheckResult {
+  return Object.freeze({ status: "unavailable", reason: { code } });
 }

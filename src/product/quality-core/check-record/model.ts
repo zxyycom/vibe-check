@@ -8,6 +8,7 @@ import type {
   RecordTypePolicySurface
 } from "../../definition/check-definition.ts";
 import type {
+  CheckOutcome,
   QualityRecordCandidate,
   RecordFieldValue,
   RecordLevel
@@ -20,6 +21,7 @@ import type {
 export { RECORD_FIELD_VALUE_TYPES } from "../../definition/check-definition.ts";
 export type {
   CheckDefinition,
+  CheckOutcome,
   PolicyOperandDefinition,
   PolicyOperandSource,
   QualityRecordCandidate,
@@ -46,29 +48,7 @@ export interface QualityRecord extends QualityRecordCandidate {
   readonly checkId: string;
 }
 
-export const CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES = [
-  "record-conflict",
-  "invalid-record",
-  "capability-protocol",
-  "invalid-result",
-  "dependency-unavailable",
-  "execution-failed",
-  "cancelled"
-] as const;
-export type CheckUnavailableDiagnosticCategory =
-  typeof CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES[number];
-
-export interface CheckUnavailableDiagnostic {
-  readonly category: CheckUnavailableDiagnosticCategory;
-}
-
 /** A Core Check has exactly one terminal outcome and no execution bookkeeping. */
-export type CheckOutcome = Readonly<
-  | { kind: "not-applicable" }
-  | { kind: "completed"; verdict: "passed" | "failed" }
-  | { kind: "unavailable"; diagnostic: CheckUnavailableDiagnostic }
->;
-
 export interface CoreCheck extends CheckDefinition {
   readonly outcome: CheckOutcome;
 }

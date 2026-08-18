@@ -13,6 +13,11 @@
 
 `run.json` 只发布 `schemaVersion`、`invocation`、`catalogFingerprint`、`recordsFingerprint`、`checks`、`references`、`acceptance` 和 `decision`。`invocation` 固定保存 invocation ID、normalized project root 和 timestamp。`catalogFingerprint` 绑定 declarative Check projections；`recordsFingerprint` 绑定 canonical ordered machine Record rows，空集也有稳定摘要。`checks` 是完整 Core Check projection（declarative Check definition 加一个 terminal outcome）；`records.ndjson` 的每行是 target QualityRecord，直接绑定 `checkId` 和 `recordTypeId`，不携带 execution-run identity。完整 field/nullability/enums 只见 [run schema](schemas/vibe-check-run.schema.json) 与 [record schema](schemas/vibe-check-record.schema.json)。
 
+Published Check outcomes use the same terminal grammar as direct execution: `outcome.status` is
+`completed`, `not-applicable`, or `unavailable`; completed outcomes carry `verdict`, and unavailable outcomes
+carry `reason.code` with optional prerequisite `reason.checkIds`. The historical `outcome.kind` and
+`diagnostic.category` field pair is not accepted by current schemas.
+
 machine v3 不发布 `definitions`、`runs`、`integrity`、`completeness`、Task identity、invalid candidate evidence 或 effect status。运行/效果状态仍由 structured Package Run Result 承载，不能从这两个 artifact 倒推。
 
 ## Core-to-machine projection
@@ -29,7 +34,13 @@ candidate stages 是 validate publication model、serialize machine candidates�
 
 固定的 `run.json` 与 `records.ndjson` 是两个独立 filesystem paths；常规 Node filesystem API 只保证每次同文件系统 rename 的目录项替换原子性，不提供跨两个 paths 的 reader-visible transaction。因而这里的完整 set 保证是 candidate validation、`recordsFingerprint` set binding 与 handled-failure 边界，不是两个 rename 之间或 process crash / `SIGKILL` 下的 OS snapshot guarantee。mixed-generation files 会因 fingerprint 不一致而 fail closed；consumer 仍只能在 producing Run 已报告 output success 后读取，并把两份 bytes 作为一组验证。若未来要求 concurrent reader 在 replacement 期间始终看到同一 generation，必须另行决定 versioned generation 加 atomic pointer/directory 等 public reader protocol；v3 未引入该协议。
 
-consumer 必须将 artifacts 与 producing Package Run result 一起解释。`kind: "completed"` 包含最终 decision 和各 effect status；configuration、planning、execution、cancellation 与 effect failure 使用不同 result variants。项目自有 command adapter 如需 process exit code，必须从这些 variants 显式映射；exit code 不是 Package Run contract。
+consumer 必须将 artifacts 与 producing Package Run result 一起解释。`kind: "completed"` 包含最终 decision 和各 effect status；configuration、planning、execution、cancellation 与 effect failure 使用不同 result shapes。项目自有 command adapter 如需 process exit code，必须从这些 result shapes 显式映射；exit code 不是 Package Run contract。
+
+每个 structured `RunResult` 都包含 `definitionWarnings`，包括 configuration、planning、cancellation、
+execution、completed 与 effect result。Run-level diagnostic 使用 `code`，不复用 scanner/Core 的 diagnostic 字段：
+`comparison-preparation-failed`、`policy-validation-failed`、`task-graph-invalid`、`progress-failed`、
+`task-engine-failed` 与 `publication-model-failed`；effect result 使用
+`{ code: "effect-failed", effect }`。
 
 ## Readable output and annotation
 

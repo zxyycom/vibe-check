@@ -42,7 +42,7 @@ profile/gate selector。
 ## 当前实现状态
 
 - `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition，并直接组合
-  built-in Check values、project-wide quality、scheduler、effects 和 operational dependency defaults；
+  ordinary built-in Check values、project-wide quality、scheduler、effects 和 Check-owned scanner options；
   `scripts/quality/project-run.ts` import 并绑定该值，导出只接收项目允许 controls 的 Run。
 - `scripts/quality/scan.ts` 只调用 bound Project Run，并把 structured result 映射为该脚本的
   process exit；它不调用 Product CLI、发现配置或转发 argv。
@@ -140,15 +140,12 @@ bun run env:check
 
 ### 命令环境边界
 
-顶层 `mise.toml` 将 pinned Lizard Python interpreter 和 scc executable 写入 Product `run`
-明确支持的 `VIBE_CHECK_LIZARD_CMD` 与 `VIBE_CHECK_SCC_CMD` 环境输入；仓库 Project
-Definition 直接绑定 jscpd executable。`quality:*` aliases 通过 `mise exec` 获得这两个
-supported-environment values。Product `run` 再按 [Scanner 依赖选择](scanner-dependencies.md#current-dependency-boundary)
-中的 `Run Controls > supported environment > Project Definition` 顺序解析 binding。
+顶层 `mise.toml` 只为仓库开发环境安装 Lizard、scc 和 jscpd 所需工具。Repository
+Project Definition 通过其普通 default Check values 直接拥有 scanner executable、args 与 availability args；
+`quality:*` aliases 不解析或注入 scanner override。详见 [Scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
 
-`mise.toml` 的工具安装或 repository state 本身不是隐式 resolution source。缺少
-required binding 时，Product `run` 在 work 前失败；wrapper 不从 ambient `PATH`、旧 pinned
-variables 或未受支持的环境名补齐 binding。
+`mise.toml` 的工具安装、repository state、ambient `PATH` 与环境变量不是 Product scanner command 的隐式
+resolution source。缺少或不可用的 Check-owned command 由对应 Check 安全地报告为 unavailable。
 
 `verify:vibe-check-workspace*` 同样在顶层 mise 环境中运行。其它不消费锁定外部 scanner 的
 日常命令保持普通 `bun run` 入口。
@@ -169,8 +166,8 @@ Core facts，也不获得 Check scope、RecordSink 或 terminal capability。
 
 Repository canonical files 是：
 
-- `scripts/quality/project-definition.ts`：拥有 repository policy、direct built-in/custom Check tree、
-  scheduler、effects 和 operational dependency defaults。
+- `scripts/quality/project-definition.ts`：拥有 repository policy、ordinary default/custom Check tree、
+  scheduler、effects 和 Check-owned scanner options。
 - `scripts/quality/project-run.ts`：绑定 Project Definition 与 repository root，导出项目允许的
   controls subset。
 - `scripts/quality/scan.ts`：调用项目 Run 的 process adapter；不接受另一份配置。

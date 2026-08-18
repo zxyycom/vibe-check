@@ -1,29 +1,21 @@
 import type { FunctionScannerDependency } from "../../../scanner-dependencies/index.ts";
+import type { FunctionMetricsOptions } from "../../../definition/built-ins.ts";
+import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
+import { collectScanFiles } from "../../input/files.ts";
+import { selectLizardTargetFiles } from "../../measurement/metrics.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckDefinition, CoreSnapshot } from "../model.ts";
-import type { ReferenceFacts } from "../policy-model.ts";
-import {
-  type BuiltInCheckBinding,
-  type BuiltInCheckExecutionContext,
-  type BuiltInCheckExecutionResult,
-  type ReferenceStatus,
-  type RelationId
-} from "./builtin-support.ts";
+import type { CheckDefinition } from "../model.ts";
 import {
   analyzeFunctionMetrics,
   type FunctionMetricAnalysis
 } from "./function-metrics-analysis.ts";
+import { measureFunctionMetrics, type FunctionMeasurementResult } from "./function-metrics-measurement.ts";
 import {
-  detachFunctionMetricsInput,
-  measureFunctionMetrics,
-  type FunctionMeasurementResult
-} from "./function-metrics-measurement.ts";
-import {
-  buildFunctionReferenceFacts,
   buildFunctionRelations
 } from "./function-metrics-reference.ts";
 import {
   buildFunctionRecordCandidates,
+  recordKey,
   type FunctionRecordCandidate
 } from "./function-metrics-records.ts";
 
@@ -110,144 +102,91 @@ export interface FunctionMetricsExactInputSet {
   readonly rootDir: string;
 }
 
-export interface FunctionMetricsReferenceInput extends FunctionMetricsExactInputSet {
-  readonly referenceName: string;
-}
-
-export interface FunctionMetricsBindingRuntime {
-  readonly binding: BuiltInCheckBinding;
-  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
-}
-
-interface FunctionReferenceState {
-  relationsByRecordKey: Map<string, readonly RelationId[]>;
-  status: ReferenceStatus | null;
-}
-
-interface FunctionBindingContext {
-  readonly changedFiles: readonly string[];
-  readonly current: FunctionMetricsExactInputSet;
-  readonly dependency: FunctionScannerDependency;
-  readonly reference: FunctionMetricsReferenceInput | null;
-  readonly referenceState: FunctionReferenceState;
-  readonly semantics: FunctionMetricsSemantics;
-}
-
-export function resolveFunctionMetricsApplicability(
-  approvedExactPaths: readonly string[]
-): "applicable" | "not-applicable" {
-  return approvedExactPaths.length === 0
-    ? "not-applicable"
-    : "applicable";
-}
-
-export function createFunctionMetricsBinding(input: Readonly<{
-  changedFiles: readonly string[];
-  current: FunctionMetricsExactInputSet;
-  dependency: FunctionScannerDependency;
-  reference: FunctionMetricsReferenceInput | null;
-  semantics: FunctionMetricsSemantics;
-}>): FunctionMetricsBindingRuntime {
-  const context = createBindingContext(input);
-  const binding: BuiltInCheckBinding = (execution) => executeFunctionMetrics(context, execution);
-  return Object.freeze({
-    binding,
-    referenceFacts: (snapshot: CoreSnapshot) => buildFunctionReferenceFacts(
-      snapshot,
-      context.reference?.referenceName ?? null,
-      context.referenceState.status,
-      context.referenceState.relationsByRecordKey
-    )
+/** Default Check callback; options carry the complete scanner binding. */
+export async function executeFunctionMetrics(
+  context: CheckExecutionContext<FunctionMetricsOptions>
+): Promise<CheckResult> {
+  const scanFiles = collectScanFiles(context.project.root, context.project.files);
+  const current: FunctionMetricsExactInputSet = Object.freeze({
+    approvedExactPaths: Object.freeze(selectLizardTargetFiles(scanFiles, context.project.files)),
+    rootDir: context.project.root
   });
-}
-
-function createBindingContext(input: Readonly<{
-  changedFiles: readonly string[];
-  current: FunctionMetricsExactInputSet;
-  dependency: FunctionScannerDependency;
-  reference: FunctionMetricsReferenceInput | null;
-  semantics: FunctionMetricsSemantics;
-}>): FunctionBindingContext {
-  const reference = input.reference === null
-    ? null
-    : Object.freeze({
-      ...detachFunctionMetricsInput(input.reference),
-      referenceName: input.reference.referenceName
-    });
-  return {
-    changedFiles: Object.freeze([...input.changedFiles]),
-    current: detachFunctionMetricsInput(input.current),
-    dependency: input.dependency,
-    reference,
-    referenceState: {
-      status: reference === null ? null : "incomplete",
-      relationsByRecordKey: new Map()
+  if (current.approvedExactPaths.length === 0) {
+    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+  }
+  const dependency: FunctionScannerDependency = context.options.scanner;
+  const semantics: FunctionMetricsSemantics = {
+    codeAreas: context.project.files.codeAreas,
+    functions: {
+      codeLines: context.options.codeLines,
+      cyclomaticComplexity: context.options.cyclomaticComplexity,
+      parameterCount: context.options.parameterCount
     },
-    semantics: input.semantics
+    generatedFiles: context.project.files.generatedFiles
   };
-}
-
-async function executeFunctionMetrics(
-  context: FunctionBindingContext,
-  execution: BuiltInCheckExecutionContext
-): Promise<BuiltInCheckExecutionResult> {
-  const measurement = await measureFunctionMetrics(context.current, context.dependency);
-  if (measurement.kind !== "complete") {
-    return currentMeasurementFailure(measurement);
-  }
+  const measurement = await measureFunctionMetrics(current, dependency);
+  if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
   const currentAnalysis = analyzeFunctionMetrics(measurement.metrics);
-  if (currentAnalysis === undefined) {
-    return { kind: "unavailable", category: "invalid-result" };
-  }
-  const candidates = buildFunctionRecordCandidates(
-    currentAnalysis,
-    context.changedFiles,
-    context.semantics
-  );
-  for (const candidate of candidates) {
-    execution.results.report(candidate.record);
-  }
-  await compareFunctionReference(context, currentAnalysis, candidates);
-  return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
+  if (currentAnalysis === undefined) return unavailable("external-result-invalid");
+  const candidates = buildFunctionRecordCandidates(currentAnalysis, context.project.changedFiles, semantics);
+  for (const candidate of candidates) context.records.report(candidate.record);
+  await reportFunctionReference(context, currentAnalysis, candidates, dependency, semantics);
+  return Object.freeze({ status: "completed", verdict: candidates.length > 0 ? "failed" : "passed" });
 }
 
-function currentMeasurementFailure(
+function directMeasurementFailure(
   measurement: Exclude<FunctionMeasurementResult, { kind: "complete" }>
-): BuiltInCheckExecutionResult {
-  if (measurement.kind === "unavailable") {
-    return { kind: "unavailable", category: "dependency-unavailable" };
-  }
-  if (measurement.kind === "execution-failed") {
-    throw new Error("function-metrics scanner execution failed");
-  }
-  return { kind: "unavailable", category: "invalid-result" };
+): CheckResult {
+  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
+  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
+  return unavailable("external-result-invalid");
 }
 
-async function compareFunctionReference(
-  context: FunctionBindingContext,
+async function reportFunctionReference(
+  context: CheckExecutionContext<FunctionMetricsOptions>,
   currentAnalysis: FunctionMetricAnalysis,
-  candidates: readonly FunctionRecordCandidate[]
+  candidates: readonly FunctionRecordCandidate[],
+  dependency: FunctionScannerDependency,
+  semantics: FunctionMetricsSemantics
 ): Promise<void> {
-  if (context.reference === null) {
-    return;
-  }
-  const measurement = await measureFunctionMetrics(context.reference, context.dependency);
+  if (context.project.comparison === null) return;
+  const referenceFiles = collectScanFiles(context.project.comparison.root, context.project.files);
+  const reference: FunctionMetricsExactInputSet = Object.freeze({
+    approvedExactPaths: Object.freeze(selectLizardTargetFiles(referenceFiles, context.project.files)),
+    rootDir: context.project.comparison.root
+  });
+  const measurement = await measureFunctionMetrics(reference, dependency);
   if (measurement.kind !== "complete") {
-    context.referenceState.status = measurement.kind === "unavailable"
-      ? "unavailable"
-      : "incomplete";
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
+    }));
     return;
   }
   const referenceAnalysis = analyzeFunctionMetrics(measurement.metrics);
   if (referenceAnalysis === undefined) {
-    context.referenceState.status = "incomplete";
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: "incomplete"
+    }));
     return;
   }
-  context.referenceState.status = "complete";
-  context.referenceState.relationsByRecordKey = buildFunctionRelations(
-    candidates,
-    currentAnalysis,
-    referenceAnalysis,
-    context.semantics
-  );
+  const relationsByRecordKey = buildFunctionRelations(candidates, currentAnalysis, referenceAnalysis, semantics);
+  const relations = candidates.flatMap((candidate) => (
+    (relationsByRecordKey.get(recordKey(candidate.record)) ?? []).map((relationId) => Object.freeze({
+      record: candidate.record,
+      relationId
+    }))
+  ));
+  context.records.reportReference(Object.freeze({
+    referenceName: context.project.comparison.referenceName,
+    relations: Object.freeze(relations),
+    status: "complete"
+  }));
+}
+
+function unavailable(code: string): CheckResult {
+  return Object.freeze({ status: "unavailable", reason: { code } });
 }

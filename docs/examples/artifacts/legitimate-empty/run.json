@@ -48,7 +48,7 @@
         }
       ],
       "outcome": {
-        "kind": "not-applicable"
+        "status": "not-applicable"
       }
     }
   ],

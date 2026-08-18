@@ -98,7 +98,7 @@ describe("machine publication v3 contract", () => {
       createPublicationModelV3(await richPublicationInput())
     );
     const invalidRecordOwner = mutableRun(machine.run);
-    invalidRecordOwner.checks[0]!.outcome = { kind: "not-applicable" };
+    invalidRecordOwner.checks[0]!.outcome = { status: "not-applicable" };
     assertSetFailure(machine, invalidRecordOwner, "record-check-ownership");
 
     const nonCanonicalChecks = mutableRun(machine.run);

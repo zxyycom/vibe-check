@@ -5,8 +5,7 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics,
-  replace
+  functionMetrics
 } from "../../src/product/definition/project.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -14,10 +13,17 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 /** Repository-owned Vibe Check policy. Product code never discovers this file. */
 export default defineConfig({
   checks: [{
-    id: "repository-quality",
+    checkId: "repository-quality",
+    displayName: "Repository quality",
     maxParallel: 2,
-    checks: [replace(duplicateDetection, {
+    checks: [{
+      ...duplicateDetection,
       options: {
+        ...duplicateDetection.options,
+        scanner: {
+          ...duplicateDetection.options.scanner,
+          executable: resolve(repositoryRoot, "node_modules/.bin/jscpd")
+        },
         defaultMinimumTokens: 100,
         fragments: { changedDelta: 0 },
         minimumTokensByCodeArea: {
@@ -28,21 +34,23 @@ export default defineConfig({
           "script-tooling": 75
         }
       }
-    }), replace(fileMetrics, {
+    }, {
+      ...fileMetrics,
       maxParallel: 1,
-      options: { codeLines: { changedDelta: 100 } }
-    }), functionMetrics]
+      options: {
+        ...fileMetrics.options,
+        codeLines: {
+          ...fileMetrics.options.codeLines,
+          changedDelta: 100
+        }
+      }
+    }, functionMetrics]
   }],
   effects: {
     cache: { directory: ".cache/vibe-check/quality", enabled: true },
     logs: { enabled: true },
     output: { directory: "artifacts/vibe-check-quality", enabled: true },
     progress: { enabled: false }
-  },
-  operationalDependencies: {
-    duplication: {
-      executable: resolve(repositoryRoot, "node_modules/.bin/jscpd")
-    }
   },
   scheduler: { maxParallel: 4 },
   quality: {

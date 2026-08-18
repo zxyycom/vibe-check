@@ -4,29 +4,13 @@
  * Product modules consume these literals directly rather than maintaining a
  * second list of public names and defaults.
  */
-export const OPERATIONAL_DEPENDENCY_IDS = Object.freeze([
-  "duplication",
-  "file",
-  "function"
-] as const);
-
-export type OperationalDependencyId = typeof OPERATIONAL_DEPENDENCY_IDS[number];
-
-const OPERATIONAL_DEPENDENCIES = Object.freeze({
-  duplication: Object.freeze({ environment: "VIBE_CHECK_JSCPD_CMD" }),
-  file: Object.freeze({ environment: "VIBE_CHECK_SCC_CMD" }),
-  function: Object.freeze({ environment: "VIBE_CHECK_LIZARD_CMD" })
-} as const satisfies Readonly<Record<OperationalDependencyId, Readonly<{
-  environment: string;
-}>>>);
-
 export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   packageImport: "vibe-check",
   operations: Object.freeze({
-    configDefinition: "defineConfig",
-    packageRun: "run",
-    builtInCheckReplacement: "replace",
-    builtInCheckAppend: "append"
+    defineCheck: "defineCheck",
+    defineConfig: "defineConfig",
+    inherit: "inherit",
+    run: "run"
   }),
   values: Object.freeze({
     duplicateDetection: "duplicateDetection",
@@ -34,18 +18,25 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     functionMetrics: "functionMetrics"
   }),
   types: Object.freeze({
-    builtInCheck: "BuiltInCheck",
-    checkDefinition: "CheckDefinition",
-    checkGroup: "CheckGroup",
-    checkNode: "CheckNode",
-    checkPlanningContext: "CheckPlanningContext",
+    check: "Check",
+    checkExecution: "CheckExecution",
+    checkExecutionContext: "CheckExecutionContext",
+    checkOutcome: "CheckOutcome",
     checkResult: "CheckResult",
-    customCheck: "CustomCheck",
+    checkUnavailableReason: "CheckUnavailableReason",
+    decisionPolicy: "DecisionPolicy",
+    duplicateDetectionOptions: "DuplicateDetectionOptions",
+    fileMetricsOptions: "FileMetricsOptions",
+    functionMetricsOptions: "FunctionMetricsOptions",
+    inheritableCheckCollection: "InheritableCheckCollection",
+    projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",
+    projectQualityConfiguration: "ProjectQualityConfiguration",
     qualityRecordCandidate: "QualityRecordCandidate",
+    recordTypeDefinition: "RecordTypeDefinition",
     runControls: "RunControls",
     runResult: "RunResult",
-    taskPlan: "TaskPlan"
+    schedulerPolicy: "SchedulerPolicy"
   }),
   effectDefaults: Object.freeze({
     cache: Object.freeze({
@@ -58,6 +49,5 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
       enabled: true
     }),
     progress: Object.freeze({ enabled: true })
-  }),
-  operationalDependencies: OPERATIONAL_DEPENDENCIES
+  })
 } as const);

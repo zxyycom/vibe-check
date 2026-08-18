@@ -1,7 +1,7 @@
 ---
 title: 使用可选 execution 的递归 Check 普通对象
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T15:28:16Z
 purpose: 让同一种递归 Check 对象同时表达独立执行节点和只负责组织与继承的信息节点。
 background: 每个递归节点都执行会把 composition 误写成运行事实，也容易引入父子 completion 和聚合语义。

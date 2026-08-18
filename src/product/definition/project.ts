@@ -4,32 +4,31 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  type BuiltInCheck,
-  type BuiltInCheckId,
-  type BuiltInCheckOptions
+  type DuplicateDetectionOptions,
+  type FileMetricsOptions,
+  type FunctionMetricsOptions
 } from "./built-ins.ts";
-import { append, replace } from "./adjustments.ts";
 import {
   resolveCheckTree,
-  type CheckGroup,
-  type CheckNode,
-  type CheckScheduling,
-  type CustomCheck,
-  type ResolvedCheckTree
+  type ResolvedCheckTreeLeaf
 } from "./check-tree/index.ts";
+import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDefinition } from "./check-definition.ts";
-import type {
-  CheckApplicabilityBinding,
-  CheckPlanningContext,
-  CheckResult,
-  CustomCheckBinding,
-  QualityRecordCandidate,
-  TaskPlan
+import {
+  defineCheck,
+  inherit,
+  type Check,
+  type CheckExecution,
+  type CheckExecutionContext,
+  type CheckOutcome,
+  type CheckResult,
+  type CheckUnavailableReason,
+  type InheritableCheckCollection,
+  type QualityRecordCandidate,
+  type RecordTypeDefinition
 } from "./custom-check.ts";
 import {
-  CURRENT_PUBLIC_CONTRACT,
-  OPERATIONAL_DEPENDENCY_IDS,
-  type OperationalDependencyId
+  CURRENT_PUBLIC_CONTRACT
 } from "../public-contract/current.ts";
 import { isNonArrayRecord } from "../foundation/type-guards.ts";
 import type { DecisionPolicy } from "../quality-core/check-record/policy-model.ts";
@@ -39,26 +38,26 @@ import {
 } from "./quality.ts";
 
 export {
-  append,
+  defineCheck,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  replace,
-  type BuiltInCheck,
-  type CheckDefinition,
-  type CheckApplicabilityBinding,
-  type CheckGroup,
-  type CheckNode,
-  type CheckScheduling,
-  type CustomCheck,
-  type CustomCheckBinding,
-  type CheckPlanningContext,
+  inherit,
+  type Check,
+  type CheckExecution,
+  type CheckExecutionContext,
+  type CheckOutcome,
   type CheckResult,
+  type CheckUnavailableReason,
+  type DecisionPolicy,
+  type DuplicateDetectionOptions,
+  type FileMetricsOptions,
+  type InheritableCheckCollection,
+  type FunctionMetricsOptions,
+  type ProjectQualityConfiguration,
   type QualityRecordCandidate,
-  type TaskPlan
+  type RecordTypeDefinition
 };
-
-export type { BuiltInCheckId };
 
 export interface ProjectEffects {
   readonly cache: Readonly<{ readonly directory: string; readonly enabled: boolean }>;
@@ -67,24 +66,15 @@ export interface ProjectEffects {
   readonly progress: Readonly<{ readonly enabled: boolean }>;
 }
 
-export interface OperationalDependencyBinding {
-  readonly executable?: string;
-}
-
-/** Invocation-wide authoring budget; Task engine representation remains private. */
+/** Invocation-wide authoring budget; scheduler scopes stay private to Run. */
 export interface SchedulerPolicy {
   readonly maxParallel: number;
 }
 
-export type OperationalDependencies = Readonly<
-  Partial<Record<OperationalDependencyId, OperationalDependencyBinding>>
->;
-
 export interface ProjectDefinition {
   readonly apiVersion: "1";
-  readonly checks: readonly CheckNode[];
+  readonly checks: readonly Check<object>[];
   readonly effects: ProjectEffects;
-  readonly operationalDependencies: OperationalDependencies;
   readonly policies: Readonly<Record<string, DecisionPolicy>>;
   readonly quality: ProjectQualityConfiguration;
   readonly scheduler: SchedulerPolicy;
@@ -93,14 +83,13 @@ export interface ProjectDefinition {
 
 type ProjectDefinitionInput = Readonly<{
   apiVersion?: "1";
-  checks?: readonly CheckNode[];
+  checks?: readonly Check<object>[];
   effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
     logs: Partial<ProjectEffects["logs"]>;
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
-  operationalDependencies?: OperationalDependencies;
   policies?: Readonly<Record<string, DecisionPolicy>>;
   quality?: ProjectQualityConfiguration;
   scheduler?: Partial<SchedulerPolicy>;
@@ -116,68 +105,62 @@ export interface RunControls {
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
-  readonly operationalDependencies?: OperationalDependencies;
   readonly projectRoot?: string;
   readonly signal?: AbortSignal;
 }
 
 export interface ProjectDefinitionDiagnostic {
-  readonly kind: "invalid-project-definition" | "invalid-run-controls"
-    | "invalid-scanner-operational-input";
+  readonly kind: "invalid-project-definition" | "invalid-run-controls";
   readonly path: string;
   readonly reason: "invalid-value" | "unknown-key";
 }
+
+export type DefinitionWarning = MeaninglessCheckWarning;
 
 export type ValidationResult<T> = Readonly<
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly error: ProjectDefinitionDiagnostic }
 >;
 
+export type ProjectDefinitionValidationResult = Readonly<
+  | { readonly ok: true; readonly value: ProjectDefinition; readonly warnings: readonly DefinitionWarning[] }
+  | { readonly ok: false; readonly error: ProjectDefinitionDiagnostic }
+>;
+
+export interface NormalizedCheckDeclaration {
+  readonly definition: CheckDefinition;
+  readonly dependsOn: readonly string[];
+  readonly maxParallel: number;
+  readonly mutex: readonly string[];
+  /** Definition-validated JSON data that contributes to the fingerprint only. */
+  readonly options: object;
+}
+
+export interface NormalizedCheck extends NormalizedCheckDeclaration {
+  /** Trusted project code; deliberately excluded from `declarative`. */
+  readonly execution: CheckExecution<object>;
+}
+
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
-  /** Canonically ordered selected leaves; this is the only declarative Check collection. */
-  readonly checks: readonly NormalizedCheck[];
+  /** Canonically ordered executable Check declarations. */
+  readonly checks: readonly NormalizedCheckDeclaration[];
   readonly effects: ProjectEffects;
-  readonly operationalDependencyIds: readonly OperationalDependencyId[];
   readonly policyNames: readonly string[];
   readonly quality: ProjectQualityConfiguration;
   readonly scheduler: SchedulerPolicy;
   readonly selectedPolicy: string | null;
 }
 
-export interface CustomCheckExecutionBinding {
-  readonly applicability: CheckApplicabilityBinding;
-  readonly binding: CustomCheckBinding;
-}
-
-export interface ProjectExecutionBindings {
-  readonly customChecks: ReadonlyMap<string, CustomCheckExecutionBinding>;
-}
-
-interface NormalizedCheckBase {
-  readonly definition: CheckDefinition;
-  readonly dependsOn: readonly string[];
-  readonly maxParallel: number;
-  readonly mutex: readonly string[];
-}
-
-export type NormalizedCheck = Readonly<
-  | (NormalizedCheckBase & {
-    readonly kind: "built-in";
-    readonly options: BuiltInCheckOptions;
-  })
-  | (NormalizedCheckBase & { readonly kind: "custom" })
->;
-
 export interface NormalizedProjectDefinition {
+  readonly checks: readonly NormalizedCheck[];
   readonly declarative: DeclarativeProjectSnapshot;
-  /** Non-serializable custom functions, consumed only by Package Run pre-work. */
-  readonly bindings: ProjectExecutionBindings;
+  readonly definitionWarnings: readonly DefinitionWarning[];
 }
 
 /**
- * Defines a plain Project Definition. Defaults are authoring conveniences only;
- * Package Run validates the closed tree before any project function can run.
+ * Creates a plain Project Definition. Runtime validation remains the only
+ * place that closes the tree and validates its declarative data.
  */
 export function defineConfig<const T extends ProjectDefinitionInput>(
   value: T & Record<Exclude<keyof T, keyof ProjectDefinitionInput>, never>
@@ -207,7 +190,6 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
           ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.progress.enabled
       }
     },
-    operationalDependencies: value.operationalDependencies ?? {},
     policies: value.policies ?? {},
     quality: value.quality ?? NEUTRAL_QUALITY_CONFIGURATION,
     scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 },
@@ -220,17 +202,22 @@ export function normalizeProjectDefinition(
 ): NormalizedProjectDefinition {
   const tree = resolveCheckTree(definition.checks, definition.scheduler.maxParallel);
   if (tree === undefined) throw new TypeError("Project Definition Check tree failed closed normalization");
-  return normalizeResolvedTree(definition, tree);
+  const checks = Object.freeze(tree.leaves.map(normalizeCheck));
+  return Object.freeze({
+    checks,
+    declarative: freezeDeclarativeSnapshot(definition, checks),
+    definitionWarnings: tree.warnings
+  });
 }
 
-function normalizeResolvedTree(
-  definition: ProjectDefinition,
-  tree: ResolvedCheckTree
-): NormalizedProjectDefinition {
-  const customChecks = new Map<string, CustomCheckExecutionBinding>(tree.customBindings);
+function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
   return Object.freeze({
-    bindings: Object.freeze({ customChecks }),
-    declarative: freezeDeclarativeSnapshot(definition, tree)
+    definition: leaf.definition,
+    dependsOn: leaf.dependsOn,
+    execution: leaf.execution,
+    maxParallel: leaf.maxParallel,
+    mutex: leaf.mutex,
+    options: leaf.options
   });
 }
 
@@ -240,33 +227,14 @@ export function createDeclarativeFingerprint(snapshot: DeclarativeProjectSnapsho
 
 function freezeDeclarativeSnapshot(
   definition: ProjectDefinition,
-  tree: ResolvedCheckTree
+  checks: readonly NormalizedCheck[]
 ): DeclarativeProjectSnapshot {
-  const leaves = [...tree.leaves].sort((left, right) => (
-    compareText(left.definition.checkId, right.definition.checkId)
-  ));
+  const declarations = checks.map(({ execution: _execution, ...declaration }) => declaration)
+    .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
   return deepFreeze({
     apiVersion: definition.apiVersion,
-    checks: leaves.map((leaf): NormalizedCheck => leaf.builtIn === null
-      ? {
-        kind: "custom",
-        definition: leaf.definition,
-        dependsOn: [...leaf.dependsOn].sort(),
-        maxParallel: leaf.maxParallel,
-        mutex: [...leaf.mutex].sort()
-      }
-      : {
-        kind: "built-in",
-        definition: leaf.definition,
-        dependsOn: [...leaf.dependsOn].sort(),
-        maxParallel: leaf.maxParallel,
-        mutex: [...leaf.mutex].sort(),
-        options: leaf.builtIn.options
-      }),
+    checks: declarations,
     effects: definition.effects,
-    operationalDependencyIds: Object.freeze(OPERATIONAL_DEPENDENCY_IDS.filter(
-      (dependencyId) => definition.operationalDependencies[dependencyId] !== undefined
-    )),
     policyNames: Object.freeze(Object.keys(definition.policies).sort()),
     quality: definition.quality,
     scheduler: definition.scheduler,

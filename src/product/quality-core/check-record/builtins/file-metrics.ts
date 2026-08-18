@@ -1,20 +1,13 @@
 import type { FileScannerDependency } from "../../../scanner-dependencies/index.ts";
+import type { FileMetricsOptions } from "../../../definition/built-ins.ts";
+import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
+import { collectScanFiles } from "../../input/files.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckDefinition, CoreSnapshot } from "../model.ts";
-import type { ReferenceFacts } from "../policy-model.ts";
 import {
-  type BuiltInCheckBinding,
-  type BuiltInCheckExecutionContext,
-  type BuiltInCheckExecutionResult,
-  type ReferenceStatus,
-  type RelationId
-} from "./builtin-support.ts";
-import {
-  detachFileMetricsInput,
   measureFileMetrics,
   type FileMeasurementResult
 } from "./file-metrics-measurement.ts";
-import { buildFileReferenceFacts } from "./file-metrics-reference.ts";
+import type { CheckDefinition } from "../model.ts";
 import {
   buildFileRecordCandidates,
   buildFileRelations,
@@ -79,141 +72,83 @@ export interface FileMetricsExactInputSet {
   readonly rootDir: string;
 }
 
-export interface FileMetricsReferenceInput extends FileMetricsExactInputSet {
-  readonly referenceName: string;
-}
-
-export interface FileMetricsBindingRuntime {
-  readonly binding: BuiltInCheckBinding;
-  readonly referenceFacts: (snapshot: CoreSnapshot) => ReferenceFacts;
-}
-
-interface FileReferenceState {
-  relationsBySubject: Map<string, readonly RelationId[]>;
-  status: ReferenceStatus | null;
-}
-
-interface FileBindingContext {
-  readonly changedFiles: readonly string[];
-  readonly current: FileMetricsExactInputSet;
-  readonly dependency: FileScannerDependency;
-  readonly reference: FileMetricsReferenceInput | null;
-  readonly referenceState: FileReferenceState;
-  readonly semantics: FileMetricsSemantics;
-}
-
-export function resolveFileMetricsApplicability(
-  approvedExactPaths: readonly string[]
-): "applicable" | "not-applicable" {
-  return approvedExactPaths.length === 0
-    ? "not-applicable"
-    : "applicable";
-}
-
-export function createFileMetricsBinding(input: Readonly<{
-  changedFiles: readonly string[];
-  current: FileMetricsExactInputSet;
-  dependency: FileScannerDependency;
-  reference: FileMetricsReferenceInput | null;
-  semantics: FileMetricsSemantics;
-}>): FileMetricsBindingRuntime {
-  const context = createBindingContext(input);
-  const binding: BuiltInCheckBinding = (execution) => executeFileMetrics(context, execution);
-  return Object.freeze({
-    binding,
-    referenceFacts: (snapshot: CoreSnapshot) => buildFileReferenceFacts(
-      snapshot,
-      context.reference?.referenceName ?? null,
-      context.referenceState.status,
-      context.referenceState.relationsBySubject
-    )
+/** Default Check callback; all scanner selection now arrives through options. */
+export async function executeFileMetrics(
+  context: CheckExecutionContext<FileMetricsOptions>
+): Promise<CheckResult> {
+  const current: FileMetricsExactInputSet = Object.freeze({
+    approvedExactPaths: Object.freeze(collectScanFiles(context.project.root, context.project.files)),
+    rootDir: context.project.root
   });
-}
-
-function createBindingContext(input: Readonly<{
-  changedFiles: readonly string[];
-  current: FileMetricsExactInputSet;
-  dependency: FileScannerDependency;
-  reference: FileMetricsReferenceInput | null;
-  semantics: FileMetricsSemantics;
-}>): FileBindingContext {
-  const reference = input.reference === null
-    ? null
-    : Object.freeze({
-      ...detachFileMetricsInput(input.reference),
-      referenceName: input.reference.referenceName
-    });
-  return {
-    changedFiles: Object.freeze([...input.changedFiles]),
-    current: detachFileMetricsInput(input.current),
-    dependency: input.dependency,
-    reference,
-    referenceState: {
-      status: reference === null ? null : "incomplete",
-      relationsBySubject: new Map()
-    },
-    semantics: input.semantics
+  if (current.approvedExactPaths.length === 0) {
+    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+  }
+  const dependency: FileScannerDependency = context.options.scanner;
+  const semantics: FileMetricsSemantics = {
+    codeAreas: context.project.files.codeAreas,
+    generatedFiles: context.project.files.generatedFiles,
+    codeLines: context.options.codeLines
   };
+  const measurement = await measureFileMetrics(current, dependency);
+  if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
+  const candidates = buildFileRecordCandidates(measurement.metrics, context.project.changedFiles, semantics);
+  if (candidates === undefined) return unavailable("external-result-invalid");
+  for (const candidate of candidates) context.records.report(candidate.record);
+  await reportFileReference(context, candidates, dependency, semantics);
+  return Object.freeze({ status: "completed", verdict: candidates.length > 0 ? "failed" : "passed" });
 }
 
-async function executeFileMetrics(
-  context: FileBindingContext,
-  execution: BuiltInCheckExecutionContext
-): Promise<BuiltInCheckExecutionResult> {
-  const measurement = await measureFileMetrics(context.current, context.dependency);
-  if (measurement.kind !== "complete") {
-    return currentMeasurementFailure(measurement);
-  }
-  const candidates = buildFileRecordCandidates(
-    measurement.metrics,
-    context.changedFiles,
-    context.semantics
-  );
-  if (candidates === undefined) {
-    return { kind: "unavailable", category: "invalid-result" };
-  }
-  for (const candidate of candidates) {
-    execution.results.report(candidate.record);
-  }
-  await compareFileReference(context, candidates);
-  return { verdict: candidates.length > 0 ? "failed" : "passed" } as const;
-}
-
-function currentMeasurementFailure(
+function directMeasurementFailure(
   measurement: Exclude<FileMeasurementResult, { kind: "complete" }>
-): BuiltInCheckExecutionResult {
-  if (measurement.kind === "unavailable") {
-    return { kind: "unavailable", category: "dependency-unavailable" };
-  }
-  if (measurement.kind === "execution-failed") {
-    throw new Error("file-metrics scanner execution failed");
-  }
-  return { kind: "unavailable", category: "invalid-result" };
+): CheckResult {
+  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
+  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
+  return unavailable("external-result-invalid");
 }
 
-async function compareFileReference(
-  context: FileBindingContext,
-  candidates: readonly FileRecordCandidate[]
+async function reportFileReference(
+  context: CheckExecutionContext<FileMetricsOptions>,
+  candidates: readonly FileRecordCandidate[],
+  dependency: FileScannerDependency,
+  semantics: FileMetricsSemantics
 ): Promise<void> {
-  if (context.reference === null) {
-    return;
-  }
-  const measurement = await measureFileMetrics(context.reference, context.dependency);
+  if (context.project.comparison === null) return;
+  const reference: FileMetricsExactInputSet = Object.freeze({
+    approvedExactPaths: Object.freeze(collectScanFiles(context.project.comparison.root, context.project.files)),
+    rootDir: context.project.comparison.root
+  });
+  const measurement = await measureFileMetrics(reference, dependency);
   if (measurement.kind !== "complete") {
-    context.referenceState.status = measurement.kind === "unavailable"
-      ? "unavailable"
-      : "incomplete";
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
+    }));
     return;
   }
   const referenceValues = codeLinesByPath(measurement.metrics);
   if (referenceValues === undefined) {
-    context.referenceState.status = "incomplete";
+    context.records.reportReference(Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze([]),
+      status: "incomplete"
+    }));
     return;
   }
-  context.referenceState.status = "complete";
-  context.referenceState.relationsBySubject = buildFileRelations(
-    candidates,
-    referenceValues,
-    context.semantics
-  );
+  const relationsBySubject = buildFileRelations(candidates, referenceValues, semantics);
+  const relations = candidates.flatMap((candidate) => (
+    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) => Object.freeze({
+      record: candidate.record,
+      relationId
+    }))
+  ));
+  context.records.reportReference(Object.freeze({
+    referenceName: context.project.comparison.referenceName,
+    relations: Object.freeze(relations),
+    status: "complete"
+  }));
+}
+
+function unavailable(code: string): CheckResult {
+  return Object.freeze({ status: "unavailable", reason: { code } });
 }

@@ -1,7 +1,7 @@
 ---
 title: 让 Check options 拥有执行依赖
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T16:29:25Z
 purpose: 让每个普通 Check 通过自己的 options 持有外部程序等执行配置，并由自己的 execution 负责使用。
 background: 分离的 operational binding 会让 Run 按 Check 来源或身份重建实现，而普通 Check 已能通过完整 options 表达并原生覆盖自身配置。

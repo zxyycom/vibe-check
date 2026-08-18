@@ -1,7 +1,6 @@
 import Type from "typebox";
 
 import {
-  CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES,
   RECORD_FIELD_VALUE_TYPES,
   RECORD_LEVELS
 } from "../../check-record/model.ts";
@@ -77,16 +76,22 @@ const RecordTypeDefinitionSchema = Type.Object({
 }, { additionalProperties: false });
 
 const CheckOutcomeSchema = Type.Union([
-  Type.Object({ kind: Type.Literal("not-applicable") }, { additionalProperties: false }),
   Type.Object({
-    kind: Type.Literal("completed"),
+    reason: Type.Optional(Type.Object({
+      code: NonEmptyString
+    }, { additionalProperties: false })),
+    status: Type.Literal("not-applicable")
+  }, { additionalProperties: false }),
+  Type.Object({
+    status: Type.Literal("completed"),
     verdict: Type.Enum(["passed", "failed"], { type: "string" })
   }, { additionalProperties: false }),
   Type.Object({
-    diagnostic: Type.Object({
-      category: Type.Enum(CHECK_UNAVAILABLE_DIAGNOSTIC_CATEGORIES, { type: "string" })
+    reason: Type.Object({
+      checkIds: Type.Optional(Type.Array(StableIdString, { minItems: 1 })),
+      code: NonEmptyString
     }, { additionalProperties: false }),
-    kind: Type.Literal("unavailable")
+    status: Type.Literal("unavailable")
   }, { additionalProperties: false })
 ]);
 

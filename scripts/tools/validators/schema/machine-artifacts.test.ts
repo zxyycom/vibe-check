@@ -322,9 +322,9 @@ describe("independent docs machine artifact validation", () => {
     }
 
     proveGeneratedDrift(
-      "docs/schemas/vibe-check-record.schema.json",
+      "docs/schemas/vibe-check-run.schema.json",
       checkPublishedMachineSchemas,
-      /docs\/schemas\/vibe-check-record\.schema\.json/
+      /docs\/schemas\/vibe-check-run\.schema\.json/
     );
     proveGeneratedDrift(
       "docs/examples/artifacts/complete-passed/run.json",

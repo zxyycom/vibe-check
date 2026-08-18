@@ -20,12 +20,24 @@ export async function run(definition: unknown, controls?: unknown): Promise<RunR
 export async function run(definition: unknown, controls: unknown = {}): Promise<RunResult> {
   const validatedDefinition = validateProjectDefinition(definition);
   if (!validatedDefinition.ok) {
-    return Object.freeze({ kind: "configuration", diagnostic: validatedDefinition.error });
+    return Object.freeze({
+      kind: "configuration",
+      definitionWarnings: Object.freeze([]),
+      diagnostic: validatedDefinition.error
+    });
   }
   const validatedControls = validateRunControls(controls);
   if (!validatedControls.ok) {
-    return Object.freeze({ kind: "configuration", diagnostic: validatedControls.error });
+    return Object.freeze({
+      kind: "configuration",
+      definitionWarnings: Object.freeze([]),
+      diagnostic: validatedControls.error
+    });
   }
 
-  return executeValidatedRun(validatedDefinition.value, validatedControls.value);
+  return executeValidatedRun(
+    validatedDefinition.value,
+    validatedControls.value,
+    validatedDefinition.warnings
+  );
 }

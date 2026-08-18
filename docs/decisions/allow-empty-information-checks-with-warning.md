@@ -1,7 +1,7 @@
 ---
 title: 允许空 information Check 并给出提示
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T15:37:57Z
 purpose: 让递归 Check authoring 接受暂时没有 execution 或 children 的节点，同时明确提示它当前不产生任何作用。
 background: 空节点可能来自渐进配置或对象组合；把它当成无效输入会增加修改成本，静默接受又容易掩盖无意义声明。

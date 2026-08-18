@@ -50,30 +50,6 @@ interface AreaMeasurementInput {
   readonly toolVersion: string;
 }
 
-export function detachDuplicateDetectionInput(
-  input: DuplicateDetectionExactInputSet
-): DuplicateDetectionExactInputSet {
-  return Object.freeze({
-    rootDir: input.rootDir,
-    cacheRootDir: input.cacheRootDir,
-    commitSha: input.commitSha,
-    areas: Object.freeze(input.areas.map(detachAreaInput))
-  });
-}
-
-function detachAreaInput(area: DuplicateDetectionAreaInput): DuplicateDetectionAreaInput {
-  return Object.freeze({
-    codeArea: area.codeArea,
-    approvedExactPaths: Object.freeze([...area.approvedExactPaths]),
-    minimumTokens: area.minimumTokens,
-    inputFingerprint: Object.freeze({
-      fileCount: area.inputFingerprint.fileCount,
-      fileList: Object.freeze([...area.inputFingerprint.fileList]),
-      fingerprint: area.inputFingerprint.fingerprint
-    })
-  });
-}
-
 export async function measureDuplicateDetection(
   options: DuplicateMeasurementInput
 ): Promise<DuplicateMeasurementResult> {

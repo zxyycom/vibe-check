@@ -1,7 +1,7 @@
 ---
 title: 使用原生对象组合自定义 Check
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T09:18:05Z
 purpose: 让项目直接用 TypeScript 对象展开、解构和数组操作修改 Product 默认 Check，而不维护产品专属调整 API。
 background: Product 默认 Check 已是完整普通对象；partial parser 和派生 helper 会为语言已有的对象组合能力增加第二套语义。

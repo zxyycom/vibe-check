@@ -1,9 +1,8 @@
 # quality-gate
 
 ## Case WB-POLICY-RUNTIME-001: Retained policy runtime evidence
-Owner: `docs/quality-metrics.md#decisionpolicy`
+Owner: `docs/quality-metrics.md#decisionpolicy-and-human-status`
 Entities:
-- `bun|src/product/quality-core/check-record/builtins/file-metrics.test.ts|file-metrics built-in Check > keeps current facts complete when reference scope is incomplete and policy readiness stops evaluation`
 - `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > does not let verification output turn unavailable or no-completed current work into passed`
 - `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > projects unavailable, no-completed, quality failure, and passed Core snapshots without changing them`
 - `bun|src/product/quality-core/check-record/human-status.test.ts|check-record human status projection > uses the acceptance-applied all view only for verification projection and keeps decision evidence unchanged`

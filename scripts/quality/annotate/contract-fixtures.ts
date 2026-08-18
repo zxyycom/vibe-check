@@ -64,13 +64,12 @@ export function writeCanonicalPublicationFixture(
 }
 
 function createSnapshot(records: readonly FixtureRecord[]) {
-  const applicability = records.length === 0 ? "not-applicable" : "applicable";
-  const session = createCoreCheckSession([{ definition, applicability }]);
-  if (applicability === "not-applicable") {
-    session.closeNotApplicable(definition.checkId);
+  const session = createCoreCheckSession([{ definition }]);
+  const scope = session.openCheckScope(definition.checkId);
+  if (records.length === 0) {
+    scope.settle({ status: "not-applicable" });
     return session.freeze();
   }
-  const scope = session.openApplicableScope(definition.checkId);
   for (const [index, record] of records.entries()) {
     scope.records.report({
       recordTypeId: definition.recordTypes[0].recordTypeId,
@@ -81,6 +80,6 @@ function createSnapshot(records: readonly FixtureRecord[]) {
       location: { path: `src/fixture-${index + 1}.ts`, line: index + 1, column: 1 }
     });
   }
-  scope.settle({ kind: "completed", verdict: "failed" });
+  scope.settle({ status: "completed", verdict: "failed" });
   return session.freeze();
 }

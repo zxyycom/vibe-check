@@ -24,10 +24,10 @@ export function projectHumanStatus(input: Readonly<{
 }
 
 function normalStatus(snapshot: CoreSnapshot): HumanQualityStatus {
-  if (snapshot.checks.some((check) => check.outcome.kind === "unavailable")) return "failed";
+  if (snapshot.checks.some((check) => check.outcome.status === "unavailable")) return "failed";
   const completedChecks = snapshot.checks.filter((check): check is typeof check & {
-    readonly outcome: Extract<typeof check.outcome, { readonly kind: "completed" }>;
-  } => check.outcome.kind === "completed");
+    readonly outcome: Extract<typeof check.outcome, { readonly status: "completed" }>;
+  } => check.outcome.status === "completed");
   if (completedChecks.length === 0) return "warning";
   return completedChecks.some((check) => check.outcome.verdict === "failed")
     ? "warning"
@@ -40,7 +40,7 @@ function verificationStatus(
   normal: HumanQualityStatus
 ): HumanQualityStatus {
   if (normal === "failed") return "failed";
-  if (normal === "warning" && !snapshot.checks.some((check) => check.outcome.kind === "completed")) {
+  if (normal === "warning" && !snapshot.checks.some((check) => check.outcome.status === "completed")) {
     return "warning";
   }
   const allCurrent = decision.views.find((view) => view.viewId === "all-current");

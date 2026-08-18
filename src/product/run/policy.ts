@@ -13,7 +13,7 @@ import {
   validatePolicyResolution,
   validateReferenceFacts
 } from "../quality-core/check-record/policy-validation.ts";
-import type { ResolvedCheck } from "./resolved-check.ts";
+import type { CheckReferenceSubmission } from "./check-reference-submissions.ts";
 
 type PublicCatalog = Readonly<{
   readonly catalogFingerprint: string;
@@ -43,14 +43,10 @@ export function resolveSelectedPolicy(
   return resolution.ok ? resolution.value : undefined;
 }
 
-/**
- * Reference callbacks live on the canonical Resolved Check that created them;
- * no post-join built-in lookup collection is retained.
- */
 export function resolveReferenceFacts(
   policy: PolicyResolution,
   snapshot: CoreSnapshot,
-  checks: readonly ResolvedCheck[]
+  submissions: readonly CheckReferenceSubmission[]
 ): ReferenceFacts | undefined {
   const required = policy.policy?.references.flatMap((requirement) => (
     requirement.checkIds.map((checkId) => ({
@@ -58,29 +54,20 @@ export function resolveReferenceFacts(
       referenceName: requirement.referenceName
     }))
   )) ?? [];
+  const evidence = required.map(({ checkId, referenceName }) => {
+    const submission = submissions.find((candidate) => (
+      candidate.checkId === checkId && candidate.referenceName === referenceName
+    ));
+    return submission === undefined
+      ? { checkId, referenceName, status: "unavailable" as const }
+      : { checkId, referenceName, status: submission.status };
+  });
   const requiredPairs = new Set(required.map(({ checkId, referenceName }) => (
     `${checkId}\u0000${referenceName}`
   )));
-  const runtimeFacts = checks.flatMap((check) => {
-    const resolver = check.binding.kind === "direct" ? check.binding.referenceFacts : undefined;
-    return resolver === undefined ? [] : [Object.freeze({
-      checkId: check.definition.checkId,
-      facts: resolver(snapshot)
-    })];
-  });
-  const evidence = required.map(({ checkId, referenceName }) => {
-    const facts = runtimeFacts.find((candidate) => candidate.checkId === checkId)?.facts;
-    return facts?.evidence.find((candidate) => (
-      candidate.checkId === checkId && candidate.referenceName === referenceName
-    )) ?? { checkId, referenceName, status: "unavailable" as const };
-  });
-  const relations = runtimeFacts.flatMap(({ facts }) => (
-    facts.relations.filter((relation) => {
-      const record = snapshot.records.find((candidate) => candidate.recordId === relation.recordId);
-      return record !== undefined
-        && requiredPairs.has(`${record.checkId}\u0000${relation.referenceName}`);
-    })
-  ));
+  const relations = submissions
+    .filter((submission) => requiredPairs.has(`${submission.checkId}\u0000${submission.referenceName}`))
+    .flatMap((submission) => submission.relations);
   const result = validateReferenceFacts({ evidence, relations }, policy, snapshot);
   return result.ok ? result.value : undefined;
 }

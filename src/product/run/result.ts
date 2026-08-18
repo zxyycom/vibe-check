@@ -1,4 +1,5 @@
 import type {
+  DefinitionWarning,
   ProjectDefinitionDiagnostic,
   RunControls
 } from "../definition/project.ts";
@@ -10,8 +11,8 @@ import type {
 import type { RunEffectStatuses } from "./effects.ts";
 
 export type RunDiagnostic = Readonly<{
-  readonly code: "builtin-preparation-failed" | "progress-failed" | "publication-model-failed"
-    | "policy-validation-failed" | "resolved-check-planning-failed" | "task-execution-failed";
+  readonly code: "comparison-preparation-failed" | "policy-validation-failed" | "task-graph-invalid"
+    | "progress-failed" | "task-engine-failed" | "publication-model-failed";
 }>;
 
 /** Facts shared by completed and post-model effect results. */
@@ -22,22 +23,29 @@ export interface RunResultFacts {
 }
 
 export type RunResult = Readonly<
-  | { readonly kind: "configuration"; readonly diagnostic: ProjectDefinitionDiagnostic }
+  | {
+    readonly kind: "configuration";
+    readonly definitionWarnings: readonly DefinitionWarning[];
+    readonly diagnostic: ProjectDefinitionDiagnostic;
+  }
   | {
     readonly kind: "planning";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly diagnostic: RunDiagnostic;
     readonly effects: RunEffectStatuses;
   }
   | {
     readonly kind: "cancelled";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly effects: RunEffectStatuses;
     readonly phase: "pre-work" | "planning";
   }
   | {
     readonly kind: "cancelled";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly effects: RunEffectStatuses;
     readonly phase: "execution";
     readonly snapshot: CoreSnapshot;
@@ -45,17 +53,20 @@ export type RunResult = Readonly<
   | ({
     readonly kind: "completed";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly effects: RunEffectStatuses;
   } & RunResultFacts)
   | {
     readonly kind: "execution";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly diagnostic: RunDiagnostic;
     readonly effects: RunEffectStatuses;
   }
   | ({
     readonly kind: "effect";
     readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
     readonly diagnostic: Readonly<{
       readonly effect: keyof RunEffectStatuses;
       readonly code: "effect-failed";
@@ -66,6 +77,7 @@ export type RunResult = Readonly<
 
 export function effectFailure(
   declarativeFingerprint: string,
+  definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
   effect: keyof RunEffectStatuses,
   facts: RunResultFacts
@@ -73,6 +85,7 @@ export function effectFailure(
   return Object.freeze({
     kind: "effect",
     declarativeFingerprint,
+    definitionWarnings,
     diagnostic: Object.freeze({ effect, code: "effect-failed" }),
     effects,
     ...facts
@@ -85,13 +98,15 @@ export function isCancelled(controls: RunControls): boolean {
 
 export function planning(
   declarativeFingerprint: string,
+  definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
-  code: Extract<RunDiagnostic["code"],
-    "builtin-preparation-failed" | "policy-validation-failed" | "resolved-check-planning-failed">
+  code: Extract<RunDiagnostic["code"], "comparison-preparation-failed" | "policy-validation-failed"
+    | "task-graph-invalid">
 ): RunResult {
   return Object.freeze({
     kind: "planning",
     declarativeFingerprint,
+    definitionWarnings,
     diagnostic: Object.freeze({ code }),
     effects
   });
@@ -99,20 +114,23 @@ export function planning(
 
 export function preExecutionCancellation(
   declarativeFingerprint: string,
+  definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
   phase: "pre-work" | "planning"
 ): RunResult {
-  return Object.freeze({ kind: "cancelled", declarativeFingerprint, effects, phase });
+  return Object.freeze({ kind: "cancelled", declarativeFingerprint, definitionWarnings, effects, phase });
 }
 
 export function executionCancellation(
   declarativeFingerprint: string,
+  definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
   snapshot: CoreSnapshot
 ): RunResult {
   return Object.freeze({
     kind: "cancelled",
     declarativeFingerprint,
+    definitionWarnings,
     effects,
     phase: "execution",
     snapshot

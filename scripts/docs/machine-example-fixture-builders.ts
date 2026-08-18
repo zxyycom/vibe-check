@@ -72,13 +72,8 @@ export function buildCanonicalMachineExample(input: MachineExampleScenario): Can
 }
 
 function createSnapshot(state: MachineExampleState): CoreSnapshot {
-  const applicability = state === "empty" ? "not-applicable" : "applicable";
-  const session = createCoreCheckSession([{ definition, applicability }]);
-  if (applicability === "not-applicable") {
-    session.closeNotApplicable(definition.checkId);
-    return session.freeze();
-  }
-  const scope = session.openApplicableScope(definition.checkId);
+  const session = createCoreCheckSession([{ definition }]);
+  const scope = session.openCheckScope(definition.checkId);
   if (state === "warning" || state === "gate-failed") {
     scope.records.report({
       recordTypeId: definition.recordTypes[0].recordTypeId,
@@ -91,12 +86,14 @@ function createSnapshot(state: MachineExampleState): CoreSnapshot {
   }
   if (state === "incomplete") {
     scope.settle({
-      kind: "unavailable",
-      diagnostic: { category: "dependency-unavailable" }
+      status: "unavailable",
+      reason: { code: "dependency-unavailable" }
     });
+  } else if (state === "empty") {
+    scope.settle({ status: "not-applicable" });
   } else {
     scope.settle({
-      kind: "completed",
+      status: "completed",
       verdict: state === "warning" || state === "gate-failed" ? "failed" : "passed"
     });
   }

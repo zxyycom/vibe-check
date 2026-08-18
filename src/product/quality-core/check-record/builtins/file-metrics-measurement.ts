@@ -12,15 +12,6 @@ export type FileMeasurementResult = Readonly<
   | { kind: "unavailable" }
 >;
 
-export function detachFileMetricsInput(
-  input: FileMetricsExactInputSet
-): FileMetricsExactInputSet {
-  return Object.freeze({
-    rootDir: input.rootDir,
-    approvedExactPaths: Object.freeze([...input.approvedExactPaths])
-  });
-}
-
 export async function measureFileMetrics(
   input: FileMetricsExactInputSet,
   dependency: FileScannerDependency

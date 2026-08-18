@@ -68,8 +68,8 @@ export function snapshot(status: "completed" | "unavailable"): CoreSnapshot {
     checks: [{
       ...definition,
       outcome: status === "completed"
-        ? { kind: "completed", verdict: "passed" }
-        : { kind: "unavailable", diagnostic: { category: "execution-failed" } }
+        ? { status: "completed", verdict: "passed" }
+        : { status: "unavailable", reason: { code: "execution-threw" } }
     }],
     records
   };

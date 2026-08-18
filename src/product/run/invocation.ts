@@ -4,21 +4,20 @@ import { resolve } from "node:path";
 import {
   createDeclarativeFingerprint,
   normalizeProjectDefinition,
+  type DefinitionWarning,
   type NormalizedProjectDefinition,
   type ProjectDefinition,
   type RunControls
 } from "../definition/project.ts";
-import { ScannerOperationalInputError } from "../scanner-dependencies/index.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import type { PolicyResolution, ReferenceFacts } from "../quality-core/check-record/policy-model.ts";
-import {
-  executeResolvedChecks,
-  type ResolvedCheckExecution
-} from "./check-execution.ts";
-import { prepareBuiltInRuntime, type BuiltInRuntime } from "./built-ins.ts";
+import { prepareTaskGraph } from "../task-scheduler/index.ts";
+import { executeResolvedChecks, type ResolvedCheckExecution } from "./check-execution.ts";
+import { planStaticCheckGraph } from "./check-execution-plan.ts";
 import { createEffectStatuses, effectiveEffects, emitProgress, type EffectStatuses } from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
 import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
+import { prepareProjectContext } from "./project-context.ts";
 import {
   executionCancellation,
   isCancelled,
@@ -27,46 +26,60 @@ import {
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
-import { resolveChecks, type ResolvedCheck } from "./resolved-check.ts";
 
 export type Invocation = Readonly<{
-  controls: RunControls;
-  declarativeFingerprint: string;
-  definition: ProjectDefinition;
-  effectConfiguration: ProjectDefinition["effects"];
-  effects: EffectStatuses;
-  invocationId: string;
-  normalized: NormalizedProjectDefinition;
-  projectRoot: string;
+  readonly controls: RunControls;
+  readonly declarativeFingerprint: string;
+  readonly definition: ProjectDefinition;
+  readonly definitionWarnings: readonly DefinitionWarning[];
+  readonly effectConfiguration: ProjectDefinition["effects"];
+  readonly effects: EffectStatuses;
+  readonly invocationId: string;
+  readonly normalized: NormalizedProjectDefinition;
+  readonly projectRoot: string;
 }>;
 
-type PlannedInvocation = Readonly<{ policy: PolicyResolution }>;
+type PlannedInvocation = Readonly<{ readonly policy: PolicyResolution }>;
 
 export type CoreExecution = Readonly<{
-  referenceFacts: ReferenceFacts;
-  snapshot: CoreSnapshot;
+  readonly referenceFacts: ReferenceFacts;
+  readonly snapshot: CoreSnapshot;
 }>;
 
 export async function executeValidatedRun(
   definition: ProjectDefinition,
-  controls: RunControls
+  controls: RunControls,
+  definitionWarnings: readonly DefinitionWarning[]
 ): Promise<RunResult> {
-  const invocation = createInvocation(definition, controls);
+  const invocation = createInvocation(definition, controls, definitionWarnings);
   if (isCancelled(controls)) {
-    return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
+    return preExecutionCancellation(
+      invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
+      invocation.effects.value(),
+      "pre-work"
+    );
   }
   const plan = resolveInvocationPlan(invocation);
   if (isRunResult(plan)) return plan;
+  if (!validateTaskGraph(invocation)) {
+    return planningResult(invocation, "task-graph-invalid");
+  }
   return executePlannedInvocation(invocation, plan);
 }
 
-function createInvocation(definition: ProjectDefinition, controls: RunControls): Invocation {
+function createInvocation(
+  definition: ProjectDefinition,
+  controls: RunControls,
+  definitionWarnings: readonly DefinitionWarning[]
+): Invocation {
   const normalized = normalizeProjectDefinition(definition);
   const effectConfiguration = effectiveEffects(definition, controls);
   return Object.freeze({
     controls,
     declarativeFingerprint: createDeclarativeFingerprint(normalized.declarative),
     definition,
+    definitionWarnings: Object.freeze([...definitionWarnings]),
     effectConfiguration,
     effects: createEffectStatuses(effectConfiguration),
     invocationId: `invocation/v1:${randomUUID()}`,
@@ -78,8 +91,21 @@ function createInvocation(definition: ProjectDefinition, controls: RunControls):
 function resolveInvocationPlan(invocation: Invocation): PlannedInvocation | RunResult {
   const definitions = invocation.normalized.declarative.checks.map((check) => check.definition);
   const policy = resolveSelectedPolicy(invocation.definition, invocation.controls, definitions);
-  if (policy === undefined) return invalidComparisonResult();
-  return Object.freeze({ policy });
+  return policy === undefined
+    ? planningResult(invocation, "policy-validation-failed")
+    : Object.freeze({ policy });
+}
+
+function validateTaskGraph(invocation: Invocation): boolean {
+  try {
+    prepareTaskGraph(
+      planStaticCheckGraph(invocation.normalized.checks),
+      invocation.normalized.declarative.scheduler.maxParallel
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function executePlannedInvocation(
@@ -87,129 +113,98 @@ async function executePlannedInvocation(
   plan: PlannedInvocation
 ): Promise<RunResult> {
   if (isCancelled(invocation.controls)) {
-    return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
+    return preExecutionCancellation(
+      invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
+      invocation.effects.value(),
+      "pre-work"
+    );
   }
-  const runtime = prepareRuntime(invocation);
-  if (isRunResult(runtime)) return runtime;
-
+  let project;
+  try {
+    project = prepareProjectContext({
+      controls: invocation.controls,
+      definition: invocation.definition,
+      effectConfiguration: invocation.effectConfiguration,
+      effects: invocation.effects,
+      root: invocation.projectRoot
+    });
+  } catch {
+    return planningResult(invocation, "comparison-preparation-failed");
+  }
   try {
     if (isCancelled(invocation.controls)) {
-      return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "pre-work");
-    }
-    const checks = resolveInvocationChecks(invocation, runtime);
-    if (isRunResult(checks)) return checks;
-    if (isCancelled(invocation.controls)) {
-      return preExecutionCancellation(invocation.declarativeFingerprint, invocation.effects.value(), "planning");
+      return preExecutionCancellation(
+        invocation.declarativeFingerprint,
+        invocation.definitionWarnings,
+        invocation.effects.value(),
+        "planning"
+      );
     }
     if (!emitProgress(invocation.effects, "execution")) {
       return executionResult(invocation, "progress-failed");
     }
-    const executed = await executeChecks(invocation, checks);
+    const executed = await executeChecks(invocation, project.context);
     if (isExecutionRunResult(executed)) return executed;
     if (executed.kind === "cancelled") {
       return executionCancellation(
         invocation.declarativeFingerprint,
+        invocation.definitionWarnings,
         invocation.effects.value(),
         executed.snapshot
       );
     }
-    let referenceFacts: ReferenceFacts | undefined;
-    try {
-      referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, checks);
-    } catch {
-      return executionResult(invocation, "policy-validation-failed");
-    }
+    const referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, executed.references);
     if (referenceFacts === undefined) return executionResult(invocation, "policy-validation-failed");
     return completeInvocation(invocation, plan.policy, Object.freeze({
       referenceFacts,
       snapshot: executed.snapshot
     }));
   } finally {
-    runtime.cleanup();
-  }
-}
-
-function prepareRuntime(invocation: Invocation): BuiltInRuntime | RunResult {
-  try {
-    return prepareBuiltInRuntime({
-      cache: invocation.effectConfiguration.cache,
-      checks: invocation.normalized.declarative.checks,
-      controls: invocation.controls,
-      definition: invocation.definition,
-      onCacheActivity: (activity) => invocation.effects.cache(activity)
-    });
-  } catch (error: unknown) {
-    if (error instanceof ScannerOperationalInputError) return scannerConfigurationResult(error);
-    return planningResult(invocation, "builtin-preparation-failed");
-  }
-}
-
-function resolveInvocationChecks(
-  invocation: Invocation,
-  runtime: BuiltInRuntime
-) {
-  try {
-    return resolveChecks({ builtIns: runtime, normalized: invocation.normalized });
-  } catch {
-    return planningResult(invocation, "resolved-check-planning-failed");
+    project.cleanup();
   }
 }
 
 async function executeChecks(
   invocation: Invocation,
-  checks: readonly ResolvedCheck[]
+  project: Parameters<typeof executeResolvedChecks>[0]["project"]
 ): Promise<ResolvedCheckExecution | RunResult> {
   try {
     return await executeResolvedChecks({
-      checks,
+      checks: invocation.normalized.checks,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
+      project,
       signal: invocation.controls.signal
     });
   } catch {
-    return executionResult(invocation, "task-execution-failed");
+    return executionResult(invocation, "task-engine-failed");
   }
 }
 
 function planningResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"],
-    "builtin-preparation-failed" | "policy-validation-failed" | "resolved-check-planning-failed">
+  code: Extract<RunDiagnostic["code"], "comparison-preparation-failed" | "policy-validation-failed"
+    | "task-graph-invalid">
 ): RunResult {
-  return planning(invocation.declarativeFingerprint, invocation.effects.value(), code);
+  return planning(
+    invocation.declarativeFingerprint,
+    invocation.definitionWarnings,
+    invocation.effects.value(),
+    code
+  );
 }
 
 function executionResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"],
-    "progress-failed" | "publication-model-failed" | "policy-validation-failed" | "task-execution-failed">
+  code: Extract<RunDiagnostic["code"], "progress-failed" | "publication-model-failed"
+    | "policy-validation-failed" | "task-engine-failed">
 ): RunResult {
   return Object.freeze({
     kind: "execution",
     declarativeFingerprint: invocation.declarativeFingerprint,
+    definitionWarnings: invocation.definitionWarnings,
     diagnostic: Object.freeze({ code }),
     effects: invocation.effects.value()
-  });
-}
-
-function invalidComparisonResult(): RunResult {
-  return Object.freeze({
-    kind: "configuration",
-    diagnostic: Object.freeze({
-      kind: "invalid-run-controls",
-      path: "controls.comparison",
-      reason: "invalid-value"
-    })
-  });
-}
-
-function scannerConfigurationResult(error: ScannerOperationalInputError): RunResult {
-  return Object.freeze({
-    kind: "configuration",
-    diagnostic: Object.freeze({
-      kind: "invalid-scanner-operational-input",
-      path: `operationalDependencies.${error.dependencyId ?? "binding"}`,
-      reason: "invalid-value"
-    })
   });
 }
 

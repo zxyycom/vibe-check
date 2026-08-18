@@ -1,7 +1,7 @@
 ---
 title: 公开递归 Check authoring 与 Run surface
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T16:53:01Z
 purpose: 让 package 只公开一种递归 Check authoring model、三个普通默认值和唯一 Run，并提供实际 consumer 需要的类型根。
 background: 已确认 authoring helpers；来源、TaskPlan 或 adjustment inventory 会把已取消的模型带入 package。

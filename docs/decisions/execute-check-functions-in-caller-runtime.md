@@ -1,7 +1,7 @@
 ---
 title: 在调用方 runtime 中执行 Check functions
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T15:28:19Z
 purpose: 让 Package Run 直接调用 Project Definition 中的 Check functions，并由唯一 Task system 管理调度。
 background: Functions 已随项目 import 存在于调用方 Bun runtime；跨进程重载会复制配置和改变 closure 语义。

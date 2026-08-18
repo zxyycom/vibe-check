@@ -88,18 +88,18 @@ function checkDefinition() {
 }
 
 function completedCheck(verdict: "passed" | "failed"): CoreSnapshot["checks"][number] {
-  return { ...checkDefinition(), outcome: { kind: "completed", verdict } };
+  return { ...checkDefinition(), outcome: { status: "completed", verdict } };
 }
 
 function unavailableCheck(): CoreSnapshot["checks"][number] {
   return {
     ...checkDefinition(),
-    outcome: { kind: "unavailable", diagnostic: { category: "execution-failed" } }
+    outcome: { status: "unavailable", reason: { code: "execution-threw" } }
   };
 }
 
 function notApplicableCheck(): CoreSnapshot["checks"][number] {
-  return { ...checkDefinition(), outcome: { kind: "not-applicable" } };
+  return { ...checkDefinition(), outcome: { status: "not-applicable" } };
 }
 
 function record(recordId: string): CoreSnapshot["records"][number] {

@@ -334,7 +334,7 @@ function scanCompletionMessage(status: ValidatedPublicationModelV3["humanStatus"
 function formatCheckOutcome(
   outcome: ValidatedPublicationModelV3["snapshot"]["checks"][number]["outcome"]
 ): string {
-  if (outcome.kind === "completed") return `${outcome.kind} / ${outcome.verdict}`;
-  if (outcome.kind === "unavailable") return `${outcome.kind} / ${outcome.diagnostic.category}`;
-  return outcome.kind;
+  if (outcome.status === "completed") return `${outcome.status} / ${outcome.verdict}`;
+  if (outcome.status === "unavailable") return `${outcome.status} / ${outcome.reason.code}`;
+  return outcome.status;
 }

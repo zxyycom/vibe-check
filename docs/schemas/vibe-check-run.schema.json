@@ -67,10 +67,23 @@
               {
                 "type": "object",
                 "required": [
-                  "kind"
+                  "status"
                 ],
                 "properties": {
-                  "kind": {
+                  "reason": {
+                    "type": "object",
+                    "required": [
+                      "code"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "status": {
                     "type": "string",
                     "const": "not-applicable"
                   }
@@ -80,11 +93,11 @@
               {
                 "type": "object",
                 "required": [
-                  "kind",
+                  "status",
                   "verdict"
                 ],
                 "properties": {
-                  "kind": {
+                  "status": {
                     "type": "string",
                     "const": "completed"
                   },
@@ -101,32 +114,33 @@
               {
                 "type": "object",
                 "required": [
-                  "diagnostic",
-                  "kind"
+                  "reason",
+                  "status"
                 ],
                 "properties": {
-                  "diagnostic": {
+                  "reason": {
                     "type": "object",
                     "required": [
-                      "category"
+                      "code"
                     ],
                     "properties": {
-                      "category": {
-                        "enum": [
-                          "record-conflict",
-                          "invalid-record",
-                          "capability-protocol",
-                          "invalid-result",
-                          "dependency-unavailable",
-                          "execution-failed",
-                          "cancelled"
-                        ],
-                        "type": "string"
+                      "checkIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+                        },
+                        "minItems": 1
+                      },
+                      "code": {
+                        "type": "string",
+                        "minLength": 1
                       }
                     },
                     "additionalProperties": false
                   },
-                  "kind": {
+                  "status": {
                     "type": "string",
                     "const": "unavailable"
                   }

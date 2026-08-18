@@ -1,6 +1,4 @@
-import type { CoreSnapshot, QualityRecordCandidate } from "../model.ts";
-import type { ReferenceFacts } from "../policy-model.ts";
-import { compareText, type ReferenceStatus, type RelationId } from "./builtin-support.ts";
+import type { RelationId } from "./builtin-support.ts";
 import type {
   FunctionMetricAnalysis,
   FunctionValues
@@ -103,42 +101,4 @@ function changedDeltaForRecordType(
     default:
       return Number.POSITIVE_INFINITY;
   }
-}
-
-export function buildFunctionReferenceFacts(
-  snapshot: CoreSnapshot,
-  referenceName: string | null,
-  referenceStatus: ReferenceStatus | null,
-  relationsByRecordKey: ReadonlyMap<string, readonly RelationId[]>
-): ReferenceFacts {
-  if (referenceName === null || referenceStatus === null) {
-    return Object.freeze({ evidence: Object.freeze([]), relations: Object.freeze([]) });
-  }
-  const relations = snapshot.records
-    .filter((record) => record.checkId === "function-metrics")
-    .flatMap((record) => relationsForRecord(record, referenceName, relationsByRecordKey))
-    .sort((left, right) => compareText(
-      `${left.recordId}\u0000${left.relationId}`,
-      `${right.recordId}\u0000${right.relationId}`
-    ));
-  return Object.freeze({
-    evidence: Object.freeze([Object.freeze({
-      checkId: "function-metrics",
-      referenceName,
-      status: referenceStatus
-    })]),
-    relations: Object.freeze(relations)
-  });
-}
-
-function relationsForRecord(
-  record: Pick<QualityRecordCandidate, "recordTypeId" | "semanticSubject"> & { recordId: string },
-  referenceName: string,
-  relationsByRecordKey: ReadonlyMap<string, readonly RelationId[]>
-) {
-  return (relationsByRecordKey.get(recordKey(record)) ?? []).map((relationId) => Object.freeze({
-    recordId: record.recordId,
-    referenceName,
-    relationId
-  }));
 }

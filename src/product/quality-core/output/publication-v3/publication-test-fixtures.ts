@@ -194,8 +194,8 @@ function humanPublicationFields(
 }
 
 function snapshotWithRecords(paths: readonly string[]): CoreSnapshot {
-  const session = createCoreCheckSession([{ definition, applicability: "applicable" }]);
-  const scope = session.openApplicableScope(definition.checkId);
+  const session = createCoreCheckSession([{ definition }]);
+  const scope = session.openCheckScope(definition.checkId);
   for (const [index, path] of paths.entries()) {
     scope.records.report({
       recordTypeId: definition.recordTypes[0].recordTypeId,
@@ -206,13 +206,13 @@ function snapshotWithRecords(paths: readonly string[]): CoreSnapshot {
       location: { path, line: index + 7, column: 1 }
     });
   }
-  scope.settle({ kind: "completed", verdict: "failed" });
+  scope.settle({ status: "completed", verdict: "failed" });
   return session.freeze();
 }
 
 function snapshotWithoutRecords(): CoreSnapshot {
-  const session = createCoreCheckSession([{ definition, applicability: "not-applicable" }]);
-  session.closeNotApplicable(definition.checkId);
+  const session = createCoreCheckSession([{ definition }]);
+  session.openCheckScope(definition.checkId).settle({ status: "not-applicable" });
   return session.freeze();
 }
 
@@ -220,8 +220,8 @@ function snapshotForDefinition(
   checkDefinition: CheckDefinition,
   verdict: "failed" | "passed"
 ): CoreSnapshot {
-  const session = createCoreCheckSession([{ definition: checkDefinition, applicability: "applicable" }]);
-  session.openApplicableScope(checkDefinition.checkId).settle({ kind: "completed", verdict });
+  const session = createCoreCheckSession([{ definition: checkDefinition }]);
+  session.openCheckScope(checkDefinition.checkId).settle({ status: "completed", verdict });
   return session.freeze();
 }
 

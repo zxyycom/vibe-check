@@ -12,15 +12,6 @@ export type FunctionMeasurementResult = Readonly<
   | { kind: "unavailable" }
 >;
 
-export function detachFunctionMetricsInput(
-  input: FunctionMetricsExactInputSet
-): FunctionMetricsExactInputSet {
-  return Object.freeze({
-    rootDir: input.rootDir,
-    approvedExactPaths: Object.freeze([...input.approvedExactPaths])
-  });
-}
-
 export async function measureFunctionMetrics(
   input: FunctionMetricsExactInputSet,
   dependency: FunctionScannerDependency

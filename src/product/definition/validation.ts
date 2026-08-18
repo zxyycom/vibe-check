@@ -1,11 +1,14 @@
 import { createHash } from "node:crypto";
 
-import { resolveCheckTree, validateBuiltInOptionCodeAreas } from "./check-tree/index.ts";
+import {
+  defaultCheckOptionCodeAreasAreKnown
+} from "./built-ins.ts";
+import { resolveCheckTree } from "./check-tree/index.ts";
 import { parseEffects } from "./effect-validation.ts";
 import {
-  type CheckNode,
-  type ProjectDefinition,
+  type Check,
   type ProjectDefinitionDiagnostic,
+  type ProjectDefinitionValidationResult,
   type SchedulerPolicy,
   type ValidationResult
 } from "./project.ts";
@@ -18,13 +21,11 @@ import {
   snapshotClosedArray,
   snapshotClosedRecord
 } from "../quality-core/check-record/plain-record-values.ts";
-import { parseOperationalDependencies } from "../scanner-dependencies/index.ts";
 
 const PROJECT_DEFINITION_KEYS = [
   "apiVersion",
   "checks",
   "effects",
-  "operationalDependencies",
   "policies",
   "quality",
   "scheduler",
@@ -36,7 +37,11 @@ type PolicyReferenceIdentity = Readonly<{
   readonly referenceName: string;
 }>;
 
-export function validateProjectDefinition(value: unknown): ValidationResult<ProjectDefinition> {
+/**
+ * Validates one closed Definition before Run can invoke any project callback.
+ * Successful validation carries information-only Check warnings separately.
+ */
+export function validateProjectDefinition(value: unknown): ProjectDefinitionValidationResult {
   try {
     return validateProjectDefinitionValue(value);
   } catch {
@@ -44,7 +49,7 @@ export function validateProjectDefinition(value: unknown): ValidationResult<Proj
   }
 }
 
-function validateProjectDefinitionValue(value: unknown): ValidationResult<ProjectDefinition> {
+function validateProjectDefinitionValue(value: unknown): ProjectDefinitionValidationResult {
   const data = exactProjectDefinition(value);
   if (!data.ok) return data;
   return parseProjectDefinitionFields(data.value);
@@ -52,7 +57,7 @@ function validateProjectDefinitionValue(value: unknown): ValidationResult<Projec
 
 function parseProjectDefinitionFields(
   data: Readonly<Record<string, unknown>>
-): ValidationResult<ProjectDefinition> {
+): ProjectDefinitionValidationResult {
   const quality = parseQualityConfiguration(data.quality);
   if (quality === undefined) return invalidDefinition("definition.quality");
   const scheduler = parseScheduler(data.scheduler);
@@ -60,13 +65,11 @@ function parseProjectDefinitionFields(
   const checks = snapshotClosedArray(data.checks);
   if (checks === undefined) return invalidDefinition("definition.checks");
   const tree = resolveCheckTree(checks, scheduler.maxParallel);
-  if (tree === undefined || !validateBuiltInOptionCodeAreas(tree, quality.codeAreas)) {
-    return invalidDefinition("definition.checks");
-  }
+  if (tree === undefined || tree.leaves.some((check) => (
+    !defaultCheckOptionCodeAreasAreKnown(check.definition.checkId, check.options, quality.codeAreas)
+  ))) return invalidDefinition("definition.checks");
   const effects = parseEffects(data.effects);
   if (effects === undefined) return invalidDefinition("definition.effects");
-  const dependencies = parseOperationalDependencies(data.operationalDependencies);
-  if (dependencies === undefined) return invalidDefinition("definition.operationalDependencies");
   const definitions = tree.leaves.map((leaf) => leaf.definition);
   const policies = parsePolicies(data.policies, definitions);
   if (policies === undefined) return invalidDefinition("definition.policies");
@@ -76,14 +79,14 @@ function parseProjectDefinitionFields(
     ok: true,
     value: {
       apiVersion: "1" as const,
-      checks: checks as readonly CheckNode[],
+      checks: checks as readonly Check<object>[],
       effects,
-      operationalDependencies: dependencies,
       policies,
       quality,
       scheduler,
       selectedPolicy
-    }
+    },
+    warnings: tree.warnings
   });
 }
 
@@ -92,7 +95,7 @@ function exactProjectDefinition(value: unknown): ValidationResult<Readonly<Recor
   if (!data.ok) return data;
   return data.value.apiVersion === "1"
     ? data
-    : invalidDefinition("definition.apiVersion");
+    : invalid("invalid-project-definition", "definition.apiVersion", "invalid-value");
 }
 
 function exactRecord(
@@ -184,8 +187,11 @@ function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<str
     : undefined;
 }
 
-function invalidDefinition(path: string): ValidationResult<never> {
-  return invalid("invalid-project-definition", path, "invalid-value");
+function invalidDefinition(path: string): ProjectDefinitionValidationResult {
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({ kind: "invalid-project-definition", path, reason: "invalid-value" })
+  });
 }
 
 function invalid(

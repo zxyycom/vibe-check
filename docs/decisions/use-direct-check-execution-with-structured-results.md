@@ -1,7 +1,7 @@
 ---
 title: 使用直接 Check execution 与结构化结果
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T16:29:25Z
 purpose: 让普通 Check 用一个直接 callback 读取当前配置和运行输入，并以分层状态表达完成、不适用或无法执行。
 background: passed 和 failed 是完成后的质量 verdict，not-applicable 与 unavailable 是不同执行状态；把它们压入一个 verdict 会丢失原因和恢复语义。

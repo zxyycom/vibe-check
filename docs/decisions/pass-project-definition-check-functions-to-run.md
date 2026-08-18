@@ -1,7 +1,7 @@
 ---
 title: 将 Project Definition 的 Check functions 交给 Run
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T15:28:18Z
 purpose: 让项目导入唯一 Project Definition value，并把其中的普通 Check execution functions 直接交给 Package Run。
 background: 项目已经负责加载配置 module；Product 无需重新发现文件或把 functions 传输到另一 runtime。

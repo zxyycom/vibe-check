@@ -2,7 +2,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { ResolvedQualityConfig } from "../model/schema.ts";
-import type { ScannerDependencySnapshot } from "../../scanner-dependencies/index.ts";
+import type {
+  DuplicationScannerDependency,
+  FileScannerDependency,
+  FunctionScannerDependency
+} from "../../scanner-dependencies/index.ts";
 
 const JSCPD_ENTRY = resolve(
   dirname(fileURLToPath(import.meta.resolve("jscpd/package.json"))),
@@ -71,7 +75,11 @@ export const TEST_QUALITY_CONFIG: ResolvedQualityConfig = {
   }
 };
 
-export const TEST_SCANNER_DEPENDENCIES: ScannerDependencySnapshot = {
+export const TEST_SCANNER_DEPENDENCIES: Readonly<{
+  readonly duplication: DuplicationScannerDependency;
+  readonly file: FileScannerDependency;
+  readonly function: FunctionScannerDependency;
+}> = {
   duplication: {
     args: [JSCPD_ENTRY],
     availabilityArgs: [JSCPD_ENTRY, "--version"],

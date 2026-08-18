@@ -1,206 +1,261 @@
-import { isCheckTreeReferenceId } from "./identity.ts";
-import {
-  parseBuiltInCheckData,
-  type BuiltInCheckData
-} from "../built-ins.ts";
-import type {
-  CheckApplicabilityBinding,
-  CustomCheckBinding
-} from "./index.ts";
+import type { CheckExecution } from "../custom-check.ts";
+import { validateDefaultCheckOptions } from "../built-ins.ts";
 import type { CheckDefinition } from "../check-definition.ts";
+import {
+  isInheritedCheckCollection,
+  type InheritedCheckCollection
+} from "../custom-check.ts";
 import {
   snapshotClosedArray,
   snapshotClosedRecord
 } from "../../quality-core/check-record/plain-record-values.ts";
 import { validateCheckDefinition } from "../../quality-core/check-record/validation.ts";
+import { isCheckTreeReferenceId } from "./identity.ts";
 
-export interface ParsedHeader {
-  readonly dependsOn: readonly string[];
+export type ParsedCheckCollection = Readonly<
+  | { readonly kind: "exact"; readonly values: readonly string[] }
+  | { readonly kind: "inherit"; readonly add: readonly string[]; readonly remove: readonly string[] }
+>;
+
+export interface ParsedCheck {
+  readonly checkId: string;
+  readonly checks: readonly ParsedCheck[];
+  readonly definition: CheckDefinition | null;
+  readonly dependsOn: ParsedCheckCollection | undefined;
+  readonly execution: CheckExecution<object> | null;
   readonly maxParallel: number | undefined;
-  readonly mutex: readonly string[];
+  readonly mutex: ParsedCheckCollection | undefined;
+  readonly options: object | null;
+  readonly path: string;
 }
 
-export interface ParsedGroup extends ParsedHeader {
-  readonly kind: "group";
-  readonly id: string;
-  readonly checks: readonly ParsedNode[];
+export interface ParsedCheckTree {
+  readonly checks: readonly ParsedCheck[];
+  readonly warnings: readonly MeaninglessCheckWarning[];
 }
 
-export type ParsedBuiltIn = ParsedHeader & BuiltInCheckData;
-
-export interface ParsedCustom extends ParsedHeader {
-  readonly kind: "custom";
-  readonly definition: CheckDefinition;
-  readonly applicability: CheckApplicabilityBinding;
-  readonly binding: CustomCheckBinding;
+export interface MeaninglessCheckWarning {
+  readonly code: "meaningless-check";
+  readonly path: string;
+  readonly checkId: string;
 }
-
-export type ParsedNode = ParsedGroup | ParsedBuiltIn | ParsedCustom;
 
 interface ParseState {
-  readonly ids: Set<string>;
+  readonly warnings: MeaninglessCheckWarning[];
 }
 
-export function parseCheckTreeAuthoring(value: unknown): readonly ParsedNode[] | undefined {
-  const rootsData = snapshotClosedArray(value);
-  if (rootsData === undefined) return undefined;
-  const state: ParseState = { ids: new Set() };
-  const roots: ParsedNode[] = [];
-  for (const raw of rootsData) {
-    const node = parseNode(raw, state);
-    if (node === undefined) return undefined;
-    roots.push(node);
+const CHECK_KEYS = [
+  "checkId",
+  "checks",
+  "dependsOn",
+  "displayName",
+  "execution",
+  "maxParallel",
+  "mutex",
+  "options",
+  "recordTypes"
+] as const;
+
+/**
+ * Parses only the closed recursive authoring grammar. Execution callbacks are
+ * trusted project code, while every declarative field is copied and validated.
+ */
+export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undefined {
+  const roots = snapshotClosedArray(value);
+  if (roots === undefined) return undefined;
+  const state: ParseState = { warnings: [] };
+  const checks: ParsedCheck[] = [];
+  for (let index = 0; index < roots.length; index += 1) {
+    const check = parseCheck(roots[index], `definition.checks[${index}]`, state);
+    if (check === undefined) return undefined;
+    checks.push(check);
   }
-  return Object.freeze(roots);
+  return Object.freeze({
+    checks: Object.freeze(checks),
+    warnings: Object.freeze(state.warnings)
+  });
 }
 
-function exactData(
+function parseCheck(value: unknown, path: string, state: ParseState): ParsedCheck | undefined {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || !hasOnlyCheckKeys(data)
+    || typeof data.checkId !== "string" || !isCheckTreeReferenceId(data.checkId)
+    || typeof data.displayName !== "string" || data.displayName.length === 0) {
+    return undefined;
+  }
+
+  const execution = parseExecution(data);
+  if (execution === undefined) return undefined;
+  const checks = parseChildren(data, path, state);
+  if (checks === undefined) return undefined;
+  const scheduling = parseScheduling(data);
+  if (scheduling === undefined) return undefined;
+  if (execution === null && (Object.hasOwn(data, "options") || Object.hasOwn(data, "recordTypes"))) {
+    return undefined;
+  }
+
+  const definition = execution === null ? null : parseDefinition(data);
+  const options = execution === null ? null : parseOptions(data);
+  if (execution !== null) {
+    if (definition === null || definition === undefined || options === null || options === undefined
+      || !validateDefaultCheckOptions(definition.checkId, options)) return undefined;
+  }
+  if (execution === null && checks.length === 0) {
+    state.warnings.push(Object.freeze({ code: "meaningless-check", path, checkId: data.checkId }));
+  }
+
+  return Object.freeze({
+    checkId: data.checkId,
+    checks,
+    definition: definition ?? null,
+    dependsOn: scheduling.dependsOn,
+    execution,
+    maxParallel: scheduling.maxParallel,
+    mutex: scheduling.mutex,
+    options: options ?? null,
+    path
+  });
+}
+
+function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
+  return Object.keys(data).every((key) => CHECK_KEYS.includes(key as typeof CHECK_KEYS[number]));
+}
+
+function parseExecution(data: Readonly<Record<string, unknown>>): CheckExecution<object> | null | undefined {
+  if (!Object.hasOwn(data, "execution")) return null;
+  return typeof data.execution === "function" ? data.execution as CheckExecution<object> : undefined;
+}
+
+function parseChildren(
+  data: Readonly<Record<string, unknown>>,
+  path: string,
+  state: ParseState
+): readonly ParsedCheck[] | undefined {
+  if (!Object.hasOwn(data, "checks")) return Object.freeze([]);
+  const values = snapshotClosedArray(data.checks);
+  if (values === undefined) return undefined;
+  const checks: ParsedCheck[] = [];
+  for (let index = 0; index < values.length; index += 1) {
+    const check = parseCheck(values[index], `${path}.checks[${index}]`, state);
+    if (check === undefined) return undefined;
+    checks.push(check);
+  }
+  return Object.freeze(checks);
+}
+
+function parseDefinition(data: Readonly<Record<string, unknown>>): CheckDefinition | undefined {
+  const definition = validateCheckDefinition({
+    checkId: data.checkId,
+    displayName: data.displayName,
+    recordTypes: data.recordTypes ?? []
+  });
+  return definition.ok ? definition.value : undefined;
+}
+
+function parseOptions(data: Readonly<Record<string, unknown>>): object | undefined {
+  if (!Object.hasOwn(data, "options")) return Object.freeze({});
+  const options = snapshotClosedRecord(data.options);
+  if (options === undefined) return undefined;
+  const snapshot = snapshotJson(options, new Set<object>());
+  return snapshot !== null && typeof snapshot === "object" && !Array.isArray(snapshot)
+    ? snapshot
+    : undefined;
+}
+
+function snapshotJson(
   value: unknown,
-  requiredKeys: readonly string[],
-  optionalKeys: readonly string[] = []
-): Readonly<Record<string, unknown>> | undefined {
+  ancestors: Set<object>
+): object | readonly unknown[] | string | number | boolean | null | undefined {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value !== "object" || ancestors.has(value)) return undefined;
+
+  const items = snapshotClosedArray(value);
+  if (items !== undefined) {
+    ancestors.add(value);
+    const snapshot: unknown[] = [];
+    for (const item of items) {
+      const parsed = snapshotJson(item, ancestors);
+      if (parsed === undefined) return undefined;
+      snapshot.push(parsed);
+    }
+    ancestors.delete(value);
+    return Object.freeze(snapshot);
+  }
+
   const data = snapshotClosedRecord(value);
   if (data === undefined) return undefined;
-  return hasExactKeys(data, requiredKeys, optionalKeys) ? data : undefined;
+  ancestors.add(value);
+  const snapshot: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(data)) {
+    const parsed = snapshotJson(item, ancestors);
+    if (parsed === undefined) return undefined;
+    snapshot[key] = parsed;
+  }
+  ancestors.delete(value);
+  return Object.freeze(snapshot);
 }
 
-function exactNodeData(
-  data: Readonly<Record<string, unknown>>,
-  requiredKeys: readonly string[],
-  optionalKeys: readonly string[] = []
-): Readonly<Record<string, unknown>> | undefined {
-  return hasExactKeys(data, requiredKeys, optionalKeys) ? data : undefined;
+function parseScheduling(
+  data: Readonly<Record<string, unknown>>
+): Readonly<{
+  readonly dependsOn: ParsedCheckCollection | undefined;
+  readonly maxParallel: number | undefined;
+  readonly mutex: ParsedCheckCollection | undefined;
+}> | undefined {
+  const dependsOn = parseCollection(data, "dependsOn");
+  const mutex = parseCollection(data, "mutex");
+  const maxParallel = data.maxParallel;
+  if (dependsOn === null || mutex === null || (maxParallel !== undefined && (
+    typeof maxParallel !== "number" || !Number.isSafeInteger(maxParallel) || maxParallel <= 0
+  ))) return undefined;
+  return Object.freeze({
+    dependsOn: dependsOn ?? undefined,
+    maxParallel,
+    mutex: mutex ?? undefined
+  });
 }
 
-function hasExactKeys(
+function parseCollection(
   data: Readonly<Record<string, unknown>>,
-  requiredKeys: readonly string[],
-  optionalKeys: readonly string[]
-): boolean {
+  field: "dependsOn" | "mutex"
+): ParsedCheckCollection | null | undefined {
+  if (!Object.hasOwn(data, field)) return undefined;
+  const value = data[field];
+  if (isInheritedCheckCollection(value)) return parseInheritedCollection(value, field);
+  const values = parseCollectionItems(value, field);
+  return values === undefined ? null : Object.freeze({ kind: "exact", values });
+}
+
+function parseInheritedCollection(
+  value: InheritedCheckCollection<unknown>,
+  field: "dependsOn" | "mutex"
+): ParsedCheckCollection | null {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || !hasExactInheritedKeys(data)) return null;
+  const add = data.add === undefined ? Object.freeze([]) : parseCollectionItems(data.add, field);
+  const remove = data.remove === undefined ? Object.freeze([]) : parseCollectionItems(data.remove, field);
+  if (add === undefined || remove === undefined) return null;
+  return Object.freeze({ kind: "inherit", add, remove });
+}
+
+function hasExactInheritedKeys(data: Readonly<Record<string, unknown>>): boolean {
   const keys = Object.keys(data);
-  return requiredKeys.every((key) => keys.includes(key))
-    && keys.every((key) => requiredKeys.includes(key) || optionalKeys.includes(key));
+  return keys.length > 0 && keys.every((key) => key === "add" || key === "remove");
 }
 
-function parseSchedulingList(value: unknown, kind: "dependsOn" | "mutex"): readonly string[] | undefined {
-  const items = typeof value === "string" ? [value] : snapshotClosedArray(value);
-  if (items === undefined || items.length === 0) return undefined;
+function parseCollectionItems(
+  value: unknown,
+  field: "dependsOn" | "mutex"
+): readonly string[] | undefined {
+  const items = snapshotClosedArray(value);
+  if (items === undefined) return undefined;
   const values: string[] = [];
   for (const item of items) {
-    const valid = typeof item === "string" && (kind === "mutex" ? item.length > 0 : isCheckTreeReferenceId(item));
+    const valid = typeof item === "string"
+      && (field === "dependsOn" ? isCheckTreeReferenceId(item) : item.length > 0);
     if (!valid) return undefined;
     if (!values.includes(item)) values.push(item);
   }
-  return values.length === 0 ? undefined : Object.freeze(values);
-}
-
-function parseHeader(data: Readonly<Record<string, unknown>>): ParsedHeader | undefined {
-  const dependsOn = data.dependsOn === undefined
-    ? Object.freeze([])
-    : parseSchedulingList(data.dependsOn, "dependsOn");
-  const mutex = data.mutex === undefined
-    ? Object.freeze([])
-    : parseSchedulingList(data.mutex, "mutex");
-  const maxParallel = data.maxParallel;
-  if (dependsOn === undefined || mutex === undefined || (maxParallel !== undefined && (
-    typeof maxParallel !== "number" || !Number.isSafeInteger(maxParallel) || maxParallel <= 0
-  ))) return undefined;
-  return Object.freeze({ dependsOn, maxParallel, mutex });
-}
-
-function parseGroup(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedGroup | undefined {
-  const group = exactNodeData(data, ["id", "checks"], ["dependsOn", "maxParallel", "mutex"]);
-  const checks = group === undefined ? undefined : snapshotClosedArray(group.checks);
-  if (group === undefined || typeof group.id !== "string" || !registerId(group.id, state)
-    || checks === undefined || checks.length === 0) return undefined;
-  const header = parseHeader(group);
-  if (header === undefined) return undefined;
-  const parsedChecks: ParsedNode[] = [];
-  for (const child of checks) {
-    const parsed = parseNode(child, state);
-    if (parsed === undefined) return undefined;
-    parsedChecks.push(parsed);
-  }
-  return Object.freeze({ ...header, kind: "group", id: group.id, checks: Object.freeze(parsedChecks) });
-}
-
-function parseBuiltIn(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedBuiltIn | undefined {
-  const builtIn = parseBuiltInCheckData(data);
-  if (builtIn === undefined || !registerId(builtIn.checkId, state)) return undefined;
-  const header = parseHeader(data);
-  if (header === undefined) return undefined;
-  if (builtIn.checkId === "duplicate-detection") {
-    return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
-  }
-  if (builtIn.checkId === "file-metrics") {
-    return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
-  }
-  return Object.freeze({ ...header, kind: "built-in", checkId: builtIn.checkId, options: builtIn.options });
-}
-
-function parseCustom(data: Readonly<Record<string, unknown>>, state: ParseState): ParsedCustom | undefined {
-  const custom = exactNodeData(data, [
-    "kind",
-    "checkId",
-    "displayName",
-    "recordTypes",
-    "applicability",
-    "binding"
-  ], ["dependsOn", "maxParallel", "mutex"]);
-  if (custom?.kind !== "custom" || typeof custom.checkId !== "string" || !registerId(custom.checkId, state)) {
-    return undefined;
-  }
-  const header = parseHeader(custom);
-  const definition = validateCheckDefinition({
-    checkId: custom.checkId,
-    displayName: custom.displayName,
-    recordTypes: custom.recordTypes
-  });
-  const binding = parseCustomBinding(custom.binding);
-  if (header === undefined || !definition.ok
-    || typeof custom.applicability !== "function" || binding === undefined) {
-    return undefined;
-  }
-  return Object.freeze({
-    ...header,
-    kind: "custom",
-    definition: definition.value,
-    applicability: custom.applicability as CheckApplicabilityBinding,
-    binding
-  });
-}
-
-function parseCustomBinding(value: unknown): CustomCheckBinding | undefined {
-  const direct = exactData(value, ["kind", "execute"]);
-  if (direct?.kind === "direct" && typeof direct.execute === "function") {
-    return Object.freeze({
-      kind: "direct",
-      execute: direct.execute as Extract<CustomCheckBinding, { readonly kind: "direct" }>["execute"]
-    });
-  }
-  const taskPlan = exactData(value, ["kind", "createTaskPlan"]);
-  if (taskPlan?.kind !== "task-plan" || typeof taskPlan.createTaskPlan !== "function") {
-    return undefined;
-  }
-  return Object.freeze({
-    kind: "task-plan",
-    createTaskPlan: taskPlan.createTaskPlan as Extract<
-      CustomCheckBinding,
-      { readonly kind: "task-plan" }
-    >["createTaskPlan"]
-  });
-}
-
-function parseNode(value: unknown, state: ParseState): ParsedNode | undefined {
-  const data = snapshotClosedRecord(value);
-  if (data === undefined) return undefined;
-  if (Object.hasOwn(data, "checks")) return parseGroup(data, state);
-  if (data.kind === "built-in") return parseBuiltIn(data, state);
-  return parseCustom(data, state);
-}
-
-function registerId(id: string, state: ParseState): boolean {
-  if (!isCheckTreeReferenceId(id) || state.ids.has(id)) return false;
-  state.ids.add(id);
-  return true;
+  return Object.freeze(values);
 }

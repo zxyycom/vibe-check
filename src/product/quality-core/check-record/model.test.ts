@@ -91,18 +91,21 @@ describe("check-record foundation model", () => {
 
   it("accepts exactly one closed terminal outcome for each Core Check", () => {
     const outcomes = [
-      { kind: "not-applicable" },
-      { kind: "completed", verdict: "passed" },
-      { kind: "completed", verdict: "failed" },
+      { status: "not-applicable" },
+      { status: "not-applicable", reason: { code: "no-eligible-input" } },
+      { status: "completed", verdict: "passed" },
+      { status: "completed", verdict: "failed" },
       ...[
         "record-conflict",
-        "invalid-record",
-        "capability-protocol",
-        "invalid-result",
-        "dependency-unavailable",
-        "execution-failed",
-        "cancelled"
-      ].map((category) => ({ kind: "unavailable", diagnostic: { category } }))
+        "record-invalid",
+        "external-result-invalid",
+        "external-dependency-unavailable",
+        "execution-threw",
+        "execution-cancelled"
+      ].map((code) => ({ status: "unavailable", reason: { code } })),
+      { status: "unavailable", reason: {
+        code: "prerequisite-unavailable", checkIds: ["upstream-check"]
+      } }
     ] as const;
 
     for (const outcome of outcomes) {
@@ -114,10 +117,13 @@ describe("check-record foundation model", () => {
 
     const valid = { checks: [{ ...definition, outcome: outcomes[1] }], records: [] };
     for (const invalid of [
-      { kind: "completed", verdict: "not-applicable" },
-      { kind: "unavailable", diagnostic: { category: "ack-protocol" } },
-      { kind: "not-applicable", diagnostic: null },
-      { kind: "unknown" }
+      { status: "completed", verdict: "not-applicable" },
+      { status: "unavailable", reason: { code: "" } },
+      { status: "unavailable", reason: { code: "prerequisite-unavailable", checkIds: [] } },
+      { status: "unavailable", reason: { code: "prerequisite-unavailable", checkIds: ["invalid id"] } },
+      { status: "not-applicable", reason: { code: "no-input", checkIds: ["upstream-check"] } },
+      { status: "not-applicable", reason: null },
+      { status: "unknown" }
     ]) {
       assert.equal(validateCoreSnapshot({
         ...valid,
@@ -137,7 +143,7 @@ describe("check-record foundation model", () => {
       location: null
     };
     const snapshot = {
-      checks: [{ ...definition, outcome: { kind: "completed", verdict: "failed" } }],
+      checks: [{ ...definition, outcome: { status: "completed", verdict: "failed" } }],
       records: [{ ...candidate, recordId: createRecordId(candidate, definition.recordTypes[0]).recordId }]
     };
 

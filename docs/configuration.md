@@ -1,154 +1,182 @@
 # Configuration
 
-Vibe Check configuration is a project-owned TypeScript **Project Definition**. This document owns the
-authoring and invocation boundary: `defineConfig` returns the plain definition, and
-`run(definition, controls)` is the Product run operation. Individual quality, policy, Check, scheduler,
-dependency, and output owners continue to define their own field semantics.
+Vibe Check configuration is a project-owned TypeScript **Project Definition**. `defineConfig` creates its
+plain value; a project-owned wrapper calls `run(definition, controls)`. Product never discovers, reloads, or
+accepts a second configuration module.
 
-The runtime contract is implemented in `src/product/**`, and repository dogfood binds it in
-[`scripts/quality/project-definition.ts`](../scripts/quality/project-definition.ts) and
-[`scripts/quality/project-run.ts`](../scripts/quality/project-run.ts). The repository root remains a
-private workspace: there is not yet an installable `vibe-check` package entry. The active
-`establish-api-only-npm-product-boundary` Change owns that package projection and its exact-tarball
-evidence. In this document, **Package Run** means the future public export of the existing Product run
-operation; it does not imply that npm delivery is already available.
+This document owns authoring and invocation. Check/Record semantics belong to
+[Quality Metrics](quality-metrics.md), scanner command semantics to
+[Scanner dependencies](scanner-dependencies.md), and result/output DTOs to [Output](output.md).
 
-## Future two-file package integration
+## Public authoring surface
 
-After the downstream package Change passes installed-consumer acceptance, a project maintains two modules
-with different responsibilities:
+The target package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values
+`duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository remains a private workspace until the
+separate package-boundary Change ships; its current dogfood definition is
+[`scripts/quality/project-definition.ts`](../scripts/quality/project-definition.ts).
 
 ```ts
-// project-definition.ts
 import {
-  append,
+  defineCheck,
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics,
-  replace
+  functionMetrics
 } from "vibe-check";
+
+const licenses = defineCheck({
+  checkId: "licenses",
+  displayName: "Dependency licenses",
+  execution({ project, records, signal }) {
+    if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
+    const record = {
+      recordTypeId: "license-policy",
+      level: "warning",
+      semanticSubject: "example",
+      message: "Example project callback",
+      fields: {},
+      location: null
+    } as const;
+    records.report(record);
+    if (project.comparison !== null) {
+      records.reportReference({
+        referenceName: project.comparison.referenceName,
+        status: "complete",
+        relations: [{
+          relationId: "observed",
+          record: {
+            recordTypeId: record.recordTypeId,
+            semanticSubject: record.semanticSubject,
+            fields: record.fields
+          }
+        }]
+      });
+    }
+    return { status: "completed", verdict: "passed" };
+  },
+  recordTypes: [{
+    recordTypeId: "license-policy",
+    fields: [],
+    identityFields: [],
+    policy: { operands: [], relations: ["observed"] }
+  }]
+});
 
 export default defineConfig({
   checks: [{
-    id: "source-analysis",
+    checkId: "repository-quality",
+    displayName: "Repository quality",
     maxParallel: 2,
-    checks: [
-      replace(duplicateDetection, {
-        options: { defaultMinimumTokens: 100 }
-      }),
-      append(
-        replace(fileMetrics, {
-          maxParallel: 1,
-          options: {
-            codeLines: { changedDelta: 100 }
-          }
-        }),
-        { mutex: "metrics-scanner" }
-      ),
-      functionMetrics
-    ]
+    checks: [{
+      ...duplicateDetection,
+      options: {
+        ...duplicateDetection.options,
+        scanner: {
+          ...duplicateDetection.options.scanner,
+          executable: "node_modules/.bin/jscpd"
+        },
+        defaultMinimumTokens: 100
+      }
+    }, {
+      ...fileMetrics,
+      options: {
+        ...fileMetrics.options,
+        codeLines: { ...fileMetrics.options.codeLines, changedDelta: 100 }
+      }
+    }, functionMetrics, licenses]
   }],
   scheduler: { maxParallel: 4 }
 });
 ```
 
-```ts
-// project-run.ts
-import { run as runVibeCheck, type RunControls } from "vibe-check";
-import projectDefinition from "./project-definition.ts";
+`defineCheck` improves TypeScript inference only. Runtime validation is the authority: it snapshots closed
+plain data, rejects unknown keys and malformed declarative fields, and leaves execution callbacks as trusted
+project code. A Check with `execution` owns its `options` and optional record types. A Check without execution
+is a container; it may only carry recursive `checks` and scheduling fields. An empty container is accepted with
+a definition warning rather than silently becoming executable.
 
-export function run(controls: RunControls = {}) {
-  return runVibeCheck(projectDefinition, controls);
-}
+## Recursive Check tree
+
+Every node has a unique `checkId` and non-empty `displayName`. An executable node can also contain children;
+execution and containment are independent ordinary fields. Containment contributes scheduling inheritance only:
+it does not create a separately published Check or a hierarchy in the final snapshot.
+
+`maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a
+node's value is inherited by descendants unless a child supplies its own value. `dependsOn` and `mutex` accept
+an exact string collection or `inherit({ add, remove })`:
+
+- an exact collection replaces the inherited collection, including `[]` to clear it;
+- `inherit` changes the parent collection deliberately, then canonicalizes and de-duplicates it;
+- dependencies name executable Check IDs; mutex values name shared resources.
+
+The following field fragments are the only three collection forms. They belong on an ordinary Check; they are
+not a second configuration format. Use Check IDs that are executable in the same Definition.
+
+```ts
+import { inherit } from "vibe-check";
+
+const inheritedScheduling = {
+  // Omit `dependsOn` or `mutex` to retain the parent's collection.
+};
+
+const exactScheduling = {
+  dependsOn: ["compile"], // Replace the inherited dependencies.
+  mutex: [] // Deliberately clear inherited mutexes.
+};
+
+const editedScheduling = {
+  dependsOn: inherit({ add: ["test"], remove: ["lint"] }),
+  mutex: inherit({ add: ["network"] })
+};
 ```
 
-The configuration module owns stable project semantics and default-exports the plain value returned by
-`defineConfig`. The project Run imports and binds that value. Other callers invoke the project Run with
-only the controls that this project exposes. They cannot supply, discover, or reload another definition.
-These example paths are not package-owned discovery conventions. Until the downstream package Change
-completes, `from "vibe-check"` is a target consumer import rather than a currently installable repository
-dependency; use the repository dogfood files above as the current integration evidence.
+The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to
+a canonical Check catalog and runs their direct callbacks subject to dependencies, mutexes, and the effective
+parallel budget.
 
-The definition-facing public inventory is owned by `src/product/public-contract/current.ts`; it is the exact
-source for authoring/Run exports and supporting types. The inventory does not publish scheduler Tasks, scopes,
-workers, Core capabilities, private bindings or internal module paths. The downstream package Change must consume
-that inventory rather than invent another export manifest.
+## Defaults and native composition
 
-## Validation and controls
+The three defaults are complete ordinary `Check` values. Their scanner executable, command args, availability
+args, and (for duplication) backend concurrency are all Check-owned `options`. A project customizes them with
+normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead
+of filling omitted nested fields or merging a hidden operational map.
 
-The Product run operation validates exactly one Project Definition and one closed Run Controls object before
-any project function, dependency preparation, cache, scanner, reporter, or output work. Expected invalid input
-returns a typed configuration result without executing the valid subset.
+| Default | Check ID | Initial scanner options |
+| --- | --- | --- |
+| `duplicateDetection` | `duplicate-detection` | `jscpd`, `[]`, `['--version']`, `maxConcurrency: 4` |
+| `fileMetrics` | `file-metrics` | `scc`, `[]`, `['--version']` |
+| `functionMetrics` | `function-metrics` | `python`, `['-m', 'lizard']`, `['-m', 'lizard', '--version']` |
 
-Run Controls contain only invocation context: project root, changed files, explicit comparison, cooperative
-cancellation, effect overrides, and operational dependency overrides. They cannot register Checks, select
-another definition, rewrite a policy, or replace the Task engine.
+For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not
+interpret environment variables, Run Controls, or repository tool state as scanner overrides.
 
-Project functions are trusted project code and run directly in the Bun runtime that called the Product run
-operation. Their direct work or static `TaskPlan` is handed to the Product Check adapter; the configuration
-is not serialized, re-evaluated, or moved into a whole-invocation worker. An aborted signal stops later Task
-admission but cannot forcibly stop non-cooperative project code already running in that runtime.
+## Invocation and results
 
-## Check tree and scheduler
+`run` first validates one Project Definition and one closed `RunControls` value. Controls provide only invocation
+context: `projectRoot`, `changedFiles`, optional named `comparison`, `signal`, and effect overrides. They cannot
+replace Checks, alter scanner commands, register dependencies, or select another definition.
 
-The definition-facing source exports three non-callable built-in Check values: `duplicateDetection`,
-`fileMetrics`, and `functionMetrics`. Put these values and any custom Check leaves directly in the `checks`
-tree. A leaf is selected by appearing in the tree; no separate selected list or scheduling list is authored.
-A group is authoring-only and is flattened before execution, so it does not create an independent product fact,
-policy identity, or output row.
+A callback receives exactly `{ options, project, records, signal }`. `project` contains the normalized root,
+file scope, comparison, and cache context. The callback reports Check-owned record candidates and returns one of:
 
-The order of a `checks` array has no execution meaning. A leaf runs when its dependencies and resources permit
-it. `dependsOn` and `mutex` may occur on a group or leaf; normalization appends and de-duplicates both parent
-and child lists. A `dependsOn` reference can name a leaf `checkId` or a group `id`; a group reference expands
-to all of that group's leaves. `dependsOn` is the Check prerequisite constraint, and `mutex` is the named
-resource constraint.
+```ts
+{ status: "completed", verdict: "passed" | "failed" }
+{ status: "not-applicable", reason?: { code: string } }
+{ status: "unavailable", reason: { code: string } }
+```
 
-Each `BuiltInCheck` includes complete typed default `options`. `replace(check, replacement)` takes only that
-Check's field-aware replacement shape: supplied scalar or fixed nested fields replace their defaults while
-omitted branches stay unchanged. An open option map, such as `minimumTokensByCodeArea`, is replaced as one
-complete field rather than merged entry-by-entry. `replace` can also replace a leaf's `maxParallel`,
-`dependsOn`, or `mutex` value. `append(check, additions)` accepts only leaf `dependsOn` and `mutex`; it appends
-and stably de-duplicates those local collections before normal group-to-leaf inheritance runs. Both helpers
-return a new built-in Check value, so they compose without mutating input or shared defaults. Built-in options
-own only that Check's public semantics; scanner commands, arguments, exit mapping, adapters, and bindings stay
-private.
+Product contains ordinary callback, record, cancellation, and prerequisite failures as an unavailable Check
+outcome. `reason.code` can be `prerequisite-unavailable` with `reason.checkIds` for blocked dependents. Invalid
+configuration returns a configuration result before callback work. Every `RunResult` branch includes
+`definitionWarnings`; planning/execution diagnostics use only
+`comparison-preparation-failed`, `policy-validation-failed`, `task-graph-invalid`, `progress-failed`,
+`task-engine-failed`, or `publication-model-failed`.
 
-### Two-phase resolution
+## Policy, effects, and retired inputs
 
-After closed validation, Definition normalization creates a deterministic, frozen `NormalizedCheck[]` projection
-of selected leaves. It contains each Check definition, inherited dependency/resource/cap data and built-in options
-when applicable. Custom applicability, direct execution and TaskPlan factory functions remain in trusted private
-slots; they cannot enter the declarative fingerprint, Core snapshot or machine projection.
+`DecisionPolicy` and `selectedPolicy` are declarative definition fields. Effects own cache, logs, progress, and
+output destinations; controls may narrow those effects for an invocation but do not change Check behavior.
 
-Package Run pre-work consumes each Normalized Check once. It prepares built-in runtime inputs, evaluates custom
-applicability, and prepares an applicable custom static TaskPlan. The resulting invocation-scoped Resolved Check
-collection is the only planning input. A not-applicable Check has no executable scope; it still later closes as a
-Core Check. A malformed definition, controls, resolution input or static plan fails before the affected project
-work starts.
-
-`scheduler.maxParallel` is the invocation-wide root budget (default `4`). A group or leaf can set a positive
-safe-integer `maxParallel` no greater than that root value. A leaf without a value inherits the nearest group
-value; only a path with no group or leaf value uses the root budget. The nearest child value overrides an inherited
-group value.
-
-For an applicable resolved Check, the Product adapter projects that effective cap, its activation candidates and
-its terminal relation into a generic Task scope. The shared engine uses the minimum of the root budget and all
-active scope caps. A lower ready cap reserves deterministic admission and lets existing work drain without
-preemption; ready work for an active constrained scope is preferred. A Check with no executable task does not
-activate a cap. These limits govern Product Task slots only: a scanner adapter or project function can use its own
-internal subprocesses, workers, or threads, but it does not gain a second Product scheduler or change the shared
-budget.
-
-## Acceptance adapter
-
-Record acceptance belongs to named `DecisionPolicy.acceptance` entries in the Project Definition. Quality scope
-and thresholds do not carry a second acceptance, artifact, cache, or version source; effects own artifact/cache
-destinations and `apiVersion` owns the definition version. Policy evaluates the frozen Core facts after execution;
-it does not re-resolve configuration or project functions.
-
-## Retired configuration paths
-
-JSON/JSONC configuration, editor configuration schemas, file discovery, and configuration `init` are not active
-inputs. The retained Product CLI only emits the migration diagnostic directing callers to a TypeScript Project
-Definition and bound project Run; it does not convert or execute legacy input.
+JSON/JSONC discovery, editor configuration, profile selection, adjustment helpers, parser/materializer APIs, and
+operational dependency maps are retired. The retained Product CLI emits only the migration diagnostic; it does
+not execute legacy configuration.

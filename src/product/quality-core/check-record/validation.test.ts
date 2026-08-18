@@ -44,7 +44,7 @@ const record = {
   recordId: createRecordId(candidate, definition.recordTypes[0]!).recordId
 };
 
-function snapshot(outcome: unknown = { kind: "completed", verdict: "passed" }): {
+function snapshot(outcome: unknown = { status: "completed", verdict: "passed" }): {
   readonly checks: readonly unknown[];
   readonly records: readonly unknown[];
 } {
@@ -126,7 +126,7 @@ describe("check-record foundation runtime validation", () => {
   it("requires a known non-not-applicable owner and canonical entity order", () => {
     assert.equal(validateCoreSnapshot(snapshot()).ok, true);
     assert.equal(validateCoreSnapshot({
-      checks: [{ ...definition, outcome: { kind: "not-applicable" } }],
+      checks: [{ ...definition, outcome: { status: "not-applicable" } }],
       records: [record]
     }).ok, false);
     assert.equal(validateCoreSnapshot({
@@ -137,13 +137,13 @@ describe("check-record foundation runtime validation", () => {
     const laterDefinition = { ...definition, checkId: "z-check" };
     assert.equal(validateCoreSnapshot({
       checks: [
-        { ...laterDefinition, outcome: { kind: "completed", verdict: "passed" } },
-        { ...definition, outcome: { kind: "completed", verdict: "passed" } }
+        { ...laterDefinition, outcome: { status: "completed", verdict: "passed" } },
+        { ...definition, outcome: { status: "completed", verdict: "passed" } }
       ],
       records: []
     }).ok, false);
     assert.equal(validateCoreSnapshot({
-      checks: [{ ...definition, outcome: { kind: "completed", verdict: "passed" } }],
+      checks: [{ ...definition, outcome: { status: "completed", verdict: "passed" } }],
       records: [record, record]
     }).ok, false);
 
@@ -220,14 +220,14 @@ describe("check-record foundation runtime validation", () => {
     }
   });
 
-  it("accepts only the target unavailable taxonomy and exact snapshot fields", () => {
+  it("accepts only closed Check reason envelopes and exact snapshot fields", () => {
     assert.equal(validateCoreSnapshot(snapshot({
-      kind: "unavailable",
-      diagnostic: { category: "dependency-unavailable" }
+      status: "unavailable",
+      reason: { code: "external-dependency-unavailable" }
     })).ok, true);
     assert.equal(validateCoreSnapshot(snapshot({
-      kind: "unavailable",
-      diagnostic: { category: "ack-protocol" }
+      status: "unavailable",
+      reason: { code: "", checkIds: ["other-check"] }
     })).ok, false);
     assert.equal(validateCoreSnapshot({ ...snapshot(), definitions: [definition] }).ok, false);
     assert.equal(validateCoreSnapshot({ ...snapshot(), runs: [] }).ok, false);

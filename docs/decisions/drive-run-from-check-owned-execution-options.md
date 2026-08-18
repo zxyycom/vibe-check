@@ -1,7 +1,7 @@
 ---
 title: 由 Check-owned execution options 驱动 Run
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T16:29:26Z
 purpose: 让 Project Definition 中的普通 Check functions 和各自完整 options 驱动执行，而 Run Controls 只补充共享 invocation 输入。
 background: executable Check 已拥有 execution 和依赖配置；Run dependency override 会复制配置 owner 并恢复隐式 binding。

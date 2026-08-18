@@ -27,6 +27,7 @@ export function completeInvocation(
   if (invocation.effects.cacheStatus() === "failed") {
     return effectFailure(
       invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
       invocation.effects.value(),
       "cache",
       publication.facts
@@ -35,6 +36,7 @@ export function completeInvocation(
   if (!emitProgress(invocation.effects, "effects")) {
     return effectFailure(
       invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
       invocation.effects.value(),
       "progress",
       publication.facts
@@ -52,6 +54,7 @@ export function completeInvocation(
   if (readable === undefined) {
     return effectFailure(
       invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
       invocation.effects.value(),
       "output",
       publication.facts
@@ -92,6 +95,7 @@ function createModel(
     return Object.freeze({
       kind: "execution",
       declarativeFingerprint: invocation.declarativeFingerprint,
+      definitionWarnings: invocation.definitionWarnings,
       diagnostic: Object.freeze({ code: "publication-model-failed" }),
       effects: invocation.effects.value()
     });
@@ -116,6 +120,7 @@ function completeWithLogs(
       invocation.effects.failed("logs");
       return effectFailure(
         invocation.declarativeFingerprint,
+        invocation.definitionWarnings,
         invocation.effects.value(),
         "logs",
         publication.facts
@@ -125,6 +130,7 @@ function completeWithLogs(
   return Object.freeze({
     kind: "completed",
     declarativeFingerprint: invocation.declarativeFingerprint,
+    definitionWarnings: invocation.definitionWarnings,
     effects: invocation.effects.value(),
     ...publication.facts
   });
