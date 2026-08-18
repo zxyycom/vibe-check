@@ -36,9 +36,8 @@ export function resolveSelectedPolicy(
   if (policy === undefined || !comparisonMatchesPolicy(policy, controls.comparison)) {
     return undefined;
   }
-  const references = controls.comparison === undefined
-    ? []
-    : [referenceIdentity(controls.comparison)];
+  const references =
+    controls.comparison === undefined ? [] : [referenceIdentity(controls.comparison)];
   const resolution = validatePolicyResolution({ policy, references }, catalog);
   return resolution.ok ? resolution.value : undefined;
 }
@@ -48,25 +47,28 @@ export function resolveReferenceFacts(
   snapshot: CoreSnapshot,
   submissions: readonly CheckReferenceSubmission[]
 ): ReferenceFacts | undefined {
-  const required = policy.policy?.references.flatMap((requirement) => (
-    requirement.checkIds.map((checkId) => ({
-      checkId,
-      referenceName: requirement.referenceName
-    }))
-  )) ?? [];
+  const required =
+    policy.policy?.references.flatMap((requirement) =>
+      requirement.checkIds.map((checkId) => ({
+        checkId,
+        referenceName: requirement.referenceName
+      }))
+    ) ?? [];
   const evidence = required.map(({ checkId, referenceName }) => {
-    const submission = submissions.find((candidate) => (
-      candidate.checkId === checkId && candidate.referenceName === referenceName
-    ));
+    const submission = submissions.find(
+      (candidate) => candidate.checkId === checkId && candidate.referenceName === referenceName
+    );
     return submission === undefined
       ? { checkId, referenceName, status: "unavailable" as const }
       : { checkId, referenceName, status: submission.status };
   });
-  const requiredPairs = new Set(required.map(({ checkId, referenceName }) => (
-    `${checkId}\u0000${referenceName}`
-  )));
+  const requiredPairs = new Set(
+    required.map(({ checkId, referenceName }) => `${checkId}\u0000${referenceName}`)
+  );
   const relations = submissions
-    .filter((submission) => requiredPairs.has(`${submission.checkId}\u0000${submission.referenceName}`))
+    .filter((submission) =>
+      requiredPairs.has(`${submission.checkId}\u0000${submission.referenceName}`)
+    )
     .flatMap((submission) => submission.relations);
   const result = validateReferenceFacts({ evidence, relations }, policy, snapshot);
   return result.ok ? result.value : undefined;
@@ -77,7 +79,8 @@ export function referenceIdentity(
 ): NamedReferenceIdentity {
   return Object.freeze({
     referenceId: `reference/v1/sha256:${createHash("sha256")
-      .update(comparison.revision).digest("hex")}`,
+      .update(comparison.revision)
+      .digest("hex")}`,
     referenceName: comparison.referenceName
   });
 }
@@ -91,9 +94,7 @@ function comparisonMatchesPolicy(
   policy: ProjectDefinition["policies"][string],
   comparison: RunControls["comparison"]
 ): boolean {
-  const referenceNames = new Set(
-    policy.references.map((reference) => reference.referenceName)
-  );
+  const referenceNames = new Set(policy.references.map((reference) => reference.referenceName));
   if (referenceNames.size > 1) return false;
   if (referenceNames.size === 0) return comparison === undefined;
   return comparison?.referenceName === [...referenceNames][0];

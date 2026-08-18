@@ -1,9 +1,5 @@
 import { createCatalogFingerprint } from "./identity.ts";
-import type {
-  CoreSnapshot,
-  JsonPrimitive,
-  QualityRecord
-} from "./model.ts";
+import type { CoreSnapshot, JsonPrimitive, QualityRecord } from "./model.ts";
 import type {
   PolicyResolution,
   RecordOperandDefinition,
@@ -34,9 +30,10 @@ function createRecordPolicySurface(
     operands: policy.operands.map((operand) => ({
       operandId: operand.operandId,
       valueType: operand.valueType,
-      source: operand.source.kind === "field"
-        ? { kind: "field", fieldId: operand.source.fieldId }
-        : { kind: operand.source.kind }
+      source:
+        operand.source.kind === "field"
+          ? { kind: "field", fieldId: operand.source.fieldId }
+          : { kind: operand.source.kind }
     })),
     relations: [...policy.relations]
   };
@@ -49,12 +46,14 @@ export function createPolicySurfaceRegistry(
   if (catalog.catalogFingerprint !== expectedFingerprint) {
     throw new TypeError("Policy surface catalog fingerprint mismatch");
   }
-  const recordTypes = catalog.definitions.flatMap((definition) => (
+  const recordTypes = catalog.definitions.flatMap((definition) =>
     definition.recordTypes.map((recordType) => createRecordPolicySurface(definition, recordType))
-  ));
+  );
   return deepFreeze({
     catalogFingerprint: catalog.catalogFingerprint,
-    recordTypes: recordTypes.sort((left, right) => compareText(selectorKey(left), selectorKey(right)))
+    recordTypes: recordTypes.sort((left, right) =>
+      compareText(selectorKey(left), selectorKey(right))
+    )
   });
 }
 
@@ -95,10 +94,13 @@ export function validateReferenceFacts(
       "Policy resolution catalog does not match the final snapshot"
     );
   }
-  const registry = resolvePolicySurfaceRegistry({
-    catalogFingerprint,
-    definitions: snapshot.checks
-  }, "Final snapshot catalog fingerprint is invalid");
+  const registry = resolvePolicySurfaceRegistry(
+    {
+      catalogFingerprint,
+      definitions: snapshot.checks
+    },
+    "Final snapshot catalog fingerprint is invalid"
+  );
   if (!registry.ok) return registry;
   return validateReferenceFactsData(value, resolution, snapshot, registry.value.recordTypes);
 }

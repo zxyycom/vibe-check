@@ -32,20 +32,27 @@ const INVALID_REFERENCE_SUBMISSION = Object.freeze({ kind: "invalid" } as const)
  * Converts one callback's raw reporter input into canonical policy evidence.
  * No candidate is a valid absence; malformed or contradictory input is invalid.
  */
-export function validateCheckReferenceSubmission(input: Readonly<{
-  readonly candidates: readonly unknown[];
-  readonly check: NormalizedCheck;
-  readonly project: CheckProjectContext;
-  readonly scope: TrustedCheckScope;
-}>): CheckReferenceValidation {
+export function validateCheckReferenceSubmission(
+  input: Readonly<{
+    readonly candidates: readonly unknown[];
+    readonly check: NormalizedCheck;
+    readonly project: CheckProjectContext;
+    readonly scope: TrustedCheckScope;
+  }>
+): CheckReferenceValidation {
   if (input.candidates.length === 0) return NO_REFERENCE_SUBMISSION;
   if (input.candidates.length !== 1 || input.project.comparison === null) {
     return INVALID_REFERENCE_SUBMISSION;
   }
   const candidate = snapshotClosedRecord(input.candidates[0]);
-  if (candidate === undefined || !hasExactReferenceKeys(candidate, ["referenceName", "status", "relations"])
-    || candidate.referenceName !== input.project.comparison.referenceName
-    || (candidate.status !== "complete" && candidate.status !== "incomplete" && candidate.status !== "unavailable")) {
+  if (
+    candidate === undefined ||
+    !hasExactReferenceKeys(candidate, ["referenceName", "status", "relations"]) ||
+    candidate.referenceName !== input.project.comparison.referenceName ||
+    (candidate.status !== "complete" &&
+      candidate.status !== "incomplete" &&
+      candidate.status !== "unavailable")
+  ) {
     return INVALID_REFERENCE_SUBMISSION;
   }
   const relations = snapshotClosedArray(candidate.relations);
@@ -73,12 +80,22 @@ export function validateCheckReferenceSubmission(input: Readonly<{
 export function canonicalizeReferenceSubmissions(
   submissions: readonly CheckReferenceSubmission[]
 ): readonly CheckReferenceSubmission[] {
-  return Object.freeze([...submissions].sort((left, right) => (
-    compareText(left.checkId, right.checkId) || compareText(left.referenceName, right.referenceName)
-  )).map((submission) => Object.freeze({
-    ...submission,
-    relations: Object.freeze(submission.relations.map((relation) => Object.freeze({ ...relation })))
-  })));
+  return Object.freeze(
+    [...submissions]
+      .sort(
+        (left, right) =>
+          compareText(left.checkId, right.checkId) ||
+          compareText(left.referenceName, right.referenceName)
+      )
+      .map((submission) =>
+        Object.freeze({
+          ...submission,
+          relations: Object.freeze(
+            submission.relations.map((relation) => Object.freeze({ ...relation }))
+          )
+        })
+      )
+  );
 }
 
 function resolveReferenceRelations(
@@ -91,32 +108,46 @@ function resolveReferenceRelations(
   const keys = new Set<string>();
   for (const value of relations) {
     const relation = snapshotClosedRecord(value);
-    if (relation === undefined || !hasExactReferenceKeys(relation, ["record", "relationId"])
-      || typeof relation.relationId !== "string" || relation.relationId.length === 0) {
+    if (
+      relation === undefined ||
+      !hasExactReferenceKeys(relation, ["record", "relationId"]) ||
+      typeof relation.relationId !== "string" ||
+      relation.relationId.length === 0
+    ) {
       return undefined;
     }
     const record = scope.recordIdForReference(relation.record);
     if (record === undefined) return undefined;
-    const recordType = check.definition.recordTypes.find((candidate: RecordTypeDefinition) => (
-      candidate.recordTypeId === record.recordTypeId
-    ));
+    const recordType = check.definition.recordTypes.find(
+      (candidate: RecordTypeDefinition) => candidate.recordTypeId === record.recordTypeId
+    );
     if (recordType?.policy?.relations.includes(relation.relationId) !== true) return undefined;
     const key = `${record.recordId}\u0000${relation.relationId}`;
     if (keys.has(key)) continue;
     keys.add(key);
-    resolved.push(Object.freeze({
-      recordId: record.recordId,
-      referenceName,
-      relationId: relation.relationId
-    }));
+    resolved.push(
+      Object.freeze({
+        recordId: record.recordId,
+        referenceName,
+        relationId: relation.relationId
+      })
+    );
   }
-  return Object.freeze(resolved.sort((left, right) => (
-    compareText(left.recordId, right.recordId) || compareText(left.relationId, right.relationId)
-  )));
+  return Object.freeze(
+    resolved.sort(
+      (left, right) =>
+        compareText(left.recordId, right.recordId) || compareText(left.relationId, right.relationId)
+    )
+  );
 }
 
-function hasExactReferenceKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
-  return Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
+function hasExactReferenceKeys(
+  value: Readonly<Record<string, unknown>>,
+  keys: readonly string[]
+): boolean {
+  return (
+    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
+  );
 }
 
 function compareText(left: string, right: string): number {

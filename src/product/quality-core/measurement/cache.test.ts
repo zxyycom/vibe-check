@@ -39,7 +39,7 @@ describe("quality measurement cache", () => {
 
       const hit = loadScanCacheEntry({ rootDir: tempDir, identity });
       assert.equal(hit.hit, true);
-      assert.equal(hit.hit ? hit.metrics[0]!.hitsChangedScope : true, false);
+      assert.equal(hit.hit ? hit.metrics[0].hitsChangedScope : true, false);
       assert.equal(
         hit.hit ? relative(tempDir, hit.cachePath).split("\\").join("/") : "",
         `quality-scan-cache-v1/${baseKey}.json`

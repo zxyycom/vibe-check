@@ -33,7 +33,11 @@ function validateFieldOperandSource(
   const field = fields.find((candidate) => candidate.fieldId === closed.value.fieldId);
   const compatibleValueType = field?.valueType === "integer" ? "number" : field?.valueType;
   if (field === undefined || compatibleValueType !== valueType) {
-    return issue(`${path}.fieldId`, "identity-mismatch", "Policy operand must bind a compatible declared field");
+    return issue(
+      `${path}.fieldId`,
+      "identity-mismatch",
+      "Policy operand must bind a compatible declared field"
+    );
   }
   return accepted({ kind: "field", fieldId: field.fieldId });
 }
@@ -51,7 +55,11 @@ function validateTextualOperandSource(
     return issue(`${path}.kind`, "invalid-value", "Unknown policy operand source");
   }
   if (valueType !== "string") {
-    return issue(path, "invalid-value", "Built-in textual policy operands require string valueType");
+    return issue(
+      path,
+      "invalid-value",
+      "Built-in textual policy operands require string valueType"
+    );
   }
   return accepted({ kind: value.kind });
 }
@@ -80,19 +88,27 @@ function validatePolicyOperands(
   let previousOperandId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const operandPath = `${path}.operands[${index}]`;
-    const operand = validateClosedRecord(values[index], operandPath, ["operandId", "valueType", "source"]);
+    const operand = validateClosedRecord(values[index], operandPath, [
+      "operandId",
+      "valueType",
+      "source"
+    ]);
     if (!operand.ok) {
       return operand;
     }
-    if (typeof operand.value.operandId !== "string"
-      || !POLICY_OPERAND_ID_PATTERN.test(operand.value.operandId)) {
+    if (
+      typeof operand.value.operandId !== "string" ||
+      !POLICY_OPERAND_ID_PATTERN.test(operand.value.operandId)
+    ) {
       return issue(`${operandPath}.operandId`, "invalid-value", "Invalid policy operand identity");
     }
     if (operandIds.has(operand.value.operandId)) {
       return issue(`${operandPath}.operandId`, "duplicate", "Duplicate policy operand identity");
     }
-    if (previousOperandId !== undefined
-      && compareCanonicalText(previousOperandId, operand.value.operandId) >= 0) {
+    if (
+      previousOperandId !== undefined &&
+      compareCanonicalText(previousOperandId, operand.value.operandId) >= 0
+    ) {
       return issue(
         `${path}.operands`,
         "invalid-value",
@@ -100,7 +116,11 @@ function validatePolicyOperands(
       );
     }
     if (!isPolicyOperandValueType(operand.value.valueType)) {
-      return issue(`${operandPath}.valueType`, "invalid-value", "Unknown policy operand value type");
+      return issue(
+        `${operandPath}.valueType`,
+        "invalid-value",
+        "Unknown policy operand value type"
+      );
     }
     const source = validatePolicyOperandSource(
       operand.value.source,
@@ -132,12 +152,23 @@ function validatePolicyRelations(
   for (let index = 0; index < values.length; index += 1) {
     const relationId = values[index];
     if (!isStableId(relationId)) {
-      return issue(`${path}.relations[${index}]`, "invalid-value", "Invalid policy relation identity");
+      return issue(
+        `${path}.relations[${index}]`,
+        "invalid-value",
+        "Invalid policy relation identity"
+      );
     }
     if (relationIds.has(relationId)) {
-      return issue(`${path}.relations[${index}]`, "duplicate", "Duplicate policy relation identity");
+      return issue(
+        `${path}.relations[${index}]`,
+        "duplicate",
+        "Duplicate policy relation identity"
+      );
     }
-    if (previousRelationId !== undefined && compareCanonicalText(previousRelationId, relationId) >= 0) {
+    if (
+      previousRelationId !== undefined &&
+      compareCanonicalText(previousRelationId, relationId) >= 0
+    ) {
       return issue(
         `${path}.relations`,
         "invalid-value",

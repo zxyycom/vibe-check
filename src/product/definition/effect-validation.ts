@@ -67,7 +67,10 @@ function parseDirectoryEffectOverride(
   value: unknown
 ): Partial<ProjectEffects["cache"]> | undefined {
   const data = snapshotClosedRecord(value);
-  if (data === undefined || Object.keys(data).some((key) => key !== "directory" && key !== "enabled")) {
+  if (
+    data === undefined ||
+    Object.keys(data).some((key) => key !== "directory" && key !== "enabled")
+  ) {
     return undefined;
   }
   if (data.directory !== undefined && typeof data.directory !== "string") return undefined;
@@ -78,9 +81,7 @@ function parseDirectoryEffectOverride(
   });
 }
 
-function parseSwitchEffectOverride(
-  value: unknown
-): Partial<ProjectEffects["logs"]> | undefined {
+function parseSwitchEffectOverride(value: unknown): Partial<ProjectEffects["logs"]> | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) {
     return undefined;
@@ -94,8 +95,9 @@ function exactKeys(
   keys: readonly string[]
 ): Readonly<Record<string, unknown>> | undefined {
   const data = snapshotClosedRecord(value);
-  return data !== undefined && Object.keys(data).length === keys.length
-    && keys.every((key) => Object.hasOwn(data, key))
+  return data !== undefined &&
+    Object.keys(data).length === keys.length &&
+    keys.every((key) => Object.hasOwn(data, key))
     ? data
     : undefined;
 }

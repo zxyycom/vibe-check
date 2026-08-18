@@ -1,9 +1,5 @@
 import type { CheckDefinition } from "../model.ts";
-import type {
-  BlockWhen,
-  CheckReferenceEvidence,
-  ReadinessPredicate
-} from "../policy-model.ts";
+import type { BlockWhen, CheckReferenceEvidence, ReadinessPredicate } from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
 import {
   accepted,
@@ -36,15 +32,24 @@ function validateReferenceStatusPredicate(
   value: Record<string, unknown>,
   path: string,
   requiredPairs: ReadonlySet<string>
-): ValidationResult<Readonly<{
-  kind: "reference-status";
-  checkId: string;
-  referenceName: string;
-  status: CheckReferenceEvidence["status"];
-}>> {
-  if (!isStableId(value.checkId) || !isStableId(value.referenceName)
-    || !requiredPairs.has(checkReferenceKey(value.checkId, value.referenceName))) {
-    return issue(`${path}.referenceName`, "identity-mismatch", "Unknown required Check/reference operand");
+): ValidationResult<
+  Readonly<{
+    kind: "reference-status";
+    checkId: string;
+    referenceName: string;
+    status: CheckReferenceEvidence["status"];
+  }>
+> {
+  if (
+    !isStableId(value.checkId) ||
+    !isStableId(value.referenceName) ||
+    !requiredPairs.has(checkReferenceKey(value.checkId, value.referenceName))
+  ) {
+    return issue(
+      `${path}.referenceName`,
+      "identity-mismatch",
+      "Unknown required Check/reference operand"
+    );
   }
   if (!isReferenceEvidenceStatus(value.status)) {
     return issue(`${path}.status`, "invalid-value", "Unknown reference evidence status");
@@ -84,7 +89,11 @@ function validateCheckVerdict(
   if (!checkId.ok) return checkId;
   const verdict = shape.value.verdict;
   if (verdict !== "passed" && verdict !== "failed") {
-    return issue(`${path}.verdict`, "invalid-value", "Completed Check verdict must be passed or failed");
+    return issue(
+      `${path}.verdict`,
+      "invalid-value",
+      "Completed Check verdict must be passed or failed"
+    );
   }
   return accepted({ kind: "check-verdict", checkId: checkId.value, verdict });
 }
@@ -112,11 +121,12 @@ function validateViewEmpty(
 }
 
 function validateKnownReadinessPredicate(
-  value: Record<string, unknown> & { kind: string },
+  value: Record<string, unknown>,
+  kind: string,
   path: string,
   context: ReadinessContext
 ): ValidationResult<ReadinessPredicate> {
-  switch (value.kind) {
+  switch (kind) {
     case "check-outcome":
       return validateCheckOutcome(value, path, context.definitions);
     case "check-verdict":
@@ -135,14 +145,12 @@ export function validateReadinessPredicate(
   path: string,
   context: ReadinessContext
 ): ValidationResult<ReadinessPredicate> {
-  if (!isRecord(value) || typeof value.kind !== "string") {
+  if (!isRecord(value)) {
     return issue(path, "invalid-value", "Invalid readiness predicate");
   }
-  return validateKnownReadinessPredicate(
-    value as Record<string, unknown> & { kind: string },
-    path,
-    context
-  );
+  const kind = value.kind;
+  if (typeof kind !== "string") return issue(path, "invalid-value", "Invalid readiness predicate");
+  return validateKnownReadinessPredicate(value, kind, path, context);
 }
 
 function validateViewNotEmpty(
@@ -168,11 +176,12 @@ function validateBlockReferenceStatus(
 }
 
 function validateKnownBlockWhen(
-  value: Record<string, unknown> & { kind: string },
+  value: Record<string, unknown>,
+  kind: string,
   path: string,
   context: ReadinessContext
 ): ValidationResult<BlockWhen> {
-  switch (value.kind) {
+  switch (kind) {
     case "view-not-empty":
       return validateViewNotEmpty(value, path, context.viewIds);
     case "check-outcome":
@@ -189,8 +198,10 @@ export function validateBlockWhen(
   context: ReadinessContext
 ): ValidationResult<BlockWhen> {
   const path = "$.policy.blockWhen";
-  if (!isRecord(value) || typeof value.kind !== "string") {
+  if (!isRecord(value)) {
     return issue(path, "invalid-value", "Invalid blockWhen predicate");
   }
-  return validateKnownBlockWhen(value as Record<string, unknown> & { kind: string }, path, context);
+  const kind = value.kind;
+  if (typeof kind !== "string") return issue(path, "invalid-value", "Invalid blockWhen predicate");
+  return validateKnownBlockWhen(value, kind, path, context);
 }

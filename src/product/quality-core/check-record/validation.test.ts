@@ -12,22 +12,26 @@ import {
 const definition: CheckDefinition = {
   checkId: "file-metrics",
   displayName: "File metrics",
-  recordTypes: [{
-    recordTypeId: "line-budget",
-    fields: [
-      { fieldId: "codeArea", valueType: "string", required: true },
-      { fieldId: "limit", valueType: "integer", required: false }
-    ],
-    identityFields: ["codeArea"],
-    policy: {
-      operands: [{
-        operandId: "codeArea",
-        valueType: "string",
-        source: { kind: "field", fieldId: "codeArea" }
-      }],
-      relations: ["regression"]
+  recordTypes: [
+    {
+      recordTypeId: "line-budget",
+      fields: [
+        { fieldId: "codeArea", valueType: "string", required: true },
+        { fieldId: "limit", valueType: "integer", required: false }
+      ],
+      identityFields: ["codeArea"],
+      policy: {
+        operands: [
+          {
+            operandId: "codeArea",
+            valueType: "string",
+            source: { kind: "field", fieldId: "codeArea" }
+          }
+        ],
+        relations: ["regression"]
+      }
     }
-  }]
+  ]
 };
 
 const candidate = {
@@ -41,7 +45,7 @@ const candidate = {
 };
 const record = {
   ...candidate,
-  recordId: createRecordId(candidate, definition.recordTypes[0]!).recordId
+  recordId: createRecordId(candidate, definition.recordTypes[0]).recordId
 };
 
 function snapshot(outcome: unknown = { status: "completed", verdict: "passed" }): {
@@ -74,11 +78,14 @@ describe("check-record foundation runtime validation", () => {
 
   it("redacts credential Proxy traps before foundation validation reads fields", () => {
     const secret = "credential-token-from-validation-proxy";
-    const trapped = new Proxy({}, {
-      ownKeys(): never {
-        throw new TypeError(secret);
+    const trapped = new Proxy(
+      {},
+      {
+        ownKeys(): never {
+          throw new TypeError(secret);
+        }
       }
-    });
+    );
 
     const validated = validateCheckDefinition(trapped);
     const rendered = JSON.stringify(validated);
@@ -89,11 +96,7 @@ describe("check-record foundation runtime validation", () => {
   });
 
   it("validates unknown into a closed detached deeply readonly quality record", () => {
-    const input = {
-      ...structuredClone(record),
-      message: String(record.message),
-      fields: { codeArea: String(record.fields.codeArea), limit: Number(record.fields.limit) }
-    };
+    const input = structuredClone(record);
     const validated = validateQualityRecord(input, definition);
 
     assert.equal(validated.ok, true);
@@ -109,15 +112,33 @@ describe("check-record foundation runtime validation", () => {
 
   it("rejects unknown fields private material functions and invalid finite primitives", () => {
     assert.equal(validateQualityRecord({ ...record, backend: "scc" }, definition).ok, false);
-    assert.equal(validateQualityRecord({ ...record, task: { id: "private" } }, definition).ok, false);
-    assert.equal(validateQualityRecord({ ...record, fields: { ...record.fields, callback: () => undefined } }, definition).ok, false);
-    assert.equal(validateQualityRecord({ ...record, fields: { ...record.fields, limit: Number.NaN } }, definition).ok, false);
+    assert.equal(
+      validateQualityRecord({ ...record, task: { id: "private" } }, definition).ok,
+      false
+    );
+    assert.equal(
+      validateQualityRecord(
+        { ...record, fields: { ...record.fields, callback: () => undefined } },
+        definition
+      ).ok,
+      false
+    );
+    assert.equal(
+      validateQualityRecord(
+        { ...record, fields: { ...record.fields, limit: Number.NaN } },
+        definition
+      ).ok,
+      false
+    );
 
     const credentialField = "https://user:secret-token@example.test/private";
-    const credentialResult = validateQualityRecord({
-      ...record,
-      [credentialField]: "credential-value"
-    }, definition);
+    const credentialResult = validateQualityRecord(
+      {
+        ...record,
+        [credentialField]: "credential-value"
+      },
+      definition
+    );
     assert.equal(credentialResult.ok, false);
     assert.equal(JSON.stringify(credentialResult).includes("secret-token"), false);
     assert.equal(JSON.stringify(credentialResult).includes("credential-value"), false);
@@ -125,94 +146,125 @@ describe("check-record foundation runtime validation", () => {
 
   it("requires a known non-not-applicable owner and canonical entity order", () => {
     assert.equal(validateCoreSnapshot(snapshot()).ok, true);
-    assert.equal(validateCoreSnapshot({
-      checks: [{ ...definition, outcome: { status: "not-applicable" } }],
-      records: [record]
-    }).ok, false);
-    assert.equal(validateCoreSnapshot({
-      checks: [],
-      records: [record]
-    }).ok, false);
+    assert.equal(
+      validateCoreSnapshot({
+        checks: [{ ...definition, outcome: { status: "not-applicable" } }],
+        records: [record]
+      }).ok,
+      false
+    );
+    assert.equal(
+      validateCoreSnapshot({
+        checks: [],
+        records: [record]
+      }).ok,
+      false
+    );
 
     const laterDefinition = { ...definition, checkId: "z-check" };
-    assert.equal(validateCoreSnapshot({
-      checks: [
-        { ...laterDefinition, outcome: { status: "completed", verdict: "passed" } },
-        { ...definition, outcome: { status: "completed", verdict: "passed" } }
-      ],
-      records: []
-    }).ok, false);
-    assert.equal(validateCoreSnapshot({
-      checks: [{ ...definition, outcome: { status: "completed", verdict: "passed" } }],
-      records: [record, record]
-    }).ok, false);
+    assert.equal(
+      validateCoreSnapshot({
+        checks: [
+          { ...laterDefinition, outcome: { status: "completed", verdict: "passed" } },
+          { ...definition, outcome: { status: "completed", verdict: "passed" } }
+        ],
+        records: []
+      }).ok,
+      false
+    );
+    assert.equal(
+      validateCoreSnapshot({
+        checks: [{ ...definition, outcome: { status: "completed", verdict: "passed" } }],
+        records: [record, record]
+      }).ok,
+      false
+    );
 
     const canonicalDefinition = {
       checkId: "canonical-check",
       displayName: "Canonical Check",
-      recordTypes: [{
-        recordTypeId: "alpha-record",
-        fields: [
-          { fieldId: "alpha", valueType: "string", required: true },
-          { fieldId: "beta", valueType: "integer", required: true }
-        ],
-        identityFields: ["alpha", "beta"],
-        policy: {
-          operands: [{
-            operandId: "alpha",
-            valueType: "string",
-            source: { kind: "field", fieldId: "alpha" }
-          }, {
-            operandId: "beta",
-            valueType: "number",
-            source: { kind: "field", fieldId: "beta" }
-          }],
-          relations: ["alpha", "beta"]
+      recordTypes: [
+        {
+          recordTypeId: "alpha-record",
+          fields: [
+            { fieldId: "alpha", valueType: "string", required: true },
+            { fieldId: "beta", valueType: "integer", required: true }
+          ],
+          identityFields: ["alpha", "beta"],
+          policy: {
+            operands: [
+              {
+                operandId: "alpha",
+                valueType: "string",
+                source: { kind: "field", fieldId: "alpha" }
+              },
+              {
+                operandId: "beta",
+                valueType: "number",
+                source: { kind: "field", fieldId: "beta" }
+              }
+            ],
+            relations: ["alpha", "beta"]
+          }
+        },
+        {
+          recordTypeId: "beta-record",
+          fields: [],
+          identityFields: []
         }
-      }, {
-        recordTypeId: "beta-record",
-        fields: [],
-        identityFields: []
-      }]
+      ]
     };
-    const primaryRecordType = canonicalDefinition.recordTypes[0]!;
+    const primaryRecordType = canonicalDefinition.recordTypes[0];
     const primaryPolicy = primaryRecordType.policy;
-    if (primaryPolicy === undefined) throw new Error("Canonical definition requires a policy surface");
+    if (primaryPolicy === undefined)
+      throw new Error("Canonical definition requires a policy surface");
     const nonCanonicalDefinitions = [
       { ...canonicalDefinition, recordTypes: [...canonicalDefinition.recordTypes].reverse() },
       {
         ...canonicalDefinition,
-        recordTypes: [{
-          ...primaryRecordType,
-          fields: [...primaryRecordType.fields].reverse()
-        }, canonicalDefinition.recordTypes[1]!]
+        recordTypes: [
+          {
+            ...primaryRecordType,
+            fields: [...primaryRecordType.fields].reverse()
+          },
+          canonicalDefinition.recordTypes[1]
+        ]
       },
       {
         ...canonicalDefinition,
-        recordTypes: [{
-          ...primaryRecordType,
-          identityFields: [...primaryRecordType.identityFields].reverse()
-        }, canonicalDefinition.recordTypes[1]!]
+        recordTypes: [
+          {
+            ...primaryRecordType,
+            identityFields: [...primaryRecordType.identityFields].reverse()
+          },
+          canonicalDefinition.recordTypes[1]
+        ]
       },
       {
         ...canonicalDefinition,
-        recordTypes: [{
-          ...primaryRecordType,
-          policy: {
-            ...primaryPolicy,
-            operands: [...primaryPolicy.operands].reverse()
-          }
-        }, canonicalDefinition.recordTypes[1]!]
+        recordTypes: [
+          {
+            ...primaryRecordType,
+            policy: {
+              ...primaryPolicy,
+              operands: [...primaryPolicy.operands].reverse()
+            }
+          },
+          canonicalDefinition.recordTypes[1]
+        ]
       },
       {
         ...canonicalDefinition,
-        recordTypes: [{
-          ...primaryRecordType,
-          policy: {
-            ...primaryPolicy,
-            relations: [...primaryPolicy.relations].reverse()
-          }
-        }, canonicalDefinition.recordTypes[1]!]
+        recordTypes: [
+          {
+            ...primaryRecordType,
+            policy: {
+              ...primaryPolicy,
+              relations: [...primaryPolicy.relations].reverse()
+            }
+          },
+          canonicalDefinition.recordTypes[1]
+        ]
       }
     ];
     for (const nonCanonicalDefinition of nonCanonicalDefinitions) {
@@ -221,14 +273,24 @@ describe("check-record foundation runtime validation", () => {
   });
 
   it("accepts only closed Check reason envelopes and exact snapshot fields", () => {
-    assert.equal(validateCoreSnapshot(snapshot({
-      status: "unavailable",
-      reason: { code: "external-dependency-unavailable" }
-    })).ok, true);
-    assert.equal(validateCoreSnapshot(snapshot({
-      status: "unavailable",
-      reason: { code: "", checkIds: ["other-check"] }
-    })).ok, false);
+    assert.equal(
+      validateCoreSnapshot(
+        snapshot({
+          status: "unavailable",
+          reason: { code: "external-dependency-unavailable" }
+        })
+      ).ok,
+      true
+    );
+    assert.equal(
+      validateCoreSnapshot(
+        snapshot({
+          status: "unavailable",
+          reason: { code: "", checkIds: ["other-check"] }
+        })
+      ).ok,
+      false
+    );
     assert.equal(validateCoreSnapshot({ ...snapshot(), definitions: [definition] }).ok, false);
     assert.equal(validateCoreSnapshot({ ...snapshot(), runs: [] }).ok, false);
   });

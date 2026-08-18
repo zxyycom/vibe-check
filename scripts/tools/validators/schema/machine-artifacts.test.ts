@@ -14,11 +14,20 @@ import {
 } from "./machine-artifacts.ts";
 import { catalogFingerprint } from "./machine-artifact-canonical.ts";
 import { validateArtifactSetInvariants } from "./machine-artifact-invariants.ts";
-import type { RecordShape, RunShape } from "./machine-artifact-types.ts";
+import { createCurrentSchemaValidators, validateRun } from "./machine-artifact-parsing.ts";
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const BOM = new Uint8Array([0xef, 0xbb, 0xbf]);
+const CURRENT_SCHEMA_VALIDATORS = createCurrentSchemaValidators();
+const EXPECTED_DIAGNOSTIC_KEYS = [
+  "category",
+  "index",
+  "line",
+  "logicalArtifact",
+  "pointer",
+  "relationship"
+] as const satisfies readonly (keyof DocsMachineValidationDiagnostic)[];
 
 type JsonRecord = Record<string, unknown>;
 
@@ -40,12 +49,11 @@ describe("independent docs machine artifact validation", () => {
       `\t\r\n ${JSON.stringify(Object.fromEntries(Object.entries(reordered.run).reverse()))} \r\n`
     );
     reordered.artifacts.recordsNdjson = bytes(
-      `\t ${JSON.stringify(Object.fromEntries(Object.entries(reordered.records[0]!).reverse()))}\r\n`
+      `\t ${JSON.stringify(Object.fromEntries(Object.entries(reordered.records[0]).reverse()))}\r\n`
     );
-    expectSuccess(validateDocsMachineArtifactSet(
-      reordered.artifacts,
-      "positive/reordered-properties-and-crlf"
-    ));
+    expectSuccess(
+      validateDocsMachineArtifactSet(reordered.artifacts, "positive/reordered-properties-and-crlf")
+    );
 
     for (const outcome of ["complete-passed", "legitimate-empty", "scan-incomplete"]) {
       const context = loadContext(outcome);
@@ -88,7 +96,7 @@ describe("independent docs machine artifact validation", () => {
           pointer: "/schemaVersion"
         },
         mutate: (context) => {
-          context.records[0]!.schemaVersion = "invalid.record.identity";
+          context.records[0].schemaVersion = "invalid.record.identity";
           syncRecords(context);
         }
       },
@@ -102,7 +110,7 @@ describe("independent docs machine artifact validation", () => {
           pointer: "/message"
         },
         mutate: (context) => {
-          delete context.records[0]!.message;
+          delete context.records[0].message;
           syncRecords(context);
         }
       },
@@ -117,10 +125,7 @@ describe("independent docs machine artifact validation", () => {
         label: "records leading BOM",
         expected: { category: "decoding", logicalArtifact: "records.ndjson" },
         mutate: (context) => {
-          context.artifacts.recordsNdjson = concatBytes(
-            BOM,
-            context.artifacts.recordsNdjson
-          );
+          context.artifacts.recordsNdjson = concatBytes(BOM, context.artifacts.recordsNdjson);
         }
       },
       {
@@ -204,7 +209,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "record-check-ownership"
         },
         mutate: (context) => {
-          context.records[0]!.checkId = "unknown-check";
+          context.records[0].checkId = "unknown-check";
           syncRecords(context);
         }
       },
@@ -218,7 +223,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "record-identity"
         },
         mutate: (context) => {
-          context.records[0]!.recordId = `check-record/v1/record/sha256:${"f".repeat(64)}`;
+          context.records[0].recordId = `check-record/v1/record/sha256:${"f".repeat(64)}`;
           syncRecords(context);
         }
       },
@@ -232,7 +237,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "record-canonical-order"
         },
         mutate: (context) => {
-          context.records.push(structuredClone(context.records[0]!));
+          context.records.push(structuredClone(context.records[0]));
           syncRecords(context);
         }
       },
@@ -244,11 +249,9 @@ describe("independent docs machine artifact validation", () => {
           relationship: "check-definition"
         },
         mutate: (context) => {
-          const checks = context.run.checks as JsonRecord[];
-          checks.push(structuredClone(checks[0]!));
-          context.run.catalogFingerprint = catalogFingerprint(
-            checks as unknown as Parameters<typeof catalogFingerprint>[0]
-          );
+          const checks = arrayField(context.run, "checks");
+          checks.push(structuredClone(checks[0]));
+          refreshCatalogFingerprint(context);
           syncRun(context);
         }
       },
@@ -260,9 +263,8 @@ describe("independent docs machine artifact validation", () => {
           relationship: "decision-record-reference"
         },
         mutate: (context) => {
-          const decision = context.run.decision as JsonRecord;
-          const views = decision.views as JsonRecord[];
-          views[0]!.recordIds = [
+          const decision = recordField(context.run, "decision");
+          firstJsonRecord(arrayField(decision, "views"), "decision.views[0]").recordIds = [
             `check-record/v1/record/sha256:${"f".repeat(64)}`
           ];
           syncRun(context);
@@ -276,8 +278,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "decision-state"
         },
         mutate: (context) => {
-          const decision = context.run.decision as JsonRecord;
-          (decision.gate as JsonRecord).status = "passed";
+          recordField(recordField(context.run, "decision"), "gate").status = "passed";
           syncRun(context);
         }
       },
@@ -290,9 +291,9 @@ describe("independent docs machine artifact validation", () => {
           relationship: "decision-state"
         },
         mutate: (context) => {
-          const decision = context.run.decision as JsonRecord;
-          const readiness = decision.readiness as JsonRecord[];
-          readiness[0]!.reason = "no-eligible-input";
+          const decision = recordField(context.run, "decision");
+          firstJsonRecord(arrayField(decision, "readiness"), "decision.readiness[0]").reason =
+            "no-eligible-input";
           syncRun(context);
         }
       }
@@ -311,12 +312,10 @@ describe("independent docs machine artifact validation", () => {
         `${artifactRoot}/${testCase.expected.logicalArtifact}`,
         testCase.label
       );
-      for (const [key, expected] of Object.entries(testCase.expected)) {
-        assert.deepEqual(
-          diagnostic[key as keyof DocsMachineValidationDiagnostic],
-          expected,
-          `${testCase.label}: ${key}`
-        );
+      for (const key of EXPECTED_DIAGNOSTIC_KEYS) {
+        const expected = testCase.expected[key];
+        if (expected === undefined) continue;
+        assert.deepEqual(diagnostic[key], expected, `${testCase.label}: ${key}`);
       }
       assert.ok(diagnostic.message.length > 0, testCase.label);
     }
@@ -373,7 +372,7 @@ describe("independent docs machine artifact validation", () => {
         pointer: "/fields/zFlag",
         mutate: (context) => {
           const recordType = firstRecordType(context);
-          (recordType.fields as JsonRecord[]).push({
+          arrayField(recordType, "fields").push({
             fieldId: "zFlag",
             required: false,
             valueType: "boolean"
@@ -386,9 +385,11 @@ describe("independent docs machine artifact validation", () => {
         label: "wrong number field type",
         pointer: "/fields/value",
         mutate: (context) => {
-          const valueDefinition = (firstRecordType(context).fields as JsonRecord[])
-            .find((field) => field.fieldId === "value");
-          assert.ok(valueDefinition !== undefined);
+          const valueDefinition = findJsonRecord(
+            arrayField(firstRecordType(context), "fields"),
+            (field) => field.fieldId === "value",
+            "record type value field"
+          );
           valueDefinition.valueType = "number";
           recordFields(context).value = "not-number";
           refreshCatalogFingerprint(context);
@@ -413,18 +414,45 @@ describe("independent docs machine artifact validation", () => {
       assert.equal(diagnostic.relationship, "record-field-contract", testCase.label);
     }
 
-    const nonFinite = loadContext("gate-failed");
-    const valueDefinition = (firstRecordType(nonFinite).fields as JsonRecord[])
-      .find((field) => field.fieldId === "value");
-    assert.ok(valueDefinition !== undefined);
-    valueDefinition.valueType = "number";
-    recordFields(nonFinite).value = Number.POSITIVE_INFINITY;
-    refreshCatalogFingerprint(nonFinite);
-    const failure = validateArtifactSetInvariants(
-      nonFinite.run as unknown as RunShape,
-      nonFinite.records as unknown as readonly RecordShape[],
-      "field-contract/non-finite-number"
+    const nonFiniteSource = loadContext("gate-failed");
+    const nonFiniteParsed = validateDocsMachineArtifactSet(
+      nonFiniteSource.artifacts,
+      "field-contract/non-finite-source"
     );
+    if (!nonFiniteParsed.ok) {
+      assert.fail(nonFiniteParsed.diagnostic.message);
+    }
+    const checks = nonFiniteParsed.value.run.checks.map((check, checkIndex) =>
+      checkIndex === 0
+        ? {
+            ...check,
+            recordTypes: check.recordTypes.map((recordType, recordTypeIndex) =>
+              recordTypeIndex === 0
+                ? {
+                    ...recordType,
+                    fields: recordType.fields.map((field) =>
+                      field.fieldId === "value" ? { ...field, valueType: "number" as const } : field
+                    )
+                  }
+                : recordType
+            )
+          }
+        : check
+    );
+    const run = {
+      ...nonFiniteParsed.value.run,
+      checks,
+      catalogFingerprint: catalogFingerprint(checks)
+    };
+    const records = nonFiniteParsed.value.records.map((record, recordIndex) =>
+      recordIndex === 0
+        ? {
+            ...record,
+            fields: { ...record.fields, value: Number.POSITIVE_INFINITY }
+          }
+        : record
+    );
+    const failure = validateArtifactSetInvariants(run, records, "field-contract/non-finite-number");
     assert.equal(failure?.diagnostic.relationship, "record-field-contract");
     assert.equal(failure?.diagnostic.pointer, "/fields/value");
   });
@@ -438,28 +466,34 @@ describe("independent docs machine artifact validation", () => {
       {
         label: "duplicate record type",
         mutate: (context) => {
-          const recordTypes = (context.run.checks as JsonRecord[])[0]!.recordTypes as JsonRecord[];
-          recordTypes.push(structuredClone(recordTypes[0]!));
+          const recordTypes = arrayField(
+            firstJsonRecord(arrayField(context.run, "checks"), "checks[0]"),
+            "recordTypes"
+          );
+          recordTypes.push(structuredClone(recordTypes[0]));
         }
       },
       {
         label: "noncanonical record type order",
         mutate: (context) => {
-          const recordTypes = (context.run.checks as JsonRecord[])[0]!.recordTypes as JsonRecord[];
+          const recordTypes = arrayField(
+            firstJsonRecord(arrayField(context.run, "checks"), "checks[0]"),
+            "recordTypes"
+          );
           recordTypes.push({ recordTypeId: "alpha-finding", fields: [], identityFields: [] });
         }
       },
       {
         label: "duplicate field",
         mutate: (context) => {
-          const fields = firstRecordType(context).fields as JsonRecord[];
-          fields.push(structuredClone(fields[0]!));
+          const fields = arrayField(firstRecordType(context), "fields");
+          fields.push(structuredClone(fields[0]));
         }
       },
       {
         label: "noncanonical field order",
         mutate: (context) => {
-          const fields = firstRecordType(context).fields as JsonRecord[];
+          const fields = arrayField(firstRecordType(context), "fields");
           fields.reverse();
         }
       },
@@ -472,9 +506,11 @@ describe("independent docs machine artifact validation", () => {
       {
         label: "optional identity field",
         mutate: (context) => {
-          const fields = firstRecordType(context).fields as JsonRecord[];
-          const category = fields.find((field) => field.fieldId === "category");
-          assert.ok(category !== undefined);
+          const category = findJsonRecord(
+            arrayField(firstRecordType(context), "fields"),
+            (field) => field.fieldId === "category",
+            "record type category field"
+          );
           category.required = false;
         }
       },
@@ -493,16 +529,16 @@ describe("independent docs machine artifact validation", () => {
       {
         label: "incompatible policy field operand",
         mutate: (context) => {
-          const policy = firstRecordType(context).policy as JsonRecord;
-          const operand = (policy.operands as JsonRecord[])[0]!;
+          const policy = recordField(firstRecordType(context), "policy");
+          const operand = firstJsonRecord(arrayField(policy, "operands"), "policy.operands[0]");
           operand.valueType = "number";
         }
       },
       {
         label: "noncanonical policy operand order",
         mutate: (context) => {
-          const policy = firstRecordType(context).policy as JsonRecord;
-          (policy.operands as JsonRecord[]).push({
+          const policy = recordField(firstRecordType(context), "policy");
+          arrayField(policy, "operands").push({
             operandId: "aValue",
             valueType: "number",
             source: { kind: "field", fieldId: "value" }
@@ -512,16 +548,16 @@ describe("independent docs machine artifact validation", () => {
       {
         label: "duplicate policy relation",
         mutate: (context) => {
-          const policy = firstRecordType(context).policy as JsonRecord;
-          const relations = policy.relations as string[];
-          relations.push(relations[0]!);
+          const policy = recordField(firstRecordType(context), "policy");
+          const relations = arrayField(policy, "relations");
+          relations.push(relations[0]);
         }
       },
       {
         label: "noncanonical policy relation order",
         mutate: (context) => {
-          const policy = firstRecordType(context).policy as JsonRecord;
-          (policy.relations as string[]).push("alpha");
+          const policy = recordField(firstRecordType(context), "policy");
+          arrayField(policy, "relations").push("alpha");
         }
       }
     ];
@@ -563,10 +599,13 @@ function loadContext(outcome: string): MutationContext {
   };
   return {
     artifacts,
-    run: JSON.parse(decoder.decode(artifacts.runJson)) as JsonRecord,
-    records: decoder.decode(artifacts.recordsNdjson).trimEnd().split("\n")
+    run: parseJsonRecord(decoder.decode(artifacts.runJson), `${root}/run.json`),
+    records: decoder
+      .decode(artifacts.recordsNdjson)
+      .trimEnd()
+      .split("\n")
       .filter((line) => line.length > 0)
-      .map((line) => JSON.parse(line) as JsonRecord)
+      .map((line, index) => parseJsonRecord(line, `${root}/records.ndjson:${index + 1}`))
   };
 }
 
@@ -575,25 +614,71 @@ function syncRun(context: MutationContext): void {
 }
 
 function syncRecords(context: MutationContext): void {
-  context.artifacts.recordsNdjson = context.records.length === 0
-    ? new Uint8Array()
-    : bytes(`${context.records.map((record) => JSON.stringify(record)).join("\n")}\n`);
+  context.artifacts.recordsNdjson =
+    context.records.length === 0
+      ? new Uint8Array()
+      : bytes(`${context.records.map((record) => JSON.stringify(record)).join("\n")}\n`);
 }
 
 function firstRecordType(context: MutationContext): JsonRecord {
-  const checks = context.run.checks as JsonRecord[];
-  const recordTypes = checks[0]!.recordTypes as JsonRecord[];
-  return recordTypes[0]!;
+  const check = firstJsonRecord(arrayField(context.run, "checks"), "checks[0]");
+  return firstJsonRecord(arrayField(check, "recordTypes"), "checks[0].recordTypes[0]");
 }
 
 function recordFields(context: MutationContext): JsonRecord {
-  return context.records[0]!.fields as JsonRecord;
+  return recordField(context.records[0], "fields");
 }
 
 function refreshCatalogFingerprint(context: MutationContext): void {
-  context.run.catalogFingerprint = catalogFingerprint(
-    context.run.checks as unknown as Parameters<typeof catalogFingerprint>[0]
+  const parsed = validateRun(
+    bytes(JSON.stringify(context.run)),
+    "test-catalog-fingerprint",
+    CURRENT_SCHEMA_VALIDATORS
   );
+  if (!parsed.ok) assert.fail(parsed.diagnostic.message);
+  context.run.catalogFingerprint = catalogFingerprint(parsed.value.checks);
+}
+
+function parseJsonRecord(source: string, label: string): JsonRecord {
+  const value: unknown = JSON.parse(source);
+  return jsonRecord(value, label);
+}
+
+function jsonRecord(value: unknown, label: string): JsonRecord {
+  if (!isJsonRecord(value)) {
+    throw new TypeError(`${label} must be a JSON object`);
+  }
+  return value;
+}
+
+function isJsonRecord(value: unknown): value is JsonRecord {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function recordField(record: JsonRecord, field: string): JsonRecord {
+  return jsonRecord(record[field], field);
+}
+
+function arrayField(record: JsonRecord, field: string): unknown[] {
+  const value = record[field];
+  if (!Array.isArray(value)) throw new TypeError(`${field} must be a JSON array`);
+  return value;
+}
+
+function firstJsonRecord(values: readonly unknown[], label: string): JsonRecord {
+  return jsonRecord(values[0], label);
+}
+
+function findJsonRecord(
+  values: readonly unknown[],
+  predicate: (value: JsonRecord) => boolean,
+  label: string
+): JsonRecord {
+  for (const value of values) {
+    const record = jsonRecord(value, label);
+    if (predicate(record)) return record;
+  }
+  throw new TypeError(`Expected ${label}`);
 }
 
 function bytes(source: string): Uint8Array {
@@ -610,9 +695,7 @@ function concatBytes(...parts: readonly Uint8Array[]): Uint8Array {
   return result;
 }
 
-function expectSuccess(
-  result: ReturnType<typeof validateDocsMachineArtifactSet>
-): void {
+function expectSuccess(result: ReturnType<typeof validateDocsMachineArtifactSet>): void {
   if (!result.ok) assert.fail(`${result.diagnostic.path}: ${result.diagnostic.message}`);
 }
 
@@ -632,24 +715,26 @@ function assertProductValidatorRejects(
   assert.equal(validateMachinePublicationSetV3(artifacts).ok, false, label);
 }
 
-function proveGeneratedDrift(
-  relativePath: string,
-  check: () => void,
-  expectedPath: RegExp
-): void {
+function proveGeneratedDrift(relativePath: string, check: () => void, expectedPath: RegExp): void {
   const absolutePath = toAbs(relativePath);
   const originalReadFileSync = fs.readFileSync;
-  fs.readFileSync = ((...args: unknown[]): unknown => {
-    const actual = Reflect.apply(originalReadFileSync, fs, args) as unknown;
-    if (args[0] !== absolutePath) return actual;
-    if (typeof actual === "string") return `${actual} `;
-    if (Buffer.isBuffer(actual)) return Buffer.concat([actual, Buffer.from(" ")]);
-    return concatBytes(actual as Uint8Array, bytes(" "));
-  }) as typeof fs.readFileSync;
+  const originalDescriptor = Object.getOwnPropertyDescriptor(fs, "readFileSync");
+  if (originalDescriptor === undefined) throw new TypeError("Missing fs.readFileSync descriptor");
+  Object.defineProperty(fs, "readFileSync", {
+    ...originalDescriptor,
+    value: (...args: unknown[]): unknown => {
+      const actual: unknown = Reflect.apply(originalReadFileSync, fs, args);
+      if (args[0] !== absolutePath) return actual;
+      if (typeof actual === "string") return `${actual} `;
+      if (Buffer.isBuffer(actual)) return Buffer.concat([actual, Buffer.from(" ")]);
+      if (actual instanceof Uint8Array) return concatBytes(actual, bytes(" "));
+      throw new TypeError("Expected fs.readFileSync bytes");
+    }
+  });
   try {
     assert.throws(check, expectedPath);
   } finally {
-    fs.readFileSync = originalReadFileSync;
+    Object.defineProperty(fs, "readFileSync", originalDescriptor);
   }
   assert.doesNotThrow(check);
 }
@@ -659,5 +744,7 @@ function slug(value: string): string {
 }
 
 function sha256(relativePath: string): string {
-  return createHash("sha256").update(fs.readFileSync(toAbs(relativePath))).digest("hex");
+  return createHash("sha256")
+    .update(fs.readFileSync(toAbs(relativePath)))
+    .digest("hex");
 }

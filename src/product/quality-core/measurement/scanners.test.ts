@@ -2,10 +2,7 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
 import { parseLizardCSV } from "./scanners/lizard.ts";
-import {
-  parseJscpdJsonReport,
-  parseJscpdVersionOutput,
-} from "./scanners/jscpd/scanner.ts";
+import { parseJscpdJsonReport, parseJscpdVersionOutput } from "./scanners/jscpd/scanner.ts";
 import { SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./scanners/scc.ts";
 
 describe("quality scanner output parsing", () => {
@@ -14,7 +11,7 @@ describe("quality scanner output parsing", () => {
       SCC_BY_FILE_CSV_HEADER,
       "Rust,crates/docnav/src/lib.rs,lib.rs,120,90,20,10,17,4096,70",
       "TypeScript,scripts/quality/scan.ts,scan.ts,60,50,5,5,8,2048,45",
-      "TypeScript,/repo/src/absolute.ts,absolute.ts,40,30,5,5,4,1024,25",
+      "TypeScript,/repo/src/absolute.ts,absolute.ts,40,30,5,5,4,1024,25"
     ].join("\n");
 
     const result = parseSccCSV(csv, "/repo");
@@ -24,24 +21,16 @@ describe("quality scanner output parsing", () => {
     }
     assert.deepEqual(
       result.measurements.map((measurement) => measurement.payload.path),
-      [
-        "crates/docnav/src/lib.rs",
-        "scripts/quality/scan.ts",
-        "src/absolute.ts",
-      ],
+      ["crates/docnav/src/lib.rs", "scripts/quality/scan.ts", "src/absolute.ts"]
     );
     assert.deepEqual(
       result.measurements.map((measurement) => measurement.sourcePaths),
-      [
-        ["crates/docnav/src/lib.rs"],
-        ["scripts/quality/scan.ts"],
-        ["src/absolute.ts"],
-      ],
+      [["crates/docnav/src/lib.rs"], ["scripts/quality/scan.ts"], ["src/absolute.ts"]]
     );
-    assert.equal(result.measurements[0]!.payload.decisionTokens.value, 17);
+    assert.equal(result.measurements[0].payload.decisionTokens.value, 17);
     const invalidResult = parseSccCSV(
       "Language,Location,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes\n",
-      "/repo",
+      "/repo"
     );
     assert.equal(invalidResult.ok, false);
     if (!invalidResult.ok) {
@@ -56,7 +45,7 @@ describe("quality scanner output parsing", () => {
 
   it("parses Lizard 1.23 function rows", () => {
     const csv = [
-      '271,88,1887,7,326,"generateWarnings@35-360@scripts/tools/quality-core/src/output/warnings/generator.ts","scripts/tools/quality-core/src/output/warnings/generator.ts","generateWarnings","generateWarnings ( files , functions , duplicates , config , scope , baseline , comparisonStatus )",35,360',
+      '271,88,1887,7,326,"generateWarnings@35-360@scripts/tools/quality-core/src/output/warnings/generator.ts","scripts/tools/quality-core/src/output/warnings/generator.ts","generateWarnings","generateWarnings ( files , functions , duplicates , config , scope , baseline , comparisonStatus )",35,360'
     ].join("\n");
 
     const result = parseLizardCSV(csv, "/repo");
@@ -65,9 +54,7 @@ describe("quality scanner output parsing", () => {
       assert.fail(result.error);
     }
     assert.deepEqual(result.measurements[0], {
-      sourcePaths: [
-        "scripts/tools/quality-core/src/output/warnings/generator.ts",
-      ],
+      sourcePaths: ["scripts/tools/quality-core/src/output/warnings/generator.ts"],
       payload: {
         name: "generateWarnings",
         file: "scripts/tools/quality-core/src/output/warnings/generator.ts",
@@ -78,10 +65,10 @@ describe("quality scanner output parsing", () => {
         parameterCount: 7,
         cyclomaticComplexity: {
           value: 88,
-          source: "lizard",
+          source: "lizard"
         },
-        isChanged: false,
-      },
+        isChanged: false
+      }
     });
   });
 
@@ -97,7 +84,7 @@ describe("quality scanner output parsing", () => {
       "example",
       "example()",
       "1",
-      "12",
+      "12"
     ];
     const rowWith = (column: number, value: string): string => {
       const parts = [...validParts];
@@ -114,7 +101,7 @@ describe("quality scanner output parsing", () => {
       ["negative NLOC", rowWith(0, "-1")],
       ["negative parameter count", rowWith(3, "-1")],
       ["zero start line", rowWith(9, "0")],
-      ["end line before start line", rowWith(9, "13")],
+      ["end line before start line", rowWith(9, "13")]
     ] as const;
 
     for (const [caseName, malformedRow] of malformedRows) {
@@ -126,10 +113,7 @@ describe("quality scanner output parsing", () => {
       }
     }
 
-    const partialResult = parseLizardCSV(
-      [validRow, malformedRows[0][1]].join("\n"),
-      "/repo",
-    );
+    const partialResult = parseLizardCSV([validRow, malformedRows[0][1]].join("\n"), "/repo");
     assert.equal(partialResult.ok, false);
 
     const missingComplexityResult = parseLizardCSV(rowWith(1, ""), "/repo");
@@ -137,7 +121,7 @@ describe("quality scanner output parsing", () => {
     if (missingComplexityResult.ok) {
       assert.equal(
         missingComplexityResult.measurements[0]?.payload.cyclomaticComplexity.value,
-        null,
+        null
       );
     }
   });
@@ -158,7 +142,7 @@ describe("quality scanner output parsing", () => {
     const emptyResult = parseLizardCSV("", "/repo");
     const headerOnlyResult = parseLizardCSV(
       "NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line",
-      "/repo",
+      "/repo"
     );
 
     assert.deepEqual(emptyResult, { ok: true, measurements: [] });
@@ -174,20 +158,20 @@ describe("quality scanner output parsing", () => {
             start: 10,
             end: 20,
             startLoc: { line: 10 },
-            endLoc: { line: 20 },
+            endLoc: { line: 20 }
           },
           secondFile: {
             name: "\\\\?\\D:\\repo\\crates\\docnav\\src\\b.rs",
             start: 5,
             end: 15,
             startLoc: { line: 5 },
-            endLoc: { line: 15 },
+            endLoc: { line: 15 }
           },
           lines: 10,
-          tokens: 50,
-        },
+          tokens: 50
+        }
       ],
-      statistics: { total: { clones: 1 } },
+      statistics: { total: { clones: 1 } }
     });
 
     const result = parseJscpdJsonReport(json, "D:\\repo");
@@ -197,25 +181,25 @@ describe("quality scanner output parsing", () => {
     if (!result.ok) {
       assert.fail(result.error);
     }
-    assert.equal(result.measurements[0]!.payload.tokenCount, 50);
-    assert.equal(result.measurements[0]!.payload.lineCount, 10);
+    assert.equal(result.measurements[0].payload.tokenCount, 50);
+    assert.equal(result.measurements[0].payload.lineCount, 10);
     assert.deepEqual(
-      result.measurements[0]!.payload.locations.map((location) => location.path),
-      ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"],
+      result.measurements[0].payload.locations.map((location) => location.path),
+      ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"]
     );
+    assert.deepEqual(result.measurements[0].sourcePaths, [
+      "crates/docnav/src/a.rs",
+      "crates/docnav/src/b.rs"
+    ]);
     assert.deepEqual(
-      result.measurements[0]!.sourcePaths,
-      ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"],
-    );
-    assert.deepEqual(
-      result.measurements[0]!.payload.locations.map((location) => [
+      result.measurements[0].payload.locations.map((location) => [
         location.startLine,
-        location.endLine,
+        location.endLine
       ]),
       [
         [10, 20],
-        [5, 15],
-      ],
+        [5, 15]
+      ]
     );
   });
 
@@ -228,7 +212,7 @@ describe("quality scanner output parsing", () => {
 
     const invalidDuplicate = parseJscpdJsonReport(
       JSON.stringify({ duplicates: [null] }),
-      "D:\\repo",
+      "D:\\repo"
     );
     assert.equal(invalidDuplicate.ok, false);
     if (!invalidDuplicate.ok) {
@@ -242,7 +226,7 @@ function assertSccEmptyAndValidOutputs(): void {
   assert.deepEqual(parseSccCSV(SCC_BY_FILE_CSV_HEADER, "/repo"), {
     ok: true,
     measurements: [],
-    aggregates: { byLanguage: [] },
+    aggregates: { byLanguage: [] }
   });
   for (const missingHeader of ["", " \n\t\n"]) {
     const result = parseSccCSV(missingHeader, "/repo");
@@ -254,23 +238,14 @@ function assertSccEmptyAndValidOutputs(): void {
   }
 
   const validRow = "TypeScript,src/example.ts,example.ts,12,8,2,2,1,256,8";
-  assert.equal(
-    parseSccCSV([SCC_BY_FILE_CSV_HEADER, validRow].join("\n"), "/repo").ok,
-    true,
-  );
+  assert.equal(parseSccCSV([SCC_BY_FILE_CSV_HEADER, validRow].join("\n"), "/repo").ok, true);
   const emptyComplexityResult = parseSccCSV(
-    [
-      SCC_BY_FILE_CSV_HEADER,
-      "TypeScript,src/example.ts,example.ts,12,8,2,2,,256,8",
-    ].join("\n"),
-    "/repo",
+    [SCC_BY_FILE_CSV_HEADER, "TypeScript,src/example.ts,example.ts,12,8,2,2,,256,8"].join("\n"),
+    "/repo"
   );
   assert.equal(emptyComplexityResult.ok, true);
   if (emptyComplexityResult.ok) {
-    assert.equal(
-      emptyComplexityResult.measurements[0]?.payload.decisionTokens.value,
-      null,
-    );
+    assert.equal(emptyComplexityResult.measurements[0]?.payload.decisionTokens.value, null);
   }
 }
 
@@ -283,13 +258,10 @@ function assertMalformedSccRows(): void {
     "TypeScript,src/example.ts,example.ts,12,invalid,2,2,1,256,8",
     "TypeScript,src/example.ts,example.ts,12,8,invalid,2,1,256,8",
     "TypeScript,src/example.ts,example.ts,12,8,2,invalid,1,256,8",
-    "TypeScript,src/example.ts,example.ts,12,8,2,2,invalid,256,8",
+    "TypeScript,src/example.ts,example.ts,12,8,2,2,invalid,256,8"
   ];
   for (const malformedRow of malformedRows) {
-    const result = parseSccCSV(
-      [SCC_BY_FILE_CSV_HEADER, malformedRow].join("\n"),
-      "/repo",
-    );
+    const result = parseSccCSV([SCC_BY_FILE_CSV_HEADER, malformedRow].join("\n"), "/repo");
     assert.equal(result.ok, false);
     if (!result.ok) {
       assert.equal(result.reason, "invalid-result");
@@ -299,7 +271,7 @@ function assertMalformedSccRows(): void {
 
   const partialResult = parseSccCSV(
     [SCC_BY_FILE_CSV_HEADER, validRow, malformedRows[0]].join("\n"),
-    "/repo",
+    "/repo"
   );
   assert.equal(partialResult.ok, false);
 }

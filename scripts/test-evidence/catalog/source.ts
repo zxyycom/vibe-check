@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import {
-  diagnostic,
-  type TestEvidenceDiagnostic
-} from "../model.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
 import { resolveExistingWorkspacePath } from "../relative-path.ts";
 import type { TestCaseTopic } from "./model.ts";
 
@@ -32,12 +29,14 @@ export function resolveCaseDirectory(
     }
     return resolved.absolutePath;
   } catch (error) {
-    diagnostics.push(diagnostic(
-      "cases.directory-invalid",
-      "case",
-      `cannot read semantic Case directory: ${errorMessage(error)}`,
-      { path: CASES_SOURCE_PATH }
-    ));
+    diagnostics.push(
+      diagnostic(
+        "cases.directory-invalid",
+        "case",
+        `cannot read semantic Case directory: ${errorMessage(error)}`,
+        { path: CASES_SOURCE_PATH }
+      )
+    );
     return null;
   }
 }
@@ -84,12 +83,14 @@ export function readTopicFiles(
       diagnostics
     );
   } catch (error) {
-    diagnostics.push(diagnostic(
-      "cases.directory-invalid",
-      "case",
-      `cannot read semantic Case directory: ${errorMessage(error)}`,
-      { path: relativeWorkspacePath(workspaceRoot, root) }
-    ));
+    diagnostics.push(
+      diagnostic(
+        "cases.directory-invalid",
+        "case",
+        `cannot read semantic Case directory: ${errorMessage(error)}`,
+        { path: relativeWorkspacePath(workspaceRoot, root) }
+      )
+    );
     return [];
   }
 }
@@ -102,35 +103,38 @@ function collectTopicFiles(
 ): string[] {
   const files: string[] = [];
   for (const entry of entries) {
-    const sourcePath = relativeWorkspacePath(
-      workspaceRoot,
-      path.join(root, entry.name)
-    );
+    const sourcePath = relativeWorkspacePath(workspaceRoot, path.join(root, entry.name));
     if (entry.isSymbolicLink()) {
-      diagnostics.push(diagnostic(
-        "cases.symlink-unsupported",
-        "case",
-        `semantic Case directory member must not be a symbolic link: ${entry.name}`,
-        { path: sourcePath }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "cases.symlink-unsupported",
+          "case",
+          `semantic Case directory member must not be a symbolic link: ${entry.name}`,
+          { path: sourcePath }
+        )
+      );
     } else if (entry.isDirectory()) {
-      diagnostics.push(diagnostic(
-        "cases.nested-directory",
-        "case",
-        `semantic Case directory must not contain nested directory ${entry.name}`,
-        { path: sourcePath }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "cases.nested-directory",
+          "case",
+          `semantic Case directory must not contain nested directory ${entry.name}`,
+          { path: sourcePath }
+        )
+      );
     } else if (entry.isFile()) {
       if (entry.name.endsWith(".md")) {
         files.push(entry.name);
       }
     } else if (entry.name.endsWith(".md")) {
-      diagnostics.push(diagnostic(
-        "topic.file-invalid",
-        "case",
-        `Case topic source must be a regular file: ${entry.name}`,
-        { path: sourcePath }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "topic.file-invalid",
+          "case",
+          `Case topic source must be a regular file: ${entry.name}`,
+          { path: sourcePath }
+        )
+      );
     }
   }
   return files.sort();
@@ -144,10 +148,7 @@ export function readTopicFile(options: {
 }): TopicFileSource | null {
   const topic = path.basename(options.fileName, ".md");
   const absolutePath = path.join(options.root, options.fileName);
-  const sourcePath = relativeWorkspacePath(
-    options.workspaceRoot,
-    absolutePath
-  );
+  const sourcePath = relativeWorkspacePath(options.workspaceRoot, absolutePath);
   try {
     const resolved = resolveExistingWorkspacePath(
       options.workspaceRoot,
@@ -161,25 +162,22 @@ export function readTopicFile(options: {
       fileName: options.fileName,
       topic,
       sourcePath,
-      lines: fs.readFileSync(resolved.absolutePath, "utf8")
-        .replaceAll("\r\n", "\n")
-        .split("\n")
+      lines: fs.readFileSync(resolved.absolutePath, "utf8").replaceAll("\r\n", "\n").split("\n")
     };
   } catch (error) {
-    options.diagnostics.push(diagnostic(
-      "topic.file-invalid",
-      "case",
-      `cannot read Case topic file: ${errorMessage(error)}`,
-      { path: sourcePath }
-    ));
+    options.diagnostics.push(
+      diagnostic(
+        "topic.file-invalid",
+        "case",
+        `cannot read Case topic file: ${errorMessage(error)}`,
+        { path: sourcePath }
+      )
+    );
     return null;
   }
 }
 
-export function relativeWorkspacePath(
-  workspaceRoot: string,
-  targetPath: string
-): string {
+export function relativeWorkspacePath(workspaceRoot: string, targetPath: string): string {
   return path.relative(workspaceRoot, targetPath).split(path.sep).join("/");
 }
 
@@ -192,7 +190,8 @@ function readTopicsValue(workspaceRoot: string): unknown {
   if (!resolved.stats.isFile()) {
     throw new Error("semantic Case topic catalog must be a regular file");
   }
-  return JSON.parse(fs.readFileSync(resolved.absolutePath, "utf8")) as unknown;
+  const value: unknown = JSON.parse(fs.readFileSync(resolved.absolutePath, "utf8"));
+  return value;
 }
 
 function parseTopics(
@@ -222,19 +221,20 @@ function parseTopics(
   for (const [index, valueTopic] of value.topics.entries()) {
     const topic = parseTopic(valueTopic);
     if (topic === null) {
-      diagnostics.push(diagnostic(
-        "topic.invalid",
-        "case",
-        `topic at index ${index} must have a stable id and non-empty description`,
-        { path: displayPath }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "topic.invalid",
+          "case",
+          `topic at index ${index} must have a stable id and non-empty description`,
+          { path: displayPath }
+        )
+      );
     } else if (seen.has(topic.id)) {
-      diagnostics.push(diagnostic(
-        "topic.duplicate",
-        "case",
-        `topic catalog repeats topic ${topic.id}`,
-        { path: displayPath }
-      ));
+      diagnostics.push(
+        diagnostic("topic.duplicate", "case", `topic catalog repeats topic ${topic.id}`, {
+          path: displayPath
+        })
+      );
     } else {
       seen.add(topic.id);
       topics.push(topic);

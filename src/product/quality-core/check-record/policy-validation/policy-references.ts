@@ -1,15 +1,7 @@
 import type { CheckDefinition } from "../model.ts";
-import type {
-  NamedReferenceIdentity,
-  PolicyReferenceRequirement
-} from "../policy-model.ts";
+import type { NamedReferenceIdentity, PolicyReferenceRequirement } from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
-import {
-  accepted,
-  closed,
-  isStableId,
-  issue
-} from "./validation-helpers.ts";
+import { accepted, closed, isStableId, issue } from "./validation-helpers.ts";
 
 function validateReferenceCheckIds(
   value: unknown,
@@ -46,7 +38,11 @@ function validateReferenceRequirement(
   const shape = closed(value, path, ["referenceName", "checkIds"]);
   if (!shape.ok) return shape;
   if (!isStableId(shape.value.referenceName) || !referencesByName.has(shape.value.referenceName)) {
-    return issue(`${path}.referenceName`, "identity-mismatch", "Policy reference must have an explicit frozen identity");
+    return issue(
+      `${path}.referenceName`,
+      "identity-mismatch",
+      "Policy reference must have an explicit frozen identity"
+    );
   }
   if (names.has(shape.value.referenceName)) {
     return issue(`${path}.referenceName`, "duplicate", "Duplicate policy reference requirement");

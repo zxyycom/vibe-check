@@ -11,7 +11,7 @@
 
 产品实现的唯一 runtime owner 是 `src/product/**` 下的仓库自有 TypeScript/Bun 源码；
 `scripts/**` 只保留开发自动化、CI consumer 和指向产品入口的薄 wrapper。产品源码不得
-反向导入 `scripts/**` 或 toolkit gitlink。
+反向导入 `scripts/**`，包括其中的 `scripts/tools/foundation/**`。
 
 正式集成入口是项目拥有的 Project Run。`scripts/quality/scan.ts` 只调用仓库 Project Run；Product CLI 仅提供 legacy migration diagnostic。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
 TypeScript 产品的实现来源或兼容层。
@@ -26,10 +26,16 @@ TypeScript 产品的实现来源或兼容层。
 
 1. 先读取文档导航指向的行为 owner，确认稳定契约和实现归属。
 2. 再使用本文选择实现模型、局部表达和验证层级。
-3. 最后使用 TypeScript、ESLint 和相邻代码恢复可机械检查的限制与局部排版。
+3. 最后运行 TypeScript 与由根目录工具配置指定的 Oxlint、Oxfmt 检查；相邻代码只用于恢复
+   局部调用和集成上下文。
 
-行为 owner 与本文冲突时，行为 owner 优先；工具配置执行可机械检查的语法、类型安全和
-import 规则，不在本文逐项复制。相邻代码只提供局部上下文，不覆盖行为 owner 或本文规则。
+行为 owner 与本文冲突时，行为 owner 优先。根目录 `.oxlintrc.json` 拥有可机械执行的
+lint rule set，`.oxfmtrc.json` 拥有 format 选项，对应 package 的 `package.json` scripts 拥有目标范围；
+`lint:product` 与 `lint:scripts` 以 `--deny-warnings` 运行。具体规则和命令见
+[脚本工具](script-tooling.md#oxlint-与-oxfmt)，不在本文复制另一份规则表。
+
+相邻代码不能覆盖行为 owner、本文或工具配置：既有或遗留代码即使偏离本文，也只提供局部
+接口事实，不构成放宽编码规范的依据。
 
 验收标准：reviewer 能从改动说明或代码位置看出规则 owner、实现归属、影响边界和验证方式。
 

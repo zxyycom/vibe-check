@@ -16,11 +16,13 @@ export function createWorkspaceTaskGraph(checks: readonly CheckTask[]): Workspac
       throw new Error(`workspace verification check is duplicated: ${check.id}`);
     }
     checkByTaskId.set(check.id, check);
-    tasks.push(Object.freeze({
-      id: check.id,
-      dependsOn: Object.freeze([...check.dependsOn]),
-      mutex: Object.freeze([...check.mutex])
-    }));
+    tasks.push(
+      Object.freeze({
+        id: check.id,
+        dependsOn: Object.freeze([...check.dependsOn]),
+        mutex: Object.freeze([...check.mutex])
+      })
+    );
   }
   return Object.freeze({
     graph: Object.freeze({ tasks: Object.freeze(tasks) }),

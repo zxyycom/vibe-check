@@ -3,15 +3,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import type {
-  TestEntity,
-  TestEvidenceDiagnostic
-} from "../model.ts";
+import type { TestEntity, TestEvidenceDiagnostic } from "../model.ts";
 
-export const bunEntity =
-  "bun|tests/example.test.ts|contract > rejects invalid input";
-export const secondBunEntity =
-  "bun|tests/example.test.ts|contract > preserves state";
+export const bunEntity = "bun|tests/example.test.ts|contract > rejects invalid input";
+export const secondBunEntity = "bun|tests/example.test.ts|contract > preserves state";
 export const thirdBunEntity =
   "bun|tests/navigation.test.ts|navigation > dispatches the requested adapter";
 
@@ -98,10 +93,7 @@ export function caseDirectory(root: string): string {
   return path.join(root, "docs", "testing", "cases");
 }
 
-export function writeTopics(
-  root: string,
-  topicIds: readonly string[]
-): void {
+export function writeTopics(root: string, topicIds: readonly string[]): void {
   const document = {
     schemaVersion: 1,
     topics: topicIds.map((id) => ({
@@ -115,15 +107,8 @@ export function writeTopics(
   );
 }
 
-export function writeTopicFile(
-  root: string,
-  topic: string,
-  lines: readonly string[]
-): void {
-  fs.writeFileSync(
-    path.join(caseDirectory(root), `${topic}.md`),
-    lines.join("\n")
-  );
+export function writeTopicFile(root: string, topic: string, lines: readonly string[]): void {
+  fs.writeFileSync(path.join(caseDirectory(root), `${topic}.md`), lines.join("\n"));
 }
 
 export function testEntity(entityKey: string): TestEntity {
@@ -153,13 +138,14 @@ export function assertDiagnostic(
   } = {}
 ): void {
   assert.ok(
-    diagnostics.some((value) => (
-      value.code === code &&
-      value.blocking &&
-      (expected.caseId === undefined || value.caseId === expected.caseId) &&
-      (expected.path === undefined || value.path === expected.path)
-    )),
+    diagnostics.some(
+      (value) =>
+        value.code === code &&
+        value.blocking &&
+        (expected.caseId === undefined || value.caseId === expected.caseId) &&
+        (expected.path === undefined || value.path === expected.path)
+    ),
     `expected blocking diagnostic ${code} ${JSON.stringify(expected)}: ` +
-    JSON.stringify(diagnostics)
+      JSON.stringify(diagnostics)
   );
 }

@@ -23,46 +23,55 @@ import {
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   checkId: "duplicate-detection",
   displayName: "Duplicate detection",
-  recordTypes: [{
-    recordTypeId: "duplicate-code",
-    fields: [
-      { fieldId: "codeArea", valueType: "string", required: true },
-      { fieldId: "lineCount", valueType: "integer", required: true },
-      { fieldId: "locationCount", valueType: "integer", required: true },
-      { fieldId: "metric", valueType: "string", required: true },
-      { fieldId: "suggestion", valueType: "string", required: true },
-      { fieldId: "value", valueType: "integer", required: true }
-    ],
-    identityFields: ["lineCount", "locationCount", "metric"],
-    policy: {
-      operands: [{
-        operandId: "codeArea",
-        valueType: "string",
-        source: { kind: "field", fieldId: "codeArea" }
-      }, {
-        operandId: "message",
-        valueType: "string",
-        source: { kind: "message" }
-      }, {
-        operandId: "metric",
-        valueType: "string",
-        source: { kind: "field", fieldId: "metric" }
-      }, {
-        operandId: "path",
-        valueType: "string",
-        source: { kind: "location-path" }
-      }, {
-        operandId: "suggestion",
-        valueType: "string",
-        source: { kind: "field", fieldId: "suggestion" }
-      }, {
-        operandId: "value",
-        valueType: "number",
-        source: { kind: "field", fieldId: "value" }
-      }],
-      relations: ["changed", "regression"]
+  recordTypes: [
+    {
+      recordTypeId: "duplicate-code",
+      fields: [
+        { fieldId: "codeArea", valueType: "string", required: true },
+        { fieldId: "lineCount", valueType: "integer", required: true },
+        { fieldId: "locationCount", valueType: "integer", required: true },
+        { fieldId: "metric", valueType: "string", required: true },
+        { fieldId: "suggestion", valueType: "string", required: true },
+        { fieldId: "value", valueType: "integer", required: true }
+      ],
+      identityFields: ["lineCount", "locationCount", "metric"],
+      policy: {
+        operands: [
+          {
+            operandId: "codeArea",
+            valueType: "string",
+            source: { kind: "field", fieldId: "codeArea" }
+          },
+          {
+            operandId: "message",
+            valueType: "string",
+            source: { kind: "message" }
+          },
+          {
+            operandId: "metric",
+            valueType: "string",
+            source: { kind: "field", fieldId: "metric" }
+          },
+          {
+            operandId: "path",
+            valueType: "string",
+            source: { kind: "location-path" }
+          },
+          {
+            operandId: "suggestion",
+            valueType: "string",
+            source: { kind: "field", fieldId: "suggestion" }
+          },
+          {
+            operandId: "value",
+            valueType: "number",
+            source: { kind: "field", fieldId: "value" }
+          }
+        ],
+        relations: ["changed", "regression"]
+      }
     }
-  }]
+  ]
 } as const satisfies CheckDefinition;
 
 export interface DuplicateDetectionSemantics {
@@ -133,7 +142,10 @@ export async function executeDuplicateDetection(
   if (candidates === undefined) return unavailable("external-result-invalid");
   for (const candidate of candidates) context.records.report(candidate.record);
   await reportDuplicateReference(context, candidates, dependency, semantics);
-  return Object.freeze({ status: "completed", verdict: candidates.length > 0 ? "failed" : "passed" });
+  return Object.freeze({
+    status: "completed",
+    verdict: candidates.length > 0 ? "failed" : "passed"
+  });
 }
 
 function prepareDirectInput(
@@ -149,17 +161,24 @@ function prepareDirectInput(
   const targets = selectJscpdTargetFileMap(fileMap, context.project.files);
   const fingerprints = buildFingerprints(fileMap, root);
   return Object.freeze({
-    areas: Object.freeze(Array.from(targets, ([codeArea, approvedExactPaths]) => Object.freeze({
-      approvedExactPaths: Object.freeze([...approvedExactPaths]),
-      codeArea,
-      inputFingerprint: Object.freeze(fingerprints[codeArea] ?? {
-        fileCount: 0,
-        fileList: Object.freeze([]),
-        fingerprint: "empty"
-      }),
-      minimumTokens: context.options.minimumTokensByCodeArea[codeArea]
-        ?? context.options.defaultMinimumTokens
-    }))),
+    areas: Object.freeze(
+      Array.from(targets, ([codeArea, approvedExactPaths]) =>
+        Object.freeze({
+          approvedExactPaths: Object.freeze([...approvedExactPaths]),
+          codeArea,
+          inputFingerprint: Object.freeze(
+            fingerprints[codeArea] ?? {
+              fileCount: 0,
+              fileList: Object.freeze([]),
+              fingerprint: "empty"
+            }
+          ),
+          minimumTokens:
+            context.options.minimumTokensByCodeArea[codeArea] ??
+            context.options.defaultMinimumTokens
+        })
+      )
+    ),
     cacheRootDir: resolve(root, context.project.cache.directory),
     commitSha: getGitSha(root),
     rootDir: root
@@ -194,34 +213,42 @@ async function reportDuplicateReference(
     semantics
   });
   if (measurement.kind !== "complete") {
-    context.records.reportReference(Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze([]),
-      status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-    }));
+    context.records.reportReference(
+      Object.freeze({
+        referenceName: context.project.comparison.referenceName,
+        relations: Object.freeze([]),
+        status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
+      })
+    );
     return;
   }
   const subjects = duplicateSubjects(measurement.fragments);
   if (subjects === undefined) {
-    context.records.reportReference(Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze([]),
-      status: "incomplete"
-    }));
+    context.records.reportReference(
+      Object.freeze({
+        referenceName: context.project.comparison.referenceName,
+        relations: Object.freeze([]),
+        status: "incomplete"
+      })
+    );
     return;
   }
   const relationsBySubject = buildDuplicateRelations(candidates, subjects, semantics.changedDelta);
-  const relations = candidates.flatMap((candidate) => (
-    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) => Object.freeze({
-      record: candidate.record,
-      relationId
-    }))
-  ));
-  context.records.reportReference(Object.freeze({
-    referenceName: context.project.comparison.referenceName,
-    relations: Object.freeze(relations),
-    status: "complete"
-  }));
+  const relations = candidates.flatMap((candidate) =>
+    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) =>
+      Object.freeze({
+        record: candidate.record,
+        relationId
+      })
+    )
+  );
+  context.records.reportReference(
+    Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze(relations),
+      status: "complete"
+    })
+  );
 }
 
 function unavailable(code: string): CheckResult {

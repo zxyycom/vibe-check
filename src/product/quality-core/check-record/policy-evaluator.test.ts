@@ -12,10 +12,7 @@ import {
   snapshot,
   validateInputs
 } from "./policy-evaluator.test-support.ts";
-import {
-  validatePolicyResolution,
-  validateReferenceFacts
-} from "./policy-validation.ts";
+import { validatePolicyResolution, validateReferenceFacts } from "./policy-validation.ts";
 
 describe("check-record policy evaluation", () => {
   test("matches relation-kind-in membership so regressions enter changed views and unchanged records stay out", () => {
@@ -26,40 +23,33 @@ describe("check-record policy evaluation", () => {
     );
     expect(resolution.ok).toBe(true);
     if (!resolution.ok) return;
-    const facts = validateReferenceFacts(
-      changedAndRegressionFacts(core),
-      resolution.value,
-      core
-    );
+    const facts = validateReferenceFacts(changedAndRegressionFacts(core), resolution.value, core);
     expect(facts.ok).toBe(true);
     if (!facts.ok) return;
 
     const changed = evaluateDecisionPolicy(resolution.value, core, facts.value);
-    const expectedChanged = core.records.slice(0, 2)
+    const expectedChanged = core.records
+      .slice(0, 2)
       .map((entry) => ({ kind: "record" as const, recordId: entry.recordId }))
       .sort((left, right) => left.recordId.localeCompare(right.recordId));
     expect(changed.views[0]?.recordRefs).toEqual(expectedChanged);
     expect(changed.gate).toEqual({
       status: "failed",
       policyId: "current-changed",
-      evidenceRefs: [
-        ...expectedChanged,
-        { kind: "view", viewId: "changed" }
-      ],
+      evidenceRefs: [...expectedChanged, { kind: "view", viewId: "changed" }],
       blockingRecordRefs: expectedChanged
     });
 
-    const regressionsOnly = validatePolicyResolution(
-      relationPolicy("regression"),
-      makeCatalog()
-    );
+    const regressionsOnly = validatePolicyResolution(relationPolicy("regression"), makeCatalog());
     expect(regressionsOnly.ok).toBe(true);
     if (!regressionsOnly.ok) return;
     const regressionResult = evaluateDecisionPolicy(regressionsOnly.value, core, facts.value);
-    expect(regressionResult.views[0]?.recordRefs).toEqual([{
-      kind: "record",
-      recordId: core.records[1]!.recordId
-    }]);
+    expect(regressionResult.views[0]?.recordRefs).toEqual([
+      {
+        kind: "record",
+        recordId: core.records[1].recordId
+      }
+    ]);
   });
 
   test("applies acceptance before views and preserves canonical blocking record and evidence order", () => {
@@ -87,38 +77,40 @@ describe("check-record policy evaluation", () => {
       blockingRecordRefs: expectedBlocking
     });
     expect(result.acceptance).toHaveLength(1);
-    expect(result.acceptance).toEqual([{
-      acceptanceId: "accept-generated",
-      reason: "Generated finding is reviewed.",
-      recordId: core.records.find((entry) => entry.fields.generated === true)!.recordId
-    }]);
+    expect(result.acceptance).toEqual([
+      {
+        acceptanceId: "accept-generated",
+        reason: "Generated finding is reviewed.",
+        recordId: core.records.find((entry) => entry.fields.generated === true)!.recordId
+      }
+    ]);
     expect(result.views[0]?.recordRefs).toEqual(expectedBlocking);
-    expect(result.readiness).toEqual([{
-      readinessId: "current-complete",
-      status: "passed",
-      evidenceRefs: [
-        { kind: "check", checkId: "file-metrics" },
-        { kind: "readiness", readinessId: "current-complete" }
-      ]
-    }, {
-      readinessId: "comparison-complete",
-      status: "passed",
-      evidenceRefs: [
-        { kind: "reference", checkId: "file-metrics", referenceName: "baseline", referenceId },
-        { kind: "readiness", readinessId: "comparison-complete" }
-      ]
-    }]);
+    expect(result.readiness).toEqual([
+      {
+        readinessId: "current-complete",
+        status: "passed",
+        evidenceRefs: [
+          { kind: "check", checkId: "file-metrics" },
+          { kind: "readiness", readinessId: "current-complete" }
+        ]
+      },
+      {
+        readinessId: "comparison-complete",
+        status: "passed",
+        evidenceRefs: [
+          { kind: "reference", checkId: "file-metrics", referenceName: "baseline", referenceId },
+          { kind: "readiness", readinessId: "comparison-complete" }
+        ]
+      }
+    ]);
     expect(result.blockWhen).toEqual({
       status: "matched",
-      evidenceRefs: [
-        ...expectedBlocking,
-        { kind: "view", viewId: "unaccepted-regressions" }
-      ],
+      evidenceRefs: [...expectedBlocking, { kind: "view", viewId: "unaccepted-regressions" }],
       blockingRecordRefs: expectedBlocking
     });
-    expect(result.blockWhen?.blockingRecordRefs).toEqual(result.gate.status === "failed"
-      ? result.gate.blockingRecordRefs
-      : []);
+    expect(result.blockWhen?.blockingRecordRefs).toEqual(
+      result.gate.status === "failed" ? result.gate.blockingRecordRefs : []
+    );
     expect({ core, facts }).toEqual(before);
     expect(result.gate.status).toBe("failed");
     if (result.gate.status === "disabled") return;
@@ -132,15 +124,17 @@ describe("check-record policy evaluation", () => {
 
     const result = evaluateDecisionPolicy(resolution, core, facts);
 
-    expect(result.readiness).toEqual([{
-      readinessId: "current-complete",
-      status: "failed",
-      reason: "scan-incomplete",
-      evidenceRefs: [
-        { kind: "check", checkId: "file-metrics" },
-        { kind: "readiness", readinessId: "current-complete" }
-      ]
-    }]);
+    expect(result.readiness).toEqual([
+      {
+        readinessId: "current-complete",
+        status: "failed",
+        reason: "scan-incomplete",
+        evidenceRefs: [
+          { kind: "check", checkId: "file-metrics" },
+          { kind: "readiness", readinessId: "current-complete" }
+        ]
+      }
+    ]);
     expect(result.blockWhen).toBe(null);
     expect(result.gate).toEqual({
       status: "not-evaluated",
@@ -194,7 +188,11 @@ describe("check-record policy evaluation", () => {
     const disabled = validatePolicyResolution({ policy: null, references: [] }, catalog);
     expect(disabled.ok).toBe(true);
     if (!disabled.ok) return;
-    const emptyFacts = validateReferenceFacts({ evidence: [], relations: [] }, disabled.value, core);
+    const emptyFacts = validateReferenceFacts(
+      { evidence: [], relations: [] },
+      disabled.value,
+      core
+    );
     expect(emptyFacts.ok).toBe(true);
     if (!emptyFacts.ok) return;
     const disabledDecision = evaluateDecisionPolicy(disabled.value, core, emptyFacts.value);
@@ -212,14 +210,20 @@ describe("check-record policy evaluation", () => {
     expect(readyResolution.ok).toBe(true);
     if (!readyResolution.ok) return;
     const acceptedRecord = core.records.find((entry) => entry.fields.generated === true)!;
-    const passingFacts = validateReferenceFacts({
-      evidence: [{ checkId: "file-metrics", referenceName: "baseline", status: "complete" }],
-      relations: [{
-        recordId: acceptedRecord.recordId,
-        referenceName: "baseline",
-        relationId: "regression"
-      }]
-    }, readyResolution.value, core);
+    const passingFacts = validateReferenceFacts(
+      {
+        evidence: [{ checkId: "file-metrics", referenceName: "baseline", status: "complete" }],
+        relations: [
+          {
+            recordId: acceptedRecord.recordId,
+            referenceName: "baseline",
+            relationId: "regression"
+          }
+        ]
+      },
+      readyResolution.value,
+      core
+    );
     expect(passingFacts.ok).toBe(true);
     if (!passingFacts.ok) return;
     const passedDecision = evaluateDecisionPolicy(readyResolution.value, core, passingFacts.value);
@@ -268,16 +272,20 @@ describe("check-record policy evaluation", () => {
     const originalCatalog = makeCatalog();
     const alteredDefinition = {
       ...definition,
-      recordTypes: [{
-        ...definition.recordTypes[0],
-        policy: {
-          ...definition.recordTypes[0].policy,
-          operands: [{
-            ...definition.recordTypes[0].policy.operands[0],
-            source: { kind: "field", fieldId: "approved" }
-          }]
+      recordTypes: [
+        {
+          ...definition.recordTypes[0],
+          policy: {
+            ...definition.recordTypes[0].policy,
+            operands: [
+              {
+                ...definition.recordTypes[0].policy.operands[0],
+                source: { kind: "field", fieldId: "approved" }
+              }
+            ]
+          }
         }
-      }]
+      ]
     } as const satisfies CheckDefinition;
     const alteredCatalog = makeCatalog([alteredDefinition]);
     expect(alteredCatalog.catalogFingerprint === originalCatalog.catalogFingerprint).toBe(false);
@@ -290,18 +298,22 @@ describe("check-record policy evaluation", () => {
     const acceptedRecord = core.records.find((entry) => entry.fields.generated === true)!;
     const facts = {
       evidence: [{ checkId: "file-metrics", referenceName: "baseline", status: "complete" }],
-      relations: [{
-        recordId: acceptedRecord.recordId,
-        referenceName: "baseline",
-        relationId: "regression"
-      }]
+      relations: [
+        {
+          recordId: acceptedRecord.recordId,
+          referenceName: "baseline",
+          relationId: "regression"
+        }
+      ]
     } as const;
     const originalFacts = validateReferenceFacts(facts, original.value, core);
     const alteredFacts = validateReferenceFacts(facts, altered.value, core);
     expect(originalFacts.ok).toBe(true);
     expect(alteredFacts.ok).toBe(false);
     if (!originalFacts.ok) return;
-    expect(evaluateDecisionPolicy(original.value, core, originalFacts.value).gate.status).toBe("passed");
+    expect(evaluateDecisionPolicy(original.value, core, originalFacts.value).gate.status).toBe(
+      "passed"
+    );
     expect(() => evaluateDecisionPolicy(altered.value, core, originalFacts.value)).toThrow(
       "Policy resolution catalog does not match the final snapshot"
     );

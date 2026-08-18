@@ -1,13 +1,9 @@
-import {
-  diagnostic,
-  type TestEvidenceDiagnostic
-} from "../model.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
 import type { SemanticTestCase } from "./model.ts";
 import { isOwnerRef } from "./owner-ref.ts";
 import type { TopicFileSource } from "./source.ts";
 
-const CASE_HEADING_PATTERN =
-  /^## Case ([A-Za-z0-9][A-Za-z0-9._-]*): (\S.*)$/;
+const CASE_HEADING_PATTERN = /^## Case ([A-Za-z0-9][A-Za-z0-9._-]*): (\S.*)$/;
 
 export function parseTopicLines(
   source: TopicFileSource,
@@ -21,18 +17,17 @@ function diagnoseTopicHeading(
   source: TopicFileSource,
   diagnostics: TestEvidenceDiagnostic[]
 ): void {
-  if (
-    source.lines[0]?.replace(/^\uFEFF/, "").trimEnd() ===
-    `# ${source.topic}`
-  ) {
+  if (source.lines[0]?.replace(/^\uFEFF/, "").trimEnd() === `# ${source.topic}`) {
     return;
   }
-  diagnostics.push(diagnostic(
-    "topic.heading-invalid",
-    "case",
-    `Case topic file ${source.fileName} must start with H1 "# ${source.topic}"`,
-    { path: source.sourcePath, line: 1 }
-  ));
+  diagnostics.push(
+    diagnostic(
+      "topic.heading-invalid",
+      "case",
+      `Case topic file ${source.fileName} must start with H1 "# ${source.topic}"`,
+      { path: source.sourcePath, line: 1 }
+    )
+  );
 }
 
 function parseTopicBlocks(
@@ -48,12 +43,14 @@ function parseTopicBlocks(
       continue;
     }
     if (!isH2(line)) {
-      diagnostics.push(diagnostic(
-        "topic.content-unexpected",
-        "case",
-        "Case topic files may contain only blank lines and Case H2 blocks after the H1",
-        { path: source.sourcePath, line: cursor + 1 }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "topic.content-unexpected",
+          "case",
+          "Case topic files may contain only blank lines and Case H2 blocks after the H1",
+          { path: source.sourcePath, line: cursor + 1 }
+        )
+      );
       cursor += 1;
       continue;
     }
@@ -61,20 +58,21 @@ function parseTopicBlocks(
     const end = findNextH2(source.lines, cursor + 1);
     const match = CASE_HEADING_PATTERN.exec(line);
     if (match !== null) {
-      cases.push(parseCaseBlock({
-        lines: source.lines,
-        start: cursor,
-        end,
-        topic: source.topic,
-        sourcePath: source.sourcePath,
-        diagnostics
-      }, match));
+      cases.push(
+        parseCaseBlock(
+          {
+            lines: source.lines,
+            start: cursor,
+            end,
+            topic: source.topic,
+            sourcePath: source.sourcePath,
+            diagnostics
+          },
+          match
+        )
+      );
     } else {
-      diagnostics.push(invalidCaseHeading(
-        line,
-        source.sourcePath,
-        cursor + 1
-      ));
+      diagnostics.push(invalidCaseHeading(line, source.sourcePath, cursor + 1));
     }
     cursor = end;
   }
@@ -91,20 +89,23 @@ function invalidCaseHeading(
     malformedCase ? "case.heading-invalid" : "topic.heading-unexpected",
     "case",
     malformedCase
-      ? "Case heading must use \"## Case <CASE-ID>: <title>\""
-      : "Case topic files allow only \"## Case <CASE-ID>: <title>\" H2 headings",
+      ? 'Case heading must use "## Case <CASE-ID>: <title>"'
+      : 'Case topic files allow only "## Case <CASE-ID>: <title>" H2 headings',
     { path: sourcePath, line: sourceLine }
   );
 }
 
-function parseCaseBlock(options: {
-  lines: readonly string[];
-  start: number;
-  end: number;
-  topic: string;
-  sourcePath: string;
-  diagnostics: TestEvidenceDiagnostic[];
-}, match: RegExpExecArray): SemanticTestCase {
+function parseCaseBlock(
+  options: {
+    lines: readonly string[];
+    start: number;
+    end: number;
+    topic: string;
+    sourcePath: string;
+    diagnostics: TestEvidenceDiagnostic[];
+  },
+  match: RegExpExecArray
+): SemanticTestCase {
   const [, id, title] = match;
   const content = options.lines
     .slice(options.start + 1, options.end)
@@ -113,11 +114,13 @@ function parseCaseBlock(options: {
   let cursor = 0;
   const current = (): { text: string; line: number } | undefined => content[cursor];
   const report = (code: string, message: string, line = options.start + 1): void => {
-    options.diagnostics.push(diagnostic(code, "case", message, {
-      caseId: id,
-      path: options.sourcePath,
-      line
-    }));
+    options.diagnostics.push(
+      diagnostic(code, "case", message, {
+        caseId: id,
+        path: options.sourcePath,
+        line
+      })
+    );
   };
 
   let ownerRef = "";
@@ -153,17 +156,19 @@ function parseCaseBlock(options: {
           item?.line
         );
       } else if (seen.has(entity[1])) {
-        options.diagnostics.push(diagnostic(
-          "case.entity-duplicate",
-          "case",
-          `Case ${id} repeats test entity ${entity[1]}`,
-          {
-            caseId: id,
-            entityKey: entity[1],
-            path: options.sourcePath,
-            line: item?.line
-          }
-        ));
+        options.diagnostics.push(
+          diagnostic(
+            "case.entity-duplicate",
+            "case",
+            `Case ${id} repeats test entity ${entity[1]}`,
+            {
+              caseId: id,
+              entityKey: entity[1],
+              path: options.sourcePath,
+              line: item?.line
+            }
+          )
+        );
       } else {
         seen.add(entity[1]);
         entityKeys.push(entity[1]);
@@ -198,10 +203,7 @@ function parseCaseBlock(options: {
       cursor += 1;
     }
     if (proves.length === 0) {
-      report(
-        "case.proves-empty",
-        `Case ${id} must have at least one non-empty Proves bullet`
-      );
+      report("case.proves-empty", `Case ${id} must have at least one non-empty Proves bullet`);
     }
   }
 

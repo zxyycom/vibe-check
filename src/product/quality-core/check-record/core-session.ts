@@ -6,6 +6,7 @@ import type {
   JsonObject,
   QualityRecord,
   QualityRecordCandidate,
+  RecordFieldValue,
   RecordTypeDefinition
 } from "./model.ts";
 import { hasExactPlainRecordKeys, snapshotPlainRecord } from "./plain-record-values.ts";
@@ -25,6 +26,7 @@ const CANDIDATE_FIELDS = [
 ] as const;
 
 const REFERENCE_RECORD_FIELDS = ["recordTypeId", "semanticSubject", "fields"] as const;
+const LOCATION_FIELDS = ["path", "line", "column"] as const;
 
 export interface CoreCheckRegistration {
   readonly definition: CheckDefinition;
@@ -41,10 +43,12 @@ export interface RecordSink {
 export interface TrustedCheckScope {
   readonly records: RecordSink;
   /** Resolves an already retained Record identity for a reporter relation. */
-  readonly recordIdForReference: (candidate: unknown) => Readonly<{
-    readonly recordId: string;
-    readonly recordTypeId: string;
-  }> | undefined;
+  readonly recordIdForReference: (candidate: unknown) =>
+    | Readonly<{
+        readonly recordId: string;
+        readonly recordTypeId: string;
+      }>
+    | undefined;
   readonly settle: (outcome: CheckOutcome) => CheckOutcome;
 }
 
@@ -91,8 +95,89 @@ function coreInvariant(message: string): never {
   throw new CoreInvariantFailure(message);
 }
 
-function candidateRecordType(slot: CoreSlot, recordTypeId: string): RecordTypeDefinition | undefined {
+function candidateRecordType(
+  slot: CoreSlot,
+  recordTypeId: string
+): RecordTypeDefinition | undefined {
   return slot.definition.recordTypes.find((recordType) => recordType.recordTypeId === recordTypeId);
+}
+
+function isRecordLevel(value: unknown): value is QualityRecordCandidate["level"] {
+  return value === "info" || value === "warning" || value === "error";
+}
+
+function isRecordFieldValue(value: unknown): value is RecordFieldValue {
+  return typeof value === "boolean" || typeof value === "number" || typeof value === "string";
+}
+
+function normalizeCandidateFields(value: unknown): QualityRecordCandidate["fields"] | undefined {
+  const fields = snapshotPlainRecord(value);
+  if (fields === undefined) return undefined;
+  const normalized: Record<string, RecordFieldValue> = {};
+  for (const [fieldId, fieldValue] of Object.entries(fields)) {
+    if (!isRecordFieldValue(fieldValue)) return undefined;
+    normalized[fieldId] = fieldValue;
+  }
+  return Object.freeze(normalized);
+}
+
+function normalizeCandidateLocation(
+  value: unknown
+): QualityRecordCandidate["location"] | undefined {
+  if (value === null) return null;
+  const location = snapshotPlainRecord(value);
+  if (
+    location === undefined ||
+    !hasExactPlainRecordKeys(location, LOCATION_FIELDS) ||
+    typeof location.path !== "string" ||
+    typeof location.line !== "number" ||
+    typeof location.column !== "number"
+  ) {
+    return undefined;
+  }
+  return Object.freeze({ path: location.path, line: location.line, column: location.column });
+}
+
+function normalizeRecordCandidate(
+  candidate: Readonly<Record<string, unknown>>
+): QualityRecordCandidate | undefined {
+  if (
+    typeof candidate.recordTypeId !== "string" ||
+    !isRecordLevel(candidate.level) ||
+    typeof candidate.semanticSubject !== "string" ||
+    typeof candidate.message !== "string"
+  ) {
+    return undefined;
+  }
+  const fields = normalizeCandidateFields(candidate.fields);
+  const location = normalizeCandidateLocation(candidate.location);
+  if (fields === undefined || location === undefined) return undefined;
+  return Object.freeze({
+    recordTypeId: candidate.recordTypeId,
+    level: candidate.level,
+    semanticSubject: candidate.semanticSubject,
+    message: candidate.message,
+    fields,
+    location
+  });
+}
+
+function identityFields(
+  value: unknown,
+  fieldIds: readonly string[]
+): QualityRecordCandidate["fields"] | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
+  const fields: Record<string, RecordFieldValue> = {};
+  for (const fieldId of fieldIds) {
+    const fieldValue = value[fieldId];
+    if (!isRecordFieldValue(fieldValue)) return undefined;
+    fields[fieldId] = fieldValue;
+  }
+  return Object.freeze(fields);
+}
+
+function isNonArrayRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function recordBody(record: QualityRecord): JsonObject {
@@ -132,7 +217,9 @@ function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[
       recordIds: new Set()
     });
   }
-  return slots.sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
+  return slots.sort((left, right) =>
+    compareText(left.definition.checkId, right.definition.checkId)
+  );
 }
 
 class CoreCheckSessionImpl implements CoreCheckSession {
@@ -158,9 +245,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
           return this.#reportRecord(slot, candidate);
         }
       }),
-      recordIdForReference: (candidate: unknown) => (
-        this.#recordIdForReference(slot, candidate)
-      ),
+      recordIdForReference: (candidate: unknown) => this.#recordIdForReference(slot, candidate),
       settle: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome)
     });
   }
@@ -171,10 +256,13 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     }
     for (const slot of this.#slots) {
       if (slot.lifecycle.kind !== "settled") {
-        this.#commitTerminal(slot, Object.freeze({
-          status: "unavailable",
-          reason: { code: "execution-cancelled" }
-        }));
+        this.#commitTerminal(
+          slot,
+          Object.freeze({
+            status: "unavailable",
+            reason: { code: "execution-cancelled" }
+          })
+        );
       }
     }
   }
@@ -188,9 +276,9 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       }
       checks.push({ definition: slot.definition, outcome: slot.lifecycle.outcome });
     }
-    const records = [...this.#records.values()].sort((left, right) => (
+    const records = [...this.#records.values()].sort((left, right) =>
       compareText(left.recordId, right.recordId)
-    ));
+    );
     const validated = validateCoreSnapshot({
       checks: checks.map(({ definition, outcome }) => ({ ...definition, outcome })),
       records
@@ -214,28 +302,27 @@ class CoreCheckSessionImpl implements CoreCheckSession {
   }
 
   #commitTerminal(slot: CoreSlot, terminal: CheckOutcome): CheckOutcome {
-    if (slot.lifecycle.kind === "settled") coreInvariant("Core Check terminal closure is duplicate");
+    if (slot.lifecycle.kind === "settled")
+      coreInvariant("Core Check terminal closure is duplicate");
     if (terminal.status === "not-applicable" && slot.recordIds.size > 0) {
       slot.diagnostics.add("record-invalid");
     }
-    const diagnostic = slot.diagnostics.has("record-conflict")
-      ? "record-conflict"
-      : slot.diagnostics.has("record-invalid")
-        ? "record-invalid"
-        : undefined;
-    const outcome = diagnostic === undefined
-      ? terminal
-      : Object.freeze({ status: "unavailable" as const, reason: { code: diagnostic } });
+    const diagnostic = terminalDiagnostic(slot);
+    const outcome =
+      diagnostic === undefined
+        ? terminal
+        : Object.freeze({ status: "unavailable" as const, reason: { code: diagnostic } });
     slot.lifecycle = Object.freeze({ kind: "settled", outcome });
     return outcome;
   }
 
   #reportRecord(slot: CoreSlot, rawCandidate: unknown): RecordSubmissionResult {
-    const candidate = snapshotPlainRecord(rawCandidate);
-    if (candidate === undefined || !hasExactPlainRecordKeys(candidate, CANDIDATE_FIELDS)
-      || typeof candidate.recordTypeId !== "string") {
+    const candidateData = snapshotPlainRecord(rawCandidate);
+    if (candidateData === undefined || !hasExactPlainRecordKeys(candidateData, CANDIDATE_FIELDS)) {
       return this.#rejectInvalidRecord(slot);
     }
+    const candidate = normalizeRecordCandidate(candidateData);
+    if (candidate === undefined) return this.#rejectInvalidRecord(slot);
     const recordType = candidateRecordType(slot, candidate.recordTypeId);
     if (recordType === undefined) return this.#rejectInvalidRecord(slot);
     const record = this.#validateRecord(slot, candidate, recordType);
@@ -250,31 +337,46 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       slot.recordIds.add(record.recordId);
       return "committed";
     }
-    if (state.bodies.has(key)) return this.#records.has(record.recordId) ? "replayed" : "conflicted";
+    if (state.bodies.has(key))
+      return this.#records.has(record.recordId) ? "replayed" : "conflicted";
     state.bodies.set(key, body);
     this.#records.delete(record.recordId);
     slot.diagnostics.add("record-conflict");
     return "conflicted";
   }
 
-  #recordIdForReference(slot: CoreSlot, rawCandidate: unknown): Readonly<{
-    readonly recordId: string;
-    readonly recordTypeId: string;
-  }> | undefined {
+  #recordIdForReference(
+    slot: CoreSlot,
+    rawCandidate: unknown
+  ):
+    | Readonly<{
+        readonly recordId: string;
+        readonly recordTypeId: string;
+      }>
+    | undefined {
     try {
       const candidate = snapshotPlainRecord(rawCandidate);
-      if (candidate === undefined || !hasExactPlainRecordKeys(candidate, REFERENCE_RECORD_FIELDS)
-        || typeof candidate.recordTypeId !== "string" || typeof candidate.semanticSubject !== "string") {
+      if (
+        candidate === undefined ||
+        !hasExactPlainRecordKeys(candidate, REFERENCE_RECORD_FIELDS) ||
+        typeof candidate.recordTypeId !== "string" ||
+        typeof candidate.semanticSubject !== "string"
+      ) {
         return undefined;
       }
       const recordType = candidateRecordType(slot, candidate.recordTypeId);
       if (recordType === undefined) return undefined;
-      const recordId = createRecordId({
-        checkId: slot.definition.checkId,
-        fields: candidate.fields as QualityRecordCandidate["fields"],
-        recordTypeId: candidate.recordTypeId,
-        semanticSubject: candidate.semanticSubject
-      }, recordType).recordId;
+      const fields = identityFields(candidate.fields, recordType.identityFields);
+      if (fields === undefined) return undefined;
+      const recordId = createRecordId(
+        {
+          checkId: slot.definition.checkId,
+          fields,
+          recordTypeId: candidate.recordTypeId,
+          semanticSubject: candidate.semanticSubject
+        },
+        recordType
+      ).recordId;
       return this.#records.has(recordId)
         ? Object.freeze({ recordId, recordTypeId: recordType.recordTypeId })
         : undefined;
@@ -285,18 +387,18 @@ class CoreCheckSessionImpl implements CoreCheckSession {
 
   #validateRecord(
     slot: CoreSlot,
-    candidate: Readonly<Record<string, unknown>>,
+    candidate: QualityRecordCandidate,
     recordType: RecordTypeDefinition
   ): QualityRecord | undefined {
     try {
       const bound = {
         checkId: slot.definition.checkId,
-        recordTypeId: candidate.recordTypeId as string,
-        level: candidate.level as QualityRecordCandidate["level"],
-        semanticSubject: candidate.semanticSubject as string,
-        message: candidate.message as string,
-        fields: candidate.fields as QualityRecordCandidate["fields"],
-        location: candidate.location as QualityRecordCandidate["location"]
+        recordTypeId: candidate.recordTypeId,
+        level: candidate.level,
+        semanticSubject: candidate.semanticSubject,
+        message: candidate.message,
+        fields: candidate.fields,
+        location: candidate.location
       };
       const recordId = createRecordId(bound, recordType).recordId;
       const validated = validateQualityRecord({ ...bound, recordId }, slot.definition);
@@ -310,6 +412,12 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     slot.diagnostics.add("record-invalid");
     return "rejected";
   }
+}
+
+function terminalDiagnostic(slot: CoreSlot): RecordDiagnostic | undefined {
+  if (slot.diagnostics.has("record-conflict")) return "record-conflict";
+  if (slot.diagnostics.has("record-invalid")) return "record-invalid";
+  return undefined;
 }
 
 export function createCoreCheckSession(

@@ -22,11 +22,13 @@ export interface FixtureRecord {
 const definition = {
   checkId: "annotation-fixture-check",
   displayName: "Annotation Fixture Check",
-  recordTypes: [{
-    recordTypeId: "annotation-fixture-record",
-    fields: [{ fieldId: "ordinal", valueType: "integer", required: true }],
-    identityFields: ["ordinal"]
-  }]
+  recordTypes: [
+    {
+      recordTypeId: "annotation-fixture-record",
+      fields: [{ fieldId: "ordinal", valueType: "integer", required: true }],
+      identityFields: ["ordinal"]
+    }
+  ]
 } as const satisfies CheckDefinition;
 
 export function writeCanonicalPublicationFixture(

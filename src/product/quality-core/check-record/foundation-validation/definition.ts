@@ -33,7 +33,11 @@ function validateFieldDefinition(
   }
   const field = closed.value;
   if (!isFieldId(field.fieldId)) {
-    return issue(`${path}.fieldId`, "invalid-value", "fieldId must use stable lower-camel identity grammar");
+    return issue(
+      `${path}.fieldId`,
+      "invalid-value",
+      "fieldId must use stable lower-camel identity grammar"
+    );
   }
   if (!isRecordFieldValueType(field.valueType)) {
     return issue(`${path}.valueType`, "invalid-value", "Unknown record field value type");
@@ -63,8 +67,10 @@ function validateRecordFields(
     if (fieldIds.has(validated.value.fieldId)) {
       return issue(`${path}.fields[${index}].fieldId`, "duplicate", "Duplicate fieldId");
     }
-    if (previousFieldId !== undefined
-      && compareCanonicalText(previousFieldId, validated.value.fieldId) >= 0) {
+    if (
+      previousFieldId !== undefined &&
+      compareCanonicalText(previousFieldId, validated.value.fieldId) >= 0
+    ) {
       return issue(
         `${path}.fields`,
         "invalid-value",
@@ -90,14 +96,26 @@ function validateIdentityFields(
   for (let index = 0; index < values.length; index += 1) {
     const fieldId = values[index];
     if (!isFieldId(fieldId)) {
-      return issue(`${path}.identityFields[${index}]`, "invalid-value", "Identity field must be a fieldId");
+      return issue(
+        `${path}.identityFields[${index}]`,
+        "invalid-value",
+        "Identity field must be a fieldId"
+      );
     }
     const field = fieldById.get(fieldId);
     if (field === undefined) {
-      return issue(`${path}.identityFields[${index}]`, "identity-mismatch", "Identity field is not declared in fields");
+      return issue(
+        `${path}.identityFields[${index}]`,
+        "identity-mismatch",
+        "Identity field is not declared in fields"
+      );
     }
     if (!field.required) {
-      return issue(`${path}.identityFields[${index}]`, "identity-mismatch", "Identity fields must be required fields");
+      return issue(
+        `${path}.identityFields[${index}]`,
+        "identity-mismatch",
+        "Identity fields must be required fields"
+      );
     }
     if (identityFieldIds.has(fieldId)) {
       return issue(`${path}.identityFields[${index}]`, "duplicate", "Duplicate identity field");
@@ -144,7 +162,11 @@ function validateRecordTypeDefinition(
   }
   const recordType = closed.value;
   if (!isStableId(recordType.recordTypeId)) {
-    return issue(`${path}.recordTypeId`, "invalid-value", "recordTypeId must use stable kebab-case identity grammar");
+    return issue(
+      `${path}.recordTypeId`,
+      "invalid-value",
+      "recordTypeId must use stable kebab-case identity grammar"
+    );
   }
   if (!Array.isArray(recordType.fields)) {
     return issue(`${path}.fields`, "invalid-value", "fields must be an array");
@@ -181,7 +203,11 @@ export function validateMaterializedCheckDefinition(
   }
   const definition = closed.value;
   if (!isStableId(definition.checkId)) {
-    return issue("$.checkId", "invalid-value", "checkId must use stable kebab-case identity grammar");
+    return issue(
+      "$.checkId",
+      "invalid-value",
+      "checkId must use stable kebab-case identity grammar"
+    );
   }
   if (!isNonEmptyString(definition.displayName)) {
     return issue("$.displayName", "invalid-value", "displayName must be non-empty");
@@ -193,15 +219,24 @@ export function validateMaterializedCheckDefinition(
   const recordTypeIds = new Set<string>();
   let previousRecordTypeId: string | undefined;
   for (let index = 0; index < definition.recordTypes.length; index += 1) {
-    const validated = validateRecordTypeDefinition(definition.recordTypes[index], `$.recordTypes[${index}]`);
+    const validated = validateRecordTypeDefinition(
+      definition.recordTypes[index],
+      `$.recordTypes[${index}]`
+    );
     if (!validated.ok) {
       return validated;
     }
     if (recordTypeIds.has(validated.value.recordTypeId)) {
-      return issue(`$.recordTypes[${index}].recordTypeId`, "duplicate", "Duplicate recordTypeId within Check");
+      return issue(
+        `$.recordTypes[${index}].recordTypeId`,
+        "duplicate",
+        "Duplicate recordTypeId within Check"
+      );
     }
-    if (previousRecordTypeId !== undefined
-      && compareCanonicalText(previousRecordTypeId, validated.value.recordTypeId) >= 0) {
+    if (
+      previousRecordTypeId !== undefined &&
+      compareCanonicalText(previousRecordTypeId, validated.value.recordTypeId) >= 0
+    ) {
       return issue(
         "$.recordTypes",
         "invalid-value",
@@ -212,5 +247,9 @@ export function validateMaterializedCheckDefinition(
     recordTypeIds.add(validated.value.recordTypeId);
     recordTypes.push(validated.value);
   }
-  return acceptedDomain({ checkId: definition.checkId, displayName: definition.displayName, recordTypes });
+  return acceptedDomain({
+    checkId: definition.checkId,
+    displayName: definition.displayName,
+    recordTypes
+  });
 }

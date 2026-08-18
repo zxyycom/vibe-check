@@ -1,9 +1,5 @@
 import type { CheckDefinition } from "../model.ts";
-import type {
-  RecordPolicySurface,
-  RecordPredicate,
-  RecordSelector
-} from "../policy-model.ts";
+import type { RecordPolicySurface, RecordPredicate, RecordSelector } from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
 import {
   accepted,
@@ -46,10 +42,11 @@ export function validateSelector(
 }
 
 function selectedOperands(context: PredicateContext, operandId: string) {
-  return context.selectors.map((selector) => (
-    context.surfacesBySelector.get(selectorKey(selector))?.operands
-      .find((operand) => operand.operandId === operandId)
-  ));
+  return context.selectors.map((selector) =>
+    context.surfacesBySelector
+      .get(selectorKey(selector))
+      ?.operands.find((operand) => operand.operandId === operandId)
+  );
 }
 
 function normalizeNumberOperand(
@@ -59,7 +56,11 @@ function normalizeNumberOperand(
   path: string
 ): ValidationResult<RecordPredicate> {
   if (kind === "operand-includes" || typeof value !== "number" || !Number.isFinite(value)) {
-    return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+    return issue(
+      `${path}.value`,
+      "invalid-value",
+      "Predicate value does not match its registered operand type"
+    );
   }
   return accepted({ kind: "operand-equals", operandId, value });
 }
@@ -71,7 +72,11 @@ function normalizeBooleanOperand(
   path: string
 ): ValidationResult<RecordPredicate> {
   if (kind === "operand-includes" || typeof value !== "boolean") {
-    return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+    return issue(
+      `${path}.value`,
+      "invalid-value",
+      "Predicate value does not match its registered operand type"
+    );
   }
   return accepted({ kind: "operand-equals", operandId, value });
 }
@@ -83,7 +88,11 @@ function normalizeStringOperand(
   path: string
 ): ValidationResult<RecordPredicate> {
   if (typeof value !== "string") {
-    return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+    return issue(
+      `${path}.value`,
+      "invalid-value",
+      "Predicate value does not match its registered operand type"
+    );
   }
   return kind === "operand-includes"
     ? accepted({ kind: "operand-includes", operandId, value })
@@ -104,6 +113,7 @@ function normalizeOperandValue(
 
 function validateOperandPredicate(
   value: Record<string, unknown>,
+  kind: string,
   path: string,
   context: PredicateContext
 ): ValidationResult<RecordPredicate> {
@@ -115,13 +125,21 @@ function validateOperandPredicate(
   const operands = selectedOperands(context, shape.value.operandId);
   const firstOperand = operands[0];
   if (firstOperand === undefined || operands.some((operand) => operand === undefined)) {
-    return issue(`${path}.operandId`, "identity-mismatch", "Operand is not registered for every selected record type");
+    return issue(
+      `${path}.operandId`,
+      "identity-mismatch",
+      "Operand is not registered for every selected record type"
+    );
   }
   if (operands.some((operand) => operand?.valueType !== firstOperand.valueType)) {
-    return issue(`${path}.value`, "invalid-value", "Predicate value does not match its registered operand type");
+    return issue(
+      `${path}.value`,
+      "invalid-value",
+      "Predicate value does not match its registered operand type"
+    );
   }
   return normalizeOperandValue(
-    value.kind as string,
+    kind,
     shape.value.operandId,
     shape.value.value,
     firstOperand.valueType,
@@ -133,18 +151,21 @@ function isReferenceRequiredForAllSelectors(
   referenceName: unknown,
   context: PredicateContext
 ): referenceName is string {
-  return isStableId(referenceName) && context.selectors.every((selector) => (
-    context.referenceRequirements.has(checkReferenceKey(selector.checkId, referenceName))
-  ));
+  return (
+    isStableId(referenceName) &&
+    context.selectors.every((selector) =>
+      context.referenceRequirements.has(checkReferenceKey(selector.checkId, referenceName))
+    )
+  );
 }
 
 function isRelationRegisteredForAllSelectors(
   relationId: string,
   context: PredicateContext
 ): boolean {
-  return context.selectors.every((selector) => (
+  return context.selectors.every((selector) =>
     context.surfacesBySelector.get(selectorKey(selector))?.relations.includes(relationId)
-  ));
+  );
 }
 
 function validateRelationIsPredicate(
@@ -155,11 +176,19 @@ function validateRelationIsPredicate(
   const shape = closed(value, path, ["kind", "referenceName", "relationId"]);
   if (!shape.ok) return shape;
   if (!isReferenceRequiredForAllSelectors(shape.value.referenceName, context)) {
-    return issue(`${path}.referenceName`, "identity-mismatch", "Relation reference is not declared for every selected Check");
+    return issue(
+      `${path}.referenceName`,
+      "identity-mismatch",
+      "Relation reference is not declared for every selected Check"
+    );
   }
   const relationId = shape.value.relationId;
   if (!isStableId(relationId) || !isRelationRegisteredForAllSelectors(relationId, context)) {
-    return issue(`${path}.relationId`, "identity-mismatch", "Relation is not registered for every selected record type");
+    return issue(
+      `${path}.relationId`,
+      "identity-mismatch",
+      "Relation is not registered for every selected record type"
+    );
   }
   return accepted({ kind: "relation-is", referenceName: shape.value.referenceName, relationId });
 }
@@ -173,9 +202,14 @@ function validateRelationMember(
   if (!isStableId(relationId)) {
     return issue(valuePath, "invalid-value", "Relation value must use stable kebab-case grammar");
   }
-  if (seen.has(relationId)) return issue(valuePath, "duplicate", "Duplicate relation membership value");
+  if (seen.has(relationId))
+    return issue(valuePath, "duplicate", "Duplicate relation membership value");
   if (!isRelationRegisteredForAllSelectors(relationId, context)) {
-    return issue(valuePath, "identity-mismatch", "Relation is not registered for every selected record type");
+    return issue(
+      valuePath,
+      "identity-mismatch",
+      "Relation is not registered for every selected record type"
+    );
   }
   seen.add(relationId);
   return accepted(relationId);
@@ -189,12 +223,23 @@ function validateRelationMembers(
   const values: string[] = [];
   const seen = new Set<string>();
   for (let index = 0; index < rawValues.length; index += 1) {
-    const member = validateRelationMember(rawValues[index], `${path}.values[${index}]`, seen, context);
+    const member = validateRelationMember(
+      rawValues[index],
+      `${path}.values[${index}]`,
+      seen,
+      context
+    );
     if (!member.ok) return member;
     values.push(member.value);
   }
-  if (values.some((relationId, index) => index > 0 && compareText(values[index - 1]!, relationId) >= 0)) {
-    return issue(`${path}.values`, "invalid-value", "Relation membership values must use canonical order");
+  if (
+    values.some((relationId, index) => index > 0 && compareText(values[index - 1], relationId) >= 0)
+  ) {
+    return issue(
+      `${path}.values`,
+      "invalid-value",
+      "Relation membership values must use canonical order"
+    );
   }
   return accepted(values);
 }
@@ -207,12 +252,20 @@ function validateRelationKindInPredicate(
   const shape = closed(value, path, ["kind", "referenceName", "values"]);
   if (!shape.ok) return shape;
   if (!isReferenceRequiredForAllSelectors(shape.value.referenceName, context)) {
-    return issue(`${path}.referenceName`, "identity-mismatch", "Relation reference is not declared for every selected Check");
+    return issue(
+      `${path}.referenceName`,
+      "identity-mismatch",
+      "Relation reference is not declared for every selected Check"
+    );
   }
   if (!Array.isArray(shape.value.values) || shape.value.values.length === 0) {
-    return issue(`${path}.values`, "invalid-value", "Relation membership requires at least one value");
+    return issue(
+      `${path}.values`,
+      "invalid-value",
+      "Relation membership requires at least one value"
+    );
   }
-  const values = validateRelationMembers(shape.value.values as readonly unknown[], path, context);
+  const values = validateRelationMembers(shape.value.values, path, context);
   if (!values.ok) return values;
   return accepted({
     kind: "relation-kind-in",
@@ -222,14 +275,15 @@ function validateRelationKindInPredicate(
 }
 
 function validateKnownRecordPredicate(
-  value: Record<string, unknown> & { kind: string },
+  value: Record<string, unknown>,
+  kind: string,
   path: string,
   context: PredicateContext
 ): ValidationResult<RecordPredicate> {
-  switch (value.kind) {
+  switch (kind) {
     case "operand-equals":
     case "operand-includes":
-      return validateOperandPredicate(value, path, context);
+      return validateOperandPredicate(value, kind, path, context);
     case "relation-is":
       return validateRelationIsPredicate(value, path, context);
     case "relation-kind-in":
@@ -244,10 +298,14 @@ export function validateRecordPredicate(
   path: string,
   context: PredicateContext
 ): ValidationResult<RecordPredicate> {
-  if (!isRecord(value) || typeof value.kind !== "string") {
+  if (!isRecord(value)) {
     return issue(path, "invalid-value", "Record predicate must be a closed predicate");
   }
-  return validateKnownRecordPredicate(value as Record<string, unknown> & { kind: string }, path, context);
+  const kind = value.kind;
+  if (typeof kind !== "string") {
+    return issue(path, "invalid-value", "Record predicate must be a closed predicate");
+  }
+  return validateKnownRecordPredicate(value, kind, path, context);
 }
 
 export function validatePredicates(

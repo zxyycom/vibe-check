@@ -10,10 +10,7 @@ import { scanWithJscpdAsync } from "../../measurement/scanners/jscpd/scanner.ts"
 import { toScopedJscpdMeasurements } from "../../measurement/scanners/jscpd/scoped-fragments.ts";
 import { checkJscpd } from "../../measurement/scanners/tool-availability/jscpd.ts";
 import { acceptScopedMeasurements } from "../../measurement/scoped-measurement.ts";
-import type {
-  CodeAreaFingerprint,
-  DuplicateCodeFragment
-} from "../../model/schema.ts";
+import type { CodeAreaFingerprint, DuplicateCodeFragment } from "../../model/schema.ts";
 import { compareText, isInChangedScope } from "./builtin-support.ts";
 import type {
   DuplicateDetectionAreaInput,
@@ -86,33 +83,36 @@ function measurableAreas(
     .sort((left, right) => compareText(left.codeArea, right.codeArea));
 }
 
-async function measureAreas(options: Readonly<{
-  areas: readonly DuplicateDetectionAreaInput[];
-  cache: DuplicateCacheOptions;
-  changedFiles: readonly string[];
-  dependency: DuplicationScannerDependency;
-  input: DuplicateDetectionExactInputSet;
-  scanKind: ScanKind;
-  semantics: DuplicateDetectionSemantics;
-  toolVersion: string;
-}>): Promise<DuplicateMeasurementResult> {
+async function measureAreas(
+  options: Readonly<{
+    areas: readonly DuplicateDetectionAreaInput[];
+    cache: DuplicateCacheOptions;
+    changedFiles: readonly string[];
+    dependency: DuplicationScannerDependency;
+    input: DuplicateDetectionExactInputSet;
+    scanKind: ScanKind;
+    semantics: DuplicateDetectionSemantics;
+    toolVersion: string;
+  }>
+): Promise<DuplicateMeasurementResult> {
   let areaResults: AreaMeasurementResult[];
   try {
     areaResults = await runBoundedTasks(
       [...options.areas],
       options.dependency.maxConcurrency,
-      (area) => measureArea({
-        area,
-        cache: options.cache,
-        cacheRootDir: options.input.cacheRootDir,
-        commitSha: options.input.commitSha,
-        configVersion: options.semantics.configVersion,
-        changedFiles: options.changedFiles,
-        dependency: options.dependency,
-        rootDir: options.input.rootDir,
-        scanKind: options.scanKind,
-        toolVersion: options.toolVersion
-      })
+      (area) =>
+        measureArea({
+          area,
+          cache: options.cache,
+          cacheRootDir: options.input.cacheRootDir,
+          commitSha: options.input.commitSha,
+          configVersion: options.semantics.configVersion,
+          changedFiles: options.changedFiles,
+          dependency: options.dependency,
+          rootDir: options.input.rootDir,
+          scanKind: options.scanKind,
+          toolVersion: options.toolVersion
+        })
     );
   } catch {
     return Object.freeze({ kind: "execution-failed" });
@@ -123,9 +123,9 @@ async function measureAreas(options: Readonly<{
   if (areaResults.some((result) => result.kind === "invalid-result")) {
     return Object.freeze({ kind: "invalid-result" });
   }
-  const fragments = areaResults.flatMap((result) => (
+  const fragments = areaResults.flatMap((result) =>
     result.kind === "complete" ? result.fragments : []
-  ));
+  );
   return Object.freeze({ kind: "complete", fragments: Object.freeze(fragments) });
 }
 
@@ -141,18 +141,25 @@ function validAreaInputs(areas: readonly DuplicateDetectionAreaInput[]): boolean
 }
 
 function isValidAreaInput(area: DuplicateDetectionAreaInput): boolean {
-  return typeof area.codeArea === "string" && area.codeArea.length > 0
-    && Number.isSafeInteger(area.minimumTokens) && area.minimumTokens >= 0
-    && validFingerprint(area.inputFingerprint)
-    && area.approvedExactPaths.every((path) => typeof path === "string" && path.length > 0);
+  return (
+    typeof area.codeArea === "string" &&
+    area.codeArea.length > 0 &&
+    Number.isSafeInteger(area.minimumTokens) &&
+    area.minimumTokens >= 0 &&
+    validFingerprint(area.inputFingerprint) &&
+    area.approvedExactPaths.every((path) => typeof path === "string" && path.length > 0)
+  );
 }
 
 function validFingerprint(fingerprint: DuplicateDetectionAreaInput["inputFingerprint"]): boolean {
-  return Number.isSafeInteger(fingerprint.fileCount) && fingerprint.fileCount >= 0
-    && Array.isArray(fingerprint.fileList)
-    && fingerprint.fileList.every((path) => typeof path === "string")
-    && typeof fingerprint.fingerprint === "string"
-    && fingerprint.fingerprint.length > 0;
+  return (
+    Number.isSafeInteger(fingerprint.fileCount) &&
+    fingerprint.fileCount >= 0 &&
+    Array.isArray(fingerprint.fileList) &&
+    fingerprint.fileList.every((path) => typeof path === "string") &&
+    typeof fingerprint.fingerprint === "string" &&
+    fingerprint.fingerprint.length > 0
+  );
 }
 
 async function measureArea(input: AreaMeasurementInput): Promise<AreaMeasurementResult> {
@@ -181,11 +188,9 @@ function loadValidCachedFragments(
   if (!accepted.ok || !accepted.payloads.every(isValidDuplicateFragment)) {
     return null;
   }
-  return Object.freeze(annotateFragments(
-    accepted.payloads,
-    input.area.codeArea,
-    input.changedFiles
-  ));
+  return Object.freeze(
+    annotateFragments(accepted.payloads, input.area.codeArea, input.changedFiles)
+  );
 }
 
 async function scanAndCacheArea(
@@ -208,11 +213,7 @@ async function scanAndCacheArea(
   if (!accepted.ok || !accepted.payloads.every(isValidDuplicateFragment)) {
     return Object.freeze({ kind: "invalid-result" });
   }
-  const fragments = annotateFragments(
-    accepted.payloads,
-    input.area.codeArea,
-    input.changedFiles
-  );
+  const fragments = annotateFragments(accepted.payloads, input.area.codeArea, input.changedFiles);
   if (input.cache.enabled) {
     try {
       writeScanCacheEntry({ rootDir: input.cacheRootDir, identity, metrics: fragments });
@@ -230,10 +231,7 @@ function createCacheIdentity(input: AreaMeasurementInput): DuplicateCodeCacheIde
     scanKind: input.scanKind,
     toolName: "jscpd",
     toolVersion: input.toolVersion,
-    normalizedToolArgs: Object.freeze(jscpdCacheArgs(
-      input.dependency,
-      input.area.minimumTokens
-    )),
+    normalizedToolArgs: Object.freeze(jscpdCacheArgs(input.dependency, input.area.minimumTokens)),
     configVersion: input.configVersion,
     codeArea: input.area.codeArea,
     commitSha: input.commitSha,
@@ -245,10 +243,7 @@ function createCacheIdentity(input: AreaMeasurementInput): DuplicateCodeCacheIde
   });
 }
 
-function jscpdCacheArgs(
-  dependency: DuplicationScannerDependency,
-  minimumTokens: number
-): string[] {
+function jscpdCacheArgs(dependency: DuplicationScannerDependency, minimumTokens: number): string[] {
   return [
     normalizedJscpdCommandForCache(dependency.executable),
     ...dependency.args,
@@ -264,8 +259,8 @@ function jscpdCacheArgs(
 
 function normalizedJscpdCommandForCache(command: string): string {
   const normalized = command.split("\\").join("/");
-  return normalized.endsWith("/node_modules/.bin/jscpd")
-    || normalized.endsWith("/node_modules/.bin/jscpd.cmd")
+  return normalized.endsWith("/node_modules/.bin/jscpd") ||
+    normalized.endsWith("/node_modules/.bin/jscpd.cmd")
     ? "<repo-local-jscpd-bin>"
     : command;
 }
@@ -278,9 +273,9 @@ function annotateFragments(
   return fragments.map((fragment) => ({
     ...fragment,
     codeAreas: [codeArea],
-    hitsChangedScope: fragment.locations.some((location) => (
+    hitsChangedScope: fragment.locations.some((location) =>
       isInChangedScope(location.path, changedFiles)
-    )),
+    ),
     locations: fragment.locations.map((location) => ({ ...location, codeArea }))
   }));
 }

@@ -65,32 +65,47 @@ function createFunctionInstances(
   comparisonKey: string,
   sortedGroup: readonly FunctionMetric[]
 ): FunctionMetricInstance[] {
-  return sortedGroup.map((metric, index) => Object.freeze({
-    comparisonKey,
-    metric,
-    semanticSubject: isStableFunctionName(metric.name) && sortedGroup.length === 1
-      ? functionSubject(metric)
-      : ambiguousFunctionSubject(metric, index + 1)
-  }));
+  return sortedGroup.map((metric, index) =>
+    Object.freeze({
+      comparisonKey,
+      metric,
+      semanticSubject:
+        isStableFunctionName(metric.name) && sortedGroup.length === 1
+          ? functionSubject(metric)
+          : ambiguousFunctionSubject(metric, index + 1)
+    })
+  );
 }
 
 function isValidFunctionMetric(metric: FunctionMetric): boolean {
-  return typeof metric.file === "string" && metric.file.length > 0
-    && typeof metric.name === "string" && metric.name.length > 0
-    && hasValidFunctionLocation(metric)
-    && hasValidFunctionMeasurements(metric);
+  return (
+    typeof metric.file === "string" &&
+    metric.file.length > 0 &&
+    typeof metric.name === "string" &&
+    metric.name.length > 0 &&
+    hasValidFunctionLocation(metric) &&
+    hasValidFunctionMeasurements(metric)
+  );
 }
 
 function hasValidFunctionLocation(metric: FunctionMetric): boolean {
-  return Number.isSafeInteger(metric.startLine) && metric.startLine >= 1
-    && Number.isSafeInteger(metric.endLine) && metric.endLine >= metric.startLine;
+  return (
+    Number.isSafeInteger(metric.startLine) &&
+    metric.startLine >= 1 &&
+    Number.isSafeInteger(metric.endLine) &&
+    metric.endLine >= metric.startLine
+  );
 }
 
 function hasValidFunctionMeasurements(metric: FunctionMetric): boolean {
   const complexity = metric.cyclomaticComplexity.value;
-  return Number.isSafeInteger(metric.lines) && metric.lines >= 0
-    && Number.isSafeInteger(metric.parameterCount) && metric.parameterCount >= 0
-    && (complexity === null || isValidComplexity(complexity));
+  return (
+    Number.isSafeInteger(metric.lines) &&
+    metric.lines >= 0 &&
+    Number.isSafeInteger(metric.parameterCount) &&
+    metric.parameterCount >= 0 &&
+    (complexity === null || isValidComplexity(complexity))
+  );
 }
 
 function isValidComplexity(complexity: number): boolean {
@@ -98,10 +113,12 @@ function isValidComplexity(complexity: number): boolean {
 }
 
 function functionSubject(metric: Pick<FunctionMetric, "file" | "name">): string {
-  const identity = new TextDecoder().decode(canonicalJsonBytes({
-    file: metric.file,
-    name: metric.name
-  }));
+  const identity = new TextDecoder().decode(
+    canonicalJsonBytes({
+      file: metric.file,
+      name: metric.name
+    })
+  );
   return `function:${identity}`;
 }
 
@@ -109,11 +126,13 @@ function ambiguousFunctionSubject(
   metric: Pick<FunctionMetric, "file" | "name">,
   occurrence: number
 ): string {
-  const identity = new TextDecoder().decode(canonicalJsonBytes({
-    file: metric.file,
-    name: metric.name,
-    occurrence
-  }));
+  const identity = new TextDecoder().decode(
+    canonicalJsonBytes({
+      file: metric.file,
+      name: metric.name,
+      occurrence
+    })
+  );
   return `function-instance:${identity}`;
 }
 
@@ -122,9 +141,11 @@ function functionComparisonKey(metric: Pick<FunctionMetric, "file" | "name">): s
 }
 
 function compareFunctionInstances(left: FunctionMetric, right: FunctionMetric): number {
-  return left.lines - right.lines
-    || (left.cyclomaticComplexity.value ?? -1) - (right.cyclomaticComplexity.value ?? -1)
-    || left.parameterCount - right.parameterCount;
+  return (
+    left.lines - right.lines ||
+    (left.cyclomaticComplexity.value ?? -1) - (right.cyclomaticComplexity.value ?? -1) ||
+    left.parameterCount - right.parameterCount
+  );
 }
 
 export function isStableFunctionName(name: string): boolean {

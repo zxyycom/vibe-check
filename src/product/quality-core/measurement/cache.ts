@@ -4,15 +4,8 @@
 
 import { readJsonFile, writeJsonFile } from "../../foundation/index.ts";
 import type { DuplicateCodeFragment } from "../model/schema.ts";
-import {
-  buildScanCacheKey,
-  getScanCachePath
-} from "./cache/key.ts";
-import {
-  isMatchingPayload,
-  isMetricArray,
-  stripDuplicateChangedScope
-} from "./cache/payload.ts";
+import { buildScanCacheKey, getScanCachePath } from "./cache/key.ts";
+import { isMatchingPayload, isMetricArray, stripDuplicateChangedScope } from "./cache/payload.ts";
 import {
   SCAN_CACHE_VERSION,
   type DuplicateCodeCacheHit,
@@ -21,10 +14,7 @@ import {
   type ScanCachePayload
 } from "./cache/types.ts";
 
-export {
-  buildScanCacheKey,
-  getScanCachePath
-} from "./cache/key.ts";
+export { buildScanCacheKey, getScanCachePath } from "./cache/key.ts";
 export { SCAN_CACHE_VERSION } from "./cache/types.ts";
 export type {
   DuplicateCodeCacheHit,
@@ -87,6 +77,6 @@ export function writeScanCacheEntry({
     createdAt: new Date().toISOString()
   };
 
-  writeJsonFile(cachePath, payload);
+  writeJsonFile({ filePath: cachePath, value: payload });
   return { cacheKey, cachePath };
 }

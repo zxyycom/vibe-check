@@ -16,7 +16,7 @@ describe("quality jscpd wrapper failure projection", () => {
     const dependency = createFakeJscpdToolConfig({
       stdout: "",
       stderr: "",
-      exitCode: 0,
+      exitCode: 0
     });
 
     try {
@@ -24,7 +24,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
-        minimumTokens: 75,
+        minimumTokens: 75
       });
 
       assert.equal(result.ok, false);
@@ -42,7 +42,7 @@ describe("quality jscpd wrapper failure projection", () => {
       stdout: "",
       stderr: "",
       exitCode: 0,
-      reportJson: "   \n",
+      reportJson: "   \n"
     });
 
     try {
@@ -50,7 +50,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
-        minimumTokens: 75,
+        minimumTokens: 75
       });
 
       assert.equal(result.ok, false);
@@ -71,9 +71,9 @@ describe("quality jscpd wrapper failure projection", () => {
         args: [],
         availabilityArgs: ["--version"],
         executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-        maxConcurrency: 1,
+        maxConcurrency: 1
       },
-      minimumTokens: 75,
+      minimumTokens: 75
     });
 
     assert.equal(result.ok, false);
@@ -88,7 +88,7 @@ describe("quality jscpd wrapper failure projection", () => {
       args: [],
       availabilityArgs: ["--version"],
       executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-      maxConcurrency: 1,
+      maxConcurrency: 1
     });
 
     assert.equal(result.available, false);
@@ -113,7 +113,7 @@ describe("quality jscpd wrapper failure projection", () => {
       "  total += 10;",
       "  return total;",
       "}",
-      "",
+      ""
     ].join("\n");
 
     writeFileSync(join(tempDir, "a.ts"), duplicateSource, "utf8");
@@ -124,19 +124,19 @@ describe("quality jscpd wrapper failure projection", () => {
         files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
         cwd: tempDir,
         dependency: TEST_SCANNER_DEPENDENCIES.duplication,
-        minimumTokens: 20,
+        minimumTokens: 20
       });
 
       assert.equal(result.ok, true);
       if (result.ok) {
         assert.equal(result.measurements.length, 1);
-        assert.equal(result.measurements[0]!.payload.locations.length, 2);
+        assert.equal(result.measurements[0].payload.locations.length, 2);
         assert.deepEqual(
-          result.measurements[0]!.payload.locations.map((location) => location.path),
-          ["a.ts", "b.ts"],
+          result.measurements[0].payload.locations.map((location) => location.path),
+          ["a.ts", "b.ts"]
         );
-        assert.deepEqual(result.measurements[0]!.sourcePaths, ["a.ts", "b.ts"]);
-        assert.equal(result.measurements[0]!.payload.hitsChangedScope, false);
+        assert.deepEqual(result.measurements[0].sourcePaths, ["a.ts", "b.ts"]);
+        assert.equal(result.measurements[0].payload.hitsChangedScope, false);
       }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
@@ -147,7 +147,7 @@ describe("quality jscpd wrapper failure projection", () => {
     const dependency = createFakeJscpdToolConfig({
       stdout: "",
       stderr: "bad invocation",
-      exitCode: 2,
+      exitCode: 2
     });
 
     try {
@@ -155,7 +155,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
-        minimumTokens: 50,
+        minimumTokens: 50
       });
 
       assert.equal(result.ok, false);
@@ -172,7 +172,7 @@ function createFakeJscpdToolConfig({
   reportJson,
   stdout,
   stderr,
-  exitCode,
+  exitCode
 }: {
   exitCode: number;
   reportJson?: string;
@@ -197,7 +197,7 @@ process.stdout.write(${JSON.stringify(stdout)});
 console.error(${JSON.stringify(stderr)});
 process.exit(${JSON.stringify(exitCode)});
 `,
-    "utf8",
+    "utf8"
   );
 
   return {
@@ -205,6 +205,6 @@ process.exit(${JSON.stringify(exitCode)});
     availabilityArgs: [fakeJscpdPath, "--version"],
     executable: process.execPath,
     maxConcurrency: 1,
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true }),
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

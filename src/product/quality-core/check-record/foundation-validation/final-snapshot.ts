@@ -63,9 +63,11 @@ function validateNotApplicableOutcome(
     optional: true
   });
   if (!reason.ok) return reason;
-  return accepted<CheckOutcome>(reason.value === undefined
-    ? { status: "not-applicable" }
-    : { status: "not-applicable", reason: reason.value });
+  return accepted<CheckOutcome>(
+    reason.value === undefined
+      ? { status: "not-applicable" }
+      : { status: "not-applicable", reason: reason.value }
+  );
 }
 
 function validateCompletedOutcome(
@@ -76,7 +78,11 @@ function validateCompletedOutcome(
   if (!closed.ok) return closed;
   const verdict = closed.value.verdict;
   if (verdict !== "passed" && verdict !== "failed") {
-    return issue(`${path}.verdict`, "invalid-value", "Completed Check verdict must be passed or failed");
+    return issue(
+      `${path}.verdict`,
+      "invalid-value",
+      "Completed Check verdict must be passed or failed"
+    );
   }
   return accepted<CheckOutcome>({ status: "completed", verdict });
 }
@@ -91,8 +97,14 @@ function validateUnavailableOutcome(
     allowCheckIds: true,
     optional: false
   });
-  if (!reason.ok) return issue(path, reason.issues[0]?.code ?? "invalid-value", reason.issues[0]?.message ?? "Invalid Check reason");
-  if (reason.value === undefined) return issue(`${path}.reason`, "missing-field", "Unavailable Check requires a reason");
+  if (!reason.ok)
+    return issue(
+      path,
+      reason.issues[0]?.code ?? "invalid-value",
+      reason.issues[0]?.message ?? "Invalid Check reason"
+    );
+  if (reason.value === undefined)
+    return issue(`${path}.reason`, "missing-field", "Unavailable Check requires a reason");
   return accepted<CheckOutcome>({ status: "unavailable", reason: reason.value });
 }
 
@@ -100,7 +112,9 @@ function validateReason(
   value: unknown,
   path: string,
   options: Readonly<{ readonly allowCheckIds: boolean; readonly optional: boolean }>
-): ValidationResult<Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | undefined> {
+): ValidationResult<
+  Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | undefined
+> {
   if (value === undefined && options.optional) return accepted(undefined);
   const closed = validateClosedRecordWithOptional(value, path, {
     optional: options.allowCheckIds ? ["checkIds"] : [],
@@ -112,12 +126,20 @@ function validateReason(
   }
   if (closed.value.checkIds === undefined) return accepted({ code: closed.value.code });
   if (!Array.isArray(closed.value.checkIds) || closed.value.checkIds.length === 0) {
-    return issue(`${path}.checkIds`, "invalid-value", "Check reason checkIds must be a non-empty Check id array");
+    return issue(
+      `${path}.checkIds`,
+      "invalid-value",
+      "Check reason checkIds must be a non-empty Check id array"
+    );
   }
   const checkIds: string[] = [];
   for (const checkId of closed.value.checkIds) {
     if (typeof checkId !== "string" || !CHECK_ID.test(checkId)) {
-      return issue(`${path}.checkIds`, "invalid-value", "Check reason checkIds must be a non-empty Check id array");
+      return issue(
+        `${path}.checkIds`,
+        "invalid-value",
+        "Check reason checkIds must be a non-empty Check id array"
+      );
     }
     checkIds.push(checkId);
   }
@@ -132,7 +154,8 @@ function validateClosedRecordWithOptional(
   if (!isRecord(value)) return issue(path, "invalid-value", "Expected an object");
   const supported = new Set([...fields.required, ...fields.optional]);
   const unknownField = Object.keys(value).find((key) => !supported.has(key));
-  if (unknownField !== undefined) return issue(path, "unknown-field", "Object contains an unsupported field");
+  if (unknownField !== undefined)
+    return issue(path, "unknown-field", "Object contains an unsupported field");
   const missingField = fields.required.find((key) => !Object.hasOwn(value, key));
   return missingField === undefined
     ? accepted(value)
@@ -140,7 +163,12 @@ function validateClosedRecordWithOptional(
 }
 
 function validateCoreCheck(value: unknown, path: string): ValidationResult<CoreCheck> {
-  const closed = validateClosedRecord(value, path, ["checkId", "displayName", "recordTypes", "outcome"]);
+  const closed = validateClosedRecord(value, path, [
+    "checkId",
+    "displayName",
+    "recordTypes",
+    "outcome"
+  ]);
   if (!closed.ok) return closed;
   const definition = validateMaterializedCheckDefinition({
     checkId: closed.value.checkId,
@@ -172,7 +200,11 @@ function validateChecks(values: readonly unknown[]): ValidationResult<ValidatedC
       return issue(`$.checks[${index}].checkId`, "duplicate", "Duplicate Core Check checkId");
     }
     if (previousCheckId !== undefined && compareCanonicalText(previousCheckId, checkId) >= 0) {
-      return issue(`$.checks[${index}].checkId`, "invalid-value", "Core Checks must be sorted by checkId");
+      return issue(
+        `$.checks[${index}].checkId`,
+        "invalid-value",
+        "Core Checks must be sorted by checkId"
+      );
     }
     previousCheckId = checkId;
     byCheckId.set(checkId, validated.value);
@@ -193,10 +225,18 @@ function validateRecords(
     const checkId = isRecord(rawRecord) ? rawRecord.checkId : undefined;
     const check = typeof checkId === "string" ? checks.byCheckId.get(checkId) : undefined;
     if (check === undefined) {
-      return issue(`$.records[${index}].checkId`, "identity-mismatch", "Record has no owning Core Check");
+      return issue(
+        `$.records[${index}].checkId`,
+        "identity-mismatch",
+        "Record has no owning Core Check"
+      );
     }
     if (check.outcome.status === "not-applicable") {
-      return issue(`$.records[${index}].checkId`, "identity-mismatch", "Not-applicable Check cannot own records");
+      return issue(
+        `$.records[${index}].checkId`,
+        "identity-mismatch",
+        "Not-applicable Check cannot own records"
+      );
     }
     const validated = validateMaterializedQualityRecord(rawRecord, check);
     if (!validated.ok) {
@@ -205,9 +245,15 @@ function validateRecords(
     if (recordIds.has(validated.value.recordId)) {
       return issue(`$.records[${index}].recordId`, "duplicate", "Duplicate QualityRecord recordId");
     }
-    if (previousRecordId !== undefined
-      && compareCanonicalText(previousRecordId, validated.value.recordId) >= 0) {
-      return issue(`$.records[${index}].recordId`, "invalid-value", "QualityRecords must be sorted by recordId");
+    if (
+      previousRecordId !== undefined &&
+      compareCanonicalText(previousRecordId, validated.value.recordId) >= 0
+    ) {
+      return issue(
+        `$.records[${index}].recordId`,
+        "invalid-value",
+        "QualityRecords must be sorted by recordId"
+      );
     }
     previousRecordId = validated.value.recordId;
     recordIds.add(validated.value.recordId);

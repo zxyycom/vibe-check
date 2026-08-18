@@ -15,9 +15,10 @@ export function checksForProfile(profile: Profile): readonly CheckTask[] {
   if (profile === PROFILE_REQUIRED) {
     return checks.filter((check) => check.type === PROFILE_REQUIRED);
   }
-  return checks.filter((check) =>
-    check.type === PROFILE_FULL ||
-    (check.type === PROFILE_REQUIRED && check.id !== QUICK_QUALITY_CHECK_ID)
+  return checks.filter(
+    (check) =>
+      check.type === PROFILE_FULL ||
+      (check.type === PROFILE_REQUIRED && check.id !== QUICK_QUALITY_CHECK_ID)
   );
 }
 
@@ -44,12 +45,28 @@ export function assertProfile(profile: string): asserts profile is Profile {
   }
 }
 
-export function visibleOutputLines(check: CheckTask, output: string, status: CheckStatus = "failed"): string[] {
-  const allowedLines = lines(output).filter((line) => isAllowedOutput(check, line, status));
-  return allowedLines.filter((line) => !isIgnoredOutput(check, line));
+export function visibleOutputLines({
+  check,
+  output,
+  status = "failed"
+}: {
+  readonly check: CheckTask;
+  readonly output: string;
+  readonly status?: CheckStatus;
+}): string[] {
+  const allowedLines = lines(output).filter((line) => isAllowedOutput({ check, line, status }));
+  return allowedLines.filter((line) => !isIgnoredOutput({ check, line }));
 }
 
-export function isAllowedOutput(check: Pick<CheckTask, "allowOutput">, line: string, status: CheckStatus): boolean {
+export function isAllowedOutput({
+  check,
+  line,
+  status
+}: {
+  readonly check: Pick<CheckTask, "allowOutput">;
+  readonly line: string;
+  readonly status: CheckStatus;
+}): boolean {
   const normalizedLine = normalizeOutputLine(line);
   if (status === "failed" || check.allowOutput.length === 0) {
     return true;
@@ -57,9 +74,18 @@ export function isAllowedOutput(check: Pick<CheckTask, "allowOutput">, line: str
   return check.allowOutput.some((pattern) => pattern.test(normalizedLine));
 }
 
-export function isIgnoredOutput(check: Pick<CheckTask, "ignoreOutput">, line: string): boolean {
+export function isIgnoredOutput({
+  check,
+  line
+}: {
+  readonly check: Pick<CheckTask, "ignoreOutput">;
+  readonly line: string;
+}): boolean {
   const normalizedLine = normalizeOutputLine(line);
-  return normalizedLine.length === 0 || check.ignoreOutput.some((pattern) => pattern.test(normalizedLine));
+  return (
+    normalizedLine.length === 0 ||
+    check.ignoreOutput.some((pattern) => pattern.test(normalizedLine))
+  );
 }
 
 function lines(output: string): string[] {

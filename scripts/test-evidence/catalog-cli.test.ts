@@ -11,16 +11,14 @@ const workspaceRoot = path.resolve(path.dirname(entrypoint), "..", "..");
 
 test("returns a query failure status at the CLI boundary", () => {
   using fixture = createCaseFixture();
-  const result = spawnSync(process.execPath, [
-    entrypoint,
-    "show",
-    "CASE-THAT-DOES-NOT-EXIST",
-    "--root",
-    fixture.root
-  ], {
-    cwd: workspaceRoot,
-    encoding: "utf8"
-  });
+  const result = spawnSync(
+    process.execPath,
+    [entrypoint, "show", "CASE-THAT-DOES-NOT-EXIST", "--root", fixture.root],
+    {
+      cwd: workspaceRoot,
+      encoding: "utf8"
+    }
+  );
 
   assert.equal(result.status, 6);
   assert.equal(result.stderr, "");

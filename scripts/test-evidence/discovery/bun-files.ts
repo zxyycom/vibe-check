@@ -3,10 +3,7 @@ import path from "node:path";
 
 import { minimatch } from "minimatch";
 
-import {
-  isSafeRelativePosixPath,
-  resolveExistingWorkspacePath
-} from "../relative-path.ts";
+import { isSafeRelativePosixPath, resolveExistingWorkspacePath } from "../relative-path.ts";
 
 const GLOB_OPTIONS = {
   dot: true,
@@ -27,9 +24,7 @@ export function resolveBunTestFiles(options: {
 }): string[] {
   validateSurface(options.profile);
 
-  const includeMatches = new Map(
-    options.profile.include.map((pattern) => [pattern, 0])
-  );
+  const includeMatches = new Map(options.profile.include.map((pattern) => [pattern, 0]));
   const directoryFiles = collectDirectoryFiles(options, includeMatches);
   assertEveryIncludeMatched(includeMatches);
   const files = new Set(directoryFiles);
@@ -38,7 +33,7 @@ export function resolveBunTestFiles(options: {
   if (files.size === 0) {
     throw new Error("Bun test surface matched no files");
   }
-  return [...files].sort(compareStrings);
+  return [...files].sort((left, right) => compareStrings({ left, right }));
 }
 
 function collectDirectoryFiles(
@@ -58,13 +53,7 @@ function collectDirectoryFiles(
     if (!resolved.stats.isDirectory()) {
       throw new Error(`Bun source root must be a directory: ${sourceRoot}`);
     }
-    collectRootFiles(
-      options.profile,
-      sourceRoot,
-      resolved.absolutePath,
-      includeMatches,
-      files
-    );
+    collectRootFiles(options.profile, sourceRoot, resolved.absolutePath, includeMatches, files);
   }
   return files;
 }
@@ -77,15 +66,15 @@ function collectRootFiles(
   files: Set<string>
 ): void {
   for (const relativePath of walkRegularFiles(rootPath)) {
-    const matchedPatterns = profile.include.filter((pattern) => (
+    const matchedPatterns = profile.include.filter((pattern) =>
       minimatch(relativePath, pattern, GLOB_OPTIONS)
-    ));
+    );
     for (const pattern of matchedPatterns) {
       includeMatches.set(pattern, (includeMatches.get(pattern) ?? 0) + 1);
     }
-    const ignored = profile.ignore.some((pattern) => (
+    const ignored = profile.ignore.some((pattern) =>
       minimatch(relativePath, pattern, GLOB_OPTIONS)
-    ));
+    );
     if (matchedPatterns.length > 0 && !ignored) {
       files.add(path.posix.join(sourceRoot, relativePath));
     }
@@ -127,30 +116,25 @@ function addSupplementalFiles(
 }
 
 function validateSurface(profile: BunTestSurface): void {
-  if (
-    profile.sourceRoots.length === 0 ||
-    profile.include.length === 0
-  ) {
+  if (profile.sourceRoots.length === 0 || profile.include.length === 0) {
     throw new Error("Bun sourceRoots and include must be non-empty");
   }
   for (const sourceRoot of profile.sourceRoots) {
     if (!isSafeRelativePosixPath(sourceRoot)) {
       throw new Error(
-        `Bun sourceRoots must contain safe relative POSIX paths: ${sourceRoot}`
+        `Bun sourceRoots must contain safe relative POSIX paths: ${String(sourceRoot)}`
       );
     }
   }
   for (const pattern of [...profile.include, ...profile.ignore]) {
     if (!isSafeRelativeGlob(pattern)) {
-      throw new Error(
-        `Bun patterns must be positive relative POSIX globs: ${pattern}`
-      );
+      throw new Error(`Bun patterns must be positive relative POSIX globs: ${pattern}`);
     }
   }
   for (const sourcePath of profile.supplementalFiles) {
     if (!isSafeRelativePosixPath(sourcePath)) {
       throw new Error(
-        `Bun supplementalFiles must contain safe relative POSIX paths: ${sourcePath}`
+        `Bun supplementalFiles must contain safe relative POSIX paths: ${String(sourcePath)}`
       );
     }
   }
@@ -162,8 +146,9 @@ function walkRegularFiles(rootPath: string): string[] {
   return files;
 
   function visit(directoryPath: string, relativeDirectory: string): void {
-    const entries = fs.readdirSync(directoryPath, { withFileTypes: true })
-      .sort((left, right) => compareStrings(left.name, right.name));
+    const entries = fs
+      .readdirSync(directoryPath, { withFileTypes: true })
+      .sort((left, right) => compareStrings({ left: left.name, right: right.name }));
     for (const entry of entries) {
       const relativePath = relativeDirectory
         ? path.posix.join(relativeDirectory, entry.name)
@@ -187,14 +172,22 @@ export function isSafeRelativeGlob(pattern: string): boolean {
     !pattern.includes("\\") &&
     !pattern.includes("\0") &&
     !path.posix.isAbsolute(pattern) &&
-    pattern.split("/").every((segment) => (
-      segment.length > 0 &&
-      segment !== "." &&
-      segment !== ".."
-    ))
+    pattern.split("/").every((segment) => segment.length > 0 && segment !== "." && segment !== "..")
   );
 }
 
-function compareStrings(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+function compareStrings({
+  left,
+  right
+}: {
+  readonly left: string;
+  readonly right: string;
+}): number {
+  if (left < right) {
+    return -1;
+  }
+  if (left > right) {
+    return 1;
+  }
+  return 0;
 }

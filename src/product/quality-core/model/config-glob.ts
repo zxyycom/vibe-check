@@ -11,7 +11,5 @@ export function matchesAnyConfigGlob(
   configGlobs: readonly string[]
 ): boolean {
   const normalizedCandidatePath = toSlashPath(candidatePath);
-  return configGlobs.some((configGlob) =>
-    minimatch(normalizedCandidatePath, configGlob)
-  );
+  return configGlobs.some((configGlob) => minimatch(normalizedCandidatePath, configGlob));
 }

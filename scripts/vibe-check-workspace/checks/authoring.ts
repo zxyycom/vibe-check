@@ -1,9 +1,5 @@
-import {
-  PROFILE_FULL,
-  PROFILE_REQUIRED,
-  type CheckEnvironment,
-  type Profile
-} from "./model.ts";
+import { isNonArrayRecord } from "../../tools/foundation/src/type-guards.ts";
+import { PROFILE_FULL, PROFILE_REQUIRED, type CheckEnvironment, type Profile } from "./model.ts";
 
 const GROUP_FIELDS = [
   "id",
@@ -61,7 +57,9 @@ export function parseCheckDefinitions(value: unknown): readonly ParsedCheckDefin
   if (!Array.isArray(value)) {
     throw new TypeError("check list must be an array");
   }
-  return Object.freeze(value.map((check, index) => parseCheckDefinition(check, `checks[${index}]`)));
+  return Object.freeze(
+    value.map((check, index) => parseCheckDefinition(check, `checks[${index}]`))
+  );
 }
 
 function parseCheckDefinition(value: unknown, path: string): ParsedCheckDefinition {
@@ -86,7 +84,9 @@ function parseCheckGroup(
   return Object.freeze({
     ...parseCheckDefinitionBase(data, id, path),
     kind: "group",
-    tasks: Object.freeze(tasks.map((child, index) => parseCheckDefinition(child, `${path}.tasks[${index}]`)))
+    tasks: Object.freeze(
+      tasks.map((child, index) => parseCheckDefinition(child, `${path}.tasks[${index}]`))
+    )
   });
 }
 
@@ -137,12 +137,14 @@ function parseStringArray(value: unknown, fieldName: string): readonly string[] 
   if (!Array.isArray(value)) {
     throw new TypeError(`${fieldName} must be an array of strings`);
   }
-  return Object.freeze(value.map((item, index) => {
-    if (typeof item !== "string") {
-      throw new TypeError(`${fieldName}[${index}] must be a string`);
-    }
-    return item;
-  }));
+  return Object.freeze(
+    value.map((item, index) => {
+      if (typeof item !== "string") {
+        throw new TypeError(`${fieldName}[${index}] must be a string`);
+      }
+      return item;
+    })
+  );
 }
 
 function parseRegExpList(value: unknown, fieldName: string): readonly RegExp[] {
@@ -150,12 +152,14 @@ function parseRegExpList(value: unknown, fieldName: string): readonly RegExp[] {
   if (!Array.isArray(value)) {
     throw new TypeError(`${fieldName} must be an array of RegExp values`);
   }
-  return Object.freeze(value.map((item, index) => {
-    if (!(item instanceof RegExp)) {
-      throw new TypeError(`${fieldName}[${index}] must be a RegExp`);
-    }
-    return item;
-  }));
+  return Object.freeze(
+    value.map((item, index) => {
+      if (!(item instanceof RegExp)) {
+        throw new TypeError(`${fieldName}[${index}] must be a RegExp`);
+      }
+      return item;
+    })
+  );
 }
 
 function parseEnvironment(value: unknown, fieldName: string): CheckEnvironment | undefined {
@@ -189,14 +193,14 @@ function nonEmptyString(value: unknown, fieldName: string): string {
 }
 
 function checkRecord(value: unknown, fieldName: string): Readonly<Record<string, unknown>> {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+  if (!isNonArrayRecord(value)) {
     throw new TypeError(`${fieldName} must be an object`);
   }
   const prototype = Reflect.getPrototypeOf(value);
   if (prototype !== Object.prototype && prototype !== null) {
     throw new TypeError(`${fieldName} must be a plain object`);
   }
-  return value as Readonly<Record<string, unknown>>;
+  return value;
 }
 
 function assertAllowedFields(

@@ -1,8 +1,5 @@
 import type { RelationId } from "./builtin-support.ts";
-import type {
-  FunctionMetricAnalysis,
-  FunctionValues
-} from "./function-metrics-analysis.ts";
+import type { FunctionMetricAnalysis, FunctionValues } from "./function-metrics-analysis.ts";
 import { recordKey, type FunctionRecordCandidate } from "./function-metrics-records.ts";
 import type { FunctionMetricsSemantics } from "./function-metrics.ts";
 
@@ -66,15 +63,10 @@ function baselineValueForCandidate(
   candidate: FunctionRecordCandidate,
   reference: FunctionValues | undefined
 ): number | null {
-  return reference === undefined
-    ? 0
-    : valueForRecordType(reference, candidate.record.recordTypeId);
+  return reference === undefined ? 0 : valueForRecordType(reference, candidate.record.recordTypeId);
 }
 
-function valueForRecordType(
-  values: FunctionValues,
-  recordTypeId: string
-): number | null {
+function valueForRecordType(values: FunctionValues, recordTypeId: string): number | null {
   switch (recordTypeId) {
     case "function-code-lines":
       return values.codeLines;

@@ -1,12 +1,10 @@
 import { createHash } from "node:crypto";
 
-import {
-  defaultCheckOptionCodeAreasAreKnown
-} from "./built-ins.ts";
-import { resolveCheckTree } from "./check-tree/index.ts";
+import { defaultCheckOptionCodeAreasAreKnown } from "./built-ins.ts";
+import { resolveParsedCheckTree } from "./check-tree/index.ts";
+import { materializeCheckTreeAuthoring, parseCheckTreeAuthoring } from "./check-tree/authoring.ts";
 import { parseEffects } from "./effect-validation.ts";
 import {
-  type Check,
   type ProjectDefinitionDiagnostic,
   type ProjectDefinitionValidationResult,
   type SchedulerPolicy,
@@ -64,22 +62,34 @@ function parseProjectDefinitionFields(
   if (scheduler === undefined) return invalidDefinition("definition.scheduler");
   const checks = snapshotClosedArray(data.checks);
   if (checks === undefined) return invalidDefinition("definition.checks");
-  const tree = resolveCheckTree(checks, scheduler.maxParallel);
-  if (tree === undefined || tree.leaves.some((check) => (
-    !defaultCheckOptionCodeAreasAreKnown(check.definition.checkId, check.options, quality.codeAreas)
-  ))) return invalidDefinition("definition.checks");
+  const parsedChecks = parseCheckTreeAuthoring(checks);
+  if (parsedChecks === undefined) return invalidDefinition("definition.checks");
+  const tree = resolveParsedCheckTree(parsedChecks, scheduler.maxParallel);
+  if (
+    tree === undefined ||
+    tree.leaves.some(
+      (check) =>
+        !defaultCheckOptionCodeAreasAreKnown(
+          check.definition.checkId,
+          check.options,
+          quality.codeAreas
+        )
+    )
+  )
+    return invalidDefinition("definition.checks");
   const effects = parseEffects(data.effects);
   if (effects === undefined) return invalidDefinition("definition.effects");
   const definitions = tree.leaves.map((leaf) => leaf.definition);
   const policies = parsePolicies(data.policies, definitions);
   if (policies === undefined) return invalidDefinition("definition.policies");
   const selectedPolicy = data.selectedPolicy;
-  if (!isSelectedPolicy(selectedPolicy, policies)) return invalidDefinition("definition.selectedPolicy");
+  if (!isSelectedPolicy(selectedPolicy, policies))
+    return invalidDefinition("definition.selectedPolicy");
   return Object.freeze({
     ok: true,
     value: {
       apiVersion: "1" as const,
-      checks: checks as readonly Check<object>[],
+      checks: materializeCheckTreeAuthoring(parsedChecks),
       effects,
       policies,
       quality,
@@ -90,8 +100,15 @@ function parseProjectDefinitionFields(
   });
 }
 
-function exactProjectDefinition(value: unknown): ValidationResult<Readonly<Record<string, unknown>>> {
-  const data = exactRecord(value, PROJECT_DEFINITION_KEYS, "invalid-project-definition", "definition");
+function exactProjectDefinition(
+  value: unknown
+): ValidationResult<Readonly<Record<string, unknown>>> {
+  const data = exactRecord(
+    value,
+    PROJECT_DEFINITION_KEYS,
+    "invalid-project-definition",
+    "definition"
+  );
   if (!data.ok) return data;
   return data.value.apiVersion === "1"
     ? data
@@ -132,9 +149,7 @@ function parsePolicies(
   return Object.freeze(policies);
 }
 
-function policyReferences(
-  policy: unknown
-): readonly PolicyReferenceIdentity[] | undefined {
+function policyReferences(policy: unknown): readonly PolicyReferenceIdentity[] | undefined {
   const data = snapshotClosedRecord(policy);
   const references = data === undefined ? undefined : snapshotClosedArray(data.references);
   if (data === undefined || typeof data.policyId !== "string" || references === undefined) {
@@ -144,7 +159,8 @@ function policyReferences(
   const referenceNames: string[] = [];
   for (const reference of references) {
     const referenceData = snapshotClosedRecord(reference);
-    if (referenceData === undefined || typeof referenceData.referenceName !== "string") return undefined;
+    if (referenceData === undefined || typeof referenceData.referenceName !== "string")
+      return undefined;
     referenceNames.push(referenceData.referenceName);
   }
   return hasSingleReferenceName(referenceNames)
@@ -159,15 +175,17 @@ function hasSingleReferenceName(referenceNames: readonly string[]): boolean {
 function policyReference(policyId: string, referenceName: string): PolicyReferenceIdentity {
   return Object.freeze({
     referenceId: `reference/v1/sha256:${createHash("sha256")
-      .update(`${policyId}\u0000${referenceName}`).digest("hex")}`,
+      .update(`${policyId}\u0000${referenceName}`)
+      .digest("hex")}`,
     referenceName
   });
 }
 
 function parseScheduler(value: unknown): SchedulerPolicy | undefined {
   const data = exactKeys(value, ["maxParallel"]);
-  return typeof data?.maxParallel === "number" && Number.isSafeInteger(data.maxParallel)
-    && data.maxParallel > 0
+  return typeof data?.maxParallel === "number" &&
+    Number.isSafeInteger(data.maxParallel) &&
+    data.maxParallel > 0
     ? Object.freeze({ maxParallel: data.maxParallel })
     : undefined;
 }
@@ -176,10 +194,16 @@ function isSelectedPolicy(
   selectedPolicy: unknown,
   policies: Readonly<Record<string, DecisionPolicy>>
 ): selectedPolicy is string | null {
-  return selectedPolicy === null || (typeof selectedPolicy === "string" && Object.hasOwn(policies, selectedPolicy));
+  return (
+    selectedPolicy === null ||
+    (typeof selectedPolicy === "string" && Object.hasOwn(policies, selectedPolicy))
+  );
 }
 
-function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<string, unknown>> | undefined {
+function exactKeys(
+  value: unknown,
+  keys: readonly string[]
+): Readonly<Record<string, unknown>> | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined) return undefined;
   return Object.keys(data).length === keys.length && keys.every((key) => Object.hasOwn(data, key))

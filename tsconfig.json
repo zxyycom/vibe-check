@@ -13,8 +13,5 @@
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true
   },
-  "include": [
-    "eslint.config.ts",
-    "scripts/**/*.ts"
-  ]
+  "include": ["scripts/**/*.ts"]
 }

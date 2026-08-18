@@ -28,9 +28,20 @@ export function evaluateRecordObservation(
   referenceFacts: ReferenceFacts
 ): RecordObservationEvidence {
   const surfacesBySelector = resolveObservationSurfaces(input.catalogFingerprint, snapshot);
-  const acceptance = evaluateAcceptance(input.acceptance, snapshot.records, surfacesBySelector, referenceFacts);
+  const acceptance = evaluateAcceptance(
+    input.acceptance,
+    snapshot.records,
+    surfacesBySelector,
+    referenceFacts
+  );
   const acceptedRecordIds = new Set(acceptance.map((evidence) => evidence.recordId));
-  const views = evaluateViews(input.views, snapshot.records, surfacesBySelector, acceptedRecordIds, referenceFacts);
+  const views = evaluateViews(
+    input.views,
+    snapshot.records,
+    surfacesBySelector,
+    acceptedRecordIds,
+    referenceFacts
+  );
   return deepFreeze({ acceptance, views });
 }
 
@@ -39,12 +50,12 @@ function resolveObservationSurfaces(catalogFingerprint: string, snapshot: CoreSn
     throw new TypeError("Record observation catalog does not match the final snapshot");
   }
   try {
-    return new Map(createPolicySurfaceRegistry({
-      catalogFingerprint,
-      definitions: snapshot.checks
-    }).recordTypes.map((surface) => [
-      selectorKey(surface), surface
-    ]));
+    return new Map(
+      createPolicySurfaceRegistry({
+        catalogFingerprint,
+        definitions: snapshot.checks
+      }).recordTypes.map((surface) => [selectorKey(surface), surface])
+    );
   } catch {
     throw new TypeError("Record observation catalog does not match the final snapshot");
   }
@@ -60,8 +71,12 @@ function evaluateAcceptance(
   for (const rule of rules) {
     const surface = surfaceForSelector(rule.selector, surfacesBySelector);
     for (const record of records) {
-      if (matchesSelector(record, rule.selector)
-        && rule.predicates.every((predicate) => matchesRecordPredicate(record, predicate, surface, referenceFacts))) {
+      if (
+        matchesSelector(record, rule.selector) &&
+        rule.predicates.every((predicate) =>
+          matchesRecordPredicate(record, predicate, surface, referenceFacts)
+        )
+      ) {
         acceptance.push({
           acceptanceId: rule.acceptanceId,
           reason: rule.reason,
@@ -83,7 +98,9 @@ function evaluateViews(
   return views.map((view) => ({
     viewId: view.viewId,
     recordRefs: records
-      .filter((record) => matchesView(record, view, surfacesBySelector, acceptedRecordIds, referenceFacts))
+      .filter((record) =>
+        matchesView(record, view, surfacesBySelector, acceptedRecordIds, referenceFacts)
+      )
       .map((record) => recordRef(record.recordId))
       .sort((left, right) => compareText(left.recordId, right.recordId))
   }));
@@ -97,12 +114,20 @@ function matchesView(
   referenceFacts: ReferenceFacts
 ): boolean {
   const selector = view.selectors.find((candidate) => matchesSelector(record, candidate));
-  if (selector === undefined || !matchesViewAcceptance(record.recordId, view.acceptance, acceptedRecordIds)) {
+  if (
+    selector === undefined ||
+    !matchesViewAcceptance(record.recordId, view.acceptance, acceptedRecordIds)
+  ) {
     return false;
   }
-  return view.predicates.every((predicate) => (
-    matchesRecordPredicate(record, predicate, surfaceForSelector(selector, surfacesBySelector), referenceFacts)
-  ));
+  return view.predicates.every((predicate) =>
+    matchesRecordPredicate(
+      record,
+      predicate,
+      surfaceForSelector(selector, surfacesBySelector),
+      referenceFacts
+    )
+  );
 }
 
 function matchesViewAcceptance(
@@ -136,15 +161,18 @@ function matchesRecordPredicate(
   facts: ReferenceFacts
 ): boolean {
   if (predicate.kind === "relation-is" || predicate.kind === "relation-kind-in") {
-    return facts.relations.some((relation) => (
-      relation.recordId === record.recordId
-      && relation.referenceName === predicate.referenceName
-      && (predicate.kind === "relation-is"
-        ? relation.relationId === predicate.relationId
-        : predicate.values.includes(relation.relationId))
-    ));
+    return facts.relations.some(
+      (relation) =>
+        relation.recordId === record.recordId &&
+        relation.referenceName === predicate.referenceName &&
+        (predicate.kind === "relation-is"
+          ? relation.relationId === predicate.relationId
+          : predicate.values.includes(relation.relationId))
+    );
   }
-  const operand = surface.operands.find((candidate) => candidate.operandId === predicate.operandId)!;
+  const operand = surface.operands.find(
+    (candidate) => candidate.operandId === predicate.operandId
+  )!;
   const value = readRecordOperand(record, operand);
   return predicate.kind === "operand-equals"
     ? value === predicate.value

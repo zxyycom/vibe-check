@@ -52,12 +52,17 @@ function lizardProcessErrorAvailability(error: Error): ToolAvailability {
   const code = (error as NodeJS.ErrnoException).code;
   const isMissingTool = code === "ENOENT";
   return unavailableLizard(
-    isMissingTool ? `lizard command unavailable: ${error.message}` : `lizard version error: ${error.message}`,
+    isMissingTool
+      ? `lizard command unavailable: ${error.message}`
+      : `lizard version error: ${error.message}`,
     isMissingTool ? "tool-unavailable" : "execution-error"
   );
 }
 
-function unavailableLizard(error: string, reason: NonNullable<ToolAvailability["reason"]>): ToolAvailability {
+function unavailableLizard(
+  error: string,
+  reason: NonNullable<ToolAvailability["reason"]>
+): ToolAvailability {
   return {
     name: "lizard",
     available: false,

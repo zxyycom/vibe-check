@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import {
-  mkdirSync,
-  mkdtempSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
@@ -25,7 +20,7 @@ describe("quality annotation CLI", () => {
       const records = [
         { level: "info" as const, message: "filtered info" },
         ...Array.from({ length: 6 }, (_, index) => ({
-          level: index === 0 ? "error" as const : "warning" as const,
+          level: index === 0 ? ("error" as const) : ("warning" as const),
           message: `rendered record ${index + 1}`
         }))
       ];
@@ -50,7 +45,9 @@ describe("quality annotation CLI", () => {
       assert.equal(annotationCommands(explicit.stdout).length, 1);
       assert.match(
         explicit.stdout,
-        new RegExp(`Quality record annotation limit: showing 1 of 6; see ${escapeRegExp(defaultInput)}`)
+        new RegExp(
+          `Quality record annotation limit: showing 1 of 6; see ${escapeRegExp(defaultInput)}`
+        )
       );
 
       const zeroInput = join(tempRoot, "zero-artifacts");
@@ -72,10 +69,11 @@ describe("quality annotation CLI", () => {
       const candidates = writeCanonicalPublicationFixture(validInput, [
         { level: "warning", message: "valid record" }
       ]);
-      const invalidRecord = JSON.parse(candidates.recordsNdjson.trim()) as Record<string, unknown>;
+      const invalidRecord = parseJsonRecord(candidates.recordsNdjson.trim());
       delete invalidRecord.schemaVersion;
-      const invalidRun = JSON.parse(candidates.runJson) as Record<string, unknown>;
-      invalidRun.catalogFingerprint = "check-record/v1/catalog/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+      const invalidRun = parseJsonRecord(candidates.runJson);
+      invalidRun.catalogFingerprint =
+        "check-record/v1/catalog/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
       const invalidCases: Array<{
         artifactDirectory: string;
         args: string[];
@@ -101,13 +99,23 @@ describe("quality annotation CLI", () => {
           label: "run artifact read failure"
         },
         {
-          artifactDirectory: writeArtifactSet(tempRoot, "decoding", candidates.runJson, [0xc3, 0x28, 0x0a]),
+          artifactDirectory: writeArtifactSet(
+            tempRoot,
+            "decoding",
+            candidates.runJson,
+            [0xc3, 0x28, 0x0a]
+          ),
           args: [join(tempRoot, "decoding")],
           diagnostic: /records\.ndjson: decoding/i,
           label: "record decoding failure"
         },
         {
-          artifactDirectory: writeArtifactSet(tempRoot, "framing", candidates.runJson, candidates.recordsNdjson.trimEnd()),
+          artifactDirectory: writeArtifactSet(
+            tempRoot,
+            "framing",
+            candidates.runJson,
+            candidates.recordsNdjson.trimEnd()
+          ),
           args: [join(tempRoot, "framing")],
           diagnostic: /records\.ndjson: framing/i,
           label: "record framing failure"
@@ -192,11 +200,11 @@ function runAnnotation(args: readonly string[], cwd = repoRoot): CommandResult {
 
 function writeArtifactSet(
   root: string,
-  dirname: string,
+  directoryName: string,
   runJson: string,
   recordsNdjson: string | readonly number[]
 ): string {
-  const artifactDirectory = join(root, dirname);
+  const artifactDirectory = join(root, directoryName);
   mkdirSync(artifactDirectory, { recursive: true });
   writeFileSync(join(artifactDirectory, "run.json"), runJson, "utf8");
   writeFileSync(
@@ -212,4 +220,16 @@ function annotationCommands(stdout: string): string[] {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseJsonRecord(source: string): Record<string, unknown> {
+  const value: unknown = JSON.parse(source);
+  if (!isJsonRecord(value)) {
+    throw new TypeError("Expected a JSON object test fixture");
+  }
+  return value;
+}
+
+function isJsonRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }

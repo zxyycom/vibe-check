@@ -30,15 +30,14 @@ export async function checkTestEvidence(options: {
 }): Promise<ProjectTestEvidenceReport> {
   const discovery = await discoverTestEntities(options);
   const catalog = loadTestCaseCatalog(options);
-  const diagnostics = [
-    ...discovery.diagnostics,
-    ...catalog.diagnostics
-  ];
+  const diagnostics = [...discovery.diagnostics, ...catalog.diagnostics];
   if (!discovery.diagnostics.some(({ blocking }) => blocking)) {
-    diagnostics.push(...validateTestCaseCoverage({
-      catalog,
-      entities: discovery.entities
-    }));
+    diagnostics.push(
+      ...validateTestCaseCoverage({
+        catalog,
+        entities: discovery.entities
+      })
+    );
   }
   return projectReport(discovery.entities, catalog, diagnostics);
 }
@@ -59,16 +58,12 @@ export async function runTestEvidenceCli(
       workspaceRoot: command.workspaceRoot
     });
     writeJson(result);
-    return result.status === "ok"
-      ? 0
-      : exitCodeForDiagnostics(result.diagnostics);
+    return result.status === "ok" ? 0 : exitCodeForDiagnostics(result.diagnostics);
   }
   if (command.command === "list") {
     const result = queryTestCases(command);
     writeJson(result);
-    return result.status === "ok"
-      ? 0
-      : exitCodeForDiagnostics(result.diagnostics);
+    return result.status === "ok" ? 0 : exitCodeForDiagnostics(result.diagnostics);
   }
   if (command.command === "show") {
     const result = showTestCase({
@@ -76,23 +71,17 @@ export async function runTestEvidenceCli(
       id: command.id
     });
     writeJson(result);
-    return result.status === "ok"
-      ? 0
-      : exitCodeForDiagnostics(result.diagnostics);
+    return result.status === "ok" ? 0 : exitCodeForDiagnostics(result.diagnostics);
   }
 
   const result = await checkTestEvidence({
     workspaceRoot: command.workspaceRoot
   });
   writeCheckResult(result, command.json);
-  return result.status === "ok"
-    ? 0
-    : exitCodeForDiagnostics(result.diagnostics);
+  return result.status === "ok" ? 0 : exitCodeForDiagnostics(result.diagnostics);
 }
 
-export function exitCodeForDiagnostics(
-  diagnostics: readonly TestEvidenceDiagnostic[]
-): number {
+export function exitCodeForDiagnostics(diagnostics: readonly TestEvidenceDiagnostic[]): number {
   const origins = new Set(
     diagnostics.filter(({ blocking }) => blocking).map(({ origin }) => origin)
   );
@@ -136,12 +125,7 @@ type ParsedCommand =
 
 function parseCommand(argv: readonly string[]): ParsedCommand {
   const command = argv[0];
-  if (
-    command !== "check" &&
-    command !== "topics" &&
-    command !== "list" &&
-    command !== "show"
-  ) {
+  if (command !== "check" && command !== "topics" && command !== "list" && command !== "show") {
     throw new Error("usage: test-evidence <check|topics|list|show>");
   }
   const args = [...argv.slice(1)];
@@ -197,12 +181,8 @@ function parseListCommand(args: string[]): ParsedCommand {
     command: "list",
     workspaceRoot: path.resolve(values.root),
     ...(values.topic === undefined ? {} : { topic: values.topic }),
-    ...(values["entity-key"] === undefined
-      ? {}
-      : { entityKey: values["entity-key"] }),
-    ...(values["owner-ref"] === undefined
-      ? {}
-      : { ownerRef: values["owner-ref"] }),
+    ...(values["entity-key"] === undefined ? {} : { entityKey: values["entity-key"] }),
+    ...(values["owner-ref"] === undefined ? {} : { ownerRef: values["owner-ref"] }),
     ...(values.query === undefined ? {} : { query: values.query }),
     ...(offset === undefined ? {} : { offset }),
     ...(limit === undefined ? {} : { limit })
@@ -261,10 +241,7 @@ function projectReport(
   };
 }
 
-function writeCheckResult(
-  result: ProjectTestEvidenceReport,
-  json: boolean
-): void {
+function writeCheckResult(result: ProjectTestEvidenceReport, json: boolean): void {
   if (json) {
     writeJson(result);
     return;
@@ -272,15 +249,15 @@ function writeCheckResult(
   if (result.status === "ok") {
     process.stdout.write(
       `Test Case check passed: ${result.summary.entities} current test entities ` +
-      `(${result.summary.bun} Bun); ${result.summary.mappedEntities} mapped by ` +
-      `${result.summary.cases} semantic Cases across ${result.summary.topics} topics.\n`
+        `(${result.summary.bun} Bun); ${result.summary.mappedEntities} mapped by ` +
+        `${result.summary.cases} semantic Cases across ${result.summary.topics} topics.\n`
     );
     return;
   }
   for (const value of result.diagnostics) {
     process.stderr.write(
       `${value.origin}:${value.code}: ${value.message}` +
-      `${value.path ? ` (${value.path}${value.line ? `:${value.line}` : ""})` : ""}\n`
+        `${value.path ? ` (${value.path}${value.line ? `:${value.line}` : ""})` : ""}\n`
     );
   }
 }

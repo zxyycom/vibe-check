@@ -18,17 +18,14 @@ describe("quality scc exact input projection", () => {
       dependency: {
         args: [],
         availabilityArgs: ["--version"],
-        executable: join(
-          REPO_ROOT,
-          `vibe-check-missing-scc-${process.pid}.cmd`,
-        ),
-      },
+        executable: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`)
+      }
     });
 
     assert.deepEqual(result, {
       ok: true,
       measurements: [],
-      aggregates: { byLanguage: [] },
+      aggregates: { byLanguage: [] }
     });
   });
 
@@ -40,7 +37,7 @@ describe("quality scc exact input projection", () => {
         cwd: REPO_ROOT,
         includePaths: ["src"],
         excludeDirs: [],
-        dependency,
+        dependency
       });
 
       assert.equal(result.ok, false);
@@ -57,16 +54,12 @@ function createFakeSccToolConfig(stdout: string) {
   const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-scc-"));
   const fakeSccPath = join(tempDir, "fake-scc.ts");
 
-  writeFileSync(
-    fakeSccPath,
-    `process.stdout.write(${JSON.stringify(stdout)});\n`,
-    "utf8",
-  );
+  writeFileSync(fakeSccPath, `process.stdout.write(${JSON.stringify(stdout)});\n`, "utf8");
 
   return {
     args: [fakeSccPath],
     availabilityArgs: [fakeSccPath, "--version"],
     executable: process.execPath,
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true }),
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

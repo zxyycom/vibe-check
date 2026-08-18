@@ -2,30 +2,37 @@ import { processFailed, runProcessSync } from "./process.ts";
 import type { ProcessResult, RunProcessSyncOptions } from "./process.ts";
 import { toSlashPath } from "./path.ts";
 
-export function runGit(args: string[], options: RunProcessSyncOptions = {}): ProcessResult {
-  return runProcessSync("git", args, options);
+export type RunGitOptions = Omit<RunProcessSyncOptions, "command">;
+
+export type GitCommitOptions = {
+  readonly cwd: string;
+  readonly sha: string;
+};
+
+type GitLogFieldOptions = GitCommitOptions & {
+  readonly format: string;
+};
+
+export function runGit(options: RunGitOptions): ProcessResult {
+  return runProcessSync({ command: "git", ...options });
 }
 
 export function gitHeadSha(cwd: string): string | null {
-  const result = runGit(["rev-parse", "HEAD"], { cwd });
+  const result = runGit({ args: ["rev-parse", "HEAD"], cwd });
   if (processFailed(result)) return null;
   return result.stdout.trim() || null;
 }
 
-export function gitCommitDate(sha: string, cwd: string): string | null {
-  return gitLogField("%aI", sha, cwd);
+export function gitCommitDate(options: GitCommitOptions): string | null {
+  return gitLogField({ format: "%aI", ...options });
 }
 
-export function gitCommitTitle(sha: string, cwd: string): string | null {
-  return gitLogField("%s", sha, cwd);
+export function gitCommitTitle(options: GitCommitOptions): string | null {
+  return gitLogField({ format: "%s", ...options });
 }
 
 export function splitGitFileList(stdout: string): string[] {
-  return stdout
-    .trim()
-    .split(/\r?\n/)
-    .filter(Boolean)
-    .map(toSlashPath);
+  return stdout.trim().split(/\r?\n/).filter(Boolean).map(toSlashPath);
 }
 
 export function splitNulDelimitedGitFileList(stdout: string): string[] {
@@ -51,8 +58,11 @@ export function parseGitStatusPaths(stdout: string): string[] {
     .map(toSlashPath);
 }
 
-function gitLogField(format: string, sha: string, cwd: string): string | null {
-  const result = runGit(["log", `--format=${format}`, "--max-count=1", sha], { cwd });
+function gitLogField({ format, ...options }: GitLogFieldOptions): string | null {
+  const result = runGit({
+    args: ["log", `--format=${format}`, "--max-count=1", options.sha],
+    cwd: options.cwd
+  });
   if (processFailed(result)) return null;
   return result.stdout.trim() || null;
 }

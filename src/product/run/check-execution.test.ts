@@ -22,17 +22,19 @@ const PROJECT = Object.freeze({
   root: "/project"
 }) satisfies CheckProjectContext;
 
-function normalized(execution: CheckExecution<object>): NormalizedCheck {
+function normalized(execution: CheckExecution): NormalizedCheck {
   return {
     definition: {
       checkId: "reference-check",
       displayName: "Reference Check",
-      recordTypes: [{
-        recordTypeId: "finding",
-        fields: [{ fieldId: "metric", valueType: "string", required: true }],
-        identityFields: ["metric"],
-        policy: { operands: [], relations: ["changed"] }
-      }]
+      recordTypes: [
+        {
+          recordTypeId: "finding",
+          fields: [{ fieldId: "metric", valueType: "string", required: true }],
+          identityFields: ["metric"],
+          policy: { operands: [], relations: ["changed"] }
+        }
+      ]
     },
     dependsOn: [],
     execution,
@@ -42,7 +44,7 @@ function normalized(execution: CheckExecution<object>): NormalizedCheck {
   };
 }
 
-async function execute(execution: CheckExecution<object>) {
+async function execute(execution: CheckExecution) {
   return executeResolvedChecks({
     checks: [normalized(execution)],
     maxParallel: 1,
@@ -64,14 +66,17 @@ describe("Package Run direct Check execution", () => {
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "completed", verdict: "passed"
+      status: "completed",
+      verdict: "passed"
     });
-    assert.deepEqual(result.references, [{
-      checkId: "reference-check",
-      referenceName: "baseline",
-      relations: [],
-      status: "complete"
-    }]);
+    assert.deepEqual(result.references, [
+      {
+        checkId: "reference-check",
+        referenceName: "baseline",
+        relations: [],
+        status: "complete"
+      }
+    ]);
   });
 
   it("retains one complete reference candidate by resolving the already committed Record identity", async () => {
@@ -79,14 +84,16 @@ describe("Package Run direct Check execution", () => {
       context.records.report(FINDING);
       context.records.reportReference({
         referenceName: "baseline",
-        relations: [{
-          record: {
-            recordTypeId: FINDING.recordTypeId,
-            semanticSubject: FINDING.semanticSubject,
-            fields: FINDING.fields
-          },
-          relationId: "changed"
-        }],
+        relations: [
+          {
+            record: {
+              recordTypeId: FINDING.recordTypeId,
+              semanticSubject: FINDING.semanticSubject,
+              fields: FINDING.fields
+            },
+            relationId: "changed"
+          }
+        ],
         status: "complete"
       });
       return { status: "completed", verdict: "passed" };
@@ -95,26 +102,30 @@ describe("Package Run direct Check execution", () => {
     assert.equal(result.kind, "completed");
     const recordId = result.snapshot.records[0]?.recordId;
     assert.ok(recordId);
-    assert.deepEqual(result.references, [{
-      checkId: "reference-check",
-      referenceName: "baseline",
-      relations: [{ recordId, referenceName: "baseline", relationId: "changed" }],
-      status: "complete"
-    }]);
+    assert.deepEqual(result.references, [
+      {
+        checkId: "reference-check",
+        referenceName: "baseline",
+        relations: [{ recordId, referenceName: "baseline", relationId: "changed" }],
+        status: "complete"
+      }
+    ]);
   });
 
   it("turns malformed or uncommitted reference relations into the contained reference-invalid outcome", async () => {
     const result = await execute((context) => {
       context.records.reportReference({
         referenceName: "baseline",
-        relations: [{
-          record: {
-            recordTypeId: FINDING.recordTypeId,
-            semanticSubject: FINDING.semanticSubject,
-            fields: FINDING.fields
-          },
-          relationId: "changed"
-        }],
+        relations: [
+          {
+            record: {
+              recordTypeId: FINDING.recordTypeId,
+              semanticSubject: FINDING.semanticSubject,
+              fields: FINDING.fields
+            },
+            relationId: "changed"
+          }
+        ],
         status: "complete"
       });
       return { status: "completed", verdict: "passed" };
@@ -122,7 +133,8 @@ describe("Package Run direct Check execution", () => {
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "unavailable", reason: { code: "reference-invalid" }
+      status: "unavailable",
+      reason: { code: "reference-invalid" }
     });
     assert.deepEqual(result.references, []);
   });
@@ -139,7 +151,8 @@ describe("Package Run direct Check execution", () => {
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "unavailable", reason: { code: "record-invalid" }
+      status: "unavailable",
+      reason: { code: "record-invalid" }
     });
     assert.deepEqual(result.references, []);
   });

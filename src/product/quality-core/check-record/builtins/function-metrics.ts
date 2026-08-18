@@ -9,10 +9,11 @@ import {
   analyzeFunctionMetrics,
   type FunctionMetricAnalysis
 } from "./function-metrics-analysis.ts";
-import { measureFunctionMetrics, type FunctionMeasurementResult } from "./function-metrics-measurement.ts";
 import {
-  buildFunctionRelations
-} from "./function-metrics-reference.ts";
+  measureFunctionMetrics,
+  type FunctionMeasurementResult
+} from "./function-metrics-measurement.ts";
+import { buildFunctionRelations } from "./function-metrics-reference.ts";
 import {
   buildFunctionRecordCandidates,
   recordKey,
@@ -28,53 +29,64 @@ const FUNCTION_RECORD_FIELDS = [
 ] as const;
 
 const FUNCTION_RECORD_POLICY = {
-  operands: [{
-    operandId: "codeArea",
-    valueType: "string",
-    source: { kind: "field", fieldId: "codeArea" }
-  }, {
-    operandId: "message",
-    valueType: "string",
-    source: { kind: "message" }
-  }, {
-    operandId: "metric",
-    valueType: "string",
-    source: { kind: "field", fieldId: "metric" }
-  }, {
-    operandId: "path",
-    valueType: "string",
-    source: { kind: "location-path" }
-  }, {
-    operandId: "suggestion",
-    valueType: "string",
-    source: { kind: "field", fieldId: "suggestion" }
-  }, {
-    operandId: "value",
-    valueType: "number",
-    source: { kind: "field", fieldId: "value" }
-  }],
+  operands: [
+    {
+      operandId: "codeArea",
+      valueType: "string",
+      source: { kind: "field", fieldId: "codeArea" }
+    },
+    {
+      operandId: "message",
+      valueType: "string",
+      source: { kind: "message" }
+    },
+    {
+      operandId: "metric",
+      valueType: "string",
+      source: { kind: "field", fieldId: "metric" }
+    },
+    {
+      operandId: "path",
+      valueType: "string",
+      source: { kind: "location-path" }
+    },
+    {
+      operandId: "suggestion",
+      valueType: "string",
+      source: { kind: "field", fieldId: "suggestion" }
+    },
+    {
+      operandId: "value",
+      valueType: "number",
+      source: { kind: "field", fieldId: "value" }
+    }
+  ],
   relations: ["changed", "regression"]
 } as const;
 
 export const FUNCTION_METRICS_CHECK_DEFINITION = {
   checkId: "function-metrics",
   displayName: "Function metrics",
-  recordTypes: [{
-    recordTypeId: "function-code-lines",
-    fields: FUNCTION_RECORD_FIELDS,
-    identityFields: ["metric"],
-    policy: FUNCTION_RECORD_POLICY
-  }, {
-    recordTypeId: "function-cyclomatic-complexity",
-    fields: FUNCTION_RECORD_FIELDS,
-    identityFields: ["metric"],
-    policy: FUNCTION_RECORD_POLICY
-  }, {
-    recordTypeId: "function-parameter-count",
-    fields: FUNCTION_RECORD_FIELDS,
-    identityFields: ["metric"],
-    policy: FUNCTION_RECORD_POLICY
-  }]
+  recordTypes: [
+    {
+      recordTypeId: "function-code-lines",
+      fields: FUNCTION_RECORD_FIELDS,
+      identityFields: ["metric"],
+      policy: FUNCTION_RECORD_POLICY
+    },
+    {
+      recordTypeId: "function-cyclomatic-complexity",
+      fields: FUNCTION_RECORD_FIELDS,
+      identityFields: ["metric"],
+      policy: FUNCTION_RECORD_POLICY
+    },
+    {
+      recordTypeId: "function-parameter-count",
+      fields: FUNCTION_RECORD_FIELDS,
+      identityFields: ["metric"],
+      policy: FUNCTION_RECORD_POLICY
+    }
+  ]
 } as const satisfies CheckDefinition;
 
 interface FunctionThreshold {
@@ -86,12 +98,13 @@ export interface FunctionMetricsSemantics {
   readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
   readonly generatedFiles: readonly string[];
   readonly functions: Readonly<{
-    codeLines: FunctionThreshold & Readonly<{
-      lowComplexityAllowance: Readonly<{
-        codeLineFloor: number;
-        maxCyclomaticComplexityExclusive: number;
+    codeLines: FunctionThreshold &
+      Readonly<{
+        lowComplexityAllowance: Readonly<{
+          codeLineFloor: number;
+          maxCyclomaticComplexityExclusive: number;
+        }>;
       }>;
-    }>;
     cyclomaticComplexity: FunctionThreshold;
     parameterCount: FunctionThreshold;
   }>;
@@ -128,10 +141,17 @@ export async function executeFunctionMetrics(
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
   const currentAnalysis = analyzeFunctionMetrics(measurement.metrics);
   if (currentAnalysis === undefined) return unavailable("external-result-invalid");
-  const candidates = buildFunctionRecordCandidates(currentAnalysis, context.project.changedFiles, semantics);
+  const candidates = buildFunctionRecordCandidates(
+    currentAnalysis,
+    context.project.changedFiles,
+    semantics
+  );
   for (const candidate of candidates) context.records.report(candidate.record);
   await reportFunctionReference(context, currentAnalysis, candidates, dependency, semantics);
-  return Object.freeze({ status: "completed", verdict: candidates.length > 0 ? "failed" : "passed" });
+  return Object.freeze({
+    status: "completed",
+    verdict: candidates.length > 0 ? "failed" : "passed"
+  });
 }
 
 function directMeasurementFailure(
@@ -152,39 +172,54 @@ async function reportFunctionReference(
   if (context.project.comparison === null) return;
   const referenceFiles = collectScanFiles(context.project.comparison.root, context.project.files);
   const reference: FunctionMetricsExactInputSet = Object.freeze({
-    approvedExactPaths: Object.freeze(selectLizardTargetFiles(referenceFiles, context.project.files)),
+    approvedExactPaths: Object.freeze(
+      selectLizardTargetFiles(referenceFiles, context.project.files)
+    ),
     rootDir: context.project.comparison.root
   });
   const measurement = await measureFunctionMetrics(reference, dependency);
   if (measurement.kind !== "complete") {
-    context.records.reportReference(Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze([]),
-      status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-    }));
+    context.records.reportReference(
+      Object.freeze({
+        referenceName: context.project.comparison.referenceName,
+        relations: Object.freeze([]),
+        status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
+      })
+    );
     return;
   }
   const referenceAnalysis = analyzeFunctionMetrics(measurement.metrics);
   if (referenceAnalysis === undefined) {
-    context.records.reportReference(Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze([]),
-      status: "incomplete"
-    }));
+    context.records.reportReference(
+      Object.freeze({
+        referenceName: context.project.comparison.referenceName,
+        relations: Object.freeze([]),
+        status: "incomplete"
+      })
+    );
     return;
   }
-  const relationsByRecordKey = buildFunctionRelations(candidates, currentAnalysis, referenceAnalysis, semantics);
-  const relations = candidates.flatMap((candidate) => (
-    (relationsByRecordKey.get(recordKey(candidate.record)) ?? []).map((relationId) => Object.freeze({
-      record: candidate.record,
-      relationId
-    }))
-  ));
-  context.records.reportReference(Object.freeze({
-    referenceName: context.project.comparison.referenceName,
-    relations: Object.freeze(relations),
-    status: "complete"
-  }));
+  const relationsByRecordKey = buildFunctionRelations(
+    candidates,
+    currentAnalysis,
+    referenceAnalysis,
+    semantics
+  );
+  const relations = candidates.flatMap((candidate) =>
+    (relationsByRecordKey.get(recordKey(candidate.record)) ?? []).map((relationId) =>
+      Object.freeze({
+        record: candidate.record,
+        relationId
+      })
+    )
+  );
+  context.records.reportReference(
+    Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations: Object.freeze(relations),
+      status: "complete"
+    })
+  );
 }
 
 function unavailable(code: string): CheckResult {

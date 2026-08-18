@@ -1,36 +1,35 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import {
-  runTaskGraph,
-  validateTaskGraph,
-  type TaskGraph,
-  type TaskGraphRun
-} from "../index.ts";
+import { runTaskGraph, validateTaskGraph, type TaskGraph, type TaskGraphRun } from "../index.ts";
 
 describe("static task engine", () => {
   it("validates static task identity dependency and scope structure before execution", async () => {
     assert.throws(
-      () => validateTaskGraph({ tasks: [], dependOn: [] } as unknown as TaskGraph),
+      () => validateInvalidTaskGraph({ tasks: [], dependOn: [] }),
       /task graph has unknown property: dependOn/
     );
     assert.throws(
-      () => validateTaskGraph({
-        tasks: [{ id: "script-task", command: "bun" }]
-      } as unknown as TaskGraph),
+      () =>
+        validateInvalidTaskGraph({
+          tasks: [{ id: "script-task", command: "bun" }]
+        }),
       /task graph tasks\[0\] has unknown property: command/
     );
     assert.throws(
-      () => validateTaskGraph({
-        tasks: [{ id: "terminal", scopeId: "scope" }],
-        scopes: [{
-          id: "scope",
-          maxParallel: 1,
-          activationTaskIds: [],
-          terminalTaskId: "terminal",
-          terminal: "terminal"
-        }]
-      } as unknown as TaskGraph),
+      () =>
+        validateInvalidTaskGraph({
+          tasks: [{ id: "terminal", scopeId: "scope" }],
+          scopes: [
+            {
+              id: "scope",
+              maxParallel: 1,
+              activationTaskIds: [],
+              terminalTaskId: "terminal",
+              terminal: "terminal"
+            }
+          ]
+        }),
       /task graph scopes\[0\] has unknown property: terminal/
     );
     assert.throws(
@@ -42,52 +41,65 @@ describe("static task engine", () => {
       /task dependent depends on unknown task missing/
     );
     assert.throws(
-      () => validateTaskGraph({
-        tasks: [{ id: "one", dependsOn: ["two"] }, { id: "two", dependsOn: ["one"] }]
-      }),
+      () =>
+        validateTaskGraph({
+          tasks: [
+            { id: "one", dependsOn: ["two"] },
+            { id: "two", dependsOn: ["one"] }
+          ]
+        }),
       /task dependency cycle includes/
     );
     assert.throws(
-      () => validateTaskGraph({
-        tasks: [{ id: "terminal", scopeId: "scope" }],
-        scopes: [{
-          id: "scope",
-          maxParallel: 1,
-          activationTaskIds: ["other"],
-          terminalTaskId: "terminal"
-        }]
-      }),
+      () =>
+        validateTaskGraph({
+          tasks: [{ id: "terminal", scopeId: "scope" }],
+          scopes: [
+            {
+              id: "scope",
+              maxParallel: 1,
+              activationTaskIds: ["other"],
+              terminalTaskId: "terminal"
+            }
+          ]
+        }),
       /activation task must belong to the scope: other/
     );
     assert.throws(
-      () => validateTaskGraph({
-        tasks: [
-          { id: "work", scopeId: "scope" },
-          { id: "terminal", scopeId: "scope" }
-        ],
-        scopes: [{
-          id: "scope",
-          maxParallel: 1,
-          activationTaskIds: ["work"],
-          terminalTaskId: "terminal"
-        }]
-      }),
+      () =>
+        validateTaskGraph({
+          tasks: [
+            { id: "work", scopeId: "scope" },
+            { id: "terminal", scopeId: "scope" }
+          ],
+          scopes: [
+            {
+              id: "scope",
+              maxParallel: 1,
+              activationTaskIds: ["work"],
+              terminalTaskId: "terminal"
+            }
+          ]
+        }),
       /terminal task must depend on scoped task work/
     );
     await assert.rejects(
-      () => runTaskGraph({
-        graph: {
-          tasks: [{ id: "terminal", scopeId: "scope" }],
-          scopes: [{
-            id: "scope",
-            maxParallel: 2,
-            activationTaskIds: [],
-            terminalTaskId: "terminal"
-          }]
-        },
-        maxParallel: 1,
-        execute: () => undefined
-      }),
+      () =>
+        runTaskGraph({
+          graph: {
+            tasks: [{ id: "terminal", scopeId: "scope" }],
+            scopes: [
+              {
+                id: "scope",
+                maxParallel: 2,
+                activationTaskIds: [],
+                terminalTaskId: "terminal"
+              }
+            ]
+          },
+          maxParallel: 1,
+          execute: () => undefined
+        }),
       /scope scope maxParallel exceeds task engine maxParallel/
     );
   });
@@ -123,12 +135,18 @@ describe("static task engine", () => {
     assert.equal(maxActive, 3);
     assert.ok(events.indexOf("end:base") < events.indexOf("start:dependent"));
     assert.ok(events.indexOf("end:mutex-one") < events.indexOf("start:mutex-two"));
-    assert.deepEqual(completedValues(run), ["base", "dependent", "mutex-one", "mutex-two", "independent"]);
+    assert.deepEqual(completedValues(run), [
+      "base",
+      "dependent",
+      "mutex-one",
+      "mutex-two",
+      "independent"
+    ]);
   });
 
   it("keeps a scope cap active through terminal settlement and prioritizes its continuation", async () => {
     const events: string[] = [];
-    const releaseTerminal = Promise.withResolvers<void>();
+    const releaseTerminal = createDeferred<void>();
     const graph: TaskGraph = {
       tasks: [
         { id: "limited-work", scopeId: "limited" },
@@ -136,12 +154,14 @@ describe("static task engine", () => {
         { id: "wide-one" },
         { id: "wide-two" }
       ],
-      scopes: [{
-        id: "limited",
-        maxParallel: 1,
-        activationTaskIds: ["limited-work"],
-        terminalTaskId: "limited-terminal"
-      }]
+      scopes: [
+        {
+          id: "limited",
+          maxParallel: 1,
+          activationTaskIds: ["limited-work"],
+          terminalTaskId: "limited-terminal"
+        }
+      ]
     };
 
     const running = runTaskGraph({
@@ -167,8 +187,8 @@ describe("static task engine", () => {
 
   it("uses the minimum active cap and reserves capacity for a newly ready tighter scope", async () => {
     const events: string[] = [];
-    const releaseWide = Promise.withResolvers<void>();
-    const releaseLow = Promise.withResolvers<void>();
+    const releaseWide = createDeferred<void>();
+    const releaseLow = createDeferred<void>();
     const graph: TaskGraph = {
       tasks: [
         { id: "gate" },
@@ -177,17 +197,20 @@ describe("static task engine", () => {
         { id: "wide-terminal", dependsOn: ["wide-one", "wide-two"], scopeId: "wide" },
         { id: "low", dependsOn: ["gate"], scopeId: "low" }
       ],
-      scopes: [{
-        id: "wide",
-        maxParallel: 2,
-        activationTaskIds: ["wide-one", "wide-two"],
-        terminalTaskId: "wide-terminal"
-      }, {
-        id: "low",
-        maxParallel: 1,
-        activationTaskIds: ["low"],
-        terminalTaskId: "low"
-      }]
+      scopes: [
+        {
+          id: "wide",
+          maxParallel: 2,
+          activationTaskIds: ["wide-one", "wide-two"],
+          terminalTaskId: "wide-terminal"
+        },
+        {
+          id: "low",
+          maxParallel: 1,
+          activationTaskIds: ["low"],
+          terminalTaskId: "low"
+        }
+      ]
     };
 
     const running = runTaskGraph({
@@ -223,19 +246,17 @@ describe("static task engine", () => {
 
   it("does not activate a cap for a scope with no activation task", async () => {
     const started: string[] = [];
-    const release = Promise.withResolvers<void>();
+    const release = createDeferred<void>();
     const graph: TaskGraph = {
-      tasks: [
-        { id: "zero-terminal", scopeId: "zero" },
-        { id: "wide-one" },
-        { id: "wide-two" }
-      ],
-      scopes: [{
-        id: "zero",
-        maxParallel: 1,
-        activationTaskIds: [],
-        terminalTaskId: "zero-terminal"
-      }]
+      tasks: [{ id: "zero-terminal", scopeId: "zero" }, { id: "wide-one" }, { id: "wide-two" }],
+      scopes: [
+        {
+          id: "zero",
+          maxParallel: 1,
+          activationTaskIds: [],
+          terminalTaskId: "zero-terminal"
+        }
+      ]
     };
 
     const running = runTaskGraph({
@@ -258,11 +279,7 @@ describe("static task engine", () => {
     const calls: string[] = [];
     const run = await runTaskGraph<string>({
       graph: {
-        tasks: [
-          { id: "failure" },
-          { id: "blocked", dependsOn: ["failure"] },
-          { id: "independent" }
-        ]
+        tasks: [{ id: "failure" }, { id: "blocked", dependsOn: ["failure"] }, { id: "independent" }]
       },
       maxParallel: 2,
       execute: (task) => {
@@ -320,9 +337,13 @@ describe("static task engine", () => {
 });
 
 function completedValues(run: TaskGraphRun<string>): string[] {
-  return run.settlements.flatMap(({ settlement }) => (
+  return run.settlements.flatMap(({ settlement }) =>
     settlement.kind === "completed" ? [settlement.value] : []
-  ));
+  );
+}
+
+function validateInvalidTaskGraph(graph: unknown): void {
+  validateTaskGraph(graph);
 }
 
 function settlementFor<TResult>(run: TaskGraphRun<TResult>, taskId: string) {
@@ -333,6 +354,22 @@ function settlementFor<TResult>(run: TaskGraphRun<TResult>, taskId: string) {
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+interface Deferred<TResult> {
+  readonly promise: Promise<TResult>;
+  readonly resolve: (value: TResult | PromiseLike<TResult>) => void;
+}
+
+function createDeferred<TResult>(): Deferred<TResult> {
+  let resolve: ((value: TResult | PromiseLike<TResult>) => void) | undefined;
+  const promise = new Promise<TResult>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  if (resolve === undefined) {
+    throw new Error("failed to initialize deferred promise");
+  }
+  return { promise, resolve };
 }
 
 async function waitFor(condition: () => boolean): Promise<void> {

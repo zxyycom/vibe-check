@@ -51,14 +51,16 @@ export const NEUTRAL_QUALITY_CONFIGURATION: ProjectQualityConfiguration = deepFr
   }
 });
 
-export function resolveQualityConfiguration(input: Readonly<{
-  project: ProjectQualityConfiguration;
-  checks: Readonly<{
-    duplication: DuplicateDetectionOptions;
-    files: FileMetricsOptions;
-    functions: FunctionMetricsOptions;
-  }>;
-}>): ResolvedQualityConfig {
+export function resolveQualityConfiguration(
+  input: Readonly<{
+    project: ProjectQualityConfiguration;
+    checks: Readonly<{
+      duplication: DuplicateDetectionOptions;
+      files: FileMetricsOptions;
+      functions: FunctionMetricsOptions;
+    }>;
+  }>
+): ResolvedQualityConfig {
   return deepFreeze({
     ...input.project,
     checks: input.checks
@@ -79,8 +81,14 @@ export function parseQualityConfiguration(value: unknown): ProjectQualityConfigu
   const generatedFiles = parseStringArray(root.generatedFiles);
   const include = parseStringArray(root.include);
   const report = parseReport(root.report);
-  if (codeAreas === undefined || excludeDirs === undefined || generatedFiles === undefined
-    || include === undefined || report === undefined || !isValidTimeZone(report.timeZone)) {
+  if (
+    codeAreas === undefined ||
+    excludeDirs === undefined ||
+    generatedFiles === undefined ||
+    include === undefined ||
+    report === undefined ||
+    !isValidTimeZone(report.timeZone)
+  ) {
     return undefined;
   }
   return deepFreeze({ codeAreas, excludeDirs, generatedFiles, include, report });
@@ -94,8 +102,13 @@ function parseCodeAreas(value: unknown): ProjectQualityConfiguration["codeAreas"
     const area = exactKeys(candidate, ["description", "excludeGlobs", "globs", "warningPolicy"]);
     const excludeGlobs = area === undefined ? undefined : parseStringArray(area.excludeGlobs);
     const globs = area === undefined ? undefined : parseStringArray(area.globs);
-    if (area === undefined || excludeGlobs === undefined || globs === undefined
-      || typeof area.description !== "string" || !isWarningPolicy(area.warningPolicy)) {
+    if (
+      area === undefined ||
+      excludeGlobs === undefined ||
+      globs === undefined ||
+      typeof area.description !== "string" ||
+      !isWarningPolicy(area.warningPolicy)
+    ) {
       return undefined;
     }
     areas[name] = Object.freeze({
@@ -119,11 +132,17 @@ function parseReport(value: unknown): ProjectQualityConfiguration["report"] | un
     "topN",
     "watchlistMax"
   ]);
-  if (report === undefined || typeof report.footerGeneratedBy !== "string"
-    || typeof report.footerNotice !== "string" || typeof report.nonBlockingNotice !== "string"
-    || typeof report.showWatchlist !== "boolean" || typeof report.timeZone !== "string"
-    || typeof report.title !== "string" || !finiteNumber(report.topN)
-    || !finiteNumber(report.watchlistMax)) {
+  if (
+    report === undefined ||
+    typeof report.footerGeneratedBy !== "string" ||
+    typeof report.footerNotice !== "string" ||
+    typeof report.nonBlockingNotice !== "string" ||
+    typeof report.showWatchlist !== "boolean" ||
+    typeof report.timeZone !== "string" ||
+    typeof report.title !== "string" ||
+    !finiteNumber(report.topN) ||
+    !finiteNumber(report.watchlistMax)
+  ) {
     return undefined;
   }
   return Object.freeze({
@@ -141,7 +160,7 @@ function parseReport(value: unknown): ProjectQualityConfiguration["report"] | un
 function parseStringArray(value: unknown): readonly string[] | undefined {
   const items = snapshotClosedArray(value);
   return items !== undefined && items.every((item) => typeof item === "string")
-    ? Object.freeze([...items]) as readonly string[]
+    ? Object.freeze([...items])
     : undefined;
 }
 
@@ -167,8 +186,9 @@ function exactKeys(
   keys: readonly string[]
 ): Readonly<Record<string, unknown>> | undefined {
   const data = snapshotClosedRecord(value);
-  return data !== undefined && Object.keys(data).length === keys.length
-    && keys.every((key) => Object.hasOwn(data, key))
+  return data !== undefined &&
+    Object.keys(data).length === keys.length &&
+    keys.every((key) => Object.hasOwn(data, key))
     ? data
     : undefined;
 }

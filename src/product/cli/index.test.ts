@@ -13,10 +13,16 @@ it("legacy Product CLI requests return one actionable migration diagnostic witho
   const messages: string[] = [];
 
   try {
-    for (const argv of [["scan", root, "--config", legacyPath], ["init", root]]) {
-      assert.equal(await runProductCli(argv, {
-        error: (message) => messages.push(message)
-      }), 3);
+    for (const argv of [
+      ["scan", root, "--config", legacyPath],
+      ["init", root]
+    ]) {
+      assert.equal(
+        await runProductCli(argv, {
+          error: (message) => messages.push(message)
+        }),
+        3
+      );
     }
 
     assert.equal(messages.length, 2);

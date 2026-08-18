@@ -2,10 +2,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 
 import { isNonArrayRecord } from "../../../foundation/index.ts";
-import {
-  SCAN_CACHE_VERSION,
-  type DuplicateCodeCacheIdentity
-} from "./types.ts";
+import { SCAN_CACHE_VERSION, type DuplicateCodeCacheIdentity } from "./types.ts";
 
 export function buildScanCacheKey(identity: DuplicateCodeCacheIdentity): string {
   const keyInput = {

@@ -95,7 +95,8 @@ function parseJscpdLocation(
   lineCount: number
 ): DuplicateCodeLocation {
   const filePath = stringField(location, "name");
-  const startLine = nestedIntegerField(location, "startLoc", "line") ?? integerField(location, "start");
+  const startLine =
+    nestedIntegerField(location, "startLoc", "line") ?? integerField(location, "start");
   const endLine = nestedIntegerField(location, "endLoc", "line") ?? integerField(location, "end");
 
   return {
@@ -114,7 +115,11 @@ function integerField(record: Record<string, unknown>, name: string): number {
   return Math.trunc(value);
 }
 
-function nestedIntegerField(record: Record<string, unknown>, parent: string, child: string): number | null {
+function nestedIntegerField(
+  record: Record<string, unknown>,
+  parent: string,
+  child: string
+): number | null {
   const parentValue = record[parent];
   if (!isNonArrayRecord(parentValue)) return null;
   const value = parentValue[child];

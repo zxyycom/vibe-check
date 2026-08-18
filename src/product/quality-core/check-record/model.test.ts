@@ -3,10 +3,7 @@ import { describe, it } from "node:test";
 
 import type { QualityRecordCandidate } from "./model.ts";
 import { createRecordId } from "./identity.ts";
-import {
-  validateCheckDefinition,
-  validateCoreSnapshot
-} from "./validation.ts";
+import { validateCheckDefinition, validateCoreSnapshot } from "./validation.ts";
 
 const definition = {
   checkId: "file-metrics",
@@ -20,11 +17,13 @@ const definition = {
       ],
       identityFields: ["codeArea"],
       policy: {
-        operands: [{
-          operandId: "codeArea",
-          valueType: "string",
-          source: { kind: "field", fieldId: "codeArea" }
-        }],
+        operands: [
+          {
+            operandId: "codeArea",
+            valueType: "string",
+            source: { kind: "field", fieldId: "codeArea" }
+          }
+        ],
         relations: ["regression"]
       }
     }
@@ -65,28 +64,44 @@ describe("check-record foundation model", () => {
       assert.deepEqual(first.value.recordTypes[0]?.policy, definition.recordTypes[0].policy);
       assert.equal(Object.isFrozen(first.value.recordTypes[0]?.policy?.operands), true);
     }
-    assert.deepEqual(validateCheckDefinition({
-      ...definition,
-      runner: () => undefined
-    }), {
-      ok: false,
-      issues: [{ path: "$", code: "unknown-field", message: "Object contains an unsupported field" }]
-    });
-    assert.equal(validateCheckDefinition({
-      ...definition,
-      recordTypes: [{ ...definition.recordTypes[0], identityFields: ["missing"] }]
-    }).ok, false);
-    assert.equal(validateCheckDefinition({
-      ...definition,
-      recordTypes: [{
-        ...definition.recordTypes[0],
-        fields: [{ fieldId: "codeArea", valueType: "string", required: false }]
-      }]
-    }).ok, false);
-    assert.equal(validateCheckDefinition({
-      ...definition,
-      recordTypes: [definition.recordTypes[0], definition.recordTypes[0]]
-    }).ok, false);
+    assert.deepEqual(
+      validateCheckDefinition({
+        ...definition,
+        runner: () => undefined
+      }),
+      {
+        ok: false,
+        issues: [
+          { path: "$", code: "unknown-field", message: "Object contains an unsupported field" }
+        ]
+      }
+    );
+    assert.equal(
+      validateCheckDefinition({
+        ...definition,
+        recordTypes: [{ ...definition.recordTypes[0], identityFields: ["missing"] }]
+      }).ok,
+      false
+    );
+    assert.equal(
+      validateCheckDefinition({
+        ...definition,
+        recordTypes: [
+          {
+            ...definition.recordTypes[0],
+            fields: [{ fieldId: "codeArea", valueType: "string", required: false }]
+          }
+        ]
+      }).ok,
+      false
+    );
+    assert.equal(
+      validateCheckDefinition({
+        ...definition,
+        recordTypes: [definition.recordTypes[0], definition.recordTypes[0]]
+      }).ok,
+      false
+    );
   });
 
   it("accepts exactly one closed terminal outcome for each Core Check", () => {
@@ -103,16 +118,23 @@ describe("check-record foundation model", () => {
         "execution-threw",
         "execution-cancelled"
       ].map((code) => ({ status: "unavailable", reason: { code } })),
-      { status: "unavailable", reason: {
-        code: "prerequisite-unavailable", checkIds: ["upstream-check"]
-      } }
+      {
+        status: "unavailable",
+        reason: {
+          code: "prerequisite-unavailable",
+          checkIds: ["upstream-check"]
+        }
+      }
     ] as const;
 
     for (const outcome of outcomes) {
-      assert.equal(validateCoreSnapshot({
-        checks: [{ ...definition, outcome }],
-        records: []
-      }).ok, true);
+      assert.equal(
+        validateCoreSnapshot({
+          checks: [{ ...definition, outcome }],
+          records: []
+        }).ok,
+        true
+      );
     }
 
     const valid = { checks: [{ ...definition, outcome: outcomes[1] }], records: [] };
@@ -120,15 +142,21 @@ describe("check-record foundation model", () => {
       { status: "completed", verdict: "not-applicable" },
       { status: "unavailable", reason: { code: "" } },
       { status: "unavailable", reason: { code: "prerequisite-unavailable", checkIds: [] } },
-      { status: "unavailable", reason: { code: "prerequisite-unavailable", checkIds: ["invalid id"] } },
+      {
+        status: "unavailable",
+        reason: { code: "prerequisite-unavailable", checkIds: ["invalid id"] }
+      },
       { status: "not-applicable", reason: { code: "no-input", checkIds: ["upstream-check"] } },
       { status: "not-applicable", reason: null },
       { status: "unknown" }
     ]) {
-      assert.equal(validateCoreSnapshot({
-        ...valid,
-        checks: [{ ...definition, outcome: invalid }]
-      }).ok, false);
+      assert.equal(
+        validateCoreSnapshot({
+          ...valid,
+          checks: [{ ...definition, outcome: invalid }]
+        }).ok,
+        false
+      );
     }
   });
 
@@ -144,7 +172,9 @@ describe("check-record foundation model", () => {
     };
     const snapshot = {
       checks: [{ ...definition, outcome: { status: "completed", verdict: "failed" } }],
-      records: [{ ...candidate, recordId: createRecordId(candidate, definition.recordTypes[0]).recordId }]
+      records: [
+        { ...candidate, recordId: createRecordId(candidate, definition.recordTypes[0]).recordId }
+      ]
     };
 
     assert.equal(validateCoreSnapshot(snapshot).ok, true);

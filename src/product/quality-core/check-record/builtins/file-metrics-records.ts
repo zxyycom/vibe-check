@@ -1,5 +1,5 @@
 import { classifyFile } from "../../model/code-areas.ts";
-import type { CodeAreaDefinition, FileMetric } from "../../model/schema.ts";
+import type { FileMetric } from "../../model/schema.ts";
 import type { QualityRecordCandidate, RecordLevel } from "../model.ts";
 import { compareText, isInChangedScope, type RelationId } from "./builtin-support.ts";
 import type { FileMetricsSemantics } from "./file-metrics.ts";
@@ -28,10 +28,9 @@ export function buildFileRecordCandidates(
       candidates.push(candidate);
     }
   }
-  candidates.sort((left, right) => compareText(
-    left.record.semanticSubject,
-    right.record.semanticSubject
-  ));
+  candidates.sort((left, right) =>
+    compareText(left.record.semanticSubject, right.record.semanticSubject)
+  );
   return Object.freeze(candidates);
 }
 
@@ -40,10 +39,13 @@ function validFileCodeLines(
   seenPaths: ReadonlySet<string>
 ): number | undefined {
   const codeLines = metric.codeLines;
-  const isValid = typeof metric.path === "string" && metric.path.length > 0
-    && typeof codeLines === "number"
-    && Number.isSafeInteger(codeLines) && codeLines >= 0
-    && !seenPaths.has(metric.path);
+  const isValid =
+    typeof metric.path === "string" &&
+    metric.path.length > 0 &&
+    typeof codeLines === "number" &&
+    Number.isSafeInteger(codeLines) &&
+    codeLines >= 0 &&
+    !seenPaths.has(metric.path);
   return isValid ? codeLines : undefined;
 }
 
@@ -53,11 +55,7 @@ function createFileRecordCandidate(
   changedFiles: readonly string[],
   semantics: FileMetricsSemantics
 ): FileRecordCandidate | null {
-  const codeArea = classifyFile(
-    metric.path,
-    semantics.codeAreas as Record<string, CodeAreaDefinition>,
-    semantics.generatedFiles
-  );
+  const codeArea = classifyFile(metric.path, semantics.codeAreas, semantics.generatedFiles);
   const area = semantics.codeAreas[codeArea];
   if (area === undefined || area.warningPolicy === "exclude-warnings") {
     return null;
@@ -133,8 +131,10 @@ export function buildFileRelations(
       continue;
     }
     const baselineValue = referenceValues.get(subject) ?? 0;
-    const relation: RelationId = candidate.codeLines - baselineValue
-      > semantics.codeLines.changedDelta ? "regression" : "changed";
+    const relation: RelationId =
+      candidate.codeLines - baselineValue > semantics.codeLines.changedDelta
+        ? "regression"
+        : "changed";
     relations.set(subject, Object.freeze([relation]));
   }
   return relations;

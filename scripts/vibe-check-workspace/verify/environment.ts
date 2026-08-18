@@ -22,7 +22,5 @@ function readEnvFile(envFile: string | undefined): StringMap {
   if (!isRecord(parsed)) {
     throw new Error(`env file must contain an object: ${envFile}`);
   }
-  return Object.fromEntries(
-    Object.entries(parsed).map(([key, value]) => [key, String(value)])
-  );
+  return Object.fromEntries(Object.entries(parsed).map(([key, value]) => [key, String(value)]));
 }

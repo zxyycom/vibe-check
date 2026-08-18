@@ -18,14 +18,9 @@ export function renderGithubAnnotations(records: readonly AnnotationRecord[]): s
 }
 
 function escapeData(value: string): string {
-  return value
-    .replace(/%/g, "%25")
-    .replace(/\r/g, "%0D")
-    .replace(/\n/g, "%0A");
+  return value.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
 }
 
 function escapeProperty(value: string): string {
-  return escapeData(value)
-    .replace(/:/g, "%3A")
-    .replace(/,/g, "%2C");
+  return escapeData(value).replace(/:/g, "%3A").replace(/,/g, "%2C");
 }

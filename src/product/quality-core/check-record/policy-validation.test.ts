@@ -38,7 +38,8 @@ describe("check-record policy pre-work validation", () => {
 
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    childObject(arrayObject(childObject(input, "policy"), "acceptance", 0), "selector").checkId = "beta-check";
+    childObject(arrayObject(childObject(input, "policy"), "acceptance", 0), "selector").checkId =
+      "beta-check";
     expect(result.value.policy?.acceptance[0]?.selector).toEqual({
       checkId: "alpha-check",
       recordTypeId: "finding"
@@ -83,11 +84,13 @@ describe("check-record policy pre-work validation", () => {
 
     expect(accepted.ok).toBe(true);
     if (!accepted.ok) return;
-    expect(accepted.value.policy?.views[0]?.predicates).toEqual([{
-      kind: "relation-kind-in",
-      referenceName: "baseline",
-      values: ["changed", "regression"]
-    }]);
+    expect(accepted.value.policy?.views[0]?.predicates).toEqual([
+      {
+        kind: "relation-kind-in",
+        referenceName: "baseline",
+        values: ["changed", "regression"]
+      }
+    ]);
     const predicate = accepted.value.policy?.views[0]?.predicates[0];
     expect(predicate?.kind).toBe("relation-kind-in");
     if (predicate?.kind !== "relation-kind-in") return;
@@ -99,9 +102,9 @@ describe("check-record policy pre-work validation", () => {
     const valid = relationKindPolicyInput();
 
     const unknownKind: unknown = structuredClone(valid);
-    const unknownPredicate = mutableObject(mutableArray(
-      arrayObject(childObject(unknownKind, "policy"), "views", 0).predicates
-    )[0]);
+    const unknownPredicate = mutableObject(
+      mutableArray(arrayObject(childObject(unknownKind, "policy"), "views", 0).predicates)[0]
+    );
     unknownPredicate.kind = "relation-kind-any";
     const unknownRejected = validatePolicyResolution(unknownKind, catalog);
     expect(unknownRejected.ok).toBe(false);
@@ -118,7 +121,11 @@ describe("check-record policy pre-work validation", () => {
       [[], "$.policy.views[0].predicates[0].values", "invalid-value"],
       [["changed", "changed"], "$.policy.views[0].predicates[0].values[1]", "duplicate"],
       [["regression", "changed"], "$.policy.views[0].predicates[0].values", "invalid-value"],
-      [["changed", "unregistered"], "$.policy.views[0].predicates[0].values[1]", "identity-mismatch"]
+      [
+        ["changed", "unregistered"],
+        "$.policy.views[0].predicates[0].values[1]",
+        "identity-mismatch"
+      ]
     ];
     for (const [values, expectedPath, expectedCode] of cases) {
       const invalid: unknown = structuredClone(valid);
@@ -143,13 +150,15 @@ describe("check-record policy pre-work validation", () => {
       checkId: "beta-check",
       recordTypeId: "finding"
     });
-    mutableArray(arrayObject(childObject(crossSelector, "policy"), "references", 0).checkIds)
-      .push("beta-check");
+    mutableArray(arrayObject(childObject(crossSelector, "policy"), "references", 0).checkIds).push(
+      "beta-check"
+    );
     const crossSelectorRejected = validatePolicyResolution(crossSelector, catalog);
     expect(crossSelectorRejected.ok).toBe(false);
     if (!crossSelectorRejected.ok) {
-      expect(crossSelectorRejected.issues[0]?.path)
-        .toBe("$.policy.views[0].predicates[0].values[0]");
+      expect(crossSelectorRejected.issues[0]?.path).toBe(
+        "$.policy.views[0].predicates[0].values[0]"
+      );
       expect(crossSelectorRejected.issues[0]?.code).toBe("identity-mismatch");
     }
   });
@@ -157,39 +166,104 @@ describe("check-record policy pre-work validation", () => {
   test("rejects missing or duplicate references and unknown qualified selectors, operands, relations, and fields", () => {
     const catalog = makeCatalog();
     const cases: readonly [mutate: (value: unknown) => void, expectedPath: string][] = [
-      [(value) => { mutableObject(value).references = []; }, "$.policy.references[0].referenceName"],
-      [(value) => {
-        const references = mutableArray(mutableObject(value).references);
-        references.push(references[0]);
-      }, "$.references[1].referenceName"],
-      [(value) => {
-        childObject(arrayObject(childObject(value, "policy"), "acceptance", 0), "selector").checkId = "beta-check";
-      }, "$.policy.acceptance[0].predicates[0].operandId"],
-      [(value) => {
-        childObject(arrayObject(childObject(value, "policy"), "acceptance", 0), "selector").checkId = "unknown-check";
-      }, "$.policy.acceptance[0].selector"],
-      [(value) => {
-        arrayObject(arrayObject(childObject(value, "policy"), "acceptance", 0), "predicates", 0).operandId = "arbitrary.path";
-      }, "$.policy.acceptance[0].predicates[0].operandId"],
-      [(value) => {
-        arrayObject(arrayObject(childObject(value, "policy"), "acceptance", 0), "predicates", 0).operandId = "message";
-      }, "$.policy.acceptance[0].predicates[0].operandId"],
-      [(value) => {
-        arrayObject(arrayObject(childObject(value, "policy"), "acceptance", 0), "predicates", 0).operandId = "score";
-      }, "$.policy.acceptance[0].predicates[0].operandId"],
-      [(value) => {
-        arrayObject(arrayObject(childObject(value, "policy"), "views", 0), "predicates", 0).relationId = "unknown";
-      }, "$.policy.views[0].predicates[0].relationId"],
-      [(value) => {
-        mutableObject(value).recordTypes = [{
-          checkId: "alpha-check",
-          recordTypeId: "finding",
-          operands: [{ operandId: "message", valueType: "string", source: { kind: "message" } }],
-          relations: ["unknown"]
-        }];
-      }, "$"],
-      [(value) => { childObject(value, "policy").script = () => true; }, "$"],
-      [(value) => { childObject(childObject(value, "policy"), "blockWhen").field = "records[0].message"; }, "$.policy.blockWhen"]
+      [
+        (value) => {
+          mutableObject(value).references = [];
+        },
+        "$.policy.references[0].referenceName"
+      ],
+      [
+        (value) => {
+          const references = mutableArray(mutableObject(value).references);
+          references.push(references[0]);
+        },
+        "$.references[1].referenceName"
+      ],
+      [
+        (value) => {
+          childObject(
+            arrayObject(childObject(value, "policy"), "acceptance", 0),
+            "selector"
+          ).checkId = "beta-check";
+        },
+        "$.policy.acceptance[0].predicates[0].operandId"
+      ],
+      [
+        (value) => {
+          childObject(
+            arrayObject(childObject(value, "policy"), "acceptance", 0),
+            "selector"
+          ).checkId = "unknown-check";
+        },
+        "$.policy.acceptance[0].selector"
+      ],
+      [
+        (value) => {
+          arrayObject(
+            arrayObject(childObject(value, "policy"), "acceptance", 0),
+            "predicates",
+            0
+          ).operandId = "arbitrary.path";
+        },
+        "$.policy.acceptance[0].predicates[0].operandId"
+      ],
+      [
+        (value) => {
+          arrayObject(
+            arrayObject(childObject(value, "policy"), "acceptance", 0),
+            "predicates",
+            0
+          ).operandId = "message";
+        },
+        "$.policy.acceptance[0].predicates[0].operandId"
+      ],
+      [
+        (value) => {
+          arrayObject(
+            arrayObject(childObject(value, "policy"), "acceptance", 0),
+            "predicates",
+            0
+          ).operandId = "score";
+        },
+        "$.policy.acceptance[0].predicates[0].operandId"
+      ],
+      [
+        (value) => {
+          arrayObject(
+            arrayObject(childObject(value, "policy"), "views", 0),
+            "predicates",
+            0
+          ).relationId = "unknown";
+        },
+        "$.policy.views[0].predicates[0].relationId"
+      ],
+      [
+        (value) => {
+          mutableObject(value).recordTypes = [
+            {
+              checkId: "alpha-check",
+              recordTypeId: "finding",
+              operands: [
+                { operandId: "message", valueType: "string", source: { kind: "message" } }
+              ],
+              relations: ["unknown"]
+            }
+          ];
+        },
+        "$"
+      ],
+      [
+        (value) => {
+          childObject(value, "policy").script = () => true;
+        },
+        "$"
+      ],
+      [
+        (value) => {
+          childObject(childObject(value, "policy"), "blockWhen").field = "records[0].message";
+        },
+        "$.policy.blockWhen"
+      ]
     ];
 
     for (const [mutate, expectedPath] of cases) {
@@ -213,21 +287,26 @@ describe("check-record policy pre-work validation", () => {
         throw new Error(secret);
       }
     });
-    const proxyInput = new Proxy({}, {
-      getPrototypeOf: () => {
-        throw new Error(secret);
+    const proxyInput = new Proxy(
+      {},
+      {
+        getPrototypeOf: () => {
+          throw new Error(secret);
+        }
       }
-    });
+    );
 
     for (const input of [accessorInput, proxyInput]) {
       const result = validatePolicyResolution(input, catalog);
       expect(result.ok).toBe(false);
       if (!result.ok) {
-        expect(result.issues).toEqual([{
-          path: "$",
-          code: "invalid-value",
-          message: "Policy input must be plain JSON data"
-        }]);
+        expect(result.issues).toEqual([
+          {
+            path: "$",
+            code: "invalid-value",
+            message: "Policy input must be plain JSON data"
+          }
+        ]);
         expect(JSON.stringify(result.issues).includes(secret)).toBe(false);
       }
     }
@@ -240,7 +319,10 @@ describe("check-record policy pre-work validation", () => {
     const value: unknown = structuredClone(policyResolution);
     childObject(value, "policy").blockWhen = {
       kind: "script",
-      execute: () => { calls += 1; return true; }
+      execute: () => {
+        calls += 1;
+        return true;
+      }
     };
 
     const result = validatePolicyResolution(value, catalog);
@@ -259,7 +341,9 @@ describe("check-record reference fact validation", () => {
     const record = makeRecord("src");
     const facts = {
       evidence: [{ checkId: "alpha-check", referenceName: "baseline", status: "complete" }],
-      relations: [{ recordId: record.recordId, referenceName: "baseline", relationId: "regression" }]
+      relations: [
+        { recordId: record.recordId, referenceName: "baseline", relationId: "regression" }
+      ]
     };
 
     const result = validateReferenceFacts(facts, resolution.value, makeSnapshot(record));
@@ -271,14 +355,37 @@ describe("check-record reference fact validation", () => {
     expect("runs" in result.value).toBe(false);
 
     const cases: readonly [mutate: (value: unknown) => void, expectedPath: string][] = [
-      [(value) => { mutableObject(value).evidence = []; }, "$.evidence"],
-      [(value) => {
-        const evidence = mutableArray(mutableObject(value).evidence);
-        evidence.push(evidence[0]);
-      }, "$.evidence[1]"],
-      [(value) => { arrayObject(value, "evidence", 0).status = "failed"; }, "$.evidence[0].status"],
-      [(value) => { arrayObject(value, "relations", 0).relationId = "changed-unknown"; }, "$.relations[0].relationId"],
-      [(value) => { arrayObject(value, "relations", 0).referenceName = "implicit"; }, "$.relations[0].referenceName"]
+      [
+        (value) => {
+          mutableObject(value).evidence = [];
+        },
+        "$.evidence"
+      ],
+      [
+        (value) => {
+          const evidence = mutableArray(mutableObject(value).evidence);
+          evidence.push(evidence[0]);
+        },
+        "$.evidence[1]"
+      ],
+      [
+        (value) => {
+          arrayObject(value, "evidence", 0).status = "failed";
+        },
+        "$.evidence[0].status"
+      ],
+      [
+        (value) => {
+          arrayObject(value, "relations", 0).relationId = "changed-unknown";
+        },
+        "$.relations[0].relationId"
+      ],
+      [
+        (value) => {
+          arrayObject(value, "relations", 0).referenceName = "implicit";
+        },
+        "$.relations[0].referenceName"
+      ]
     ];
     for (const [mutate, expectedPath] of cases) {
       const invalid: unknown = structuredClone(facts);

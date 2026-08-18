@@ -4,12 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
-import {
-  listTestCaseTopics,
-  loadTestCaseCatalog,
-  queryTestCases,
-  showTestCase
-} from "./cases.ts";
+import { listTestCaseTopics, loadTestCaseCatalog, queryTestCases, showTestCase } from "./cases.ts";
 import {
   assertDiagnostic,
   bunEntity,
@@ -89,10 +84,7 @@ function assertCatalogQueries(root: string): void {
 }
 
 function assertCatalogCliQueries(root: string): void {
-  const cliTopicsJson = runSuccessfulJsonCli<{
-    status: string;
-    topics: Array<{ id: string; cases: number }>;
-  }>(["topics", "--root", root]);
+  const cliTopicsJson = runSuccessfulJsonCli(["topics", "--root", root], parseTopicsResponse);
   assert.equal(cliTopicsJson.status, "ok");
   assert.deepEqual(
     cliTopicsJson.topics.map(({ id, cases }) => ({ id, cases })),
@@ -102,68 +94,37 @@ function assertCatalogCliQueries(root: string): void {
     ]
   );
 
-  const cliListJson = runSuccessfulJsonCli<{
-    total: number;
-    items: Array<{ id: string }>;
-  }>([
-    "list",
-    "--entity-key",
-    secondBunEntity,
-    "--root",
-    root
-  ]);
+  const cliListJson = runSuccessfulJsonCli(
+    ["list", "--entity-key", secondBunEntity, "--root", root],
+    parseListResponse
+  );
   assert.equal(cliListJson.total, 1);
   assert.deepEqual(
     cliListJson.items.map(({ id }) => id),
     ["CASE-CONTRACT-REJECT-001"]
   );
 
-  const cliShowJson = runSuccessfulJsonCli<{
-    status: string;
-    item: { id: string } | null;
-  }>([
-    "show",
-    "CASE-CONTRACT-REJECT-001",
-    "--root",
-    root
-  ]);
+  const cliShowJson = runSuccessfulJsonCli(
+    ["show", "CASE-CONTRACT-REJECT-001", "--root", root],
+    parseShowResponse
+  );
   assert.equal(cliShowJson.status, "ok");
   assert.equal(cliShowJson.item?.id, "CASE-CONTRACT-REJECT-001");
 }
 
 function assertCatalogCliFailureBoundaries(root: string): void {
-  const cliMissing = runCli([
-    "show",
-    "CASE-MISSING-001",
-    "--root",
-    root
-  ]);
+  const cliMissing = runCli(["show", "CASE-MISSING-001", "--root", root]);
   assert.equal(cliMissing.status, 6);
   assert.equal(cliMissing.stderr, "");
-  const cliMissingJson = JSON.parse(cliMissing.stdout) as {
-    status: string;
-    diagnostics: Array<{ code: string }>;
-    item: null;
-  };
+  const cliMissingJson = parseMissingResponse(parseJsonValue(cliMissing.stdout));
   assert.equal(cliMissingJson.status, "error");
   assert.equal(cliMissingJson.item, null);
-  assert.ok(
-    cliMissingJson.diagnostics.some(({ code }) => (
-      code === "query.case-not-found"
-    ))
-  );
+  assert.ok(cliMissingJson.diagnostics.some(({ code }) => code === "query.case-not-found"));
 
-  const cliCheckFailure = runCli([
-    "check",
-    "--root",
-    root
-  ]);
+  const cliCheckFailure = runCli(["check", "--root", root]);
   assert.equal(cliCheckFailure.status, 3);
   assert.equal(cliCheckFailure.stdout, "");
-  assert.match(
-    cliCheckFailure.stderr,
-    /profile:runner-profile-invalid:/
-  );
+  assert.match(cliCheckFailure.stderr, /profile:runner-profile-invalid:/);
 
   const rejectedCommands = [
     ["sync", "--root", root],
@@ -242,11 +203,7 @@ function assertMalformedCatalogDiagnostics(): void {
   const catalog = loadTestCaseCatalog({ workspaceRoot: fixture.root });
 
   assertDiagnostic(catalog.diagnostics, "topic.unknown");
-  assertDiagnostic(
-    catalog.diagnostics,
-    "topic.unknown",
-    { path: "docs/testing/cases/unknown.md" }
-  );
+  assertDiagnostic(catalog.diagnostics, "topic.unknown", { path: "docs/testing/cases/unknown.md" });
   assertDiagnostic(catalog.diagnostics, "topic.heading-invalid");
   assertDiagnostic(catalog.diagnostics, "topic.content-unexpected");
   assertDiagnostic(catalog.diagnostics, "case.heading-invalid");
@@ -258,24 +215,20 @@ function assertMalformedCatalogDiagnostics(): void {
   assertDiagnostic(catalog.diagnostics, "case.entity-duplicate");
   assertDiagnostic(catalog.diagnostics, "case.entities-empty");
   assertDiagnostic(catalog.diagnostics, "case.proves-empty");
-  assertDiagnostic(
-    catalog.diagnostics,
-    "case.owner-heading-unknown",
-    { caseId: "CASE-DUPLICATE-001" }
-  );
-  assertDiagnostic(
-    catalog.diagnostics,
-    "case.owner-heading-unknown",
-    { caseId: "CASE-FRONTMATTER-001" }
-  );
+  assertDiagnostic(catalog.diagnostics, "case.owner-heading-unknown", {
+    caseId: "CASE-DUPLICATE-001"
+  });
+  assertDiagnostic(catalog.diagnostics, "case.owner-heading-unknown", {
+    caseId: "CASE-FRONTMATTER-001"
+  });
   assert.equal(
     catalog.cases.some(({ id }) => id === "CASE-UNKNOWN-SHOULD-NOT-LOAD-001"),
     false
   );
   assert.equal(
-    catalog.diagnostics.some(({ path: sourcePath }) => (
-      sourcePath === "docs/testing/cases/empty.md"
-    )),
+    catalog.diagnostics.some(
+      ({ path: sourcePath }) => sourcePath === "docs/testing/cases/empty.md"
+    ),
     false,
     "an H1-only topic is a valid empty topic"
   );
@@ -286,28 +239,20 @@ function assertCaseDirectoryLayoutDiagnostics(): void {
   const layoutCasesPath = caseDirectory(layoutFixture.root);
   fs.mkdirSync(path.join(layoutCasesPath, "nested"));
   fs.writeFileSync(path.join(layoutCasesPath, "notes.txt"), "not a Case source\n");
-  fs.symlinkSync(
-    "contract.md",
-    path.join(layoutCasesPath, "linked.md"),
-    "file"
-  );
+  fs.symlinkSync("contract.md", path.join(layoutCasesPath, "linked.md"), "file");
   const layoutCatalog = loadTestCaseCatalog({
     workspaceRoot: layoutFixture.root
   });
-  assertDiagnostic(
-    layoutCatalog.diagnostics,
-    "cases.nested-directory",
-    { path: "docs/testing/cases/nested" }
-  );
-  assertDiagnostic(
-    layoutCatalog.diagnostics,
-    "cases.symlink-unsupported",
-    { path: "docs/testing/cases/linked.md" }
-  );
+  assertDiagnostic(layoutCatalog.diagnostics, "cases.nested-directory", {
+    path: "docs/testing/cases/nested"
+  });
+  assertDiagnostic(layoutCatalog.diagnostics, "cases.symlink-unsupported", {
+    path: "docs/testing/cases/linked.md"
+  });
   assert.equal(
-    layoutCatalog.diagnostics.some(({ path: sourcePath }) => (
-      sourcePath === "docs/testing/cases/notes.txt"
-    )),
+    layoutCatalog.diagnostics.some(
+      ({ path: sourcePath }) => sourcePath === "docs/testing/cases/notes.txt"
+    ),
     false,
     "unrelated regular non-Markdown files are not Case sources"
   );
@@ -316,10 +261,7 @@ function assertCaseDirectoryLayoutDiagnostics(): void {
 function assertCaseSourceSymlinkDiagnostics(): void {
   using topicsLinkFixture = createCaseFixture();
   const topicsPath = path.join(caseDirectory(topicsLinkFixture.root), "topics.json");
-  fs.renameSync(
-    topicsPath,
-    path.join(caseDirectory(topicsLinkFixture.root), "topics-source.json")
-  );
+  fs.renameSync(topicsPath, path.join(caseDirectory(topicsLinkFixture.root), "topics-source.json"));
   fs.symlinkSync("topics-source.json", topicsPath, "file");
   assertDiagnostic(
     loadTestCaseCatalog({ workspaceRoot: topicsLinkFixture.root }).diagnostics,
@@ -329,10 +271,7 @@ function assertCaseSourceSymlinkDiagnostics(): void {
 
   using topicLinkFixture = createCaseFixture();
   const topicPath = path.join(caseDirectory(topicLinkFixture.root), "contract.md");
-  fs.renameSync(
-    topicPath,
-    path.join(caseDirectory(topicLinkFixture.root), "contract-source.txt")
-  );
+  fs.renameSync(topicPath, path.join(caseDirectory(topicLinkFixture.root), "contract-source.txt"));
   fs.symlinkSync("contract-source.txt", topicPath, "file");
   assertDiagnostic(
     loadTestCaseCatalog({ workspaceRoot: topicLinkFixture.root }).diagnostics,
@@ -343,11 +282,7 @@ function assertCaseSourceSymlinkDiagnostics(): void {
   using rootLinkFixture = createCaseFixture();
   const rootCasesPath = caseDirectory(rootLinkFixture.root);
   fs.renameSync(rootCasesPath, `${rootCasesPath}-source`);
-  fs.symlinkSync(
-    path.basename(`${rootCasesPath}-source`),
-    rootCasesPath,
-    "dir"
-  );
+  fs.symlinkSync(path.basename(`${rootCasesPath}-source`), rootCasesPath, "dir");
   assertDiagnostic(
     loadTestCaseCatalog({ workspaceRoot: rootLinkFixture.root }).diagnostics,
     "cases.directory-invalid",
@@ -362,10 +297,7 @@ function runCli(args: readonly string[]): {
 } {
   const result = spawnSync(
     process.execPath,
-    [
-      path.join(workspaceRoot, "scripts", "test-evidence", "index.ts"),
-      ...args
-    ],
+    [path.join(workspaceRoot, "scripts", "test-evidence", "index.ts"), ...args],
     {
       cwd: workspaceRoot,
       encoding: "utf8"
@@ -380,9 +312,95 @@ function runCli(args: readonly string[]): {
   };
 }
 
-function runSuccessfulJsonCli<T>(args: readonly string[]): T {
+function runSuccessfulJsonCli<Value>(
+  args: readonly string[],
+  parse: (value: unknown) => Value
+): Value {
   const result = runCli(args);
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
-  return JSON.parse(result.stdout) as T;
+  return parse(parseJsonValue(result.stdout));
+}
+
+function parseTopicsResponse(value: unknown): {
+  status: string;
+  topics: Array<{ id: string; cases: number }>;
+} {
+  const response = jsonRecord(value, "topics response");
+  return {
+    status: stringField(response, "status"),
+    topics: arrayField(response, "topics").map((topic, index) => {
+      const item = jsonRecord(topic, `topics[${index}]`);
+      return { id: stringField(item, "id"), cases: numberField(item, "cases") };
+    })
+  };
+}
+
+function parseListResponse(value: unknown): { total: number; items: Array<{ id: string }> } {
+  const response = jsonRecord(value, "list response");
+  return {
+    total: numberField(response, "total"),
+    items: arrayField(response, "items").map((item, index) => ({
+      id: stringField(jsonRecord(item, `items[${index}]`), "id")
+    }))
+  };
+}
+
+function parseShowResponse(value: unknown): { status: string; item: { id: string } | null } {
+  const response = jsonRecord(value, "show response");
+  const item = response.item;
+  return {
+    status: stringField(response, "status"),
+    item: item === null ? null : { id: stringField(jsonRecord(item, "item"), "id") }
+  };
+}
+
+function parseMissingResponse(value: unknown): {
+  status: string;
+  diagnostics: Array<{ code: string }>;
+  item: null;
+} {
+  const response = jsonRecord(value, "missing Case response");
+  if (response.item !== null) throw new TypeError("Expected a null missing Case item");
+  return {
+    status: stringField(response, "status"),
+    diagnostics: arrayField(response, "diagnostics").map((diagnostic, index) => ({
+      code: stringField(jsonRecord(diagnostic, `diagnostics[${index}]`), "code")
+    })),
+    item: null
+  };
+}
+
+function parseJsonValue(source: string): unknown {
+  const value: unknown = JSON.parse(source);
+  return value;
+}
+
+function jsonRecord(value: unknown, label: string): Record<string, unknown> {
+  if (!isJsonRecord(value)) {
+    throw new TypeError(`${label} must be a JSON object`);
+  }
+  return value;
+}
+
+function isJsonRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function arrayField(record: Record<string, unknown>, field: string): unknown[] {
+  const value = record[field];
+  if (!Array.isArray(value)) throw new TypeError(`${field} must be an array`);
+  return value;
+}
+
+function stringField(record: Record<string, unknown>, field: string): string {
+  const value = record[field];
+  if (typeof value !== "string") throw new TypeError(`${field} must be a string`);
+  return value;
+}
+
+function numberField(record: Record<string, unknown>, field: string): number {
+  const value = record[field];
+  if (typeof value !== "number") throw new TypeError(`${field} must be a number`);
+  return value;
 }

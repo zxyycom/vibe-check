@@ -24,23 +24,29 @@ export type {
 } from "./validation-result.ts";
 
 type Parsed<Value> = Readonly<
-  | { ok: false; diagnostic: MachinePublicationValidationDiagnostic }
-  | { ok: true; value: Value }
+  { ok: false; diagnostic: MachinePublicationValidationDiagnostic } | { ok: true; value: Value }
 >;
 
-export function validateMachinePublicationSetV3(input: Readonly<{
-  recordsNdjson: Uint8Array;
-  runJson: Uint8Array;
-}>): MachinePublicationValidationResult {
+export function validateMachinePublicationSetV3(
+  input: Readonly<{
+    recordsNdjson: Uint8Array;
+    runJson: Uint8Array;
+  }>
+): MachinePublicationValidationResult {
   const runResult = parseRun(input.runJson);
   if (!runResult.ok) return runResult;
   const recordsResult = parseRecords(input.recordsNdjson);
   if (!recordsResult.ok) return recordsResult;
   const invariant = validatePublicationInvariants(runResult.value, recordsResult.value);
-  return invariant ?? validationSuccess(Object.freeze({
-    run: freezePublicationValue(runResult.value),
-    records: freezePublicationValue(recordsResult.value)
-  }) satisfies MachinePublicationV3);
+  return (
+    invariant ??
+    validationSuccess(
+      Object.freeze({
+        run: freezePublicationValue(runResult.value),
+        records: freezePublicationValue(recordsResult.value)
+      }) satisfies MachinePublicationV3
+    )
+  );
 }
 
 function parseRun(bytes: Uint8Array): Parsed<MachineRunV3> {

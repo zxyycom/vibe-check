@@ -70,14 +70,16 @@ function createDuplicateRecordCandidate(
   });
 }
 
-function createDuplicateQualityRecord(input: Readonly<{
-  codeAreas: readonly string[];
-  fragment: DuplicateCodeFragment;
-  level: RecordLevel;
-  locations: readonly DuplicateCodeLocation[];
-  primaryLocation: DuplicateCodeLocation;
-  subject: string;
-}>): QualityRecordCandidate {
+function createDuplicateQualityRecord(
+  input: Readonly<{
+    codeAreas: readonly string[];
+    fragment: DuplicateCodeFragment;
+    level: RecordLevel;
+    locations: readonly DuplicateCodeLocation[];
+    primaryLocation: DuplicateCodeLocation;
+    subject: string;
+  }>
+): QualityRecordCandidate {
   const suggestion = `Consider extracting shared code into a common function or module. Locations: ${input.locations.map(formatLocation).join(", ")}`;
   return Object.freeze({
     recordTypeId: "duplicate-code",
@@ -108,19 +110,32 @@ export function duplicateSubjects(
 }
 
 export function isValidDuplicateFragment(fragment: DuplicateCodeFragment): boolean {
-  const validMeasurements = Number.isSafeInteger(fragment.id) && fragment.id >= 0
-    && Number.isSafeInteger(fragment.lineCount) && fragment.lineCount >= 0
-    && Number.isSafeInteger(fragment.tokenCount) && fragment.tokenCount >= 0;
-  return validMeasurements
-    && Array.isArray(fragment.locations) && fragment.locations.length >= 2
-    && fragment.locations.every(isValidLocation);
+  const validMeasurements =
+    Number.isSafeInteger(fragment.id) &&
+    fragment.id >= 0 &&
+    Number.isSafeInteger(fragment.lineCount) &&
+    fragment.lineCount >= 0 &&
+    Number.isSafeInteger(fragment.tokenCount) &&
+    fragment.tokenCount >= 0;
+  return (
+    validMeasurements &&
+    Array.isArray(fragment.locations) &&
+    fragment.locations.length >= 2 &&
+    fragment.locations.every(isValidLocation)
+  );
 }
 
 function isValidLocation(location: DuplicateCodeLocation): boolean {
-  const validPath = typeof location.path === "string" && location.path.length > 0
-    && typeof location.codeArea === "string" && location.codeArea.length > 0;
-  const validLines = Number.isSafeInteger(location.startLine) && location.startLine >= 1
-    && Number.isSafeInteger(location.endLine) && location.endLine >= location.startLine;
+  const validPath =
+    typeof location.path === "string" &&
+    location.path.length > 0 &&
+    typeof location.codeArea === "string" &&
+    location.codeArea.length > 0;
+  const validLines =
+    Number.isSafeInteger(location.startLine) &&
+    location.startLine >= 1 &&
+    Number.isSafeInteger(location.endLine) &&
+    location.endLine >= location.startLine;
   return validPath && validLines;
 }
 
@@ -142,20 +157,21 @@ function duplicateSubjectsInOrder(
 }
 
 function duplicateFingerprint(fragment: DuplicateCodeFragment): string {
-  return createHash("sha256").update(canonicalJsonBytes({
-    lineCount: fragment.lineCount,
-    paths: uniqueSorted(fragment.locations.map((location) => location.path)),
-    tokenCount: fragment.tokenCount
-  })).digest("hex");
+  return createHash("sha256")
+    .update(
+      canonicalJsonBytes({
+        lineCount: fragment.lineCount,
+        paths: uniqueSorted(fragment.locations.map((location) => location.path)),
+        tokenCount: fragment.tokenCount
+      })
+    )
+    .digest("hex");
 }
 
-function sortedLocations(
-  locations: readonly DuplicateCodeLocation[]
-): DuplicateCodeLocation[] {
-  return [...locations].sort((left, right) => compareText(
-    locationSortKey(left),
-    locationSortKey(right)
-  ));
+function sortedLocations(locations: readonly DuplicateCodeLocation[]): DuplicateCodeLocation[] {
+  return [...locations].sort((left, right) =>
+    compareText(locationSortKey(left), locationSortKey(right))
+  );
 }
 
 function locationSortKey(location: DuplicateCodeLocation): string {
@@ -168,14 +184,14 @@ function duplicateRecordLevel(
   codeAreas: readonly string[],
   definitions: Readonly<Record<string, CodeAreaDefinition>>
 ): RecordLevel | null {
-  if (codeAreas.length > 0 && codeAreas.every((codeArea) => (
-    definitions[codeArea]?.warningPolicy === "exclude-warnings"
-  ))) {
+  if (
+    codeAreas.length > 0 &&
+    codeAreas.every((codeArea) => definitions[codeArea]?.warningPolicy === "exclude-warnings")
+  ) {
     return null;
   }
-  return codeAreas.length > 0 && codeAreas.every((codeArea) => (
-    definitions[codeArea]?.warningPolicy === "watchlist-only"
-  ))
+  return codeAreas.length > 0 &&
+    codeAreas.every((codeArea) => definitions[codeArea]?.warningPolicy === "watchlist-only")
     ? "info"
     : "warning";
 }

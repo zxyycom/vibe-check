@@ -7,10 +7,7 @@ import {
   createPublicationModelV3,
   projectReadablePublicationV3
 } from "./index.ts";
-import {
-  reportProjectionInput,
-  richPublicationInput
-} from "./publication-test-fixtures.ts";
+import { reportProjectionInput, richPublicationInput } from "./publication-test-fixtures.ts";
 
 const presentation = {
   ...TEST_QUALITY_CONFIG.report,
@@ -37,13 +34,15 @@ describe("machine publication v3 readable contract", () => {
       verification: { label: "Quality verification status", status: "passed" }
     });
     assert.deepEqual(readable.report.warningRecords, []);
-    assert.deepEqual(readable.report.acceptedRecords, [{
-      acceptance: [{ acceptanceId: "accepted-large-file", reason: "Reviewed" }],
-      level: "warning",
-      location: { path: "src/a.ts", line: 7, column: 1 },
-      message: "Publication finding",
-      recordId: model.records[0]!.recordId
-    }]);
+    assert.deepEqual(readable.report.acceptedRecords, [
+      {
+        acceptance: [{ acceptanceId: "accepted-large-file", reason: "Reviewed" }],
+        level: "warning",
+        location: { path: "src/a.ts", line: 7, column: 1 },
+        message: "Publication finding",
+        recordId: model.records[0].recordId
+      }
+    ]);
     assert.deepEqual(readable.report.presentation, presentation);
     assert.deepEqual(readable.report.watchlistRecords, readable.report.acceptedRecords);
     assert.deepEqual(readable.console.acceptedRecords, readable.report.acceptedRecords);

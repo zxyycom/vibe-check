@@ -5,7 +5,8 @@ import { normalizeScannerReportedPath } from "../source-path.ts";
 
 export const SCC_VERSION = "3.7.0";
 export const SCC_VERSION_OUTPUT = `scc version ${SCC_VERSION}`;
-export const SCC_BY_FILE_CSV_HEADER = "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC";
+export const SCC_BY_FILE_CSV_HEADER =
+  "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC";
 
 export type SccScanResult =
   | {
@@ -30,7 +31,8 @@ interface SccColumnIndexes {
   provider: number;
 }
 
-type ParsedSccFileMetric = FileMetric & Required<Pick<FileMetric, "blankLines" | "codeLines" | "commentLines">>;
+type ParsedSccFileMetric = FileMetric &
+  Required<Pick<FileMetric, "blankLines" | "codeLines" | "commentLines">>;
 
 type ParsedSccRow = {
   blankLines: number;
@@ -77,12 +79,7 @@ export function parseSccCSV(csv: string, cwd: string): SccScanResult {
     }
 
     const columns = sccColumnIndexes(rows[headerIdx] ?? []);
-    const parsed = parseSccMetrics(
-      rows.slice(headerIdx + 1),
-      columns,
-      headerIdx + 2,
-      cwd
-    );
+    const parsed = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2, cwd);
     return {
       ok: true,
       measurements: parsed.measurements,
@@ -132,12 +129,7 @@ function parseSccMetrics(
   const langMap = new Map<string, LanguageAggregate>();
 
   for (const [index, row] of rows.entries()) {
-    const measurement = parseSccFileMetric(
-      row,
-      columns,
-      firstRowNumber + index,
-      cwd
-    );
+    const measurement = parseSccFileMetric(row, columns, firstRowNumber + index, cwd);
     measurements.push(measurement);
     addLanguageMetric(langMap, measurement.payload);
   }
@@ -177,7 +169,9 @@ function parseSccFileMetric(
 function parseSccRow(parts: string[], columns: SccColumnIndexes, rowNumber: number): ParsedSccRow {
   const expectedColumnCount = SCC_BY_FILE_CSV_HEADER.split(",").length;
   if (parts.length !== expectedColumnCount) {
-    throw new Error(`row ${rowNumber} has ${parts.length} columns; expected ${expectedColumnCount}`);
+    throw new Error(
+      `row ${rowNumber} has ${parts.length} columns; expected ${expectedColumnCount}`
+    );
   }
   const rawRow = sccRawRow(parts, columns);
   if (!rawRow.filename) {
@@ -208,7 +202,10 @@ function sccRawRow(parts: string[], columns: SccColumnIndexes): SccRawRow {
   };
 }
 
-function addLanguageMetric(langMap: Map<string, LanguageAggregate>, metric: ParsedSccFileMetric): void {
+function addLanguageMetric(
+  langMap: Map<string, LanguageAggregate>,
+  metric: ParsedSccFileMetric
+): void {
   const existing = langMap.get(metric.language);
   if (existing) {
     incrementLanguageAggregate(existing, metric);
@@ -256,7 +253,7 @@ function parseOptionalInteger(value: string, field: string, rowNumber: number): 
 }
 
 function sccColumnValue(parts: string[], index: number): string {
-  return index >= 0 ? parts[index] ?? "" : "";
+  return index >= 0 ? (parts[index] ?? "") : "";
 }
 
 function isCsvRow(row: string[], expected: string[]): boolean {

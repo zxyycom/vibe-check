@@ -49,7 +49,9 @@ function parseArguments(args: readonly string[]): {
   limit: number;
 } {
   if (args.length > 2) {
-    throw new Error(`argument failure: expected [artifact-directory] [limit], received ${args.length} arguments`);
+    throw new Error(
+      `argument failure: expected [artifact-directory] [limit], received ${args.length} arguments`
+    );
   }
   return {
     artifactDirectory: args[0] ?? DEFAULT_ARTIFACT_DIRECTORY,
@@ -57,20 +59,28 @@ function parseArguments(args: readonly string[]): {
   };
 }
 
-function readArtifact(artifactDirectory: string, filename: "records.ndjson" | "run.json"): Uint8Array {
+function readArtifact(
+  artifactDirectory: string,
+  filename: "records.ndjson" | "run.json"
+): Uint8Array {
   const artifactPath = join(artifactDirectory, filename);
   try {
     return readFileSync(artifactPath);
   } catch (error: unknown) {
-    throw new Error(`failed to read ${filename} from ${artifactDirectory}: ${errorMessage(error)}`, {
-      cause: error
-    });
+    throw new Error(
+      `failed to read ${filename} from ${artifactDirectory}: ${errorMessage(error)}`,
+      {
+        cause: error
+      }
+    );
   }
 }
 
 function parseAnnotationLimit(value: string): number {
   if (!POSITIVE_DECIMAL_PATTERN.test(value)) {
-    throw new Error(`quality annotation limit must be a canonical positive decimal integer: ${value}`);
+    throw new Error(
+      `quality annotation limit must be a canonical positive decimal integer: ${value}`
+    );
   }
   const limit = Number(value);
   if (!Number.isSafeInteger(limit)) {

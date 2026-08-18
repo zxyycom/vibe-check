@@ -8,10 +8,7 @@ import {
   type FileMetricsOptions,
   type FunctionMetricsOptions
 } from "./built-ins.ts";
-import {
-  resolveCheckTree,
-  type ResolvedCheckTreeLeaf
-} from "./check-tree/index.ts";
+import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/index.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDefinition } from "./check-definition.ts";
 import {
@@ -27,15 +24,10 @@ import {
   type QualityRecordCandidate,
   type RecordTypeDefinition
 } from "./custom-check.ts";
-import {
-  CURRENT_PUBLIC_CONTRACT
-} from "../public-contract/current.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../public-contract/current.ts";
 import { isNonArrayRecord } from "../foundation/type-guards.ts";
 import type { DecisionPolicy } from "../quality-core/check-record/policy-model.ts";
-import {
-  NEUTRAL_QUALITY_CONFIGURATION,
-  type ProjectQualityConfiguration
-} from "./quality.ts";
+import { NEUTRAL_QUALITY_CONFIGURATION, type ProjectQualityConfiguration } from "./quality.ts";
 
 export {
   defineCheck,
@@ -73,7 +65,7 @@ export interface SchedulerPolicy {
 
 export interface ProjectDefinition {
   readonly apiVersion: "1";
-  readonly checks: readonly Check<object>[];
+  readonly checks: readonly Check[];
   readonly effects: ProjectEffects;
   readonly policies: Readonly<Record<string, DecisionPolicy>>;
   readonly quality: ProjectQualityConfiguration;
@@ -83,7 +75,7 @@ export interface ProjectDefinition {
 
 type ProjectDefinitionInput = Readonly<{
   apiVersion?: "1";
-  checks?: readonly Check<object>[];
+  checks?: readonly Check[];
   effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
     logs: Partial<ProjectEffects["logs"]>;
@@ -123,7 +115,11 @@ export type ValidationResult<T> = Readonly<
 >;
 
 export type ProjectDefinitionValidationResult = Readonly<
-  | { readonly ok: true; readonly value: ProjectDefinition; readonly warnings: readonly DefinitionWarning[] }
+  | {
+      readonly ok: true;
+      readonly value: ProjectDefinition;
+      readonly warnings: readonly DefinitionWarning[];
+    }
   | { readonly ok: false; readonly error: ProjectDefinitionDiagnostic }
 >;
 
@@ -138,7 +134,7 @@ export interface NormalizedCheckDeclaration {
 
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
   /** Trusted project code; deliberately excluded from `declarative`. */
-  readonly execution: CheckExecution<object>;
+  readonly execution: CheckExecution;
 }
 
 export interface DeclarativeProjectSnapshot {
@@ -170,24 +166,25 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
     checks: value.checks ?? [],
     effects: {
       cache: {
-        directory: value.effects?.cache?.directory
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.directory,
-        enabled: value.effects?.cache?.enabled
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.enabled
+        directory:
+          value.effects?.cache?.directory ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.directory,
+        enabled:
+          value.effects?.cache?.enabled ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.enabled
       },
       logs: {
-        enabled: value.effects?.logs?.enabled
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.logs.enabled
+        enabled: value.effects?.logs?.enabled ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.logs.enabled
       },
       output: {
-        directory: value.effects?.output?.directory
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.output.directory,
-        enabled: value.effects?.output?.enabled
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.output.enabled
+        directory:
+          value.effects?.output?.directory ??
+          CURRENT_PUBLIC_CONTRACT.effectDefaults.output.directory,
+        enabled:
+          value.effects?.output?.enabled ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.output.enabled
       },
       progress: {
-        enabled: value.effects?.progress?.enabled
-          ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.progress.enabled
+        enabled:
+          value.effects?.progress?.enabled ??
+          CURRENT_PUBLIC_CONTRACT.effectDefaults.progress.enabled
       }
     },
     policies: value.policies ?? {},
@@ -201,7 +198,8 @@ export function normalizeProjectDefinition(
   definition: ProjectDefinition
 ): NormalizedProjectDefinition {
   const tree = resolveCheckTree(definition.checks, definition.scheduler.maxParallel);
-  if (tree === undefined) throw new TypeError("Project Definition Check tree failed closed normalization");
+  if (tree === undefined)
+    throw new TypeError("Project Definition Check tree failed closed normalization");
   const checks = Object.freeze(tree.leaves.map(normalizeCheck));
   return Object.freeze({
     checks,
@@ -229,7 +227,8 @@ function freezeDeclarativeSnapshot(
   definition: ProjectDefinition,
   checks: readonly NormalizedCheck[]
 ): DeclarativeProjectSnapshot {
-  const declarations = checks.map(({ execution: _execution, ...declaration }) => declaration)
+  const declarations = checks
+    .map(({ execution: _execution, ...declaration }) => declaration)
     .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
   return deepFreeze({
     apiVersion: definition.apiVersion,
@@ -257,7 +256,10 @@ function deepFreeze<T>(value: T): T {
 function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   if (isNonArrayRecord(value)) {
-    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(",")}}`;
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
+      .join(",")}}`;
   }
   return JSON.stringify(value);
 }

@@ -8,16 +8,11 @@ export type MachinePublicationV3 = Extract<
   { ok: true }
 >["value"];
 
-export function assertCurrentPublicationBaseline(
-  machine: MachinePublicationV3
-): void {
+export function assertCurrentPublicationBaseline(machine: MachinePublicationV3): void {
   const { run, records } = machine;
   assert.equal(run.schemaVersion, "vibe-check.run.v3");
   assert.equal(run.invocation.projectRoot, ".");
-  assert.match(
-    run.invocation.timestamp,
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/
-  );
+  assert.match(run.invocation.timestamp, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   assert.match(run.invocation.invocationId, /^invocation\/v1:/);
   assert.deepEqual(
     run.checks.map(({ checkId }) => checkId),

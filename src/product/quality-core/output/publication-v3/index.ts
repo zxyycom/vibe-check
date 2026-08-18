@@ -17,10 +17,7 @@ export {
   type PublicationInvocationV3,
   type ValidatedPublicationModelV3
 } from "./model.ts";
-export {
-  projectMachinePublicationV3,
-  type MachinePublicationV3
-} from "./mapper.ts";
+export { projectMachinePublicationV3, type MachinePublicationV3 } from "./mapper.ts";
 export {
   serializeMachinePublicationV3,
   type MachinePublicationCandidatesV3
@@ -40,10 +37,7 @@ export {
   type MachinePublicationValidationDiagnostic,
   type MachinePublicationValidationResult
 } from "./validation.ts";
-export {
-  planPublicationCleanupV3,
-  type PublicationCleanupPlanV3
-} from "./publication-plan.ts";
+export { planPublicationCleanupV3, type PublicationCleanupPlanV3 } from "./publication-plan.ts";
 export {
   PUBLICATION_ANNOTATION_INPUT_V3,
   PUBLICATION_V3_FAILURE_STAGES,

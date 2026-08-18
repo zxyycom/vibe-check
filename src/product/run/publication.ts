@@ -42,7 +42,10 @@ export function completeInvocation(
       publication.facts
     );
   }
-  const outputDirectory = resolve(invocation.projectRoot, invocation.effectConfiguration.output.directory);
+  const outputDirectory = resolve(
+    invocation.projectRoot,
+    invocation.effectConfiguration.output.directory
+  );
   const readable = publishOutput({
     changedFiles: invocation.controls.changedFiles ?? [],
     effectConfiguration: invocation.effectConfiguration,
@@ -72,7 +75,11 @@ function createModel(
     const decision = evaluateDecisionPolicy(policy, core.snapshot, core.referenceFacts);
     const model = createPublicationModelV3({
       decision,
-      humanStatus: projectHumanStatus({ decision, snapshot: core.snapshot, verificationOutput: false }),
+      humanStatus: projectHumanStatus({
+        decision,
+        snapshot: core.snapshot,
+        verificationOutput: false
+      }),
       invocation: {
         invocationId: invocation.invocationId,
         projectRoot: ".",

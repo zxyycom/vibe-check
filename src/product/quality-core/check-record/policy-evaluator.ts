@@ -71,17 +71,16 @@ function requiredReferenceIdentity(
   resolution: PolicyResolution,
   referenceName: string
 ): PolicyResolution["references"][number] {
-  const identity = resolution.references.find((reference) => reference.referenceName === referenceName);
+  const identity = resolution.references.find(
+    (reference) => reference.referenceName === referenceName
+  );
   if (identity === undefined) {
     throw new TypeError("Validated policy reference has no registered identity");
   }
   return identity;
 }
 
-function requiredView(
-  viewsById: ReadonlyMap<string, ViewEvidence>,
-  viewId: string
-): ViewEvidence {
+function requiredView(viewsById: ReadonlyMap<string, ViewEvidence>, viewId: string): ViewEvidence {
   const view = viewsById.get(viewId);
   if (view === undefined) {
     throw new TypeError("Validated policy predicate has no resolved view");
@@ -94,9 +93,9 @@ function requiredReferenceEvidence(
   checkId: string,
   referenceName: string
 ): ReferenceFacts["evidence"][number] {
-  const evidence = facts.evidence.find((candidate) => (
-    candidate.checkId === checkId && candidate.referenceName === referenceName
-  ));
+  const evidence = facts.evidence.find(
+    (candidate) => candidate.checkId === checkId && candidate.referenceName === referenceName
+  );
   if (evidence === undefined) {
     throw new TypeError("Validated policy predicate has no resolved reference evidence");
   }
@@ -126,16 +125,16 @@ interface PredicateResult {
 
 type ReadinessEvaluation = Readonly<
   | {
-    status: "ready";
-    readiness: readonly ReadinessEvidence[];
-    gateEvidence: readonly EvidenceRef[];
-  }
+      status: "ready";
+      readiness: readonly ReadinessEvidence[];
+      gateEvidence: readonly EvidenceRef[];
+    }
   | {
-    status: "not-evaluated";
-    readiness: readonly ReadinessEvidence[];
-    gateEvidence: readonly EvidenceRef[];
-    reason: GateNotEvaluatedReason;
-  }
+      status: "not-evaluated";
+      readiness: readonly ReadinessEvidence[];
+      gateEvidence: readonly EvidenceRef[];
+      reason: GateNotEvaluatedReason;
+    }
 >;
 
 interface CompletedDecisionInput {
@@ -172,12 +171,16 @@ function evaluateReadinessPredicate(
   }
   if (predicate.kind === "check-outcome") {
     const check = requiredCheck(snapshot, predicate.checkId);
-    return { isMatched: check.outcome.status === predicate.outcome, evidenceRefs: [checkRef(check)] };
+    return {
+      isMatched: check.outcome.status === predicate.outcome,
+      evidenceRefs: [checkRef(check)]
+    };
   }
   if (predicate.kind === "check-verdict") {
     const check = requiredCheck(snapshot, predicate.checkId);
     return {
-      isMatched: check.outcome.status === "completed" && check.outcome.verdict === predicate.verdict,
+      isMatched:
+        check.outcome.status === "completed" && check.outcome.verdict === predicate.verdict,
       evidenceRefs: [checkRef(check)]
     };
   }
@@ -219,11 +222,15 @@ function evaluateBlockWhen(
 }
 
 function unexpectedReadinessPredicate(predicate: never): never {
-  throw new TypeError(`Validated policy has an unsupported readiness predicate: ${String(predicate)}`);
+  throw new TypeError(
+    `Validated policy has an unsupported readiness predicate: ${String(predicate)}`
+  );
 }
 
 function unexpectedBlockWhen(blockWhen: never): never {
-  throw new TypeError(`Validated policy has an unsupported blockWhen predicate: ${String(blockWhen)}`);
+  throw new TypeError(
+    `Validated policy has an unsupported blockWhen predicate: ${String(blockWhen)}`
+  );
 }
 
 function evaluateReadiness(
@@ -236,15 +243,26 @@ function evaluateReadiness(
   const readiness: ReadinessEvidence[] = [];
   const gateEvidence: EvidenceRef[] = [];
   for (const clause of policy.readiness) {
-    const evaluated = evaluateReadinessPredicate(clause.predicate, resolution, snapshot, referenceFacts, viewsById);
-    const evidenceRefs = canonicalEvidence([...evaluated.evidenceRefs, {
-      kind: "readiness",
-      readinessId: clause.readinessId
-    }]);
+    const evaluated = evaluateReadinessPredicate(
+      clause.predicate,
+      resolution,
+      snapshot,
+      referenceFacts,
+      viewsById
+    );
+    const evidenceRefs = canonicalEvidence([
+      ...evaluated.evidenceRefs,
+      {
+        kind: "readiness",
+        readinessId: clause.readinessId
+      }
+    ]);
     gateEvidence.push(...evidenceRefs);
-    readiness.push(evaluated.isMatched
-      ? { readinessId: clause.readinessId, status: "passed", evidenceRefs }
-      : { readinessId: clause.readinessId, status: "failed", reason: clause.reason, evidenceRefs });
+    readiness.push(
+      evaluated.isMatched
+        ? { readinessId: clause.readinessId, status: "passed", evidenceRefs }
+        : { readinessId: clause.readinessId, status: "failed", reason: clause.reason, evidenceRefs }
+    );
     if (!evaluated.isMatched) {
       return { status: "not-evaluated", readiness, gateEvidence, reason: clause.reason };
     }
@@ -263,11 +281,15 @@ export function evaluateDecisionPolicy(
   const policy = resolution.policy;
   if (policy === null) return disabledDecision(snapshot);
 
-  const { acceptance, views } = evaluateRecordObservation({
-    acceptance: policy.acceptance,
-    catalogFingerprint: resolution.catalogFingerprint,
-    views: policy.views
-  }, snapshot, referenceFacts);
+  const { acceptance, views } = evaluateRecordObservation(
+    {
+      acceptance: policy.acceptance,
+      catalogFingerprint: resolution.catalogFingerprint,
+      views: policy.views
+    },
+    snapshot,
+    referenceFacts
+  );
   const viewsById = new Map(views.map((view) => [view.viewId, view]));
 
   const readiness = evaluateReadiness(policy, resolution, snapshot, referenceFacts, viewsById);
@@ -337,7 +359,9 @@ function completedDecision(input: CompletedDecisionInput): DecisionEvidence {
   const blockWhen: BlockWhenEvidence = {
     status: blocked.isMatched ? "matched" : "not-matched",
     evidenceRefs: canonicalEvidence(blocked.evidenceRefs),
-    blockingRecordRefs: [...blocked.blockingRecordRefs].sort((left, right) => compareText(left.recordId, right.recordId))
+    blockingRecordRefs: [...blocked.blockingRecordRefs].sort((left, right) =>
+      compareText(left.recordId, right.recordId)
+    )
   };
   const gateEvidence = [...input.readiness.gateEvidence, ...blocked.evidenceRefs];
   return deepFreeze({

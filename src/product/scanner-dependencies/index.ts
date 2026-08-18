@@ -7,6 +7,7 @@ export type FileScannerDependency = ScannerCommandOptions;
 export type FunctionScannerDependency = ScannerCommandOptions;
 
 /** Private adapter view of the scanner command owned by duplicate-detection options. */
-export type DuplicationScannerDependency = ScannerCommandOptions & Readonly<{
-  readonly maxConcurrency: number;
-}>;
+export type DuplicationScannerDependency = ScannerCommandOptions &
+  Readonly<{
+    readonly maxConcurrency: number;
+  }>;

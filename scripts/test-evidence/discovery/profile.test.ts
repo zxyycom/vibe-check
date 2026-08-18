@@ -7,22 +7,21 @@ import test from "node:test";
 import { discoverTestEntities } from "../discover.ts";
 import { parseBunJUnit } from "./bun.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
-import {
-  loadSupportedRunnerProfile,
-  workspaceRoot
-} from "../profile.ts";
+import { loadSupportedRunnerProfile, workspaceRoot } from "../profile.ts";
 
 test("parses stable Bun runner reports without inferring missing fields", () => {
   assert.deepEqual(
-    parseBunJUnit([
-      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
-      "<testsuites tests=\"1\" failures=\"0\">",
-      "  <testcase name=\"rejects &quot;bad&quot; input\" classname=\"suite\" file=\"tests/example.test.ts\" line=\"7\" />",
-      "</testsuites>"
-    ].join("\n")),
+    parseBunJUnit(
+      [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<testsuites tests="1" failures="0">',
+        '  <testcase name="rejects &quot;bad&quot; input" classname="suite" file="tests/example.test.ts" line="7" />',
+        "</testsuites>"
+      ].join("\n")
+    ),
     [
       {
-        name: "rejects \"bad\" input",
+        name: 'rejects "bad" input',
         className: "suite",
         file: "tests/example.test.ts",
         line: 7
@@ -30,7 +29,7 @@ test("parses stable Bun runner reports without inferring missing fields", () => 
     ]
   );
   assert.throws(
-    () => parseBunJUnit("<testsuites tests=\"1\" failures=\"0\"></testsuites>"),
+    () => parseBunJUnit('<testsuites tests="1" failures="0"></testsuites>'),
     /contains 0 testcase/
   );
 });
@@ -49,10 +48,7 @@ test("loads one versioned and sorted supported runner profile", async () => {
     findConventionalBunTests(workspaceRoot, profile.bun.sourceRoots)
   );
 
-  const temporaryRoot = fs.mkdtempSync(path.join(
-    os.tmpdir(),
-    "vibe-check-runner-profile-"
-  ));
+  const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vibe-check-runner-profile-"));
   try {
     const invalidProfiles = [
       {
@@ -89,16 +85,15 @@ test("loads one versioned and sorted supported runner profile", async () => {
   const rootMismatch = await discoverTestEntities({
     workspaceRoot: os.tmpdir()
   });
-  assert.ok(rootMismatch.diagnostics.some(({ code, message }) => (
-    code === "runner-profile-invalid" &&
-    message.includes("current checkout")
-  )));
+  assert.ok(
+    rootMismatch.diagnostics.some(
+      ({ code, message }) =>
+        code === "runner-profile-invalid" && message.includes("current checkout")
+    )
+  );
 });
 
-function findConventionalBunTests(
-  root: string,
-  sourceRoots: readonly string[]
-): string[] {
+function findConventionalBunTests(root: string, sourceRoots: readonly string[]): string[] {
   const files: string[] = [];
   for (const sourceRoot of sourceRoots) {
     visit(path.join(root, sourceRoot), sourceRoot);

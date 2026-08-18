@@ -30,15 +30,17 @@ export function validatePublishedMachineArtifactExamples(): number {
   const schemas = createCurrentSchemaValidators();
   for (const outcome of CURRENT_MACHINE_OUTCOMES) {
     const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${outcome}`;
-    const result = validateDocsMachineArtifactSetWithSchemas({
-      runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
-      recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
-    }, artifactRoot, schemas);
+    const result = validateDocsMachineArtifactSetWithSchemas(
+      {
+        runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
+        recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
+      },
+      artifactRoot,
+      schemas
+    );
     if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
   }
-  console.log(
-    `current machine artifact examples ok: ${CURRENT_MACHINE_OUTCOMES.length} set(s)`
-  );
+  console.log(`current machine artifact examples ok: ${CURRENT_MACHINE_OUTCOMES.length} set(s)`);
   return CURRENT_MACHINE_OUTCOMES.length;
 }
 

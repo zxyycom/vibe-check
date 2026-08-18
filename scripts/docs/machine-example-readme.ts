@@ -3,9 +3,7 @@ import {
   type CanonicalMachineExample
 } from "./machine-example-model.ts";
 
-export function renderMachineExampleReadme(
-  example: CanonicalMachineExample
-): string {
+export function renderMachineExampleReadme(example: CanonicalMachineExample): string {
   const run = example.publication.run;
   return `# ${example.title}
 

@@ -5,7 +5,10 @@ import { join } from "node:path";
 
 import type { CheckProjectContext } from "../definition/custom-check.ts";
 import type { ProjectDefinition, RunControls } from "../definition/project.ts";
-import { materializeBaselineRevision, resolveBaselineCommitSha } from "../quality-core/input/revisions.ts";
+import {
+  materializeBaselineRevision,
+  resolveBaselineCommitSha
+} from "../quality-core/input/revisions.ts";
 import type { EffectStatuses } from "./effects.ts";
 
 export interface PreparedProjectContext {
@@ -14,16 +17,19 @@ export interface PreparedProjectContext {
 }
 
 /** Materializes the invocation-wide callback context once before Task work. */
-export function prepareProjectContext(input: Readonly<{
-  readonly controls: RunControls;
-  readonly definition: ProjectDefinition;
-  readonly effects: EffectStatuses;
-  readonly effectConfiguration: ProjectDefinition["effects"];
-  readonly root: string;
-}>): PreparedProjectContext {
-  const materialized = input.controls.comparison === undefined
-    ? null
-    : materializeComparison(input.root, input.controls.comparison);
+export function prepareProjectContext(
+  input: Readonly<{
+    readonly controls: RunControls;
+    readonly definition: ProjectDefinition;
+    readonly effects: EffectStatuses;
+    readonly effectConfiguration: ProjectDefinition["effects"];
+    readonly root: string;
+  }>
+): PreparedProjectContext {
+  const materialized =
+    input.controls.comparison === undefined
+      ? null
+      : materializeComparison(input.root, input.controls.comparison);
   try {
     return Object.freeze({
       cleanup: materialized?.cleanup ?? (() => undefined),

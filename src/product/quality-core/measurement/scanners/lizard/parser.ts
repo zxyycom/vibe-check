@@ -1,9 +1,6 @@
 import type { FunctionMetric } from "../../../model/schema.ts";
 import type { ScopedMeasurement } from "../../scoped-measurement.ts";
-import {
-  errorMessage,
-  parseCsvRows,
-} from "../../../../foundation/index.ts";
+import { errorMessage, parseCsvRows } from "../../../../foundation/index.ts";
 import { normalizeScannerReportedPath } from "../source-path.ts";
 
 export type LizardScanResult =
@@ -24,7 +21,7 @@ const LIZARD_COLUMNS = {
   filePath: 6,
   functionName: 7,
   startLine: 9,
-  endLine: 10,
+  endLine: 10
 } as const;
 
 /**
@@ -52,7 +49,7 @@ export function parseLizardCSV(csv: string, cwd: string): LizardScanResult {
     return {
       ok: false,
       error: `Failed to parse lizard CSV: ${errorMessage(error)}`,
-      reason: "invalid-result",
+      reason: "invalid-result"
     };
   }
 }
@@ -93,10 +90,10 @@ function functionMetricFromLizardRow(
       parameterCount: values.parameterCount,
       cyclomaticComplexity: {
         value: values.ccn,
-        source: "lizard",
+        source: "lizard"
       },
-      isChanged: false,
-    },
+      isChanged: false
+    }
   };
 }
 
@@ -118,32 +115,31 @@ function parseLizardMetricValues(parts: string[]): LizardMetricValues | null {
 
   if (
     (ccnText !== "" && ccn === null) ||
-    [endLine, nloc, parameterCount, startLine].some((value) => value === null)
+    endLine === null ||
+    nloc === null ||
+    parameterCount === null ||
+    startLine === null
   ) {
     return null;
   }
 
   return {
     ccn,
-    endLine: endLine as number,
-    nloc: nloc as number,
-    parameterCount: parameterCount as number,
-    startLine: startLine as number,
+    endLine,
+    nloc,
+    parameterCount,
+    startLine
   };
 }
 
 function compareFunctionMetrics(a: FunctionMetric, b: FunctionMetric): number {
-  const ccDiff =
-    (b.cyclomaticComplexity.value ?? 0) - (a.cyclomaticComplexity.value ?? 0);
+  const ccDiff = (b.cyclomaticComplexity.value ?? 0) - (a.cyclomaticComplexity.value ?? 0);
   if (ccDiff !== 0) return ccDiff;
   return b.lines - a.lines;
 }
 
-function parseInteger(
-  value: string | undefined,
-  minimum: number,
-): number | null {
-  const text = String(value ?? "").trim();
+function parseInteger(value: string | undefined, minimum: number): number | null {
+  const text = (value ?? "").trim();
   if (!/^\d+$/.test(text)) {
     return null;
   }

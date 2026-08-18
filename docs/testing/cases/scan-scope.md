@@ -21,12 +21,14 @@ Proves:
 Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 - `bun|src/product/quality-core/input/files.test.ts|quality submodule input > keeps current and baseline submodule files aligned`
+- `bun|src/product/quality-core/input/files.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
 - `bun|src/product/quality-core/input/files.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
 - `bun|src/product/quality-core/input/files.test.ts|quality input file collection > treats successful empty Git results as authoritative for current and baseline`
 - `bun|src/product/quality-core/input/files.test.ts|quality input file collection > uses config-only fallback for current and baseline when Git fails`
 Proves:
 - Current 与 baseline Git command 成功时直接使用 normalized result，包括成功的空集合。
 - Current worktree 与 materialized baseline 对 submodule files 保持同一 project-relative identity；current 仍包含允许的 working/untracked submodule files。
-- Git command 失败时，current 与 baseline 都进入 config-only fallback；匹配 product include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。
+- 只有独立初始化的 child Git worktree 才会承接 HEAD gitlink traversal；被普通目录替换的 gitlink 继续由主仓 Git candidates 表示，且不会回到 parent worktree。若 baseline materialization 需要该 gitlink，则以“not an independent Git worktree”的可行动诊断失败，而非把 parent worktree 误作 child 或误报 missing。
+- Git command 失败时，current 与 baseline 都进入 config-only fallback；匹配 product include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。fallback root 或 directory 无法读取时，current 与 baseline 都报告包含该目录的读取错误，而非静默返回 empty candidates。
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。

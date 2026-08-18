@@ -13,11 +13,7 @@ import {
 } from "../quality-core/check-record/core-session.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import { snapshotClosedRecord } from "../quality-core/check-record/plain-record-values.ts";
-import {
-  prepareTaskGraph,
-  runTaskGraph,
-  type SettledTask
-} from "../task-scheduler/index.ts";
+import { prepareTaskGraph, runTaskGraph, type SettledTask } from "../task-scheduler/index.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
 import {
   canonicalizeReferenceSubmissions,
@@ -29,15 +25,15 @@ const INERT_SIGNAL = new AbortController().signal;
 
 export type ResolvedCheckExecution = Readonly<
   | {
-    readonly kind: "completed";
-    readonly references: readonly CheckReferenceSubmission[];
-    readonly snapshot: CoreSnapshot;
-  }
+      readonly kind: "completed";
+      readonly references: readonly CheckReferenceSubmission[];
+      readonly snapshot: CoreSnapshot;
+    }
   | {
-    readonly kind: "cancelled";
-    readonly references: readonly CheckReferenceSubmission[];
-    readonly snapshot: CoreSnapshot;
-  }
+      readonly kind: "cancelled";
+      readonly references: readonly CheckReferenceSubmission[];
+      readonly snapshot: CoreSnapshot;
+    }
 >;
 
 /** Internal marker: a settled unavailable Check must block scheduler dependents. */
@@ -60,18 +56,24 @@ class CheckExecutionInvariantFailure extends Error {
  * Runs the already normalized executable Check collection through one generic
  * Task per Check. Graph validation happens before Core scopes or callbacks.
  */
-export async function executeResolvedChecks(input: Readonly<{
-  readonly checks: readonly NormalizedCheck[];
-  readonly maxParallel: number;
-  readonly project: CheckProjectContext;
-  readonly signal: AbortSignal | undefined;
-}>): Promise<ResolvedCheckExecution> {
+export async function executeResolvedChecks(
+  input: Readonly<{
+    readonly checks: readonly NormalizedCheck[];
+    readonly maxParallel: number;
+    readonly project: CheckProjectContext;
+    readonly signal: AbortSignal | undefined;
+  }>
+): Promise<ResolvedCheckExecution> {
   const graph = planStaticCheckGraph(input.checks);
   prepareTaskGraph(graph, input.maxParallel);
 
-  const session = createCoreCheckSession(input.checks.map((check) => Object.freeze({
-    definition: check.definition
-  })));
+  const session = createCoreCheckSession(
+    input.checks.map((check) =>
+      Object.freeze({
+        definition: check.definition
+      })
+    )
+  );
   const openedCheckIds = new Set<string>();
   const references: CheckReferenceSubmission[] = [];
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
@@ -121,14 +123,16 @@ export async function executeResolvedChecks(input: Readonly<{
   }
 }
 
-async function executeCheck(input: Readonly<{
-  readonly openedCheckIds: Set<string>;
-  readonly check: NormalizedCheck;
-  readonly project: CheckProjectContext;
-  readonly references: CheckReferenceSubmission[];
-  readonly session: CoreCheckSession;
-  readonly signal: AbortSignal;
-}>): Promise<void> {
+async function executeCheck(
+  input: Readonly<{
+    readonly openedCheckIds: Set<string>;
+    readonly check: NormalizedCheck;
+    readonly project: CheckProjectContext;
+    readonly references: CheckReferenceSubmission[];
+    readonly session: CoreCheckSession;
+    readonly signal: AbortSignal;
+  }>
+): Promise<void> {
   const checkId = input.check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   input.openedCheckIds.add(checkId);
@@ -163,8 +167,8 @@ async function executeCheck(input: Readonly<{
     isReporterOpen = false;
   }
 
-  const reportedReferenceFromNotApplicable = result.status === "not-applicable"
-    && reportedReferences.length > 0;
+  const reportedReferenceFromNotApplicable =
+    result.status === "not-applicable" && reportedReferences.length > 0;
   if (reportedReferenceFromNotApplicable) {
     result = Object.freeze({ status: "unavailable", reason: { code: "record-invalid" } });
   } else {
@@ -199,8 +203,8 @@ function validateCheckResult(value: unknown): CheckResult | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined || typeof data.status !== "string") return undefined;
   if (data.status === "completed") {
-    return hasExactKeys(data, { required: ["status", "verdict"] })
-      && (data.verdict === "passed" || data.verdict === "failed")
+    return hasExactKeys(data, { required: ["status", "verdict"] }) &&
+      (data.verdict === "passed" || data.verdict === "failed")
       ? Object.freeze({ status: "completed", verdict: data.verdict })
       : undefined;
   }
@@ -210,9 +214,7 @@ function validateCheckResult(value: unknown): CheckResult | undefined {
       return Object.freeze({ status: "not-applicable" });
     }
     const reason = validateReason(data.reason);
-    return reason === undefined
-      ? undefined
-      : Object.freeze({ status: "not-applicable", reason });
+    return reason === undefined ? undefined : Object.freeze({ status: "not-applicable", reason });
   }
   if (data.status === "unavailable" && hasExactKeys(data, { required: ["status", "reason"] })) {
     const reason = validateReason(data.reason);
@@ -223,8 +225,10 @@ function validateCheckResult(value: unknown): CheckResult | undefined {
 
 function validateReason(value: unknown): Readonly<{ readonly code: string }> | undefined {
   const data = snapshotClosedRecord(value);
-  return data !== undefined && hasExactKeys(data, { required: ["code"] })
-    && typeof data.code === "string" && data.code.length > 0
+  return data !== undefined &&
+    hasExactKeys(data, { required: ["code"] }) &&
+    typeof data.code === "string" &&
+    data.code.length > 0
     ? Object.freeze({ code: data.code })
     : undefined;
 }
@@ -242,20 +246,27 @@ function settleBlockedChecks(
       throw new CheckExecutionInvariantFailure("Blocked Task does not identify an unopened Check");
     }
     const scope = session.openCheckScope(check.definition.checkId);
-    scope.settle(Object.freeze({
-      status: "unavailable",
-      reason: {
-        code: "prerequisite-unavailable",
-        checkIds: Object.freeze([...new Set(settled.settlement.dependencyIds)].sort(compareText))
-      }
-    }));
+    scope.settle(
+      Object.freeze({
+        status: "unavailable",
+        reason: {
+          code: "prerequisite-unavailable",
+          checkIds: Object.freeze([...new Set(settled.settlement.dependencyIds)].sort(compareText))
+        }
+      })
+    );
   }
 }
 
 function assertContainedTaskFailures(settlements: readonly SettledTask<void>[]): void {
   for (const settled of settlements) {
-    if (settled.settlement.kind === "failed" && !(settled.settlement.error instanceof CheckUnavailableSignal)) {
-      throw new CheckExecutionInvariantFailure("Task engine received an unexpected execution failure");
+    if (
+      settled.settlement.kind === "failed" &&
+      !(settled.settlement.error instanceof CheckUnavailableSignal)
+    ) {
+      throw new CheckExecutionInvariantFailure(
+        "Task engine received an unexpected execution failure"
+      );
     }
   }
 }
@@ -268,7 +279,9 @@ function assertEveryCheckClosed(
     throw new CheckExecutionInvariantFailure("Non-cancelled Task graph left a Check unstarted");
   }
   if (checks.length !== settlements.length) {
-    throw new CheckExecutionInvariantFailure("Task graph does not have one Task per executable Check");
+    throw new CheckExecutionInvariantFailure(
+      "Task graph does not have one Task per executable Check"
+    );
   }
 }
 
@@ -277,8 +290,10 @@ function hasExactKeys(
   fields: Readonly<{ readonly optional?: readonly string[]; readonly required: readonly string[] }>
 ): boolean {
   const supported = new Set([...fields.required, ...(fields.optional ?? [])]);
-  return fields.required.every((key) => Object.hasOwn(value, key))
-    && Object.keys(value).every((key) => supported.has(key));
+  return (
+    fields.required.every((key) => Object.hasOwn(value, key)) &&
+    Object.keys(value).every((key) => supported.has(key))
+  );
 }
 
 function compareText(left: string, right: string): number {
@@ -290,5 +305,7 @@ function compareText(left: string, right: string): number {
 function trustedFailure(error: unknown): CheckExecutionInvariantFailure {
   return error instanceof CheckExecutionInvariantFailure
     ? error
-    : new CheckExecutionInvariantFailure("Check execution adapter escaped its contained failure boundary");
+    : new CheckExecutionInvariantFailure(
+        "Check execution adapter escaped its contained failure boundary"
+      );
 }

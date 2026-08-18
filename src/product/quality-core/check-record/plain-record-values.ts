@@ -4,41 +4,47 @@ interface OwnDataShape {
 }
 
 function ownDataShape(value: object): OwnDataShape | undefined {
-  const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
-    Record<string, PropertyDescriptor>
-  >;
+  const descriptors: Readonly<Record<string, PropertyDescriptor>> =
+    Object.getOwnPropertyDescriptors(value);
   const ownKeys = Reflect.ownKeys(descriptors);
-  if (ownKeys.some((key) => typeof key !== "string")) return undefined;
-  const keys = ownKeys as string[];
-  if (keys.some((key) => {
-    const descriptor = descriptors[key]!;
-    return descriptor.get !== undefined || descriptor.set !== undefined;
-  })) return undefined;
+  const keys: string[] = [];
+  for (const key of ownKeys) {
+    if (typeof key !== "string") return undefined;
+    keys.push(key);
+  }
+  if (
+    keys.some((key) => {
+      const descriptor = descriptors[key];
+      return descriptor.get !== undefined || descriptor.set !== undefined;
+    })
+  )
+    return undefined;
   return { descriptors, keys };
 }
 
-export function snapshotPlainRecord(
-  value: unknown
-): Readonly<Record<string, unknown>> | undefined {
+export function snapshotPlainRecord(value: unknown): Readonly<Record<string, unknown>> | undefined {
   try {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
       return undefined;
     }
-    const prototype = Object.getPrototypeOf(value) as object | null;
+    const prototype: unknown = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) {
       return undefined;
     }
-    const descriptors = Object.getOwnPropertyDescriptors(value) as Readonly<
-      Record<string, PropertyDescriptor>
-    >;
-    if (Object.values(descriptors).some((descriptor) => (
-      descriptor.get !== undefined || descriptor.set !== undefined
-    ))) {
+    const descriptors: Readonly<Record<string, PropertyDescriptor>> =
+      Object.getOwnPropertyDescriptors(value);
+    if (
+      Object.values(descriptors).some(
+        (descriptor) => descriptor.get !== undefined || descriptor.set !== undefined
+      )
+    ) {
       return undefined;
     }
-    return Object.fromEntries(Object.entries(descriptors)
-      .filter(([, descriptor]) => descriptor.enumerable === true)
-      .map(([key, descriptor]) => [key, descriptor.value as unknown]));
+    return Object.fromEntries(
+      Object.entries(descriptors)
+        .filter(([, descriptor]) => descriptor.enumerable === true)
+        .map(([key, descriptor]) => [key, descriptor.value as unknown])
+    );
   } catch {
     return undefined;
   }
@@ -49,16 +55,18 @@ export function snapshotClosedRecord(
 ): Readonly<Record<string, unknown>> | undefined {
   try {
     if (value === null || typeof value !== "object" || Array.isArray(value)) return undefined;
-    const prototype = Object.getPrototypeOf(value) as object | null;
+    const prototype: unknown = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) return undefined;
     const shape = ownDataShape(value);
-    if (shape === undefined
-      || shape.keys.some((key) => shape.descriptors[key]!.enumerable !== true)) {
+    if (
+      shape === undefined ||
+      shape.keys.some((key) => shape.descriptors[key].enumerable !== true)
+    ) {
       return undefined;
     }
-    return Object.freeze(Object.fromEntries(shape.keys.map((key) => (
-      [key, shape.descriptors[key]!.value as unknown]
-    ))));
+    return Object.freeze(
+      Object.fromEntries(shape.keys.map((key) => [key, shape.descriptors[key].value as unknown]))
+    );
   } catch {
     return undefined;
   }

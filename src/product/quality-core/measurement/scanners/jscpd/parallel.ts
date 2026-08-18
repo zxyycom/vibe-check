@@ -15,7 +15,7 @@ export async function runBoundedTasks<TInput, TOutput>(
       const currentIndex = nextIndex;
       nextIndex++;
       if (currentIndex >= inputs.length) return;
-      results[currentIndex] = await runTask(inputs[currentIndex]!, currentIndex);
+      results[currentIndex] = await runTask(inputs[currentIndex], currentIndex);
     }
   }
 

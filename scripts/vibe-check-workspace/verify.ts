@@ -27,7 +27,7 @@ export { parseArgs, resolveVerificationConcurrency };
 export { printCompletionResult } from "./verify/output.ts";
 
 if (isMainModule()) {
-  void main();
+  await main();
 }
 
 async function main(): Promise<void> {

@@ -1,7 +1,7 @@
 packages:
   - "scripts/tools/foundation"
 allowBuilds:
-  '@ast-grep/cli': true
+  "@ast-grep/cli": true
 
 minimumReleaseAgeExclude:
   - "@typescript/native-preview-darwin-arm64@7.0.0-dev.20260621.1"

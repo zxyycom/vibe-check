@@ -9,10 +9,7 @@ import {
   validateMachinePublicationSetV3
 } from "./index.ts";
 import { assertSetFailure, encoder } from "./publication-test-assertions.ts";
-import {
-  emptyPublicationInput,
-  richPublicationInput
-} from "./publication-test-fixtures.ts";
+import { emptyPublicationInput, richPublicationInput } from "./publication-test-fixtures.ts";
 
 type MachinePublication = ReturnType<typeof projectMachinePublicationV3>;
 type MachineCandidates = ReturnType<typeof serializeMachinePublicationV3>;
@@ -38,6 +35,7 @@ type Mutable<Value> = Value extends readonly (infer Item)[]
 
 /** Test fixtures deliberately tamper with serialized data; production DTOs stay readonly. */
 function mutableRun(run: MachinePublication["run"]): MutableMachineRun {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- structuredClone makes a writable test copy for deliberate serialized-artifact mutations.
   return structuredClone(run) as MutableMachineRun;
 }
 
@@ -98,30 +96,36 @@ describe("machine publication v3 contract", () => {
       createPublicationModelV3(await richPublicationInput())
     );
     const invalidRecordOwner = mutableRun(machine.run);
-    invalidRecordOwner.checks[0]!.outcome = { status: "not-applicable" };
+    invalidRecordOwner.checks[0].outcome = { status: "not-applicable" };
     assertSetFailure(machine, invalidRecordOwner, "record-check-ownership");
 
     const nonCanonicalChecks = mutableRun(machine.run);
     nonCanonicalChecks.checks.push({
-      ...structuredClone(nonCanonicalChecks.checks[0]!),
+      ...structuredClone(nonCanonicalChecks.checks[0]),
       checkId: "aaa-check"
     });
-    nonCanonicalChecks.catalogFingerprint = createCatalogFingerprint(nonCanonicalChecks.checks)
-      .catalogFingerprint;
+    nonCanonicalChecks.catalogFingerprint = createCatalogFingerprint(
+      nonCanonicalChecks.checks
+    ).catalogFingerprint;
     assertSetFailure(machine, nonCanonicalChecks, "core-snapshot");
 
     const changedCatalog = mutableRun(machine.run);
-    changedCatalog.checks[0]!.displayName = "Changed check projection";
+    changedCatalog.checks[0].displayName = "Changed check projection";
     assertSetFailure(machine, changedCatalog, "catalog-fingerprint");
 
     const emptyMachine = projectMachinePublicationV3(
       createPublicationModelV3(await emptyPublicationInput())
     );
     const nonCanonical = mutableRun(emptyMachine.run);
-    const recordType = nonCanonical.checks[0]!.recordTypes[0]!;
-    recordType.fields = [{ fieldId: "category", required: true, valueType: "string" }, ...recordType.fields];
+    const recordType = nonCanonical.checks[0].recordTypes[0];
+    recordType.fields = [
+      { fieldId: "category", required: true, valueType: "string" },
+      ...recordType.fields
+    ];
     recordType.identityFields = ["value", "category"];
-    nonCanonical.catalogFingerprint = createCatalogFingerprint(nonCanonical.checks).catalogFingerprint;
+    nonCanonical.catalogFingerprint = createCatalogFingerprint(
+      nonCanonical.checks
+    ).catalogFingerprint;
 
     assertSetFailure(emptyMachine, nonCanonical, "core-snapshot");
   });
@@ -132,27 +136,28 @@ describe("machine publication v3 contract", () => {
     const machine = projectMachinePublicationV3(
       createPublicationModelV3(await richPublicationInput())
     );
-    const referenceId = machine.run.references.identities[0]!.referenceId;
+    const referenceId = machine.run.references.identities[0].referenceId;
 
     const duplicateIdentity = mutableRun(machine.run);
     duplicateIdentity.references.identities.push({ referenceName: "comparison", referenceId });
     assertSetFailure(machine, duplicateIdentity, "reference-identity");
 
     const unknownEvidenceCheck = mutableRun(machine.run);
-    unknownEvidenceCheck.references.evidence[0]!.checkId = "unknown-check";
+    unknownEvidenceCheck.references.evidence[0].checkId = "unknown-check";
     assertSetFailure(machine, unknownEvidenceCheck, "reference-evidence");
 
     const unregisteredRelation = mutableRun(machine.run);
-    unregisteredRelation.references.relations[0]!.relationId = "unknown-relation";
+    unregisteredRelation.references.relations[0].relationId = "unknown-relation";
     assertSetFailure(machine, unregisteredRelation, "reference-relation");
 
     const nonCanonicalFacts = mutableRun(machine.run);
     nonCanonicalFacts.references.identities.push({
       referenceName: "comparison",
-      referenceId: "reference/v1/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      referenceId:
+        "reference/v1/sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
     });
     nonCanonicalFacts.references.evidence.push({
-      checkId: machine.run.checks[0]!.checkId,
+      checkId: machine.run.checks[0].checkId,
       referenceName: "comparison",
       status: "complete"
     });
@@ -183,8 +188,8 @@ describe("machine publication v3 contract", () => {
     assertSetFailure(machine, mismatchedGate, "decision-state");
 
     const duplicateViewRecord = mutableRun(machine.run);
-    duplicateViewRecord.decision.views[0]!.recordIds.push(
-      duplicateViewRecord.decision.views[0]!.recordIds[0]!
+    duplicateViewRecord.decision.views[0].recordIds.push(
+      duplicateViewRecord.decision.views[0].recordIds[0]
     );
     assertSetFailure(machine, duplicateViewRecord, "decision-canonical-order");
   });
@@ -198,12 +203,14 @@ describe("machine publication v3 contract", () => {
       ...invalidModelInput.decision,
       gate: {
         ...invalidModelInput.decision.gate,
-        evidenceRefs: [{
-          kind: "reference",
-          checkId: "unknown-check",
-          referenceName: invalidModelInput.references[0]!.referenceName,
-          referenceId: invalidModelInput.references[0]!.referenceId
-        }]
+        evidenceRefs: [
+          {
+            kind: "reference",
+            checkId: "unknown-check",
+            referenceName: invalidModelInput.references[0].referenceName,
+            referenceId: invalidModelInput.references[0].referenceId
+          }
+        ]
       }
     };
     assert.throws(
@@ -216,12 +223,14 @@ describe("machine publication v3 contract", () => {
     );
     const tampered = mutableRun(machine.run);
     if (tampered.decision.gate.status === "disabled") throw new Error("Expected gate");
-    tampered.decision.gate.evidenceRefs = [{
-      kind: "reference",
-      checkId: "unknown-check",
-      referenceName: tampered.references.identities[0]!.referenceName,
-      referenceId: tampered.references.identities[0]!.referenceId
-    }];
+    tampered.decision.gate.evidenceRefs = [
+      {
+        kind: "reference",
+        checkId: "unknown-check",
+        referenceName: tampered.references.identities[0].referenceName,
+        referenceId: tampered.references.identities[0].referenceId
+      }
+    ];
     assertSetFailure(machine, tampered, "decision-reference-reference");
   });
 });
@@ -232,24 +241,27 @@ describe("machine publication v3 contract", () => {
       createPublicationModelV3(await richPublicationInput())
     );
     const tampered = mutableRun(machine.run);
-    const checkRef = { kind: "check" as const, checkId: tampered.checks[0]!.checkId };
-    tampered.decision.readiness = [{
-      readinessId: "first-readiness",
-      status: "failed",
-      reason: "scan-incomplete",
-      evidenceRefs: [checkRef, { kind: "readiness", readinessId: "first-readiness" }]
-    }, {
-      readinessId: "second-readiness",
-      status: "passed",
-      reason: null,
-      evidenceRefs: [checkRef, { kind: "readiness", readinessId: "second-readiness" }]
-    }];
+    const checkRef = { kind: "check" as const, checkId: tampered.checks[0].checkId };
+    tampered.decision.readiness = [
+      {
+        readinessId: "first-readiness",
+        status: "failed",
+        reason: "scan-incomplete",
+        evidenceRefs: [checkRef, { kind: "readiness", readinessId: "first-readiness" }]
+      },
+      {
+        readinessId: "second-readiness",
+        status: "passed",
+        reason: null,
+        evidenceRefs: [checkRef, { kind: "readiness", readinessId: "second-readiness" }]
+      }
+    ];
     tampered.decision.blockWhen = null;
     tampered.decision.gate = {
       status: "not-evaluated",
       policyId: "regressions",
       reason: "scan-incomplete",
-      evidenceRefs: tampered.decision.readiness[0]!.evidenceRefs
+      evidenceRefs: tampered.decision.readiness[0].evidenceRefs
     };
     assertSetFailure(machine, tampered, "decision-state");
   });
@@ -309,10 +321,12 @@ function recordOwnershipFailure(
     },
     bytes: {
       ...validBytes,
-      recordsNdjson: encoder.encode(`${JSON.stringify({
-        ...machine.records[0],
-        checkId: "unknown-check"
-      })}\n`)
+      recordsNdjson: encoder.encode(
+        `${JSON.stringify({
+          ...machine.records[0],
+          checkId: "unknown-check"
+        })}\n`
+      )
     }
   };
 }
@@ -330,15 +344,22 @@ function danglingDecisionFailure(
     },
     bytes: {
       ...validBytes,
-      runJson: encoder.encode(JSON.stringify({
-        ...machine.run,
-        decision: {
-          ...machine.run.decision,
-          views: [{ viewId: "all-current", recordIds: [
-            "check-record/v1/record/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-          ] }]
-        }
-      }))
+      runJson: encoder.encode(
+        JSON.stringify({
+          ...machine.run,
+          decision: {
+            ...machine.run.decision,
+            views: [
+              {
+                viewId: "all-current",
+                recordIds: [
+                  "check-record/v1/record/sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                ]
+              }
+            ]
+          }
+        })
+      )
     }
   };
 }

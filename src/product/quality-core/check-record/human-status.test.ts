@@ -28,32 +28,51 @@ describe("check-record human status projection", () => {
 
   it("uses the acceptance-applied all view only for verification projection and keeps decision evidence unchanged", () => {
     const current = snapshot([completedCheck("failed")], [record("record-a"), record("record-b")]);
-    const decision = evidence({ acceptance: ["record-a", "record-b"], allRecordIds: ["record-a", "record-b"] });
+    const decision = evidence({
+      acceptance: ["record-a", "record-b"],
+      allRecordIds: ["record-a", "record-b"]
+    });
     const before = structuredClone({ current, decision });
 
     const normal = projectHumanStatus({ decision, snapshot: current, verificationOutput: false });
-    const verification = projectHumanStatus({ decision, snapshot: current, verificationOutput: true });
+    const verification = projectHumanStatus({
+      decision,
+      snapshot: current,
+      verificationOutput: true
+    });
 
     assert.deepEqual(normal, { normal: "warning", selected: "warning", verification: "passed" });
-    assert.deepEqual(verification, { normal: "warning", selected: "passed", verification: "passed" });
+    assert.deepEqual(verification, {
+      normal: "warning",
+      selected: "passed",
+      verification: "passed"
+    });
     assert.deepEqual({ current, decision }, before);
   });
 
   it("does not let verification output turn unavailable or no-completed current work into passed", () => {
-    assert.equal(projectHumanStatus({
-      decision: evidence({ acceptance: ["record-a"], allRecordIds: ["record-a"] }),
-      snapshot: snapshot([unavailableCheck()], [record("record-a")]),
-      verificationOutput: true
-    }).selected, "failed");
-    assert.equal(projectHumanStatus({
-      decision: evidence({ acceptance: [], allRecordIds: [] }),
-      snapshot: snapshot([notApplicableCheck()]),
-      verificationOutput: true
-    }).selected, "warning");
+    assert.equal(
+      projectHumanStatus({
+        decision: evidence({ acceptance: ["record-a"], allRecordIds: ["record-a"] }),
+        snapshot: snapshot([unavailableCheck()], [record("record-a")]),
+        verificationOutput: true
+      }).selected,
+      "failed"
+    );
+    assert.equal(
+      projectHumanStatus({
+        decision: evidence({ acceptance: [], allRecordIds: [] }),
+        snapshot: snapshot([notApplicableCheck()]),
+        verificationOutput: true
+      }).selected,
+      "warning"
+    );
   });
 });
 
-function evidence(input: Readonly<{ acceptance: readonly string[]; allRecordIds: readonly string[] }>): DecisionEvidence {
+function evidence(
+  input: Readonly<{ acceptance: readonly string[]; allRecordIds: readonly string[] }>
+): DecisionEvidence {
   return {
     acceptance: input.acceptance.map((recordId, index) => ({
       acceptanceId: `acceptance-${index + 1}`,
@@ -64,7 +83,12 @@ function evidence(input: Readonly<{ acceptance: readonly string[]; allRecordIds:
     gate: { policyId: "all", status: "passed", evidenceRefs: [], blockingRecordRefs: [] },
     policyId: "all",
     readiness: [],
-    views: [{ viewId: "all-current", recordRefs: input.allRecordIds.map((recordId) => ({ kind: "record", recordId })) }]
+    views: [
+      {
+        viewId: "all-current",
+        recordRefs: input.allRecordIds.map((recordId) => ({ kind: "record", recordId }))
+      }
+    ]
   };
 }
 
@@ -79,11 +103,13 @@ function checkDefinition() {
   return {
     checkId: "file-metrics",
     displayName: "Files",
-    recordTypes: [{
-      recordTypeId: "file-code-lines",
-      fields: [{ fieldId: "metric", valueType: "string", required: true }],
-      identityFields: ["metric"]
-    }]
+    recordTypes: [
+      {
+        recordTypeId: "file-code-lines",
+        fields: [{ fieldId: "metric", valueType: "string", required: true }],
+        identityFields: ["metric"]
+      }
+    ]
   } as const;
 }
 

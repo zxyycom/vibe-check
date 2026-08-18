@@ -5,10 +5,11 @@ Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚�
 
 ## 范围
 
-Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation`
-提供共享 helper source import；workspace verifier 通过自己的 adapter 从
-`src/product/task-scheduler/**` 消费 repository-internal static Task engine。consumer、默认配置、
-profile 和 package scripts 由 Vibe Check 拥有。
+Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation` 是本仓
+直接追踪的 private pnpm workspace package（下文简称“仓库自有 foundation”），提供共享 helper
+source import；workspace verifier 通过自己的 adapter 从 `src/product/task-scheduler/**` 消费
+repository-internal static Task engine。consumer、默认配置、profile 和 package scripts 由 Vibe
+Check 拥有。
 
 Vibe Check 拥有的开发脚本入口是：
 
@@ -23,8 +24,8 @@ Vibe Check 拥有的开发脚本入口是：
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
 - `scripts/test-evidence/index.ts`：项目自有的测试实体发现、语义 Case 查询与全树闭合
   入口；它运行受支持 Bun test surface，并校验 static/runtime/entity/Case 双向覆盖。
-- `scripts/project-environment/index.ts`：在不依赖尚未初始化的 toolkit submodule 的前提下，
-  配置或只读检查锁定的开发工具、包依赖、submodule 与 CodeGraph 索引。
+- `scripts/project-environment/index.ts`：配置或只读检查锁定的开发工具、包依赖与 CodeGraph
+  索引；不承担本仓独立 toolkit checkout 的初始化或状态检查。
 - `scripts/vibe-check-workspace/verify.ts`：项目级验证编排入口，经 scripts adapter 使用
   shared Task engine 并行运行本地检查。
 
@@ -51,14 +52,16 @@ profile/gate selector。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
 - Required workspace verification 严格检查 decision records，并调用 test-evidence
   check 执行完整 Bun 测试面及语义 Case 闭合；同一 profile 调用 repository Project Run dogfood。
+- Workspace verifier 的 `required` / `full` 组成、默认 profile 与 package-boundary gates 由
+  [配置所有权](#配置所有权)完整定义。
 - Current schema/examples checks 显式注册 run/record v3，验证五组 canonical machine sets；historical
   v2 schema bytes 只在显式 archival path/registry 中验证，不进入 current traversal 或 consumer path。
-- `foundation` 是开发脚本唯一保留的 toolkit gitlink。Product-owned source 的 pinned lift provenance
-  与已经退出的 toolkit owner 由 `src/product/README.md` 记录。
+- 仓库自有 foundation 是普通 tracked source；它没有独立 checkout、upstream pin 或 submodule
+  初始化要求。它的职责和 package boundary 由[工具来源](#工具来源)定义。
 
 ## 工具来源
 
-可复用脚本工具以 pinned submodule 形式放在 `scripts/tools/` 下：
+可复用脚本工具以本仓直接追踪的 source 形式放在 `scripts/tools/` 下：
 
 - `foundation`：process、Git、path、filesystem、JSON、CSV、NDJSON、
   argument、error 和 type guard helpers。
@@ -69,22 +72,47 @@ graph/scope/executor data，不理解 Product Check/Core 或 scripts command/env
 投影 Check layout；`scripts/vibe-check-workspace/task-engine-adapter.ts` 投影 scripts-owned command fields，二者
 都只单向 import 这个 engine，不保留另一份 scheduler。
 
-`foundation` 通过 `scripts/tools/foundation/src` 的源码 import 被开发脚本消费；它不是 npm
-package contract，也不拥有 Vibe Check 的 package scripts、profile 或 artifact 路径。
+仓库自有 foundation 是 private pnpm workspace package。开发脚本从
+`scripts/tools/foundation/src` 源码 import 消费它；`src/index.ts` 只是实际导出的 barrel，
+不构成 npm 或 public `exports` contract。它不拥有 Vibe Check 的 package scripts、profile 或
+artifact 路径。
+
+foundation 的通用 helper 提供确定性归一与显式边界失败：`parsePositiveInteger` 和 JSON
+parser 拒绝无效输入，path helper 产生确定性归一结果；`walkFiles` 返回相对传入根目录、
+slash-normalized 且稳定排序的路径；无法读取目录，或 `readJsonFile` 无法读取/解析目标文件时，
+错误包含目标路径；`writeJsonFile` 和 `toNdjson` 无法序列化时分别标识目标文件或 record；process
+failure 对 consumer 保持可观察。这些是开发脚本 helper 契约，不替代 Product 的 scan-scope 契约。
+
+foundation 的 `typecheck` 和 `test` 在 package own cwd 中运行。它的 `format` 与 `lint` command
+进入仓库根目录，复用 root 锁定的 Oxfmt 与 Oxlint；根目录的 `typecheck:scripts`、`lint:scripts`
+和 `format:check` 也覆盖其 TypeScript source。后者不能替代 foundation 自己的 manifest、tsconfig、
+cwd 和 package commands；full profile 因此保留其 package gates，准确组成见[配置所有权](#配置所有权)。
+
+### Oxlint 与 Oxfmt
+
+根目录 `.oxlintrc.json` 是 TypeScript lint rule set 的唯一机器配置 owner，`.oxfmtrc.json`
+拥有 format 选项，根 `package.json` scripts 拥有显式的目标路径集合。`lint:product` 和
+`lint:scripts` 以 `oxlint --deny-warnings` 执行；`format` 和 `format:check` 只对这些显式目标运行
+Oxfmt。foundation package 的 format commands 使用同一 root 配置和 binary，并选择它的 manifest、
+tsconfig、source 与 test 目标；lint commands 只选择 source 与 test 目标。
+
+规则、format 选项或目标范围变更时，修改上述配置或 package script，而不是在文档或 package
+内另建一份同义规则表。编码层面的优先级见[编码规范](coding-style.md#文档边界与使用方式)。
 
 质量产品的 schema/types、scanner adapters、Check/Record/DecisionPolicy、publication/readable output、
 reference/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
 不是开发脚本 toolkit。开发脚本可以单向调用产品入口，但产品运行时不得 import
-`scripts/**`、`foundation` gitlink 或其它 toolkit gitlink。
+`scripts/**`，包括仓库自有 `scripts/tools/foundation/**`。
 
-已移除 quality-core 和 parallel-task-runner gitlink 的来源 revision 以及产品内 foundation
-helper 闭包记录在 `src/product/README.md`。`foundation` gitlink 不是产品 runtime 依赖。
+已退出的 quality-core 和 parallel-task-runner 来源 revision，以及产品内 foundation helper
+闭包记录在 `src/product/README.md`。其中的 foundation closure 只指
+`src/product/foundation/**`，不使仓库自有 `scripts/tools/foundation` 成为产品 runtime 依赖。
 
 ## 项目环境自举与检查
 
 根目录 `mise.toml` 声明 Node.js、Bun、pnpm、uv、Go、Lizard、scc 与 CodeGraph，
 `mise.lock` 固定 mise 可锁定的解析结果。项目环境入口由
-`scripts/project-environment/index.ts` 拥有；调用方必须已经提供 Git、Bun 与 mise，并在首次
+`scripts/project-environment/index.ts` 拥有；调用方必须已经提供 Bun 与 mise，并在首次
 信任仓库配置前审阅 `mise.toml`。
 
 ### 配置环境
@@ -98,22 +126,21 @@ bun run env:setup
 `env:setup` 按顺序完成以下操作；任一步失败都会停止，不继续执行后续步骤：
 
 1. 信任当前仓库的 `mise.toml`。
-2. 递归初始化 toolkit submodule，并检出父仓库固定的 revision。
-3. 按 `mise.lock` 安装工具，按 `pnpm-lock.yaml` 安装 Node 依赖。
-4. 初始化或同步当前 checkout 的 CodeGraph 索引。
+2. 按 `mise.lock` 安装工具，按 `pnpm-lock.yaml` 安装 Node 依赖。
+3. 初始化或同步当前 checkout 的 CodeGraph 索引。
 
-该命令允许写入或更新用户级 mise 信任状态与工具安装目录，以及 checkout 内的 submodule
-worktree、`node_modules` 和 `.codegraph`；它不构建或修改 `src/product/**`。入口本身只使用
-Bun/Node 内置进程 API，不依赖尚未初始化的 toolkit submodule。
+该命令允许写入或更新用户级 mise 信任状态与工具安装目录，以及 checkout 内的
+`node_modules` 和 `.codegraph`；它不构建或修改 `src/product/**`。入口本身只使用
+Bun/Node 内置进程 API，不依赖另一个 toolkit checkout。
 
 Codex 提供两个 checkout 环境：
 
-- `vibe-check` 由 `.codex/environments/environment.toml` 依次运行 `env:setup` 和
-  `verify:vibe-check-workspace`，不执行 Git restore/clean。
+- `vibe-check` 由 `.codex/environments/environment.toml` 依次运行 `env:setup` 和未传
+  `--profile` 的 `verify:vibe-check-workspace`；后者当前默认 `full`，不执行 Git restore/clean。
 - `clear` 由 `.codex/environments/environment-2.toml` 先丢弃目标 worktree 中已暂存和未暂存
   的 tracked 变更，并删除未跟踪且未被 ignore 的文件与目录，再运行同一组自举和验证入口。
   该环境不可恢复地清除上述工作，只有明确需要丢弃 worktree 内容时才能选择；ignored cache
-  与依赖目录、submodule 内部的本地修改不属于它的清理范围。
+  与依赖目录不属于它的清理范围。
 
 两个环境都只以 Codex 提供的 `CODEX_WORKTREE_PATH` 为目标，要求该路径是 Git worktree
 根目录；任一步失败都会停止，不继续验证未配置完成的环境。
@@ -129,12 +156,10 @@ bun run env:check
 `env:check` 确认以下条件：
 
 - `mise.toml` 中声明的 tool pin 已安装并处于当前环境。
-- 递归 submodule 已初始化并位于父仓库固定的 revision；固定 revision 上的本地内容改动不
-  单独判为环境失败。
 - Lizard、scc、当前仓库安装的 jscpd 与 CodeGraph 可执行。
 - 当前 checkout 的 CodeGraph 索引存在且状态可用。
 
-该检查不执行 mise trust、工具或 Node 包安装、submodule 更新或 CodeGraph init/sync。若
+该检查不执行 mise trust、工具或 Node 包安装或 CodeGraph init/sync。若
 检查失败，先运行 `bun run env:setup`，再重新检查。`env:setup` 与 `env:check` 都通过
 `MISE_GLOBAL_CONFIG_FILE` 隔离用户全局 mise 配置。
 
@@ -358,27 +383,35 @@ run/record v3 schemas、historical v2 schema material 与对应 example roots，
 
 `scripts/vibe-check-workspace/checks/definitions.ts` 与相邻 normalization/model files 拥有 workspace verifier
 的 scripts-only task authoring、profile 分层、warning output 识别和成功输出过滤；`task-engine-adapter.ts` 是其到
-shared engine 的唯一投影。Required profile 包含 decision records 与 test evidence 的严格检查。它们不定义
-产品行为、Check scope 或 Core facts，只编排已有命令。
+shared engine 的唯一投影。CLI 接受 `required` 和 `full`；未传 `--profile` 时默认 `full`，日常
+快速验证必须显式使用 `:required` alias。Required profile 包含 decision records 与 test evidence
+的严格检查和 quick quality dogfood。Full profile 选择全部 required non-quality checks（排除
+`quality-quick-check`），并添加 `quality-full-check`、`test:product` 与 foundation 的
+typecheck、lint、format:check、test package commands。这些独立 package commands 是有意保留的
+package-boundary verification：根 scripts check 的 source 覆盖不能证明 foundation own manifest、
+tsconfig、cwd 和 package scripts 可用。它们不定义产品行为、Check scope 或 Core facts，只编排
+已有命令。
 
 ## 验证入口
 
-修改脚本工具接入时，如果 `node_modules/` 或 `scripts/tools/*` 缺失，先完成上面的
-新 checkout 初始化。
+修改脚本工具接入时，如果 `node_modules/` 缺失，先完成上面的新 checkout 初始化。
+`scripts/tools/foundation` 是当前 checkout 中应有的 tracked source；缺失时先修复 checkout，`env:setup` 不会获取它。
 
 按改动面选择最窄验证：
 
 | 改动面 | 命令 |
 | --- | --- |
-| 脚本类型或 lint | `bun run typecheck:scripts`、`bun run lint:scripts` |
-| 项目环境、工具 pin 或 Codex checkout 自举 | `bun run env:check`、`bun run typecheck:scripts`、`bun run lint:scripts`、`bun run verify:vibe-check-workspace` |
+| 脚本格式、类型或 lint | `bun run format:check`、`bun run typecheck:scripts`、`bun run lint:scripts` |
+| 项目环境、工具 pin 或 Codex checkout 自举 | `bun run env:check`、`bun run typecheck:scripts`、`bun run lint:scripts`、`bun run verify:vibe-check-workspace:full` |
 | 长期决策适配器或记录集合 | `bun run decisions:check`；适配器改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | 测试证据闭合工具或 Case 集合 | `bun run test-evidence:check`；工具改动另跑 `bun run typecheck:scripts`、`bun run lint:scripts` |
 | Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality:check`，并按影响面补 Product `run` 测试 |
 | 文档校验 | `bun run validate:docs` |
-| workspace verifier | `bun run verify:vibe-check-workspace:required` |
+| workspace verifier（routine） | `bun run verify:vibe-check-workspace:required` |
+| workspace verifier（完整 Product / foundation package 验收） | `bun run verify:vibe-check-workspace:full` |
 | current schema/example generation drift | `bun run generate:machine-schemas -- --check`、`bun run generate:machine-examples -- --check`；日常由 `validate:docs` 调度 |
 | quality annotation | `bun run quality:annotate -- [artifact-directory] [limit]` |
-| toolkit pin、checkout 或 Product-owned runner import | `bun run toolkit:foundation:test`、`bun test src/product/task-scheduler/test` |
+| foundation package | `bun run toolkit:foundation:typecheck`、`bun run toolkit:foundation:format:check`、`bun run toolkit:foundation:lint`、`bun run toolkit:foundation:test` |
+| Product-owned runner import | `bun test src/product/task-scheduler/test` |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

@@ -71,16 +71,15 @@ describe("current public contract", () => {
     }
     assert.deepEqual(defineConfig({}).effects, CURRENT_PUBLIC_CONTRACT.effectDefaults);
 
-    const packageManifest = packageManifestName(readFileSync(
-      fileURLToPath(new URL("../../../package.json", import.meta.url)),
-      "utf8"
-    ));
+    const packageManifest = packageManifestName(
+      readFileSync(fileURLToPath(new URL("../../../package.json", import.meta.url)), "utf8")
+    );
     assert.equal(packageManifest, CURRENT_PUBLIC_CONTRACT.packageImport);
 
-    const ownerSource = readFileSync(fileURLToPath(new URL(
-      "./current.ts",
-      import.meta.url
-    )), "utf8");
+    const ownerSource = readFileSync(
+      fileURLToPath(new URL("./current.ts", import.meta.url)),
+      "utf8"
+    );
     assert.doesNotMatch(ownerSource, /scripts\/quality|project-definition\.ts|project-run\.ts/);
     assert.doesNotMatch(ownerSource, /\b(?:host|legal|license|manifest|version)\b/i);
   });
@@ -99,8 +98,10 @@ function packageManifestName(source: string): string {
 type _UnsupportedCheckReason = import("../definition/project.ts").CheckReason;
 // @ts-expect-error CheckNotApplicableReason is not a named public type root.
 type _UnsupportedNotApplicableReason = import("../definition/project.ts").CheckNotApplicableReason;
+// oxfmt-ignore
 // @ts-expect-error CheckDeclaredUnavailableReason is not a named public type root.
 type _UnsupportedDeclaredUnavailableReason = import("../definition/project.ts").CheckDeclaredUnavailableReason;
+// oxfmt-ignore
 // @ts-expect-error ProductCheckUnavailableReason is not a named public type root.
 type _UnsupportedProductUnavailableReason = import("../definition/project.ts").ProductCheckUnavailableReason;
 // @ts-expect-error DeepReadonly is not a named public type root.

@@ -28,13 +28,16 @@ export function createHistoricalSchemaAjv(): Ajv2020 {
   return ajv;
 }
 
-export function compileRegisteredSchema(ajv: Ajv2020, schemaRelPath: string): ValidateFunction {
+export function compileRegisteredSchema<Value>(
+  ajv: Ajv2020,
+  schemaRelPath: string
+): ValidateFunction<Value> {
   const schema = readSchema(schemaRelPath);
   const schemaId = isRecord(schema) && typeof schema.$id === "string" ? schema.$id : null;
   if (!schemaId) {
-    return ajv.compile(schema);
+    return ajv.compile<Value>(schema);
   }
-  const validate = ajv.getSchema(schemaId);
+  const validate = ajv.getSchema<Value>(schemaId);
   assert(validate, `registered schema ${schemaRelPath} is not available by $id`);
   return validate;
 }
@@ -42,7 +45,7 @@ export function compileRegisteredSchema(ajv: Ajv2020, schemaRelPath: string): Va
 function readSchema(schemaRelPath: string): AnySchema {
   const schema = readJson(schemaRelPath);
   assert(isRecord(schema), `${schemaRelPath} schema root must be an object`);
-  return schema as AnySchema;
+  return schema;
 }
 
 function createStrictAjv(): Ajv2020 {

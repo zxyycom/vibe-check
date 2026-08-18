@@ -8,13 +8,15 @@ import type {
 import type { ValidatedPublicationModelV3 } from "./model.ts";
 import { freezePublicationValue } from "./freeze-publication-value.ts";
 
-export function projectReadablePublicationV3(input: Readonly<{
-  model: ValidatedPublicationModelV3;
-  report: Readonly<{
-    changedFiles: readonly string[];
-    presentation: ResolvedQualityConfig["report"];
-  }>;
-}>): Readonly<{
+export function projectReadablePublicationV3(
+  input: Readonly<{
+    model: ValidatedPublicationModelV3;
+    report: Readonly<{
+      changedFiles: readonly string[];
+      presentation: ResolvedQualityConfig["report"];
+    }>;
+  }>
+): Readonly<{
   console: ReadablePublicationContractV3;
   report: ReadableReportContractV3;
 }> {
@@ -25,10 +27,9 @@ export function projectReadablePublicationV3(input: Readonly<{
   return Object.freeze({ console, report });
 }
 
-function projectRecordPreviews(model: ValidatedPublicationModelV3): Pick<
-  ReadablePublicationContractV3,
-  "acceptedRecords" | "warningRecords"
-> {
+function projectRecordPreviews(
+  model: ValidatedPublicationModelV3
+): Pick<ReadablePublicationContractV3, "acceptedRecords" | "warningRecords"> {
   const acceptanceByRecord = acceptanceEvidenceByRecord(model.decision.acceptance);
   const visibleIds = visibleRecordIds(model);
   const warningRecords: ReadableRecordPreviewV3[] = [];
@@ -57,8 +58,10 @@ function acceptanceEvidenceByRecord(evidence: readonly AcceptanceEvidence[]) {
 
 function visibleRecordIds(model: ValidatedPublicationModelV3): ReadonlySet<string> {
   const allCurrent = model.decision.views.find((view) => view.viewId === "all-current");
-  return new Set(allCurrent?.recordRefs.map((reference) => reference.recordId)
-    ?? model.records.map((record) => record.recordId));
+  return new Set(
+    allCurrent?.recordRefs.map((reference) => reference.recordId) ??
+      model.records.map((record) => record.recordId)
+  );
 }
 
 function recordPreview(
@@ -74,7 +77,9 @@ function recordPreview(
   };
 }
 
-function projectStatuses(model: ValidatedPublicationModelV3): ReadablePublicationContractV3["statuses"] {
+function projectStatuses(
+  model: ValidatedPublicationModelV3
+): ReadablePublicationContractV3["statuses"] {
   return freezePublicationValue({
     quality: { label: "Quality check status", status: model.humanStatus.normal },
     verification: {
@@ -113,6 +118,9 @@ function projectWatchlist(
     .slice(0, presentation.watchlistMax);
 }
 
-function isChangedRecord(record: ReadableRecordPreviewV3, changedFiles: readonly string[]): boolean {
+function isChangedRecord(
+  record: ReadableRecordPreviewV3,
+  changedFiles: readonly string[]
+): boolean {
   return record.location !== null && changedFiles.includes(record.location.path);
 }

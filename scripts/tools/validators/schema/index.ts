@@ -1,16 +1,8 @@
-import {
-  listExampleJson,
-  listSchemaJson,
-  readJson
-} from "../json/files.ts";
+import { listExampleJson, listSchemaJson, readJson } from "../json/files.ts";
 import { walk } from "../repo/files.ts";
 import { toAbs, toRel } from "../repo/paths.ts";
 import { assert } from "../assertions.ts";
-import {
-  CURRENT_SCHEMAS,
-  FILE_SYSTEM,
-  HISTORICAL_SCHEMAS
-} from "../config.ts";
+import { CURRENT_SCHEMAS, FILE_SYSTEM, HISTORICAL_SCHEMAS } from "../config.ts";
 import {
   compileRegisteredSchema,
   createCurrentSchemaAjv,
@@ -32,19 +24,13 @@ export function validateJsonSyntax(): void {
 
 export function validateSchemas(): void {
   const schemaRelPaths = listSchemaJson();
-  const expectedSchemas = [
-    ...Object.values(CURRENT_SCHEMAS),
-    ...Object.values(HISTORICAL_SCHEMAS)
-  ];
+  const expectedSchemas = [...Object.values(CURRENT_SCHEMAS), ...Object.values(HISTORICAL_SCHEMAS)];
 
   for (const expected of expectedSchemas) {
     assert(schemaRelPaths.includes(expected), `missing expected schema ${expected}`);
   }
   for (const schemaRelPath of schemaRelPaths) {
-    assert(
-      expectedSchemas.includes(schemaRelPath),
-      `unregistered schema ${schemaRelPath}`
-    );
+    assert(expectedSchemas.includes(schemaRelPath), `unregistered schema ${schemaRelPath}`);
   }
 
   const currentAjv = createCurrentSchemaAjv();
@@ -67,13 +53,9 @@ export function validateReportExamples(): void {
   const validate = compileRegisteredSchema(ajv, schemaRelPath);
   for (const exampleRelPath of exampleRelPaths) {
     if (!validate(readJson(exampleRelPath))) {
-      throw new Error(
-        `${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`
-      );
+      throw new Error(`${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`);
     }
   }
-  console.log(
-    `schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`
-  );
+  console.log(`schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`);
   console.log(`report examples ok: ${exampleRelPaths.length} file(s)`);
 }

@@ -1,21 +1,20 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import {
-  CoreInvariantFailure,
-  createCoreCheckSession
-} from "./core-session.ts";
+import { CoreInvariantFailure, createCoreCheckSession } from "./core-session.ts";
 import { validateCoreSnapshot } from "./validation.ts";
 
 function definition(checkId: string) {
   return {
     checkId,
     displayName: checkId,
-    recordTypes: [{
-      recordTypeId: "finding",
-      fields: [{ fieldId: "kind", valueType: "string", required: true }],
-      identityFields: ["kind"]
-    }]
+    recordTypes: [
+      {
+        recordTypeId: "finding",
+        fields: [{ fieldId: "kind", valueType: "string", required: true }],
+        identityFields: ["kind"]
+      }
+    ]
   } as const;
 }
 
@@ -41,22 +40,31 @@ describe("check-record Core Check session", () => {
     const alpha = session.openCheckScope("alpha-check");
     assert.equal(alpha.records.report(finding("alpha")), "committed");
     assert.deepEqual(alpha.settle({ status: "completed", verdict: "failed" }), {
-      status: "completed", verdict: "failed"
+      status: "completed",
+      verdict: "failed"
     });
 
     const snapshot = session.freeze();
     assert.deepEqual(Object.keys(snapshot).sort(), ["checks", "records"]);
-    assert.deepEqual(snapshot.checks.map((check) => ({
-      checkId: check.checkId,
-      outcome: check.outcome
-    })), [{
-      checkId: "alpha-check", outcome: { status: "completed", verdict: "failed" }
-    }, {
-      checkId: "zeta-check", outcome: { status: "not-applicable" }
-    }]);
+    assert.deepEqual(
+      snapshot.checks.map((check) => ({
+        checkId: check.checkId,
+        outcome: check.outcome
+      })),
+      [
+        {
+          checkId: "alpha-check",
+          outcome: { status: "completed", verdict: "failed" }
+        },
+        {
+          checkId: "zeta-check",
+          outcome: { status: "not-applicable" }
+        }
+      ]
+    );
     assert.equal(snapshot.records.length, 1);
     assert.equal(snapshot.records[0]?.checkId, "alpha-check");
-    assert.equal("checkRunId" in snapshot.records[0]!, false);
+    assert.equal("checkRunId" in snapshot.records[0], false);
     assert.equal(validateCoreSnapshot(snapshot).ok, true);
     assert.strictEqual(session.freeze(), snapshot);
   });
@@ -73,29 +81,39 @@ describe("check-record Core Check session", () => {
     assert.equal(alpha.records.report(finding("retained-alpha")), "replayed");
     assert.equal(alpha.records.report(finding("conflict", "first")), "committed");
     assert.equal(alpha.records.report(finding("conflict", "second")), "conflicted");
-    assert.equal(alpha.records.report({ ...finding("invalid"), checkId: "beta-check" } as never), "rejected");
+    const foreignCheckCandidate = { ...finding("invalid"), checkId: "beta-check" };
+    assert.equal(alpha.records.report(foreignCheckCandidate), "rejected");
     assert.equal(beta.records.report(finding("retained-beta")), "committed");
-    assert.deepEqual(alpha.settle({
-      status: "unavailable",
-      reason: { code: "execution-threw" }
-    }), { status: "unavailable", reason: { code: "record-conflict" } });
+    assert.deepEqual(
+      alpha.settle({
+        status: "unavailable",
+        reason: { code: "execution-threw" }
+      }),
+      { status: "unavailable", reason: { code: "record-conflict" } }
+    );
     beta.settle({ status: "completed", verdict: "passed" });
 
     const snapshot = session.freeze();
-    assert.deepEqual(snapshot.checks.map((check) => ({
-      checkId: check.checkId,
-      outcome: check.outcome
-    })), [{
-      checkId: "alpha-check",
-      outcome: { status: "unavailable", reason: { code: "record-conflict" } }
-    }, {
-      checkId: "beta-check",
-      outcome: { status: "completed", verdict: "passed" }
-    }]);
-    assert.deepEqual(snapshot.records.map((record) => record.semanticSubject), [
-      "src/retained-alpha.ts",
-      "src/retained-beta.ts"
-    ]);
+    assert.deepEqual(
+      snapshot.checks.map((check) => ({
+        checkId: check.checkId,
+        outcome: check.outcome
+      })),
+      [
+        {
+          checkId: "alpha-check",
+          outcome: { status: "unavailable", reason: { code: "record-conflict" } }
+        },
+        {
+          checkId: "beta-check",
+          outcome: { status: "completed", verdict: "passed" }
+        }
+      ]
+    );
+    assert.deepEqual(
+      snapshot.records.map((record) => record.semanticSubject),
+      ["src/retained-alpha.ts", "src/retained-beta.ts"]
+    );
   });
 
   it("allows references only to committed records and rejects duplicate or late lifecycle changes", () => {
@@ -129,7 +147,8 @@ describe("check-record Core Check session", () => {
     const notApplicable = session.openCheckScope("not-applicable-check");
     assert.equal(notApplicable.records.report(finding("invalid")), "committed");
     assert.deepEqual(notApplicable.settle({ status: "not-applicable" }), {
-      status: "unavailable", reason: { code: "record-invalid" }
+      status: "unavailable",
+      reason: { code: "record-invalid" }
     });
     const open = session.openCheckScope("open-check");
     assert.equal(open.records.report(finding("retained-open")), "committed");
@@ -137,18 +156,25 @@ describe("check-record Core Check session", () => {
     session.closeUnresolvedAsCancelled();
     assert.equal(open.records.report(finding("late-open")), "rejected");
     const snapshot = session.freeze();
-    assert.deepEqual(snapshot.checks.map((check) => ({
-      checkId: check.checkId,
-      outcome: check.outcome
-    })), [{
-      checkId: "not-applicable-check",
-      outcome: { status: "unavailable", reason: { code: "record-invalid" } }
-    }, {
-      checkId: "open-check",
-      outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
-    }, {
-      checkId: "pending-check",
-      outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
-    }]);
+    assert.deepEqual(
+      snapshot.checks.map((check) => ({
+        checkId: check.checkId,
+        outcome: check.outcome
+      })),
+      [
+        {
+          checkId: "not-applicable-check",
+          outcome: { status: "unavailable", reason: { code: "record-invalid" } }
+        },
+        {
+          checkId: "open-check",
+          outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
+        },
+        {
+          checkId: "pending-check",
+          outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
+        }
+      ]
+    );
   });
 });

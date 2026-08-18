@@ -33,11 +33,7 @@ export function resolveExistingWorkspacePath(
   };
 }
 
-function readPathComponents(
-  absoluteRoot: string,
-  sourcePath: string,
-  label: string
-): fs.Stats {
+function readPathComponents(absoluteRoot: string, sourcePath: string, label: string): fs.Stats {
   let currentPath = absoluteRoot;
   const segments = sourcePath.split("/");
   for (const [index, segment] of segments.entries()) {
@@ -48,9 +44,7 @@ function readPathComponents(
     const stats = fs.lstatSync(currentPath);
     if (stats.isSymbolicLink()) {
       const component = segments.slice(0, index + 1).join("/");
-      throw new Error(
-        `${label} path component must not be a symbolic link: ${component}`
-      );
+      throw new Error(`${label} path component must not be a symbolic link: ${component}`);
     }
     if (index < segments.length - 1 && !stats.isDirectory()) {
       const component = segments.slice(0, index + 1).join("/");
@@ -63,11 +57,7 @@ function readPathComponents(
   throw new Error(`${label} does not exist`);
 }
 
-function assertWithinWorkspace(
-  absoluteRoot: string,
-  absolutePath: string,
-  label: string
-): void {
+function assertWithinWorkspace(absoluteRoot: string, absolutePath: string, label: string): void {
   const relativePath = path.relative(absoluteRoot, absolutePath);
   if (
     relativePath === ".." ||

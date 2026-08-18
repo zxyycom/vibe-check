@@ -16,9 +16,11 @@ export function planPublicationCleanupV3(artifactDir: string): PublicationCleanu
   return Object.freeze({
     canonicalPaths: Object.freeze(CANONICAL_NAMES.map((name) => join(artifactDir, name))),
     retiredPaths: Object.freeze(RETIRED_NAMES.map((name) => join(artifactDir, name))),
-    ownedTempPaths: Object.freeze(entries
-      .filter((entry) => entry.name.startsWith(OWNED_TEMP_PREFIX))
-      .map((entry) => join(artifactDir, entry.name))
-      .sort())
+    ownedTempPaths: Object.freeze(
+      entries
+        .filter((entry) => entry.name.startsWith(OWNED_TEMP_PREFIX))
+        .map((entry) => join(artifactDir, entry.name))
+        .sort()
+    )
   });
 }

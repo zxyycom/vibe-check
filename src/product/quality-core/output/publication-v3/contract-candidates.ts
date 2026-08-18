@@ -1,12 +1,6 @@
-import {
-  MACHINE_RECORD_V3_SCHEMA_PATH,
-  MACHINE_RUN_V3_SCHEMA_PATH
-} from "./schema-identities.ts";
+import { MACHINE_RECORD_V3_SCHEMA_PATH, MACHINE_RUN_V3_SCHEMA_PATH } from "./schema-identities.ts";
 import { type MachinePublicationV3 } from "./mapper.ts";
-import {
-  MACHINE_RECORD_V3_SCHEMA,
-  MACHINE_RUN_V3_SCHEMA
-} from "./schema.ts";
+import { MACHINE_RECORD_V3_SCHEMA, MACHINE_RUN_V3_SCHEMA } from "./schema.ts";
 import {
   serializeMachinePublicationV3,
   type MachinePublicationCandidatesV3

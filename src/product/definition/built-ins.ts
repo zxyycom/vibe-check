@@ -24,9 +24,10 @@ export interface ScannerCommandOptions {
 }
 
 export interface DuplicateDetectionOptions {
-  readonly scanner: ScannerCommandOptions & Readonly<{
-    readonly maxConcurrency: number;
-  }>;
+  readonly scanner: ScannerCommandOptions &
+    Readonly<{
+      readonly maxConcurrency: number;
+    }>;
   readonly defaultMinimumTokens: number;
   readonly fragments: Readonly<{ readonly changedDelta: number }>;
   readonly minimumTokensByCodeArea: Readonly<Record<string, number>>;
@@ -140,54 +141,78 @@ export function defaultCheckOptionCodeAreasAreKnown(
 ): boolean {
   if (checkId !== "duplicate-detection") return true;
   const data = snapshotClosedRecord(options);
-  const thresholds = data === undefined ? undefined : snapshotClosedRecord(data.minimumTokensByCodeArea);
-  return thresholds !== undefined && Object.keys(thresholds).every((area) => Object.hasOwn(codeAreas, area));
+  const thresholds =
+    data === undefined ? undefined : snapshotClosedRecord(data.minimumTokensByCodeArea);
+  return (
+    thresholds !== undefined &&
+    Object.keys(thresholds).every((area) => Object.hasOwn(codeAreas, area))
+  );
 }
 
 function validDuplicateDetectionOptions(value: object): boolean {
-  const options = exactRecord(value, ["scanner", "defaultMinimumTokens", "fragments", "minimumTokensByCodeArea"]);
-  return options !== undefined
-    && validDuplicationScanner(options.scanner)
-    && finiteNumber(options.defaultMinimumTokens)
-    && validExactNumberRecord(options.fragments, ["changedDelta"])
-    && validNumberRecord(options.minimumTokensByCodeArea);
+  const options = exactRecord(value, [
+    "scanner",
+    "defaultMinimumTokens",
+    "fragments",
+    "minimumTokensByCodeArea"
+  ]);
+  return (
+    options !== undefined &&
+    validDuplicationScanner(options.scanner) &&
+    finiteNumber(options.defaultMinimumTokens) &&
+    validExactNumberRecord(options.fragments, ["changedDelta"]) &&
+    validNumberRecord(options.minimumTokensByCodeArea)
+  );
 }
 
 function validFileMetricsOptions(value: object): boolean {
   const options = exactRecord(value, ["scanner", "codeLines"]);
-  return options !== undefined
-    && validScanner(options.scanner)
-    && validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
+  return (
+    options !== undefined &&
+    validScanner(options.scanner) &&
+    validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
       lowDecisionTokenAllowance: ["codeLineFloor", "maxDecisionTokens"]
-    });
+    })
+  );
 }
 
 function validFunctionMetricsOptions(value: object): boolean {
-  const options = exactRecord(value, ["scanner", "codeLines", "cyclomaticComplexity", "parameterCount"]);
-  return options !== undefined
-    && validScanner(options.scanner)
-    && validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
+  const options = exactRecord(value, [
+    "scanner",
+    "codeLines",
+    "cyclomaticComplexity",
+    "parameterCount"
+  ]);
+  return (
+    options !== undefined &&
+    validScanner(options.scanner) &&
+    validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
       lowComplexityAllowance: ["codeLineFloor", "maxCyclomaticComplexityExclusive"]
-    })
-    && validExactNumberRecord(options.cyclomaticComplexity, ["absoluteFloor", "changedDelta"])
-    && validExactNumberRecord(options.parameterCount, ["absoluteFloor", "changedDelta"]);
+    }) &&
+    validExactNumberRecord(options.cyclomaticComplexity, ["absoluteFloor", "changedDelta"]) &&
+    validExactNumberRecord(options.parameterCount, ["absoluteFloor", "changedDelta"])
+  );
 }
 
 function validDuplicationScanner(value: unknown): boolean {
   const scanner = exactRecord(value, ["args", "availabilityArgs", "executable", "maxConcurrency"]);
-  return scanner !== undefined
-    && validStringArray(scanner.args)
-    && validStringArray(scanner.availabilityArgs)
-    && nonEmptyString(scanner.executable)
-    && positiveSafeInteger(scanner.maxConcurrency);
+  return (
+    scanner !== undefined &&
+    validStringArray(scanner.args) &&
+    validStringArray(scanner.availabilityArgs) &&
+    nonEmptyString(scanner.executable) &&
+    positiveSafeInteger(scanner.maxConcurrency)
+  );
 }
 
 function validScanner(value: unknown): boolean {
   const scanner = exactRecord(value, ["args", "availabilityArgs", "executable"]);
-  return scanner !== undefined
-    && validStringArray(scanner.args)
-    && validStringArray(scanner.availabilityArgs)
-    && nonEmptyString(scanner.executable);
+  return (
+    scanner !== undefined &&
+    validStringArray(scanner.args) &&
+    validStringArray(scanner.availabilityArgs) &&
+    nonEmptyString(scanner.executable)
+  );
 }
 
 function validExactNumberRecord(
@@ -197,9 +222,13 @@ function validExactNumberRecord(
 ): boolean {
   const expectedKeys = [...numericKeys, ...Object.keys(nested)];
   const record = exactRecord(value, expectedKeys);
-  return record !== undefined
-    && numericKeys.every((key) => finiteNumber(record[key]))
-    && Object.entries(nested).every(([key, nestedKeys]) => validExactNumberRecord(record[key], nestedKeys));
+  return (
+    record !== undefined &&
+    numericKeys.every((key) => finiteNumber(record[key])) &&
+    Object.entries(nested).every(([key, nestedKeys]) =>
+      validExactNumberRecord(record[key], nestedKeys)
+    )
+  );
 }
 
 function validNumberRecord(value: unknown): boolean {
@@ -212,10 +241,14 @@ function validStringArray(value: unknown): boolean {
   return items !== undefined && items.every((item) => typeof item === "string");
 }
 
-function exactRecord(value: unknown, keys: readonly string[]): Readonly<Record<string, unknown>> | undefined {
+function exactRecord(
+  value: unknown,
+  keys: readonly string[]
+): Readonly<Record<string, unknown>> | undefined {
   const record = snapshotClosedRecord(value);
-  return record !== undefined && Object.keys(record).length === keys.length
-    && keys.every((key) => Object.hasOwn(record, key))
+  return record !== undefined &&
+    Object.keys(record).length === keys.length &&
+    keys.every((key) => Object.hasOwn(record, key))
     ? record
     : undefined;
 }

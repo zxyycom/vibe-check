@@ -4,8 +4,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const PROCESS_MAX_BUFFER = 64 * 1024 * 1024;
-const PLAIN_TEXT_ENV = {
+const MAX_PROCESS_OUTPUT_BUFFER_BYTES = 64 * 1024 * 1024;
+const PLAIN_TEXT_ENV = Object.freeze({
   CLICOLOR: "0",
   CLICOLOR_FORCE: "0",
   FORCE_COLOR: "0",
@@ -15,11 +15,11 @@ const PLAIN_TEXT_ENV = {
   TERM: "dumb",
   UV_NO_COLOR: "1",
   npm_config_color: "false"
-} satisfies NodeJS.ProcessEnv;
-const MISE_ENV = {
+} satisfies NodeJS.ProcessEnv);
+const MISE_ENV = Object.freeze({
   ...process.env,
   MISE_GLOBAL_CONFIG_FILE: devNull
-} satisfies NodeJS.ProcessEnv;
+} satisfies NodeJS.ProcessEnv);
 const MISE_TOOLS = [
   "node",
   "bun",
@@ -37,85 +37,66 @@ interface CommandOutputOptions {
   readonly shouldCaptureOutput?: boolean;
 }
 
-interface RunCommandOptions extends CommandOutputOptions {
+interface RunCommandInput extends CommandOutputOptions {
+  readonly args: readonly string[];
+  readonly command: string;
   readonly environment?: NodeJS.ProcessEnv;
+}
+
+interface RunMiseCommandInput extends CommandOutputOptions {
+  readonly args: readonly string[];
+}
+
+interface RunCommandInMiseInput extends CommandOutputOptions {
+  readonly args: readonly string[];
+  readonly command: string;
 }
 
 function setupEnvironment(): void {
   trustRepositoryMiseConfig();
-  runCommand("git", ["submodule", "update", "--init", "--recursive"]);
-  runMiseCommand(["install", "--locked", ...MISE_TOOLS]);
-  runCommandInMise("pnpm", ["install", "--frozen-lockfile"]);
+  runMiseCommand({ args: ["install", "--locked", ...MISE_TOOLS] });
+  runCommandInMise({ args: ["install", "--frozen-lockfile"], command: "pnpm" });
 
-  runCommandInMise("codegraph", ["init", "."]);
-  runCommandInMise("codegraph", ["sync", "--quiet", "."]);
+  runCommandInMise({ args: ["init", "."], command: "codegraph" });
+  runCommandInMise({ args: ["sync", "--quiet", "."], command: "codegraph" });
 }
 
 function checkEnvironment(): void {
-  runMiseCommand(["install", "--dry-run-code", "--locked", ...MISE_TOOLS]);
-  checkSubmodules();
-  runMiseCommand(["ls", "--current", ...MISE_TOOLS]);
-  runCommandInMise(resolveLizardInterpreterPath(), ["-m", "lizard", "--version"]);
-  runCommandInMise(resolveSccExecutablePath(), ["--version"]);
-  runCommandInMise("bun", ["run", "jscpd", "--version"]);
-  runCommandInMise("codegraph", ["--version"]);
-  runCommandInMise("codegraph", ["status", "."]);
+  runMiseCommand({ args: ["install", "--dry-run-code", "--locked", ...MISE_TOOLS] });
+  runMiseCommand({ args: ["ls", "--current", ...MISE_TOOLS] });
+  runCommandInMise({
+    args: ["-m", "lizard", "--version"],
+    command: resolveLizardInterpreterPath()
+  });
+  runCommandInMise({ args: ["--version"], command: resolveSccExecutablePath() });
+  runCommandInMise({ args: ["run", "jscpd", "--version"], command: "bun" });
+  runCommandInMise({ args: ["--version"], command: "codegraph" });
+  runCommandInMise({ args: ["status", "."], command: "codegraph" });
 }
 
 function resolveSccExecutablePath(): string {
-  const sccToolRoot = runMiseCommand(
-    ["where", "go:github.com/boyter/scc/v3"],
-    { shouldCaptureOutput: true }
-  ).trim();
+  const sccToolRoot = runMiseCommand({
+    args: ["where", "go:github.com/boyter/scc/v3"],
+    shouldCaptureOutput: true
+  }).trim();
   if (!sccToolRoot) {
     throw new Error("mise where go:github.com/boyter/scc/v3 returned no installation path");
   }
-  return resolve(
-    sccToolRoot,
-    "bin",
-    process.platform === "win32" ? "scc.exe" : "scc"
-  );
+  return resolve(sccToolRoot, "bin", process.platform === "win32" ? "scc.exe" : "scc");
 }
 
 function trustRepositoryMiseConfig(): void {
   // Run outside the repository so mise does not parse the untrusted config before `trust`.
-  runMiseCommand([
-    "-C",
-    dirname(REPO_ROOT),
-    "trust",
-    resolve(REPO_ROOT, "mise.toml")
-  ]);
-}
-
-function checkSubmodules(): void {
-  const submoduleStatusOutput = runCommand(
-    "git",
-    ["submodule", "status", "--recursive"],
-    { shouldCaptureOutput: true }
-  );
-  const submoduleStatusLines = submoduleStatusOutput
-    .split(/\r?\n/u)
-    .filter((line) => line.length > 0);
-  if (submoduleStatusLines.length === 0) {
-    throw new Error("git submodule status returned no entries");
-  }
-
-  const failingSubmoduleStatusLines = submoduleStatusLines.filter(
-    (line) => !line.startsWith(" ")
-  );
-  if (failingSubmoduleStatusLines.length > 0) {
-    throw new Error(
-      `submodules are unavailable or not at the pinned revision:\n${failingSubmoduleStatusLines.join("\n")}\nRun bun run env:setup.`
-    );
-  }
-  console.log(`submodule check ok: ${submoduleStatusLines.length} pinned checkouts`);
+  runMiseCommand({
+    args: ["-C", dirname(REPO_ROOT), "trust", resolve(REPO_ROOT, "mise.toml")]
+  });
 }
 
 function resolveLizardInterpreterPath(): string {
-  const lizardToolRoot = runMiseCommand(
-    ["where", "pipx:lizard"],
-    { shouldCaptureOutput: true }
-  ).trim();
+  const lizardToolRoot = runMiseCommand({
+    args: ["where", "pipx:lizard"],
+    shouldCaptureOutput: true
+  }).trim();
   if (!lizardToolRoot) {
     throw new Error("mise where pipx:lizard returned no installation path");
   }
@@ -126,35 +107,33 @@ function resolveLizardInterpreterPath(): string {
   );
 }
 
-function runCommandInMise(
-  command: string,
-  args: readonly string[],
-  options: CommandOutputOptions = {}
-): string {
-  return runMiseCommand(["exec", "--", command, ...args], options);
+function runCommandInMise({ args, command, shouldCaptureOutput }: RunCommandInMiseInput): string {
+  return runMiseCommand({
+    args: ["exec", "--", command, ...args],
+    shouldCaptureOutput
+  });
 }
 
-function runMiseCommand(
-  args: readonly string[],
-  options: CommandOutputOptions = {}
-): string {
-  return runCommand("mise", args, { ...options, environment: MISE_ENV });
+function runMiseCommand({ args, shouldCaptureOutput }: RunMiseCommandInput): string {
+  return runCommand({
+    args,
+    command: "mise",
+    environment: MISE_ENV,
+    shouldCaptureOutput
+  });
 }
 
-function runCommand(
-  command: string,
-  args: readonly string[],
-  options: RunCommandOptions = {}
-): string {
-  const {
-    environment = process.env,
-    shouldCaptureOutput = false
-  } = options;
+function runCommand({
+  args,
+  command,
+  environment = process.env,
+  shouldCaptureOutput = false
+}: RunCommandInput): string {
   const commandResult = spawnSync(command, args, {
     cwd: REPO_ROOT,
     encoding: "utf8",
     env: { ...environment, ...PLAIN_TEXT_ENV },
-    maxBuffer: PROCESS_MAX_BUFFER,
+    maxBuffer: MAX_PROCESS_OUTPUT_BUFFER_BYTES,
     stdio: shouldCaptureOutput ? "pipe" : "inherit",
     windowsHide: true
   });

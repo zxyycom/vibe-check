@@ -37,8 +37,7 @@ export interface MachinePublicationValidationDiagnostic {
 }
 
 export type MachinePublicationValidationResult = Readonly<
-  | ValidationFailure
-  | { ok: true; value: MachinePublicationV3 }
+  ValidationFailure | { ok: true; value: MachinePublicationV3 }
 >;
 
 export interface ValidationFailure {

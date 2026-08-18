@@ -56,9 +56,9 @@ export interface CheckShape {
     | { readonly kind: "not-applicable" }
     | { readonly kind: "completed"; readonly verdict: "passed" | "failed" }
     | {
-      readonly kind: "unavailable";
-      readonly diagnostic: { readonly category: CheckUnavailableDiagnosticCategory };
-    }
+        readonly kind: "unavailable";
+        readonly diagnostic: { readonly category: CheckUnavailableDiagnosticCategory };
+      }
   >;
   readonly recordTypes: readonly RecordTypeShape[];
 }
@@ -75,44 +75,44 @@ export type EvidenceRefShape = Readonly<
   | { readonly kind: "check"; readonly checkId: string }
   | { readonly kind: "record"; readonly recordId: string }
   | {
-    readonly kind: "reference";
-    readonly checkId: string;
-    readonly referenceId: string;
-    readonly referenceName: string;
-  }
+      readonly kind: "reference";
+      readonly checkId: string;
+      readonly referenceId: string;
+      readonly referenceName: string;
+    }
   | { readonly kind: "view"; readonly viewId: string }
   | { readonly kind: "readiness"; readonly readinessId: string }
 >;
 
 export type ReadinessEvidenceShape = Readonly<
   | {
-    readonly evidenceRefs: readonly EvidenceRefShape[];
-    readonly readinessId: string;
-    readonly reason: null;
-    readonly status: "passed";
-  }
+      readonly evidenceRefs: readonly EvidenceRefShape[];
+      readonly readinessId: string;
+      readonly reason: null;
+      readonly status: "passed";
+    }
   | {
-    readonly evidenceRefs: readonly EvidenceRefShape[];
-    readonly readinessId: string;
-    readonly reason: GateNotEvaluatedReason;
-    readonly status: "failed";
-  }
+      readonly evidenceRefs: readonly EvidenceRefShape[];
+      readonly readinessId: string;
+      readonly reason: GateNotEvaluatedReason;
+      readonly status: "failed";
+    }
 >;
 
 export type GateShape = Readonly<
   | { readonly policyId: null; readonly status: "disabled" }
   | {
-    readonly blockingRecordIds: readonly string[];
-    readonly evidenceRefs: readonly EvidenceRefShape[];
-    readonly policyId: string;
-    readonly status: "passed" | "failed";
-  }
+      readonly blockingRecordIds: readonly string[];
+      readonly evidenceRefs: readonly EvidenceRefShape[];
+      readonly policyId: string;
+      readonly status: "passed" | "failed";
+    }
   | {
-    readonly evidenceRefs: readonly EvidenceRefShape[];
-    readonly policyId: string;
-    readonly reason: GateNotEvaluatedReason;
-    readonly status: "not-evaluated";
-  }
+      readonly evidenceRefs: readonly EvidenceRefShape[];
+      readonly policyId: string;
+      readonly reason: GateNotEvaluatedReason;
+      readonly status: "not-evaluated";
+    }
 >;
 
 export interface RunShape extends JsonRecord {
@@ -121,13 +121,20 @@ export interface RunShape extends JsonRecord {
   readonly checks: readonly CheckShape[];
   readonly acceptance: readonly { readonly acceptanceId: string; readonly recordId: string }[];
   readonly references: {
-    readonly identities: readonly { readonly referenceId: string; readonly referenceName: string }[];
+    readonly identities: readonly {
+      readonly referenceId: string;
+      readonly referenceName: string;
+    }[];
     readonly evidence: readonly {
       readonly checkId: string;
       readonly referenceName: string;
       readonly status: ReferenceEvidenceStatus;
     }[];
-    readonly relations: readonly { readonly recordId: string; readonly referenceName: string; readonly relationId: string }[];
+    readonly relations: readonly {
+      readonly recordId: string;
+      readonly referenceName: string;
+      readonly relationId: string;
+    }[];
   };
   readonly decision: {
     readonly policyId: string | null;
@@ -188,16 +195,16 @@ export interface DocsMachineValidationDiagnostic {
 
 export type DocsMachineValidationResult =
   | {
-    readonly diagnostic: DocsMachineValidationDiagnostic;
-    readonly ok: false;
-  }
+      readonly diagnostic: DocsMachineValidationDiagnostic;
+      readonly ok: false;
+    }
   | {
-    readonly ok: true;
-    readonly value: {
-      readonly records: readonly RecordShape[];
-      readonly run: RunShape;
+      readonly ok: true;
+      readonly value: {
+        readonly records: readonly RecordShape[];
+        readonly run: RunShape;
+      };
     };
-  };
 
 export type DocsMachineValidationFailure = Extract<
   DocsMachineValidationResult,

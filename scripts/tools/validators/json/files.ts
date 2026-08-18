@@ -8,7 +8,7 @@ import { walk } from "../repo/files.ts";
 import { toAbs, toRel } from "../repo/paths.ts";
 
 export function readJson(relPath: string): JsonValue {
-  return parseJsonValue(readTextFile(toAbs(relPath)), `${relPath} JSON`);
+  return parseJsonValue({ label: `${relPath} JSON`, source: readTextFile(toAbs(relPath)) });
 }
 
 export function listExampleJson(pattern: RegExp): string[] {

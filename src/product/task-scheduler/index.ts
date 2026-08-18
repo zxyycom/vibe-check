@@ -1,7 +1,4 @@
-export {
-  prepareTaskGraph,
-  validateTaskGraph
-} from "./graph.ts";
+export { prepareTaskGraph, validateTaskGraph } from "./graph.ts";
 export type {
   PlannedTask,
   PlannedTaskGraph,

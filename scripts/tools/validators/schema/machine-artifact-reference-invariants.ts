@@ -1,8 +1,4 @@
-import {
-  isCanonical,
-  referenceEvidenceKey,
-  relationKey
-} from "./machine-artifact-canonical.ts";
+import { isCanonical, referenceEvidenceKey, relationKey } from "./machine-artifact-canonical.ts";
 import { setFailure } from "./machine-artifact-diagnostics.ts";
 import {
   RUN_ARTIFACT,
@@ -16,10 +12,12 @@ export function validateReferences(
   records: readonly RecordShape[],
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
-  return validateReferenceCanonicalOrder(run, artifactRoot)
-    ?? validateReferenceIdentities(run, artifactRoot)
-    ?? validateReferenceEvidence(run, artifactRoot)
-    ?? validateReferenceRelations(run, records, artifactRoot);
+  return (
+    validateReferenceCanonicalOrder(run, artifactRoot) ??
+    validateReferenceIdentities(run, artifactRoot) ??
+    validateReferenceEvidence(run, artifactRoot) ??
+    validateReferenceRelations(run, records, artifactRoot)
+  );
 }
 
 function validateReferenceCanonicalOrder(
@@ -31,7 +29,8 @@ function validateReferenceCanonicalOrder(
     isCanonical(identities, ({ referenceName }) => referenceName) &&
     isCanonical(evidence, referenceEvidenceKey) &&
     isCanonical(relations, relationKey)
-  ) return null;
+  )
+    return null;
   return setFailure(artifactRoot, RUN_ARTIFACT, {
     message: "Reference arrays must use canonical unique order.",
     pointer: "/references",
@@ -62,9 +61,9 @@ function validateReferenceEvidence(
     run.references.identities.map(({ referenceName }) => referenceName)
   );
   const checkIds = new Set(run.checks.map(({ checkId }) => checkId));
-  const hasUnknownPair = run.references.evidence.some((item) => (
-    !referenceNames.has(item.referenceName) || !checkIds.has(item.checkId)
-  ));
+  const hasUnknownPair = run.references.evidence.some(
+    (item) => !referenceNames.has(item.referenceName) || !checkIds.has(item.checkId)
+  );
   if (!hasUnknownPair) return null;
   return setFailure(artifactRoot, RUN_ARTIFACT, {
     message: "Reference evidence requires a published Check/reference pair.",
@@ -86,14 +85,16 @@ function validateReferenceRelations(
     const recordType = run.checks
       .find(({ checkId }) => checkId === record?.checkId)
       ?.recordTypes.find(({ recordTypeId }) => recordTypeId === record?.recordTypeId);
-    const pair = record === undefined
-      ? undefined
-      : evidencePairs.get(`${record.checkId}\u0000${relation.referenceName}`);
+    const pair =
+      record === undefined
+        ? undefined
+        : evidencePairs.get(`${record.checkId}\u0000${relation.referenceName}`);
     if (
       record !== undefined &&
       pair?.status === "complete" &&
       recordType?.policy?.relations.includes(relation.relationId)
-    ) continue;
+    )
+      continue;
     return setFailure(artifactRoot, RUN_ARTIFACT, {
       message: "Reference relation must bind a record to registered complete evidence.",
       pointer: "/references/relations",

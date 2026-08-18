@@ -1,10 +1,6 @@
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import {
-  mkdtempSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -21,11 +17,7 @@ describe("explicit baseline revision resolution", () => {
       git(repository, ["branch", "baseline-branch", commitSha]);
       git(repository, ["tag", "-a", "baseline-tag", "-m", "baseline", commitSha]);
 
-      for (const revision of [
-        "baseline-branch",
-        "baseline-tag",
-        commitSha.slice(0, 12)
-      ]) {
+      for (const revision of ["baseline-branch", "baseline-tag", commitSha.slice(0, 12)]) {
         assert.deepEqual(
           resolveBaselineCommitSha({ cwd: repository, revision }),
           { commitSha, ok: true },
@@ -41,11 +33,7 @@ describe("explicit baseline revision resolution", () => {
     const repository = createRepository();
 
     try {
-      const cases = [
-        "missing-baseline",
-        "HEAD^{tree}",
-        "--verify"
-      ];
+      const cases = ["missing-baseline", "HEAD^{tree}", "--verify"];
       for (const revision of cases) {
         const result = resolveBaselineCommitSha({ cwd: repository, revision });
 
@@ -99,10 +87,6 @@ function git(repository: string, args: readonly string[]): string {
     cwd: repository,
     encoding: "utf8"
   });
-  assert.equal(
-    result.status,
-    0,
-    `git ${args.join(" ")} failed:\n${result.stderr}`
-  );
+  assert.equal(result.status, 0, `git ${args.join(" ")} failed:\n${result.stderr}`);
   return result.stdout.trim();
 }

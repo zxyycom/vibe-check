@@ -97,7 +97,7 @@ export type CheckExecution<Options extends object = object> = (
   context: CheckExecutionContext<Options>
 ) => CheckResult | Promise<CheckResult>;
 
-declare const INHERITED_CHECK_COLLECTION: unique symbol;
+const INHERITED_CHECK_COLLECTION: unique symbol = Symbol("vibe-check.inherited-check-collection");
 
 export type InheritCheckCollectionInput<T> = Readonly<
   | { readonly add: readonly T[]; readonly remove?: readonly T[] }
@@ -108,22 +108,58 @@ export type InheritCheckCollectionInput<T> = Readonly<
  * The marker is intentionally not authorable as a plain object. Definition
  * validation recognizes only values created through `inherit`.
  */
-export type InheritedCheckCollection<T> = InheritCheckCollectionInput<T> & Readonly<{
-  readonly [INHERITED_CHECK_COLLECTION]: true;
-}>;
+export type InheritedCheckCollection<T> = InheritCheckCollectionInput<T> &
+  Readonly<{
+    readonly [INHERITED_CHECK_COLLECTION]: true;
+  }>;
 
 export type InheritableCheckCollection<T> = readonly T[] | InheritedCheckCollection<T>;
 
-const inheritedCollections = new WeakSet<object>();
+const inheritedCollections = new WeakSet();
 
 export function inherit<T>(value: InheritCheckCollectionInput<T>): InheritedCheckCollection<T> {
-  const result = { ...value } as InheritedCheckCollection<T>;
+  const result = { ...value, [INHERITED_CHECK_COLLECTION]: true as const };
+  Object.defineProperty(result, INHERITED_CHECK_COLLECTION, { enumerable: false });
   inheritedCollections.add(result);
   return result;
 }
 
-export function isInheritedCheckCollection(value: unknown): value is InheritedCheckCollection<unknown> {
+export function isInheritedCheckCollection(
+  value: unknown
+): value is InheritedCheckCollection<unknown> {
   return typeof value === "object" && value !== null && inheritedCollections.has(value);
+}
+
+/** Copies the trusted marker while preserving the authoring data's closed shape. */
+export function snapshotInheritedCheckCollection(
+  value: InheritedCheckCollection<unknown>
+): Readonly<Record<string, unknown>> | undefined {
+  try {
+    const prototype: unknown = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return undefined;
+    const snapshot: Record<string, unknown> = {};
+    let hasMarker = false;
+    for (const key of Reflect.ownKeys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (
+        descriptor === undefined ||
+        descriptor.get !== undefined ||
+        descriptor.set !== undefined
+      ) {
+        return undefined;
+      }
+      if (key === INHERITED_CHECK_COLLECTION) {
+        if (descriptor.enumerable || descriptor.value !== true) return undefined;
+        hasMarker = true;
+        continue;
+      }
+      if (typeof key !== "string" || descriptor.enumerable !== true) return undefined;
+      snapshot[key] = descriptor.value;
+    }
+    return hasMarker ? Object.freeze(snapshot) : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export interface Check<Options extends object = object> {
@@ -135,7 +171,7 @@ export interface Check<Options extends object = object> {
     this: void,
     context: CheckExecutionContext<Options>
   ): CheckResult | Promise<CheckResult>;
-  readonly checks?: readonly Check<object>[];
+  readonly checks?: readonly Check[];
   readonly dependsOn?: InheritableCheckCollection<string>;
   readonly maxParallel?: number;
   readonly mutex?: InheritableCheckCollection<string>;
@@ -146,18 +182,20 @@ export type EmptyCheckOptions = Readonly<Record<never, never>>;
 export type CheckWithOptions<Id extends string, Options extends object> = Omit<
   Check<Options>,
   "checkId" | "options"
-> & Readonly<{
-  readonly checkId: Id;
-  readonly options: Options;
-}>;
+> &
+  Readonly<{
+    readonly checkId: Id;
+    readonly options: Options;
+  }>;
 
 export type CheckWithoutOptions<Id extends string> = Omit<
   Check<EmptyCheckOptions>,
   "checkId" | "options"
-> & Readonly<{
-  readonly checkId: Id;
-  readonly options?: never;
-}>;
+> &
+  Readonly<{
+    readonly checkId: Id;
+    readonly options?: never;
+  }>;
 
 /** Improves literal inference only; validation remains at the Definition boundary. */
 export function defineCheck<const Id extends string, Options extends object>(
@@ -166,6 +204,6 @@ export function defineCheck<const Id extends string, Options extends object>(
 export function defineCheck<const Id extends string>(
   value: CheckWithoutOptions<Id>
 ): CheckWithoutOptions<Id>;
-export function defineCheck(value: Check<object>): Check<object> {
+export function defineCheck(value: Check): Check {
   return value;
 }

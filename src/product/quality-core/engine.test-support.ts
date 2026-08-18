@@ -1,12 +1,5 @@
 import { expect } from "bun:test";
-import {
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync
-} from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
@@ -14,9 +7,7 @@ import {
   type MachinePublicationV3
 } from "./output/publication-v3/index.ts";
 
-export function readValidatedMachineArtifacts(
-  artifactDir: string
-): MachinePublicationV3 {
+export function readValidatedMachineArtifacts(artifactDir: string): MachinePublicationV3 {
   const validation = validateMachinePublicationSetV3({
     recordsNdjson: readFileSync(resolve(artifactDir, "records.ndjson")),
     runJson: readFileSync(resolve(artifactDir, "run.json"))
@@ -29,10 +20,7 @@ export function readValidatedMachineArtifacts(
   return validation.value;
 }
 
-export function assertNoMachinePublication(
-  artifactDir: string,
-  stdout: readonly string[]
-): void {
+export function assertNoMachinePublication(artifactDir: string, stdout: readonly string[]): void {
   for (const fileName of [
     "run.json",
     "records.ndjson",
@@ -46,9 +34,7 @@ export function assertNoMachinePublication(
   }
   if (!existsSync(artifactDir) || !statSync(artifactDir).isDirectory()) return;
   expect(
-    readdirSync(artifactDir).some((fileName) =>
-      fileName.startsWith(".vibe-check-publication-")
-    )
+    readdirSync(artifactDir).some((fileName) => fileName.startsWith(".vibe-check-publication-"))
   ).toBe(false);
 }
 
@@ -93,10 +79,11 @@ export async function captureConsole<T>(run: () => Promise<T>): Promise<{
 }
 
 export function gateOutput(lines: readonly string[]): string[] {
-  return lines.filter((line) =>
-    line.includes("Quality gate") ||
-    line.startsWith("  Policy:") ||
-    line.startsWith("  Status:") ||
-    line.startsWith("  Blocking records:")
+  return lines.filter(
+    (line) =>
+      line.includes("Quality gate") ||
+      line.startsWith("  Policy:") ||
+      line.startsWith("  Status:") ||
+      line.startsWith("  Blocking records:")
   );
 }

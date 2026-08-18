@@ -2,9 +2,20 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { astSourceRange, scanAstRule, unsupportedAstDiagnostics, type AstMatch } from "../ast-scan.ts";
+import {
+  astSourceRange,
+  scanAstRule,
+  unsupportedAstDiagnostics,
+  type AstMatch
+} from "../ast-scan.ts";
 import { closeStaticAndRuntimeEntities } from "../closure.ts";
-import { diagnostic, type RuntimeTestEntity, type StaticTestEntity, type TestEntity, type TestEvidenceDiagnostic } from "../model.ts";
+import {
+  diagnostic,
+  type RuntimeTestEntity,
+  type StaticTestEntity,
+  type TestEntity,
+  type TestEvidenceDiagnostic
+} from "../model.ts";
 import type { SupportedRunnerProfile } from "../profile.ts";
 import { processFailureMessage, runBunCommand } from "../runner-process.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
@@ -76,12 +87,7 @@ async function enumerateBunTests(
   try {
     const result = await runBunCommand({
       workspaceRoot: options.workspaceRoot,
-      args: [
-        "test",
-        ...files,
-        "--reporter=junit",
-        `--reporter-outfile=${reportPath}`
-      ],
+      args: ["test", ...files, "--reporter=junit", `--reporter-outfile=${reportPath}`],
       label: "Bun test report"
     });
     if (result.status !== 0) {
@@ -128,15 +134,9 @@ async function enumerateBunTests(
     }
     return {
       entities: cases.map((testCase) => ({
-        identity: bunLocationIdentity(
-          testCase.file,
-          testCase.line,
-          testCase.name
-        ),
+        identity: bunLocationIdentity(testCase.file, testCase.line, testCase.name),
         target: testCase.file,
-        selector: testCase.className
-          ? `${testCase.className} > ${testCase.name}`
-          : testCase.name
+        selector: testCase.className ? `${testCase.className} > ${testCase.name}` : testCase.name
       })),
       diagnostics: []
     };
@@ -173,12 +173,7 @@ async function scanBunStaticEntities(
   workspaceRoot: string,
   files: string[]
 ): Promise<BunStaticResult> {
-  const ruleRoot = path.join(
-    workspaceRoot,
-    "scripts",
-    "test-evidence",
-    "rules"
-  );
+  const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "rules");
   const nativeScan = await scanAstRule({
     workspaceRoot,
     rulePath: path.join(ruleRoot, "bun-native-test.yml"),
@@ -211,24 +206,17 @@ function bunStaticCandidates(matches: readonly AstMatch[]): BunStaticResult {
   for (const match of matches) {
     const name = match.metaVariables.single.NAME?.text;
     if (!name) {
-      diagnostics.push(diagnostic(
-        "static-scan-failed",
-        "static",
-        "Bun native test rule did not capture NAME",
-        {
+      diagnostics.push(
+        diagnostic("static-scan-failed", "static", "Bun native test rule did not capture NAME", {
           path: match.file,
           line: match.range.start.line + 1,
           runner: "bun"
-        }
-      ));
+        })
+      );
       continue;
     }
     entities.push({
-      identity: bunLocationIdentity(
-        match.file,
-        match.range.start.line + 1,
-        name
-      ),
+      identity: bunLocationIdentity(match.file, match.range.start.line + 1, name),
       sourcePath: match.file,
       sourceRange: astSourceRange(match)
     });
@@ -266,28 +254,25 @@ function parseXmlAttributes(source: string): Record<string, string> {
 }
 
 function decodeXml(value: string): string {
-  return value.replace(
-    /&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/gu,
-    (entity) => {
-      switch (entity) {
-        case "&amp;":
-          return "&";
-        case "&lt;":
-          return "<";
-        case "&gt;":
-          return ">";
-        case "&quot;":
-          return "\"";
-        case "&apos;":
-          return "'";
-        default:
-          if (entity.startsWith("&#x")) {
-            return String.fromCodePoint(Number.parseInt(entity.slice(3, -1), 16));
-          }
-          return String.fromCodePoint(Number.parseInt(entity.slice(2, -1), 10));
-      }
+  return value.replace(/&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/gu, (entity) => {
+    switch (entity) {
+      case "&amp;":
+        return "&";
+      case "&lt;":
+        return "<";
+      case "&gt;":
+        return ">";
+      case "&quot;":
+        return '"';
+      case "&apos;":
+        return "'";
+      default:
+        if (entity.startsWith("&#x")) {
+          return String.fromCodePoint(Number.parseInt(entity.slice(3, -1), 16));
+        }
+        return String.fromCodePoint(Number.parseInt(entity.slice(2, -1), 10));
     }
-  );
+  });
 }
 
 function parseNonNegativeInteger(value: string | undefined, label: string): number {
@@ -297,10 +282,6 @@ function parseNonNegativeInteger(value: string | undefined, label: string): numb
   return Number.parseInt(value, 10);
 }
 
-function bunLocationIdentity(
-  sourcePath: string,
-  line: number,
-  name: string
-): string {
+function bunLocationIdentity(sourcePath: string, line: number, name: string): string {
   return `${sourcePath}\0${line}\0${name}`;
 }

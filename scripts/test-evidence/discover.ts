@@ -1,11 +1,7 @@
 import path from "node:path";
 
 import { discoverBunEntities } from "./discovery/bun.ts";
-import {
-  diagnostic,
-  type DiscoveryResult,
-  type TestEntity
-} from "./model.ts";
+import { diagnostic, type DiscoveryResult, type TestEntity } from "./model.ts";
 import {
   loadSupportedRunnerProfile,
   workspaceRoot as supportedWorkspaceRoot,
@@ -49,10 +45,10 @@ type ProfileResolution =
 function resolveDiscoveryProfile(workspaceRoot: string): ProfileResolution {
   if (workspaceRoot !== supportedWorkspaceRoot) {
     return {
-      failure: invalidProfileDiscovery(
-        `native test discovery must use the current checkout ${supportedWorkspaceRoot}; received ${workspaceRoot}`,
-        workspaceRoot
-      )
+      failure: invalidProfileDiscovery({
+        message: `native test discovery must use the current checkout ${supportedWorkspaceRoot}; received ${workspaceRoot}`,
+        sourcePath: workspaceRoot
+      })
     };
   }
   try {
@@ -61,9 +57,9 @@ function resolveDiscoveryProfile(workspaceRoot: string): ProfileResolution {
     };
   } catch (error) {
     return {
-      failure: invalidProfileDiscovery(
-        error instanceof Error ? error.message : String(error)
-      )
+      failure: invalidProfileDiscovery({
+        message: error instanceof Error ? error.message : String(error)
+      })
     };
   }
 }
@@ -80,7 +76,7 @@ async function discoverRunnerEntities(
     profile
   });
   return {
-    entities: [...bun.entities].sort(compareEntities),
+    entities: [...bun.entities].sort((left, right) => compareEntities({ left, right })),
     diagnostics: [...bun.diagnostics]
   };
 }
@@ -92,27 +88,32 @@ function duplicateEntityDiagnostics(
   for (let index = 1; index < entities.length; index += 1) {
     if (entities[index - 1]?.entityKey === entities[index]?.entityKey) {
       const entity = entities[index];
-      diagnostics.push(diagnostic(
-        "duplicate-entity",
-        "runner",
-        `multiple runner adapters produced entity key ${entity.entityKey}`,
-        {
-          runner: entity.runner,
-          target: entity.target,
-          selector: entity.selector,
-          entityKey: entity.entityKey,
-          path: entity.sourcePath
-        }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "duplicate-entity",
+          "runner",
+          `multiple runner adapters produced entity key ${entity.entityKey}`,
+          {
+            runner: entity.runner,
+            target: entity.target,
+            selector: entity.selector,
+            entityKey: entity.entityKey,
+            path: entity.sourcePath
+          }
+        )
+      );
     }
   }
   return diagnostics;
 }
 
-function invalidProfileDiscovery(
-  message: string,
-  sourcePath?: string
-): DiscoveryResult {
+function invalidProfileDiscovery({
+  message,
+  sourcePath
+}: {
+  readonly message: string;
+  readonly sourcePath?: string;
+}): DiscoveryResult {
   return {
     profile: {
       id: "invalid-profile",
@@ -130,8 +131,18 @@ function invalidProfileDiscovery(
   };
 }
 
-function compareEntities(left: TestEntity, right: TestEntity): number {
-  return left.entityKey < right.entityKey
-    ? -1
-    : left.entityKey > right.entityKey ? 1 : 0;
+function compareEntities({
+  left,
+  right
+}: {
+  readonly left: TestEntity;
+  readonly right: TestEntity;
+}): number {
+  if (left.entityKey < right.entityKey) {
+    return -1;
+  }
+  if (left.entityKey > right.entityKey) {
+    return 1;
+  }
+  return 0;
 }

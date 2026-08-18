@@ -1,5 +1,5 @@
 declare module "bun:test" {
-  type TestResult = unknown | Promise<unknown>;
+  type TestResult = void | Promise<void>;
 
   export function describe(name: string, fn: () => void): void;
   export function test(name: string, fn: () => TestResult): void;

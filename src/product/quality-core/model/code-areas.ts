@@ -41,7 +41,11 @@ export function classifyFile(
   return "unknown";
 }
 
-export function isExcluded(filePath: string, excludeDirs: readonly string[], generatedFileGlobs: readonly string[]): boolean {
+export function isExcluded(
+  filePath: string,
+  excludeDirs: readonly string[],
+  generatedFileGlobs: readonly string[]
+): boolean {
   const parts = filePath.split("/");
 
   if (excludeDirs.some((d) => parts.includes(d))) {
@@ -70,8 +74,8 @@ export function classifyFiles(
     groups.get(area)?.push(file);
   }
 
-  for (const files of groups.values()) {
-    files.sort();
+  for (const groupFiles of groups.values()) {
+    groupFiles.sort();
   }
 
   return groups;

@@ -52,7 +52,11 @@ function validateAcceptanceRule(
     return issue(`${path}.acceptanceId`, "duplicate", "Duplicate acceptanceId");
   }
   if (!isSafeAcceptanceReason(shape.value.reason)) {
-    return issue(`${path}.reason`, "invalid-value", "Acceptance reason must be non-empty safe text");
+    return issue(
+      `${path}.reason`,
+      "invalid-value",
+      "Acceptance reason must be non-empty safe text"
+    );
   }
   const selector = validateSelector(shape.value.selector, `${path}.selector`, context.definitions);
   if (!selector.ok) return selector;
@@ -139,8 +143,10 @@ function validateNamedView(
 ): ValidationResult<NamedRecordView> {
   const shape = closed(value, path, ["viewId", "selectors", "acceptance", "predicates"]);
   if (!shape.ok) return shape;
-  if (!isStableId(shape.value.viewId)) return issue(`${path}.viewId`, "invalid-value", "Invalid viewId");
-  if (viewIds.has(shape.value.viewId)) return issue(`${path}.viewId`, "duplicate", "Duplicate viewId");
+  if (!isStableId(shape.value.viewId))
+    return issue(`${path}.viewId`, "invalid-value", "Invalid viewId");
+  if (viewIds.has(shape.value.viewId))
+    return issue(`${path}.viewId`, "duplicate", "Duplicate viewId");
   const selectors = validateViewSelectors(shape.value.selectors, `${path}.selectors`, context);
   if (!selectors.ok) return selectors;
   const acceptance = validateViewAcceptance(shape.value.acceptance, `${path}.acceptance`);
@@ -165,7 +171,8 @@ function validateNamedViews(
   context: PolicyContext,
   viewIds: Set<string>
 ): ValidationResult<readonly NamedRecordView[]> {
-  if (!Array.isArray(value)) return issue("$.policy.views", "invalid-value", "views must be an array");
+  if (!Array.isArray(value))
+    return issue("$.policy.views", "invalid-value", "views must be an array");
   const views: NamedRecordView[] = [];
   for (let index = 0; index < value.length; index += 1) {
     const view = validateNamedView(value[index], `$.policy.views[${index}]`, context, viewIds);
@@ -227,9 +234,11 @@ function validateReadinessClauses(
 function requiredReferencePairs(
   requirements: readonly PolicyReferenceRequirement[]
 ): ReadonlySet<string> {
-  return new Set(requirements.flatMap((requirement) => (
-    requirement.checkIds.map((checkId) => checkReferenceKey(checkId, requirement.referenceName))
-  )));
+  return new Set(
+    requirements.flatMap((requirement) =>
+      requirement.checkIds.map((checkId) => checkReferenceKey(checkId, requirement.referenceName))
+    )
+  );
 }
 
 export function validateDecisionPolicy(
@@ -239,14 +248,25 @@ export function validateDecisionPolicy(
   definitions: readonly CheckDefinition[]
 ): ValidationResult<DecisionPolicy> {
   const shape = closed(value, "$.policy", [
-    "policyId", "references", "acceptance", "views", "readiness", "blockWhen"
+    "policyId",
+    "references",
+    "acceptance",
+    "views",
+    "readiness",
+    "blockWhen"
   ]);
   if (!shape.ok) return shape;
   if (!isStableId(shape.value.policyId)) {
     return issue("$.policy.policyId", "invalid-value", "policyId must be stable kebab-case");
   }
-  const referencesByName = new Map(references.map((reference) => [reference.referenceName, reference]));
-  const requirements = validateReferenceRequirements(shape.value.references, referencesByName, definitions);
+  const referencesByName = new Map(
+    references.map((reference) => [reference.referenceName, reference])
+  );
+  const requirements = validateReferenceRequirements(
+    shape.value.references,
+    referencesByName,
+    definitions
+  );
   if (!requirements.ok) return requirements;
   const context: PolicyContext = {
     definitions,

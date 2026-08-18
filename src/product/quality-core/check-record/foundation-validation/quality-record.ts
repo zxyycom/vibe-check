@@ -6,10 +6,7 @@ import {
   type RecordLocation,
   type RecordTypeDefinition
 } from "../model.ts";
-import {
-  createRecordId,
-  normalizeSemanticSubject
-} from "../identity.ts";
+import { createRecordId, normalizeSemanticSubject } from "../identity.ts";
 import {
   accepted,
   acceptedDomain,
@@ -84,10 +81,16 @@ function validateLocation(value: unknown): ValidationResult<RecordLocation | nul
     return closed;
   }
   const location = closed.value;
-  if (!isNonEmptyString(location.path)
-    || !isPositiveSafeInteger(location.line)
-    || !isPositiveSafeInteger(location.column)) {
-    return issue("$.location", "invalid-value", "Location requires path and positive line/column integers");
+  if (
+    !isNonEmptyString(location.path) ||
+    !isPositiveSafeInteger(location.line) ||
+    !isPositiveSafeInteger(location.column)
+  ) {
+    return issue(
+      "$.location",
+      "invalid-value",
+      "Location requires path and positive line/column integers"
+    );
   }
   return accepted({
     path: location.path,
@@ -101,7 +104,11 @@ function validateRecordBinding(
   definition: CheckDefinition
 ): ValidationResult<ValidatedRecordBinding> {
   if (record.checkId !== definition.checkId) {
-    return issue("$.checkId", "identity-mismatch", "Record provenance does not match its Check definition");
+    return issue(
+      "$.checkId",
+      "identity-mismatch",
+      "Record provenance does not match its Check definition"
+    );
   }
   if (typeof record.recordId !== "string" || !RECORD_ID_PATTERN.test(record.recordId)) {
     return issue("$.recordId", "invalid-value", "Invalid recordId");
@@ -121,11 +128,17 @@ function validateRecordBinding(
 function validateRecordContent(
   record: Readonly<Record<string, unknown>>
 ): ValidationResult<ValidatedRecordContent> {
-  if (!isRecordLevel(record.level)
-    || !isNonEmptyString(record.semanticSubject)
-    || !isNonEmptyString(record.message)
-    || !isRecord(record.fields)) {
-    return issue("$", "invalid-value", "Record level, semantic subject, message, or fields are invalid");
+  if (
+    !isRecordLevel(record.level) ||
+    !isNonEmptyString(record.semanticSubject) ||
+    !isNonEmptyString(record.message) ||
+    !isRecord(record.fields)
+  ) {
+    return issue(
+      "$",
+      "invalid-value",
+      "Record level, semantic subject, message, or fields are invalid"
+    );
   }
   return accepted({
     level: record.level,
@@ -148,7 +161,11 @@ function validateRecordFields(
     const value = values[definition.fieldId];
     if (value === undefined) {
       if (definition.required) {
-        return issue(`$.fields.${definition.fieldId}`, "missing-field", `Missing field: ${definition.fieldId}`);
+        return issue(
+          `$.fields.${definition.fieldId}`,
+          "missing-field",
+          `Missing field: ${definition.fieldId}`
+        );
       }
       continue;
     }
@@ -177,7 +194,10 @@ export function validateMaterializedQualityRecord(
   if (!content.ok) {
     return content;
   }
-  const validatedFields = validateRecordFields(content.value.fields, binding.value.recordType.fields);
+  const validatedFields = validateRecordFields(
+    content.value.fields,
+    binding.value.recordType.fields
+  );
   if (!validatedFields.ok) {
     return validatedFields;
   }
@@ -197,7 +217,11 @@ export function validateMaterializedQualityRecord(
   };
   const expectedRecordId = createRecordId(normalizedRecord, binding.value.recordType).recordId;
   if (normalizedRecord.recordId !== expectedRecordId) {
-    return issue("$.recordId", "identity-mismatch", "recordId does not match canonical identity fields");
+    return issue(
+      "$.recordId",
+      "identity-mismatch",
+      "recordId does not match canonical identity fields"
+    );
   }
   return acceptedDomain(normalizedRecord);
 }

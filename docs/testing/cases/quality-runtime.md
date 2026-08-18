@@ -99,6 +99,17 @@ Entities:
 Proves:
 - Present and absent Option values preserve their respective branches, including nullable conversion and Result boundaries, without evaluating unrelated effects.
 
+## Case AUX-RUNTIME-FOUNDATION-001: Product foundation boundaries remain explicit and typed
+Owner: `docs/coding-style.md#3-边界代码显式`
+Entities:
+- `bun|src/product/foundation/boundaries.test.ts|product foundation boundaries > normalizes repeated CLI string options without preserving boolean entries`
+- `bun|src/product/foundation/boundaries.test.ts|product foundation boundaries > validates CSV rows and keeps NDJSON failures and parse results explicit`
+- `bun|src/product/foundation/boundaries.test.ts|product foundation boundaries > uses named file and process inputs while preserving explicit serialization failures`
+Proves:
+- Product foundation receives CLI and CSV parser values at an explicit boundary, exposes readonly argument views, and only returns strings through a string-array option view.
+- NDJSON parsing returns readonly result collections; an unrepresentable record fails with its 1-based record position instead of becoming an empty line or omitted output.
+- File writes and synchronous child-process execution use named input boundaries; JSON serialization failures name the affected file instead of being silently written or skipped.
+
 ## Case AUX-QUALITY-CACHE-001: Duplicate cache identity is stable
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:

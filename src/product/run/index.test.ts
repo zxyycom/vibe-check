@@ -14,14 +14,16 @@ import { run } from "./index.ts";
 
 const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
 
-function check(overrides: Readonly<{
-  readonly checkId?: string;
-  readonly dependsOn?: readonly string[];
-  readonly execution?: CheckExecution<object>;
-  readonly maxParallel?: number;
-  readonly mutex?: readonly string[];
-  readonly recordTypes?: Check<object>["recordTypes"];
-}> = {}): Check<object> {
+function check(
+  overrides: Readonly<{
+    readonly checkId?: string;
+    readonly dependsOn?: readonly string[];
+    readonly execution?: CheckExecution;
+    readonly maxParallel?: number;
+    readonly mutex?: readonly string[];
+    readonly recordTypes?: Check["recordTypes"];
+  }> = {}
+): Check {
   return {
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
@@ -33,7 +35,7 @@ function check(overrides: Readonly<{
   };
 }
 
-function definition(checks: readonly Check<object>[]) {
+function definition(checks: readonly Check[]) {
   return defineConfig({
     checks,
     effects: {
@@ -55,19 +57,25 @@ const RECORD_CANDIDATE = Object.freeze({
   location: Object.freeze({ path: "src/a.ts", line: 1, column: 1 })
 }) satisfies QualityRecordCandidate;
 
-const RECORD_TYPES = [{
-  recordTypeId: "finding",
-  fields: [{ fieldId: "metric", valueType: "string", required: true }],
-  identityFields: ["metric"]
-}] as const;
+const RECORD_TYPES = [
+  {
+    recordTypeId: "finding",
+    fields: [{ fieldId: "metric", valueType: "string", required: true }],
+    identityFields: ["metric"]
+  }
+] as const;
 
 describe("Package Run", () => {
   it("rejects invalid closed controls and definitions before any Check callback", async () => {
     let calls = 0;
-    const source = definition([check({ execution: () => {
-      calls += 1;
-      return COMPLETED;
-    } })]);
+    const source = definition([
+      check({
+        execution: () => {
+          calls += 1;
+          return COMPLETED;
+        }
+      })
+    ]);
 
     const badControls = await run(source, { unexpected: true });
     const badDefinition = await run({ ...source, unexpected: true }, {});
@@ -75,28 +83,38 @@ describe("Package Run", () => {
     assert.deepEqual(badControls, {
       kind: "configuration",
       definitionWarnings: [],
-      diagnostic: { kind: "invalid-run-controls", path: "controls.unexpected", reason: "unknown-key" }
+      diagnostic: {
+        kind: "invalid-run-controls",
+        path: "controls.unexpected",
+        reason: "unknown-key"
+      }
     });
     assert.equal(badDefinition.kind, "configuration");
     assert.equal(calls, 0);
   });
 
   it("executes each normalized Check directly with the public callback context", async () => {
-    let received: Readonly<{
-      readonly changedFiles: readonly string[];
-      readonly options: object;
-      readonly root: string;
-      readonly signal: AbortSignal;
-    }> | undefined;
-    const source = definition([check({ execution: (context) => {
-      received = {
-        changedFiles: context.project.changedFiles,
-        options: context.options,
-        root: context.project.root,
-        signal: context.signal
-      };
-      return COMPLETED;
-    } })]);
+    let received:
+      | Readonly<{
+          readonly changedFiles: readonly string[];
+          readonly options: object;
+          readonly root: string;
+          readonly signal: AbortSignal;
+        }>
+      | undefined;
+    const source = definition([
+      check({
+        execution: (context) => {
+          received = {
+            changedFiles: context.project.changedFiles,
+            options: context.options,
+            root: context.project.root,
+            signal: context.signal
+          };
+          return COMPLETED;
+        }
+      })
+    ]);
     const root = mkdtempSync(join(tmpdir(), "vibe-check-direct-run-"));
     try {
       const result = await run(source, { changedFiles: ["src/a.ts"], projectRoot: root });
@@ -106,9 +124,15 @@ describe("Package Run", () => {
       assert.equal(received?.root, root);
       assert.equal(received?.signal.aborted, false);
       if (result.kind !== "completed") return;
-      assert.deepEqual(result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })), [{
-        checkId: "custom", outcome: COMPLETED
-      }]);
+      assert.deepEqual(
+        result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
+        [
+          {
+            checkId: "custom",
+            outcome: COMPLETED
+          }
+        ]
+      );
       assert.deepEqual(result.definitionWarnings, []);
       assert.doesNotMatch(JSON.stringify(result), /createTaskPlan|binding|operationalDependencies/);
     } finally {
@@ -137,27 +161,37 @@ describe("Package Run", () => {
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
     assert.equal(dependentCalls, 0);
-    assert.deepEqual(result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })), [{
-      checkId: "dependent",
-      outcome: {
-        status: "unavailable",
-        reason: { code: "prerequisite-unavailable", checkIds: ["unavailable"] }
-      }
-    }, {
-      checkId: "unavailable",
-      outcome: { status: "unavailable", reason: { code: "source-unavailable" } }
-    }]);
+    assert.deepEqual(
+      result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
+      [
+        {
+          checkId: "dependent",
+          outcome: {
+            status: "unavailable",
+            reason: { code: "prerequisite-unavailable", checkIds: ["unavailable"] }
+          }
+        },
+        {
+          checkId: "unavailable",
+          outcome: { status: "unavailable", reason: { code: "source-unavailable" } }
+        }
+      ]
+    );
   });
 
   it("rejects an invalid projected generic Task graph before any Check callback runs", async () => {
     let calls = 0;
-    const result = await run(definition([check({
-      dependsOn: ["missing-check"],
-      execution: () => {
-        calls += 1;
-        return COMPLETED;
-      }
-    })]));
+    const result = await run(
+      definition([
+        check({
+          dependsOn: ["missing-check"],
+          execution: () => {
+            calls += 1;
+            return COMPLETED;
+          }
+        })
+      ])
+    );
     assert.deepEqual(result.kind === "planning" ? result.diagnostic : result, {
       code: "task-graph-invalid"
     });
@@ -165,51 +199,72 @@ describe("Package Run", () => {
   });
 
   it("contains invalid callback outcomes and record misuse in the Check outcome", async () => {
-    const invalidResult = await run(definition([check({ execution: () => ({ status: "unexpected" } as never) })]));
+    const invalidOutcomeCheck = check();
+    Object.defineProperty(invalidOutcomeCheck, "execution", {
+      value: () => ({ status: "unexpected" })
+    });
+    const invalidResult = await run(definition([invalidOutcomeCheck]));
     assert.equal(invalidResult.kind, "completed");
     if (invalidResult.kind !== "completed") return;
     assert.deepEqual(invalidResult.snapshot.checks[0]?.outcome, {
-      status: "unavailable", reason: { code: "invalid-execution-result" }
+      status: "unavailable",
+      reason: { code: "invalid-execution-result" }
     });
 
-    const invalidRecord = await run(definition([check({
-      recordTypes: RECORD_TYPES,
-      execution: (context) => {
-        context.records.report({ ...RECORD_CANDIDATE, recordTypeId: "unknown" });
-        return COMPLETED;
-      }
-    })]));
+    const invalidRecord = await run(
+      definition([
+        check({
+          recordTypes: RECORD_TYPES,
+          execution: (context) => {
+            context.records.report({ ...RECORD_CANDIDATE, recordTypeId: "unknown" });
+            return COMPLETED;
+          }
+        })
+      ])
+    );
     assert.equal(invalidRecord.kind, "completed");
     if (invalidRecord.kind !== "completed") return;
     assert.deepEqual(invalidRecord.snapshot.checks[0]?.outcome, {
-      status: "unavailable", reason: { code: "record-invalid" }
+      status: "unavailable",
+      reason: { code: "record-invalid" }
     });
 
-    const contradictoryReference = await run(definition([check({ execution: (context) => {
-      context.records.reportReference({
-        referenceName: "baseline",
-        relations: [],
-        status: "unavailable"
-      });
-      return { status: "not-applicable" };
-    } })]));
+    const contradictoryReference = await run(
+      definition([
+        check({
+          execution: (context) => {
+            context.records.reportReference({
+              referenceName: "baseline",
+              relations: [],
+              status: "unavailable"
+            });
+            return { status: "not-applicable" };
+          }
+        })
+      ])
+    );
     assert.equal(contradictoryReference.kind, "completed");
     if (contradictoryReference.kind !== "completed") return;
     assert.deepEqual(contradictoryReference.snapshot.checks[0]?.outcome, {
-      status: "unavailable", reason: { code: "record-invalid" }
+      status: "unavailable",
+      reason: { code: "record-invalid" }
     });
   });
 
   it("commits Check-owned records and closes its reporter when the callback settles", async () => {
     let retainedReporter: Readonly<{ report(candidate: QualityRecordCandidate): void }> | undefined;
-    const result = await run(definition([check({
-      recordTypes: RECORD_TYPES,
-      execution: (context) => {
-        retainedReporter = context.records;
-        context.records.report(RECORD_CANDIDATE);
-        return COMPLETED;
-      }
-    })]));
+    const result = await run(
+      definition([
+        check({
+          recordTypes: RECORD_TYPES,
+          execution: (context) => {
+            retainedReporter = context.records;
+            context.records.report(RECORD_CANDIDATE);
+            return COMPLETED;
+          }
+        })
+      ])
+    );
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
     assert.equal(result.snapshot.records.length, 1);

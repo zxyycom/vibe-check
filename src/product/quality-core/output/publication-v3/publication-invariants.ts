@@ -1,12 +1,6 @@
 import { createCatalogFingerprint } from "../../check-record/identity.ts";
-import type {
-  CheckDefinition,
-  QualityRecord
-} from "../../check-record/model.ts";
-import {
-  validateCoreSnapshot,
-  type ValidationIssue
-} from "../../check-record/validation.ts";
+import type { CheckDefinition, QualityRecord } from "../../check-record/model.ts";
+import { validateCoreSnapshot, type ValidationIssue } from "../../check-record/validation.ts";
 import {
   collectDecisionReferences,
   validateDecisionReferences,
@@ -66,10 +60,10 @@ function validateRecordsFingerprint(
   return createRecordsFingerprintV3(records) === run.recordsFingerprint
     ? null
     : setInvariantFailure(
-      "records-fingerprint",
-      "records.ndjson",
-      "Records fingerprint must match the complete canonical Record row set."
-    );
+        "records-fingerprint",
+        "records.ndjson",
+        "Records fingerprint must match the complete canonical Record row set."
+      );
 }
 
 function validateCatalogFingerprint(run: MachineRunV3): ValidationFailure | null {
@@ -77,10 +71,10 @@ function validateCatalogFingerprint(run: MachineRunV3): ValidationFailure | null
   return expected === run.catalogFingerprint
     ? null
     : setInvariantFailure(
-      "catalog-fingerprint",
-      "run.json",
-      "Catalog fingerprint must match the published Check projections."
-    );
+        "catalog-fingerprint",
+        "run.json",
+        "Catalog fingerprint must match the published Check projections."
+      );
 }
 
 function validateProjectedCoreSnapshot(
@@ -121,10 +115,9 @@ function buildPublicationInvariantIndex(
     recordIds: new Set(records.map((record) => record.recordId)),
     viewIds: new Set(run.decision.views.map((view) => view.viewId)),
     readinessIds: new Set(run.decision.readiness.map((evidence) => evidence.readinessId)),
-    referencesByName: new Map(run.references.identities.map((identity) => [
-      identity.referenceName,
-      identity
-    ])),
+    referencesByName: new Map(
+      run.references.identities.map((identity) => [identity.referenceName, identity])
+    ),
     referenceEvidencePairs: new Set(run.references.evidence.map(referenceEvidenceKey))
   };
 }
@@ -144,10 +137,10 @@ function validateReferencedRecords(
   ];
   return referencedRecordIds.some((recordId) => !recordIds.has(recordId))
     ? setInvariantFailure(
-      "decision-record-reference",
-      "run.json",
-      "Decision references an unknown record."
-    )
+        "decision-record-reference",
+        "run.json",
+        "Decision references an unknown record."
+      )
     : null;
 }
 
@@ -156,33 +149,37 @@ function validateReferenceIdentities(
   index: PublicationInvariantIndex
 ): ValidationFailure | null {
   const referenceIds = new Set(run.references.identities.map((identity) => identity.referenceId));
-  if (index.referencesByName.size !== run.references.identities.length
-    || referenceIds.size !== run.references.identities.length) {
+  if (
+    index.referencesByName.size !== run.references.identities.length ||
+    referenceIds.size !== run.references.identities.length
+  ) {
     return setInvariantFailure(
       "reference-identity",
       "run.json",
       "Reference evidence requires one published identity."
     );
   }
-  if (!isCanonical(run.references.identities, (identity) => identity.referenceName)
-    || !isCanonical(run.references.evidence, referenceEvidenceKey)
-    || !isCanonical(run.references.relations, relationKey)) {
+  if (
+    !isCanonical(run.references.identities, (identity) => identity.referenceName) ||
+    !isCanonical(run.references.evidence, referenceEvidenceKey) ||
+    !isCanonical(run.references.relations, relationKey)
+  ) {
     return setInvariantFailure(
       "reference-canonical-order",
       "run.json",
       "Reference arrays must use canonical unique order."
     );
   }
-  const hasUnknownEvidence = run.references.evidence.some((evidence) => (
-    !index.referencesByName.has(evidence.referenceName)
-      || !index.checkIds.has(evidence.checkId)
-  ));
+  const hasUnknownEvidence = run.references.evidence.some(
+    (evidence) =>
+      !index.referencesByName.has(evidence.referenceName) || !index.checkIds.has(evidence.checkId)
+  );
   return hasUnknownEvidence
     ? setInvariantFailure(
-      "reference-evidence",
-      "run.json",
-      "Reference evidence requires a published Check/reference pair."
-    )
+        "reference-evidence",
+        "run.json",
+        "Reference evidence requires a published Check/reference pair."
+      )
     : null;
 }
 
@@ -195,13 +192,17 @@ function validateReferenceRelations(
     const recordType = index.checks
       .find((check) => check.checkId === record?.checkId)
       ?.recordTypes.find((candidate) => candidate.recordTypeId === record?.recordTypeId);
-    const evidence = run.references.evidence.find((candidate) => (
-      candidate.checkId === record?.checkId && candidate.referenceName === relation.referenceName
-    ));
-    if (record === undefined || !index.referencesByName.has(relation.referenceName)
-      || !index.referenceEvidencePairs.has(`${record.checkId}\u0000${relation.referenceName}`)
-      || evidence?.status !== "complete"
-      || !recordType?.policy?.relations.includes(relation.relationId)) {
+    const evidence = run.references.evidence.find(
+      (candidate) =>
+        candidate.checkId === record?.checkId && candidate.referenceName === relation.referenceName
+    );
+    if (
+      record === undefined ||
+      !index.referencesByName.has(relation.referenceName) ||
+      !index.referenceEvidencePairs.has(`${record.checkId}\u0000${relation.referenceName}`) ||
+      evidence?.status !== "complete" ||
+      !recordType?.policy?.relations.includes(relation.relationId)
+    ) {
       return setInvariantFailure(
         "reference-relation",
         "run.json",
@@ -225,9 +226,7 @@ function stripRecordSchemaVersion(record: MachineRecordV3): QualityRecord {
   };
 }
 
-function referenceEvidenceKey(
-  evidence: MachineRunV3["references"]["evidence"][number]
-): string {
+function referenceEvidenceKey(evidence: MachineRunV3["references"]["evidence"][number]): string {
   return `${evidence.checkId}\u0000${evidence.referenceName}`;
 }
 
@@ -238,9 +237,7 @@ function relationKey(relation: MachineRunV3["references"]["relations"][number]):
 function coreSnapshotFailure(
   issue: ValidationIssue | undefined
 ): Extract<MachinePublicationValidationResult, { ok: false }> {
-  const logicalArtifact = issue?.path.includes("records")
-    ? "records.ndjson"
-    : "run.json";
+  const logicalArtifact = issue?.path.includes("records") ? "records.ndjson" : "run.json";
   if (issue?.path.includes("records") && issue.path.includes("recordId")) {
     return setInvariantFailure("record-identity", logicalArtifact, issue.message);
   }

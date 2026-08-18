@@ -60,7 +60,9 @@ export function scanWithJscpd(options: ScanWithJscpdOptions): JscpdScanResult {
   if (!scan.ok) return scan.result;
 
   try {
-    const child = runProcessSync(scan.dependency.executable, scan.invocation.argv, {
+    const child = runProcessSync({
+      args: scan.invocation.argv,
+      command: scan.dependency.executable,
       cwd: scan.cwd,
       encoding: "utf8",
       windowsHide: true,
@@ -96,12 +98,7 @@ export async function scanWithJscpdAsync(options: ScanWithJscpdOptions): Promise
 }
 
 function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
-  const {
-    files,
-    cwd,
-    dependency,
-    minimumTokens
-  } = options;
+  const { files, cwd, dependency, minimumTokens } = options;
 
   if (files.length < 2) {
     return { ok: false, result: { ok: true, measurements: [] } };
@@ -146,13 +143,7 @@ function prepareJscpdInvocation({
     tempDir,
     outputDir,
     configPath,
-    argv: [
-      ...dependencyArgs,
-      "--config",
-      configPath,
-      "--output",
-      outputDir
-    ]
+    argv: [...dependencyArgs, "--config", configPath, "--output", outputDir]
   };
 }
 

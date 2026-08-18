@@ -6,17 +6,17 @@ import type {
 } from "./model.ts";
 
 export const REFERENCE_EVIDENCE_STATUSES = ["complete", "unavailable", "incomplete"] as const;
-export type ReferenceEvidenceStatus = typeof REFERENCE_EVIDENCE_STATUSES[number];
+export type ReferenceEvidenceStatus = (typeof REFERENCE_EVIDENCE_STATUSES)[number];
 
 export const GATE_RESULT_STATUSES = ["disabled", "passed", "failed", "not-evaluated"] as const;
-export type GateResultStatus = typeof GATE_RESULT_STATUSES[number];
+export type GateResultStatus = (typeof GATE_RESULT_STATUSES)[number];
 
 export const GATE_NOT_EVALUATED_REASONS = [
   "scan-incomplete",
   "no-eligible-input",
   "comparison-unavailable"
 ] as const;
-export type GateNotEvaluatedReason = typeof GATE_NOT_EVALUATED_REASONS[number];
+export type GateNotEvaluatedReason = (typeof GATE_NOT_EVALUATED_REASONS)[number];
 
 export interface NamedReferenceIdentity {
   readonly referenceName: string;
@@ -74,17 +74,17 @@ export interface PolicyReferenceRequirement {
 
 export type ReadinessPredicate = Readonly<
   | {
-    kind: "check-outcome";
-    checkId: string;
-    outcome: "not-applicable" | "completed" | "unavailable";
-  }
+      kind: "check-outcome";
+      checkId: string;
+      outcome: "not-applicable" | "completed" | "unavailable";
+    }
   | { kind: "check-verdict"; checkId: string; verdict: "passed" | "failed" }
   | {
-    kind: "reference-status";
-    checkId: string;
-    referenceName: string;
-    status: ReferenceEvidenceStatus;
-  }
+      kind: "reference-status";
+      checkId: string;
+      referenceName: string;
+      status: ReferenceEvidenceStatus;
+    }
   | { kind: "view-empty"; viewId: string }
 >;
 
@@ -97,16 +97,16 @@ export interface ReadinessClause {
 export type BlockWhen = Readonly<
   | { kind: "view-not-empty"; viewId: string }
   | {
-    kind: "check-outcome";
-    checkId: string;
-    outcome: "not-applicable" | "completed" | "unavailable";
-  }
+      kind: "check-outcome";
+      checkId: string;
+      outcome: "not-applicable" | "completed" | "unavailable";
+    }
   | {
-    kind: "reference-status";
-    checkId: string;
-    referenceName: string;
-    status: ReferenceEvidenceStatus;
-  }
+      kind: "reference-status";
+      checkId: string;
+      referenceName: string;
+      status: ReferenceEvidenceStatus;
+    }
 >;
 
 export interface DecisionPolicy {
@@ -164,16 +164,16 @@ export interface ViewEvidence {
 
 export type ReadinessEvidence = Readonly<
   | {
-    readonly readinessId: string;
-    readonly status: "passed";
-    readonly evidenceRefs: readonly EvidenceRef[];
-  }
+      readonly readinessId: string;
+      readonly status: "passed";
+      readonly evidenceRefs: readonly EvidenceRef[];
+    }
   | {
-    readonly readinessId: string;
-    readonly status: "failed";
-    readonly reason: GateNotEvaluatedReason;
-    readonly evidenceRefs: readonly EvidenceRef[];
-  }
+      readonly readinessId: string;
+      readonly status: "failed";
+      readonly reason: GateNotEvaluatedReason;
+      readonly evidenceRefs: readonly EvidenceRef[];
+    }
 >;
 
 export interface BlockWhenEvidence {
@@ -185,17 +185,17 @@ export interface BlockWhenEvidence {
 export type GateResult = Readonly<
   | { status: "disabled"; policyId: null }
   | {
-    status: "passed" | "failed";
-    policyId: string;
-    evidenceRefs: readonly EvidenceRef[];
-    blockingRecordRefs: readonly RecordEvidenceRef[];
-  }
+      status: "passed" | "failed";
+      policyId: string;
+      evidenceRefs: readonly EvidenceRef[];
+      blockingRecordRefs: readonly RecordEvidenceRef[];
+    }
   | {
-    status: "not-evaluated";
-    policyId: string;
-    reason: GateNotEvaluatedReason;
-    evidenceRefs: readonly EvidenceRef[];
-  }
+      status: "not-evaluated";
+      policyId: string;
+      reason: GateNotEvaluatedReason;
+      evidenceRefs: readonly EvidenceRef[];
+    }
 >;
 
 export interface DecisionEvidence {

@@ -13,32 +13,38 @@ const BASELINE_REFERENCE_ID =
 const definition = {
   checkId: "publication-check",
   displayName: "Publication Check",
-  recordTypes: [{
-    recordTypeId: "publication-record",
-    fields: [{ fieldId: "value", valueType: "integer", required: true }],
-    identityFields: ["value"],
-    policy: {
-      operands: [],
-      relations: ["regression"]
+  recordTypes: [
+    {
+      recordTypeId: "publication-record",
+      fields: [{ fieldId: "value", valueType: "integer", required: true }],
+      identityFields: ["value"],
+      policy: {
+        operands: [],
+        relations: ["regression"]
+      }
     }
-  }]
+  ]
 } as const satisfies CheckDefinition;
 
 const emptyReferenceFacts: ReferenceFacts = { evidence: [], relations: [] };
 
 export async function richPublicationInput() {
   const snapshot = snapshotWithRecords(["src/a.ts"]);
-  const recordId = snapshot.records[0]!.recordId;
-  const references: readonly NamedReferenceIdentity[] = [{
-    referenceName: "baseline",
-    referenceId: BASELINE_REFERENCE_ID
-  }];
-  const referenceFacts: ReferenceFacts = {
-    evidence: [{
-      checkId: requiredCheck(snapshot).checkId,
+  const recordId = snapshot.records[0].recordId;
+  const references: readonly NamedReferenceIdentity[] = [
+    {
       referenceName: "baseline",
-      status: "complete"
-    }],
+      referenceId: BASELINE_REFERENCE_ID
+    }
+  ];
+  const referenceFacts: ReferenceFacts = {
+    evidence: [
+      {
+        checkId: requiredCheck(snapshot).checkId,
+        referenceName: "baseline",
+        status: "complete"
+      }
+    ],
     relations: [{ recordId, referenceName: "baseline", relationId: "regression" }]
   };
   const decision = regressionDecision(snapshot);
@@ -59,23 +65,31 @@ export async function richPublicationInput() {
 }
 
 function regressionDecision(snapshot: CoreSnapshot): DecisionEvidence {
-  const recordId = snapshot.records[0]!.recordId;
+  const recordId = snapshot.records[0].recordId;
   const checkId = requiredCheck(snapshot).checkId;
   return {
     policyId: "regressions",
     acceptance: [{ acceptanceId: "accepted-large-file", reason: "Reviewed", recordId }],
     views: [{ viewId: "all-current", recordRefs: [{ kind: "record", recordId }] }],
-    readiness: [{
-      readinessId: "current-complete",
-      status: "passed",
-      evidenceRefs: [{ kind: "check", checkId }, {
-        kind: "readiness",
-        readinessId: "current-complete"
-      }]
-    }],
+    readiness: [
+      {
+        readinessId: "current-complete",
+        status: "passed",
+        evidenceRefs: [
+          { kind: "check", checkId },
+          {
+            kind: "readiness",
+            readinessId: "current-complete"
+          }
+        ]
+      }
+    ],
     blockWhen: {
       status: "matched",
-      evidenceRefs: [{ kind: "record", recordId }, { kind: "view", viewId: "all-current" }],
+      evidenceRefs: [
+        { kind: "record", recordId },
+        { kind: "view", viewId: "all-current" }
+      ],
       blockingRecordRefs: [{ kind: "record", recordId }]
     },
     gate: {
@@ -103,10 +117,12 @@ export async function reportProjectionInput() {
   const decision: DecisionEvidence = {
     policyId: null,
     acceptance: [],
-    views: [{
-      viewId: "all-current",
-      recordRefs: snapshot.records.map(({ recordId }) => ({ kind: "record", recordId }))
-    }],
+    views: [
+      {
+        viewId: "all-current",
+        recordRefs: snapshot.records.map(({ recordId }) => ({ kind: "record", recordId }))
+      }
+    ],
     readiness: [],
     blockWhen: null,
     gate: { status: "disabled", policyId: null }
@@ -153,11 +169,13 @@ export async function noPolicyPublicationInput() {
   const noPolicyDefinition = {
     checkId: "no-policy-check",
     displayName: "No Policy Check",
-    recordTypes: [{
-      recordTypeId: "no-policy-record",
-      fields: [],
-      identityFields: []
-    }]
+    recordTypes: [
+      {
+        recordTypeId: "no-policy-record",
+        fields: [],
+        identityFields: []
+      }
+    ]
   } as const satisfies CheckDefinition;
   const snapshot = snapshotForDefinition(noPolicyDefinition, "passed");
   const decision = {

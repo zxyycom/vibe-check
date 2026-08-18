@@ -1,13 +1,7 @@
 import fs from "node:fs";
 
-import {
-  diagnostic,
-  type TestEvidenceDiagnostic
-} from "../model.ts";
-import {
-  isSafeRelativePosixPath,
-  resolveExistingWorkspacePath
-} from "../relative-path.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
+import { isSafeRelativePosixPath, resolveExistingWorkspacePath } from "../relative-path.ts";
 import type { SemanticTestCase } from "./model.ts";
 
 export function isOwnerRef(value: string): boolean {
@@ -45,10 +39,7 @@ export function diagnoseOwnerRefs(
   }
 }
 
-function readOwnerAnchors(
-  workspaceRoot: string,
-  sourcePath: string
-): Set<string> | Error {
+function readOwnerAnchors(workspaceRoot: string, sourcePath: string): Set<string> | Error {
   try {
     const resolved = resolveExistingWorkspacePath(
       workspaceRoot,
@@ -58,9 +49,7 @@ function readOwnerAnchors(
     if (!resolved.stats.isFile()) {
       throw new Error(`Case Owner ${sourcePath} must be a regular file`);
     }
-    return markdownHeadingAnchors(
-      fs.readFileSync(resolved.absolutePath, "utf8")
-    );
+    return markdownHeadingAnchors(fs.readFileSync(resolved.absolutePath, "utf8"));
   } catch (error) {
     return error instanceof Error ? error : new Error(String(error));
   }
@@ -73,17 +62,21 @@ function diagnoseOwnerHeading(
   diagnostics: TestEvidenceDiagnostic[]
 ): void {
   if (anchors instanceof Error) {
-    diagnostics.push(caseDiagnostic(
-      "case.owner-unknown",
-      `Case ${testCase.id} Owner cannot be resolved: ${anchors.message}`,
-      testCase
-    ));
+    diagnostics.push(
+      caseDiagnostic(
+        "case.owner-unknown",
+        `Case ${testCase.id} Owner cannot be resolved: ${anchors.message}`,
+        testCase
+      )
+    );
   } else if (!anchors.has(heading)) {
-    diagnostics.push(caseDiagnostic(
-      "case.owner-heading-unknown",
-      `Case ${testCase.id} Owner heading does not exist: ${testCase.ownerRef}`,
-      testCase
-    ));
+    diagnostics.push(
+      caseDiagnostic(
+        "case.owner-heading-unknown",
+        `Case ${testCase.id} Owner heading does not exist: ${testCase.ownerRef}`,
+        testCase
+      )
+    );
   }
 }
 
@@ -94,9 +87,8 @@ function markdownHeadingAnchors(source: string): Set<string> {
   let cursor = skipDocumentFrontmatter(lines);
   let fence: { marker: "`" | "~"; length: number } | undefined;
   for (; cursor < lines.length; cursor += 1) {
-    const line = cursor === 0
-      ? (lines[cursor] ?? "").replace(/^\uFEFF/u, "")
-      : (lines[cursor] ?? "");
+    const line =
+      cursor === 0 ? (lines[cursor] ?? "").replace(/^\uFEFF/u, "") : (lines[cursor] ?? "");
     if (fence !== undefined) {
       if (closesFence(line, fence)) {
         fence = undefined;
@@ -136,29 +128,24 @@ function skipDocumentFrontmatter(lines: readonly string[]): number {
   return lines.length;
 }
 
-function readOpeningFence(
-  line: string
-): { marker: "`" | "~"; length: number } | undefined {
+function readOpeningFence(line: string): { marker: "`" | "~"; length: number } | undefined {
   const match = /^ {0,3}(`{3,}|~{3,})/u.exec(line);
   if (match === null) {
     return undefined;
   }
+  const marker = match[1][0];
+  if (marker !== "`" && marker !== "~") {
+    return undefined;
+  }
   return {
-    marker: match[1][0] as "`" | "~",
+    marker,
     length: match[1].length
   };
 }
 
-function closesFence(
-  line: string,
-  fence: { marker: "`" | "~"; length: number }
-): boolean {
+function closesFence(line: string, fence: { marker: "`" | "~"; length: number }): boolean {
   const match = /^ {0,3}(`+|~+)[ \t]*$/u.exec(line);
-  return (
-    match !== null &&
-    match[1][0] === fence.marker &&
-    match[1].length >= fence.length
-  );
+  return match !== null && match[1][0] === fence.marker && match[1].length >= fence.length;
 }
 
 function caseDiagnostic(

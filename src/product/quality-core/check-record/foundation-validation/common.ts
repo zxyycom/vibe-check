@@ -2,13 +2,17 @@ import { materializeSafePlainData } from "../identity.ts";
 
 export interface ValidationIssue {
   readonly path: string;
-  readonly code: "duplicate" | "identity-mismatch" | "invalid-value" | "missing-field" | "unknown-field";
+  readonly code:
+    | "duplicate"
+    | "identity-mismatch"
+    | "invalid-value"
+    | "missing-field"
+    | "unknown-field";
   readonly message: string;
 }
 
 export type ValidationResult<T> = Readonly<
-  | { ok: true; value: T }
-  | { ok: false; issues: readonly [ValidationIssue, ...ValidationIssue[]] }
+  { ok: true; value: T } | { ok: false; issues: readonly [ValidationIssue, ...ValidationIssue[]] }
 >;
 
 const STABLE_ID_PATTERN = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -49,7 +53,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
   }
-  const prototype = Object.getPrototypeOf(value) as object | null;
+  const prototype: unknown = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
 }
 

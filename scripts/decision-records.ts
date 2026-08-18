@@ -47,10 +47,7 @@ export type {
 
 export type RepositoryDecisionScanOptions = Omit<DecisionScanOptions, "workspaceRoot">;
 
-export const decisionRecordsWorkspaceRoot = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  ".."
-);
+export const decisionRecordsWorkspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export function scanDecisionRecords(
   options: RepositoryDecisionScanOptions = {}
@@ -73,11 +70,7 @@ export function validateDecisionRecords(
 export function runDecisionRecordsCli(
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<number> {
-  return runInstalledDecisionRecordsCli([
-    "--root",
-    decisionRecordsWorkspaceRoot,
-    ...argv
-  ]);
+  return runInstalledDecisionRecordsCli(["--root", decisionRecordsWorkspaceRoot, ...argv]);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

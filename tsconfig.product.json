@@ -4,7 +4,5 @@
     "rootDir": "src/product",
     "tsBuildInfoFile": ".cache/typescript/product.tsbuildinfo"
   },
-  "include": [
-    "src/product/**/*.ts"
-  ]
+  "include": ["src/product/**/*.ts"]
 }

@@ -2,16 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { closeStaticAndRuntimeEntities } from "./closure.ts";
-import type {
-  RuntimeTestEntity,
-  StaticTestEntity
-} from "./model.ts";
+import type { RuntimeTestEntity, StaticTestEntity } from "./model.ts";
 
-const identity = [
-  "tests/example.test.ts",
-  "7",
-  "rejects invalid input"
-].join("\0");
+const identity = ["tests/example.test.ts", "7", "rejects invalid input"].join("\0");
 const staticEntity: StaticTestEntity = {
   identity,
   sourcePath: "tests/example.test.ts",
@@ -47,17 +40,11 @@ test("reports static-only, runtime-only, and duplicate entity identities", () =>
   assert.equal(runtimeOnly.diagnostics[0]?.code, "runtime-only");
   assert.equal(runtimeOnly.diagnostics[0]?.origin, "runner");
 
-  const duplicateStatic = closeBunEntities(
-    [staticEntity, { ...staticEntity }],
-    [runtimeEntity]
-  );
+  const duplicateStatic = closeBunEntities([staticEntity, { ...staticEntity }], [runtimeEntity]);
   assert.equal(duplicateStatic.diagnostics[0]?.code, "duplicate-entity");
   assert.equal(duplicateStatic.diagnostics[0]?.origin, "static");
 
-  const duplicateRuntime = closeBunEntities(
-    [staticEntity],
-    [runtimeEntity, { ...runtimeEntity }]
-  );
+  const duplicateRuntime = closeBunEntities([staticEntity], [runtimeEntity, { ...runtimeEntity }]);
   assert.equal(duplicateRuntime.diagnostics[0]?.code, "duplicate-entity");
   assert.equal(duplicateRuntime.diagnostics[0]?.origin, "runner");
 });

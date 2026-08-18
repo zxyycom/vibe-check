@@ -1,12 +1,6 @@
 import { createHash } from "node:crypto";
 
-import type {
-  CheckDefinition,
-  JsonObject,
-  JsonValue,
-  QualityRecord,
-  RecordTypeDefinition
-} from "./model.ts";
+import type { CheckDefinition, JsonValue, QualityRecord, RecordTypeDefinition } from "./model.ts";
 
 const RECORD_ID_PREFIX = "check-record/v1/record/sha256:";
 const CATALOG_FINGERPRINT_PREFIX = "check-record/v1/catalog/sha256:";
@@ -15,8 +9,7 @@ const UNSAFE_MATERIALIZATION_MESSAGE = "Canonical JSON could not safely material
 class CanonicalJsonValidationError extends TypeError {}
 
 type PrimitiveMaterialization = Readonly<
-  | { kind: "non-primitive" }
-  | { kind: "value"; value: boolean | number | string | null }
+  { kind: "non-primitive" } | { kind: "value"; value: boolean | number | string | null }
 >;
 
 function materializePlainData(
@@ -26,23 +19,20 @@ function materializePlainData(
 ): unknown {
   const primitive = materializePrimitive(value);
   if (primitive.kind === "value") return primitive.value;
-  if (typeof value !== "object") {
+  if (value === null || typeof value !== "object") {
     if (preserveInvalidLeaf) {
       return value;
     }
     throw new CanonicalJsonValidationError("Canonical JSON accepts only JSON-safe values");
   }
-  // `materializePrimitive` has already returned for null, but that fact is not
-  // represented as a TypeScript narrowing across the helper boundary.
-  const objectValue = value as object;
+  const objectValue = value;
   if (ancestors.has(objectValue)) {
     throw new CanonicalJsonValidationError("Canonical JSON does not accept cyclic values");
   }
   try {
     rejectUnsupportedPrototype(objectValue);
-    const descriptors = Object.getOwnPropertyDescriptors(objectValue) as Readonly<
-      Record<string, PropertyDescriptor>
-    >;
+    const descriptors: Readonly<Record<string, PropertyDescriptor>> =
+      Object.getOwnPropertyDescriptors(objectValue);
     rejectAccessors(descriptors);
     ancestors.add(objectValue);
     return Array.isArray(objectValue)
@@ -52,7 +42,7 @@ function materializePlainData(
     if (error instanceof CanonicalJsonValidationError) {
       throw error;
     }
-    // eslint-disable-next-line preserve-caught-error -- Untrusted reflection errors must not cross this boundary.
+    // oxlint-disable-next-line preserve-caught-error -- Untrusted reflection errors must not cross this boundary.
     throw new TypeError(UNSAFE_MATERIALIZATION_MESSAGE);
   } finally {
     ancestors.delete(objectValue);
@@ -60,7 +50,7 @@ function materializePlainData(
 }
 
 function rejectUnsupportedPrototype(value: object): void {
-  const prototype = Object.getPrototypeOf(value) as object | null;
+  const prototype: unknown = Object.getPrototypeOf(value);
   if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
     throw new CanonicalJsonValidationError("Canonical JSON accepts only plain objects");
   }
@@ -77,12 +67,10 @@ function materializePrimitive(value: unknown): PrimitiveMaterialization {
   return { kind: "value", value };
 }
 
-function rejectAccessors(
-  descriptors: Readonly<Record<string, PropertyDescriptor>>
-): void {
-  const hasAccessor = Object.values(descriptors).some((descriptor) => (
-    descriptor.get !== undefined || descriptor.set !== undefined
-  ));
+function rejectAccessors(descriptors: Readonly<Record<string, PropertyDescriptor>>): void {
+  const hasAccessor = Object.values(descriptors).some(
+    (descriptor) => descriptor.get !== undefined || descriptor.set !== undefined
+  );
   if (hasAccessor) {
     throw new CanonicalJsonValidationError("Canonical JSON does not accept accessors");
   }
@@ -92,26 +80,22 @@ function materializeArray(
   descriptors: Readonly<Record<string, PropertyDescriptor>>,
   ancestors: Set<object>,
   preserveInvalidLeaf: boolean
-): JsonValue[] {
+): unknown[] {
   const length = descriptors.length?.value as unknown;
   if (typeof length !== "number" || !Number.isSafeInteger(length) || length < 0) {
     throw new CanonicalJsonValidationError("Canonical JSON array length is invalid");
   }
-  const entries: JsonValue[] = [];
+  const entries: unknown[] = [];
   for (let index = 0; index < length; index += 1) {
     const descriptor = descriptors[String(index)];
     if (descriptor === undefined) {
       throw new CanonicalJsonValidationError("Canonical JSON does not accept sparse arrays");
     }
-    entries.push(materializePlainData(
-      descriptor.value as unknown,
-      ancestors,
-      preserveInvalidLeaf
-    ) as JsonValue);
+    entries.push(materializePlainData(descriptor.value as unknown, ancestors, preserveInvalidLeaf));
   }
-  const hasNamedField = Object.entries(descriptors).some(([key, descriptor]) => (
-    descriptor.enumerable === true && !/^(?:0|[1-9][0-9]*)$/.test(key)
-  ));
+  const hasNamedField = Object.entries(descriptors).some(
+    ([key, descriptor]) => descriptor.enumerable === true && !/^(?:0|[1-9][0-9]*)$/.test(key)
+  );
   if (hasNamedField) {
     throw new CanonicalJsonValidationError("Canonical JSON arrays do not accept named fields");
   }
@@ -122,22 +106,26 @@ function materializeObject(
   descriptors: Readonly<Record<string, PropertyDescriptor>>,
   ancestors: Set<object>,
   preserveInvalidLeaf: boolean
-): JsonObject {
-  const snapshot: Record<string, JsonValue> = {};
+): Readonly<Record<string, unknown>> {
+  const snapshot: Record<string, unknown> = {};
   for (const [key, descriptor] of Object.entries(descriptors)) {
     if (descriptor.enumerable === true) {
       snapshot[key] = materializePlainData(
         descriptor.value as unknown,
         ancestors,
         preserveInvalidLeaf
-      ) as JsonValue;
+      );
     }
   }
   return snapshot;
 }
 
 function materializeCanonicalJsonValue(value: unknown): JsonValue {
-  return materializePlainData(value, new Set(), false) as JsonValue;
+  const snapshot = materializePlainData(value, new Set(), false);
+  if (!isJsonValue(snapshot)) {
+    throw new CanonicalJsonValidationError("Canonical JSON accepts only JSON-safe values");
+  }
+  return snapshot;
 }
 
 export function materializeSafePlainData(value: unknown): unknown {
@@ -148,15 +136,26 @@ function canonicalJsonText(value: JsonValue): string {
   if (value === null || typeof value !== "object") {
     return JSON.stringify(value);
   }
-  if (Array.isArray(value)) {
-    const entries = value as readonly JsonValue[];
-    return `[${entries.map((entry) => canonicalJsonText(entry)).join(",")}]`;
+  if (isJsonArray(value)) {
+    return `[${value.map((entry) => canonicalJsonText(entry)).join(",")}]`;
   }
-  const object = value as JsonObject;
-  const entries = Object.keys(object)
+  const entries = Object.keys(value)
     .sort()
-    .map((key) => `${JSON.stringify(key)}:${canonicalJsonText(object[key]!)}`);
+    .map((key) => `${JSON.stringify(key)}:${canonicalJsonText(value[key])}`);
   return `{${entries.join(",")}}`;
+}
+
+function isJsonValue(value: unknown): value is JsonValue {
+  if (value === null || typeof value === "boolean" || typeof value === "string") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value !== "object") return false;
+  return Array.isArray(value)
+    ? value.every((entry) => isJsonValue(entry))
+    : Object.values(value).every((entry) => isJsonValue(entry));
+}
+
+function isJsonArray(value: JsonValue): value is readonly JsonValue[] {
+  return Array.isArray(value);
 }
 
 export function canonicalJsonBytes(value: unknown): Uint8Array {
@@ -189,10 +188,7 @@ export interface RecordIdentityResult {
 
 export function createRecordId<
   Candidate extends Pick<QualityRecord, "checkId" | "recordTypeId" | "semanticSubject" | "fields">
->(
-  candidate: Candidate,
-  recordType: RecordTypeDefinition
-): RecordIdentityResult {
+>(candidate: Candidate, recordType: RecordTypeDefinition): RecordIdentityResult {
   if (candidate.recordTypeId !== recordType.recordTypeId) {
     throw new TypeError("Record candidate and descriptor recordTypeId differ");
   }

@@ -1,8 +1,4 @@
-import type {
-  ProjectDefinition,
-  ProjectEffects,
-  RunControls
-} from "../definition/project.ts";
+import type { ProjectDefinition, ProjectEffects, RunControls } from "../definition/project.ts";
 import {
   projectReadablePublicationV3,
   type ValidatedPublicationModelV3
@@ -61,19 +57,20 @@ export function createEffectStatuses(configuration: ProjectEffects): EffectStatu
     succeeded: (effect: keyof RunEffectStatuses) => {
       if (enabled(effect)) statuses[effect] = "succeeded";
     },
-    value: () => Object.freeze({
-      cache: Object.freeze({ enabled: configuration.cache.enabled, status: statuses.cache }),
-      logs: Object.freeze({ enabled: configuration.logs.enabled, status: statuses.logs }),
-      output: Object.freeze({ enabled: configuration.output.enabled, status: statuses.output }),
-      progress: Object.freeze({ enabled: configuration.progress.enabled, status: statuses.progress })
-    })
+    value: () =>
+      Object.freeze({
+        cache: Object.freeze({ enabled: configuration.cache.enabled, status: statuses.cache }),
+        logs: Object.freeze({ enabled: configuration.logs.enabled, status: statuses.logs }),
+        output: Object.freeze({ enabled: configuration.output.enabled, status: statuses.output }),
+        progress: Object.freeze({
+          enabled: configuration.progress.enabled,
+          status: statuses.progress
+        })
+      })
   });
 }
 
-export function emitProgress(
-  effects: EffectStatuses,
-  stage: "effects" | "execution"
-): boolean {
+export function emitProgress(effects: EffectStatuses, stage: "effects" | "execution"): boolean {
   if (!effects.value().progress.enabled) return true;
   try {
     console.log(`Vibe Check: ${stage}`);
@@ -85,14 +82,16 @@ export function emitProgress(
   }
 }
 
-export function publishOutput(input: Readonly<{
-  changedFiles: readonly string[];
-  effectConfiguration: ProjectEffects;
-  effects: EffectStatuses;
-  model: ValidatedPublicationModelV3;
-  outputDirectory: string;
-  reportPresentation: ProjectDefinition["quality"]["report"];
-}>) {
+export function publishOutput(
+  input: Readonly<{
+    changedFiles: readonly string[];
+    effectConfiguration: ProjectEffects;
+    effects: EffectStatuses;
+    model: ValidatedPublicationModelV3;
+    outputDirectory: string;
+    reportPresentation: ProjectDefinition["quality"]["report"];
+  }>
+) {
   if (!input.effectConfiguration.output.enabled) {
     return projectReadablePublicationV3({
       model: input.model,

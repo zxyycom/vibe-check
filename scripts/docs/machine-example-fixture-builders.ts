@@ -22,22 +22,26 @@ import {
 const definition = {
   checkId: "docs-example",
   displayName: "Documentation Example",
-  recordTypes: [{
-    recordTypeId: "example-finding",
-    fields: [
-      { fieldId: "category", valueType: "string", required: true },
-      { fieldId: "value", valueType: "integer", required: true }
-    ],
-    identityFields: ["category", "value"],
-    policy: {
-      operands: [{
-        operandId: "category",
-        valueType: "string",
-        source: { kind: "field", fieldId: "category" }
-      }],
-      relations: ["regression"]
+  recordTypes: [
+    {
+      recordTypeId: "example-finding",
+      fields: [
+        { fieldId: "category", valueType: "string", required: true },
+        { fieldId: "value", valueType: "integer", required: true }
+      ],
+      identityFields: ["category", "value"],
+      policy: {
+        operands: [
+          {
+            operandId: "category",
+            valueType: "string",
+            source: { kind: "field", fieldId: "category" }
+          }
+        ],
+        relations: ["regression"]
+      }
     }
-  }]
+  ]
 } as const satisfies CheckDefinition;
 
 const EMPTY_REFERENCE_FACTS = {
@@ -47,7 +51,9 @@ const EMPTY_REFERENCE_FACTS = {
 
 type SelectedPolicyId = Exclude<MachineExampleScenario["selectedPolicy"], null>;
 
-export function buildCanonicalMachineExample(input: MachineExampleScenario): CanonicalMachineExample {
+export function buildCanonicalMachineExample(
+  input: MachineExampleScenario
+): CanonicalMachineExample {
   const snapshot = createSnapshot(input.state);
   const decision = createDecision(input, snapshot);
   const verificationOutput = false;
@@ -116,20 +122,25 @@ function createDecision(
 
 function incompleteDecision(policyId: SelectedPolicyId, checkId: string): DecisionEvidence {
   const readinessId = "scan-complete";
-  const evidenceRefs = [{ kind: "check" as const, checkId }, {
-    kind: "readiness" as const,
-    readinessId
-  }];
+  const evidenceRefs = [
+    { kind: "check" as const, checkId },
+    {
+      kind: "readiness" as const,
+      readinessId
+    }
+  ];
   return {
     policyId,
     acceptance: [],
     views: [],
-    readiness: [{
-      readinessId,
-      status: "failed",
-      reason: "scan-incomplete",
-      evidenceRefs
-    }],
+    readiness: [
+      {
+        readinessId,
+        status: "failed",
+        reason: "scan-incomplete",
+        evidenceRefs
+      }
+    ],
     blockWhen: null,
     gate: {
       status: "not-evaluated",
@@ -140,22 +151,25 @@ function incompleteDecision(policyId: SelectedPolicyId, checkId: string): Decisi
   };
 }
 
-function failedGateDecision(
-  policyId: SelectedPolicyId,
-  snapshot: CoreSnapshot
-): DecisionEvidence {
+function failedGateDecision(policyId: SelectedPolicyId, snapshot: CoreSnapshot): DecisionEvidence {
   const checkId = requiredCheck(snapshot).checkId;
   const recordId = snapshot.records[0]?.recordId;
   if (recordId === undefined) throw new TypeError("Gate-failed example requires one record");
   const readinessId = "scan-complete";
-  const readinessRefs = [{ kind: "check" as const, checkId }, {
-    kind: "readiness" as const,
-    readinessId
-  }];
-  const blockRefs = [{ kind: "record" as const, recordId }, {
-    kind: "view" as const,
-    viewId: "all-current"
-  }];
+  const readinessRefs = [
+    { kind: "check" as const, checkId },
+    {
+      kind: "readiness" as const,
+      readinessId
+    }
+  ];
+  const blockRefs = [
+    { kind: "record" as const, recordId },
+    {
+      kind: "view" as const,
+      viewId: "all-current"
+    }
+  ];
   return {
     policyId,
     acceptance: [],

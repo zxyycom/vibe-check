@@ -21,19 +21,20 @@ function materializeNumber(value: number): number {
 
 function assertPlainContainer(value: object, isArray: boolean): void {
   if (isProxy(value)) unsafe();
-  const prototype = Object.getPrototypeOf(value) as object | null;
+  const prototype: unknown = Object.getPrototypeOf(value);
   if (!isArray && prototype !== Object.prototype && prototype !== null) unsafe();
 }
 
 function readDescriptors(value: object): readonly [PropertyDescriptors, readonly PropertyKey[]] {
   const descriptors = Object.getOwnPropertyDescriptors(value) as PropertyDescriptors;
   const keys = Reflect.ownKeys(descriptors);
-  for (const key of keys) assertDataDescriptor(key, descriptors[key]!);
+  for (const key of keys) assertDataDescriptor(key, descriptors[key]);
   return [descriptors, keys];
 }
 
 function assertDataDescriptor(key: PropertyKey, descriptor: PropertyDescriptor): void {
-  if (typeof key === "symbol" || descriptor.get !== undefined || descriptor.set !== undefined) unsafe();
+  if (typeof key === "symbol" || descriptor.get !== undefined || descriptor.set !== undefined)
+    unsafe();
 }
 
 function readArrayLength(descriptors: PropertyDescriptors): number {
@@ -80,7 +81,7 @@ function materializeObject(
   const snapshot: Record<string, JsonValue> = {};
   for (const key of keys) {
     if (typeof key !== "string") unsafe();
-    const descriptor = descriptors[key]!;
+    const descriptor = descriptors[key];
     if (descriptor.enumerable !== true) unsafe();
     snapshot[key] = materializePlainData(descriptor.value as unknown, ancestors);
   }

@@ -3,18 +3,18 @@ import type { CheckReportRef, CheckStatus, CheckTask } from "./checks/index.ts";
 import { reportIdForCheck, reportLabelForCheck, visibleOutputLines } from "./checks/index.ts";
 
 export interface CompletionResult {
-  check: CheckReportRef;
-  combinedOutput: string;
-  durationMs: number;
-  endedAtMs: number;
-  error: ProcessFailure | null;
-  exitCode: number;
-  ok: boolean;
-  startedAtMs: number;
-  status: CheckStatus;
-  stderr: string;
-  stdout: string;
-  visibleOutput: string;
+  readonly check: CheckReportRef;
+  readonly combinedOutput: string;
+  readonly durationMs: number;
+  readonly endedAtMs: number;
+  readonly error: ProcessFailure | null;
+  readonly exitCode: number;
+  readonly ok: boolean;
+  readonly startedAtMs: number;
+  readonly status: CheckStatus;
+  readonly stderr: string;
+  readonly stdout: string;
+  readonly visibleOutput: string;
 }
 
 export interface CheckResult extends CompletionResult {
@@ -34,7 +34,9 @@ interface ReportAccumulator {
   visibleOutputChunks: string[];
 }
 
-export function formatCompletionLine(result: Pick<CompletionResult, "check" | "durationMs" | "status">): string {
+export function formatCompletionLine(
+  result: Pick<CompletionResult, "check" | "durationMs" | "status">
+): string {
   return `  ${result.status}: ${result.check.label} (${formatDurationMs(result.durationMs)})`;
 }
 
@@ -50,11 +52,15 @@ export function formatDurationMs(durationMs: number): string {
     return `${totalSeconds.toFixed(totalSeconds < 10 ? 1 : 0)}s`;
   }
   const minutes = Math.floor(totalSeconds / 60);
-  const seconds = Math.round(totalSeconds % 60).toString().padStart(2, "0");
+  const seconds = Math.round(totalSeconds % 60)
+    .toString()
+    .padStart(2, "0");
   return `${minutes}m ${seconds}s`;
 }
 
-export function createReportCompletionTracker(checkList: readonly CheckTask[]): (result: CheckResult) => CompletionResult | null {
+export function createReportCompletionTracker(
+  checkList: readonly CheckTask[]
+): (result: CheckResult) => CompletionResult | null {
   const reports = createReportAccumulators(checkList);
 
   return (result: CheckResult) => {
@@ -70,8 +76,16 @@ export function createReportCompletionTracker(checkList: readonly CheckTask[]): 
   };
 }
 
-export function visibleOutputForCheck(check: CheckTask, output: string, status: CheckStatus = "failed"): string {
-  return visibleOutputLines(check, output, status).join("\n");
+export function visibleOutputForCheck({
+  check,
+  output,
+  status = "failed"
+}: {
+  readonly check: CheckTask;
+  readonly output: string;
+  readonly status?: CheckStatus;
+}): string {
+  return visibleOutputLines({ check, output, status }).join("\n");
 }
 
 function createReportAccumulators(checkList: readonly CheckTask[]): Map<string, ReportAccumulator> {
@@ -108,7 +122,7 @@ function recordReportCompletion(report: ReportAccumulator, result: CheckResult):
   report.ok &&= result.ok;
   report.startedAtMs = Math.min(report.startedAtMs, result.startedAtMs);
   report.endedAtMs = Math.max(report.endedAtMs, result.endedAtMs);
-  report.status = combineStatus(report.status, result.status);
+  report.status = combineStatus({ current: report.status, next: result.status });
   if (result.visibleOutput.length > 0) {
     report.visibleOutputChunks.push(result.visibleOutput);
   }
@@ -136,7 +150,13 @@ function completeReportResult(report: ReportAccumulator): CompletionResult {
   };
 }
 
-function combineStatus(current: CheckStatus, next: CheckStatus): CheckStatus {
+function combineStatus({
+  current,
+  next
+}: {
+  readonly current: CheckStatus;
+  readonly next: CheckStatus;
+}): CheckStatus {
   if (current === "failed" || next === "failed") {
     return "failed";
   }

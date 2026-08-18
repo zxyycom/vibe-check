@@ -26,20 +26,30 @@ describe("machine publication v3 lifecycle", () => {
   it("pins candidate artifact and handled-failure lifecycle stages", () => {
     assert.deepEqual(PUBLICATION_V3_LIFECYCLE, {
       candidateStages: [
-        "validate-publication-model", "serialize-machine-candidates",
-        "render-report-candidate", "validate-machine-set"
+        "validate-publication-model",
+        "serialize-machine-candidates",
+        "render-report-candidate",
+        "validate-machine-set"
       ],
       artifactStages: [
-        "cleanup-stale-owned-temps", "write-same-directory-owned-temps",
-        "rename-machine-files", "rename-report", "cleanup-retired-artifacts",
+        "cleanup-stale-owned-temps",
+        "write-same-directory-owned-temps",
+        "rename-machine-files",
+        "rename-report",
+        "cleanup-retired-artifacts",
         "publish-trusted-paths"
       ]
     });
     assert.deepEqual(PUBLICATION_V3_FAILURE_STAGES, [
-      "validate-publication-model", "serialize-machine-candidates",
-      "render-report-candidate", "validate-machine-set",
-      "cleanup-stale-owned-temps", "write-same-directory-owned-temps",
-      "rename-machine-files", "rename-report", "cleanup-retired-artifacts"
+      "validate-publication-model",
+      "serialize-machine-candidates",
+      "render-report-candidate",
+      "validate-machine-set",
+      "cleanup-stale-owned-temps",
+      "write-same-directory-owned-temps",
+      "rename-machine-files",
+      "rename-report",
+      "cleanup-retired-artifacts"
     ]);
   });
 });
@@ -51,8 +61,13 @@ describe("machine publication v3 lifecycle", () => {
     try {
       mkdirSync(ownedTempDir);
       for (const name of [
-        "run.json", "records.ndjson", "report.md", "metrics.json", "warnings.ndjson",
-        "warnings-all.ndjson", "unrelated.json"
+        "run.json",
+        "records.ndjson",
+        "report.md",
+        "metrics.json",
+        "warnings.ndjson",
+        "warnings-all.ndjson",
+        "unrelated.json"
       ]) {
         writeFileSync(join(artifactDir, name), name, "utf8");
       }
@@ -89,18 +104,15 @@ function proveCandidateWriteFailurePreservesPriorSet(model: PublicationModel): v
   const artifactDir = createPriorPublicationDirectory("write-failure");
   const originalWriteFileSync = fs.writeFileSync;
   let tempWriteCount = 0;
-  fs.writeFileSync = ((...args: unknown[]): unknown => {
+  fs.writeFileSync = (...args: unknown[]): unknown => {
     if (String(args[0]).includes(".vibe-check-publication-")) {
       tempWriteCount += 1;
       if (tempWriteCount === 3) throw new Error("injected candidate write failure");
     }
     return Reflect.apply(originalWriteFileSync, fs, args) as unknown;
-  }) as typeof fs.writeFileSync;
+  };
   try {
-    assert.throws(
-      () => publishTestScan(artifactDir, model),
-      /injected candidate write failure/
-    );
+    assert.throws(() => publishTestScan(artifactDir, model), /injected candidate write failure/);
   } finally {
     fs.writeFileSync = originalWriteFileSync;
   }
@@ -120,7 +132,7 @@ function proveSecondMachineRenameFailureLeavesNoCanonicalSet(model: PublicationM
   const recordsPath = join(artifactDir, "records.ndjson");
   const originalRenameSync = fs.renameSync;
   const renameTargets: string[] = [];
-  fs.renameSync = ((...args: unknown[]): unknown => {
+  fs.renameSync = (...args: unknown[]): unknown => {
     const destination = String(args[1]);
     renameTargets.push(destination);
     if (destination === runPath) {
@@ -129,20 +141,15 @@ function proveSecondMachineRenameFailureLeavesNoCanonicalSet(model: PublicationM
     }
     if (destination === recordsPath) throw new Error("injected second rename failure");
     return Reflect.apply(originalRenameSync, fs, args) as unknown;
-  }) as typeof fs.renameSync;
+  };
   try {
-    assert.throws(
-      () => publishTestScan(artifactDir, model),
-      /injected second rename failure/
-    );
+    assert.throws(() => publishTestScan(artifactDir, model), /injected second rename failure/);
   } finally {
     fs.renameSync = originalRenameSync;
   }
   try {
     assert.deepEqual(renameTargets, [runPath, recordsPath]);
-    for (const name of [
-      "run.json", "records.ndjson", "report.md", "metrics.json"
-    ]) {
+    for (const name of ["run.json", "records.ndjson", "report.md", "metrics.json"]) {
       assert.equal(existsSync(join(artifactDir, name)), false, name);
     }
     assert.deepEqual(ownedTemps(artifactDir), []);

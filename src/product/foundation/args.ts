@@ -1,21 +1,29 @@
 import { parseArgs } from "node:util";
-import type { ParseArgsOptionsConfig } from "node:util";
+import type { ParseArgsConfig, ParseArgsOptionsConfig } from "node:util";
 
-export type ScriptArgValues = Record<string, boolean | string | string[] | undefined>;
+export type ScriptArgValues = Readonly<
+  Record<string, boolean | string | readonly (boolean | string)[] | undefined>
+>;
 
 export type ParsedScriptArgs = {
-  positionals: string[];
-  tokens: ScriptArgToken[];
-  values: ScriptArgValues;
+  readonly positionals: readonly string[];
+  readonly tokens: readonly ScriptArgToken[];
+  readonly values: ScriptArgValues;
 };
 
 export type ScriptArgToken = {
-  index: number;
-  inlineValue?: boolean;
-  kind: "option" | "option-terminator" | "positional";
-  name?: string;
-  rawName?: string;
-  value?: string;
+  readonly index: number;
+  readonly inlineValue?: boolean;
+  readonly kind: "option" | "option-terminator" | "positional";
+  readonly name?: string;
+  readonly rawName?: string;
+  readonly value?: string;
+};
+
+export type BooleanOptionInput = {
+  readonly defaultValue?: boolean;
+  readonly name: string;
+  readonly values: ScriptArgValues;
 };
 
 export function parseScriptArgs({
@@ -23,22 +31,23 @@ export function parseScriptArgs({
   args,
   options
 }: {
-  allowPositionals?: boolean;
-  args: readonly string[];
-  options: ParseArgsOptionsConfig;
+  readonly allowPositionals?: boolean;
+  readonly args: readonly string[];
+  readonly options: ParseArgsOptionsConfig;
 }): ParsedScriptArgs {
-  const result = parseArgs({
+  const config = {
     allowPositionals,
-    args,
+    args: [...args],
     options,
     strict: true,
     tokens: true
-  }) as unknown as ParsedScriptArgs;
+  } satisfies ParseArgsConfig;
+  const result = parseArgs(config);
 
   return {
     positionals: result.positionals,
-    tokens: result.tokens,
-    values: result.values as ScriptArgValues
+    tokens: result.tokens ?? [],
+    values: result.values
   };
 }
 
@@ -47,17 +56,16 @@ export function stringOption(values: ParsedScriptArgs["values"], name: string): 
   return typeof value === "string" ? value : undefined;
 }
 
-export function stringArrayOption(values: ParsedScriptArgs["values"], name: string): string[] {
+export function stringArrayOption(
+  values: ParsedScriptArgs["values"],
+  name: string
+): readonly string[] {
   const value = values[name];
-  if (Array.isArray(value)) return value;
+  if (Array.isArray(value)) return value.filter((entry) => typeof entry === "string");
   return typeof value === "string" ? [value] : [];
 }
 
-export function booleanOption(
-  values: ParsedScriptArgs["values"],
-  name: string,
-  defaultValue = false
-): boolean {
+export function booleanOption({ defaultValue = false, name, values }: BooleanOptionInput): boolean {
   const value = values[name];
   return typeof value === "boolean" ? value : defaultValue;
 }

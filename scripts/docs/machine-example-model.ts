@@ -4,13 +4,8 @@ import type {
 } from "../../src/product/quality-core/output/publication-v3/index.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
-export const MACHINE_EXAMPLE_REGENERATE_COMMAND =
-  "bun run generate:machine-examples";
-export const MACHINE_EXAMPLE_ARTIFACT_FILES = [
-  "README.md",
-  "records.ndjson",
-  "run.json"
-] as const;
+export const MACHINE_EXAMPLE_REGENERATE_COMMAND = "bun run generate:machine-examples";
+export const MACHINE_EXAMPLE_ARTIFACT_FILES = ["README.md", "records.ndjson", "run.json"] as const;
 
 export const FIXED_MACHINE_EXAMPLE_INPUT = {
   path: "src/example.ts",
@@ -68,7 +63,7 @@ export const MACHINE_EXAMPLE_SCENARIOS = [
   }
 ] as const satisfies readonly MachineExampleScenarioFields[];
 
-export type MachineExampleScenario = typeof MACHINE_EXAMPLE_SCENARIOS[number];
+export type MachineExampleScenario = (typeof MACHINE_EXAMPLE_SCENARIOS)[number];
 
 export const MACHINE_EXAMPLE_OUTCOMES: readonly MachineExampleScenario["outcome"][] = Object.freeze(
   MACHINE_EXAMPLE_SCENARIOS.map(({ outcome }) => outcome)
@@ -78,10 +73,12 @@ export type MachineExampleOutcome = MachineExampleScenario["outcome"];
 export type MachineExampleSelectedPolicy = MachineExampleScenario["selectedPolicy"];
 export type MachineExampleState = MachineExampleScenario["state"];
 
-export type CanonicalMachineExample = Readonly<MachineExampleScenario & {
-  readonly model: ValidatedPublicationModelV3;
-  readonly publication: MachinePublicationV3;
-}>;
+export type CanonicalMachineExample = Readonly<
+  MachineExampleScenario & {
+    readonly model: ValidatedPublicationModelV3;
+    readonly publication: MachinePublicationV3;
+  }
+>;
 
 export interface GeneratedMachineExampleFile {
   readonly contents: string;

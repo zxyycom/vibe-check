@@ -2,11 +2,7 @@ import { runProcess } from "../../../../foundation/index.ts";
 
 export type ToolCommandResult = Awaited<ReturnType<typeof runToolCommand>>;
 
-export function runToolCommand(
-  rootDir: string,
-  executable: string,
-  args: readonly string[]
-) {
+export function runToolCommand(rootDir: string, executable: string, args: readonly string[]) {
   return runProcess({
     args: [...args],
     command: executable,

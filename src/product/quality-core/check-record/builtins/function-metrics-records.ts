@@ -1,5 +1,5 @@
 import { classifyFile } from "../../model/code-areas.ts";
-import type { CodeAreaDefinition, FunctionMetric } from "../../model/schema.ts";
+import type { FunctionMetric } from "../../model/schema.ts";
 import type { QualityRecordCandidate, RecordLevel } from "../model.ts";
 import { compareText, isInChangedScope } from "./builtin-support.ts";
 import {
@@ -70,7 +70,7 @@ function candidateContext(
 }> | null {
   const codeArea = classifyFile(
     instance.metric.file,
-    semantics.codeAreas as Record<string, CodeAreaDefinition>,
+    semantics.codeAreas,
     semantics.generatedFiles
   );
   const area = semantics.codeAreas[codeArea];
@@ -153,7 +153,8 @@ function codeLinesCandidateInput(
     message: `Function "${metric.name}" in ${metric.file}:${metric.startLine} has ${metric.lines} code lines at cyclomatic complexity ${metric.cyclomaticComplexity.value ?? "n/a"} (Lizard NLOC; threshold: ${threshold})`,
     metric: "function-code-density",
     recordTypeId: "function-code-lines",
-    suggestion: "Consider reducing branching or splitting the function when line count and complexity make it hard to review",
+    suggestion:
+      "Consider reducing branching or splitting the function when line count and complexity make it hard to review",
     value: metric.lines
   };
 }
@@ -176,33 +177,32 @@ function parameterCandidateInput(
   };
 }
 
-function appendCandidate(
-  candidates: FunctionRecordCandidate[],
-  input: CandidateInput
-): void {
+function appendCandidate(candidates: FunctionRecordCandidate[], input: CandidateInput): void {
   if (input.value <= input.limit) {
     return;
   }
-  candidates.push(Object.freeze({
-    comparisonKey: input.comparisonKey,
-    hasStableName: input.hasStableName,
-    isChanged: input.isChanged,
-    value: input.value,
-    record: Object.freeze({
-      recordTypeId: input.recordTypeId,
-      level: input.level,
-      semanticSubject: input.subject,
-      message: input.message,
-      fields: Object.freeze({
-        codeArea: input.codeArea,
-        limit: input.limit,
-        metric: input.metric,
-        suggestion: input.suggestion,
-        value: input.value
-      }),
-      location: Object.freeze({ path: input.path, line: input.startLine, column: 1 })
+  candidates.push(
+    Object.freeze({
+      comparisonKey: input.comparisonKey,
+      hasStableName: input.hasStableName,
+      isChanged: input.isChanged,
+      value: input.value,
+      record: Object.freeze({
+        recordTypeId: input.recordTypeId,
+        level: input.level,
+        semanticSubject: input.subject,
+        message: input.message,
+        fields: Object.freeze({
+          codeArea: input.codeArea,
+          limit: input.limit,
+          metric: input.metric,
+          suggestion: input.suggestion,
+          value: input.value
+        }),
+        location: Object.freeze({ path: input.path, line: input.startLine, column: 1 })
+      })
     })
-  }));
+  );
 }
 
 function functionCodeLineFloor(

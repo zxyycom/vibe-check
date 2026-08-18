@@ -63,7 +63,10 @@ function jscpdProcessErrorAvailability(error: Error): ToolAvailability {
   );
 }
 
-function unavailableJscpd(error: string, reason: NonNullable<ToolAvailability["reason"]>): ToolAvailability {
+function unavailableJscpd(
+  error: string,
+  reason: NonNullable<ToolAvailability["reason"]>
+): ToolAvailability {
   return {
     name: "jscpd",
     available: false,

@@ -11,10 +11,7 @@ import {
   MACHINE_RUN_V3_SCHEMA_PATH
 } from "../../src/product/quality-core/output/publication-v3/index.ts";
 
-const workspaceRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../.."
-);
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const regenerateCommand = "bun run generate:machine-schemas";
 
 const publishedSchemas = [
@@ -66,9 +63,7 @@ function resolvePublishedPath(relativePath: string): string {
 }
 
 function isMainModule(): boolean {
-  return process.argv[1]
-    ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
-    : false;
+  return process.argv[1] ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) : false;
 }
 
 if (isMainModule()) {

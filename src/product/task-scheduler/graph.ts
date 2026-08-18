@@ -59,11 +59,12 @@ const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
 const TASK_NODE_KEYS = ["id", "dependsOn", "mutex", "scopeId"] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
 
-export function validateTaskGraph(graph: TaskGraph): void {
+/** Validates untrusted graph-shaped input without admitting it to scheduler execution. */
+export function validateTaskGraph(graph: unknown): void {
   prepareTaskGraph(graph);
 }
 
-export function prepareTaskGraph(graph: TaskGraph, rootMaxParallel?: number): PlannedTaskGraph {
+export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): PlannedTaskGraph {
   const data = record(graph, "task graph", TASK_GRAPH_KEYS);
   const tasks = normalizeTasks(data.tasks);
   const scopes = normalizeScopes(data.scopes);
@@ -95,12 +96,14 @@ function normalizeTasks(value: unknown): PlannedTask[] {
     }
     ids.add(id);
     const scopeId = optionalNonEmptyString(data.scopeId, `task ${id}.scopeId`);
-    tasks.push(Object.freeze({
-      id,
-      dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
-      mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
-      scopeId
-    }));
+    tasks.push(
+      Object.freeze({
+        id,
+        dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
+        mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
+        scopeId
+      })
+    );
   }
   return tasks;
 }
@@ -128,12 +131,14 @@ function normalizeScopes(value: unknown): PlannedTaskScope[] {
       `task scope ${id}.activationTaskIds`
     );
     const terminalTaskId = nonEmptyString(data.terminalTaskId, `task scope ${id}.terminalTaskId`);
-    scopes.push(Object.freeze({
-      id,
-      maxParallel,
-      activationTaskIds: Object.freeze(activationTaskIds),
-      terminalTaskId
-    }));
+    scopes.push(
+      Object.freeze({
+        id,
+        maxParallel,
+        activationTaskIds: Object.freeze(activationTaskIds),
+        terminalTaskId
+      })
+    );
   }
   return scopes;
 }
@@ -252,11 +257,13 @@ function validateScopeTerminalReachability(
     if (task.scopeId !== scope.id || task.id === scope.terminalTaskId) {
       continue;
     }
-    if (!dependsOnTask({
-      requiredDependencyId: task.id,
-      taskById,
-      taskId: scope.terminalTaskId
-    })) {
+    if (
+      !dependsOnTask({
+        requiredDependencyId: task.id,
+        taskById,
+        taskId: scope.terminalTaskId
+      })
+    ) {
       throw new Error(`task scope ${scope.id} terminal task must depend on scoped task ${task.id}`);
     }
   }
@@ -284,7 +291,7 @@ function record(
   fieldName: string,
   allowedKeys: readonly string[]
 ): Readonly<Record<string, unknown>> {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+  if (!isTaskGraphRecord(value)) {
     throw new TypeError(`${fieldName} must be an object`);
   }
   for (const key of Object.keys(value)) {
@@ -292,7 +299,11 @@ function record(
       throw new TypeError(`${fieldName} has unknown property: ${key}`);
     }
   }
-  return value as Readonly<Record<string, unknown>>;
+  return value;
+}
+
+function isTaskGraphRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function nonEmptyString(value: unknown, fieldName: string): string {

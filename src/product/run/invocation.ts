@@ -10,11 +10,19 @@ import {
   type RunControls
 } from "../definition/project.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
-import type { PolicyResolution, ReferenceFacts } from "../quality-core/check-record/policy-model.ts";
+import type {
+  PolicyResolution,
+  ReferenceFacts
+} from "../quality-core/check-record/policy-model.ts";
 import { prepareTaskGraph } from "../task-scheduler/index.ts";
 import { executeResolvedChecks, type ResolvedCheckExecution } from "./check-execution.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
-import { createEffectStatuses, effectiveEffects, emitProgress, type EffectStatuses } from "./effects.ts";
+import {
+  createEffectStatuses,
+  effectiveEffects,
+  emitProgress,
+  type EffectStatuses
+} from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
 import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
 import { prepareProjectContext } from "./project-context.ts";
@@ -154,12 +162,21 @@ async function executePlannedInvocation(
         executed.snapshot
       );
     }
-    const referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, executed.references);
-    if (referenceFacts === undefined) return executionResult(invocation, "policy-validation-failed");
-    return completeInvocation(invocation, plan.policy, Object.freeze({
-      referenceFacts,
-      snapshot: executed.snapshot
-    }));
+    const referenceFacts = resolveReferenceFacts(
+      plan.policy,
+      executed.snapshot,
+      executed.references
+    );
+    if (referenceFacts === undefined)
+      return executionResult(invocation, "policy-validation-failed");
+    return completeInvocation(
+      invocation,
+      plan.policy,
+      Object.freeze({
+        referenceFacts,
+        snapshot: executed.snapshot
+      })
+    );
   } finally {
     project.cleanup();
   }
@@ -183,8 +200,10 @@ async function executeChecks(
 
 function planningResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"], "comparison-preparation-failed" | "policy-validation-failed"
-    | "task-graph-invalid">
+  code: Extract<
+    RunDiagnostic["code"],
+    "comparison-preparation-failed" | "policy-validation-failed" | "task-graph-invalid"
+  >
 ): RunResult {
   return planning(
     invocation.declarativeFingerprint,
@@ -196,8 +215,13 @@ function planningResult(
 
 function executionResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"], "progress-failed" | "publication-model-failed"
-    | "policy-validation-failed" | "task-engine-failed">
+  code: Extract<
+    RunDiagnostic["code"],
+    | "progress-failed"
+    | "publication-model-failed"
+    | "policy-validation-failed"
+    | "task-engine-failed"
+  >
 ): RunResult {
   return Object.freeze({
     kind: "execution",
@@ -212,8 +236,6 @@ function isRunResult(value: unknown): value is RunResult {
   return typeof value === "object" && value !== null && "kind" in value;
 }
 
-function isExecutionRunResult(
-  value: ResolvedCheckExecution | RunResult
-): value is RunResult {
+function isExecutionRunResult(value: ResolvedCheckExecution | RunResult): value is RunResult {
   return "declarativeFingerprint" in value;
 }

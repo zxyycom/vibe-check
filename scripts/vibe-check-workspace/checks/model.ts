@@ -7,14 +7,15 @@ export type CheckEnvironment = Readonly<Record<string, string | undefined>>;
 export type StringList = string | readonly string[] | undefined;
 
 export const profiles = Object.freeze({
-  [PROFILE_REQUIRED]: {
+  [PROFILE_REQUIRED]: Object.freeze({
     label: "required",
     description: "fast deterministic checks and quick quality check for routine development"
-  },
-  [PROFILE_FULL]: {
+  }),
+  [PROFILE_FULL]: Object.freeze({
     label: "full",
-    description: "required non-quality checks plus full quality check, product tests, and toolkit gates"
-  }
+    description:
+      "required non-quality checks plus full quality check, product tests, and toolkit gates"
+  })
 });
 
 /** Shared scripts-owned authoring context inherited by groups and leaves. */

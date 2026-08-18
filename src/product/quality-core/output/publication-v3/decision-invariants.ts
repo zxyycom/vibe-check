@@ -1,15 +1,7 @@
 import type { EvidenceRef } from "../../check-record/policy-model.ts";
 import type { MachineRunV3 } from "./schema.ts";
-import {
-  setInvariantFailure,
-  type ValidationFailure
-} from "./validation-result.ts";
-import {
-  compareText,
-  isCanonical,
-  isCanonicalText,
-  sameText
-} from "./validation-order.ts";
+import { setInvariantFailure, type ValidationFailure } from "./validation-result.ts";
+import { compareText, isCanonical, isCanonicalText, sameText } from "./validation-order.ts";
 
 type Decision = MachineRunV3["decision"];
 type DecisionGate = Decision["gate"];
@@ -19,10 +11,7 @@ export interface DecisionReferenceIndex {
   readonly readinessIds: ReadonlySet<string>;
   readonly recordIds: ReadonlySet<string>;
   readonly referenceEvidencePairs: ReadonlySet<string>;
-  readonly referencesByName: ReadonlyMap<
-    string,
-    MachineRunV3["references"]["identities"][number]
-  >;
+  readonly referencesByName: ReadonlyMap<string, MachineRunV3["references"]["identities"][number]>;
   readonly viewIds: ReadonlySet<string>;
 }
 
@@ -42,33 +31,40 @@ function unknownDecisionReference(
   index: DecisionReferenceIndex
 ): ValidationFailure | null {
   if (reference.kind === "check") {
-    return index.checkIds.has(reference.checkId) ? null : decisionReferenceFailure(
-      "decision-check-reference",
-      "Decision references an unknown Check."
-    );
+    return index.checkIds.has(reference.checkId)
+      ? null
+      : decisionReferenceFailure(
+          "decision-check-reference",
+          "Decision references an unknown Check."
+        );
   }
   if (reference.kind === "record") {
-    return index.recordIds.has(reference.recordId) ? null : decisionReferenceFailure(
-      "decision-record-reference",
-      "Decision references an unknown record."
-    );
+    return index.recordIds.has(reference.recordId)
+      ? null
+      : decisionReferenceFailure(
+          "decision-record-reference",
+          "Decision references an unknown record."
+        );
   }
   if (reference.kind === "view") {
-    return index.viewIds.has(reference.viewId) ? null : decisionReferenceFailure(
-      "decision-view-reference",
-      "Decision references an unknown view."
-    );
+    return index.viewIds.has(reference.viewId)
+      ? null
+      : decisionReferenceFailure("decision-view-reference", "Decision references an unknown view.");
   }
   if (reference.kind === "readiness") {
-    return index.readinessIds.has(reference.readinessId) ? null : decisionReferenceFailure(
-      "decision-readiness-reference",
-      "Decision references unknown readiness evidence."
-    );
+    return index.readinessIds.has(reference.readinessId)
+      ? null
+      : decisionReferenceFailure(
+          "decision-readiness-reference",
+          "Decision references unknown readiness evidence."
+        );
   }
-  return isKnownReference(reference, index) ? null : decisionReferenceFailure(
-    "decision-reference-reference",
-    "Decision references an unknown Check/reference pair."
-  );
+  return isKnownReference(reference, index)
+    ? null
+    : decisionReferenceFailure(
+        "decision-reference-reference",
+        "Decision references an unknown Check/reference pair."
+      );
 }
 
 function isKnownReference(
@@ -76,9 +72,11 @@ function isKnownReference(
   index: DecisionReferenceIndex
 ): boolean {
   const identity = index.referencesByName.get(reference.referenceName);
-  return identity?.referenceId === reference.referenceId
-    && index.checkIds.has(reference.checkId)
-    && index.referenceEvidencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`);
+  return (
+    identity?.referenceId === reference.referenceId &&
+    index.checkIds.has(reference.checkId) &&
+    index.referenceEvidencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`)
+  );
 }
 
 function decisionReferenceFailure(
@@ -116,9 +114,10 @@ export function validateDecisionState(run: MachineRunV3): ValidationFailure | nu
 
 function validateDecisionCanonicalOrder(run: MachineRunV3): ValidationFailure | null {
   const decision = run.decision;
-  if (!isCanonical(run.acceptance, (evidence) => (
-    `${evidence.recordId}\u0000${evidence.acceptanceId}`
-  ))) return decisionCanonicalOrderFailure();
+  if (
+    !isCanonical(run.acceptance, (evidence) => `${evidence.recordId}\u0000${evidence.acceptanceId}`)
+  )
+    return decisionCanonicalOrderFailure();
   if (!isCanonical(decision.views, (view) => view.viewId)) {
     return decisionCanonicalOrderFailure();
   }
@@ -135,20 +134,22 @@ function validateDecisionCanonicalOrder(run: MachineRunV3): ValidationFailure | 
 }
 
 function validateGateCanonicalOrder(decision: Decision): ValidationFailure | null {
-  if (decision.blockWhen !== null
-    && !isCanonical(decision.blockWhen.evidenceRefs, evidenceKey)) {
+  if (decision.blockWhen !== null && !isCanonical(decision.blockWhen.evidenceRefs, evidenceKey)) {
     return decisionCanonicalOrderFailure();
   }
-  if (decision.blockWhen !== null
-    && !isCanonicalText(decision.blockWhen.blockingRecordIds)) {
+  if (decision.blockWhen !== null && !isCanonicalText(decision.blockWhen.blockingRecordIds)) {
     return decisionCanonicalOrderFailure();
   }
-  if (decision.gate.status !== "disabled"
-    && !isCanonical(decision.gate.evidenceRefs, evidenceKey)) {
+  if (
+    decision.gate.status !== "disabled" &&
+    !isCanonical(decision.gate.evidenceRefs, evidenceKey)
+  ) {
     return decisionCanonicalOrderFailure();
   }
-  if ((decision.gate.status === "passed" || decision.gate.status === "failed")
-    && !isCanonicalText(decision.gate.blockingRecordIds)) {
+  if (
+    (decision.gate.status === "passed" || decision.gate.status === "failed") &&
+    !isCanonicalText(decision.gate.blockingRecordIds)
+  ) {
     return decisionCanonicalOrderFailure();
   }
   return null;
@@ -161,7 +162,11 @@ function collectFailedReadiness(decision: Decision) {
 }
 
 function validateDisabledDecision(decision: Decision): ValidationFailure | null {
-  if (decision.policyId !== null || decision.readiness.length !== 0 || decision.blockWhen !== null) {
+  if (
+    decision.policyId !== null ||
+    decision.readiness.length !== 0 ||
+    decision.blockWhen !== null
+  ) {
     return decisionStateFailure("Disabled decision state is inconsistent.");
   }
   return null;
@@ -182,9 +187,7 @@ function validateNotEvaluatedDecision(
   if (failed.evidence.status !== "failed" || failed.evidence.reason !== gate.reason) {
     return decisionStateFailure("Not-evaluated gate does not close readiness evidence.");
   }
-  const expectedEvidence = readinessEvidencePrefix(
-    decision.readiness.slice(0, failed.index + 1)
-  );
+  const expectedEvidence = readinessEvidencePrefix(decision.readiness.slice(0, failed.index + 1));
   if (!sameEvidence(gate.evidenceRefs, expectedEvidence)) {
     return decisionStateFailure("Not-evaluated gate does not close readiness evidence.");
   }

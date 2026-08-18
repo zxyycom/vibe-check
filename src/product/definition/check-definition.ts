@@ -5,7 +5,7 @@
  * Core projects these definitions into its own settled facts after planning.
  */
 export const RECORD_FIELD_VALUE_TYPES = ["boolean", "integer", "number", "string"] as const;
-export type RecordFieldValueType = typeof RECORD_FIELD_VALUE_TYPES[number];
+export type RecordFieldValueType = (typeof RECORD_FIELD_VALUE_TYPES)[number];
 
 export interface RecordFieldDefinition {
   readonly fieldId: string;

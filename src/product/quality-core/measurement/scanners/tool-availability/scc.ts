@@ -56,7 +56,10 @@ function sccProcessErrorAvailability(error: Error): ToolAvailability {
   );
 }
 
-function unavailableScc(error: string, reason: NonNullable<ToolAvailability["reason"]>): ToolAvailability {
+function unavailableScc(
+  error: string,
+  reason: NonNullable<ToolAvailability["reason"]>
+): ToolAvailability {
   return {
     name: "scc",
     available: false,

@@ -25,7 +25,11 @@ export function validateRunControls(value: unknown = {}): ValidationResult<RunCo
 function validateRunControlsValue(value: unknown): ValidationResult<RunControls> {
   const data = exactControlRecord(value);
   if (!data.ok) return data;
-  const changedFiles = optionalControl(data.value.changedFiles, parseStringArray, "controls.changedFiles");
+  const changedFiles = optionalControl(
+    data.value.changedFiles,
+    parseStringArray,
+    "controls.changedFiles"
+  );
   if (!changedFiles.ok) return changedFiles;
   const comparison = optionalControl(data.value.comparison, parseComparison, "controls.comparison");
   if (!comparison.ok) return comparison;
@@ -38,7 +42,9 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
   return Object.freeze({
     ok: true,
     value: Object.freeze({
-      ...(changedFiles.value === undefined ? {} : { changedFiles: Object.freeze([...changedFiles.value]) }),
+      ...(changedFiles.value === undefined
+        ? {}
+        : { changedFiles: Object.freeze([...changedFiles.value]) }),
       ...(comparison.value === undefined ? {} : { comparison: comparison.value }),
       ...(effects.value === undefined ? {} : { effects: effects.value }),
       ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
@@ -62,9 +68,7 @@ function optionalControl<T>(
 ): ValidationResult<T | undefined> {
   if (value === undefined) return Object.freeze({ ok: true, value: undefined });
   const parsed = parse(value);
-  return parsed === undefined
-    ? invalidControls(path)
-    : Object.freeze({ ok: true, value: parsed });
+  return parsed === undefined ? invalidControls(path) : Object.freeze({ ok: true, value: parsed });
 }
 
 function parseStringArray(value: unknown): readonly string[] | undefined {
@@ -82,7 +86,10 @@ function isRunControlKey(value: string): boolean {
   return RUN_CONTROL_KEYS.some((key) => key === value);
 }
 
-function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<string, unknown>> | undefined {
+function exactKeys(
+  value: unknown,
+  keys: readonly string[]
+): Readonly<Record<string, unknown>> | undefined {
   if (!isNonArrayRecord(value)) return undefined;
   return Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
     ? value
@@ -90,8 +97,11 @@ function exactKeys(value: unknown, keys: readonly string[]): Readonly<Record<str
 }
 
 function isAbortSignal(value: unknown): value is AbortSignal {
-  return isNonArrayRecord(value) && typeof value.aborted === "boolean"
-    && typeof value.addEventListener === "function";
+  return (
+    isNonArrayRecord(value) &&
+    typeof value.aborted === "boolean" &&
+    typeof value.addEventListener === "function"
+  );
 }
 
 function parseAbortSignal(value: unknown): AbortSignal | undefined {

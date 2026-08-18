@@ -12,40 +12,46 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 
 /** Repository-owned Vibe Check policy. Product code never discovers this file. */
 export default defineConfig({
-  checks: [{
-    checkId: "repository-quality",
-    displayName: "Repository quality",
-    maxParallel: 2,
-    checks: [{
-      ...duplicateDetection,
-      options: {
-        ...duplicateDetection.options,
-        scanner: {
-          ...duplicateDetection.options.scanner,
-          executable: resolve(repositoryRoot, "node_modules/.bin/jscpd")
+  checks: [
+    {
+      checkId: "repository-quality",
+      displayName: "Repository quality",
+      maxParallel: 2,
+      checks: [
+        {
+          ...duplicateDetection,
+          options: {
+            ...duplicateDetection.options,
+            scanner: {
+              ...duplicateDetection.options.scanner,
+              executable: resolve(repositoryRoot, "node_modules/.bin/jscpd")
+            },
+            defaultMinimumTokens: 100,
+            fragments: { changedDelta: 0 },
+            minimumTokensByCodeArea: {
+              "docs-specs": 150,
+              generated: 200,
+              "product-source": 75,
+              "schemas-examples": 150,
+              "script-tooling": 75
+            }
+          }
         },
-        defaultMinimumTokens: 100,
-        fragments: { changedDelta: 0 },
-        minimumTokensByCodeArea: {
-          "docs-specs": 150,
-          generated: 200,
-          "product-source": 75,
-          "schemas-examples": 150,
-          "script-tooling": 75
-        }
-      }
-    }, {
-      ...fileMetrics,
-      maxParallel: 1,
-      options: {
-        ...fileMetrics.options,
-        codeLines: {
-          ...fileMetrics.options.codeLines,
-          changedDelta: 100
-        }
-      }
-    }, functionMetrics]
-  }],
+        {
+          ...fileMetrics,
+          maxParallel: 1,
+          options: {
+            ...fileMetrics.options,
+            codeLines: {
+              ...fileMetrics.options.codeLines,
+              changedDelta: 100
+            }
+          }
+        },
+        functionMetrics
+      ]
+    }
+  ],
   effects: {
     cache: { directory: ".cache/vibe-check/quality", enabled: true },
     logs: { enabled: true },
@@ -57,53 +63,31 @@ export default defineConfig({
     codeAreas: {
       "docs-specs": {
         description: "Long-term docs and current Change Plan materials",
-        excludeGlobs: [
-          "docs/examples/**",
-          "docs/schemas/**"
-        ],
-        globs: [
-          "docs/**/*.md",
-          "changes/**/*.md"
-        ],
+        excludeGlobs: ["docs/examples/**", "docs/schemas/**"],
+        globs: ["docs/**/*.md", "changes/**/*.md"],
         warningPolicy: "watchlist-only"
       },
       generated: {
         description: "Generated files",
         excludeGlobs: [],
-        globs: [
-          "**/generated/**"
-        ],
+        globs: ["**/generated/**"],
         warningPolicy: "exclude-warnings"
       },
       "product-source": {
         description: "Vibe Check TypeScript product source",
-        excludeGlobs: [
-          "**/fixtures/**",
-          "**/generated/**"
-        ],
-        globs: [
-          "src/product/**/*.ts"
-        ],
+        excludeGlobs: ["**/fixtures/**", "**/generated/**"],
+        globs: ["src/product/**/*.ts"],
         warningPolicy: "moderate"
       },
       "schemas-examples": {
         description: "Schemas and example artifacts",
-        excludeGlobs: [
-          "**/generated/**"
-        ],
-        globs: [
-          "docs/schemas/**",
-          "docs/examples/**"
-        ],
+        excludeGlobs: ["**/generated/**"],
+        globs: ["docs/schemas/**", "docs/examples/**"],
         warningPolicy: "watchlist-only"
       },
       "script-tooling": {
         description: "Vibe Check TypeScript quality tooling",
-        excludeGlobs: [
-          "scripts/**/*.test.ts",
-          "**/fixtures/**",
-          "**/generated/**"
-        ],
+        excludeGlobs: ["scripts/**/*.test.ts", "**/fixtures/**", "**/generated/**"],
         globs: [
           "scripts/docs/**/*.ts",
           "scripts/quality/**/*.ts",
@@ -133,9 +117,7 @@ export default defineConfig({
       ".tmp",
       ".log"
     ],
-    generatedFiles: [
-      "**/generated/**"
-    ],
+    generatedFiles: ["**/generated/**"],
     include: [
       "src/product/**/*.ts",
       "scripts/docs/**/*.ts",
@@ -148,8 +130,10 @@ export default defineConfig({
     ],
     report: {
       footerGeneratedBy: "Vibe Check Quality Observability",
-      footerNotice: "This report is a non-blocking development snapshot. Vibe Check Package Run, product tests, and contract validation define the release gates.",
-      nonBlockingNotice: "Non-blocking development quality snapshot. Package Run, the report contract, and product tests define the release contract.",
+      footerNotice:
+        "This report is a non-blocking development snapshot. Vibe Check Package Run, product tests, and contract validation define the release gates.",
+      nonBlockingNotice:
+        "Non-blocking development quality snapshot. Package Run, the report contract, and product tests define the release contract.",
       showWatchlist: true,
       timeZone: "Asia/Shanghai",
       title: "Vibe Check Quality Snapshot",

@@ -7,13 +7,7 @@ import type {
 import type { ValidationResult } from "../validation.ts";
 import { validateDecisionPolicy } from "./decision-policy.ts";
 import { safePolicyInput } from "./safe-input.ts";
-import {
-  accepted,
-  closed,
-  compareText,
-  isStableId,
-  issue
-} from "./validation-helpers.ts";
+import { accepted, closed, compareText, isStableId, issue } from "./validation-helpers.ts";
 
 const REFERENCE_ID_PATTERN = /^reference\/v1\/sha256:[a-f0-9]{64}$/;
 
@@ -34,19 +28,32 @@ function validateNamedReference(
   if (!isStableId(shape.value.referenceName)) {
     return issue(`${path}.referenceName`, "invalid-value", "Invalid referenceName");
   }
-  if (typeof shape.value.referenceId !== "string" || !REFERENCE_ID_PATTERN.test(shape.value.referenceId)) {
-    return issue(`${path}.referenceId`, "invalid-value", "referenceId must be a safe opaque identity");
+  if (
+    typeof shape.value.referenceId !== "string" ||
+    !REFERENCE_ID_PATTERN.test(shape.value.referenceId)
+  ) {
+    return issue(
+      `${path}.referenceId`,
+      "invalid-value",
+      "referenceId must be a safe opaque identity"
+    );
   }
   if (referenceNames.has(shape.value.referenceName) || referenceIds.has(shape.value.referenceId)) {
     return issue(`${path}.referenceName`, "duplicate", "Duplicate named reference identity");
   }
   referenceNames.add(shape.value.referenceName);
   referenceIds.add(shape.value.referenceId);
-  return accepted({ referenceName: shape.value.referenceName, referenceId: shape.value.referenceId });
+  return accepted({
+    referenceName: shape.value.referenceName,
+    referenceId: shape.value.referenceId
+  });
 }
 
-function validateNamedReferences(value: unknown): ValidationResult<readonly NamedReferenceIdentity[]> {
-  if (!Array.isArray(value)) return issue("$.references", "invalid-value", "references must be an array");
+function validateNamedReferences(
+  value: unknown
+): ValidationResult<readonly NamedReferenceIdentity[]> {
+  if (!Array.isArray(value))
+    return issue("$.references", "invalid-value", "references must be an array");
   const references: NamedReferenceIdentity[] = [];
   const referenceNames = new Set<string>();
   const referenceIds = new Set<string>();
@@ -78,7 +85,9 @@ function validateEnabledPolicyResolution(
   return accepted({
     catalogFingerprint: context.catalogFingerprint,
     policy: validatedPolicy.value,
-    references: [...references].sort((left, right) => compareText(left.referenceName, right.referenceName))
+    references: [...references].sort((left, right) =>
+      compareText(left.referenceName, right.referenceName)
+    )
   });
 }
 
@@ -87,7 +96,11 @@ function validateDisabledPolicyResolution(
   catalogFingerprint: string
 ): ValidationResult<PolicyResolution> {
   if (references.length > 0) {
-    return issue("$.policy", "invalid-value", "Disabled policy resolution must not retain unused policy inputs");
+    return issue(
+      "$.policy",
+      "invalid-value",
+      "Disabled policy resolution must not retain unused policy inputs"
+    );
   }
   return accepted({ catalogFingerprint, policy: null, references: [] });
 }

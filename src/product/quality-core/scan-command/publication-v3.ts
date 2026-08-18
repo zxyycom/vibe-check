@@ -28,13 +28,15 @@ interface PublicationCandidatePath {
   readonly temp: string;
 }
 
-export function publishScanV3(input: Readonly<{
-  artifactDir: string;
-  changedFiles: readonly string[];
-  model: ValidatedPublicationModelV3;
-  print?: boolean;
-  reportPresentation: ResolvedQualityConfig["report"];
-}>): PublishedScanV3 {
+export function publishScanV3(
+  input: Readonly<{
+    artifactDir: string;
+    changedFiles: readonly string[];
+    model: ValidatedPublicationModelV3;
+    print?: boolean;
+    reportPresentation: ResolvedQualityConfig["report"];
+  }>
+): PublishedScanV3 {
   const machine = projectMachinePublicationV3(input.model);
   const candidates = serializeMachinePublicationV3(machine);
   const readable = projectReadablePublicationV3({
@@ -50,9 +52,7 @@ export function publishScanV3(input: Readonly<{
     runJson: Buffer.from(candidates.runJson, "utf8")
   });
   if (!validation.ok) {
-    throw new Error(
-      `Machine publication v3 validation failed: ${validation.diagnostic.message}`
-    );
+    throw new Error(`Machine publication v3 validation failed: ${validation.diagnostic.message}`);
   }
 
   publishCandidates(input.artifactDir, {
@@ -60,22 +60,19 @@ export function publishScanV3(input: Readonly<{
     report,
     runJson: candidates.runJson
   });
-  if (input.print ?? true) printPublicationSummaryV3({
-    artifactDir: input.artifactDir,
-    model: input.model,
-    readable: readable.console
-  });
+  if (input.print ?? true)
+    printPublicationSummaryV3({
+      artifactDir: input.artifactDir,
+      model: input.model,
+      readable: readable.console
+    });
 
   return Object.freeze({ readable: readable.console });
 }
 
 export function cleanupPublicationV3(artifactDir: string): void {
   const plan = planPublicationCleanupV3(artifactDir);
-  removePaths([
-    ...plan.canonicalPaths,
-    ...plan.retiredPaths,
-    ...plan.ownedTempPaths
-  ]);
+  removePaths([...plan.canonicalPaths, ...plan.retiredPaths, ...plan.ownedTempPaths]);
 }
 
 export function cleanupPublicationV3BestEffort(artifactDir: string): void {
@@ -129,22 +126,26 @@ function publicationCandidatePaths(
     runJson: string;
   }>
 ): readonly PublicationCandidatePath[] {
-  return [{
-    canonical: join(artifactDir, "run.json"),
-    contents: candidates.runJson,
-    kind: "machine",
-    temp: join(artifactDir, `.vibe-check-publication-${token}-run.json.tmp`)
-  }, {
-    canonical: join(artifactDir, "records.ndjson"),
-    contents: candidates.recordsNdjson,
-    kind: "machine",
-    temp: join(artifactDir, `.vibe-check-publication-${token}-records.ndjson.tmp`)
-  }, {
-    canonical: join(artifactDir, "report.md"),
-    contents: candidates.report,
-    kind: "report",
-    temp: join(artifactDir, `.vibe-check-publication-${token}-report.md.tmp`)
-  }];
+  return [
+    {
+      canonical: join(artifactDir, "run.json"),
+      contents: candidates.runJson,
+      kind: "machine",
+      temp: join(artifactDir, `.vibe-check-publication-${token}-run.json.tmp`)
+    },
+    {
+      canonical: join(artifactDir, "records.ndjson"),
+      contents: candidates.recordsNdjson,
+      kind: "machine",
+      temp: join(artifactDir, `.vibe-check-publication-${token}-records.ndjson.tmp`)
+    },
+    {
+      canonical: join(artifactDir, "report.md"),
+      contents: candidates.report,
+      kind: "report",
+      temp: join(artifactDir, `.vibe-check-publication-${token}-report.md.tmp`)
+    }
+  ];
 }
 
 function cleanupOwnedTemps(artifactDir: string): void {
@@ -200,7 +201,9 @@ function renderReportV3(
     "",
     "## Checks",
     "",
-    ...model.snapshot.checks.map((check) => `- \`${check.checkId}\`: ${formatCheckOutcome(check.outcome)}`),
+    ...model.snapshot.checks.map(
+      (check) => `- \`${check.checkId}\`: ${formatCheckOutcome(check.outcome)}`
+    ),
     "",
     "## Unaccepted records",
     "",
@@ -211,12 +214,7 @@ function renderReportV3(
     ...reportRecords(readable.acceptedRecords),
     "",
     ...(readable.presentation.showWatchlist
-      ? [
-        "## Changed record watchlist",
-        "",
-        ...reportRecords(readable.watchlistRecords),
-        ""
-      ]
+      ? ["## Changed record watchlist", "", ...reportRecords(readable.watchlistRecords), ""]
       : []),
     "---",
     "",
@@ -250,26 +248,26 @@ function formatReportTimestamp(timestamp: string, timeZone: string): string {
   ].join(" ");
 }
 
-function reportRecords(
-  records: ReadablePublicationContractV3["warningRecords"]
-): string[] {
+function reportRecords(records: ReadablePublicationContractV3["warningRecords"]): string[] {
   if (records.length === 0) return ["None."];
   return records.map((record) => {
-    const location = record.location === null
-      ? ""
-      : ` (${record.location.path}:${record.location.line})`;
-    const acceptance = record.acceptance.length === 0
-      ? ""
-      : ` — accepted: ${record.acceptance.map(({ reason }) => reason).join("; ")}`;
+    const location =
+      record.location === null ? "" : ` (${record.location.path}:${record.location.line})`;
+    const acceptance =
+      record.acceptance.length === 0
+        ? ""
+        : ` — accepted: ${record.acceptance.map(({ reason }) => reason).join("; ")}`;
     return `- **${record.level}**${location}: ${record.message}${acceptance}`;
   });
 }
 
-export function printPublicationSummaryV3(input: Readonly<{
-  artifactDir?: string;
-  model: ValidatedPublicationModelV3;
-  readable: ReadablePublicationContractV3;
-}>): void {
+export function printPublicationSummaryV3(
+  input: Readonly<{
+    artifactDir?: string;
+    model: ValidatedPublicationModelV3;
+    readable: ReadablePublicationContractV3;
+  }>
+): void {
   console.log("");
   console.log("─".repeat(60));
   console.log("Summary:");
@@ -288,9 +286,8 @@ export function printPublicationSummaryV3(input: Readonly<{
   console.log("");
   console.log(`${label}: ${status}`);
   for (const [index, record] of previews.slice(0, PREVIEW_LIMIT).entries()) {
-    const location = record.location === null
-      ? ""
-      : `${record.location.path}:${record.location.line} - `;
+    const location =
+      record.location === null ? "" : `${record.location.path}:${record.location.line} - `;
     console.log(`  ${index + 1}. [${record.level}] ${location}${record.message}`);
     for (const acceptance of record.acceptance) {
       console.log(`     Accepted reason: ${acceptance.reason}`);
@@ -325,7 +322,9 @@ function printGate(gate: GateResult): void {
   console.log(`  Blocking records: ${gate.blockingRecordRefs.length}`);
 }
 
-function scanCompletionMessage(status: ValidatedPublicationModelV3["humanStatus"]["selected"]): string {
+function scanCompletionMessage(
+  status: ValidatedPublicationModelV3["humanStatus"]["selected"]
+): string {
   if (status === "failed") return "❌ Quality scan failed.";
   if (status === "warning") return "⚠️ Quality scan complete with warnings.";
   return "✅ Quality scan complete.";

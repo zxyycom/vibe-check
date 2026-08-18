@@ -42,10 +42,7 @@ test("expands Bun test roots with include, ignore and supplemental files", () =>
 
 test("rejects invalid, empty and redundant Bun test surfaces", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "vibe-check-bun-surface-"));
-  const outsideRoot = fs.mkdtempSync(path.join(
-    os.tmpdir(),
-    "vibe-check-bun-surface-outside-"
-  ));
+  const outsideRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vibe-check-bun-surface-outside-"));
   try {
     writeText(path.join(root, "scripts", "alpha.test.ts"));
     writeText(path.join(outsideRoot, "nested", "external.test.ts"));
@@ -58,72 +55,75 @@ test("rejects invalid, empty and redundant Bun test surfaces", () => {
     };
 
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: { ...base, sourceRoots: ["missing"] }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: { ...base, sourceRoots: ["missing"] }
+        }),
       /source root/
     );
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: { ...base, include: ["**/*.spec.ts"] }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: { ...base, include: ["**/*.spec.ts"] }
+        }),
       /matched no files/
     );
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: {
-          ...base,
-          supplementalFiles: ["scripts/alpha.test.ts"]
-        }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: {
+            ...base,
+            supplementalFiles: ["scripts/alpha.test.ts"]
+          }
+        }),
       /already included/
     );
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: {
-          ...base,
-          supplementalFiles: ["missing.test.ts"]
-        }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: {
+            ...base,
+            supplementalFiles: ["missing.test.ts"]
+          }
+        }),
       /supplemental file/
     );
     for (const field of ["include", "ignore"] as const) {
       for (const pattern of ["!ignored/**", "#ignored/**"]) {
         assert.throws(
-          () => resolveBunTestFiles({
-            workspaceRoot: root,
-            profile: { ...base, [field]: [pattern] }
-          }),
+          () =>
+            resolveBunTestFiles({
+              workspaceRoot: root,
+              profile: { ...base, [field]: [pattern] }
+            }),
           /positive relative POSIX globs/
         );
       }
     }
 
     const linkedRoot = path.join(root, "linked");
-    fs.symlinkSync(
-      outsideRoot,
-      linkedRoot,
-      process.platform === "win32" ? "junction" : "dir"
-    );
+    fs.symlinkSync(outsideRoot, linkedRoot, process.platform === "win32" ? "junction" : "dir");
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: { ...base, sourceRoots: ["linked/nested"] }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: { ...base, sourceRoots: ["linked/nested"] }
+        }),
       /symbolic link/
     );
     assert.throws(
-      () => resolveBunTestFiles({
-        workspaceRoot: root,
-        profile: {
-          ...base,
-          supplementalFiles: ["linked/nested/supplemental.ts"]
-        }
-      }),
+      () =>
+        resolveBunTestFiles({
+          workspaceRoot: root,
+          profile: {
+            ...base,
+            supplementalFiles: ["linked/nested/supplemental.ts"]
+          }
+        }),
       /symbolic link/
     );
   } finally {

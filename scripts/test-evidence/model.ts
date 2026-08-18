@@ -1,9 +1,4 @@
-export type TestEvidenceDiagnosticOrigin =
-  | "profile"
-  | "static"
-  | "runner"
-  | "case"
-  | "query";
+export type TestEvidenceDiagnosticOrigin = "profile" | "static" | "runner" | "case" | "query";
 
 export type TestEvidenceDiagnostic = {
   code: string;

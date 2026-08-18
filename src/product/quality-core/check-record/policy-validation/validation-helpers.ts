@@ -33,7 +33,7 @@ export function deepFreeze<T>(value: T): T {
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
-  const prototype = Object.getPrototypeOf(value) as object | null;
+  const prototype: unknown = Object.getPrototypeOf(value);
   return prototype === Object.prototype || prototype === null;
 }
 
@@ -44,8 +44,11 @@ export function closed(
 ): ValidationResult<Record<string, unknown>> {
   if (!isRecord(value)) return issue(path, "invalid-value", "Expected an object");
   const allowed = new Set(fields);
-  const unknownField = Object.keys(value).sort().find((field) => !allowed.has(field));
-  if (unknownField !== undefined) return issue(path, "unknown-field", `Unknown field: ${unknownField}`);
+  const unknownField = Object.keys(value)
+    .sort()
+    .find((field) => !allowed.has(field));
+  if (unknownField !== undefined)
+    return issue(path, "unknown-field", `Unknown field: ${unknownField}`);
   const missingField = fields.find((field) => !Object.hasOwn(value, field));
   if (missingField !== undefined) {
     return issue(`${path}.${missingField}`, "missing-field", `Missing field: ${missingField}`);
@@ -63,9 +66,7 @@ export function isReferenceEvidenceStatus(
   return REFERENCE_EVIDENCE_STATUSES.some((status) => status === value);
 }
 
-export function isGateNotEvaluatedReason(
-  value: unknown
-): value is ReadinessClause["reason"] {
+export function isGateNotEvaluatedReason(value: unknown): value is ReadinessClause["reason"] {
   return GATE_NOT_EVALUATED_REASONS.some((reason) => reason === value);
 }
 

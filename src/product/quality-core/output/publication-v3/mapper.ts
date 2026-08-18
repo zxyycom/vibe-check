@@ -1,8 +1,5 @@
 import type { EvidenceRef } from "../../check-record/policy-model.ts";
-import {
-  MACHINE_RECORD_V3_IDENTITY,
-  MACHINE_RUN_V3_IDENTITY
-} from "./schema-identities.ts";
+import { MACHINE_RECORD_V3_IDENTITY, MACHINE_RUN_V3_IDENTITY } from "./schema-identities.ts";
 import type { ValidatedPublicationModelV3 } from "./model.ts";
 import { createRecordsFingerprintV3 } from "./records-fingerprint.ts";
 import type { MachineRecordV3, MachineRunV3 } from "./schema.ts";
@@ -17,17 +14,21 @@ export function projectMachinePublicationV3(
   model: ValidatedPublicationModelV3
 ): MachinePublicationV3 {
   const decision = model.decision;
-  const records = Object.freeze(model.records.map((record): MachineRecordV3 => freezePublicationValue({
-    schemaVersion: MACHINE_RECORD_V3_IDENTITY,
-    recordId: record.recordId,
-    checkId: record.checkId,
-    recordTypeId: record.recordTypeId,
-    level: record.level,
-    semanticSubject: record.semanticSubject,
-    message: record.message,
-    fields: { ...record.fields },
-    location: record.location === null ? null : { ...record.location }
-  })));
+  const records = Object.freeze(
+    model.records.map((record): MachineRecordV3 =>
+      freezePublicationValue({
+        schemaVersion: MACHINE_RECORD_V3_IDENTITY,
+        recordId: record.recordId,
+        checkId: record.checkId,
+        recordTypeId: record.recordTypeId,
+        level: record.level,
+        semanticSubject: record.semanticSubject,
+        message: record.message,
+        fields: { ...record.fields },
+        location: record.location === null ? null : { ...record.location }
+      })
+    )
+  );
   const run: MachineRunV3 = {
     schemaVersion: MACHINE_RUN_V3_IDENTITY,
     invocation: { ...model.invocation },
@@ -40,13 +41,17 @@ export function projectMachinePublicationV3(
         recordTypeId: recordType.recordTypeId,
         fields: recordType.fields.map((field) => ({ ...field })),
         identityFields: [...recordType.identityFields],
-        ...(recordType.policy === undefined ? {} : { policy: {
-          operands: recordType.policy.operands.map((operand) => ({
-            ...operand,
-            source: { ...operand.source }
-          })),
-          relations: [...recordType.policy.relations]
-        } })
+        ...(recordType.policy === undefined
+          ? {}
+          : {
+              policy: {
+                operands: recordType.policy.operands.map((operand) => ({
+                  ...operand,
+                  source: { ...operand.source }
+                })),
+                relations: [...recordType.policy.relations]
+              }
+            })
       })),
       outcome: structuredClone(check.outcome)
     })),
@@ -62,26 +67,31 @@ export function projectMachinePublicationV3(
         viewId: view.viewId,
         recordIds: view.recordRefs.map((reference) => reference.recordId)
       })),
-      readiness: decision.readiness.map((evidence) => evidence.status === "failed"
-        ? {
-          readinessId: evidence.readinessId,
-          status: evidence.status,
-          reason: evidence.reason,
-          evidenceRefs: evidence.evidenceRefs.map(copyEvidenceRef)
-        }
-        : {
-          readinessId: evidence.readinessId,
-          status: evidence.status,
-          reason: null,
-          evidenceRefs: evidence.evidenceRefs.map(copyEvidenceRef)
-        }),
-      blockWhen: decision.blockWhen === null ? null : {
-        status: decision.blockWhen.status,
-        evidenceRefs: decision.blockWhen.evidenceRefs.map(copyEvidenceRef),
-        blockingRecordIds: decision.blockWhen.blockingRecordRefs.map(
-          (reference) => reference.recordId
-        )
-      },
+      readiness: decision.readiness.map((evidence) =>
+        evidence.status === "failed"
+          ? {
+              readinessId: evidence.readinessId,
+              status: evidence.status,
+              reason: evidence.reason,
+              evidenceRefs: evidence.evidenceRefs.map(copyEvidenceRef)
+            }
+          : {
+              readinessId: evidence.readinessId,
+              status: evidence.status,
+              reason: null,
+              evidenceRefs: evidence.evidenceRefs.map(copyEvidenceRef)
+            }
+      ),
+      blockWhen:
+        decision.blockWhen === null
+          ? null
+          : {
+              status: decision.blockWhen.status,
+              evidenceRefs: decision.blockWhen.evidenceRefs.map(copyEvidenceRef),
+              blockingRecordIds: decision.blockWhen.blockingRecordRefs.map(
+                (reference) => reference.recordId
+              )
+            },
       gate: projectGate(decision.gate)
     }
   };
@@ -91,7 +101,9 @@ export function projectMachinePublicationV3(
   });
 }
 
-function projectGate(gate: ValidatedPublicationModelV3["decision"]["gate"]): MachineRunV3["decision"]["gate"] {
+function projectGate(
+  gate: ValidatedPublicationModelV3["decision"]["gate"]
+): MachineRunV3["decision"]["gate"] {
   if (gate.status === "disabled") {
     return { status: "disabled", policyId: null };
   }

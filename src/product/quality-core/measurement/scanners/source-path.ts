@@ -2,16 +2,10 @@ import path from "node:path";
 
 import { toSlashPath } from "../../../foundation/index.ts";
 
-export function normalizeScannerReportedPath(
-  reportedPath: string,
-  projectRoot: string
-): string {
+export function normalizeScannerReportedPath(reportedPath: string, projectRoot: string): string {
   const normalizedReportedPath = stripWindowsExtendedPathPrefix(reportedPath);
   const normalizedProjectRoot = stripWindowsExtendedPathPrefix(projectRoot);
-  const pathApi = pathApiForScannerPath(
-    normalizedReportedPath,
-    normalizedProjectRoot
-  );
+  const pathApi = pathApiForScannerPath(normalizedReportedPath, normalizedProjectRoot);
   const nativePath = pathApi.normalize(normalizedReportedPath);
   const projectRelativePath = pathApi.isAbsolute(nativePath)
     ? pathApi.relative(pathApi.normalize(normalizedProjectRoot), nativePath)
@@ -30,10 +24,7 @@ function stripWindowsExtendedPathPrefix(filePath: string): string {
   return filePath;
 }
 
-function pathApiForScannerPath(
-  reportedPath: string,
-  projectRoot: string
-): path.PlatformPath {
+function pathApiForScannerPath(reportedPath: string, projectRoot: string): path.PlatformPath {
   return isWindowsAbsolutePath(reportedPath) || isWindowsAbsolutePath(projectRoot)
     ? path.win32
     : path;

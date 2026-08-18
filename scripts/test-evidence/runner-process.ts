@@ -1,7 +1,4 @@
-import {
-  runProcess,
-  type ProcessResult
-} from "../tools/foundation/src/index.ts";
+import { runProcess, type ProcessResult } from "../tools/foundation/src/index.ts";
 
 export function runBunCommand(options: {
   workspaceRoot: string;
@@ -16,10 +13,7 @@ export function runBunCommand(options: {
   });
 }
 
-export function processFailureMessage(
-  result: ProcessResult,
-  label: string
-): string {
+export function processFailureMessage(result: ProcessResult, label: string): string {
   const details = result.stderr.trim() || result.stdout.trim();
   return `${label} failed with status ${String(result.status)}${details ? `: ${details}` : ""}`;
 }

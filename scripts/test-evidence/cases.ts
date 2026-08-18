@@ -1,37 +1,15 @@
-import {
-  diagnoseDuplicateCaseIds,
-  loadTopicCases,
-  reconcileTopicFiles
-} from "./catalog/load.ts";
-import type {
-  SemanticTestCase,
-  TestCaseCatalog,
-  TestCaseTopic
-} from "./catalog/model.ts";
+import { diagnoseDuplicateCaseIds, loadTopicCases, reconcileTopicFiles } from "./catalog/load.ts";
+import type { SemanticTestCase, TestCaseCatalog, TestCaseTopic } from "./catalog/model.ts";
 import { diagnoseOwnerRefs } from "./catalog/owner-ref.ts";
-import {
-  readTopicFiles,
-  readTopics,
-  resolveCaseDirectory
-} from "./catalog/source.ts";
-import {
-  diagnostic,
-  type TestEntity,
-  type TestEvidenceDiagnostic
-} from "./model.ts";
+import { readTopicFiles, readTopics, resolveCaseDirectory } from "./catalog/source.ts";
+import { diagnostic, type TestEntity, type TestEvidenceDiagnostic } from "./model.ts";
 
-export type {
-  SemanticTestCase,
-  TestCaseCatalog,
-  TestCaseTopic
-};
+export type { SemanticTestCase, TestCaseCatalog, TestCaseTopic };
 
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
 
-export function loadTestCaseCatalog(options: {
-  workspaceRoot: string;
-}): TestCaseCatalog {
+export function loadTestCaseCatalog(options: { workspaceRoot: string }): TestCaseCatalog {
   const diagnostics: TestEvidenceDiagnostic[] = [];
   const root = resolveCaseDirectory(options.workspaceRoot, diagnostics);
   if (root === null) {
@@ -69,53 +47,53 @@ export function validateTestCaseCoverage(options: {
   entities: readonly TestEntity[];
 }): TestEvidenceDiagnostic[] {
   const diagnostics: TestEvidenceDiagnostic[] = [];
-  const entitiesByKey = new Map(
-    options.entities.map((entity) => [entity.entityKey, entity])
-  );
+  const entitiesByKey = new Map(options.entities.map((entity) => [entity.entityKey, entity]));
   const mapped = new Set<string>();
   for (const testCase of options.catalog.cases) {
     for (const entityKey of testCase.entityKeys) {
       if (entitiesByKey.has(entityKey)) {
         mapped.add(entityKey);
       } else {
-        diagnostics.push(diagnostic(
-          "case.entity-unknown",
-          "case",
-          `Case ${testCase.id} references unknown test entity ${entityKey}`,
-          {
-            caseId: testCase.id,
-            entityKey,
-            path: testCase.sourcePath,
-            line: testCase.sourceLine
-          }
-        ));
+        diagnostics.push(
+          diagnostic(
+            "case.entity-unknown",
+            "case",
+            `Case ${testCase.id} references unknown test entity ${entityKey}`,
+            {
+              caseId: testCase.id,
+              entityKey,
+              path: testCase.sourcePath,
+              line: testCase.sourceLine
+            }
+          )
+        );
       }
     }
   }
   for (const entity of options.entities) {
     if (!mapped.has(entity.entityKey)) {
-      diagnostics.push(diagnostic(
-        "entity.case-missing",
-        "case",
-        `current test entity has no semantic Case ${entity.entityKey}`,
-        {
-          entityKey: entity.entityKey,
-          runner: entity.runner,
-          target: entity.target,
-          selector: entity.selector,
-          path: entity.sourcePath,
-          line: entity.sourceRange.startLine,
-          column: entity.sourceRange.startColumn
-        }
-      ));
+      diagnostics.push(
+        diagnostic(
+          "entity.case-missing",
+          "case",
+          `current test entity has no semantic Case ${entity.entityKey}`,
+          {
+            entityKey: entity.entityKey,
+            runner: entity.runner,
+            target: entity.target,
+            selector: entity.selector,
+            path: entity.sourcePath,
+            line: entity.sourceRange.startLine,
+            column: entity.sourceRange.startColumn
+          }
+        )
+      );
     }
   }
   return diagnostics;
 }
 
-export function listTestCaseTopics(options: {
-  workspaceRoot: string;
-}): {
+export function listTestCaseTopics(options: { workspaceRoot: string }): {
   schemaVersion: 1;
   status: "ok" | "error";
   diagnostics: TestEvidenceDiagnostic[];
@@ -154,22 +132,21 @@ export function queryTestCases(options: {
   const offset = options.offset ?? 0;
   const limit = options.limit ?? DEFAULT_LIMIT;
   const query = options.query?.toLowerCase();
-  const matches = catalog.cases.filter((testCase) => (
-    (options.topic === undefined || testCase.topic === options.topic) &&
-    (options.entityKey === undefined || testCase.entityKeys.includes(options.entityKey)) &&
-    (options.ownerRef === undefined || testCase.ownerRef === options.ownerRef) &&
-    (
-      query === undefined ||
-      [
-        testCase.id,
-        testCase.title,
-        testCase.topic,
-        testCase.ownerRef,
-        ...testCase.entityKeys,
-        ...testCase.proves
-      ].some((value) => value.toLowerCase().includes(query))
-    )
-  ));
+  const matches = catalog.cases.filter(
+    (testCase) =>
+      (options.topic === undefined || testCase.topic === options.topic) &&
+      (options.entityKey === undefined || testCase.entityKeys.includes(options.entityKey)) &&
+      (options.ownerRef === undefined || testCase.ownerRef === options.ownerRef) &&
+      (query === undefined ||
+        [
+          testCase.id,
+          testCase.title,
+          testCase.topic,
+          testCase.ownerRef,
+          ...testCase.entityKeys,
+          ...testCase.proves
+        ].some((value) => value.toLowerCase().includes(query)))
+  );
   return {
     schemaVersion: 1,
     status: status(catalog.diagnostics),
@@ -181,10 +158,7 @@ export function queryTestCases(options: {
   };
 }
 
-export function showTestCase(options: {
-  workspaceRoot: string;
-  id: string;
-}): {
+export function showTestCase(options: { workspaceRoot: string; id: string }): {
   schemaVersion: 1;
   status: "ok" | "error";
   diagnostics: TestEvidenceDiagnostic[];
@@ -194,14 +168,16 @@ export function showTestCase(options: {
   const diagnostics = [...catalog.diagnostics];
   const matches = catalog.cases.filter(({ id }) => id === options.id);
   if (matches.length !== 1) {
-    diagnostics.push(diagnostic(
-      matches.length === 0 ? "query.case-not-found" : "query.case-ambiguous",
-      "query",
-      matches.length === 0
-        ? `no semantic Case has ID ${options.id}`
-        : `semantic Case ID ${options.id} is duplicated`,
-      { caseId: options.id }
-    ));
+    diagnostics.push(
+      diagnostic(
+        matches.length === 0 ? "query.case-not-found" : "query.case-ambiguous",
+        "query",
+        matches.length === 0
+          ? `no semantic Case has ID ${options.id}`
+          : `semantic Case ID ${options.id} is duplicated`,
+        { caseId: options.id }
+      )
+    );
   }
   return {
     schemaVersion: 1,
@@ -211,14 +187,8 @@ export function showTestCase(options: {
   };
 }
 
-export function validateQueryWindow(options: {
-  offset?: number;
-  limit?: number;
-}): void {
-  if (
-    options.offset !== undefined &&
-    (!Number.isInteger(options.offset) || options.offset < 0)
-  ) {
+export function validateQueryWindow(options: { offset?: number; limit?: number }): void {
+  if (options.offset !== undefined && (!Number.isInteger(options.offset) || options.offset < 0)) {
     throw new Error("--offset must be a non-negative integer");
   }
   if (
@@ -229,9 +199,7 @@ export function validateQueryWindow(options: {
   }
 }
 
-function emptyCatalog(
-  diagnostics: TestEvidenceDiagnostic[]
-): TestCaseCatalog {
+function emptyCatalog(diagnostics: TestEvidenceDiagnostic[]): TestCaseCatalog {
   return {
     schemaVersion: 1,
     topics: [],
@@ -240,8 +208,6 @@ function emptyCatalog(
   };
 }
 
-function status(
-  diagnostics: readonly TestEvidenceDiagnostic[]
-): "ok" | "error" {
+function status(diagnostics: readonly TestEvidenceDiagnostic[]): "ok" | "error" {
   return diagnostics.some(({ blocking }) => blocking) ? "error" : "ok";
 }

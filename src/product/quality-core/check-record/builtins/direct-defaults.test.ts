@@ -15,6 +15,7 @@ import type {
   CheckProjectContext,
   CheckReferenceCandidate,
   CheckResult,
+  DeepReadonly,
   QualityRecordCandidate
 } from "../../../definition/custom-check.ts";
 import { executeDuplicateDetection } from "./duplicate-detection.ts";
@@ -47,24 +48,30 @@ function project(root: string): CheckProjectContext {
 
 async function execute<Options extends object>(
   callback: CheckExecution<Options>,
-  options: Options,
+  options: DeepReadonly<Options>,
   root: string
-): Promise<Readonly<{
-  readonly records: readonly QualityRecordCandidate[];
-  readonly references: readonly CheckReferenceCandidate[];
-  readonly result: CheckResult;
-}>> {
+): Promise<
+  Readonly<{
+    readonly records: readonly QualityRecordCandidate[];
+    readonly references: readonly CheckReferenceCandidate[];
+    readonly result: CheckResult;
+  }>
+> {
   const records: QualityRecordCandidate[] = [];
   const references: CheckReferenceCandidate[] = [];
-  const context = Object.freeze({
+  const context: CheckExecutionContext<Options> = Object.freeze({
     options,
     project: project(root),
     records: Object.freeze({
-      report: (candidate: QualityRecordCandidate): void => { records.push(candidate); },
-      reportReference: (candidate: CheckReferenceCandidate): void => { references.push(candidate); }
+      report: (candidate: QualityRecordCandidate): void => {
+        records.push(candidate);
+      },
+      reportReference: (candidate: CheckReferenceCandidate): void => {
+        references.push(candidate);
+      }
     }),
     signal: new AbortController().signal
-  }) as CheckExecutionContext<Options>;
+  });
   const result = await callback(context);
   return Object.freeze({
     records: Object.freeze(records),
@@ -91,10 +98,13 @@ describe("default Check direct callbacks", () => {
   it("executes file metrics from Check-owned scanner options and reports Check-owned candidates", async () => {
     const root = createRoot("vibe-check-direct-file-");
     try {
-      const args = scanner(root, [
-        "if (process.argv.includes('--version')) process.stdout.write('scc version 3.7.0\\n');",
-        "else process.stdout.write('Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\\nTypeScript,,src/a.ts,450,400,20,30,20,1000,400\\n');"
-      ].join("\n"));
+      const args = scanner(
+        root,
+        [
+          "if (process.argv.includes('--version')) process.stdout.write('scc version 3.7.0\\n');",
+          "else process.stdout.write('Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\\nTypeScript,,src/a.ts,450,400,20,30,20,1000,400\\n');"
+        ].join("\n")
+      );
       const options: FileMetricsOptions = {
         scanner: { executable: process.execPath, args, availabilityArgs: [...args, "--version"] },
         codeLines: {
@@ -116,10 +126,13 @@ describe("default Check direct callbacks", () => {
   it("executes function metrics from Check-owned scanner options and reports all metric Records", async () => {
     const root = createRoot("vibe-check-direct-function-");
     try {
-      const args = scanner(root, [
-        "if (process.argv.includes('--version')) process.stdout.write('lizard 1.23\\n');",
-        "else process.stdout.write('NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line\\n20,12,100,7,20,hot@1-20@src/a.ts,src/a.ts,hot,hot (),1,20\\n');"
-      ].join("\n"));
+      const args = scanner(
+        root,
+        [
+          "if (process.argv.includes('--version')) process.stdout.write('lizard 1.23\\n');",
+          "else process.stdout.write('NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line\\n20,12,100,7,20,hot@1-20@src/a.ts,src/a.ts,hot,hot (),1,20\\n');"
+        ].join("\n")
+      );
       const options: FunctionMetricsOptions = {
         scanner: { executable: process.execPath, args, availabilityArgs: [...args, "--version"] },
         codeLines: {
@@ -146,23 +159,28 @@ describe("default Check direct callbacks", () => {
     const root = createRoot("vibe-check-direct-duplicate-");
     try {
       const report = JSON.stringify({
-        duplicates: [{
-          firstFile: { name: "src/a.ts", startLoc: { line: 10 }, endLoc: { line: 21 } },
-          secondFile: { name: "src/b.ts", startLoc: { line: 20 }, endLoc: { line: 31 } },
-          lines: 12,
-          tokens: 80
-        }]
+        duplicates: [
+          {
+            firstFile: { name: "src/a.ts", startLoc: { line: 10 }, endLoc: { line: 21 } },
+            secondFile: { name: "src/b.ts", startLoc: { line: 20 }, endLoc: { line: 31 } },
+            lines: 12,
+            tokens: 80
+          }
+        ]
       });
-      const args = scanner(root, [
-        "import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';",
-        "import { join } from 'node:path';",
-        "if (process.argv.includes('--version')) process.stdout.write('jscpd 5.0.11\\n');",
-        "else {",
-        "  const output = process.argv[process.argv.indexOf('--output') + 1];",
-        "  mkdirSync(output, { recursive: true });",
-        `  writeFileSync(join(output, 'jscpd-report.json'), ${JSON.stringify(report)});`,
-        "}"
-      ].join("\n"));
+      const args = scanner(
+        root,
+        [
+          "import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';",
+          "import { join } from 'node:path';",
+          "if (process.argv.includes('--version')) process.stdout.write('jscpd 5.0.11\\n');",
+          "else {",
+          "  const output = process.argv[process.argv.indexOf('--output') + 1];",
+          "  mkdirSync(output, { recursive: true });",
+          `  writeFileSync(join(output, 'jscpd-report.json'), ${JSON.stringify(report)});`,
+          "}"
+        ].join("\n")
+      );
       const options: DuplicateDetectionOptions = {
         scanner: {
           executable: process.execPath,

@@ -31,7 +31,7 @@ export const PUBLICATION_V3_FAILURE_STAGES = Object.freeze([
   ...PUBLICATION_V3_LIFECYCLE.artifactStages.slice(0, -1)
 ] as const);
 
-export type PublicationFailureStageV3 = typeof PUBLICATION_V3_FAILURE_STAGES[number];
+export type PublicationFailureStageV3 = (typeof PUBLICATION_V3_FAILURE_STAGES)[number];
 
 export interface ReadableRecordPreviewV3 {
   readonly acceptance: readonly Pick<AcceptanceEvidence, "acceptanceId" | "reason">[];

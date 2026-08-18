@@ -33,10 +33,12 @@ export function validateDecision(
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
   const recordIds = new Set(records.map(({ recordId }) => recordId));
-  return validateEvidenceReferences(run, recordIds, artifactRoot)
-    ?? validateDecisionRecordReferences(run, recordIds, artifactRoot)
-    ?? validateDecisionCanonicalOrder(run, artifactRoot)
-    ?? validateDecisionState(run, artifactRoot);
+  return (
+    validateEvidenceReferences(run, recordIds, artifactRoot) ??
+    validateDecisionRecordReferences(run, recordIds, artifactRoot) ??
+    validateDecisionCanonicalOrder(run, artifactRoot) ??
+    validateDecisionState(run, artifactRoot)
+  );
 }
 
 function validateEvidenceReferences(
@@ -61,10 +63,9 @@ function createEvidenceReferenceSets(
     recordIds,
     viewIds: new Set(run.decision.views.map(({ viewId }) => viewId)),
     readinessIds: new Set(run.decision.readiness.map(({ readinessId }) => readinessId)),
-    referenceByName: new Map(run.references.identities.map((identity) => [
-      identity.referenceName,
-      identity
-    ])),
+    referenceByName: new Map(
+      run.references.identities.map((identity) => [identity.referenceName, identity])
+    ),
     referencePairs: new Set(run.references.evidence.map(referenceEvidenceKey))
   };
 }
@@ -87,7 +88,11 @@ function validateEvidenceRef(
     case "record":
       return sets.recordIds.has(reference.recordId)
         ? null
-        : decisionFailure(artifactRoot, "decision-record-reference", "Unknown record evidence ref.");
+        : decisionFailure(
+            artifactRoot,
+            "decision-record-reference",
+            "Unknown record evidence ref."
+          );
     case "check":
       return sets.checkIds.has(reference.checkId)
         ? null
@@ -100,10 +105,10 @@ function validateEvidenceRef(
       return sets.readinessIds.has(reference.readinessId)
         ? null
         : decisionFailure(
-          artifactRoot,
-          "decision-readiness-reference",
-          "Unknown readiness evidence ref."
-        );
+            artifactRoot,
+            "decision-readiness-reference",
+            "Unknown readiness evidence ref."
+          );
     case "reference":
       return validateNamedReference(reference, sets, artifactRoot);
   }
@@ -120,7 +125,8 @@ function validateNamedReference(
     identity?.referenceId === reference.referenceId &&
     sets.checkIds.has(reference.checkId) &&
     sets.referencePairs.has(`${reference.checkId}\u0000${reference.referenceName}`)
-  ) return null;
+  )
+    return null;
   return decisionFailure(
     artifactRoot,
     "decision-reference-reference",
@@ -139,7 +145,7 @@ function validateDecisionRecordReferences(
     ...run.references.relations.map(({ recordId }) => recordId),
     ...decision.views.flatMap(({ recordIds: ids }) => ids),
     ...(decision.blockWhen?.blockingRecordIds ?? []),
-    ...((decision.gate.status === "passed" || decision.gate.status === "failed")
+    ...(decision.gate.status === "passed" || decision.gate.status === "failed"
       ? decision.gate.blockingRecordIds
       : [])
   ];
@@ -164,7 +170,8 @@ function validateDecisionCanonicalOrder(
     decision.readiness.every(({ evidenceRefs }) => isCanonical(evidenceRefs, evidenceKey)) &&
     isCanonicalBlockWhen(decision.blockWhen) &&
     isCanonicalGate(decision.gate)
-  ) return null;
+  )
+    return null;
   return decisionFailure(
     artifactRoot,
     "decision-canonical-order",
@@ -173,9 +180,10 @@ function validateDecisionCanonicalOrder(
 }
 
 function isCanonicalBlockWhen(blockWhen: RunShape["decision"]["blockWhen"]): boolean {
-  return blockWhen === null || (
-    isCanonical(blockWhen.evidenceRefs, evidenceKey) &&
-    isCanonicalText(blockWhen.blockingRecordIds)
+  return (
+    blockWhen === null ||
+    (isCanonical(blockWhen.evidenceRefs, evidenceKey) &&
+      isCanonicalText(blockWhen.blockingRecordIds))
   );
 }
 
@@ -191,9 +199,9 @@ function validateDecisionState(
 ): DocsMachineValidationFailure | null {
   const decision = run.decision;
   const gate = decision.gate;
-  const failedReadiness: FailedReadiness = decision.readiness.flatMap((evidence, index) => (
+  const failedReadiness: FailedReadiness = decision.readiness.flatMap((evidence, index) =>
     evidence.status === "failed" ? [{ evidence, index }] : []
-  ));
+  );
   if (gate.status === "disabled") {
     return validateDisabledDecision(run, artifactRoot);
   }
@@ -211,8 +219,9 @@ function validateDisabledDecision(
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
   const decision = run.decision;
-  return decision.policyId === null && decision.readiness.length === 0
-    && decision.blockWhen === null
+  return decision.policyId === null &&
+    decision.readiness.length === 0 &&
+    decision.blockWhen === null
     ? null
     : decisionFailure(artifactRoot, "decision-state", "Disabled decision is inconsistent.");
 }
@@ -240,7 +249,8 @@ function validateNotEvaluatedDecision(
       gate.evidenceRefs,
       readinessEvidencePrefix(decision.readiness.slice(0, failed.index + 1))
     )
-  ) return null;
+  )
+    return null;
   return decisionFailure(
     artifactRoot,
     "decision-state",
@@ -265,7 +275,8 @@ function validateEvaluatedDecision(
       ...readinessEvidencePrefix(decision.readiness),
       ...blockWhen.evidenceRefs
     ])
-  ) return null;
+  )
+    return null;
   return decisionFailure(
     artifactRoot,
     "decision-state",

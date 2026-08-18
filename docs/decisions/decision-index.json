@@ -119,7 +119,8 @@
       "use-upstream-project-skill-packages.md": "sha256:61f5dcae84429943a164f1b82c37ddf341d40e47e32288f593b007a82487e46a",
       "use-upstream-skills-with-project-local-exceptions.md": "sha256:f13dabc892def9236b38ff07f65b231492babc571794468167706cae2284b390",
       "use-user-owned-definition-for-observation-and-gates.md": "sha256:3fe008410df356464695b6df02ff670990d2af05343f05db284e6f54716a416e",
-      "use-versioned-npm-package-release-unit.md": "sha256:aa8c724f18eb59548618ea92c475bd458de24c5731ea8b7e7b3dcbc452061fbc"
+      "use-versioned-npm-package-release-unit.md": "sha256:aa8c724f18eb59548618ea92c475bd458de24c5731ea8b7e7b3dcbc452061fbc",
+      "vendor-foundation-as-repository-owned-script-tool.md": "sha256:1819baa5b557b4e5fd8e489017cf186e3dd0d0da1ad82c22899130c2d85ef65c"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -3543,6 +3544,33 @@
         "decision": "Vibe Check 以 npm package 作为版本化发布单元，同一版本交付 CLI、公共声明文件和产品资源；CLI 是主要执行界面而非完整产品边界。",
         "tags": [
           "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "vendor-foundation-as-repository-owned-script-tool.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "vendor-foundation-as-repository-owned-script-tool.md",
+        "title": "将 foundation 固化为仓库自有脚本工具",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-18T09:24:16Z",
+        "purpose": "让开发脚本使用仓库直接拥有且可复现的 foundation 源码，而不依赖独立 Git 子仓库或上游 checkout。",
+        "background": "形成此决策时，foundation 是唯一遗留 toolkit gitlink，且其工作树包含本仓已验证的 Oxlint/Oxfmt 迁移；继续保留 gitlink 会让该状态无法由主仓独立交付。",
+        "decision": "将 foundation 工作树 vendor 到既有路径，停止 Git/upstream ownership，保留 workspace package 与产品用户项目 submodule scan。",
+        "tags": [
+          "workflow-policy"
         ],
         "relations": []
       }

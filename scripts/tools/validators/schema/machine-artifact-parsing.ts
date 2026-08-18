@@ -9,16 +9,13 @@ import {
   type RecordShape,
   type RunShape
 } from "./machine-artifact-types.ts";
-import {
-  compileRegisteredSchema,
-  createCurrentSchemaAjv
-} from "./registry.ts";
+import { compileRegisteredSchema, createCurrentSchemaAjv } from "./registry.ts";
 
 const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;
 
 interface CurrentSchemaValidators {
-  readonly record: ValidateFunction;
-  readonly run: ValidateFunction;
+  readonly record: ValidateFunction<RecordShape>;
+  readonly run: ValidateFunction<RunShape>;
 }
 
 export function validateRun(
@@ -30,7 +27,7 @@ export function validateRun(
   if (!decoded.ok) return decoded;
   let value: unknown;
   try {
-    value = JSON.parse(decoded.value) as unknown;
+    value = JSON.parse(decoded.value);
   } catch {
     return failure(artifactRoot, RUN_ARTIFACT, {
       category: "syntax",
@@ -46,7 +43,7 @@ export function validateRun(
       pointer
     });
   }
-  return { ok: true, value: value as RunShape };
+  return { ok: true, value };
 }
 
 export function validateRecordStream(
@@ -77,7 +74,7 @@ export function validateRecordStream(
     }
     let value: unknown;
     try {
-      value = JSON.parse(segment) as unknown;
+      value = JSON.parse(segment);
     } catch {
       return failure(artifactRoot, RECORDS_ARTIFACT, {
         category: "syntax",
@@ -97,7 +94,7 @@ export function validateRecordStream(
         pointer
       });
     }
-    records.push(value as RecordShape);
+    records.push(value);
   }
   return { ok: true, value: records };
 }
@@ -105,8 +102,8 @@ export function validateRecordStream(
 export function createCurrentSchemaValidators(): CurrentSchemaValidators {
   const ajv = createCurrentSchemaAjv();
   return {
-    record: compileRegisteredSchema(ajv, CURRENT_SCHEMAS.record),
-    run: compileRegisteredSchema(ajv, CURRENT_SCHEMAS.run)
+    record: compileRegisteredSchema<RecordShape>(ajv, CURRENT_SCHEMAS.record),
+    run: compileRegisteredSchema<RunShape>(ajv, CURRENT_SCHEMAS.run)
   };
 }
 
@@ -134,9 +131,7 @@ function decode(
   }
 }
 
-function schemaErrorPointer(
-  errors: readonly ErrorObject[] | null | undefined
-): string {
+function schemaErrorPointer(errors: readonly ErrorObject[] | null | undefined): string {
   const error = errors?.find(({ keyword }) => keyword !== "anyOf") ?? errors?.[0];
   if (!error) return "";
   if (error.keyword === "required" && typeof error.params.missingProperty === "string") {

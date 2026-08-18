@@ -1,11 +1,7 @@
 import path from "node:path";
 
 import { runAstGrep } from "./ast-grep.ts";
-import {
-  diagnostic,
-  type SourceRange,
-  type TestEvidenceDiagnostic
-} from "./model.ts";
+import { diagnostic, type SourceRange, type TestEvidenceDiagnostic } from "./model.ts";
 
 type AstPosition = {
   line: number;
@@ -23,10 +19,13 @@ export type AstMatch = {
   range: AstRange;
   ruleId: string;
   metaVariables: {
-    single: Record<string, {
-      text: string;
-      range: AstRange;
-    }>;
+    single: Record<
+      string,
+      {
+        text: string;
+        range: AstRange;
+      }
+    >;
   };
 };
 
@@ -40,17 +39,12 @@ export async function scanAstRule(options: {
 }> {
   let result;
   try {
-    result = await runAstGrep([
-      "scan",
-      "--rule",
-      options.rulePath,
-      "--json=stream",
-      "--color",
-      "never",
-      ...options.paths
-    ], {
-      workspaceRoot: options.workspaceRoot
-    });
+    result = await runAstGrep(
+      ["scan", "--rule", options.rulePath, "--json=stream", "--color", "never", ...options.paths],
+      {
+        workspaceRoot: options.workspaceRoot
+      }
+    );
   } catch (error) {
     return {
       matches: [],
@@ -109,24 +103,29 @@ export function unsupportedAstDiagnostics(
   matches: readonly AstMatch[],
   runner: string
 ): TestEvidenceDiagnostic[] {
-  return matches.map((match) => diagnostic(
-    "unsupported-entity-shape",
-    "static",
-    `${runner} source uses unsupported test entity shape ${match.ruleId}`,
-    {
-      path: match.file,
-      line: match.range.start.line + 1,
-      column: match.range.start.column + 1,
-      runner
-    }
-  ));
+  return matches.map((match) =>
+    diagnostic(
+      "unsupported-entity-shape",
+      "static",
+      `${runner} source uses unsupported test entity shape ${match.ruleId}`,
+      {
+        path: match.file,
+        line: match.range.start.line + 1,
+        column: match.range.start.column + 1,
+        runner
+      }
+    )
+  );
 }
 
 function parseAstMatches(stdout: string): AstMatch[] {
   return stdout
     .split(/\r?\n/u)
     .filter((line) => line.trim().length > 0)
-    .map((line) => normalizeAstMatch(JSON.parse(line) as unknown));
+    .map((line) => {
+      const value: unknown = JSON.parse(line);
+      return normalizeAstMatch(value);
+    });
 }
 
 function normalizeAstMatch(value: unknown): AstMatch {
@@ -150,10 +149,13 @@ function normalizeAstMatch(value: unknown): AstMatch {
       ) {
         throw new Error(`invalid ast-grep metavariable ${key}`);
       }
-      return [key, {
-        text: candidate.text,
-        range: candidate.range
-      }];
+      return [
+        key,
+        {
+          text: candidate.text,
+          range: candidate.range
+        }
+      ];
     })
   );
   return {
@@ -168,11 +170,7 @@ function normalizeAstMatch(value: unknown): AstMatch {
 }
 
 function isAstRange(value: unknown): value is AstRange {
-  return (
-    isRecord(value) &&
-    isAstPosition(value.start) &&
-    isAstPosition(value.end)
-  );
+  return isRecord(value) && isAstPosition(value.start) && isAstPosition(value.end);
 }
 
 function isAstPosition(value: unknown): value is AstPosition {

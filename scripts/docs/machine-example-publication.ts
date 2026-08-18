@@ -10,15 +10,10 @@ import {
   type GeneratedMachineExampleFile
 } from "./machine-example-model.ts";
 
-const workspaceRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../.."
-);
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const encoder = new TextEncoder();
 
-export function publishMachineExampleFiles(
-  files: readonly GeneratedMachineExampleFile[]
-): void {
+export function publishMachineExampleFiles(files: readonly GeneratedMachineExampleFile[]): void {
   cleanCurrentExampleRoot();
   for (const file of files) {
     const absolutePath = resolvePublishedPath(file.relativePath);
@@ -78,10 +73,7 @@ function checkCurrentExampleInventory(): void {
   }
 }
 
-function checkOutcomeInventory(
-  outcome: string,
-  expectedFiles: ReadonlySet<string>
-): void {
+function checkOutcomeInventory(outcome: string, expectedFiles: ReadonlySet<string>): void {
   const outcomeRoot = `${MACHINE_EXAMPLES_ROOT}/${outcome}`;
   const entries = readPublishedDirectory(outcomeRoot);
   for (const entry of entries) {

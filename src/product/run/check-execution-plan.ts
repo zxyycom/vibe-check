@@ -1,8 +1,4 @@
-import type {
-  TaskGraph,
-  TaskNode,
-  TaskScope
-} from "../task-scheduler/index.ts";
+import type { TaskGraph, TaskNode, TaskScope } from "../task-scheduler/index.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
 
 /**

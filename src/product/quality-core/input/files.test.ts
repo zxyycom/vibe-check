@@ -76,10 +76,11 @@ describe("quality submodule input", () => {
       writeFixtureFile(submodulePath, "src/working.ts", "export const working = 2;\n");
       writeFixtureFile(submodulePath, "src/untracked.ts", "export const untracked = true;\n");
 
-      assert.deepEqual(
-        collectScanFiles(repository, config),
-        [committedPath, untrackedPath, workingPath]
-      );
+      assert.deepEqual(collectScanFiles(repository, config), [
+        committedPath,
+        untrackedPath,
+        workingPath
+      ]);
 
       const materialized = materializeBaselineRevision({
         baselineWorkDir: join(tempDir, "materialized"),
@@ -89,11 +90,62 @@ describe("quality submodule input", () => {
       assert.equal(materialized.ok, true, materialized.ok ? undefined : materialized.error);
       if (!materialized.ok) return;
 
-      assert.deepEqual(collectBaselineFiles(materialized.workDir, config), [committedPath, workingPath]);
+      assert.deepEqual(collectBaselineFiles(materialized.workDir, config), [
+        committedPath,
+        workingPath
+      ]);
       assert.equal(
         readFileSync(join(materialized.workDir, committedPath), "utf8").trim(),
         "export const committed = 1;"
       );
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("does not re-enter parent from a replaced HEAD gitlink", { timeout: 5_000 }, () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-submodule-transition-"));
+    const submoduleOrigin = join(tempDir, "submodule-origin");
+    const repository = join(tempDir, "repository");
+    const submodulePath = join(repository, "modules", "tool");
+    const config = {
+      excludeDirs: [".git"],
+      generatedFiles: [],
+      include: ["src/**/*.ts"]
+    } satisfies ScanInputConfig;
+
+    try {
+      initializeRepository(submoduleOrigin);
+      writeFixtureFile(submoduleOrigin, "lib/submodule.ts", "export const submodule = true;\n");
+      commitAll(submoduleOrigin, "submodule");
+
+      initializeRepository(repository);
+      writeFixtureFile(repository, "src/kept.ts", "export const kept = true;\n");
+      git(repository, [
+        "-c",
+        "protocol.file.allow=always",
+        "submodule",
+        "add",
+        submoduleOrigin,
+        "modules/tool"
+      ]);
+      commitAll(repository, "submodule gitlink");
+
+      git(repository, ["rm", "--cached", "--force", "modules/tool"]);
+      rmSync(join(submodulePath, ".git"), { force: true });
+      writeFixtureFile(submodulePath, "lib/replaced.ts", "export const replaced = true;\n");
+      git(repository, ["add", "modules/tool"]);
+
+      assert.deepEqual(collectScanFiles(repository, config), ["src/kept.ts"]);
+      const materialized = materializeBaselineRevision({
+        baselineWorkDir: join(tempDir, "materialized"),
+        commitSha: git(repository, ["rev-parse", "HEAD"]),
+        cwd: repository
+      });
+      assert.equal(materialized.ok, false);
+      if (!materialized.ok) {
+        assert.match(materialized.error, /not an independent Git worktree/u);
+      }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -129,13 +181,27 @@ describe("quality input file collection", () => {
       writeFixtureFile(projectRoot, ".gitignore", "src/ignored.ts\n");
       writeFixtureFile(projectRoot, "src/ignored.ts", "export const ignored = true;\n");
       writeFixtureFile(projectRoot, "src/kept.ts", "export const kept = true;\n");
-      writeFixtureFile(projectRoot, "src/generated/excluded.ts", "export const generated = true;\n");
+      writeFixtureFile(
+        projectRoot,
+        "src/generated/excluded.ts",
+        "export const generated = true;\n"
+      );
       writeFixtureFile(projectRoot, "src/vendor/excluded.ts", "export const vendor = true;\n");
       writeFixtureFile(projectRoot, "docs/excluded.md", "# Not included\n");
 
       const expected = ["src/ignored.ts", "src/kept.ts"];
       assert.deepEqual(collectScanFiles(projectRoot, config), expected);
       assert.deepEqual(collectBaselineFiles(projectRoot, config), expected);
+
+      const missingRoot = join(projectRoot, "missing-root");
+      assert.throws(
+        () => collectScanFiles(missingRoot, config),
+        /could not read directory .*missing-root/u
+      );
+      assert.throws(
+        () => collectBaselineFiles(missingRoot, config),
+        /could not read directory .*missing-root/u
+      );
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -152,12 +218,8 @@ describe("quality input file collection", () => {
     try {
       writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
 
-      assert.deepEqual(collectScanFiles(projectRoot, selectedConfig), [
-        "vendor/kept.ts"
-      ]);
-      assert.deepEqual(collectBaselineFiles(projectRoot, selectedConfig), [
-        "vendor/kept.ts"
-      ]);
+      assert.deepEqual(collectScanFiles(projectRoot, selectedConfig), ["vendor/kept.ts"]);
+      assert.deepEqual(collectBaselineFiles(projectRoot, selectedConfig), ["vendor/kept.ts"]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -185,11 +247,7 @@ describe("quality input file collection", () => {
       writeFixtureFile(repository, "src/untracked.ts", "export const untracked = true;\n");
       writeFixtureFile(fallbackRoot, "src/untracked.ts", "export const untracked = true;\n");
 
-      const expected = [
-        "src/component.tsx",
-        "src/nested/module.ts",
-        "src/untracked.ts"
-      ];
+      const expected = ["src/component.tsx", "src/nested/module.ts", "src/untracked.ts"];
       assert.deepEqual(collectScanFiles(repository, braceConfig), expected);
       assert.deepEqual(collectBaselineFiles(repository, braceConfig), expected);
       assert.deepEqual(collectScanFiles(fallbackRoot, braceConfig), expected);

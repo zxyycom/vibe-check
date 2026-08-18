@@ -1,18 +1,15 @@
 [mcp_servers.codegraph]
 command = "codegraph"
-args = [
-    "serve",
-    "--mcp",
-]
+args = ["serve", "--mcp"]
 enabled_tools = [
-    "codegraph_search",
-    "codegraph_node",
-    "codegraph_callers",
-    "codegraph_callees",
-    "codegraph_impact",
-    "codegraph_files",
-    "codegraph_status",
-    "codegraph_trace",
+  "codegraph_search",
+  "codegraph_node",
+  "codegraph_callers",
+  "codegraph_callees",
+  "codegraph_impact",
+  "codegraph_files",
+  "codegraph_status",
+  "codegraph_trace"
 ]
 default_tools_approval_mode = "approve"
 [mcp_servers.codegraph.env]

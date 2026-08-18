@@ -7,18 +7,20 @@ import { logDir, root } from "./paths.ts";
 
 export function createLogPaths(): string[] {
   const timestamp = new Date().toISOString().replace(/[:]/g, "-");
-  return [
-    path.join(logDir, "latest.log"),
-    path.join(logDir, `${timestamp}.log`)
-  ];
+  return [path.join(logDir, "latest.log"), path.join(logDir, `${timestamp}.log`)];
 }
 
-export function initializeLogs(
-  logPaths: readonly string[],
-  profile: string,
-  totalChecks: number,
-  leafChecks: number
-): void {
+export function initializeLogs({
+  leafChecks,
+  logPaths,
+  profile,
+  totalChecks
+}: {
+  readonly leafChecks: number;
+  readonly logPaths: readonly string[];
+  readonly profile: string;
+  readonly totalChecks: number;
+}): void {
   fs.mkdirSync(logDir, { recursive: true });
   for (const logPath of logPaths) {
     fs.writeFileSync(
@@ -40,7 +42,7 @@ export function initializeLogs(
 export function appendLog(logPaths: readonly string[], result: CheckResult): void {
   const section = [
     `## ${result.check.label}`,
-    `$ ${formatCommandLine(result.check.command, result.check.args)}`,
+    `$ ${formatCommandLine({ args: result.check.args, command: result.check.command })}`,
     `exit: ${result.exitCode}`,
     `duration: ${formatDurationMs(result.durationMs)}`,
     result.error ? `process_error: ${result.error.message}` : null,
@@ -64,14 +66,19 @@ export function finalizeLogs(logPaths: readonly string[], totalDurationMs: numbe
   }
 }
 
-function formatCommandLine(command: string, args: readonly string[] = []): string {
+function formatCommandLine({
+  args,
+  command
+}: {
+  readonly args: readonly string[];
+  readonly command: string;
+}): string {
   return [command, ...args].map(quoteCommandArg).join(" ");
 }
 
 function quoteCommandArg(value: string): string {
-  const text = String(value);
-  if (/^[A-Za-z0-9_./:=@+%\\-]+$/.test(text)) {
-    return text;
+  if (/^[A-Za-z0-9_./:=@+%\\-]+$/.test(value)) {
+    return value;
   }
-  return `"${text.replace(/"/g, "\\\"")}"`;
+  return `"${value.replace(/"/g, '\\"')}"`;
 }

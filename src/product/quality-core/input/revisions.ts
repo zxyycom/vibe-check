@@ -8,11 +8,7 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-import {
-  processFailed,
-  runGit,
-  runProcessSync
-} from "../../foundation/index.ts";
+import { processFailed, runGit, runProcessSync } from "../../foundation/index.ts";
 import { materializeRevisionGitlinks } from "./revision-materialization.ts";
 
 type MaterializeBaselineResult =
@@ -34,13 +30,10 @@ export function resolveBaselineCommitSha({
     return unavailableBaselineRevision();
   }
 
-  const result = runGit([
-    "rev-parse",
-    "--verify",
-    "--quiet",
-    "--end-of-options",
-    `${revision}^{commit}`
-  ], { cwd });
+  const result = runGit({
+    args: ["rev-parse", "--verify", "--quiet", "--end-of-options", `${revision}^{commit}`],
+    cwd
+  });
   if (result.error) {
     throw new Error(
       "failed to resolve comparison revision because Git could not run; verify Git and project root access",
@@ -84,12 +77,8 @@ export function materializeBaselineRevision({
 
   const archivePath = join(baselineWorkDir, "baseline.tar");
 
-  const archiveResult = runGit([
-    "archive",
-    "--format=tar",
-    "--output", archivePath,
-    commitSha
-  ], {
+  const archiveResult = runGit({
+    args: ["archive", "--format=tar", "--output", archivePath, commitSha],
     cwd
   });
 
@@ -104,7 +93,11 @@ export function materializeBaselineRevision({
   const untarDir = join(baselineWorkDir, "repo");
   mkdirSync(untarDir, { recursive: true });
 
-  const untarResult = runProcessSync("tar", ["-xf", archivePath, "-C", untarDir], { cwd: baselineWorkDir });
+  const untarResult = runProcessSync({
+    args: ["-xf", archivePath, "-C", untarDir],
+    command: "tar",
+    cwd: baselineWorkDir
+  });
 
   if (processFailed(untarResult)) {
     return {

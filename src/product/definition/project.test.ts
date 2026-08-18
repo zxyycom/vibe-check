@@ -59,16 +59,19 @@ describe("Project Definition", () => {
     } satisfies Check;
     const normalized = normalizeProjectDefinition(defineConfig({ checks: [informationRoot] }));
 
-    assert.deepEqual(normalized.checks.map((check) => check.definition.checkId), [
-      "parent-check",
-      "child-check"
-    ]);
+    assert.deepEqual(
+      normalized.checks.map((check) => check.definition.checkId),
+      ["parent-check", "child-check"]
+    );
     assert.deepEqual(normalized.checks[0]?.definition.recordTypes, []);
     assert.deepEqual(normalized.checks[0]?.dependsOn, ["prepare"]);
     assert.deepEqual(normalized.checks[0]?.mutex, ["analysis"]);
     assert.equal(normalized.checks[0]?.maxParallel, 2);
     assert.equal(normalized.checks[1]?.maxParallel, 2);
-    assert.equal(normalized.declarative.checks.some((check) => "execution" in check), false);
+    assert.equal(
+      normalized.declarative.checks.some((check) => "execution" in check),
+      false
+    );
   });
 
   it("uses exact collections, clears, and marked inheritance while keeping canonical scheduling", () => {
@@ -95,16 +98,22 @@ describe("Project Definition", () => {
     } satisfies Check;
     const checks = normalizeProjectDefinition(defineConfig({ checks: [parent] })).checks;
 
-    assert.deepEqual(checks.find(({ definition }) => definition.checkId === "inherited-check")?.dependsOn, [
-      "compile",
-      "prepare"
-    ]);
-    assert.deepEqual(checks.find(({ definition }) => definition.checkId === "inherited-check")?.mutex, [
-      "compiler",
-      "shared"
-    ]);
-    assert.deepEqual(checks.find(({ definition }) => definition.checkId === "cleared-check")?.dependsOn, []);
-    assert.deepEqual(checks.find(({ definition }) => definition.checkId === "cleared-check")?.mutex, []);
+    assert.deepEqual(
+      checks.find(({ definition }) => definition.checkId === "inherited-check")?.dependsOn,
+      ["compile", "prepare"]
+    );
+    assert.deepEqual(
+      checks.find(({ definition }) => definition.checkId === "inherited-check")?.mutex,
+      ["compiler", "shared"]
+    );
+    assert.deepEqual(
+      checks.find(({ definition }) => definition.checkId === "cleared-check")?.dependsOn,
+      []
+    );
+    assert.deepEqual(
+      checks.find(({ definition }) => definition.checkId === "cleared-check")?.mutex,
+      []
+    );
   });
 
   it("accepts empty information-only Checks and returns their non-blocking warnings", () => {
@@ -115,21 +124,27 @@ describe("Project Definition", () => {
 
     assert.equal(validated.ok, true);
     if (!validated.ok) throw new TypeError("information-only Check must be valid");
-    assert.deepEqual(validated.warnings, [{
-      code: "meaningless-check",
-      path: "definition.checks[0]",
-      checkId: "notes"
-    }]);
+    assert.deepEqual(validated.warnings, [
+      {
+        code: "meaningless-check",
+        path: "definition.checks[0]",
+        checkId: "notes"
+      }
+    ]);
     assert.deepEqual(normalizeProjectDefinition(definition).definitionWarnings, validated.warnings);
   });
 
   it("fails closed for malformed nodes, options, and unmarked inheritance objects", () => {
-    const valid = defineConfig({ checks: [defineCheck({
-      checkId: "valid-check",
-      displayName: "Valid check",
-      execution: completed
-    })] });
-    const accessor = { ...valid.checks[0]! };
+    const valid = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "valid-check",
+          displayName: "Valid check",
+          execution: completed
+        })
+      ]
+    });
+    const accessor = { ...valid.checks[0] };
     Object.defineProperty(accessor, "execution", {
       enumerable: true,
       get: () => completed
@@ -149,40 +164,61 @@ describe("Project Definition", () => {
 
     const cyclic: Record<string, unknown> = {};
     cyclic.self = cyclic;
-    assert.equal(validateProjectDefinition({
-      ...valid,
-      checks: [{ ...valid.checks[0], options: cyclic }]
-    }).ok, false);
+    assert.equal(
+      validateProjectDefinition({
+        ...valid,
+        checks: [{ ...valid.checks[0], options: cyclic }]
+      }).ok,
+      false
+    );
   });
 
   it("fingerprints canonical declarative data, including options but not execution functions", () => {
-    const first = defineConfig({ checks: [defineCheck({
-      checkId: "check",
-      displayName: "Check",
-      options: { threshold: 2, nested: { mode: "strict" } },
-      dependsOn: ["prepare", "compile"],
-      execution: completed
-    })] });
-    const second = defineConfig({ checks: [defineCheck({
-      checkId: "check",
-      displayName: "Check",
-      options: { nested: { mode: "strict" }, threshold: 2 },
-      dependsOn: ["compile", "prepare", "compile"],
-      execution: async () => completed()
-    })] });
-    const differentOptions = defineConfig({ checks: [defineCheck({
-      checkId: "check",
-      displayName: "Check",
-      options: { threshold: 3, nested: { mode: "strict" } },
-      dependsOn: ["compile", "prepare"],
-      execution: completed
-    })] });
+    const first = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "check",
+          displayName: "Check",
+          options: { threshold: 2, nested: { mode: "strict" } },
+          dependsOn: ["prepare", "compile"],
+          execution: completed
+        })
+      ]
+    });
+    const second = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "check",
+          displayName: "Check",
+          options: { nested: { mode: "strict" }, threshold: 2 },
+          dependsOn: ["compile", "prepare", "compile"],
+          execution: async () => completed()
+        })
+      ]
+    });
+    const differentOptions = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "check",
+          displayName: "Check",
+          options: { threshold: 3, nested: { mode: "strict" } },
+          dependsOn: ["compile", "prepare"],
+          execution: completed
+        })
+      ]
+    });
 
-    const firstFingerprint = createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative);
-    assert.equal(firstFingerprint, createDeclarativeFingerprint(normalizeProjectDefinition(second).declarative));
-    assert.notEqual(firstFingerprint, createDeclarativeFingerprint(
-      normalizeProjectDefinition(differentOptions).declarative
-    ));
+    const firstFingerprint = createDeclarativeFingerprint(
+      normalizeProjectDefinition(first).declarative
+    );
+    assert.equal(
+      firstFingerprint,
+      createDeclarativeFingerprint(normalizeProjectDefinition(second).declarative)
+    );
+    assert.notEqual(
+      firstFingerprint,
+      createDeclarativeFingerprint(normalizeProjectDefinition(differentOptions).declarative)
+    );
   });
 
   it("keeps complete default Checks mutable through native nested spread before Definition validation", () => {
@@ -210,25 +246,35 @@ describe("Project Definition", () => {
       options: {
         scanner: { executable: "scc" }
       }
-    } as unknown as Check;
+    };
     const invalidConcurrency = {
       ...duplicateDetection,
       options: {
         ...duplicateDetection.options,
         scanner: { ...duplicateDetection.options.scanner, maxConcurrency: 0 }
       }
-    } as unknown as Check;
+    };
     const unknownCodeArea = {
       ...duplicateDetection,
       options: {
         ...duplicateDetection.options,
         minimumTokensByCodeArea: { unknown: 100 }
       }
-    } as unknown as Check;
+    };
+    const uncheckedDefinition = defineConfig({});
 
-    assert.equal(validateProjectDefinition(defineConfig({ checks: [incomplete] })).ok, false);
-    assert.equal(validateProjectDefinition(defineConfig({ checks: [invalidConcurrency] })).ok, false);
-    assert.equal(validateProjectDefinition(defineConfig({ checks: [unknownCodeArea] })).ok, false);
+    assert.equal(
+      validateProjectDefinition({ ...uncheckedDefinition, checks: [incomplete] }).ok,
+      false
+    );
+    assert.equal(
+      validateProjectDefinition({ ...uncheckedDefinition, checks: [invalidConcurrency] }).ok,
+      false
+    );
+    assert.equal(
+      validateProjectDefinition({ ...uncheckedDefinition, checks: [unknownCodeArea] }).ok,
+      false
+    );
   });
 
   // @ts-expect-error defineConfig rejects unknown top-level authoring keys.

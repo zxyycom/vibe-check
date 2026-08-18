@@ -33,9 +33,11 @@ interface EvidenceResult {
 }
 
 function requiredReferencePairs(resolution: PolicyResolution): ReadonlySet<string> {
-  return new Set(resolution.policy?.references.flatMap((requirement) => (
-    requirement.checkIds.map((checkId) => checkReferenceKey(checkId, requirement.referenceName))
-  )) ?? []);
+  return new Set(
+    resolution.policy?.references.flatMap((requirement) =>
+      requirement.checkIds.map((checkId) => checkReferenceKey(checkId, requirement.referenceName))
+    ) ?? []
+  );
 }
 
 function validateEvidenceItem(
@@ -46,15 +48,23 @@ function validateEvidenceItem(
 ): ValidationResult<CheckReferenceEvidence> {
   const shape = closed(value, path, ["checkId", "referenceName", "status"]);
   if (!shape.ok) return shape;
-  if (!isStableId(shape.value.checkId) || !isStableId(shape.value.referenceName)
-    || !context.referencesByName.has(shape.value.referenceName)) {
+  if (
+    !isStableId(shape.value.checkId) ||
+    !isStableId(shape.value.referenceName) ||
+    !context.referencesByName.has(shape.value.referenceName)
+  ) {
     return issue(path, "identity-mismatch", "Unknown Check/reference evidence identity");
   }
   const pair = checkReferenceKey(shape.value.checkId, shape.value.referenceName);
   if (!context.requiredPairs.has(pair)) {
-    return issue(path, "identity-mismatch", "Reference evidence is not required by the selected policy");
+    return issue(
+      path,
+      "identity-mismatch",
+      "Reference evidence is not required by the selected policy"
+    );
   }
-  if (evidenceByPair.has(pair)) return issue(path, "duplicate", "Duplicate Check/reference evidence");
+  if (evidenceByPair.has(pair))
+    return issue(path, "duplicate", "Duplicate Check/reference evidence");
   if (!isReferenceEvidenceStatus(shape.value.status)) {
     return issue(`${path}.status`, "invalid-value", "Unknown reference evidence status");
   }
@@ -72,14 +82,25 @@ function validateEvidence(
   const evidence: CheckReferenceEvidence[] = [];
   const evidenceByPair = new Map<string, CheckReferenceEvidence>();
   for (let index = 0; index < value.length; index += 1) {
-    const item = validateEvidenceItem(value[index], `$.evidence[${index}]`, context, evidenceByPair);
+    const item = validateEvidenceItem(
+      value[index],
+      `$.evidence[${index}]`,
+      context,
+      evidenceByPair
+    );
     if (!item.ok) return item;
     evidence.push(item.value);
     evidenceByPair.set(referenceEvidenceKey(item.value), item.value);
   }
-  if (evidenceByPair.size !== context.requiredPairs.size
-    || [...context.requiredPairs].some((pair) => !evidenceByPair.has(pair))) {
-    return issue("$.evidence", "missing-field", "Every required Check/reference pair needs one evidence status");
+  if (
+    evidenceByPair.size !== context.requiredPairs.size ||
+    [...context.requiredPairs].some((pair) => !evidenceByPair.has(pair))
+  ) {
+    return issue(
+      "$.evidence",
+      "missing-field",
+      "Every required Check/reference pair needs one evidence status"
+    );
   }
   return accepted({ evidence, evidenceByPair });
 }
@@ -89,25 +110,45 @@ function validateRelationIdentity(
   path: string,
   context: FactsContext,
   evidenceByPair: ReadonlyMap<string, CheckReferenceEvidence>
-): ValidationResult<Readonly<{ record: QualityRecord; referenceName: string; relationId: string }>> {
+): ValidationResult<
+  Readonly<{ record: QualityRecord; referenceName: string; relationId: string }>
+> {
   if (typeof shape.recordId !== "string") {
     return issue(`${path}.recordId`, "invalid-value", "Invalid record identity");
   }
   const record = context.recordsById.get(shape.recordId);
   if (record === undefined) {
-    return issue(`${path}.recordId`, "identity-mismatch", "Relation record is not in the current snapshot");
+    return issue(
+      `${path}.recordId`,
+      "identity-mismatch",
+      "Relation record is not in the current snapshot"
+    );
   }
-  if (!isStableId(shape.referenceName)
-    || !context.requiredPairs.has(checkReferenceKey(record.checkId, shape.referenceName))) {
-    return issue(`${path}.referenceName`, "identity-mismatch", "Relation reference is not declared for the owning Check");
+  if (
+    !isStableId(shape.referenceName) ||
+    !context.requiredPairs.has(checkReferenceKey(record.checkId, shape.referenceName))
+  ) {
+    return issue(
+      `${path}.referenceName`,
+      "identity-mismatch",
+      "Relation reference is not declared for the owning Check"
+    );
   }
   const pairEvidence = evidenceByPair.get(checkReferenceKey(record.checkId, shape.referenceName))!;
   if (pairEvidence.status !== "complete") {
-    return issue(path, "invalid-value", "Incomplete reference evidence cannot publish comparison relations");
+    return issue(
+      path,
+      "invalid-value",
+      "Incomplete reference evidence cannot publish comparison relations"
+    );
   }
   const surface = context.surfacesBySelector.get(selectorKey(record));
   if (!isStableId(shape.relationId) || !surface?.relations.includes(shape.relationId)) {
-    return issue(`${path}.relationId`, "identity-mismatch", "Relation variant is not registered by the record descriptor");
+    return issue(
+      `${path}.relationId`,
+      "identity-mismatch",
+      "Relation variant is not registered by the record descriptor"
+    );
   }
   return accepted({ record, referenceName: shape.referenceName, relationId: shape.relationId });
 }
@@ -161,14 +202,15 @@ function sortedFacts(
   relations: readonly ComparisonRelation[]
 ): ReferenceFacts {
   return {
-    evidence: [...evidence].sort((left, right) => compareText(
-      referenceEvidenceKey(left),
-      referenceEvidenceKey(right)
-    )),
-    relations: [...relations].sort((left, right) => compareText(
-      `${left.recordId}\u0000${left.referenceName}`,
-      `${right.recordId}\u0000${right.referenceName}`
-    ))
+    evidence: [...evidence].sort((left, right) =>
+      compareText(referenceEvidenceKey(left), referenceEvidenceKey(right))
+    ),
+    relations: [...relations].sort((left, right) =>
+      compareText(
+        `${left.recordId}\u0000${left.referenceName}`,
+        `${right.recordId}\u0000${right.referenceName}`
+      )
+    )
   };
 }
 
@@ -187,7 +229,9 @@ export function validateReferenceFactsData(
   }
   const context: FactsContext = {
     requiredPairs: requiredReferencePairs(resolution),
-    referencesByName: new Map(resolution.references.map((reference) => [reference.referenceName, reference])),
+    referencesByName: new Map(
+      resolution.references.map((reference) => [reference.referenceName, reference])
+    ),
     surfacesBySelector: new Map(surfaces.map((surface) => [selectorKey(surface), surface])),
     recordsById: new Map(snapshot.records.map((record) => [record.recordId, record]))
   };

@@ -19,8 +19,9 @@ function processErrorFor(result: ExecaResultLike, label = "process"): Error | un
     return undefined;
   }
 
-  const message = result.originalMessage ?? result.shortMessage ?? result.message ?? `${label} failed`;
-  const error = new Error(message) as NodeJS.ErrnoException;
+  const message =
+    result.originalMessage ?? result.shortMessage ?? result.message ?? `${label} failed`;
+  const error: NodeJS.ErrnoException = new Error(message);
   if (result.code) {
     error.code = result.code;
   }

@@ -14,11 +14,7 @@ export function validateMarkdownLinks(): void {
     const text = fs.readFileSync(filePath, "utf8");
     for (const match of text.matchAll(linkPattern)) {
       const rawTarget = match[1]?.trim().replace(/^<|>$/g, "") ?? "";
-      if (
-        rawTarget === "" ||
-        rawTarget.startsWith("#") ||
-        /^(https?|mailto):/i.test(rawTarget)
-      ) {
+      if (rawTarget === "" || rawTarget.startsWith("#") || /^(https?|mailto):/i.test(rawTarget)) {
         continue;
       }
 
@@ -62,7 +58,5 @@ function markdownFilesForLinkValidation(): string[] {
     }
   }
 
-  return [...new Set(markdownFiles)].sort((left, right) =>
-    toRel(left).localeCompare(toRel(right))
-  );
+  return [...new Set(markdownFiles)].sort((left, right) => toRel(left).localeCompare(toRel(right)));
 }

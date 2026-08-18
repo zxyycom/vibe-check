@@ -14,7 +14,7 @@ describe("quality lizard availability projection", () => {
     const dependency = createFakeVersionToolConfig({
       stdout: "",
       stderr: "No module named lizard",
-      exitCode: 1,
+      exitCode: 1
     });
 
     try {
@@ -23,10 +23,7 @@ describe("quality lizard availability projection", () => {
       assert.equal(result.available, false);
       assert.equal(result.reason, "execution-error");
       assert.equal(result.version, null);
-      assert.match(
-        result.error ?? "",
-        /lizard --version failed, exit 1: No module named lizard/,
-      );
+      assert.match(result.error ?? "", /lizard --version failed, exit 1: No module named lizard/);
     } finally {
       dependency.cleanup();
     }
@@ -36,10 +33,7 @@ describe("quality lizard availability projection", () => {
     const result = await checkLizard(REPO_ROOT, {
       args: [],
       availabilityArgs: ["--version"],
-      executable: join(
-        REPO_ROOT,
-        `vibe-check-missing-lizard-${process.pid}.cmd`,
-      ),
+      executable: join(REPO_ROOT, `vibe-check-missing-lizard-${process.pid}.cmd`)
     });
 
     assert.equal(result.available, false);
@@ -51,15 +45,13 @@ describe("quality lizard availability projection", () => {
 function createFakeVersionToolConfig({
   stdout,
   stderr,
-  exitCode,
+  exitCode
 }: {
   exitCode: number;
   stderr: string;
   stdout: string;
 }) {
-  const tempDir = mkdtempSync(
-    join(tmpdir(), "vibe-check-quality-version-tool-"),
-  );
+  const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-version-tool-"));
   const fakeToolPath = join(tempDir, "fake-version-tool.ts");
 
   writeFileSync(
@@ -69,13 +61,13 @@ process.stdout.write(${JSON.stringify(stdout)});
 console.error(${JSON.stringify(stderr)});
 process.exit(${JSON.stringify(exitCode)});
 `,
-    "utf8",
+    "utf8"
   );
 
   return {
     args: [fakeToolPath],
     availabilityArgs: [fakeToolPath, "--version"],
     executable: process.execPath,
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true }),
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

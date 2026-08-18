@@ -17,14 +17,20 @@ interface ScanWithLizardOptions {
   files: readonly string[];
 }
 
-export function scanWithLizard({ files, cwd, dependency }: ScanWithLizardOptions): LizardScanResult {
+export function scanWithLizard({
+  files,
+  cwd,
+  dependency
+}: ScanWithLizardOptions): LizardScanResult {
   if (files.length === 0) {
     return { ok: true, measurements: [] };
   }
 
   const argv = [...dependency.args, ...files, "--csv"];
 
-  const child = runProcessSync(dependency.executable, argv, {
+  const child = runProcessSync({
+    args: argv,
+    command: dependency.executable,
     cwd,
     timeout: 300_000
   });

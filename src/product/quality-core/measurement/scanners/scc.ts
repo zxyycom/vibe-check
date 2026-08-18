@@ -9,7 +9,12 @@ import { runProcessSync } from "../../../foundation/index.ts";
 import type { FileScannerDependency } from "../../../scanner-dependencies/index.ts";
 import { parseSccCSV, type SccScanResult } from "./scc/parser.ts";
 
-export { SCC_VERSION, SCC_VERSION_OUTPUT, SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./scc/parser.ts";
+export {
+  SCC_VERSION,
+  SCC_VERSION_OUTPUT,
+  SCC_BY_FILE_CSV_HEADER,
+  parseSccCSV
+} from "./scc/parser.ts";
 
 interface ScanWithSccOptions {
   cwd: string;
@@ -18,14 +23,21 @@ interface ScanWithSccOptions {
   includePaths: readonly string[];
 }
 
-export function scanWithScc({ cwd, dependency, includePaths, excludeDirs }: ScanWithSccOptions): SccScanResult {
+export function scanWithScc({
+  cwd,
+  dependency,
+  includePaths,
+  excludeDirs
+}: ScanWithSccOptions): SccScanResult {
   if (includePaths.length === 0) {
     return { ok: true, measurements: [], aggregates: { byLanguage: [] } };
   }
 
   const argv = buildSccArgs({ includePaths, excludeDirs, dependencyArgs: dependency.args });
 
-  const child = runProcessSync(dependency.executable, argv, {
+  const child = runProcessSync({
+    args: argv,
+    command: dependency.executable,
     cwd,
     timeout: 300_000
   });

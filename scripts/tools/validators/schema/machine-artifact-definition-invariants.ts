@@ -50,16 +50,21 @@ function validateCheckDefinition(
       );
     }
     recordTypeIds.add(recordType.recordTypeId);
-    const failure = validateRecordTypeDefinition(recordType, checkIndex, recordTypeIndex, artifactRoot);
+    const failure = validateRecordTypeDefinition(
+      recordType,
+      checkIndex,
+      recordTypeIndex,
+      artifactRoot
+    );
     if (failure !== null) return failure;
   }
   return isCanonical(check.recordTypes, ({ recordTypeId }) => recordTypeId)
     ? null
     : definitionFailure(
-      artifactRoot,
-      `/checks/${checkIndex}/recordTypes`,
-      "Record type definitions must use canonical unique recordTypeId order."
-    );
+        artifactRoot,
+        `/checks/${checkIndex}/recordTypes`,
+        "Record type definitions must use canonical unique recordTypeId order."
+      );
 }
 
 function validateRecordTypeDefinition(
@@ -161,10 +166,10 @@ function validatePolicySurface(
   return isCanonicalText(policy.relations)
     ? null
     : definitionFailure(
-      artifactRoot,
-      `${basePointer}/policy/relations`,
-      "Policy relations must use canonical unique relationId order."
-    );
+        artifactRoot,
+        `${basePointer}/policy/relations`,
+        "Policy relations must use canonical unique relationId order."
+      );
 }
 
 function validatePolicyOperandSource(
@@ -182,10 +187,10 @@ function validatePolicyOperandSource(
       return operand.valueType === "string"
         ? null
         : definitionFailure(
-          artifactRoot,
-          `${basePointer}/valueType`,
-          "Built-in textual policy operands require string valueType."
-        );
+            artifactRoot,
+            `${basePointer}/valueType`,
+            "Built-in textual policy operands require string valueType."
+          );
     default:
       return definitionFailure(
         artifactRoot,
@@ -207,10 +212,10 @@ function validateFieldOperand(
   return compatibleValueType === operand.valueType
     ? null
     : definitionFailure(
-      artifactRoot,
-      `${basePointer}/source/fieldId`,
-      "Policy field operand must bind a compatible declared field."
-    );
+        artifactRoot,
+        `${basePointer}/source/fieldId`,
+        "Policy field operand must bind a compatible declared field."
+      );
 }
 
 function definitionFailure(

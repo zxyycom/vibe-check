@@ -32,15 +32,20 @@ export interface RunTaskGraphOptions<TResult> {
   readonly graph: TaskGraph;
   readonly maxParallel: number;
   readonly signal?: AbortSignal;
-  readonly execute: (task: PlannedTask, context: TaskExecutionContext) => TResult | Promise<TResult>;
+  readonly execute: (
+    task: PlannedTask,
+    context: TaskExecutionContext
+  ) => TResult | Promise<TResult>;
 }
+
+type RunningTaskCompletion<TResult> = Readonly<{
+  readonly taskId: string;
+  readonly settlement: TaskSettlement<TResult>;
+}>;
 
 interface RunningTask<TResult> {
   readonly task: PlannedTask;
-  readonly completion: Promise<Readonly<{
-    readonly taskId: string;
-    readonly settlement: TaskSettlement<TResult>;
-  }>>;
+  readonly completion: Promise<RunningTaskCompletion<TResult>>;
 }
 
 interface RuntimeScope {
@@ -90,13 +95,15 @@ export async function runTaskGraph<TResult>(
 
   return Object.freeze({
     cancelled: state.isCancelled,
-    settlements: Object.freeze(graph.tasks.map((task) => {
-      const settlement = state.settlementsByTaskId.get(task.id);
-      if (settlement === undefined) {
-        throw new Error(`task ${task.id} was not settled`);
-      }
-      return Object.freeze({ task, settlement });
-    }))
+    settlements: Object.freeze(
+      graph.tasks.map((task) => {
+        const settlement = state.settlementsByTaskId.get(task.id);
+        if (settlement === undefined) {
+          throw new Error(`task ${task.id} was not settled`);
+        }
+        return Object.freeze({ task, settlement });
+      })
+    )
   });
 }
 
@@ -149,10 +156,14 @@ function settleBlockedPendingTasks<TResult>(state: SchedulerState<TResult>): voi
         continue;
       }
       state.pending.splice(index, 1);
-      recordSettlement(state, task, Object.freeze({
-        kind: "blocked",
-        dependencyIds: Object.freeze(dependencyIds)
-      }));
+      recordSettlement(
+        state,
+        task,
+        Object.freeze({
+          kind: "blocked",
+          dependencyIds: Object.freeze(dependencyIds)
+        })
+      );
       didSettleBlockedTask = true;
     }
   }
@@ -162,15 +173,15 @@ function blockingDependencyIds<TResult>(
   task: PlannedTask,
   settlementsByTaskId: ReadonlyMap<string, TaskSettlement<TResult>>
 ): string[] | undefined {
-  const settlements = task.dependsOn.map((dependencyId) => (
-    [dependencyId, settlementsByTaskId.get(dependencyId)] as const
-  ));
+  const settlements = task.dependsOn.map(
+    (dependencyId) => [dependencyId, settlementsByTaskId.get(dependencyId)] as const
+  );
   if (settlements.some(([, settlement]) => settlement === undefined)) {
     return undefined;
   }
-  const dependencyIds = settlements.flatMap(([dependencyId, settlement]) => (
+  const dependencyIds = settlements.flatMap(([dependencyId, settlement]) =>
     settlement?.kind === "completed" ? [] : [dependencyId]
-  ));
+  );
   return dependencyIds.length === 0 ? undefined : dependencyIds;
 }
 
@@ -241,9 +252,11 @@ function reservedTask<TResult>(
 }
 
 function canAdmitTask<TResult>(task: PlannedTask, state: SchedulerState<TResult>): boolean {
-  return task.dependsOn.every((dependencyId) => (
-    state.settlementsByTaskId.get(dependencyId)?.kind === "completed"
-  )) && task.mutex.every((mutex) => !state.runningMutexes.has(mutex));
+  return (
+    task.dependsOn.every(
+      (dependencyId) => state.settlementsByTaskId.get(dependencyId)?.kind === "completed"
+    ) && task.mutex.every((mutex) => !state.runningMutexes.has(mutex))
+  );
 }
 
 function effectiveMaxParallelFor<TResult>(state: SchedulerState<TResult>): number {
@@ -256,7 +269,10 @@ function effectiveMaxParallelFor<TResult>(state: SchedulerState<TResult>): numbe
   return effective;
 }
 
-function prospectiveMaxParallel<TResult>(state: SchedulerState<TResult>, task: PlannedTask): number {
+function prospectiveMaxParallel<TResult>(
+  state: SchedulerState<TResult>,
+  task: PlannedTask
+): number {
   const scope = scopeForTask(task, state);
   return scope?.activationTaskIds.has(task.id) === true && !scope.isActive
     ? Math.min(effectiveMaxParallelFor(state), scope.scope.maxParallel)
@@ -269,9 +285,11 @@ function activatesTighteningScope<TResult>(
   effectiveMaxParallel: number
 ): boolean {
   const scope = scopeForTask(task, state);
-  return scope?.activationTaskIds.has(task.id) === true
-    && !scope.isActive
-    && scope.scope.maxParallel < effectiveMaxParallel;
+  return (
+    scope?.activationTaskIds.has(task.id) === true &&
+    !scope.isActive &&
+    scope.scope.maxParallel < effectiveMaxParallel
+  );
 }
 
 function isConstrainedContinuation<TResult>(
@@ -280,9 +298,11 @@ function isConstrainedContinuation<TResult>(
   effectiveMaxParallel: number
 ): boolean {
   const scope = scopeForTask(task, state);
-  return scope?.isActive === true
-    && scope.scope.maxParallel < state.maxParallel
-    && scope.scope.maxParallel === effectiveMaxParallel;
+  return (
+    scope?.isActive === true &&
+    scope.scope.maxParallel < state.maxParallel &&
+    scope.scope.maxParallel === effectiveMaxParallel
+  );
 }
 
 function compareConstrainedTasks<TResult>(
@@ -295,9 +315,11 @@ function compareConstrainedTasks<TResult>(
   if (leftScope === undefined || rightScope === undefined) {
     throw new Error("constrained task is missing a scope");
   }
-  return leftScope.scope.maxParallel - rightScope.scope.maxParallel
-    || compareText(leftScope.scope.id, rightScope.scope.id)
-    || compareText(left.id, right.id);
+  return (
+    leftScope.scope.maxParallel - rightScope.scope.maxParallel ||
+    compareText(leftScope.scope.id, rightScope.scope.id) ||
+    compareText(left.id, right.id)
+  );
 }
 
 function compareText(left: string, right: string): number {
@@ -326,26 +348,36 @@ function admitTask<TResult>(state: SchedulerState<TResult>, task: PlannedTask): 
 
   const completion = Promise.resolve()
     .then(() => state.execute(task, Object.freeze({ signal: state.signal })))
-    .then((value) => Object.freeze({
-      taskId: task.id,
-      settlement: Object.freeze({ kind: "completed", value }) as TaskSettlement<TResult>
-    }))
-    .catch((error: unknown) => Object.freeze({
-      taskId: task.id,
-      settlement: Object.freeze({ kind: "failed", error }) as TaskSettlement<TResult>
-    }));
+    .then((value) => completedTaskCompletion(task.id, value))
+    .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
   state.runningById.set(task.id, { task, completion });
+}
+
+function completedTaskCompletion<TResult>(
+  taskId: string,
+  value: TResult
+): RunningTaskCompletion<TResult> {
+  const settlement: TaskSettlement<TResult> = { kind: "completed", value };
+  return Object.freeze({ taskId, settlement: Object.freeze(settlement) });
+}
+
+function failedTaskCompletion<TResult>(
+  taskId: string,
+  error: unknown
+): RunningTaskCompletion<TResult> {
+  const settlement: TaskSettlement<TResult> = { kind: "failed", error };
+  return Object.freeze({ taskId, settlement: Object.freeze(settlement) });
 }
 
 async function nextRunningSettlement<TResult>(
   state: SchedulerState<TResult>
-): Promise<Readonly<{ readonly taskId: string; readonly settlement: TaskSettlement<TResult> }>> {
+): Promise<RunningTaskCompletion<TResult>> {
   return Promise.race([...state.runningById.values()].map((running) => running.completion));
 }
 
 function settleRunningTask<TResult>(
   state: SchedulerState<TResult>,
-  result: Readonly<{ readonly taskId: string; readonly settlement: TaskSettlement<TResult> }>
+  result: RunningTaskCompletion<TResult>
 ): void {
   const running = state.runningById.get(result.taskId);
   if (running === undefined) {
@@ -381,8 +413,12 @@ function scopeForTask<TResult>(
 }
 
 function describePendingTasks<TResult>(state: SchedulerState<TResult>): string {
-  return state.pending.map((task) => {
-    const unsettled = task.dependsOn.filter((dependencyId) => !state.settlementsByTaskId.has(dependencyId));
-    return unsettled.length > 0 ? `${task.id} waits for ${unsettled.join(", ")}` : task.id;
-  }).join("; ");
+  return state.pending
+    .map((task) => {
+      const unsettled = task.dependsOn.filter(
+        (dependencyId) => !state.settlementsByTaskId.has(dependencyId)
+      );
+      return unsettled.length > 0 ? `${task.id} waits for ${unsettled.join(", ")}` : task.id;
+    })
+    .join("; ");
 }

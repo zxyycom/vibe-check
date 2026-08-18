@@ -6,7 +6,7 @@ export const WARNING_POLICIES = Object.freeze([
   "exclude-warnings"
 ] as const);
 
-export type CodeAreaWarningPolicy = typeof WARNING_POLICIES[number];
+export type CodeAreaWarningPolicy = (typeof WARNING_POLICIES)[number];
 
 export interface ToolAvailability {
   available: boolean;

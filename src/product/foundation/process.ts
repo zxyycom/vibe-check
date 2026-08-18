@@ -3,7 +3,7 @@ import type { ProcessResult } from "./process/types.ts";
 export { processFailure, processFailureFromResult, processFailed } from "./process/failure.ts";
 export { PLAIN_TEXT_PROCESS_ENV, plainTextProcessEnv } from "./process/env.ts";
 export { runProcess, runProcessSync } from "./process/runner.ts";
-export { DEFAULT_PROCESS_MAX_BUFFER } from "./process/types.ts";
+export { DEFAULT_PROCESS_MAX_BUFFER_BYTES } from "./process/types.ts";
 export type {
   ProcessFailure,
   ProcessResult,

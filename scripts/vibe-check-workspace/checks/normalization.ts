@@ -41,7 +41,9 @@ const DEFAULT_INHERITED_CHECK_STATE: InheritedCheckState = Object.freeze({
  * Parses scripts-owned authoring at its dynamic boundary, then flattens the
  * validated tree into command leaves for the workspace verifier.
  */
-export function defineChecks(checkList: readonly CheckDefinition[]): readonly CheckTask[] {
+export function defineChecks(checkList: readonly CheckDefinition[]): readonly CheckTask[];
+export function defineChecks(checkList: unknown): readonly CheckTask[];
+export function defineChecks(checkList: unknown): readonly CheckTask[] {
   const checks = parseCheckDefinitions(checkList);
   const state: ExpandCheckState = {
     ids: new Set(),
@@ -53,10 +55,16 @@ export function defineChecks(checkList: readonly CheckDefinition[]): readonly Ch
     expandCheck(check, DEFAULT_INHERITED_CHECK_STATE, state);
   }
 
-  return Object.freeze(state.leafChecks.map((check) => Object.freeze({
-    ...check,
-    dependsOn: Object.freeze(resolveGroupDependencies(check.dependsOn, state.groupLeafIds, check.id))
-  })));
+  return Object.freeze(
+    state.leafChecks.map((check) =>
+      Object.freeze({
+        ...check,
+        dependsOn: Object.freeze(
+          resolveGroupDependencies(check.dependsOn, state.groupLeafIds, check.id)
+        )
+      })
+    )
+  );
 }
 
 function expandCheck(
@@ -106,22 +114,24 @@ function expandLeafCheck(
     throw new TypeError(`check ${check.id} must inherit a verification profile`);
   }
   const report = inherited.report ?? createCheckReport(check);
-  state.leafChecks.push(Object.freeze({
-    id: check.id,
-    label: check.label ?? check.id,
-    type,
-    mutex: inherited.mutex,
-    dependsOn: inherited.dependsOn,
-    env: inherited.env,
-    envFile: inherited.envFile,
-    allowOutput: check.allowOutput,
-    args: check.args,
-    command: check.command,
-    ignoreOutput: check.ignoreOutput,
-    reportId: report.id,
-    reportLabel: report.label,
-    warningOutput: check.warningOutput
-  }));
+  state.leafChecks.push(
+    Object.freeze({
+      id: check.id,
+      label: check.label ?? check.id,
+      type,
+      mutex: inherited.mutex,
+      dependsOn: inherited.dependsOn,
+      env: inherited.env,
+      envFile: inherited.envFile,
+      allowOutput: check.allowOutput,
+      args: check.args,
+      command: check.command,
+      ignoreOutput: check.ignoreOutput,
+      reportId: report.id,
+      reportLabel: report.label,
+      warningOutput: check.warningOutput
+    })
+  );
 }
 
 function inheritCheckState(
@@ -132,7 +142,7 @@ function inheritCheckState(
     type: check.type ?? inherited.type,
     mutex: Object.freeze([...inherited.mutex, ...check.mutex]),
     dependsOn: Object.freeze([...inherited.dependsOn, ...check.dependsOn]),
-    env: mergeEnvironment(inherited.env, check.env),
+    env: mergeEnvironment({ child: check.env, parent: inherited.env }),
     envFile: check.envFile ?? inherited.envFile,
     report: inheritCheckReport(check, inherited.report)
   });
@@ -165,10 +175,13 @@ function resolveGroupDependencies(
   return result;
 }
 
-function mergeEnvironment(
-  parent: CheckEnvironment | undefined,
-  child: CheckEnvironment | undefined
-): CheckEnvironment | undefined {
+function mergeEnvironment({
+  child,
+  parent
+}: {
+  readonly child: CheckEnvironment | undefined;
+  readonly parent: CheckEnvironment | undefined;
+}): CheckEnvironment | undefined {
   if (parent === undefined) return child;
   if (child === undefined) return parent;
   return Object.freeze({ ...parent, ...child });

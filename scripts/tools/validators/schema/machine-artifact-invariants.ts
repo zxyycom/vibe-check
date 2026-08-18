@@ -177,5 +177,5 @@ function recordFieldFailure(
 }
 
 function unreachableRecordFieldValueType(valueType: never): never {
-  throw new TypeError(`Unknown machine Record field value type: ${valueType}`);
+  throw new TypeError(`Unknown machine Record field value type: ${String(valueType)}`);
 }
