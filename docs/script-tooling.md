@@ -275,9 +275,9 @@ Docs validation 故意把 current product、independent acceptance 与 historica
 
 项目内安装的
 [`decision-records`](https://github.com/zxyycom/skills/tree/main/skills/decision-records)
-工具契约拥有 domain catalog 与决策记录的固定格式、通用 lifecycle 与关系事务、索引生成以及
-CLI / ESM API 精确语义；项目的 `decision-domains.json` 和决策 Markdown 分别拥有实际 domain
-边界与每条决策的内容和状态。项目 owner 按
+工具契约拥有以稳定 Decision ID、tags、根目录/`archive/` 位置表达的固定格式、通用 lifecycle
+与关系事务、索引生成以及 CLI / ESM API 精确语义；项目的决策 Markdown 拥有每条记录的实际
+tags、内容和状态，不维护 domain catalog。项目 owner 按
 [决策与 Change 治理](decision-and-change-governance.md)路由当前事实、长期方向和单次计划。
 Vibe Check-owned
 `scripts/decision-records.ts` 显式传入仓库根、转发 CLI 参数，并为模块调用暴露

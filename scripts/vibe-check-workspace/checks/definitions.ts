@@ -92,7 +92,7 @@ export const checks = defineChecks([
             args: ["run", "decisions:check"],
             ignoreOutput: [
               /^\$ bun scripts\/decision-records\.ts check$/,
-              /^Decision records check passed \(\d+ domains, \d+ decisions, \d+ active, \d+ aligned, \d+ unaligned, \d+ archived\)\.$/
+              /^Decision records check passed \(\d+ decisions, \d+ active, \d+ aligned, \d+ unaligned, \d+ archived, \d+ candidates\)\.$/
             ]
           },
           {

@@ -9,7 +9,7 @@
 | Concern | Owner | This Change |
 | --- | --- | --- |
 | recursive Check、direct execution/results、inheritance、defaults、Task/Core handoff | [`unify-check-authoring-and-execution`](../unify-check-authoring-and-execution/) and its stable owners | consume after completion; do not redefine |
-| public function/value/type inventory | [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/product-contract/expose-recursive-check-authoring-and-run-surface.md) and current-contract source | project exactly |
+| public function/value/type inventory | [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) and current-contract source | project exactly |
 | Bun-only host and one versioned package | active product-contract decisions | implement and verify |
 | staging, manifest, declarations, tarball and installed acceptance | this Change | own completely |
 | legacy Product CLI removal | this Change | execute only after replacement gate |

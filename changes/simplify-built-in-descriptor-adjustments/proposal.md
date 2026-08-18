@@ -49,8 +49,8 @@
 
 ## Affected Owners
 
-- Configuration decisions：`docs/decisions/configuration/use-standalone-built-in-check-adjustment-functions.md` 拥有普通内置 Check 与字段调整语义；`docs/decisions/configuration/use-composable-check-tree-with-run-owned-bindings.md` 拥有统一 Check tree 与 runtime binding 责任边界。
-- Product Contract decisions：`docs/decisions/product-contract/expose-built-in-check-values-and-adjustment-functions.md` 拥有 runtime export surface；`docs/decisions/product-contract/confirm-built-in-check-and-adjustment-names-before-publication.md` 拥有公开名称。
+- Configuration decisions：`docs/decisions/archive/use-standalone-built-in-check-adjustment-functions.md` 拥有普通内置 Check 与字段调整语义；`docs/decisions/archive/use-composable-check-tree-with-run-owned-bindings.md` 拥有统一 Check tree 与 runtime binding 责任边界。
+- Product Contract decisions：`docs/decisions/archive/expose-built-in-check-values-and-adjustment-functions.md` 拥有 runtime export surface；`docs/decisions/archive/confirm-built-in-check-and-adjustment-names-before-publication.md` 拥有公开名称。
 - 稳定说明与 current contract：`docs/configuration.md`、`src/product/public-contract/current.ts` 及其相邻 tests。
 - Product implementation：`src/product/definition/adjustments.ts`、`adjustment-patches.ts`、`built-ins.ts`、`check-tree/**` 和相邻 Project Definition / Package Run tests。
 - 测试证据：`docs/testing/cases/scan-configuration.md` 中的 `WB-PROJECT-DEFINITION-001`。

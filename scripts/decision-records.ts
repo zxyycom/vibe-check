@@ -18,7 +18,7 @@ export type {
   DecisionAlignment,
   DecisionCandidateDocument,
   DecisionDocument,
-  DecisionDomainDefinition,
+  DecisionId,
   DecisionIndex,
   DecisionIndexEntry,
   DecisionIndexMetadata,
@@ -36,8 +36,11 @@ export type {
   DecisionScan,
   DecisionScanOptions,
   DecisionSourceRevision,
+  DecisionSourcePath,
   DecisionStatus,
   DecisionSuccessor,
+  DecisionTag,
+  DecisionTags,
   EstablishedDecisionStatus,
   DecisionValidationResult
 } from "../.codex/skills/decision-records/scripts/decision-records.mjs";

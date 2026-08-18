@@ -10,16 +10,16 @@
 2. 本文件拥有本 Change 的 target contract、source/test audit 和迁移边界。
 3. [`tasks.md`](./tasks.md) 只表达实施顺序与完成状态，不重新定义行为。
 4. stable docs 与当前 source/tests 是当前实现事实；下列 active decisions 是跨 Change 的目标方向：
-   - [`use-recursive-check-values-with-optional-execution`](../../docs/decisions/configuration/use-recursive-check-values-with-optional-execution.md)
-   - [`use-direct-check-execution-with-structured-results`](../../docs/decisions/configuration/use-direct-check-execution-with-structured-results.md)
-   - [`let-check-options-own-execution-dependencies`](../../docs/decisions/configuration/let-check-options-own-execution-dependencies.md)
-   - [`drive-run-from-check-owned-execution-options`](../../docs/decisions/configuration/drive-run-from-check-owned-execution-options.md)
-   - [`use-inherit-for-check-collection-edits`](../../docs/decisions/configuration/use-inherit-for-check-collection-edits.md)
-   - [`use-native-object-composition-for-check-customization`](../../docs/decisions/configuration/use-native-object-composition-for-check-customization.md)
-   - [`project-executable-checks-into-validated-task-graph`](../../docs/decisions/product-contract/project-executable-checks-into-validated-task-graph.md)
-   - [`apply-check-parallel-limit-while-task-runs`](../../docs/decisions/configuration/apply-check-parallel-limit-while-task-runs.md)
-   - [`expose-ordinary-check-values-with-define-check`](../../docs/decisions/product-contract/expose-ordinary-check-values-with-define-check.md)
-   - [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/product-contract/expose-recursive-check-authoring-and-run-surface.md)
+   - [`use-recursive-check-values-with-optional-execution`](../../docs/decisions/use-recursive-check-values-with-optional-execution.md)
+   - [`use-direct-check-execution-with-structured-results`](../../docs/decisions/use-direct-check-execution-with-structured-results.md)
+   - [`let-check-options-own-execution-dependencies`](../../docs/decisions/let-check-options-own-execution-dependencies.md)
+   - [`drive-run-from-check-owned-execution-options`](../../docs/decisions/drive-run-from-check-owned-execution-options.md)
+   - [`use-inherit-for-check-collection-edits`](../../docs/decisions/use-inherit-for-check-collection-edits.md)
+   - [`use-native-object-composition-for-check-customization`](../../docs/decisions/use-native-object-composition-for-check-customization.md)
+   - [`project-executable-checks-into-validated-task-graph`](../../docs/decisions/project-executable-checks-into-validated-task-graph.md)
+   - [`apply-check-parallel-limit-while-task-runs`](../../docs/decisions/apply-check-parallel-limit-while-task-runs.md)
+   - [`expose-ordinary-check-values-with-define-check`](../../docs/decisions/expose-ordinary-check-values-with-define-check.md)
+   - [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md)
 
 当前 source 中的 `CheckGroup | BuiltInCheck | CustomCheck`、TaskPlan、group dependency expansion、`replace` / `append` 和 operational dependency resolution 是迁移输入，不是目标 API。
 
