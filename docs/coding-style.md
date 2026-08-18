@@ -31,7 +31,7 @@ TypeScript 产品的实现来源或兼容层。
 
 行为 owner 与本文冲突时，行为 owner 优先。根目录 `.oxlintrc.json` 拥有可机械执行的
 lint rule set，`.oxfmtrc.json` 拥有 format 选项，对应 package 的 `package.json` scripts 拥有目标范围；
-`lint:product` 与 `lint:scripts` 以 `--deny-warnings` 运行。具体规则和命令见
+`lint -- product` 与 `lint -- scripts` 以 `--deny-warnings` 运行。具体规则和命令见
 [脚本工具](script-tooling.md#oxlint-与-oxfmt)，不在本文复制另一份规则表。
 
 相邻代码不能覆盖行为 owner、本文或工具配置：既有或遗留代码即使偏离本文，也只提供局部
@@ -230,7 +230,7 @@ TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 
 3. 触及 owner schema/examples 时保持二者可互相映射；TypeScript machine artifacts 运行
    既有 runtime validation 和相应契约测试。
 4. 输出层边界和 stderr/stdout 边界有测试或脚本检查。
-5. 纯文档改动至少用 `bun run validate:docs`、局部 diff、关键词搜索或等价方式确认结构和范围。
+5. 纯文档改动至少用 `bun run validate -- docs`、局部 diff、关键词搜索或等价方式确认结构和范围。
 6. 无法运行的验证必须在交付说明中明确原因和风险。
 
 TypeScript 产品变更还应按影响面运行 product import boundary、typecheck、lint 和 test。

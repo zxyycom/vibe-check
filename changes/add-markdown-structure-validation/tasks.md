@@ -19,5 +19,5 @@
 ## Verification
 
 - [ ] 2.1 运行最窄 parser、projection、policy、record catalog/identity、TaskPlan、comparison/cache和正式 CLI tests；覆盖 GFM extensions、front matter、tables/lists/code、Unicode、empty/no-heading、duplicate headings、所有阈值边界与heading组合。
-- [ ] 2.2 运行 `bun run test-evidence:check`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`，修复范围内失败。
+- [ ] 2.2 运行 `bun run test-evidence -- check --root .`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`，修复范围内失败。
 - [ ] 2.3 用空行移动、重复 section插入、超大/deep document和 Structure/Link同时启用 fixtures复核 identity、资源预算、单 parser owner和无 backend泄漏；确认 Success Criteria与owner同步后再评估 lifecycle，未经授权不归档。

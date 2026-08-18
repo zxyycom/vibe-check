@@ -25,7 +25,7 @@ skill 拥有，项目安装与命令接线由[脚本工具](script-tooling.md#�
 [`decision-records` skill](../.codex/skills/decision-records/SKILL.md) 与对应决策记录拥有。本文只定义
 Decision 与 Change 之间的项目级交接：
 
-1. 进入一个 Change 前，运行 `bun run decisions:list`，再按 `decision-records` 恢复会直接改变该
+1. 进入一个 Change 前，运行 `bun run decisions -- list`，再按 `decision-records` 恢复会直接改变该
    Change 目标或结果的活动决策；当前请求决定本次授权，当前请求与 Change artifacts 共同限定
    交付范围。
 2. Change 直接使用 `change-plan` 的 proposal、design、tasks 与 lifecycle，不为决策引用增加项目
@@ -43,7 +43,7 @@ Decision 与 Change 之间的项目级交接：
 需要跨文件、owner 或验证阶段持久交接的明确 change 使用 `$change-plan`。简单局部改动直接同步
 owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
 
-项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan:list` 定位当前计划。固定 artifact、
+项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划。固定 artifact、
 严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
 [脚本工具](script-tooling.md#change-plan-cli)。
@@ -76,7 +76,7 @@ artifact，未来方向看活动决策，当前实施计划看 active Change，�
 
 ## 验证
 
-- 决策 Markdown、生命周期、关系或索引变化：运行 `bun run decisions:check`。
+- 决策 Markdown、生命周期、关系或索引变化：运行 `bun run decisions -- check`。
 - Change Plan 变化：运行 `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证。
-- 本文档或路由变化：运行 `bun run validate:docs`；跨多个工作流边界时运行
+- 本文档或路由变化：运行 `bun run validate -- docs`；跨多个工作流边界时运行
   `bun run verify:vibe-check-workspace:required`。

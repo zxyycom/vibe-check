@@ -4,15 +4,24 @@ import { describe, it } from "node:test";
 import { checksForProfile } from "./index.ts";
 
 const fullOnlyCommands = [
-  { id: "quality-full-check", args: ["scripts/quality/scan.ts"] },
-  { id: "product-tests", args: ["run", "test:product"] },
-  { id: "toolkit-foundation-typecheck", args: ["run", "toolkit:foundation:typecheck"] },
-  { id: "toolkit-foundation-lint", args: ["run", "toolkit:foundation:lint"] },
+  { id: "quality-full-check", args: ["scripts/quality/index.ts"] },
+  { id: "product-tests", args: ["scripts/development/test.ts", "product"] },
+  {
+    id: "toolkit-foundation-typecheck",
+    args: ["run", "--cwd", "scripts/tools/foundation", "typecheck"]
+  },
+  {
+    id: "toolkit-foundation-lint",
+    args: ["run", "--cwd", "scripts/tools/foundation", "lint"]
+  },
   {
     id: "toolkit-foundation-format-check",
-    args: ["run", "toolkit:foundation:format:check"]
+    args: ["run", "--cwd", "scripts/tools/foundation", "format", "--", "check"]
   },
-  { id: "toolkit-foundation-tests", args: ["run", "toolkit:foundation:test"] }
+  {
+    id: "toolkit-foundation-tests",
+    args: ["run", "--cwd", "scripts/tools/foundation", "test"]
+  }
 ] as const;
 
 describe("workspace verifier profiles", () => {

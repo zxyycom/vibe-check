@@ -2,13 +2,12 @@
 
 import { run } from "./project-run.ts";
 
-if (import.meta.main) {
+async function runScan(): Promise<number> {
   const result = await run();
-  if (result.kind === "completed") {
-    process.exitCode = 0;
-  } else if (result.kind === "configuration") {
-    process.exitCode = 3;
-  } else {
-    process.exitCode = 2;
-  }
+  if (result.kind === "completed") return 0;
+  return result.kind === "configuration" ? 3 : 2;
+}
+
+if (import.meta.main) {
+  process.exitCode = await runScan();
 }

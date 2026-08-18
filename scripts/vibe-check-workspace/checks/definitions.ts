@@ -26,37 +26,32 @@ export const checks = defineChecks([
         id: "typecheck-product",
         label: "TypeScript product typecheck and import boundary",
         command: "bun",
-        args: ["run", "typecheck:product"],
-        ignoreOutput: [/^\$ tsgo -p tsconfig\.product\.json$/]
+        args: ["scripts/development/typecheck.ts", "product"]
       },
       {
         id: "lint-product",
         label: "TypeScript product lint",
         command: "bun",
-        args: ["run", "lint:product"],
-        ignoreOutput: [/^\$ mise exec -- pnpm exec oxlint --deny-warnings src\/product$/]
+        args: ["scripts/development/lint.ts", "product"]
       },
       {
         id: "typecheck-scripts",
         label: "TypeScript script typecheck",
         command: "bun",
-        args: ["run", "typecheck:scripts"],
-        ignoreOutput: [/^\$ tsgo -p tsconfig\.json$/]
+        args: ["scripts/development/typecheck.ts", "scripts"]
       },
       {
         id: "lint-scripts",
         label: "TypeScript script lint",
         command: "bun",
-        args: ["run", "lint:scripts"],
-        ignoreOutput: [/^\$ mise exec -- pnpm exec oxlint --deny-warnings scripts$/]
+        args: ["scripts/development/lint.ts", "scripts"]
       },
       {
         id: "format-check",
         label: "source format",
         command: "bun",
-        args: ["run", "format:check"],
+        args: ["scripts/development/format.ts", "check"],
         ignoreOutput: [
-          /^\$ mise exec -- pnpm exec oxfmt --check .+$/,
           /^Checking formatting\.\.\.$/,
           /^All matched files use the correct format\.$/,
           /^Finished in \d+ms on \d+ files using \d+ threads\.$/
@@ -66,7 +61,7 @@ export const checks = defineChecks([
         id: "quality-quick-check",
         label: "repository Package Run dogfood",
         command: "bun",
-        args: ["scripts/quality/scan.ts"],
+        args: ["scripts/quality/index.ts"],
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
@@ -87,9 +82,8 @@ export const checks = defineChecks([
             id: "decision-records",
             label: "decision records",
             command: "bun",
-            args: ["run", "decisions:check"],
+            args: ["scripts/decision-records.ts", "check"],
             ignoreOutput: [
-              /^\$ bun scripts\/decision-records\.ts check$/,
               /^Decision records check passed \(\d+ decisions, \d+ active, \d+ aligned, \d+ unaligned, \d+ archived, \d+ candidates\)\.$/
             ]
           },
@@ -97,9 +91,8 @@ export const checks = defineChecks([
             id: "test-evidence",
             label: "semantic Case ledger",
             command: "bun",
-            args: ["run", "test-evidence:check"],
+            args: ["scripts/test-evidence/index.ts", "check", "--root", "."],
             ignoreOutput: [
-              /^\$ bun scripts\/test-evidence\/index\.ts check --root \.$/,
               /^Test Case check passed: \d+ current test entities \(\d+ Bun\); \d+ mapped by \d+ semantic Cases across \d+ topics\.$/
             ]
           }
@@ -109,9 +102,8 @@ export const checks = defineChecks([
         id: "test-evidence-rule-tests",
         label: "test evidence ast-grep rule tests",
         command: "bun",
-        args: ["run", "test:test-evidence-rules"],
+        args: ["scripts/test-evidence/test-rules.ts"],
         ignoreOutput: [
-          /^\$ bun scripts\/test-evidence\/test-rules\.ts$/,
           /^ast-grep \d+\.\d+\.\d+$/,
           /^Running \d+ tests$/,
           /^-+ Case Details -+$/,
@@ -136,40 +128,30 @@ export const checks = defineChecks([
         id: "product-tests",
         label: "TypeScript product tests",
         command: "bun",
-        args: ["run", "test:product"],
+        args: ["scripts/development/test.ts", "product"],
         allowOutput: [/^Ran \d+ tests across \d+ files\..+$/]
       },
       {
         id: "toolkit-foundation-typecheck",
         label: "foundation toolkit typecheck",
         command: "bun",
-        args: ["run", "toolkit:foundation:typecheck"],
-        ignoreOutput: [
-          /^\$ bun run toolkit:foundation:typecheck$/,
-          /^\$ bun run --cwd scripts\/tools\/foundation typecheck$/,
-          /^\$ tsgo -p tsconfig\.json$/
-        ]
+        args: ["run", "--cwd", "scripts/tools/foundation", "typecheck"],
+        ignoreOutput: [/^\$ bun \.\.\/\.\.\/\.\.\/scripts\/development\/typecheck\.ts foundation$/]
       },
       {
         id: "toolkit-foundation-lint",
         label: "foundation toolkit lint",
         command: "bun",
-        args: ["run", "toolkit:foundation:lint"],
-        ignoreOutput: [
-          /^\$ bun run toolkit:foundation:lint$/,
-          /^\$ bun run --cwd scripts\/tools\/foundation lint$/,
-          /^\$ cd \.\.\/\.\.\/\.\. && mise exec -- pnpm exec oxlint --deny-warnings scripts\/tools\/foundation\/src scripts\/tools\/foundation\/test$/
-        ]
+        args: ["run", "--cwd", "scripts/tools/foundation", "lint"],
+        ignoreOutput: [/^\$ bun \.\.\/\.\.\/\.\.\/scripts\/development\/lint\.ts foundation$/]
       },
       {
         id: "toolkit-foundation-format-check",
         label: "foundation toolkit format",
         command: "bun",
-        args: ["run", "toolkit:foundation:format:check"],
+        args: ["run", "--cwd", "scripts/tools/foundation", "format", "--", "check"],
         ignoreOutput: [
-          /^\$ bun run toolkit:foundation:format:check$/,
-          /^\$ bun run --cwd scripts\/tools\/foundation format:check$/,
-          /^\$ cd \.\.\/\.\.\/\.\. && mise exec -- pnpm exec oxfmt --check .+$/,
+          /^\$ bun \.\.\/\.\.\/\.\.\/scripts\/development\/format\.ts foundation check$/,
           /^Checking formatting\.\.\.$/,
           /^All matched files use the correct format\.$/,
           /^Finished in \d+ms on \d+ files using \d+ threads\.$/
@@ -179,14 +161,14 @@ export const checks = defineChecks([
         id: "toolkit-foundation-tests",
         label: "foundation toolkit tests",
         command: "bun",
-        args: ["run", "toolkit:foundation:test"],
+        args: ["run", "--cwd", "scripts/tools/foundation", "test"],
         allowOutput: [/^Ran \d+ tests across \d+ files\..+$/]
       },
       {
         id: "quality-full-check",
         label: "repository Package Run full-profile dogfood",
         command: "bun",
-        args: ["scripts/quality/scan.ts"],
+        args: ["scripts/quality/index.ts"],
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
@@ -248,10 +230,7 @@ function docsValidatorCheck({
     id,
     label,
     command: "bun",
-    args: ["run", "validate:docs", target],
-    ignoreOutput: [
-      new RegExp(`^\\$ bun scripts\\/docs\\/validate\\.ts "?${target}"?$`),
-      ...successOutput
-    ]
+    args: ["scripts/validate.ts", "docs", target],
+    ignoreOutput: successOutput
   };
 }

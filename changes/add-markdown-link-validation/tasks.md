@@ -19,5 +19,5 @@
 ## Verification
 
 - [ ] 2.1 运行最窄 GFM occurrence、URL/path classification、resolver/slug、record catalog/identity、handoff、comparison/cache和正式 CLI tests；覆盖undefined reference、invalid encoding、query/fragment、duplicate headings、missing/non-file、POSIX/Windows/file URI、lexical/symlink escape及target-only变化。
-- [ ] 2.2 运行 zero-network/DNS与 credential canary tests、Structure/Link/Path/Network组合 acceptance，并证明完整/failed Link run分别发布/不发布snapshot、Network只经Check-level `requiresChecks`消费且没有跨Check Task依赖；再运行`bun run test-evidence:check`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`。
+- [ ] 2.2 运行 zero-network/DNS与 credential canary tests、Structure/Link/Path/Network组合 acceptance，并证明完整/failed Link run分别发布/不发布snapshot、Network只经Check-level `requiresChecks`消费且没有跨Check Task依赖；再运行`bun run test-evidence -- check --root .`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`。
 - [ ] 2.3 复核 raw/full URL、userinfo、query values、fragment、location和absolute target不进入candidate identity、logs、cache、artifacts或public records，并确认 Success Criteria与owner同步有证据；未经授权不转换阶段或归档。

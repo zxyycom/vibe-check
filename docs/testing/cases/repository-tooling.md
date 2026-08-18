@@ -34,7 +34,7 @@ Owner: `docs/script-tooling.md#配置所有权`
 Entities:
 - `bun|scripts/vibe-check-workspace/checks/definitions.test.ts|workspace verifier profiles > keeps full-only product and toolkit package gates explicit`
 Proves:
-- `full` 保留所有 required non-quality checks、去掉 quick quality dogfood，并显式加入 full dogfood、完整 Product test 入口和 foundation 的 typecheck、lint、format:check、test package commands。部分源文件层验证会与 required 重叠，但这些独立 command 仍证明 toolkit 自身的 cwd、配置与 package-script boundary 可执行。
+- `full` 保留所有 required non-quality checks、去掉 quick quality dogfood，并显式加入 full dogfood、完整 Product `test -- product` 入口和 foundation 的 typecheck、lint、`format -- check`、test package commands。部分源文件层验证会与 required 重叠，但这些独立 command 仍证明 toolkit 自身的 cwd、配置与 package-script boundary 可执行。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`

@@ -23,6 +23,6 @@
 
 - [ ] 2.1 对fresh corpus运行old-oracle/new-backend differential和owner-level expected-record tests，证明function boundaries、identity、measurements、ordering、zero/input与reference semantics一致。
 - [ ] 2.2 运行各 approved exact-input category 的edge/malformed/read failure、Task partial progress、record preservation、coverage、CheckResult/CheckRun和cache invalidation tests。
-- [ ] 2.3 运行representative performance observation、product import/dependency checks、`bun run typecheck:product`、`bun run lint:product`、`bun run test:product`与`bun run test-evidence:check`。
-- [ ] 2.4 运行`bun run decisions:check`、`bun run validate`与针对本Change的`bun run change-plan -- check changes/port-lizard-function-metrics-to-typescript`。
+- [ ] 2.3 运行representative performance observation、product import/dependency checks、`bun run typecheck -- product`、`bun run lint -- product`、`bun run test -- product`与`bun run test-evidence -- check --root .`。
+- [ ] 2.4 运行`bun run decisions -- check`、`bun run validate`与针对本Change的`bun run change-plan -- check changes/port-lizard-function-metrics-to-typescript`。
 - [ ] 2.5 运行`bun run verify:vibe-check-workspace:full`、installed candidate acceptance和full dogfood；focused search/process tracing确认formal runtime没有Python/Lizard probe/exec/CSV/fallback，且final diff满足source/license和授权范围。

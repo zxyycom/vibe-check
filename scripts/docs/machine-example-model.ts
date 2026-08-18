@@ -4,7 +4,7 @@ import type {
 } from "../../src/product/quality-core/output/publication-v3/index.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
-export const MACHINE_EXAMPLE_REGENERATE_COMMAND = "bun run generate:machine-examples";
+export const MACHINE_EXAMPLE_REGENERATE_COMMAND = "bun scripts/docs/machine-examples.ts";
 export const MACHINE_EXAMPLE_ARTIFACT_FILES = ["README.md", "records.ndjson", "run.json"] as const;
 
 export const FIXED_MACHINE_EXAMPLE_INPUT = {

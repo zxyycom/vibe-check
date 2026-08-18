@@ -12,7 +12,7 @@ import {
 } from "../../src/product/quality-core/output/publication-v3/index.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const regenerateCommand = "bun run generate:machine-schemas";
+const regenerateCommand = "bun scripts/docs/machine-schemas.ts";
 
 const publishedSchemas = [
   {

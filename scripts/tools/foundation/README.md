@@ -22,12 +22,12 @@ type-guard helpers.
 
 Run these commands from this directory:
 
-- `bun run format`
-- `bun run format:check`
+- `bun run format` (writes format targets)
+- `bun run format -- check` (checks only)
 - `bun run typecheck`
 - `bun run lint`
 - `bun run test`
 
 The format and lint commands reuse the repository-root Oxfmt and Oxlint configuration. The
-root-level aliases and full verifier are documented in
+root development workflows and full verifier are documented in
 [脚本工具](../../../docs/script-tooling.md#验证入口).

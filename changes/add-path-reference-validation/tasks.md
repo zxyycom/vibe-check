@@ -10,7 +10,7 @@
 
 ## Implementation
 
-- [ ] 1.1 在依赖 seam 落地后先运行 `bun run test-evidence:check` 并恢复相关 Markdown、scope、record/output Cases；为 supported/unsupported grammar、destination exclusion、inventory lookup、escape、identity 和 safe output建立失败证据。
+- [ ] 1.1 在依赖 seam 落地后先运行 `bun run test-evidence -- check --root .` 并恢复相关 Markdown、scope、record/output Cases；为 supported/unsupported grammar、destination exclusion、inventory lookup、escape、identity 和 safe output建立失败证据。
 - [ ] 1.2 接入 Markdown visible-prose/inline-code segment handoff与显式 plain-text inputs，在结构边界排除 destination、GFM autolink、reference target、image target、fenced code 和 front matter，不重新解析 raw Markdown。
 - [ ] 1.3 实现封闭 token classifier与 source-relative/project-root-relative lexical normalization，覆盖directory与line/column suffix、case semantics、URL/absolute/drive/UNC/glob/template/import排除，以及root escape的zero-filesystem-access证据。
 - [ ] 1.4 从 global normalized inventory建立 immutable file/directory index；实现 unresolved/out-of-scope resolution，证明 resolver 不 lstat、realpath、follow symlink、读取 target、重新遍历 root或恢复excluded/generated/vendor path。
@@ -19,6 +19,6 @@
 
 ## Verification
 
-- [ ] 2.1 运行最窄 segment、classifier、resolver、scope、identity、no-defect/defect closed verdict、unsupported-token exclusion、record-type classification、record validation、execution/protocol CheckRun failure 和 output tests；测试正文或 Case 变化后运行 `bun run test-evidence:check`。
-- [ ] 2.2 运行产品 import boundary、`bun run typecheck:product`、`bun run lint:product`、`bun run test:product` 与相关 CLI acceptance，使用不同宿主 checkout root证明公开结果只含project-relative信息。
+- [ ] 2.1 运行最窄 segment、classifier、resolver、scope、identity、no-defect/defect closed verdict、unsupported-token exclusion、record-type classification、record validation、execution/protocol CheckRun failure 和 output tests；测试正文或 Case 变化后运行 `bun run test-evidence -- check --root .`。
+- [ ] 2.2 运行产品 import boundary、`bun run typecheck -- product`、`bun run lint -- product`、`bun run test -- product` 与相关 CLI acceptance，使用不同宿主 checkout root证明公开结果只含project-relative信息。
 - [ ] 2.3 运行 `bun run validate` 和 `bun run verify:vibe-check-workspace:required`，复核最终 diff 没有第二个 Markdown parser、target filesystem scan、dependency inference、location-based identity或未记录 public contract drift。

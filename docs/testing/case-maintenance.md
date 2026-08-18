@@ -175,7 +175,7 @@ bun run test-evidence -- list --entity-key <entity-key> --root .
 bun run test-evidence -- list --owner-ref <docs/path.md#heading> --root .
 bun run test-evidence -- list --query <text> --limit <1-100> --offset <n> --root .
 bun run test-evidence -- show <CASE-ID> --root .
-bun run test-evidence:check
+bun run test-evidence -- check --root .
 ```
 
 `topics`、`list` 和 `show` 只读取 Case 目录并输出 JSON；`check` 还会执行本 checkout
@@ -198,4 +198,4 @@ bun run test-evidence:check
 3. `Owner` 真正拥有全部 `Proves`，且 `Proves` 不复述函数名或生成模板。
 4. Rename、move、split、merge、delete 与正文变化已按语义连续性处理。
 5. 账本没有 Entry、Contract、Status、marker、committed inventory/index 或兼容双读。
-6. 目标测试、`bun run test-evidence:check` 与范围匹配的 workspace verification 已通过。
+6. 目标测试、`bun run test-evidence -- check --root .` 与范围匹配的 workspace verification 已通过。

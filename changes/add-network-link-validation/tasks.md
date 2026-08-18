@@ -10,7 +10,7 @@
 
 ## Implementation
 
-- [ ] 1.1 在依赖seam落地后先运行`bun run test-evidence:check`并恢复Markdown/config/scope/Check/Record/output Cases；建立injectable resolver、pinned connector、manual-redirect transport、fake clock、isolated cache与leak-canary harness，required suite硬性禁止public DNS/internet。
+- [ ] 1.1 在依赖seam落地后先运行`bun run test-evidence -- check --root .`并恢复Markdown/config/scope/Check/Record/output Cases；建立injectable resolver、pinned connector、manual-redirect transport、fake clock、isolated cache与leak-canary harness，required suite硬性禁止public DNS/internet。
 - [ ] 1.2 注册 Product neutral offline Network Link Check 和 closed Project Definition policy，固定 online 显式授权、timeout/redirect/retry/cache numeric bounds/defaults 与 file-policy monotonic narrowing；不增加 feature/file-policy concurrency leaf，但 cross-owner validation 要求 resolved `SchedulerPolicy.maxParallel <= 16`。证明 over-limit、missing/disabled/invalid/override-only enable 在 DNS/socket/proxy/credential/cache refresh 前 zero I/O。
 - [ ] 1.3 仅通过 `requiresChecks: ["markdown-link-validation"]` 消费 Markdown owner 完整完成后发布的 invocation-private candidate snapshot/request material；Link 与 Network 从同一 frozen source inventory 各自预建 per-source Tasks，Network 不引用 Link Task ID。Network 无 eligible source 时在 pre-work 自身完成为 `not-applicable` 且不取 snapshot；自身 applicable 时才要求 completed Link run 的完整 snapshot，缺失时按依赖/协议 execution failure 处理而不自行分类；有 eligible source 但 snapshot 无 external candidate 时正常完成为 `passed`。每个 Network source Task 内串行请求，跨 source 并发只服从已验证的 global `maxParallel`，不重新 parse/classify Markdown、不动态扩张 TaskPlan、不建立 capacity resource 或 private pool。
 - [ ] 1.4 实现canonical URL、HTTP(S)/userinfo检查、all-address safe-egress、metadata deny、mixed/rebinding处理与checked-address connector，逐redirect/retry保留Host/SNI并禁用ambient proxy/cookie/auth；runtime不能pin时request前fail closed。
@@ -21,6 +21,6 @@
 
 ## Verification
 
-- [ ] 2.1 运行最窄 authorization/zero-I/O、global `maxParallel` online bound、candidate snapshot + Check-level dependency、no-eligible-source/not-applicable、eligible-source + empty-snapshot/passed、无跨 Check Task ID、per-source TaskPlan/global scheduling、URL/resolver/pinning、redirect/retry/deadline、closed verdict/outcome、record identity/evidence、dedup/cache、reference 和 failure-retention tests，并在测试正文或 Case 变化后运行 `bun run test-evidence:check`。
-- [ ] 2.2 运行产品import boundary、`bun run typecheck:product`、`bun run lint:product`与`bun run test:product`；对success、unsafe、indeterminate和execution failure的全部可见/持久surface执行userinfo/query/token/body/header/DNS-private-response leak canary。
+- [ ] 2.1 运行最窄 authorization/zero-I/O、global `maxParallel` online bound、candidate snapshot + Check-level dependency、no-eligible-source/not-applicable、eligible-source + empty-snapshot/passed、无跨 Check Task ID、per-source TaskPlan/global scheduling、URL/resolver/pinning、redirect/retry/deadline、closed verdict/outcome、record identity/evidence、dedup/cache、reference 和 failure-retention tests，并在测试正文或 Case 变化后运行 `bun run test-evidence -- check --root .`。
+- [ ] 2.2 运行产品import boundary、`bun run typecheck -- product`、`bun run lint -- product`与`bun run test -- product`；对success、unsafe、indeterminate和execution failure的全部可见/持久surface执行userinfo/query/token/body/header/DNS-private-response leak canary。
 - [ ] 2.3 运行`bun run validate`和`bun run verify:vibe-check-workspace:required`，确认required suite zero public internet，最终diff没有implicit authorization、ordinary-fetch fallback、second Markdown parser、feature-local scheduler、sensitive cache/output或location/query-value identity。

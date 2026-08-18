@@ -31,5 +31,5 @@ Readiness first consumes the completed upstream Check contract; Implementation t
 - [ ] 2.4 In the isolated consumer, prove Check-owned external prerequisites, default/missing/overridden executables, exact inputs, cache identity and no repository/environment-registry fallback.
 - [ ] 2.5 Prove separate caller -> project Run -> Package Run behavior for direct execution, Records/reference, structured outcomes, dependency/mutex/cap, effects, failures, cancellation and concurrent invocations.
 - [ ] 2.6 Repeat clean build and audit tarball allowlist, declarations, MIT files, provenance and digest; confirm no tests, secrets, cache, logs, artifacts or undeclared workspace material.
-- [ ] 2.7 Run Product/package tests, typecheck, lint, `bun run test-evidence:check`, `bun run decisions:check`, `bun run validate`, both Change checks and `bun run verify:vibe-check-workspace:required`.
+- [ ] 2.7 Run Product/package tests, typecheck, lint, `bun run test-evidence -- check --root .`, `bun run decisions -- check`, `bun run validate`, both Change checks and `bun run verify:vibe-check-workspace:required`.
 - [ ] 2.8 Run `bun run verify:vibe-check-workspace:full` and candidate dogfood; record that build/pack/verify passed and no registry publish or credential access occurred.

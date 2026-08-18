@@ -19,8 +19,8 @@
 | 修改 machine DTO/schema、contract-valid set / published set、serialization、validator、publication/evidence、console/report、artifact 或 effect status | [Output](output.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Quality Metrics](quality-metrics.md)、`docs/schemas/`、`docs/examples/` 与 output tests |
 | 修改开发脚本、annotation consumer、共享 toolkit、workspace verifier、docs validator 或 quality wrapper | [脚本工具](script-tooling.md)、[编码规范](coding-style.md) | 对应 `scripts/**`、正式产品入口及其 consumer contract |
 | 新增或修改测试、fixture、Case 或验证脚本 | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](coding-style.md) | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试 |
-| 恢复、审阅或维护跨任务沿用的长期判断 | `decision-records` skill、`bun run decisions:list`、目标决策与相关行为 owner | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md) |
-| 创建、恢复、实施、搁置、验收或归档较大 change | `change-plan` skill、`bun run change-plan:list`、目标 `changes/<change>/` | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner |
+| 恢复、审阅或维护跨任务沿用的长期判断 | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md) |
+| 创建、恢复、实施、搁置、验收或归档较大 change | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/` | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner |
 | 创建、更新或审阅持久调查报告 | `investigation-report` skill | [Investigation Report CLI](script-tooling.md#investigation-report-cli)、目标报告与按需随附资源 |
 
 ## 权威性与状态
@@ -40,10 +40,10 @@
 
 | 改动面 | 验证入口 |
 | --- | --- |
-| 文档、schema、examples 或 whitespace | `bun run validate`；局部 docs 可先运行 `bun run validate:docs` |
-| 决策 Markdown、生命周期、关系或索引 | `bun run decisions:check` |
+| 文档、schema、examples 或 whitespace | `bun run validate`；局部 docs 可先运行 `bun run validate -- docs` |
+| 决策 Markdown、生命周期、关系或索引 | `bun run decisions -- check` |
 | Change Plan | `bun run change-plan -- check changes/<change>` |
-| 测试正文、实体或语义 Case | 最窄目标测试，再运行 `bun run test-evidence:check` |
+| 测试正文、实体或语义 Case | 最窄目标测试，再运行 `bun run test-evidence -- check --root .` |
 | 产品行为或脚本工具 | 按 owner 与 package scripts 运行目标 test、typecheck、lint、dependency 和入口检查 |
 | 跨产品行为、Change Plan、schema、示例、输出或多个包边界 | `bun run verify:vibe-check-workspace:required` |
 | 大范围重构、发布前或完整 quality / 产品 / foundation package 验收 | `bun run verify:vibe-check-workspace:full`（full dogfood、Product tests 与 foundation package gates） |

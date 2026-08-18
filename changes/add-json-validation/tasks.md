@@ -19,5 +19,5 @@
 ## Verification
 
 - [ ] 2.1 运行最窄 parser、selector、policy、identity、comparison、cache、CheckRun/CheckResult/Record 和正式 CLI tests；覆盖合法 root、invalid UTF-8/BOM/comments/trailing comma/duplicate/oversize、JSONC exclusion、空输入及 execution failure。
-- [ ] 2.2 运行 `bun run test-evidence:check`、产品 import boundary、typecheck、lint、完整 product tests、`bun run validate` 和 `bun run verify:vibe-check-workspace:required`，修复范围内失败。
+- [ ] 2.2 运行 `bun run test-evidence -- check --root .`、产品 import boundary、typecheck、lint、完整 product tests、`bun run validate` 和 `bun run verify:vibe-check-workspace:required`，修复范围内失败。
 - [ ] 2.3 用 adversarial fixtures 和最终 diff 复核没有 root traversal、双 parser、重复 schema-owned record、绝对路径、原始 JSON、backend wording或无关 cache input；确认 Success Criteria、owner同步和全部任务证据后再评估 lifecycle，未经授权不归档。

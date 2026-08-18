@@ -19,6 +19,6 @@
 
 ## Verification
 
-- [ ] 2.1 运行最窄的 Project Definition validation、patch projection、resolver、scope、reference、cache 与 CLI tests，并在测试正文或 Case 变化后运行 `bun run test-evidence:check`。
-- [ ] 2.2 运行产品 import boundary、`bun run typecheck:product`、`bun run lint:product`、`bun run test:product` 与相关 CLI acceptance，确认 trusted definition 与 explain side-effect 语义一致。
+- [ ] 2.1 运行最窄的 Project Definition validation、patch projection、resolver、scope、reference、cache 与 CLI tests，并在测试正文或 Case 变化后运行 `bun run test-evidence -- check --root .`。
+- [ ] 2.2 运行产品 import boundary、`bun run typecheck -- product`、`bun run lint -- product`、`bun run test -- product` 与相关 CLI acceptance，确认 trusted definition 与 explain side-effect 语义一致。
 - [ ] 2.3 运行 `bun run validate` 和 `bun run verify:vibe-check-workspace:required`，复核最终 diff 只有一个 policy schema/resolver owner、没有 scope expansion、feature-local merge、JSON dual reader 或未记录 public contract drift。

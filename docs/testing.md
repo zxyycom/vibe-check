@@ -16,7 +16,7 @@
 
 `docs/testing/cases/**` 是当前 semantic catalog。每个 Case 命名一个 stable owner、current Bun test entity 与可证伪的
 `Proves` statement。修改 test body、test node、Case owner 或 proof 前后，都运行
-`bun run test-evidence:check` 以及受影响的最窄测试。
+`bun run test-evidence -- check --root .` 以及受影响的最窄测试。
 
 Case 描述 current public behavior，不描述已删除的 helper name、historical material 或 internal scheduler identity。
 Definition Case 覆盖 recursive ordinary Check、`inherit`、direct default composition 与 fail-closed validation。Runtime
@@ -28,8 +28,8 @@ Run diagnostic。Output Case 覆盖 v3 byte、schema、publication lifecycle 与
 文档、schema、example 或 Case 改动运行：
 
 ```bash
-bun run validate:docs
-bun run test-evidence:check
+bun run validate -- docs
+bun run test-evidence -- check --root .
 ```
 
 跨边界交付还运行 `bun run verify:vibe-check-workspace:required`。Product 改动先运行最窄 Bun test，再按 owner 选择的

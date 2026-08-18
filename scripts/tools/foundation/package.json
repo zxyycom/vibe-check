@@ -4,11 +4,10 @@
   "type": "module",
   "packageManager": "pnpm@11.1.3",
   "scripts": {
-    "typecheck": "tsgo -p tsconfig.json",
-    "format": "cd ../../.. && mise exec -- pnpm exec oxfmt --write scripts/tools/foundation/package.json scripts/tools/foundation/tsconfig.json \"scripts/tools/foundation/src/**/*.ts\" \"scripts/tools/foundation/test/**/*.ts\"",
-    "format:check": "cd ../../.. && mise exec -- pnpm exec oxfmt --check scripts/tools/foundation/package.json scripts/tools/foundation/tsconfig.json \"scripts/tools/foundation/src/**/*.ts\" \"scripts/tools/foundation/test/**/*.ts\"",
-    "lint": "cd ../../.. && mise exec -- pnpm exec oxlint --deny-warnings scripts/tools/foundation/src scripts/tools/foundation/test",
-    "test": "bun test test"
+    "typecheck": "bun ../../../scripts/development/typecheck.ts foundation",
+    "format": "bun ../../../scripts/development/format.ts foundation",
+    "lint": "bun ../../../scripts/development/lint.ts foundation",
+    "test": "bun ../../../scripts/development/test.ts foundation"
   },
   "devDependencies": {}
 }

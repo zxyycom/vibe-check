@@ -1,7 +1,7 @@
 # Complete scan without findings
 
 This directory is a deterministic current-product machine publication example. Regenerate it
-with `bun run generate:machine-examples`.
+with `bun scripts/docs/machine-examples.ts`.
 
 ## Fixed scenario
 

@@ -11,61 +11,64 @@ prefix_rule(pattern=["bun", "test"], decision="allow")
 
 # Vibe Check-owned direct script entrypoints.
 prefix_rule(pattern=["bun", "scripts/docs/validate.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/docs/machine-examples.ts"], decision="prompt")
+prefix_rule(pattern=["bun", "scripts/docs/machine-schemas.ts"], decision="prompt")
 prefix_rule(pattern=["bun", "scripts/vibe-check-workspace/verify.ts"], decision="allow")
-prefix_rule(pattern=["bun", "scripts/quality/scan.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/development/format.ts", "check"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/development/format.ts", "foundation", "check"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/development/format.ts"], decision="prompt")
+prefix_rule(pattern=["bun", "scripts/development/lint.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/development/typecheck.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/development/test.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/quality/index.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/quality/scan.ts"], decision="prompt")
 prefix_rule(pattern=["bun", "scripts/quality/annotate.ts"], decision="prompt")
+prefix_rule(pattern=["bun", "scripts/decision-records.ts", "check"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/decision-records.ts"], decision="prompt")
+prefix_rule(pattern=["bun", "scripts/test-evidence/index.ts", "list"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/test-evidence/index.ts", "show"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/test-evidence/index.ts", "topics"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/test-evidence/index.ts", "check"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/test-evidence/test-rules.ts"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/validate.ts"], decision="allow")
 
 # Decision record queries/checks are read-only; the generic entry can mutate lifecycle state.
-prefix_rule(pattern=["bun", "run", "decisions:list"], decision="allow")
-prefix_rule(pattern=["bun", "run", "decisions:check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "decisions", "--", "list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "decisions", "--", "check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "decisions"], decision="prompt")
 
 # Change Plan discovery and target inspection are read-only; lifecycle commands can mutate metadata or move directories.
-prefix_rule(pattern=["bun", "run", "change-plan:list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "change-plan", "--", "list"], decision="allow")
 prefix_rule(pattern=["bun", "run", "change-plan", "--", "show"], decision="allow")
 prefix_rule(pattern=["bun", "run", "change-plan", "--", "check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "change-plan"], decision="prompt")
 
 # Investigation queries/checks are read-only; sync-index and stage-index write workspace or pending state.
-prefix_rule(pattern=["bun", "run", "investigations:list"], decision="allow")
-prefix_rule(pattern=["bun", "run", "investigations:check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "investigations", "--", "list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "investigations", "--", "check"], decision="allow")
 prefix_rule(pattern=["bun", "run", "investigations"], decision="prompt")
 
-# TypeScript product and script checks.
-prefix_rule(pattern=["bun", "run", "lint:product"], decision="allow")
-prefix_rule(pattern=["bun", "run", "typecheck:product"], decision="allow")
-prefix_rule(pattern=["bun", "run", "test:product"], decision="allow")
-prefix_rule(pattern=["bun", "run", "lint:scripts"], decision="allow")
-prefix_rule(pattern=["bun", "run", "typecheck:scripts"], decision="allow")
-prefix_rule(pattern=["bun", "run", "typecheck:scripts:tsc"], decision="allow")
+# Development workflow checks. Format without `check` writes files and remains opt-in.
+prefix_rule(pattern=["bun", "run", "format", "--", "check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "format", "--", "foundation", "check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "format"], decision="prompt")
+prefix_rule(pattern=["bun", "run", "lint"], decision="allow")
+prefix_rule(pattern=["bun", "run", "typecheck"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test-evidence", "--", "list"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test-evidence", "--", "show"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test-evidence", "--", "topics"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test-evidence", "--", "check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "test-evidence"], decision="prompt")
 
 # Workspace validation and verification.
 prefix_rule(pattern=["bun", "run", "validate"], decision="allow")
-prefix_rule(pattern=["bun", "run", "validate:docs"], decision="allow")
-prefix_rule(pattern=["bun", "run", "validate:diff"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:required"], decision="allow")
 prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:full"], decision="allow")
 
 # Non-blocking quality observation commands.
-prefix_rule(pattern=["bun", "run", "quality:check"], decision="allow")
-prefix_rule(pattern=["bun", "run", "quality:full-check"], decision="allow")
-prefix_rule(pattern=["bun", "run", "quality:scan"], decision="allow")
-
-# Opt-in blocking quality gate.
-prefix_rule(pattern=["bun", "run", "quality:gate"], decision="allow")
-
-# Quality annotation can emit GitHub workflow commands.
-prefix_rule(pattern=["bun", "run", "quality:annotate"], decision="prompt")
-
-# Shared script toolkit checks.
-prefix_rule(pattern=["bun", "run", "toolkit:foundation:typecheck"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:foundation:lint"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:foundation:test"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:parallel:typecheck"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:parallel:lint"], decision="allow")
-prefix_rule(pattern=["bun", "run", "toolkit:parallel:test"], decision="allow")
+prefix_rule(pattern=["bun", "run", "quality"], decision="allow")
 
 # Package, dependency, and ad-hoc Bun commands can change workspace state.
 prefix_rule(pattern=["bun", "install"], decision="prompt")

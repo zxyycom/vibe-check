@@ -19,5 +19,5 @@
 ## Verification
 
 - [ ] 2.1 运行最窄config/registry/maximumBytes、strict document、2020-12 conformance、compile/ref/instance、TaskPlan、record identity、comparison/cache和正式CLI tests；覆盖schema/binding ID的empty、长度边界、非ASCII、大小写、leading digit、重复/连续/尾部hyphen与unknown safe `schemaId`，并覆盖schema与instance各自的invalid-json/duplicate-key/unsupported-input、default/range/per-path override、duplicate registered identity、invalid base、registered HTTP(S) identity离线命中、unregistered remote/local/outside/fragment/cycle、missing property和独立closure；证明public records/identity只使用authoring IDs、不含`$id`/URI，TaskPlan始终只有预建task且运行期refs不新增Task/edge。
-- [ ] 2.2 运行网络/DNS零调用与credential canary、Product runtime dependency/installed candidate、`bun run test-evidence:check`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`。
+- [ ] 2.2 运行网络/DNS零调用与credential canary、Product runtime dependency/installed candidate、`bun run test-evidence -- check --root .`、product import/typecheck/lint/tests、`bun run validate`和`bun run verify:vibe-check-workspace:required`。
 - [ ] 2.3 复核schema/instance document defects保持正确record owner、transitive schema或per-path limit变化只失效相关binding、普通JSON无重复records、registered URI永不授权网络、输出无raw `$id`/refs/absolute/backend数据，且Success Criteria与owner同步均有证据；未经明确授权不转换阶段或归档。
