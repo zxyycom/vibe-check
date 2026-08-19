@@ -1,63 +1,70 @@
 # Proposal
 
-本 Plan 是 npm 产品交付的本地准备阶段：把 Product runtime 交付为可安装的 API-only Bun package candidate，并让仓库 <code>quality</code> 通过该 package 运行。
+本 Plan 建立一个可由 Bun 本地安装和执行的 API-only `vibe-check` npm package candidate，并让仓库 `quality` 通过这个物理安装包运行。构建只生成一个 `.tgz`；repository dogfood 与隔离 consumer 使用同一文件及 digest。安装可以按普通 package 规则获取已声明的第三方依赖，但本 Change 不查询、发布或写入 `vibe-check` registry state。
 
-跨 Change 的依赖、handoff 与完成判读见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。本 Plan 只拥有 candidate 及其第一个真实 consumer；它不以 package 可安装或 quality 通过宣称完整 Gate 或公开发布完成。
+跨 Change 的顺序与 handoff 见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。本 Plan 只拥有本地 package proof 和第一个真实 consumer；完整 Project Gate、正式入口切换与公开发布由后继 Change 拥有。
 
 ## Why
 
-当前 `quality` 已是仓库唯一的 dogfood root entry，却在 `scripts/quality/project-definition.ts` 和 `scripts/quality/project-run.ts` 中直接导入 `src/product/**`。这只能证明源码在本仓库可运行，不能证明普通 package 的 entry、declarations、runtime dependencies 和 tarball 能共同服务真实 Project Definition。
+当前 `scripts/quality/project-definition.ts` 和 `scripts/quality/project-run.ts` 直接 import `src/product/**`。这能证明源码在本仓库运行，却不能证明 emitted JavaScript、declarations、manifest、production dependencies 和普通 package resolution 共同构成可安装产品。
 
-发布前需要先完成可复现的本地 npm 交付链，并让实际消费者使用同一个 artifact：Product source 生成 candidate，candidate 经 `npm pack` 安装后运行 repository-quality。该证据是后续公开发布的前提，不是 registry authority、版本可用性或发布授权的替代品。
+本 Change 只回答两个问题：生成的 npm package 能否独立安装和运行；仓库自己的 `quality` 能否持续通过它使用 Product。版本发布、法律材料、公开兼容性和全仓 runtime 迁移不应混入这个本地可行性证明。
 
 ## Outcome
 
-| 交付结果 | 可观察证据 |
+| 结果 | 完成证据 |
 | --- | --- |
-| 可安装 candidate | clean staging 生成 package entry、declarations、manifest 和 runtime dependency closure，并从 staging 执行 `npm pack`。 |
-| 实际 consumer | `scripts/quality/project-definition.ts` 和 `scripts/quality/project-run.ts` 只从 `vibe-check` public entry 导入；`quality` 仍拥有仓库 policy、bound Run 与命令适配。 |
-| 独立安装证明 | 同一 exact tarball 在隔离 Bun consumer 中安装后，以 repository-quality Definition/Run 执行仓库根目录，且 package runtime 不回退到 source tree 或 workspace runtime material。 |
-| 可交接 gate evidence | candidate inventory、consumer 结果、Bun/platform 与 scanner-prerequisite 边界被记录为后继 Project Gate Change 的输入。 |
-
-本 Plan 不访问 registry、凭据或公开版本，也不执行 `npm publish`、删除 Product CLI 或声明 public release 已完成。
+| Bun-only package candidate | fully-derived staging 包含 public ESM entry、declarations、candidate manifest 和实际 production dependencies；`bun pm pack` 生成一个经过 inventory audit 的 `.tgz`。 |
+| Repository dogfood | `project-definition.ts` 与 `project-run.ts` 只从 `vibe-check` public entry 导入；`bun run quality` 在 pinned Bun/mise 环境中自动准备本地包，resolver evidence 指向由 accepted `.tgz` 安装的 package。 |
+| 隔离安装证明 | repository resolution ancestry 之外的临时 Bun consumer 安装同一 `.tgz`，typecheck public imports，并在小型 fixture 上执行包含 `duplicateDetection` 的最小 Definition/Run。 |
+| 明确的 scanner 边界 | `jscpd` 是 candidate 的普通 production dependency，其 public bin target 由 Bun 直接执行；`scc`、`lizard` 和显式 scanner override 继续遵守现有 Check-owned 配置与 typed unavailable 语义。 |
+| 可交接证据 | `candidate-handoff.md` 记录 artifact identity、public inventory、两类 consumer 结果、tested host、scanner prerequisites、限制和重新验证条件。 |
 
 ## Scope
 
 ### In scope
 
-- 从已归档 [`unify-check-authoring-and-execution`](../archive/unify-check-authoring-and-execution/) 和已对齐 public-contract owner 消费最终 Check/Run contract；
-- 建立 API-only Bun package 的 public entry、declarations、runtime closure、clean staging、`npm pack` 与 artifact audit；
-- 让 repository-quality 通过 public package entry 运行，且保持 `scripts/quality/index.ts` 的锁定工具环境和 pure scan adapter 边界；
-- 用 exact tarball 安装运行真实 repository-quality consumer，并验证 source/workspace independence；
-- 将 candidate 的 package evidence 交接给 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/)；它完成 readiness 后由 [replace-workspace-verifier-with-project-gate](../replace-workspace-verifier-with-project-gate/) 切换正式入口，再交接发布。
+- 从 `src/product/**` 和 current public-contract owner 生成 Bun ESM runtime、declarations、candidate manifest 与 fully-derived staging；
+- 使用 `bun pm pack` 生成一个本地 `.tgz`，审计 public entry、declarations、production dependency metadata 和 package file allowlist；
+- 为 `scripts/quality/` 建立独立的 private consumer package context，使 canonical Definition/Run 文件可以 bare-import 物理安装的 `vibe-check`，而不复制 policy 或 Run wrapper；
+- 让 root `quality` 保持进入 `scripts/quality/index.ts`；该 adapter 建立 pinned Bun/mise 环境后，在 scan 前自动准备 candidate：输入变化时 build、pack、install，输入未变化时不得重复这些动作；
+- 将 `jscpd@5.0.11` 声明为普通 production dependency，解析其 manifest 声明的 bin target，并由当前 Bun `process.execPath` 执行；
+- 使用同一 `.tgz` 完成 repository dogfood 和隔离 consumer acceptance；
+- 记录一次代表性的现状与 candidate-backed `quality` 耗时作为诊断，不建立 performance SLO 或 benchmark framework。
 
 ### Out of scope
 
-- registry 查询、认证、version availability、Trusted Publishing 或 `npm publish`；
-- public package 的最终版本、registry authority、copyright/legal completion、public README/release materials 或发布后 registry install；
-- Product CLI hard cut、`product:cli` 删除或 repository command adapter 的重新设计；
-- Check、Run、Task、Core、policy、output 或 scanner protocol 的语义变更，以及 Node direct runtime、public `bin`、plugin API、configuration discovery 或 compatibility exports。
+- public version、registry authority、authentication、credential、MIT release materials、`npm publish` 和 registry-install verification；
+- Node 或 dual-runtime 支持、全仓 Node elimination、pnpm/lockfile 迁移，以及无关开发工具的 runtime 改造；
+- package-owned `.env` loading、environment-variable naming 或 scanner precedence；Project Definition 仍可像普通 TypeScript 一样使用自己的输入；
+- scanner cache protocol 重设计；本 Change 只调整 default `jscpd` Bun command 所需的既有 backend identity normalization；
+- package-manager 网络/credential 行为审计、reproducible archive 或额外 benchmark harness；
+- 在隔离 consumer 中重跑完整 repository `quality`，或通过 package boundary 重放所有 Run、scheduler、cancellation 和 output 语义；这些分别由 repository dogfood 与既有 Product tests 证明；
+- public bootstrap helper、Product CLI retirement、annotation consumer 迁移、完整 Project Gate 与正式 gate cutover。
 
 ## Success Criteria
 
-1. candidate 的 public runtime/type inventory 与 [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) 和 current-contract source 一致；没有 internal/wildcard subpath 或 legacy export。
-2. `bun run quality` 通过 built public entry 调用 repository-owned Project Definition 和 bound project Run；它不再导入 Product source。
-3. exact tarball 的隔离 consumer typechecks 并运行同一 repository-quality Definition/Run；审计证明 package runtime 没有使用 source tree、symlink、workspace runtime dependency 或 repository devDependency 兜底。
-4. installed runtime 的 Bun host、effects 和 Check-owned scanner prerequisites 按已声明边界工作，或返回既有 typed unavailable/configuration result。
-5. build、pack、artifact audit 和 repository-quality dogfood 均有可复现证据；未发生 registry query、credential access 或 external publish。
-6. `candidate-handoff.md` 使后继 Project Gate Change 能恢复 candidate identity、public inventory、consumer evidence、support/prerequisite facts 和必须在 full-gate / release 阶段重新核验的条件。
+1. Candidate 的 runtime/type inventory 与 [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) 和 `src/product/public-contract/current.ts` 一致；没有 `bin`、internal/wildcard subpath、legacy alias、test 或 repository source material。
+2. 一个经过审计的 `.tgz` 同时被 repository-quality consumer 和隔离 consumer 安装；两者记录相同 digest，且 resolver evidence 不指向 Product source、workspace link 或祖先目录 fallback。
+3. `bun run quality` 在 pinned Bun/mise 环境中自动准备 candidate，再通过安装后的 public entry 运行 canonical repository Definition/Run。Candidate 输入未变化时复用现有安装；输入变化时自动 rebuild/reinstall；准备失败、状态损坏或身份不一致时不得运行 scan 或回退旧 candidate。
+4. 所有会加载或 typecheck repository-quality consumer 的入口共享同一个 preparation owner。Fresh local state 下直接运行 scripts typecheck、目标 Project Run test、test-evidence check、`quality` 与 workspace verifier 都不要求手动 prepare，不使用 source/path alias，也不会并发改写同一 install state。
+5. 隔离 consumer 在 repository ancestry 之外 typecheck public imports，并在小型 fixture 上成功执行 `duplicateDetection`；它只能使用 candidate 声明的 production dependency closure。
+6. Candidate manifest 声明精确的 `jscpd@5.0.11` production dependency；default duplication Check 解析已安装 package 的 bin target，并以 pinned Bun 执行。现有 explicit override 以及 external `scc` / `lizard` 语义不变。
+7. 现有 scanner cache identity 在 Node launcher 切换为 Bun direct entry 时失效旧 backend identity，但不会因为同一默认 dependency 的 consumer install 绝对路径不同而碎片化；不新增 `.env` 或 environment-specific cache contract。
+8. `candidate-handoff.md` 保存后继 Gate 真正需要的 artifact、consumer、host/prerequisite、限制和重新验证条件；相关 Product tests、package acceptance、`quality`、required/full workspace verification 与 Change/docs checks 通过。
 
 ## Affected Owners
 
-| Owner | 在本 Plan 中的责任 |
+| Owner | 本 Plan 的责任 |
 | --- | --- |
-| [`unify-check-authoring-and-execution`](../archive/unify-check-authoring-and-execution/) | 已完成的 authoring/execution handoff；本 Plan 只消费，不重新定义。 |
-| [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) 与 `src/product/public-contract/**` | public runtime/value/type inventory 的唯一 owner。 |
-| `src/product/**` | Bun runtime 与 declaration closure 的实现 owner。 |
-| root manifest、lockfile、build/declaration configs 与 package scripts | candidate build、staging、pack 和 artifact audit 的 owner。 |
-| `scripts/quality/**` | 首个实际 consumer；拥有 repository policy、Project Definition、bound Run、scanner configuration 与 command adaptation。 |
-| `docs/scanner-dependencies.md` | installed scanner prerequisite 的稳定说明 owner。 |
-| `docs/architecture.md` | Product invocation boundary 的稳定 owner；只链接相关 Change，不复制 package、gate 或 release 规则。 |
-| [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) | candidate 的下一真实 consumer；拥有完整 Gate 功能建设、controls/feedback 集成与 readiness handoff。 |
-| [replace-workspace-verifier-with-project-gate](../replace-workspace-verifier-with-project-gate/) | 拥有正式入口切换、旧 verifier 退役和最终 gate handoff。 |
-| [`publish-public-api-only-npm-package`](../publish-public-api-only-npm-package/) | 在 full-gate handoff 后拥有 public registry release、发布后验证和可能的 CLI hard cut。 |
+| `src/product/public-contract/current.ts` 与 [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) | Candidate runtime/type inventory 的唯一 owner。 |
+| `src/product/**` | Bun runtime、declaration closure、default `jscpd` command 与既有 cache identity 实现。 |
+| `scripts/package-candidate/**` | 自动准备、派生 manifest、build、pack、input fingerprint、preparation receipt、artifact audit 与 isolated acceptance。 |
+| `scripts/quality/{project-definition,project-run}.ts` | Canonical repository consumer；只改为 public package imports。 |
+| `scripts/quality/package.json` 与生成的 local install | 与 root package self-reference 隔离的 private repository-consumer resolution context。 |
+| `scripts/quality/{index,scan}.ts` | `index.ts` 只建立 pinned Bun/mise 环境并进入 candidate-backed workflow；`scan.ts` 继续只调用 bound Run 并映射 process exit。二者都不拥有 candidate build。 |
+| scripts typecheck、目标 Project Run test、test-evidence 与 workspace verifier | 在加载或 typecheck repository consumer 前复用同一 preparation owner；workspace verifier 用显式依赖避免并发准备。 |
+| `AGENTS.md`、`docs/script-tooling.md` 与相邻稳定 owner | 实现后同步 root `quality` 的自动准备调用链、owner 与验证入口；不提前把计划描述成当前事实。 |
+| [`support-bun-as-the-package-host`](../../docs/decisions/support-bun-as-the-package-host.md) | Bun-only host direction；本地证据只记录实际测试的 Bun/platform。 |
+| [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) | 消费 `candidate-handoff.md`，并在 public/package inputs 变化后要求重新构建和验证 candidate。 |
+| [publish-public-api-only-npm-package](../publish-public-api-only-npm-package/) | 以后独立处理 public version、legal materials、registry facts、授权与 publish。 |
