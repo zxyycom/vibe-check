@@ -9,9 +9,10 @@
                     └─ frozen Core facts → policy / publication / effects / RunResult
 ```
 
-当前实现是 `src/product/run/index.ts` 的 `run(ProjectDefinition, RunControls)`。项目拥有 TypeScript
-Definition 和绑定它的 Run wrapper；Product 不拥有项目模块路径、配置发现或重新加载。npm 投影属于独立的
-`establish-api-only-npm-product-boundary` Change，不改变这里的运行时契约。
+当前实现是 <code>src/product/run/index.ts</code> 的 <code>run(ProjectDefinition, RunControls)</code>。项目拥有 TypeScript Definition 和绑定它的 Run wrapper；Product 不拥有项目模块路径、配置发现或重新加载。
+
+可能改变此边界的全部 active Change 及其直接相关 Decision 见 [Active Change Portfolio](../changes/active-change-portfolio.md)；npm / Project Gate 六个 Change 的详细交接关系见 [Vibe Check package 与 Project Gate 交付导航](../changes/vibe-check-package-and-gate-delivery.md)。这些导航不改变本页的当前运行时契约；只有 Change 实施、验证并同步对应 owner 后，才更新架构事实。
+
 
 ## Definition boundary
 

@@ -43,7 +43,7 @@ Decision 与 Change 之间的项目级交接：
 需要跨文件、owner 或验证阶段持久交接的明确 change 使用 `$change-plan`。简单局部改动直接同步
 owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
 
-项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划。固定 artifact、
+项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划。需要在全部 active Change 中定位产品路径、直接相关 Decision 或恢复边界时，可在该命令之后阅读 [Active Change Portfolio](../changes/active-change-portfolio.md)；它只是导航，不能代替目标 Change 的 artifacts、动态 stage 或 Decision owner。固定 artifact、
 严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
 [脚本工具](script-tooling.md#change-plan-cli)。
