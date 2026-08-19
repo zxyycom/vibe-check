@@ -1,3 +1,5 @@
+import { validatePreparedTaskGraph } from "./graph-validation.ts";
+
 export interface TaskNode {
   readonly id: string;
   readonly dependsOn?: readonly string[];
@@ -41,20 +43,6 @@ export interface PlannedTaskGraph {
   readonly scopes: readonly PlannedTaskScope[];
 }
 
-interface ScopeValidationInput {
-  readonly rootMaxParallel: number | undefined;
-  readonly scopeById: ReadonlyMap<string, PlannedTaskScope>;
-  readonly scopes: readonly PlannedTaskScope[];
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
-  readonly tasks: readonly PlannedTask[];
-}
-
-interface DependencyPathQuery {
-  readonly requiredDependencyId: string;
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
-  readonly taskId: string;
-}
-
 const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
 const TASK_NODE_KEYS = ["id", "dependsOn", "mutex", "scopeId"] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
@@ -71,9 +59,7 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
   const taskById = new Map(tasks.map((task) => [task.id, task] as const));
   const scopeById = new Map(scopes.map((scope) => [scope.id, scope] as const));
 
-  validateDependencies(tasks, taskById);
-  validateDependencyCycles(tasks, taskById);
-  validateScopes({ rootMaxParallel, scopeById, scopes, taskById, tasks });
+  validatePreparedTaskGraph({ rootMaxParallel, scopeById, scopes, taskById, tasks });
 
   return Object.freeze({
     tasks: Object.freeze(tasks),
@@ -141,149 +127,6 @@ function normalizeScopes(value: unknown): PlannedTaskScope[] {
     );
   }
   return scopes;
-}
-
-function validateDependencies(
-  tasks: readonly PlannedTask[],
-  taskById: ReadonlyMap<string, PlannedTask>
-): void {
-  for (const task of tasks) {
-    for (const dependency of task.dependsOn) {
-      if (!taskById.has(dependency)) {
-        throw new Error(`task ${task.id} depends on unknown task ${dependency}`);
-      }
-    }
-  }
-}
-
-function validateDependencyCycles(
-  tasks: readonly PlannedTask[],
-  taskById: ReadonlyMap<string, PlannedTask>
-): void {
-  const visiting = new Set<string>();
-  const visited = new Set<string>();
-
-  const visit = (task: PlannedTask): void => {
-    if (visiting.has(task.id)) {
-      throw new Error(`task dependency cycle includes ${task.id}`);
-    }
-    if (visited.has(task.id)) {
-      return;
-    }
-    visiting.add(task.id);
-    for (const dependency of task.dependsOn) {
-      const dependencyTask = taskById.get(dependency);
-      if (dependencyTask === undefined) {
-        throw new Error(`task ${task.id} depends on unknown task ${dependency}`);
-      }
-      visit(dependencyTask);
-    }
-    visiting.delete(task.id);
-    visited.add(task.id);
-  };
-
-  for (const task of tasks) {
-    visit(task);
-  }
-}
-
-function validateScopes(input: ScopeValidationInput): void {
-  validateRootMaxParallel(input.rootMaxParallel);
-  validateTaskScopeMembership(input.tasks, input.scopeById);
-  for (const scope of input.scopes) {
-    validateScopeCap(scope, input.rootMaxParallel);
-    validateScopeTerminal(scope, input.taskById);
-    validateScopeActivation(scope, input.taskById);
-    validateScopeTerminalReachability(scope, input.tasks, input.taskById);
-  }
-}
-
-function validateRootMaxParallel(rootMaxParallel: number | undefined): void {
-  if (rootMaxParallel !== undefined) {
-    positiveSafeInteger(rootMaxParallel, "task engine maxParallel");
-  }
-}
-
-function validateTaskScopeMembership(
-  tasks: readonly PlannedTask[],
-  scopeById: ReadonlyMap<string, PlannedTaskScope>
-): void {
-  for (const task of tasks) {
-    if (task.scopeId !== undefined && !scopeById.has(task.scopeId)) {
-      throw new Error(`task ${task.id} references unknown scope ${task.scopeId}`);
-    }
-  }
-}
-
-function validateScopeCap(scope: PlannedTaskScope, rootMaxParallel: number | undefined): void {
-  if (rootMaxParallel !== undefined && scope.maxParallel > rootMaxParallel) {
-    throw new Error(`task scope ${scope.id} maxParallel exceeds task engine maxParallel`);
-  }
-}
-
-function validateScopeTerminal(
-  scope: PlannedTaskScope,
-  taskById: ReadonlyMap<string, PlannedTask>
-): void {
-  const terminal = taskById.get(scope.terminalTaskId);
-  if (terminal?.scopeId !== scope.id) {
-    throw new Error(`task scope ${scope.id} terminal task must belong to the scope`);
-  }
-}
-
-function validateScopeActivation(
-  scope: PlannedTaskScope,
-  taskById: ReadonlyMap<string, PlannedTask>
-): void {
-  const activationIds = new Set<string>();
-  for (const taskId of scope.activationTaskIds) {
-    if (activationIds.has(taskId)) {
-      throw new Error(`task scope ${scope.id} repeats activation task ${taskId}`);
-    }
-    activationIds.add(taskId);
-    const task = taskById.get(taskId);
-    if (task?.scopeId !== scope.id) {
-      throw new Error(`task scope ${scope.id} activation task must belong to the scope: ${taskId}`);
-    }
-  }
-}
-
-function validateScopeTerminalReachability(
-  scope: PlannedTaskScope,
-  tasks: readonly PlannedTask[],
-  taskById: ReadonlyMap<string, PlannedTask>
-): void {
-  for (const task of tasks) {
-    if (task.scopeId !== scope.id || task.id === scope.terminalTaskId) {
-      continue;
-    }
-    if (
-      !dependsOnTask({
-        requiredDependencyId: task.id,
-        taskById,
-        taskId: scope.terminalTaskId
-      })
-    ) {
-      throw new Error(`task scope ${scope.id} terminal task must depend on scoped task ${task.id}`);
-    }
-  }
-}
-
-function dependsOnTask(query: DependencyPathQuery): boolean {
-  const pending = [...(query.taskById.get(query.taskId)?.dependsOn ?? [])];
-  const visited = new Set<string>();
-  while (pending.length > 0) {
-    const dependencyId = pending.pop();
-    if (dependencyId === undefined || visited.has(dependencyId)) {
-      continue;
-    }
-    if (dependencyId === query.requiredDependencyId) {
-      return true;
-    }
-    visited.add(dependencyId);
-    pending.push(...(query.taskById.get(dependencyId)?.dependsOn ?? []));
-  }
-  return false;
 }
 
 function record(

@@ -41,6 +41,16 @@ type WorkingTreeChangeContext = Readonly<{
   readonly visitedRepositories?: ReadonlySet<string>;
 }>;
 
+type TraversalWorkingTreeChangeContext = WorkingTreeChangeContext &
+  Readonly<{
+    readonly visitedRepositories: ReadonlySet<string>;
+  }>;
+
+type WorkingTreeGitlinkChangeContext = TraversalWorkingTreeChangeContext &
+  Readonly<{
+    readonly gitlink: Gitlink;
+  }>;
+
 export function collectRevisionChanges(context: RevisionChangeContext): string[] {
   const traversalContext: TraversalRevisionChangeContext = {
     ...context,
@@ -75,71 +85,97 @@ export function collectRevisionChanges(context: RevisionChangeContext): string[]
   return uniqueSortedPaths(changed);
 }
 
-export function collectWorkingTreeChanges({
-  prefix,
-  repository,
-  revision,
-  scanInputPaths,
-  visitedRepositories
-}: WorkingTreeChangeContext): string[] {
-  const traversalVisitedRepositories =
-    visitedRepositories ?? new Set([canonicalRepositoryPath(repository)]);
-  const statusResult = runGit({
-    args: ["status", "--porcelain", "--untracked-files=all"],
-    cwd: repository
-  });
-  const changed = processFailed(statusResult)
-    ? []
-    : prefixAndFilter({
-        files: parseGitStatusPaths(statusResult.stdout),
-        prefix,
-        scanInputPaths
-      });
+export function collectWorkingTreeChanges(context: WorkingTreeChangeContext): string[] {
+  const traversalContext = workingTreeTraversalContext(context);
+  const changed = directWorkingTreeChanges(traversalContext);
 
-  for (const gitlink of gitlinksAtRevision({ repository, revision }) ?? []) {
-    const submoduleRepository = resolveDescendableGitlinkRepository({
-      gitlinkPath: gitlink.path,
-      repository,
-      visitedRepositories: traversalVisitedRepositories
-    });
-    if (!submoduleRepository) continue;
-    const nextVisitedRepositories = visitRepository({
-      repository: submoduleRepository,
-      visitedRepositories: traversalVisitedRepositories
-    });
-
-    const submodulePrefix = joinSlash({ path: gitlink.path, prefix });
-    const actualRevision =
-      nonEmptyGitOutput(
-        runGit({
-          args: ["rev-parse", "HEAD"],
-          cwd: submoduleRepository
-        }).stdout
-      ) ?? gitlink.sha;
-    if (actualRevision !== gitlink.sha) {
-      changed.push(
-        ...collectRevisionChanges({
-          fromRevision: gitlink.sha,
-          prefix: submodulePrefix,
-          repository: submoduleRepository,
-          scanInputPaths,
-          toRevision: actualRevision,
-          visitedRepositories: nextVisitedRepositories
-        })
-      );
-    }
-    changed.push(
-      ...collectWorkingTreeChanges({
-        prefix: submodulePrefix,
-        repository: submoduleRepository,
-        revision: actualRevision,
-        scanInputPaths,
-        visitedRepositories: nextVisitedRepositories
-      })
-    );
+  for (const gitlink of gitlinksAtRevision(traversalContext) ?? []) {
+    changed.push(...collectGitlinkWorkingTreeChanges({ ...traversalContext, gitlink }));
   }
 
   return uniqueSortedPaths(changed);
+}
+
+function workingTreeTraversalContext(
+  context: WorkingTreeChangeContext
+): TraversalWorkingTreeChangeContext {
+  return {
+    ...context,
+    visitedRepositories:
+      context.visitedRepositories ?? new Set([canonicalRepositoryPath(context.repository)])
+  };
+}
+
+function directWorkingTreeChanges(context: TraversalWorkingTreeChangeContext): string[] {
+  const statusResult = runGit({
+    args: ["status", "--porcelain", "--untracked-files=all"],
+    cwd: context.repository
+  });
+  return processFailed(statusResult)
+    ? []
+    : prefixAndFilter({
+        files: parseGitStatusPaths(statusResult.stdout),
+        prefix: context.prefix,
+        scanInputPaths: context.scanInputPaths
+      });
+}
+
+function collectGitlinkWorkingTreeChanges(input: WorkingTreeGitlinkChangeContext): string[] {
+  const submoduleRepository = resolveDescendableGitlinkRepository({
+    gitlinkPath: input.gitlink.path,
+    repository: input.repository,
+    visitedRepositories: input.visitedRepositories
+  });
+  if (!submoduleRepository) return [];
+
+  const visitedRepositories = visitRepository({
+    repository: submoduleRepository,
+    visitedRepositories: input.visitedRepositories
+  });
+  const prefix = joinSlash({ path: input.gitlink.path, prefix: input.prefix });
+  const revision = workingTreeRevision({
+    fallbackRevision: input.gitlink.sha,
+    repository: submoduleRepository
+  });
+  const revisionChanges =
+    revision === input.gitlink.sha
+      ? []
+      : collectRevisionChanges({
+          fromRevision: input.gitlink.sha,
+          prefix,
+          repository: submoduleRepository,
+          scanInputPaths: input.scanInputPaths,
+          toRevision: revision,
+          visitedRepositories
+        });
+
+  return [
+    ...revisionChanges,
+    ...collectWorkingTreeChanges({
+      prefix,
+      repository: submoduleRepository,
+      revision,
+      scanInputPaths: input.scanInputPaths,
+      visitedRepositories
+    })
+  ];
+}
+
+function workingTreeRevision({
+  fallbackRevision,
+  repository
+}: Readonly<{
+  readonly fallbackRevision: string;
+  readonly repository: string;
+}>): string {
+  return (
+    nonEmptyGitOutput(
+      runGit({
+        args: ["rev-parse", "HEAD"],
+        cwd: repository
+      }).stdout
+    ) ?? fallbackRevision
+  );
 }
 
 function directRevisionChanges(context: TraversalRevisionChangeContext): string[] {

@@ -20,35 +20,47 @@ type RevisionMaterializationContext = Readonly<{
   readonly visitedRepositories?: ReadonlySet<string>;
 }>;
 
-export function materializeRevisionGitlinks({
-  archiveDir,
-  archiveIndex,
-  repository,
-  revision,
-  targetDir,
-  visitedRepositories
-}: RevisionMaterializationContext): string | null {
+type MaterializeGitlinkContext = Readonly<{
+  readonly archiveDir: string;
+  readonly archiveIndex: { value: number };
+  readonly gitlink: Gitlink;
+  readonly repository: string;
+  readonly targetDir: string;
+  readonly visitedRepositories: ReadonlySet<string>;
+}>;
+
+type MaterializeGitlinkResult = Readonly<
+  | { readonly ok: true; readonly repository: string; readonly targetDir: string }
+  | { readonly error: string; readonly ok: false }
+>;
+
+export function materializeRevisionGitlinks(
+  context: RevisionMaterializationContext
+): string | null {
   const traversalVisitedRepositories =
-    visitedRepositories ?? new Set([canonicalRepositoryPath(repository)]);
-  const gitlinks = gitlinksAtRevision({ repository, revision });
+    context.visitedRepositories ?? new Set([canonicalRepositoryPath(context.repository)]);
+  const gitlinks = gitlinksAtRevision({
+    repository: context.repository,
+    revision: context.revision
+  });
   if (gitlinks === null) {
-    return `git ls-tree failed while reading submodules at ${revision}`;
+    return `git ls-tree failed while reading submodules at ${context.revision}`;
   }
 
   for (const gitlink of gitlinks) {
     const materialized = materializeGitlink({
-      archiveDir,
-      archiveIndex,
+      archiveDir: context.archiveDir,
+      archiveIndex: context.archiveIndex,
       gitlink,
-      repository,
-      targetDir,
+      repository: context.repository,
+      targetDir: context.targetDir,
       visitedRepositories: traversalVisitedRepositories
     });
     if (!materialized.ok) return materialized.error;
 
     const nestedError = materializeRevisionGitlinks({
-      archiveDir,
-      archiveIndex,
+      archiveDir: context.archiveDir,
+      archiveIndex: context.archiveIndex,
       repository: materialized.repository,
       revision: gitlink.sha,
       targetDir: materialized.targetDir,
@@ -63,37 +75,53 @@ export function materializeRevisionGitlinks({
   return null;
 }
 
-function materializeGitlink({
-  archiveDir,
-  archiveIndex,
-  gitlink,
-  repository,
-  targetDir,
-  visitedRepositories
-}: Readonly<{
-  readonly archiveDir: string;
-  readonly archiveIndex: { value: number };
-  readonly gitlink: Gitlink;
-  readonly repository: string;
-  readonly targetDir: string;
-  readonly visitedRepositories: ReadonlySet<string>;
-}>): Readonly<
-  | { readonly ok: true; readonly repository: string; readonly targetDir: string }
-  | { readonly error: string; readonly ok: false }
-> {
-  const submoduleTarget = resolve(targetDir, gitlink.path);
-  if (!isStrictDescendant({ childPath: submoduleTarget, parentDirectory: targetDir })) {
-    return { ok: false, error: `submodule path escapes baseline workspace: ${gitlink.path}` };
+function materializeGitlink(context: MaterializeGitlinkContext): MaterializeGitlinkResult {
+  const target = materializationTarget(context);
+  if (!target.ok) return target;
+
+  const archivePath = join(context.archiveDir, `submodule-${context.archiveIndex.value}.tar`);
+  context.archiveIndex.value += 1;
+  const archiveError = archiveRevision({
+    archivePath,
+    label: context.gitlink.path,
+    repository: target.repository,
+    revision: context.gitlink.sha
+  });
+  if (archiveError) return { ok: false, error: archiveError };
+
+  mkdirSync(target.targetDir, { recursive: true });
+  const extractError = extractArchive({
+    archiveDirectory: context.archiveDir,
+    archivePath,
+    label: context.gitlink.path,
+    targetDirectory: target.targetDir
+  });
+  return extractError ? { ok: false, error: extractError } : target;
+}
+
+function materializationTarget(context: MaterializeGitlinkContext): MaterializeGitlinkResult {
+  const submoduleTarget = resolve(context.targetDir, context.gitlink.path);
+  if (!isStrictDescendant({ childPath: submoduleTarget, parentDirectory: context.targetDir })) {
+    return {
+      ok: false,
+      error: `submodule path escapes baseline workspace: ${context.gitlink.path}`
+    };
   }
-  const inspection = inspectGitlinkWorktree({ gitlinkPath: gitlink.path, repository });
+  const inspection = inspectGitlinkWorktree({
+    gitlinkPath: context.gitlink.path,
+    repository: context.repository
+  });
   if (inspection.kind === "missing") {
-    return { ok: false, error: `initialized submodule worktree is missing: ${gitlink.path}` };
+    return {
+      ok: false,
+      error: `initialized submodule worktree is missing: ${context.gitlink.path}`
+    };
   }
   if (inspection.kind === "not-independent") {
     return {
       ok: false,
       error:
-        `submodule path is not an independent Git worktree: ${gitlink.path}; ` +
+        `submodule path is not an independent Git worktree: ${context.gitlink.path}; ` +
         "restore the initialized submodule worktree before materializing the baseline"
     };
   }
@@ -101,28 +129,12 @@ function materializeGitlink({
     return { ok: false, error: inspection.error };
   }
   const submoduleRepository = inspection.repository;
-  if (visitedRepositories.has(submoduleRepository)) {
-    return { ok: false, error: `submodule repository re-enters an ancestor: ${gitlink.path}` };
+  if (context.visitedRepositories.has(submoduleRepository)) {
+    return {
+      ok: false,
+      error: `submodule repository re-enters an ancestor: ${context.gitlink.path}`
+    };
   }
-
-  const archivePath = join(archiveDir, `submodule-${archiveIndex.value}.tar`);
-  archiveIndex.value += 1;
-  const archiveError = archiveRevision({
-    archivePath,
-    label: gitlink.path,
-    repository: submoduleRepository,
-    revision: gitlink.sha
-  });
-  if (archiveError) return { ok: false, error: archiveError };
-
-  mkdirSync(submoduleTarget, { recursive: true });
-  const extractError = extractArchive({
-    archiveDirectory: archiveDir,
-    archivePath,
-    label: gitlink.path,
-    targetDirectory: submoduleTarget
-  });
-  if (extractError) return { ok: false, error: extractError };
 
   return { ok: true, repository: submoduleRepository, targetDir: submoduleTarget };
 }
