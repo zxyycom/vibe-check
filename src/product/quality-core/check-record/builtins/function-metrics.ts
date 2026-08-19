@@ -1,6 +1,10 @@
 import type { FunctionScannerDependency } from "../../../scanner-dependencies/index.ts";
 import type { FunctionMetricsOptions } from "../../../definition/built-ins.ts";
-import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
+import type {
+  CheckExecutionContext,
+  CheckReferenceCandidate,
+  CheckResult
+} from "../../../definition/custom-check.ts";
 import { collectScanFiles } from "../../input/files.ts";
 import { selectLizardTargetFiles } from "../../measurement/metrics.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
@@ -162,6 +166,21 @@ function directMeasurementFailure(
   return unavailable("external-result-invalid");
 }
 
+function reportFunctionReferenceOutcome(
+  context: CheckExecutionContext<FunctionMetricsOptions>,
+  status: CheckReferenceCandidate["status"],
+  relations: CheckReferenceCandidate["relations"] = Object.freeze([])
+): void {
+  if (context.project.comparison === null) return;
+  context.records.reportReference(
+    Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations,
+      status
+    })
+  );
+}
+
 async function reportFunctionReference(
   context: CheckExecutionContext<FunctionMetricsOptions>,
   currentAnalysis: FunctionMetricAnalysis,
@@ -179,24 +198,15 @@ async function reportFunctionReference(
   });
   const measurement = await measureFunctionMetrics(reference, dependency);
   if (measurement.kind !== "complete") {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-      })
+    reportFunctionReferenceOutcome(
+      context,
+      measurement.kind === "unavailable" ? "unavailable" : "incomplete"
     );
     return;
   }
   const referenceAnalysis = analyzeFunctionMetrics(measurement.metrics);
   if (referenceAnalysis === undefined) {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: "incomplete"
-      })
-    );
+    reportFunctionReferenceOutcome(context, "incomplete");
     return;
   }
   const relationsByRecordKey = buildFunctionRelations(
@@ -213,13 +223,7 @@ async function reportFunctionReference(
       })
     )
   );
-  context.records.reportReference(
-    Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze(relations),
-      status: "complete"
-    })
-  );
+  reportFunctionReferenceOutcome(context, "complete", Object.freeze(relations));
 }
 
 function unavailable(code: string): CheckResult {

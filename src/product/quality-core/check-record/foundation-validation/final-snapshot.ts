@@ -108,6 +108,24 @@ function validateUnavailableOutcome(
   return accepted<CheckOutcome>({ status: "unavailable", reason: reason.value });
 }
 
+function validateReasonCheckIds(value: unknown, path: string): ValidationResult<readonly string[]> {
+  if (!Array.isArray(value) || value.length === 0) {
+    return issue(path, "invalid-value", "Check reason checkIds must be a non-empty Check id array");
+  }
+  const checkIds: string[] = [];
+  for (const checkId of value) {
+    if (typeof checkId !== "string" || !CHECK_ID.test(checkId)) {
+      return issue(
+        path,
+        "invalid-value",
+        "Check reason checkIds must be a non-empty Check id array"
+      );
+    }
+    checkIds.push(checkId);
+  }
+  return accepted(checkIds);
+}
+
 function validateReason(
   value: unknown,
   path: string,
@@ -125,25 +143,8 @@ function validateReason(
     return issue(`${path}.code`, "invalid-value", "Check reason code must be a non-empty string");
   }
   if (closed.value.checkIds === undefined) return accepted({ code: closed.value.code });
-  if (!Array.isArray(closed.value.checkIds) || closed.value.checkIds.length === 0) {
-    return issue(
-      `${path}.checkIds`,
-      "invalid-value",
-      "Check reason checkIds must be a non-empty Check id array"
-    );
-  }
-  const checkIds: string[] = [];
-  for (const checkId of closed.value.checkIds) {
-    if (typeof checkId !== "string" || !CHECK_ID.test(checkId)) {
-      return issue(
-        `${path}.checkIds`,
-        "invalid-value",
-        "Check reason checkIds must be a non-empty Check id array"
-      );
-    }
-    checkIds.push(checkId);
-  }
-  return accepted({ code: closed.value.code, checkIds });
+  const checkIds = validateReasonCheckIds(closed.value.checkIds, `${path}.checkIds`);
+  return checkIds.ok ? accepted({ code: closed.value.code, checkIds: checkIds.value }) : checkIds;
 }
 
 function validateClosedRecordWithOptional(

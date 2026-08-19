@@ -78,6 +78,31 @@ function validatePolicyOperandSource(
     : validateTextualOperandSource(value, path, valueType);
 }
 
+interface PolicyOperandHeader {
+  readonly operandId: string;
+  readonly source: unknown;
+  readonly valueType: unknown;
+}
+
+function validatePolicyOperandHeader(
+  value: unknown,
+  path: string
+): ValidationResult<PolicyOperandHeader> {
+  const operand = validateClosedRecord(value, path, ["operandId", "valueType", "source"]);
+  if (!operand.ok) return operand;
+  if (
+    typeof operand.value.operandId !== "string" ||
+    !POLICY_OPERAND_ID_PATTERN.test(operand.value.operandId)
+  ) {
+    return issue(`${path}.operandId`, "invalid-value", "Invalid policy operand identity");
+  }
+  return accepted({
+    operandId: operand.value.operandId,
+    source: operand.value.source,
+    valueType: operand.value.valueType
+  });
+}
+
 function validatePolicyOperands(
   values: readonly unknown[],
   path: string,
@@ -88,20 +113,8 @@ function validatePolicyOperands(
   let previousOperandId: string | undefined;
   for (let index = 0; index < values.length; index += 1) {
     const operandPath = `${path}.operands[${index}]`;
-    const operand = validateClosedRecord(values[index], operandPath, [
-      "operandId",
-      "valueType",
-      "source"
-    ]);
-    if (!operand.ok) {
-      return operand;
-    }
-    if (
-      typeof operand.value.operandId !== "string" ||
-      !POLICY_OPERAND_ID_PATTERN.test(operand.value.operandId)
-    ) {
-      return issue(`${operandPath}.operandId`, "invalid-value", "Invalid policy operand identity");
-    }
+    const operand = validatePolicyOperandHeader(values[index], operandPath);
+    if (!operand.ok) return operand;
     if (operandIds.has(operand.value.operandId)) {
       return issue(`${operandPath}.operandId`, "duplicate", "Duplicate policy operand identity");
     }
@@ -128,9 +141,7 @@ function validatePolicyOperands(
       fields,
       operand.value.valueType
     );
-    if (!source.ok) {
-      return source;
-    }
+    if (!source.ok) return source;
     operandIds.add(operand.value.operandId);
     previousOperandId = operand.value.operandId;
     operands.push({

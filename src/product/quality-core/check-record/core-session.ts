@@ -1,38 +1,23 @@
-import { canonicalJsonBytes, createRecordId } from "./identity.ts";
 import type {
   CheckDefinition,
   CheckOutcome,
   CoreSnapshot,
-  JsonObject,
-  QualityRecord,
-  QualityRecordCandidate,
-  RecordFieldValue,
-  RecordTypeDefinition
+  QualityRecordCandidate
 } from "./model.ts";
-import { hasExactPlainRecordKeys, snapshotPlainRecord } from "./plain-record-values.ts";
 import {
-  validateCheckDefinition,
-  validateCoreSnapshot,
-  validateQualityRecord
-} from "./validation.ts";
+  CoreRecordStore,
+  type CoreRecordSlot,
+  type RecordDiagnostic,
+  type RecordSubmissionResult,
+  type RetainedRecordReference
+} from "./core-record-store.ts";
+import { validateCheckDefinition, validateCoreSnapshot } from "./validation.ts";
 
-const CANDIDATE_FIELDS = [
-  "recordTypeId",
-  "level",
-  "semanticSubject",
-  "message",
-  "fields",
-  "location"
-] as const;
-
-const REFERENCE_RECORD_FIELDS = ["recordTypeId", "semanticSubject", "fields"] as const;
-const LOCATION_FIELDS = ["path", "line", "column"] as const;
+export type { RecordSubmissionResult } from "./core-record-store.ts";
 
 export interface CoreCheckRegistration {
   readonly definition: CheckDefinition;
 }
-
-export type RecordSubmissionResult = "committed" | "replayed" | "conflicted" | "rejected";
 
 /** Internal Record port bound to one currently executing Check. */
 export interface RecordSink {
@@ -43,12 +28,7 @@ export interface RecordSink {
 export interface TrustedCheckScope {
   readonly records: RecordSink;
   /** Resolves an already retained Record identity for a reporter relation. */
-  readonly recordIdForReference: (candidate: unknown) =>
-    | Readonly<{
-        readonly recordId: string;
-        readonly recordTypeId: string;
-      }>
-    | undefined;
+  readonly recordIdForReference: (candidate: unknown) => RetainedRecordReference | undefined;
   readonly settle: (outcome: CheckOutcome) => CheckOutcome;
 }
 
@@ -66,22 +46,13 @@ export class CoreInvariantFailure extends Error {
   }
 }
 
-interface RecordState {
-  readonly bodies: Map<string, JsonObject>;
-}
-
-type RecordDiagnostic = "record-conflict" | "record-invalid";
-
 type CoreSlotLifecycle = Readonly<
   | { readonly kind: "registered" }
   | { readonly kind: "open" }
   | { readonly kind: "settled"; readonly outcome: CheckOutcome }
 >;
 
-interface CoreSlot {
-  readonly definition: CheckDefinition;
-  readonly diagnostics: Set<RecordDiagnostic>;
-  readonly recordIds: Set<string>;
+interface CoreSlot extends CoreRecordSlot {
   lifecycle: CoreSlotLifecycle;
 }
 
@@ -93,108 +64,6 @@ function compareText(left: string, right: string): number {
 
 function coreInvariant(message: string): never {
   throw new CoreInvariantFailure(message);
-}
-
-function candidateRecordType(
-  slot: CoreSlot,
-  recordTypeId: string
-): RecordTypeDefinition | undefined {
-  return slot.definition.recordTypes.find((recordType) => recordType.recordTypeId === recordTypeId);
-}
-
-function isRecordLevel(value: unknown): value is QualityRecordCandidate["level"] {
-  return value === "info" || value === "warning" || value === "error";
-}
-
-function isRecordFieldValue(value: unknown): value is RecordFieldValue {
-  return typeof value === "boolean" || typeof value === "number" || typeof value === "string";
-}
-
-function normalizeCandidateFields(value: unknown): QualityRecordCandidate["fields"] | undefined {
-  const fields = snapshotPlainRecord(value);
-  if (fields === undefined) return undefined;
-  const normalized: Record<string, RecordFieldValue> = {};
-  for (const [fieldId, fieldValue] of Object.entries(fields)) {
-    if (!isRecordFieldValue(fieldValue)) return undefined;
-    normalized[fieldId] = fieldValue;
-  }
-  return Object.freeze(normalized);
-}
-
-function normalizeCandidateLocation(
-  value: unknown
-): QualityRecordCandidate["location"] | undefined {
-  if (value === null) return null;
-  const location = snapshotPlainRecord(value);
-  if (
-    location === undefined ||
-    !hasExactPlainRecordKeys(location, LOCATION_FIELDS) ||
-    typeof location.path !== "string" ||
-    typeof location.line !== "number" ||
-    typeof location.column !== "number"
-  ) {
-    return undefined;
-  }
-  return Object.freeze({ path: location.path, line: location.line, column: location.column });
-}
-
-function normalizeRecordCandidate(
-  candidate: Readonly<Record<string, unknown>>
-): QualityRecordCandidate | undefined {
-  if (
-    typeof candidate.recordTypeId !== "string" ||
-    !isRecordLevel(candidate.level) ||
-    typeof candidate.semanticSubject !== "string" ||
-    typeof candidate.message !== "string"
-  ) {
-    return undefined;
-  }
-  const fields = normalizeCandidateFields(candidate.fields);
-  const location = normalizeCandidateLocation(candidate.location);
-  if (fields === undefined || location === undefined) return undefined;
-  return Object.freeze({
-    recordTypeId: candidate.recordTypeId,
-    level: candidate.level,
-    semanticSubject: candidate.semanticSubject,
-    message: candidate.message,
-    fields,
-    location
-  });
-}
-
-function identityFields(
-  value: unknown,
-  fieldIds: readonly string[]
-): QualityRecordCandidate["fields"] | undefined {
-  if (!isNonArrayRecord(value)) return undefined;
-  const fields: Record<string, RecordFieldValue> = {};
-  for (const fieldId of fieldIds) {
-    const fieldValue = value[fieldId];
-    if (!isRecordFieldValue(fieldValue)) return undefined;
-    fields[fieldId] = fieldValue;
-  }
-  return Object.freeze(fields);
-}
-
-function isNonArrayRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-function recordBody(record: QualityRecord): JsonObject {
-  return {
-    recordId: record.recordId,
-    checkId: record.checkId,
-    recordTypeId: record.recordTypeId,
-    level: record.level,
-    semanticSubject: record.semanticSubject,
-    message: record.message,
-    fields: { ...record.fields },
-    location: record.location === null ? null : { ...record.location }
-  };
-}
-
-function bodyKey(body: JsonObject): string {
-  return new TextDecoder().decode(canonicalJsonBytes(body));
 }
 
 function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[] {
@@ -224,8 +93,7 @@ function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[
 
 class CoreCheckSessionImpl implements CoreCheckSession {
   readonly #slots: CoreSlot[];
-  readonly #records = new Map<string, QualityRecord>();
-  readonly #recordStates = new Map<string, RecordState>();
+  readonly #recordStore = new CoreRecordStore();
   #snapshot: CoreSnapshot | undefined;
 
   public constructor(registrations: readonly CoreCheckRegistration[]) {
@@ -245,7 +113,8 @@ class CoreCheckSessionImpl implements CoreCheckSession {
           return this.#reportRecord(slot, candidate);
         }
       }),
-      recordIdForReference: (candidate: unknown) => this.#recordIdForReference(slot, candidate),
+      recordIdForReference: (candidate: unknown) =>
+        this.#recordStore.recordIdForReference(slot, candidate),
       settle: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome)
     });
   }
@@ -276,9 +145,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       }
       checks.push({ definition: slot.definition, outcome: slot.lifecycle.outcome });
     }
-    const records = [...this.#records.values()].sort((left, right) =>
-      compareText(left.recordId, right.recordId)
-    );
+    const records = this.#recordStore.recordsInCanonicalOrder();
     const validated = validateCoreSnapshot({
       checks: checks.map(({ definition, outcome }) => ({ ...definition, outcome })),
       records
@@ -317,100 +184,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
   }
 
   #reportRecord(slot: CoreSlot, rawCandidate: unknown): RecordSubmissionResult {
-    const candidateData = snapshotPlainRecord(rawCandidate);
-    if (candidateData === undefined || !hasExactPlainRecordKeys(candidateData, CANDIDATE_FIELDS)) {
-      return this.#rejectInvalidRecord(slot);
-    }
-    const candidate = normalizeRecordCandidate(candidateData);
-    if (candidate === undefined) return this.#rejectInvalidRecord(slot);
-    const recordType = candidateRecordType(slot, candidate.recordTypeId);
-    if (recordType === undefined) return this.#rejectInvalidRecord(slot);
-    const record = this.#validateRecord(slot, candidate, recordType);
-    if (record === undefined) return this.#rejectInvalidRecord(slot);
-
-    const body = recordBody(record);
-    const key = bodyKey(body);
-    const state = this.#recordStates.get(record.recordId);
-    if (state === undefined) {
-      this.#recordStates.set(record.recordId, { bodies: new Map([[key, body]]) });
-      this.#records.set(record.recordId, record);
-      slot.recordIds.add(record.recordId);
-      return "committed";
-    }
-    if (state.bodies.has(key))
-      return this.#records.has(record.recordId) ? "replayed" : "conflicted";
-    state.bodies.set(key, body);
-    this.#records.delete(record.recordId);
-    slot.diagnostics.add("record-conflict");
-    return "conflicted";
-  }
-
-  #recordIdForReference(
-    slot: CoreSlot,
-    rawCandidate: unknown
-  ):
-    | Readonly<{
-        readonly recordId: string;
-        readonly recordTypeId: string;
-      }>
-    | undefined {
-    try {
-      const candidate = snapshotPlainRecord(rawCandidate);
-      if (
-        candidate === undefined ||
-        !hasExactPlainRecordKeys(candidate, REFERENCE_RECORD_FIELDS) ||
-        typeof candidate.recordTypeId !== "string" ||
-        typeof candidate.semanticSubject !== "string"
-      ) {
-        return undefined;
-      }
-      const recordType = candidateRecordType(slot, candidate.recordTypeId);
-      if (recordType === undefined) return undefined;
-      const fields = identityFields(candidate.fields, recordType.identityFields);
-      if (fields === undefined) return undefined;
-      const recordId = createRecordId(
-        {
-          checkId: slot.definition.checkId,
-          fields,
-          recordTypeId: candidate.recordTypeId,
-          semanticSubject: candidate.semanticSubject
-        },
-        recordType
-      ).recordId;
-      return this.#records.has(recordId)
-        ? Object.freeze({ recordId, recordTypeId: recordType.recordTypeId })
-        : undefined;
-    } catch {
-      return undefined;
-    }
-  }
-
-  #validateRecord(
-    slot: CoreSlot,
-    candidate: QualityRecordCandidate,
-    recordType: RecordTypeDefinition
-  ): QualityRecord | undefined {
-    try {
-      const bound = {
-        checkId: slot.definition.checkId,
-        recordTypeId: candidate.recordTypeId,
-        level: candidate.level,
-        semanticSubject: candidate.semanticSubject,
-        message: candidate.message,
-        fields: candidate.fields,
-        location: candidate.location
-      };
-      const recordId = createRecordId(bound, recordType).recordId;
-      const validated = validateQualityRecord({ ...bound, recordId }, slot.definition);
-      return validated.ok ? validated.value : undefined;
-    } catch {
-      return undefined;
-    }
-  }
-
-  #rejectInvalidRecord(slot: CoreSlot): "rejected" {
-    slot.diagnostics.add("record-invalid");
-    return "rejected";
+    return this.#recordStore.report(slot, rawCandidate);
   }
 }
 

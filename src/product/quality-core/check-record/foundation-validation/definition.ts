@@ -194,38 +194,15 @@ function validateRecordTypeDefinition(
   });
 }
 
-export function validateMaterializedCheckDefinition(
-  value: unknown
-): ValidationResult<CheckDefinition> {
-  const closed = validateClosedRecord(value, "$", ["checkId", "displayName", "recordTypes"]);
-  if (!closed.ok) {
-    return closed;
-  }
-  const definition = closed.value;
-  if (!isStableId(definition.checkId)) {
-    return issue(
-      "$.checkId",
-      "invalid-value",
-      "checkId must use stable kebab-case identity grammar"
-    );
-  }
-  if (!isNonEmptyString(definition.displayName)) {
-    return issue("$.displayName", "invalid-value", "displayName must be non-empty");
-  }
-  if (!Array.isArray(definition.recordTypes)) {
-    return issue("$.recordTypes", "invalid-value", "recordTypes must be an array");
-  }
+function validateRecordTypeDefinitions(
+  values: readonly unknown[]
+): ValidationResult<readonly RecordTypeDefinition[]> {
   const recordTypes: RecordTypeDefinition[] = [];
   const recordTypeIds = new Set<string>();
   let previousRecordTypeId: string | undefined;
-  for (let index = 0; index < definition.recordTypes.length; index += 1) {
-    const validated = validateRecordTypeDefinition(
-      definition.recordTypes[index],
-      `$.recordTypes[${index}]`
-    );
-    if (!validated.ok) {
-      return validated;
-    }
+  for (let index = 0; index < values.length; index += 1) {
+    const validated = validateRecordTypeDefinition(values[index], `$.recordTypes[${index}]`);
+    if (!validated.ok) return validated;
     if (recordTypeIds.has(validated.value.recordTypeId)) {
       return issue(
         `$.recordTypes[${index}].recordTypeId`,
@@ -247,9 +224,35 @@ export function validateMaterializedCheckDefinition(
     recordTypeIds.add(validated.value.recordTypeId);
     recordTypes.push(validated.value);
   }
+  return accepted(recordTypes);
+}
+
+export function validateMaterializedCheckDefinition(
+  value: unknown
+): ValidationResult<CheckDefinition> {
+  const closed = validateClosedRecord(value, "$", ["checkId", "displayName", "recordTypes"]);
+  if (!closed.ok) {
+    return closed;
+  }
+  const definition = closed.value;
+  if (!isStableId(definition.checkId)) {
+    return issue(
+      "$.checkId",
+      "invalid-value",
+      "checkId must use stable kebab-case identity grammar"
+    );
+  }
+  if (!isNonEmptyString(definition.displayName)) {
+    return issue("$.displayName", "invalid-value", "displayName must be non-empty");
+  }
+  if (!Array.isArray(definition.recordTypes)) {
+    return issue("$.recordTypes", "invalid-value", "recordTypes must be an array");
+  }
+  const recordTypes = validateRecordTypeDefinitions(definition.recordTypes);
+  if (!recordTypes.ok) return recordTypes;
   return acceptedDomain({
     checkId: definition.checkId,
     displayName: definition.displayName,
-    recordTypes
+    recordTypes: recordTypes.value
   });
 }

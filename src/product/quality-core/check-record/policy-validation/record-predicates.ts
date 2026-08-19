@@ -1,4 +1,3 @@
-import type { CheckDefinition } from "../model.ts";
 import type { RecordPolicySurface, RecordPredicate, RecordSelector } from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
 import {
@@ -16,29 +15,6 @@ export interface PredicateContext {
   readonly surfacesBySelector: ReadonlyMap<string, RecordPolicySurface>;
   readonly selectors: readonly RecordSelector[];
   readonly referenceRequirements: ReadonlySet<string>;
-}
-
-function findRecordType(definitions: readonly CheckDefinition[], selector: RecordSelector) {
-  return definitions
-    .find((definition) => definition.checkId === selector.checkId)
-    ?.recordTypes.find((recordType) => recordType.recordTypeId === selector.recordTypeId);
-}
-
-export function validateSelector(
-  value: unknown,
-  path: string,
-  definitions: readonly CheckDefinition[]
-): ValidationResult<RecordSelector> {
-  const shape = closed(value, path, ["checkId", "recordTypeId"]);
-  if (!shape.ok) return shape;
-  if (!isStableId(shape.value.checkId) || !isStableId(shape.value.recordTypeId)) {
-    return issue(path, "invalid-value", "Selector identities must use stable kebab-case grammar");
-  }
-  const selector = { checkId: shape.value.checkId, recordTypeId: shape.value.recordTypeId };
-  if (findRecordType(definitions, selector) === undefined) {
-    return issue(path, "identity-mismatch", "Unknown qualified record selector");
-  }
-  return accepted(selector);
 }
 
 function selectedOperands(context: PredicateContext, operandId: string) {

@@ -1,10 +1,16 @@
 import type { CheckDefinition } from "../model.ts";
-import type { BlockWhen, CheckReferenceEvidence, ReadinessPredicate } from "../policy-model.ts";
+import type {
+  BlockWhen,
+  CheckReferenceEvidence,
+  ReadinessClause,
+  ReadinessPredicate
+} from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
 import {
   accepted,
   checkReferenceKey,
   closed,
+  isGateNotEvaluatedReason,
   isRecord,
   isReferenceEvidenceStatus,
   isStableId,
@@ -151,6 +157,55 @@ export function validateReadinessPredicate(
   const kind = value.kind;
   if (typeof kind !== "string") return issue(path, "invalid-value", "Invalid readiness predicate");
   return validateKnownReadinessPredicate(value, kind, path, context);
+}
+
+function validateReadinessClause(
+  value: unknown,
+  path: string,
+  context: ReadinessContext,
+  readinessIds: Set<string>
+): ValidationResult<ReadinessClause> {
+  const shape = closed(value, path, ["readinessId", "predicate", "reason"]);
+  if (!shape.ok) return shape;
+  if (!isStableId(shape.value.readinessId)) {
+    return issue(`${path}.readinessId`, "invalid-value", "Invalid readinessId");
+  }
+  if (readinessIds.has(shape.value.readinessId)) {
+    return issue(`${path}.readinessId`, "duplicate", "Duplicate readinessId");
+  }
+  if (!isGateNotEvaluatedReason(shape.value.reason)) {
+    return issue(`${path}.reason`, "invalid-value", "Unknown not-evaluated reason");
+  }
+  const predicate = validateReadinessPredicate(shape.value.predicate, `${path}.predicate`, context);
+  if (!predicate.ok) return predicate;
+  readinessIds.add(shape.value.readinessId);
+  return accepted({
+    readinessId: shape.value.readinessId,
+    predicate: predicate.value,
+    reason: shape.value.reason
+  });
+}
+
+export function validateReadinessClauses(
+  value: unknown,
+  context: ReadinessContext
+): ValidationResult<readonly ReadinessClause[]> {
+  if (!Array.isArray(value)) {
+    return issue("$.policy.readiness", "invalid-value", "readiness must be an array");
+  }
+  const clauses: ReadinessClause[] = [];
+  const readinessIds = new Set<string>();
+  for (let index = 0; index < value.length; index += 1) {
+    const clause = validateReadinessClause(
+      value[index],
+      `$.policy.readiness[${index}]`,
+      context,
+      readinessIds
+    );
+    if (!clause.ok) return clause;
+    clauses.push(clause.value);
+  }
+  return accepted(clauses);
 }
 
 function validateViewNotEmpty(

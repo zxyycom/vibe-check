@@ -1,11 +1,10 @@
 import { describe, expect, test } from "bun:test";
 
-import type { CheckDefinition } from "./model.ts";
 import { evaluateDecisionPolicy } from "./policy-evaluator.ts";
 import {
   changedAndRegressionFacts,
   currentPolicy,
-  definition,
+  definitionWithApprovedOperand,
   makeCatalog,
   referenceId,
   relationPolicy,
@@ -270,24 +269,7 @@ describe("check-record policy evaluation", () => {
     const core = snapshot("completed");
     const policy = currentPolicy();
     const originalCatalog = makeCatalog();
-    const alteredDefinition = {
-      ...definition,
-      recordTypes: [
-        {
-          ...definition.recordTypes[0],
-          policy: {
-            ...definition.recordTypes[0].policy,
-            operands: [
-              {
-                ...definition.recordTypes[0].policy.operands[0],
-                source: { kind: "field", fieldId: "approved" }
-              }
-            ]
-          }
-        }
-      ]
-    } as const satisfies CheckDefinition;
-    const alteredCatalog = makeCatalog([alteredDefinition]);
+    const alteredCatalog = makeCatalog([definitionWithApprovedOperand()]);
     expect(alteredCatalog.catalogFingerprint === originalCatalog.catalogFingerprint).toBe(false);
 
     const original = validatePolicyResolution(policy, originalCatalog);

@@ -14,6 +14,7 @@ import {
   makeSnapshot,
   mutableArray,
   mutableObject,
+  policyResolutionFailureCases,
   policyResolution,
   relationKindPolicyInput
 } from "./policy-validation.test-support.ts";
@@ -165,108 +166,7 @@ describe("check-record policy pre-work validation", () => {
 
   test("rejects missing or duplicate references and unknown qualified selectors, operands, relations, and fields", () => {
     const catalog = makeCatalog();
-    const cases: readonly [mutate: (value: unknown) => void, expectedPath: string][] = [
-      [
-        (value) => {
-          mutableObject(value).references = [];
-        },
-        "$.policy.references[0].referenceName"
-      ],
-      [
-        (value) => {
-          const references = mutableArray(mutableObject(value).references);
-          references.push(references[0]);
-        },
-        "$.references[1].referenceName"
-      ],
-      [
-        (value) => {
-          childObject(
-            arrayObject(childObject(value, "policy"), "acceptance", 0),
-            "selector"
-          ).checkId = "beta-check";
-        },
-        "$.policy.acceptance[0].predicates[0].operandId"
-      ],
-      [
-        (value) => {
-          childObject(
-            arrayObject(childObject(value, "policy"), "acceptance", 0),
-            "selector"
-          ).checkId = "unknown-check";
-        },
-        "$.policy.acceptance[0].selector"
-      ],
-      [
-        (value) => {
-          arrayObject(
-            arrayObject(childObject(value, "policy"), "acceptance", 0),
-            "predicates",
-            0
-          ).operandId = "arbitrary.path";
-        },
-        "$.policy.acceptance[0].predicates[0].operandId"
-      ],
-      [
-        (value) => {
-          arrayObject(
-            arrayObject(childObject(value, "policy"), "acceptance", 0),
-            "predicates",
-            0
-          ).operandId = "message";
-        },
-        "$.policy.acceptance[0].predicates[0].operandId"
-      ],
-      [
-        (value) => {
-          arrayObject(
-            arrayObject(childObject(value, "policy"), "acceptance", 0),
-            "predicates",
-            0
-          ).operandId = "score";
-        },
-        "$.policy.acceptance[0].predicates[0].operandId"
-      ],
-      [
-        (value) => {
-          arrayObject(
-            arrayObject(childObject(value, "policy"), "views", 0),
-            "predicates",
-            0
-          ).relationId = "unknown";
-        },
-        "$.policy.views[0].predicates[0].relationId"
-      ],
-      [
-        (value) => {
-          mutableObject(value).recordTypes = [
-            {
-              checkId: "alpha-check",
-              recordTypeId: "finding",
-              operands: [
-                { operandId: "message", valueType: "string", source: { kind: "message" } }
-              ],
-              relations: ["unknown"]
-            }
-          ];
-        },
-        "$"
-      ],
-      [
-        (value) => {
-          childObject(value, "policy").script = () => true;
-        },
-        "$"
-      ],
-      [
-        (value) => {
-          childObject(childObject(value, "policy"), "blockWhen").field = "records[0].message";
-        },
-        "$.policy.blockWhen"
-      ]
-    ];
-
-    for (const [mutate, expectedPath] of cases) {
+    for (const [mutate, expectedPath] of policyResolutionFailureCases()) {
       const value: unknown = structuredClone(policyResolution);
       mutate(value);
       const result = validatePolicyResolution(value, catalog);

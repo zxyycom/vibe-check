@@ -29,6 +29,26 @@ export const definition = {
   ]
 } as const satisfies CheckDefinition;
 
+export function definitionWithApprovedOperand(): CheckDefinition {
+  return {
+    ...definition,
+    recordTypes: [
+      {
+        ...definition.recordTypes[0],
+        policy: {
+          ...definition.recordTypes[0].policy,
+          operands: [
+            {
+              ...definition.recordTypes[0].policy.operands[0],
+              source: { kind: "field", fieldId: "approved" }
+            }
+          ]
+        }
+      }
+    ]
+  } as const satisfies CheckDefinition;
+}
+
 export function makeCatalog(source: readonly CheckDefinition[] = [definition]) {
   return {
     catalogFingerprint: createCatalogFingerprint(source).catalogFingerprint,

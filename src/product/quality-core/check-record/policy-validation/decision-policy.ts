@@ -5,23 +5,18 @@ import type {
   NamedRecordView,
   NamedReferenceIdentity,
   PolicyReferenceRequirement,
-  ReadinessClause,
   RecordPolicySurface,
   RecordSelector
 } from "../policy-model.ts";
 import type { ValidationResult } from "../validation.ts";
 import { validateReferenceRequirements } from "./policy-references.ts";
-import { validatePredicates, validateSelector } from "./record-predicates.ts";
-import {
-  type ReadinessContext,
-  validateBlockWhen,
-  validateReadinessPredicate
-} from "./readiness-predicates.ts";
+import { validatePredicates } from "./record-predicates.ts";
+import { validateSelector } from "./record-selectors.ts";
+import { validateBlockWhen, validateReadinessClauses } from "./readiness-predicates.ts";
 import {
   accepted,
   checkReferenceKey,
   closed,
-  isGateNotEvaluatedReason,
   isStableId,
   issue,
   selectorKey
@@ -182,55 +177,6 @@ function validateNamedViews(
   return accepted(views);
 }
 
-function validateReadinessClause(
-  value: unknown,
-  path: string,
-  context: ReadinessContext,
-  readinessIds: Set<string>
-): ValidationResult<ReadinessClause> {
-  const shape = closed(value, path, ["readinessId", "predicate", "reason"]);
-  if (!shape.ok) return shape;
-  if (!isStableId(shape.value.readinessId)) {
-    return issue(`${path}.readinessId`, "invalid-value", "Invalid readinessId");
-  }
-  if (readinessIds.has(shape.value.readinessId)) {
-    return issue(`${path}.readinessId`, "duplicate", "Duplicate readinessId");
-  }
-  if (!isGateNotEvaluatedReason(shape.value.reason)) {
-    return issue(`${path}.reason`, "invalid-value", "Unknown not-evaluated reason");
-  }
-  const predicate = validateReadinessPredicate(shape.value.predicate, `${path}.predicate`, context);
-  if (!predicate.ok) return predicate;
-  readinessIds.add(shape.value.readinessId);
-  return accepted({
-    readinessId: shape.value.readinessId,
-    predicate: predicate.value,
-    reason: shape.value.reason
-  });
-}
-
-function validateReadinessClauses(
-  value: unknown,
-  context: ReadinessContext
-): ValidationResult<readonly ReadinessClause[]> {
-  if (!Array.isArray(value)) {
-    return issue("$.policy.readiness", "invalid-value", "readiness must be an array");
-  }
-  const clauses: ReadinessClause[] = [];
-  const readinessIds = new Set<string>();
-  for (let index = 0; index < value.length; index += 1) {
-    const clause = validateReadinessClause(
-      value[index],
-      `$.policy.readiness[${index}]`,
-      context,
-      readinessIds
-    );
-    if (!clause.ok) return clause;
-    clauses.push(clause.value);
-  }
-  return accepted(clauses);
-}
-
 function requiredReferencePairs(
   requirements: readonly PolicyReferenceRequirement[]
 ): ReadonlySet<string> {
@@ -241,12 +187,22 @@ function requiredReferencePairs(
   );
 }
 
-export function validateDecisionPolicy(
+interface ValidatedPolicyInput {
+  readonly acceptance: unknown;
+  readonly blockWhen: unknown;
+  readonly context: PolicyContext;
+  readonly policyId: string;
+  readonly readiness: unknown;
+  readonly references: readonly PolicyReferenceRequirement[];
+  readonly views: unknown;
+}
+
+function validateDecisionPolicyInput(
   value: unknown,
   references: readonly NamedReferenceIdentity[],
   surfaces: readonly RecordPolicySurface[],
   definitions: readonly CheckDefinition[]
-): ValidationResult<DecisionPolicy> {
+): ValidationResult<ValidatedPolicyInput> {
   const shape = closed(value, "$.policy", [
     "policyId",
     "references",
@@ -273,19 +229,42 @@ export function validateDecisionPolicy(
     surfacesBySelector: new Map(surfaces.map((surface) => [selectorKey(surface), surface])),
     requiredPairs: requiredReferencePairs(requirements.value)
   };
-  const acceptance = validateAcceptanceRules(shape.value.acceptance, context);
+  return accepted({
+    acceptance: shape.value.acceptance,
+    blockWhen: shape.value.blockWhen,
+    context,
+    policyId: shape.value.policyId,
+    readiness: shape.value.readiness,
+    references: requirements.value,
+    views: shape.value.views
+  });
+}
+
+export function validateDecisionPolicy(
+  value: unknown,
+  references: readonly NamedReferenceIdentity[],
+  surfaces: readonly RecordPolicySurface[],
+  definitions: readonly CheckDefinition[]
+): ValidationResult<DecisionPolicy> {
+  const input = validateDecisionPolicyInput(value, references, surfaces, definitions);
+  if (!input.ok) return input;
+  const acceptance = validateAcceptanceRules(input.value.acceptance, input.value.context);
   if (!acceptance.ok) return acceptance;
   const viewIds = new Set<string>();
-  const views = validateNamedViews(shape.value.views, context, viewIds);
+  const views = validateNamedViews(input.value.views, input.value.context, viewIds);
   if (!views.ok) return views;
-  const readinessContext = { definitions, viewIds, requiredPairs: context.requiredPairs };
-  const readiness = validateReadinessClauses(shape.value.readiness, readinessContext);
+  const readinessContext = {
+    definitions,
+    viewIds,
+    requiredPairs: input.value.context.requiredPairs
+  };
+  const readiness = validateReadinessClauses(input.value.readiness, readinessContext);
   if (!readiness.ok) return readiness;
-  const blockWhen = validateBlockWhen(shape.value.blockWhen, readinessContext);
+  const blockWhen = validateBlockWhen(input.value.blockWhen, readinessContext);
   if (!blockWhen.ok) return blockWhen;
   return accepted({
-    policyId: shape.value.policyId,
-    references: requirements.value,
+    policyId: input.value.policyId,
+    references: input.value.references,
     acceptance: acceptance.value,
     views: views.value,
     readiness: readiness.value,

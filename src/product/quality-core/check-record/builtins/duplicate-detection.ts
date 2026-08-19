@@ -1,7 +1,11 @@
 import { resolve } from "node:path";
 
 import type { DuplicateDetectionOptions } from "../../../definition/built-ins.ts";
-import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
+import type {
+  CheckExecutionContext,
+  CheckReferenceCandidate,
+  CheckResult
+} from "../../../definition/custom-check.ts";
 import type { DuplicationScannerDependency } from "../../../scanner-dependencies/index.ts";
 import { buildFingerprints, collectScanFiles } from "../../input/files.ts";
 import { classifyFiles } from "../../model/code-areas.ts";
@@ -193,6 +197,21 @@ function directMeasurementFailure(
   return unavailable("external-result-invalid");
 }
 
+function reportDuplicateReferenceOutcome(
+  context: CheckExecutionContext<DuplicateDetectionOptions>,
+  status: CheckReferenceCandidate["status"],
+  relations: CheckReferenceCandidate["relations"] = Object.freeze([])
+): void {
+  if (context.project.comparison === null) return;
+  context.records.reportReference(
+    Object.freeze({
+      referenceName: context.project.comparison.referenceName,
+      relations,
+      status
+    })
+  );
+}
+
 async function reportDuplicateReference(
   context: CheckExecutionContext<DuplicateDetectionOptions>,
   candidates: readonly DuplicateRecordCandidate[],
@@ -213,24 +232,15 @@ async function reportDuplicateReference(
     semantics
   });
   if (measurement.kind !== "complete") {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-      })
+    reportDuplicateReferenceOutcome(
+      context,
+      measurement.kind === "unavailable" ? "unavailable" : "incomplete"
     );
     return;
   }
   const subjects = duplicateSubjects(measurement.fragments);
   if (subjects === undefined) {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: "incomplete"
-      })
-    );
+    reportDuplicateReferenceOutcome(context, "incomplete");
     return;
   }
   const relationsBySubject = buildDuplicateRelations(candidates, subjects, semantics.changedDelta);
@@ -242,13 +252,7 @@ async function reportDuplicateReference(
       })
     )
   );
-  context.records.reportReference(
-    Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze(relations),
-      status: "complete"
-    })
-  );
+  reportDuplicateReferenceOutcome(context, "complete", Object.freeze(relations));
 }
 
 function unavailable(code: string): CheckResult {
