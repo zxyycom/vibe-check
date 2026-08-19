@@ -58,7 +58,8 @@ callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 C
 `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是带 direct callback 的 complete Check value。它们的 scanner
 command 与 options 由 Check value 拥有，adapter 仍是 private protocol boundary。adapter 只接收所属 Check 的 exact
 accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 Record conversion 前拒绝任何
-out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。具体 option 与 adapter 规则见
+out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。具体 default option 值见
+[Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见
 [Scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary

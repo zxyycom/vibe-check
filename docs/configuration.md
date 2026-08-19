@@ -141,14 +141,19 @@ args, and (for duplication) backend concurrency are all Check-owned `options`. A
 normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead
 of filling omitted nested fields or merging a hidden operational map.
 
-| Default | Check ID | Initial scanner options |
-| --- | --- | --- |
-| `duplicateDetection` | `duplicate-detection` | `jscpd`, `[]`, `['--version']`, `maxConcurrency: 4` |
-| `fileMetrics` | `file-metrics` | `scc`, `[]`, `['--version']` |
-| `functionMetrics` | `function-metrics` | `python`, `['-m', 'lizard']`, `['-m', 'lizard', '--version']` |
+| Default | Check ID | `scanner.executable` | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option |
+| --- | --- | --- | --- | --- | --- |
+| `duplicateDetection` | `duplicate-detection` | `jscpd` | `[]` | `['--version']` | `scanner.maxConcurrency: 4` |
+| `fileMetrics` | `file-metrics` | `scc` | `[]` | `['--version']` | — |
+| `functionMetrics` | `function-metrics` | `lizard` | `[]` | `['--version']` | — |
 
 For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not
 interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+
+Each row is the complete initial `options.scanner` branch for its default Check. The default callback passes
+`scanner.executable` followed by `scanner.args` for scanning, and `scanner.executable` followed by
+`scanner.availabilityArgs` for availability probing, to its private adapter; the adapter handoff is defined in
+[Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
 
 ## Invocation and results
 

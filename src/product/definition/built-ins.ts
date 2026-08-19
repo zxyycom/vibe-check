@@ -106,9 +106,9 @@ export const functionMetrics = defineCheck<"function-metrics", FunctionMetricsOp
   execution: executeFunctionMetrics,
   options: {
     scanner: {
-      args: ["-m", "lizard"],
-      availabilityArgs: ["-m", "lizard", "--version"],
-      executable: "python"
+      args: [],
+      availabilityArgs: ["--version"],
+      executable: "lizard"
     },
     codeLines: {
       absoluteFloor: 50,

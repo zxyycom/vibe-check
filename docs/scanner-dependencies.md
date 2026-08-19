@@ -5,19 +5,21 @@ detail; its executable resolution is not a public operational-dependency API.
 
 ## Check-owned command options
 
-The three Product defaults carry complete scanner options in their ordinary Check `options`:
+Configuration owns the concrete initial default values in
+[Defaults and native composition](configuration.md#defaults-and-native-composition). This document owns how a
+private adapter consumes the validated `options.scanner` value; it does not define a second default-command
+surface.
 
-| Check | executable | args | availability args |
-| --- | --- | --- | --- |
-| `duplicate-detection` | `jscpd` | `[]` | `['--version']` |
-| `file-metrics` | `scc` | `[]` | `['--version']` |
-| `function-metrics` | `python` | `['-m', 'lizard']` | `['-m', 'lizard', '--version']` |
+For each default Check, the adapter invokes:
 
-Duplicate detection additionally owns `scanner.maxConcurrency` (default `4`). A project may use normal object
+1. scan: `options.scanner.executable` followed by `options.scanner.args`;
+2. availability probe: `options.scanner.executable` followed by `options.scanner.availabilityArgs`.
+
+Duplicate detection additionally uses its Check-owned `scanner.maxConcurrency`. A project may use normal object
 spread to create a complete replacement options value. Definition validation fails closed for an omitted nested
 field, unknown key, invalid command value, zero concurrency, or an unknown code-area threshold. There is no
 Run Control, environment-variable, PATH, repository-tool, precedence, or operational map that replaces these
-values.
+Configuration-owned default option fields.
 
 ## Adapter handoff and scope
 

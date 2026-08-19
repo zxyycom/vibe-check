@@ -92,8 +92,8 @@ export const TEST_SCANNER_DEPENDENCIES: Readonly<{
     executable: "scc"
   },
   function: {
-    args: ["-m", "lizard"],
-    availabilityArgs: ["-m", "lizard", "--version"],
-    executable: "python"
+    args: [],
+    availabilityArgs: ["--version"],
+    executable: "lizard"
   }
 };

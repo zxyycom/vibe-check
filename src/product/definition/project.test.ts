@@ -7,6 +7,7 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
+  functionMetrics,
   inherit,
   normalizeProjectDefinition,
   type Check,
@@ -240,6 +241,11 @@ describe("Project Definition", () => {
     assert.equal(validateProjectDefinition(defineConfig({ checks: [customized] })).ok, true);
     assert.equal(fileMetrics.options.scanner.executable, "scc");
     assert.equal(fileMetrics.options.codeLines.absoluteFloor, 300);
+    assert.deepEqual(functionMetrics.options.scanner, {
+      args: [],
+      availabilityArgs: ["--version"],
+      executable: "lizard"
+    });
 
     const incomplete = {
       ...fileMetrics,
