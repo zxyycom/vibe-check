@@ -25,6 +25,19 @@ type CheckReferenceValidation = Readonly<
   | { readonly kind: "submitted"; readonly submission: CheckReferenceSubmission }
 >;
 
+interface CheckReferenceValidationInput {
+  readonly candidates: readonly unknown[];
+  readonly check: NormalizedCheck;
+  readonly project: CheckProjectContext;
+  readonly scope: TrustedCheckScope;
+}
+
+interface ParsedCheckReferenceCandidate {
+  readonly referenceName: string;
+  readonly relations: readonly unknown[];
+  readonly status: CheckReferenceSubmission["status"];
+}
+
 const NO_REFERENCE_SUBMISSION = Object.freeze({ kind: "absent" } as const);
 const INVALID_REFERENCE_SUBMISSION = Object.freeze({ kind: "invalid" } as const);
 
@@ -33,37 +46,16 @@ const INVALID_REFERENCE_SUBMISSION = Object.freeze({ kind: "invalid" } as const)
  * No candidate is a valid absence; malformed or contradictory input is invalid.
  */
 export function validateCheckReferenceSubmission(
-  input: Readonly<{
-    readonly candidates: readonly unknown[];
-    readonly check: NormalizedCheck;
-    readonly project: CheckProjectContext;
-    readonly scope: TrustedCheckScope;
-  }>
+  input: CheckReferenceValidationInput
 ): CheckReferenceValidation {
   if (input.candidates.length === 0) return NO_REFERENCE_SUBMISSION;
-  if (input.candidates.length !== 1 || input.project.comparison === null) {
-    return INVALID_REFERENCE_SUBMISSION;
-  }
-  const candidate = snapshotClosedRecord(input.candidates[0]);
-  if (
-    candidate === undefined ||
-    !hasExactReferenceKeys(candidate, ["referenceName", "status", "relations"]) ||
-    candidate.referenceName !== input.project.comparison.referenceName ||
-    (candidate.status !== "complete" &&
-      candidate.status !== "incomplete" &&
-      candidate.status !== "unavailable")
-  ) {
-    return INVALID_REFERENCE_SUBMISSION;
-  }
-  const relations = snapshotClosedArray(candidate.relations);
-  if (relations === undefined || (candidate.status !== "complete" && relations.length > 0)) {
-    return INVALID_REFERENCE_SUBMISSION;
-  }
+  const candidate = parseReferenceCandidate(input);
+  if (candidate === undefined) return INVALID_REFERENCE_SUBMISSION;
   const resolvedRelations = resolveReferenceRelations(
     input.check,
     input.scope,
     candidate.referenceName,
-    relations
+    candidate.relations
   );
   if (resolvedRelations === undefined) return INVALID_REFERENCE_SUBMISSION;
   return Object.freeze({
@@ -75,6 +67,35 @@ export function validateCheckReferenceSubmission(
       status: candidate.status
     })
   });
+}
+
+function parseReferenceCandidate(
+  input: CheckReferenceValidationInput
+): ParsedCheckReferenceCandidate | undefined {
+  if (input.candidates.length !== 1) return undefined;
+  const comparison = input.project.comparison;
+  if (comparison === null) return undefined;
+  const candidate = snapshotClosedRecord(input.candidates[0]);
+  if (candidate === undefined) return undefined;
+  if (!hasExactReferenceKeys(candidate, ["referenceName", "status", "relations"])) return undefined;
+  if (candidate.referenceName !== comparison.referenceName) return undefined;
+  const status = parseReferenceStatus(candidate.status);
+  if (status === undefined) return undefined;
+  const relations = snapshotClosedArray(candidate.relations);
+  if (relations === undefined) return undefined;
+  if (status !== "complete" && relations.length > 0) return undefined;
+  return Object.freeze({ referenceName: candidate.referenceName, relations, status });
+}
+
+function parseReferenceStatus(value: unknown): CheckReferenceSubmission["status"] | undefined {
+  switch (value) {
+    case "complete":
+    case "incomplete":
+    case "unavailable":
+      return value;
+    default:
+      return undefined;
+  }
 }
 
 export function canonicalizeReferenceSubmissions(

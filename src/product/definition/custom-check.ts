@@ -117,6 +117,8 @@ export type InheritableCheckCollection<T> = readonly T[] | InheritedCheckCollect
 
 const inheritedCollections = new WeakSet();
 
+type InheritedCollectionEntry = "data" | "invalid" | "marker";
+
 export function inherit<T>(value: InheritCheckCollectionInput<T>): InheritedCheckCollection<T> {
   const result = { ...value, [INHERITED_CHECK_COLLECTION]: true as const };
   Object.defineProperty(result, INHERITED_CHECK_COLLECTION, { enumerable: false });
@@ -135,31 +137,47 @@ export function snapshotInheritedCheckCollection(
   value: InheritedCheckCollection<unknown>
 ): Readonly<Record<string, unknown>> | undefined {
   try {
-    const prototype: unknown = Object.getPrototypeOf(value);
-    if (prototype !== Object.prototype && prototype !== null) return undefined;
+    if (!hasPlainObjectPrototype(value)) return undefined;
     const snapshot: Record<string, unknown> = {};
     let hasMarker = false;
     for (const key of Reflect.ownKeys(value)) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (
-        descriptor === undefined ||
-        descriptor.get !== undefined ||
-        descriptor.set !== undefined
-      ) {
-        return undefined;
-      }
-      if (key === INHERITED_CHECK_COLLECTION) {
-        if (descriptor.enumerable || descriptor.value !== true) return undefined;
-        hasMarker = true;
-        continue;
-      }
-      if (typeof key !== "string" || descriptor.enumerable !== true) return undefined;
-      snapshot[key] = descriptor.value;
+      const entry = snapshotInheritedCollectionEntry(
+        snapshot,
+        key,
+        Object.getOwnPropertyDescriptor(value, key)
+      );
+      if (entry === "invalid") return undefined;
+      if (entry === "marker") hasMarker = true;
     }
     return hasMarker ? Object.freeze(snapshot) : undefined;
   } catch {
     return undefined;
   }
+}
+
+function hasPlainObjectPrototype(value: object): boolean {
+  const prototype: unknown = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+function snapshotInheritedCollectionEntry(
+  snapshot: Record<string, unknown>,
+  key: PropertyKey,
+  descriptor: PropertyDescriptor | undefined
+): InheritedCollectionEntry {
+  if (!isDataDescriptor(descriptor)) return "invalid";
+  if (key === INHERITED_CHECK_COLLECTION) {
+    return descriptor.enumerable || descriptor.value !== true ? "invalid" : "marker";
+  }
+  if (typeof key !== "string" || descriptor.enumerable !== true) return "invalid";
+  snapshot[key] = descriptor.value;
+  return "data";
+}
+
+function isDataDescriptor(
+  descriptor: PropertyDescriptor | undefined
+): descriptor is PropertyDescriptor {
+  return descriptor !== undefined && descriptor.get === undefined && descriptor.set === undefined;
 }
 
 export interface Check<Options extends object = object> {

@@ -1,19 +1,13 @@
-import type {
-  CheckExecutionContext,
-  CheckOutcome,
-  CheckProjectContext,
-  CheckReferenceCandidate,
-  CheckResult,
-  QualityRecordCandidate
-} from "../definition/custom-check.ts";
+import type { CheckOutcome, CheckProjectContext } from "../definition/custom-check.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
 import {
   createCoreCheckSession,
-  type CoreCheckSession
+  type CoreCheckSession,
+  type TrustedCheckScope
 } from "../quality-core/check-record/core-session.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
-import { snapshotClosedRecord } from "../quality-core/check-record/plain-record-values.ts";
 import { prepareTaskGraph, runTaskGraph, type SettledTask } from "../task-scheduler/index.ts";
+import { executeCheckCallback, type CallbackExecution } from "./check-callback.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
 import {
   canonicalizeReferenceSubmissions,
@@ -35,6 +29,15 @@ export type ResolvedCheckExecution = Readonly<
       readonly snapshot: CoreSnapshot;
     }
 >;
+
+interface ExecuteCheckInput {
+  readonly openedCheckIds: Set<string>;
+  readonly check: NormalizedCheck;
+  readonly project: CheckProjectContext;
+  readonly references: CheckReferenceSubmission[];
+  readonly session: CoreCheckSession;
+  readonly signal: AbortSignal;
+}
 
 /** Internal marker: a settled unavailable Check must block scheduler dependents. */
 class CheckUnavailableSignal extends Error {
@@ -123,114 +126,41 @@ export async function executeResolvedChecks(
   }
 }
 
-async function executeCheck(
-  input: Readonly<{
-    readonly openedCheckIds: Set<string>;
-    readonly check: NormalizedCheck;
-    readonly project: CheckProjectContext;
-    readonly references: CheckReferenceSubmission[];
-    readonly session: CoreCheckSession;
-    readonly signal: AbortSignal;
-  }>
-): Promise<void> {
+async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const checkId = input.check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   input.openedCheckIds.add(checkId);
-  const reportedReferences: unknown[] = [];
-  let isReporterOpen = true;
-  const records = Object.freeze({
-    report: (candidate: QualityRecordCandidate): void => {
-      ensureReporterOpen(isReporterOpen);
-      scope.records.report(candidate);
-    },
-    reportReference: (candidate: CheckReferenceCandidate): void => {
-      ensureReporterOpen(isReporterOpen);
-      reportedReferences.push(candidate);
-    }
+  const callback = await executeCheckCallback({
+    check: input.check,
+    project: input.project,
+    scope,
+    signal: input.signal
   });
-  let result: CheckOutcome;
-  try {
-    const context: CheckExecutionContext<object> = Object.freeze({
-      options: input.check.options,
-      project: input.project,
-      records,
-      signal: input.signal
-    });
-    const value = await input.check.execution(context);
-    result = outcomeForResult(value);
-  } catch {
-    result = Object.freeze({
-      status: "unavailable",
-      reason: { code: input.signal.aborted ? "execution-cancelled" : "execution-threw" }
-    });
-  } finally {
-    isReporterOpen = false;
-  }
-
-  const reportedReferenceFromNotApplicable =
-    result.status === "not-applicable" && reportedReferences.length > 0;
-  if (reportedReferenceFromNotApplicable) {
-    result = Object.freeze({ status: "unavailable", reason: { code: "record-invalid" } });
-  } else {
-    const referenceValidation = validateCheckReferenceSubmission({
-      candidates: reportedReferences,
-      check: input.check,
-      project: input.project,
-      scope
-    });
-    if (referenceValidation.kind === "invalid") {
-      result = Object.freeze({ status: "unavailable", reason: { code: "reference-invalid" } });
-    } else if (referenceValidation.kind === "submitted") {
-      input.references.push(referenceValidation.submission);
-    }
-  }
+  const result = settleCheckReferences(input, scope, callback);
   const settled = scope.settle(result);
   if (settled.status === "unavailable") throw new CheckUnavailableSignal();
 }
 
-function ensureReporterOpen(isReporterOpen: boolean): void {
-  if (!isReporterOpen) throw new Error("Check record reporter is closed");
-}
-
-function outcomeForResult(value: unknown): CheckOutcome {
-  const result = validateCheckResult(value);
-  return result === undefined
-    ? Object.freeze({ status: "unavailable", reason: { code: "invalid-execution-result" } })
-    : result;
-}
-
-function validateCheckResult(value: unknown): CheckResult | undefined {
-  const data = snapshotClosedRecord(value);
-  if (data === undefined || typeof data.status !== "string") return undefined;
-  if (data.status === "completed") {
-    return hasExactKeys(data, { required: ["status", "verdict"] }) &&
-      (data.verdict === "passed" || data.verdict === "failed")
-      ? Object.freeze({ status: "completed", verdict: data.verdict })
-      : undefined;
+function settleCheckReferences(
+  input: ExecuteCheckInput,
+  scope: TrustedCheckScope,
+  callback: CallbackExecution
+): CheckOutcome {
+  if (callback.result.status === "not-applicable" && callback.reportedReferences.length > 0) {
+    return Object.freeze({ status: "unavailable", reason: { code: "record-invalid" } });
   }
-  if (data.status === "not-applicable") {
-    if (!hasExactKeys(data, { optional: ["reason"], required: ["status"] })) return undefined;
-    if (!Object.hasOwn(data, "reason")) {
-      return Object.freeze({ status: "not-applicable" });
-    }
-    const reason = validateReason(data.reason);
-    return reason === undefined ? undefined : Object.freeze({ status: "not-applicable", reason });
+  const referenceValidation = validateCheckReferenceSubmission({
+    candidates: callback.reportedReferences,
+    check: input.check,
+    project: input.project,
+    scope
+  });
+  if (referenceValidation.kind === "invalid") {
+    return Object.freeze({ status: "unavailable", reason: { code: "reference-invalid" } });
   }
-  if (data.status === "unavailable" && hasExactKeys(data, { required: ["status", "reason"] })) {
-    const reason = validateReason(data.reason);
-    return reason === undefined ? undefined : Object.freeze({ status: "unavailable", reason });
-  }
-  return undefined;
-}
-
-function validateReason(value: unknown): Readonly<{ readonly code: string }> | undefined {
-  const data = snapshotClosedRecord(value);
-  return data !== undefined &&
-    hasExactKeys(data, { required: ["code"] }) &&
-    typeof data.code === "string" &&
-    data.code.length > 0
-    ? Object.freeze({ code: data.code })
-    : undefined;
+  if (referenceValidation.kind === "submitted")
+    input.references.push(referenceValidation.submission);
+  return callback.result;
 }
 
 function settleBlockedChecks(
@@ -283,17 +213,6 @@ function assertEveryCheckClosed(
       "Task graph does not have one Task per executable Check"
     );
   }
-}
-
-function hasExactKeys(
-  value: Readonly<Record<string, unknown>>,
-  fields: Readonly<{ readonly optional?: readonly string[]; readonly required: readonly string[] }>
-): boolean {
-  const supported = new Set([...fields.required, ...(fields.optional ?? [])]);
-  return (
-    fields.required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => supported.has(key))
-  );
 }
 
 function compareText(left: string, right: string): number {

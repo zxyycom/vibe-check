@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 
 import { defaultCheckOptionCodeAreasAreKnown } from "./built-ins.ts";
 import { resolveParsedCheckTree } from "./check-tree/index.ts";
-import { materializeCheckTreeAuthoring, parseCheckTreeAuthoring } from "./check-tree/authoring.ts";
+import { parseCheckTreeAuthoring } from "./check-tree/authoring.ts";
+import { materializeCheckTreeAuthoring } from "./check-tree/materialization.ts";
 import { parseEffects } from "./effect-validation.ts";
 import {
   type ProjectDefinitionDiagnostic,

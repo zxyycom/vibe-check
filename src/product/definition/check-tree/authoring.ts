@@ -1,12 +1,9 @@
 import { validateDefaultCheckOptions } from "../built-ins.ts";
 import type { CheckDefinition } from "../check-definition.ts";
 import {
-  inherit,
   isInheritedCheckCollection,
   snapshotInheritedCheckCollection,
-  type Check,
   type CheckExecution,
-  type InheritableCheckCollection,
   type InheritedCheckCollection
 } from "../custom-check.ts";
 import {
@@ -15,6 +12,7 @@ import {
 } from "../../quality-core/check-record/plain-record-values.ts";
 import { validateCheckDefinition } from "../../quality-core/check-record/validation.ts";
 import { isCheckTreeReferenceId } from "./identity.ts";
+import { snapshotJsonObject } from "./json-snapshot.ts";
 
 export type ParsedCheckCollection = Readonly<
   | { readonly kind: "exact"; readonly values: readonly string[] }
@@ -53,6 +51,17 @@ interface ParseState {
   readonly warnings: MeaninglessCheckWarning[];
 }
 
+interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
+  readonly checkId: string;
+  readonly displayName: string;
+}
+
+interface ParsedCheckFields {
+  readonly definition: CheckDefinition | null;
+  readonly execution: CheckExecution | null;
+  readonly options: object | null;
+}
+
 const CHECK_KEYS = [
   "checkId",
   "checks",
@@ -64,6 +73,12 @@ const CHECK_KEYS = [
   "options",
   "recordTypes"
 ] as const;
+
+const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
+  definition: null,
+  execution: null,
+  options: null
+});
 
 /**
  * Parses only the closed recursive authoring grammar. Execution callbacks are
@@ -86,68 +101,55 @@ export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undef
 }
 
 function parseCheck(value: unknown, path: string, state: ParseState): ParsedCheck | undefined {
-  const data = snapshotClosedRecord(value);
-  if (
-    data === undefined ||
-    !hasOnlyCheckKeys(data) ||
-    typeof data.checkId !== "string" ||
-    !isCheckTreeReferenceId(data.checkId) ||
-    typeof data.displayName !== "string" ||
-    data.displayName.length === 0
-  ) {
-    return undefined;
-  }
-
+  const data = parseCheckData(value);
+  if (data === undefined) return undefined;
   const execution = parseExecution(data);
   if (execution === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
   const scheduling = parseScheduling(data);
   if (scheduling === undefined) return undefined;
-  if (
-    execution === null &&
-    (Object.hasOwn(data, "options") || Object.hasOwn(data, "recordTypes"))
-  ) {
-    return undefined;
-  }
-
-  const definition = execution === null ? null : parseDefinition(data);
-  const options = execution === null ? null : parseOptions(data);
-  if (execution !== null) {
-    if (
-      definition === null ||
-      definition === undefined ||
-      options === null ||
-      options === undefined ||
-      !validateDefaultCheckOptions(definition.checkId, options)
-    )
-      return undefined;
-  }
-  if (execution === null && checks.length === 0) {
-    state.warnings.push(Object.freeze({ code: "meaningless-check", path, checkId: data.checkId }));
-  }
+  const fields = parseCheckFields(data, execution);
+  if (fields === undefined) return undefined;
+  warnForMeaninglessCheck(data, checks, fields, path, state);
 
   return Object.freeze({
     checkId: data.checkId,
     checks,
-    definition: definition ?? null,
+    definition: fields.definition,
     dependsOn: scheduling.dependsOn,
     displayName: data.displayName,
-    execution,
+    execution: fields.execution,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
-    options: options ?? null,
+    options: fields.options,
     path
   });
+}
+
+function parseCheckData(value: unknown): CheckAuthoringData | undefined {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined) return undefined;
+  return hasValidCheckIdentity(data) ? data : undefined;
+}
+
+function hasValidCheckIdentity(
+  data: Readonly<Record<string, unknown>>
+): data is CheckAuthoringData {
+  return (
+    hasOnlyCheckKeys(data) &&
+    typeof data.checkId === "string" &&
+    isCheckTreeReferenceId(data.checkId) &&
+    typeof data.displayName === "string" &&
+    data.displayName.length > 0
+  );
 }
 
 function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
   return Object.keys(data).every((key) => CHECK_KEYS.some((checkKey) => checkKey === key));
 }
 
-function parseExecution(
-  data: Readonly<Record<string, unknown>>
-): CheckExecution | null | undefined {
+function parseExecution(data: CheckAuthoringData): CheckExecution | null | undefined {
   if (!Object.hasOwn(data, "execution")) return null;
   return isCheckExecution(data.execution) ? data.execution : undefined;
 }
@@ -157,7 +159,7 @@ function isCheckExecution(value: unknown): value is CheckExecution {
 }
 
 function parseChildren(
-  data: Readonly<Record<string, unknown>>,
+  data: CheckAuthoringData,
   path: string,
   state: ParseState
 ): readonly ParsedCheck[] | undefined {
@@ -173,7 +175,7 @@ function parseChildren(
   return Object.freeze(checks);
 }
 
-function parseDefinition(data: Readonly<Record<string, unknown>>): CheckDefinition | undefined {
+function parseDefinition(data: CheckAuthoringData): CheckDefinition | undefined {
   const definition = validateCheckDefinition({
     checkId: data.checkId,
     displayName: data.displayName,
@@ -182,51 +184,43 @@ function parseDefinition(data: Readonly<Record<string, unknown>>): CheckDefiniti
   return definition.ok ? definition.value : undefined;
 }
 
-function parseOptions(data: Readonly<Record<string, unknown>>): object | undefined {
+function parseOptions(data: CheckAuthoringData): object | undefined {
   if (!Object.hasOwn(data, "options")) return Object.freeze({});
   const options = snapshotClosedRecord(data.options);
   if (options === undefined) return undefined;
-  const snapshot = snapshotJson(options, new Set<object>());
-  return snapshot !== null && typeof snapshot === "object" && !Array.isArray(snapshot)
-    ? snapshot
-    : undefined;
+  return snapshotJsonObject(options);
 }
 
-function snapshotJson(
-  value: unknown,
-  ancestors: Set<object>
-): object | readonly unknown[] | string | number | boolean | null | undefined {
-  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
-  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
-  if (typeof value !== "object" || ancestors.has(value)) return undefined;
-
-  const items = snapshotClosedArray(value);
-  if (items !== undefined) {
-    ancestors.add(value);
-    const snapshot: unknown[] = [];
-    for (const item of items) {
-      const parsed = snapshotJson(item, ancestors);
-      if (parsed === undefined) return undefined;
-      snapshot.push(parsed);
-    }
-    ancestors.delete(value);
-    return Object.freeze(snapshot);
+function parseCheckFields(
+  data: CheckAuthoringData,
+  execution: CheckExecution | null
+): ParsedCheckFields | undefined {
+  if (execution === null) {
+    return Object.hasOwn(data, "options") || Object.hasOwn(data, "recordTypes")
+      ? undefined
+      : CONTAINER_CHECK_FIELDS;
   }
-
-  const data = snapshotClosedRecord(value);
-  if (data === undefined) return undefined;
-  ancestors.add(value);
-  const snapshot: Record<string, unknown> = {};
-  for (const [key, item] of Object.entries(data)) {
-    const parsed = snapshotJson(item, ancestors);
-    if (parsed === undefined) return undefined;
-    snapshot[key] = parsed;
+  const definition = parseDefinition(data);
+  if (definition === undefined) return undefined;
+  const options = parseOptions(data);
+  if (options === undefined || !validateDefaultCheckOptions(definition.checkId, options)) {
+    return undefined;
   }
-  ancestors.delete(value);
-  return Object.freeze(snapshot);
+  return Object.freeze({ definition, execution, options });
 }
 
-function parseScheduling(data: Readonly<Record<string, unknown>>):
+function warnForMeaninglessCheck(
+  data: CheckAuthoringData,
+  checks: readonly ParsedCheck[],
+  fields: ParsedCheckFields,
+  path: string,
+  state: ParseState
+): void {
+  if (fields.execution !== null || checks.length > 0) return;
+  state.warnings.push(Object.freeze({ code: "meaningless-check", path, checkId: data.checkId }));
+}
+
+function parseScheduling(data: CheckAuthoringData):
   | Readonly<{
       readonly dependsOn: ParsedCheckCollection | undefined;
       readonly maxParallel: number | undefined;
@@ -251,7 +245,7 @@ function parseScheduling(data: Readonly<Record<string, unknown>>):
 }
 
 function parseCollection(
-  data: Readonly<Record<string, unknown>>,
+  data: CheckAuthoringData,
   field: "dependsOn" | "mutex"
 ): ParsedCheckCollection | null | undefined {
   if (!Object.hasOwn(data, field)) return undefined;
@@ -294,49 +288,4 @@ function parseCollectionItems(
     if (!values.includes(item)) values.push(item);
   }
   return Object.freeze(values);
-}
-
-/** Rebuilds the validated public authoring shape without retaining untyped input. */
-export function materializeCheckTreeAuthoring(parsed: ParsedCheckTree): readonly Check[] {
-  return materializeChecks(parsed.checks);
-}
-
-function materializeChecks(checks: readonly ParsedCheck[]): readonly Check[] {
-  return Object.freeze(checks.map((check) => materializeCheck(check)));
-}
-
-function materializeCheck(check: ParsedCheck): Check {
-  const checks = materializeChecks(check.checks);
-  const dependsOn = materializeCollection(check.dependsOn);
-  const mutex = materializeCollection(check.mutex);
-  const scheduling = {
-    ...(dependsOn === undefined ? {} : { dependsOn }),
-    ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
-    ...(mutex === undefined ? {} : { mutex })
-  };
-  if (check.definition === null || check.execution === null || check.options === null) {
-    return Object.freeze({
-      checkId: check.checkId,
-      checks,
-      displayName: check.displayName,
-      ...scheduling
-    });
-  }
-  return Object.freeze({
-    checkId: check.checkId,
-    checks,
-    displayName: check.displayName,
-    execution: check.execution,
-    options: check.options,
-    recordTypes: check.definition.recordTypes,
-    ...scheduling
-  });
-}
-
-function materializeCollection(
-  collection: ParsedCheckCollection | undefined
-): InheritableCheckCollection<string> | undefined {
-  if (collection === undefined) return undefined;
-  if (collection.kind === "exact") return collection.values;
-  return inherit({ add: collection.add, remove: collection.remove });
 }

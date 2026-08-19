@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { resolve } from "node:path";
 
+import type { CheckProjectContext } from "../definition/custom-check.ts";
 import {
   createDeclarativeFingerprint,
   normalizeProjectDefinition,
@@ -25,7 +26,7 @@ import {
 } from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
 import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
-import { prepareProjectContext } from "./project-context.ts";
+import { prepareProjectContext, type PreparedProjectContext } from "./project-context.ts";
 import {
   executionCancellation,
   isCancelled,
@@ -128,9 +129,18 @@ async function executePlannedInvocation(
       "pre-work"
     );
   }
-  let project;
+  const project = prepareInvocationProject(invocation);
+  if (project === undefined) return planningResult(invocation, "comparison-preparation-failed");
   try {
-    project = prepareProjectContext({
+    return await executePreparedInvocation(invocation, plan, project.context);
+  } finally {
+    project.cleanup();
+  }
+}
+
+function prepareInvocationProject(invocation: Invocation): PreparedProjectContext | undefined {
+  try {
+    return prepareProjectContext({
       controls: invocation.controls,
       definition: invocation.definition,
       effectConfiguration: invocation.effectConfiguration,
@@ -138,53 +148,55 @@ async function executePlannedInvocation(
       root: invocation.projectRoot
     });
   } catch {
-    return planningResult(invocation, "comparison-preparation-failed");
+    return undefined;
   }
-  try {
-    if (isCancelled(invocation.controls)) {
-      return preExecutionCancellation(
-        invocation.declarativeFingerprint,
-        invocation.definitionWarnings,
-        invocation.effects.value(),
-        "planning"
-      );
-    }
-    if (!emitProgress(invocation.effects, "execution")) {
-      return executionResult(invocation, "progress-failed");
-    }
-    const executed = await executeChecks(invocation, project.context);
-    if (isExecutionRunResult(executed)) return executed;
-    if (executed.kind === "cancelled") {
-      return executionCancellation(
-        invocation.declarativeFingerprint,
-        invocation.definitionWarnings,
-        invocation.effects.value(),
-        executed.snapshot
-      );
-    }
-    const referenceFacts = resolveReferenceFacts(
-      plan.policy,
-      executed.snapshot,
-      executed.references
+}
+
+async function executePreparedInvocation(
+  invocation: Invocation,
+  plan: PlannedInvocation,
+  project: CheckProjectContext
+): Promise<RunResult> {
+  if (isCancelled(invocation.controls)) {
+    return preExecutionCancellation(
+      invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
+      invocation.effects.value(),
+      "planning"
     );
-    if (referenceFacts === undefined)
-      return executionResult(invocation, "policy-validation-failed");
-    return completeInvocation(
-      invocation,
-      plan.policy,
-      Object.freeze({
-        referenceFacts,
-        snapshot: executed.snapshot
-      })
-    );
-  } finally {
-    project.cleanup();
   }
+  if (!emitProgress(invocation.effects, "execution")) {
+    return executionResult(invocation, "progress-failed");
+  }
+  const executed = await executeChecks(invocation, project);
+  if (isExecutionRunResult(executed)) return executed;
+  if (executed.kind === "cancelled") {
+    return executionCancellation(
+      invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
+      invocation.effects.value(),
+      executed.snapshot
+    );
+  }
+  const core = resolveCoreExecution(plan, executed);
+  return core === undefined
+    ? executionResult(invocation, "policy-validation-failed")
+    : completeInvocation(invocation, plan.policy, core);
+}
+
+function resolveCoreExecution(
+  plan: PlannedInvocation,
+  executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>
+): CoreExecution | undefined {
+  const referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, executed.references);
+  return referenceFacts === undefined
+    ? undefined
+    : Object.freeze({ referenceFacts, snapshot: executed.snapshot });
 }
 
 async function executeChecks(
   invocation: Invocation,
-  project: Parameters<typeof executeResolvedChecks>[0]["project"]
+  project: CheckProjectContext
 ): Promise<ResolvedCheckExecution | RunResult> {
   try {
     return await executeResolvedChecks({
