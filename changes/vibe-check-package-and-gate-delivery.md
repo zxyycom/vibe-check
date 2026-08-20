@@ -9,6 +9,7 @@
 - 动态 stage、任务进度和 Git 基线以每个 Change 的 <code>.change-plan.json</code> 与 <code>bun run change-plan -- list changes</code> 为准。
 - 每个 Change 自己拥有其 proposal、design、tasks、验证和 handoff 内容。
 - 长期“先完成完整项目门禁，再公开发布”的方向由 [在公开 package 发布前完成项目门禁](../docs/decisions/complete-project-gate-before-public-package-release.md) 决定。
+- Product-owned progress 的 presentation、stream ownership 与 failure isolation 由 [Product-owned Check progress](../docs/decisions/provide-product-owned-check-progress.md) 决定。
 - 当前 Product runtime 的已实现边界由 [架构](../docs/architecture.md) 决定；本导航中的任何 Change 都不证明运行时已经改变。
 
 ## 读取步骤
@@ -38,7 +39,7 @@ establish-npm-package-candidate-and-quality-dogfood ─────┘  replace-
 | Change | 唯一交付 | 下游可使用的完成证据 | 不负责 |
 | --- | --- | --- | --- |
 | [add-project-run-invocation-controls](add-project-run-invocation-controls/) | Product Run 的 immutable project invocation input。 | 已验证的 public control contract；Gate build 可据此实现 Check-local eligibility。 | CLI grammar、tag vocabulary、scheduler selection、renderer。 |
-| [add-project-run-lifecycle-feedback](add-project-run-lifecycle-feedback/) | Product Run 的 lifecycle observer 与 final per-Check duration summary。 | 已验证的 lifecycle events、duration summary 与 observer failure semantics；Gate build 可据此渲染进度与完成摘要。 | Project UI、exit mapping、canonical performance policy。 |
+| [add-project-run-lifecycle-feedback](add-project-run-lifecycle-feedback/) | Product Run 的 TTY/plain progress effect 与 final per-Check duration summary。 | 已验证的 Product-owned progress、duration summary、effect failure isolation 与 exact-package output；Gate build 可直接启用。 | Project process logs、exit mapping、canonical performance policy 或公共 observer/renderer API。 |
 | [establish-npm-package-candidate-and-quality-dogfood](establish-npm-package-candidate-and-quality-dogfood/) | API-only candidate、quality dogfood 与 exact-tarball proof。 | <code>candidate-handoff.md</code>，记录与当前 public contract 匹配的 artifact identity 与安装证据。 | 完整 Gate、正式入口切换、registry publish。 |
 | [build-candidate-backed-project-gate](build-candidate-backed-project-gate/) | 可并行运行的完整 repository Gate consumer。 | <code>gate-readiness-handoff.md</code>，记录类别映射、candidate、controls/feedback 集成和对照证据。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
 | [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 将已验证 Gate 切换为唯一正式门禁，并退役旧 verifier。 | <code>gate-handoff.md</code>，记录实际入口、删除范围和重新验证条件。 | 新增 Gate 功能、公共 Run contract、package build、registry publish。 |
@@ -48,7 +49,7 @@ establish-npm-package-candidate-and-quality-dogfood ─────┘  replace-
 
 ## Timing / telemetry 边界
 
-当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。[lifecycle-feedback Change](add-project-run-lifecycle-feedback/) 负责 Product-measured <code>durationMs</code>：它作为 final RunResult 的 per-Check execution signal 与 live settlement feedback 返回，不进入 Core、machine artifact 或 Record。
+当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。[lifecycle-feedback Change](add-project-run-lifecycle-feedback/) 负责 Product-measured <code>durationMs</code>：它由 Product 私有 settled feedback 驱动 progress，并作为 final RunResult 的 per-Check execution signal 返回，不进入 Core、machine artifact 或 Record。
 
 首轮不返回 <code>startedAt</code> / <code>endedAt</code>，也不让 duration 自动影响 policy。若出现实际性能预算消费者，必须先演进长期 Decision，再建立独立 Change，明确 threshold、baseline、retention 和失败语义。
 

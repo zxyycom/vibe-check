@@ -1,6 +1,6 @@
 # Proposal
 
-本 Draft 在旧 workspace verifier 仍保留为正式门禁时，建立一个由候选 npm package 驱动的完整 Project Gate consumer。它把必要的仓库验收类别表达为 project-owned Definition、bound Run 和 adapter，并消费前置的 invocation controls 与 lifecycle feedback；完成后可作为真实、并行验证的 gate，但尚不切换仓库唯一入口或删除旧实现。
+本 Draft 在旧 workspace verifier 仍保留为正式门禁时，建立一个由候选 npm package 驱动的完整 Project Gate consumer。它把必要的仓库验收类别表达为 project-owned Definition、bound Run 和 adapter，并消费前置的 invocation controls 与 Product-owned progress；完成后可作为真实、并行验证的 gate，但尚不切换仓库唯一入口或删除旧实现。
 
 ## Why
 
@@ -10,7 +10,7 @@
 
 ## Outcome
 
-完成后会有一个项目拥有的 Gate Definition、bound Run 和明确的预切换 adapter。它通过 built 或 exact-tarball <code>vibe-check</code> package 覆盖当前基础门禁的必要类别，支持 project-local profile/disabled-tag eligibility，并以 lifecycle feedback 呈现进度、日志与最终摘要。
+完成后会有一个项目拥有的 Gate Definition、bound Run 和明确的预切换 adapter。它通过 built 或 exact-tarball <code>vibe-check</code> package 覆盖当前基础门禁的必要类别，支持 project-local profile/disabled-tag eligibility，直接启用 Product progress effect，并把详细 process output 写入 project-owned per-Check logs。
 
 旧 verifier 仍存在且仍是正式入口。此 Draft 写出 <code>gate-readiness-handoff.md</code>，其中记录类别映射、candidate identity、控制/输出行为、固定 capacity、对照验证及最终切换条件，供 [replace-workspace-verifier-with-project-gate](../replace-workspace-verifier-with-project-gate/) 使用。
 

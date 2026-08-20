@@ -64,6 +64,7 @@
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "preinstall-selected-typescript-capabilities.md": "sha256:56c21c8c76f406a852b5274bbd796aa10d152bdc5086650fbd2f2c5a110e0cb1",
       "project-executable-checks-into-validated-task-graph.md": "sha256:97513a4e9a6ade26841791a9b37027bba2cc86d478f6c367a1638c32b1ee5647",
+      "provide-product-owned-check-progress.md": "sha256:d110790ebe106a935ef99bdbdf3a6b6729424d2065432c17425949ff6713187c",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:0a53b3c8de9dacdd27e133b102fb98086b8b101a96aeec5b6dee1b95dd509719",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
@@ -1923,6 +1924,33 @@
             "target": "execute-recursive-checks-through-one-task-graph.md"
           }
         ]
+      }
+    },
+    "provide-product-owned-check-progress.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "provide-product-owned-check-progress.md",
+        "title": "由 Product Run 提供 Check 生命周期进度",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-20T06:43:50Z",
+        "purpose": "让 package consumer 通过现有 progress effect 获得一致且无需公共 observer 的 Check 执行反馈。",
+        "background": "Product 已拥有 Check lifecycle 与 progress effect，TTY 动态区域还需要明确序号、stream ownership 和失败隔离。",
+        "decision": "由 Product 私有 lifecycle feedback 驱动 TTY/plain progress，复用执行耗时并让输出失败不改写运行事实。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "publish-check-record-machine-v3.md": {
