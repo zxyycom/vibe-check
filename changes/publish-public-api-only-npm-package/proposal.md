@@ -1,6 +1,6 @@
 # Proposal
 
-本 Draft 是 npm 产品交付的最后阶段：在 candidate 已支持完整 repository Project Gate、该 gate 已替代 workspace verifier 并完成 local package acceptance 的基础上，准备并在获得单独授权后公开发布 `vibe-check`。
+本 Draft 是 npm 产品交付的最后阶段：在 Project Gate 已先替代 workspace verifier，随后 Gate authoring、typed Record、result presentation 与 public API documentation 已完成，且 current optimized Gate 与 local package acceptance 绑定同一 exact artifact 的基础上，准备并在获得单独授权后公开发布 `vibe-check`。
 
 ## Why
 
@@ -10,4 +10,4 @@ candidate 的 build、pack、isolated install 与完整 Project Gate consumer �
 
 ## Outcome
 
-当 candidate/gate handoff、fresh registry checks 和明确 publish authorization 都满足时，普通 Bun consumer 能从 npm registry 安装一个精确版本的 API-only `vibe-check` package。该版本同时交付已验证的 runtime、declarations、完整 Project Gate consumer evidence、MIT legal/release materials 和可审计的发布后安装证据。
+当 matching candidate preparation receipt、cutover/optimization/documentation handoffs、fresh registry checks 和明确 publish authorization 都满足时，普通 Bun consumer 能从 npm registry 安装一个精确版本的 API-only `vibe-check` package。该版本同时交付已验证的 runtime、declarations、README/API guide、完整 Project Gate consumer evidence、MIT legal/release materials 和可审计的发布后安装证据。

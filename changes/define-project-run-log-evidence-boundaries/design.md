@@ -14,6 +14,8 @@
 
 Product 当前的 private lifecycle feedback 有 `prepared`、`started`、`settled` 与 `final` 事实。其 renderer 在 TTY 额外显示临时 running rows；非 TTY 不显示 running rows，但仍写 execution header、每个 settled Check 的 status/duration/reason 和 final summary。因此 non-TTY stdout 可作为人读、append-only 的运行记录，但不是稳定 machine event protocol，消费者不得反向解析它恢复 Check events。
 
+[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 另行交付首版 terminal Record presentation，并决定首版是否包含 live/intermediate feedback。Record/result presentation 不是 durable logging、Gate receipt 或 chronological event persistence，不触发本 Draft 的 receipt/event 准入条件。
+
 `effects.logs` 不是 durable log store：在启用时，它只将 publication summary 打印到 stdout 并报告该 effect 的状态。候选 Gate 明确禁用该 effect；它的 per-Check transcript 属于 Gate 自己的本地诊断 evidence。所有这些本地 logs 与 artifacts 均不是 release artifact。
 
 ## Goals / Non-Goals

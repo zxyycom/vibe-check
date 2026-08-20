@@ -4,7 +4,9 @@
 
 当 AI 或维护者需要选择、恢复或审阅当前 npm / Project Gate 交付路径时，先阅读本导航，再进入目标 Change 的 proposal、design 和 tasks。本文件是 [Active Change Portfolio](active-change-portfolio.md) 中“Project Gate 与 package 交付”路径的详细导航；需要查看全部 active Change 或其直接相关 Decision 时，回到该 portfolio。
 
-本文件只拥有本产品路径六个阶段节点的导航关系：三个上游 Change 与 Gate build 已归档，cutover 与 publish 仍是 active Change。它不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
+本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系：三个上游 Change 与首轮 Gate build 已归档；下一步是 repository hard cutover。typed Record、首版 result presentation、package API documentation 与 native Check authoring 都在 cutover 后优化，完成后刷新 Gate optimization evidence，最后才进入 publish。log evidence boundaries 是不阻塞本路径的相邻 Draft。
+
+本导航不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
 
 - 动态 stage、任务进度和 Git 基线以每个 Change 的 <code>.change-plan.json</code> 与 <code>bun run change-plan -- list changes</code> 为准。
 - 每个 Change 自己拥有其 proposal、design、tasks、验证和 handoff 内容。
@@ -23,16 +25,29 @@
 
 ~~~text
 [archived] add-project-run-invocation-controls ─────────────┐
-[archived] add-project-run-lifecycle-feedback ──────────────┼─> [archived] build-candidate-backed-project-gate
-[archived] establish-npm-package-candidate-and-quality-dogfood ┘                  │
-                                                                                  v
-                                                   replace-workspace-verifier-with-project-gate
-                                                                                  │
-                                                                                  v
-                                                   publish-public-api-only-npm-package
+[archived] add-project-run-lifecycle-feedback ──────────────┼─> [archived] build-candidate-backed-project-gate ─┐
+[archived] establish-npm-package-candidate-and-quality-dogfood ┘                                                    │
+                                                                                                                     v
+                                                                                          replace-workspace-verifier-with-project-gate
+                                                                                                                     │
+                                                                                                                     v
+                                                                                         [repository uses one formal Gate]
+                                                                                              │             │
+                                                                                              v             v
+                                                            complete-typed-record-authoring   add-check-associated-result-presentation
+                                                                                              │             │
+                                                                                              └──────┬──────┘
+                                                                                                     v
+                                                                       ship-public-package-api-documentation
+                                                                                                     │
+                                                                                                     v
+                                                                    align-project-gate-with-native-check-authoring
+                                                                                                     │
+                                                                                                     v
+                                                                    publish-public-api-only-npm-package
 ~~~
 
-前三个上游 Change 的完成只证明各自交付，不证明历史 candidate identity 仍与当前 public package closure 一致。Gate build 已按 archived candidate handoff 的重新验证条件运行 preparation、audit 并记录与当前 package inputs 匹配的 artifact，才形成 readiness evidence；matching receipt 可以复用。
+前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。cutover 必须在当前 revision 重新准备 matching candidate并重跑对照，随后一次性完成正式 bindings 与 legacy retirement。后续 typed Record、首版 result presentation、package documentation 和 native Check authoring 会改变 artifact/public/Gate inputs；这些变化只使发布证据需要刷新，不撤销 cutover，也不恢复旧 verifier。native Check authoring 最终以 documentation-complete exact artifact 写出 <code>gate-optimization-handoff.md</code>。
 
 ## Change 与 handoff
 
@@ -40,22 +55,31 @@
 | --- | --- | --- | --- |
 | [add-project-run-invocation-controls](archive/add-project-run-invocation-controls/)（archived） | Product Run 的 immutable project invocation input。 | 当前 owner 已实现并验证的 string flags；Gate build 可据此实现 Check-local eligibility。 | CLI grammar、tag vocabulary、scheduler selection、renderer。 |
 | [add-project-run-lifecycle-feedback](archive/add-project-run-lifecycle-feedback/)（archived） | Product Run 的 TTY/plain progress effect 与 final per-Check duration summary。 | 当前 owner 已实现并验证的 Product-owned progress、duration summary 与 effect failure isolation；Gate build 可直接启用。 | Project process logs、exit mapping、canonical performance policy 或公共 observer/renderer API。 |
-| [establish-npm-package-candidate-and-quality-dogfood](archive/establish-npm-package-candidate-and-quality-dogfood/)（archived） | API-only candidate、quality dogfood 与 exact-tarball proof。 | [<code>candidate-handoff.md</code>](archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 记录证据形态、旧 identity 与重新验证条件；Gate build 必须产生 current identity。 | 完整 Gate、正式入口切换、registry publish。 |
-| [build-candidate-backed-project-gate](archive/build-candidate-backed-project-gate/)（archived） | 可并行运行的完整 repository Gate consumer。 | [<code>gate-readiness-handoff.md</code>](archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是当前 readiness 输入；其中的 revalidation conditions 决定下游何时可使用它。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
-| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 将已验证 Gate 切换为唯一正式门禁，并退役旧 verifier。 | <code>gate-handoff.md</code>，记录实际 repository/CI bindings、无 disabled-tag required/full 证据、legacy reference audit 结果和重新验证条件。 | 新增 Gate 功能、公共 Run contract、package build、registry publish。 |
-| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 经过单独授权的公开 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装验证。 | 重建 package、补齐 Gate 功能或替代本地 cutover evidence。 |
+| [establish-npm-package-candidate-and-quality-dogfood](archive/establish-npm-package-candidate-and-quality-dogfood/)（archived） | API-only candidate、quality dogfood 与 exact-tarball proof。 | [<code>candidate-handoff.md</code>](archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 记录证据形态、形成时 identity 与重新验证条件；后续 Change 必须据此产生匹配当前 inputs 的 identity。 | 完整 Gate、正式入口切换、registry publish。 |
+| [build-candidate-backed-project-gate](archive/build-candidate-backed-project-gate/)（archived） | 可并行运行的完整 repository Gate consumer。 | [<code>gate-readiness-handoff.md</code>](archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时 readiness 输入；其中的 revalidation conditions 决定后续何时必须刷新。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
+| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 在当前 revision 重新验证归档 readiness，完成唯一正式门禁接线并退役旧 verifier。 | <code>gate-handoff.md</code>，记录 binding、无 disabled-tag required/full、legacy reference audit 和重新验证条件。 | 后续 Gate authoring/API/package 优化与 registry publish。 |
+| [complete-typed-record-authoring](complete-typed-record-authoring/) | 让 literal Record catalog 与 reporter 在 declaration/LSP 中形成同一 typed contract。 | declaration 与 isolated consumer type evidence；package docs 据此冻结 Record examples/JSDoc。 | Record 可见呈现、Gate 切换、registry publish。 |
+| [add-check-associated-result-presentation](add-check-associated-result-presentation/) | 交付首版 terminal Record presentation，并决定首版是否还包含 live/intermediate feedback。 | implementation、declaration、output 与 isolated-consumer evidence；package docs 据此冻结 result/presentation examples。 | typed Record authoring、Gate process transcript、durable log protocol。 |
+| [ship-public-package-api-documentation](ship-public-package-api-documentation/) | 补齐 public JSDoc/LSP，并将 README/API guide 加入 exact candidate artifact。 | <code>package-api-documentation-handoff.md</code>，绑定 guide/declarations 与 tarball digest；Gate optimization 必须以该 artifact 刷新发布证据。 | registry/legal/release notes 与 publish。 |
+| [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 在 cutover 后让权威 Gate 使用普通 public `Check` values，保留 process helper并删除数量锁。 | <code>gate-optimization-handoff.md</code>，记录 documentation-complete current candidate、正式 bindings、native authoring 与 required/full evidence。 | 重新切换 bindings、恢复 legacy verifier、registry publish。 |
+| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover、Gate optimization 与 package documentation handoffs，经过单独授权完成 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装/文档/runtime/type 验证。 | 重建 package、补齐 Gate/API 文档或替代本地 evidence。 |
+| [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | 保存 Product lifecycle、Gate transcript 与 future durable receipt/event sink 的 owner 边界。 | 当前行为已足够；本 Draft 没有交付物，也不是 cutover/package documentation/publish 的前置。 | 当前 Gate log 改造、Record presentation 或通用 logger。 |
 
-Archived candidate handoff 不替代当前 readiness。当前 [readiness handoff](archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 只在其 revalidation conditions 仍成立时可供 cutover 消费；`gate-handoff.md` 尚未产生。
+归档 readiness 只保存形成时能力；cutover 负责当前 revision revalidation 与 binding。cutover 后的优化不会撤销 <code>gate-handoff.md</code> 中的 binding/legacy-retirement 事实，但 publish 还必须取得 current <code>gate-optimization-handoff.md</code> 与 package documentation handoff。三者目前都尚未产生。
 
 ## Timing / telemetry 边界
 
 当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。已归档的 [lifecycle-feedback Change](archive/add-project-run-lifecycle-feedback/) 落地 Product-measured <code>durationMs</code>：它由 Product 私有 settled feedback 驱动 progress，并作为 final RunResult 的 per-Check execution signal 返回，不进入 Core、machine artifact 或 Record；当前事实仍以 Product owner、源码与测试为准。
+
+[`add-check-associated-result-presentation`](add-check-associated-result-presentation/) 是首次公开 package 的硬前置：它必须交付现有 terminal Records 的可见 projection，并决定首版是否包含 live feedback capability。它不会把 Record 改成 Check 或把任意 child stdout 提升为结果；若首版采用 live feedback，必须先演进现有 progress Decision。
 
 首轮不返回 <code>startedAt</code> / <code>endedAt</code>，也不让 duration 自动影响 policy。若出现实际性能预算消费者，必须先演进长期 Decision，再建立独立 Change，明确 threshold、baseline、retention 和失败语义。
 
 ## 完成判读
 
 - candidate 完成不等于 Gate 已完成，也不等于 package 已公开发布。
-- Gate build 完成不等于仓库已完成 cutover；旧 verifier 仍可能是正式入口。
+- 首轮 Gate build 完成不等于仓库已完成 cutover；旧 verifier 仍可能是正式入口，因此 cutover 是当前下一步。
+- cutover 完成不等于 native Check authoring、typed Record、result presentation 或 package documentation 已完成；这些在唯一正式 Gate 下继续优化。
+- Package API guide Draft 或仓库文档存在不等于 README/JSDoc 已进入 exact tarball；只有 documentation handoff 能证明随包交付。
 - cutover 完成不等于 registry 已验证或有发布授权。
 - 只有 Change 自己记录的验证与 handoff，且下游重新验证条件成立，才可推进到下一阶段。

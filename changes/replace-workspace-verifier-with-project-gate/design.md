@@ -4,9 +4,9 @@
 
 ## Context
 
-[build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 已提供 <code>gate-readiness-handoff.md</code>：当前 candidate identity、20-Check 类别映射、profile/tag/N/A semantics、固定 capacity、progress/log/exit behavior，以及 exact-tarball 与同 revision 对照证据。已归档的 [establish-npm-package-candidate-and-quality-dogfood](../archive/establish-npm-package-candidate-and-quality-dogfood/) 保存 artifact/dogfood 的形成时 handoff 与重新验证条件；current artifact 仍由 candidate preparation owner 生成。若 public package inputs 在 readiness 后变化，cutover 前必须运行 preparation 并刷新证据。
+[build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 已提供形成时 <code>gate-readiness-handoff.md</code>：candidate identity、20-Check 类别映射、profile/tag/N/A semantics、固定 capacity、progress/log/exit behavior，以及 exact-tarball 与同 revision 对照证据。该 handoff 是 cutover 的能力输入；切换前必须按其 revalidation conditions 在当前 revision 重新准备 matching candidate，并重跑 focused、legacy/new required/full 与 partial-control evidence。
 
-当前 [readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在，作为本 Draft 的输入；它不表示 cutover 已开始，也不授权修改正式 binding 或删除 legacy verifier。
+[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/)、typed Record、result presentation 与 package documentation 都是 cutover 后优化。它们不是当前 Gate 行为正确性的前置；完成后必须刷新发布所需的 exact-artifact/Gate evidence，但不得因此恢复旧 verifier 或重新建立双入口。
 
 当前 workspace verifier 是独立 scripts-only implementation，且其命令、CI/workflow、文档或开发者脚本可能有多处引用。本 Change 的风险在于正确切换每个权威入口并删除旧 implementation，而不重新解释每个 Check 的功能结果。
 
@@ -14,7 +14,7 @@
 
 ### Goals
 
-- 审阅 readiness handoff，确认必要类别、exact package evidence、partial controls、progress/output 和 exit behavior 已可作为正式 gate 使用。
+- 审阅归档 readiness handoff，并在当前 revision 重新证明必要类别、matching exact package、partial controls、progress/output 和 exit behavior 已可作为正式 Gate 使用。
 - 将仓库 root scripts、CI/workflow 与文档接线到同一个 Project Gate implementation；命令名称或 alias 只是接线细节，不是本 Change 的决策，保留的 wrapper 只能薄转发。
 - 正式 repository/CI bindings 调用无 disabled tags 的 required/full；这是调用契约，不是 CI host 上的运行时禁令，local adapter 保留显式 partial invocation。
 - 更新全部 root script、CI/workflow、文档与测试中的 legacy verifier 引用；确认引用为零后删除旧模块，并保留清晰的 VCS rollback 边界。
@@ -30,7 +30,7 @@
 
 ### 1. Readiness evidence 是切换的硬前置
 
-没有完成且与当前 candidate 相匹配的 readiness handoff，就不更改正式 bindings 或删除 verifier。若 handoff 没有证明类别闭合、artifact identity、profile/tag/N/A、progress/log/exit 或无 disabled-tag required/full readiness，工作返回 Gate-build Change，而非在 cutover 中补建 Gate 能力。
+归档 readiness handoff 与当前 revision revalidation 必须共同证明类别闭合、artifact identity、profile/tag/N/A、progress/log/exit 和无 disabled-tag required/full readiness，才能更改正式 bindings 或删除 verifier。若当前 Gate 行为与形成时能力不一致，工作返回 Gate implementation 修复；不把 typed Record、result presentation、package documentation 或 authoring ergonomics 当成 cutover 阻塞。
 
 ### 2. 只保留一个权威 implementation
 
@@ -40,9 +40,11 @@
 
 先更新全部 root script、CI/workflow、文档和测试中对旧 verifier 的引用，再确认旧 verifier 的引用为零；只有此时才删除旧模块及其无调用者的测试或说明。回退是恢复该 Change 的 source/binding references，不是让新旧实现长期并行成为两个门禁真相。
 
-### 4. Cutover handoff 是公开发布的唯一 gate evidence
+### 4. Cutover handoff 拥有 binding，后续 handoff 拥有最新行为证据
 
-<code>gate-handoff.md</code> 记录实际 repository/CI bindings、候选 identity、覆盖类别、无 disabled-tag 正式调用契约、固定 capacity、output/exit/log evidence、刻意未继承项、legacy reference audit 结果与重新验证条件。[publish-public-api-only-npm-package](../publish-public-api-only-npm-package/) 只能消费它，不得把 registry publish 当作补齐仓库迁移的手段。
+<code>gate-handoff.md</code> 记录实际 repository/CI bindings、cutover candidate identity、覆盖类别、无 disabled-tag 正式调用契约、固定 capacity、output/exit/log evidence、刻意未继承项、legacy reference audit 结果与重新验证条件。后续 Gate/package inputs 变化不会撤销 binding 与 legacy retirement，但会使其中的 behavior/artifact evidence 需要刷新。
+
+[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 在全部首版优化完成后写出 <code>gate-optimization-handoff.md</code>。发布 Change 必须同时消费前者的 binding 事实与后者的 current exact-artifact/Gate evidence，不得用 registry publish 补齐任何本地缺口。
 
 ### 5. CI 完整性是调用契约，不是运行时禁令
 
@@ -51,7 +53,7 @@
 ## Risks / Trade-offs
 
 - **隐藏调用者：** 未发现的 package script、CI 或文档引用会留下双入口；需要 repo-wide reference audit。
-- **artifact 过期：** cutover 时 package/public interaction 已变更会使 readiness evidence 失效；应回到 candidate/gate-build 刷新。
+- **artifact 过期：** cutover 前 inputs 变化时必须按归档 handoff 重新准备并重跑对照；cutover 后 inputs 变化只要求刷新发布证据，不恢复旧 verifier。
 - **删除过早：** 不完整 category mapping 会失去已知门禁；删除前必须从完成接线后的 bindings 通过 required/full 验证。
 - **转发漂移：** 保留的 command wrapper 若自行解析参数或生成结果，会重新长成第二个 verifier；只允许薄转发。
 
