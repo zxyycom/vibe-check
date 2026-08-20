@@ -79,7 +79,7 @@ export default defineConfig({
           "scripts/quality/**/*.ts",
           "scripts/tools/*.ts",
           "scripts/tools/validators/**/*.ts",
-          "scripts/vibe-check-workspace/**/*.ts"
+          "scripts/project-gate/**/*.ts"
         ],
         warningPolicy: "moderate"
       }
@@ -110,7 +110,7 @@ export default defineConfig({
       "scripts/quality/**/*.ts",
       "scripts/tools/*.ts",
       "scripts/tools/validators/**/*.ts",
-      "scripts/vibe-check-workspace/**/*.ts",
+      "scripts/project-gate/**/*.ts",
       "docs/**/*.md",
       "changes/**/*.md"
     ],

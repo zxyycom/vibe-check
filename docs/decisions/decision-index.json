@@ -13,7 +13,7 @@
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
-      "complete-project-gate-before-public-package-release.md": "sha256:462d6a09061685ce62b5c4340659776d1820eedbbd7dbd862a272e5f09b2c60e",
+      "complete-project-gate-before-public-package-release.md": "sha256:a572259b95813db877a505f9e85d9fb32da15b5d9a06538f5ae3570eb0909b1d",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
@@ -58,7 +58,7 @@
       "let-check-options-own-execution-dependencies.md": "sha256:2183fd9896a0f49df24d1cedab00d7eaba8288f4b2367b87e232eed7a28242b6",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
-      "make-bun-entries-use-pinned-tools.md": "sha256:e0c225aba31480976a707014304b1b002d1888f02e811681c39fadd2ad1dcf26",
+      "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
@@ -393,14 +393,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "complete-project-gate-before-public-package-release.md",
         "title": "在公开 package 发布前完成项目门禁",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-19T06:34:27Z",
         "purpose": "让首次公开 package 已由完整项目门禁的真实消费者证明，而非只完成 quality dogfood。",
         "background": "产品的核心结果是替代项目门禁；candidate 已可先在本地建立，但公开发布和完整 gate 替代是独立顺序选择。",

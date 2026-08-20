@@ -5,7 +5,7 @@ import { PROJECT_GATE_CATALOG } from "../../project-gate/catalog.ts";
 import { PROJECT_GATE_POLICY_NAME, createProjectGateDefinition } from "./project-definition.ts";
 import { GATE_COMMAND_FAILURE_RECORD_TYPE } from "./process-check.ts";
 
-describe("candidate Project Gate Definition", () => {
+describe("Project Gate Definition", () => {
   it("projects every catalog command into one process Check and named blocking policy", () => {
     const definition = createProjectGateDefinition("/tmp/project-gate-logs");
 

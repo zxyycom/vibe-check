@@ -29,5 +29,5 @@ Run these commands from this directory:
 - `bun run test`
 
 The format and lint commands reuse the repository-root Oxfmt and Oxlint configuration. The
-root development workflows and full verifier are documented in
+root development workflows and full Project Gate are documented in
 [脚本工具](../../../docs/script-tooling.md#验证入口).

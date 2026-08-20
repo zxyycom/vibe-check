@@ -24,7 +24,7 @@ const descriptor: ProjectGateCheckDescriptor = Object.freeze({
   tags: ["tests"]
 } as const satisfies ProjectGateCheckDescriptor);
 
-describe("candidate Project Gate process Check", () => {
+describe("Project Gate process Check", () => {
   it("writes one complete transcript and passes only a zero command exit", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {

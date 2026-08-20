@@ -78,5 +78,5 @@ artifact，未来方向看活动决策，当前实施计划看 active Change，�
 
 - 决策 Markdown、生命周期、关系或索引变化：运行 `bun run decisions -- check`。
 - Change Plan 变化：运行 `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证。
-- 本文档或路由变化：运行 `bun run validate -- docs`；跨多个工作流边界时运行
-  `bun run verify:vibe-check-workspace:required`。
+- 本文档或路由变化：运行 `bun run validate -- docs`；跨多个工作流边界时运行直接调用
+  Project Gate 的 `bun run verify:vibe-check-workspace:required`。

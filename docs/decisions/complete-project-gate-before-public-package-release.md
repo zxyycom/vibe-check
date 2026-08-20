@@ -1,7 +1,7 @@
 ---
 title: 在公开 package 发布前完成项目门禁
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-19T06:34:27Z
 purpose: 让首次公开 package 已由完整项目门禁的真实消费者证明，而非只完成 quality dogfood。
 background: 产品的核心结果是替代项目门禁；candidate 已可先在本地建立，但公开发布和完整 gate 替代是独立顺序选择。
@@ -26,7 +26,7 @@ relations: []
 
 本记录不授予 npm registry 查询、凭据访问或 <code>npm publish</code> 的操作授权。动态 Change stage、任务与 handoff 由各自 active Change 和 change-plan CLI 恢复，不属于本长期决策。
 
-- 当前 `scripts/vibe-check-workspace/verify.ts` 已拥有项目级 command checks、profile、日志、进度与 exit mapping；Product 已拥有 Project Definition、direct Check execution 和 static Task scheduling。
+- 本 Decision 形成时，`scripts/vibe-check-workspace/verify.ts` 已拥有项目级 command checks、profile、日志、进度与 exit mapping；Product 已拥有 Project Definition、direct Check execution 和 static Task scheduling。
 - 部分运行可以由项目 CLI 传入 invocation input，并由每个 Check 返回 `not-applicable` 表达；它不需要动态选择 Task graph。
 - 进度需要运行期 Check lifecycle 与耗时反馈；当前 release path 不会仅为呈现而把 timing 加入既有 QualityRecord identity 或 machine grammar。
 - 公开 npm 发布会产生可见且不可逆的外部版本状态；在此之前完成完整 gate consumer 可减少首发后立即重构核心路径的成本。
@@ -34,7 +34,7 @@ relations: []
 ## 决策
 
 - 采用: 先完成可安装的本地 package candidate，使开发中的 project gate 能通过真实 package API 消费 Product；candidate 不访问 registry。
-- 采用: 在公开发布前，以项目拥有的 Definition、bound Run 和 CLI 替代现有 workspace verifier 的核心门禁结果，并同时交付 invocation-controlled partial execution 与可用进度反馈。
+- 采用: 在公开发布前，以项目拥有的 Definition、bound Run 和 CLI 替代当时的 workspace verifier 核心门禁结果，并同时交付 invocation-controlled partial execution 与可用进度反馈。
 - 采用: Project gate 只保留核心验收类别和可观察的 exit/log/result 行为；不自动继承所有旧参数、分组、格式或 presentation 细节。现有 `--concurrency` 不属于首轮必需能力，除非实际消费者证明静态 scheduler 容量不足。
 - 采用: 在当前 release path 中，Product 对每个实际执行的 Check 测量一次 duration，并在 settled lifecycle feedback 与 final structured <code>RunResult</code> 的 per-Check summary 中暴露 <code>durationMs</code>。它用于进度与完成摘要，不自动成为 quality failure 或 policy input；首轮不输出 wall-clock start/end，也不为 Record 添加独立 timing。
 - 采用: 不向既有 `CheckOutcome` 或 `QualityRecord` grammar 添加仅用于呈现、会改变 Core、machine artifact 或 record identity 的时间字段。

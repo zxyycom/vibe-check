@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
+
+import { isNonArrayRecord } from "../tools/foundation/src/index.ts";
 
 import { defineProjectGateCatalog, PROJECT_GATE_CATALOG } from "./catalog.ts";
 import { parseProjectGateArguments, selectionFlags } from "./controls.ts";
@@ -28,7 +30,32 @@ const prepared = Object.freeze({
   stagingDirectory: "/tmp/staging"
 });
 
-describe("candidate Project Gate catalog and controls", () => {
+const rootPackageManifestSource = readFileSync(
+  fileURLToPath(new URL("../../package.json", import.meta.url)),
+  "utf8"
+);
+
+describe("Project Gate catalog, root binding, and controls", () => {
+  it("binds retained workspace verification names directly to the Gate profiles without disabled tags", () => {
+    const manifest: unknown = JSON.parse(rootPackageManifestSource);
+    assert.ok(isNonArrayRecord(manifest), "root package manifest must be an object");
+    const rootScripts = manifest.scripts;
+    assert.ok(isNonArrayRecord(rootScripts), "root package manifest must declare a scripts object");
+
+    assert.deepEqual(
+      {
+        base: rootScripts["verify:vibe-check-workspace"],
+        full: rootScripts["verify:vibe-check-workspace:full"],
+        required: rootScripts["verify:vibe-check-workspace:required"]
+      },
+      {
+        base: "bun scripts/project-gate/index.ts",
+        full: "bun scripts/project-gate/index.ts --profile full",
+        required: "bun scripts/project-gate/index.ts --profile required"
+      }
+    );
+  });
+
   it("keeps the independent 20-Check required/full profile contract closed", () => {
     assert.equal(PROJECT_GATE_CATALOG.length, 20);
     assert.equal(
@@ -95,7 +122,7 @@ describe("candidate Project Gate catalog and controls", () => {
   });
 });
 
-describe("candidate Project Gate adapter closure", () => {
+describe("Project Gate adapter closure", () => {
   it("does not load or run a candidate consumer after preparation failure", async () => {
     let loaded = false;
     const status = await runProjectGate([], {

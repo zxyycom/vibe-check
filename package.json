@@ -20,9 +20,9 @@
     "investigations": "bun .codex/skills/investigation-report/scripts/check-investigations.mjs --root .",
     "test-evidence": "bun scripts/test-evidence/index.ts",
     "validate": "bun scripts/validate.ts",
-    "verify:vibe-check-workspace": "bun scripts/vibe-check-workspace/verify.ts",
-    "verify:vibe-check-workspace:required": "bun scripts/vibe-check-workspace/verify.ts --profile required",
-    "verify:vibe-check-workspace:full": "bun scripts/vibe-check-workspace/verify.ts --profile full",
+    "verify:vibe-check-workspace": "bun scripts/project-gate/index.ts",
+    "verify:vibe-check-workspace:required": "bun scripts/project-gate/index.ts --profile required",
+    "verify:vibe-check-workspace:full": "bun scripts/project-gate/index.ts --profile full",
     "quality": "bun scripts/quality/index.ts"
   },
   "devDependencies": {

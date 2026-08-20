@@ -27,10 +27,6 @@ export interface ProjectGateCheckDescriptor {
 
 const requiredAndFull = ["required", "full"] as const;
 
-/**
- * The candidate Gate's independent, closed command catalog. This deliberately
- * does not share authoring data with the legacy workspace verifier.
- */
 export const PROJECT_GATE_CATALOG = defineProjectGateCatalog([
   check({
     checkId: "typecheck-product",
@@ -226,22 +222,43 @@ function canonicalValues<Value extends string>(values: readonly Value[]): readon
 export function defineProjectGateCatalog(
   descriptors: readonly ProjectGateCheckDescriptor[]
 ): readonly ProjectGateCheckDescriptor[] {
+  const descriptorsById = indexCatalogDescriptors(descriptors);
+  assertCatalogDependencies(descriptors, descriptorsById);
+  assertAcyclicDependencies(descriptorsById);
+  assertCatalogProfileCounts(descriptors);
+  return Object.freeze([...descriptors]);
+}
+
+function indexCatalogDescriptors(
+  descriptors: readonly ProjectGateCheckDescriptor[]
+): ReadonlyMap<string, ProjectGateCheckDescriptor> {
   const descriptorsById = new Map<string, ProjectGateCheckDescriptor>();
   for (const descriptor of descriptors) {
     if (!/^[a-z][a-z0-9-]*$/.test(descriptor.checkId) || descriptorsById.has(descriptor.checkId)) {
       throw new TypeError(`Project Gate catalog has an invalid Check ID: ${descriptor.checkId}`);
     }
     descriptorsById.set(descriptor.checkId, descriptor);
-    if (
-      descriptor.command.length === 0 ||
-      descriptor.displayName.length === 0 ||
-      descriptor.profiles.length === 0 ||
-      descriptor.profiles.some((profile) => !PROJECT_GATE_PROFILES.includes(profile)) ||
-      descriptor.tags.some((tag) => !PROJECT_GATE_TAGS.includes(tag))
-    ) {
-      throw new TypeError(`Project Gate catalog has an invalid descriptor: ${descriptor.checkId}`);
-    }
+    assertCatalogDescriptor(descriptor);
   }
+  return descriptorsById;
+}
+
+function assertCatalogDescriptor(descriptor: ProjectGateCheckDescriptor): void {
+  if (
+    descriptor.command.length === 0 ||
+    descriptor.displayName.length === 0 ||
+    descriptor.profiles.length === 0 ||
+    descriptor.profiles.some((profile) => !PROJECT_GATE_PROFILES.includes(profile)) ||
+    descriptor.tags.some((tag) => !PROJECT_GATE_TAGS.includes(tag))
+  ) {
+    throw new TypeError(`Project Gate catalog has an invalid descriptor: ${descriptor.checkId}`);
+  }
+}
+
+function assertCatalogDependencies(
+  descriptors: readonly ProjectGateCheckDescriptor[],
+  descriptorsById: ReadonlyMap<string, ProjectGateCheckDescriptor>
+): void {
   for (const descriptor of descriptors) {
     if (
       descriptor.dependencies.some(
@@ -262,15 +279,14 @@ export function defineProjectGateCatalog(
       }
     }
   }
-  assertAcyclicDependencies(descriptorsById);
+}
+
+function assertCatalogProfileCounts(descriptors: readonly ProjectGateCheckDescriptor[]): void {
   if (descriptors.length !== 20) throw new TypeError("Project Gate catalog must contain 20 Checks");
-  if (descriptors.filter(({ profiles }) => profiles.includes("required")).length !== 14) {
+  if (descriptors.filter(({ profiles }) => profiles.includes("required")).length !== 14)
     throw new TypeError("Project Gate required profile must contain 14 Checks");
-  }
-  if (descriptors.filter(({ profiles }) => profiles.includes("full")).length !== 19) {
+  if (descriptors.filter(({ profiles }) => profiles.includes("full")).length !== 19)
     throw new TypeError("Project Gate full profile must contain 19 Checks");
-  }
-  return Object.freeze([...descriptors]);
 }
 
 function assertAcyclicDependencies(

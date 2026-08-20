@@ -12,7 +12,7 @@ relations: []
 ---
 
 ## 目的
-- 让开发者直接运行项目声明的 `bun run` 入口即可获得与 CI、workspace verifier 相同的
+- 让开发者直接运行项目声明的 `bun run` 入口即可获得与 CI、Project Gate 相同的
   scanner 版本和执行路径，不依赖 shell 激活状态或机器上的全局工具。
 - 防止版本漂移、同名命令劫持和局部环境偶然可用掩盖缺失的项目依赖。
 

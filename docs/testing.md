@@ -32,8 +32,8 @@ bun run validate -- docs
 bun run test-evidence -- check --root .
 ```
 
-跨边界交付还运行 `bun run verify:vibe-check-workspace:required`。Product 改动先运行最窄 Bun test，再按 owner 选择的
-typecheck、lint 与 verifier 扩展。必须报告任何未运行检查及其影响。
+跨边界交付还运行 `bun run verify:vibe-check-workspace:required`，它直接调用 Project Gate。Product 改动先运行最窄 Bun test，再按 owner 选择的
+typecheck、lint 与 Project Gate 扩展。必须报告任何未运行检查及其影响。
 
 ## 一致性审计
 

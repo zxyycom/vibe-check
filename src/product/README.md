@@ -93,10 +93,9 @@ During the initial extraction, reviewers recorded two categories:
    - `task-scheduler/index.ts` imports `parsePositiveInteger` directly
      from the existing Product foundation `args.ts` module because the Product
      foundation barrel deliberately does not expose the broader script argument
-     surface used by the pinned runner;
-   - `scripts/vibe-check-workspace/**` imports the Product-owned runner and the
-     root toolkit entries, pnpm workspace/lockfile importer, and gitlink for
-     the former parallel-task-runner package are removed.
+     surface used by the pinned runner; and
+   - the root toolkit entries, pnpm workspace/lockfile importer, and gitlink
+     for the former parallel-task-runner package are removed.
 
 This list records the initial extraction only. It does not assert that current
 files are byte-preserved, nor does it define the current module layout or

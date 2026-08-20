@@ -1,10 +1,10 @@
 # Proposal
 
-本 Plan 将仓库正式门禁的底层实现硬切到 Project Gate，随后删除旧 workspace verifier；root command 名称保持不变，名称不参与新旧实现判定。
+本 Plan 将仓库正式门禁的底层实现硬切到 Project Gate，删除旧 workspace verifier；root command 名称保持不变，名称不参与新旧实现判定。实施与验收证据见 [gate-handoff.md](gate-handoff.md)。
 
 ## Why
 
-Candidate-backed Project Gate 已具备完整门禁所需的 20-Check catalog、required/full profile、partial eligibility、progress、transcript、policy 与 `0/1/2` exit closure，但 `package.json` 的正式门禁仍以 `scripts/vibe-check-workspace/**` 为执行目标。新实现可运行不等于仓库已经只有一个门禁 owner。
+Plan 形成时，Candidate-backed Project Gate 已具备完整门禁所需的 20-Check catalog、required/full profile、partial eligibility、progress、transcript、policy 与 `0/1/2` exit closure，但 `package.json` 的正式门禁仍以 `scripts/vibe-check-workspace/**` 为执行目标。新实现可运行不等于仓库已经只有一个门禁 owner；切换后的实际状态由 [gate-handoff.md](gate-handoff.md) 记录。
 
 本 Change 把能力证明与正式切换分开：Readiness 已在未修改 bindings 的同一工作树重新验证；Implementation 只负责重绑实际调用者、删除旧实现并从重绑后的入口验收。这样可以把功能缺口与接线错误分别定位，也不会为回退长期保留双实现。
 
@@ -57,4 +57,4 @@ Candidate-backed Project Gate 已具备完整门禁所需的 20-Check catalog、
 - Gate 与 legacy scripts：`scripts/project-gate/**`、`scripts/quality/project-gate/**`、`scripts/vibe-check-workspace/**` 及相邻 tests。
 - 稳定文档与测试证据：[`docs/script-tooling.md`](../../docs/script-tooling.md)、[`docs/navigation.md`](../../docs/navigation.md)、[`docs/testing.md`](../../docs/testing.md)、[`docs/decision-and-change-governance.md`](../../docs/decision-and-change-governance.md) 与 `docs/testing/cases/**`。
 - 当前交付导航：[`changes/active-change-portfolio.md`](../active-change-portfolio.md) 与 [`changes/vibe-check-package-and-gate-delivery.md`](../vibe-check-package-and-gate-delivery.md)。
-- Readiness 与 cutover 证据：本目录的 `readiness-evidence.md` 和待生成的 `gate-handoff.md`；后续优化证据由 [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 拥有。
+- Readiness 与 cutover 证据：本目录的 [readiness-evidence.md](readiness-evidence.md) 和 [gate-handoff.md](gate-handoff.md)；后续优化证据由 [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 拥有。

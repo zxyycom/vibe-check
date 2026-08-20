@@ -21,36 +21,38 @@ Proves:
 - That consumer uses default-enabled Product progress with a real non-TTY stdout capture: human output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
-## Case AUX-PROJECT-GATE-CATALOG-001: 候选 Project Gate 的 catalog 与 controls 闭合
-Owner: `docs/script-tooling.md#候选-project-gate`
+## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
+Owner: `docs/script-tooling.md#project-gate`
 Entities:
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate catalog and controls > keeps the independent 20-Check required/full profile contract closed`
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate catalog and controls > normalizes a profile plus repeatable disabled tags into opaque flags`
-- `bun|scripts/quality/project-gate/project-definition.test.ts|candidate Project Gate Definition > projects every catalog command into one process Check and named blocking policy`
+- `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > binds retained workspace verification names directly to the Gate profiles without disabled tags`
+- `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > keeps the independent 20-Check required/full profile contract closed`
+- `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > normalizes a profile plus repeatable disabled tags into opaque flags`
+- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > projects every catalog command into one process Check and named blocking policy`
 Proves:
+- 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 不传 disabled tags。
 - 独立 catalog 的 20 个 Check 及 required/full membership 闭合；Definition 将每个 catalog 条目投影为一个 process Check，并以 `repository-gate` policy 选择相同的 Check-owned failure Record surface。
-- adapter 只接受合法 profile 与重复 disabled tag，并将其规范化为 opaque flags。
+- adapter 只接受合法 profile 与重复 disabled tag，并将其规范化为 opaque flags；disabled tags 只留给 direct local partial invocation。
 
-## Case AUX-PROJECT-GATE-PROCESS-001: 候选 Project Gate 保留命令与 transcript 事实
-Owner: `docs/script-tooling.md#候选-project-gate`
+## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
+Owner: `docs/script-tooling.md#project-gate`
 Entities:
-- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > writes one complete transcript and passes only a zero command exit`
-- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > reports a safe failure Record for nonzero exit without copying child output`
-- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > avoids starting N/A or cancelled work and maps process/log boundaries to unavailable`
-- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > cancels an already-started process and preserves its transcript`
+- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > reports a safe failure Record for nonzero exit without copying child output`
+- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > avoids starting N/A or cancelled work and maps process/log boundaries to unavailable`
+- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
 Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
 - 非零退出产生只含 command、exit、signal 与 log reference 的 Gate failure Record，随后得到 failed outcome。
 - profile/tag N/A 与启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
 
-## Case AUX-PROJECT-GATE-ADAPTER-001: 候选 Project Gate 只闭合已准备的完整 invocation
-Owner: `docs/script-tooling.md#候选-project-gate`
+## Case AUX-PROJECT-GATE-ADAPTER-001: Project Gate 只闭合已准备的完整 invocation
+Owner: `docs/script-tooling.md#project-gate`
 Entities:
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > requires every expected eligible and N/A final Check outcome`
-- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > maps completed closure failures to 1 and non-completed or malformed results to 2`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > requires every expected eligible and N/A final Check outcome`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > maps completed closure failures to 1 and non-completed or malformed results to 2`
 Proves:
 - preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
 - exit `0` 要求每个 catalog Check 都取得预期的 passed 或 `not-applicable` outcome；completed closure failure 为 `1`，non-completed 或 malformed result 为 `2`。
@@ -68,23 +70,6 @@ Entities:
 Proves:
 - Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。
 - Executor failure 只阻断 dependent Task，unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting。
-
-## Case AUX-WORKSPACE-TASK-ENGINE-ADAPTER-001: Workspace scripts fields 只经本地 adapter 进入 shared engine
-Owner: `docs/script-tooling.md#工具来源`
-Entities:
-- `bun|scripts/vibe-check-workspace/task-engine-adapter.test.ts|workspace task engine adapter > projects scripts-owned command fields into one graph without leaking them into the engine`
-- `bun|scripts/vibe-check-workspace/task-engine-adapter.test.ts|workspace task engine adapter > rejects malformed dynamic Check authoring before task-graph projection`
-Proves:
-- Workspace verifier 先在 scripts-owned group/leaf authoring boundary 拒绝缺失 command、混合 group/leaf 字段和 malformed dynamic values，再把 dependency/mutex 投影为 graph；command、args、environment 和 report fields 留在 adapter 外，shared engine 不获得 Product Check/Core 或 scripts execution semantics。
-
-## Case AUX-WORKSPACE-VERIFIER-PROFILE-001: Full verifier 保持显式的 product 与 toolkit package gates
-Owner: `docs/script-tooling.md#配置所有权`
-Entities:
-- `bun|scripts/vibe-check-workspace/checks/definitions.test.ts|workspace verifier profiles > keeps full-only product and toolkit package gates explicit`
-- `bun|scripts/vibe-check-workspace/checks/definitions.test.ts|workspace verifier profiles > prepares the package candidate before every repository package consumer`
-Proves:
-- `full` 保留所有 required non-quality checks、去掉 quick quality dogfood，并显式加入 full dogfood、完整 Product `test -- product` 入口和 foundation 的 typecheck、lint、`format -- check`、test package commands。部分源文件层验证会与 required 重叠，但这些独立 command 仍证明 toolkit 自身的 cwd、配置与 package-script boundary 可执行。
-- 唯一的 locked-Bun candidate preparation task 先完成；scripts typecheck、semantic Case check 和两个 quality consumer 都显式依赖它，因此 verifier 不会并行 build、pack 或 install candidate。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`

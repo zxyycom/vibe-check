@@ -1,23 +1,23 @@
 # Design
 
-本 Design 以单一实现 hard cut 为主线：先使用已闭合的 Readiness evidence，再重定向正式 bindings，验收后删除 legacy verifier，最后交付 binding/retirement handoff。
+本 Design 以单一实现 hard cut 为主线：使用已闭合的 Readiness evidence 重定向正式 bindings，验收后删除 legacy verifier，并以 [gate-handoff.md](gate-handoff.md) 交付 binding/retirement 事实。
 
 ## Context
 
 ### 术语
 
 - **Project Gate**：`scripts/project-gate/index.ts` 及其通过 `scripts/quality/project-gate/**` 调用的 project-owned Definition/Run。
-- **Legacy verifier**：`scripts/vibe-check-workspace/**` 下的 scripts-only implementation。
+- **Legacy verifier**：实施前位于 `scripts/vibe-check-workspace/**` 的 scripts-only implementation；已由本 Change 删除。
 - **正式 root bindings**：`package.json` 中 `verify:vibe-check-workspace`、`:required` 与 `:full` 三个 scripts。
 - **Hard cut**：正式 bindings 直接改到 Project Gate，并删除 legacy verifier；命令名称不定义 implementation identity。
 
 ### 当前事实与输入
 
-- [Cutover readiness evidence](readiness-evidence.md) 已在 `HEAD 0b382d8bca6fc17541e79f4444400354df6c739b` 完成 candidate、manifest、focused tests、Test Evidence 与 same-worktree legacy/new profile acceptance；Readiness tasks 0.1–0.4 已闭合。
-- `package.json` 的正式 root bindings 仍调用 `scripts/vibe-check-workspace/verify.ts`；Project Gate 已存在但尚未成为正式 root target。
-- 当前仓库未发现 CI workflow；Implementation 仍需在写 binding 前重新发现，最终 handoff 记录实际结果。
+- [Cutover readiness evidence](readiness-evidence.md) 已在 `HEAD 0b382d8bca6fc17541e79f4444400354df6c739b` 完成 binding 前的 candidate、manifest、focused tests、Test Evidence 与 same-worktree profile acceptance；Readiness tasks 0.1–0.4 已闭合。
+- `package.json` 的三个正式 root bindings 现直接调用 `scripts/project-gate/index.ts`；base 与 `:full` 选择 full，`:required` 选择 required，均不传 disabled tags。
+- 实施时重新发现 repository CI/workflow，结果为不存在；实际 caller audit、Gate logs 与 candidate/manifest evidence 由 [gate-handoff.md](gate-handoff.md) 记录。
 - `quality` 通过 `scripts/quality/index.ts` 运行 neutral observation/dogfood，与阻断 Gate 保持独立。
-- [归档 readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时证据；本 Change 只以当前 `readiness-evidence.md` 作为直接实施输入。
+- [归档 readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时证据；本 Change 使用当前 `readiness-evidence.md` 作为实施输入，并以 `gate-handoff.md` 承接完成后的实际状态。
 
 本 Change 采用 [在公开 package 发布前完成项目门禁](../../docs/decisions/complete-project-gate-before-public-package-release.md) 的方向，并遵守 [程序化 API 是唯一正式产品执行入口](../../docs/decisions/use-programmatic-api-as-product-entry.md) 与 [项目持有 Definition 和 Gate](../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md)：repository CLI 由项目拥有，通过 public package API 调用 bound Definition/Run，不成为 Product CLI。现有长期判断已覆盖当前方向，无需新增 Decision Record。
 
@@ -42,7 +42,7 @@
 
 ### 1. Readiness evidence 是 binding 写入门禁
 
-Tasks 0.1–0.4 的已勾选状态由 [readiness-evidence.md](readiness-evidence.md) 支持。开始 1.1 前，只检查 evidence 的重新验证条件：candidate input fingerprint 或 15-file Gate manifest scope 任一内容变化时，先重跑 0.2–0.4；仅 Change artifacts 或 Git commit identity 变化不触发重跑。
+Tasks 0.1–0.4 的已勾选状态由 [readiness-evidence.md](readiness-evidence.md) 支持。开始 1.1 前已检查 evidence 的重新验证条件：candidate input fingerprint 或 15-file Gate manifest scope 任一内容变化时，先重跑 0.2–0.4；仅 Change artifacts 或 Git commit identity 变化不触发重跑。
 
 Readiness failure 必须返回实际 Gate/package owner，不能用后续优化或 legacy fallback 补偿。正式 bindings 写入后使用 Verification tasks 的 actual-root evidence，不用 pre-cutover evidence 代替 cutover 验收。
 
@@ -70,7 +70,7 @@ Shared Product Task engine 与 foundation process helpers 由各自 consumer 决
 
 ### 5. 测试证据随当前 owner 切换
 
-测试正文或节点、Case Owner/Proves、删除的 legacy entities 按 `test-evidence-review` 流程维护。现有 candidate Gate Cases 改为证明正式 Project Gate；legacy workspace adapter/profile Cases 随实现删除。Focused tests 证明 deterministic failure boundaries，actual root required/full 证明最终接线，两类证据不能互相替代。
+测试正文或节点、Case Owner/Proves、删除的 legacy entities 按 `test-evidence-review` 流程维护。Project Gate Cases 证明正式 Gate；legacy workspace adapter/profile Cases 随实现删除。Focused tests 证明 deterministic failure boundaries，actual root required/full 证明最终接线，两类证据不能互相替代。
 
 ### 6. Cutover 与 optimization evidence 分层
 
@@ -89,8 +89,8 @@ Shared Product Task engine 与 foundation process helpers 由各自 consumer 决
 
 ## Open Questions
 
-无。Readiness 已闭合，长期方向、正式 targets、profile contract、caller 分类、删除门禁、测试证据与 handoff owner 均已确定；下一项可执行任务是 1.1。
+无。正式 targets、profile contract、caller 分类、删除门禁、测试证据与 handoff 已闭合；archive 仍需要当前用户单独授权。
 
 ## Implementation Observations
 
-Readiness 形成时的 exact candidate、manifest、命令结果与重新验证条件只在 [readiness-evidence.md](readiness-evidence.md) 完整记录；本 Design 不复制该证据。
+Readiness 形成时的 exact candidate、manifest、命令结果与重新验证条件只在 [readiness-evidence.md](readiness-evidence.md) 完整记录；cutover 后的实际 root evidence、legacy retirement、rollback boundary 和后续刷新条件只在 [gate-handoff.md](gate-handoff.md) 完整记录。本 Design 不复制两类证据。
