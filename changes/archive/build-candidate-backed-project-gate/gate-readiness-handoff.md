@@ -1,7 +1,7 @@
 # Gate readiness handoff
 
 本 handoff 是 `build-candidate-backed-project-gate` 的当前 cutover 证据输入。稳定行为由
-[`docs/script-tooling.md`](../../docs/script-tooling.md#候选-project-gate) 拥有；本文件只记录本次
+[`docs/script-tooling.md`](../../../docs/script-tooling.md#候选-project-gate) 拥有；本文件只记录本次
 候选包标识、内容清单与执行证据。它不改变正式入口：legacy workspace verifier 仍是当前
 正式门禁。cutover 必须在获授权后，按本文的重新验证条件使用这些证据。
 

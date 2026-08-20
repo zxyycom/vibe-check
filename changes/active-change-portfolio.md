@@ -27,7 +27,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 当前 portfolio 分为三条独立路径：
 
-1. **Project Gate 与 package 交付：** 三个上游能力 Change 已归档；当前 active 路径先以真实 package consumer 建立完整项目门禁，再切换仓库入口，最后才可能公开发布。完整六阶段依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
+1. **Project Gate 与 package 交付：** 三个上游能力 Change 与完整 Gate build 已归档；当前 active 路径从 repository cutover 开始，最后才可能公开发布。完整六阶段依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
 2. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
 3. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
 
@@ -37,8 +37,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 | Change | 此 Change 唯一负责的结果 | 直接 Decision 输入 | 下游与仍未决定的事项 |
 | --- | --- | --- | --- |
-| [build-candidate-backed-project-gate](build-candidate-backed-project-gate/) | 建立 candidate-backed repository Gate consumer，覆盖 20-Check static graph 的 required/full 必要类别并写出 readiness handoff；旧 verifier 仍是正式入口。 | [完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)（future）；[项目持有 Definition](../docs/decisions/use-user-owned-definition-for-observation-and-gates.md)（future）；[唯一 API entry](../docs/decisions/use-programmatic-api-as-product-entry.md)（future）；[string flags](../docs/decisions/use-string-flags-for-project-run-controls.md) 与 [Product progress](../docs/decisions/provide-product-owned-check-progress.md)（aligned）。 | 向 cutover 交付 `gate-readiness-handoff.md`。本 Change 已收敛 profile/tag N/A、named policy + adapter closure、capacity `4` 及 same-revision 对照；local partial invocation 可以使用 disabled tags，正式 repository/CI Gate contract 不使用。 |
-| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 在 readiness 与 fresh candidate 同时成立后，将一个 Gate 切换为唯一仓库门禁并退役旧 verifier。 | [完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)（future）。 | 向 release 交付 `gate-handoff.md`。command name 只是接线；正式 root/CI 运行无 disabled tags 的 required/full；legacy 删除目标由切换时 reference audit 得出，不是开放产品决策。 |
+| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 在 readiness 与当前 package inputs 匹配的 candidate evidence 同时成立后，将一个 Gate 切换为唯一仓库门禁并退役旧 verifier。 | [完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)（future）。 | 向 release 交付 `gate-handoff.md`。command name 只是接线；正式 root/CI 运行无 disabled tags 的 required/full；legacy 删除目标由切换时 reference audit 得出，不是开放产品决策。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 在单独授权下完成 public registry release 与 registry-install proof；不重建 candidate、Gate 或 cutover。 | [完整 Gate 后发布](../docs/decisions/complete-project-gate-before-public-package-release.md)、[版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[unscoped `vibe-check`](../docs/decisions/publish-unscoped-vibe-check-publicly.md)、[MIT](../docs/decisions/license-package-under-mit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均为 `active + unaligned`）。 | registry authority、authenticated publisher、精确 version、copyright holder/year、publish mechanism 与每次外部读写授权均是届时外部事实，尚未决定也不能预先查询。 |
 
 ## 路径二：格式、政策与安全 Check

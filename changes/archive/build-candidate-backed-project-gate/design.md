@@ -6,11 +6,11 @@
 
 ### 已确认的上游事实
 
-- [Package candidate Change](../archive/establish-npm-package-candidate-and-quality-dogfood/) 已建立唯一 `preparePackageCandidate()` owner，并把 audited exact tarball 安装到 `scripts/quality/node_modules/vibe-check`。其 [candidate handoff](../archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 的 digest 形成于更早源码，只能作为证据格式和重新验证条件，不能作为本 Change 的 current identity。
-- [Run controls Change](../archive/add-project-run-invocation-controls/) 已落地 `RunControls.flags?: readonly string[]` 与 callback 侧 frozen `project.flags`；Product 只规范化和传递 token，不解释 profile/tag。
-- [Lifecycle feedback Change](../archive/add-project-run-lifecycle-feedback/) 已落地 Product-owned progress、Check duration summary 和 progress failure isolation。project callback 不能把详细 process output 穿插到 progress target。
+- [Package candidate Change](../establish-npm-package-candidate-and-quality-dogfood/) 已建立唯一 `preparePackageCandidate()` owner，并把 audited exact tarball 安装到 `scripts/quality/node_modules/vibe-check`。其 [candidate handoff](../establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 的 digest 形成于更早源码，只能作为证据格式和重新验证条件，不能作为本 Change 的 current identity。
+- [Run controls Change](../add-project-run-invocation-controls/) 已落地 `RunControls.flags?: readonly string[]` 与 callback 侧 frozen `project.flags`；Product 只规范化和传递 token，不解释 profile/tag。
+- [Lifecycle feedback Change](../add-project-run-lifecycle-feedback/) 已落地 Product-owned progress、Check duration summary 和 progress failure isolation。project callback 不能把详细 process output 穿插到 progress target。
 - 当前 `scripts/quality/project-definition.ts` / `project-run.ts` 是 neutral quality dogfood consumer。它们从 installed package import public API，并不选择 blocking policy。新 Gate 使用同一个 physical private consumer，但拥有独立 Definition/Run，不改变 neutral quality 语义。
-- 长期方向由 [完整 Gate 后再公开发布](../../docs/decisions/complete-project-gate-before-public-package-release.md)、[project-owned Definition](../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md) 与 [唯一 programmatic Product entry](../../docs/decisions/use-programmatic-api-as-product-entry.md) 承接；本 Plan 不重新决定这些方向。
+- 长期方向由 [完整 Gate 后再公开发布](../../../docs/decisions/complete-project-gate-before-public-package-release.md)、[project-owned Definition](../../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md) 与 [唯一 programmatic Product entry](../../../docs/decisions/use-programmatic-api-as-product-entry.md) 承接；本 Plan 不重新决定这些方向。
 
 ### Legacy 输入与新 Gate 计数
 
@@ -34,7 +34,7 @@ legacy output grouping、success/ignore/warning regex 和 report aggregation 不
 
 ### Goals
 
-- 让一个 fresh local exact-tarball candidate 在现有 private consumer 中提供新 Gate 的全部 public imports，并在启动任何 Gate work 前核对 package entry identity。
+- 让一个与当前 package inputs 匹配的 local exact-tarball candidate 在现有 private consumer 中提供新 Gate 的全部 public imports，并在启动任何 Gate work 前核对 package entry identity。
 - 用一个 scripts-owned descriptor catalog 表达 20 个命令、环境、依赖、profile 与 tags；Definition、expected-eligibility audit、对照矩阵和 handoff 都从该 catalog 派生。
 - 让 process Check、Product progress、named policy、adapter summary/exit 和 per-Check logs 各自只解释自己拥有的事实。
 - 用 focused failure evidence 和 same-revision required/full dual-run 证明新 Gate 已可交给 cutover，而不改变当前正式入口。
@@ -77,7 +77,7 @@ profile 默认 `full`。adapter 拒绝 unknown option、unknown profile、empty/
 
 adapter 从相同 catalog 和规范化 selection 计算 expected eligibility，并逐一核对 final snapshot：eligible Check 必须是 `completed/passed`，ineligible Check 必须是带预期 reason 的 `not-applicable`。这一步防止意外 skip 被 named policy 当成通过。
 
-Local direct invocation 可以显式使用 disabled tags，并按所选子集返回真实结果；实现不读取 `CI` 等 ambient 标记来改变或拒绝这种行为。Gate readiness 只接受无 disabled tags 的 required/full，并在 handoff 中把同一要求交给 cutover；正式 repository/CI bindings 的完整契约由 [cutover Design](../replace-workspace-verifier-with-project-gate/design.md#5-ci-完整性是调用契约不是运行时禁令) 承接。
+Local direct invocation 可以显式使用 disabled tags，并按所选子集返回真实结果；实现不读取 `CI` 等 ambient 标记来改变或拒绝这种行为。Gate readiness 只接受无 disabled tags 的 required/full，并在 handoff 中把同一要求交给 cutover；正式 repository/CI bindings 的完整契约由 [cutover Design](../../replace-workspace-verifier-with-project-gate/design.md#5-ci-完整性是调用契约不是运行时禁令) 承接。
 
 ### 4. Process Check 只拥有命令事实与 transcript
 
@@ -92,7 +92,7 @@ package-backed Definition factory 从 descriptor catalog 生成普通 `defineChe
 | 启动失败、启动前已取消、无可用 exit 事实或 transcript 无法闭合 | `unavailable`，使用受控 reason code |
 | profile/tag 不适用，且尚未启动 process | `not-applicable`，使用 eligibility reason code |
 
-stdout/stderr 内容不改变 status；原 verifier 的 warning/allow/ignore regex 不迁移。Record 保存安全的 command identity、exit/signal 摘要和 log reference，不复制任意 process output，详细材料只留在 ignored `.log/project-gate/<invocation>/`。当前 foundation process helper 不接收 `AbortSignal`；Check 在启动前观察取消，已经启动的 child 按 Product 现有 drain-started-work 语义收尾，本 Change 不增加私有 kill protocol。
+stdout/stderr 内容不改变 status；原 verifier 的 warning/allow/ignore regex 不迁移。Record 保存安全的 command identity、exit/signal 摘要和 log reference，不复制任意 process output，详细材料只留在 ignored `.log/project-gate/<invocation>/`。foundation process helper 接收 Check 的 `AbortSignal` 作为 `cancelSignal`；已启动 child 收到取消后仍先捕获并写入 transcript，再映射为 `execution-cancelled` unavailable；本 Change 不增加私有 kill protocol。
 
 ### 5. Named policy 与 adapter closure 各自做一层明确判断
 
@@ -110,7 +110,7 @@ Definition 固定 `scheduler.maxParallel: 4`，不提供 `--concurrency` 或环�
 
 focused tests 使用测试专用 log root 和受控 child commands，证明 parser/flags、profile/tag N/A、catalog validation、dependency projection、zero/nonzero/spawn/log/cancel mapping、policy/result-to-exit、candidate import guard 以及 preparation failure 不启动 Run。新增或修改测试时同步 Test Evidence Case。
 
-真实 acceptance 在同一 revision、无 disabled tags 下分别运行：legacy required、新 Gate required、legacy full、新 Gate full。对照矩阵逐类记录“legacy command -> new Check -> profile -> outcome -> log/evidence”，并要求 14/19 必要类别全部闭合；文本、完成顺序和 grouping 可以不同。fresh candidate preparation、isolated exact-tarball consumer 与动态 import identity guard 共同证明 package provenance。
+真实 acceptance 在同一 revision、无 disabled tags 下分别运行：legacy required、新 Gate required、legacy full、新 Gate full。对照矩阵逐类记录“legacy command -> new Check -> profile -> outcome -> log/evidence”，并要求 14/19 必要类别全部闭合；文本、完成顺序和 grouping 可以不同。匹配当前 package inputs 的 candidate preparation receipt、isolated exact-tarball consumer 与动态 import identity guard 共同证明 package provenance。
 
 `gate-readiness-handoff.md` 只在上述证据实际存在后创建。它是 cutover 输入，不把本 Plan 或测试意图写成已完成事实。
 
@@ -121,10 +121,10 @@ focused tests 使用测试专用 log root 和受控 child commands，证明 pars
 - **意外 N/A 通过：** policy view 看不到没有 Record 的 N/A；adapter 必须从同一 catalog 复核预期 eligibility 与 reason，且完整 readiness 禁止 disabled tags。
 - **进程失败语义混淆：** 非零 gate command 是 `completed/failed`，无法形成可信 process/log 事实才是 `unavailable`；focused tests 固定该边界。
 - **并行输出破坏 TTY：** callback 只写独立文件，Product progress 独占 target；adapter 不转发 child transcript。
-- **candidate drift：** controls/progress 或任何 package input 改变都会产生新 fingerprint；每次 readiness/cutover 按 candidate owner 重新 prepare、audit 并记录，不复用历史 digest。
+- **candidate drift：** controls/progress 或任何 package input 改变都会产生新 fingerprint；每次 readiness/cutover 按 candidate owner 运行 preparation、audit 并记录。匹配当前 inputs 的 receipt 可以复用，不能复用不匹配的历史 digest。
 - **固定 capacity 过低或过高：** 首轮选择 4 以避免暴露不需要的公共控制；真实 required/full elapsed 只作为诊断，发现可靠性问题时回到 Design 复核。
 - **partial success 被误称为完整 Gate：** summary 和 handoff 必须标出 profile/disabled tags；只有无 disabled tags 的 required/full acceptance 能构成 cutover readiness。
 
 ## Open Questions
 
-无。Implementation 可直接从 [`tasks.md`](tasks.md) 的 1.1 开始。下游 [cutover Change](../replace-workspace-verifier-with-project-gate/) 只在本 Change 交付 `gate-readiness-handoff.md` 后启动，并按其 Design 完成正式接线、验收与 legacy reference cleanup。
+无。Implementation 可直接从 [`tasks.md`](tasks.md) 的 1.1 开始。下游 [cutover Change](../../replace-workspace-verifier-with-project-gate/) 只在本 Change 交付 `gate-readiness-handoff.md` 后启动，并按其 Design 完成正式接线、验收与 legacy reference cleanup。

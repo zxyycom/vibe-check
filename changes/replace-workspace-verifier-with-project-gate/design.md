@@ -4,9 +4,9 @@
 
 ## Context
 
-[build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) 应先提供 <code>gate-readiness-handoff.md</code>：当前 candidate identity、20-Check 类别映射、profile/tag/N/A semantics、固定 capacity、progress/log/exit behavior，以及 exact-tarball 与同 revision 对照证据。已归档的 [establish-npm-package-candidate-and-quality-dogfood](../archive/establish-npm-package-candidate-and-quality-dogfood/) 保存 artifact/dogfood 的形成时 handoff 与重新验证条件；current artifact 仍由 candidate preparation owner 生成。若 public package inputs 在 readiness 后变化，cutover 前必须重新 prepare 并刷新证据。
+[build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 已提供 <code>gate-readiness-handoff.md</code>：当前 candidate identity、20-Check 类别映射、profile/tag/N/A semantics、固定 capacity、progress/log/exit behavior，以及 exact-tarball 与同 revision 对照证据。已归档的 [establish-npm-package-candidate-and-quality-dogfood](../archive/establish-npm-package-candidate-and-quality-dogfood/) 保存 artifact/dogfood 的形成时 handoff 与重新验证条件；current artifact 仍由 candidate preparation owner 生成。若 public package inputs 在 readiness 后变化，cutover 前必须运行 preparation 并刷新证据。
 
-当前 [readiness handoff](../build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在，作为本 Draft 的输入；它不表示 cutover 已开始，也不授权修改正式 binding 或删除 legacy verifier。
+当前 [readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在，作为本 Draft 的输入；它不表示 cutover 已开始，也不授权修改正式 binding 或删除 legacy verifier。
 
 当前 workspace verifier 是独立 scripts-only implementation，且其命令、CI/workflow、文档或开发者脚本可能有多处引用。本 Change 的风险在于正确切换每个权威入口并删除旧 implementation，而不重新解释每个 Check 的功能结果。
 

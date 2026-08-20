@@ -6,7 +6,7 @@
 
 “已有一个可运行的新 Gate”与“仓库只剩这一个可信门禁”是不同的交付。前者主要承担功能与 package-consumer 风险；后者会修改 CI、开发者命令、文档和旧脚本，若仍混合建设工作便无法清楚判断失败来自功能缺口还是切换错误。
 
-将 cutover 单列后，只有完成 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) 的类别映射、exact-tarball 和对照证据，才能移除旧 verifier。公开发布仍在更后续的 [publish-public-api-only-npm-package](../publish-public-api-only-npm-package/) Change 中处理。
+将 cutover 单列后，只有完成 [build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 的类别映射、exact-tarball 和对照证据，才能移除旧 verifier。公开发布仍在更后续的 [publish-public-api-only-npm-package](../publish-public-api-only-npm-package/) Change 中处理。
 
 ## Outcome
 
@@ -14,6 +14,6 @@
 
 本 Change 写出 <code>gate-handoff.md</code>，作为公开发布前的最终本地证据：实际 repository/CI bindings、覆盖类别、candidate identity、controls/output behavior、legacy reference audit 结果、重新验证条件和回退方式。
 
-它只在 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) 的 readiness handoff 与 fresh candidate evidence 同时成立时开始切换。完整阶段关系见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。
+它只在 [build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 的 readiness handoff 与当前 package inputs 匹配的 candidate evidence 同时成立时开始切换。完整阶段关系见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。
 
-当前 [readiness handoff](../build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在；本 Change 仍为 Draft，且该证据不授权更改正式 binding 或删除 legacy verifier。
+当前 [readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在；本 Change 仍为 Draft，且该证据不授权更改正式 binding 或删除 legacy verifier。

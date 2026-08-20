@@ -272,7 +272,7 @@ observation；需要 gate 的项目应在 Project Definition 中声明 named pol
 
 `scripts/project-gate/index.ts` 是候选 Project Gate 的 adapter。它当前没有正式 root
 binding；正式门禁仍是 legacy workspace verifier。稳定的 Gate 行为由本节拥有，cutover 状态、
-证据与授权边界分别见 [readiness handoff](../changes/build-candidate-backed-project-gate/gate-readiness-handoff.md)
+证据与授权边界分别见 [readiness handoff](../changes/archive/build-candidate-backed-project-gate/gate-readiness-handoff.md)
 和 [cutover Change](../changes/replace-workspace-verifier-with-project-gate/)。
 
 adapter 先调用唯一的 `preparePackageCandidate()`。准备成功后，才动态加载
