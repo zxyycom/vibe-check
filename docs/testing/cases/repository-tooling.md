@@ -17,7 +17,8 @@ Proves:
 - The candidate owner derives one local package with only the approved runtime exports, declared package dependencies, a physical consumer install, and a resolved installed entry.
 - A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
 - A missing candidate-owned `jscpd` closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
-- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots, then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
+- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including final-snapshot `RunResult.checkDurations` without a new named type root), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
+- That consumer uses default-enabled Product progress with a real non-TTY stdout capture: human output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约

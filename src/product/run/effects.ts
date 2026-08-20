@@ -4,6 +4,16 @@ import {
   type ValidatedPublicationModelV3
 } from "../quality-core/output/publication-v3/index.ts";
 import { publishScanV3 } from "../quality-core/scan-command/publication-v3.ts";
+import type {
+  CheckExecutionLifecycle,
+  CheckSettledFact,
+  CheckStartedFact
+} from "./check-execution.ts";
+import {
+  createProgressRenderer,
+  type ProgressOutcomeCounts,
+  type ProgressWriter
+} from "./progress.ts";
 
 export interface RunEffectStatus {
   readonly enabled: boolean;
@@ -24,6 +34,20 @@ export interface EffectStatuses {
   readonly succeeded: (effect: keyof RunEffectStatuses) => void;
   readonly value: () => RunEffectStatuses;
 }
+
+export interface ProgressEffect {
+  readonly final: (input: ProgressFinalFeedback) => void;
+  readonly lifecycle: CheckExecutionLifecycle;
+  readonly prepared: (totalChecks: number) => void;
+}
+
+export interface ProgressFinalFeedback {
+  readonly counts: ProgressOutcomeCounts;
+  readonly elapsedMs: number;
+  readonly execution: "cancelled" | "completed";
+}
+
+export type ProgressWriterFactory = () => ProgressWriter;
 
 export function effectiveEffects(
   definition: ProjectDefinition,
@@ -70,16 +94,90 @@ export function createEffectStatuses(configuration: ProjectEffects): EffectStatu
   });
 }
 
-export function emitProgress(effects: EffectStatuses, stage: "effects" | "execution"): boolean {
-  if (!effects.value().progress.enabled) return true;
-  try {
-    console.log(`Vibe Check: ${stage}`);
-    effects.succeeded("progress");
-    return true;
-  } catch {
-    effects.failed("progress");
-    return false;
+/**
+ * Owns the progress write boundary. A failed writer is permanently muted so
+ * renderer failure remains observable without becoming an execution failure.
+ */
+export function createProgressEffect(
+  effects: EffectStatuses,
+  writerFactory: ProgressWriterFactory = defaultProgressWriter
+): ProgressEffect {
+  if (!effects.value().progress.enabled) return inertProgressEffect();
+  let failed = false;
+  let renderer: ReturnType<typeof createProgressRenderer> | undefined;
+
+  const render = (
+    feedback: Parameters<ReturnType<typeof createProgressRenderer>["render"]>[0]
+  ): void => {
+    if (failed) return;
+    try {
+      renderer ??= createProgressRenderer(writerFactory());
+      renderer.render(feedback);
+      if (feedback.kind === "final") effects.succeeded("progress");
+    } catch {
+      failed = true;
+      effects.failed("progress");
+    }
+  };
+  return Object.freeze({
+    prepared: (totalChecks: number): void =>
+      render(Object.freeze({ kind: "prepared", totalChecks })),
+    lifecycle: Object.freeze({
+      settled: (fact: CheckSettledFact): void =>
+        render(
+          Object.freeze({
+            kind: "settled",
+            checkId: fact.checkId,
+            displayName: fact.displayName,
+            durationMs: fact.durationMs,
+            outcome: fact.outcome
+          })
+        ),
+      started: (fact: CheckStartedFact): void =>
+        render(
+          Object.freeze({ kind: "started", checkId: fact.checkId, displayName: fact.displayName })
+        )
+    }),
+    final: (input: ProgressFinalFeedback): void =>
+      render(
+        Object.freeze({
+          kind: "final",
+          counts: input.counts,
+          elapsedMs: input.elapsedMs,
+          execution: input.execution
+        })
+      )
+  });
+}
+
+export function failedEffect(statuses: RunEffectStatuses): keyof RunEffectStatuses | undefined {
+  for (const effect of ["cache", "progress", "output", "logs"] as const) {
+    if (statuses[effect].status === "failed") return effect;
   }
+  return undefined;
+}
+
+function inertProgressEffect(): ProgressEffect {
+  const lifecycle = Object.freeze({
+    settled: (_fact: CheckSettledFact): void => undefined,
+    started: (_fact: CheckStartedFact): void => undefined
+  });
+  return Object.freeze({
+    prepared: (_totalChecks: number): void => undefined,
+    lifecycle,
+    final: (_input: ProgressFinalFeedback): void => undefined
+  });
+}
+
+function defaultProgressWriter(): ProgressWriter {
+  return Object.freeze({
+    color: process.stdout.isTTY === true && process.env.NO_COLOR === undefined,
+    isTTY: process.stdout.isTTY === true,
+    term: process.env.TERM,
+    write: (content: string): void => {
+      process.stdout.write(content);
+    }
+  });
 }
 
 export function publishOutput(

@@ -43,6 +43,12 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     const runEvidence = runDuplicateFixture(consumerDirectory);
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "completed");
+    assert.match(runEvidence.humanOutput, /total\s+1\s+check/i);
+    assert.match(runEvidence.humanOutput, /Checks:/);
+    assert.match(runEvidence.humanOutput, /\[1\/1\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /Execution summary:/);
+    assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
   } finally {
     rmSync(consumerDirectory, { force: true, recursive: true });
   }
@@ -115,7 +121,9 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 }
 
 function runDuplicateFixture(consumerDirectory: string): Readonly<{
+  checkDurations: unknown;
   duplicateOutcome: string | null;
+  humanOutput: string;
   kind: string;
 }> {
   const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
@@ -135,7 +143,27 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   if (duplicateOutcome !== null && typeof duplicateOutcome !== "string") {
     throw new TypeError("isolated duplicate outcome must be a string or null");
   }
-  return Object.freeze({ duplicateOutcome, kind });
+  return Object.freeze({
+    checkDurations: evidence.checkDurations,
+    duplicateOutcome,
+    humanOutput: result.stdout.slice(0, markerIndex),
+    kind
+  });
+}
+
+function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: string): void {
+  if (!isUnknownArray(checkDurations)) {
+    throw new TypeError("isolated Run checkDurations must be an array");
+  }
+  assert.equal(checkDurations.length, 1);
+  const duration = checkDurations[0];
+  if (!isRecord(duration)) throw new TypeError("isolated Run duration must be an object");
+  assert.equal(duration.checkId, checkId);
+  if (typeof duration.durationMs !== "number") {
+    throw new TypeError("isolated Run durationMs must be a number");
+  }
+  assert.equal(Number.isFinite(duration.durationMs), true);
+  assert.equal(duration.durationMs >= 0, true);
 }
 
 function assertCommandSucceeded(result: SpawnSyncReturns<string>, description: string): void {
@@ -172,6 +200,10 @@ function requiredString(value: unknown, description: string): string {
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isUnknownArray(value: unknown): value is readonly unknown[] {
+  return Array.isArray(value);
 }
 
 function isWithin(parent: string, child: string): boolean {
@@ -236,6 +268,18 @@ const definition: ProjectDefinition = defineConfig({ checks: [duplicateDetection
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const result: Promise<RunResult> = run(definition, { flags: ["isolated-consumer"] });
 
+function observeFinalDurations(runResult: RunResult): void {
+  if (
+    runResult.kind === "completed" ||
+    runResult.kind === "effect" ||
+    (runResult.kind === "cancelled" && runResult.phase === "execution")
+  ) {
+    const durations: readonly Readonly<{ readonly checkId: string; readonly durationMs: number | null }>[] =
+      runResult.checkDurations;
+    void durations;
+  }
+}
+
 void [
   defineCheck,
   defineConfig,
@@ -245,6 +289,7 @@ void [
   inherit,
   run,
   inheritedCheckIds,
+  observeFinalDurations,
   result
 ];
 `;
@@ -271,8 +316,7 @@ const result = await run(
     effects: {
       cache: { enabled: false },
       logs: { enabled: false },
-      output: { enabled: false },
-      progress: { enabled: false }
+      output: { enabled: false }
     },
     scheduler: { maxParallel: 1 }
   }),
@@ -283,6 +327,7 @@ const duplicate = result.kind === "completed"
   : undefined;
 
 process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
+  checkDurations: result.kind === "completed" ? result.checkDurations : null,
   kind: result.kind,
   duplicateOutcome: duplicate?.outcome.status ?? null
 }));

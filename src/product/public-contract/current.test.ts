@@ -76,6 +76,22 @@ describe("current public contract", () => {
     );
     assert.equal(packageManifest, CURRENT_PUBLIC_CONTRACT.packageImport);
 
+    const candidateEntrySource = readFileSync(
+      fileURLToPath(new URL("../../../scripts/package-candidate/entry.ts", import.meta.url)),
+      "utf8"
+    );
+    assert.deepEqual(
+      packageTypeExportNames(candidateEntrySource),
+      Object.values(CURRENT_PUBLIC_CONTRACT.types).sort((left, right) => left.localeCompare(right))
+    );
+    assert.deepEqual(
+      packageValueExportNames(candidateEntrySource),
+      [
+        ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
+        ...Object.values(CURRENT_PUBLIC_CONTRACT.values)
+      ].sort((left, right) => left.localeCompare(right))
+    );
+
     const ownerSource = readFileSync(
       fileURLToPath(new URL("./current.ts", import.meta.url)),
       "utf8"
@@ -84,6 +100,25 @@ describe("current public contract", () => {
     assert.doesNotMatch(ownerSource, /\b(?:host|legal|license|manifest|version)\b/i);
   });
 });
+
+function packageTypeExportNames(source: string): string[] {
+  return packageExportNames(source, /export type\s*\{([\s\S]*?)\}\s*from\s*"[^"]+";/g);
+}
+
+function packageValueExportNames(source: string): string[] {
+  return packageExportNames(source, /export\s*\{([\s\S]*?)\}\s*from\s*"[^"]+";/g);
+}
+
+function packageExportNames(source: string, pattern: RegExp): string[] {
+  const exportBlocks = source.matchAll(pattern);
+  const names = [...exportBlocks].flatMap((match) =>
+    match[1]
+      .split(",")
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0)
+  );
+  return names.sort((left, right) => left.localeCompare(right));
+}
 
 function packageManifestName(source: string): string {
   const parsed: unknown = JSON.parse(source);

@@ -16,13 +16,19 @@ import type {
   ReferenceFacts
 } from "../quality-core/check-record/policy-model.ts";
 import { prepareTaskGraph } from "../task-scheduler/index.ts";
-import { executeResolvedChecks, type ResolvedCheckExecution } from "./check-execution.ts";
+import {
+  executeResolvedChecks,
+  type CheckExecutionClock,
+  type ResolvedCheckExecution
+} from "./check-execution.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
 import {
   createEffectStatuses,
+  createProgressEffect,
   effectiveEffects,
-  emitProgress,
-  type EffectStatuses
+  type EffectStatuses,
+  type ProgressEffect,
+  type ProgressWriterFactory
 } from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
 import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
@@ -37,6 +43,7 @@ import {
 } from "./result.ts";
 
 export type Invocation = Readonly<{
+  readonly clock: CheckExecutionClock;
   readonly controls: RunControls;
   readonly declarativeFingerprint: string;
   readonly definition: ProjectDefinition;
@@ -45,12 +52,24 @@ export type Invocation = Readonly<{
   readonly effects: EffectStatuses;
   readonly invocationId: string;
   readonly normalized: NormalizedProjectDefinition;
+  readonly progress: ProgressEffect;
   readonly projectRoot: string;
 }>;
+
+export interface RunInvocationDependencies {
+  readonly clock?: CheckExecutionClock;
+  readonly progressWriterFactory?: ProgressWriterFactory;
+}
+
+const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 
 type PlannedInvocation = Readonly<{ readonly policy: PolicyResolution }>;
 
 export type CoreExecution = Readonly<{
+  readonly checkDurations: Extract<
+    ResolvedCheckExecution,
+    { readonly kind: "completed" }
+  >["checkDurations"];
   readonly referenceFacts: ReferenceFacts;
   readonly snapshot: CoreSnapshot;
 }>;
@@ -58,9 +77,10 @@ export type CoreExecution = Readonly<{
 export async function executeValidatedRun(
   definition: ProjectDefinition,
   controls: RunControls,
-  definitionWarnings: readonly DefinitionWarning[]
+  definitionWarnings: readonly DefinitionWarning[],
+  dependencies: RunInvocationDependencies = {}
 ): Promise<RunResult> {
-  const invocation = createInvocation(definition, controls, definitionWarnings);
+  const invocation = createInvocation(definition, controls, definitionWarnings, dependencies);
   if (isCancelled(controls)) {
     return preExecutionCancellation(
       invocation.declarativeFingerprint,
@@ -80,19 +100,23 @@ export async function executeValidatedRun(
 function createInvocation(
   definition: ProjectDefinition,
   controls: RunControls,
-  definitionWarnings: readonly DefinitionWarning[]
+  definitionWarnings: readonly DefinitionWarning[],
+  dependencies: RunInvocationDependencies
 ): Invocation {
   const normalized = normalizeProjectDefinition(definition);
   const effectConfiguration = effectiveEffects(definition, controls);
+  const effects = createEffectStatuses(effectConfiguration);
   return Object.freeze({
+    clock: dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK,
     controls,
     declarativeFingerprint: createDeclarativeFingerprint(normalized.declarative),
     definition,
     definitionWarnings: Object.freeze([...definitionWarnings]),
     effectConfiguration,
-    effects: createEffectStatuses(effectConfiguration),
+    effects,
     invocationId: `invocation/v1:${randomUUID()}`,
     normalized,
+    progress: createProgressEffect(effects, dependencies.progressWriterFactory),
     projectRoot: resolve(controls.projectRoot ?? process.cwd())
   });
 }
@@ -165,17 +189,23 @@ async function executePreparedInvocation(
       "planning"
     );
   }
-  if (!emitProgress(invocation.effects, "execution")) {
-    return executionResult(invocation, "progress-failed");
-  }
-  const executed = await executeChecks(invocation, project);
+  invocation.progress.prepared(invocation.normalized.checks.length);
+  const clock = invocation.clock;
+  const executionStartedAt = clock.now();
+  const executed = await executeChecks(invocation, project, clock);
   if (isExecutionRunResult(executed)) return executed;
+  invocation.progress.final({
+    counts: outcomeCounts(executed.snapshot),
+    elapsedMs: elapsedSince(executionStartedAt, clock),
+    execution: executed.kind
+  });
   if (executed.kind === "cancelled") {
     return executionCancellation(
       invocation.declarativeFingerprint,
       invocation.definitionWarnings,
       invocation.effects.value(),
-      executed.snapshot
+      executed.snapshot,
+      executed.checkDurations
     );
   }
   const core = resolveCoreExecution(plan, executed);
@@ -191,23 +221,62 @@ function resolveCoreExecution(
   const referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, executed.references);
   return referenceFacts === undefined
     ? undefined
-    : Object.freeze({ referenceFacts, snapshot: executed.snapshot });
+    : Object.freeze({
+        checkDurations: executed.checkDurations,
+        referenceFacts,
+        snapshot: executed.snapshot
+      });
 }
 
 async function executeChecks(
   invocation: Invocation,
-  project: CheckProjectContext
+  project: CheckProjectContext,
+  clock: CheckExecutionClock
 ): Promise<ResolvedCheckExecution | RunResult> {
   try {
     return await executeResolvedChecks({
       checks: invocation.normalized.checks,
+      clock,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
+      lifecycle: invocation.progress.lifecycle,
       project,
       signal: invocation.controls.signal
     });
   } catch {
     return executionResult(invocation, "task-engine-failed");
   }
+}
+
+function outcomeCounts(snapshot: CoreSnapshot): Readonly<{
+  readonly failed: number;
+  readonly notApplicable: number;
+  readonly passed: number;
+  readonly unavailable: number;
+}> {
+  let failed = 0;
+  let notApplicable = 0;
+  let passed = 0;
+  let unavailable = 0;
+  for (const check of snapshot.checks) {
+    switch (check.outcome.status) {
+      case "completed":
+        if (check.outcome.verdict === "passed") passed += 1;
+        else failed += 1;
+        break;
+      case "not-applicable":
+        notApplicable += 1;
+        break;
+      case "unavailable":
+        unavailable += 1;
+        break;
+    }
+  }
+  return Object.freeze({ failed, notApplicable, passed, unavailable });
+}
+
+function elapsedSince(startedAt: number, clock: CheckExecutionClock): number {
+  const elapsed = clock.now() - startedAt;
+  return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0;
 }
 
 function planningResult(
@@ -229,10 +298,7 @@ function executionResult(
   invocation: Invocation,
   code: Extract<
     RunDiagnostic["code"],
-    | "progress-failed"
-    | "publication-model-failed"
-    | "policy-validation-failed"
-    | "task-engine-failed"
+    "publication-model-failed" | "policy-validation-failed" | "task-engine-failed"
   >
 ): RunResult {
   return Object.freeze({

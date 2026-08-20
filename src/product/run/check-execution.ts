@@ -14,28 +14,49 @@ import {
   validateCheckReferenceSubmission,
   type CheckReferenceSubmission
 } from "./check-reference-submissions.ts";
+import type { CheckDuration } from "./result.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
+const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 
-export type ResolvedCheckExecution = Readonly<
-  | {
-      readonly kind: "completed";
-      readonly references: readonly CheckReferenceSubmission[];
-      readonly snapshot: CoreSnapshot;
-    }
-  | {
-      readonly kind: "cancelled";
-      readonly references: readonly CheckReferenceSubmission[];
-      readonly snapshot: CoreSnapshot;
-    }
->;
+/** Private Run handoff for Check lifecycle presentation and accounting. */
+export type CheckExecutionLifecycle = Readonly<{
+  readonly started: (fact: CheckStartedFact) => void;
+  readonly settled: (fact: CheckSettledFact) => void;
+}>;
 
-interface ExecuteCheckInput {
+/** Package-private monotonic clock seam for execution accounting. */
+export type CheckExecutionClock = Readonly<{ now(): number }>;
+
+export type CheckStartedFact = Readonly<{ checkId: string; displayName: string }>;
+
+export type CheckSettledFact = CheckStartedFact &
+  Readonly<{ outcome: CheckOutcome; durationMs: number | null }>;
+
+type CheckIdentity = Pick<NormalizedCheck["definition"], "checkId" | "displayName">;
+
+type ResolvedCheckExecutionFacts = Readonly<{
+  readonly checkDurations: readonly CheckDuration[];
+  readonly references: readonly CheckReferenceSubmission[];
+  readonly snapshot: CoreSnapshot;
+}>;
+
+export type ResolvedCheckExecution =
+  | (Readonly<{ readonly kind: "completed" }> & ResolvedCheckExecutionFacts)
+  | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts);
+
+interface CheckExecutionState {
+  readonly checkDurationsByCheckId: Map<string, number | null>;
+  readonly lifecycle: CheckExecutionLifecycle | undefined;
   readonly openedCheckIds: Set<string>;
-  readonly check: NormalizedCheck;
-  readonly project: CheckProjectContext;
   readonly references: CheckReferenceSubmission[];
   readonly session: CoreCheckSession;
+}
+
+interface ExecuteCheckInput extends CheckExecutionState {
+  readonly check: NormalizedCheck;
+  readonly clock: CheckExecutionClock;
+  readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
 
@@ -65,20 +86,23 @@ export async function executeResolvedChecks(
     readonly maxParallel: number;
     readonly project: CheckProjectContext;
     readonly signal: AbortSignal | undefined;
+    readonly clock?: CheckExecutionClock;
+    readonly lifecycle?: CheckExecutionLifecycle;
   }>
 ): Promise<ResolvedCheckExecution> {
   const graph = planStaticCheckGraph(input.checks);
   prepareTaskGraph(graph, input.maxParallel);
 
-  const session = createCoreCheckSession(
-    input.checks.map((check) =>
-      Object.freeze({
-        definition: check.definition
-      })
-    )
-  );
-  const openedCheckIds = new Set<string>();
-  const references: CheckReferenceSubmission[] = [];
+  const registrations = input.checks.map(({ definition }) => Object.freeze({ definition }));
+  const session = createCoreCheckSession(registrations);
+  const clock = input.clock ?? SYSTEM_MONOTONIC_CLOCK;
+  const state: CheckExecutionState = {
+    checkDurationsByCheckId: new Map<string, number | null>(),
+    lifecycle: input.lifecycle,
+    openedCheckIds: new Set<string>(),
+    references: [],
+    session
+  };
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
   try {
     graphRun = await runTaskGraph({
@@ -91,11 +115,10 @@ export async function executeResolvedChecks(
           throw new CheckExecutionInvariantFailure("Task graph has no executable Check");
         }
         return executeCheck({
-          openedCheckIds,
+          ...state,
           check,
+          clock,
           project: input.project,
-          references,
-          session,
           signal: context.signal ?? INERT_SIGNAL
         });
       }
@@ -104,32 +127,49 @@ export async function executeResolvedChecks(
     throw trustedFailure(error);
   }
 
+  return closeResolvedChecks(input.checks, graphRun, state);
+}
+
+function closeResolvedChecks(
+  checks: readonly NormalizedCheck[],
+  graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>,
+  state: CheckExecutionState
+): ResolvedCheckExecution {
   try {
     assertContainedTaskFailures(graphRun.settlements);
-    settleBlockedChecks(session, input.checks, graphRun.settlements, openedCheckIds);
+    settleBlockedChecks(state, checks, graphRun.settlements);
     if (graphRun.cancelled) {
-      session.closeUnresolvedAsCancelled();
-      return Object.freeze({
-        kind: "cancelled",
-        references: canonicalizeReferenceSubmissions(references),
-        snapshot: session.freeze()
-      });
+      state.session.closeUnresolvedAsCancelled();
+      const snapshot = state.session.freeze();
+      settleUnstartedCancelledChecks(snapshot, state);
+      return resolvedExecution("cancelled", snapshot, state);
     }
-    assertEveryCheckClosed(input.checks, graphRun.settlements);
-    return Object.freeze({
-      kind: "completed",
-      references: canonicalizeReferenceSubmissions(references),
-      snapshot: session.freeze()
-    });
+    assertEveryCheckClosed(checks, graphRun.settlements);
+    return resolvedExecution("completed", state.session.freeze(), state);
   } catch (error) {
     throw trustedFailure(error);
   }
+}
+
+function resolvedExecution(
+  kind: ResolvedCheckExecution["kind"],
+  snapshot: CoreSnapshot,
+  state: CheckExecutionState
+): ResolvedCheckExecution {
+  return Object.freeze({
+    kind,
+    checkDurations: checkDurationsFor(snapshot, state.checkDurationsByCheckId),
+    references: canonicalizeReferenceSubmissions(state.references),
+    snapshot
+  });
 }
 
 async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const checkId = input.check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   input.openedCheckIds.add(checkId);
+  emitStarted(input.lifecycle, input.check.definition);
+  const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
     check: input.check,
     project: input.project,
@@ -138,6 +178,7 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   });
   const result = settleCheckReferences(input, scope, callback);
   const settled = scope.settle(result);
+  recordSettledCheck(input, input.check.definition, settled, durationSince(startedAt, input.clock));
   if (settled.status === "unavailable") throw new CheckUnavailableSignal();
 }
 
@@ -155,28 +196,26 @@ function settleCheckReferences(
     project: input.project,
     scope
   });
-  if (referenceValidation.kind === "invalid") {
-    return Object.freeze({ status: "unavailable", reason: { code: "reference-invalid" } });
-  }
   if (referenceValidation.kind === "submitted")
     input.references.push(referenceValidation.submission);
-  return callback.result;
+  return referenceValidation.kind === "invalid"
+    ? Object.freeze({ status: "unavailable", reason: { code: "reference-invalid" } })
+    : callback.result;
 }
 
 function settleBlockedChecks(
-  session: CoreCheckSession,
+  state: CheckExecutionState,
   checks: readonly NormalizedCheck[],
-  settlements: readonly SettledTask<void>[],
-  openedCheckIds: ReadonlySet<string>
+  settlements: readonly SettledTask<void>[]
 ): void {
   for (const settled of settlements) {
     if (settled.settlement.kind !== "blocked") continue;
     const check = checks.find((candidate) => candidate.definition.checkId === settled.task.id);
-    if (check === undefined || openedCheckIds.has(check.definition.checkId)) {
+    if (check === undefined || state.openedCheckIds.has(check.definition.checkId)) {
       throw new CheckExecutionInvariantFailure("Blocked Task does not identify an unopened Check");
     }
-    const scope = session.openCheckScope(check.definition.checkId);
-    scope.settle(
+    const scope = state.session.openCheckScope(check.definition.checkId);
+    const outcome = scope.settle(
       Object.freeze({
         status: "unavailable",
         reason: {
@@ -185,7 +224,71 @@ function settleBlockedChecks(
         }
       })
     );
+    recordSettledCheck(state, check.definition, outcome, null);
   }
+}
+
+function settleUnstartedCancelledChecks(snapshot: CoreSnapshot, state: CheckExecutionState): void {
+  for (const check of snapshot.checks) {
+    if (state.checkDurationsByCheckId.has(check.checkId)) continue;
+    recordSettledCheck(state, check, check.outcome, null);
+  }
+}
+
+function recordSettledCheck(
+  state: CheckExecutionState,
+  check: CheckIdentity,
+  outcome: CheckOutcome,
+  durationMs: number | null
+): void {
+  if (state.checkDurationsByCheckId.has(check.checkId)) {
+    throw new CheckExecutionInvariantFailure("Check lifecycle settled more than once");
+  }
+  state.checkDurationsByCheckId.set(check.checkId, durationMs);
+  emitSettled(state.lifecycle, check, outcome, durationMs);
+}
+
+function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {
+  lifecycle?.started(Object.freeze({ checkId: check.checkId, displayName: check.displayName }));
+}
+
+function emitSettled(
+  lifecycle: CheckExecutionLifecycle | undefined,
+  check: CheckIdentity,
+  outcome: CheckOutcome,
+  durationMs: number | null
+): void {
+  lifecycle?.settled(
+    Object.freeze({
+      checkId: check.checkId,
+      displayName: check.displayName,
+      outcome,
+      durationMs
+    })
+  );
+}
+
+function durationSince(startedAt: number, clock: CheckExecutionClock): number {
+  const elapsed = clock.now() - startedAt;
+  return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0;
+}
+
+function checkDurationsFor(
+  snapshot: CoreSnapshot,
+  checkDurationsByCheckId: ReadonlyMap<string, number | null>
+): readonly CheckDuration[] {
+  if (snapshot.checks.length !== checkDurationsByCheckId.size) {
+    throw new CheckExecutionInvariantFailure("Check duration summary does not close every Check");
+  }
+  return Object.freeze(
+    snapshot.checks.map((check) => {
+      const durationMs = checkDurationsByCheckId.get(check.checkId);
+      if (durationMs === undefined) {
+        throw new CheckExecutionInvariantFailure("Check duration summary is missing a Check");
+      }
+      return Object.freeze({ checkId: check.checkId, durationMs });
+    })
+  );
 }
 
 function assertContainedTaskFailures(settlements: readonly SettledTask<void>[]): void {

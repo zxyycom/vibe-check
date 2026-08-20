@@ -18,7 +18,7 @@ Published Check outcomes use the same terminal grammar as direct execution: `out
 carry `reason.code` with optional prerequisite `reason.checkIds`. The historical `outcome.kind` and
 `diagnostic.category` field pair is not accepted by current schemas.
 
-machine v3 不发布 `definitions`、`runs`、`integrity`、`completeness`、Task identity、invalid candidate evidence 或 effect status。运行/效果状态仍由 structured Package Run Result 承载，不能从这两个 artifact 倒推。
+machine v3 不发布 `definitions`、`runs`、`integrity`、`completeness`、Task identity、invalid candidate evidence、effect status 或 per-Check timing。运行/效果状态与 final-snapshot `RunResult.checkDurations` 仍由 structured Package Run Result 承载，不能从这两个 artifact 倒推。
 
 ## Core-to-machine projection
 
@@ -38,13 +38,19 @@ consumer 必须将 artifacts 与 producing Package Run result 一起解释。`ki
 
 每个 structured `RunResult` 都包含 `definitionWarnings`，包括 configuration、planning、cancellation、
 execution、completed 与 effect result。Run-level diagnostic 使用 `code`，不复用 scanner/Core 的 diagnostic 字段：
-`comparison-preparation-failed`、`policy-validation-failed`、`task-graph-invalid`、`progress-failed`、
-`task-engine-failed` 与 `publication-model-failed`；effect result 使用
-`{ code: "effect-failed", effect }`。
+`comparison-preparation-failed`、`policy-validation-failed`、`task-graph-invalid`、`task-engine-failed` 与
+`publication-model-failed`；effect result 使用 `{ code: "effect-failed", effect }`。progress writer/render failure
+记录为 progress effect status，并以同一 `effect-failed` result 语义返回，而不是 `progress-failed` diagnostic。
 
 ## Readable output and annotation
 
 validated model 同时保存普通 quality 与 verification projection；Package Run 当前选择普通 `Quality check status` 作为 console status，report 保留两者。console 固定最多预览 5 条 records；report 从 resolved `report` presentation settings 消费 title / notice / timestamp time zone / footer、每个 accepted / unaccepted record section 的 `topN` 以及独立的 changed-record watchlist visibility / `watchlistMax`。这些 presentation settings 只改变 human projection，不能改变 v3 machine bytes、Core facts、GateResult 或 structured result。
+
+Product-owned progress effect 也是人读投影：它输出 execution total、settled Check 的 status/duration 与 execution
+summary；TTY 可以包含临时 running feedback，plain target 只输出 settled feedback 与 summary。其 wording、layout 与
+terminal control details 不是 machine v3 field 或 machine protocol。`run.json` 和 `records.ndjson` 仍是完整的当前 machine
+boundary；需要 per-Check execution duration 的 consumer 使用 producing final-snapshot `RunResult`，而不是 publication
+artifact。
 
 annotation 是独立 script consumer：它以 artifact directory 为输入，先验证 `run.json` + `records.ndjson` v3 two-file set，成功后才渲染 annotations。
 

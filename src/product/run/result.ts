@@ -15,13 +15,19 @@ export type RunDiagnostic = Readonly<{
     | "comparison-preparation-failed"
     | "policy-validation-failed"
     | "task-graph-invalid"
-    | "progress-failed"
     | "task-engine-failed"
     | "publication-model-failed";
 }>;
 
+/** One Product-measured execution duration per canonical Core Check. */
+export type CheckDuration = Readonly<{
+  readonly checkId: string;
+  readonly durationMs: number | null;
+}>;
+
 /** Facts shared by completed and post-model effect results. */
 export interface RunResultFacts {
+  readonly checkDurations: readonly CheckDuration[];
   readonly decision: DecisionEvidence;
   readonly referenceFacts: ReferenceFacts;
   readonly snapshot: CoreSnapshot;
@@ -53,6 +59,7 @@ export type RunResult = Readonly<
       readonly definitionWarnings: readonly DefinitionWarning[];
       readonly effects: RunEffectStatuses;
       readonly phase: "execution";
+      readonly checkDurations: readonly CheckDuration[];
       readonly snapshot: CoreSnapshot;
     }
   | ({
@@ -138,7 +145,8 @@ export function executionCancellation(
   declarativeFingerprint: string,
   definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
-  snapshot: CoreSnapshot
+  snapshot: CoreSnapshot,
+  checkDurations: readonly CheckDuration[]
 ): RunResult {
   return Object.freeze({
     kind: "cancelled",
@@ -146,6 +154,7 @@ export function executionCancellation(
     definitionWarnings,
     effects,
     phase: "execution",
+    checkDurations,
     snapshot
   });
 }

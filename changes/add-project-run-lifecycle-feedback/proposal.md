@@ -4,9 +4,9 @@
 
 ## Why
 
-当前 Product progress 只打印 `Vibe Check: execution` 与 `Vibe Check: effects` 两个阶段。调用方知道 Run 已开始，却不知道总共有多少 Check、当前有哪些 Check 正在运行、已经完成了哪些、结果如何或各自耗时多久。
+以下问题陈述保留 Plan 开始实施前的基线；当前稳定行为由 [Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary) 与 [Output](../../docs/output.md) 拥有。该基线中，Product progress 只打印 `Vibe Check: execution` 与 `Vibe Check: effects` 两个阶段。调用方知道 Run 已开始，却不知道总共有多少 Check、当前有哪些 Check 正在运行、已经完成了哪些、结果如何或各自耗时多久。
 
-当前 workspace verifier 已证明基础信息层级有效：开始时显示总数，每项结束时显示状态、名称与耗时，最后显示结果计数和总耗时。最终 npm 应在 Product 已拥有的 Check execution 与 outcome 边界提供同类能力，使任何调用方启用 progress 后即可获得一致反馈，而不要求 Check 或项目实现 lifecycle callback、observer 或第二套 renderer。
+实施前的 workspace verifier 已证明基础信息层级有效：开始时显示总数，每项结束时显示状态、名称与耗时，最后显示结果计数和总耗时。最终 npm 应在 Product 已拥有的 Check execution 与 outcome 边界提供同类能力，使任何调用方启用 progress 后即可获得一致反馈，而不要求 Check 或项目实现 lifecycle callback、observer 或第二套 renderer。
 
 ## Outcome
 
@@ -52,7 +52,7 @@ Product 对每个实际进入执行路径的 Check 使用 monotonic clock 测量
 - Check lifecycle、duration 与 completion handoff：`src/product/run/check-execution.ts`、必要的 private task-scheduler handoff，以及 `src/product/run/result.ts`；不得扩张 package public scheduler surface。
 - Canonical label/status inputs：`src/product/definition/check-definition.ts` 的 `displayName` 与 final `CheckOutcome`；renderer 只投影，不建立第二份 mapping。
 - Public result 与 package inventory：`src/product/run/index.ts`、`src/product/public-contract/current.ts` 及其 tests；首轮不增加 observer/event type root。
-- 实现完成后同步的稳定事实 owner：[Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary) 与 [Output](../../docs/output.md)。
+- 稳定事实 owner：[Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary) 与 [Output](../../docs/output.md)。
 - 能力参照而非 Product dependency：`scripts/vibe-check-workspace/verify/runner.ts`、`output.ts`、`results.ts`。
 
 ## Downstream Handoff

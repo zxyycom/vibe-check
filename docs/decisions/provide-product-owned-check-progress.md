@@ -1,7 +1,7 @@
 ---
 title: 由 Product Run 提供 Check 生命周期进度
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-20T06:43:50Z
 purpose: 让 package consumer 通过现有 progress effect 获得一致且无需公共 observer 的 Check 执行反馈。
 background: Product 已拥有 Check lifecycle 与 progress effect，TTY 动态区域还需要明确序号、stream ownership 和失败隔离。

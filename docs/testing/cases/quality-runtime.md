@@ -33,7 +33,7 @@ Entities:
 - `bun|src/product/run/index.test.ts|Package Run > executes each normalized Check directly with the public callback context`
 - `bun|src/product/run/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/product/run/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
-- `bun|src/product/run/index.test.ts|Package Run > publishes the direct Check snapshot without retaining executable callbacks`
+- `bun|src/product/run/index.core.test.ts|Package Run core integration > publishes the direct Check snapshot without retaining executable callbacks`
 Proves:
 - Package Run validates closed definition and controls before calling project code, invokes every normalized executable Check with only its public context, and excludes executable callbacks from frozen/public facts.
 - The two `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input and the canonical immutable `project.flags` callback snapshot.
@@ -43,7 +43,7 @@ Owner: `docs/quality-metrics.md#check-and-record-facts`
 Entities:
 - `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes only canonical Check and Record facts`
 - `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > maps not-applicable records and unresolved scopes to Product unavailable outcomes`
-- `bun|src/product/run/index.test.ts|Package Run > contains invalid callback outcomes and record misuse in the Check outcome`
+- `bun|src/product/run/index.core.test.ts|Package Run core integration > contains invalid callback outcomes and record misuse in the Check outcome`
 Proves:
 - Every registered Check closes exactly once. Deliberate not-applicable, normal completion, malformed callback result, invalid record use, and unresolved cancellation all use the current status/reason outcome boundary rather than a second lifecycle model.
 
@@ -52,7 +52,7 @@ Owner: `docs/quality-metrics.md#check-and-record-facts`
 Entities:
 - `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > binds record ownership, retains independent Records, and gives record failures precedence`
 - `bun|src/product/quality-core/check-record/core-session.test.ts|check-record Core Check session > allows references only to committed records and rejects duplicate or late lifecycle changes`
-- `bun|src/product/run/index.test.ts|Package Run > commits Check-owned records and closes its reporter when the callback settles`
+- `bun|src/product/run/index.core.test.ts|Package Run core integration > commits Check-owned records and closes its reporter when the callback settles`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > retains a valid optional comparison candidate when no selected policy requires it`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > retains one complete reference candidate by resolving the already committed Record identity`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > does not retain a reference candidate from a contradictory not-applicable callback`
@@ -62,7 +62,7 @@ Proves:
 ## Case WB-RUNTIME-CHECK-FAILURE-001: Product contains ordinary callback failures safely
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
-- `bun|src/product/run/index.test.ts|Package Run > contains invalid callback outcomes and record misuse in the Check outcome`
+- `bun|src/product/run/index.core.test.ts|Package Run core integration > contains invalid callback outcomes and record misuse in the Check outcome`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > turns malformed or uncommitted reference relations into the contained reference-invalid outcome`
 Proves:
 - Ordinary malformed results, record misuse, and invalid reference relations become the owning unavailable Check outcome. A completed quality failure remains `status: "completed"` with `verdict: "failed"`; trusted invariant faults are not forged as public Check facts.
@@ -76,6 +76,18 @@ Entities:
 Proves:
 - Direct executable Checks use the shared dependency graph. A skipped dependent receives `prerequisite-unavailable` and named prerequisite IDs, while no separate execution layout or scheduler API becomes public.
 - A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped.
+
+## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > hands final Core outcomes and one finite duration to the private lifecycle`
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > settles blocked Checks without starting them and records not-run duration`
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > closes cancelled-before-start Checks as execution-cancelled without starting them`
+- `bun|src/product/run/progress-timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
+Proves:
+- Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Core outcome and a finite duration, while blocked and cancellation-before-start Checks settle without a start and use `null`/`not run` duration.
+- The final duration summary follows canonical snapshot order and identity even when lifecycle completion order follows parallel settlement; a single monotonic invocation interval supplies elapsed time rather than summing overlapping Check durations.
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine
 Owner: `docs/architecture.md#execution-boundary`

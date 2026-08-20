@@ -1,6 +1,6 @@
 import { resolve } from "node:path";
 
-import { emitProgress, publishOutput } from "./effects.ts";
+import { failedEffect, publishOutput } from "./effects.ts";
 import { effectFailure, type RunResult, type RunResultFacts } from "./result.ts";
 import type { CoreExecution, Invocation } from "./invocation.ts";
 import type { PolicyResolution } from "../quality-core/check-record/policy-model.ts";
@@ -33,15 +33,6 @@ export function completeInvocation(
       publication.facts
     );
   }
-  if (!emitProgress(invocation.effects, "effects")) {
-    return effectFailure(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.effects.value(),
-      "progress",
-      publication.facts
-    );
-  }
   const outputDirectory = resolve(
     invocation.projectRoot,
     invocation.effectConfiguration.output.directory
@@ -55,11 +46,14 @@ export function completeInvocation(
     reportPresentation: invocation.definition.quality.report
   });
   if (readable === undefined) {
+    const effect = failedEffect(invocation.effects.value());
+    if (effect === undefined)
+      throw new Error("Output publication failed without a failed effect status");
     return effectFailure(
       invocation.declarativeFingerprint,
       invocation.definitionWarnings,
       invocation.effects.value(),
-      "output",
+      effect,
       publication.facts
     );
   }
@@ -92,6 +86,7 @@ function createModel(
     });
     return Object.freeze({
       facts: Object.freeze({
+        checkDurations: core.checkDurations,
         decision: model.decision,
         referenceFacts: model.referenceFacts,
         snapshot: model.snapshot
@@ -123,16 +118,30 @@ function completeWithLogs(
         readable
       });
       invocation.effects.succeeded("logs");
-    } catch (_error: unknown) {
+    } catch (error: unknown) {
       invocation.effects.failed("logs");
+      const effect = failedEffect(invocation.effects.value());
+      if (effect === undefined) {
+        throw new Error("Log publication failed without a failed effect status", { cause: error });
+      }
       return effectFailure(
         invocation.declarativeFingerprint,
         invocation.definitionWarnings,
         invocation.effects.value(),
-        "logs",
+        effect,
         publication.facts
       );
     }
+  }
+  const effect = failedEffect(invocation.effects.value());
+  if (effect !== undefined) {
+    return effectFailure(
+      invocation.declarativeFingerprint,
+      invocation.definitionWarnings,
+      invocation.effects.value(),
+      effect,
+      publication.facts
+    );
   }
   return Object.freeze({
     kind: "completed",

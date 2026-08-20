@@ -4,10 +4,12 @@
 
 ## Context
 
-### 当前事实
+### 实施前基线
+
+本节保存 Plan 形成时的事实，不拥有当前运行时契约；当前稳定行为见 [Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary) 与 [Output](../../docs/output.md)。
 
 - `ProjectDefinition.effects.progress.enabled` 已存在且默认启用，Run controls 可以按 invocation 关闭它。
-- `src/product/run/effects.ts` 当前只用 `console.log` 打印 `execution`、`effects` 两个固定阶段；首次 progress write 失败会在 Check work 前返回 `progress-failed`。
+- `src/product/run/effects.ts` 当时只用 `console.log` 打印 `execution`、`effects` 两个固定阶段；首次 progress write 失败会在 Check work 前返回 `progress-failed`。
 - `src/product/run/check-execution.ts` 在 Run-owned adapter 中打开 Check scope、执行 callback、验证 Record/reference submission 并固定 terminal outcome。它是 Check started/settled feedback 与 duration measurement 的最窄 Product owner。
 - Check definition 已提供 canonical `checkId` 和 `displayName`；final `CheckOutcome` 已区分 completed passed/failed、not-applicable 与 unavailable。可见序号不需要也不能替代 `checkId`。
 - completed、post-model effect failure 与 execution-phase cancellation 的现有 `RunResult` branches 带 final snapshot；configuration、planning、pre-work cancellation 和 task-engine/invariant failure 没有完整 Check facts。
@@ -16,7 +18,7 @@
 
 当前 workspace verifier 的可复用能力是 header、按真实完成顺序追加 `status + label + duration`，以及 final outcome counts/elapsed。它的 profile wording、warning regex、log path、process transcript 和 exit mapping 属于 repository verifier，不进入 Product renderer。
 
-[由 Product Run 提供 Check 生命周期进度](../../docs/decisions/provide-product-owned-check-progress.md) 已确认 Product-owned private lifecycle feedback、TTY completion history + running region、plain settled-only、两种可见序号、stream ownership 和 progress-failure isolation；本 Plan 负责把该 `active + unaligned` 方向实现为当前事实。
+[由 Product Run 提供 Check 生命周期进度](../../docs/decisions/provide-product-owned-check-progress.md) 记录了 Product-owned private lifecycle feedback、TTY completion history + running region、plain settled-only、两种可见序号、stream ownership 和 progress-failure isolation 的实施方向。该 Decision 的 `active + unaligned` 是 Plan 形成时的决策状态，不是当前实现状态；当前稳定行为由上述 owner 文档承接。
 
 [在公开 package 发布前完成项目门禁](../../docs/decisions/complete-project-gate-before-public-package-release.md) 已确认：Product 为实际执行的 Check 测量一次 `durationMs`，同时用于 settled feedback 与 final structured summary；duration 不进入 QualityRecord、Core、machine 或 policy。该记录不定义 renderer，也不要求 public observer。
 
@@ -178,7 +180,7 @@ renderer 按实际目标 stream capability 选择 TTY/plain，不从 scheduler c
 
 ### 8. Progress failure 对 execution facts fail-open
 
-当前实现会在首次 progress write 失败时于 Check work 前返回。目标行为改为：第一次 write/rewrite failure 将 progress status 单向置为 failed，停止后续 progress writes，但继续 Task admission、Check settlement、Record closure 和其他 enabled effects。
+实施前基线会在首次 progress write 失败时于 Check work 前返回。此设计的目标行为是：第一次 write/rewrite failure 将 progress status 单向置为 failed，停止后续 progress writes，但继续 Task admission、Check settlement、Record closure 和其他 enabled effects。
 
 如果 Run 最终形成 completed facts，返回携带这些 facts 的 progress effect failure；如果 Run 自身 cancellation/execution failure，保留更具体的 result kind并保留 failed progress status。多个 effects 同时失败时保留完整 statuses，并使用确定性的 effect diagnostic priority，而不是时间竞赛。console failure 不得伪造或改写 Check/Record facts。
 
@@ -222,4 +224,4 @@ renderer 按实际目标 stream capability 选择 TTY/plain，不从 scheduler c
 
 `tasks.md` 已从本 Design 派生 Readiness、Implementation 与 Verification 的完整依赖链，每项 Success Criteria 都有 owner、实施产物和验证出口。
 
-六项 Readiness 已完成：stream ownership 已固定，长期 Decision 已建立为 `active + unaligned`，下游 handoff 已同步，Run/scheduler/Core seam、测试 Case 基线和 public/package candidate 边界均已审计。本 Plan 可以直接从 Implementation 1.1 开始；任务完成与最终验证仍以实际 checkbox 证据为准。
+以下保留 Plan 开始实施时的 Readiness 快照：stream ownership 已固定，长期 Decision 当时记录为 `active + unaligned`，下游 handoff 已同步，Run/scheduler/Core seam、测试 Case 基线和 public/package candidate 边界均已审计。它不表示当前实施进度；当前完成状态仍以 `tasks.md` 的实际 checkbox 证据和稳定 owner 为准。

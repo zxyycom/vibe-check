@@ -34,6 +34,24 @@ Entities:
 Proves:
 - Report, console and annotation consume the same validated v3 model/set boundary; presentation limits affect only their declared readable projections and never truncate machine or console facts.
 
+## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
+Owner: `docs/output.md#readable-output-and-annotation`
+Entities:
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI status color only for color-capable TTY writers`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
+- `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > presents enabled Package Run progress through the injected plain writer`
+- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
+- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
+- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
+Proves:
+- Product-owned progress prints the Check total, terminal status/duration and execution summary from private lifecycle facts. A TTY only rewrites its transient running region: completion ordinals follow settlement while the remaining running rows are redrawn with their current visible positions.
+- Plain and dumb-terminal output is append-only and contains no terminal control bytes; status colors are only supplementary for capable TTY targets, and a terminal row exposes only an existing reason code rather than private prerequisite detail.
+- Executed `not-applicable` without a reason and `unavailable` Checks each render their measured duration; a Check cancelled before start renders `execution-cancelled` with `not run`. Zero-Check TTY progress writes the same final summary without cursor controls; after every running Check settles, the last visible TTY row is terminal and final summary rendering leaves no transient running region.
+
 ## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
 Owner: `docs/output.md#publication-lifecycle-and-evidence`
 Entities:

@@ -184,13 +184,22 @@ Product contains ordinary callback, record, cancellation, and prerequisite failu
 outcome. `reason.code` can be `prerequisite-unavailable` with `reason.checkIds` for blocked dependents. Invalid
 configuration returns a configuration result before callback work. Every `RunResult` branch includes
 `definitionWarnings`; planning/execution diagnostics use only
-`comparison-preparation-failed`, `policy-validation-failed`, `task-graph-invalid`, `progress-failed`,
-`task-engine-failed`, or `publication-model-failed`.
+`comparison-preparation-failed`, `policy-validation-failed`, `task-graph-invalid`, `task-engine-failed`, or
+`publication-model-failed`. A progress write failure instead marks the progress effect failed; when final facts are
+available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A
+branch with a final `snapshot` also includes
+`checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with
+`snapshot.checks`. Product measures an entered Check through its callback, validation, and terminal settlement;
+`durationMs` is non-negative and finite for an entered Check, while a Check that never starts has `null`.
 
 ## Policy, effects, and retired inputs
 
 `DecisionPolicy` and `selectedPolicy` are declarative definition fields. Effects own cache, logs, progress, and
-output destinations; controls may narrow those effects for an invocation. Flags are callback-local context: Product
+output destinations; controls may narrow those effects for an invocation. Progress is enabled by the Product default:
+it owns the execution header, settled Check feedback, and final execution summary on its target stream. TTY targets
+may additionally show a temporary running region; non-TTY or dumb targets retain only settled feedback and the final
+summary. Progress presentation is not a project callback, observer, or renderer API, and a progress write failure
+stops that effect without changing Check execution facts. Flags are callback-local context: Product
 does not interpret their tokens or use them for Product-level Check selection or scheduling.
 
 JSON/JSONC discovery, editor configuration, profile selection, adjustment helpers, parser/materializer APIs, and

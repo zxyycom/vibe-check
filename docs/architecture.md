@@ -41,6 +41,12 @@ Cancellation 停止新的 admission，并将同一 signal 传给已 admitted cal
 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，
 再返回 execution-phase cancellation facts。
 
+Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record/reference validation 与 Core
+settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback
+和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core、policy 或 machine publication。progress
+renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标
+stream 输出；项目 callback 必须把详细 process output 留在 project-owned logs，而不与该 stream 穿插。
+
 ## Core facts
 
 Core session 将每个 canonical executable Check 恰好 register 一次，且只冻结 `checks` 与 `records`。Check 的
@@ -70,8 +76,9 @@ Policy 消费 frozen Core facts 与 reference evidence。Publication 创建一�
 [Output](output.md)。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion
-与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。public inventory 只
-暴露 authoring/run value 与 type，绝不暴露 Core capability、scanner adapter、task-engine internal 或 callback slot。
+与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的
+result 还携带 canonical per-Check duration summary。public inventory 只暴露 authoring/run value 与 type，
+绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 
 ## Runtime boundary
 
