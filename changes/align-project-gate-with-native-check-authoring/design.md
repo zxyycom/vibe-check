@@ -8,8 +8,8 @@
 
 - [`docs/configuration.md`](../../docs/configuration.md#public-authoring-surface) 与 [`expose-recursive-check-authoring-and-run-surface`](../../docs/decisions/expose-recursive-check-authoring-and-run-surface.md) 规定 Product 默认 Checks 和项目 Checks 使用同一种普通 `Check` value，并由 `defineCheck` 可选改善 inference。
 - [`use-native-object-composition-for-check-customization`](../../docs/decisions/use-native-object-composition-for-check-customization.md) 与 [`expose-ordinary-check-values-with-define-check`](../../docs/decisions/expose-ordinary-check-values-with-define-check.md) 排除来源专属 object model、runtime brand 与第二 execution entry。
-- [`docs/script-tooling.md`](../../docs/script-tooling.md#候选-project-gate) 记录当前候选 Gate 的 candidate-first identity guard、20-entry process catalog、profile/tag eligibility、per-Check transcript、fixed capacity、policy 与 `0/1/2` exit closure。
-- 已归档的 [`build-candidate-backed-project-gate`](../archive/build-candidate-backed-project-gate/) 保存形成时 readiness evidence。[`replace-workspace-verifier-with-project-gate`](../replace-workspace-verifier-with-project-gate/) 先消费并重新验证该能力，完成正式 binding 与 legacy retirement。
+- [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 记录当前正式 Project Gate 的 candidate identity guard、20-entry process catalog、profile/tag eligibility、per-Check transcript、fixed capacity、policy 与 `0/1/2` exit closure。
+- 已归档的 [`build-candidate-backed-project-gate`](../archive/build-candidate-backed-project-gate/) 保存形成时 readiness evidence。已归档的 [`replace-workspace-verifier-with-project-gate`](../archive/replace-workspace-verifier-with-project-gate/) 消费并重新验证该能力，完成正式 binding 与 legacy retirement。
 - 本 Change 只在 cutover 完成后开始。它修改权威 Gate implementation，因此必须通过已经接线的正式 root entry 验收，但不重新执行 binding 迁移或恢复旧 verifier。
 
 当前 `PROJECT_GATE_CATALOG` 的 entry 同时复制 Check identity/scheduling fields 和 process options。`createProjectGateDefinition()` 只能把所有 entries 映射到同一个 `createProcessCheck()`，policy 也假定每个 Check 只声明 `gate-command-failure` Record type。`defineProjectGateCatalog()` 还在 module load 时强制 total `20`、required `14`、full `19`。
@@ -79,7 +79,7 @@ adapter 仍要求每个 eligible Check 的 terminal verdict passed，因此 comp
 
 ### 6. 项目内添加说明保持短且直接
 
-[`docs/script-tooling.md`](../../docs/script-tooling.md#候选-project-gate) 增加一个简短“添加 Project Gate Check”入口，说明：选择普通 `defineCheck()` 或 local `processCheck()`、声明 profile/tags、必要时更新 project policy，并运行focused tests 与受影响 profile。完整 public Check API 说明由 npm/public API documentation Change拥有，项目文档只链接而不复制。
+[`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 增加一个简短“添加 Project Gate Check”入口，说明：选择普通 `defineCheck()` 或 local `processCheck()`、声明 profile/tags、必要时更新 project policy，并运行focused tests 与受影响 profile。完整 public Check API 说明由 npm/public API documentation Change拥有，项目文档只链接而不复制。
 
 ### 7. 本 Change 刷新发布前 Gate evidence，不重做 cutover
 

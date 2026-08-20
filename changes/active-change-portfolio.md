@@ -27,7 +27,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 当前 portfolio 分为四个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
 
-1. **Project Gate 与 package 交付：** 三个上游能力 Change 与首轮 Gate build 已归档；repository hard cutover 已交付 [gate-handoff.md](replace-workspace-verifier-with-project-gate/gate-handoff.md)，后续在唯一正式 Gate 下补全 typed Record、首版 Check-associated result presentation、package API documentation 与 native Check authoring，最后刷新 Gate optimization evidence 并进入公开发布。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
+1. **Project Gate 与 package 交付：** 三个上游能力 Change 与首轮 Gate build 已归档；已归档的 [repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 交付了 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。后续在唯一正式 Gate 下补全 typed Record、首版 Check-associated result presentation、package API documentation 与 native Check authoring，最后刷新 Gate optimization evidence 并进入公开发布。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
 2. **公共 Check authoring、结果呈现与日志证据边界：** 补全 typed Record authoring，设计 Check-associated terminal/live content 的 Product-owned 输出边界，并保存未来 durable log/event 能力的 owner 分层；三者不提前改变 Core entity model 或批准日志协议。
 3. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
 4. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
@@ -36,9 +36,10 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 长期顺序由 [在公开 package 发布前完成项目门禁](../docs/decisions/complete-project-gate-before-public-package-release.md)（`active + aligned`）决定：本地 candidate → 完整 Gate consumer → repository cutover → 经单独授权的公开发布。它不决定项目 CLI grammar、renderer 格式、静态 scheduler 容量或 npm 的实时外部事实。
 
+下表只列出仍 active 的下游 Change；已归档 cutover 的 binding/legacy-retirement 输入见上方 handoff。
+
 | Change | 此 Change 唯一负责的结果 | 直接 Decision 输入 | 下游与仍未决定的事项 |
 | --- | --- | --- | --- |
-| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 消费归档 readiness 并在当前 revision 重跑对照，将 Gate 切换为唯一仓库门禁并退役旧 verifier。 | [完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)（aligned）。 | 已交付 [<code>gate-handoff.md</code>](replace-workspace-verifier-with-project-gate/gate-handoff.md) 的 binding/legacy-retirement 事实；正式 root required/full 无 disabled tags。动态 stage、task 与归档授权仍以该 Change 的 artifacts/CLI 为准。 |
 | [complete-typed-record-authoring](complete-typed-record-authoring/) | 在首次公开 package 前闭合 custom Check 的 Record reporter inference。 | [普通 `defineCheck`](../docs/decisions/expose-ordinary-check-values-with-define-check.md)、[直接结构化 execution](../docs/decisions/use-direct-check-execution-with-structured-results.md)（aligned）。 | 先向 package documentation 交付 declaration/consumer evidence；不改变 runtime bytes。 |
 | [add-check-associated-result-presentation](add-check-associated-result-presentation/) | 在首次公开 package 中交付 Check-associated terminal Record presentation，并决定首版是否包含 live/intermediate feedback。 | [Product-owned progress](../docs/decisions/provide-product-owned-check-progress.md)、[Core Check/Record facts](../docs/decisions/use-core-check-and-record-facts-from-run-resolution.md)、[machine v3](../docs/decisions/publish-fingerprint-bound-check-record-machine-v3.md)（均 aligned）。 | 必须先向 package documentation 交付 implementation/declaration/output evidence；live capability 只有首版命名 consumer 需要时才进入范围。 |
 | [ship-public-package-api-documentation](ship-public-package-api-documentation/) | 为 public symbols/declarations 补完整 JSDoc，并把版本匹配的 README/API guide 作为 exact candidate material 交付。 | [版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均 future）。 | cutover 后实施，依赖 typed Record authoring 与首版 result presentation；向 Gate optimization 与 publish 交付 documentation handoff。 |

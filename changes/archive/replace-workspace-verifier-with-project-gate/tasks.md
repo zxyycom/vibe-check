@@ -1,6 +1,6 @@
 # Tasks
 
-本清单已按“Readiness → root target cutover → legacy deletion → final evidence”完成；每个删除动作均在相邻证据门禁通过后执行。归档仍需用户单独授权。
+本清单已按“Readiness → root target cutover → legacy deletion → final evidence”完成；每个删除动作均在相邻证据门禁通过后执行。本 Change 已在用户授权后归档。
 
 ## Readiness
 
@@ -24,4 +24,4 @@
 - [x] 2.3 已从实际 root bindings 运行 `bun run verify:vibe-check-workspace:required`、`bun run verify:vibe-check-workspace:full` 与 base `bun run verify:vibe-check-workspace`，记录它们已到达 Project Gate、无 disabled-tag selection、candidate identity、20-Check outcomes、exit、elapsed 和 invocation log directories；另运行 `bun run quality` 证明 dogfood root 未回归。
 - [x] 2.4 已运行 repo-wide legacy audit：全部正式 root targets 到达 Project Gate；current direct-call/import 对 `scripts/vibe-check-workspace/**` 为零；legacy source tree 不存在；CI/workflow 明确不存在；保留 root names 与非当前 evidence references 未计为 legacy implementation。
 - [x] 2.5 已写出 [gate-handoff.md](gate-handoff.md)，记录实际 bindings、candidate/manifest、required/full 与 partial evidence、output/exit/log behavior、legacy retirement/audit、重新验证条件，以及由 Plan `baseCommit` 与精确 path set 表达的 VCS rollback boundary；已同步下游 handoff links，未宣称后续优化或 publish 已完成。
-- [x] 2.6 已复核最终 diff 只包含底层 cutover，并通过 `bun run validate -- docs`、`bun run change-plan -- check changes/replace-workspace-verifier-with-project-gate`、`bun run decisions -- check` 与最终 `bun run verify:vibe-check-workspace:full`；proposal 六项 Success Criteria 均有实际证据。相关 Decision 已核对为 `active + aligned`；归档仍需用户单独授权，未执行。
+- [x] 2.6 已复核最终 diff 只包含底层 cutover，并通过 `bun run validate -- docs`、`bun run change-plan -- check changes/replace-workspace-verifier-with-project-gate`、`bun run decisions -- check` 与最终 `bun run verify:vibe-check-workspace:full`；proposal 六项 Success Criteria 均有实际证据。相关 Decision 已核对为 `active + aligned`；该轮验证后取得用户单独授权并归档。

@@ -1,6 +1,6 @@
 # Gate cutover handoff
 
-本交接记录保存 `replace-workspace-verifier-with-project-gate` 已完成的正式 binding 与 legacy-retirement 事实，供后续 Gate optimization 与 package publish Change 恢复。稳定 Gate 行为唯一由 [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 拥有；任务进度由本 Change 的 [tasks.md](tasks.md) 拥有。本文件不授予 registry、凭据或发布操作，也不证明后续 optimization、documentation 或 publish 已完成。
+本交接记录保存 `replace-workspace-verifier-with-project-gate` 已完成的正式 binding 与 legacy-retirement 事实，供后续 Gate optimization 与 package publish Change 恢复。稳定 Gate 行为唯一由 [`docs/script-tooling.md`](../../../docs/script-tooling.md#project-gate) 拥有；完成清单保留在本 Change 的 [tasks.md](tasks.md)。本文件不授予 registry、凭据或发布操作，也不证明后续 optimization、documentation 或 publish 已完成。
 
 ## 实际绑定与范围
 
@@ -41,7 +41,7 @@ Gate manifest 使用 byte-order UTF-8 POSIX-relative paths，对每个 regular f
 
 ## 已执行的 Gate 证据
 
-本次执行观测到 catalog 有 20 个 Check；完整 profile 分别执行 14 个 required 和 19 个 full eligible Check，固定 capacity 为 `4`。稳定的 adapter 与 exit 语义由 [Project Gate owner](../../docs/script-tooling.md#project-gate) 完整定义；下表记录本次 invocation 的选择、exit 与本地日志。每次 invocation 都在 `.log/project-gate/<unique>/` 下写入 per-Check transcript。
+本次执行观测到 catalog 有 20 个 Check；完整 profile 分别执行 14 个 required 和 19 个 full eligible Check，固定 capacity 为 `4`。稳定的 adapter 与 exit 语义由 [Project Gate owner](../../../docs/script-tooling.md#project-gate) 完整定义；下表记录本次 invocation 的选择、exit 与本地日志。每次 invocation 都在 `.log/project-gate/<unique>/` 下写入 per-Check transcript。
 
 | 调用 | 选择与结果 | 耗时 | 本地日志目录 |
 | --- | --- | --- | --- |

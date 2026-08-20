@@ -17,9 +17,9 @@
 - `package.json` 的三个正式 root bindings 现直接调用 `scripts/project-gate/index.ts`；base 与 `:full` 选择 full，`:required` 选择 required，均不传 disabled tags。
 - 实施时重新发现 repository CI/workflow，结果为不存在；实际 caller audit、Gate logs 与 candidate/manifest evidence 由 [gate-handoff.md](gate-handoff.md) 记录。
 - `quality` 通过 `scripts/quality/index.ts` 运行 neutral observation/dogfood，与阻断 Gate 保持独立。
-- [归档 readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时证据；本 Change 使用当前 `readiness-evidence.md` 作为实施输入，并以 `gate-handoff.md` 承接完成后的实际状态。
+- [归档 readiness handoff](../build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时证据；本 Change 使用当前 `readiness-evidence.md` 作为实施输入，并以 `gate-handoff.md` 承接完成后的实际状态。
 
-本 Change 采用 [在公开 package 发布前完成项目门禁](../../docs/decisions/complete-project-gate-before-public-package-release.md) 的方向，并遵守 [程序化 API 是唯一正式产品执行入口](../../docs/decisions/use-programmatic-api-as-product-entry.md) 与 [项目持有 Definition 和 Gate](../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md)：repository CLI 由项目拥有，通过 public package API 调用 bound Definition/Run，不成为 Product CLI。现有长期判断已覆盖当前方向，无需新增 Decision Record。
+本 Change 采用 [在公开 package 发布前完成项目门禁](../../../docs/decisions/complete-project-gate-before-public-package-release.md) 的方向，并遵守 [程序化 API 是唯一正式产品执行入口](../../../docs/decisions/use-programmatic-api-as-product-entry.md) 与 [项目持有 Definition 和 Gate](../../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md)：repository CLI 由项目拥有，通过 public package API 调用 bound Definition/Run，不成为 Product CLI。现有长期判断已覆盖当前方向，无需新增 Decision Record。
 
 ## Goals / Non-Goals
 
@@ -76,7 +76,7 @@ Shared Product Task engine 与 foundation process helpers 由各自 consumer 决
 
 `gate-handoff.md` 记录实际 root/CI bindings、candidate identity、manifest、required/full evidence、partial invocation 边界、capacity、output/exit/log behavior、legacy audit、重新验证条件和 VCS rollback paths。
 
-该 handoff 的 binding/retirement 事实持续有效，直到正式入口再次改变；Gate/package inputs 变化只使 behavior/artifact evidence 需要刷新。后续 [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 通过 `gate-optimization-handoff.md` 保存 documentation-complete exact artifact 与最新 Gate evidence。Publish Change 必须同时消费两份 handoff。
+该 handoff 的 binding/retirement 事实持续有效，直到正式入口再次改变；Gate/package inputs 变化只使 behavior/artifact evidence 需要刷新。后续 [`align-project-gate-with-native-check-authoring`](../../align-project-gate-with-native-check-authoring/) 通过 `gate-optimization-handoff.md` 保存 documentation-complete exact artifact 与最新 Gate evidence。Publish Change 必须同时消费两份 handoff。
 
 ## Risks / Trade-offs
 
@@ -89,7 +89,7 @@ Shared Product Task engine 与 foundation process helpers 由各自 consumer 决
 
 ## Open Questions
 
-无。正式 targets、profile contract、caller 分类、删除门禁、测试证据与 handoff 已闭合；archive 仍需要当前用户单独授权。
+无。正式 targets、profile contract、caller 分类、删除门禁、测试证据与 handoff 已闭合；本 Change 已在用户授权后归档，归档状态由本目录位置与 Change Plan CLI 确认。
 
 ## Implementation Observations
 

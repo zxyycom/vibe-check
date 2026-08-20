@@ -8,7 +8,7 @@
 
 - [`docs/architecture.md`](../../docs/architecture.md#execution-boundary) 规定 Product 在 execution owner 中取得 Check duration、交给 private lifecycle feedback 与 final-snapshot `RunResult.checkDurations`；详细 process output 留在 project-owned logs，不与 Product progress stream 穿插。
 - [`docs/output.md`](../../docs/output.md#publication-lifecycle-and-evidence) 与 [`docs/output.md`](../../docs/output.md#readable-output-and-annotation) 规定 `RunResult` 承载运行/effect 状态，machine v3 artifact 不承载 effect status 或 per-Check timing；Product progress 是人读投影。
-- [`docs/script-tooling.md`](../../docs/script-tooling.md#候选-project-gate) 规定候选 Gate 在 candidate identity 校验后创建 `.log/project-gate/<unique>/`，每个实际启动并到达 transcript 边界的 eligible Check 写入独立 transcript；Product-owned progress 是唯一 shared progress stream。准备、导入或 identity 校验失败不创建 invocation log。
+- [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 规定 Project Gate 在 candidate identity 校验后创建 `.log/project-gate/<unique>/`，每个实际启动并到达 transcript 边界的 eligible Check 写入独立 transcript；Product-owned progress 是唯一 shared progress stream。准备、导入或 identity 校验失败不创建 invocation log。
 
 当前 Gate transcript 记录 Check/command、stdout、stderr、exit status、signal 与安全 error summary。只有真正启动并到达 transcript 写入步骤的 Check 有该文件；profile/tag `not-applicable` 与启动前取消不产生 transcript。一个 nonzero process exit 以不复制 child output 的 failure Record 引用其 log filename；transcript 写入失败映射为 Check unavailable。
 
@@ -16,7 +16,7 @@ Product 当前的 private lifecycle feedback 有 `prepared`、`started`、`settl
 
 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 另行交付首版 terminal Record presentation，并决定首版是否包含 live/intermediate feedback。Record/result presentation 不是 durable logging、Gate receipt 或 chronological event persistence，不触发本 Draft 的 receipt/event 准入条件。
 
-`effects.logs` 不是 durable log store：在启用时，它只将 publication summary 打印到 stdout 并报告该 effect 的状态。候选 Gate 明确禁用该 effect；它的 per-Check transcript 属于 Gate 自己的本地诊断 evidence。所有这些本地 logs 与 artifacts 均不是 release artifact。
+`effects.logs` 不是 durable log store：在启用时，它只将 publication summary 打印到 stdout 并报告该 effect 的状态。Project Gate 明确禁用该 effect；它的 per-Check transcript 属于 Gate 自己的本地诊断 evidence。所有这些本地 logs 与 artifacts 均不是 release artifact。
 
 ## Goals / Non-Goals
 
@@ -29,7 +29,7 @@ Product 当前的 private lifecycle feedback 有 `prepared`、`started`、`settl
 
 ### Non-Goals
 
-- 不修改候选 Project Gate、Product runtime、foundation、machine schema、console layout、CI/root binding 或 legacy workspace verifier。
+- 不修改正式 Project Gate、Product runtime、foundation、machine schema、console layout、CI/root binding 或 legacy workspace verifier。
 - 不把 `effects.logs` 扩展或重新解释为 durable logs。
 - 不在此 Draft 批准 `summary.json`、`events.ndjson`、generic logger/decorator、legacy-style aggregate log、`latest` pointer、默认 retention 或 cleanup。
 - 不从当前 stdout、final snapshot 或 transcript 集合合成并声称得到真实 chronological lifecycle history。

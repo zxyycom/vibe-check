@@ -8,7 +8,7 @@ Plan 形成时，Candidate-backed Project Gate 已具备完整门禁所需的 20
 
 本 Change 把能力证明与正式切换分开：Readiness 已在未修改 bindings 的同一工作树重新验证；Implementation 只负责重绑实际调用者、删除旧实现并从重绑后的入口验收。这样可以把功能缺口与接线错误分别定位，也不会为回退长期保留双实现。
 
-本 Change 落实 [在公开 package 发布前完成项目门禁](../../docs/decisions/complete-project-gate-before-public-package-release.md) 的交付顺序。Typed Record、result presentation、package documentation 与 native Check authoring 属于 cutover 后优化，不阻塞本 Change，也不构成恢复旧 verifier 的理由。
+本 Change 落实 [在公开 package 发布前完成项目门禁](../../../docs/decisions/complete-project-gate-before-public-package-release.md) 的交付顺序。Typed Record、result presentation、package documentation 与 native Check authoring 属于 cutover 后优化，不阻塞本 Change，也不构成恢复旧 verifier 的理由。
 
 ## Outcome
 
@@ -55,6 +55,6 @@ Plan 形成时，Candidate-backed Project Gate 已具备完整门禁所需的 20
 
 - Root 与自动化调用：`package.json`、`.codex/rules/vibe-check.rules`；`.codex/environments/*.toml` 与 `AGENTS.md` 作为保留 root names 的调用者接受审计。
 - Gate 与 legacy scripts：`scripts/project-gate/**`、`scripts/quality/project-gate/**`、`scripts/vibe-check-workspace/**` 及相邻 tests。
-- 稳定文档与测试证据：[`docs/script-tooling.md`](../../docs/script-tooling.md)、[`docs/navigation.md`](../../docs/navigation.md)、[`docs/testing.md`](../../docs/testing.md)、[`docs/decision-and-change-governance.md`](../../docs/decision-and-change-governance.md) 与 `docs/testing/cases/**`。
-- 当前交付导航：[`changes/active-change-portfolio.md`](../active-change-portfolio.md) 与 [`changes/vibe-check-package-and-gate-delivery.md`](../vibe-check-package-and-gate-delivery.md)。
-- Readiness 与 cutover 证据：本目录的 [readiness-evidence.md](readiness-evidence.md) 和 [gate-handoff.md](gate-handoff.md)；后续优化证据由 [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 拥有。
+- 稳定文档与测试证据：[`docs/script-tooling.md`](../../../docs/script-tooling.md)、[`docs/navigation.md`](../../../docs/navigation.md)、[`docs/testing.md`](../../../docs/testing.md)、[`docs/decision-and-change-governance.md`](../../../docs/decision-and-change-governance.md) 与 `docs/testing/cases/**`。
+- 当前交付导航：[`changes/active-change-portfolio.md`](../../active-change-portfolio.md) 与 [`changes/vibe-check-package-and-gate-delivery.md`](../../vibe-check-package-and-gate-delivery.md)。
+- Readiness 与 cutover 证据：本目录的 [readiness-evidence.md](readiness-evidence.md) 和 [gate-handoff.md](gate-handoff.md)；后续优化证据由 [`align-project-gate-with-native-check-authoring`](../../align-project-gate-with-native-check-authoring/) 拥有。
