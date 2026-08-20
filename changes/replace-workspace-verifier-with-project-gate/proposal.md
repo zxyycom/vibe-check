@@ -15,3 +15,5 @@
 本 Change 写出 <code>gate-handoff.md</code>，作为公开发布前的最终本地证据：实际 repository/CI bindings、覆盖类别、candidate identity、controls/output behavior、legacy reference audit 结果、重新验证条件和回退方式。
 
 它只在 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) 的 readiness handoff 与 fresh candidate evidence 同时成立时开始切换。完整阶段关系见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。
+
+当前 [readiness handoff](../build-candidate-backed-project-gate/gate-readiness-handoff.md) 已存在；本 Change 仍为 Draft，且该证据不授权更改正式 binding 或删除 legacy verifier。

@@ -21,6 +21,40 @@ Proves:
 - That consumer uses default-enabled Product progress with a real non-TTY stdout capture: human output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
+## Case AUX-PROJECT-GATE-CATALOG-001: 候选 Project Gate 的 catalog 与 controls 闭合
+Owner: `docs/script-tooling.md#候选-project-gate`
+Entities:
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate catalog and controls > keeps the independent 20-Check required/full profile contract closed`
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate catalog and controls > normalizes a profile plus repeatable disabled tags into opaque flags`
+- `bun|scripts/quality/project-gate/project-definition.test.ts|candidate Project Gate Definition > projects every catalog command into one process Check and named blocking policy`
+Proves:
+- 独立 catalog 的 20 个 Check 及 required/full membership 闭合；Definition 将每个 catalog 条目投影为一个 process Check，并以 `repository-gate` policy 选择相同的 Check-owned failure Record surface。
+- adapter 只接受合法 profile 与重复 disabled tag，并将其规范化为 opaque flags。
+
+## Case AUX-PROJECT-GATE-PROCESS-001: 候选 Project Gate 保留命令与 transcript 事实
+Owner: `docs/script-tooling.md#候选-project-gate`
+Entities:
+- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > reports a safe failure Record for nonzero exit without copying child output`
+- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > avoids starting N/A or cancelled work and maps process/log boundaries to unavailable`
+- `bun|scripts/quality/project-gate/process-check.test.ts|candidate Project Gate process Check > cancels an already-started process and preserves its transcript`
+Proves:
+- eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
+- 非零退出产生只含 command、exit、signal 与 log reference 的 Gate failure Record，随后得到 failed outcome。
+- profile/tag N/A 与启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
+- 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
+
+## Case AUX-PROJECT-GATE-ADAPTER-001: 候选 Project Gate 只闭合已准备的完整 invocation
+Owner: `docs/script-tooling.md#候选-project-gate`
+Entities:
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > requires every expected eligible and N/A final Check outcome`
+- `bun|scripts/project-gate/index.test.ts|candidate Project Gate adapter closure > maps completed closure failures to 1 and non-completed or malformed results to 2`
+Proves:
+- preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
+- exit `0` 要求每个 catalog Check 都取得预期的 passed 或 `not-applicable` outcome；completed closure failure 为 `1`，non-completed 或 malformed result 为 `2`。
+
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
@@ -70,3 +104,10 @@ Entities:
 - `bun|scripts/tools/foundation/test/foundation.test.ts|script foundation > runs child processes with plain text output environment`
 Proves:
 - 开发脚本启动子进程时使用 plain-text / no-color 环境，并返回可判断的 status、stdout 与 stderr。
+
+## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Foundation process runner 保留运行中取消事实
+Owner: `docs/script-tooling.md#工具来源`
+Entities:
+- `bun|scripts/tools/foundation/test/foundation.test.ts|script foundation > cancels an already-started child process`
+Proves:
+- 已运行 child 收到 caller 的 `cancelSignal` 后终止；其结果保留 `error`、`SIGTERM` 与 `status: null`，不被误判为成功。

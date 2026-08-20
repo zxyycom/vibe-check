@@ -87,7 +87,43 @@ describe("script foundation", () => {
     expect(asyncResult.status).toBe(0);
     expect(JSON.parse(asyncResult.stdout)).toEqual(plainTextEnvValues());
   });
+
+  test("cancels an already-started child process", async () => {
+    const cancellationRoot = fs.mkdtempSync(path.join(tmpdir(), "vibe-check-foundation-"));
+    const startedPath = path.join(cancellationRoot, "started");
+    const controller = new AbortController();
+    const cancelledProcess = runProcess({
+      args: [
+        "-e",
+        `require('node:fs').writeFileSync(${JSON.stringify(startedPath)}, 'started');setTimeout(() => process.exit(0), 5000)`
+      ],
+      cancelSignal: controller.signal,
+      command: process.execPath
+    });
+    try {
+      await waitForPath(startedPath, 2_000);
+      controller.abort();
+      const cancelledResult = await cancelledProcess;
+
+      expect(fs.existsSync(startedPath)).toBe(true);
+      expect(cancelledResult.error instanceof Error).toBe(true);
+      expect(cancelledResult.signal).toBe("SIGTERM");
+      expect(cancelledResult.status).toBe(null);
+    } finally {
+      controller.abort();
+      await cancelledProcess;
+      fs.rmSync(cancellationRoot, { force: true, recursive: true });
+    }
+  });
 });
+
+async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!fs.existsSync(filePath)) {
+    if (Date.now() >= deadline) throw new Error(`child process did not create marker: ${filePath}`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
 
 function childEnvProbeArgs(): string[] {
   const keys = Object.keys(plainTextEnvValues());

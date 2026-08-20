@@ -32,6 +32,7 @@ export type RunProcessSyncOptions = {
 
 export type RunProcessOptions = {
   readonly args?: readonly string[];
+  readonly cancelSignal?: AbortSignal;
   readonly command: string;
   readonly cwd?: string | URL;
   readonly env?: NodeJS.ProcessEnv;

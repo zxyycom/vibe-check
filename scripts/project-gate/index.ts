@@ -1,0 +1,196 @@
+#!/usr/bin/env bun
+
+import { mkdirSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import {
+  preparePackageCandidate,
+  type PreparedPackageCandidate
+} from "../package-candidate/index.ts";
+import { errorMessage, isNonArrayRecord } from "../tools/foundation/src/index.ts";
+
+import { PROJECT_GATE_CATALOG } from "./catalog.ts";
+import { projectGateEligibility } from "./eligibility.ts";
+import {
+  parseProjectGateArguments,
+  selectionFlags,
+  type ProjectGateSelection
+} from "./controls.ts";
+
+interface GateRunModule {
+  readonly resolvedEntryPath: string;
+  runProjectGate(input: {
+    readonly flags: readonly string[];
+    readonly invocationLogDirectory: string;
+  }): Promise<unknown>;
+}
+
+interface ProjectGateSteps {
+  readonly createInvocationLogDirectory: () => string;
+  readonly loadRunModule: () => Promise<GateRunModule>;
+  readonly prepareCandidate: () => Promise<PreparedPackageCandidate>;
+}
+
+const defaultSteps: ProjectGateSteps = Object.freeze({
+  createInvocationLogDirectory,
+  loadRunModule: async (): Promise<GateRunModule> =>
+    import("../quality/project-gate/project-run.ts"),
+  prepareCandidate: preparePackageCandidate
+});
+
+export const PROJECT_GATE_EXIT_STATUS = Object.freeze({
+  failed: 1,
+  passed: 0,
+  unavailable: 2
+} as const);
+
+export type ProjectGateExitStatus =
+  (typeof PROJECT_GATE_EXIT_STATUS)[keyof typeof PROJECT_GATE_EXIT_STATUS];
+
+/** Runs the candidate-backed repository Gate and returns its process exit status. */
+export async function runProjectGate(
+  arguments_: readonly string[] = process.argv.slice(2),
+  steps: ProjectGateSteps = defaultSteps
+): Promise<ProjectGateExitStatus> {
+  const parsed = parseProjectGateArguments(arguments_);
+  if (!parsed.ok) {
+    console.error(`project gate argument error: ${parsed.error}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+
+  let prepared: PreparedPackageCandidate;
+  try {
+    prepared = await steps.prepareCandidate();
+  } catch (error: unknown) {
+    console.error(`project gate candidate preparation failed: ${errorMessage(error)}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+
+  let runModule: GateRunModule;
+  try {
+    runModule = await steps.loadRunModule();
+  } catch (error: unknown) {
+    console.error(`project gate candidate import failed: ${errorMessage(error)}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+  if (runModule.resolvedEntryPath !== prepared.resolvedEntryPath) {
+    console.error(
+      "project gate candidate import failed: resolved package entry did not match preparation"
+    );
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+
+  let invocationLogDirectory: string;
+  try {
+    invocationLogDirectory = steps.createInvocationLogDirectory();
+  } catch (error: unknown) {
+    console.error(`project gate log setup failed: ${errorMessage(error)}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+  console.log(`project gate candidate: ${prepared.candidateVersion}`);
+  console.log(`project gate selection: ${selectionSummary(parsed.value)}`);
+  try {
+    const result = await runModule.runProjectGate({
+      flags: selectionFlags(parsed.value),
+      invocationLogDirectory
+    });
+    const status = projectGateExitStatus(result, parsed.value);
+    console.log(`project gate logs: ${invocationLogDirectory}`);
+    console.log(`project gate result: ${resultSummary(status)}`);
+    return status;
+  } catch (error: unknown) {
+    console.error(`project gate execution failed: ${errorMessage(error)}`);
+    console.error(`project gate logs: ${invocationLogDirectory}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+}
+
+export function projectGateExitStatus(
+  result: unknown,
+  selection: ProjectGateSelection
+): ProjectGateExitStatus {
+  if (!isCompletedResult(result)) return PROJECT_GATE_EXIT_STATUS.unavailable;
+  if (result.definitionWarnings.length > 0 || result.effects.progress.status !== "succeeded")
+    return PROJECT_GATE_EXIT_STATUS.failed;
+  if (result.decision.gate.status !== "passed") return PROJECT_GATE_EXIT_STATUS.failed;
+  return hasExpectedEligibility(result.snapshot.checks, selection)
+    ? PROJECT_GATE_EXIT_STATUS.passed
+    : PROJECT_GATE_EXIT_STATUS.failed;
+}
+
+function hasExpectedEligibility(
+  checks: readonly unknown[],
+  selection: ProjectGateSelection
+): boolean {
+  if (checks.length !== PROJECT_GATE_CATALOG.length) return false;
+  const outcomes = new Map<string, unknown>();
+  for (const check of checks) {
+    if (
+      !isNonArrayRecord(check) ||
+      typeof check.checkId !== "string" ||
+      outcomes.has(check.checkId)
+    )
+      return false;
+    outcomes.set(check.checkId, check.outcome);
+  }
+  return PROJECT_GATE_CATALOG.every((descriptor) => {
+    const outcome = outcomes.get(descriptor.checkId);
+    const eligibility = projectGateEligibility(descriptor, selection);
+    if (eligibility.eligible) {
+      return (
+        isNonArrayRecord(outcome) && outcome.status === "completed" && outcome.verdict === "passed"
+      );
+    }
+    return (
+      isNonArrayRecord(outcome) &&
+      outcome.status === "not-applicable" &&
+      isNonArrayRecord(outcome.reason) &&
+      outcome.reason.code === eligibility.reasonCode
+    );
+  });
+}
+
+function isCompletedResult(value: unknown): value is Readonly<{
+  readonly definitionWarnings: readonly unknown[];
+  readonly decision: Readonly<{ readonly gate: Readonly<{ readonly status: unknown }> }>;
+  readonly effects: Readonly<{ readonly progress: Readonly<{ readonly status: unknown }> }>;
+  readonly kind: "completed";
+  readonly snapshot: Readonly<{ readonly checks: readonly unknown[] }>;
+}> {
+  return (
+    isNonArrayRecord(value) &&
+    value.kind === "completed" &&
+    Array.isArray(value.definitionWarnings) &&
+    isNonArrayRecord(value.decision) &&
+    isNonArrayRecord(value.decision.gate) &&
+    isNonArrayRecord(value.effects) &&
+    isNonArrayRecord(value.effects.progress) &&
+    isNonArrayRecord(value.snapshot) &&
+    Array.isArray(value.snapshot.checks)
+  );
+}
+
+export function createInvocationLogDirectory(): string {
+  const invocationId = `${new Date().toISOString().replaceAll(":", "-")}-${process.pid}-${crypto.randomUUID()}`;
+  const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+  const directory = resolve(repositoryRoot, ".log", "project-gate", invocationId);
+  mkdirSync(directory, { recursive: true });
+  return directory;
+}
+
+function resultSummary(status: ProjectGateExitStatus): string {
+  if (status === PROJECT_GATE_EXIT_STATUS.passed) return "passed";
+  if (status === PROJECT_GATE_EXIT_STATUS.failed) return "failed";
+  return "unavailable";
+}
+
+function selectionSummary(selection: ProjectGateSelection): string {
+  const disabledTags =
+    selection.disabledTags.length === 0 ? "none" : selection.disabledTags.join(",");
+  return `profile=${selection.profile}; disabled-tags=${disabledTags}`;
+}
+
+if (import.meta.main) {
+  process.exitCode = await runProjectGate();
+}

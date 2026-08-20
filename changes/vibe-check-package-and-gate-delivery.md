@@ -41,11 +41,11 @@
 | [add-project-run-invocation-controls](archive/add-project-run-invocation-controls/)（archived） | Product Run 的 immutable project invocation input。 | 当前 owner 已实现并验证的 string flags；Gate build 可据此实现 Check-local eligibility。 | CLI grammar、tag vocabulary、scheduler selection、renderer。 |
 | [add-project-run-lifecycle-feedback](archive/add-project-run-lifecycle-feedback/)（archived） | Product Run 的 TTY/plain progress effect 与 final per-Check duration summary。 | 当前 owner 已实现并验证的 Product-owned progress、duration summary 与 effect failure isolation；Gate build 可直接启用。 | Project process logs、exit mapping、canonical performance policy 或公共 observer/renderer API。 |
 | [establish-npm-package-candidate-and-quality-dogfood](archive/establish-npm-package-candidate-and-quality-dogfood/)（archived） | API-only candidate、quality dogfood 与 exact-tarball proof。 | [<code>candidate-handoff.md</code>](archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 记录证据形态、旧 identity 与重新验证条件；Gate build 必须产生 current identity。 | 完整 Gate、正式入口切换、registry publish。 |
-| [build-candidate-backed-project-gate](build-candidate-backed-project-gate/) | 可并行运行的完整 repository Gate consumer。 | <code>gate-readiness-handoff.md</code>，记录类别映射、candidate、controls/feedback 集成和对照证据。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
+| [build-candidate-backed-project-gate](build-candidate-backed-project-gate/) | 可并行运行的完整 repository Gate consumer。 | [<code>gate-readiness-handoff.md</code>](build-candidate-backed-project-gate/gate-readiness-handoff.md) 是当前 readiness 输入；其中的 revalidation conditions 决定下游何时可使用它。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
 | [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 将已验证 Gate 切换为唯一正式门禁，并退役旧 verifier。 | <code>gate-handoff.md</code>，记录实际 repository/CI bindings、无 disabled-tag required/full 证据、legacy reference audit 结果和重新验证条件。 | 新增 Gate 功能、公共 Run contract、package build、registry publish。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 经过单独授权的公开 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装验证。 | 重建 package、补齐 Gate 功能或替代本地 cutover evidence。 |
 
-Archived candidate handoff 已存在，但其中 artifact identity 不是 current readiness 的替代品。`gate-readiness-handoff.md` 与 `gate-handoff.md` 只有在各自 active Change 的实际验证完成后才应产生；表格中的计划输出不能被当作已完成事实。
+Archived candidate handoff 不替代当前 readiness。当前 [readiness handoff](build-candidate-backed-project-gate/gate-readiness-handoff.md) 只在其 revalidation conditions 仍成立时可供 cutover 消费；`gate-handoff.md` 尚未产生。
 
 ## Timing / telemetry 边界
 

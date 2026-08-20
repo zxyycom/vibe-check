@@ -119,7 +119,9 @@ foundation 的通用 helper 提供确定性归一与显式边界失败：`parseP
 parser 拒绝无效输入，path helper 产生确定性归一结果；`walkFiles` 返回相对传入根目录、
 slash-normalized 且稳定排序的路径；无法读取目录，或 `readJsonFile` 无法读取/解析目标文件时，
 错误包含目标路径；`writeJsonFile` 和 `toNdjson` 无法序列化时分别标识目标文件或 record；process
-failure 对 consumer 保持可观察。这些是开发脚本 helper 契约，不替代 Product 的 scan-scope 契约。
+failure 对 consumer 保持可观察。异步 `runProcess` 将 caller 的 `cancelSignal` 传给 child；已启动的 child
+被取消后，结果仍保留 `error`、`signal`（测试覆盖 `SIGTERM`）与 `status: null`，不能被当作成功。这些是开发
+脚本 helper 契约，不替代 Product 的 scan-scope 契约。
 
 foundation 的 `typecheck`、`format`、`lint` 和 `test` 在 package own cwd 中启动，并把它的 scope
 传给仓库 `scripts/development/**` owner；它们都以 Bun 启动，不在 package manifest 保存 `cd`、mise
@@ -265,6 +267,50 @@ observation；需要 gate 的项目应在 Project Definition 中声明 named pol
 | `quality` | 运行完整 repository definition；quality records 非阻断 |
 
 默认 output 写入 `artifacts/vibe-check-quality/`，并作为 generated local state 忽略。
+
+## 候选 Project Gate
+
+`scripts/project-gate/index.ts` 是候选 Project Gate 的 adapter。它当前没有正式 root
+binding；正式门禁仍是 legacy workspace verifier。稳定的 Gate 行为由本节拥有，cutover 状态、
+证据与授权边界分别见 [readiness handoff](../changes/build-candidate-backed-project-gate/gate-readiness-handoff.md)
+和 [cutover Change](../changes/replace-workspace-verifier-with-project-gate/)。
+
+adapter 先调用唯一的 `preparePackageCandidate()`。准备成功后，才动态加载
+`scripts/quality/project-gate/project-run.ts`；private consumer 解析的 `vibe-check` entry 必须与
+准备结果的 installed entry 完全一致。准备、导入或 identity 校验失败时，adapter 不创建 invocation
+log、不运行 Gate，并以 exit `2` 结束。
+
+`scripts/project-gate/catalog.ts` 独立拥有 20 个 process Check 及其 command、dependency、environment、
+profile 和 tag；它不复用 legacy verifier 的 authoring data。`required` 执行 14 个 Check，`full`
+执行 19 个 Check；不传 profile 时为 `full`：
+
+```bash
+bun scripts/project-gate/index.ts [--profile required|full] [--disable-tag <tag>]...
+```
+
+`--disable-tag` 只用于本地 partial invocation。adapter 将 profile 和去重、排序后的 disabled tags
+写为本 adapter 的 opaque Run flags；每个 Check 在启动前据此返回执行结果或 profile/tag
+`not-applicable` 结果。正式 repository/CI 的无-disabled-tag `required` / `full` 是 cutover 的调用
+契约，不是 adapter 的运行时限制：adapter 不读取 ambient CI，local partial invocation 仍可在任何 host
+运行。
+
+identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<unique>/`。eligible Check 在自己的
+transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；Product-owned progress 是唯一
+共享进度流。零退出且 transcript 写入成功为 passed；非零退出产生不含 child output 的 Check-owned failure Record
+并为 failed。已运行 command 收到取消时，adapter 先保存其 transcript，再映射为 `execution-cancelled`
+unavailable；未启动、无法取得 exit facts 或无法写入 transcript 也为 unavailable。Definition 使用
+`repository-gate` named policy 和固定 scheduler capacity `4`。
+
+adapter 仅在 completed result 无 definition warning、progress effect 成功、named policy passed，且全部
+Check outcome 与当前 eligibility 一致时返回 `0`；final result 未闭合时返回 `1`；参数、候选准备/导入/identity
+或 execution failure 时返回 `2`。
+
+最窄验证：
+
+```bash
+bun test scripts/project-gate/index.test.ts scripts/quality/project-gate/project-definition.test.ts scripts/quality/project-gate/process-check.test.ts
+bun run test-evidence -- check --root .
+```
 
 开发期 workspace 验证入口是：
 

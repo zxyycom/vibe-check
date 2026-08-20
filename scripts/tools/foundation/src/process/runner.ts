@@ -26,6 +26,7 @@ export function runProcessSync(options: RunProcessSyncOptions): ProcessResult {
 export function runProcess(options: RunProcessOptions): Promise<ProcessResult> {
   const {
     args = [],
+    cancelSignal,
     command,
     cwd,
     env,
@@ -36,6 +37,7 @@ export function runProcess(options: RunProcessOptions): Promise<ProcessResult> {
   } = options;
 
   return execa(command, args, {
+    cancelSignal,
     cwd,
     env: plainTextProcessEnv({ env }),
     maxBuffer,
