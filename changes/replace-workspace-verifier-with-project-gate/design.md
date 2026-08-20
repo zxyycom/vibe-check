@@ -1,62 +1,96 @@
 # Design
 
-本 Design 只处理 repository Gate 的正式切换与旧 verifier 退役；功能建设、public Run interaction 和 package candidate 分别由前置 Change 负责。
+本 Design 以单一实现 hard cut 为主线：先使用已闭合的 Readiness evidence，再重定向正式 bindings，验收后删除 legacy verifier，最后交付 binding/retirement handoff。
 
 ## Context
 
-[build-candidate-backed-project-gate](../archive/build-candidate-backed-project-gate/) 已提供形成时 <code>gate-readiness-handoff.md</code>：candidate identity、20-Check 类别映射、profile/tag/N/A semantics、固定 capacity、progress/log/exit behavior，以及 exact-tarball 与同 revision 对照证据。该 handoff 是 cutover 的能力输入；切换前必须按其 revalidation conditions 在当前 revision 重新准备 matching candidate，并重跑 focused、legacy/new required/full 与 partial-control evidence。
+### 术语
 
-[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/)、typed Record、result presentation 与 package documentation 都是 cutover 后优化。它们不是当前 Gate 行为正确性的前置；完成后必须刷新发布所需的 exact-artifact/Gate evidence，但不得因此恢复旧 verifier 或重新建立双入口。
+- **Project Gate**：`scripts/project-gate/index.ts` 及其通过 `scripts/quality/project-gate/**` 调用的 project-owned Definition/Run。
+- **Legacy verifier**：`scripts/vibe-check-workspace/**` 下的 scripts-only implementation。
+- **正式 root bindings**：`package.json` 中 `verify:vibe-check-workspace`、`:required` 与 `:full` 三个 scripts。
+- **Hard cut**：正式 bindings 直接改到 Project Gate，并删除 legacy verifier；命令名称不定义 implementation identity。
 
-当前 workspace verifier 是独立 scripts-only implementation，且其命令、CI/workflow、文档或开发者脚本可能有多处引用。本 Change 的风险在于正确切换每个权威入口并删除旧 implementation，而不重新解释每个 Check 的功能结果。
+### 当前事实与输入
+
+- [Cutover readiness evidence](readiness-evidence.md) 已在 `HEAD 0b382d8bca6fc17541e79f4444400354df6c739b` 完成 candidate、manifest、focused tests、Test Evidence 与 same-worktree legacy/new profile acceptance；Readiness tasks 0.1–0.4 已闭合。
+- `package.json` 的正式 root bindings 仍调用 `scripts/vibe-check-workspace/verify.ts`；Project Gate 已存在但尚未成为正式 root target。
+- 当前仓库未发现 CI workflow；Implementation 仍需在写 binding 前重新发现，最终 handoff 记录实际结果。
+- `quality` 通过 `scripts/quality/index.ts` 运行 neutral observation/dogfood，与阻断 Gate 保持独立。
+- [归档 readiness handoff](../archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时证据；本 Change 只以当前 `readiness-evidence.md` 作为直接实施输入。
+
+本 Change 采用 [在公开 package 发布前完成项目门禁](../../docs/decisions/complete-project-gate-before-public-package-release.md) 的方向，并遵守 [程序化 API 是唯一正式产品执行入口](../../docs/decisions/use-programmatic-api-as-product-entry.md) 与 [项目持有 Definition 和 Gate](../../docs/decisions/use-user-owned-definition-for-observation-and-gates.md)：repository CLI 由项目拥有，通过 public package API 调用 bound Definition/Run，不成为 Product CLI。现有长期判断已覆盖当前方向，无需新增 Decision Record。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 审阅归档 readiness handoff，并在当前 revision 重新证明必要类别、matching exact package、partial controls、progress/output 和 exit behavior 已可作为正式 Gate 使用。
-- 将仓库 root scripts、CI/workflow 与文档接线到同一个 Project Gate implementation；命令名称或 alias 只是接线细节，不是本 Change 的决策，保留的 wrapper 只能薄转发。
-- 正式 repository/CI bindings 调用无 disabled tags 的 required/full；这是调用契约，不是 CI host 上的运行时禁令，local adapter 保留显式 partial invocation。
-- 更新全部 root script、CI/workflow、文档与测试中的 legacy verifier 引用；确认引用为零后删除旧模块，并保留清晰的 VCS rollback 边界。
-- 从实际接线后的 root/CI bindings 运行无 disabled tags 的 required/full，并写出 <code>gate-handoff.md</code> 给 release Change。
+- 让所有正式 root bindings 直接调用同一个 Project Gate adapter。
+- 迁移绕过 root manifest 的 legacy callers、permissions 与 current-owner 描述。
+- 从重绑后的 required/full 入口验收后删除 legacy implementation、tests 与 Cases。
+- 保留 root command names 与 `quality` dogfood root，避免把无关命名或 observation 变更混入 cutover。
+- 生成供后续优化与发布 Change 消费的 binding/retirement handoff。
 
 ### Non-Goals
 
-- 不新增或重写 Check callback、类别映射、Process adapter、profile/tag grammar、observer/renderer、scheduler capacity 或 package build。
-- 不更改 invocation controls、lifecycle feedback、timestamp/duration policy、Product CLI 或 public package exports。
-- 不访问 npm registry、凭据或执行 npm publish；也不以 cutover 补偿 readiness evidence 的缺口。
+- 不改变 Gate catalog、Check behavior、selection flags、transcript、policy、progress、capacity 或 `0/1/2` exit semantics。
+- 不增加 root command vocabulary，也不给正式 root scripts 暴露 `--disable-tag`；local direct adapter 继续支持 partial diagnostics。
+- 不修改 `quality` 的 Definition/Run 或把它合并进 Gate contract。
+- 不访问 registry/credentials、不发布 package，也不提前实施 Gate authoring、Record、presentation 或 documentation 优化。
 
 ## Decisions
 
-### 1. Readiness evidence 是切换的硬前置
+### 1. Readiness evidence 是 binding 写入门禁
 
-归档 readiness handoff 与当前 revision revalidation 必须共同证明类别闭合、artifact identity、profile/tag/N/A、progress/log/exit 和无 disabled-tag required/full readiness，才能更改正式 bindings 或删除 verifier。若当前 Gate 行为与形成时能力不一致，工作返回 Gate implementation 修复；不把 typed Record、result presentation、package documentation 或 authoring ergonomics 当成 cutover 阻塞。
+Tasks 0.1–0.4 的已勾选状态由 [readiness-evidence.md](readiness-evidence.md) 支持。开始 1.1 前，只检查 evidence 的重新验证条件：candidate input fingerprint 或 15-file Gate manifest scope 任一内容变化时，先重跑 0.2–0.4；仅 Change artifacts 或 Git commit identity 变化不触发重跑。
 
-### 2. 只保留一个权威 implementation
+Readiness failure 必须返回实际 Gate/package owner，不能用后续优化或 legacy fallback 补偿。正式 bindings 写入后使用 Verification tasks 的 actual-root evidence，不用 pre-cutover evidence 代替 cutover 验收。
 
-正式 root scripts、CI 和文档均指向 Project Gate。命令名称或 alias 不承载产品语义，也不是本 Change 的待决选择；无论沿用还是调整名称，所有保留调用都必须到达同一 implementation，不能继续维护第二套 command tree、profile selection 或 result interpretation。
+### 2. Root names 保留，targets 直接替换
 
-### 3. 删除必须可核对且可回退
+| Root script | 唯一 target | Profile contract |
+| --- | --- | --- |
+| `verify:vibe-check-workspace` | `bun scripts/project-gate/index.ts` | adapter default `full` |
+| `verify:vibe-check-workspace:required` | `bun scripts/project-gate/index.ts --profile required` | `required`，无 disabled tags |
+| `verify:vibe-check-workspace:full` | `bun scripts/project-gate/index.ts --profile full` | `full`，无 disabled tags |
 
-先更新全部 root script、CI/workflow、文档和测试中对旧 verifier 的引用，再确认旧 verifier 的引用为零；只有此时才删除旧模块及其无调用者的测试或说明。回退是恢复该 Change 的 source/binding references，不是让新旧实现长期并行成为两个门禁真相。
+这些 names 是 repository wiring。重绑后它们不经过 legacy adapter，因此不是 compatibility aliases。Command rename 不属于本 Change 的前置或完成标准。
 
-### 4. Cutover handoff 拥有 binding，后续 handoff 拥有最新行为证据
+### 3. Caller audit 依据 target 和 source path，不依据 root name
 
-<code>gate-handoff.md</code> 记录实际 repository/CI bindings、cutover candidate identity、覆盖类别、无 disabled-tag 正式调用契约、固定 capacity、output/exit/log evidence、刻意未继承项、legacy reference audit 结果与重新验证条件。后续 Gate/package inputs 变化不会撤销 binding 与 legacy retirement，但会使其中的 behavior/artifact evidence 需要刷新。
+必须迁移：root manifest target、direct legacy source callers、允许执行旧 source path 的 Codex rules、稳定 owner 与 Case ledger 中的 current implementation 描述。无需迁移：只调用保留 root names 的 environment、agent instructions 和 active Change，因为更新 manifest 后它们自动到达 Project Gate。
 
-[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 在全部首版优化完成后写出 <code>gate-optimization-handoff.md</code>。发布 Change 必须同时消费前者的 binding 事实与后者的 current exact-artifact/Gate evidence，不得用 registry publish 补齐任何本地缺口。
+Reference audit 分别证明：全部正式 root targets 指向 Project Gate；current direct-call/import 对 `scripts/vibe-check-workspace/**` 为零；legacy source tree 为零；形成时/归档 references 具有非当前语境。`verify:vibe-check-workspace*` 字符串存在本身不表示 legacy implementation 残留。
 
-### 5. CI 完整性是调用契约，不是运行时禁令
+### 4. 新 binding 验收后删除 legacy implementation
 
-正式 repository root scripts 与 CI/workflow 必须调用无 disabled tags 的 required/full，因此正式配置不能关闭某些 Check。这是调用契约，不是 CI host 上的行为禁令：Gate adapter 不读取 ambient `CI` 标记，也不因 local partial command 在 CI host 上运行而拒绝它；contract review 和 workflow/root-script evidence 证明正式调用没有传 disabled tags。
+先完成 root target 与 direct caller 迁移，再从实际 root bindings 运行 required/full。通过后确认 legacy tree 外没有 runtime/test imports，然后删除整个 `scripts/vibe-check-workspace/**`、专属 tests 和只证明旧 adapter/profile 的 Cases。
+
+Shared Product Task engine 与 foundation process helpers 由各自 consumer 决定是否保留。VCS 回退使用 Plan `baseCommit` 与精确 path set 恢复 bindings、references 和 legacy tree；回退不通过长期保留双实现实现。
+
+### 5. 测试证据随当前 owner 切换
+
+测试正文或节点、Case Owner/Proves、删除的 legacy entities 按 `test-evidence-review` 流程维护。现有 candidate Gate Cases 改为证明正式 Project Gate；legacy workspace adapter/profile Cases 随实现删除。Focused tests 证明 deterministic failure boundaries，actual root required/full 证明最终接线，两类证据不能互相替代。
+
+### 6. Cutover 与 optimization evidence 分层
+
+`gate-handoff.md` 记录实际 root/CI bindings、candidate identity、manifest、required/full evidence、partial invocation 边界、capacity、output/exit/log behavior、legacy audit、重新验证条件和 VCS rollback paths。
+
+该 handoff 的 binding/retirement 事实持续有效，直到正式入口再次改变；Gate/package inputs 变化只使 behavior/artifact evidence 需要刷新。后续 [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) 通过 `gate-optimization-handoff.md` 保存 documentation-complete exact artifact 与最新 Gate evidence。Publish Change 必须同时消费两份 handoff。
 
 ## Risks / Trade-offs
 
-- **隐藏调用者：** 未发现的 package script、CI 或文档引用会留下双入口；需要 repo-wide reference audit。
-- **artifact 过期：** cutover 前 inputs 变化时必须按归档 handoff 重新准备并重跑对照；cutover 后 inputs 变化只要求刷新发布证据，不恢复旧 verifier。
-- **删除过早：** 不完整 category mapping 会失去已知门禁；删除前必须从完成接线后的 bindings 通过 required/full 验证。
-- **转发漂移：** 保留的 command wrapper 若自行解析参数或生成结果，会重新长成第二个 verifier；只允许薄转发。
+- **Readiness drift：** candidate inputs 或 15-file manifest scope 在 1.1 前变化时，按 evidence 条件重跑 0.2–0.4。
+- **Hidden direct caller：** 某些配置可能绕过 root manifest；实施时同时审计 package target、source path、imports 与 executable permissions。
+- **CI 事实变化：** Readiness audit 未发现 workflow；Implementation 重新发现并在 handoff 记录实际状态。
+- **Premature deletion：** 只有重绑后的 required/full 通过且 legacy tree 外 imports 为零，才删除旧 tree。
+- **Name/identity confusion：** 保留的 `verify:vibe-check-workspace*` 必须直接指向 Project Gate，不能加载或 fallback 到旧 tree。
+- **Evidence drift：** tests 或 Case authority 变化必须与 implementation owner 切换同步，并通过 strict Test Evidence。
 
 ## Open Questions
 
-无。命令名称或 alias 不是本 Change 的决策；正式 repository/CI 调用必须使用无 disabled tags 的 required/full；cutover 验收从实际接线后的 root/CI bindings 运行这两个 profile；更新全部 root script、CI/workflow、文档与测试引用并确认旧 verifier 零引用后删除旧模块。
+无。Readiness 已闭合，长期方向、正式 targets、profile contract、caller 分类、删除门禁、测试证据与 handoff owner 均已确定；下一项可执行任务是 1.1。
+
+## Implementation Observations
+
+Readiness 形成时的 exact candidate、manifest、命令结果与重新验证条件只在 [readiness-evidence.md](readiness-evidence.md) 完整记录；本 Design 不复制该证据。
