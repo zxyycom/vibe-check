@@ -8,13 +8,15 @@ import {
 } from "../tools/foundation/src/process.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const scanEntryPath = fileURLToPath(new URL("./scan.ts", import.meta.url));
+const qualityEntryPath = fileURLToPath(
+  new URL("../package-candidate/run-quality.ts", import.meta.url)
+);
 
 function runRepositoryQuality(): number {
   try {
     // Resolve `bun` inside mise: process.execPath may point to an ambient Bun installation.
     const result = runProcessSync({
-      args: ["exec", "--", "bun", scanEntryPath],
+      args: ["exec", "--", "bun", qualityEntryPath],
       command: "mise",
       cwd: repositoryRoot
     });

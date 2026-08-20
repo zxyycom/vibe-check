@@ -14,4 +14,4 @@ Entities:
 Proves:
 - The public authoring surface contains four operations and three ordinary complete default Check values, not a configuration adjustment or operational-dependency API.
 - Recursive executable and information-only Checks normalize independently; exact collections clear inherited values only deliberately through `inherit`, and callback functions stay outside declarative fingerprints.
-- Malformed node data, incomplete default option branches, invalid scanner values, unknown default code areas, and unmarked inheritance values fail closed. Native object spread creates a mutable candidate before Definition validation without mutating shared defaults.
+- Malformed node data, incomplete default option branches, invalid scanner values, unknown default code areas, and unmarked inheritance values fail closed. Native object spread creates a mutable candidate before Definition validation without mutating shared defaults; the duplication default keeps its portable marker across copied Definition fingerprints.

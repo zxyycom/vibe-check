@@ -23,6 +23,12 @@ export const checks = defineChecks([
     type: PROFILE_REQUIRED,
     tasks: [
       {
+        id: "candidate-preparation",
+        label: "local package candidate preparation",
+        command: "mise",
+        args: ["exec", "--", "bun", "scripts/package-candidate/prepare.ts"]
+      },
+      {
         id: "typecheck-product",
         label: "TypeScript product typecheck and import boundary",
         command: "bun",
@@ -38,7 +44,8 @@ export const checks = defineChecks([
         id: "typecheck-scripts",
         label: "TypeScript script typecheck",
         command: "bun",
-        args: ["scripts/development/typecheck.ts", "scripts"]
+        args: ["scripts/development/typecheck.ts", "scripts"],
+        dependsOn: ["candidate-preparation"]
       },
       {
         id: "lint-scripts",
@@ -65,7 +72,13 @@ export const checks = defineChecks([
         env: {
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
-        dependsOn: ["typecheck-product", "lint-product", "typecheck-scripts", "lint-scripts"],
+        dependsOn: [
+          "candidate-preparation",
+          "typecheck-product",
+          "lint-product",
+          "typecheck-scripts",
+          "lint-scripts"
+        ],
         allowOutput: [...qualityWarningOutput],
         warningOutput: [/^Quality check status: warning$/m]
       },
@@ -92,6 +105,7 @@ export const checks = defineChecks([
             label: "semantic Case ledger",
             command: "bun",
             args: ["scripts/test-evidence/index.ts", "check", "--root", "."],
+            dependsOn: ["candidate-preparation"],
             ignoreOutput: [
               /^Test Case check passed: \d+ current test entities \(\d+ Bun\); \d+ mapped by \d+ semantic Cases across \d+ topics\.$/
             ]
@@ -173,6 +187,7 @@ export const checks = defineChecks([
           VIBE_CHECK_QUALITY_TIMINGS: "1"
         },
         dependsOn: [
+          "candidate-preparation",
           "test-evidence",
           "typecheck-product",
           "lint-product",

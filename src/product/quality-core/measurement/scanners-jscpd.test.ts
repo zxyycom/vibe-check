@@ -5,6 +5,11 @@ import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import {
+  DEFAULT_JSCPD_COMMAND,
+  readJscpdBinTarget,
+  resolveJscpdCommand
+} from "./scanners/jscpd/default-command.ts";
 import { scanWithJscpd } from "./scanners/jscpd/scanner.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
 import { TEST_SCANNER_DEPENDENCIES } from "../test/config.ts";
@@ -93,10 +98,21 @@ describe("quality jscpd wrapper failure projection", () => {
 
     assert.equal(result.available, false);
     assert.equal(result.reason, "tool-unavailable");
+    assert.equal(result.source, "repository devDependency");
     assert.match(result.error ?? "", /jscpd dependency binary unavailable/);
+
+    const missingBinTargetPath = join(REPO_ROOT, `docnav-missing-jscpd-bin-${process.pid}.js`);
+    const missingBinTarget = await checkJscpd(REPO_ROOT, {
+      args: [missingBinTargetPath],
+      availabilityArgs: [missingBinTargetPath, "--version"],
+      executable: process.execPath,
+      maxConcurrency: 1
+    });
+    assert.equal(missingBinTarget.available, false);
+    assert.equal(missingBinTarget.reason, "execution-error");
   });
 
-  it("keeps real duplicate findings non-fatal and normalizes jscpd JSON", () => {
+  it("keeps real duplicate findings non-fatal and normalizes jscpd JSON", async () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-jscpd-real-"));
     const duplicateSource = [
       "export function duplicatedExample(value: number): number {",
@@ -120,6 +136,28 @@ describe("quality jscpd wrapper failure projection", () => {
     writeFileSync(join(tempDir, "b.ts"), duplicateSource, "utf8");
 
     try {
+      const packageManifestPath = fileURLToPath(import.meta.resolve("jscpd/package.json"));
+      const declaredBinTarget = readJscpdBinTarget(packageManifestPath);
+      assert.notEqual(DEFAULT_JSCPD_COMMAND.executable, process.execPath);
+      assert.deepEqual(DEFAULT_JSCPD_COMMAND.args, []);
+      assert.deepEqual(DEFAULT_JSCPD_COMMAND.availabilityArgs, ["--version"]);
+      const resolvedCommand = resolveJscpdCommand(DEFAULT_JSCPD_COMMAND);
+      assert.equal(resolvedCommand.kind, "resolved");
+      if (resolvedCommand.kind === "resolved") {
+        assert.equal(resolvedCommand.command.executable, process.execPath);
+        assert.equal(resolvedCommand.command.args[0], declaredBinTarget);
+        assert.deepEqual(resolvedCommand.command.availabilityArgs, [
+          declaredBinTarget,
+          "--version"
+        ]);
+      }
+      const availability = await checkJscpd(tempDir, {
+        ...DEFAULT_JSCPD_COMMAND,
+        maxConcurrency: 1
+      });
+      assert.equal(availability.available, true);
+      assert.equal(availability.source, "package dependency");
+
       const result = scanWithJscpd({
         files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
         cwd: tempDir,

@@ -2,7 +2,7 @@
 
 import { run } from "./project-run.ts";
 
-async function runScan(): Promise<number> {
+export async function runScan(): Promise<number> {
   const result = await run();
   if (result.kind === "completed") return 0;
   return result.kind === "configuration" ? 3 : 2;

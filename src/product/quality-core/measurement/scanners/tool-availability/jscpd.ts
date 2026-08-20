@@ -1,6 +1,7 @@
 import type { DuplicationScannerDependency } from "../../../../scanner-dependencies/index.ts";
 import type { ToolAvailability } from "../../../model/schema.ts";
 import { isMissingExplicitCommand } from "../command-path.ts";
+import { isDefaultJscpdCommand, resolveJscpdCommand } from "../jscpd/default-command.ts";
 import { parseJscpdVersionOutput } from "../jscpd/scanner.ts";
 import {
   processFailure,
@@ -13,66 +14,98 @@ export async function checkJscpd(
   rootDir: string,
   dependency: DuplicationScannerDependency
 ): Promise<ToolAvailability> {
-  if (isMissingExplicitCommand(dependency.executable)) {
-    return unavailableJscpd("jscpd dependency binary unavailable", "tool-unavailable");
+  const resolved = resolveJscpdCommand(dependency);
+  if (resolved.kind === "unavailable") {
+    return unavailableJscpd(resolved.error, "tool-unavailable", dependency);
+  }
+  if (isMissingExplicitCommand(resolved.command.executable)) {
+    return unavailableJscpd("jscpd dependency binary unavailable", "tool-unavailable", dependency);
   }
 
   try {
     const result = await runToolCommand(
       rootDir,
-      dependency.executable,
-      dependency.availabilityArgs
+      resolved.command.executable,
+      resolved.command.availabilityArgs
     );
-    return jscpdAvailabilityFromVersionResult(result);
+    return jscpdAvailabilityFromVersionResult(result, dependency);
   } catch (error: unknown) {
     return error instanceof Error
-      ? jscpdProcessErrorAvailability(error)
-      : unavailableJscpd("unknown error", "execution-error");
+      ? jscpdProcessErrorAvailability(error, dependency)
+      : unavailableJscpd("unknown error", "execution-error", dependency);
   }
 }
 
-function jscpdAvailabilityFromVersionResult(result: ToolCommandResult): ToolAvailability {
+function jscpdAvailabilityFromVersionResult(
+  result: ToolCommandResult,
+  dependency: DuplicationScannerDependency
+): ToolAvailability {
   if (result.error) {
-    return jscpdProcessErrorAvailability(result.error);
+    return jscpdProcessErrorAvailability(result.error, dependency);
   }
 
   const output = versionOutput(result);
   if (result.status !== 0) {
-    return unavailableJscpd(
-      `jscpd --version failed, ${processFailure(result)}${output ? `: ${output}` : ""}`,
-      "execution-error"
-    );
+    return unavailableJscpdVersion(result, output, dependency);
   }
 
+  return availableJscpd(output, dependency);
+}
+
+function unavailableJscpdVersion(
+  result: ToolCommandResult,
+  output: string,
+  dependency: DuplicationScannerDependency
+): ToolAvailability {
+  return unavailableJscpd(
+    `jscpd --version failed, ${processFailure(result)}${output ? `: ${output}` : ""}`,
+    "execution-error",
+    dependency
+  );
+}
+
+function availableJscpd(
+  output: string,
+  dependency: DuplicationScannerDependency
+): ToolAvailability {
   return {
     name: "jscpd",
     available: true,
     version: parseJscpdVersionOutput(output),
     error: null,
-    source: "repository devDependency",
+    source: jscpdSource(dependency),
     reason: null
   };
 }
 
-function jscpdProcessErrorAvailability(error: Error): ToolAvailability {
+function jscpdProcessErrorAvailability(
+  error: Error,
+  dependency: DuplicationScannerDependency
+): ToolAvailability {
   const code = (error as NodeJS.ErrnoException).code;
   const isMissingTool = code === "ENOENT";
   return unavailableJscpd(
     isMissingTool ? "jscpd dependency binary unavailable" : `jscpd version error: ${error.message}`,
-    isMissingTool ? "tool-unavailable" : "execution-error"
+    isMissingTool ? "tool-unavailable" : "execution-error",
+    dependency
   );
 }
 
 function unavailableJscpd(
   error: string,
-  reason: NonNullable<ToolAvailability["reason"]>
+  reason: NonNullable<ToolAvailability["reason"]>,
+  dependency: DuplicationScannerDependency
 ): ToolAvailability {
   return {
     name: "jscpd",
     available: false,
     version: null,
     error,
-    source: "repository devDependency",
+    source: jscpdSource(dependency),
     reason
   };
+}
+
+function jscpdSource(dependency: DuplicationScannerDependency): string {
+  return isDefaultJscpdCommand(dependency) ? "package dependency" : "repository devDependency";
 }

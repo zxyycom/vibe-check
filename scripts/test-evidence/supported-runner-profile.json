@@ -5,7 +5,7 @@
   "bun": {
     "sourceRoots": ["scripts", "src/product"],
     "include": ["**/*.test.ts"],
-    "ignore": [],
+    "ignore": ["**/node_modules/**"],
     "supplementalFiles": []
   }
 }

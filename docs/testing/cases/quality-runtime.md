@@ -115,4 +115,4 @@ Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 - `bun|src/product/quality-core/measurement/cache.test.ts|quality measurement cache > keys duplicate-code cache by scan identity and strips changed-scope annotations`
 Proves:
-- Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or report settings; cache results remain separate from changed-scope annotation.
+- Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or report settings; cache results remain separate from changed-scope annotation. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.

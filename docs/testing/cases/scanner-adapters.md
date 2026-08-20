@@ -26,7 +26,7 @@ Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 - `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options and uses the invocation cache context`
 Proves:
-- Duplicate detection consumes its Check-owned command and backend concurrency while cache activity remains invocation context rather than a resolver override.
+- Duplicate detection consumes its Check-owned command and backend concurrency while cache activity remains invocation context rather than a resolver override. Its portable default marker is privately resolved to active Bun plus the installed `jscpd` manifest's declared bin; an explicit command remains an explicit adapter input.
 
 ## Case AUX-CURRENT-SCANNER-EVIDENCE-001: Scanner protocol stays private and fails closed
 Owner: `docs/scanner-dependencies.md#adapter-handoff-and-scope`
@@ -50,4 +50,4 @@ Entities:
 - `bun|src/product/quality-core/measurement/scanners.test.ts|quality scanner output parsing > rejects malformed or partial Lizard CSV headers instead of treating them as zero functions`
 - `bun|src/product/quality-core/measurement/scanners.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
 Proves:
-- Private SCC, Lizard, and jscpd protocol adapters distinguish valid empty work from unavailable, non-zero, missing, or malformed output and never expose a partial trusted prefix.
+- Private SCC, Lizard, and jscpd protocol adapters distinguish valid empty work from unavailable, non-zero, missing, or malformed output and never expose a partial trusted prefix. The built-in jscpd marker is privately resolved through its installed manifest and executed through Bun.

@@ -246,6 +246,31 @@ describe("Project Definition", () => {
       availabilityArgs: ["--version"],
       executable: "lizard"
     });
+    assert.deepEqual(duplicateDetection.options.scanner, {
+      args: [],
+      availabilityArgs: ["--version"],
+      executable: "vibe-check-package-jscpd",
+      maxConcurrency: 4
+    });
+    const defaultDuplicateFingerprint = createDeclarativeFingerprint(
+      normalizeProjectDefinition(defineConfig({ checks: [duplicateDetection] })).declarative
+    );
+    const copiedDefaultDuplicateFingerprint = createDeclarativeFingerprint(
+      normalizeProjectDefinition(
+        defineConfig({
+          checks: [
+            {
+              ...duplicateDetection,
+              options: {
+                ...duplicateDetection.options,
+                scanner: { ...duplicateDetection.options.scanner }
+              }
+            }
+          ]
+        })
+      ).declarative
+    );
+    assert.equal(defaultDuplicateFingerprint, copiedDefaultDuplicateFingerprint);
 
     const incomplete = {
       ...fileMetrics,

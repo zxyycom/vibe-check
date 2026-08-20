@@ -24,6 +24,13 @@ const fullOnlyCommands = [
   }
 ] as const;
 
+const candidatePreparationArgs = [
+  "exec",
+  "--",
+  "bun",
+  "scripts/package-candidate/prepare.ts"
+] as const;
+
 describe("workspace verifier profiles", () => {
   it("keeps full-only product and toolkit package gates explicit", () => {
     const requiredChecks = checksForProfile("required");
@@ -46,5 +53,32 @@ describe("workspace verifier profiles", () => {
       assert.equal(check.command, "bun");
       assert.deepEqual(check.args, expected.args);
     }
+  });
+
+  it("prepares the package candidate before every repository package consumer", () => {
+    const requiredChecksById = new Map(
+      checksForProfile("required").map((check) => [check.id, check])
+    );
+    const fullChecksById = new Map(checksForProfile("full").map((check) => [check.id, check]));
+
+    const preparation = requiredChecksById.get("candidate-preparation");
+    assert.ok(preparation);
+    assert.equal(preparation.command, "mise");
+    assert.deepEqual(preparation.args, candidatePreparationArgs);
+
+    for (const consumerId of [
+      "typecheck-scripts",
+      "test-evidence",
+      "quality-quick-check"
+    ] as const) {
+      assert.ok(
+        requiredChecksById.get(consumerId)?.dependsOn.includes("candidate-preparation"),
+        `${consumerId} must wait for candidate preparation`
+      );
+    }
+    assert.ok(
+      fullChecksById.get("quality-full-check")?.dependsOn.includes("candidate-preparation"),
+      "quality-full-check must wait for candidate preparation"
+    );
   });
 });

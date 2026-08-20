@@ -16,8 +16,10 @@ Vibe Check 拥有的开发脚本入口是：
 - `scripts/development/{format,lint,typecheck,test}.ts`：分别拥有开发期格式、lint、类型与测试
   command 的 scope 选择；root manifest 只把 action 或 scope 作为普通参数传入，不保存长 shell
   片段或同义 suffix alias。
+- `scripts/package-candidate/{prepare,run-quality}.ts`：生成、审计、安装和复用 local package
+  candidate；`run-quality.ts` 在已锁定的 Bun 环境中完成自动准备后才调用下述 pure Project Run adapter。
 - `scripts/quality/index.ts`：root `quality` 的 Bun adapter；只在其内部进入 mise 锁定的 scanner
-  环境，再调用下述 pure Project Run adapter。
+  环境并启动 package-candidate workflow。
 - `scripts/quality/scan.ts`：调用 repository Project Run 的 pure dogfood 薄入口；不解析配置或
   重新提供 Project Definition。
 - `scripts/quality/annotate.ts`：把 validated quality records 渲染为 GitHub
@@ -41,8 +43,9 @@ Vibe Check 拥有的开发脚本入口是：
 索引或生命周期实现，也不属于 `scripts/**` consumer。
 
 这些工具不属于产品 runtime contract。`quality` 调用 repository Project Run 的 neutral
-observation；它是 root package-script dogfood 入口，不是已安装 npm package 的入口，也不是第二套
-产品入口或隐式 profile/gate selector。
+observation；它是 root package-script dogfood 入口，不是 package 对外暴露的 CLI、第二套产品入口或
+隐式 profile/gate selector。为验证 package boundary，它的内部 workflow 会准备并从 private
+`scripts/quality` consumer 消费 local candidate，随后仍只调用同一个 Project Run。
 
 根 `package.json` 只暴露人或 AI 需要直接发现和执行的工作流、范围检查与稳定兼容适配器。只由
 verifier、CI 或另一个开发工具调用的叶子命令直接使用其 `scripts/**` owner 或 package-local
@@ -74,12 +77,14 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 
 ## 当前实现状态
 
-- `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition，并直接组合
-  ordinary built-in Check values、project-wide quality、scheduler、effects 和 Check-owned scanner options；
-  `scripts/quality/project-run.ts` import 并绑定该值，导出只接收项目允许 controls 的 Run。
-- `scripts/quality/index.ts` 在唯一需要外部 scanner pin 的边界通过 mise 启动 `scan.ts`；后者
-  只调用 bound Project Run，并把 structured result 映射为该脚本的
-  process exit；它不调用 Product CLI、发现配置或转发 argv。
+- `scripts/quality/project-definition.ts` default-exports repository-owned Project Definition，并从 private
+  `scripts/quality` package context 中已安装的 `vibe-check` 导入 ordinary built-in Check values、project-wide
+  quality、scheduler、effects 和 Check-owned scanner options；`scripts/quality/project-run.ts` import 并绑定该值，
+  导出只接收项目允许 controls 的 Run。
+- `scripts/quality/index.ts` 在唯一需要外部 scanner pin 的边界通过 mise 启动
+  `scripts/package-candidate/run-quality.ts`。该入口先准备或复用 local candidate，再调用 `scan.ts`；后者
+  只调用 bound Project Run，并把 structured result 映射为该脚本的 process exit；它不调用 Product CLI、发现
+  配置或转发 argv。
 - `quality` 通过同一 wrapper 到达 Product `run` operation；
   repository policy、built-in selection 和 effects 只有 Project Definition 一个 owner。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
@@ -201,20 +206,23 @@ bun run env:check
 
 ### 命令环境边界
 
-顶层 `mise.toml` 为仓库开发环境锁定 Lizard、scc 及其运行时；jscpd 由当前 checkout 的 Node
-依赖提供。Repository
-Project Definition 通过其普通 default Check values 直接拥有 scanner executable、args 与 availability args；
-`quality` 不解析或注入 scanner override。详见 [Scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
+顶层 `mise.toml` 为仓库开发环境锁定 Lizard、scc 及其运行时。`env:check` 还检查当前 checkout
+的 jscpd 开发依赖是否可用；这不是 `quality` 的 jscpd runtime resolution source。`quality` 的 duplication
+default 在 private `scripts/quality` consumer 中从已安装 candidate `vibe-check` 声明的 production dependency
+解析 jscpd manifest 和 bin，并由 active Bun executable 调用。Repository Project Definition 通过其普通
+default Check values 直接拥有 scanner executable、args 与 availability args；`quality` 不解析或注入 scanner
+override。详见 [Scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
 
 `mise.toml` 的工具安装、repository state、ambient `PATH` 与环境变量不是 Product scanner command 的隐式
 resolution source。缺少或不可用的 Check-owned command 由对应 Check 安全地报告为 unavailable。
 
 所有 root package-script value 都以 Bun 启动。`quality` 是唯一需要锁定非 JavaScript scanner toolchain
-的日常 workflow：`scripts/quality/index.ts` 直接运行 `mise exec -- bun <absolute scan.ts path>`，使
-Lizard、scc、Python 与 Bun 同时来自 `mise.toml`/`mise.lock`，再执行 pure `scan.ts`。没有可由调用方
+的日常 workflow：`scripts/quality/index.ts` 直接运行
+`mise exec -- bun <absolute package-candidate run-quality.ts path>`，使 Lizard、scc、Python 与 Bun 同时来自
+`mise.toml`/`mise.lock`。该 child 自动准备或复用 candidate，成功后执行 pure `scan.ts`。没有可由调用方
 设置的跳过标记；mise 子进程一旦启动，其 stdout、stderr 和退出状态原样保留。因此调用者不必记住
-mise，也不会从 ambient `PATH` 静默取得同名 scanner。workspace verifier 自己以 Bun 运行，并通过该
-adapter 执行 quality task；format、lint 与 typecheck 则使用 checkout 中的本地包，不需要 mise wrapper。
+mise，也不会从 ambient `PATH` 静默取得同名 scanner。scripts typecheck、Project Run test 和 workspace
+verifier 的 candidate-preparation task 同样通过该锁定 Bun 执行准备；format 与 lint 不需要 mise wrapper。
 
 ## Runtime 边界
 
@@ -237,7 +245,9 @@ Repository canonical files 是：
 - `scripts/quality/project-run.ts`：绑定 Project Definition 与 repository root，导出项目允许的
   controls subset。
 - `scripts/quality/scan.ts`：调用项目 Run 的 pure process adapter；不接受另一份配置。
-- `scripts/quality/index.ts`：只以 `mise exec` 启动上述 `scan.ts`，并保留 child exit status；不增加
+- `scripts/package-candidate/run-quality.ts`：在 locked Bun child 中准备或复用 candidate，成功后调用
+  `scan.ts`；准备失败时不运行 scan。
+- `scripts/quality/index.ts`：只以 `mise exec` 启动上述 candidate workflow，并保留 child exit status；不增加
   参数、配置或 policy。
 
 仓库 dogfood 入口是：
@@ -423,8 +433,10 @@ run/record v3 schemas、historical v2 schema material 与对应 example roots，
 `scripts/vibe-check-workspace/checks/definitions.ts` 与相邻 normalization/model files 拥有 workspace verifier
 的 scripts-only task authoring、profile 分层、warning output 识别和成功输出过滤；`task-engine-adapter.ts` 是其到
 shared engine 的唯一投影。CLI 接受 `required` 和 `full`；未传 `--profile` 时默认 `full`，日常
-快速验证必须显式使用 `:required` profile entry。Required profile 包含 decision records 与 test evidence
-的严格检查和 quick quality dogfood。Full profile 选择全部 required non-quality checks（排除
+快速验证必须显式使用 `:required` profile entry。Required profile 先以 locked Bun 运行唯一的
+candidate-preparation task；scripts typecheck、test evidence 和 quick quality 都依赖该 task，避免并行
+build/pack/install。Required profile 随后包含 decision records 与 test evidence 的严格检查和 quick quality
+dogfood。Full profile 选择全部 required non-quality checks（排除
 `quality-quick-check`），并添加 `quality-full-check`、`test -- product` 与 foundation 的
 typecheck、lint、`format -- check`、test package commands。这些独立 package commands 是有意保留的
 package-boundary verification：根 scripts check 的 source 覆盖不能证明 foundation own manifest、

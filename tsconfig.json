@@ -13,5 +13,6 @@
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true
   },
+  "exclude": ["scripts/quality/node_modules"],
   "include": ["scripts/**/*.ts"]
 }

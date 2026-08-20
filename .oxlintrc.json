@@ -19,6 +19,7 @@
     "build/**",
     "dist/**",
     "node_modules/**",
+    "scripts/quality/node_modules/**",
     "target/**"
   ],
   "overrides": [

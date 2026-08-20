@@ -7,6 +7,7 @@ import {
 } from "../../measurement/cache.ts";
 import { runBoundedTasks } from "../../measurement/scanners/jscpd/parallel.ts";
 import { scanWithJscpdAsync } from "../../measurement/scanners/jscpd/scanner.ts";
+import { isDefaultJscpdCommand } from "../../measurement/scanners/jscpd/default-command.ts";
 import { toScopedJscpdMeasurements } from "../../measurement/scanners/jscpd/scoped-fragments.ts";
 import { checkJscpd } from "../../measurement/scanners/tool-availability/jscpd.ts";
 import { acceptScopedMeasurements } from "../../measurement/scoped-measurement.ts";
@@ -243,10 +244,15 @@ function createCacheIdentity(input: AreaMeasurementInput): DuplicateCodeCacheIde
   });
 }
 
-function jscpdCacheArgs(dependency: DuplicationScannerDependency, minimumTokens: number): string[] {
+export function jscpdCacheArgs(
+  dependency: DuplicationScannerDependency,
+  minimumTokens: number
+): readonly string[] {
+  const command = isDefaultJscpdCommand(dependency)
+    ? ["<bun>", "<package-jscpd-bin>"]
+    : [normalizedJscpdCommandForCache(dependency.executable), ...dependency.args];
   return [
-    normalizedJscpdCommandForCache(dependency.executable),
-    ...dependency.args,
+    ...command,
     "--config",
     "<jscpd-config-with-input-fingerprint>",
     "--min-tokens",

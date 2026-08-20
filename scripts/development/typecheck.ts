@@ -1,4 +1,6 @@
-import { runBunPackage, runMain } from "./command.ts";
+import { fileURLToPath } from "node:url";
+
+import { runBunPackage, runCommand, runMain } from "./command.ts";
 
 type TypecheckScope = "foundation" | "product" | "scripts";
 
@@ -7,6 +9,9 @@ const tsconfigPath: Readonly<Record<TypecheckScope, string>> = {
   product: "tsconfig.product.json",
   scripts: "tsconfig.json"
 };
+const candidatePreparationPath = fileURLToPath(
+  new URL("../package-candidate/prepare.ts", import.meta.url)
+);
 
 function isTypecheckScope(value: string): value is TypecheckScope {
   return Object.hasOwn(tsconfigPath, value);
@@ -23,6 +28,9 @@ function parseTypecheckScopes(argv: readonly string[]): readonly TypecheckScope[
 
 runMain(() => {
   for (const scope of parseTypecheckScopes(process.argv.slice(2))) {
+    if (scope === "scripts") {
+      runCommand("mise", ["exec", "--", "bun", candidatePreparationPath]);
+    }
     runBunPackage("tsgo", ["-p", tsconfigPath[scope]]);
   }
 });

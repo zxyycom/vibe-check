@@ -28,6 +28,6 @@ Entities:
 - `bun|scripts/test-evidence/discovery/profile.test.ts|loads one versioned and sorted supported runner profile`
 - `bun|scripts/test-evidence/discovery/profile.test.ts|parses stable Bun runner reports without inferring missing fields`
 Proves:
-- 版本化 source roots、include、ignore 与 supplemental file 规则展开完整且唯一的 Bun test 文件集合。
+- 版本化 source roots、include、ignore 与 supplemental file 规则展开完整且唯一的 Bun test 文件集合；nested `node_modules` 不属于 repository test surface。
 - 非法、空、越界、符号链接或冗余 test surface 被拒绝，新增匹配文件自动进入集合。
 - JUnit parser 只接受具有精确 name、suite、file、line 和成功计数的 runner report。

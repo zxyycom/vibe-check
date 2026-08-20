@@ -1,14 +1,4 @@
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-import {
-  defineConfig,
-  duplicateDetection,
-  fileMetrics,
-  functionMetrics
-} from "../../src/product/definition/project.ts";
-
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+import { defineConfig, duplicateDetection, fileMetrics, functionMetrics } from "vibe-check";
 
 /** Repository-owned Vibe Check policy. Product code never discovers this file. */
 export default defineConfig({
@@ -22,10 +12,6 @@ export default defineConfig({
           ...duplicateDetection,
           options: {
             ...duplicateDetection.options,
-            scanner: {
-              ...duplicateDetection.options.scanner,
-              executable: resolve(repositoryRoot, "node_modules/.bin/jscpd")
-            },
             defaultMinimumTokens: 100,
             fragments: { changedDelta: 0 },
             minimumTokensByCodeArea: {

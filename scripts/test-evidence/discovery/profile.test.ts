@@ -39,6 +39,7 @@ test("loads one versioned and sorted supported runner profile", async () => {
   assert.equal(profile.schemaVersion, 1);
   assert.equal(profile.id, "vibe-check-native-tests");
   assert.equal(profile.version, 1);
+  assert.deepEqual(profile.bun.ignore, ["**/node_modules/**"]);
   assert.deepEqual(
     profile.bun.sourceRoots,
     [...profile.bun.sourceRoots].sort((left, right) => left.localeCompare(right))

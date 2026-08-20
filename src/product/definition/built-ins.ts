@@ -2,6 +2,7 @@ import {
   DUPLICATE_DETECTION_CHECK_DEFINITION,
   executeDuplicateDetection
 } from "../quality-core/check-record/builtins/duplicate-detection.ts";
+import { DEFAULT_JSCPD_COMMAND } from "../quality-core/measurement/scanners/jscpd/default-command.ts";
 import {
   FILE_METRICS_CHECK_DEFINITION,
   executeFileMetrics
@@ -70,9 +71,7 @@ export const duplicateDetection = defineCheck<"duplicate-detection", DuplicateDe
   execution: executeDuplicateDetection,
   options: {
     scanner: {
-      args: [],
-      availabilityArgs: ["--version"],
-      executable: "jscpd",
+      ...DEFAULT_JSCPD_COMMAND,
       maxConcurrency: 4
     },
     defaultMinimumTokens: 75,

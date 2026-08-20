@@ -5,7 +5,20 @@ Owner: `docs/script-tooling.md#repository-project-run`
 Entities:
 - `bun|scripts/quality/project-run.test.ts|repository Project Run binds its definition before another caller supplies controls`
 Proves:
-- The repository Run imports and binds the repository Project Definition; another caller supplies only the controls that Run exposes.
+- The repository Run imports the installed public `vibe-check` entry, binds the repository Project Definition, and lets another caller supply only the controls that Run exposes.
+
+## Case AUX-PACKAGE-CANDIDATE-001: Candidate preparation builds one auditable physical package
+Owner: `docs/script-tooling.md#repository-project-run`
+Entities:
+- `bun|scripts/package-candidate/index.test.ts|package candidate preparation > prepares a physical candidate lifecycle`
+- `bun|scripts/package-candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
+- `bun|scripts/package-candidate/run-quality.test.ts|candidate-backed quality workflow > does not start the repository scan when candidate preparation fails`
+Proves:
+- The candidate owner derives one local package with only the approved runtime exports, declared package dependencies, a physical consumer install, and a resolved installed entry.
+- A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
+- A missing candidate-owned `jscpd` closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
+- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots, then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
+- A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 Owner: `docs/architecture.md#execution-boundary`
@@ -33,8 +46,10 @@ Proves:
 Owner: `docs/script-tooling.md#配置所有权`
 Entities:
 - `bun|scripts/vibe-check-workspace/checks/definitions.test.ts|workspace verifier profiles > keeps full-only product and toolkit package gates explicit`
+- `bun|scripts/vibe-check-workspace/checks/definitions.test.ts|workspace verifier profiles > prepares the package candidate before every repository package consumer`
 Proves:
 - `full` 保留所有 required non-quality checks、去掉 quick quality dogfood，并显式加入 full dogfood、完整 Product `test -- product` 入口和 foundation 的 typecheck、lint、`format -- check`、test package commands。部分源文件层验证会与 required 重叠，但这些独立 command 仍证明 toolkit 自身的 cwd、配置与 package-script boundary 可执行。
+- 唯一的 locked-Bun candidate preparation task 先完成；scripts typecheck、semantic Case check 和两个 quality consumer 都显式依赖它，因此 verifier 不会并行 build、pack 或 install candidate。
 
 ## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
 Owner: `docs/script-tooling.md#工具来源`

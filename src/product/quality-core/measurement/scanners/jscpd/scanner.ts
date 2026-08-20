@@ -1,7 +1,7 @@
 /**
  * jscpd duplicate-code detection wrapper.
  *
- * Runs the repository-managed jscpd CLI, writes a temporary config for the
+ * Runs the Check-owned jscpd CLI, writes a temporary config for the
  * current code-area file list, and normalizes the JSON report behind the
  * repository-owned DuplicateCodeFragment model.
  */
@@ -17,6 +17,7 @@ import {
   runProcessSync,
   type ProcessResult
 } from "../../../../foundation/index.ts";
+import { resolveJscpdCommand, type JscpdCommand } from "./default-command.ts";
 import { parseJscpdJsonReport } from "./json-report.ts";
 import type { JscpdScanResult } from "./types.ts";
 
@@ -35,7 +36,7 @@ export function parseJscpdVersionOutput(output: string): string {
 interface ScanWithJscpdOptions {
   cwd: string;
   dependency: DuplicationScannerDependency;
-  files: string[];
+  files: readonly string[];
   minimumTokens: number;
 }
 
@@ -49,7 +50,7 @@ type PreparedJscpdInvocation = {
 type PreparedJscpdScan =
   | {
       cwd: string;
-      dependency: DuplicationScannerDependency;
+      dependency: JscpdCommand;
       invocation: PreparedJscpdInvocation;
       ok: true;
     }
@@ -104,12 +105,24 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
     return { ok: false, result: { ok: true, measurements: [] } };
   }
 
+  const resolved = resolveJscpdCommand(dependency);
+  if (resolved.kind === "unavailable") {
+    return {
+      ok: false,
+      result: {
+        error: resolved.error,
+        ok: false,
+        reason: "jscpd-execution-error"
+      }
+    };
+  }
+
   return {
     ok: true,
     cwd,
-    dependency,
+    dependency: resolved.command,
     invocation: prepareJscpdInvocation({
-      dependencyArgs: dependency.args,
+      dependencyArgs: resolved.command.args,
       files,
       minimumTokens
     })
@@ -122,7 +135,7 @@ function prepareJscpdInvocation({
   minimumTokens
 }: {
   dependencyArgs: readonly string[];
-  files: string[];
+  files: readonly string[];
   minimumTokens: number;
 }): PreparedJscpdInvocation {
   const tempDir = mkdtempSync(join(tmpdir(), "quality-jscpd-"));

@@ -143,16 +143,19 @@ of filling omitted nested fields or merging a hidden operational map.
 
 | Default | Check ID | `scanner.executable` | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option |
 | --- | --- | --- | --- | --- | --- |
-| `duplicateDetection` | `duplicate-detection` | `jscpd` | `[]` | `['--version']` | `scanner.maxConcurrency: 4` |
+| `duplicateDetection` | `duplicate-detection` | `vibe-check-package-jscpd` (package-owned default marker) | `[]` | `['--version']` | `scanner.maxConcurrency: 4` |
 | `fileMetrics` | `file-metrics` | `scc` | `[]` | `['--version']` | — |
 | `functionMetrics` | `function-metrics` | `lizard` | `[]` | `['--version']` | — |
 
 For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not
 interpret environment variables, Run Controls, or repository tool state as scanner overrides.
 
-Each row is the complete initial `options.scanner` branch for its default Check. The default callback passes
-`scanner.executable` followed by `scanner.args` for scanning, and `scanner.executable` followed by
-`scanner.availabilityArgs` for availability probing, to its private adapter; the adapter handoff is defined in
+Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable
+marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that
+built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through
+the active Bun executable. That resolution is not an additional scanner option, environment lookup, or
+executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command
+values it wants the private adapter to execute. The adapter handoff is defined in
 [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
 
 ## Invocation and results
