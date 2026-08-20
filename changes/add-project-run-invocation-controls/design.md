@@ -1,52 +1,85 @@
 # Design
 
-本 Design 将 caller-defined invocation context 作为 Package Run 的最小控制交互层，并把 tags、profiles、CLI、scheduler selection 与 presentation 留给项目 consumer。
+本 Design 将一次调用的 project control 收窄为一组简单字符串 flag。flag presence 就是布尔语义；Check 自行检查该集合并作出自己的执行/不适用判断。它不是通用 invocation data channel，也不改变静态调度。
 
 ## Context
 
-当前 Product 在 callback 前验证 closed <code>RunControls</code>，并提供 <code>{ options, project, records, signal }</code>。其中 <code>options</code> 是 Definition-owned static Check configuration；<code>project</code> 当前没有 caller-defined invocation input。Repository Gate 需要按本次调用选择哪些本地 Check 应提前返回 <code>not-applicable</code>，但 Product 不应认识本仓 profile/tag grammar 或重规划 Task graph。
+当前 <code>run(definition, controls)</code> 先验证 Project Definition 和 closed <code>RunControls</code>，随后构造一次 <code>CheckProjectContext</code>，再运行静态 Task graph。现有 callback context 包含 root、changed files、file configuration、comparison 和 cache，但没有 project-defined control flag；当前事实见 [Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary)、<code>src/product/run/control-validation.ts</code> 与 <code>src/product/run/project-context.ts</code>。
 
-这条 input path 是完整 Project Gate 的前置能力，也可被任意其他 project-owned adapter 使用。它与 execution lifecycle feedback 有不同的行为、失败和演进风险，后者由独立 [add-project-run-lifecycle-feedback](../add-project-run-lifecycle-feedback/) Draft 处理。
+已对齐的长期边界是：Check-owned <code>options</code> 继续属于 Project Definition，Run Controls 只补充共享 invocation input；project-owned wrapper 决定暴露哪些 control（[由 Check-owned execution options 驱动 Run](../../docs/decisions/drive-run-from-check-owned-execution-options.md)）。每个 executable Check 仍投影到唯一已验证 static Task graph；<code>not-applicable</code> 不等于 scheduler 删除节点，也不自动沿 dependency 传播（[将 executable Check 直接投影到已验证 Task graph](../../docs/decisions/project-executable-checks-into-validated-task-graph.md)）。
+
+Repository Gate 是下游 consumer，但不是本 contract 的 schema owner：它以后可以把自己的 profile/tag 解析为 string flag，再由每个本地 Check 读取。flag spelling、CLI、显示、exit policy 和 gate 对 skip 的约束仍属于 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/)。
+
+### 目标契约速览
+
+| 边界 | 实施后的 contract | 不负责的语义 |
+| --- | --- | --- |
+| 调用方 → <code>RunControls</code> | optional <code>flags?: readonly string[]</code>。每个 token 是一个简单 boolean flag；存在为 <code>true</code>，缺失为 <code>false</code>。 | token 的命名、层级、profile/tag 含义或 CLI parsing。 |
+| Product validation → project context | omitted/undefined 规范化为 <code>[]</code>；present input 只接受 non-empty string array，并复制、去重、字典序排序、冻结。 | boolean map、value-bearing payload 或第二种 input grammar。 |
+| <code>CheckProjectContext</code> → Check | required <code>flags: readonly string[]</code>；Check 用 <code>includes</code> 读取本地条件。 | Product-provided flag helper、Check option override 或 dynamic Task registration。 |
+| Check → scheduler / gate | Check 可返回既有 <code>not-applicable</code>。 | scheduler-level selection、dependency propagation、gate pass/fail、output 或 telemetry policy。 |
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 在 <code>RunControls</code> 与 callback project context 之间增加一次调用、immutable、project-defined input path，且不覆盖 Check <code>options</code>、dependencies、scanner configuration 或 scheduler policy。
-- 让项目 Check 以自身 static eligibility 和 invocation context 决定 <code>not-applicable</code>，而不引入 selected-task API 或 dynamic Task graph。
-- 明确 snapshot、validation、type declaration 与 cancellation/control ownership，并以最小真实 adapter 证明 input 传递和 local eligibility。
+- 新增 optional <code>RunControls.flags</code>，并在每个 callback 的 <code>context.project.flags</code> 提供总是存在的 immutable flag collection。
+- 将 caller input 规范化为唯一 set semantics：non-empty string token、deduplicated、lexicographically sorted、frozen；presence 表示 <code>true</code>，absence 表示 <code>false</code>。
+- 让 Check 在执行自己的工作前用 <code>includes</code> 做本地 eligibility 判断，并能返回既有 <code>not-applicable</code>。
+- 保持公共类型根不变：只扩展已导出的 <code>RunControls</code> 与 <code>CheckExecutionContext</code> 的现有形状，不新增 generic surface 或命名的 flag type。
+- 用 Package Run 和 exact-package consumer evidence 证明输入、callback exposure、错误边界与静态调度边界一致。
 
 ### Non-Goals
 
-- 不定义 Product CLI 参数、profile 名称、tag vocabulary、disabled-tag propagation、repository command、exit mapping 或 CI policy。
-- 不增加 caller-controlled global concurrency、per-Check runtime option override、task discovery、scheduler-level skip 或依赖自动传播。
-- 不定义 observer、progress bar、logs、Check duration、wall-clock timestamp、Record reporting timing 或 canonical telemetry。
-- 不替代 workspace verifier、完成 exact-tarball Project Gate acceptance，或公开发布 npm package。
+- 不接受 string-or-boolean map、任意 JSON tree、Date/Map/class/handle 等 structured project data，也不建立第二种 flag input grammar。
+- 不定义 Product CLI 参数、profile/tag vocabulary、disabled-tag propagation、repository command、renderer、logs、exit mapping 或 CI policy。
+- 不实现 selected-task API、scheduler-level skip、dynamic Task graph、dependency automatic propagation、caller-controlled capacity 或 per-Check runtime option override。
+- 不让 flag 进入 Definition-owned <code>options</code>、declarative fingerprint、Core snapshot、policy input、machine artifact、report 或 publication input。
+- 不替代 workspace verifier、不完成完整 Project Gate，也不公开发布 package。
 
 ## Decisions
 
-### 1. Invocation 是 opaque shared context，不是 Check options
+### 1. 公共输入是 <code>flags?: readonly string[]</code>
 
-暂定在 closed <code>RunControls</code> 中新增明确命名的 <code>invocation</code> field，并把 immutable snapshot 暴露为 <code>context.project.invocation</code>。Product 只验证安全的 outer shape/ownership，不解释内部项目 keys；每个 project adapter 在进入 Run 前解析和限制自己的 data。Check <code>options</code> 继续是 Definition-owned static execution configuration，不能被 invocation 修改。
+<code>RunControls</code> 新增 optional <code>flags</code>，而 <code>CheckProjectContext</code> 新增 required <code>flags: readonly string[]</code>。这是一组 token，而不是 value-bearing object：调用方通过包含 token 设置 flag；不包含 token 即未设置。Check 使用 <code>context.project.flags.includes(flag)</code>，不需要 Product 提供 project-specific helper。
 
-因此 repository Gate 可由 project Check closure 将自己的 static tags 与 <code>project.invocation</code> 比较，并在启动 process 前返回 <code>not-applicable</code>。标签的定义、是否可在 CI 使用、以及 skip 对 gate policy 的含义均不属于 Product。
+选择 string set 而不选择 boolean map 的原因是：两者都能表达 boolean control，但 map 会同时引入 absent/false 的双重表示、key/value grammar 与更多 validation 责任。string set 只有一种真值表示，且能让 project 后续自行把任何本地 CLI input 投影为 token；Product 不解析 token 的命名或层级。
 
-### 2. 调用意图不改变调度事实
+### 2. Validation 在 controls boundary 完成并创建稳定 snapshot
 
-所有 executable Checks 仍在同一 static graph 中 admission。local <code>not-applicable</code> 采用现有结果语义；它不等于 scheduler 已把节点移除。既有 dependency 对 <code>not-applicable</code> 的解释不因这条 input path 改变，dependent Check 必须有自己的 eligibility rule，不能假定 skip 自动沿图传播。
+<code>flags</code> omitted 或值为 <code>undefined</code> 时规范化为 <code>[]</code>。present value 必须是一个 array，所有项必须为 non-empty string；Product 拒绝 array 以外的值、空 string 与非 string item。验证成功后，Product 复制、去重、lexicographically sort 并 <code>Object.freeze</code> 该 array，再创建一次 project context。callback 不保留 caller array reference。
 
-### 3. Product 只拥有传递和冻结，项目拥有解释
+任何 invalid flag input 都沿用既有 <code>kind: "configuration"</code> / <code>invalid-run-controls</code> failure family，并以 <code>controls.flags</code> 定位；它必须发生在任何 Check callback、scanner、cache、reporter 或 Task work 之前。重复 token 合法且不改变结果，因为 collection 的语义是 set。
 
-Product 负责 validation、snapshot 和 callback exposure；adapter 负责 argv parsing、input schema/type guard、profile/tag interpretation、display、logs 与 exit decision。这使 future project 可以使用同一 Run contract 而不继承本仓门禁的策略。
+### 3. Product 传递 flag，Check 解释 flag
+
+Product 不根据 flag admission、remove 或 reorder Task，也不将 flag 转换为 <code>options</code>。每个 Check 的 closure、static tags 和 project rule 决定它是否把某个 flag 视为不适用条件；例如一个 project-owned Check 可在启动 process 前检测 <code>"disabled:docs"</code> 并返回 <code>not-applicable</code>。该 token 只是 test/consumer data，不是 Product vocabulary。
+
+因此 dependent Check 不能推断前置 Check 已被 scheduler-level skip。既有 result/dependency semantics 保持不变；future Gate 仍需自行显示并限制关键 Check 的不适用情况。
+
+### 4. Bound project Run 选择是否转发 flag
+
+Product 只接受已导入的 Definition 与 controls，不发现 project module 或解析 argv。需要 flags 的 project-owned bound Run 把它纳入自己公开的 control subset；不需要的 wrapper 不必暴露它。当前 <code>quality</code> root 不因此获得 profile/tag CLI，完整 adapter 行为仍由 Gate Change 拥有。
 
 ## Risks / Trade-offs
 
-- **opaque input 失控：** input 必须有明确 snapshot 边界，不能成为第二份隐式 Definition 或让函数、host handles 穿过 declarative/control contract。
-- **错误通过：** <code>not-applicable</code> 是如实的 Check 事实，不自动保证 project gate 可以通过；Gate 必须展示并约束跳过。
-- **过度抽象：** 若为 profile/tag 预先加入通用 selectors，会重新实现 scheduler selection；首轮只提供 context 传递。
+- **过度泛化：** 将 flag 重新扩张成任意 invocation data 会迫使 Product 拥有复制、身份与安全语义，并模糊 Check option 边界；本 Plan 只保留 string token set。
+- **隐式 false 误读：** 只以 token presence 表示 true，避免 absent 与 <code>false</code> 两条等价路径；consumer 不得依赖 input order 或 duplicate count。
+- **错误的部分运行推断：** Check 返回 <code>not-applicable</code> 只描述它自身；不自动允许 gate 通过，也不自动跳过 dependent。
+- **公共契约漂移：** <code>flags</code> 改变 package declaration；candidate 在 Gate work 使用前必须按 delivery navigation 刷新。
 
 ## Open Questions
 
-- 首个 public <code>invocation</code> value grammar 是受限 scalar/tree snapshot，还是允许更广的 structured project-code value；这影响 validation 与 declaration design。
-- frozen snapshot 应在 validation 后怎样处理 <code>undefined</code>、cycles、prototype 与 binary-like values；需以当前 Product input conventions 收敛。
-- 最小真实 adapter 的 acceptance 应只证明 tag disable，还是同时证明一个非-tag project intent；Plan 时按可复用性决定。
+无。此 Plan 已采用 string flag set：<code>flags</code> 是 public field name，non-empty token 是最小 Product-level validity rule，presence/absence 是唯一布尔表示。
+
+若未来需要 string value、显式 <code>false</code>、嵌套 data 或任何 Product 对 token 的解释，应停止扩张本 Plan，另建 Decision 和 Change。
+
+## Verification Strategy
+
+实施时应证明：
+
+1. omitted、unique、duplicate、unordered input 分别产生空或 canonical frozen callback collection，且 callback 不能改写它。
+2. non-array、empty string 与 non-string token 返回 <code>invalid-run-controls</code> / <code>controls.flags</code>，且没有 callback 被调用。
+3. project Check 用一个 local token 返回 <code>not-applicable</code>，但 Task graph admission 与 dependency semantics 未改变。
+4. Type declaration、public-contract inventory、exact-package consumer 与稳定 Configuration/Architecture owner 同步此 field；不新增 runtime operation 或 named type root。
+5. 测试修改遵循 test-evidence workflow，并在完成时运行最窄 Product/package tests、<code>bun run test-evidence -- check --root .</code>、Change check 与 required workspace verification。
