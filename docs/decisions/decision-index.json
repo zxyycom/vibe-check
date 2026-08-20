@@ -116,6 +116,7 @@
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
       "use-static-check-task-plans-with-shared-scheduling.md": "sha256:f1c2e855642425f1eb965569659bd3d9469c88d2edde7176d0a33e6d07b8984c",
+      "use-string-flags-for-project-run-controls.md": "sha256:a8282eef7fcdcd623f6d6c6b7c2474441df50d9720f179a00ab9c71161412fc1",
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
       "use-upstream-project-skill-packages.md": "sha256:61f5dcae84429943a164f1b82c37ddf341d40e47e32288f593b007a82487e46a",
       "use-upstream-skills-with-project-local-exceptions.md": "sha256:f13dabc892def9236b38ff07f65b231492babc571794468167706cae2284b390",
@@ -3435,6 +3436,33 @@
         "decision": "Check 在执行前贡献静态 TaskPlan，由 invocation 共享调度器统一安排；Task 保持私有执行单元，不进入政策或产品结果。",
         "tags": [
           "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "use-string-flags-for-project-run-controls.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-string-flags-for-project-run-controls.md",
+        "title": "对 Project Run controls 使用字符串 flag",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-20T02:15:14Z",
+        "purpose": "让 Project Run 的共享 invocation control 使用简单且可验证的字符串 flag 集合。",
+        "background": "value payload 或 Product 对 token 的解释会扩大 Run Controls 责任，并模糊 Check 自有配置边界。",
+        "decision": "RunControls 使用可选字符串 flags；callback 获得规范化的必需 flag 集合，Product 只传递而不解释 token。",
+        "tags": [
+          "configuration"
         ],
         "relations": []
       }

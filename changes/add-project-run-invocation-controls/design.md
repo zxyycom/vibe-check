@@ -4,7 +4,7 @@
 
 ## Context
 
-当前 <code>run(definition, controls)</code> 先验证 Project Definition 和 closed <code>RunControls</code>，随后构造一次 <code>CheckProjectContext</code>，再运行静态 Task graph。现有 callback context 包含 root、changed files、file configuration、comparison 和 cache，但没有 project-defined control flag；当前事实见 [Configuration](../../docs/configuration.md#invocation-and-results)、[Architecture](../../docs/architecture.md#execution-boundary)、<code>src/product/run/control-validation.ts</code> 与 <code>src/product/run/project-context.ts</code>。
+<code>run(definition, controls)</code> 先验证 Project Definition 和 closed <code>RunControls</code>，随后构造一次 <code>CheckProjectContext</code>，再运行静态 Task graph。实施前 callback context 包含 root、changed files、file configuration、comparison 和 cache，但没有 project-defined control flag。实施后的当前 contract 由 [Configuration](../../docs/configuration.md#invocation-and-results) 与 [Architecture](../../docs/architecture.md#execution-boundary) 拥有；<code>src/product/run/control-validation.ts</code> 和 <code>src/product/run/project-context.ts</code> 是其实现证据。
 
 已对齐的长期边界是：Check-owned <code>options</code> 继续属于 Project Definition，Run Controls 只补充共享 invocation input；project-owned wrapper 决定暴露哪些 control（[由 Check-owned execution options 驱动 Run](../../docs/decisions/drive-run-from-check-owned-execution-options.md)）。每个 executable Check 仍投影到唯一已验证 static Task graph；<code>not-applicable</code> 不等于 scheduler 删除节点，也不自动沿 dependency 传播（[将 executable Check 直接投影到已验证 Task graph](../../docs/decisions/project-executable-checks-into-validated-task-graph.md)）。
 
@@ -15,7 +15,7 @@ Repository Gate 是下游 consumer，但不是本 contract 的 schema owner：�
 | 边界 | 实施后的 contract | 不负责的语义 |
 | --- | --- | --- |
 | 调用方 → <code>RunControls</code> | optional <code>flags?: readonly string[]</code>。每个 token 是一个简单 boolean flag；存在为 <code>true</code>，缺失为 <code>false</code>。 | token 的命名、层级、profile/tag 含义或 CLI parsing。 |
-| Product validation → project context | omitted/undefined 规范化为 <code>[]</code>；present input 只接受 non-empty string array，并复制、去重、字典序排序、冻结。 | boolean map、value-bearing payload 或第二种 input grammar。 |
+| Product validation → project context | omitted、<code>undefined</code> 与 <code>[]</code> 都规范化为 <code>[]</code>；任何非 <code>undefined</code> 的 input 必须是稠密 array（不允许 sparse hole），且每个 array item 都是 non-empty string token。Product 复制、去重、字典序排序并冻结结果。 | boolean map、value-bearing payload 或第二种 input grammar。 |
 | <code>CheckProjectContext</code> → Check | required <code>flags: readonly string[]</code>；Check 用 <code>includes</code> 读取本地条件。 | Product-provided flag helper、Check option override 或 dynamic Task registration。 |
 | Check → scheduler / gate | Check 可返回既有 <code>not-applicable</code>。 | scheduler-level selection、dependency propagation、gate pass/fail、output 或 telemetry policy。 |
 
@@ -47,7 +47,7 @@ Repository Gate 是下游 consumer，但不是本 contract 的 schema owner：�
 
 ### 2. Validation 在 controls boundary 完成并创建稳定 snapshot
 
-<code>flags</code> omitted 或值为 <code>undefined</code> 时规范化为 <code>[]</code>。present value 必须是一个 array，所有项必须为 non-empty string；Product 拒绝 array 以外的值、空 string 与非 string item。验证成功后，Product 复制、去重、lexicographically sort 并 <code>Object.freeze</code> 该 array，再创建一次 project context。callback 不保留 caller array reference。
+<code>flags</code> omitted、值为 <code>undefined</code> 或值为 <code>[]</code> 时都规范化为 <code>[]</code>。任何非 <code>undefined</code> 的 value 必须是一个稠密 array；array 本身可以为空，但不允许 sparse hole，且每个 item 必须是 non-empty string token。Product 拒绝 array 以外的值、sparse hole、空 string 与非 string item。验证成功后，Product 复制、去重、lexicographically sort 并 <code>Object.freeze</code> 该 array，再创建一次 project context。callback 不保留 caller array reference。
 
 任何 invalid flag input 都沿用既有 <code>kind: "configuration"</code> / <code>invalid-run-controls</code> failure family，并以 <code>controls.flags</code> 定位；它必须发生在任何 Check callback、scanner、cache、reporter 或 Task work 之前。重复 token 合法且不改变结果，因为 collection 的语义是 set。
 
@@ -79,7 +79,7 @@ Product 只接受已导入的 Definition 与 controls，不发现 project module
 实施时应证明：
 
 1. omitted、unique、duplicate、unordered input 分别产生空或 canonical frozen callback collection，且 callback 不能改写它。
-2. non-array、empty string 与 non-string token 返回 <code>invalid-run-controls</code> / <code>controls.flags</code>，且没有 callback 被调用。
+2. non-array、sparse hole、empty string 与 non-string token 返回 <code>invalid-run-controls</code> / <code>controls.flags</code>，且没有 callback 被调用。
 3. project Check 用一个 local token 返回 <code>not-applicable</code>，但 Task graph admission 与 dependency semantics 未改变。
 4. Type declaration、public-contract inventory、exact-package consumer 与稳定 Configuration/Architecture owner 同步此 field；不新增 runtime operation 或 named type root。
 5. 测试修改遵循 test-evidence workflow，并在完成时运行最窄 Product/package tests、<code>bun run test-evidence -- check --root .</code>、Change check 与 required workspace verification。

@@ -31,9 +31,12 @@ Owner: `docs/architecture.md#definition-boundary`
 Entities:
 - `bun|src/product/run/index.test.ts|Package Run > rejects invalid closed controls and definitions before any Check callback`
 - `bun|src/product/run/index.test.ts|Package Run > executes each normalized Check directly with the public callback context`
+- `bun|src/product/run/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
+- `bun|src/product/run/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
 - `bun|src/product/run/index.test.ts|Package Run > publishes the direct Check snapshot without retaining executable callbacks`
 Proves:
 - Package Run validates closed definition and controls before calling project code, invokes every normalized executable Check with only its public context, and excludes executable callbacks from frozen/public facts.
+- The two `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input and the canonical immutable `project.flags` callback snapshot.
 
 ## Case WB-RUNTIME-CHECK-LIFECYCLE-001: Each executable Check closes as one Core fact
 Owner: `docs/quality-metrics.md#check-and-record-facts`
@@ -69,8 +72,10 @@ Owner: `docs/architecture.md#execution-boundary`
 Entities:
 - `bun|src/product/run/index.test.ts|Package Run > projects direct dependencies to generic tasks and gives skipped dependents a prerequisite reason`
 - `bun|src/product/run/index.test.ts|Package Run > rejects an invalid projected generic Task graph before any Check callback runs`
+- `bun|src/product/run/flags.test.ts|Package Run flags > keeps dependent admission after local not-applicable`
 Proves:
 - Direct executable Checks use the shared dependency graph. A skipped dependent receives `prerequisite-unavailable` and named prerequisite IDs, while no separate execution layout or scheduler API becomes public.
+- A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped.
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine
 Owner: `docs/architecture.md#execution-boundary`

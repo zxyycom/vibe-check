@@ -41,6 +41,7 @@ function project(root: string): CheckProjectContext {
     cache: Object.freeze({ directory: "cache", enabled: true, reportActivity: () => undefined }),
     changedFiles: Object.freeze(["src/a.ts"]),
     comparison: null,
+    flags: Object.freeze([]),
     files: FILES,
     root
   });

@@ -31,8 +31,8 @@ Product 将 executable node 一次 flatten 为 canonical catalog。它只将 gen
 dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、quality
 verdict 或 public Check field。
 
-每个 executable Check 以 `{ options, project, records, signal }` 执行自己的 callback。callback 拥有 scanner
-invocation 或其他项目工作，并返回 Check result。正常完成但质量失败表示
+每个 executable Check 以 `{ options, project, records, signal }` 执行自己的 callback。`project.flags` 是调用 controls
+规范化后的 frozen string array。Product 只拥有其 validation 与 snapshot，不解释 token；Check 拥有 token 的项目语义，并可据此选择自己的工作或返回 `not-applicable`。generic scheduler 不接收 flags，因此 flags 不会创建 scheduler、dependency 或 graph semantics；任何下游 Gate 对该结果的显示或 pass/fail policy 也不属于 Product。callback 拥有 scanner invocation 或其他项目工作，并返回 Check result。正常完成但质量失败表示
 `{ status: "completed", verdict: "failed" }`，而不是 execution failure；callback 也可以明确返回
 `not-applicable`。Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite
 映射为 owning unavailable outcome。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。

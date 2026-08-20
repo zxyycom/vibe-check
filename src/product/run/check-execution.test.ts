@@ -18,6 +18,7 @@ const PROJECT = Object.freeze({
   cache: Object.freeze({ directory: ".cache", enabled: false, reportActivity: () => undefined }),
   changedFiles: Object.freeze([]),
   comparison: Object.freeze({ referenceName: "baseline", revision: "HEAD", root: "/reference" }),
+  flags: Object.freeze([]),
   files: Object.freeze({ codeAreas: {}, excludeDirs: [], generatedFiles: [], include: ["**/*"] }),
   root: "/project"
 }) satisfies CheckProjectContext;

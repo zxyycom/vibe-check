@@ -39,8 +39,9 @@ export function prepareProjectContext(
           enabled: input.effectConfiguration.cache.enabled,
           reportActivity: input.effects.cache
         }),
-        changedFiles: Object.freeze([...(input.controls.changedFiles ?? [])]),
+        changedFiles: snapshotInvocationStrings(input.controls.changedFiles),
         comparison: materialized?.comparison ?? null,
+        flags: snapshotInvocationStrings(input.controls.flags),
         files: Object.freeze({
           codeAreas: input.definition.quality.codeAreas,
           excludeDirs: input.definition.quality.excludeDirs,
@@ -54,6 +55,10 @@ export function prepareProjectContext(
     materialized?.cleanup();
     throw error;
   }
+}
+
+function snapshotInvocationStrings(value: readonly string[] | undefined): readonly string[] {
+  return Object.freeze([...(value ?? [])]);
 }
 
 function materializeComparison(

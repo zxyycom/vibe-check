@@ -161,11 +161,18 @@ values it wants the private adapter to execute. The adapter handoff is defined i
 ## Invocation and results
 
 `run` first validates one Project Definition and one closed `RunControls` value. Controls provide only invocation
-context: `projectRoot`, `changedFiles`, optional named `comparison`, `signal`, and effect overrides. They cannot
-replace Checks, alter scanner commands, register dependencies, or select another definition.
+context: `projectRoot`, `changedFiles`, optional named `comparison`, optional `flags`, `signal`, and effect
+overrides. They cannot replace Checks, alter scanner commands, register dependencies, or select another definition.
+
+`flags` is an optional caller-supplied dense string-token array: sparse array holes are invalid input. The array
+itself may be empty: omission, `flags: undefined`, and `[]` all provide callbacks a frozen empty array. Every array
+item is one non-empty string token, rather than a nested collection or value-bearing payload. Valid values are
+copied, deduplicated, and lexically sorted before they reach callback context. A non-array, sparse hole, empty
+token, or non-string token is an `invalid-run-controls` diagnostic at `controls.flags`.
 
 A callback receives exactly `{ options, project, records, signal }`. `project` contains the normalized root,
-file scope, comparison, and cache context. The callback reports Check-owned record candidates and returns one of:
+file scope, comparison, cache context, and canonical `flags`. The callback reports Check-owned record candidates
+and returns one of:
 
 ```ts
 { status: "completed", verdict: "passed" | "failed" }
@@ -183,7 +190,8 @@ configuration returns a configuration result before callback work. Every `RunRes
 ## Policy, effects, and retired inputs
 
 `DecisionPolicy` and `selectedPolicy` are declarative definition fields. Effects own cache, logs, progress, and
-output destinations; controls may narrow those effects for an invocation but do not change Check behavior.
+output destinations; controls may narrow those effects for an invocation. Flags are callback-local context: Product
+does not interpret their tokens or use them for Product-level Check selection or scheduling.
 
 JSON/JSONC discovery, editor configuration, profile selection, adjustment helpers, parser/materializer APIs, and
 operational dependency maps are retired. The retained Product CLI emits only the migration diagnostic; it does

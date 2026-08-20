@@ -222,14 +222,19 @@ function publicImports(): string {
 ${typeImports}
 } from "vibe-check";
 
-const definition: ProjectDefinition = defineConfig({ checks: [duplicateDetection] });
 const directCheck = defineCheck({
   checkId: "isolated-public-import",
   displayName: "Isolated public import",
-  execution: () => ({ status: "completed" as const, verdict: "passed" as const })
+  execution: (context) => ({
+    status: "completed" as const,
+    verdict: context.project.flags.includes("isolated-consumer")
+      ? ("passed" as const)
+      : ("failed" as const)
+  })
 });
+const definition: ProjectDefinition = defineConfig({ checks: [duplicateDetection, directCheck] });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
-const result: Promise<RunResult> = run(definition);
+const result: Promise<RunResult> = run(definition, { flags: ["isolated-consumer"] });
 
 void [
   defineCheck,

@@ -67,6 +67,7 @@ export interface CheckRecordReporter {
 export interface CheckProjectContext {
   readonly root: string;
   readonly changedFiles: readonly string[];
+  readonly flags: readonly string[];
   readonly files: Readonly<{
     readonly codeAreas: ProjectQualityConfiguration["codeAreas"];
     readonly excludeDirs: ProjectQualityConfiguration["excludeDirs"];

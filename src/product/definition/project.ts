@@ -97,6 +97,7 @@ export interface RunControls {
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
+  readonly flags?: readonly string[];
   readonly projectRoot?: string;
   readonly signal?: AbortSignal;
 }

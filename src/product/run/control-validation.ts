@@ -1,4 +1,4 @@
-import { isNonArrayRecord, isStringArray } from "../foundation/type-guards.ts";
+import { isNonArrayRecord, isStringArray, isUnknownArray } from "../foundation/type-guards.ts";
 import { parseEffectsOverride } from "../definition/effect-validation.ts";
 import type {
   ProjectDefinitionDiagnostic,
@@ -10,6 +10,7 @@ const RUN_CONTROL_KEYS = [
   "changedFiles",
   "comparison",
   "effects",
+  "flags",
   "projectRoot",
   "signal"
 ] as const;
@@ -31,6 +32,8 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
     "controls.changedFiles"
   );
   if (!changedFiles.ok) return changedFiles;
+  const flags = parseFlags(data.value.flags);
+  if (!flags.ok) return flags;
   const comparison = optionalControl(data.value.comparison, parseComparison, "controls.comparison");
   if (!comparison.ok) return comparison;
   const effects = optionalControl(data.value.effects, parseEffectsOverride, "controls.effects");
@@ -47,6 +50,7 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
         : { changedFiles: Object.freeze([...changedFiles.value]) }),
       ...(comparison.value === undefined ? {} : { comparison: comparison.value }),
       ...(effects.value === undefined ? {} : { effects: effects.value }),
+      flags: flags.value,
       ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
       ...(signal.value === undefined ? {} : { signal: signal.value })
     })
@@ -73,6 +77,25 @@ function optionalControl<T>(
 
 function parseStringArray(value: unknown): readonly string[] | undefined {
   return isStringArray(value) ? value : undefined;
+}
+
+function parseFlags(value: unknown): ValidationResult<readonly string[]> {
+  if (value === undefined) return Object.freeze({ ok: true, value: Object.freeze([]) });
+  if (!isUnknownArray(value)) return invalidControls("controls.flags");
+  const flags: string[] = [];
+  const length = value.length;
+  for (let index = 0; index < length; index += 1) {
+    if (!Object.hasOwn(value, index)) return invalidControls("controls.flags");
+    const flag = value[index];
+    if (typeof flag !== "string" || flag.length === 0) {
+      return invalidControls("controls.flags");
+    }
+    flags.push(flag);
+  }
+  return Object.freeze({
+    ok: true,
+    value: Object.freeze([...new Set(flags)].sort())
+  });
 }
 
 function parseComparison(value: unknown): RunControls["comparison"] | undefined {
