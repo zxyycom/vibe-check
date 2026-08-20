@@ -13,7 +13,7 @@ relations: []
 
 ## 目的
 
-- 让任何 package consumer 只需启用现有 progress effect，即可获得 Product 一致维护的 Check 总数、运行中状态、逐项完成状态、耗时和 final summary。
+- 让任何 package consumer 只需启用现有 progress effect，即可获得 Product 一致维护的 Check 总数、逐项完成状态、耗时和 final summary；只有 TTY target 额外显示运行中状态。
 - 保持程序化 `run` API 与 structured `RunResult` 是核心事实入口，不让项目、Check 或文本解析承担基础进度协议。
 - 让 TTY 动态呈现、plain log、duration summary 和 progress failure 使用同一组 Run-owned lifecycle facts。
 

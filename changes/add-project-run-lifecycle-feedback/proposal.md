@@ -10,7 +10,7 @@
 
 ## Outcome
 
-调用方启用 `ProjectDefinition.effects.progress` 并调用 `run(definition, controls)` 后，可以观察到：
+调用方在 progress effect 启用时调用 `run(definition, controls)`，可以观察到：
 
 1. Check execution 前显示 Product 标题、`total N checks` 和 `Checks:`；不显示无法准确代表实际运行状态的全局并行度。
 2. TTY 在永久完成记录下方维护临时 running 区域。started Check 出现在该区域；收到 settled 后，renderer 清除临时区域、永久追加完成行，再在下一行重绘其余 running Checks。
@@ -35,7 +35,7 @@ Product 对每个实际进入执行路径的 Check 使用 monotonic clock 测量
 
 ## Success Criteria
 
-1. exact-package consumer 只需启用现有 progress effect 并调用 public `run`，即可看到 Check 总数、TTY running 状态、逐项完成状态/耗时与 final execution summary；不导入 Product internal，也不提供 lifecycle callback。
+1. exact-package consumer 只需启用现有 progress effect 并调用 public `run`，即可在所有 target 看到 Check 总数、逐项完成状态/耗时与 final execution summary；TTY target 额外显示 running 状态；不导入 Product internal，也不提供 lifecycle callback。
 2. 每个实际开始执行的 Check 形成一次 internal started feedback，每个 canonical Check 形成一次 settled feedback；从未启动的 blocked/cancelled Check 只有 settled `not run`。
 3. TTY 只刷新临时 running 区域。settled 行按接收顺序永久追加并获得连续 completion ordinal；其余 running 行保持相对顺序并按当前可见位置重新编号。
 4. 非 TTY、重定向或 dumb terminal 只输出 settled 行与 summary，不包含 cursor/color control bytes；TTY 与 plain 复用同一 completion counter、status mapping 和 terminal-row formatter。

@@ -57,7 +57,7 @@ const COLOR = Object.freeze({
   unavailable: "\u001B[33m"
 });
 
-const NAMED_CONTROL_ESCAPES: Readonly<Record<string, string>> = Object.freeze({
+const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.freeze({
   "\n": "\\n",
   "\r": "\\r",
   "\t": "\\t"
@@ -89,10 +89,7 @@ export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer
         usesColor
       })
     );
-    if (!isTTY) {
-      renderedRunningRows = 0;
-      return;
-    }
+    if (!isTTY) return;
     removeRunningCheck(running, feedback.checkId);
     renderedRunningRows = redrawRunningRegion({
       completedCount,

@@ -38,6 +38,7 @@ import {
   isCancelled,
   planning,
   preExecutionCancellation,
+  type CheckDuration,
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
@@ -66,10 +67,7 @@ const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => p
 type PlannedInvocation = Readonly<{ readonly policy: PolicyResolution }>;
 
 export type CoreExecution = Readonly<{
-  readonly checkDurations: Extract<
-    ResolvedCheckExecution,
-    { readonly kind: "completed" }
-  >["checkDurations"];
+  readonly checkDurations: readonly CheckDuration[];
   readonly referenceFacts: ReferenceFacts;
   readonly snapshot: CoreSnapshot;
 }>;

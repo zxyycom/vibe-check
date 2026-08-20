@@ -39,7 +39,7 @@
 
 ### Goals
 
-- 让任意 npm Product consumer 启用现有 progress effect 后，直接看到总数、TTY 当前 running Checks、连续完成进度、terminal status/duration 和 final execution summary。
+- 让任意 npm Product consumer 启用现有 progress effect 后，在所有 target 看到总数、连续完成进度、terminal status/duration 和 final execution summary，并仅在 TTY target 看到当前 running Checks。
 - 让 TTY 与 plain presentation 消费同一 internal feedback、completion counter、status mapping 和 terminal-row formatter；TTY 只额外拥有 running state 与 cursor redraw。
 - 在 Run-owned Check execution boundary 测量 duration，并让 progress 与 final `RunResult.checkDurations` 复用同一次测量。
 - 让 progress failure 可观察但不能成为第二个 Check/Record execution control plane。

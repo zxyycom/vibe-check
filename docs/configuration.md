@@ -195,7 +195,7 @@ branch with a final `snapshot` also includes
 ## Policy, effects, and retired inputs
 
 `DecisionPolicy` and `selectedPolicy` are declarative definition fields. Effects own cache, logs, progress, and
-output destinations; controls may narrow those effects for an invocation. Progress is enabled by the Product default:
+output destinations; controls may override their settings for an invocation. Progress is enabled by the Product default:
 it owns the execution header, settled Check feedback, and final execution summary on its target stream. TTY targets
 may additionally show a temporary running region; non-TTY or dumb targets retain only settled feedback and the final
 summary. Progress presentation is not a project callback, observer, or renderer API, and a progress write failure

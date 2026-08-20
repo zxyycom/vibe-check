@@ -11,6 +11,7 @@ import type {
 } from "./check-execution.ts";
 import {
   createProgressRenderer,
+  type ProgressFeedback,
   type ProgressOutcomeCounts,
   type ProgressWriter
 } from "./progress.ts";
@@ -106,9 +107,7 @@ export function createProgressEffect(
   let failed = false;
   let renderer: ReturnType<typeof createProgressRenderer> | undefined;
 
-  const render = (
-    feedback: Parameters<ReturnType<typeof createProgressRenderer>["render"]>[0]
-  ): void => {
+  const render = (feedback: ProgressFeedback): void => {
     if (failed) return;
     try {
       renderer ??= createProgressRenderer(writerFactory());
