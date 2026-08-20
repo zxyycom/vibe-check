@@ -10,8 +10,8 @@
 
 ## Outcome
 
-完成后，仓库的标准验证入口只调用一个 project-owned Gate command；该 command 通过 package candidate 运行已证明的 Definition/Run，并给出一致的项目拥有的 exit、日志和摘要行为。旧 workspace verifier implementation 及其不再需要的入口被退役；兼容 alias 若保留，也只能转发到同一 Gate implementation。
+完成后，仓库全部正式验证调用只到达一个 project-owned Gate implementation；root script 的具体名称只是仓库接线，不是产品契约。该 implementation 通过 package candidate 运行已证明的 Definition/Run，并给出一致的项目拥有的 exit、日志和摘要行为。正式 repository/CI 调用只使用无 disabled tags 的 required/full；local direct adapter 仍可执行显式 partial invocation，且不检测 ambient CI。旧 workspace verifier implementation 及已无调用者的转发、测试和说明被退役。
 
-本 Change 写出 <code>gate-handoff.md</code>，作为公开发布前的最终本地证据：实际切换入口、覆盖类别、candidate identity、controls/output behavior、删除范围、重新验证条件和回退方式。
+本 Change 写出 <code>gate-handoff.md</code>，作为公开发布前的最终本地证据：实际 repository/CI bindings、覆盖类别、candidate identity、controls/output behavior、legacy reference audit 结果、重新验证条件和回退方式。
 
 它只在 [build-candidate-backed-project-gate](../build-candidate-backed-project-gate/) 的 readiness handoff 与 fresh candidate evidence 同时成立时开始切换。完整阶段关系见 [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md)。

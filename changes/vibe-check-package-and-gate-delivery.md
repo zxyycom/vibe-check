@@ -4,7 +4,7 @@
 
 当 AI 或维护者需要选择、恢复或审阅当前 npm / Project Gate 交付路径时，先阅读本导航，再进入目标 Change 的 proposal、design 和 tasks。本文件是 [Active Change Portfolio](active-change-portfolio.md) 中“Project Gate 与 package 交付”路径的详细导航；需要查看全部 active Change 或其直接相关 Decision 时，回到该 portfolio。
 
-本文件只拥有本产品路径六个 active Change 的导航关系，不拥有其动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
+本文件只拥有本产品路径六个阶段节点的导航关系：三个上游 Change 已归档，Gate build、cutover 与 publish 仍是 active Change。它不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
 
 - 动态 stage、任务进度和 Git 基线以每个 Change 的 <code>.change-plan.json</code> 与 <code>bun run change-plan -- list changes</code> 为准。
 - 每个 Change 自己拥有其 proposal、design、tasks、验证和 handoff 内容。
@@ -22,34 +22,34 @@
 ## 依赖图
 
 ~~~text
-add-project-run-invocation-controls ─┐
-                                      ├─> build-candidate-backed-project-gate
-add-project-run-lifecycle-feedback ──┤               │
-                                      │               v
-establish-npm-package-candidate-and-quality-dogfood ─────┘  replace-workspace-verifier-with-project-gate
-                                                      │
-                                                      v
-                                     publish-public-api-only-npm-package
+[archived] add-project-run-invocation-controls ─────────────┐
+[archived] add-project-run-lifecycle-feedback ──────────────┼─> build-candidate-backed-project-gate
+[archived] establish-npm-package-candidate-and-quality-dogfood ┘                  │
+                                                                                  v
+                                                   replace-workspace-verifier-with-project-gate
+                                                                                  │
+                                                                                  v
+                                                   publish-public-api-only-npm-package
 ~~~
 
-前三个 Change 可以独立推进。package candidate 在 controls 或 lifecycle feedback 改变 public package closure 后，必须重新 pack 并刷新 candidate evidence，才可成为 Gate build 的兼容输入。
+前三个上游 Change 的完成只证明各自交付，不证明历史 candidate identity 仍与当前 public package closure 一致。Gate build 必须按 archived candidate handoff 的重新验证条件 fresh prepare、audit 并记录当前 artifact，才能把它作为 readiness evidence。
 
 ## Change 与 handoff
 
 | Change | 唯一交付 | 下游可使用的完成证据 | 不负责 |
 | --- | --- | --- | --- |
-| [add-project-run-invocation-controls](add-project-run-invocation-controls/) | Product Run 的 immutable project invocation input。 | 已验证的 public control contract；Gate build 可据此实现 Check-local eligibility。 | CLI grammar、tag vocabulary、scheduler selection、renderer。 |
-| [add-project-run-lifecycle-feedback](add-project-run-lifecycle-feedback/) | Product Run 的 TTY/plain progress effect 与 final per-Check duration summary。 | 已验证的 Product-owned progress、duration summary、effect failure isolation 与 exact-package output；Gate build 可直接启用。 | Project process logs、exit mapping、canonical performance policy 或公共 observer/renderer API。 |
-| [establish-npm-package-candidate-and-quality-dogfood](establish-npm-package-candidate-and-quality-dogfood/) | API-only candidate、quality dogfood 与 exact-tarball proof。 | <code>candidate-handoff.md</code>，记录与当前 public contract 匹配的 artifact identity 与安装证据。 | 完整 Gate、正式入口切换、registry publish。 |
+| [add-project-run-invocation-controls](archive/add-project-run-invocation-controls/)（archived） | Product Run 的 immutable project invocation input。 | 当前 owner 已实现并验证的 string flags；Gate build 可据此实现 Check-local eligibility。 | CLI grammar、tag vocabulary、scheduler selection、renderer。 |
+| [add-project-run-lifecycle-feedback](archive/add-project-run-lifecycle-feedback/)（archived） | Product Run 的 TTY/plain progress effect 与 final per-Check duration summary。 | 当前 owner 已实现并验证的 Product-owned progress、duration summary 与 effect failure isolation；Gate build 可直接启用。 | Project process logs、exit mapping、canonical performance policy 或公共 observer/renderer API。 |
+| [establish-npm-package-candidate-and-quality-dogfood](archive/establish-npm-package-candidate-and-quality-dogfood/)（archived） | API-only candidate、quality dogfood 与 exact-tarball proof。 | [<code>candidate-handoff.md</code>](archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 记录证据形态、旧 identity 与重新验证条件；Gate build 必须产生 current identity。 | 完整 Gate、正式入口切换、registry publish。 |
 | [build-candidate-backed-project-gate](build-candidate-backed-project-gate/) | 可并行运行的完整 repository Gate consumer。 | <code>gate-readiness-handoff.md</code>，记录类别映射、candidate、controls/feedback 集成和对照证据。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
-| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 将已验证 Gate 切换为唯一正式门禁，并退役旧 verifier。 | <code>gate-handoff.md</code>，记录实际入口、删除范围和重新验证条件。 | 新增 Gate 功能、公共 Run contract、package build、registry publish。 |
+| [replace-workspace-verifier-with-project-gate](replace-workspace-verifier-with-project-gate/) | 将已验证 Gate 切换为唯一正式门禁，并退役旧 verifier。 | <code>gate-handoff.md</code>，记录实际 repository/CI bindings、无 disabled-tag required/full 证据、legacy reference audit 结果和重新验证条件。 | 新增 Gate 功能、公共 Run contract、package build、registry publish。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 经过单独授权的公开 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装验证。 | 重建 package、补齐 Gate 功能或替代本地 cutover evidence。 |
 
-表中的 handoff 是完成 Change 后才应产生的计划输出，不是当前仓库已经拥有的文件。
+Archived candidate handoff 已存在，但其中 artifact identity 不是 current readiness 的替代品。`gate-readiness-handoff.md` 与 `gate-handoff.md` 只有在各自 active Change 的实际验证完成后才应产生；表格中的计划输出不能被当作已完成事实。
 
 ## Timing / telemetry 边界
 
-当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。[lifecycle-feedback Change](add-project-run-lifecycle-feedback/) 负责 Product-measured <code>durationMs</code>：它由 Product 私有 settled feedback 驱动 progress，并作为 final RunResult 的 per-Check execution signal 返回，不进入 Core、machine artifact 或 Record。
+当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。已归档的 [lifecycle-feedback Change](archive/add-project-run-lifecycle-feedback/) 落地 Product-measured <code>durationMs</code>：它由 Product 私有 settled feedback 驱动 progress，并作为 final RunResult 的 per-Check execution signal 返回，不进入 Core、machine artifact 或 Record；当前事实仍以 Product owner、源码与测试为准。
 
 首轮不返回 <code>startedAt</code> / <code>endedAt</code>，也不让 duration 自动影响 policy。若出现实际性能预算消费者，必须先演进长期 Decision，再建立独立 Change，明确 threshold、baseline、retention 和失败语义。
 
