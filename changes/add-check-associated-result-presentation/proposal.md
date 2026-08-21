@@ -1,17 +1,17 @@
 # Proposal
 
-本 Draft 在最小 Record hard cut 实施后交付 Check-associated result presentation，使已完成 Check 的结构化辅助内容进入 Product-owned 主结果体验。它先闭合 terminal Record projection，再判断首版是否还需要真正的 live/intermediate feedback；Record cutover 完成前不进入 Plan，Draft stage 也不授权预先扩展 `CheckResult` / progress API。
+本 Draft 在最小Check/Record hard cut实施后交付Check-associated result presentation，使Check final data与显式supplemental Records能够进入Product-owned人读结果体验。它的主要目标是terminal/live presentation；上游CheckResult新增final data后，旧Record-only source假设必须在本Draft中重新闭合。Hard cut完成前不进入Plan，Draft stage也不授权预先扩展progress API。
 
 ## Why
 
 当前 Core snapshot 已将 `checks` 与 `records` 保存为同级 collections，但 Product progress 只呈现 Check lifecycle/outcome/duration；现有 Records 主要通过 publication console/report 展示。关闭 publication logs/output 的 Project Gate 因而只能在主进度中看到 Check passed/failed/N/A/unavailable，看不到一个成功 Check 希望明确展示的非阻断辅助内容。这是首次公开 package 的已知结果体验缺口，不能留给 package 文档解释或发布阶段补偿。
 
-未来最小 Record contract 只保证 `{ checkId, id, data }`，而 arbitrary custom `data` 不必包含 message、level、location，也不一定适合直接显示。因此本 Draft 不能把“存在 Record”当成“存在通用人读 finding”；它必须单独确定 producing Check 如何显式提供 presentation，以及未提供 projection 时 Product 能安全显示什么。
+未来minimal contract提供两类structured facts：passed/failed Check的single final data，以及零到多个`{ checkId, id, data }`supplemental Records。两类arbitrary custom `data`都不必包含message、level、location，也不一定适合直接显示。因此本Draft不能把“存在final data/Record”当成“存在通用人读finding”；它必须确定producing Check如何显式提供projection，以及未提供projection时Product能安全显示什么。
 
 相邻的 typed dependency output Draft 可能引入普通、可见的 supporting Checks。它们即使 passed 也必须保留在 structured RunResult、Core 与 machine facts，lifecycle events 也照常产生。本 Change 使用显式 Check presentation 字段决定 passed 时是否直接显示；该字段只影响人读 projection。Typed dependency 是该能力的一个消费者，不是本 Change 的实施前置。
 
-“显示已完成 Check 的结构化 Records”和“Check 运行期间发送中间输出”具有不同的事实来源、时序与失败语义。直接给 callback 一个任意 writer、把 stdout 穿透到 progress、或把辅助文本塞进 terminal verdict 都会混淆 Product stream ownership、Core facts 与项目日志。本 Draft 先确定实际需要的结果层级和最小输出责任。
+“投影已完成Check的final data/Records”和“Check运行期间发送中间输出”具有不同的事实来源、时序与失败语义。直接给callback一个任意writer、把stdout穿透到progress、或另建terminal payload都会混淆Product stream ownership、Core facts与项目日志。本Draft先确定实际需要的结果层级和最小输出责任。
 
 ## Outcome
 
-首版完成后，consumer 可以通过一个明确、受限且可验证的公共契约，让已完成 Check 显式声明的 presentation 以有界形式出现在 Product-owned 主结果体验中，同时保持 Check outcome、custom Record data 与 presentation 的责任边界。Change 必须交付 terminal Check-associated presentation，并允许 Check 显式选择 passed 时始终直接显示或仅在 problem 时显示；所有事实与 lifecycle events 仍产生。它只依赖已经实施的 minimal Record facts，不等待 typed dependency。只有首版命名消费者确实需要 Check 完成前的内容时，才把 live feedback capability 及其顺序、取消和 writer-failure 语义纳入同一首版范围。
+首版完成后，consumer可以通过一个明确、受限且可验证的公共契约，让已完成Check对final data或supplemental Records声明的presentation以有界形式进入Product-owned人读体验，同时保持terminal status、structured data与presentation的责任边界。Change必须交付terminal Check-associated presentation，并允许Check显式选择passed时始终直接显示或仅在problem时显示；所有facts与lifecycle events仍产生。它只依赖已经实施的minimal Check/Record facts，不等待typed dependency。只有首版命名consumer确实需要Check完成前的内容时，才把live feedback capability及其顺序、取消和writer-failure语义纳入同一首版范围。

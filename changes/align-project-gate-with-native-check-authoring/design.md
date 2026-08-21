@@ -1,6 +1,6 @@
 # Design
 
-本 Design 不再从 20 个迁移命令推导新 shape，而是先闭合 repository assurance inventory，再用普通 public `Check` values、import-safe TypeScript capabilities 和必要的 process boundaries 组成唯一正式 Gate。
+本Design从repository assurance inventory形成普通public Checks与必要process boundaries。Minimal Check/Record Plan已经拥有aggregation与adapter cutover；本Draft只消费迁移后的raw facts和package aggregate。
 
 ## Context
 
@@ -13,7 +13,8 @@
 - [`use-native-object-composition-for-check-customization`](../../docs/decisions/use-native-object-composition-for-check-customization.md) 与 [`expose-ordinary-check-values-with-define-check`](../../docs/decisions/expose-ordinary-check-values-with-define-check.md) 排除来源专属 Check model、runtime brand 和第二 execution entry。Gate selection metadata 可以留在项目 adapter，但不能重新定义 command-only Check family。
 - CLI lifecycle 与 Gate execution path 正交。当前 root `format`、`lint`、`typecheck`、`test`、`validate`、governance 和 `quality` commands 仍可能有 focused 人类/AI consumer；这些 caller 只决定相应 CLI 是否保留，不决定 Gate 是否经由 argv、console 或 exit code 使用其能力。
 - 当前 Test Evidence strict check 会运行 supported Bun test surface，并把 runner failure 与 semantic Case closure 一起判定；当前 quick/full quality entries 执行同一个 `scripts/quality/index.ts`。这些是重复审计的直接输入，不是预先决定的删除清单。
-- 本 Change 在 hard cutover 后修改唯一正式 Gate。它不恢复 legacy verifier，也不重新执行 binding migration；实现完成后必须从已经接线的 root entry 形成 current evidence。
+- 本Change在minimal hard cut后修改已经接线的唯一正式Gate，不恢复legacy verifier或重新执行binding migration。
+- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)提供新Check facts、explicit RunControls aggregation与已迁移required/full adapter；本Draft不重复拥有这些public/runtime contracts。
 
 ## Goals / Non-Goals
 
@@ -35,6 +36,7 @@
 - 不公开 Gate catalog、profile/tag grammar、process helper、transcript writer 或 CLI adapter 到 npm package。
 - 不建立 generic process Check 产品 API、第二 Check execution variant、command registry 或 project-wide dependency injection framework。
 - 不在本 Change 定义最小 Record contract、typed dependency output 或 result presentation；这些分别由 [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 承接。
+- 不重新设计或复制minimal Plan拥有的RunControls aggregation、RunResult aggregate或adapter exit closure。
 - 不访问 registry、credentials 或执行 npm publish；发布由独立 Change 在再次授权后完成。
 
 ## Decisions
@@ -108,7 +110,7 @@ Gate adapter 的 candidate preparation 是唯一 bootstrap owner。后续 Check 
 
 Gate projection 从同一 selection解析 profile和 disabled tags，并在 execution 前为 excluded entry返回 `profile-excluded` / `tag-disabled` N/A。普通 Check无需解析 selection grammar。只有行为本身随 profile改变的 `repository-quality` 等少数 Check，才通过一个 Gate-private helper读取已经验证的 profile flag；它们不自行解析 argv或 ambient CI。
 
-Dependencies 继续是静态 Check graph facts。一个 profile 中 eligible Check的 dependencies必须也在该 profile eligible；不能用 runtime mode隐藏缺失 prerequisite。Adapter final closure从同一 entries和 selection计算 expected eligible/N/A outcomes，不从结果反推 selection，也不维护另一个 ID catalog。
+Dependencies 继续是静态 Check graph facts。一个 profile 中 eligible Check的 dependencies必须也在该 profile eligible；不能用 runtime mode隐藏缺失 prerequisite。Selection从同一entries与profile计算eligible/N/A集合，不从结果反推selection，也不维护另一个ID catalog；minimal Plan提供的explicit aggregate继续消费eligible IDs。
 
 ### 7. Transcript 只属于真实 process evidence
 
@@ -127,9 +129,9 @@ Gate caller归零不等于 CLI consumer归零。仍有独立 consumer的 CLI保�
 
 ### 9. Cutover binding持续有效，优化 evidence必须刷新
 
-正式 root bindings和legacy retirement事实继续由已归档的 <code>gate-handoff.md</code>拥有。本 Change默认保持这些 names到达同一个 adapter；catalog、profile behavior或内部执行路径变化不恢复旧 verifier。
+正式root bindings和legacy retirement事实继续由已归档的<code>gate-handoff.md</code>拥有。本Change默认保持这些names到达同一个adapter；catalog、profile behavior或内部执行路径变化不恢复旧verifier。
 
-本 Change等待 [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)、[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 和 [`ship-public-package-api-documentation`](../ship-public-package-api-documentation/) 收敛首次公开 package inputs。随后重新准备或安全复用 matching candidate、校验 installed entry，并从正式 root entry运行 focused/native/process/candidate tests、required/full acceptance和partial eligibility smoke。
+本Change等待[`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)、[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/)和[`ship-public-package-api-documentation`](../ship-public-package-api-documentation/)收敛首次公开package inputs。随后重新准备或安全复用matching candidate、校验installed entry，并从正式root entry运行focused/native/process/candidate tests、required/full acceptance和partial eligibility smoke。
 
 最终 <code>gate-optimization-handoff.md</code> 绑定 current Gate inventory、保留/删除理由、CLI/capability caller audit、documentation-complete exact artifact、正式 bindings与验收结果。Publish同时消费它、cutover <code>gate-handoff.md</code>和package documentation handoff。
 

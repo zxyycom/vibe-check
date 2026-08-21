@@ -1,6 +1,6 @@
 # Design
 
-本 Design 将 Check 的终态、已提交 Records 与可能的运行中反馈拆成不同场景，为首次公开 package 交付最小且完整的 structured result / 人读输出投影。
+本Design将Check terminal final data、supplemental Records与可能的运行中feedback拆成不同场景，为首次公开package交付最小且完整的人读projection。Presentation是主要设计；minimal contract带来的source变化是上游影响，不改变presentation owner。
 
 ## Context
 
@@ -12,18 +12,18 @@
 - [`provide-product-owned-check-progress`](../../docs/decisions/provide-product-owned-check-progress.md) 规定 progress stream 由 Product 独占，当前只消费 private prepared/started/settled/final feedback，不提供 Check-owned writer、公共 observer 或 custom renderer。
 - [`publish-fingerprint-bound-check-record-machine-v3`](../../docs/decisions/publish-fingerprint-bound-check-record-machine-v3.md) 规定 machine v3 已将 canonical Checks 与 Records 作为独立事实投影，并排除外部 live/partial event protocol。
 - [`define-project-run-log-evidence-boundaries`](../define-project-run-log-evidence-boundaries/) 已区分 Product lifecycle、project-owned process transcript 与未来 event sink；本 Change 不把任意 child stdout 当作结构化结果。
-- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/) 将 future Core Record 收敛为 `{ checkId, id, data }`，并明确 `data` 的 domain shape、location、severity、message 与 comparison semantics 不属于 Product-wide Record contract。
+- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)将future CheckResult收敛为四态terminal result，passed/failed携带single final data，并将Core Record收敛为`{ checkId, id, data }`supplemental fact。两类data的domain shape、location、severity、message与presentation semantics都不属于Product-wide base contract。
 - [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 是显式 visibility 的一个未来 consumer，不是本 Change 的前置。本 Change 只拥有 Check visibility metadata 与 human direct-display policy；无论 typed dependency 是否实施，facts/events 始终产生。
 - [`ship-public-package-api-documentation`](../ship-public-package-api-documentation/) 只有在本 Change 的首版 public result/presentation contract 已实施并验证后，才能冻结对应 JSDoc、examples 与 package guide。
 
-当前 `RunResult` 的 final snapshot 已提供 sibling `checks` 与 `records`。缺口主要在 result experience：progress settled feedback 不携带 Records，且启用 progress、关闭 publication logs/output 的 consumer 不会在共享 stream 看到 producing Check 希望明确展示的非阻断内容。Future minimal Record 本身只保证 identity 与 custom data，不能证明每条 Record 都是 finding 或可以由通用 renderer 安全解释。
+目标`RunResult`的final snapshot提供Checks及其terminal final data与sibling Records。缺口主要在result experience：progress settled feedback没有显式domain projection，且启用progress、关闭publication logs/output的consumer不会在共享stream看到producing Check希望展示的结构化内容。Final data和Record data都不能证明自身是finding或可由generic renderer安全解释。
 
 ## Goals / Non-Goals
 
 ### Goals
 
 - 区分 terminal structured auxiliary content 与 live/intermediate feedback 的消费者、时序和失败语义。
-- 为首次公开 package 交付有界、关联 owning Check 的显式输出层投影，而不是从 arbitrary Record data 猜测 message/location 或新增 Core fact。
+- 为首次公开package交付有界、关联owning Check的显式projection，而不是从arbitrary final/Record data猜测message/location或新增Core fact。
 - 固定显式 Check presentation metadata、默认直接显示行为与 problem-only 可见性；字段只影响 human presentation。
 - 确定是否需要一个简单的 Product-owned presentation option，以及它在 Definition/Run controls 中的 owner。
 - 明确首版是否存在真实 live feedback 需求；若存在，必须同时定义 callback capability、排序、TTY/non-TTY、取消、stream ownership 和失败隔离。
@@ -37,22 +37,22 @@
 - 不隐藏、删除或省略 supporting Check 的 structured RunResult、Core 或 machine facts。
 - 不把任意 stdout/stderr、logger call 或 child process line 自动转换为可信 Record/auxiliary result。
 - 不在没有 named consumer 时公开 lifecycle observer、custom renderer 或无限制 callback writer。
-- 不在本 Change 定义 Record reporter、canonical JSON boundary、Check-local identity 或 machine schema；这些由 [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/) 统一承接。
+- 不在本Change定义CheckResult、Record reporter、canonical JSON boundary、Check-local identity或machine schema；这些由[`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)统一承接。
 - 不把 `level`、`message`、`location`、`kind` 或其它 presentation 字段恢复为所有 custom Records 必须提供的 Core 字段。
 
 ## Decisions
 
 以下是 Draft 的场景分层与首版最低交付，不是已批准的 API；Open Questions 未关闭前不得派生 Plan tasks。
 
-### 1. Check outcome、terminal Records 与 live feedback 不是一个 union
+### 1. Terminal final data、supplemental Records与live feedback不是一个union
 
-Check outcome 是唯一 terminal work conclusion；Record 是 durable structured custom fact，但不保证可直接人读；live feedback 是执行过程中可能发生、可能重复且不能代表 terminal fact 的 presentation signal。三者生命周期不同，不能通过给 `CheckResult` 增加一个含混的 `output` 字段合并。
+Check terminal result是唯一work conclusion；passed/failed final data是single primary structured result；Record是零到多个durable supplemental facts；live feedback是在执行中可能重复且不能代表terminal fact的presentation signal。三者义务与时序不同，不能通过再增加一个含混`output`或presentation payload合并。
 
-### 2. 首版 terminal content 必须有显式 presentation source
+### 2. 首版terminal content必须有显式projection
 
-首次公开 package 必须覆盖“成功 Check 产生了需要用户看到的非阻断内容”，但 minimal Record 的 arbitrary `data` 不能自动充当 presentation contract。Draft 需要在形成 Plan 前从两个候选中选择一个：由 producing Check 声明一个受限的 Record-to-presentation projection，或由 execution terminal result 另行提交受限 presentation payload。Check-owned parser 可以帮助 projection 恢复 domain type，但 parser 本身不决定展示内容，也不注册到 Product。两个候选都必须保持 presentation 是派生内容，不是第三类 Core fact，也不能要求所有 Records 具有 finding 字段。
+首次公开package必须覆盖“成功Check产生了需要用户看到的结构化内容”，但arbitrary final/Record data不能自动充当presentation contract。Producing Check必须显式声明一个受限projection；projection可以读取自己的final data，并在真实场景需要时读取自己的supplemental Records。Check-owned parser可以帮助projection恢复domain type，但parser本身不决定展示内容，也不注册到Product。Presentation保持derived content，不是第三类Core fact，也不要求所有data具有finding字段。
 
-没有显式 projection/payload 时，通用 renderer 最多可以安全显示 owning Check 与 Record count/IDs；默认不能遍历 custom data、猜测 message/location 或泄露敏感值。选定的 projection 可以在 settled row 后或 final summary 区域产生有界 preview，但 payload grammar、顺序与限制必须由本 Change 的 output contract 固定。
+没有显式projection时，renderer不能遍历custom data、猜测message/location或泄露敏感值。是否只显示owning Check/status以及是否显示Record count/IDs，由本Draft在consumer probe后固定；这类generic metadata不能假装成domain result。选定projection可以在settled row后或final summary区域产生有界preview，但payload grammar、顺序与限制必须由本Change的output contract固定。
 
 ### 3. Presentation option 应表达模式而不只是开关
 
@@ -62,7 +62,7 @@ Check outcome 是唯一 terminal work conclusion；Record 是 durable structured
 
 ### 4. Intermediate output 只有首版确有需要时才增加独立 capability
 
-Terminal Record presentation 是首版硬范围。如果首版消费者还必须在 Check 完成前看到辅助内容，Record final projection或扩展 `CheckResult` 都无法满足真实时序；本 Change 必须再演进 `CheckExecutionContext`，提供 Product-owned、Check-associated feedback capability，并同步修订 [`provide-product-owned-check-progress`](../../docs/decisions/provide-product-owned-check-progress.md) 对 stream ownership 和 public callback 的现有判断。
+Terminal final-data/Record presentation是首版硬范围。如果首版consumer还必须在Check完成前看到辅助内容，terminal projection无法满足真实时序；本Change必须再演进`CheckExecutionContext`，提供Product-owned、Check-associated feedback capability，并同步修订[`provide-product-owned-check-progress`](../../docs/decisions/provide-product-owned-check-progress.md)对stream ownership和public callback的现有判断。
 
 该 capability 至少需要定义 payload、Check association、per-Check ordering、并行交错、TTY重绘、non-TTY append-only 行为、取消后的关闭、writer failure isolation、是否进入 final `RunResult` 以及是否持久化。没有这些契约时，不采用 callback writer 或 stdout tee。
 
@@ -96,7 +96,7 @@ Exact field name 和 normalized/Core 投影位置由 prototype 固定。
 
 ## Open Questions
 
-1. Terminal presentation source 由 Check-owned Record projection 还是 terminal result payload 提供？必须用 custom Check 与现有 default/Gate consumers 验证哪个边界能表达内容而不形成第二事实源或通用 Record fields。
+1. Terminal projection的authoring surface如何同时允许Check读取自己的final data，并在需要时读取supplemental Records，而不形成第二facts source或强制所有Records具有presentation字段？
 2. Terminal presentation 应属于 progress effect、publication logs effect，还是两者共享的一个内部 readable projection？选择必须避免重复渲染和不同状态解释。
 3. 首次公开 package 除了必须交付的 terminal presentation，是否还必须交付 Check 运行期间的 live/intermediate content？只有命名 consumer 与可观察的完成前需求才能扩大首版范围。
 4. Public presentation grammar 应使用 `none | summary | preview` 这类 mode，还是一个包含 preview limit 的 closed object；默认值、controls override 和安全上限需要真实 Gate/consumer output probe。
