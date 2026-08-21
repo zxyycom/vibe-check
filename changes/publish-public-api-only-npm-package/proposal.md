@@ -1,6 +1,6 @@
 # Proposal
 
-本 Draft 是 npm 产品交付的最后阶段：在 Project Gate 已先替代 workspace verifier，随后 Gate authoring、typed Record、result presentation 与 public API documentation 已完成，且 current optimized Gate 与 local package acceptance 绑定同一 exact artifact 的基础上，准备并在获得单独授权后公开发布 `vibe-check`。
+本 Draft 是 npm 产品交付的最后阶段：在 Project Gate 已先替代 workspace verifier，随后 Gate authoring、最小 Record contract、typed dependency outputs、result presentation 与 public API documentation 已完成，且 current optimized Gate 与 local package acceptance 绑定同一 exact artifact 的基础上，准备并在获得单独授权后公开发布 `vibe-check`。
 
 ## Why
 

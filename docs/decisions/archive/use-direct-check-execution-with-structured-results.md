@@ -1,6 +1,6 @@
 ---
 title: 使用直接 Check execution 与结构化结果
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:25Z
 purpose: 让普通 Check 用一个直接 callback 读取当前配置和运行输入，并以分层状态表达完成、不适用或无法执行。

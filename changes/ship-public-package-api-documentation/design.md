@@ -14,7 +14,7 @@
 - candidate manifest 当前 `files` 只包含 `index.mjs` 与 `types`；staging audit拒绝除此之外的普通文件。生成的 declarations 会保留 source JSDoc，但多数公共 interface/function 目前没有完整 API comment。
 - API 内容建设属于本 Change；[`publish-public-api-only-npm-package`](../publish-public-api-only-npm-package/) 只负责核对版本、registry、legal/release metadata 与 exact artifact，不在不可逆 release 阶段临时 author README/install guidance。
 
-[`complete-typed-record-authoring`](../complete-typed-record-authoring/) 会改变 Record authoring 的 LSP surface，[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 会改变首版 result/output surface；两者都已纳入首次公开 package closure，必须先完成并提供 declaration/result evidence，再冻结本 Change 的 Records、RunResult、effects 与 presentation examples/comments。
+[`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 分别拥有 Record、typed dependency getter 与 presentation contract。三者必须先提供 declaration/runtime/machine/result evidence，本 Change 再冻结对应 JSDoc 和 examples。
 
 ## Goals / Non-Goals
 
@@ -33,7 +33,7 @@
 - 不访问 npm registry、不执行 publish、不选择 publisher/version或写 release notes。
 - 不在本 Change 决定 MIT copyright holder/year；LICENSE/legal completion仍由 release准备及其长期 Decision约束。
 - 不增加 public CLI、配置发现、plugin API、Node.js host承诺或额外 package export。
-- 不用文档掩盖尚未实现的 typed Record或 result presentation；只记录进入本 Change 验收基线的当前 public contract。
+- 不用文档掩盖尚未实现的最小 Record contract、typed dependency output 或 result presentation；只记录进入本 Change 验收基线的当前 public contract。
 - 不把所有内部 architecture、private scanner protocol、Gate profile/tag 或 repository process helper复制进 npm guide。
 
 ## Decisions
@@ -80,7 +80,7 @@ isolated consumer 从 packed artifact读取 README、校验 required sections/pu
 
 - **双文档漂移：** README 是 consumer projection而非 stable field owner；必须用 public inventory和代表性 examples核对，而不是人工维护另一份完整规范。
 - **JSDoc 体积：** 过长 comments会扩大 declaration与 hover噪声；每个 symbol只保留局部使用所需内容，教程进入 README。
-- **形成顺序：** typed Record或其它首发 public API仍变化时，过早冻结 guide会反复返工；Readiness必须核对 active API Changes。
+- **形成顺序：** Record contract、dependency inference 或其他首发 public API 仍变化时，过早冻结 guide 会反复返工；Readiness 必须核对 active API Changes。
 - **虚假可用性：** candidate guide不能把尚未发布的 registry版本写成已可安装事实；publish后再绑定 exact public version。
 - **package inventory：** README 加入 tarball会改变 candidate digest和 cutover 时的 Gate behavior evidence；binding 仍成立，但 Gate optimization / publish 必须按 handoff 条件刷新 exact-artifact evidence。
 - **敏感或内部内容：** examples与comments不得暴露 repository-only paths、private process adapters、credentials或未承诺 host。

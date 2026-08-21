@@ -1,6 +1,6 @@
 ---
 title: 比较只使用显式命名并冻结的参考
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
 purpose: 让 Check、Record 和门禁中的变化判断都绑定到调用者明确选择且可复现的参考。

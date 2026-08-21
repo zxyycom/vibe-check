@@ -47,15 +47,18 @@
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
+      "keep-comparison-semantics-inside-producing-checks.md": "sha256:487213ae8c6104881e814c323ae890f2d2fae175eb22584002c5cfec8c653ea4",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:585dece1c07c03f6e0108392e41efb0d8d353c9ac0e8e0ba962c0aa640c861e7",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
       "keep-project-workflow-skill-overrides-bounded.md": "sha256:91f4836ca23599c2afe5a117368d3e6630bb412d520c1189f77aac339a60800a",
       "keep-public-config-tool-neutral.md": "sha256:20f27b3206cc31de25e12f1f66c4f199ddeca3ec5cc5ba8d2c05108d119813f6",
+      "keep-record-field-shapes-at-the-type-boundary.md": "sha256:0fd2de21fab591cff48036b30e912a72370996dc995ebe68cd69dbe40971aab6",
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:944a4a2008f3713d490102428c1e1e0e1b8257465782918090bc4015095098f2",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
       "let-check-options-own-execution-dependencies.md": "sha256:2183fd9896a0f49df24d1cedab00d7eaba8288f4b2367b87e232eed7a28242b6",
+      "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:345d6f99507a1d78fe3ae0b5ea0d1741e5021b81c6028ca94bd993ee0b6a7deb",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
@@ -63,14 +66,15 @@
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "preinstall-selected-typescript-capabilities.md": "sha256:56c21c8c76f406a852b5274bbd796aa10d152bdc5086650fbd2f2c5a110e0cb1",
-      "project-executable-checks-into-validated-task-graph.md": "sha256:97513a4e9a6ade26841791a9b37027bba2cc86d478f6c367a1638c32b1ee5647",
+      "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-product-owned-check-progress.md": "sha256:1fbc8b9f61f35677c746e06217ef8c8b58e09d0d78c23034122bcb4bf7a9017f",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:0a53b3c8de9dacdd27e133b102fb98086b8b101a96aeec5b6dee1b95dd509719",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
-      "require-explicit-named-comparison-references.md": "sha256:1727db3d58e4d9023c707953acb187c61e01afa54cfd474e5abcb401daa8581e",
+      "report-check-owned-record-data-with-local-identities.md": "sha256:d098b8726f926ae33a9142757e4049ad1ebf0e4f70a0176b87e3e6a2307c8baa",
+      "require-explicit-named-comparison-references.md": "sha256:c3ec4599de940a68ebc14eae6f51993a191ba1cb154f56e7ad888826c4a44d08",
       "require-explicit-network-check-authorization.md": "sha256:f61dd532afb2aba3bc84ca840c3658710b4db14b574bb7d70d3efc1169e691c1",
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
@@ -81,6 +85,7 @@
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:bb2c9ea1efbd05b455bcba1b37a1dd3a9ec2e803dc9151a6f6ec03445dc2d89b",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
+      "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
       "use-check-scoped-invocation-wide-parallel-limits.md": "sha256:aa0c1a4e6de201cc28de641a92608e9dac31dcdd909c7d071c1fc5a22932c2e8",
       "use-check-value-derivation-contract.md": "sha256:664fe5893ec573221aee92d073ba17ee32c94e02b292e434325cd15797722ee4",
       "use-closed-inheritable-check-collection-expressions.md": "sha256:4a1091611dd40e9e13daf7e4a4767952c54bb8e920c01bc6b0328a029840f628",
@@ -91,7 +96,8 @@
       "use-core-check-and-record-facts-from-run-resolution.md": "sha256:f6aaf81f440866b7e563299047018fbf979075c3c06ce6ad53e534a880ef949d",
       "use-decision-led-change-plans-and-archive-openspec.md": "sha256:3e8c3ea59ab5cba1a42210799f02fb425726f1610caae1b51529f4cffcf85c0f",
       "use-declarative-quality-decision-policies.md": "sha256:8063191a71dd89e11f819a5d2037528564d0ac7a4f543a962d7bea192671484e",
-      "use-direct-check-execution-with-structured-results.md": "sha256:bef3aa9d2114837ebbc36c9df811948b5add8dd8a05175871d568deb69ad6e78",
+      "use-direct-check-execution-with-minimal-record-reporting.md": "sha256:eadb903aeca9cf0dd5306605411e50c5039c2fb0958b1887ff187d143a080ef3",
+      "use-direct-check-execution-with-structured-results.md": "sha256:b05a8b212a7d8666757f91793a8c1b38acb1c24e27d74091b50eb27f2123d473",
       "use-field-aware-built-in-check-adjustments.md": "sha256:1401b9dadcf56784af186d9325b3bc54e4972ede462fbd4d7b544c9985ebcee7",
       "use-file-policy-overrides.md": "sha256:6cff782bda34e6364c98f44bdf5071e71736577db4b8bd9d02f06b811e49c151",
       "use-fixed-semantic-config-v2.md": "sha256:e0e1759326703e63e134b4d4577b31fe47a553cb4cf8633f5d823276a324efbe",
@@ -100,7 +106,7 @@
       "use-inherit-for-check-collection-edits.md": "sha256:455344353f62cd98173cd11bc21e40c1e5dc83e375a2b39ed1418dfce096cc50",
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
-      "use-location-independent-record-identities.md": "sha256:428f5ecb284ce5bef6f054d6500fcc2b95ea71efa8d7f0d3b56da9f60c066fb6",
+      "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
       "use-native-object-composition-for-check-customization.md": "sha256:8e042657d9a6a039de6b1ad2f1cdc1b50654cba352e1e20caab2aaf710316b1a",
       "use-native-test-evidence-catalog.md": "sha256:7d4528a424d7754a958bfc91c902072de129d5778eba506d278b66a3cdcce6c6",
       "use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:c32c3acb2f66e66d0047debd2c5c23405ba126a0f82318c30dffb7c269dd0173",
@@ -1410,6 +1416,40 @@
         ]
       }
     },
+    "keep-comparison-semantics-inside-producing-checks.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-comparison-semantics-inside-producing-checks.md",
+        "title": "让 comparison semantics 留在 producing Check",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T05:58:42Z",
+        "purpose": "防止特定 built-in 的 baseline 和 regression 模型成为所有 custom Checks 必须实现的 Product contract。",
+        "background": "Comparison input、matching 与 relation meaning 随 Check domain 变化，不存在所有 Checks 共享的稳定 semantics。",
+        "decision": "需要 comparison 的 Check 自己获得和解释输入；Product 不提供 common reference facts 或 Record relations。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "require-explicit-named-comparison-references.md"
+          }
+        ]
+      }
+    },
     "keep-decision-policies-closed-and-declarative.md": {
       "keys": {
         "tag": [
@@ -1557,6 +1597,35 @@
         "relations": []
       }
     },
+    "keep-record-field-shapes-at-the-type-boundary.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/keep-record-field-shapes-at-the-type-boundary.md",
+        "title": "让 Record field shape 保持在 Check 类型边界",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T03:35:53Z",
+        "purpose": "让 Check author 获得精确 Record 类型，而 Product runtime 不维护没有独立消费者的字段 Schema。",
+        "background": "Record field descriptor 重复表达 TypeScript shape，现有 Product consumers 只需要 canonical JSON 与少量显式领域约束。",
+        "decision": "Record field shape 只由 Check-owned TypeScript generic 表达；runtime 与 machine 仅接收 canonical JSON。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "keep-sensitive-quality-record-material-ephemeral.md": {
       "keys": {
         "tag": [
@@ -1681,6 +1750,40 @@
           {
             "type": "修订",
             "target": "hard-cut-legacy-tool-shaped-config.md"
+          }
+        ]
+      }
+    },
+    "let-dependent-checks-read-settled-upstream-outputs.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "let-dependent-checks-read-settled-upstream-outputs.md",
+        "title": "让依赖 Check 读取上游 settled outputs",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T07:32:25Z",
+        "purpose": "让静态 Check dependency 同时提供顺序和可审计的上游结果复用，而不建立第二事实源。",
+        "background": "多个 Check 需要复用前置数据，但纯调度 dependsOn 无法传递上游 outcome、Records 或领域类型。",
+        "decision": "Declared direct dependency 在上游 settled 后提供其 Check outcome 与 Records；Check-owned parser恢复领域类型。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-executable-checks-into-validated-task-graph.md"
           }
         ]
       }
@@ -1900,16 +2003,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "project-executable-checks-into-validated-task-graph.md",
+        "sourcePath": "archive/project-executable-checks-into-validated-task-graph.md",
         "title": "将 executable Check 直接投影到已验证 Task graph",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T15:47:47Z",
         "purpose": "让 Check 只声明 Task 输入，由唯一静态 Task graph 负责依赖、互斥、并发和关系合法性。",
@@ -2103,22 +2206,60 @@
         ]
       }
     },
+    "report-check-owned-record-data-with-local-identities.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "report-check-owned-record-data-with-local-identities.md",
+        "title": "让 Check 用局部 identity 提交 custom Record data",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T05:58:41Z",
+        "purpose": "让 arbitrary custom Check 通过最小 Record contract 提交自己的数据，而 Product 不建立字段类型系统。",
+        "background": "Built-in finding/metric fields 不是所有 custom Checks 的共同义务，Product 只需 identity、canonical data 与生命周期边界。",
+        "decision": "Check 提交 closed local ID 与 custom data；Core Record 只保留 checkId、id 和 data。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "keep-record-field-shapes-at-the-type-boundary.md"
+          },
+          {
+            "type": "归并",
+            "target": "use-check-owned-extractors-for-opaque-record-identities.md"
+          }
+        ]
+      }
+    },
     "require-explicit-named-comparison-references.md": {
       "keys": {
         "tag": [
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "require-explicit-named-comparison-references.md",
+        "sourcePath": "archive/require-explicit-named-comparison-references.md",
         "title": "比较只使用显式命名并冻结的参考",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-05T10:31:35Z",
         "purpose": "让 Check、Record 和门禁中的变化判断都绑定到调用者明确选择且可复现的参考。",
@@ -2416,6 +2557,40 @@
           {
             "type": "归并",
             "target": "use-fixed-semantic-config-v2.md"
+          }
+        ]
+      }
+    },
+    "use-check-owned-extractors-for-opaque-record-identities.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/use-check-owned-extractors-for-opaque-record-identities.md",
+        "title": "使用 Check-owned extractor 生成 opaque Record identity",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T03:35:54Z",
+        "purpose": "让 Record identity 跨运行稳定且不依赖源码位置，同时不要求 machine consumer 重放 private Check 逻辑。",
+        "background": "Consumer 只需要 stable ID；公开 identity fields 并重算 hash 不能证明 artifact authenticity。",
+        "decision": "Check 从 typed fields 提取 identity text，Product 生成 opaque ID；Core 与 machine 不保留其输入。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "use-location-independent-record-identities.md"
           }
         ]
       }
@@ -2721,7 +2896,7 @@
         "relations": []
       }
     },
-    "use-direct-check-execution-with-structured-results.md": {
+    "use-direct-check-execution-with-minimal-record-reporting.md": {
       "keys": {
         "tag": [
           "configuration"
@@ -2730,13 +2905,45 @@
           "active"
         ],
         "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-direct-check-execution-with-minimal-record-reporting.md",
+        "title": "使用直接 Check execution 与最小 Record reporting",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-21T05:58:42Z",
+        "purpose": "保留普通 Check 的 direct callback 和 structured result，同时把 reporter 收敛为 identity 与 custom data。",
+        "background": "Direct execution 与三类 result 适用于 custom Check；comparison 和 finding assumptions 不属于共同 context。",
+        "decision": "Check 继续直接执行并返回 structured result；records 只提交 Check-local identity 与 custom data。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-direct-check-execution-with-structured-results.md"
+          }
+        ]
+      }
+    },
+    "use-direct-check-execution-with-structured-results.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-direct-check-execution-with-structured-results.md",
+        "sourcePath": "archive/use-direct-check-execution-with-structured-results.md",
         "title": "使用直接 Check execution 与结构化结果",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T16:29:25Z",
         "purpose": "让普通 Check 用一个直接 callback 读取当前配置和运行输入，并以分层状态表达完成、不适用或无法执行。",
@@ -2970,16 +3177,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-location-independent-record-identities.md",
+        "sourcePath": "archive/use-location-independent-record-identities.md",
         "title": "QualityRecord 稳定身份不使用当前源码位置",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-05T11:15:26Z",
         "purpose": "让记录在仅发生行移动或排版变化时保持稳定 identity、acceptance 和 comparison 结果。",

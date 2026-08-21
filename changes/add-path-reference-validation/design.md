@@ -4,9 +4,9 @@
 
 ## Context
 
-当前 `docs/scan-scope.md` 只允许 scanner 消费 Product Core 已收集的 exact paths，现行 Core 尚无运行时 Check/Record 或 Project Definition。活动决策 `product-priority/expand-format-aware-built-in-checks.md` 将 path reference 保留为独立 future built-in Check；`product-contract/use-runtime-resolved-check-and-record-core.md`、`product-contract/separate-check-and-record-type-identities.md` 与 `product-contract/use-location-independent-record-identities.md` 规定未来执行、记录类型和 identity 边界。
+当前 [`docs/scan-scope.md`](../../docs/scan-scope.md) 只允许 scanner 消费 Product Core 已收集的 exact paths；Configuration 与 Quality Metrics owner 已建立 ordinary Check、Project Definition 和 Check/Record Core facts。活动决策 [`expand-format-aware-built-in-checks`](../../docs/decisions/expand-format-aware-built-in-checks.md) 将 path reference 保留为独立 future built-in Check；未来 Record 边界由 [Check-local Record data](../../docs/decisions/report-check-owned-record-data-with-local-identities.md) 规定。
 
-本 Change 的实施依赖 `establish-check-record-core`、`adopt-typescript-project-definition` 与 `add-file-policy-overrides`；Markdown segment 与 destination ownership 依赖 `add-markdown-link-validation`。这些依赖先落地实际 seam，再接入本 Check；依赖顺序不会把本计划退回探索，也不授权本 Change 修改其它 Change artifacts。
+本 Plan 形成时列出的 Check/Core 与 Project Definition foundation 已由当前 owner 取代；恢复实施前必须按 [Active Change Portfolio](../active-change-portfolio.md#这些-plan-的恢复边界) 重新映射实际 seam。仍未完成的直接依赖是 `add-file-policy-overrides`；Markdown segment 与 destination ownership 依赖 `add-markdown-link-validation`。本 Check 的旧 Record catalog、comparison 与 generic policy 设计必须迁移为 Check-owned local data、author ID 和 Check verdict，不能要求最小 Record foundation 恢复这些概念。
 
 ## Goals / Non-Goals
 

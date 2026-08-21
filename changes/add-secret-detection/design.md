@@ -4,9 +4,9 @@
 
 ## Context
 
-当前稳定产品仍使用 `ResolvedQualityConfig`、measurement capabilities 与 warning output；它没有运行时 Check/Record 或 Project Definition。活动决策 `product-contract/keep-sensitive-quality-record-material-ephemeral.md` 明确要求 secret bytes、value-derived digest、credential URL 与原始证据不进入公共或持久边界；`product-contract/use-runtime-resolved-check-and-record-core.md`、`product-contract/use-static-check-task-plans-with-shared-scheduling.md`、`product-contract/use-location-independent-record-identities.md` 和 `product-priority/expand-format-aware-built-in-checks.md` 提供本 Change 的 Check、执行、identity 与产品方向。
+当前 Configuration 与 Quality Metrics owner 已建立 ordinary Check、Project Definition 和 Check/Record Core facts。[`keep-sensitive-quality-record-material-ephemeral`](../../docs/decisions/keep-sensitive-quality-record-material-ephemeral.md) 明确要求 secret bytes、value-derived digest、credential URL 与原始证据不进入公共或持久边界；[Check-local Record data](../../docs/decisions/report-check-owned-record-data-with-local-identities.md) 与 [`expand-format-aware-built-in-checks`](../../docs/decisions/expand-format-aware-built-in-checks.md) 提供本 Change 的 future Record 与产品方向。
 
-实施依赖 `establish-check-record-core`、`establish-check-task-orchestration`、`adopt-typescript-project-definition` 和 `add-file-policy-overrides` 的实际 seam。它们先建立 Check/Record ports、静态 TaskPlan、Project Definition normalization和file policy；本 Change只注册具体Check、policy、records与private detector，不复制manager、scheduler、loader或resolver。
+本 Plan 形成时列出的 Check/Core、Task graph 与 Project Definition foundation 已由当前 owner 取代；恢复实施前必须按 [Active Change Portfolio](../active-change-portfolio.md#这些-plan-的恢复边界) 重新映射实际 seam。仍未完成的直接依赖是 `add-file-policy-overrides`。本 Check 只注册自己的 policy、local Record data、author IDs、verdict 与 private detector，不复制 manager、scheduler、loader 或 resolver，也不要求 Product-wide policy 解释 custom Record data。
 
 ## Goals / Non-Goals
 

@@ -1,6 +1,6 @@
 ---
 title: 将 executable Check 直接投影到已验证 Task graph
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:47:47Z
 purpose: 让 Check 只声明 Task 输入，由唯一静态 Task graph 负责依赖、互斥、并发和关系合法性。

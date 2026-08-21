@@ -10,4 +10,4 @@ process runner、取消和 transcript mapping 具有明确复用价值，但不�
 
 ## Outcome
 
-完成后，Project Gate catalog 的每个 entry 直接持有一个普通 public `Check` 及 Gate-owned profile/tag selection metadata。普通命令可以通过返回 `Check` 的 local `processCheck()` helper 保留现有 cancellation/transcript/failure semantics，自定义 Check 可以直接使用完整 public authoring surface。Gate 不再强制固定 catalog/profile 数量；项目内提供一条简短、可定位的添加路径，并在 typed Record、首版 result presentation 与 package API documentation 收敛后写出绑定当前 exact artifact 的 <code>gate-optimization-handoff.md</code>，供公开发布使用。
+完成后，Project Gate catalog 的每个 entry 直接持有一个普通 public `Check` 及 Gate-owned profile/tag selection metadata。普通命令可以通过返回 `Check` 的 local `processCheck()` helper 保留现有 cancellation/transcript/failure semantics，自定义 Check 可以直接使用完整 public authoring surface。Gate 不再强制固定 catalog/profile 数量；项目内提供一条简短、可定位的添加路径，并在最小 Record contract、typed dependency outputs、首版 result presentation 与 package API documentation 收敛后写出绑定当前 exact artifact 的 <code>gate-optimization-handoff.md</code>，供公开发布使用。

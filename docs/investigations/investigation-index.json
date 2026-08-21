@@ -90,6 +90,36 @@
         "status": "已结束",
         "title": "TypeScript Result 与 Option 库调查"
       }
+    },
+    "implementation-libraries/schema-validation-and-static-inference.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1787278946000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "Record schema authoring 的框架选择、替代项与互操作边界",
+          "TypeScript Schema 与运行时校验框架调查",
+          "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-21T02:22:26Z",
+        "path": "implementation-libraries/schema-validation-and-static-inference.md",
+        "question": "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？",
+        "reportCount": 1,
+        "reportTitles": [
+          "Record schema authoring 的框架选择、替代项与互操作边界"
+        ],
+        "resourceReferences": [],
+        "status": "已结束",
+        "title": "TypeScript Schema 与运行时校验框架调查"
+      }
     }
   },
   "keyDefinitions": [
@@ -117,7 +147,8 @@
     "entries": {
       "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:35d28f35b357753db86def36fec343a6e4a58e9a2f293c2c918d308ab7862f5d",
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:899f54ebce5815e09153f3d93a41af1f72f57ca1f379adf5cc0baafe11c92a53",
-      "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53"
+      "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53",
+      "implementation-libraries/schema-validation-and-static-inference.md": "sha256:25b315332a0ee981a473a4da57539b9539b87a690c9d073fad6ede20d149effd"
     },
     "metadata": "sha256:bb46b05dcddfd42513b7c9c3e68af97db6bdf58cecee29006a53cd5e5e081567"
   }

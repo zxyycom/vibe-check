@@ -1,6 +1,6 @@
 ---
 title: QualityRecord 稳定身份不使用当前源码位置
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-05T11:15:26Z
 purpose: 让记录在仅发生行移动或排版变化时保持稳定 identity、acceptance 和 comparison 结果。
