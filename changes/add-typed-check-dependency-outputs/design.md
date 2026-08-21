@@ -6,7 +6,7 @@
 
 - 当前已实现的 `dependsOn` 只提供静态 Task 顺序；形成时方向见已归档的 [`project-executable-checks-into-validated-task-graph`](../../docs/decisions/archive/project-executable-checks-into-validated-task-graph.md)。
 - Future Decision [`let-dependent-checks-read-settled-upstream-outputs`](../../docs/decisions/let-dependent-checks-read-settled-upstream-outputs.md) 授权 declared direct dependency 在 upstream settled 后读取其 output，但当前为 `active + unaligned`。
-- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/) 是前置：它提供 Check-local Record ID、canonical `data` 与 Core `{ checkId, id, data }`。
+- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/) 是 implementation 前置：只有它实施并把 Check-local Record ID、canonical `data` 与 Core `{ checkId, id, data }` 同步为当前事实后，本 Draft 才进入 Plan。
 - 本 Change 仍是 Draft。以下 Decisions 是已收敛目标；Open Questions 尚未成为实施事实。
 
 ## Goals / Non-Goals
@@ -21,6 +21,7 @@
 ### Non-Goals
 
 - 不把所有 shared data 或 invocation facts 变成 Checks；`root`、`flags` 等仍按各自 owner 判断。
+- 不删除、重命名或迁移现有 execution-context fields；本 Change 只证明 settled output capability，后续 cleanup 需要真实消费者与独立范围。
 - 不新增第三类 Core output、第二份 grouped storage、global mutable store 或 callback closure data channel。
 - 不公开 transitive/live reader、custom data search、query/index service、parser registry 或通用 provider framework。
 - 不让 Product 持有 custom data Schema、parser function 或 output type catalog。
@@ -39,7 +40,7 @@
 | Data address | Exact `{ checkId, recordId }`；首版不提供 predicate、prefix 或 custom-data search。 |
 | Parser | Check-owned `{ checkId, recordId, parse }` descriptor；只解析已选 data。 |
 | Getter | 校验 dependency、读取 outcome、选择 exact Record、调用 parser，并返回 typed success 或 structured failure。 |
-| Presentation | Check 显式声明 visibility；renderer 不从 dependency graph 推断 supporting role。 |
+| Presentation | 不属于 dependency contract；renderer 不从 dependency graph 推断 supporting role。 |
 
 Supporting Check 不成为隐藏 computation node。无论人读 visibility 如何配置，它的 lifecycle events、structured RunResult、Core Check 和 Records 都正常产生。
 
@@ -125,7 +126,7 @@ Machine v4 继续发布 Check outcomes 与 `{ checkId, id, data }` Records。Ext
 
 ### 6. Presentation Handoff
 
-人读直接显示不属于 dependency contract。相邻 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 的领先字段是：
+人读直接显示不属于 dependency contract，也不阻塞本 Change。Supporting Check 默认按普通 Check 显示；相邻 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 可以独立增加类似以下的显式字段：
 
 ```ts
 presentation: {
@@ -133,7 +134,7 @@ presentation: {
 }
 ```
 
-该字段只控制 renderer。`problems-only` 不抑制 prepared/started/settled events，也不删除 structured facts；exact field name 和 normalized/Core metadata 位置由 presentation Change 固定。
+该字段只控制 renderer。`problems-only` 不抑制 prepared/started/settled events，也不删除 structured facts；exact field name 和 normalized/Core metadata 位置由 presentation Change 固定。Typed dependency Plan 不读取或等待该字段。
 
 ## Risks / Trade-offs
 
@@ -157,6 +158,6 @@ presentation: {
 
 - Type-only fixtures：合法 dependency/parser inference 与 cross-Check parser rejection。
 - Runtime fixtures：settlement barrier、exact-ID selection、missing/upstream/parser failures 与 immutability。
-- Changed-files consumer：一个 producer、至少两个 downstream consumers、一次数据收集。
+- Changed-files consumer：一个 producer、至少两个 downstream consumers、一次数据收集；不把其它 execution-input cleanup 计入本 Change。
 - Machine/external consumer：按 `{ checkId, id }` 读取并使用版本匹配 parser。
 - Candidate package：emitted declarations 和 ancestry-external consumer 无 cast typecheck。

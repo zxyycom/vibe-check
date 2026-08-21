@@ -1,6 +1,6 @@
 # Design
 
-本 Design 以 arbitrary public custom Check 为基础，分别确定 Record submission、execution inputs、typed readback、domain conclusion 和 presentation 的责任 owner。它只把真正通用且由 Product 拥有的义务放进公共基础契约。
+本 Design 只拥有最小 Record hard cut 的 contract、runtime boundary 和直接消费者迁移。Cross-Check typed access、human presentation 与非 Record execution-input 重构由各自 owner 承接。
 
 ## Context
 
@@ -8,24 +8,24 @@
 
 - [`docs/configuration.md`](../../docs/configuration.md) 当前规定 Product defaults 与 project custom Checks 都是 ordinary public `Check` values；default 是公共 custom Check contract 的 Product-provided instances。
 - [`docs/quality-metrics.md`](../../docs/quality-metrics.md) 当前规定 reporter 提交 Record candidates，Core 冻结 Check/Record facts，Check result 独立表达 outcome/verdict。
-- 当前 public `Check` 同时暴露 `recordTypes`；`CheckRecordReporter` 同时提供 report/reference；`CheckExecutionContext.project` 同时包含 invocation facts、quality configuration、comparison 和 cache capability。
-- 当前 policy、annotation 和 machine v3 都依赖 built-in-shaped Record fields。它们是需要迁移的 consumers，不是基础字段存在的证明。
-- 本 Change 与关联 Decisions 都是 `active + unaligned` future direction。实现完成前，稳定 owner 与当前源码仍是现行事实。
+- 当前 public `Check` 暴露 `recordTypes`；reporter 同时提供 report/reference；policy、annotation 和 machine v3 都读取 built-in-shaped Record fields。
+- `CheckExecutionContext.project` 还提供多种 invocation facts 与 capabilities。其中只有 common comparison/reference vocabulary 是本次 Record hard cut 的直接删除对象；其它字段仍以当前 owner 和实现为事实。
+- 本 Change 与直接相关 Decisions 都是 `active + unaligned` future direction。实现完成前，稳定 owner 与当前源码仍是现行事实。
 
-### Target responsibility map
+### Responsibility map
 
-| Responsibility | Target owner | Product-wide contract |
+| Responsibility | Owner in target state | This Change |
 | --- | --- | --- |
-| Record ownership and identity | Product reporter scope + producing Check | Product supplies `checkId`; Check supplies local `id`。 |
-| Record data shape | Producing Check | Local TypeScript type/helper；不注册到 Product。 |
-| Record runtime safety | Product | Detached canonical JSON materialization、freeze、ownership、conflict、lifecycle。 |
-| Typed readback | Producing Check or named consumer adapter | Optional local parser；不进入 Definition/Core/machine。 |
-| Cross-Check typed readback | [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) | Direct dependency output、parser identity 与 downstream inference 由相邻 Change 承接。 |
-| Per-run facts | Product invocation owner, only after common-consumer proof | Exact public placement由 Readiness 固定。 |
-| Scanner、files、cache、network、baseline dependencies | Check/dependency owner unless proven common | 不因 current built-ins 使用而自动进入 base context。 |
-| Domain conclusion | Producing Check | Structured Check result/outcome。 |
-| Human presentation | Named presentation consumer | Explicit projection/parser；不猜测 arbitrary data。 |
-| Policy/Gate | Product, over Product-owned Check facts | 不解释 custom data 或 comparison relation。 |
+| Record identity | Product reporter scope + producing Check | Product supplies `checkId`; Check supplies local `id`。 |
+| Record data shape | Producing Check | Product 不注册 domain type 或 Schema。 |
+| Record runtime safety | Product | Materialize detached canonical JSON、freeze、ownership、conflict 与 lifecycle。 |
+| Domain conclusion | Producing Check | Structured Check outcome/verdict；不从 Record presence 推断。 |
+| Generic readback | `RunResult` / machine consumer | 读取 generic canonical `data`。 |
+| Typed local readback | Producing Check or named consumer | 普通 local parser；Product 不注册或执行。 |
+| Cross-Check typed access | [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) | 本 Change 只提供其上游 Core shape。 |
+| Human presentation | [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) | 本 Change 只移除旧 fields 假设并提供安全 generic fallback。 |
+| Other execution inputs | Current configuration/run owners；未来按真实 consumer 再评估 | 不在本 Change 重命名、移动或删除。 |
+| Policy/Gate | Product over Product-owned Check facts | 删除 Record data、type 与 relation predicates。 |
 
 ### Stable terms
 
@@ -33,45 +33,38 @@
 | --- | --- |
 | Record identity input | Reporter 第一个参数 `{ id: string }`；`id` 仅在 owning Check 内唯一。 |
 | Custom data | Reporter 第二个参数；Check-owned non-array canonical JSON object。 |
-| Composite Record identity | Product/Core pair `{ checkId, id }`。 |
+| Composite identity | Product/Core pair `{ checkId, id }`。 |
 | Core Record | Frozen `{ checkId, id, data }` fact。 |
-| Invocation fact | 由一次 Product Run 产生、语义对所有合法消费者一致、不能由静态 Check options 可靠替代的值。 |
-| Check dependency | 只有特定 Check 需要的 data source 或 capability，例如 scanner、file inventory、cache、network 或 baseline loader。 |
-| Check-owned parser | 从 `unknown`/generic canonical data 恢复某个 Check domain type 的普通函数。 |
-| Presentation projection | 将明确 Check data 转换为有界人读内容的 consumer-owned adapter。 |
+| Check-owned parser | 从 generic canonical data 恢复一个 domain type 的普通 consumer adapter。 |
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 为任意 custom Check 提供不假设 file、finding、metric、baseline 或 annotation 的最小 Record API。
-- 在调用边界分开 Product-owned identity input 与 Check-owned custom data。
+- 为 arbitrary custom Check 提供不假设 file、finding、metric、baseline 或 annotation 的最小 Record API。
+- 分开 Product-owned identity input 与 Check-owned custom data。
 - 保留 Product-owned canonical safety、ownership、conflict、lifecycle 与 publication，但不解释 domain shape。
-- 让 write-side local typing 和 read-side optional parser 都留在 producing Check/consumer owner。
-- 用 owner、lifecycle、consumer 和替代路径审计 execution inputs，而不是按重要性或现有位置决定基础 context。
-- 让 default Checks 直接证明 public custom Check contract。
+- 删除旧 Record 模型直接拥有的 catalog、comparison/reference、policy 和 machine vocabulary。
+- 让 default Checks 作为 ordinary public Checks 证明同一 contract。
 
 ### Non-Goals
 
-- 为多个 Records 推导、声明、验证或注册 shared Product data type。
+- 为 custom data 推导、声明、验证或注册 shared Product domain type。
 - 让 Product 自动恢复 `RunResult.snapshot.records[].data` 的 Check-local TypeScript type。
-- 在本 Change 实现 downstream Check 对 upstream output 的 typed dependency reader 或演进 `dependsOn` authoring。
-- 提供 common comparison、reference、location、severity、message、kind 或 presentation semantics。
-- 让 Product-wide policy 检查 arbitrary custom data。
-- 为可能的 dependency delivery 预先建立 generic provider/capability framework。
-- 保留 v3 bytes、opaque IDs、catalog、policy/reference evidence 或 reporter compatibility。
+- 实现 downstream dependency reader、parser descriptor 或 `dependsOn` 类型演进。
+- 设计 terminal/live presentation grammar。
+- 全面重审 `CheckExecutionContext` 或建立 invocation/provider/capability framework。
+- 保留 v3 bytes、Record catalog、opaque IDs、reference facts 或 reporter compatibility。
 
 ## Decisions
 
-### 1. Public custom Check is the foundation
+### 1. Arbitrary custom Check defines the foundation
 
-Every Product-provided default remains an ordinary `Check` value using the same public execution boundary as project-authored Checks. A default may own local types、parsers、dependencies and presentation adapters；这些局部能力不能改变 base reporter 或 Core Record。
+Every Product-provided default remains an ordinary public `Check` value。一个字段只有在 arbitrary custom Checks 具有相同 owner、semantics、lifecycle 和 named Product consumer 时，才可进入 base Record。当前 built-ins 共同使用某字段本身不是共同契约的证据。
 
-No field or capability enters the public foundation only because all current defaults use it. A candidate must have the same semantics、owner、lifecycle and failure behavior for arbitrary custom Checks, and a named Product consumer must depend on it。
+### 2. Reporter separates identity from custom data
 
-### 2. Reporter separates identity input from custom data
-
-Target authoring:
+Target authoring：
 
 ```ts
 records.report(
@@ -84,7 +77,7 @@ records.report(
 );
 ```
 
-Conceptual contract:
+Conceptual contract：
 
 ```ts
 interface RecordIdentityInput {
@@ -96,31 +89,23 @@ interface CheckRecordReporter {
 }
 ```
 
-The first argument is a closed Product-owned parameter object. The second argument is the complete Check-owned carrier object. Readiness selects the smallest declaration that accepts readonly interfaces、literals and nested objects while rejecting obvious primitive misuse；runtime canonicalization remains final authority。
+第一个参数是 closed Product-owned parameter object；第二个参数是完整的 Check-owned carrier object。Readiness 选择能够接受 readonly interfaces、literals 与 nested objects，同时拒绝明显 primitive misuse 的最小 declaration；runtime canonicalization 是最终 authority。
 
-`RecordIdentityInput` and `CheckRecordReporter` do not become top-level package exports by default. Contextual typing through `execution` is sufficient；a named helper consumer is required before expanding the public type inventory。
+`RecordIdentityInput` 与 `CheckRecordReporter` 不默认成为 top-level exports。只有 named helper consumer 才能扩大 public type inventory；ordinary authoring 依靠 `execution` contextual typing。
 
-### 3. Author supplies Check-local identity
+### 3. Author identity is local to one Check
 
-`id` is a non-empty author string unique within one executable Check. Reporter scope supplies `checkId`；Product does not ask the author to repeat it or derive it from data、location、arrival order、selector or hash。
+`id` 是 non-empty author string，在一个 executable Check 内唯一。Reporter scope 提供 `checkId`；Product 不要求 author 重复它，也不从 data、location、arrival order、selector 或 hash 生成 identity。
 
-Core identity is `{ checkId, id }`. Different Checks may report the same local `id`；a second submission with the same composite identity is duplicate/conflict and settles through contained Record failure semantics。
+Core identity 是 `{ checkId, id }`。不同 Checks 可以使用相同 local `id`；同一 composite identity 的再次提交按 duplicate/conflict fail closed。Machine consumer 直接使用 composite pair，不重算 author ID，也不建立 generic reference/relation entity。
 
-Machine rows use the composite pair directly. A future named artifact consumer that points to a Record owns its own evidence grammar and carries the pair explicitly；the base contract does not create generic reference/relation entities。
+### 4. Product validates canonical safety, not domain shape
 
-### 4. Product materializes canonical data but does not validate domain shape
+`data` 必须 materialize 为 non-array canonical JSON object。Product 建立 detached snapshot 并 deep-freeze；递归允许 `null`、boolean、string、finite number、dense array 与 plain object，拒绝 function、`undefined`、non-finite number、cycle、accessor、unsupported prototype、sparse array 与 unsafe reflection。
 
-`data` must materialize to a non-array canonical JSON object. Product creates a detached snapshot and deep-freezes it before Core acceptance。Supported recursive values are `null`、boolean、string、finite number、dense array and plain object。Product rejects function、`undefined`、non-finite number、cycle、accessor、unsupported prototype、sparse array and unsafe reflection。
-
-Product does not validate required properties、extra properties、union、business constraint or cross-report consistency。Check authors use ordinary local typing when useful：
+Product 不验证 required properties、extra properties、union、business constraints 或 cross-report consistency。Author 使用 local typing：
 
 ```ts
-interface ApiHealthData {
-  readonly endpoint: string;
-  readonly latencyMs: number;
-  readonly statusCode: number;
-}
-
 const data = {
   endpoint,
   latencyMs,
@@ -130,68 +115,37 @@ const data = {
 records.report({ id: `endpoint:${endpoint}` }, data);
 ```
 
-The local type does not enter `defineCheck` generic、Definition、Core、machine schema or package runtime dependencies。
+Local type 不进入 `defineCheck` generic、Definition、Core、machine schema 或 Product runtime dependency。Check-owned parser 可以手写或使用其选择的 schema library；这不改变 Product acceptance contract。
 
-### 5. Typed readback is an optional Check-owned adapter
+### 5. Typed readback is a consumer adapter
 
-`RunResult` exposes generic canonical `record.data`. Product cannot recover a TypeScript type that was erased at report time without reintroducing a catalog/schema relationship。Typed consumers instead use a normal parser owned with the producing Check：
+`RunResult` 与 machine v4 暴露 generic canonical `record.data`。需要领域类型的 consumer 可以调用 producing Check 自己维护的普通 parser：
 
 ```ts
-function parseApiHealthData(value: unknown): ApiHealthData {
-  // Check-owned domain validation.
-}
-
 const data = parseApiHealthData(record.data);
 ```
 
-This parser may be handwritten or use a library selected by the Check owner. It receives one already selected data value；it does not search Records or encode data absence。This Change does not register、execute、serialize or publish it。Project-authored Checks can colocate the Check and parser in one module。Product defaults add a public parser export only after a named external consumer proves that import is required；internal presentation may use a private parser/projection。When a downstream Check must receive that parsed type through a declared dependency, [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) owns exact Record selection、call-local parser invocation、failure reporting、parser identity and inference relationship。
+Parser 只解释一个已经选中的 data value；它不搜索 Records、不判断缺失，也不反向修改 Core acceptance 或 producing Check outcome。本 Change 不注册、执行、序列化或发布 parser。Cross-Check selection、authorization、failure 与 inference 由 typed dependency Change 完整拥有。
 
-Parser failure means the consuming adapter cannot interpret an already selected Record；it does not retroactively change Core acceptance or the producing Check outcome。A cross-Check dependency getter may translate that call-local failure into its own structured read failure。
+### 6. Only Record-owned comparison/reference inputs leave the execution boundary
 
-### 6. Execution inputs are selected by ownership and lifecycle, not importance
+Product-wide `RunControls.comparison`、`project.comparison`、`records.reportReference`、reference status 与 generic Record relations 属于旧 Record/comparison contract，因此随本 Change 删除。需要 baseline 的 Check 从自己的 options、captured dependency、project composition 或未来 typed dependency output 获得输入，并通过自己的 verdict 表达结论。
 
-The Record API requires `options`、`records` and Product lifecycle cancellation. It does not by itself prove the rest of current `context.project`。
+`root`、`flags`、`changedFiles`、`files`、`cache` 与其它现有 execution inputs 不在本 Change 中重新命名、移动或删除。这是范围边界，不是长期 owner 结论或兼容承诺。只有 typed dependency capability 已实施且存在明确迁移消费者后，才另行建立 execution-input migration Change。
 
-Readiness classifies every current input with this test：
+### 7. Policy and Gate consume Check facts
 
-1. Is Product the authoritative source for this value during one Run?
-2. Does the value have the same semantics for arbitrary custom Checks?
-3. Does a named public/default consumer need it during execution?
-4. Would moving it to the owning Check/dependency create more public machinery or weaker lifecycle semantics?
+Current policy branches that select `recordTypeId`、read field operands or evaluate comparison relations cannot interpret arbitrary custom data。Target generic Gate consumes Check identity、terminal outcome 与 completed verdict；producing Check owns domain blocking logic。
 
-A value enters base context only when the classification supports one shared boundary。Current candidates are：
+Readiness 将每个现有 policy/Gate branch 映射到 Check facts 或删除结果。迁移不得通过给 Core Record 增加 kind、data path 或 Schema 来恢复旧 grammar。Non-blocking Record data 可以与 passed verdict 共存。
 
-| Current value | Formation-time classification | Required Readiness result |
-| --- | --- | --- |
-| `options` | Check-owned immutable execution input | Retain contextual typing and snapshot semantics。 |
-| `records` | Product-owned Check-scoped submission capability | Retain with minimal reporter。 |
-| `signal` | Product-owned cancellation lifecycle | Retain unless execution owner evidence disproves it。 |
-| `root`、`flags`、`changedFiles` | Potential per-run invocation facts | Trace consumers and prototype a narrow invocation boundary versus Check/dependency delivery。 |
-| `files` | Current quality/built-in configuration projection | Do not retain without arbitrary-custom-Check-wide semantics and named consumers。 |
-| `cache` | Stateful Product capability | Decide from lifecycle、failure isolation and consumer evidence；do not treat it as a passive project fact。 |
-| `comparison` | Built-in-specific domain input | Remove from Product-wide context。 |
+### 8. Presentation is an explicit downstream projection
 
-The leading simple candidate is a narrow `invocation` value for the per-run facts that pass this test, with specialized capabilities remaining Check-owned。It is not an approved signature until declaration/runtime prototypes prove it。If a value is instead produced by another visible Check, this Change records the handoff to [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) rather than implementing a partial reader。If capability delivery needs a new generic `requires/use/provider` model, Readiness must show that it is simpler and serves multiple real consumers；otherwise keep dependencies local and stop scope expansion。
+Core Record 不包含 kind、level、subject、message 或 location。Generic output 只可安全显示 owner、count 和 IDs，不得遍历 arbitrary data 猜测内容。
 
-### 7. Comparison stays inside the producing Check
+Presentation Change 拥有 public projection/payload、visibility 和 terminal/live behavior。Check-owned parser 可以帮助 projection 恢复 domain type，但 parser 决定“data 是什么”，projection 决定“显示什么”；两者不能合并为 base Record obligation。
 
-Product removes `RunControls.comparison`、`project.comparison`、`records.reportReference`、reference status and generic Record relations。A Check that needs baseline/reference input obtains it through the delivery mechanism selected for that Check—local options、captured dependency、project composition or another explicit owner—not through a universal comparison protocol。
-
-The Check places current/baseline/delta/classification values in its own data when useful and returns its domain conclusion through structured Check result。Baseline absence becomes that Check's `not-applicable` or `unavailable` result according to its own semantics。
-
-### 8. Policy and Gate consume Product-owned Check facts
-
-Current policy branches that select `recordTypeId`、read field operands or evaluate comparison relations are incompatible with arbitrary custom data。The target generic Gate consumes Check identity、terminal outcome and completed verdict；producing Checks own domain blocking logic。
-
-Readiness maps every current policy/Gate consumer to Check facts or removal。It may not solve migration by adding kind、data path or Schema to Core Record。Non-blocking Record data may coexist with a passed Check verdict；Record presence never implies blocking。
-
-### 9. Presentation uses an explicit Check-owned adapter
-
-Core Record is exactly `{ checkId, id, data }` and contains no kind、level、subject、message or location。Generic output may show owner/count/IDs, but it cannot traverse arbitrary data and guess human content。
-
-[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) owns the public projection/payload choice。A Check-owned parser can support that projection, but typed readback and human presentation remain separate responsibilities：parser恢复 domain type；projection决定 what、where and how much to display。
-
-### 10. Machine v4 projects the minimal Core model
+### 9. Machine v4 projects the minimal Core model
 
 Machine v4 Record row：
 
@@ -207,33 +161,31 @@ Machine v4 Record row：
 }
 ```
 
-V4 validators check schema identity、canonical JSON、composite uniqueness、Check ownership、ordering and complete Records set fingerprint。They do not interpret `data` or regenerate `id`。Run publication removes Record type catalog、opaque ID grammar、reference facts、record acceptance/views and data-aware policy evidence。V3 is rejected through the existing pre-stable hard-cut policy；no adapter or dual reader is added。
+Validators 检查 schema identity、canonical JSON、composite uniqueness、Check ownership、ordering 与 complete Records set fingerprint；它们不解释 `data` 或重算 `id`。Publication 删除 Record type catalog、opaque ID grammar、reference facts、record acceptance/views 和 data-aware policy evidence。依据 pre-stable hard-cut policy，v3 被拒绝，不增加 adapter 或 dual reader。
 
-### 11. Migration changes consumers, not the foundation
+### 10. Consumer migration cannot expand the foundation
 
-Each default Check chooses local data types and stable local IDs。It keeps comparison、location、severity、message and parser/projection logic only when its own consumers need them。Scanner/process/file/cache inputs follow the execution-input classification；migration difficulty in one built-in is not grounds for expanding every custom Check's base context。
+Default Checks 选择自己的 local data type、local ID 和 verdict。Repository Project Definition、Project Gate、output consumers、examples、tests 与 package declarations 作为直接消费者迁移。
 
-Repository Project Definition、Project Gate、examples and tests migrate as ordinary consumers。Stable owner docs are updated only after implementation evidence exists。
+迁移遇到 typed dependency、presentation 或其它 execution-input 需求时，记录并交给对应 Change；本 Change 只提供 minimal Record handoff。稳定 owner 文档只在实现证据形成后同步为当前事实。
 
 ## Risks / Trade-offs
 
 | Risk / trade-off | Control |
 | --- | --- |
-| Generic `data` loses automatic end-to-end TypeScript typing。 | Local write types and optional Check-owned parsers provide typing without Product registry。 |
-| Parser logic can drift from producing Check data。 | Colocate parser/type with Check owner；built-ins use focused parser/data fixtures when a real consumer exists。 |
-| Removing current `project` fields can make dependencies harder to supply。 | Readiness prototypes actual default/custom consumers before selecting context；do not introduce generic DI without multi-consumer evidence。 |
-| Retaining all current `project` fields would preserve built-in leakage。 | Every field must pass owner/lifecycle/common-consumer test；importance alone is insufficient。 |
-| Author IDs can change across Check revisions。 | Treat stability as Check compatibility responsibility；Product validates uniqueness, not domain meaning。 |
-| Removing Record predicates changes Gate behavior。 | Move domain conclusions into producing Check verdict before deleting old grammar。 |
-| Minimal data cannot directly drive current annotation renderer。 | Presentation owner uses explicit Check projection/parser；Core does not acquire file assumptions。 |
-| `data: object` accepts some values later rejected at runtime。 | Runtime canonicalization remains authority；declaration tests document the compile-time boundary。 |
+| Generic `data` 不提供自动端到端 TypeScript typing。 | Local write types 与 optional Check-owned parsers 提供类型，不建立 Product registry。 |
+| Parser 与 producer data 可能漂移。 | Parser/type 与 Check owner 共置；只有真实 consumer 需要时才导出并增加 focused fixtures。 |
+| Author ID 可能随 Check revision 改变。 | 稳定性由 Check compatibility 拥有；Product 只验证非空和唯一性。 |
+| 删除 Record predicates 会改变 Gate behavior。 | 先把 domain conclusion 映射到 producing Check verdict，再删除旧 grammar。 |
+| Minimal data 不能直接驱动当前 annotation renderer。 | Generic output 只显示安全 identity；领域 projection 交给 presentation owner。 |
+| Consumer 迁移可能再次触发 execution-context 讨论。 | 只删除 comparison/reference；其余输入不在本 Change 迁移，后续以已实施 capability 与真实 consumer 另立范围。 |
+| `data: object` 会接受部分 runtime 拒绝的值。 | Runtime canonicalization 保持 authority；declaration 和 negative runtime tests 共同说明边界。 |
 
 ## Open Questions
 
-The base Record fields are closed。Readiness must resolve these integration questions before implementation：
+Base Record fields、identity、runtime safety 与 machine shape 已闭合。Implementation Readiness 只需关闭两个直接迁移问题：
 
-1. Which of `root`、`flags` and `changedFiles` remain shared per-run facts, what is their exact public container/name, and which values should instead become explicit owner dependencies or future typed Check outputs?
-2. Which current DecisionPolicy/Project Gate rules map directly to Check outcome/verdict, and which record-aware branches are removed?
-3. Which existing report/console/annotation outputs wait for [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/), and which private Check-owned parser/projection is required during the hard cut?
+1. 当前每个 DecisionPolicy/Project Gate branch 应映射到哪个 Check outcome/verdict，或应直接删除？
+2. 当前 report、console 与 annotation consumers 中，哪些可以使用 owner/count/IDs generic fallback，哪些必须等待 presentation Change？
 
-If an integration appears to require a Product Record type、data Schema、generic relation or universal presentation field, implementation stops and returns to the named consumer/owner；it does not silently expand the base Record contract。
+如果迁移要求 Product Record type、domain Schema、generic relation、universal presentation field 或非 comparison execution-input 重构，实施停止扩大本 Change，并把需求交给对应 owner。

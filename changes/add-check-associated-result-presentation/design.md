@@ -13,7 +13,7 @@
 - [`publish-fingerprint-bound-check-record-machine-v3`](../../docs/decisions/publish-fingerprint-bound-check-record-machine-v3.md) 规定 machine v3 已将 canonical Checks 与 Records 作为独立事实投影，并排除外部 live/partial event protocol。
 - [`define-project-run-log-evidence-boundaries`](../define-project-run-log-evidence-boundaries/) 已区分 Product lifecycle、project-owned process transcript 与未来 event sink；本 Change 不把任意 child stdout 当作结构化结果。
 - [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/) 将 future Core Record 收敛为 `{ checkId, id, data }`，并明确 `data` 的 domain shape、location、severity、message 与 comparison semantics 不属于 Product-wide Record contract。
-- [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 让普通 supporting Check 的 settled outcome/Records 可被 declared downstream 读取，并要求其 facts/events 始终产生；本 Change只拥有显式 Check visibility metadata 与 human direct-display policy。
+- [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 是显式 visibility 的一个未来 consumer，不是本 Change 的前置。本 Change 只拥有 Check visibility metadata 与 human direct-display policy；无论 typed dependency 是否实施，facts/events 始终产生。
 - [`ship-public-package-api-documentation`](../ship-public-package-api-documentation/) 只有在本 Change 的首版 public result/presentation contract 已实施并验证后，才能冻结对应 JSDoc、examples 与 package guide。
 
 当前 `RunResult` 的 final snapshot 已提供 sibling `checks` 与 `records`。缺口主要在 result experience：progress settled feedback 不携带 Records，且启用 progress、关闭 publication logs/output 的 consumer 不会在共享 stream 看到 producing Check 希望明确展示的非阻断内容。Future minimal Record 本身只保证 identity 与 custom data，不能证明每条 Record 都是 finding 或可以由通用 renderer 安全解释。

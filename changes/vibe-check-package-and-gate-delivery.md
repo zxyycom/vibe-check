@@ -4,7 +4,7 @@
 
 当 AI 或维护者需要选择、恢复或审阅当前 npm / Project Gate 交付路径时，先阅读本导航，再进入目标 Change 的 proposal、design 和 tasks。本文件是 [Active Change Portfolio](active-change-portfolio.md) 中“Project Gate 与 package 交付”路径的详细导航；需要查看全部 active Change 或其直接相关 Decision 时，回到该 portfolio。
 
-本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系：三个上游 Change 与首轮 Gate build 已归档，已归档的 [repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 已交付 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。最小 Check Record contract、typed Check dependency outputs、首版 result presentation、package API documentation 与 native Check authoring 都在唯一正式 Gate 下继续优化，完成后刷新 Gate optimization evidence，最后才进入 publish。log evidence boundaries 是不阻塞本路径的相邻 Draft。
+本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系：三个上游 Change 与首轮 Gate build 已归档，已归档的 [repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 已交付 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。下一步先实施最小 Check Record hard cut；typed Check dependency outputs 与首版 result presentation 都依赖该事实，但彼此不互相阻塞。两者完成后再冻结 package API documentation 与 native Check authoring，刷新 Gate optimization evidence，最后才进入 publish。log evidence boundaries 是不阻塞本路径的相邻 Draft。
 
 本导航不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
 
@@ -35,13 +35,11 @@
                                                                                                      │
                                                                                                      v
                                                                                   establish-minimal-check-record-contract
-                                                                                                     │
-                                                                                                     v
-                                                                                     add-typed-check-dependency-outputs
-                                                                                                     │
-                                                                                                     v
-                                                                                add-check-associated-result-presentation
-                                                                                                     │
+                                                                                           │                    │
+                                                                                           v                    v
+                                                                         add-typed-check-dependency-outputs   add-check-associated-result-presentation
+                                                                                           │                    │
+                                                                                           └─────────┬──────────┘
                                                                                                      v
                                                                        ship-public-package-api-documentation
                                                                                                      │
@@ -52,7 +50,7 @@
                                                                     publish-public-api-only-npm-package
 ~~~
 
-前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。cutover 已在当前 revision 重新确认 matching candidate、完成正式 bindings 与 legacy retirement；实际 identity、audit 和刷新条件见已归档的 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。后续最小 Record reporter/Core/machine v4、execution-input boundary、typed direct-dependency dataflow、首版 result presentation、package documentation 和 native Check authoring 会改变 artifact/public/Gate inputs；这些变化只使发布证据需要刷新，不撤销 cutover，也不恢复旧 verifier。native Check authoring 最终以 documentation-complete exact artifact 写出 <code>gate-optimization-handoff.md</code>。
+前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。cutover 已在当前 revision 重新确认 matching candidate、完成正式 bindings 与 legacy retirement；实际 identity、audit 和刷新条件见已归档的 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。后续最小 Record reporter/Core/machine v4、typed direct-dependency dataflow、首版 result presentation、package documentation 和 native Check authoring 会改变 artifact/public/Gate inputs；这些变化只使发布证据需要刷新，不撤销 cutover，也不恢复旧 verifier。非 comparison execution-input migration 不属于 Record hard cut，只有 typed capability 已实施且存在真实迁移消费者时才另立范围。native Check authoring 最终以 documentation-complete exact artifact 写出 <code>gate-optimization-handoff.md</code>。
 
 ## Change 与 handoff
 
@@ -63,9 +61,9 @@
 | [establish-npm-package-candidate-and-quality-dogfood](archive/establish-npm-package-candidate-and-quality-dogfood/)（archived） | API-only candidate、quality dogfood 与 exact-tarball proof。 | [<code>candidate-handoff.md</code>](archive/establish-npm-package-candidate-and-quality-dogfood/candidate-handoff.md) 记录证据形态、形成时 identity 与重新验证条件；后续 Change 必须据此产生匹配当前 inputs 的 identity。 | 完整 Gate、正式入口切换、registry publish。 |
 | [build-candidate-backed-project-gate](archive/build-candidate-backed-project-gate/)（archived） | 可并行运行的完整 repository Gate consumer。 | [<code>gate-readiness-handoff.md</code>](archive/build-candidate-backed-project-gate/gate-readiness-handoff.md) 是形成时 readiness 输入；其中的 revalidation conditions 决定后续何时必须刷新。 | 正式入口权威切换、旧 verifier 删除、registry publish。 |
 | [replace-workspace-verifier-with-project-gate](archive/replace-workspace-verifier-with-project-gate/)（archived） | 在当前 revision 重新验证归档 readiness，完成唯一正式门禁接线并退役旧 verifier。 | [<code>gate-handoff.md</code>](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md) 记录实际 binding、无 disabled-tag required/full、legacy reference audit 和重新验证条件；归档状态与历史任务以该目录及 <code>bun run change-plan -- list changes --archived</code> 为准。 | 后续 Gate authoring/API/package 优化与 registry publish。 |
-| [establish-minimal-check-record-contract](establish-minimal-check-record-contract/) | 用 `records.report({ id }, data)` 建立任意 custom/default Check 共用的最小 Record contract，重审 execution inputs，并硬切 Core `{ checkId, id, data }` 与 machine v4。 | public declaration、generic readback/Check-owned parser boundary、execution context、runtime/Core、policy/Gate、machine v4 与 isolated consumer evidence；typed dependency output Change据此使用同一事实结构。 | Cross-Check dependency reader/inference、public presentation grammar、generic provider framework、Gate 切换、registry publish。 |
-| [add-typed-check-dependency-outputs](add-typed-check-dependency-outputs/) | 让 direct dependency getter 返回 typed data 或 failure。 | TypeScript/runtime prototype、changed-files 多消费者与 machine/external readback evidence。 | Search/query、第三 Core entity、通用 provider framework。 |
-| [add-check-associated-result-presentation](add-check-associated-result-presentation/) | 交付 terminal Record presentation 与显式 Check visibility。 | Implementation、declaration、output 与 isolated-consumer evidence。 | 最小 Record contract、typed dependency reader、Gate transcript、durable log protocol。 |
+| [establish-minimal-check-record-contract](establish-minimal-check-record-contract/) | 用 `records.report({ id }, data)` 建立任意 custom/default Check 共用的最小 Record contract，并硬切 Core `{ checkId, id, data }`、旧 Record 直接消费者与 machine v4。 | Public declaration、generic readback/Check-owned parser boundary、runtime/Core、comparison/reference removal、policy/Gate、machine v4 与 isolated consumer evidence；typed dependency 和 presentation 据此使用同一事实结构。 | Cross-Check dependency reader/inference、public presentation grammar、非 comparison execution-input migration、Gate 切换、registry publish。 |
+| [add-typed-check-dependency-outputs](add-typed-check-dependency-outputs/) | 让 direct dependency getter 返回 typed data 或 failure。 | Minimal Record 完成后的 TypeScript/runtime prototype、changed-files 多消费者与 machine/external readback evidence。 | Search/query、第三 Core entity、通用 provider framework、其它 execution-input cleanup、presentation visibility。 |
+| [add-check-associated-result-presentation](add-check-associated-result-presentation/) | 交付 terminal Record presentation 与显式 Check visibility。 | Minimal Record 完成后的 implementation、declaration、output 与 isolated-consumer evidence。 | Typed dependency reader、Gate transcript、durable log protocol；typed dependency 不是其前置。 |
 | [ship-public-package-api-documentation](ship-public-package-api-documentation/) | 补齐 public JSDoc/LSP，并将 README/API guide 加入 exact candidate artifact。 | <code>package-api-documentation-handoff.md</code>，绑定 guide/declarations 与 tarball digest；Gate optimization 必须以该 artifact 刷新发布证据。 | registry/legal/release notes 与 publish。 |
 | [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 在 cutover 后从独立质量事实重建权威 Gate：直接组合 ordinary Checks/typed capabilities，分离 CLI lifecycle，合并 profile-derived identity，并只为真实外部边界保留 process。 | <code>gate-optimization-handoff.md</code>，记录 current assurance inventory、保留/删除理由、CLI/capability caller audit、documentation-complete candidate、正式 bindings 与 required/full evidence。 | 重新切换 bindings、恢复 legacy verifier、替代 focused CLI consumer 或 registry publish。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover、Gate optimization 与 package documentation handoffs，经过单独授权完成 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装/文档/runtime/type 验证。 | 重建 package、补齐 Gate/API 文档或替代本地 evidence。 |
