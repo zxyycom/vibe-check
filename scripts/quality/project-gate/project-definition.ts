@@ -1,10 +1,9 @@
-import { defineConfig, type DecisionPolicy, type ProjectDefinition } from "vibe-check";
+import { defineConfig, type ProjectDefinition } from "vibe-check";
 
 import { PROJECT_GATE_CATALOG } from "../../project-gate/catalog.ts";
-import { GATE_COMMAND_FAILURE_RECORD_TYPE, createProcessCheck } from "./process-check.ts";
+import { createProcessCheck } from "./process-check.ts";
 
-export const PROJECT_GATE_POLICY_NAME = "repository-gate";
-
+/** Creates the repository's complete process Check catalog without a Gate policy. */
 export function createProjectGateDefinition(invocationLogDirectory: string): ProjectDefinition {
   return defineConfig({
     checks: PROJECT_GATE_CATALOG.map((descriptor) =>
@@ -16,32 +15,6 @@ export function createProjectGateDefinition(invocationLogDirectory: string): Pro
       output: { enabled: false },
       progress: { enabled: true }
     },
-    policies: {
-      [PROJECT_GATE_POLICY_NAME]: repositoryGatePolicy()
-    },
-    scheduler: { maxParallel: 4 },
-    selectedPolicy: PROJECT_GATE_POLICY_NAME
+    scheduler: { maxParallel: 4 }
   });
-}
-
-function repositoryGatePolicy(): DecisionPolicy {
-  const policy: DecisionPolicy = {
-    policyId: PROJECT_GATE_POLICY_NAME,
-    references: [],
-    acceptance: [],
-    views: [
-      {
-        viewId: "gate-command-failures",
-        selectors: PROJECT_GATE_CATALOG.map(({ checkId }) => ({
-          checkId,
-          recordTypeId: GATE_COMMAND_FAILURE_RECORD_TYPE
-        })),
-        acceptance: "all",
-        predicates: []
-      }
-    ],
-    readiness: [],
-    blockWhen: { kind: "view-not-empty", viewId: "gate-command-failures" }
-  };
-  return Object.freeze(policy);
 }

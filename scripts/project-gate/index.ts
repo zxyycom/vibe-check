@@ -10,8 +10,6 @@ import {
 } from "../package-candidate/index.ts";
 import { errorMessage, isNonArrayRecord } from "../tools/foundation/src/index.ts";
 
-import { PROJECT_GATE_CATALOG } from "./catalog.ts";
-import { projectGateEligibility } from "./eligibility.ts";
 import {
   parseProjectGateArguments,
   selectionFlags,
@@ -95,7 +93,7 @@ export async function runProjectGate(
       flags: selectionFlags(parsed.value),
       invocationLogDirectory
     });
-    const status = projectGateExitStatus(result, parsed.value);
+    const status = projectGateExitStatus(result);
     console.log(`project gate logs: ${invocationLogDirectory}`);
     console.log(`project gate result: ${resultSummary(status)}`);
     return status;
@@ -106,68 +104,41 @@ export async function runProjectGate(
   }
 }
 
-export function projectGateExitStatus(
-  result: unknown,
-  selection: ProjectGateSelection
-): ProjectGateExitStatus {
+/** Maps completed Run facts; aggregation ownership remains inside Package Run. */
+export function projectGateExitStatus(result: unknown): ProjectGateExitStatus {
   if (!isCompletedResult(result)) return PROJECT_GATE_EXIT_STATUS.unavailable;
-  if (result.definitionWarnings.length > 0 || result.effects.progress.status !== "succeeded")
+  if (result.definitionWarnings.length > 0 || result.effects.progress.status !== "succeeded") {
     return PROJECT_GATE_EXIT_STATUS.failed;
-  if (result.decision.gate.status !== "passed") return PROJECT_GATE_EXIT_STATUS.failed;
-  return hasExpectedEligibility(result.snapshot.checks, selection)
+  }
+  return result.aggregate === "passed"
     ? PROJECT_GATE_EXIT_STATUS.passed
     : PROJECT_GATE_EXIT_STATUS.failed;
 }
 
-function hasExpectedEligibility(
-  checks: readonly unknown[],
-  selection: ProjectGateSelection
-): boolean {
-  if (checks.length !== PROJECT_GATE_CATALOG.length) return false;
-  const outcomes = new Map<string, unknown>();
-  for (const check of checks) {
-    if (
-      !isNonArrayRecord(check) ||
-      typeof check.checkId !== "string" ||
-      outcomes.has(check.checkId)
-    )
-      return false;
-    outcomes.set(check.checkId, check.outcome);
-  }
-  return PROJECT_GATE_CATALOG.every((descriptor) => {
-    const outcome = outcomes.get(descriptor.checkId);
-    const eligibility = projectGateEligibility(descriptor, selection);
-    if (eligibility.eligible) {
-      return (
-        isNonArrayRecord(outcome) && outcome.status === "completed" && outcome.verdict === "passed"
-      );
-    }
-    return (
-      isNonArrayRecord(outcome) &&
-      outcome.status === "not-applicable" &&
-      isNonArrayRecord(outcome.reason) &&
-      outcome.reason.code === eligibility.reasonCode
-    );
-  });
-}
-
 function isCompletedResult(value: unknown): value is Readonly<{
+  readonly aggregate: "failed" | "not-applicable" | "passed" | "unavailable";
   readonly definitionWarnings: readonly unknown[];
-  readonly decision: Readonly<{ readonly gate: Readonly<{ readonly status: unknown }> }>;
   readonly effects: Readonly<{ readonly progress: Readonly<{ readonly status: unknown }> }>;
   readonly kind: "completed";
-  readonly snapshot: Readonly<{ readonly checks: readonly unknown[] }>;
 }> {
   return (
     isNonArrayRecord(value) &&
     value.kind === "completed" &&
+    isCheckAggregate(value.aggregate) &&
     Array.isArray(value.definitionWarnings) &&
-    isNonArrayRecord(value.decision) &&
-    isNonArrayRecord(value.decision.gate) &&
     isNonArrayRecord(value.effects) &&
-    isNonArrayRecord(value.effects.progress) &&
-    isNonArrayRecord(value.snapshot) &&
-    Array.isArray(value.snapshot.checks)
+    isNonArrayRecord(value.effects.progress)
+  );
+}
+
+function isCheckAggregate(
+  value: unknown
+): value is "failed" | "not-applicable" | "passed" | "unavailable" {
+  return (
+    value === "failed" ||
+    value === "not-applicable" ||
+    value === "passed" ||
+    value === "unavailable"
   );
 }
 

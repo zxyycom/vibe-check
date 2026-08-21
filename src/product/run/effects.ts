@@ -1,9 +1,6 @@
 import type { ProjectDefinition, ProjectEffects, RunControls } from "../definition/project.ts";
-import {
-  projectReadablePublicationV3,
-  type ValidatedPublicationModelV3
-} from "../quality-core/output/publication-v3/index.ts";
-import { publishScanV3 } from "../quality-core/scan-command/publication-v3.ts";
+import type { ValidatedPublicationModelV4 } from "../quality-core/output/publication-v4/index.ts";
+import { publishScanV4 } from "../quality-core/scan-command/publication-v4.ts";
 import type {
   CheckExecutionLifecycle,
   CheckSettledFact,
@@ -181,36 +178,23 @@ function defaultProgressWriter(): ProgressWriter {
 
 export function publishOutput(
   input: Readonly<{
-    changedFiles: readonly string[];
     effectConfiguration: ProjectEffects;
     effects: EffectStatuses;
-    model: ValidatedPublicationModelV3;
+    model: ValidatedPublicationModelV4;
     outputDirectory: string;
-    reportPresentation: ProjectDefinition["quality"]["report"];
   }>
-) {
-  if (!input.effectConfiguration.output.enabled) {
-    return projectReadablePublicationV3({
-      model: input.model,
-      report: {
-        changedFiles: input.changedFiles,
-        presentation: input.reportPresentation
-      }
-    }).console;
-  }
+): boolean {
+  if (!input.effectConfiguration.output.enabled) return true;
   try {
-    const published = publishScanV3({
+    publishScanV4({
       artifactDir: input.outputDirectory,
-      changedFiles: input.changedFiles,
-      model: input.model,
-      print: false,
-      reportPresentation: input.reportPresentation
+      model: input.model
     });
     input.effects.succeeded("output");
-    return published.readable;
+    return true;
   } catch {
     input.effects.failed("output");
-    return undefined;
+    return false;
   }
 }
 

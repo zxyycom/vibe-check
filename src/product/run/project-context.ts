@@ -1,14 +1,5 @@
-import { randomUUID } from "node:crypto";
-import { rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
 import type { CheckProjectContext } from "../definition/custom-check.ts";
 import type { ProjectDefinition, RunControls } from "../definition/project.ts";
-import {
-  materializeBaselineRevision,
-  resolveBaselineCommitSha
-} from "../quality-core/input/revisions.ts";
 import type { EffectStatuses } from "./effects.ts";
 
 export interface PreparedProjectContext {
@@ -26,66 +17,27 @@ export function prepareProjectContext(
     readonly root: string;
   }>
 ): PreparedProjectContext {
-  const materialized =
-    input.controls.comparison === undefined
-      ? null
-      : materializeComparison(input.root, input.controls.comparison);
-  try {
-    return Object.freeze({
-      cleanup: materialized?.cleanup ?? (() => undefined),
-      context: Object.freeze({
-        cache: Object.freeze({
-          directory: input.effectConfiguration.cache.directory,
-          enabled: input.effectConfiguration.cache.enabled,
-          reportActivity: input.effects.cache
-        }),
-        changedFiles: snapshotInvocationStrings(input.controls.changedFiles),
-        comparison: materialized?.comparison ?? null,
-        flags: snapshotInvocationStrings(input.controls.flags),
-        files: Object.freeze({
-          codeAreas: input.definition.quality.codeAreas,
-          excludeDirs: input.definition.quality.excludeDirs,
-          generatedFiles: input.definition.quality.generatedFiles,
-          include: input.definition.quality.include
-        }),
-        root: input.root
-      })
-    });
-  } catch (error) {
-    materialized?.cleanup();
-    throw error;
-  }
+  return Object.freeze({
+    cleanup: (): void => undefined,
+    context: Object.freeze({
+      cache: Object.freeze({
+        directory: input.effectConfiguration.cache.directory,
+        enabled: input.effectConfiguration.cache.enabled,
+        reportActivity: input.effects.cache
+      }),
+      changedFiles: snapshotInvocationStrings(input.controls.changedFiles),
+      flags: snapshotInvocationStrings(input.controls.flags),
+      files: Object.freeze({
+        codeAreas: input.definition.quality.codeAreas,
+        excludeDirs: input.definition.quality.excludeDirs,
+        generatedFiles: input.definition.quality.generatedFiles,
+        include: input.definition.quality.include
+      }),
+      root: input.root
+    })
+  });
 }
 
 function snapshotInvocationStrings(value: readonly string[] | undefined): readonly string[] {
   return Object.freeze([...(value ?? [])]);
-}
-
-function materializeComparison(
-  root: string,
-  comparison: NonNullable<RunControls["comparison"]>
-): Readonly<{
-  readonly cleanup: () => void;
-  readonly comparison: NonNullable<CheckProjectContext["comparison"]>;
-}> {
-  const resolved = resolveBaselineCommitSha({ cwd: root, revision: comparison.revision });
-  if (!resolved.ok) throw new TypeError("Explicit comparison revision is unavailable");
-  const temporaryRoot = join(tmpdir(), `vibe-check-reference-${randomUUID()}`);
-  const materialized = materializeBaselineRevision({
-    baselineWorkDir: temporaryRoot,
-    commitSha: resolved.commitSha,
-    cwd: root
-  });
-  if (!materialized.ok) {
-    rmSync(temporaryRoot, { recursive: true, force: true });
-    throw new TypeError("Explicit comparison revision could not be materialized");
-  }
-  return Object.freeze({
-    cleanup: () => rmSync(temporaryRoot, { recursive: true, force: true }),
-    comparison: Object.freeze({
-      referenceName: comparison.referenceName,
-      revision: comparison.revision,
-      root: materialized.workDir
-    })
-  });
 }

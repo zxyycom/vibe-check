@@ -33,7 +33,6 @@ function materializeCheck(check: ParsedCheck): Check {
     displayName: check.displayName,
     execution: check.execution,
     options: check.options,
-    recordTypes: check.definition.recordTypes,
     ...scheduling
   });
 }

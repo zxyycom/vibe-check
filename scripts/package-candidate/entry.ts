@@ -8,12 +8,13 @@ export {
 } from "../../src/product/definition/project.ts";
 export type {
   Check,
+  CheckAggregate,
+  CheckAggregation,
   CheckExecution,
   CheckExecutionContext,
   CheckOutcome,
   CheckResult,
   CheckUnavailableReason,
-  DecisionPolicy,
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions,
@@ -21,8 +22,6 @@ export type {
   ProjectEffects,
   ProjectDefinition,
   ProjectQualityConfiguration,
-  QualityRecordCandidate,
-  RecordTypeDefinition,
   RunControls,
   SchedulerPolicy
 } from "../../src/product/definition/project.ts";

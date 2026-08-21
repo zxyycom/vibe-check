@@ -1,22 +1,14 @@
 import type {
+  CheckAggregate,
   DefinitionWarning,
   ProjectDefinitionDiagnostic,
   RunControls
 } from "../definition/project.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
-import type {
-  DecisionEvidence,
-  ReferenceFacts
-} from "../quality-core/check-record/policy-model.ts";
 import type { RunEffectStatuses } from "./effects.ts";
 
 export type RunDiagnostic = Readonly<{
-  readonly code:
-    | "comparison-preparation-failed"
-    | "policy-validation-failed"
-    | "task-graph-invalid"
-    | "task-engine-failed"
-    | "publication-model-failed";
+  readonly code: "task-graph-invalid" | "task-engine-failed" | "publication-model-failed";
 }>;
 
 /** One Product-measured execution duration per canonical Core Check. */
@@ -27,9 +19,8 @@ export type CheckDuration = Readonly<{
 
 /** Facts shared by completed and post-model effect results. */
 export interface RunResultFacts {
+  readonly aggregate: CheckAggregate | null;
   readonly checkDurations: readonly CheckDuration[];
-  readonly decision: DecisionEvidence;
-  readonly referenceFacts: ReferenceFacts;
   readonly snapshot: CoreSnapshot;
 }
 
@@ -112,10 +103,7 @@ export function planning(
   declarativeFingerprint: string,
   definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
-  code: Extract<
-    RunDiagnostic["code"],
-    "comparison-preparation-failed" | "policy-validation-failed" | "task-graph-invalid"
-  >
+  code: Extract<RunDiagnostic["code"], "task-graph-invalid">
 ): RunResult {
   return Object.freeze({
     kind: "planning",

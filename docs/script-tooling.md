@@ -20,9 +20,6 @@ Vibe Check 拥有的开发脚本入口是：
   环境并启动 package-candidate workflow。
 - `scripts/quality/scan.ts`：调用 repository Project Run 的 pure dogfood 薄入口；不解析配置或
   重新提供 Project Definition。
-- `scripts/quality/annotate.ts`：把 validated quality records 渲染为 GitHub
-  Actions non-blocking warning annotation；输入先经 Product two-file set validator 完整
-  验证。
 - `scripts/docs/validate.ts`：校验 Markdown links、JSON syntax、current machine schemas/
   examples、generation drift，以及隔离的 historical report schema/examples。
 - `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
@@ -68,7 +65,7 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 | lint / typecheck | `bun run lint -- product`；`bun run typecheck -- scripts` | 无参数分别覆盖 product 和 scripts；scope 只选择已声明的目标。 |
 | test | `bun run test` | 默认且推荐的 root scope 是 Product；foundation 仍通过自己的 package command 验证 cwd boundary。 |
 | validate | `bun run validate`；`bun run validate -- docs json` | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator。 |
-| quality | `bun run quality` | 无参数；写入忽略的 quality artifacts，但 Quality records 本身不阻断此 observation command。 |
+| quality | `bun run quality` | 无参数；写入忽略的 quality artifacts，但 Check facts 本身不阻断此 observation command。 |
 | governance | `bun run decisions -- list`、`bun run change-plan -- check <path>`、`bun run investigations -- check`、`bun run test-evidence -- check --root .` | base command 只转发其 owner CLI；是否写入由具体 subcommand 决定。 |
 | Project Gate | `bun run verify:vibe-check-workspace:required` | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `full` 选择 full，`:required` 选择 required；正式调用不传 disabled tag。 |
 | bootstrap / migration compatibility | `bun run env:setup`、`bun run env:check`、`bun run product:cli` | 前两个受 Codex 生成环境调用约束；最后一个只输出 migration diagnostic。 |
@@ -84,12 +81,12 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
   只调用 bound Project Run，并把 structured result 映射为该脚本的 process exit；它不调用 Product CLI、发现
   配置或转发 argv。
 - `quality` 通过同一 wrapper 到达 Product `run` operation；
-  repository policy、built-in selection 和 effects 只有 Project Definition 一个 owner。
+  repository built-in selection 和 effects 只有 Project Definition 一个 owner。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
 - Project Gate 严格检查 decision records，并调用 test-evidence check 执行完整 Bun 测试面及
   语义 Case 闭合；其 `required` / `full` profile 通过 bound Project Run 执行 repository Gate。
-- Current schema/examples checks 显式注册 run/record v3，验证五组 canonical machine sets；historical
-  v2 schema bytes 只在显式 archival path/registry 中验证，不进入 current traversal 或 consumer path。
+- Current schema/examples checks 显式注册 run/record v4，验证新的 canonical machine set；historical
+  schema bytes 只在显式 archival path/registry 中验证，不进入 current traversal 或 consumer path。
 - 仓库自有 foundation 是普通 tracked source；它没有独立 checkout、upstream pin 或 submodule
   初始化要求。它的职责和 package boundary 由[工具来源](#工具来源)定义。
 
@@ -137,8 +134,8 @@ manifest、tsconfig、source 与 test 目标；lint commands 只选择 source �
 规则、format 选项或目标范围变更时，修改上述配置或对应 development owner，而不是在文档或 package
 内另建一份同义规则表。编码层面的优先级见[编码规范](coding-style.md#文档边界与使用方式)。
 
-质量产品的 schema/types、scanner adapters、Check/Record/DecisionPolicy、publication/readable output、
-reference/cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
+质量产品的 schema/types、scanner adapters、Check final data/Records、machine v4 publication、
+cache primitives 和必要 `foundation` helper 闭包归属 `src/product/**`，
 不是开发脚本 toolkit。开发脚本可以单向调用产品入口，但产品运行时不得 import
 `scripts/**`，包括仓库自有 `scripts/tools/foundation/**`。
 
@@ -235,7 +232,7 @@ mise wrapper。
 
 Repository canonical files 是：
 
-- `scripts/quality/project-definition.ts`：拥有 repository policy、ordinary default/custom Check tree、
+- `scripts/quality/project-definition.ts`：拥有 repository ordinary default/custom Check tree、
   scheduler、effects 和 Check-owned scanner options。
 - `scripts/quality/project-run.ts`：绑定 Project Definition 与 repository root，导出项目允许的
   controls subset。
@@ -243,7 +240,7 @@ Repository canonical files 是：
 - `scripts/package-candidate/run-quality.ts`：在 locked Bun child 中准备或复用 candidate，成功后调用
   `scan.ts`；准备失败时不运行 scan。
 - `scripts/quality/index.ts`：只以 `mise exec` 启动上述 candidate workflow，并保留 child exit status；不增加
-  参数、配置或 policy。
+  参数、配置或 aggregation。
 
 仓库 dogfood 入口是：
 
@@ -252,8 +249,8 @@ bun run quality
 ```
 
 该命令单向调用 repository Project Run，不发现、复制或生成 config。它是 neutral dogfood
-observation；需要 gate 的项目应在 Project Definition 中声明 named policy，并由自己的 Run/adapter
-暴露必要 comparison controls，而不是由 package script 隐式改写 policy。
+observation；需要 Gate 的项目在自己的 bound Run 中选择 eligible Check IDs、显式提供 aggregation
+configuration，并由 adapter 映射 Run facts，而不是由 package script 隐式重算质量结论。
 
 | 命令 | 当前行为 |
 | --- | --- |
@@ -287,14 +284,15 @@ ambient CI，local partial invocation 仍可在任何 host 运行。
 
 identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<unique>/`。eligible Check 在自己的
 transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；Product-owned progress 是唯一
-共享进度流。零退出且 transcript 写入成功为 passed；非零退出产生不含 child output 的 Check-owned failure Record
-并为 failed。已运行 command 收到取消时，adapter 先保存其 transcript，再映射为 `execution-cancelled`
-unavailable；未启动、无法取得 exit facts 或无法写入 transcript 也为 unavailable。Definition 使用
-`repository-gate` named policy 和固定 scheduler capacity `4`。
+共享进度流。零退出且 transcript 写入成功为 passed final data；非零退出产生不含 child output 的 Check-local
+supplemental Record 并为 failed final data。已运行 command 收到取消时，adapter 先保存其 transcript，再映射为
+`execution-cancelled` unavailable；未启动、无法取得 exit facts 或无法写入 transcript 也为 unavailable。
 
-adapter 仅在 completed result 无 definition warning、progress effect 成功、named policy passed，且全部
-Check outcome 与当前 eligibility 一致时返回 `0`；final result 未闭合时返回 `1`；参数、候选准备/导入/identity
-或 execution failure 时返回 `2`。
+bound Project Run 从同一 profile/tag eligibility selection 得到 eligible Check IDs，并用 `{ mode: "all",
+unavailable: "propagate", notApplicable: "fail", empty: "failed" }` 调用 Product aggregation。excluded
+Checks 仍保留 raw `not-applicable` facts。adapter 只在 completed result 无 definition warning、progress effect
+成功且 Package `aggregate` 为 `passed` 时返回 `0`；其它 completed aggregate/effect/warning closure 为 `1`；参数、
+候选准备/导入/identity、execution 或 malformed Run facts 为 `2`。adapter 不遍历 snapshot 重建 Gate summary。
 
 最窄验证：
 
@@ -312,46 +310,20 @@ bun run verify:vibe-check-workspace:required
 每次 Gate invocation 的日志写入 `.log/project-gate/<unique>/`。日志只用于本地定位，不属于 release
 artifact。
 
-## Quality annotation consumer
-
-Repository annotation entry 保持：
-
-```text
-bun scripts/quality/annotate.ts [artifact-directory] [limit]
-```
-
-- Default artifact directory 是 `artifacts/vibe-check-quality/`；default limit 是 `5`。
-- Limit 必须匹配 `^[1-9][0-9]*$` 且不超过 `Number.MAX_SAFE_INTEGER`；extra argument、
-  invalid limit 或 read failure 都是 handled infrastructure failure。
-- Consumer 从该 directory 读取 `run.json` 与 `records.ndjson`，并只通过
-  `src/product/run/machine-output.ts` shallow boundary 验证完整 two-file machine set。完整 validation
-  成功后才过滤 `info`、应用 limit 并渲染 GitHub commands；script 不保留 render-only parser 或
-  deep-import quality-core internals。
-- Conforming set 产生 filtered/limited annotations；empty records set 产生 zero commands；两者退出 `0`。
-- Argument/read/decoding/framing/syntax/schema/set-invariant failure 在 stdout 产生 zero annotation
-  commands，stderr 输出 actionable diagnostic，并退出 `2`。Validation 不返回可消费的部分结果，
-  因而不会产生 partial annotations。
-- Record level 永不使 annotation 自身 non-zero。Annotations 始终是 non-blocking
-  GitHub warnings；需要 best-effort orchestration 时由 workflow 使 step non-blocking，不能
-  放宽 parser acceptance。
-
-Machine identities、field semantics 与 byte grammar 由 [Output](output.md) 拥有；本节只拥有 direct script consumer 的参数、
-render timing 和 exit behavior。
-
 ## Independent docs validation and workspace acceptance
 
 Docs validation 故意把 current product、independent acceptance 与 historical materials
 分开：
 
 1. `scripts/docs/machine-schemas.ts` 从 Product runtime schema source deterministic 生成
-   run/record v3 published schemas；`--check` 按 bytes 检测 drift。
+   run/record v4 published schemas；`--check` 按 bytes 检测 drift。
 2. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
-   serializers 生成五组 current examples；`--check` 检测 exact inventory 与 byte drift。
+   serializers 生成 current examples；`--check` 检测 exact inventory 与 byte drift。
 3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
    raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
    acceptance implementation。
-4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v3。historical
-   v2 run/record schemas 使用 separate archival registry，`docs/examples/json/**` 不进入 current example
+4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v4。historical
+   run/record schemas 使用 separate archival registry，`docs/examples/json/**` 不进入 current example
    traversal。
 5. `bun run validate -- docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
    compile、independent acceptance 与 generation drift。
@@ -453,19 +425,20 @@ topic catalog、查询和闭合诊断。项目内
 
 Project Definition authoring、validation、normalization 和 closed Run Controls 由
 [Configuration](configuration.md) 与 `src/product/**` 拥有。Scanner command/availability 由
-[Scanner 依赖选择](scanner-dependencies.md) 拥有；policy evaluation 与 structured result 由
-Quality Metrics 和 Output owner 承接。
+[Scanner 依赖选择](scanner-dependencies.md) 拥有；explicit aggregation、structured Check/Record facts
+与 machine result 分别由 Quality Metrics 和 Output owner 承接。
 
-Repository-owned complete policy 位于 `scripts/quality/project-definition.ts`，并由
-`scripts/quality/project-run.ts` 绑定。Wrapper/package scripts 不保存第二套 default、field tree、
-selection 或 discovery logic；TypeScript 文件路径是 repository convention，不是 Product contract。
+Repository-owned complete Check tree 位于 `scripts/quality/project-definition.ts`，并由
+`scripts/quality/project-run.ts` 绑定。Project Gate 的 eligibility selection 和 aggregation config 位于其 own
+bound Run；wrapper/package scripts 不保存第二套 default、field tree、selection reducer 或 discovery logic；
+TypeScript 文件路径是 repository convention，不是 Product contract。
 
 当前产品语义由 `docs/architecture.md`、`docs/scanner-dependencies.md`、
 `docs/quality-metrics.md` 和 `docs/output.md` 拥有。隔离的 historical report schema/examples
 只参与下述开发期验证 registry，不构成当前 Output contract。
 
 `scripts/tools/validators/config.ts` 拥有开发期文档验证路径和任务名；它登记 current
-run/record v3 schemas、historical v2 schema material 与对应 example roots，不重新定义 Output contract。
+run/record v4 schemas、historical schema material 与对应 example roots，不重新定义 Output contract。
 
 ## 验证入口
 
@@ -485,7 +458,6 @@ run/record v3 schemas、historical v2 schema material 与对应 example roots，
 | Project Gate（routine） | `bun run verify:vibe-check-workspace:required` |
 | Project Gate（完整 Product / foundation package 验收） | `bun run verify:vibe-check-workspace:full` |
 | current schema/example generation drift | `bun scripts/docs/machine-schemas.ts --check`、`bun scripts/docs/machine-examples.ts --check`；日常由 `validate -- docs` 调度 |
-| quality annotation | `bun scripts/quality/annotate.ts [artifact-directory] [limit]` |
 | foundation package | `bun run --cwd scripts/tools/foundation typecheck`、`bun run --cwd scripts/tools/foundation format -- check`、`bun run --cwd scripts/tools/foundation lint`、`bun run --cwd scripts/tools/foundation test` |
 | Product-owned runner import | `bun test src/product/task-scheduler/test` |
 

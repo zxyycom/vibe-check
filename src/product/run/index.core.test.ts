@@ -1,30 +1,30 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
   defineConfig,
   type Check,
+  type CheckAggregate,
+  type CheckAggregation,
   type CheckExecution,
-  type QualityRecordCandidate
+  type RunControls
 } from "../definition/project.ts";
 import { run } from "./index.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({ result: true }) });
+
+type AggregationStatus = "passed" | "failed" | "not-applicable" | "unavailable";
 
 function check(
   overrides: Readonly<{
+    readonly checkId?: string;
     readonly execution?: CheckExecution;
-    readonly recordTypes?: Check["recordTypes"];
   }> = {}
 ): Check {
   return {
-    checkId: "custom",
-    displayName: "Custom",
-    execution: overrides.execution ?? (() => COMPLETED),
-    recordTypes: overrides.recordTypes ?? []
+    checkId: overrides.checkId ?? "custom",
+    displayName: overrides.checkId ?? "Custom",
+    execution: overrides.execution ?? (() => PASSED)
   };
 }
 
@@ -36,49 +36,85 @@ function definition(checks: readonly Check[]) {
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
-    },
-    selectedPolicy: null
+    }
   });
 }
 
-const RECORD_CANDIDATE = Object.freeze({
-  recordTypeId: "finding",
-  level: "warning",
-  semanticSubject: "src/a.ts",
-  message: "A direct Check finding",
-  fields: Object.freeze({ metric: "score" }),
-  location: Object.freeze({ path: "src/a.ts", line: 1, column: 1 })
-}) satisfies QualityRecordCandidate;
-
-const RECORD_TYPES = [
-  {
-    recordTypeId: "finding",
-    fields: [{ fieldId: "metric", valueType: "string", required: true }],
-    identityFields: ["metric"]
+function executionFor(status: AggregationStatus): CheckExecution {
+  switch (status) {
+    case "passed":
+      return () => ({ status: "passed", data: {} });
+    case "failed":
+      return () => ({ status: "failed", data: {} });
+    case "not-applicable":
+      return () => ({ status: "not-applicable" });
+    case "unavailable":
+      return () => ({ status: "unavailable", reason: { code: "declared-unavailable" } });
   }
-] as const;
+}
+
+function aggregateSource(statuses: readonly AggregationStatus[]): Check[] {
+  return statuses.map((status, index) =>
+    check({ checkId: `${status}-${index}`, execution: executionFor(status) })
+  );
+}
+
+function aggregation(
+  checks: CheckAggregation["checks"],
+  mode: CheckAggregation["mode"],
+  unavailable: CheckAggregation["unavailable"],
+  notApplicable: CheckAggregation["notApplicable"],
+  empty: CheckAggregation["empty"]
+): CheckAggregation {
+  return Object.freeze({ checks, mode, unavailable, notApplicable, empty });
+}
 
 describe("Package Run core integration", () => {
-  it("contains invalid callback outcomes and record misuse in the Check outcome", async () => {
-    const invalidOutcomeCheck = check();
-    Object.defineProperty(invalidOutcomeCheck, "execution", {
-      value: () => ({ status: "unexpected" })
+  it("contains invalid callback outcomes and Record misuse in the owning Check", async () => {
+    const invalidCheck = check();
+    Object.defineProperty(invalidCheck, "execution", {
+      configurable: true,
+      enumerable: true,
+      value: () => Object.freeze({ status: "unexpected" }),
+      writable: true
     });
-    const invalidResult = await run(definition([invalidOutcomeCheck]));
-    assert.equal(invalidResult.kind, "completed");
-    if (invalidResult.kind !== "completed") return;
-    assert.deepEqual(invalidResult.snapshot.checks[0]?.outcome, {
+    const invalidOutcome = await run(definition([invalidCheck]));
+    assert.equal(invalidOutcome.kind, "completed");
+    if (invalidOutcome.kind !== "completed") return;
+    assert.deepEqual(invalidOutcome.snapshot.checks[0]?.outcome, {
       status: "unavailable",
       reason: { code: "invalid-execution-result" }
     });
 
+    const forgedProductReason = check();
+    Object.defineProperty(forgedProductReason, "execution", {
+      configurable: true,
+      enumerable: true,
+      value: () => ({
+        status: "unavailable",
+        reason: { code: "forged", checkIds: ["custom"] }
+      }),
+      writable: true
+    });
+    const forgedResult = await run(definition([forgedProductReason]));
+    assert.equal(forgedResult.kind, "completed");
+    if (forgedResult.kind !== "completed") return;
+    assert.deepEqual(forgedResult.snapshot.checks[0]?.outcome, {
+      status: "unavailable",
+      reason: { code: "invalid-execution-result" }
+    });
+
+    let retainedReporter:
+      | Readonly<{ report(identity: { id: string }, data: object): void }>
+      | undefined;
     const invalidRecord = await run(
       definition([
         check({
-          recordTypes: RECORD_TYPES,
           execution: (context) => {
-            context.records.report({ ...RECORD_CANDIDATE, recordTypeId: "unknown" });
-            return COMPLETED;
+            retainedReporter = context.records;
+            context.records.report({ id: "retained" }, { value: true });
+            context.records.report({ id: "retained" }, { value: false });
+            return PASSED;
           }
         })
       ])
@@ -87,64 +123,238 @@ describe("Package Run core integration", () => {
     if (invalidRecord.kind !== "completed") return;
     assert.deepEqual(invalidRecord.snapshot.checks[0]?.outcome, {
       status: "unavailable",
-      reason: { code: "record-invalid" }
+      reason: { code: "record-conflict" }
     });
-
-    const contradictoryReference = await run(
-      definition([
-        check({
-          execution: (context) => {
-            context.records.reportReference({
-              referenceName: "baseline",
-              relations: [],
-              status: "unavailable"
-            });
-            return { status: "not-applicable" };
-          }
-        })
-      ])
-    );
-    assert.equal(contradictoryReference.kind, "completed");
-    if (contradictoryReference.kind !== "completed") return;
-    assert.deepEqual(contradictoryReference.snapshot.checks[0]?.outcome, {
-      status: "unavailable",
-      reason: { code: "record-invalid" }
-    });
+    assert.deepEqual(invalidRecord.snapshot.records, [
+      { checkId: "custom", id: "retained", data: { value: true } }
+    ]);
+    assert.throws(() => retainedReporter?.report({ id: "late" }, {}), /reporter is closed/);
   });
 
-  it("commits Check-owned records and closes its reporter when the callback settles", async () => {
-    let retainedReporter: Readonly<{ report(candidate: QualityRecordCandidate): void }> | undefined;
-    const result = await run(
-      definition([
-        check({
-          recordTypes: RECORD_TYPES,
-          execution: (context) => {
-            retainedReporter = context.records;
-            context.records.report(RECORD_CANDIDATE);
-            return COMPLETED;
-          }
-        })
-      ])
+  it("publishes raw facts and derives an aggregate only from explicit selected statuses", async () => {
+    const source = definition([
+      check({ checkId: "passed", execution: () => ({ status: "passed", data: { count: 1 } }) }),
+      check({ checkId: "failed", execution: () => ({ status: "failed", data: { count: 0 } }) }),
+      check({ checkId: "na", execution: () => ({ status: "not-applicable" }) })
+    ]);
+    const raw = await run(source);
+    assert.equal(raw.kind, "completed");
+    if (raw.kind !== "completed") return;
+    assert.equal(raw.aggregate, null);
+    assert.deepEqual(
+      raw.snapshot.checks.map((coreCheck) => coreCheck.outcome.status),
+      ["failed", "not-applicable", "passed"]
     );
-    assert.equal(result.kind, "completed");
-    if (result.kind !== "completed") return;
-    assert.equal(result.snapshot.records.length, 1);
-    assert.throws(() => retainedReporter?.report(RECORD_CANDIDATE), /reporter is closed/);
-  });
 
-  it("publishes the direct Check snapshot without retaining executable callbacks", async () => {
-    const root = mkdtempSync(join(tmpdir(), "vibe-check-publication-"));
-    try {
-      const result = await run(definition([check()]), {
-        projectRoot: root,
-        effects: { output: { enabled: true, directory: "published" } }
+    const aggregate = await run(source, {
+      checkAggregation: {
+        checks: ["passed", "na"],
+        mode: "all",
+        unavailable: "propagate",
+        notApplicable: "pass",
+        empty: "failed"
+      }
+    });
+    assert.equal(aggregate.kind, "completed");
+    if (aggregate.kind !== "completed") return;
+    assert.equal(aggregate.aggregate, "passed");
+
+    const aggregationTable: readonly Readonly<{
+      readonly aggregation: CheckAggregation;
+      readonly expected: CheckAggregate;
+      readonly statuses: readonly AggregationStatus[];
+    }>[] = [
+      {
+        statuses: ["passed"],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["failed"],
+        aggregation: aggregation("all", "any", "propagate", "exclude", "passed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["passed", "failed"],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["passed", "failed"],
+        aggregation: aggregation("all", "any", "propagate", "exclude", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["passed", "failed"],
+        aggregation: aggregation(["passed-0"], "all", "propagate", "exclude", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: [],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "passed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["passed"],
+        aggregation: aggregation([], "any", "propagate", "exclude", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["passed"],
+        aggregation: aggregation([], "all", "propagate", "exclude", "not-applicable"),
+        expected: "not-applicable"
+      },
+      {
+        statuses: ["passed", "unavailable"],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
+        expected: "unavailable"
+      },
+      {
+        statuses: ["passed", "unavailable"],
+        aggregation: aggregation("all", "all", "fail", "exclude", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["passed", "unavailable"],
+        aggregation: aggregation("all", "any", "fail", "exclude", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["passed", "unavailable"],
+        aggregation: aggregation("all", "all", "exclude", "exclude", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["failed", "unavailable"],
+        aggregation: aggregation("all", "any", "exclude", "exclude", "passed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["not-applicable"],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["failed", "not-applicable"],
+        aggregation: aggregation("all", "all", "propagate", "pass", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["failed", "not-applicable"],
+        aggregation: aggregation("all", "any", "propagate", "pass", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["passed", "not-applicable"],
+        aggregation: aggregation("all", "all", "propagate", "fail", "failed"),
+        expected: "failed"
+      },
+      {
+        statuses: ["passed", "not-applicable"],
+        aggregation: aggregation("all", "any", "propagate", "fail", "failed"),
+        expected: "passed"
+      },
+      {
+        statuses: ["passed", "not-applicable"],
+        aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
+        expected: "passed"
+      }
+    ];
+    for (const testCase of aggregationTable) {
+      const result = await run(definition(aggregateSource(testCase.statuses)), {
+        checkAggregation: testCase.aggregation
       });
       assert.equal(result.kind, "completed");
-      assert.equal(existsSync(join(root, "published", "run.json")), true);
-      assert.equal(existsSync(join(root, "published", "records.ndjson")), true);
-      assert.doesNotMatch(JSON.stringify(result), /"execution"\s*:/);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
+      if (result.kind === "completed") assert.equal(result.aggregate, testCase.expected);
+    }
+
+    let calls = 0;
+    const invalidSelection = await run(
+      definition([
+        check({
+          execution: () => {
+            calls += 1;
+            return PASSED;
+          }
+        })
+      ]),
+      {
+        checkAggregation: {
+          checks: ["missing"],
+          mode: "any",
+          unavailable: "fail",
+          notApplicable: "exclude",
+          empty: "not-applicable"
+        }
+      }
+    );
+    assert.deepEqual(invalidSelection, {
+      kind: "configuration",
+      definitionWarnings: [],
+      diagnostic: {
+        kind: "invalid-run-controls",
+        path: "controls.checkAggregation.checks",
+        reason: "invalid-value"
+      }
+    });
+    assert.equal(calls, 0);
+
+    const duplicateSelection = await run(
+      definition([
+        check({
+          execution: () => {
+            calls += 1;
+            return PASSED;
+          }
+        })
+      ]),
+      {
+        checkAggregation: {
+          checks: ["custom", "custom"],
+          mode: "all",
+          unavailable: "propagate",
+          notApplicable: "exclude",
+          empty: "not-applicable"
+        }
+      }
+    );
+    assert.deepEqual(duplicateSelection, invalidSelection);
+    assert.equal(calls, 0);
+
+    const sparse: unknown[] = [];
+    sparse.length = 2;
+    sparse[1] = "custom";
+    const named = ["custom"];
+    Object.defineProperty(named, "named", { enumerable: true, value: true });
+    for (const malformedChecks of [sparse, named]) {
+      const malformedControls: RunControls = {
+        checkAggregation: {
+          checks: ["custom"],
+          mode: "all",
+          unavailable: "propagate",
+          notApplicable: "exclude",
+          empty: "not-applicable"
+        }
+      };
+      Object.defineProperty(malformedControls.checkAggregation, "checks", {
+        configurable: true,
+        enumerable: true,
+        value: malformedChecks,
+        writable: true
+      });
+      const malformedSelection = await run(
+        definition([
+          check({
+            execution: () => {
+              calls += 1;
+              return PASSED;
+            }
+          })
+        ]),
+        malformedControls
+      );
+      assert.deepEqual(malformedSelection, invalidSelection);
+      assert.equal(calls, 0);
     }
   });
 });

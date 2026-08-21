@@ -4,31 +4,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import {
-  defineConfig,
-  type Check,
-  type CheckExecution,
-  type QualityRecordCandidate
-} from "../definition/project.ts";
+import { defineConfig, type Check, type CheckExecution } from "../definition/project.ts";
 import type { ProgressWriter } from "./progress.ts";
 import { executeValidatedRun } from "./invocation.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 
 function check(
   overrides: Readonly<{
     readonly checkId?: string;
     readonly execution?: CheckExecution;
     readonly maxParallel?: number;
-    readonly recordTypes?: Check["recordTypes"];
   }> = {}
 ): Check {
   return {
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
-    execution: overrides.execution ?? (() => COMPLETED),
-    ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
-    recordTypes: overrides.recordTypes ?? []
+    execution: overrides.execution ?? (() => PASSED),
+    ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel })
   };
 }
 
@@ -40,8 +33,7 @@ function definition(checks: readonly Check[], progress = false) {
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: progress }
-    },
-    selectedPolicy: null
+    }
   });
 }
 
@@ -86,23 +78,6 @@ function deferred<T>(): Readonly<{
   });
 }
 
-const RECORD_CANDIDATE = Object.freeze({
-  recordTypeId: "finding",
-  level: "warning",
-  semanticSubject: "src/a.ts",
-  message: "A direct Check finding",
-  fields: Object.freeze({ metric: "score" }),
-  location: Object.freeze({ path: "src/a.ts", line: 1, column: 1 })
-}) satisfies QualityRecordCandidate;
-
-const RECORD_TYPES = [
-  {
-    recordTypeId: "finding",
-    fields: [{ fieldId: "metric", valueType: "string", required: true }],
-    identityFields: ["metric"]
-  }
-] as const;
-
 describe("Package Run progress effects", () => {
   it("presents enabled Package Run progress through the injected plain writer", async () => {
     const output = capturedProgressWriter();
@@ -143,7 +118,7 @@ describe("Package Run progress effects", () => {
           check({
             execution: () => {
               calls += 1;
-              return COMPLETED;
+              return PASSED;
             }
           })
         ],
@@ -159,7 +134,7 @@ describe("Package Run progress effects", () => {
     if (result.kind !== "effect") return;
     assert.deepEqual(result.diagnostic, { code: "effect-failed", effect: "progress" });
     assert.equal(result.effects.progress.status, "failed");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, COMPLETED);
+    assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
   });
 
   it("contains a TTY rewrite failure without leaving Check or Record facts open", async () => {
@@ -173,19 +148,18 @@ describe("Package Run progress effects", () => {
           check({
             checkId: "slow",
             execution: async (context) => {
-              context.records.report(RECORD_CANDIDATE);
+              context.records.report({ id: "sample" }, { metric: "score" });
               slowStarted.resolve(undefined);
               await slow.promise;
-              return COMPLETED;
+              return PASSED;
             },
-            maxParallel: 2,
-            recordTypes: RECORD_TYPES
+            maxParallel: 2
           }),
           check({
             checkId: "fast",
             execution: () => {
               fastStarted.resolve(undefined);
-              return COMPLETED;
+              return PASSED;
             },
             maxParallel: 2
           })
@@ -247,7 +221,7 @@ describe("Package Run progress effects", () => {
           check({
             execution: (context) => {
               context.project.cache.reportActivity("failed");
-              return COMPLETED;
+              return PASSED;
             }
           })
         ],
@@ -263,6 +237,6 @@ describe("Package Run progress effects", () => {
     assert.deepEqual(result.diagnostic, { code: "effect-failed", effect: "cache" });
     assert.equal(result.effects.cache.status, "failed");
     assert.equal(result.effects.progress.status, "failed");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, COMPLETED);
+    assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
   });
 });

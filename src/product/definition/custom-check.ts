@@ -1,7 +1,4 @@
-import type { RecordTypeDefinition } from "./check-definition.ts";
 import type { ProjectQualityConfiguration } from "./quality.ts";
-
-export type { RecordTypeDefinition } from "./check-definition.ts";
 
 export type CheckReason = Readonly<{ readonly code: string }>;
 
@@ -14,13 +11,15 @@ export type CheckUnavailableReason = Readonly<{
 }>;
 
 export type CheckResult = Readonly<
-  | { readonly status: "completed"; readonly verdict: "passed" | "failed" }
+  | { readonly status: "passed"; readonly data: object }
+  | { readonly status: "failed"; readonly data: object }
   | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
   | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
 >;
 
 export type CheckOutcome = Readonly<
-  | { readonly status: "completed"; readonly verdict: "passed" | "failed" }
+  | { readonly status: "passed"; readonly data: object }
+  | { readonly status: "failed"; readonly data: object }
   | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
   | { readonly status: "unavailable"; readonly reason: CheckUnavailableReason }
 >;
@@ -33,35 +32,12 @@ export type DeepReadonly<T> = T extends string | number | boolean | null
       ? { readonly [Key in keyof T]: DeepReadonly<T[Key]> }
       : never;
 
-export type RecordLevel = "info" | "warning" | "error";
-export type RecordFieldValue = boolean | number | string;
-
-/** A Check-owned candidate; Product assigns its Check and Record identities. */
-export interface QualityRecordCandidate {
-  readonly recordTypeId: string;
-  readonly level: RecordLevel;
-  readonly semanticSubject: string;
-  readonly message: string;
-  readonly fields: Readonly<Record<string, RecordFieldValue>>;
-  readonly location: Readonly<{
-    readonly path: string;
-    readonly line: number;
-    readonly column: number;
-  }> | null;
+interface RecordIdentityInput {
+  readonly id: string;
 }
 
-export interface CheckReferenceCandidate {
-  readonly referenceName: string;
-  readonly status: "complete" | "incomplete" | "unavailable";
-  readonly relations: readonly Readonly<{
-    readonly record: Pick<QualityRecordCandidate, "recordTypeId" | "semanticSubject" | "fields">;
-    readonly relationId: string;
-  }>[];
-}
-
-export interface CheckRecordReporter {
-  report(candidate: QualityRecordCandidate): void;
-  reportReference(candidate: CheckReferenceCandidate): void;
+interface CheckRecordReporter {
+  report(identity: RecordIdentityInput, data: object): void;
 }
 
 export interface CheckProjectContext {
@@ -74,11 +50,6 @@ export interface CheckProjectContext {
     readonly generatedFiles: ProjectQualityConfiguration["generatedFiles"];
     readonly include: ProjectQualityConfiguration["include"];
   }>;
-  readonly comparison: Readonly<{
-    readonly referenceName: string;
-    readonly revision: string;
-    readonly root: string;
-  }> | null;
   readonly cache: Readonly<{
     readonly directory: string;
     readonly enabled: boolean;
@@ -184,7 +155,6 @@ function isDataDescriptor(
 export interface Check<Options extends object = object> {
   readonly checkId: string;
   readonly displayName: string;
-  readonly recordTypes?: readonly RecordTypeDefinition[];
   readonly options?: Options;
   execution?(
     this: void,

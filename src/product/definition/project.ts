@@ -20,13 +20,10 @@ import {
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
-  type InheritableCheckCollection,
-  type QualityRecordCandidate,
-  type RecordTypeDefinition
+  type InheritableCheckCollection
 } from "./custom-check.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../public-contract/current.ts";
 import { isNonArrayRecord } from "../foundation/type-guards.ts";
-import type { DecisionPolicy } from "../quality-core/check-record/policy-model.ts";
 import { NEUTRAL_QUALITY_CONFIGURATION, type ProjectQualityConfiguration } from "./quality.ts";
 
 export {
@@ -41,14 +38,11 @@ export {
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
-  type DecisionPolicy,
   type DuplicateDetectionOptions,
   type FileMetricsOptions,
   type InheritableCheckCollection,
   type FunctionMetricsOptions,
-  type ProjectQualityConfiguration,
-  type QualityRecordCandidate,
-  type RecordTypeDefinition
+  type ProjectQualityConfiguration
 };
 
 export interface ProjectEffects {
@@ -67,10 +61,8 @@ export interface ProjectDefinition {
   readonly apiVersion: "1";
   readonly checks: readonly Check[];
   readonly effects: ProjectEffects;
-  readonly policies: Readonly<Record<string, DecisionPolicy>>;
   readonly quality: ProjectQualityConfiguration;
   readonly scheduler: SchedulerPolicy;
-  readonly selectedPolicy: string | null;
 }
 
 type ProjectDefinitionInput = Readonly<{
@@ -82,15 +74,13 @@ type ProjectDefinitionInput = Readonly<{
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
-  policies?: Readonly<Record<string, DecisionPolicy>>;
   quality?: ProjectQualityConfiguration;
   scheduler?: Partial<SchedulerPolicy>;
-  selectedPolicy?: string | null;
 }>;
 
 export interface RunControls {
+  readonly checkAggregation?: CheckAggregation;
   readonly changedFiles?: readonly string[];
-  readonly comparison?: Readonly<{ readonly referenceName: string; readonly revision: string }>;
   readonly effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
     logs: Partial<ProjectEffects["logs"]>;
@@ -101,6 +91,16 @@ export interface RunControls {
   readonly projectRoot?: string;
   readonly signal?: AbortSignal;
 }
+
+export interface CheckAggregation {
+  readonly checks: "all" | readonly string[];
+  readonly mode: "all" | "any";
+  readonly unavailable: "propagate" | "fail" | "exclude";
+  readonly notApplicable: "exclude" | "pass" | "fail";
+  readonly empty: "passed" | "failed" | "not-applicable";
+}
+
+export type CheckAggregate = "passed" | "failed" | "not-applicable" | "unavailable";
 
 export interface ProjectDefinitionDiagnostic {
   readonly kind: "invalid-project-definition" | "invalid-run-controls";
@@ -143,10 +143,8 @@ export interface DeclarativeProjectSnapshot {
   /** Canonically ordered executable Check declarations. */
   readonly checks: readonly NormalizedCheckDeclaration[];
   readonly effects: ProjectEffects;
-  readonly policyNames: readonly string[];
   readonly quality: ProjectQualityConfiguration;
   readonly scheduler: SchedulerPolicy;
-  readonly selectedPolicy: string | null;
 }
 
 export interface NormalizedProjectDefinition {
@@ -188,10 +186,8 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
           CURRENT_PUBLIC_CONTRACT.effectDefaults.progress.enabled
       }
     },
-    policies: value.policies ?? {},
     quality: value.quality ?? NEUTRAL_QUALITY_CONFIGURATION,
-    scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 },
-    selectedPolicy: value.selectedPolicy ?? null
+    scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 }
   };
 }
 
@@ -235,10 +231,8 @@ function freezeDeclarativeSnapshot(
     apiVersion: definition.apiVersion,
     checks: declarations,
     effects: definition.effects,
-    policyNames: Object.freeze(Object.keys(definition.policies).sort()),
     quality: definition.quality,
-    scheduler: definition.scheduler,
-    selectedPolicy: definition.selectedPolicy
+    scheduler: definition.scheduler
   });
 }
 

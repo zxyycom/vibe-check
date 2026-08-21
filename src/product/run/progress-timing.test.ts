@@ -6,7 +6,7 @@ import type { CheckExecutionClock } from "./check-execution.ts";
 import type { ProgressWriter } from "./progress.ts";
 import { executeValidatedRun } from "./invocation.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 
 function check(
   overrides: Readonly<{
@@ -19,8 +19,7 @@ function check(
     checkId: overrides.checkId,
     displayName: overrides.checkId,
     execution: overrides.execution,
-    maxParallel: overrides.maxParallel,
-    recordTypes: []
+    maxParallel: overrides.maxParallel
   };
 }
 
@@ -79,7 +78,7 @@ describe("Package Run progress timing", () => {
           execution: async () => {
             slowStarted.resolve(undefined);
             await slow.promise;
-            return COMPLETED;
+            return PASSED;
           },
           maxParallel: 2
         }),
@@ -88,7 +87,7 @@ describe("Package Run progress timing", () => {
           execution: async () => {
             fastStarted.resolve(undefined);
             await fast.promise;
-            return COMPLETED;
+            return PASSED;
           },
           maxParallel: 2
         })
@@ -99,8 +98,7 @@ describe("Package Run progress timing", () => {
         output: { enabled: false },
         progress: { enabled: true }
       },
-      scheduler: { maxParallel: 2 },
-      selectedPolicy: null
+      scheduler: { maxParallel: 2 }
     });
     const running = executeValidatedRun(source, {}, [], {
       clock: scriptedClock([0, 5, 10, 30, 40, 40]),

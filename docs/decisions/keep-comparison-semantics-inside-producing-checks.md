@@ -1,7 +1,7 @@
 ---
 title: 让 comparison semantics 留在 producing Check
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-21T05:58:42Z
 purpose: 防止特定 built-in 的 baseline 和 regression 模型成为所有 custom Checks 必须实现的 Product contract。
 background: Comparison input、matching 与 relation meaning 随 Check domain 变化，不存在所有 Checks 共享的稳定 semantics。

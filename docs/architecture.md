@@ -6,85 +6,59 @@
 调用方 → 项目 Run → Product run
                     ├─ Definition validation 与 canonical Check catalog
                     ├─ direct Check execution
-                    └─ frozen Core facts → policy / publication / effects / RunResult
+                    └─ frozen Core facts → optional aggregation / publication / effects / RunResult
 ```
 
 当前实现是 <code>src/product/run/index.ts</code> 的 <code>run(ProjectDefinition, RunControls)</code>。项目拥有 TypeScript Definition 和绑定它的 Run wrapper；Product 不拥有项目模块路径、配置发现或重新加载。
 
-可能改变此边界的全部 active Change 及其直接相关 Decision 见 [Active Change Portfolio](../changes/active-change-portfolio.md)；npm / Project Gate 六个 Change 的详细交接关系见 [Vibe Check package 与 Project Gate 交付导航](../changes/vibe-check-package-and-gate-delivery.md)。这些导航不改变本页的当前运行时契约；只有 Change 实施、验证并同步对应 owner 后，才更新架构事实。
-
+可能改变此边界的 active Change 与直接相关 Decision 见 [Active Change Portfolio](../changes/active-change-portfolio.md)。这些导航不改变本页当前运行时契约；只有实现、验证并同步对应 owner 后才更新架构事实。
 
 ## Definition boundary
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
-`execution`、`options`、`recordTypes` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
+`execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
 `dependsOn`、`mutex` 和 `maxParallel`，不形成独立 Core 或 output entity。
 
-完整的 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Validation 在
-任何 callback、scanner、cache、progress 或 output work 之前闭合 declarative data：它拒绝 unknown field 和 malformed
-value，snapshot JSON options，验证完整 default options，并 canonicalize scheduling collection。trusted callback function
-只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
+完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 declarative data：它拒绝 unknown field 和 malformed value，snapshot JSON options，验证完整 default options，并 canonicalize scheduling collection。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
+
+Record catalog、field descriptor、identity extractor、reference reporter、comparison input、`DecisionPolicy`、`GateResult` 与 named policy selection 不属于 Definition grammar。一个 producing Check 自己定义 final data 和可选 Record data 的 domain shape。
 
 ## Execution boundary
 
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
-dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、quality
-verdict 或 public Check field。
+dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、Check final data 或 aggregation。
 
-每个 executable Check 以 `{ options, project, records, signal }` 执行自己的 callback。`project.flags` 是调用 controls
-规范化后的 frozen string array。Product 只拥有其 validation 与 snapshot，不解释 token；Check 拥有 token 的项目语义，并可据此选择自己的工作或返回 `not-applicable`。generic scheduler 不接收 flags，因此 flags 不会创建 scheduler、dependency 或 graph semantics；任何下游 Gate 对该结果的显示或 pass/fail policy 也不属于 Product。callback 拥有 scanner invocation 或其他项目工作，并返回 Check result。正常完成但质量失败表示
-`{ status: "completed", verdict: "failed" }`，而不是 execution failure；callback 也可以明确返回
-`not-applicable`。Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite
-映射为 owning unavailable outcome。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。
+每个 executable Check 以 `{ options, project, records, signal }` 执行自己的 callback。`project.flags` 是调用 controls 规范化后的 frozen string array；Product 不解释 token。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
-Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止
-non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，
-再返回 execution-phase cancellation facts。
+Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite 映射为 owning unavailable outcome。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record/reference validation 与 Core
-settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback
-和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core、policy 或 machine publication。progress
-renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标
-stream 输出；项目 callback 必须把详细 process output 留在 project-owned logs，而不与该 stream 穿插。
+Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Core settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core 或 machine publication。progress renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标 stream 输出；项目 callback 必须把详细 process output 留在 project-owned logs，而不与该 stream 穿插。
 
 ## Core facts
 
-Core session 将每个 canonical executable Check 恰好 register 一次，且只冻结 `checks` 与 `records`。Check 的
-terminal outcome grammar 由 [Quality Metrics](quality-metrics.md#check-and-record-facts) 定义：
+Core session 将每个 canonical executable Check 恰好 register 一次，且只冻结 `checks` 与 `records`。Check 的 terminal outcome grammar 由 [Quality Metrics](quality-metrics.md#check-and-record-facts) 定义：
 
-- `completed`，并带有 `passed` 或 `failed` verdict；
+- `passed`，带有 canonical final data；
+- `failed`，带有 canonical final data；
 - `not-applicable`，可选 reason code；
-- `unavailable`，带有 reason code 和可选 prerequisite `checkIds`。
+- `unavailable`，带有 Product or author-controlled reason code 和可选 prerequisite `checkIds`。
 
-callback 只能通过自己的 reporter 提交 Record candidate。Product 提供 Check ownership 与 Record identity，验证 declared
-record type，拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。Task identity、
-callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Core facts。
+callback 只能通过自己的 reporter 提交 supplemental Record candidate：`records.report({ id }, data)`。Product 提供 Check ownership 与 structural `{ checkId, id }` identity，验证 canonical safety、拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。final data 与 Record data 都 materialize 为 detached、deep-frozen、prototype-safe canonical JSON object；Product 不验证 Check-local domain shape。Task identity、callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Core facts。
+
+Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。aggregation 不读取 Record data、definition warning、effect status 或 presentation，也不替代项目的 raw facts。
 
 ## Default scanners and exact scope
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是带 direct callback 的 complete Check value。它们的 scanner
-command 与 options 由 Check value 拥有，adapter 仍是 private protocol boundary。adapter 只接收所属 Check 的 exact
-accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 Record conversion 前拒绝任何
-out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。具体 default option 值见
-[Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见
-[Scanner dependencies](scanner-dependencies.md)。
+`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是带 direct callback 的 complete Check value。它们的 scanner command 与 options 由 Check value 拥有，adapter 仍是 private protocol boundary。adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 threshold conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary
 
-Policy 消费 frozen Core facts 与 reference evidence。Publication 创建一个 validated machine model，再从它投影
-`run.json`、`records.ndjson`、report、console 与 annotation input。精确 field 与 atomicity boundary 见
-[Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 只投影 `{ checkId, id, data }`。它不发布 Record catalog、reference/comparison facts、decision evidence 或 mandatory aggregate。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
-每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion
-与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的
-result 还携带 canonical per-Check duration summary。public inventory 只暴露 authoring/run value 与 type，
-绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
+每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 
 ## Runtime boundary
 
-项目 callback 在调用方的 Bun runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation
-worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source
-不 import `scripts/**`、docs、fixture 或 toolkit code。
+项目 callback 在调用方的 Bun runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source 不 import `scripts/**`、docs、fixture 或 toolkit code。
 
-Repository dogfood 是单向的：`scripts/quality/project-run.ts` import repository Definition 并调用 Product `run`。
-Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Core 或 Check settlement capability。
+Repository dogfood 是单向的：`scripts/quality/project-run.ts` import repository Definition 并调用 Product `run`。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Core 或 Check settlement capability。

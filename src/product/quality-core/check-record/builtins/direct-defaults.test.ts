@@ -13,10 +13,8 @@ import type {
   CheckExecution,
   CheckExecutionContext,
   CheckProjectContext,
-  CheckReferenceCandidate,
   CheckResult,
-  DeepReadonly,
-  QualityRecordCandidate
+  DeepReadonly
 } from "../../../definition/custom-check.ts";
 import { executeDuplicateDetection } from "./duplicate-detection.ts";
 import { executeFileMetrics } from "./file-metrics.ts";
@@ -40,7 +38,6 @@ function project(root: string): CheckProjectContext {
   return Object.freeze({
     cache: Object.freeze({ directory: "cache", enabled: true, reportActivity: () => undefined }),
     changedFiles: Object.freeze(["src/a.ts"]),
-    comparison: null,
     flags: Object.freeze([]),
     files: FILES,
     root
@@ -53,22 +50,17 @@ async function execute<Options extends object>(
   root: string
 ): Promise<
   Readonly<{
-    readonly records: readonly QualityRecordCandidate[];
-    readonly references: readonly CheckReferenceCandidate[];
+    readonly records: readonly ReportedRecord[];
     readonly result: CheckResult;
   }>
 > {
-  const records: QualityRecordCandidate[] = [];
-  const references: CheckReferenceCandidate[] = [];
+  const records: ReportedRecord[] = [];
   const context: CheckExecutionContext<Options> = Object.freeze({
     options,
     project: project(root),
     records: Object.freeze({
-      report: (candidate: QualityRecordCandidate): void => {
-        records.push(candidate);
-      },
-      reportReference: (candidate: CheckReferenceCandidate): void => {
-        references.push(candidate);
+      report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
+        records.push(Object.freeze({ data, identity }));
       }
     }),
     signal: new AbortController().signal
@@ -76,9 +68,17 @@ async function execute<Options extends object>(
   const result = await callback(context);
   return Object.freeze({
     records: Object.freeze(records),
-    references: Object.freeze(references),
     result
   });
+}
+
+interface ReportedRecord {
+  readonly data: object;
+  readonly identity: Readonly<{ readonly id: string }>;
+}
+
+function reportedMetric(data: object): unknown {
+  return "metric" in data ? data.metric : undefined;
 }
 
 function createRoot(prefix: string): string {
@@ -96,7 +96,7 @@ function scanner(root: string, source: string): readonly string[] {
 }
 
 describe("default Check direct callbacks", () => {
-  it("executes file metrics from Check-owned scanner options and reports Check-owned candidates", async () => {
+  it("executes file metrics from Check-owned scanner options with final data and supplemental Records", async () => {
     const root = createRoot("vibe-check-direct-file-");
     try {
       const args = scanner(
@@ -115,16 +115,25 @@ describe("default Check direct callbacks", () => {
         }
       };
       const result = await execute(executeFileMetrics, options, root);
-      assert.deepEqual(result.result, { status: "completed", verdict: "failed" });
-      assert.equal(result.records.length, 1);
-      assert.equal(result.records[0]?.recordTypeId, "file-code-lines");
-      assert.deepEqual(result.references, []);
+      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
+      assert.deepEqual(result.records, [
+        {
+          data: {
+            codeArea: "source",
+            codeLines: 400,
+            limit: 300,
+            metric: "code-lines",
+            path: "src/a.ts"
+          },
+          identity: { id: "src/a.ts" }
+        }
+      ]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  it("executes function metrics from Check-owned scanner options and reports all metric Records", async () => {
+  it("executes function metrics from Check-owned scanner options with final data and local Record IDs", async () => {
     const root = createRoot("vibe-check-direct-function-");
     try {
       const args = scanner(
@@ -145,18 +154,33 @@ describe("default Check direct callbacks", () => {
         parameterCount: { absoluteFloor: 4, changedDelta: 2 }
       };
       const result = await execute(executeFunctionMetrics, options, root);
-      assert.deepEqual(result.result, { status: "completed", verdict: "failed" });
-      assert.deepEqual(result.records.map((record) => record.recordTypeId).sort(), [
-        "function-code-lines",
-        "function-cyclomatic-complexity",
-        "function-parameter-count"
-      ]);
+      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 3 } });
+      assert.deepEqual(
+        result.records.map((record) => ({
+          id: record.identity.id,
+          metric: reportedMetric(record.data)
+        })),
+        [
+          {
+            id: 'function:{"file":"src/a.ts","name":"hot"}:cyclomatic-complexity',
+            metric: "cyclomatic-complexity"
+          },
+          {
+            id: 'function:{"file":"src/a.ts","name":"hot"}:function-code-density',
+            metric: "function-code-density"
+          },
+          {
+            id: 'function:{"file":"src/a.ts","name":"hot"}:parameter-count',
+            metric: "parameter-count"
+          }
+        ]
+      );
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  it("executes duplicate detection from Check-owned scanner options and uses the invocation cache context", async () => {
+  it("executes duplicate detection from Check-owned scanner options with final data and cache context", async () => {
     const root = createRoot("vibe-check-direct-duplicate-");
     try {
       const report = JSON.stringify({
@@ -194,9 +218,19 @@ describe("default Check direct callbacks", () => {
         minimumTokensByCodeArea: {}
       };
       const result = await execute(executeDuplicateDetection, options, root);
-      assert.deepEqual(result.result, { status: "completed", verdict: "failed" });
-      assert.equal(result.records[0]?.recordTypeId, "duplicate-code");
-      assert.equal(result.references.length, 0);
+      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
+      assert.equal(result.records.length, 1);
+      assert.match(result.records[0]?.identity.id ?? "", /^duplicate-fragment\/v1\/sha256:/);
+      assert.deepEqual(result.records[0]?.data, {
+        codeAreas: ["source"],
+        lineCount: 12,
+        locations: [
+          { endLine: 21, path: "src/a.ts", startLine: 10 },
+          { endLine: 31, path: "src/b.ts", startLine: 20 }
+        ],
+        metric: "duplicate-tokens",
+        tokenCount: 80
+      });
       assert.equal(existsSync(join(root, "cache", "quality-scan-cache-v1")), true);
     } finally {
       rmSync(root, { recursive: true, force: true });

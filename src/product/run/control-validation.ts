@@ -1,14 +1,15 @@
 import { isNonArrayRecord, isStringArray, isUnknownArray } from "../foundation/type-guards.ts";
 import { parseEffectsOverride } from "../definition/effect-validation.ts";
 import type {
+  CheckAggregation,
   ProjectDefinitionDiagnostic,
   RunControls,
   ValidationResult
 } from "../definition/project.ts";
 
 const RUN_CONTROL_KEYS = [
+  "checkAggregation",
   "changedFiles",
-  "comparison",
   "effects",
   "flags",
   "projectRoot",
@@ -34,8 +35,8 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
   if (!changedFiles.ok) return changedFiles;
   const flags = parseFlags(data.value.flags);
   if (!flags.ok) return flags;
-  const comparison = optionalControl(data.value.comparison, parseComparison, "controls.comparison");
-  if (!comparison.ok) return comparison;
+  const checkAggregation = parseOptionalCheckAggregation(data.value.checkAggregation);
+  if (!checkAggregation.ok) return checkAggregation;
   const effects = optionalControl(data.value.effects, parseEffectsOverride, "controls.effects");
   if (!effects.ok) return effects;
   const projectRoot = optionalControl(data.value.projectRoot, parseString, "controls.projectRoot");
@@ -48,7 +49,7 @@ function validateRunControlsValue(value: unknown): ValidationResult<RunControls>
       ...(changedFiles.value === undefined
         ? {}
         : { changedFiles: Object.freeze([...changedFiles.value]) }),
-      ...(comparison.value === undefined ? {} : { comparison: comparison.value }),
+      ...(checkAggregation.value === undefined ? {} : { checkAggregation: checkAggregation.value }),
       ...(effects.value === undefined ? {} : { effects: effects.value }),
       flags: flags.value,
       ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
@@ -98,11 +99,69 @@ function parseFlags(value: unknown): ValidationResult<readonly string[]> {
   });
 }
 
-function parseComparison(value: unknown): RunControls["comparison"] | undefined {
-  const data = exactKeys(value, ["referenceName", "revision"]);
-  return typeof data?.referenceName === "string" && typeof data.revision === "string"
-    ? Object.freeze({ referenceName: data.referenceName, revision: data.revision })
-    : undefined;
+function parseOptionalCheckAggregation(
+  value: unknown
+): ValidationResult<CheckAggregation | undefined> {
+  if (value === undefined) return Object.freeze({ ok: true, value: undefined });
+  const data = exactKeys(value, ["checks", "mode", "unavailable", "notApplicable", "empty"]);
+  if (data === undefined) return invalidControls("controls.checkAggregation");
+  const checks = data.checks === "all" ? "all" : parseClosedCheckIds(data.checks);
+  if (checks === undefined) return invalidControls("controls.checkAggregation.checks");
+  if (
+    (data.mode !== "all" && data.mode !== "any") ||
+    (data.unavailable !== "propagate" &&
+      data.unavailable !== "fail" &&
+      data.unavailable !== "exclude") ||
+    (data.notApplicable !== "exclude" &&
+      data.notApplicable !== "pass" &&
+      data.notApplicable !== "fail") ||
+    (data.empty !== "passed" && data.empty !== "failed" && data.empty !== "not-applicable")
+  )
+    return invalidControls("controls.checkAggregation");
+  return Object.freeze({
+    ok: true,
+    value: Object.freeze({
+      checks,
+      mode: data.mode,
+      unavailable: data.unavailable,
+      notApplicable: data.notApplicable,
+      empty: data.empty
+    })
+  });
+}
+
+function parseClosedCheckIds(value: unknown): readonly string[] | undefined {
+  if (!isUnknownArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return undefined;
+  const keys = Reflect.ownKeys(value);
+  const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
+  const length = lengthDescriptor?.value as unknown;
+  if (
+    lengthDescriptor === undefined ||
+    lengthDescriptor.get !== undefined ||
+    lengthDescriptor.set !== undefined ||
+    lengthDescriptor.enumerable ||
+    typeof length !== "number" ||
+    !Number.isSafeInteger(length) ||
+    length < 0 ||
+    keys.length !== length + 1 ||
+    !keys.includes("length")
+  )
+    return undefined;
+  const checkIds: string[] = [];
+  for (let index = 0; index < length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+    if (
+      descriptor === undefined ||
+      descriptor.get !== undefined ||
+      descriptor.set !== undefined ||
+      descriptor.enumerable !== true
+    )
+      return undefined;
+    const checkId = descriptor.value as unknown;
+    if (typeof checkId !== "string" || checkId.length === 0) return undefined;
+    checkIds.push(checkId);
+  }
+  return Object.freeze(checkIds);
 }
 
 function isRunControlKey(value: string): boolean {

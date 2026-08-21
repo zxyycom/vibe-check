@@ -5,7 +5,7 @@ import { defineConfig, type Check } from "../definition/project.ts";
 import type { ProgressWriter } from "./progress.ts";
 import { executeValidatedRun } from "./invocation.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 
 function definition(checks: readonly Check[]) {
   return defineConfig({
@@ -15,13 +15,12 @@ function definition(checks: readonly Check[]) {
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: true }
-    },
-    selectedPolicy: null
+    }
   });
 }
 
 function check(checkId = "custom"): Check {
-  return { checkId, displayName: "Custom", execution: () => COMPLETED, recordTypes: [] };
+  return { checkId, displayName: "Custom", execution: () => PASSED };
 }
 
 function failingProgressWriter(): ProgressWriter {
@@ -95,8 +94,8 @@ describe("Package Run progress result priority", () => {
     assert.deepEqual(
       result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
       [
-        { checkId: "first", outcome: COMPLETED },
-        { checkId: "second", outcome: COMPLETED }
+        { checkId: "first", outcome: PASSED },
+        { checkId: "second", outcome: PASSED }
       ]
     );
   });
@@ -110,9 +109,8 @@ describe("Package Run progress result priority", () => {
           displayName: "Started",
           execution: () => {
             controller.abort();
-            return COMPLETED;
-          },
-          recordTypes: []
+            return PASSED;
+          }
         },
         check("unstarted")
       ]),

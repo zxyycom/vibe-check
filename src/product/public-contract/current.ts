@@ -19,12 +19,13 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   }),
   types: Object.freeze({
     check: "Check",
+    checkAggregate: "CheckAggregate",
+    checkAggregation: "CheckAggregation",
     checkExecution: "CheckExecution",
     checkExecutionContext: "CheckExecutionContext",
     checkOutcome: "CheckOutcome",
     checkResult: "CheckResult",
     checkUnavailableReason: "CheckUnavailableReason",
-    decisionPolicy: "DecisionPolicy",
     duplicateDetectionOptions: "DuplicateDetectionOptions",
     fileMetricsOptions: "FileMetricsOptions",
     functionMetricsOptions: "FunctionMetricsOptions",
@@ -32,8 +33,6 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",
     projectQualityConfiguration: "ProjectQualityConfiguration",
-    qualityRecordCandidate: "QualityRecordCandidate",
-    recordTypeDefinition: "RecordTypeDefinition",
     runControls: "RunControls",
     runResult: "RunResult",
     schedulerPolicy: "SchedulerPolicy"

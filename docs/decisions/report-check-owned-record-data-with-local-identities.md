@@ -1,7 +1,7 @@
 ---
 title: 让 Check 用局部 identity 提交 custom Record data
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-21T05:58:41Z
 purpose: 让 arbitrary custom Check 通过最小 Record contract 提交自己的数据，而 Product 不建立字段类型系统。
 background: Built-in finding/metric fields 不是所有 custom Checks 的共同义务，Product 只需 identity、canonical data 与生命周期边界。

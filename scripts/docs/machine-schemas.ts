@@ -5,23 +5,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  MACHINE_RECORD_V3_SCHEMA,
-  MACHINE_RECORD_V3_SCHEMA_PATH,
-  MACHINE_RUN_V3_SCHEMA,
-  MACHINE_RUN_V3_SCHEMA_PATH
-} from "../../src/product/quality-core/output/publication-v3/index.ts";
+  MACHINE_RECORD_V4_SCHEMA,
+  MACHINE_RECORD_V4_SCHEMA_PATH,
+  MACHINE_RUN_V4_SCHEMA,
+  MACHINE_RUN_V4_SCHEMA_PATH
+} from "../../src/product/quality-core/output/publication-v4/index.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const regenerateCommand = "bun scripts/docs/machine-schemas.ts";
 
 const publishedSchemas = [
   {
-    path: MACHINE_RUN_V3_SCHEMA_PATH,
-    schema: MACHINE_RUN_V3_SCHEMA
+    path: MACHINE_RUN_V4_SCHEMA_PATH,
+    schema: MACHINE_RUN_V4_SCHEMA
   },
   {
-    path: MACHINE_RECORD_V3_SCHEMA_PATH,
-    schema: MACHINE_RECORD_V3_SCHEMA
+    path: MACHINE_RECORD_V4_SCHEMA_PATH,
+    schema: MACHINE_RECORD_V4_SCHEMA
   }
 ] as const;
 

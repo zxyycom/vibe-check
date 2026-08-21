@@ -1,5 +1,3 @@
-export type RelationId = "changed" | "regression";
-
 export function isInChangedScope(filePath: string, changedFiles: readonly string[]): boolean {
   return changedFiles.some(
     (changedFile) => filePath.includes(changedFile) || changedFile.includes(filePath)

@@ -16,28 +16,26 @@ with \`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
 - Invocation: \`${run.invocation.invocationId}\`
 - Project root: \`${run.invocation.projectRoot}\`
 - Timestamp: \`${run.invocation.timestamp}\`
-- Selected policy: \`${example.selectedPolicy ?? "none (neutral observation)"}\`
 
 ## Package Run result
 
-- Result variant: \`completed\`
-- Gate status: \`${run.decision.gate.status}\`
-
-The artifact set is a projection of the same validated model returned by Package Run. Effect status
-and other result-variant fields are not inferred from these two files; API consumers use the
-structured Run Result. A project-owned command adapter may map that result to process behavior, but
-process exit codes are not part of this publication example.
+The artifact set projects the same frozen Core Check/Record facts returned by Package Run. Effect
+status and any invocation-specific aggregate are structured Run Result facts, not recoverable from
+these artifacts. A command adapter may map its result to process behavior, but process exit codes
+are not part of this publication example.
 
 ## Canonical publication
 
-- \`run.json\` contains v3 Check outcomes, the declarative catalog fingerprint, the canonical
-  Record-set fingerprint, reference facts, acceptance and decision evidence. It contains no
-  execution run, integrity, completeness or effect view.
-- \`records.ndjson\` contains ${example.publication.records.length} canonical record(s)${
-    example.publication.records.length === 0 ? " and is exactly zero bytes" : " in recordId order"
-  }.
+- \`run.json\` contains v4 terminal Check outcomes (with final data only for passed/failed Checks),
+  invocation metadata, and the complete Record-set fingerprint. It contains no catalog, aggregate,
+  decision, reference, acceptance, view, blocking, or presentation evidence.
+- \`records.ndjson\` contains ${example.publication.records.length} canonical supplemental Record(s)${
+    example.publication.records.length === 0
+      ? " and is exactly zero bytes"
+      : " in composite { checkId, id } order"
+  }. Each row is \`{ checkId, id, data }\` plus its v4 schema identity.
 
-Both files are produced from the current Check / Record publication model and accepted together
-by the formal machine-v3 validator. They are one publication set; neither file is trusted alone.
+Both files are produced from the current Check / Record publication model and accepted together by
+the formal machine-v4 validator. They are one publication set; neither file is trusted alone.
 `;
 }

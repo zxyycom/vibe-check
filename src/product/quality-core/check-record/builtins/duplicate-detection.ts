@@ -1,82 +1,23 @@
 import { resolve } from "node:path";
 
 import type { DuplicateDetectionOptions } from "../../../definition/built-ins.ts";
-import type {
-  CheckExecutionContext,
-  CheckReferenceCandidate,
-  CheckResult
-} from "../../../definition/custom-check.ts";
+import type { CheckExecutionContext, CheckResult } from "../../../definition/custom-check.ts";
 import type { DuplicationScannerDependency } from "../../../scanner-dependencies/index.ts";
 import { buildFingerprints, collectScanFiles } from "../../input/files.ts";
 import { classifyFiles } from "../../model/code-areas.ts";
 import { getGitSha } from "../../scan-command/tool-metadata.ts";
 import { selectJscpdTargetFileMap } from "../../measurement/current-revision/jscpd.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
-import type { CheckDefinition } from "../model.ts";
 import {
   measureDuplicateDetection,
   type DuplicateMeasurementResult
 } from "./duplicate-detection-measurement.ts";
-import {
-  buildDuplicateRecordCandidates,
-  buildDuplicateRelations,
-  duplicateSubjects,
-  type DuplicateRecordCandidate
-} from "./duplicate-detection-records.ts";
+import { buildDuplicateRecordCandidates } from "./duplicate-detection-records.ts";
 
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   checkId: "duplicate-detection",
-  displayName: "Duplicate detection",
-  recordTypes: [
-    {
-      recordTypeId: "duplicate-code",
-      fields: [
-        { fieldId: "codeArea", valueType: "string", required: true },
-        { fieldId: "lineCount", valueType: "integer", required: true },
-        { fieldId: "locationCount", valueType: "integer", required: true },
-        { fieldId: "metric", valueType: "string", required: true },
-        { fieldId: "suggestion", valueType: "string", required: true },
-        { fieldId: "value", valueType: "integer", required: true }
-      ],
-      identityFields: ["lineCount", "locationCount", "metric"],
-      policy: {
-        operands: [
-          {
-            operandId: "codeArea",
-            valueType: "string",
-            source: { kind: "field", fieldId: "codeArea" }
-          },
-          {
-            operandId: "message",
-            valueType: "string",
-            source: { kind: "message" }
-          },
-          {
-            operandId: "metric",
-            valueType: "string",
-            source: { kind: "field", fieldId: "metric" }
-          },
-          {
-            operandId: "path",
-            valueType: "string",
-            source: { kind: "location-path" }
-          },
-          {
-            operandId: "suggestion",
-            valueType: "string",
-            source: { kind: "field", fieldId: "suggestion" }
-          },
-          {
-            operandId: "value",
-            valueType: "number",
-            source: { kind: "field", fieldId: "value" }
-          }
-        ],
-        relations: ["changed", "regression"]
-      }
-    }
-  ]
-} as const satisfies CheckDefinition;
+  displayName: "Duplicate detection"
+} as const;
 
 export interface DuplicateDetectionSemantics {
   readonly changedDelta: number;
@@ -144,11 +85,12 @@ export async function executeDuplicateDetection(
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
   const candidates = buildDuplicateRecordCandidates(measurement.fragments, semantics);
   if (candidates === undefined) return unavailable("external-result-invalid");
-  for (const candidate of candidates) context.records.report(candidate.record);
-  await reportDuplicateReference(context, candidates, dependency, semantics);
+  for (const candidate of candidates) {
+    context.records.report({ id: candidate.id }, candidate.data);
+  }
   return Object.freeze({
-    status: "completed",
-    verdict: candidates.length > 0 ? "failed" : "passed"
+    status: candidates.length > 0 ? "failed" : "passed",
+    data: Object.freeze({ findingCount: candidates.length })
   });
 }
 
@@ -195,64 +137,6 @@ function directMeasurementFailure(
   if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
   if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
   return unavailable("external-result-invalid");
-}
-
-function reportDuplicateReferenceOutcome(
-  context: CheckExecutionContext<DuplicateDetectionOptions>,
-  status: CheckReferenceCandidate["status"],
-  relations: CheckReferenceCandidate["relations"] = Object.freeze([])
-): void {
-  if (context.project.comparison === null) return;
-  context.records.reportReference(
-    Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations,
-      status
-    })
-  );
-}
-
-async function reportDuplicateReference(
-  context: CheckExecutionContext<DuplicateDetectionOptions>,
-  candidates: readonly DuplicateRecordCandidate[],
-  dependency: DuplicationScannerDependency,
-  semantics: DuplicateDetectionSemantics
-): Promise<void> {
-  if (context.project.comparison === null) return;
-  const reference = prepareDirectInput(context.project.comparison.root, context);
-  const measurement = await measureDuplicateDetection({
-    cache: {
-      enabled: context.project.cache.enabled,
-      onActivity: context.project.cache.reportActivity
-    },
-    changedFiles: Object.freeze([]),
-    dependency,
-    input: reference,
-    scanKind: "baseline",
-    semantics
-  });
-  if (measurement.kind !== "complete") {
-    reportDuplicateReferenceOutcome(
-      context,
-      measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-    );
-    return;
-  }
-  const subjects = duplicateSubjects(measurement.fragments);
-  if (subjects === undefined) {
-    reportDuplicateReferenceOutcome(context, "incomplete");
-    return;
-  }
-  const relationsBySubject = buildDuplicateRelations(candidates, subjects, semantics.changedDelta);
-  const relations = candidates.flatMap((candidate) =>
-    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) =>
-      Object.freeze({
-        record: candidate.record,
-        relationId
-      })
-    )
-  );
-  reportDuplicateReferenceOutcome(context, "complete", Object.freeze(relations));
 }
 
 function unavailable(code: string): CheckResult {

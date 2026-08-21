@@ -1,186 +1,144 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import type { QualityRecordCandidate } from "./model.ts";
-import { createRecordId } from "./identity.ts";
+import { canonicalizeJsonObject } from "./canonical-data.ts";
 import { validateCheckDefinition, validateCoreSnapshot } from "./validation.ts";
 
-const definition = {
-  checkId: "file-metrics",
-  displayName: "File metrics",
-  recordTypes: [
-    {
-      recordTypeId: "line-budget",
-      fields: [
-        { fieldId: "codeArea", valueType: "string", required: true },
-        { fieldId: "limit", valueType: "integer", required: false }
-      ],
-      identityFields: ["codeArea"],
-      policy: {
-        operands: [
-          {
-            operandId: "codeArea",
-            valueType: "string",
-            source: { kind: "field", fieldId: "codeArea" }
-          }
-        ],
-        relations: ["regression"]
-      }
-    }
-  ]
-} as const;
+const definition = { checkId: "file-metrics", displayName: "File metrics" } as const;
 
 describe("check-record foundation model", () => {
-  it("keeps producer candidates free of Core ownership and lifecycle provenance", () => {
-    const producerCandidate: QualityRecordCandidate = {
-      recordTypeId: "line-budget",
-      level: "warning",
-      semanticSubject: "src/a.ts",
-      message: "Too many lines",
-      fields: { codeArea: "source", limit: 200 },
-      location: null
-    };
-    const invalidFieldCandidate: QualityRecordCandidate = {
-      ...producerCandidate,
-      // @ts-expect-error validated record fields exclude arrays, objects, and null
-      fields: { codeArea: ["source"] }
-    };
-
-    assert.equal("checkId" in producerCandidate, false);
-    assert.equal("checkRunId" in producerCandidate, false);
-    assert.deepEqual(invalidFieldCandidate.fields, { codeArea: ["source"] });
-  });
-
-  it("accepts only closed foundation descriptors with check-qualified record type identities", () => {
-    const first = validateCheckDefinition(definition);
-    const second = validateCheckDefinition({
-      ...definition,
-      checkId: "function-metrics"
-    });
-
-    assert.equal(first.ok, true);
-    assert.equal(second.ok, true);
-    if (first.ok) {
-      assert.deepEqual(first.value.recordTypes[0]?.policy, definition.recordTypes[0].policy);
-      assert.equal(Object.isFrozen(first.value.recordTypes[0]?.policy?.operands), true);
-    }
-    assert.deepEqual(
-      validateCheckDefinition({
-        ...definition,
-        runner: () => undefined
-      }),
-      {
-        ok: false,
-        issues: [
-          { path: "$", code: "unknown-field", message: "Object contains an unsupported field" }
-        ]
-      }
-    );
-    assert.equal(
-      validateCheckDefinition({
-        ...definition,
-        recordTypes: [{ ...definition.recordTypes[0], identityFields: ["missing"] }]
-      }).ok,
-      false
-    );
-    assert.equal(
-      validateCheckDefinition({
-        ...definition,
-        recordTypes: [
-          {
-            ...definition.recordTypes[0],
-            fields: [{ fieldId: "codeArea", valueType: "string", required: false }]
-          }
-        ]
-      }).ok,
-      false
-    );
-    assert.equal(
-      validateCheckDefinition({
-        ...definition,
-        recordTypes: [definition.recordTypes[0], definition.recordTypes[0]]
-      }).ok,
-      false
-    );
-  });
-
-  it("accepts exactly one closed terminal outcome for each Core Check", () => {
+  it("accepts exactly one four-state terminal outcome for each Core Check", () => {
     const outcomes = [
+      { status: "passed", data: { count: 1 } },
+      { status: "failed", data: { count: 0 } },
       { status: "not-applicable" },
       { status: "not-applicable", reason: { code: "no-eligible-input" } },
-      { status: "completed", verdict: "passed" },
-      { status: "completed", verdict: "failed" },
-      ...[
-        "record-conflict",
-        "record-invalid",
-        "external-result-invalid",
-        "external-dependency-unavailable",
-        "execution-threw",
-        "execution-cancelled"
-      ].map((code) => ({ status: "unavailable", reason: { code } })),
+      { status: "unavailable", reason: { code: "execution-threw" } },
       {
         status: "unavailable",
-        reason: {
-          code: "prerequisite-unavailable",
-          checkIds: ["upstream-check"]
-        }
+        reason: { code: "prerequisite-unavailable", checkIds: ["upstream-check"] }
       }
     ] as const;
 
     for (const outcome of outcomes) {
       assert.equal(
-        validateCoreSnapshot({
-          checks: [{ ...definition, outcome }],
-          records: []
-        }).ok,
+        validateCoreSnapshot({ checks: [{ ...definition, outcome }], records: [] }).ok,
         true
       );
     }
-
-    const valid = { checks: [{ ...definition, outcome: outcomes[1] }], records: [] };
-    for (const invalid of [
-      { status: "completed", verdict: "not-applicable" },
+    for (const outcome of [
+      { status: "passed", data: 1 },
+      { status: "failed" },
+      { status: "not-applicable", data: {} },
       { status: "unavailable", reason: { code: "" } },
-      { status: "unavailable", reason: { code: "prerequisite-unavailable", checkIds: [] } },
-      {
-        status: "unavailable",
-        reason: { code: "prerequisite-unavailable", checkIds: ["invalid id"] }
-      },
-      { status: "not-applicable", reason: { code: "no-input", checkIds: ["upstream-check"] } },
-      { status: "not-applicable", reason: null },
-      { status: "unknown" }
+      { status: "completed", verdict: "passed" }
     ]) {
       assert.equal(
-        validateCoreSnapshot({
-          ...valid,
-          checks: [{ ...definition, outcome: invalid }]
-        }).ok,
+        validateCoreSnapshot({ checks: [{ ...definition, outcome }], records: [] }).ok,
         false
       );
     }
   });
 
-  it("validates an exact canonical two-entity snapshot without lifecycle projections", () => {
-    const candidate = {
-      checkId: definition.checkId,
-      recordTypeId: "line-budget",
-      level: "warning" as const,
-      semanticSubject: "src/a.ts",
-      message: "Too many lines",
-      fields: { codeArea: "source", limit: 200 },
-      location: null
-    };
+  it("validates an exact canonical two-entity snapshot with structural Record identity", () => {
     const snapshot = {
-      checks: [{ ...definition, outcome: { status: "completed", verdict: "failed" } }],
+      checks: [
+        {
+          checkId: "alpha-check",
+          displayName: "Alpha",
+          outcome: { status: "passed", data: { result: true } }
+        },
+        {
+          checkId: "beta-check",
+          displayName: "Beta",
+          outcome: { status: "not-applicable" }
+        }
+      ],
       records: [
-        { ...candidate, recordId: createRecordId(candidate, definition.recordTypes[0]).recordId }
+        { checkId: "alpha-check", id: "a", data: { value: 1 } },
+        { checkId: "beta-check", id: "a", data: { value: 2 } }
       ]
     };
+    const validated = validateCoreSnapshot(snapshot);
 
-    assert.equal(validateCoreSnapshot(snapshot).ok, true);
-    assert.equal(validateCoreSnapshot({ ...snapshot, runs: [] }).ok, false);
-    assert.equal(validateCoreSnapshot({ ...snapshot, integrity: { status: "valid" } }).ok, false);
-    assert.equal("definitions" in snapshot, false);
-    assert.equal("completeness" in snapshot, false);
+    assert.equal(validated.ok, true);
+    if (!validated.ok) return;
+    assert.deepEqual(validated.value.records, snapshot.records);
+    assert.equal(Object.isFrozen(validated.value.records[0]?.data), true);
+    assert.equal(validateCoreSnapshot({ ...snapshot, definitions: [] }).ok, false);
+    assert.equal(
+      validateCoreSnapshot({
+        ...snapshot,
+        records: [
+          { checkId: "alpha-check", id: "a", data: {} },
+          { checkId: "alpha-check", id: "a", data: {} }
+        ]
+      }).ok,
+      false
+    );
+  });
+
+  it("materializes canonical final and Record data without evaluating author properties", () => {
+    const data: Record<string, unknown> = {};
+    Object.setPrototypeOf(data, null);
+    Object.defineProperty(data, "z", { enumerable: true, value: -0 });
+    Object.defineProperty(data, "__proto__", { enumerable: true, value: { nested: true } });
+    Object.defineProperty(data, "a", { enumerable: true, value: [1, { b: false }] });
+    const canonical = canonicalizeJsonObject(data);
+
+    assert.deepEqual(Object.keys(canonical ?? {}), ["__proto__", "a", "z"]);
+    assert.equal(canonical?.z, 0);
+    assert.deepEqual(canonical?.__proto__, { nested: true });
+    assert.equal(Object.getPrototypeOf(canonical ?? {}), null);
+    assert.equal(Object.isFrozen(canonical), true);
+    assert.equal(Object.isFrozen(canonical?.a), true);
+
+    const accessor: Record<string, unknown> = {};
+    Object.setPrototypeOf(accessor, null);
+    Object.defineProperty(accessor, "value", {
+      enumerable: true,
+      get: () => {
+        throw new Error("must not run");
+      }
+    });
+    assert.equal(canonicalizeJsonObject(accessor), undefined);
+    const sparse: unknown[] = [];
+    sparse.length = 2;
+    sparse[1] = 1;
+    assert.equal(canonicalizeJsonObject({ sparse }), undefined);
+    assert.equal(canonicalizeJsonObject({ number: Number.POSITIVE_INFINITY }), undefined);
+    const namedArray: unknown[] = [1];
+    Object.defineProperty(namedArray, "named", { enumerable: true, value: true });
+    assert.equal(canonicalizeJsonObject({ namedArray }), undefined);
+    const nonEnumerable = { visible: true };
+    Object.defineProperty(nonEnumerable, "hidden", { enumerable: false, value: true });
+    assert.equal(canonicalizeJsonObject(nonEnumerable), undefined);
+    const unsupportedPrototype = { value: true };
+    Object.setPrototypeOf(unsupportedPrototype, { inherited: true });
+    assert.equal(canonicalizeJsonObject(unsupportedPrototype), undefined);
+    let toJsonCalled = false;
+    const toJson = {
+      toJSON: () => {
+        toJsonCalled = true;
+        return {};
+      }
+    };
+    assert.equal(canonicalizeJsonObject(toJson), undefined);
+    assert.equal(toJsonCalled, false);
+    const cyclic: Record<string, unknown> = {};
+    cyclic.self = cyclic;
+    assert.equal(canonicalizeJsonObject(cyclic), undefined);
+  });
+
+  it("accepts only closed Check definitions", () => {
+    assert.deepEqual(validateCheckDefinition(definition), {
+      ok: true,
+      value: definition
+    });
+    assert.equal(validateCheckDefinition({ ...definition, recordTypes: [] }).ok, false);
+    assert.equal(
+      validateCheckDefinition({ checkId: "invalid id", displayName: "Invalid" }).ok,
+      false
+    );
   });
 });

@@ -3,12 +3,12 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { resolve } from "node:path";
 
 import {
-  validateMachinePublicationSetV3,
-  type MachinePublicationV3
-} from "./output/publication-v3/index.ts";
+  validateMachinePublicationSetV4,
+  type MachinePublicationV4
+} from "./output/publication-v4/index.ts";
 
-export function readValidatedMachineArtifacts(artifactDir: string): MachinePublicationV3 {
-  const validation = validateMachinePublicationSetV3({
+export function readValidatedMachineArtifacts(artifactDir: string): MachinePublicationV4 {
+  const validation = validateMachinePublicationSetV4({
     recordsNdjson: readFileSync(resolve(artifactDir, "records.ndjson")),
     runJson: readFileSync(resolve(artifactDir, "run.json"))
   });
@@ -76,14 +76,4 @@ export async function captureConsole<T>(run: () => Promise<T>): Promise<{
     console.error = originalError;
     console.log = originalLog;
   }
-}
-
-export function gateOutput(lines: readonly string[]): string[] {
-  return lines.filter(
-    (line) =>
-      line.includes("Quality gate") ||
-      line.startsWith("  Policy:") ||
-      line.startsWith("  Status:") ||
-      line.startsWith("  Blocking records:")
-  );
 }

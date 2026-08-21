@@ -9,6 +9,7 @@
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
+      "bind-project-gates-to-run-aggregation.md": "sha256:b6d2b40cfe8b34742d75c28f261b03b9acd11068fd0e6251b98c73908942679b",
       "cancel-task-admission-and-drain-started-work.md": "sha256:87528fa35358e797fbf8b5448cc97b1556b626e31a57bdf5f94d17ebab8f6914",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
@@ -29,7 +30,7 @@
       "drive-run-from-check-owned-execution-options.md": "sha256:5963a3fcccb8d2cd6557d02dd2253d23fbe5ebe0f459f8925c467112dca85db2",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:c04a50605bec6a2ba8605dd9326220ba17a3600e9a11b596ca8df381dff2d76c",
-      "evaluate-decision-policies-from-core-facts.md": "sha256:96130b0a9c0571cb5caf4efd700de7c631d4a8495d94f3f9fa1a63d1a0792a59",
+      "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
       "execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:7e5f18d1edf6aa3d33e4865bff789d16c492ecc84d1de508d9f4c046133babe4",
@@ -39,15 +40,16 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
+      "expose-minimal-check-and-run-public-surface.md": "sha256:bb0adf750daff4141871c0034bb16ce9e08cb0e6d0a8d998934f9de113ded7e5",
       "expose-ordinary-check-values-with-define-check.md": "sha256:77799ed23c5c6fabc987f041e80b448fbb23458b034b7f19f2a9d780d4a82793",
-      "expose-recursive-check-authoring-and-run-surface.md": "sha256:cd0333204a601f5b422a682a9139b0105b3ad3cd70d3affc9a6a5695a26556fb",
+      "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
-      "keep-comparison-semantics-inside-producing-checks.md": "sha256:487213ae8c6104881e814c323ae890f2d2fae175eb22584002c5cfec8c653ea4",
+      "keep-comparison-semantics-inside-producing-checks.md": "sha256:2fdf092d1ee409cf1d122298cdbca82ae8e30acc1cd9423d3eb8e6cbe4134b8f",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:585dece1c07c03f6e0108392e41efb0d8d353c9ac0e8e0ba962c0aa640c861e7",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
@@ -69,11 +71,12 @@
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-product-owned-check-progress.md": "sha256:1fbc8b9f61f35677c746e06217ef8c8b58e09d0d78c23034122bcb4bf7a9017f",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
-      "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:0a53b3c8de9dacdd27e133b102fb98086b8b101a96aeec5b6dee1b95dd509719",
+      "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
+      "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:baf8093a014ad6cc6ab20a768ed2c9a3de8a5a532b56689c9c773ed277187081",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
-      "report-check-owned-record-data-with-local-identities.md": "sha256:d098b8726f926ae33a9142757e4049ad1ebf0e4f70a0176b87e3e6a2307c8baa",
+      "report-check-owned-record-data-with-local-identities.md": "sha256:6c9de05b78363136e3bd154b26332c367325715b3375508420d3db124b3f419a",
       "require-explicit-named-comparison-references.md": "sha256:c3ec4599de940a68ebc14eae6f51993a191ba1cb154f56e7ad888826c4a44d08",
       "require-explicit-network-check-authorization.md": "sha256:f61dd532afb2aba3bc84ca840c3658710b4db14b574bb7d70d3efc1169e691c1",
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
@@ -93,15 +96,18 @@
       "use-composable-check-tree-in-project-definition.md": "sha256:0f2d3dbc25a71aec0fbf4a9d4e2ad73f69b100e8097967a101f3b476a27803d6",
       "use-composable-check-tree-with-run-owned-bindings.md": "sha256:dfefa51fbd46ac7b6568c73cb5edfe3feaf41ea80c1199bbf71949524ebd7947",
       "use-core-check-and-quality-record-facts.md": "sha256:d003f87efe82307b4464740a033b01f7163f21fb41d06a35abf0030bc3afceb2",
-      "use-core-check-and-record-facts-from-run-resolution.md": "sha256:f6aaf81f440866b7e563299047018fbf979075c3c06ce6ad53e534a880ef949d",
+      "use-core-check-and-record-facts-from-run-resolution.md": "sha256:b542a7169861fb2b2560a443b5d7643b64ea57674477763422ef90a1c53d1c54",
+      "use-core-check-record-facts-with-final-data.md": "sha256:dcd4735f2500b37fa9b83ffc70e7df8386c0a6defdae9d07ee0912a2d5ea1186",
       "use-decision-led-change-plans-and-archive-openspec.md": "sha256:3e8c3ea59ab5cba1a42210799f02fb425726f1610caae1b51529f4cffcf85c0f",
       "use-declarative-quality-decision-policies.md": "sha256:8063191a71dd89e11f819a5d2037528564d0ac7a4f543a962d7bea192671484e",
-      "use-direct-check-execution-with-minimal-record-reporting.md": "sha256:eadb903aeca9cf0dd5306605411e50c5039c2fb0958b1887ff187d143a080ef3",
+      "use-direct-check-execution-with-minimal-record-reporting.md": "sha256:d2422022aac04091ae19527c0958ccad077183d7b7b04a6685d8c5771c64a4d0",
       "use-direct-check-execution-with-structured-results.md": "sha256:b05a8b212a7d8666757f91793a8c1b38acb1c24e27d74091b50eb27f2123d473",
+      "use-explicit-run-controls-check-aggregation.md": "sha256:fbfdea98fd58ffbfc371069aaedaa48bd9fb7ac9addb8fe8890324fb5a0bc3cb",
       "use-field-aware-built-in-check-adjustments.md": "sha256:1401b9dadcf56784af186d9325b3bc54e4972ede462fbd4d7b544c9985ebcee7",
       "use-file-policy-overrides.md": "sha256:6cff782bda34e6364c98f44bdf5071e71736577db4b8bd9d02f06b811e49c151",
       "use-fixed-semantic-config-v2.md": "sha256:e0e1759326703e63e134b4d4577b31fe47a553cb4cf8633f5d823276a324efbe",
       "use-fixed-semantic-config-version.md": "sha256:a5cc24fdb79c8bc237232eceb20949e92f61c75d2abf0bf297f7356bd7b22d53",
+      "use-four-state-check-results-with-final-data.md": "sha256:340cdeddbe51c15e90d7a542b68ff5ba3592f0032570c46da711cd690384b023",
       "use-generic-machine-v2-for-content-findings.md": "sha256:536a4765555159389dac22e2dd3452cd9e6537c354ede1e26df3a0fd2189e6cd",
       "use-inherit-for-check-collection-edits.md": "sha256:455344353f62cd98173cd11bc21e40c1e5dc83e375a2b39ed1418dfce096cc50",
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
@@ -127,7 +133,7 @@
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
       "use-upstream-project-skill-packages.md": "sha256:61f5dcae84429943a164f1b82c37ddf341d40e47e32288f593b007a82487e46a",
       "use-upstream-skills-with-project-local-exceptions.md": "sha256:f13dabc892def9236b38ff07f65b231492babc571794468167706cae2284b390",
-      "use-user-owned-definition-for-observation-and-gates.md": "sha256:3fe008410df356464695b6df02ff670990d2af05343f05db284e6f54716a416e",
+      "use-user-owned-definition-for-observation-and-gates.md": "sha256:95b5882a9027c41c2fc333903b8aee4764fffccce30993f05a344d152937df5d",
       "use-versioned-npm-package-release-unit.md": "sha256:aa8c724f18eb59548618ea92c475bd458de24c5731ea8b7e7b3dcbc452061fbc",
       "vendor-foundation-as-repository-owned-script-tool.md": "sha256:1819baa5b557b4e5fd8e489017cf186e3dd0d0da1ad82c22899130c2d85ef65c"
     },
@@ -264,6 +270,38 @@
           "configuration"
         ],
         "relations": []
+      }
+    },
+    "bind-project-gates-to-run-aggregation.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "bind-project-gates-to-run-aggregation.md",
+        "title": "让 Project Gate 绑定 Run aggregation",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:46Z",
+        "purpose": "让项目 Gate 保持显式 Project Definition 与 Run 绑定，同时只消费该次 Run 的明确 aggregation 结果。",
+        "background": "Gate 仍需要项目持有的配置和可审阅的运行输入，但 named DecisionPolicy 已不再是 current Product contract。",
+        "decision": "项目脚本显式绑定 Definition、Run Controls 与 Gate aggregation；adapter 不选择 policy 或重算结论。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-user-owned-definition-for-observation-and-gates.md"
+          }
+        ]
       }
     },
     "cancel-task-admission-and-drain-started-work.md": {
@@ -870,16 +908,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "evaluate-decision-policies-from-core-facts.md",
+        "sourcePath": "archive/evaluate-decision-policies-from-core-facts.md",
         "title": "从 Core facts 求值封闭质量决策策略",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T12:27:50Z",
         "purpose": "让命名且声明式的 DecisionPolicy 在执行前完成验证，并仅从冻结的 Core 与 reference facts 得到可审计门禁。",
@@ -1180,6 +1218,38 @@
         ]
       }
     },
+    "expose-minimal-check-and-run-public-surface.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "expose-minimal-check-and-run-public-surface.md",
+        "title": "公开最小 Check authoring 与 Run surface",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:47Z",
+        "purpose": "让 package 公开唯一递归 Check/Run model 及其实际 consumer 所需 roots，而不继续导出已退休的 policy 或 Record catalog surface。",
+        "background": "单一普通 Check 和唯一 Run 仍是边界；旧 policy 与 Record catalog roots 已退出 Product contract。",
+        "decision": "保留唯一 Check/Run 与四态 result/Record types，删除 policy/gate/catalog roots。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "expose-recursive-check-authoring-and-run-surface.md"
+          }
+        ]
+      }
+    },
     "expose-ordinary-check-values-with-define-check.md": {
       "keys": {
         "tag": [
@@ -1218,16 +1288,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "expose-recursive-check-authoring-and-run-surface.md",
+        "sourcePath": "archive/expose-recursive-check-authoring-and-run-surface.md",
         "title": "公开递归 Check authoring 与 Run surface",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T16:53:01Z",
         "purpose": "让 package 只公开一种递归 Check authoring model、三个普通默认值和唯一 Run，并提供实际 consumer 需要的类型根。",
@@ -1426,14 +1496,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "keep-comparison-semantics-inside-producing-checks.md",
         "title": "让 comparison semantics 留在 producing Check",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-21T05:58:42Z",
         "purpose": "防止特定 built-in 的 baseline 和 regression 模型成为所有 custom Checks 必须实现的 Product contract。",
         "background": "Comparison input、matching 与 relation meaning 随 Check domain 变化，不存在所有 Checks 共享的稳定 semantics。",
@@ -2089,16 +2159,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "publish-fingerprint-bound-check-record-machine-v3.md",
+        "sourcePath": "archive/publish-fingerprint-bound-check-record-machine-v3.md",
         "title": "将 machine v3 发布为指纹绑定的双文件集合",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T10:25:13Z",
         "purpose": "让 canonical machine output 只表达 Check、Record 与必要运行证据，并用内容指纹验证两个固定路径文件属于同一事实集合。",
@@ -2111,6 +2181,38 @@
           {
             "type": "修订",
             "target": "publish-check-record-machine-v3.md"
+          }
+        ]
+      }
+    },
+    "publish-fingerprint-bound-check-record-machine-v4.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-fingerprint-bound-check-record-machine-v4.md",
+        "title": "将 machine v4 发布为指纹绑定的双文件集合",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:46Z",
+        "purpose": "让 current machine publication 用 v4 Check final data 与 minimal Record rows 表达同一可信的双文件事实集合。",
+        "background": "v3 Check/Record/evidence shape 已过时，但双文件 complete-set fingerprint 仍是必要 trust boundary。",
+        "decision": "保留双文件与 records fingerprint，硬切 v4 Check/Record shape 和 validators，并拒绝 v3 与全部兼容路径。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "publish-fingerprint-bound-check-record-machine-v3.md"
           }
         ]
       }
@@ -2216,14 +2318,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "report-check-owned-record-data-with-local-identities.md",
         "title": "让 Check 用局部 identity 提交 custom Record data",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-21T05:58:41Z",
         "purpose": "让 arbitrary custom Check 通过最小 Record contract 提交自己的数据，而 Product 不建立字段类型系统。",
         "background": "Built-in finding/metric fields 不是所有 custom Checks 的共同义务，Product 只需 identity、canonical data 与生命周期边界。",
@@ -2814,16 +2916,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-core-check-and-record-facts-from-run-resolution.md",
+        "sourcePath": "archive/use-core-check-and-record-facts-from-run-resolution.md",
         "title": "从 Run resolution 建立 Core Check 与 Record 事实",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T10:28:59Z",
         "purpose": "让每个 Run-owned Resolved Check 形成一个 Core Check，并让最终 Core snapshot 只保留 Check 与 QualityRecord。",
@@ -2836,6 +2938,38 @@
           {
             "type": "修订",
             "target": "use-core-check-and-quality-record-facts.md"
+          }
+        ]
+      }
+    },
+    "use-core-check-record-facts-with-final-data.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-core-check-record-facts-with-final-data.md",
+        "title": "使用含 final data 的 Core Check 与 minimal Record facts",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:45Z",
+        "purpose": "让 Run resolution 形成只包含四态 Check final facts 与 minimal Record facts 的两实体 Core snapshot。",
+        "background": "Core 的 Check outcome 仍使用 completed 加 verdict，且 Record 保留了不属于最小 Check-local contract 的类型与字段模型。",
+        "decision": "保留 Run resolution 与 two-entity Core，修订 Check 为四态 final data、Record 为 checkId/id/data。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-core-check-and-record-facts-from-run-resolution.md"
           }
         ]
       }
@@ -2902,16 +3036,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "use-direct-check-execution-with-minimal-record-reporting.md",
+        "sourcePath": "archive/use-direct-check-execution-with-minimal-record-reporting.md",
         "title": "使用直接 Check execution 与最小 Record reporting",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-21T05:58:42Z",
         "purpose": "保留普通 Check 的 direct callback 和 structured result，同时把 reporter 收敛为 identity 与 custom data。",
@@ -2953,6 +3087,38 @@
           "configuration"
         ],
         "relations": []
+      }
+    },
+    "use-explicit-run-controls-check-aggregation.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-explicit-run-controls-check-aggregation.md",
+        "title": "使用显式 Run Controls Check aggregation",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:45Z",
+        "purpose": "让需要多 Check 结论的调用方通过显式 Run Controls 聚合 settled Check statuses，而不是运行 DecisionPolicy。",
+        "background": "旧 DecisionPolicy 和 GateResult 依赖已退出的 Record catalog、reference 和 comparison 语义。",
+        "decision": "Run Controls 可选声明 closed aggregation；Run 只从 selected statuses 返回 aggregate，未配置为 null。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "evaluate-decision-policies-from-core-facts.md"
+          }
+        ]
       }
     },
     "use-field-aware-built-in-check-adjustments.md": {
@@ -3065,6 +3231,38 @@
           "configuration"
         ],
         "relations": []
+      }
+    },
+    "use-four-state-check-results-with-final-data.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-four-state-check-results-with-final-data.md",
+        "title": "使用四态 Check final result 与主数据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T15:02:44Z",
+        "purpose": "让普通直接 Check callback 用单一四态终态和 Check-owned final data 表达其主结果。",
+        "background": "completed 加 verdict 将一个终态拆成双层结构，且已无法表达通过或失败 Check 的主结构化结果。",
+        "decision": "保留直接 execution 与最小 Record reporting，将 Check result 修订为四态终态；passed 和 failed 携带 canonical final data。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-direct-check-execution-with-minimal-record-reporting.md"
+          }
+        ]
       }
     },
     "use-generic-machine-v2-for-content-findings.md": {
@@ -3788,16 +3986,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "use-user-owned-definition-for-observation-and-gates.md",
+        "sourcePath": "archive/use-user-owned-definition-for-observation-and-gates.md",
         "title": "观察与门禁都使用项目持有的 Project Definition",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T08:18:33Z",
         "purpose": "让项目运行脚本始终绑定一个明确配置，同时让门禁只使用其中已验证的政策。",

@@ -14,8 +14,7 @@ function check(
   return {
     checkId: input.checkId,
     displayName: input.checkId,
-    execution: input.execution,
-    recordTypes: []
+    execution: input.execution
   };
 }
 
@@ -28,8 +27,7 @@ function progressDefinition(checks: readonly Check[], maxParallel?: number) {
       output: { enabled: false },
       progress: { enabled: true }
     },
-    ...(maxParallel === undefined ? {} : { scheduler: { maxParallel } }),
-    selectedPolicy: null
+    ...(maxParallel === undefined ? {} : { scheduler: { maxParallel } })
   });
 }
 
@@ -100,14 +98,14 @@ describe("Package Run progress terminal statuses", () => {
             checkId: "started",
             execution: () => {
               controller.abort();
-              return { status: "completed", verdict: "passed" };
+              return { status: "passed", data: {} };
             }
           }),
           check({
             checkId: "unstarted",
             execution: () => {
               unstartedCalls += 1;
-              return { status: "completed", verdict: "passed" };
+              return { status: "passed", data: {} };
             }
           })
         ],

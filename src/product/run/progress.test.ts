@@ -74,9 +74,7 @@ describe("Package Run progress lifecycle presentation", () => {
       displayName: "TypeScript product lint"
     });
     renderer.render({ kind: "started", checkId: "network", displayName: "Network links" });
-    renderer.render(
-      settled("network", "Network links", { status: "completed", verdict: "passed" }, 2_500)
-    );
+    renderer.render(settled("network", "Network links", { status: "passed", data: {} }, 2_500));
 
     assert.deepEqual(output.writes, [
       "Vibe Check\ntotal 3 checks\n\nChecks:\n",
@@ -98,9 +96,7 @@ describe("Package Run progress lifecycle presentation", () => {
 
       renderer.render({ kind: "prepared", totalChecks: 1 });
       renderer.render({ kind: "started", checkId: "links", displayName: "Network links" });
-      renderer.render(
-        settled("links", "Network links", { status: "completed", verdict: "passed" }, 2_500)
-      );
+      renderer.render(settled("links", "Network links", { status: "passed", data: {} }, 2_500));
       renderer.render({
         kind: "final",
         counts: { ...COUNTS, failed: 0, notApplicable: 0, unavailable: 0 },
@@ -121,8 +117,8 @@ describe("Package Run progress lifecycle presentation", () => {
     const output = createWriter();
     const renderer = createProgressRenderer(output.writer);
     renderer.render({ kind: "prepared", totalChecks: 4 });
-    renderer.render(settled("passed", "Passed", { status: "completed", verdict: "passed" }, 10));
-    renderer.render(settled("failed", "Failed", { status: "completed", verdict: "failed" }, 1_000));
+    renderer.render(settled("passed", "Passed", { status: "passed", data: {} }, 10));
+    renderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1_000));
     renderer.render(
       settled(
         "not-applicable",
@@ -174,7 +170,7 @@ describe("Package Run progress lifecycle presentation", () => {
     const renderer = createProgressRenderer(colorTTY.writer);
     renderer.render({ kind: "prepared", totalChecks: 1 });
     renderer.render({ kind: "started", checkId: "failed", displayName: "Failed" });
-    renderer.render(settled("failed", "Failed", { status: "completed", verdict: "failed" }, 1));
+    renderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1));
 
     assert.deepEqual(colorTTY.writes.slice(1), [
       "  [1/1] Failed | \u001B[2mrunning\u001B[0m\n",
@@ -185,9 +181,7 @@ describe("Package Run progress lifecycle presentation", () => {
     const plain = createWriter({ color: true, isTTY: false });
     const plainRenderer = createProgressRenderer(plain.writer);
     plainRenderer.render({ kind: "prepared", totalChecks: 1 });
-    plainRenderer.render(
-      settled("failed", "Failed", { status: "completed", verdict: "failed" }, 1)
-    );
+    plainRenderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1));
     assert.equal(plain.writes.join("").includes("\u001B"), false);
 
     const unsafeTTY = createWriter({ isTTY: true });
@@ -236,8 +230,8 @@ describe("Package Run progress lifecycle presentation", () => {
     renderer.render({ kind: "prepared", totalChecks: 2 });
     renderer.render({ kind: "started", checkId: "first", displayName: "First" });
     renderer.render({ kind: "started", checkId: "second", displayName: "Second" });
-    renderer.render(settled("second", "Second", { status: "completed", verdict: "passed" }, 1));
-    renderer.render(settled("first", "First", { status: "completed", verdict: "passed" }, 1));
+    renderer.render(settled("second", "Second", { status: "passed", data: {} }, 1));
+    renderer.render(settled("first", "First", { status: "passed", data: {} }, 1));
     renderer.render({
       kind: "final",
       counts: { failed: 0, notApplicable: 0, passed: 2, unavailable: 0 },

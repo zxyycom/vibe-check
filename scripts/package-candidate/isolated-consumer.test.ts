@@ -42,7 +42,8 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
 
     const runEvidence = runDuplicateFixture(consumerDirectory);
     assert.equal(runEvidence.kind, "completed");
-    assert.equal(runEvidence.duplicateOutcome, "completed");
+    assert.equal(runEvidence.duplicateOutcome, "passed");
+    assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
     assert.match(runEvidence.humanOutput, /total\s+1\s+check/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
     assert.match(runEvidence.humanOutput, /\[1\/1\].*duplicate detection/i);
@@ -122,6 +123,7 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 
 function runDuplicateFixture(consumerDirectory: string): Readonly<{
   checkDurations: unknown;
+  duplicateData: unknown;
   duplicateOutcome: string | null;
   humanOutput: string;
   kind: string;
@@ -145,6 +147,7 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   }
   return Object.freeze({
     checkDurations: evidence.checkDurations,
+    duplicateData: evidence.duplicateData,
     duplicateOutcome,
     humanOutput: result.stdout.slice(0, markerIndex),
     kind
@@ -257,16 +260,27 @@ ${typeImports}
 const directCheck = defineCheck({
   checkId: "isolated-public-import",
   displayName: "Isolated public import",
-  execution: (context) => ({
-    status: "completed" as const,
-    verdict: context.project.flags.includes("isolated-consumer")
-      ? ("passed" as const)
-      : ("failed" as const)
-  })
+  execution: (context) => {
+    const selected = context.project.flags.includes("isolated-consumer");
+    context.records.report({ id: "selection" }, { selected });
+    return selected
+      ? { status: "passed" as const, data: { selected } }
+      : { status: "failed" as const, data: { selected } };
+  }
 });
 const definition: ProjectDefinition = defineConfig({ checks: [duplicateDetection, directCheck] });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
-const result: Promise<RunResult> = run(definition, { flags: ["isolated-consumer"] });
+const aggregation: CheckAggregation = {
+  checks: [directCheck.checkId],
+  empty: "failed",
+  mode: "all",
+  notApplicable: "fail",
+  unavailable: "propagate"
+};
+const result: Promise<RunResult> = run(definition, {
+  checkAggregation: aggregation,
+  flags: ["isolated-consumer"]
+});
 
 function observeFinalDurations(runResult: RunResult): void {
   if (
@@ -277,6 +291,10 @@ function observeFinalDurations(runResult: RunResult): void {
     const durations: readonly Readonly<{ readonly checkId: string; readonly durationMs: number | null }>[] =
       runResult.checkDurations;
     void durations;
+    if (runResult.kind === "completed" || runResult.kind === "effect") {
+      const aggregate: CheckAggregate | null = runResult.aggregate;
+      void aggregate;
+    }
   }
 }
 
@@ -288,6 +306,7 @@ void [
   functionMetrics,
   inherit,
   run,
+  aggregation,
   inheritedCheckIds,
   observeFinalDurations,
   result
@@ -329,6 +348,9 @@ const duplicate = result.kind === "completed"
 process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   checkDurations: result.kind === "completed" ? result.checkDurations : null,
   kind: result.kind,
+  duplicateData: duplicate?.outcome.status === "failed" || duplicate?.outcome.status === "passed"
+    ? duplicate.outcome.data
+    : null,
   duplicateOutcome: duplicate?.outcome.status ?? null
 }));
 `;

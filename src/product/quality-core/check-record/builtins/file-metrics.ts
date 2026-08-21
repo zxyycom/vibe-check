@@ -4,60 +4,12 @@ import type { CheckExecutionContext, CheckResult } from "../../../definition/cus
 import { collectScanFiles } from "../../input/files.ts";
 import type { CodeAreaDefinition } from "../../model/schema.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./file-metrics-measurement.ts";
-import type { CheckDefinition } from "../model.ts";
-import {
-  buildFileRecordCandidates,
-  buildFileRelations,
-  codeLinesByPath,
-  type FileRecordCandidate
-} from "./file-metrics-records.ts";
+import { buildFileRecordCandidates } from "./file-metrics-records.ts";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
   checkId: "file-metrics",
-  displayName: "File metrics",
-  recordTypes: [
-    {
-      recordTypeId: "file-code-lines",
-      fields: [
-        { fieldId: "codeArea", valueType: "string", required: true },
-        { fieldId: "limit", valueType: "integer", required: true },
-        { fieldId: "metric", valueType: "string", required: true },
-        { fieldId: "value", valueType: "integer", required: true }
-      ],
-      identityFields: ["metric"],
-      policy: {
-        operands: [
-          {
-            operandId: "codeArea",
-            valueType: "string",
-            source: { kind: "field", fieldId: "codeArea" }
-          },
-          {
-            operandId: "message",
-            valueType: "string",
-            source: { kind: "message" }
-          },
-          {
-            operandId: "metric",
-            valueType: "string",
-            source: { kind: "field", fieldId: "metric" }
-          },
-          {
-            operandId: "path",
-            valueType: "string",
-            source: { kind: "location-path" }
-          },
-          {
-            operandId: "value",
-            valueType: "number",
-            source: { kind: "field", fieldId: "value" }
-          }
-        ],
-        relations: ["changed", "regression"]
-      }
-    }
-  ]
-} as const satisfies CheckDefinition;
+  displayName: "File metrics"
+} as const;
 
 export interface FileMetricsSemantics {
   readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
@@ -98,17 +50,14 @@ export async function executeFileMetrics(
   };
   const measurement = await measureFileMetrics(current, dependency);
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
-  const candidates = buildFileRecordCandidates(
-    measurement.metrics,
-    context.project.changedFiles,
-    semantics
-  );
+  const candidates = buildFileRecordCandidates(measurement.metrics, semantics);
   if (candidates === undefined) return unavailable("external-result-invalid");
-  for (const candidate of candidates) context.records.report(candidate.record);
-  await reportFileReference(context, candidates, dependency, semantics);
+  for (const candidate of candidates) {
+    context.records.report({ id: candidate.id }, candidate.data);
+  }
   return Object.freeze({
-    status: "completed",
-    verdict: candidates.length > 0 ? "failed" : "passed"
+    status: candidates.length > 0 ? "failed" : "passed",
+    data: Object.freeze({ findingCount: candidates.length })
   });
 }
 
@@ -118,59 +67,6 @@ function directMeasurementFailure(
   if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
   if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
   return unavailable("external-result-invalid");
-}
-
-async function reportFileReference(
-  context: CheckExecutionContext<FileMetricsOptions>,
-  candidates: readonly FileRecordCandidate[],
-  dependency: FileScannerDependency,
-  semantics: FileMetricsSemantics
-): Promise<void> {
-  if (context.project.comparison === null) return;
-  const reference: FileMetricsExactInputSet = Object.freeze({
-    approvedExactPaths: Object.freeze(
-      collectScanFiles(context.project.comparison.root, context.project.files)
-    ),
-    rootDir: context.project.comparison.root
-  });
-  const measurement = await measureFileMetrics(reference, dependency);
-  if (measurement.kind !== "complete") {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: measurement.kind === "unavailable" ? "unavailable" : "incomplete"
-      })
-    );
-    return;
-  }
-  const referenceValues = codeLinesByPath(measurement.metrics);
-  if (referenceValues === undefined) {
-    context.records.reportReference(
-      Object.freeze({
-        referenceName: context.project.comparison.referenceName,
-        relations: Object.freeze([]),
-        status: "incomplete"
-      })
-    );
-    return;
-  }
-  const relationsBySubject = buildFileRelations(candidates, referenceValues, semantics);
-  const relations = candidates.flatMap((candidate) =>
-    (relationsBySubject.get(candidate.record.semanticSubject) ?? []).map((relationId) =>
-      Object.freeze({
-        record: candidate.record,
-        relationId
-      })
-    )
-  );
-  context.records.reportReference(
-    Object.freeze({
-      referenceName: context.project.comparison.referenceName,
-      relations: Object.freeze(relations),
-      status: "complete"
-    })
-  );
 }
 
 function unavailable(code: string): CheckResult {

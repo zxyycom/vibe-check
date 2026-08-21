@@ -17,8 +17,8 @@ Proves:
 - The candidate owner derives one local package with only the approved runtime exports, declared package dependencies, a physical consumer install, and a resolved installed entry.
 - A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
 - A missing candidate-owned `jscpd` closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
-- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including final-snapshot `RunResult.checkDurations` without a new named type root), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
-- That consumer uses default-enabled Product progress with a real non-TTY stdout capture: human output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry.
+- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including explicit aggregation, four-state custom final data, two-argument supplemental Record reporting, and final-snapshot `RunResult.checkDurations` without a new duration type root), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
+- That consumer uses default-enabled Product progress with a real non-TTY stdout capture: lifecycle output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry and observable final data.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
@@ -27,10 +27,11 @@ Entities:
 - `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > binds retained workspace verification names directly to the Gate profiles without disabled tags`
 - `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > keeps the independent 20-Check required/full profile contract closed`
 - `bun|scripts/project-gate/index.test.ts|Project Gate catalog, root binding, and controls > normalizes a profile plus repeatable disabled tags into opaque flags`
-- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > projects every catalog command into one process Check and named blocking policy`
+- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > projects every catalog command into one process Check without a policy`
+- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > binds required, full, and partial eligibility selections to explicit aggregation`
 Proves:
 - 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 不传 disabled tags。
-- 独立 catalog 的 20 个 Check 及 required/full membership 闭合；Definition 将每个 catalog 条目投影为一个 process Check，并以 `repository-gate` policy 选择相同的 Check-owned failure Record surface。
+- 独立 catalog 的 20 个 Check 及 required/full membership 闭合；Definition 将每个 catalog 条目投影为一个 process Check，没有 named policy，并将同一 eligibility selection 提供给 explicit aggregation。
 - adapter 只接受合法 profile 与重复 disabled tag，并将其规范化为 opaque flags；disabled tags 只留给 direct local partial invocation。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
@@ -42,7 +43,7 @@ Entities:
 - `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
 Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
-- 非零退出产生只含 command、exit、signal 与 log reference 的 Gate failure Record，随后得到 failed outcome。
+- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data。
 - profile/tag N/A 与启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
 
@@ -51,11 +52,11 @@ Owner: `docs/script-tooling.md#project-gate`
 Entities:
 - `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
 - `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
-- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > requires every expected eligible and N/A final Check outcome`
-- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > maps completed closure failures to 1 and non-completed or malformed results to 2`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
+- `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > maps aggregate, definition warning, effect and malformed facts to Gate exits`
 Proves:
 - preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
-- exit `0` 要求每个 catalog Check 都取得预期的 passed 或 `not-applicable` outcome；completed closure failure 为 `1`，non-completed 或 malformed result 为 `2`。
+- exit `0` 要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 为 `1`，non-completed 或 malformed result 为 `2`。adapter 不遍历 snapshot 重建质量结论。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 Owner: `docs/architecture.md#execution-boundary`

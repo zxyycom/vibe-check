@@ -1,88 +1,53 @@
 # report-output
 
-## Case WB-OUTPUT-MACHINE-V3-CONTRACT-001: Machine v3 publication contract
+## Case WB-OUTPUT-MACHINE-V4-CONTRACT-001: Machine v4 publication contract
 Owner: `docs/output.md#core-to-machine-projection`
 Entities:
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.test.ts|machine publication v3 contract > derives exact closed DTOs from runtime schemas and one validated publication model`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.test.ts|machine publication v3 contract > serializes canonical JSON and NDJSON and validates the complete two-file set`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.test.ts|machine publication v3 contract > preserves an absent record policy and allows disabled decisions to retain acceptance and views`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > rejects byte schema and cross-file invariant failures without a trusted prefix`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > rejects a mixed generation even when the old empty Record set fits the new catalog`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > reuses target Core validation for Check outcomes, record ownership, and canonical snapshot facts`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > closes named-reference identities evidence relations and canonical arrays`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > closes decision identity types canonical arrays and gate evidence state`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > binds reference evidence refs to a published Check/reference evidence pair`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.validation.test.ts|machine publication v3 contract > requires not-evaluated readiness to stop at its unique first failure`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.test.ts|machine publication v4 contract > serializes a complete canonical two-file set that validates without a prefix`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.validation.test.ts|machine publication v4 validation > rejects v3 identities and malformed v4 rows`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
 Proves:
-- Runtime schemas own the exact v3 DTO identities, fields, diagnostic vocabulary and byte grammar: `run.json` contains invocation, catalog/Record-set fingerprints, Checks and reference/acceptance/decision evidence, while Record rows bind only Check and record type identities.
-- Machine validation closes the target Core `{ checks, records }` snapshot, catalog and Record-set fingerprints, reference and decision relationships and canonical order without a partial consumer result.
-- Publication model construction rejects mismatched human status candidates before any trusted projection; readable output and structured Run effects consume only the frozen model status.
+- v4 publishes four Check terminal states, final data only on passed/failed states, and minimal `{ checkId, id, data }` supplemental Records.
+- Complete-set validation rejects v3 and malformed/mixed input, closes composite identity/order and ownership, binds the complete Record set by fingerprint, and exposes no partial trusted prefix.
 
-## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated v3 publication materials remain canonical
-Owner: `docs/output.md#published-materials-and-historical-v2`
+## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated v4 publication materials remain canonical
+Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.contract-materials.test.ts|machine publication v3 contract > generates canonical schema and example candidates that validate independently`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.contract-materials.test.ts|machine publication v4 materials > generates current schemas and independently valid candidate bytes`
 Proves:
-- Runtime v3 schema and example candidates are canonical, independently valid publication materials rather than a second machine contract.
+- Runtime v4 schema and example candidates are canonical independently valid publication materials, not a second machine contract.
 
-## Case WB-OUTPUT-READABLE-PROJECTION-001: Readable consumers share one validated v3 projection
-Owner: `docs/output.md#readable-output-and-annotation`
+## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
+Owner: `docs/output.md#publication-lifecycle-and-trust-boundary`
 Entities:
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.readable.test.ts|machine publication v3 readable contract > projects shared statuses accepted previews and presentation from one model`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.readable.test.ts|machine publication v3 readable contract > applies report preview and changed-record limits without truncating console records`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.readable.test.ts|machine publication v3 readable contract > pins annotation consumption to one validated two-file artifact directory`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.lifecycle.test.ts|machine publication v4 lifecycle > pins two-file candidate and handled-failure lifecycle stages`
+- `bun|src/product/quality-core/output/publication-v4/publication-v4.lifecycle.test.ts|machine publication v4 lifecycle > removes retired reports and leaves no canonical set after handled partial replacement`
 Proves:
-- Report, console and annotation consume the same validated v3 model/set boundary; presentation limits affect only their declared readable projections and never truncate machine or console facts.
+- Candidate validation and every temp write precede canonical replacement; a handled preparation failure preserves the prior set, while a handled partial replacement removes canonical and retired human artifacts without touching unrelated files.
 
 ## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
-Owner: `docs/output.md#readable-output-and-annotation`
+Owner: `docs/output.md#progress-and-presentation-boundaries`
 Entities:
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI status color only for color-capable TTY writers`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
-- `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > presents enabled Package Run progress through the injected plain writer`
 - `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
 - `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
-- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
 Proves:
-- Product-owned progress prints the Check total, terminal status/duration and execution summary from private lifecycle facts. A TTY only rewrites its transient running region: completion ordinals follow settlement while the remaining running rows are redrawn with their current visible positions.
-- Plain and dumb-terminal output is append-only and contains no terminal control bytes; status colors are only supplementary for capable TTY targets, and a terminal row exposes only an existing reason code rather than private prerequisite detail.
-- Executed `not-applicable` without a reason and `unavailable` Checks each render their measured duration; a Check cancelled before start renders `execution-cancelled` with `not run`. Zero-Check TTY progress writes the same final summary without cursor controls; after every running Check settles, the last visible TTY row is terminal and final summary rendering leaves no transient running region.
+- Product-owned progress presents lifecycle status/duration and controlled reason codes from Run facts only; it does not derive presentation from final or Record data.
 
-## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
-Owner: `docs/output.md#publication-lifecycle-and-evidence`
+## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
+Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.lifecycle.test.ts|machine publication v3 lifecycle > pins candidate artifact and handled-failure lifecycle stages`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.lifecycle.test.ts|machine publication v3 lifecycle > plans exact canonical retired report and owned-temp cleanup without touching unrelated files`
-- `bun|src/product/quality-core/output/publication-v3/publication-v3.lifecycle.test.ts|machine publication v3 lifecycle > writes every temp before replacement and cleans handled publication failures`
+- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
+- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
 Proves:
-- Candidate validation and every temp write precede canonical replacement; a handled preparation failure preserves the prior set, while a handled partial replacement removes canonical and temporary owned artifacts.
+- The independent docs validator accepts only checked-in v4 schemas/examples and closes v4 framing, schema, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator.
 
-## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v3 example acceptance
-Owner: `docs/output.md#published-materials-and-historical-v2`
+## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Historical v2 schemas remain archival only
+Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > accepts exactly the five canonical sets and positive grammar variants`
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > enforces owning record-type field contracts beyond the generic record schema`
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects invalid Core Check projections even with a recalculated catalog fingerprint`
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects focused mutations with locations and detects reversible generated drift`
+- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
 Proves:
-- Independent docs validator checks checked-in current schemas/examples, Core Check definition and owning record-type field contracts, and v3 set relationships without importing the production validator; focused definition mutations prove that its accepted set stays aligned with the Product validator.
-
-## Case AUX-DOCS-HISTORICAL-MACHINE-V2-001: Historical v2 schema bytes remain archival only
-Owner: `docs/output.md#published-materials-and-historical-v2`
-Entities:
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|historical v2 machine schemas > keeps the retired run and record schema bytes under their explicit historical path`
-Proves:
-- Explicit historical validation fixes the preserved v2 run/record schema bytes under the archival path without making them a current runtime or consumer contract.
-
-## Case AUX-QUALITY-ANNOTATION-001: Direct consumer validates the v3 two-file set
-Owner: `docs/script-tooling.md#quality-annotation-consumer`
-Entities:
-- `bun|scripts/quality/annotate.test.ts|quality annotation CLI > accepts the complete v3 set, defaults, filtering, and limit matrix`
-- `bun|scripts/quality/annotate.test.ts|quality annotation CLI > fails closed for argument, set read, decoding, framing, syntax, schema, and invariant errors`
-Proves:
-- Annotation accepts `[artifact-directory] [limit]`, reads `run.json` and `records.ndjson`, and invokes only the shallow Product v3 set validator before rendering.
-- Invalid argument, read, decoding, framing, schema or relationship input yields exit `2`, actionable stderr and zero partial commands.
+- Historical v2 schema bytes are not current runtime or consumer contracts; v3 has no retained publication path, and current docs validation reads only v4 schemas and examples.

@@ -8,7 +8,6 @@ import { isNonArrayRecord } from "../tools/foundation/src/index.ts";
 
 import { defineProjectGateCatalog, PROJECT_GATE_CATALOG } from "./catalog.ts";
 import { parseProjectGateArguments, selectionFlags } from "./controls.ts";
-import { projectGateEligibility } from "./eligibility.ts";
 import {
   createInvocationLogDirectory,
   PROJECT_GATE_EXIT_STATUS,
@@ -154,7 +153,7 @@ describe("Project Gate adapter closure", () => {
         resolvedEntryPath: "/tmp/other/index.mjs",
         runProjectGate: async () => {
           ran = true;
-          return completedResult({ profile: "full", disabledTags: [] });
+          return completedResult("passed");
         }
       }),
       prepareCandidate: async () => prepared
@@ -165,12 +164,9 @@ describe("Project Gate adapter closure", () => {
     assert.equal(ran, false);
   });
 
-  it("requires every expected eligible and N/A final Check outcome", () => {
-    const selection = { profile: "required" as const, disabledTags: ["quality"] as const };
-    assert.equal(
-      projectGateExitStatus(completedResult(selection), selection),
-      PROJECT_GATE_EXIT_STATUS.passed
-    );
+  it("consumes package aggregation without traversing the raw Check snapshot", () => {
+    const complete = completedResult("passed", { snapshot: { malformed: true } });
+    assert.equal(projectGateExitStatus(complete), PROJECT_GATE_EXIT_STATUS.passed);
 
     const logDirectory = createInvocationLogDirectory();
     try {
@@ -182,18 +178,18 @@ describe("Project Gate adapter closure", () => {
     } finally {
       rmSync(logDirectory, { force: true, recursive: true });
     }
-
-    const incomplete = completedResult(selection, "typecheck-product", {
-      status: "not-applicable",
-      reason: { code: "tag-disabled" }
-    });
-    assert.equal(projectGateExitStatus(incomplete, selection), PROJECT_GATE_EXIT_STATUS.failed);
   });
 
-  it("maps completed closure failures to 1 and non-completed or malformed results to 2", () => {
-    const selection = { profile: "full" as const, disabledTags: [] as const };
-    const complete = completedResult(selection);
+  it("maps aggregate, definition warning, effect and malformed facts to Gate exits", () => {
+    const complete = completedResult("passed");
     const cases: readonly [string, unknown, ProjectGateExitStatus][] = [
+      ["failed aggregate", completedResult("failed"), PROJECT_GATE_EXIT_STATUS.failed],
+      [
+        "not-applicable aggregate",
+        completedResult("not-applicable"),
+        PROJECT_GATE_EXIT_STATUS.failed
+      ],
+      ["unavailable aggregate", completedResult("unavailable"), PROJECT_GATE_EXIT_STATUS.failed],
       [
         "definition warning",
         { ...complete, definitionWarnings: [{}] },
@@ -202,11 +198,6 @@ describe("Project Gate adapter closure", () => {
       [
         "progress failure",
         { ...complete, effects: { progress: { status: "failed" } } },
-        PROJECT_GATE_EXIT_STATUS.failed
-      ],
-      [
-        "failed gate",
-        { ...complete, decision: { gate: { status: "failed" } } },
         PROJECT_GATE_EXIT_STATUS.failed
       ],
       ["configuration", { kind: "configuration" }, PROJECT_GATE_EXIT_STATUS.unavailable],
@@ -218,35 +209,20 @@ describe("Project Gate adapter closure", () => {
     ];
 
     for (const [name, result, expectedStatus] of cases) {
-      assert.equal(projectGateExitStatus(result, selection), expectedStatus, name);
+      assert.equal(projectGateExitStatus(result), expectedStatus, name);
     }
   });
 });
 
 function completedResult(
-  selection: {
-    readonly profile: "required" | "full";
-    readonly disabledTags: readonly never[] | readonly ["quality"];
-  },
-  changedCheckId?: string,
-  changedOutcome?: unknown
+  aggregate: "failed" | "not-applicable" | "passed" | "unavailable",
+  supplementalFacts: object = {}
 ) {
   return {
     kind: "completed",
+    aggregate,
     definitionWarnings: [],
     effects: { progress: { status: "succeeded" } },
-    decision: { gate: { status: "passed" } },
-    snapshot: {
-      checks: PROJECT_GATE_CATALOG.map((descriptor) => {
-        const eligibility = projectGateEligibility(descriptor, selection);
-        const outcome = eligibility.eligible
-          ? { status: "completed", verdict: "passed" }
-          : { status: "not-applicable", reason: { code: eligibility.reasonCode } };
-        return {
-          checkId: descriptor.checkId,
-          outcome: descriptor.checkId === changedCheckId ? changedOutcome : outcome
-        };
-      })
-    }
+    ...supplementalFacts
   };
 }

@@ -2,11 +2,12 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { PROJECT_GATE_CATALOG } from "../../project-gate/catalog.ts";
-import { PROJECT_GATE_POLICY_NAME, createProjectGateDefinition } from "./project-definition.ts";
-import { GATE_COMMAND_FAILURE_RECORD_TYPE } from "./process-check.ts";
+import { projectGateEligibility } from "../../project-gate/eligibility.ts";
+import { createProjectGateDefinition } from "./project-definition.ts";
+import { projectGateAggregation } from "./project-run.ts";
 
 describe("Project Gate Definition", () => {
-  it("projects every catalog command into one process Check and named blocking policy", () => {
+  it("projects every catalog command into one process Check without a policy", () => {
     const definition = createProjectGateDefinition("/tmp/project-gate-logs");
 
     assert.deepEqual(
@@ -24,19 +25,27 @@ describe("Project Gate Definition", () => {
       PROJECT_GATE_CATALOG.map(({ dependencies }) => dependencies)
     );
     assert.deepEqual(definition.scheduler, { maxParallel: 4 });
-    assert.equal(definition.selectedPolicy, PROJECT_GATE_POLICY_NAME);
+    assert.equal(Object.hasOwn(definition, "policies"), false);
+    assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
+  });
 
-    const policy = definition.policies[PROJECT_GATE_POLICY_NAME];
-    assert.deepEqual(policy.blockWhen, {
-      kind: "view-not-empty",
-      viewId: "gate-command-failures"
-    });
-    assert.deepEqual(
-      policy.views[0]?.selectors,
-      PROJECT_GATE_CATALOG.map(({ checkId }) => ({
-        checkId,
-        recordTypeId: GATE_COMMAND_FAILURE_RECORD_TYPE
-      }))
-    );
+  it("binds required, full, and partial eligibility selections to explicit aggregation", () => {
+    const selections = [
+      { profile: "required" as const, disabledTags: [] as const },
+      { profile: "full" as const, disabledTags: [] as const },
+      { profile: "required" as const, disabledTags: ["quality"] as const }
+    ];
+
+    for (const selection of selections) {
+      assert.deepEqual(projectGateAggregation(selection), {
+        checks: PROJECT_GATE_CATALOG.filter(
+          (descriptor) => projectGateEligibility(descriptor, selection).eligible
+        ).map(({ checkId }) => checkId),
+        empty: "failed",
+        mode: "all",
+        notApplicable: "fail",
+        unavailable: "propagate"
+      });
+    }
   });
 });

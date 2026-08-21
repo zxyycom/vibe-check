@@ -16,7 +16,7 @@ import {
 import { run } from "../run/index.ts";
 
 describe("current public contract", () => {
-  it("owns four runtime functions, three ordinary built-in values, public type roots, and effect defaults", () => {
+  it("owns four runtime functions, three ordinary built-in values, minimal type roots, and effect defaults", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
@@ -32,12 +32,13 @@ describe("current public contract", () => {
       },
       types: {
         check: "Check",
+        checkAggregate: "CheckAggregate",
+        checkAggregation: "CheckAggregation",
         checkExecution: "CheckExecution",
         checkExecutionContext: "CheckExecutionContext",
         checkOutcome: "CheckOutcome",
         checkResult: "CheckResult",
         checkUnavailableReason: "CheckUnavailableReason",
-        decisionPolicy: "DecisionPolicy",
         duplicateDetectionOptions: "DuplicateDetectionOptions",
         fileMetricsOptions: "FileMetricsOptions",
         functionMetricsOptions: "FunctionMetricsOptions",
@@ -45,8 +46,6 @@ describe("current public contract", () => {
         projectEffects: "ProjectEffects",
         projectDefinition: "ProjectDefinition",
         projectQualityConfiguration: "ProjectQualityConfiguration",
-        qualityRecordCandidate: "QualityRecordCandidate",
-        recordTypeDefinition: "RecordTypeDefinition",
         runControls: "RunControls",
         runResult: "RunResult",
         schedulerPolicy: "SchedulerPolicy"

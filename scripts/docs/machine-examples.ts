@@ -4,12 +4,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  serializeMachinePublicationV3,
-  validateMachinePublicationSetV3
-} from "../../src/product/quality-core/output/publication-v3/index.ts";
+  serializeMachinePublicationV4,
+  validateMachinePublicationSetV4
+} from "../../src/product/quality-core/output/publication-v4/index.ts";
 import { canonicalMachineExamples } from "./machine-example-fixtures.ts";
 import {
   MACHINE_EXAMPLES_ROOT,
+  MACHINE_EXAMPLE_OUTCOMES,
   type GeneratedMachineExampleFile
 } from "./machine-example-model.ts";
 import {
@@ -30,8 +31,8 @@ export function checkPublishedMachineExamples(): void {
 
 function generatedFiles(): readonly GeneratedMachineExampleFile[] {
   return canonicalMachineExamples().flatMap((example) => {
-    const candidates = serializeMachinePublicationV3(example.publication);
-    const validation = validateMachinePublicationSetV3({
+    const candidates = serializeMachinePublicationV4(example.publication);
+    const validation = validateMachinePublicationSetV4({
       runJson: encoder.encode(candidates.runJson),
       recordsNdjson: encoder.encode(candidates.recordsNdjson)
     });
@@ -64,10 +65,12 @@ if (isMainModule()) {
   try {
     if (args.length === 0) {
       generatePublishedMachineExamples();
-      console.log("generated machine examples: 5 artifact set(s)");
+      console.log(`generated machine examples: ${MACHINE_EXAMPLE_OUTCOMES.length} artifact set(s)`);
     } else if (args.length === 1 && args[0] === "--check") {
       checkPublishedMachineExamples();
-      console.log("machine example generation current: 5 artifact set(s)");
+      console.log(
+        `machine example generation current: ${MACHINE_EXAMPLE_OUTCOMES.length} artifact set(s)`
+      );
     } else {
       throw new Error("usage: machine-examples.ts [--check]");
     }

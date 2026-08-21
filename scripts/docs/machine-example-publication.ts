@@ -104,7 +104,7 @@ function readPublishedDirectory(relativePath: string): fs.Dirent[] {
 
 function inventoryDrift(relativePath: string): Error {
   return new Error(
-    `published machine example inventory drift: unexpected ${relativePath}; expected exactly 5 outcome directories with 3 files each; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
+    `published machine example inventory drift: unexpected ${relativePath}; expected exactly the generated v4 outcome directories with 3 files each; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
   );
 }
 

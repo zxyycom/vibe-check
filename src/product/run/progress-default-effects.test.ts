@@ -32,8 +32,7 @@ describe("Package Run default effects", () => {
             {
               checkId: "custom",
               displayName: "Custom",
-              execution: () => ({ status: "completed", verdict: "passed" }),
-              recordTypes: []
+              execution: () => ({ status: "passed", data: {} })
             }
           ]
         }),

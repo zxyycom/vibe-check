@@ -1,60 +1,27 @@
-import type {
-  CheckDefinition,
-  PolicyOperandDefinition,
-  PolicyOperandSource,
-  RecordFieldDefinition,
-  RecordFieldValueType,
-  RecordTypeDefinition,
-  RecordTypePolicySurface
-} from "../../definition/check-definition.ts";
-import type {
-  CheckOutcome,
-  QualityRecordCandidate,
-  RecordFieldValue,
-  RecordLevel
-} from "../../definition/custom-check.ts";
+import type { CheckDefinition } from "../../definition/check-definition.ts";
+import type { CheckOutcome } from "../../definition/custom-check.ts";
 
-/**
- * Declarative Check and project-authored candidate shapes have one authority:
- * Project Definition. Core only validates and settles their fact projection.
- */
-export { RECORD_FIELD_VALUE_TYPES } from "../../definition/check-definition.ts";
 export type {
-  CheckDefinition,
-  CheckOutcome,
-  PolicyOperandDefinition,
-  PolicyOperandSource,
-  QualityRecordCandidate,
-  RecordFieldDefinition,
-  RecordFieldValue,
-  RecordFieldValueType,
-  RecordLevel,
-  RecordTypeDefinition,
-  RecordTypePolicySurface
-};
-
-export type JsonPrimitive = boolean | null | number | string;
-export type JsonValue = JsonPrimitive | readonly JsonValue[] | JsonObject;
-export interface JsonObject {
-  readonly [key: string]: JsonValue;
-}
-
-export const RECORD_LEVELS = ["info", "warning", "error"] as const satisfies readonly RecordLevel[];
-export type RecordLocation = Exclude<QualityRecordCandidate["location"], null>;
-export type RecordFields = QualityRecordCandidate["fields"];
-
-export interface QualityRecord extends QualityRecordCandidate {
-  readonly recordId: string;
-  readonly checkId: string;
-}
+  CanonicalJsonObject,
+  CanonicalJsonPrimitive,
+  CanonicalJsonValue
+} from "./canonical-data.ts";
+export type { CheckDefinition, CheckOutcome };
 
 /** A Core Check has exactly one terminal outcome and no execution bookkeeping. */
 export interface CoreCheck extends CheckDefinition {
   readonly outcome: CheckOutcome;
 }
 
-/** The complete product entity projection. Invocation metadata belongs to Run, not Core. */
+/** A supplemental Record is owned by its structural `{ checkId, id }` identity. */
+export interface CoreRecord {
+  readonly checkId: string;
+  readonly id: string;
+  readonly data: import("./canonical-data.ts").CanonicalJsonObject;
+}
+
+/** The complete Product entity projection. Invocation metadata belongs to Run, not Core. */
 export interface CoreSnapshot {
   readonly checks: readonly CoreCheck[];
-  readonly records: readonly QualityRecord[];
+  readonly records: readonly CoreRecord[];
 }

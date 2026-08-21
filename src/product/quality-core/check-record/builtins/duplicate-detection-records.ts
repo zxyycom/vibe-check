@@ -1,112 +1,79 @@
 import { createHash } from "node:crypto";
 
-import type {
-  CodeAreaDefinition,
-  DuplicateCodeFragment,
-  DuplicateCodeLocation
-} from "../../model/schema.ts";
+import type { DuplicateCodeFragment, DuplicateCodeLocation } from "../../model/schema.ts";
 import { canonicalJsonBytes } from "../identity.ts";
-import type { QualityRecordCandidate, RecordLevel } from "../model.ts";
-import { compareText, type RelationId } from "./builtin-support.ts";
+import { compareText } from "./builtin-support.ts";
 import type { DuplicateDetectionSemantics } from "./duplicate-detection.ts";
 
 export interface DuplicateRecordCandidate {
-  readonly isChanged: boolean;
-  readonly record: QualityRecordCandidate;
-  readonly subject: string;
+  readonly data: Readonly<{
+    readonly codeAreas: readonly string[];
+    readonly lineCount: number;
+    readonly locations: readonly Readonly<{
+      readonly endLine: number;
+      readonly path: string;
+      readonly startLine: number;
+    }>[];
+    readonly metric: "duplicate-tokens";
+    readonly tokenCount: number;
+  }>;
+  readonly id: string;
 }
 
+/** Builds Check-owned supplemental facts without adding a Product record catalog. */
 export function buildDuplicateRecordCandidates(
   fragments: readonly DuplicateCodeFragment[],
   semantics: DuplicateDetectionSemantics
 ): readonly DuplicateRecordCandidate[] | undefined {
-  const subjects = duplicateSubjectsInOrder(fragments);
-  if (subjects === undefined) {
-    return undefined;
-  }
+  const ids = duplicateIdsInOrder(fragments);
+  if (ids === undefined) return undefined;
+
   const candidates: DuplicateRecordCandidate[] = [];
   for (const [index, fragment] of fragments.entries()) {
-    const candidate = createDuplicateRecordCandidate(fragment, subjects[index], semantics);
-    if (candidate === undefined) {
-      return undefined;
-    }
-    if (candidate !== null) {
-      candidates.push(candidate);
-    }
+    const candidate = createDuplicateRecordCandidate(fragment, ids[index], semantics);
+    if (candidate === undefined) return undefined;
+    if (candidate !== null) candidates.push(candidate);
   }
-  candidates.sort((left, right) => compareText(left.subject, right.subject));
+  candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
 }
 
 function createDuplicateRecordCandidate(
   fragment: DuplicateCodeFragment,
-  subject: string | undefined,
+  id: string | undefined,
   semantics: DuplicateDetectionSemantics
 ): DuplicateRecordCandidate | null | undefined {
-  if (!isValidDuplicateFragment(fragment) || subject === undefined) {
-    return undefined;
-  }
+  if (!isValidDuplicateFragment(fragment) || id === undefined) return undefined;
+
   const locations = sortedLocations(fragment.locations);
   const codeAreas = uniqueSorted(locations.map((location) => location.codeArea));
-  const level = duplicateRecordLevel(codeAreas, semantics.codeAreas);
-  if (level === null) {
+  if (
+    codeAreas.length > 0 &&
+    codeAreas.every(
+      (codeArea) => semantics.codeAreas[codeArea]?.warningPolicy === "exclude-warnings"
+    )
+  ) {
     return null;
   }
-  const primaryLocation = locations[0];
-  if (primaryLocation === undefined) {
-    return undefined;
-  }
-  return Object.freeze({
-    isChanged: fragment.hitsChangedScope,
-    subject,
-    record: createDuplicateQualityRecord({
-      codeAreas,
-      fragment,
-      level,
-      locations,
-      primaryLocation,
-      subject
-    })
-  });
-}
 
-function createDuplicateQualityRecord(
-  input: Readonly<{
-    codeAreas: readonly string[];
-    fragment: DuplicateCodeFragment;
-    level: RecordLevel;
-    locations: readonly DuplicateCodeLocation[];
-    primaryLocation: DuplicateCodeLocation;
-    subject: string;
-  }>
-): QualityRecordCandidate {
-  const suggestion = `Consider extracting shared code into a common function or module. Locations: ${input.locations.map(formatLocation).join(", ")}`;
   return Object.freeze({
-    recordTypeId: "duplicate-code",
-    level: input.level,
-    semanticSubject: input.subject,
-    message: `Duplicate code fragment (${input.fragment.tokenCount} tokens) across ${input.locations.length} locations in areas [${input.codeAreas.join(", ")}]`,
-    fields: Object.freeze({
-      codeArea: input.codeAreas.join(","),
-      lineCount: input.fragment.lineCount,
-      locationCount: input.locations.length,
+    id,
+    data: Object.freeze({
+      codeAreas: Object.freeze(codeAreas),
+      lineCount: fragment.lineCount,
+      locations: Object.freeze(
+        locations.map((location) =>
+          Object.freeze({
+            endLine: location.endLine,
+            path: location.path,
+            startLine: location.startLine
+          })
+        )
+      ),
       metric: "duplicate-tokens",
-      suggestion,
-      value: input.fragment.tokenCount
-    }),
-    location: Object.freeze({
-      path: input.primaryLocation.path,
-      line: input.primaryLocation.startLine,
-      column: 1
+      tokenCount: fragment.tokenCount
     })
   });
-}
-
-export function duplicateSubjects(
-  fragments: readonly DuplicateCodeFragment[]
-): ReadonlySet<string> | undefined {
-  const orderedSubjects = duplicateSubjectsInOrder(fragments);
-  return orderedSubjects === undefined ? undefined : new Set(orderedSubjects);
 }
 
 export function isValidDuplicateFragment(fragment: DuplicateCodeFragment): boolean {
@@ -139,21 +106,19 @@ function isValidLocation(location: DuplicateCodeLocation): boolean {
   return validPath && validLines;
 }
 
-function duplicateSubjectsInOrder(
+function duplicateIdsInOrder(
   fragments: readonly DuplicateCodeFragment[]
 ): readonly string[] | undefined {
   const occurrences = new Map<string, number>();
-  const subjects: string[] = [];
+  const ids: string[] = [];
   for (const fragment of fragments) {
-    if (!isValidDuplicateFragment(fragment)) {
-      return undefined;
-    }
+    if (!isValidDuplicateFragment(fragment)) return undefined;
     const fingerprint = duplicateFingerprint(fragment);
     const occurrence = (occurrences.get(fingerprint) ?? 0) + 1;
     occurrences.set(fingerprint, occurrence);
-    subjects.push(`duplicate-fragment/v1/sha256:${fingerprint}/occurrence:${occurrence}`);
+    ids.push(`duplicate-fragment/v1/sha256:${fingerprint}/occurrence:${occurrence}`);
   }
-  return Object.freeze(subjects);
+  return Object.freeze(ids);
 }
 
 function duplicateFingerprint(fragment: DuplicateCodeFragment): string {
@@ -178,51 +143,6 @@ function locationSortKey(location: DuplicateCodeLocation): string {
   const startLine = String(location.startLine).padStart(12, "0");
   const endLine = String(location.endLine).padStart(12, "0");
   return `${location.path}\u0000${startLine}\u0000${endLine}`;
-}
-
-function duplicateRecordLevel(
-  codeAreas: readonly string[],
-  definitions: Readonly<Record<string, CodeAreaDefinition>>
-): RecordLevel | null {
-  if (
-    codeAreas.length > 0 &&
-    codeAreas.every((codeArea) => definitions[codeArea]?.warningPolicy === "exclude-warnings")
-  ) {
-    return null;
-  }
-  return codeAreas.length > 0 &&
-    codeAreas.every((codeArea) => definitions[codeArea]?.warningPolicy === "watchlist-only")
-    ? "info"
-    : "warning";
-}
-
-function formatLocation(location: DuplicateCodeLocation): string {
-  return `${location.path}:${location.startLine}`;
-}
-
-export function buildDuplicateRelations(
-  candidates: readonly DuplicateRecordCandidate[],
-  referenceSubjects: ReadonlySet<string>,
-  changedDelta: number
-): Map<string, readonly RelationId[]> {
-  const relations = new Map<string, readonly RelationId[]>();
-  for (const candidate of candidates) {
-    const relation = relationForCandidate(candidate, referenceSubjects, changedDelta);
-    relations.set(candidate.subject, relation);
-  }
-  return relations;
-}
-
-function relationForCandidate(
-  candidate: DuplicateRecordCandidate,
-  referenceSubjects: ReadonlySet<string>,
-  changedDelta: number
-): readonly RelationId[] {
-  if (!candidate.isChanged) {
-    return Object.freeze([]);
-  }
-  const delta = referenceSubjects.has(candidate.subject) ? 0 : 1;
-  return Object.freeze([delta > changedDelta ? "regression" : "changed"]);
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

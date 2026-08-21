@@ -6,20 +6,11 @@ import {
   writeTextFile,
   type ProcessResult
 } from "../../tools/foundation/src/index.ts";
-import {
-  defineCheck,
-  type Check,
-  type CheckExecutionContext,
-  type CheckResult,
-  type QualityRecordCandidate,
-  type RecordTypeDefinition
-} from "vibe-check";
+import { defineCheck, type Check, type CheckExecutionContext, type CheckResult } from "vibe-check";
 
 import type { ProjectGateCheckDescriptor } from "../../project-gate/catalog.ts";
 import { selectionFromFlags } from "../../project-gate/controls.ts";
 import { projectGateEligibility } from "../../project-gate/eligibility.ts";
-
-export const GATE_COMMAND_FAILURE_RECORD_TYPE = "gate-command-failure";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",
@@ -41,18 +32,6 @@ const defaultProcessCheckDependencies: ProcessCheckDependencies = Object.freeze(
   writeTextFile
 });
 
-const FAILURE_RECORD_TYPE = Object.freeze({
-  recordTypeId: GATE_COMMAND_FAILURE_RECORD_TYPE,
-  fields: [
-    { fieldId: "command", valueType: "string", required: true },
-    { fieldId: "exit", valueType: "string", required: true },
-    { fieldId: "log", valueType: "string", required: true },
-    { fieldId: "signal", valueType: "string", required: true }
-  ],
-  identityFields: ["command"],
-  policy: { operands: [], relations: [] }
-} as const satisfies RecordTypeDefinition);
-
 export function createProcessCheck(
   descriptor: ProjectGateCheckDescriptor,
   invocationLogDirectory: string,
@@ -63,7 +42,6 @@ export function createProcessCheck(
     displayName: descriptor.displayName,
     dependsOn: descriptor.dependencies,
     options: descriptor,
-    recordTypes: [FAILURE_RECORD_TYPE],
     execution: async (context): Promise<CheckResult> =>
       executeDescriptor(context, invocationLogDirectory, dependencies)
   });
@@ -107,29 +85,27 @@ async function executeDescriptor(
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
   if (result.error !== undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
   if (result.status === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
-  if (result.status === 0) return Object.freeze({ status: "completed", verdict: "passed" });
+  if (result.status === 0) {
+    return Object.freeze({ status: "passed", data: Object.freeze({ exitCode: result.status }) });
+  }
 
-  context.records.report(failureRecord(context.options, result, logPath));
-  return Object.freeze({ status: "completed", verdict: "failed" });
+  context.records.report(
+    { id: "command-failure" },
+    failureRecord(context.options, result, logPath)
+  );
+  return Object.freeze({ status: "failed", data: Object.freeze({ exitCode: result.status }) });
 }
 
 function failureRecord(
   descriptor: ProjectGateCheckDescriptor,
   result: ProcessResult,
   logPath: string
-): QualityRecordCandidate {
+): object {
   return Object.freeze({
-    recordTypeId: GATE_COMMAND_FAILURE_RECORD_TYPE,
-    level: "error",
-    semanticSubject: descriptor.checkId,
-    message: `${descriptor.displayName} exited with status ${result.status}`,
-    fields: Object.freeze({
-      command: descriptor.command,
-      exit: String(result.status),
-      log: basename(logPath),
-      signal: result.signal ?? "none"
-    }),
-    location: null
+    command: descriptor.command,
+    exitCode: result.status,
+    log: basename(logPath),
+    signal: result.signal ?? "none"
   });
 }
 

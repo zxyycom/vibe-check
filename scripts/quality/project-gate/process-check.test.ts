@@ -5,13 +5,9 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { ProcessResult } from "../../tools/foundation/src/index.ts";
-import type { CheckResult, QualityRecordCandidate } from "vibe-check";
+import type { CheckResult } from "vibe-check";
 import type { ProjectGateCheckDescriptor } from "../../project-gate/catalog.ts";
-import {
-  createProcessCheck,
-  GATE_COMMAND_FAILURE_RECORD_TYPE,
-  type ProcessCheckDependencies
-} from "./process-check.ts";
+import { createProcessCheck, type ProcessCheckDependencies } from "./process-check.ts";
 
 const descriptor: ProjectGateCheckDescriptor = Object.freeze({
   checkId: "fixture-command",
@@ -39,10 +35,10 @@ describe("Project Gate process Check", () => {
         },
         root
       );
-      const records: QualityRecordCandidate[] = [];
+      const records: ReportedRecord[] = [];
       const outcome = await invoke(check, records);
 
-      assert.deepEqual(outcome, { status: "completed", verdict: "passed" });
+      assert.deepEqual(outcome, { status: "passed", data: { exitCode: 0 } });
       assert.deepEqual(records, []);
       const transcript = readFileSync(join(root, "fixture-command.log"), "utf8");
       assert.match(transcript, /--- stdout ---\nout/);
@@ -59,23 +55,19 @@ describe("Project Gate process Check", () => {
         { ...descriptor, args: ["-e", "process.stdout.write('secret output');process.exit(7)"] },
         root
       );
-      const records: QualityRecordCandidate[] = [];
+      const records: ReportedRecord[] = [];
       const outcome = await invoke(check, records);
 
-      assert.deepEqual(outcome, { status: "completed", verdict: "failed" });
+      assert.deepEqual(outcome, { status: "failed", data: { exitCode: 7 } });
       assert.deepEqual(records, [
         {
-          recordTypeId: GATE_COMMAND_FAILURE_RECORD_TYPE,
-          level: "error",
-          semanticSubject: "fixture-command",
-          message: "Fixture command exited with status 7",
-          fields: {
+          data: {
             command: process.execPath,
-            exit: "7",
+            exitCode: 7,
             log: "fixture-command.log",
             signal: "none"
           },
-          location: null
+          identity: { id: "command-failure" }
         }
       ]);
       assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /secret output/);
@@ -261,13 +253,18 @@ interface ProcessScenario {
   readonly writeFails?: boolean;
 }
 
+interface ReportedRecord {
+  readonly data: object;
+  readonly identity: Readonly<{ readonly id: string }>;
+}
+
 async function unexpectedProcessStart(): Promise<ProcessResult> {
   throw new Error("process must not start");
 }
 
 async function invoke(
   check: ReturnType<typeof createProcessCheck>,
-  records: QualityRecordCandidate[],
+  records: ReportedRecord[],
   flags: readonly string[] = ["project-gate:profile=required"],
   signal = new AbortController().signal
 ) {
@@ -280,12 +277,10 @@ async function invoke(
       changedFiles: [],
       flags,
       files: { codeAreas: {}, excludeDirs: [], generatedFiles: [], include: [] },
-      comparison: null,
       cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
     },
     records: {
-      report: (record) => records.push(record),
-      reportReference: () => undefined
+      report: (identity, data) => records.push(Object.freeze({ data, identity }))
     },
     signal
   });

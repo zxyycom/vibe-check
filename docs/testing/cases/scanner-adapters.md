@@ -10,23 +10,23 @@ Proves:
 ## Case WB-SCANNER-FILE-METRICS-CHECK-001: File default owns its command and direct callback
 Owner: `docs/scanner-dependencies.md#check-owned-command-options`
 Entities:
-- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options and reports Check-owned candidates`
+- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
 Proves:
-- The file default consumes its complete Check-owned scanner options through the public direct callback context and reports only its own candidates.
+- The file default consumes its complete Check-owned scanner options through the public direct callback context, returns its final data, and reports only Check-local supplemental Records.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function default owns its command and direct callback
 Owner: `docs/scanner-dependencies.md#check-owned-command-options`
 Entities:
-- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options and reports all metric Records`
+- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
 Proves:
-- The function default consumes its complete Check-owned Lizard command configuration and produces its declared metric records through the ordinary callback path.
+- The function default consumes its complete Check-owned Lizard command configuration, returns final data, and produces supplemental metric Records with local identities through the ordinary callback path.
 
 ## Case WB-SCANNER-DUPLICATE-CHECK-001: Duplicate default owns its command and cache context
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
-- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options and uses the invocation cache context`
+- `bun|src/product/quality-core/check-record/builtins/direct-defaults.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and cache context`
 Proves:
-- Duplicate detection consumes its Check-owned command and backend concurrency while cache activity remains invocation context rather than a resolver override. Its portable default marker is privately resolved to active Bun plus the installed `jscpd` manifest's declared bin; an explicit command remains an explicit adapter input.
+- Duplicate detection consumes its Check-owned command and backend concurrency, returns final data, and reports Check-local supplemental Records while cache activity remains invocation context rather than a resolver override. Its portable default marker is privately resolved to active Bun plus the installed `jscpd` manifest's declared bin; an explicit command remains an explicit adapter input.
 
 ## Case AUX-CURRENT-SCANNER-EVIDENCE-001: Scanner protocol stays private and fails closed
 Owner: `docs/scanner-dependencies.md#adapter-handoff-and-scope`

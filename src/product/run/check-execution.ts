@@ -2,18 +2,12 @@ import type { CheckOutcome, CheckProjectContext } from "../definition/custom-che
 import type { NormalizedCheck } from "../definition/project.ts";
 import {
   createCoreCheckSession,
-  type CoreCheckSession,
-  type TrustedCheckScope
+  type CoreCheckSession
 } from "../quality-core/check-record/core-session.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import { prepareTaskGraph, runTaskGraph, type SettledTask } from "../task-scheduler/index.ts";
-import { executeCheckCallback, type CallbackExecution } from "./check-callback.ts";
+import { executeCheckCallback } from "./check-callback.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
-import {
-  canonicalizeReferenceSubmissions,
-  validateCheckReferenceSubmission,
-  type CheckReferenceSubmission
-} from "./check-reference-submissions.ts";
 import type { CheckDuration } from "./result.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
@@ -37,7 +31,6 @@ type CheckIdentity = Pick<NormalizedCheck["definition"], "checkId" | "displayNam
 
 type ResolvedCheckExecutionFacts = Readonly<{
   readonly checkDurations: readonly CheckDuration[];
-  readonly references: readonly CheckReferenceSubmission[];
   readonly snapshot: CoreSnapshot;
 }>;
 
@@ -49,7 +42,6 @@ interface CheckExecutionState {
   readonly checkDurationsByCheckId: Map<string, number | null>;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
   readonly openedCheckIds: Set<string>;
-  readonly references: CheckReferenceSubmission[];
   readonly session: CoreCheckSession;
 }
 
@@ -100,7 +92,6 @@ export async function executeResolvedChecks(
     checkDurationsByCheckId: new Map<string, number | null>(),
     lifecycle: input.lifecycle,
     openedCheckIds: new Set<string>(),
-    references: [],
     session
   };
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
@@ -159,7 +150,6 @@ function resolvedExecution(
   return Object.freeze({
     kind,
     checkDurations: checkDurationsFor(snapshot, state.checkDurationsByCheckId),
-    references: canonicalizeReferenceSubmissions(state.references),
     snapshot
   });
 }
@@ -176,31 +166,12 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
     scope,
     signal: input.signal
   });
-  const result = settleCheckReferences(input, scope, callback);
-  const settled = scope.settle(result);
+  const settled =
+    callback.source === "author"
+      ? scope.settle(callback.result)
+      : scope.settleProduct(callback.result);
   recordSettledCheck(input, input.check.definition, settled, durationSince(startedAt, input.clock));
   if (settled.status === "unavailable") throw new CheckUnavailableSignal();
-}
-
-function settleCheckReferences(
-  input: ExecuteCheckInput,
-  scope: TrustedCheckScope,
-  callback: CallbackExecution
-): CheckOutcome {
-  if (callback.result.status === "not-applicable" && callback.reportedReferences.length > 0) {
-    return Object.freeze({ status: "unavailable", reason: { code: "record-invalid" } });
-  }
-  const referenceValidation = validateCheckReferenceSubmission({
-    candidates: callback.reportedReferences,
-    check: input.check,
-    project: input.project,
-    scope
-  });
-  if (referenceValidation.kind === "submitted")
-    input.references.push(referenceValidation.submission);
-  return referenceValidation.kind === "invalid"
-    ? Object.freeze({ status: "unavailable", reason: { code: "reference-invalid" } })
-    : callback.result;
 }
 
 function settleBlockedChecks(
@@ -215,7 +186,7 @@ function settleBlockedChecks(
       throw new CheckExecutionInvariantFailure("Blocked Task does not identify an unopened Check");
     }
     const scope = state.session.openCheckScope(check.definition.checkId);
-    const outcome = scope.settle(
+    const outcome = scope.settleProduct(
       Object.freeze({
         status: "unavailable",
         reason: {

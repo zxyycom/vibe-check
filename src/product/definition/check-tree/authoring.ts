@@ -70,8 +70,7 @@ const CHECK_KEYS = [
   "execution",
   "maxParallel",
   "mutex",
-  "options",
-  "recordTypes"
+  "options"
 ] as const;
 
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
@@ -178,8 +177,7 @@ function parseChildren(
 function parseDefinition(data: CheckAuthoringData): CheckDefinition | undefined {
   const definition = validateCheckDefinition({
     checkId: data.checkId,
-    displayName: data.displayName,
-    recordTypes: data.recordTypes ?? []
+    displayName: data.displayName
   });
   return definition.ok ? definition.value : undefined;
 }
@@ -196,9 +194,7 @@ function parseCheckFields(
   execution: CheckExecution | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
-    return Object.hasOwn(data, "options") || Object.hasOwn(data, "recordTypes")
-      ? undefined
-      : CONTAINER_CHECK_FIELDS;
+    return Object.hasOwn(data, "options") ? undefined : CONTAINER_CHECK_FIELDS;
   }
   const definition = parseDefinition(data);
   if (definition === undefined) return undefined;

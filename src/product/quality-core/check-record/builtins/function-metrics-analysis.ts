@@ -2,39 +2,29 @@ import type { FunctionMetric } from "../../model/schema.ts";
 import { canonicalJsonBytes } from "../identity.ts";
 import { compareText } from "./builtin-support.ts";
 
-export interface FunctionValues {
-  readonly codeLines: number;
-  readonly cyclomaticComplexity: number | null;
-  readonly parameterCount: number;
-}
-
 export interface FunctionMetricInstance {
-  readonly comparisonKey: string;
   readonly metric: FunctionMetric;
   readonly semanticSubject: string;
 }
 
 export interface FunctionMetricAnalysis {
-  readonly groups: ReadonlyMap<string, readonly FunctionValues[]>;
   readonly instances: readonly FunctionMetricInstance[];
 }
 
 export function analyzeFunctionMetrics(
   metrics: readonly FunctionMetric[]
 ): FunctionMetricAnalysis | undefined {
-  const metricsByComparisonKey = groupValidMetrics(metrics);
-  if (metricsByComparisonKey === undefined) {
+  const metricsByIdentity = groupValidMetrics(metrics);
+  if (metricsByIdentity === undefined) {
     return undefined;
   }
-  const groups = new Map<string, readonly FunctionValues[]>();
   const instances: FunctionMetricInstance[] = [];
-  for (const [comparisonKey, group] of metricsByComparisonKey) {
+  for (const group of metricsByIdentity.values()) {
     const sortedGroup = [...group].sort(compareFunctionInstances);
-    groups.set(comparisonKey, Object.freeze(sortedGroup.map(toFunctionValues)));
-    instances.push(...createFunctionInstances(comparisonKey, sortedGroup));
+    instances.push(...createFunctionInstances(sortedGroup));
   }
   instances.sort((left, right) => compareText(left.semanticSubject, right.semanticSubject));
-  return Object.freeze({ groups, instances: Object.freeze(instances) });
+  return Object.freeze({ instances: Object.freeze(instances) });
 }
 
 function groupValidMetrics(
@@ -45,7 +35,7 @@ function groupValidMetrics(
     if (!isValidFunctionMetric(metric)) {
       return undefined;
     }
-    const key = functionComparisonKey(metric);
+    const key = functionIdentityKey(metric);
     const group = groups.get(key) ?? [];
     group.push(metric);
     groups.set(key, group);
@@ -53,21 +43,9 @@ function groupValidMetrics(
   return groups;
 }
 
-function toFunctionValues(metric: FunctionMetric): Readonly<FunctionValues> {
-  return Object.freeze({
-    codeLines: metric.lines,
-    cyclomaticComplexity: metric.cyclomaticComplexity.value,
-    parameterCount: metric.parameterCount
-  });
-}
-
-function createFunctionInstances(
-  comparisonKey: string,
-  sortedGroup: readonly FunctionMetric[]
-): FunctionMetricInstance[] {
+function createFunctionInstances(sortedGroup: readonly FunctionMetric[]): FunctionMetricInstance[] {
   return sortedGroup.map((metric, index) =>
     Object.freeze({
-      comparisonKey,
       metric,
       semanticSubject:
         isStableFunctionName(metric.name) && sortedGroup.length === 1
@@ -136,7 +114,7 @@ function ambiguousFunctionSubject(
   return `function-instance:${identity}`;
 }
 
-function functionComparisonKey(metric: Pick<FunctionMetric, "file" | "name">): string {
+function functionIdentityKey(metric: Pick<FunctionMetric, "file" | "name">): string {
   return `${metric.file}\u0000${metric.name}`;
 }
 

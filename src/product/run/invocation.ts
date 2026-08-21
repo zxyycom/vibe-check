@@ -5,17 +5,16 @@ import type { CheckProjectContext } from "../definition/custom-check.ts";
 import {
   createDeclarativeFingerprint,
   normalizeProjectDefinition,
+  type CheckAggregate,
+  type CheckAggregation,
   type DefinitionWarning,
   type NormalizedProjectDefinition,
   type ProjectDefinition,
   type RunControls
 } from "../definition/project.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
-import type {
-  PolicyResolution,
-  ReferenceFacts
-} from "../quality-core/check-record/policy-model.ts";
 import { prepareTaskGraph } from "../task-scheduler/index.ts";
+import { aggregateCheckOutcomes, validateCheckAggregationSelection } from "./check-aggregation.ts";
 import {
   executeResolvedChecks,
   type CheckExecutionClock,
@@ -31,7 +30,6 @@ import {
   type ProgressWriterFactory
 } from "./effects.ts";
 import { completeInvocation } from "./publication.ts";
-import { resolveReferenceFacts, resolveSelectedPolicy } from "./policy.ts";
 import { prepareProjectContext, type PreparedProjectContext } from "./project-context.ts";
 import {
   executionCancellation,
@@ -64,11 +62,9 @@ export interface RunInvocationDependencies {
 
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 
-type PlannedInvocation = Readonly<{ readonly policy: PolicyResolution }>;
-
 export type CoreExecution = Readonly<{
+  readonly aggregate: CheckAggregate | null;
   readonly checkDurations: readonly CheckDuration[];
-  readonly referenceFacts: ReferenceFacts;
   readonly snapshot: CoreSnapshot;
 }>;
 
@@ -79,6 +75,17 @@ export async function executeValidatedRun(
   dependencies: RunInvocationDependencies = {}
 ): Promise<RunResult> {
   const invocation = createInvocation(definition, controls, definitionWarnings, dependencies);
+  const aggregation = validateCheckAggregationSelection(
+    controls.checkAggregation,
+    invocation.normalized.checks.map((check) => check.definition.checkId)
+  );
+  if (!aggregation.ok) {
+    return Object.freeze({
+      kind: "configuration",
+      definitionWarnings: invocation.definitionWarnings,
+      diagnostic: aggregation.error
+    });
+  }
   if (isCancelled(controls)) {
     return preExecutionCancellation(
       invocation.declarativeFingerprint,
@@ -87,12 +94,8 @@ export async function executeValidatedRun(
       "pre-work"
     );
   }
-  const plan = resolveInvocationPlan(invocation);
-  if (isRunResult(plan)) return plan;
-  if (!validateTaskGraph(invocation)) {
-    return planningResult(invocation, "task-graph-invalid");
-  }
-  return executePlannedInvocation(invocation, plan);
+  if (!validateTaskGraph(invocation)) return planningResult(invocation, "task-graph-invalid");
+  return executePlannedInvocation(invocation, aggregation.value);
 }
 
 function createInvocation(
@@ -119,14 +122,6 @@ function createInvocation(
   });
 }
 
-function resolveInvocationPlan(invocation: Invocation): PlannedInvocation | RunResult {
-  const definitions = invocation.normalized.declarative.checks.map((check) => check.definition);
-  const policy = resolveSelectedPolicy(invocation.definition, invocation.controls, definitions);
-  return policy === undefined
-    ? planningResult(invocation, "policy-validation-failed")
-    : Object.freeze({ policy });
-}
-
 function validateTaskGraph(invocation: Invocation): boolean {
   try {
     prepareTaskGraph(
@@ -141,7 +136,7 @@ function validateTaskGraph(invocation: Invocation): boolean {
 
 async function executePlannedInvocation(
   invocation: Invocation,
-  plan: PlannedInvocation
+  aggregation: CheckAggregation | undefined
 ): Promise<RunResult> {
   if (isCancelled(invocation.controls)) {
     return preExecutionCancellation(
@@ -152,31 +147,26 @@ async function executePlannedInvocation(
     );
   }
   const project = prepareInvocationProject(invocation);
-  if (project === undefined) return planningResult(invocation, "comparison-preparation-failed");
   try {
-    return await executePreparedInvocation(invocation, plan, project.context);
+    return await executePreparedInvocation(invocation, aggregation, project.context);
   } finally {
     project.cleanup();
   }
 }
 
-function prepareInvocationProject(invocation: Invocation): PreparedProjectContext | undefined {
-  try {
-    return prepareProjectContext({
-      controls: invocation.controls,
-      definition: invocation.definition,
-      effectConfiguration: invocation.effectConfiguration,
-      effects: invocation.effects,
-      root: invocation.projectRoot
-    });
-  } catch {
-    return undefined;
-  }
+function prepareInvocationProject(invocation: Invocation): PreparedProjectContext {
+  return prepareProjectContext({
+    controls: invocation.controls,
+    definition: invocation.definition,
+    effectConfiguration: invocation.effectConfiguration,
+    effects: invocation.effects,
+    root: invocation.projectRoot
+  });
 }
 
 async function executePreparedInvocation(
   invocation: Invocation,
-  plan: PlannedInvocation,
+  aggregation: CheckAggregation | undefined,
   project: CheckProjectContext
 ): Promise<RunResult> {
   if (isCancelled(invocation.controls)) {
@@ -188,13 +178,12 @@ async function executePreparedInvocation(
     );
   }
   invocation.progress.prepared(invocation.normalized.checks.length);
-  const clock = invocation.clock;
-  const executionStartedAt = clock.now();
-  const executed = await executeChecks(invocation, project, clock);
+  const executionStartedAt = invocation.clock.now();
+  const executed = await executeChecks(invocation, project, invocation.clock);
   if (isExecutionRunResult(executed)) return executed;
   invocation.progress.final({
     counts: outcomeCounts(executed.snapshot),
-    elapsedMs: elapsedSince(executionStartedAt, clock),
+    elapsedMs: elapsedSince(executionStartedAt, invocation.clock),
     execution: executed.kind
   });
   if (executed.kind === "cancelled") {
@@ -206,24 +195,13 @@ async function executePreparedInvocation(
       executed.checkDurations
     );
   }
-  const core = resolveCoreExecution(plan, executed);
-  return core === undefined
-    ? executionResult(invocation, "policy-validation-failed")
-    : completeInvocation(invocation, plan.policy, core);
-}
-
-function resolveCoreExecution(
-  plan: PlannedInvocation,
-  executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>
-): CoreExecution | undefined {
-  const referenceFacts = resolveReferenceFacts(plan.policy, executed.snapshot, executed.references);
-  return referenceFacts === undefined
-    ? undefined
-    : Object.freeze({
-        checkDurations: executed.checkDurations,
-        referenceFacts,
-        snapshot: executed.snapshot
-      });
+  const core: CoreExecution = Object.freeze({
+    aggregate:
+      aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation),
+    checkDurations: executed.checkDurations,
+    snapshot: executed.snapshot
+  });
+  return completeInvocation(invocation, core);
 }
 
 async function executeChecks(
@@ -257,9 +235,11 @@ function outcomeCounts(snapshot: CoreSnapshot): Readonly<{
   let unavailable = 0;
   for (const check of snapshot.checks) {
     switch (check.outcome.status) {
-      case "completed":
-        if (check.outcome.verdict === "passed") passed += 1;
-        else failed += 1;
+      case "passed":
+        passed += 1;
+        break;
+      case "failed":
+        failed += 1;
         break;
       case "not-applicable":
         notApplicable += 1;
@@ -279,10 +259,7 @@ function elapsedSince(startedAt: number, clock: CheckExecutionClock): number {
 
 function planningResult(
   invocation: Invocation,
-  code: Extract<
-    RunDiagnostic["code"],
-    "comparison-preparation-failed" | "policy-validation-failed" | "task-graph-invalid"
-  >
+  code: Extract<RunDiagnostic["code"], "task-graph-invalid">
 ): RunResult {
   return planning(
     invocation.declarativeFingerprint,
@@ -294,10 +271,7 @@ function planningResult(
 
 function executionResult(
   invocation: Invocation,
-  code: Extract<
-    RunDiagnostic["code"],
-    "publication-model-failed" | "policy-validation-failed" | "task-engine-failed"
-  >
+  code: Extract<RunDiagnostic["code"], "publication-model-failed" | "task-engine-failed">
 ): RunResult {
   return Object.freeze({
     kind: "execution",
@@ -306,10 +280,6 @@ function executionResult(
     diagnostic: Object.freeze({ code }),
     effects: invocation.effects.value()
   });
-}
-
-function isRunResult(value: unknown): value is RunResult {
-  return typeof value === "object" && value !== null && "kind" in value;
 }
 
 function isExecutionRunResult(value: ResolvedCheckExecution | RunResult): value is RunResult {

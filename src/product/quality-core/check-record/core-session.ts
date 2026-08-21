@@ -1,17 +1,15 @@
-import type {
-  CheckDefinition,
-  CheckOutcome,
-  CoreSnapshot,
-  QualityRecordCandidate
-} from "./model.ts";
+import type { CheckDefinition } from "../../definition/check-definition.ts";
+import type { CheckOutcome } from "../../definition/custom-check.ts";
+import { canonicalizeJsonObject } from "./canonical-data.ts";
 import {
   CoreRecordStore,
   type CoreRecordSlot,
   type RecordDiagnostic,
-  type RecordSubmissionResult,
-  type RetainedRecordReference
+  type RecordSubmissionResult
 } from "./core-record-store.ts";
-import { validateCheckDefinition, validateCoreSnapshot } from "./validation.ts";
+import type { CoreCheck, CoreSnapshot } from "./model.ts";
+import { snapshotClosedArray, snapshotClosedRecord } from "./plain-record-values.ts";
+import { validateCheckDefinition } from "./validation.ts";
 
 export type { RecordSubmissionResult } from "./core-record-store.ts";
 
@@ -21,15 +19,16 @@ export interface CoreCheckRegistration {
 
 /** Internal Record port bound to one currently executing Check. */
 export interface RecordSink {
-  report(candidate: QualityRecordCandidate): RecordSubmissionResult;
+  report(identity: unknown, data: unknown): RecordSubmissionResult;
 }
 
 /** Only the Product Task adapter receives this Core lifecycle capability. */
 export interface TrustedCheckScope {
   readonly records: RecordSink;
-  /** Resolves an already retained Record identity for a reporter relation. */
-  readonly recordIdForReference: (candidate: unknown) => RetainedRecordReference | undefined;
-  readonly settle: (outcome: CheckOutcome) => CheckOutcome;
+  /** Core is the only author-result validation/canonicalization boundary. */
+  readonly settle: (outcome: unknown) => CheckOutcome;
+  /** Private Product lifecycle outcomes may include contained prerequisite IDs. */
+  readonly settleProduct: (outcome: CheckOutcome) => CheckOutcome;
 }
 
 export interface CoreCheckSession {
@@ -53,6 +52,7 @@ type CoreSlotLifecycle = Readonly<
 >;
 
 interface CoreSlot extends CoreRecordSlot {
+  readonly definition: CheckDefinition;
   lifecycle: CoreSlotLifecycle;
 }
 
@@ -80,6 +80,7 @@ function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[
     }
     checkIds.add(definition.value.checkId);
     slots.push({
+      checkId: definition.value.checkId,
       definition: definition.value,
       diagnostics: new Set(),
       lifecycle: { kind: "registered" },
@@ -108,14 +109,13 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     slot.lifecycle = Object.freeze({ kind: "open" });
     return Object.freeze({
       records: Object.freeze({
-        report: (candidate: QualityRecordCandidate): RecordSubmissionResult => {
+        report: (identity: unknown, data: unknown): RecordSubmissionResult => {
           if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") return "rejected";
-          return this.#reportRecord(slot, candidate);
+          return this.#recordStore.report(slot, identity, data);
         }
       }),
-      recordIdForReference: (candidate: unknown) =>
-        this.#recordStore.recordIdForReference(slot, candidate),
-      settle: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome)
+      settle: (outcome: unknown): CheckOutcome => this.#settleSlot(slot, outcome, false),
+      settleProduct: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome, true)
     });
   }
 
@@ -127,10 +127,8 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       if (slot.lifecycle.kind !== "settled") {
         this.#commitTerminal(
           slot,
-          Object.freeze({
-            status: "unavailable",
-            reason: { code: "execution-cancelled" }
-          })
+          Object.freeze({ status: "unavailable", reason: { code: "execution-cancelled" } }),
+          true
         );
       }
     }
@@ -138,20 +136,23 @@ class CoreCheckSessionImpl implements CoreCheckSession {
 
   public freeze(): CoreSnapshot {
     if (this.#snapshot !== undefined) return this.#snapshot;
-    const checks: { readonly definition: CheckDefinition; readonly outcome: CheckOutcome }[] = [];
+    const checks: CoreCheck[] = [];
     for (const slot of this.#slots) {
       if (slot.lifecycle.kind !== "settled") {
         return coreInvariant("Core snapshot cannot freeze before every Check slot closes");
       }
-      checks.push({ definition: slot.definition, outcome: slot.lifecycle.outcome });
+      checks.push(
+        Object.freeze({
+          checkId: slot.definition.checkId,
+          displayName: slot.definition.displayName,
+          outcome: slot.lifecycle.outcome
+        })
+      );
     }
-    const records = this.#recordStore.recordsInCanonicalOrder();
-    const validated = validateCoreSnapshot({
-      checks: checks.map(({ definition, outcome }) => ({ ...definition, outcome })),
-      records
+    this.#snapshot = Object.freeze({
+      checks: Object.freeze(checks),
+      records: this.#recordStore.recordsInCanonicalOrder()
     });
-    if (!validated.ok) return coreInvariant("Core snapshot violates its trusted fact invariant");
-    this.#snapshot = validated.value;
     return this.#snapshot;
   }
 
@@ -161,30 +162,24 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     return slot ?? coreInvariant("Core Check scope does not own this checkId");
   }
 
-  #settleSlot(slot: CoreSlot, outcome: CheckOutcome): CheckOutcome {
+  #settleSlot(slot: CoreSlot, outcome: unknown, productOutcome: boolean): CheckOutcome {
     if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") {
       return coreInvariant("Trusted Core Check settlement is duplicate, late, or out of scope");
     }
-    return this.#commitTerminal(slot, outcome);
+    return this.#commitTerminal(slot, outcome, productOutcome);
   }
 
-  #commitTerminal(slot: CoreSlot, terminal: CheckOutcome): CheckOutcome {
-    if (slot.lifecycle.kind === "settled")
+  #commitTerminal(slot: CoreSlot, terminal: unknown, productOutcome = false): CheckOutcome {
+    if (slot.lifecycle.kind === "settled") {
       coreInvariant("Core Check terminal closure is duplicate");
-    if (terminal.status === "not-applicable" && slot.recordIds.size > 0) {
-      slot.diagnostics.add("record-invalid");
     }
     const diagnostic = terminalDiagnostic(slot);
     const outcome =
       diagnostic === undefined
-        ? terminal
-        : Object.freeze({ status: "unavailable" as const, reason: { code: diagnostic } });
+        ? (normalizeOutcome(terminal, productOutcome) ?? unavailable("invalid-execution-result"))
+        : unavailable(diagnostic);
     slot.lifecycle = Object.freeze({ kind: "settled", outcome });
     return outcome;
-  }
-
-  #reportRecord(slot: CoreSlot, rawCandidate: unknown): RecordSubmissionResult {
-    return this.#recordStore.report(slot, rawCandidate);
   }
 }
 
@@ -192,6 +187,79 @@ function terminalDiagnostic(slot: CoreSlot): RecordDiagnostic | undefined {
   if (slot.diagnostics.has("record-conflict")) return "record-conflict";
   if (slot.diagnostics.has("record-invalid")) return "record-invalid";
   return undefined;
+}
+
+function normalizeOutcome(value: unknown, productOutcome: boolean): CheckOutcome | undefined {
+  const outcome = snapshotClosedRecord(value);
+  if (outcome === undefined || typeof outcome.status !== "string") return undefined;
+  if (outcome.status === "passed" || outcome.status === "failed") {
+    if (!hasExactKeys(outcome, ["status", "data"])) return undefined;
+    const data = canonicalizeJsonObject(outcome.data);
+    return data === undefined ? undefined : Object.freeze({ status: outcome.status, data });
+  }
+  if (outcome.status === "not-applicable") {
+    if (!hasOptionalKeys(outcome, ["status"], ["reason"])) return undefined;
+    const reason = optionalReason(outcome.reason, false);
+    return reason === null
+      ? undefined
+      : Object.freeze(
+          reason === undefined ? { status: "not-applicable" } : { status: "not-applicable", reason }
+        );
+  }
+  if (outcome.status === "unavailable") {
+    if (!hasExactKeys(outcome, ["status", "reason"])) return undefined;
+    const reason = optionalReason(outcome.reason, productOutcome);
+    return reason === undefined || reason === null
+      ? undefined
+      : Object.freeze({ status: "unavailable", reason });
+  }
+  return undefined;
+}
+
+function optionalReason(
+  value: unknown,
+  allowCheckIds: boolean
+): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | null | undefined {
+  if (value === undefined) return undefined;
+  const reason = snapshotClosedRecord(value);
+  if (
+    reason === undefined ||
+    typeof reason.code !== "string" ||
+    reason.code.length === 0 ||
+    !hasOptionalKeys(reason, ["code"], allowCheckIds ? ["checkIds"] : [])
+  )
+    return null;
+  if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
+  const rawCheckIds = snapshotClosedArray(reason.checkIds);
+  if (!allowCheckIds || rawCheckIds === undefined || rawCheckIds.length === 0) return null;
+  const checkIds: string[] = [];
+  for (const checkId of rawCheckIds) {
+    if (typeof checkId !== "string" || checkId.length === 0) return null;
+    checkIds.push(checkId);
+  }
+  return Object.freeze({ code: reason.code, checkIds: Object.freeze(checkIds) });
+}
+
+function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
+  return (
+    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
+  );
+}
+
+function hasOptionalKeys(
+  value: Readonly<Record<string, unknown>>,
+  required: readonly string[],
+  optional: readonly string[]
+): boolean {
+  const supported = new Set([...required, ...optional]);
+  return (
+    required.every((key) => Object.hasOwn(value, key)) &&
+    Object.keys(value).every((key) => supported.has(key))
+  );
+}
+
+function unavailable(code: string): CheckOutcome {
+  return Object.freeze({ status: "unavailable", reason: Object.freeze({ code }) });
 }
 
 export function createCoreCheckSession(

@@ -1,7 +1,6 @@
 import { classifyFile } from "../../model/code-areas.ts";
 import type { FunctionMetric } from "../../model/schema.ts";
-import type { QualityRecordCandidate, RecordLevel } from "../model.ts";
-import { compareText, isInChangedScope } from "./builtin-support.ts";
+import { compareText } from "./builtin-support.ts";
 import {
   isStableFunctionName,
   type FunctionMetricAnalysis,
@@ -9,80 +8,64 @@ import {
 } from "./function-metrics-analysis.ts";
 import type { FunctionMetricsSemantics } from "./function-metrics.ts";
 
-type FunctionRecordTypeId =
-  | "function-code-lines"
-  | "function-cyclomatic-complexity"
-  | "function-parameter-count";
+type FunctionMetricName = "cyclomatic-complexity" | "function-code-density" | "parameter-count";
 
 export interface FunctionRecordCandidate {
-  readonly comparisonKey: string;
-  readonly hasStableName: boolean;
-  readonly isChanged: boolean;
-  readonly record: QualityRecordCandidate;
-  readonly value: number;
+  readonly data: Readonly<{
+    readonly codeArea: string;
+    readonly functionName: string;
+    readonly limit: number;
+    readonly metric: FunctionMetricName;
+    readonly path: string;
+    readonly startLine: number;
+    readonly value: number;
+  }>;
+  readonly id: string;
 }
 
 interface CandidateInput {
   readonly codeArea: string;
-  readonly comparisonKey: string;
-  readonly hasStableName: boolean;
-  readonly isChanged: boolean;
-  readonly level: RecordLevel;
+  readonly functionName: string;
   readonly limit: number;
-  readonly message: string;
-  readonly metric: string;
+  readonly metric: FunctionMetricName;
   readonly path: string;
-  readonly recordTypeId: FunctionRecordTypeId;
   readonly startLine: number;
   readonly subject: string;
-  readonly suggestion: string;
   readonly value: number;
 }
 
+/** Builds only the supplemental facts that exceed this Check's own thresholds. */
 export function buildFunctionRecordCandidates(
   analysis: FunctionMetricAnalysis,
-  changedFiles: readonly string[],
   semantics: FunctionMetricsSemantics
 ): readonly FunctionRecordCandidate[] {
   const candidates: FunctionRecordCandidate[] = [];
   for (const instance of analysis.instances) {
-    const context = candidateContext(instance, changedFiles, semantics);
-    if (context === null) {
-      continue;
-    }
+    const context = candidateContext(instance, semantics);
+    if (context === null) continue;
     for (const input of metricCandidateInputs(instance, context, semantics)) {
       appendCandidate(candidates, input);
     }
   }
-  candidates.sort((left, right) => compareText(recordKey(left.record), recordKey(right.record)));
+  candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
 }
 
 function candidateContext(
   instance: FunctionMetricInstance,
-  changedFiles: readonly string[],
   semantics: FunctionMetricsSemantics
-): Readonly<{
-  codeArea: string;
-  hasStableName: boolean;
-  isChanged: boolean;
-  level: RecordLevel;
-}> | null {
+): Readonly<{ readonly codeArea: string; readonly functionName: string }> | null {
   const codeArea = classifyFile(
     instance.metric.file,
     semantics.codeAreas,
     semantics.generatedFiles
   );
   const area = semantics.codeAreas[codeArea];
-  if (area === undefined || area.warningPolicy === "exclude-warnings") {
-    return null;
-  }
-  return {
+  if (area === undefined || area.warningPolicy === "exclude-warnings") return null;
+  return Object.freeze({
     codeArea,
-    hasStableName: isStableFunctionName(instance.metric.name),
-    isChanged: isInChangedScope(instance.metric.file, changedFiles),
-    level: area.warningPolicy === "watchlist-only" ? "info" : "warning"
-  };
+    functionName: isStableFunctionName(instance.metric.name) ? instance.metric.name : "<anonymous>"
+  });
 }
 
 function metricCandidateInputs(
@@ -92,9 +75,7 @@ function metricCandidateInputs(
 ): CandidateInput[] {
   const inputs: CandidateInput[] = [];
   const complexityInput = complexityCandidateInput(instance, context, semantics);
-  if (complexityInput !== null) {
-    inputs.push(complexityInput);
-  }
+  if (complexityInput !== null) inputs.push(complexityInput);
   inputs.push(
     codeLinesCandidateInput(instance, context, semantics),
     parameterCandidateInput(instance, context, semantics)
@@ -108,10 +89,7 @@ function sharedCandidateInput(
 ) {
   return {
     codeArea: context.codeArea,
-    comparisonKey: instance.comparisonKey,
-    hasStableName: context.hasStableName,
-    isChanged: context.isChanged,
-    level: context.level,
+    functionName: context.functionName,
     path: instance.metric.file,
     startLine: instance.metric.startLine,
     subject: instance.semanticSubject
@@ -124,17 +102,11 @@ function complexityCandidateInput(
   semantics: FunctionMetricsSemantics
 ): CandidateInput | null {
   const value = instance.metric.cyclomaticComplexity.value;
-  if (value === null) {
-    return null;
-  }
-  const limit = semantics.functions.cyclomaticComplexity.absoluteFloor;
+  if (value === null) return null;
   return {
     ...sharedCandidateInput(instance, context),
-    limit,
-    message: `Function "${instance.metric.name}" in ${instance.metric.file}:${instance.metric.startLine} has cyclomatic complexity ${value} (threshold: ${limit} CC)`,
+    limit: semantics.functions.cyclomaticComplexity.absoluteFloor,
     metric: "cyclomatic-complexity",
-    recordTypeId: "function-cyclomatic-complexity",
-    suggestion: "Consider breaking this function into smaller, more focused functions",
     value
   };
 }
@@ -144,18 +116,11 @@ function codeLinesCandidateInput(
   context: NonNullable<ReturnType<typeof candidateContext>>,
   semantics: FunctionMetricsSemantics
 ): CandidateInput {
-  const { metric } = instance;
-  const limit = functionCodeLineFloor(metric, semantics);
-  const threshold = functionCodeLineThresholdLabel(metric, semantics);
   return {
     ...sharedCandidateInput(instance, context),
-    limit,
-    message: `Function "${metric.name}" in ${metric.file}:${metric.startLine} has ${metric.lines} code lines at cyclomatic complexity ${metric.cyclomaticComplexity.value ?? "n/a"} (Lizard NLOC; threshold: ${threshold})`,
+    limit: functionCodeLineFloor(instance.metric, semantics),
     metric: "function-code-density",
-    recordTypeId: "function-code-lines",
-    suggestion:
-      "Consider reducing branching or splitting the function when line count and complexity make it hard to review",
-    value: metric.lines
+    value: instance.metric.lines
   };
 }
 
@@ -164,42 +129,27 @@ function parameterCandidateInput(
   context: NonNullable<ReturnType<typeof candidateContext>>,
   semantics: FunctionMetricsSemantics
 ): CandidateInput {
-  const { metric } = instance;
-  const limit = semantics.functions.parameterCount.absoluteFloor;
   return {
     ...sharedCandidateInput(instance, context),
-    limit,
-    message: `Function "${metric.name}" in ${metric.file}:${metric.startLine} has ${metric.parameterCount} parameters (threshold: ${limit} parameters)`,
+    limit: semantics.functions.parameterCount.absoluteFloor,
     metric: "parameter-count",
-    recordTypeId: "function-parameter-count",
-    suggestion: "Consider using a parameter object or splitting the function",
-    value: metric.parameterCount
+    value: instance.metric.parameterCount
   };
 }
 
 function appendCandidate(candidates: FunctionRecordCandidate[], input: CandidateInput): void {
-  if (input.value <= input.limit) {
-    return;
-  }
+  if (input.value <= input.limit) return;
   candidates.push(
     Object.freeze({
-      comparisonKey: input.comparisonKey,
-      hasStableName: input.hasStableName,
-      isChanged: input.isChanged,
-      value: input.value,
-      record: Object.freeze({
-        recordTypeId: input.recordTypeId,
-        level: input.level,
-        semanticSubject: input.subject,
-        message: input.message,
-        fields: Object.freeze({
-          codeArea: input.codeArea,
-          limit: input.limit,
-          metric: input.metric,
-          suggestion: input.suggestion,
-          value: input.value
-        }),
-        location: Object.freeze({ path: input.path, line: input.startLine, column: 1 })
+      id: `${input.subject}:${input.metric}`,
+      data: Object.freeze({
+        codeArea: input.codeArea,
+        functionName: input.functionName,
+        limit: input.limit,
+        metric: input.metric,
+        path: input.path,
+        startLine: input.startLine,
+        value: input.value
       })
     })
   );
@@ -214,22 +164,4 @@ function functionCodeLineFloor(
   return complexity !== null && complexity < allowance.maxCyclomaticComplexityExclusive
     ? allowance.codeLineFloor
     : semantics.functions.codeLines.absoluteFloor;
-}
-
-function functionCodeLineThresholdLabel(
-  metric: FunctionMetric,
-  semantics: FunctionMetricsSemantics
-): string {
-  const allowance = semantics.functions.codeLines.lowComplexityAllowance;
-  const floor = functionCodeLineFloor(metric, semantics);
-  const complexity = metric.cyclomaticComplexity.value;
-  return complexity !== null && complexity < allowance.maxCyclomaticComplexityExclusive
-    ? `${floor} code lines for CC < ${allowance.maxCyclomaticComplexityExclusive}`
-    : `${floor} code lines`;
-}
-
-export function recordKey(
-  record: Pick<QualityRecordCandidate, "recordTypeId" | "semanticSubject">
-): string {
-  return `${record.semanticSubject}\u0000${record.recordTypeId}`;
 }

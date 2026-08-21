@@ -227,8 +227,9 @@ function totalChecks(counts: ProgressOutcomeCounts): number {
 
 function statusForOutcome(outcome: CheckOutcome): ProgressStatus {
   switch (outcome.status) {
-    case "completed":
-      return outcome.verdict;
+    case "passed":
+    case "failed":
+      return outcome.status;
     case "not-applicable":
       return "not-applicable";
     case "unavailable":
@@ -237,7 +238,9 @@ function statusForOutcome(outcome: CheckOutcome): ProgressStatus {
 }
 
 function reasonForOutcome(outcome: CheckOutcome): string | undefined {
-  return outcome.status === "completed" ? undefined : outcome.reason?.code;
+  return outcome.status === "passed" || outcome.status === "failed"
+    ? undefined
+    : outcome.reason?.code;
 }
 
 /** Human-only fields must not control the terminal that presents them. */

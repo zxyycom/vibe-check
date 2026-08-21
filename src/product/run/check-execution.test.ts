@@ -11,19 +11,9 @@ import {
   type CheckStartedFact
 } from "./check-execution.ts";
 
-const FINDING = Object.freeze({
-  recordTypeId: "finding",
-  level: "warning",
-  semanticSubject: "src/a.ts",
-  message: "Direct reference finding",
-  fields: Object.freeze({ metric: "score" }),
-  location: Object.freeze({ path: "src/a.ts", line: 1, column: 1 })
-});
-
 const PROJECT = Object.freeze({
   cache: Object.freeze({ directory: ".cache", enabled: false, reportActivity: () => undefined }),
   changedFiles: Object.freeze([]),
-  comparison: Object.freeze({ referenceName: "baseline", revision: "HEAD", root: "/reference" }),
   flags: Object.freeze([]),
   files: Object.freeze({ codeAreas: {}, excludeDirs: [], generatedFiles: [], include: ["**/*"] }),
   root: "/project"
@@ -38,20 +28,9 @@ function normalized(
     readonly maxParallel?: number;
   }> = {}
 ): NormalizedCheck {
-  const checkId = overrides.checkId ?? "reference-check";
+  const checkId = overrides.checkId ?? "direct-check";
   return {
-    definition: {
-      checkId,
-      displayName: overrides.displayName ?? checkId,
-      recordTypes: [
-        {
-          recordTypeId: "finding",
-          fields: [{ fieldId: "metric", valueType: "string", required: true }],
-          identityFields: ["metric"],
-          policy: { operands: [], relations: ["changed"] }
-        }
-      ]
-    },
+    definition: { checkId, displayName: overrides.displayName ?? checkId },
     dependsOn: overrides.dependsOn ?? [],
     execution,
     maxParallel: overrides.maxParallel ?? 1,
@@ -60,7 +39,7 @@ function normalized(
   };
 }
 
-async function execute(
+function execute(
   execution: CheckExecution,
   options: Readonly<{
     readonly clock?: CheckExecutionClock;
@@ -99,114 +78,191 @@ function deferred<T>(): Readonly<{
   return Object.freeze({
     promise,
     resolve: (value: T): void => {
-      if (resolvePromise === undefined) throw new Error("Deferred promise is not initialized");
+      if (resolvePromise === undefined) throw new Error("Deferred promise is unavailable");
       resolvePromise(value);
     }
   });
 }
 
 describe("Package Run direct Check execution", () => {
-  it("retains a valid optional comparison candidate when no selected policy requires it", async () => {
+  it("retains supplemental Records independently from a passed final result", async () => {
     const result = await execute((context) => {
-      context.records.reportReference({
-        referenceName: "baseline",
-        relations: [],
-        status: "complete"
-      });
-      return { status: "completed", verdict: "passed" };
+      context.records.report({ id: "sample" }, { durationMs: 12 });
+      return { status: "passed", data: { summary: "ok" } };
     });
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "completed",
-      verdict: "passed"
+      status: "passed",
+      data: { summary: "ok" }
     });
-    assert.deepEqual(result.references, [
-      {
-        checkId: "reference-check",
-        referenceName: "baseline",
-        relations: [],
-        status: "complete"
-      }
+    assert.deepEqual(result.snapshot.records, [
+      { checkId: "direct-check", id: "sample", data: { durationMs: 12 } }
     ]);
   });
 
-  it("retains one complete reference candidate by resolving the already committed Record identity", async () => {
+  it("contains invalid or duplicate Record writes without revising prior Records", async () => {
     const result = await execute((context) => {
-      context.records.report(FINDING);
-      context.records.reportReference({
-        referenceName: "baseline",
-        relations: [
-          {
-            record: {
-              recordTypeId: FINDING.recordTypeId,
-              semanticSubject: FINDING.semanticSubject,
-              fields: FINDING.fields
-            },
-            relationId: "changed"
-          }
-        ],
-        status: "complete"
-      });
-      return { status: "completed", verdict: "passed" };
-    });
-
-    assert.equal(result.kind, "completed");
-    const recordId = result.snapshot.records[0]?.recordId;
-    assert.ok(recordId);
-    assert.deepEqual(result.references, [
-      {
-        checkId: "reference-check",
-        referenceName: "baseline",
-        relations: [{ recordId, referenceName: "baseline", relationId: "changed" }],
-        status: "complete"
-      }
-    ]);
-  });
-
-  it("turns malformed or uncommitted reference relations into the contained reference-invalid outcome", async () => {
-    const result = await execute((context) => {
-      context.records.reportReference({
-        referenceName: "baseline",
-        relations: [
-          {
-            record: {
-              recordTypeId: FINDING.recordTypeId,
-              semanticSubject: FINDING.semanticSubject,
-              fields: FINDING.fields
-            },
-            relationId: "changed"
-          }
-        ],
-        status: "complete"
-      });
-      return { status: "completed", verdict: "passed" };
+      context.records.report({ id: "retained" }, { value: true });
+      context.records.report({ id: "retained" }, { value: false });
+      return { status: "passed", data: {} };
     });
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
       status: "unavailable",
-      reason: { code: "reference-invalid" }
+      reason: { code: "record-conflict" }
     });
-    assert.deepEqual(result.references, []);
-  });
+    assert.deepEqual(result.snapshot.records, [
+      { checkId: "direct-check", id: "retained", data: { value: true } }
+    ]);
 
-  it("does not retain a reference candidate from a contradictory not-applicable callback", async () => {
-    const result = await execute((context) => {
-      context.records.reportReference({
-        referenceName: "baseline",
-        relations: [],
-        status: "unavailable"
-      });
-      return { status: "not-applicable" };
-    });
-
-    assert.equal(result.kind, "completed");
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "unavailable",
-      reason: { code: "record-invalid" }
-    });
-    assert.deepEqual(result.references, []);
+    const adversarialData: readonly Readonly<{
+      readonly create: () => Readonly<{
+        readonly assertNotCalled: () => void;
+        readonly value: object;
+      }>;
+    }>[] = [
+      {
+        create: () => {
+          const value = new Proxy(
+            {},
+            {
+              ownKeys: () => {
+                throw new Error("reflection must be contained");
+              }
+            }
+          );
+          return Object.freeze({ assertNotCalled: () => undefined, value });
+        }
+      },
+      {
+        create: () => {
+          let called = false;
+          const value = {};
+          Object.defineProperty(value, "accessor", {
+            enumerable: true,
+            get: () => {
+              called = true;
+              throw new Error("accessor must not execute");
+            }
+          });
+          return Object.freeze({
+            assertNotCalled: () => assert.equal(called, false),
+            value
+          });
+        }
+      },
+      {
+        create: () => {
+          let called = false;
+          const value = {
+            toJSON: () => {
+              called = true;
+              return {};
+            }
+          };
+          return Object.freeze({
+            assertNotCalled: () => assert.equal(called, false),
+            value
+          });
+        }
+      },
+      {
+        create: () => {
+          const value: Record<string, unknown> = {};
+          value.self = value;
+          return Object.freeze({ assertNotCalled: () => undefined, value });
+        }
+      },
+      {
+        create: () => {
+          const value: unknown[] = [];
+          value.length = 2;
+          value[1] = true;
+          return Object.freeze({ assertNotCalled: () => undefined, value });
+        }
+      },
+      {
+        create: () => {
+          const value: unknown[] = [true];
+          Object.defineProperty(value, "named", { enumerable: true, value: true });
+          return Object.freeze({ assertNotCalled: () => undefined, value });
+        }
+      },
+      {
+        create: () =>
+          Object.freeze({
+            assertNotCalled: () => undefined,
+            value: { nonFinite: Number.POSITIVE_INFINITY }
+          })
+      },
+      {
+        create: () => {
+          const value = { accepted: true };
+          Object.setPrototypeOf(value, { inherited: true });
+          return Object.freeze({ assertNotCalled: () => undefined, value });
+        }
+      }
+    ];
+    for (const channel of ["final", "record"] as const) {
+      for (const adversary of adversarialData) {
+        let reporter:
+          | Readonly<{ report(identity: { id: string }, data: object): void }>
+          | undefined;
+        const hostile = adversary.create();
+        const contained = normalized(
+          (context) => {
+            reporter = context.records;
+            context.records.report({ id: "retained" }, { retained: true });
+            if (channel === "record") {
+              context.records.report({ id: "invalid" }, { hostile: hostile.value });
+            }
+            return channel === "final"
+              ? { status: "passed", data: { hostile: hostile.value } }
+              : { status: "passed", data: { valid: true } };
+          },
+          { checkId: "contained", maxParallel: 2 }
+        );
+        const independent = normalized(() => ({ status: "passed", data: { independent: true } }), {
+          checkId: "independent",
+          maxParallel: 2
+        });
+        const containedResult = await executeResolvedChecks({
+          checks: [contained, independent],
+          maxParallel: 2,
+          project: PROJECT,
+          signal: undefined
+        });
+        assert.equal(containedResult.kind, "completed");
+        assert.deepEqual(containedResult.snapshot.checks, [
+          {
+            checkId: "contained",
+            displayName: "contained",
+            outcome: {
+              status: "unavailable",
+              reason: { code: channel === "final" ? "invalid-execution-result" : "record-invalid" }
+            }
+          },
+          {
+            checkId: "independent",
+            displayName: "independent",
+            outcome: { status: "passed", data: { independent: true } }
+          }
+        ]);
+        assert.deepEqual(containedResult.snapshot.records, [
+          { checkId: "contained", id: "retained", data: { retained: true } }
+        ]);
+        hostile.assertNotCalled();
+        const closedReporter = reporter;
+        if (closedReporter === undefined)
+          throw new Error("Contained callback did not expose a reporter");
+        assert.throws(() => closedReporter.report({ id: "late" }, {}), /reporter is closed/);
+        assert.deepEqual(containedResult.snapshot.records, [
+          { checkId: "contained", id: "retained", data: { retained: true } }
+        ]);
+      }
+    }
   });
 
   it("hands final Core outcomes and one finite duration to the private lifecycle", async () => {
@@ -220,30 +276,24 @@ describe("Package Run direct Check execution", () => {
         settled.push(fact);
       }
     });
-
-    const result = await execute(
-      (context) => {
-        context.records.report(FINDING);
-        return { status: "not-applicable" };
-      },
-      { clock: scriptedClock([12, 27]), lifecycle }
-    );
+    const result = await execute(() => ({ status: "failed", data: { failures: 1 } }), {
+      clock: scriptedClock([12, 27]),
+      lifecycle
+    });
 
     assert.equal(result.kind, "completed");
-    assert.deepEqual(started, [{ checkId: "reference-check", displayName: "reference-check" }]);
+    assert.deepEqual(started, [{ checkId: "direct-check", displayName: "direct-check" }]);
     assert.deepEqual(settled, [
       {
-        checkId: "reference-check",
-        displayName: "reference-check",
-        outcome: { status: "unavailable", reason: { code: "record-invalid" } },
+        checkId: "direct-check",
+        displayName: "direct-check",
+        outcome: { status: "failed", data: { failures: 1 } },
         durationMs: 15
       }
     ]);
-    assert.deepEqual(result.checkDurations, [{ checkId: "reference-check", durationMs: 15 }]);
-    assert.ok(Object.isFrozen(result.checkDurations));
-    assert.ok(Object.isFrozen(result.checkDurations[0]));
+    assert.deepEqual(result.checkDurations, [{ checkId: "direct-check", durationMs: 15 }]);
 
-    const nonFinite = await execute(() => ({ status: "completed", verdict: "passed" }), {
+    const nonFinite = await execute(() => ({ status: "passed", data: {} }), {
       clock: scriptedClock([Number.NaN, Number.POSITIVE_INFINITY])
     });
     assert.equal(nonFinite.checkDurations[0]?.durationMs, 0);
@@ -260,11 +310,11 @@ describe("Package Run direct Check execution", () => {
           async () => {
             slowStarted.resolve(undefined);
             await releaseSlow.promise;
-            return { status: "completed", verdict: "passed" };
+            return { status: "passed", data: {} };
           },
           { checkId: "a-slow", displayName: "Slow", maxParallel: 2 }
         ),
-        normalized(() => ({ status: "completed", verdict: "passed" }), {
+        normalized(() => ({ status: "passed", data: {} }), {
           checkId: "z-fast",
           displayName: "Fast",
           maxParallel: 2
@@ -287,9 +337,7 @@ describe("Package Run direct Check execution", () => {
 
     await slowStarted.promise;
     await fastSettled.promise;
-    assert.deepEqual(events, ["started:a-slow", "started:z-fast", "settled:z-fast"]);
     releaseSlow.resolve(undefined);
-
     const result = await running;
     assert.equal(result.kind, "completed");
     assert.deepEqual(events, [
@@ -304,86 +352,57 @@ describe("Package Run direct Check execution", () => {
     ]);
   });
 
-  it("settles blocked Checks without starting them and records not-run duration", async () => {
-    const events: string[] = [];
-    const result = await executeResolvedChecks({
+  it("settles blocked and cancelled-before-start Checks without starting them", async () => {
+    const blocked = await executeResolvedChecks({
       checks: [
         normalized(() => ({ status: "unavailable", reason: { code: "execution-threw" } }), {
           checkId: "source",
           displayName: "Source"
         }),
-        normalized(() => ({ status: "completed", verdict: "passed" }), {
+        normalized(() => ({ status: "passed", data: {} }), {
           checkId: "dependent",
           dependsOn: ["source"],
           displayName: "Dependent"
         })
       ],
       clock: scriptedClock([1, 7]),
-      lifecycle: Object.freeze({
-        started: (fact: CheckStartedFact): void => {
-          events.push(`started:${fact.checkId}`);
-        },
-        settled: (fact: CheckSettledFact): void => {
-          events.push(`settled:${fact.checkId}:${String(fact.durationMs)}`);
-        }
-      }),
       maxParallel: 1,
       project: PROJECT,
       signal: undefined
     });
-
-    assert.equal(result.kind, "completed");
-    assert.deepEqual(events, ["started:source", "settled:source:6", "settled:dependent:null"]);
+    assert.equal(blocked.kind, "completed");
     assert.deepEqual(
-      result.snapshot.checks.map((check) => check.checkId),
-      ["dependent", "source"]
+      blocked.snapshot.checks.map((check) => check.outcome.status),
+      ["unavailable", "unavailable"]
     );
-    assert.deepEqual(result.checkDurations, [
+    assert.deepEqual(blocked.checkDurations, [
       { checkId: "dependent", durationMs: null },
       { checkId: "source", durationMs: 6 }
     ]);
-  });
 
-  it("closes cancelled-before-start Checks as execution-cancelled without starting them", async () => {
     const controller = new AbortController();
-    const events: string[] = [];
-    const result = await executeResolvedChecks({
+    const cancelled = await executeResolvedChecks({
       checks: [
         normalized(
           () => {
             controller.abort();
-            return { status: "completed", verdict: "passed" };
+            return { status: "passed", data: {} };
           },
           { checkId: "started", displayName: "Started" }
         ),
-        normalized(() => ({ status: "completed", verdict: "passed" }), {
+        normalized(() => ({ status: "passed", data: {} }), {
           checkId: "pending",
           displayName: "Pending"
         })
       ],
-      clock: scriptedClock([50, 70]),
-      lifecycle: Object.freeze({
-        started: (fact: CheckStartedFact): void => {
-          events.push(`started:${fact.checkId}`);
-        },
-        settled: (fact: CheckSettledFact): void => {
-          events.push(`settled:${fact.checkId}:${String(fact.durationMs)}`);
-        }
-      }),
       maxParallel: 1,
       project: PROJECT,
       signal: controller.signal
     });
-
-    assert.equal(result.kind, "cancelled");
-    assert.deepEqual(events, ["started:started", "settled:started:20", "settled:pending:null"]);
-    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
-      status: "unavailable",
-      reason: { code: "execution-cancelled" }
-    });
-    assert.deepEqual(result.checkDurations, [
-      { checkId: "pending", durationMs: null },
-      { checkId: "started", durationMs: 20 }
-    ]);
+    assert.equal(cancelled.kind, "cancelled");
+    assert.deepEqual(
+      cancelled.snapshot.checks.map((check) => check.outcome.status),
+      ["unavailable", "unavailable"]
+    );
   });
 });

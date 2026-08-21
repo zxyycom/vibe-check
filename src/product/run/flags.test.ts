@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { defineConfig, type Check } from "../definition/project.ts";
 import { run } from "./index.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 
 function definition(checks: readonly Check[]) {
   return defineConfig({
@@ -14,8 +14,7 @@ function definition(checks: readonly Check[]) {
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
-    },
-    selectedPolicy: null
+    }
   });
 }
 
@@ -28,7 +27,7 @@ describe("Package Run flags", () => {
         displayName: "Flag-aware",
         execution: () => {
           calls += 1;
-          return COMPLETED;
+          return PASSED;
         }
       }
     ]);
@@ -71,7 +70,7 @@ describe("Package Run flags", () => {
             TypeError
           );
           snapshots.push(context.project.flags);
-          return COMPLETED;
+          return PASSED;
         }
       }
     ]);
@@ -98,7 +97,7 @@ describe("Package Run flags", () => {
               return { status: "not-applicable", reason: { code: "project-disabled" } };
             }
             flagControlledCalls += 1;
-            return COMPLETED;
+            return PASSED;
           }
         },
         {
@@ -107,7 +106,7 @@ describe("Package Run flags", () => {
           dependsOn: ["flag-controlled"],
           execution: () => {
             dependentCalls += 1;
-            return COMPLETED;
+            return PASSED;
           }
         }
       ]),
@@ -122,7 +121,7 @@ describe("Package Run flags", () => {
       [
         {
           checkId: "dependent",
-          outcome: COMPLETED
+          outcome: PASSED
         },
         {
           checkId: "flag-controlled",

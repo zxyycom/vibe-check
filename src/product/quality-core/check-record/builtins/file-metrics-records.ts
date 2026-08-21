@@ -1,36 +1,34 @@
 import { classifyFile } from "../../model/code-areas.ts";
 import type { FileMetric } from "../../model/schema.ts";
-import type { QualityRecordCandidate, RecordLevel } from "../model.ts";
-import { compareText, isInChangedScope, type RelationId } from "./builtin-support.ts";
+import { compareText } from "./builtin-support.ts";
 import type { FileMetricsSemantics } from "./file-metrics.ts";
 
 export interface FileRecordCandidate {
-  readonly codeLines: number;
-  readonly isChanged: boolean;
-  readonly record: QualityRecordCandidate;
+  readonly data: Readonly<{
+    readonly codeArea: string;
+    readonly codeLines: number;
+    readonly limit: number;
+    readonly metric: "code-lines";
+    readonly path: string;
+  }>;
+  readonly id: string;
 }
 
+/** Converts trusted scanner metrics into Check-owned supplemental facts. */
 export function buildFileRecordCandidates(
   metrics: readonly FileMetric[],
-  changedFiles: readonly string[],
   semantics: FileMetricsSemantics
 ): readonly FileRecordCandidate[] | undefined {
   const seenPaths = new Set<string>();
   const candidates: FileRecordCandidate[] = [];
   for (const metric of metrics) {
     const codeLines = validFileCodeLines(metric, seenPaths);
-    if (codeLines === undefined) {
-      return undefined;
-    }
+    if (codeLines === undefined) return undefined;
     seenPaths.add(metric.path);
-    const candidate = createFileRecordCandidate(metric, codeLines, changedFiles, semantics);
-    if (candidate !== null) {
-      candidates.push(candidate);
-    }
+    const candidate = createFileRecordCandidate(metric, codeLines, semantics);
+    if (candidate !== null) candidates.push(candidate);
   }
-  candidates.sort((left, right) =>
-    compareText(left.record.semanticSubject, right.record.semanticSubject)
-  );
+  candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
 }
 
@@ -52,45 +50,23 @@ function validFileCodeLines(
 function createFileRecordCandidate(
   metric: FileMetric,
   codeLines: number,
-  changedFiles: readonly string[],
   semantics: FileMetricsSemantics
 ): FileRecordCandidate | null {
   const codeArea = classifyFile(metric.path, semantics.codeAreas, semantics.generatedFiles);
   const area = semantics.codeAreas[codeArea];
-  if (area === undefined || area.warningPolicy === "exclude-warnings") {
-    return null;
-  }
-  const limit = fileCodeLineFloor(metric, semantics);
-  if (codeLines <= limit) {
-    return null;
-  }
-  const level: RecordLevel = area.warningPolicy === "watchlist-only" ? "info" : "warning";
-  return Object.freeze({
-    codeLines,
-    isChanged: isInChangedScope(metric.path, changedFiles),
-    record: createFileQualityRecord(metric.path, codeLines, codeArea, limit, level)
-  });
-}
+  if (area === undefined || area.warningPolicy === "exclude-warnings") return null;
 
-function createFileQualityRecord(
-  path: string,
-  codeLines: number,
-  codeArea: string,
-  limit: number,
-  level: RecordLevel
-): QualityRecordCandidate {
+  const limit = fileCodeLineFloor(metric, semantics);
+  if (codeLines <= limit) return null;
   return Object.freeze({
-    recordTypeId: "file-code-lines",
-    level,
-    semanticSubject: path,
-    message: `File ${path} has ${codeLines} code lines (threshold: ${limit})`,
-    fields: Object.freeze({
+    id: metric.path,
+    data: Object.freeze({
       codeArea,
+      codeLines,
       limit,
       metric: "code-lines",
-      value: codeLines
-    }),
-    location: Object.freeze({ path, line: 1, column: 1 })
+      path: metric.path
+    })
   });
 }
 
@@ -100,42 +76,4 @@ function fileCodeLineFloor(metric: FileMetric, semantics: FileMetricsSemantics):
   return decisionTokens !== null && decisionTokens <= allowance.maxDecisionTokens
     ? allowance.codeLineFloor
     : semantics.codeLines.absoluteFloor;
-}
-
-export function codeLinesByPath(
-  metrics: readonly FileMetric[]
-): ReadonlyMap<string, number> | undefined {
-  const values = new Map<string, number>();
-  const seenPaths = new Set<string>();
-  for (const metric of metrics) {
-    const codeLines = validFileCodeLines(metric, seenPaths);
-    if (codeLines === undefined) {
-      return undefined;
-    }
-    seenPaths.add(metric.path);
-    values.set(metric.path, codeLines);
-  }
-  return values;
-}
-
-export function buildFileRelations(
-  candidates: readonly FileRecordCandidate[],
-  referenceValues: ReadonlyMap<string, number>,
-  semantics: FileMetricsSemantics
-): Map<string, readonly RelationId[]> {
-  const relations = new Map<string, readonly RelationId[]>();
-  for (const candidate of candidates) {
-    const subject = candidate.record.semanticSubject;
-    if (!candidate.isChanged) {
-      relations.set(subject, Object.freeze([]));
-      continue;
-    }
-    const baselineValue = referenceValues.get(subject) ?? 0;
-    const relation: RelationId =
-      candidate.codeLines - baselineValue > semantics.codeLines.changedDelta
-        ? "regression"
-        : "changed";
-    relations.set(subject, Object.freeze([relation]));
-  }
-  return relations;
 }

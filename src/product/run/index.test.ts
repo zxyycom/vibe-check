@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 import { defineConfig, type Check, type CheckExecution } from "../definition/project.ts";
 import { run } from "./index.ts";
 
-const COMPLETED = Object.freeze({ status: "completed" as const, verdict: "passed" as const });
+const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 
 function check(
   overrides: Readonly<{
@@ -21,11 +21,10 @@ function check(
   return {
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
-    execution: overrides.execution ?? (() => COMPLETED),
+    execution: overrides.execution ?? (() => PASSED),
     ...(overrides.dependsOn === undefined ? {} : { dependsOn: overrides.dependsOn }),
     ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
-    ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex }),
-    recordTypes: []
+    ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex })
   };
 }
 
@@ -37,8 +36,7 @@ function definition(checks: readonly Check[]) {
       logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
-    },
-    selectedPolicy: null
+    }
   });
 }
 
@@ -49,7 +47,7 @@ describe("Package Run", () => {
       check({
         execution: () => {
           calls += 1;
-          return COMPLETED;
+          return PASSED;
         }
       })
     ]);
@@ -88,7 +86,7 @@ describe("Package Run", () => {
             root: context.project.root,
             signal: context.signal
           };
-          return COMPLETED;
+          return PASSED;
         }
       })
     ]);
@@ -106,7 +104,7 @@ describe("Package Run", () => {
         [
           {
             checkId: "custom",
-            outcome: COMPLETED
+            outcome: PASSED
           }
         ]
       );
@@ -129,7 +127,7 @@ describe("Package Run", () => {
         dependsOn: ["unavailable"],
         execution: () => {
           dependentCalls += 1;
-          return COMPLETED;
+          return PASSED;
         }
       })
     ]);
@@ -164,7 +162,7 @@ describe("Package Run", () => {
           dependsOn: ["missing-check"],
           execution: () => {
             calls += 1;
-            return COMPLETED;
+            return PASSED;
           }
         })
       ])
