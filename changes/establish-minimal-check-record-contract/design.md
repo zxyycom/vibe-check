@@ -44,7 +44,7 @@
 | Record identity input | Reporter 第一个参数 `{ id: string }`；`id` 仅在 owning Check 内唯一。 |
 | Record data | Reporter 第二个参数；Check-owned non-array canonical JSON object。 |
 | Composite Record identity | Product/Core pair `{ checkId, id }`。 |
-| Canonical JSON object | 通过安全 descriptor traversal 得到、key 已排序、prototype-safe、detached 且 deep-frozen 的 JSON object。 |
+| Canonical JSON object | 通过安全 descriptor traversal 得到的 prototype-safe、detached 且 deep-frozen JSON object；canonical text/bytes 另由显式 lexical-key serializer 形成。 |
 | Check aggregation | 多个 settled Check statuses 的可配置派生判断；不是 Check/Core/Run lifecycle fact。 |
 
 ## Goals / Non-Goals
@@ -156,7 +156,7 @@ Final data与Record data使用同一 materialization规则。Input必须是non-a
 - Recursive value只允许`null`、boolean、string、finite number、dense array与plain object；`-0`规范化为`0`。
 - Object只接受enumerable own string-keyed data properties；array只接受`0..length-1`完整dense entries。
 - Accessor、symbol key、non-enumerable custom property、array named property、unsupported prototype、cycle、function、`undefined`、`bigint`、`symbol`、non-finite number与unsafe reflection全部拒绝。
-- Snapshot使用prototype-safe container；`__proto__`等input key作为普通data key保留。Object keys按canonical text order materialize，arrays保持index order，然后递归freeze。
+- Snapshot使用prototype-safe container；`__proto__`等input key作为普通data key保留，arrays保持index order，然后递归freeze。普通JavaScript object的own-key枚举顺序不是contract；需要canonical text、bytes或fingerprint时，serializer在每一层显式按text比较排序object keys，不能依赖`Object.keys`或`JSON.stringify`的整数形态key枚举顺序。
 
 Product不验证required properties、extra properties、union、business constraints或cross-result consistency。Author使用local typing，consumer按需使用Check-owned parser；local type/parser不进入Definition、Core、machine schema或Product runtime dependency。
 
