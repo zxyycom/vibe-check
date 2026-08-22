@@ -376,6 +376,8 @@ async function invoke(
 async function captureNonTTYProgress<T>(
   operation: () => Promise<T>
 ): Promise<Readonly<{ readonly output: string; readonly result: T }>> {
+  // Public Run owns its default writer; replace stdout only for this operation
+  // to observe that real boundary, then restore both descriptors exactly.
   const standardOutput = process.stdout;
   const originalIsTTY = Object.getOwnPropertyDescriptor(standardOutput, "isTTY");
   const originalWrite = Object.getOwnPropertyDescriptor(standardOutput, "write");

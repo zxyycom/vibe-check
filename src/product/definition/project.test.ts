@@ -172,6 +172,8 @@ describe("Project Definition", () => {
   });
 
   it("ignores inherited visibility while defaulting executable Checks", () => {
+    // Check authoring only accepts plain objects, so Object.prototype is the
+    // only prototype whose inherited field can reach this defaulting boundary.
     const original = Object.getOwnPropertyDescriptor(Object.prototype, "visibility");
     Object.defineProperty(Object.prototype, "visibility", {
       configurable: true,

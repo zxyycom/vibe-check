@@ -284,7 +284,7 @@ function colorMessageLevel(level: CheckMessage["level"], usesColor: boolean): st
   return `${COLOR[level]}${level}${COLOR.reset}`;
 }
 
-type ProgressStatus = "failed" | "not-applicable" | "passed" | "running" | "unavailable";
+type ProgressStatus = CheckOutcome["status"];
 
 function formatDuration(durationMs: number): string {
   if (durationMs < 1_000) {

@@ -84,38 +84,52 @@ async function executeDescriptor(
 
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
   if (result.error !== undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
-  if (result.status === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
-  if (result.status === 0) {
-    return Object.freeze({ status: "passed", data: Object.freeze({ exitCode: result.status }) });
+  const exitCode = result.status;
+  if (exitCode === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
+  if (exitCode === 0) {
+    return Object.freeze({ status: "passed", data: Object.freeze({ exitCode }) });
   }
 
   context.records.report(
     { id: "command-failure" },
-    failureRecord(context.options, result, logPath)
+    failureRecord({
+      command: context.options.command,
+      exitCode,
+      logPath,
+      signal: result.signal
+    })
   );
   return Object.freeze({
     status: "failed",
-    data: Object.freeze({ exitCode: result.status }),
+    data: Object.freeze({ exitCode }),
     messages: Object.freeze([
       Object.freeze({
         level: "error",
         code: "command-failed",
-        message: `Command exited with code ${result.status}; signal: ${result.signal ?? "none"}; transcript: ${basename(logPath)}.`
+        message: `Command exited with code ${exitCode}; signal: ${result.signal ?? "none"}; transcript: ${basename(logPath)}.`
       })
     ])
   });
 }
 
-function failureRecord(
-  descriptor: ProjectGateCheckDescriptor,
-  result: ProcessResult,
-  logPath: string
-): object {
+interface CommandFailureRecordInput {
+  readonly command: string;
+  readonly exitCode: number;
+  readonly logPath: string;
+  readonly signal: NodeJS.Signals | null;
+}
+
+function failureRecord(input: CommandFailureRecordInput): Readonly<{
+  readonly command: string;
+  readonly exitCode: number;
+  readonly log: string;
+  readonly signal: NodeJS.Signals | "none";
+}> {
   return Object.freeze({
-    command: descriptor.command,
-    exitCode: result.status,
-    log: basename(logPath),
-    signal: result.signal ?? "none"
+    command: input.command,
+    exitCode: input.exitCode,
+    log: basename(input.logPath),
+    signal: input.signal ?? "none"
   });
 }
 

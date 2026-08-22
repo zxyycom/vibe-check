@@ -56,11 +56,15 @@ export type ResolvedCheckExecution =
   | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts);
 
 interface CheckExecutionState {
-  readonly checkDurationsByCheckId: Map<string, number | null>;
-  readonly checkMessagesByCheckId: Map<string, readonly CheckMessage[]>;
+  readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
   readonly openedCheckIds: Set<string>;
   readonly session: CoreCheckSession;
+}
+
+interface SettledCheckFacts {
+  readonly durationMs: number | null;
+  readonly messages: readonly CheckMessage[];
 }
 
 interface ExecuteCheckInput extends CheckExecutionState {
@@ -107,8 +111,7 @@ export async function executeResolvedChecks(
   const session = createCoreCheckSession(registrations);
   const clock = input.clock ?? SYSTEM_MONOTONIC_CLOCK;
   const state: CheckExecutionState = {
-    checkDurationsByCheckId: new Map<string, number | null>(),
-    checkMessagesByCheckId: new Map<string, readonly CheckMessage[]>(),
+    settledFactsByCheckId: new Map<string, SettledCheckFacts>(),
     lifecycle: input.lifecycle,
     openedCheckIds: new Set<string>(),
     session
@@ -166,10 +169,10 @@ function resolvedExecution(
   snapshot: CoreSnapshot,
   state: CheckExecutionState
 ): ResolvedCheckExecution {
+  const summaries = checkRunSummaries(snapshot, state.settledFactsByCheckId);
   return Object.freeze({
     kind,
-    checkDurations: checkDurationsFor(snapshot, state.checkDurationsByCheckId),
-    checkMessages: checkMessagesFor(snapshot, state.checkMessagesByCheckId),
+    ...summaries,
     snapshot
   });
 }
@@ -178,7 +181,8 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const checkId = input.check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   input.openedCheckIds.add(checkId);
-  emitStarted(input.lifecycle, checkIdentity(input.check));
+  const identity = checkIdentity(input.check);
+  emitStarted(input.lifecycle, identity);
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
     check: input.check,
@@ -189,7 +193,7 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const settled = settleCallback(scope, callback);
   recordSettledCheck(
     input,
-    checkIdentity(input.check),
+    identity,
     settled.outcome,
     settled.messages,
     durationSince(startedAt, input.clock)
@@ -249,7 +253,7 @@ function settleUnstartedCancelledChecks(
   state: CheckExecutionState
 ): void {
   for (const check of snapshot.checks) {
-    if (state.checkDurationsByCheckId.has(check.checkId)) continue;
+    if (state.settledFactsByCheckId.has(check.checkId)) continue;
     const normalized = checks.find((candidate) => candidate.definition.checkId === check.checkId);
     if (normalized === undefined) {
       throw new CheckExecutionInvariantFailure(
@@ -267,14 +271,10 @@ function recordSettledCheck(
   messages: readonly CheckMessage[],
   durationMs: number | null
 ): void {
-  if (
-    state.checkDurationsByCheckId.has(check.checkId) ||
-    state.checkMessagesByCheckId.has(check.checkId)
-  ) {
+  if (state.settledFactsByCheckId.has(check.checkId)) {
     throw new CheckExecutionInvariantFailure("Check lifecycle settled more than once");
   }
-  state.checkDurationsByCheckId.set(check.checkId, durationMs);
-  state.checkMessagesByCheckId.set(check.checkId, messages);
+  state.settledFactsByCheckId.set(check.checkId, Object.freeze({ durationMs, messages }));
   emitSettled(state.lifecycle, check, outcome, messages, durationMs);
 }
 
@@ -283,7 +283,11 @@ function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: Chec
 }
 
 function checkIdentity(check: NormalizedCheck): CheckIdentity {
-  return Object.freeze({ ...check.definition, visibility: check.visibility });
+  return Object.freeze({
+    checkId: check.definition.checkId,
+    displayName: check.definition.displayName,
+    visibility: check.visibility
+  });
 }
 
 function emitSettled(
@@ -310,38 +314,27 @@ function durationSince(startedAt: number, clock: CheckExecutionClock): number {
   return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0;
 }
 
-function checkDurationsFor(
+function checkRunSummaries(
   snapshot: CoreSnapshot,
-  checkDurationsByCheckId: ReadonlyMap<string, number | null>
-): readonly CheckDuration[] {
-  if (snapshot.checks.length !== checkDurationsByCheckId.size) {
-    throw new CheckExecutionInvariantFailure("Check duration summary does not close every Check");
+  settledFactsByCheckId: ReadonlyMap<string, SettledCheckFacts>
+): Readonly<{
+  readonly checkDurations: readonly CheckDuration[];
+  readonly checkMessages: readonly CheckRunMessage[];
+}> {
+  if (snapshot.checks.length !== settledFactsByCheckId.size) {
+    throw new CheckExecutionInvariantFailure("Check settled facts do not close every Check");
   }
-  return Object.freeze(
-    snapshot.checks.map((check) => {
-      const durationMs = checkDurationsByCheckId.get(check.checkId);
-      if (durationMs === undefined) {
-        throw new CheckExecutionInvariantFailure("Check duration summary is missing a Check");
-      }
-      return Object.freeze({ checkId: check.checkId, durationMs });
-    })
-  );
-}
-
-function checkMessagesFor(
-  snapshot: CoreSnapshot,
-  checkMessagesByCheckId: ReadonlyMap<string, readonly CheckMessage[]>
-): readonly CheckRunMessage[] {
-  if (snapshot.checks.length !== checkMessagesByCheckId.size) {
-    throw new CheckExecutionInvariantFailure("Check message state does not close every Check");
-  }
+  const checkDurations: CheckDuration[] = [];
   const messages: CheckRunMessage[] = [];
   for (const check of snapshot.checks) {
-    const ownedMessages = checkMessagesByCheckId.get(check.checkId);
-    if (ownedMessages === undefined) {
-      throw new CheckExecutionInvariantFailure("Check message state is missing a Check");
+    const settledFacts = settledFactsByCheckId.get(check.checkId);
+    if (settledFacts === undefined) {
+      throw new CheckExecutionInvariantFailure("Check settled facts are missing a Check");
     }
-    for (const message of ownedMessages) {
+    checkDurations.push(
+      Object.freeze({ checkId: check.checkId, durationMs: settledFacts.durationMs })
+    );
+    for (const message of settledFacts.messages) {
       messages.push(
         Object.freeze({
           checkId: check.checkId,
@@ -352,7 +345,10 @@ function checkMessagesFor(
       );
     }
   }
-  return messages.length === 0 ? Object.freeze([]) : Object.freeze(messages);
+  return Object.freeze({
+    checkDurations: Object.freeze(checkDurations),
+    checkMessages: messages.length === 0 ? Object.freeze([]) : Object.freeze(messages)
+  });
 }
 
 function assertContainedTaskFailures(settlements: readonly SettledTask<void>[]): void {
