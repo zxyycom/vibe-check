@@ -26,6 +26,8 @@
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
       "defer-lizard-until-after-check-foundations.md": "sha256:9fb7523e521c64983c7978624dd246ae3473b515f5c8bf243d7a1cb14ba3ca46",
       "defer-lizard-until-after-semantic-config-workflow.md": "sha256:5a0efe27f476e35503eea0bf9d049041425b410a823ae802b4036af044098937",
+      "distinguish-primary-and-derived-change-problem-sets.md": "sha256:09e34fb1de5af9032f8163470fba2928f5c10e46a3bc867691c7345e323190d9",
+      "distinguish-primary-and-derived-change-problems.md": "sha256:7e4118245432930509d1da63e9b7d4f40a713bab8001d2082e77e05c2db45f02",
       "drive-product-execution-from-project-definition.md": "sha256:c329de0b8dfba2523e277c3b15d92fbf70905bf6a807bee78ba6e8590e0fb29f",
       "drive-run-from-check-owned-execution-options.md": "sha256:4100df271598db3d8a9105c193247945c12b94df904ebce5a68765fd34d623cb",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
@@ -785,6 +787,65 @@
             "target": "defer-lizard-runtime-unification.md"
           }
         ]
+      }
+    },
+    "distinguish-primary-and-derived-change-problem-sets.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "distinguish-primary-and-derived-change-problem-sets.md",
+        "title": "在 Change 中区分主要问题集合与衍生问题",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-22T07:45:44Z",
+        "purpose": "让一个或多个主要问题不被其它主要问题或内容更多的衍生问题掩盖。",
+        "background": "Change 可以有多个并列主要结果，强制只选一个会把真实主要问题误降为衍生问题并扭曲验收。",
+        "decision": "显式恢复主要问题集合，再按目标、因果和完成责任区分衍生问题，并分别保持主要结果可见。",
+        "tags": [
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "distinguish-primary-and-derived-change-problems.md"
+          }
+        ]
+      }
+    },
+    "distinguish-primary-and-derived-change-problems.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/distinguish-primary-and-derived-change-problems.md",
+        "title": "在 Change 中区分主要问题与衍生问题",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-22T07:41:22Z",
+        "purpose": "让 Change 的主目标不被篇幅更多或实现更复杂的衍生问题掩盖。",
+        "background": "同一 Change 可能同时处理核心结果及其兼容、迁移、风险和验收影响，而内容多少不能可靠表达主次。",
+        "decision": "按目标、因果和完成责任区分主要问题与衍生问题，并让主要问题持续主导 Change 的入口与验收。",
+        "tags": [
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "drive-product-execution-from-project-definition.md": {

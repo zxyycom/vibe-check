@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证、draft/plan active stage 与 archived 目录状态。
 metadata:
-  version: "15"
+  version: "16"
 ---
 
 # Change Plan
@@ -32,6 +32,16 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 3. `scripts/change-plan.mjs` 实现固定契约，也允许直接 import 当前底层函数；这些导出是随当前实现变化的复用表面，不是稳定 SDK。脚本不判断目标、方案、事实、长期决策、验证证据或授权是否正确。
 4. 项目文档继续拥有当前稳定事实和行为；项目已有长期决策 owner 时，跨 Change 持续有效的理由与方向进入该 owner。Change Plan 只拥有当前 Change 的临时实施上下文。
 
+## 主要问题与衍生问题
+
+1. 每个 Change 必须明确一个由**一个或多个主要问题**组成的主要问题集合。每个主要问题都直接定义 Change 为什么存在、完成后一个不可被其它问题替代的重要结果，以及不解决时 Change 仍然失败的条件。
+2. 同一 Change 可以有多个并列主要问题；当前任务明确要求共同交付，且 artifacts 能说明它们为何需要在同一范围协调时，不得为了强制单一主线把其中一个误降为衍生问题。
+3. **衍生问题**是由一个或多个主要问题直接暴露、造成或必须同步处理的问题，例如跨主要问题的集成、兼容、迁移、owner 同步、风险控制或验收影响。只与同一模块、消费者或时间点相邻，不足以证明它是衍生问题；没有直接因果或完成义务时保持为相邻问题或独立 Change。
+4. 分类按目标、因果与完成责任判断，不按篇幅、任务数或实现难度判断。衍生问题可以拥有更多内容和任务，但不得因此改写标题、开头、Outcome、Success Criteria 或验收重心来掩盖任一主要问题。
+5. Proposal 先列明主要问题集合及各自目标结果，再说明每个衍生问题由哪些主要问题产生、为何必须纳入以及不纳入的后果。Design、tasks、风险和验证继续显式标注对应层级，使读者不依赖章节长度推断主次。
+6. 衍生问题演变出独立消费者、独立结果、独立授权或可单独完成的生命周期时，重新审查范围：需要继续同批交付时说明它怎样服务主要问题集合，否则移交给对应 owner 或独立 Change。不得仅因已经写了很多内容就保留在原 Change。
+7. 新建 Change 和当前任务实际维护的 Change 必须应用本规则；规则建立本身不授权批量改写未进入当前范围的其它 active Changes，它们在后续恢复或维护时再完成同一审阅。
+
 ## 工作流程
 
 `plan` 与 `archive` 是受信工作区中的维护写入。命令运行期间，由当前任务保持目标 Change、
@@ -40,15 +50,15 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 ### 1. 定位或建立 Change
 
 1. 读取目标工作区指令、固定契约以及与 Change 直接相关的事实 owner；项目已有决策、调查或测试证据入口时，只读取当前范围需要的材料。
-2. 将用户目标压缩成一句结果说明，并确定范围、非目标、成功标准和受影响 owner。
+2. 将用户目标压缩成一个主要问题集合及各自结果说明，区分主要问题、衍生问题与仅相邻问题，并确定范围、非目标、成功标准和受影响 owner。
 3. 使用用户指定的 Change 目录；未指定时遵循项目已有约定，项目没有约定时使用 `changes/<kebab-case-name>/`。
 4. 需要选择现有 Change 时先运行 `list`；目标确定后运行 `show`，根据 status、stage、任务进度、诊断和距离证据恢复上下文。
 5. 新建 active Change 时，写入 Draft metadata、最小 `proposal.md` 和初始 `design.md`，暂不创建 `tasks.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，只确认会改变结果的最小问题。
 
 ### 2. 将 Draft 收敛为 Plan
 
-1. Draft proposal 说明 `Why` 与 `Outcome`；初始 design 保存当前上下文、目标、设计方向、取舍与开放问题。两者可以持续修订，暂定选择保持显式。
-2. 准备形成 Plan 时，补全 proposal 的范围、成功标准和受影响 owner；让 design 的判断、风险和开放问题足以支持实施；再从 design 派生 `tasks.md`，使 Implementation 落实设计判断，Verification 覆盖成功标准和风险。
+1. Draft proposal 说明 `Why` 与 `Outcome`，并让主要问题集合始终主导入口承诺；初始 design 保存当前上下文、问题层级、目标、设计方向、取舍与开放问题。两者可以持续修订，暂定选择保持显式。
+2. 准备形成 Plan 时，补全 proposal 的范围、成功标准和受影响 owner；逐项确认每个衍生问题与一个或多个主要问题的因果及纳入理由；让 design 的判断、风险和开放问题足以支持实施；再从 design 派生 `tasks.md`，使 Implementation 落实每个主要结果及必要衍生处理，Verification 分别覆盖各项主要成功标准和衍生风险。
 3. Readiness、Implementation 与 Verification 共同表达 Plan 内进度。只按实际证据勾选任务，并在目标、设计或新事实变化时同步修订相应 artifacts。
 4. 三个 artifacts 已经能够作为 Plan 使用时，运行：
 
@@ -82,7 +92,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 
 ## 完成标准
 
-1. Draft 或 Plan 的 artifacts 共同表达同一目标，并符合固定结构；active metadata 和 archived 目录 status 与当前内容成熟度一致。
+1. Draft 或 Plan 的 artifacts 共同表达同一主要问题集合，任一主要问题都未被其它主要问题或衍生问题的篇幅与任务量掩盖，且符合固定结构；active metadata 和 archived 目录 status 与当前内容成熟度一致。
 2. Plan 内每项任务的状态都有事实支持，成功标准、稳定 owner、长期决策和验证证据已按实际结果同步。
 3. 查询结果中的任务进度、Git 距离或阻断诊断已得到处理；active metadata 已通过严格规范解析，无效输入已通过普通文件与版本控制流程显式修复。
 4. 机械检查、内容审阅、实施授权和归档授权在交付中分别说明，没有用 metadata、checkbox 或命令成功代替授权。
