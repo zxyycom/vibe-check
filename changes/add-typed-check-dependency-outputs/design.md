@@ -147,7 +147,7 @@ Parser function不进入artifact；需要durable readback的Check在自己的dat
 
 ### 8. Presentation handoff
 
-Human direct display不属于dependency contract，也不阻塞本Change。相邻[`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/)提供structured terminal messages、`RunResult` readback与显式Check visibility；messages不进入dependency/Core/Record/machine facts，也不改变本Change的dependency authorization与correctness。
+Human direct display不属于dependency contract，也不阻塞本Change。相邻已归档的[`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）提供structured terminal messages、`RunResult` readback与显式Check visibility；messages不进入dependency/Core/Record/machine facts，也不改变本Change的dependency authorization与correctness。
 
 ## Risks / Trade-offs
 

@@ -79,7 +79,7 @@ Parser只执行“已选中的canonical data → domain value”。`dependencies
 相邻owner负责：
 
 - [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)提供四态Check outcome、canonical final data和Core`{ checkId, id, data }`Records；
-- [`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/)提供structured terminal messages、`RunResult` readback与显式human visibility；messages不进入dependency facts，也不改变本Change的dependency access责任；
+- 已归档的 [`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）提供structured terminal messages、`RunResult` readback与显式human visibility；messages不进入dependency facts，也不改变本Change的dependency access责任；
 - producing Check决定自己的domain status、data shape与parser实现。
 
 本Change不建立custom-data search、query language、parser registry、global mutable store、transitive/live output reader、第三类Core output、multi-Check aggregation或通用provider framework，也不决定`root`、`flags`、`files`、`cache`等现有inputs的长期归属。

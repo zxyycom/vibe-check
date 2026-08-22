@@ -1,6 +1,6 @@
 # Tasks
 
-Readiness、Implementation 与 Verification 已按 public authoring、Definition、terminal settlement、RunResult、renderer、真实 Check adoption 和证据闭合的依赖顺序完成。下列勾选只记录已有产物和通过的验证；Change 保持 active plan，归档仍需单独授权。
+本 Change 已归档，Readiness、Implementation 与 Verification 的 17/17 项已按 public authoring、Definition、terminal settlement、RunResult、renderer、真实 Check adoption 和证据闭合的依赖顺序完成。下列勾选只保留形成时的产物与验证记录，不是当前实施指令。
 
 ## Readiness
 

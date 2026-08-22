@@ -75,11 +75,11 @@ Visibility 的 public authoring、默认行为、TTY running row、四态 settle
 
 ## Affected Owners
 
-- [`docs/configuration.md`](../../docs/configuration.md)：Check authoring、closed Definition validation、terminal result 与 visibility contract。
-- [`docs/output.md`](../../docs/output.md)：human progress、`RunResult` message readback、machine v4 非目标和 TTY/plain 输出。
-- [`docs/quality-metrics.md`](../../docs/quality-metrics.md)：final data、Records 与 structured messages 的责任分离。
-- [`src/product/definition/**`](../../src/product/definition/)：public types、closed keys、normalization、fingerprint 和 declarations。
-- [`src/product/run/**`](../../src/product/run/)：`check-terminal-result` adapter、Core acceptance handoff、lifecycle feedback、`RunResult.checkMessages`、progress effect 与 renderer。
-- [`scripts/quality/project-gate/**`](../../scripts/quality/project-gate/)：当前具有安全 terminal message 需求的具体 Check 与 transcript 边界。
+- [`docs/configuration.md`](../../../docs/configuration.md)：Check authoring、closed Definition validation、terminal result 与 visibility contract。
+- [`docs/output.md`](../../../docs/output.md)：human progress、`RunResult` message readback、machine v4 非目标和 TTY/plain 输出。
+- [`docs/quality-metrics.md`](../../../docs/quality-metrics.md)：final data、Records 与 structured messages 的责任分离。
+- [`src/product/definition/**`](../../../src/product/definition/)：public types、closed keys、normalization、fingerprint 和 declarations。
+- [`src/product/run/**`](../../../src/product/run/)：`check-terminal-result` adapter、Core acceptance handoff、lifecycle feedback、`RunResult.checkMessages`、progress effect 与 renderer。
+- [`scripts/quality/project-gate/**`](../../../scripts/quality/project-gate/)：当前具有安全 terminal message 需求的具体 Check 与 transcript 边界。
 - Public package inventory/candidate、isolated consumer、相关测试与语义 Case owner。
-- [`changes/active-change-portfolio.md`](../active-change-portfolio.md) 与相邻 typed dependency、Gate authoring、log evidence、package documentation Changes：只同步依赖和 handoff，不转移两个主要结果。
+- [`changes/active-change-portfolio.md`](../../active-change-portfolio.md) 与相邻 typed dependency、Gate authoring、log evidence、package documentation Changes：只同步依赖和 handoff，不转移两个主要结果。

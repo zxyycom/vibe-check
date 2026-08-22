@@ -6,11 +6,11 @@
 
 ### 权威性与读取顺序
 
-本 Change 处于 `active/plan`：`tasks.md` 的 17/17 项已完成，但归档尚未获单独授权。本文不是当前 Product contract；其“形成时”段落也不是当前实现状态。按以下顺序恢复上下文：
+本 Change 已归档，`tasks.md` 的 17/17 项均已完成。本文保留 Plan 形成和实施时的设计记录，不是当前 Product contract；其“形成时”段落也不是当前实现状态。按以下顺序恢复上下文：
 
-1. 当前行为以 [`docs/configuration.md`](../../docs/configuration.md)、[`docs/quality-metrics.md`](../../docs/quality-metrics.md)、[`docs/output.md`](../../docs/output.md) 及相邻源码、测试为准；它们已定义并验证 terminal messages 与 explicit visibility。
-2. 长期方向以 [`allow-check-terminal-messages-and-explicit-visibility`](../../docs/decisions/allow-check-terminal-messages-and-explicit-visibility.md) 为准；它是 `active + aligned`，表示方向与当前实现已核对一致。
-3. [`provide-product-owned-check-progress`](../../docs/decisions/provide-product-owned-check-progress.md) 继续约束 private lifecycle feedback、唯一 progress writer、TTY/plain 分工和 writer failure isolation。
+1. 当前行为以 [`docs/configuration.md`](../../../docs/configuration.md)、[`docs/quality-metrics.md`](../../../docs/quality-metrics.md)、[`docs/output.md`](../../../docs/output.md) 及相邻源码、测试为准；它们已定义并验证 terminal messages 与 explicit visibility。
+2. 长期方向以 [`allow-check-terminal-messages-and-explicit-visibility`](../../../docs/decisions/allow-check-terminal-messages-and-explicit-visibility.md) 为准；它是 `active + aligned`，表示方向与当前实现已核对一致。
+3. [`provide-product-owned-check-progress`](../../../docs/decisions/provide-product-owned-check-progress.md) 继续约束 private lifecycle feedback、唯一 progress writer、TTY/plain 分工和 writer failure isolation。
 4. 本 Change 拥有形成时的实施 shape、文件责任、任务顺序和验证义务；完成状态以 [`tasks.md`](tasks.md) 为准。当前事实必须回到稳定 owner、源码和测试确认。
 
 ### 两个主要问题与衍生问题
@@ -27,12 +27,12 @@
 
 | Owner | 形成时事实 | 计划接入点（已实施） |
 | --- | --- | --- |
-| [`custom-check.ts`](../../src/product/definition/custom-check.ts) | `CheckResult` 是 closed four-state author return；`Check` 没有 visibility。 | 增加 supporting message declarations、四态可选 `messages` 和 executable Check 的可选 `visibility`。 |
-| [`authoring.ts`](../../src/product/definition/check-tree/authoring.ts)、[`materialization.ts`](../../src/product/definition/check-tree/materialization.ts)、[`project.ts`](../../src/product/definition/project.ts) | Definition 使用 closed `CHECK_KEYS`，flatten 后形成 `NormalizedCheckDeclaration` 和 declarative fingerprint。 | 校验、默认化并 materialize visibility；normalized declaration 始终包含显式值。 |
-| [`plain-record-values.ts`](../../src/product/quality-core/check-record/plain-record-values.ts)、[`core-session.ts`](../../src/product/quality-core/check-record/core-session.ts)、[`canonical-data.ts`](../../src/product/quality-core/check-record/canonical-data.ts) | Author terminal result 按 `unknown` 进入 descriptor-safe closed validation；非法 result 成为 `invalid-execution-result`。 | Terminal adapter 复用 closed snapshots；Core settlement 额外返回 package-private author-acceptance marker，不把 messages 加入 Core。 |
-| [`check-callback.ts`](../../src/product/run/check-callback.ts)、[`check-execution.ts`](../../src/product/run/check-execution.ts)、[`result.ts`](../../src/product/run/result.ts) | Callback raw result 只由 Core 接受；final-snapshot result 返回 canonical facts 和 durations。 | 在 Core 接受 author result 后收集 messages；所有带 final snapshot 的 RunResult 分支返回 canonical `checkMessages`。 |
-| [`progress.ts`](../../src/product/run/progress.ts) | TTY 维护 running region；plain/dumb 只追加 settled rows；human text 统一 escaping。 | Settled feedback携带 validated messages和normalized visibility；renderer按本文矩阵输出一个 owning block。 |
-| [`process-check.ts`](../../scripts/quality/project-gate/process-check.ts) | Nonzero command 已拥有 safe exit/signal/transcript basename，并把 stdout/stderr 留在 transcript。 | Nonzero failure 同时附带一条安全 `command-failed` message，证明真实 Check 按需使用能力。 |
+| [`custom-check.ts`](../../../src/product/definition/custom-check.ts) | `CheckResult` 是 closed four-state author return；`Check` 没有 visibility。 | 增加 supporting message declarations、四态可选 `messages` 和 executable Check 的可选 `visibility`。 |
+| [`authoring.ts`](../../../src/product/definition/check-tree/authoring.ts)、[`materialization.ts`](../../../src/product/definition/check-tree/materialization.ts)、[`project.ts`](../../../src/product/definition/project.ts) | Definition 使用 closed `CHECK_KEYS`，flatten 后形成 `NormalizedCheckDeclaration` 和 declarative fingerprint。 | 校验、默认化并 materialize visibility；normalized declaration 始终包含显式值。 |
+| [`plain-record-values.ts`](../../../src/product/quality-core/check-record/plain-record-values.ts)、[`core-session.ts`](../../../src/product/quality-core/check-record/core-session.ts)、[`canonical-data.ts`](../../../src/product/quality-core/check-record/canonical-data.ts) | Author terminal result 按 `unknown` 进入 descriptor-safe closed validation；非法 result 成为 `invalid-execution-result`。 | Terminal adapter 复用 closed snapshots；Core settlement 额外返回 package-private author-acceptance marker，不把 messages 加入 Core。 |
+| [`check-callback.ts`](../../../src/product/run/check-callback.ts)、[`check-execution.ts`](../../../src/product/run/check-execution.ts)、[`result.ts`](../../../src/product/run/result.ts) | Callback raw result 只由 Core 接受；final-snapshot result 返回 canonical facts 和 durations。 | 在 Core 接受 author result 后收集 messages；所有带 final snapshot 的 RunResult 分支返回 canonical `checkMessages`。 |
+| [`progress.ts`](../../../src/product/run/progress.ts) | TTY 维护 running region；plain/dumb 只追加 settled rows；human text 统一 escaping。 | Settled feedback携带 validated messages和normalized visibility；renderer按本文矩阵输出一个 owning block。 |
+| [`process-check.ts`](../../../scripts/quality/project-gate/process-check.ts) | Nonzero command 已拥有 safe exit/signal/transcript basename，并把 stdout/stderr 留在 transcript。 | Nonzero failure 同时附带一条安全 `command-failed` message，证明真实 Check 按需使用能力。 |
 
 ### Plan 形成时的运行时防护审计结论
 
