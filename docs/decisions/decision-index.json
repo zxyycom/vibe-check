@@ -5,6 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:93eb05326ea5b1bc3ed7c307800ff0cf61c2a55fac6cea6c75362ecda9b767f6",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
@@ -159,6 +160,35 @@
     }
   ],
   "entries": {
+    "allow-check-terminal-messages-and-explicit-visibility.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "allow-check-terminal-messages-and-explicit-visibility.md",
+        "title": "允许 Check 返回终态消息并显式声明 visibility",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-22T08:48:11Z",
+        "purpose": "让需要补充提示的 Check 在终态返回结构化消息，并以显式 visibility 控制人读行。",
+        "background": "项目已有 public runtime 防护；消息必须 settlement-only、可程序化读取且由 Check 按需附带。",
+        "decision": "采用可选结构化终态附件、RunResult readback、既有边界一致校验、attention visibility 和 fingerprint identity。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "allow-empty-information-checks-with-warning.md": {
       "keys": {
         "tag": [

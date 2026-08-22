@@ -35,7 +35,7 @@
 - 不因 Gate 停止调用某个 CLI 就自动删除该 CLI；focused root workflow、governance/query command 与 neutral quality observation 继续由各自 consumer audit决定。
 - 不公开 Gate catalog、profile/tag grammar、process helper、transcript writer 或 CLI adapter 到 npm package。
 - 不建立 generic process Check 产品 API、第二 Check execution variant、command registry 或 project-wide dependency injection framework。
-- 不在本 Change 定义最小 Record contract、typed dependency output 或 result presentation；这些分别由 [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 承接。
+- 不在本 Change 定义最小 Record contract、typed dependency output 或 terminal messages/visibility；这些分别由已归档的 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/) 承接。
 - 不重新设计或复制minimal Plan拥有的RunControls aggregation、RunResult aggregate或adapter exit closure。
 - 不访问 registry、credentials 或执行 npm publish；发布由独立 Change 在再次授权后完成。
 
@@ -131,7 +131,7 @@ Gate caller归零不等于 CLI consumer归零。仍有独立 consumer的 CLI保�
 
 正式root bindings和legacy retirement事实继续由已归档的<code>gate-handoff.md</code>拥有。本Change默认保持这些names到达同一个adapter；catalog、profile behavior或内部执行路径变化不恢复旧verifier。
 
-本Change等待[`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)、[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/)和[`ship-public-package-api-documentation`](../ship-public-package-api-documentation/)收敛首次公开package inputs。随后重新准备或安全复用matching candidate、校验installed entry，并从正式root entry运行focused/native/process/candidate tests、required/full acceptance和partial eligibility smoke。
+最小Record contract已由[`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)完成。本Change继续等待[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)、[`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/)和[`ship-public-package-api-documentation`](../ship-public-package-api-documentation/)收敛其余首次公开package inputs。随后重新准备或安全复用matching candidate、校验installed entry，并从正式root entry运行focused/native/process/candidate tests、required/full acceptance和partial eligibility smoke。
 
 最终 <code>gate-optimization-handoff.md</code> 绑定 current Gate inventory、保留/删除理由、CLI/capability caller audit、documentation-complete exact artifact、正式 bindings与验收结果。Publish同时消费它、cutover <code>gate-handoff.md</code>和package documentation handoff。
 
