@@ -93,7 +93,17 @@ async function executeDescriptor(
     { id: "command-failure" },
     failureRecord(context.options, result, logPath)
   );
-  return Object.freeze({ status: "failed", data: Object.freeze({ exitCode: result.status }) });
+  return Object.freeze({
+    status: "failed",
+    data: Object.freeze({ exitCode: result.status }),
+    messages: Object.freeze([
+      Object.freeze({
+        level: "error",
+        code: "command-failed",
+        message: `Command exited with code ${result.status}; signal: ${result.signal ?? "none"}; transcript: ${basename(logPath)}.`
+      })
+    ])
+  });
 }
 
 function failureRecord(

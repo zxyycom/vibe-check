@@ -42,10 +42,14 @@ Entities:
 
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
 - `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
 - `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
   Proves:
-- Product-owned progress presents lifecycle status/duration and controlled reason codes from Run facts only; it does not derive presentation from final or Record data.
+- Product-owned progress presents lifecycle status/duration, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one block; message code is not terminal text.
+- `attention` removes only a passed/no-message settled row, never a TTY running row or accounting ordinal. Plain/dumb output uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 

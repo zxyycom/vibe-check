@@ -21,8 +21,8 @@ Entities:
 - The candidate owner derives one local package with only the approved runtime exports, declared package dependencies, a physical consumer install, and a resolved installed entry.
 - A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
 - A missing candidate-owned `jscpd` closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
-- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including explicit aggregation, four-state custom final data, two-argument supplemental Record reporting, and final-snapshot `RunResult.checkDurations` without a new duration type root), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
-- That consumer uses default-enabled Product progress with a real non-TTY stdout capture: lifecycle output contains the Check total, settled completion, and final execution summary without terminal control bytes; its executed canonical Check has one non-negative finite `checkDurations` entry and observable final data.
+- An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including explicit aggregation, four-state custom final data with terminal messages, `attention` visibility, two-argument supplemental Record reporting, and final-snapshot `RunResult.checkDurations` / `checkMessages` without new duration or message type roots), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
+- That consumer uses default-enabled Product progress with a real non-TTY stdout capture: lifecycle output contains the Check total, settled completion, an `attention` Check's message, and final execution summary without terminal control bytes; its executed canonical Checks have non-negative finite `checkDurations` entries, observable final data, and structured `checkMessages` readback.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
@@ -46,12 +46,13 @@ Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
 - `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
-- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > reports a safe failure Record for nonzero exit without copying child output`
+- `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
 - `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > avoids starting N/A or cancelled work and maps process/log boundaries to unavailable`
 - `bun|scripts/quality/project-gate/process-check.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
   Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
-- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data。
+- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
+- The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the identical structured item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
 - profile/tag N/A 与启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
 

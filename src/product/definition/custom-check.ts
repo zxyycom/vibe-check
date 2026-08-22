@@ -11,11 +11,28 @@ export type CheckUnavailableReason = Readonly<{
   readonly checkIds?: readonly string[];
 }>;
 
+export type CheckMessageLevel = "info" | "warning" | "error";
+
+export interface CheckMessage {
+  readonly level: CheckMessageLevel;
+  readonly code: string;
+  readonly message: string;
+}
+
+export interface CheckResultMessages {
+  readonly messages?: readonly CheckMessage[];
+}
+
+export type CheckVisibility = "always" | "attention";
+
 export type CheckResult = Readonly<
-  | { readonly status: "passed"; readonly data: object }
-  | { readonly status: "failed"; readonly data: object }
-  | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
-  | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
+  (
+    | { readonly status: "passed"; readonly data: object }
+    | { readonly status: "failed"; readonly data: object }
+    | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
+    | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
+  ) &
+    CheckResultMessages
 >;
 
 export type CheckOutcome = Readonly<
@@ -165,6 +182,7 @@ export interface Check<Options extends object = object> {
   readonly dependsOn?: InheritableCheckCollection<string>;
   readonly maxParallel?: number;
   readonly mutex?: InheritableCheckCollection<string>;
+  readonly visibility?: CheckVisibility;
 }
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;

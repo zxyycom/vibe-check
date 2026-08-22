@@ -8,7 +8,8 @@ import {
   inherit,
   normalizeProjectDefinition,
   type Check,
-  type CheckExecution
+  type CheckExecution,
+  type CheckResult
 } from "./project.ts";
 import { validateProjectDefinition } from "./validation.ts";
 
@@ -108,6 +109,97 @@ describe("Project Definition", () => {
     );
   });
 
+  it("normalizes executable visibility and rejects container visibility", () => {
+    const executable = (visibility?: "always" | "attention") => ({
+      checkId: "visible-check",
+      displayName: "Visible check",
+      execution: passed,
+      ...(visibility === undefined ? {} : { visibility })
+    });
+    const withoutVisibility = normalizeProjectDefinition(defineConfig({ checks: [executable()] }));
+    const explicitAlways = normalizeProjectDefinition(
+      defineConfig({ checks: [executable("always")] })
+    );
+    const attention = normalizeProjectDefinition(
+      defineConfig({ checks: [executable("attention")] })
+    );
+
+    assert.equal(withoutVisibility.checks[0]?.visibility, "always");
+    assert.equal(explicitAlways.checks[0]?.visibility, "always");
+    assert.equal(attention.checks[0]?.visibility, "attention");
+    assert.equal(withoutVisibility.declarative.checks[0]?.visibility, "always");
+    assert.equal(
+      createDeclarativeFingerprint(withoutVisibility.declarative),
+      createDeclarativeFingerprint(explicitAlways.declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(withoutVisibility.declarative),
+      createDeclarativeFingerprint(attention.declarative)
+    );
+
+    const explicitUndefined = validateProjectDefinition({
+      ...defineConfig({}),
+      checks: [{ ...executable(), visibility: undefined }]
+    });
+    assert.equal(explicitUndefined.ok, true);
+    if (explicitUndefined.ok) {
+      assert.equal(explicitUndefined.value.checks[0]?.visibility, "always");
+    }
+
+    for (const visibility of [undefined, "always", "invalid"] as const) {
+      assert.equal(
+        validateProjectDefinition({
+          ...defineConfig({}),
+          checks: [
+            {
+              checkId: "container",
+              displayName: "Container",
+              visibility
+            }
+          ]
+        }).ok,
+        false
+      );
+    }
+
+    assert.equal(
+      validateProjectDefinition({
+        ...defineConfig({}),
+        checks: [{ ...executable(), visibility: "hidden" }]
+      }).ok,
+      false
+    );
+  });
+
+  it("ignores inherited visibility while defaulting executable Checks", () => {
+    const original = Object.getOwnPropertyDescriptor(Object.prototype, "visibility");
+    Object.defineProperty(Object.prototype, "visibility", {
+      configurable: true,
+      value: "attention"
+    });
+    try {
+      const normalized = normalizeProjectDefinition(
+        defineConfig({
+          checks: [
+            {
+              checkId: "default-visible-check",
+              displayName: "Default visible check",
+              execution: passed
+            }
+          ]
+        })
+      );
+
+      assert.equal(normalized.checks[0]?.visibility, "always");
+    } finally {
+      if (original === undefined) {
+        delete (Object.prototype as { visibility?: unknown }).visibility;
+      } else {
+        Object.defineProperty(Object.prototype, "visibility", original);
+      }
+    }
+  });
+
   it("fingerprints canonical declarative data without retaining callback functions", () => {
     const first = defineConfig({
       checks: [
@@ -169,6 +261,15 @@ function _typeCheckCheckAuthoring() {
       return { status: "not-applicable" };
     }
   });
+  const messaged: Check = {
+    checkId: "messaged-check",
+    displayName: "Messaged check",
+    visibility: "attention",
+    execution: () => ({
+      status: "not-applicable",
+      messages: [{ code: "not-needed", level: "info", message: "Not needed" }]
+    })
+  };
   const standalone: CheckExecution<{ readonly floor: number }> = ({ options }) => {
     const floor: number = options.floor;
     void floor;
@@ -188,10 +289,36 @@ function _typeCheckCheckAuthoring() {
   void standalone;
   void heterogeneous;
   void invalid;
+  void messaged;
 }
 
 function _typeCheckFinalDataBoundary() {
   // @ts-expect-error Check final data must be object-shaped at the write boundary.
   const invalid: CheckExecution = () => ({ status: "passed", data: 1 });
   void invalid;
+}
+
+function _typeCheckMessagesOnEveryTerminalResult() {
+  const results: readonly CheckResult[] = [
+    {
+      status: "passed",
+      data: {},
+      messages: [{ code: "passed-with-note", level: "info", message: "Passed" }]
+    },
+    {
+      status: "failed",
+      data: {},
+      messages: [{ code: "failed-with-note", level: "error", message: "Failed" }]
+    },
+    {
+      status: "not-applicable",
+      messages: [{ code: "not-required", level: "warning", message: "Not required" }]
+    },
+    {
+      status: "unavailable",
+      reason: { code: "unavailable" },
+      messages: [{ code: "unavailable", level: "error", message: "Unavailable" }]
+    }
+  ];
+  void results;
 }

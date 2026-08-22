@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { ProcessResult } from "../../tools/foundation/src/index.ts";
-import type { CheckResult } from "vibe-check";
+import { defineConfig, run, type CheckResult } from "vibe-check";
 import type { ProjectGateCheckDescriptor } from "../../project-gate/catalog.ts";
 import { createProcessCheck, type ProcessCheckDependencies } from "./process-check.ts";
 
@@ -48,17 +48,33 @@ describe("Project Gate process Check", () => {
     }
   });
 
-  it("reports a safe failure Record for nonzero exit without copying child output", async () => {
+  it("reports a safe failure Record and command-failed message for nonzero exit without copying child output", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
       const check = createProcessCheck(
-        { ...descriptor, args: ["-e", "process.stdout.write('secret output');process.exit(7)"] },
+        {
+          ...descriptor,
+          args: [
+            "-e",
+            "process.stdout.write('secret output https://user:token@example.test');process.stderr.write('secret error digest:deadbeef');process.exit(7)"
+          ]
+        },
         root
       );
       const records: ReportedRecord[] = [];
       const outcome = await invoke(check, records);
 
-      assert.deepEqual(outcome, { status: "failed", data: { exitCode: 7 } });
+      assert.deepEqual(outcome, {
+        status: "failed",
+        data: { exitCode: 7 },
+        messages: [
+          {
+            level: "error",
+            code: "command-failed",
+            message: "Command exited with code 7; signal: none; transcript: fixture-command.log."
+          }
+        ]
+      });
       assert.deepEqual(records, [
         {
           data: {
@@ -71,6 +87,72 @@ describe("Project Gate process Check", () => {
         }
       ]);
       assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /secret output/);
+      const renderedMessage =
+        outcome.status === "failed" ? outcome.messages?.[0]?.message : undefined;
+      assert.equal(renderedMessage?.includes("secret output"), false);
+      assert.equal(renderedMessage?.includes("secret error"), false);
+      assert.equal(renderedMessage?.includes("user:token"), false);
+      assert.equal(renderedMessage?.includes("digest:deadbeef"), false);
+      assert.equal(renderedMessage?.includes(root), false);
+      assert.equal(renderedMessage?.includes(process.execPath), false);
+
+      const productCheck = createProcessCheck(descriptor, root, {
+        runProcess: async (): Promise<ProcessResult> => ({
+          signal: null,
+          status: 7,
+          stderr: "secret error digest:deadbeef transcript-only-stderr",
+          stdout: "secret output https://user:token@example.test transcript-only-stdout"
+        }),
+        writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+      });
+      const productRun = await captureNonTTYProgress(() =>
+        run(
+          defineConfig({
+            checks: [productCheck],
+            effects: {
+              cache: { enabled: false },
+              output: { enabled: false },
+              progress: { enabled: true }
+            }
+          }),
+          { flags: ["project-gate:profile=required"] }
+        )
+      );
+
+      assert.equal(productRun.result.kind, "completed");
+      if (productRun.result.kind !== "completed") return;
+      assert.deepEqual(productRun.result.checkMessages, [
+        {
+          checkId: "fixture-command",
+          level: "error",
+          code: "command-failed",
+          message: "Command exited with code 7; signal: none; transcript: fixture-command.log."
+        }
+      ]);
+      assert.match(
+        productRun.output,
+        /^ {2}\[1\/1] Fixture command \| failed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[error] Command exited with code 7; signal: none; transcript: fixture-command\.log\.$/m
+      );
+      const record = productRun.result.snapshot.records[0];
+      assert.equal(record?.checkId, "fixture-command");
+      assert.equal(record?.id, "command-failure");
+      assert.equal(record?.data.command, process.execPath);
+      assert.equal(record?.data.exitCode, 7);
+      assert.equal(record?.data.log, "fixture-command.log");
+      assert.equal(record?.data.signal, "none");
+      const presented = `${productRun.output}\n${JSON.stringify(productRun.result.checkMessages)}`;
+      for (const secret of [
+        "secret output",
+        "secret error",
+        "user:token",
+        "digest:deadbeef",
+        "transcript-only-stdout",
+        "transcript-only-stderr",
+        root,
+        process.execPath
+      ]) {
+        assert.equal(presented.includes(secret), false, `presentation leaks ${secret}`);
+      }
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
@@ -145,9 +227,9 @@ describe("Project Gate process Check", () => {
         expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
         runProcess: async (): Promise<ProcessResult> => ({
           signal: null,
-          status: 0,
-          stderr: "",
-          stdout: ""
+          status: 7,
+          stderr: "secret error",
+          stdout: "secret output"
         }),
         writeFails: true
       }
@@ -169,14 +251,19 @@ describe("Project Gate process Check", () => {
         };
         const controller = new AbortController();
         if (scenario.aborted) controller.abort();
+        const records: ReportedRecord[] = [];
         const outcome = await invoke(
           createProcessCheck(scenario.descriptor, root, dependencies),
-          [],
+          records,
           scenario.flags,
           controller.signal
         );
 
         assert.deepEqual(outcome, scenario.expected, scenario.name);
+        if (scenario.name === "transcript write failure") {
+          assert.deepEqual(outcome.messages ?? [], [], scenario.name);
+          assert.deepEqual(records, [], scenario.name);
+        }
         assert.equal(starts, scenario.runProcess === unexpectedProcessStart ? 0 : 1, scenario.name);
         if (scenario.expectsTranscript) {
           const transcriptPath = join(root, "fixture-command.log");
@@ -284,4 +371,39 @@ async function invoke(
     },
     signal
   });
+}
+
+async function captureNonTTYProgress<T>(
+  operation: () => Promise<T>
+): Promise<Readonly<{ readonly output: string; readonly result: T }>> {
+  const standardOutput = process.stdout;
+  const originalIsTTY = Object.getOwnPropertyDescriptor(standardOutput, "isTTY");
+  const originalWrite = Object.getOwnPropertyDescriptor(standardOutput, "write");
+  if (originalWrite === undefined)
+    throw new Error("process stdout does not expose an own write method");
+  const writes: string[] = [];
+  Object.defineProperty(standardOutput, "isTTY", {
+    configurable: true,
+    enumerable: originalIsTTY?.enumerable ?? true,
+    value: false,
+    writable: true
+  });
+  Object.defineProperty(standardOutput, "write", {
+    ...originalWrite,
+    value: (content: string | Uint8Array): boolean => {
+      writes.push(typeof content === "string" ? content : new TextDecoder().decode(content));
+      return true;
+    }
+  });
+  try {
+    const result = await operation();
+    return Object.freeze({ output: writes.join(""), result });
+  } finally {
+    Object.defineProperty(standardOutput, "write", originalWrite);
+    if (originalIsTTY === undefined) {
+      delete (standardOutput as { isTTY?: boolean }).isTTY;
+    } else {
+      Object.defineProperty(standardOutput, "isTTY", originalIsTTY);
+    }
+  }
 }

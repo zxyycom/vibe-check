@@ -21,7 +21,7 @@
 
 完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 declarative data：它拒绝 unknown field 和 malformed value，snapshot JSON options，验证完整 default options，并 canonicalize scheduling collection。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
 
-Definition grammar只描述递归 Check、调度和 Check-owned execution/options。producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
+Definition grammar只描述递归 Check、调度、executable-only `visibility` 和 Check-owned execution/options。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
 
 ## Execution boundary
 
@@ -30,9 +30,9 @@ dependency/mutex admission、root budget、cancellation 与 settlement。engine 
 
 每个 executable Check 以 `{ options, project, records, signal }` 执行自己的 callback。`project.flags` 是调用 controls 规范化后的 frozen string array；Product 不解释 token。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
-Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite 映射为 owning unavailable outcome。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
+Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite 映射为 owning unavailable outcome。callback terminal attachment 先在这个 execution boundary 与四态 result 分离验证；只有 Core 接受 stripped author result 后，detached messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。throw、Product-created outcome、invalid attachment 或 Record diagnostic 都没有 author messages。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Core settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core 或 machine publication。progress renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标 stream 输出；项目 callback 必须把详细 process output 留在项目自己拥有的 transcript（例如 Project Gate 的`.log/`），而不与该 stream 穿插。这类 transcript 不是 Product effect，也不属于 machine output。
+Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Core settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将已接受 messages 按 canonical Check order 再按 author order 投影为 `RunResult.checkMessages`；它们都不进入 `CheckOutcome`、Record、Core 或 machine publication。progress renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标 stream 输出；项目 callback 必须把详细 process output 留在项目自己拥有的 transcript（例如 Project Gate 的`.log/`），而不与该 stream 穿插。这类 transcript 不是 Product effect，也不属于 machine output。
 
 ## Core facts
 
@@ -55,7 +55,7 @@ Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只�
 
 Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、effect与人读展示仍留在各自的 Run/consumer boundary。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
-每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
+每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary、accepted detached terminal-message readback 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 
 ## Runtime boundary
 

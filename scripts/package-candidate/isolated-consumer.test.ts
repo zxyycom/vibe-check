@@ -44,12 +44,23 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "passed");
     assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
-    assert.match(runEvidence.humanOutput, /total\s+1\s+check/i);
+    assert.deepEqual(runEvidence.checkMessages, [
+      {
+        checkId: "installed-terminal-note",
+        code: "installed-terminal-note",
+        level: "info",
+        message: "Installed candidate terminal message."
+      }
+    ]);
+    assert.match(runEvidence.humanOutput, /total\s+2\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/1\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[1\/2\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[2\/2\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "installed-terminal-note");
   } finally {
     rmSync(consumerDirectory, { force: true, recursive: true });
   }
@@ -122,6 +133,7 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 }
 
 function runDuplicateFixture(consumerDirectory: string): Readonly<{
+  checkMessages: unknown;
   checkDurations: unknown;
   duplicateData: unknown;
   duplicateOutcome: string | null;
@@ -146,6 +158,7 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
     throw new TypeError("isolated duplicate outcome must be a string or null");
   }
   return Object.freeze({
+    checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
     duplicateData: evidence.duplicateData,
     duplicateOutcome,
@@ -158,8 +171,11 @@ function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: strin
   if (!isUnknownArray(checkDurations)) {
     throw new TypeError("isolated Run checkDurations must be an array");
   }
-  assert.equal(checkDurations.length, 1);
-  const duration = checkDurations[0];
+  const duration = checkDurations.find(
+    (candidate): candidate is Readonly<Record<string, unknown>> =>
+      isRecord(candidate) && candidate.checkId === checkId
+  );
+  assert.notEqual(duration, undefined, `isolated Run duration is missing for ${checkId}`);
   if (!isRecord(duration)) throw new TypeError("isolated Run duration must be an object");
   assert.equal(duration.checkId, checkId);
   if (typeof duration.durationMs !== "number") {
@@ -283,6 +299,16 @@ const result: Promise<RunResult> = run(definition, {
 });
 
 const authorResult: CheckResult = { status: "passed", data: new Date() };
+const messagedResult: CheckResult = {
+  status: "not-applicable",
+  messages: [{ code: "not-required", level: "info", message: "Not required" }]
+};
+const attentionCheck: Check = {
+  checkId: "isolated-attention",
+  displayName: "Isolated attention",
+  execution: () => messagedResult,
+  visibility: "attention"
+};
 const settledOutcome: CheckOutcome = { status: "passed", data: { selected: true } };
 if (settledOutcome.status === "passed") {
   // @ts-expect-error Settled Run outcomes expose readonly canonical data.
@@ -297,7 +323,14 @@ function observeFinalDurations(runResult: RunResult): void {
   ) {
     const durations: readonly Readonly<{ readonly checkId: string; readonly durationMs: number | null }>[] =
       runResult.checkDurations;
+    const messages: readonly Readonly<{
+      readonly checkId: string;
+      readonly code: string;
+      readonly level: "info" | "warning" | "error";
+      readonly message: string;
+    }>[] = runResult.checkMessages;
     void durations;
+    void messages;
     if (runResult.kind === "completed" || runResult.kind === "effect") {
       const aggregate: CheckAggregate | null = runResult.aggregate;
       void aggregate;
@@ -314,6 +347,7 @@ void [
   inherit,
   run,
   aggregation,
+  attentionCheck,
   authorResult,
   inheritedCheckIds,
   observeFinalDurations,
@@ -323,10 +357,27 @@ void [
 }
 
 function runFixture(): string {
-  return `import { defineConfig, duplicateDetection, run } from "vibe-check";
+  return `import { defineCheck, defineConfig, duplicateDetection, run } from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
+
+const terminalNote = defineCheck({
+  checkId: "installed-terminal-note",
+  displayName: "Installed terminal note",
+  visibility: "attention",
+  execution: () => ({
+    status: "passed",
+    data: {},
+    messages: [
+      {
+        code: "installed-terminal-note",
+        level: "info",
+        message: "Installed candidate terminal message."
+      }
+    ]
+  })
+});
 
 const result = await run(
   defineConfig({
@@ -337,7 +388,8 @@ const result = await run(
           ...duplicateDetection.options,
           defaultMinimumTokens: 20
         }
-      }
+      },
+      terminalNote
     ],
     effects: {
       cache: { enabled: false },
@@ -352,6 +404,7 @@ const duplicate = result.kind === "completed"
   : undefined;
 
 process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
+  checkMessages: result.kind === "completed" ? result.checkMessages : null,
   checkDurations: result.kind === "completed" ? result.checkDurations : null,
   kind: result.kind,
   duplicateData: duplicate?.outcome.status === "failed" || duplicate?.outcome.status === "passed"

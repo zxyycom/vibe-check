@@ -14,12 +14,18 @@ function materializeCheck(check: ParsedCheck): Check {
   const checks = materializeChecks(check.checks);
   const dependsOn = materializeCollection(check.dependsOn);
   const mutex = materializeCollection(check.mutex);
+  const visibility = check.visibility;
   const scheduling = {
     ...(dependsOn === undefined ? {} : { dependsOn }),
     ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
     ...(mutex === undefined ? {} : { mutex })
   };
-  if (check.definition === null || check.execution === null || check.options === null) {
+  if (
+    check.definition === null ||
+    check.execution === null ||
+    check.options === null ||
+    visibility === null
+  ) {
     return Object.freeze({
       checkId: check.checkId,
       checks,
@@ -33,7 +39,8 @@ function materializeCheck(check: ParsedCheck): Check {
     displayName: check.displayName,
     execution: check.execution,
     options: check.options,
-    ...scheduling
+    ...scheduling,
+    visibility
   });
 }
 

@@ -18,8 +18,8 @@ function definition(checks: readonly Check[]) {
   });
 }
 
-function check(checkId = "custom"): Check {
-  return { checkId, displayName: "Custom", execution: () => PASSED };
+function check(checkId = "custom", execution: Check["execution"] = () => PASSED): Check {
+  return { checkId, displayName: "Custom", execution };
 }
 
 function failingProgressWriter(): ProgressWriter {
@@ -73,7 +73,14 @@ describe("Package Run progress result priority", () => {
   it("mutes ordinary progress events after a settled writer failure while preserving final facts", async () => {
     const output = capturedProgressWriter(2);
     const result = await executeValidatedRun(
-      definition([check("first"), check("second")]),
+      definition([
+        check("first", () => ({
+          status: "passed",
+          data: {},
+          messages: [{ level: "info", code: "writer-retained", message: "retained message" }]
+        })),
+        check("second")
+      ]),
       {},
       [],
       { progressWriterFactory: () => output.writer }
@@ -87,7 +94,7 @@ describe("Package Run progress result priority", () => {
     assert.equal(output.attempts[0], "Vibe Check\ntotal 2 checks\n\nChecks:\n");
     assert.match(
       output.attempts[1] ?? "",
-      /^ {2}\[1\/2] Custom \| passed \| \d+(?:\.\d+)?(?:ms|s)\n$/
+      /^ {2}\[1\/2] Custom \| passed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[info] retained message\n$/
     );
     assert.deepEqual(output.writes, ["Vibe Check\ntotal 2 checks\n\nChecks:\n"]);
     assert.deepEqual(
@@ -97,6 +104,14 @@ describe("Package Run progress result priority", () => {
         { checkId: "second", outcome: PASSED }
       ]
     );
+    assert.deepEqual(result.checkMessages, [
+      {
+        checkId: "first",
+        level: "info",
+        code: "writer-retained",
+        message: "retained message"
+      }
+    ]);
   });
 
   it("keeps execution cancellation distinct when progress presentation has failed", async () => {

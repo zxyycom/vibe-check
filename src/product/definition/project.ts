@@ -20,6 +20,7 @@ import {
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
+  type CheckVisibility,
   type InheritableCheckCollection
 } from "./custom-check.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../public-contract/current.ts";
@@ -128,6 +129,7 @@ export interface NormalizedCheckDeclaration {
   readonly mutex: readonly string[];
   /** Definition-validated JSON data that contributes to the fingerprint only. */
   readonly options: object;
+  readonly visibility: CheckVisibility;
 }
 
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
@@ -206,7 +208,8 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     execution: leaf.execution,
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,
-    options: leaf.options
+    options: leaf.options,
+    visibility: leaf.visibility
   });
 }
 

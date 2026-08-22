@@ -55,16 +55,26 @@ export default defineConfig({
 
 `defineCheck` improves TypeScript inference only. Runtime validation is the authority: it snapshots closed plain data, rejects unknown keys and malformed declarative fields, and leaves execution callbacks as trusted project code. A Check with `execution` owns its `options`. A Check without execution is a container; it may only carry recursive `checks` and scheduling fields. An empty container is accepted with a definition warning rather than silently becoming executable.
 
-An executable Check returns exactly one terminal result:
+An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
 
 ```ts
-{ status: "passed", data: object }
-{ status: "failed", data: object }
-{ status: "not-applicable", reason?: { code: string } }
-{ status: "unavailable", reason: { code: string } }
+{ status: "passed", data: object, messages?: readonly CheckMessage[] }
+{ status: "failed", data: object, messages?: readonly CheckMessage[] }
+{ status: "not-applicable", reason?: { code: string }, messages?: readonly CheckMessage[] }
+{ status: "unavailable", reason: { code: string }, messages?: readonly CheckMessage[] }
 ```
 
 `passed` and `failed` require an object final data value; an empty object is the authoring form for no domain data. A callback may separately call `records.report({ id }, data)` zero or more times. These final returns and two-argument reporting are the complete shared result surface: a Check owns its data shape, and a Project Run supplies only explicit invocation controls.
+
+`messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
+`info | warning | error`; `code` matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$` in the owning Check namespace;
+and `message` is a non-empty string, without trimming, Unicode normalization, or a Product item/length cap.
+`CheckMessage` is a supporting declaration used by `CheckResult`, not an additional package-root named type.
+Omitted, own-property `undefined`, and an empty array all mean no messages. Product keeps author item order
+without de-duplication or normalization. It validates the complete attachment
+descriptor-safely with the terminal result: a malformed item or attachment makes the author result
+unavailable and no partial messages are accepted. Messages are supplemental human/programmatic detail,
+not final data or supplemental Records.
 
 ## Recursive Check tree
 
@@ -95,6 +105,13 @@ const editedScheduling = {
   mutex: inherit({ add: ["network"] })
 };
 ```
+
+An executable Check may declare `visibility: "always" | "attention"`. Omission and explicit `undefined`
+normalize to `always`; a container cannot declare visibility, does not pass it to children, and unknown
+values fail Definition validation. Visibility is declarative presentation identity: normalized executable
+declarations always carry it, so `always` has the same fingerprint whether omitted or explicit and
+`attention` changes that fingerprint. It does not change scheduling, execution, options, Check/Record
+facts, machine output, Run Controls, or invocation-wide progress configuration.
 
 The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs their direct callbacks subject to dependencies, mutexes, and the effective parallel budget.
 
@@ -136,16 +153,19 @@ Each row is the complete initial `options.scanner` branch for its default Check.
 
 Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/effect facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ options, project, records, signal }`. `project` contains the normalized root, file scope, cache context, and canonical `flags`. Product contains ordinary callback, record, cancellation, and prerequisite failures as an unavailable Check outcome. `reason.code` can be `prerequisite-unavailable` with `reason.checkIds` for blocked dependents. Invalid configuration returns a configuration result before callback work. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`.
+A callback receives exactly `{ options, project, records, signal }`. `project` contains the normalized root, file scope, cache context, and canonical `flags`. Product contains ordinary callback, record, cancellation, and prerequisite failures as an unavailable Check outcome. `reason.code` can be `prerequisite-unavailable` with `reason.checkIds` for blocked dependents. Invalid configuration returns a configuration result before callback work. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
 
 ## Run effects and compatibility boundary
 
 Effects own only cache, progress, and output destinations; controls may override their settings for an
 invocation. Progress is enabled by the Product default: it owns the execution header, settled Check lifecycle
-feedback, and final execution summary on its target stream. TTY targets may additionally show a temporary
-running region; non-TTY or dumb targets retain only settled feedback and the final summary. Progress
-presentation is not a project callback, observer, or renderer API, and a progress write failure stops that
-effect without changing Check execution facts. Flags are callback-local context: Product does not interpret
+feedback, and final execution summary on its target stream. TTY targets additionally show every running Check
+in a temporary region; non-TTY or dumb targets retain only settled feedback and the final summary. On
+settlement, `attention` hides only a passed Check with no messages. Every other four-state outcome, and a
+passed `attention` Check with messages, emits its row plus all messages as one contiguous write; hidden
+Checks still consume the canonical completion ordinal and final counts. Progress presentation is not a project
+callback, observer, or renderer API, and a progress write failure stops that effect without changing Check
+execution facts or accepted `checkMessages`. Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned transcripts, such as
 the repository Gate log directory, are not a Product `logs` effect.
 

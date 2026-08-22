@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import {
@@ -9,6 +12,7 @@ import {
   type CheckExecution,
   type RunControls
 } from "../definition/project.ts";
+import { validateMachinePublicationSetV4 } from "../quality-core/output/publication-v4/index.ts";
 import { run } from "./index.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({ result: true }) });
@@ -103,6 +107,34 @@ describe("Package Run core integration", () => {
       reason: { code: "invalid-execution-result" }
     });
 
+    const acceptedAuthorCode = await run(
+      definition([
+        check({
+          execution: () => ({
+            status: "unavailable",
+            reason: { code: "invalid-execution-result" },
+            messages: [
+              {
+                level: "error",
+                code: "author-diagnostic",
+                message: "The author deliberately used this reason code"
+              }
+            ]
+          })
+        })
+      ])
+    );
+    assert.equal(acceptedAuthorCode.kind, "completed");
+    if (acceptedAuthorCode.kind !== "completed") return;
+    assert.deepEqual(acceptedAuthorCode.checkMessages, [
+      {
+        checkId: "custom",
+        level: "error",
+        code: "author-diagnostic",
+        message: "The author deliberately used this reason code"
+      }
+    ]);
+
     let retainedReporter:
       | Readonly<{ report(identity: { id: string }, data: object): void }>
       | undefined;
@@ -113,7 +145,13 @@ describe("Package Run core integration", () => {
             retainedReporter = context.records;
             context.records.report({ id: "retained" }, { value: true });
             context.records.report({ id: "retained" }, { value: false });
-            return PASSED;
+            return {
+              status: "passed",
+              data: { result: true },
+              messages: [
+                { level: "warning", code: "retained", message: "This must not be accepted" }
+              ]
+            };
           }
         })
       ])
@@ -127,7 +165,57 @@ describe("Package Run core integration", () => {
     assert.deepEqual(invalidRecord.snapshot.records, [
       { checkId: "custom", id: "retained", data: { value: true } }
     ]);
+    assert.deepEqual(invalidRecord.checkMessages, []);
     assert.throws(() => retainedReporter?.report({ id: "late" }, {}), /reporter is closed/);
+
+    const controller = new AbortController();
+    const executionCancellation = await run(
+      defineConfig({
+        checks: [
+          {
+            checkId: "accepted",
+            displayName: "Accepted",
+            execution: () => ({
+              status: "passed",
+              data: {},
+              messages: [{ level: "info", code: "settled", message: "Accepted before stop" }]
+            })
+          },
+          {
+            checkId: "stop",
+            displayName: "Stop",
+            dependsOn: ["accepted"],
+            execution: () => {
+              controller.abort();
+              return PASSED;
+            }
+          },
+          {
+            checkId: "waiting",
+            displayName: "Waiting",
+            execution: () => PASSED
+          }
+        ],
+        effects: {
+          cache: { enabled: false },
+          output: { enabled: false },
+          progress: { enabled: false }
+        },
+        scheduler: { maxParallel: 1 }
+      }),
+      { signal: controller.signal }
+    );
+    assert.equal(executionCancellation.kind, "cancelled");
+    if (executionCancellation.kind !== "cancelled" || executionCancellation.phase !== "execution")
+      return;
+    assert.deepEqual(executionCancellation.checkMessages, [
+      {
+        checkId: "accepted",
+        level: "info",
+        code: "settled",
+        message: "Accepted before stop"
+      }
+    ]);
   });
 
   it("publishes raw facts and derives an aggregate only from explicit selected statuses", async () => {
@@ -354,6 +442,122 @@ describe("Package Run core integration", () => {
       );
       assert.deepEqual(malformedSelection, invalidSelection);
       assert.equal(calls, 0);
+    }
+
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-terminal-message-integration-"));
+    try {
+      let dependentCalls = 0;
+      const integration = await run(
+        defineConfig({
+          checks: [
+            {
+              checkId: "attention-support",
+              displayName: "Attention support",
+              visibility: "attention",
+              execution: (context) => {
+                context.records.report({ id: "support-record" }, { retained: true });
+                return { status: "passed", data: { supporting: true } };
+              }
+            },
+            {
+              checkId: "message-source",
+              displayName: "Message source",
+              execution: () => ({
+                status: "passed",
+                data: { source: true },
+                messages: [
+                  { level: "warning", code: "source-message", message: "Source needs review" }
+                ]
+              })
+            },
+            {
+              checkId: "dependent",
+              displayName: "Dependent",
+              dependsOn: ["message-source"],
+              execution: () => {
+                dependentCalls += 1;
+                return { status: "passed", data: { dependent: true } };
+              }
+            }
+          ],
+          effects: {
+            cache: { enabled: false },
+            output: { directory: "machine", enabled: true },
+            progress: { enabled: false }
+          }
+        }),
+        {
+          checkAggregation: {
+            checks: "all",
+            mode: "all",
+            unavailable: "propagate",
+            notApplicable: "exclude",
+            empty: "failed"
+          },
+          projectRoot: root
+        }
+      );
+      assert.equal(integration.kind, "completed");
+      if (integration.kind !== "completed") return;
+      assert.equal(dependentCalls, 1);
+      assert.equal(integration.aggregate, "passed");
+      assert.deepEqual(
+        integration.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
+        [
+          {
+            checkId: "attention-support",
+            outcome: { status: "passed", data: { supporting: true } }
+          },
+          { checkId: "dependent", outcome: { status: "passed", data: { dependent: true } } },
+          {
+            checkId: "message-source",
+            outcome: { status: "passed", data: { source: true } }
+          }
+        ]
+      );
+      assert.deepEqual(integration.snapshot.records, [
+        { checkId: "attention-support", id: "support-record", data: { retained: true } }
+      ]);
+      assert.deepEqual(
+        integration.checkDurations.map(({ checkId, durationMs }) => [checkId, typeof durationMs]),
+        [
+          ["attention-support", "number"],
+          ["dependent", "number"],
+          ["message-source", "number"]
+        ]
+      );
+      assert.deepEqual(integration.checkMessages, [
+        {
+          checkId: "message-source",
+          level: "warning",
+          code: "source-message",
+          message: "Source needs review"
+        }
+      ]);
+
+      const runJson = readFileSync(join(root, "machine", "run.json"), "utf8");
+      const recordsNdjson = readFileSync(join(root, "machine", "records.ndjson"), "utf8");
+      const machine = validateMachinePublicationSetV4({
+        recordsNdjson: Buffer.from(recordsNdjson),
+        runJson: Buffer.from(runJson)
+      });
+      assert.equal(machine.ok, true, machine.ok ? "" : machine.diagnostic.message);
+      if (!machine.ok) return;
+      assert.equal(machine.value.run.schemaVersion, "vibe-check.run.v4");
+      assert.equal(machine.value.records[0]?.schemaVersion, "vibe-check.record.v4");
+      assert.deepEqual(
+        machine.value.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
+        [
+          ["attention-support", "passed"],
+          ["dependent", "passed"],
+          ["message-source", "passed"]
+        ]
+      );
+      assert.doesNotMatch(runJson, /"(?:messages|visibility)"/);
+      assert.doesNotMatch(recordsNdjson, /"(?:messages|visibility)"/);
+      assert.doesNotMatch(JSON.stringify(machine.value), /"(?:messages|visibility)"/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
     }
   });
 });

@@ -16,15 +16,18 @@ describe("check-record Core Check session", () => {
       { definition: definition("alpha-check") }
     ]);
     const zeta = session.openCheckScope("zeta-check");
-    assert.deepEqual(zeta.settle({ status: "not-applicable" }), { status: "not-applicable" });
+    assert.deepEqual(zeta.settle({ status: "not-applicable" }), {
+      authorResultAccepted: true,
+      outcome: { status: "not-applicable" }
+    });
     const alpha = session.openCheckScope("alpha-check");
     assert.equal(
       alpha.records.report({ id: "sample" }, { "2": "two", "10": { "2": 2, "10": 10 } }),
       "committed"
     );
     assert.deepEqual(alpha.settle({ status: "failed", data: { "2": "two", "10": 10 } }), {
-      status: "failed",
-      data: { "2": "two", "10": 10 }
+      authorResultAccepted: true,
+      outcome: { status: "failed", data: { "2": "two", "10": 10 } }
     });
 
     const snapshot = session.freeze();
@@ -73,8 +76,8 @@ describe("check-record Core Check session", () => {
     assert.equal(alpha.records.report({ id: "shared" }, { retained: true }), "rejected");
     assert.equal(beta.records.report({ id: "shared" }, { independent: true }), "committed");
     assert.deepEqual(alpha.settle({ status: "passed", data: { ignored: true } }), {
-      status: "unavailable",
-      reason: { code: "record-conflict" }
+      authorResultAccepted: false,
+      outcome: { status: "unavailable", reason: { code: "record-conflict" } }
     });
     beta.settle({ status: "not-applicable" });
 
@@ -92,8 +95,8 @@ describe("check-record Core Check session", () => {
     assert.equal(alpha.records.report({ id: "retained" }, { value: true }), "committed");
     assert.equal(alpha.records.report({ id: "invalid", extra: true }, {}), "rejected");
     assert.deepEqual(alpha.settle({ status: "passed", data: {} }), {
-      status: "unavailable",
-      reason: { code: "record-invalid" }
+      authorResultAccepted: false,
+      outcome: { status: "unavailable", reason: { code: "record-invalid" } }
     });
     assert.throws(() => alpha.settle({ status: "failed", data: {} }), CoreInvariantFailure);
     const snapshot = session.freeze();

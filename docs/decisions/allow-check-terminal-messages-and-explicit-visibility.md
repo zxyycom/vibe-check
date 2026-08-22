@@ -1,7 +1,7 @@
 ---
 title: 允许 Check 返回终态消息并显式声明 visibility
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-22T08:48:11Z
 purpose: 让需要补充提示的 Check 在终态返回结构化消息，并以显式 visibility 控制人读行。
 background: 项目已有 public runtime 防护；消息必须 settlement-only、可程序化读取且由 Check 按需附带。

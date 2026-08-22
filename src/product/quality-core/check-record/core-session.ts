@@ -26,9 +26,15 @@ export interface RecordSink {
 export interface TrustedCheckScope {
   readonly records: RecordSink;
   /** Core is the only author-result validation/canonicalization boundary. */
-  readonly settle: (outcome: unknown) => CheckOutcome;
+  readonly settle: (outcome: unknown) => AuthorCheckSettlement;
   /** Private Product lifecycle outcomes may include contained prerequisite IDs. */
   readonly settleProduct: (outcome: CheckOutcome) => CheckOutcome;
+}
+
+/** Core's private marker for an author result that survived every settlement guard. */
+export interface AuthorCheckSettlement {
+  readonly authorResultAccepted: boolean;
+  readonly outcome: CheckOutcome;
 }
 
 export interface CoreCheckSession {
@@ -114,7 +120,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
           return this.#recordStore.report(slot, identity, data);
         }
       }),
-      settle: (outcome: unknown): CheckOutcome => this.#settleSlot(slot, outcome, false),
+      settle: (outcome: unknown): AuthorCheckSettlement => this.#settleAuthorSlot(slot, outcome),
       settleProduct: (outcome: CheckOutcome): CheckOutcome => this.#settleSlot(slot, outcome, true)
     });
   }
@@ -167,6 +173,20 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       return coreInvariant("Trusted Core Check settlement is duplicate, late, or out of scope");
     }
     return this.#commitTerminal(slot, outcome, productOutcome);
+  }
+
+  #settleAuthorSlot(slot: CoreSlot, terminal: unknown): AuthorCheckSettlement {
+    if (this.#snapshot !== undefined || slot.lifecycle.kind !== "open") {
+      return coreInvariant("Trusted Core Check settlement is duplicate, late, or out of scope");
+    }
+    const diagnostic = terminalDiagnostic(slot);
+    const normalized = diagnostic === undefined ? normalizeOutcome(terminal, false) : undefined;
+    const outcome = normalized ?? unavailable(diagnostic ?? "invalid-execution-result");
+    slot.lifecycle = Object.freeze({ kind: "settled", outcome });
+    return Object.freeze({
+      authorResultAccepted: diagnostic === undefined && normalized !== undefined,
+      outcome
+    });
   }
 
   #commitTerminal(slot: CoreSlot, terminal: unknown, productOutcome = false): CheckOutcome {

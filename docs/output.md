@@ -9,7 +9,7 @@
 | `run.json`       | 单一 UTF-8 JSON value，schema `urn:vibe-check:schema:run:v4`                                                                 |
 | `records.ndjson` | canonical ordered supplemental Record rows；非空时每行一个 JSON value 且以 LF 结束，schema `urn:vibe-check:schema:record:v4` |
 
-`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、effect status、execution timing 和人读内容不是 machine publication fields。
+`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、effect status、execution timing、terminal messages、visibility 和人读内容不是 machine publication fields。
 
 Output effect 只创建这两个 canonical paths 及其短暂的 owned temp files；artifact directory 不包含
 scanner-private material。
@@ -58,7 +58,9 @@ candidate write 或首次 rename 的 handled failure 保留 prior canonical set�
 
 ## Progress and presentation boundaries
 
-Product progress 仍可向人显示 Check lifecycle status、duration 和受控 reason code；它使用 producing Run 的 lifecycle facts，不从 machine artifacts反向恢复状态。
+Product progress 向人显示 Check lifecycle status、duration、受控 reason code 和已接受的 terminal messages；它使用 producing Run 的 lifecycle facts，不从 machine artifacts反向恢复状态。每个 visible settled block 先输出 row，再按 author order 输出缩进 message lines；message `code` 只留在 `RunResult.checkMessages`，不重复到终端。`attention` 只省略 passed 且无 messages 的 settled row，TTY running rows始终可见，所有 settled outcomes仍计入 canonical ordinal和最终计数。
+
+Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只分别给这三个 level label 加 cyan、yellow、red，不给 message body 或 status 上色。display name、reason code 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029，防止它们控制终端；`RunResult.checkMessages` 保留已验证的原 message string。
 
 v4 machine publication carries structured final/Record data only; it defines no human-readable projection of arbitrary data. Product progress remains the current human-facing lifecycle surface. Any typed dependency reader or explicit presentation API belongs to its downstream Change and cannot be inferred from this machine contract.
 

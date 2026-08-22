@@ -3,6 +3,7 @@ import type { CheckDefinition } from "../check-definition.ts";
 import {
   isInheritedCheckCollection,
   snapshotInheritedCheckCollection,
+  type CheckVisibility,
   type CheckExecution,
   type InheritedCheckCollection
 } from "../custom-check.ts";
@@ -34,6 +35,7 @@ export interface ParsedCheck {
   readonly mutex: ParsedCheckCollection | undefined;
   readonly options: object | null;
   readonly path: string;
+  readonly visibility: CheckVisibility | null;
 }
 
 export interface ParsedCheckTree {
@@ -60,6 +62,7 @@ interface ParsedCheckFields {
   readonly definition: CheckDefinition | null;
   readonly execution: CheckExecution | null;
   readonly options: object | null;
+  readonly visibility: CheckVisibility | null;
 }
 
 const CHECK_KEYS = [
@@ -70,13 +73,15 @@ const CHECK_KEYS = [
   "execution",
   "maxParallel",
   "mutex",
-  "options"
+  "options",
+  "visibility"
 ] as const;
 
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
   execution: null,
-  options: null
+  options: null,
+  visibility: null
 });
 
 /**
@@ -122,7 +127,8 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
     options: fields.options,
-    path
+    path,
+    visibility: fields.visibility
   });
 }
 
@@ -194,7 +200,9 @@ function parseCheckFields(
   execution: CheckExecution | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
-    return Object.hasOwn(data, "options") ? undefined : CONTAINER_CHECK_FIELDS;
+    return Object.hasOwn(data, "options") || Object.hasOwn(data, "visibility")
+      ? undefined
+      : CONTAINER_CHECK_FIELDS;
   }
   const definition = parseDefinition(data);
   if (definition === undefined) return undefined;
@@ -202,7 +210,17 @@ function parseCheckFields(
   if (options === undefined || !validateDefaultCheckOptions(definition.checkId, options)) {
     return undefined;
   }
-  return Object.freeze({ definition, execution, options });
+  const visibility = parseVisibility(data);
+  if (visibility === undefined) return undefined;
+  return Object.freeze({ definition, execution, options, visibility });
+}
+
+function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {
+  if (!Object.hasOwn(data, "visibility")) return "always";
+  const visibility = data.visibility;
+  return visibility === undefined || visibility === "always" || visibility === "attention"
+    ? (visibility ?? "always")
+    : undefined;
 }
 
 function warnForMeaninglessCheck(

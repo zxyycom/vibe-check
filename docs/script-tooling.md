@@ -252,6 +252,11 @@ bun run quality
 observation；需要 Gate 的项目在自己的 bound Run 中选择 eligible Check IDs、显式提供 aggregation
 configuration，并由 adapter 映射 Run facts，而不是由 package script 隐式重算质量结论。
 
+candidate 的外部 consumer 同时 typecheck 既有 public `Check` / `CheckResult` / `RunResult` surface 中的
+terminal-message 和 `attention` visibility shape，并运行一个 `attention` Check with a message。该
+installed Run 的 non-TTY human output 保留 settled row/message，`RunResult.checkMessages` 提供相同的
+structured readback；没有新增 named message 或 duration type root。
+
 | 命令      | 当前行为                                                                                      |
 | --------- | --------------------------------------------------------------------------------------------- |
 | `quality` | 运行完整 repository definition；它是 neutral observation，不配置 aggregation 或映射 Gate exit |
@@ -286,8 +291,11 @@ identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<uni
 transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；这是 Project Gate 自己拥有的
 本地诊断目录，不是 Product `logs` effect 或 machine output。Product-owned progress 是唯一
 共享进度流。零退出且 transcript 写入成功为 passed final data；非零退出产生不含 child output 的 Check-local
-supplemental Record 并为 failed final data。已运行 command 收到取消时，adapter 先保存其 transcript，再映射为
-`execution-cancelled` unavailable；未启动、无法取得 exit facts 或无法写入 transcript 也为 unavailable。
+supplemental Record 并为 failed final data，同时附带唯一的 `error` / `command-failed` terminal message：它只含
+exit code、signal（或 `none`）和 transcript basename。stdout、stderr、完整 log path、command、args、credential
+URL、digest 和 transcript content 不得进入该 message 或 `RunResult.checkMessages`。已运行 command 收到取消时，adapter
+先保存其 transcript，再映射为 `execution-cancelled` unavailable；未启动、无法取得 exit facts 或无法写入 transcript
+也为 unavailable，且不附带该 message。
 
 bound Project Run 从同一 profile/tag eligibility selection 得到 eligible Check IDs，并用 `{ mode: "all",
 unavailable: "propagate", notApplicable: "fail", empty: "failed" }` 调用 Product aggregation。excluded

@@ -1,5 +1,5 @@
 import type { CheckDefinition } from "../check-definition.ts";
-import type { CheckExecution } from "../custom-check.ts";
+import type { CheckExecution, CheckVisibility } from "../custom-check.ts";
 import {
   parseCheckTreeAuthoring,
   type MeaninglessCheckWarning,
@@ -17,6 +17,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly options: object;
+  readonly visibility: CheckVisibility;
 }
 
 export interface ResolvedCheckTree {
@@ -68,7 +69,13 @@ function flattenCheck(
     maxParallel: check.maxParallel ?? inherited.maxParallel,
     mutex: resolveCollection(inherited.mutex, check.mutex)
   });
-  if (check.execution !== null && check.definition !== null && check.options !== null) {
+  const visibility = check.visibility;
+  if (
+    check.execution !== null &&
+    check.definition !== null &&
+    check.options !== null &&
+    visibility !== null
+  ) {
     leaves.push(
       Object.freeze({
         definition: check.definition,
@@ -76,7 +83,8 @@ function flattenCheck(
         execution: check.execution,
         maxParallel: scheduling.maxParallel,
         mutex: scheduling.mutex,
-        options: check.options
+        options: check.options,
+        visibility
       })
     );
   }

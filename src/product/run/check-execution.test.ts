@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { CheckExecution, CheckProjectContext } from "../definition/custom-check.ts";
+import type {
+  CheckExecution,
+  CheckProjectContext,
+  CheckResult
+} from "../definition/custom-check.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
 import {
   executeResolvedChecks,
@@ -35,7 +39,8 @@ function normalized(
     execution,
     maxParallel: overrides.maxParallel ?? 1,
     mutex: [],
-    options: {}
+    options: {},
+    visibility: "always"
   };
 }
 
@@ -86,9 +91,14 @@ function deferred<T>(): Readonly<{
 
 describe("Package Run direct Check execution", () => {
   it("retains supplemental Records independently from a passed final result", async () => {
+    const messages = [
+      { level: "info" as const, code: "summary", message: "One detail" },
+      { level: "warning" as const, code: "watch", message: "Two details" },
+      { level: "error" as const, code: "failure", message: "Three details" }
+    ];
     const result = await execute((context) => {
       context.records.report({ id: "sample" }, { durationMs: 12 });
-      return { status: "passed", data: { summary: "ok" } };
+      return { status: "passed", data: { summary: "ok" }, messages };
     });
 
     assert.equal(result.kind, "completed");
@@ -99,6 +109,76 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(result.snapshot.records, [
       { checkId: "direct-check", id: "sample", data: { durationMs: 12 } }
     ]);
+    assert.deepEqual(result.checkMessages, [
+      { checkId: "direct-check", level: "info", code: "summary", message: "One detail" },
+      { checkId: "direct-check", level: "warning", code: "watch", message: "Two details" },
+      { checkId: "direct-check", level: "error", code: "failure", message: "Three details" }
+    ]);
+    assert.equal(Object.isFrozen(result.checkMessages), true);
+    messages[0].message = "Mutated after settlement";
+    assert.equal(result.checkMessages[0]?.message, "One detail");
+
+    const whitespaceMessage = " \t ";
+    const longMessage = "x".repeat(16_384);
+    const manyMessages = Array.from({ length: 257 }, (_, index) => ({
+      level: "info" as const,
+      code: `detail-${index}`,
+      message: `Detail ${index}`
+    }));
+    const unboundedResult = await execute(() => ({
+      status: "passed",
+      data: {},
+      messages: [
+        { level: "warning", code: "whitespace", message: whitespaceMessage },
+        { level: "error", code: "long-text", message: longMessage },
+        ...manyMessages
+      ]
+    }));
+    assert.equal(unboundedResult.checkMessages.length, 259);
+    assert.deepEqual(unboundedResult.checkMessages[0], {
+      checkId: "direct-check",
+      level: "warning",
+      code: "whitespace",
+      message: whitespaceMessage
+    });
+    assert.equal(unboundedResult.checkMessages[1]?.message, longMessage);
+    assert.deepEqual(unboundedResult.checkMessages.at(-1), {
+      checkId: "direct-check",
+      level: "info",
+      code: "detail-256",
+      message: "Detail 256"
+    });
+    assert.equal(Object.isFrozen(unboundedResult.checkMessages), true);
+    assert.equal(Object.isFrozen(unboundedResult.checkMessages[1]), true);
+
+    const terminalResults: readonly CheckResult[] = [
+      { status: "passed", data: {} },
+      { status: "failed", data: {}, messages: undefined },
+      { status: "not-applicable", messages: [] },
+      {
+        status: "unavailable",
+        reason: { code: "declared-unavailable" },
+        messages: [{ level: "warning", code: "not-ready", message: "Scanner is unavailable" }]
+      }
+    ];
+    for (const terminal of terminalResults) {
+      const terminalResult = await execute(() => terminal);
+      assert.equal(terminalResult.kind, "completed");
+      assert.equal(terminalResult.snapshot.checks[0]?.outcome.status, terminal.status);
+      assert.deepEqual(
+        terminalResult.checkMessages,
+        terminal.status === "unavailable"
+          ? [
+              {
+                checkId: "direct-check",
+                level: "warning",
+                code: "not-ready",
+                message: "Scanner is unavailable"
+              }
+            ]
+          : []
+      );
+    }
   });
 
   it("contains invalid or duplicate Record writes without revising prior Records", async () => {
@@ -117,9 +197,40 @@ describe("Package Run direct Check execution", () => {
       { checkId: "direct-check", id: "retained", data: { value: true } }
     ]);
 
+    const invalidMessageItems: readonly unknown[] = [
+      { level: "verbose", code: "invalid-level", message: "Invalid level" },
+      { level: "info", code: "", message: "Empty code" },
+      { level: "info", code: "not_kebab", message: "Invalid code grammar" },
+      { level: "info", code: "Uppercase", message: "Uppercase code" },
+      { level: "info", code: "empty-message", message: "" },
+      { level: "info", code: "non-string-message", message: 42 },
+      { level: "info", code: "extra-key", message: "Unknown field", extra: true }
+    ];
+    for (const invalidItem of invalidMessageItems) {
+      const invalidMessageResult = await execute(() => {
+        const terminal: CheckResult = { status: "passed", data: {}, messages: [] };
+        Object.defineProperty(terminal, "messages", {
+          configurable: true,
+          enumerable: true,
+          value: [
+            { level: "info", code: "valid-prefix", message: "This must not escape" },
+            invalidItem
+          ],
+          writable: true
+        });
+        return terminal;
+      });
+      assert.deepEqual(invalidMessageResult.snapshot.checks[0]?.outcome, {
+        status: "unavailable",
+        reason: { code: "invalid-execution-result" }
+      });
+      assert.deepEqual(invalidMessageResult.checkMessages, []);
+    }
+
     const adversarialData: readonly Readonly<{
       readonly create: () => Readonly<{
         readonly assertNotCalled: () => void;
+        readonly messageAttachment?: boolean;
         readonly value: object;
       }>;
     }>[] = [
@@ -179,15 +290,65 @@ describe("Package Run direct Check execution", () => {
         create: () => {
           const value: unknown[] = [];
           value.length = 2;
-          value[1] = true;
-          return Object.freeze({ assertNotCalled: () => undefined, value });
+          value[1] = { level: "info", code: "sparse", message: "Sparse attachment" };
+          return Object.freeze({
+            assertNotCalled: () => undefined,
+            messageAttachment: true,
+            value
+          });
         }
       },
       {
         create: () => {
-          const value: unknown[] = [true];
+          const value: unknown[] = [{ level: "info", code: "named", message: "Named attachment" }];
           Object.defineProperty(value, "named", { enumerable: true, value: true });
-          return Object.freeze({ assertNotCalled: () => undefined, value });
+          return Object.freeze({
+            assertNotCalled: () => undefined,
+            messageAttachment: true,
+            value
+          });
+        }
+      },
+      {
+        create: () => {
+          let called = false;
+          const value: unknown[] = [];
+          Object.defineProperty(value, "0", {
+            enumerable: true,
+            get: () => {
+              called = true;
+              throw new Error("array accessor must not execute");
+            }
+          });
+          return Object.freeze({
+            assertNotCalled: () => assert.equal(called, false),
+            messageAttachment: true,
+            value
+          });
+        }
+      },
+      {
+        create: () => {
+          const value: unknown[] = [
+            { level: "info", code: "symbol", message: "Symbol attachment" }
+          ];
+          Object.defineProperty(value, Symbol("message-symbol"), { enumerable: true, value: true });
+          return Object.freeze({
+            assertNotCalled: () => undefined,
+            messageAttachment: true,
+            value
+          });
+        }
+      },
+      {
+        create: () => {
+          const value = [{ level: "info", code: "nested", message: "Nested message" }];
+          Object.setPrototypeOf(value, { inherited: true });
+          return Object.freeze({
+            assertNotCalled: () => undefined,
+            messageAttachment: true,
+            value
+          });
         }
       },
       {
@@ -205,7 +366,7 @@ describe("Package Run direct Check execution", () => {
         }
       }
     ];
-    for (const channel of ["final", "record"] as const) {
+    for (const channel of ["final", "messages", "record"] as const) {
       for (const adversary of adversarialData) {
         let reporter:
           | Readonly<{ report(identity: { id: string }, data: object): void }>
@@ -218,9 +379,22 @@ describe("Package Run direct Check execution", () => {
             if (channel === "record") {
               context.records.report({ id: "invalid" }, { hostile: hostile.value });
             }
-            return channel === "final"
-              ? { status: "passed", data: { hostile: hostile.value } }
-              : { status: "passed", data: { valid: true } };
+            if (channel === "final") return { status: "passed", data: { hostile: hostile.value } };
+            if (channel === "messages") {
+              const malformedAttachment: CheckResult = {
+                status: "passed",
+                data: { valid: true },
+                messages: []
+              };
+              Object.defineProperty(malformedAttachment, "messages", {
+                configurable: true,
+                enumerable: true,
+                value: hostile.messageAttachment ? hostile.value : [hostile.value],
+                writable: true
+              });
+              return malformedAttachment;
+            }
+            return { status: "passed", data: { valid: true } };
           },
           { checkId: "contained", maxParallel: 2 }
         );
@@ -241,7 +415,9 @@ describe("Package Run direct Check execution", () => {
             displayName: "contained",
             outcome: {
               status: "unavailable",
-              reason: { code: channel === "final" ? "invalid-execution-result" : "record-invalid" }
+              reason: {
+                code: channel === "record" ? "record-invalid" : "invalid-execution-result"
+              }
             }
           },
           {
@@ -253,6 +429,7 @@ describe("Package Run direct Check execution", () => {
         assert.deepEqual(containedResult.snapshot.records, [
           { checkId: "contained", id: "retained", data: { retained: true } }
         ]);
+        assert.deepEqual(containedResult.checkMessages, []);
         hostile.assertNotCalled();
         const closedReporter = reporter;
         if (closedReporter === undefined)
@@ -288,7 +465,9 @@ describe("Package Run direct Check execution", () => {
         checkId: "direct-check",
         displayName: "direct-check",
         outcome: { status: "failed", data: { failures: 1 } },
-        durationMs: 15
+        durationMs: 15,
+        messages: [],
+        visibility: "always"
       }
     ]);
     assert.deepEqual(result.checkDurations, [{ checkId: "direct-check", durationMs: 15 }]);
@@ -310,15 +489,22 @@ describe("Package Run direct Check execution", () => {
           async () => {
             slowStarted.resolve(undefined);
             await releaseSlow.promise;
-            return { status: "passed", data: {} };
+            return {
+              status: "passed",
+              data: {},
+              messages: [{ level: "info", code: "slow-finished", message: "Slow finished" }]
+            };
           },
           { checkId: "a-slow", displayName: "Slow", maxParallel: 2 }
         ),
-        normalized(() => ({ status: "passed", data: {} }), {
-          checkId: "z-fast",
-          displayName: "Fast",
-          maxParallel: 2
-        })
+        normalized(
+          () => ({
+            status: "passed",
+            data: {},
+            messages: [{ level: "warning", code: "fast-finished", message: "Fast finished" }]
+          }),
+          { checkId: "z-fast", displayName: "Fast", maxParallel: 2 }
+        )
       ],
       clock: scriptedClock([10, 20, 30, 40]),
       lifecycle: Object.freeze({
@@ -349,6 +535,15 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(result.checkDurations, [
       { checkId: "a-slow", durationMs: 30 },
       { checkId: "z-fast", durationMs: 10 }
+    ]);
+    assert.deepEqual(result.checkMessages, [
+      { checkId: "a-slow", level: "info", code: "slow-finished", message: "Slow finished" },
+      {
+        checkId: "z-fast",
+        level: "warning",
+        code: "fast-finished",
+        message: "Fast finished"
+      }
     ]);
   });
 

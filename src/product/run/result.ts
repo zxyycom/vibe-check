@@ -4,6 +4,7 @@ import type {
   ProjectDefinitionDiagnostic,
   RunControls
 } from "../definition/project.ts";
+import type { CheckMessageLevel } from "../definition/custom-check.ts";
 import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import type { RunEffectStatuses } from "./effects.ts";
 
@@ -17,10 +18,19 @@ export type CheckDuration = Readonly<{
   readonly durationMs: number | null;
 }>;
 
+/** A detached terminal message, ordered by canonical Check then author item order. */
+export interface CheckRunMessage {
+  readonly checkId: string;
+  readonly level: CheckMessageLevel;
+  readonly code: string;
+  readonly message: string;
+}
+
 /** Facts shared by completed and post-model effect results. */
 export interface RunResultFacts {
   readonly aggregate: CheckAggregate | null;
   readonly checkDurations: readonly CheckDuration[];
+  readonly checkMessages: readonly CheckRunMessage[];
   readonly snapshot: CoreSnapshot;
 }
 
@@ -51,6 +61,7 @@ export type RunResult = Readonly<
       readonly effects: RunEffectStatuses;
       readonly phase: "execution";
       readonly checkDurations: readonly CheckDuration[];
+      readonly checkMessages: readonly CheckRunMessage[];
       readonly snapshot: CoreSnapshot;
     }
   | ({
@@ -134,7 +145,8 @@ export function executionCancellation(
   definitionWarnings: readonly DefinitionWarning[],
   effects: RunEffectStatuses,
   snapshot: CoreSnapshot,
-  checkDurations: readonly CheckDuration[]
+  checkDurations: readonly CheckDuration[],
+  checkMessages: readonly CheckRunMessage[]
 ): RunResult {
   return Object.freeze({
     kind: "cancelled",
@@ -143,6 +155,7 @@ export function executionCancellation(
     effects,
     phase: "execution",
     checkDurations,
+    checkMessages,
     snapshot
   });
 }

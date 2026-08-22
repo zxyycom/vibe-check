@@ -93,7 +93,7 @@ function closedArrayItems(shape: OwnDataShape, length: number): readonly unknown
 
 export function snapshotClosedArray(value: unknown): readonly unknown[] | undefined {
   try {
-    if (!Array.isArray(value)) return undefined;
+    if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return undefined;
     const shape = ownDataShape(value);
     if (shape === undefined) return undefined;
     const length = closedArrayLength(shape);

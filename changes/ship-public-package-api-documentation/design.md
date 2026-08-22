@@ -14,7 +14,7 @@
 - candidate manifest 当前 `files` 只包含 `index.mjs` 与 `types`；staging audit拒绝除此之外的普通文件。生成的 declarations 会保留 source JSDoc，但多数公共 interface/function 目前没有完整 API comment。
 - API 内容建设属于本 Change；[`publish-public-api-only-npm-package`](../publish-public-api-only-npm-package/) 只负责核对版本、registry、legal/release metadata 与 exact artifact，不在不可逆 release 阶段临时 author README/install guidance。
 
-已归档的[`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)拥有当前 Record contract；[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/) 分别拥有 typed dependency getter 与 terminal messages/visibility contract。后两者必须先提供 declaration/runtime/result evidence，本 Change 再冻结对应 JSDoc 和 examples。
+已归档的[`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)拥有当前 Record contract；[`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/)已交付 terminal messages/visibility declaration、runtime、RunResult、renderer 与 installed-candidate evidence。仍由[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)提供 typed dependency getter evidence；其完成后，本 Change 再冻结剩余 JSDoc 和 examples。
 
 ## Goals / Non-Goals
 

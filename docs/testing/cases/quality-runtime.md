@@ -65,7 +65,7 @@ Entities:
 - `bun|src/product/run/index.core.test.ts|Package Run core integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
   Proves:
-- Ordinary malformed results and Record misuse become the owning unavailable Check outcome. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
+- Ordinary malformed results, malformed terminal-message attachments, and Record misuse become the owning unavailable Check outcome without a partial message escape. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
 
 ## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct dependencies run through the shared graph
 
@@ -120,13 +120,15 @@ Owner: `docs/configuration.md#run-effects-and-compatibility-boundary`
 Entities:
 
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI status color only for color-capable TTY writers`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
 - `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
   Proves:
-- Progress presentation consumes only settled four-state Check facts, prints a duration or `not run`, and renders no unsafe reason detail.
-- TTY color and running-region behavior remain terminal-capability specific; write faults stay observable instead of being hidden.
+- Progress presentation consumes only settled four-state Check facts and accepted terminal messages, prints a duration or `not run`, and renders no unsafe reason detail. `attention` hides only the passed/no-message settled row; every running Check remains visible on TTY.
+- TTY color and running-region behavior remain terminal-capability specific: only message level labels receive color, human text is escaped, and each visible settled row/message block is one write. Write faults stay observable instead of being hidden.
 
 ## Case AUX-RUNTIME-OPTION-001: Product Option explicitly separates presence and absence
 

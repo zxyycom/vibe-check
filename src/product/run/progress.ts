@@ -1,4 +1,4 @@
-import type { CheckOutcome } from "../definition/custom-check.ts";
+import type { CheckMessage, CheckOutcome, CheckVisibility } from "../definition/custom-check.ts";
 
 export interface ProgressWriter {
   readonly color: boolean;
@@ -23,6 +23,8 @@ export type ProgressFeedback = Readonly<
       readonly displayName: string;
       readonly outcome: CheckOutcome;
       readonly durationMs: number | null;
+      readonly visibility: CheckVisibility;
+      readonly messages: readonly CheckMessage[];
     }
   | {
       readonly kind: "final";
@@ -49,12 +51,10 @@ interface RunningCheck {
 }
 
 const COLOR = Object.freeze({
-  failed: "\u001B[31m",
-  notApplicable: "\u001B[36m",
-  passed: "\u001B[32m",
+  error: "\u001B[31m",
+  info: "\u001B[36m",
   reset: "\u001B[0m",
-  running: "\u001B[2m",
-  unavailable: "\u001B[33m"
+  warning: "\u001B[33m"
 });
 
 const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.freeze({
@@ -79,23 +79,25 @@ export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer
       renderedRunningRows = 0;
     }
     completedCount += 1;
-    writer.write(
-      formatSettledRow({
-        completionOrdinal: completedCount,
-        displayName: feedback.displayName,
-        durationMs: feedback.durationMs,
-        outcome: feedback.outcome,
-        totalChecks: preparedTotal,
-        usesColor
-      })
-    );
-    if (!isTTY) return;
     removeRunningCheck(running, feedback.checkId);
+    if (shouldPresentSettledFeedback(feedback)) {
+      writer.write(
+        formatSettledBlock({
+          completionOrdinal: completedCount,
+          displayName: feedback.displayName,
+          durationMs: feedback.durationMs,
+          messages: feedback.messages,
+          outcome: feedback.outcome,
+          totalChecks: preparedTotal,
+          usesColor
+        })
+      );
+    }
+    if (!isTTY) return;
     renderedRunningRows = redrawRunningRegion({
       completedCount,
       running,
       totalChecks: preparedTotal,
-      usesColor,
       writer
     });
   };
@@ -118,7 +120,6 @@ export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer
             completedCount,
             running,
             totalChecks: preparedTotal,
-            usesColor,
             writer
           });
           return;
@@ -150,7 +151,6 @@ function redrawRunningRegion(
     readonly completedCount: number;
     readonly running: readonly RunningCheck[];
     readonly totalChecks: number;
-    readonly usesColor: boolean;
     readonly writer: ProgressWriter;
   }>
 ): number {
@@ -159,8 +159,7 @@ function redrawRunningRegion(
       formatRunningRow({
         displayIndex: input.completedCount + index + 1,
         displayName: check.displayName,
-        totalChecks: input.totalChecks,
-        usesColor: input.usesColor
+        totalChecks: input.totalChecks
       })
     );
   }
@@ -177,20 +176,27 @@ function formatRunningRow(
     readonly displayIndex: number;
     readonly displayName: string;
     readonly totalChecks: number;
-    readonly usesColor: boolean;
   }>
 ): string {
-  return `  [${input.displayIndex}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${colorStatus(
-    "running",
-    input.usesColor
-  )}\n`;
+  return `  [${input.displayIndex}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | running\n`;
 }
 
-function formatSettledRow(
+function shouldPresentSettledFeedback(
+  feedback: Extract<ProgressFeedback, { readonly kind: "settled" }>
+): boolean {
+  return (
+    feedback.visibility !== "attention" ||
+    feedback.outcome.status !== "passed" ||
+    feedback.messages.length > 0
+  );
+}
+
+function formatSettledBlock(
   input: Readonly<{
     readonly completionOrdinal: number;
     readonly displayName: string;
     readonly durationMs: number | null;
+    readonly messages: readonly CheckMessage[];
     readonly outcome: CheckOutcome;
     readonly totalChecks: number;
     readonly usesColor: boolean;
@@ -200,10 +206,13 @@ function formatSettledRow(
   const reason = reasonForOutcome(input.outcome);
   const duration = input.durationMs === null ? "not run" : formatDuration(input.durationMs);
   const reasonSuffix = reason === undefined ? "" : ` | ${escapeTerminalText(reason)}`;
-  return `  [${input.completionOrdinal}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${colorStatus(
-    status,
-    input.usesColor
-  )} | ${duration}${reasonSuffix}\n`;
+  const row = `  [${input.completionOrdinal}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${status} | ${duration}${reasonSuffix}\n`;
+  return `${row}${input.messages.map((message) => formatMessage(message, input.usesColor)).join("")}`;
+}
+
+function formatMessage(message: CheckMessage, usesColor: boolean): string {
+  const label = colorMessageLevel(message.level, usesColor);
+  return `    [${label}] ${escapeTerminalText(message.message)}\n`;
 }
 
 function formatFinalSummary(input: Extract<ProgressFeedback, { readonly kind: "final" }>): string {
@@ -270,29 +279,12 @@ function isTerminalControl(codePoint: number): boolean {
   );
 }
 
-function colorStatus(status: ProgressStatus, usesColor: boolean): string {
-  if (!usesColor) return status;
-  return `${COLOR[colorKeyForStatus(status)]}${status}${COLOR.reset}`;
+function colorMessageLevel(level: CheckMessage["level"], usesColor: boolean): string {
+  if (!usesColor) return level;
+  return `${COLOR[level]}${level}${COLOR.reset}`;
 }
 
 type ProgressStatus = "failed" | "not-applicable" | "passed" | "running" | "unavailable";
-
-type ColorKey = Exclude<keyof typeof COLOR, "reset">;
-
-function colorKeyForStatus(status: ProgressStatus): ColorKey {
-  switch (status) {
-    case "failed":
-      return "failed";
-    case "not-applicable":
-      return "notApplicable";
-    case "passed":
-      return "passed";
-    case "running":
-      return "running";
-    case "unavailable":
-      return "unavailable";
-  }
-}
 
 function formatDuration(durationMs: number): string {
   if (durationMs < 1_000) {

@@ -68,6 +68,7 @@ function runFacts(core: CoreExecution): RunResultFacts {
   return Object.freeze({
     aggregate: core.aggregate,
     checkDurations: core.checkDurations,
+    checkMessages: core.checkMessages,
     snapshot: core.snapshot
   });
 }

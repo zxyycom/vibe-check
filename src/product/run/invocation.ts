@@ -37,6 +37,7 @@ import {
   planning,
   preExecutionCancellation,
   type CheckDuration,
+  type CheckRunMessage,
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
@@ -65,6 +66,7 @@ const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => p
 export type CoreExecution = Readonly<{
   readonly aggregate: CheckAggregate | null;
   readonly checkDurations: readonly CheckDuration[];
+  readonly checkMessages: readonly CheckRunMessage[];
   readonly snapshot: CoreSnapshot;
 }>;
 
@@ -192,13 +194,15 @@ async function executePreparedInvocation(
       invocation.definitionWarnings,
       invocation.effects.value(),
       executed.snapshot,
-      executed.checkDurations
+      executed.checkDurations,
+      executed.checkMessages
     );
   }
   const core: CoreExecution = Object.freeze({
     aggregate:
       aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation),
     checkDurations: executed.checkDurations,
+    checkMessages: executed.checkMessages,
     snapshot: executed.snapshot
   });
   return completeInvocation(invocation, core);

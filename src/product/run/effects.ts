@@ -122,7 +122,9 @@ export function createProgressEffect(
             checkId: fact.checkId,
             displayName: fact.displayName,
             durationMs: fact.durationMs,
-            outcome: fact.outcome
+            messages: fact.messages,
+            outcome: fact.outcome,
+            visibility: fact.visibility
           })
         ),
       started: (fact: CheckStartedFact): void =>

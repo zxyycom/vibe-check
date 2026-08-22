@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { CheckOutcome } from "../definition/custom-check.ts";
+import type { CheckMessage, CheckOutcome, CheckVisibility } from "../definition/custom-check.ts";
 import { createProgressRenderer, type ProgressFeedback, type ProgressWriter } from "./progress.ts";
 
 const COUNTS = Object.freeze({ failed: 1, notApplicable: 1, passed: 1, unavailable: 1 });
@@ -23,9 +23,21 @@ function settled(
   checkId: string,
   displayName: string,
   outcome: CheckOutcome,
-  durationMs: number | null
+  durationMs: number | null,
+  presentation: Readonly<{
+    readonly messages?: readonly CheckMessage[];
+    readonly visibility?: CheckVisibility;
+  }> = {}
 ): ProgressFeedback {
-  return { kind: "settled", checkId, displayName, durationMs, outcome };
+  return {
+    kind: "settled",
+    checkId,
+    displayName,
+    durationMs,
+    outcome,
+    messages: presentation.messages ?? [],
+    visibility: presentation.visibility ?? "always"
+  };
 }
 
 /** A minimal independent terminal model for the cursor operations this renderer emits. */
@@ -113,6 +125,146 @@ describe("Package Run progress lifecycle presentation", () => {
     }
   });
 
+  it("applies the settled visibility matrix consistently in plain and dumb terminals", () => {
+    const cases: readonly Readonly<{
+      readonly expected?: string;
+      readonly messages?: readonly CheckMessage[];
+      readonly name: string;
+      readonly outcome: CheckOutcome;
+      readonly visibility: CheckVisibility;
+    }>[] = [
+      {
+        name: "always passed without messages",
+        outcome: { status: "passed", data: {} },
+        visibility: "always",
+        expected: "  [1/1] always passed without messages | passed | 1ms\n"
+      },
+      {
+        name: "attention passed without messages",
+        outcome: { status: "passed", data: {} },
+        visibility: "attention"
+      },
+      {
+        name: "attention passed with messages",
+        outcome: { status: "passed", data: {} },
+        visibility: "attention",
+        messages: [{ level: "info", code: "retained", message: "visible detail" }],
+        expected:
+          "  [1/1] attention passed with messages | passed | 1ms\n    [info] visible detail\n"
+      },
+      {
+        name: "attention failed",
+        outcome: { status: "failed", data: {} },
+        visibility: "attention",
+        expected: "  [1/1] attention failed | failed | 1ms\n"
+      },
+      {
+        name: "attention not applicable",
+        outcome: { status: "not-applicable", reason: { code: "excluded" } },
+        visibility: "attention",
+        expected: "  [1/1] attention not applicable | not-applicable | 1ms | excluded\n"
+      },
+      {
+        name: "attention unavailable",
+        outcome: { status: "unavailable", reason: { code: "unavailable" } },
+        visibility: "attention",
+        expected: "  [1/1] attention unavailable | unavailable | 1ms | unavailable\n"
+      }
+    ];
+
+    for (const writerOptions of [{ isTTY: false }, { isTTY: true, term: "dumb" }]) {
+      for (const testCase of cases) {
+        const output = createWriter(writerOptions);
+        const renderer = createProgressRenderer(output.writer);
+        renderer.render({ kind: "prepared", totalChecks: 1 });
+        renderer.render(
+          settled(testCase.name, testCase.name, testCase.outcome, 1, {
+            messages: testCase.messages,
+            visibility: testCase.visibility
+          })
+        );
+
+        assert.deepEqual(
+          output.writes.slice(1),
+          testCase.expected === undefined ? [] : [testCase.expected],
+          `${JSON.stringify(writerOptions)}: ${testCase.name}`
+        );
+      }
+    }
+  });
+
+  it("hides only attention passed rows after clearing TTY running rows and writes each visible block atomically", () => {
+    const output = createWriter({ isTTY: true });
+    const renderer = createProgressRenderer(output.writer);
+    const hostileMessage = "notice\nline\rreturn\ttab\u001Bescape\u2028separator\u2029paragraph";
+
+    renderer.render({ kind: "prepared", totalChecks: 5 });
+    renderer.render({ kind: "started", checkId: "hidden", displayName: "Hidden" });
+    renderer.render({ kind: "started", checkId: "message", displayName: "Message" });
+    renderer.render({ kind: "started", checkId: "failed", displayName: "Failed" });
+    renderer.render({ kind: "started", checkId: "not-applicable", displayName: "Not applicable" });
+    renderer.render({ kind: "started", checkId: "unavailable", displayName: "Unavailable" });
+    renderer.render(
+      settled("hidden", "Hidden", { status: "passed", data: {} }, 1, { visibility: "attention" })
+    );
+    renderer.render(
+      settled("message", "Message", { status: "passed", data: {} }, 1, {
+        visibility: "attention",
+        messages: [{ level: "warning", code: "private-code", message: hostileMessage }]
+      })
+    );
+    renderer.render(
+      settled("failed", "Failed", { status: "failed", data: {} }, 1, { visibility: "attention" })
+    );
+    renderer.render(
+      settled(
+        "not-applicable",
+        "Not applicable",
+        { status: "not-applicable", reason: { code: "excluded" } },
+        1,
+        { visibility: "attention" }
+      )
+    );
+    renderer.render(
+      settled(
+        "unavailable",
+        "Unavailable",
+        { status: "unavailable", reason: { code: "unavailable" } },
+        1,
+        { visibility: "attention" }
+      )
+    );
+    renderer.render({
+      kind: "final",
+      counts: { failed: 1, notApplicable: 1, passed: 2, unavailable: 1 },
+      elapsedMs: 5,
+      execution: "completed"
+    });
+
+    const settledBlock =
+      "  [2/5] Message | passed | 1ms\n    [warning] notice\\nline\\rreturn\\ttab\\u001Bescape\\u2028separator\\u2029paragraph\n";
+    const settledBlockIndex = output.writes.indexOf(settledBlock);
+    assert.ok(settledBlockIndex > 1);
+    assert.deepEqual(
+      output.writes.slice(settledBlockIndex - 4, settledBlockIndex),
+      Array(4).fill("\u001B[1A\u001B[2K")
+    );
+    assert.equal(output.writes[settledBlockIndex + 1], "  [3/5] Failed | running\n");
+    assert.equal(output.writes.includes("  [1/5] Hidden | passed | 1ms\n"), false);
+    assert.equal(output.writes.includes("  [3/5] Failed | failed | 1ms\n"), true);
+    assert.equal(
+      output.writes.includes("  [4/5] Not applicable | not-applicable | 1ms | excluded\n"),
+      true
+    );
+    assert.equal(
+      output.writes.includes("  [5/5] Unavailable | unavailable | 1ms | unavailable\n"),
+      true
+    );
+    assert.equal(output.writes.at(-1)?.includes("  total checks: 5\n  passed: 2\n"), true);
+    assert.equal(settledBlock.includes("private-code"), false);
+    assert.equal(settledBlock.split("\n").length, 3);
+  });
+
   it("formats every terminal status with measured duration or not run and only the safe reason code", () => {
     const output = createWriter();
     const renderer = createProgressRenderer(output.writer);
@@ -165,23 +317,35 @@ describe("Package Run progress lifecycle presentation", () => {
     assert.equal(unsafePlain.writes[1]?.includes("bad\\rreason\\u001B[0m"), true);
   });
 
-  it("uses ANSI status color only for color-capable TTY writers", () => {
+  it("uses ANSI color only for message level labels on color-capable TTY writers", () => {
     const colorTTY = createWriter({ color: true, isTTY: true });
     const renderer = createProgressRenderer(colorTTY.writer);
     renderer.render({ kind: "prepared", totalChecks: 1 });
     renderer.render({ kind: "started", checkId: "failed", displayName: "Failed" });
-    renderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1));
+    renderer.render(
+      settled("failed", "Failed", { status: "failed", data: {} }, 1, {
+        messages: [
+          { level: "info", code: "details", message: "information" },
+          { level: "warning", code: "warning", message: "caution" },
+          { level: "error", code: "error", message: "failure" }
+        ]
+      })
+    );
 
     assert.deepEqual(colorTTY.writes.slice(1), [
-      "  [1/1] Failed | \u001B[2mrunning\u001B[0m\n",
+      "  [1/1] Failed | running\n",
       "\u001B[1A\u001B[2K",
-      "  [1/1] Failed | \u001B[31mfailed\u001B[0m | 1ms\n"
+      "  [1/1] Failed | failed | 1ms\n    [\u001B[36minfo\u001B[0m] information\n    [\u001B[33mwarning\u001B[0m] caution\n    [\u001B[31merror\u001B[0m] failure\n"
     ]);
 
     const plain = createWriter({ color: true, isTTY: false });
     const plainRenderer = createProgressRenderer(plain.writer);
     plainRenderer.render({ kind: "prepared", totalChecks: 1 });
-    plainRenderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1));
+    plainRenderer.render(
+      settled("failed", "Failed", { status: "failed", data: {} }, 1, {
+        messages: [{ level: "error", code: "failure", message: "failure" }]
+      })
+    );
     assert.equal(plain.writes.join("").includes("\u001B"), false);
 
     const unsafeTTY = createWriter({ isTTY: true });
