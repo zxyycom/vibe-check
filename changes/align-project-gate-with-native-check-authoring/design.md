@@ -35,7 +35,7 @@
 - 不因 Gate 停止调用某个 CLI 就自动删除该 CLI；focused root workflow、governance/query command 与 neutral quality observation 继续由各自 consumer audit决定。
 - 不公开 Gate catalog、profile/tag grammar、process helper、transcript writer 或 CLI adapter 到 npm package。
 - 不建立 generic process Check 产品 API、第二 Check execution variant、command registry 或 project-wide dependency injection framework。
-- 不在本 Change 定义最小 Record contract、typed dependency output 或 terminal messages/visibility；这些分别由已归档的 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)、[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 与 [`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/) 承接。
+- 不在本 Change 重新定义最小 Record contract、typed dependency output 或 terminal messages/visibility；最小 Record 与 terminal messages/visibility 已由各自 owner 交付，typed dependency output 仍由 [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 承接。
 - 不重新设计或复制minimal Plan拥有的RunControls aggregation、RunResult aggregate或adapter exit closure。
 - 不访问 registry、credentials 或执行 npm publish；发布由独立 Change 在再次授权后完成。
 

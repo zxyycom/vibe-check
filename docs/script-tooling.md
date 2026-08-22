@@ -252,10 +252,11 @@ bun run quality
 observation；需要 Gate 的项目在自己的 bound Run 中选择 eligible Check IDs、显式提供 aggregation
 configuration，并由 adapter 映射 Run facts，而不是由 package script 隐式重算质量结论。
 
-candidate 的外部 consumer 同时 typecheck 既有 public `Check` / `CheckResult` / `RunResult` surface 中的
-terminal-message 和 `attention` visibility shape，并运行一个 `attention` Check with a message。该
-installed Run 的 non-TTY human output 保留 settled row/message，`RunResult.checkMessages` 提供相同的
-structured readback；没有新增 named message 或 duration type root。
+candidate 的外部 consumer 是 public-package acceptance evidence，不是第二份 package contract。它同时
+typecheck 既有 public `Check` / `CheckResult` / `RunResult` surface 中的 terminal-message 与 `attention`
+visibility shape，并运行一个带 message 的 `attention` Check。该 installed Run 的 non-TTY human output 保留
+settled row/message，`RunResult.checkMessages` 提供对应的 structured readback；没有新增 named message 或
+duration type root。
 
 | 命令      | 当前行为                                                                                      |
 | --------- | --------------------------------------------------------------------------------------------- |

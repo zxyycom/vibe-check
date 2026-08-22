@@ -4,7 +4,7 @@
 
 当 AI 或维护者需要选择、恢复或审阅当前 npm / Project Gate 交付路径时，先阅读本导航，再进入目标 Change 的 proposal、design 和 tasks。本文件是 [Active Change Portfolio](active-change-portfolio.md) 中“Project Gate 与 package 交付”路径的详细导航；需要查看全部 active Change 或其直接相关 Decision 时，回到该 portfolio。
 
-本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系：三个上游 Change、首轮 Gate build、repository hard cutover 与最小 Check/Record hard cut 已归档；[repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 已交付 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。Terminal messages/visibility 已完成实现与验收，当前仍需 typed Check dependency outputs 这一同级输入。其完成后再冻结 package API documentation 与 native Check authoring，刷新 Gate optimization evidence，最后才进入 publish。log evidence boundaries 是不阻塞本路径的相邻 Draft。
+本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系：三个上游 Change、首轮 Gate build、repository hard cutover 与最小 Check/Record hard cut 已归档；[repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 已交付 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。[Configuration](../docs/configuration.md)、[Architecture](../docs/architecture.md) 与 [Output](../docs/output.md) 已确认 terminal messages 与显式 visibility 均已交付；它们是 package documentation 和 native Check authoring 的同一组既有输入。`add-typed-check-dependency-outputs` 是这两项下游工作仍需的另一项同级输入，不是 `add-check-terminal-messages-and-visibility` 的前置。typed capability 完成后再冻结 package API documentation 与 native Check authoring，刷新 Gate optimization evidence，最后才进入 publish。log evidence boundaries 是不阻塞本路径的相邻 Draft。
 
 本导航不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
 
@@ -50,7 +50,7 @@
                                                                     publish-public-api-only-npm-package
 ~~~
 
-前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。cutover 已在当前 revision 重新确认 matching candidate、完成正式 bindings 与 legacy retirement；实际 identity、audit 和刷新条件见已归档的 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。后续最小 Record reporter/Core/machine v4、typed direct-dependency dataflow、首版 result presentation、package documentation 和 native Check authoring 会改变 artifact/public/Gate inputs；这些变化只使发布证据需要刷新，不撤销 cutover，也不恢复旧 verifier。非 comparison execution-input migration 不属于 Record hard cut，只有 typed capability 已实施且存在真实迁移消费者时才另立范围。native Check authoring 最终以 documentation-complete exact artifact 写出 <code>gate-optimization-handoff.md</code>。
+前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。cutover 已在当前 revision 重新确认 matching candidate、完成正式 bindings 与 legacy retirement；实际 identity、audit 和刷新条件见已归档的 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。最小 Record reporter/Core/machine v4 与 terminal messages/explicit visibility 已成为当前事实；typed direct-dependency dataflow、package documentation 和 native Check authoring 仍会改变 artifact/public/Gate inputs。这些后续变化只使发布证据需要刷新，不撤销 cutover，也不恢复旧 verifier。非 comparison execution-input migration 不属于 Record hard cut，只有 typed capability 已实施且存在真实迁移消费者时才另立范围。native Check authoring 最终以 documentation-complete exact artifact 写出 <code>gate-optimization-handoff.md</code>。
 
 ## Change 与 handoff
 
@@ -63,7 +63,7 @@
 | [replace-workspace-verifier-with-project-gate](archive/replace-workspace-verifier-with-project-gate/)（archived） | 在当前 revision 重新验证归档 readiness，完成唯一正式门禁接线并退役旧 verifier。 | [<code>gate-handoff.md</code>](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md) 记录实际 binding、无 disabled-tag required/full、legacy reference audit 和重新验证条件；归档状态与历史任务以该目录及 <code>bun run change-plan -- list changes --archived</code> 为准。 | 后续 Gate authoring/API/package 优化与 registry publish。 |
 | [establish-minimal-check-record-contract](archive/establish-minimal-check-record-contract/)（archived） | 用 `records.report({ id }, data)` 建立任意 custom/default Check 共用的最小 Record contract，并硬切 Core `{ checkId, id, data }`、旧 Record 直接消费者与 machine v4。 | 已归档 implementation、declaration、runtime/Core、machine v4 与 isolated consumer evidence；typed dependency 和 terminal messages/visibility 据此使用同一事实结构。 | Cross-Check dependency reader/inference、public presentation grammar、非 comparison execution-input migration、registry publish。 |
 | [add-typed-check-dependency-outputs](add-typed-check-dependency-outputs/) | 让 direct dependency getter 返回 typed data 或 failure。 | Minimal Record 完成后的 TypeScript/runtime prototype、changed-files 多消费者与 machine/external readback evidence。 | Search/query、第三 Core entity、通用 provider framework、其它 execution-input cleanup、presentation visibility。 |
-| [add-check-terminal-messages-and-visibility](add-check-terminal-messages-and-visibility/) | 已交付 `CheckResult.messages`、`RunResult.checkMessages` 与 `always | attention` visibility 两个主要能力。 | Closed terminal validation、Core acceptance handoff、canonical RunResult ordering、Definition fingerprint、TTY/plain matrix、Project Gate `command-failed` message、isolated-consumer evidence 与 required/full Gate 验收均已通过。 | Live/intermediate output、Core/Record/machine messages、typed dependency reader或 durable log protocol。 |
+| [add-check-terminal-messages-and-visibility](add-check-terminal-messages-and-visibility/) | 已交付 `CheckResult.messages`、`RunResult.checkMessages` 与 `always | attention` visibility 两个主要能力。 | Closed terminal validation、Core acceptance handoff、canonical RunResult ordering、Definition fingerprint、TTY/plain matrix、Project Gate `command-failed` message、isolated-consumer evidence 与 required/full Gate 验收均已通过。 | Live/intermediate output、Core/Record/machine messages、typed dependency reader 或 durable log protocol。 |
 | [ship-public-package-api-documentation](ship-public-package-api-documentation/) | 补齐 public JSDoc/LSP，并将 README/API guide 加入 exact candidate artifact。 | <code>package-api-documentation-handoff.md</code>，绑定 guide/declarations 与 tarball digest；Gate optimization 必须以该 artifact 刷新发布证据。 | registry/legal/release notes 与 publish。 |
 | [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 在 cutover 后从独立质量事实重建权威 Gate：直接组合 ordinary Checks/typed capabilities，分离 CLI lifecycle，合并 profile-derived identity，并只为真实外部边界保留 process。 | <code>gate-optimization-handoff.md</code>，记录 current assurance inventory、保留/删除理由、CLI/capability caller audit、documentation-complete candidate、正式 bindings 与 required/full evidence。 | 重新切换 bindings、恢复 legacy verifier、替代 focused CLI consumer 或 registry publish。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover、Gate optimization 与 package documentation handoffs，经过单独授权完成 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装/文档/runtime/type 验证。 | 重建 package、补齐 Gate/API 文档或替代本地 evidence。 |
@@ -75,9 +75,9 @@
 
 当前约束是不为呈现进度而改写既有 <code>CheckOutcome</code> 或 <code>QualityRecord</code> grammar。已归档的 [lifecycle-feedback Change](archive/add-project-run-lifecycle-feedback/) 落地 Product-measured <code>durationMs</code>：它由 Product 私有 settled feedback 驱动 progress，并作为 final RunResult 的 per-Check execution signal 返回，不进入 Core、machine artifact 或 Record；当前事实仍以 Product owner、源码与测试为准。
 
-[`add-check-terminal-messages-and-visibility`](add-check-terminal-messages-and-visibility/) 是首次公开 package 的硬前置：它让需要补充提示的 Check 通过 `CheckResult.messages` 按需附带 level/code/message，settlement 时呈现并由 `RunResult.checkMessages` 返回，同时交付 `always | attention` visibility。它明确不提供 live/intermediate output、不把 messages 写入 Core/Record/machine；Project Gate process Check 是当前安全摘要实例，不是 consumer 迁移。
+[`add-check-terminal-messages-and-visibility`](add-check-terminal-messages-and-visibility/) 已为首次公开 package readiness 提供两项同等主要的输入：需要补充提示的 Check 通过 `CheckResult.messages` 按需附带 level/code/message，settlement 时呈现并由 `RunResult.checkMessages` 返回；`always | attention` visibility 控制终态人读行。它不等待 typed dependency outputs，也不提供 live/intermediate output，且不把 messages 写入 Core/Record/machine；Project Gate process Check 是当前安全摘要实例，不是 consumer 迁移。
 
-Supporting Check 的 structured facts 与 lifecycle events 当前始终产生。Typed dependency output Change 拥有依赖读取，terminal messages/visibility 的稳定 owner 已拥有 human visibility、messages 与 owning Check 的组合归属、display matrix 和 fingerprint 边界。
+Check 的 structured facts 与 lifecycle events 当前始终产生。Typed dependency output Change 拥有依赖读取；terminal messages/visibility 的稳定 owner 拥有 human visibility、messages 与 owning Check 的组合归属、display matrix 和 fingerprint 边界。
 
 首轮不返回 <code>startedAt</code> / <code>endedAt</code>，也不让 duration 自动影响 policy。若出现实际性能预算消费者，必须先演进长期 Decision，再建立独立 Change，明确 threshold、baseline、retention 和失败语义。
 
@@ -85,7 +85,7 @@ Supporting Check 的 structured facts 与 lifecycle events 当前始终产生。
 
 - candidate 完成不等于 Gate 已完成，也不等于 package 已公开发布。
 - 首轮 Gate build 完成不等于仓库已完成 cutover；本路径已由 `gate-handoff.md` 证明切换和 retirement，后续 Change 仍必须从该 handoff 恢复实际 bindings 与刷新条件。
-- cutover 完成不等于 native Check authoring、最小 Record contract、typed dependency outputs、result presentation 或 package documentation 已完成；这些在唯一正式 Gate 下继续优化。
+- cutover 完成不等于 native Check authoring、typed dependency outputs 或 package documentation 已完成；最小 Record contract 以及 terminal messages/explicit visibility 已是当前事实，但其下游 package/Gate evidence 仍会在后续 Change 刷新。
 - Package API guide Draft 或仓库文档存在不等于 README/JSDoc 已进入 exact tarball；只有 documentation handoff 能证明随包交付。
 - cutover 完成不等于 registry 已验证或有发布授权。
 - 只有 Change 自己记录的验证与 handoff，且下游重新验证条件成立，才可推进到下一阶段。

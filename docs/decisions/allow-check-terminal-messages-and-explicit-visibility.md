@@ -14,7 +14,7 @@ relations: []
 
 ## 目的
 
-- 让确有补充提示的 Check 在结束时原子附带带等级、稳定识别 code 和实际文本的消息，既由 Product progress 呈现，也由 package caller 从 `RunResult` 读取。
+- 将终态 messages 与显式 visibility 作为两项同等主要的 Check 能力：前者让确有补充提示的 Check 在结束时原子附带带等级、稳定识别 code 和实际文本的消息，既由 Product progress 呈现，也由 package caller 从 `RunResult` 读取。
 - 让没有补充消息的 Check 保持原有终态返回；是否附带消息由 producing Check 决定，不建立统一消息投影或 consumer 迁移顺序。
 - 让显式 Check visibility 减少成功 supporting Check 的永久输出噪音，同时保留运行中反馈、非成功状态、消息归属和完整 accounting。
 
@@ -34,4 +34,4 @@ relations: []
 - 采用: Renderer 在输出前统一转义 newline、carriage return、tab、escape 和其它控制字符；`RunResult` 保留 validated actual message，不把 terminal escaping 写回程序化值。
 - 采用: 合法结构化 messages 无论 progress 是否启用都进入 `RunResult`，以 owning `checkId` 与 level/code/message 供 package caller 读取；progress 启用时同时呈现。Messages 不进入 CheckOutcome、Core、Records、dependency、aggregation、cache 或 machine publication。
 - 采用: Check visibility 默认保留 running 与 settled row；非默认 attention 模式仍显示 TTY running row，但在 terminal settlement 只隐藏 `passed` 且无 messages 的永久行。所有其它状态和任何带 messages 的 Check 显示 owning settled block。
-- 采用: Hidden Check 继续计入 prepared total、settlement ordinal、duration、final counts、lifecycle、RunResult、Core、Records、dependency 和 machine facts。Visibility 是 declarative Check metadata并参与 Definition fingerprint，不决定执行或 verdict。
+- 采用: Hidden Check 继续计入 prepared total、settlement ordinal、duration、final counts、lifecycle、RunResult、Core、Records、dependency 和 machine facts。Visibility 是 declarative Check metadata，参与 Definition fingerprint，但不决定执行或 verdict。

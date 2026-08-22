@@ -1,17 +1,17 @@
 # Design
 
-本 Design 冻结 `add-check-terminal-messages-and-visibility` 的公共 shape、运行时边界、呈现矩阵、实现 seam 和测试证据闭合方式；实施者可以直接按本文与 `tasks.md` 修改代码，不再等待产品或工程取舍。
+本文是 `add-check-terminal-messages-and-visibility` 已执行 Plan 的设计记录。它保留形成时冻结的公共 shape、运行时边界、呈现矩阵、实现 seam 和证据闭合方式，供审阅和后续 Change 恢复取舍；不再是实施指令。
 
 ## Context
 
 ### 权威性与读取顺序
 
-本文是 `active/plan` 的实施设计，不是已经落地的 Product contract。实施者按以下顺序恢复上下文：
+本 Change 处于 `active/plan`：`tasks.md` 的 17/17 项已完成，但归档尚未获单独授权。本文不是当前 Product contract；其“形成时”段落也不是当前实现状态。按以下顺序恢复上下文：
 
-1. 当前行为以 [`docs/configuration.md`](../../docs/configuration.md)、[`docs/quality-metrics.md`](../../docs/quality-metrics.md)、[`docs/output.md`](../../docs/output.md) 及相邻源码、测试为准。
-2. 长期方向以 [`allow-check-terminal-messages-and-explicit-visibility`](../../docs/decisions/allow-check-terminal-messages-and-explicit-visibility.md) 为准；它是 `active + unaligned`，表示方向已确认但当前实现尚未对齐。
+1. 当前行为以 [`docs/configuration.md`](../../docs/configuration.md)、[`docs/quality-metrics.md`](../../docs/quality-metrics.md)、[`docs/output.md`](../../docs/output.md) 及相邻源码、测试为准；它们已定义并验证 terminal messages 与 explicit visibility。
+2. 长期方向以 [`allow-check-terminal-messages-and-explicit-visibility`](../../docs/decisions/allow-check-terminal-messages-and-explicit-visibility.md) 为准；它是 `active + aligned`，表示方向与当前实现已核对一致。
 3. [`provide-product-owned-check-progress`](../../docs/decisions/provide-product-owned-check-progress.md) 继续约束 private lifecycle feedback、唯一 progress writer、TTY/plain 分工和 writer failure isolation。
-4. 本 Change 拥有本次实施 shape、文件责任、任务顺序和验证义务；完成实施并同步稳定 owner 前，不得把本文描述成当前运行时事实。
+4. 本 Change 拥有形成时的实施 shape、文件责任、任务顺序和验证义务；完成状态以 [`tasks.md`](tasks.md) 为准。当前事实必须回到稳定 owner、源码和测试确认。
 
 ### 两个主要问题与衍生问题
 
@@ -21,9 +21,11 @@
 
 两个主要问题各自具有独立结果和验证义务。消息能力在默认 visibility 下仍有价值；visibility 在没有消息时也能独立减少 supporting Check 的成功输出。
 
-### 当前实现 seam
+### Plan 形成时的实现 seam
 
-| Owner | 当前事实 | 本 Change 的接入点 |
+下表记录 Plan 形成时的现状与计划接入点，**不描述当前事实**。所有接入点均已按 `tasks.md` 实施；当前实现以本节前述稳定 owner、源码和测试为准。
+
+| Owner | 形成时事实 | 计划接入点（已实施） |
 | --- | --- | --- |
 | [`custom-check.ts`](../../src/product/definition/custom-check.ts) | `CheckResult` 是 closed four-state author return；`Check` 没有 visibility。 | 增加 supporting message declarations、四态可选 `messages` 和 executable Check 的可选 `visibility`。 |
 | [`authoring.ts`](../../src/product/definition/check-tree/authoring.ts)、[`materialization.ts`](../../src/product/definition/check-tree/materialization.ts)、[`project.ts`](../../src/product/definition/project.ts) | Definition 使用 closed `CHECK_KEYS`，flatten 后形成 `NormalizedCheckDeclaration` 和 declarative fingerprint。 | 校验、默认化并 materialize visibility；normalized declaration 始终包含显式值。 |
@@ -32,14 +34,14 @@
 | [`progress.ts`](../../src/product/run/progress.ts) | TTY 维护 running region；plain/dumb 只追加 settled rows；human text 统一 escaping。 | Settled feedback携带 validated messages和normalized visibility；renderer按本文矩阵输出一个 owning block。 |
 | [`process-check.ts`](../../scripts/quality/project-gate/process-check.ts) | Nonzero command 已拥有 safe exit/signal/transcript basename，并把 stdout/stderr 留在 transcript。 | Nonzero failure 同时附带一条安全 `command-failed` message，证明真实 Check 按需使用能力。 |
 
-### 运行时防护审计结论
+### Plan 形成时的运行时防护审计结论
 
 Messages 采用现有同级 public runtime boundary 的信任模型：
 
 - `snapshotClosedRecord` / `snapshotClosedArray` 要求 plain/null prototype、精确 enumerable data descriptors 和 dense array，拒绝 accessor、symbol、named array property、sparse array 与 reflection failure。
 - Core/canonical data 不执行 getter、`toJSON` 或其它 author hook，并 containment Proxy、cycle、custom prototype 与 non-finite values。
 - Definition 和 selected Run Controls 同样使用 closed snapshots 或 descriptor-safe parsing；具体 helper 并非全部同构，因此 terminal adapter直接复用最稳健的 snapshot primitives，不复制较弱的数组读取方式。
-- 同级 author results、Definition arrays 和 human display strings 当前没有通用数量或长度配额。本 Change 不增加任意 hard cap；若后续出现可测量的资源风险，必须以新的精确配额、失败语义和兼容影响演进 Decision。
+- 同级 author results、Definition arrays 和 human display strings 在 Plan 形成时没有通用数量或长度配额。因此本 Change 未增加任意 hard cap；若后续出现可测量的资源风险，必须以新的精确配额、失败语义和兼容影响演进 Decision。
 
 ## Goals / Non-Goals
 
@@ -207,19 +209,19 @@ Project Gate process Check只在 command具有非零 exit status、transcript已
 
 ### 7. Test evidence 审计与闭合方式
 
-修改前的 `bun run test-evidence -- check --root .` 已证明当前 `140` 个 Bun实体由 `44` 个semantic Cases完整覆盖。当前账本只描述已实现事实，因此本 Plan不预建空 Case；实施时按下表同步实际测试实体和 Case：
+Plan 形成时的 `bun run test-evidence -- check --root .` 证明当时 `140` 个 Bun 实体由 `44` 个 semantic Cases 完整覆盖。账本只描述已实现事实，因此 Plan 没有预建空 Case；实施按下表的闭合方式同步测试实体和 Case。
 
-| 行为义务 | 当前 Case | 实施时动作 |
+| 行为义务 | 形成时 Case | 已完成的证据闭合方式 |
 | --- | --- | --- |
-| Visibility Definition validation、default normalization与fingerprint | `WB-PROJECT-DEFINITION-001` | 扩展或新增 `project.test.ts` 实体，并更新该 Case的 Entities/Proves。 |
-| Invalid/hostile message attachment containment与accepted Records保留 | `WB-RUNTIME-CHECK-FAILURE-001`、`WB-RUNTIME-CHECK-LIFECYCLE-001` | 扩展现有 adversarial matrix；只有测试身份变化时才更新 Entities，正文变化仍重审 Proves。 |
-| Accepted messages进入 final-snapshot `RunResult`且canonical排序 | 无独立当前 Case | 在测试实体落地时新增一个由 `docs/configuration.md#invocation-and-results`拥有的真实 semantic Case；不得提前创建空 Case。 |
-| Progress-disabled/writer-failed仍保留messages | `WB-PROGRESS-EFFECT-001` | 扩展 invocation/result-priority evidence并同步 Proves。 |
-| TTY/plain message block、colors、escaping、attention matrix与ordinal | `WB-RUNTIME-PROGRESS-PRESENTATION-001`、`WB-OUTPUT-RUN-PROGRESS-001` | 扩展 renderer entities和两个 owner视角的 Proves；不按矩阵行机械拆 Case。 |
-| Project Gate safe `command-failed` message与transcript防泄漏 | `AUX-PROJECT-GATE-PROCESS-001` | 修改现有 nonzero-exit entity正文并同步 Proves；无需为同一流程新增 Case。 |
-| Installed public declarations、checkMessages readback与默认 progress | `AUX-PACKAGE-CANDIDATE-001` | 扩展 isolated-consumer entity和 Proves，确认不增加 named type root。 |
+| Visibility Definition validation、default normalization与fingerprint | `WB-PROJECT-DEFINITION-001` | 已扩展 `project.test.ts` 实体并更新该 Case 的 Entities/Proves。 |
+| Invalid/hostile message attachment containment与accepted Records保留 | `WB-RUNTIME-CHECK-FAILURE-001`、`WB-RUNTIME-CHECK-LIFECYCLE-001` | 已扩展 adversarial matrix；测试身份变化同步更新 Entities，正文变化重新审阅 Proves。 |
+| Accepted messages进入 final-snapshot `RunResult`且canonical排序 | 无独立 Case | 已新增由 `docs/configuration.md#invocation-and-results`拥有的 `WB-RUN-RESULT-CHECK-MESSAGES-001`，仅在真实测试实体落地后建立。 |
+| Progress-disabled/writer-failed仍保留messages | `WB-PROGRESS-EFFECT-001` | 已扩展 invocation/result-priority evidence并同步 Proves。 |
+| TTY/plain message block、colors、escaping、attention matrix与ordinal | `WB-RUNTIME-PROGRESS-PRESENTATION-001`、`WB-OUTPUT-RUN-PROGRESS-001` | 已扩展 renderer entities和两个 owner视角的 Proves，未按矩阵行机械拆 Case。 |
+| Project Gate safe `command-failed` message与transcript防泄漏 | `AUX-PROJECT-GATE-PROCESS-001` | 已修改 nonzero-exit entity正文并同步 Proves，未为同一流程新增 Case。 |
+| Installed public declarations、checkMessages readback与默认 progress | `AUX-PACKAGE-CANDIDATE-001` | 已扩展 isolated-consumer entity和 Proves，并确认不增加 named type root。 |
 
-任何新增、删除、重命名、拆分、合并或正文修改都按 `test-evidence-review`执行前后全树check，并运行最窄目标tests。Case按owner契约和observable result划分，不按新增test数量机械拆分。
+完成后的 `bun run test-evidence -- check --root .` 证明 `144` 个 Bun 实体由 `45` 个 semantic Cases 闭合，其中 `WB-RUN-RESULT-CHECK-MESSAGES-001` 是上述 `RunResult.checkMessages` 的独立 Case。任何后续新增、删除、重命名、拆分、合并或正文修改仍须按 `test-evidence-review`执行前后全树check，并运行最窄目标tests。Case按owner契约和observable result划分，不按新增test数量机械拆分。
 
 ### 8. 实现文件责任与顺序
 

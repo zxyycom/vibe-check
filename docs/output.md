@@ -58,7 +58,7 @@ candidate write 或首次 rename 的 handled failure 保留 prior canonical set�
 
 ## Progress and presentation boundaries
 
-Product progress 向人显示 Check lifecycle status、duration、受控 reason code 和已接受的 terminal messages；它使用 producing Run 的 lifecycle facts，不从 machine artifacts反向恢复状态。每个 visible settled block 先输出 row，再按 author order 输出缩进 message lines；message `code` 只留在 `RunResult.checkMessages`，不重复到终端。`attention` 只省略 passed 且无 messages 的 settled row，TTY running rows始终可见，所有 settled outcomes仍计入 canonical ordinal和最终计数。
+Product progress 向人显示 Check lifecycle status、duration、受控 reason code 和已接受的 terminal messages；它使用 producing Run 的 lifecycle facts，不从 machine artifacts 反向恢复状态。每个 visible settled block 先输出 row，再按 author order 输出缩进 message lines；message `code` 只留在 `RunResult.checkMessages`，不重复到终端。`attention` 只省略 passed 且无 messages 的 settled row，TTY running rows 始终可见，所有 settled outcomes 仍计入 canonical ordinal 和最终计数。
 
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只分别给这三个 level label 加 cyan、yellow、red，不给 message body 或 status 上色。display name、reason code 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029，防止它们控制终端；`RunResult.checkMessages` 保留已验证的原 message string。
 

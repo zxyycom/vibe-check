@@ -52,7 +52,7 @@ Entities:
   Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
 - 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
-- The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the identical structured item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
+- The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the corresponding `{ checkId, level, code, message }` item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
 - profile/tag N/A 与启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
 

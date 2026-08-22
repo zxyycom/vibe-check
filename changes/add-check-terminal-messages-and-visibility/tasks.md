@@ -7,7 +7,7 @@ Readiness、Implementation 与 Verification 已按 public authoring、Definition
 - [x] 0.1 已记录用户对 terminal return attachment、structured payload、与现有 runtime 防护一致的 invalid containment、`RunResult` readback、visibility matrix、fingerprint 和 Check 按需采用方式的审阅结果，并同步 Proposal、Design、Decision 与 tasks 形成可执行 Plan。
 - [x] 0.2 已审计 `custom-check`、closed snapshot、Core settlement、callback/execution 和 progress seams，并在 Design 冻结 exact result keys、`info | warning | error`、kebab-case code、non-empty message、无 hard cap、Core acceptance marker、颜色与 escaping；没有 collector、callback writer 或执行中 stream write。
 - [x] 0.3 已审计 Definition normalization/fingerprint、RunResult branches 与 TTY/plain renderer，并在 Design 冻结 `visibility?: "always" | "attention"`、executable-only/default规则、`checkMessages` layout/canonical order、settled matrix、single-block write、ordinal/final accounting 与 writer-failure isolation。
-- [x] 0.4 已按 `test-evidence-review` 读取测试策略、Case owner和目标测试，起点 `test-evidence` check证明140个Bun实体由44个Cases闭合；Design已列明Definition、failure/lifecycle、RunResult、progress、Gate和isolated-consumer Case的复用、新增与Proves同步方式。
+- [x] 0.4 实施前已按 `test-evidence-review` 读取测试策略、Case owner 和目标测试；当时的 `test-evidence` check 证明 140 个 Bun 实体由 44 个 Cases 闭合。Design 已列明 Definition、failure/lifecycle、RunResult、progress、Gate 和 isolated-consumer Case 的复用、新增与 Proves 同步方式。
 
 ## Implementation
 

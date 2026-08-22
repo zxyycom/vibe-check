@@ -5,7 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:67e70b390abf42177bc969f102e688a95d12a7f5102fd4ca75a7be40950baccc",
+      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:9e9bf5ca4a417aaae0d3db0acba14bdd5cbc9e7b8148f271b7138e75cc091801",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",

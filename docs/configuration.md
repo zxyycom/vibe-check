@@ -66,10 +66,12 @@ An executable Check returns exactly one terminal result, optionally with ordered
 
 `passed` and `failed` require an object final data value; an empty object is the authoring form for no domain data. A callback may separately call `records.report({ id }, data)` zero or more times. These final returns and two-argument reporting are the complete shared result surface: a Check owns its data shape, and a Project Run supplies only explicit invocation controls.
 
+Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Core facts, or machine publication.
+
 `messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
 `info | warning | error`; `code` matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$` in the owning Check namespace;
 and `message` is a non-empty string, without trimming, Unicode normalization, or a Product item/length cap.
-`CheckMessage` is a supporting declaration used by `CheckResult`, not an additional package-root named type.
+`CheckMessage` is a supporting declaration used by `CheckResult`; it does not expand the package-root named-type inventory.
 Omitted, own-property `undefined`, and an empty array all mean no messages. Product keeps author item order
 without de-duplication or normalization. It validates the complete attachment
 descriptor-safely with the terminal result: a malformed item or attachment makes the author result

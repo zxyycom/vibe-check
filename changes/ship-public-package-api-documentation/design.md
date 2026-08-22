@@ -14,7 +14,7 @@
 - candidate manifest 当前 `files` 只包含 `index.mjs` 与 `types`；staging audit拒绝除此之外的普通文件。生成的 declarations 会保留 source JSDoc，但多数公共 interface/function 目前没有完整 API comment。
 - API 内容建设属于本 Change；[`publish-public-api-only-npm-package`](../publish-public-api-only-npm-package/) 只负责核对版本、registry、legal/release metadata 与 exact artifact，不在不可逆 release 阶段临时 author README/install guidance。
 
-已归档的[`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)拥有当前 Record contract；[`add-check-terminal-messages-and-visibility`](../add-check-terminal-messages-and-visibility/)已交付 terminal messages/visibility declaration、runtime、RunResult、renderer 与 installed-candidate evidence。仍由[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)提供 typed dependency getter evidence；其完成后，本 Change 再冻结剩余 JSDoc 和 examples。
+已归档的 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/) 拥有当前 Record contract。`add-check-terminal-messages-and-visibility` 已交付 terminal messages/visibility declaration、runtime、RunResult、renderer 与 installed-candidate evidence。`add-check-terminal-messages-and-visibility` 既不是 `add-typed-check-dependency-outputs` 的前置，也不是其下游。`add-typed-check-dependency-outputs` 仍需交付 typed dependency getter evidence。`ship-public-package-api-documentation` 消费这两个并列输入：已交付的 `add-check-terminal-messages-and-visibility` 能力现在即可消费；待 `add-typed-check-dependency-outputs` 完成后，`ship-public-package-api-documentation` 才冻结剩余 JSDoc 和 examples。
 
 ## Goals / Non-Goals
 
@@ -33,7 +33,7 @@
 - 不访问 npm registry、不执行 publish、不选择 publisher/version或写 release notes。
 - 不在本 Change 决定 MIT copyright holder/year；LICENSE/legal completion仍由 release准备及其长期 Decision约束。
 - 不增加 public CLI、配置发现、plugin API、Node.js host承诺或额外 package export。
-- 不用文档掩盖尚未实现的最小 Record contract、typed dependency output 或 result presentation；只记录进入本 Change 验收基线的当前 public contract。
+- 不用文档掩盖尚未实现的 typed dependency output 或任何尚未进入验收基线的 public API；最小 Record contract、terminal messages 与 explicit visibility 已是当前 public contract，本 Change 只消费它们，不重新定义它们。
 - 不把所有内部 architecture、private scanner protocol、Gate profile/tag 或 repository process helper复制进 npm guide。
 
 ## Decisions
