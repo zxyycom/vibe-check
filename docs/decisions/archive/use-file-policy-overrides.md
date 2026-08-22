@@ -1,6 +1,6 @@
 ---
 title: 使用显式文件政策覆盖
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-04T15:02:12Z
 purpose: 让不同文件和目录在同一项目范围内使用可解释且可验证的质量政策。

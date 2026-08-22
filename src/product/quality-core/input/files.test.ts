@@ -1,17 +1,11 @@
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
-import {
-  buildFingerprints,
-  collectBaselineFiles,
-  collectScanFiles,
-  type ScanInputConfig
-} from "./files.ts";
-import { materializeBaselineRevision } from "./revisions.ts";
+import { buildFingerprints, collectScanFiles, type ScanInputConfig } from "./files.ts";
 
 describe("quality input fingerprints", () => {
   it("uses stable SHA-256 fingerprints for sorted file content", () => {
@@ -38,7 +32,7 @@ describe("quality input fingerprints", () => {
 });
 
 describe("quality submodule input", () => {
-  it("keeps current and baseline submodule files aligned", { timeout: 20_000 }, () => {
+  it("includes initialized current submodule worktree files", { timeout: 20_000 }, () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-submodule-"));
     const submoduleOrigin = join(tempDir, "submodule-origin");
     const repository = join(tempDir, "repository");
@@ -70,7 +64,7 @@ describe("quality submodule input", () => {
         "modules/tool"
       ]);
       git(submodulePath, ["checkout", "--detach", baselineSubmoduleSha]);
-      const baselineRootSha = commitAll(repository, "baseline submodule");
+      commitAll(repository, "baseline submodule");
       git(submodulePath, ["checkout", "--detach", currentSubmoduleSha]);
       commitAll(repository, "current submodule");
       writeFixtureFile(submodulePath, "src/working.ts", "export const working = 2;\n");
@@ -81,23 +75,6 @@ describe("quality submodule input", () => {
         untrackedPath,
         workingPath
       ]);
-
-      const materialized = materializeBaselineRevision({
-        baselineWorkDir: join(tempDir, "materialized"),
-        commitSha: baselineRootSha,
-        cwd: repository
-      });
-      assert.equal(materialized.ok, true, materialized.ok ? undefined : materialized.error);
-      if (!materialized.ok) return;
-
-      assert.deepEqual(collectBaselineFiles(materialized.workDir, config), [
-        committedPath,
-        workingPath
-      ]);
-      assert.equal(
-        readFileSync(join(materialized.workDir, committedPath), "utf8").trim(),
-        "export const committed = 1;"
-      );
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -137,15 +114,6 @@ describe("quality submodule input", () => {
       git(repository, ["add", "modules/tool"]);
 
       assert.deepEqual(collectScanFiles(repository, config), ["src/kept.ts"]);
-      const materialized = materializeBaselineRevision({
-        baselineWorkDir: join(tempDir, "materialized"),
-        commitSha: git(repository, ["rev-parse", "HEAD"]),
-        cwd: repository
-      });
-      assert.equal(materialized.ok, false);
-      if (!materialized.ok) {
-        assert.match(materialized.error, /not an independent Git worktree/u);
-      }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -159,7 +127,7 @@ describe("quality input file collection", () => {
     include: ["src/**/*.ts"]
   } satisfies ScanInputConfig;
 
-  it("treats successful empty Git results as authoritative for current and baseline", () => {
+  it("treats successful empty Git results as authoritative", () => {
     const repository = mkdtempSync(join(tmpdir(), "docnav-quality-git-empty-"));
 
     try {
@@ -168,13 +136,12 @@ describe("quality input file collection", () => {
       writeFixtureFile(repository, "src/ignored.ts", "export const ignored = true;\n");
 
       assert.deepEqual(collectScanFiles(repository, config), []);
-      assert.deepEqual(collectBaselineFiles(repository, config), []);
     } finally {
       rmSync(repository, { recursive: true, force: true });
     }
   });
 
-  it("uses config-only fallback for current and baseline when Git fails", () => {
+  it("uses config-only fallback when Git fails", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-git-fallback-"));
 
     try {
@@ -191,15 +158,10 @@ describe("quality input file collection", () => {
 
       const expected = ["src/ignored.ts", "src/kept.ts"];
       assert.deepEqual(collectScanFiles(projectRoot, config), expected);
-      assert.deepEqual(collectBaselineFiles(projectRoot, config), expected);
 
       const missingRoot = join(projectRoot, "missing-root");
       assert.throws(
         () => collectScanFiles(missingRoot, config),
-        /could not read directory .*missing-root/u
-      );
-      assert.throws(
-        () => collectBaselineFiles(missingRoot, config),
         /could not read directory .*missing-root/u
       );
     } finally {
@@ -219,7 +181,6 @@ describe("quality input file collection", () => {
       writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
 
       assert.deepEqual(collectScanFiles(projectRoot, selectedConfig), ["vendor/kept.ts"]);
-      assert.deepEqual(collectBaselineFiles(projectRoot, selectedConfig), ["vendor/kept.ts"]);
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
@@ -249,9 +210,7 @@ describe("quality input file collection", () => {
 
       const expected = ["src/component.tsx", "src/nested/module.ts", "src/untracked.ts"];
       assert.deepEqual(collectScanFiles(repository, braceConfig), expected);
-      assert.deepEqual(collectBaselineFiles(repository, braceConfig), expected);
       assert.deepEqual(collectScanFiles(fallbackRoot, braceConfig), expected);
-      assert.deepEqual(collectBaselineFiles(fallbackRoot, braceConfig), expected);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -266,7 +225,6 @@ describe("quality input file collection", () => {
       writeFixtureFile(repository, newlinePath, "export const newline = true;\n");
 
       assert.deepEqual(collectScanFiles(repository, config), [newlinePath]);
-      assert.deepEqual(collectBaselineFiles(repository, config), [newlinePath]);
     } finally {
       rmSync(repository, { recursive: true, force: true });
     }

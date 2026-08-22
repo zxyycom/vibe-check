@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
 import { CoreInvariantFailure, createCoreCheckSession } from "./core-session.ts";
-import { canonicalJsonBytes } from "./identity.ts";
+import { canonicalJsonBytes } from "./canonical-data.ts";
 import { validateCoreSnapshot } from "./validation.ts";
 
 function definition(checkId: string) {

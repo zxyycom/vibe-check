@@ -1,9 +1,9 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { canonicalJsonBytes, normalizeSemanticSubject } from "./identity.ts";
+import { canonicalJsonBytes } from "./canonical-data.ts";
 
-describe("check-record foundation identity", () => {
+describe("check-record canonical data", () => {
   it("emits canonical UTF-8 JSON for safe detached values", () => {
     const bytes = canonicalJsonBytes({ z: -0, a: { b: true }, list: [2, 1] });
 
@@ -40,10 +40,5 @@ describe("check-record foundation identity", () => {
       }
     );
     assert.throws(() => canonicalJsonBytes(trapped), /Canonical JSON/);
-  });
-
-  it("normalizes Check-local semantic subjects without creating Record identities", () => {
-    assert.equal(normalizeSemanticSubject("a\r\nb\r"), "a\nb\n");
-    assert.equal(normalizeSemanticSubject("Keep Case"), "Keep Case");
   });
 });

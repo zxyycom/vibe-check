@@ -94,7 +94,6 @@ describe("Package Run progress timing", () => {
       ],
       effects: {
         cache: { enabled: false },
-        logs: { enabled: false },
         output: { enabled: false },
         progress: { enabled: true }
       },

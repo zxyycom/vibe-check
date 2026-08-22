@@ -13,7 +13,6 @@ export default defineConfig({
           options: {
             ...duplicateDetection.options,
             defaultMinimumTokens: 100,
-            fragments: { changedDelta: 0 },
             minimumTokensByCodeArea: {
               "docs-specs": 150,
               generated: 200,
@@ -23,24 +22,13 @@ export default defineConfig({
             }
           }
         },
-        {
-          ...fileMetrics,
-          maxParallel: 1,
-          options: {
-            ...fileMetrics.options,
-            codeLines: {
-              ...fileMetrics.options.codeLines,
-              changedDelta: 100
-            }
-          }
-        },
+        { ...fileMetrics, maxParallel: 1 },
         functionMetrics
       ]
     }
   ],
   effects: {
     cache: { directory: ".cache/vibe-check/quality", enabled: true },
-    logs: { enabled: true },
     output: { directory: "artifacts/vibe-check-quality", enabled: true },
     progress: { enabled: false }
   },
@@ -113,18 +101,6 @@ export default defineConfig({
       "scripts/project-gate/**/*.ts",
       "docs/**/*.md",
       "changes/**/*.md"
-    ],
-    report: {
-      footerGeneratedBy: "Vibe Check Quality Observability",
-      footerNotice:
-        "This report is a non-blocking development snapshot. Vibe Check Package Run, product tests, and contract validation define the release gates.",
-      nonBlockingNotice:
-        "Non-blocking development quality snapshot. Package Run, the report contract, and product tests define the release contract.",
-      showWatchlist: true,
-      timeZone: "Asia/Shanghai",
-      title: "Vibe Check Quality Snapshot",
-      topN: 10,
-      watchlistMax: 20
-    }
+    ]
   }
 });

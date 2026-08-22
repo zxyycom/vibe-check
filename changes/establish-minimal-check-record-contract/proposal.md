@@ -2,6 +2,10 @@
 
 本 Change 收紧 Product 的两个基础事实契约：一个 Check 以单一终态和 Check-owned `data` 返回主结果，并可另外提交零到多个最小 Records。由这两个主契约变化引起的 machine、policy、output 与项目验证迁移作为次级影响处理，不反向扩大基础契约。
 
+**Status and reading.** 这是仍处于 `active + plan` 的 Change scope 与验收记录；其任务已完成，但归档需要单独授权。它不取代当前 runtime contract：authoring/Run controls 见 [Configuration](../../docs/configuration.md)，Check/Record/aggregation facts 见 [Quality Metrics](../../docs/quality-metrics.md)，machine contract 见 [Output](../../docs/output.md)，repository Gate adapter 见 [脚本工具](../../docs/script-tooling.md#project-gate)。已实现结果和实际验证见 [`acceptance-audit.md`](acceptance-audit.md)。
+
+下文 `Why`、迁移项和移除项中的旧术语只描述 planning baseline 与 hard-cut scope，不是 current public contract。
+
 ## Why
 
 当前设计把两个不同问题混在一起：
@@ -63,7 +67,7 @@ const apiHealth = defineCheck({
 });
 ```
 
-Reporter scope 提供 `checkId`；author 提供 owning Check 内唯一的 `id`。Product 将最终结果 `data` 和 Record `data` 安全 materialize 为 detached、deep-frozen canonical JSON object。Core Record 固定为：
+Reporter scope 提供 `checkId`；author 提供 owning Check 内唯一的 `id`。Product 将最终结果 `data` 和 Record `data` 安全 materialize 为 detached、null-prototype、deep-frozen canonical JSON object。Core Record 固定为：
 
 ```ts
 interface CoreRecord {
@@ -99,6 +103,7 @@ Core Check 保存新的终态及其 canonical final data。`RunResult` 在 compl
 - 删除旧 Record contract 拥有的 common comparison/reference inputs、Record-aware DecisionPolicy、GateResult 与派生 decision/reference evidence。
 - 在 `RunControls.checkAggregation` 中实现无默认值的 closed aggregation配置，并在`RunResult`中以`aggregate: CheckAggregate | null`返回派生结果；raw Check facts始终保留。
 - 将 machine publication 硬切到 v4，并同步 schema、independent validator、fingerprint、examples 与直接 output consumers。
+- 将 output effect 收敛为只发布 `run.json` 与 `records.ndjson`；scanner material、test-only planning helpers 和无真实 consumer 的 artifact-reader 不构成新 surface，real I/O lifecycle evidence 承接写入/cleanup 边界。
 - 迁移 default Checks、repository Project Definition、fixtures、package declarations、public-contract inventory 与 isolated consumer evidence。
 - 在删除旧 GateResult 前，将repository`required/full`迁移到上述显式aggregation；正式入口不暂停、不降级为CLI-local reducer。
 
@@ -141,5 +146,5 @@ Core Check 保存新的终态及其 canonical final data。`RunResult` 在 compl
 - Repository Gate direct consumer：[`scripts/project-gate/`](../../scripts/project-gate/)与[`scripts/quality/project-gate/`](../../scripts/quality/project-gate/)在本Change迁移到package-owned aggregate；[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/)只拥有后续catalog/CLI/process优化。
 - Typed dependency：[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) 决定 upstream final data 与 supplemental Records 的读取边界。
 - Presentation：[`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) 决定 final data/Records 的显式人读 projection。
-- Long-term Decisions：实现前核对 [Check-local Record data](../../docs/decisions/report-check-owned-record-data-with-local-identities.md)、[Check-owned comparison](../../docs/decisions/keep-comparison-semantics-inside-producing-checks.md)、[直接 execution + 最小 reporting](../../docs/decisions/use-direct-check-execution-with-minimal-record-reporting.md) 与现行 Core/DecisionPolicy/machine Decisions 的 evolution/alignment。
+- Long-term Decisions：[four-state final result](../../docs/decisions/use-four-state-check-results-with-final-data.md)、[Core Check/Record facts](../../docs/decisions/use-core-check-record-facts-with-final-data.md)、[explicit Run aggregation](../../docs/decisions/use-explicit-run-controls-check-aggregation.md)、[Project Gate aggregation](../../docs/decisions/bind-project-gates-to-run-aggregation.md)、[machine v4](../../docs/decisions/publish-fingerprint-bound-check-record-machine-v4.md) 与 [minimal public surface](../../docs/decisions/expose-minimal-check-and-run-public-surface.md)承接当前方向；[Check-local Record data](../../docs/decisions/report-check-owned-record-data-with-local-identities.md)和[Check-owned comparison](../../docs/decisions/keep-comparison-semantics-inside-producing-checks.md)补充 producing Check 边界。lifecycle/前序证据见 [`acceptance-audit.md#decision-lifecycle`](acceptance-audit.md#decision-lifecycle)，不由本 Proposal 改写。
 - 测试证据：Check authoring/result、Record/Core safety、Run facts、machine/output、legacy policy removal、Project Gate、package declarations 与 external consumers。

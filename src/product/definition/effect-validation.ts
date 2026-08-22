@@ -1,18 +1,17 @@
 import type { ProjectEffects, RunControls } from "./project.ts";
 import { snapshotClosedRecord } from "../quality-core/check-record/plain-record-values.ts";
 
-const EFFECT_NAMES = ["cache", "logs", "output", "progress"] as const;
+const EFFECT_NAMES = ["cache", "output", "progress"] as const;
 
 export function parseEffects(value: unknown): ProjectEffects | undefined {
   const data = exactKeys(value, EFFECT_NAMES);
   if (data === undefined) return undefined;
   const cache = parseDirectoryEffect(data.cache);
-  const logs = parseSwitchEffect(data.logs);
   const output = parseDirectoryEffect(data.output);
   const progress = parseSwitchEffect(data.progress);
-  return cache === undefined || logs === undefined || output === undefined || progress === undefined
+  return cache === undefined || output === undefined || progress === undefined
     ? undefined
-    : Object.freeze({ cache, logs, output, progress });
+    : Object.freeze({ cache, output, progress });
 }
 
 export function parseEffectsOverride(value: unknown): RunControls["effects"] | undefined {
@@ -21,13 +20,11 @@ export function parseEffectsOverride(value: unknown): RunControls["effects"] | u
     return undefined;
   }
   const cache = optionalEffect(data, "cache", parseDirectoryEffectOverride);
-  const logs = optionalEffect(data, "logs", parseSwitchEffectOverride);
   const output = optionalEffect(data, "output", parseDirectoryEffectOverride);
-  const progress = optionalEffect(data, "progress", parseSwitchEffectOverride);
-  if (!cache.ok || !logs.ok || !output.ok || !progress.ok) return undefined;
+  const progress = optionalEffect(data, "progress", parseProgressEffectOverride);
+  if (!cache.ok || !output.ok || !progress.ok) return undefined;
   return Object.freeze({
     ...(cache.value === undefined ? {} : { cache: cache.value }),
-    ...(logs.value === undefined ? {} : { logs: logs.value }),
     ...(output.value === undefined ? {} : { output: output.value }),
     ...(progress.value === undefined ? {} : { progress: progress.value })
   });
@@ -81,7 +78,9 @@ function parseDirectoryEffectOverride(
   });
 }
 
-function parseSwitchEffectOverride(value: unknown): Partial<ProjectEffects["logs"]> | undefined {
+function parseProgressEffectOverride(
+  value: unknown
+): Partial<ProjectEffects["progress"]> | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) {
     return undefined;

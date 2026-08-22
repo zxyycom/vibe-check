@@ -59,16 +59,16 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 人或 AI 从根目录启动时，只选择下表的 workflow；`scripts/**` direct entry 是对应 owner 或 Project Gate
 的内部调用面，不是第二套 root 命令。`--` 后的参数属于同一 workflow，而不是新的 package-script。
 
-| workflow | 典型调用 | 默认与边界 |
-| --- | --- | --- |
-| format | `bun run format`；`bun run format -- check` | 无参数会写入 workspace format targets；`check` 只检查。 |
-| lint / typecheck | `bun run lint -- product`；`bun run typecheck -- scripts` | 无参数分别覆盖 product 和 scripts；scope 只选择已声明的目标。 |
-| test | `bun run test` | 默认且推荐的 root scope 是 Product；foundation 仍通过自己的 package command 验证 cwd boundary。 |
-| validate | `bun run validate`；`bun run validate -- docs json` | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator。 |
-| quality | `bun run quality` | 无参数；写入忽略的 quality artifacts，但 Check facts 本身不阻断此 observation command。 |
-| governance | `bun run decisions -- list`、`bun run change-plan -- check <path>`、`bun run investigations -- check`、`bun run test-evidence -- check --root .` | base command 只转发其 owner CLI；是否写入由具体 subcommand 决定。 |
-| Project Gate | `bun run verify:vibe-check-workspace:required` | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `full` 选择 full，`:required` 选择 required；正式调用不传 disabled tag。 |
-| bootstrap / migration compatibility | `bun run env:setup`、`bun run env:check`、`bun run product:cli` | 前两个受 Codex 生成环境调用约束；最后一个只输出 migration diagnostic。 |
+| workflow                            | 典型调用                                                                                                                                         | 默认与边界                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| format                              | `bun run format`；`bun run format -- check`                                                                                                      | 无参数会写入 workspace format targets；`check` 只检查。                                                                                           |
+| lint / typecheck                    | `bun run lint -- product`；`bun run typecheck -- scripts`                                                                                        | 无参数分别覆盖 product 和 scripts；scope 只选择已声明的目标。                                                                                     |
+| test                                | `bun run test`                                                                                                                                   | 默认且推荐的 root scope 是 Product；foundation 仍通过自己的 package command 验证 cwd boundary。                                                   |
+| validate                            | `bun run validate`；`bun run validate -- docs json`                                                                                              | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator。                                              |
+| quality                             | `bun run quality`                                                                                                                                | 无参数；写入忽略的 quality artifacts，但 Check facts 本身不阻断此 observation command。                                                           |
+| governance                          | `bun run decisions -- list`、`bun run change-plan -- check <path>`、`bun run investigations -- check`、`bun run test-evidence -- check --root .` | base command 只转发其 owner CLI；是否写入由具体 subcommand 决定。                                                                                 |
+| Project Gate                        | `bun run verify:vibe-check-workspace:required`                                                                                                   | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `full` 选择 full，`:required` 选择 required；正式调用不传 disabled tag。 |
+| bootstrap / migration compatibility | `bun run env:setup`、`bun run env:check`、`bun run product:cli`                                                                                  | 前两个受 Codex 生成环境调用约束；最后一个只输出 migration diagnostic。                                                                            |
 
 ## 当前实现状态
 
@@ -252,9 +252,9 @@ bun run quality
 observation；需要 Gate 的项目在自己的 bound Run 中选择 eligible Check IDs、显式提供 aggregation
 configuration，并由 adapter 映射 Run facts，而不是由 package script 隐式重算质量结论。
 
-| 命令 | 当前行为 |
-| --- | --- |
-| `quality` | 运行完整 repository definition；quality records 非阻断 |
+| 命令      | 当前行为                                                                                      |
+| --------- | --------------------------------------------------------------------------------------------- |
+| `quality` | 运行完整 repository definition；它是 neutral observation，不配置 aggregation 或映射 Gate exit |
 
 默认 output 写入 `artifacts/vibe-check-quality/`，并作为 generated local state 忽略。
 
@@ -283,7 +283,8 @@ bun scripts/project-gate/index.ts [--profile required|full] [--disable-tag <tag>
 ambient CI，local partial invocation 仍可在任何 host 运行。
 
 identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<unique>/`。eligible Check 在自己的
-transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；Product-owned progress 是唯一
+transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；这是 Project Gate 自己拥有的
+本地诊断目录，不是 Product `logs` effect 或 machine output。Product-owned progress 是唯一
 共享进度流。零退出且 transcript 写入成功为 passed final data；非零退出产生不含 child output 的 Check-local
 supplemental Record 并为 failed final data。已运行 command 收到取消时，adapter 先保存其 transcript，再映射为
 `execution-cancelled` unavailable；未启动、无法取得 exit facts 或无法写入 transcript 也为 unavailable。
@@ -319,9 +320,10 @@ Docs validation 故意把 current product、independent acceptance 与 historica
    run/record v4 published schemas；`--check` 按 bytes 检测 drift。
 2. `scripts/docs/machine-examples.ts` 从 fixed core fixture values 经 production mapper/
    serializers 生成 current examples；`--check` 检测 exact inventory 与 byte drift。
-3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas、
-   raw bytes 与独立 parser/set predicates 验证 examples；它不 import Product validator 作为
-   acceptance implementation。
+3. `scripts/tools/validators/schema/machine-artifacts.ts` 使用 checked-in current schemas 解析 raw
+   example bytes，并以独立 parser、recursive canonical-JSON validator 和 set predicates 验证完整 two-file
+   set。它在 hash 前拒绝 non-finite JSON number 或任何 canonical-data failure，绝不接受 partial set；它不
+   import Product validator 作为 acceptance implementation。
 4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v4。historical
    run/record schemas 使用 separate archival registry，`docs/examples/json/**` 不进入 current example
    traversal。
@@ -334,15 +336,15 @@ Docs validation 故意把 current product、independent acceptance 与 historica
 [`AGENTS.md`](../AGENTS.md) 只补充项目专属路由和命令。本节只拥有当前安装清单、分发边界和
 项目接线，不复制各 Skill 的执行方法。
 
-| 类型 | Skill | 当前维护与项目接线 |
-| --- | --- | --- |
-| 完整上游治理包 | `.codex/skills/change-plan/` | `changes/`、`change-plan*` package scripts 与[决策和 Change 治理](decision-and-change-governance.md) |
-| 完整上游治理包 | `.codex/skills/decision-records/` | `docs/decisions/`、`scripts/decision-records.ts` 与 `decisions*` package scripts |
-| 完整上游治理包 | `.codex/skills/investigation-report/` | 按需建立的 `docs/investigations/` 与 `investigations*` package scripts |
-| 完整上游判断包 | `.codex/skills/common-denominator-design/` | 无项目 runtime；项目 owner 和验证入口始终从包外读取 |
-| 完整上游判断包 | `.codex/skills/product-architecture-judgment/` | 无项目 runtime；项目 owner 和验证入口始终从包外读取 |
-| 独立方法包 | `.codex/skills/performance-optimization/` | 无 CLI、schema 或 runtime；目录内入口与 references 共同构成当前文件集 |
-| 项目方法层 | `.codex/skills/test-evidence-review/` | 只维护能力感知的评审方法；项目测试 owner 继续拥有 Runner、Case、CLI 和闭合 runtime |
+| 类型           | Skill                                          | 当前维护与项目接线                                                                                   |
+| -------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 完整上游治理包 | `.codex/skills/change-plan/`                   | `changes/`、`change-plan*` package scripts 与[决策和 Change 治理](decision-and-change-governance.md) |
+| 完整上游治理包 | `.codex/skills/decision-records/`              | `docs/decisions/`、`scripts/decision-records.ts` 与 `decisions*` package scripts                     |
+| 完整上游治理包 | `.codex/skills/investigation-report/`          | 按需建立的 `docs/investigations/` 与 `investigations*` package scripts                               |
+| 完整上游判断包 | `.codex/skills/common-denominator-design/`     | 无项目 runtime；项目 owner 和验证入口始终从包外读取                                                  |
+| 完整上游判断包 | `.codex/skills/product-architecture-judgment/` | 无项目 runtime；项目 owner 和验证入口始终从包外读取                                                  |
+| 独立方法包     | `.codex/skills/performance-optimization/`      | 无 CLI、schema 或 runtime；目录内入口与 references 共同构成当前文件集                                |
+| 项目方法层     | `.codex/skills/test-evidence-review/`          | 只维护能力感知的评审方法；项目测试 owner 继续拥有 Runner、Case、CLI 和闭合 runtime                   |
 
 五个带 updater 的完整上游包使用各自 updater 或同一 release asset 整包替换。更新时只选择目标
 包，先核对 release，再运行包的机械检查、项目文档检查、脚本检查及受影响 workspace 验证；
@@ -364,11 +366,11 @@ Vibe Check-owned
 `runDecisionRecordsCli`、`scanDecisionRecords` 和 `validateDecisionRecords`。适配器不复制
 解析、校验、索引维护或关系语义，`src/product/**` 也不导入该开发工具。
 
-| 入口 | 用途 | 状态影响 |
-| --- | --- | --- |
-| `bun run decisions -- list` | 列出活动决策的检索投影 | 只读 |
-| `bun run decisions -- check` | 严格检查目录、Markdown、索引和关系 | 只读 |
-| `bun run decisions -- <command>` | 调用 skill 的完整 CLI | 由具体命令决定；写命令按 skill 契约执行 |
+| 入口                             | 用途                               | 状态影响                                |
+| -------------------------------- | ---------------------------------- | --------------------------------------- |
+| `bun run decisions -- list`      | 列出活动决策的检索投影             | 只读                                    |
+| `bun run decisions -- check`     | 严格检查目录、Markdown、索引和关系 | 只读                                    |
+| `bun run decisions -- <command>` | 调用 skill 的完整 CLI              | 由具体命令决定；写命令按 skill 契约执行 |
 
 ## Change Plan CLI
 
@@ -376,14 +378,14 @@ Vibe Check-owned
 artifacts、严格 metadata、stage、Git 距离与六个 CLI 命令。项目只固定 `changes/` 根和
 package scripts：
 
-| 入口 | 用途 | 状态影响 |
-| --- | --- | --- |
-| `bun run change-plan -- list changes` | 列出 `changes/` 下 active Change | 只读；发现 invalid member 不等于验收通过 |
-| `bun run change-plan -- show changes/<change>` | 展开一个 Change 的 status、stage、任务进度、Plan Git 距离与 artifacts | 只读 |
-| `bun run change-plan -- check changes/<change>` | 按当前 stage 机械检查目标 Change | 只读 |
-| `bun run change-plan -- check-all [changes]` | 门禁所选 Change 根中的 active Change；`--archived` 或 `--all` 显式扩大集合 | 只读 |
-| `bun run change-plan -- plan changes/<change>` | 在语义复核后写入规范 Plan metadata 与当前 Git baseline | 写 metadata；不表示实施已获授权 |
-| `bun run change-plan -- archive changes/<change>` | 归档已满足机械门禁的 active Plan | 移动 Change 目录；仍需当前任务明确授权 |
+| 入口                                              | 用途                                                                       | 状态影响                                 |
+| ------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------- |
+| `bun run change-plan -- list changes`             | 列出 `changes/` 下 active Change                                           | 只读；发现 invalid member 不等于验收通过 |
+| `bun run change-plan -- show changes/<change>`    | 展开一个 Change 的 status、stage、任务进度、Plan Git 距离与 artifacts      | 只读                                     |
+| `bun run change-plan -- check changes/<change>`   | 按当前 stage 机械检查目标 Change                                           | 只读                                     |
+| `bun run change-plan -- check-all [changes]`      | 门禁所选 Change 根中的 active Change；`--archived` 或 `--all` 显式扩大集合 | 只读                                     |
+| `bun run change-plan -- plan changes/<change>`    | 在语义复核后写入规范 Plan metadata 与当前 Git baseline                     | 写 metadata；不表示实施已获授权          |
+| `bun run change-plan -- archive changes/<change>` | 归档已满足机械门禁的 active Plan                                           | 移动 Change 目录；仍需当前任务明确授权   |
 
 CLI 使用稳定的命令与 JSON 输出边界；项目不依赖其未承诺稳定的直接 import API。
 
@@ -393,11 +395,11 @@ CLI 使用稳定的命令与 JSON 输出边界；项目不依赖其未承诺稳�
 可选随附资源、派生索引、同步、查询与 `stage-index`。集合只在用户明确要求沉淀调查时建立；
 不存在的 `docs/investigations/` 不用空目录或空索引伪装为合法集合。
 
-| 入口 | 用途 | 状态影响 |
-| --- | --- | --- |
-| `bun run investigations -- list` | 从已核对新鲜度的索引查询主题 | 只读 |
-| `bun run investigations -- check` | 全量检查主题、资源与派生索引 | 只读 |
-| `bun run investigations -- sync-index` | 从主题和资源重建工作树索引 | 写派生索引，不写主题或资源 |
+| 入口                                                  | 用途                                   | 状态影响                             |
+| ----------------------------------------------------- | -------------------------------------- | ------------------------------------ |
+| `bun run investigations -- list`                      | 从已核对新鲜度的索引查询主题           | 只读                                 |
+| `bun run investigations -- check`                     | 全量检查主题、资源与派生索引           | 只读                                 |
+| `bun run investigations -- sync-index`                | 从主题和资源重建工作树索引             | 写派生索引，不写主题或资源           |
 | `bun run investigations -- stage-index <topic-id...>` | 只把选中主题对应的索引变化写入 pending | 写版本管理 pending，不暂存主题或资源 |
 
 ## 测试证据闭合工具
@@ -409,13 +411,13 @@ topic catalog、查询和闭合诊断。项目内
 能力感知的语义评审方法，不携带项目路径、runner adapter、schema、CLI runtime 或第二套
 持久化格式。
 
-| 入口 | 用途 | 状态影响 |
-| --- | --- | --- |
-| `bun run test-evidence -- list --root .` | 列出当前语义 Case；需要有界筛选时使用完整 CLI | 只读 |
-| `bun run test-evidence -- topics\|list\|show --root .` | 按 topic、entity、owner、文本或 Case ID 查询 | 只读 |
-| `bun run test-evidence -- check --root .` | 运行完整 Bun 测试面并严格检查 static/runtime/entity/Case 闭合 | 只读 |
-| `bun scripts/test-evidence/test-rules.ts` | 验证 ast-grep Bun test 发现规则 | 只读 |
-| `bun test scripts/test-evidence` | 运行 test-evidence 工具 focused tests | 只读 |
+| 入口                                                   | 用途                                                          | 状态影响 |
+| ------------------------------------------------------ | ------------------------------------------------------------- | -------- |
+| `bun run test-evidence -- list --root .`               | 列出当前语义 Case；需要有界筛选时使用完整 CLI                 | 只读     |
+| `bun run test-evidence -- topics\|list\|show --root .` | 按 topic、entity、owner、文本或 Case ID 查询                  | 只读     |
+| `bun run test-evidence -- check --root .`              | 运行完整 Bun 测试面并严格检查 static/runtime/entity/Case 闭合 | 只读     |
+| `bun scripts/test-evidence/test-rules.ts`              | 验证 ast-grep Bun test 发现规则                               | 只读     |
+| `bun test scripts/test-evidence`                       | 运行 test-evidence 工具 focused tests                         | 只读     |
 
 测试层级和项目级维护规则由 [测试策略](testing.md) 与
 [测试证据维护](testing/case-maintenance.md) 拥有。Case 按共同 owner 契约与可观察结果
@@ -447,18 +449,18 @@ run/record v4 schemas、historical schema material 与对应 example roots，不
 
 按改动面选择最窄验证：
 
-| 改动面 | 命令 |
-| --- | --- |
-| 脚本格式、类型或 lint | `bun run format -- check`、`bun run typecheck -- scripts`、`bun run lint -- scripts` |
-| 项目环境、工具 pin 或 Codex checkout 自举 | `bun run env:check`、`bun run typecheck -- scripts`、`bun run lint -- scripts`、`bun run verify:vibe-check-workspace:full` |
-| 长期决策适配器或记录集合 | `bun run decisions -- check`；适配器改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts` |
-| 测试证据闭合工具或 Case 集合 | `bun run test-evidence -- check --root .`；工具改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts` |
-| Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality`，并按影响面补 Product `run` 测试 |
-| 文档校验 | `bun run validate -- docs` |
-| Project Gate（routine） | `bun run verify:vibe-check-workspace:required` |
-| Project Gate（完整 Product / foundation package 验收） | `bun run verify:vibe-check-workspace:full` |
-| current schema/example generation drift | `bun scripts/docs/machine-schemas.ts --check`、`bun scripts/docs/machine-examples.ts --check`；日常由 `validate -- docs` 调度 |
-| foundation package | `bun run --cwd scripts/tools/foundation typecheck`、`bun run --cwd scripts/tools/foundation format -- check`、`bun run --cwd scripts/tools/foundation lint`、`bun run --cwd scripts/tools/foundation test` |
-| Product-owned runner import | `bun test src/product/task-scheduler/test` |
+| 改动面                                                  | 命令                                                                                                                                                                                                       |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 脚本格式、类型或 lint                                   | `bun run format -- check`、`bun run typecheck -- scripts`、`bun run lint -- scripts`                                                                                                                       |
+| 项目环境、工具 pin 或 Codex checkout 自举               | `bun run env:check`、`bun run typecheck -- scripts`、`bun run lint -- scripts`、`bun run verify:vibe-check-workspace:full`                                                                                 |
+| 长期决策适配器或记录集合                                | `bun run decisions -- check`；适配器改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts`                                                                                                     |
+| 测试证据闭合工具或 Case 集合                            | `bun run test-evidence -- check --root .`；工具改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts`                                                                                          |
+| Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality`，并按影响面补 Product `run` 测试                                                                                                         |
+| 文档校验                                                | `bun run validate -- docs`                                                                                                                                                                                 |
+| Project Gate（routine）                                 | `bun run verify:vibe-check-workspace:required`                                                                                                                                                             |
+| Project Gate（完整 Product / foundation package 验收）  | `bun run verify:vibe-check-workspace:full`                                                                                                                                                                 |
+| current schema/example generation drift                 | `bun scripts/docs/machine-schemas.ts --check`、`bun scripts/docs/machine-examples.ts --check`；日常由 `validate -- docs` 调度                                                                              |
+| foundation package                                      | `bun run --cwd scripts/tools/foundation typecheck`、`bun run --cwd scripts/tools/foundation format -- check`、`bun run --cwd scripts/tools/foundation lint`、`bun run --cwd scripts/tools/foundation test` |
+| Product-owned runner import                             | `bun test src/product/task-scheduler/test`                                                                                                                                                                 |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

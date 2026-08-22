@@ -8,7 +8,6 @@ export type MachinePublicationValidationCategory =
   | "syntax";
 
 export type MachinePublicationSetRelationship =
-  | "canonical-json"
   | "check-canonical-order"
   | "core-snapshot"
   | "record-canonical-order"

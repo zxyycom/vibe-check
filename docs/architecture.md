@@ -21,7 +21,7 @@
 
 完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 declarative data：它拒绝 unknown field 和 malformed value，snapshot JSON options，验证完整 default options，并 canonicalize scheduling collection。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
 
-Record catalog、field descriptor、identity extractor、reference reporter、comparison input、`DecisionPolicy`、`GateResult` 与 named policy selection 不属于 Definition grammar。一个 producing Check 自己定义 final data 和可选 Record data 的 domain shape。
+Definition grammar只描述递归 Check、调度和 Check-owned execution/options。producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
 
 ## Execution boundary
 
@@ -32,7 +32,7 @@ dependency/mutex admission、root budget、cancellation 与 settlement。engine 
 
 Product 将 ordinary throw、malformed result、Record misuse、cancellation 和 unavailable prerequisite 映射为 owning unavailable outcome。unavailable prerequisite 阻断 dependent user work，unrelated Check 仍可继续。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Core settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core 或 machine publication。progress renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标 stream 输出；项目 callback 必须把详细 process output 留在 project-owned logs，而不与该 stream 穿插。
+Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Core settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`；它不进入 `CheckOutcome`、Record、Core 或 machine publication。progress renderer、feedback、target-stream capability、clock 与 scheduler integration 都是 package-private handoff：Product 拥有目标 stream 输出；项目 callback 必须把详细 process output 留在项目自己拥有的 transcript（例如 Project Gate 的`.log/`），而不与该 stream 穿插。这类 transcript 不是 Product effect，也不属于 machine output。
 
 ## Core facts
 
@@ -43,7 +43,7 @@ Core session 将每个 canonical executable Check 恰好 register 一次，且�
 - `not-applicable`，可选 reason code；
 - `unavailable`，带有 Product or author-controlled reason code 和可选 prerequisite `checkIds`。
 
-callback 只能通过自己的 reporter 提交 supplemental Record candidate：`records.report({ id }, data)`。Product 提供 Check ownership 与 structural `{ checkId, id }` identity，验证 canonical safety、拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。final data 与 Record data 都 materialize 为 detached、deep-frozen、prototype-safe canonical JSON object；Product 不验证 Check-local domain shape。Task identity、callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Core facts。
+callback 只能通过自己的 reporter 提交 supplemental Record：`records.report({ id }, data)`。Product 提供 Check ownership 与 structural `{ checkId, id }` identity，验证 canonical safety、拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。final data 与 Record data 都 materialize 为 detached、null-prototype、deep-frozen canonical JSON object；snapshot 不承诺 JavaScript own-key enumeration order。Check-local domain shape和canonical text/bytes ordering由 [Quality Metrics](quality-metrics.md#check-and-record-facts)分别界定。Task identity、callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Core facts。
 
 Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。aggregation 不读取 Record data、definition warning、effect status 或 presentation，也不替代项目的 raw facts。
 
@@ -53,7 +53,7 @@ Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只�
 
 ## Output and downstream boundary
 
-Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 只投影 `{ checkId, id, data }`。它不发布 Record catalog、reference/comparison facts、decision evidence 或 mandatory aggregate。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、effect与人读展示仍留在各自的 Run/consumer boundary。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 effect result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Core capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 

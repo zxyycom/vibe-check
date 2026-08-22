@@ -5,7 +5,7 @@
 import { readJsonFile, writeJsonFile } from "../../foundation/index.ts";
 import type { DuplicateCodeFragment } from "../model/schema.ts";
 import { buildScanCacheKey, getScanCachePath } from "./cache/key.ts";
-import { isMatchingPayload, isMetricArray, stripDuplicateChangedScope } from "./cache/payload.ts";
+import { isMatchingPayload, isMetricArray } from "./cache/payload.ts";
 import {
   SCAN_CACHE_VERSION,
   type DuplicateCodeCacheHit,
@@ -19,8 +19,7 @@ export { SCAN_CACHE_VERSION } from "./cache/types.ts";
 export type {
   DuplicateCodeCacheHit,
   DuplicateCodeCacheIdentity,
-  DuplicateCodeCacheMiss,
-  ScanKind
+  DuplicateCodeCacheMiss
 } from "./cache/types.ts";
 
 export function loadScanCacheEntry({
@@ -65,7 +64,6 @@ export function writeScanCacheEntry({
   const payload: ScanCachePayload = {
     scanCacheVersion: SCAN_CACHE_VERSION,
     cacheKey,
-    scanKind: identity.scanKind,
     toolName: identity.toolName,
     toolVersion: identity.toolVersion,
     normalizedToolArgs: [...identity.normalizedToolArgs],
@@ -73,7 +71,7 @@ export function writeScanCacheEntry({
     codeArea: identity.codeArea,
     commitSha: identity.commitSha,
     inputFingerprint: identity.inputFingerprint,
-    metrics: stripDuplicateChangedScope(metrics),
+    metrics,
     createdAt: new Date().toISOString()
   };
 

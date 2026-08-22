@@ -21,10 +21,11 @@ and invokes that target with the active Bun executable. This is package-owned ad
 configuration or discovery surface. A consumer-supplied complete `options.scanner` branch continues to execute
 exactly its supplied command values.
 
-Duplicate detection additionally uses its Check-owned `scanner.maxConcurrency`. A project may use normal object
-spread to create a complete replacement options value. Definition validation fails closed for an omitted nested
-field, unknown key, invalid command value, zero concurrency, or an unknown code-area threshold. There is no
-Run Control, environment-variable, PATH, repository-tool, precedence, or operational map that replaces these
+Duplicate detection additionally uses its Check-owned `scanner.maxConcurrency`. Metric defaults use only their
+validated absolute-floor and allowance branches. A project may use normal object spread to create a complete
+replacement options value. Definition validation fails closed for an omitted nested
+field, unknown key, invalid command value, zero concurrency, or an unknown code-area threshold. There is no Run
+Control, environment-variable, PATH, repository-tool, precedence, or operational map that replaces these
 Configuration-owned default option fields.
 
 ## Adapter handoff and scope
@@ -35,18 +36,17 @@ owns availability probes, subprocess management, parser details, raw material, b
 scanner-native protocol adaptation.
 
 Every reported source path is slash-normalized and must belong to the approved exact input list. A batch containing
-one out-of-scope source is rejected before any record conversion, so adapters cannot publish a partial result.
-Current and named-reference measurements each use their own frozen scope. Scanner-private command data and raw
-results never enter declarative fingerprints, Core facts, public output, or Run Controls.
+one out-of-scope source is rejected before any Record conversion, so adapters cannot publish a partial result. Each
+invocation uses one frozen current-worktree scope. Scanner-private command data and raw results never enter
+declarative fingerprints, Core facts, public output, or Run Controls.
 
 ## Cache and failures
 
-Duplicate cache identity contains only consumer-owned measurement settings, the exact-input fingerprint, and
-backend identity. The default marker maps to a Bun + installed-jscpd backend identity that omits its executable and
-declared-bin path, so the same dependency version is not fragmented by consumer install directories; it remains
-distinct from the old Node launcher identity. A cache hit revalidates source paths. Policy, acceptance, report
-settings, project module path, and unrelated sibling options do not change the cache key. Consumer-supplied commands
-keep their existing command identity behavior.
+Duplicate cache identity contains the scanner backend identity, code area, current commit, exact-input fingerprint,
+configuration version, and normalized command arguments. The default marker maps to a Bun + installed-jscpd backend
+identity that omits its executable and declared-bin path, so the same dependency version is not fragmented by
+consumer install directories. A cache hit revalidates source paths. Unrelated sibling options and project module
+location do not change the cache key. Consumer-supplied commands keep their command identity behavior.
 
 Availability, process, parse, cache, or exact-scope failures are converted by the Check callback/Product boundary
 to an unavailable Check outcome. The outcome is safe for public consumption; raw command data and scanner output
@@ -54,5 +54,5 @@ are not exposed.
 
 ## Verification
 
-Default callback tests prove Check-owned commands, direct context, exact scope, reference, and cache behavior.
-Product execution tests prove that callback failure closes the same Core Check path used by custom callbacks.
+Default callback tests prove Check-owned commands, direct context, exact scope, and cache behavior. Product
+execution tests prove that callback failure closes the same Core Check path used by custom callbacks.

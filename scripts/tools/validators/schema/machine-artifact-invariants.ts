@@ -1,4 +1,8 @@
-import { isCanonicalText, recordsFingerprint } from "./machine-artifact-canonical.ts";
+import {
+  canonicalJsonText,
+  isCanonicalText,
+  recordsFingerprint
+} from "./machine-artifact-canonical.ts";
 import { setFailure } from "./machine-artifact-diagnostics.ts";
 import {
   RECORDS_ARTIFACT,
@@ -39,7 +43,24 @@ export function validateArtifactSetInvariants(
       relationship: "record-check-ownership"
     });
   }
-  if (recordsFingerprint(records) !== run.recordsFingerprint) {
+  const projectedCore = {
+    checks: run.checks,
+    records: records.map(({ schemaVersion: _schemaVersion, ...record }) => record)
+  };
+  const fingerprint = recordsFingerprint(records);
+  if (fingerprint === undefined) {
+    return setFailure(artifactRoot, RECORDS_ARTIFACT, {
+      message: "Records must remain canonical JSON before fingerprinting.",
+      relationship: "canonical-json"
+    });
+  }
+  if (canonicalJsonText(projectedCore) === undefined) {
+    return setFailure(artifactRoot, RUN_ARTIFACT, {
+      message: "Published Check and Record data must remain canonical JSON.",
+      relationship: "canonical-json"
+    });
+  }
+  if (fingerprint !== run.recordsFingerprint) {
     return setFailure(artifactRoot, RECORDS_ARTIFACT, {
       message: "Records fingerprint must match the complete canonical Record row set.",
       relationship: "records-fingerprint"

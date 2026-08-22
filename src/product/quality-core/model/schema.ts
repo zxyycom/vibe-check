@@ -10,7 +10,5 @@ export type {
   FunctionMetric,
   LanguageAggregate,
   MetricValue,
-  QualityThreshold,
-  ResolvedQualityConfig,
   ToolAvailability
 } from "./schema/types.ts";

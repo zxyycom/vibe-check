@@ -13,12 +13,13 @@ import { PUBLICATION_INVOCATION, publicationSnapshot } from "./publication-v4.te
 
 describe("machine publication v4 contract", () => {
   it("projects four terminal Check outcomes and minimal supplemental Records", () => {
-    const publication = projectMachinePublicationV4(
-      createPublicationModelV4({
-        invocation: PUBLICATION_INVOCATION,
-        snapshot: publicationSnapshot()
-      })
-    );
+    const snapshot = publicationSnapshot();
+    const model = createPublicationModelV4({
+      invocation: PUBLICATION_INVOCATION,
+      snapshot
+    });
+    const publication = projectMachinePublicationV4(model);
+    assert.strictEqual(model.snapshot, snapshot);
     assert.deepEqual(
       publication.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
       [

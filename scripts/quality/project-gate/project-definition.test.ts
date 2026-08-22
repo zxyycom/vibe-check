@@ -16,7 +16,6 @@ describe("Project Gate Definition", () => {
     );
     assert.deepEqual(definition.effects, {
       cache: { directory: ".cache/vibe-check", enabled: false },
-      logs: { enabled: false },
       output: { directory: "artifacts/vibe-check", enabled: false },
       progress: { enabled: true }
     });

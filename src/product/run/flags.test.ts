@@ -11,7 +11,6 @@ function definition(checks: readonly Check[]) {
     checks,
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
     }

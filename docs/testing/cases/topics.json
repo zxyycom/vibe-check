@@ -7,19 +7,19 @@
     },
     {
       "id": "quality-gate",
-      "description": "质量门禁的策略描述、参数规划、评估、进程结果与正式入口验收契约。"
+      "description": "Repository Gate 的显式 aggregation、adapter、进程结果与正式 required/full 入口验收契约。"
     },
     {
       "id": "quality-runtime",
-      "description": "Check / Record 生命周期、coverage、完整性证据、缓存、reference 与质量 Core 运行时契约。"
+      "description": "四态 Check final data、supplemental Record、Core 生命周期与 duplicate cache 的运行时契约。"
     },
     {
       "id": "report-output",
-      "description": "Machine DTO/schema/validators/publication、人读报告、console 投影、notice、排序、诊断和输出通道契约。"
+      "description": "Machine v4 DTO/schema、独立 validator、two-file publication、排序、fingerprint 与诊断契约。"
     },
     {
       "id": "repository-tooling",
-      "description": "开发期 thin wrapper、annotation consumer、docs/workspace validation、toolkit helper 与并行任务调度契约。"
+      "description": "开发期 thin wrapper、docs/workspace validation、toolkit helper 与并行任务调度契约。"
     },
     {
       "id": "test-infrastructure",
@@ -31,7 +31,7 @@
     },
     {
       "id": "scan-scope",
-      "description": "输入 fingerprint、Git candidate identity、config glob、changed-files 与 current/baseline 文件收集边界。"
+      "description": "输入 fingerprint、current worktree/Git candidates、config glob 与 changed-files context 的真实边界。"
     },
     {
       "id": "scanner-adapters",
@@ -39,7 +39,7 @@
     },
     {
       "id": "warning-generation",
-      "description": "质量 warning 的阈值、identity、accepted reason 与失配诊断契约。"
+      "description": "Default Check threshold、Check-local supplemental Record 与 final data 的生成契约。"
     }
   ]
 }

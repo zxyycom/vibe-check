@@ -282,6 +282,13 @@ const result: Promise<RunResult> = run(definition, {
   flags: ["isolated-consumer"]
 });
 
+const authorResult: CheckResult = { status: "passed", data: new Date() };
+const settledOutcome: CheckOutcome = { status: "passed", data: { selected: true } };
+if (settledOutcome.status === "passed") {
+  // @ts-expect-error Settled Run outcomes expose readonly canonical data.
+  settledOutcome.data.selected = false;
+}
+
 function observeFinalDurations(runResult: RunResult): void {
   if (
     runResult.kind === "completed" ||
@@ -307,6 +314,7 @@ void [
   inherit,
   run,
   aggregation,
+  authorResult,
   inheritedCheckIds,
   observeFinalDurations,
   result
@@ -327,14 +335,12 @@ const result = await run(
         ...duplicateDetection,
         options: {
           ...duplicateDetection.options,
-          defaultMinimumTokens: 20,
-          fragments: { changedDelta: 0 }
+          defaultMinimumTokens: 20
         }
       }
     ],
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false }
     },
     scheduler: { maxParallel: 1 }

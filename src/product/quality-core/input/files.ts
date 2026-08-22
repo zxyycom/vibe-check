@@ -15,16 +15,13 @@ import {
   toSlashPath,
   walkFiles
 } from "../../foundation/index.ts";
-import type {
-  CodeAreaFileMap,
-  CodeAreaFingerprint,
-  ResolvedQualityConfig
-} from "../model/schema.ts";
+import type { CodeAreaFileMap, CodeAreaFingerprint } from "../model/schema.ts";
 
-export type ScanInputConfig = Pick<
-  ResolvedQualityConfig,
-  "excludeDirs" | "generatedFiles" | "include"
->;
+export interface ScanInputConfig {
+  readonly excludeDirs: readonly string[];
+  readonly generatedFiles: readonly string[];
+  readonly include: readonly string[];
+}
 
 export function collectScanFiles(rootDir: string, config: ScanInputConfig): string[] {
   const result = runGit({
@@ -44,26 +41,6 @@ export function collectScanFiles(rootDir: string, config: ScanInputConfig): stri
     ],
     config,
     rootDir
-  );
-}
-
-export function collectBaselineFiles(workDir: string, config: ScanInputConfig): string[] {
-  const result = runGit({
-    args: ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--"],
-    cwd: workDir
-  });
-
-  if (processFailed(result)) {
-    return collectBaselineFilesFallback(workDir, config);
-  }
-
-  return normalizeAndFilterFiles(
-    [
-      ...splitNulDelimitedGitFileList(result.stdout),
-      ...collectSubmoduleWorktreeFiles({ repository: workDir, scanInputPaths: config.include })
-    ],
-    config,
-    workDir
   );
 }
 
@@ -96,18 +73,6 @@ function collectFilesFallback(rootDir: string, config: ScanInputConfig): string[
   const files: string[] = [];
 
   for (const relPath of walkFiles({ ignoredDirs: config.excludeDirs, rootDir })) {
-    if (isScanInputFile(relPath, config)) {
-      files.push(relPath);
-    }
-  }
-
-  return uniqueSorted(files);
-}
-
-function collectBaselineFilesFallback(workDir: string, config: ScanInputConfig): string[] {
-  const files: string[] = [];
-
-  for (const relPath of walkFiles({ ignoredDirs: config.excludeDirs, rootDir: workDir })) {
     if (isScanInputFile(relPath, config)) {
       files.push(relPath);
     }

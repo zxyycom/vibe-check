@@ -18,7 +18,10 @@ export type JsonObject = { readonly [key: string]: JsonValue };
 export type OutcomeShape =
   | { readonly status: "passed" | "failed"; readonly data: JsonObject }
   | { readonly status: "not-applicable"; readonly reason?: { readonly code: string } }
-  | { readonly status: "unavailable"; readonly reason: { readonly code: string } };
+  | {
+      readonly status: "unavailable";
+      readonly reason: { readonly code: string; readonly checkIds?: readonly string[] };
+    };
 
 export interface CheckShape {
   readonly checkId: string;
@@ -57,6 +60,7 @@ export type DocsMachineValidationCategory =
   | "syntax";
 
 export type DocsMachineSetRelationship =
+  | "canonical-json"
   | "check-canonical-order"
   | "record-canonical-order"
   | "record-check-ownership"

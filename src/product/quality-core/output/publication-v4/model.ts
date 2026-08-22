@@ -1,6 +1,4 @@
 import type { CoreSnapshot } from "../../check-record/model.ts";
-import { validateCoreSnapshot } from "../../check-record/validation.ts";
-import { freezePublicationValue } from "./freeze-publication-value.ts";
 
 export interface PublicationInvocationV4 {
   readonly invocationId: string;
@@ -8,21 +6,19 @@ export interface PublicationInvocationV4 {
   readonly timestamp: string;
 }
 
-/** The validated terminal source for the two machine artifacts. */
-export interface ValidatedPublicationModelV4 {
+/** Trusted Core facts and validated invocation metadata for v4 candidate projection. */
+export interface TrustedPublicationModelV4 {
   readonly invocation: PublicationInvocationV4;
   readonly snapshot: CoreSnapshot;
 }
 
 export function createPublicationModelV4(
   input: Readonly<{ invocation: PublicationInvocationV4; snapshot: CoreSnapshot }>
-): ValidatedPublicationModelV4 {
-  const snapshot = validateCoreSnapshot(input.snapshot);
-  if (!snapshot.ok) throw new TypeError("Publication requires a valid Core snapshot");
+): TrustedPublicationModelV4 {
   validateInvocation(input.invocation);
-  return freezePublicationValue({
-    invocation: { ...input.invocation },
-    snapshot: snapshot.value
+  return Object.freeze({
+    invocation: Object.freeze({ ...input.invocation }),
+    snapshot: input.snapshot
   });
 }
 

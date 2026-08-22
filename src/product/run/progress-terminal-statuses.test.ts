@@ -23,7 +23,6 @@ function progressDefinition(checks: readonly Check[], maxParallel?: number) {
     checks,
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: true }
     },

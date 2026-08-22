@@ -33,7 +33,6 @@ function definition(checks: readonly Check[]) {
     checks,
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: false }
     }
@@ -92,7 +91,20 @@ describe("Package Run", () => {
     ]);
     const root = mkdtempSync(join(tmpdir(), "vibe-check-direct-run-"));
     try {
-      const result = await run(source, { changedFiles: ["src/a.ts"], projectRoot: root });
+      const toISOString = Object.getOwnPropertyDescriptor(Date.prototype, "toISOString");
+      if (toISOString === undefined) throw new Error("Date.prototype.toISOString is unavailable");
+      Object.defineProperty(Date.prototype, "toISOString", {
+        configurable: true,
+        value: (): string => {
+          throw new Error("disabled output must not construct a publication model");
+        }
+      });
+      let result: Awaited<ReturnType<typeof run>>;
+      try {
+        result = await run(source, { changedFiles: ["src/a.ts"], projectRoot: root });
+      } finally {
+        Object.defineProperty(Date.prototype, "toISOString", toISOString);
+      }
       assert.equal(result.kind, "completed");
       assert.deepEqual(received?.changedFiles, ["src/a.ts"]);
       assert.deepEqual(received?.options, {});

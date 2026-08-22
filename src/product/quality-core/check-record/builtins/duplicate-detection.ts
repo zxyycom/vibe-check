@@ -20,7 +20,6 @@ export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
 } as const;
 
 export interface DuplicateDetectionSemantics {
-  readonly changedDelta: number;
   readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
   readonly configVersion: string;
 }
@@ -50,10 +49,8 @@ export interface DuplicateCacheOptions {
 
 export interface DuplicateMeasurementInput {
   readonly cache?: DuplicateCacheOptions;
-  readonly changedFiles: readonly string[];
   readonly dependency: DuplicationScannerDependency;
   readonly input: DuplicateDetectionExactInputSet;
-  readonly scanKind: "baseline" | "current";
   readonly semantics: DuplicateDetectionSemantics;
 }
 
@@ -67,7 +64,6 @@ export async function executeDuplicateDetection(
   }
   const dependency: DuplicationScannerDependency = context.options.scanner;
   const semantics: DuplicateDetectionSemantics = {
-    changedDelta: context.options.fragments.changedDelta,
     codeAreas: context.project.files.codeAreas,
     configVersion: "1"
   };
@@ -76,10 +72,8 @@ export async function executeDuplicateDetection(
       enabled: context.project.cache.enabled,
       onActivity: context.project.cache.reportActivity
     },
-    changedFiles: context.project.changedFiles,
     dependency,
     input: current,
-    scanKind: "current",
     semantics
   });
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);

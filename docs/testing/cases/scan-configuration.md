@@ -12,11 +12,11 @@ Entities:
 - `bun|src/product/definition/project.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
   Proves:
 - The public authoring surface contains four operations and three ordinary complete default Check values, not a configuration adjustment or operational-dependency API.
-- Recursive executable Checks normalize without a Record catalog. Explicit `inherit` remains the only scheduling inheritance marker, retired catalog inputs fail closed, and callback functions stay outside declarative fingerprints.
+- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints.
 
 ## Case WB-PROGRESS-EFFECT-001: Progress remains an optional fail-open Run effect
 
-Owner: `docs/configuration.md#policy-effects-and-retired-inputs`
+Owner: `docs/configuration.md#run-effects-and-compatibility-boundary`
 Entities:
 
 - `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > presents enabled Package Run progress through the injected plain writer`
@@ -24,7 +24,7 @@ Entities:
 - `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > contains progress writer failures while preserving completed Check facts`
 - `bun|src/product/run/progress-result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
 - `bun|src/product/run/progress-result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
-- `bun|src/product/run/progress-default-effects.test.ts|Package Run default effects > keeps default progress output logs and publication effects independently successful`
+- `bun|src/product/run/progress-default-effects.test.ts|Package Run default effects > keeps default progress and publication effects independently successful`
 - `bun|src/product/run/progress-result-priority.test.ts|Package Run progress result priority > keeps execution cancellation distinct when progress presentation has failed`
 - `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > contains a TTY rewrite failure without leaving Check or Record facts open`
 - `bun|src/product/run/progress-invocation.test.ts|Package Run progress effects > continues output publication after a progress writer failure`
@@ -32,4 +32,4 @@ Entities:
   Proves:
 - Disabling the existing progress effect does not construct its writer or affect Check execution.
 - A progress write failure marks only the progress effect failed and stops later progress writes. Completed Check facts return through the effect-failure result, while execution cancellation and `task-engine-failed` each retain their distinct execution result kind.
-- Header, settled-row and TTY cursor-rewrite failures are first-error-only: subsequent progress writes stop, while all Check and Record facts close. Default progress, output publication and logs remain separate enabled effects with independently observable success statuses; final effect diagnostics select the deterministic `cache → progress → output → logs` priority when several effects fail.
+- Header, settled-row and TTY cursor-rewrite failures are first-error-only: subsequent progress writes stop, while all Check and Record facts close. Default progress and output publication remain separate enabled effects with independently observable success statuses; final effect diagnostics select the deterministic `cache → progress → output` priority when several effects fail.

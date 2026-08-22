@@ -42,7 +42,6 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
       directory: ".cache/vibe-check",
       enabled: true
     }),
-    logs: Object.freeze({ enabled: true }),
     output: Object.freeze({
       directory: "artifacts/vibe-check",
       enabled: true

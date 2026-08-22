@@ -30,7 +30,6 @@ export interface DuplicateDetectionOptions {
       readonly maxConcurrency: number;
     }>;
   readonly defaultMinimumTokens: number;
-  readonly fragments: Readonly<{ readonly changedDelta: number }>;
   readonly minimumTokensByCodeArea: Readonly<Record<string, number>>;
 }
 
@@ -38,7 +37,6 @@ export interface FileMetricsOptions {
   readonly scanner: ScannerCommandOptions;
   readonly codeLines: Readonly<{
     readonly absoluteFloor: number;
-    readonly changedDelta: number;
     readonly lowDecisionTokenAllowance: Readonly<{
       readonly codeLineFloor: number;
       readonly maxDecisionTokens: number;
@@ -50,7 +48,6 @@ export interface FunctionMetricsOptions {
   readonly scanner: ScannerCommandOptions;
   readonly codeLines: Readonly<{
     readonly absoluteFloor: number;
-    readonly changedDelta: number;
     readonly lowComplexityAllowance: Readonly<{
       readonly codeLineFloor: number;
       readonly maxCyclomaticComplexityExclusive: number;
@@ -58,11 +55,9 @@ export interface FunctionMetricsOptions {
   }>;
   readonly cyclomaticComplexity: Readonly<{
     readonly absoluteFloor: number;
-    readonly changedDelta: number;
   }>;
   readonly parameterCount: Readonly<{
     readonly absoluteFloor: number;
-    readonly changedDelta: number;
   }>;
 }
 
@@ -75,7 +70,6 @@ export const duplicateDetection = defineCheck<"duplicate-detection", DuplicateDe
       maxConcurrency: 4
     },
     defaultMinimumTokens: 75,
-    fragments: { changedDelta: 1 },
     minimumTokensByCodeArea: {}
   }
 });
@@ -91,7 +85,6 @@ export const fileMetrics = defineCheck<"file-metrics", FileMetricsOptions>({
     },
     codeLines: {
       absoluteFloor: 300,
-      changedDelta: 80,
       lowDecisionTokenAllowance: {
         codeLineFloor: 500,
         maxDecisionTokens: 10
@@ -111,14 +104,13 @@ export const functionMetrics = defineCheck<"function-metrics", FunctionMetricsOp
     },
     codeLines: {
       absoluteFloor: 50,
-      changedDelta: 20,
       lowComplexityAllowance: {
         codeLineFloor: 150,
         maxCyclomaticComplexityExclusive: 5
       }
     },
-    cyclomaticComplexity: { absoluteFloor: 10, changedDelta: 5 },
-    parameterCount: { absoluteFloor: 5, changedDelta: 2 }
+    cyclomaticComplexity: { absoluteFloor: 10 },
+    parameterCount: { absoluteFloor: 5 }
   }
 });
 
@@ -152,14 +144,12 @@ function validDuplicateDetectionOptions(value: object): boolean {
   const options = exactRecord(value, [
     "scanner",
     "defaultMinimumTokens",
-    "fragments",
     "minimumTokensByCodeArea"
   ]);
   return (
     options !== undefined &&
     validDuplicationScanner(options.scanner) &&
     finiteNumber(options.defaultMinimumTokens) &&
-    validExactNumberRecord(options.fragments, ["changedDelta"]) &&
     validNumberRecord(options.minimumTokensByCodeArea)
   );
 }
@@ -169,7 +159,7 @@ function validFileMetricsOptions(value: object): boolean {
   return (
     options !== undefined &&
     validScanner(options.scanner) &&
-    validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
+    validExactNumberRecord(options.codeLines, ["absoluteFloor"], {
       lowDecisionTokenAllowance: ["codeLineFloor", "maxDecisionTokens"]
     })
   );
@@ -185,11 +175,11 @@ function validFunctionMetricsOptions(value: object): boolean {
   return (
     options !== undefined &&
     validScanner(options.scanner) &&
-    validExactNumberRecord(options.codeLines, ["absoluteFloor", "changedDelta"], {
+    validExactNumberRecord(options.codeLines, ["absoluteFloor"], {
       lowComplexityAllowance: ["codeLineFloor", "maxCyclomaticComplexityExclusive"]
     }) &&
-    validExactNumberRecord(options.cyclomaticComplexity, ["absoluteFloor", "changedDelta"]) &&
-    validExactNumberRecord(options.parameterCount, ["absoluteFloor", "changedDelta"])
+    validExactNumberRecord(options.cyclomaticComplexity, ["absoluteFloor"]) &&
+    validExactNumberRecord(options.parameterCount, ["absoluteFloor"])
   );
 }
 

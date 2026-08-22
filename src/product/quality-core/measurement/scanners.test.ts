@@ -66,8 +66,7 @@ describe("quality scanner output parsing", () => {
         cyclomaticComplexity: {
           value: 88,
           source: "lizard"
-        },
-        isChanged: false
+        }
       }
     });
   });

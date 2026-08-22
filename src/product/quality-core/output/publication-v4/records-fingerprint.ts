@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { canonicalJsonBytes } from "../../check-record/identity.ts";
+import { canonicalJsonBytes } from "../../check-record/canonical-data.ts";
 import type { MachineRecordV4 } from "./schema.ts";
 
 export const MACHINE_RECORDS_V4_FINGERPRINT_PREFIX = "check-record/v2/records/sha256:";

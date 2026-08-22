@@ -2,14 +2,18 @@
 
 本 Design 只用两个主契约定义目标基础：Check final result 是一个 Check 的唯一主结论，minimal Record 是该 Check 可选的补充事实。其它删除、迁移和下游能力均按“由主契约变化引起的次级影响”归位。
 
+**Reading status.** 本 Design 记录 planning 时选定的主契约、直接迁移与下游边界；它不是 current runtime owner。当前 authoring/Run controls、Check/Record/aggregation facts、machine contract 和 repository Gate adapter 分别由 [Configuration](../../docs/configuration.md)、[Quality Metrics](../../docs/quality-metrics.md)、[Output](../../docs/output.md)和[脚本工具](../../docs/script-tooling.md#project-gate)拥有。实现后的事实和验证由 [`acceptance-audit.md`](acceptance-audit.md)记录。
+
+`Context` 中的 baseline 与旧术语只说明当时需要 hard cut 的输入。其它章节中的 target decision 已由上述 current owners 落地；本文件仍保留其范围、因果与下游责任，而不复制 stable contract。
+
 ## Context
 
-### 当前事实与目标方向
+### Planning baseline and target direction
 
-- [`docs/configuration.md`](../../docs/configuration.md) 当前规定 Product defaults 与 project custom Checks 都是 ordinary public `Check` values；default 是公共 Check contract 的 Product-provided instances。
-- [`docs/quality-metrics.md`](../../docs/quality-metrics.md) 当前规定 reporter 提交 Record candidates，Core 冻结 Check/Record facts；现行 Check result 使用 `completed + verdict`，Record 使用 built-in-shaped catalog/fields。
-- 当前 `RunResult` 的 completed facts 保存 `snapshot.checks` / `snapshot.records`，同时带有由 DecisionPolicy 产生的 decision/reference facts。Project Gate 又读取这些 facts执行自己的 closure。
-- 本 Change 是 `active + plan`。目标 Decisions 仍是 `active + unaligned` future direction；实现完成前，稳定 owner、aligned Decisions 与当前源码仍是现行事实。
+- Planning baseline的[`docs/configuration.md`](../../docs/configuration.md)规定 Product defaults 与 project custom Checks 都是 ordinary public `Check` values；default 是公共 Check contract 的 Product-provided instances。
+- Planning baseline的[`docs/quality-metrics.md`](../../docs/quality-metrics.md)让 reporter 提交 Record candidates，Core 冻结 Check/Record facts；Check result 使用 `completed + verdict`，Record 使用 built-in-shaped catalog/fields。
+- Planning baseline的 `RunResult` completed facts 保存 `snapshot.checks` / `snapshot.records`，并带有 decision/reference facts；Project Gate 读取这些 facts完成自己的 closure。
+- Plan 当时处于 `active + plan`，目标 Decisions 尚未成为 current facts。实现完成后的状态、successor 与验证以 [`acceptance-audit.md`](acceptance-audit.md)为准。
 
 ### 主设计与次级影响判定
 
@@ -20,32 +24,32 @@
 
 如果一项工作只因为旧字段、旧状态或旧 Record model 被现有消费者读取而需要改变，它属于次级影响。次级影响可以是本 Change 必须完成的直接迁移，也可以由独立 Change 承接；它不能反向向 base Check/Record 增加字段或语法。
 
-| Responsibility | Target owner | Classification in this Change |
-| --- | --- | --- |
-| Check terminal conclusion and primary data | Producing Check + Product settlement | 主设计：单一四态 result；passed/failed 携带 final data。 |
-| Supplemental Record identity/data | Producing Check + Product reporter scope | 主设计：Check-local `id` 与 custom data。 |
-| Canonical safety and frozen Core facts | Product | 主设计：final data 与 Record data共用安全边界。 |
-| Completed Run facts | Product Run | 主设计的直接载体：返回 Checks/Records，不决定 aggregate policy。 |
-| Machine v4 | Output owner | 次级直接迁移：投影新的 Core facts。 |
-| Legacy comparison/reference/DecisionPolicy | Existing policy owners | 次级清理：直接输入消失后退出。 |
-| Minimal Check aggregation | Product Run + repository Gate adapter | 次级直接迁移：显式`RunControls`配置，package求值，adapter消费。 |
-| Repository Gate optimization | [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) | 下游影响：catalog、native composition、CLI/process与profile优化。 |
-| Typed dependency readback | [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) | 下游次级影响：选择并解析 upstream final data/Records。 |
-| Human presentation | [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) | 下游次级影响：显式投影 final data/Records。 |
-| Other execution inputs | Current configuration/run owners | 非目标；不因本次 hard cut重新归属。 |
+| Responsibility                             | Target owner                                                                                           | Classification in this Change                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| Check terminal conclusion and primary data | Producing Check + Product settlement                                                                   | 主设计：单一四态 result；passed/failed 携带 final data。          |
+| Supplemental Record identity/data          | Producing Check + Product reporter scope                                                               | 主设计：Check-local `id` 与 custom data。                         |
+| Canonical safety and frozen Core facts     | Product                                                                                                | 主设计：final data 与 Record data共用安全边界。                   |
+| Completed Run facts                        | Product Run                                                                                            | 主设计的直接载体：返回 Checks/Records，不决定 aggregate policy。  |
+| Machine v4                                 | Output owner                                                                                           | 次级直接迁移：投影新的 Core facts。                               |
+| Legacy comparison/reference/DecisionPolicy | Existing policy owners                                                                                 | 次级清理：直接输入消失后退出。                                    |
+| Minimal Check aggregation                  | Product Run + repository Gate adapter                                                                  | 次级直接迁移：显式`RunControls`配置，package求值，adapter消费。   |
+| Repository Gate optimization               | [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) | 下游影响：catalog、native composition、CLI/process与profile优化。 |
+| Typed dependency readback                  | [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)                         | 下游次级影响：选择并解析 upstream final data/Records。            |
+| Human presentation                         | [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/)             | 下游次级影响：显式投影 final data/Records。                       |
+| Other execution inputs                     | Current configuration/run owners                                                                       | 非目标；不因本次 hard cut重新归属。                               |
 
 ### Stable terms
 
-| Term | Meaning |
-| --- | --- |
-| Check final result | Producing Check callback 返回的唯一终态；passed/failed 同时返回 Check-owned primary data。 |
-| Check final data | 一个 passed/failed Check 的主结构化结果；Core 中是 canonical JSON object。 |
-| Supplemental Record | 一个 Check 可提交的零到多个补充事实；存在与否不决定 Check status。 |
-| Record identity input | Reporter 第一个参数 `{ id: string }`；`id` 仅在 owning Check 内唯一。 |
-| Record data | Reporter 第二个参数；Check-owned non-array canonical JSON object。 |
-| Composite Record identity | Product/Core pair `{ checkId, id }`。 |
-| Canonical JSON object | 通过安全 descriptor traversal 得到的 prototype-safe、detached 且 deep-frozen JSON object；canonical text/bytes 另由显式 lexical-key serializer 形成。 |
-| Check aggregation | 多个 settled Check statuses 的可配置派生判断；不是 Check/Core/Run lifecycle fact。 |
+| Term                      | Meaning                                                                                                                                                                                                   |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Check final result        | Producing Check callback 返回的唯一终态；passed/failed 同时返回 Check-owned primary data。                                                                                                                |
+| Check final data          | 一个 passed/failed Check 的主结构化结果；Core 中是 canonical JSON object。                                                                                                                                |
+| Supplemental Record       | 一个 Check 可提交的零到多个补充事实；存在与否不决定 Check status。                                                                                                                                        |
+| Record identity input     | Reporter 第一个参数 `{ id: string }`；`id` 仅在 owning Check 内唯一。                                                                                                                                     |
+| Record data               | Reporter 第二个参数；Check-owned non-array canonical JSON object。                                                                                                                                        |
+| Composite Record identity | Product/Core pair `{ checkId, id }`。                                                                                                                                                                     |
+| Canonical JSON object     | 通过安全 descriptor traversal 得到的 detached、null-prototype 且 deep-frozen JSON object；snapshot 不承诺 JavaScript own-key order，canonical text/bytes 另由显式 recursive lexical-key serializer 形成。 |
+| Check aggregation         | 多个 settled Check statuses 的可配置派生判断；不是 Check/Core/Run lifecycle fact。                                                                                                                        |
 
 ## Goals / Non-Goals
 
@@ -220,6 +224,12 @@ type CheckAggregate = "passed" | "failed" | "not-applicable" | "unavailable";
 
 Machine v4保留当前fingerprint-bound `run.json` + `records.ndjson` two-file set、candidate-before-write validation、canonical-path replacement failure cleanup与complete-set trust boundary。它不新增跨两个filesystem paths的atomic snapshot、generation pointer或reader lock。
 
+Publisher只写这两个 canonical files 和 owned temporary paths；scanner material不进入 output directory。v4
+projection以已经 settled 的 Core snapshot 为输入，只在 projection boundary 验证该 snapshot，不重新遍历或
+canonicalize author data。canonical JSON bytes 的实现归 Check/Record canonical-data owner；machine contract
+不据此建立通用 artifact-reader surface。独立 docs validation 从 checked-in artifact bytes 自行进行递归
+canonical JSON/fingerprint 检查，不能 import runtime validator 作为 acceptance authority。
+
 `run.json`的Check rows投影新的terminal statuses；passed/failed rows包含canonical final `data`，not-applicable/unavailable rows包含其合法reason。它不发布mandatory aggregate decision。
 
 Record row固定为：
@@ -240,7 +250,7 @@ Validators检查schema identity、canonical JSON、composite uniqueness、Check 
 
 ### 9. Minimal aggregation replaces only the direct Gate consumer
 
-Current DecisionPolicy的Record selectors/operands、acceptance、views、reference requirements/relations、readiness、`blockWhen`、GateResult与evidence依赖旧Record catalog/comparison model。新基础事实不保留这些operands，因此对应public Definition、evaluator、RunResult与machine evidence在直接consumer迁移后退出。
+Planning baseline的 Record-aware policy、selectors/operands、acceptance、views、reference requirements/relations、readiness、`blockWhen`与Gate evidence依赖旧Record catalog/comparison model。新基础事实不保留这些operands，因此对应public Definition、evaluator、RunResult与machine evidence在直接consumer迁移后退出。
 
 本Change不把旧policy重写成fixed Check-status precedence、dependent Check或新GateResult。它只提供上一节的显式status aggregation，并让repository Gate从selection得到eligible Check IDs、绑定required/full配置、消费`RunResult.aggregate`。CLI adapter不再遍历snapshot重建summary；definition warnings、run/effect failure仍在exit mapping中按各自事实处理。旧`result.decision.gate`只能在正式`required/full`完成该迁移后删除。
 
@@ -248,27 +258,27 @@ Product-wide `RunControls.comparison`、`project.comparison`、`records.reportRe
 
 ### 10. Downstream Changes own new uses of the facts
 
-| Downstream Change | Input from this Change | Question it owns |
-| --- | --- | --- |
-| [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/) | Upstream terminal status/final data + supplemental Records | Dependency如何授权、选择、解析和传播failure。 |
-| [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) | 新Check facts、package aggregate与已迁移adapter | Catalog去重、native Check composition、CLI/process与profile优化。 |
-| [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/) | Check final data + supplemental Records | 哪个显式projection进入terminal/live human output。 |
+| Downstream Change                                                                                      | Input from this Change                                     | Question it owns                                                  |
+| ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| [`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)                         | Upstream terminal status/final data + supplemental Records | Dependency如何授权、选择、解析和传播failure。                     |
+| [`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/) | 新Check facts、package aggregate与已迁移adapter            | Catalog去重、native Check composition、CLI/process与profile优化。 |
+| [`add-check-associated-result-presentation`](../add-check-associated-result-presentation/)             | Check final data + supplemental Records                    | 哪个显式projection进入terminal/live human output。                |
 
 这些Changes可以删除因新事实而不再需要的功能，但不能要求本Change为假想consumer增加generic关系、query、presentation field或aggregation default。对应Draft必须记录输入变化，避免继续按旧`completed/verdict`或Record-only模型设计。
 
 ## Risks / Trade-offs
 
-| Risk / trade-off | Control |
-| --- | --- |
-| Final data与Records看起来都能承载对象，author可能重复事实。 | 文档和examples固定“final data是主结果，Records是supplemental”；consumer不假定镜像关系。 |
-| `data: object`接受部分runtime拒绝的值。 | Runtime canonicalization保持authority；declaration与negative runtime tests共同说明边界。 |
-| Generic data不提供自动端到端TypeScript typing。 | Local write types与optional Check-owned parsers提供类型；不建立Product registry。 |
-| Parser与producer data可能漂移。 | Parser/type与Check owner共置；只有真实consumer需要时才导出并增加focused fixtures。 |
-| Arbitrary nested data可能携带秘密。 | Producing Check在return/report前脱敏；canonicalization不宣称secret detection/redaction。 |
+| Risk / trade-off                                                             | Control                                                                                                        |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Final data与Records看起来都能承载对象，author可能重复事实。                  | 文档和examples固定“final data是主结果，Records是supplemental”；consumer不假定镜像关系。                        |
+| `data: object`接受部分runtime拒绝的值。                                      | Runtime canonicalization保持authority；declaration与negative runtime tests共同说明边界。                       |
+| Generic data不提供自动端到端TypeScript typing。                              | Local write types与optional Check-owned parsers提供类型；不建立Product registry。                              |
+| Parser与producer data可能漂移。                                              | Parser/type与Check owner共置；只有真实consumer需要时才导出并增加focused fixtures。                             |
+| Arbitrary nested data可能携带秘密。                                          | Producing Check在return/report前脱敏；canonicalization不宣称secret detection/redaction。                       |
 | Hostile descriptors、Proxy或prototype-sensitive keys触发reflection failure。 | 不调用accessor/`toJSON`、使用prototype-safe containers，并以adversarial fixtures证明owning-Check containment。 |
-| 删除legacy GateResult可能中断正式验证入口。 | 本Change先实现explicit aggregation并迁移required/full；随后才删除old decision dependency。 |
-| 下游Change继续按Record-only或fixed aggregate假设设计。 | 本Plan显式更新三个downstream Draft，并把交接检查列入readiness/success criteria。 |
-| 新方向取代现行Core ID、DecisionPolicy与machine v3 Decisions。 | Readiness建立Decision evolution map；完成时不留下互相冲突的active方向。 |
+| 删除legacy GateResult可能中断正式验证入口。                                  | 本Change先实现explicit aggregation并迁移required/full；随后才删除old decision dependency。                     |
+| 下游Change继续按Record-only或fixed aggregate假设设计。                       | 本Plan显式更新三个downstream Draft，并把交接检查列入readiness/success criteria。                               |
+| 新方向取代现行Core ID、DecisionPolicy与machine v3 Decisions。                | Readiness建立Decision evolution map；完成时不留下互相冲突的active方向。                                        |
 
 ## Open Questions
 

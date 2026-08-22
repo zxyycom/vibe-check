@@ -91,8 +91,7 @@ function functionMetricFromLizardRow(
       cyclomaticComplexity: {
         value: values.ccn,
         source: "lizard"
-      },
-      isChanged: false
+      }
     }
   };
 }

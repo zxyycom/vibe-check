@@ -12,7 +12,6 @@ import {
 } from "./scanners/jscpd/default-command.ts";
 import { scanWithJscpd } from "./scanners/jscpd/scanner.ts";
 import { checkJscpd } from "./scanners/tool-availability/jscpd.ts";
-import { TEST_SCANNER_DEPENDENCIES } from "../test/config.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -161,7 +160,7 @@ describe("quality jscpd wrapper failure projection", () => {
       const result = scanWithJscpd({
         files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
         cwd: tempDir,
-        dependency: TEST_SCANNER_DEPENDENCIES.duplication,
+        dependency: { ...DEFAULT_JSCPD_COMMAND, maxConcurrency: 1 },
         minimumTokens: 20
       });
 
@@ -174,7 +173,6 @@ describe("quality jscpd wrapper failure projection", () => {
           ["a.ts", "b.ts"]
         );
         assert.deepEqual(result.measurements[0].sourcePaths, ["a.ts", "b.ts"]);
-        assert.equal(result.measurements[0].payload.hitsChangedScope, false);
       }
     } finally {
       rmSync(tempDir, { recursive: true, force: true });

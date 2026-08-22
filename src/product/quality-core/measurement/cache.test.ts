@@ -16,11 +16,10 @@ import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "./scanners/jscpd/defa
 
 const TEST_CODE_AREA = "typescript-production-scripts";
 describe("quality measurement cache", () => {
-  it("keys duplicate-code cache by scan identity and strips changed-scope annotations", () => {
+  it("keys duplicate-code cache by scanner and exact input identity", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-cache-"));
     const identity = cacheIdentity();
     const fragment = duplicateFragment();
-    fragment.hitsChangedScope = true;
 
     try {
       const baseKey = buildScanCacheKey(identity);
@@ -106,7 +105,6 @@ function assertCacheRoundTrip(
 ): void {
   const hit = loadScanCacheEntry({ rootDir: tempDir, identity });
   assert.equal(hit.hit, true);
-  assert.equal(hit.hit ? hit.metrics[0].hitsChangedScope : true, false);
   assert.equal(
     hit.hit ? relative(tempDir, hit.cachePath).split("\\").join("/") : "",
     `quality-scan-cache-v1/${baseKey}.json`
@@ -123,7 +121,6 @@ function assertVersionMismatch(tempDir: string, identity: DuplicateCodeCacheIden
 
 function cacheIdentity(): DuplicateCodeCacheIdentity {
   return {
-    scanKind: "current",
     toolName: "jscpd",
     toolVersion: "5.0.11",
     normalizedToolArgs: [
@@ -160,7 +157,6 @@ function duplicateFragment(): DuplicateCodeFragment {
     tokenCount: 90,
     lineCount: 10,
     codeAreas: [],
-    hitsChangedScope: false,
     locations: [
       { path: "src/a.ts", startLine: 10, endLine: 20, codeArea: "unknown" },
       { path: "src/b.ts", startLine: 11, endLine: 21, codeArea: "unknown" }

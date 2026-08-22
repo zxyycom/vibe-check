@@ -2,7 +2,14 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import { join } from "node:path";
 
-import { planPublicationCleanupV4 } from "../output/publication-v4/index.ts";
+const CANONICAL_NAMES = ["records.ndjson", "run.json"] as const;
+const RETIRED_NAMES = [
+  "metrics.json",
+  "report.md",
+  "warnings-all.ndjson",
+  "warnings.ndjson"
+] as const;
+const OWNED_TEMP_PREFIX = ".vibe-check-publication-";
 
 interface PublicationCandidatePath {
   readonly canonical: string;
@@ -24,7 +31,6 @@ export function publishPublicationCandidatesV4(
   const files = publicationCandidatePaths(artifactDir, randomUUID(), candidates);
   let hasReplacedCanonicalPath = false;
   try {
-    fs.mkdirSync(join(artifactDir, "raw"), { recursive: true });
     cleanupOwnedTemps(artifactDir);
     for (const file of files) {
       fs.writeFileSync(file.temp, file.contents, { encoding: "utf8", flag: "wx" });
@@ -42,8 +48,11 @@ export function publishPublicationCandidatesV4(
 }
 
 export function cleanupPublicationV4(artifactDir: string): void {
-  const plan = planPublicationCleanupV4(artifactDir);
-  removePaths([...plan.canonicalPaths, ...plan.retiredPaths, ...plan.ownedTempPaths]);
+  removePaths([
+    ...artifactPaths(artifactDir, CANONICAL_NAMES),
+    ...artifactPaths(artifactDir, RETIRED_NAMES),
+    ...ownedTempPaths(artifactDir)
+  ]);
 }
 
 export function cleanupPublicationV4BestEffort(artifactDir: string): void {
@@ -74,7 +83,7 @@ function publicationCandidatePaths(
 }
 
 function cleanupOwnedTemps(artifactDir: string): void {
-  removePaths(planPublicationCleanupV4(artifactDir).ownedTempPaths);
+  removePaths(ownedTempPaths(artifactDir));
 }
 
 function cleanupOwnedTempsBestEffort(artifactDir: string): void {
@@ -86,7 +95,19 @@ function cleanupOwnedTempsBestEffort(artifactDir: string): void {
 }
 
 function cleanupRetiredArtifacts(artifactDir: string): void {
-  removePaths(planPublicationCleanupV4(artifactDir).retiredPaths);
+  removePaths(artifactPaths(artifactDir, RETIRED_NAMES));
+}
+
+function artifactPaths(artifactDir: string, names: readonly string[]): readonly string[] {
+  return names.map((name) => join(artifactDir, name));
+}
+
+function ownedTempPaths(artifactDir: string): readonly string[] {
+  return fs
+    .readdirSync(artifactDir, { withFileTypes: true })
+    .filter((entry) => entry.name.startsWith(OWNED_TEMP_PREFIX))
+    .map((entry) => join(artifactDir, entry.name))
+    .sort();
 }
 
 function removePaths(paths: readonly string[]): void {

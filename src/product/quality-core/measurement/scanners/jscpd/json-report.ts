@@ -66,8 +66,7 @@ function parseJscpdFragment(
     tokenCount,
     lineCount,
     locations,
-    codeAreas: [],
-    hitsChangedScope: false
+    codeAreas: []
   };
 }
 

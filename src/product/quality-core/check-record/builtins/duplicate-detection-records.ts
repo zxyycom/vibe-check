@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type { DuplicateCodeFragment, DuplicateCodeLocation } from "../../model/schema.ts";
-import { canonicalJsonBytes } from "../identity.ts";
+import { canonicalJsonBytes } from "../canonical-data.ts";
 import { compareText } from "./builtin-support.ts";
 import type { DuplicateDetectionSemantics } from "./duplicate-detection.ts";
 

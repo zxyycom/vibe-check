@@ -16,12 +16,12 @@ relations:
 ## 目的
 
 - 让 programmatic Run 的取消由唯一 Task engine 拥有明确的 admission cutoff，不在 Check、adapter 或调用方中复制调度状态。
-- 保留已经提交的 QualityRecord、已经关闭的 Core Check 和 abort drain 期间形成的普通 execution evidence，再为仍未完成的 Check 形成可消费终态。
+- 保留已经提交的 supplemental Record、已经关闭的 Core Check 和 abort drain 期间形成的普通 execution evidence，再为仍未完成的 Check 形成可消费终态。
 
 ## 背景
 
 - Package Run 接受调用方提供的 `AbortSignal`；CLI、service、editor、CI、Ctrl+C 或 timeout 是否映射到它由调用方决定，Product 不提供独立取消命令。
-- QualityRecord 在 RecordSink 接受时提交，Core Check 在 trusted terminal path 关闭时结算。它们是执行期间逐步形成的事实，不能因 invocation 后来取消而整体回滚。
+- Record 在 RecordSink 接受时提交，Core Check 在 trusted terminal path 关闭时结算。它们是执行期间逐步形成的事实，不能因 invocation 后来取消而整体回滚。
 - 同一 Bun runtime 中的 project functions 可能忽略 signal，Task engine 无法安全抢占或强制终止。普通 return、throw/rejection 与“响应取消”也没有跨任意项目函数可信的通用判别方式；把某类 Error 名称提升为 engine settlement 会引入可伪造且不完整的协议。
 - 取消、依赖阻断和普通 execution failure 具有不同原因。abort 发生后，已启动 Task 仍可能正常完成或普通失败；这些 settlement 应保留，而不是被全局取消原因覆盖。
 

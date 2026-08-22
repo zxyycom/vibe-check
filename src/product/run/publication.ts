@@ -5,52 +5,77 @@ import { effectFailure, type RunResult, type RunResultFacts } from "./result.ts"
 import type { CoreExecution, Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
-  type ValidatedPublicationModelV4
+  type TrustedPublicationModelV4
 } from "../quality-core/output/publication-v4/index.ts";
 
-interface PreparedPublication {
-  readonly facts: RunResultFacts;
-  readonly model: ValidatedPublicationModelV4;
-}
-
 export function completeInvocation(invocation: Invocation, core: CoreExecution): RunResult {
-  const publication = createModel(invocation, core);
-  if (isRunResult(publication)) return publication;
+  const facts = runFacts(core);
   if (invocation.effects.cacheStatus() === "failed") {
     return effectFailure(
       invocation.declarativeFingerprint,
       invocation.definitionWarnings,
       invocation.effects.value(),
       "cache",
-      publication.facts
+      facts
     );
   }
-  const outputDirectory = resolve(
-    invocation.projectRoot,
-    invocation.effectConfiguration.output.directory
-  );
-  const published = publishOutput({
-    effectConfiguration: invocation.effectConfiguration,
-    effects: invocation.effects,
-    model: publication.model,
-    outputDirectory
-  });
-  if (!published) {
-    const effect = failedEffect(invocation.effects.value());
-    if (effect === undefined)
-      throw new Error("Output publication failed without a failed effect status");
+  if (invocation.effectConfiguration.output.enabled) {
+    const model = createModel(invocation, core.snapshot);
+    if (isRunResult(model)) return model;
+    const outputDirectory = resolve(
+      invocation.projectRoot,
+      invocation.effectConfiguration.output.directory
+    );
+    const published = publishOutput({
+      effectConfiguration: invocation.effectConfiguration,
+      effects: invocation.effects,
+      model,
+      outputDirectory
+    });
+    if (!published) {
+      const effect = failedEffect(invocation.effects.value());
+      if (effect === undefined)
+        throw new Error("Output publication failed without a failed effect status");
+      return effectFailure(
+        invocation.declarativeFingerprint,
+        invocation.definitionWarnings,
+        invocation.effects.value(),
+        effect,
+        facts
+      );
+    }
+  }
+  const effect = failedEffect(invocation.effects.value());
+  if (effect !== undefined) {
     return effectFailure(
       invocation.declarativeFingerprint,
       invocation.definitionWarnings,
       invocation.effects.value(),
       effect,
-      publication.facts
+      facts
     );
   }
-  return completeWithLogs(invocation, publication);
+  return Object.freeze({
+    kind: "completed",
+    declarativeFingerprint: invocation.declarativeFingerprint,
+    definitionWarnings: invocation.definitionWarnings,
+    effects: invocation.effects.value(),
+    ...facts
+  });
 }
 
-function createModel(invocation: Invocation, core: CoreExecution): PreparedPublication | RunResult {
+function runFacts(core: CoreExecution): RunResultFacts {
+  return Object.freeze({
+    aggregate: core.aggregate,
+    checkDurations: core.checkDurations,
+    snapshot: core.snapshot
+  });
+}
+
+function createModel(
+  invocation: Invocation,
+  snapshot: CoreExecution["snapshot"]
+): TrustedPublicationModelV4 | RunResult {
   try {
     const model = createPublicationModelV4({
       invocation: {
@@ -58,16 +83,9 @@ function createModel(invocation: Invocation, core: CoreExecution): PreparedPubli
         projectRoot: ".",
         timestamp: new Date().toISOString()
       },
-      snapshot: core.snapshot
+      snapshot
     });
-    return Object.freeze({
-      facts: Object.freeze({
-        aggregate: core.aggregate,
-        checkDurations: core.checkDurations,
-        snapshot: model.snapshot
-      }),
-      model
-    });
+    return model;
   } catch (_error: unknown) {
     return Object.freeze({
       kind: "execution",
@@ -79,44 +97,6 @@ function createModel(invocation: Invocation, core: CoreExecution): PreparedPubli
   }
 }
 
-function completeWithLogs(invocation: Invocation, publication: PreparedPublication): RunResult {
-  if (invocation.effectConfiguration.logs.enabled) {
-    try {
-      invocation.effects.succeeded("logs");
-    } catch (error: unknown) {
-      invocation.effects.failed("logs");
-      const effect = failedEffect(invocation.effects.value());
-      if (effect === undefined) {
-        throw new Error("Log publication failed without a failed effect status", { cause: error });
-      }
-      return effectFailure(
-        invocation.declarativeFingerprint,
-        invocation.definitionWarnings,
-        invocation.effects.value(),
-        effect,
-        publication.facts
-      );
-    }
-  }
-  const effect = failedEffect(invocation.effects.value());
-  if (effect !== undefined) {
-    return effectFailure(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.effects.value(),
-      effect,
-      publication.facts
-    );
-  }
-  return Object.freeze({
-    kind: "completed",
-    declarativeFingerprint: invocation.declarativeFingerprint,
-    definitionWarnings: invocation.definitionWarnings,
-    effects: invocation.effects.value(),
-    ...publication.facts
-  });
-}
-
-function isRunResult(value: PreparedPublication | RunResult): value is RunResult {
+function isRunResult(value: TrustedPublicationModelV4 | RunResult): value is RunResult {
   return "kind" in value;
 }

@@ -2,8 +2,7 @@ import type { DuplicationScannerDependency } from "../../../scanner-dependencies
 import {
   loadScanCacheEntry,
   writeScanCacheEntry,
-  type DuplicateCodeCacheIdentity,
-  type ScanKind
+  type DuplicateCodeCacheIdentity
 } from "../../measurement/cache.ts";
 import { runBoundedTasks } from "../../measurement/scanners/jscpd/parallel.ts";
 import { scanWithJscpdAsync } from "../../measurement/scanners/jscpd/scanner.ts";
@@ -12,7 +11,7 @@ import { toScopedJscpdMeasurements } from "../../measurement/scanners/jscpd/scop
 import { checkJscpd } from "../../measurement/scanners/tool-availability/jscpd.ts";
 import { acceptScopedMeasurements } from "../../measurement/scoped-measurement.ts";
 import type { CodeAreaFingerprint, DuplicateCodeFragment } from "../../model/schema.ts";
-import { compareText, isInChangedScope } from "./builtin-support.ts";
+import { compareText } from "./builtin-support.ts";
 import type {
   DuplicateDetectionAreaInput,
   DuplicateDetectionExactInputSet,
@@ -39,12 +38,10 @@ interface AreaMeasurementInput {
   readonly area: DuplicateDetectionAreaInput;
   readonly cache: DuplicateCacheOptions;
   readonly cacheRootDir: string;
-  readonly changedFiles: readonly string[];
   readonly commitSha: string;
   readonly configVersion: string;
   readonly dependency: DuplicationScannerDependency;
   readonly rootDir: string;
-  readonly scanKind: ScanKind;
   readonly toolVersion: string;
 }
 
@@ -52,7 +49,7 @@ export async function measureDuplicateDetection(
   options: DuplicateMeasurementInput
 ): Promise<DuplicateMeasurementResult> {
   const cache = options.cache ?? { enabled: true };
-  const { changedFiles, dependency, input, scanKind, semantics } = options;
+  const { dependency, input, semantics } = options;
   if (!validAreaInputs(input.areas)) {
     return Object.freeze({ kind: "invalid-result" });
   }
@@ -67,10 +64,8 @@ export async function measureDuplicateDetection(
   return measureAreas({
     areas,
     cache,
-    changedFiles,
     dependency,
     input,
-    scanKind,
     semantics,
     toolVersion: availability.version ?? "unknown"
   });
@@ -88,10 +83,8 @@ async function measureAreas(
   options: Readonly<{
     areas: readonly DuplicateDetectionAreaInput[];
     cache: DuplicateCacheOptions;
-    changedFiles: readonly string[];
     dependency: DuplicationScannerDependency;
     input: DuplicateDetectionExactInputSet;
-    scanKind: ScanKind;
     semantics: DuplicateDetectionSemantics;
     toolVersion: string;
   }>
@@ -108,10 +101,8 @@ async function measureAreas(
           cacheRootDir: options.input.cacheRootDir,
           commitSha: options.input.commitSha,
           configVersion: options.semantics.configVersion,
-          changedFiles: options.changedFiles,
           dependency: options.dependency,
           rootDir: options.input.rootDir,
-          scanKind: options.scanKind,
           toolVersion: options.toolVersion
         })
     );
@@ -189,9 +180,7 @@ function loadValidCachedFragments(
   if (!accepted.ok || !accepted.payloads.every(isValidDuplicateFragment)) {
     return null;
   }
-  return Object.freeze(
-    annotateFragments(accepted.payloads, input.area.codeArea, input.changedFiles)
-  );
+  return Object.freeze(withCodeArea(accepted.payloads, input.area.codeArea));
 }
 
 async function scanAndCacheArea(
@@ -214,7 +203,7 @@ async function scanAndCacheArea(
   if (!accepted.ok || !accepted.payloads.every(isValidDuplicateFragment)) {
     return Object.freeze({ kind: "invalid-result" });
   }
-  const fragments = annotateFragments(accepted.payloads, input.area.codeArea, input.changedFiles);
+  const fragments = withCodeArea(accepted.payloads, input.area.codeArea);
   if (input.cache.enabled) {
     try {
       writeScanCacheEntry({ rootDir: input.cacheRootDir, identity, metrics: fragments });
@@ -229,7 +218,6 @@ async function scanAndCacheArea(
 
 function createCacheIdentity(input: AreaMeasurementInput): DuplicateCodeCacheIdentity {
   return Object.freeze({
-    scanKind: input.scanKind,
     toolName: "jscpd",
     toolVersion: input.toolVersion,
     normalizedToolArgs: Object.freeze(jscpdCacheArgs(input.dependency, input.area.minimumTokens)),
@@ -271,17 +259,13 @@ function normalizedJscpdCommandForCache(command: string): string {
     : command;
 }
 
-function annotateFragments(
+function withCodeArea(
   fragments: readonly DuplicateCodeFragment[],
-  codeArea: string,
-  changedFiles: readonly string[]
+  codeArea: string
 ): DuplicateCodeFragment[] {
   return fragments.map((fragment) => ({
     ...fragment,
     codeAreas: [codeArea],
-    hitsChangedScope: fragment.locations.some((location) =>
-      isInChangedScope(location.path, changedFiles)
-    ),
     locations: fragment.locations.map((location) => ({ ...location, codeArea }))
   }));
 }

@@ -16,7 +16,6 @@ export interface FileMetricsSemantics {
   readonly generatedFiles: readonly string[];
   readonly codeLines: Readonly<{
     absoluteFloor: number;
-    changedDelta: number;
     lowDecisionTokenAllowance: Readonly<{
       codeLineFloor: number;
       maxDecisionTokens: number;

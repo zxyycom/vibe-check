@@ -1,6 +1,6 @@
 ---
 title: 网络 Check 必须获得显式声明式授权
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
 purpose: 防止 Product-owned 网络检查被隐式启用，并保持网络安全、结果和执行失败语义可审阅。

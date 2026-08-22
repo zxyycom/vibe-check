@@ -1,6 +1,6 @@
 import type {
   MachinePublicationV4,
-  ValidatedPublicationModelV4
+  TrustedPublicationModelV4
 } from "../../src/product/quality-core/output/publication-v4/index.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
@@ -56,7 +56,7 @@ export const MACHINE_EXAMPLE_OUTCOMES: readonly MachineExampleOutcome[] = Object
 
 export type CanonicalMachineExample = Readonly<
   MachineExampleScenario & {
-    readonly model: ValidatedPublicationModelV4;
+    readonly model: TrustedPublicationModelV4;
     readonly publication: MachinePublicationV4;
   }
 >;

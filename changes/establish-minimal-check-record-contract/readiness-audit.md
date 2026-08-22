@@ -1,6 +1,16 @@
 # Readiness Audit
 
-本审计在实施前闭合`establish-minimal-check-record-contract`的范围、owner、消费者、长期Decision与验证入口。它证明Plan可以直接进入Implementation，不证明目标产品contract已经实现。
+本审计在实施前闭合`establish-minimal-check-record-contract`的范围、owner、消费者、长期Decision与验证入口。它证明Plan可以直接进入Implementation，不证明目标产品contract已经实现。其 baseline、Decision lifecycle状态与验证计数是形成时记录；实现后的 current facts、successor状态和实际验证见 [`acceptance-audit.md`](acceptance-audit.md)。
+
+**Current convergence supplement (not audit evidence).** Final code convergence completed 63 focused tests across
+9 suites; strict Test Evidence closure now maps 140 current entities to 44 Cases / 10 Topics, including the
+publication candidate-write and first canonical-rename failure real-I/O tests. Both workspace Gates passed: `required` ran 20 checks (14
+passed, 6 profile-excluded not-applicable, 0 failed/unavailable) and `full` ran 20 (19 passed, 1
+profile-excluded not-applicable, 0 failed/unavailable). Typecheck, lint, global format checking (267 files), docs
+validation, and target Change plan check (30/30) passed. The current strict Decision snapshot is 134 records: 46
+active, 33 aligned, 13 unaligned, 88 archived, and 0 candidates. The two required successor/predecessor lifecycle
+transactions are complete, so they no longer block final Change acceptance; see [`acceptance-audit.md`](acceptance-audit.md)
+for their exact revision relations. The historical counts below remain the planning-audit snapshot.
 
 ## Audit Basis
 
@@ -35,12 +45,12 @@ Readiness已闭合，没有剩余主设计或迁移owner问题。实施按以下
 
 现有probe入口可直接扩展，不需要新增测试工具：
 
-| Obligation | Existing probe owner |
-| --- | --- |
-| Contextual authoring、Definition normalization与plain composition | `src/product/definition/project.test.ts` |
-| Public runtime/type inventory | `src/product/public-contract/current.test.ts` |
-| Declaration emit与physical candidate | `scripts/package-candidate/index.test.ts` |
-| Ancestry-external installed consumer | `scripts/package-candidate/isolated-consumer.test.ts` |
+| Obligation                                                        | Existing probe owner                                  |
+| ----------------------------------------------------------------- | ----------------------------------------------------- |
+| Contextual authoring、Definition normalization与plain composition | `src/product/definition/project.test.ts`              |
+| Public runtime/type inventory                                     | `src/product/public-contract/current.test.ts`         |
+| Declaration emit与physical candidate                              | `scripts/package-candidate/index.test.ts`             |
+| Ancestry-external installed consumer                              | `scripts/package-candidate/isolated-consumer.test.ts` |
 
 当前基线已运行上述四个入口；目标Implementation在同一入口增加new-result、two-argument report、readonly local interface、primitive rejection、generic readback与no-catalog assertions。
 
@@ -48,14 +58,14 @@ Readiness已闭合，没有剩余主设计或迁移owner问题。实施按以下
 
 Final data与Record data共用design Decision 5的descriptor-based canonicalizer。Settlement必须满足：
 
-| Input/event | Owning Check result | Accepted Records | Other Checks |
-| --- | --- | --- | --- |
-| Valid passed/failed final data | Author status + canonical final data | 保留 | 不受影响 |
-| Invalid final data | Product-controlled unavailable | 保留 | 不受影响 |
-| Invalid Record identity/data或duplicate | Product-controlled unavailable，覆盖callback result | 违规前已接受Records保留 | 不受影响 |
-| Callback throw或Product protocol failure | Product-controlled unavailable | 已接受Records保留 | 不受影响 |
-| Cancellation | Product-controlled unavailable/cancelled Run mapping | 已接受facts按现有containment保留 | 未开始Checks按Run owner处理 |
-| Reporter在callback关闭后写入 | 抛closed-reporter error，不修改Core | 不变 | 不受影响 |
+| Input/event                              | Owning Check result                                  | Accepted Records                 | Other Checks                |
+| ---------------------------------------- | ---------------------------------------------------- | -------------------------------- | --------------------------- |
+| Valid passed/failed final data           | Author status + canonical final data                 | 保留                             | 不受影响                    |
+| Invalid final data                       | Product-controlled unavailable                       | 保留                             | 不受影响                    |
+| Invalid Record identity/data或duplicate  | Product-controlled unavailable，覆盖callback result  | 违规前已接受Records保留          | 不受影响                    |
+| Callback throw或Product protocol failure | Product-controlled unavailable                       | 已接受Records保留                | 不受影响                    |
+| Cancellation                             | Product-controlled unavailable/cancelled Run mapping | 已接受facts按现有containment保留 | 未开始Checks按Run owner处理 |
+| Reporter在callback关闭后写入             | 抛closed-reporter error，不修改Core                  | 不变                             | 不受影响                    |
 
 Public reasons只使用受控reason types；arbitrary error text不得进入Core/machine facts。
 
@@ -70,16 +80,16 @@ Public reasons只使用受控reason types；arbitrary error text不得进入Core
 
 ### 0.4 Direct-consumer migration map
 
-| Removed/changed surface | Direct implementation owners | Migration |
-| --- | --- | --- |
-| `completed + verdict` | `src/product/definition/custom-check.ts`、Check callback validation、Core settlement、progress/readable status | 改为四态status；passed/failed canonicalize final data。 |
-| Record catalog/fields/identity extractor | Definition check tree、`src/product/quality-core/check-record/**`、三个default Checks | 删除declaration/catalog；producer直接提供local ID/data。 |
-| `reportReference`与comparison context | `custom-check.ts`、Run controls/project context、default Checks、reference submission | 删除common input/reporter；领域comparison回到producing Check。 |
-| DecisionPolicy/GateResult | Project Definition validation、`src/product/run/policy.ts`/`publication.ts`、policy evaluator/model | 在Gate aggregate cutover后删除。 |
-| Decision/reference machine evidence | publication-v3 mapper/model/schema/invariants、docs validators/examples/readable output | machine v4不发布这些字段。 |
-| Project Gate snapshot closure | `scripts/project-gate/index.ts`、`scripts/quality/project-gate/**` | Selection提供eligible IDs；Run求值aggregate；adapter不再遍历snapshot。 |
-| Public package surface | `scripts/package-candidate/**`、public-contract inventory | 删除DecisionPolicy/Record catalog types，保留唯一Run与必要new types。 |
-| Stable docs/Test Cases | Architecture、Configuration、Quality Metrics、Output、Script Tooling与semantic Case owners | 在实现证据形成后同步当前facts与Case映射。 |
+| Removed/changed surface                  | Direct implementation owners                                                                                   | Migration                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `completed + verdict`                    | `src/product/definition/custom-check.ts`、Check callback validation、Core settlement、progress/readable status | 改为四态status；passed/failed canonicalize final data。                |
+| Record catalog/fields/identity extractor | Definition check tree、`src/product/quality-core/check-record/**`、三个default Checks                          | 删除declaration/catalog；producer直接提供local ID/data。               |
+| `reportReference`与comparison context    | `custom-check.ts`、Run controls/project context、default Checks、reference submission                          | 删除common input/reporter；领域comparison回到producing Check。         |
+| DecisionPolicy/GateResult                | Project Definition validation、`src/product/run/policy.ts`/`publication.ts`、policy evaluator/model            | 在Gate aggregate cutover后删除。                                       |
+| Decision/reference machine evidence      | publication-v3 mapper/model/schema/invariants、docs validators/examples/readable output                        | machine v4不发布这些字段。                                             |
+| Project Gate snapshot closure            | `scripts/project-gate/index.ts`、`scripts/quality/project-gate/**`                                             | Selection提供eligible IDs；Run求值aggregate；adapter不再遍历snapshot。 |
+| Public package surface                   | `scripts/package-candidate/**`、public-contract inventory                                                      | 删除DecisionPolicy/Record catalog types，保留唯一Run与必要new types。  |
+| Stable docs/Test Cases                   | Architecture、Configuration、Quality Metrics、Output、Script Tooling与semantic Case owners                     | 在实现证据形成后同步当前facts与Case映射。                              |
 
 Source audit已用`rg`分别追踪`status === "completed"`、`.verdict`、`recordTypes`、`reportReference`、`DecisionPolicy`、`GateResult`、`referenceFacts`、`decision.gate`与comparison inputs；没有发现需要建立第四个下游能力owner的直接consumer。
 
@@ -106,16 +116,16 @@ Aggregation属于本Plan的次级迁移，而不是repository Gate optimization 
 
 ### 0.7 Decision evolution map
 
-| Current Decision | Required action when target facts land |
-| --- | --- |
-| `report-check-owned-record-data-with-local-identities.md` (`active + unaligned`) | 实现完整Record方向后mark aligned。 |
-| `keep-comparison-semantics-inside-producing-checks.md` (`active + unaligned`) | common comparison/reference删除并迁移producer后mark aligned。 |
-| `use-direct-check-execution-with-minimal-record-reporting.md` (`active + unaligned`) | 建立successor，保留direct execution并将旧`completed + verdict`修订为四态final data；归档前序。 |
-| `use-core-check-and-record-facts-from-run-resolution.md` (`active + aligned`) | 建立successor，保留two-entity Core并修订Check outcome/Record shape；实现后对齐successor并归档前序。 |
-| `evaluate-decision-policies-from-core-facts.md` (`active + aligned`) | 由explicit RunControls aggregation与Check-owned semantics的successor替代；Gate cutover后归档前序。 |
-| `use-user-owned-definition-for-observation-and-gates.md` (`active + unaligned`) | 建立successor：Project仍显式绑定Definition/Run，但Gate绑定Run aggregation而非named DecisionPolicy。 |
-| `publish-fingerprint-bound-check-record-machine-v3.md` (`active + aligned`) | 建立machine v4 successor，保留two-file/fingerprint trust boundary并替换Check/Record/evidence shape。 |
-| `expose-recursive-check-authoring-and-run-surface.md` (`active + aligned`) | 建立public-surface successor，保留唯一Check/Run并删除DecisionPolicy/Record catalog roots。 |
+| Current Decision                                                                     | Required action when target facts land                                                               |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `report-check-owned-record-data-with-local-identities.md` (`active + unaligned`)     | 实现完整Record方向后mark aligned。                                                                   |
+| `keep-comparison-semantics-inside-producing-checks.md` (`active + unaligned`)        | common comparison/reference删除并迁移producer后mark aligned。                                        |
+| `use-direct-check-execution-with-minimal-record-reporting.md` (`active + unaligned`) | 建立successor，保留direct execution并将旧`completed + verdict`修订为四态final data；归档前序。       |
+| `use-core-check-and-record-facts-from-run-resolution.md` (`active + aligned`)        | 建立successor，保留two-entity Core并修订Check outcome/Record shape；实现后对齐successor并归档前序。  |
+| `evaluate-decision-policies-from-core-facts.md` (`active + aligned`)                 | 由explicit RunControls aggregation与Check-owned semantics的successor替代；Gate cutover后归档前序。   |
+| `use-user-owned-definition-for-observation-and-gates.md` (`active + unaligned`)      | 建立successor：Project仍显式绑定Definition/Run，但Gate绑定Run aggregation而非named DecisionPolicy。  |
+| `publish-fingerprint-bound-check-record-machine-v3.md` (`active + aligned`)          | 建立machine v4 successor，保留two-file/fingerprint trust boundary并替换Check/Record/evidence shape。 |
+| `expose-recursive-check-authoring-and-run-surface.md` (`active + aligned`)           | 建立public-surface successor，保留唯一Check/Run并删除DecisionPolicy/Record catalog roots。           |
 
 Successor在方向确认时建立为`active + unaligned`；只有完整实现与owner验证通过后mark aligned。Plan文本不代替这些Decision lifecycle动作。
 
@@ -123,14 +133,14 @@ Successor在方向确认时建立为`active + unaligned`；只有完整实现与
 
 修改任何native test前的strict check已通过：193个Bun test entities全部由45个Cases/10个Topics映射。
 
-| Semantic owner | Required Case action |
-| --- | --- |
-| `quality-runtime.md` | 更新Check outcome、Record manager、Core session与execution Cases；保留“Records独立、不由Record推断status”的Proves。 |
-| `scan-configuration.md` | 更新public authoring、removed policy/comparison inputs与effects facts。 |
-| `quality-gate.md` | 删除DecisionPolicy-specific Case或将仍有独立证明价值的部分迁移到explicit aggregation Case。 |
-| `report-output.md` | 将machine v3 Cases硬切为v4，保留two-file/fingerprint/lifecycle evidence；移除decision/reference/readable Record assumptions。 |
-| `repository-tooling.md` | 更新Project Gate Definition/adapter Cases，证明aggregate consumption、eligible-ID selection与`0/1/2`closure。 |
-| `scanner-adapters.md`、`warning-generation.md` | 更新default Check final data/Records与删除DecisionPolicy consumer描述。 |
+| Semantic owner                                 | Required Case action                                                                                                          |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `quality-runtime.md`                           | 更新Check outcome、Record manager、Core session与execution Cases；保留“Records独立、不由Record推断status”的Proves。           |
+| `scan-configuration.md`                        | 更新public authoring、removed policy/comparison inputs与effects facts。                                                       |
+| `quality-gate.md`                              | 删除DecisionPolicy-specific Case或将仍有独立证明价值的部分迁移到explicit aggregation Case。                                   |
+| `report-output.md`                             | 将machine v3 Cases硬切为v4，保留two-file/fingerprint/lifecycle evidence；移除decision/reference/readable Record assumptions。 |
+| `repository-tooling.md`                        | 更新Project Gate Definition/adapter Cases，证明aggregate consumption、eligible-ID selection与`0/1/2`closure。                 |
+| `scanner-adapters.md`、`warning-generation.md` | 更新default Check final data/Records与删除DecisionPolicy consumer描述。                                                       |
 
 原生test实体的rename/split/merge必须同步Case Owner/Proves；实施前后均运行`bun run test-evidence -- check --root .`和最窄目标tests。
 

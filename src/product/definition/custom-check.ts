@@ -1,4 +1,5 @@
 import type { ProjectQualityConfiguration } from "./quality.ts";
+import type { CanonicalJsonObject } from "../foundation/canonical-json.ts";
 
 export type CheckReason = Readonly<{ readonly code: string }>;
 
@@ -18,8 +19,8 @@ export type CheckResult = Readonly<
 >;
 
 export type CheckOutcome = Readonly<
-  | { readonly status: "passed"; readonly data: object }
-  | { readonly status: "failed"; readonly data: object }
+  | { readonly status: "passed"; readonly data: CanonicalJsonObject }
+  | { readonly status: "failed"; readonly data: CanonicalJsonObject }
   | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
   | { readonly status: "unavailable"; readonly reason: CheckUnavailableReason }
 >;

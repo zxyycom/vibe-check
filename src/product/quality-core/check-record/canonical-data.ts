@@ -1,12 +1,12 @@
-export type CanonicalJsonPrimitive = boolean | null | number | string;
-export type CanonicalJsonValue =
-  | CanonicalJsonPrimitive
-  | readonly CanonicalJsonValue[]
-  | CanonicalJsonObject;
+import type { CanonicalJsonObject, CanonicalJsonValue } from "../../foundation/canonical-json.ts";
 
-export interface CanonicalJsonObject {
-  readonly [key: string]: CanonicalJsonValue;
-}
+export type {
+  CanonicalJsonObject,
+  CanonicalJsonPrimitive,
+  CanonicalJsonValue
+} from "../../foundation/canonical-json.ts";
+
+const encoder = new TextEncoder();
 
 /**
  * Materializes arbitrary author data without property reads or JSON hooks.
@@ -29,6 +29,11 @@ export function canonicalJsonText(value: unknown): string {
     throw new TypeError("Canonical JSON could not safely materialize the input");
   }
   return canonicalText(canonical);
+}
+
+/** Emits canonical UTF-8 JSON without invoking author getters or `toJSON`. */
+export function canonicalJsonBytes(value: unknown): Uint8Array {
+  return encoder.encode(canonicalJsonText(value));
 }
 
 function canonicalize(value: unknown, ancestors: Set<object>): CanonicalJsonValue | undefined {

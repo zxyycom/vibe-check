@@ -24,55 +24,6 @@ export interface CodeAreaDefinition {
   readonly warningPolicy: CodeAreaWarningPolicy;
 }
 
-export interface QualityThreshold {
-  readonly absoluteFloor: number;
-  readonly changedDelta: number;
-}
-
-export interface ResolvedQualityConfig {
-  readonly checks: {
-    readonly duplication: {
-      readonly defaultMinimumTokens: number;
-      readonly fragments: {
-        readonly changedDelta: number;
-      };
-      readonly minimumTokensByCodeArea: Readonly<Record<string, number>>;
-    };
-    readonly files: {
-      readonly codeLines: QualityThreshold & {
-        readonly lowDecisionTokenAllowance: {
-          readonly codeLineFloor: number;
-          readonly maxDecisionTokens: number;
-        };
-      };
-    };
-    readonly functions: {
-      readonly codeLines: QualityThreshold & {
-        readonly lowComplexityAllowance: {
-          readonly codeLineFloor: number;
-          readonly maxCyclomaticComplexityExclusive: number;
-        };
-      };
-      readonly cyclomaticComplexity: QualityThreshold;
-      readonly parameterCount: QualityThreshold;
-    };
-  };
-  readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
-  readonly excludeDirs: readonly string[];
-  readonly generatedFiles: readonly string[];
-  readonly include: readonly string[];
-  readonly report: {
-    readonly footerGeneratedBy: string;
-    readonly footerNotice: string;
-    readonly nonBlockingNotice: string;
-    readonly showWatchlist: boolean;
-    readonly timeZone: string;
-    readonly title: string;
-    readonly topN: number;
-    readonly watchlistMax: number;
-  };
-}
-
 export interface CodeAreaFingerprint {
   fileCount: number;
   fileList: string[];
@@ -92,7 +43,6 @@ export interface FileMetric {
   codeLines?: number;
   commentLines?: number;
   decisionTokens: MetricValue;
-  isChanged: boolean;
   language: string;
   lines: number;
   path: string;
@@ -103,7 +53,6 @@ export interface FunctionMetric {
   cyclomaticComplexity: MetricValue;
   endLine: number;
   file: string;
-  isChanged: boolean;
   lines: number;
   name: string;
   parameterCount: number;
@@ -119,7 +68,6 @@ export interface DuplicateCodeLocation {
 
 export interface DuplicateCodeFragment {
   codeAreas: string[];
-  hitsChangedScope: boolean;
   id: number;
   lineCount: number;
   locations: DuplicateCodeLocation[];

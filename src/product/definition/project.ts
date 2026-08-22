@@ -47,7 +47,6 @@ export {
 
 export interface ProjectEffects {
   readonly cache: Readonly<{ readonly directory: string; readonly enabled: boolean }>;
-  readonly logs: Readonly<{ readonly enabled: boolean }>;
   readonly output: Readonly<{ readonly directory: string; readonly enabled: boolean }>;
   readonly progress: Readonly<{ readonly enabled: boolean }>;
 }
@@ -70,7 +69,6 @@ type ProjectDefinitionInput = Readonly<{
   checks?: readonly Check[];
   effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
-    logs: Partial<ProjectEffects["logs"]>;
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
@@ -83,7 +81,6 @@ export interface RunControls {
   readonly changedFiles?: readonly string[];
   readonly effects?: Partial<{
     cache: Partial<ProjectEffects["cache"]>;
-    logs: Partial<ProjectEffects["logs"]>;
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
@@ -169,9 +166,6 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
           value.effects?.cache?.directory ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.directory,
         enabled:
           value.effects?.cache?.enabled ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.cache.enabled
-      },
-      logs: {
-        enabled: value.effects?.logs?.enabled ?? CURRENT_PUBLIC_CONTRACT.effectDefaults.logs.enabled
       },
       output: {
         directory:

@@ -40,12 +40,34 @@ describe("independent docs machine artifact validation", () => {
     expectSuccess(validateDocsMachineArtifactSet(context.artifacts, "positive/reordered"));
   });
 
-  it("rejects v3 and focused v4 set mutations without a partial accepted set", () => {
+  it("rejects historical v2/v3 and focused v4 set mutations without a partial accepted set", () => {
     const cases: readonly {
       readonly expected: ExpectedDiagnostic;
       readonly label: string;
       readonly mutate: (context: MutationContext) => void;
     }[] = [
+      {
+        label: "v2 run rejected",
+        expected: { category: "schema", logicalArtifact: "run.json", pointer: "/schemaVersion" },
+        mutate: ({ run, artifacts }) => {
+          run.schemaVersion = "vibe-check.run.v2";
+          artifacts.runJson = encoder.encode(JSON.stringify(run));
+        }
+      },
+      {
+        label: "v2 record rejected",
+        expected: {
+          category: "schema",
+          index: 0,
+          line: 1,
+          logicalArtifact: "records.ndjson",
+          pointer: "/schemaVersion"
+        },
+        mutate: ({ records, artifacts }) => {
+          firstRecord(records).schemaVersion = "vibe-check.record.v2";
+          artifacts.recordsNdjson = encodeRecords(records);
+        }
+      },
       {
         label: "v3 run rejected",
         expected: { category: "schema", logicalArtifact: "run.json", pointer: "/schemaVersion" },
@@ -123,6 +145,36 @@ describe("independent docs machine artifact validation", () => {
         mutate: ({ records, artifacts }) => {
           firstRecord(records).data = { changed: true };
           artifacts.recordsNdjson = encodeRecords(records);
+        }
+      },
+      {
+        label: "non-finite final data literal",
+        expected: {
+          category: "set-invariant",
+          logicalArtifact: "run.json",
+          relationship: "canonical-json"
+        },
+        mutate: ({ artifacts }) => {
+          artifacts.runJson = encoder.encode(
+            new TextDecoder()
+              .decode(artifacts.runJson)
+              .replace('"summary":"supplemental record retained"', '"summary":1e400')
+          );
+        }
+      },
+      {
+        label: "non-finite record data literal",
+        expected: {
+          category: "set-invariant",
+          logicalArtifact: "records.ndjson",
+          relationship: "canonical-json"
+        },
+        mutate: ({ artifacts }) => {
+          artifacts.recordsNdjson = encoder.encode(
+            new TextDecoder()
+              .decode(artifacts.recordsNdjson)
+              .replace('"severity":"warning"', '"severity":1e400')
+          );
         }
       }
     ];

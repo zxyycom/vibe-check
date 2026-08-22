@@ -1,5 +1,5 @@
 import { MACHINE_RECORD_V4_IDENTITY, MACHINE_RUN_V4_IDENTITY } from "./schema-identities.ts";
-import type { ValidatedPublicationModelV4 } from "./model.ts";
+import type { TrustedPublicationModelV4 } from "./model.ts";
 import { createRecordsFingerprintV4 } from "./records-fingerprint.ts";
 import type { MachineRecordV4, MachineRunV4 } from "./schema.ts";
 import { freezePublicationValue } from "./freeze-publication-value.ts";
@@ -10,7 +10,7 @@ export interface MachinePublicationV4 {
 }
 
 export function projectMachinePublicationV4(
-  model: ValidatedPublicationModelV4
+  model: TrustedPublicationModelV4
 ): MachinePublicationV4 {
   const records = Object.freeze(
     model.snapshot.records.map((record): MachineRecordV4 =>

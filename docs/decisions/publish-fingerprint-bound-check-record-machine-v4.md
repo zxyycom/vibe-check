@@ -15,13 +15,13 @@ relations:
 
 ## 目的
 
-- 让 machine consumer 读取 canonical four-state Check outcomes、Check final data 与 supplemental minimal Records，而不拼接 Definition、run lifecycle、policy 或 presentation facts。
+- 让 machine consumer 读取 canonical four-state Check outcomes、Check final data 与 supplemental minimal Records，而不拼接 Definition、run lifecycle、aggregation 或 presentation facts。
 - 保留固定 `run.json` 与 `records.ndjson` 的 complete-set fingerprint binding，使 partial 或 mixed files fail closed。
 - 让 v4 schema identity 如实标识 breaking contract，并保持 current runtime 只有一个 writer、validator 与 reader path。
 
 ## 背景
 
-- Core 只产生 canonical Checks 与 Records，且通过/失败 Check 的 primary data 与 Record data 都是安全冻结的事实；v3 shape 仍编码 `completed + verdict`、Record catalog 及 decision/reference evidence。
+- Core 只产生 canonical Checks 与 Records，且通过/失败 Check 的 primary data 与 Record data 都是安全冻结的事实；v3 shape 仍编码已退休的双层终态表示、Record catalog 及 decision/reference evidence。
 - 两个固定 pathname 没有跨路径 filesystem transaction；单独校验 row relation 不能防止不同 generation 的 files 被当作同一可信集合。
 - v4 的 structural `{ checkId, id }` Record identity 与 canonical ordered Record rows 能在不增加 pointer、lock 或 generation protocol 的前提下支撑 complete-set verification。
 

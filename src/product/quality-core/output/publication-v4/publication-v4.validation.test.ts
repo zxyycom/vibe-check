@@ -62,6 +62,16 @@ describe("machine publication v4 validation", () => {
       recordsNdjson: Buffer.from(`${JSON.stringify(record)}\n`),
       runJson: Buffer.from(candidates.runJson)
     });
+
+    assertFailure(
+      {
+        recordsNdjson: Buffer.from(candidates.recordsNdjson),
+        runJson: Buffer.from(
+          candidates.runJson.replace('"summary": "found one"', '"summary": 1e400')
+        )
+      },
+      "core-snapshot"
+    );
   });
 
   it("rejects mixed generations, composite duplicates, and unknown owners", () => {

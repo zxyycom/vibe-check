@@ -22,7 +22,7 @@ function capturedProgressWriter() {
 }
 
 describe("Package Run default effects", () => {
-  it("keeps default progress output logs and publication effects independently successful", async () => {
+  it("keeps default progress and publication effects independently successful", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-default-effects-"));
     const output = capturedProgressWriter();
     try {
@@ -44,7 +44,6 @@ describe("Package Run default effects", () => {
       assert.equal(result.kind, "completed");
       assert.equal(result.effects.progress.status, "succeeded");
       assert.equal(result.effects.output.status, "succeeded");
-      assert.equal(result.effects.logs.status, "succeeded");
       assert.equal(
         output.writes.some((write) => write.includes("Execution summary:\n  execution: completed")),
         true

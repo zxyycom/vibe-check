@@ -22,8 +22,8 @@ relations: []
 
 ## 决策
 - 采用: 普通工具运行 invocation 默认启用 Product-owned 日志/progress、适用缓存和 canonical tool output；这些效果由 default runtime 执行，不要求消费者实现 filesystem、Git、process/thread、cache store 或 reporter ports。
-- 采用: Public Project Definition 与 invocation configuration 明确控制支持的 reporter、cache、output target、verbosity 和禁用选项；环境变量只覆盖已声明的 operational values，不能改变 policy、network、安全或 gate 授权。
-- 采用: 工具运行操作无论是否产生副作用都返回 closed structured result，其中包含领域执行、diagnostics、decision 和每项 effect 的实际 completion/status；调用方不需要解析日志或重新读取 artifact 才能恢复相同核心事实。
+- 采用: Public Project Definition 与 invocation configuration 明确控制支持的 reporter、cache、output target、verbosity 和禁用选项；环境变量只覆盖已声明的 operational values，不能改变 Check-owned network authorization、安全边界或 Project Gate selection。
+- 采用: 工具运行操作无论是否产生副作用都返回 closed structured result，其中包含 Run facts、适用 diagnostics、optional aggregate 和每项 effect 的实际 completion/status；调用方不需要解析日志或重新读取 artifact 才能恢复相同核心事实。
 - 采用: Product 为默认 output/cache 路径、写入 ownership、atomicity、collision、cleanup、cache invalidation 和敏感材料边界负责；具体公共名称和默认路径必须经过公共命名与配置决策。
 - 采用: 调用方可以通过公开配置显式静默 reporter、禁用 cache 或禁止持久 output，供编辑器、测试和特殊宿主使用；这些是受支持的工具模式，不改变正式 execution entry。
 - 不采用: 把“程序化 API”解释为默认无日志、无缓存、无文件输出，或把所有效果责任转交给使用方自行包装。

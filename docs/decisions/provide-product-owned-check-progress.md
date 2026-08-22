@@ -30,7 +30,7 @@ relations: []
 - 采用: Product progress effect 通过 package-private prepared/started/settled/final feedback 驱动基础 progress；不增加 Check-owned callback、project-supplied observer、public lifecycle event 或 custom renderer API。
 - 采用: TTY 在 append-only completion history 下方维护临时 running region。settled row 的 `[n/total]` 表示第 n 个完成；running row 的 `n` 只表示 `completedCount + runningPosition`，重绘时可以改变。Check identity 始终使用 internal `checkId`。
 - 采用: 非 TTY、重定向或 dumb terminal 丢弃 started，只按 settled 顺序复用相同 completion counter、status mapping 和 terminal-row formatter；plain output 不含 cursor 或 color control bytes。
-- 采用: Product 对每个实际执行的 Check 测量一次 monotonic `durationMs`，同时用于 settled progress 与带 final snapshot 的 `RunResult.checkDurations`；未启动 Check 使用 `null`/`not run`。duration 不进入 CheckOutcome、QualityRecord、Core、machine 或 policy。
+- 采用: Product 对每个实际执行的 Check 测量一次 monotonic `durationMs`，同时用于 settled progress 与带 final snapshot 的 `RunResult.checkDurations`；未启动 Check 使用 `null`/`not run`。duration 不进入 CheckOutcome、minimal Record、Core、machine 或 aggregation。
 - 采用: 首轮 progress renderer 在 Run 期间独占其目标 stream；Check/process 详细输出进入 project-owned logs。不承诺与同一 stream 的任意 interleaved writes 可靠共存，也不为此增加 public output multiplexer。
 - 采用: 第一次 progress write/rewrite failure 将 progress effect 置为 failed 并停止后续 progress writes，但继续闭合 Task、Check、Record 和其他 enabled effects；console failure 不得伪造或改写 execution facts。
 - 采用: 颜色、alignment 和 cursor sequence 只属于 human presentation；无色文本保留 count、title、status、duration/not-run 与可用 reason，精确格式不成为 machine contract。

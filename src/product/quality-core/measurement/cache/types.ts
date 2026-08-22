@@ -2,15 +2,12 @@ import type { CodeAreaFingerprint, DuplicateCodeFragment } from "../../model/sch
 
 export const SCAN_CACHE_VERSION = "quality-scan-cache-v1";
 
-export type ScanKind = "baseline" | "current";
-
 export type DuplicateCodeCacheIdentity = {
   codeArea: string;
   commitSha: string;
   configVersion: string;
   inputFingerprint: CodeAreaFingerprint;
   normalizedToolArgs: readonly string[];
-  scanKind: ScanKind;
   toolName: "jscpd";
   toolVersion: string;
 };
@@ -39,7 +36,6 @@ export type ScanCachePayload = {
   metrics: unknown;
   normalizedToolArgs: string[];
   scanCacheVersion: string;
-  scanKind: ScanKind;
   toolName: "jscpd";
   toolVersion: string;
 };

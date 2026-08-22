@@ -52,7 +52,6 @@ describe("current public contract", () => {
       },
       effectDefaults: {
         cache: { directory: ".cache/vibe-check", enabled: true },
-        logs: { enabled: true },
         output: { directory: "artifacts/vibe-check", enabled: true },
         progress: { enabled: true }
       }

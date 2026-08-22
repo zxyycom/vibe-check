@@ -1,4 +1,3 @@
-import { canonicalJsonBytes } from "../../check-record/identity.ts";
 import { validateCoreSnapshot } from "../../check-record/validation.ts";
 import { createRecordsFingerprintV4 } from "./records-fingerprint.ts";
 import type { MachineRecordV4, MachineRunV4 } from "./schema.ts";
@@ -80,18 +79,6 @@ function validateProjectedCore(
   run: MachineRunV4,
   records: readonly MachineRecordV4[]
 ): ValidationFailure | null {
-  try {
-    canonicalJsonBytes({
-      checks: run.checks,
-      records: records.map(({ schemaVersion: _schemaVersion, ...record }) => record)
-    });
-  } catch {
-    return setInvariantFailure(
-      "canonical-json",
-      "run.json",
-      "Published Check and Record data must remain canonical JSON."
-    );
-  }
   const snapshot = validateCoreSnapshot({
     checks: run.checks,
     records: records.map(({ schemaVersion: _schemaVersion, ...record }) => record)

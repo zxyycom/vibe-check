@@ -21,7 +21,6 @@ describe("Project Definition", () => {
     assert.deepEqual(definition.checks, []);
     assert.deepEqual(definition.effects, {
       cache: { directory: ".cache/vibe-check", enabled: true },
-      logs: { enabled: true },
       output: { directory: "artifacts/vibe-check", enabled: true },
       progress: { enabled: true }
     });

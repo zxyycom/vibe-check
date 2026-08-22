@@ -1,6 +1,6 @@
 # Quality Metrics
 
-本文拥有 Check、supplemental Record 与 explicit Check aggregation 的事实语义。它不拥有 scanner command 配置、machine bytes、CLI 参数、generic task engine、typed dependency reader 或 human presentation grammar。
+本文拥有 Check、supplemental Record 与 explicit Check aggregation 的事实语义。用 [Configuration](configuration.md) author Check/Run，用 [Output](output.md)读取 machine DTO，用 [脚本工具](script-tooling.md#project-gate)处理 repository Gate adapter；本页不拥有 scanner command 配置、machine bytes、CLI 参数、generic task engine、typed dependency reader 或 human presentation grammar。
 
 ## Check and Record facts
 
@@ -31,15 +31,15 @@ Completed/effect Run results provide generic readback of canonical Checks and Re
 
 The default Checks are `duplicate-detection`, `file-metrics`, and `function-metrics`. Their direct callbacks own scanner options, operate only on Product-approved exact input paths, and report Records only when detailed findings are supplemental to their final threshold result. Adapter availability, process, parser, cache, or scope failures settle the owning Check as unavailable rather than create a parallel quality model. See [Scanner dependencies](scanner-dependencies.md) for this private adapter boundary.
 
-The three Check results use the same four-state grammar as a custom callback. Their options influence only their own metric semantics and scanner execution; they do not alter a Record catalog, fixed acceptance model, aggregate configuration or output presentation.
+The three Check results use the same four-state grammar as a custom callback. Their options influence only their own metric semantics and scanner execution; aggregation configuration and output presentation stay outside those Check options.
 
-## Explicit aggregation and Gate result
+## Explicit aggregation and repository Gate mapping
 
 Multi-Check aggregation is a per-invocation derived result, not a Core status or implicit quality policy. A caller that wants one must explicitly configure `RunControls.checkAggregation` with selected Checks, `all | any` mode, unavailable handling, not-applicable handling and empty-set handling. Selection is validated before work; `"all"` selects all normalized Checks, while an explicit ID list can select a repository Gate eligibility set without hiding excluded raw facts.
 
 Run evaluates configured aggregation only from selected settled Check statuses and returns one minimal `aggregate`: `passed | failed | not-applicable | unavailable`. With no aggregation configuration, `RunResultFacts.aggregate` is `null`. Aggregate does not copy evidence and does not consume Records, definition warnings, effects, output, presentation or arbitrary final data.
 
-Repository Gate required/full binds its own eligibility selection to an explicit aggregation config, reads `RunResult.aggregate`, and separately maps configuration/run/effect facts to process exit `0`, `1` or `2`. Its adapter does not traverse snapshot Checks to reconstruct a quality conclusion. `DecisionPolicy`, `GateResult`, Record selectors, acceptance/views/readiness/blocking precedence, references and comparison facts are retired; no dependent Check or CLI-local reducer replaces them.
+Repository Gate required/full binds its own eligibility selection to an explicit aggregation config, reads `RunResult.aggregate`, and separately maps configuration/run/effect facts to process exit `0`, `1` or `2`. Its adapter does not traverse snapshot Checks to reconstruct a quality conclusion. This explicit aggregation is the shared conclusion boundary; it is not replaced by a dependent Check or a CLI-local reducer.
 
 ## Verification
 

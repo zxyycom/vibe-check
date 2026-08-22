@@ -110,7 +110,6 @@ describe("default Check direct callbacks", () => {
         scanner: { executable: process.execPath, args, availabilityArgs: [...args, "--version"] },
         codeLines: {
           absoluteFloor: 300,
-          changedDelta: 100,
           lowDecisionTokenAllowance: { codeLineFloor: 500, maxDecisionTokens: 10 }
         }
       };
@@ -147,11 +146,10 @@ describe("default Check direct callbacks", () => {
         scanner: { executable: process.execPath, args, availabilityArgs: [...args, "--version"] },
         codeLines: {
           absoluteFloor: 10,
-          changedDelta: 3,
           lowComplexityAllowance: { codeLineFloor: 20, maxCyclomaticComplexityExclusive: 3 }
         },
-        cyclomaticComplexity: { absoluteFloor: 5, changedDelta: 2 },
-        parameterCount: { absoluteFloor: 4, changedDelta: 2 }
+        cyclomaticComplexity: { absoluteFloor: 5 },
+        parameterCount: { absoluteFloor: 4 }
       };
       const result = await execute(executeFunctionMetrics, options, root);
       assert.deepEqual(result.result, { status: "failed", data: { findingCount: 3 } });
@@ -214,7 +212,6 @@ describe("default Check direct callbacks", () => {
           maxConcurrency: 1
         },
         defaultMinimumTokens: 50,
-        fragments: { changedDelta: 1 },
         minimumTokensByCodeArea: {}
       };
       const result = await execute(executeDuplicateDetection, options, root);

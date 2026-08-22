@@ -21,7 +21,7 @@ relations:
 
 ## 背景
 
-- 缺少 contextual typing 的独立 object literal 可能把 result 的 `status`/`verdict` literals 推断为普通 `string`，也无法从 sibling `options` 为 execution callback 参数建立精确类型。
+- 缺少 contextual typing 的独立 object literal 可能把 result 的 terminal `status` literal 推断为普通 `string`，也无法从 sibling `options` 为 execution callback 参数建立精确类型。
 - `defineConfig` 接受普通 inline objects，但一个异构递归 literal 不能从单一 root identity generic 循环推断每个 option-aware child 的 sibling options；该 child 需要自己的 `defineCheck` 或 `satisfies Check<Options>` boundary。已经 typed 的 children 与 information-only inline objects 不需要重复 helper。
 - 运行时不依赖 TypeScript authoring helper：最终 Project Definition 中的 Check 都必须作为普通对象接受同一 closed validation。
 - `replace`、`append`、generic derivation helper 与 partial parser 仍会形成第二套对象语义；`defineCheck` 不承担这些责任。

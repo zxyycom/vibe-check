@@ -2,7 +2,7 @@ import {
   projectMachinePublicationV4,
   serializeMachinePublicationV4,
   validateMachinePublicationSetV4,
-  type ValidatedPublicationModelV4
+  type TrustedPublicationModelV4
 } from "../output/publication-v4/index.ts";
 import { publishPublicationCandidatesV4 } from "./publication-v4-files.ts";
 
@@ -10,7 +10,7 @@ export { cleanupPublicationV4, cleanupPublicationV4BestEffort } from "./publicat
 
 /** Publishes only the validated two-file machine set; human projection is not a v4 concern. */
 export function publishScanV4(
-  input: Readonly<{ artifactDir: string; model: ValidatedPublicationModelV4 }>
+  input: Readonly<{ artifactDir: string; model: TrustedPublicationModelV4 }>
 ): void {
   const machine = projectMachinePublicationV4(input.model);
   const candidates = serializeMachinePublicationV4(machine);

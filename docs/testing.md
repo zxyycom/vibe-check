@@ -4,13 +4,13 @@
 
 ## 测试层级
 
-| 层级 | 证明 |
-| --- | --- |
-| Definition/Core | recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts、publication invariant |
-| Product run | closed Definition/Run Controls validation、direct callback context、dependency/mutex/cancellation、`RunResult` diagnostic 与 definition warning |
-| Default adapters | Check-owned scanner option、exact scope、cache、availability/process/parser failure 与 candidate reporting |
-| Consumer | current v4 schema/example acceptance；machine readers 对完整 two-file set 的 fail-closed validation |
-| Dogfood | repository Definition/Run binding，以及无需 configuration discovery 的调用脚本 |
+| 层级             | 证明                                                                                                                                            |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Definition/Core  | recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts、publication invariant   |
+| Product run      | closed Definition/Run Controls validation、direct callback context、dependency/mutex/cancellation、`RunResult` diagnostic 与 definition warning |
+| Default adapters | Check-owned scanner option、exact scope、cache、availability/process/parser failure 与 supplemental Record reporting                            |
+| Consumer         | current v4 schema/example acceptance；独立 docs validator 对完整 two-file set 的 fail-closed validation                                         |
+| Dogfood          | repository Definition/Run binding，以及无需 configuration discovery 的调用脚本                                                                  |
 
 ## Case 账本
 
@@ -40,5 +40,5 @@ typecheck、lint 与 Project Gate 扩展。必须报告任何未运行检查及�
 1. 每个 current test entity 至少映射一个 current Case，且每个 Case entity 都存在。
 2. Definition test 证明 authoring/validation，不证明偶然发生的 runtime behavior。
 3. Core test 证明 Check/Record fact；publication 与 effect 各有自己的 observable evidence。
-4. Docs validation 独立于 production schema validation；machine reader 在消费前验证完整 v4 two-file set。
+4. Docs validation 独立于 Product runtime validation；独立 validator 在接受 schema/example artifact set 前验证完整 v4 two-file set。
 5. Scanner fixture 只证明 private adapter protocol，不发布 scanner resolution 或 environment override contract。

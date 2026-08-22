@@ -5,9 +5,8 @@
 Owner: `docs/quality-metrics.md#check-and-record-facts`
 Entities:
 
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > emits canonical UTF-8 JSON for safe detached values`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > rejects accessors, sparse arrays, and reflection failures without invoking author hooks`
-- `bun|src/product/quality-core/check-record/identity.test.ts|check-record foundation identity > normalizes Check-local semantic subjects without creating Record identities`
+- `bun|src/product/quality-core/check-record/canonical-data.test.ts|check-record canonical data > emits canonical UTF-8 JSON for safe detached values`
+- `bun|src/product/quality-core/check-record/canonical-data.test.ts|check-record canonical data > rejects accessors, sparse arrays, and reflection failures without invoking author hooks`
 - `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > accepts exactly one four-state terminal outcome for each Core Check`
 - `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot with structural Record identity`
 - `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > materializes canonical final and Record data without evaluating author properties`
@@ -56,7 +55,7 @@ Entities:
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
   Proves:
-- The reporter binds structural Check ownership, preserves accepted independent Records, and closes with its Check. Duplicate, invalid, or late activity cannot revise frozen facts; no reference or comparison execution channel exists.
+- The reporter accepts only Check-local Record identity/data, preserves accepted independent Records, and closes with its Check. Duplicate, invalid, or late activity cannot revise frozen facts.
 
 ## Case WB-RUNTIME-CHECK-FAILURE-001: Product contains ordinary callback failures safely
 
@@ -117,7 +116,7 @@ Entities:
 
 ## Case WB-RUNTIME-PROGRESS-PRESENTATION-001: Progress renders four-state Run facts safely
 
-Owner: `docs/configuration.md#policy-effects-and-retired-inputs`
+Owner: `docs/configuration.md#run-effects-and-compatibility-boundary`
 Entities:
 
 - `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
@@ -128,17 +127,6 @@ Entities:
   Proves:
 - Progress presentation consumes only settled four-state Check facts, prints a duration or `not run`, and renders no unsafe reason detail.
 - TTY color and running-region behavior remain terminal-capability specific; write faults stay observable instead of being hidden.
-
-## Case WB-RUNTIME-BASELINE-REVISION-001: Explicit baseline revisions fail closed
-
-Owner: `docs/configuration.md#invocation-and-results`
-Entities:
-
-- `bun|src/product/quality-core/input/revisions.test.ts|explicit baseline revision resolution > canonicalizes commit aliases to one full commit object ID`
-- `bun|src/product/quality-core/input/revisions.test.ts|explicit baseline revision resolution > rejects missing, non-commit, and option-like revisions`
-- `bun|src/product/quality-core/input/revisions.test.ts|explicit baseline revision resolution > keeps Git execution failures as runtime errors`
-  Proves:
-- An explicit baseline revision resolves only to a canonical commit object ID; malformed or non-commit values fail closed, while Git execution failures remain runtime failures.
 
 ## Case AUX-RUNTIME-OPTION-001: Product Option explicitly separates presence and absence
 
@@ -169,6 +157,6 @@ Entities:
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
-- `bun|src/product/quality-core/measurement/cache.test.ts|quality measurement cache > keys duplicate-code cache by scan identity and strips changed-scope annotations`
+- `bun|src/product/quality-core/measurement/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
   Proves:
-- Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or report settings; cache results remain separate from changed-scope annotation. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.
+- Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or presentation settings. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.

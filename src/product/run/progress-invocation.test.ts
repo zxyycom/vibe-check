@@ -30,7 +30,6 @@ function definition(checks: readonly Check[], progress = false) {
     checks,
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: progress }
     }

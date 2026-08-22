@@ -11,7 +11,6 @@ export function createProjectGateDefinition(invocationLogDirectory: string): Pro
     ),
     effects: {
       cache: { enabled: false },
-      logs: { enabled: false },
       output: { enabled: false },
       progress: { enabled: true }
     },

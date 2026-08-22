@@ -1,6 +1,6 @@
 # Tasks
 
-本Plan先实现Check final result与minimal Record两个主契约，再处理它们直接引起的Core、Run、minimal aggregation、machine、legacy policy与consumer迁移。Typed dependency、repository Gate catalog/composition与presentation的具体设计由下游Changes承接；本Plan负责无中断cutover。Implementation、Verification、独立审查、Success Criteria与Decision lifecycle的完成证据见[`acceptance-audit.md`](acceptance-audit.md)。
+本Plan先实现Check final result与minimal Record两个主契约，再处理它们直接引起的Core、Run、minimal aggregation、machine、legacy policy与consumer迁移。Typed dependency、repository Gate catalog/composition与presentation的具体设计由下游Changes承接；本Plan负责无中断cutover。所有 task 均已完成；本页是可审计 completion ledger，不是 current runtime contract。Implementation、Verification、独立审查、Success Criteria与Decision lifecycle的完成证据见[`acceptance-audit.md`](acceptance-audit.md)，current owner 路由见 [`proposal.md`](proposal.md)。
 
 ## Readiness
 

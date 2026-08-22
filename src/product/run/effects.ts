@@ -1,5 +1,5 @@
 import type { ProjectDefinition, ProjectEffects, RunControls } from "../definition/project.ts";
-import type { ValidatedPublicationModelV4 } from "../quality-core/output/publication-v4/index.ts";
+import type { TrustedPublicationModelV4 } from "../quality-core/output/publication-v4/index.ts";
 import { publishScanV4 } from "../quality-core/scan-command/publication-v4.ts";
 import type {
   CheckExecutionLifecycle,
@@ -20,7 +20,6 @@ export interface RunEffectStatus {
 
 export interface RunEffectStatuses {
   readonly cache: RunEffectStatus;
-  readonly logs: RunEffectStatus;
   readonly output: RunEffectStatus;
   readonly progress: RunEffectStatus;
 }
@@ -53,7 +52,6 @@ export function effectiveEffects(
 ): ProjectEffects {
   return Object.freeze({
     cache: Object.freeze({ ...definition.effects.cache, ...controls.effects?.cache }),
-    logs: Object.freeze({ ...definition.effects.logs, ...controls.effects?.logs }),
     output: Object.freeze({ ...definition.effects.output, ...controls.effects?.output }),
     progress: Object.freeze({ ...definition.effects.progress, ...controls.effects?.progress })
   });
@@ -62,7 +60,6 @@ export function effectiveEffects(
 export function createEffectStatuses(configuration: ProjectEffects): EffectStatuses {
   const statuses: Record<keyof RunEffectStatuses, RunEffectStatus["status"]> = {
     cache: initialStatus(configuration.cache.enabled),
-    logs: initialStatus(configuration.logs.enabled),
     output: initialStatus(configuration.output.enabled),
     progress: initialStatus(configuration.progress.enabled)
   };
@@ -82,7 +79,6 @@ export function createEffectStatuses(configuration: ProjectEffects): EffectStatu
     value: () =>
       Object.freeze({
         cache: Object.freeze({ enabled: configuration.cache.enabled, status: statuses.cache }),
-        logs: Object.freeze({ enabled: configuration.logs.enabled, status: statuses.logs }),
         output: Object.freeze({ enabled: configuration.output.enabled, status: statuses.output }),
         progress: Object.freeze({
           enabled: configuration.progress.enabled,
@@ -147,7 +143,7 @@ export function createProgressEffect(
 }
 
 export function failedEffect(statuses: RunEffectStatuses): keyof RunEffectStatuses | undefined {
-  for (const effect of ["cache", "progress", "output", "logs"] as const) {
+  for (const effect of ["cache", "progress", "output"] as const) {
     if (statuses[effect].status === "failed") return effect;
   }
   return undefined;
@@ -180,7 +176,7 @@ export function publishOutput(
   input: Readonly<{
     effectConfiguration: ProjectEffects;
     effects: EffectStatuses;
-    model: ValidatedPublicationModelV4;
+    model: TrustedPublicationModelV4;
     outputDirectory: string;
   }>
 ): boolean {

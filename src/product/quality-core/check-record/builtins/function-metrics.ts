@@ -18,7 +18,6 @@ export const FUNCTION_METRICS_CHECK_DEFINITION = {
 
 interface FunctionThreshold {
   readonly absoluteFloor: number;
-  readonly changedDelta: number;
 }
 
 export interface FunctionMetricsSemantics {

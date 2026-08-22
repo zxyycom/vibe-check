@@ -25,17 +25,6 @@ export function isMetricArray(value: unknown): value is DuplicateCodeFragment[] 
   return value.every(isDuplicateCodeFragment);
 }
 
-export function stripDuplicateChangedScope(
-  metrics: DuplicateCodeFragment[]
-): DuplicateCodeFragment[] {
-  return metrics.map((fragment) => ({
-    ...fragment,
-    codeAreas: [...fragment.codeAreas],
-    hitsChangedScope: false,
-    locations: fragment.locations.map((location) => ({ ...location }))
-  }));
-}
-
 function cacheIdentityFieldsMatch(
   payload: Record<string, unknown>,
   identity: DuplicateCodeCacheIdentity,
@@ -44,7 +33,6 @@ function cacheIdentityFieldsMatch(
   return (
     payload.scanCacheVersion === SCAN_CACHE_VERSION &&
     payload.cacheKey === cacheKey &&
-    payload.scanKind === identity.scanKind &&
     payload.toolName === identity.toolName &&
     payload.toolVersion === identity.toolVersion &&
     payload.configVersion === identity.configVersion &&
@@ -70,7 +58,6 @@ function isDuplicateCodeFragment(value: unknown): value is DuplicateCodeFragment
     isFiniteNumber(value.id) &&
     isFiniteNumber(value.tokenCount) &&
     isFiniteNumber(value.lineCount) &&
-    typeof value.hitsChangedScope === "boolean" &&
     Array.isArray(value.codeAreas) &&
     value.codeAreas.every((area) => typeof area === "string") &&
     Array.isArray(value.locations) &&

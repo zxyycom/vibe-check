@@ -1,5 +1,5 @@
 import type { FunctionMetric } from "../../model/schema.ts";
-import { canonicalJsonBytes } from "../identity.ts";
+import { canonicalJsonBytes } from "../canonical-data.ts";
 import { compareText } from "./builtin-support.ts";
 
 export interface FunctionMetricInstance {

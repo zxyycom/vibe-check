@@ -7,7 +7,6 @@ import { SCAN_CACHE_VERSION, type DuplicateCodeCacheIdentity } from "./types.ts"
 export function buildScanCacheKey(identity: DuplicateCodeCacheIdentity): string {
   const keyInput = {
     scan_cache_version: SCAN_CACHE_VERSION,
-    scan_kind: identity.scanKind,
     tool_name: identity.toolName,
     tool_version: identity.toolVersion,
     normalized_tool_args: [...identity.normalizedToolArgs],

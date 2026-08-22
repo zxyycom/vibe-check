@@ -160,8 +160,7 @@ function parseSccFileMetric(
       decisionTokens: {
         value: row.complexity,
         source: "scc"
-      },
-      isChanged: false
+      }
     }
   };
 }

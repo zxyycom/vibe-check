@@ -4,7 +4,7 @@ status: active
 alignment: aligned
 createdAt: 2026-08-21T15:02:45Z
 purpose: 让 Run resolution 形成只包含四态 Check final facts 与 minimal Record facts 的两实体 Core snapshot。
-background: Core 的 Check outcome 仍使用 completed 加 verdict，且 Record 保留了不属于最小 Check-local contract 的类型与字段模型。
+background: Core 的 Check outcome 仍使用已退休的双层终态表示，且 Record 保留了不属于最小 Check-local contract 的类型与字段模型。
 decision: 保留 Run resolution 与 two-entity Core，修订 Check 为四态 final data、Record 为 checkId/id/data。
 tags:
   - product-contract
@@ -17,12 +17,12 @@ relations:
 
 - 保留 Definition normalization、Run pre-work resolution 与 Core registration 的既有 owner 边界。
 - 让每个 resolved executable Check 产生一个完整的四态 Core fact，并让 Record 继续独立于 Check outcome。
-- 让 completed Run facts 成为 consumers 读取 canonical Checks 和 Records 的唯一基础，而不内建 multi-Check policy。
+- 让 completed Run facts 成为 consumers 读取 canonical Checks 和 Records 的唯一基础，而不内建 multi-Check evaluator。
 
 ## 背景
 
 - 一个 resolved Check 仍可以没有 Records，而已接受的 Record 也可以先于其 Check 的后续 unavailable settlement 成立；二者必须保留为独立事实。
-- Check 的 primary data 与 supplemental Record data 都需要相同的 canonical JSON snapshot，而旧 `completed + verdict` outcome 和 Record type/opaque identity 不再表达当前契约。
+- Check 的 primary data 与 supplemental Record data 都需要相同的 canonical JSON snapshot，而已退休的双层 outcome 表示和 Record type/opaque identity 不再表达当前契约。
 - Core snapshot 需要稳定的两实体边界；聚合是按 invocation 配置从 settled Check statuses 得到的 derived Run result，而不是第三种 Core entity。
 
 ## 决策
