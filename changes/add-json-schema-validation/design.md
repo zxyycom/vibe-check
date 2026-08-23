@@ -26,7 +26,9 @@
 
 ## Decisions
 
-### 1. 固定 feature 顺序与公共 identities
+### Intended Change
+
+#### 1. 固定 feature 顺序与公共 identities
 
 本 feature固定 `checkId = json-schema-validation`，并注册：
 
@@ -38,7 +40,7 @@
 
 这些是 `recordTypeId`，不与 `checkId`互作别名。CheckResult在所有 planned work正常收敛且没有以上 records时为 passed，存在任一 domain record时为 failed；validator/resolver/protocol异常让 CheckRun failed且 result 为 null。
 
-### 2. Project Definition 产生 closed registry/binding plan
+#### 2. Project Definition 产生 closed registry/binding plan
 
 JSON Schema built-in reference接受 owner-validated serializable policy：
 
@@ -50,7 +52,7 @@ Normalization在任何 Check work前完成：registry path必须命中 normalize
 
 Project neutral definition不合成项目 registry，因此本 Check只有在 module-backed definition显式声明有效 binding work时运行。文件政策可以按各自 approved schema/instance path override `maximumBytes`，但 resolved value仍须位于 `1..67108864` 并通过 Schema semantic validation；它也可以关闭 path资格，但不能替换 registry、构造新 binding、扩大 global inventory/claimed paths或重新纳入 excluded resource。
 
-### 3. Schema Check接管其声明路径并复用 strict JSON service
+#### 3. Schema Check接管其声明路径并复用 strict JSON service
 
 Resolution形成唯一 claimed-path set：registry schemas与bound instances在本 invocation由 schema Check拥有；ordinary JSON Check不重复发布 syntax/duplicate records。Schema Check为每次 schema/instance read把该 path的 resolved `maximumBytes`传给共享 JSON document service，不读取 ordinary JSON Check policy。
 
@@ -58,13 +60,13 @@ Schema document bytes的 strict-JSON defect映射为 `json-schema-invalid`，使
 
 同一路径既为 schema又为 instance，或被多个逻辑角色声明时必须在 plan normalization阶段拒绝，避免同一 bytes在一个 run中拥有冲突 owner。
 
-### 4. Ajv 2020只存在于一个具体 private dependency boundary
+#### 4. Ajv 2020只存在于一个具体 private dependency boundary
 
 首版以仓库当前 pinned Ajv 8的 `Ajv2020`能力作为候选，并在 `src/product/**` 建立单一 schema-engine boundary。Implementation必须审计 Bun/runtime、installed package、license、`$dynamicRef`、recursive semantics、offline registry和 deterministic error normalization，并把最终 engine放入正确的 Product runtime dependency分类和lockfile；不能依赖当前仅由 docs/tests tooling可达的 `devDependency` 状态。该 boundary负责 2020-12 meta-schema、all-errors normalization、compile、reference callback、work budget和 engine error→Vibe Check result映射；公共政策和 records不出现 Ajv名称、option或 error code。审计失败时在同一 boundary更换 dependency，不增加 public provider factory。
 
 Conformance以 JSON Schema 2020-12 official suite的当前范围和项目 targeted fixtures证明；dependency存在不代表 declared support已经成立。
 
-### 5. Resolver按显式注册优先，未注册 remote identity才拒绝
+#### 5. Resolver按显式注册优先，未注册 remote identity才拒绝
 
 Compile前从每个approved registry path读取schema document，并以Project Definition `schemas[].id`、approved path identity以及按JSON Schema 2020-12 base规则解析的root/embedded `$id`构造invocation-owned in-memory resource table。Validated `schemas[].id`只是bounded catalog-safe registry identity，不是网络地址、fetch指令或自动download许可；schema `$id`与canonical URI只作为invocation-private resolver aliases。即使schema `$id`是HTTP(S) URI，也只有显式注册到approved bytes后才成为可解析resource identity；它绝不替代或派生public `schemaId`。
 
@@ -74,7 +76,7 @@ Compile前从每个approved registry path读取schema document，并以Project D
 
 Reference graph使用 node、depth和work budget。2020-12能够安全评价的 recursive/dynamic reference不因图有环自动失败；unsupported/non-terminating或超预算闭环归一化为 bounded-cycle/reference execution结果，不能 hang或 stack overflow。
 
-### 6. 一个预建静态 Task在内部收敛 schema graph和bindings
+#### 6. 一个预建静态 Task在内部收敛 schema graph和bindings
 
 TaskPlan只包含一个在执行前从完整 Project Definition plan预建的 Check-owned task；它接收 frozen registry entries、bindings、approved schema/instance paths、每个path的resolved `maximumBytes`和全部 domain-work handles。Task内部先通过共享 JSON document service按path limit读取/解析显式 registry，建立 invocation in-memory resource table，再按registry-first resolver发现每个root实际使用的 transitive closure、执行dialect/meta-validation和compile；评价closure成功的bound instances前，同一task继续通过共享 JSON document service按各自limit解析其approved instance bytes。运行期才知道的reference edges只是task内部数据，不能注册新Task、改变TaskPlan或写成预先冻结的Task `needs`。
 
@@ -82,7 +84,7 @@ TaskPlan只包含一个在执行前从完整 Project Definition plan预建的 Ch
 
 Read/engine throw、budget infrastructure failure、invalid normalized result或 Task protocol failure使所属 CheckRun failed。已提交 domain records保留，但不能将 partial work伪装为 completed result。
 
-### 7. Record catalog同时标识 schema与instance侧
+#### 7. Record catalog同时标识 schema与instance侧
 
 所有 records使用 common normalized primary path/location，并以 closed fields承载机器语义：
 
@@ -96,11 +98,16 @@ Document `invalid-json` primary location指向可确定的syntax token；`duplic
 
 Identity使用`(checkId, recordTypeId)`、kind、已验证authoring `bindingId` / `schemaId`、normalized project-relative paths、pointers、keyword、stable reason和duplicate-key等必要semantic occurrence。Schema `$id`、canonical URI、resolver alias、`actualBytes`、`maximumBytes`、line/column/range、secondary location、message、backend traversal order和raw reference不参与public fields或identity。Records按type、kind、binding/schema、primary path/pointer、schema pointer和keyword稳定排序。任一上述domain record都会使正常收敛的CheckResult为`failed`；只有没有domain records且全部planned work正常完成才为`passed`。
 
-### 8. Causal closure同时驱动 named-reference comparison和cache
+#### 8. Causal closure同时驱动 named-reference comparison和cache
 
 每个 record内部关联实际 causal resources：schema records包含 root及已解析 transitive schemas；instance records再包含 binding instance。调用者显式提供 named reference时，current/reference复用同一个冻结 registry/binding/policy但读取各 revision资源；producing Check以稳定 identity生成关系，没有 explicit reference时不从 repository/cache推断。
 
 Cache分两层：content-addressed schema parse/compile closure，以及 binding+instance evaluation。Key包含 dialect/rules、normalized registry/binding、root/transitive schema content fingerprints、instance fingerprint、每个causal path的resolved `maximumBytes`及其它relevant file policy和 internal implementation identity；remote state、report/artifact、policy body的无关字段与 sibling Checks不参与。Execution failure不可缓存为成功结果。Transitive schema改变必须使受影响 instance重评，而不失效无关 closure。
+
+### Resulting Impacts
+
+- Project Definition 必须在 schema work 前形成唯一、冻结的 registry/binding plan，并把 ID、path、limit、binding 冲突和 claimed-path 边界作为配置错误处理。
+- 离线 registry-only reference closure、Ajv private boundary、双侧安全 record/location、Task 收敛、comparison/cache 与 CheckRun failure 必须作为同一 Check 的交付边界；不得访问网络或泄漏 raw URI credential material。
 
 ## Risks / Trade-offs
 

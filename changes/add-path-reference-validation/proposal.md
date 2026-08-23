@@ -12,6 +12,8 @@ Path Reference Check 只消费 Project Definition 与 file policy 批准的文�
 
 ## Scope
 
+### Intended Change
+
 - 初始 source 支持 Markdown owner 提供的 visible prose 与 inline-code segments，以及 Project Definition 显式分配的 UTF-8 plain-text inputs；Markdown destination、GFM autolink、fenced code、front matter 与 image/link target metadata 不进入本 Check。
 - 支持边界清楚的 `./`、`../`、project-root-relative path、目录尾 `/` 和可选 `:line[:column]` 定位 suffix；统一为 `/` 分隔、case-preserving 的 normalized project-relative target。
 - `./` / `../` 相对 source 文件目录解析，其它受支持 token 相对 project root 解析。URL、absolute host path、drive/UNC、glob、template、import specifier 和含控制字符或空白的 token 不进入 target lookup。
@@ -19,6 +21,10 @@ Path Reference Check 只消费 Project Definition 与 file policy 批准的文�
 - 产生 `path-reference-unresolved` 与 `path-reference-out-of-scope` 两种 defect record 语义；前者只发布安全 normalized target，后者只发布安全 escape classification，不包含 raw host path。Unsupported grammar token 被 classifier 排除且不产生 informational/defect record；未来若增加 informational record type，verdict 必须按明确 record type/domain outcome 映射，不能以总 record count 推断。
 - Stable identity 使用 Check/Record 类型、source path、reference kind、normalized safe target 或 escape classification 与 line-independent occurrence ordinal；当前位置仅用于本次定位。
 - 不在本 Change 中实现 Markdown link destination/anchor、URL reachability、source-language comment extraction、import/module/package resolution、架构依赖图、宿主绝对路径审计或目标内容扫描。
+
+### Resulting Impacts
+
+上述 token 解析方案要求 source segmentation、inventory-derived lookup、owner 去重、安全输出与 CheckResult 语义共同保持 project-local 边界。
 
 ## Success Criteria
 

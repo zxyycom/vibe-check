@@ -31,7 +31,9 @@
 
 ## Decisions
 
-### 1. Target responsibility map
+### Intended Change
+
+#### 1. Target responsibility map
 
 | Concern | Target |
 | --- | --- |
@@ -47,7 +49,7 @@
 
 Supporting Check不成为hidden computation node。无论human visibility如何配置，它的lifecycle events、structured RunResult、Core Check/final data与Records都正常产生。
 
-### 2. Final data is the leading source for a single dependency output
+#### 2. Final data is the leading source for a single dependency output
 
 一个Check的single primary domain result已经由terminal final data表达。Dependency consumer需要这个结果时，直接绑定upstream Check的result parser；不得要求producer把相同data复制成一个`id: "result"`Record。
 
@@ -62,7 +64,7 @@ interface CheckResultDataParser<CheckId extends string, Value> {
 
 Exact factory/function names由prototype固定。Descriptor身份必须来自producing Check value，不能仅靠consumer手写string伪造ownership。
 
-### 3. Supplemental Record readback is a separate optional variant
+#### 3. Supplemental Record readback is a separate optional variant
 
 如果一个producer确实拥有多个可独立标识、可分别消费的facts，可以为exact Record IDs导出parsers：
 
@@ -80,7 +82,7 @@ interface CheckRecordDataParser<
 
 这不是所有dependency output的基础。Plan readiness必须用named consumer证明Record variant；若final data足够，首版只保留result parser/getter。首版即使包含Record variant，也只支持exact ID，不提供predicate、prefix、dynamic matching或query grammar。
 
-### 4. Public type relationship
+#### 4. Public type relationship
 
 领先settled view：
 
@@ -115,7 +117,7 @@ upstream Check literal identity
 
 Parser只转换selected canonical data；authorization、source absence、upstream status与parser rejection都由getter表达。
 
-### 5. Runtime read flow
+#### 5. Runtime read flow
 
 1. Definition normalization建立完整static graph，并在work前验证dependency existence、cycle和scheduling constraints。
 2. Upstream Task settled后关闭reporter，形成terminal Check outcome/final data与完整owned Records。
@@ -126,7 +128,7 @@ Parser只转换selected canonical data；authorization、source absence、upstre
 
 Runtime不允许undeclared、transitive、live或partial reads。内部可以维护per-Check index，但最终bytes、ordering与ownership必须与Core facts一致。
 
-### 6. Failure boundary
+#### 6. Failure boundary
 
 | Source | Required behavior |
 | --- | --- |
@@ -139,15 +141,20 @@ Runtime不允许undeclared、transitive、live或partial reads。内部可以维
 
 Passed final data可进入parser。Failed final data是否可读必须由Plan prototype显式选择，因为它可能同时是有价值的失败详情，也可能不满足downstream前置条件。
 
-### 7. External readback
+#### 7. External readback
 
 Machine v4发布Check terminal final data与`{ checkId, id, data }`Records。External consumer按Check identity读取final data，或在需要supplemental fact时按exact composite Record identity读取，再使用相同版本的upstream-owned parser。
 
 Parser function不进入artifact；需要durable readback的Check在自己的data中携带version或discriminant。Dependency runtime view不另行持久化。
 
-### 8. Presentation handoff
+#### 8. Presentation handoff
 
 Human direct display不属于dependency contract，也不阻塞本Change。相邻已归档的[`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）提供structured terminal messages、`RunResult` readback与显式Check visibility；messages不进入dependency/Core/Record/machine facts，也不改变本Change的dependency authorization与correctness。
+
+### Resulting Impacts
+
+- declared direct dependency、settlement barrier、upstream-owned parser 与 TypeScript inference 必须共同决定 typed getter；final data 是单一主结果，supplemental Record 读取仅在真实 consumer 需要时加入。
+- authorization、upstream status、missing source 和 parser rejection 必须返回 structured failure，同时 Core、RunResult 与 machine output 继续只保存 canonical Checks/Records，不形成第二份 output store。
 
 ## Risks / Trade-offs
 

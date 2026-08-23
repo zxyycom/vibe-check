@@ -26,13 +26,15 @@
 
 ## Decisions
 
-### Decision 1: Source segmentation 先于 token classification
+### Intended Change
+
+#### Decision 1: Source segmentation 先于 token classification
 
 Markdown owner 从同一 canonical parse 提供 visible prose 与 inline-code segments，并排除 destination、GFM autolink、reference definition target、image target、fenced code 与 front matter。Visible link/image label 仍是 prose。Plain-text source 只有在 resolved Project Definition 明确分配给本 Check 且通过 UTF-8/no-NUL classification 时才作为一个或多个 bounded segments 输入。
 
 首版不自行解析 source-language comments。未来格式 owner 可以贡献新的 approved segment kind，但必须通过独立 Change 确定 extraction 与 occurrence ownership；本 Check 的 path grammar 与 target resolver 无需因此改变。
 
-### Decision 2: Grammar 只接受明确 project-local token
+#### Decision 2: Grammar 只接受明确 project-local token
 
 Classifier 在 segment token boundary 上接受以下 forms：
 
@@ -43,29 +45,34 @@ Classifier 在 segment token boundary 上接受以下 forms：
 
 Path segments 统一使用 `/`；`.` 和 `..` 只在 lexical normalization 中处理，matching case-sensitive 且不按 host OS case-fold。包含 scheme、leading `/`、Windows drive/UNC、userinfo、query/fragment、glob metacharacter、template marker、控制字符、空白或语言 import 语法的 token 不属于本 grammar。Classifier 不对 unsupported token 产生“可能路径”record，避免把低置信度猜测提升为质量事实。
 
-### Decision 3: Resolution 只查询 inventory-derived index
+#### Decision 3: Resolution 只查询 inventory-derived index
 
 `./` 和 `../` 以 source path 的目录为 base，其它 forms 以 project root logical namespace 为 base。Resolver 在访问任何 filesystem API 前做 lexical normalization：越出 root 得到 `out-of-scope`；留在 root 内则查询 global inventory 的 exact file set与从这些 file paths 派生的 ancestor-directory set。
 
 未命中集合得到 `unresolved`，但不声称宿主文件一定不存在，因为它也可能被 global policy 排除。Target lookup 不 lstat、realpath、follow symlink、读取内容或重新收集；global policy 外 target 不能由 file policy 或 reference 恢复。
 
-### Decision 4: Markdown destination 与 path text 的 occurrence owner 不重叠
+#### Decision 4: Markdown destination 与 path text 的 occurrence owner 不重叠
 
 Canonical Markdown parse 中的 destination、reference definition target 和 GFM autolink 只交给 Markdown Link Check；Path Reference Check 永不从 raw Markdown 重新发现它们。Visible label/prose 或 inline-code 中独立出现的 path token由本 Check 拥有。该结构边界优先于“两个 detector 后置去重”，从输入上防止同一 token 获得双 owner。
 
-### Decision 5: Check 和 Record 使用独立稳定身份
+#### Decision 5: Check 和 Record 使用独立稳定身份
 
 Check 拥有稳定 `checkId`；`path-reference-unresolved` 与 `path-reference-out-of-scope` 是独立 `recordTypeId`，两者都表达本 Check 拥有的领域缺陷。每条 record 的 semantic identity由 source normalized path、reference form、safe normalized target或escape classification，以及同一 segment 语义下的 deterministic equal-key occurrence ordinal组成；line、column、range、message、arrival order和host root不参与。
 
 Producing Check 单独附加 current source location供展示和annotation。Out-of-scope record只保留 escape direction/depth等安全分类，不复制 raw absolute target；unresolved record可以保留已经规范化且仍在project namespace内的target。
 
-### Decision 6: Producing Check 拥有结果与失败语义
+#### Decision 6: Producing Check 拥有结果与失败语义
 
 正常完成时，Path Reference Check 按 deterministic source/occurrence order 提交 final records，并按自己的 domain outcomes 返回 closed verdict：无 `path-reference-unresolved` 或 `path-reference-out-of-scope` 缺陷时 `passed`，存在任一上述缺陷时 `failed`。Unsupported grammar token 在 classification 时被排除且不是记录；如果未来 catalog 引入 non-defect informational record，producing Check 必须按 record type/domain outcome 显式分类，不得从总 record count 推断 verdict。
 
 Source read、segment contract、binding 或 result/protocol normalization 失败由所属 CheckRun 表达，`result = null`；失败前已由 RecordManager 验证并提交的 records 继续存在，Core 不撤销或重新解释它们。
 
 Resolved Project Definition 只提供 closed、serializable source-kind与 enabled policy；file policy 可以缩小 source inputs，不能改变 grammar、恢复 global scope 或把 unsupported token变成accepted path。Acceptance/gate由通用声明式 DecisionPolicy消费稳定 records，本 Check 不建立 message-based suppression engine。
+
+### Resulting Impacts
+
+- source segmentation、closed token grammar 与 inventory-derived target index 必须共同保证只处理 project-local references，且不打开目标、follow symlink 或扩大 scope。
+- Markdown destination/autolink 与 source-language/module ownership 必须保持排除；safe records、line-independent identity、normal completion 与 execution failure 均由 producing Check 明确表达。
 
 ## Risks / Trade-offs
 

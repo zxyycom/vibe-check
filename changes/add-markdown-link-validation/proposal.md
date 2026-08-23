@@ -12,6 +12,8 @@ Vibe Check 提供 stable `checkId = markdown-link-validation` 的 built-in Check
 
 ## Scope
 
+### Intended Change
+
 纳入：
 
 - Markdown link occurrence extraction、mutually-exclusive classification、percent decoding、query/fragment拆分和 source location。
@@ -21,6 +23,10 @@ Vibe Check 提供 stable `checkId = markdown-link-validation` 的 built-in Check
 - 与 `add-network-link-validation` 和 `add-path-reference-validation` 的明确 ownership handoff。
 
 不纳入：DNS、HTTP/TLS、redirect、retry、rate limit、network cache、external reachability verdict、formatter/auto-fix、generic prose path detection，以及让 structure policy决定 link behavior。
+
+### Resulting Impacts
+
+上述离线 Link Check 方案要求 local resolver、anchor semantics、稳定 occurrence evidence 与只供 Network Check 消费的安全 ephemeral handoff 保持明确 owner 边界。
 
 ## Success Criteria
 

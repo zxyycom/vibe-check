@@ -12,6 +12,8 @@ Vibe Check 提供 stable `checkId = markdown-structure-validation` 的 built-in 
 
 ## Scope
 
+### Intended Change
+
 纳入：
 
 - GFM parsing、front matter / code / table / list / inline语义、source locations、document/section/paragraph prose projection。
@@ -21,6 +23,10 @@ Vibe Check 提供 stable `checkId = markdown-structure-validation` 的 built-in 
 - 一个可供 Markdown link Check复用、但不拥有任何 structure policy的内部 Markdown document boundary。
 
 不纳入：formatting、自动修复、完整 Markdown lint规则集、链接目标验证、外链网络访问、HTML安全审计，以及把 parser package/AST类型暴露为 public policy。
+
+### Resulting Impacts
+
+上述 Markdown Check 方案要求 measurement/violation records、file-policy resolution、comparison/cache 与供 Link Check 复用但不承载结构政策的 document boundary 一致。
 
 ## Success Criteria
 

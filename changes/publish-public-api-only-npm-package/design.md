@@ -34,29 +34,36 @@ This Change remains a Draft because cutover/optimization/documentation handoffs,
 
 ## Decisions
 
-### 1. Cutover binding and current optimized Gate evidence are both release gates
+### Intended Change
+
+#### 1. Cutover binding and current optimized Gate evidence are both release gates
 
 This Change starts only with a matching candidate preparation receipt plus completed cutover, Gate optimization and package-documentation handoffs. The release artifact must be traceable to the exact tarball and public inventory that passed repository-quality, authoritative binding/legacy retirement, optimized Project Gate, README/declaration audit and isolated-consumer acceptance. A source-only build, a different rebuilt tarball or a synthetic-only fixture cannot substitute for that evidence.
 
-### 2. Preparation, external checks and publish are distinct operations
+#### 2. Preparation, external checks and publish are distinct operations
 
 Local release planning may prepare documents and validation commands. Before any registry read or credential access, obtain current user authorization for that precise operation. Before `npm publish`, obtain a separate authorization that names the exact version, access level and artifact. A decision record or a completed Plan never substitutes for either authorization.
 
-### 3. API documentation is an input, not release-time authoring
+#### 3. API documentation is an input, not release-time authoring
 
 `package-api-documentation-handoff.md` binds public symbol comments and README/API guide to the exact candidate artifact. Release preparation may substitute the approved exact version or add release-specific links without changing API semantics; missing, stale or inaccurate authoring guidance returns work to the documentation Change.
 
-### 4. Publication owns public identity and legal completion
+#### 4. Publication owns public identity and legal completion
 
 The release Change resolves and verifies the unscoped public name, access level, exact `0.0.x` version, MIT license text and verified copyright holder/year, release-specific README version references, Bun support statement, provenance/digest and release notes. A local candidate identity does not establish any of these facts.
 
-### 5. Registry installation is the final delivery proof
+#### 5. Registry installation is the final delivery proof
 
 A successful publish response is insufficient. An isolated Bun consumer must install the exact registry version, typecheck the public entry and execute the established public runtime acceptance. The published result must match the candidate inventory and declared support/prerequisite boundary.
 
-### 6. Retire the legacy Product CLI only after replacement evidence
+#### 6. Retire the legacy Product CLI only after replacement evidence
 
 The retained migration diagnostic remains until the published API-only package is available and its replacement path has passed post-publication acceptance. CLI removal is a release-side change, not a prerequisite for candidate dogfood.
+
+### Resulting Impacts
+
+- release 必须绑定同一 exact candidate、cutover/optimization/documentation handoff 与 public inventory；source-only rebuild 或 synthetic fixture 不能取代这些准备证据。
+- registry/credential reads、publish 及 post-publication acceptance 必须分别获得当次明确授权，并核验 name/version/legal identity、artifact binding 和 isolated Bun consumer；Draft 不产生外部操作权限。
 
 ## Risks / Trade-offs
 

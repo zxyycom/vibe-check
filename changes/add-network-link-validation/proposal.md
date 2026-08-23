@@ -12,6 +12,8 @@ Network Link Check 只消费 Markdown owner 在完整 Link Check 后发布的 in
 
 ## Scope
 
+### Intended Change
+
 - Markdown Link owner 独占 `ExternalLinkCandidate` 的完整字段、顺序、snapshot 与 bounded lookup contract；Network Check 只通过 stable occurrence identity 消费 owner 已验证的 sanitized candidate、current location 和 invocation-memory request material，不重新声明 candidate shape，也不把 userinfo、query values、fragment、location或 raw URL 带入 identity、cache 或 artifact。
 - Product neutral definition与缺失network policy保持offline。只有validated Project Definition base policy显式`mode: online`才授权Product-owned网络Check；CLI profile、gate、environment、Check注册或file override都不能提升权限。该政策不声称sandbox受信任custom runner。
 - Closed policy 使用有上限的 request/total timeout、redirect、retry 与 queryless cache TTL；file policy 可以 disable 或收窄已授权 online base，不能从 absent/disabled base 构造授权或扩大任何安全/资源预算。Online authorization 的 cross-owner validation 还要求 resolved `SchedulerPolicy.maxParallel <= 16`；超出时在任何 DNS/socket 前拒绝配置，不建立 feature-specific concurrency leaf。
@@ -21,6 +23,10 @@ Network Link Check 只消费 Markdown owner 在完整 Link Check 后发布的 in
 - 发布`external-link-broken`、`external-link-redirect-invalid`、`external-link-unsafe-target`和`external-link-indeterminate`安全records；identity使用record type、Markdown semantic occurrence与sanitized URL shape，不使用line、raw URL、query value、status、message、policy或backend。
 - Query-bearing request或任一query-bearing redirect hop只允许invocation-memory dedup，persistent cache zero reads/writes；只有全链路queryless terminal结果可以按exact URL与complete effective policy projection进行bounded TTL cache。
 - 不实现crawler、browser rendering、login/authenticated links、custom headers/proxy、任意协议、第二个Markdown parser或历史互联网状态重建；required tests不访问public network，真实网络smoke不属于验收且必须另获明确授权。
+
+### Resulting Impacts
+
+上述 online Check 方案要求授权、SSRF 边界、TaskPlan、safe records、cache 与 failure semantics 一起受限，且不改变 Markdown Link owner 的 candidate contract。
 
 ## Success Criteria
 

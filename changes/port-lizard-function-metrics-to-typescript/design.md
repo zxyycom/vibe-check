@@ -28,13 +28,15 @@
 
 ## Decisions
 
-### 1. Foundation落地后立即采集fresh baseline
+### Intended Change
+
+#### 1. Foundation落地后立即采集fresh baseline
 
 Implementation首先确认`establish-check-record-core`、`establish-check-task-orchestration`与`adopt-typescript-project-definition`已同步到current owners/runtime。随后冻结一个versioned compatibility corpus和baseline manifest，记录：supported extensions/exact-input rules；function/record semantic identity；name与location projection；NLOC、parameter count、cyclomatic complexity；canonical ordering；zero/no-input；current/reference comparison；valid partial records；CheckResult/CheckRun failure；backend/cache identity；representative runtime cost。
 
 Baseline由届时formal Product path对checked-in synthetic/realistic fixtures产生，并通过owner-level expected records/results表达，不把CSV bytes或历史artifact shape当作public contract。Oracle invocation只用于迁移证据，不能进入新runtime接口。
 
-### 2. 每个 approved exact-input category 使用private analyzer，共享canonical result boundary
+#### 2. 每个 approved exact-input category 使用private analyzer，共享canonical result boundary
 
 Backend只处理 approved exact paths和file content。当前 analyzer 边界分别为`.ts`（含`.d.ts`）与`.rs`；其它extension只有经 Scan Scope owner 明确纳入后才能进入未来baseline，不能由analyzer自行扩大。Analyzer输出一个private normalized function candidate：semantic name/subject components、current location、NLOC、parameter count与cyclomatic complexity。Shared validator拒绝invalid range/non-finite/negative values，owning Check再形成public records/results和canonical order。
 
@@ -42,33 +44,38 @@ Analyzer实现采用deterministic lexer/parser-state modules，只承接fresh co
 
 任何translation/derivation自Lizard或其它upstream source必须在代码写入前固定revision、source responsibility、license/notice义务和可追溯差分；不能凭历史注释或包名推断授权。若provenance无法满足，停止translation并选择clean-room behavior implementation或请求owner决定，不能提交来源不明代码。
 
-### 3. Metrics由fresh semantic fixtures而非CSV parity定义
+#### 3. Metrics由fresh semantic fixtures而非CSV parity定义
 
 Compatibility比较最终领域值与identity，而不是要求新backend模拟Lizard CSV protocol。Corpus覆盖fresh owners要求的function name、range、NLOC、parameter count、cyclomatic complexity以及anonymous/fallback semantics；特别覆盖multiline signatures、comments/strings、nestedfunctions、generics、macros/closures和malformed/incomplete source。
 
 允许private parser结构和diagnostic wording变化；任何改变CheckResult、QualityRecord fields/identity、approved exact-input set、canonical ordering或comparison relation的差异必须先修复，或作为独立public behavior change获得确认。Position仍只用于current navigation，不进入stable record identity。
 
-### 4. Per-file work通过private TaskPlan执行
+#### 4. Per-file work通过private TaskPlan执行
 
 `function-metrics` binding按frozen exact inputs建立per-file static Tasks并受invocation shared scheduler治理；Task identity与parser state保持private。每个fulfilled file analysis提交records并ack其owned domain-work handle；read/parser/validation failure不ack并使binding按foundation规则形成execution-failed report。其它file已经提交的valid records保留，Core从handles/reports计算coverage。
 
 Completion只聚合owner-approved immutable results、验证canonical ordering并返回one CheckResult candidate。Backend不接触managers、policy或output，不把Task count映射为public coverage。若届时foundation owner选择更粗work handles，Task association适配该owner，不改变上述public semantics。
 
-### 5. Current与references复用同一analysis contract
+#### 5. Current与references复用同一analysis contract
 
 Current与每个explicit named reference都使用同一exact-input analyzer selection、validation和normalization。Producing Check继续拥有matching/comparison，reference identity在invocation前冻结。Cache key只包含relevant exact-input fingerprint、function policy和new backend/version identity；Project Definition fingerprint、unrelated policies或旧Lizardcommand/version不得成为无关cache inputs。
 
 Backend switch必须使旧cache无法误命中；具体version bump由cache owner执行。No-input、successful zero functions、parser failure与dependency/config failure保持可区分。
 
-### 6. Formal product path一次性hard cut
+#### 6. Formal product path一次性hard cut
 
 Parity和failure evidence通过后，把function-metrics private binding切换到TypeScript backend，并在同一Change删除formal Python/Lizard availability probe、process invocation、CSV parser、dependency slice、supported environment overrides、runtime diagnostics和production cache identity。不能保留fallback、dual-run或runtime switch。
 
 Pinned Lizard可以只在test/dev migration oracle中暂时存在，前提是license/provenance明确、production import graph不可达且普通installed/dogfood验证不要求Python。若checked-in expected fixtures足以证明contract，则删除oracle dependency以缩小维护面。
 
-### 7. Performance只承诺产品调用场景有证据
+#### 7. Performance只承诺产品调用场景有证据
 
 Baseline manifest记录representative corpus的wall time、peak memory或可稳定采集的等价资源signal。新backend必须在现有full workspace/dogfood timeout与scheduler budget内完成，并且没有被profile证明的数量级regression或unbounded per-file state。若measurement显示material regression，先用profile定位并修复；不为没有证据的microbenchmark数字建立public contract。
+
+### Resulting Impacts
+
+- foundation seam 成立后必须以 fresh corpus/baseline 定义 approved exact inputs、semantic identity、measurements、ordering、comparison、cache 与 failure behavior，而不是保留 CSV 形状作为产品契约。
+- private TypeScript analyzers、TaskPlan、current/reference、formal hard cut、dependency/provenance/license 与性能证据必须一起完成；Lizard 只可作为迁移 oracle，不能留在 production runtime。
 
 ## Risks / Trade-offs
 

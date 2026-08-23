@@ -12,6 +12,8 @@
 
 ## Scope
 
+### Intended Change
+
 - 在 normalized Project Definition 中加入完整 base Check policies 与有序 file policy declarations；每项 declaration 具有稳定名称、非空 project-relative globs 和按 `checkId` 归属的 closed partial patches。
 - 从各 Check 拥有的 serializable policy schema 派生可覆盖 patch：object 递归到声明 leaves，array 整体替换，后匹配声明只覆盖自己提供的 leaves；拒绝 unknown key、`null` 删除、函数、backend/tool 字段和 base-only leaf。
 - 在任何 Check work 前完成 glob 校验、owner 路由、patch 合并、Check-owned semantic validation、深冻结与 provenance；缺失的 optional base policy 不能由 override 创建。
@@ -19,6 +21,10 @@
 - 让 current 与显式 reference 共用当前 invocation 加载的一份 Project Definition、声明顺序和 normalized path 语义；cache consumer 只投影会改变自身结果的 resolved leaves。
 - 增加复用正式 resolver 的人读 `explain-config [project-root] <path>` operation，解释 source、ordered matches、winning leaves 与 inventory-membership 边界，但不运行 Check、baseline、cache、artifact 或网络工作。
 - 不在本 Change 中定义 Markdown、JSON、路径、secret、network 或其它 Check 的专属政策字段；不建立 JSON config v2、双读、通用可执行 policy function、第二套 scope collector 或 feature-local merge engine。
+
+### Resulting Impacts
+
+上述解析方案要求 scope、current/reference、cache 与 `explain-config` 共用同一冻结的 resolved policy snapshot，并保持 override 不能扩大 global inventory 的边界。
 
 ## Success Criteria
 

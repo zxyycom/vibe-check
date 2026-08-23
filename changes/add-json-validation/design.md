@@ -26,11 +26,13 @@
 
 ## Decisions
 
-### 1. 基础 contract 是实现前置，不是阻塞 plan 成熟度的探索项
+### Intended Change
+
+#### 1. 基础 contract 是实现前置，不是阻塞 plan 成熟度的探索项
 
 实现顺序为 Check/Record core → shared task orchestration → TypeScript Project Definition → file policy → 本 Change。实施开始时只核对实际 public ports、identifier grammar 和 authoring envelope；若基础最终名称发生机械变化，按同一语义更新本文，不增加旧模型兼容层。当前计划已经固定 JSON 自己拥有的行为、记录和验收，不再等待另一次产品方向决定。
 
-### 2. 固定一个 Check 和三个 Record 类型
+#### 2. 固定一个 Check 和三个 Record 类型
 
 本 feature 固定 `checkId = json-validation`，并在其 catalog 下注册：
 
@@ -42,13 +44,13 @@ Project Definition 通过当前 built-in reference 选择该 Check。JSON owner 
 
 Definition 被省略时 run 为 skipped；被选择但没有 ordinary JSON exact input 时在执行前完成为 not-applicable；存在输入时始终执行，即使任务数为零的实现细节发生变化。
 
-### 3. Scan Scope 和 JSON owner 共同形成唯一 exact-input plan
+#### 3. Scan Scope 和 JSON owner 共同形成唯一 exact-input plan
 
 Selector 只消费本 invocation 的 normalized project-relative inventory、format classification 和 resolved JSON policy，稳定排序后交给 Check binding；adapter 不接收 root 用于 walk/glob。首版只有 ordinary `.json` eligible，`.jsonc`、`.json5` 和其它 JSON-like formats 不因 suffix 猜测进入。
 
 当同一 invocation 的 `json-schema-validation` 显式声明 schema 或 instance binding 时，resolution 把这些路径交给 schema Check；普通 JSON Check 不再为同一 bytes 生成平行 syntax/duplicate records。Schema Check 复用下述 document service，而不是复制 parser。该 arbitration 只消除重复 owner，不改变全局 inventory，也不让一个 Check 动态注册另一个 Check。
 
-### 4. Product-owned JSON document service 固定 strict byte contract
+#### 4. Product-owned JSON document service 固定 strict byte contract
 
 内部 service 接收 approved path、immutable bytes 和 resolved limit，返回 closed Vibe Check-owned result：完整 parsed value + token/pointer location index、ordered document defects，或 typed execution failure。它必须：
 
@@ -60,13 +62,13 @@ Selector 只消费本 invocation 的 normalized project-relative inventory、for
 
 实现可以选择满足 contract 的最小 dependency 或 Product-owned parser；选择只需通过 Bun compatibility、license、维护性、duplicate-key/token-span、深度和 adversarial fixture 审计，不建立 public provider/factory。禁止 `JSON.parse` 加 regex pre-scan，因为它不能可靠保留 duplicate-key 与嵌套 token span。
 
-### 5. 领域 defect、领域 verdict 与执行失败保持分离
+#### 5. 领域 defect、领域 verdict 与执行失败保持分离
 
 每个 input 是一个静态 domain-work handle；TaskPlan 可以一文件一 task，并由 shared scheduler 统一预算。成功完成 parsing 后即 acknowledgement，即使产生 defect records。所有 applicable inputs 正常完成且没有 defect record时 CheckResult 为 passed；存在任一 syntax、duplicate 或 unsupported record 时为 failed。
 
 Read error、parser boundary throw、资源预算中断或 normalized result 违反 catalog 是 execution failure：CheckRun failed 且 result 为 null。已经由 RecordManager 有效提交的 records 不撤销，但不能据此把 run 提升为 completed。`not-applicable` 只由执行前的空 exact-input plan产生。
 
-### 6. Record fields、位置、identity 与排序由 JSON owner 固定
+#### 6. Record fields、位置、identity 与排序由 JSON owner 固定
 
 所有 records 使用 normalized project-relative subject path 和当前 source location。闭合领域字段为：
 
@@ -76,15 +78,20 @@ Read error、parser boundary throw、资源预算中断或 normalized result 违
 
 Record identity 只使用 `(checkId, recordTypeId)`、normalized subject path 与 catalog 标记的 reason/pointer/semantic occurrence fields。Line、column、range、byte offset、message、suggestion、actual byte count、threshold、parser wording和arrival order都不参与。没有 pointer 的 syntax defect使用 stable reason + bounded normalized token-context identity，不能只用绝对 offset。Records 按 path、record type、pointer/semantic occurrence稳定排序。
 
-### 7. Comparison 和 cache 都由 producing Check 管理
+#### 7. Comparison 和 cache 都由 producing Check 管理
 
 调用者显式提供 named reference 后，current 与 reference 复用同一个冻结 Project Definition、JSON policy和 parser rules snapshot，但读取各自 revision 的 approved bytes。JSON Check 按 stable record identity生成 foundation 支持的 comparison relations；没有 reference 时保持 current-only，不从 Git history、cache 或 previous commit 推断。
 
 Cache unit 为单个 exact input。Key 只包含 JSON rules version、relevant resolved policy、content fingerprint 和 internal implementation identity；report、artifact directory、acceptance reason、sibling Check settings 和 line location不参与。Completed zero/defect result可缓存；read/execution/invalid-result failure不能伪装成成功 cache entry。
 
-### 8. Formatting 与 schema 保持独立
+#### 8. Formatting 与 schema 保持独立
 
 Strict JSON 的 whitespace、indentation、newline、key order 和合法 number representation不产生 record，也不改写 source。Formatting 若将来成立，使用独立 Check/record identity。JSON Schema 通过共享 document service获得 parse/location事实，但自己拥有 schema/instance result、records、reference graph和bindings。
+
+### Resulting Impacts
+
+- Scan Scope 与 JSON owner 必须形成唯一 exact-input plan，strict document service 的资源限制、records、identity、排序、comparison 与 cache 都由 producing Check 拥有。
+- omitted/no-input、domain defects 与 execution failures 必须继续映射到不同的 CheckRun/CheckResult 语义，且 JSON Schema claimed path 不会被 ordinary JSON 重复报告。
 
 ## Risks / Trade-offs
 

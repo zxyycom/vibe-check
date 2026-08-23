@@ -38,7 +38,9 @@ Product 当前的 private lifecycle feedback 有 `prepared`、`started`、`settl
 
 以下为本 Draft 建议性默认边界，不授权实现、不改变当前 owner；未来 Change 只有出现命名 consumer 时才收敛实施决定。
 
-### 1. Future logging has three owners, not one global logger
+### Intended Change
+
+#### 1. Future logging has three owners, not one global logger
 
 | Layer | Owns | May provide | Does not own |
 | --- | --- | --- | --- |
@@ -48,35 +50,40 @@ Product 当前的 private lifecycle feedback 有 `prepared`、`started`、`settl
 
 The current Gate already follows this direction: it uses foundation process/file helpers, its Process Check maps process and transcript facts into Check results, and Product exclusively renders the shared progress stream. Future extraction is justified only when two or more callers share the same explicit primitive contract; it must not move Gate semantics into foundation.
 
-### 2. Per-Check transcripts remain the default durable diagnostic evidence
+#### 2. Per-Check transcripts remain the default durable diagnostic evidence
 
 A process command is independently diagnosable only when its stdout/stderr cannot interleave with unrelated concurrent commands. The default Gate evidence shape therefore remains one transcript per started Check under an invocation-specific directory. The transcript owns detailed child output; Check failure Records and terminal summaries retain only bounded command/status/signal/log-reference facts.
 
 This is intentionally different from the legacy verifier's timestamped aggregate log and overwrite-style `latest.log`. A single aggregate file is not the common denominator of concurrent Project Run checks: it loses output isolation and cannot become a new contract merely because the legacy tool used it.
 
-### 3. Non-TTY progress is an existing human-readable log, not an event sink
+#### 3. Non-TTY progress is an existing human-readable log, not an event sink
 
 The Product renderer owns the rendering and writes settled feedback in non-TTY mode. It may continue to be captured by CI as textual diagnostics. Its layout, wording and terminal details remain presentation behavior, so no Gate or external consumer may parse it as a source of Check lifecycle truth.
 
 If a consumer needs structured events, it must name why a final `RunResult`, per-Check transcript and human progress output are insufficient. The next Change must add a Product-owned sink at the lifecycle handoff, define event variants, ordering and settlement/cancellation semantics, and give a concrete consumer responsibility for writing or transporting those events. A Gate-written `events.ndjson` assembled inside process callbacks, a tee of stdout, or a chronology reconstructed from final state is explicitly not equivalent.
 
-### 4. `summary.json` is an optional Gate receipt, not a required log layer
+#### 4. `summary.json` is an optional Gate receipt, not a required log layer
 
 A Gate invocation receipt may be added only when a concrete consumer must inspect final Gate-wide facts after terminal stdout is unavailable. If added, it belongs beside transcripts in that invocation directory and projects already-final facts: invocation identity/timing, candidate identity, selection, terminal Run kind and effect status, policy/adapter result, per-Check outcome/duration and transcript reference or null.
 
 The receipt must not duplicate child stdout/stderr, recompute Product facts, or substitute for the Product `RunResult`. It must close atomically (temporary file followed by rename); failure to publish a receipt is an unavailable Gate infrastructure result, never a passing Gate. An unclosed invocation may legitimately leave transcripts without a receipt after abrupt termination. This is a future option, not a cutover prerequisite.
 
-### 5. No retention or discovery convention exists by default
+#### 5. No retention or discovery convention exists by default
 
 Invocation directories are ignored local diagnostics. The current unique directory path is the only discovery information guaranteed by the adapter's terminal output. No `latest` pointer, retention policy, cleanup job, aggregate index or CI artifact publishing contract is implied.
 
 A future retention/discovery Change requires a named operator or tool consumer, explicit storage/cleanup ownership, failure behavior and privacy/size review. It must not delete evidence or overwrite a prior invocation merely to make a new logging abstraction appear convenient.
 
-### 6. Generic logger/decorator is not the present common denominator
+#### 6. Generic logger/decorator is not the present common denominator
 
 A generic logger or a decorator around Check execution cannot observe all Product-owned lifecycle facts: dependency blocking, pre-start cancellation, scheduler settlement order, final effect status and policy/result closure remain outside an individual callback. Conversely, Product does not own a project's child command output or transcript layout.
 
 Therefore a future implementation should begin at the owner required by the stated consumer: foundation for a generic primitive, Product for authoritative lifecycle events, or Gate for local evidence. It should not introduce a cross-cutting decorator merely to centralize a name called “log”.
+
+### Resulting Impacts
+
+- future logging 必须分别由 foundation primitives、Product lifecycle 与 Gate evidence owner 承担；只有出现命名 consumer 才能收敛新持久 receipt 或 event sink。
+- 当前 per-Check transcript 与 Product progress 继续是默认事实，不得借本 Draft 引入聚合日志、retention/discovery 约定或泛化 logger/decorator，也不得把 Gate semantics 下沉到 foundation。
 
 ## Risks / Trade-offs
 

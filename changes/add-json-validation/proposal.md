@@ -12,6 +12,8 @@ Vibe Check 提供 stable `checkId = json-validation` 的 built-in Check，只处
 
 ## Scope
 
+### Intended Change
+
 纳入：
 
 - 普通 `.json` 输入的严格 UTF-8 / JSON grammar、leading BOM、任意合法 root value、完整消费和 decoded duplicate-key 检查。
@@ -20,6 +22,10 @@ Vibe Check 提供 stable `checkId = json-validation` 的 built-in Check，只处
 - current 与调用者显式提供的 named reference 使用同一冻结政策，并由 JSON Check 自己产生匹配关系。
 
 不纳入：JSONC、JSON5、formatting、key ordering、canonicalization、自动修复、JSON Schema、Project Definition 自身加载，以及让通用 Core 理解 JSON 领域规则。
+
+### Resulting Impacts
+
+上述 JSON Check 方案要求 exact-input ownership、strict document defects、稳定 records、comparison/cache 与 CheckRun/CheckResult 的失败边界保持一致。
 
 ## Success Criteria
 

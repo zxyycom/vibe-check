@@ -26,7 +26,9 @@
 
 ## Decisions
 
-### 1. 固定一个 Check、三个 Record类型和完整 policy
+### Intended Change
+
+#### 1. 固定一个 Check、三个 Record类型和完整 policy
 
 本 feature固定 `checkId = markdown-link-validation`，并注册：
 
@@ -38,13 +40,13 @@ Project Definition built-in reference接受 closed policy：`local.requireExisti
 
 Definition省略时 skipped；选择但无 enabled Markdown exact input时 not-applicable；所有 work正常完成且没有 deterministic defect record时 CheckResult passed，存在任一 defect record时 failed，read/parser/protocol异常则 CheckRun failed。
 
-### 2. 复用唯一 GFM document boundary并固定 occurrence集合
+#### 2. 复用唯一 GFM document boundary并固定 occurrence集合
 
 Link Check只消费 Structure Change建立的 Markdown service normalized tree/location，并按 link extraction需求扩展同一 owner，不创建第二 parser。Supported occurrences包括 inline links、resolved/unresolved reference links、images和GFM autolinks；link kind固定为 `inline | reference | image | autolink`。HTML attributes、code span/fence内容和 plain prose URL不进入本 Check。
 
 同一 parsed token不能同时交给 generic Path Reference Check：Markdown destination和autolink occurrence由本 Check唯一拥有；Path Reference只检查其计划声明的 visible prose/inline-code segments。Structure Check可复用 headings/text，但其 enabled状态、thresholds和records不影响 link extraction。
 
-### 3. Classification与validation严格分层
+#### 3. Classification与validation严格分层
 
 Occurrence先拆分 destination、query和fragment，对 URL path/fragment执行一次 strict UTF-8 percent-decode，再恰好分类为：
 
@@ -58,19 +60,19 @@ Occurrence先拆分 destination、query和fragment，对 URL path/fragment执行
 
 Invalid encoding形成 local-target record且不继续读取。External/mailto/other只分类，不产生 reachability record。Query不影响 local target existence；decoded fragment只用于 anchor。Undefined reference definition形成 local-target record，不能作为空 destination静默跳过。
 
-### 4. Local resolver采用 lexical、approval和realpath三重边界
+#### 4. Local resolver采用 lexical、approval和realpath三重边界
 
 相对 target以 source document目录为基准规范化；absolute POSIX/Windows path与 `file:` URI直接分类为 boundary。Lexical result必须位于 normalized project root内，再由 Scan Scope/resource index批准该 exact target；resolver禁止 walk、glob、parent search或 fallback。Existence/type只查询该 target。
 
 Existing target在读取内容前解析 realpath并再次验证 project-root containment；symlink escape不读取。Cross-file anchor只有在 approved target存在、是普通文件且分类为 Markdown时才读取其 normalized document；普通 local target只需 file existence/type，不解析目标内容。规则关闭不能授权越界读取：它只决定是否发布 record。
 
-### 5. Anchor算法固定为 `gfm-heading-slug-v1`
+#### 5. Anchor算法固定为 `gfm-heading-slug-v1`
 
 Heading index从 normalized visible heading text生成 slug：Unicode lowercase；删除 ASCII punctuation ``[!"#$%&'()*+,./:;<=>?@[\\]^`{|}~]``；每段 whitespace替换为单个 `-`；按 source order为重复 slug追加 `-1`、`-2`。Decoded fragment与最终 slug精确比较。Finding primary location始终是 source link occurrence；cross-file record另带 safe target path/anchor，不把 target heading位置伪作 source failure位置。
 
 算法名称是 Product dialect，不声称所有 Git hosting实现相同。改变算法需要明确 version/contract migration，不能随 parser dependency升级漂移。
 
-### 6. External handoff只含 sanitized candidate和两个 bounded lookups
+#### 6. External handoff只含 sanitized candidate和两个 bounded lookups
 
 每个 external URL occurrence产生 Link-owned invocation-private `ExternalLinkCandidate`，精确包含：
 
@@ -87,17 +89,22 @@ Candidate、identity、cache和public records均不包含 source location、raw/
 
 Link Check不等待 network result，Network Check也不回写本 CheckResult/records。网络授权、transport、retry、redaction verdict和最终 network records只由 `add-network-link-validation`拥有；完整 `ExternalLinkCandidate` 字段集合、snapshot顺序和lookups仍只由本 Change拥有。
 
-### 7. Record evidence与 occurrence identity不依赖当前位置
+#### 7. Record evidence与 occurrence identity不依赖当前位置
 
 三个 record types共享 closed字段：`reason`、`linkKind`、classification、sanitized target token、semantic occurrence ordinal及适用的 normalized target path/anchor。`reason`按 record type封闭：local-target只允许 `invalid-percent-encoding | undefined-reference | missing | not-file`，anchor只允许 `missing | target-not-markdown`，boundary只允许 `absolute-filesystem | project-root-escape | symlink-root-escape`。Boundary target只使用 `<absolute-filesystem>`、`<project-root-escape>`或 `<symlink-root-escape>` token，不输出 raw path；local/anchor records不得含 query values、userinfo或 absolute host path。
 
 Occurrence ordinal按同 source path、link kind、classification和相同 sanitized semantic target的 AST source order计算。Record identity使用 check/type/source path、reason、安全 target/anchor和ordinal；line、column、byte offset、message、raw destination和 request material不参与。只增加前置空行不改变 identity；同一安全 target的真实 occurrence插入会合理改变后续 ordinal。
 
-### 8. Source/target causal closure驱动comparison，cache保持离线安全
+#### 8. Source/target causal closure驱动comparison，cache保持离线安全
 
 每个 deterministic record关联 source path；可确定 project-local intended/actual target时再关联 target path。Same-document closure只有 source；cross-file anchor包含 source与target；boundary只有 source。显式 named reference存在时，producing Check以稳定 identity匹配并用 closure解释 source-only或target-only变化；没有 reference不从Git/cache推断。
 
 Cache unit为单 source Markdown document的 normalized offline classifications/records，key包含 content fingerprint、link/slug rules version、relevant policy、approved target metadata/content fingerprints和 parser implementation identity。Raw/canonical external URL、query values、userinfo、ephemeral lookups、location、report和network result不能进入 persistent cache。Execution failure不缓存为成功。
+
+### Resulting Impacts
+
+- 共同 GFM document boundary、local resolver、anchor index 与 occurrence identity 必须对 approved Markdown inputs 提供确定且不越过 inventory/realpath 边界的离线结论。
+- external candidate 只能以 sanitized、invocation-private handoff 供 Network Check 在 Check-level dependency 后消费；Link Check 自身不得引入网络 work、持久敏感材料或与 Path Reference 重叠的 owner。
 
 ## Risks / Trade-offs
 

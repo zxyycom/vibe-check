@@ -40,13 +40,15 @@
 
 以下是 Draft 的建议性 documentation architecture；它不授权 public surface 或 package inventory 的实现变化。
 
-### 1. JSDoc 是 symbol-local API reference
+### Intended Change
+
+#### 1. JSDoc 是 symbol-local API reference
 
 每个 public function、value 和 named type 的 source declaration拥有独立可读的 summary、关键参数/fields、返回/分支、失败或边界说明，并在需要时给最小 example或链接语义。comments 位于 declaration emit实际消费的 source owner，禁止在 generated `.d.ts` 中手工维护第二份注释。
 
 JSDoc 不复制长篇教程；它必须让 consumer 在只看到 hover 的情况下正确使用当前 symbol，并知道何时进入 packaged guide。
 
-### 2. Package README 是安装后的端到端 guide
+#### 2. Package README 是安装后的端到端 guide
 
 仓库维护一份明确 source，candidate build 将其逐字节复制为 package-root `README.md`。README 至少包含：
 
@@ -60,21 +62,26 @@ JSDoc 不复制长篇教程；它必须让 consumer 在只看到 hover 的情况
 
 README 不声称 registry package 已存在，直到 publish Change 使用 exact release version；candidate 阶段使用可安装 tarball示例或不含虚假 registry成功陈述的命令。
 
-### 3. 仓库 owner、guide 与 examples 单向核对
+#### 3. 仓库 owner、guide 与 examples 单向核对
 
 稳定契约仍由 `docs/configuration.md`、`docs/output.md`、相关 Decision和 public-contract inventory拥有。package guide 是面向 consumer 的版本化投影，不成为第二个字段/schema owner。文档验证应检查 public symbol names、examples 和关键链接/片段与 current owner一致，而不是复制整个 owner正文。
 
 项目内只增加简短导航：维护者从 docs navigation进入 Configuration/Output；Gate添加者从 Script Tooling 进入 native Check/process helper 路径；外部使用者从 package README进入。三者按消费者分工，不形成互相漂移的完整副本。
 
-### 4. Documentation 是 exact package material
+#### 4. Documentation 是 exact package material
 
 candidate manifest `files`、staging allowlist、artifact audit 与 expected inventory显式包含 `README.md`。input fingerprint包含 guide source和所有会改变 emitted public JSDoc/declarations 的 source；匹配 receipt才可复用。
 
 isolated consumer 从 packed artifact读取 README、校验 required sections/public names，并继续执行 runtime import与 declaration typecheck。只检查 repository source文件不能证明 npm consumer收到文档。
 
-### 5. Publish 只完成 release-specific material
+#### 5. Publish 只完成 release-specific material
 
 本 Change 写出 `package-api-documentation-handoff.md`，记录 guide source、tarball path/digest、README bytes、declaration comments inventory、isolated consumer证据和重新验证条件。publish Change消费该 handoff，只补 registry/live version、legal identity、release notes与明确外部授权；不得在发布阶段重写 API semantics。
+
+### Resulting Impacts
+
+- source-local JSDoc 与 package README 必须分别服务 declaration hover 和 installed consumer，并与 stable owner、public inventory 和 examples 单向核对。
+- README 必须进入 exact candidate inventory、fingerprint、artifact audit、isolated consumer 和 documentation handoff；publish 只消费该材料而不在不可逆阶段改写 API semantics。
 
 ## Risks / Trade-offs
 

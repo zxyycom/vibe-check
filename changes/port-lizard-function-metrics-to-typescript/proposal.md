@@ -12,6 +12,8 @@
 
 ## Scope
 
+### Intended Change
+
 纳入范围：
 
 - 在foundation changes落地后，从当前owners、runtime和可重复Lizard oracle采集fresh compatibility corpus/baseline；
@@ -21,6 +23,10 @@
 - hard cut formal Python/Lizard dependency/availability/process/CSV path，更新scanner/metrics owners、tests、fixtures、package/runtime dependencies与dogfood。
 
 非目标：改变`function-metrics` checkId或既定recordType identities；扩大 approved exact-input set或新增metrics/policy；建立public parser/provider API；修改Check/Record/scheduler/Project Definition contract；把Lizard保留为production fallback或双backend开关。
+
+### Resulting Impacts
+
+上述 backend 替换要求 fresh baseline、approved exact inputs、TaskPlan failure handling、comparison/cache、dependency removal 与性能/许可证据一并验证，而不扩大 Check contract。
 
 ## Success Criteria
 

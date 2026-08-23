@@ -43,7 +43,9 @@
 
 以下是本 Draft 已确认的目标边界。Plan readiness 必须解决末节两个 inventory 问题并用 prototype 固定精确类型；在此之前不创建 tasks 或进入 implementation。
 
-### 1. Assurance inventory 是 catalog 的输入
+### Intended Change
+
+#### 1. Assurance inventory 是 catalog 的输入
 
 Plan readiness 先把当前 Gate 想证明的结果列为“质量事实 × 执行义务”矩阵。每行至少记录：稳定 owner、输入范围、成功/失败结果、unavailable 原因、是否需要独立 cwd/toolchain/candidate identity、是否已被另一个 Check 完整证明，以及 required/full 的真实差异。
 
@@ -59,7 +61,7 @@ Plan readiness 先把当前 Gate 想证明的结果列为“质量事实 × 执�
 
 最终 Check 数量和 profile membership 由该矩阵自然导出；不为形成时 `20 / 14 / 19` 增加替代数量断言。
 
-### 2. Gate composition 只产生 ordinary Checks
+#### 2. Gate composition 只产生 ordinary Checks
 
 Gate 的 invocation composition root 接收本次需要的 private runtime dependencies，再产生 entries：
 
@@ -79,7 +81,7 @@ function createProjectGateEntries(
 
 这个 composition function 不是第二种 Check authoring model。直接 capability Check 可以复用普通 exported Check value；需要 invocation-bound process transcript 的 Check 可以在 composition root 中由 local factory 产生同样的 ordinary Check。
 
-### 3. Capability、process 与 CLI 使用三个独立判断
+#### 3. Capability、process 与 CLI 使用三个独立判断
 
 每项 assurance 按下表选择边界：
 
@@ -92,13 +94,13 @@ function createProjectGateEntries(
 
 现有 TS entry 的副作用不是保留 subprocess 的理由。迁移时不得直接 import 会在 module evaluation 读取 `process.argv`、设置 `process.exitCode`、执行同步 child 或修改全局状态的 CLI；应把领域 operation移到 import-safe owner，让 CLI 与 Gate 分别适配它。
 
-### 4. Repository quality 只有一个 Check identity
+#### 4. Repository quality 只有一个 Check identity
 
 Gate 使用一个稳定 `repository-quality` Check。required/full 若确有不同 scan scope、cost 或 evidence requirement，同一 Check 通过一个 Gate-private profile parser读取规范化 flag并选择已声明 mode；它不为每个 profile生成另一个 Check ID，也不让两个同义 Checks互相 `not-applicable`。
 
 profile 只允许改变同一质量事实的执行范围，不能改变 Check identity、Record ownership 或 terminal result grammar。若 inventory 证明 required/full 对 repository quality 没有真实行为差异，则两个 profile 调用相同 execution；不能为了保留 quick/full 名称而添加空分支。
 
-### 5. 重复 evidence 默认删除，例外必须证明独立边界
+#### 5. 重复 evidence 默认删除，例外必须证明独立边界
 
 Test Evidence runner failure 已证明其 supported Bun test surface 没有失败。对同一 files、同一 runner、同一 cwd/result 的额外 test Check 默认删除；只有 package cwd、manifest script或另一运行配置确实产生不同失败时，才保留独立 acceptance Check。
 
@@ -106,19 +108,19 @@ Test Evidence runner failure 已证明其 supported Bun test surface 没有失�
 
 Gate adapter 的 candidate preparation 是唯一 bootstrap owner。后续 Check 可以消费已经建立的 installed-candidate事实，但不能经旧 standalone wrapper无条件再次 prepare；只有 operation 会改变 candidate inputs 或明确要求新的 identity guard 时才能重新进入 preparation。
 
-### 6. Eligibility 由 Gate wrapper集中处理，mode 由少数 Check显式读取
+#### 6. Eligibility 由 Gate wrapper集中处理，mode 由少数 Check显式读取
 
 Gate projection 从同一 selection解析 profile和 disabled tags，并在 execution 前为 excluded entry返回 `profile-excluded` / `tag-disabled` N/A。普通 Check无需解析 selection grammar。只有行为本身随 profile改变的 `repository-quality` 等少数 Check，才通过一个 Gate-private helper读取已经验证的 profile flag；它们不自行解析 argv或 ambient CI。
 
 Dependencies 继续是静态 Check graph facts。一个 profile 中 eligible Check的 dependencies必须也在该 profile eligible；不能用 runtime mode隐藏缺失 prerequisite。Selection从同一entries与profile计算eligible/N/A集合，不从结果反推selection，也不维护另一个ID catalog；minimal Plan提供的explicit aggregate继续消费eligible IDs。
 
-### 7. Transcript 只属于真实 process evidence
+#### 7. Transcript 只属于真实 process evidence
 
 Gate 继续为每次 invocation 创建唯一 ignored log root。真实 process-backed Check保存 command、status、signal、error、stdout和stderr transcript；transcript失败仍按该 Check 的 infrastructure failure语义处理。直接 TypeScript Check不生成虚假的空 process log，它的 terminal outcome、Records、dependency outputs和presentation由Product结果owner承接。
 
 本 Change不新增 durable invocation receipt、chronological event protocol、aggregate child-output log、`latest` alias或retention策略；这些边界继续由 [`define-project-run-log-evidence-boundaries`](../define-project-run-log-evidence-boundaries/) 保存。这里只把现有 transcript责任从“每个迁移 entry”收窄到“确实执行 process 的 Check”。
 
-### 8. CLI caller audit 独立于 Gate migration
+#### 8. CLI caller audit 独立于 Gate migration
 
 实施时分别记录两张 caller表：
 
@@ -127,13 +129,18 @@ Gate 继续为每次 invocation 创建唯一 ignored log root。真实 process-b
 
 Gate caller归零不等于 CLI consumer归零。仍有独立 consumer的 CLI保留为薄 adapter并单独测试 argv/output/exit mapping；没有独立 consumer且不再拥有任何事实的 wrapper可以与引用一起删除。该删除判断不改变 Gate Check identity，也不反向要求 Gate通过 CLI验收。
 
-### 9. Cutover binding持续有效，优化 evidence必须刷新
+#### 9. Cutover binding持续有效，优化 evidence必须刷新
 
 正式root bindings和legacy retirement事实继续由已归档的<code>gate-handoff.md</code>拥有。本Change默认保持这些names到达同一个adapter；catalog、profile behavior或内部执行路径变化不恢复旧verifier。
 
 最小Record contract 与 terminal messages/visibility 已分别由[`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/)和已归档的[`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）完成。本Change继续等待[`add-typed-check-dependency-outputs`](../add-typed-check-dependency-outputs/)和[`ship-public-package-api-documentation`](../ship-public-package-api-documentation/)收敛其余首次公开package inputs。随后重新准备或安全复用matching candidate、校验installed entry，并从正式root entry运行focused/native/process/candidate tests、required/full acceptance和partial eligibility smoke。
 
 最终 <code>gate-optimization-handoff.md</code> 绑定 current Gate inventory、保留/删除理由、CLI/capability caller audit、documentation-complete exact artifact、正式 bindings与验收结果。Publish同时消费它、cutover <code>gate-handoff.md</code>和package documentation handoff。
+
+### Resulting Impacts
+
+- quality-fact inventory 必须驱动 ordinary Check catalog、profile 与 dependency composition，使 TypeScript capabilities 直接调用、真实外部边界才建立 subprocess，且不以迁移期数量锁替代事实。
+- eligibility、progress、transcript、candidate identity、CLI caller audit、adapter closure 与优化 handoff 必须按各自 owner 提供证据；原有 aggregation 与 package aggregate 边界保持不被 Gate 重建。
 
 ## Risks / Trade-offs
 

@@ -27,13 +27,15 @@
 
 ## Decisions
 
-### Decision 1: 只消费 Markdown owner 发布的 candidate snapshot
+### Intended Change
+
+#### Decision 1: 只消费 Markdown owner 发布的 candidate snapshot
 
 Markdown Link owner 独占 invocation-private `ExternalLinkCandidate` 的精确字段集、canonical order、complete snapshot 和 identity-keyed bounded location/request-material lookups。Network Check 不复制该 DTO 的完整字段 owner，只按 owner 发布的 stable occurrence identity 读取已验证 sanitized projection、current location 和当次 request 所需的 fragment-free material。
 
 Snapshot 与 lookups 仅在 Link Check 完整完成后可用，Network 在消费后释放引用。Protocol-relative URL 仅在 execution material 中按 Product policy 补 HTTPS。Network Check 不从 raw Markdown 或 sanitized display 重构 request URL，也不重新分类 local/anchor/unsupported links；userinfo、query values、fragment、raw URL 和 location 不进入 candidate identity 或 persistent surface。
 
-### Decision 2: Base online mode 是唯一Product network授权
+#### Decision 2: Base online mode 是唯一Product network授权
 
 Product neutral definition固定offline；Project Definition未注册该Check、policy缺失、`enabled = false`或`mode = disabled`时均不得解析DNS或读取network cache。只有成功evaluation、normalization、validation和freeze的Project Definition base policy显式`mode = online`才授权。Gate、profile、CLI environment和Check discovery不参与提升；受信任custom runner自己的网络权限仍按trusted-code边界处理。
 
@@ -49,7 +51,7 @@ File policy 只能 disable source 或收窄 online base 的 timeout/redirect/ret
 
 Online authorization 还执行一项 cross-owner pre-work validation：resolved `SchedulerPolicy.maxParallel` 必须是 scheduler owner 已验证的正整数且不大于 `16`。超出上界时在任何 DNS、socket 或 network-cache refresh 前拒绝 online 配置；Network 只校验安全上界，不重新拥有 global scheduler policy 或把该值复制成 feature/file-policy capacity。
 
-### Decision 3: Check-level 依赖与同源 static plans
+#### Decision 3: Check-level 依赖与同源 static plans
 
 Network schedule declaration 固定 `requiresChecks: ["markdown-link-validation"]`。Link 与 Network 各自从同一 frozen global inventory 与 resolved file policy 确定 eligible Markdown sources，并在任何 managed function 开始前各自建立 per-source static Tasks。Network plan 只闭包 source identity，不持有 snapshot 内容，也不引用 Link Task ID 或使用跨 Check Task `needs`。
 
@@ -57,19 +59,19 @@ Network applicability 使用与 Link 相同的 frozen eligible-source 条件；�
 
 每个 Network source Task 内按 deterministic occurrence order 串行处理 URL，跨 source 并发仅由 invocation-global `SchedulerPolicy.maxParallel` 约束。首版不定义 named-resource capacity、per-Check concurrency budget、嵌套 `Promise.all` 或 feature-local pool。
 
-### Decision 4: Resolver与connector共同构成不可降级的SSRF boundary
+#### Decision 4: Resolver与connector共同构成不可降级的SSRF boundary
 
 每次initial、redirect与retry attempt先canonicalize HTTP(S) URL并拒绝userinfo，再解析hostname。Policy只允许全部resolved addresses都属于recognized globally-routable unicast；loopback、private、link-local、unspecified、multicast、CGNAT、reserved/documentation/benchmark、IPv4-mapped IPv6与Product-ownedmetadata host denylist均有明确处理，mixed public/private answers整体拒绝。
 
 Connector只连接本次checked address，同时保留original host用于Host header与TLS SNI；redirect使用manual mode逐跳重新验证，retry重新resolve。Ambient proxy、cookie jar、authorization、credential store与environment transport配置均不使用。Runtime若不能pin checked address、发现address mismatch或会隐式follow redirect/proxy，必须在request前以security execution failure停止，不能fallback普通`fetch`。
 
-### Decision 5: 每个policy-specific URL使用single-deadline state machine
+#### Decision 5: 每个policy-specific URL使用single-deadline state machine
 
 Work identity 是 bounded-memory 中的 exact fragment-free request URL 加完整 effective request-policy projection 与 Product transport policy version。不同 source policy projection 不共享 outcome。Source Task 在自己唯一的 scheduler-managed function 内串行处理每个 work；每个 work 使用 single total deadline：resolve/pin → HEAD → manual redirects → 需要时 bounded GET → optional retry。HEAD 为 405/501 或报告 404/410 时使用 `Range: bytes=0-0` GET 确认；一旦取得足够 status evidence 即停止读取 body，body 不保存。
 
 Retry只用于bounded temporary conditions，受remaining deadline和retry count限制；每次retry重做safe-egress。`Retry-After`超出remaining deadline不等待。Request timeout不重置total deadline，redirect/retry不能使work无界。
 
-### Decision 6: Outcome union 先于Record与CheckRun映射
+#### Decision 6: Outcome union 先于Record与CheckRun映射
 
 Private terminal union为：
 
@@ -85,21 +87,26 @@ Normal tasks 可以逐项提交 safe records。全部 required source work 正�
 
 后续 execution failure 不撤销已提交 records，但 failed CheckRun 与 `result = null` 明确说明 coverage 未完整。Core 不从 records 重新推断 CheckResult，DecisionPolicy 分别消费 CheckRun、nullable CheckResult 和 QualityRecord。
 
-### Decision 7: Records只携带sanitized typed evidence
+#### Decision 7: Records只携带sanitized typed evidence
 
 四种record type使用Markdown semantic occurrence、record type与sanitized URL shape形成identity；query keys可以保留，query values、userinfo、fragment、line、status、redirect count、policy和backend不参与。Producing Check单独提供current location。
 
 Safe evidence按record type使用closed fields：broken含safe URL shape与404/410 status；redirect-invalid含safe shape、allowlisted reason与bounded count；unsafe-target含safe shape、target stage与allowlisted safety reason；indeterminate含safe shape、allowlisted remote category和可选safe status。Message只供人读，consumer不解析message恢复领域数据。Response body/header、DNS answers、private address、request URL和native error不进入evidence或diagnostic。
 
-### Decision 8: Persistent cache 只接受全链路queryless stable terminal
+#### Decision 8: Persistent cache 只接受全链路queryless stable terminal
 
 Invocation memory可以按exact URL与complete policy projection去重，但raw key不serialize、log或形成digest输出。Initial或任一redirect/retry hop含non-empty query时，persistent cache必须zero read/write；query value rotation因此运行独立request work，但semantic record identity仍稳定。
 
 只有全链路queryless的`reachable`、`protected`、`confirmed-broken`或`redirect-invalid`可按normalized exact URL、complete policy projection、Product transport version与bounded TTL缓存。Cache value只含safe terminal classification/status/redirect summary/expiry；不缓存unsafe-target、domain-indeterminate、execution failure、headers、body、DNS、Retry-After或credentials。Malformed/expired entry安全miss，TTL 0关闭。
 
-### Decision 9: Reference只比较source occurrence，不重建历史remote state
+#### Decision 9: Reference只比较source occurrence，不重建历史remote state
 
 只有调用者显式提供reference时才比较source occurrence。Current/reference exact request URL与complete policy相同可以复用本invocation live outcome，但仍按各自semantic occurrence投影；同一occurrence的line或query-value rotation保持identity，query rotation因exact URL不同不共享work。两侧存在同一occurrence时，不因今天的remote outcome或policy差异声称commit历史产生network regression；省略reference不推断任何network regression。
+
+### Resulting Impacts
+
+- online authorization、bounded policy、SchedulerPolicy cross-owner limit 与 Check-level dependency 必须在任何 DNS/socket work 前共同成立，且 file override 只能收窄既有 base authorization。
+- safe resolver/connector、per-source scheduling、typed terminal outcomes、sanitized records 与 query-aware cache 必须同时维持 SSRF、redaction、result/CheckRun 和 current/reference 的既定边界，不重建历史远端状态。
 
 ## Risks / Trade-offs
 

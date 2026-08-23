@@ -12,6 +12,8 @@ Secret Detection Check 在 Project Definition 与 file policy 批准的普通文
 
 ## Scope
 
+### Intended Change
+
 - Product neutral definition 启用本 built-in Check，默认 `maximumFileBytes` 为 1 MiB；closed Check policy 允许在 `1..67108864` bytes 内调整 limit，Project Definition 可以选择/省略 Check，file policy 只能缩小 inputs 或调整 owner 声明为可覆盖的 leaves。
 - Candidate 来自 global normalized inventory 中 resolved policy enabled 的 ordinary files，不按少量源码 extension allowlist；global excluded/generated/vendor path 不能由 Check 或 override 恢复。
 - 不超过 limit 的 candidate 执行 bounded full read，只把 valid UTF-8/no-NUL text 交给 detector。超过 limit 的 candidate 最多读取 8192-byte classification prefix：能证明 non-text 则排除，否则产生 `secret-scan-coverage-gap` record，绝不读取 suffix 或交给 detector。
@@ -20,6 +22,10 @@ Secret Detection Check 在 Project Definition 与 file policy 批准的普通文
 - `secret-scan-coverage-gap` 只发布 safe file size、effective limit 与 project-relative path；normal non-text exclusion进入 CheckResult coverage summary，不产生 secret record。
 - 每个 candidate 通过 shared static TaskPlan 执行，不建立 feature-local pool。Normal completion 的 private disposition/safe summary 可保留 `clean | findings | coverage-gaps` 与 counts，但 CheckResult verdict 只能是 `passed | failed`：没有 `likely-secret` finding 且没有 `secret-scan-coverage-gap` 时 `passed`，否则 `failed`。Read/detector/task/protocol failure 使所属 CheckRun failed 且 `result = null`，此前已验证提交的 records 继续保留。
 - 首版不扫描 Git history、home、environment、remote secret manager或 binary content，不验证credential有效性，不自动吊销/修改源文件，不持久缓存 secret detector results，也不建立 secret-specific suppression engine或输出格式。
+
+### Resulting Impacts
+
+上述检测方案要求 raw material 始终止于 invocation-owned detector memory，并将 coverage、safe records、结果语义与全链路 leak-canary 验证作为同一交付边界。
 
 ## Success Criteria
 

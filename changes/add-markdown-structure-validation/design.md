@@ -26,7 +26,9 @@
 
 ## Decisions
 
-### 1. 固定一个 Check 和四个 Record 类型
+### Intended Change
+
+#### 1. 固定一个 Check 和四个 Record 类型
 
 本 feature固定 `checkId = markdown-structure-validation`，并注册：
 
@@ -37,13 +39,13 @@
 
 Measurement records是 final domain observations，不等同 violation；它们使用 informational level且不自行让 CheckResult failed。所有 applicable files正常完成且没有 violation时 result passed；存在任一 violation时 result failed。Parse/read/protocol failure进入 failed CheckRun，不能伪装成 failed domain verdict。
 
-### 2. 本 Change建立 Product-owned Markdown document boundary
+#### 2. 本 Change建立 Product-owned Markdown document boundary
 
 本 Change在 `src/product/**` 建立并验证单一内部 Markdown document service：输入 approved immutable bytes，输出不含 parser类型的 normalized semantic tree、visible inline text、headings、paragraphs、links和 source ranges，或 typed execution failure。`add-markdown-link-validation` 作为下游复用并按自身需求扩展该 boundary，不能创建第二 parser或不同 heading/text语义；Structure Check是否启用或通过不影响该内部服务可用性。
 
 产品方言固定为 CommonMark core加 GFM table、task-list、strikethrough和 autolink extensions，并把文件开头 `---` fenced front matter作为 Product extension识别为 metadata而不负责验证 YAML内容；fenced/indented code、HTML markup和Markdown syntax标记不作为 prose。具体 parser dependency由实现以 Bun compatibility、维护、license、GFM conformance和 source span evidence选择，并封装在此 boundary内。
 
-### 3. Prose projection与单位精确定义
+#### 3. Prose projection与单位精确定义
 
 每份 document、每个 section和每个普通/list-item paragraph计算 `words`与`characters`：
 
@@ -55,13 +57,13 @@ Measurement records是 final domain observations，不等同 violation；它们�
 
 Records按 path → document → source-ordered sections → source-ordered paragraphs稳定输出。
 
-### 4. Subject identity使用 semantic ancestry而非当前位置
+#### 4. Subject identity使用 semantic ancestry而非当前位置
 
 Document subject固定为 `document`。Section subject由 normalized visible heading ancestry、同一父级下相同 heading path的 occurrence ordinal组成；paragraph subject由 owning section identity（无 heading时 document）和该 owner内 countable paragraph ordinal组成。Line、column、byte offset和 parser node ID不进入 subject identity。
 
 该方案保证只增加前置空行不会改变 identity；插入同级同名 section或同一 section内 paragraph可能合理改变后续 ordinal。Current location始终保留用于导航。
 
-### 5. Structure policy是 closed、serializable、Check-owned数据
+#### 5. Structure policy是 closed、serializable、Check-owned数据
 
 Project Definition built-in reference接受完整 policy：
 
@@ -72,13 +74,13 @@ Project Definition built-in reference接受完整 policy：
 
 Definition省略时 skipped；选择但没有 enabled Markdown input时 not-applicable；parser不会为了 skipped/not-applicable check启动。
 
-### 6. Heading rules彼此独立且按文档顺序评价
+#### 6. Heading rules彼此独立且按文档顺序评价
 
 Heading levels为1..6。`requireSingleH1`要求恰有一个 H1；`requireFirstHeadingH1`只在至少有一个 visible heading时要求第一个为 H1，不暗含“必须有 heading”；`forbidDepthSkips`只在后一个 heading level比前一个增加超过1时违反，首 heading、同级和向上回退不算 skip；`maximumDepth`独立限制 level。
 
 Size minimum在 actual < threshold时违反，maximum在 actual > threshold时违反，等于边界合规。一个 subject可产生多个 violation records；rule identity保持独立，不能把多个规则压进 message。
 
-### 7. Record fields、identity与CheckResult保持可解释
+#### 7. Record fields、identity与CheckResult保持可解释
 
 Measurement records使用 closed `subjectKind`、`subjectIdentity`、`words`、`characters`和 current source location。Violation records使用：
 
@@ -90,11 +92,16 @@ Measurement records使用 closed `subjectKind`、`subjectIdentity`、`words`、`
 
 Measurement identity使用 check/type/path/subject；violation identity再加入 rule/outcome。Actual、expected、unit、level、message和location不参与 identity。Records由 producing Check验证 closed fields并按 semantic order提交；human message只从这些字段渲染。
 
-### 8. TaskPlan、comparison和cache不泄漏实现 identity
+#### 8. TaskPlan、comparison和cache不泄漏实现 identity
 
 静态 TaskPlan以每个 Markdown exact input为 domain work；共享 scheduler可并行 parse/measure，但 Task ID、拆分与parser node不进入 public record。一个 file完整产生 measurements、violations和final facts后才 acknowledgement。
 
 调用者显式提供 named reference时，Check只为 violation records按稳定 identity生成 relations；measurements保持 current observations，不创建 implicit delta/regression。没有 reference不读取 Git/cache补猜。Cache unit为单文档 normalized parse + structure result，key只包含 bytes fingerprint、GFM/product rules version、relevant resolved policy和 parser implementation identity；report、location、acceptance、sibling Check settings不参与，execution failures不缓存为成功。
+
+### Resulting Impacts
+
+- Product-owned Markdown boundary 必须形成稳定 prose/heading facts，让结构 policy、measurement/violation records、identity、comparison 与 cache 在 approved exact inputs 上一致。
+- 该 boundary 可供 Link Check 复用但不承载 link policy；neutral/file-policy 语义、CheckResult failure boundary 与 parser implementation identity 不得泄漏到公共 contract。
 
 ## Risks / Trade-offs
 

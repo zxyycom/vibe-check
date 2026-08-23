@@ -68,6 +68,8 @@ Parser只执行“已选中的canonical data → domain value”。`dependencies
 
 ## Scope
 
+### Intended Change
+
 本Change负责：
 
 - direct dependency的settled output读取授权；
@@ -83,6 +85,10 @@ Parser只执行“已选中的canonical data → domain value”。`dependencies
 - producing Check决定自己的domain status、data shape与parser实现。
 
 本Change不建立custom-data search、query language、parser registry、global mutable store、transitive/live output reader、第三类Core output、multi-Check aggregation或通用provider framework，也不决定`root`、`flags`、`files`、`cache`等现有inputs的长期归属。
+
+### Resulting Impacts
+
+上述 typed readback 方案要求依赖授权、settlement、source selection、parser failure 与 canonical Core/RunResult 边界同时成立，且以真实 consumer 决定是否需要 supplemental Record readback。
 
 ## Success Criteria
 

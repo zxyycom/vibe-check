@@ -12,6 +12,8 @@ Vibe Check 提供 stable `checkId = json-schema-validation` 的 built-in Check�
 
 ## Scope
 
+### Intended Change
+
 纳入：
 
 - Project Definition 中 closed、serializable 的 schema registry、instance bindings 和 Schema-owned `maximumBytes`，以及 JSON Schema owner 对 bounded safe ID、path、dialect、selector、limit 和冲突的 validation。
@@ -20,6 +22,10 @@ Vibe Check 提供 stable `checkId = json-schema-validation` 的 built-in Check�
 - 一个预建静态 Check task内完成的 registry-only transitive resource closure、named-reference comparison、cache、输出、owner 文档和测试证据。
 
 不纳入：其它 JSON Schema drafts、自动 dialect negotiation、remote reference opt-in、schema download/cache、code generation、instance coercion/default insertion、自动修复，以及把仓库 `scripts/**` registry 提升为产品默认。
+
+### Resulting Impacts
+
+上述 registry/binding 方案要求在执行前完成合法性与冲突校验，并将离线 reference closure、双侧诊断、comparison/cache 与领域失败边界一并收敛到该 Check。
 
 ## Success Criteria
 
