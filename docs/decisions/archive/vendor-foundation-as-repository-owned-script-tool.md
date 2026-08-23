@@ -1,6 +1,6 @@
 ---
 title: 将 foundation 固化为仓库自有脚本工具
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-18T09:24:16Z
 purpose: 让开发脚本使用仓库直接拥有且可复现的 foundation 源码，而不依赖独立 Git 子仓库或上游 checkout。

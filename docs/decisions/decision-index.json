@@ -23,6 +23,7 @@
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
+      "default-project-gate-to-required-profile.md": "sha256:e94dca9da41ead9528a672827191db2550b411ecf09132cd3400e087f2ca7282",
       "defer-future-feature-detail-until-prioritized.md": "sha256:7852346befd1c0227510085aafa4bb1403ba511f0c429e834cc051fa4bda1ac6",
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
       "defer-lizard-until-after-check-foundations.md": "sha256:9fb7523e521c64983c7978624dd246ae3473b515f5c8bf243d7a1cb14ba3ca46",
@@ -50,6 +51,7 @@
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
+      "integrate-foundation-into-workspace-assurance.md": "sha256:ae291cc122930b86e84d870b2d20a3ba05f48b219d2e8deb1c7e2decd0248725",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -142,7 +144,7 @@
       "use-upstream-skills-with-project-local-exceptions.md": "sha256:f13dabc892def9236b38ff07f65b231492babc571794468167706cae2284b390",
       "use-user-owned-definition-for-observation-and-gates.md": "sha256:95b5882a9027c41c2fc333903b8aee4764fffccce30993f05a344d152937df5d",
       "use-versioned-npm-package-release-unit.md": "sha256:aa8c724f18eb59548618ea92c475bd458de24c5731ea8b7e7b3dcbc452061fbc",
-      "vendor-foundation-as-repository-owned-script-tool.md": "sha256:1819baa5b557b4e5fd8e489017cf186e3dd0d0da1ad82c22899130c2d85ef65c"
+      "vendor-foundation-as-repository-owned-script-tool.md": "sha256:e27d143593ef746b2217a29c91d8fea6a60a8d60fee7bd7f31737ca32f8a9551"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -707,6 +709,35 @@
         "decision": "Task engine 在 admission 边界观察 AbortSignal，停止新 Task、收尾已启动 Task，并将未完成 Check 关闭为 cancelled。",
         "tags": [
           "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "default-project-gate-to-required-profile.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "default-project-gate-to-required-profile.md",
+        "title": "让默认 Project Gate 使用 required profile",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-23T16:30:16Z",
+        "purpose": "让无显式 profile 的正式 Gate 选择必须 assurance，并把 full 保留为显式全部选择。",
+        "background": "当前无参 Gate 默认 full；移除遗留 Foundation gates 后，required 与 full 可以暂时同集。",
+        "decision": "默认 Gate 选择 required；显式 full 选择当前全部 Checks，但不为维持差异创造虚假 full-only Checks。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
         ],
         "relations": []
       }
@@ -1520,6 +1551,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "integrate-foundation-into-workspace-assurance.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "integrate-foundation-into-workspace-assurance.md",
+        "title": "将 Foundation 纳入普通 workspace assurance",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-23T16:30:22Z",
+        "purpose": "让已迁入主仓的 Foundation 由普通项目检查和专门测试证明，不再保留子仓库时期的独立 Gate identities。",
+        "background": "Foundation 已是 repository-owned scripts source；独立 package gates 只重复 workspace source与test coverage。",
+        "decision": "保留 repository ownership，取消历史 package 形态产生的独立 Gate义务，并把真实不变量交给现有owner或专门测试。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "vendor-foundation-as-repository-owned-script-tool.md"
+          }
+        ]
       }
     },
     "keep-built-in-options-owned-and-tool-neutral.md": {
@@ -4270,16 +4335,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "vendor-foundation-as-repository-owned-script-tool.md",
+        "sourcePath": "archive/vendor-foundation-as-repository-owned-script-tool.md",
         "title": "将 foundation 固化为仓库自有脚本工具",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-18T09:24:16Z",
         "purpose": "让开发脚本使用仓库直接拥有且可复现的 foundation 源码，而不依赖独立 Git 子仓库或上游 checkout。",

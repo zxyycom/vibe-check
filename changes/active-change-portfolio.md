@@ -1,6 +1,6 @@
 # Active Change Portfolio
 
-本导航帮助 AI 或维护者选择、恢复和审阅当前 active Change 与直接相关的长期 Decision。它覆盖 `changes/` 根目录下的全部 active Change；`changes/archive/` 与 `docs/decisions/archive/` 是历史材料，除非任务明确要求历史审计，否则不作为当前方案输入。
+本导航帮助 AI 或维护者选择、恢复和审阅当前 active Change 与直接相关的长期 Decision。它覆盖 `changes/` 根目录下的全部 active Change；只有 active Change 明确消费的 handoff 才从 `changes/archive/` 进入当前路径，其余 archived Change 与 archived Decisions 不作为当前方案输入。
 
 ## 权威性与状态边界
 
@@ -27,7 +27,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 当前 portfolio 分为四个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
 
-1. **Project Gate 与 package 交付：** 三个上游能力 Change、首轮 Gate build、repository hard cutover、最小 Check/Record hard cut、terminal messages/visibility 与 typed dependency outputs 均已归档；[repository hard cutover Change](archive/replace-workspace-verifier-with-project-gate/) 交付了 [gate-handoff.md](archive/replace-workspace-verifier-with-project-gate/gate-handoff.md)。[Configuration](../docs/configuration.md) 与 [Output](../docs/output.md) 记录终态 messages、显式 visibility 与 typed direct-dependency data 三项当前 Product 能力。它们共同成为 `ship-public-package-api-documentation` 和 `align-project-gate-with-native-check-authoring` 的既有输入。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
+1. **Project Gate 与 package 交付：** repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs 与 public package API documentation 均已归档并交付下游 handoff。当前下一步是 `align-project-gate-with-native-check-authoring`；它完成后，publish Change 才能在单独授权下开始外部准备。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
 2. **公共 Check authoring、typed dependency outputs 与日志证据边界：** 当前四态 Check、final data、Check-local Records、terminal messages、human visibility 与 declared direct dependency final-data read 均已成为基础事实。Typed reader 不把 parser、dependency view 或 presentation 变成 Core fact；相邻 log evidence Draft 仍只保存 durable receipt/event 的 owner 边界。
 3. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
 4. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
@@ -36,12 +36,11 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 长期顺序由 [在公开 package 发布前完成项目门禁](../docs/decisions/complete-project-gate-before-public-package-release.md)（`active + aligned`）决定：本地 candidate → 完整 Gate consumer → repository cutover → 经单独授权的公开发布。它不决定项目 CLI grammar、renderer 格式、静态 scheduler 容量或 npm 的实时外部事实。
 
-下表只列出仍 active 的下游 Change；已归档 cutover 的 binding/legacy-retirement 输入见上方 handoff。
+下表只列出仍 active 的下游 Change。已归档 cutover 与 package documentation 只通过各自 handoff 提供当前 Change 明确要求的输入；归档状态不自动证明新 artifact 仍匹配。
 
 | Change | 此 Change 唯一负责的结果 | 直接 Decision 输入 | 下游与仍未决定的事项 |
 | --- | --- | --- | --- |
-| [ship-public-package-api-documentation](ship-public-package-api-documentation/) | 为 public symbols/declarations 补完整 JSDoc，并把版本匹配的 README/API guide 作为 exact candidate material 交付。 | [版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均 future）。 | 最小 Record、terminal messages、visibility 与 typed dependency outputs 均已成为当前输入；下一步交付 documentation handoff。 |
-| [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 在 cutover 后从独立质量事实重建权威 Gate：直接组合 ordinary Checks/typed capabilities，CLI lifecycle 独立审计，只为真实外部边界保留 process，并删除迁移重复项与数量锁。 | [caller-runtime Check execution](../docs/decisions/execute-check-functions-in-caller-runtime.md)、[普通 `Check` surface](../docs/decisions/expose-recursive-check-authoring-and-run-surface.md)、[完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)（均 aligned）。 | Record、terminal messages、visibility 与 typed dependency outputs 已是当前输入；仍等待 documentation，再对 exact artifact 交付 `gate-optimization-handoff.md`。 |
+| [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 从 current assurance obligations 重建权威 Gate：直接组合 ordinary Checks/typed operations，独立审计 CLI lifecycle，只为真实 external/toolchain/candidate boundary 保留 process，并删除迁移重复项与数量锁。 | [caller-runtime Check execution](../docs/decisions/execute-check-functions-in-caller-runtime.md)、[ordinary Check authoring](../docs/decisions/expose-ordinary-check-values-with-define-check.md)、[Foundation 纳入 workspace assurance](../docs/decisions/integrate-foundation-into-workspace-assurance.md)、[默认 Gate 选择 required](../docs/decisions/default-project-gate-to-required-profile.md)、[完整 Gate 顺序](../docs/decisions/complete-project-gate-before-public-package-release.md)。 | Prototype、caller、dependency 与 candidate readiness 已闭合；Implementation 直接实现 required/full 当前同集的 14 个 identities、删除 Foundation package envelope、将无参默认改为 required，并生成 current `gate-optimization-handoff.md`。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover binding、Gate optimization 与 documentation handoffs，在单独授权下完成 public registry release 与 registry-install proof。 | [完整 Gate 后发布](../docs/decisions/complete-project-gate-before-public-package-release.md)（aligned）；[版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[unscoped `vibe-check`](../docs/decisions/publish-unscoped-vibe-check-publicly.md)、[MIT](../docs/decisions/license-package-under-mit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均 future）。 | registry authority、authenticated publisher、精确 version、copyright holder/year、publish mechanism 与每次外部读写授权均是届时外部事实，尚未决定也不能预先查询。 |
 
 ## 路径二：公共 Check authoring 与日志证据边界
