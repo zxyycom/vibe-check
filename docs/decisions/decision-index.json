@@ -64,7 +64,7 @@
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
       "let-check-options-own-execution-dependencies.md": "sha256:56b38d75a398c566946508a34e24bf32e0d841b118aaf0c959c90eb299e1b185",
-      "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:345d6f99507a1d78fe3ae0b5ea0d1741e5021b81c6028ca94bd993ee0b6a7deb",
+      "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
@@ -78,6 +78,7 @@
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:bd26f5f57e41abb0cc2d159ba3856927db8aa7e1b70f08bce9731ea80d8e2308",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
+      "read-direct-dependency-final-data-by-string.md": "sha256:fec48a32dd83e722a88acf9bf952a0b1c6651f1b63a2136552777a57fd8366af",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
@@ -1957,16 +1958,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "let-dependent-checks-read-settled-upstream-outputs.md",
+        "sourcePath": "archive/let-dependent-checks-read-settled-upstream-outputs.md",
         "title": "让依赖 Check 读取上游 settled outputs",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-21T07:32:25Z",
         "purpose": "让静态 Check dependency 同时提供顺序和可审计的上游结果复用，而不建立第二事实源。",
@@ -2368,6 +2369,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "read-direct-dependency-final-data-by-string.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "read-direct-dependency-final-data-by-string.md",
+        "title": "用 string getter 读取 direct dependency final data",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-23T11:13:59Z",
+        "purpose": "让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。",
+        "background": "Direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。",
+        "decision": "用 non-generic string getter 授权 direct read，并由 producer-owned parser 恢复同一个 data contract。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "let-dependent-checks-read-settled-upstream-outputs.md"
+          }
+        ]
       }
     },
     "record-paused-change-state-in-artifacts.md": {

@@ -1,6 +1,6 @@
 ---
 title: 让依赖 Check 读取上游 settled outputs
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-21T07:32:25Z
 purpose: 让静态 Check dependency 同时提供顺序和可审计的上游结果复用，而不建立第二事实源。

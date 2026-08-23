@@ -1,187 +1,328 @@
 # Design
 
-本Design是typed Check dependency output的契约owner。主要设计只覆盖dependency authorization、getter、parser、type inference与runtime read boundary；minimal contract引起的final-data/Record source变化在这里消化，但Record storage、aggregation与human presentation仍由各自owner承接。
+本Design是本Change的planned API与architecture owner：Product负责string-based runtime read，producing Check负责自己的data type；Proposal只定义结果和范围，Readiness Audit只保存形成Plan时的事实与prototype证据。
 
 ## Context
 
-- 当前已实现的`dependsOn`只提供static Task order；形成时方向见已归档的[`project-executable-checks-into-validated-task-graph`](../../docs/decisions/archive/project-executable-checks-into-validated-task-graph.md)。
-- Future Decision[`let-dependent-checks-read-settled-upstream-outputs`](../../docs/decisions/let-dependent-checks-read-settled-upstream-outputs.md)授权declared direct dependency在upstream settled后读取其output，但当前为`active + unaligned`。
-- [`establish-minimal-check-record-contract`](../establish-minimal-check-record-contract/)是implementation前置。其目标facts分为：passed/failed Check的single final data，以及零到多个supplemental Records。旧Record-only Draft假设不再有效。
-- 本Change仍是Draft。Decisions固定责任边界；Open Questions决定首版exact grammar和是否包含supplemental Record getter。
+### Reading contract
+
+实施者应按以下顺序使用本Change：
+
+1. 从本Design恢复public API、runtime rules与owner边界。
+2. 从[`tasks.md`](tasks.md)按依赖顺序实施和验证。
+3. 只在需要核对当前基线或prototype结论时读取[`readiness-audit.md`](readiness-audit.md)。
+4. 用[`proposal.md#success-criteria`](proposal.md#success-criteria)完成最终语义验收。
+
+### Terms
+
+| Term | Meaning in this Change |
+| --- | --- |
+| Author data | Check `execution`在`passed` / `failed`结果中返回的ordinary JavaScript object。 |
+| Canonical final data | Core从author data重新materialize的detached、null-prototype、deep-frozen `CanonicalJsonObject`。它是runtime object，不是author原引用或JSON text。 |
+| Typed provider | 同时拥有`execution`和`parseData`的executable Check；parser return锚定该provider的local `Data` generic。 |
+| Dependency read | Downstream callback调用`dependencies.get(checkId)`读取一个declared direct dependency的settled canonical final data。 |
+
+### Current constraints
+
+- `dependsOn`是exact/inherit string collection，normalized strings已经是Task graph identity与runtime authorization的共同输入。
+- `passed` / `failed`有canonical final data；`not-applicable` / `unavailable`没有data。Records是独立supplemental facts。
+- Current Run把`unavailable`转换成Task failure并阻断downstream。目标getter若要对该status返回read failure，downstream必须在ordinary`unavailable` settlement后被admit。
+- Current runtime roots只有`defineConfig`、`defineCheck`、`inherit`、`run`与default Check values；本Change不增加顶层operation。
+- Current repository没有需要dependency Record getter的named consumer。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 让declared direct dependency同时提供Task order与settled output access。
-- 让getter只接受declared upstream的parser descriptor，并从parser推导success value type。
-- 让single primary output优先读取upstream final data；只有真实consumer需要时才增加exact supplemental Record读取。
-- 继续使用Core Checks/Records作为唯一facts source。
-- 让upstream status、missing source和parser rejection形成diagnosable failure。
+- 用一个non-generic string getter完成direct dependency runtime authorization和raw canonical read。
+- 用一个provider-local `Data` generic同步parser return与execution final data。
+- 让consumer显式组合read与parse，不让Product拥有business parsing。
+- 让四态Check都完成normal dependency settlement，并保持Core facts唯一。
+- 用runtime、type declarations和installed consumer分别证明各自边界。
 
 ### Non-Goals
 
-- 不把所有shared data或invocation facts变成Checks。
-- 不删除、重命名或迁移现有execution-context fields；后续cleanup需要真实consumer与独立范围。
-- 不新增第三类Core output、第二份grouped storage、global mutable store或callback closure data channel。
-- 不公开transitive/live reader、custom data search、query/index service、parser registry或通用provider framework。
-- 不让Product持有custom data Schema、parser function或output type catalog。
-- 不实现multi-Check aggregation，也不用dependent Check替代Gate aggregation配置。
-- 不用presentation visibility删除facts或改变dependency correctness。
+- 不静态关联`dependsOn` literals与getter call。
+- 不读取Records，不支持transitive/live/partial reads或query。
+- 不提供parser registry、schema catalog、identity-cast helper或第二facts store。
+- 不把parser输出建模成不同于execution data的第二domain model；两者表达同一个`Data` contract。
+- 不迁移project callback inputs，不修改presentation、aggregation或machine schema。
 
 ## Decisions
 
 ### Intended Change
 
-#### 1. Target responsibility map
-
-| Concern | Target |
-| --- | --- |
-| Producer | 普通executable Check；拥有一个terminal outcome/final data及零到多个Records。 |
-| Authorization | Declared direct dependency同时建立Task order和settled read permission。 |
-| Read timing | Reporter关闭且upstream terminal settlement完成后，downstream才读取frozen facts。 |
-| Fact source | Existing Core Checks/Records；runtime index与view都是derived state。 |
-| Primary data address | Exact upstream Check identity；读取该Check的terminal final data。 |
-| Supplemental data address | Exact`{ checkId, recordId }`；只有首版consumer成立时公开。 |
-| Parser | Upstream-owned descriptor；绑定Check，并在Record场景额外绑定Record ID。 |
-| Getter | 验证dependency、读取status、选择source、调用parser并返回typed success/failure。 |
-| Presentation | 不属于dependency contract；renderer不从dependency graph推断supporting role。 |
-
-Supporting Check不成为hidden computation node。无论human visibility如何配置，它的lifecycle events、structured RunResult、Core Check/final data与Records都正常产生。
-
-#### 2. Final data is the leading source for a single dependency output
-
-一个Check的single primary domain result已经由terminal final data表达。Dependency consumer需要这个结果时，直接绑定upstream Check的result parser；不得要求producer把相同data复制成一个`id: "result"`Record。
-
-领先descriptor：
-
-```ts
-interface CheckResultDataParser<CheckId extends string, Value> {
-  readonly checkId: CheckId;
-  parse(data: CanonicalJsonObject): Value;
-}
-```
-
-Exact factory/function names由prototype固定。Descriptor身份必须来自producing Check value，不能仅靠consumer手写string伪造ownership。
-
-#### 3. Supplemental Record readback is a separate optional variant
-
-如果一个producer确实拥有多个可独立标识、可分别消费的facts，可以为exact Record IDs导出parsers：
-
-```ts
-interface CheckRecordDataParser<
-  CheckId extends string,
-  RecordId extends string,
-  Value
-> {
-  readonly checkId: CheckId;
-  readonly recordId: RecordId;
-  parse(data: CanonicalJsonObject): Value;
-}
-```
-
-这不是所有dependency output的基础。Plan readiness必须用named consumer证明Record variant；若final data足够，首版只保留result parser/getter。首版即使包含Record variant，也只支持exact ID，不提供predicate、prefix、dynamic matching或query grammar。
-
-#### 4. Public type relationship
-
-领先settled view：
-
-```ts
-interface SettledCheckOutput {
-  readonly checkId: string;
-  readonly outcome: CheckOutcome;
-  readonly records: readonly CoreRecord[];
-}
-
-type DependencyDataResult<Value> =
-  | {
-      readonly ok: true;
-      readonly data: Value;
-      readonly upstream: SettledCheckOutput;
-    }
-  | {
-      readonly ok: false;
-      readonly error: DependencyDataError;
-      readonly upstream: SettledCheckOutput;
-    };
-```
-
-TypeScript必须保持：
+#### Contract overview
 
 ```text
-upstream Check literal identity
-  -> declared dependency set
-  -> getter accepts only parsers from that set
-  -> parser Value becomes result.data after ok narrowing
+producer execution(): CheckResult<Data>
+              │
+              ▼ Core settlement
+CanonicalJsonObject final data
+              │
+              ▼ dependencies.get(checkId: string)
+raw success or closed read failure
+              │
+              ▼ producer.parseData(raw.data)
+Data
 ```
 
-Parser只转换selected canonical data；authorization、source absence、upstream status与parser rejection都由getter表达。
+Access control只发生在getter runtime。Type recovery只发生在producer parser。两者没有跨Check generic关系。
 
-#### 5. Runtime read flow
+#### Public dependency read API
 
-1. Definition normalization建立完整static graph，并在work前验证dependency existence、cycle和scheduling constraints。
-2. Upstream Task settled后关闭reporter，形成terminal Check outcome/final data与完整owned Records。
-3. Downstream`dependencies.get(parser)`验证parser的`checkId`属于declared direct dependency。
-4. Getter读取upstream status；只有source语义允许时才选择final data或exact Record data。
-5. Getter调用parser；成功返回inferred`Value`，失败返回structured error。
-6. Getter result携带同一`SettledCheckOutput`，使downstream不把failed、not-applicable、unavailable或missing Record混为一类。
+Planned public shape：
 
-Runtime不允许undeclared、transitive、live或partial reads。内部可以维护per-Check index，但最终bytes、ordering与ownership必须与Core facts一致。
+```ts
+export interface CheckDependencies {
+  get(checkId: string): DependencyReadResult;
+}
 
-#### 6. Failure boundary
+export type DependencyReadResult =
+  | Readonly<{
+      ok: true;
+      checkId: string;
+      status: "passed" | "failed";
+      data: CanonicalJsonObject;
+    }>
+  | Readonly<{
+      ok: false;
+      error: DependencyReadError;
+    }>;
 
-| Source | Required behavior |
+export type DependencyReadError =
+  | Readonly<{
+      code: "dependency-not-declared";
+      checkId: string;
+    }>
+  | Readonly<{
+      code: "upstream-data-unavailable";
+      checkId: string;
+      status: "not-applicable" | "unavailable";
+    }>;
+
+export interface CheckExecutionContext<Options extends object> {
+  readonly options: DeepReadonly<Options>;
+  readonly project: CheckProjectContext;
+  readonly records: CheckRecordReporter;
+  readonly signal: AbortSignal;
+  readonly dependencies: CheckDependencies;
+}
+```
+
+如果public inventory需要减少named type roots，可以内联supporting type名称；但以上字段、union、error codes和`get(checkId: string)`签名是本Design固定的public行为。
+
+Runtime result rules：
+
+| 请求条件 | Getter结果 |
 | --- | --- |
-| Undeclared dependency / identity mismatch | Fail closed；不得返回其它Check data。 |
-| Upstream not-applicable/unavailable | 返回包含upstream outcome的failure；不得伪装成empty data。 |
-| Upstream failed | Prototype明确consumer是否可以读取failed final data；不得由data presence隐式决定。 |
-| Exact supplemental Record missing | 若首版支持Record parser，返回diagnosable failure；parser不参与missing判断。 |
-| Parser rejection | Getter捕获并返回read failure；不修改producer outcome或Core acceptance。 |
-| Product cancellation / impossible state | 由Product containment映射，不能交给arbitrary parser决定。 |
+| Declared direct upstream是`passed` | `ok: true`，携带status和canonical data。 |
+| Declared direct upstream是`failed` | `ok: true`，携带status和canonical data；read success不表示quality passed。 |
+| Declared direct upstream是`not-applicable`或`unavailable` | `upstream-data-unavailable`，携带settled status。 |
+| ID未声明、仅transitive、malformed或其它未授权情况 | `dependency-not-declared`；不返回任何upstream facts。 |
+| 已授权upstream不存在或尚未settled | Trusted Product invariant failure；不伪造成第三种public read error。 |
 
-Passed final data可进入parser。Failed final data是否可读必须由Plan prototype显式选择，因为它可能同时是有价值的失败详情，也可能不满足downstream前置条件。
+Getter runtime rules：
 
-#### 7. External readback
+- Authorization使用current Check的normalized effective direct dependency IDs，包括inherited direct IDs。
+- Getter、allowed-ID set、success/error wrapper和callback context都是frozen values。
+- Success `data`就是`CoreCheck.outcome.data`的原引用；getter不clone data。
+- Getter不读取supplemental Records，也不调用producer code。
 
-Machine v4发布Check terminal final data与`{ checkId, id, data }`Records。External consumer按Check identity读取final data，或在需要supplemental fact时按exact composite Record identity读取，再使用相同版本的upstream-owned parser。
+#### Typed provider contract
 
-Parser function不进入artifact；需要durable readback的Check在自己的data中携带version或discriminant。Dependency runtime view不另行持久化。
+Observable type relation：
 
-#### 8. Presentation handoff
+```ts
+export type CheckResult<Data extends object = object> = Readonly<
+  (
+    | { readonly status: "passed"; readonly data: Data }
+    | { readonly status: "failed"; readonly data: Data }
+    | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
+    | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
+  ) &
+    CheckResultMessages
+>;
 
-Human direct display不属于dependency contract，也不阻塞本Change。相邻已归档的[`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）提供structured terminal messages、`RunResult` readback与显式Check visibility；messages不进入dependency/Core/Record/machine facts，也不改变本Change的dependency authorization与correctness。
+interface TypedCheckFields<Options extends object, Data extends object> {
+  /**
+   * Restores provider data from canonical runtime data.
+   *
+   * Heuristic: a same-version trusted provider may implement this only as an
+   * identity/type anchor when provider tests guarantee the shape. That does
+   * not validate JavaScript or cast-based producers, historical or
+   * cross-version artifacts, or untrusted input.
+   */
+  parseData(this: void, data: CanonicalJsonObject): Data;
+
+  execution(
+    this: void,
+    context: CheckExecutionContext<Options>
+  ): CheckResult<NoInfer<Data>> | Promise<CheckResult<NoInfer<Data>>>;
+}
+```
+
+`TypedCheckFields`这里只表示required relationship；implementation可用overload、intersection或等价declaration实现。必须满足：
+
+1. `Data`只从`parseData` return推导；`execution`不能反向拓宽它。
+2. `passed` / `failed` execution data必须assignable to同一个`Data`。
+3. Defined Check与emitted declaration中的`parseData`保持required；consumer无需undefined guard。
+4. `parseData`是synchronous runtime function，输入始终是canonical final data。
+5. Parser与execution表达同一个logical data contract；本Change不支持separate stored/parsed generics。
+6. Typed provider必须executable；container不能声明parser。
+7. Existing options/no-options inference、ordinary no-parser Check、recursive composition与native spread保持合法。
+
+Parser function是producer Check value的consumer capability，不是producer execution步骤。Product在settlement或getter中都不调用它。
+
+#### Authoring and consumption example
+
+```ts
+interface ChangedFilesData {
+  readonly version: 1;
+  readonly files: readonly string[];
+}
+
+const changedFiles = defineCheck({
+  checkId: "changed-files",
+  displayName: "Changed files",
+
+  parseData(data): ChangedFilesData {
+    if (
+      data.version !== 1 ||
+      !Array.isArray(data.files) ||
+      !data.files.every((value): value is string => typeof value === "string")
+    ) {
+      throw new TypeError("Unsupported changed-files data");
+    }
+
+    return { version: 1, files: data.files };
+  },
+
+  execution() {
+    return {
+      status: "passed",
+      data: { version: 1, files: ["src/index.ts"] }
+    };
+  }
+});
+
+const analyzeChangedFiles = defineCheck({
+  checkId: "analyze-changed-files",
+  displayName: "Analyze changed files",
+  dependsOn: [changedFiles.checkId],
+
+  execution({ dependencies }) {
+    const read = dependencies.get(changedFiles.checkId);
+    if (!read.ok) {
+      return { status: "unavailable", reason: { code: read.error.code } };
+    }
+
+    const data = changedFiles.parseData(read.data);
+    return {
+      status: read.status,
+      data: { analyzedFileCount: data.files.length }
+    };
+  }
+});
+```
+
+Getter只使用string ID。`changedFiles.parseData`是ordinary function call，因此`data`自然推导为`ChangedFilesData`，不需要getter generic或consumer cast。
+
+#### Parser responsibility and type-anchor heuristic
+
+Normative parser contract：
+
+- Provider拥有business-shape validation、version discrimination和error policy。
+- Parser接收canonical runtime data，不接收author data或JSON text。
+- Parser在Check callback内throw时服从existing callback containment；external caller自行选择catch或safe-parse策略。
+- Product不返回`parser-rejected`，不检查parser output，也不序列化parser function。
+
+> **启发，不是保证：** Canonical final data仍然是JavaScript runtime object。当producer与consumer使用同一个trusted version，且provider tests保证shape时，`parseData`可以只作为identity/type anchor，而不重复校验每个字段。该做法不能验证JavaScript或cast-based producer、historical artifact、cross-version data或untrusted input。Product API不会提供public unchecked-cast helper。
+
+上方`TypedCheckFields.parseData`中的JSDoc是计划进入public declaration的最低提示，不得在实现时只保留在guide或Change中。
+
+#### Four-state dependency settlement
+
+四种Check outcome都是normal dependency settlement：
+
+| Upstream outcome | Scheduler admits downstream | Getter can return data |
+| --- | --- | --- |
+| `passed` | Yes | Yes |
+| `failed` | Yes | Yes |
+| `not-applicable` | Yes | No |
+| `unavailable` | Yes | No |
+
+Run删除current `CheckUnavailableSignal`适配，不再为ordinary upstream status合成`prerequisite-unavailable`。Downstream检查read result后自行决定terminal result。Cancellation-before-start、invalid graph和trusted Core/engine failure仍是独立边界，并可阻止callback开始。
+
+#### Runtime architecture
+
+```text
+Check authoring
+  ├─ declarative fields ──> Definition snapshot / fingerprint / Task graph
+  └─ execution + parseData ──> trusted caller-runtime functions
+
+Task graph settles upstream in Core
+  └─ Core package-private readSettledCheck(checkId)
+       └─ Run callback-local dependencies view
+            ├─ authorize effective direct ID
+            ├─ return canonical data or closed failure
+            └─ never call parseData
+
+Consumer callback
+  └─ producer.parseData(read.data) ──> Data
+```
+
+Layer responsibilities：
+
+| Layer | 负责 | 不负责 |
+| --- | --- | --- |
+| Definition | Closed parser field validation；把parser排除在declarative fingerprint之外。 | Parser execution或business schema。 |
+| Task scheduler | Graph validation、ordering、concurrency、cancellation和generic task failure。 | 解释Check domain status。 |
+| Core | Canonical settled Check/Record facts和package-private settled read seam。 | Typed parser、dependency authorization或第二output store。 |
+| Run | Effective direct-ID authorization和frozen callback-local getter。 | Persistent facts、Record query或parser execution。 |
+| Check provider | `Data` contract、parser implementation和round-trip evidence。 | Access authorization。 |
+| Consumer | Read-failure handling和显式parser invocation。 | Unchecked access to undeclared/transitive facts。 |
+
+#### Acceptance evidence
+
+Implementation必须分别证明以下边界：
+
+| Evidence | 证明内容 |
+| --- | --- |
+| Provider type fixtures | Parser-return Data anchor、execution mismatch rejection、options/ordinary/recursive compatibility和required emitted parser。 |
+| Core/Run tests | Direct-only authorization、same canonical reference、frozen view、两种failure code和trusted invariant boundary。 |
+| Orchestration tests | Four-state admission、cancellation和implicit unavailable cascade已移除。 |
+| Changed-files fixture | Producer只执行一次、两个consumers显式parse并处理status。 |
+| Candidate/external consumer | Published declarations在无cast和ancestry import时仍保留types。 |
+| Machine/RunResult test | 同一个versioned parser读取existing canonical final data，machine schema不变。 |
 
 ### Resulting Impacts
 
-- declared direct dependency、settlement barrier、upstream-owned parser 与 TypeScript inference 必须共同决定 typed getter；final data 是单一主结果，supplemental Record 读取仅在真实 consumer 需要时加入。
-- authorization、upstream status、missing source 和 parser rejection 必须返回 structured failure，同时 Core、RunResult 与 machine output 继续只保存 canonical Checks/Records，不形成第二份 output store。
+- **Public types：** 增加provider-local data relation和non-generic read surface；不增加cross-Check readable-ID types。
+- **Definition：** 只在executable typed provider接受`parseData`；parser不进入portable snapshot或fingerprint。
+- **Core/Run：** 增加package-private settled read和callback-local direct dependency view，不复制facts。
+- **Orchestration：** 不再把ordinary`unavailable`当作Task failure；迁移blocked、progress和lifecycle evidence。
+- **Package：** Declarations和installed consumer同时证明ordinary/typed Check authoring；runtime root inventory不变。
+- **Stable docs：** Configuration拥有authoring；Architecture拥有data/control flow；Quality Metrics拥有status/data semantics；Output确认canonical machine compatibility。
+- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)已承接本final-data-first contract；在implementation与stable owners对齐前保持`active + unaligned`。
 
 ## Risks / Trade-offs
 
-| Risk | Control |
+| Risk | Required control |
 | --- | --- |
-| `defineCheck` generics演变成第二套类型系统 | 只保留dependency set、parser identity和inferred value关系；不要求手写tuple generic。 |
-| Final data与Record getter形成重复API | Final data是single output默认；Record variant必须由多个/独立identified facts的真实consumer证明。 |
-| Runtime暴露错误或未完成output | Direct-edge authorization、settlement barrier、status mapping、exact lookup与immutable view。 |
-| Parser与producer data漂移 | Colocate parser/type、durable data使用Check-owned版本，并把rejection作为getter failure。 |
-| Derived view漂移为第二facts source | 所有view从Core Checks/Records派生，不另行持久化。 |
-| Human visibility被误解为facts隐藏 | Presentation metadata只交给renderer；facts/events始终产生。 |
+| Execution inference拓宽`Data`并隐藏mismatch | 只从parser return锚定；使用`NoInfer`或等价约束；要求可理解的negative diagnostic。 |
+| New overload破坏existing Check authoring | 覆盖options/no-options、ordinary/typed、container、recursive、heterogeneous、native spread和declaration emit。 |
+| String getter没有compile-time dependency checking | Runtime direct-ID authorization是mandatory并完整测试；docs明确TypeScript不是access control。 |
+| Parser被误认为JSON parser或收到错误对象 | JSDoc、runtime identity tests和example明确命名canonical runtime object。 |
+| Type-anchor启发被复制成validation | 明确标记non-normative和失效条件；不提供public cast helper。 |
+| Provider parser在consumer callback内throw | Provider拥有round-trip tests；需要恢复时暴露provider-owned safe API，不增加Product-wide error code。 |
+| `unavailable`不再阻断ordering-only dependent | 文档固定new admission semantics；downstream显式选择outcome；保留cancellation和trusted-failure boundaries。 |
+| Read view成为第二facts source | 返回existing Core data reference；不持久化view、不读取Records、不增加machine field。 |
 
 ## Open Questions
 
-形成Plan前只需关闭：
+无。Internal helper和overload layout只有在以上emitted/public behavior、error union、four-state settlement与layer responsibility保持不变时才可调整。
 
-1. **Dependency grammar：** 领先候选是`dependsOn: [checkValue]`；与string edge、named binding的对照只验证inference/composition，不承诺compatibility layer。
-2. **Getter grammar：** 固定result parser/getter的exact generic、failure codes和upstream status mapping。
-3. **Supplemental Record variant：** 是否存在final data不能承接的首版named consumer；没有则首版删除Record parser/getter。
-4. **Failed data access：** downstream能否解析failed upstream的final data，还是必须先返回dependency failure。
-5. **Composition evidence：** 证明inline/exported/recursive Checks、`inherit`、heterogeneous collections、declaration emit与isolated package consumer保留类型关系。
+## Readiness Evidence
 
-### Evidence Required by Plan
-
-- Type-only fixtures：合法dependency/result-parser inference与cross-Check parser rejection。
-- Runtime fixtures：settlement barrier、status mapping、missing/parser failures与immutability。
-- Changed-files consumer：一个producer、至少两个downstream consumers、一次data collection；优先使用final data。
-- Supplemental Record consumer：只有决定纳入该variant时才要求exact-ID runtime/type fixtures。
-- Machine/external consumer：按Check identity或exact Record identity读取并使用version-matched parser。
-- Candidate package：emitted declarations与ancestry-external consumer无cast typecheck。
+形成本Plan时使用的current facts、consumer/Test Evidence audit与isolated TypeScript readiness prototype见[`readiness-audit.md`](readiness-audit.md)。它们证明设计可直接进入implementation，不证明product implementation已经完成。
