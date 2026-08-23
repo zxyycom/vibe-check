@@ -39,7 +39,7 @@ export interface AuthorCheckSettlement {
 
 export interface CoreCheckSession {
   openCheckScope(checkId: string): TrustedCheckScope;
-  readSettledCheck(checkId: string): CoreCheck;
+  readSettledCheckOutcome(checkId: string): CheckOutcome;
   closeUnresolvedAsCancelled(): void;
   freeze(): CoreSnapshot;
 }
@@ -126,12 +126,12 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     });
   }
 
-  public readSettledCheck(checkId: string): CoreCheck {
+  public readSettledCheckOutcome(checkId: string): CheckOutcome {
     const slot = this.#slotFor(checkId);
     if (slot.lifecycle.kind !== "settled") {
       coreInvariant("Core settled Check is not available");
     }
-    return coreCheckFor(slot);
+    return slot.lifecycle.outcome;
   }
 
   public closeUnresolvedAsCancelled(): void {

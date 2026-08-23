@@ -97,10 +97,10 @@ function deferred<T>(): Readonly<{
 }
 
 function outcomeFor(
-  result: Awaited<ReturnType<typeof executeResolvedChecks>>,
+  execution: Awaited<ReturnType<typeof executeResolvedChecks>>,
   checkId: string
-): NonNullable<(typeof result.snapshot.checks)[number]>["outcome"] {
-  const outcome = result.snapshot.checks.find((check) => check.checkId === checkId)?.outcome;
+): NonNullable<(typeof execution.snapshot.checks)[number]>["outcome"] {
+  const outcome = execution.snapshot.checks.find((check) => check.checkId === checkId)?.outcome;
   if (outcome === undefined) throw new Error(`Missing outcome for ${checkId}`);
   return outcome;
 }
@@ -589,10 +589,10 @@ describe("Package Run direct Check execution", () => {
   it("admits all settled dependency outcomes and limits reads to direct dependencies", async () => {
     const upstreamCases: readonly Readonly<{
       readonly expectedRead: DependencyReadResult;
-      readonly result: CheckResult;
+      readonly terminalResult: CheckResult;
     }>[] = [
       {
-        result: { status: "passed", data: { source: "passed" } },
+        terminalResult: { status: "passed", data: { source: "passed" } },
         expectedRead: {
           ok: true,
           checkId: "source",
@@ -601,7 +601,7 @@ describe("Package Run direct Check execution", () => {
         }
       },
       {
-        result: { status: "failed", data: { source: "failed" } },
+        terminalResult: { status: "failed", data: { source: "failed" } },
         expectedRead: {
           ok: true,
           checkId: "source",
@@ -610,7 +610,7 @@ describe("Package Run direct Check execution", () => {
         }
       },
       {
-        result: { status: "not-applicable" },
+        terminalResult: { status: "not-applicable" },
         expectedRead: {
           ok: false,
           error: {
@@ -621,7 +621,7 @@ describe("Package Run direct Check execution", () => {
         }
       },
       {
-        result: { status: "unavailable", reason: { code: "source-unavailable" } },
+        terminalResult: { status: "unavailable", reason: { code: "source-unavailable" } },
         expectedRead: {
           ok: false,
           error: {
@@ -633,12 +633,15 @@ describe("Package Run direct Check execution", () => {
       }
     ];
 
-    for (const upstream of upstreamCases) {
+    for (const upstreamCase of upstreamCases) {
       let dependentCalls = 0;
       let observedRead: DependencyReadResult | undefined;
-      const result = await executeResolvedChecks({
+      const execution = await executeResolvedChecks({
         checks: [
-          normalized(() => upstream.result, { checkId: "source", displayName: "Source" }),
+          normalized(() => upstreamCase.terminalResult, {
+            checkId: "source",
+            displayName: "Source"
+          }),
           normalized(
             (context) => {
               dependentCalls += 1;
@@ -664,17 +667,17 @@ describe("Package Run direct Check execution", () => {
         signal: undefined
       });
 
-      assert.equal(result.kind, "completed");
+      assert.equal(execution.kind, "completed");
       assert.equal(dependentCalls, 1);
-      assert.deepEqual(observedRead, upstream.expectedRead);
-      const sourceOutcome = outcomeFor(result, "source");
+      assert.deepEqual(observedRead, upstreamCase.expectedRead);
+      const sourceOutcome = outcomeFor(execution, "source");
       if (
         observedRead?.ok &&
         (sourceOutcome.status === "passed" || sourceOutcome.status === "failed")
       ) {
         assert.equal(observedRead.data, sourceOutcome.data);
       }
-      assert.deepEqual(outcomeFor(result, "dependent"), {
+      assert.deepEqual(outcomeFor(execution, "dependent"), {
         status: "passed",
         data: { dependent: true }
       });

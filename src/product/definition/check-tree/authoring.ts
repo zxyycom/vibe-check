@@ -4,7 +4,6 @@ import {
   isInheritedCheckCollection,
   snapshotInheritedCheckCollection,
   type CheckVisibility,
-  type CheckDataParser,
   type CheckExecution,
   type InheritedCheckCollection
 } from "../custom-check.ts";
@@ -15,6 +14,8 @@ import {
 import { validateCheckDefinition } from "../../quality-core/check-record/validation.ts";
 import { isCheckTreeReferenceId } from "./identity.ts";
 import { snapshotJsonObject } from "./json-snapshot.ts";
+
+type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
 
 export type ParsedCheckCollection = Readonly<
   | { readonly kind: "exact"; readonly values: readonly string[] }
@@ -36,7 +37,7 @@ export interface ParsedCheck {
   readonly mutex: ParsedCheckCollection | undefined;
   readonly options: object | null;
   readonly path: string;
-  readonly parseData: CheckDataParser | null;
+  readonly parseData: TrustedDataParser | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -64,7 +65,7 @@ interface ParsedCheckFields {
   readonly definition: CheckDefinition | null;
   readonly execution: CheckExecution | null;
   readonly options: object | null;
-  readonly parseData: CheckDataParser | null;
+  readonly parseData: TrustedDataParser | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -171,12 +172,12 @@ function isCheckExecution(value: unknown): value is CheckExecution {
   return typeof value === "function";
 }
 
-function parseDataParser(data: CheckAuthoringData): CheckDataParser | null | undefined {
+function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | undefined {
   if (!Object.hasOwn(data, "parseData") || data.parseData === undefined) return null;
-  return isCheckDataParser(data.parseData) ? data.parseData : undefined;
+  return isTrustedDataParser(data.parseData) ? data.parseData : undefined;
 }
 
-function isCheckDataParser(value: unknown): value is CheckDataParser {
+function isTrustedDataParser(value: unknown): value is TrustedDataParser {
   return typeof value === "function";
 }
 
@@ -215,7 +216,7 @@ function parseOptions(data: CheckAuthoringData): object | undefined {
 function parseCheckFields(
   data: CheckAuthoringData,
   execution: CheckExecution | null,
-  parseData: CheckDataParser | null
+  parseData: TrustedDataParser | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
     return Object.hasOwn(data, "options") || Object.hasOwn(data, "visibility") || parseData !== null

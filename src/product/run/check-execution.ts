@@ -11,7 +11,7 @@ import {
   createCoreCheckSession,
   type CoreCheckSession
 } from "../quality-core/check-record/core-session.ts";
-import type { CoreCheck, CoreSnapshot } from "../quality-core/check-record/model.ts";
+import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
 import { prepareTaskGraph, runTaskGraph, type SettledTask } from "../task-scheduler/index.ts";
 import { executeCheckCallback } from "./check-callback.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
@@ -192,30 +192,29 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
 }
 
 function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
-  const allowedDependencyIds = Object.freeze([...input.check.dependsOn]);
+  const directDependencyIds = input.check.dependsOn;
   return Object.freeze({
     get: (checkId: string): DependencyReadResult =>
-      readDependency(input.session, allowedDependencyIds, checkId)
+      readDependency(input.session, directDependencyIds, checkId)
   });
 }
 
 function readDependency(
   session: CoreCheckSession,
-  allowedDependencyIds: readonly string[],
+  directDependencyIds: readonly string[],
   checkId: string
 ): DependencyReadResult {
-  if (typeof checkId !== "string" || !allowedDependencyIds.includes(checkId)) {
+  if (typeof checkId !== "string" || !directDependencyIds.includes(checkId)) {
     return dependencyNotDeclared(checkId);
   }
-  return dependencyReadResult(session.readSettledCheck(checkId));
+  return dependencyReadResult(checkId, session.readSettledCheckOutcome(checkId));
 }
 
-function dependencyReadResult(coreCheck: CoreCheck): DependencyReadResult {
-  const outcome = coreCheck.outcome;
+function dependencyReadResult(checkId: string, outcome: CheckOutcome): DependencyReadResult {
   if (outcome.status === "passed" || outcome.status === "failed") {
     return Object.freeze({
       ok: true,
-      checkId: coreCheck.checkId,
+      checkId,
       status: outcome.status,
       data: outcome.data
     });
@@ -224,7 +223,7 @@ function dependencyReadResult(coreCheck: CoreCheck): DependencyReadResult {
     ok: false,
     error: Object.freeze({
       code: "upstream-data-unavailable",
-      checkId: coreCheck.checkId,
+      checkId,
       status: outcome.status
     })
   });

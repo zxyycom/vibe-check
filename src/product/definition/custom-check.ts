@@ -1,5 +1,5 @@
 import type { ProjectQualityConfiguration } from "./quality.ts";
-import type { CanonicalJsonObject } from "../foundation/canonical-json.ts";
+import type { CanonicalJsonObject, CanonicalJsonValue } from "../foundation/canonical-json.ts";
 
 export type CheckReason = Readonly<{ readonly code: string }>;
 
@@ -25,10 +25,10 @@ export interface CheckResultMessages {
 
 export type CheckVisibility = "always" | "attention";
 
-export type CheckResult<Data extends object = object> = Readonly<
+export type CheckResult<FinalData extends object = object> = Readonly<
   (
-    | { readonly status: "passed"; readonly data: Data }
-    | { readonly status: "failed"; readonly data: Data }
+    | { readonly status: "passed"; readonly data: FinalData }
+    | { readonly status: "failed"; readonly data: FinalData }
     | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
     | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
   ) &
@@ -217,13 +217,16 @@ export interface Check<Options extends object = object> {
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
-export type CheckDataParser<Data extends object = object> = (
+/**
+ * Prevents a broad parser annotation from erasing PromiseLike. A canonical
+ * `then` field may hold JSON data, but never the callable that makes a value thenable.
+ */
+type NonThenableData = Readonly<{ readonly then?: CanonicalJsonValue }>;
+
+export type CheckDataParser<FinalData extends object = object> = (
   this: void,
   data: CanonicalJsonObject
-) => Data;
-
-type SynchronousCheckDataParser<Parser extends CheckDataParser> =
-  Extract<ReturnType<Parser>, PromiseLike<unknown>> extends never ? Parser : never;
+) => FinalData & NonThenableData;
 
 type CheckAuthoringBase<Id extends string, Options extends object> = Omit<
   Check<Options>,
@@ -263,7 +266,7 @@ interface TypedCheckFields<Options extends object, Parser extends CheckDataParse
    * not validate JavaScript or cast-based producers, historical or
    * cross-version artifacts, or untrusted input.
    */
-  readonly parseData: SynchronousCheckDataParser<Parser>;
+  readonly parseData: Parser;
 
   execution(
     this: void,

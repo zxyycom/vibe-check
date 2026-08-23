@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import type { CheckDataParser } from "./custom-check.ts";
 import {
   createDeclarativeFingerprint,
   defineCheck,
@@ -234,13 +235,13 @@ describe("Project Definition", () => {
   });
 
   it("accepts parsers only on executable providers and excludes them from declarative identity", () => {
-    const firstParser = (data: Readonly<Record<string, unknown>>) => ({
+    const firstDataParser = (data: Readonly<Record<string, unknown>>) => ({
       source: typeof data.source === "string" ? data.source : ""
     });
-    const secondParser = (data: Readonly<Record<string, unknown>>) => ({
+    const secondDataParser = (data: Readonly<Record<string, unknown>>) => ({
       source: typeof data.source === "string" ? data.source : ""
     });
-    const provider = (parseData: typeof firstParser): ProjectDefinition =>
+    const definitionWithParser = (parseData: typeof firstDataParser): ProjectDefinition =>
       defineConfig({
         checks: [
           defineCheck({
@@ -252,7 +253,7 @@ describe("Project Definition", () => {
         ]
       });
 
-    const validated = validateProjectDefinition(provider(firstParser));
+    const validated = validateProjectDefinition(definitionWithParser(firstDataParser));
     assert.equal(validated.ok, true);
     if (validated.ok) {
       const materialized = validated.value.checks[0];
@@ -260,24 +261,24 @@ describe("Project Definition", () => {
         materialized !== undefined && "parseData" in materialized
           ? materialized.parseData
           : undefined,
-        firstParser
+        firstDataParser
       );
     }
 
-    const first = normalizeProjectDefinition(provider(firstParser));
-    const second = normalizeProjectDefinition(provider(secondParser));
-    assert.equal(Object.hasOwn(first.checks[0] ?? {}, "parseData"), false);
-    assert.equal(Object.hasOwn(first.declarative.checks[0] ?? {}, "parseData"), false);
+    const firstDefinition = normalizeProjectDefinition(definitionWithParser(firstDataParser));
+    const secondDefinition = normalizeProjectDefinition(definitionWithParser(secondDataParser));
+    assert.equal(Object.hasOwn(firstDefinition.checks[0] ?? {}, "parseData"), false);
+    assert.equal(Object.hasOwn(firstDefinition.declarative.checks[0] ?? {}, "parseData"), false);
     assert.equal(
-      createDeclarativeFingerprint(first.declarative),
-      createDeclarativeFingerprint(second.declarative)
+      createDeclarativeFingerprint(firstDefinition.declarative),
+      createDeclarativeFingerprint(secondDefinition.declarative)
     );
 
     for (const check of [
       {
         checkId: "container-parser",
         displayName: "Container parser",
-        parseData: firstParser
+        parseData: firstDataParser
       },
       {
         checkId: "invalid-parser",
@@ -396,6 +397,12 @@ function _typeCheckTypedProviderAuthoring() {
   const parsed: ChangedFilesData = changedFiles.parseData({ files: [], version: 1 });
   void parsed.files;
 
+  const canonicalIdentityParser: CheckDataParser = (data) => data;
+  // @ts-expect-error the default parser contract rejects erased asynchronous returns.
+  const asyncParserWithErasedReturn: CheckDataParser = async () => ({ version: 1 });
+  void asyncParserWithErasedReturn;
+  void canonicalIdentityParser;
+
   const variableParser = changedFiles.parseData;
   const variableProvider = defineCheck({
     checkId: "variable-provider",
@@ -472,7 +479,6 @@ function _typeCheckTypedProviderAuthoring() {
     async parseData(_data) {
       return { files: [], version: 1 } satisfies ChangedFilesData;
     },
-    // @ts-expect-error asynchronous parser data cannot satisfy execution final data.
     execution: () => ({ status: "passed", data: { files: [], version: 1 } })
   });
 
@@ -482,6 +488,7 @@ function _typeCheckTypedProviderAuthoring() {
   defineCheck({
     checkId: "maybe-async-parser",
     displayName: "Maybe async parser",
+    // @ts-expect-error a maybe-async parser cannot define synchronous final data.
     execution(): CheckResult<ChangedFilesData | Promise<ChangedFilesData>> {
       return { status: "passed", data: { files: [], version: 1 } };
     },

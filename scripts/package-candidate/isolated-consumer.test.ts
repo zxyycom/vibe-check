@@ -339,6 +339,17 @@ const changedFiles = defineCheck({
   })
 });
 
+const asyncChangedFilesParser = async (
+  _data: Readonly<Record<string, unknown>>
+): Promise<ChangedFilesData> => changedFilesData;
+defineCheck({
+  checkId: "isolated-async-provider",
+  displayName: "Isolated async provider",
+  execution: () => ({ status: "passed", data: changedFilesData }),
+  // @ts-expect-error emitted provider declarations require a synchronous parser.
+  parseData: asyncChangedFilesParser
+});
+
 const changedFilesConsumer = defineCheck({
   checkId: "isolated-changed-files-consumer",
   displayName: "Isolated changed-files consumer",
@@ -346,8 +357,8 @@ const changedFilesConsumer = defineCheck({
   execution: ({ dependencies }) => {
     const read = dependencies.get(changedFiles.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-    const data = changedFiles.parseData(read.data);
-    return { status: read.status, data: { fileCount: data.files.length } };
+    const parsedChangedFiles = changedFiles.parseData(read.data);
+    return { status: read.status, data: { fileCount: parsedChangedFiles.files.length } };
   }
 });
 
@@ -484,8 +495,8 @@ const firstChangedFilesConsumer = defineCheck({
   execution: ({ dependencies }) => {
     const read = dependencies.get(changedFiles.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-    const data = changedFiles.parseData(read.data);
-    return { status: read.status, data: { fileCount: data.files.length } };
+    const parsedChangedFiles = changedFiles.parseData(read.data);
+    return { status: read.status, data: { fileCount: parsedChangedFiles.files.length } };
   }
 });
 
@@ -496,8 +507,8 @@ const secondChangedFilesConsumer = defineCheck({
   execution: ({ dependencies }) => {
     const read = dependencies.get(changedFiles.checkId);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-    const data = changedFiles.parseData(read.data);
-    return { status: read.status, data: { firstFile: data.files[0] } };
+    const parsedChangedFiles = changedFiles.parseData(read.data);
+    return { status: read.status, data: { firstFile: parsedChangedFiles.files[0] } };
   }
 });
 
@@ -527,21 +538,30 @@ const result = await run(
 const duplicate = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === "duplicate-detection")
   : undefined;
-const changedFilesFromRun = result.kind === "completed"
+const runChangedFilesCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === changedFiles.checkId)
   : undefined;
-const machine = JSON.parse(readFileSync(join(projectRoot, "machine-output/run.json"), "utf8"));
-const machineChangedFiles = machine.checks.find((check) => check.checkId === changedFiles.checkId);
-const parsedChangedFilesFromMachine = changedFiles.parseData(machineChangedFiles.outcome.data);
-const parsedChangedFilesFromRun = changedFilesFromRun?.outcome.status === "passed"
-  ? changedFiles.parseData(changedFilesFromRun.outcome.data)
+const publishedRun = JSON.parse(readFileSync(join(projectRoot, "machine-output/run.json"), "utf8"));
+const publishedChangedFilesCheck = publishedRun.checks.find(
+  (check) => check.checkId === changedFiles.checkId
+);
+const parsedChangedFilesFromMachine = changedFiles.parseData(
+  publishedChangedFilesCheck.outcome.data
+);
+const parsedChangedFilesFromRun = runChangedFilesCheck?.outcome.status === "passed"
+  ? changedFiles.parseData(runChangedFilesCheck.outcome.data)
   : null;
-const firstConsumer = result.kind === "completed"
+const firstConsumerCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === firstChangedFilesConsumer.checkId)
   : undefined;
-const secondConsumer = result.kind === "completed"
+const secondConsumerCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === secondChangedFilesConsumer.checkId)
   : undefined;
+
+function settledFinalData(check) {
+  if (check?.outcome.status !== "passed" && check?.outcome.status !== "failed") return null;
+  return check.outcome.data;
+}
 
 process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   checkMessages: result.kind === "completed" ? result.checkMessages : null,
@@ -550,16 +570,10 @@ process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   changedFilesFromMachine: parsedChangedFilesFromMachine,
   changedFilesFromRun: parsedChangedFilesFromRun,
   kind: result.kind,
-  firstChangedFilesConsumer: firstConsumer?.outcome.status === "passed" || firstConsumer?.outcome.status === "failed"
-    ? firstConsumer.outcome.data
-    : null,
-  machineSchemaVersion: machine.schemaVersion,
-  secondChangedFilesConsumer: secondConsumer?.outcome.status === "passed" || secondConsumer?.outcome.status === "failed"
-    ? secondConsumer.outcome.data
-    : null,
-  duplicateData: duplicate?.outcome.status === "failed" || duplicate?.outcome.status === "passed"
-    ? duplicate.outcome.data
-    : null,
+  firstChangedFilesConsumer: settledFinalData(firstConsumerCheck),
+  machineSchemaVersion: publishedRun.schemaVersion,
+  secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
+  duplicateData: settledFinalData(duplicate),
   duplicateOutcome: duplicate?.outcome.status ?? null
 }));
 `;
