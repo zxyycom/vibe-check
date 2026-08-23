@@ -1,6 +1,6 @@
 # Quality Metrics
 
-本文拥有 Check、supplemental Record 与 explicit Check aggregation 的事实语义。用 [Configuration](configuration.md) author Check/Run，用 [Output](output.md)读取 machine DTO，用 [脚本工具](script-tooling.md#project-gate)处理 repository Gate adapter；本页不拥有 scanner command 配置、machine bytes、CLI 参数、generic task engine、typed dependency reader 或 human presentation grammar。
+本文拥有 Check、supplemental Record 与 explicit Check aggregation 的事实语义。用 [Configuration](configuration.md) author Check/Run 和读取 typed direct dependency，用 [Output](output.md)读取 machine DTO，用 [脚本工具](script-tooling.md#project-gate)处理 repository Gate adapter；本页不拥有 scanner command 配置、machine bytes、CLI 参数、generic task engine、typed dependency API 或 human presentation grammar。
 
 ## Check and Record facts
 
@@ -13,7 +13,7 @@ Product validates and flattens the recursive Check tree, then Core records one f
 | `not-applicable` | The Check intentionally had no work; a reason code is optional and no final data is fabricated.          |
 | `unavailable`    | Product could not supply a normal conclusion; `reason.code` is required and no final data is fabricated. |
 
-`passed`、`failed`、`not-applicable` 和 `unavailable` all satisfy dependency ordering: a dependent Check is admitted after its declared direct upstream settles. A dependent that needs upstream data must call `dependencies.get(checkId)` from its callback context. The getter returns the same canonical final data reference for `passed` / `failed`; it returns `upstream-data-unavailable` for `not-applicable` / `unavailable`; and it returns `dependency-not-declared` for undeclared, transitive or malformed IDs. Product does not synthesize `prerequisite-unavailable` for ordinary upstream outcomes.
+`passed`、`failed`、`not-applicable` 和 `unavailable` 都满足 dependency ordering：declared direct upstream settle 后，dependent Check 会被 admit。需要 upstream data 的 callback 使用 [Configuration 的 `dependencies.get` contract](configuration.md#typed-dependency-data)。本页只定义该读取所依赖的事实：`passed` / `failed` 有 canonical final data，`not-applicable` / `unavailable` 没有 final data，且 Product 不为 ordinary upstream outcome 合成 `prerequisite-unavailable`。getter 的 direct-ID authorization、closed error union 和 provider parser relation 由 Configuration/Architecture owner 定义。
 
 A callback receives a Check-owned reporter, not a Core capability. It may submit zero or more supplemental facts with:
 
@@ -25,7 +25,7 @@ records.report({ id: "sample:health" }, { latencyMs: 820, statusCode: 503 });
 
 Record absence, presence, count and data never determine the Check status. Invalid final data, invalid/duplicate Record identity or data, callback throw, and Product protocol failure contain only the owning Check as unavailable; previously accepted Records remain and unrelated Checks continue. Run passes Core only the stripped four-state author result and receives Core's private acceptance marker; terminal messages are neither Check outcomes nor Record/Core facts. A reporter is closed after callback settlement, so late writes throw and cannot mutate frozen facts.
 
-Completed/effect Run results provide generic readback of canonical Checks and Records. Final-snapshot results additionally return accepted terminal-message readback without turning those messages into quality facts. Consumers that need to interpret a Check's data own their parser and domain contract; Product does not add a parser registry, catalog, schema, extractor or presentation fallback, and Product does not invoke provider parsers during settlement or dependency reads.
+Completed/effect Run results provide generic readback of canonical Checks and Records. Final-snapshot results additionally return accepted terminal-message readback without turning those messages into quality facts. Consumers that need to interpret a Check's data own their parser and domain contract; [Configuration](configuration.md#typed-dependency-data) defines the optional typed-provider relation. Product does not add a parser registry, catalog, schema, extractor or presentation fallback, and Product does not invoke provider parsers during settlement or dependency reads.
 
 ## Direct defaults and exact inputs
 

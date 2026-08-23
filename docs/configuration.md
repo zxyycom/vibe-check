@@ -68,6 +68,8 @@ An executable Check returns exactly one terminal result, optionally with ordered
 
 ### Typed dependency data
 
+This section is the current owner for the public typed-provider and `dependencies.get` contract. [Architecture](architecture.md) owns the runtime handoff, [Quality Metrics](quality-metrics.md) owns four-state final-data availability, and [Output](output.md) owns the separate machine-publication boundary.
+
 A TypeScript typed provider is authored through `defineCheck({ execution, parseData })`. Its synchronous
 parser return type is the provider-local data contract: the same type constrains that Check's `passed` and
 `failed` execution data, and the returned value retains `parseData` as a required function. The broad `Check`
@@ -75,6 +77,11 @@ type deliberately remains the ordinary recursive/container surface and does not 
 `satisfies Check` or an inline `defineConfig` Check cannot establish the provider type relation. Ordinary
 executable Checks without a parser and recursive containers remain valid; a container cannot declare
 `parseData`.
+
+The public `CheckDataParser` annotation preserves that synchronous boundary even when its result type is
+broad: an `async` parser or any parser returning `PromiseLike` is rejected. This does not reject canonical
+JSON data merely because it has a `then` property: a non-callable `then` value remains ordinary data; only a
+callable `then` would make the returned value thenable.
 
 Runtime Definition validation still accepts a function parser on an executable trusted author object so that
 JavaScript and explicitly cast inputs reach the same closed grammar. That validation preserves the function

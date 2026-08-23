@@ -4,7 +4,7 @@ status: active
 alignment: aligned
 createdAt: 2026-08-23T11:13:59Z
 purpose: 让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。
-background: Direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。
+background: 决策形成前，direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。
 decision: 用 non-generic string getter 授权 direct read，并由 producer-owned parser 恢复同一个 data contract。
 tags:
   - configuration
@@ -22,10 +22,12 @@ relations:
 
 ## 背景
 
-- `dependsOn`已经用normalized string IDs建立完整静态Task graph，但current callback context不能读取upstream result。
-- Core已经把`passed` / `failed` final data materialize为detached、deep-frozen `CanonicalJsonObject`；`not-applicable` / `unavailable`没有final data。Supplemental Records是独立的多fact contract。
-- TypeScript不能替代runtime access control。把dependency literals、Check identity和getter return组成跨Check generic会扩大authoring与declaration复杂度，但runtime仍必须按effective direct IDs授权。
-- Parser附着在producer Check value上是consumer capability，不是producer execution步骤。Producer与consumer同版本且provider保证shape时，parser可以只作为type anchor；这不验证historical、cross-version、JavaScript/cast或untrusted data。
+以下是决策形成时的背景，而不是当前 Product capability；当前实现以稳定 owner、代码和测试为准。
+
+- 在决策形成前，`dependsOn` 已用 normalized string IDs 建立完整静态 Task graph，但 callback context 不能读取 upstream result。
+- 当时 Core 已把 `passed` / `failed` final data materialize 为 detached、deep-frozen `CanonicalJsonObject`；`not-applicable` / `unavailable` 没有 final data。Supplemental Records 是独立的多-fact contract。
+- TypeScript 不能替代 runtime access control。把 dependency literals、Check identity 和 getter return 组成跨 Check generic 会扩大 authoring 与 declaration 复杂度，但 runtime 仍必须按 effective direct IDs 授权。
+- Parser 附着在 producer Check value 上是 consumer capability，不是 producer execution 步骤。Producer 与 consumer 同版本且 provider 保证 shape 时，parser 可以只作为 type anchor；这不验证 historical、cross-version、JavaScript/cast 或 untrusted data。
 
 ## 决策
 

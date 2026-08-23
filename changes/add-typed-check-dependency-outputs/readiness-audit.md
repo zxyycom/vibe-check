@@ -1,15 +1,15 @@
-# Readiness Audit
+# Formation-time Readiness Audit
 
-本文件只保存形成Plan时的current baseline、consumer audit、Test Evidence audit与isolated prototype evidence。Planned API与架构以[`design.md`](design.md)为唯一owner；本文件不重新定义契约，也不证明产品已经实现。
+本文件只保存形成 Plan 时的 baseline、consumer audit、Test Evidence audit 与 isolated prototype evidence。它形成于实现之前：这里的“形成时”描述不是当前 Product facts，不能覆盖 stable owners、代码、测试或 20/20 completion record。形成时的 planned API 与架构以 [`design.md`](design.md) 为 owner；当前 contract owner 见该 Design 开头的 stable-owner links。
 
-## Current Baseline
+## Formation-time Baseline
 
 ### Runtime facts
 
-- [`src/product/definition/custom-check.ts`](../../src/product/definition/custom-check.ts)与Check tree确认：`dependsOn`是exact/inherit string collection；`defineCheck`当前只改善literal/options contextual typing。
-- [`src/product/run/check-execution.ts`](../../src/product/run/check-execution.ts)确认：Run在Check settle为`unavailable`后抛`CheckUnavailableSignal`，dependent被blocked并得到`prerequisite-unavailable`。
-- [`docs/quality-metrics.md`](../../docs/quality-metrics.md)与Core确认：`passed` / `failed`有canonical final data；`not-applicable` / `unavailable`无data；Records是独立supplemental facts。
-- [`docs/output.md`](../../docs/output.md)确认：RunResult/machine已经投影Check final data；新reader不需要machine schema或第三Core entity。
+- 在 Plan 形成时，[`src/product/definition/custom-check.ts`](../../src/product/definition/custom-check.ts) 与 Check tree 确认：`dependsOn` 是 exact/inherit string collection；`defineCheck` 当时只改善 literal/options contextual typing。
+- 在 Plan 形成时，[`src/product/run/check-execution.ts`](../../src/product/run/check-execution.ts) 确认：Run 在 Check settle 为 `unavailable` 后抛 `CheckUnavailableSignal`，dependent 被 blocked 并得到 `prerequisite-unavailable`。
+- 当时 [`docs/quality-metrics.md`](../../docs/quality-metrics.md) 与 Core 确认：`passed` / `failed` 有 canonical final data；`not-applicable` / `unavailable` 无 data；Records 是独立 supplemental facts。
+- 当时 [`docs/output.md`](../../docs/output.md) 确认：RunResult/machine 已经投影 Check final data；新 reader 不需要 machine schema 或第三 Core entity。
 
 ### Data boundary
 
@@ -17,26 +17,26 @@ Author callback返回ordinary JavaScript object。Core settlement调用`canonica
 
 因此provider parser必须接收`CanonicalJsonObject`。TypeScript generic只能同步provider声明，不能证明JavaScript/cast、历史artifact、版本漂移或business shape。
 
-### Decision state
+### Decision state at formation
 
-- [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)已通过`decision-records evolve`成为`active + unaligned`successor，并固定string getter、direct runtime authorization、producer-local parser relation和四态settlement。
-- Predecessor `let-dependent-checks-read-settled-upstream-outputs.md`已归档到[`docs/decisions/archive/`](../../docs/decisions/archive/let-dependent-checks-read-settled-upstream-outputs.md)，只保存旧Records/cross-Check parser方向的形成时事实。
-- Four-state final data、Core Check/Record facts、ordinary`defineCheck`和minimal public runtime roots已经是current baseline。
-- `bun run decisions -- check`已验证Decision索引、关系与schema。Plan stage不提前改变alignment；只有implementation与stable owners闭合后才能对齐。
+- 在形成时，[`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md) 已通过 `decision-records evolve` 成为 `active + unaligned` successor，并固定 string getter、direct runtime authorization、producer-local parser relation 和四态 settlement。
+- Predecessor `let-dependent-checks-read-settled-upstream-outputs.md` 已归档到 [`docs/decisions/archive/`](../../docs/decisions/archive/let-dependent-checks-read-settled-upstream-outputs.md)，只保存旧 Records/cross-Check parser 方向的形成时事实。
+- Four-state final data、Core Check/Record facts、ordinary `defineCheck` 和 minimal public runtime roots 是形成时 baseline。
+- `bun run decisions -- check` 当时已验证 Decision 索引、关系与 schema。Plan stage 不提前改变 alignment；只有 implementation 与 stable owners 闭合后才能对齐。当前 Decision 已经 `active + aligned`，以其 front matter 为准。
 
-## Consumer Audit
+## Formation-time Consumer Audit
 
-Repository search得到：
+在 Plan 形成时，repository search 得到：
 
-1. `project.changedFiles`是existing invocation fact；本Change的changed-files fixture只证明one producer、multiple consumers和external parser readback，不迁移该field。
-2. Default Checks产生supplemental Records，但没有dependent callback按Record ID读取。
-3. Project Gate当前`dependsOn`只表达ordering；future optimization可以消费implemented final-data reader，但不能扩大首版scope。
+1. `project.changedFiles` 是 existing invocation fact；本 Change 的 changed-files fixture 只证明 one producer、multiple consumers 和 external parser readback，不迁移该 field。
+2. Default Checks 产生 supplemental Records，但没有 dependent callback 按 Record ID 读取。
+3. Project Gate 的 `dependsOn` 当时只表达 ordering；future optimization 可以消费 planned final-data reader，但不能扩大首版 scope。
 
-结论：首版只读取primary final data。不存在支持Record getter、query、parser registry或execution-input cleanup的named consumer evidence。
+结论：首版只读取 primary final data。不存在支持 Record getter、query、parser registry 或 execution-input cleanup 的 named consumer evidence。
 
-## Test Evidence Audit
+## Formation-time Test Evidence Audit
 
-修改测试前已运行`bun run test-evidence -- check --root .`；144/144 entities、45 Cases与10 Topics完整。现有Case足以承接本Change，不创建只因实现结构变化而重复证明同一行为的新Case：
+修改测试前已运行 `bun run test-evidence -- check --root .`；144/144 entities、45 Cases 与 10 Topics 完整。现有 Case 足以承接本 Change，不创建只因实现结构变化而重复证明同一行为的新 Case：
 
 | Planned evidence | Case owner | 实施时的Case动作 |
 | --- | --- | --- |
@@ -49,7 +49,7 @@ Repository search得到：
 
 Generic Task engine的ordering、cancellation与true task-failure blocking继续由[`AUX-PARALLEL-RUNNER-001`](../../docs/testing/cases/repository-tooling.md#case-aux-parallel-runner-001-static-task-engine-保持通用调度契约)拥有；本Change只删除Product把ordinary`unavailable`翻译成Task failure的适配。
 
-## TypeScript Prototype
+## Formation-time TypeScript Prototype
 
 在隔离的非repository工作区使用repository锁定`tsgo`验证了以下关系，没有写入product源码：
 
@@ -89,8 +89,8 @@ Positive checks均以exit code`0`结束；provider mismatch negative check以exi
 
 Prototype files不作为repository evidence保留。Repository-owned fixtures、candidate declarations、runtime tests和installed consumer仍是implementation requirements。
 
-## Evidence Boundary
+## Formation-time Evidence Boundary
 
-本Audit已经证明：current facts支持该范围，Decision与Test Evidence owners已经闭合，string getter与provider-local generic在TypeScript中可行，首版不需要Record variant。
+本 Audit 当时证明：baseline 支持该范围，Decision 与 Test Evidence owners 已经闭合，string getter 与 provider-local generic 在 TypeScript 中可行，首版不需要 Record variant。
 
-本Audit尚未证明：Definition grammar、Core read seam、Run getter、four-state admission、package declarations、external runtime或stable docs已经实现。对应工作只以[`tasks.md`](tasks.md)完成状态和实际validation为准。
+本 Audit 不能单独证明 Definition grammar、Core read seam、Run getter、four-state admission、package declarations、external runtime 或 stable docs 的当前实现。那些形成时 requirements 的完成状态和实际 validation 以 [`tasks.md`](tasks.md)、stable owners、代码和测试为准。

@@ -64,7 +64,7 @@ Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-ca
 
 v4 machine publication carries structured final/Record data only; it defines no human-readable projection of arbitrary data. Product progress remains the current human-facing lifecycle surface.
 
-A typed Check provider may expose a versioned parser for its own canonical final data. A consumer can apply that parser to the same final-data object already projected by `RunResult` or by a compatible v4 Check row; this is consumer-owned business parsing, not a machine-reader protocol. It adds no v4 field, schema change, parser serialization, or public unchecked-cast helper. Consumers must choose their own artifact validation and version-compatibility boundary before using machine bytes.
+The typed-provider parser is defined by [Configuration](configuration.md#typed-dependency-data), not by this machine contract. A consumer may apply its provider-owned parser to the same final-data object projected by `RunResult` or by a compatible v4 Check row; this is consumer-owned business parsing, not a machine-reader protocol. It adds no v4 field, schema change, parser serialization, or public unchecked-cast helper. Consumers must choose their own artifact validation and version-compatibility boundary before using machine bytes.
 
 ## Published materials and historical schemas
 

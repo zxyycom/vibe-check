@@ -78,7 +78,7 @@
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:bd26f5f57e41abb0cc2d159ba3856927db8aa7e1b70f08bce9731ea80d8e2308",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
-      "read-direct-dependency-final-data-by-string.md": "sha256:f485d86a47f4324d00e3c5aa48f91acc0862391a1e0029a67758706a1fcea978",
+      "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
@@ -2391,7 +2391,7 @@
         "alignment": "aligned",
         "createdAt": "2026-08-23T11:13:59Z",
         "purpose": "让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。",
-        "background": "Direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。",
+        "background": "决策形成前，direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。",
         "decision": "用 non-generic string getter 授权 direct read，并由 producer-owned parser 恢复同一个 data contract。",
         "tags": [
           "configuration",

@@ -1,6 +1,8 @@
 # Design
 
-本Design是本Change的planned API与architecture owner：Product负责string-based runtime read，producing Check负责自己的data type；Proposal只定义结果和范围，Readiness Audit只保存形成Plan时的事实与prototype证据。
+本 Design 记录这个 Change 在形成时选择的 API 与 architecture：Product 负责 string-based runtime read，producing Check 负责自己的 data type。20/20 任务现已完成，但 Change 因未获归档授权仍为 active；`active` 不表示这份 Design 仍是 current Product contract owner。
+
+当前 authoring/invocation contract 由 [Configuration](../../docs/configuration.md) 拥有，runtime flow 由 [Architecture](../../docs/architecture.md) 拥有，事实语义和 machine boundary 分别由 [Quality Metrics](../../docs/quality-metrics.md) 与 [Output](../../docs/output.md) 拥有。Proposal 保留结果和范围，Readiness Audit 只保存形成 Plan 时的事实与 prototype 证据。
 
 ## Context
 
@@ -8,10 +10,11 @@
 
 实施者应按以下顺序使用本Change：
 
-1. 从本Design恢复public API、runtime rules与owner边界。
-2. 从[`tasks.md`](tasks.md)按依赖顺序实施和验证。
-3. 只在需要核对当前基线或prototype结论时读取[`readiness-audit.md`](readiness-audit.md)。
-4. 用[`proposal.md#success-criteria`](proposal.md#success-criteria)完成最终语义验收。
+1. 恢复当前行为时，先读上段列出的 stable owners；不要把本 Design 的形成时约束当作新的当前事实来源。
+2. 需要理解已选 API、runtime rules、scope 或 owner boundary 的形成理由时，再读本 Design。
+3. 需要确认任务完成或实际验证时，读 [`tasks.md`](tasks.md)；20/20 完成不自动提供归档授权。
+4. 只在需要核对形成时基线或 prototype 结论时读取 [`readiness-audit.md`](readiness-audit.md)。
+5. 用 [`proposal.md#success-criteria`](proposal.md#success-criteria) 审阅最终语义验收。
 
 ### Terms
 
@@ -22,13 +25,13 @@
 | Typed provider | 同时拥有`execution`和`parseData`的executable Check；parser return锚定该provider的local `Data` generic。 |
 | Dependency read | Downstream callback调用`dependencies.get(checkId)`读取一个declared direct dependency的settled canonical final data。 |
 
-### Current constraints
+### Formation-time constraints
 
-- `dependsOn`是exact/inherit string collection，normalized strings已经是Task graph identity与runtime authorization的共同输入。
-- `passed` / `failed`有canonical final data；`not-applicable` / `unavailable`没有data。Records是独立supplemental facts。
-- Current Run把`unavailable`转换成Task failure并阻断downstream。目标getter若要对该status返回read failure，downstream必须在ordinary`unavailable` settlement后被admit。
-- Current runtime roots只有`defineConfig`、`defineCheck`、`inherit`、`run`与default Check values；本Change不增加顶层operation。
-- Current repository没有需要dependency Record getter的named consumer。
+- 在 Plan 形成时，`dependsOn` 是 exact/inherit string collection，normalized strings 已经是 Task graph identity 与 runtime authorization 的共同输入。
+- 当时 `passed` / `failed` 有 canonical final data；`not-applicable` / `unavailable` 没有 data。Records 是独立 supplemental facts。
+- 当时 Run 把 `unavailable` 转换成 Task failure 并阻断 downstream。若目标 getter 要对该 status 返回 read failure，downstream 必须在 ordinary `unavailable` settlement 后被 admit。
+- 当时 runtime roots 只有 `defineConfig`、`defineCheck`、`inherit`、`run` 与 default Check values；本 Change 不增加顶层 operation。
+- 当时 repository 没有需要 dependency Record getter 的 named consumer。
 
 ## Goals / Non-Goals
 
@@ -71,7 +74,7 @@ Access control只发生在getter runtime。Type recovery只发生在producer par
 
 #### Public dependency read API
 
-Planned public shape：
+The following public shape was implemented. Its current contract owner is [Configuration](../../docs/configuration.md#typed-dependency-data):
 
 ```ts
 export interface CheckDependencies {
@@ -167,7 +170,7 @@ interface TypedCheckFields<Options extends object, Data extends object> {
 1. `Data`只从`parseData` return推导；`execution`不能反向拓宽它。
 2. `passed` / `failed` execution data必须assignable to同一个`Data`。
 3. Defined Check与emitted declaration中的`parseData`保持required；consumer无需undefined guard。
-4. `parseData`是synchronous runtime function，输入始终是canonical final data。
+4. `parseData`是synchronous runtime function，输入始终是canonical final data；即使 provider 把返回值注解为 broad `CheckDataParser`，async / `PromiseLike` return 仍不合法。canonical data 的 non-callable `then` property 仍是 data，不会因此被拒绝。
 5. Parser与execution表达同一个logical data contract；本Change不支持separate stored/parsed generics。
 6. Typed provider必须executable；container不能声明parser。
 7. Existing options/no-options inference、ordinary no-parser Check、recursive composition与native spread保持合法。
@@ -240,7 +243,7 @@ Normative parser contract：
 
 > **启发，不是保证：** Canonical final data仍然是JavaScript runtime object。当producer与consumer使用同一个trusted version，且provider tests保证shape时，`parseData`可以只作为identity/type anchor，而不重复校验每个字段。该做法不能验证JavaScript或cast-based producer、historical artifact、cross-version data或untrusted input。Product API不会提供public unchecked-cast helper。
 
-上方`TypedCheckFields.parseData`中的JSDoc是计划进入public declaration的最低提示，不得在实现时只保留在guide或Change中。
+上方 `TypedCheckFields.parseData` 中的 JSDoc 是 public declaration 的最低提示，不能只保留在 guide 或 Change 中。
 
 #### Four-state dependency settlement
 
@@ -286,11 +289,11 @@ Layer responsibilities：
 
 #### Acceptance evidence
 
-Implementation必须分别证明以下边界：
+Completion evidence covers the following boundaries; the completed commands and results are recorded by [`tasks.md`](tasks.md):
 
 | Evidence | 证明内容 |
 | --- | --- |
-| Provider type fixtures | Parser-return Data anchor、execution mismatch rejection、options/ordinary/recursive compatibility和required emitted parser。 |
+| Provider type fixtures | Parser-return Data anchor、execution mismatch rejection、broad `CheckDataParser` 仍拒绝 async / `PromiseLike` return、canonical non-callable `then` data 可用，以及 options/ordinary/recursive compatibility 和 required emitted parser。 |
 | Core/Run tests | Direct-only authorization、same canonical reference、frozen view、两种failure code和trusted invariant boundary。 |
 | Orchestration tests | Four-state admission、cancellation和implicit unavailable cascade已移除。 |
 | Changed-files fixture | Producer只执行一次、两个consumers显式parse并处理status。 |
@@ -305,7 +308,7 @@ Implementation必须分别证明以下边界：
 - **Orchestration：** 不再把ordinary`unavailable`当作Task failure；迁移blocked、progress和lifecycle evidence。
 - **Package：** Declarations和installed consumer同时证明ordinary/typed Check authoring；runtime root inventory不变。
 - **Stable docs：** Configuration拥有authoring；Architecture拥有data/control flow；Quality Metrics拥有status/data semantics；Output确认canonical machine compatibility。
-- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)已承接本final-data-first contract；implementation、stable owners与验收证据闭合后已核对为`active + aligned`。
+- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md) 已承接这个 final-data-first contract；implementation、stable owners 与验收证据闭合后已核对为 `active + aligned`。
 
 ## Risks / Trade-offs
 
@@ -324,6 +327,6 @@ Implementation必须分别证明以下边界：
 
 无。Internal helper和overload layout只有在以上emitted/public behavior、error union、four-state settlement与layer responsibility保持不变时才可调整。
 
-## Readiness Evidence
+## Formation-time readiness evidence
 
-形成本Plan时使用的current facts、consumer/Test Evidence audit与isolated TypeScript readiness prototype见[`readiness-audit.md`](readiness-audit.md)。它们证明设计可直接进入implementation，不证明product implementation已经完成。
+形成这个 Plan 时使用的 baseline、consumer/Test Evidence audit 与 isolated TypeScript readiness prototype 见 [`readiness-audit.md`](readiness-audit.md)。它们当时证明设计可进入 implementation；它们不证明现在的 Product state，当前完成状态以 stable owners、代码、测试和 [`tasks.md`](tasks.md) 为准。
