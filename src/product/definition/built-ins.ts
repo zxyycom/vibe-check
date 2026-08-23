@@ -17,50 +17,81 @@ import {
 } from "../quality-core/check-record/plain-record-values.ts";
 import { defineCheck } from "./custom-check.ts";
 
-/** The complete external command configuration a scanner adapter consumes. */
+/** default Check scanner adapter 所需的完整外部命令配置。 */
 export interface ScannerCommandOptions {
+  /** 传给 scanner 的主命令参数。 */
   readonly args: readonly string[];
+  /** 用于确认 scanner 可用性的命令参数。 */
   readonly availabilityArgs: readonly string[];
+  /** 要调用的 scanner executable 或 Product-owned default marker。 */
   readonly executable: string;
 }
 
+/** `duplicateDetection` 的完整 Check-owned options。 */
 export interface DuplicateDetectionOptions {
+  /** jscpd scanner 命令与其 backend 并发上限。 */
   readonly scanner: ScannerCommandOptions &
     Readonly<{
       readonly maxConcurrency: number;
     }>;
+  /** 未被 code area 覆盖时使用的 duplicate token 最小值。 */
   readonly defaultMinimumTokens: number;
+  /** 按 known code area 覆盖 duplicate token 最小值。 */
   readonly minimumTokensByCodeArea: Readonly<Record<string, number>>;
 }
 
+/** `fileMetrics` 的完整 Check-owned options。 */
 export interface FileMetricsOptions {
+  /** scc scanner 命令。 */
   readonly scanner: ScannerCommandOptions;
+  /** 每个文件 code-line metric 的阈值和低 decision-token allowance。 */
   readonly codeLines: Readonly<{
+    /** 超过此值时产生 file metric finding 的绝对阈值。 */
     readonly absoluteFloor: number;
+    /** 小型低 decision-token 文件可使用的较高 code-line allowance。 */
     readonly lowDecisionTokenAllowance: Readonly<{
+      /** 使用 allowance 所需达到的 code-line 数。 */
       readonly codeLineFloor: number;
+      /** 使用 allowance 时允许的最大 decision-token 数。 */
       readonly maxDecisionTokens: number;
     }>;
   }>;
 }
 
+/** `functionMetrics` 的完整 Check-owned options。 */
 export interface FunctionMetricsOptions {
+  /** lizard scanner 命令。 */
   readonly scanner: ScannerCommandOptions;
+  /** function code-line 阈值和低 complexity allowance。 */
   readonly codeLines: Readonly<{
+    /** 超过此值时产生 function code-line finding 的绝对阈值。 */
     readonly absoluteFloor: number;
+    /** 小型低 complexity function 可使用的较高 code-line allowance。 */
     readonly lowComplexityAllowance: Readonly<{
+      /** 使用 allowance 所需达到的 code-line 数。 */
       readonly codeLineFloor: number;
+      /** allowance 只适用于小于此 exclusive complexity 上限的 function。 */
       readonly maxCyclomaticComplexityExclusive: number;
     }>;
   }>;
+  /** function cyclomatic complexity 的绝对阈值。 */
   readonly cyclomaticComplexity: Readonly<{
+    /** 超过此值时产生 complexity finding。 */
     readonly absoluteFloor: number;
   }>;
+  /** function parameter count 的绝对阈值。 */
   readonly parameterCount: Readonly<{
+    /** 超过此值时产生 parameter-count finding。 */
     readonly absoluteFloor: number;
   }>;
 }
 
+/**
+ * 检测项目范围内的重复代码的完整 default Check。
+ *
+ * @remarks 用普通对象组合替换其 `options` branch；Product 会校验完整 shape 和已知 code area，
+ * 不从环境变量或 Run Controls 推断 scanner override。
+ */
 export const duplicateDetection = defineCheck<"duplicate-detection", DuplicateDetectionOptions>({
   ...DUPLICATE_DETECTION_CHECK_DEFINITION,
   execution: executeDuplicateDetection,
@@ -74,6 +105,7 @@ export const duplicateDetection = defineCheck<"duplicate-detection", DuplicateDe
   }
 });
 
+/** 以 scc 计算文件级 code-line 指标的完整 default Check。 */
 export const fileMetrics = defineCheck<"file-metrics", FileMetricsOptions>({
   ...FILE_METRICS_CHECK_DEFINITION,
   execution: executeFileMetrics,
@@ -93,6 +125,7 @@ export const fileMetrics = defineCheck<"file-metrics", FileMetricsOptions>({
   }
 });
 
+/** 以 lizard 计算 function 级行数、complexity 与 parameter 指标的完整 default Check。 */
 export const functionMetrics = defineCheck<"function-metrics", FunctionMetricsOptions>({
   ...FUNCTION_METRICS_CHECK_DEFINITION,
   execution: executeFunctionMetrics,

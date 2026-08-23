@@ -6,6 +6,7 @@ import {
   lstatSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync
@@ -15,7 +16,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, it } from "node:test";
 
+import { CURRENT_PUBLIC_CONTRACT } from "../../src/product/public-contract/current.ts";
 import { preparePackageCandidate } from "./index.ts";
+import { renderPackageApiDocumentation } from "../docs/package-api-docs/render.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const candidateModuleUrl = new URL("./index.ts", import.meta.url).href;
@@ -26,6 +29,7 @@ describe("package candidate preparation", () => {
     const consumerDirectory = join(temporaryRoot, "consumer");
     const stateDirectory = join(temporaryRoot, "state");
     try {
+      const documentation = renderPackageApiDocumentation({ repositoryRoot });
       writeAncestorJscpdFallback(temporaryRoot);
       writeConsumerManifest(consumerDirectory);
       const first = await preparePackageCandidate({
@@ -38,6 +42,20 @@ describe("package candidate preparation", () => {
       assert.equal(lstatSync(first.installedPackageDirectory).isSymbolicLink(), false);
       assert.equal(existsSync(first.resolvedEntryPath), true);
       assert.equal(first.resolvedEntryPath.startsWith(first.installedPackageDirectory), true);
+      assert.equal(
+        readFileSync(join(repositoryRoot, "README.md"), "utf8"),
+        documentation.readme.content
+      );
+      assert.equal(
+        readFileSync(join(first.stagingDirectory, "README.md"), "utf8"),
+        documentation.readme.content
+      );
+      assert.equal(
+        readFileSync(join(first.installedPackageDirectory, "README.md"), "utf8"),
+        documentation.readme.content
+      );
+      assert.equal(first.files.includes("package/README.md"), true);
+      assertEmittedPublicDocumentation(first.stagingDirectory);
       assert.equal(
         runtimeExports(first.resolvedEntryPath),
         '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","run"]'
@@ -82,7 +100,13 @@ describe("package candidate preparation", () => {
         true
       );
 
-      writeFileSync(join(stateDirectory, "preparation-receipt.json"), "not JSON\n", "utf8");
+      const receiptSource = readFileSync(join(stateDirectory, "preparation-receipt.json"), "utf8");
+      assert.equal(receiptSource.includes(first.inputFingerprint), true);
+      writeFileSync(
+        join(stateDirectory, "preparation-receipt.json"),
+        receiptSource.replace(first.inputFingerprint, "stale-documentation-input-fingerprint"),
+        "utf8"
+      );
       const rebuilt = await preparePackageCandidate({
         consumerDirectory,
         repositoryRoot,
@@ -91,11 +115,75 @@ describe("package candidate preparation", () => {
       assert.equal(rebuilt.reused, false);
       assert.equal(rebuilt.inputFingerprint, first.inputFingerprint);
       assert.equal(existsSync(rebuilt.resolvedEntryPath), true);
+
+      writeFileSync(join(stateDirectory, "preparation-receipt.json"), "not JSON\n", "utf8");
+      const rebuiltFromMalformedReceipt = await preparePackageCandidate({
+        consumerDirectory,
+        repositoryRoot,
+        stateDirectory
+      });
+      assert.equal(rebuiltFromMalformedReceipt.reused, false);
+      assert.equal(rebuiltFromMalformedReceipt.inputFingerprint, first.inputFingerprint);
+      assert.equal(existsSync(rebuiltFromMalformedReceipt.resolvedEntryPath), true);
     } finally {
       rmSync(temporaryRoot, { force: true, recursive: true });
     }
   });
 });
+
+function assertEmittedPublicDocumentation(stagingDirectory: string): void {
+  const declarationRoot = join(stagingDirectory, "types");
+  const declarations = readDeclarationSources(declarationRoot);
+  const publicRoots = [
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.values),
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.types)
+  ];
+  for (const publicRoot of publicRoots) {
+    assert.equal(
+      declarations.some((source) => hasAdjacentChineseJSDoc(source, publicRoot)),
+      true,
+      `emitted declaration is missing adjacent Chinese JSDoc for ${publicRoot}`
+    );
+  }
+
+  const entrySource = readFileSync(
+    join(declarationRoot, "scripts/package-candidate/entry.d.ts"),
+    "utf8"
+  );
+  assert.match(entrySource, /@packageDocumentation/);
+  assert.equal(
+    declarations.some(
+      (source) =>
+        source.includes("@example 定义带 options、Records 与 messages 的自定义 Check") &&
+        /export declare function defineCheck\b/.test(source)
+    ),
+    true,
+    "emitted defineCheck declaration is missing its generated @example"
+  );
+}
+
+function readDeclarationSources(root: string): readonly string[] {
+  const sources: string[] = [];
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile() && entry.name.endsWith(".d.ts"))
+        sources.push(readFileSync(path, "utf8"));
+    }
+  };
+  visit(root);
+  return Object.freeze(sources);
+}
+
+function hasAdjacentChineseJSDoc(source: string, declarationName: string): boolean {
+  const escapedName = declarationName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(
+    `/\\*\\*(?:(?!\\*\\/)[\\s\\S])*?[\\u3400-\\u9fff](?:(?!\\*\\/)[\\s\\S])*?\\*\\/\\s*export(?:\\s+declare)?\\s+(?:const|function|interface|type)\\s+${escapedName}\\b`
+  );
+  return pattern.test(source);
+}
 
 function writeConsumerManifest(consumerDirectory: string): void {
   mkdirSync(consumerDirectory, { recursive: true });

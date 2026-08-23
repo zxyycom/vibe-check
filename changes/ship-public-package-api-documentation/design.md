@@ -158,11 +158,11 @@ JSDoc 使用以下 closed policy。除 summary 外，所有 tag 都是可选项�
 
 1. Template placeholder 独占一行并使用 `<!-- package-api-example:<placeholderId> -->`。每个 README target 必须命中且只命中一个 placeholder，operation 用带稳定 language fence 的 payload替换该行。
 2. Example region 使用 `// #region package-api-example:<regionId>` 与 `// #endregion package-api-example:<regionId>`；region ID 在全部 example sources 中唯一，projection payload 不包含 boundary markers。
-3. JSDoc target 由 repository-relative `sourcePath + declarationName` 唯一定位。Target declaration 上的全部 `@example` tags 由 operation 拥有并连续放在 comment 尾部；出现 registry 未声明的 manual `@example`、目标缺失或定位不唯一时失败，不增加额外 source marker/tag。
+3. JSDoc target 由 repository-relative `sourcePath + declarationName` 唯一定位。current registry target declaration comment 尾部连续的全部 `@example` tags 是完整 generated projection：operation 每次计算后替换整个尾部，包括先前生成的旧 tail。product source discovery 找到、但 current registry 已删除或迁移的旧 target tail，operation 的 expected 是移除该 tail；它造成 checked-in projection drift，而不是 unmanaged input。对于已发现的 `@example` tail，只有无法关联支持的 adjacent export、target 重复，或首个 `@example` 后出现非-`@example` JSDoc tag／非连续 tail 等结构错误时才 hard fail；current registry target 缺失或定位不唯一仍按 inventory failure 处理。不增加额外 source marker/tag。
 4. 三个完整 `.ts` source 都是 standalone example program：只从 package root 导入 current public names，在 isolated candidate fixture 中先 typecheck 再运行。Region 只决定展示 payload，runtime evidence由其完整 source提供。
 5. Source 使用 UTF-8、LF 且恰有一个 trailing LF。Operation 不格式化或改写 payload；README fence 内 bytes 与 region相同，JSDoc block 去除 comment prefixes 后与 region相同。
 6. README fence 由 operation 确定性选择且不能与 payload 冲突。包含 `*/` 的 payload 不能原样进入 block comment；应缩小合法 region 或改成 README-only，不能转义成另一段未经验证的代码。
-7. Duplicate、unknown、missing 或 unused source/region/target、缺失 evidence、未闭合 marker 和 stale output 一律失败。
+7. Duplicate、unknown、missing 或 unused source/region/current registry target、缺失 evidence 和未闭合 marker 一律失败；这里的 unknown target 不包括 source discovery 找到的已删除或迁移旧 generated tail。checked-in README 或 generated JSDoc tail 与 operation expected bytes 不同时，`--check` 与 candidate preparation 拒绝 drift；renderer 计算 expected projection，旧 target tail 的 expected 为移除，而不是独立输入错误。
 8. 首版 executable fenced blocks 只接受 registry 管理的 TypeScript payload。非可执行输出/数据必须明确标为示意并由结构检查约束；新增 shell 或其它可执行语言前先扩展 source type、runner、evidence mode 和本 Plan。
 
 #### 5. Operation 负责生成，CLI 与 candidate 只是适配器
@@ -171,7 +171,7 @@ JSDoc 使用以下 closed policy。除 summary 外，所有 tag 都是可选项�
 
 `scripts/docs/package-api-docs/index.ts` 只承担命令行适配：解析 `--write | --check`、调用 operation，并把结果映射为文件写入、diagnostic 和 exit status：
 
-- `--write` 只把 operation 返回的完整 root README 与 source JSDoc contents写入对应路径；
+- `--write` 是唯一 repair action：它只把 operation 返回的完整 root README 与 source JSDoc contents写入对应路径，并替换 registry-target declaration 的完整 generated `@example` tail；维护者不先手改 generated output；
 - `--check` 只比较 expected 与 checked-in projections，不写文件；
 - docs validation 使用 CLI 的 `--check`。
 
@@ -196,7 +196,7 @@ Candidate 必须纳入并验证以下边界：
 - 每个 public root 在 emitted declaration 中存在且保留有意义的 doc comment；必要 supporting declarations 有字段级说明，但没有变成额外 root exports；
 - 实际 tags 属于 closed policy，`@packageDocumentation` 位于 entry 的正确位置，emit/LSP fixture 能呈现所用 tags；
 - template sections、placeholder inventory、typed registry 与 source/region/target/evidence inventory 闭合；
-- generated JSDoc/README payload 与 example source/region 一致，修改任一 documentation input 会使 `--check` 或 receipt reuse 失败；
+- generated JSDoc tail/README payload 与 example source/region 一致；renderer 会替换旧 tail，修改任一 documentation input 后由 `--check` 或 receipt reuse 拒绝 checked-in drift；
 - 三个 examples 面向 installed package typecheck，声明 runtime evidence 的程序实际运行；
 - candidate/tar/installed projections 与 expected output 一致，current runtime acceptance 不回归。
 

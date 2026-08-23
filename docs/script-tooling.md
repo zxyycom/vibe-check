@@ -20,8 +20,15 @@ Vibe Check 拥有的开发脚本入口是：
   环境并启动 package-candidate workflow。
 - `scripts/quality/scan.ts`：调用 repository Project Run 的 pure dogfood 薄入口；不解析配置或
   重新提供 Project Definition。
+- `scripts/docs/package-api-docs/{render,index}.ts`：前者只读地从中文 README template、allowlisted
+  TypeScript examples、typed projection registry 与 source JSDoc prose 计算投影；后者只提供 `--write` /
+  `--check` 文件适配。template、examples、registry 和手工 JSDoc prose 是编辑输入；root `README.md` 与
+  current registry-target declaration comment 尾部连续的 `@example` 是完整 generated output。renderer 计算并替换
+  旧 generated tail；source discovery 找到但 current registry 已删除或迁移的旧 target tail 会从 expected output
+  移除，因而属于可由 `--write` 修复的 drift。对于已发现的 `@example` tail，只有无法关联支持 adjacent export、
+  重复 target 或非连续 tail 等结构错误才 hard fail；candidate 直接复用 render operation，不启动 CLI。
 - `scripts/docs/validate.ts`：校验 Markdown links、JSON syntax、current machine schemas/
-  examples、generation drift，以及隔离的 historical report schema/examples。
+  examples、package API README/JSDoc projection drift，以及隔离的 historical report schema/examples。
 - `scripts/decision-records.ts`：显式传入 Vibe Check 仓库根，复用项目内
   `decision-records` skill 的 ESM API，并提供长期决策查询、维护和检查入口。
 - `scripts/test-evidence/index.ts`：项目自有的测试实体发现、语义 Case 查询与全树闭合
@@ -64,7 +71,7 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 | format                              | `bun run format`；`bun run format -- check`                                                                                                      | 无参数会写入 workspace format targets；`check` 只检查。                                                                                           |
 | lint / typecheck                    | `bun run lint -- product`；`bun run typecheck -- scripts`                                                                                        | 无参数分别覆盖 product 和 scripts；scope 只选择已声明的目标。                                                                                     |
 | test                                | `bun run test`                                                                                                                                   | 默认且推荐的 root scope 是 Product；foundation 仍通过自己的 package command 验证 cwd boundary。                                                   |
-| validate                            | `bun run validate`；`bun run validate -- docs json`                                                                                              | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator。                                              |
+| validate                            | `bun run validate`；`bun run validate -- docs json`                                                                                              | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator，其中 `package-api-documentation` 检查 projection drift。 |
 | quality                             | `bun run quality`                                                                                                                                | 无参数；写入忽略的 quality artifacts，但 Check facts 本身不阻断此 observation command。                                                           |
 | governance                          | `bun run decisions -- list`、`bun run change-plan -- check <path>`、`bun run investigations -- check`、`bun run test-evidence -- check --root .` | base command 只转发其 owner CLI；是否写入由具体 subcommand 决定。                                                                                 |
 | Project Gate                        | `bun run verify:vibe-check-workspace:required`                                                                                                   | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `full` 选择 full，`:required` 选择 required；正式调用不传 disabled tag。 |
@@ -336,8 +343,8 @@ Docs validation 故意把 current product、independent acceptance 与 historica
 4. `scripts/tools/validators/schema/registry.ts` 的 current registry 显式注册 run/record v4。historical
    run/record schemas 使用 separate archival registry，`docs/examples/json/**` 不进入 current example
    traversal。
-5. `bun run validate -- docs` 独立调度 JSON、schema、examples、links tasks，并同时覆盖 strict
-   compile、independent acceptance 与 generation drift。
+5. `bun run validate -- docs` 独立调度 JSON、schema、examples、links 与 package API documentation
+   tasks，并同时覆盖 strict compile、independent acceptance 与 generation drift。
 
 ## 项目级 Skill 维护
 
@@ -465,6 +472,7 @@ run/record v4 schemas、historical schema material 与对应 example roots，不
 | 长期决策适配器或记录集合                                | `bun run decisions -- check`；适配器改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts`                                                                                                     |
 | 测试证据闭合工具或 Case 集合                            | `bun run test-evidence -- check --root .`；工具改动另跑 `bun run typecheck -- scripts`、`bun run lint -- scripts`                                                                                          |
 | Project Definition、Project Run 或 dogfood wrapper 接线 | `bun test scripts/quality/project-run.test.ts`、`bun run quality`，并按影响面补 Product `run` 测试                                                                                                         |
+| package API 文档输入或投影                             | 修改 editable input 后运行 `bun scripts/docs/package-api-docs/index.ts --write`，再运行 `--check`；`--write` 是修复 checked-in drift 的唯一动作，不要先手改 generated root README 或 registry-target JSDoc `@example` tail。已删除或迁移 registry target 遗留的 tail 也是 drift：`--check` 与 candidate 按 checked-in bytes 拒绝，`--write` 移除。对于已发现的 `@example` tail，只有无法关联支持 adjacent export、重复 target 或非连续 tail 等结构错误才 hard fail；日常检查由 `bun run validate -- docs` 调度。 |
 | 文档校验                                                | `bun run validate -- docs`                                                                                                                                                                                 |
 | Project Gate（routine）                                 | `bun run verify:vibe-check-workspace:required`                                                                                                                                                             |
 | Project Gate（完整 Product / foundation package 验收）  | `bun run verify:vibe-check-workspace:full`                                                                                                                                                                 |

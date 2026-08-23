@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
@@ -78,6 +79,7 @@ describe("current public contract", () => {
       fileURLToPath(new URL("../../../scripts/package-candidate/entry.ts", import.meta.url)),
       "utf8"
     );
+    assert.match(candidateEntrySource, /^\/\*\*[\s\S]*?@packageDocumentation[\s\S]*?\*\//);
     assert.deepEqual(
       packageTypeExportNames(candidateEntrySource),
       Object.values(CURRENT_PUBLIC_CONTRACT.types).sort((left, right) => left.localeCompare(right))
@@ -96,8 +98,76 @@ describe("current public contract", () => {
     );
     assert.doesNotMatch(ownerSource, /scripts\/quality|project-definition\.ts|project-run\.ts/);
     assert.doesNotMatch(ownerSource, /\b(?:host|legal|license|manifest|version)\b/i);
+    assertPublicRootsHaveChineseJSDoc(CURRENT_PUBLIC_CONTRACT);
   });
 });
+
+function assertPublicRootsHaveChineseJSDoc(contract: typeof CURRENT_PUBLIC_CONTRACT): void {
+  const publicRootNames = [
+    ...Object.values(contract.operations),
+    ...Object.values(contract.values),
+    ...Object.values(contract.types)
+  ];
+  const productSources = productTypeScriptSources();
+  for (const name of publicRootNames) {
+    assertChineseJSDocForDeclaration(productSources, name);
+  }
+  assert.throws(
+    () =>
+      assertChineseJSDocForDeclaration(
+        [
+          {
+            path: "fixture.ts",
+            source:
+              "/** 前一声明的中文说明。 */\nconst unrelated = true;\n/** English direct comment. */\nexport const target = true;"
+          }
+        ],
+        "target"
+      ),
+    /target must retain a Chinese JSDoc summary/
+  );
+}
+
+type ProductTypeScriptSource = Readonly<{ readonly path: string; readonly source: string }>;
+
+function assertChineseJSDocForDeclaration(
+  sources: readonly ProductTypeScriptSource[],
+  name: string
+): void {
+  const documentedDeclaration = new RegExp(
+    String.raw`\/\*\*(?:(?!\*\/)[\s\S])*\*\/\s*export\s+(?:async\s+)?(?:interface|type|function|const)\s+${name}\b`,
+    "g"
+  );
+  const matches = sources.flatMap(({ path, source }) =>
+    [...source.matchAll(documentedDeclaration)].map((match) =>
+      Object.freeze({ documentation: match[0], path })
+    )
+  );
+  assert.equal(
+    matches.length,
+    1,
+    `${name} must have exactly one adjacent JSDoc declaration owner; found ${
+      matches.map((match) => match.path).join(", ") || "none"
+    }`
+  );
+  assert.match(
+    matches[0].documentation,
+    /[\p{Script=Han}]/u,
+    `${name} must retain a Chinese JSDoc summary`
+  );
+}
+
+function productTypeScriptSources(): readonly ProductTypeScriptSource[] {
+  const productDirectory = fileURLToPath(new URL("../", import.meta.url));
+  return readdirSync(productDirectory, { encoding: "utf8", recursive: true })
+    .filter(
+      (path) =>
+        path.endsWith(".ts") && !path.endsWith(".test.ts") && !path.endsWith(".test-support.ts")
+    )
+    .map((path) =>
+      Object.freeze({ path, source: readFileSync(join(productDirectory, path), "utf8") })
+    );
+}
 
 function packageTypeExportNames(source: string): string[] {
   return packageExportNames(source, /export type\s*\{([\s\S]*?)\}\s*from\s*"[^"]+";/g);

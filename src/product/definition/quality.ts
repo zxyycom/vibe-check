@@ -8,10 +8,15 @@ import {
   snapshotClosedRecord
 } from "../quality-core/check-record/plain-record-values.ts";
 
+/** Check callback 可读取的项目质量范围与命名 code areas。 */
 export interface ProjectQualityConfiguration {
+  /** 每个命名 code area 的 glob、说明和 warning policy。 */
   readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
+  /** 从项目范围中排除的目录名。 */
   readonly excludeDirs: readonly string[];
+  /** 识别 generated files 的 glob 集合。 */
   readonly generatedFiles: readonly string[];
+  /** 允许进入项目范围的 glob 集合。 */
   readonly include: readonly string[];
 }
 

@@ -1,19 +1,23 @@
 import assert from "node:assert/strict";
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { it } from "node:test";
+import * as ts from "typescript";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../src/product/public-contract/current.ts";
+import { renderPackageApiDocumentation } from "../docs/package-api-docs/render.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../docs/package-api-docs/registry.ts";
 import { preparePackageCandidate } from "./index.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
 
 it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () => {
+  const documentation = renderPackageApiDocumentation({ repositoryRoot });
   const accepted = await preparePackageCandidate();
   const reused = await preparePackageCandidate();
   assert.equal(reused.reused, true);
@@ -31,8 +35,14 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
     assert.equal(isWithin(installedPackageDirectory, resolvedEntryPath), true);
     assert.equal(isWithin(repositoryRoot, resolvedEntryPath), false);
+    assert.equal(
+      readFileSync(join(installedPackageDirectory, "README.md"), "utf8"),
+      documentation.readme.content
+    );
 
     typecheckPublicImports(consumerDirectory);
+    assertInstalledDeclarationQuickInfo(consumerDirectory);
+    runDocumentationExamples(consumerDirectory);
     const jscpd = resolveCandidateJscpd(resolvedEntryPath);
     assert.equal(isWithin(consumerDirectory, jscpd.manifestPath), true);
     assert.equal(isWithin(repositoryRoot, jscpd.manifestPath), false);
@@ -88,9 +98,21 @@ function writeConsumerFiles(consumerDirectory: string): void {
   );
   writeFileSync(join(consumerDirectory, "tsconfig.json"), typecheckConfig(), "utf8");
   writeFileSync(join(consumerDirectory, "public-imports.ts"), publicImports(), "utf8");
+  writeFileSync(join(consumerDirectory, "hover-fixture.ts"), hoverFixture(), "utf8");
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
+  for (const sourcePath of packageApiExampleSourcePaths()) {
+    const destination = join(consumerDirectory, sourcePath);
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, readFileSync(join(repositoryRoot, sourcePath), "utf8"), "utf8");
+  }
+}
+
+function packageApiExampleSourcePaths(): readonly string[] {
+  return Object.freeze(
+    [...new Set(PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => projection.sourcePath))].sort()
+  );
 }
 
 function installCandidate(consumerDirectory: string, artifactPath: string): void {
@@ -121,6 +143,87 @@ function typecheckPublicImports(consumerDirectory: string): void {
     encoding: "utf8"
   });
   assertCommandSucceeded(result, "isolated public-import typecheck");
+}
+
+function assertInstalledDeclarationQuickInfo(consumerDirectory: string): void {
+  const fixturePath = join(consumerDirectory, "hover-fixture.ts");
+  const fixtureSource = readFileSync(fixturePath, "utf8");
+  const service = ts.createLanguageService({
+    fileExists: (path) => ts.sys.fileExists(path),
+    getCompilationSettings: () => ({
+      module: ts.ModuleKind.NodeNext,
+      moduleResolution: ts.ModuleResolutionKind.NodeNext,
+      strict: true,
+      target: ts.ScriptTarget.ESNext,
+      verbatimModuleSyntax: true
+    }),
+    getCurrentDirectory: () => consumerDirectory,
+    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
+    getScriptFileNames: () => [fixturePath],
+    getScriptSnapshot: (filePath) => {
+      const source = ts.sys.readFile(filePath);
+      return source === undefined ? undefined : ts.ScriptSnapshot.fromString(source);
+    },
+    getScriptVersion: () => "1",
+    readDirectory: (...args) => ts.sys.readDirectory(...args),
+    readFile: (path) => ts.sys.readFile(path)
+  });
+  try {
+    const defineCheckInfo = quickInfoText(service, fixturePath, fixtureSource, "defineCheck({");
+    assert.match(defineCheckInfo.documentation, /定义一个 Check/);
+    assert.match(defineCheckInfo.tags, /@remarks 此函数只改善 authoring 类型/);
+    assert.match(
+      defineCheckInfo.tags,
+      /@example 定义带 options、Records 与 messages 的自定义 Check/
+    );
+
+    const runInfo = quickInfoText(service, fixturePath, fixtureSource, "run(definition)");
+    assert.match(runInfo.documentation, /在调用方的 Bun runtime 中执行/);
+    assert.match(runInfo.tags, /@remarks.*validation/);
+    assert.match(runInfo.tags, /@param definition/);
+    assert.match(runInfo.tags, /@returns/);
+  } finally {
+    service.dispose();
+  }
+}
+
+function quickInfoText(
+  service: ts.LanguageService,
+  fixturePath: string,
+  fixtureSource: string,
+  usage: string
+): Readonly<{ readonly documentation: string; readonly tags: string }> {
+  const position = fixtureSource.indexOf(usage);
+  assert.notEqual(position, -1, `hover fixture is missing ${usage}`);
+  const info = service.getQuickInfoAtPosition(fixturePath, position);
+  assert.notEqual(info, undefined, `LanguageService did not return QuickInfo for ${usage}`);
+  if (info === undefined) throw new Error(`LanguageService did not return QuickInfo for ${usage}`);
+  const tags = info.tags
+    ?.map(
+      (tag) =>
+        `@${tag.name}${tag.text === undefined ? "" : ` ${ts.displayPartsToString(tag.text)}`}`
+    )
+    .join("\n");
+  return Object.freeze({
+    documentation: ts.displayPartsToString(info.documentation),
+    tags: tags ?? ""
+  });
+}
+
+function runDocumentationExamples(consumerDirectory: string): void {
+  const runtimeSourcePaths = new Set<string>(
+    PACKAGE_API_EXAMPLE_PROJECTIONS.filter((projection) => projection.evidence === "runtime").map(
+      (projection) => projection.sourcePath
+    )
+  );
+  for (const sourcePath of packageApiExampleSourcePaths()) {
+    if (!runtimeSourcePaths.has(sourcePath)) continue;
+    const result = spawnSync(process.execPath, [sourcePath], {
+      cwd: consumerDirectory,
+      encoding: "utf8"
+    });
+    assertCommandSucceeded(result, `isolated documentation example ${sourcePath}`);
+  }
 }
 
 function resolveCandidateJscpd(candidateEntryPath: string): Readonly<{
@@ -276,11 +379,24 @@ function typecheckConfig(): string {
         target: "esnext",
         verbatimModuleSyntax: true
       },
-      include: ["public-imports.ts"]
+      include: ["public-imports.ts", "docs/examples/package-api/*.ts"]
     },
     null,
     2
   )}\n`;
+}
+
+function hoverFixture(): string {
+  return `import { defineCheck, defineConfig, run } from "vibe-check";
+
+const documentedCheck = defineCheck({
+  checkId: "hover-fixture",
+  displayName: "Hover fixture",
+  execution: () => ({ status: "passed", data: {} })
+});
+const definition = defineConfig({ checks: [documentedCheck] });
+await run(definition);
+`;
 }
 
 function publicImports(): string {

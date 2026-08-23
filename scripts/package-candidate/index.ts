@@ -6,6 +6,11 @@ import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../src/product/public-contract/current.ts";
+import {
+  renderPackageApiDocumentation,
+  type RenderedPackageApiDocumentation
+} from "../docs/package-api-docs/render.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../docs/package-api-docs/registry.ts";
 
 const CANDIDATE_NAME = "vibe-check";
 const JSCPD_BIN_NAME = "jscpd";
@@ -24,6 +29,13 @@ const RUNTIME_EXPORTS = Object.freeze(
 );
 const PACKAGE_ENTRY_PATH = "index.mjs";
 const PACKAGE_TYPES_PATH = "types/scripts/package-candidate/entry.d.ts";
+const PACKAGE_README_PATH = "README.md";
+const DOCUMENTATION_INPUT_PATHS = Object.freeze([
+  "docs/package-readme.template.md",
+  "scripts/docs/package-api-docs/registry.ts",
+  "scripts/docs/package-api-docs/render.ts"
+]);
+const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
 
 export interface CandidateArtifact {
   readonly artifactPath: string;
@@ -99,16 +111,26 @@ export async function preparePackageCandidate(
     options.consumerDirectory ?? join(repositoryRoot, "scripts/quality")
   );
   const paths = candidatePaths(repositoryRoot, options.stateDirectory);
+  const documentation = renderPackageApiDocumentation({ repositoryRoot });
+  assertDocumentationMatchesSource(repositoryRoot, documentation);
+  const expectedJSDocExamplePayloads = jsdocExamplePayloads(documentation);
   const inputFingerprint = createInputFingerprint(repositoryRoot);
   const candidateVersion = `0.0.0-local.${inputFingerprint.slice(0, 12)}`;
 
   const reusable = readReusableArtifact({
     candidateVersion,
+    expectedJSDocExamplePayloads,
+    expectedReadme: documentation.readme.content,
     inputFingerprint,
     paths
   });
   if (reusable !== undefined) {
-    const installation = inspectInstallation(consumerDirectory, candidateVersion);
+    const installation = inspectInstallation({
+      candidateVersion,
+      consumerDirectory,
+      expectedJSDocExamplePayloads,
+      expectedReadme: documentation.readme.content
+    });
     if (
       installation !== undefined &&
       receiptMatchesInstallation(reusable.receipt, consumerDirectory, installation)
@@ -123,7 +145,9 @@ export async function preparePackageCandidate(
     const installationAfterInstall = installCandidate({
       artifactPath: reusable.artifact.artifactPath,
       candidateVersion,
-      consumerDirectory
+      consumerDirectory,
+      expectedJSDocExamplePayloads,
+      expectedReadme: documentation.readme.content
     });
     const receipt = receiptFor({
       artifact: reusable.artifact,
@@ -142,6 +166,8 @@ export async function preparePackageCandidate(
   clearCandidateState(paths);
   const artifact = await buildCandidateArtifact({
     candidateVersion,
+    documentation,
+    expectedJSDocExamplePayloads,
     inputFingerprint,
     paths,
     repositoryRoot
@@ -149,7 +175,9 @@ export async function preparePackageCandidate(
   const installation = installCandidate({
     artifactPath: artifact.artifactPath,
     candidateVersion,
-    consumerDirectory
+    consumerDirectory,
+    expectedJSDocExamplePayloads,
+    expectedReadme: documentation.readme.content
   });
   writeReceipt(paths.receiptPath, receiptFor({ artifact, consumerDirectory, installation }));
   return preparedCandidate({ artifact, consumerDirectory, installation, reused: false });
@@ -181,6 +209,7 @@ function createInputFingerprint(repositoryRoot: string): string {
 
   const inputFiles = [
     ...collectRuntimeSourceFiles(join(repositoryRoot, "src/product")),
+    ...documentationInputFiles(repositoryRoot),
     join(repositoryRoot, "scripts/package-candidate/entry.ts"),
     join(repositoryRoot, "scripts/package-candidate/index.ts")
   ].sort();
@@ -192,6 +221,69 @@ function createInputFingerprint(repositoryRoot: string): string {
     hash.update("\0");
   }
   return hash.digest("hex");
+}
+
+function documentationInputFiles(repositoryRoot: string): readonly string[] {
+  return Object.freeze([
+    ...DOCUMENTATION_INPUT_PATHS.map((path) => join(repositoryRoot, path)),
+    ...collectFiles(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
+      path.endsWith(".ts")
+    )
+  ]);
+}
+
+function assertDocumentationMatchesSource(
+  repositoryRoot: string,
+  documentation: RenderedPackageApiDocumentation
+): void {
+  const expectedReadmePath = join(repositoryRoot, PACKAGE_README_PATH);
+  if (resolve(documentation.readme.path) !== expectedReadmePath) {
+    throw new Error(
+      `documentation operation must render ${expectedReadmePath}; received ${documentation.readme.path}`
+    );
+  }
+  assertFileContentMatches(documentation.readme);
+  for (const jsdocSource of documentation.jsdocSources) {
+    if (!isWithin(repositoryRoot, jsdocSource.path)) {
+      throw new Error(
+        `documentation operation returned a JSDoc source outside the repository: ${jsdocSource.path}`
+      );
+    }
+    assertFileContentMatches(jsdocSource);
+  }
+}
+
+function assertFileContentMatches(
+  expected: Readonly<{ readonly content: string; readonly path: string }>
+): void {
+  if (!existsSync(expected.path)) {
+    throw new Error(`checked-in documentation projection is missing: ${expected.path}`);
+  }
+  if (readFileSync(expected.path, "utf8") !== expected.content) {
+    throw new Error(`checked-in documentation projection is stale: ${expected.path}`);
+  }
+}
+
+function jsdocExamplePayloads(documentation: RenderedPackageApiDocumentation): readonly string[] {
+  const payloads = documentation.jsdocSources.flatMap(({ content }) =>
+    [...content.matchAll(/@example[^\n]*\n \* ```ts\n([\s\S]*?)\n \* ```/g)].map((match) =>
+      match[1]
+        .split("\n")
+        .map((line) => line.replace(/^ \* ?/, ""))
+        .join("\n")
+    )
+  );
+  const expectedPayloadCount = PACKAGE_API_EXAMPLE_PROJECTIONS.reduce(
+    (count, projection) =>
+      count + projection.targets.filter((target) => target.kind === "jsdoc").length,
+    0
+  );
+  if (payloads.length !== expectedPayloadCount) {
+    throw new Error(
+      "documentation operation did not provide every registry-managed JSDoc example payload"
+    );
+  }
+  return Object.freeze(payloads);
 }
 
 function collectRuntimeSourceFiles(sourceRoot: string): readonly string[] {
@@ -224,6 +316,8 @@ function collectFiles(root: string, include: (relativePath: string) => boolean):
 
 function readReusableArtifact(input: {
   readonly candidateVersion: string;
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
   readonly inputFingerprint: string;
   readonly paths: CandidatePaths;
 }): ReusableCandidateArtifact | undefined {
@@ -238,10 +332,17 @@ function readReusableArtifact(input: {
   const artifact = artifactFromReceipt(receipt, input.paths);
   if (artifact === undefined) return undefined;
   try {
+    auditStagingRuntime({
+      expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
+      expectedReadme: input.expectedReadme,
+      stagingDirectory: artifact.stagingDirectory
+    });
     auditCandidateArtifact({
       artifactPath: artifact.artifactPath,
       candidateVersion: artifact.candidateVersion,
       expectedFiles: artifact.files,
+      expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
+      expectedReadme: input.expectedReadme,
       expectedSha256: artifact.sha256
     });
   } catch {
@@ -311,13 +412,27 @@ function clearCandidateState(paths: CandidatePaths): void {
 
 async function buildCandidateArtifact(input: {
   readonly candidateVersion: string;
+  readonly documentation: RenderedPackageApiDocumentation;
+  readonly expectedJSDocExamplePayloads: readonly string[];
   readonly inputFingerprint: string;
   readonly paths: CandidatePaths;
   readonly repositoryRoot: string;
 }): Promise<CandidateArtifact> {
-  const { candidateVersion, inputFingerprint, paths, repositoryRoot } = input;
+  const {
+    candidateVersion,
+    documentation,
+    expectedJSDocExamplePayloads,
+    inputFingerprint,
+    paths,
+    repositoryRoot
+  } = input;
   mkdirSync(paths.stagingDirectory, { recursive: true });
   writeCandidateManifest(join(paths.stagingDirectory, "package.json"), candidateVersion);
+  writeFileSync(
+    join(paths.stagingDirectory, PACKAGE_README_PATH),
+    documentation.readme.content,
+    "utf8"
+  );
 
   runBun({
     args: [
@@ -366,7 +481,11 @@ async function buildCandidateArtifact(input: {
     phase: "emit declarations"
   });
 
-  auditStagingRuntime(paths.stagingDirectory);
+  auditStagingRuntime({
+    expectedJSDocExamplePayloads,
+    expectedReadme: documentation.readme.content,
+    stagingDirectory: paths.stagingDirectory
+  });
   const expectedFiles = collectFiles(paths.stagingDirectory, () => true).map(
     (filePath) => `package/${relative(paths.stagingDirectory, filePath).split(sep).join("/")}`
   );
@@ -381,7 +500,14 @@ async function buildCandidateArtifact(input: {
     throw new Error(`candidate pack did not produce expected artifact ${artifactPath}`);
   }
   const sha256 = sha256File(artifactPath);
-  auditCandidateArtifact({ artifactPath, candidateVersion, expectedFiles, expectedSha256: sha256 });
+  auditCandidateArtifact({
+    artifactPath,
+    candidateVersion,
+    expectedFiles,
+    expectedJSDocExamplePayloads,
+    expectedReadme: documentation.readme.content,
+    expectedSha256: sha256
+  });
   return Object.freeze({
     artifactPath,
     candidateVersion,
@@ -403,18 +529,34 @@ function writeCandidateManifest(manifestPath: string, version: string): void {
         import: `./${PACKAGE_ENTRY_PATH}`
       }
     },
-    files: [PACKAGE_ENTRY_PATH, "types"],
+    files: [PACKAGE_ENTRY_PATH, PACKAGE_README_PATH, "types"],
     dependencies: CANDIDATE_DEPENDENCIES
   };
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }
 
-function auditStagingRuntime(stagingDirectory: string): void {
+function auditStagingRuntime(input: {
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
+  readonly stagingDirectory: string;
+}): void {
+  const { expectedJSDocExamplePayloads, expectedReadme, stagingDirectory } = input;
   const entryPath = join(stagingDirectory, PACKAGE_ENTRY_PATH);
   const typesPath = join(stagingDirectory, PACKAGE_TYPES_PATH);
   if (!existsSync(entryPath) || !existsSync(typesPath)) {
     throw new Error("candidate staging is missing its public runtime entry or declarations entry");
   }
+  assertFileContentMatches({
+    content: expectedReadme,
+    path: join(stagingDirectory, PACKAGE_README_PATH)
+  });
+  assertJSDocExamplePayloads({
+    declarationSources: collectFiles(join(stagingDirectory, "types"), (path) =>
+      path.endsWith(".d.ts")
+    ).map((path) => readFileSync(path, "utf8")),
+    description: "candidate staging declarations",
+    expectedPayloads: expectedJSDocExamplePayloads
+  });
   const actualExports = [
     ...parseStringArray(
       runBun({
@@ -444,6 +586,7 @@ function auditStagingRuntime(stagingDirectory: string): void {
       (filePath) =>
         filePath !== "package.json" &&
         filePath !== PACKAGE_ENTRY_PATH &&
+        filePath !== PACKAGE_README_PATH &&
         !(filePath.startsWith("types/") && filePath.endsWith(".d.ts"))
     );
   if (unexpectedFiles.length > 0) {
@@ -457,6 +600,8 @@ function auditCandidateArtifact(input: {
   readonly artifactPath: string;
   readonly candidateVersion: string;
   readonly expectedFiles: readonly string[];
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
   readonly expectedSha256: string;
 }): void {
   const actualSha256 = sha256File(input.artifactPath);
@@ -473,7 +618,37 @@ function auditCandidateArtifact(input: {
   const manifestEntry = entries.find((entry) => entry.path === "package/package.json");
   if (manifestEntry === undefined)
     throw new Error("candidate artifact is missing package/package.json");
+  const readmeEntry = entries.find((entry) => entry.path === `package/${PACKAGE_README_PATH}`);
+  if (readmeEntry === undefined)
+    throw new Error(`candidate artifact is missing package/${PACKAGE_README_PATH}`);
+  if (!readmeEntry.content.equals(Buffer.from(input.expectedReadme, "utf8"))) {
+    throw new Error("candidate artifact README does not match the documentation projection");
+  }
+  assertJSDocExamplePayloads({
+    declarationSources: entries
+      .filter((entry) => entry.path.startsWith("package/types/") && entry.path.endsWith(".d.ts"))
+      .map((entry) => entry.content.toString("utf8")),
+    description: "candidate artifact declarations",
+    expectedPayloads: input.expectedJSDocExamplePayloads
+  });
   auditManifest(manifestEntry.content, input.candidateVersion, entries);
+}
+
+function assertJSDocExamplePayloads(input: {
+  readonly declarationSources: readonly string[];
+  readonly description: string;
+  readonly expectedPayloads: readonly string[];
+}): void {
+  const { declarationSources, description, expectedPayloads } = input;
+  for (const payload of expectedPayloads) {
+    const expectedCommentPayload = payload
+      .split("\n")
+      .map((line) => (line.length === 0 ? " *" : ` * ${line}`))
+      .join("\n");
+    if (!declarationSources.some((source) => source.includes(expectedCommentPayload))) {
+      throw new Error(`${description} is missing a generated JSDoc example payload`);
+    }
+  }
 }
 
 function auditManifest(
@@ -512,9 +687,12 @@ function auditManifest(
   }
   if (
     !entries.some((entry) => entry.path === `package/${PACKAGE_ENTRY_PATH}`) ||
-    !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`)
+    !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
+    !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`)
   ) {
-    throw new Error("candidate artifact is missing its approved runtime or declarations entry");
+    throw new Error(
+      "candidate artifact is missing its approved runtime, declarations, or README entry"
+    );
   }
 }
 
@@ -596,8 +774,16 @@ function installCandidate(input: {
   readonly artifactPath: string;
   readonly candidateVersion: string;
   readonly consumerDirectory: string;
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
 }): InstalledCandidate {
-  const { artifactPath, candidateVersion, consumerDirectory } = input;
+  const {
+    artifactPath,
+    candidateVersion,
+    consumerDirectory,
+    expectedJSDocExamplePayloads,
+    expectedReadme
+  } = input;
   if (!isPrivateCandidateConsumer(consumerDirectory)) {
     throw new Error(
       `candidate consumer ${consumerDirectory} must provide a package.json with private: true before local installation`
@@ -612,7 +798,12 @@ function installCandidate(input: {
     cwd: consumerDirectory,
     phase: `install candidate in ${consumerDirectory}`
   });
-  const installation = inspectInstallation(consumerDirectory, candidateVersion);
+  const installation = inspectInstallation({
+    candidateVersion,
+    consumerDirectory,
+    expectedJSDocExamplePayloads,
+    expectedReadme
+  });
   if (installation === undefined) {
     throw new Error(
       `candidate installation did not resolve ${CANDIDATE_NAME} with its declared ${JSCPD_PACKAGE_NAME} dependency from ${consumerDirectory}`
@@ -638,10 +829,14 @@ interface InstalledCandidate {
   readonly resolvedEntrySha256: string;
 }
 
-function inspectInstallation(
-  consumerDirectory: string,
-  candidateVersion: string
-): InstalledCandidate | undefined {
+function inspectInstallation(input: {
+  readonly candidateVersion: string;
+  readonly consumerDirectory: string;
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
+}): InstalledCandidate | undefined {
+  const { candidateVersion, consumerDirectory, expectedJSDocExamplePayloads, expectedReadme } =
+    input;
   const packageDirectory = join(consumerDirectory, "node_modules", CANDIDATE_NAME);
   const manifestPath = join(packageDirectory, "package.json");
   if (!existsSync(manifestPath)) return undefined;
@@ -671,6 +866,20 @@ function inspectInstallation(
   }
   if (!existsSync(resolvedEntryPath) || !isWithin(packageDirectory, resolvedEntryPath))
     return undefined;
+  const readmePath = join(packageDirectory, PACKAGE_README_PATH);
+  if (!existsSync(readmePath) || readFileSync(readmePath, "utf8") !== expectedReadme)
+    return undefined;
+  try {
+    assertJSDocExamplePayloads({
+      declarationSources: collectFiles(join(packageDirectory, "types"), (path) =>
+        path.endsWith(".d.ts")
+      ).map((path) => readFileSync(path, "utf8")),
+      description: "installed candidate declarations",
+      expectedPayloads: expectedJSDocExamplePayloads
+    });
+  } catch {
+    return undefined;
+  }
   if (!hasCandidateJscpdDependency(consumerDirectory, resolvedEntryPath)) return undefined;
   return Object.freeze({
     installedPackageDirectory: packageDirectory,

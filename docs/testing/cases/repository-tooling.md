@@ -26,6 +26,18 @@ Entities:
 - That consumer uses default-enabled Product progress with a real non-TTY stdout capture: lifecycle output contains the Check total, settled completion, an `attention` Check's message, and final execution summary without terminal control bytes; its executed canonical Checks have non-negative finite `checkDurations` entries, observable final data, and structured `checkMessages` readback.
 - A preparation failure returns an infrastructure failure before the repository scan starts, so a stale installed candidate is never used as fallback.
 
+## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
+
+Owner: `docs/script-tooling.md#independent-docs-validation-and-workspace-acceptance`
+Entities:
+
+- `bun|scripts/docs/package-api-docs/index.test.ts|package API documentation CLI > writes expected projections and detects stale output through --check`
+- `bun|scripts/docs/package-api-docs/render.test.ts|package API documentation renderer > projects every registry region to its declared README and JSDoc targets without changing payload bytes`
+- `bun|scripts/docs/package-api-docs/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source regions`
+  Proves:
+- The typed registry and read-only renderer project every allowlisted TypeScript region only to its declared README or JSDoc targets without changing payload bytes, replace current registry-managed JSDoc example tails, discover and clear obsolete generated tails after a target leaves the registry, and reject duplicate projection/region/target identities, unsafe JSDoc tails, and malformed or unknown placeholders/regions.
+- The CLI writes the renderer's complete expected projections, while check mode writes nothing and fails when a checked-in projection is missing or stale.
+
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
 Owner: `docs/script-tooling.md#project-gate`

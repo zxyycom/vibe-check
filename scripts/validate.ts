@@ -1,8 +1,11 @@
 import { runBun, runCommand, runMain } from "./development/command.ts";
+import { TASK_NAMES } from "./tools/validators/config.ts";
 
 function validate(argv: readonly string[]): void {
   if (argv.length > 0 && argv[0] !== "docs") {
-    throw new Error("usage: bun scripts/validate.ts [docs [json|schema|examples|links]...]");
+    throw new Error(
+      `usage: bun scripts/validate.ts [docs [json|schema|examples|links|${TASK_NAMES.packageApiDocumentation}]...]`
+    );
   }
 
   const docsOnly = argv[0] === "docs";

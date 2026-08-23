@@ -4,7 +4,8 @@ export const TASK_NAMES = {
   json: "json",
   schema: "schema",
   examples: "examples",
-  links: "links"
+  links: "links",
+  packageApiDocumentation: "package-api-documentation"
 };
 
 export const FILE_SYSTEM = {
