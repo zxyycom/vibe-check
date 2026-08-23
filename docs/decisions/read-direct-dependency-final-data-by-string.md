@@ -1,7 +1,7 @@
 ---
 title: 用 string getter 读取 direct dependency final data
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-23T11:13:59Z
 purpose: 让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。
 background: Direct dependency 已提供顺序，Core 已保存 final data，但 callback 尚无 runtime read capability。

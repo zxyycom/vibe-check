@@ -11,7 +11,7 @@ Entities:
 - `bun|src/product/quality-core/output/publication-v4/publication-v4.validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
   Proves:
 - v4 publishes four Check terminal states, final data only on passed/failed states, and minimal `{ checkId, id, data }` supplemental Records.
-- Complete-set validation rejects v3 and malformed/mixed input, closes composite identity/order and ownership, binds the complete Record set by fingerprint, and exposes no partial trusted prefix.
+- Complete-set validation rejects v3 and malformed/mixed input, closes composite identity/order and ownership, binds the complete Record set by fingerprint, and exposes no partial trusted prefix. The unchanged final-data projection remains the v4 compatibility boundary; version-matched provider-parser readback is package-consumer evidence, not a second machine contract.
 
 ## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated v4 publication materials remain canonical
 

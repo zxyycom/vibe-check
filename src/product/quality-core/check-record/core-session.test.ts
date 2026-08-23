@@ -16,6 +16,7 @@ describe("check-record Core Check session", () => {
       { definition: definition("alpha-check") }
     ]);
     const zeta = session.openCheckScope("zeta-check");
+    assert.throws(() => session.readSettledCheck("zeta-check"), CoreInvariantFailure);
     assert.deepEqual(zeta.settle({ status: "not-applicable" }), {
       authorResultAccepted: true,
       outcome: { status: "not-applicable" }
@@ -27,6 +28,12 @@ describe("check-record Core Check session", () => {
     );
     assert.deepEqual(alpha.settle({ status: "failed", data: { "2": "two", "10": 10 } }), {
       authorResultAccepted: true,
+      outcome: { status: "failed", data: { "2": "two", "10": 10 } }
+    });
+    const settledAlpha = session.readSettledCheck("alpha-check");
+    assert.deepEqual(settledAlpha, {
+      checkId: "alpha-check",
+      displayName: "alpha-check",
       outcome: { status: "failed", data: { "2": "two", "10": 10 } }
     });
 
@@ -50,6 +57,7 @@ describe("check-record Core Check session", () => {
       }
     ]);
     const alphaOutcome = snapshot.checks[0]?.outcome;
+    assert.equal(alphaOutcome, settledAlpha.outcome);
     const alphaData =
       alphaOutcome?.status === "passed" || alphaOutcome?.status === "failed"
         ? alphaOutcome.data

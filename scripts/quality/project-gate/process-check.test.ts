@@ -358,6 +358,13 @@ async function invoke(
   if (check.execution === undefined)
     throw new Error("fixture Check must have an execution callback");
   return check.execution({
+    dependencies: Object.freeze({
+      get: (checkId: string) =>
+        Object.freeze({
+          ok: false,
+          error: Object.freeze({ code: "dependency-not-declared", checkId })
+        })
+    }),
     options: check.options ?? {},
     project: {
       root: process.cwd(),

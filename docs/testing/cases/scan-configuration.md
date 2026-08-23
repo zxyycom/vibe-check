@@ -12,9 +12,12 @@ Entities:
 - `bun|src/product/definition/project.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
 - `bun|src/product/definition/project.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/product/definition/project.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
+- `bun|src/product/definition/project.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
+- `bun|scripts/package-candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
   Proves:
 - The public authoring surface contains four operations and three ordinary complete default Check values, not a configuration adjustment or operational-dependency API.
-- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
+- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
+- The emitted public declaration keeps a provider parser required, anchors passed/failed data to its return type, and preserves ordinary, options, recursive, and native-spread authoring without a consumer cast or manual read generic.
 
 ## Case WB-PROGRESS-EFFECT-001: Progress remains an optional fail-open Run effect
 

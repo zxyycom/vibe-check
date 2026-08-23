@@ -141,3 +141,9 @@ type _UnsupportedProductUnavailableReason = import("../definition/project.ts").P
 type _UnsupportedDeepReadonly = import("../definition/project.ts").DeepReadonly<object>;
 // @ts-expect-error CheckDefinition is not a named public type root.
 type _UnsupportedCheckDefinition = import("../definition/project.ts").CheckDefinition;
+// @ts-expect-error CheckDataParser is supporting syntax, not a named public type root.
+type _UnsupportedCheckDataParser = import("../definition/project.ts").CheckDataParser;
+// @ts-expect-error CheckDependencies is carried by CheckExecutionContext, not a named public type root.
+type _UnsupportedCheckDependencies = import("../definition/project.ts").CheckDependencies;
+// @ts-expect-error DependencyReadResult is supporting syntax, not a named public type root.
+type _UnsupportedDependencyReadResult = import("../definition/project.ts").DependencyReadResult;

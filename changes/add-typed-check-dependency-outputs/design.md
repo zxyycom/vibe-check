@@ -171,6 +171,7 @@ interface TypedCheckFields<Options extends object, Data extends object> {
 5. Parser与execution表达同一个logical data contract；本Change不支持separate stored/parsed generics。
 6. Typed provider必须executable；container不能声明parser。
 7. Existing options/no-options inference、ordinary no-parser Check、recursive composition与native spread保持合法。
+8. TypeScript typed provider只通过`defineCheck({ execution, parseData })`建立上述关联；broad `Check`保持ordinary recursive/container surface且不声明`parseData`。Runtime unknown grammar仍接受trusted JavaScript或cast author object上的executable function parser，但validation不为其制造静态关系，shape责任仍属于provider。Own `parseData: undefined`按ordinary optional field规范化为omitted，materialized Check不保留该key。
 
 Parser function是producer Check value的consumer capability，不是producer execution步骤。Product在settlement或getter中都不调用它。
 
@@ -304,7 +305,7 @@ Implementation必须分别证明以下边界：
 - **Orchestration：** 不再把ordinary`unavailable`当作Task failure；迁移blocked、progress和lifecycle evidence。
 - **Package：** Declarations和installed consumer同时证明ordinary/typed Check authoring；runtime root inventory不变。
 - **Stable docs：** Configuration拥有authoring；Architecture拥有data/control flow；Quality Metrics拥有status/data semantics；Output确认canonical machine compatibility。
-- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)已承接本final-data-first contract；在implementation与stable owners对齐前保持`active + unaligned`。
+- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)已承接本final-data-first contract；implementation、stable owners与验收证据闭合后已核对为`active + aligned`。
 
 ## Risks / Trade-offs
 

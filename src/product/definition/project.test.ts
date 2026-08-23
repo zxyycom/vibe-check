@@ -9,7 +9,8 @@ import {
   normalizeProjectDefinition,
   type Check,
   type CheckExecution,
-  type CheckResult
+  type CheckResult,
+  type ProjectDefinition
 } from "./project.ts";
 import { validateProjectDefinition } from "./validation.ts";
 
@@ -232,6 +233,79 @@ describe("Project Definition", () => {
     );
   });
 
+  it("accepts parsers only on executable providers and excludes them from declarative identity", () => {
+    const firstParser = (data: Readonly<Record<string, unknown>>) => ({
+      source: typeof data.source === "string" ? data.source : ""
+    });
+    const secondParser = (data: Readonly<Record<string, unknown>>) => ({
+      source: typeof data.source === "string" ? data.source : ""
+    });
+    const provider = (parseData: typeof firstParser): ProjectDefinition =>
+      defineConfig({
+        checks: [
+          defineCheck({
+            checkId: "provider",
+            displayName: "Provider",
+            execution: passed,
+            parseData
+          })
+        ]
+      });
+
+    const validated = validateProjectDefinition(provider(firstParser));
+    assert.equal(validated.ok, true);
+    if (validated.ok) {
+      const materialized = validated.value.checks[0];
+      assert.equal(
+        materialized !== undefined && "parseData" in materialized
+          ? materialized.parseData
+          : undefined,
+        firstParser
+      );
+    }
+
+    const first = normalizeProjectDefinition(provider(firstParser));
+    const second = normalizeProjectDefinition(provider(secondParser));
+    assert.equal(Object.hasOwn(first.checks[0] ?? {}, "parseData"), false);
+    assert.equal(Object.hasOwn(first.declarative.checks[0] ?? {}, "parseData"), false);
+    assert.equal(
+      createDeclarativeFingerprint(first.declarative),
+      createDeclarativeFingerprint(second.declarative)
+    );
+
+    for (const check of [
+      {
+        checkId: "container-parser",
+        displayName: "Container parser",
+        parseData: firstParser
+      },
+      {
+        checkId: "invalid-parser",
+        displayName: "Invalid parser",
+        execution: passed,
+        parseData: null
+      }
+    ]) {
+      assert.equal(validateProjectDefinition({ ...defineConfig({}), checks: [check] }).ok, false);
+    }
+
+    const explicitUndefined = validateProjectDefinition({
+      ...defineConfig({}),
+      checks: [
+        {
+          checkId: "undefined-parser",
+          displayName: "Undefined parser",
+          execution: passed,
+          parseData: undefined
+        }
+      ]
+    });
+    assert.equal(explicitUndefined.ok, true);
+    if (explicitUndefined.ok) {
+      assert.equal(Object.hasOwn(explicitUndefined.value.checks[0] ?? {}, "parseData"), false);
+    }
+  });
+
   // @ts-expect-error defineConfig rejects retired policy authoring.
   defineConfig({ selectedPolicy: null });
   // @ts-expect-error defineConfig rejects unknown top-level authoring keys.
@@ -257,9 +331,13 @@ function _typeCheckCheckAuthoring() {
   const noOptions = defineCheck({
     checkId: "no-options",
     displayName: "No options",
-    execution({ options }) {
+    execution({ dependencies, options }) {
       // @ts-expect-error no-options execution receives an empty options object.
       void options.unknown;
+      const read = dependencies.get("typed-check");
+      // @ts-expect-error dependency reads do not accept a caller-selected Data generic.
+      dependencies.get<{ readonly source: string }>("typed-check");
+      void read;
       return { status: "not-applicable" };
     }
   });
@@ -294,9 +372,138 @@ function _typeCheckCheckAuthoring() {
   void messaged;
 }
 
+function _typeCheckTypedProviderAuthoring() {
+  interface ChangedFilesData {
+    readonly files: readonly string[];
+    readonly version: 1;
+  }
+
+  const changedFiles = defineCheck({
+    checkId: "changed-files",
+    displayName: "Changed files",
+    parseData(data): ChangedFilesData {
+      return data.version === 1 && Array.isArray(data.files)
+        ? {
+            files: data.files.filter((value): value is string => typeof value === "string"),
+            version: 1
+          }
+        : { files: [], version: 1 };
+    },
+    execution(): CheckResult<ChangedFilesData> {
+      return { status: "passed", data: { files: ["src/index.ts"], version: 1 } };
+    }
+  });
+  const parsed: ChangedFilesData = changedFiles.parseData({ files: [], version: 1 });
+  void parsed.files;
+
+  const variableParser = changedFiles.parseData;
+  const variableProvider = defineCheck({
+    checkId: "variable-provider",
+    displayName: "Variable provider",
+    execution(): CheckResult<ChangedFilesData> {
+      return { status: "passed", data: { files: [], version: 1 } };
+    },
+    parseData: variableParser
+  });
+  const variableData: ChangedFilesData = variableProvider.parseData({ files: [], version: 1 });
+  void variableData;
+
+  const broadCheck = {
+    checkId: "broad-check",
+    displayName: "Broad check",
+    execution: () => ({ status: "passed" as const, data: {} }),
+    // @ts-expect-error broad Check is ordinary; typed providers use defineCheck.
+    parseData(_data: Readonly<Record<string, unknown>>) {
+      return {};
+    }
+  } satisfies Check;
+  void broadCheck;
+
+  const explicitUndefined = defineCheck({
+    checkId: "undefined-parser",
+    displayName: "Undefined parser",
+    execution: () => ({ status: "passed", data: {} }),
+    parseData: undefined
+  });
+  const _omittedParser: undefined = explicitUndefined.parseData;
+
+  const optionAware = defineCheck({
+    checkId: "typed-options",
+    displayName: "Typed options",
+    options: { maximum: 5 },
+    parseData(data): { readonly count: number } {
+      return { count: typeof data.count === "number" ? data.count : 0 };
+    },
+    execution({ options }) {
+      return { status: "passed", data: { count: options.maximum } };
+    }
+  });
+  const optionData: number = optionAware.parseData({ count: 1 }).count;
+  void optionData;
+
+  const recursive: Check = {
+    checkId: "typed-container",
+    checks: [changedFiles, optionAware],
+    displayName: "Typed container"
+  };
+  const spread = defineCheck({
+    ...changedFiles,
+    checkId: "spread-provider",
+    displayName: "Spread provider"
+  });
+  const spreadData: ChangedFilesData = spread.parseData({ files: [], version: 1 });
+  void recursive;
+  void spreadData;
+
+  defineCheck({
+    checkId: "mismatched-provider",
+    displayName: "Mismatched provider",
+    parseData(_data): ChangedFilesData {
+      return { files: [], version: 1 };
+    },
+    // @ts-expect-error execution final data must match this provider's parser return.
+    execution: () => ({ status: "passed", data: { paths: [], version: 1 } })
+  });
+
+  defineCheck({
+    checkId: "async-parser",
+    displayName: "Async parser",
+    // @ts-expect-error provider parsers synchronously restore canonical runtime data.
+    async parseData(_data) {
+      return { files: [], version: 1 } satisfies ChangedFilesData;
+    },
+    // @ts-expect-error asynchronous parser data cannot satisfy execution final data.
+    execution: () => ({ status: "passed", data: { files: [], version: 1 } })
+  });
+
+  const maybeAsyncParser = (
+    _data: Readonly<Record<string, unknown>>
+  ): ChangedFilesData | Promise<ChangedFilesData> => ({ files: [], version: 1 });
+  defineCheck({
+    checkId: "maybe-async-parser",
+    displayName: "Maybe async parser",
+    execution(): CheckResult<ChangedFilesData | Promise<ChangedFilesData>> {
+      return { status: "passed", data: { files: [], version: 1 } };
+    },
+    // @ts-expect-error every typed provider parser return constituent must be synchronous.
+    parseData: maybeAsyncParser
+  });
+
+  // @ts-expect-error a typed provider parser requires execution.
+  defineCheck({
+    checkId: "parser-container",
+    displayName: "Parser container",
+    parseData(_data: Readonly<Record<string, unknown>>): ChangedFilesData {
+      return { files: [], version: 1 };
+    }
+  });
+}
+
 function _typeCheckFinalDataBoundary() {
   // @ts-expect-error Check final data must be object-shaped at the write boundary.
   const invalid: CheckExecution = () => ({ status: "passed", data: 1 });
+  // @ts-expect-error CheckExecution exposes only its Options generic.
+  type _UnsupportedDataGeneric = CheckExecution<object, object>;
   void invalid;
 }
 

@@ -44,6 +44,17 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "passed");
     assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
+    assert.equal(runEvidence.changedFilesCalls, 1);
+    assert.deepEqual(runEvidence.changedFilesFromMachine, {
+      files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
+      version: 1
+    });
+    assert.deepEqual(runEvidence.changedFilesFromRun, runEvidence.changedFilesFromMachine);
+    assert.deepEqual(runEvidence.firstChangedFilesConsumer, { fileCount: 2 });
+    assert.deepEqual(runEvidence.secondChangedFilesConsumer, {
+      firstFile: "src/duplicate-a.ts"
+    });
+    assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
     assert.deepEqual(runEvidence.checkMessages, [
       {
         checkId: "installed-terminal-note",
@@ -52,14 +63,17 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
         message: "Installed candidate terminal message."
       }
     ]);
-    assert.match(runEvidence.humanOutput, /total\s+2\s+checks/i);
+    assert.match(runEvidence.humanOutput, /total\s+5\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/2\].*duplicate detection/i);
-    assert.match(runEvidence.humanOutput, /\[2\/2\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[1\/5\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[5\/5\].*Installed terminal note/i);
     assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "changed-files");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "first-changed-files-consumer");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "second-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "installed-terminal-note");
   } finally {
     rmSync(consumerDirectory, { force: true, recursive: true });
@@ -135,10 +149,16 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 function runDuplicateFixture(consumerDirectory: string): Readonly<{
   checkMessages: unknown;
   checkDurations: unknown;
+  changedFilesCalls: unknown;
+  changedFilesFromMachine: unknown;
+  changedFilesFromRun: unknown;
   duplicateData: unknown;
   duplicateOutcome: string | null;
+  firstChangedFilesConsumer: unknown;
   humanOutput: string;
   kind: string;
+  machineSchemaVersion: unknown;
+  secondChangedFilesConsumer: unknown;
 }> {
   const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
     cwd: consumerDirectory,
@@ -160,10 +180,16 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   return Object.freeze({
     checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
+    changedFilesCalls: evidence.changedFilesCalls,
+    changedFilesFromMachine: evidence.changedFilesFromMachine,
+    changedFilesFromRun: evidence.changedFilesFromRun,
     duplicateData: evidence.duplicateData,
     duplicateOutcome,
+    firstChangedFilesConsumer: evidence.firstChangedFilesConsumer,
     humanOutput: result.stdout.slice(0, markerIndex),
-    kind
+    kind,
+    machineSchemaVersion: evidence.machineSchemaVersion,
+    secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
 }
 
@@ -280,11 +306,54 @@ const directCheck = defineCheck({
     const selected = context.project.flags.includes("isolated-consumer");
     context.records.report({ id: "selection" }, { selected });
     return selected
-      ? { status: "passed" as const, data: { selected } }
-      : { status: "failed" as const, data: { selected } };
+      ? { status: "passed", data: { selected } }
+      : { status: "failed", data: { selected } };
   }
 });
-const definition: ProjectDefinition = defineConfig({ checks: [duplicateDetection, directCheck] });
+interface ChangedFilesData {
+  readonly files: readonly string[];
+  readonly version: 1;
+}
+
+const changedFilesData: ChangedFilesData = {
+  files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
+  version: 1
+};
+
+const changedFiles = defineCheck({
+  checkId: "isolated-changed-files",
+  displayName: "Isolated changed files",
+  parseData(data): ChangedFilesData {
+    if (
+      data.version !== 1 ||
+      !Array.isArray(data.files) ||
+      !data.files.every((value): value is string => typeof value === "string")
+    ) {
+      throw new TypeError("Unsupported isolated changed-files data");
+    }
+    return { files: data.files, version: 1 };
+  },
+  execution: () => ({
+    status: "passed",
+    data: changedFilesData
+  })
+});
+
+const changedFilesConsumer = defineCheck({
+  checkId: "isolated-changed-files-consumer",
+  displayName: "Isolated changed-files consumer",
+  dependsOn: [changedFiles.checkId],
+  execution: ({ dependencies }) => {
+    const read = dependencies.get(changedFiles.checkId);
+    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+    const data = changedFiles.parseData(read.data);
+    return { status: read.status, data: { fileCount: data.files.length } };
+  }
+});
+
+const definition: ProjectDefinition = defineConfig({
+  checks: [duplicateDetection, directCheck, changedFiles, changedFilesConsumer]
+});
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const aggregation: CheckAggregation = {
   checks: [directCheck.checkId],
@@ -349,6 +418,9 @@ void [
   aggregation,
   attentionCheck,
   authorResult,
+  changedFiles,
+  changedFilesData,
+  changedFilesConsumer,
   inheritedCheckIds,
   observeFinalDurations,
   result
@@ -357,7 +429,10 @@ void [
 }
 
 function runFixture(): string {
-  return `import { defineCheck, defineConfig, duplicateDetection, run } from "vibe-check";
+  return `import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { defineCheck, defineConfig, duplicateDetection, run } from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -379,6 +454,53 @@ const terminalNote = defineCheck({
   })
 });
 
+let changedFilesCalls = 0;
+const changedFiles = defineCheck({
+  checkId: "changed-files",
+  displayName: "Changed files",
+  parseData(data) {
+    if (
+      data.version !== 1 ||
+      !Array.isArray(data.files) ||
+      !data.files.every((value) => typeof value === "string")
+    ) {
+      throw new TypeError("Unsupported changed-files data");
+    }
+    return { files: data.files, version: 1 };
+  },
+  execution: () => {
+    changedFilesCalls += 1;
+    return {
+      status: "passed",
+      data: { files: ["src/duplicate-a.ts", "src/duplicate-b.ts"], version: 1 }
+    };
+  }
+});
+
+const firstChangedFilesConsumer = defineCheck({
+  checkId: "first-changed-files-consumer",
+  displayName: "First changed-files consumer",
+  dependsOn: [changedFiles.checkId],
+  execution: ({ dependencies }) => {
+    const read = dependencies.get(changedFiles.checkId);
+    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+    const data = changedFiles.parseData(read.data);
+    return { status: read.status, data: { fileCount: data.files.length } };
+  }
+});
+
+const secondChangedFilesConsumer = defineCheck({
+  checkId: "second-changed-files-consumer",
+  displayName: "Second changed-files consumer",
+  dependsOn: [changedFiles.checkId],
+  execution: ({ dependencies }) => {
+    const read = dependencies.get(changedFiles.checkId);
+    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
+    const data = changedFiles.parseData(read.data);
+    return { status: read.status, data: { firstFile: data.files[0] } };
+  }
+});
+
 const result = await run(
   defineConfig({
     checks: [
@@ -389,11 +511,14 @@ const result = await run(
           defaultMinimumTokens: 20
         }
       },
+      changedFiles,
+      firstChangedFilesConsumer,
+      secondChangedFilesConsumer,
       terminalNote
     ],
     effects: {
       cache: { enabled: false },
-      output: { enabled: false }
+      output: { directory: "machine-output", enabled: true }
     },
     scheduler: { maxParallel: 1 }
   }),
@@ -402,11 +527,36 @@ const result = await run(
 const duplicate = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === "duplicate-detection")
   : undefined;
+const changedFilesFromRun = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === changedFiles.checkId)
+  : undefined;
+const machine = JSON.parse(readFileSync(join(projectRoot, "machine-output/run.json"), "utf8"));
+const machineChangedFiles = machine.checks.find((check) => check.checkId === changedFiles.checkId);
+const parsedChangedFilesFromMachine = changedFiles.parseData(machineChangedFiles.outcome.data);
+const parsedChangedFilesFromRun = changedFilesFromRun?.outcome.status === "passed"
+  ? changedFiles.parseData(changedFilesFromRun.outcome.data)
+  : null;
+const firstConsumer = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === firstChangedFilesConsumer.checkId)
+  : undefined;
+const secondConsumer = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === secondChangedFilesConsumer.checkId)
+  : undefined;
 
 process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   checkMessages: result.kind === "completed" ? result.checkMessages : null,
   checkDurations: result.kind === "completed" ? result.checkDurations : null,
+  changedFilesCalls,
+  changedFilesFromMachine: parsedChangedFilesFromMachine,
+  changedFilesFromRun: parsedChangedFilesFromRun,
   kind: result.kind,
+  firstChangedFilesConsumer: firstConsumer?.outcome.status === "passed" || firstConsumer?.outcome.status === "failed"
+    ? firstConsumer.outcome.data
+    : null,
+  machineSchemaVersion: machine.schemaVersion,
+  secondChangedFilesConsumer: secondConsumer?.outcome.status === "passed" || secondConsumer?.outcome.status === "failed"
+    ? secondConsumer.outcome.data
+    : null,
   duplicateData: duplicate?.outcome.status === "failed" || duplicate?.outcome.status === "passed"
     ? duplicate.outcome.data
     : null,

@@ -1,10 +1,14 @@
 import type {
+  CheckDependencies,
   CheckExecutionContext,
   CheckOutcome,
   CheckProjectContext
 } from "../definition/custom-check.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
-import type { TrustedCheckScope } from "../quality-core/check-record/core-session.ts";
+import {
+  CoreInvariantFailure,
+  type TrustedCheckScope
+} from "../quality-core/check-record/core-session.ts";
 
 export type CallbackExecution = Readonly<
   | {
@@ -21,6 +25,7 @@ export type CallbackExecution = Readonly<
 
 interface CheckCallbackInput {
   readonly check: NormalizedCheck;
+  readonly dependencies: CheckDependencies;
   readonly project: CheckProjectContext;
   readonly scope: TrustedCheckScope;
   readonly signal: AbortSignal;
@@ -36,7 +41,8 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
   const reporter = createCheckReporter(input.scope);
   let result: CallbackExecution;
   try {
-    const context: CheckExecutionContext<object> = Object.freeze({
+    const context = Object.freeze({
+      dependencies: input.dependencies,
       options: input.check.options,
       project: input.project,
       records: reporter.records,
@@ -46,7 +52,8 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
     result = input.signal.aborted
       ? productResult("execution-cancelled")
       : Object.freeze({ source: "author", result: callbackResult });
-  } catch {
+  } catch (error) {
+    if (error instanceof CoreInvariantFailure) throw error;
     result = productResult(input.signal.aborted ? "execution-cancelled" : "execution-threw");
   } finally {
     reporter.close();

@@ -39,6 +39,7 @@ export interface AuthorCheckSettlement {
 
 export interface CoreCheckSession {
   openCheckScope(checkId: string): TrustedCheckScope;
+  readSettledCheck(checkId: string): CoreCheck;
   closeUnresolvedAsCancelled(): void;
   freeze(): CoreSnapshot;
 }
@@ -125,6 +126,14 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     });
   }
 
+  public readSettledCheck(checkId: string): CoreCheck {
+    const slot = this.#slotFor(checkId);
+    if (slot.lifecycle.kind !== "settled") {
+      coreInvariant("Core settled Check is not available");
+    }
+    return coreCheckFor(slot);
+  }
+
   public closeUnresolvedAsCancelled(): void {
     if (this.#snapshot !== undefined) {
       coreInvariant("Cancelled closure cannot mutate a frozen Core snapshot");
@@ -147,13 +156,7 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       if (slot.lifecycle.kind !== "settled") {
         return coreInvariant("Core snapshot cannot freeze before every Check slot closes");
       }
-      checks.push(
-        Object.freeze({
-          checkId: slot.definition.checkId,
-          displayName: slot.definition.displayName,
-          outcome: slot.lifecycle.outcome
-        })
-      );
+      checks.push(coreCheckFor(slot));
     }
     this.#snapshot = Object.freeze({
       checks: Object.freeze(checks),
@@ -207,6 +210,17 @@ function terminalDiagnostic(slot: CoreSlot): RecordDiagnostic | undefined {
   if (slot.diagnostics.has("record-conflict")) return "record-conflict";
   if (slot.diagnostics.has("record-invalid")) return "record-invalid";
   return undefined;
+}
+
+function coreCheckFor(slot: CoreSlot): CoreCheck {
+  if (slot.lifecycle.kind !== "settled") {
+    coreInvariant("Core Check fact requires a settled slot");
+  }
+  return Object.freeze({
+    checkId: slot.definition.checkId,
+    displayName: slot.definition.displayName,
+    outcome: slot.lifecycle.outcome
+  });
 }
 
 function normalizeOutcome(value: unknown, productOutcome: boolean): CheckOutcome | undefined {

@@ -51,7 +51,7 @@ Core已经拥有所需事实：`passed` / `failed` Check各有一个detached、d
 - Core/Run需要settled Check read seam与direct-ID view；Run orchestration需要迁移`unavailable` prerequisite行为。
 - Type/runtime/Case/package evidence需要分别证明provider contract、runtime authorization、四态admission和external declaration consumption。
 - Configuration、Architecture、Quality Metrics、public inventory与相邻Change导航需要同步最终事实；Output只确认existing data兼容，不改schema。
-- Typed dependency Decision已演进为本Plan的final-data-first边界；它在implementation与stable owners完成对齐前保持`active + unaligned`。
+- Typed dependency Decision已演进为本Plan的final-data-first边界；implementation与stable owners完成后已核对为`active + aligned`。
 
 ## Success Criteria
 

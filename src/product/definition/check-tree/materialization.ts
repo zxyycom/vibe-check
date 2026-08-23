@@ -39,6 +39,7 @@ function materializeCheck(check: ParsedCheck): Check {
     displayName: check.displayName,
     execution: check.execution,
     options: check.options,
+    ...(check.parseData === null ? {} : { parseData: check.parseData }),
     ...scheduling,
     visibility
   });

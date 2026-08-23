@@ -1,15 +1,17 @@
 import type {
+  CheckDependencies,
   CheckMessage,
   CheckOutcome,
   CheckProjectContext,
-  CheckVisibility
+  CheckVisibility,
+  DependencyReadResult
 } from "../definition/custom-check.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
 import {
   createCoreCheckSession,
   type CoreCheckSession
 } from "../quality-core/check-record/core-session.ts";
-import type { CoreSnapshot } from "../quality-core/check-record/model.ts";
+import type { CoreCheck, CoreSnapshot } from "../quality-core/check-record/model.ts";
 import { prepareTaskGraph, runTaskGraph, type SettledTask } from "../task-scheduler/index.ts";
 import { executeCheckCallback } from "./check-callback.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
@@ -58,7 +60,6 @@ export type ResolvedCheckExecution =
 interface CheckExecutionState {
   readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
-  readonly openedCheckIds: Set<string>;
   readonly session: CoreCheckSession;
 }
 
@@ -72,14 +73,6 @@ interface ExecuteCheckInput extends CheckExecutionState {
   readonly clock: CheckExecutionClock;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
-}
-
-/** Internal marker: a settled unavailable Check must block scheduler dependents. */
-class CheckUnavailableSignal extends Error {
-  public constructor() {
-    super("Contained Check is unavailable");
-    this.name = "CheckUnavailableSignal";
-  }
 }
 
 /** Any escape from the Product adapter is a Package Run task-engine failure. */
@@ -113,7 +106,6 @@ export async function executeResolvedChecks(
   const state: CheckExecutionState = {
     settledFactsByCheckId: new Map<string, SettledCheckFacts>(),
     lifecycle: input.lifecycle,
-    openedCheckIds: new Set<string>(),
     session
   };
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
@@ -149,8 +141,7 @@ function closeResolvedChecks(
   state: CheckExecutionState
 ): ResolvedCheckExecution {
   try {
-    assertContainedTaskFailures(graphRun.settlements);
-    settleBlockedChecks(state, checks, graphRun.settlements);
+    assertNoTaskEngineFailures(graphRun.settlements);
     if (graphRun.cancelled) {
       state.session.closeUnresolvedAsCancelled();
       const snapshot = state.session.freeze();
@@ -180,12 +171,12 @@ function resolvedExecution(
 async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const checkId = input.check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
-  input.openedCheckIds.add(checkId);
   const identity = checkIdentity(input.check);
   emitStarted(input.lifecycle, identity);
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
     check: input.check,
+    dependencies: createCheckDependencies(input),
     project: input.project,
     scope,
     signal: input.signal
@@ -198,7 +189,55 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
     settled.messages,
     durationSince(startedAt, input.clock)
   );
-  if (settled.outcome.status === "unavailable") throw new CheckUnavailableSignal();
+}
+
+function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
+  const allowedDependencyIds = Object.freeze([...input.check.dependsOn]);
+  return Object.freeze({
+    get: (checkId: string): DependencyReadResult =>
+      readDependency(input.session, allowedDependencyIds, checkId)
+  });
+}
+
+function readDependency(
+  session: CoreCheckSession,
+  allowedDependencyIds: readonly string[],
+  checkId: string
+): DependencyReadResult {
+  if (typeof checkId !== "string" || !allowedDependencyIds.includes(checkId)) {
+    return dependencyNotDeclared(checkId);
+  }
+  return dependencyReadResult(session.readSettledCheck(checkId));
+}
+
+function dependencyReadResult(coreCheck: CoreCheck): DependencyReadResult {
+  const outcome = coreCheck.outcome;
+  if (outcome.status === "passed" || outcome.status === "failed") {
+    return Object.freeze({
+      ok: true,
+      checkId: coreCheck.checkId,
+      status: outcome.status,
+      data: outcome.data
+    });
+  }
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "upstream-data-unavailable",
+      checkId: coreCheck.checkId,
+      status: outcome.status
+    })
+  });
+}
+
+function dependencyNotDeclared(checkId: unknown): DependencyReadResult {
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "dependency-not-declared",
+      checkId: typeof checkId === "string" ? checkId : ""
+    })
+  });
 }
 
 function settleCallback(
@@ -220,31 +259,6 @@ function settleCallback(
         : EMPTY_MESSAGES,
     outcome: settlement.outcome
   });
-}
-
-function settleBlockedChecks(
-  state: CheckExecutionState,
-  checks: readonly NormalizedCheck[],
-  settlements: readonly SettledTask<void>[]
-): void {
-  for (const settled of settlements) {
-    if (settled.settlement.kind !== "blocked") continue;
-    const check = checks.find((candidate) => candidate.definition.checkId === settled.task.id);
-    if (check === undefined || state.openedCheckIds.has(check.definition.checkId)) {
-      throw new CheckExecutionInvariantFailure("Blocked Task does not identify an unopened Check");
-    }
-    const scope = state.session.openCheckScope(check.definition.checkId);
-    const outcome = scope.settleProduct(
-      Object.freeze({
-        status: "unavailable",
-        reason: {
-          code: "prerequisite-unavailable",
-          checkIds: Object.freeze([...new Set(settled.settlement.dependencyIds)].sort(compareText))
-        }
-      })
-    );
-    recordSettledCheck(state, checkIdentity(check), outcome, EMPTY_MESSAGES, null);
-  }
 }
 
 function settleUnstartedCancelledChecks(
@@ -351,15 +365,15 @@ function checkRunSummaries(
   });
 }
 
-function assertContainedTaskFailures(settlements: readonly SettledTask<void>[]): void {
+function assertNoTaskEngineFailures(settlements: readonly SettledTask<void>[]): void {
   for (const settled of settlements) {
-    if (
-      settled.settlement.kind === "failed" &&
-      !(settled.settlement.error instanceof CheckUnavailableSignal)
-    ) {
+    if (settled.settlement.kind === "failed") {
       throw new CheckExecutionInvariantFailure(
         "Task engine received an unexpected execution failure"
       );
+    }
+    if (settled.settlement.kind === "blocked") {
+      throw new CheckExecutionInvariantFailure("Task engine blocked a Product Check");
     }
   }
 }
@@ -376,12 +390,6 @@ function assertEveryCheckClosed(
       "Task graph does not have one Task per executable Check"
     );
   }
-}
-
-function compareText(left: string, right: string): number {
-  if (left < right) return -1;
-  if (left > right) return 1;
-  return 0;
 }
 
 function trustedFailure(error: unknown): CheckExecutionInvariantFailure {

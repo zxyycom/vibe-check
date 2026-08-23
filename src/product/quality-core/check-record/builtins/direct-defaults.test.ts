@@ -10,6 +10,7 @@ import type {
   FunctionMetricsOptions
 } from "../../../definition/built-ins.ts";
 import type {
+  CheckDependencies,
   CheckExecution,
   CheckExecutionContext,
   CheckProjectContext,
@@ -34,6 +35,14 @@ const FILES = Object.freeze({
   include: Object.freeze(["**/*.ts"])
 });
 
+const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
+  get: (checkId: string) =>
+    Object.freeze({
+      ok: false,
+      error: Object.freeze({ code: "dependency-not-declared", checkId })
+    })
+});
+
 function project(root: string): CheckProjectContext {
   return Object.freeze({
     cache: Object.freeze({ directory: "cache", enabled: true, reportActivity: () => undefined }),
@@ -56,6 +65,7 @@ async function execute<Options extends object>(
 > {
   const records: ReportedRecord[] = [];
   const context: CheckExecutionContext<Options> = Object.freeze({
+    dependencies: NO_DEPENDENCIES,
     options,
     project: project(root),
     records: Object.freeze({

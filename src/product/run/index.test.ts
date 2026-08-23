@@ -4,7 +4,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { defineConfig, type Check, type CheckExecution } from "../definition/project.ts";
+import type { DependencyReadResult } from "../definition/custom-check.ts";
+import { defineConfig, inherit, type Check, type CheckExecution } from "../definition/project.ts";
 import { run } from "./index.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
@@ -71,6 +72,9 @@ describe("Package Run", () => {
     let received:
       | Readonly<{
           readonly changedFiles: readonly string[];
+          readonly contextFrozen: boolean;
+          readonly dependenciesFrozen: boolean;
+          readonly dependencyRead: DependencyReadResult;
           readonly options: object;
           readonly root: string;
           readonly signal: AbortSignal;
@@ -81,6 +85,9 @@ describe("Package Run", () => {
         execution: (context) => {
           received = {
             changedFiles: context.project.changedFiles,
+            contextFrozen: Object.isFrozen(context),
+            dependencyRead: context.dependencies.get("missing"),
+            dependenciesFrozen: Object.isFrozen(context.dependencies),
             options: context.options,
             root: context.project.root,
             signal: context.signal
@@ -107,6 +114,12 @@ describe("Package Run", () => {
       }
       assert.equal(result.kind, "completed");
       assert.deepEqual(received?.changedFiles, ["src/a.ts"]);
+      assert.equal(received?.contextFrozen, true);
+      assert.deepEqual(received?.dependencyRead, {
+        ok: false,
+        error: { code: "dependency-not-declared", checkId: "missing" }
+      });
+      assert.equal(received?.dependenciesFrozen, true);
       assert.deepEqual(received?.options, {});
       assert.equal(received?.root, root);
       assert.equal(received?.signal.aborted, false);
@@ -127,8 +140,9 @@ describe("Package Run", () => {
     }
   });
 
-  it("projects direct dependencies to generic tasks and gives skipped dependents a prerequisite reason", async () => {
+  it("admits an unavailable dependency and exposes its read failure", async () => {
     let dependentCalls = 0;
+    let read: DependencyReadResult | undefined;
     const source = definition([
       check({
         checkId: "unavailable",
@@ -137,9 +151,10 @@ describe("Package Run", () => {
       check({
         checkId: "dependent",
         dependsOn: ["unavailable"],
-        execution: () => {
+        execution: (context) => {
           dependentCalls += 1;
-          return PASSED;
+          read = context.dependencies.get("unavailable");
+          return read.ok ? PASSED : { status: "unavailable", reason: { code: read.error.code } };
         }
       })
     ]);
@@ -147,7 +162,15 @@ describe("Package Run", () => {
     const result = await run(source);
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
-    assert.equal(dependentCalls, 0);
+    assert.equal(dependentCalls, 1);
+    assert.deepEqual(read, {
+      ok: false,
+      error: {
+        code: "upstream-data-unavailable",
+        checkId: "unavailable",
+        status: "unavailable"
+      }
+    });
     assert.deepEqual(
       result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
       [
@@ -155,7 +178,7 @@ describe("Package Run", () => {
           checkId: "dependent",
           outcome: {
             status: "unavailable",
-            reason: { code: "prerequisite-unavailable", checkIds: ["unavailable"] }
+            reason: { code: "upstream-data-unavailable" }
           }
         },
         {
@@ -164,6 +187,44 @@ describe("Package Run", () => {
         }
       ]
     );
+
+    let inheritedRead: DependencyReadResult | undefined;
+    const inheritedResult = await run(
+      definition([
+        check({
+          checkId: "inherited-source",
+          execution: () => ({ status: "passed", data: { inherited: true } })
+        }),
+        {
+          checkId: "container",
+          displayName: "Container",
+          dependsOn: inherit({ add: ["inherited-source"] }),
+          checks: [
+            check({
+              checkId: "inherited-dependent",
+              execution: (context) => {
+                inheritedRead = context.dependencies.get("inherited-source");
+                return { status: "passed", data: { dependent: true } };
+              }
+            })
+          ]
+        }
+      ])
+    );
+    assert.equal(inheritedResult.kind, "completed");
+    if (inheritedResult.kind !== "completed") return;
+    assert.deepEqual(inheritedRead, {
+      ok: true,
+      checkId: "inherited-source",
+      status: "passed",
+      data: { inherited: true }
+    });
+    const inheritedSourceOutcome = inheritedResult.snapshot.checks.find(
+      (coreCheck) => coreCheck.checkId === "inherited-source"
+    )?.outcome;
+    if (inheritedRead?.ok && inheritedSourceOutcome?.status === "passed") {
+      assert.equal(inheritedRead.data, inheritedSourceOutcome.data);
+    }
   });
 
   it("rejects an invalid projected generic Task graph before any Check callback runs", async () => {

@@ -66,6 +66,93 @@ An executable Check returns exactly one terminal result, optionally with ordered
 
 `passed` and `failed` require an object final data value; an empty object is the authoring form for no domain data. A callback may separately call `records.report({ id }, data)` zero or more times. These final returns and two-argument reporting are the complete shared result surface: a Check owns its data shape, and a Project Run supplies only explicit invocation controls.
 
+### Typed dependency data
+
+A TypeScript typed provider is authored through `defineCheck({ execution, parseData })`. Its synchronous
+parser return type is the provider-local data contract: the same type constrains that Check's `passed` and
+`failed` execution data, and the returned value retains `parseData` as a required function. The broad `Check`
+type deliberately remains the ordinary recursive/container surface and does not declare `parseData`; using
+`satisfies Check` or an inline `defineConfig` Check cannot establish the provider type relation. Ordinary
+executable Checks without a parser and recursive containers remain valid; a container cannot declare
+`parseData`.
+
+Runtime Definition validation still accepts a function parser on an executable trusted author object so that
+JavaScript and explicitly cast inputs reach the same closed grammar. That validation preserves the function
+but does not manufacture the TypeScript relation; the provider remains responsible for those shapes. An own
+`parseData: undefined` follows ordinary optional-property semantics: Definition normalizes it to omission and
+the materialized Check does not retain that key, so it does not create a typed provider.
+
+```ts
+import { defineCheck } from "vibe-check";
+
+const CHANGED_FILES_DATA_VERSION = 1 as const;
+
+interface ChangedFilesData {
+  readonly version: typeof CHANGED_FILES_DATA_VERSION;
+  readonly files: readonly string[];
+}
+
+const changedFiles = defineCheck({
+  checkId: "changed-files",
+  displayName: "Changed files",
+
+  parseData(data): ChangedFilesData {
+    if (
+      data.version !== CHANGED_FILES_DATA_VERSION ||
+      !Array.isArray(data.files) ||
+      !data.files.every((value): value is string => typeof value === "string")
+    ) {
+      throw new TypeError("Unsupported changed-files data");
+    }
+    return { version: CHANGED_FILES_DATA_VERSION, files: data.files };
+  },
+
+  execution() {
+    return {
+      status: "passed",
+      data: { version: CHANGED_FILES_DATA_VERSION, files: ["src/index.ts"] }
+    };
+  }
+});
+
+const analyzeChangedFiles = defineCheck({
+  checkId: "analyze-changed-files",
+  displayName: "Analyze changed files",
+  dependsOn: [changedFiles.checkId],
+
+  execution({ dependencies }) {
+    const read = dependencies.get(changedFiles.checkId);
+    if (!read.ok) {
+      return { status: "unavailable", reason: { code: read.error.code } };
+    }
+
+    const data = changedFiles.parseData(read.data);
+    return {
+      status: read.status,
+      data: { analyzedFileCount: data.files.length }
+    };
+  }
+});
+```
+
+`dependencies.get(checkId: string)` is deliberately non-generic. At runtime it authorizes only the current
+Check's normalized effective direct dependency IDs, including inherited direct IDs. An undeclared,
+transitive, malformed, or otherwise unauthorized ID returns `dependency-not-declared` without upstream
+facts. A declared `passed` or `failed` dependency returns its status and its canonical final data;
+`not-applicable` or `unavailable` returns `upstream-data-unavailable` with that status. TypeScript types do
+not grant access: the consumer first performs the string read, narrows its result, and then calls the
+producing Check's parser.
+
+The parser receives the Core-owned canonical runtime object: a detached, deeply frozen object with canonical
+JSON values. It does not receive the author's original object or JSON text. The provider owns business-shape
+validation, version discrimination, thrown-error policy, and parser round-trip tests; Product neither calls
+the parser nor adds a parser-rejection result.
+
+As a heuristic rather than a guarantee, a same-version trusted provider whose tests guarantee the shape may
+implement `parseData` only as an identity/type anchor. That does not validate JavaScript or cast-based
+producers, historical or cross-version artifacts, or untrusted input. Validate those boundaries in the
+provider instead of treating TypeScript inference as runtime proof.
+
 Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Core facts, or machine publication.
 
 `messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
@@ -155,7 +242,7 @@ Each row is the complete initial `options.scanner` branch for its default Check.
 
 Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/effect facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ options, project, records, signal }`. `project` contains the normalized root, file scope, cache context, and canonical `flags`. Product contains ordinary callback, record, cancellation, and prerequisite failures as an unavailable Check outcome. `reason.code` can be `prerequisite-unavailable` with `reason.checkIds` for blocked dependents. Invalid configuration returns a configuration result before callback work. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
+A callback receives exactly `{ dependencies, options, project, records, signal }`. `project` contains the normalized root, file scope, cache context, and canonical `flags`. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary callback, record, and cancellation failures as an unavailable Check outcome. Invalid configuration returns a configuration result before callback work. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
 
 ## Run effects and compatibility boundary
 

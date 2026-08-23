@@ -25,10 +25,10 @@ export interface CheckResultMessages {
 
 export type CheckVisibility = "always" | "attention";
 
-export type CheckResult = Readonly<
+export type CheckResult<Data extends object = object> = Readonly<
   (
-    | { readonly status: "passed"; readonly data: object }
-    | { readonly status: "failed"; readonly data: object }
+    | { readonly status: "passed"; readonly data: Data }
+    | { readonly status: "failed"; readonly data: Data }
     | { readonly status: "not-applicable"; readonly reason?: CheckNotApplicableReason }
     | { readonly status: "unavailable"; readonly reason: CheckDeclaredUnavailableReason }
   ) &
@@ -58,6 +58,35 @@ interface CheckRecordReporter {
   report(identity: RecordIdentityInput, data: object): void;
 }
 
+export type DependencyReadError = Readonly<
+  | {
+      readonly code: "dependency-not-declared";
+      readonly checkId: string;
+    }
+  | {
+      readonly code: "upstream-data-unavailable";
+      readonly checkId: string;
+      readonly status: "not-applicable" | "unavailable";
+    }
+>;
+
+export type DependencyReadResult = Readonly<
+  | {
+      readonly ok: true;
+      readonly checkId: string;
+      readonly status: "passed" | "failed";
+      readonly data: CanonicalJsonObject;
+    }
+  | {
+      readonly ok: false;
+      readonly error: DependencyReadError;
+    }
+>;
+
+export interface CheckDependencies {
+  get(checkId: string): DependencyReadResult;
+}
+
 export interface CheckProjectContext {
   readonly root: string;
   readonly changedFiles: readonly string[];
@@ -76,6 +105,7 @@ export interface CheckProjectContext {
 }
 
 export interface CheckExecutionContext<Options extends object> {
+  readonly dependencies: CheckDependencies;
   readonly options: DeepReadonly<Options>;
   readonly project: CheckProjectContext;
   readonly records: CheckRecordReporter;
@@ -187,23 +217,74 @@ export interface Check<Options extends object = object> {
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
-export type CheckWithOptions<Id extends string, Options extends object> = Omit<
+export type CheckDataParser<Data extends object = object> = (
+  this: void,
+  data: CanonicalJsonObject
+) => Data;
+
+type SynchronousCheckDataParser<Parser extends CheckDataParser> =
+  Extract<ReturnType<Parser>, PromiseLike<unknown>> extends never ? Parser : never;
+
+type CheckAuthoringBase<Id extends string, Options extends object> = Omit<
   Check<Options>,
-  "checkId" | "options"
+  "checkId" | "execution" | "options"
 > &
+  Readonly<{ readonly checkId: Id }>;
+
+interface OrdinaryCheckFields<Options extends object> {
+  execution?(
+    this: void,
+    context: CheckExecutionContext<Options>
+  ): CheckResult | Promise<CheckResult>;
+  readonly parseData?: never;
+}
+
+export type CheckWithOptions<Id extends string, Options extends object> = CheckAuthoringBase<
+  Id,
+  Options
+> &
+  OrdinaryCheckFields<Options> &
   Readonly<{
-    readonly checkId: Id;
     readonly options: Options;
   }>;
 
-export type CheckWithoutOptions<Id extends string> = Omit<
-  Check<EmptyCheckOptions>,
-  "checkId" | "options"
-> &
+export type CheckWithoutOptions<Id extends string> = CheckAuthoringBase<Id, EmptyCheckOptions> &
+  OrdinaryCheckFields<EmptyCheckOptions> &
   Readonly<{
-    readonly checkId: Id;
     readonly options?: never;
   }>;
+
+interface TypedCheckFields<Options extends object, Parser extends CheckDataParser> {
+  /**
+   * Restores provider data from canonical runtime data.
+   *
+   * Heuristic: a same-version trusted provider may implement this only as an
+   * identity/type anchor when provider tests guarantee the shape. That does
+   * not validate JavaScript or cast-based producers, historical or
+   * cross-version artifacts, or untrusted input.
+   */
+  readonly parseData: SynchronousCheckDataParser<Parser>;
+
+  execution(
+    this: void,
+    context: CheckExecutionContext<Options>
+  ): CheckResult<NoInfer<ReturnType<Parser>>> | Promise<CheckResult<NoInfer<ReturnType<Parser>>>>;
+}
+
+export type TypedCheckWithOptions<
+  Id extends string,
+  Options extends object,
+  Parser extends CheckDataParser
+> = CheckAuthoringBase<Id, Options> &
+  TypedCheckFields<Options, Parser> &
+  Readonly<{ readonly options: Options }>;
+
+export type TypedCheckWithoutOptions<
+  Id extends string,
+  Parser extends CheckDataParser
+> = CheckAuthoringBase<Id, EmptyCheckOptions> &
+  TypedCheckFields<EmptyCheckOptions, Parser> &
+  Readonly<{ readonly options?: never }>;
 
 /** Improves literal inference only; validation remains at the Definition boundary. */
 export function defineCheck<const Id extends string, Options extends object>(
@@ -212,6 +293,14 @@ export function defineCheck<const Id extends string, Options extends object>(
 export function defineCheck<const Id extends string>(
   value: CheckWithoutOptions<Id>
 ): CheckWithoutOptions<Id>;
+export function defineCheck<
+  const Id extends string,
+  Options extends object,
+  const Parser extends CheckDataParser
+>(value: TypedCheckWithOptions<Id, Options, Parser>): TypedCheckWithOptions<Id, Options, Parser>;
+export function defineCheck<const Id extends string, const Parser extends CheckDataParser>(
+  value: TypedCheckWithoutOptions<Id, Parser>
+): TypedCheckWithoutOptions<Id, Parser>;
 export function defineCheck(value: Check): Check {
   return value;
 }

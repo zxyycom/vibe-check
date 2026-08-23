@@ -72,12 +72,13 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/product/run/index.test.ts|Package Run > projects direct dependencies to generic tasks and gives skipped dependents a prerequisite reason`
+- `bun|src/product/run/index.test.ts|Package Run > admits an unavailable dependency and exposes its read failure`
 - `bun|src/product/run/index.test.ts|Package Run > rejects an invalid projected generic Task graph before any Check callback runs`
 - `bun|src/product/run/flags.test.ts|Package Run flags > keeps dependent admission after local not-applicable`
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > admits all settled dependency outcomes and limits reads to direct dependencies`
   Proves:
-- Direct executable Checks use the shared dependency graph. A skipped dependent receives `prerequisite-unavailable` and named prerequisite IDs, while no separate execution layout or scheduler API becomes public.
-- A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped.
+- Direct executable Checks use the shared dependency graph. Every settled upstream outcome admits a dependent; its frozen callback-local string getter returns canonical final data only for an effective direct passed/failed dependency, or one of the two closed read failures without exposing undeclared or transitive facts.
+- A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped. Cancellation-before-start and generic Task failures remain separate lifecycle/engine boundaries.
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
 
@@ -86,10 +87,10 @@ Entities:
 
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > hands final Core outcomes and one finite duration to the private lifecycle`
 - `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > settles blocked and cancelled-before-start Checks without starting them`
+- `bun|src/product/run/check-execution.test.ts|Package Run direct Check execution > settles cancellation-before-start Checks without starting them`
 - `bun|src/product/run/progress-timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
   Proves:
-- Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Core outcome and a finite duration, while blocked and cancellation-before-start Checks settle without a start and use `null`/`not run` duration.
+- Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Core outcome and a finite duration, while cancellation-before-start Checks settle without a start and use `null`/`not run` duration.
 - The final duration summary follows canonical snapshot order and identity even when lifecycle completion order follows parallel settlement; a single monotonic invocation interval supplies elapsed time rather than summing overlapping Check durations.
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine
@@ -112,7 +113,7 @@ Entities:
 - `bun|src/product/quality-core/check-record/model.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot with structural Record identity`
 - `bun|src/product/quality-core/check-record/validation.test.ts|check-record foundation runtime validation > rejects non-canonical final or Record data and invalid ownership`
   Proves:
-- A frozen snapshot contains canonical `checks` and `records` only. Policy, publication, callbacks, scanner payloads, and scheduler state are not a third fact source.
+- A frozen snapshot contains canonical `checks` and `records` only. The package-private settled Check seam reuses the same canonical final-data reference that the frozen snapshot projects; policy, publication, callbacks, scanner payloads, and scheduler state are not a third fact source.
 
 ## Case WB-RUNTIME-PROGRESS-PRESENTATION-001: Progress renders four-state Run facts safely
 

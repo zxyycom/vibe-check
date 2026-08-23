@@ -13,7 +13,7 @@ Product validates and flattens the recursive Check tree, then Core records one f
 | `not-applicable` | The Check intentionally had no work; a reason code is optional and no final data is fabricated.          |
 | `unavailable`    | Product could not supply a normal conclusion; `reason.code` is required and no final data is fabricated. |
 
-`passed`、`failed` 和 `not-applicable` satisfy a dependent Check's prerequisite. `unavailable` blocks dependent user work and identifies blocked IDs with `reason: { code: "prerequisite-unavailable", checkIds }`.
+`passed`、`failed`、`not-applicable` 和 `unavailable` all satisfy dependency ordering: a dependent Check is admitted after its declared direct upstream settles. A dependent that needs upstream data must call `dependencies.get(checkId)` from its callback context. The getter returns the same canonical final data reference for `passed` / `failed`; it returns `upstream-data-unavailable` for `not-applicable` / `unavailable`; and it returns `dependency-not-declared` for undeclared, transitive or malformed IDs. Product does not synthesize `prerequisite-unavailable` for ordinary upstream outcomes.
 
 A callback receives a Check-owned reporter, not a Core capability. It may submit zero or more supplemental facts with:
 
@@ -25,7 +25,7 @@ records.report({ id: "sample:health" }, { latencyMs: 820, statusCode: 503 });
 
 Record absence, presence, count and data never determine the Check status. Invalid final data, invalid/duplicate Record identity or data, callback throw, and Product protocol failure contain only the owning Check as unavailable; previously accepted Records remain and unrelated Checks continue. Run passes Core only the stripped four-state author result and receives Core's private acceptance marker; terminal messages are neither Check outcomes nor Record/Core facts. A reporter is closed after callback settlement, so late writes throw and cannot mutate frozen facts.
 
-Completed/effect Run results provide generic readback of canonical Checks and Records. Final-snapshot results additionally return accepted terminal-message readback without turning those messages into quality facts. Consumers that need to interpret a Check's data own their parser and domain contract; Product does not add a data generic, catalog, schema, extractor or presentation fallback.
+Completed/effect Run results provide generic readback of canonical Checks and Records. Final-snapshot results additionally return accepted terminal-message readback without turning those messages into quality facts. Consumers that need to interpret a Check's data own their parser and domain contract; Product does not add a parser registry, catalog, schema, extractor or presentation fallback, and Product does not invoke provider parsers during settlement or dependency reads.
 
 ## Direct defaults and exact inputs
 

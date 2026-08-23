@@ -2,11 +2,18 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type {
+  CheckDependencies,
   CheckExecution,
   CheckProjectContext,
-  CheckResult
+  CheckResult,
+  DependencyReadResult
 } from "../definition/custom-check.ts";
 import type { NormalizedCheck } from "../definition/project.ts";
+import {
+  CoreInvariantFailure,
+  createCoreCheckSession
+} from "../quality-core/check-record/core-session.ts";
+import { executeCheckCallback } from "./check-callback.ts";
 import {
   executeResolvedChecks,
   type CheckExecutionClock,
@@ -87,6 +94,15 @@ function deferred<T>(): Readonly<{
       resolvePromise(value);
     }
   });
+}
+
+function outcomeFor(
+  result: Awaited<ReturnType<typeof executeResolvedChecks>>,
+  checkId: string
+): NonNullable<(typeof result.snapshot.checks)[number]>["outcome"] {
+  const outcome = result.snapshot.checks.find((check) => check.checkId === checkId)?.outcome;
+  if (outcome === undefined) throw new Error(`Missing outcome for ${checkId}`);
+  return outcome;
 }
 
 describe("Package Run direct Check execution", () => {
@@ -440,6 +456,29 @@ describe("Package Run direct Check execution", () => {
         ]);
       }
     }
+
+    const trustedFailure = new CoreInvariantFailure("Dependency read invariant");
+    const throwingDependencies: CheckDependencies = Object.freeze({
+      get: () => {
+        throw trustedFailure;
+      }
+    });
+    await assert.rejects(
+      () =>
+        executeCheckCallback({
+          check: normalized((context) => {
+            context.dependencies.get("source");
+            return { status: "passed", data: {} };
+          }),
+          dependencies: throwingDependencies,
+          project: PROJECT,
+          scope: createCoreCheckSession([
+            { definition: { checkId: "direct-check", displayName: "direct-check" } }
+          ]).openCheckScope("direct-check"),
+          signal: new AbortController().signal
+        }),
+      (error) => error === trustedFailure
+    );
   });
 
   it("hands final Core outcomes and one finite duration to the private lifecycle", async () => {
@@ -547,34 +586,160 @@ describe("Package Run direct Check execution", () => {
     ]);
   });
 
-  it("settles blocked and cancelled-before-start Checks without starting them", async () => {
-    const blocked = await executeResolvedChecks({
+  it("admits all settled dependency outcomes and limits reads to direct dependencies", async () => {
+    const upstreamCases: readonly Readonly<{
+      readonly expectedRead: DependencyReadResult;
+      readonly result: CheckResult;
+    }>[] = [
+      {
+        result: { status: "passed", data: { source: "passed" } },
+        expectedRead: {
+          ok: true,
+          checkId: "source",
+          status: "passed",
+          data: { source: "passed" }
+        }
+      },
+      {
+        result: { status: "failed", data: { source: "failed" } },
+        expectedRead: {
+          ok: true,
+          checkId: "source",
+          status: "failed",
+          data: { source: "failed" }
+        }
+      },
+      {
+        result: { status: "not-applicable" },
+        expectedRead: {
+          ok: false,
+          error: {
+            code: "upstream-data-unavailable",
+            checkId: "source",
+            status: "not-applicable"
+          }
+        }
+      },
+      {
+        result: { status: "unavailable", reason: { code: "source-unavailable" } },
+        expectedRead: {
+          ok: false,
+          error: {
+            code: "upstream-data-unavailable",
+            checkId: "source",
+            status: "unavailable"
+          }
+        }
+      }
+    ];
+
+    for (const upstream of upstreamCases) {
+      let dependentCalls = 0;
+      let observedRead: DependencyReadResult | undefined;
+      const result = await executeResolvedChecks({
+        checks: [
+          normalized(() => upstream.result, { checkId: "source", displayName: "Source" }),
+          normalized(
+            (context) => {
+              dependentCalls += 1;
+              assert.equal(Object.isFrozen(context), true);
+              const { dependencies } = context;
+              assert.equal(Object.isFrozen(dependencies), true);
+              observedRead = dependencies.get("source");
+              assert.equal(Object.isFrozen(observedRead), true);
+              if (!observedRead.ok) {
+                assert.equal(Object.isFrozen(observedRead.error), true);
+              }
+              return { status: "passed", data: { dependent: true } };
+            },
+            {
+              checkId: "dependent",
+              dependsOn: ["source"],
+              displayName: "Dependent"
+            }
+          )
+        ],
+        maxParallel: 1,
+        project: PROJECT,
+        signal: undefined
+      });
+
+      assert.equal(result.kind, "completed");
+      assert.equal(dependentCalls, 1);
+      assert.deepEqual(observedRead, upstream.expectedRead);
+      const sourceOutcome = outcomeFor(result, "source");
+      if (
+        observedRead?.ok &&
+        (sourceOutcome.status === "passed" || sourceOutcome.status === "failed")
+      ) {
+        assert.equal(observedRead.data, sourceOutcome.data);
+      }
+      assert.deepEqual(outcomeFor(result, "dependent"), {
+        status: "passed",
+        data: { dependent: true }
+      });
+    }
+
+    let directRead: DependencyReadResult | undefined;
+    let transitiveRead: DependencyReadResult | undefined;
+    let malformedRead: unknown;
+    const directOnly = await executeResolvedChecks({
       checks: [
-        normalized(() => ({ status: "unavailable", reason: { code: "execution-threw" } }), {
+        normalized(() => ({ status: "passed", data: { source: true } }), {
           checkId: "source",
           displayName: "Source"
         }),
-        normalized(() => ({ status: "passed", data: {} }), {
-          checkId: "dependent",
+        normalized(() => ({ status: "passed", data: { middle: true } }), {
+          checkId: "middle",
           dependsOn: ["source"],
-          displayName: "Dependent"
-        })
+          displayName: "Middle"
+        }),
+        normalized(
+          (context) => {
+            const { dependencies } = context;
+            directRead = dependencies.get("middle");
+            transitiveRead = dependencies.get("source");
+            malformedRead = Reflect.apply(
+              (checkId: string) => dependencies.get(checkId),
+              undefined,
+              [42]
+            );
+            return { status: "passed", data: { dependent: true } };
+          },
+          {
+            checkId: "dependent",
+            dependsOn: ["middle"],
+            displayName: "Dependent"
+          }
+        )
       ],
-      clock: scriptedClock([1, 7]),
       maxParallel: 1,
       project: PROJECT,
       signal: undefined
     });
-    assert.equal(blocked.kind, "completed");
-    assert.deepEqual(
-      blocked.snapshot.checks.map((check) => check.outcome.status),
-      ["unavailable", "unavailable"]
-    );
-    assert.deepEqual(blocked.checkDurations, [
-      { checkId: "dependent", durationMs: null },
-      { checkId: "source", durationMs: 6 }
-    ]);
 
+    assert.equal(directOnly.kind, "completed");
+    assert.deepEqual(directRead, {
+      ok: true,
+      checkId: "middle",
+      status: "passed",
+      data: { middle: true }
+    });
+    const middleOutcome = outcomeFor(directOnly, "middle");
+    if (directRead?.ok && middleOutcome.status === "passed") {
+      assert.equal(directRead.data, middleOutcome.data);
+    }
+    assert.deepEqual(transitiveRead, {
+      ok: false,
+      error: { code: "dependency-not-declared", checkId: "source" }
+    });
+    assert.deepEqual(malformedRead, {
+      ok: false,
+      error: { code: "dependency-not-declared", checkId: "" }
+    });
+  });
+
+  it("settles cancellation-before-start Checks without starting them", async () => {
     const controller = new AbortController();
     const cancelled = await executeResolvedChecks({
       checks: [

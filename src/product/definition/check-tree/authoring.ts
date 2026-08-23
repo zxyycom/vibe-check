@@ -4,6 +4,7 @@ import {
   isInheritedCheckCollection,
   snapshotInheritedCheckCollection,
   type CheckVisibility,
+  type CheckDataParser,
   type CheckExecution,
   type InheritedCheckCollection
 } from "../custom-check.ts";
@@ -35,6 +36,7 @@ export interface ParsedCheck {
   readonly mutex: ParsedCheckCollection | undefined;
   readonly options: object | null;
   readonly path: string;
+  readonly parseData: CheckDataParser | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -62,6 +64,7 @@ interface ParsedCheckFields {
   readonly definition: CheckDefinition | null;
   readonly execution: CheckExecution | null;
   readonly options: object | null;
+  readonly parseData: CheckDataParser | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -74,6 +77,7 @@ const CHECK_KEYS = [
   "maxParallel",
   "mutex",
   "options",
+  "parseData",
   "visibility"
 ] as const;
 
@@ -81,6 +85,7 @@ const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
   execution: null,
   options: null,
+  parseData: null,
   visibility: null
 });
 
@@ -109,11 +114,13 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   if (data === undefined) return undefined;
   const execution = parseExecution(data);
   if (execution === undefined) return undefined;
+  const parseData = parseDataParser(data);
+  if (parseData === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
   const scheduling = parseScheduling(data);
   if (scheduling === undefined) return undefined;
-  const fields = parseCheckFields(data, execution);
+  const fields = parseCheckFields(data, execution, parseData);
   if (fields === undefined) return undefined;
   warnForMeaninglessCheck(data, checks, fields, path, state);
 
@@ -128,6 +135,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     mutex: scheduling.mutex,
     options: fields.options,
     path,
+    parseData: fields.parseData,
     visibility: fields.visibility
   });
 }
@@ -160,6 +168,15 @@ function parseExecution(data: CheckAuthoringData): CheckExecution | null | undef
 }
 
 function isCheckExecution(value: unknown): value is CheckExecution {
+  return typeof value === "function";
+}
+
+function parseDataParser(data: CheckAuthoringData): CheckDataParser | null | undefined {
+  if (!Object.hasOwn(data, "parseData") || data.parseData === undefined) return null;
+  return isCheckDataParser(data.parseData) ? data.parseData : undefined;
+}
+
+function isCheckDataParser(value: unknown): value is CheckDataParser {
   return typeof value === "function";
 }
 
@@ -197,10 +214,11 @@ function parseOptions(data: CheckAuthoringData): object | undefined {
 
 function parseCheckFields(
   data: CheckAuthoringData,
-  execution: CheckExecution | null
+  execution: CheckExecution | null,
+  parseData: CheckDataParser | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
-    return Object.hasOwn(data, "options") || Object.hasOwn(data, "visibility")
+    return Object.hasOwn(data, "options") || Object.hasOwn(data, "visibility") || parseData !== null
       ? undefined
       : CONTAINER_CHECK_FIELDS;
   }
@@ -212,7 +230,7 @@ function parseCheckFields(
   }
   const visibility = parseVisibility(data);
   if (visibility === undefined) return undefined;
-  return Object.freeze({ definition, execution, options, visibility });
+  return Object.freeze({ definition, execution, options, parseData, visibility });
 }
 
 function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {
