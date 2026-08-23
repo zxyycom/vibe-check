@@ -1,8 +1,8 @@
 # Proposal
 
-这个仍处于 active、尚未获归档授权的 Plan 已完成 20/20 个任务。它交付了一条最小 typed dependency data path：downstream Check 按 string 读取 declared direct dependency 的 canonical final data，再显式调用 producing Check 拥有的 parser 恢复该 producer 声明的数据类型。
+这个已归档的 Plan 完成了 20/20 个任务并交付一条最小 typed dependency data path：downstream Check 按 string 读取 declared direct dependency 的 canonical final data，再显式调用 producing Check 拥有的 parser 恢复该 producer 声明的数据类型。
 
-本 Plan 保留形成时的问题、范围和验收脉络；当前 Product contract 以 [Configuration](../../docs/configuration.md)、[Architecture](../../docs/architecture.md)、[Quality Metrics](../../docs/quality-metrics.md) 和 [Output](../../docs/output.md) 为准。`active` 在这里仅表示尚未归档，并不表示本 Plan 仍有未完成任务。
+本 Plan 只保留形成时的问题、范围和验收脉络；当前 Product contract 以 [Configuration](../../../docs/configuration.md)、[Architecture](../../../docs/architecture.md)、[Quality Metrics](../../../docs/quality-metrics.md) 和 [Output](../../../docs/output.md) 为准。
 
 ## Why
 
@@ -68,9 +68,9 @@
 
 ## Affected Owners
 
-- Public authoring：[`src/product/definition/custom-check.ts`](../../src/product/definition/custom-check.ts)、[`src/product/definition/check-tree/`](../../src/product/definition/check-tree/)、[`src/product/public-contract/current.ts`](../../src/product/public-contract/current.ts)、[`docs/configuration.md`](../../docs/configuration.md)。
-- Runtime read与settlement：[`src/product/run/check-callback.ts`](../../src/product/run/check-callback.ts)、[`src/product/run/check-execution.ts`](../../src/product/run/check-execution.ts)、[`src/product/quality-core/check-record/core-session.ts`](../../src/product/quality-core/check-record/core-session.ts)、[`src/product/task-scheduler/`](../../src/product/task-scheduler/)、[`docs/architecture.md`](../../docs/architecture.md)。
-- Facts与output：[`docs/quality-metrics.md`](../../docs/quality-metrics.md)、[`docs/output.md`](../../docs/output.md)及RunResult/machine focused tests。
-- Test与package evidence：[`docs/testing/cases/quality-runtime.md`](../../docs/testing/cases/quality-runtime.md)、[`scripts/package-candidate/`](../../scripts/package-candidate/)及ancestry-external installed consumer。
-- Long-term direction：[`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md)。
-- Downstream handoff：[`ship-public-package-api-documentation`](../ship-public-package-api-documentation/)与[`align-project-gate-with-native-check-authoring`](../align-project-gate-with-native-check-authoring/)。
+- Public authoring：[`src/product/definition/custom-check.ts`](../../../src/product/definition/custom-check.ts)、[`src/product/definition/check-tree/`](../../../src/product/definition/check-tree/)、[`src/product/public-contract/current.ts`](../../../src/product/public-contract/current.ts)、[`docs/configuration.md`](../../../docs/configuration.md)。
+- Runtime read与settlement：[`src/product/run/check-callback.ts`](../../../src/product/run/check-callback.ts)、[`src/product/run/check-execution.ts`](../../../src/product/run/check-execution.ts)、[`src/product/quality-core/check-record/core-session.ts`](../../../src/product/quality-core/check-record/core-session.ts)、[`src/product/task-scheduler/`](../../../src/product/task-scheduler/)、[`docs/architecture.md`](../../../docs/architecture.md)。
+- Facts与output：[`docs/quality-metrics.md`](../../../docs/quality-metrics.md)、[`docs/output.md`](../../../docs/output.md)及RunResult/machine focused tests。
+- Test与package evidence：[`docs/testing/cases/quality-runtime.md`](../../../docs/testing/cases/quality-runtime.md)、[`scripts/package-candidate/`](../../../scripts/package-candidate/)及ancestry-external installed consumer。
+- Long-term direction：[`read-direct-dependency-final-data-by-string.md`](../../../docs/decisions/read-direct-dependency-final-data-by-string.md)。
+- Downstream handoff：[`ship-public-package-api-documentation`](../../ship-public-package-api-documentation/)与[`align-project-gate-with-native-check-authoring`](../../align-project-gate-with-native-check-authoring/)。

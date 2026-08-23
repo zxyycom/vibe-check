@@ -1,6 +1,6 @@
 # Tasks
 
-任务按 Decision/Test readiness、public provider contract、Core/Run read、four-state settlement、package evidence 和 final verification 的依赖顺序编排。全部 20 项现已完成；Change 仍为 active 仅因没有归档授权。Checkbox 只记录实际证据，不替代 stable owner、Decision alignment 或归档授权。
+任务按 Decision/Test readiness、public provider contract、Core/Run read、four-state settlement、package evidence 和 final verification 的依赖顺序编排。全部 20 项已完成；用户随后单独授权并完成归档。Checkbox 只记录实际证据，不替代 stable owner、Decision alignment 或归档授权。
 
 ## Readiness
 
@@ -29,10 +29,10 @@
 - [x] 2.4 运行machine/output focused tests，证明version-matched parser可读取existing v4 final data且schema/fingerprint不变。
 - [x] 2.5 运行Case、Decision、Change Plan、links、schema、examples与docs validation。
 - [x] 2.6 运行`bun run verify:vibe-check-workspace:required`和`bun run verify:vibe-check-workspace:full`。
-- [x] 2.7 按 Proposal Success Criteria 完成 10/10 语义验收，stable owners 与 Decision 已经对齐；本次没有归档授权，因此 Change 保持 active。
+- [x] 2.7 按 Proposal Success Criteria 完成 10/10 语义验收，stable owners 与 Decision 已经对齐；实现验收时先保持 active，后续在单独授权下归档。
 
 ## Completion Evidence
 
 - Product focused/full tests、product/scripts typecheck与lint、package candidate external consumer、declaration positive/negative matrix、146/146 Test Evidence和完整docs/schema/examples validation均通过。
 - Required与full Project Gate均无disabled tag通过；public-type与runtime独立审查最终均为无blocking finding。
-- Decision `read-direct-dependency-final-data-by-string`已标记`active + aligned`；归档仍需单独授权。
+- Decision `read-direct-dependency-final-data-by-string`已标记`active + aligned`；用户后续已单独授权并通过正式 Change Plan 入口归档。

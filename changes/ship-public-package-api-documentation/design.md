@@ -14,7 +14,7 @@
 - candidate manifest 当前 `files` 只包含 `index.mjs` 与 `types`；staging audit拒绝除此之外的普通文件。生成的 declarations 会保留 source JSDoc，但多数公共 interface/function 目前没有完整 API comment。
 - API 内容建设属于本 Change；[`publish-public-api-only-npm-package`](../publish-public-api-only-npm-package/) 只负责核对版本、registry、legal/release metadata 与 exact artifact，不在不可逆 release 阶段临时 author README/install guidance。
 
-已归档的 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/) 拥有当前 Record contract。已归档的 [`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）已交付 terminal messages/visibility declaration、runtime、RunResult、renderer 与 installed-candidate evidence。它既不是 `add-typed-check-dependency-outputs` 的前置，也不是其下游。`add-typed-check-dependency-outputs` 仍需交付 typed dependency getter evidence。`ship-public-package-api-documentation` 消费这两个并列输入：该已归档 Change 的能力现在即可消费；待 `add-typed-check-dependency-outputs` 完成后，`ship-public-package-api-documentation` 才冻结剩余 JSDoc 和 examples。
+已归档的 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/) 拥有当前 Record contract；[`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/) 与 [`add-typed-check-dependency-outputs`](../archive/add-typed-check-dependency-outputs/) 也已分别交付 terminal messages/visibility 和 typed dependency declaration/runtime/installed-candidate evidence。三个并列输入现在都可由本 Change 消费；本 Change 不再等待上游 API implementation，可以在自身 readiness 完成后冻结剩余 JSDoc 和 examples。
 
 ## Goals / Non-Goals
 

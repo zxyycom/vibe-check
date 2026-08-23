@@ -1,8 +1,8 @@
 # Design
 
-本 Design 记录这个 Change 在形成时选择的 API 与 architecture：Product 负责 string-based runtime read，producing Check 负责自己的 data type。20/20 任务现已完成，但 Change 因未获归档授权仍为 active；`active` 不表示这份 Design 仍是 current Product contract owner。
+本 Design 记录这个已归档 Change 在形成时选择的 API 与 architecture：Product 负责 string-based runtime read，producing Check 负责自己的 data type。20/20 任务与归档均已完成；这份 Design 不是 current Product contract owner。
 
-当前 authoring/invocation contract 由 [Configuration](../../docs/configuration.md) 拥有，runtime flow 由 [Architecture](../../docs/architecture.md) 拥有，事实语义和 machine boundary 分别由 [Quality Metrics](../../docs/quality-metrics.md) 与 [Output](../../docs/output.md) 拥有。Proposal 保留结果和范围，Readiness Audit 只保存形成 Plan 时的事实与 prototype 证据。
+当前 authoring/invocation contract 由 [Configuration](../../../docs/configuration.md) 拥有，runtime flow 由 [Architecture](../../../docs/architecture.md) 拥有，事实语义和 machine boundary 分别由 [Quality Metrics](../../../docs/quality-metrics.md) 与 [Output](../../../docs/output.md) 拥有。Proposal 保留结果和范围，Readiness Audit 只保存形成 Plan 时的事实与 prototype 证据。
 
 ## Context
 
@@ -74,7 +74,7 @@ Access control只发生在getter runtime。Type recovery只发生在producer par
 
 #### Public dependency read API
 
-The following public shape was implemented. Its current contract owner is [Configuration](../../docs/configuration.md#typed-dependency-data):
+The following public shape was implemented. Its current contract owner is [Configuration](../../../docs/configuration.md#typed-dependency-data):
 
 ```ts
 export interface CheckDependencies {
@@ -308,7 +308,7 @@ Completion evidence covers the following boundaries; the completed commands and 
 - **Orchestration：** 不再把ordinary`unavailable`当作Task failure；迁移blocked、progress和lifecycle evidence。
 - **Package：** Declarations和installed consumer同时证明ordinary/typed Check authoring；runtime root inventory不变。
 - **Stable docs：** Configuration拥有authoring；Architecture拥有data/control flow；Quality Metrics拥有status/data semantics；Output确认canonical machine compatibility。
-- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../docs/decisions/read-direct-dependency-final-data-by-string.md) 已承接这个 final-data-first contract；implementation、stable owners 与验收证据闭合后已核对为 `active + aligned`。
+- **Decision：** [`read-direct-dependency-final-data-by-string.md`](../../../docs/decisions/read-direct-dependency-final-data-by-string.md) 已承接这个 final-data-first contract；implementation、stable owners 与验收证据闭合后已核对为 `active + aligned`。
 
 ## Risks / Trade-offs
 

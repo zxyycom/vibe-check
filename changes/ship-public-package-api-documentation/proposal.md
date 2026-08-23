@@ -8,7 +8,7 @@
 
 公共 API 文档必须在 publish 之前由可重复 candidate build、exact-tarball inventory 和 isolated consumer 验证。registry release Change 应只核对并发布已经审阅的材料，不应在不可逆外部写入阶段临时撰写 API guide。
 
-首次公开 package 的最小 Record/Core/machine contract 已由 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/) 交付，Check-attached terminal messages 与显式 visibility 也已由已归档的 [`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/)（archived）完成实现、public candidate 与验收。`add-typed-check-dependency-outputs` 不是该已归档 Change 的前置；它是本 documentation Change 仍需的唯一上游 API Change，用于交付 typed dependency getter。在它实施前，本 Change 不冻结该部分文档。
+首次公开 package 的最小 Record/Core/machine contract 已由 [`establish-minimal-check-record-contract`](../archive/establish-minimal-check-record-contract/) 交付；Check-attached terminal messages/visibility 与 typed dependency outputs 也已由 [`add-check-terminal-messages-and-visibility`](../archive/add-check-terminal-messages-and-visibility/) 和 [`add-typed-check-dependency-outputs`](../archive/add-typed-check-dependency-outputs/) 完成实现、public candidate 与验收。本 documentation Change 所需的上游 API inputs 已闭合；是否进入 implementation 仍由本 Change 自己的 readiness、stage 与当前授权决定。
 
 ## Outcome
 
