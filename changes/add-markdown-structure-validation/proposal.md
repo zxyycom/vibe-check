@@ -1,48 +1,41 @@
 # Proposal
 
-本 Proposal 是实现 Markdown 结构 observation 与 policy validation built-in Check 的临时计划，稳定事实由落地后的产品 owners承接。
-
-**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-markdown-structure-validation` 刷新基线。
+本 Plan 在当前 ordinary Check contract 上交付确定性的 Markdown 标题结构 default Check，并把它纳入首次公开 package。
 
 ## Why
 
-当前产品没有基于 Markdown 语义的文档结构检查；仓库脚本的链接或格式校验也不能成为对外产品 contract。Vibe-coding 产生和改写的文档容易出现标题层级、H1、过长或过短 section/paragraph等问题，正则和整文件字符数既不稳定，也会把代码、表格和标记误作 prose。
+Markdown 文档常见的结构缺陷是缺少或重复 H1、首个标题层级错误、标题深度跳跃和过深嵌套。旧计划还包含 section/paragraph 字数度量、十六个阈值、measurement catalog、comparison/cache和 shared file policy；这些主观且高噪声的范围不是首版提供直接价值所必需。
 
 ## Outcome
 
-Vibe Check 提供 stable `checkId = markdown-structure-validation` 的 built-in Check，使用 Product-owned GFM document boundary为 approved Markdown exact inputs生成 document/section/paragraph measurement records，并按 Project Definition 与 file policy中的结构规则生成独立 violation records。CheckResult只由该 Check 的完整领域结果决定，Core 不解释 Markdown、阈值或 heading semantics。
+Package 公开 ordinary value `markdownStructureValidation`（`checkId = markdown-structure-validation`）。它只处理 global scope 中的 Markdown exact inputs，通过一个 package-private GFM document boundary验证 closed heading rules，报告 safe Check-local Records，并用 final counts与四态结果表达结论。
 
 ## Scope
 
 ### Intended Change
 
-纳入：
-
-- GFM parsing、front matter / code / table / list / inline语义、source locations、document/section/paragraph prose projection。
-- Unicode scalar `characters`、whitespace-delimited `words`、section nesting和稳定 subject identity。
-- Document、section、paragraph的 min/max words/characters，以及 single H1、first heading H1、depth skip和maximum depth规则。
-- 四个 record types、policy/neutral behavior、CheckResult、named-reference comparison、cache、输出、owner同步和测试证据。
-- 一个可供 Markdown link Check复用、但不拥有任何 structure policy的内部 Markdown document boundary。
-
-不纳入：formatting、自动修复、完整 Markdown lint规则集、链接目标验证、外链网络访问、HTML安全审计，以及把 parser package/AST类型暴露为 public policy。
+- 新增 `MarkdownStructureValidationOptions`，首版只包含 `requireSingleH1`、`requireFirstHeadingH1`、`forbidDepthSkips` 与 `maximumDepth: false | 1..6`；`.md`/`.markdown` eligibility固定由本 Check实现并且只能消费 global scope。
+- 选择并封装 CommonMark + GFM parser dependency，输出 parser-neutral headings、link occurrences、visible text segments与 source ranges；Markdown Link Check复用该 private boundary。
+- Structure Check只报告 heading-rule violations；final data提供 document/heading/issue counts，存在 violation为 `failed`，无 violation为 `passed`，无 eligible Markdown为 `not-applicable`，read/parse/protocol failure为 `unavailable`。
+- 公开 value/options、runtime validation、README/API example、package dependency/license、owner docs、语义 Cases、Gate与 exact candidate。
+- 不包含 paragraph/section word/character measurements、style/formatting、自动修复、完整 lint规则集、链接验证、HTML安全、shared file policy、comparison/reference或 cache。
 
 ### Resulting Impacts
 
-上述 Markdown Check 方案要求 measurement/violation records、file-policy resolution、comparison/cache 与供 Link Check 复用但不承载结构政策的 document boundary 一致。
+Private Markdown document boundary必须同时满足 Structure 与离线 Link Check 的事实需求，但 parser types、policy、Records、final data和 verdict 不跨 Check共享。
 
 ## Success Criteria
 
-- Check只处理 resolution批准且最终 policy enabled的 Markdown exact inputs；omitted、无输入、领域 violation与 execution failure分别保持正确 run/result语义。
-- GFM、front matter、code/table/list和Unicode fixture得到固定 prose/heading事实；合规文档仍发布 measurement records，只有规则被违反时才发布 violation records。
-- Subject/record identity不依赖 line、column、byte offset或 parser node ID；前置空行不制造新 identity，位置仍准确更新。
-- Neutral definition执行 measurement但不启用阈值/heading violation；Project Definition和有序 file policy可完整、可解释地收紧具体 path政策。
-- Owner docs、Check/Record output、test Cases、parser conformance、formal CLI和 workspace required verification全部同步并通过。
+- CommonMark/GFM headings、front matter、code fence、HTML、tables、lists、Unicode和空文档有确定 parser-neutral结果；代码中的 `#` 不被误作 heading。
+- 四项 heading rules 各自独立、边界明确且可组合；Record identity不依赖 line/column/parser node ID，当前位置仍可导航。
+- Check只读取 global scope 中的 `.md`/`.markdown` exact paths；首版不增加 per-file override或第二文件收集器。
+- Public/package/docs/Case证据、最窄 tests、typecheck、lint、required/full Gate和 exact candidate preparation全部通过。
 
 ## Affected Owners
 
-- `docs/architecture.md`：Markdown document boundary、Structure Check与Core/Output调用方向。
-- `docs/configuration.md`：Project Definition built-in policy、neutral contribution和file-policy输入。
-- `docs/scan-scope.md`：Markdown classification与exact inputs。
-- `docs/output.md`：measurement/violation QualityRecords、catalog和定位信息。
-- `docs/testing.md` 与 `docs/testing/cases/`：GFM、度量、规则、identity、comparison、cache和入口证据。
-- `src/product/**`：parser adapter、Check binding、records和产品接线的唯一 runtime owner。
+- `docs/configuration.md`：default value、closed heading options与 native composition。
+- `docs/scan-scope.md`：Markdown exact-input eligibility。
+- `docs/quality-metrics.md`：heading Records、final counts与 status folding。
+- `docs/output.md`：通用 v4 safe data projection。
+- `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package dependency/contract owners：private parser boundary、Check implementation和 public surface。
+- `docs/testing/cases/**`：dialect/rules/scope/failure/public-consumer evidence。

@@ -1,48 +1,43 @@
 # Proposal
 
-本 Proposal 是实现离线 Markdown local-link/anchor validation built-in Check 的临时计划；网络可达性由独立 Change承接。
-
-**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-markdown-link-validation` 刷新基线。
+本 Plan 在共同 Markdown document boundary 之后交付完全离线的本地文件与锚点 default Check，并把它纳入首次公开 package。
 
 ## Why
 
-文档移动、重命名和生成会留下失效相对链接、跨文档锚点和项目根逃逸目标。当前仓库脚本只覆盖有限相对路径，不能代表 Product的 GFM、anchor、symlink或安全边界；直接把外链请求混入同一检查又会引入网络授权、凭据和不可复现结果。
+文档移动与标题重写会留下失效的相对链接和锚点。把外部 URL 请求混在同一 Check 会引入 SSRF、凭据和不可复现性；旧计划为未来 Network Check设计的 ephemeral cross-Check snapshot在当前 Product也没有安全 seam。首版应先闭合确定、离线且高价值的本地链接语义。
 
 ## Outcome
 
-Vibe Check 提供 stable `checkId = markdown-link-validation` 的 built-in Check，通过共同 GFM document boundary解析 inline、reference、image和autolink occurrences，离线验证项目内文件与 anchors，拒绝绝对/逃逸目标，并在 Check 完整完成后发布 sanitized、invocation-private external candidate snapshot。独立 Network Check只能通过 Check-level `requiresChecks` 消费该 snapshot；Link Check不执行 DNS/HTTP，也不吸收 network outcome。
+Package 公开 ordinary value `markdownLinkValidation`（`checkId = markdown-link-validation`）。它复用 package-private Markdown parse facts，验证 same-document anchors、project-local files与 cross-document anchors，拒绝绝对文件和 project-root escape；HTTP(S)、mailto与其它外部 schemes只被安全忽略，不触发 DNS/HTTP，也不向其它 Check交接 request material。
 
 ## Scope
 
 ### Intended Change
 
-纳入：
-
-- Markdown link occurrence extraction、mutually-exclusive classification、percent decoding、query/fragment拆分和 source location。
-- Same-document anchor、project-local file、cross-file anchor、absolute/file URI、lexical escape和symlink escape验证。
-- Versioned `gfm-heading-slug-v1` heading index、三个 record types、line-independent occurrence identity、target-aware comparison/cache和 CheckResult。
-- Project Definition/file-policy规则，以及 Link-owned external candidate snapshot、candidate safe shape与 bounded ephemeral request/location lookups。
-- 与 `add-network-link-validation` 和 `add-path-reference-validation` 的明确 ownership handoff。
-
-不纳入：DNS、HTTP/TLS、redirect、retry、rate limit、network cache、external reachability verdict、formatter/auto-fix、generic prose path detection，以及让 structure policy决定 link behavior。
+- 新增 `MarkdownLinkValidationOptions`，首版只包含 closed `requireExistingFiles`、`validateSameDocumentAnchors`、`validateCrossDocumentAnchors`、`forbidAbsoluteFilesystem` 与 `forbidProjectEscape`；`.md`/`.markdown` eligibility固定由本 Check实现并且只能消费 global scope。
+- 从共同 document boundary消费 inline/reference/image/autolink occurrences和 heading index；undefined reference、invalid percent encoding、本地 missing/non-file、anchor missing、absolute/escape形成 safe Check-local Records。
+- 所有 target resolution先做 lexical containment与 global-scope membership；跨文档 anchor read还需 ordinary-file和 realpath root containment，不递归发现目标。
+- final data提供 document/link/local/external/issue counts；正常有 issue为 `failed`，无 issue为 `passed`，无 eligible input为 `not-applicable`，read/parse/protocol failure为 `unavailable`。
+- 同步 public value/options、runtime validation、README/API example、owner docs、语义 Cases、Gate与 exact candidate。
+- 不执行 DNS/HTTP/TLS/redirect/retry，不发布 external candidate、不读取 query credentials，不处理 HTML attributes/plain prose URLs，也不建立 shared file policy、comparison/reference或 cache。
 
 ### Resulting Impacts
 
-上述离线 Link Check 方案要求 local resolver、anchor semantics、稳定 occurrence evidence 与只供 Network Check 消费的安全 ephemeral handoff 保持明确 owner 边界。
+共同 Markdown parser、heading slug、local resolver与 safe Record identity必须保持确定；Network Link Change不得把本 Change重新扩大为含网络 side effect的组合 Check。
 
 ## Success Criteria
 
-- 每个 supported link occurrence恰好得到一个离线分类；本地目标/anchor按启用规则产生 catalog-valid records，external/mailto/other schemes分类时网络调用始终为零。
-- 所有 local reads在 lexical containment、inventory/resource approval和 existing-target realpath containment后发生；绝对、file URI、project escape和symlink escape不会读取根外内容。
-- Anchor slug、duplicate suffix、encoded path/fragment、undefined reference和 missing/non-file target有确定、可定位、跨平台测试结果。
-- External handoff不包含 raw/full URL、userinfo、query values、fragment或location；敏感 request material只存在 invocation memory，Network Check只在 Check-level `requiresChecks`满足后读取 Link完成时发布的 snapshot，并在消费后释放，不能依赖 Link Task ID或把材料写入 log/cache/artifact/public DTO。
-- Structure Check关闭不影响 link结果，Path Reference Check不重复解析 Markdown destination/autolink；owner同步、测试证据和 workspace required verification全部通过。
+- Inline/reference/image/autolink、undefined definitions、encoded paths/fragments、duplicate headings与 cross-file anchors有确定结果；external schemes始终零网络且不产生 reachability verdict。
+- Absolute POSIX/Windows/file URI、lexical escape、scope miss与 symlink root escape在任何越界 read前关闭；公开 facts不含 project root或宿主绝对 path。
+- Record identity不依赖 line/column/parser node/raw URL；当前位置只用于导航，query/userinfo/raw destination不进入 logs/cache/artifacts。
+- Structure Check关闭或通过与否不影响本 Check；两者只复用 private implementation。
+- Public/package/docs/Case证据、最窄 tests、typecheck、lint、required/full Gate与 exact candidate preparation全部通过。
 
 ## Affected Owners
 
-- `docs/architecture.md`：共同 Markdown document boundary、Link Check、本地 resolver和 network handoff方向。
-- `docs/configuration.md`：Project Definition built-in policy、neutral contribution和文件政策。
-- `docs/scan-scope.md`：Markdown exact inputs、target resource approval与 root boundary。
-- `docs/output.md`：link records、safe locations/targets和external handoff不公开边界。
-- `docs/testing.md` 与 `docs/testing/cases/`：GFM links、path/anchor/security、identity、comparison和入口证据。
-- `src/product/**`：唯一 Product runtime parser、resolver、Check binding和ephemeral handoff owner。
+- `docs/configuration.md`：default value与 closed offline-link options。
+- `docs/scan-scope.md`：source/target scope、ordinary-file与 no-expansion boundary。
+- `docs/quality-metrics.md`：link Records、final counts与 status folding。
+- `docs/output.md`：safe local target data与 external-material exclusion。
+- `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package contract owners：resolver、Check implementation与 public surface。
+- `docs/testing/cases/**`：occurrence/slug/path/security/zero-network/public-consumer evidence。

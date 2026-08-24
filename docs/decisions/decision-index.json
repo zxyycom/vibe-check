@@ -16,6 +16,7 @@
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
+      "complete-first-release-check-set-before-publication.md": "sha256:a02da0b562c86350011236395e484871dcac868d5289d88e3fa2e354a0750e76",
       "complete-project-gate-before-public-package-release.md": "sha256:2d197c8559b62f2ff33d802a6f200e761695c39dc3b5306ad3dd82084a63e155",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
@@ -493,6 +494,35 @@
         "decision": "由编码规范统一定义问题形态到实现模型的选择及局部表达约束；偏离需要具体契约或证据，不用固定行数、强制抽象或特定依赖代替工程判断。",
         "tags": [
           "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
+    "complete-first-release-check-set-before-publication.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "complete-first-release-check-set-before-publication.md",
+        "title": "在首次公开发布前完成选定的首版 Checks",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-24T10:06:12Z",
+        "purpose": "让首次公开 package 同时交付确定性格式检查与低样板的维护提醒能力。",
+        "background": "四项离线格式 Check 已进入首版计划，用户进一步确认 maintenance reminders 也应提前，而高风险能力继续后置。",
+        "decision": "首版前完成四项离线格式 Checks 与 ordinary maintenanceReminders value，并重新闭合 package 和 Gate 证据。",
+        "tags": [
+          "product-contract",
+          "product-priority"
         ],
         "relations": []
       }

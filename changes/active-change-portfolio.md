@@ -1,107 +1,72 @@
 # Active Change Portfolio
 
-本导航帮助 AI 或维护者选择、恢复和审阅当前 active Change 与直接相关的长期 Decision。它覆盖 `changes/` 根目录下的全部 active Change；只有 active Change 明确消费的 handoff 才从 `changes/archive/` 进入当前路径，其余 archived Change 与 archived Decisions 不作为当前方案输入。
+本导航覆盖 `changes/` 下全部 active Change，并按首次公开发布顺序提供恢复入口。动态 stage、任务进度与 Git 距离只以 `bun run change-plan -- list changes` 和目标 Change artifacts 为准；本文件不证明实现、验收、授权或归档完成。
 
-## 权威性与状态边界
+## 权威性与读取顺序
 
-本文件只拥有跨 Change 的阅读路径、分组和关系摘要，不拥有任何 Change 的动态 stage、任务完成、实现事实或长期方向。已完成的 `add-typed-check-dependency-outputs` 现已归档；其形成时范围与证据只在下游需要历史交接时读取，当前能力以稳定 owner、代码和测试为准。
+1. 先运行 `bun run change-plan -- list changes`，确认目标仍 active，并读取 Plan 的基线提示。
+2. 按下方分组读取目标 proposal/design；只有 stage 为 Plan 时才把 tasks 当作进度清单。
+3. 长期方向看链接的 Decision；current behavior看 `docs/` owner、源码、tests与 package artifacts。
+4. 暂停写在目标 Design 的 `Implementation Observations` / `Resume Conditions`，不会形成额外 metadata stage。
+5. `active`、checkbox 或 Decision alignment都不自动产生实施、归档、registry或 publish授权。
 
-| 需要恢复的信息 | 唯一 owner / 操作 | 不应从本文件推断的内容 |
+## 首次公开发布顺序
+
+[`complete-first-release-check-set-before-publication.md`](../docs/decisions/complete-first-release-check-set-before-publication.md)（`active + unaligned`）确认以下顺序：
+
+```text
+[archived] retire shared file-policy plan
+          │
+          ├──> json-validation ───────> json-schema-validation ─────┐
+          ├──> markdown-structure-validation ─> markdown-link-validation
+          └──> maintenance-reminders ───────────────────────────────┤
+                                                                    v
+                                  refresh public docs + exact candidate + required/full Gate
+                                                                    │
+                                                                    v
+                                        publish-public-api-only-npm-package
+```
+
+五项 Check 都必须使用当前 ordinary Check、Check-owned options 与 four-state result；四项格式 Check 使用 global file scope并仅在 owning Check 内报告所需 Records，maintenance reminders 自己拥有 Git activity measurement且不报告 supplemental Records。它们都不恢复旧 shared policy、TaskPlan/Manager、named reference、通用 comparison/cache或 Record catalog。五项完成后，新 Decision才进入 alignment核对，发布 Draft仍需 fresh registry事实与单独外部读写授权。
+
+## 分组一：首版前完成的五项 Checks
+
+已完成并归档的 [add-file-policy-overrides](archive/add-file-policy-overrides/) 只证明 Product-wide file-policy计划已退出，局部差异继续由 owning Check options负责；它是本组的已闭合前置，不再属于 active portfolio。直接 Decision：[Check-owned file overrides](../docs/decisions/use-check-owned-file-overrides.md)。
+
+| Change | 唯一结果 | 依赖与当前边界 |
 | --- | --- | --- |
-| Change 是否 active、处于 Draft 还是 Plan、任务进度和基线距离 | `bun run change-plan -- list changes`，随后读取该 Change 的 artifacts | 可以开始实施、链接 handoff 的事实仍有效、或已完成验收。 |
-| 单个 Change 的范围、设计、风险、开放问题和验收 | 对应 `changes/<change>/proposal.md`、`design.md`、`tasks.md` | 它已经成为稳定 Product contract。 |
-| 跨 Change 持续有效的取舍与理由 | 链接的 `docs/decisions/*.md` | `active + unaligned` Decision 已是当前实现，或构成实施/外部写入授权。 |
-| 当前实现与稳定行为 | 对应 `docs/` owner、代码、测试和 release artifact | 历史 Change、Draft 或本导航的摘要本身证明了实现。 |
+| [add-json-validation](add-json-validation/) | 公开 `jsonValidation`，严格验证 `.json` 的 UTF-8、grammar、完整消费与 duplicate keys。 | 首版 JSON基础；建立可供 Schema复用的 private strict document boundary，不建立 public parser。 |
+| [add-json-schema-validation](add-json-schema-validation/) | 公开 `jsonSchemaValidation`，以 explicit registry/bindings做 2020-12零网络验证。 | 依赖 JSON private document boundary；engine与 runtime dependency/license需 Readiness审计。 |
+| [add-markdown-structure-validation](add-markdown-structure-validation/) | 公开 `markdownStructureValidation`，只验证四项确定性 heading rules。 | 建立 Structure/Link共享的 private parser-neutral Markdown facts；不发布 prose measurements。 |
+| [add-markdown-link-validation](add-markdown-link-validation/) | 公开 `markdownLinkValidation`，离线验证 local files与 same/cross-document anchors。 | 依赖 private Markdown facts；external schemes零网络、零 snapshot/handoff。 |
+| [add-maintenance-reminders](add-maintenance-reminders/) | 公开 fixed-ID ordinary value `maintenanceReminders`，按 immutable base commit后的 first-parent activity产生提醒。 | 独立于 JSON/Markdown链；先用 focused Git fixture spike闭合 history命令边界。Advisory只产生 warning message，enforcing due才使 Check failed；不新增 constructor。 |
 
-Decision status 的正确读法是：`active + aligned` 是已核对的当前方向；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向。Change `design.md` 里的“Decisions”只约束该 Change 的暂定/实施设计，不能替代 `docs/decisions/` 的长期 Decision。
+四项格式 Check的共同长期方向是 [扩展格式感知 Product-provided Checks](../docs/decisions/expand-format-aware-built-in-checks.md)（`active + unaligned`）。该 Decision不建立“非代码 scanner”公约数；它们只分别共享严格 JSON helper或 private Markdown parse facts。Maintenance reminders遵循 producing Check内部拥有 comparison的既有边界，不与格式 Check建立 shared abstraction。
 
-## 阅读步骤
+## 分组二：首版后保留的 Check / backend方向
 
-1. 先运行 `bun run change-plan -- list changes`，确认目标仍 active，并阅读它报告的 Plan 基线提示。
-2. 在下面按产品路径或能力路径找到目标 Change，恢复其**唯一交付**与直接相关 Decision。
-3. 读取目标 Change 的 proposal 和 design；只有 stage 为 Plan 时才把 tasks 当作实施清单。若 tasks 已全勾选，先区分“已完成但未归档”和“仍有实施任务”。
-4. 将“开放问题”和“需要重新核对”保留为问题：不要仅因导航存在就选择 grammar、优先级、外部事实或发布动作。
-5. 实施后才由对应稳定 owner 更新当前事实；Change 的 stage、完成和 Decision alignment 都不会自动变化。
+这些 Change仍是结构完整的 active Plan或 Draft，但其 artifacts明确记录暂停原因与 Resume Conditions；它们不阻塞首次公开发布。
 
-## 产品路径总览
+| Change | 保留方向 | 后置原因 / 恢复门禁 |
+| --- | --- | --- |
+| [add-path-reference-validation](add-path-reference-validation/) | 高置信 project-local prose/inline-code path validation。 | 需要真实 corpus证明 grammar precision并闭合 segment owner；避免与 Markdown destinations重复。 |
+| [add-network-link-validation](add-network-link-validation/) | 显式 opt-in、SSRF-safe、bounded network reachability。 | 当前无安全 private cross-Check raw-URL handoff；需要命名 consumer、输入 acquisition和 hermetic transport evidence。Decision：[Check-owned network authorization](../docs/decisions/require-check-owned-network-authorization.md)。 |
+| [add-secret-detection](add-secret-detection/) | invocation-memory high-confidence secret detection与 safe coverage。 | 需要 detector provenance/license、precision/recall corpus与全 surface leak-canary。Decision：[敏感材料临时化](../docs/decisions/keep-sensitive-quality-record-material-ephemeral.md)。 |
+| [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | 保持 `functionMetrics` public contract，hard-cut private Lizard backend。 | 不是新 Check，收益偏内部；需先解决 public scanner options、fresh parity corpus和 provenance。Decision：[Lizard后置](../docs/decisions/defer-lizard-until-after-check-foundations.md)。 |
 
-当前 portfolio 分为五个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
+## 分组三：相邻 Draft 与公开发布
 
-1. **Project Gate 与 package 交付：** repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、public package API documentation、native Check authoring 与 layout/naming 均已归档；publish Change 只能消费归档 layout handoff 所绑定并验收的 exact artifact，且外部准备仍需单独授权。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
-2. **公共 Check authoring、typed dependency outputs 与日志证据边界：** 当前四态 Check、final data、Check-local Records、terminal messages、human visibility 与 declared direct dependency final-data read 均已成为基础事实。Typed reader 不把 parser、dependency view 或 presentation 变成 Core fact；相邻 log evidence Draft 仍只保存 durable receipt/event 的 owner 边界。
-3. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
-4. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
-5. **当前代码质量闭环：** 对当前仓库拥有的代码建立可枚举、摘要绑定、逐条轻筛且风险触发独立复核的审计证据，只实施 owner 已明确支持的最小质量改进，不用全量范围预实现 feature 或强迫每个文件产生 diff。
+| Change | 唯一结果 | 与首版 Checks 的关系 |
+| --- | --- | --- |
+| [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | 保存 future durable receipt/event sink的 owner边界。 | 当前 per-Check transcript与 Product progress已足够；不阻塞 Checks或发布。 |
+| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 在单独授权下完成 public registry release与 registry-install proof。 | 必须等待五项首版 Checks、public docs/declarations/dependencies、fresh exact candidate和 required/full Gate evidence；旧 candidate receipt会因 public inventory变化失效。 |
 
-## 路径一：Project Gate 与 package 交付
+发布路径仍同时受 [在公开 package 前完成 Project Gate](../docs/decisions/complete-project-gate-before-public-package-release.md) 约束。完整 candidate/Gate/registry顺序见 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md)。
 
-长期顺序由 [在公开 package 发布前完成项目门禁](../docs/decisions/complete-project-gate-before-public-package-release.md)（`active + aligned`）决定：本地 candidate → 完整 Gate consumer → repository cutover → 经单独授权的公开发布。它不决定项目 CLI grammar、renderer 格式、静态 scheduler 容量或 npm 的实时外部事实。
+## 恢复与完成判读
 
-下表只列出仍 active 的下游 Change。已归档 cutover 与 package documentation 只通过各自 handoff 提供当前 Change 明确要求的输入；归档状态不自动证明新 artifact 仍匹配。
-
-| Change | 此 Change 唯一负责的结果 | 直接 Decision 输入 | 下游与仍未决定的事项 |
-| --- | --- | --- | --- |
-| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover binding、Gate optimization 与 documentation handoffs，在单独授权下完成 public registry release 与 registry-install proof。 | [完整 Gate 后发布](../docs/decisions/complete-project-gate-before-public-package-release.md)（aligned）；[版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[unscoped `vibe-check`](../docs/decisions/publish-unscoped-vibe-check-publicly.md)、[MIT](../docs/decisions/license-package-under-mit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均 future）。 | registry authority、authenticated publisher、精确 version、copyright holder/year、publish mechanism 与每次外部读写授权均是届时外部事实，尚未决定也不能预先查询。 |
-
-## 路径二：公共 Check authoring 与日志证据边界
-
-这一组 active Change 都建立在普通 Check、直接 execution 与 `checks` / `records` Core facts 之上。已归档的 [add-check-terminal-messages-and-visibility](archive/add-check-terminal-messages-and-visibility/) 与 [add-typed-check-dependency-outputs](archive/add-typed-check-dependency-outputs/) 已将终态消息、人读可见性和 typed direct-dependency read 变为当前 Product 能力；稳定 contract 由 [Configuration](../docs/configuration.md)、[Architecture](../docs/architecture.md) 与 [Output](../docs/output.md) 拥有。下表只列仍 active 的 Change：它们不自动授权公共 API 变化，不把 Record presence 解释为 Check verdict，也不把人读 progress 或项目 transcript 误作结构化事件协议。
-
-| Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
-| --- | --- | --- | --- |
-| [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | 区分 foundation process primitives、Product lifecycle 与 Gate-owned diagnostic evidence，保存 future receipt/event sink 的准入边界。 | [Product-owned progress](../docs/decisions/provide-product-owned-check-progress.md) 与当前 Architecture/Output/Script Tooling owner（aligned current behavior）。 | 当前无命名 consumer，不实施 `summary.json`、event protocol、generic logger、retention 或 cleanup，也不阻塞 Gate cutover。 |
-
-## 路径三：格式、政策与安全 Check
-
-这些 Change 共享的当前基础方向是 [Run resolution 的 Core facts](../docs/decisions/use-core-check-and-record-facts-from-run-resolution.md)（`active + aligned`）。未来 Record/Check 方向仍由 [Check-local Record data](../docs/decisions/report-check-owned-record-data-with-local-identities.md)、[Check-owned comparison](../docs/decisions/keep-comparison-semantics-inside-producing-checks.md) 与 [直接 execution 与最小 reporting](../docs/decisions/use-direct-check-execution-with-minimal-record-reporting.md)（`active + unaligned`）承接；[string getter 读取 direct dependency final data](../docs/decisions/read-direct-dependency-final-data-by-string.md) 已经 `active + aligned`，当前事实以 stable owners、源码与测试为准。
-
-[扩展格式感知 Product-provided Checks](../docs/decisions/expand-format-aware-built-in-checks.md) 是 `active + unaligned` 的产品方向：它确认这些能力可分别演进，但**没有**选择它们的实现优先级，也没有把各 Change 的字段、算法或 record catalog 提前升级为稳定事实。
-
-| Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
-| --- | --- | --- | --- |
-| [add-file-policy-overrides](add-file-policy-overrides/) | 让 Project Definition 以有序、closed typed patch 为项目内不同路径解析可解释政策，且永远不能扩大 global inventory。 | [显式文件政策覆盖](../docs/decisions/use-file-policy-overrides.md)（`active + unaligned`）。 | 它是其他 feature 的共同 policy seam；不决定每个 feature 的专属 leaves。其旧 foundation 描述需要在恢复 Plan 前对照当前 Configuration/Scan Scope owner。 |
-| [add-json-validation](add-json-validation/) | 给普通 JSON exact inputs 提供严格 bytes/grammar/duplicate-key validation 与独立领域 Records。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)（future）；共享 aligned foundations。 | 不包含 JSON Schema。其具体 parser/record 方案仍是 Change-local 计划，开始前需重审当前 owner 与 file-policy integration。 |
-| [add-json-schema-validation](add-json-schema-validation/) | 用离线、显式 registry/binding 验证 JSON Schema 2020-12 documents 与 bound instances。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)（future）；共享 aligned foundations。 | 依赖 JSON document service 与 file-policy seam；不授权 remote fetch。Ajv/engine 仍是 private dependency choice，须在实施时审计。 |
-| [add-markdown-structure-validation](add-markdown-structure-validation/) | 为 Markdown exact inputs 建立 GFM document/prose measurements 与独立结构 policy violations。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)（future）；共享 aligned foundations。 | 共享 Markdown document boundary，但不拥有 link 或 network 语义。具体 parser package 是私有实现选择；开始前需重审旧 Plan 的 foundation 假设。 |
-| [add-markdown-link-validation](add-markdown-link-validation/) | 离线验证 Markdown 本地 file/anchor links，并向独立 network Check 提供 sanitized ephemeral external candidate snapshot。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)（future）；[显式网络授权](../docs/decisions/require-explicit-network-check-authorization.md)仅约束其后续 network handoff。 | 不执行 DNS/HTTP。Network Change 依赖它；路径引用不得重复拥有 Markdown destination/autolink。 |
-| [add-network-link-validation](add-network-link-validation/) | 在明确 policy authorization 下，对 Link snapshot 做 SSRF-safe、有界网络检查。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)、[显式网络授权](../docs/decisions/require-explicit-network-check-authorization.md)、[敏感材料临时化](../docs/decisions/keep-sensitive-quality-record-material-ephemeral.md)（均 future）。 | 依赖 Markdown Link snapshot；不以 gate、环境变量或 file override 提升网络授权。不会在没有实际触发时决定 public-network smoke 或更宽 network feature。 |
-| [add-path-reference-validation](add-path-reference-validation/) | 在批准的文本 segments 中识别高置信 project-local path token，并仅对 inventory-derived index 检查目标。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md)、[Check-local Record data](../docs/decisions/report-check-owned-record-data-with-local-identities.md)（均 future）。 | 需要 Markdown/text segment owner；其旧 Record catalog/policy 设计必须在恢复 Plan 时迁移到 owning Check 的 local data、ID 与 verdict，不接管 Markdown destination、module/import 或 URL 语义。 |
-| [add-secret-detection](add-secret-detection/) | 在 invocation memory 中检测高置信 secret，并只发布不泄露原值的安全 Records/coverage evidence。 | [格式感知 Checks](../docs/decisions/expand-format-aware-built-in-checks.md) 与 [敏感材料临时化](../docs/decisions/keep-sensitive-quality-record-material-ephemeral.md)（future）。 | 不扫 Git history、environment 或 remote secret manager；不开放自定义 regex/entropy engine。检测规则和实现仍须在恢复 Plan 时以安全边界为准。 |
-
-### 这些 Plan 的恢复边界
-
-`add-file-policy-overrides`、六个格式/JSON/网络/路径 Change、`add-secret-detection` 以及下方 Lizard Change 都在较早 foundation 命名和 Plan 基线下形成。它们的已勾选 Readiness 不能替代一次新的语义复核。
-
-在开始任何新的未勾选 implementation task 前，执行者应：
-
-1. 用 `bun run change-plan -- list changes` 读取该 Plan 的当前距离提示；
-2. 对照当前 `docs/architecture.md`、Configuration/Scan Scope/Output owner 和上表的 active Decisions，识别已经实现、已替代或仍缺失的 seam；
-3. 将结论写回该 Change 的 proposal/design/tasks：保留、拆分、替换或停止哪个范围必须有当前依据；
-4. 只有完成语义复核后，才按 `change-plan` 流程刷新 Plan baseline。
-
-这是恢复步骤，不表示这些 Change 已被废弃、降级、归档或获得新的实施优先级。
-
-## 路径四：Function metrics runtime 迁移
-
-| Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
-| --- | --- | --- | --- |
-| [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | 在届时 approved exact inputs 上，以 fresh compatibility baseline 将 `function-metrics` 的私有 Python/Lizard backend hard-cut 为 Product-owned TypeScript implementation。 | [Lizard 在 Check foundations 后再审](../docs/decisions/defer-lizard-until-after-check-foundations.md)（`active + unaligned`）。 | 该 Decision 默认后置，而不是删除迁移；只有直接交付阻塞、平台、可靠性、安全或许可证证据才应提前重评。开始前必须重新确认 current foundations、采集 fresh baseline，并完成 provenance/license 审计；不自动扩大语言范围或保留 production fallback。 |
-
-## 路径五：当前代码质量闭环
-
-这一组只审计和改进当前实现质量，不定义新的 Product feature 或长期质量政策。长期实现风格仍由 [编码规范](../docs/coding-style.md) 和 [按问题形态约束实现风格](../docs/decisions/choose-implementation-style-by-problem-shape.md) Decision 拥有；测试变更继续服从 [完整测试实体与语义 Case 闭合](../docs/decisions/use-semantic-test-case-closure.md)。逐文件 ledger 只保存本次 Change 的覆盖与处置证据。
-
-| Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
-| --- | --- | --- | --- |
-| [audit-and-improve-current-code-quality](audit-and-improve-current-code-quality/) | 穷尽枚举当前代码与行为配置，以最终内容摘要绑定逐条轻筛、风险触发深审、最小改进和独立复核，并交付无遗漏的 findings 与验证结果。 | [按问题形态约束实现风格](../docs/decisions/choose-implementation-style-by-problem-shape.md)、[源码布局和命名表达 owner](../docs/decisions/align-source-layout-and-naming-with-module-owners.md)与[完整测试实体和 Case 闭合](../docs/decisions/use-semantic-test-case-closure.md)（均 aligned）。 | Plan 已固定 code/config/generated-config 分类、ledger freshness 与分级审查；不预实现活动 feature Plans，不改变 public/machine/release contract，也不以 lint/Gate 替代语义审查。 |
-
-## 明确保留的未决事项
-
-以下项目仍需要相应 Change 的 Plan 审阅、真实 consumer evidence、长期 Decision 或用户授权，不能由导航猜测。Gate 的 profile/tag vocabulary、local partial behavior、正式 repository/CI 无 disabled-tag contract、cutover 验收与 legacy cleanup 已由上表链接的 Change artifacts 收敛，不属于本清单。
-
-1. **性能策略：** Product progress、可见序号、stream ownership、effect failure isolation、terminal messages/visibility 当前均不提供 live/intermediate output；是否把 duration 变成 performance policy 仍需真实消费者和独立 Decision。
-2. **格式能力的优先级与复核：** 哪个独立 feature 先做、旧 Plan 的详细契约是否仍匹配当前 foundation；`expand-format-aware-built-in-checks` 没有预先决定这些问题。
-3. **Lizard 的开始时机：** 除非出现记录中的提前重评证据，否则保持后置；fresh baseline 后的具体 implementation 也不能从旧 CSV/protocol 推断。
-4. **公开发布：** registry ownership、publisher、version、legal identity、publish mechanism 和任一 registry/credential/publish 操作的即时授权。
-
-这些未决事项不阻止阅读或维护现有 Change；它们只阻止把计划文本错误地当作已确认的产品事实、外部状态或授权。
+- **首版 Check Plan：** 先完成 Readiness dependency/fixture审计，再按 JSON链与 Markdown链实施；maintenance reminders在 focused Git spike后可独立推进。每个 Change独立同步 public inventory、owner docs、Cases和 package evidence。
+- **后置 Plan：** Resume Conditions未满足时不要进入 Implementation，也不要因 stage=plan误判为当前优先级。
+- **Shared file-policy退出：** 该 Plan已按当前任务的明确授权归档；它不代表任何额外 resolver已经实现。
+- **Publish Draft：** 五项 Check完成也不授权 registry query、credential access或 `npm publish`；每次外部操作仍需 fresh scoped authorization。
+- **Decision alignment：** 五项 Check、稳定 owners、exact candidate和 required/full Gate全部成为 current facts后，才核对 `complete-first-release-check-set-before-publication.md` 的完整 alignment。

@@ -1,47 +1,43 @@
 # Proposal
 
-本 Proposal 是实现普通 JSON 严格验证 built-in Check 的临时计划，稳定产品事实仍由实施后同步的 owner 承接。
-
-**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-json-validation` 刷新基线。
+本 Plan 在当前 ordinary Check contract 上交付严格、离线的 JSON validation default Check，并把它纳入首次公开 package。
 
 ## Why
 
-当前产品只在自己的配置、schema 和验证脚本边界解析特定 JSON 材料，尚不能把项目 manifest、配置和数据文件中的损坏 JSON 作为统一 Check/Record 结果报告。下游工具才暴露这些错误会延迟反馈，也迫使每个项目重复包装解析脚本。
+项目中的 manifests、配置和数据文件经常因非法 UTF-8、JSON grammar 或重复 object keys 在下游才失败。当前 Vibe Check 只有代码度量 defaults，项目若要统一发现这类问题必须重复编写文件收集、解析、Record 和结果折叠逻辑。
 
 ## Outcome
 
-Vibe Check 提供 stable `checkId = json-validation` 的 built-in Check，只处理 resolution 分配的普通 JSON exact inputs；它严格验证 UTF-8、JSON grammar、完整消费和重复 object key，使用独立 `recordTypeId` 发布安全、可定位且位置无关的 QualityRecords，并以 CheckResult 表达领域 verdict。Core 不解释 JSON，parser、资源限制、comparison 和 cache 都留在 JSON owner 的私有边界。
+Package 公开 ordinary value `jsonValidation`（`checkId = json-validation`）。它只处理当前 global scope 中的 `.json` 文件，在有界内存中严格验证 UTF-8、JSON grammar、完整消费和 decoded duplicate keys；正常完成时用 Check-local Records 报告缺陷，并以 final data 与 `passed | failed | not-applicable | unavailable` 表达完整结果。
 
 ## Scope
 
 ### Intended Change
 
-纳入：
-
-- 普通 `.json` 输入的严格 UTF-8 / JSON grammar、leading BOM、任意合法 root value、完整消费和 decoded duplicate-key 检查。
-- Project Definition 中的 built-in reference、JSON owner 验证的 `maximumBytes` 政策，以及文件政策对 JSON 输入资格和该上限的声明式覆盖。
-- `json-syntax`、`json-duplicate-key`、`json-unsupported-input` 三个 record type 的目录、identity、位置、排序、comparison、cache、输出和测试接线。
-- current 与调用者显式提供的 named reference 使用同一冻结政策，并由 JSON Check 自己产生匹配关系。
-
-不纳入：JSONC、JSON5、formatting、key ordering、canonicalization、自动修复、JSON Schema、Project Definition 自身加载，以及让通用 Core 理解 JSON 领域规则。
+- 新增 `JsonValidationOptions`，首版只包含 closed `maximumBytes`；`.json` eligibility固定由本 Check实现并且只能消费 global scope。
+- 建立 package-private strict JSON document boundary：fatal UTF-8 decode、拒绝 BOM/comments/trailing comma/trailing content、接受任意合法 root value，并检测 decoded duplicate keys。
+- 每个正常领域缺陷报告一个 stable local Record；Record data 只包含 normalized project-relative path、closed reason、JSON pointer/decoded key 与可选当前位置，不包含原始文档或 parser-native message。
+- final data 固定提供 scanned/valid/invalid file counts 与 issue count；存在任一领域缺陷时 `failed`，全部有效时 `passed`，无 eligible input 时 `not-applicable`，read/decode/parser protocol failure 以受控 `unavailable` 结算。
+- 公开 value/options、runtime validation、README/API example、package contract、owner docs 与语义 Cases。
+- 不包含 JSONC/JSON5、formatting、canonicalization、自动修复、JSON Schema、comparison/reference、共享 policy resolver 或 Product-wide Record catalog。
 
 ### Resulting Impacts
 
-上述 JSON Check 方案要求 exact-input ownership、strict document defects、稳定 records、comparison/cache 与 CheckRun/CheckResult 的失败边界保持一致。
+严格 JSON document boundary 将成为后续 JSON Schema Check 的 package-private复用点；两项 Checks 仍分别拥有 options、Records、final data 和 verdict。
 
 ## Success Criteria
 
-- Omitted check、无合格输入、领域缺陷和执行失败分别表现为 skipped、completed/not-applicable、completed/failed result 和 failed CheckRun，不能互相伪装。
-- 合法 object、array、string、number、boolean 与 null 均通过；非法 UTF-8、BOM、comments、trailing comma、非法 token、尾随非空白内容、重复 decoded key 和超限输入产生对应的 catalog-valid records。
-- Adapter 不遍历 project root、不扩大 normalized inventory；JSONC 和被 JSON Schema binding 接管的路径不会被普通 JSON Check 重复报告。
-- Record identity 不使用 line、column、byte offset、message 或 parser wording；输出不包含绝对路径、原始内容或 backend-private 数据。
-- 显式 reference matching、单文件 cache、neutral definition、Project Definition authoring、owner 文档、测试证据及 workspace required verification 全部同步并通过。
+- 合法 object、array、string、number、boolean 与 null root 通过；非法 UTF-8、BOM、comments、trailing comma、trailing content、语法错误、超限和 decoded duplicate key 有确定结果。
+- Check 只读取 global scope 中符合自身 eligibility 的 exact paths，按 lexical path 与文档顺序稳定处理，不自行遍历或恢复 excluded/generated/vendor 文件。
+- Record identity 不依赖 line、column、parser wording 或原始 bytes；machine/progress/cache/log 不包含文档内容。
+- Public value、options type、Definition validation、package declarations/README/isolated consumer 和 Project Gate 均包含并验证该 Check。
+- 最窄 tests、Test Evidence closure、typecheck、lint、docs validation、required/full Gate 与 exact candidate preparation 全部通过。
 
 ## Affected Owners
 
-- `docs/architecture.md`：Check/Record 接入方向、Core 与私有 parser boundary。
-- `docs/configuration.md`：Project Definition、neutral definition、built-in reference 与 JSON policy authoring。
-- `docs/scan-scope.md`：普通 JSON 分类、exact inputs 与 secondary ownership arbitration。
-- `docs/output.md`：Check/Record catalog、QualityRecord 投影和安全输出。
-- `docs/testing.md` 与 `docs/testing/cases/`：parser、identity、comparison、cache、入口与 contract 证明责任。
-- `src/product/**`：唯一产品 runtime 实现 owner。
+- `docs/configuration.md`：default value、closed options 与 native composition。
+- `docs/scan-scope.md`：`.json` eligibility 和 no-expansion exact-input boundary。
+- `docs/quality-metrics.md`：JSON final data、Check-local Records 与 status folding。
+- `docs/output.md`：通用 v4 projection 只承载 safe Check/Record data。
+- `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package contract/materials：实现、验证与公开 surface。
+- `docs/testing/cases/**`：strict bytes/grammar/duplicates/scope/failure/public-consumer evidence。

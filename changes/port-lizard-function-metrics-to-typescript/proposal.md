@@ -1,49 +1,40 @@
 # Proposal
 
-本 Change 计划在三个 Check foundations 落地后，以 fresh compatibility baseline 将 `function-metrics` built-in Check 的 Python/Lizard backend替换为 Product-owned TypeScript implementation；在进入 implementation 前，proposal仍可随同一目标的事实核对而修订。
-
-**恢复门禁：** 本 Plan 的路径与 Git 基线早于当前 `src/checks/measurement/scanners/lizard/**` owner；不得按旧 `src/product/**` 细节直接实施。恢复时必须重新采集 fresh compatibility baseline、完成 provenance/license 审计、同步 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/port-lizard-function-metrics-to-typescript`。
+本 Plan 在首次公开发布后，以 fresh compatibility corpus 将 `function-metrics` 的 private Python/Lizard backend替换为 Product-owned TypeScript analyzers。
 
 ## Why
 
-当前 formal function measurement path需要发现/启动Python与Lizard、解析Lizard 1.23 CSV，并维护额外availability、process和private protocol failure。统一到Product-owned TypeScript runtime可以减少安装与执行依赖，但必须在Check/Record、Task orchestration和Project Definition稳定seam上迁移，避免把旧capability/config/output形状误当成新产品contract。
+当前 `functionMetrics` default Check仍探测并执行 Lizard、解析 CSV并维护外部 process failure。移除 Python/Lizard可简化 installed runtime，但不会新增用户可见 Check；TypeScript/Rust function boundary、NLOC、complexity与 parameter parity的实现和 provenance成本较高。长期决策要求它在 Check foundations之后重新基线，并在没有交付阻塞证据时保持后置。
 
 ## Outcome
 
-`function-metrics` Check只对届时 Scan Scope owner 批准并交付的 exact inputs（下称 approved exact inputs）调用Product-owned TypeScript structural-analysis backend；formal product runtime不再探测、启动或解析Python/Lizard。Backend经exact-input analysis和canonical normalization产生届时Check owner要求的function records/results，并保持fresh baseline确认的exact-input set、stable semantic identity、measurements、ordering、zero-result、comparison和failure behavior。
+`function-metrics` 保持同一 ordinary Check value、options、Check-local Records、final data与 public identity，只把 current `.ts`/`.d.ts`/`.rs` exact inputs的 private measurement backend hard-cut为 Product-owned TypeScript implementation；formal runtime不再 probe/execute Python/Lizard或解析其 CSV。
 
 ## Scope
 
 ### Intended Change
 
-纳入范围：
-
-- 在foundation changes落地后，从当前owners、runtime和可重复Lizard oracle采集fresh compatibility corpus/baseline；
-- approved exact inputs 的Product-owned analysis、function boundaries、NLOC、parameter count、cyclomatic complexity和canonical normalization；当前范围为`.ts`（含`.d.ts`）与`.rs`，`.tsx`、`.js`、`.jsx`不因相邻语法自动纳入；
-- 按private TaskPlan/execution seam处理exact inputs、partial records、CheckResult与execution failure；
-- source/provenance/license审计、differential fixtures、edge/error corpus和与产品调用场景相称的performance证据；
-- hard cut formal Python/Lizard dependency/availability/process/CSV path，更新scanner/metrics owners、tests、fixtures、package/runtime dependencies与dogfood。
-
-非目标：改变`function-metrics` checkId或既定recordType identities；扩大 approved exact-input set或新增metrics/policy；建立public parser/provider API；修改Check/Record/scheduler/Project Definition contract；把Lizard保留为production fallback或双backend开关。
+- 恢复时从当前 `src/checks/builtins/function-metrics*.ts`、Lizard adapter与 tests采集 fresh observable compatibility corpus。
+- 为 `.ts`/`.d.ts` 与 `.rs`分别实现 private analyzers，保持 current function boundaries、NLOC、cyclomatic complexity、parameter count、record IDs/order、no-input与 failure semantics。
+- 在写 derived/translated code前完成 source revision、license/provenance与 clean-room判断。
+- Parity通过后一次 hard cut并删除 Lizard availability/process/parser/dependency/cache identity；不保留 production fallback或 dual backend。
+- 不改变 public Check/options/Record/machine contract，不扩大到 `.tsx`/`.js`/`.jsx`，不纳入首次公开 release gate。
 
 ### Resulting Impacts
 
-上述 backend 替换要求 fresh baseline、approved exact inputs、TaskPlan failure handling、comparison/cache、dependency removal 与性能/许可证据一并验证，而不扩大 Check contract。
+Fresh corpus、analyzers、cache invalidation、dependency removal、license/provenance与 installed/full Gate证据必须同一 Change闭合；不能只替换 command调用。
 
 ## Success Criteria
 
-- 实施开始前已确认三个foundation Changes成为可依赖当前seam，并从届时owners/runtime采集versioned compatibility corpus、expectedrecords/results/failures与source/license基线。
-- TypeScript backend只读取 approved exact inputs，不自行scan project root；当前范围为`.ts`（含`.d.ts`）与`.rs`，并对fresh baseline中的这些exact-input cases产生相同领域measurements、semantic identities、canonical ordering和zero-result语义。
-- Parser/read/normalization failure按foundation Check execution contract报告；已可信提交records的保留、CheckResult与coverage不由backend自行重定义。
-- Current与named-reference inputs使用同一backendcontract；matching/comparison和cache identity继续由producing Check及其owner控制，不把parser internals提升为public identity。
-- Formal runtime、installed package和dogfood不再probe/execute Python/Lizard，也不解析Lizard CSV；production dependencies、environment overrides和diagnostics中没有active Lizard execution path。
-- Differential/edge/error corpus、target tests、installed runtime、workspace/full dogfood和必要performance observation证明替换可接受；provenance/license义务已记录并满足。
+- Current exact-input rules与 owner-level expected Records/final data/failures在 fresh corpus中固定；新 backend对全部 supported fixtures等价。
+- Analyzer只读取 callback提供的 approved exact paths，不收集 project root；unsupported/malformed source按 owning Check现行语义关闭。
+- Formal product/package/dogfood import/process trace中无 Python/Lizard probe、exec、CSV或 fallback；旧 cache不能命中新 backend。
+- Source/license/provenance、performance observation、product/package/full Gate与 installed Bun evidence完整。
 
 ## Affected Owners
 
-- `docs/scanner-dependencies.md`：function backend、runtime dependency、exact-input handoff、failure与replacement evidence。
-- Check/Record和function-metrics当前稳定owner（由`establish-check-record-core`同步后的`docs/`文档承接）：check/result/record identities、measurements、ordering、comparison与failure。
-- `docs/scan-scope.md`：supported input classification和 approved exact paths；本Change只消费，不扩大。
-- `src/product/**`：function-metrics private binding/TaskPlan、TypeScript structural analyzer、normalization、cache/backend identity和formal runtime dependency closure。
-- `docs/testing.md`、`docs/testing/cases/**`、function fixtures/differential corpus与product/dogfood tests：parity、edge、failure、performance和dependency-removal evidence。
-- Package/release materials：installed runtime dependencies、legal notices/provenance和不再需要Python/Lizard的consumer prerequisites。
+- `docs/scanner-dependencies.md`：function backend与 external dependency removal。
+- `docs/scan-scope.md`：`.ts`/`.d.ts`/`.rs` exact inputs，只消费不扩大。
+- `docs/quality-metrics.md`：保持现有 function Records/final result语义。
+- `src/checks/builtins/**`、`src/checks/measurement/scanners/lizard/**` 与 cache/dependency owners：analyzers、hard cut和 tests。
+- Package dependency/license materials与 `docs/testing/cases/**`：parity、failure、performance和 absence evidence。

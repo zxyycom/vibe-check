@@ -1,87 +1,57 @@
 # Design
 
-本设计用封闭 token grammar 和 inventory-only lookup 实现文本路径引用检查，避免复制 link 或 dependency owner。
+本设计保留 inventory-only path resolver方向，但把 grammar与输入分段放回真实 corpus驱动的恢复门禁。
 
 ## Context
 
-当前 [`docs/scan-scope.md`](../../docs/scan-scope.md) 只允许 scanner 消费 Product Core 已收集的 exact paths；Configuration 与 Quality Metrics owner 已建立 ordinary Check、Project Definition 和 Check/Record Core facts。活动决策 [`expand-format-aware-built-in-checks`](../../docs/decisions/expand-format-aware-built-in-checks.md) 将 path reference 保留为独立 future built-in Check；未来 Record 边界由 [Check-local Record data](../../docs/decisions/report-check-owned-record-data-with-local-identities.md) 规定。
+当前 Product只共享 global file scope；没有跨 Check parser-segment channel，也不应把 Markdown facts写入 Core/machine只为另一个 Check消费。Markdown Structure/Link首版会提供 package-private parser implementation，future Path Check可以直接复用函数而不依赖它们的运行结果。
 
-本 Plan 形成时列出的 Check/Core 与 Project Definition foundation 已由当前 owner 取代；恢复实施前必须按 [Active Change Portfolio](../active-change-portfolio.md#这些-plan-的恢复边界) 重新映射实际 seam。仍未完成的直接依赖是 `add-file-policy-overrides`；Markdown segment 与 destination ownership 依赖 `add-markdown-link-validation`。本 Check 的旧 Record catalog、comparison 与 generic policy 设计必须迁移为 Check-owned local data、author ID 和 Check verdict，不能要求最小 Record foundation 恢复这些概念。
+长期 Decision把 path reference保留为独立 future Check，但不决定优先级或具体 grammar。首版排序 Decision明确将它后置，因为误报和 segmentation语义成本高于实现一个 regex/classifier本身。
 
 ## Goals / Non-Goals
 
-**Goals:**
+**Goals**
 
-- 用足够窄、确定且跨平台一致的 grammar 识别高置信度 project-local references。
-- 只用 approved source segments 和 global inventory index完成验证，不读取或扫描目标。
-- 保持 Markdown link、path reference 与 source dependency 各有唯一 occurrence owner。
-- 发布可行动但不泄露宿主路径、且与 current line 无关的 records。
+- 以真实 corpus证明一个窄、稳定、可解释的 project-local path grammar。
+- 只使用 approved source segments和 inventory-derived target index。
+- 保持 Markdown links、module imports与 prose paths的 occurrence owner互斥。
 
-**Non-Goals:**
+**Non-Goals**
 
-- 不尝试理解任意自然语言中的所有 path-like 字符串。
-- 不解析 Markdown destination/anchor、import/module/package、源码字符串或语言注释。
-- 不证明 target 内容正确、可构建、可导入或属于某个 architecture layer。
-- 不以 filesystem existence probe 绕过 inventory，也不增加 path-specific cache 或输出格式。
+- 不追求任意自然语言路径召回率。
+- 不建立 cross-Check data channel、shared file policy或 target filesystem scanner。
+- 不作为首次公开发布前置。
 
 ## Decisions
 
 ### Intended Change
 
-#### Decision 1: Source segmentation 先于 token classification
-
-Markdown owner 从同一 canonical parse 提供 visible prose 与 inline-code segments，并排除 destination、GFM autolink、reference definition target、image target、fenced code 与 front matter。Visible link/image label 仍是 prose。Plain-text source 只有在 resolved Project Definition 明确分配给本 Check 且通过 UTF-8/no-NUL classification 时才作为一个或多个 bounded segments 输入。
-
-首版不自行解析 source-language comments。未来格式 owner 可以贡献新的 approved segment kind，但必须通过独立 Change 确定 extraction 与 occurrence ownership；本 Check 的 path grammar 与 target resolver 无需因此改变。
-
-#### Decision 2: Grammar 只接受明确 project-local token
-
-Classifier 在 segment token boundary 上接受以下 forms：
-
-1. 以 `./` 或 `../` 开头、由非空 path segments 组成的 relative reference；
-2. 不以 slash 开头、至少包含一个 `/` 的 project-root-relative reference；
-3. inline code 中不含 slash、但具有非空 basename 与 extension 的 project-root-relative filename；
-4. 上述 forms 可有 trailing `/` 表示目录，或有 `:line` / `:line:column` positive-integer suffix 作为人读 target hint；suffix 不参与 target membership。
-
-Path segments 统一使用 `/`；`.` 和 `..` 只在 lexical normalization 中处理，matching case-sensitive 且不按 host OS case-fold。包含 scheme、leading `/`、Windows drive/UNC、userinfo、query/fragment、glob metacharacter、template marker、控制字符、空白或语言 import 语法的 token 不属于本 grammar。Classifier 不对 unsupported token 产生“可能路径”record，避免把低置信度猜测提升为质量事实。
-
-#### Decision 3: Resolution 只查询 inventory-derived index
-
-`./` 和 `../` 以 source path 的目录为 base，其它 forms 以 project root logical namespace 为 base。Resolver 在访问任何 filesystem API 前做 lexical normalization：越出 root 得到 `out-of-scope`；留在 root 内则查询 global inventory 的 exact file set与从这些 file paths 派生的 ancestor-directory set。
-
-未命中集合得到 `unresolved`，但不声称宿主文件一定不存在，因为它也可能被 global policy 排除。Target lookup 不 lstat、realpath、follow symlink、读取内容或重新收集；global policy 外 target 不能由 file policy 或 reference 恢复。
-
-#### Decision 4: Markdown destination 与 path text 的 occurrence owner 不重叠
-
-Canonical Markdown parse 中的 destination、reference definition target 和 GFM autolink 只交给 Markdown Link Check；Path Reference Check 永不从 raw Markdown 重新发现它们。Visible label/prose 或 inline-code 中独立出现的 path token由本 Check 拥有。该结构边界优先于“两个 detector 后置去重”，从输入上防止同一 token 获得双 owner。
-
-#### Decision 5: Check 和 Record 使用独立稳定身份
-
-Check 拥有稳定 `checkId`；`path-reference-unresolved` 与 `path-reference-out-of-scope` 是独立 `recordTypeId`，两者都表达本 Check 拥有的领域缺陷。每条 record 的 semantic identity由 source normalized path、reference form、safe normalized target或escape classification，以及同一 segment 语义下的 deterministic equal-key occurrence ordinal组成；line、column、range、message、arrival order和host root不参与。
-
-Producing Check 单独附加 current source location供展示和annotation。Out-of-scope record只保留 escape direction/depth等安全分类，不复制 raw absolute target；unresolved record可以保留已经规范化且仍在project namespace内的target。
-
-#### Decision 6: Producing Check 拥有结果与失败语义
-
-正常完成时，Path Reference Check 按 deterministic source/occurrence order 提交 final records，并按自己的 domain outcomes 返回 closed verdict：无 `path-reference-unresolved` 或 `path-reference-out-of-scope` 缺陷时 `passed`，存在任一上述缺陷时 `failed`。Unsupported grammar token 在 classification 时被排除且不是记录；如果未来 catalog 引入 non-defect informational record，producing Check 必须按 record type/domain outcome 显式分类，不得从总 record count 推断 verdict。
-
-Source read、segment contract、binding 或 result/protocol normalization 失败由所属 CheckRun 表达，`result = null`；失败前已由 RecordManager 验证并提交的 records 继续存在，Core 不撤销或重新解释它们。
-
-Resolved Project Definition 只提供 closed、serializable source-kind与 enabled policy；file policy 可以缩小 source inputs，不能改变 grammar、恢复 global scope 或把 unsupported token变成accepted path。Acceptance/gate由通用声明式 DecisionPolicy消费稳定 records，本 Check 不建立 message-based suppression engine。
+1. **先证明 precision，再固定 grammar。** Resume spike至少覆盖本仓与两个不同文档布局的 synthetic/consumer corpus，记录 supported/unsupported tokens和误报；没有可接受 evidence时继续暂停。
+2. **Segments是 private实现复用。** Markdown visible prose/inline-code由共同 parser函数产生；plain text只有 Check-owned options显式选择且通过 bounded UTF-8分类时进入。不会通过 Check dependency final data传递 segments。
+3. **Resolver只用 logical namespace。** Relative token以 source directory为 base，root-relative token以 project root namespace为 base；normalize后只查询 immutable inventory file/directory sets。Escape在 lookup前关闭。
+4. **Records只表达高置信 defect。** Unsupported/ambiguous token不产生 Record；accepted token的 unresolved/escape才报告。ID由 source path、safe normalized target/reason与 semantic ordinal组成，location只用于导航。
+5. **Ordinary Check closure。** Future value/options/runtime validation、final counts和 four-state result沿用现有 contract；没有 Manager、TaskPlan、comparison/cache或 shared catalog。
 
 ### Resulting Impacts
 
-- source segmentation、closed token grammar 与 inventory-derived target index 必须共同保证只处理 project-local references，且不打开目标、follow symlink 或扩大 scope。
-- Markdown destination/autolink 与 source-language/module ownership 必须保持排除；safe records、line-independent identity、normal completion 与 execution failure 均由 producing Check 明确表达。
+- Markdown parser完成并不自动解除暂停；corpus precision和明确实施优先级才是恢复条件。
+- Future grammar扩展必须由新 evidence支持，不能静默把 unsupported text升级为缺陷。
 
 ## Risks / Trade-offs
 
-- **Narrow grammar 会漏掉自然语言中的模糊引用。** 首版优先可解释性与低误报；新 grammar form 需要独立证据和 contract 更新，不能静默扩张。
-- **Inventory miss 不能区分 absent 与 excluded。** Record 使用 `unresolved` 而非“file missing”，并在 action 中提示检查 target 与 global scope。
-- **Equal occurrence ordinal 可能因新增同类引用变化。** 使用 segment-local、equal-key order 限定影响；不退回 line-based identity。
-- **Plain text whole-file segmentation 可能成本较高。** 仅消费明确分配且通过 bounded text classification 的 inputs；不增加 project-root traversal。
-- **Markdown handoff seam 漂移。** 实施前用依赖 Change 的实际 candidate/segment contract核对字段，但保持 destination owner与本 Change grammar不变。
+- Narrow grammar会漏报，wide grammar会破坏信任；首版后恢复时优先 precision并明确 unsupported边界。
+- Inventory miss不能证明 host filesystem不存在；Record应表达 unresolved-in-approved-scope而不是绝对 missing。
 
 ## Open Questions
 
-无。源码注释、更多格式和更宽 grammar 明确不在首版范围内，不构成实施阻塞。
+- 哪个真实 consumer corpus与 false-positive budget足以进入 implementation。
+
+## Implementation Observations
+
+2026-08-24：因输入 segmentation和误报风险，本 Change不属于首次公开 release gate。恢复前需重新审阅当前 Markdown helper、scope与 public surface，并刷新 Plan baseline。
+
+## Resume Conditions
+
+1. 首版四项离线 Checks 已完成，或用户基于真实需求明确提前。
+2. 已获得可提交的 representative corpus，并给出可检查 precision/false-positive验收。
+3. Segment owner无需新增公共或持久 cross-Check channel。
