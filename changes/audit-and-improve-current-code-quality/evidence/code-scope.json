@@ -1,0 +1,295 @@
+{
+  "format": "v1",
+  "baseline": {
+    "code": 290,
+    "behaviorConfig": 33,
+    "generatedDerivedConfig": 2
+  },
+  "selectors": [
+    {
+      "glob": "src/**/*.ts",
+      "excludeGlobs": ["src/**/*.test.ts", "src/**/*.test-support.ts", "src/**/*.d.ts"],
+      "kind": "code",
+      "role": "implementation"
+    },
+    {
+      "glob": "src/**/*.test.ts",
+      "kind": "code",
+      "role": "test"
+    },
+    {
+      "glob": "src/**/*.test-support.ts",
+      "kind": "code",
+      "role": "test-support"
+    },
+    {
+      "glob": "src/**/*.d.ts",
+      "kind": "code",
+      "role": "declaration"
+    },
+    {
+      "glob": "scripts/**/*.ts",
+      "excludeGlobs": ["scripts/**/*.test.ts", "scripts/**/*.test-support.ts", "scripts/**/*.d.ts"],
+      "kind": "code",
+      "role": "implementation"
+    },
+    {
+      "glob": "scripts/**/*.test.ts",
+      "kind": "code",
+      "role": "test"
+    },
+    {
+      "glob": "scripts/**/*.test-support.ts",
+      "kind": "code",
+      "role": "test-support"
+    },
+    {
+      "glob": "scripts/**/*.d.ts",
+      "kind": "code",
+      "role": "declaration"
+    },
+    {
+      "glob": "docs/examples/package-api/*.ts",
+      "kind": "code",
+      "role": "example-source"
+    },
+    {
+      "glob": "fixtures/projects/configured-typescript/**/*.ts",
+      "kind": "code",
+      "role": "fixture-input"
+    },
+    {
+      "glob": ".codex/skills/**/*.mjs",
+      "kind": "code",
+      "role": "skill-runtime"
+    },
+    {
+      "glob": ".codex/skills/**/*.d.mts",
+      "kind": "code",
+      "role": "skill-declaration"
+    },
+    {
+      "path": "fixtures/projects/configured-typescript/tools/controlled-lizard",
+      "kind": "code",
+      "role": "fixture-wrapper"
+    },
+    {
+      "path": "fixtures/projects/configured-typescript/tools/controlled-lizard.cmd",
+      "kind": "code",
+      "role": "fixture-wrapper"
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "behavior-config",
+      "role": "repository-instructions"
+    },
+    {
+      "path": ".gitattributes",
+      "kind": "behavior-config",
+      "role": "repository-discovery"
+    },
+    {
+      "path": ".gitignore",
+      "kind": "behavior-config",
+      "role": "repository-discovery"
+    },
+    {
+      "path": ".rgignore",
+      "kind": "behavior-config",
+      "role": "repository-discovery"
+    },
+    {
+      "path": ".oxlintrc.json",
+      "kind": "behavior-config",
+      "role": "toolchain-config"
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "kind": "behavior-config",
+      "role": "toolchain-config"
+    },
+    {
+      "path": "package.json",
+      "kind": "behavior-config",
+      "role": "package-config"
+    },
+    {
+      "path": "scripts/project/package.json",
+      "kind": "behavior-config",
+      "role": "project-consumer-config"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "kind": "behavior-config",
+      "role": "workspace-config"
+    },
+    {
+      "path": "tsconfig.json",
+      "kind": "behavior-config",
+      "role": "typescript-config"
+    },
+    {
+      "path": "tsconfig.product.json",
+      "kind": "behavior-config",
+      "role": "typescript-config"
+    },
+    {
+      "path": "mise.toml",
+      "kind": "behavior-config",
+      "role": "toolchain-config"
+    },
+    {
+      "path": ".codex/config.toml",
+      "kind": "behavior-config",
+      "role": "codex-config"
+    },
+    {
+      "path": ".codex/rules/vibe-check.rules",
+      "kind": "behavior-config",
+      "role": "codex-rules"
+    },
+    {
+      "glob": ".codex/skills/*/agents/openai.yaml",
+      "kind": "behavior-config",
+      "role": "skill-agent-config"
+    },
+    {
+      "path": ".codex/skills/decision-records/references/decision-index.schema.json",
+      "kind": "behavior-config",
+      "role": "decision-index-schema"
+    },
+    {
+      "path": ".codex/skills/investigation-report/references/investigation-index.schema.json",
+      "kind": "behavior-config",
+      "role": "investigation-index-schema"
+    },
+    {
+      "path": "scripts/test-evidence/sgconfig.yml",
+      "kind": "behavior-config",
+      "role": "test-evidence-config"
+    },
+    {
+      "glob": "scripts/test-evidence/rules/*.yml",
+      "kind": "behavior-config",
+      "role": "test-evidence-rule"
+    },
+    {
+      "glob": "scripts/test-evidence/rule-tests/*.yml",
+      "kind": "behavior-config",
+      "role": "test-evidence-rule-test"
+    },
+    {
+      "path": "scripts/test-evidence/supported-runner-profile.json",
+      "kind": "behavior-config",
+      "role": "test-evidence-runner-profile"
+    },
+    {
+      "path": "scripts/test-evidence/supported-runner-profile.schema.json",
+      "kind": "behavior-config",
+      "role": "test-evidence-runner-profile-schema"
+    },
+    {
+      "path": ".codex/environments/environment.toml",
+      "kind": "generated-derived-config",
+      "role": "generated-environment-config"
+    },
+    {
+      "path": ".codex/environments/environment-2.toml",
+      "kind": "generated-derived-config",
+      "role": "generated-environment-config"
+    }
+  ],
+  "candidateGuard": {
+    "codeExtensions": [
+      ".ts",
+      ".tsx",
+      ".mts",
+      ".cts",
+      ".js",
+      ".jsx",
+      ".mjs",
+      ".cjs",
+      ".d.ts",
+      ".d.mts",
+      ".py",
+      ".rb",
+      ".rs",
+      ".go",
+      ".java",
+      ".kt",
+      ".c",
+      ".cc",
+      ".cpp",
+      ".h",
+      ".hpp",
+      ".sh",
+      ".bash",
+      ".zsh",
+      ".fish",
+      ".php",
+      ".phtml",
+      ".phps",
+      ".swift",
+      ".cs",
+      ".fs",
+      ".fsx",
+      ".fsi",
+      ".lua",
+      ".dart",
+      ".ex",
+      ".exs",
+      ".erl",
+      ".hrl",
+      ".clj",
+      ".cljs",
+      ".cljc",
+      ".edn",
+      ".sql",
+      ".vue",
+      ".svelte",
+      ".astro",
+      ".html",
+      ".htm",
+      ".css",
+      ".scss",
+      ".sass",
+      ".less",
+      ".scala",
+      ".groovy",
+      ".gvy",
+      ".r",
+      ".rkt",
+      ".hs",
+      ".lhs",
+      ".ml",
+      ".mli",
+      ".zig",
+      ".sol"
+    ],
+    "unixExecutableRegularFile": true,
+    "unknownCandidate": "fail-closed"
+  },
+  "exclusions": [
+    "archive/**",
+    "changes/archive/**",
+    "changes/audit-and-improve-current-code-quality/**",
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.cache/**",
+    "**/*.map",
+    "**/pnpm-lock.yaml",
+    "**/package-lock.json",
+    "**/bun.lockb",
+    "**/bun.lock"
+  ],
+  "discovery": {
+    "gitCommands": ["git ls-files -z", "git ls-files -o --exclude-standard -z"],
+    "pathFormat": "slash-relative-to-root",
+    "fileCheck": "lstat-regular-file-no-symlink-follow",
+    "hash": "sha256-worktree-raw-bytes",
+    "stability": "two-consecutive-identical-discoveries-required",
+    "missingTrackedPath": "tombstone"
+  }
+}

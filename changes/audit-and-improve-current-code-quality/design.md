@@ -127,17 +127,17 @@ Finding 严重度与关闭规则：
 
 Manifest 发现算法：合并 `git ls-files -z` 与 `git ls-files -o --exclude-standard -z`，应用 scope/candidate guard，以 `lstat` 检查 workspace 内普通文件且不跟随 symlink，按 slash path 排序并对工作树 bytes 计算 SHA-256；连续两次 discovery 不同则报 `unstable-worktree`。Missing tracked path 形成 tombstone，untracked candidate 正常进入 manifest，symlink 与未知候选 fail closed。
 
-| Ledger field | 所有 editable 条目 | 触发时必填 |
+| Ledger field | 所有最终条目 | 触发时必填 |
 | --- | --- | --- |
-| `path`、`sha256`、`kind`、`ownerRef`、`reviewLevel`、`disposition`、`primaryReviewer` | 是 | — |
+| `path`、`sha256`、`kind`、`role`、`ownerRef`、`reviewLevel`、`disposition`、`primaryReviewer` | 是 | — |
 | `responsibility`、`riskSignals`、`rationale` | 是 | — |
-| `findingId`、`severity`、`ruleOrOwnerRef`、`fileLine`、`riskMechanism` | Finding | 是 |
-| `changeSummary`、`semanticEvidence`、`verification` | `modified` | 是 |
+| `findings[]`：`id`、`severity`、`status`、`ruleOrOwnerRef`、`fileLine`、`riskMechanism`、`resolution` | Finding | 是；`status` 仅可为 `resolved` 或 `deferred` |
+| `changeSummary`、`semanticEvidence`、`verification` | `modified` 或 `removed` | 是 |
 | `route`、`currentDeferralReason`、`independentReviewer`、`reviewerDecision` | Deferred 或 S0–S2 | 是 |
-| `independentReviewer`、`reviewerDecision` | 任何修改 | 是 |
+| `independentReviewer`、`reviewerDecision` | 任何修改或删除 | 是 |
 | `coverageReviewBatch` | 未修改集合 | 是 |
 
-合法 disposition 是 `modified`、`no-change-with-rationale`、`deferred`、`removed`、`derived-reviewed` 或实施中的 `blocked`。最终 manifest 的每个 editable `(path, kind, role, sha256)` 恰有一个 closed ledger 条目；ledger 不得含 manifest 外条目。未知分类、读取失败、重复路径、过期 SHA、未闭合 tombstone、`blocked` 或缺失触发字段都阻断验收。
+合法 disposition 是 `modified`、`no-change-with-rationale`、`deferred`、`removed`、`derived-reviewed` 或实施中的 `blocked`。一个文件可以关联多个 finding；S0/S1 只能以 `resolved` 关闭，S2 可以 `resolved` 或满足受控条件后 `deferred`。最终 manifest 的每个 `(path, kind, role, sha256)` 恰有一个 closed ledger 条目；ledger 不得含 manifest 外条目。未知分类、读取失败、重复路径、过期 SHA、未闭合 tombstone、`blocked`、未关闭 finding 或缺失触发字段都阻断验收。
 
 ## Acceptance Contract
 

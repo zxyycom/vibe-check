@@ -109,6 +109,26 @@ describe("Project Definition", () => {
       }).ok,
       false
     );
+
+    const inheritedWithUnknownKey = inherit({ add: ["compile"] });
+    Object.defineProperty(inheritedWithUnknownKey, "__proto__", {
+      enumerable: true,
+      value: { injected: true }
+    });
+    assert.equal(
+      validateProjectDefinition({
+        ...defineConfig({}),
+        checks: [
+          {
+            checkId: "invalid-inherited-shape",
+            displayName: "Invalid inherited shape",
+            dependsOn: inheritedWithUnknownKey,
+            execution: passed
+          }
+        ]
+      }).ok,
+      false
+    );
   });
 
   it("normalizes executable visibility and rejects container visibility", () => {
@@ -232,6 +252,63 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(second).declarative)
     );
+
+    const options = {};
+    Object.defineProperty(options, "__proto__", {
+      enumerable: true,
+      value: { preserved: true }
+    });
+    const validated = validateProjectDefinition(
+      defineConfig({
+        checks: [
+          {
+            checkId: "own-prototype-key",
+            displayName: "Own prototype key",
+            execution: passed,
+            options
+          }
+        ]
+      })
+    );
+    assert.equal(validated.ok, true);
+    if (validated.ok) {
+      const validatedOptions = validated.value.checks[0]?.options;
+      assert.equal(Object.getPrototypeOf(validatedOptions), Object.prototype);
+      assert.equal(Object.hasOwn(validatedOptions ?? {}, "__proto__"), true);
+      assert.deepEqual(
+        Object.getOwnPropertyDescriptor(validatedOptions ?? {}, "__proto__")?.value,
+        {
+          preserved: true
+        }
+      );
+    }
+
+    const codeAreas = {};
+    Object.defineProperty(codeAreas, "__proto__", {
+      enumerable: true,
+      value: {
+        description: "Prototype-named area",
+        excludeGlobs: [],
+        globs: ["src/**/*.ts"],
+        warningPolicy: "moderate"
+      }
+    });
+    const qualityValidated = validateProjectDefinition({
+      ...defineConfig({}),
+      quality: { codeAreas, excludeDirs: [], generatedFiles: [], include: ["**/*"] }
+    });
+    assert.equal(qualityValidated.ok, true);
+    if (qualityValidated.ok) {
+      const validatedCodeAreas = qualityValidated.value.quality.codeAreas;
+      assert.equal(Object.getPrototypeOf(validatedCodeAreas), Object.prototype);
+      assert.equal(Object.hasOwn(validatedCodeAreas, "__proto__"), true);
+      assert.deepEqual(validatedCodeAreas.__proto__, {
+        description: "Prototype-named area",
+        excludeGlobs: [],
+        globs: ["src/**/*.ts"],
+        warningPolicy: "moderate"
+      });
+    }
   });
 
   it("accepts parsers only on executable providers and excludes them from declarative identity", () => {

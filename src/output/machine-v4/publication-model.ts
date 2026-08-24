@@ -1,4 +1,7 @@
 import type { CoreSnapshot } from "../../core/facts.ts";
+import { MACHINE_V4_TIMESTAMP_PATTERN } from "./schema-identities.ts";
+
+const machineV4TimestampPattern = new RegExp(MACHINE_V4_TIMESTAMP_PATTERN);
 
 export interface PublicationInvocationV4 {
   readonly invocationId: string;
@@ -28,7 +31,7 @@ function validateInvocation(invocation: PublicationInvocationV4): void {
     invocation.invocationId.length === 0 ||
     invocation.projectRoot !== "." ||
     typeof invocation.timestamp !== "string" ||
-    Number.isNaN(Date.parse(invocation.timestamp))
+    !machineV4TimestampPattern.test(invocation.timestamp)
   ) {
     throw new TypeError("Publication invocation metadata is invalid");
   }

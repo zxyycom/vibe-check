@@ -59,11 +59,19 @@ function snapshotJsonRecord(
 ): object | undefined {
   ancestors.add(value);
   try {
+    // Assignment to an ordinary object treats an own `__proto__` JSON key as
+    // a prototype mutation. Define the data property so every closed JSON key
+    // remains data and the detached snapshot retains its ordinary prototype.
     const snapshot: Record<string, unknown> = {};
     for (const [key, item] of Object.entries(data)) {
       const parsed = snapshotJson(item, ancestors);
       if (parsed === undefined) return undefined;
-      snapshot[key] = parsed;
+      Object.defineProperty(snapshot, key, {
+        configurable: true,
+        enumerable: true,
+        value: parsed,
+        writable: true
+      });
     }
     return Object.freeze(snapshot);
   } finally {

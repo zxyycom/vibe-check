@@ -77,11 +77,16 @@ function parseCodeAreas(value: unknown): ProjectQualityConfiguration["codeAreas"
     ) {
       return undefined;
     }
-    areas[name] = Object.freeze({
-      description: area.description,
-      excludeGlobs,
-      globs,
-      warningPolicy: area.warningPolicy
+    Object.defineProperty(areas, name, {
+      configurable: true,
+      enumerable: true,
+      value: Object.freeze({
+        description: area.description,
+        excludeGlobs,
+        globs,
+        warningPolicy: area.warningPolicy
+      }),
+      writable: true
     });
   }
   return Object.freeze(areas);

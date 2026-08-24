@@ -40,6 +40,15 @@ describe("machine publication v4 contract", () => {
   });
 
   it("serializes a complete canonical two-file set that validates without a prefix", () => {
+    assert.throws(
+      () =>
+        createPublicationModelV4({
+          invocation: { ...PUBLICATION_INVOCATION, timestamp: "2026-08-12" },
+          snapshot: publicationSnapshot()
+        }),
+      /Publication invocation metadata is invalid/
+    );
+
     const publication = projectMachinePublicationV4(
       createPublicationModelV4({
         invocation: PUBLICATION_INVOCATION,

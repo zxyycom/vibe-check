@@ -323,7 +323,12 @@ function snapshotInheritedCollectionEntry(
     return descriptor.enumerable || descriptor.value !== true ? "invalid" : "marker";
   }
   if (typeof key !== "string" || descriptor.enumerable !== true) return "invalid";
-  snapshot[key] = descriptor.value;
+  Object.defineProperty(snapshot, key, {
+    configurable: true,
+    enumerable: true,
+    value: descriptor.value,
+    writable: true
+  });
   return "data";
 }
 

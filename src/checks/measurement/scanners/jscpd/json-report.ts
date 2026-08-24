@@ -112,10 +112,10 @@ function parseJscpdLocation(
 
 function integerField(record: Record<string, unknown>, name: string): number {
   const value = record[name];
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`jscpd field "${name}" must be a number`);
+  if (typeof value !== "number" || !Number.isSafeInteger(value)) {
+    throw new Error(`jscpd field "${name}" must be a safe integer`);
   }
-  return Math.trunc(value);
+  return value;
 }
 
 function nestedIntegerField(
@@ -126,10 +126,10 @@ function nestedIntegerField(
   const parentValue = record[parent];
   if (!isNonArrayRecord(parentValue)) return null;
   const value = parentValue[child];
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error(`jscpd field "${parent}.${child}" must be a number`);
+  if (typeof value !== "number" || !Number.isSafeInteger(value)) {
+    throw new Error(`jscpd field "${parent}.${child}" must be a safe integer`);
   }
-  return Math.trunc(value);
+  return value;
 }
 
 function stringField(record: Record<string, unknown>, name: string): string {

@@ -4,7 +4,8 @@ import {
   MACHINE_RECORD_V4_IDENTITY,
   MACHINE_RECORD_V4_SCHEMA_ID,
   MACHINE_RUN_V4_IDENTITY,
-  MACHINE_RUN_V4_SCHEMA_ID
+  MACHINE_RUN_V4_SCHEMA_ID,
+  MACHINE_V4_TIMESTAMP_PATTERN
 } from "./schema-identities.ts";
 
 const NonEmptyString = Type.String({ minLength: 1 });
@@ -72,9 +73,7 @@ export const MACHINE_RUN_V4_SCHEMA = Type.Object(
       {
         invocationId: NonEmptyString,
         projectRoot: Type.Literal("."),
-        timestamp: Type.String({
-          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
-        })
+        timestamp: Type.String({ pattern: MACHINE_V4_TIMESTAMP_PATTERN })
       },
       { additionalProperties: false }
     ),

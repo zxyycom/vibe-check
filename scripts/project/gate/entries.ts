@@ -56,6 +56,10 @@ export function defineProjectGateEntries(
         throw new TypeError(
           `Project Gate dependency is not selection-closed: ${entry.check.checkId} -> ${dependency}`
         );
+      if (dependencyEntry.tags.some((tag) => !entry.tags.includes(tag)))
+        throw new TypeError(
+          `Project Gate dependency is not selection-closed: ${entry.check.checkId} -> ${dependency}`
+        );
     }
   }
 

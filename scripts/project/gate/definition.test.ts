@@ -93,6 +93,14 @@ describe("Project Gate Definition", () => {
         ]),
       /selection-closed: fixture-dependent -> fixture-prerequisite/
     );
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, profiles: ["required", "full"], tags: ["quality"] },
+          { check: dependent, profiles: ["required", "full"], tags: [] }
+        ]),
+      /selection-closed: fixture-dependent -> fixture-prerequisite/
+    );
     const selfDependent = defineCheck({
       checkId: "fixture-self-dependent",
       dependsOn: ["fixture-self-dependent"],

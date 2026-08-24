@@ -218,6 +218,25 @@ describe("quality scanner output parsing", () => {
       assert.equal(invalidDuplicate.reason, "jscpd-parse-failure");
       assert.match(invalidDuplicate.error, /duplicate #1 must be an object/);
     }
+
+    const fractionalMeasurement = parseJscpdJsonReport(
+      JSON.stringify({
+        duplicates: [
+          {
+            firstFile: { name: "src/a.ts", start: 1, end: 2 },
+            secondFile: { name: "src/b.ts", start: 1, end: 2 },
+            lines: 1,
+            tokens: 1.5
+          }
+        ]
+      }),
+      "/repo"
+    );
+    assert.equal(fractionalMeasurement.ok, false);
+    if (!fractionalMeasurement.ok) {
+      assert.equal(fractionalMeasurement.reason, "jscpd-parse-failure");
+      assert.match(fractionalMeasurement.error, /tokens.*safe integer/);
+    }
   });
 });
 
