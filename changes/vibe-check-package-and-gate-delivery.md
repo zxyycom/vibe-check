@@ -4,7 +4,7 @@
 
 当 AI 或维护者需要选择、恢复或审阅当前 npm / Project Gate 交付路径时，先阅读本导航，再进入目标 Change 的 proposal、design 和 tasks。本文件是 [Active Change Portfolio](active-change-portfolio.md) 中“Project Gate 与 package 交付”路径的详细导航；需要查看全部 active Change 或其直接相关 Decision 时，回到该 portfolio。
 
-本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系。Repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、package API documentation 与 native Check authoring 均已归档并交付 handoff。当前先完成并验收 layout/naming Change，使用新 `src/index.ts`、private project consumer 与 package artifact/candidate owner 重新产生 exact local evidence；之后才进入需要单独授权的 publish Change。Log evidence boundaries 是不阻塞本路径的相邻 Draft。
+本文件只拥有本产品路径的阶段顺序与 public-readiness 输入关系。Repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、package API documentation、native Check authoring 与 layout/naming 均已归档并交付 handoff。当前路径只剩需要单独授权的 publish Change；归档 layout/naming Change 已使用新 `src/index.ts`、private project consumer 与 package artifact/candidate owner 重新产生并验收 exact local evidence。Log evidence boundaries 是不阻塞本路径的相邻 Draft。
 
 本导航不拥有 active Change 的动态 stage、具体范围、实现设计、任务完成事实或稳定 Product contract：
 
@@ -47,7 +47,7 @@
                                                          [archived] align-project-gate-with-native-check-authoring
                                                                                                      │
                                                                                                      v
-                                                    align-repository-layout-and-naming-with-module-owners
+                                         [archived] align-repository-layout-and-naming-with-module-owners
                                                                                                      │
                                                                                                      v
                                                                     publish-public-api-only-npm-package
@@ -71,11 +71,11 @@
 | [add-check-terminal-messages-and-visibility](archive/add-check-terminal-messages-and-visibility/)（archived） | 已交付 `CheckResult.messages`、`RunResult.checkMessages` 与 `always | attention` visibility 两个主要能力。 | Closed terminal validation、Core acceptance handoff、canonical RunResult ordering、Definition fingerprint、TTY/plain matrix、Project Gate `command-failed` message、isolated-consumer evidence 与 required/full Gate 验收均已通过。 | Live/intermediate output、Core/Record/machine messages、typed dependency reader 或 durable log protocol。 |
 | [ship-public-package-api-documentation](archive/ship-public-package-api-documentation/)（archived） | 已补齐 public JSDoc/LSP，并把 README/API guide 加入 exact candidate artifact。 | [<code>package-api-documentation-handoff.md</code>](archive/ship-public-package-api-documentation/package-api-documentation-handoff.md) 绑定 documentation contract、形成时 digest 与失效条件；Gate optimization 必须按这些条件产生 current evidence。 | registry/legal/release notes、Gate implementation 或 publish。 |
 | [align-project-gate-with-native-check-authoring](archive/align-project-gate-with-native-check-authoring/)（archived） | 已从 current assurance obligations 重建权威 Gate：组合 ordinary Checks/typed operations，分离 CLI lifecycle，合并 repository quality identity，删除历史 Foundation package gates，只为真实 external/toolchain/candidate boundary 保留 process，并把无参默认从 full 改为 required。 | [`gate-optimization-handoff.md`](archive/align-project-gate-with-native-check-authoring/gate-optimization-handoff.md) 记录 required/full 当前同集的 14 个 identities、default/required/full selection、Foundation coverage/caller audit、documentation-complete candidate、正式 bindings 与 required/full evidence。 | 下游 publish Change 必须按 handoff 的重验证条件重新核对 candidate 与外部事实，并取得单独授权；本 archived Change 不再有待处理的归档授权。 |
-| [align-repository-layout-and-naming-with-module-owners](align-repository-layout-and-naming-with-module-owners/) | 将 Product source、public entry、repository Project Runs 与 package artifact/candidate 调整到唯一 module owner，并重新闭合 candidate、Gate、Case 与 current docs。 | 该 Change 的 baseline/ledger、迁移后 exact candidate receipt、required/full Gate 和 Test Evidence closure。 | MIT material、正式版本、registry/credential 和 publish。 |
+| [align-repository-layout-and-naming-with-module-owners](archive/align-repository-layout-and-naming-with-module-owners/)（archived） | 已将 Product source、public entry、repository Project Runs 与 package artifact/candidate 调整到唯一 module owner，并重新闭合 candidate、Gate、Case 与 current docs。 | 该 Change 的 baseline/ledger、迁移后 exact candidate receipt、required/full Gate 和 Test Evidence closure。 | MIT material、正式版本、registry/credential 和 publish。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover、Gate optimization 与 package documentation handoffs，经过单独授权完成 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装/文档/runtime/type 验证。 | 重建 package、补齐 Gate/API 文档或替代本地 evidence。 |
 | [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | 保存 Product lifecycle、Gate transcript 与 future durable receipt/event sink 的 owner 边界。 | 当前行为已足够；本 Draft 没有交付物，也不是 cutover/package documentation/publish 的前置。 | 当前 Gate log 改造、terminal messages/visibility 或通用 logger。 |
 
-Archived handoff 只保存形成时能力和重验条件。Cutover、package documentation 与 current Gate optimization handoffs 已存在；layout/naming Change 改变 candidate inputs，因此必须通过 `scripts/package/candidate/prepare.ts` 重新生成并验证新 identity。Publish 仍需在单独 Change 中重新核对外部事实并获得明确授权，不能把迁移前 digest 当作未来 artifact 证据。
+Archived handoff 只保存形成时能力和重验条件。Cutover、package documentation、current Gate optimization 与 layout/naming handoffs 已存在；layout/naming Change 已通过 `scripts/package/candidate/prepare.ts` 重新生成并验证迁移后的 identity。Publish 仍须确认该 evidence 未因后续输入变化而失效、绑定同一 exact artifact，并在单独 Change 中重新核对外部事实和获得明确授权；不能把迁移前 digest 当作未来 artifact 证据。
 
 ## Timing / telemetry 边界
 
