@@ -47,7 +47,7 @@
 | 测试正文、实体或语义 Case                                         | 最窄目标测试，再运行 `bun run test-evidence -- check --root .`                                        |
 | 产品行为或脚本工具                                                | 按 owner 与 package scripts 运行目标 test、typecheck、lint、dependency 和入口检查                     |
 | 跨产品行为、Change Plan、schema、示例、输出或多个包边界           | `bun run verify:vibe-check-workspace:required`                                                        |
-| 大范围重构、发布前或完整 quality / 产品 / foundation package 验收 | `bun run verify:vibe-check-workspace:full`（full dogfood、Product tests 与 foundation package gates） |
+| 大范围重构、发布前或显式全量 Project Gate 验收              | `bun run verify:vibe-check-workspace:full`（显式选择 full profile；当前与 required 共用同一 assurance identity set）             |
 
 验证必须覆盖受影响边界；无法运行的检查及其影响应在交付时明确说明。脚本工具的细分命令见
 [脚本工具](script-tooling.md#验证入口)。

@@ -5,7 +5,7 @@
 Owner: `docs/quality-metrics.md#explicit-aggregation-and-repository-gate-mapping`
 Entities:
 
-- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > binds required, full, and partial eligibility selections to explicit aggregation`
+- `bun|scripts/quality/project-gate/project-definition.test.ts|Project Gate Definition > derives required, full, and partial aggregates from the same entries`
 - `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
 - `bun|scripts/project-gate/index.test.ts|Project Gate adapter closure > maps aggregate, definition warning, effect and malformed facts to Gate exits`
   Proves:

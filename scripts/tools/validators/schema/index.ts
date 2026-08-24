@@ -12,17 +12,17 @@ import {
 
 export { validatePublishedMachineArtifactExamples } from "./machine-artifacts.ts";
 
-export function validateJsonSyntax(): void {
+export function validateJsonSyntax(report?: (message: string) => void): void {
   const jsonFiles = walk(toAbs(FILE_SYSTEM.docsDir), (filePath) =>
     filePath.endsWith(FILE_SYSTEM.jsonExtension)
   );
   for (const filePath of jsonFiles) {
     readJson(toRel(filePath));
   }
-  console.log(`json syntax ok: ${jsonFiles.length} file(s)`);
+  report?.(`json syntax ok: ${jsonFiles.length} file(s)`);
 }
 
-export function validateSchemas(): void {
+export function validateSchemas(report?: (message: string) => void): void {
   const schemaRelPaths = listSchemaJson();
   const expectedSchemas = [...Object.values(CURRENT_SCHEMAS), ...Object.values(HISTORICAL_SCHEMAS)];
 
@@ -41,10 +41,10 @@ export function validateSchemas(): void {
   for (const schemaRelPath of Object.values(HISTORICAL_SCHEMAS)) {
     compileRegisteredSchema(historicalAjv, schemaRelPath);
   }
-  console.log(`schema strict compile ok: ${expectedSchemas.length} schema file(s)`);
+  report?.(`schema strict compile ok: ${expectedSchemas.length} schema file(s)`);
 }
 
-export function validateReportExamples(): void {
+export function validateReportExamples(report?: (message: string) => void): void {
   const exampleRelPaths = listExampleJson(/^[a-z-]+-report\.json$/);
   assert(exampleRelPaths.length > 0, "missing Vibe Check report examples");
 
@@ -56,6 +56,6 @@ export function validateReportExamples(): void {
       throw new Error(`${exampleRelPath} failed ${schemaRelPath}: ${formatAjvErrors(validate)}`);
     }
   }
-  console.log(`schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`);
-  console.log(`report examples ok: ${exampleRelPaths.length} file(s)`);
+  report?.(`schema ok: ${schemaRelPath} (${exampleRelPaths.length} file(s))`);
+  report?.(`report examples ok: ${exampleRelPaths.length} file(s)`);
 }

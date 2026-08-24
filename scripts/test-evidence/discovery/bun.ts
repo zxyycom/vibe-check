@@ -20,7 +20,11 @@ import type { SupportedRunnerProfile } from "../profile.ts";
 import { processFailureMessage, runBunCommand } from "../runner-process.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
 
-type BunDiscoveryOptions = { workspaceRoot: string; profile: SupportedRunnerProfile };
+type BunDiscoveryOptions = {
+  cancelSignal?: AbortSignal;
+  workspaceRoot: string;
+  profile: SupportedRunnerProfile;
+};
 type BunDiscoveryResult = { entities: TestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
 type BunRuntimeResult = { entities: RuntimeTestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
 type BunStaticResult = { entities: StaticTestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
@@ -56,7 +60,11 @@ export async function discoverBunEntities(
     };
   }
 
-  const staticResult = await scanBunStaticEntities(options.workspaceRoot, files);
+  const staticResult = await scanBunStaticEntities(
+    options.workspaceRoot,
+    files,
+    options.cancelSignal
+  );
   diagnostics.push(...staticResult.diagnostics);
   const runtimeResult = await enumerateBunTests(options, files);
   diagnostics.push(...runtimeResult.diagnostics);
@@ -86,6 +94,7 @@ async function enumerateBunTests(
   const reportPath = path.join(temporaryRoot, "junit.xml");
   try {
     const result = await runBunCommand({
+      cancelSignal: options.cancelSignal,
       workspaceRoot: options.workspaceRoot,
       args: ["test", ...files, "--reporter=junit", `--reporter-outfile=${reportPath}`],
       label: "Bun test report"
@@ -171,10 +180,12 @@ export function parseBunJUnit(source: string): BunJUnitCase[] {
 
 async function scanBunStaticEntities(
   workspaceRoot: string,
-  files: string[]
+  files: string[],
+  cancelSignal?: AbortSignal
 ): Promise<BunStaticResult> {
   const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "rules");
   const nativeScan = await scanAstRule({
+    cancelSignal,
     workspaceRoot,
     rulePath: path.join(ruleRoot, "bun-native-test.yml"),
     paths: files
@@ -186,6 +197,7 @@ async function scanBunStaticEntities(
     "bun-unsupported-parameterized.yml"
   ]) {
     const scan = await scanAstRule({
+      cancelSignal,
       workspaceRoot,
       rulePath: path.join(ruleRoot, ruleName),
       paths: files

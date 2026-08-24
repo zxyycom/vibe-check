@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../tools/foundation/src/index.ts";
 
-import { defineProjectGateCatalog, PROJECT_GATE_CATALOG } from "./catalog.ts";
 import { parseProjectGateArguments, selectionFlags } from "./controls.ts";
 import {
   createInvocationLogDirectory,
@@ -15,6 +14,7 @@ import {
   runProjectGate,
   type ProjectGateExitStatus
 } from "./index.ts";
+import { createProjectGateEntries } from "../quality/project-gate/project-definition.ts";
 
 const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",
@@ -29,12 +29,29 @@ const prepared = Object.freeze({
   stagingDirectory: "/tmp/staging"
 });
 
+const expectedCheckIds = [
+  "typecheck-product",
+  "lint-product",
+  "typecheck-scripts",
+  "lint-scripts",
+  "format-check",
+  "repository-quality",
+  "docs-json-validator",
+  "docs-schema-validator",
+  "docs-example-validator",
+  "docs-links-validator",
+  "decision-records",
+  "test-evidence",
+  "test-evidence-rule-tests",
+  "git-diff-whitespace"
+] as const;
+
 const rootPackageManifestSource = readFileSync(
   fileURLToPath(new URL("../../package.json", import.meta.url)),
   "utf8"
 );
 
-describe("Project Gate catalog, root binding, and controls", () => {
+describe("Project Gate entries, root binding, and controls", () => {
   it("binds retained workspace verification names directly to the Gate profiles without disabled tags", () => {
     const manifest: unknown = JSON.parse(rootPackageManifestSource);
     assert.ok(isNonArrayRecord(manifest), "root package manifest must be an object");
@@ -55,49 +72,36 @@ describe("Project Gate catalog, root binding, and controls", () => {
     );
   });
 
-  it("keeps the independent 20-Check required/full profile contract closed", () => {
-    assert.equal(PROJECT_GATE_CATALOG.length, 20);
-    assert.equal(
-      PROJECT_GATE_CATALOG.filter((descriptor) => descriptor.profiles.includes("required")).length,
-      14
-    );
-    assert.equal(
-      PROJECT_GATE_CATALOG.filter((descriptor) => descriptor.profiles.includes("full")).length,
-      19
-    );
-    assert.equal(new Set(PROJECT_GATE_CATALOG.map(({ checkId }) => checkId)).size, 20);
-    assert.throws(
-      () =>
-        defineProjectGateCatalog(
-          PROJECT_GATE_CATALOG.map((descriptor) => {
-            if (descriptor.checkId === "typecheck-product") {
-              return { ...descriptor, dependencies: ["lint-product"] };
-            }
-            if (descriptor.checkId === "lint-product") {
-              return { ...descriptor, dependencies: ["typecheck-product"] };
-            }
-            return descriptor;
-          })
+  it("keeps the explicit assurance identities and current profile membership closed", () => {
+    const entries = createProjectGateEntries({ invocationLogDirectory: "/tmp/project-gate-logs" });
+    const expectedIds = new Set(expectedCheckIds);
+    const checkIds = new Set(entries.map(({ check }) => check.checkId));
+
+    assert.deepEqual(checkIds, expectedIds);
+    for (const profile of ["required", "full"] as const) {
+      assert.deepEqual(
+        new Set(
+          entries
+            .filter((entry) => entry.profiles.includes(profile))
+            .map(({ check }) => check.checkId)
         ),
-      /dependency cycle/
-    );
-    assert.throws(
-      () =>
-        defineProjectGateCatalog(
-          PROJECT_GATE_CATALOG.map((descriptor) =>
-            descriptor.checkId === "product-tests"
-              ? { ...descriptor, dependencies: ["quality-quick-check"] }
-              : descriptor
-          )
-        ),
-      /dependency is excluded from profile full/
-    );
+        expectedIds
+      );
+    }
+    const repositoryQuality = entries.find(({ check }) => check.checkId === "repository-quality");
+    assert.deepEqual(repositoryQuality?.check.dependsOn ?? [], []);
+    for (const entry of entries)
+      assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
   });
 
-  it("normalizes a profile plus repeatable disabled tags into opaque flags", () => {
+  it("defaults to required and normalizes explicit profile plus repeatable disabled tags into opaque flags", () => {
+    assert.deepEqual(parseProjectGateArguments([]), {
+      ok: true,
+      value: { profile: "required", disabledTags: [] }
+    });
     const parsed = parseProjectGateArguments([
       "--profile",
-      "required",
+      "full",
       "--disable-tag",
       "quality",
       "--disable-tag",
@@ -108,11 +112,11 @@ describe("Project Gate catalog, root binding, and controls", () => {
 
     assert.deepEqual(parsed, {
       ok: true,
-      value: { profile: "required", disabledTags: ["docs", "quality"] }
+      value: { profile: "full", disabledTags: ["docs", "quality"] }
     });
     if (!parsed.ok) return;
     assert.deepEqual(selectionFlags(parsed.value), [
-      "project-gate:profile=required",
+      "project-gate:profile=full",
       "project-gate:disable-tag=docs",
       "project-gate:disable-tag=quality"
     ]);
@@ -164,9 +168,49 @@ describe("Project Gate adapter closure", () => {
     assert.equal(ran, false);
   });
 
-  it("consumes package aggregation without traversing the raw Check snapshot", () => {
+  it("consumes package aggregation without traversing the raw Check snapshot", async () => {
     const complete = completedResult("passed", { snapshot: { malformed: true } });
-    assert.equal(projectGateExitStatus(complete), PROJECT_GATE_EXIT_STATUS.passed);
+    let createdLogs = 0;
+    let loaded = 0;
+    let preparedCandidates = 0;
+    let ran = 0;
+    let runInput:
+      | Readonly<{ readonly flags: readonly string[]; readonly invocationLogDirectory: string }>
+      | undefined;
+    const status = await runProjectGate(
+      ["--profile", "full", "--disable-tag", "docs", "--disable-tag", "docs"],
+      {
+        createInvocationLogDirectory: (): string => {
+          createdLogs += 1;
+          return "/tmp/project-gate-logs";
+        },
+        loadRunModule: async () => {
+          loaded += 1;
+          return {
+            resolvedEntryPath: prepared.resolvedEntryPath,
+            runProjectGate: async (input) => {
+              ran += 1;
+              runInput = input;
+              return complete;
+            }
+          };
+        },
+        prepareCandidate: async () => {
+          preparedCandidates += 1;
+          return prepared;
+        }
+      }
+    );
+
+    assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+    assert.equal(preparedCandidates, 1);
+    assert.equal(loaded, 1);
+    assert.equal(createdLogs, 1);
+    assert.equal(ran, 1);
+    assert.deepEqual(runInput, {
+      flags: ["project-gate:profile=full", "project-gate:disable-tag=docs"],
+      invocationLogDirectory: "/tmp/project-gate-logs"
+    });
 
     const logDirectory = createInvocationLogDirectory();
     try {
@@ -201,28 +245,24 @@ describe("Project Gate adapter closure", () => {
         PROJECT_GATE_EXIT_STATUS.failed
       ],
       ["configuration", { kind: "configuration" }, PROJECT_GATE_EXIT_STATUS.unavailable],
-      ["planning", { kind: "planning" }, PROJECT_GATE_EXIT_STATUS.unavailable],
-      ["execution", { kind: "execution" }, PROJECT_GATE_EXIT_STATUS.unavailable],
-      ["effect", { kind: "effect" }, PROJECT_GATE_EXIT_STATUS.unavailable],
-      ["cancelled", { kind: "cancelled" }, PROJECT_GATE_EXIT_STATUS.unavailable],
-      ["malformed completed", { kind: "completed" }, PROJECT_GATE_EXIT_STATUS.unavailable]
+      ["malformed", { kind: "completed" }, PROJECT_GATE_EXIT_STATUS.unavailable]
     ];
 
-    for (const [name, result, expectedStatus] of cases) {
-      assert.equal(projectGateExitStatus(result), expectedStatus, name);
+    for (const [name, result, expected] of cases) {
+      assert.equal(projectGateExitStatus(result), expected, name);
     }
   });
 });
 
 function completedResult(
   aggregate: "failed" | "not-applicable" | "passed" | "unavailable",
-  supplementalFacts: object = {}
-) {
+  extra: Readonly<Record<string, unknown>> = {}
+): Readonly<Record<string, unknown>> {
   return {
     kind: "completed",
     aggregate,
     definitionWarnings: [],
     effects: { progress: { status: "succeeded" } },
-    ...supplementalFacts
+    ...extra
   };
 }

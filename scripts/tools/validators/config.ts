@@ -6,7 +6,7 @@ export const TASK_NAMES = {
   examples: "examples",
   links: "links",
   packageApiDocumentation: "package-api-documentation"
-};
+} as const;
 
 export const FILE_SYSTEM = {
   docsDir: "docs",

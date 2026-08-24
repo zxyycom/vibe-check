@@ -26,6 +26,7 @@ export type ProjectTestEvidenceReport = {
 };
 
 export async function checkTestEvidence(options: {
+  cancelSignal?: AbortSignal;
   workspaceRoot: string;
 }): Promise<ProjectTestEvidenceReport> {
   const discovery = await discoverTestEntities(options);

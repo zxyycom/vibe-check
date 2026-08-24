@@ -1,23 +1,13 @@
-import { runBun, runMain } from "./command.ts";
+import { reportProcessOutput, runCommand, runMain } from "./command.ts";
 
-type TestScope = "foundation" | "product";
-
-const testRoot: Readonly<Record<TestScope, string>> = {
-  foundation: "scripts/tools/foundation/test",
-  product: "src/product"
-};
-
-function isTestScope(value: string): value is TestScope {
-  return Object.hasOwn(testRoot, value);
+function parseTestScope(argv: readonly string[]): void {
+  if (argv.length === 0 || (argv.length === 1 && argv[0] === "product")) return;
+  throw new Error("usage: bun scripts/development/test.ts [product]");
 }
 
-function parseTestScope(argv: readonly string[]): TestScope {
-  if (argv.length === 0) return "product";
-  const [scope] = argv;
-  if (argv.length === 1 && scope && isTestScope(scope)) return scope;
-  throw new Error("usage: bun scripts/development/test.ts [product|foundation]");
+if (import.meta.main) {
+  runMain(() => {
+    parseTestScope(process.argv.slice(2));
+    runCommand(process.execPath, ["test", "src/product"], { report: reportProcessOutput });
+  });
 }
-
-runMain(() => {
-  runBun(["test", testRoot[parseTestScope(process.argv.slice(2))]]);
-});

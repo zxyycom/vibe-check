@@ -29,19 +29,24 @@ export type AstMatch = {
   };
 };
 
-export async function scanAstRule(options: {
-  workspaceRoot: string;
-  rulePath: string;
-  paths: string[];
-}): Promise<{
+export async function scanAstRule(
+  options: {
+    cancelSignal?: AbortSignal;
+    workspaceRoot: string;
+    rulePath: string;
+    paths: string[];
+  },
+  runRule = runAstGrep
+): Promise<{
   matches: AstMatch[];
   diagnostics: TestEvidenceDiagnostic[];
 }> {
   let result;
   try {
-    result = await runAstGrep(
+    result = await runRule(
       ["scan", "--rule", options.rulePath, "--json=stream", "--color", "never", ...options.paths],
       {
+        cancelSignal: options.cancelSignal,
         workspaceRoot: options.workspaceRoot
       }
     );

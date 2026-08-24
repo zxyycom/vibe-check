@@ -1,24 +1,34 @@
-import { runBunPackage, runMain } from "./command.ts";
-import { foundationFormatTargets, workspaceFormatTargets } from "./format-targets.ts";
+import {
+  bunPackageInvocation,
+  reportProcessOutput,
+  runProcessInvocationSync,
+  runMain,
+  type ProcessInvocation
+} from "./command.ts";
+import { workspaceFormatTargets } from "./format-targets.ts";
 
-type FormatAction = "check" | "write";
-type FormatScope = "foundation" | "workspace";
+export type FormatAction = "check" | "write";
 
-function parseFormatInvocation(argv: readonly string[]): readonly [FormatScope, FormatAction] {
-  if (argv.length === 0) return ["workspace", "write"];
-  if (argv.length === 1 && argv[0] === "check") return ["workspace", "check"];
-  if (argv.length === 1 && argv[0] === "foundation") return ["foundation", "write"];
-  if (argv.length === 2 && argv[0] === "foundation" && argv[1] === "check") {
-    return ["foundation", "check"];
-  }
-  throw new Error("usage: bun scripts/development/format.ts [foundation] [check]");
+export function workspaceFormatInvocation(action: FormatAction): ProcessInvocation {
+  return bunPackageInvocation("oxfmt", [
+    action === "check" ? "--check" : "--write",
+    ...workspaceFormatTargets
+  ]);
 }
 
-function formatTargets(scope: FormatScope): readonly string[] {
-  return scope === "foundation" ? foundationFormatTargets : workspaceFormatTargets;
+function parseFormatInvocation(argv: readonly string[]): FormatAction {
+  if (argv.length === 0) return "write";
+  if (argv.length === 1 && argv[0] === "check") return "check";
+  throw new Error("usage: bun scripts/development/format.ts [check]");
 }
 
-runMain(() => {
-  const [scope, action] = parseFormatInvocation(process.argv.slice(2));
-  runBunPackage("oxfmt", [action === "check" ? "--check" : "--write", ...formatTargets(scope)]);
-});
+if (import.meta.main) {
+  runMain(() =>
+    runProcessInvocationSync(
+      workspaceFormatInvocation(parseFormatInvocation(process.argv.slice(2))),
+      {
+        report: reportProcessOutput
+      }
+    )
+  );
+}

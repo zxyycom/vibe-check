@@ -6,19 +6,19 @@ import { describe, it } from "node:test";
 
 import type { ProcessResult } from "../../tools/foundation/src/index.ts";
 import { defineConfig, run, type CheckResult } from "vibe-check";
-import type { ProjectGateCheckDescriptor } from "../../project-gate/catalog.ts";
-import { createProcessCheck, type ProcessCheckDependencies } from "./process-check.ts";
+import {
+  createProcessCheck,
+  type ProcessCheckDefinition,
+  type ProcessCheckDependencies
+} from "./process-check.ts";
 
-const descriptor: ProjectGateCheckDescriptor = Object.freeze({
+const definition: ProcessCheckDefinition = Object.freeze({
   checkId: "fixture-command",
   command: process.execPath,
   args: [],
-  dependencies: [],
   displayName: "Fixture command",
-  environment: {},
-  profiles: ["required", "full"],
-  tags: ["tests"]
-} as const satisfies ProjectGateCheckDescriptor);
+  environment: {}
+});
 
 describe("Project Gate process Check", () => {
   it("writes one complete transcript and passes only a zero command exit", async () => {
@@ -26,7 +26,7 @@ describe("Project Gate process Check", () => {
     try {
       const check = createProcessCheck(
         {
-          ...descriptor,
+          ...definition,
           args: [
             "-e",
             "if (process.env.PATH === undefined || process.env.PROJECT_GATE_OVERRIDE_FIXTURE !== 'override') process.exit(3);process.stdout.write('out');process.stderr.write('err')"
@@ -53,7 +53,7 @@ describe("Project Gate process Check", () => {
     try {
       const check = createProcessCheck(
         {
-          ...descriptor,
+          ...definition,
           args: [
             "-e",
             "process.stdout.write('secret output https://user:token@example.test');process.stderr.write('secret error digest:deadbeef');process.exit(7)"
@@ -96,7 +96,7 @@ describe("Project Gate process Check", () => {
       assert.equal(renderedMessage?.includes(root), false);
       assert.equal(renderedMessage?.includes(process.execPath), false);
 
-      const productCheck = createProcessCheck(descriptor, root, {
+      const productCheck = createProcessCheck(definition, root, {
         runProcess: async (): Promise<ProcessResult> => ({
           signal: null,
           status: 7,
@@ -158,33 +158,21 @@ describe("Project Gate process Check", () => {
     }
   });
 
-  it("avoids starting N/A or cancelled work and maps process/log boundaries to unavailable", async () => {
+  it("avoids starting cancelled work and maps process/log boundaries to unavailable", async () => {
     const scenarios: readonly ProcessScenario[] = [
       {
-        name: "profile exclusion",
-        descriptor: { ...descriptor, profiles: ["full"] },
-        flags: ["project-gate:profile=required"],
-        expected: { status: "not-applicable", reason: { code: "profile-excluded" } },
-        runProcess: unexpectedProcessStart
-      },
-      {
-        name: "tag exclusion",
-        descriptor,
-        flags: ["project-gate:profile=required", "project-gate:disable-tag=tests"],
-        expected: { status: "not-applicable", reason: { code: "tag-disabled" } },
-        runProcess: unexpectedProcessStart
-      },
-      {
         name: "pre-start cancellation",
-        descriptor,
+        definition,
         flags: ["project-gate:profile=required"],
         aborted: true,
         expected: { status: "unavailable", reason: { code: "execution-cancelled" } },
-        runProcess: unexpectedProcessStart
+        runProcess: async (): Promise<ProcessResult> => {
+          throw new Error("process must not start");
+        }
       },
       {
         name: "spawn failure",
-        descriptor,
+        definition,
         flags: ["project-gate:profile=required"],
         expected: { status: "unavailable", reason: { code: "process-unavailable" } },
         expectsTranscript: true,
@@ -195,7 +183,7 @@ describe("Project Gate process Check", () => {
       },
       {
         name: "foundation spawn failure result",
-        descriptor,
+        definition,
         flags: ["project-gate:profile=required"],
         expected: { status: "unavailable", reason: { code: "process-unavailable" } },
         expectsTranscript: true,
@@ -210,7 +198,7 @@ describe("Project Gate process Check", () => {
       },
       {
         name: "missing exit fact after a signal",
-        descriptor,
+        definition,
         flags: ["project-gate:profile=required"],
         expected: { status: "unavailable", reason: { code: "exit-unavailable" } },
         runProcess: async (): Promise<ProcessResult> => ({
@@ -222,7 +210,7 @@ describe("Project Gate process Check", () => {
       },
       {
         name: "transcript write failure",
-        descriptor,
+        definition,
         flags: ["project-gate:profile=required"],
         expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
         runProcess: async (): Promise<ProcessResult> => ({
@@ -253,7 +241,7 @@ describe("Project Gate process Check", () => {
         if (scenario.aborted) controller.abort();
         const records: ReportedRecord[] = [];
         const outcome = await invoke(
-          createProcessCheck(scenario.descriptor, root, dependencies),
+          createProcessCheck(scenario.definition, root, dependencies),
           records,
           scenario.flags,
           controller.signal
@@ -264,7 +252,7 @@ describe("Project Gate process Check", () => {
           assert.deepEqual(outcome.messages ?? [], [], scenario.name);
           assert.deepEqual(records, [], scenario.name);
         }
-        assert.equal(starts, scenario.runProcess === unexpectedProcessStart ? 0 : 1, scenario.name);
+        assert.equal(starts, scenario.aborted ? 0 : 1, scenario.name);
         if (scenario.expectsTranscript) {
           const transcriptPath = join(root, "fixture-command.log");
           assert.equal(existsSync(transcriptPath), true, scenario.name);
@@ -290,7 +278,7 @@ describe("Project Gate process Check", () => {
       const startedPath = join(root, "started");
       const check = createProcessCheck(
         {
-          ...descriptor,
+          ...definition,
           args: [
             "-e",
             `require('node:fs').writeFileSync(${JSON.stringify(startedPath)}, 'started');setTimeout(() => process.exit(0), 5000)`
@@ -330,7 +318,7 @@ async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
 
 interface ProcessScenario {
   readonly aborted?: boolean;
-  readonly descriptor: ProjectGateCheckDescriptor;
+  readonly definition: ProcessCheckDefinition;
   readonly expected: CheckResult;
   readonly expectedTranscriptError?: string;
   readonly expectsTranscript?: boolean;
@@ -343,10 +331,6 @@ interface ProcessScenario {
 interface ReportedRecord {
   readonly data: object;
   readonly identity: Readonly<{ readonly id: string }>;
-}
-
-async function unexpectedProcessStart(): Promise<ProcessResult> {
-  throw new Error("process must not start");
 }
 
 async function invoke(

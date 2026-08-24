@@ -1,17 +1,21 @@
-import { fileURLToPath } from "node:url";
+import {
+  bunPackageInvocation,
+  reportProcessOutput,
+  runProcessInvocationSync,
+  runMain,
+  type ProcessInvocation
+} from "./command.ts";
 
-import { runBunPackage, runCommand, runMain } from "./command.ts";
-
-type TypecheckScope = "foundation" | "product" | "scripts";
+export type TypecheckScope = "product" | "scripts";
 
 const tsconfigPath: Readonly<Record<TypecheckScope, string>> = {
-  foundation: "scripts/tools/foundation/tsconfig.json",
   product: "tsconfig.product.json",
   scripts: "tsconfig.json"
 };
-const candidatePreparationPath = fileURLToPath(
-  new URL("../package-candidate/prepare.ts", import.meta.url)
-);
+
+export function typecheckInvocation(scope: TypecheckScope): ProcessInvocation {
+  return bunPackageInvocation("tsgo", ["-p", tsconfigPath[scope]]);
+}
 
 function isTypecheckScope(value: string): value is TypecheckScope {
   return Object.hasOwn(tsconfigPath, value);
@@ -21,16 +25,15 @@ function parseTypecheckScopes(argv: readonly string[]): readonly TypecheckScope[
   if (argv.length === 0) return ["product", "scripts"];
   const [scope] = argv;
   if (argv.length !== 1 || !scope || !isTypecheckScope(scope)) {
-    throw new Error("usage: bun scripts/development/typecheck.ts [product|scripts|foundation]");
+    throw new Error("usage: bun scripts/development/typecheck.ts [product|scripts]");
   }
   return [scope];
 }
 
-runMain(() => {
-  for (const scope of parseTypecheckScopes(process.argv.slice(2))) {
-    if (scope === "scripts") {
-      runCommand("mise", ["exec", "--", "bun", candidatePreparationPath]);
+if (import.meta.main) {
+  runMain(() => {
+    for (const scope of parseTypecheckScopes(process.argv.slice(2))) {
+      runProcessInvocationSync(typecheckInvocation(scope), { report: reportProcessOutput });
     }
-    runBunPackage("tsgo", ["-p", tsconfigPath[scope]]);
-  }
-});
+  });
+}

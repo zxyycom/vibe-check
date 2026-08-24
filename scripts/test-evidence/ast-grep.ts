@@ -10,8 +10,16 @@ export const AST_GREP_VERSION = "0.45.0";
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 export type RunAstGrepOptions = {
+  cancelSignal?: AbortSignal;
   cwd?: string;
   workspaceRoot?: string;
+};
+
+export type AstGrepInvocation = {
+  readonly args: readonly string[];
+  readonly command: string;
+  readonly cwd: string;
+  readonly label: string;
 };
 
 export function resolveAstGrepExecutable(root = workspaceRoot): string {
@@ -19,10 +27,10 @@ export function resolveAstGrepExecutable(root = workspaceRoot): string {
   return path.join(root, "node_modules", AST_GREP_PACKAGE, binaryName);
 }
 
-export function runAstGrep(
-  args: string[],
-  options: RunAstGrepOptions = {}
-): Promise<ProcessResult> {
+export function astGrepInvocation(
+  args: readonly string[],
+  options: Omit<RunAstGrepOptions, "cancelSignal"> = {}
+): AstGrepInvocation {
   const root = options.workspaceRoot ?? workspaceRoot;
   const executable = resolveAstGrepExecutable(root);
   if (!fs.existsSync(executable)) {
@@ -30,12 +38,20 @@ export function runAstGrep(
       `missing ${AST_GREP_PACKAGE}@${AST_GREP_VERSION}; run the repository dependency bootstrap`
     );
   }
-  return runProcess({
+  return {
     args,
     command: executable,
     cwd: options.cwd ?? root,
     label: `ast-grep ${args.join(" ")}`
-  });
+  };
+}
+
+export function runAstGrep(
+  args: readonly string[],
+  options: RunAstGrepOptions = {}
+): Promise<ProcessResult> {
+  const invocation = astGrepInvocation(args, options);
+  return runProcess({ ...invocation, cancelSignal: options.cancelSignal });
 }
 
 export function expectedAstGrepVersionLine(): string {

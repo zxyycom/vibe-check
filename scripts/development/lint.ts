@@ -1,12 +1,21 @@
-import { runBunPackage, runMain } from "./command.ts";
+import {
+  bunPackageInvocation,
+  reportProcessOutput,
+  runProcessInvocationSync,
+  runMain,
+  type ProcessInvocation
+} from "./command.ts";
 
-type LintScope = "foundation" | "product" | "scripts";
+export type LintScope = "product" | "scripts";
 
 const lintPaths: Readonly<Record<LintScope, readonly string[]>> = {
-  foundation: ["scripts/tools/foundation/src", "scripts/tools/foundation/test"],
   product: ["src/product"],
   scripts: ["scripts"]
 };
+
+export function lintInvocation(scope: LintScope): ProcessInvocation {
+  return bunPackageInvocation("oxlint", ["--deny-warnings", ...lintPaths[scope]]);
+}
 
 function isLintScope(value: string): value is LintScope {
   return Object.hasOwn(lintPaths, value);
@@ -16,13 +25,15 @@ function parseLintScopes(argv: readonly string[]): readonly LintScope[] {
   if (argv.length === 0) return ["product", "scripts"];
   const [scope] = argv;
   if (argv.length !== 1 || !scope || !isLintScope(scope)) {
-    throw new Error("usage: bun scripts/development/lint.ts [product|scripts|foundation]");
+    throw new Error("usage: bun scripts/development/lint.ts [product|scripts]");
   }
   return [scope];
 }
 
-runMain(() => {
-  for (const scope of parseLintScopes(process.argv.slice(2))) {
-    runBunPackage("oxlint", ["--deny-warnings", ...lintPaths[scope]]);
-  }
-});
+if (import.meta.main) {
+  runMain(() => {
+    for (const scope of parseLintScopes(process.argv.slice(2))) {
+      runProcessInvocationSync(lintInvocation(scope), { report: reportProcessOutput });
+    }
+  });
+}

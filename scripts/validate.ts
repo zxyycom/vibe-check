@@ -1,5 +1,6 @@
-import { runBun, runCommand, runMain } from "./development/command.ts";
+import { reportProcessOutput, runCommand, runMain } from "./development/command.ts";
 import { TASK_NAMES } from "./tools/validators/config.ts";
+import { parseDocsValidationTasks, validateDocs } from "./docs/validate.ts";
 
 function validate(argv: readonly string[]): void {
   if (argv.length > 0 && argv[0] !== "docs") {
@@ -9,8 +10,14 @@ function validate(argv: readonly string[]): void {
   }
 
   const docsOnly = argv[0] === "docs";
-  runBun(["scripts/docs/validate.ts", ...argv.slice(docsOnly ? 1 : 0)]);
-  if (!docsOnly) runCommand("git", ["diff", "--check"]);
+  const tasks = parseDocsValidationTasks(argv.slice(docsOnly ? 1 : 0));
+  validateDocs({
+    ...(tasks.length === 0 ? {} : { tasks }),
+    report: (message) => console.log(message)
+  });
+  if (!docsOnly) runCommand("git", ["diff", "--check"], { report: reportProcessOutput });
 }
 
-runMain(() => validate(process.argv.slice(2)));
+if (import.meta.main) {
+  runMain(() => validate(process.argv.slice(2)));
+}

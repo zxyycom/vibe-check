@@ -8,16 +8,31 @@ import {
   type SupportedRunnerProfile
 } from "./profile.ts";
 
-export async function discoverTestEntities(options: {
-  workspaceRoot: string;
-}): Promise<DiscoveryResult> {
+interface TestEntityDiscoveryDependencies {
+  readonly discoverBunEntities: typeof discoverBunEntities;
+}
+
+const defaultTestEntityDiscoveryDependencies: TestEntityDiscoveryDependencies = Object.freeze({
+  discoverBunEntities
+});
+
+export async function discoverTestEntities(
+  options: {
+    cancelSignal?: AbortSignal;
+    workspaceRoot: string;
+  },
+  dependencies: TestEntityDiscoveryDependencies = defaultTestEntityDiscoveryDependencies
+): Promise<DiscoveryResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
   const profileResolution = resolveDiscoveryProfile(workspaceRoot);
   if (profileResolution.failure) {
     return profileResolution.failure;
   }
   const profile = profileResolution.profile;
-  const discovered = await discoverRunnerEntities(workspaceRoot, profile);
+  const discovered = await discoverRunnerEntities(
+    { cancelSignal: options.cancelSignal, workspaceRoot, profile },
+    dependencies
+  );
   const diagnostics = [
     ...discovered.diagnostics,
     ...duplicateEntityDiagnostics(discovered.entities)
@@ -65,15 +80,20 @@ function resolveDiscoveryProfile(workspaceRoot: string): ProfileResolution {
 }
 
 async function discoverRunnerEntities(
-  workspaceRoot: string,
-  profile: SupportedRunnerProfile
+  options: {
+    cancelSignal?: AbortSignal;
+    workspaceRoot: string;
+    profile: SupportedRunnerProfile;
+  },
+  dependencies: TestEntityDiscoveryDependencies
 ): Promise<{
   entities: TestEntity[];
   diagnostics: DiscoveryResult["diagnostics"];
 }> {
-  const bun = await discoverBunEntities({
-    workspaceRoot,
-    profile
+  const bun = await dependencies.discoverBunEntities({
+    cancelSignal: options.cancelSignal,
+    workspaceRoot: options.workspaceRoot,
+    profile: options.profile
   });
   return {
     entities: [...bun.entities].sort((left, right) => compareEntities({ left, right })),

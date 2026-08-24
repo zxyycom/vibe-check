@@ -8,9 +8,12 @@ import {
   type RunResult
 } from "vibe-check";
 
-import { projectGateEligibleCheckIds } from "../../project-gate/eligibility.ts";
 import { selectionFromFlags, type ProjectGateSelection } from "../../project-gate/controls.ts";
-import { createProjectGateDefinition } from "./project-definition.ts";
+import { createProjectGateDefinition, createProjectGateEntries } from "./project-definition.ts";
+import type { ProjectGateEntry } from "./entries.ts";
+import { projectGateEligibleCheckIds } from "./eligibility.ts";
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 /** The installed public entry selected by this private consumer. */
 export const resolvedEntryPath = fileURLToPath(import.meta.resolve("vibe-check"));
@@ -25,25 +28,27 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
   if (selection === undefined)
     throw new TypeError("Project Gate controls failed closed validation");
 
-  return packageRun(createProjectGateDefinition(controls.invocationLogDirectory), {
-    checkAggregation: projectGateAggregation(selection),
+  const entries = createProjectGateEntries({
+    invocationLogDirectory: controls.invocationLogDirectory
+  });
+  return packageRun(createProjectGateDefinition(entries, selection), {
+    checkAggregation: projectGateAggregation(entries, selection),
     flags: controls.flags,
-    projectRoot: repositoryRoot(),
+    projectRoot: repositoryRoot,
     signal: controls.signal
   });
 }
 
 /** Binds the exact eligible Check IDs to the required/full aggregation semantics. */
-export function projectGateAggregation(selection: ProjectGateSelection): CheckAggregation {
+export function projectGateAggregation(
+  entries: readonly ProjectGateEntry[],
+  selection: ProjectGateSelection
+): CheckAggregation {
   return Object.freeze({
-    checks: projectGateEligibleCheckIds(selection),
+    checks: projectGateEligibleCheckIds(entries, selection),
     empty: "failed",
     mode: "all",
     notApplicable: "fail",
     unavailable: "propagate"
   });
-}
-
-function repositoryRoot(): string {
-  return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 }

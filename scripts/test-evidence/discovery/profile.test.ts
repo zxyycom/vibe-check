@@ -34,6 +34,24 @@ test("parses stable Bun runner reports without inferring missing fields", () => 
   );
 });
 
+test("forwards cancellation through the top-level discovery operation", async () => {
+  const controller = new AbortController();
+  let receivedSignal: AbortSignal | undefined;
+
+  const result = await discoverTestEntities(
+    { cancelSignal: controller.signal, workspaceRoot },
+    {
+      discoverBunEntities: async (options) => {
+        receivedSignal = options.cancelSignal;
+        return { diagnostics: [], entities: [] };
+      }
+    }
+  );
+
+  assert.strictEqual(receivedSignal, controller.signal);
+  assert.deepEqual(result.diagnostics, []);
+});
+
 test("loads one versioned and sorted supported runner profile", async () => {
   const profile = loadSupportedRunnerProfile();
   assert.equal(profile.schemaVersion, 1);

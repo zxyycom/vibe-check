@@ -1,7 +1,7 @@
 ---
 title: 将 Foundation 纳入普通 workspace assurance
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-23T16:30:22Z
 purpose: 让已迁入主仓的 Foundation 由普通项目检查和专门测试证明，不再保留子仓库时期的独立 Gate identities。
 background: Foundation 已是 repository-owned scripts source；独立 package gates 只重复 workspace source与test coverage。
@@ -23,8 +23,8 @@ relations:
 ## 背景
 
 - Foundation 已从 Git submodule/vendor 输入迁入主仓，源码位于 `scripts/tools/foundation/**`，不再依赖独立 upstream checkout 或子仓库历史。
-- Root scripts typecheck 与 lint 已覆盖 Foundation TypeScript，workspace format targets 已覆盖 Foundation manifest/config/source/tests，Test Evidence 已运行 Foundation test files。
-- 当前 full Gate 仍分别运行 Foundation typecheck、lint、format 和 tests。除独立 tsconfig 与 package command wiring 外，这些工作重复现有 assurance；package wrapper 本身没有已确认的独立消费者结果。
+- 形成此 Decision 时，root scripts typecheck 与 lint 已覆盖 Foundation TypeScript，workspace format targets 已覆盖 Foundation 当时的 manifest/config/source/tests，Test Evidence 已运行 Foundation test files。
+- 形成此 Decision 时，full Gate 仍分别运行 Foundation typecheck、lint、format 和 tests。除独立 tsconfig 与 package command wiring 外，这些工作重复现有 assurance；package wrapper 本身没有已确认的独立消费者结果。
 - 独立 tsconfig、process helper 或其它仍有价值的约束可以由 owner config、import boundary 或专门测试证明，不需要维持四个 Gate identities。
 
 ## 决策

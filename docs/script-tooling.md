@@ -6,8 +6,9 @@ Check-owned consumer、产品与 dogfood 的调用方向、配置 owner 和脚�
 ## 范围
 
 Vibe Check 的开发脚本以本仓库 `scripts/**` 为日常依据。`scripts/tools/foundation` 是本仓
-直接追踪的 private pnpm workspace package（下文简称“仓库自有 foundation”），提供共享 helper
-source import。consumer、默认配置、profile 和 package scripts 由 Vibe Check 拥有。
+直接追踪的普通 scripts source（下文简称“仓库自有 foundation”），提供共享 helper source import。
+它不是 pnpm workspace package，也没有独立 package command、manifest、tsconfig 或 Gate profile。
+consumer、默认配置和 profile 由 Vibe Check 拥有。
 
 Vibe Check 拥有的开发脚本入口是：
 
@@ -55,8 +56,8 @@ manifest，不为复用而新增 root alias。一个 workflow 只保留一个根
 表达，例如 `bun run decisions -- list`、`bun run lint -- product` 与 `bun run format -- check`；不为
 `list`、`check`、`product` 或 `scripts` 单独增加 package-script name。
 
-`verify:vibe-check-workspace` 是唯一保留 profile suffix 的 workflow：默认、`required` 和 `full`
-是调用方需要显式选择的三种全局验收范围。`env:setup` 与 `env:check` 是 Codex 生成环境脚本目前
+`verify:vibe-check-workspace` 是唯一保留 profile suffix 的 workflow：无 suffix 的默认 root 与
+`:required` 都选择 required，`:full` 显式选择 full。`env:setup` 与 `env:check` 是 Codex 生成环境脚本目前
 固定调用的 bootstrap compatibility entries；它们不是可继续套用的 root-alias 模式，只有生成方同步
 改为参数形式后才能移除。`product:cli` 同样只保留为当前 API-only migration diagnostic 的临时
 compatibility entry；它不是产品正常运行入口，删除条件由对应 active Change 定义。
@@ -70,11 +71,11 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | format                              | `bun run format`；`bun run format -- check`                                                                                                      | 无参数会写入 workspace format targets；`check` 只检查。                                                                                           |
 | lint / typecheck                    | `bun run lint -- product`；`bun run typecheck -- scripts`                                                                                        | 无参数分别覆盖 product 和 scripts；scope 只选择已声明的目标。                                                                                     |
-| test                                | `bun run test`                                                                                                                                   | 默认且推荐的 root scope 是 Product；foundation 仍通过自己的 package command 验证 cwd boundary。                                                   |
+| test                                | `bun run test`                                                                                                                                   | 默认且推荐的 root scope 是 Product；Foundation tests 由 Test Evidence 的完整 `scripts/**` surface 执行。                                          |
 | validate                            | `bun run validate`；`bun run validate -- docs json`                                                                                              | 默认运行全部 docs validation 再做 `git diff --check`；`docs` 只把其后的 task 名交给 docs validator，其中 `package-api-documentation` 检查 projection drift。 |
 | quality                             | `bun run quality`                                                                                                                                | 无参数；写入忽略的 quality artifacts，但 Check facts 本身不阻断此 observation command。                                                           |
 | governance                          | `bun run decisions -- list`、`bun run change-plan -- check <path>`、`bun run investigations -- check`、`bun run test-evidence -- check --root .` | base command 只转发其 owner CLI；是否写入由具体 subcommand 决定。                                                                                 |
-| Project Gate                        | `bun run verify:vibe-check-workspace:required`                                                                                                   | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `full` 选择 full，`:required` 选择 required；正式调用不传 disabled tag。 |
+| Project Gate                        | `bun run verify:vibe-check-workspace:required`                                                                                                   | 保留的三个 root names 都直接调用 `scripts/project-gate/index.ts`：默认与 `:required` 选择 required，`:full` 显式选择 full；正式调用不传 disabled tag。 |
 | bootstrap / migration compatibility | `bun run env:setup`、`bun run env:check`、`bun run product:cli`                                                                                  | 前两个受 Codex 生成环境调用约束；最后一个只输出 migration diagnostic。                                                                            |
 
 ## 当前实现状态
@@ -90,12 +91,14 @@ compatibility entry；它不是产品正常运行入口，删除条件由对应 
 - `quality` 通过同一 wrapper 到达 Product `run` operation；
   repository built-in selection 和 effects 只有 Project Definition 一个 owner。
 - `src/product/**` 拥有 TypeScript 运行内核；开发脚本不保留第二套参数、配置或扫描 core。
-- Project Gate 严格检查 decision records，并调用 test-evidence check 执行完整 Bun 测试面及
-  语义 Case 闭合；其 `required` / `full` profile 通过 bound Project Run 执行 repository Gate。
+- Project Gate 由 project-owned ordinary `Check` values 组成。native Checks 直接调用 docs、Decision
+  Records 和 Test Evidence operations；需要外部工具、exact candidate consumer 或 Git 边界的 Checks
+  保留 signal-aware process。其 `required` / `full` profile 通过 bound Project Run 执行同一 repository
+  Gate current membership。
 - Current schema/examples checks 显式注册 run/record v4，验证新的 canonical machine set；historical
   schema bytes 只在显式 archival path/registry 中验证，不进入 current traversal 或 consumer path。
-- 仓库自有 foundation 是普通 tracked source；它没有独立 checkout、upstream pin 或 submodule
-  初始化要求。它的职责和 package boundary 由[工具来源](#工具来源)定义。
+- 仓库自有 foundation 是普通 tracked source；它没有独立 checkout、upstream pin、submodule 或 package
+  boundary 初始化要求。它的职责和 workspace assurance 由[工具来源](#工具来源)定义。
 
 ## 工具来源
 
@@ -109,10 +112,10 @@ validation、dependency、mutex、root admission、generic scope cap、abort obs
 graph/scope/executor data，不理解 Product Check/Core 或 scripts command/env/report fields。Product Check adapter
 单向投影 Check layout，不保留另一份 scheduler。
 
-仓库自有 foundation 是 private pnpm workspace package。开发脚本从
+仓库自有 foundation 是普通 repository scripts source。开发脚本从
 `scripts/tools/foundation/src` 源码 import 消费它；`src/index.ts` 只是实际导出的 barrel，
-不构成 npm 或 public `exports` contract。它不拥有 Vibe Check 的 package scripts、profile 或
-artifact 路径。
+不构成 npm 或 public `exports` contract。它不拥有 Vibe Check 的 package scripts、profile、artifact
+路径或独立 cwd contract。
 
 foundation 的通用 helper 提供确定性归一与显式边界失败：`parsePositiveInteger` 和 JSON
 parser 拒绝无效输入，path helper 产生确定性归一结果；`walkFiles` 返回相对传入根目录、
@@ -122,11 +125,12 @@ failure 对 consumer 保持可观察。异步 `runProcess` 将 caller 的 `cance
 被取消后，结果仍保留 `error`、`signal`（测试覆盖 `SIGTERM`）与 `status: null`，不能被当作成功。这些是开发
 脚本 helper 契约，不替代 Product 的 scan-scope 契约。
 
-foundation 的 `typecheck`、`format`、`lint` 和 `test` 在 package own cwd 中启动，并把它的 scope
-传给仓库 `scripts/development/**` owner；它们都以 Bun 启动，不在 package manifest 保存 `cd`、mise
-或长目标列表。根目录的 `typecheck -- scripts`、`lint -- scripts` 和 `format -- check` 也覆盖其
-TypeScript source。后者不能替代 foundation 自己的 manifest、tsconfig、
-cwd 和 package commands；full profile 因此保留其 package gates，准确组成见[配置所有权](#配置所有权)。
+Foundation 不保留独立 package command、manifest、tsconfig 或 cwd boundary。普通 workspace assurance
+是其唯一当前质量事实：`bun run typecheck -- scripts` 覆盖其 source 与 tests 的 TypeScript 类型，
+`bun run lint -- scripts` 覆盖 source 与 tests，`bun run format -- check` 覆盖 workspace format targets 中的
+Foundation source 与 tests，`bun run test-evidence -- check --root .` 发现并执行 Foundation `*.test.ts` 并闭合
+语义 Cases。不要为这些已覆盖事实恢复
+Foundation-only scope、wrapper 或 Gate identity。
 
 ### Oxlint 与 Oxfmt
 
@@ -135,8 +139,8 @@ cwd 和 package commands；full profile 因此保留其 package gates，准确�
 `scripts/development/lint.ts` 与 `typecheck.ts` 拥有各自的 scope 到路径/config 映射；它们通过
 `bun x --no-install` 使用当前 checkout 锁定的 Oxfmt、Oxlint 与 TypeScript Go binary。`lint -- product`
 和 `lint -- scripts` 以 `oxlint --deny-warnings` 执行；`format`（写入）和 `format -- check` 只对这些
-显式目标运行 Oxfmt。foundation package 的 format commands 使用同一 root 配置和 binary，并选择它的
-manifest、tsconfig、source 与 test 目标；lint commands 只选择 source 与 test 目标。
+显式目标运行 Oxfmt。Foundation source 与 tests 是 workspace scripts/format targets 的一部分；格式、lint
+或类型目标变更由对应 development owner 更新，不能通过恢复 package-local target list 产生第二套 assurance。
 
 规则、format 选项或目标范围变更时，修改上述配置或对应 development owner，而不是在文档或 package
 内另建一份同义规则表。编码层面的优先级见[编码规范](coding-style.md#文档边界与使用方式)。
@@ -178,7 +182,7 @@ Bun/Node 内置进程 API，不依赖另一个 toolkit checkout。
 Codex 提供两个 checkout 环境：
 
 - `vibe-check` 由 `.codex/environments/environment.toml` 依次运行 `env:setup` 和未传
-  `--profile` 的 `verify:vibe-check-workspace`；后者当前默认 `full`，不执行 Git restore/clean。
+  `--profile` 的 `verify:vibe-check-workspace`；后者当前默认 `required`，不执行 Git restore/clean。
 - `clear` 由 `.codex/environments/environment-2.toml` 先丢弃目标 worktree 中已暂存和未暂存
   的 tracked 变更，并删除未跟踪且未被 ignore 的文件与目录，再运行同一组自举和验证入口。
   该环境不可恢复地清除上述工作，只有明确需要丢弃 worktree 内容时才能选择；ignored cache
@@ -223,9 +227,9 @@ resolution source。缺少或不可用的 Check-owned command 由对应 Check �
 `mise.toml`/`mise.lock`。该 child 自动准备或复用 candidate，成功后执行 pure `scan.ts`。没有可由调用方
 设置的跳过标记；mise 子进程一旦启动，其 stdout、stderr 和退出状态原样保留。因此调用者不必记住
 mise，也不会从 ambient `PATH` 静默取得同名 scanner。scripts typecheck、Project Run test 与 Project Gate
-的 candidate preparation 不需要直接使用 mise wrapper；Project Gate 的 `quality` Check 仍通过
-`scripts/quality/index.ts` 自己的 locked child 保持 scanner toolchain boundary。format 与 lint 也不需要
-mise wrapper。
+的 candidate preparation 不需要直接使用 mise wrapper；Project Gate 的 `repository-quality` Check 消费 adapter
+已准备并校验的 exact candidate，并通过 locked scan-only private consumer 保持 scanner toolchain boundary，
+不调用会再次准备 candidate 的 `scripts/quality/index.ts`。format 与 lint 也不需要 mise wrapper。
 
 ## Runtime 边界
 
@@ -275,16 +279,34 @@ duration type root。
 
 `scripts/project-gate/index.ts` 是唯一的正式 Project Gate adapter。保留的
 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 都在 `package.json` 直接绑定它：
-默认与 `:full` 使用 full profile，`:required` 使用 required profile；正式调用不传 disabled tag。
+默认与 `:required` 使用 required profile，`:full` 使用 full profile；正式调用不传 disabled tag。
 
-adapter 先调用唯一的 `preparePackageCandidate()`。准备成功后，才动态加载
+adapter 每次 invocation 只调用一次 `preparePackageCandidate()`。准备成功后，才动态加载
 `scripts/quality/project-gate/project-run.ts`；private consumer 解析的 `vibe-check` entry 必须与
 准备结果的 installed entry 完全一致。准备、导入或 identity 校验失败时，adapter 不创建 invocation
 log、不运行 Gate，并以 exit `2` 结束。
 
-`scripts/project-gate/catalog.ts` 拥有 20 个 process Check 及其 command、dependency、environment、
-profile 和 tag。`required` 执行 14 个 Check，`full`
-执行 19 个 Check；不传 profile 时为 `full`：
+Project Gate 的 entry collection 拥有 profile/tag eligibility，但不重新定义 Product `Check` contract。
+它当前由 14 个 project-owned ordinary Checks 组成；`required` 与 `full` 均选择同一完整 identity set，
+无 profile 时选择 `required`。显式 `full` 仍表示“选择 catalog 当前全部 Checks”，并不要求产生虚假的
+full-only assurance：
+
+```text
+typecheck-product              lint-product
+typecheck-scripts              lint-scripts
+format-check                   repository-quality
+docs-json-validator            docs-schema-validator
+docs-example-validator         docs-links-validator
+decision-records               test-evidence
+test-evidence-rule-tests       git-diff-whitespace
+```
+
+identity 集合及 profile membership 关系，而非固定数量，是 catalog review 的完整性依据。类型检查、lint、
+format、quality exact-candidate scan、Test Evidence 内部 Bun runner/rule runner 和 Git whitespace 需要
+真实外部 process 时保留 signal-aware process boundary 与 transcript；docs validation 与 Decision Records
+等 import-safe TypeScript capabilities 直接作为 native Check 执行，不创建空 transcript。Foundation 不在
+此 collection 中另设 package Check：其 source/tests 由 `typecheck-scripts`、`lint-scripts`、
+`format-check` 和 `test-evidence` 分别证明。
 
 ```bash
 bun scripts/project-gate/index.ts [--profile required|full] [--disable-tag <tag>]...
@@ -295,8 +317,11 @@ bun scripts/project-gate/index.ts [--profile required|full] [--disable-tag <tag>
 `not-applicable` 结果。正式 root invocations 的 required/full 均不传 disabled tag；adapter 不读取
 ambient CI，local partial invocation 仍可在任何 host 运行。
 
-identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<unique>/`。eligible Check 在自己的
-transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；这是 Project Gate 自己拥有的
+identity 校验后，adapter 为每次 invocation 创建 `.log/project-gate/<unique>/`。process-backed eligible Check
+在自己的 transcript 写入 command、stdout、stderr、exit、signal 与安全的 error summary；native Checks 不创建
+transcript。Native validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应
+focused root command，不复制 raw diagnostic；unexpected operation error 映射为 unavailable，cancellation 优先。
+这是 Project Gate 自己拥有的
 本地诊断目录，不是 Product `logs` effect 或 machine output。Product-owned progress 是唯一
 共享进度流。零退出且 transcript 写入成功为 passed final data；非零退出产生不含 child output 的 Check-local
 supplemental Record 并为 failed final data，同时附带唯一的 `error` / `command-failed` terminal message：它只含
@@ -317,6 +342,10 @@ Checks 仍保留 raw `not-applicable` facts。adapter 只在 completed result �
 bun test scripts/project-gate/index.test.ts scripts/quality/project-gate/project-definition.test.ts scripts/quality/project-gate/process-check.test.ts
 bun run test-evidence -- check --root .
 ```
+
+保留 CLI 的边界不因 Gate 直接调用 capability 而改变：root `quality` 继续独立完成锁定 scanner、candidate
+prepare-and-run workflow；development、docs、Decision Records 与 Test Evidence CLI 继续拥有 argv、console、
+exit mapping 和各自 focused consumer。Gate 不把这些 CLI 当作领域 API。
 
 开发期 Project Gate 入口是：
 
@@ -422,7 +451,8 @@ CLI 使用稳定的命令与 JSON 输出边界；项目不依赖其未承诺稳�
 
 Vibe Check-owned [`scripts/test-evidence/`](../scripts/test-evidence/) 拥有 runner
 profile、ast-grep static scan、Bun JUnit runtime report、实体 identity、Case parser、
-topic catalog、查询和闭合诊断。项目内
+topic catalog、查询和闭合诊断。调用方提供 `AbortSignal` 时，同一 signal 传入
+ast-grep static scan 与 Bun JUnit runtime report process。项目内
 [`test-evidence-review` skill](../.codex/skills/test-evidence-review/SKILL.md) 只提供
 能力感知的语义评审方法，不携带项目路径、runner adapter、schema、CLI runtime 或第二套
 持久化格式。
@@ -475,9 +505,9 @@ run/record v4 schemas、historical schema material 与对应 example roots，不
 | package API 文档输入或投影                             | 修改 editable input 后运行 `bun scripts/docs/package-api-docs/index.ts --write`，再运行 `--check`；`--write` 是修复 checked-in drift 的唯一动作，不要先手改 generated root README 或 registry-target JSDoc `@example` tail。已删除或迁移 registry target 遗留的 tail 也是 drift：`--check` 与 candidate 按 checked-in bytes 拒绝，`--write` 移除。对于已发现的 `@example` tail，只有无法关联支持 adjacent export、重复 target 或非连续 tail 等结构错误才 hard fail；日常检查由 `bun run validate -- docs` 调度。 |
 | 文档校验                                                | `bun run validate -- docs`                                                                                                                                                                                 |
 | Project Gate（routine）                                 | `bun run verify:vibe-check-workspace:required`                                                                                                                                                             |
-| Project Gate（完整 Product / foundation package 验收）  | `bun run verify:vibe-check-workspace:full`                                                                                                                                                                 |
+| Project Gate（完整 current workspace acceptance）       | `bun run verify:vibe-check-workspace:full`                                                                                                                                                                 |
 | current schema/example generation drift                 | `bun scripts/docs/machine-schemas.ts --check`、`bun scripts/docs/machine-examples.ts --check`；日常由 `validate -- docs` 调度                                                                              |
-| foundation package                                      | `bun run --cwd scripts/tools/foundation typecheck`、`bun run --cwd scripts/tools/foundation format -- check`、`bun run --cwd scripts/tools/foundation lint`、`bun run --cwd scripts/tools/foundation test` |
+| Foundation source/tests                                 | `bun run typecheck -- scripts`、`bun run lint -- scripts`、`bun run format -- check`、`bun run test-evidence -- check --root .`                                                                            |
 | Product-owned runner import                             | `bun test src/product/task-scheduler/test`                                                                                                                                                                 |
 
 产品行为改动按 TypeScript/Bun 产品验证入口执行。

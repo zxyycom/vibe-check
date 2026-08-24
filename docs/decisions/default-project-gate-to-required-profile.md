@@ -1,10 +1,10 @@
 ---
 title: 让默认 Project Gate 使用 required profile
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-23T16:30:16Z
 purpose: 让无显式 profile 的正式 Gate 选择必须 assurance，并把 full 保留为显式全部选择。
-background: 当前无参 Gate 默认 full；移除遗留 Foundation gates 后，required 与 full 可以暂时同集。
+background: 形成此 Decision 时，无参 Gate 默认 full；移除遗留 Foundation gates 后，required 与 full 可以暂时同集。
 decision: 默认 Gate 选择 required；显式 full 选择当前全部 Checks，但不为维持差异创造虚假 full-only Checks。
 tags:
   - configuration
@@ -19,7 +19,7 @@ relations: []
 
 ## 背景
 
-- 当前 `verify:vibe-check-workspace` root 不传 profile，Project Gate controls 把缺省 profile 解析为 full；`:required` 显式传 required，`:full` 显式传 full。
+- 形成此 Decision 时，`verify:vibe-check-workspace` root 不传 profile，Project Gate controls 把缺省 profile 解析为 full；`:required` 显式传 required，`:full` 显式传 full。
 - Foundation 从历史子仓库迁入主仓后，其源码、格式与测试已由普通 workspace checks 和 Test Evidence 覆盖；不能仅为维持 required/full 数量差而保留独立 Foundation Checks。
 - Profile 是 project-local selection，不应通过虚假 identity、重复执行或无行为差异的 branch 制造可见差异。
 

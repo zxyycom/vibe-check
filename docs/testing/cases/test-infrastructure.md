@@ -31,3 +31,13 @@ Proves:
 - 版本化 source roots、include、ignore 与 supplemental file 规则展开完整且唯一的 Bun test 文件集合；nested `node_modules` 不属于 repository test surface。
 - 非法、空、越界、符号链接或冗余 test surface 被拒绝，新增匹配文件自动进入集合。
 - JUnit parser 只接受具有精确 name、suite、file、line 和成功计数的 runner report。
+
+## Case AUX-TEST-EVIDENCE-CANCELLATION-001: Test Evidence 将取消传到真实 runner process
+Owner: `docs/script-tooling.md#测试证据闭合工具`
+Entities:
+- `bun|scripts/test-evidence/discovery/profile.test.ts|forwards cancellation through the top-level discovery operation`
+- `bun|scripts/test-evidence/ast-scan.test.ts|forwards cancellation to ast-grep scans`
+- `bun|scripts/test-evidence/runner-process.test.ts|forwards cancellation to the Bun test discovery child`
+Proves:
+- 顶层 discovery operation 把同一 caller `AbortSignal` 传入所有 ast-grep static scan 与 Bun JUnit runtime discovery process，不会在 Test Evidence 内丢失。
+- 已启动 Bun child 收到取消后保留 error、`SIGTERM` 和 `status: null`，不会被误判为成功。

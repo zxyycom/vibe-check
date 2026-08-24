@@ -63,8 +63,6 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
-  scripts/tools/foundation: {}
-
 packages:
 
   '@ast-grep/cli-darwin-arm64@0.45.0':

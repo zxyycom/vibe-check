@@ -5,7 +5,7 @@ import { FILE_SYSTEM } from "./config.ts";
 import { walk } from "./repo/files.ts";
 import { toAbs, toRel } from "./repo/paths.ts";
 
-export function validateMarkdownLinks(): void {
+export function validateMarkdownLinks(report?: (message: string) => void): void {
   const markdownFiles = markdownFilesForLinkValidation();
   const missing: string[] = [];
   const linkPattern = /\[[^\]]+\]\(([^)]+)\)/g;
@@ -34,7 +34,7 @@ export function validateMarkdownLinks(): void {
     throw new Error(`missing markdown links:\n${missing.join("\n")}`);
   }
 
-  console.log(`markdown links ok: ${markdownFiles.length} file(s)`);
+  report?.(`markdown links ok: ${markdownFiles.length} file(s)`);
 }
 
 function markdownFilesForLinkValidation(): string[] {

@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 import { dirname, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import {
   runDecisionRecordsCli as runInstalledDecisionRecordsCli,
@@ -67,12 +67,10 @@ export function validateDecisionRecords(
   });
 }
 
-export function runDecisionRecordsCli(
-  argv: readonly string[] = process.argv.slice(2)
-): Promise<number> {
+export function runDecisionRecordsCli(argv: readonly string[]): Promise<number> {
   return runInstalledDecisionRecordsCli(["--root", decisionRecordsWorkspaceRoot, ...argv]);
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  process.exitCode = await runDecisionRecordsCli();
+if (import.meta.main) {
+  process.exitCode = await runDecisionRecordsCli(process.argv.slice(2));
 }

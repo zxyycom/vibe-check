@@ -11,10 +11,9 @@ import { checkPublishedMachineExamples } from "./machine-examples.ts";
 import { checkPublishedMachineSchemas } from "./machine-schemas.ts";
 import { runPackageApiDocumentationCli } from "./package-api-docs/index.ts";
 
-const requested = new Set(process.argv.slice(2));
-const runAll = requested.size === 0;
+export type DocsValidationTask = (typeof TASK_NAMES)[keyof typeof TASK_NAMES];
 
-const tasks = {
+const tasks: Readonly<Record<DocsValidationTask, (report?: (message: string) => void) => void>> = {
   [TASK_NAMES.json]: validateJsonSyntax,
   [TASK_NAMES.schema]: validatePublishedSchemas,
   [TASK_NAMES.examples]: validatePublishedExamples,
@@ -22,25 +21,64 @@ const tasks = {
   [TASK_NAMES.packageApiDocumentation]: validatePackageApiDocumentation
 };
 
-function validatePackageApiDocumentation(): void {
+export function parseDocsValidationTasks(argv: readonly string[]): readonly DocsValidationTask[] {
+  const selectedTasks: DocsValidationTask[] = [];
+  for (const task of argv) {
+    switch (task) {
+      case TASK_NAMES.json:
+      case TASK_NAMES.schema:
+      case TASK_NAMES.examples:
+      case TASK_NAMES.links:
+      case TASK_NAMES.packageApiDocumentation:
+        selectedTasks.push(task);
+        break;
+      default:
+        throw new Error(`unknown validation task: ${task}`);
+    }
+  }
+  return selectedTasks;
+}
+
+export function validateDocs(
+  options: Readonly<{
+    tasks?: readonly DocsValidationTask[];
+    report?: (message: string) => void;
+  }> = {}
+): void {
+  const selectedTasks =
+    options.tasks === undefined ? Object.values(TASK_NAMES) : [...new Set(options.tasks)];
+  for (const taskName of selectedTasks) {
+    const task = tasks[taskName];
+    assert(task, `unknown validation task: ${taskName}`);
+    task(options.report);
+  }
+}
+
+function validatePackageApiDocumentation(_report?: (message: string) => void): void {
   const result = runPackageApiDocumentationCli(["--check"]);
   if (result.exitCode !== 0) throw new Error(result.diagnostics.join("\n"));
 }
 
-function validatePublishedExamples(): void {
+function validatePublishedExamples(report?: (message: string) => void): void {
   validatePublishedMachineArtifactExamples();
   checkPublishedMachineExamples();
-  validateReportExamples();
+  validateReportExamples(report);
 }
 
-function validatePublishedSchemas(): void {
+function validatePublishedSchemas(report?: (message: string) => void): void {
   checkPublishedMachineSchemas();
-  validateSchemas();
+  validateSchemas(report);
 }
 
-const selectedTasks = runAll ? Object.keys(tasks) : [...requested];
-for (const taskName of selectedTasks) {
-  const task = tasks[taskName];
-  assert(task, `unknown validation task: ${taskName}`);
-  task();
+if (import.meta.main) {
+  try {
+    const requestedTasks = parseDocsValidationTasks(process.argv.slice(2));
+    validateDocs({
+      ...(requestedTasks.length === 0 ? {} : { tasks: requestedTasks }),
+      report: (message) => console.log(message)
+    });
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }

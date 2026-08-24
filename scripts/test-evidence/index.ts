@@ -1,3 +1,5 @@
 import { runTestEvidenceCli } from "./cli.ts";
 
-process.exitCode = await runTestEvidenceCli();
+if (import.meta.main) {
+  process.exitCode = await runTestEvidenceCli(process.argv.slice(2));
+}

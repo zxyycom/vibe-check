@@ -21,7 +21,7 @@ export type ProjectGateArgumentParseResult =
 export function parseProjectGateArguments(
   arguments_: readonly string[]
 ): ProjectGateArgumentParseResult {
-  let profile: ProjectGateProfile = "full";
+  let profile: ProjectGateProfile = "required";
   let profileSpecified = false;
   const disabledTags: ProjectGateTag[] = [];
 
@@ -84,9 +84,8 @@ export function selectionFromFlags(flags: readonly string[]): ProjectGateSelecti
     }
     return undefined;
   }
-  return profile === undefined
-    ? undefined
-    : Object.freeze({ disabledTags: canonicalTags(tags), profile });
+  if (profile === undefined) return undefined;
+  return Object.freeze({ disabledTags: canonicalTags(tags), profile });
 }
 
 export function isProjectGateProfile(value: unknown): value is ProjectGateProfile {

@@ -1,13 +1,15 @@
 import { runProcess, type ProcessResult } from "../tools/foundation/src/index.ts";
 
 export function runBunCommand(options: {
-  workspaceRoot: string;
   args: string[];
+  cancelSignal?: AbortSignal;
   label: string;
+  workspaceRoot: string;
 }): Promise<ProcessResult> {
   return runProcess({
-    command: "bun",
     args: options.args,
+    cancelSignal: options.cancelSignal,
+    command: "bun",
     cwd: options.workspaceRoot,
     label: options.label
   });

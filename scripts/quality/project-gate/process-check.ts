@@ -8,14 +8,9 @@ import {
 } from "../../tools/foundation/src/index.ts";
 import { defineCheck, type Check, type CheckExecutionContext, type CheckResult } from "vibe-check";
 
-import type { ProjectGateCheckDescriptor } from "../../project-gate/catalog.ts";
-import { selectionFromFlags } from "../../project-gate/controls.ts";
-import { projectGateEligibility } from "../../project-gate/eligibility.ts";
-
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",
   exitUnavailable: "exit-unavailable",
-  invalidGateControls: "invalid-gate-controls",
   processUnavailable: "process-unavailable",
   transcriptUnavailable: "transcript-unavailable"
 } as const);
@@ -27,38 +22,47 @@ export interface ProcessCheckDependencies {
   readonly writeTextFile: typeof writeTextFile;
 }
 
+/** One Check's actual external command boundary. */
+export interface ProcessCheckDefinition {
+  readonly args: readonly string[];
+  readonly checkId: string;
+  readonly command: string;
+  readonly cwd?: string;
+  readonly displayName: string;
+  readonly environment?: Readonly<Record<string, string>>;
+}
+
+export interface ProcessTranscriptStep {
+  readonly definition: Pick<ProcessCheckDefinition, "args" | "command">;
+  readonly label: string;
+  readonly result: ProcessResult;
+}
+
 const defaultProcessCheckDependencies: ProcessCheckDependencies = Object.freeze({
   runProcess,
   writeTextFile
 });
 
+/** Creates an ordinary Check that owns an external process and its transcript. */
 export function createProcessCheck(
-  descriptor: ProjectGateCheckDescriptor,
+  definition: ProcessCheckDefinition,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
 ): Check {
   return defineCheck({
-    checkId: descriptor.checkId,
-    displayName: descriptor.displayName,
-    dependsOn: descriptor.dependencies,
-    options: descriptor,
+    checkId: definition.checkId,
+    displayName: definition.displayName,
+    options: definition,
     execution: async (context): Promise<CheckResult> =>
-      executeDescriptor(context, invocationLogDirectory, dependencies)
+      executeProcessCheck(context, invocationLogDirectory, dependencies)
   });
 }
 
-async function executeDescriptor(
-  context: CheckExecutionContext<ProjectGateCheckDescriptor>,
+async function executeProcessCheck(
+  context: CheckExecutionContext<ProcessCheckDefinition>,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies
 ): Promise<CheckResult> {
-  const selection = selectionFromFlags(context.project.flags);
-  if (selection === undefined) return unavailable(UNAVAILABLE_REASON_CODE.invalidGateControls);
-
-  const eligibility = projectGateEligibility(context.options, selection);
-  if (!eligibility.eligible) {
-    return Object.freeze({ status: "not-applicable", reason: { code: eligibility.reasonCode } });
-  }
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
 
   let result: ProcessResult;
@@ -66,7 +70,7 @@ async function executeDescriptor(
     result = await dependencies.runProcess({
       args: context.options.args,
       command: context.options.command,
-      cwd: context.project.root,
+      cwd: context.options.cwd ?? context.project.root,
       env: { ...process.env, ...context.options.environment },
       label: context.options.checkId,
       cancelSignal: context.signal
@@ -75,9 +79,14 @@ async function executeDescriptor(
     result = unavailableProcessResult(error);
   }
 
-  const logPath = join(invocationLogDirectory, `${context.options.checkId}.log`);
+  let logPath: string;
   try {
-    dependencies.writeTextFile({ content: transcript(context.options, result), filePath: logPath });
+    logPath = writeProcessTranscript({
+      checkId: context.options.checkId,
+      invocationLogDirectory,
+      steps: [{ definition: context.options, label: "command", result }],
+      writeTextFile: dependencies.writeTextFile
+    });
   } catch {
     return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
   }
@@ -86,27 +95,47 @@ async function executeDescriptor(
   if (result.error !== undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
   const exitCode = result.status;
   if (exitCode === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
-  if (exitCode === 0) {
-    return Object.freeze({ status: "passed", data: Object.freeze({ exitCode }) });
-  }
+  if (exitCode === 0) return Object.freeze({ status: "passed", data: Object.freeze({ exitCode }) });
 
-  context.records.report(
-    { id: "command-failure" },
-    failureRecord({
-      command: context.options.command,
-      exitCode,
-      logPath,
-      signal: result.signal
-    })
-  );
+  return failedProcessResult(context, {
+    command: context.options.command,
+    exitCode,
+    logPath,
+    signal: result.signal
+  });
+}
+
+/** Writes one safe Check-owned transcript for every actual process step. */
+export function writeProcessTranscript(
+  input: Readonly<{
+    readonly checkId: string;
+    readonly invocationLogDirectory: string;
+    readonly steps: readonly ProcessTranscriptStep[];
+    readonly writeTextFile?: typeof writeTextFile;
+  }>
+): string {
+  const logPath = join(input.invocationLogDirectory, `${input.checkId}.log`);
+  (input.writeTextFile ?? writeTextFile)({
+    content: [`check: ${input.checkId}`, ...input.steps.map(transcriptStep)].join("\n\n"),
+    filePath: logPath
+  });
+  return logPath;
+}
+
+/** Produces the standard failure Record and presentation-safe terminal message. */
+export function failedProcessResult(
+  context: Pick<CheckExecutionContext<object>, "records">,
+  input: CommandFailureRecordInput
+): CheckResult {
+  context.records.report({ id: "command-failure" }, failureRecord(input));
   return Object.freeze({
     status: "failed",
-    data: Object.freeze({ exitCode }),
+    data: Object.freeze({ exitCode: input.exitCode }),
     messages: Object.freeze([
       Object.freeze({
         level: "error",
         code: "command-failed",
-        message: `Command exited with code ${exitCode}; signal: ${result.signal ?? "none"}; transcript: ${basename(logPath)}.`
+        message: `Command exited with code ${input.exitCode}; signal: ${input.signal ?? "none"}; transcript: ${basename(input.logPath)}.`
       })
     ])
   });
@@ -133,10 +162,11 @@ function failureRecord(input: CommandFailureRecordInput): Readonly<{
   });
 }
 
-function transcript(descriptor: ProjectGateCheckDescriptor, result: ProcessResult): string {
-  const command = [descriptor.command, ...descriptor.args].map(commandToken).join(" ");
+function transcriptStep(step: ProcessTranscriptStep): string {
+  const { definition, label, result } = step;
+  const command = [definition.command, ...definition.args].map(commandToken).join(" ");
   return [
-    `check: ${descriptor.checkId}`,
+    `step: ${label}`,
     `command: ${command}`,
     `status: ${result.status === null ? "unavailable" : result.status}`,
     `signal: ${result.signal ?? "none"}`,
