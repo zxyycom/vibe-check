@@ -1,4 +1,5 @@
 import type { CheckDefinition } from "../definition/check-definition.ts";
+import { isCheckTreeReferenceId } from "../definition/check-tree/identity.ts";
 import type { CheckOutcome } from "../definition/custom-check.ts";
 import { canonicalizeJsonObject } from "../foundation/canonical-data.ts";
 import {
@@ -233,28 +234,22 @@ function normalizeOutcome(value: unknown, productOutcome: boolean): CheckOutcome
   }
   if (outcome.status === "not-applicable") {
     if (!hasOptionalKeys(outcome, ["status"], ["reason"])) return undefined;
-    const reason = optionalReason(outcome.reason, false);
-    return reason === null
-      ? undefined
-      : Object.freeze(
-          reason === undefined ? { status: "not-applicable" } : { status: "not-applicable", reason }
-        );
+    if (outcome.reason === undefined) return Object.freeze({ status: "not-applicable" });
+    const reason = normalizeReason(outcome.reason, false);
+    return reason === undefined ? undefined : Object.freeze({ status: "not-applicable", reason });
   }
   if (outcome.status === "unavailable") {
     if (!hasExactKeys(outcome, ["status", "reason"])) return undefined;
-    const reason = optionalReason(outcome.reason, productOutcome);
-    return reason === undefined || reason === null
-      ? undefined
-      : Object.freeze({ status: "unavailable", reason });
+    const reason = normalizeReason(outcome.reason, productOutcome);
+    return reason === undefined ? undefined : Object.freeze({ status: "unavailable", reason });
   }
   return undefined;
 }
 
-function optionalReason(
+function normalizeReason(
   value: unknown,
   allowCheckIds: boolean
-): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | null | undefined {
-  if (value === undefined) return undefined;
+): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | undefined {
   const reason = snapshotClosedRecord(value);
   if (
     reason === undefined ||
@@ -262,13 +257,13 @@ function optionalReason(
     reason.code.length === 0 ||
     !hasOptionalKeys(reason, ["code"], allowCheckIds ? ["checkIds"] : [])
   )
-    return null;
+    return undefined;
   if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
   const rawCheckIds = snapshotClosedArray(reason.checkIds);
-  if (!allowCheckIds || rawCheckIds === undefined || rawCheckIds.length === 0) return null;
+  if (!allowCheckIds || rawCheckIds === undefined || rawCheckIds.length === 0) return undefined;
   const checkIds: string[] = [];
   for (const checkId of rawCheckIds) {
-    if (typeof checkId !== "string" || checkId.length === 0) return null;
+    if (typeof checkId !== "string" || !isCheckTreeReferenceId(checkId)) return undefined;
     checkIds.push(checkId);
   }
   return Object.freeze({ code: reason.code, checkIds: Object.freeze(checkIds) });

@@ -17,10 +17,13 @@ describe("check-record Core Check session", () => {
     ]);
     const zeta = session.openCheckScope("zeta-check");
     assert.throws(() => session.readSettledCheckOutcome("zeta-check"), CoreInvariantFailure);
-    assert.deepEqual(zeta.settle({ status: "not-applicable" }), {
-      authorResultAccepted: true,
-      outcome: { status: "not-applicable" }
-    });
+    assert.deepEqual(
+      zeta.settleProduct({
+        status: "unavailable",
+        reason: { code: "product-reason", checkIds: ["not a reference id"] }
+      }),
+      { status: "unavailable", reason: { code: "invalid-execution-result" } }
+    );
     const alpha = session.openCheckScope("alpha-check");
     assert.equal(
       alpha.records.report({ id: "sample" }, { "2": "two", "10": { "2": 2, "10": 10 } }),
@@ -45,7 +48,10 @@ describe("check-record Core Check session", () => {
           checkId: "alpha-check",
           outcome: { status: "failed", data: { "2": "two", "10": 10 } }
         },
-        { checkId: "zeta-check", outcome: { status: "not-applicable" } }
+        {
+          checkId: "zeta-check",
+          outcome: { status: "unavailable", reason: { code: "invalid-execution-result" } }
+        }
       ]
     );
     assert.deepEqual(snapshot.records, [
