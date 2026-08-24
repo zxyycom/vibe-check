@@ -2,6 +2,7 @@ import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { errorMessage } from "../../foundation/errors.ts";
 import { isPathWithin } from "../../foundation/path.ts";
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
 import { assertJSDocExamplePayloads } from "../artifact/audit.ts";
@@ -30,11 +31,7 @@ export function installCandidate(input: {
     expectedJSDocExamplePayloads,
     expectedReadme
   } = input;
-  if (!isPrivateCandidateConsumer(consumerDirectory)) {
-    throw new Error(
-      `candidate consumer ${consumerDirectory} must provide a package.json with private: true before local installation`
-    );
-  }
+  assertPrivateCandidateConsumer(consumerDirectory);
   // This directory is a dedicated private candidate consumer. Replacing its whole
   // install prevents Bun from satisfying a missing candidate dependency through
   // an ancestor node_modules directory.
@@ -44,18 +41,12 @@ export function installCandidate(input: {
     cwd: consumerDirectory,
     phase: `install candidate in ${consumerDirectory}`
   });
-  const installation = inspectInstallation({
+  return verifyInstallation({
     candidateVersion,
     consumerDirectory,
     expectedJSDocExamplePayloads,
     expectedReadme
   });
-  if (installation === undefined) {
-    throw new Error(
-      `candidate installation did not resolve ${CANDIDATE_NAME} with its declared ${JSCPD_PACKAGE_NAME} dependency from ${consumerDirectory}`
-    );
-  }
-  return installation;
 }
 
 /** Inspects a candidate without accepting an ancestor package or dependency fallback. */
@@ -65,41 +56,74 @@ export function inspectInstallation(input: {
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedReadme: string;
 }): InstalledCandidate | undefined {
+  try {
+    return verifyInstallation(input);
+  } catch {
+    return undefined;
+  }
+}
+
+/** Strictly validates a fresh install while retaining every failed validation stage. */
+function verifyInstallation(input: {
+  readonly candidateVersion: string;
+  readonly consumerDirectory: string;
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedReadme: string;
+}): InstalledCandidate {
   const { candidateVersion, consumerDirectory, expectedJSDocExamplePayloads, expectedReadme } =
     input;
   const packageDirectory = join(consumerDirectory, "node_modules", CANDIDATE_NAME);
   const manifestPath = join(packageDirectory, "package.json");
-  if (!existsSync(manifestPath)) return undefined;
-  let manifest: unknown;
-  try {
-    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-  } catch {
-    return undefined;
+  if (!existsSync(manifestPath)) {
+    throw new Error(`installed candidate package manifest is missing: ${manifestPath}`);
   }
+  const manifest = readJsonFile(manifestPath, "installed candidate package manifest");
   if (
     !isNonArrayRecord(manifest) ||
     manifest.name !== CANDIDATE_NAME ||
     manifest.version !== candidateVersion
   ) {
-    return undefined;
+    throw new Error(
+      `installed candidate package manifest must declare ${CANDIDATE_NAME}@${candidateVersion}: ${manifestPath}`
+    );
   }
+  const resolvedUrl = runBun({
+    args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", CANDIDATE_NAME],
+    cwd: consumerDirectory,
+    phase: `resolve candidate in ${consumerDirectory}`
+  }).trim();
   let resolvedEntryPath: string;
   try {
-    const resolvedUrl = runBun({
-      args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", CANDIDATE_NAME],
-      cwd: consumerDirectory,
-      phase: `resolve candidate in ${consumerDirectory}`
-    }).trim();
     resolvedEntryPath = fileURLToPath(resolvedUrl);
-  } catch {
-    return undefined;
+  } catch (error: unknown) {
+    throw new Error(
+      `candidate entry resolution returned an invalid file URL from ${consumerDirectory}: ${errorMessage(error)}`,
+      { cause: error }
+    );
   }
-  if (!existsSync(resolvedEntryPath) || !isPathWithin(packageDirectory, resolvedEntryPath)) {
-    return undefined;
+  if (!existsSync(resolvedEntryPath)) {
+    throw new Error(`candidate entry resolved to a missing path: ${resolvedEntryPath}`);
+  }
+  if (!isPathWithin(packageDirectory, resolvedEntryPath)) {
+    throw new Error(`candidate entry resolved outside its installed package: ${resolvedEntryPath}`);
   }
   const readmePath = join(packageDirectory, "README.md");
-  if (!existsSync(readmePath) || readFileSync(readmePath, "utf8") !== expectedReadme) {
-    return undefined;
+  if (!existsSync(readmePath)) {
+    throw new Error(`installed candidate README is missing: ${readmePath}`);
+  }
+  let readme: string;
+  try {
+    readme = readFileSync(readmePath, "utf8");
+  } catch (error: unknown) {
+    throw new Error(
+      `could not read installed candidate README ${readmePath}: ${errorMessage(error)}`,
+      { cause: error }
+    );
+  }
+  if (readme !== expectedReadme) {
+    throw new Error(
+      `installed candidate README differs from the expected package documentation: ${readmePath}`
+    );
   }
   try {
     assertJSDocExamplePayloads({
@@ -109,10 +133,12 @@ export function inspectInstallation(input: {
       description: "installed candidate declarations",
       expectedPayloads: expectedJSDocExamplePayloads
     });
-  } catch {
-    return undefined;
+  } catch (error: unknown) {
+    throw new Error(`installed candidate declaration validation failed: ${errorMessage(error)}`, {
+      cause: error
+    });
   }
-  if (!hasCandidateJscpdDependency(consumerDirectory, resolvedEntryPath)) return undefined;
+  verifyCandidateJscpdDependency(consumerDirectory, resolvedEntryPath);
   return Object.freeze({
     installedPackageDirectory: packageDirectory,
     resolvedEntryPath,
@@ -120,56 +146,82 @@ export function inspectInstallation(input: {
   });
 }
 
-function isPrivateCandidateConsumer(consumerDirectory: string): boolean {
+function assertPrivateCandidateConsumer(consumerDirectory: string): void {
   const manifestPath = join(consumerDirectory, "package.json");
-  if (!existsSync(manifestPath)) return false;
-  try {
-    const manifest: unknown = JSON.parse(readFileSync(manifestPath, "utf8"));
-    return isNonArrayRecord(manifest) && manifest.private === true;
-  } catch {
-    return false;
+  if (!existsSync(manifestPath)) {
+    throw new Error(`private candidate consumer package manifest is missing: ${manifestPath}`);
+  }
+  const manifest = readJsonFile(manifestPath, "private candidate consumer package manifest");
+  if (!isNonArrayRecord(manifest) || manifest.private !== true) {
+    throw new Error(`candidate consumer must set private: true in ${manifestPath}`);
   }
 }
 
-function hasCandidateJscpdDependency(
+function verifyCandidateJscpdDependency(
   consumerDirectory: string,
   candidateEntryPath: string
-): boolean {
-  let packageManifestPath: string;
-  try {
-    packageManifestPath = runBun({
-      args: [
-        "-e",
-        "import { createRequire } from 'node:module'; process.stdout.write(createRequire(process.argv[1]).resolve('jscpd/package.json'))",
-        candidateEntryPath
-      ],
-      cwd: consumerDirectory,
-      phase: `resolve declared ${JSCPD_PACKAGE_NAME} dependency in ${consumerDirectory}`
-    }).trim();
-  } catch {
-    return false;
+): void {
+  const packageManifestPath = runBun({
+    args: [
+      "-e",
+      "import { createRequire } from 'node:module'; process.stdout.write(createRequire(process.argv[1]).resolve('jscpd/package.json'))",
+      candidateEntryPath
+    ],
+    cwd: consumerDirectory,
+    phase: `resolve declared ${JSCPD_PACKAGE_NAME} dependency in ${consumerDirectory}`
+  }).trim();
+  if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
+    throw new Error(
+      `candidate ${JSCPD_PACKAGE_NAME} dependency resolved outside private consumer node_modules: ${packageManifestPath}`
+    );
   }
-  if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) return false;
 
-  let manifest: unknown;
-  try {
-    manifest = JSON.parse(readFileSync(packageManifestPath, "utf8"));
-  } catch {
-    return false;
-  }
+  const manifest = readJsonFile(
+    packageManifestPath,
+    `resolved ${JSCPD_PACKAGE_NAME} package manifest`
+  );
   if (
     !isNonArrayRecord(manifest) ||
     manifest.name !== JSCPD_PACKAGE_NAME ||
     manifest.version !== CANDIDATE_DEPENDENCIES.jscpd
   ) {
-    return false;
+    throw new Error(
+      `resolved ${JSCPD_PACKAGE_NAME} package manifest must declare ${JSCPD_PACKAGE_NAME}@${CANDIDATE_DEPENDENCIES.jscpd}: ${packageManifestPath}`
+    );
   }
 
   const binTarget = declaredJscpdBinTarget(manifest.bin);
-  if (binTarget === undefined) return false;
+  if (binTarget === undefined) {
+    throw new Error(
+      `resolved ${JSCPD_PACKAGE_NAME} package manifest does not declare its ${JSCPD_BIN_NAME} bin: ${packageManifestPath}`
+    );
+  }
   const packageDirectory = dirname(packageManifestPath);
   const binPath = resolve(packageDirectory, binTarget);
-  return isPathWithin(packageDirectory, binPath) && existsSync(binPath);
+  if (!isPathWithin(packageDirectory, binPath)) {
+    throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin escapes its package directory: ${binPath}`);
+  }
+  if (!existsSync(binPath)) {
+    throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin is missing: ${binPath}`);
+  }
+}
+
+function readJsonFile(filePath: string, description: string): unknown {
+  let source: string;
+  try {
+    source = readFileSync(filePath, "utf8");
+  } catch (error: unknown) {
+    throw new Error(`could not read ${description} ${filePath}: ${errorMessage(error)}`, {
+      cause: error
+    });
+  }
+  try {
+    return JSON.parse(source);
+  } catch (error: unknown) {
+    throw new Error(`could not parse ${description} ${filePath}: ${errorMessage(error)}`, {
+      cause: error
+    });
+  }
 }
 
 function declaredJscpdBinTarget(value: unknown): string | undefined {

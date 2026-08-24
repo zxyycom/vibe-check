@@ -15,6 +15,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
+import { installCandidate } from "./install.ts";
 import { preparePackageCandidate } from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -26,6 +27,7 @@ describe("package candidate preparation", () => {
     const consumerDirectory = join(temporaryRoot, "consumer");
     const stateDirectory = join(temporaryRoot, "state");
     try {
+      assertPrivateConsumerManifestDiagnostics(temporaryRoot);
       writeAncestorJscpdFallback(temporaryRoot);
       writeConsumerManifest(consumerDirectory);
       const first = await preparePackageCandidate({
@@ -43,6 +45,17 @@ describe("package candidate preparation", () => {
           .resolve("jscpd/package.json")
           .startsWith(join(consumerDirectory, "node_modules")),
         true
+      );
+      assert.throws(
+        () =>
+          installCandidate({
+            artifactPath: first.artifactPath,
+            candidateVersion: first.candidateVersion,
+            consumerDirectory,
+            expectedJSDocExamplePayloads: [],
+            expectedReadme: "incorrect candidate README\n"
+          }),
+        /installed candidate README differs from the expected package documentation/
       );
       const reused = await preparePackageCandidate({
         consumerDirectory,
@@ -103,6 +116,31 @@ describe("package candidate preparation", () => {
     }
   });
 });
+
+function assertPrivateConsumerManifestDiagnostics(temporaryRoot: string): void {
+  const artifactPath = join(temporaryRoot, "unreachable-artifact.tgz");
+  const consumerDirectory = join(temporaryRoot, "manifest-diagnostics-consumer");
+  const input = {
+    artifactPath,
+    candidateVersion: "0.0.0-local.manifest-diagnostics",
+    consumerDirectory,
+    expectedJSDocExamplePayloads: [],
+    expectedReadme: ""
+  };
+
+  assert.throws(
+    () => installCandidate(input),
+    /private candidate consumer package manifest is missing/
+  );
+  mkdirSync(consumerDirectory, { recursive: true });
+  writeFileSync(join(consumerDirectory, "package.json"), "{not JSON\n", "utf8");
+  assert.throws(
+    () => installCandidate(input),
+    /could not parse private candidate consumer package manifest/
+  );
+  writeFileSync(join(consumerDirectory, "package.json"), '{"private":false}\n', "utf8");
+  assert.throws(() => installCandidate(input), /candidate consumer must set private: true/);
+}
 
 function writeConsumerManifest(consumerDirectory: string): void {
   mkdirSync(consumerDirectory, { recursive: true });
