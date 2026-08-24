@@ -1,12 +1,13 @@
 # 编码规范
 
-本文档是 Vibe Check 实现者和 reviewer 的通用代码质量 owner。它与具体行为 owner、目标代码、
-相邻类型和测试一起使用，约束工程判断、实现模型、局部表达、边界处理、职责分层和交付验收。
-产品契约和当前架构继续由各自 owner 定义，本文只规定实现代码必须呈现的通用质量。
+本文档是 Vibe Check 实现者和 reviewer 的通用实现质量 owner，同时拥有项目自有 package 对外说明的
+语言规则。它与具体行为 owner、目标代码、相邻类型和测试一起使用，约束工程判断、实现模型、局部
+表达、边界处理、职责分层和交付验收；修改 package 对外说明时，它还规定中文主叙述的范围、判断和例外。
+产品行为契约、当前架构以及 package documentation 的生成与验证机械流程继续由各自 owner 定义。
 
 使用本文的预期结果是：代码直接呈现 owner、领域含义、主要数据流、状态与失败、模块关系和
-验证证据；实现者能按问题形态选择最小实现，reviewer 能区分阻断性违规、审查信号和无需统一的
-风格差异，并只要求影响相称的整改与验证。
+验证证据；对外说明以中文直接呈现 consumer 所需的用途、正确使用方式和边界。实现者能按问题
+形态选择最小实现，reviewer 能区分阻断性违规、审查信号和无需统一的风格差异，并只要求影响相称的整改与验证。
 
 ## 1. 使用顺序与裁决
 
@@ -14,15 +15,15 @@
 
 按以下顺序使用本文：
 
-1. 从[文档导航](navigation.md)选择行为 owner，确认稳定契约、实现归属和受影响边界。
-2. 读取目标代码、相邻类型和测试，恢复当前调用与集成事实。
-3. 使用本文选择实现模型、检查局部表达并确定验证层级。
-4. 运行目标范围的 TypeScript、Oxlint、Oxfmt 和行为验证入口。
+1. 从[文档导航](navigation.md)选择目标的行为或流程 owner，确认稳定契约、编辑归属和受影响边界。
+2. 修改实现代码时，读取目标代码、相邻类型和测试，恢复当前调用与集成事实；修改 package 对外说明时，读取本节 6.4 与[脚本工具](script-tooling.md#documentation-validation-and-package-material)。
+3. 对实现代码使用本文选择实现模型、检查局部表达并确定验证层级；对 package 对外说明使用 6.4 判断适用范围、中文主叙述和例外。
+4. 运行与改动相称的行为或文档验证入口；TypeScript、Oxlint 和 Oxfmt 继续只覆盖适用的实现改动。
 
 行为 owner 拥有具体命令行为、输出字段、schema、指标和测试语义；本文拥有实现这些契约时的
-通用代码质量。项目工具配置与脚本 owner 拥有可机械执行的 lint、format 和目标范围，当前入口见
-[脚本工具](script-tooling.md#oxlint-与-oxfmt)。行为 owner 与本文发生直接冲突时，行为 owner
-优先；没有直接冲突的通用质量要求仍然适用。
+通用代码质量，以及项目自有 package 对外说明的语言规则。项目工具配置与脚本 owner 拥有可机械
+执行的 lint、format、文档投影和验证，当前入口见[脚本工具](script-tooling.md)。行为 owner 与本文发生
+直接冲突时，行为 owner 优先；没有直接冲突的通用质量要求仍然适用。
 
 相邻代码只提供当前接口和调用事实，不得覆盖行为 owner、本文或工具配置。既有实现即使偏离
 本文，也不构成新增或修改代码继续偏离的依据。
@@ -197,6 +198,33 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 验收标准：reviewer 可以沿单一局部路径恢复输入如何成为结果、状态在哪里改变、异步工作何时
 完成，以及每个抽象解决了什么当前问题。
+
+### 6.4 package 对外说明以中文叙述为主
+
+本节是项目拥有的 package 对外说明的稳定语言规则 owner。修改这类材料或审查其改动时使用本节；产品契约仍由行为 owner 定义，README/JSDoc 的生成与验证机械流程仍由[脚本工具](script-tooling.md#documentation-validation-and-package-material)拥有。
+
+#### 适用范围
+
+- package README template 及其生成的 root `README.md`。
+- package entry 说明、public root JSDoc，以及 consumer 为正确使用 public API 必须读取的 supporting declaration 或字段 JSDoc。
+
+#### 判断标准
+
+- 说明以连续、可理解的中文叙述承载用途、正确使用方式和边界。reader 无需依赖另一段英文说明，即可从当前中文叙述恢复这些主要含义。
+- “中文为主”是编辑判断，不按字符比例计算，也不要求逐字翻译或双语镜像。
+- 现有 public-root JSDoc 中文检查只提供局部证据；它不是对全部对外材料的语言门禁，也不应被扩展为全面 gate。
+
+#### 可保留原文与排除范围
+
+- API identifier、代码与 code block、字面量、schema/协议字段、命令、路径、专有名、互操作材料和法律惯例材料可以保留原语言；需要时由周围中文说明其语义和边界。
+- 内部实现注释、历史 provenance/归档材料、机器契约和其它不面向 package consumer 的文档不在本节的机械整改范围；只在各自 owner 或任务明确要求时修改。
+
+#### 修改与验收路径
+
+1. 修改 package guide 时编辑 README template；修改 declaration 说明时编辑 source JSDoc。不得直接把 generated README 或 generated JSDoc example 当作新的内容 owner。
+2. 依照[脚本工具](script-tooling.md#documentation-validation-and-package-material)运行对应 projection 和验证；审查时确认范围内说明满足本节判断标准，且没有把该规则误实现为全量字符检测或无差别翻译。
+
+验收标准：agent 或 reviewer 能从本节确定是否适用、中文主叙述的通过条件、可保留原文、排除范围以及正确编辑和验证入口。
 
 ## 7. 错误处理与结果模型
 

@@ -54,13 +54,13 @@ export type CheckResult<FinalData extends object = object> = Readonly<
     | {
         /** Check 已产生通过的 final data。 */
         readonly status: "passed";
-        /** Check-owned primary final fact。 */
+        /** 此 Check 的主要终态事实。 */
         readonly data: FinalData;
       }
     | {
         /** Check 已产生失败的 final data。 */
         readonly status: "failed";
-        /** Check-owned primary final fact。 */
+        /** 此 Check 的主要终态事实。 */
         readonly data: FinalData;
       }
     | {
@@ -155,7 +155,7 @@ export type DependencyReadResult = Readonly<
       readonly checkId: string;
       /** upstream 已结算为 `passed` 或 `failed` 的 status。 */
       readonly status: "passed" | "failed";
-      /** detached canonical upstream final data。 */
+      /** 已与原对象脱离的上游依赖终态数据。 */
       readonly data: CanonicalJsonObject;
     }
   | {
@@ -371,16 +371,16 @@ export interface Check<Options extends object = object> {
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
 /**
- * Prevents a broad parser annotation from erasing PromiseLike. A canonical
- * `then` field may hold JSON data, but never the callable that makes a value thenable.
+ * 防止宽泛的 parser 标注擦除 `PromiseLike`。canonical `then` field 可以保存 JSON data，
+ * 但不能保存使该值成为 thenable 的 callable。
  */
 type NonThenableData = Readonly<{ readonly then?: CanonicalJsonValue }>;
 
 /**
- * 将 canonical dependency data 还原为 provider-owned final-data shape 的同步 parser。
+ * 将 canonical dependency data 还原为 provider final-data shape 的同步 parser。
  *
  * @typeParam FinalData - provider 在 `passed`/`failed` result 中声明的 final-data shape。
- * @remarks Product 不调用此 parser。provider 负责不受信任或跨版本 data 的业务验证。
+ * @remarks Product 不调用此 parser；provider 负责不受信任或跨版本 data 的业务验证。
  */
 export type CheckDataParser<FinalData extends object = object> = (
   this: void,
@@ -418,12 +418,11 @@ export type CheckWithoutOptions<Id extends string> = CheckAuthoringBase<Id, Empt
 
 interface TypedCheckFields<Options extends object, Parser extends CheckDataParser> {
   /**
-   * Restores provider data from canonical runtime data.
+   * 将 canonical runtime data 还原为 provider data。
    *
-   * Heuristic: a same-version trusted provider may implement this only as an
-   * identity/type anchor when provider tests guarantee the shape. That does
-   * not validate JavaScript or cast-based producers, historical or
-   * cross-version artifacts, or untrusted input.
+   * 启发式边界：同版本且受信任的 provider 若由测试保证 data shape，可仅将它实现为
+   * identity/type anchor。这不验证 JavaScript 或基于 cast 的 producer、历史或跨版本 artifact，
+   * 也不验证不受信任输入。
    */
   readonly parseData: Parser;
 

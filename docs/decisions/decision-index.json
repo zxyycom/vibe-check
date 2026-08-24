@@ -101,6 +101,7 @@
       "use-check-owned-file-overrides.md": "sha256:b1d34ccd30300b8adb5cdff08b4c1b59c13e6eddc9488ab1d33d783177affcd2",
       "use-check-scoped-invocation-wide-parallel-limits.md": "sha256:aa0c1a4e6de201cc28de641a92608e9dac31dcdd909c7d071c1fc5a22932c2e8",
       "use-check-value-derivation-contract.md": "sha256:664fe5893ec573221aee92d073ba17ee32c94e02b292e434325cd15797722ee4",
+      "use-chinese-as-primary-language-for-public-documentation.md": "sha256:2dc08d0308259e9d2859831189a82bf31e5d74a905b4cfcbda2cacbaaae5ae27",
       "use-closed-inheritable-check-collection-expressions.md": "sha256:4a1091611dd40e9e13daf7e4a4767952c54bb8e920c01bc6b0328a029840f628",
       "use-complete-upstream-governance-skills.md": "sha256:8befd7143f32439bf6a4ddc21387f63e8628c1ec8d1636ada84005fdd6497dee",
       "use-composable-check-tree-in-project-definition.md": "sha256:0f2d3dbc25a71aec0fbf4a9d4e2ad73f69b100e8097967a101f3b476a27803d6",
@@ -3074,6 +3075,35 @@
             "target": "use-standalone-built-in-check-adjustment-functions.md"
           }
         ]
+      }
+    },
+    "use-chinese-as-primary-language-for-public-documentation.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-chinese-as-primary-language-for-public-documentation.md",
+        "title": "让 package 对外说明以中文叙述为主",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-24T07:23:03Z",
+        "purpose": "让项目拥有的 package 对外说明以中文承载主要语义，同时保留必要技术原文和编辑判断空间。",
+        "background": "早期 package 文档曾采用中文主叙述，但该方向未进入当前稳定规范或决策，consumer 可达说明仍出现整段英文。",
+        "decision": "对 package consumer 的 README 与声明说明采用中文主叙述，以 reviewer 编辑判断维护，不建立全量字符门禁或机械翻译义务。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "use-closed-inheritable-check-collection-expressions.md": {
