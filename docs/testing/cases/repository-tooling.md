@@ -11,16 +11,21 @@ Entities:
 
 ## Case AUX-PACKAGE-CANDIDATE-001: Candidate preparation builds one auditable physical package
 
-Owner: `docs/script-tooling.md#quality-dogfood`
+Owner: `docs/script-tooling.md#package-artifact-与-candidate`
 Entities:
 
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > builds and audits the approved package artifact`
+- `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings`
+- `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization`
+- `bun|scripts/package/artifact/runtime-source-maps.test.ts|runtime source maps > normalizes and verifies one map against its packaged TypeScript source`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > prepares a physical candidate lifecycle`
 - `bun|scripts/package/candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
 - `bun|scripts/project/quality/locked-run.test.ts|candidate-backed quality workflow > does not start the repository scan when candidate preparation fails`
   Proves:
 - The candidate owner derives one local package with only the approved runtime exports, declared package dependencies, a physical consumer install, and a resolved installed entry.
-- Artifact construction independently audits the approved runtime, declarations, documentation inventory and production dependency manifest before candidate installation.
+- Artifact construction preserves ordinary path strings, rejects malformed emitted JavaScript, and normalizes every relative ESM import, re-export, dynamic import, and side-effect import to a resolvable `.mjs` target.
+- Runtime source-map normalization derives each packaged source path from its emitted module path, embeds that exact source, and rejects later source drift.
+- Before candidate installation, artifact audit independently verifies the exact root facade, readable `dist/esm/**.mjs` tree, source maps and packaged source correspondence, declarations, documentation inventory, and production dependency manifest.
 - A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
 - A missing candidate-owned `jscpd` closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
 - An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including explicit aggregation, a versioned typed provider, non-generic string dependency reads, four-state custom final data with terminal messages, `attention` visibility, two-argument supplemental Record reporting, and final-snapshot `RunResult.checkDurations` / `checkMessages` without new duration or message type roots), then completes a minimal `duplicateDetection` Run using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.

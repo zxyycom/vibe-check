@@ -80,6 +80,7 @@
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:bd26f5f57e41abb0cc2d159ba3856927db8aa7e1b70f08bce9731ea80d8e2308",
+      "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
@@ -2438,6 +2439,35 @@
             "target": "publish-fingerprint-bound-check-record-machine-v3.md"
           }
         ]
+      }
+    },
+    "publish-readable-esm-package-layout.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-readable-esm-package-layout.md",
+        "title": "以可读 ESM 模块树交付 package 运行时",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-24T08:04:05Z",
+        "purpose": "让 Bun consumer 能检查 ESM 模块边界，并恢复对应的权威 TypeScript 源码。",
+        "background": "单文件 bundle 难以检查和调试；额外运行时格式会扩大尚未承诺的维护责任。",
+        "decision": "交付可读 ESM 模块树、类型声明和源码材料，只公开 package 根路径。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "publish-unscoped-vibe-check-publicly.md": {

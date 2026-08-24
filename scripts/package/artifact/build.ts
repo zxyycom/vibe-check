@@ -1,19 +1,24 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { join, relative, sep } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, relative, sep } from "node:path";
 
 import {
   auditCandidateArtifact,
   auditStagingRuntime,
   type ArtifactDocumentation
 } from "./audit.ts";
+import { rewriteRelativeEsmModuleExtensions } from "./esm-module-specifiers.ts";
+import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
 import {
   CANDIDATE_NAME,
-  collectFiles,
   PACKAGE_ENTRY_PATH,
-  PACKAGE_README_PATH
-} from "./fingerprint.ts";
+  PACKAGE_ENTRY_SOURCE,
+  PACKAGE_README_PATH,
+  PACKAGE_RUNTIME_DIRECTORY,
+  PACKAGE_SOURCE_DIRECTORY
+} from "./package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "./pack.ts";
+import { normalizeRuntimeSourceMap } from "./runtime-source-maps.ts";
 
 export interface CandidateArtifact {
   readonly artifactPath: string;
@@ -44,22 +49,12 @@ export async function buildCandidateArtifact(input: {
     stateDirectory
   } = input;
   mkdirSync(stagingDirectory, { recursive: true });
-  writeCandidateManifest(join(stagingDirectory, "package.json"), candidateVersion);
+  writeCandidateManifest({
+    manifestPath: join(stagingDirectory, "package.json"),
+    version: candidateVersion
+  });
   writeFileSync(join(stagingDirectory, PACKAGE_README_PATH), documentation.readme, "utf8");
 
-  runBun({
-    args: [
-      "build",
-      join(repositoryRoot, "src/index.ts"),
-      "--target=bun",
-      "--format=esm",
-      "--packages=bundle",
-      "--sourcemap=none",
-      `--outfile=${join(stagingDirectory, PACKAGE_ENTRY_PATH)}`
-    ],
-    cwd: repositoryRoot,
-    phase: "build runtime"
-  });
   runBun({
     args: [
       "x",
@@ -68,7 +63,6 @@ export async function buildCandidateArtifact(input: {
       "--ignoreConfig",
       "--allowImportingTsExtensions",
       "--erasableSyntaxOnly",
-      "--incremental",
       "--module",
       "nodenext",
       "--moduleResolution",
@@ -81,18 +75,24 @@ export async function buildCandidateArtifact(input: {
       "--verbatimModuleSyntax",
       "--rewriteRelativeImportExtensions",
       "--declaration",
-      "--emitDeclarationOnly",
-      "--outDir",
+      "--declarationDir",
       join(stagingDirectory, "types"),
+      "--outDir",
+      join(stagingDirectory, PACKAGE_RUNTIME_DIRECTORY),
       "--rootDir",
       join(repositoryRoot, "src"),
+      "--sourceMap",
+      "--inlineSources",
       "--tsBuildInfoFile",
       join(stateDirectory, "candidate.tsbuildinfo"),
       join(repositoryRoot, "src/index.ts")
     ],
     cwd: repositoryRoot,
-    phase: "emit declarations"
+    phase: "emit readable runtime and declarations"
   });
+  copyRuntimeSources({ repositoryRoot, stagingDirectory });
+  normalizeEmittedRuntime({ stagingDirectory });
+  writeFileSync(join(stagingDirectory, PACKAGE_ENTRY_PATH), PACKAGE_ENTRY_SOURCE, "utf8");
 
   auditStagingRuntime({
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
@@ -129,4 +129,85 @@ export async function buildCandidateArtifact(input: {
     sha256,
     stagingDirectory
   });
+}
+
+/** Converts TypeScript's emitted .js module graph into the package's ESM .mjs tree. */
+function normalizeEmittedRuntime(input: { readonly stagingDirectory: string }): void {
+  const runtimeDirectory = join(input.stagingDirectory, PACKAGE_RUNTIME_DIRECTORY);
+  const emittedJavaScriptPaths = collectFiles(runtimeDirectory, (relativePath) =>
+    relativePath.endsWith(".js")
+  );
+  if (emittedJavaScriptPaths.length === 0) {
+    throw new Error("readable runtime emit did not produce any JavaScript modules");
+  }
+  for (const javascriptPath of emittedJavaScriptPaths) {
+    normalizeEmittedModule({ javascriptPath, stagingDirectory: input.stagingDirectory });
+  }
+}
+
+function normalizeEmittedModule(input: {
+  readonly javascriptPath: string;
+  readonly stagingDirectory: string;
+}): void {
+  const sourceMapPath = `${input.javascriptPath}.map`;
+  if (!existsSync(sourceMapPath)) {
+    throw new Error(`readable runtime module is missing its source map: ${input.javascriptPath}`);
+  }
+  const modulePath = `${input.javascriptPath.slice(0, -".js".length)}.mjs`;
+  const moduleSource = rewriteRelativeEsmModuleExtensions({
+    fileName: input.javascriptPath,
+    source: readFileSync(input.javascriptPath, "utf8")
+  });
+  const normalizedModuleSource = rewriteLinkedSourceMapComment({
+    javascriptPath: input.javascriptPath,
+    modulePath,
+    moduleSource
+  });
+  const normalizedSourceMap = normalizeRuntimeSourceMap({
+    modulePath,
+    source: readFileSync(sourceMapPath, "utf8"),
+    sourceMapPath,
+    stagingDirectory: input.stagingDirectory
+  });
+  writeFileSync(modulePath, normalizedModuleSource, "utf8");
+  writeFileSync(`${modulePath}.map`, normalizedSourceMap, "utf8");
+  rmSync(input.javascriptPath);
+  rmSync(sourceMapPath);
+}
+
+function rewriteLinkedSourceMapComment(input: {
+  readonly javascriptPath: string;
+  readonly modulePath: string;
+  readonly moduleSource: string;
+}): string {
+  const sourceMapComment = `//# sourceMappingURL=${basename(input.javascriptPath)}.map`;
+  const commentStart = input.moduleSource.lastIndexOf(sourceMapComment);
+  if (commentStart === -1) {
+    throw new Error(
+      `readable runtime module does not link its source map: ${input.javascriptPath}`
+    );
+  }
+  const trailingSource = input.moduleSource.slice(commentStart + sourceMapComment.length);
+  if (trailingSource !== "" && trailingSource !== "\n") {
+    throw new Error(
+      `readable runtime module does not end with its source map reference: ${input.javascriptPath}`
+    );
+  }
+  return `${input.moduleSource.slice(0, commentStart)}//# sourceMappingURL=${basename(input.modulePath)}.map${trailingSource}`;
+}
+
+function copyRuntimeSources(input: {
+  readonly repositoryRoot: string;
+  readonly stagingDirectory: string;
+}): void {
+  const sourceRoot = join(input.repositoryRoot, "src");
+  for (const sourcePath of collectRuntimeSourceFiles(sourceRoot)) {
+    const destination = join(
+      input.stagingDirectory,
+      PACKAGE_SOURCE_DIRECTORY,
+      relative(sourceRoot, sourcePath)
+    );
+    mkdirSync(dirname(destination), { recursive: true });
+    copyFileSync(sourcePath, destination);
+  }
 }

@@ -3,16 +3,22 @@ import { writeFileSync } from "node:fs";
 import {
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
+  PACKAGE_DISTRIBUTION_DIRECTORY,
   PACKAGE_ENTRY_PATH,
   PACKAGE_README_PATH,
+  PACKAGE_SOURCE_DIRECTORY,
+  PACKAGE_TYPES_DIRECTORY,
   PACKAGE_TYPES_PATH
-} from "./fingerprint.ts";
+} from "./package-contract.ts";
 
 /** Writes the only package manifest projection accepted by the artifact audit. */
-export function writeCandidateManifest(manifestPath: string, version: string): void {
+export function writeCandidateManifest(input: {
+  readonly manifestPath: string;
+  readonly version: string;
+}): void {
   const manifest = {
     name: CANDIDATE_NAME,
-    version,
+    version: input.version,
     type: "module",
     exports: {
       ".": {
@@ -20,8 +26,14 @@ export function writeCandidateManifest(manifestPath: string, version: string): v
         import: `./${PACKAGE_ENTRY_PATH}`
       }
     },
-    files: [PACKAGE_ENTRY_PATH, PACKAGE_README_PATH, "types"],
+    files: [
+      PACKAGE_ENTRY_PATH,
+      PACKAGE_README_PATH,
+      PACKAGE_DISTRIBUTION_DIRECTORY,
+      PACKAGE_TYPES_DIRECTORY,
+      PACKAGE_SOURCE_DIRECTORY
+    ],
     dependencies: CANDIDATE_DEPENDENCIES
   };
-  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  writeFileSync(input.manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
 }

@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
@@ -31,17 +30,24 @@ describe("package artifact", () => {
 
       assert.equal(existsSync(artifact.artifactPath), true);
       assert.equal(artifact.files.includes("package/README.md"), true);
+      assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
+      assert.equal(artifact.files.includes("package/dist/esm/index.mjs.map"), true);
+      assert.equal(artifact.files.includes("package/src/index.ts"), true);
       assert.equal(
         readFileSync(join(artifact.stagingDirectory, "README.md"), "utf8"),
         documentation.readme
       );
       assertEmittedPublicDocumentation(artifact.stagingDirectory);
+      assertReadableRuntimeLayout(artifact.stagingDirectory);
       assert.equal(
-        runtimeExports(join(artifact.stagingDirectory, "index.mjs")),
+        declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
         '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
+        "csv-parse": "7.0.1",
+        execa: "9.6.1",
         jscpd: "5.0.11",
+        minimatch: "10.2.5",
         neverthrow: "8.2.0",
         typebox: "1.3.9"
       });
@@ -80,6 +86,44 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
   );
 }
 
+function assertReadableRuntimeLayout(stagingDirectory: string): void {
+  const facadePath = join(stagingDirectory, "index.mjs");
+  assert.equal(readFileSync(facadePath, "utf8"), 'export * from "./dist/esm/index.mjs";\n');
+  const runtimeDirectory = join(stagingDirectory, "dist", "esm");
+  const runtimeFiles = readFilePaths(runtimeDirectory);
+  assert.equal(
+    runtimeFiles.some((path) => path.endsWith(".mjs")),
+    true
+  );
+  assert.equal(
+    runtimeFiles.some((path) => path.endsWith(".mjs.map")),
+    true
+  );
+  assert.equal(
+    runtimeFiles.some((path) => path.endsWith(".js")),
+    false
+  );
+  const runtimeEntry = readFileSync(join(runtimeDirectory, "index.mjs"), "utf8");
+  assert.match(runtimeEntry, /from "\.\/definition\/project-definition\.mjs"/);
+  assert.match(runtimeEntry, /sourceMappingURL=index\.mjs\.map/);
+  const sourceMap: unknown = JSON.parse(
+    readFileSync(join(runtimeDirectory, "index.mjs.map"), "utf8")
+  );
+  if (
+    !isRecord(sourceMap) ||
+    sourceMap.file !== "index.mjs" ||
+    !Array.isArray(sourceMap.sourcesContent) ||
+    typeof sourceMap.sourcesContent[0] !== "string"
+  ) {
+    throw new TypeError("runtime source map must identify and embed its TypeScript entry source");
+  }
+  assert.equal(sourceMap.file, "index.mjs");
+  assert.equal(
+    sourceMap.sourcesContent[0],
+    readFileSync(join(stagingDirectory, "src", "index.ts"), "utf8")
+  );
+}
+
 function readDeclarationSources(root: string): readonly string[] {
   const sources: string[] = [];
   const visit = (directory: string): void => {
@@ -93,6 +137,19 @@ function readDeclarationSources(root: string): readonly string[] {
   };
   visit(root);
   return Object.freeze(sources);
+}
+
+function readFilePaths(root: string): readonly string[] {
+  const paths: string[] = [];
+  const visit = (directory: string): void => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile()) paths.push(path);
+    }
+  };
+  visit(root);
+  return Object.freeze(paths);
 }
 
 function hasAdjacentChineseJSDoc(source: string, declarationName: string): boolean {
@@ -115,17 +172,18 @@ function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function runtimeExports(entryPath: string): string {
-  const result = spawnSync(
-    process.execPath,
-    [
-      "-e",
-      "import(process.argv[1]).then((module) => process.stdout.write(JSON.stringify(Object.keys(module).sort())))",
-      pathToFileURL(entryPath).href
-    ],
-    { encoding: "utf8" }
-  );
-  assert.equal(result.error, undefined);
-  assert.equal(result.status, 0, result.stderr);
-  return result.stdout.trim();
+function declaredRuntimeExports(entryPath: string): string {
+  const source = readFileSync(entryPath, "utf8");
+  const exports = [...source.matchAll(/export\s*\{([^}]+)\}\s*from\s*["']\.\//g)]
+    .flatMap((match) =>
+      match[1].split(",").map((name) =>
+        name
+          .trim()
+          .split(/\s+as\s+/)
+          .at(-1)
+      )
+    )
+    .filter((name): name is string => name !== undefined)
+    .sort((left, right) => left.localeCompare(right));
+  return JSON.stringify(exports);
 }

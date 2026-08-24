@@ -1,20 +1,11 @@
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
-
-export const CANDIDATE_NAME = "vibe-check";
-export const JSCPD_BIN_NAME = "jscpd";
-export const JSCPD_PACKAGE_NAME = "jscpd";
-export const CANDIDATE_DEPENDENCIES = Object.freeze({
-  jscpd: "5.0.11",
-  neverthrow: "8.2.0",
-  typebox: "1.3.9"
-});
-export const PACKAGE_ENTRY_PATH = "index.mjs";
-export const PACKAGE_TYPES_PATH = "types/index.d.ts";
-export const PACKAGE_README_PATH = "README.md";
+import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
+import { CANDIDATE_DEPENDENCIES } from "./package-contract.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "docs/package-readme.template.md",
@@ -22,18 +13,13 @@ const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/render.ts"
 ]);
 const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
-
-export const RUNTIME_EXPORTS = Object.freeze(
-  [
-    ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
-    ...Object.values(CURRENT_PUBLIC_CONTRACT.values)
-  ].sort()
-);
+const ARTIFACT_TOOLCHAIN_PACKAGES = Object.freeze(["@typescript/native-preview", "typescript"]);
 
 /** Returns the deterministic source fingerprint that binds one local candidate version. */
 export function createArtifactFingerprint(repositoryRoot: string): string {
   const hash = createHash("sha256");
   hash.update(`bun=${bunVersion()}\0`);
+  hash.update(`artifact-toolchain=${JSON.stringify(artifactToolchainVersions())}\0`);
   hash.update(`candidate-dependencies=${JSON.stringify(CANDIDATE_DEPENDENCIES)}\0`);
 
   const inputFiles = [
@@ -49,38 +35,6 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     hash.update("\0");
   }
   return hash.digest("hex");
-}
-
-export function collectFiles(
-  root: string,
-  include: (relativePath: string) => boolean
-): readonly string[] {
-  if (!existsSync(root)) return Object.freeze([]);
-  const files: string[] = [];
-  const visit = (directory: string): void => {
-    for (const entry of readdirSync(directory, { withFileTypes: true })) {
-      const filePath = join(directory, entry.name);
-      if (entry.isDirectory()) {
-        visit(filePath);
-      } else if (entry.isFile()) {
-        const relativePath = relative(root, filePath).split(sep).join("/");
-        if (include(relativePath)) files.push(filePath);
-      }
-    }
-  };
-  visit(root);
-  return Object.freeze(files.sort());
-}
-
-function collectRuntimeSourceFiles(sourceRoot: string): readonly string[] {
-  return collectFiles(
-    sourceRoot,
-    (relativePath) =>
-      relativePath.endsWith(".ts") &&
-      !relativePath.endsWith(".test.ts") &&
-      !relativePath.endsWith(".test-support.ts") &&
-      !relativePath.endsWith("bun-test.d.ts")
-  );
 }
 
 function collectPackageSourceFiles(repositoryRoot: string): readonly string[] {
@@ -105,4 +59,38 @@ function bunVersion(): string {
     throw new Error("candidate preparation requires a Bun runtime with a reported version");
   }
   return version;
+}
+
+function artifactToolchainVersions(): Readonly<Record<string, string>> {
+  return Object.freeze(
+    Object.fromEntries(
+      ARTIFACT_TOOLCHAIN_PACKAGES.map((packageName) => [
+        packageName,
+        installedPackageVersion(packageName)
+      ])
+    )
+  );
+}
+
+function installedPackageVersion(packageName: string): string {
+  let manifestPath: string;
+  try {
+    manifestPath = fileURLToPath(import.meta.resolve(`${packageName}/package.json`));
+  } catch (error: unknown) {
+    throw new Error(`could not resolve artifact toolchain package ${packageName}`, {
+      cause: error
+    });
+  }
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  } catch (error: unknown) {
+    throw new Error(`could not read artifact toolchain package manifest: ${manifestPath}`, {
+      cause: error
+    });
+  }
+  if (!isNonArrayRecord(manifest) || typeof manifest.version !== "string") {
+    throw new Error(`artifact toolchain package manifest has no version: ${manifestPath}`);
+  }
+  return manifest.version;
 }

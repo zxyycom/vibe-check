@@ -1,21 +1,27 @@
 import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
-import { join, relative, resolve, sep } from "node:path";
-import { pathToFileURL } from "node:url";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 import { errorMessage } from "../../foundation/errors.ts";
 import { isPathWithin } from "../../foundation/path.ts";
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { relativeEsmModuleSpecifiers } from "./esm-module-specifiers.ts";
+import { collectFiles } from "./file-inventory.ts";
 import {
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
-  collectFiles,
   PACKAGE_ENTRY_PATH,
+  PACKAGE_ENTRY_SOURCE,
   PACKAGE_README_PATH,
+  PACKAGE_RUNTIME_DIRECTORY,
+  PACKAGE_RUNTIME_ENTRY_PATH,
+  PACKAGE_SOURCE_DIRECTORY,
+  PACKAGE_TYPES_DIRECTORY,
   PACKAGE_TYPES_PATH,
   RUNTIME_EXPORTS
-} from "./fingerprint.ts";
-import { runBun, sha256File } from "./pack.ts";
+} from "./package-contract.ts";
+import { sha256File } from "./pack.ts";
+import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/registry.ts";
 import {
   renderPackageApiDocumentation,
@@ -52,35 +58,26 @@ export function auditStagingRuntime(input: {
 }): void {
   const { expectedJSDocExamplePayloads, expectedReadme, stagingDirectory } = input;
   const entryPath = join(stagingDirectory, PACKAGE_ENTRY_PATH);
+  const runtimeEntryPath = join(stagingDirectory, PACKAGE_RUNTIME_ENTRY_PATH);
   const typesPath = join(stagingDirectory, PACKAGE_TYPES_PATH);
-  if (!existsSync(entryPath) || !existsSync(typesPath)) {
+  if (!existsSync(entryPath) || !existsSync(runtimeEntryPath) || !existsSync(typesPath)) {
     throw new Error("candidate staging is missing its public runtime entry or declarations entry");
+  }
+  if (readFileSync(entryPath, "utf8") !== PACKAGE_ENTRY_SOURCE) {
+    throw new Error("candidate public facade does not match the approved runtime entry");
   }
   assertFileContentMatches({
     content: expectedReadme,
     path: join(stagingDirectory, PACKAGE_README_PATH)
   });
   assertJSDocExamplePayloads({
-    declarationSources: collectFiles(join(stagingDirectory, "types"), (path) =>
+    declarationSources: collectFiles(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
       path.endsWith(".d.ts")
     ).map((path) => readFileSync(path, "utf8")),
     description: "candidate staging declarations",
     expectedPayloads: expectedJSDocExamplePayloads
   });
-  const actualExports = [
-    ...parseStringArray(
-      runBun({
-        args: [
-          "-e",
-          "import(process.argv[1]).then((module) => process.stdout.write(JSON.stringify(Object.keys(module).sort())))",
-          pathToFileURL(entryPath).href
-        ],
-        cwd: stagingDirectory,
-        phase: "audit runtime exports"
-      }),
-      "candidate runtime export list"
-    )
-  ].sort();
+  const actualExports = declaredRuntimeExports(readFileSync(runtimeEntryPath, "utf8"));
   if (!sameStrings(actualExports, RUNTIME_EXPORTS)) {
     throw new Error(
       `candidate runtime exports must be ${RUNTIME_EXPORTS.join(", ")}; received ${actualExports.join(", ")}`
@@ -90,6 +87,7 @@ export function auditStagingRuntime(input: {
   if (typesSource.includes("export *")) {
     throw new Error("candidate declarations must not use wildcard public exports");
   }
+  assertReadableRuntimeLayout(stagingDirectory);
   const unexpectedFiles = collectFiles(stagingDirectory, () => true)
     .map((filePath) => relative(stagingDirectory, filePath).split(sep).join("/"))
     .filter(
@@ -97,12 +95,79 @@ export function auditStagingRuntime(input: {
         filePath !== "package.json" &&
         filePath !== PACKAGE_ENTRY_PATH &&
         filePath !== PACKAGE_README_PATH &&
-        !(filePath.startsWith("types/") && filePath.endsWith(".d.ts"))
+        !(
+          filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
+          (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
+        ) &&
+        !(filePath.startsWith(`${PACKAGE_TYPES_DIRECTORY}/`) && filePath.endsWith(".d.ts")) &&
+        !(filePath.startsWith(`${PACKAGE_SOURCE_DIRECTORY}/`) && filePath.endsWith(".ts"))
     );
   if (unexpectedFiles.length > 0) {
     throw new Error(
       `candidate staging contains materials outside its allowlisted runtime and declaration inventory: ${unexpectedFiles.join(", ")}`
     );
+  }
+}
+
+function assertReadableRuntimeLayout(stagingDirectory: string): void {
+  const runtimeDirectory = join(stagingDirectory, PACKAGE_RUNTIME_DIRECTORY);
+  const runtimeFiles = collectFiles(runtimeDirectory, () => true);
+  const modules = runtimeFiles.filter((path) => path.endsWith(".mjs"));
+  if (modules.length === 0) {
+    throw new Error("candidate staging is missing its readable ESM module tree");
+  }
+  if (runtimeFiles.some((path) => path.endsWith(".js") || path.endsWith(".js.map"))) {
+    throw new Error("candidate readable ESM module tree must not retain .js runtime artifacts");
+  }
+  for (const modulePath of modules) {
+    const sourceMapPath = `${modulePath}.map`;
+    if (!existsSync(sourceMapPath)) {
+      throw new Error(`candidate ESM module is missing a source map: ${modulePath}`);
+    }
+    const moduleSource = readFileSync(modulePath, "utf8");
+    const sourceMapFileName = `${basename(modulePath)}.map`;
+    if (!moduleSource.includes(`sourceMappingURL=${sourceMapFileName}`)) {
+      throw new Error(`candidate ESM module does not link its source map: ${modulePath}`);
+    }
+    assertRelativeModuleReferencesResolve({ modulePath, moduleSource });
+    assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory });
+  }
+}
+
+function declaredRuntimeExports(runtimeEntrySource: string): readonly string[] {
+  const exports: string[] = [];
+  const declaration = /export\s*\{([^}]+)\}\s*from\s*["']\.\//g;
+  for (const match of runtimeEntrySource.matchAll(declaration)) {
+    for (const exportedName of match[1].split(",")) {
+      const name = exportedName
+        .trim()
+        .split(/\s+as\s+/)
+        .at(-1);
+      if (name !== undefined && name.length > 0) exports.push(name);
+    }
+  }
+  return Object.freeze(exports.sort());
+}
+
+function assertRelativeModuleReferencesResolve(input: {
+  readonly modulePath: string;
+  readonly moduleSource: string;
+}): void {
+  for (const specifier of relativeEsmModuleSpecifiers({
+    fileName: input.modulePath,
+    source: input.moduleSource
+  })) {
+    if (!specifier.endsWith(".mjs")) {
+      throw new Error(
+        `candidate ESM module uses a non-.mjs relative specifier ${specifier}: ${input.modulePath}`
+      );
+    }
+    const targetPath = resolve(dirname(input.modulePath), specifier);
+    if (!existsSync(targetPath)) {
+      throw new Error(
+        `candidate ESM module reference does not resolve ${specifier}: ${input.modulePath}`
+      );
+    }
   }
 }
 
@@ -342,17 +407,4 @@ function tarString(source: Buffer): string {
 
 function sameStrings(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
-}
-
-function parseStringArray(source: string, description: string): readonly string[] {
-  let value: unknown;
-  try {
-    value = JSON.parse(source);
-  } catch (error: unknown) {
-    throw new Error(`${description} is not valid JSON: ${errorMessage(error)}`, { cause: error });
-  }
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
-    throw new Error(`${description} must be a JSON string array`);
-  }
-  return Object.freeze([...value]);
 }

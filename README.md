@@ -8,6 +8,12 @@ Vibe Check 是由项目在 **Bun** runtime 中显式调用的 TypeScript API：�
 
 当前事实是：仓库只验证本地 package candidate，尚未发布 registry package。本地 candidate 的准备、安装和隔离验证由仓库维护者执行；本文不提供未经验证的 shell 安装步骤。获得单独 release 授权后，consumer 才应按该 release 的说明使用精确 `0.0.x` version；不要把本文当作已发生发布或版本兼容承诺。
 
+## 包内结构与源码恢复
+
+安装包根部的 `index.mjs` 是唯一公开入口，它转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript 类型声明。每个运行时模块都有对应的源码映射，`src/**.ts` 同时保留生成这些模块的 Product 源码，便于检查实现和定位堆栈。
+
+这些内部路径只用于阅读和调试，不是公开导入路径。`package.json` 的 `exports` 仍只开放根路径 `"."`：consumer 代码应从 `vibe-check` 导入，不得依赖 `vibe-check/dist/**`、`vibe-check/types/**` 或 `vibe-check/src/**`。
+
 ## 最小 Project Definition 与 Run
 
 Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象值，再由项目自己的 wrapper 调用 `run(definition, controls)`。Product 不会发现、加载或重载第二个配置模块。

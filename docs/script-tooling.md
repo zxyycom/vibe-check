@@ -55,6 +55,20 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 修改 lint rule、format option 或目标范围时，修改相应配置或 development owner；不要在 package、子目录或
 文档复制同义规则表或 target list。实现原则仍以[编码规范](coding-style.md)为准。
 
+## Package artifact 与 candidate
+
+`scripts/package/artifact/**` 从唯一 Product 入口 `src/index.ts` 构造 local candidate。artifact fingerprint
+同时绑定 Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。构建过程逐模块生成
+`dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的 `src/**.ts` Product
+源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径
+`"."`，因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。
+
+逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且版本精确的直接运行时依赖。
+artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
+源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
+`scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
+它不从 repository source 或祖先依赖补偿不完整的 candidate。
+
 ## Quality dogfood
 
 `quality` 是人或 AI 调用 repository Project Run 的唯一 dogfood root entry，不是产品第二入口。其调用方向为：

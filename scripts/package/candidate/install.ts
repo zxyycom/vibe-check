@@ -9,10 +9,11 @@ import { assertJSDocExamplePayloads } from "../artifact/audit.ts";
 import {
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
-  collectFiles,
   JSCPD_BIN_NAME,
-  JSCPD_PACKAGE_NAME
-} from "../artifact/fingerprint.ts";
+  JSCPD_PACKAGE_NAME,
+  PACKAGE_TYPES_DIRECTORY
+} from "../artifact/package-contract.ts";
+import { collectFiles } from "../artifact/file-inventory.ts";
 import { runBun, sha256File } from "../artifact/pack.ts";
 import type { InstalledCandidate } from "./receipt.ts";
 
@@ -127,7 +128,7 @@ function verifyInstallation(input: {
   }
   try {
     assertJSDocExamplePayloads({
-      declarationSources: collectFiles(join(packageDirectory, "types"), (path) =>
+      declarationSources: collectFiles(join(packageDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
         path.endsWith(".d.ts")
       ).map((path) => readFileSync(path, "utf8")),
       description: "installed candidate declarations",
