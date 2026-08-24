@@ -5,6 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "align-source-layout-and-naming-with-module-owners.md": "sha256:b1f59328093ab9f99a43000741f1745e86ecb12ed42e2aa058e9f6521fbf5e6f",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:9e9bf5ca4a417aaae0d3db0acba14bdd5cbc9e7b8148f271b7138e75cc091801",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
@@ -163,6 +164,35 @@
     }
   ],
   "entries": {
+    "align-source-layout-and-naming-with-module-owners.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "align-source-layout-and-naming-with-module-owners.md",
+        "title": "让源码布局与命名共同表达模块 owner",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-24T02:13:05Z",
+        "purpose": "让 Product 与仓库脚本的目录、文件、入口和导出名称共同表达实际模块 owner，避免路径整理后仍保留模糊命名。",
+        "background": "Product 与 scripts 存在历史包装层、职责错位和大量 index 入口；只移动目录会保留查找成本，并可能把已取消的 CLI 固化为一级模块。",
+        "decision": "以 owner 层级和领域职责同时约束目录与命名，仅保留显式批准的 index 入口，移除临时 Product CLI diagnostic。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
     "allow-check-terminal-messages-and-explicit-visibility.md": {
       "keys": {
         "tag": [

@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:vibe-check:layout-naming-ledger:v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "baselineCommit",
+    "entries"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "baselineCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/entry"
+      }
+    }
+  },
+  "$defs": {
+    "stringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "nonEmptyStringArray": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "exception": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "externalRequirement",
+        "permanentOwner",
+        "verification"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "index",
+            "generic"
+          ]
+        },
+        "externalRequirement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "permanentOwner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verification": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourcePath",
+        "kind",
+        "action",
+        "targetPaths",
+        "targetOwners",
+        "primaryExports",
+        "nameRationale",
+        "nameException",
+        "contentDisposition",
+        "consumers",
+        "verification"
+      ],
+      "properties": {
+        "sourcePath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "production",
+            "test",
+            "support",
+            "config",
+            "owner-doc",
+            "case",
+            "change",
+            "formed-record"
+          ]
+        },
+        "action": {
+          "enum": [
+            "move",
+            "rename",
+            "move-and-rename",
+            "split",
+            "delete",
+            "unchanged"
+          ]
+        },
+        "targetPaths": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "targetOwners": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "primaryExports": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "nameRationale": {
+          "type": "string",
+          "minLength": 1
+        },
+        "nameException": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/exception"
+            }
+          ]
+        },
+        "contentDisposition": {
+          "enum": [
+            "none",
+            "update-current-references",
+            "preserve-formed-text",
+            "remove-with-owner"
+          ]
+        },
+        "consumers": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "verification": {
+          "$ref": "#/$defs/nonEmptyStringArray"
+        }
+      }
+    }
+  }
+}
