@@ -44,7 +44,7 @@
                                                             [archived] ship-public-package-api-documentation
                                                                                                      │
                                                                                                      v
-                                                                    align-project-gate-with-native-check-authoring
+                                                         [archived] align-project-gate-with-native-check-authoring
                                                                                                      │
                                                                                                      v
                                                                     publish-public-api-only-npm-package
@@ -52,7 +52,7 @@
 
 前三个上游 Change 与首轮 Gate build 已提供 cutover 所需的能力输入。Cutover handoff 拥有正式 bindings、legacy retirement 与刷新条件；package documentation handoff 拥有 README/JSDoc/declaration contract、形成时 artifact identity 与失效条件。两者都只作为 native Check authoring 明确消费的输入，不自动证明实现后的 artifact 仍匹配。
 
-当前 native Check authoring Plan 从 assurance obligations 重建 ordinary Check catalog，只为真实 external executable、toolchain、isolation 与 installed-candidate boundaries 保留 process，并以 current exact artifact 写出 <code>gate-optimization-handoff.md</code>。该优化不会撤销 cutover 或恢复旧 verifier。其它 execution-input migration 只有出现真实消费者时才另立范围。
+已归档的 Native Check authoring Change 从 assurance obligations 重建 ordinary Check catalog，只为真实 external executable、toolchain、isolation 与 installed-candidate boundaries 保留 process，并以 current exact artifact 写出 [`gate-optimization-handoff.md`](archive/align-project-gate-with-native-check-authoring/gate-optimization-handoff.md)。该优化没有撤销 cutover 或恢复旧 verifier。其它 execution-input migration 只有出现真实消费者时才另立范围。
 
 ## Change 与 handoff
 
@@ -67,11 +67,11 @@
 | [add-typed-check-dependency-outputs](archive/add-typed-check-dependency-outputs/)（archived） | 已保留 string direct edge，以 `dependencies.get(checkId)` 读取 canonical final data，再由 producer `parseData` 恢复 typed data。 | 20/20 tasks、aligned Decision、runtime direct authorization、changed-files 多 consumer、四态 settlement、declaration emit、machine/external readback 及 required/full Gate 均已闭合。 | Compile-time dependency-ID relation、supplemental Record getter、parser registry、search/query、第三 Core entity、其它 execution-input cleanup、presentation visibility。 |
 | [add-check-terminal-messages-and-visibility](archive/add-check-terminal-messages-and-visibility/)（archived） | 已交付 `CheckResult.messages`、`RunResult.checkMessages` 与 `always | attention` visibility 两个主要能力。 | Closed terminal validation、Core acceptance handoff、canonical RunResult ordering、Definition fingerprint、TTY/plain matrix、Project Gate `command-failed` message、isolated-consumer evidence 与 required/full Gate 验收均已通过。 | Live/intermediate output、Core/Record/machine messages、typed dependency reader 或 durable log protocol。 |
 | [ship-public-package-api-documentation](archive/ship-public-package-api-documentation/)（archived） | 已补齐 public JSDoc/LSP，并把 README/API guide 加入 exact candidate artifact。 | [<code>package-api-documentation-handoff.md</code>](archive/ship-public-package-api-documentation/package-api-documentation-handoff.md) 绑定 documentation contract、形成时 digest 与失效条件；Gate optimization 必须按这些条件产生 current evidence。 | registry/legal/release notes、Gate implementation 或 publish。 |
-| [align-project-gate-with-native-check-authoring](align-project-gate-with-native-check-authoring/) | 从 current assurance obligations 重建权威 Gate：组合 ordinary Checks/typed operations，分离 CLI lifecycle，合并 repository quality identity，删除历史 Foundation package gates，只为真实 external/toolchain/candidate boundary 保留 process，并把无参默认从 full 改为 required。 | <code>gate-optimization-handoff.md</code>，记录 required/full 当前同集的 14 个 identities、default/required/full selection、Foundation coverage/caller audit、documentation-complete candidate、正式 bindings 与 required/full evidence。 | 重新切换 bindings、恢复 Foundation 独立 package gates、替代 focused CLI consumer 或 registry publish。 |
+| [align-project-gate-with-native-check-authoring](archive/align-project-gate-with-native-check-authoring/)（archived） | 已从 current assurance obligations 重建权威 Gate：组合 ordinary Checks/typed operations，分离 CLI lifecycle，合并 repository quality identity，删除历史 Foundation package gates，只为真实 external/toolchain/candidate boundary 保留 process，并把无参默认从 full 改为 required。 | [`gate-optimization-handoff.md`](archive/align-project-gate-with-native-check-authoring/gate-optimization-handoff.md) 记录 required/full 当前同集的 14 个 identities、default/required/full selection、Foundation coverage/caller audit、documentation-complete candidate、正式 bindings 与 required/full evidence。 | 下游 publish Change 必须按 handoff 的重验证条件重新核对 candidate 与外部事实，并取得单独授权；本 archived Change 不再有待处理的归档授权。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover、Gate optimization 与 package documentation handoffs，经过单独授权完成 npm 发布与 registry-install proof。 | 精确已发布版本及其独立安装/文档/runtime/type 验证。 | 重建 package、补齐 Gate/API 文档或替代本地 evidence。 |
 | [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | 保存 Product lifecycle、Gate transcript 与 future durable receipt/event sink 的 owner 边界。 | 当前行为已足够；本 Draft 没有交付物，也不是 cutover/package documentation/publish 的前置。 | 当前 Gate log 改造、terminal messages/visibility 或通用 logger。 |
 
-Archived handoff 只保存形成时能力和重验条件。Cutover handoff 与 package documentation handoff 已存在；publish 仍缺少 current <code>gate-optimization-handoff.md</code>。Native Check authoring implementation 若使 candidate inputs 变化，必须 fresh prepare 并重新验证，不能把已有 documentation digest 当作 current evidence。
+Archived handoff 只保存形成时能力和重验条件。Cutover、package documentation 与 current Gate optimization handoffs 已存在；publish 仍需在单独 Change 中重新核对外部事实并获得明确授权。任一 candidate input 变化都必须重新调用 `preparePackageCandidate()` 并验证新 identity，不能把现有 digest 当作未来 artifact 证据。
 
 ## Timing / telemetry 边界
 

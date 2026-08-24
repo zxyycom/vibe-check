@@ -4,13 +4,13 @@
 
 ## Why
 
-当前正式 Gate 已经消费 package-owned aggregation，但 authoring 仍保留首轮迁移结构：
+Plan 形成时，正式 Gate 已经消费 package-owned aggregation，但 authoring 仍保留首轮迁移结构：
 
 - [`scripts/project-gate/catalog.ts`](../../scripts/project-gate/catalog.ts) 用 `command`、`args`、profile 和 tag 描述 20 个 process Checks，并以 `20 / 14 / 19` 固定数量阻止 catalog 自然演进。
 - [`scripts/quality/project-gate/project-definition.ts`](../../scripts/quality/project-gate/project-definition.ts) 把每个 descriptor 无差别地转换为 process Check。已有 import-safe TypeScript operation 的 docs、Decision Records 和 Test Evidence 因而仍经过 argv、console 与 exit code 回环。
 - `quality-quick-check` 与 `quality-full-check` 执行同一个 command；`product-tests` 已被 Test Evidence 的完整 Bun test surface 覆盖；scripts typecheck 在 Gate adapter 已准备 candidate 后还会再次进入 candidate preparation。
 - Foundation 的四项 full-only gates 是从历史子仓库/package 边界迁入的 wrapper acceptance；它们分别重复 workspace scripts typecheck/lint/format 与 Test Evidence，package command 可运行本身不再构成独立质量事实。
-- 当前无参 adapter 与 `verify:vibe-check-workspace` 默认选择 full；目标调用契约是缺省选择 required，`:full` 或显式 `--profile full` 选择当前全部 Checks。没有真实 full-only assurance 时，required/full 可以同集，不能为制造差异保留重复 Check。
+- 当时无参 adapter 与 `verify:vibe-check-workspace` 默认选择 full；目标调用契约是缺省选择 required，`:full` 或显式 `--profile full` 选择当前全部 Checks。没有真实 full-only assurance 时，required/full 可以同集，不能为制造差异保留重复 Check。
 
 上述结构证明首轮 cutover 可以安全运行，不是长期 Check authoring contract。继续保留它会让新的 typed capabilities 仍以 CLI 作为内部 API，并让历史数量、wrapper chain 和 profile-derived identity 代替质量事实。
 
@@ -32,7 +32,7 @@ Import-safe TypeScript capabilities 由 Check execution 直接调用。只有 ex
 
 - 以 current assurance mapping 替换 command-only catalog：保留 13 个 required/full checks，合并一个 `repository-quality`，删除独立 `product-tests` 与 4 个历史 Foundation package gates。
 - 让 Project Gate composition 直接产生遵循 public contract 的 project-owned ordinary `Check` values；profile/tag eligibility 从同一 entry collection 投影 raw N/A facts 与 aggregate eligible IDs。
-- 将无参 adapter 与默认 root 从当前 full 改为 required，保留显式 required/full roots 和 `--profile` override，并保持 full 是 required assurance 的超集。
+- 将无参 adapter 与默认 root 从 Plan 形成时的 default full 改为 required，保留显式 required/full roots 和 `--profile` override，并保持 full 是 required assurance 的超集。
 - 为 typecheck、lint、format、docs validation、Decision Records、Test Evidence 和 rule validation 使用 import-safe typed operations；CLI 仅负责 argv、console 与 exit mapping。
 - 让 Gate adapter 成为 candidate preparation 的唯一 owner；repository quality 消费已经安装并验证的 candidate，不再通过 quality CLI 再次 prepare。
 - 只为真实 process assurance 写 transcript，并保持取消、failure Record、terminal message 和 unavailable reason 的现有安全边界。

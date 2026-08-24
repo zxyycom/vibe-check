@@ -1,16 +1,16 @@
 # Design
 
-本 Design 以当前 repository assurance inventory 为唯一 catalog 输入，先固定 quality fact、profile membership 与 execution boundary，再由同一 ordinary `Check` collection 派生 Project Definition、eligibility 和 aggregation。Implementation 从本文件的 Readiness 结论和 [`tasks.md`](tasks.md) Implementation 1.1 开始，不需要重新探索 catalog、caller、dependency 或 candidate 边界。
+本 Design 以 Plan 形成时的 repository assurance inventory 为 catalog 迁移输入，先固定 quality fact、profile membership 与 execution boundary，再由同一 ordinary `Check` collection 派生 Project Definition、eligibility 和 aggregation。下文的 Readiness 记录实施前基线；实施后的当前事实由 stable owner、targeted tests、正式 Gate 与 handoff 共同证明。
 
 ## Context
 
-### 当前事实与权威边界
+### Plan 形成时的事实与权威边界
 
 - [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 是 Project Gate 当前行为 owner。正式 root names 已绑定 candidate-backed Gate；adapter 只消费 Product `RunResult.aggregate` 并映射 process exit `0/1/2`。
-- 当前 catalog 位于 [`scripts/project-gate/catalog.ts`](../../scripts/project-gate/catalog.ts)：20 个 command descriptors、required 14 个、full 19 个；[`createProjectGateDefinition()`](../../scripts/quality/project-gate/project-definition.ts) 将全部 descriptor 转成 process Checks。当前无参 adapter 与 `verify:vibe-check-workspace` 默认选择 full，这是本 Plan 要改为 required 的现状，而不是目标契约。
+- Plan 形成时的 catalog 位于 [`scripts/project-gate/catalog.ts`](../../scripts/project-gate/catalog.ts)：20 个 command descriptors、required 14 个、full 19 个；当时的 [`createProjectGateDefinition()`](../../scripts/quality/project-gate/project-definition.ts) 将全部 descriptor 转成 process Checks。无参 adapter 与 `verify:vibe-check-workspace` 当时默认选择 full，这是本 Plan 要改为 required 的实施前状态，而不是当前或目标契约。
 - Test Evidence 的 supported runner profile 发现并执行 `scripts/**` 与 `src/product/**` 下全部 `*.test.ts`；因此 full-only `product-tests` 不再提供独立测试事实。
 - Root scripts typecheck 和 lint 已覆盖 Foundation sources，workspace format targets 也包含 Foundation，Test Evidence 会发现 Foundation tests。历史 Decision `vendor-foundation-as-repository-owned-script-tool` 已由 [`integrate-foundation-into-workspace-assurance`](../../docs/decisions/integrate-foundation-into-workspace-assurance.md) 修订：package manifest、cwd 或 wrapper 可运行不再自动构成独立 Gate assurance。
-- Gate adapter 已在加载 private quality consumer 前准备并验证 exact installed candidate。当前 `typecheck-scripts` 和 repository quality CLI path 会再次 prepare candidate；这是 wrapper composition 的重复责任。
+- Gate adapter 已在加载 private quality consumer 前准备并验证 exact installed candidate。Plan 形成时，`typecheck-scripts` 和 repository quality CLI path 会再次 prepare candidate；这是 wrapper composition 的重复责任。
 - Package API documentation 已归档并交付 [documentation-complete candidate handoff](../archive/ship-public-package-api-documentation/package-api-documentation-handoff.md)。Gate implementation 若改变 candidate fingerprint inputs，必须 fresh prepare 并重新验证，不能沿用形成时 digest。
 
 ### 直接适用的长期 Decisions
@@ -21,8 +21,8 @@
 | [`expose-ordinary-check-values-with-define-check`](../../docs/decisions/expose-ordinary-check-values-with-define-check.md) | `defineCheck` 只辅助 ordinary object authoring；不得建立 Gate-specific Check runtime 或 brand。 |
 | [`use-native-object-composition-for-check-customization`](../../docs/decisions/use-native-object-composition-for-check-customization.md) | Eligibility wrapper 和 project composition 使用普通对象组合，不建立 adjustment API。 |
 | [`bind-project-gates-to-run-aggregation`](../../docs/decisions/bind-project-gates-to-run-aggregation.md) | Gate 显式绑定同次 selection 的 eligible IDs 与 Product aggregation；adapter 不从 raw facts 重算结果。 |
-| [`integrate-foundation-into-workspace-assurance`](../../docs/decisions/integrate-foundation-into-workspace-assurance.md) | Foundation 由普通 workspace checks 与 Test Evidence 证明；删除历史 package Gate identities，独有不变量交给对应 owner 或专门测试。该 Decision 当前 unaligned，由本 Plan 落实。 |
-| [`default-project-gate-to-required-profile`](../../docs/decisions/default-project-gate-to-required-profile.md) | 无显式 profile 的 adapter 与默认 root 选择 required；显式 full 选择当前全部 Checks，且没有真实 full-only assurance 时允许与 required 同集。该 Decision 当前 unaligned，由本 Plan 落实。 |
+| [`integrate-foundation-into-workspace-assurance`](../../docs/decisions/integrate-foundation-into-workspace-assurance.md) | Foundation 由普通 workspace checks 与 Test Evidence 证明；删除历史 package Gate identities，独有不变量交给对应 owner 或专门测试。该 Decision 在 Plan 形成时为 unaligned，现已由本 Change 落实并标记 aligned。 |
+| [`default-project-gate-to-required-profile`](../../docs/decisions/default-project-gate-to-required-profile.md) | 无显式 profile 的 adapter 与默认 root 选择 required；显式 full 选择当前全部 Checks，且没有真实 full-only assurance 时允许与 required 同集。该 Decision 在 Plan 形成时为 unaligned，现已由本 Change 落实并标记 aligned。 |
 | [`complete-project-gate-before-public-package-release`](../../docs/decisions/complete-project-gate-before-public-package-release.md) | 先完成 current Gate consumer evidence，再进入单独授权的 public publish。 |
 
 本 Change 落实上述 default-profile 与 Foundation-assurance Decisions。若实施要求修改 npm package 导出的 `Check` / `Run` 类型或行为、重命名/删除正式 root commands、恢复默认 full、让 full 不再包含 required assurance，或恢复 Foundation 独立 Gate identities，必须暂停并先演进对应 Decision或取得新的范围确认。调整各 profile 的具体 Check membership 正是本 Change 的范围，不触发该暂停条件。
@@ -60,7 +60,7 @@ Gate caller 归零不等于 root/focused CLI consumer归零。上表列出的 re
 
 #### Dependency 审计
 
-当前 catalog只有 `quality-quick-check`和 `quality-full-check`声明 dependencies：前者依赖四个 typecheck/lint Checks，后者额外依赖 `test-evidence`。Repository quality root可以独立 prepare candidate并运行相同 scan，这些 edges不传递 data、不建立 candidate identity，也不是 scan的必要 precondition；它们只是历史排序约束。
+Plan 形成时，catalog 只有 `quality-quick-check` 和 `quality-full-check` 声明 dependencies：前者依赖四个 typecheck/lint Checks，后者额外依赖 `test-evidence`。Repository quality root 可以独立 prepare candidate 并运行相同 scan；这些 edges 不传递 data、不建立 candidate identity，也不是 scan 的必要 precondition，只是历史排序约束。
 
 目标 `repository-quality` 不声明 `dependsOn`。Candidate preparation仍是 adapter在 Definition启动前完成的 invocation precondition；parallel capacity和共享资源由 scheduler fields表达。其余目标 Checks本来没有 dependencies，因此 required/full及任意 tag-disabled selection的静态 closure均成立。
 
@@ -279,6 +279,6 @@ Implementation 改变 project Gate、script operations、declarations 或 candid
 1. required/full 当前共用同一组 14 个 identities；显式 full 选择全部 current Checks，但不为维持差异创建 full-only identity；
 2. `repository-quality` 在两个 profile 中行为相同且只有一个 identity；
 3. Product 与 Foundation tests 由 Test Evidence 执行；Foundation source type/lint/format分别由普通 workspace checks执行，四个历史 package gates删除；
-4. 不改变 public Product contract；保留 `verify:vibe-check-workspace`、`:required`、`:full` 三个 root names，把无参 adapter 和默认 root 从当前 full 改为 required，并保持 full 是 required assurance 的超集。Publish 权限属于下游 Change，不是本 Plan 的待决事项。
+4. 不改变 public Product contract；保留 `verify:vibe-check-workspace`、`:required`、`:full` 三个 root names，把无参 adapter 和默认 root 从实施前的 default full 改为 required，并保持 full 是 required assurance 的超集。Publish 权限属于下游 Change，不是本 Plan 的待决事项。
 
 若 implementation evidence 否定上述任一选择，停止对应改动并先更新本 Plan。只有要恢复 Foundation gates、修改 npm package 导出的 `Check` / `Run` contract、改变三个正式 root names、恢复无参默认 full，或让 full 不再包含 required assurance 时，才需要用户确认新的长期方向；目标 identity 内部实现和已审计的 zero-caller cleanup 按本 Plan 直接推进。
