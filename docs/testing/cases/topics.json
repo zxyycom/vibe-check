@@ -2,10 +2,6 @@
   "schemaVersion": 1,
   "topics": [
     {
-      "id": "cli-interface",
-      "description": "产品 CLI 的命令路由、参数、路径、帮助、退出码与 stdout/stderr 可观察契约。"
-    },
-    {
       "id": "quality-gate",
       "description": "Repository Gate 的显式 aggregation、adapter、进程结果与正式 required/full 入口验收契约。"
     },

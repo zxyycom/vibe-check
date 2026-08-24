@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { closeStaticAndRuntimeEntities } from "./closure.ts";
-import type { RuntimeTestEntity, StaticTestEntity } from "./model.ts";
+import type { RuntimeTestEntity, StaticTestEntity } from "./entities.ts";
 
 const identity = ["tests/example.test.ts", "7", "rejects invalid input"].join("\0");
 const staticEntity: StaticTestEntity = {

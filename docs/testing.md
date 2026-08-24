@@ -1,27 +1,31 @@
 # 测试策略
 
-本文拥有 Vibe Check 当前测试分层、Case 账本和交付验证入口；具体产品语义仍以对应领域 owner 为准。
+本文拥有 Vibe Check current test 分层、Case 账本和交付验证入口；产品语义仍以相应领域 owner 为准。
 
 ## 测试层级
 
-| 层级             | 证明                                                                                                                                            |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Definition/Core  | recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts、publication invariant   |
-| Product run      | closed Definition/Run Controls validation、direct callback context、dependency/mutex/cancellation、`RunResult` diagnostic 与 definition warning |
-| Default adapters | Check-owned scanner option、exact scope、cache、availability/process/parser failure 与 supplemental Record reporting                            |
-| Consumer         | current v4 schema/example acceptance；独立 docs validator 对完整 two-file set 的 fail-closed validation                                         |
-| Dogfood          | repository Definition/Run binding，以及无需 configuration discovery 的调用脚本                                                                  |
+| 层级 | 位置与证明 |
+| --- | --- |
+| Definition/Core | `src/definition/**`、`src/core/**` 的共置 tests：recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts。 |
+| Product Run/Output/Scheduler | `src/run/**`、`src/output/machine-v4/**`、`src/scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/effects 与 task admission。 |
+| Default adapters | `src/checks/**` 的共置 tests：Check-owned scanner options、exact scope、cache、availability/process/parser failure 与 supplemental Records。 |
+| Repository tooling | `scripts/**` 的共置 tests：foundation、docs/package API、validation、package artifact/candidate、Project quality/Gate 与 Test Evidence behavior。 |
+| Consumer and dogfood | `scripts/project/**` private consumer 证明 exact candidate import、repository Definition/Run binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。 |
 
 ## Case 账本
 
-`docs/testing/cases/**` 是当前 semantic catalog。每个 Case 命名一个 stable owner、current Bun test entity 与可证伪的
-`Proves` statement。修改 test body、test node、Case owner 或 proof 前后，都运行
-`bun run test-evidence -- check --root .` 以及受影响的最窄测试。
+`docs/testing/cases/**` 是 current semantic catalog。每个 Case 命名 stable owner、current Bun test entity 和可证伪的
+`Proves` statement。新增、删除、rename/move test node，修改 test body，或修改 Case owner/proof 前后，都运行：
 
-Case 描述 current public behavior，不描述已删除的 helper name、historical material 或 internal scheduler identity。
-Definition Case 覆盖 recursive ordinary Check、`inherit`、direct default composition 与 fail-closed validation。Runtime
-Case 覆盖 direct execution、`status`/`reason.code` outcome、dependency blocking、Core Record ownership、cancellation 与
-Run diagnostic。Output Case 覆盖 v4 byte/schema、complete-set fingerprint、publication lifecycle 与独立 docs validation。
+```bash
+bun run test-evidence -- check --root .
+```
+
+并运行受影响的最窄测试。Case 描述 current public behavior，不描述已删除 helper、historical material 或 internal
+scheduler identity。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition 和
+fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason、dependency blocking、Core Record
+ownership、cancellation 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
+lifecycle 和独立 docs validation。
 
 ## 验证入口
 
@@ -32,13 +36,19 @@ bun run validate -- docs
 bun run test-evidence -- check --root .
 ```
 
-跨边界交付还运行 `bun run verify:vibe-check-workspace:required`，它直接调用 Project Gate。Product 改动先运行最窄 Bun test，再按 owner 选择的
-typecheck、lint 与 Project Gate 扩展。必须报告任何未运行检查及其影响。
+产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。跨 owner、package candidate、quality、Gate
+或 output contract 的交付运行：
+
+```bash
+bun run verify:vibe-check-workspace:required
+```
+
+必须报告实际运行的检查和未运行项及影响。
 
 ## 一致性审计
 
 1. 每个 current test entity 至少映射一个 current Case，且每个 Case entity 都存在。
 2. Definition test 证明 authoring/validation，不证明偶然发生的 runtime behavior。
-3. Core test 证明 Check/Record fact；publication 与 effect 各有自己的 observable evidence。
-4. Docs validation 独立于 Product runtime validation；独立 validator 在接受 schema/example artifact set 前验证完整 v4 two-file set。
-5. Scanner fixture 只证明 private adapter protocol，不发布 scanner resolution 或 environment override contract。
+3. Core test 证明 Check/Record facts；publication、effect 和 scheduler 各有 observable evidence。
+4. docs validator 独立于 Product runtime validator；接受 schema/example artifact set 前验证完整 v4 two-file set。
+5. scanner fixture 只证明 private adapter protocol，不公开 scanner resolution 或 environment override contract。

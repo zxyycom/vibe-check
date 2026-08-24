@@ -15,7 +15,7 @@ import {
   type StaticTestEntity,
   type TestEntity,
   type TestEvidenceDiagnostic
-} from "../model.ts";
+} from "../entities.ts";
 import type { SupportedRunnerProfile } from "../profile.ts";
 import { processFailureMessage, runBunCommand } from "../runner-process.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";

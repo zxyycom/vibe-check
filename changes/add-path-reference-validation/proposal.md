@@ -2,6 +2,8 @@
 
 本 proposal 是实现高置信度 project-local 文本路径引用检查的可改写实施计划。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-path-reference-validation` 刷新基线。
+
 ## Why
 
 项目说明和生成文本经常用普通文本引用源码、目录或其它项目资料；文件移动后，这些引用不会获得 Markdown link 或 module resolver 的专用验证，容易长期失效。把所有 path-like 字符串都解释为引用会产生大量误报，并可能越过 scan scope 打开宿主路径，因此需要一个独立、语法封闭且只使用项目相对信息的 built-in Check。

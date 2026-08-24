@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { runProcess, type ProcessResult } from "../tools/foundation/src/index.ts";
+import { runProcess, type ProcessResult } from "../foundation/process.ts";
 
 export const AST_GREP_PACKAGE = "@ast-grep/cli";
 export const AST_GREP_VERSION = "0.45.0";

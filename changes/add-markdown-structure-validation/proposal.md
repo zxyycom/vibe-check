@@ -2,6 +2,8 @@
 
 本 Proposal 是实现 Markdown 结构 observation 与 policy validation built-in Check 的临时计划，稳定事实由落地后的产品 owners承接。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-markdown-structure-validation` 刷新基线。
+
 ## Why
 
 当前产品没有基于 Markdown 语义的文档结构检查；仓库脚本的链接或格式校验也不能成为对外产品 contract。Vibe-coding 产生和改写的文档容易出现标题层级、H1、过长或过短 section/paragraph等问题，正则和整文件字符数既不稳定，也会把代码、表格和标记误作 prose。

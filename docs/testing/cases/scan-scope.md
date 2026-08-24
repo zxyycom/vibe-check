@@ -5,7 +5,7 @@
 Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 
-- `bun|src/product/quality-core/input/files.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
+- `bun|src/checks/input/files.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
   Proves:
 - quality input fingerprint 使用排序后的文件内容生成稳定 SHA-256。
 - 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
@@ -15,8 +15,8 @@ Entities:
 Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 
-- `bun|src/product/quality-core/input/files.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
-- `bun|src/product/quality-core/input/files.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
+- `bun|src/checks/input/files.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
+- `bun|src/checks/input/files.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
   Proves:
 - Git 只以 NUL-delimited protocol 枚举 ignore-aware candidate paths，换行不会改变文件身份。
 - Product include 只由 config glob contract 解释；brace、globstar 等 minimatch default semantics 在 current Git 与 Git-failure fallback 中一致。
@@ -26,11 +26,11 @@ Entities:
 Owner: `docs/scan-scope.md#resolved-scope`
 Entities:
 
-- `bun|src/product/quality-core/input/files.test.ts|quality submodule input > includes initialized current submodule worktree files`
-- `bun|src/product/quality-core/input/files.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
-- `bun|src/product/quality-core/input/files.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
-- `bun|src/product/quality-core/input/files.test.ts|quality input file collection > treats successful empty Git results as authoritative`
-- `bun|src/product/quality-core/input/files.test.ts|quality input file collection > uses config-only fallback when Git fails`
+- `bun|src/checks/input/files.test.ts|quality submodule input > includes initialized current submodule worktree files`
+- `bun|src/checks/input/files.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
+- `bun|src/checks/input/files.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
+- `bun|src/checks/input/files.test.ts|quality input file collection > treats successful empty Git results as authoritative`
+- `bun|src/checks/input/files.test.ts|quality input file collection > uses config-only fallback when Git fails`
   Proves:
 - Current Git command 成功时直接使用 normalized result，包括成功的空集合。
 - Current worktree 包含允许的 committed、working 与 untracked submodule files，并只从独立初始化的 child Git worktree 继续 HEAD gitlink traversal；被普通目录替换的 gitlink 不会回到 parent worktree。

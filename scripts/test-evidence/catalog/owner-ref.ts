@@ -1,8 +1,8 @@
 import fs from "node:fs";
 
-import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../entities.ts";
 import { isSafeRelativePosixPath, resolveExistingWorkspacePath } from "../relative-path.ts";
-import type { SemanticTestCase } from "./model.ts";
+import type { SemanticTestCase } from "./catalog-types.ts";
 
 export function isOwnerRef(value: string): boolean {
   const separator = value.indexOf("#");

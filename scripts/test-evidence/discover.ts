@@ -1,7 +1,7 @@
 import path from "node:path";
 
 import { discoverBunEntities } from "./discovery/bun.ts";
-import { diagnostic, type DiscoveryResult, type TestEntity } from "./model.ts";
+import { diagnostic, type DiscoveryResult, type TestEntity } from "./entities.ts";
 import {
   loadSupportedRunnerProfile,
   workspaceRoot as supportedWorkspaceRoot,

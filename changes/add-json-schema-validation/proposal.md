@@ -2,6 +2,8 @@
 
 本 Proposal 是实现显式、离线 JSON Schema validation built-in Check 的临时计划，稳定契约由实施后同步的 owner 承接。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-json-schema-validation` 刷新基线。
+
 ## Why
 
 合法 JSON 不等于 schema 自身有效或 instance 满足项目数据契约；当前仓库脚本只验证本仓库固定 materials，不能成为扫描外部项目的产品能力。Vibe Check 需要一个由项目显式声明 schema registry 与 instance binding、默认零网络且诊断可定位到两侧文档的统一 Check。

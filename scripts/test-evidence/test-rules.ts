@@ -6,11 +6,7 @@ import {
   expectedAstGrepVersionLine,
   type AstGrepInvocation
 } from "./ast-grep.ts";
-import {
-  runProcess,
-  type ProcessResult,
-  writeProcessOutput
-} from "../tools/foundation/src/index.ts";
+import { runProcess, type ProcessResult, writeProcessOutput } from "../foundation/process.ts";
 
 const moduleWorkspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 

@@ -1,8 +1,8 @@
 import { diagnoseDuplicateCaseIds, loadTopicCases, reconcileTopicFiles } from "./catalog/load.ts";
-import type { SemanticTestCase, TestCaseCatalog, TestCaseTopic } from "./catalog/model.ts";
+import type { SemanticTestCase, TestCaseCatalog, TestCaseTopic } from "./catalog/catalog-types.ts";
 import { diagnoseOwnerRefs } from "./catalog/owner-ref.ts";
 import { readTopicFiles, readTopics, resolveCaseDirectory } from "./catalog/source.ts";
-import { diagnostic, type TestEntity, type TestEvidenceDiagnostic } from "./model.ts";
+import { diagnostic, type TestEntity, type TestEvidenceDiagnostic } from "./entities.ts";
 
 export type { SemanticTestCase, TestCaseCatalog, TestCaseTopic };
 

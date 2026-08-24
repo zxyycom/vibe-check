@@ -3,7 +3,7 @@
   "id": "vibe-check-native-tests",
   "version": 1,
   "bun": {
-    "sourceRoots": ["scripts", "src/product"],
+    "sourceRoots": ["scripts", "src"],
     "include": ["**/*.test.ts"],
     "ignore": ["**/node_modules/**"],
     "supplementalFiles": []

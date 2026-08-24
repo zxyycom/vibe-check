@@ -8,14 +8,14 @@
 
 | Step | Owner | Required input | Evidence required before the next step |
 | --- | --- | --- | --- |
-| 1. Candidate, gate and documentation handoff | [`establish-npm-package-candidate-and-quality-dogfood`](../archive/establish-npm-package-candidate-and-quality-dogfood/) + [`replace-workspace-verifier-with-project-gate`](../archive/replace-workspace-verifier-with-project-gate/) + [`align-project-gate-with-native-check-authoring`](../archive/align-project-gate-with-native-check-authoring/) + [`ship-public-package-api-documentation`](../archive/ship-public-package-api-documentation/) | exact tarball and matching preparation receipt, `gate-handoff.md`, `gate-optimization-handoff.md`, `package-api-documentation-handoff.md`, complete Project Gate consumer evidence | authoritative binding, package runtime, declarations, README/API guide and current Gate behavior are independently verified |
+| 1. Candidate, gate, documentation and layout handoff | [`establish-npm-package-candidate-and-quality-dogfood`](../archive/establish-npm-package-candidate-and-quality-dogfood/) + [`replace-workspace-verifier-with-project-gate`](../archive/replace-workspace-verifier-with-project-gate/) + [`align-project-gate-with-native-check-authoring`](../archive/align-project-gate-with-native-check-authoring/) + [`ship-public-package-api-documentation`](../archive/ship-public-package-api-documentation/) + [`align-repository-layout-and-naming-with-module-owners`](../align-repository-layout-and-naming-with-module-owners/) | migration-complete `src/index.ts`, exact tarball and matching preparation receipt, current layout ledger, `gate-handoff.md`, `gate-optimization-handoff.md`, `package-api-documentation-handoff.md`, complete Project Gate consumer evidence | authoritative binding, package runtime, declarations, README/API guide, source owner layout and current Gate behavior are independently verified |
 | 2. Release preparation | this Change | matching candidate receipt, current cutover/optimization/documentation handoffs and active package decisions | release plan identifies exact external checks, public materials and post-publish acceptance |
 | 3. External checks and publish | this Change, with fresh user authorization | registry authority, authenticated publisher, unused exact version and final artifact | only explicitly authorized reads/writes occur; publish binds the reviewed artifact |
 | 4. Post-publication acceptance | this Change | published exact version | isolated Bun consumer installs from registry and repeats public import/type/runtime acceptance |
 
 The candidate Change owns runtime implementation, staging and local pack. Gate cutover owns the authoritative repository entry and legacy verifier retirement; the post-cutover authoring Change owns current optimized Gate behavior evidence. Package API documentation owns JSDoc and the versioned README/API guide in the exact tarball. This Draft owns public distribution only. The cross-Change route is summarized in [Vibe Check package 与 Project Gate 交付导航](../vibe-check-package-and-gate-delivery.md), while this Design owns the release procedure below. Existing package decisions provide direction, not present facts: [`complete-project-gate-before-public-package-release`](../../docs/decisions/complete-project-gate-before-public-package-release.md), [`release-one-versioned-npm-product-unit`](../../docs/decisions/release-one-versioned-npm-product-unit.md), [`publish-unscoped-vibe-check-publicly`](../../docs/decisions/publish-unscoped-vibe-check-publicly.md), [`license-package-under-mit`](../../docs/decisions/license-package-under-mit.md), [`support-bun-as-the-package-host`](../../docs/decisions/support-bun-as-the-package-host.md), [`use-programmatic-api-as-product-entry`](../../docs/decisions/use-programmatic-api-as-product-entry.md) and [`keep-prestable-package-releases-on-0-0-x`](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md).
 
-This Change remains a Draft because cutover/optimization/documentation handoffs, live registry facts, copyright details and external-write authorization do not yet exist. The archived candidate handoff defines the local evidence shape but is not current release evidence. A Draft is not permission to contact npm or publish.
+This Change remains a Draft because migration-complete candidate evidence, live registry facts, copyright details and external-write authorization do not yet exist. Archived candidate/cutover/optimization/documentation handoffs define evidence shape and revalidation conditions, but only the layout Change's post-migration candidate and Gate results can become current local release evidence. A Draft is not permission to contact npm or publish.
 
 ## Goals / Non-Goals
 
@@ -24,7 +24,6 @@ This Change remains a Draft because cutover/optimization/documentation handoffs,
 - Convert one verified candidate-backed Project Gate and documentation-complete exact artifact into a public, versioned npm product unit without changing its tested runtime/public contract or API guide.
 - Establish the exact authorization, registry, identity, legal-material, artifact-binding and post-publication checks required for an irreversible public release.
 - Verify the published exact version through an isolated Bun consumer before treating public distribution as complete.
-- Evaluate Product CLI retirement only after the published package replacement has passed the required evidence.
 
 ### Non-Goals
 
@@ -38,7 +37,7 @@ This Change remains a Draft because cutover/optimization/documentation handoffs,
 
 #### 1. Cutover binding and current optimized Gate evidence are both release gates
 
-This Change starts only with a matching candidate preparation receipt plus completed cutover, Gate optimization and package-documentation handoffs. The release artifact must be traceable to the exact tarball and public inventory that passed repository-quality, authoritative binding/legacy retirement, optimized Project Gate, README/declaration audit and isolated-consumer acceptance. A source-only build, a different rebuilt tarball or a synthetic-only fixture cannot substitute for that evidence.
+This Change starts only with a matching post-layout candidate preparation receipt plus completed layout/naming, cutover, Gate optimization and package-documentation handoffs. The release artifact must be traceable to the exact tarball and public inventory that passed repository-quality, authoritative binding, optimized Project Gate, README/declaration audit and isolated-consumer acceptance after source ownership moved. A source-only build, a migration-before tarball, a different rebuilt tarball or a synthetic-only fixture cannot substitute for that evidence.
 
 #### 2. Preparation, external checks and publish are distinct operations
 
@@ -56,10 +55,6 @@ The release Change resolves and verifies the unscoped public name, access level,
 
 A successful publish response is insufficient. An isolated Bun consumer must install the exact registry version, typecheck the public entry and execute the established public runtime acceptance. The published result must match the candidate inventory and declared support/prerequisite boundary.
 
-#### 6. Retire the legacy Product CLI only after replacement evidence
-
-The retained migration diagnostic remains until the published API-only package is available and its replacement path has passed post-publication acceptance. CLI removal is a release-side change, not a prerequisite for candidate dogfood.
-
 ### Resulting Impacts
 
 - release 必须绑定同一 exact candidate、cutover/optimization/documentation handoff 与 public inventory；source-only rebuild 或 synthetic fixture 不能取代这些准备证据。
@@ -75,4 +70,3 @@ The retained migration diagnostic remains until the published API-only package i
 ## Open Questions
 
 - At release time: registry authority, authenticated publisher, exact available version, verified copyright holder/year and approved publish mechanism.
-- After registry-installed replacement acceptance: whether all conditions for legacy Product CLI retirement are met.

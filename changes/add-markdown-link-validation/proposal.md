@@ -2,6 +2,8 @@
 
 本 Proposal 是实现离线 Markdown local-link/anchor validation built-in Check 的临时计划；网络可达性由独立 Change承接。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-markdown-link-validation` 刷新基线。
+
 ## Why
 
 文档移动、重命名和生成会留下失效相对链接、跨文档锚点和项目根逃逸目标。当前仓库脚本只覆盖有限相对路径，不能代表 Product的 GFM、anchor、symlink或安全边界；直接把外链请求混入同一检查又会引入网络授权、凭据和不可复现结果。

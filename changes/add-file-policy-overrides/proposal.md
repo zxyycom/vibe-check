@@ -2,6 +2,8 @@
 
 本 proposal 是为 TypeScript Project Definition 增加声明式文件政策覆盖的可改写实施计划。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-file-policy-overrides` 刷新基线。
+
 ## Why
 
 现行配置与扫描管线只为整个项目解析一份 checks policy；README、长篇设计文档、生成示例和普通源码无法在保留同一全局 inventory 的同时使用不同政策。活动方向已经确定运行时 Check、TypeScript Project Definition 与显式文件覆盖，但若直接使用任意对象合并，覆盖顺序、数组行为、owner、输入资格和 cache identity 都无法可靠解释。

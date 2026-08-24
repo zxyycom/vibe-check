@@ -1,7 +1,8 @@
 import path from "node:path";
 
+import { isNonArrayRecord } from "../foundation/type-guards.ts";
 import { runAstGrep } from "./ast-grep.ts";
-import { diagnostic, type SourceRange, type TestEvidenceDiagnostic } from "./model.ts";
+import { diagnostic, type SourceRange, type TestEvidenceDiagnostic } from "./entities.ts";
 
 type AstPosition = {
   line: number;
@@ -135,20 +136,20 @@ function parseAstMatches(stdout: string): AstMatch[] {
 
 function normalizeAstMatch(value: unknown): AstMatch {
   if (
-    !isRecord(value) ||
+    !isNonArrayRecord(value) ||
     typeof value.file !== "string" ||
     typeof value.text !== "string" ||
     typeof value.ruleId !== "string" ||
     !isAstRange(value.range) ||
-    !isRecord(value.metaVariables) ||
-    !isRecord(value.metaVariables.single)
+    !isNonArrayRecord(value.metaVariables) ||
+    !isNonArrayRecord(value.metaVariables.single)
   ) {
     throw new Error("invalid ast-grep match shape");
   }
   const single = Object.fromEntries(
     Object.entries(value.metaVariables.single).map(([key, candidate]) => {
       if (
-        !isRecord(candidate) ||
+        !isNonArrayRecord(candidate) ||
         typeof candidate.text !== "string" ||
         !isAstRange(candidate.range)
       ) {
@@ -175,19 +176,15 @@ function normalizeAstMatch(value: unknown): AstMatch {
 }
 
 function isAstRange(value: unknown): value is AstRange {
-  return isRecord(value) && isAstPosition(value.start) && isAstPosition(value.end);
+  return isNonArrayRecord(value) && isAstPosition(value.start) && isAstPosition(value.end);
 }
 
 function isAstPosition(value: unknown): value is AstPosition {
   return (
-    isRecord(value) &&
+    isNonArrayRecord(value) &&
     Number.isInteger(value.line) &&
     Number(value.line) >= 0 &&
     Number.isInteger(value.column) &&
     Number(value.column) >= 0
   );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

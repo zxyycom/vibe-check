@@ -1,5 +1,5 @@
-import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
-import type { SemanticTestCase } from "./model.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../entities.ts";
+import type { SemanticTestCase } from "./catalog-types.ts";
 import { isOwnerRef } from "./owner-ref.ts";
 import type { TopicFileSource } from "./source.ts";
 

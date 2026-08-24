@@ -297,7 +297,7 @@ function runCli(args: readonly string[]): {
 } {
   const result = spawnSync(
     process.execPath,
-    [path.join(workspaceRoot, "scripts", "test-evidence", "index.ts"), ...args],
+    [path.join(workspaceRoot, "scripts", "test-evidence", "command.ts"), ...args],
     {
       cwd: workspaceRoot,
       encoding: "utf8"

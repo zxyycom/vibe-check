@@ -1,15 +1,15 @@
-import { assert } from "../tools/validators/assertions.ts";
-import { TASK_NAMES } from "../tools/validators/config.ts";
-import { validateMarkdownLinks } from "../tools/validators/links.ts";
+import { assert } from "../validation/assertions.ts";
+import { TASK_NAMES } from "../validation/docs-contract.ts";
+import { validateMarkdownLinks } from "../validation/links.ts";
 import {
   validateJsonSyntax,
   validatePublishedMachineArtifactExamples,
   validateReportExamples,
   validateSchemas
-} from "../tools/validators/schema/index.ts";
-import { checkPublishedMachineExamples } from "./machine-examples.ts";
-import { checkPublishedMachineSchemas } from "./machine-schemas.ts";
-import { runPackageApiDocumentationCli } from "./package-api-docs/index.ts";
+} from "../validation/schema/validation.ts";
+import { checkPublishedMachineExamples } from "./machine-artifacts/examples.ts";
+import { checkPublishedMachineSchemas } from "./machine-artifacts/schemas.ts";
+import { runPackageApiDocumentationCli } from "./package-api/command.ts";
 
 export type DocsValidationTask = (typeof TASK_NAMES)[keyof typeof TASK_NAMES];
 

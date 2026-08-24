@@ -7,7 +7,7 @@ import {
   runProcessSync,
   writeProcessOutput,
   type ProcessResult
-} from "../tools/foundation/src/process.ts";
+} from "../foundation/process.ts";
 
 const developmentRepositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 

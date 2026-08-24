@@ -1,7 +1,7 @@
 # Complete failed Check with a supplemental Record
 
 This directory is a deterministic current-product machine publication example. Regenerate it
-with `bun scripts/docs/machine-examples.ts`.
+with `bun scripts/docs/machine-artifacts/examples.ts`.
 
 ## Fixed scenario
 

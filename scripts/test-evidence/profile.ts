@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isNonArrayRecord } from "../foundation/type-guards.ts";
 import { type BunTestSurface, isSafeRelativeGlob } from "./discovery/bun-files.ts";
 import { isSafeRelativePosixPath } from "./relative-path.ts";
 
@@ -25,7 +26,7 @@ export const profilePath = path.join(
 
 export function loadSupportedRunnerProfile(sourcePath = profilePath): SupportedRunnerProfile {
   const value: unknown = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
-  if (!isRecord(value) || !hasExactKeys(value, ["schemaVersion", "id", "version", "bun"])) {
+  if (!isNonArrayRecord(value) || !hasExactKeys(value, ["schemaVersion", "id", "version", "bun"])) {
     throw new Error("supported runner profile has an invalid root shape");
   }
   if (
@@ -48,7 +49,7 @@ export function loadSupportedRunnerProfile(sourcePath = profilePath): SupportedR
 
 function parseBunProfile(value: unknown): SupportedRunnerProfile["bun"] {
   if (
-    !isRecord(value) ||
+    !isNonArrayRecord(value) ||
     !hasExactKeys(value, ["sourceRoots", "include", "ignore", "supplementalFiles"])
   ) {
     throw new Error("supported runner Bun profile is invalid");
@@ -108,10 +109,6 @@ function sortedStringList(
     throw new Error(`${label} must be uniquely sorted`);
   }
   return items;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function isUnknownArray(value: unknown): value is unknown[] {

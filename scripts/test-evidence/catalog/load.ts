@@ -1,8 +1,8 @@
 import path from "node:path";
 
-import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../entities.ts";
 import { parseTopicLines } from "./markdown.ts";
-import type { SemanticTestCase, TestCaseTopic } from "./model.ts";
+import type { SemanticTestCase, TestCaseTopic } from "./catalog-types.ts";
 import { readTopicFile, relativeWorkspacePath } from "./source.ts";
 
 export function reconcileTopicFiles(options: {

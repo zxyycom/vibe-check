@@ -2,6 +2,8 @@
 
 本 Proposal 是实现普通 JSON 严格验证 built-in Check 的临时计划，稳定产品事实仍由实施后同步的 owner 承接。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-json-validation` 刷新基线。
+
 ## Why
 
 当前产品只在自己的配置、schema 和验证脚本边界解析特定 JSON 材料，尚不能把项目 manifest、配置和数据文件中的损坏 JSON 作为统一 Check/Record 结果报告。下游工具才暴露这些错误会延迟反馈，也迫使每个项目重复包装解析脚本。

@@ -19,12 +19,12 @@
     "build/**",
     "dist/**",
     "node_modules/**",
-    "scripts/quality/node_modules/**",
+    "scripts/project/node_modules/**",
     "target/**"
   ],
   "overrides": [
     {
-      "files": ["src/product/**/*.ts", "scripts/**/*.ts"],
+      "files": ["src/**/*.ts", "scripts/**/*.ts"],
       "rules": {
         "for-direction": "error",
         "eqeqeq": "error",
@@ -149,7 +149,7 @@
       }
     },
     {
-      "files": ["src/product/**/*.ts", "scripts/**/*.ts"],
+      "files": ["src/**/*.ts", "scripts/**/*.ts"],
       "rules": {
         "typescript/no-unsafe-argument": "error",
         "typescript/no-unsafe-assignment": "error",

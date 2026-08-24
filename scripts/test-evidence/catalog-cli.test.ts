@@ -6,7 +6,7 @@ import test from "node:test";
 
 import { createCaseFixture } from "./fixtures/catalog.ts";
 
-const entrypoint = fileURLToPath(new URL("./index.ts", import.meta.url));
+const entrypoint = fileURLToPath(new URL("./command.ts", import.meta.url));
 const workspaceRoot = path.resolve(path.dirname(entrypoint), "..", "..");
 
 test("returns a query failure status at the CLI boundary", () => {

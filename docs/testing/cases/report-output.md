@@ -5,10 +5,10 @@
 Owner: `docs/output.md#core-to-machine-projection`
 Entities:
 
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.test.ts|machine publication v4 contract > serializes a complete canonical two-file set that validates without a prefix`
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.validation.test.ts|machine publication v4 validation > rejects v3 identities and malformed v4 rows`
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
+- `bun|src/output/machine-v4/publication.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
+- `bun|src/output/machine-v4/publication.test.ts|machine publication v4 contract > serializes a complete canonical two-file set that validates without a prefix`
+- `bun|src/output/machine-v4/validation.test.ts|machine publication v4 validation > rejects v3 identities and malformed v4 rows`
+- `bun|src/output/machine-v4/validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
   Proves:
 - v4 publishes four Check terminal states, final data only on passed/failed states, and minimal `{ checkId, id, data }` supplemental Records.
 - Complete-set validation rejects v3 and malformed/mixed input, closes composite identity/order and ownership, binds the complete Record set by fingerprint, and exposes no partial trusted prefix. The unchanged final-data projection remains the v4 compatibility boundary; version-matched provider-parser readback is package-consumer evidence, not a second machine contract.
@@ -18,7 +18,7 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
+- `bun|src/output/machine-v4/contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
   Proves:
 - Runtime v4 serializer candidates are accepted by the current runtime schemas, without publishing a second contract-material helper.
 
@@ -27,9 +27,9 @@ Entities:
 Owner: `docs/output.md#publication-lifecycle-and-trust-boundary`
 Entities:
 
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when the first canonical rename fails`
-- `bun|src/product/quality-core/output/publication-v4/publication-v4.lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement and retired artifacts without creating raw output`
+- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
+- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when the first canonical rename fails`
+- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement and retired artifacts without creating raw output`
   Proves:
 - A candidate-write failure before replacement preserves prior canonical and retired artifact bytes, clears owned temps, preserves unrelated files, and creates no scanner-private `raw/` output.
 - A first canonical-rename failure preserves that same prior set and cleans owned temps before any canonical replacement.
@@ -40,13 +40,13 @@ Entities:
 Owner: `docs/output.md#progress-and-presentation-boundaries`
 Entities:
 
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
-- `bun|src/product/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
-- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
-- `bun|src/product/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
+- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
+- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
+- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
+- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
+- `bun|src/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
+- `bun|src/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
   Proves:
 - Product-owned progress presents lifecycle status/duration, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one block; message code is not terminal text.
 - `attention` omits only a passed/no-message settled row, never a TTY running row or accounting ordinal. Plain/dumb output uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
@@ -56,9 +56,9 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
+- `bun|scripts/validation/schema/machine-artifacts.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
+- `bun|scripts/validation/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/schema/machine-artifacts.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
   Proves:
 - The independent docs validator accepts only checked-in v4 schemas/examples and closes v4 framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator.
 
@@ -67,6 +67,6 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|scripts/tools/validators/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/schema/machine-artifacts.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
   Proves:
 - The current docs artifact validator rejects v2 and v3 run/Record schema identities; it accepts current v4 artifacts only.

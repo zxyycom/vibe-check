@@ -12,6 +12,6 @@ export const workspaceFormatTargets = [
   "tsconfig.json",
   "tsconfig.product.json",
   "vibe-check.code-workspace",
-  "src/product/**/*.ts",
+  "src/**/*.ts",
   "scripts/**/*.ts"
 ] as const;

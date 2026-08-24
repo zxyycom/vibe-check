@@ -8,6 +8,6 @@ function parseTestScope(argv: readonly string[]): void {
 if (import.meta.main) {
   runMain(() => {
     parseTestScope(process.argv.slice(2));
-    runCommand(process.execPath, ["test", "src/product"], { report: reportProcessOutput });
+    runCommand(process.execPath, ["test", "src"], { report: reportProcessOutput });
   });
 }

@@ -1,6 +1,10 @@
 # 输出边界
 
-本文是 Vibe Check public machine publication contract 的唯一 owner。runtime schemas 拥有精确字段；Package Run、Core、progress 与命令 adapter 不复制 machine DTO 规则。
+本文是 Vibe Check public machine publication contract 的唯一 owner。实现位于
+`src/output/machine-v4/**`：`projection.ts` 只从 trusted Core snapshot 与 invocation metadata 创建 v4 model，
+`serializers.ts` 生成候选 bytes，`validation.ts` 验证完整 set，`publish.ts` 只发布已验证候选，
+`atomic-publication.ts` 拥有 filesystem lifecycle。`src/run/publication.ts` 仅在 Run effect 中调用该 owner；
+Package Run、Core、progress 与 repository process adapters 不复制 machine DTO 规则。
 
 ## 当前产品输出
 
@@ -31,11 +35,11 @@ scanner-private material。
 
 ## Core-to-machine projection
 
-Core 先验证并冻结 `{ checks, records }`。Output 将这个 trusted Core snapshot 与已验证的 invocation
-metadata 组成 trusted input，再创建 v4 projection、序列化 two-file candidate，并在 canonical path 变更前完整
-验证该 candidate；不会重算 Check status，不解释 Check-local data，也不会从 Record 内容猜测 owner、count、ID、
-presentation 或 aggregate。这里的 trusted 描述 projection 的输入事实，不表示两个 filesystem paths 具有跨路径
-原子可见性。
+`src/core/**` 先验证并冻结 `{ checks, records }`。`src/output/machine-v4/**` 将这个 trusted Core snapshot 与
+已验证 invocation metadata 组成 trusted input，再创建 v4 projection、序列化 two-file candidate，并在 canonical
+path 变更前完整验证该 candidate；不会重算 Check status，不解释 Check-local data，也不会从 Record 内容猜测 owner、
+count、ID、presentation 或 aggregate。这里的 trusted 描述 projection 的输入事实，不表示两个 filesystem paths
+具有跨路径原子可见性。
 
 Validators 检查 schema identity、canonical JSON、Check order、`{ checkId, id }` composite uniqueness/order、Record ownership 和 complete Record-set fingerprint。Check rows 按 `checkId` 排序；Record rows 按 `{ checkId, id }` 结构 pair 排序，不能把 pair 拼接成 delimiter string。`recordsFingerprint` 绑定这些完整排序 Record rows：它 hash 的输入是 row array 的 UTF-8 **recursive lexical canonical text**，即每个 object 在每一层以 lexical property-name order 写入、array 保持 index order；空集也有稳定摘要。它不是 `records.ndjson` bytes 的 hash。
 
@@ -68,6 +72,8 @@ The typed-provider parser is defined by [Configuration](configuration.md#typed-d
 
 ## Published materials and historical schemas
 
-当前 schemas 位于 `docs/schemas/`，examples 位于 `docs/examples/artifacts/**`；每个 example directory 有 `run.json`、`records.ndjson` 和 README。docs tooling 的独立 validator 从 raw example bytes 解析并完整验证 set，随后检查 schema/example generation drift；runtime checks 则确认 Product schema source 与 serializer 一致。两条验证路径互不把对方的 validator 当作 acceptance authority。
+当前 schemas 位于 `docs/schemas/`，examples 位于 `docs/examples/artifacts/**`；每个 example directory 有 `run.json`、`records.ndjson` 和 README。`scripts/docs/machine-artifacts/**` 维护 published material，
+`scripts/validation/schema/**` 的独立 validator 从 raw example bytes 解析并完整验证 set，随后检查 schema/example
+generation drift；`src/output/machine-v4/**` tests 则确认 runtime schema source 与 serializer 一致。两条验证路径互不把对方的 validator 当作 acceptance authority。
 
 v2 schema bytes 只保留在 `docs/schemas/historical/v2/` 供明确 historical validation/reference 使用。v3 没有 current 或 historical runtime/publication path；其输入只会被 v4 validator 拒绝。历史材料不是 current schema entry、runtime reader/writer、example input 或 fallback；current output 只接受 v4。

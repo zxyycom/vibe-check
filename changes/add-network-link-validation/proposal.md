@@ -2,6 +2,8 @@
 
 本 proposal 是实现显式授权、SSRF-safe 且有界的 Product-owned Network Link Check 的可改写实施计划。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-network-link-validation` 刷新基线。
+
 ## Why
 
 Markdown 的确定性解析可以识别本地链接和外部 HTTP(S) occurrence，却不能判断远端当前状态。若外链发现、gate、环境变量或普通 `fetch` 隐式触发网络，检查会引入 SSRF、ambient proxy/credential传播、DNS rebinding、无界并发、敏感 URL 扩散和临时故障误报，因此联网必须成为一个独立、可审阅且默认关闭的 Check。

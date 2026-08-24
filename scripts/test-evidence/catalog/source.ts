@@ -1,9 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { diagnostic, type TestEvidenceDiagnostic } from "../model.ts";
+import { errorMessage } from "../../foundation/errors.ts";
+import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { diagnostic, type TestEvidenceDiagnostic } from "../entities.ts";
 import { resolveExistingWorkspacePath } from "../relative-path.ts";
-import type { TestCaseTopic } from "./model.ts";
+import type { TestCaseTopic } from "./catalog-types.ts";
 
 export const CASES_SOURCE_PATH = "docs/testing/cases";
 
@@ -201,7 +203,7 @@ function parseTopics(
   topics: TestCaseTopic[];
   diagnostics: TestEvidenceDiagnostic[];
 } {
-  if (!isRecord(value) || value.schemaVersion !== 1 || !Array.isArray(value.topics)) {
+  if (!isNonArrayRecord(value) || value.schemaVersion !== 1 || !Array.isArray(value.topics)) {
     return {
       topics: [],
       diagnostics: [
@@ -245,7 +247,7 @@ function parseTopics(
 
 function parseTopic(value: unknown): TestCaseTopic | null {
   if (
-    !isRecord(value) ||
+    !isNonArrayRecord(value) ||
     typeof value.id !== "string" ||
     !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.id) ||
     typeof value.description !== "string" ||
@@ -266,12 +268,4 @@ function pathEntryExists(targetPath: string): boolean {
   } catch {
     return false;
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import type { TestEntity, TestEvidenceDiagnostic } from "../model.ts";
+import type { TestEntity, TestEvidenceDiagnostic } from "../entities.ts";
 
 export const bunEntity = "bun|tests/example.test.ts|contract > rejects invalid input";
 export const secondBunEntity = "bun|tests/example.test.ts|contract > preserves state";

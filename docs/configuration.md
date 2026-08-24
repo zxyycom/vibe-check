@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/quality/project-definition.ts`](../scripts/quality/project-definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -267,4 +267,4 @@ the repository Gate log directory, are not a Product `logs` effect.
 
 Product has no shared comparison/reference channel or policy-selection layer. A repository Gate binds selected IDs and an explicit aggregation configuration in its own Project Run; its adapter only maps Run facts and `aggregate` to process exit. A producing Check owns any baseline or comparison behavior through its own options or composition.
 
-Product neither discovers JSON/JSONC configuration nor exposes editor profiles, adjustment helpers, parser/materializer APIs, or operational dependency maps. The retained Product CLI emits only a migration diagnostic; it is not a configuration execution path.
+Product neither discovers JSON/JSONC configuration nor exposes editor profiles, adjustment helpers, parser/materializer APIs, operational dependency maps, a CLI, or a `bin` entry. Project-owned TypeScript Definition and bound Run are the only supported integration path.

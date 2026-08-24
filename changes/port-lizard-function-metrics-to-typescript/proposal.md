@@ -2,6 +2,8 @@
 
 本 Change 计划在三个 Check foundations 落地后，以 fresh compatibility baseline 将 `function-metrics` built-in Check 的 Python/Lizard backend替换为 Product-owned TypeScript implementation；在进入 implementation 前，proposal仍可随同一目标的事实核对而修订。
 
+**恢复门禁：** 本 Plan 的路径与 Git 基线早于当前 `src/checks/measurement/scanners/lizard/**` owner；不得按旧 `src/product/**` 细节直接实施。恢复时必须重新采集 fresh compatibility baseline、完成 provenance/license 审计、同步 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/port-lizard-function-metrics-to-typescript`。
+
 ## Why
 
 当前 formal function measurement path需要发现/启动Python与Lizard、解析Lizard 1.23 CSV，并维护额外availability、process和private protocol failure。统一到Product-owned TypeScript runtime可以减少安装与执行依赖，但必须在Check/Record、Task orchestration和Project Definition稳定seam上迁移，避免把旧capability/config/output形状误当成新产品contract。

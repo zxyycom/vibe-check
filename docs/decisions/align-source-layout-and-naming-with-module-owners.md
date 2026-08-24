@@ -1,7 +1,7 @@
 ---
 title: 让源码布局与命名共同表达模块 owner
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-24T02:13:05Z
 purpose: 让 Product 与仓库脚本的目录、文件、入口和导出名称共同表达实际模块 owner，避免路径整理后仍保留模糊命名。
 background: Product 与 scripts 存在历史包装层、职责错位和大量 index 入口；只移动目录会保留查找成本，并可能把已取消的 CLI 固化为一级模块。

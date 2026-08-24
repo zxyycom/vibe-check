@@ -3,7 +3,7 @@
 
 # JavaScript / TypeScript dependencies and build output
 /node_modules/
-/scripts/quality/node_modules/
+/scripts/project/node_modules/
 /dist/
 /build/
 /coverage/

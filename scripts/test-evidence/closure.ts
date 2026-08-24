@@ -4,7 +4,7 @@ import {
   type StaticTestEntity,
   type TestEntity,
   type TestEvidenceDiagnostic
-} from "./model.ts";
+} from "./entities.ts";
 
 export function closeStaticAndRuntimeEntities(options: {
   runner: string;

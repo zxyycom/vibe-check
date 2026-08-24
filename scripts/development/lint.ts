@@ -9,7 +9,7 @@ import {
 export type LintScope = "product" | "scripts";
 
 const lintPaths: Readonly<Record<LintScope, readonly string[]>> = {
-  product: ["src/product"],
+  product: ["src"],
   scripts: ["scripts"]
 };
 

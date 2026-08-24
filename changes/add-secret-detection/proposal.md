@@ -2,6 +2,8 @@
 
 本 proposal 是实现不扩散原始秘密材料的 Product-owned Secret Detection Check 的可改写实施计划。
 
+**恢复门禁：** 本 Plan 的实现路径与 Git 基线早于当前 `src/{definition,checks,core,run,output,foundation}/**` module owners；不得按旧 `src/product/**` 细节直接实施。恢复时先对照当前 owner、代码和测试重新完成语义审阅，更新本 Change 的 proposal/design/tasks，并运行 `bun run change-plan -- plan changes/add-secret-detection` 刷新基线。
+
 ## Why
 
 访问令牌、私钥和其它凭据容易被误写进源码、文档或配置。检查必须短暂读取候选值才能发现问题，但 raw match、value-derived digest、source excerpt、native error 或测试失败若进入 `QualityRecord`、diagnostic、cache、artifact、log 或 output，就会让质量工具成为新的泄露渠道。

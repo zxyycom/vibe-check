@@ -1,4 +1,4 @@
-import { runProcess, type ProcessResult } from "../tools/foundation/src/index.ts";
+import { runProcess, type ProcessResult } from "../foundation/process.ts";
 
 export function runBunCommand(options: {
   args: string[];

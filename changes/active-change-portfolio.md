@@ -27,7 +27,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 当前 portfolio 分为四个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
 
-1. **Project Gate 与 package 交付：** repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、public package API documentation 与 native Check authoring 均已归档，并已交付下游 handoff。publish Change 只能在单独授权下开始外部准备。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
+1. **Project Gate 与 package 交付：** repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、public package API documentation 与 native Check authoring 均已归档；当前 layout/naming Change 先把 Product、project consumer 与 package artifact/candidate 迁到唯一 owner，publish Change 随后只能消费重新构建并验收的 exact artifact，且外部准备仍需单独授权。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
 2. **公共 Check authoring、typed dependency outputs 与日志证据边界：** 当前四态 Check、final data、Check-local Records、terminal messages、human visibility 与 declared direct dependency final-data read 均已成为基础事实。Typed reader 不把 parser、dependency view 或 presentation 变成 Core fact；相邻 log evidence Draft 仍只保存 durable receipt/event 的 owner 边界。
 3. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
 4. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
@@ -40,6 +40,7 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 | Change | 此 Change 唯一负责的结果 | 直接 Decision 输入 | 下游与仍未决定的事项 |
 | --- | --- | --- | --- |
+| [align-repository-layout-and-naming-with-module-owners](align-repository-layout-and-naming-with-module-owners/) | 让 `src/**` 与 `scripts/**` 的目录、basename、public entry、private project consumer 和 package lifecycle 对齐实际 module owner，并重新产生匹配新路径的本地证据。 | [源码布局与命名表达 module owner](../docs/decisions/align-source-layout-and-naming-with-module-owners.md)（aligned after implementation）。 | 不处理 license、正式版本、registry、credential 或 publish；完成后 publish Draft 必须消费新 candidate/layout handoff。 |
 | [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 消费 cutover binding、Gate optimization 与 documentation handoffs，在单独授权下完成 public registry release 与 registry-install proof。 | [完整 Gate 后发布](../docs/decisions/complete-project-gate-before-public-package-release.md)（aligned）；[版本化 package unit](../docs/decisions/release-one-versioned-npm-product-unit.md)、[unscoped `vibe-check`](../docs/decisions/publish-unscoped-vibe-check-publicly.md)、[MIT](../docs/decisions/license-package-under-mit.md)、[Bun host](../docs/decisions/support-bun-as-the-package-host.md)、[API-only entry](../docs/decisions/use-programmatic-api-as-product-entry.md)、[`0.0.x`](../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)（均 future）。 | registry authority、authenticated publisher、精确 version、copyright holder/year、publish mechanism 与每次外部读写授权均是届时外部事实，尚未决定也不能预先查询。 |
 
 ## 路径二：公共 Check authoring 与日志证据边界

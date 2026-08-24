@@ -111,7 +111,7 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 
 版本化 runner profile 位于
 [`scripts/test-evidence/supported-runner-profile.json`](../../scripts/test-evidence/supported-runner-profile.json)。
-它用 `scripts/**` 与 `src/product/**` 的目录规则定义当前受支持 Bun test surface；
+它用 `scripts/**` 与 `src/**` 的目录规则定义当前受支持 Bun test surface；
 静态发现与 runtime report 必须复用同一文件集合。
 
 严格 `check` 总是从完整当前树重新发现，不使用 Git diff、缓存清单或历史账本作为发现

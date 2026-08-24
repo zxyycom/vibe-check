@@ -8,22 +8,21 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "env:check": "bun scripts/project-environment/index.ts check",
-    "env:setup": "bun scripts/project-environment/index.ts setup",
-    "product:cli": "bun src/product/cli/index.ts",
+    "env:check": "bun scripts/environment/manage.ts check",
+    "env:setup": "bun scripts/environment/manage.ts setup",
     "format": "bun scripts/development/format.ts",
     "lint": "bun scripts/development/lint.ts",
     "typecheck": "bun scripts/development/typecheck.ts",
     "test": "bun scripts/development/test.ts",
-    "decisions": "bun scripts/decision-records.ts",
+    "decisions": "bun scripts/decision-records/command.ts",
     "change-plan": "bun .codex/skills/change-plan/scripts/change-plan.mjs",
     "investigations": "bun .codex/skills/investigation-report/scripts/check-investigations.mjs --root .",
-    "test-evidence": "bun scripts/test-evidence/index.ts",
-    "validate": "bun scripts/validate.ts",
-    "verify:vibe-check-workspace": "bun scripts/project-gate/index.ts",
-    "verify:vibe-check-workspace:required": "bun scripts/project-gate/index.ts --profile required",
-    "verify:vibe-check-workspace:full": "bun scripts/project-gate/index.ts --profile full",
-    "quality": "bun scripts/quality/index.ts"
+    "test-evidence": "bun scripts/test-evidence/command.ts",
+    "validate": "bun scripts/validation/workspace.ts",
+    "verify:vibe-check-workspace": "bun scripts/project/gate/run.ts",
+    "verify:vibe-check-workspace:required": "bun scripts/project/gate/run.ts --profile required",
+    "verify:vibe-check-workspace:full": "bun scripts/project/gate/run.ts --profile full",
+    "quality": "bun scripts/project/quality/run.ts"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.0",

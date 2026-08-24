@@ -3,17 +3,17 @@
 本文档定义 Vibe Check 实现代码的长期编码原则。它约束工程判断、实现模型、局部表达风格、
 边界处理、职责分层和验收标准，不替代产品规范，也不预设具体模块名、函数名或重构方案。
 
-具体 CLI 行为、输出字段、schema 形状、质量指标和测试矩阵，以
+具体脚本命令行为、输出字段、schema 形状、质量指标和测试矩阵，以
 [文档导航](navigation.md) 指向的行为 owner 为准。本文只规定实现这些契约时的通用代码
 性质、模型选择、表达边界和验证要求。
 
 ## 实现方向
 
-产品实现的唯一 runtime owner 是 `src/product/**` 下的仓库自有 TypeScript/Bun 源码；
+产品实现的唯一 runtime owner 是 `src/**` 下的仓库自有 TypeScript/Bun 源码；
 `scripts/**` 只保留开发自动化、CI consumer 和指向产品入口的薄 wrapper。产品源码不得
-反向导入 `scripts/**`，包括其中的 `scripts/tools/foundation/**`。
+反向导入 `scripts/**`，包括其中的 `scripts/foundation/**`。
 
-正式集成入口是项目拥有的 Project Run。`scripts/quality/scan.ts` 只调用仓库 Project Run；Product CLI 仅提供 legacy migration diagnostic。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
+正式集成入口是 `src/index.ts` 的程序化 package API 和项目拥有的 Project Run。`scripts/project/quality/scan.ts` 只调用仓库 Project Run；Product 不提供 CLI 或 `bin`。已退役的 Rust 产品源码、测试、fixture 和模块结构不是当前
 TypeScript 产品的实现来源或兼容层。
 
 ## 1. 文档边界与使用方式
@@ -56,11 +56,11 @@ lint rule set，`.oxfmtrc.json` 拥有 format 选项，对应 package 的 `packa
 
 ## 3. 边界代码显式
 
-用户输入、CLI 参数、配置、路径、文件系统、进程、JSON、schema 和 scanner 输出都属于边界。边界代码负责解析、校验、归一化和错误映射；内部逻辑只处理已经归一化的领域对象。
+用户输入、脚本命令参数、配置、路径、文件系统、进程、JSON、schema 和 scanner 输出都属于边界。边界代码负责解析、校验、归一化和错误映射；内部逻辑只处理已经归一化的领域对象。
 
 边界失败必须给调用方明确反馈：
 
-1. CLI 返回稳定退出码、清晰错误或可行动诊断。
+1. 脚本命令返回稳定退出码、清晰错误或可行动诊断。
 2. 验证脚本说明文件、字段、命令和原因。
 3. 机器输出、stderr/stdout 和人读报告保持各自通道职责。
 
@@ -115,7 +115,7 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 | 能力 | 使用条件 | 使用边界 |
 | --- | --- | --- |
 | `TypeBox` | 行为 owner 需要 runtime Schema、外部数据解析和静态类型派生 | 复用已有 Schema owner，不建立同义 Schema |
-| 项目自有 [`Option`](../src/product/foundation/option.ts) | 值可能存在或缺失，并且缺失本身不是失败 | nullable 边界使用 `fromNullable`；缺失需要失败原因时使用 `toResult` 转为 `neverthrow.Result` |
+| 项目自有 [`Option`](../src/foundation/option.ts) | 值可能存在或缺失，并且缺失本身不是失败 | nullable 边界使用 `fromNullable`；缺失需要失败原因时使用 `toResult` 转为 `neverthrow.Result` |
 | `neverthrow` | 可预期失败需要跨多个步骤或异步流程组合 | 简单局部边界继续使用已有 typed error 或显式 result union；同一边界只使用一种失败协议 |
 | `ts-pattern` | 封闭分支包含非平凡的判别联合、嵌套结构或表达式结果，并需要穷尽检查 | 简单单值分支使用原生 `switch` 与 `never`；它不承接状态机生命周期 |
 | `Remeda` | 连续无状态数据转换是当前职责的主要结构 | 简单数组操作使用原生方法；复杂分支、副作用或 `await` 使用结构化循环 |
@@ -159,7 +159,7 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 ## 7. 错误处理与结果模型
 
-错误类型按边界和调用方需求设计。内部 helper 可以返回具体错误；跨模块和 CLI 边界应映射为稳定、可解释、可测试的错误模型。
+错误类型按边界和调用方需求设计。内部 helper 可以返回具体错误；跨模块和脚本命令边界应映射为稳定、可解释、可测试的错误模型。
 
 错误处理规则：
 
@@ -179,8 +179,8 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 领域层、adapter 层或 service 层。
 
 TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 runtime 闭包必须位于
-`src/product/**`；仍属于仓库开发自动化的 consumer 留在 `scripts/**`，只允许
-`scripts/** -> src/product/**` 的单向依赖。
+`src/**`；仍属于仓库开发自动化的 consumer 留在 `scripts/**`，只允许
+`scripts/** -> src/**` 的单向依赖。
 
 需要拆分的信号：
 
@@ -226,7 +226,7 @@ TypeScript 模块使用显式相对 import 和清晰 source entrypoint。产品 
 触及对应范围时，最低要求：
 
 1. 内部语义有单元测试或等价局部验证。
-2. Package Run 或 retained CLI migration diagnostic 有集成测试或等价入口验证。
+2. Package Run 与 `src/index.ts` public entry 有集成测试或等价入口验证。
 3. 触及 owner schema/examples 时保持二者可互相映射；TypeScript machine artifacts 运行
    既有 runtime validation 和相应契约测试。
 4. 输出层边界和 stderr/stdout 边界有测试或脚本检查。
