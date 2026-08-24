@@ -25,12 +25,13 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 
 ## 产品路径总览
 
-当前 portfolio 分为四个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
+当前 portfolio 分为五个阅读分组；同一个基础能力可以同时出现在自身 owner 分组和下游交付路径中，依赖关系以链接的 Change 与详细交付导航为准：
 
 1. **Project Gate 与 package 交付：** repository hard cutover、最小 Check/Record、terminal messages/visibility、typed dependency outputs、public package API documentation、native Check authoring 与 layout/naming 均已归档；publish Change 只能消费归档 layout handoff 所绑定并验收的 exact artifact，且外部准备仍需单独授权。完整依赖与 handoff 由 [Vibe Check package 与 Project Gate 交付导航](vibe-check-package-and-gate-delivery.md) 唯一承接。
 2. **公共 Check authoring、typed dependency outputs 与日志证据边界：** 当前四态 Check、final data、Check-local Records、terminal messages、human visibility 与 declared direct dependency final-data read 均已成为基础事实。Typed reader 不把 parser、dependency view 或 presentation 变成 Core fact；相邻 log evidence Draft 仍只保存 durable receipt/event 的 owner 边界。
 3. **格式、政策与安全 Check：** 文件政策与多个独立 Product-provided Check；每项领域语义归 producing Check，不形成“非代码扫描器”的共同实现。
 4. **Function metrics runtime 迁移：** 在 Check foundations 后，以 fresh baseline 将私有 Python/Lizard backend 替换为 TypeScript implementation。
+5. **当前代码质量闭环：** 对当前仓库拥有的代码建立可枚举、摘要绑定、逐条轻筛且风险触发独立复核的审计证据，只实施 owner 已明确支持的最小质量改进，不用全量范围预实现 feature 或强迫每个文件产生 diff。
 
 ## 路径一：Project Gate 与 package 交付
 
@@ -85,6 +86,14 @@ Decision status 的正确读法是：`active + aligned` 是已核对的当前方
 | Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
 | --- | --- | --- | --- |
 | [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | 在届时 approved exact inputs 上，以 fresh compatibility baseline 将 `function-metrics` 的私有 Python/Lizard backend hard-cut 为 Product-owned TypeScript implementation。 | [Lizard 在 Check foundations 后再审](../docs/decisions/defer-lizard-until-after-check-foundations.md)（`active + unaligned`）。 | 该 Decision 默认后置，而不是删除迁移；只有直接交付阻塞、平台、可靠性、安全或许可证证据才应提前重评。开始前必须重新确认 current foundations、采集 fresh baseline，并完成 provenance/license 审计；不自动扩大语言范围或保留 production fallback。 |
+
+## 路径五：当前代码质量闭环
+
+这一组只审计和改进当前实现质量，不定义新的 Product feature 或长期质量政策。长期实现风格仍由 [编码规范](../docs/coding-style.md) 和 [按问题形态约束实现风格](../docs/decisions/choose-implementation-style-by-problem-shape.md) Decision 拥有；测试变更继续服从 [完整测试实体与语义 Case 闭合](../docs/decisions/use-semantic-test-case-closure.md)。逐文件 ledger 只保存本次 Change 的覆盖与处置证据。
+
+| Change | 此 Change 的核心目的 | 直接 Decision 输入 | 依赖、恢复或未决边界 |
+| --- | --- | --- | --- |
+| [audit-and-improve-current-code-quality](audit-and-improve-current-code-quality/) | 穷尽枚举当前代码与行为配置，以最终内容摘要绑定逐条轻筛、风险触发深审、最小改进和独立复核，并交付无遗漏的 findings 与验证结果。 | [按问题形态约束实现风格](../docs/decisions/choose-implementation-style-by-problem-shape.md)、[源码布局和命名表达 owner](../docs/decisions/align-source-layout-and-naming-with-module-owners.md)与[完整测试实体和 Case 闭合](../docs/decisions/use-semantic-test-case-closure.md)（均 aligned）。 | Plan 已固定 code/config/generated-config 分类、ledger freshness 与分级审查；不预实现活动 feature Plans，不改变 public/machine/release contract，也不以 lint/Gate 替代语义审查。 |
 
 ## 明确保留的未决事项
 
