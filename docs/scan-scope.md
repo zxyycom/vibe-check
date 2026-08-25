@@ -38,46 +38,41 @@ global scope，也不递归收集 target 的 links。
 
 ### Markdown Link source occurrences
 
-Link Check first canonicalizes the project root once. If that fails, it is `unavailable`; only a canonicalized
-root with zero eligible Markdown source is `not-applicable`. Each eligible source is decoded and parsed once
-into Link-private facts. The supported occurrences are inline links/images, defined full/collapsed/shortcut
-references at their use site, explicit autolinks, and the selected GFM autolink literals. YAML front matter,
-code/fenced code, HTML attributes, prose URLs, and undefined references do not create occurrences.
+Link Check 先将 project root canonicalize 一次。失败即为 `unavailable`；只有 root 已 canonicalize 且没有 eligible
+Markdown source 时才是 `not-applicable`。每个 eligible source 只 decode 和 parse 一次，得到 Link-private facts。
+受支持的 occurrence 是 inline link/image、在 use site 已定义的 full/collapsed/shortcut reference、explicit autolink
+和选定的 GFM autolink literal。YAML front matter、code/fenced code、HTML attribute、prose URL 和 undefined reference
+不创建 occurrence。
 
-The facts are immutable Link-private adapter output. Decode or parser failure makes the Check `unavailable`
-instead of publishing a partial occurrence set.
+这些 facts 是 immutable 的 Link-private adapter output。decode 或 parser 失败使 Check 结算为 `unavailable`，而不是发布
+partial occurrence set。
 
-For anchor lookup, each document gets a fresh GitHub-priority slugger over ATX and Setext headings. The Check
-does not promise every renderer's anchor edge case. Its source navigation range uses decoded JavaScript UTF-16
-positions with one-based, end-exclusive line/column values; parser offsets and dependency ASTs remain private.
+anchor lookup 时，每份文档以 ATX 和 Setext heading 创建新的 GitHub-priority slugger。该 Check 不承诺每个 renderer 的
+anchor edge case。source navigation range 使用 decode 后 JavaScript UTF-16 position，line/column 为 one-based、
+end-exclusive；parser offset 和 dependency AST 保持 private。
 
 ## Markdown Link direct targets
 
-Markdown Link Check can perform bounded work only for a source occurrence's direct local target. A target
-lexically inside the project root may be checked even when it is outside the source scope, but it never becomes
-a source input. For an enabled cross-document fragment, only a readable regular Markdown target supplies
-heading facts; a directory never accepts anchor lookup. When cross-document anchor validation is disabled, a
-fragment does not cause a Markdown eligibility or heading read. Directory non-empty checking, when configured,
-reads at most one entry and never recursively enumerates it.
+Markdown Link Check 只能对 source occurrence 的 direct local target 做 bounded work。lexically 位于 project root 内的
+target 即使在 source scope 外也可被检查，但绝不成为 source input。启用 cross-document fragment 后，只有可读取的
+regular Markdown target 才提供 heading facts；directory 永不接受 anchor lookup。关闭 cross-document anchor validation
+时，fragment 不触发 Markdown eligibility 或 heading read。配置 directory non-empty checking 后，最多读取一个 entry，
+绝不递归枚举。
 
-Relative lexical escapes, host-native absolute paths, and accepted raw host-native empty-authority `file:///`
-local URIs reach the Check's `rootExternalTargetMode` before target I/O. `ignore` produces no finding and
-performs no outside work; `report` produces the safe `target-outside-project-root` finding and performs no
-outside work;
-only `validate` may do bounded direct work for that target. A lexically root-in candidate may use only a
-component containment probe. If a symlink hop escapes the root, that probe does not authorize touching the
-outside referent except in `validate` mode.
+relative lexical escape、host-native absolute path 和接受的 raw host-native empty-authority `file:///` local URI，在
+target I/O 前进入 Check 的 `rootExternalTargetMode`。`ignore` 不产生 finding，也不做 root 外 work；`report` 产生安全的
+`target-outside-project-root` finding，也不做 root 外 work；只有 `validate` 可对该 target 做 bounded direct work。
+lexically root-in candidate 只能使用 component containment probe。若某个 symlink hop 越出 root，除 `validate` mode 外，
+该 probe 不授权触碰 root 外 referent。
 
-The containment guarantee is evaluated against the host filesystem state observed during that operation. The
-Bun/Node path APIs used here do not provide a portable dirfd/openat traversal, so a hostile concurrent
-replacement after a successful component probe is outside this Check's authorization proof. Regular-file reads
-still use no-follow final-leaf opening and a byte bound; callers that require hostile-filesystem isolation need
-an OS-level sandbox rather than this Link Check.
+containment guarantee 依据操作期间观察到的 host filesystem state 判断。这里使用的 Bun/Node path API 不提供 portable
+dirfd/openat traversal，因此 component probe 成功后的 hostile concurrent replacement 不在本 Check 的 authorization proof
+范围内。regular-file read 仍使用 no-follow final-leaf opening 和 byte bound；需要 hostile-filesystem isolation 的调用方应使用
+OS-level sandbox，而不是依赖本 Link Check。
 
-HTTP(S), `mailto:`, protocol-relative URLs, UNC paths, authority-bearing or unsupported `file:` forms, and
-other unsupported target forms stop after classification. They produce no Product-owned DNS, HTTP, TLS,
-redirect, subprocess, or filesystem I/O, and no external reachability verdict. The Check has no target
-discovery, crawler, shared resolver, or general file-policy surface.
+HTTP(S)、`mailto:`、protocol-relative URL、UNC path、带 authority 或不受支持的 `file:` form 以及其它不受支持的 target form
+只分类后停止。它们不产生 Product-owned DNS、HTTP、TLS、redirect、subprocess 或 filesystem I/O，也不产生 external
+reachability verdict。本 Check 没有 target discovery、crawler、shared resolver 或 general file-policy surface。
 
 ## Source-scope boundary
 

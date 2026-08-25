@@ -5,9 +5,12 @@ import type { CheckExecutionContext, CheckResult } from "../../definition/custom
 import { collectScanFiles } from "../input/files.ts";
 import {
   createMarkdownLocalResolver,
+  type MarkdownLinkFindingReason,
   type MarkdownLocalResolution,
+  type MarkdownLocalResolutionReason,
   type MarkdownLocalResolver,
-  type MarkdownSafeTargetDescriptor
+  type MarkdownSafeTargetDescriptor,
+  type MarkdownSourceReadFailureReason
 } from "../markdown-link-validation/local-resolver.ts";
 import type {
   MarkdownLinkOccurrence,
@@ -18,15 +21,6 @@ export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   checkId: "markdown-link-validation",
   displayName: "Markdown link validation"
 } as const;
-
-type MarkdownLinkFindingReason =
-  | "missing-target"
-  | "target-outside-project-root"
-  | "empty-directory"
-  | "anchor-on-directory"
-  | "anchor-target-not-markdown"
-  | "missing-anchor"
-  | "unsupported-target-type";
 
 interface MarkdownLinkRecordCandidate {
   readonly data: Readonly<{
@@ -48,6 +42,25 @@ interface MarkdownLinkValidationRun {
   readonly signal: AbortSignal;
 }
 
+type MarkdownLinkValidationUnavailableReason =
+  | "cancelled"
+  | "occurrence-limit-exceeded"
+  | "project-root-unavailable"
+  | MarkdownLocalResolutionReason
+  | MarkdownSourceReadFailureReason;
+
+type MarkdownLinkValidationUnavailable = Readonly<{
+  readonly kind: "unavailable";
+  readonly reason: MarkdownLinkValidationUnavailableReason;
+}>;
+
+type MarkdownSourceDiscovery =
+  | Readonly<{
+      readonly kind: "complete";
+      readonly sourcePaths: readonly string[];
+    }>
+  | MarkdownLinkValidationUnavailable;
+
 type MarkdownSourceValidation =
   | Readonly<{
       readonly kind: "complete";
@@ -65,36 +78,33 @@ type MarkdownLinkTraversal =
     }>
   | MarkdownLinkValidationUnavailable;
 
-type MarkdownLinkValidationUnavailable = Readonly<{ readonly kind: "unavailable" }>;
-
-const UNAVAILABLE_VALIDATION: MarkdownLinkValidationUnavailable = Object.freeze({
-  kind: "unavailable" as const
-});
-
 /** 验证 global scope 内 Markdown source 的离线本地链接完整性。 */
 export async function executeMarkdownLinkValidation(
   context: CheckExecutionContext<MarkdownLinkValidationOptions>
 ): Promise<CheckResult> {
-  if (context.signal.aborted) return unavailable();
+  if (context.signal.aborted) return unavailable("cancelled");
   const createdResolver = await createMarkdownLocalResolver(
     context.project.root,
     context.options.limits.maxTargetReads
   );
-  if (!createdResolver.ok || context.signal.aborted) return unavailable();
+  if (!createdResolver.ok) return unavailable(createdResolver.reason);
+  if (context.signal.aborted) return unavailable("cancelled");
 
-  const sourcePaths = discoverMarkdownSourcePaths(context.project);
-  if (sourcePaths === undefined) return unavailable();
+  const sourceDiscovery = discoverMarkdownSourcePaths(context.project);
+  if (sourceDiscovery.kind === "unavailable") return unavailable(sourceDiscovery.reason);
+  const { sourcePaths } = sourceDiscovery;
   if (sourcePaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
-  if (context.signal.aborted) return unavailable();
+  if (context.signal.aborted) return unavailable("cancelled");
 
   const traversal = await traverseMarkdownSources(sourcePaths, {
     resolver: createdResolver.resolver,
     options: context.options,
     signal: context.signal
   });
-  if (traversal.kind === "unavailable" || context.signal.aborted) return unavailable();
+  if (traversal.kind === "unavailable") return unavailable(traversal.reason);
+  if (context.signal.aborted) return unavailable("cancelled");
 
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
@@ -112,14 +122,23 @@ export async function executeMarkdownLinkValidation(
 
 function discoverMarkdownSourcePaths(
   project: CheckExecutionContext<MarkdownLinkValidationOptions>["project"]
-): readonly string[] | undefined {
+): MarkdownSourceDiscovery {
   try {
-    return Object.freeze(
-      collectScanFiles(project.root, project.files).filter(isMarkdownSourcePath)
-    );
+    return Object.freeze({
+      kind: "complete" as const,
+      sourcePaths: Object.freeze(
+        collectScanFiles(project.root, project.files).filter(isMarkdownSourcePath)
+      )
+    });
   } catch {
-    return undefined;
+    return unavailableValidation("source-unavailable");
   }
+}
+
+function unavailableValidation(
+  reason: MarkdownLinkValidationUnavailableReason
+): MarkdownLinkValidationUnavailable {
+  return Object.freeze({ kind: "unavailable", reason });
 }
 
 async function traverseMarkdownSources(
@@ -132,7 +151,7 @@ async function traverseMarkdownSources(
 
   for (const sourcePath of sourcePaths) {
     const sourceValidation = await validateMarkdownSource(sourcePath, occurrenceCount, run);
-    if (sourceValidation.kind === "unavailable") return UNAVAILABLE_VALIDATION;
+    if (sourceValidation.kind === "unavailable") return sourceValidation;
 
     candidates.push(...sourceValidation.candidates);
     occurrenceCount = sourceValidation.occurrenceCount;
@@ -152,16 +171,19 @@ async function validateMarkdownSource(
   occurrenceCountBeforeSource: number,
   run: MarkdownLinkValidationRun
 ): Promise<MarkdownSourceValidation> {
-  if (run.signal.aborted) return UNAVAILABLE_VALIDATION;
+  if (run.signal.aborted) return unavailableValidation("cancelled");
   const sourceRead = await run.resolver.readSource(sourcePath, run.options.limits.maxMarkdownBytes);
-  if (!sourceRead.ok || run.signal.aborted) return UNAVAILABLE_VALIDATION;
+  if (run.signal.aborted) return unavailableValidation("cancelled");
+  if (!sourceRead.ok) return unavailableValidation(sourceRead.reason);
 
   const candidates: MarkdownLinkRecordCandidate[] = [];
   let occurrenceCount = occurrenceCountBeforeSource;
   for (const [occurrenceIndex, occurrence] of sourceRead.source.facts.occurrences.entries()) {
-    if (run.signal.aborted) return UNAVAILABLE_VALIDATION;
+    if (run.signal.aborted) return unavailableValidation("cancelled");
     occurrenceCount += 1;
-    if (occurrenceCount > run.options.limits.maxOccurrences) return UNAVAILABLE_VALIDATION;
+    if (occurrenceCount > run.options.limits.maxOccurrences) {
+      return unavailableValidation("occurrence-limit-exceeded");
+    }
 
     const resolution = await run.resolver.resolve({
       source: sourceRead.source,
@@ -173,13 +195,8 @@ async function validateMarkdownSource(
       validateCrossDocumentAnchors: run.options.validateCrossDocumentAnchors,
       maxMarkdownBytes: run.options.limits.maxMarkdownBytes
     });
-    if (run.signal.aborted || resolution.kind === "unavailable") {
-      return UNAVAILABLE_VALIDATION;
-    }
-    if (resolution.kind === "finding" && !isNormalFindingReason(resolution.reason)) {
-      return UNAVAILABLE_VALIDATION;
-    }
-
+    if (run.signal.aborted) return unavailableValidation("cancelled");
+    if (resolution.kind === "unavailable") return unavailableValidation(resolution.reason);
     const candidate = recordCandidate(
       sourceRead.source.path,
       occurrenceIndex,
@@ -203,7 +220,6 @@ function recordCandidate(
   resolution: MarkdownLocalResolution
 ): MarkdownLinkRecordCandidate | undefined {
   if (resolution.kind !== "finding") return undefined;
-  if (!isNormalFindingReason(resolution.reason)) return undefined;
   return Object.freeze({
     id: `source:${encodeURIComponent(sourcePath)}:occurrence:${occurrenceIndex + 1}:reason:${resolution.reason}`,
     data: Object.freeze({
@@ -228,21 +244,9 @@ function isMarkdownSourcePath(filePath: string): boolean {
   return extension === ".md" || extension === ".markdown";
 }
 
-function isNormalFindingReason(reason: string): reason is MarkdownLinkFindingReason {
-  return (
-    reason === "missing-target" ||
-    reason === "target-outside-project-root" ||
-    reason === "empty-directory" ||
-    reason === "anchor-on-directory" ||
-    reason === "anchor-target-not-markdown" ||
-    reason === "missing-anchor" ||
-    reason === "unsupported-target-type"
-  );
-}
-
-function unavailable(): CheckResult {
+function unavailable(reason: MarkdownLinkValidationUnavailableReason): CheckResult {
   return Object.freeze({
     status: "unavailable",
-    reason: { code: "markdown-link-validation-unavailable" }
+    reason: { code: reason }
   });
 }

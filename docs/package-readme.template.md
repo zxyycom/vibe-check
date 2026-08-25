@@ -26,7 +26,7 @@ Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `markdownLinkValidation` 是完整的默认 Check 值。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
 
-`markdownLinkValidation` 只校验受支持 Markdown occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该直接目标，因此只能用于已信任的本机配置。完整 options、上限、source scope 与 Record/final-data contract 以 installed `MarkdownLinkValidationOptions` 与 `markdownLinkValidation` declaration 的 JSDoc 为准。
+`markdownLinkValidation` 只校验受支持 Markdown occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。installed `MarkdownLinkValidationOptions` 的 JSDoc 说明 option field；在仓库工作区，Configuration 拥有完整 default 与 validation，Scan Scope 拥有 source/direct-target boundary，Quality Metrics 拥有 finding/final data，Output 拥有 Record projection。
 
 <!-- package-api-example:markdown-link-validation -->
 

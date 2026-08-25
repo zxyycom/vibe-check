@@ -10,7 +10,9 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, and `markdownLinkValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+package surface 是 `defineConfig`、`defineCheck`、`inherit`、`run`，以及完整默认值
+`duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation`。仓库 dogfood Definition 位于
+[`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts)。
 
 ```ts
 import {
@@ -214,11 +216,10 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The four defaults are complete ordinary `Check` values. The three scanner defaults own their scanner executable,
-command args, availability args, and (for duplication) backend concurrency in `options`; Markdown Link owns
-its closed link-validation options below. A project customizes a default with normal object spread and must
-supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested
-fields or merging a hidden operational map.
+四个默认值都是完整的 ordinary `Check` 值。三个 scanner 默认值在 `options` 中拥有 scanner executable、命令参数、
+availability 参数和（仅 duplicate）backend 并发；Markdown Link 则拥有下文的闭合链接校验 options。项目通过普通对象
+spread 自定义默认值时，必须提供所替换 nested branch 的全部字段；validation 会 fail closed，不补全缺失 nested field，
+也不合并隐藏的 operational map。
 
 | Default              | Check ID              | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option   |
 | -------------------- | --------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------- |
@@ -226,16 +227,17 @@ fields or merging a hidden operational map.
 | `fileMetrics`        | `file-metrics`        | `scc`                                                     | `[]`           | `['--version']`            | —                           |
 | `functionMetrics`    | `function-metrics`    | `lizard`                                                  | `[]`           | `['--version']`            | —                           |
 
-For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+对这些默认值，Product 验证完整 option shape 和已知 duplicate code-area key；它不把 environment variable、Run Controls
+或 repository tool state 解释为 scanner override。
 
 ### Markdown Link Validation
 
-`markdownLinkValidation` is the complete ordinary Check with `checkId` `markdown-link-validation`. It checks
-the supported Markdown occurrences for local-reference integrity; it is not a generic Markdown syntax,
-network-reachability, or repository-wide path policy. Its sources and direct-target boundary are defined by
-[Scan Scope](scan-scope.md); its findings and four-state result are defined by [Quality Metrics](quality-metrics.md).
+`markdownLinkValidation` 是 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
+Markdown occurrence 的本地引用完整性；它不是通用 Markdown syntax、network reachability 或 repository-wide path policy。
+source 与 direct target 的边界由 [Scan Scope](scan-scope.md) 定义；finding 与 four-state result 由
+[Quality Metrics](quality-metrics.md) 定义。
 
-Its closed `options` are all required. The complete default is:
+其 closed `options` 均为必填项；完整 default 为：
 
 ```ts
 {
@@ -252,16 +254,14 @@ Its closed `options` are all required. The complete default is:
 }
 ```
 
-`requireExistingTargets` makes a missing direct regular-file or directory target a normal `missing-target`
-finding; when it is false, anchor work for that missing target stops. `validateSameDocumentAnchors` and
-`validateCrossDocumentAnchors` independently enable same-document and direct Markdown-target anchor lookup.
-When cross-document anchor validation is disabled, a fragment on a direct regular-file target does not trigger
-Markdown-eligibility or heading lookup.
-`requireNonEmptyDirectories` is the independently scoped directory policy. `rootExternalTargetMode` is exactly
-`"ignore" | "report" | "validate"`; the default `report` does not read a root-external target. `limits`
-contains exactly the three positive safe integers shown above. Runtime rejects limits above `16_777_216`
-bytes, `100_000` occurrences, or `10_000` target reads. Replacing `limits` through native composition requires
-all three fields; Product does not merge an omitted nested field or silently raise a caller's bound.
+`requireExistingTargets` 使缺失的 direct regular-file 或 directory target 成为普通 `missing-target` finding；它为
+`false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和
+`validateCrossDocumentAnchors` 分别启用 same-document anchor 与 direct Markdown target anchor lookup。关闭
+cross-document anchor validation 时，direct regular-file target 上的 fragment 不触发 Markdown eligibility 或 heading lookup。
+`requireNonEmptyDirectories` 是独立作用的 directory policy。`rootExternalTargetMode` 严格为
+`"ignore" | "report" | "validate"`；默认 `report` 不读取 root-external target。`limits` 只能包含上面所列的三个
+positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occurrences 或 `10_000` target reads 的上限。
+通过 native composition 替换 `limits` 时必须提供三个字段；Product 不合并缺失 nested field，也不静默提高调用方的 bound。
 
 The metric defaults contain only their documented absolute floors and nested allowances; no default option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden

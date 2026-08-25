@@ -18,10 +18,14 @@ type MarkdownLinkFindingReason =
   | "unsupported-target-type";
 
 type MarkdownLocalResolutionReason =
-  | MarkdownLinkFindingReason
   | "invalid-local-destination"
   | "target-read-limit-exceeded"
   | "target-unavailable";
+
+type MarkdownSourceReadFailureReason =
+  | "markdown-parse-failed"
+  | "source-unavailable"
+  | "source-too-large";
 
 interface MarkdownLinkSource {
   readonly path: string;
@@ -53,7 +57,7 @@ type MarkdownSourceReadResult =
   | Readonly<{ readonly ok: true; readonly source: MarkdownLinkSource }>
   | Readonly<{
       readonly ok: false;
-      readonly reason: "markdown-parse-failed" | "source-unavailable" | "source-too-large";
+      readonly reason: MarkdownSourceReadFailureReason;
     }>;
 
 type MarkdownLocalResolution =
@@ -692,6 +696,7 @@ function unavailable(reason: MarkdownLocalResolutionReason): MarkdownLocalResolu
 }
 
 export type {
+  MarkdownLinkFindingReason,
   MarkdownLinkSource,
   MarkdownLocalResolution,
   MarkdownLocalResolutionReason,
@@ -700,5 +705,6 @@ export type {
   MarkdownLocalResolutionRequest,
   MarkdownSafeTargetDescriptor,
   MarkdownSourceReadResult,
+  MarkdownSourceReadFailureReason,
   RootExternalTargetMode
 };

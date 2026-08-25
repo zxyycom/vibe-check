@@ -299,7 +299,7 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "markdown-link-validation-unavailable" }
+        reason: { code: "occurrence-limit-exceeded" }
       });
       assert.deepEqual(result.records, []);
     } finally {
@@ -325,7 +325,7 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "markdown-link-validation-unavailable" }
+        reason: { code: "target-read-limit-exceeded" }
       });
       assert.deepEqual(result.records, []);
     } finally {
@@ -364,9 +364,32 @@ describe("default Check direct callbacks", () => {
     );
     assert.deepEqual(result.result, {
       status: "unavailable",
-      reason: { code: "markdown-link-validation-unavailable" }
+      reason: { code: "project-root-unavailable" }
     });
     assert.deepEqual(result.records, []);
+
+    const sourceRoot = createRoot("vibe-check-direct-markdown-link-source-limit-");
+    try {
+      mkdirSync(join(sourceRoot, "docs"), { recursive: true });
+      writeFileSync(join(sourceRoot, "docs", "source.md"), "# Source\n", "utf8");
+
+      const sourceResult = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxMarkdownBytes: 1 }
+        },
+        sourceRoot,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(sourceResult.result, {
+        status: "unavailable",
+        reason: { code: "source-too-large" }
+      });
+      assert.deepEqual(sourceResult.records, []);
+    } finally {
+      rmSync(sourceRoot, { recursive: true, force: true });
+    }
   });
 
   it("returns unavailable before source collection when its Run signal is already cancelled", async () => {
@@ -383,7 +406,7 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "markdown-link-validation-unavailable" }
+        reason: { code: "cancelled" }
       });
       assert.deepEqual(result.records, []);
     } finally {
