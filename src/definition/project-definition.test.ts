@@ -7,6 +7,7 @@ import {
   defineCheck,
   defineConfig,
   inherit,
+  jsonSchemaValidation,
   jsonValidation,
   normalizeProjectDefinition,
   type Check,
@@ -333,6 +334,83 @@ describe("Project Definition", () => {
       ).ok,
       true
     );
+  });
+
+  it("fails closed for malformed JSON Schema validation options and accepts all closed identity/reference branches", () => {
+    const schemaId = "https://schemas.example.test/root";
+    const validOptions = {
+      bindings: [{ id: "instance", instancePath: "instances/one.json", schemaId }],
+      maximumBytes: 1,
+      referenceResolution: {
+        mode: "allowlisted",
+        sources: [
+          { catalog: "json-schema-2020-12", kind: "bundled" },
+          {
+            id: "urn:vibe-check:source:schemas-example",
+            kind: "https",
+            origin: "https://schemas.example.test",
+            pathPrefix: "/catalog/"
+          }
+        ]
+      },
+      schemaIdentity: { mode: "document-authoritative" },
+      schemas: [{ id: schemaId, path: "schemas/root.json" }]
+    } as const;
+    assert.equal(
+      validateProjectDefinition(
+        defineConfig({ checks: [{ ...jsonSchemaValidation, options: validOptions }] })
+      ).ok,
+      true
+    );
+
+    const invalidOptions: readonly object[] = [
+      {},
+      { ...validOptions, maximumBytes: 0 },
+      { ...validOptions, schemaIdentity: { mode: "per-schema" } },
+      { ...validOptions, referenceResolution: { mode: "offline", sources: [] } },
+      { ...validOptions, referenceResolution: { mode: "allowlisted", sources: [] } },
+      {
+        ...validOptions,
+        referenceResolution: {
+          mode: "allowlisted",
+          sources: [
+            {
+              id: "urn:vibe-check:source:insecure",
+              kind: "https",
+              origin: "http://schemas.example.test",
+              pathPrefix: "/catalog/"
+            }
+          ]
+        }
+      },
+      { ...validOptions, schemas: [{ id: "relative", path: "schemas/root.json" }] },
+      { ...validOptions, schemas: [{ id: schemaId, path: "../root.json" }] },
+      {
+        ...validOptions,
+        schemas: [
+          { id: schemaId, path: "schemas/root.json" },
+          { id: schemaId, path: "schemas/other.json" }
+        ]
+      },
+      {
+        ...validOptions,
+        bindings: [{ id: "instance", instancePath: "instances/one.json", schemaId: "urn:unknown" }]
+      },
+      {
+        ...validOptions,
+        bindings: [
+          { id: "first", instancePath: "instances/one.json", schemaId },
+          { id: "second", instancePath: "instances/one.json", schemaId }
+        ]
+      }
+    ];
+    for (const options of invalidOptions) {
+      assert.equal(
+        validateProjectDefinition(defineConfig({ checks: [{ ...jsonSchemaValidation, options }] }))
+          .ok,
+        false
+      );
+    }
   });
 
   it("accepts parsers only on executable providers and excludes them from declarative identity", () => {

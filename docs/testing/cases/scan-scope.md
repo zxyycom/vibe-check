@@ -50,3 +50,14 @@ Entities:
 Proves:
 
 - JSON validation filters only the existing global candidates with case-sensitive `.json` suffix matching; `.JSON`, non-JSON, excluded-directory, and generated paths are not eligible and no eligible path is rediscovered outside the resolved scope.
+
+## Case ADD-JSON-SCHEMA-VALIDATION-SCOPE-001: Registered Schema inputs remain an exact declared subset
+
+Owner: `docs/scan-scope.md#check-exact-inputs`
+Entities:
+
+- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+
+Proves:
+
+- JSON Schema validation reads only declared schema/instance paths that belong to the current resolved global scope; an absent or excluded declaration becomes a safe `out-of-scope` issue without a discovery/read escape, while no bindings creates no document work.

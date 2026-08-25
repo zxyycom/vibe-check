@@ -41,10 +41,11 @@ describe("package artifact", () => {
       assertReadableRuntimeLayout(artifact.stagingDirectory);
       assert.equal(
         declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonValidation","run"]'
+        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
         "@humanwhocodes/momoa": "3.3.12",
+        ajv: "8.20.0",
         "csv-parse": "7.0.1",
         execa: "9.6.1",
         jscpd: "5.0.11",

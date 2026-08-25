@@ -11,6 +11,9 @@ importers:
       '@humanwhocodes/momoa':
         specifier: 3.3.12
         version: 3.3.12
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
     devDependencies:
       '@ast-grep/cli':
         specifier: 0.45.0
@@ -21,9 +24,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260621.1
         version: 7.0.0-dev.20260621.1
-      ajv:
-        specifier: ^8.17.1
-        version: 8.20.0
       csv-parse:
         specifier: ^7.0.0
         version: 7.0.1

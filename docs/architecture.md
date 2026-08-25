@@ -51,7 +51,7 @@ Run callback-local dependency view 只授权当前 Check 的 normalized effectiv
 
 ## Default Checks and exact scope
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `jsonValidation` 都是带 direct callback 的 complete Check value。前三项的 scanner command 与 options 由 Check value 拥有；`jsonValidation` 只拥有 document byte limit 与 private strict-document boundary。所有 adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 Check-owned conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation` 与 `jsonSchemaValidation` 都是带 direct callback 的 complete Check value。前三项的 scanner command 与 options 由 Check value 拥有；`jsonValidation` 只拥有 document byte limit 与 private strict-document boundary；`jsonSchemaValidation` 只复用该 boundary 的有效 private JSON value，并拥有自己的 explicit registry/bindings、identity policy、controlled reference resolver、Records and final-data settlement。两个 JSON Checks 不互读 final data，也不声明 runtime dependency。所有 adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 Check-owned conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary
 

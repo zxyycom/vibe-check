@@ -12,6 +12,7 @@ export {
   fileMetrics,
   functionMetrics,
   inherit,
+  jsonSchemaValidation,
   jsonValidation
 } from "./definition/project-definition.ts";
 export type {
@@ -27,6 +28,7 @@ export type {
   FileMetricsOptions,
   FunctionMetricsOptions,
   InheritableCheckCollection,
+  JsonSchemaValidationOptions,
   JsonValidationOptions,
   ProjectEffects,
   ProjectDefinition,

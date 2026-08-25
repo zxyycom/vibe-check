@@ -1,11 +1,13 @@
 import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
 
 export const CANDIDATE_NAME = "vibe-check";
+export const AJV_PACKAGE_NAME = "ajv";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
 
 export const CANDIDATE_DEPENDENCIES = Object.freeze({
   "@humanwhocodes/momoa": "3.3.12",
+  [AJV_PACKAGE_NAME]: "8.20.0",
   "csv-parse": "7.0.1",
   execa: "9.6.1",
   jscpd: "5.0.11",

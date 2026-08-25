@@ -15,6 +15,7 @@ import { preparePackageCandidate } from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
+const ISOLATED_JSON_SCHEMA_ID = "https://schemas.vibe-check.example/person";
 
 it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () => {
   const documentation = renderPackageApiDocumentation({ repositoryRoot });
@@ -59,10 +60,21 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     assert.equal(isWithin(repositoryRoot, jscpd.binPath), false);
     assert.equal(jscpd.version, "5.0.11");
 
-    const runEvidence = runDuplicateFixture(consumerDirectory);
+    const runEvidence = runCandidateFixture(consumerDirectory);
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "passed");
     assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
+    assert.equal(runEvidence.jsonSchemaOutcome, "passed");
+    assert.deepEqual(runEvidence.jsonSchemaData, {
+      bindingCount: 1,
+      blockedBindingCount: 0,
+      invalidBindingCount: 0,
+      issueCount: 0,
+      issuesTruncated: false,
+      reportedIssueCount: 0,
+      schemaCount: 1,
+      validBindingCount: 1
+    });
     assert.equal(runEvidence.changedFilesCalls, 1);
     assert.deepEqual(runEvidence.changedFilesFromMachine, {
       files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
@@ -82,14 +94,15 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
         message: "Installed candidate terminal message."
       }
     ]);
-    assert.match(runEvidence.humanOutput, /total\s+6\s+checks/i);
+    assert.match(runEvidence.humanOutput, /total\s+7\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/6\].*duplicate detection/i);
-    assert.match(runEvidence.humanOutput, /\[6\/6\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[1\/7\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[7\/7\].*Installed terminal note/i);
     assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "json-schema-validation");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "changed-files");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "first-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "second-changed-files-consumer");
@@ -108,6 +121,18 @@ function writeConsumerFiles(consumerDirectory: string): void {
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
+  writeFileSync(
+    join(consumerDirectory, "schema.json"),
+    `${JSON.stringify({
+      $id: ISOLATED_JSON_SCHEMA_ID,
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      properties: { name: { type: "string" } },
+      required: ["name"],
+      type: "object"
+    })}\n`,
+    "utf8"
+  );
+  writeFileSync(join(consumerDirectory, "instance.json"), '{"name":"Ada"}\n', "utf8");
   for (const sourcePath of packageApiExampleSourcePaths()) {
     const destination = join(consumerDirectory, sourcePath);
     mkdirSync(dirname(destination), { recursive: true });
@@ -264,7 +289,7 @@ function declaredJscpdBin(bin: unknown): string | undefined {
   return requiredString(bin.jscpd, "resolved jscpd bin target");
 }
 
-function runDuplicateFixture(consumerDirectory: string): Readonly<{
+function runCandidateFixture(consumerDirectory: string): Readonly<{
   checkMessages: unknown;
   checkDurations: unknown;
   changedFilesCalls: unknown;
@@ -276,24 +301,30 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   humanOutput: string;
   kind: string;
   machineSchemaVersion: unknown;
+  jsonSchemaData: unknown;
+  jsonSchemaOutcome: string | null;
   secondChangedFilesConsumer: unknown;
 }> {
   const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
     cwd: consumerDirectory,
     encoding: "utf8"
   });
-  assertCommandSucceeded(result, "isolated duplicate-detection Run");
+  assertCommandSucceeded(result, "isolated candidate Run");
   const marker = "__VIBE_CHECK_ISOLATED_RUN__";
   const markerIndex = result.stdout.lastIndexOf(marker);
   assert.notEqual(markerIndex, -1, "isolated Run did not emit its evidence marker");
   const evidence = parseJsonRecord(
     result.stdout.slice(markerIndex + marker.length),
-    "isolated duplicate-detection Run output"
+    "isolated candidate Run output"
   );
   const kind = requiredString(evidence.kind, "isolated Run kind");
   const duplicateOutcome = evidence.duplicateOutcome;
   if (duplicateOutcome !== null && typeof duplicateOutcome !== "string") {
     throw new TypeError("isolated duplicate outcome must be a string or null");
+  }
+  const jsonSchemaOutcome = evidence.jsonSchemaOutcome;
+  if (jsonSchemaOutcome !== null && typeof jsonSchemaOutcome !== "string") {
+    throw new TypeError("isolated JSON Schema outcome must be a string or null");
   }
   return Object.freeze({
     checkMessages: evidence.checkMessages,
@@ -307,6 +338,8 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
     humanOutput: result.stdout.slice(0, markerIndex),
     kind,
     machineSchemaVersion: evidence.machineSchemaVersion,
+    jsonSchemaData: evidence.jsonSchemaData,
+    jsonSchemaOutcome,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
 }
@@ -426,6 +459,7 @@ function publicImports(): string {
   fileMetrics,
   functionMetrics,
   inherit,
+  jsonSchemaValidation,
   jsonValidation,
   run,
 ${typeImports}
@@ -557,6 +591,7 @@ void [
   fileMetrics,
   functionMetrics,
   inherit,
+  jsonSchemaValidation,
   jsonValidation,
   run,
   aggregation,
@@ -576,7 +611,7 @@ function runFixture(): string {
   return `import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { defineCheck, defineConfig, duplicateDetection, jsonValidation, run } from "vibe-check";
+import { defineCheck, defineConfig, duplicateDetection, jsonSchemaValidation, jsonValidation, run } from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -656,6 +691,22 @@ const result = await run(
         }
       },
       jsonValidation,
+      {
+        ...jsonSchemaValidation,
+        options: {
+          ...jsonSchemaValidation.options,
+          bindings: [
+            {
+              id: "person",
+              instancePath: "instance.json",
+              schemaId: "${ISOLATED_JSON_SCHEMA_ID}"
+            }
+          ],
+          schemas: [
+            { id: "${ISOLATED_JSON_SCHEMA_ID}", path: "schema.json" }
+          ]
+        }
+      },
       changedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
@@ -671,6 +722,9 @@ const result = await run(
 );
 const duplicate = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === "duplicate-detection")
+  : undefined;
+const jsonSchemaCheck = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === "json-schema-validation")
   : undefined;
 const runChangedFilesCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === changedFiles.checkId)
@@ -708,7 +762,9 @@ process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   machineSchemaVersion: publishedRun.schemaVersion,
   secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
   duplicateData: settledFinalData(duplicate),
-  duplicateOutcome: duplicate?.outcome.status ?? null
+  duplicateOutcome: duplicate?.outcome.status ?? null,
+  jsonSchemaData: settledFinalData(jsonSchemaCheck),
+  jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null
 }));
 `;
 }
