@@ -26,10 +26,19 @@ context，必须由自己的 callback/options 定义语义。
 
 ## Check exact inputs
 
-`file-metrics`、`function-metrics` 与 `duplicate-detection` 各自从同一 resolved file collection 产生
+`file-metrics`、`function-metrics`、`duplicate-detection`、`json-validation` 与 `json-schema-validation` 各自从同一 resolved file collection 产生
 Product-approved exact inputs。adapter 不接收 project root 来重新发现或扩大这些 inputs。function structural
-inputs 为 `.ts`、`.d.ts`、`.rs`；duplicate inputs 按 code area 分组。zero eligible inputs 是 owning Check 的
-applicability/work fact，不触发 scope fallback。
+inputs 为 `.ts`、`.d.ts`、`.rs`；duplicate inputs 按 code area 分组。
+
+`json-validation` 只从 resolved global candidates 中以 case-sensitive `path.endsWith(".json")` 选择 paths。它不会重走
+discovery、加入 excluded/generated/vendor/scope 外路径，或把 `.JSON` 作为 input。zero eligible inputs 是 owning
+Check 的 applicability/work fact，不触发 scope fallback。
+
+`json-schema-validation` 不从 suffix、`$schema`、filename 或 directory discovery 推断 work。它只检查其 closed
+options 中逐项声明的 `schemas[].path` 与 `bindings[].instancePath`：每个 path 必须精确存在于同一次 resolved
+global candidate set，才能被读取。declared path 不在 scope 时产生 owning Check 的 safe `out-of-scope` domain issue；
+adapter 不读取该 path，也不因为 declaration 自行扩大 scope。zero bindings 是 `not-applicable`，而非允许扫描所有
+JSON files。package-fixed catalog 与显式 allowlisted 的 HTTPS reference 不会改变 local scan scope。
 
 ## Source-scope boundary
 

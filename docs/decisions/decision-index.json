@@ -7,6 +7,7 @@
     "entries": {
       "align-source-layout-and-naming-with-module-owners.md": "sha256:1fe1d572f4c6f4ace4f27abe04098e278575d06d0ad07394917334f04ee2ca9a",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:9e9bf5ca4a417aaae0d3db0acba14bdd5cbc9e7b8148f271b7138e75cc091801",
+      "allow-controlled-json-schema-reference-sources.md": "sha256:626a9424cb152eb81f9d82cdf29286b246d026090d386f9cc086e06aa4ae119d",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
@@ -16,7 +17,7 @@
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
-      "complete-first-release-check-set-before-publication.md": "sha256:a02da0b562c86350011236395e484871dcac868d5289d88e3fa2e354a0750e76",
+      "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
       "complete-project-gate-before-public-package-release.md": "sha256:2d197c8559b62f2ff33d802a6f200e761695c39dc3b5306ad3dd82084a63e155",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
@@ -126,6 +127,7 @@
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
+      "use-momoa-for-strict-json-document-boundary.md": "sha256:7f80aab6f921280564751d105967e95bbd151456014de075b02ffe5bef100264",
       "use-native-object-composition-for-check-customization.md": "sha256:8e042657d9a6a039de6b1ad2f1cdc1b50654cba352e1e20caab2aaf710316b1a",
       "use-native-test-evidence-catalog.md": "sha256:7d4528a424d7754a958bfc91c902072de129d5778eba506d278b66a3cdcce6c6",
       "use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:c32c3acb2f66e66d0047debd2c5c23405ba126a0f82318c30dffb7c269dd0173",
@@ -223,6 +225,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "allow-controlled-json-schema-reference-sources.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "allow-controlled-json-schema-reference-sources.md",
+        "title": "在首发 Checks 中提供受控 Schema 引用",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-25T08:08:27Z",
+        "purpose": "让首次公开 package 交付五项默认 Check，并以默认离线、显式授权的方式支持 JSON Schema 引用。",
+        "background": "首发 Check 集已确定，但纯离线 registry 不能覆盖常见已知 schema 引用；任意网络 loader 又会越过安全边界。",
+        "decision": "首发完成五项 default Checks；jsonSchemaValidation 以 closed policy 解析 local、bundled 与 allowlisted HTTPS 引用。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "complete-first-release-check-set-before-publication.md"
+          }
+        ]
       }
     },
     "allow-empty-information-checks-with-warning.md": {
@@ -505,16 +541,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "complete-first-release-check-set-before-publication.md",
+        "sourcePath": "archive/complete-first-release-check-set-before-publication.md",
         "title": "在首次公开发布前完成选定的首版 Checks",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-24T10:06:12Z",
         "purpose": "让首次公开 package 同时交付确定性格式检查与低样板的维护提醒能力。",
@@ -3809,6 +3845,33 @@
             "target": "use-location-independent-finding-identities.md"
           }
         ]
+      }
+    },
+    "use-momoa-for-strict-json-document-boundary.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-momoa-for-strict-json-document-boundary.md",
+        "title": "为严格 JSON 文档边界采用 Momoa",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-24T14:20:04Z",
+        "purpose": "让严格 JSON Check 在 Bun 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。",
+        "background": "原生 JSON.parse 很轻但会丢失重复成员证据；更小候选要么不满足严格 grammar，要么需要额外双解析与事件状态机。",
+        "decision": "在 add-json-validation 的私有 strict document boundary 中采用 Momoa，并接受其单入口约 92 KB 的代码面以换取直接可审计的 AST 语义。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "use-native-object-composition-for-check-customization.md": {

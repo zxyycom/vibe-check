@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, `jsonValidation`, and `jsonSchemaValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -18,7 +18,9 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  jsonSchemaValidation,
+  jsonValidation
 } from "vibe-check";
 
 const licenses = defineCheck({
@@ -46,7 +48,7 @@ export default defineConfig({
       checkId: "repository-quality",
       displayName: "Repository quality",
       maxParallel: 2,
-      checks: [duplicateDetection, fileMetrics, functionMetrics, licenses]
+      checks: [duplicateDetection, fileMetrics, functionMetrics, jsonValidation, jsonSchemaValidation, licenses]
     }
   ],
   scheduler: { maxParallel: 4 }
@@ -213,21 +215,89 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The three defaults are complete ordinary `Check` values. Their scanner executable, command args, availability args, and (for duplication) backend concurrency are all Check-owned `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The five defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit; `jsonSchemaValidation` owns its explicit registry, bindings, root-identity and reference policy. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
 
-| Default              | Check ID              | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option   |
-| -------------------- | --------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------- |
-| `duplicateDetection` | `duplicate-detection` | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4` |
-| `fileMetrics`        | `file-metrics`        | `scc`                                                     | `[]`           | `['--version']`            | —                           |
-| `functionMetrics`    | `function-metrics`    | `lizard`                                                  | `[]`           | `['--version']`            | —                           |
+| Default                | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
+| ---------------------- | ------------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------------------- |
+| `duplicateDetection`   | `duplicate-detection`     | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4`             |
+| `fileMetrics`          | `file-metrics`            | `scc`                                                     | `[]`           | `['--version']`            | —                                       |
+| `functionMetrics`      | `function-metrics`        | `lizard`                                                  | `[]`           | `['--version']`            | —                                       |
+| `jsonValidation`       | `json-validation`         | —                                                         | —              | —                          | `maximumBytes: 1_048_576`               |
+| `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
 
-For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+`jsonValidation.options` is exactly `{ maximumBytes }`; the value is a positive safe integer and uses the default only on the exported value. Replacing `options` with native object composition must supply that field: Definition validation rejects omission, zero, negative, fractional, unsafe, or unknown values and does not fill an implicit nested default. For every default, Product validates the complete option shape and known duplicate code-area keys where applicable. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+
+### `jsonSchemaValidation` option contract
+
+The exported `jsonSchemaValidation.options` value is exactly:
+
+```ts
+{
+  maximumBytes: 1_048_576,
+  schemaIdentity: { mode: "require-match" },
+  referenceResolution: { mode: "offline" },
+  schemas: [],
+  bindings: []
+}
+```
+
+All option branches and arrays are closed and dense. `schemas` contains `{ id, path }` records; `bindings` contains
+`{ id, instancePath, schemaId }` records. Schema IDs and HTTPS source IDs are safe absolute `https:` or `urn:`
+identifiers without userinfo, query, or fragment. Binding IDs are safe labels. Schema and instance paths are
+normalized, project-relative, lowercase-`.json` paths.
+
+Schema IDs are unique within `schemas`; HTTPS source IDs are unique within `sources`; binding IDs, schema paths,
+and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. Before callback
+work, Definition validation rejects unknown fields, sparse arrays, malformed paths or IDs, an unknown binding
+schema, duplicate entries, an incomplete branch, or a non-positive byte limit.
+
+#### Root identity
+
+`schemaIdentity` is one Check-level choice, never a per-schema toggle:
+
+| Mode | Root requirement and engine identity |
+| --- | --- |
+| `require-match` (default) | Root `$id` must equal `schemas[].id`; that configured ID is the engine identity. |
+| `configuration-authoritative` | The configured schema ID is the engine identity. An object root receives a private compile copy with that `$id`; a boolean root uses the configured identity directly. |
+| `document-authoritative` | Root `$id` must be safe and becomes the engine identity. The configured schema ID remains the public binding and Record label. |
+
+#### Reference policy
+
+`referenceResolution: { mode: "offline" }` makes no network request and still permits the package-fixed JSON Schema
+2020-12 catalog. Only the allowlisted branch admits extra references:
+
+```ts
+{
+  mode: "allowlisted",
+  sources: [
+    { kind: "bundled", catalog: "json-schema-2020-12" },
+    {
+      kind: "https",
+      id: "urn:example:schema-source",
+      origin: "https://schemas.example.test",
+      pathPrefix: "/catalog/"
+    }
+  ]
+}
+```
+
+An HTTPS source has an exact HTTPS origin and normalized absolute path prefix. No headers, credentials, redirects,
+environment registry, generic callback loader, or ambient network policy is accepted. The Check still reads only
+its declared scope-approved local files; remote settlement is owned by
+[Quality Metrics](quality-metrics.md#direct-defaults-and-exact-inputs).
+
+#### First-release compatibility boundary
+
+The first release treats JSON Schema `format` as a 2020-12 annotation and does not install or load a format
+assertion plugin. Ajv `$async` schemas and `$dynamicRef`/`$recursiveRef` are closed schema-compile failures. This
+policy applies only at actual schema positions: a JSON instance property literally named `$ref`, `$dynamicRef`, or
+`$async` remains ordinary instance data.
 
 The metric defaults contain only their documented absolute floors and nested allowances; no default option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
 default metric option.
 
-Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
 
 ## Invocation and results
 

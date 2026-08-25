@@ -7,6 +7,13 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@humanwhocodes/momoa':
+        specifier: 3.3.12
+        version: 3.3.12
+      ajv:
+        specifier: 8.20.0
+        version: 8.20.0
     devDependencies:
       '@ast-grep/cli':
         specifier: 0.45.0
@@ -17,9 +24,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260621.1
         version: 7.0.0-dev.20260621.1
-      ajv:
-        specifier: ^8.17.1
-        version: 8.20.0
       csv-parse:
         specifier: ^7.0.0
         version: 7.0.1
@@ -113,6 +117,10 @@ packages:
     resolution: {integrity: sha512-OQ4pcktMtg1hcQat/iCpX9r8HJ7mU/2SZVoGHA9id2gEfosvDw5m5RINQXsSRZXQW8bl45FW6FhdK0O2FiKjsw==}
     engines: {node: '>= 12.0.0'}
     hasBin: true
+
+  '@humanwhocodes/momoa@3.3.12':
+    resolution: {integrity: sha512-xS9xl4ieqTqhSZfKV3YXj/htwJCUxbgvkTVaK1fkESgrOzvoVSOTRQeQ8tTLOZUS0Csi2xqtJQXgVTRH5OEbHQ==}
+    engines: {node: '>=18'}
 
   '@oxfmt/binding-android-arm-eabi@0.63.0':
     resolution: {integrity: sha512-YmRth4ZPGgEXcgmkhvANbC9uD67dxmSobW7DQuyt5tOBOKvPnIpk5SVHBj88E+7wMNRI2FhqaDbOhQFBix+b8A==}
@@ -708,6 +716,8 @@ snapshots:
       '@ast-grep/cli-win32-arm64-msvc': 0.45.0
       '@ast-grep/cli-win32-ia32-msvc': 0.45.0
       '@ast-grep/cli-win32-x64-msvc': 0.45.0
+
+  '@humanwhocodes/momoa@3.3.12': {}
 
   '@oxfmt/binding-android-arm-eabi@0.63.0':
     optional: true

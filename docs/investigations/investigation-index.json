@@ -31,6 +31,42 @@
         "title": "TypeScript 函数式工具与专用数据结构库调查"
       }
     },
+    "implementation-libraries/json-document-validation-libraries.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1787581736000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "Momoa 选型确认与 Bun/candidate 闭合 spike",
+          "严格 JSON 与重复 key 的最小库选择",
+          "严格 JSON 文档校验库调查",
+          "依赖实际加载面与零依赖严格 grammar 路径",
+          "在 Vibe Check 的 add-json-validation Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+          "极简候选复核：保留 duplicate-key 时的最小可行面"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-24T14:28:56Z",
+        "path": "implementation-libraries/json-document-validation-libraries.md",
+        "question": "在 Vibe Check 的 add-json-validation Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+        "reportCount": 4,
+        "reportTitles": [
+          "严格 JSON 与重复 key 的最小库选择",
+          "依赖实际加载面与零依赖严格 grammar 路径",
+          "极简候选复核：保留 duplicate-key 时的最小可行面",
+          "Momoa 选型确认与 Bun/candidate 闭合 spike"
+        ],
+        "resourceReferences": [],
+        "status": "已结束",
+        "title": "严格 JSON 文档校验库调查"
+      }
+    },
     "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
       "keys": {
         "category": [
@@ -146,6 +182,7 @@
   "sourceRevision": {
     "entries": {
       "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:35d28f35b357753db86def36fec343a6e4a58e9a2f293c2c918d308ab7862f5d",
+      "implementation-libraries/json-document-validation-libraries.md": "sha256:3997e6c161c08459ef8f7acad663c227b708437af7aeb724593f76891a2a0599",
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:899f54ebce5815e09153f3d93a41af1f72f57ca1f379adf5cc0baafe11c92a53",
       "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53",
       "implementation-libraries/schema-validation-and-static-inference.md": "sha256:25b315332a0ee981a473a4da57539b9539b87a690c9d073fad6ede20d149effd"

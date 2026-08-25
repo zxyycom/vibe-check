@@ -37,3 +37,27 @@ Entities:
 - Git command 失败时，current collection 进入 config-only fallback；匹配 product include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。fallback root 或 directory 无法读取时报告包含该目录的读取错误，而非静默返回 empty candidates。
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
+
+## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of global scan scope
+
+Owner: `docs/scan-scope.md#check-exact-inputs`
+Entities:
+
+- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from global scope and returns exact final counts`
+- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > uses only the included global JSON paths without re-adding excluded or generated files`
+- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when global scope has no lower-case JSON input`
+
+Proves:
+
+- JSON validation filters only the existing global candidates with case-sensitive `.json` suffix matching; `.JSON`, non-JSON, excluded-directory, and generated paths are not eligible and no eligible path is rediscovered outside the resolved scope.
+
+## Case ADD-JSON-SCHEMA-VALIDATION-SCOPE-001: Registered Schema inputs remain an exact declared subset
+
+Owner: `docs/scan-scope.md#check-exact-inputs`
+Entities:
+
+- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+
+Proves:
+
+- JSON Schema validation reads only declared schema/instance paths that belong to the current resolved global scope; an absent or excluded declaration becomes a safe `out-of-scope` issue without a discovery/read escape, while no bindings creates no document work.

@@ -7,6 +7,7 @@ import { isPathWithin } from "../../foundation/path.ts";
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
 import { assertJSDocExamplePayloads } from "../artifact/audit.ts";
 import {
+  AJV_PACKAGE_NAME,
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
   JSCPD_BIN_NAME,
@@ -16,6 +17,13 @@ import {
 import { collectFiles } from "../artifact/file-inventory.ts";
 import { runBun, sha256File } from "../artifact/pack.ts";
 import type { InstalledCandidate } from "./receipt.ts";
+
+type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PACKAGE_NAME;
+
+interface VerifiedCandidateDependency {
+  readonly manifest: Readonly<Record<string, unknown>>;
+  readonly packageManifestPath: string;
+}
 
 /** Replaces the dedicated private install and verifies the exact installed package entry. */
 export function installCandidate(input: {
@@ -140,6 +148,12 @@ function verifyInstallation(input: {
     });
   }
   verifyCandidateJscpdDependency(consumerDirectory, resolvedEntryPath);
+  verifyCandidateDependency({
+    candidateEntryPath: resolvedEntryPath,
+    consumerDirectory,
+    expectedVersion: CANDIDATE_DEPENDENCIES.ajv,
+    packageName: AJV_PACKAGE_NAME
+  });
   return Object.freeze({
     installedPackageDirectory: packageDirectory,
     resolvedEntryPath,
@@ -162,34 +176,12 @@ function verifyCandidateJscpdDependency(
   consumerDirectory: string,
   candidateEntryPath: string
 ): void {
-  const packageManifestPath = runBun({
-    args: [
-      "-e",
-      "import { createRequire } from 'node:module'; process.stdout.write(createRequire(process.argv[1]).resolve('jscpd/package.json'))",
-      candidateEntryPath
-    ],
-    cwd: consumerDirectory,
-    phase: `resolve declared ${JSCPD_PACKAGE_NAME} dependency in ${consumerDirectory}`
-  }).trim();
-  if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
-    throw new Error(
-      `candidate ${JSCPD_PACKAGE_NAME} dependency resolved outside private consumer node_modules: ${packageManifestPath}`
-    );
-  }
-
-  const manifest = readJsonFile(
-    packageManifestPath,
-    `resolved ${JSCPD_PACKAGE_NAME} package manifest`
-  );
-  if (
-    !isNonArrayRecord(manifest) ||
-    manifest.name !== JSCPD_PACKAGE_NAME ||
-    manifest.version !== CANDIDATE_DEPENDENCIES.jscpd
-  ) {
-    throw new Error(
-      `resolved ${JSCPD_PACKAGE_NAME} package manifest must declare ${JSCPD_PACKAGE_NAME}@${CANDIDATE_DEPENDENCIES.jscpd}: ${packageManifestPath}`
-    );
-  }
+  const { manifest, packageManifestPath } = verifyCandidateDependency({
+    candidateEntryPath,
+    consumerDirectory,
+    expectedVersion: CANDIDATE_DEPENDENCIES.jscpd,
+    packageName: JSCPD_PACKAGE_NAME
+  });
 
   const binTarget = declaredJscpdBinTarget(manifest.bin);
   if (binTarget === undefined) {
@@ -205,6 +197,41 @@ function verifyCandidateJscpdDependency(
   if (!existsSync(binPath)) {
     throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin is missing: ${binPath}`);
   }
+}
+
+/** Resolves one declared runtime dependency from the candidate entry and proves it stays in its private consumer. */
+function verifyCandidateDependency(input: {
+  readonly candidateEntryPath: string;
+  readonly consumerDirectory: string;
+  readonly expectedVersion: string;
+  readonly packageName: CandidateRuntimeDependencyName;
+}): VerifiedCandidateDependency {
+  const { candidateEntryPath, consumerDirectory, expectedVersion, packageName } = input;
+  const packageManifestPath = runBun({
+    args: [
+      "-e",
+      `import { createRequire } from 'node:module'; process.stdout.write(createRequire(process.argv[1]).resolve('${packageName}/package.json'))`,
+      candidateEntryPath
+    ],
+    cwd: consumerDirectory,
+    phase: `resolve declared ${packageName} dependency in ${consumerDirectory}`
+  }).trim();
+  if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
+    throw new Error(
+      `candidate ${packageName} dependency resolved outside private consumer node_modules: ${packageManifestPath}`
+    );
+  }
+  const manifest = readJsonFile(packageManifestPath, `resolved ${packageName} package manifest`);
+  if (
+    !isNonArrayRecord(manifest) ||
+    manifest.name !== packageName ||
+    manifest.version !== expectedVersion
+  ) {
+    throw new Error(
+      `resolved ${packageName} package manifest must declare ${packageName}@${expectedVersion}: ${packageManifestPath}`
+    );
+  }
+  return Object.freeze({ manifest, packageManifestPath });
 }
 
 function readJsonFile(filePath: string, description: string): unknown {

@@ -12,12 +12,14 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  inherit
+  inherit,
+  jsonSchemaValidation,
+  jsonValidation
 } from "../definition/project-definition.ts";
 import { run } from "../run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns four runtime functions, three ordinary built-in values, and minimal type roots", () => {
+  it("owns four runtime functions, five ordinary built-in values, and minimal type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
@@ -29,7 +31,9 @@ describe("public API inventory", () => {
       values: {
         duplicateDetection: "duplicateDetection",
         fileMetrics: "fileMetrics",
-        functionMetrics: "functionMetrics"
+        functionMetrics: "functionMetrics",
+        jsonSchemaValidation: "jsonSchemaValidation",
+        jsonValidation: "jsonValidation"
       },
       types: {
         check: "Check",
@@ -44,6 +48,8 @@ describe("public API inventory", () => {
         fileMetricsOptions: "FileMetricsOptions",
         functionMetricsOptions: "FunctionMetricsOptions",
         inheritableCheckCollection: "InheritableCheckCollection",
+        jsonSchemaValidationOptions: "JsonSchemaValidationOptions",
+        jsonValidationOptions: "JsonValidationOptions",
         projectEffects: "ProjectEffects",
         projectDefinition: "ProjectDefinition",
         projectQualityConfiguration: "ProjectQualityConfiguration",
@@ -59,7 +65,15 @@ describe("public API inventory", () => {
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof fileMetrics, "object");
     assert.equal(typeof functionMetrics, "object");
-    for (const builtInCheck of [duplicateDetection, fileMetrics, functionMetrics]) {
+    assert.equal(typeof jsonSchemaValidation, "object");
+    assert.equal(typeof jsonValidation, "object");
+    for (const builtInCheck of [
+      duplicateDetection,
+      fileMetrics,
+      functionMetrics,
+      jsonSchemaValidation,
+      jsonValidation
+    ]) {
       assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
       assert.equal(Object.hasOwn(builtInCheck, "append"), false);
     }
