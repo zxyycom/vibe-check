@@ -28,6 +28,16 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "markdown-link-validation",
+    regionId: "markdown-link-validation",
+    sourcePath: "docs/examples/package-api/markdown-link-validation.ts",
+    targets: Object.freeze([
+      Object.freeze({ kind: "readme", placeholderId: "markdown-link-validation" })
+    ]),
+    title: "离线 Markdown 本地链接完整性"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "custom-check-definition",
     regionId: "custom-check-definition",
     sourcePath: "docs/examples/package-api/custom-check.ts",

@@ -10,7 +10,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   values: Object.freeze({
     duplicateDetection: "duplicateDetection",
     fileMetrics: "fileMetrics",
-    functionMetrics: "functionMetrics"
+    functionMetrics: "functionMetrics",
+    markdownLinkValidation: "markdownLinkValidation"
   }),
   types: Object.freeze({
     check: "Check",
@@ -24,6 +25,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     duplicateDetectionOptions: "DuplicateDetectionOptions",
     fileMetricsOptions: "FileMetricsOptions",
     functionMetricsOptions: "FunctionMetricsOptions",
+    markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
     inheritableCheckCollection: "InheritableCheckCollection",
     projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",

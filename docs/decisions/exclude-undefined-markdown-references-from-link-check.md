@@ -1,7 +1,7 @@
 ---
 title: 将未定义 Markdown reference 排除在 Link Check 之外
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-25T05:56:52Z
 purpose: 让离线 Link Check 只验证可解析的本地引用完整性，不把缺失 reference definition 扩展为 Markdown 语法或风格校验。
 background: 用户取消通用 Markdown Structure Check；parser audit 确认未定义 reference 不会成为 AST link occurrence。

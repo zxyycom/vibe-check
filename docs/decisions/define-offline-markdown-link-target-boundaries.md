@@ -1,7 +1,7 @@
 ---
 title: 为 Markdown Link Check 定义离线本地目标边界
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-25T01:56:25Z
 purpose: 让 Markdown Link Check 在零网络前提下验证本机目标，并以显式选项处理 project root 外路径和目录语义。
 background: 用户确认 Link 应内置、离线，并需要可选验证 project root 外的任意本机目录，同时以 GitHub 锚点行为优先。

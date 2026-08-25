@@ -131,6 +131,24 @@ Entities:
 - Progress presentation consumes only settled four-state Check facts and accepted terminal messages, prints a duration or `not run`, and renders no unsafe reason detail. `attention` hides only the passed/no-message settled row; every running Check remains visible on TTY.
 - TTY color and running-region behavior remain terminal-capability specific: only message level labels receive color, human text is escaped, and each visible settled row/message block is one write. Write faults stay observable instead of being hidden.
 
+## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
+
+Owner: `docs/quality-metrics.md#markdown-link-findings-and-outcomes`
+Entities:
+
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > is not applicable when global scope has no eligible Markdown source`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
+  Proves:
+- A completed traversal publishes only the documented safe local-reference Record projection and exact final counts; root-external findings retain no destination material.
+- A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
+- Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with no partial Records or final data; zero eligible source reaches `not-applicable` only after the root is usable.
+
 ## Case AUX-RUNTIME-OPTION-001: Product Option explicitly separates presence and absence
 
 Owner: `docs/coding-style.md#5-按问题形态选择实现模型`

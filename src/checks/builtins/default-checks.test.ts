@@ -7,8 +7,10 @@ import { describe, it } from "node:test";
 import type {
   DuplicateDetectionOptions,
   FileMetricsOptions,
-  FunctionMetricsOptions
+  FunctionMetricsOptions,
+  MarkdownLinkValidationOptions
 } from "../../definition/default-checks.ts";
+import { validateDefaultCheckOptions } from "../../definition/default-checks.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -20,6 +22,7 @@ import type {
 import { executeDuplicateDetection } from "./duplicate-detection.ts";
 import { executeFileMetrics } from "./file-metrics.ts";
 import { executeFunctionMetrics } from "./function-metrics.ts";
+import { executeMarkdownLinkValidation } from "./markdown-link-validation.ts";
 
 const FILES = Object.freeze({
   codeAreas: Object.freeze({
@@ -35,6 +38,26 @@ const FILES = Object.freeze({
   include: Object.freeze(["**/*.ts"])
 });
 
+const MARKDOWN_FILES = Object.freeze({
+  codeAreas: Object.freeze({}),
+  excludeDirs: Object.freeze([]),
+  generatedFiles: Object.freeze([]),
+  include: Object.freeze(["**/*.md", "**/*.markdown"])
+});
+
+const MARKDOWN_LINK_OPTIONS: MarkdownLinkValidationOptions = Object.freeze({
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: Object.freeze({
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  })
+});
+
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
   get: (checkId: string) =>
     Object.freeze({
@@ -43,12 +66,12 @@ const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
     })
 });
 
-function project(root: string): CheckProjectContext {
+function project(root: string, files: CheckProjectContext["files"] = FILES): CheckProjectContext {
   return Object.freeze({
     cache: Object.freeze({ directory: "cache", enabled: true, reportActivity: () => undefined }),
     changedFiles: Object.freeze(["src/a.ts"]),
     flags: Object.freeze([]),
-    files: FILES,
+    files,
     root
   });
 }
@@ -56,7 +79,9 @@ function project(root: string): CheckProjectContext {
 async function execute<Options extends object>(
   callback: CheckExecution<Options>,
   options: DeepReadonly<Options>,
-  root: string
+  root: string,
+  files: CheckProjectContext["files"] = FILES,
+  signal: AbortSignal = new AbortController().signal
 ): Promise<
   Readonly<{
     readonly records: readonly ReportedRecord[];
@@ -67,13 +92,13 @@ async function execute<Options extends object>(
   const context: CheckExecutionContext<Options> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
     options,
-    project: project(root),
+    project: project(root, files),
     records: Object.freeze({
       report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
         records.push(Object.freeze({ data, identity }));
       }
     }),
-    signal: new AbortController().signal
+    signal
   });
   const result = await callback(context);
   return Object.freeze({
@@ -106,6 +131,266 @@ function scanner(root: string, source: string): readonly string[] {
 }
 
 describe("default Check direct callbacks", () => {
+  it("requires the complete closed Markdown Link options shape and bounded limits", () => {
+    assert.equal(
+      validateDefaultCheckOptions("markdown-link-validation", MARKDOWN_LINK_OPTIONS),
+      true
+    );
+    assert.equal(
+      validateDefaultCheckOptions("markdown-link-validation", {
+        ...MARKDOWN_LINK_OPTIONS,
+        limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000 }
+      }),
+      false
+    );
+    assert.equal(
+      validateDefaultCheckOptions("markdown-link-validation", {
+        ...MARKDOWN_LINK_OPTIONS,
+        limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: 10_001 }
+      }),
+      false
+    );
+    assert.equal(
+      validateDefaultCheckOptions("markdown-link-validation", {
+        ...MARKDOWN_LINK_OPTIONS,
+        unexpected: true
+      }),
+      false
+    );
+  });
+
+  it("reports safe Markdown Link findings only after a complete traversal", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(
+        join(root, "docs", "guide.md"),
+        "[missing](missing.md)\n<https://example.test/private>\n",
+        "utf8"
+      );
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "failed",
+        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 }
+      });
+      assert.deepEqual(result.records, [
+        {
+          identity: { id: "source:docs%2Fguide.md:occurrence:1:reason:missing-target" },
+          data: {
+            reason: "missing-target",
+            occurrenceKind: "link",
+            sourcePath: "docs/guide.md",
+            range: {
+              start: { line: 1, column: 1 },
+              end: { line: 1, column: 22 }
+            },
+            target: { kind: "project-path", path: "docs/missing.md", fragment: null }
+          }
+        }
+      ]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("reports a root-external target without persisting its path, fragment, or query", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-external-");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(
+        join(root, "docs", "guide.md"),
+        "[external](../../outside/private.md?credential=do-not-persist#private-anchor)\n",
+        "utf8"
+      );
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "failed",
+        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 0, findingCount: 1 }
+      });
+      assert.deepEqual(result.records, [
+        {
+          identity: {
+            id: "source:docs%2Fguide.md:occurrence:1:reason:target-outside-project-root"
+          },
+          data: {
+            reason: "target-outside-project-root",
+            occurrenceKind: "link",
+            sourcePath: "docs/guide.md",
+            range: {
+              start: { line: 1, column: 1 },
+              end: { line: 1, column: 78 }
+            },
+            target: { kind: "outside-project-root" }
+          }
+        }
+      ]);
+      const persisted = JSON.stringify({ records: result.records, result: result.result });
+      assert.equal(persisted.includes("private.md"), false);
+      assert.equal(persisted.includes("private-anchor"), false);
+      assert.equal(persisted.includes("credential=do-not-persist"), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("validates a direct Markdown target outside source scope without scanning its links", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-scope-");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      mkdirSync(join(root, "notes"), { recursive: true });
+      writeFileSync(
+        join(root, "docs", "source.md"),
+        "[target](../notes/target.md#target)\n",
+        "utf8"
+      );
+      writeFileSync(
+        join(root, "notes", "target.md"),
+        "# Target\n[not scanned](missing.md)\n",
+        "utf8"
+      );
+      const sourceOnlyFiles = Object.freeze({
+        ...MARKDOWN_FILES,
+        include: Object.freeze(["docs/source.md"])
+      });
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        sourceOnlyFiles
+      );
+      assert.deepEqual(result.result, {
+        status: "passed",
+        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 1, findingCount: 0 }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("returns unavailable without publishing an earlier Markdown Link finding", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-limit-");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
+      writeFileSync(join(root, "docs", "b.md"), "[also missing](also-missing.md)\n", "utf8");
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxOccurrences: 1 }
+        },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "unavailable",
+        reason: { code: "markdown-link-validation-unavailable" }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("returns unavailable without publishing an earlier finding when target work reaches its limit", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-target-limit-");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
+      writeFileSync(join(root, "docs", "b.md"), "[also missing](also-missing.md)\n", "utf8");
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: 1 }
+        },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "unavailable",
+        reason: { code: "markdown-link-validation-unavailable" }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("is not applicable when global scope has no eligible Markdown source", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-empty-");
+    try {
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "not-applicable",
+        reason: { code: "no-eligible-input" }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("returns unavailable when project root cannot be canonicalized before source discovery", async () => {
+    const root = join(tmpdir(), "vibe-check-direct-markdown-link-missing-root");
+    rmSync(root, { recursive: true, force: true });
+
+    const result = await execute(
+      executeMarkdownLinkValidation,
+      MARKDOWN_LINK_OPTIONS,
+      root,
+      MARKDOWN_FILES
+    );
+    assert.deepEqual(result.result, {
+      status: "unavailable",
+      reason: { code: "markdown-link-validation-unavailable" }
+    });
+    assert.deepEqual(result.records, []);
+  });
+
+  it("returns unavailable before source collection when its Run signal is already cancelled", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-cancelled-");
+    const controller = new AbortController();
+    controller.abort();
+    try {
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        MARKDOWN_FILES,
+        controller.signal
+      );
+      assert.deepEqual(result.result, {
+        status: "unavailable",
+        reason: { code: "markdown-link-validation-unavailable" }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("executes file metrics from Check-owned scanner options with final data and supplemental Records", async () => {
     const root = createRoot("vibe-check-direct-file-");
     try {

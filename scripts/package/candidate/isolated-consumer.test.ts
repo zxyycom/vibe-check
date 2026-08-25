@@ -63,6 +63,13 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "passed");
     assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
+    assert.equal(runEvidence.markdownLinkOutcome, "passed");
+    assert.deepEqual(runEvidence.markdownLinkData, {
+      findingCount: 0,
+      occurrenceCount: 1,
+      sourceFileCount: 2,
+      targetReadCount: 1
+    });
     assert.equal(runEvidence.changedFilesCalls, 1);
     assert.deepEqual(runEvidence.changedFilesFromMachine, {
       files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
@@ -82,14 +89,15 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
         message: "Installed candidate terminal message."
       }
     ]);
-    assert.match(runEvidence.humanOutput, /total\s+5\s+checks/i);
+    assert.match(runEvidence.humanOutput, /total\s+6\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/5\].*duplicate detection/i);
-    assert.match(runEvidence.humanOutput, /\[5\/5\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[1\/6\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[6\/6\].*Installed terminal note/i);
     assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "markdown-link-validation");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "changed-files");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "first-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "second-changed-files-consumer");
@@ -108,6 +116,12 @@ function writeConsumerFiles(consumerDirectory: string): void {
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
+  writeFileSync(
+    join(consumerDirectory, "link-source.md"),
+    "[target](link-target.md#target)\n",
+    "utf8"
+  );
+  writeFileSync(join(consumerDirectory, "link-target.md"), "# Target\n", "utf8");
   for (const sourcePath of packageApiExampleSourcePaths()) {
     const destination = join(consumerDirectory, sourcePath);
     mkdirSync(dirname(destination), { recursive: true });
@@ -275,6 +289,8 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   firstChangedFilesConsumer: unknown;
   humanOutput: string;
   kind: string;
+  markdownLinkData: unknown;
+  markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
   secondChangedFilesConsumer: unknown;
 }> {
@@ -295,6 +311,10 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
   if (duplicateOutcome !== null && typeof duplicateOutcome !== "string") {
     throw new TypeError("isolated duplicate outcome must be a string or null");
   }
+  const markdownLinkOutcome = evidence.markdownLinkOutcome;
+  if (markdownLinkOutcome !== null && typeof markdownLinkOutcome !== "string") {
+    throw new TypeError("isolated Markdown Link outcome must be a string or null");
+  }
   return Object.freeze({
     checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
@@ -306,6 +326,8 @@ function runDuplicateFixture(consumerDirectory: string): Readonly<{
     firstChangedFilesConsumer: evidence.firstChangedFilesConsumer,
     humanOutput: result.stdout.slice(0, markerIndex),
     kind,
+    markdownLinkData: evidence.markdownLinkData,
+    markdownLinkOutcome,
     machineSchemaVersion: evidence.machineSchemaVersion,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
@@ -425,6 +447,7 @@ function publicImports(): string {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit,
   run,
 ${typeImports}
@@ -494,7 +517,7 @@ const changedFilesConsumer = defineCheck({
 });
 
 const definition: ProjectDefinition = defineConfig({
-  checks: [duplicateDetection, directCheck, changedFiles, changedFilesConsumer]
+  checks: [duplicateDetection, markdownLinkValidation, directCheck, changedFiles, changedFilesConsumer]
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const aggregation: CheckAggregation = {
@@ -574,7 +597,13 @@ function runFixture(): string {
   return `import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { defineCheck, defineConfig, duplicateDetection, run } from "vibe-check";
+import {
+  defineCheck,
+  defineConfig,
+  duplicateDetection,
+  markdownLinkValidation,
+  run
+} from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -653,6 +682,7 @@ const result = await run(
           defaultMinimumTokens: 20
         }
       },
+      markdownLinkValidation,
       changedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
@@ -668,6 +698,9 @@ const result = await run(
 );
 const duplicate = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === "duplicate-detection")
+  : undefined;
+const markdownLink = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === "markdown-link-validation")
   : undefined;
 const runChangedFilesCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === changedFiles.checkId)
@@ -705,7 +738,9 @@ process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   machineSchemaVersion: publishedRun.schemaVersion,
   secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
   duplicateData: settledFinalData(duplicate),
-  duplicateOutcome: duplicate?.outcome.status ?? null
+  duplicateOutcome: duplicate?.outcome.status ?? null,
+  markdownLinkData: settledFinalData(markdownLink),
+  markdownLinkOutcome: markdownLink?.outcome.status ?? null
 }));
 `;
 }

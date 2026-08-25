@@ -31,6 +31,54 @@ Product-approved exact inputs。adapter 不接收 project root 来重新发现�
 inputs 为 `.ts`、`.d.ts`、`.rs`；duplicate inputs 按 code area 分组。zero eligible inputs 是 owning Check 的
 applicability/work fact，不触发 scope fallback。
 
+`markdown-link-validation` 的 source exact inputs 只是在 global resolved scope 中匹配 `.md` 或
+`.markdown` 的文件。source collection 仍完全服从同一 `include`、exclude/generated rules；没有 eligible source
+时不以 target、directory 或 Markdown parser 重新发现 source。其 own source occurrence 之外的 target 不扩展
+global scope，也不递归收集 target 的 links。
+
+### Markdown Link source occurrences
+
+Link Check first canonicalizes the project root once. If that fails, it is `unavailable`; only a canonicalized
+root with zero eligible Markdown source is `not-applicable`. Each eligible source is decoded and parsed once
+into Link-private facts. The supported occurrences are inline links/images, defined full/collapsed/shortcut
+references at their use site, explicit autolinks, and the selected GFM autolink literals. YAML front matter,
+code/fenced code, HTML attributes, prose URLs, and undefined references do not create occurrences.
+
+The facts are immutable Link-private adapter output. Decode or parser failure makes the Check `unavailable`
+instead of publishing a partial occurrence set.
+
+For anchor lookup, each document gets a fresh GitHub-priority slugger over ATX and Setext headings. The Check
+does not promise every renderer's anchor edge case. Its source navigation range uses decoded JavaScript UTF-16
+positions with one-based, end-exclusive line/column values; parser offsets and dependency ASTs remain private.
+
+## Markdown Link direct targets
+
+Markdown Link Check can perform bounded work only for a source occurrence's direct local target. A target
+lexically inside the project root may be checked even when it is outside the source scope, but it never becomes
+a source input. For an enabled cross-document fragment, only a readable regular Markdown target supplies
+heading facts; a directory never accepts anchor lookup. When cross-document anchor validation is disabled, a
+fragment does not cause a Markdown eligibility or heading read. Directory non-empty checking, when configured,
+reads at most one entry and never recursively enumerates it.
+
+Relative lexical escapes, host-native absolute paths, and accepted raw host-native empty-authority `file:///`
+local URIs reach the Check's `rootExternalTargetMode` before target I/O. `ignore` produces no finding and
+performs no outside work; `report` produces the safe `target-outside-project-root` finding and performs no
+outside work;
+only `validate` may do bounded direct work for that target. A lexically root-in candidate may use only a
+component containment probe. If a symlink hop escapes the root, that probe does not authorize touching the
+outside referent except in `validate` mode.
+
+The containment guarantee is evaluated against the host filesystem state observed during that operation. The
+Bun/Node path APIs used here do not provide a portable dirfd/openat traversal, so a hostile concurrent
+replacement after a successful component probe is outside this Check's authorization proof. Regular-file reads
+still use no-follow final-leaf opening and a byte bound; callers that require hostile-filesystem isolation need
+an OS-level sandbox rather than this Link Check.
+
+HTTP(S), `mailto:`, protocol-relative URLs, UNC paths, authority-bearing or unsupported `file:` forms, and
+other unsupported target forms stop after classification. They produce no Product-owned DNS, HTTP, TLS,
+redirect, subprocess, or filesystem I/O, and no external reachability verdict. The Check has no target
+discovery, crawler, shared resolver, or general file-policy surface.
+
 ## Source-scope boundary
 
 adapter 对每条 scanner-derived measurement 声明 slash-normalized `sourcePaths`。每一个必须精确属于本次

@@ -1,7 +1,7 @@
 ---
 title: 为 Markdown Link Check 采用低层 parser 与 Link-owned resolver
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-25T05:49:49Z
 purpose: 以可控的依赖和私有解析边界实现离线 Markdown Link Check，而不引入 Git、CLI、crawler 或公共 Markdown 模型。
 background: 用户在审阅库调查后确认采用现成 parser/slug 加 Link-owned resolver 的路线，并要求避免不必要的实现或使用复杂度。

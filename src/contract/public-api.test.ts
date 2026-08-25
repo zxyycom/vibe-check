@@ -12,12 +12,13 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit
 } from "../definition/project-definition.ts";
 import { run } from "../run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns four runtime functions, three ordinary built-in values, and minimal type roots", () => {
+  it("owns four runtime functions, four ordinary built-in values, and minimal type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
@@ -29,7 +30,8 @@ describe("public API inventory", () => {
       values: {
         duplicateDetection: "duplicateDetection",
         fileMetrics: "fileMetrics",
-        functionMetrics: "functionMetrics"
+        functionMetrics: "functionMetrics",
+        markdownLinkValidation: "markdownLinkValidation"
       },
       types: {
         check: "Check",
@@ -43,6 +45,7 @@ describe("public API inventory", () => {
         duplicateDetectionOptions: "DuplicateDetectionOptions",
         fileMetricsOptions: "FileMetricsOptions",
         functionMetricsOptions: "FunctionMetricsOptions",
+        markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
         inheritableCheckCollection: "InheritableCheckCollection",
         projectEffects: "ProjectEffects",
         projectDefinition: "ProjectDefinition",
@@ -59,7 +62,13 @@ describe("public API inventory", () => {
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof fileMetrics, "object");
     assert.equal(typeof functionMetrics, "object");
-    for (const builtInCheck of [duplicateDetection, fileMetrics, functionMetrics]) {
+    assert.equal(typeof markdownLinkValidation, "object");
+    for (const builtInCheck of [
+      duplicateDetection,
+      fileMetrics,
+      functionMetrics,
+      markdownLinkValidation
+    ]) {
       assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
       assert.equal(Object.hasOwn(builtInCheck, "append"), false);
     }

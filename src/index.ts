@@ -11,6 +11,7 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit
 } from "./definition/project-definition.ts";
 export type {
@@ -25,6 +26,7 @@ export type {
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions,
+  MarkdownLinkValidationOptions,
   InheritableCheckCollection,
   ProjectEffects,
   ProjectDefinition,

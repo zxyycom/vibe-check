@@ -5,7 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:b700accddf6e18e36c4e029ea1f719963bec6b5cacf77d73ddb7cc843d599654",
+      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:b982584fbe32c441470f496aad44aefc66488de07df057ecdb349bf2bbcfabb9",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:1fe1d572f4c6f4ace4f27abe04098e278575d06d0ad07394917334f04ee2ca9a",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:9e9bf5ca4a417aaae0d3db0acba14bdd5cbc9e7b8148f271b7138e75cc091801",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
@@ -32,7 +32,7 @@
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
       "defer-lizard-until-after-check-foundations.md": "sha256:9fb7523e521c64983c7978624dd246ae3473b515f5c8bf243d7a1cb14ba3ca46",
       "defer-lizard-until-after-semantic-config-workflow.md": "sha256:5a0efe27f476e35503eea0bf9d049041425b410a823ae802b4036af044098937",
-      "define-offline-markdown-link-target-boundaries.md": "sha256:5e496f28ab9c121b9428bdd27905cc287d0e366071f9f9386a06d68ecfde3040",
+      "define-offline-markdown-link-target-boundaries.md": "sha256:da579170ca63b6e2211ad7f3a7cf969b8a53bd3fcc7c9f7aca4575f8551a0a00",
       "distinguish-primary-and-derived-change-problem-sets.md": "sha256:09e34fb1de5af9032f8163470fba2928f5c10e46a3bc867691c7345e323190d9",
       "distinguish-primary-and-derived-change-problems.md": "sha256:7e4118245432930509d1da63e9b7d4f40a713bab8001d2082e77e05c2db45f02",
       "drive-product-execution-from-project-definition.md": "sha256:c329de0b8dfba2523e277c3b15d92fbf70905bf6a807bee78ba6e8590e0fb29f",
@@ -40,7 +40,7 @@
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:2924803d8587fd60b0be7e9d7498492c0419bd24df4c04d6c462479e1d08d51f",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
-      "exclude-undefined-markdown-references-from-link-check.md": "sha256:a8d743e1e0cf49ed7bc95ef34e4ce20ea2a8abc725a36f1ef191f82676b0a90c",
+      "exclude-undefined-markdown-references-from-link-check.md": "sha256:ed9d534a2469cbdba03347edb3f294c65c1215d6e07206d551e644a6d35b02d6",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
       "execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:7e5f18d1edf6aa3d33e4865bff789d16c492ecc84d1de508d9f4c046133babe4",
@@ -181,14 +181,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "adopt-low-level-markdown-link-parser-architecture.md",
         "title": "为 Markdown Link Check 采用低层 parser 与 Link-owned resolver",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-25T05:49:49Z",
         "purpose": "以可控的依赖和私有解析边界实现离线 Markdown Link Check，而不引入 Git、CLI、crawler 或公共 Markdown 模型。",
         "background": "用户在审阅库调查后确认采用现成 parser/slug 加 Link-owned resolver 的路线，并要求避免不必要的实现或使用复杂度。",
@@ -990,14 +990,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "define-offline-markdown-link-target-boundaries.md",
         "title": "为 Markdown Link Check 定义离线本地目标边界",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-25T01:56:25Z",
         "purpose": "让 Markdown Link Check 在零网络前提下验证本机目标，并以显式选项处理 project root 外路径和目录语义。",
         "background": "用户确认 Link 应内置、离线，并需要可选验证 project root 外的任意本机目录，同时以 GitHub 锚点行为优先。",
@@ -1227,14 +1227,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "exclude-undefined-markdown-references-from-link-check.md",
         "title": "将未定义 Markdown reference 排除在 Link Check 之外",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-25T05:56:52Z",
         "purpose": "让离线 Link Check 只验证可解析的本地引用完整性，不把缺失 reference definition 扩展为 Markdown 语法或风格校验。",
         "background": "用户取消通用 Markdown Structure Check；parser audit 确认未定义 reference 不会成为 AST link occurrence。",

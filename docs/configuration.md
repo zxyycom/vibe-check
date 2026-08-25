@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, and `markdownLinkValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -18,7 +18,8 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  markdownLinkValidation
 } from "vibe-check";
 
 const licenses = defineCheck({
@@ -46,7 +47,7 @@ export default defineConfig({
       checkId: "repository-quality",
       displayName: "Repository quality",
       maxParallel: 2,
-      checks: [duplicateDetection, fileMetrics, functionMetrics, licenses]
+      checks: [duplicateDetection, fileMetrics, functionMetrics, markdownLinkValidation, licenses]
     }
   ],
   scheduler: { maxParallel: 4 }
@@ -213,7 +214,11 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The three defaults are complete ordinary `Check` values. Their scanner executable, command args, availability args, and (for duplication) backend concurrency are all Check-owned `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The four defaults are complete ordinary `Check` values. The three scanner defaults own their scanner executable,
+command args, availability args, and (for duplication) backend concurrency in `options`; Markdown Link owns
+its closed link-validation options below. A project customizes a default with normal object spread and must
+supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested
+fields or merging a hidden operational map.
 
 | Default              | Check ID              | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option   |
 | -------------------- | --------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------- |
@@ -222,6 +227,41 @@ The three defaults are complete ordinary `Check` values. Their scanner executabl
 | `functionMetrics`    | `function-metrics`    | `lizard`                                                  | `[]`           | `['--version']`            | —                           |
 
 For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+
+### Markdown Link Validation
+
+`markdownLinkValidation` is the complete ordinary Check with `checkId` `markdown-link-validation`. It checks
+the supported Markdown occurrences for local-reference integrity; it is not a generic Markdown syntax,
+network-reachability, or repository-wide path policy. Its sources and direct-target boundary are defined by
+[Scan Scope](scan-scope.md); its findings and four-state result are defined by [Quality Metrics](quality-metrics.md).
+
+Its closed `options` are all required. The complete default is:
+
+```ts
+{
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: {
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  }
+}
+```
+
+`requireExistingTargets` makes a missing direct regular-file or directory target a normal `missing-target`
+finding; when it is false, anchor work for that missing target stops. `validateSameDocumentAnchors` and
+`validateCrossDocumentAnchors` independently enable same-document and direct Markdown-target anchor lookup.
+When cross-document anchor validation is disabled, a fragment on a direct regular-file target does not trigger
+Markdown-eligibility or heading lookup.
+`requireNonEmptyDirectories` is the independently scoped directory policy. `rootExternalTargetMode` is exactly
+`"ignore" | "report" | "validate"`; the default `report` does not read a root-external target. `limits`
+contains exactly the three positive safe integers shown above. Runtime rejects limits above `16_777_216`
+bytes, `100_000` occurrences, or `10_000` target reads. Replacing `limits` through native composition requires
+all three fields; Product does not merge an omitted nested field or silently raise a caller's bound.
 
 The metric defaults contain only their documented absolute floors and nested allowances; no default option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden

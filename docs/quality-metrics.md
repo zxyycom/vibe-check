@@ -45,13 +45,37 @@ consumer/provider，不由 Product registry、catalog、extractor 或 presentati
 
 ## Direct defaults and exact inputs
 
-`src/checks/builtins/**` 的 default Checks 是 `duplicate-detection`、`file-metrics` 与 `function-metrics`。它们的
-direct callbacks own scanner options，只处理 Product-approved exact input paths，并只在 detail 是 supplemental
-finding 时报告 Records。adapter availability、process、parser、cache 或 scope failure 将 owning Check settle 为
-unavailable，不创建并行 quality model。scanner adapter boundary 见 [Scanner dependencies](scanner-dependencies.md)。
+`src/checks/builtins/**` 的 default Checks 是 `duplicate-detection`、`file-metrics`、`function-metrics` 与
+`markdown-link-validation`。前三者的 direct callbacks own scanner options，只处理 Product-approved exact input
+paths，并只在 detail 是 supplemental finding 时报告 Records。adapter availability、process、parser、cache 或 scope
+failure 将 owning Check settle 为 unavailable，不创建并行 quality model。scanner adapter boundary 见
+[Scanner dependencies](scanner-dependencies.md)。
 
-三个 default Check 和 custom callback 使用同一 four-state grammar。Check options 只影响其 own metric/scanner
-semantics；aggregation 与 output presentation 不属于这些 options。
+前三个 scanner default、Markdown Link Check 和 custom callback 使用同一 four-state grammar。Check options 只影响
+其 own metric/scanner semantics；aggregation 与 output presentation 不属于这些 options。
+
+### Markdown Link findings and outcomes
+
+`markdown-link-validation` owns local-reference findings, not a general target validator. Each normal issue
+reports one Check-local Record with exactly one of these reasons: `missing-target`,
+`target-outside-project-root`, `empty-directory`, `anchor-on-directory`, `anchor-target-not-markdown`,
+`missing-anchor`, or `unsupported-target-type`. A normal issue makes the Check `failed`; no normal issue
+makes it `passed`.
+
+A Link Record identifies the source relative path, one-based occurrence ordinal, and reason. Its data may
+contain only the reason, occurrence kind (`link` or `image`), slash-normalized root-relative source path,
+source navigation range, and a safe target descriptor. The descriptor may carry an inside-root relative path
+and decoded fragment for a `same-document`, `project-file`, `project-directory`, or `project-path` target.
+`project-path` means no endpoint type was established, including a missing direct target. An
+`outside-project-root` descriptor carries neither target path nor fragment. This is normal supplemental
+Record data under the shared canonical JSON boundary, not a new Record family or cross-Check catalog.
+
+`passed` and `failed` final data is exactly `{ sourceFileCount, occurrenceCount, targetReadCount,
+findingCount }`. `occurrenceCount` includes every parser-semantic occurrence, including one that does not
+reach local target validation; `targetReadCount` counts occurrences that do reach direct endpoint validation.
+With no eligible Markdown source, the Check is `not-applicable` with `no-eligible-input`. Cancellation and
+source/target read, decode, parser, containment, or limit failures are `unavailable`: they carry no final
+data and must not turn partial work into a clean result or partial Record set.
 
 ## Explicit aggregation and repository Gate mapping
 

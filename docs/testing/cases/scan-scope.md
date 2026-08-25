@@ -37,3 +37,31 @@ Entities:
 - Git command 失败时，current collection 进入 config-only fallback；匹配 product include 且未命中 exclude/generated rule 的 VCS-ignored path 仍可进入候选集合。fallback root 或 directory 无法读取时报告包含该目录的读取错误，而非静默返回 empty candidates。
 - Config include、exclude directories 与 generated-file rules 在 fallback 中继续生效。
 - Selected config 未排除的 built-in-default directory 不会被 fallback 隐式排除。
+
+## Case AUX-MARKDOWN-LINK-PARSER-001: Markdown Link parser produces closed source facts
+
+Owner: `docs/scan-scope.md#markdown-link-source-occurrences`
+Entities:
+
+- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > collects GFM inline, image, reference, and autolink occurrences`
+- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings`
+- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions`
+- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
+  Proves:
+- Each eligible Markdown source yields only the documented Link occurrence grammar and heading facts; excluded Markdown forms and undefined references do not become target work.
+- A fresh GitHub-priority heading slugger and decoded UTF-16 navigation range make anchor facts source-local and reproducible.
+- Parser facts are immutable and malformed decoded input becomes a controlled failure rather than a partial source fact set.
+
+## Case AUX-MARKDOWN-LINK-TARGET-001: Markdown Link resolves only bounded direct local targets
+
+Owner: `docs/scan-scope.md#markdown-link-direct-targets`
+Entities:
+
+- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`
+- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
+- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
+- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
+  Proves:
+- Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
+- Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.
+- Same-document anchor facts do not consume target work, while direct endpoint validation is bounded once per occurrence and limit exhaustion remains a controlled failure.

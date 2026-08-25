@@ -36,24 +36,24 @@
 ### Intended Change
 
 1. **Product result — confirmed.** `markdownLinkValidation` 是 Product-provided ordinary Check，结果是“本地引用完整性”，不是 Markdown syntax validation。一个 normal issue 只表示受支持 source occurrence 无法满足当前 Link contract；read/decode/parser/protocol/resource uncertainty 必须是 `unavailable`，不会被伪装成 missing target 或 clean pass。
-2. **Parser architecture and ownership — confirmed.** Link owns `bytes -> normalized link/heading facts | controlled failure` 的最小 package-private adapter。它以 `mdast-util-from-markdown`、必要的 micromark/mdast GFM/front matter extensions 和 `github-slugger` 产生 Link 已消费的 occurrence、definition、heading/slug input 与 source ranges，并封装 dependency AST。exact production semver、最小 extension set 和 source-range contract 留给 L4/L5；没有当前 Structure consumer 时，不创建 shared model，也不要求另一个 Check 执行。未来复用必须重新评审，不承诺 current private shape。
+2. **Parser architecture and ownership — confirmed.** Link owns `bytes -> normalized link/heading facts | controlled failure` 的最小 package-private adapter。production direct dependencies 固定为 `mdast-util-from-markdown@2.0.3`、`micromark-extension-gfm@3.0.0`、`mdast-util-gfm@3.1.0`、`micromark-extension-frontmatter@2.0.0`、`mdast-util-frontmatter@2.0.1` 与 `github-slugger@2.0.0`；adapter 只组合 YAML front matter 与 GFM extensions，并封装 dependency AST。没有当前 Structure consumer 时，不创建 shared model，也不要求另一个 Check 执行。未来复用必须重新评审，不承诺 current private shape。
 3. **Occurrence and non-network boundary — confirmed.** parser 产出的 inline links、已定义 reference facts、images、explicit autolinks 与 selected GFM autolink literals 是 Link occurrences。未定义 reference 若没有 parser semantic occurrence，就不经 raw-text 二次提取，也不形成 Link issue；它是独立 Markdown syntax/lint 的未来候选。code span/fence、HTML attributes、plain prose URL 不进入。HTTP(S)、`mailto:`、protocol-relative、UNC 与 remote `file:` authority 在 classification 后停止，绝不触发 Product-owned DNS/network I/O，也不发布 external reachability state。只有无 remote authority 的 supported local `file:` form 可进入 local-target gate；host filesystem 自己的 mounted transport 不构成 Product 能够隔离的 network promise。
 4. **Source scope and direct targets — confirmed.** source 必须是 global-scope eligible Markdown exact input。root 内但 source scope 外的 target 可以因已被 source occurrence 明确指向而做 bounded metadata/content work；它不成为新的 source input、不重新参与 filters/collection，也不触发递归 discovery。跨文档 anchor 只有 direct target 是可读取的 Markdown regular file 时才读取 heading facts。
-5. **Project-root boundary — confirmed.** Link owns一个语义为 `ignore | report | validate` 的 closed root 外 target mode；L5 固定最终 public field name/default。`ignore` 不读取也不汇报；`report` 只产生 safe boundary finding，不触碰 target；`validate` 才允许对 direct root 外、absolute 或 realpath-escape 本机 target 做 bounded `lstat`、`realpath`、directory-entry 或 Markdown content work。默认不得进入 `validate`。模式不改变 HTTP/UNC/remote-authority 的非网络边界。
+5. **Project-root boundary — confirmed.** Link 的 closed `rootExternalTargetMode` 是 `ignore | report | validate`，default 为 `report`。relative lexical escape、host-native absolute spelling 与已接受的 local `file:` URI 在任何 target I/O 前进入该 mode；`ignore` 无 finding，`report` 产生安全的 `target-outside-project-root` finding，只有 `validate` 才继续 bounded direct work。lexically root-in candidate 允许逐组件 no-follow `lstat`/`readlink` containment probe；某个 symlink hop 首次越出 canonical root 后即为 sticky root-external，`ignore/report` 均不得触碰该 root 外 referent。模式不改变 HTTP/UNC/remote-authority 的非网络边界。
 6. **Directory semantics — confirmed.** `requireExistingTargets` 同时覆盖 regular file 与 directory existence；directory target 不进行 anchor lookup。`requireNonEmptyDirectories` 是默认关闭的 Link-local option；启用时只读取一个 directory entry 以判定 empty/non-empty，不递归列举。directory read failure、cancellation 和 resource limit 是 unavailable，不是假 empty。
-7. **Anchor dialect — GitHub priority; exact corpus pending L4.** same/cross-document anchor lookup 使用 Product-owned、fixture-fixed GFM-like slug dialect，优先匹配 GitHub heading-anchor behavior；`github-slugger` 是已审计的候选实现，而不是 renderer oracle。它必须定义 heading source set、front matter、ATX/Setext behavior、Unicode normalization、case/punctuation/whitespace、duplicate suffix、percent decoding与fragment comparison；不声称兼容每个 renderer。
-8. **Safe outcomes and limits — pending L5.** Link owns closed normal reasons、Record ID grammar、safe data fields、counts、byte/occurrence/target-read limits和 unavailable reason codes。root 外 finding 的 identity不采用 raw URL、external absolute path、line/column 或 parser ID；location仅为 source navigation。限制不能静默跳过或截断后返回 `passed`。
+7. **Anchor dialect — GitHub priority; corpus fixed.** same/cross-document anchor lookup 使用 Product-owned、fixture-fixed GFM-like slug dialect，优先匹配 GitHub heading-anchor behavior；每个 document 创建一个 `github-slugger`，按照 AST heading source order 生成 slug。fixture 固定 ATX/Setext、YAML exclusion、Unicode、punctuation/whitespace、duplicate suffix、valid percent fragment 与 invalid fragment；fragment 恰好 decode 一次后与 slug exact compare。range 使用 decoded JavaScript UTF-16 code-unit offset `[startOffset,endOffset)`，line/column 为 1-based、end-exclusive；public Record 只投影 line/column。
+8. **Safe outcomes and limits — confirmed.** Link owns closed normal reasons、Record ID grammar、safe data fields、counts、byte/occurrence/target-read limits和 unavailable reason codes。完整 options、safe Record DTO、counts 与 failure folding 在下方 L5 contract 固定。root 外 finding 的 identity不采用 raw URL、external absolute path、parser ID 或 target location；location仅为 source navigation。限制不能静默跳过或截断后返回 `passed`。
 9. **Public closure — confirmed.** default value/options validation、exports、owner docs、README/JSDoc/example、parser dependency/license、semantic Cases 与 isolated Bun candidate 必须作为同一 Change 的交付；离线 Link Check 不新增 network option、cross-Check dependency或 scripts import。
 
 ### Resulting Impacts
 
 | Boundary | Chosen direction | Required follow-up |
 | --- | --- | --- |
-| Source scope → target resolution | Source remains global exact scope; directly referenced targets may be checked without becoming sources. | L3 fixtures distinguish scope-external direct reads from recursive discovery and validate no source-scope expansion. |
-| Project root → host-local target | `ignore | report | validate` is Link-owned; only `validate` permits direct root-external local work. | L5 closes field name/defaults; L3 tests absolute, relative escape, `file:`, symlink and Windows/POSIX forms. |
+| Source scope → target resolution | Source remains global exact scope; directly referenced targets may be checked without becoming sources. | Fixtures distinguish scope-external direct reads from recursive discovery and prove no source-scope expansion. |
+| Project root → host-local target | `rootExternalTargetMode: "ignore" | "report" | "validate"`; only `validate` reaches a root-external referent. | Fixtures cover lexical escape, host-native absolute, `file:///`, symlink hops and Windows/POSIX forms. |
 | Directory target | Existence and non-empty policy are independent; anchor lookup is unsupported. | Fixtures cover empty/non-empty/unreadable, one-entry bound and no recursive listing. |
-| Reference syntax | Only parser semantic occurrences are Link inputs; undefined reference syntax remains out of scope. | L4 fixtures distinguish a defined reference from an undefined/collapsed/shortcut form that has no occurrence. |
-| Parser and anchor compatibility | Low-level mdast/micromark + `github-slugger` is selected; Product fixture corpus, not parser accident, is the contract. | L4 locks the exact dependency versions/minimal extensions, range convention and unsupported renderer edge cases. |
+| Reference syntax | Only parser semantic occurrences are Link inputs; undefined reference syntax remains out of scope. | Fixtures distinguish defined references from undefined/collapsed/shortcut forms without an occurrence. |
+| Parser and anchor compatibility | Exact low-level mdast/micromark package set plus `github-slugger` is selected; Product fixture corpus, not parser accident, is the contract. | Dependency/license audit, installed consumer and locked range corpus prove the selected set. |
 | Future Network Link Check | It keeps its own authorization/input-acquisition boundary. | Offline Link never retains raw external target material or creates a replay handoff. |
 | Future Path / Structure Check | Neither owns or depends on Link invocation state. | Reuse of Link-private functions needs a new real consumer review; no shared resolver is preallocated. |
 | Repository docs validator | It remains a local script with its current narrow contract. | Do not import, replace or silently broaden it; product fixtures may compare representative behavior only. |
@@ -69,13 +69,57 @@
 
 ## Open Questions
 
-| ID | 必须关闭的问题 | 推荐方向与所需证据 | 阻塞点 |
-| --- | --- | --- | --- |
-| L3 | supported local syntaxes与 target access sequencing是什么：relative escape、absolute POSIX/Windows path、local `file:` URI、remote `file:` authority、UNC、symlink、scope-external Markdown anchor和 mounted-path boundary分别如何分类？ | fixture spike 将 root 内、root 外 `ignore/report/validate`、Win/POSIX、local/remote `file:`、UNC、symlink、same/cross-document anchor 与 no-recursion 做成 matrix。远程 form 永不访问；host mount 只记录为环境边界。 | 1.2、2.1 |
-| L4 | 已选 parser/slug architecture 的 exact dependency versions、最小 extension set、source-range convention、supported GFM syntax、defined/undefined reference behavior 与 GitHub-priority Product slug corpus分别是什么？ | 以 0.3 evidence 的 Bun-compatible MIT/ISC candidates 为起点，完成 production manifest/license/security audit并锁定 fixture corpus；不复用 `scripts/**` helper，也不把 `github-slugger` 当作完整 renderer oracle。 | 1.1、2.1 |
-| L5 | final public option field names/defaults、normal reason set、Record ID/data、final counts、source-range base和 byte/occurrence/target-read limits分别是什么？ | root 外 mode 必须默认不为 `validate`，`requireNonEmptyDirectories` 默认 `false`；由 Configuration/Quality Metrics/Output owner 与 fixtures闭合完整 DTO、safe root-external evidence和 unavailable reasons。 | 1.2、1.3、2.1 |
+无。L3–L5 已关闭；后续发现只能作为实现缺陷或新需求处理，不能在实现中静默改变本 Change 的公开语义或安全边界。
 
-在 L3–L5 关闭前，这个 Change 是结构有效的 Plan；0.3 已形成 evidence，下一步只能执行 0.4，不得开始 parser/resolver/public implementation。
+## Closed Implementation Contract
+
+### L3: target authorization and bounded I/O
+
+1. Link starts by `realpath(projectRoot)` once. A failure is `project-root-unavailable`; a global exact-scope Markdown source whose containment cannot be proved is `source-unavailable`. Source and direct targets never become a second collector.
+2. A relative destination is split into path/query/fragment in private memory. Query never participates in a filesystem path or persistent output. Local path and fragment decode strictly once; malformed percent encoding, invalid UTF-8, encoded separator/backslash/NUL/control are `invalid-local-destination` and settle the Check as `unavailable` before target I/O.
+3. Relative lexical escape and host-native absolute spelling enter `rootExternalTargetMode` before target I/O. On a non-Windows host, Windows drive spelling is unsupported and stops with zero I/O; on Windows it is an absolute candidate. HTTP(S), `mailto:`, protocol-relative URL, UNC and foreign/unsupported path forms stop with zero filesystem, DNS, HTTP, TLS or subprocess work and make no reachability finding.
+4. A lexically root-in path uses only component-wise, no-follow `lstat`/`readlink` while the current component remains inside the canonical root. A symlink hop that first escapes is sticky root-external. This containment probe is not authority to read the outside referent: `ignore` stops silently, `report` emits one `target-outside-project-root` finding, and only `validate` may continue its bounded direct work. Probe errors, loops or hop-limit exhaustion are unavailable.
+5. A contained direct target may be checked even if outside source scope. A regular Markdown target is read only for an enabled cross-document fragment; its own links are never discovered. A directory never receives anchor lookup; non-empty validation calls `opendir().read()` once, never recursive discovery. Missing target is a normal finding only when `requireExistingTargets` is enabled; otherwise anchor work stops.
+
+| Raw/local class | `ignore` / `report` | `validate` | Persistent outcome |
+| --- | --- | --- | --- |
+| relative contained target | normal direct validation | normal direct validation | regular file/directory/anchor verdict |
+| relative lexical escape or host-native absolute | no I/O / safe boundary finding | bounded direct validation | none or `target-outside-project-root`; validate may yield missing/unavailable |
+| root-in path with escaping symlink hop | root-in containment probe only, then no outside I/O / safe boundary finding | bounded external continuation | none or `target-outside-project-root`; validate may yield missing/unavailable |
+| `file:///` accepted local URI | no I/O / safe boundary finding | bounded direct validation | same as absolute target |
+| HTTP(S), mailto, protocol-relative, UNC, unsupported `file:` or foreign path | zero I/O | zero I/O | no finding or external verdict |
+
+`file:` is classified from raw spelling before WHATWG normalization. The only supported form is ASCII-case-insensitive `file:///` with empty raw authority and a host-native absolute path: POSIX absolute on POSIX, or drive-absolute on Windows. `localhost`, any authority, `file:/`, relative `file:`, a fourth slash/UNC form, query, raw backslash/control/whitespace and platform-mismatched drive forms stop with zero I/O. Its URI path is strict UTF-8 percent-decoded exactly once; encoded `/`, `\\`, NUL or control are unavailable. Fragment is separately decoded under the anchor contract.
+
+### L4: parser facts, grammar and range
+
+- Direct production dependencies are exact (no range): `mdast-util-from-markdown@2.0.3`, `micromark-extension-gfm@3.0.0`, `mdast-util-gfm@3.1.0`, `micromark-extension-frontmatter@2.0.0`, `mdast-util-frontmatter@2.0.1` and `github-slugger@2.0.0`. `micromark` remains transitive, not a Link direct dependency.
+- The one Link-private adapter uses `fromMarkdown()` with GFM and YAML-front-matter extensions. It receives an already authorized decoded document and returns immutable occurrences, definitions, headings, ranges or controlled failure; it neither discovers paths nor invokes Git, a child process or a network client.
+- Supported occurrences are inline links/images, defined full/collapsed/shortcut references, explicit autolinks and selected GFM autolink literals. Code/fenced code, HTML attributes, plain prose URLs, YAML front matter and undefined references have no Link occurrence. A defined reference range is its use-site, not its definition.
+- The locked fixture corpus covers ATX/Setext headings, YAML exclusion, inline/reference/image/autolink forms, code/HTML/prose exclusion, undefined reference exclusion, duplicate headings, `Hello, World!`, `Café & tea`, `你好，世界`, valid/invalid encoded fragments and source range positions. Each document uses a fresh slugger; the expected slug is compared exactly after one fragment decode.
+
+### L5: public options, data, limits and reasons
+
+```ts
+interface MarkdownLinkValidationOptions {
+  readonly requireExistingTargets: boolean;
+  readonly validateSameDocumentAnchors: boolean;
+  readonly validateCrossDocumentAnchors: boolean;
+  readonly rootExternalTargetMode: "ignore" | "report" | "validate";
+  readonly requireNonEmptyDirectories: boolean;
+  readonly limits: Readonly<{
+    readonly maxMarkdownBytes: number;
+    readonly maxOccurrences: number;
+    readonly maxTargetReads: number;
+  }>;
+}
+```
+
+The complete default is `{ requireExistingTargets: true, validateSameDocumentAnchors: true, validateCrossDocumentAnchors: true, rootExternalTargetMode: "report", requireNonEmptyDirectories: false, limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000, maxTargetReads: 1_000 } }`. Runtime validation requires every field, accepts only positive safe-integer limits, and rejects limits above `16_777_216`, `100_000` and `10_000` respectively; native object composition does not fill omitted nested fields.
+
+`passed` and `failed` final data is `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`. `occurrenceCount` includes every parser semantic occurrence, even a non-local one; `targetReadCount` counts each occurrence that reaches direct endpoint validation. No eligible Markdown source returns `not-applicable` with `no-eligible-input`. Any cancellation, containment/source/target read, decode, parser or limit failure returns `unavailable` without final data or partial Records.
+
+Normal reasons are `missing-target`, `target-outside-project-root`, `empty-directory`, `anchor-on-directory`, `anchor-target-not-markdown`, `missing-anchor` and `unsupported-target-type`. A Record ID is `source:<encodeURIComponent(sourcePath)>:occurrence:<one-based-ordinal>:reason:<reason>`. Its data only contains the safe reason, `occurrenceKind: "link" | "image"`, root-relative slash-normalized `sourcePath`, source navigation range, and a target descriptor: same-document/project-file/project-directory may contain safe root-relative path and decoded fragment; `project-path` is the safe root-relative path and decoded fragment when no endpoint type was established (including a missing target); `outside-project-root` may contain neither target path nor fragment. Raw destinations, query/userinfo, external absolute paths, symlink payloads, target bytes and digests never enter IDs, data, final data, messages, cache, logs or artifacts.
 
 ## Readiness Evidence
 
@@ -96,12 +140,6 @@
 
 完整的版本、热度、生态、活跃度、license 和临时实验条件保存在 [库策略调查报告](../../docs/investigations/implementation-libraries/markdown-link-validation-library-strategy.md)；它是 selection matrix 的详细证据 owner。
 
-## Next Executable Step
+## Execution Boundary
 
-执行 0.4 时必须一次性关闭以下可交付物：
-
-1. **L3 target table：** 逐一规定 relative escape、absolute POSIX/Windows、local/remote `file:`、UNC、protocol-relative、`localhost` spelling、symlink 与 cross-document anchor 的 lexical classification、I/O 顺序、mode verdict 与 safe reason。
-2. **L4 parser contract：** 固定 direct package names/semver、最小 extensions、production dependency/license/security evidence、defined/undefined reference fixture、decoded range convention 和 GitHub-priority slug corpus。
-3. **L5 public contract：** 固定 option field names/defaults、normal/unavailable reason、Record ID/data、counts 与 byte/occurrence/target-read limits，并同步 Proposal/owner docs/Cases 的验收入口。
-
-0.4 关闭并复核后才可进入 1.1–1.3；若任一 public 或安全契约仍未关闭，保持 Plan，不安装 dependency 或开始 Product implementation。
+L3–L5 are closed. Implementation may now start with the private parser adapter and target resolver; it must preserve the above contracts rather than rediscover or broaden them. Exact dependency lockfile/license evidence, public owner docs, semantic Cases and isolated installed-Bun evidence remain delivery work, not an invitation to alter the closed grammar or target authorization model silently.

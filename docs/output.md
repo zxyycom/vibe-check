@@ -31,6 +31,16 @@ scanner-private material。
 
 `id` 只在 owning Check 内唯一；不同 Checks 可以使用同一 `id`。Record presence、count 或 `data` 不决定 Check terminal status。final `data` 是该 Check 的主事实；Records 是补充事实。完整 field/nullability/enums 只见 [run schema](schemas/vibe-check-run.schema.json) 与 [record schema](schemas/vibe-check-record.schema.json)。
 
+For `markdown-link-validation`, the generic Record envelope carries only its safe local-reference projection:
+source-relative navigation/range, occurrence kind, safe reason, and, only for an inside-root target, a
+relative target path and decoded fragment. The inside-root descriptor is `same-document`, `project-file`,
+`project-directory`, or `project-path`; the last means only a safe path was established, not an endpoint type.
+Its final data carries only source, occurrence, target-read, and
+finding counts. Raw destinations and query/userinfo, external absolute paths, symlink payloads, target bytes,
+and target digests are excluded from Record IDs, Record data, final data, messages, cache, logs, and published
+artifacts. An outside-root finding publishes neither a target path nor fragment. This exclusion is part of
+the Check's data contract; the machine format does not reconstruct or retain a hidden target representation.
+
 这里的 canonical JSON 是 Product 的**安全结构契约**，不是业务 schema，也不是 JSON bytes 的排版契约。final/Record `data` 的根必须是 non-array plain object；递归只接受 `null`、boolean、string、finite number、dense array 与 plain object。Product 通过 own-property descriptors materialize，不读取 accessor 或调用 `toJSON`；拒绝 accessor、symbol/non-enumerable key、unsupported prototype、cycle、sparse array 与非有限 number，并将 `-0` 规范为 `0`。materialized data 使用 null-prototype container 和 recursive freeze 成为 detached Core fact；需要 canonical text 时才递归按 lexical key order 生成它，而不把 JavaScript own-key enumeration 声明为该顺序。它不验证 required property、业务 union、跨 Check consistency 或敏感值。
 
 ## Core-to-machine projection
