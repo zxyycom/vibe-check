@@ -55,4 +55,4 @@
 | `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package contract/materials | private document boundary、default Check、公开 surface、installed-runtime closure。 |
 | `docs/testing/cases/**` | strict bytes/grammar/duplicates/scope/failure/public-consumer evidence。 |
 | `docs/decisions/complete-first-release-check-set-before-publication.md` | 只提供首版优先级方向；本 Change 完成后再按 Decision workflow 核对 alignment。 |
-| `docs/decisions/use-momoa-for-strict-json-document-boundary.md` | 已确认 Momoa 为 private parser；在 package/candidate/consumer 证据闭合前保持 unaligned。 |
+| `docs/decisions/use-momoa-for-strict-json-document-boundary.md` | 已确认并实施 Momoa 为 private parser；package/candidate/consumer 证据已闭合，Decision 已标记 aligned。 |
