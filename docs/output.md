@@ -15,6 +15,11 @@ Package Run、Core、progress 与 repository process adapters 不复制 machine 
 
 `run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、effect status、execution timing、terminal messages、visibility 和人读内容不是 machine publication fields。
 
+### 维护提醒评估数据
+
+`maintenanceReminders(entries)` 仍只投影一个普通的 `maintenance-reminders` Check 行。其 `passed` 或
+`failed` 结果的通用最终 `data.entries` 承载按声明顺序排列的局部评估；条目不会成为机器 Check 行或补充 Record。到期或不可测量时的终态提示仅保留在 progress 与 `RunResult.checkMessages`，因此既不会进入 `run.json`，也不会进入 `records.ndjson`。评估的测量方式和状态折叠见[质量指标](quality-metrics.md#维护提醒评估)。
+
 Output effect 只创建这两个 canonical paths 及其短暂的 owned temp files；artifact directory 不包含
 scanner-private material。
 

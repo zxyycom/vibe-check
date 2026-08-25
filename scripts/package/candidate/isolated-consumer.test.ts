@@ -482,6 +482,7 @@ function publicImports(): string {
   functionMetrics,
   markdownLinkValidation,
   inherit,
+  maintenanceReminders,
   jsonSchemaValidation,
   jsonValidation,
   run,
@@ -555,6 +556,14 @@ const definition: ProjectDefinition = defineConfig({
   checks: [duplicateDetection, markdownLinkValidation, directCheck, changedFiles, changedFilesConsumer]
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
+const reminder = maintenanceReminders([
+  {
+    id: "isolated-maintenance-reminder",
+    baseCommit: "0000000000000000000000000000000000000000",
+    limits: { commits: 1 },
+    message: "Review isolated consumer maintenance."
+  }
+]);
 const aggregation: CheckAggregation = {
   checks: [directCheck.checkId],
   empty: "failed",
@@ -615,6 +624,7 @@ void [
   functionMetrics,
   markdownLinkValidation,
   inherit,
+  maintenanceReminders,
   jsonSchemaValidation,
   jsonValidation,
   run,
@@ -626,6 +636,7 @@ void [
   changedFilesConsumer,
   inheritedCheckIds,
   observeFinalDurations,
+  reminder,
   result
 ];
 `;

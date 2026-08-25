@@ -2,6 +2,13 @@ import {
   DUPLICATE_DETECTION_CHECK_DEFINITION,
   executeDuplicateDetection
 } from "../checks/builtins/duplicate-detection.ts";
+import {
+  MAINTENANCE_REMINDERS_CHECK_ID,
+  maintenanceReminders,
+  validMaintenanceReminderOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions
+} from "../checks/builtins/maintenance-reminders.ts";
 import { DEFAULT_JSCPD_COMMAND } from "../checks/measurement/scanners/jscpd/default-command.ts";
 import {
   JSON_VALIDATION_CHECK_DEFINITION,
@@ -25,6 +32,9 @@ import {
 } from "../checks/builtins/markdown-link-validation.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../foundation/closed-values.ts";
 import { defineCheck } from "./custom-check.ts";
+
+export { maintenanceReminders };
+export type { MaintenanceReminder, MaintenanceReminderOptions };
 
 /** default Check scanner adapter 所需的完整外部命令配置。 */
 export interface ScannerCommandOptions {
@@ -290,6 +300,7 @@ export function validateDefaultCheckOptions(checkId: string, options: object): b
   if (checkId === "json-validation") return validJsonValidationOptions(options);
   if (checkId === "json-schema-validation") return validJsonSchemaValidationOptions(options);
   if (checkId === "markdown-link-validation") return validMarkdownLinkValidationOptions(options);
+  if (checkId === MAINTENANCE_REMINDERS_CHECK_ID) return validMaintenanceReminderOptions(options);
   return true;
 }
 

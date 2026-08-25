@@ -60,6 +60,21 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "maintenance-reminders",
+    regionId: "maintenance-reminders",
+    sourcePath: "docs/examples/package-api/maintenance-reminders.ts",
+    targets: Object.freeze([
+      Object.freeze({ kind: "readme", placeholderId: "maintenance-reminders" }),
+      Object.freeze({
+        declarationName: "maintenanceReminders",
+        kind: "jsdoc",
+        sourcePath: "src/checks/builtins/maintenance-reminders.ts"
+      })
+    ]),
+    title: "创建一个单一 Check 的维护提醒"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "typed-dependency",
     regionId: "typed-dependency",
     sourcePath: "docs/examples/package-api/typed-dependency.ts",

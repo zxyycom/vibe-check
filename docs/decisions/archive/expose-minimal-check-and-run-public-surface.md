@@ -1,6 +1,6 @@
 ---
 title: 公开最小 Check authoring 与 Run surface
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:47Z
 purpose: 让 package 公开唯一递归 Check/Run model 和实际 consumer 所需 roots，不再导出已退休 evaluation 或 Record catalog surface。

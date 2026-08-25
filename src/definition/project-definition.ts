@@ -4,6 +4,7 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
   jsonSchemaValidation,
   markdownLinkValidation,
   jsonValidation,
@@ -11,6 +12,8 @@ import {
   type FileMetricsOptions,
   type FunctionMetricsOptions,
   type MarkdownLinkValidationOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions,
   type JsonSchemaValidationOptions,
   type JsonValidationOptions
 } from "./default-checks.ts";
@@ -41,6 +44,7 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
   markdownLinkValidation,
   inherit,
   jsonSchemaValidation,
@@ -56,6 +60,8 @@ export {
   type InheritableCheckCollection,
   type FunctionMetricsOptions,
   type MarkdownLinkValidationOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions,
   type JsonSchemaValidationOptions,
   type JsonValidationOptions,
   type ProjectQualityConfiguration

@@ -41,7 +41,7 @@ describe("package artifact", () => {
       assertReadableRuntimeLayout(artifact.stagingDirectory);
       assert.equal(
         declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","markdownLinkValidation","run"]'
+        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
         "@humanwhocodes/momoa": "3.3.12",
