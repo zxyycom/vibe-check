@@ -5,6 +5,7 @@ export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
 
 export const CANDIDATE_DEPENDENCIES = Object.freeze({
+  "@humanwhocodes/momoa": "3.3.12",
   "csv-parse": "7.0.1",
   execa: "9.6.1",
   jscpd: "5.0.11",

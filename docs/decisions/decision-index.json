@@ -126,6 +126,7 @@
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
+      "use-momoa-for-strict-json-document-boundary.md": "sha256:b58df9690278a0aa1d8ccdd4f5ac506e46dfdfb776d45cecb7195410107d93f3",
       "use-native-object-composition-for-check-customization.md": "sha256:8e042657d9a6a039de6b1ad2f1cdc1b50654cba352e1e20caab2aaf710316b1a",
       "use-native-test-evidence-catalog.md": "sha256:7d4528a424d7754a958bfc91c902072de129d5778eba506d278b66a3cdcce6c6",
       "use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:c32c3acb2f66e66d0047debd2c5c23405ba126a0f82318c30dffb7c269dd0173",
@@ -3809,6 +3810,33 @@
             "target": "use-location-independent-finding-identities.md"
           }
         ]
+      }
+    },
+    "use-momoa-for-strict-json-document-boundary.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-momoa-for-strict-json-document-boundary.md",
+        "title": "为严格 JSON 文档边界采用 Momoa",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-24T14:20:04Z",
+        "purpose": "让严格 JSON Check 在 Bun 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。",
+        "background": "原生 JSON.parse 很轻但会丢失重复成员证据；更小候选要么不满足严格 grammar，要么需要额外双解析与事件状态机。",
+        "decision": "在 add-json-validation 的私有 strict document boundary 中采用 Momoa，并接受其单入口约 92 KB 的代码面以换取直接可审计的 AST 语义。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "use-native-object-composition-for-check-customization.md": {

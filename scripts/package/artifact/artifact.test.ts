@@ -44,6 +44,7 @@ describe("package artifact", () => {
         '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
+        "@humanwhocodes/momoa": "3.3.12",
         "csv-parse": "7.0.1",
         execa: "9.6.1",
         jscpd: "5.0.11",
