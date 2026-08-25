@@ -24,7 +24,7 @@ Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象
 
 ## 默认 Check、组合与继承
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `jsonValidation` 是完整的默认 Check 值。`jsonValidation` 只验证 global scope 中小写 `.json` paths；其 options 完整形状为 `{ maximumBytes }`（默认 `1_048_576`），替换该 branch 时必须显式提供正安全整数。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
+`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `jsonValidation` 是完整的默认 Check 值。`jsonValidation` 只检查当前项目 global `quality` scope 已包含且以小写 `.json` 结尾的 paths；其 `options` 必须恰为 `{ maximumBytes }`，导出的默认值为 `1_048_576`。通过对象组合替换其 `options` 分支时，必须显式提供正安全整数。普通对象组合还可以替换 display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
 
 ## 自定义 Check、Records 与 messages
 

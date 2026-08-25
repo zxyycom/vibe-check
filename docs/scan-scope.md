@@ -28,8 +28,11 @@ context，必须由自己的 callback/options 定义语义。
 
 `file-metrics`、`function-metrics`、`duplicate-detection` 与 `json-validation` 各自从同一 resolved file collection 产生
 Product-approved exact inputs。adapter 不接收 project root 来重新发现或扩大这些 inputs。function structural
-inputs 为 `.ts`、`.d.ts`、`.rs`；duplicate inputs 按 code area 分组；`json-validation` 只从 global candidates 以
-case-sensitive `path.endsWith(".json")` 选择 paths。它不会重走 discovery、加入 excluded/generated/vendor/scope 外路径，或以 `.JSON` 作为 input。zero eligible inputs 是 owning Check 的 applicability/work fact，不触发 scope fallback。
+inputs 为 `.ts`、`.d.ts`、`.rs`；duplicate inputs 按 code area 分组。
+
+`json-validation` 只从 resolved global candidates 中以 case-sensitive `path.endsWith(".json")` 选择 paths。它不会重走
+discovery、加入 excluded/generated/vendor/scope 外路径，或把 `.JSON` 作为 input。zero eligible inputs 是 owning
+Check 的 applicability/work fact，不触发 scope fallback。
 
 ## Source-scope boundary
 

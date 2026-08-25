@@ -10,12 +10,12 @@ parsing、generic scheduler 或 human presentation grammar。
 `src/definition/**` validates and flattens recursive Check tree；`src/core/**` 为每个 executable Check 保存一个 terminal
 fact：
 
-| `outcome.status` | 含义 |
-| --- | --- |
-| `passed` | Check 完成自己的质量结论，并带 canonical final `data`。 |
-| `failed` | Check 完成自己的质量结论，并带 canonical final `data`。 |
-| `not-applicable` | Check 有意没有 work；reason code 可省略，且不伪造 final data。 |
-| `unavailable` | Product 无法给出正常结论；必须有 `reason.code`，且没有 final data。 |
+| `outcome.status` | 含义                                                                |
+| ---------------- | ------------------------------------------------------------------- |
+| `passed`         | Check 完成自己的质量结论，并带 canonical final `data`。             |
+| `failed`         | Check 完成自己的质量结论，并带 canonical final `data`。             |
+| `not-applicable` | Check 有意没有 work；reason code 可省略，且不伪造 final data。      |
+| `unavailable`    | Product 无法给出正常结论；必须有 `reason.code`，且没有 final data。 |
 
 四种 outcome 都满足 dependency ordering：declared direct upstream settle 后，dependent Check 才可 admission。需要
 upstream data 的 callback 使用 Configuration 的 `dependencies.get` contract。本文只定义该读取的事实基础：
@@ -50,15 +50,18 @@ consumer/provider，不由 Product registry、catalog、extractor 或 presentati
 supplemental finding 时报告 Check-local Records。adapter availability、process、parser、cache 或 scope failure 将 owning
 Check settle 为 unavailable，不创建并行 quality model。scanner adapter boundary 见 [Scanner dependencies](scanner-dependencies.md)。
 
-`json-validation` normal completion reports one Record per invalid eligible file, exactly `{ id: path }` and
-`{ path, reason }`, where `reason` is one of `too-large | bom | invalid-utf8 | invalid-json | duplicate-key`. Its
-first document issue determines that sole Record. It returns `passed` or `failed` with exactly
-`{ scannedFileCount, validFileCount, invalidFileCount, issueCount }`, where `scannedFileCount = validFileCount +
-invalidFileCount` and `issueCount = invalidFileCount`. No eligible input is `not-applicable` with
-`no-eligible-input`; cancellation, read, or strict-document boundary failure is `unavailable` without final
-data. Paths, counts, and the closed reason are the only JSON-specific facts: no document bytes/text, key,
-pointer, location, parser message, or stack is published. Accepted earlier Records retain the ordinary Core
-semantics when a later file becomes unavailable.
+`json-validation` 的 Check-local facts 固定如下：
+
+- 每个 invalid eligible file 恰报告一个 `{ id: path }` / `{ path, reason }` Record；第一个发现的 document
+  issue 决定这个唯一 Record，`reason` 只能是 `too-large | bom | invalid-utf8 | invalid-json | duplicate-key`。
+- 所有 eligible file 都正常结算后，Check 才以 `passed` 或 `failed` 返回恰为
+  `{ scannedFileCount, validFileCount, invalidFileCount, issueCount }` 的 final data；其中
+  `scannedFileCount = validFileCount + invalidFileCount`，`issueCount = invalidFileCount`。
+- 没有 eligible input 时返回带 `no-eligible-input` 的 `not-applicable`；cancellation、read 或 strict-document
+  boundary failure 返回没有 final data 的 `unavailable`。后续文件 unavailable 时，先前已接受的 Records 保留普通
+  Core semantics。
+- JSON-specific published facts 仅为 path、counts 和 closed reason；不得发布 document bytes/text、key、pointer、
+  location、parser message 或 stack。
 
 All four defaults and custom callbacks use the same four-state grammar. Check options affect only their own
 semantics; aggregation and output presentation do not belong to these options.

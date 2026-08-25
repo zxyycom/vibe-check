@@ -32,12 +32,12 @@
 
 ## Success Criteria
 
-| 场景 | 预期 Check 结论与证据 |
-| --- | --- |
-| 合法 object、array、string、number、boolean 与 `null` root | `passed`，并提供正常完成的 final counts。 |
+| 场景                                                                                                     | 预期 Check 结论与证据                                                                                              |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 合法 object、array、string、number、boolean 与 `null` root                                               | `passed`，并提供正常完成的 final counts。                                                                          |
 | 非法 UTF-8、BOM、comments、trailing comma、trailing content、grammar error、超限或 decoded duplicate key | `failed`；每个 invalid file 仅以其首个 issue 产生一个安全 Record，其中 grammar 类问题的 reason 为 `invalid-json`。 |
-| 没有 eligible `.json` input | `not-applicable`，不伪造 final data。 |
-| 文件读取、cancellation 或 private boundary protocol 无法完成 | `unavailable`，不把故障降级为 clean/empty result。 |
+| 没有 eligible `.json` input                                                                              | `not-applicable`，不伪造 final data。                                                                              |
+| 文件读取、cancellation 或 private boundary protocol 无法完成                                             | `unavailable`，不把故障降级为 clean/empty result。                                                                 |
 
 - Check 只读取 global scope 中满足自身 eligibility 的 exact paths；处理、Record submission 和 final facts 的语义顺序可复现，且 Check 不扩大 file scope。
 - Record identity 只依赖 normalized project-relative path；machine、progress、cache、log 和 error path 均不包含 document 内容、key、pointer 或位置。
@@ -46,13 +46,13 @@
 
 ## Affected Owners
 
-| Owner | 本 Change 的消费或同步责任 |
-| --- | --- |
-| `docs/configuration.md` | ordinary default value、closed options、native composition 与 runtime Definition validation。 |
-| `docs/scan-scope.md` | `.json` eligibility 基于 global scope，且不得扩大 exact input set。 |
-| `docs/quality-metrics.md` | four-state result、Check-local Records、final data 与 failure folding。 |
-| `docs/output.md` | generic v4 projection 只能承载 safe Check/Record data。 |
-| `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package contract/materials | private document boundary、default Check、公开 surface、installed-runtime closure。 |
-| `docs/testing/cases/**` | strict bytes/grammar/duplicates/scope/failure/public-consumer evidence。 |
-| `docs/decisions/complete-first-release-check-set-before-publication.md` | 只提供首版优先级方向；本 Change 完成后再按 Decision workflow 核对 alignment。 |
-| `docs/decisions/use-momoa-for-strict-json-document-boundary.md` | 已确认并实施 Momoa 为 private parser；package/candidate/consumer 证据已闭合，Decision 已标记 aligned。 |
+| Owner                                                                              | 本 Change 的消费或同步责任                                                                                               |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `docs/configuration.md`                                                            | ordinary default value、closed options、native composition 与 runtime Definition validation。                            |
+| `docs/scan-scope.md`                                                               | `.json` eligibility 基于 global scope，且不得扩大 exact input set。                                                      |
+| `docs/quality-metrics.md`                                                          | four-state result、Check-local Records、final data 与 failure folding。                                                  |
+| `docs/output.md`                                                                   | generic v4 projection 只能承载 safe Check/Record data。                                                                  |
+| `src/checks/**`、`src/definition/**`、`src/index.ts` 与 package contract/materials | private document boundary、default Check、公开 surface、installed-runtime closure。                                      |
+| `docs/testing/cases/**`                                                            | strict bytes/grammar/duplicates/scope/failure/public-consumer evidence。                                                 |
+| `docs/decisions/complete-first-release-check-set-before-publication.md`            | 只提供首版优先级方向；该 release-level Decision 仍有本 Change 以外的要求，因此保持 unaligned，且不阻塞本 Change 的完成。 |
+| `docs/decisions/use-momoa-for-strict-json-document-boundary.md`                    | 已确认并实施 Momoa 为 private parser；package/candidate/consumer 证据已闭合，Decision 已标记 aligned。                   |

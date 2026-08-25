@@ -46,5 +46,7 @@ Entities:
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from global scope and returns exact final counts`
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > uses only the included global JSON paths without re-adding excluded or generated files`
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when global scope has no lower-case JSON input`
-  Proves:
+
+Proves:
+
 - JSON validation filters only the existing global candidates with case-sensitive `.json` suffix matching; `.JSON`, non-JSON, excluded-directory, and generated paths are not eligible and no eligible path is rediscovered outside the resolved scope.

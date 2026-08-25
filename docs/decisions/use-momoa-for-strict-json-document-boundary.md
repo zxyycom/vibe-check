@@ -19,7 +19,7 @@ relations: []
 ## 背景
 
 - 当前 `add-json-validation` Change 要求 fatal UTF-8、BOM、完整 JSON grammar、trailing content 与所有 decoded duplicate key 都得到可审计的结果；原生 `JSON.parse` 无法恢复已覆盖的成员。
-- `@humanwhocodes/momoa@3.3.12` 默认 strict JSON mode 可保留 object members、decoded string value 和 location，且没有 production dependency；其 Bun 使用说明、license 和 artifact 仍须由本 Change 的实际 consumer 验收证明。
+- `@humanwhocodes/momoa@3.3.12` 默认 strict JSON mode 可保留 object members、decoded string value 和 location，且没有 production dependency；Bun 使用、license 和 artifact 是本决策标记为 aligned 前必须由实际 consumer 验收的证据。
 - 尺寸更小的候选并非等价：`lossless-json` 会接受值相同的 duplicate，`json-dup-key-validator` 不满足严格 grammar，Clarinet 必须与原生 parser 双解析并由 adapter 自行维护事件状态与 private types。
 
 ## 决策

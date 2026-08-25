@@ -49,9 +49,9 @@ Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只�
 
 Run callback-local dependency view 只授权当前 Check 的 normalized effective direct dependency IDs。`dependencies.get(checkId)` 读取 Core package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
 
-## Default scanners and exact scope
+## Default Checks and exact scope
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是带 direct callback 的 complete Check value。它们的 scanner command 与 options 由 Check value 拥有，adapter 仍是 private protocol boundary。adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 threshold conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
+`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `jsonValidation` 都是带 direct callback 的 complete Check value。前三项的 scanner command 与 options 由 Check value 拥有；`jsonValidation` 只拥有 document byte limit 与 private strict-document boundary。所有 adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 Check-owned conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary
 
