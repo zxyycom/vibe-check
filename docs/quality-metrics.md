@@ -45,13 +45,23 @@ consumer/provider，不由 Product registry、catalog、extractor 或 presentati
 
 ## Direct defaults and exact inputs
 
-`src/checks/builtins/**` 的 default Checks 是 `duplicate-detection`、`file-metrics` 与 `function-metrics`。它们的
-direct callbacks own scanner options，只处理 Product-approved exact input paths，并只在 detail 是 supplemental
-finding 时报告 Records。adapter availability、process、parser、cache 或 scope failure 将 owning Check settle 为
-unavailable，不创建并行 quality model。scanner adapter boundary 见 [Scanner dependencies](scanner-dependencies.md)。
+`src/checks/builtins/**` 的 scanner defaults 是 `duplicate-detection`、`file-metrics` 与 `function-metrics`；
+`src/checks/json-validation/**` 提供 `json-validation`。它们只处理 Product-approved exact input paths，并在 detail 是
+supplemental finding 时报告 Check-local Records。adapter availability、process、parser、cache 或 scope failure 将 owning
+Check settle 为 unavailable，不创建并行 quality model。scanner adapter boundary 见 [Scanner dependencies](scanner-dependencies.md)。
 
-三个 default Check 和 custom callback 使用同一 four-state grammar。Check options 只影响其 own metric/scanner
-semantics；aggregation 与 output presentation 不属于这些 options。
+`json-validation` normal completion reports one Record per invalid eligible file, exactly `{ id: path }` and
+`{ path, reason }`, where `reason` is one of `too-large | bom | invalid-utf8 | invalid-json | duplicate-key`. Its
+first document issue determines that sole Record. It returns `passed` or `failed` with exactly
+`{ scannedFileCount, validFileCount, invalidFileCount, issueCount }`, where `scannedFileCount = validFileCount +
+invalidFileCount` and `issueCount = invalidFileCount`. No eligible input is `not-applicable` with
+`no-eligible-input`; cancellation, read, or strict-document boundary failure is `unavailable` without final
+data. Paths, counts, and the closed reason are the only JSON-specific facts: no document bytes/text, key,
+pointer, location, parser message, or stack is published. Accepted earlier Records retain the ordinary Core
+semantics when a later file becomes unavailable.
+
+All four defaults and custom callbacks use the same four-state grammar. Check options affect only their own
+semantics; aggregation and output presentation do not belong to these options.
 
 ## Explicit aggregation and repository Gate mapping
 

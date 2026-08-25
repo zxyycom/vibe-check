@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, and `jsonValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -18,7 +18,8 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  jsonValidation
 } from "vibe-check";
 
 const licenses = defineCheck({
@@ -46,7 +47,7 @@ export default defineConfig({
       checkId: "repository-quality",
       displayName: "Repository quality",
       maxParallel: 2,
-      checks: [duplicateDetection, fileMetrics, functionMetrics, licenses]
+      checks: [duplicateDetection, fileMetrics, functionMetrics, jsonValidation, licenses]
     }
   ],
   scheduler: { maxParallel: 4 }
@@ -213,15 +214,16 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The three defaults are complete ordinary `Check` values. Their scanner executable, command args, availability args, and (for duplication) backend concurrency are all Check-owned `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The four defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
 
 | Default              | Check ID              | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option   |
 | -------------------- | --------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------- |
 | `duplicateDetection` | `duplicate-detection` | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4` |
 | `fileMetrics`        | `file-metrics`        | `scc`                                                     | `[]`           | `['--version']`            | —                           |
 | `functionMetrics`    | `function-metrics`    | `lizard`                                                  | `[]`           | `['--version']`            | —                           |
+| `jsonValidation`     | `json-validation`     | —                                                         | —              | —                          | `maximumBytes: 1_048_576`   |
 
-For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+`jsonValidation.options` is exactly `{ maximumBytes }`; the value is a positive safe integer and uses the default only on the exported value. Replacing `options` with native object composition must supply that field: Definition validation rejects omission, zero, negative, fractional, unsafe, or unknown values and does not fill an implicit nested default. For every default, Product validates the complete option shape and known duplicate code-area keys where applicable. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
 
 The metric defaults contain only their documented absolute floors and nested allowances; no default option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden

@@ -11,7 +11,8 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  inherit
+  inherit,
+  jsonValidation
 } from "./definition/project-definition.ts";
 export type {
   Check,
@@ -26,6 +27,7 @@ export type {
   FileMetricsOptions,
   FunctionMetricsOptions,
   InheritableCheckCollection,
+  JsonValidationOptions,
   ProjectEffects,
   ProjectDefinition,
   ProjectQualityConfiguration,

@@ -47,7 +47,7 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 
 ## 默认 Check、组合与继承
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是完整的默认 Check 值。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
+`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `jsonValidation` 是完整的默认 Check 值。`jsonValidation` 只验证 global scope 中小写 `.json` paths；其 options 完整形状为 `{ maximumBytes }`（默认 `1_048_576`），替换该 branch 时必须显式提供正安全整数。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
 
 ## 自定义 Check、Records 与 messages
 

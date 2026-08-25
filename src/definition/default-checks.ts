@@ -4,6 +4,10 @@ import {
 } from "../checks/builtins/duplicate-detection.ts";
 import { DEFAULT_JSCPD_COMMAND } from "../checks/measurement/scanners/jscpd/default-command.ts";
 import {
+  JSON_VALIDATION_CHECK_DEFINITION,
+  executeJsonValidation
+} from "../checks/json-validation/json-validation.ts";
+import {
   FILE_METRICS_CHECK_DEFINITION,
   executeFileMetrics
 } from "../checks/builtins/file-metrics.ts";
@@ -55,6 +59,12 @@ export interface FileMetricsOptions {
   }>;
 }
 
+/** `jsonValidation` 的完整 Check-owned options。 */
+export interface JsonValidationOptions {
+  /** 单个 JSON document 允许的最大 raw byte 数；必须是正安全整数。 */
+  readonly maximumBytes: number;
+}
+
 /** `functionMetrics` 的完整 Check-owned options。 */
 export interface FunctionMetricsOptions {
   /** lizard scanner 命令。 */
@@ -82,6 +92,13 @@ export interface FunctionMetricsOptions {
     readonly absoluteFloor: number;
   }>;
 }
+
+/** 严格验证当前 global scope 中小写 `.json` 文件的完整 default Check。 */
+export const jsonValidation = defineCheck<"json-validation", JsonValidationOptions>({
+  ...JSON_VALIDATION_CHECK_DEFINITION,
+  execution: executeJsonValidation,
+  options: { maximumBytes: 1_048_576 }
+});
 
 /**
  * 检测项目范围内的重复代码的完整 default Check。
@@ -152,6 +169,7 @@ export function validateDefaultCheckOptions(checkId: string, options: object): b
   if (checkId === "duplicate-detection") return validDuplicateDetectionOptions(options);
   if (checkId === "file-metrics") return validFileMetricsOptions(options);
   if (checkId === "function-metrics") return validFunctionMetricsOptions(options);
+  if (checkId === "json-validation") return validJsonValidationOptions(options);
   return true;
 }
 
@@ -168,6 +186,11 @@ export function defaultCheckOptionCodeAreasAreKnown(
     thresholds !== undefined &&
     Object.keys(thresholds).every((area) => Object.hasOwn(codeAreas, area))
   );
+}
+
+function validJsonValidationOptions(value: object): boolean {
+  const options = exactRecord(value, ["maximumBytes"]);
+  return options !== undefined && positiveSafeInteger(options.maximumBytes);
 }
 
 function validDuplicateDetectionOptions(value: object): boolean {

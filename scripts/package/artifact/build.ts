@@ -12,9 +12,12 @@ import {
   CANDIDATE_NAME,
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
-  PACKAGE_SOURCE_DIRECTORY
+  PACKAGE_SOURCE_DIRECTORY,
+  MOMOA_LICENSE_SHA256,
+  MOMOA_LICENSE_SOURCE_PATH
 } from "./package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "./pack.ts";
@@ -54,6 +57,7 @@ export async function buildCandidateArtifact(input: {
     version: candidateVersion
   });
   writeFileSync(join(stagingDirectory, PACKAGE_README_PATH), documentation.readme, "utf8");
+  copyMomoaLicense({ repositoryRoot, stagingDirectory });
 
   runBun({
     args: [
@@ -129,6 +133,23 @@ export async function buildCandidateArtifact(input: {
     sha256,
     stagingDirectory
   });
+}
+
+/** Copies the audited Momoa text instead of treating its SPDX manifest field as legal material. */
+function copyMomoaLicense(input: {
+  readonly repositoryRoot: string;
+  readonly stagingDirectory: string;
+}): void {
+  const sourcePath = join(input.repositoryRoot, MOMOA_LICENSE_SOURCE_PATH);
+  const destinationPath = join(input.stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH);
+  if (!existsSync(sourcePath)) {
+    throw new Error(`candidate source is missing Momoa license material: ${sourcePath}`);
+  }
+  mkdirSync(dirname(destinationPath), { recursive: true });
+  copyFileSync(sourcePath, destinationPath);
+  if (sha256File(destinationPath) !== MOMOA_LICENSE_SHA256) {
+    throw new Error("candidate Momoa license material does not match the approved source text");
+  }
 }
 
 /** Converts TypeScript's emitted .js module graph into the package's ESM .mjs tree. */

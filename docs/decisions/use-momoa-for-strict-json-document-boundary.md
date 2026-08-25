@@ -1,7 +1,7 @@
 ---
 title: 为严格 JSON 文档边界采用 Momoa
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-24T14:20:04Z
 purpose: 让严格 JSON Check 在 Bun 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。
 background: 原生 JSON.parse 很轻但会丢失重复成员证据；更小候选要么不满足严格 grammar，要么需要额外双解析与事件状态机。

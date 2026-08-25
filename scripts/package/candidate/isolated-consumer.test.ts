@@ -82,10 +82,10 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
         message: "Installed candidate terminal message."
       }
     ]);
-    assert.match(runEvidence.humanOutput, /total\s+5\s+checks/i);
+    assert.match(runEvidence.humanOutput, /total\s+6\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/5\].*duplicate detection/i);
-    assert.match(runEvidence.humanOutput, /\[5\/5\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[1\/6\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[6\/6\].*Installed terminal note/i);
     assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
@@ -426,6 +426,7 @@ function publicImports(): string {
   fileMetrics,
   functionMetrics,
   inherit,
+  jsonValidation,
   run,
 ${typeImports}
 } from "vibe-check";
@@ -556,6 +557,7 @@ void [
   fileMetrics,
   functionMetrics,
   inherit,
+  jsonValidation,
   run,
   aggregation,
   attentionCheck,
@@ -574,7 +576,7 @@ function runFixture(): string {
   return `import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { defineCheck, defineConfig, duplicateDetection, run } from "vibe-check";
+import { defineCheck, defineConfig, duplicateDetection, jsonValidation, run } from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -653,6 +655,7 @@ const result = await run(
           defaultMinimumTokens: 20
         }
       },
+      jsonValidation,
       changedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,

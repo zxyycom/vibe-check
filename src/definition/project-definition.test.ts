@@ -7,6 +7,7 @@ import {
   defineCheck,
   defineConfig,
   inherit,
+  jsonValidation,
   normalizeProjectDefinition,
   type Check,
   type CheckExecution,
@@ -309,6 +310,29 @@ describe("Project Definition", () => {
         warningPolicy: "moderate"
       });
     }
+  });
+
+  it("fails closed for incomplete or invalid JSON validation options", () => {
+    const invalidOptions: readonly object[] = [
+      {},
+      { maximumBytes: 0 },
+      { maximumBytes: -1 },
+      { maximumBytes: 1.5 },
+      { maximumBytes: Number.MAX_SAFE_INTEGER + 1 },
+      { maximumBytes: 1, extra: true }
+    ];
+    for (const options of invalidOptions) {
+      const result = validateProjectDefinition(
+        defineConfig({ checks: [{ ...jsonValidation, options }] })
+      );
+      assert.equal(result.ok, false);
+    }
+    assert.equal(
+      validateProjectDefinition(
+        defineConfig({ checks: [{ ...jsonValidation, options: { maximumBytes: 1 } }] })
+      ).ok,
+      true
+    );
   });
 
   it("accepts parsers only on executable providers and excludes them from declarative identity", () => {

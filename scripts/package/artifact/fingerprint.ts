@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
 import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
-import { CANDIDATE_DEPENDENCIES } from "./package-contract.ts";
+import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "./package-contract.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "docs/package-readme.template.md",
@@ -25,7 +25,8 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   const inputFiles = [
     ...collectRuntimeSourceFiles(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
-    ...collectPackageSourceFiles(repositoryRoot)
+    ...collectPackageSourceFiles(repositoryRoot),
+    join(repositoryRoot, MOMOA_LICENSE_SOURCE_PATH)
   ].sort();
   for (const filePath of inputFiles) {
     const relativePath = relative(repositoryRoot, filePath).split(sep).join("/");

@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
@@ -10,8 +11,10 @@ import { collectFiles } from "./file-inventory.ts";
 import {
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
+  MOMOA_LICENSE_SHA256,
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_RUNTIME_ENTRY_PATH,
@@ -70,6 +73,7 @@ export function auditStagingRuntime(input: {
     content: expectedReadme,
     path: join(stagingDirectory, PACKAGE_README_PATH)
   });
+  assertMomoaLicenseMaterial(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH));
   assertJSDocExamplePayloads({
     declarationSources: collectFiles(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
       path.endsWith(".d.ts")
@@ -95,6 +99,7 @@ export function auditStagingRuntime(input: {
         filePath !== "package.json" &&
         filePath !== PACKAGE_ENTRY_PATH &&
         filePath !== PACKAGE_README_PATH &&
+        filePath !== PACKAGE_MOMOA_LICENSE_PATH &&
         !(
           filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
           (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
@@ -200,6 +205,13 @@ export function auditCandidateArtifact(input: {
   if (!readmeEntry.content.equals(Buffer.from(input.expectedReadme, "utf8"))) {
     throw new Error("candidate artifact README does not match the documentation projection");
   }
+  const momoaLicenseEntry = entries.find(
+    (entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`
+  );
+  if (momoaLicenseEntry === undefined) {
+    throw new Error("candidate artifact is missing Momoa license material");
+  }
+  assertMomoaLicenseMaterial(momoaLicenseEntry.content);
   assertJSDocExamplePayloads({
     declarationSources: entries
       .filter((entry) => entry.path.startsWith("package/types/") && entry.path.endsWith(".d.ts"))
@@ -256,6 +268,14 @@ function assertFileContentMatches(
   }
   if (readFileSync(expected.path, "utf8") !== expected.content) {
     throw new Error(`checked-in documentation projection is stale: ${expected.path}`);
+  }
+}
+
+function assertMomoaLicenseMaterial(pathOrContent: string | Buffer): void {
+  const content = typeof pathOrContent === "string" ? readFileSync(pathOrContent) : pathOrContent;
+  const sha256 = createHash("sha256").update(content).digest("hex");
+  if (sha256 !== MOMOA_LICENSE_SHA256) {
+    throw new Error("candidate Momoa license material does not match the approved source text");
   }
 }
 
@@ -317,10 +337,11 @@ function auditManifest(
   if (
     !entries.some((entry) => entry.path === `package/${PACKAGE_ENTRY_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
-    !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`)
+    !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`) ||
+    !entries.some((entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`)
   ) {
     throw new Error(
-      "candidate artifact is missing its approved runtime, declarations, or README entry"
+      "candidate artifact is missing its approved runtime, declarations, README, or Momoa license entry"
     );
   }
 }

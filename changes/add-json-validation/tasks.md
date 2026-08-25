@@ -11,13 +11,13 @@
 
 ## Implementation
 
-- [ ] 1.1 先新增 strict bytes/UTF-8/BOM/grammar/full-consumption/decoded-duplicate fixtures 与 boundary tests，并覆盖 `maximumBytes` default/相等边界/非法 option、case-sensitive suffix、首个 issue 的 deterministic ordering、单 Record/data-redaction 的已确认契约。
-- [ ] 1.2 实现 package-private strict JSON document boundary：bounded read、fatal UTF-8、显式 BOM、Momoa strict parse/AST traversal、grammar/full-consumption、decoded duplicate-key normalization 与受控 protocol-failure mapping；不泄漏 raw source、Momoa types 或 native messages。
-- [ ] 1.3 新增 `jsonValidation` value、`JsonValidationOptions`、完整 runtime option validation、global-scope exact-input filtering、safe Check-local Records、normal-completion final counts 与四态 settlement。
-- [ ] 1.4 同步 public exports/contract、Configuration/Scan Scope/Quality/Output owner docs、README/JSDoc/examples、Momoa package dependency/license、semantic Cases 与 isolated consumer；让 JSON Schema Change 只通过 private helper 复用 document semantics。
+- [x] 1.1 已新增 strict bytes/UTF-8/BOM/grammar/full-consumption/decoded-duplicate fixtures 与 boundary tests，并覆盖 `maximumBytes` default/相等边界/非法 option、case-sensitive suffix、首个 issue 的 deterministic ordering、单 Record/data-redaction 的已确认契约。
+- [x] 1.2 已实现 package-private strict JSON document boundary：bounded read、fatal UTF-8、显式 BOM、Momoa strict parse/AST traversal、grammar/full-consumption、decoded duplicate-key normalization 与受控 protocol-failure mapping；不泄漏 raw source、Momoa types 或 native messages。
+- [x] 1.3 已新增 `jsonValidation` value、`JsonValidationOptions`、完整 runtime option validation、global-scope exact-input filtering、safe Check-local Records、normal-completion final counts 与四态 settlement。
+- [x] 1.4 已同步 public exports/contract、Configuration/Scan Scope/Quality/Output owner docs、README/JSDoc/examples、Momoa package dependency/license、semantic Cases 与 isolated consumer；让 JSON Schema Change 只通过 private helper 复用 document semantics。
 
 ## Verification
 
-- [ ] 2.1 运行 strict bytes/grammar/duplicate/scope/limit/failure/default-option/单-Record/data-redaction 最窄 tests，并运行 `bun run test-evidence -- check --root .`；确认新增或变更 native test/Cases 的闭合证据。
-- [ ] 2.2 运行受影响的 product typecheck、lint、tests、public import/package candidate、isolated Bun consumer 与 docs validation；确认 candidate 使用声明的 production parser dependency，而非祖先或 ambient installation。
-- [ ] 2.3 运行 `bun run verify:vibe-check-workspace:required` 与 `bun run verify:vibe-check-workspace:full`，并复核 artifacts、logs、errors 与 machine output 不含原始 JSON、parser-native message、absolute/越界 path 或未声明 public surface。
+- [x] 2.1 已运行 strict bytes/grammar/duplicate/scope/limit/failure/default-option/单-Record/data-redaction 最窄 tests，并运行 `bun run test-evidence -- check --root .`；新增或变更 native test/Cases 已闭合。
+- [x] 2.2 已运行受影响的 product typecheck、lint、tests、public import/package candidate、isolated Bun consumer 与 docs validation；candidate 使用声明的 production parser dependency，而非祖先或 ambient installation。
+- [x] 2.3 已运行 `bun run verify:vibe-check-workspace:required` 与 `bun run verify:vibe-check-workspace:full`，并复核 artifacts、logs、errors 与 machine output 不含原始 JSON、parser-native message、absolute/越界 path 或未声明 public surface。
