@@ -71,34 +71,34 @@
 
 无。L3–L5 已关闭；后续发现只能作为实现缺陷或新需求处理，不能在实现中静默改变本 Change 的公开语义或安全边界。
 
-## Closed Implementation Contract
+## 已关闭的实施契约
 
-### L3: target authorization and bounded I/O
+### L3：target authorization 与 bounded I/O
 
-1. Link starts by `realpath(projectRoot)` once. A failure is `project-root-unavailable`; a global exact-scope Markdown source whose containment cannot be proved is `source-unavailable`. Source and direct targets never become a second collector.
-2. A relative destination is split into path/query/fragment in private memory. Query never participates in a filesystem path or persistent output. Local path and fragment decode strictly once; malformed percent encoding, invalid UTF-8, encoded separator/backslash/NUL/control are `invalid-local-destination` and settle the Check as `unavailable` before target I/O.
-3. Relative lexical escape and host-native absolute spelling enter `rootExternalTargetMode` before target I/O. On a non-Windows host, Windows drive spelling is unsupported and stops with zero I/O; on Windows it is an absolute candidate. HTTP(S), `mailto:`, protocol-relative URL, UNC and foreign/unsupported path forms stop with zero filesystem, DNS, HTTP, TLS or subprocess work and make no reachability finding.
-4. A lexically root-in path uses only component-wise, no-follow `lstat`/`readlink` while the current component remains inside the canonical root. A symlink hop that first escapes is sticky root-external. This containment probe is not authority to read the outside referent: `ignore` stops silently, `report` emits one `target-outside-project-root` finding, and only `validate` may continue its bounded direct work. Probe errors, loops or hop-limit exhaustion are unavailable.
-5. A contained direct target may be checked even if outside source scope. A regular Markdown target is read only for an enabled cross-document fragment; its own links are never discovered. A directory never receives anchor lookup; non-empty validation calls `opendir().read()` once, never recursive discovery. Missing target is a normal finding only when `requireExistingTargets` is enabled; otherwise anchor work stops.
+1. Link 先执行一次 `realpath(projectRoot)`。失败为 `project-root-unavailable`；若 global exact-scope Markdown source 无法证明 containment，则为 `source-unavailable`。source 和 direct target 都不会成为第二个 collector。
+2. relative destination 在 private memory 中分为 path/query/fragment。query 绝不进入 filesystem path 或 persistent output。local path 与 fragment 严格只 decode 一次；malformed percent encoding、invalid UTF-8、encoded separator/backslash/NUL/control 为 `invalid-local-destination`，并在 target I/O 前使 Check 结算为 `unavailable`。
+3. relative lexical escape 和 host-native absolute spelling 在 target I/O 前进入 `rootExternalTargetMode`。非 Windows host 上，Windows drive spelling 不受支持并以零 I/O 停止；Windows 上它是 absolute candidate。HTTP(S)、`mailto:`、protocol-relative URL、UNC 和 foreign/unsupported path form 以零 filesystem、DNS、HTTP、TLS 或 subprocess work 停止，不产生 reachability finding。
+4. lexically root-in path 只能在 current component 仍位于 canonical root 内时，使用 component-wise、no-follow 的 `lstat`/`readlink`。首次越出 root 的 symlink hop 是 sticky root-external。该 containment probe 不授权读取 root 外 referent：`ignore` 静默停止，`report` 产生一个 `target-outside-project-root` finding，只有 `validate` 可继续 bounded direct work。probe error、loop 或 hop-limit exhaustion 为 unavailable。
+5. contained direct target 即使在 source scope 外也可被检查。regular Markdown target 只在启用 cross-document fragment 时读取；绝不发现其自身 links。directory 从不接受 anchor lookup；non-empty validation 只调用一次 `opendir().read()`，绝不递归 discovery。仅当 `requireExistingTargets` 启用时，missing target 才是 normal finding；否则 anchor work 停止。
 
 | Raw/local class | `ignore` / `report` | `validate` | Persistent outcome |
 | --- | --- | --- | --- |
 | relative contained target | normal direct validation | normal direct validation | regular file/directory/anchor verdict |
-| relative lexical escape or host-native absolute | no I/O / safe boundary finding | bounded direct validation | none or `target-outside-project-root`; validate may yield missing/unavailable |
-| root-in path with escaping symlink hop | root-in containment probe only, then no outside I/O / safe boundary finding | bounded external continuation | none or `target-outside-project-root`; validate may yield missing/unavailable |
-| `file:///` accepted local URI | no I/O / safe boundary finding | bounded direct validation | same as absolute target |
-| HTTP(S), mailto, protocol-relative, UNC, unsupported `file:` or foreign path | zero I/O | zero I/O | no finding or external verdict |
+| relative lexical escape 或 host-native absolute | no I/O / safe boundary finding | bounded direct validation | 无 finding 或 `target-outside-project-root`；validate 可能得到 missing/unavailable |
+| 有 escaping symlink hop 的 root-in path | 仅 root-in containment probe，随后 no outside I/O / safe boundary finding | bounded external continuation | 无 finding 或 `target-outside-project-root`；validate 可能得到 missing/unavailable |
+| 接受的 `file:///` local URI | no I/O / safe boundary finding | bounded direct validation | 与 absolute target 相同 |
+| HTTP(S)、mailto、protocol-relative、UNC、不受支持的 `file:` 或 foreign path | zero I/O | zero I/O | 无 finding 或 external verdict |
 
-`file:` is classified from raw spelling before WHATWG normalization. The only supported form is ASCII-case-insensitive `file:///` with empty raw authority and a host-native absolute path: POSIX absolute on POSIX, or drive-absolute on Windows. `localhost`, any authority, `file:/`, relative `file:`, a fourth slash/UNC form, query, raw backslash/control/whitespace and platform-mismatched drive forms stop with zero I/O. Its URI path is strict UTF-8 percent-decoded exactly once; encoded `/`, `\\`, NUL or control are unavailable. Fragment is separately decoded under the anchor contract.
+`file:` 在 WHATWG normalization 前按 raw spelling 分类。唯一受支持的 form 是 ASCII-case-insensitive 的 `file:///`：raw authority 为空，且具有 host-native absolute path，即 POSIX 上的 POSIX absolute，或 Windows 上的 drive-absolute。`localhost`、任何 authority、`file:/`、relative `file:`、第四个 slash/UNC form、query、raw backslash/control/whitespace 和 platform-mismatched drive form 都以零 I/O 停止。其 URI path 严格按 UTF-8 percent-decode 一次；encoded `/`、`\\`、NUL 或 control 为 unavailable。fragment 依 anchor contract 单独 decode。
 
-### L4: parser facts, grammar and range
+### L4：parser facts、grammar 与 range
 
-- Direct production dependencies are exact (no range): `mdast-util-from-markdown@2.0.3`, `micromark-extension-gfm@3.0.0`, `mdast-util-gfm@3.1.0`, `micromark-extension-frontmatter@2.0.0`, `mdast-util-frontmatter@2.0.1` and `github-slugger@2.0.0`. `micromark` remains transitive, not a Link direct dependency.
-- The one Link-private adapter uses `fromMarkdown()` with GFM and YAML-front-matter extensions. It receives an already authorized decoded document and returns immutable occurrences, definitions, headings, ranges or controlled failure; it neither discovers paths nor invokes Git, a child process or a network client.
-- Supported occurrences are inline links/images, defined full/collapsed/shortcut references, explicit autolinks and selected GFM autolink literals. Code/fenced code, HTML attributes, plain prose URLs, YAML front matter and undefined references have no Link occurrence. A defined reference range is its use-site, not its definition.
-- The locked fixture corpus covers ATX/Setext headings, YAML exclusion, inline/reference/image/autolink forms, code/HTML/prose exclusion, undefined reference exclusion, duplicate headings, `Hello, World!`, `Café & tea`, `你好，世界`, valid/invalid encoded fragments and source range positions. Each document uses a fresh slugger; the expected slug is compared exactly after one fragment decode.
+- direct production dependency 均为 exact（无 range）：`mdast-util-from-markdown@2.0.3`、`micromark-extension-gfm@3.0.0`、`mdast-util-gfm@3.1.0`、`micromark-extension-frontmatter@2.0.0`、`mdast-util-frontmatter@2.0.1` 和 `github-slugger@2.0.0`。`micromark` 保持 transitive，而非 Link direct dependency。
+- 唯一的 Link-private adapter 使用带 GFM 与 YAML-front-matter extension 的 `fromMarkdown()`。它接收已授权读取并 decode 的文档，返回 immutable occurrence、definition、heading、range 或 controlled failure；它不发现 path，也不调用 Git、child process 或 network client。
+- 受支持的 occurrence 是 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 与选定的 GFM autolink literal。code/fenced code、HTML attribute、plain prose URL、YAML front matter 和 undefined reference 不产生 Link occurrence。已定义 reference 的 range 是其 use-site，不是 definition。
+- locked fixture corpus 覆盖 ATX/Setext heading、YAML exclusion、inline/reference/image/autolink form、code/HTML/prose exclusion、undefined reference exclusion、duplicate heading、`Hello, World!`、`Café & tea`、`你好，世界`、valid/invalid encoded fragment 和 source range position。每份文档使用新的 slugger；expected slug 在 fragment decode 一次后精确比较。
 
-### L5: public options, data, limits and reasons
+### L5：public options、data、limits 与 reasons
 
 ```ts
 interface MarkdownLinkValidationOptions {
@@ -115,11 +115,13 @@ interface MarkdownLinkValidationOptions {
 }
 ```
 
-The complete default is `{ requireExistingTargets: true, validateSameDocumentAnchors: true, validateCrossDocumentAnchors: true, rootExternalTargetMode: "report", requireNonEmptyDirectories: false, limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000, maxTargetReads: 1_000 } }`. Runtime validation requires every field, accepts only positive safe-integer limits, and rejects limits above `16_777_216`, `100_000` and `10_000` respectively; native object composition does not fill omitted nested fields.
+完整 default 为 `{ requireExistingTargets: true, validateSameDocumentAnchors: true, validateCrossDocumentAnchors: true, rootExternalTargetMode: "report", requireNonEmptyDirectories: false, limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000, maxTargetReads: 1_000 } }`。runtime validation 要求每个字段存在，只接受 positive safe-integer limit，并分别拒绝超过 `16_777_216`、`100_000` 和 `10_000` 的值；native object composition 不补全缺失 nested field。
 
-`passed` and `failed` final data is `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`. `occurrenceCount` includes every parser semantic occurrence, even a non-local one; `targetReadCount` counts each occurrence that reaches direct endpoint validation. No eligible Markdown source returns `not-applicable` with `no-eligible-input`. Any cancellation, containment/source/target read, decode, parser or limit failure returns `unavailable` without final data or partial Records.
+`passed` 和 `failed` 的 final data 为 `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`。`occurrenceCount` 包含每个 parser semantic occurrence，即使它不是 local occurrence；`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。没有 eligible Markdown source 时，以 `no-eligible-input` 返回 `not-applicable`。任何 cancellation、containment/source/target read、decode、parser 或 limit failure 都返回 `unavailable`，不带 final data 或 partial Record。
 
-Normal reasons are `missing-target`, `target-outside-project-root`, `empty-directory`, `anchor-on-directory`, `anchor-target-not-markdown`, `missing-anchor` and `unsupported-target-type`. A Record ID is `source:<encodeURIComponent(sourcePath)>:occurrence:<one-based-ordinal>:reason:<reason>`. Its data only contains the safe reason, `occurrenceKind: "link" | "image"`, root-relative slash-normalized `sourcePath`, source navigation range, and a target descriptor: same-document/project-file/project-directory may contain safe root-relative path and decoded fragment; `project-path` is the safe root-relative path and decoded fragment when no endpoint type was established (including a missing target); `outside-project-root` may contain neither target path nor fragment. Raw destinations, query/userinfo, external absolute paths, symlink payloads, target bytes and digests never enter IDs, data, final data, messages, cache, logs or artifacts.
+`unavailable.reason.code` 只能是 `cancelled`、`project-root-unavailable`、`source-unavailable`、`source-too-large`、`markdown-parse-failed`、`invalid-local-destination`、`target-unavailable`、`occurrence-limit-exceeded` 或 `target-read-limit-exceeded`。其中 `source-unavailable` 汇总 source collection/read/decode/access failure；`target-unavailable` 汇总 containment probe、target I/O/read/decode/parse 与 directory error。code 不携带 raw target path、URL、query/userinfo 或 target content；resolver private type 和 target detail 不构成 public catalog。
+
+normal reason 是 `missing-target`、`target-outside-project-root`、`empty-directory`、`anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 和 `unsupported-target-type`。Record ID 为 `source:<encodeURIComponent(sourcePath)>:occurrence:<one-based-ordinal>:reason:<reason>`。其 data 只包含 safe reason、`occurrenceKind: "link" | "image"`、root-relative slash-normalized `sourcePath`、source navigation range 和 target descriptor：same-document/project-file/project-directory 可包含 safe root-relative path 与 decode 后 fragment；`project-path` 是尚未确定 endpoint type（包括 missing target）时的 safe root-relative path 与 decode 后 fragment；`outside-project-root` 不得包含 target path 或 fragment。raw destination、query/userinfo、external absolute path、symlink payload、target byte 和 digest 绝不进入 ID、data、final data、message、cache、log 或 artifact。
 
 ## Readiness Evidence
 
@@ -140,6 +142,6 @@ Normal reasons are `missing-target`, `target-outside-project-root`, `empty-direc
 
 完整的版本、热度、生态、活跃度、license 和临时实验条件保存在 [库策略调查报告](../../docs/investigations/implementation-libraries/markdown-link-validation-library-strategy.md)；它是 selection matrix 的详细证据 owner。
 
-## Execution Boundary
+## 实施边界
 
-L3–L5 are closed. Implementation may now start with the private parser adapter and target resolver; it must preserve the above contracts rather than rediscover or broaden them. Exact dependency lockfile/license evidence, public owner docs, semantic Cases and isolated installed-Bun evidence remain delivery work, not an invitation to alter the closed grammar or target authorization model silently.
+L3–L5 已关闭。实现可以从 private parser adapter 和 target resolver 开始，但必须保持上述 contract，不能重新发现或扩大其范围。exact dependency lockfile/license evidence、public owner docs、semantic Cases 和 isolated installed-Bun evidence 仍是交付工作；它们不授权静默改变已关闭的 grammar 或 target authorization model。
