@@ -3,7 +3,7 @@
 本文档是项目级载体分工与 Decision、Change 协作规则的唯一 owner：定义当前事实、长期方向和
 单次实施计划怎样共同支撑工作，以及 Change 收敛后怎样同步和核对。它不定义工具的固定格式或
 生命周期机械契约；这些内容分别由 `decision-records`、`change-plan` 和 `investigation-report`
-skill 拥有，项目安装与命令接线由[脚本工具](script-tooling.md#项目级-skill-维护)拥有。
+skill 拥有，项目安装与命令接线由[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)拥有。
 
 ## 载体与权威性
 
@@ -46,7 +46,7 @@ owner、实现和验证；仍在探索的问题先继续探索，不为获得形
 项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划。需要在全部 active Change 中定位产品路径、直接相关 Decision 或恢复边界时，可在该命令之后阅读 [Active Change Portfolio](../changes/active-change-portfolio.md)；它只是导航，不能代替目标 Change 的 artifacts、动态 stage 或 Decision owner。固定 artifact、
 严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
-[脚本工具](script-tooling.md#change-plan-cli)。
+[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)。
 
 ## 内容归属与同步
 

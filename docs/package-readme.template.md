@@ -24,7 +24,7 @@ Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象
 
 ## 默认 Check、组合与继承
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation` 与 `jsonSchemaValidation` 是完整的默认 Check 值。`jsonValidation` 只检查当前项目 global `quality` scope 已包含且以小写 `.json` 结尾的 paths；其 `options` 必须恰为 `{ maximumBytes }`，导出的默认值为 `1_048_576`。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是完整的默认 Check 值。`jsonValidation` 只检查当前项目 global `quality` scope 已包含且以小写 `.json` 结尾的 paths；其 `options` 必须恰为 `{ maximumBytes }`，导出的默认值为 `1_048_576`。
 
 ### `jsonSchemaValidation` 的配置边界
 
@@ -56,6 +56,10 @@ allowlisted `sources` 只能使用 `{ kind: "bundled", catalog: "json-schema-202
 `{ kind: "https", id, origin, pathPrefix }`；后者的 `origin` 与 `pathPrefix` 必须精确匹配。package-fixed JSON
 Schema 2020-12 catalog 不需要 request。首版把 `format` 视为 2020-12 annotation，不安装 format assertion plugin；
 Ajv `$async` schema 与 `$dynamicRef`/`$recursiveRef` 会安全失败。
+
+`markdownLinkValidation` 只校验受支持 Markdown occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。installed `MarkdownLinkValidationOptions` 的 JSDoc 说明 option field；在仓库工作区，Configuration 拥有完整 default 与 validation，Scan Scope 拥有 source/direct-target boundary，Quality Metrics 拥有 finding/final data，Output 拥有 Record projection。
+
+<!-- package-api-example:markdown-link-validation -->
 
 通过对象组合替换任一 default 的 `options` branch 时，必须提供完整 closed shape；Definition validation 不会填充
 遗漏 branch。普通对象组合还可以替换 display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供

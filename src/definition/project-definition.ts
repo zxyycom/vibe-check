@@ -5,10 +5,12 @@ import {
   fileMetrics,
   functionMetrics,
   jsonSchemaValidation,
+  markdownLinkValidation,
   jsonValidation,
   type DuplicateDetectionOptions,
   type FileMetricsOptions,
   type FunctionMetricsOptions,
+  type MarkdownLinkValidationOptions,
   type JsonSchemaValidationOptions,
   type JsonValidationOptions
 } from "./default-checks.ts";
@@ -39,6 +41,7 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit,
   jsonSchemaValidation,
   jsonValidation,
@@ -52,6 +55,7 @@ export {
   type FileMetricsOptions,
   type InheritableCheckCollection,
   type FunctionMetricsOptions,
+  type MarkdownLinkValidationOptions,
   type JsonSchemaValidationOptions,
   type JsonValidationOptions,
   type ProjectQualityConfiguration

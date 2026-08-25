@@ -13,7 +13,8 @@ export {
   functionMetrics,
   inherit,
   jsonSchemaValidation,
-  jsonValidation
+  jsonValidation,
+  markdownLinkValidation
 } from "./definition/project-definition.ts";
 export type {
   Check,
@@ -27,6 +28,7 @@ export type {
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions,
+  MarkdownLinkValidationOptions,
   InheritableCheckCollection,
   JsonSchemaValidationOptions,
   JsonValidationOptions,

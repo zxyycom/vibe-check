@@ -41,14 +41,20 @@ describe("package artifact", () => {
       assertReadableRuntimeLayout(artifact.stagingDirectory);
       assert.equal(
         declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","run"]'
+        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","markdownLinkValidation","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
         "@humanwhocodes/momoa": "3.3.12",
         ajv: "8.20.0",
         "csv-parse": "7.0.1",
         execa: "9.6.1",
+        "github-slugger": "2.0.0",
         jscpd: "5.0.11",
+        "mdast-util-from-markdown": "2.0.3",
+        "mdast-util-frontmatter": "2.0.1",
+        "mdast-util-gfm": "3.1.0",
+        "micromark-extension-frontmatter": "2.0.0",
+        "micromark-extension-gfm": "3.0.0",
         minimatch: "10.2.5",
         neverthrow: "8.2.0",
         typebox: "1.3.9"

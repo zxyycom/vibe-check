@@ -10,7 +10,13 @@ export const CANDIDATE_DEPENDENCIES = Object.freeze({
   [AJV_PACKAGE_NAME]: "8.20.0",
   "csv-parse": "7.0.1",
   execa: "9.6.1",
+  "github-slugger": "2.0.0",
   jscpd: "5.0.11",
+  "mdast-util-from-markdown": "2.0.3",
+  "mdast-util-frontmatter": "2.0.1",
+  "mdast-util-gfm": "3.1.0",
+  "micromark-extension-frontmatter": "2.0.0",
+  "micromark-extension-gfm": "3.0.0",
   minimatch: "10.2.5",
   neverthrow: "8.2.0",
   typebox: "1.3.9"

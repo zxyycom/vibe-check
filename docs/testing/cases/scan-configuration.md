@@ -5,7 +5,7 @@
 Owner: `docs/configuration.md#public-authoring-surface`
 Entities:
 
-- `bun|src/contract/public-api.test.ts|public API inventory > owns four runtime functions, five ordinary built-in values, and minimal type roots`
+- `bun|src/contract/public-api.test.ts|public API inventory > owns four runtime functions, six ordinary built-in values, and minimal type roots`
 - `bun|src/definition/effect-defaults.test.ts|Project Definition effect defaults > uses the Definition-owned default effect values`
 - `bun|src/definition/project-definition.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
 - `bun|src/definition/project-definition.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
@@ -20,9 +20,19 @@ Entities:
 
 Proves:
 
-- The public authoring surface contains four operations and five ordinary complete default Check values, not a configuration adjustment or operational-dependency API. `jsonValidation` exposes only its closed positive-safe-integer `{ maximumBytes }` options; `jsonSchemaValidation` additionally closes global identity mode, explicit registry/bindings and offline/allowlisted source policy. Native replacement never fills a missing branch.
+- The public authoring surface contains four operations and six ordinary complete default Check values, not a configuration adjustment or operational-dependency API. `jsonValidation` exposes only its closed positive-safe-integer `{ maximumBytes }` options; `jsonSchemaValidation` additionally closes global identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Native replacement never fills a missing branch.
 - Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints. Closed declarative JSON preserves every own data key, including `__proto__`, without retaining an author-controlled prototype. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
 - The emitted public declaration keeps a provider parser required, anchors passed/failed data to its return type, and preserves ordinary, options, recursive, and native-spread authoring without a consumer cast or manual read generic.
+
+
+## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link options remain complete and bounded
+
+Owner: `docs/configuration.md#markdown-link-validation`
+Entities:
+
+- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
+  Proves:
+- `markdownLinkValidation` accepts only its complete closed native options shape and rejects omitted, oversized, or unknown configuration before execution.
 
 ## Case WB-PROGRESS-EFFECT-001: Progress remains an optional fail-open Run effect
 

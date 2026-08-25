@@ -19,6 +19,10 @@ import {
   FUNCTION_METRICS_CHECK_DEFINITION,
   executeFunctionMetrics
 } from "../checks/builtins/function-metrics.ts";
+import {
+  MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
+  executeMarkdownLinkValidation
+} from "../checks/builtins/markdown-link-validation.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../foundation/closed-values.ts";
 import { defineCheck } from "./custom-check.ts";
 
@@ -147,6 +151,29 @@ export interface FunctionMetricsOptions {
   }>;
 }
 
+/** `markdownLinkValidation` 的完整离线本地 Markdown 链接校验 options。 */
+export interface MarkdownLinkValidationOptions {
+  /** `false` 时缺失的本地文件或目录不构成 finding。 */
+  readonly requireExistingTargets: boolean;
+  /** 是否检查 `#anchor` 对当前 Markdown 文档标题的引用。 */
+  readonly validateSameDocumentAnchors: boolean;
+  /** 是否检查直接指向的 Markdown 文件中的 `#anchor`。 */
+  readonly validateCrossDocumentAnchors: boolean;
+  /** root 外本机目标的授权模式；不授权网络请求。 */
+  readonly rootExternalTargetMode: "ignore" | "report" | "validate";
+  /** 是否将空目录目标视为 finding。 */
+  readonly requireNonEmptyDirectories: boolean;
+  /** 每次运行的 Markdown 内容、occurrence 和 direct target work 上限。 */
+  readonly limits: Readonly<{
+    /** 单个 Markdown source 或 anchor target 可读取的最大 UTF-8 byte 数。 */
+    readonly maxMarkdownBytes: number;
+    /** 所有 source 可处理的 Markdown semantic occurrence 上限。 */
+    readonly maxOccurrences: number;
+    /** 可进入 direct endpoint validation 的 occurrence 上限。 */
+    readonly maxTargetReads: number;
+  }>;
+}
+
 /** 严格验证当前 global scope 中小写 `.json` 文件的完整 default Check。 */
 export const jsonValidation = defineCheck<"json-validation", JsonValidationOptions>({
   ...JSON_VALIDATION_CHECK_DEFINITION,
@@ -231,6 +258,27 @@ export const functionMetrics = defineCheck<"function-metrics", FunctionMetricsOp
   }
 });
 
+/** 校验离线本地 Markdown 引用完整性的完整 default Check。 */
+export const markdownLinkValidation = defineCheck<
+  "markdown-link-validation",
+  MarkdownLinkValidationOptions
+>({
+  ...MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
+  execution: executeMarkdownLinkValidation,
+  options: {
+    requireExistingTargets: true,
+    validateSameDocumentAnchors: true,
+    validateCrossDocumentAnchors: true,
+    rootExternalTargetMode: "report",
+    requireNonEmptyDirectories: false,
+    limits: {
+      maxMarkdownBytes: 1_048_576,
+      maxOccurrences: 10_000,
+      maxTargetReads: 1_000
+    }
+  }
+});
+
 /**
  * Validates complete options for Product defaults after ordinary object
  * composition. It deliberately does not materialize omitted nested values.
@@ -241,6 +289,7 @@ export function validateDefaultCheckOptions(checkId: string, options: object): b
   if (checkId === "function-metrics") return validFunctionMetricsOptions(options);
   if (checkId === "json-validation") return validJsonValidationOptions(options);
   if (checkId === "json-schema-validation") return validJsonSchemaValidationOptions(options);
+  if (checkId === "markdown-link-validation") return validMarkdownLinkValidationOptions(options);
   return true;
 }
 
@@ -479,6 +528,38 @@ function safeBindingId(bindingId: unknown): bindingId is string {
   return typeof bindingId === "string" && /^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/u.test(bindingId);
 }
 
+function validMarkdownLinkValidationOptions(value: object): boolean {
+  const options = exactRecord(value, [
+    "requireExistingTargets",
+    "validateSameDocumentAnchors",
+    "validateCrossDocumentAnchors",
+    "rootExternalTargetMode",
+    "requireNonEmptyDirectories",
+    "limits"
+  ]);
+  return (
+    options !== undefined &&
+    typeof options.requireExistingTargets === "boolean" &&
+    typeof options.validateSameDocumentAnchors === "boolean" &&
+    typeof options.validateCrossDocumentAnchors === "boolean" &&
+    (options.rootExternalTargetMode === "ignore" ||
+      options.rootExternalTargetMode === "report" ||
+      options.rootExternalTargetMode === "validate") &&
+    typeof options.requireNonEmptyDirectories === "boolean" &&
+    validMarkdownLinkLimits(options.limits)
+  );
+}
+
+function validMarkdownLinkLimits(value: unknown): boolean {
+  const limits = exactRecord(value, ["maxMarkdownBytes", "maxOccurrences", "maxTargetReads"]);
+  return (
+    limits !== undefined &&
+    boundedPositiveSafeInteger(limits.maxMarkdownBytes, 16_777_216) &&
+    boundedPositiveSafeInteger(limits.maxOccurrences, 100_000) &&
+    boundedPositiveSafeInteger(limits.maxTargetReads, 10_000)
+  );
+}
+
 function validDuplicateDetectionOptions(value: object): boolean {
   const options = exactRecord(value, [
     "scanner",
@@ -587,6 +668,10 @@ function finiteNumber(value: unknown): value is number {
 
 function positiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+}
+
+function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
+  return positiveSafeInteger(value) && value <= maximum;
 }
 
 function nonEmptyString(value: unknown): value is string {

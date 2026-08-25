@@ -84,8 +84,35 @@ Check settle 为 unavailable，不创建并行 quality model。scanner adapter b
   catalog 无需 request；只有 explicit allowlisted HTTPS source 可以 fetch。adapter 不使用 credentials、headers、
   redirects、ambient callback 或 persistent cache；unapproved/unsupported reference 安全失败。
 
-All five defaults and custom callbacks use the same four-state grammar. Check options affect only their own
+All six defaults and custom callbacks use the same four-state grammar. Check options affect only their own
 semantics; aggregation and output presentation do not belong to these options.
+
+
+### Markdown Link findings and outcomes
+
+`markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal issue 恰好报告一个
+Check-local Record，其 reason 只能是 `missing-target`、`target-outside-project-root`、`empty-directory`、
+`anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。有 normal issue 时
+Check 为 `failed`；没有 normal issue 时为 `passed`。
+
+Link Record 标识 source relative path、one-based occurrence ordinal 和 reason。其 data 只能包含 reason、occurrence kind
+（`link` 或 `image`）、slash-normalized root-relative source path、source navigation range 与 safe target descriptor。对
+`same-document`、`project-file`、`project-directory` 或 `project-path` target，descriptor 可携带 root 内 relative path 和
+decode 后 fragment。`project-path` 表示尚未确定 endpoint type，包括缺失的 direct target。`outside-project-root`
+descriptor 不携带 target path 或 fragment。这是在 shared canonical JSON boundary 下的普通 supplemental Record data，
+不是新的 Record family 或 cross-Check catalog。
+
+`passed` 和 `failed` 的 final data 严格为 `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`。
+`occurrenceCount` 包含每一个 parser-semantic occurrence，包括未进入 local target validation 的 occurrence；
+`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。没有 eligible Markdown source 时，Check 以
+`no-eligible-input` 结算为 `not-applicable`。cancellation、source/target read、decode、parser、containment 或 limit
+failure 均为 `unavailable`：它们不带 final data，也绝不能把 partial work 变为 clean result 或 partial Record set。
+其 `unavailable.reason.code` 是共享 four-state grammar 中的受控 public code，且只能是：`cancelled`、
+`project-root-unavailable`、`source-unavailable`、`source-too-large`、`markdown-parse-failed`、
+`invalid-local-destination`、`target-unavailable`、`occurrence-limit-exceeded` 或 `target-read-limit-exceeded`。
+`source-unavailable` 汇总 source collection/read/decode/access failure；`target-unavailable` 汇总 containment probe、
+target I/O/read/decode/parse 与 directory error。code 不得以 raw target path、URL、query/userinfo 或 target content
+代替；resolver private type 与 target detail 不构成 public catalog。
 
 ## Explicit aggregation and repository Gate mapping
 

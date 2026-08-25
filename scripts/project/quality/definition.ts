@@ -1,4 +1,10 @@
-import { defineConfig, duplicateDetection, fileMetrics, functionMetrics } from "vibe-check";
+import {
+  defineConfig,
+  duplicateDetection,
+  fileMetrics,
+  functionMetrics,
+  markdownLinkValidation
+} from "vibe-check";
 
 /** Repository-owned Vibe Check policy. Product code never discovers this file. */
 export default defineConfig({
@@ -23,7 +29,8 @@ export default defineConfig({
           }
         },
         { ...fileMetrics, maxParallel: 1 },
-        functionMetrics
+        functionMetrics,
+        markdownLinkValidation
       ]
     }
   ],

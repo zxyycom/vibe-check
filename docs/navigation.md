@@ -22,7 +22,7 @@
 | 新增或修改测试、fixture、Case 或验证脚本                                                                                                               | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](coding-style.md) | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试                                                  |
 | 恢复、审阅或维护跨任务沿用的长期判断                                                                                                                   | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner                  | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md)                                                   |
 | 创建、恢复、实施、搁置、验收或归档较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`             | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner                                               |
-| 创建、更新或审阅持久调查报告                                                                                                                           | `investigation-report` skill                                                                     | [Investigation Report CLI](script-tooling.md#investigation-report-cli)、目标报告与按需随附资源                              |
+| 创建、更新或审阅持久调查报告                                                                                                                           | `investigation-report` skill                                                                     | [Governance and Test Evidence adapters](script-tooling.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源     |
 
 ## 权威性与状态
 
@@ -50,4 +50,4 @@
 | 大范围重构、发布前或显式全量 Project Gate 验收              | `bun run verify:vibe-check-workspace:full`（显式选择 full profile；当前与 required 共用同一 assurance identity set）             |
 
 验证必须覆盖受影响边界；无法运行的检查及其影响应在交付时明确说明。脚本工具的细分命令见
-[脚本工具](script-tooling.md#验证入口)。
+[脚本工具](script-tooling.md#verification)。

@@ -12,6 +12,7 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit,
   jsonSchemaValidation,
   jsonValidation
@@ -19,7 +20,7 @@ import {
 import { run } from "../run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns four runtime functions, five ordinary built-in values, and minimal type roots", () => {
+  it("owns four runtime functions, six ordinary built-in values, and minimal type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
@@ -33,7 +34,8 @@ describe("public API inventory", () => {
         fileMetrics: "fileMetrics",
         functionMetrics: "functionMetrics",
         jsonSchemaValidation: "jsonSchemaValidation",
-        jsonValidation: "jsonValidation"
+        jsonValidation: "jsonValidation",
+        markdownLinkValidation: "markdownLinkValidation"
       },
       types: {
         check: "Check",
@@ -47,6 +49,7 @@ describe("public API inventory", () => {
         duplicateDetectionOptions: "DuplicateDetectionOptions",
         fileMetricsOptions: "FileMetricsOptions",
         functionMetricsOptions: "FunctionMetricsOptions",
+        markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
         inheritableCheckCollection: "InheritableCheckCollection",
         jsonSchemaValidationOptions: "JsonSchemaValidationOptions",
         jsonValidationOptions: "JsonValidationOptions",
@@ -67,12 +70,14 @@ describe("public API inventory", () => {
     assert.equal(typeof functionMetrics, "object");
     assert.equal(typeof jsonSchemaValidation, "object");
     assert.equal(typeof jsonValidation, "object");
+    assert.equal(typeof markdownLinkValidation, "object");
     for (const builtInCheck of [
       duplicateDetection,
       fileMetrics,
       functionMetrics,
       jsonSchemaValidation,
-      jsonValidation
+      jsonValidation,
+      markdownLinkValidation
     ]) {
       assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
       assert.equal(Object.hasOwn(builtInCheck, "append"), false);

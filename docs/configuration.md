@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, `jsonValidation`, and `jsonSchemaValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, `jsonValidation`, `jsonSchemaValidation`, and `markdownLinkValidation`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -20,7 +20,8 @@ import {
   fileMetrics,
   functionMetrics,
   jsonSchemaValidation,
-  jsonValidation
+  jsonValidation,
+  markdownLinkValidation
 } from "vibe-check";
 
 const licenses = defineCheck({
@@ -48,7 +49,15 @@ export default defineConfig({
       checkId: "repository-quality",
       displayName: "Repository quality",
       maxParallel: 2,
-      checks: [duplicateDetection, fileMetrics, functionMetrics, jsonValidation, jsonSchemaValidation, licenses]
+      checks: [
+        duplicateDetection,
+        fileMetrics,
+        functionMetrics,
+        jsonValidation,
+        jsonSchemaValidation,
+        markdownLinkValidation,
+        licenses
+      ]
     }
   ],
   scheduler: { maxParallel: 4 }
@@ -215,7 +224,7 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The five defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit; `jsonSchemaValidation` owns its explicit registry, bindings, root-identity and reference policy. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The six defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit; `jsonSchemaValidation` owns its explicit registry, bindings, root-identity and reference policy; `markdownLinkValidation` owns its closed local-link validation options. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
 
 | Default                | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
 | ---------------------- | ------------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------------------- |
@@ -224,6 +233,7 @@ The five defaults are complete ordinary `Check` values. The metric defaults own 
 | `functionMetrics`      | `function-metrics`        | `lizard`                                                  | `[]`           | `['--version']`            | —                                       |
 | `jsonValidation`       | `json-validation`         | —                                                         | —              | —                          | `maximumBytes: 1_048_576`               |
 | `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
+| `markdownLinkValidation` | `markdown-link-validation` | —                                                       | —              | —                          | closed local-link options |
 
 `jsonValidation.options` is exactly `{ maximumBytes }`; the value is a positive safe integer and uses the default only on the exported value. Replacing `options` with native object composition must supply that field: Definition validation rejects omission, zero, negative, fractional, unsafe, or unknown values and does not fill an implicit nested default. For every default, Product validates the complete option shape and known duplicate code-area keys where applicable. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
 
@@ -298,6 +308,46 @@ expresses a changed-file delta threshold. `RunControls.changedFiles` remains cal
 default metric option.
 
 For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+
+
+### Markdown Link Validation
+
+`markdownLinkValidation` 是 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
+Markdown occurrence 的本地引用完整性；它不是通用 Markdown syntax、network reachability 或 repository-wide path policy。
+source 与 direct target 的边界由 [Scan Scope](scan-scope.md) 定义；finding 与 four-state result 由
+[Quality Metrics](quality-metrics.md) 定义。
+
+其 closed `options` 均为必填项；完整 default 为：
+
+```ts
+{
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: {
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  }
+}
+```
+
+`requireExistingTargets` 使缺失的 direct regular-file 或 directory target 成为普通 `missing-target` finding；它为
+`false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和
+`validateCrossDocumentAnchors` 分别启用 same-document anchor 与 direct Markdown target anchor lookup。关闭
+cross-document anchor validation 时，direct regular-file target 上的 fragment 不触发 Markdown eligibility 或 heading lookup。
+`requireNonEmptyDirectories` 是独立作用的 directory policy。`rootExternalTargetMode` 严格为
+`"ignore" | "report" | "validate"`；默认 `report` 不读取 root-external target。`limits` 只能包含上面所列的三个
+positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occurrences 或 `10_000` target reads 的上限。
+通过 native composition 替换 `limits` 时必须提供三个字段；Product 不合并缺失 nested field，也不静默提高调用方的 bound。
+
+The metric defaults contain only their documented absolute floors and nested allowances; no default option
+expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
+default metric option.
+
+Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
 
 ## Invocation and results
 

@@ -75,6 +75,13 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
       schemaCount: 1,
       validBindingCount: 1
     });
+    assert.equal(runEvidence.markdownLinkOutcome, "passed");
+    assert.deepEqual(runEvidence.markdownLinkData, {
+      findingCount: 0,
+      occurrenceCount: 1,
+      sourceFileCount: 2,
+      targetReadCount: 1
+    });
     assert.equal(runEvidence.changedFilesCalls, 1);
     assert.deepEqual(runEvidence.changedFilesFromMachine, {
       files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
@@ -94,15 +101,16 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
         message: "Installed candidate terminal message."
       }
     ]);
-    assert.match(runEvidence.humanOutput, /total\s+7\s+checks/i);
+    assert.match(runEvidence.humanOutput, /total\s+8\s+checks/i);
     assert.match(runEvidence.humanOutput, /Checks:/);
-    assert.match(runEvidence.humanOutput, /\[1\/7\].*duplicate detection/i);
-    assert.match(runEvidence.humanOutput, /\[7\/7\].*Installed terminal note/i);
+    assert.match(runEvidence.humanOutput, /\[1\/8\].*duplicate detection/i);
+    assert.match(runEvidence.humanOutput, /\[8\/8\].*Installed terminal note/i);
     assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
     assert.match(runEvidence.humanOutput, /Execution summary:/);
     assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "duplicate-detection");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "json-schema-validation");
+    assertCanonicalExecutedDuration(runEvidence.checkDurations, "markdown-link-validation");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "changed-files");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "first-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "second-changed-files-consumer");
@@ -133,6 +141,12 @@ function writeConsumerFiles(consumerDirectory: string): void {
     "utf8"
   );
   writeFileSync(join(consumerDirectory, "instance.json"), '{"name":"Ada"}\n', "utf8");
+  writeFileSync(
+    join(consumerDirectory, "link-source.md"),
+    "[target](link-target.md#target)\n",
+    "utf8"
+  );
+  writeFileSync(join(consumerDirectory, "link-target.md"), "# Target\n", "utf8");
   for (const sourcePath of packageApiExampleSourcePaths()) {
     const destination = join(consumerDirectory, sourcePath);
     mkdirSync(dirname(destination), { recursive: true });
@@ -300,9 +314,11 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
   firstChangedFilesConsumer: unknown;
   humanOutput: string;
   kind: string;
-  machineSchemaVersion: unknown;
   jsonSchemaData: unknown;
   jsonSchemaOutcome: string | null;
+  markdownLinkData: unknown;
+  markdownLinkOutcome: string | null;
+  machineSchemaVersion: unknown;
   secondChangedFilesConsumer: unknown;
 }> {
   const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
@@ -326,6 +342,10 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
   if (jsonSchemaOutcome !== null && typeof jsonSchemaOutcome !== "string") {
     throw new TypeError("isolated JSON Schema outcome must be a string or null");
   }
+  const markdownLinkOutcome = evidence.markdownLinkOutcome;
+  if (markdownLinkOutcome !== null && typeof markdownLinkOutcome !== "string") {
+    throw new TypeError("isolated Markdown Link outcome must be a string or null");
+  }
   return Object.freeze({
     checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
@@ -340,6 +360,8 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
     machineSchemaVersion: evidence.machineSchemaVersion,
     jsonSchemaData: evidence.jsonSchemaData,
     jsonSchemaOutcome,
+    markdownLinkData: evidence.markdownLinkData,
+    markdownLinkOutcome,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
 }
@@ -458,6 +480,7 @@ function publicImports(): string {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit,
   jsonSchemaValidation,
   jsonValidation,
@@ -529,7 +552,7 @@ const changedFilesConsumer = defineCheck({
 });
 
 const definition: ProjectDefinition = defineConfig({
-  checks: [duplicateDetection, directCheck, changedFiles, changedFilesConsumer]
+  checks: [duplicateDetection, markdownLinkValidation, directCheck, changedFiles, changedFilesConsumer]
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const aggregation: CheckAggregation = {
@@ -590,6 +613,7 @@ void [
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLinkValidation,
   inherit,
   jsonSchemaValidation,
   jsonValidation,
@@ -611,7 +635,15 @@ function runFixture(): string {
   return `import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { defineCheck, defineConfig, duplicateDetection, jsonSchemaValidation, jsonValidation, run } from "vibe-check";
+import {
+  defineCheck,
+  defineConfig,
+  duplicateDetection,
+  jsonSchemaValidation,
+  jsonValidation,
+  markdownLinkValidation,
+  run
+} from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
@@ -707,6 +739,7 @@ const result = await run(
           ]
         }
       },
+      markdownLinkValidation,
       changedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
@@ -725,6 +758,9 @@ const duplicate = result.kind === "completed"
   : undefined;
 const jsonSchemaCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === "json-schema-validation")
+  : undefined;
+const markdownLink = result.kind === "completed"
+  ? result.snapshot.checks.find((check) => check.checkId === "markdown-link-validation")
   : undefined;
 const runChangedFilesCheck = result.kind === "completed"
   ? result.snapshot.checks.find((check) => check.checkId === changedFiles.checkId)
@@ -764,7 +800,9 @@ process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   duplicateData: settledFinalData(duplicate),
   duplicateOutcome: duplicate?.outcome.status ?? null,
   jsonSchemaData: settledFinalData(jsonSchemaCheck),
-  jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null
+  jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
+  markdownLinkData: settledFinalData(markdownLink),
+  markdownLinkOutcome: markdownLink?.outcome.status ?? null
 }));
 `;
 }

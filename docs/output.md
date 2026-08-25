@@ -36,6 +36,14 @@ Core 接受 Check facts 后，projection 不会恢复、解释或脱敏其 busin
 schema/instance/response material、native diagnostic、credential 和 external URI detail 都不得到达这个 generic
 v4 boundary。
 
+对 `markdown-link-validation`，generic Record envelope 只携带其 safe local-reference projection：source-relative
+navigation/range、occurrence kind、safe reason，以及仅在 target 位于 root 内时携带 relative target path 和 decode 后
+fragment。root 内 descriptor 是 `same-document`、`project-file`、`project-directory` 或 `project-path`；最后一种仅表示
+已确定 safe path，尚未确定 endpoint type。其 final data 只携带 source、occurrence、target-read 和 finding count。
+raw destination、query/userinfo、external absolute path、symlink payload、target byte 和 target digest 均不得进入
+Record ID、Record data、final data、message、cache、log 或 published artifact。root 外 finding 不发布 target path 或
+fragment。这一排除是 Check data contract 的一部分；machine format 不重建或保留隐藏的 target representation。
+
 这里的 canonical JSON 是 Product 的**安全结构契约**，不是业务 schema，也不是 JSON bytes 的排版契约。final/Record `data` 的根必须是 non-array plain object；递归只接受 `null`、boolean、string、finite number、dense array 与 plain object。Product 通过 own-property descriptors materialize，不读取 accessor 或调用 `toJSON`；拒绝 accessor、symbol/non-enumerable key、unsupported prototype、cycle、sparse array 与非有限 number，并将 `-0` 规范为 `0`。materialized data 使用 null-prototype container 和 recursive freeze 成为 detached Core fact；需要 canonical text 时才递归按 lexical key order 生成它，而不把 JavaScript own-key enumeration 声明为该顺序。它不验证 required property、业务 union、跨 Check consistency 或敏感值。
 
 ## Core-to-machine projection
