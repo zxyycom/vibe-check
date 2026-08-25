@@ -4,6 +4,13 @@ import {
 } from "../checks/builtins/duplicate-detection.ts";
 import { DEFAULT_JSCPD_COMMAND } from "../checks/measurement/scanners/jscpd/default-command.ts";
 import {
+  MAINTENANCE_REMINDERS_CHECK_ID,
+  maintenanceReminders,
+  validMaintenanceReminderOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions
+} from "../checks/builtins/maintenance-reminders.ts";
+import {
   FILE_METRICS_CHECK_DEFINITION,
   executeFileMetrics
 } from "../checks/builtins/file-metrics.ts";
@@ -54,6 +61,9 @@ export interface FileMetricsOptions {
     }>;
   }>;
 }
+
+export { maintenanceReminders };
+export type { MaintenanceReminder, MaintenanceReminderOptions };
 
 /** `functionMetrics` 的完整 Check-owned options。 */
 export interface FunctionMetricsOptions {
@@ -152,6 +162,7 @@ export function validateDefaultCheckOptions(checkId: string, options: object): b
   if (checkId === "duplicate-detection") return validDuplicateDetectionOptions(options);
   if (checkId === "file-metrics") return validFileMetricsOptions(options);
   if (checkId === "function-metrics") return validFunctionMetricsOptions(options);
+  if (checkId === MAINTENANCE_REMINDERS_CHECK_ID) return validMaintenanceReminderOptions(options);
   return true;
 }
 

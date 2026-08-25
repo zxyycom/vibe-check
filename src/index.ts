@@ -11,6 +11,7 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
   inherit
 } from "./definition/project-definition.ts";
 export type {
@@ -25,6 +26,8 @@ export type {
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions,
+  MaintenanceReminder,
+  MaintenanceReminderOptions,
   InheritableCheckCollection,
   ProjectEffects,
   ProjectDefinition,

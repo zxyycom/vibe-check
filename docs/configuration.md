@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+package 根入口公开 `defineConfig`、`defineCheck`、`inherit`、`maintenanceReminders`、`run` 以及完整的默认值 `duplicateDetection`、`fileMetrics` 和 `functionMetrics`。`maintenanceReminders` 是专用构造函数，不是第四个默认值。仓库自身的 dogfood Definition 位于 [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts)。
 
 ```ts
 import {
@@ -228,6 +228,39 @@ expresses a changed-file delta threshold. `RunControls.changedFiles` remains cal
 default metric option.
 
 Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+
+## 维护提醒
+
+`maintenanceReminders(entries)` 是唯一的专用编写构造函数。它只创建一个普通、可执行的 Check，固定
+`checkId: "maintenance-reminders"`、显示名 `Maintenance reminders` 和
+`visibility: "attention"`。多个条目仅保留在该 Check 的局部最终数据中，不会成为子 Check、Record、依赖、聚合目标、进度行或机器输出行。
+
+每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值仍是普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 都会被 Definition validation 拒绝，Product 不会深度合并默认值。
+
+```ts
+import { defineConfig, maintenanceReminders } from "vibe-check";
+
+// 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
+const maintenance = maintenanceReminders([
+  {
+    id: "documentation-review",
+    baseCommit: "0123456789abcdef0123456789abcdef01234567",
+    limits: { commits: 40, changedLines: 2_000 },
+    message: "Review the documentation structure after this body of change."
+  },
+  {
+    id: "optimization-audit",
+    baseCommit: "89abcdef0123456789abcdef0123456789abcdef",
+    limits: { commits: 80 },
+    message: "Audit optimization quality before this becomes older.",
+    mode: "enforcing"
+  }
+]);
+
+export default defineConfig({ checks: [maintenance] });
+```
+
+完成真实复核后，维护者必须手动将每个条目的 `baseCommit` 替换为对应的完整 commit ID；Product 不会自动推进它。已提交历史的计算、逐条数据、`advisory`/`enforcing` 状态折叠和聚合边界由[质量指标](quality-metrics.md#维护提醒评估)定义。
 
 ## Invocation and results
 

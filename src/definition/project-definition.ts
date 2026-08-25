@@ -4,9 +4,12 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
   type DuplicateDetectionOptions,
   type FileMetricsOptions,
-  type FunctionMetricsOptions
+  type FunctionMetricsOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions
 } from "./default-checks.ts";
 import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
@@ -35,6 +38,7 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
   inherit,
   type Check,
   type CheckExecution,
@@ -46,6 +50,8 @@ export {
   type FileMetricsOptions,
   type InheritableCheckCollection,
   type FunctionMetricsOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions,
   type ProjectQualityConfiguration
 };
 

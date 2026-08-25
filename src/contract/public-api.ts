@@ -5,6 +5,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
     inherit: "inherit",
+    maintenanceReminders: "maintenanceReminders",
     run: "run"
   }),
   values: Object.freeze({
@@ -25,6 +26,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     fileMetricsOptions: "FileMetricsOptions",
     functionMetricsOptions: "FunctionMetricsOptions",
     inheritableCheckCollection: "InheritableCheckCollection",
+    maintenanceReminder: "MaintenanceReminder",
+    maintenanceReminderOptions: "MaintenanceReminderOptions",
     projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",
     projectQualityConfiguration: "ProjectQualityConfiguration",

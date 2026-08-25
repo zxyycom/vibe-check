@@ -1,6 +1,6 @@
 ---
 title: 在首次公开发布前完成选定的首版 Checks
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-24T10:06:12Z
 purpose: 让首次公开 package 同时交付确定性格式检查与低样板的维护提醒能力。

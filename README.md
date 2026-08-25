@@ -49,6 +49,45 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 
 `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是完整的默认 Check 值。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
 
+## 维护提醒
+
+`maintenanceReminders(entries)` 是唯一的专用构造函数，而不是第四个默认 Check 值。它固定创建 ID 为 `maintenance-reminders` 的注意型 Check；多个条目仅保存在该 Check 按声明顺序排列的最终数据中，绝不会成为子 Check、Record 或单条聚合目标。每个条目都需要唯一的小写短横线命名 `id`、作为已复核基线的完整 40 或 64 位十六进制 `baseCommit`、至少一个正的 `commits` 或 `changedLines` 上限、非空 `message`，以及可省略的 `advisory` 或 `enforcing` `mode`。维护者在真实复核后手动更新基线；Product 只测量已提交的 `first-parent` 历史，不读取工作区或暂存区，也不会自动推进基线。
+
+条目到期或无法测量时，默认 `advisory` 仍返回 `passed` 和完整最终数据，并附加警告；`enforcing` 保留相同数据、附加错误并使所属 Check `failed`。只有 callback 无法形成完整、可信的条目评估数据时，整个 Check 才会 `unavailable`。需要阻断进程时，调用方仍须在 `RunControls.checkAggregation` 中显式选择 `maintenance-reminders`。
+
+```ts
+import { defineConfig, maintenanceReminders, run } from "vibe-check";
+
+// 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
+const maintenance = maintenanceReminders([
+  {
+    id: "documentation-review",
+    baseCommit: "0123456789abcdef0123456789abcdef01234567",
+    limits: { commits: 40, changedLines: 2_000 },
+    message: "Review the documentation structure after this body of change."
+  },
+  {
+    id: "optimization-audit",
+    baseCommit: "89abcdef0123456789abcdef0123456789abcdef",
+    limits: { commits: 80 },
+    message: "Audit optimization quality before this becomes older.",
+    mode: "enforcing"
+  }
+]);
+
+const definition = defineConfig({
+  checks: [maintenance],
+  effects: {
+    cache: { enabled: false },
+    output: { enabled: false },
+    progress: { enabled: false }
+  }
+});
+
+const result = await run(definition);
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+```
+
 ## 自定义 Check、Records 与 messages
 
 `defineCheck` 只改善 TypeScript inference；Definition validation 仍在 `run` 的边界关闭声明式 data。每个可执行 Check 返回恰好一个 terminal result：`passed`/`failed` 带对象 final data，`not-applicable`/`unavailable` 以 reason 表示没有 final data 的边界。`records.report({ id }, data)` 追加 supplemental Record；有序 `messages` 是补充 detail，`visibility: "attention"` 只影响人读 progress，二者都不改变 terminal status。

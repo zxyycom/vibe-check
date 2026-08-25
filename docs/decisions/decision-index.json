@@ -16,7 +16,8 @@
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
-      "complete-first-release-check-set-before-publication.md": "sha256:a02da0b562c86350011236395e484871dcac868d5289d88e3fa2e354a0750e76",
+      "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
+      "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:e2ea59616a6e3fd37aedfe7aea5ddc9afec208de9bc4ce62590c309d26648551",
       "complete-project-gate-before-public-package-release.md": "sha256:2d197c8559b62f2ff33d802a6f200e761695c39dc3b5306ad3dd82084a63e155",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
@@ -46,7 +47,7 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
-      "expose-minimal-check-and-run-public-surface.md": "sha256:0f1ec0fe0279cbff48da73431d98d8d74af56dc9688b38494c9ce50f854b4164",
+      "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
       "expose-ordinary-check-values-with-define-check.md": "sha256:a87ca566f1eaf26f512b6534b5da5b974238f1ccc78f542cc16b63ff560d9187",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
@@ -126,7 +127,7 @@
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
-      "use-native-object-composition-for-check-customization.md": "sha256:8e042657d9a6a039de6b1ad2f1cdc1b50654cba352e1e20caab2aaf710316b1a",
+      "use-native-object-composition-for-check-customization.md": "sha256:a93b1a592b6f6e073a1ec5c6ddadaf8da986f1d91f4f8c5f70c9dadcaf0486a4",
       "use-native-test-evidence-catalog.md": "sha256:7d4528a424d7754a958bfc91c902072de129d5778eba506d278b66a3cdcce6c6",
       "use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:c32c3acb2f66e66d0047debd2c5c23405ba126a0f82318c30dffb7c269dd0173",
       "use-neutral-observation-and-project-definition-gates.md": "sha256:d93bc71047c86e7c78480e27b55ba9c87b3fbd8aa4d0c6a991c43dc79cb00e38",
@@ -505,16 +506,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "complete-first-release-check-set-before-publication.md",
+        "sourcePath": "archive/complete-first-release-check-set-before-publication.md",
         "title": "在首次公开发布前完成选定的首版 Checks",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-24T10:06:12Z",
         "purpose": "让首次公开 package 同时交付确定性格式检查与低样板的维护提醒能力。",
@@ -525,6 +526,50 @@
           "product-priority"
         ],
         "relations": []
+      }
+    },
+    "complete-first-release-check-set-with-specialized-maintenance-reminder.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "complete-first-release-check-set-with-specialized-maintenance-reminder.md",
+        "title": "以专用构造函数完成首版维护提醒",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-24T13:52:31Z",
+        "purpose": "让首版在不增加通用派生模型的前提下，以低样板方式提供可见且可选阻断的维护提醒。",
+        "background": "用户确认 `maintenanceReminders(entries)`、单一 Check、默认提醒和可选阻断；这些方向修订了现有发布、最小 surface 与默认 Check 组合判断。",
+        "decision": "首版以 `maintenanceReminders(entries)` 构造单一 Check，采用 entry-local advisory/enforcing 结论。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "complete-first-release-check-set-before-publication.md"
+          },
+          {
+            "type": "归并",
+            "target": "expose-minimal-check-and-run-public-surface.md"
+          },
+          {
+            "type": "归并",
+            "target": "use-native-object-composition-for-check-customization.md"
+          }
+        ]
       }
     },
     "complete-project-gate-before-public-package-release.md": {
@@ -1412,16 +1457,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "expose-minimal-check-and-run-public-surface.md",
+        "sourcePath": "archive/expose-minimal-check-and-run-public-surface.md",
         "title": "公开最小 Check authoring 与 Run surface",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-21T15:02:47Z",
         "purpose": "让 package 公开唯一递归 Check/Run model 和实际 consumer 所需 roots，不再导出已退休 evaluation 或 Record catalog surface。",
@@ -3817,16 +3862,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-native-object-composition-for-check-customization.md",
+        "sourcePath": "archive/use-native-object-composition-for-check-customization.md",
         "title": "使用原生对象组合自定义 Check",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T09:18:05Z",
         "purpose": "让项目直接用 TypeScript 对象展开、解构和数组操作修改 Product 默认 Check，而不维护产品专属调整 API。",

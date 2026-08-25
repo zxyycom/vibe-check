@@ -163,3 +163,17 @@ Entities:
 - `bun|src/checks/measurement/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
   Proves:
 - Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or presentation settings. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.
+
+## Case WB-MAINTENANCE-REMINDER-ASSESSMENT-001: One maintenance Check retains complete local Git assessments
+
+Owner: `docs/quality-metrics.md#维护提醒评估`
+Entities:
+
+- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`
+- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > uses first-parent merge diffs, reverts, binary and rename activity`
+- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
+- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
+- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
+  Proves:
+- One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
+- Every measurable entry retains an ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable because no complete payload is formed.

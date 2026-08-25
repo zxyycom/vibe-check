@@ -41,7 +41,7 @@ describe("package artifact", () => {
       assertReadableRuntimeLayout(artifact.stagingDirectory);
       assert.equal(
         declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","run"]'
+        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","maintenanceReminders","run"]'
       );
       assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
         "csv-parse": "7.0.1",
@@ -83,6 +83,15 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
     ),
     true,
     "emitted defineCheck declaration is missing its generated @example"
+  );
+  assert.equal(
+    declarations.some(
+      (source) =>
+        source.includes("@example 创建一个单一 Check 的维护提醒") &&
+        /export declare function maintenanceReminders\b/.test(source)
+    ),
+    true,
+    "emitted maintenanceReminders declaration is missing its generated @example"
   );
 }
 

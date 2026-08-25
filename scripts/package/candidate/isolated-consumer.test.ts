@@ -426,6 +426,7 @@ function publicImports(): string {
   fileMetrics,
   functionMetrics,
   inherit,
+  maintenanceReminders,
   run,
 ${typeImports}
 } from "vibe-check";
@@ -497,6 +498,14 @@ const definition: ProjectDefinition = defineConfig({
   checks: [duplicateDetection, directCheck, changedFiles, changedFilesConsumer]
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
+const reminder = maintenanceReminders([
+  {
+    id: "isolated-maintenance-reminder",
+    baseCommit: "0000000000000000000000000000000000000000",
+    limits: { commits: 1 },
+    message: "Review isolated consumer maintenance."
+  }
+]);
 const aggregation: CheckAggregation = {
   checks: [directCheck.checkId],
   empty: "failed",
@@ -556,6 +565,7 @@ void [
   fileMetrics,
   functionMetrics,
   inherit,
+  maintenanceReminders,
   run,
   aggregation,
   attentionCheck,
@@ -565,6 +575,7 @@ void [
   changedFilesConsumer,
   inheritedCheckIds,
   observeFinalDurations,
+  reminder,
   result
 ];
 `;

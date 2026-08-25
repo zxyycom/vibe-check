@@ -1,26 +1,14 @@
 import assert from "node:assert/strict";
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { runPackageApiDocumentationCli } from "./command.ts";
-import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "./registry.ts";
-
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
 describe("package API documentation CLI", () => {
   it("writes expected projections and detects stale output through --check", () => {
-    const fixtureRoot = createDocumentationFixture();
+    const fixtureRoot = createPackageApiDocumentationFixture();
     try {
       const stale = runPackageApiDocumentationCli(["--check"], { repositoryRoot: fixtureRoot });
       assert.equal(stale.exitCode, 1);
@@ -77,27 +65,3 @@ describe("package API documentation CLI", () => {
     }
   });
 });
-
-function createDocumentationFixture(): string {
-  const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-api-docs-cli-"));
-  copyFixtureFile(fixtureRoot, "docs/package-readme.template.md");
-  for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
-    copyFixtureFile(fixtureRoot, projection.sourcePath);
-  }
-  const sourcePath = join(fixtureRoot, "src/definition/custom-check.ts");
-  mkdirSync(dirname(sourcePath), { recursive: true });
-  writeFileSync(
-    sourcePath,
-    ["/**", " * Defines a Check.", " */", "export function defineCheck() { return {}; }", ""].join(
-      "\n"
-    ),
-    "utf8"
-  );
-  return fixtureRoot;
-}
-
-function copyFixtureFile(fixtureRoot: string, repositoryPath: string): void {
-  const destination = join(fixtureRoot, repositoryPath);
-  mkdirSync(dirname(destination), { recursive: true });
-  copyFileSync(join(repositoryRoot, repositoryPath), destination);
-}
