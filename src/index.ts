@@ -11,7 +11,11 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  inherit
+  maintenanceReminders,
+  inherit,
+  jsonSchemaValidation,
+  jsonValidation,
+  markdownLinkValidation
 } from "./definition/project-definition.ts";
 export type {
   Check,
@@ -25,7 +29,12 @@ export type {
   DuplicateDetectionOptions,
   FileMetricsOptions,
   FunctionMetricsOptions,
+  MaintenanceReminder,
+  MaintenanceReminderOptions,
+  MarkdownLinkValidationOptions,
   InheritableCheckCollection,
+  JsonSchemaValidationOptions,
+  JsonValidationOptions,
   ProjectEffects,
   ProjectDefinition,
   ProjectQualityConfiguration,

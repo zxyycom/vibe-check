@@ -4,9 +4,18 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
+  jsonSchemaValidation,
+  markdownLinkValidation,
+  jsonValidation,
   type DuplicateDetectionOptions,
   type FileMetricsOptions,
-  type FunctionMetricsOptions
+  type FunctionMetricsOptions,
+  type MarkdownLinkValidationOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions,
+  type JsonSchemaValidationOptions,
+  type JsonValidationOptions
 } from "./default-checks.ts";
 import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
@@ -35,7 +44,11 @@ export {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  maintenanceReminders,
+  markdownLinkValidation,
   inherit,
+  jsonSchemaValidation,
+  jsonValidation,
   type Check,
   type CheckExecution,
   type CheckExecutionContext,
@@ -46,6 +59,11 @@ export {
   type FileMetricsOptions,
   type InheritableCheckCollection,
   type FunctionMetricsOptions,
+  type MarkdownLinkValidationOptions,
+  type MaintenanceReminder,
+  type MaintenanceReminderOptions,
+  type JsonSchemaValidationOptions,
+  type JsonValidationOptions,
   type ProjectQualityConfiguration
 };
 

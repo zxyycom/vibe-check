@@ -10,7 +10,7 @@ publication setting.
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, and `functionMetrics`. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+The package surface is `defineConfig`, `defineCheck`, `inherit`, `maintenanceReminders`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, `jsonValidation`, `jsonSchemaValidation`, and `markdownLinkValidation`. `maintenanceReminders` is a specialized constructor, not a seventh default value. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
 
 ```ts
 import {
@@ -18,7 +18,10 @@ import {
   defineConfig,
   duplicateDetection,
   fileMetrics,
-  functionMetrics
+  functionMetrics,
+  jsonSchemaValidation,
+  jsonValidation,
+  markdownLinkValidation
 } from "vibe-check";
 
 const licenses = defineCheck({
@@ -46,7 +49,15 @@ export default defineConfig({
       checkId: "repository-quality",
       displayName: "Repository quality",
       maxParallel: 2,
-      checks: [duplicateDetection, fileMetrics, functionMetrics, licenses]
+      checks: [
+        duplicateDetection,
+        fileMetrics,
+        functionMetrics,
+        jsonValidation,
+        jsonSchemaValidation,
+        markdownLinkValidation,
+        licenses
+      ]
     }
   ],
   scheduler: { maxParallel: 4 }
@@ -213,21 +224,163 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Defaults and native composition
 
-The three defaults are complete ordinary `Check` values. Their scanner executable, command args, availability args, and (for duplication) backend concurrency are all Check-owned `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The six defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit; `jsonSchemaValidation` owns its explicit registry, bindings, root-identity and reference policy; `markdownLinkValidation` owns its closed local-link validation options. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
 
-| Default              | Check ID              | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional scanner option   |
-| -------------------- | --------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------- |
-| `duplicateDetection` | `duplicate-detection` | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4` |
-| `fileMetrics`        | `file-metrics`        | `scc`                                                     | `[]`           | `['--version']`            | —                           |
-| `functionMetrics`    | `function-metrics`    | `lizard`                                                  | `[]`           | `['--version']`            | —                           |
+| Default                | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
+| ---------------------- | ------------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------------------- |
+| `duplicateDetection`   | `duplicate-detection`     | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4`             |
+| `fileMetrics`          | `file-metrics`            | `scc`                                                     | `[]`           | `['--version']`            | —                                       |
+| `functionMetrics`      | `function-metrics`        | `lizard`                                                  | `[]`           | `['--version']`            | —                                       |
+| `jsonValidation`       | `json-validation`         | —                                                         | —              | —                          | `maximumBytes: 1_048_576`               |
+| `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
+| `markdownLinkValidation` | `markdown-link-validation` | —                                                       | —              | —                          | closed local-link options |
 
-For these defaults, Product validates the complete option shape and known duplicate code-area keys. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+`jsonValidation.options` is exactly `{ maximumBytes }`; the value is a positive safe integer and uses the default only on the exported value. Replacing `options` with native object composition must supply that field: Definition validation rejects omission, zero, negative, fractional, unsafe, or unknown values and does not fill an implicit nested default. For every default, Product validates the complete option shape and known duplicate code-area keys where applicable. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+
+### `jsonSchemaValidation` option contract
+
+The exported `jsonSchemaValidation.options` value is exactly:
+
+```ts
+{
+  maximumBytes: 1_048_576,
+  schemaIdentity: { mode: "require-match" },
+  referenceResolution: { mode: "offline" },
+  schemas: [],
+  bindings: []
+}
+```
+
+All option branches and arrays are closed and dense. `schemas` contains `{ id, path }` records; `bindings` contains
+`{ id, instancePath, schemaId }` records. Schema IDs and HTTPS source IDs are safe absolute `https:` or `urn:`
+identifiers without userinfo, query, or fragment. Binding IDs are safe labels. Schema and instance paths are
+normalized, project-relative, lowercase-`.json` paths.
+
+Schema IDs are unique within `schemas`; HTTPS source IDs are unique within `sources`; binding IDs, schema paths,
+and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. Before callback
+work, Definition validation rejects unknown fields, sparse arrays, malformed paths or IDs, an unknown binding
+schema, duplicate entries, an incomplete branch, or a non-positive byte limit.
+
+#### Root identity
+
+`schemaIdentity` is one Check-level choice, never a per-schema toggle:
+
+| Mode | Root requirement and engine identity |
+| --- | --- |
+| `require-match` (default) | Root `$id` must equal `schemas[].id`; that configured ID is the engine identity. |
+| `configuration-authoritative` | The configured schema ID is the engine identity. An object root receives a private compile copy with that `$id`; a boolean root uses the configured identity directly. |
+| `document-authoritative` | Root `$id` must be safe and becomes the engine identity. The configured schema ID remains the public binding and Record label. |
+
+#### Reference policy
+
+`referenceResolution: { mode: "offline" }` makes no network request and still permits the package-fixed JSON Schema
+2020-12 catalog. Only the allowlisted branch admits extra references:
+
+```ts
+{
+  mode: "allowlisted",
+  sources: [
+    { kind: "bundled", catalog: "json-schema-2020-12" },
+    {
+      kind: "https",
+      id: "urn:example:schema-source",
+      origin: "https://schemas.example.test",
+      pathPrefix: "/catalog/"
+    }
+  ]
+}
+```
+
+An HTTPS source has an exact HTTPS origin and normalized absolute path prefix. No headers, credentials, redirects,
+environment registry, generic callback loader, or ambient network policy is accepted. The Check still reads only
+its declared scope-approved local files; remote settlement is owned by
+[Quality Metrics](quality-metrics.md#direct-defaults-and-exact-inputs).
+
+#### First-release compatibility boundary
+
+The first release treats JSON Schema `format` as a 2020-12 annotation and does not install or load a format
+assertion plugin. Ajv `$async` schemas and `$dynamicRef`/`$recursiveRef` are closed schema-compile failures. This
+policy applies only at actual schema positions: a JSON instance property literally named `$ref`, `$dynamicRef`, or
+`$async` remains ordinary instance data.
+
+The metric defaults contain only their documented absolute floors and nested allowances; no default option
+expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
+default metric option.
+
+For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+
+
+### Markdown Link Validation
+
+`markdownLinkValidation` 是 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
+Markdown occurrence 的本地引用完整性；它不是通用 Markdown syntax、network reachability 或 repository-wide path policy。
+source 与 direct target 的边界由 [Scan Scope](scan-scope.md) 定义；finding 与 four-state result 由
+[Quality Metrics](quality-metrics.md) 定义。
+
+其 closed `options` 均为必填项；完整 default 为：
+
+```ts
+{
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: {
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  }
+}
+```
+
+`requireExistingTargets` 使缺失的 direct regular-file 或 directory target 成为普通 `missing-target` finding；它为
+`false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和
+`validateCrossDocumentAnchors` 分别启用 same-document anchor 与 direct Markdown target anchor lookup。关闭
+cross-document anchor validation 时，direct regular-file target 上的 fragment 不触发 Markdown eligibility 或 heading lookup。
+`requireNonEmptyDirectories` 是独立作用的 directory policy。`rootExternalTargetMode` 严格为
+`"ignore" | "report" | "validate"`；默认 `report` 不读取 root-external target。`limits` 只能包含上面所列的三个
+positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occurrences 或 `10_000` target reads 的上限。
+通过 native composition 替换 `limits` 时必须提供三个字段；Product 不合并缺失 nested field，也不静默提高调用方的 bound。
 
 The metric defaults contain only their documented absolute floors and nested allowances; no default option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
 default metric option.
 
 Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+
+## 维护提醒
+
+`maintenanceReminders(entries)` 是唯一的专用编写构造函数。它只创建一个普通、可执行的 Check，固定
+`checkId: "maintenance-reminders"`、显示名 `Maintenance reminders` 和
+`visibility: "attention"`。多个条目仅保留在该 Check 的局部最终数据中，不会成为子 Check、Record、依赖、聚合目标、进度行或机器输出行。
+
+每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值仍是普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 都会被 Definition validation 拒绝，Product 不会深度合并默认值。
+
+```ts
+import { defineConfig, maintenanceReminders } from "vibe-check";
+
+// 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
+const maintenance = maintenanceReminders([
+  {
+    id: "documentation-review",
+    baseCommit: "0123456789abcdef0123456789abcdef01234567",
+    limits: { commits: 40, changedLines: 2_000 },
+    message: "Review the documentation structure after this body of change."
+  },
+  {
+    id: "optimization-audit",
+    baseCommit: "89abcdef0123456789abcdef0123456789abcdef",
+    limits: { commits: 80 },
+    message: "Audit optimization quality before this becomes older.",
+    mode: "enforcing"
+  }
+]);
+
+export default defineConfig({ checks: [maintenance] });
+```
+
+完成真实复核后，维护者必须手动将每个条目的 `baseCommit` 替换为对应的完整 commit ID；Product 不会自动推进它。已提交历史的计算、逐条数据、`advisory`/`enforcing` 状态折叠和聚合边界由[质量指标](quality-metrics.md#维护提醒评估)定义。
 
 ## Invocation and results
 

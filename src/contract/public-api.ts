@@ -5,12 +5,16 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
     inherit: "inherit",
+    maintenanceReminders: "maintenanceReminders",
     run: "run"
   }),
   values: Object.freeze({
     duplicateDetection: "duplicateDetection",
     fileMetrics: "fileMetrics",
-    functionMetrics: "functionMetrics"
+    functionMetrics: "functionMetrics",
+    jsonSchemaValidation: "jsonSchemaValidation",
+    jsonValidation: "jsonValidation",
+    markdownLinkValidation: "markdownLinkValidation"
   }),
   types: Object.freeze({
     check: "Check",
@@ -24,7 +28,12 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     duplicateDetectionOptions: "DuplicateDetectionOptions",
     fileMetricsOptions: "FileMetricsOptions",
     functionMetricsOptions: "FunctionMetricsOptions",
+    maintenanceReminder: "MaintenanceReminder",
+    maintenanceReminderOptions: "MaintenanceReminderOptions",
+    markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
     inheritableCheckCollection: "InheritableCheckCollection",
+    jsonSchemaValidationOptions: "JsonSchemaValidationOptions",
+    jsonValidationOptions: "JsonValidationOptions",
     projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",
     projectQualityConfiguration: "ProjectQualityConfiguration",

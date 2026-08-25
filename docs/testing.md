@@ -12,6 +12,12 @@
 | Repository tooling | `scripts/**` 的共置 tests：foundation、docs/package API、validation、package artifact/candidate、Project quality/Gate 与 Test Evidence behavior。 |
 | Consumer and dogfood | `scripts/project/**` private consumer 证明 exact candidate import、repository Definition/Run binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。 |
 
+## 测试所有权
+
+行为 owner 决定当前能力是否需要新增、修改或删除直接测试；Change、历史材料或已有 Case 本身不自动产生测试义务。测试
+只有在能观察 owner 承诺的结果时才进入 current test surface 与 Case 账本；无法以稳定自动化方式证明的边界在 owner
+验证说明或 Change 审查中记录为 `Manual CR:`，不创建名义 Case。
+
 ## Case 账本
 
 `docs/testing/cases/**` 是 current semantic catalog。每个 Case 命名 stable owner、current Bun test entity 和可证伪的

@@ -12,24 +12,32 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
-  inherit
+  markdownLinkValidation,
+  inherit,
+  maintenanceReminders,
+  jsonSchemaValidation,
+  jsonValidation
 } from "../definition/project-definition.ts";
 import { run } from "../run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns four runtime functions, three ordinary built-in values, and minimal type roots", () => {
+  it("owns five runtime functions, six ordinary built-in values, and minimal type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
         defineCheck: "defineCheck",
         defineConfig: "defineConfig",
         inherit: "inherit",
+        maintenanceReminders: "maintenanceReminders",
         run: "run"
       },
       values: {
         duplicateDetection: "duplicateDetection",
         fileMetrics: "fileMetrics",
-        functionMetrics: "functionMetrics"
+        functionMetrics: "functionMetrics",
+        jsonSchemaValidation: "jsonSchemaValidation",
+        jsonValidation: "jsonValidation",
+        markdownLinkValidation: "markdownLinkValidation"
       },
       types: {
         check: "Check",
@@ -43,7 +51,12 @@ describe("public API inventory", () => {
         duplicateDetectionOptions: "DuplicateDetectionOptions",
         fileMetricsOptions: "FileMetricsOptions",
         functionMetricsOptions: "FunctionMetricsOptions",
+        maintenanceReminder: "MaintenanceReminder",
+        maintenanceReminderOptions: "MaintenanceReminderOptions",
+        markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
         inheritableCheckCollection: "InheritableCheckCollection",
+        jsonSchemaValidationOptions: "JsonSchemaValidationOptions",
+        jsonValidationOptions: "JsonValidationOptions",
         projectEffects: "ProjectEffects",
         projectDefinition: "ProjectDefinition",
         projectQualityConfiguration: "ProjectQualityConfiguration",
@@ -55,11 +68,25 @@ describe("public API inventory", () => {
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
     assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
+    assert.equal(
+      maintenanceReminders.name,
+      CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
+    );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
     assert.equal(typeof duplicateDetection, "object");
     assert.equal(typeof fileMetrics, "object");
     assert.equal(typeof functionMetrics, "object");
-    for (const builtInCheck of [duplicateDetection, fileMetrics, functionMetrics]) {
+    assert.equal(typeof jsonSchemaValidation, "object");
+    assert.equal(typeof jsonValidation, "object");
+    assert.equal(typeof markdownLinkValidation, "object");
+    for (const builtInCheck of [
+      duplicateDetection,
+      fileMetrics,
+      functionMetrics,
+      jsonSchemaValidation,
+      jsonValidation,
+      markdownLinkValidation
+    ]) {
       assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
       assert.equal(Object.hasOwn(builtInCheck, "append"), false);
     }

@@ -7,7 +7,7 @@
 当前事实由稳定 owner 定义：
 
 - [`docs/architecture.md`](../../docs/architecture.md#execution-boundary) 规定 Product 在 execution owner 中取得 Check duration、交给 private lifecycle feedback 与 final-snapshot `RunResult.checkDurations`；详细 process output 留在 project-owned logs，不与 Product progress stream 穿插。
-- [`docs/output.md`](../../docs/output.md#publication-lifecycle-and-evidence) 与 [`docs/output.md`](../../docs/output.md#readable-output-and-annotation) 规定 `RunResult` 承载运行/effect 状态，machine v3 artifact 不承载 effect status 或 per-Check timing；Product progress 是人读投影。
+- [`docs/output.md`](../../docs/output.md#publication-lifecycle-and-trust-boundary) 与 [`docs/output.md`](../../docs/output.md#progress-and-presentation-boundaries) 规定 `RunResult` 承载运行/effect 状态，machine v3 artifact 不承载 effect status 或 per-Check timing；Product progress 是人读投影。
 - [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) 规定 Project Gate 在 candidate identity 校验后创建 `.log/project-gate/<unique>/`，每个实际启动并到达 transcript 边界的 eligible Check 写入独立 transcript；Product-owned progress 是唯一 shared progress stream。准备、导入或 identity 校验失败不创建 invocation log。
 
 当前 Gate transcript 记录 Check/command、stdout、stderr、exit status、signal 与安全 error summary。只有真正启动并到达 transcript 写入步骤的 Check 有该文件；profile/tag `not-applicable` 与启动前取消不产生 transcript。一个 nonzero process exit 以不复制 child output 的 failure Record 引用其 log filename；transcript 写入失败映射为 Check unavailable。

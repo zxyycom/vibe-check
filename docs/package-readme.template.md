@@ -24,7 +24,54 @@ Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象
 
 ## 默认 Check、组合与继承
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是完整的默认 Check 值。普通对象组合可以替换 display name、options 或 scheduling fields；递归 `checks` 形成编写树。直接提供 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是完整的默认 Check 值。`jsonValidation` 只检查当前项目 global `quality` scope 已包含且以小写 `.json` 结尾的 paths；其 `options` 必须恰为 `{ maximumBytes }`，导出的默认值为 `1_048_576`。
+
+### `jsonSchemaValidation` 的配置边界
+
+`jsonSchemaValidation` 不会自动发现 schema 或遍历所有 JSON。项目必须以 closed `schemas` registry 与
+`bindings` 指定 scope-approved path；没有 binding 时，这个 Check 是 `not-applicable`。导出值的默认
+`options` 逐项如下：
+
+| `options` branch | 默认值 |
+| --- | --- |
+| `maximumBytes` | `1_048_576` |
+| `schemaIdentity` | `{ mode: "require-match" }` |
+| `referenceResolution` | `{ mode: "offline" }` |
+| `schemas` | `[]` |
+| `bindings` | `[]` |
+
+`schemas` 的每项是 `{ id, path }`，`bindings` 的每项是 `{ id, instancePath, schemaId }`。两者都是 closed
+dense arrays；每个 binding 只能引用已声明 schema，且 configuration validation 会拒绝遗漏、未知或重复的
+branch、ID 与 path。`schemaIdentity` 是整个 Check 的一项选择：
+
+| Mode | Root 与 engine identity |
+| --- | --- |
+| `require-match`（默认） | root `$id` 必须与 configured schema ID 相同。 |
+| `configuration-authoritative` | configured schema ID 是 engine identity；object root 会在 private compile copy 中覆盖 `$id`，boolean root 直接使用该 ID。 |
+| `document-authoritative` | safe root `$id` 是 engine identity；configured schema ID 仍是 binding/Record label。 |
+
+默认模式不会发起网络 request。只有 `referenceResolution: { mode: "allowlisted", sources }` 中精确声明的 HTTPS
+origin/path prefix 才能提供额外 `$ref`；adapter 不使用 credentials、headers、redirect 或任意 resolver callback。
+allowlisted `sources` 只能使用 `{ kind: "bundled", catalog: "json-schema-2020-12" }` 或
+`{ kind: "https", id, origin, pathPrefix }`；后者的 `origin` 与 `pathPrefix` 必须精确匹配。package-fixed JSON
+Schema 2020-12 catalog 不需要 request。首版把 `format` 视为 2020-12 annotation，不安装 format assertion plugin；
+Ajv `$async` schema 与 `$dynamicRef`/`$recursiveRef` 会安全失败。
+
+`markdownLinkValidation` 只校验受支持 Markdown occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。installed `MarkdownLinkValidationOptions` 的 JSDoc 说明 option field；在仓库工作区，Configuration 拥有完整 default 与 validation，Scan Scope 拥有 source/direct-target boundary，Quality Metrics 拥有 finding/final data，Output 拥有 Record projection。
+
+<!-- package-api-example:markdown-link-validation -->
+
+通过对象组合替换任一 default 的 `options` branch 时，必须提供完整 closed shape；Definition validation 不会填充
+遗漏 branch。普通对象组合还可以替换 display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供
+`dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
+
+## 维护提醒
+
+`maintenanceReminders(entries)` 是唯一的专用构造函数，而不是另一个无参默认 Check 值。它固定创建 ID 为 `maintenance-reminders` 的注意型 Check；多个条目仅保存在该 Check 按声明顺序排列的最终数据中，绝不会成为子 Check、Record 或单条聚合目标。每个条目都需要唯一的小写短横线命名 `id`、作为已复核基线的完整 40 或 64 位十六进制 `baseCommit`、至少一个正的 `commits` 或 `changedLines` 上限、非空 `message`，以及可省略的 `advisory` 或 `enforcing` `mode`。维护者在真实复核后手动更新基线；Product 只测量已提交的 `first-parent` 历史，不读取工作区或暂存区，也不会自动推进基线。
+
+条目到期或无法测量时，默认 `advisory` 仍返回 `passed` 和完整最终数据，并附加警告；`enforcing` 保留相同数据、附加错误并使所属 Check `failed`。只有 callback 无法形成完整、可信的条目评估数据时，整个 Check 才会 `unavailable`。需要阻断进程时，调用方仍须在 `RunControls.checkAggregation` 中显式选择 `maintenance-reminders`。
+
+<!-- package-api-example:maintenance-reminders -->
 
 ## 自定义 Check、Records 与 messages
 

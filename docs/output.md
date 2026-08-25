@@ -15,6 +15,11 @@ Package Run、Core、progress 与 repository process adapters 不复制 machine 
 
 `run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、effect status、execution timing、terminal messages、visibility 和人读内容不是 machine publication fields。
 
+### 维护提醒评估数据
+
+`maintenanceReminders(entries)` 仍只投影一个普通的 `maintenance-reminders` Check 行。其 `passed` 或
+`failed` 结果的通用最终 `data.entries` 承载按声明顺序排列的局部评估；条目不会成为机器 Check 行或补充 Record。到期或不可测量时的终态提示仅保留在 progress 与 `RunResult.checkMessages`，因此既不会进入 `run.json`，也不会进入 `records.ndjson`。评估的测量方式和状态折叠见[质量指标](quality-metrics.md#维护提醒评估)。
+
 Output effect 只创建这两个 canonical paths 及其短暂的 owned temp files；artifact directory 不包含
 scanner-private material。
 
@@ -30,6 +35,19 @@ scanner-private material。
 ```
 
 `id` 只在 owning Check 内唯一；不同 Checks 可以使用同一 `id`。Record presence、count 或 `data` 不决定 Check terminal status。final `data` 是该 Check 的主事实；Records 是补充事实。完整 field/nullability/enums 只见 [run schema](schemas/vibe-check-run.schema.json) 与 [record schema](schemas/vibe-check-record.schema.json)。
+
+Core 接受 Check facts 后，projection 不会恢复、解释或脱敏其 business diagnostics。特别是
+`json-schema-validation` 必须只提交其 owner 已批准的 safe ID、path、closed reason、pointer 与 keyword；raw
+schema/instance/response material、native diagnostic、credential 和 external URI detail 都不得到达这个 generic
+v4 boundary。
+
+对 `markdown-link-validation`，generic Record envelope 只携带其 safe local-reference projection：source-relative
+navigation/range、occurrence kind、safe reason，以及仅在 target 位于 root 内时携带 relative target path 和 decode 后
+fragment。root 内 descriptor 是 `same-document`、`project-file`、`project-directory` 或 `project-path`；最后一种仅表示
+已确定 safe path，尚未确定 endpoint type。其 final data 只携带 source、occurrence、target-read 和 finding count。
+raw destination、query/userinfo、external absolute path、symlink payload、target byte 和 target digest 均不得进入
+Record ID、Record data、final data、message、cache、log 或 published artifact。root 外 finding 不发布 target path 或
+fragment。这一排除是 Check data contract 的一部分；machine format 不重建或保留隐藏的 target representation。
 
 这里的 canonical JSON 是 Product 的**安全结构契约**，不是业务 schema，也不是 JSON bytes 的排版契约。final/Record `data` 的根必须是 non-array plain object；递归只接受 `null`、boolean、string、finite number、dense array 与 plain object。Product 通过 own-property descriptors materialize，不读取 accessor 或调用 `toJSON`；拒绝 accessor、symbol/non-enumerable key、unsupported prototype、cycle、sparse array 与非有限 number，并将 `-0` 规范为 `0`。materialized data 使用 null-prototype container 和 recursive freeze 成为 detached Core fact；需要 canonical text 时才递归按 lexical key order 生成它，而不把 JavaScript own-key enumeration 声明为该顺序。它不验证 required property、业务 union、跨 Check consistency 或敏感值。
 
