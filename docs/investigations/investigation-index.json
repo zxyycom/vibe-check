@@ -31,6 +31,36 @@
         "title": "TypeScript 函数式工具与专用数据结构库调查"
       }
     },
+    "implementation-libraries/markdown-link-validation-library-strategy.md": {
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1787625335000
+        ],
+        "status": [
+          "调查中"
+        ],
+        "text": [
+          "Markdown Link Validation 库策略与可实施难度",
+          "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
+          "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-25T02:35:35Z",
+        "path": "implementation-libraries/markdown-link-validation-library-strategy.md",
+        "question": "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
+        "reportCount": 1,
+        "reportTitles": [
+          "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
+        ],
+        "resourceReferences": [],
+        "status": "调查中",
+        "title": "Markdown Link Validation 库策略与可实施难度"
+      }
+    },
     "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
       "keys": {
         "category": [
@@ -146,6 +176,7 @@
   "sourceRevision": {
     "entries": {
       "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:35d28f35b357753db86def36fec343a6e4a58e9a2f293c2c918d308ab7862f5d",
+      "implementation-libraries/markdown-link-validation-library-strategy.md": "sha256:2f076ea9077175753da9f6cf100022b313a4c8fcf51e3ff735f81e1b22a588af",
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:899f54ebce5815e09153f3d93a41af1f72f57ca1f379adf5cc0baafe11c92a53",
       "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53",
       "implementation-libraries/schema-validation-and-static-inference.md": "sha256:25b315332a0ee981a473a4da57539b9539b87a690c9d073fad6ede20d149effd"

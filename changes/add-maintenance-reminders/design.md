@@ -6,7 +6,7 @@
 
 当前 Product已支持 ordinary Check values、Check-owned options/execution dependencies、four-state final result、terminal messages、`attention` visibility、explicit aggregation和 native object composition。`keep-comparison-semantics-inside-producing-checks.md`要求 baseline acquisition与comparison留在 producing Check；`let-check-options-own-execution-dependencies.md`要求 Git executable属于 Check options。
 
-[`complete-first-release-check-set-before-publication.md`](../../docs/decisions/complete-first-release-check-set-before-publication.md) 已将 maintenance reminders纳入首版，并明确不增加 constructor。Reminder entry只是 owning Check的局部配置和 assessment，不是 Check、Record或 dependency target。
+[`complete-first-release-check-set-without-markdown-structure.md`](../../docs/decisions/complete-first-release-check-set-without-markdown-structure.md) 已将 maintenance reminders纳入首版，并明确不增加 constructor。Reminder entry只是 owning Check的局部配置和 assessment，不是 Check、Record或 dependency target。
 
 ## Goals / Non-Goals
 

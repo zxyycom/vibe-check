@@ -6,7 +6,7 @@
 
 `json-validation` 将提供 package-private strict JSON document result；本 Change 复用其 bytes/grammar/duplicate-key语义，但不读取该 Check 的 final data或建立 runtime dependency。当前 Product 支持 ordinary Check-owned options、Record reporter、four-state result和统一 scheduler，没有 shared schema registry、network authorization、comparison/reference或 private cross-Check snapshot。
 
-仓库已有 Ajv dev dependency，但是否进入 installed Product runtime、应使用哪个 2020-12 entry以及 license/material接线仍需在 Readiness审计。首版排序由 [`complete-first-release-check-set-before-publication.md`](../../docs/decisions/complete-first-release-check-set-before-publication.md) 确认。
+仓库已有 Ajv dev dependency，但是否进入 installed Product runtime、应使用哪个 2020-12 entry以及 license/material接线仍需在 Readiness审计。首版排序由 [`complete-first-release-check-set-without-markdown-structure.md`](../../docs/decisions/complete-first-release-check-set-without-markdown-structure.md) 确认。
 
 ## Goals / Non-Goals
 

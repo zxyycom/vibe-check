@@ -4,7 +4,7 @@
 
 ## Context
 
-当前 Product只共享 global file scope；没有跨 Check parser-segment channel，也不应把 Markdown facts写入 Core/machine只为另一个 Check消费。Markdown Structure/Link首版会提供 package-private parser implementation，future Path Check可以直接复用函数而不依赖它们的运行结果。
+当前 Product只共享 global file scope；没有跨 Check parser-segment channel，也不应把 Markdown facts写入 Core/machine只为另一个 Check消费。首版只有 Markdown Link 计划拥有最小 package-private parser adapter；future Path Check 只能在出现真实 consumer 后重新评审是否复用其函数，不能依赖 Link 的运行结果或预设 shared model。
 
 长期 Decision把 path reference保留为独立 future Check，但不决定优先级或具体 grammar。首版排序 Decision明确将它后置，因为误报和 segmentation语义成本高于实现一个 regex/classifier本身。
 
@@ -27,7 +27,7 @@
 ### Intended Change
 
 1. **先证明 precision，再固定 grammar。** Resume spike至少覆盖本仓与两个不同文档布局的 synthetic/consumer corpus，记录 supported/unsupported tokens和误报；没有可接受 evidence时继续暂停。
-2. **Segments是 private实现复用。** Markdown visible prose/inline-code由共同 parser函数产生；plain text只有 Check-owned options显式选择且通过 bounded UTF-8分类时进入。不会通过 Check dependency final data传递 segments。
+2. **Segments是 Check-owned private implementation。** Markdown visible prose/inline-code 的解析器选择由 future Path Check 的真实 corpus 决定；如复用 Link 的 private function，仍须在该 Change 内重新评审其输入、输出与 license 边界。plain text只有 Check-owned options显式选择且通过 bounded UTF-8分类时进入。不会通过 Check dependency final data传递 segments。
 3. **Resolver只用 logical namespace。** Relative token以 source directory为 base，root-relative token以 project root namespace为 base；normalize后只查询 immutable inventory file/directory sets。Escape在 lookup前关闭。
 4. **Records只表达高置信 defect。** Unsupported/ambiguous token不产生 Record；accepted token的 unresolved/escape才报告。ID由 source path、safe normalized target/reason与 semantic ordinal组成，location只用于导航。
 5. **Ordinary Check closure。** Future value/options/runtime validation、final counts和 four-state result沿用现有 contract；没有 Manager、TaskPlan、comparison/cache或 shared catalog。
@@ -52,6 +52,6 @@
 
 ## Resume Conditions
 
-1. 首版四项离线 Checks 已完成，或用户基于真实需求明确提前。
+1. 首版三项离线格式 Checks 已完成，或用户基于真实需求明确提前。
 2. 已获得可提交的 representative corpus，并给出可检查 precision/false-positive验收。
 3. Segment owner无需新增公共或持久 cross-Check channel。

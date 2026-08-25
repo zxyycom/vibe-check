@@ -6,7 +6,7 @@
 
 当前 Check callback 收到 validated `options`、`project.root`、global file scope、Record reporter 与 cancellation signal。`collectScanFiles` 已提供稳定排序的 normalized candidates；Core 只要求每个 Record 在 owning Check 内拥有唯一 `id` 和 canonical object data。Product 没有 shared file policy、comparison/reference channel、Record catalog 或 feature-local scheduler。
 
-首版排序由 [`complete-first-release-check-set-before-publication.md`](../../docs/decisions/complete-first-release-check-set-before-publication.md) 确认；`json-schema-validation` 只复用本 Change 的 private document result，不依赖本 Check 的运行结果或 public final data。
+首版排序由 [`complete-first-release-check-set-without-markdown-structure.md`](../../docs/decisions/complete-first-release-check-set-without-markdown-structure.md) 确认；`json-schema-validation` 只复用本 Change 的 private document result，不依赖本 Check 的运行结果或 public final data。
 
 ## Goals / Non-Goals
 
