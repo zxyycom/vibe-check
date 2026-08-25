@@ -14,23 +14,42 @@ import type {
 } from "../../definition/custom-check.ts";
 import { executeJsonValidation } from "./json-validation.ts";
 
-const FILES = Object.freeze({
+const DEFAULT_FILES = Object.freeze({
   codeAreas: Object.freeze({}),
   excludeDirs: Object.freeze([]),
   generatedFiles: Object.freeze([]),
   include: Object.freeze(["**/*"])
+});
+const DEFAULT_OPTIONS: DeepReadonly<JsonValidationOptions> = Object.freeze({
+  maximumBytes: 1_048_576
 });
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
   get: (checkId: string) =>
     Object.freeze({ ok: false, error: Object.freeze({ code: "dependency-not-declared", checkId }) })
 });
 
-interface ReportedRecord {
+interface ObservedRecord {
   readonly data: object;
   readonly identity: Readonly<{ readonly id: string }>;
 }
 
-function project(root: string, files: CheckProjectContext["files"] = FILES): CheckProjectContext {
+interface JsonValidationExecution {
+  readonly records: readonly ObservedRecord[];
+  readonly result: CheckResult;
+}
+
+interface RunJsonValidationInput {
+  readonly fileConfiguration?: CheckProjectContext["files"];
+  readonly onRecordReported?: (record: ObservedRecord) => void;
+  readonly options?: DeepReadonly<JsonValidationOptions>;
+  readonly root: string;
+  readonly signal?: AbortSignal;
+}
+
+function createProjectContext(
+  root: string,
+  files: CheckProjectContext["files"] = DEFAULT_FILES
+): CheckProjectContext {
   return Object.freeze({
     cache: Object.freeze({ directory: "cache", enabled: false, reportActivity: () => undefined }),
     changedFiles: Object.freeze([]),
@@ -40,23 +59,23 @@ function project(root: string, files: CheckProjectContext["files"] = FILES): Che
   });
 }
 
-function execute(
-  root: string,
-  options: DeepReadonly<JsonValidationOptions> = { maximumBytes: 1_048_576 },
-  signal = new AbortController().signal,
-  onRecord?: (record: ReportedRecord) => void,
-  files: CheckProjectContext["files"] = FILES
-): Readonly<{ readonly records: readonly ReportedRecord[]; readonly result: CheckResult }> {
-  const records: ReportedRecord[] = [];
+function runJsonValidation({
+  fileConfiguration = DEFAULT_FILES,
+  onRecordReported,
+  options = DEFAULT_OPTIONS,
+  root,
+  signal = new AbortController().signal
+}: RunJsonValidationInput): JsonValidationExecution {
+  const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<JsonValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
     options,
-    project: project(root, files),
+    project: createProjectContext(root, fileConfiguration),
     records: Object.freeze({
       report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
         const record = Object.freeze({ data, identity });
         records.push(record);
-        onRecord?.(record);
+        onRecordReported?.(record);
       }
     }),
     signal
@@ -64,20 +83,20 @@ function execute(
   return Object.freeze({ result: executeJsonValidation(context), records: Object.freeze(records) });
 }
 
-function createRoot(prefix: string): string {
-  return mkdtempSync(join(tmpdir(), prefix));
+function createTemporaryProjectRoot(): string {
+  return mkdtempSync(join(tmpdir(), "vibe-check-json-validation-"));
 }
 
 describe("JSON validation default Check", () => {
   it("filters only lower-case .json paths from global scope and returns exact final counts", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "valid.json"), '{"enabled":true}', "utf8");
       writeFileSync(join(root, "invalid.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "ignored.JSON"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
 
-      const result = execute(root);
+      const result = runJsonValidation({ root });
       assert.deepEqual(result.result, {
         status: "failed",
         data: { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 }
@@ -94,7 +113,7 @@ describe("JSON validation default Check", () => {
   });
 
   it("uses only the included global JSON paths without re-adding excluded or generated files", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       mkdirSync(join(root, "generated"));
       mkdirSync(join(root, "vendor"));
@@ -108,7 +127,7 @@ describe("JSON validation default Check", () => {
         include: Object.freeze(["**/*"])
       });
 
-      assert.deepEqual(execute(root, undefined, undefined, undefined, files), {
+      assert.deepEqual(runJsonValidation({ fileConfiguration: files, root }), {
         records: [],
         result: {
           status: "passed",
@@ -121,7 +140,7 @@ describe("JSON validation default Check", () => {
   });
 
   it("reports every closed document issue once with redacted Records and exact counts", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bom.json"), new Uint8Array([0xef, 0xbb, 0xbf]));
       writeFileSync(join(root, "duplicate.json"), '{"a":1,"a":2}', "utf8");
@@ -130,7 +149,7 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "too-large.json"), new Uint8Array(31));
       writeFileSync(join(root, "valid.json"), "null", "utf8");
 
-      const result = execute(root, { maximumBytes: 30 });
+      const result = runJsonValidation({ options: { maximumBytes: 30 }, root });
       assert.deepEqual(result.records, [
         { identity: { id: "bom.json" }, data: { path: "bom.json", reason: "bom" } },
         {
@@ -160,10 +179,10 @@ describe("JSON validation default Check", () => {
   });
 
   it("is not applicable when global scope has no lower-case JSON input", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");
-      assert.deepEqual(execute(root), {
+      assert.deepEqual(runJsonValidation({ root }), {
         records: [],
         result: { status: "not-applicable", reason: { code: "no-eligible-input" } }
       });
@@ -173,11 +192,14 @@ describe("JSON validation default Check", () => {
   });
 
   it("retains accepted Records but becomes unavailable when a later eligible file disappears", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bad.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "gone.json"), "{}", "utf8");
-      const result = execute(root, undefined, undefined, () => unlinkSync(join(root, "gone.json")));
+      const result = runJsonValidation({
+        onRecordReported: () => unlinkSync(join(root, "gone.json")),
+        root
+      });
       assert.deepEqual(result.records, [
         { identity: { id: "bad.json" }, data: { path: "bad.json", reason: "duplicate-key" } }
       ]);
@@ -191,19 +213,23 @@ describe("JSON validation default Check", () => {
   });
 
   it("honors cancellation before and between file boundaries without final data", () => {
-    const root = createRoot("vibe-check-json-validation-");
+    const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "bad.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "later.json"), "{}", "utf8");
       const before = new AbortController();
       before.abort();
-      assert.deepEqual(execute(root, undefined, before.signal), {
+      assert.deepEqual(runJsonValidation({ root, signal: before.signal }), {
         records: [],
         result: { status: "unavailable", reason: { code: "execution-cancelled" } }
       });
 
       const between = new AbortController();
-      const result = execute(root, undefined, between.signal, () => between.abort());
+      const result = runJsonValidation({
+        onRecordReported: () => between.abort(),
+        root,
+        signal: between.signal
+      });
       assert.deepEqual(result.records, [
         { identity: { id: "bad.json" }, data: { path: "bad.json", reason: "duplicate-key" } }
       ]);

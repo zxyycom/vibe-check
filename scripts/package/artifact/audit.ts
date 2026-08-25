@@ -73,7 +73,7 @@ export function auditStagingRuntime(input: {
     content: expectedReadme,
     path: join(stagingDirectory, PACKAGE_README_PATH)
   });
-  assertMomoaLicenseMaterial(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH));
+  assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFiles(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
       path.endsWith(".d.ts")
@@ -211,7 +211,7 @@ export function auditCandidateArtifact(input: {
   if (momoaLicenseEntry === undefined) {
     throw new Error("candidate artifact is missing Momoa license material");
   }
-  assertMomoaLicenseMaterial(momoaLicenseEntry.content);
+  assertMomoaLicenseContent(momoaLicenseEntry.content);
   assertJSDocExamplePayloads({
     declarationSources: entries
       .filter((entry) => entry.path.startsWith("package/types/") && entry.path.endsWith(".d.ts"))
@@ -271,8 +271,7 @@ function assertFileContentMatches(
   }
 }
 
-function assertMomoaLicenseMaterial(pathOrContent: string | Buffer): void {
-  const content = typeof pathOrContent === "string" ? readFileSync(pathOrContent) : pathOrContent;
+function assertMomoaLicenseContent(content: Buffer): void {
   const sha256 = createHash("sha256").update(content).digest("hex");
   if (sha256 !== MOMOA_LICENSE_SHA256) {
     throw new Error("candidate Momoa license material does not match the approved source text");

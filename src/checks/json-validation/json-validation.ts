@@ -10,10 +10,22 @@ export const JSON_VALIDATION_CHECK_DEFINITION = {
   displayName: "JSON validation"
 } as const;
 
+interface JsonValidationFinalData {
+  readonly scannedFileCount: number;
+  readonly validFileCount: number;
+  readonly invalidFileCount: number;
+  readonly issueCount: number;
+}
+
+type JsonValidationUnavailableCode =
+  | "document-unavailable"
+  | "execution-cancelled"
+  | "scan-input-unavailable";
+
 /** Validates the exact JSON subset of the current global scan scope. */
 export function executeJsonValidation(
   context: CheckExecutionContext<JsonValidationOptions>
-): CheckResult {
+): CheckResult<JsonValidationFinalData> {
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   let paths: string[];
@@ -57,6 +69,6 @@ export function executeJsonValidation(
   return Object.freeze({ status: invalidFileCount === 0 ? "passed" : "failed", data });
 }
 
-function unavailable(code: string): CheckResult {
+function unavailable(code: JsonValidationUnavailableCode): CheckResult<JsonValidationFinalData> {
   return Object.freeze({ status: "unavailable", reason: { code } });
 }

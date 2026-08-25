@@ -16,7 +16,7 @@ export type StrictJsonDocumentResult =
 
 interface StrictJsonDocumentReadInput {
   readonly filePath: string;
-  /** Must already be a positive safe integer at the external options boundary. */
+  /** Normally validated at the Check options boundary; malformed private input becomes unavailable. */
   readonly maximumBytes: number;
 }
 
@@ -24,7 +24,7 @@ const UTF8_BOM = [0xef, 0xbb, 0xbf] as const;
 const VALID_DOCUMENT = Object.freeze({ kind: "valid" } as const);
 const UNAVAILABLE_DOCUMENT = Object.freeze({ kind: "unavailable" } as const);
 
-function isPositiveSafeInteger(value: number): boolean {
+function isPositiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
