@@ -6,7 +6,7 @@ import { describe, it } from "node:test";
 
 import { isNonArrayRecord, isStringArray } from "../../foundation/type-guards.ts";
 import { defineCheck, type Check } from "vibe-check";
-import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/test-rules.ts";
+import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
 import { createNativeOperationCheck } from "./checks/native.ts";
@@ -161,7 +161,6 @@ describe("Project Gate Definition", () => {
           root: process.cwd(),
           changedFiles: [],
           flags: [],
-          files: { codeAreas: {}, excludeDirs: [], generatedFiles: [], include: [] },
           cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
         },
         records: { report: () => undefined },
@@ -554,7 +553,6 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
       root: process.cwd(),
       changedFiles: [],
       flags: [],
-      files: { codeAreas: {}, excludeDirs: [], generatedFiles: [], include: [] },
       cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
     },
     records: {

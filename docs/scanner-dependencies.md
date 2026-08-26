@@ -1,51 +1,63 @@
-# Scanner dependencies
+# Check-owned scanner dependencies
 
-本文拥有 `src/checks/**` 内 private scanner-adapter boundary。scanner adapter protocol 与 executable
-resolution 是 Product implementation detail，不是 public operational-dependency API。
+本文拥有 package-provided metric Checks 的 private external-tool boundary。jscpd、scc 与 Lizard 不是一个集中
+scanner subsystem 的三个 backend；它们分别是 `duplicate-detection`、`file-metrics` 与 `function-metrics` 的私有实现。
+scanner command、adapter protocol 与 executable resolution 都不是 public operational-dependency API。
+
+## Owner-local adapters
+
+每个使用 external scanner 的 ordinary Check 完整拥有自己的 command options、availability probe、subprocess lifecycle、
+parser、scanner-native failure、measurement conversion 与相邻 tests：
+
+| Check | Tool | Private owner |
+| --- | --- | --- |
+| `duplicateDetection` | jscpd | `src/checks/duplicate-detection/jscpd/**` |
+| `fileMetrics` | scc | `src/checks/file-metrics/scc/**` |
+| `functionMetrics` | Lizard | `src/checks/function-metrics/lizard/**` |
+
+这些 adapter 没有共享 registry、统一 backend interface 或集中目录。它们可依赖 `src/foundation/**` 的通用 process/CSV/error
+mechanism，以及 `src/project-files/**` 的 exact-path membership 等真实共同不变量；共同使用底层机制不改变 scanner 仍由
+唯一 producing Check 拥有的事实。
 
 ## Check-owned command options
 
-[Configuration](configuration.md#defaults-and-native-composition) 拥有 default Check 的初始 options；本页只定义
-`src/checks/measurement/scanners/**` 如何消费已验证的 `options.scanner`。每个 default Check 用：
+[Configuration](configuration.md#package-provided-check-composition) 拥有随包提供 Check 的初始 options。三个 scanner Check
+都以自己的 `options.scanner.executable` 和 `options.scanner.args` 执行工具，并以
+`options.scanner.availabilityArgs` 做 availability probe。`duplicateDetection` 另外拥有
+`scanner.maxConcurrency`。
 
-1. `options.scanner.executable` 和 `options.scanner.args` 扫描；
-2. `options.scanner.executable` 和 `options.scanner.availabilityArgs` 检查可用性。
+`duplicateDetection` 的默认 executable 是 package marker `vibe-check-package-jscpd`。只有其 Check-local jscpd adapter
+认识该 marker：它从 installed `jscpd` package manifest 解析声明的 bin target，并以 active Bun executable 调用。
+这不是公共 scanner configuration、PATH discovery、environment override 或跨 Check backend。调用方提供其它完整
+`options.scanner` 时，jscpd adapter 精确执行这些 command values。
 
-`duplicate-detection` 的默认 marker 是唯一例外：private adapter 从 installed `jscpd` package manifest 解析声明的
-bin target，并以 active Bun executable 调用它。该解析是 package-owned adapter behavior，不是公开 scanner
-configuration、PATH discovery 或 environment override。调用方提供完整 `options.scanner` 时，adapter 精确执行其
-command values。
+每个 Check 在 callback 入口验证自己的完整 options。malformed/unknown/incomplete option shape 只使 owning Check 返回
+`unavailable`/`invalid-options`；Definition 只将 ordinary Check options 作为 canonical opaque JSON object，不按 package
+Check ID、tool name 或 option shape 分支。项目可用 normal object spread 组合完整 replacement options；Run Controls、
+environment variables、repository tooling 与 precedence map 都不会隐式替换它们。
 
-Duplicate detection 另外消费 Check-owned `scanner.maxConcurrency`。Metric defaults 只消费自己的已验证
-absolute-floor 与 allowance options。项目用 normal object spread 组成完整 replacement options；Definition validation
-拒绝缺少 nested field、unknown key、invalid command value、zero concurrency 或 unknown code-area threshold。Run
-Controls、environment variables、repository tooling 与 precedence map 都不能替换这些 Check-owned options。
+## Exact-input handoff
 
-## Adapter handoff and exact scope
+owning Check 依据自己的 `options.files` 收集 candidates，并形成该工具的 approved exact paths；scanner 不接收 project root
+重新发现输入。adapter output 中每条 measurement 都声明 source paths，Check 在 Record conversion 前使用
+`src/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
+partial result。
 
-`src/checks/builtins/**` 的 default callback 接收 validated options、normalized project context、Check reporter 和
-signal；它把 Check-owned command data 与 Product-approved exact paths 交给
-`src/checks/measurement/scanners/**`。adapter 拥有 availability probe、subprocess lifecycle、parser、raw material、
-backend/cache mechanics 与 scanner-native protocol adaptation。
-
-每个 reported source path 必须 slash-normalized 并属于 approved exact input list。任何 batch 包含 out-of-scope
-source 时，在 Record conversion 前拒绝整个 batch，不能发布 partial result。一次 invocation 只使用一个 frozen
-current-worktree scope。scanner-private command data 与 raw results 不进入 declarative fingerprints、Core facts、
-public output 或 Run Controls。
+一次 Check invocation 只使用自己冻结的 options 与 exact input。scanner-private command data、raw results 和 parser AST
+不进入 declarative fingerprint、Core facts、public output 或 Run Controls。
 
 ## Cache and failures
 
-Duplicate cache identity 包含 scanner backend identity、code area、current commit、exact-input fingerprint、
-configuration version 与 normalized command arguments。default marker 映射到 Bun + installed-jscpd backend identity，
-不包含 executable 或 declared-bin path，避免相同 dependency version 因 consumer install directory 不同而分裂。
-cache hit 会重新验证 source paths；unrelated sibling options 与 project module location 不改变 cache key。调用方
-提供 command 时保留 command identity behavior。
+Duplicate detection 的 Check-local cache identity 包含 jscpd backend identity、code area、current commit、exact-input
+fingerprint、configuration version 与 normalized command arguments。default marker 映射到 Bun + installed-jscpd backend
+identity，不包含 consumer install directory；显式 command 则保留 command identity behavior。
 
-availability、process、parse、cache 或 exact-scope failure 由 Check callback/Product boundary 转换为 owning Check
-的 `unavailable` outcome。该 outcome 可安全进入 Run/Core；raw command data 和 scanner output 不公开。
+availability、process、parse、cache 或 exact-input failure 由 owning Check 转换为 `unavailable` outcome。该 four-state fact 可安全
+进入 Run/Core；raw command、tool path 和 scanner output 不公开。各 tool 对合法空输出、非零 finding exit 和 parser header
+的具体解释由自己的 adapter 与 tests 固定，不存在 Product-wide scanner failure taxonomy。
 
 ## Verification
 
-`src/checks/**` 的 adapter and built-in tests 证明 Check-owned commands、direct context、exact scope 与 cache。
-`src/run/**` execution tests 证明 callback failure 经同一 Core Check path 闭合。涉及 schema 或 artifacts 时，另按
-[Output](output.md)运行 docs validation。
+三个 owner-local tool 目录的 tests 证明 command、availability、parser 与 scanner-specific failure；对应 Check 的
+`default-check.test.ts` 证明 option validation、exact-input handoff、Record 与 terminal result。`src/project-files/**` tests 只
+证明真正共同的 collection/exact-membership 机制。

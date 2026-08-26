@@ -1,7 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { ProcessInvocation } from "../../development/command.ts";
+import type { ProcessInvocation } from "../../foundation/command.ts";
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";

@@ -22,6 +22,7 @@ export const CANDIDATE_DEPENDENCIES = Object.freeze({
   typebox: "1.3.9"
 });
 
+export const PACKAGE_DOCUMENTATION_DIRECTORY = "docs";
 export const PACKAGE_DISTRIBUTION_DIRECTORY = "dist";
 export const PACKAGE_ENTRY_PATH = "index.mjs";
 export const PACKAGE_MOMOA_LICENSE_PATH = "third-party-licenses/momoa-3.3.12-LICENSE";
@@ -37,7 +38,8 @@ export const PACKAGE_ENTRY_SOURCE = `export * from "./${PACKAGE_RUNTIME_ENTRY_PA
 /** Exact Apache-2.0 text from Momoa's `momoa-js-v3.3.12` source tag. */
 export const MOMOA_LICENSE_SHA256 =
   "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4";
-export const MOMOA_LICENSE_SOURCE_PATH = "scripts/package/materials/momoa-3.3.12-LICENSE";
+export const MOMOA_LICENSE_SOURCE_PATH =
+  "scripts/package/artifact/third-party-licenses/momoa-3.3.12-LICENSE";
 
 export const RUNTIME_EXPORTS = Object.freeze(
   [

@@ -36,7 +36,6 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     jsonValidationOptions: "JsonValidationOptions",
     projectEffects: "ProjectEffects",
     projectDefinition: "ProjectDefinition",
-    projectQualityConfiguration: "ProjectQualityConfiguration",
     runControls: "RunControls",
     runResult: "RunResult",
     schedulerPolicy: "SchedulerPolicy"

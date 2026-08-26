@@ -3,7 +3,11 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "./registry.ts";
+import {
+  PACKAGE_API_EXAMPLE_PROJECTIONS,
+  PACKAGE_CHECK_GUIDE_INDEX_PATH,
+  PACKAGE_CHECK_GUIDES
+} from "./registry.ts";
 
 type PackageApiJSDocTarget = Readonly<{
   readonly declarationName: string;
@@ -30,6 +34,8 @@ export const PACKAGE_API_JSDOC_TARGETS: readonly PackageApiJSDocTarget[] = Objec
 export function createPackageApiDocumentationFixture(): string {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-api-docs-"));
   copyFixtureFile(fixtureRoot, "docs/package-readme.template.md");
+  copyFixtureFile(fixtureRoot, PACKAGE_CHECK_GUIDE_INDEX_PATH);
+  for (const guide of PACKAGE_CHECK_GUIDES) copyFixtureFile(fixtureRoot, guide.sourcePath);
   for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
     copyFixtureFile(fixtureRoot, projection.sourcePath);
   }

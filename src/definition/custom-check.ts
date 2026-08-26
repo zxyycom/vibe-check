@@ -1,4 +1,3 @@
-import type { ProjectQualityConfiguration } from "./quality-configuration.ts";
 import type { CanonicalJsonObject, CanonicalJsonValue } from "../foundation/canonical-json.ts";
 
 /** Check 无法给出 final data 时返回的受控 reason code。 */
@@ -185,17 +184,6 @@ export interface CheckProjectContext {
   readonly changedFiles: readonly string[];
   /** 已去重、排序的 caller-supplied flags。 */
   readonly flags: readonly string[];
-  /** callback 可观察的已规范化文件范围。 */
-  readonly files: Readonly<{
-    /** 定义 named code areas 的质量配置。 */
-    readonly codeAreas: ProjectQualityConfiguration["codeAreas"];
-    /** 默认排除的目录名。 */
-    readonly excludeDirs: ProjectQualityConfiguration["excludeDirs"];
-    /** 识别 generated files 的 glob 集合。 */
-    readonly generatedFiles: ProjectQualityConfiguration["generatedFiles"];
-    /** 允许进入项目范围的 glob 集合。 */
-    readonly include: ProjectQualityConfiguration["include"];
-  }>;
   /** callback 可观察并报告活动的 cache context。 */
   readonly cache: Readonly<{
     /** 本次 Run 的 cache 目录。 */

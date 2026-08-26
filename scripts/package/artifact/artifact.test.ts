@@ -30,6 +30,14 @@ describe("package artifact", () => {
 
       assert.equal(existsSync(artifact.artifactPath), true);
       assert.equal(artifact.files.includes("package/README.md"), true);
+      assert.equal(artifact.files.includes("package/docs/checks/index.md"), true);
+      for (const document of documentation.documents) {
+        assert.equal(artifact.files.includes(`package/${document.packagePath}`), true);
+        assert.equal(
+          readFileSync(join(artifact.stagingDirectory, document.packagePath), "utf8"),
+          document.content
+        );
+      }
       assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
       assert.equal(artifact.files.includes("package/dist/esm/index.mjs.map"), true);
       assert.equal(artifact.files.includes("package/src/index.ts"), true);

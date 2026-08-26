@@ -14,6 +14,7 @@ const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
   "definition",
   "foundation",
   "output",
+  "project-files",
   "run",
   "scheduler"
 ]);

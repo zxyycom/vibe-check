@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 
-import type { JsonSchemaValidationOptions } from "../../definition/default-checks.ts";
+import type { JsonSchemaValidationOptions } from "./options.ts";
+import { validJsonSchemaValidationOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
-import { collectScanFiles } from "../input/files.ts";
+import { collectProjectFiles } from "../../project-files/collection.ts";
 import {
   readStrictJsonDocument,
   type JsonDocumentIssue
@@ -34,6 +35,7 @@ interface JsonSchemaValidationFinalData {
 type JsonSchemaValidationUnavailableCode =
   | "engine-unavailable"
   | "execution-cancelled"
+  | "invalid-options"
   | "reference-transport-unavailable"
   | "scan-input-unavailable"
   | "document-unavailable";
@@ -75,6 +77,7 @@ const MAX_REPORTED_SCHEMA_ISSUES = 100;
 export async function executeJsonSchemaValidation(
   context: CheckExecutionContext<JsonSchemaValidationOptions>
 ): Promise<CheckResult<JsonSchemaValidationFinalData>> {
+  if (!validJsonSchemaValidationOptions(context.options)) return unavailable("invalid-options");
   try {
     return await execute(context);
   } catch {
@@ -90,9 +93,9 @@ async function execute(
     return Object.freeze({ status: "not-applicable", reason: { code: "no-bindings" } });
   }
 
-  let globalScopePaths: ReadonlySet<string>;
+  let selectedPaths: ReadonlySet<string>;
   try {
-    globalScopePaths = new Set(collectScanFiles(context.project.root, context.project.files));
+    selectedPaths = new Set(collectProjectFiles(context.project.root, context.options.files));
   } catch {
     return unavailable("scan-input-unavailable");
   }
@@ -104,7 +107,7 @@ async function execute(
 
   for (const schema of context.options.schemas) {
     if (context.signal.aborted) return unavailable("execution-cancelled");
-    if (!globalScopePaths.has(schema.path)) {
+    if (!selectedPaths.has(schema.path)) {
       schemaFailures.add(schema.id);
       issueCollector.add(
         Object.freeze({
@@ -161,7 +164,7 @@ async function execute(
   for (const binding of context.options.bindings) {
     if (context.signal.aborted) return unavailable("execution-cancelled");
     const schemaFailed = schemaFailures.has(binding.schemaId);
-    const isInstancePathInScope = globalScopePaths.has(binding.instancePath);
+    const isInstancePathInScope = selectedPaths.has(binding.instancePath);
     if (!isInstancePathInScope) {
       issueCollector.add(
         Object.freeze({

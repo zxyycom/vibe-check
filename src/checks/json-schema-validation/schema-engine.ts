@@ -1,7 +1,7 @@
 import { Ajv2020 } from "ajv/dist/2020.js";
 import type { AnySchema, AnySchemaObject, ErrorObject, ValidateFunction } from "ajv";
 
-import type { JsonSchemaValidationOptions } from "../../definition/default-checks.ts";
+import type { JsonSchemaValidationOptions } from "./options.ts";
 import {
   inspectStrictJsonBytes,
   type StrictJsonValue

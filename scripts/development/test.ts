@@ -1,4 +1,4 @@
-import { reportProcessOutput, runCommand, runMain } from "./command.ts";
+import { reportProcessOutput, runCommand, runMain } from "../foundation/command.ts";
 
 function parseTestScope(argv: readonly string[]): void {
   if (argv.length === 0 || (argv.length === 1 && argv[0] === "product")) return;

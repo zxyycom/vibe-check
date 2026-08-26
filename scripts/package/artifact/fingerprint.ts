@@ -6,6 +6,10 @@ import { fileURLToPath } from "node:url";
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
 import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
 import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "./package-contract.ts";
+import {
+  PACKAGE_CHECK_GUIDE_INDEX_PATH,
+  PACKAGE_CHECK_GUIDES
+} from "../../docs/package-api/registry.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "docs/package-readme.template.md",
@@ -50,7 +54,9 @@ function documentationInputFiles(repositoryRoot: string): readonly string[] {
     ...DOCUMENTATION_INPUT_PATHS.map((path) => join(repositoryRoot, path)),
     ...collectFiles(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
       path.endsWith(".ts")
-    )
+    ),
+    join(repositoryRoot, PACKAGE_CHECK_GUIDE_INDEX_PATH),
+    ...PACKAGE_CHECK_GUIDES.map((guide) => join(repositoryRoot, guide.sourcePath))
   ]);
 }
 

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { JsonValidationOptions } from "../../definition/default-checks.ts";
+import type { JsonValidationOptions } from "./options.ts";
 import type {
   CheckDependencies,
   CheckExecutionContext,
@@ -13,16 +13,14 @@ import type {
   DeepReadonly
 } from "../../definition/custom-check.ts";
 import { executeJsonValidation } from "./json-validation.ts";
+import type { ProjectFileSelection } from "../../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  codeAreas: Object.freeze({}),
   excludeDirs: Object.freeze([]),
   generatedFiles: Object.freeze([]),
   include: Object.freeze(["**/*"])
 });
-const DEFAULT_OPTIONS: DeepReadonly<JsonValidationOptions> = Object.freeze({
-  maximumBytes: 1_048_576
-});
+const DEFAULT_OPTIONS = Object.freeze({ maximumBytes: 1_048_576 });
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
   get: (checkId: string) =>
     Object.freeze({ ok: false, error: Object.freeze({ code: "dependency-not-declared", checkId }) })
@@ -39,21 +37,17 @@ interface JsonValidationExecution {
 }
 
 interface RunJsonValidationInput {
-  readonly fileConfiguration?: CheckProjectContext["files"];
+  readonly fileConfiguration?: ProjectFileSelection;
   readonly onRecordReported?: (record: ObservedRecord) => void;
-  readonly options?: DeepReadonly<JsonValidationOptions>;
+  readonly options?: DeepReadonly<Omit<JsonValidationOptions, "files">>;
   readonly root: string;
   readonly signal?: AbortSignal;
 }
 
-function createProjectContext(
-  root: string,
-  files: CheckProjectContext["files"] = DEFAULT_FILES
-): CheckProjectContext {
+function createProjectContext(root: string): CheckProjectContext {
   return Object.freeze({
     cache: Object.freeze({ directory: "cache", enabled: false, reportActivity: () => undefined }),
     changedFiles: Object.freeze([]),
-    files,
     flags: Object.freeze([]),
     root
   });
@@ -69,8 +63,8 @@ function runJsonValidation({
   const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<JsonValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
-    options,
-    project: createProjectContext(root, fileConfiguration),
+    options: Object.freeze({ ...options, files: fileConfiguration }),
+    project: createProjectContext(root),
     records: Object.freeze({
       report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
         const record = Object.freeze({ data, identity });
@@ -88,7 +82,7 @@ function createTemporaryProjectRoot(): string {
 }
 
 describe("JSON validation default Check", () => {
-  it("filters only lower-case .json paths from global scope and returns exact final counts", () => {
+  it("filters only lower-case .json paths from its file selection and returns exact final counts", () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "valid.json"), '{"enabled":true}', "utf8");
@@ -96,6 +90,10 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "ignored.JSON"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
 
+      assert.deepEqual(runJsonValidation({ options: { maximumBytes: 0 }, root }).result, {
+        status: "unavailable",
+        reason: { code: "invalid-options" }
+      });
       const result = runJsonValidation({ root });
       assert.deepEqual(result.result, {
         status: "failed",
@@ -112,7 +110,7 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("uses only the included global JSON paths without re-adding excluded or generated files", () => {
+  it("uses only its included JSON paths without re-adding excluded or generated files", () => {
     const root = createTemporaryProjectRoot();
     try {
       mkdirSync(join(root, "generated"));
@@ -120,8 +118,7 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "included.json"), "null", "utf8");
       writeFileSync(join(root, "generated", "invalid.json"), "{", "utf8");
       writeFileSync(join(root, "vendor", "invalid.json"), "{", "utf8");
-      const files: CheckProjectContext["files"] = Object.freeze({
-        codeAreas: Object.freeze({}),
+      const files: ProjectFileSelection = Object.freeze({
         excludeDirs: Object.freeze(["vendor"]),
         generatedFiles: Object.freeze(["generated/**"]),
         include: Object.freeze(["**/*"])
@@ -178,7 +175,7 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("is not applicable when global scope has no lower-case JSON input", () => {
+  it("is not applicable when its file selection has no lower-case JSON input", () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");

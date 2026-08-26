@@ -27,12 +27,6 @@ export function prepareProjectContext(
       }),
       changedFiles: snapshotInvocationStrings(input.controls.changedFiles),
       flags: snapshotInvocationStrings(input.controls.flags),
-      files: Object.freeze({
-        codeAreas: input.definition.quality.codeAreas,
-        excludeDirs: input.definition.quality.excludeDirs,
-        generatedFiles: input.definition.quality.generatedFiles,
-        include: input.definition.quality.include
-      }),
       root: input.root
     })
   });

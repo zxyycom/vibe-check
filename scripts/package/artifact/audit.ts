@@ -27,11 +27,16 @@ import { sha256File } from "./pack.ts";
 import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/registry.ts";
 import {
+  collectPackageCheckGuides,
+  type PackageDocumentationFile
+} from "../../docs/package-api/check-guides.ts";
+import {
   renderPackageApiDocumentation,
   type RenderedPackageApiDocumentation
 } from "../../docs/package-api/render.ts";
 
 export interface ArtifactDocumentation {
+  readonly documents: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly readme: string;
   readonly rendered: RenderedPackageApiDocumentation;
@@ -45,8 +50,10 @@ interface TarEntry {
 /** Reads and validates checked-in package documentation before candidate use. */
 export function artifactDocumentation(repositoryRoot: string): ArtifactDocumentation {
   const rendered = renderPackageApiDocumentation({ repositoryRoot });
+  const documents = collectPackageCheckGuides(repositoryRoot, rendered.readme.content);
   assertDocumentationMatchesSource(repositoryRoot, rendered);
   return Object.freeze({
+    documents,
     expectedJSDocExamplePayloads: jsdocExamplePayloads(rendered),
     readme: rendered.readme.content,
     rendered
@@ -55,11 +62,13 @@ export function artifactDocumentation(repositoryRoot: string): ArtifactDocumenta
 
 /** Audits a staged package against its approved runtime, declaration, and docs inventory. */
 export function auditStagingRuntime(input: {
+  readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedReadme: string;
   readonly stagingDirectory: string;
 }): void {
-  const { expectedJSDocExamplePayloads, expectedReadme, stagingDirectory } = input;
+  const { expectedDocuments, expectedJSDocExamplePayloads, expectedReadme, stagingDirectory } =
+    input;
   const entryPath = join(stagingDirectory, PACKAGE_ENTRY_PATH);
   const runtimeEntryPath = join(stagingDirectory, PACKAGE_RUNTIME_ENTRY_PATH);
   const typesPath = join(stagingDirectory, PACKAGE_TYPES_PATH);
@@ -73,6 +82,7 @@ export function auditStagingRuntime(input: {
     content: expectedReadme,
     path: join(stagingDirectory, PACKAGE_README_PATH)
   });
+  assertPackageDocumentation(stagingDirectory, expectedDocuments);
   assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFiles(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
@@ -100,6 +110,7 @@ export function auditStagingRuntime(input: {
         filePath !== PACKAGE_ENTRY_PATH &&
         filePath !== PACKAGE_README_PATH &&
         filePath !== PACKAGE_MOMOA_LICENSE_PATH &&
+        !expectedDocumentationPaths(expectedDocuments).has(filePath) &&
         !(
           filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
           (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
@@ -181,6 +192,7 @@ export function auditCandidateArtifact(input: {
   readonly artifactPath: string;
   readonly candidateVersion: string;
   readonly expectedFiles: readonly string[];
+  readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedReadme: string;
   readonly expectedSha256: string;
@@ -190,6 +202,7 @@ export function auditCandidateArtifact(input: {
     throw new Error(`candidate artifact digest changed for ${input.artifactPath}`);
   }
   const entries = readTarEntries(input.artifactPath);
+  assertTarPackageDocumentation(entries, input.expectedDocuments);
   const files = entries.map((entry) => entry.path).sort();
   if (!sameStrings(files, input.expectedFiles)) {
     throw new Error(
@@ -220,6 +233,36 @@ export function auditCandidateArtifact(input: {
     expectedPayloads: input.expectedJSDocExamplePayloads
   });
   auditManifest(manifestEntry.content, input.candidateVersion, entries);
+}
+
+function expectedDocumentationPaths(
+  documents: readonly PackageDocumentationFile[]
+): ReadonlySet<string> {
+  return new Set(documents.map((document) => document.packagePath));
+}
+
+function assertPackageDocumentation(
+  stagingDirectory: string,
+  documents: readonly PackageDocumentationFile[]
+): void {
+  for (const document of documents) {
+    assertFileContentMatches({
+      content: document.content,
+      path: join(stagingDirectory, document.packagePath)
+    });
+  }
+}
+
+function assertTarPackageDocumentation(
+  entries: readonly TarEntry[],
+  documents: readonly PackageDocumentationFile[]
+): void {
+  for (const document of documents) {
+    const entry = entries.find((candidate) => candidate.path === `package/${document.packagePath}`);
+    if (entry === undefined || !entry.content.equals(Buffer.from(document.content, "utf8"))) {
+      throw new Error(`candidate artifact package documentation differs: ${document.packagePath}`);
+    }
+  }
 }
 
 export function assertJSDocExamplePayloads(input: {

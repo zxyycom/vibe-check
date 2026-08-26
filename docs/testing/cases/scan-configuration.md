@@ -5,7 +5,7 @@
 Owner: `docs/configuration.md#public-authoring-surface`
 Entities:
 
-- `bun|src/contract/public-api.test.ts|public API inventory > owns five runtime functions, six ordinary built-in values, and minimal type roots`
+- `bun|src/contract/public-api.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
 - `bun|src/definition/effect-defaults.test.ts|Project Definition effect defaults > uses the Definition-owned default effect values`
 - `bun|src/definition/project-definition.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
 - `bun|src/definition/project-definition.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
@@ -13,14 +13,14 @@ Entities:
 - `bun|src/definition/project-definition.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
 - `bun|src/definition/project-definition.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/definition/project-definition.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
-- `bun|src/definition/project-definition.test.ts|Project Definition > fails closed for incomplete or invalid JSON validation options`
-- `bun|src/definition/project-definition.test.ts|Project Definition > fails closed for malformed JSON Schema validation options and accepts all closed identity/reference branches`
+- `bun|src/definition/project-definition.test.ts|Project Definition > keeps package-provided JSON options opaque to ordinary Definition validation`
+- `bun|src/definition/project-definition.test.ts|Project Definition > keeps package-provided JSON Schema options opaque to ordinary Definition validation`
 - `bun|src/definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
 - `bun|scripts/package/candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
 
 Proves:
 
-- The public authoring surface contains five operations and six ordinary complete default Check values, including the specialized `maintenanceReminders` constructor rather than a seventh default or an operational-dependency API. `jsonValidation` exposes only its closed positive-safe-integer `{ maximumBytes }` options; `jsonSchemaValidation` additionally closes global identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Native replacement never fills a missing branch.
+- The public authoring surface contains five operations and six package-provided ordinary Check values, plus the specialized `maintenanceReminders` constructor rather than a seventh package value or an operational-dependency API. `jsonValidation` owns its closed `{ files, maximumBytes }` options; `jsonSchemaValidation` additionally owns identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Definition keeps these package-specific options opaque; each owning Check validates its complete shape at execution entry, and native replacement never fills a missing branch.
 - Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints. Closed declarative JSON preserves every own data key, including `__proto__`, without retaining an author-controlled prototype. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
 - The emitted public declaration keeps a provider parser required, anchors passed/failed data to its return type, and preserves ordinary, options, recursive, and native-spread authoring without a consumer cast or manual read generic.
 
@@ -30,9 +30,9 @@ Proves:
 Owner: `docs/configuration.md#markdown-link-validation`
 Entities:
 
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
   Proves:
-- `markdownLinkValidation` accepts only its complete closed native options shape and rejects omitted, oversized, or unknown configuration before execution.
+- `markdownLinkValidation` accepts only its complete closed native options shape and settles omitted, oversized, or unknown options as `unavailable` / `invalid-options` at execution entry.
 
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
@@ -40,7 +40,7 @@ Entities:
 Owner: `docs/configuration.md#维护提醒`
 Entities:
 
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
   Proves:
 - `maintenanceReminders(entries)` creates exactly one fixed-ID, attention ordinary Check with package-owned Git options; it does not create a child Check collection.
 - Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. Invalid/unknown replacement data closes as a Definition configuration result, while policy changes affect the declarative fingerprint.

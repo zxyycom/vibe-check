@@ -43,13 +43,18 @@ facts。
 接受的 terminal-message readback。Check data 的 business parser、field schema 与 sensitive-content policy 属于
 consumer/provider，不由 Product registry、catalog、extractor 或 presentation fallback 提供。
 
-## Direct defaults and exact inputs
+## Package-provided ordinary Checks and exact inputs
 
-`src/checks/builtins/**` 的 scanner defaults 是 `duplicate-detection`、`file-metrics` 与 `function-metrics`；
-`src/checks/json-validation/**` 提供 `json-validation`，`src/checks/json-schema-validation/**` 提供
-`json-schema-validation`。它们只处理 Product-approved exact input paths，并在 detail 是
-supplemental finding 时报告 Check-local Records。adapter availability、process、parser、cache 或 scope failure 将 owning
-Check settle 为 unavailable，不创建并行 quality model。scanner adapter boundary 见 [Scanner dependencies](scanner-dependencies.md)。
+每项 `src/checks/<check-owner>/**` 都实现一个普通 Check。`duplicate-detection`、`file-metrics` 与
+`function-metrics` 分别拥有自己的 jscpd、scc 与 Lizard adapter；`json-validation`、
+`json-schema-validation` 与 `markdown-link-validation` 同样完整拥有自己的 options validation、execution 和 domain
+facts。Definition、Run 与 Core 不识别这些 Check ID 或 option shape。
+
+需要文件的 Check 各自从 `options.files` 形成 selected/exact input paths，并只在 detail 是 supplemental finding 时报告
+Check-local Records。adapter availability、process、parser、cache 或 exact-input failure 将 owning Check settle 为
+unavailable，不创建并行 quality model。owner-local tool boundary 见
+[Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
+[Project files and Check exact inputs](scan-scope.md)。
 
 `json-validation` 的 Check-local facts 固定如下：
 
@@ -84,7 +89,7 @@ Check settle 为 unavailable，不创建并行 quality model。scanner adapter b
   catalog 无需 request；只有 explicit allowlisted HTTPS source 可以 fetch。adapter 不使用 credentials、headers、
   redirects、ambient callback 或 persistent cache；unapproved/unsupported reference 安全失败。
 
-All six defaults and custom callbacks use the same four-state grammar. Check options affect only their own
+All six package-provided values and custom callbacks use the same four-state grammar. Check options affect only their own
 semantics; aggregation and output presentation do not belong to these options.
 
 
@@ -116,7 +121,7 @@ target I/O/read/decode/parse 与 directory error。code 不得以 raw target pat
 
 ## 维护提醒评估
 
-`maintenanceReminders(entries)` 不是第四个默认 Check 值，也不会为每个条目创建 Check。它只形成一个
+`maintenanceReminders(entries)` 不是另一个无参 package Check value，也不会为每个条目创建 Check。它只形成一个
 `maintenance-reminders` 所属 Check；条目 ID、评估结果、提示文本和基线都只在该 Check 内有意义。输入规则、固定身份和原生对象组合边界见[配置](configuration.md#维护提醒)。
 
 callback 只在项目根目录的已提交 Git 历史中工作：它解析 `HEAD`，要求每个不可变的完整 `baseCommit` 位于
@@ -179,6 +184,6 @@ snapshot Checks 重建 quality conclusion；也不由 dependent Check 或 proces
 ## Verification
 
 current evidence 覆盖 recursive Definition validation、direct callback four-state outcomes、canonical final/Record data、
-Core ownership/terminal closure、prerequisites/cancellation、explicit aggregation、default-scanner exact scope/cache 和
+Core ownership/terminal closure、prerequisites/cancellation、explicit aggregation、Check-owned scanner exact inputs/cache 和
 Gate exit mapping。machine schema/example/publication evidence 见 [Output](output.md)；Case catalog 与验证入口见
 [Testing](testing.md)。

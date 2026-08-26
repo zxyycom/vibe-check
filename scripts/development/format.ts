@@ -4,7 +4,7 @@ import {
   runProcessInvocationSync,
   runMain,
   type ProcessInvocation
-} from "./command.ts";
+} from "../foundation/command.ts";
 import { workspaceFormatTargets } from "./format-targets.ts";
 
 export type FormatAction = "check" | "write";

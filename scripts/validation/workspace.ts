@@ -1,4 +1,4 @@
-import { reportProcessOutput, runCommand, runMain } from "../development/command.ts";
+import { reportProcessOutput, runCommand, runMain } from "../foundation/command.ts";
 import { TASK_NAMES } from "./docs-contract.ts";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
 import { parseDocsValidationTasks, validateDocs } from "../docs/validate.ts";

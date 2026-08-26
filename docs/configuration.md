@@ -2,11 +2,10 @@
 
 Vibe Check configuration is a project-owned TypeScript **Project Definition**. `defineConfig` creates its plain value; a project-owned wrapper calls `run(definition, controls)`. Product never discovers, reloads, or accepts a second configuration module.
 
-This document owns authoring and invocation. Check/Record semantics belong to [Quality Metrics](quality-metrics.md), scanner command semantics to [Scanner dependencies](scanner-dependencies.md), and result/output DTOs to [Output](output.md).
+This document owns authoring and invocation. Check/Record semantics belong to [Quality Metrics](quality-metrics.md), scanner command semantics to [Check-owned scanner dependencies](scanner-dependencies.md), and result/output DTOs to [Output](output.md).
 
-`ProjectDefinition.quality` is a closed scope configuration with exactly `codeAreas`, `excludeDirs`,
-`generatedFiles`, and `include`. It selects files and code areas for Check work; it has no reporting or
-publication setting.
+`ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与 effects。它没有 package-specific `quality`、file
+scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自己的完整 `options` 中声明并消费这些输入。
 
 ## Public authoring surface
 
@@ -64,7 +63,7 @@ export default defineConfig({
 });
 ```
 
-`defineCheck` improves TypeScript inference only. Runtime validation is the authority: it snapshots closed plain data, rejects unknown keys and malformed declarative fields, and leaves execution callbacks as trusted project code. A Check with `execution` owns its `options`. A Check without execution is a container; it may only carry recursive `checks` and scheduling fields. An empty container is accepted with a definition warning rather than silently becoming executable.
+`defineCheck` improves TypeScript inference only. Definition validation snapshots the closed ordinary Check grammar, rejects unknown Check keys and malformed declarative fields, and leaves execution callbacks as trusted project code. A Check with `execution` owns its `options`; Definition snapshots those options as a canonical opaque JSON object but does not recognize package-provided Check IDs or interpret their domain shape. The owning callback validates the complete options it needs before domain work. A Check without execution is a container; it may only carry recursive `checks` and scheduling fields. An empty container is accepted with a definition warning rather than silently becoming executable.
 
 An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
 
@@ -222,11 +221,29 @@ facts, machine output, Run Controls, or invocation-wide progress configuration.
 
 The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs their direct callbacks subject to dependencies, mutexes, and the effective parallel budget.
 
-## Defaults and native composition
+## Package-provided Check composition
 
-The six defaults are complete ordinary `Check` values. The metric defaults own their scanner executable, command args, availability args, and (for duplication) backend concurrency; `jsonValidation` owns only its document byte limit; `jsonSchemaValidation` owns its explicit registry, bindings, root-identity and reference policy; `markdownLinkValidation` owns its closed local-link validation options. All defaults use ordinary `options`. A project customizes them with normal object spread and must supply every field of a nested branch it replaces. Validation fails closed instead of filling omitted nested fields or merging a hidden operational map.
+The six package-provided values are complete ordinary `Check` values built on the same contract available to project-owned Checks. Product core does not register them as built-ins. Each value owns its full options, runtime option validation, execution and domain result. A project customizes one with normal object spread and must supply every field of a nested branch it replaces. The owning Check fails closed with `unavailable` / `invalid-options` instead of filling omitted fields or merging a hidden operational map.
 
-| Default                | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
+All six file-reading Checks own a complete `options.files` branch. Its initial value is:
+
+```ts
+{
+  include: ["**/*"],
+  excludeDirs: [
+    ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
+    "node_modules", "target", "vendor"
+  ],
+  generatedFiles: ["**/generated/**", "**/*.generated.*"]
+}
+```
+
+`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 还分别拥有初始
+`codeAreas: { project: { description: "This project", globs: ["**/*"], excludeGlobs: [], warningPolicy: "moderate" } }`。
+这些相同初始 values 是随包 Check 各自 options 的组成部分，不是 `ProjectDefinition` 中的共享配置。项目需要统一 policy
+时，应像 repository dogfood Definition 一样用普通 TypeScript value 显式组合。
+
+| Package value          | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
 | ---------------------- | ------------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------------------- |
 | `duplicateDetection`   | `duplicate-detection`     | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4`             |
 | `fileMetrics`          | `file-metrics`            | `scc`                                                     | `[]`           | `['--version']`            | —                                       |
@@ -235,7 +252,7 @@ The six defaults are complete ordinary `Check` values. The metric defaults own t
 | `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
 | `markdownLinkValidation` | `markdown-link-validation` | —                                                       | —              | —                          | closed local-link options |
 
-`jsonValidation.options` is exactly `{ maximumBytes }`; the value is a positive safe integer and uses the default only on the exported value. Replacing `options` with native object composition must supply that field: Definition validation rejects omission, zero, negative, fractional, unsafe, or unknown values and does not fill an implicit nested default. For every default, Product validates the complete option shape and known duplicate code-area keys where applicable. It does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+`jsonValidation.options` contains exactly `{ files, maximumBytes }`; `maximumBytes` is a positive safe integer. Replacing `options` with native object composition must supply both fields. Each package-provided Check validates its own complete option shape; `duplicateDetection` additionally requires every `minimumTokensByCodeArea` key to exist in its own `codeAreas`. Definition/Product core does not perform these package-specific checks and does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
 
 ### `jsonSchemaValidation` option contract
 
@@ -243,6 +260,14 @@ The exported `jsonSchemaValidation.options` value is exactly:
 
 ```ts
 {
+  files: {
+    include: ["**/*"],
+    excludeDirs: [
+      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
+      "node_modules", "target", "vendor"
+    ],
+    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+  },
   maximumBytes: 1_048_576,
   schemaIdentity: { mode: "require-match" },
   referenceResolution: { mode: "offline" },
@@ -257,9 +282,9 @@ identifiers without userinfo, query, or fragment. Binding IDs are safe labels. S
 normalized, project-relative, lowercase-`.json` paths.
 
 Schema IDs are unique within `schemas`; HTTPS source IDs are unique within `sources`; binding IDs, schema paths,
-and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. Before callback
-work, Definition validation rejects unknown fields, sparse arrays, malformed paths or IDs, an unknown binding
-schema, duplicate entries, an incomplete branch, or a non-positive byte limit.
+and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. At callback entry,
+the owning Check rejects unknown fields, sparse arrays, malformed paths or IDs, an unknown binding schema,
+duplicate entries, an incomplete branch, an invalid `files` branch or a non-positive byte limit as `invalid-options`.
 
 #### Root identity
 
@@ -293,8 +318,8 @@ schema, duplicate entries, an incomplete branch, or a non-positive byte limit.
 
 An HTTPS source has an exact HTTPS origin and normalized absolute path prefix. No headers, credentials, redirects,
 environment registry, generic callback loader, or ambient network policy is accepted. The Check still reads only
-its declared scope-approved local files; remote settlement is owned by
-[Quality Metrics](quality-metrics.md#direct-defaults-and-exact-inputs).
+its declared, Check-selected local files; remote settlement is owned by
+[Quality Metrics](quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs).
 
 #### First-release compatibility boundary
 
@@ -303,24 +328,32 @@ assertion plugin. Ajv `$async` schemas and `$dynamicRef`/`$recursiveRef` are clo
 policy applies only at actual schema positions: a JSON instance property literally named `$ref`, `$dynamicRef`, or
 `$async` remains ordinary instance data.
 
-The metric defaults contain only their documented absolute floors and nested allowances; no default option
+The metric package values contain only their documented absolute floors and nested allowances; no initial option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
-default metric option.
+metric option.
 
-For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
+For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication value's stable marker keeps its public Definition and declarative fingerprint portable. Only the `duplicate-detection`-owned jscpd adapter recognizes that package marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, executable-discovery API or shared adapter. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the owning Check to execute. The handoff is defined in [Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options).
 
 
 ### Markdown Link Validation
 
 `markdownLinkValidation` 是 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
 Markdown occurrence 的本地引用完整性；它不是通用 Markdown syntax、network reachability 或 repository-wide path policy。
-source 与 direct target 的边界由 [Scan Scope](scan-scope.md) 定义；finding 与 four-state result 由
+source 与 direct target 的边界由 [Project files and Check exact inputs](scan-scope.md) 定义；finding 与 four-state result 由
 [Quality Metrics](quality-metrics.md) 定义。
 
 其 closed `options` 均为必填项；完整 default 为：
 
 ```ts
 {
+  files: {
+    include: ["**/*"],
+    excludeDirs: [
+      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
+      "node_modules", "target", "vendor"
+    ],
+    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+  },
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -343,19 +376,13 @@ cross-document anchor validation 时，direct regular-file target 上的 fragmen
 positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occurrences 或 `10_000` target reads 的上限。
 通过 native composition 替换 `limits` 时必须提供三个字段；Product 不合并缺失 nested field，也不静默提高调用方的 bound。
 
-The metric defaults contain only their documented absolute floors and nested allowances; no default option
-expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
-default metric option.
-
-Each row is the complete initial `options.scanner` branch for its default Check. The duplication default's stable marker keeps its public Definition and declarative fingerprint portable. Only the private adapter recognizes that built-in marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, or executable-discovery API. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the private adapter to execute. The adapter handoff is defined in [Scanner dependencies](scanner-dependencies.md#check-owned-command-options).
-
 ## 维护提醒
 
 `maintenanceReminders(entries)` 是唯一的专用编写构造函数。它只创建一个普通、可执行的 Check，固定
 `checkId: "maintenance-reminders"`、显示名 `Maintenance reminders` 和
 `visibility: "attention"`。多个条目仅保留在该 Check 的局部最终数据中，不会成为子 Check、Record、依赖、聚合目标、进度行或机器输出行。
 
-每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值仍是普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 都会被 Definition validation 拒绝，Product 不会深度合并默认值。
+每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值仍是普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 都会由 owning Check 在 execution entry 拒绝为 `invalid-options`，Product 不会深度合并默认值。
 
 ```ts
 import { defineConfig, maintenanceReminders } from "vibe-check";
@@ -402,7 +429,7 @@ export default defineConfig({ checks: [maintenance] });
 
 Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/effect facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ dependencies, options, project, records, signal }`. `project` contains the normalized root, file scope, cache context, and canonical `flags`. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary callback, record, and cancellation failures as an unavailable Check outcome. Invalid configuration returns a configuration result before callback work. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
+A callback receives exactly `{ dependencies, options, project, records, signal }`. `project` contains the normalized root, cache context, frozen caller-supplied `changedFiles`, and canonical `flags`; file selection and domain policy, when needed, come from that Check's options. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary callback, record, and cancellation failures as an unavailable Check outcome. Invalid ordinary Definition grammar returns a configuration result before callback work; malformed package-specific options are instead settled by the owning Check as `unavailable` / `invalid-options`. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
 
 ## Run effects and compatibility boundary
 

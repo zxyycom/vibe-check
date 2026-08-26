@@ -30,8 +30,8 @@
       "description": "输入 fingerprint、current worktree/Git candidates、config glob 与 changed-files context 的真实边界。"
     },
     {
-      "id": "scanner-adapters",
-      "description": "scc、Lizard 与 jscpd 的解析、可用性、任务规划、调用和失败投影契约。"
+      "id": "check-owned-scanners",
+      "description": "各 producing Check 自己拥有的 scc、Lizard 与 jscpd 解析、可用性、调用和失败投影契约。"
     },
     {
       "id": "warning-generation",

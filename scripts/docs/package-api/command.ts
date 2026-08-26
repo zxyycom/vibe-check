@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { collectPackageCheckGuides } from "./check-guides.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 
 type PackageApiDocumentationMode = "--check" | "--write";
@@ -18,6 +19,7 @@ export function runPackageApiDocumentationCli(
   const mode = parseMode(argv);
   const repositoryRoot = resolve(options.repositoryRoot ?? repositoryRootFromModule());
   const rendered = renderPackageApiDocumentation({ repositoryRoot });
+  collectPackageCheckGuides(repositoryRoot, rendered.readme.content);
   const outputs = [rendered.readme, ...rendered.jsdocSources];
   if (mode === "--write") {
     for (const output of outputs) writeFileSync(output.path, output.content, "utf8");

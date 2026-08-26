@@ -19,7 +19,7 @@
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
 `dependsOn`、`mutex` 和 `maxParallel`，不形成独立 Core 或 output entity。
 
-完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 declarative data：它拒绝 unknown field 和 malformed value，snapshot JSON options，验证完整 default options，并 canonicalize scheduling collection。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
+完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical opaque JSON object，并 canonicalize scheduling collection。它不识别 package-provided Check ID，也不解释其 option shape；完整 options 由 owning Check 在 execution boundary 验证。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
 
 Definition grammar只描述递归 Check、调度、executable-only `visibility` 和 Check-owned execution/options。Typed provider 的 executable-only `parseData` 也是 trusted function：它保留给 runtime consumer，但不进入 declarative snapshot 或 fingerprint；其 public type relation 由 [Configuration](configuration.md#typed-dependency-data) 拥有。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
 
@@ -28,7 +28,7 @@ Definition grammar只描述递归 Check、调度、executable-only `visibility` 
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
 dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
 
-每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project.flags` 是调用 controls 规范化后的 frozen string array；Product 不解释 token。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
+每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project` 只携带 normalized root、cache context 与由 invocation controls 冻结的 `changedFiles`/canonical `flags`；Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
 Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Core；只有 Core 接受该 result 后，detached messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。throw、Product-created outcome、invalid attachment 或 Record diagnostic 都没有 author messages。四种 ordinary terminal status 都完成正常 dependency settlement；downstream 在 direct upstream settle 后运行，并通过 `dependencies.get(checkId)` 显式判断上游是否有可读 final data。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
@@ -49,9 +49,11 @@ Raw Core facts 始终可供 completed/effect `RunResult` generic readback。只�
 
 Run callback-local dependency view 只授权当前 Check 的 normalized effective direct dependency IDs。`dependencies.get(checkId)` 读取 Core package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
 
-## Default Checks and exact scope
+## Package-provided Checks and exact inputs
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation` 与 `jsonSchemaValidation` 都是带 direct callback 的 complete Check value。前三项的 scanner command 与 options 由 Check value 拥有；`jsonValidation` 只拥有 document byte limit 与 private strict-document boundary；`jsonSchemaValidation` 只复用该 boundary 的有效 private JSON value，并拥有自己的 explicit registry/bindings、identity policy、controlled reference resolver、Records and final-data settlement。两个 JSON Checks 不互读 final data，也不声明 runtime dependency。所有 adapter 只接收所属 Check 的 exact accepted file、options 与所需 cache context；callback 保留自己的 signal。adapter 在 conversion 前拒绝任何 out-of-scope result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 default 通过自己的 final data 表达本次 Check-owned conclusion；只有详细 finding 是补充事实时才报告 Record。具体 default option 值见 [Configuration](configuration.md#defaults-and-native-composition)；private adapter 规则见 [Scanner dependencies](scanner-dependencies.md)。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 都只是从同一普通 Check 基础构造的 complete Check values；它们因为随 package 提供而方便使用，但不获得 Definition/Core 特权。每项 Check 完整拥有自己的 options type、runtime validation、execution、measurement/finding model 与 documentation。
+
+需要项目文件的 Check 将完整 file selection 放在自己的 options 中，并独立调用 `src/project-files/**` 的真实共同 collection/exact-membership mechanism；metric Check 也分别拥有自己的 code-area policy。jscpd、scc 与 Lizard adapter 分别位于唯一 producing Check 内，不存在集中 scanner owner 或 Definition registry。adapter 只接收所属 Check 的 exact accepted files、command options 与必要 cache context，在 conversion 前拒绝任何 out-of-set result batch，且不向 Core 或 publication 暴露 raw scanner data。每个 Check 通过自己的 final data 表达 conclusion；只有详细 finding 是补充事实时才报告 Record。具体初始 option 值见 [Configuration](configuration.md#package-provided-check-composition)，file mechanism 见 [Project files and Check exact inputs](scan-scope.md)，private tool 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary
 

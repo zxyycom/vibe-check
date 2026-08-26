@@ -17,11 +17,11 @@ import {
   maintenanceReminders,
   jsonSchemaValidation,
   jsonValidation
-} from "../definition/project-definition.ts";
+} from "../index.ts";
 import { run } from "../run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns five runtime functions, six ordinary built-in values, and minimal type roots", () => {
+  it("owns five runtime functions, six package-provided ordinary Check values, and minimal type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
@@ -59,7 +59,6 @@ describe("public API inventory", () => {
         jsonValidationOptions: "JsonValidationOptions",
         projectEffects: "ProjectEffects",
         projectDefinition: "ProjectDefinition",
-        projectQualityConfiguration: "ProjectQualityConfiguration",
         runControls: "RunControls",
         runResult: "RunResult",
         schedulerPolicy: "SchedulerPolicy"

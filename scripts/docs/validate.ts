@@ -7,7 +7,7 @@ import {
   validateReportExamples,
   validateSchemas
 } from "../validation/schema/validation.ts";
-import { checkPublishedMachineExamples } from "./machine-artifacts/examples.ts";
+import { checkPublishedMachineExamples } from "./machine-artifacts/examples/command.ts";
 import { checkPublishedMachineSchemas } from "./machine-artifacts/schemas.ts";
 import { runPackageApiDocumentationCli } from "./package-api/command.ts";
 

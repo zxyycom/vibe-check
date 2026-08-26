@@ -1,22 +1,5 @@
 import { createHash } from "node:crypto";
 
-import {
-  duplicateDetection,
-  fileMetrics,
-  functionMetrics,
-  maintenanceReminders,
-  jsonSchemaValidation,
-  markdownLinkValidation,
-  jsonValidation,
-  type DuplicateDetectionOptions,
-  type FileMetricsOptions,
-  type FunctionMetricsOptions,
-  type MarkdownLinkValidationOptions,
-  type MaintenanceReminder,
-  type MaintenanceReminderOptions,
-  type JsonSchemaValidationOptions,
-  type JsonValidationOptions
-} from "./default-checks.ts";
 import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDefinition } from "./check-definition.ts";
@@ -34,37 +17,17 @@ import {
 } from "./custom-check.ts";
 import { DEFAULT_PROJECT_EFFECTS } from "./effect-defaults.ts";
 import { isNonArrayRecord } from "../foundation/type-guards.ts";
-import {
-  NEUTRAL_QUALITY_CONFIGURATION,
-  type ProjectQualityConfiguration
-} from "./quality-configuration.ts";
 
 export {
   defineCheck,
-  duplicateDetection,
-  fileMetrics,
-  functionMetrics,
-  maintenanceReminders,
-  markdownLinkValidation,
   inherit,
-  jsonSchemaValidation,
-  jsonValidation,
   type Check,
   type CheckExecution,
   type CheckExecutionContext,
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
-  type DuplicateDetectionOptions,
-  type FileMetricsOptions,
-  type InheritableCheckCollection,
-  type FunctionMetricsOptions,
-  type MarkdownLinkValidationOptions,
-  type MaintenanceReminder,
-  type MaintenanceReminderOptions,
-  type JsonSchemaValidationOptions,
-  type JsonValidationOptions,
-  type ProjectQualityConfiguration
+  type InheritableCheckCollection
 };
 
 /** 一次 Run 的 cache、output 与 progress effect 配置。 */
@@ -104,8 +67,6 @@ export interface ProjectDefinition {
   readonly checks: readonly Check[];
   /** 本定义的默认 effect 配置。 */
   readonly effects: ProjectEffects;
-  /** Check callback 可读取的已规范化质量范围。 */
-  readonly quality: ProjectQualityConfiguration;
   /** 根 Check 的调度默认值。 */
   readonly scheduler: SchedulerPolicy;
 }
@@ -118,7 +79,6 @@ type ProjectDefinitionInput = Readonly<{
     output: Partial<ProjectEffects["output"]>;
     progress: Partial<ProjectEffects["progress"]>;
   }>;
-  quality?: ProjectQualityConfiguration;
   scheduler?: Partial<SchedulerPolicy>;
 }>;
 
@@ -201,7 +161,6 @@ export interface DeclarativeProjectSnapshot {
   /** Canonically ordered executable Check declarations. */
   readonly checks: readonly NormalizedCheckDeclaration[];
   readonly effects: ProjectEffects;
-  readonly quality: ProjectQualityConfiguration;
   readonly scheduler: SchedulerPolicy;
 }
 
@@ -236,7 +195,6 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
         enabled: value.effects?.progress?.enabled ?? DEFAULT_PROJECT_EFFECTS.progress.enabled
       }
     },
-    quality: value.quality ?? NEUTRAL_QUALITY_CONFIGURATION,
     scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 }
   };
 }
@@ -282,7 +240,6 @@ function freezeDeclarativeSnapshot(
     apiVersion: definition.apiVersion,
     checks: declarations,
     effects: definition.effects,
-    quality: definition.quality,
     scheduler: definition.scheduler
   });
 }

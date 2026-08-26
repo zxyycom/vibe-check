@@ -1,0 +1,107 @@
+/** 依据调用方提供的 glob policy 完成文件过滤、code-area 分类和 fingerprint。 */
+
+import { createHash } from "node:crypto";
+
+import { matchesAnyConfigGlob } from "./config-glob.ts";
+import type { CodeAreaDefinition } from "./configuration.ts";
+
+export type CodeAreaFileMap = Map<string, string[]>;
+
+export interface CodeAreaFingerprint {
+  readonly fileCount: number;
+  readonly fileList: readonly string[];
+  readonly fingerprint: string;
+}
+
+/**
+ * 将文件路径归类到配置定义的 code area。
+ *
+ * 匹配优先级：
+ * 1. generated files（最高优先）
+ * 2. 按调用方提供的 code areas 顺序匹配 globs
+ * 3. 未匹配的文件归入 "unknown" code area
+ */
+export function classifyFile(
+  filePath: string,
+  codeAreas: Record<string, CodeAreaDefinition>,
+  generatedFileGlobs: readonly string[]
+): string {
+  if (matchesAnyConfigGlob(filePath, generatedFileGlobs)) {
+    return "generated";
+  }
+
+  for (const [name, def] of Object.entries(codeAreas)) {
+    if (name === "generated") continue;
+
+    if (matchesAnyConfigGlob(filePath, def.excludeGlobs)) {
+      continue;
+    }
+    if (matchesAnyConfigGlob(filePath, def.globs)) {
+      return name;
+    }
+  }
+
+  return "unknown";
+}
+
+export function isExcluded(
+  filePath: string,
+  excludeDirs: readonly string[],
+  generatedFileGlobs: readonly string[]
+): boolean {
+  const parts = filePath.split("/");
+
+  if (excludeDirs.some((d) => parts.includes(d))) {
+    return true;
+  }
+
+  if (matchesAnyConfigGlob(filePath, generatedFileGlobs)) {
+    return true;
+  }
+
+  return false;
+}
+
+export function classifyFiles(
+  files: readonly string[],
+  codeAreas: Record<string, CodeAreaDefinition>,
+  generatedFileGlobs: readonly string[]
+): CodeAreaFileMap {
+  const groups: CodeAreaFileMap = new Map();
+
+  for (const file of files) {
+    const area = classifyFile(file, codeAreas, generatedFileGlobs);
+    if (!groups.has(area)) {
+      groups.set(area, []);
+    }
+    groups.get(area)?.push(file);
+  }
+
+  for (const groupFiles of groups.values()) {
+    groupFiles.sort();
+  }
+
+  return groups;
+}
+
+export function buildFingerprint(
+  _codeArea: string,
+  files: readonly string[],
+  gitHashFn: (filePath: string) => string
+): CodeAreaFingerprint {
+  const sortedFiles = files.slice().sort();
+  const inputDigest = createHash("sha256");
+
+  for (const file of sortedFiles) {
+    inputDigest.update(file, "utf8");
+    inputDigest.update("\0");
+    inputDigest.update(gitHashFn(file), "utf8");
+    inputDigest.update("\n");
+  }
+
+  return {
+    fileCount: files.length,
+    fileList: sortedFiles.slice(0, 200),
+    fingerprint: `sha256:${inputDigest.digest("hex")}:${files.length}`
+  };
+}

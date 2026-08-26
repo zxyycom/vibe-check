@@ -2,7 +2,7 @@
 
 Vibe Check 是由项目在 **Bun** runtime 中显式调用的 TypeScript API：项目先定义 Check，再执行一次可审计的 Run。package root 只提供 API；当前没有 public CLI、配置发现、Node.js host、plugin API 或 subpath exports。
 
-本指南面向已经取得 package 的 consumer。按“当前可用性 → 最小 Run → Check 编写 → 依赖数据 → controls 与结果”阅读：先确认 package 的可用性，再由项目代码创建 Definition 并调用 `run`。单个类型、字段和函数的局部含义以 installed declarations 的 JSDoc 为准。
+本指南面向已经取得 package 的 consumer。按“当前可用性 → 最小 Run → Check 编写 → 依赖数据 → controls 与结果”阅读：先确认 package 的可用性，再由项目代码创建 Definition 并调用 `run`。单个类型、字段和函数的局部含义可从 installed declarations 的 JSDoc 查看；随 package 提供的每项普通 Check 另有可直接阅读的用途、完整默认配置、工作原理、结果与安全边界，见<!-- package-check-guide-index -->。
 
 ## 当前可用性与安装边界
 
@@ -22,33 +22,34 @@ Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象
 
 <!-- package-api-example:quick-start -->
 
-## 默认 Check、组合与继承
+## 随包提供的普通 Check、组合与继承
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是完整的默认 Check 值。`jsonValidation` 只检查当前项目 global `quality` scope 已包含且以小写 `.json` 结尾的 paths；其 `options` 必须恰为 `{ maximumBytes }`，导出的默认值为 `1_048_576`。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是随 package 提供的完整 ordinary Check values；Definition、Run 与 Core 不识别这些 ID 或 options shape。需要读取项目文件的 Check 在自己的 `options.files` 中完整拥有 `include`、`excludeDirs` 与 `generatedFiles`，不存在 Project-wide `quality` scope。`jsonValidation` 只检查它自己选中且以小写 `.json` 结尾的 paths；其 `options` 必须恰含 `{ files, maximumBytes }`，`maximumBytes` 初始值为 `1_048_576`。
 
 ### `jsonSchemaValidation` 的配置边界
 
 `jsonSchemaValidation` 不会自动发现 schema 或遍历所有 JSON。项目必须以 closed `schemas` registry 与
-`bindings` 指定 scope-approved path；没有 binding 时，这个 Check 是 `not-applicable`。导出值的默认
+`bindings` 指定必须同时属于本 Check `files` selection 的 path；没有 binding 时，这个 Check 是 `not-applicable`。导出值的默认
 `options` 逐项如下：
 
-| `options` branch | 默认值 |
-| --- | --- |
-| `maximumBytes` | `1_048_576` |
-| `schemaIdentity` | `{ mode: "require-match" }` |
-| `referenceResolution` | `{ mode: "offline" }` |
-| `schemas` | `[]` |
-| `bindings` | `[]` |
+| `options` branch      | 默认值                      |
+| --------------------- | --------------------------- |
+| `files`               | 完整 repository-file selection |
+| `maximumBytes`        | `1_048_576`                 |
+| `schemaIdentity`      | `{ mode: "require-match" }` |
+| `referenceResolution` | `{ mode: "offline" }`       |
+| `schemas`             | `[]`                        |
+| `bindings`            | `[]`                        |
 
 `schemas` 的每项是 `{ id, path }`，`bindings` 的每项是 `{ id, instancePath, schemaId }`。两者都是 closed
-dense arrays；每个 binding 只能引用已声明 schema，且 configuration validation 会拒绝遗漏、未知或重复的
-branch、ID 与 path。`schemaIdentity` 是整个 Check 的一项选择：
+dense arrays；每个 binding 只能引用已声明 schema，且 owning Check 会在 execution entry 将遗漏、未知或重复的
+branch、ID 与 path 结算为 `unavailable` / `invalid-options`。`schemaIdentity` 是整个 Check 的一项选择：
 
-| Mode | Root 与 engine identity |
-| --- | --- |
-| `require-match`（默认） | root `$id` 必须与 configured schema ID 相同。 |
+| Mode                          | Root 与 engine identity                                                                                                   |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `require-match`（默认）       | root `$id` 必须与 configured schema ID 相同。                                                                             |
 | `configuration-authoritative` | configured schema ID 是 engine identity；object root 会在 private compile copy 中覆盖 `$id`，boolean root 直接使用该 ID。 |
-| `document-authoritative` | safe root `$id` 是 engine identity；configured schema ID 仍是 binding/Record label。 |
+| `document-authoritative`      | safe root `$id` 是 engine identity；configured schema ID 仍是 binding/Record label。                                      |
 
 默认模式不会发起网络 request。只有 `referenceResolution: { mode: "allowlisted", sources }` 中精确声明的 HTTPS
 origin/path prefix 才能提供额外 `$ref`；adapter 不使用 credentials、headers、redirect 或任意 resolver callback。
@@ -57,19 +58,19 @@ allowlisted `sources` 只能使用 `{ kind: "bundled", catalog: "json-schema-202
 Schema 2020-12 catalog 不需要 request。首版把 `format` 视为 2020-12 annotation，不安装 format assertion plugin；
 Ajv `$async` schema 与 `$dynamicRef`/`$recursiveRef` 会安全失败。
 
-`markdownLinkValidation` 只校验受支持 Markdown occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。installed `MarkdownLinkValidationOptions` 的 JSDoc 说明 option field；在仓库工作区，Configuration 拥有完整 default 与 validation，Scan Scope 拥有 source/direct-target boundary，Quality Metrics 拥有 finding/final data，Output 拥有 Record projection。
+`markdownLinkValidation` 只校验它自己的 `options.files` 选中 Markdown sources 中，受支持 occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。完整 fields、defaults 和运行边界可直接阅读 package 内对应 Check 指南，不必只依赖 LSP。
 
 <!-- package-api-example:markdown-link-validation -->
 
-通过对象组合替换任一 default 的 `options` branch 时，必须提供完整 closed shape；Definition validation 不会填充
-遗漏 branch。普通对象组合还可以替换 display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供
+通过对象组合替换任一随包 Check 的 `options` branch 时，必须提供完整 closed shape；Definition 只保存 opaque canonical
+options，不会填充遗漏 branch，owning Check 会将无效 shape 结算为 `unavailable` / `invalid-options`。普通对象组合还可以替换 display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供
 `dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
 
 ## 维护提醒
 
 `maintenanceReminders(entries)` 是唯一的专用构造函数，而不是另一个无参默认 Check 值。它固定创建 ID 为 `maintenance-reminders` 的注意型 Check；多个条目仅保存在该 Check 按声明顺序排列的最终数据中，绝不会成为子 Check、Record 或单条聚合目标。每个条目都需要唯一的小写短横线命名 `id`、作为已复核基线的完整 40 或 64 位十六进制 `baseCommit`、至少一个正的 `commits` 或 `changedLines` 上限、非空 `message`，以及可省略的 `advisory` 或 `enforcing` `mode`。维护者在真实复核后手动更新基线；Product 只测量已提交的 `first-parent` 历史，不读取工作区或暂存区，也不会自动推进基线。
 
-条目到期或无法测量时，默认 `advisory` 仍返回 `passed` 和完整最终数据，并附加警告；`enforcing` 保留相同数据、附加错误并使所属 Check `failed`。只有 callback 无法形成完整、可信的条目评估数据时，整个 Check 才会 `unavailable`。需要阻断进程时，调用方仍须在 `RunControls.checkAggregation` 中显式选择 `maintenance-reminders`。
+条目到期或无法测量时，默认 `advisory` 仍返回 `passed` 和完整最终数据，并附加警告；`enforcing` 保留相同数据、附加错误并使所属 Check `failed`。无效完整 options 为 `unavailable` / `invalid-options`；callback 无法形成完整、可信的条目评估数据时，整个 Check 也会 `unavailable`。需要阻断进程时，调用方仍须在 `RunControls.checkAggregation` 中显式选择 `maintenance-reminders`。
 
 <!-- package-api-example:maintenance-reminders -->
 

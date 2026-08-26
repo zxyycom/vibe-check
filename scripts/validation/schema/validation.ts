@@ -10,7 +10,7 @@ import {
   formatAjvErrors
 } from "./registry.ts";
 
-export { validatePublishedMachineArtifactExamples } from "./machine-artifacts.ts";
+export { validatePublishedMachineArtifactExamples } from "../machine-artifacts/validation.ts";
 
 export function validateJsonSyntax(report?: (message: string) => void): void {
   const jsonFiles = walk(toAbs(FILE_SYSTEM.docsDir), (filePath) =>

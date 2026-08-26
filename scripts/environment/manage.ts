@@ -4,8 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { errorMessage } from "../foundation/errors.ts";
-import { PLAIN_TEXT_PROCESS_ENV } from "../foundation/process/env.ts";
-import { DEFAULT_PROCESS_MAX_BUFFER_BYTES } from "../foundation/process/process-contract.ts";
+import { DEFAULT_PROCESS_MAX_BUFFER_BYTES, PLAIN_TEXT_PROCESS_ENV } from "../foundation/process.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const MISE_ENV = Object.freeze({

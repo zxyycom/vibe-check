@@ -11,7 +11,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 
 | Owner | 责任与入口 |
 | --- | --- |
-| `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`command.ts` 提供它们的进程边界。 |
+| `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`foundation/command.ts` 提供它们的进程边界。 |
 | `scripts/environment/manage.ts` | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理。 |
 | `scripts/foundation/**` | repository automation 共享的 filesystem、path、process、JSON、CSV、NDJSON、Git、argument、error 与 type-guard helpers。 |
 | `scripts/validation/**` | workspace validation、docs task contract、Markdown/JSON/schema/path validation 的 owner。 |
@@ -82,8 +82,9 @@ artifact audit 在 pack 前验证根入口、公开运行时导出、可解析�
    导入公开 Check values 和 `defineConfig`。`project-run.ts` 将该 Definition 与 repository root 绑定，调用
    package `run`。
 
-quality wrapper 不解析调用方配置、不重新声明 Project Definition，也不注入 scanner override。scanner command
-与 availability command 属于 built-in Check options；详见 [Scanner dependencies](scanner-dependencies.md)。
+quality wrapper 不解析调用方配置、不重新声明 Project Definition，也不注入 scanner override。每项 scanner command
+与 availability command 都属于使用它的 package-provided ordinary Check options；详见
+[Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ## Project Gate
 
@@ -113,7 +114,7 @@ README template、allowlisted TypeScript examples、projection registry 和 sour
 `package-api-documentation` task 中调用 check mode。
 
 current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
-`scripts/docs/machine-artifacts/**` 维护它们与 runtime material 的对应关系。
+`scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/machine-artifacts/**` 独立验收已发布的 machine artifact。
 
 `bun run validate` 先运行全部文档 task，再执行 repository layout characterization，最后运行
 `git diff --check`；`bun run validate -- docs` 只运行文档 task，不执行 layout 或 diff 检查。
@@ -126,6 +127,8 @@ materials 只走显式 historical validation path，不进入 current traversal 
 ## Environment and shared foundation
 
 ### Shared foundation
+
+`scripts/foundation/process.ts` 是跨 owner 的 process facade；其它 scripts owner 只能从该 facade 消费 process capability，不得 deep import `foundation/process/**`。
 
 `scripts/foundation/**` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
 TypeScript config 或独立 Gate profile。它由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
@@ -153,7 +156,7 @@ checkout `node_modules` 和 `.codegraph`。执行前审阅 `mise.toml`。`bun ru
 
 `quality` 是唯一需要 mise 锁定 scanner toolchain 的日常 workflow；它不会从 ambient `PATH` 取得同名 scanner，
 也不接受 scanner override。Product Check 的 scanner command、availability command 和 unavailable behavior 仍由
-[Scanner dependencies](scanner-dependencies.md) owner 定义。
+[Check-owned scanner dependencies](scanner-dependencies.md) 所列的各 Check owner 定义。
 
 ## Governance and Test Evidence adapters
 

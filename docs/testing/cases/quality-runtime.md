@@ -136,14 +136,14 @@ Entities:
 Owner: `docs/quality-metrics.md#markdown-link-findings-and-outcomes`
 Entities:
 
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > is not applicable when global scope has no eligible Markdown source`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > is not applicable when its file selection has no eligible Markdown source`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
+- `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
   Proves:
 - A completed traversal publishes only the documented safe local-reference Record projection and exact final counts; root-external findings retain no destination material.
 - A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
@@ -178,7 +178,7 @@ Entities:
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
-- `bun|src/checks/measurement/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
+- `bun|src/checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
   Proves:
 - Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or presentation settings. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.
 
@@ -187,11 +187,11 @@ Entities:
 Owner: `docs/quality-metrics.md#维护提醒评估`
 Entities:
 
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > uses first-parent merge diffs, reverts, binary and rename activity`
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
-- `bun|src/checks/builtins/maintenance-reminders.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > uses first-parent merge diffs, reverts, binary and rename activity`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
+- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
 - Every measurable entry retains an ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable because no complete payload is formed.

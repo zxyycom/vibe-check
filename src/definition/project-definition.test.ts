@@ -7,14 +7,14 @@ import {
   defineCheck,
   defineConfig,
   inherit,
-  jsonSchemaValidation,
-  jsonValidation,
   normalizeProjectDefinition,
   type Check,
   type CheckExecution,
   type CheckResult,
   type ProjectDefinition
 } from "./project-definition.ts";
+import { jsonSchemaValidation } from "../checks/json-schema-validation/default-check.ts";
+import { jsonValidation } from "../checks/json-validation/default-check.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 
 const passed = () => ({ status: "passed" as const, data: { source: "test" } });
@@ -284,36 +284,9 @@ describe("Project Definition", () => {
         }
       );
     }
-
-    const codeAreas = {};
-    Object.defineProperty(codeAreas, "__proto__", {
-      enumerable: true,
-      value: {
-        description: "Prototype-named area",
-        excludeGlobs: [],
-        globs: ["src/**/*.ts"],
-        warningPolicy: "moderate"
-      }
-    });
-    const qualityValidated = validateProjectDefinition({
-      ...defineConfig({}),
-      quality: { codeAreas, excludeDirs: [], generatedFiles: [], include: ["**/*"] }
-    });
-    assert.equal(qualityValidated.ok, true);
-    if (qualityValidated.ok) {
-      const validatedCodeAreas = qualityValidated.value.quality.codeAreas;
-      assert.equal(Object.getPrototypeOf(validatedCodeAreas), Object.prototype);
-      assert.equal(Object.hasOwn(validatedCodeAreas, "__proto__"), true);
-      assert.deepEqual(validatedCodeAreas.__proto__, {
-        description: "Prototype-named area",
-        excludeGlobs: [],
-        globs: ["src/**/*.ts"],
-        warningPolicy: "moderate"
-      });
-    }
   });
 
-  it("fails closed for incomplete or invalid JSON validation options", () => {
+  it("keeps package-provided JSON options opaque to ordinary Definition validation", () => {
     const invalidOptions: readonly object[] = [
       {},
       { maximumBytes: 0 },
@@ -326,7 +299,7 @@ describe("Project Definition", () => {
       const result = validateProjectDefinition(
         defineConfig({ checks: [{ ...jsonValidation, options }] })
       );
-      assert.equal(result.ok, false);
+      assert.equal(result.ok, true);
     }
     assert.equal(
       validateProjectDefinition(
@@ -336,7 +309,7 @@ describe("Project Definition", () => {
     );
   });
 
-  it("fails closed for malformed JSON Schema validation options and accepts all closed identity/reference branches", () => {
+  it("keeps package-provided JSON Schema options opaque to ordinary Definition validation", () => {
     const schemaId = "https://schemas.example.test/root";
     const validOptions = {
       bindings: [{ id: "instance", instancePath: "instances/one.json", schemaId }],
@@ -408,7 +381,7 @@ describe("Project Definition", () => {
       assert.equal(
         validateProjectDefinition(defineConfig({ checks: [{ ...jsonSchemaValidation, options }] }))
           .ok,
-        false
+        true
       );
     }
   });

@@ -5,6 +5,7 @@ import { isPathWithin } from "../../foundation/path.ts";
 import { isNonArrayRecord } from "../../foundation/type-guards.ts";
 import { auditCandidateArtifact, auditStagingRuntime } from "../artifact/audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
+import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 
 const RECEIPT_SCHEMA_VERSION = 2;
 
@@ -62,6 +63,7 @@ export function candidatePaths(
 /** Reuses only an artifact whose current receipt and complete artifact audit agree. */
 export function readReusableArtifact(input: {
   readonly candidateVersion: string;
+  readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedReadme: string;
   readonly inputFingerprint: string;
@@ -79,6 +81,7 @@ export function readReusableArtifact(input: {
   if (artifact === undefined) return undefined;
   try {
     auditStagingRuntime({
+      expectedDocuments: input.expectedDocuments,
       expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
       expectedReadme: input.expectedReadme,
       stagingDirectory: artifact.stagingDirectory
@@ -87,6 +90,7 @@ export function readReusableArtifact(input: {
       artifactPath: artifact.artifactPath,
       candidateVersion: artifact.candidateVersion,
       expectedFiles: artifact.files,
+      expectedDocuments: input.expectedDocuments,
       expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
       expectedReadme: input.expectedReadme,
       expectedSha256: artifact.sha256

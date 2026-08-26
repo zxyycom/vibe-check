@@ -7,7 +7,7 @@ import {
   scanAstRule,
   unsupportedAstDiagnostics,
   type AstMatch
-} from "../ast-scan.ts";
+} from "../ast-grep/scan.ts";
 import { closeStaticAndRuntimeEntities } from "../closure.ts";
 import {
   diagnostic,
@@ -183,7 +183,7 @@ async function scanBunStaticEntities(
   files: string[],
   cancelSignal?: AbortSignal
 ): Promise<BunStaticResult> {
-  const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "rules");
+  const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "ast-grep", "rules");
   const nativeScan = await scanAstRule({
     cancelSignal,
     workspaceRoot,

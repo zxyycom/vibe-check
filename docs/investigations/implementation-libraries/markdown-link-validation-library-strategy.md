@@ -29,7 +29,7 @@
 
 #### 调查范围与依据
 
-**项目事实。** 读取了本 Change 的 [`proposal.md`](../../../changes/archive/add-markdown-link-validation/proposal.md)、[`design.md`](../../../changes/archive/add-markdown-link-validation/design.md) 及活动 Decision [`define-offline-markdown-link-target-boundaries.md`](../../decisions/define-offline-markdown-link-target-boundaries.md)。它们是本报告对安全/功能适配的主依据；现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
+**项目事实。** 读取了本 Change 的 [`proposal.md`](../../../changes/archive/add-markdown-link-validation/proposal.md)、[`design.md`](../../../changes/archive/add-markdown-link-validation/design.md) 及形成时 Decision [`define-offline-markdown-link-target-boundaries.md`](../../decisions/archive/define-offline-markdown-link-target-boundaries.md)。它们是本报告对安全/功能适配的主依据；现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
 
 **候选与版本。** 于 2026-08-25（UTC）查询 npm registry：`remark-validate-links@13.1.0`、`mdast-util-from-markdown@2.0.3`、`micromark-extension-gfm@3.0.0`、`mdast-util-gfm@3.1.0`、`micromark-extension-frontmatter@2.0.0`、`mdast-util-frontmatter@2.0.1`、`github-slugger@2.0.0`、`unified@11.0.5`、`remark-parse@11.0.0`、`remark-gfm@4.0.1`、`remark-frontmatter@5.0.0`、`markdown-it@15.0.0`、`markdown-link-check@3.15.0` 与 `linkinator@8.0.4` 的 package metadata。版本、许可证和直接 runtime dependency 以对应 [npm registry metadata](https://registry.npmjs.org/remark-validate-links/13.1.0)（其他候选同样以 `https://registry.npmjs.org/<package>/<version>` 查询）为事实来源；registry manifest 只证明发布者声明，**并未**完成全部传递依赖的 license/security audit。
 

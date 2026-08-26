@@ -13,6 +13,7 @@ const PRODUCT_OWNERS = [
   "definition",
   "foundation",
   "output",
+  "project-files",
   "run",
   "scheduler"
 ];

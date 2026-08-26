@@ -2,12 +2,12 @@
 
 ## Case AUX-QUALITY-RECORD-GENERATION-001: Built-in thresholds return final data and supplemental facts
 
-Owner: `docs/quality-metrics.md#direct-defaults-and-exact-inputs`
+Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
-- `bun|src/checks/builtins/default-checks.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and cache context`
+- `bun|src/checks/file-metrics/default-check.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
+- `bun|src/checks/function-metrics/default-check.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
+- `bun|src/checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and cache context`
 
 Proves:
 
@@ -15,7 +15,7 @@ Proves:
 
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
-Owner: `docs/quality-metrics.md#direct-defaults-and-exact-inputs`
+Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
 - `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > uses byte length with a strict greater-than limit before every document issue`
@@ -31,12 +31,12 @@ Proves:
 
 ## Case ADD-JSON-VALIDATION-RESULTS-001: JSON validation emits safe per-file facts and four-state outcomes
 
-Owner: `docs/quality-metrics.md#direct-defaults-and-exact-inputs`
+Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from global scope and returns exact final counts`
+- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > reports every closed document issue once with redacted Records and exact counts`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when global scope has no lower-case JSON input`
+- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > retains accepted Records but becomes unavailable when a later eligible file disappears`
 - `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > honors cancellation before and between file boundaries without final data`
 
@@ -47,7 +47,7 @@ Proves:
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema Check closes safe document, reference, validation and display facts
 
-Owner: `docs/quality-metrics.md#direct-defaults-and-exact-inputs`
+Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
 - `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`

@@ -45,6 +45,16 @@ Entities:
 - The typed registry and read-only renderer project every allowlisted TypeScript region only to its declared README or JSDoc targets without changing payload bytes, replace current registry-managed JSDoc example tails, discover and clear obsolete generated tails after a target leaves the registry, and reject duplicate projection/region/target identities, unsafe JSDoc tails, and malformed or unknown placeholders/regions.
 - The CLI writes the renderer's complete expected projections, while check mode writes nothing and fails when a checked-in projection is missing or stale.
 
+## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
+
+Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Entities:
+
+- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one exact linked guide for every package-provided Check and constructor`
+- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects a missing guide link and an extra guide page`
+  Proves:
+- Package documentation has exactly one linked guide for every package-provided Check value and specialized constructor; the README index and guide directory cannot omit a required guide or publish an unregistered extra page.
+
 ## Case AUX-DOCS-VALIDATION-CLI-001: Docs validation adapters preserve default and focused selection
 
 Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
@@ -145,10 +155,10 @@ Entities:
 Owner: `docs/script-tooling.md#environment-and-shared-foundation`
 Entities:
 
-- `bun|scripts/foundation/foundation.test.ts|script foundation > detects failed process results`
-- `bun|scripts/foundation/foundation.test.ts|script foundation > keeps file traversal deterministic and reports filesystem and JSON boundaries`
-- `bun|scripts/foundation/foundation.test.ts|script foundation > parses JSON values and normalizes slash paths`
-- `bun|scripts/foundation/foundation.test.ts|script foundation > parses strict positive integers`
+- `bun|scripts/foundation/process.test.ts|detects failed process results`
+- `bun|scripts/foundation/fs.test.ts|keeps file traversal deterministic and reports filesystem and JSON boundaries`
+- `bun|scripts/foundation/path.test.ts|normalizes slash paths and identifies contained paths`
+- `bun|scripts/foundation/args.test.ts|parses strict positive integers`
   Proves:
 - `parsePositiveInteger` 与 JSON parser 拒绝无效输入；`toSlashPath` 返回确定性 slash-normalized 路径，`isPathWithin` 只接受 resolved parent 的严格后代并拒绝 parent 自身与 sibling。
 - Foundation 文件遍历按稳定的相对路径顺序返回；无法读取目录、读取/解析 JSON 文件时包含目标路径，序列化 JSON 文件或 NDJSON record 时标识失败对象，不会静默跳过边界失败。
@@ -159,7 +169,7 @@ Entities:
 Owner: `docs/script-tooling.md#environment-and-shared-foundation`
 Entities:
 
-- `bun|scripts/foundation/foundation.test.ts|script foundation > runs child processes with plain text output environment`
+- `bun|scripts/foundation/process.test.ts|runs child processes with plain text output environment`
   Proves:
 - 开发脚本启动子进程时使用 plain-text / no-color 环境，并返回可判断的 status、stdout 与 stderr。
 
@@ -168,6 +178,6 @@ Entities:
 Owner: `docs/script-tooling.md#environment-and-shared-foundation`
 Entities:
 
-- `bun|scripts/foundation/foundation.test.ts|script foundation > cancels an already-started child process`
+- `bun|scripts/foundation/process.test.ts|cancels an already-started child process`
   Proves:
 - 已运行 child 收到 caller 的 `cancelSignal` 后终止；其结果保留 `error`、`SIGTERM` 与 `status: null`，不被误判为成功。

@@ -10,6 +10,8 @@ import {
 const EXAMPLE_DIRECTORY = "docs/examples/package-api";
 const README_PATH = "README.md";
 const README_TEMPLATE_PATH = "docs/package-readme.template.md";
+const PACKAGE_CHECK_GUIDE_INDEX_MARKER = "<!-- package-check-guide-index -->";
+const PACKAGE_CHECK_GUIDE_INDEX_LINK = "[包内 Check 指南](./docs/checks/index.md)";
 
 export interface RenderedPackageApiDocumentation {
   readonly jsdocSources: readonly Readonly<{ readonly content: string; readonly path: string }>[];
@@ -288,6 +290,11 @@ function renderReadme(
 ): Readonly<{ readonly content: string; readonly path: string }> {
   const templatePath = repositoryFilePath(repositoryRoot, README_TEMPLATE_PATH);
   const template = readText(templatePath);
+  if (template.split(PACKAGE_CHECK_GUIDE_INDEX_MARKER).length !== 2) {
+    throw new Error(
+      `package README template must contain exactly one Check guide index marker: ${README_TEMPLATE_PATH}`
+    );
+  }
   if (/^(?: {0,3})(?:`{3,}|~{3,})/m.test(template)) {
     throw new Error(
       `package README template must not contain fenced code: ${README_TEMPLATE_PATH}`
@@ -322,7 +329,7 @@ function renderReadme(
     }
   }
 
-  let content = template;
+  let content = template.replace(PACKAGE_CHECK_GUIDE_INDEX_MARKER, PACKAGE_CHECK_GUIDE_INDEX_LINK);
   for (const projection of readmeProjections) {
     const payload = requiredPayload(payloads, projection.id);
     for (const target of projection.targets) {

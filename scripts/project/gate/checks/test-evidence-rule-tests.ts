@@ -5,7 +5,7 @@ import {
   testEvidenceRuleTestFailureMessage,
   testEvidenceRuleTestInvocations,
   type TestEvidenceRuleTestResult
-} from "../../../test-evidence/test-rules.ts";
+} from "../../../test-evidence/ast-grep/rule-tests.ts";
 import { type ProcessResult } from "../../../foundation/process.ts";
 import { defineCheck, type Check, type CheckResult } from "vibe-check";
 

@@ -1,4 +1,3 @@
-import { defaultCheckOptionCodeAreasAreKnown } from "./default-checks.ts";
 import { resolveParsedCheckTree } from "./check-tree/resolution.ts";
 import { parseCheckTreeAuthoring } from "./check-tree/authoring.ts";
 import { materializeCheckTreeAuthoring } from "./check-tree/materialization.ts";
@@ -9,16 +8,9 @@ import {
   type SchedulerPolicy,
   type ValidationResult
 } from "./project-definition.ts";
-import { parseQualityConfiguration } from "./quality-configuration.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../foundation/closed-values.ts";
 
-const PROJECT_DEFINITION_KEYS = [
-  "apiVersion",
-  "checks",
-  "effects",
-  "quality",
-  "scheduler"
-] as const;
+const PROJECT_DEFINITION_KEYS = ["apiVersion", "checks", "effects", "scheduler"] as const;
 
 /**
  * Validates one closed Definition before Run can invoke any project callback.
@@ -41,8 +33,6 @@ function validateProjectDefinitionValue(value: unknown): ProjectDefinitionValida
 function parseProjectDefinitionFields(
   data: Readonly<Record<string, unknown>>
 ): ProjectDefinitionValidationResult {
-  const quality = parseQualityConfiguration(data.quality);
-  if (quality === undefined) return invalidDefinition("definition.quality");
   const scheduler = parseScheduler(data.scheduler);
   if (scheduler === undefined) return invalidDefinition("definition.scheduler");
   const checks = snapshotClosedArray(data.checks);
@@ -50,18 +40,7 @@ function parseProjectDefinitionFields(
   const parsedChecks = parseCheckTreeAuthoring(checks);
   if (parsedChecks === undefined) return invalidDefinition("definition.checks");
   const tree = resolveParsedCheckTree(parsedChecks, scheduler.maxParallel);
-  if (
-    tree === undefined ||
-    tree.leaves.some(
-      (check) =>
-        !defaultCheckOptionCodeAreasAreKnown(
-          check.definition.checkId,
-          check.options,
-          quality.codeAreas
-        )
-    )
-  )
-    return invalidDefinition("definition.checks");
+  if (tree === undefined) return invalidDefinition("definition.checks");
   const effects = parseEffects(data.effects);
   if (effects === undefined) return invalidDefinition("definition.effects");
   return Object.freeze({
@@ -70,7 +49,6 @@ function parseProjectDefinitionFields(
       apiVersion: "1" as const,
       checks: materializeCheckTreeAuthoring(parsedChecks),
       effects,
-      quality,
       scheduler
     },
     warnings: tree.warnings

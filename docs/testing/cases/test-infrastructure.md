@@ -44,7 +44,7 @@ Owner: `docs/script-tooling.md#source-owners-and-dependency-direction`
 Entities:
 
 - `bun|scripts/test-evidence/discovery/profile.test.ts|forwards cancellation through the top-level discovery operation`
-- `bun|scripts/test-evidence/ast-scan.test.ts|forwards cancellation to ast-grep scans`
+- `bun|scripts/test-evidence/ast-grep/scan.test.ts|forwards cancellation to ast-grep scans`
 - `bun|scripts/test-evidence/runner-process.test.ts|forwards cancellation to the Bun test discovery child`
   Proves:
 - 顶层 discovery operation 把同一 caller `AbortSignal` 传入所有 ast-grep static scan 与 Bun JUnit runtime discovery process，不会在 Test Evidence 内丢失。

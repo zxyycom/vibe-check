@@ -52,6 +52,7 @@ export async function preparePackageCandidate(
 
   const reusable = readReusableArtifact({
     candidateVersion,
+    expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedReadme: documentation.readme,
     inputFingerprint,
@@ -61,6 +62,7 @@ export async function preparePackageCandidate(
     const installation = inspectInstallation({
       candidateVersion,
       consumerDirectory,
+      expectedDocuments: documentation.documents,
       expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
       expectedReadme: documentation.readme
     });
@@ -79,6 +81,7 @@ export async function preparePackageCandidate(
       artifactPath: reusable.artifact.artifactPath,
       candidateVersion,
       consumerDirectory,
+      expectedDocuments: documentation.documents,
       expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
       expectedReadme: documentation.readme
     });
@@ -110,6 +113,7 @@ export async function preparePackageCandidate(
     artifactPath: artifact.artifactPath,
     candidateVersion,
     consumerDirectory,
+    expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedReadme: documentation.readme
   });

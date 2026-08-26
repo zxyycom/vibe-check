@@ -354,7 +354,6 @@ async function invoke(
       root: process.cwd(),
       changedFiles: [],
       flags,
-      files: { codeAreas: {}, excludeDirs: [], generatedFiles: [], include: [] },
       cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
     },
     records: {

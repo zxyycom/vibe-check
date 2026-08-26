@@ -1,4 +1,3 @@
-import { validateDefaultCheckOptions } from "../default-checks.ts";
 import type { CheckDefinition } from "../check-definition.ts";
 import {
   isInheritedCheckCollection,
@@ -223,9 +222,7 @@ function parseCheckFields(
   const definition = parseDefinition(data);
   if (definition === undefined) return undefined;
   const options = parseOptions(data);
-  if (options === undefined || !validateDefaultCheckOptions(definition.checkId, options)) {
-    return undefined;
-  }
+  if (options === undefined) return undefined;
   const visibility = parseVisibility(data);
   if (visibility === undefined) return undefined;
   return Object.freeze({ definition, execution, options, parseData, visibility });

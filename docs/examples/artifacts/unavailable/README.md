@@ -1,7 +1,7 @@
 # Unavailable Check
 
 This directory is a deterministic current-product machine publication example. Regenerate it
-with `bun scripts/docs/machine-artifacts/examples.ts`.
+with `bun scripts/docs/machine-artifacts/examples/command.ts`.
 
 ## Fixed scenario
 

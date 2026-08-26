@@ -1,8 +1,9 @@
 import { resolve } from "node:path";
 
-import type { JsonValidationOptions } from "../../definition/default-checks.ts";
+import type { JsonValidationOptions } from "./options.ts";
+import { validJsonValidationOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
-import { collectScanFiles } from "../input/files.ts";
+import { collectProjectFiles } from "../../project-files/collection.ts";
 import { readStrictJsonDocument } from "./strict-document.ts";
 
 export const JSON_VALIDATION_CHECK_DEFINITION = {
@@ -20,17 +21,19 @@ interface JsonValidationFinalData {
 type JsonValidationUnavailableCode =
   | "document-unavailable"
   | "execution-cancelled"
+  | "invalid-options"
   | "scan-input-unavailable";
 
-/** Validates the exact JSON subset of the current global scan scope. */
+/** Validates the lower-case JSON subset selected by this Check's options. */
 export function executeJsonValidation(
   context: CheckExecutionContext<JsonValidationOptions>
 ): CheckResult<JsonValidationFinalData> {
+  if (!validJsonValidationOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   let paths: string[];
   try {
-    paths = collectScanFiles(context.project.root, context.project.files).filter((path) =>
+    paths = collectProjectFiles(context.project.root, context.options.files).filter((path) =>
       path.endsWith(".json")
     );
   } catch {

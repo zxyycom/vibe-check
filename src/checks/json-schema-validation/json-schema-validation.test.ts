@@ -4,18 +4,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { JsonSchemaValidationOptions } from "../../definition/default-checks.ts";
+import type { JsonSchemaValidationOptions } from "./options.ts";
 import type {
   CheckDependencies,
   CheckExecutionContext,
-  CheckProjectContext,
   CheckResult,
   DeepReadonly
 } from "../../definition/custom-check.ts";
 import { executeJsonSchemaValidation } from "./json-schema-validation.ts";
+import type { ProjectFileSelection } from "../../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  codeAreas: Object.freeze({}),
   excludeDirs: Object.freeze([]),
   generatedFiles: Object.freeze([]),
   include: Object.freeze(["**/*"])
@@ -35,7 +34,7 @@ interface ObservedRecord {
 }
 
 interface RunInput {
-  readonly fileConfiguration?: CheckProjectContext["files"];
+  readonly fileConfiguration?: ProjectFileSelection;
   readonly options: DeepReadonly<JsonSchemaValidationOptions>;
   readonly root: string;
   readonly signal?: AbortSignal;
@@ -52,11 +51,10 @@ async function runJsonSchemaValidation({
   const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<JsonSchemaValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
-    options,
+    options: Object.freeze({ ...options, files: fileConfiguration }),
     project: Object.freeze({
       cache: Object.freeze({ directory: "cache", enabled: false, reportActivity: () => undefined }),
       changedFiles: Object.freeze([]),
-      files: fileConfiguration,
       flags: Object.freeze([]),
       root
     }),
@@ -92,6 +90,7 @@ function offlineOptions(input: {
 }): DeepReadonly<JsonSchemaValidationOptions> {
   return Object.freeze({
     bindings: input.bindings,
+    files: DEFAULT_FILES,
     maximumBytes: 1_048_576,
     referenceResolution: Object.freeze({ mode: "offline" as const }),
     schemaIdentity: input.schemaIdentity ?? Object.freeze({ mode: "require-match" as const }),
@@ -151,6 +150,20 @@ describe("JSON Schema validation default Check", () => {
         name: "Ada"
       });
       writeJson(root, "bad.json", { extra: true, name: 3 });
+
+      const invalidOptions = offlineOptions({
+        bindings: [{ id: "bad", instancePath: "bad.json", schemaId }],
+        schemas: [{ id: schemaId, path: "schema.json" }]
+      });
+      assert.deepEqual(
+        (
+          await runJsonSchemaValidation({
+            options: { ...invalidOptions, maximumBytes: 0 },
+            root
+          })
+        ).result,
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
 
       const observed = await runJsonSchemaValidation({
         options: offlineOptions({
@@ -388,6 +401,7 @@ describe("JSON Schema validation default Check", () => {
         async () => {
           const options: DeepReadonly<JsonSchemaValidationOptions> = Object.freeze({
             bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+            files: DEFAULT_FILES,
             maximumBytes: 1_048_576,
             referenceResolution: {
               mode: "allowlisted",
@@ -454,6 +468,7 @@ describe("JSON Schema validation default Check", () => {
           const observed = await runJsonSchemaValidation({
             options: Object.freeze({
               bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+              files: DEFAULT_FILES,
               maximumBytes: 1_048_576,
               referenceResolution: {
                 mode: "allowlisted",
@@ -499,6 +514,7 @@ describe("JSON Schema validation default Check", () => {
           const observed = await runJsonSchemaValidation({
             options: Object.freeze({
               bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+              files: DEFAULT_FILES,
               maximumBytes: 1_048_576,
               referenceResolution: {
                 mode: "allowlisted",
