@@ -18,7 +18,7 @@ Vibe Check 是由项目在 **Bun** runtime 中显式调用的 TypeScript API：�
 
 Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象值，再由项目自己的 wrapper 调用 `run(definition, controls)`。Product 不会发现、加载或重载第二个配置模块。
 
-下面的示例只在 `result.kind === "completed"` 时继续处理，因为只有该分支表示成功的 Run。需要处理其它 `RunResult` 分支时，按后文的“Controls、effects 与结果边界”判断 snapshot 与失败边界。
+下面的示例只在 `result.kind === "completed"` 时继续处理，因为只有该分支表示成功的 Run。需要处理其它 `RunResult` 分支时，按后文的“Controls、outputs 与结果边界”判断 snapshot 与失败边界。
 
 ```ts
 import { defineConfig, run } from "vibe-check";
@@ -34,10 +34,9 @@ const definition = defineConfig({
       }
     }
   ],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 
@@ -89,10 +88,9 @@ import { defineConfig, markdownLinkValidation, run } from "vibe-check";
 
 const definition = defineConfig({
   checks: [markdownLinkValidation],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 
@@ -135,10 +133,9 @@ const maintenance = maintenanceReminders([
 
 const definition = defineConfig({
   checks: [maintenance],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 
@@ -218,10 +215,9 @@ const licensePolicy = defineCheck({
 
 const definition = defineConfig({
   checks: [licensePolicy],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 
@@ -287,10 +283,9 @@ const analyzeChangedFiles = defineCheck({
 
 const definition = defineConfig({
   checks: [changedFiles, analyzeChangedFiles],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 
@@ -298,14 +293,14 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-## Controls、effects 与结果边界
+## Controls、outputs 与结果边界
 
-`RunControls` 只在调用 `run` 时提供，例如 `changedFiles`、`flags`、`signal`、`effects` 与显式 `checkAggregation`。对 cache、output、progress 的覆盖只作用于当前调用；它们不改变 Check 定义、scanner commands 或 dependency 声明。machine output 的可信边界、human presentation 和 artifact reader 都不是 package 额外提供的 reader API。
+`RunControls` 只在调用 `run` 时提供，例如 `changedFiles`、`flags`、`signal`、`outputs` 与显式 `checkAggregation`。对 machine publication、progress rendering 的覆盖只作用于当前调用；它们不改变 Check 定义、scanner commands 或 dependency 声明。machine output 的可信边界、human presentation 和 artifact reader 都不是 package 额外提供的 reader API。
 
 按 `RunResult.kind` 与 cancellation `phase` 收窄结果：
 
 - `completed`：有完整 final snapshot，且表示成功完成的 Run。
-- `effect`：有完整 final snapshot，但至少一个 presentation effect 已失败，因此不是成功的 Run。
+- `output`：有完整 final snapshot，但至少一个 Run-owned output 已失败，因此不是成功的 Run。
 - `kind: "cancelled", phase: "execution"`：有取消时关闭的 `snapshot`、`checkDurations` 与 `checkMessages`，但不是成功的 Run。
 - `configuration`、`planning`、`execution`，以及 `phase: "pre-work" | "planning"` 的 `cancelled`：没有可作为成功 Check data 处理的完整 snapshot；应处理各自的 diagnostic 或 cancellation 边界。
 

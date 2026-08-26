@@ -1,5 +1,5 @@
-import type { TrustedPublicationModelV4 } from "../../../../src/output/machine-v4/publication-model.ts";
-import type { MachinePublicationV4 } from "../../../../src/output/machine-v4/projection.ts";
+import type { TrustedPublicationModelV4 } from "../../../../src/machine-output/v4/publication-model.ts";
+import type { MachinePublicationV4 } from "../../../../src/machine-output/v4/projection.ts";
 
 export const MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
 export const MACHINE_EXAMPLE_REGENERATE_COMMAND =

@@ -8,11 +8,11 @@ import type { ProcessResult } from "../../../foundation/process.ts";
 import { defineConfig, run, type CheckResult } from "vibe-check";
 import {
   createProcessCheck,
-  type ProcessCheckDefinition,
+  type ProcessCheckDescriptor,
   type ProcessCheckDependencies
 } from "./process.ts";
 
-const definition: ProcessCheckDefinition = Object.freeze({
+const definition: ProcessCheckDescriptor = Object.freeze({
   checkId: "fixture-command",
   command: process.execPath,
   args: [],
@@ -109,10 +109,9 @@ describe("Project Gate process Check", () => {
         run(
           defineConfig({
             checks: [productCheck],
-            effects: {
-              cache: { enabled: false },
+            outputs: {
               output: { enabled: false },
-              progress: { enabled: true }
+              progressRendering: { enabled: true }
             }
           }),
           { flags: ["project-gate:profile=required"] }
@@ -318,7 +317,7 @@ async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
 
 interface ProcessScenario {
   readonly aborted?: boolean;
-  readonly definition: ProcessCheckDefinition;
+  readonly definition: ProcessCheckDescriptor;
   readonly expected: CheckResult;
   readonly expectedTranscriptError?: string;
   readonly expectsTranscript?: boolean;
@@ -353,8 +352,7 @@ async function invoke(
     project: {
       root: process.cwd(),
       changedFiles: [],
-      flags,
-      cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
+      flags
     },
     records: {
       report: (identity, data) => records.push(Object.freeze({ data, identity }))

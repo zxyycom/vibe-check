@@ -16,7 +16,7 @@ with \`${MACHINE_EXAMPLE_REGENERATE_COMMAND}\`.
 
 ## Package Run result
 
-The artifact set projects the same frozen Core Check/Record facts returned by Package Run. Effect
+The artifact set projects the same frozen Core Check/Record facts returned by Package Run. Output
 status and any invocation-specific aggregate are structured Run Result facts, not recoverable from
 these artifacts. A command adapter may map its result to process behavior, but process exit codes
 are not part of this publication example.

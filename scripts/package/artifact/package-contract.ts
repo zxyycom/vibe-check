@@ -1,4 +1,4 @@
-import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../docs/package-api/public-api-inventory.ts";
 
 export const CANDIDATE_NAME = "vibe-check";
 export const AJV_PACKAGE_NAME = "ajv";

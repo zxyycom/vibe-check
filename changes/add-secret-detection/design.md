@@ -31,7 +31,7 @@
 3. **Raw material留在 private stack/memory。** Detector API只向上返回 allowlisted rule ID、markerized structural context、range和 ordinal；禁止 raw exception interpolation、writer、persistent cache和 digest。
 4. **Safe semantic identity。** Record ID由 rule ID、source path、markerized structural class与 occurrence ordinal组成；不消费 raw match、prefix/suffix、hash或 line。Data可含 current location供导航。
 5. **Status分层。** 正常 scanned且无 finding/gap为 `passed`；存在 high-confidence finding为 `failed`。Coverage gap是否 `failed`或 `unavailable`由 resume consumer明确决定；read/detector/protocol throw始终 `unavailable`，不能表示“未发现”。
-6. **全 surface canary。** Tests对 success/finding/coverage/read/detector/protocol/output-effect failure后的所有可见和持久 surface搜索 raw canary、substring与 derived digest。
+6. **全 surface canary。** Tests对 success/finding/coverage/read/detector/protocol/output failure后的所有可见和持久 surface搜索 raw canary、substring与 derived digest。
 
 ### Resulting Impacts
 

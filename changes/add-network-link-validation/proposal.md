@@ -37,5 +37,5 @@ Network Check需要独立的授权、transport、redaction、rate/resource和 no
 - `docs/configuration.md`：future Check-owned network authorization/options。
 - `docs/architecture.md`：transport与敏感材料 private boundary。
 - `docs/quality-metrics.md`、`docs/output.md`：safe Records/final status/redaction。
-- `src/checks/**`、`src/definition/**`、`src/index.ts`：future implementation/public surface。
+- `src/package-checks/**`、`src/check/**`、`src/project-definition/**`、`src/index.ts`：future implementation/public surface。
 - `docs/testing/cases/**`：SSRF、redirect、credentials、resources、nondeterminism与 consumer evidence。

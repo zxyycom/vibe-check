@@ -12,7 +12,7 @@ import { defineCheck, type Check, type CheckResult } from "vibe-check";
 import {
   failedProcessResult,
   writeProcessTranscript,
-  type ProcessCheckDefinition
+  type ProcessCheckDescriptor
 } from "./process.ts";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
@@ -160,7 +160,7 @@ function firstFailedProcessResult(result: TestEvidenceRuleTestResult):
 }
 
 function transcriptDefinition(
-  invocation: Pick<ProcessCheckDefinition, "args" | "command">
+  invocation: Pick<ProcessCheckDescriptor, "args" | "command">
 ): Readonly<{
   readonly args: readonly string[];
   readonly command: string;

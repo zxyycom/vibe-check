@@ -5,9 +5,9 @@
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/file-metrics/default-check.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
-- `bun|src/checks/function-metrics/default-check.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
-- `bun|src/checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and cache context`
+- `bun|src/package-checks/file-metrics/default-check.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
+- `bun|src/package-checks/function-metrics/default-check.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
+- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
 
 Proves:
 
@@ -18,12 +18,12 @@ Proves:
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > uses byte length with a strict greater-than limit before every document issue`
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > returns BOM before fatal UTF-8 and strict grammar failures`
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > accepts every JSON root value only after Momoa strictly consumes it`
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > detects decoded duplicate keys in each object without exposing the key or AST`
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > returns a frozen private value without an object prototype or source/AST detail`
-- `bun|src/checks/json-validation/strict-document.test.ts|strict JSON document boundary > maps a read failure to a closed unavailable result`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > uses byte length with a strict greater-than limit before every document issue`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > returns BOM before fatal UTF-8 and strict grammar failures`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > accepts every JSON root value only after Momoa strictly consumes it`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > detects decoded duplicate keys in each object without exposing the key or AST`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > returns a frozen private value without an object prototype or source/AST detail`
+- `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > maps a read failure to a closed unavailable result`
 
 Proves:
 
@@ -34,11 +34,11 @@ Proves:
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > reports every closed document issue once with redacted Records and exact counts`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > retains accepted Records but becomes unavailable when a later eligible file disappears`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > honors cancellation before and between file boundaries without final data`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > reports every closed document issue once with redacted Records and exact counts`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > retains accepted Records but becomes unavailable when a later eligible file disappears`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > honors cancellation before and between file boundaries without final data`
 
 Proves:
 
@@ -50,17 +50,17 @@ Proves:
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > resolves a registered local schema before requiring an external source`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > resolves a registered local schema before requiring an external source`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
 
 Proves:
 

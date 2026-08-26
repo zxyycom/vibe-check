@@ -5,28 +5,26 @@
  *
  * @packageDocumentation
  */
-export { duplicateDetection } from "./checks/duplicate-detection/default-check.ts";
-export type { DuplicateDetectionOptions } from "./checks/duplicate-detection/options.ts";
-export { fileMetrics } from "./checks/file-metrics/default-check.ts";
-export type { FileMetricsOptions } from "./checks/file-metrics/options.ts";
-export { functionMetrics } from "./checks/function-metrics/default-check.ts";
-export type { FunctionMetricsOptions } from "./checks/function-metrics/options.ts";
-export { jsonSchemaValidation } from "./checks/json-schema-validation/default-check.ts";
-export type { JsonSchemaValidationOptions } from "./checks/json-schema-validation/options.ts";
-export { jsonValidation } from "./checks/json-validation/default-check.ts";
-export type { JsonValidationOptions } from "./checks/json-validation/options.ts";
-export { maintenanceReminders } from "./checks/maintenance-reminders/maintenance-reminders.ts";
+export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
+export type { DuplicateDetectionOptions } from "./package-checks/duplicate-detection/options.ts";
+export { fileMetrics } from "./package-checks/file-metrics/default-check.ts";
+export type { FileMetricsOptions } from "./package-checks/file-metrics/options.ts";
+export { functionMetrics } from "./package-checks/function-metrics/default-check.ts";
+export type { FunctionMetricsOptions } from "./package-checks/function-metrics/options.ts";
+export { jsonSchemaValidation } from "./package-checks/json-schema-validation/default-check.ts";
+export type { JsonSchemaValidationOptions } from "./package-checks/json-schema-validation/options.ts";
+export { jsonValidation } from "./package-checks/json-validation/default-check.ts";
+export type { JsonValidationOptions } from "./package-checks/json-validation/options.ts";
+export { maintenanceReminders } from "./package-checks/maintenance-reminders/maintenance-reminders.ts";
 export type {
   MaintenanceReminder,
   MaintenanceReminderOptions
-} from "./checks/maintenance-reminders/maintenance-reminders.ts";
-export { markdownLinkValidation } from "./checks/markdown-link-validation/default-check.ts";
-export type { MarkdownLinkValidationOptions } from "./checks/markdown-link-validation/options.ts";
-export { defineCheck, defineConfig, inherit } from "./definition/project-definition.ts";
+} from "./package-checks/maintenance-reminders/maintenance-reminders.ts";
+export { markdownLinkValidation } from "./package-checks/markdown-link-validation/default-check.ts";
+export type { MarkdownLinkValidationOptions } from "./package-checks/markdown-link-validation/options.ts";
+export { defineCheck, inherit } from "./check/check.ts";
 export type {
   Check,
-  CheckAggregate,
-  CheckAggregation,
   CheckExecution,
   CheckExecutionContext,
   CheckPreflight,
@@ -34,11 +32,18 @@ export type {
   CheckOutcome,
   CheckResult,
   CheckUnavailableReason,
-  InheritableCheckCollection,
-  ProjectEffects,
+  InheritableCheckCollection
+} from "./check/check.ts";
+export { defineConfig } from "./project-definition/project-definition.ts";
+export type {
+  ProjectOutputs,
   ProjectDefinition,
-  RunControls,
   SchedulerPolicy
-} from "./definition/project-definition.ts";
-export { run } from "./run/run.ts";
-export type { RunResult } from "./run/run-result.ts";
+} from "./project-definition/project-definition.ts";
+export type {
+  CheckAggregate,
+  CheckAggregation,
+  RunControls
+} from "./project-run/controls/contract.ts";
+export { run } from "./project-run/run.ts";
+export type { RunResult } from "./project-run/result.ts";

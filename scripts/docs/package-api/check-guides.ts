@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 
 import {

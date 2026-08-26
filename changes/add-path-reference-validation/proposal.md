@@ -38,5 +38,5 @@
 - `docs/scan-scope.md`：source eligibility与 inventory-only target index。
 - `docs/configuration.md`：future ordinary value与 Check-owned options。
 - `docs/quality-metrics.md`、`docs/output.md`：safe Records/final result。
-- `src/checks/**`、`src/definition/**`、`src/index.ts`：future implementation/public surface。
+- `src/package-checks/**`、`src/check/**`、`src/project-definition/**`、`src/index.ts`：future implementation/public surface。
 - `docs/testing/cases/**`：corpus precision、owner去重、scope与安全证据。

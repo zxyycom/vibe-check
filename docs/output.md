@@ -1,10 +1,10 @@
 # 输出边界
 
 本文是 Vibe Check public machine publication contract 的唯一 owner。实现位于
-`src/output/machine-v4/**`：`projection.ts` 只从 trusted Core snapshot 与 invocation metadata 创建 v4 model，
+`src/machine-output/v4/**`：`projection.ts` 只从 trusted Check-facts snapshot 与 invocation metadata 创建 v4 model，
 `serializers.ts` 生成候选 bytes，`validation.ts` 验证完整 set，`publish.ts` 只发布已验证候选，
-`atomic-publication.ts` 拥有 filesystem lifecycle。`src/run/publication.ts` 仅在 Run effect 中调用该 owner；
-Package Run、Core、progress 与 repository process adapters 不复制 machine DTO 规则。
+`atomic-publication.ts` 拥有 filesystem lifecycle。`src/project-run/completion.ts` 仅在 Project Run output 中调用该 owner；
+Package Run、Check facts、progress 与 repository process adapters 不复制 machine DTO 规则。
 
 ## 当前产品输出
 
@@ -13,14 +13,14 @@ Package Run、Core、progress 与 repository process adapters 不复制 machine 
 | `run.json`       | 单一 UTF-8 JSON value，schema `urn:vibe-check:schema:run:v4`                                                                 |
 | `records.ndjson` | canonical ordered supplemental Record rows；非空时每行一个 JSON value 且以 LF 结束，schema `urn:vibe-check:schema:record:v4` |
 
-`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、effect status、execution timing、terminal messages、visibility 和人读内容不是 machine publication fields。
+`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 有 `checkId`、`displayName` 与一个 terminal `outcome`：`passed` / `failed` 带 canonical final `data`；`not-applicable` / `unavailable` 带其受控 reason（前者可省略）。Aggregation、output status、execution timing、terminal messages、visibility 和人读内容不是 machine publication fields。
 
 ### 维护提醒评估数据
 
 `maintenanceReminders(entries)` 仍只投影一个普通的 `maintenance-reminders` Check 行。其 `passed` 或
 `failed` 结果的通用最终 `data.entries` 承载按声明顺序排列的局部评估；条目不会成为机器 Check 行或补充 Record。到期或不可测量时的终态提示仅保留在 progress 与 `RunResult.checkMessages`，因此既不会进入 `run.json`，也不会进入 `records.ndjson`。评估的测量方式和状态折叠见[质量指标](quality-metrics.md#维护提醒评估)。
 
-Output effect 只创建这两个 canonical paths 及其短暂的 owned temp files；artifact directory 不包含
+Machine-publication output 只创建这两个 canonical paths 及其短暂的 owned temp files；artifact directory 不包含
 scanner-private material。
 
 `records.ndjson` 的每行是：
@@ -36,7 +36,7 @@ scanner-private material。
 
 `id` 只在 owning Check 内唯一；不同 Checks 可以使用同一 `id`。Record presence、count 或 `data` 不决定 Check terminal status。final `data` 是该 Check 的主事实；Records 是补充事实。完整 field/nullability/enums 只见 [run schema](schemas/vibe-check-run.schema.json) 与 [record schema](schemas/vibe-check-record.schema.json)。
 
-Core 接受 Check facts 后，projection 不会恢复、解释或脱敏其 business diagnostics。特别是
+Check facts 接受 Check facts 后，projection 不会恢复、解释或脱敏其 business diagnostics。特别是
 `json-schema-validation` 必须只提交其 owner 已批准的 safe ID、path、closed reason、pointer 与 keyword；raw
 schema/instance/response material、native diagnostic、credential 和 external URI detail 都不得到达这个 generic
 v4 boundary。
@@ -49,11 +49,11 @@ raw destination、query/userinfo、external absolute path、symlink payload、ta
 Record ID、Record data、final data、message、cache、log 或 published artifact。root 外 finding 不发布 target path 或
 fragment。这一排除是 Check data contract 的一部分；machine format 不重建或保留隐藏的 target representation。
 
-这里的 canonical JSON 是 Product 的**安全结构契约**，不是业务 schema，也不是 JSON bytes 的排版契约。final/Record `data` 的根必须是 non-array plain object；递归只接受 `null`、boolean、string、finite number、dense array 与 plain object。Product 通过 own-property descriptors materialize，不读取 accessor 或调用 `toJSON`；拒绝 accessor、symbol/non-enumerable key、unsupported prototype、cycle、sparse array 与非有限 number，并将 `-0` 规范为 `0`。materialized data 使用 null-prototype container 和 recursive freeze 成为 detached Core fact；需要 canonical text 时才递归按 lexical key order 生成它，而不把 JavaScript own-key enumeration 声明为该顺序。它不验证 required property、业务 union、跨 Check consistency 或敏感值。
+这里的 canonical JSON 是 Product 的**安全结构契约**，不是业务 schema，也不是 JSON bytes 的排版契约。final/Record `data` 的根必须是 non-array plain object；递归只接受 `null`、boolean、string、finite number、dense array 与 plain object。Product 通过 own-property descriptors materialize，不读取 accessor 或调用 `toJSON`；拒绝 accessor、symbol/non-enumerable key、unsupported prototype、cycle、sparse array 与非有限 number，并将 `-0` 规范为 `0`。materialized data 使用 null-prototype container 和 recursive freeze 成为 detached Check-facts fact；需要 canonical text 时才递归按 lexical key order 生成它，而不把 JavaScript own-key enumeration 声明为该顺序。它不验证 required property、业务 union、跨 Check consistency 或敏感值。
 
-## Core-to-machine projection
+## Check-facts-to-machine projection
 
-`src/core/**` 先验证并冻结 `{ checks, records }`。`src/output/machine-v4/**` 将这个 trusted Core snapshot 与
+`src/check-settlement/**` 先验证并冻结 `{ checks, records }`。`src/machine-output/v4/**` 将这个 trusted Check-facts snapshot 与
 已验证 invocation metadata 组成 trusted input，再创建 v4 projection、序列化 two-file candidate，并在 canonical
 path 变更前完整验证该 candidate；不会重算 Check status，不解释 Check-local data，也不会从 Record 内容猜测 owner、
 count、ID、presentation 或 aggregate。这里的 trusted 描述 projection 的输入事实，不表示两个 filesystem paths
@@ -65,7 +65,7 @@ JavaScript object own-key enumeration，以及 `run.json`/`records.ndjson` 通�
 
 Product 没有 package-owned artifact-reader 或 consumer surface。v4 publisher 在写入前完整验证自己序列化的
 candidate；这是 producing-path safety check，不是向下游暴露的读取 API。该验证是 candidate bytes 的一次完整
-validation pass；Core fact 的 canonicalization 与 Output candidate validation 是不同边界，不应把后者描述为
+validation pass；Check-facts canonicalization 与 Output candidate validation 是不同边界，不应把后者描述为
 “没有第二次 traversal”。独立的 docs validator 才读取 checked-in artifact bytes：它使用 checked-in schema，
 递归检查 canonical JSON（包括拒绝 non-finite number），再计算和比较完整 Record-set fingerprint；任一步失败都
 fail closed，且它不 import Product validator。
@@ -74,7 +74,7 @@ fail closed，且它不 import Product validator。
 
 candidate stages 是 validate publication model、serialize machine candidates、validate complete machine set；它们都在 canonical path 变更前完成。artifact stages 先清理 stale owned temps，并写齐同目录 temps；只有全部 candidate writes 成功后，才依次以单文件 rename 替换 `run.json` 与 `records.ndjson`、清理 retired artifacts，并由 producing process 宣布 trusted paths。
 
-candidate write 或首次 rename 的 handled failure 保留 prior canonical set；一次 canonical replacement 已成功后的 handled failure 清理可能混合的 canonical files、retired human artifacts 与 owned temps，并返回 typed effect failure。pre-work configuration failure 不进行 output I/O。该 lifecycle 只处理 two-file set、retired artifacts 与 owned temps。
+candidate write 或首次 rename 的 handled failure 保留 prior canonical set；一次 canonical replacement 已成功后的 handled failure 清理可能混合的 canonical files、retired human artifacts 与 owned temps，并返回 typed publication failure。pre-work configuration failure 不进行 output I/O。该 lifecycle 只处理 two-file set、retired artifacts 与 owned temps。
 
 固定的 `run.json` 与 `records.ndjson` 是两个 independent filesystem paths；常规 rename 不提供跨 path reader-visible transaction。保证来自 candidate validation、complete-set fingerprint binding 和 handled-failure cleanup，不是 OS-level atomic snapshot。mixed-generation files fail closed；consumer 必须把两份 bytes 作为一组验证。需要 generation pointer、reader lock 或跨 paths atomic visibility 时，必须另行定义 public reader protocol。
 
@@ -92,6 +92,6 @@ The typed-provider parser is defined by [Configuration](configuration.md#typed-d
 
 当前 schemas 位于 `docs/schemas/`，examples 位于 `docs/examples/artifacts/**`；每个 example directory 有 `run.json`、`records.ndjson` 和 README。`scripts/docs/machine-artifacts/**` 维护 published material，
 `scripts/validation/schema/**` 的独立 validator 从 raw example bytes 解析并完整验证 set，随后检查 schema/example
-generation drift；`src/output/machine-v4/**` tests 则确认 runtime schema source 与 serializer 一致。两条验证路径互不把对方的 validator 当作 acceptance authority。
+generation drift；`src/machine-output/v4/**` tests 则确认 runtime schema source 与 serializer 一致。两条验证路径互不把对方的 validator 当作 acceptance authority。
 
 v2 schema bytes 只保留在 `docs/schemas/historical/v2/` 供明确 historical validation/reference 使用。v3 没有 current 或 historical runtime/publication path；其输入只会被 v4 validator 拒绝。历史材料不是 current schema entry、runtime reader/writer、example input 或 fallback；current output 只接受 v4。

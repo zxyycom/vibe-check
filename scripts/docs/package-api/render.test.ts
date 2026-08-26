@@ -67,7 +67,7 @@ describe("package API documentation renderer", () => {
 
     const staleJSDocFixture = createPackageApiDocumentationFixture();
     try {
-      const sourcePath = join(staleJSDocFixture, "src/definition/custom-check.ts");
+      const sourcePath = join(staleJSDocFixture, "src/check/check.ts");
       writeFileSync(
         sourcePath,
         [
@@ -93,7 +93,7 @@ describe("package API documentation renderer", () => {
 
     const removedJSDocTargetFixture = createPackageApiDocumentationFixture();
     try {
-      const sourcePath = join(removedJSDocTargetFixture, "src/definition/custom-check.ts");
+      const sourcePath = join(removedJSDocTargetFixture, "src/check/check.ts");
       const current = renderPackageApiDocumentation({ repositoryRoot: removedJSDocTargetFixture });
       const currentSource = current.jsdocSources.find((source) => source.path === sourcePath);
       assert.ok(currentSource);

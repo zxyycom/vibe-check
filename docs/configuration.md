@@ -4,7 +4,7 @@ Vibe Check configuration is a project-owned TypeScript **Project Definition**. `
 
 This document owns authoring and invocation. Check/Record semantics belong to [Quality Metrics](quality-metrics.md), scanner command semantics to [Check-owned scanner dependencies](scanner-dependencies.md), and result/output DTOs to [Output](output.md).
 
-`ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与 effects。它没有 package-specific `quality`、file
+`ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与明确的 machine publication/progress rendering outputs。它没有 package-specific `quality`、file
 scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自己的完整 `options` 中声明并消费这些输入。
 
 ## Public authoring surface
@@ -81,11 +81,11 @@ preflight 只能返回以下 closed result 之一：
 - `failure/block` 不允许 `fallback`，不调用 execution，并把 reason 原样用于 owning Check 的 `unavailable` outcome。
 - `failure/continue` 必须同时提供 reason 与 `fallback`，再以 fallback 进入 execution。reason 是 Check-owned diagnostic identity，当前不单独形成 outcome；需要调用方观察的详情应写入 `messages`。
 
-prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Core facts 或 machine output。preflight messages 排在 execution terminal messages 之前，即使 execution 随后抛错也会保留。
+prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Check facts 或 machine output。preflight messages 排在 execution terminal messages 之前，即使 execution 随后抛错也会保留。
 
 Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。barrier 属于 execution phase，可能晚于 invocation preparation 或 progress setup，但保证 author Check execution、scanner 及其它 Check-local execution work 尚未开始。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
 
-blocked Check 没有 started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、dependency readback、aggregation、settled lifecycle 与 progress。Core 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
+blocked Check 没有 started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、dependency readback、aggregation、settled lifecycle 与 progress。Check facts 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
 
 An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
 
@@ -182,7 +182,7 @@ facts. A declared `passed` or `failed` dependency returns its status and its can
 not grant access: the consumer first performs the string read, narrows its result, and then calls the
 producing Check's parser.
 
-The parser receives the Core-owned canonical runtime object: a detached, deeply frozen object with canonical
+The parser receives the Check-facts-owned canonical runtime object: a detached, deeply frozen object with canonical
 JSON values. It does not receive the author's original object or JSON text. The provider owns business-shape
 validation, version discrimination, thrown-error policy, and parser round-trip tests; Product neither calls
 the parser nor adds a parser-rejection result.
@@ -192,11 +192,10 @@ implement `parseData` only as an identity/type anchor. That does not validate Ja
 producers, historical or cross-version artifacts, or untrusted input. Validate those boundaries in the
 provider instead of treating TypeScript inference as runtime proof.
 
-Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Core facts, or machine publication.
+Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Check facts, or machine publication.
 
 `messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
-`info | warning | error`; `code` matches `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$` in the owning Check namespace;
-and `message` is a non-empty string, without trimming, Unicode normalization, or a Product item/length cap.
+`info | warning | error`; `code` is a non-empty Check-owned string; and `message` is a non-empty string, without trimming, Unicode normalization, or a Product item/length cap.
 `CheckMessage` is a supporting declaration used by `CheckResult`; it does not expand the package-root named-type inventory.
 Omitted, own-property `undefined`, and an empty array all mean no messages. Product keeps author item order
 without de-duplication or normalization. It validates the complete attachment
@@ -434,7 +433,7 @@ export default defineConfig({ checks: [maintenance] });
 
 ## Invocation and results
 
-`run` first validates one Project Definition and one closed `RunControls` value. Controls provide only invocation context: `projectRoot`, `changedFiles`, optional `flags`, optional explicit `checkAggregation`, `signal`, and effect overrides. They cannot replace Checks, alter scanner commands, register dependencies, or select another definition.
+`run` first validates one Project Definition and one closed `RunControls` value. Controls provide only invocation context: `projectRoot`, `changedFiles`, optional `flags`, optional explicit `checkAggregation`, `signal`, and output overrides. They cannot replace Checks, alter scanner commands, register dependencies, or select another definition.
 
 `flags` is an optional caller-supplied dense string-token array: sparse array holes are invalid input. The array itself may be empty: omission, `flags: undefined`, and `[]` all provide callbacks a frozen empty array. Every array item is one non-empty string token, rather than a nested collection or value-bearing payload. Valid values are copied, deduplicated, and lexically sorted before they reach callback context. A non-array, sparse hole, empty token, or non-string token is an `invalid-run-controls` diagnostic at `controls.flags`.
 
@@ -450,23 +449,23 @@ export default defineConfig({ checks: [maintenance] });
 }
 ```
 
-Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/effect facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
+Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/output facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ dependencies, options, project, records, signal }`. `options` is the canonical immutable invocation-local authored snapshot or preflight prepared/fallback value. `project` contains the normalized root, cache context, frozen caller-supplied `changedFiles`, and canonical `flags`; file selection and domain policy, when needed, come from that Check's options. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary execution, record, and cancellation failures as an unavailable Check outcome. Malformed ordinary grammar returns configuration. A throwing, malformed or blocking preflight settles only its owning Check unavailable before callback work; custom Checks may omit preflight. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
+A callback receives exactly `{ dependencies, options, project, records, signal }`. `options` is the canonical immutable invocation-local authored snapshot or preflight prepared/fallback value. `project` contains only the normalized root, frozen caller-supplied `changedFiles`, and canonical `flags`; file selection, domain policy, and any cache configuration come from the owning Check's options. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Check-facts failures remain separate boundaries that can prevent callback admission. Product contains ordinary execution, record, and cancellation failures as an unavailable Check outcome. Malformed ordinary grammar returns configuration. A throwing, malformed or blocking preflight settles only its owning Check unavailable before callback work; custom Checks may omit preflight. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress writer failure marks `outputs.progressRendering` failed; when final facts are available it returns the `output` branch with `progress-rendering-failed`, without changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `output`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
 
-## Run effects and compatibility boundary
+## Run outputs and compatibility boundary
 
-Effects own only cache, progress, and output destinations; controls may override their settings for an
+Run-owned outputs are machine publication and progress rendering; controls may override their settings for an
 invocation. Progress is enabled by the Product default: it owns the execution header, settled Check lifecycle
 feedback, and final execution summary on its target stream. TTY targets additionally show every running Check
 in a temporary region; non-TTY or dumb targets retain only settled feedback and the final summary. On
 settlement, `attention` hides only a passed Check with no messages. Every other four-state outcome, and a
 passed `attention` Check with messages, emits its row plus all messages as one contiguous write; hidden
 Checks still consume the canonical completion ordinal and final counts. Progress presentation is not a project
-callback, observer, or renderer API, and a progress write failure stops that effect without changing Check
+callback, observer, or renderer API, and a progress write failure fails that output without changing Check
 execution facts or accepted `checkMessages`. Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned transcripts, such as
-the repository Gate log directory, are not a Product `logs` effect.
+the repository Gate log directory, are not a Product output.
 
 Product has no shared comparison/reference channel or policy-selection layer. A repository Gate binds selected IDs and an explicit aggregation configuration in its own Project Run; its adapter only maps Run facts and `aggregate` to process exit. A producing Check owns any baseline or comparison behavior through its own options or composition.
 

@@ -29,6 +29,6 @@ relations:
 
 - 采用：`RunControls.checkAggregation` 是无默认值的 closed invocation control；它显式声明 selected Check IDs 或 all、`all | any` mode、unavailable handling、not-applicable handling和 empty-set result。Run 在 work 前验证 selection。
 - 采用：Run 仅从 selected settled Check statuses 确定性派生 `passed | failed | not-applicable | unavailable` aggregate。raw canonical Checks/Records 始终保留；未提供 aggregation 时 `RunResult.aggregate` 为 `null`。
-- 采用：aggregate 不读取 Records、final data、definition warnings、effects、output、presentation 或任意 domain evidence；它不是 Core status、独立实体集合或长期 quality evaluator。
+- 采用：aggregate 不读取 Records、final data、definition warnings、output statuses、progress presentation 或任意 domain evidence；它不是 Core status、独立实体集合或长期 quality evaluator。
 - 采用：repository Gate 等调用方把自身 eligibility selection 和 explicit aggregation 传给 Package Run，再消费返回 aggregate；adapter 只负责 invocation、日志与 process exit mapping。
 - 不采用：已退休的通用评估器、selected evaluator、Record/reference evaluator、acceptance/views/readiness/blocking precedence、独立 Gate result、fixed global reducer、common baseline evaluator，或 CLI-local snapshot traversal。

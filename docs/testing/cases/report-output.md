@@ -2,13 +2,13 @@
 
 ## Case WB-OUTPUT-MACHINE-V4-CONTRACT-001: Machine v4 publication contract
 
-Owner: `docs/output.md#core-to-machine-projection`
+Owner: `docs/output.md#check-facts-to-machine-projection`
 Entities:
 
-- `bun|src/output/machine-v4/publication.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
-- `bun|src/output/machine-v4/publication.test.ts|machine publication v4 contract > serializes a complete canonical two-file set that validates without a prefix`
-- `bun|src/output/machine-v4/validation.test.ts|machine publication v4 validation > rejects v3 identities and malformed v4 rows`
-- `bun|src/output/machine-v4/validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
+- `bun|src/machine-output/v4/publication.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
+- `bun|src/machine-output/v4/publication.test.ts|machine publication v4 contract > serializes a complete canonical two-file set that validates without a prefix`
+- `bun|src/machine-output/v4/validation.test.ts|machine publication v4 validation > rejects v3 identities and malformed v4 rows`
+- `bun|src/machine-output/v4/validation.test.ts|machine publication v4 validation > rejects mixed generations, composite duplicates, and unknown owners`
   Proves:
 - v4 publishes four Check terminal states, final data only on passed/failed states, and minimal `{ checkId, id, data }` supplemental Records.
 - Complete-set validation rejects v3 and malformed/mixed input, closes composite identity/order and ownership, binds the complete Record set by fingerprint, and exposes no partial trusted prefix. The unchanged final-data projection remains the v4 compatibility boundary; version-matched provider-parser readback is package-consumer evidence, not a second machine contract.
@@ -18,7 +18,7 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|src/output/machine-v4/contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
+- `bun|src/machine-output/v4/contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
   Proves:
 - Runtime v4 serializer candidates are accepted by the current runtime schemas, without publishing a second contract-material helper.
 
@@ -27,9 +27,9 @@ Entities:
 Owner: `docs/output.md#publication-lifecycle-and-trust-boundary`
 Entities:
 
-- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
-- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when the first canonical rename fails`
-- `bun|src/output/machine-v4/lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement and retired artifacts without creating raw output`
+- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
+- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when the first canonical rename fails`
+- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement and retired artifacts without creating raw output`
   Proves:
 - A candidate-write failure before replacement preserves prior canonical and retired artifact bytes, clears owned temps, preserves unrelated files, and creates no scanner-private `raw/` output.
 - A first canonical-rename failure preserves that same prior set and cleans owned temps before any canonical replacement.
@@ -40,13 +40,13 @@ Entities:
 Owner: `docs/output.md#progress-and-presentation-boundaries`
 Entities:
 
-- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
-- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
-- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
-- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
-- `bun|src/run/progress.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
-- `bun|src/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
-- `bun|src/run/progress-terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
+- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
+- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
   Proves:
 - Product-owned progress presents lifecycle status/duration, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one block; message code is not terminal text.
 - `attention` omits only a passed/no-message settled row, never a TTY running row or accounting ordinal. Plain/dumb output uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
@@ -76,6 +76,6 @@ Entities:
 Owner: `docs/output.md#维护提醒评估数据`
 Entities:
 
-- `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
+- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
   Proves:
 - A due advisory maintenance reminder publishes exactly one ordinary `maintenance-reminders` passed Check outcome with its ordered assessment final data. It publishes no supplemental Records, entry-level machine rows, terminal messages, or visibility fields.

@@ -44,10 +44,9 @@ const analyzeChangedFiles = defineCheck({
 
 const definition = defineConfig({
   checks: [changedFiles, analyzeChangedFiles],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 

@@ -7,15 +7,13 @@ import { it } from "node:test";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
 
 const PRODUCT_OWNERS = [
-  "checks",
-  "contract",
-  "core",
-  "definition",
-  "foundation",
-  "output",
-  "project-files",
-  "run",
-  "scheduler"
+  "check",
+  "check-settlement",
+  "data-boundary",
+  "machine-output",
+  "package-checks",
+  "project-definition",
+  "project-run"
 ];
 
 it("characterizes repository layout and dependency boundaries", () => {
@@ -30,8 +28,8 @@ it("characterizes repository layout and dependency boundaries", () => {
       mutate: (root) => writeSource(root, "scripts/tools/legacy.ts", "export {};\n")
     },
     {
-      expected: "unapproved-index: src/definition/index.ts",
-      mutate: (root) => writeSource(root, "src/definition/index.ts", "export {};\n")
+      expected: "unapproved-index: src/project-definition/index.ts",
+      mutate: (root) => writeSource(root, "src/project-definition/index.ts", "export {};\n")
     },
     {
       expected: "generic-basename: scripts/validation/model.test.ts (model)",
@@ -39,11 +37,11 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "product-imports-scripts: src/definition/illegal.ts -> ../../scripts/foundation/path.ts",
+        "product-imports-scripts: src/project-definition/illegal.ts -> ../../scripts/foundation/path.ts",
       mutate: (root) =>
         writeSource(
           root,
-          "src/definition/illegal.ts",
+          "src/project-definition/illegal.ts",
           'import { toSlashPath } from "../../scripts/foundation/path.ts";\nvoid toSlashPath;\n'
         )
     },
@@ -73,7 +71,7 @@ it("characterizes repository layout and dependency boundaries", () => {
         writeSource(
           root,
           "scripts/package/artifact/build.ts",
-          'const entry = join(repositoryRoot, "src/definition/project-definition.ts");\nvoid entry;\n'
+          'const entry = join(repositoryRoot, "src/project-definition/project-definition.ts");\nvoid entry;\n'
         )
     },
     {

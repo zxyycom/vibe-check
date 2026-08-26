@@ -36,7 +36,7 @@ describe("package API documentation CLI", () => {
         0
       );
 
-      const jsdocPath = join(fixtureRoot, "src/definition/custom-check.ts");
+      const jsdocPath = join(fixtureRoot, "src/check/check.ts");
       writeFileSync(
         jsdocPath,
         readFileSync(jsdocPath, "utf8").replace("定义带 options、Records", "stale generated tail"),
@@ -46,7 +46,7 @@ describe("package API documentation CLI", () => {
         repositoryRoot: fixtureRoot
       });
       assert.equal(staleJSDoc.exitCode, 1);
-      assert.match(staleJSDoc.diagnostics[0] ?? "", /src\/definition\/custom-check\.ts/);
+      assert.match(staleJSDoc.diagnostics[0] ?? "", /src\/check\/check\.ts/);
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0

@@ -224,7 +224,7 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
-  it("maps aggregate, definition warning, effect and malformed facts to Gate exits", () => {
+  it("maps aggregate, definition warning, output and malformed facts to Gate exits", () => {
     const complete = completedResult("passed");
     const cases: readonly [string, unknown, ProjectGateExitStatus][] = [
       ["failed aggregate", completedResult("failed"), PROJECT_GATE_EXIT_STATUS.failed],
@@ -241,7 +241,7 @@ describe("Project Gate adapter closure", () => {
       ],
       [
         "progress failure",
-        { ...complete, effects: { progress: { status: "failed" } } },
+        { ...complete, outputs: { progressRendering: { status: "failed" } } },
         PROJECT_GATE_EXIT_STATUS.failed
       ],
       ["configuration", { kind: "configuration" }, PROJECT_GATE_EXIT_STATUS.unavailable],
@@ -262,7 +262,7 @@ function completedResult(
     kind: "completed",
     aggregate,
     definitionWarnings: [],
-    effects: { progress: { status: "succeeded" } },
+    outputs: { progressRendering: { status: "succeeded" } },
     ...extra
   };
 }

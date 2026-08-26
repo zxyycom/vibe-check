@@ -138,10 +138,9 @@ export function createProjectGateDefinition(
 ): ProjectDefinition {
   return defineConfig({
     checks: entries.map((entry) => projectGateCheckForSelection(entry, selection)),
-    effects: {
-      cache: { enabled: false },
-      output: { enabled: false },
-      progress: { enabled: true }
+    outputs: {
+      machinePublication: { enabled: false },
+      progressRendering: { enabled: true }
     },
     scheduler: { maxParallel: 4 }
   });

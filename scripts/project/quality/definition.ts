@@ -122,10 +122,9 @@ export default defineConfig({
       ]
     }
   ],
-  effects: {
-    cache: { directory: ".cache/vibe-check/quality", enabled: true },
-    output: { directory: "artifacts/vibe-check-quality", enabled: true },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { directory: "artifacts/vibe-check-quality", enabled: true },
+    progressRendering: { enabled: false }
   },
   scheduler: { maxParallel: 4 }
 });

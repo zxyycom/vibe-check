@@ -16,12 +16,7 @@
   },
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "schemaVersion",
-    "id",
-    "version",
-    "bun"
-  ],
+  "required": ["schemaVersion", "id", "version", "bun"],
   "properties": {
     "schemaVersion": {
       "const": 1
@@ -37,12 +32,7 @@
     "bun": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "sourceRoots",
-        "include",
-        "ignore",
-        "supplementalFiles"
-      ],
+      "required": ["sourceRoots", "include", "ignore", "supplementalFiles"],
       "properties": {
         "sourceRoots": {
           "type": "array",

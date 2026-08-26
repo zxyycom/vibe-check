@@ -1,6 +1,6 @@
 # Project files and Check exact inputs
 
-本文拥有 `src/project-files/**` 的 project-root 文件收集、配置过滤、code-area 分类与 exact-input
+本文拥有 `src/package-checks/project-files/**` 的 project-root 文件收集、配置过滤、code-area 分类与 exact-input
 acceptance 机制，以及 package-provided Check 如何使用这些能力。它不建立 Product-wide scan scope，也不定义
 Check final status、Record、aggregation、machine output 或 scanner protocol。
 
@@ -96,11 +96,11 @@ external reachability verdict。本 Check 没有 target discovery、crawler、sh
 
 scanner-derived measurement 必须声明 slash-normalized `sourcePaths`，且每个 path 都精确属于 owning Check 本次 invocation
 的 approved exact set；任何越界 path 拒绝整批 conversion，不能写 partial Records。payload-specific location
-consistency 属于对应 Check-local adapter；`src/project-files/**` 只验证共同的 exact membership invariant，不读取 private
+consistency 属于对应 Check-local adapter；`src/package-checks/project-files/**` 只验证共同的 exact membership invariant，不读取 private
 payload 重建领域事实。
 
 ## 验证
 
-`src/project-files/**` tests 覆盖 include/exclude/generated filtering、Git success-empty 与 fallback、NUL paths、
+`src/package-checks/project-files/**` tests 覆盖 include/exclude/generated filtering、Git success-empty 与 fallback、NUL paths、
 fingerprint、initialized submodule worktree collection 和 exact-input acceptance；各 Check 相邻 tests 证明 supported
 extensions、own options、scanner no-expansion 与 four-state settlement。

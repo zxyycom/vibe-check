@@ -30,7 +30,7 @@ relations: []
 
 - 采用: Check 在四态 author terminal return 中按需原子附带零到多条结构化 messages；缺失或空 messages 不改变现有 Check 行为，不增加 Check-scoped collector、live/intermediate writer 或 settlement 后追加能力。
 - 采用: 每条 message 包含用于人读强调和 TTY 颜色的 closed level、由 producing Check 拥有并在 owning Check 内解释的非空 code，以及非空的最终实际 message 文本。精确类型名、字段名、level 字面量、颜色值和 code grammar 是工程选择；首版不增加项目其它同级边界没有采用的 message 数量或文本长度 hard cap。
-- 采用: Messages 复用或泛化现有 closed snapshot、descriptor 检查与 canonical containment 原语。任一 attachment shape、level、code 或 message 类型非法时，整个 author terminal result 按现有 invalid-result boundary fail closed，不显示或返回部分 messages；合法消息的 progress writer failure 仍只使 progress effect 失败，不改写 execution facts。
+- 采用: Messages 复用或泛化现有 closed snapshot、descriptor 检查与 canonical containment 原语。任一 attachment shape、level、code 或 message 类型非法时，整个 author terminal result 按现有 invalid-result boundary fail closed，不显示或返回部分 messages；合法消息的 progress writer failure 仍只使 progress rendering output 失败，不改写 execution facts。
 - 采用: Renderer 在输出前统一转义 newline、carriage return、tab、escape 和其它控制字符；`RunResult` 保留 validated actual message，不把 terminal escaping 写回程序化值。
 - 采用: 合法结构化 messages 无论 progress 是否启用都进入 `RunResult`，以 owning `checkId` 与 level/code/message 供 package caller 读取；progress 启用时同时呈现。Messages 不进入 CheckOutcome、Core、Records、dependency、aggregation、cache 或 machine publication。
 - 采用: Check visibility 默认保留 running 与 settled row；非默认 attention 模式仍显示 TTY running row，但在 terminal settlement 只隐藏 `passed` 且无 messages 的永久行。所有其它状态和任何带 messages 的 Check 显示 owning settled block。

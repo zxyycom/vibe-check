@@ -7,11 +7,11 @@ import { fileURLToPath } from "node:url";
 import {
   MACHINE_RECORD_V4_SCHEMA,
   MACHINE_RUN_V4_SCHEMA
-} from "../../../src/output/machine-v4/schema.ts";
+} from "../../../src/machine-output/v4/schema.ts";
 import {
   MACHINE_RECORD_V4_SCHEMA_PATH,
   MACHINE_RUN_V4_SCHEMA_PATH
-} from "../../../src/output/machine-v4/schema-identities.ts";
+} from "../../../src/machine-output/v4/schema-identities.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const regenerateCommand = "bun scripts/docs/machine-artifacts/schemas.ts";

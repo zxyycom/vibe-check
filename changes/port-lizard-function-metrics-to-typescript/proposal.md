@@ -14,7 +14,7 @@
 
 ### Intended Change
 
-- 恢复时从当前 `src/checks/builtins/function-metrics*.ts`、Lizard adapter与 tests采集 fresh observable compatibility corpus。
+- 恢复时从当前 `src/package-checks/function-metrics/**`、其 local Lizard adapter与 tests采集 fresh observable compatibility corpus。
 - 为 `.ts`/`.d.ts` 与 `.rs`分别实现 private analyzers，保持 current function boundaries、NLOC、cyclomatic complexity、parameter count、record IDs/order、no-input与 failure semantics。
 - 在写 derived/translated code前完成 source revision、license/provenance与 clean-room判断。
 - Parity通过后一次 hard cut并删除 Lizard availability/process/parser/dependency/cache identity；不保留 production fallback或 dual backend。
@@ -36,5 +36,5 @@ Fresh corpus、analyzers、cache invalidation、dependency removal、license/pro
 - `docs/scanner-dependencies.md`：function backend与 external dependency removal。
 - `docs/scan-scope.md`：`.ts`/`.d.ts`/`.rs` exact inputs，只消费不扩大。
 - `docs/quality-metrics.md`：保持现有 function Records/final result语义。
-- `src/checks/builtins/**`、`src/checks/measurement/scanners/lizard/**` 与 cache/dependency owners：analyzers、hard cut和 tests。
+- `src/package-checks/function-metrics/**`、`src/package-checks/function-metrics/lizard/**` 与 cache/dependency owners：analyzers、hard cut和 tests。
 - Package dependency/license materials与 `docs/testing/cases/**`：parity、failure、performance和 absence evidence。

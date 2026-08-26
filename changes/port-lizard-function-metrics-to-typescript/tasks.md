@@ -4,7 +4,7 @@
 
 ## Readiness
 
-- [x] 0.1 已按当前 `src/checks/**` ordinary Check/scanner/Record seam重置旧 Plan，移除已退出 foundations、Manager/TaskPlan、named reference与 shared policy假设。
+- [x] 0.1 已按当前 `src/package-checks/**` ordinary Check/scanner/Record seam重置旧 Plan，移除已退出 foundations、Manager/TaskPlan、named reference与 shared policy假设。
 - [x] 0.2 已确认 foundations虽已完成，但没有提前迁移证据；本 Change不是首次公开 release gate。
 - [ ] 0.3 确认 `FunctionMetricsOptions.scanner` 的保留或演进方向，并建立 fresh corpus、license/provenance与 performance baseline。
 

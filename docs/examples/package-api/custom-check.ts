@@ -41,10 +41,9 @@ const licensePolicy = defineCheck({
 
 const definition = defineConfig({
   checks: [licensePolicy],
-  effects: {
-    cache: { enabled: false },
-    output: { enabled: false },
-    progress: { enabled: false }
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
   }
 });
 

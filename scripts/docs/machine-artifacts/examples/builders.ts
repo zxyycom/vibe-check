@@ -1,6 +1,6 @@
-import type { CoreSnapshot } from "../../../../src/core/facts.ts";
-import { createPublicationModelV4 } from "../../../../src/output/machine-v4/publication-model.ts";
-import { projectMachinePublicationV4 } from "../../../../src/output/machine-v4/projection.ts";
+import type { CoreSnapshot } from "../../../../src/check-settlement/facts.ts";
+import { createPublicationModelV4 } from "../../../../src/machine-output/v4/publication-model.ts";
+import { projectMachinePublicationV4 } from "../../../../src/machine-output/v4/projection.ts";
 import {
   FIXED_MACHINE_EXAMPLE_INPUT,
   type CanonicalMachineExample,

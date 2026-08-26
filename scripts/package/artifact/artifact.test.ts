@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../docs/package-api/public-api-inventory.ts";
 import { artifactDocumentation } from "./audit.ts";
 import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
@@ -120,7 +120,7 @@ function assertReadableRuntimeLayout(stagingDirectory: string): void {
     false
   );
   const runtimeEntry = readFileSync(join(runtimeDirectory, "index.mjs"), "utf8");
-  assert.match(runtimeEntry, /from "\.\/definition\/project-definition\.mjs"/);
+  assert.match(runtimeEntry, /from "\.\/project-definition\/project-definition\.mjs"/);
   assert.match(runtimeEntry, /sourceMappingURL=index\.mjs\.map/);
   const sourceMap: unknown = JSON.parse(
     readFileSync(join(runtimeDirectory, "index.mjs.map"), "utf8")

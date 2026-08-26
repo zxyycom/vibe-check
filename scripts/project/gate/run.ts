@@ -107,7 +107,10 @@ export async function runProjectGate(
 /** Maps completed Run facts; aggregation ownership remains inside Package Run. */
 export function projectGateExitStatus(result: unknown): ProjectGateExitStatus {
   if (!isCompletedResult(result)) return PROJECT_GATE_EXIT_STATUS.unavailable;
-  if (result.definitionWarnings.length > 0 || result.effects.progress.status !== "succeeded") {
+  if (
+    result.definitionWarnings.length > 0 ||
+    result.outputs.progressRendering.status !== "succeeded"
+  ) {
     return PROJECT_GATE_EXIT_STATUS.failed;
   }
   return result.aggregate === "passed"
@@ -118,7 +121,9 @@ export function projectGateExitStatus(result: unknown): ProjectGateExitStatus {
 function isCompletedResult(value: unknown): value is Readonly<{
   readonly aggregate: "failed" | "not-applicable" | "passed" | "unavailable";
   readonly definitionWarnings: readonly unknown[];
-  readonly effects: Readonly<{ readonly progress: Readonly<{ readonly status: unknown }> }>;
+  readonly outputs: Readonly<{
+    readonly progressRendering: Readonly<{ readonly status: unknown }>;
+  }>;
   readonly kind: "completed";
 }> {
   return (
@@ -126,8 +131,8 @@ function isCompletedResult(value: unknown): value is Readonly<{
     value.kind === "completed" &&
     isCheckAggregate(value.aggregate) &&
     Array.isArray(value.definitionWarnings) &&
-    isNonArrayRecord(value.effects) &&
-    isNonArrayRecord(value.effects.progress)
+    isNonArrayRecord(value.outputs) &&
+    isNonArrayRecord(value.outputs.progressRendering)
   );
 }
 

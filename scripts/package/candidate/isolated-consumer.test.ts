@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { it } from "node:test";
 import * as ts from "typescript";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../../src/contract/public-api.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../docs/package-api/public-api-inventory.ts";
 import { renderPackageApiDocumentation } from "../../docs/package-api/render.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/registry.ts";
 import { preparePackageCandidate } from "./prepare.ts";
@@ -596,7 +596,7 @@ if (settledOutcome.status === "passed") {
 function observeFinalDurations(runResult: RunResult): void {
   if (
     runResult.kind === "completed" ||
-    runResult.kind === "effect" ||
+    runResult.kind === "output" ||
     (runResult.kind === "cancelled" && runResult.phase === "execution")
   ) {
     const durations: readonly Readonly<{ readonly checkId: string; readonly durationMs: number | null }>[] =
@@ -609,7 +609,7 @@ function observeFinalDurations(runResult: RunResult): void {
     }>[] = runResult.checkMessages;
     void durations;
     void messages;
-    if (runResult.kind === "completed" || runResult.kind === "effect") {
+    if (runResult.kind === "completed" || runResult.kind === "output") {
       const aggregate: CheckAggregate | null = runResult.aggregate;
       void aggregate;
     }
@@ -756,9 +756,8 @@ const result = await run(
       secondChangedFilesConsumer,
       terminalNote
     ],
-    effects: {
-      cache: { enabled: false },
-      output: { directory: "machine-output", enabled: true }
+    outputs: {
+      machinePublication: { directory: "machine-output", enabled: true }
     },
     scheduler: { maxParallel: 1 }
   }),

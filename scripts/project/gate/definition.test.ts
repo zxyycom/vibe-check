@@ -47,10 +47,9 @@ describe("Project Gate Definition", () => {
       definition.checks.map(({ checkId }) => checkId),
       expectedCheckIds
     );
-    assert.deepEqual(definition.effects, {
-      cache: { directory: ".cache/vibe-check", enabled: false },
-      output: { directory: "artifacts/vibe-check", enabled: false },
-      progress: { enabled: true }
+    assert.deepEqual(definition.outputs, {
+      machinePublication: { directory: "artifacts/vibe-check", enabled: false },
+      progressRendering: { enabled: true }
     });
     assert.deepEqual(definition.scheduler, { maxParallel: 4 });
     assert.equal(Object.hasOwn(definition, "policies"), false);
@@ -160,8 +159,7 @@ describe("Project Gate Definition", () => {
         project: {
           root: process.cwd(),
           changedFiles: [],
-          flags: [],
-          cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
+          flags: []
         },
         records: { report: () => undefined },
         signal: new AbortController().signal
@@ -552,8 +550,7 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
     project: {
       root: process.cwd(),
       changedFiles: [],
-      flags: [],
-      cache: { directory: "/tmp/cache", enabled: false, reportActivity: () => undefined }
+      flags: []
     },
     records: {
       report: (identity, data) => records.push(Object.freeze({ data, identity }))

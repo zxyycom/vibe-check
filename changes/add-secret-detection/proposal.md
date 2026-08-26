@@ -38,5 +38,5 @@ Detector、classification、coverage、identity、failure与所有 output/log/ca
 - `docs/configuration.md`：future Check-owned detector/options。
 - `docs/scan-scope.md`：candidate、bounded text与 coverage boundary。
 - `docs/quality-metrics.md`、`docs/output.md`：safe Records/final status与敏感数据排除。
-- `src/checks/**`、`src/definition/**`、`src/index.ts`：future detector/Check/public surface。
+- `src/package-checks/**`、`src/check/**`、`src/project-definition/**`、`src/index.ts`：future detector/Check/public surface。
 - `docs/testing/cases/**`：detector corpus、coverage、identity、failure与 leak-canary evidence。

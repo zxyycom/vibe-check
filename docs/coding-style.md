@@ -130,7 +130,6 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 | 能力 | 使用条件 | 使用边界 |
 | --- | --- | --- |
 | `TypeBox` | 行为 owner 需要 runtime Schema、外部数据解析和静态类型派生 | 复用已有 Schema owner，不建立同义 Schema |
-| 项目自有 `Option` | 值可能存在或缺失，并且缺失本身不是失败 | nullable 边界使用 `fromNullable`；缺失需要失败原因时使用 `toResult` 转为 `neverthrow.Result` |
 | `neverthrow` | 可预期失败需要跨多个步骤或异步流程组合 | 简单局部边界继续使用已有 typed error 或显式 result union；同一边界只使用一种失败协议 |
 | `ts-pattern` | 封闭分支包含非平凡的判别联合、嵌套结构或表达式结果，并需要穷尽检查 | 简单单值分支使用原生 `switch` 与 `never`；它不承接状态机生命周期 |
 | `Remeda` | 连续无状态数据转换是当前职责的主要结构 | 简单数组操作使用原生方法；复杂分支、副作用或 `await` 使用结构化循环 |

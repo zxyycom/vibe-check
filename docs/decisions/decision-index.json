@@ -6,14 +6,14 @@
   "sourceRevision": {
     "entries": {
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
-      "align-source-layout-and-naming-with-module-owners.md": "sha256:1fe1d572f4c6f4ace4f27abe04098e278575d06d0ad07394917334f04ee2ca9a",
-      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:9e9bf5ca4a417aaae0d3db0acba14bdd5cbc9e7b8148f271b7138e75cc091801",
+      "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
+      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
       "allow-controlled-json-schema-reference-sources.md": "sha256:626a9424cb152eb81f9d82cdf29286b246d026090d386f9cc086e06aa4ae119d",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
-      "bind-project-gates-to-run-aggregation.md": "sha256:cabaf0cb82043c1917aa4a84257d05f23edc7faadc3f01a38f52bbd097df472d",
+      "bind-project-gates-to-run-aggregation.md": "sha256:0f478222554db98730a36396fcbee39e4c74c57ad8748101ccdba558fed3a6d4",
       "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
@@ -38,9 +38,9 @@
       "distinguish-primary-and-derived-change-problem-sets.md": "sha256:09e34fb1de5af9032f8163470fba2928f5c10e46a3bc867691c7345e323190d9",
       "distinguish-primary-and-derived-change-problems.md": "sha256:7e4118245432930509d1da63e9b7d4f40a713bab8001d2082e77e05c2db45f02",
       "drive-product-execution-from-project-definition.md": "sha256:c329de0b8dfba2523e277c3b15d92fbf70905bf6a807bee78ba6e8590e0fb29f",
-      "drive-run-from-check-owned-execution-options.md": "sha256:4100df271598db3d8a9105c193247945c12b94df904ebce5a68765fd34d623cb",
+      "drive-run-from-check-owned-execution-options.md": "sha256:daf98e9e7ad86431d00ca4690bff863b967854e488f55b8b11eb6a480c6a721c",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
-      "enable-tool-effects-by-default.md": "sha256:2924803d8587fd60b0be7e9d7498492c0419bd24df4c04d6c462479e1d08d51f",
+      "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:ed9d534a2469cbdba03347edb3f294c65c1215d6e07206d551e644a6d35b02d6",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
@@ -64,7 +64,7 @@
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
-      "keep-empty-information-check-warnings-as-run-facts.md": "sha256:4f1d73eb319eed43985ad9f650271f244ceee24e3a216b1ea10f591096f590a1",
+      "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:585dece1c07c03f6e0108392e41efb0d8d353c9ac0e8e0ba962c0aa640c861e7",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
       "keep-project-workflow-skill-overrides-bounded.md": "sha256:91f4836ca23599c2afe5a117368d3e6630bb412d520c1189f77aac339a60800a",
@@ -73,7 +73,7 @@
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
-      "let-check-options-own-execution-dependencies.md": "sha256:56b38d75a398c566946508a34e24bf32e0d841b118aaf0c959c90eb299e1b185",
+      "let-check-options-own-execution-dependencies.md": "sha256:c3afff6edab7ded3d3d7743d1c2773e5124fd1349d3b6bd1694ac8c8d630129e",
       "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
       "let-each-check-own-file-selection.md": "sha256:d2c3009c71dc06f6602e3a29ad0f6ce2832590527624cffb0ebbb2229d87b764",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
@@ -82,18 +82,22 @@
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
-      "preinstall-selected-typescript-capabilities.md": "sha256:56c21c8c76f406a852b5274bbd796aa10d152bdc5086650fbd2f2c5a110e0cb1",
+      "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
-      "provide-product-owned-check-progress.md": "sha256:f2a0976ca655525843803ae158455e8815f7d0005a609a05498035aa1d2593aa",
+      "provide-product-owned-check-progress.md": "sha256:5f1f9b6f6c3ead439784a93d31795f06a4920c59f78ee4606aa6181ad2c81230",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
-      "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:bd26f5f57e41abb0cc2d159ba3856927db8aa7e1b70f08bce9731ea80d8e2308",
+      "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:3ae814f1118990ddca937a4ddb70c4b37ad43fa04bee832063d0edcef62223e6",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
+      "refine-product-module-boundaries.md": "sha256:ca807ad24d1b8282e1c6a1291c4b09c0ff4b0e0a8e0d127e352ea0ea756e42a4",
+      "refine-project-run-and-settlement-owners.md": "sha256:e87a4f23e054a1fcbf43d1498f12a241caae41553b1f954841049e9d7176e1b5",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
+      "remove-unconsumed-option-capability.md": "sha256:017a1039a6a482705f5a386ee133af3d09db1d388a0b0f1aec5b83657be03ad8",
+      "replace-global-tool-effects-with-run-outputs.md": "sha256:46576aea4fd9a50123da5e9baf9787d59addca227b7c09978baf01e094064473",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
       "require-check-owned-network-authorization.md": "sha256:aac8d0a8b853264dc340636a7badd75d25aeeb052ee7b6058c4a1135af7d753f",
       "require-explicit-named-comparison-references.md": "sha256:c3ec4599de940a68ebc14eae6f51993a191ba1cb154f56e7ad888826c4a44d08",
@@ -119,12 +123,12 @@
       "use-composable-check-tree-with-run-owned-bindings.md": "sha256:dfefa51fbd46ac7b6568c73cb5edfe3feaf41ea80c1199bbf71949524ebd7947",
       "use-core-check-and-quality-record-facts.md": "sha256:d003f87efe82307b4464740a033b01f7163f21fb41d06a35abf0030bc3afceb2",
       "use-core-check-and-record-facts-from-run-resolution.md": "sha256:b542a7169861fb2b2560a443b5d7643b64ea57674477763422ef90a1c53d1c54",
-      "use-core-check-record-facts-with-final-data.md": "sha256:8bb0d68e1dabdda92c89d0ef0d27c333518ff790ae2ec0e993e098bcc642ab1e",
+      "use-core-check-record-facts-with-final-data.md": "sha256:dae6432ef7f5092fa87fcfc984b6ff9606db4f535bcc79688fb3d5257790a0af",
       "use-decision-led-change-plans-and-archive-openspec.md": "sha256:3e8c3ea59ab5cba1a42210799f02fb425726f1610caae1b51529f4cffcf85c0f",
       "use-declarative-quality-decision-policies.md": "sha256:8063191a71dd89e11f819a5d2037528564d0ac7a4f543a962d7bea192671484e",
       "use-direct-check-execution-with-minimal-record-reporting.md": "sha256:d2422022aac04091ae19527c0958ccad077183d7b7b04a6685d8c5771c64a4d0",
       "use-direct-check-execution-with-structured-results.md": "sha256:b05a8b212a7d8666757f91793a8c1b38acb1c24e27d74091b50eb27f2123d473",
-      "use-explicit-run-controls-check-aggregation.md": "sha256:6d6a01fa5e7702552b21b258c62eac55c6cd23c22b48d09753c51b961853866c",
+      "use-explicit-run-controls-check-aggregation.md": "sha256:9879a5df5a7af07350a36f1440dcb6e02642e460bb5f61d1ffdbf1687395b2f0",
       "use-field-aware-built-in-check-adjustments.md": "sha256:1401b9dadcf56784af186d9325b3bc54e4972ede462fbd4d7b544c9985ebcee7",
       "use-file-policy-overrides.md": "sha256:2d5cad4cd0151f70825737714b08f91395302fc5bd3984f819949d7872447db8",
       "use-fixed-semantic-config-v2.md": "sha256:e0e1759326703e63e134b4d4577b31fe47a553cb4cf8633f5d823276a324efbe",
@@ -214,16 +218,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "align-source-layout-and-naming-with-module-owners.md",
+        "sourcePath": "archive/align-source-layout-and-naming-with-module-owners.md",
         "title": "让源码布局与命名共同表达模块 owner",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-24T02:13:05Z",
         "purpose": "让 Product 与仓库脚本的目录、文件、入口和导出名称共同表达实际模块 owner，避免路径整理后仍保留模糊命名。",
@@ -1250,16 +1254,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "enable-tool-effects-by-default.md",
+        "sourcePath": "archive/enable-tool-effects-by-default.md",
         "title": "默认启用工具运行副作用",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-12T10:30:31Z",
         "purpose": "让 public package API 默认完成工具本身应提供的日志、缓存和输出工作，而不是退化为只返回内存数据的无状态计算函数。",
@@ -2000,8 +2004,8 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-21T16:10:24Z",
-        "purpose": "让合法空 information Check 的非阻断 warning 只作为所有 RunResult 分支的结构化事实，而不恢复 Product warning 输出 effect。",
-        "background": "空 Check warning 已由 Definition normalization 形成；Product 只有 cache、progress、output effects。",
+        "purpose": "让合法空 information Check 的非阻断 warning 只作为所有 RunResult 分支的结构化事实，而不恢复 Product warning presentation。",
+        "background": "空 Check warning 已由 Definition normalization 形成；Product 使用明确 outputs。",
         "decision": "空 Check warning 通过 definitionWarnings；Product 不恢复 logs 或 warning renderer。",
         "tags": [
           "configuration"
@@ -2546,16 +2550,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "preinstall-selected-typescript-capabilities.md",
+        "sourcePath": "archive/preinstall-selected-typescript-capabilities.md",
         "title": "预置有限的 TypeScript 实现能力",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T07:39:34Z",
         "purpose": "让常见实现问题有稳定且边界明确的项目能力，避免每次实现临时选库或并存多套等价抽象。",
@@ -2651,8 +2655,8 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-20T06:43:50Z",
-        "purpose": "让 package consumer 通过现有 progress effect 获得一致且无需公共 observer 的 Check 执行反馈。",
-        "background": "Product 已拥有 Check lifecycle 与 progress effect，TTY 动态区域还需要明确序号、stream ownership 和失败隔离。",
+        "purpose": "让 package consumer 通过现有 progress rendering output 获得一致且无需公共 observer 的 Check 执行反馈。",
+        "background": "Product 已拥有 Check lifecycle 与 progress rendering output，TTY 动态区域还需要明确序号、stream ownership 和失败隔离。",
         "decision": "由 Product 私有 lifecycle feedback 驱动 TTY/plain progress，复用执行耗时并让输出失败不改写运行事实。",
         "tags": [
           "product-contract"
@@ -2873,6 +2877,74 @@
         ]
       }
     },
+    "refine-product-module-boundaries.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/refine-product-module-boundaries.md",
+        "title": "收敛 Product 模块边界到实际 owner",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T06:48:56Z",
+        "purpose": "让 Product 源码路径直接表达 ordinary Check、Project Definition、Run 与 final facts 的实际 owner，并消除过渡布局留下的生产循环。",
+        "background": "先前布局决策正确移除了 product 包装层并建立 owner 命名原则，但其中 definition、core 和 scheduler 的具体一级目录仍混合不同变化原因或只服务单一消费者。",
+        "decision": "以明确 owner 收敛 Check、Definition、Run 与 terminal facts，并将 scheduler 收入 Run。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "align-source-layout-and-naming-with-module-owners.md"
+          }
+        ]
+      }
+    },
+    "refine-project-run-and-settlement-owners.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "refine-project-run-and-settlement-owners.md",
+        "title": "收敛 Project Run 与 Check settlement owner",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T08:52:11Z",
+        "purpose": "让结算、项目运行、progress rendering、JSON document 与 package tooling 路径表达其实际责任。",
+        "background": "第二轮审计发现先前的 Check facts、Run output/cache、JSON document 与 public inventory 路径保留过渡命名或错误共享边界。",
+        "decision": "采用 Check settlement、Project Run、Check-owned cache 和明确 package/tooling owner，删除泛化 effect 语义。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "refine-product-module-boundaries.md"
+          }
+        ]
+      }
+    },
     "release-one-versioned-npm-product-unit.md": {
       "keys": {
         "tag": [
@@ -2901,6 +2973,70 @@
           {
             "type": "拆分",
             "target": "use-versioned-npm-package-release-unit.md"
+          }
+        ]
+      }
+    },
+    "remove-unconsumed-option-capability.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "remove-unconsumed-option-capability.md",
+        "title": "移除无消费者的 Product Option 能力",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T07:35:30Z",
+        "purpose": "删除没有生产消费者或稳定 owner 的项目自制 Option，避免以预置能力维持无效抽象表面。",
+        "background": "Option 及测试只引用自身；第三方预装能力不因当前 source consumer 数量而自动移除。",
+        "decision": "保留前序政策已选择的第三方能力和原生表达，删除 Product Option 及其文档、Case 与实现约束。",
+        "tags": [
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "preinstall-selected-typescript-capabilities.md"
+          }
+        ]
+      }
+    },
+    "replace-global-tool-effects-with-run-outputs.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "replace-global-tool-effects-with-run-outputs.md",
+        "title": "用明确 Run outputs 与 Check-owned cache 取代旧全局工具模型",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T09:17:19Z",
+        "purpose": "让 Run 只拥有 machine publication 与 progress rendering，并让 cache 保持在 producing Check。",
+        "background": "先前的全局 effects/cache 模型把不同 owner 的 IO 生命周期误当成同一产品能力。",
+        "decision": "弃用全局 cache/effect；以 ProjectOutputs 与 duplicate options 表达各自 owner。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "enable-tool-effects-by-default.md"
           }
         ]
       }

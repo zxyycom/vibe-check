@@ -5,7 +5,7 @@
 Owner: `docs/scan-scope.md#file-collection-mechanism`
 Entities:
 
-- `bun|src/project-files/collection.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
   Proves:
 - quality input fingerprint 使用排序后的文件内容生成稳定 SHA-256。
 - 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
@@ -15,8 +15,8 @@ Entities:
 Owner: `docs/scan-scope.md#file-collection-mechanism`
 Entities:
 
-- `bun|src/project-files/collection.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
-- `bun|src/project-files/collection.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > uses minimatch include semantics for Git and fallback candidates`
   Proves:
 - Git 只以 NUL-delimited protocol 枚举 ignore-aware candidate paths，换行不会改变文件身份。
 - Product include 只由 config glob contract 解释；brace、globstar 等 minimatch default semantics 在 current Git 与 Git-failure fallback 中一致。
@@ -26,11 +26,11 @@ Entities:
 Owner: `docs/scan-scope.md#file-collection-mechanism`
 Entities:
 
-- `bun|src/project-files/collection.test.ts|quality submodule input > includes initialized current submodule worktree files`
-- `bun|src/project-files/collection.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
-- `bun|src/project-files/collection.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
-- `bun|src/project-files/collection.test.ts|quality input file collection > treats successful empty Git results as authoritative`
-- `bun|src/project-files/collection.test.ts|quality input file collection > uses config-only fallback when Git fails`
+- `bun|src/package-checks/project-files/collection.test.ts|quality submodule input > includes initialized current submodule worktree files`
+- `bun|src/package-checks/project-files/collection.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > does not add built-in exclusions to the selected fallback config`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > treats successful empty Git results as authoritative`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > uses config-only fallback when Git fails`
   Proves:
 - Current Git command 成功时直接使用 normalized result，包括成功的空集合。
 - Current worktree 包含允许的 committed、working 与 untracked submodule files，并只从独立初始化的 child Git worktree 继续 HEAD gitlink traversal；被普通目录替换的 gitlink 不会回到 parent worktree。
@@ -43,9 +43,9 @@ Entities:
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > uses only its included JSON paths without re-adding excluded or generated files`
-- `bun|src/checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > uses only its included JSON paths without re-adding excluded or generated files`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
 
 Proves:
 
@@ -56,7 +56,7 @@ Proves:
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
 
 Proves:
 
@@ -67,10 +67,10 @@ Proves:
 Owner: `docs/scan-scope.md#markdown-link-source-occurrences`
 Entities:
 
-- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > collects GFM inline, image, reference, and autolink occurrences`
-- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings`
-- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions`
-- `bun|src/checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
+- `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > collects GFM inline, image, reference, and autolink occurrences`
+- `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings`
+- `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions`
+- `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
   Proves:
 - Each eligible Markdown source yields only the documented Link occurrence grammar and heading facts; excluded Markdown forms and undefined references do not become target work.
 - A fresh GitHub-priority heading slugger and decoded UTF-16 navigation range make anchor facts source-local and reproducible.
@@ -81,10 +81,10 @@ Entities:
 Owner: `docs/scan-scope.md#markdown-link-direct-targets`
 Entities:
 
-- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`
-- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
-- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
-- `bun|src/checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
   Proves:
 - Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
 - Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.

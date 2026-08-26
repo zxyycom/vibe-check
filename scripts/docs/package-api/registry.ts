@@ -45,7 +45,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         declarationName: "defineCheck",
         kind: "jsdoc",
-        sourcePath: "src/definition/custom-check.ts"
+        sourcePath: "src/check/check.ts"
       })
     ]),
     title: "定义带 options、Records 与 messages 的自定义 Check"
@@ -68,7 +68,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         declarationName: "maintenanceReminders",
         kind: "jsdoc",
-        sourcePath: "src/checks/maintenance-reminders/maintenance-reminders.ts"
+        sourcePath: "src/package-checks/maintenance-reminders/maintenance-reminders.ts"
       })
     ]),
     title: "创建一个单一 Check 的维护提醒"

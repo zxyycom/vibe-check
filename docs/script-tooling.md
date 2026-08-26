@@ -132,7 +132,7 @@ materials 只走显式 historical validation path，不进入 current traversal 
 
 `scripts/foundation/**` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
 TypeScript config 或独立 Gate profile。它由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
-`bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它与 `src/foundation/**` 是不同
+`bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它与 `src/data-boundary/**` 与 `src/package-checks/host-environment/**` 是不同
 owner：前者服务 repository automation，后者服务 Product runtime；Product 不得 import 前者。Foundation helper
 不定义 Product source-access boundary；适用的 Project consumer 与 package/docs 例外见
 [Source owners and dependency direction](#source-owners-and-dependency-direction)。

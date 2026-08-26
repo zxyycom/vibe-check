@@ -11,12 +11,12 @@ parser、scanner-native failure、measurement conversion 与相邻 tests：
 
 | Check | Tool | Private owner |
 | --- | --- | --- |
-| `duplicateDetection` | jscpd | `src/checks/duplicate-detection/jscpd/**` |
-| `fileMetrics` | scc | `src/checks/file-metrics/scc/**` |
-| `functionMetrics` | Lizard | `src/checks/function-metrics/lizard/**` |
+| `duplicateDetection` | jscpd | `src/package-checks/duplicate-detection/jscpd/**` |
+| `fileMetrics` | scc | `src/package-checks/file-metrics/scc/**` |
+| `functionMetrics` | Lizard | `src/package-checks/function-metrics/lizard/**` |
 
-这些 adapter 没有共享 registry、统一 backend interface 或集中目录。它们可依赖 `src/foundation/**` 的通用 process/CSV/error
-mechanism，以及 `src/project-files/**` 的 exact-path membership 等真实共同不变量；共同使用底层机制不改变 scanner 仍由
+这些 adapter 没有共享 registry、统一 backend interface 或集中目录。它们可依赖 `src/package-checks/host-environment/**` 的 process/error
+capability，以及 `src/package-checks/project-files/**` 的 exact-path membership 等真实共同不变量；SCC 与 Lizard 的 CSV parser 各自 local；共同使用底层机制不改变 scanner 仍由
 唯一 producing Check 拥有的事实。
 
 ## Check-owned command options
@@ -42,7 +42,7 @@ tooling 与 precedence map 都不会隐式替换它们。
 
 owning Check 依据自己的 `options.files` 收集 candidates，并形成该工具的 approved exact paths；scanner 不接收 project root
 重新发现输入。adapter output 中每条 measurement 都声明 source paths，Check 在 Record conversion 前使用
-`src/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
+`src/package-checks/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
 partial result。
 
 一次 Check invocation 只使用自己冻结的 options 与 exact input。scanner-private command data、raw results 和 parser AST
@@ -61,5 +61,5 @@ availability、process、parse、cache 或 exact-input failure 由 owning Check 
 ## Verification
 
 三个 owner-local tool 目录的 tests 证明 command、availability、parser 与 scanner-specific failure；对应 Check 的
-`default-check.test.ts` 证明 option validation、exact-input handoff、Record 与 terminal result。`src/project-files/**` tests 只
+`default-check.test.ts` 证明 option validation、exact-input handoff、Record 与 terminal result。`src/package-checks/project-files/**` tests 只
 证明真正共同的 collection/exact-membership 机制。

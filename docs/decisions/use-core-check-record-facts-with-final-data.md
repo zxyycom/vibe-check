@@ -30,5 +30,5 @@ relations:
 - 采用：Definition 只形成 canonical Normalized Checks，Package Run pre-work 对每项只 resolution 一次；每个 resolved executable Check 在 Core snapshot 中恰有一个 Core Check，不为 container 或未选择的 leaf 生成事实。
 - 采用：Core Check 的 outcome 是 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)`；通过/失败的 final data 与 Record data 都是 detached、deep-frozen canonical JSON object。
 - 采用：Core Record 固定为 `{ checkId, id, data }`。`id` 只在 owning Check 内唯一，Product 以结构性 `{ checkId, id }` 建立 ownership 和重复检测；不同 Checks 可以重用相同 local ID。
-- 采用：最终 Core snapshot 的 entity collections 恰为 `checks` 与 `records`。completed/effect Run facts 始终保留这两组 raw facts；是否产生 aggregate 只由显式 Run Controls 决定。
+- 采用：最终 Core snapshot 的 entity collections 恰为 `checks` 与 `records`。completed/output Run facts 始终保留这两组 raw facts；是否产生 aggregate 只由显式 Run Controls 决定。
 - 不采用：`checkRunId`、Record type identity、Product-generated opaque Record ID、catalog/field projection、由 Records 推断 Check status，或 completeness/integrity/aggregate 第三实体集合。

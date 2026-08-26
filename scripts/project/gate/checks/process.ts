@@ -21,7 +21,7 @@ export interface ProcessCheckDependencies {
 }
 
 /** One Check's actual external command boundary. */
-export interface ProcessCheckDefinition {
+export interface ProcessCheckDescriptor {
   readonly args: readonly string[];
   readonly checkId: string;
   readonly command: string;
@@ -31,7 +31,7 @@ export interface ProcessCheckDefinition {
 }
 
 export interface ProcessTranscriptStep {
-  readonly definition: Pick<ProcessCheckDefinition, "args" | "command">;
+  readonly definition: Pick<ProcessCheckDescriptor, "args" | "command">;
   readonly label: string;
   readonly result: ProcessResult;
 }
@@ -43,16 +43,16 @@ const defaultProcessCheckDependencies: ProcessCheckDependencies = Object.freeze(
 
 /** Creates an ordinary Check that owns an external process and its transcript. */
 export function createProcessCheck(
-  definition: ProcessCheckDefinition,
+  definition: ProcessCheckDescriptor,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
 ): Check {
-  return defineCheck<string, ProcessCheckDefinition>({
+  return defineCheck<string, ProcessCheckDescriptor>({
     checkId: definition.checkId,
     displayName: definition.displayName,
     options: definition,
     preflight: (options) =>
-      validProcessCheckDefinition(options)
+      validProcessCheckDescriptor(options)
         ? { status: "success", preparedOptions: options }
         : { status: "failure", action: "block", reason: { code: "invalid-options" } },
     execution: async (context): Promise<CheckResult> =>
@@ -60,7 +60,7 @@ export function createProcessCheck(
   });
 }
 
-function validProcessCheckDefinition(value: object): boolean {
+function validProcessCheckDescriptor(value: object): boolean {
   if (!isNonArrayRecord(value)) return false;
   const keys = Object.keys(value);
   if (
@@ -103,7 +103,7 @@ function nonEmptyString(value: unknown): value is string {
 }
 
 async function executeProcessCheck(
-  context: CheckExecutionContext<ProcessCheckDefinition>,
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies
 ): Promise<CheckResult> {

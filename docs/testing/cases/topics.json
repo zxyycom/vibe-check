@@ -7,7 +7,7 @@
     },
     {
       "id": "quality-runtime",
-      "description": "四态 Check final data、supplemental Record、Core 生命周期与 duplicate cache 的运行时契约。"
+      "description": "四态 Check final data、supplemental Record、Check-facts 生命周期与 duplicate cache 的运行时契约。"
     },
     {
       "id": "report-output",

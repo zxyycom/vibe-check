@@ -4,7 +4,7 @@
 
 ## Context
 
-当前 foundations已经成为 ordinary Check、统一 scheduler、Core Record和 TypeScript Project Definition；旧 Plan中 `src/product/**`、Manager/TaskPlan、named reference与 shared policy均不存在。Formal path位于 `src/checks/builtins/function-metrics*.ts` 与 `src/checks/measurement/scanners/lizard/**`，并通过 Check-owned `options.scanner`调用 external executable。
+当前 foundations已经成为 ordinary Check、统一 scheduler、Core Record和 TypeScript Project Definition；旧 Plan中 `src/product/**`、Manager/TaskPlan、named reference与 shared policy均不存在。Current paths are `src/package-checks/function-metrics/**` and its local `lizard/**` adapter, invoked through Check-owned `options.scanner`.
 
 [`defer-lizard-until-after-check-foundations.md`](../../docs/decisions/defer-lizard-until-after-check-foundations.md) 的 foundations条件已满足，但它还要求在没有交付、平台、可靠性、安全或许可证阻塞证据时默认后置。首版优先决策据此不把内部 backend迁移放入首次公开 release gate。
 

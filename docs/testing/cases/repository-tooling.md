@@ -128,7 +128,7 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, effect and malformed facts to Gate exits`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
 - preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
 - 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 交给 consumer。
@@ -139,13 +139,13 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/scheduler/task-engine.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > uses one root budget for dependency order and named mutex admission`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
-- `bun|src/scheduler/task-engine.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > uses one root budget for dependency order and named mutex admission`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
+- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
   Proves:
 - Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。
 - Executor failure 只阻断 dependent Task，unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting。

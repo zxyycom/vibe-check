@@ -8,15 +8,13 @@ import { FILE_SYSTEM } from "./docs-contract.ts";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
-  "checks",
-  "contract",
-  "core",
-  "definition",
-  "foundation",
-  "output",
-  "project-files",
-  "run",
-  "scheduler"
+  "check",
+  "check-settlement",
+  "data-boundary",
+  "machine-output",
+  "package-checks",
+  "project-definition",
+  "project-run"
 ]);
 const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "src/product",

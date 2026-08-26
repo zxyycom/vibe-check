@@ -3,8 +3,8 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { serializeMachinePublicationV4 } from "../../../../src/output/machine-v4/serializers.ts";
-import { validateMachinePublicationSetV4 } from "../../../../src/output/machine-v4/validation.ts";
+import { serializeMachinePublicationV4 } from "../../../../src/machine-output/v4/serializers.ts";
+import { validateMachinePublicationSetV4 } from "../../../../src/machine-output/v4/validation.ts";
 import { canonicalMachineExamples } from "./fixtures.ts";
 import {
   MACHINE_EXAMPLES_ROOT,
