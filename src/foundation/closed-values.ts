@@ -110,3 +110,17 @@ export function hasExactPlainRecordKeys(
   const actualKeys = Object.keys(value);
   return actualKeys.length === keys.length && actualKeys.every((key) => keys.includes(key));
 }
+
+export function hasRequiredAndOptionalRecordKeys(
+  value: Readonly<Record<string, unknown>>,
+  keys: Readonly<{
+    readonly optional: readonly string[];
+    readonly required: readonly string[];
+  }>
+): boolean {
+  const supportedKeys = new Set([...keys.required, ...keys.optional]);
+  return (
+    keys.required.every((key) => Object.hasOwn(value, key)) &&
+    Object.keys(value).every((key) => supportedKeys.has(key))
+  );
+}

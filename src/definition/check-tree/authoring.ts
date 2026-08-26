@@ -4,6 +4,7 @@ import {
   snapshotInheritedCheckCollection,
   type CheckVisibility,
   type CheckExecution,
+  type CheckPreflight,
   type InheritedCheckCollection
 } from "../custom-check.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../../foundation/closed-values.ts";
@@ -12,6 +13,7 @@ import { isCheckTreeReferenceId } from "./identity.ts";
 import { snapshotJsonObject } from "./json-snapshot.ts";
 
 type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
+type TrustedCheckPreflight = CheckPreflight;
 
 export type ParsedCheckCollection = Readonly<
   | { readonly kind: "exact"; readonly values: readonly string[] }
@@ -34,6 +36,7 @@ export interface ParsedCheck {
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
+  readonly preflight: TrustedCheckPreflight | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -62,6 +65,7 @@ interface ParsedCheckFields {
   readonly execution: CheckExecution | null;
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
+  readonly preflight: TrustedCheckPreflight | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -75,6 +79,7 @@ const CHECK_KEYS = [
   "mutex",
   "options",
   "parseData",
+  "preflight",
   "visibility"
 ] as const;
 
@@ -83,6 +88,7 @@ const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   execution: null,
   options: null,
   parseData: null,
+  preflight: null,
   visibility: null
 });
 
@@ -113,11 +119,13 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   if (execution === undefined) return undefined;
   const parseData = parseDataParser(data);
   if (parseData === undefined) return undefined;
+  const preflight = parsePreflight(data);
+  if (preflight === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
   const scheduling = parseScheduling(data);
   if (scheduling === undefined) return undefined;
-  const fields = parseCheckFields(data, execution, parseData);
+  const fields = parseCheckFields(data, execution, parseData, preflight);
   if (fields === undefined) return undefined;
   warnForMeaninglessCheck(data, checks, fields, path, state);
 
@@ -133,6 +141,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     options: fields.options,
     path,
     parseData: fields.parseData,
+    preflight: fields.preflight,
     visibility: fields.visibility
   });
 }
@@ -177,6 +186,15 @@ function isTrustedDataParser(value: unknown): value is TrustedDataParser {
   return typeof value === "function";
 }
 
+function parsePreflight(data: CheckAuthoringData): TrustedCheckPreflight | null | undefined {
+  if (!Object.hasOwn(data, "preflight")) return null;
+  return isTrustedCheckPreflight(data.preflight) ? data.preflight : undefined;
+}
+
+function isTrustedCheckPreflight(value: unknown): value is TrustedCheckPreflight {
+  return typeof value === "function";
+}
+
 function parseChildren(
   data: CheckAuthoringData,
   path: string,
@@ -212,10 +230,14 @@ function parseOptions(data: CheckAuthoringData): object | undefined {
 function parseCheckFields(
   data: CheckAuthoringData,
   execution: CheckExecution | null,
-  parseData: TrustedDataParser | null
+  parseData: TrustedDataParser | null,
+  preflight: TrustedCheckPreflight | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
-    return Object.hasOwn(data, "options") || Object.hasOwn(data, "visibility") || parseData !== null
+    return Object.hasOwn(data, "options") ||
+      Object.hasOwn(data, "visibility") ||
+      parseData !== null ||
+      preflight !== null
       ? undefined
       : CONTAINER_CHECK_FIELDS;
   }
@@ -225,7 +247,14 @@ function parseCheckFields(
   if (options === undefined) return undefined;
   const visibility = parseVisibility(data);
   if (visibility === undefined) return undefined;
-  return Object.freeze({ definition, execution, options, parseData, visibility });
+  return Object.freeze({
+    definition,
+    execution,
+    options,
+    parseData,
+    preflight,
+    visibility
+  });
 }
 
 function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {

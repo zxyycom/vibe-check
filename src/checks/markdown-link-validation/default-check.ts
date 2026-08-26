@@ -5,6 +5,7 @@ import {
   executeMarkdownLinkValidation
 } from "./execution.ts";
 import type { MarkdownLinkValidationOptions } from "./options.ts";
+import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 /** 校验离线本地 Markdown 引用完整性的完整 default Check。 */
 export const markdownLinkValidation = defineCheck<
   "markdown-link-validation",
@@ -12,6 +13,10 @@ export const markdownLinkValidation = defineCheck<
 >({
   ...MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
   execution: executeMarkdownLinkValidation,
+  preflight: (options) =>
+    validMarkdownLinkValidationOptions(options)
+      ? { status: "success", preparedOptions: options }
+      : { status: "failure", action: "block", reason: { code: "invalid-options" } },
   options: {
     files: DEFAULT_PROJECT_FILE_SELECTION,
     requireExistingTargets: true,

@@ -18,7 +18,9 @@ Check 只测量从 `baseCommit` 到 `HEAD` 的已提交 first-parent history 和
 
 ## `not-applicable` 与 `unavailable`
 
-空 entries 可以完成且无提醒，不作为自动子 Check。无效完整 options 为 `unavailable` / `invalid-options`；取消或 callback 无法形成完整可信的评估数据时，整个 Check 也为 `unavailable`。
+构造函数结果是合法普通 Check。空 entries 可以完成且无提醒，不作为自动子 Check。非法 replacement options 的共享
+组合、Run preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法
+Check 遇到取消或 callback 无法形成完整可信的评估数据时才返回 `unavailable`。
 
 ## 外部工具与安全边界
 

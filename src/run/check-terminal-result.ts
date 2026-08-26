@@ -1,8 +1,9 @@
 import type { CheckMessage } from "../definition/custom-check.ts";
-import { isCheckTreeReferenceId } from "../definition/check-tree/identity.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../foundation/closed-values.ts";
-
-const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
+import {
+  hasRequiredAndOptionalRecordKeys,
+  snapshotClosedRecord
+} from "../foundation/closed-values.ts";
+import { parseCheckMessages } from "./check-message.ts";
 
 /**
  * A terminal callback result split into the Core-owned four-state result and
@@ -30,7 +31,7 @@ export function parseCheckTerminalResult(value: unknown): ParsedCheckTerminalRes
 
   const result = strippedTerminalResult(terminal);
   if (result === undefined) return undefined;
-  const messages = detachedMessages(terminal);
+  const messages = parseCheckMessages(terminal.messages);
   return messages === undefined ? undefined : Object.freeze({ messages, result });
 }
 
@@ -40,71 +41,34 @@ function strippedTerminalResult(
   switch (terminal.status) {
     case "passed":
     case "failed":
-      return hasSupportedKeys(terminal, ["status", "data"], ["messages"])
+      return hasRequiredAndOptionalRecordKeys(terminal, {
+        required: ["status", "data"],
+        optional: ["messages"]
+      })
         ? Object.freeze({ status: terminal.status, data: terminal.data })
         : undefined;
     case "not-applicable":
-      if (!hasSupportedKeys(terminal, ["status"], ["reason", "messages"])) return undefined;
+      if (
+        !hasRequiredAndOptionalRecordKeys(terminal, {
+          required: ["status"],
+          optional: ["reason", "messages"]
+        })
+      ) {
+        return undefined;
+      }
       return Object.freeze(
         Object.hasOwn(terminal, "reason")
           ? { status: "not-applicable", reason: terminal.reason }
           : { status: "not-applicable" }
       );
     case "unavailable":
-      return hasSupportedKeys(terminal, ["status", "reason"], ["messages"])
+      return hasRequiredAndOptionalRecordKeys(terminal, {
+        required: ["status", "reason"],
+        optional: ["messages"]
+      })
         ? Object.freeze({ status: "unavailable", reason: terminal.reason })
         : undefined;
     default:
       return undefined;
   }
-}
-
-function detachedMessages(
-  terminal: Readonly<Record<string, unknown>>
-): readonly CheckMessage[] | undefined {
-  if (!Object.hasOwn(terminal, "messages") || terminal.messages === undefined) {
-    return EMPTY_MESSAGES;
-  }
-  const rawMessages = snapshotClosedArray(terminal.messages);
-  if (rawMessages === undefined) return undefined;
-
-  const messages: CheckMessage[] = [];
-  for (const rawMessage of rawMessages) {
-    const message = detachedMessage(rawMessage);
-    if (message === undefined) return undefined;
-    messages.push(message);
-  }
-  return messages.length === 0 ? EMPTY_MESSAGES : Object.freeze(messages);
-}
-
-function detachedMessage(value: unknown): CheckMessage | undefined {
-  const message = snapshotClosedRecord(value);
-  if (
-    message === undefined ||
-    !hasSupportedKeys(message, ["level", "code", "message"], []) ||
-    !isCheckMessageLevel(message.level) ||
-    typeof message.code !== "string" ||
-    !isCheckTreeReferenceId(message.code) ||
-    typeof message.message !== "string" ||
-    message.message.length === 0
-  ) {
-    return undefined;
-  }
-  return Object.freeze({ code: message.code, level: message.level, message: message.message });
-}
-
-function hasSupportedKeys(
-  value: Readonly<Record<string, unknown>>,
-  required: readonly string[],
-  optional: readonly string[]
-): boolean {
-  const supported = new Set([...required, ...optional]);
-  return (
-    required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => supported.has(key))
-  );
-}
-
-function isCheckMessageLevel(value: unknown): value is CheckMessage["level"] {
-  return value === "info" || value === "warning" || value === "error";
 }

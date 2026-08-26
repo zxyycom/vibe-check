@@ -34,6 +34,7 @@ function normalized(
     readonly dependsOn?: readonly string[];
     readonly displayName?: string;
     readonly maxParallel?: number;
+    readonly preflight?: NormalizedCheck["preflight"];
   }> = {}
 ): NormalizedCheck {
   const checkId = overrides.checkId ?? "direct-check";
@@ -44,6 +45,7 @@ function normalized(
     maxParallel: overrides.maxParallel ?? 1,
     mutex: [],
     options: {},
+    ...(overrides.preflight === undefined ? {} : { preflight: overrides.preflight }),
     visibility: "always"
   };
 }
@@ -737,6 +739,387 @@ describe("Package Run direct Check execution", () => {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "" }
     });
+  });
+
+  it("finishes every sequential preflight before any author execution", async () => {
+    const firstPreflight = deferred<{
+      readonly status: "success";
+      readonly preparedOptions: object;
+    }>();
+    const events: string[] = [];
+    const execution = executeResolvedChecks({
+      checks: [
+        normalized(
+          () => {
+            events.push("first-execution");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "first",
+            preflight: async (_options) => {
+              events.push("first-preflight");
+              return firstPreflight.promise;
+            }
+          }
+        ),
+        normalized(
+          () => {
+            events.push("second-execution");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "second",
+            preflight: (options) => {
+              events.push("second-preflight");
+              return { status: "success", preparedOptions: options };
+            }
+          }
+        )
+      ],
+      maxParallel: 2,
+      project: PROJECT,
+      signal: undefined
+    });
+    await Promise.resolve();
+    assert.deepEqual(events, ["first-preflight"]);
+    firstPreflight.resolve({ status: "success", preparedOptions: {} });
+    const result = await execution;
+    assert.equal(result.kind, "completed");
+    assert.deepEqual(events, [
+      "first-preflight",
+      "second-preflight",
+      "first-execution",
+      "second-execution"
+    ]);
+  });
+
+  it("settles blocked preflights before graph admission without a started fact or duration", async () => {
+    const started: CheckStartedFact[] = [];
+    const settled: CheckSettledFact[] = [];
+    const result = await executeResolvedChecks({
+      checks: [
+        normalized(
+          () => {
+            throw new Error("blocked callback must not execute");
+          },
+          {
+            checkId: "blocked",
+            preflight: () => ({
+              status: "failure",
+              action: "block",
+              reason: { code: "invalid-options" },
+              messages: [
+                { level: "warning", code: "invalid-options", message: "Use valid options" }
+              ]
+            })
+          }
+        ),
+        normalized(
+          (context) => {
+            assert.deepEqual(context.dependencies.get("blocked"), {
+              ok: false,
+              error: {
+                code: "upstream-data-unavailable",
+                checkId: "blocked",
+                status: "unavailable"
+              }
+            });
+            return { status: "passed", data: {} };
+          },
+          { checkId: "dependent", dependsOn: ["blocked"] }
+        )
+      ],
+      lifecycle: { started: (fact) => started.push(fact), settled: (fact) => settled.push(fact) },
+      maxParallel: 1,
+      project: PROJECT,
+      signal: undefined
+    });
+    assert.equal(result.kind, "completed");
+    assert.deepEqual(
+      started.map((fact) => fact.checkId),
+      ["dependent"]
+    );
+    assert.deepEqual(result.checkDurations, [
+      { checkId: "blocked", durationMs: null },
+      { checkId: "dependent", durationMs: result.checkDurations[1]?.durationMs }
+    ]);
+    assert.deepEqual(outcomeFor(result, "blocked"), {
+      status: "unavailable",
+      reason: { code: "invalid-options" }
+    });
+    assert.deepEqual(result.checkMessages, [
+      {
+        checkId: "blocked",
+        level: "warning",
+        code: "invalid-options",
+        message: "Use valid options"
+      }
+    ]);
+    assert.equal(settled.find((fact) => fact.checkId === "blocked")?.durationMs, null);
+  });
+
+  it("passes the invocation signal to cooperative preflights and closes a cancelled barrier", async () => {
+    const allBlockedController = new AbortController();
+    const cooperativePreflightEntered = deferred<void>();
+    let observedAllBlockedSignal: AbortSignal | undefined;
+    let allBlockedExecutions = 0;
+    const allBlocked = executeResolvedChecks({
+      checks: [
+        normalized(
+          () => {
+            allBlockedExecutions += 1;
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "declared-block",
+            preflight: () => ({
+              status: "failure",
+              action: "block",
+              reason: { code: "invalid-options" }
+            })
+          }
+        ),
+        normalized(
+          () => {
+            allBlockedExecutions += 1;
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "cooperative-block",
+            preflight: async (_options, signal) => {
+              observedAllBlockedSignal = signal;
+              cooperativePreflightEntered.resolve();
+              await new Promise<void>((resolve) =>
+                signal.addEventListener("abort", () => resolve(), { once: true })
+              );
+              return { status: "success", preparedOptions: {} };
+            }
+          }
+        )
+      ],
+      maxParallel: 2,
+      project: PROJECT,
+      signal: allBlockedController.signal
+    });
+    await cooperativePreflightEntered.promise;
+    assert.equal(observedAllBlockedSignal, allBlockedController.signal);
+    allBlockedController.abort();
+    const allBlockedResult = await allBlocked;
+    assert.equal(allBlockedResult.kind, "cancelled");
+    assert.equal(allBlockedExecutions, 0);
+    assert.deepEqual(
+      allBlockedResult.snapshot.checks.map((check) => check.outcome),
+      [
+        { status: "unavailable", reason: { code: "execution-cancelled" } },
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      ]
+    );
+
+    const partialReadyController = new AbortController();
+    const deferredPreflight = deferred<{
+      readonly status: "success";
+      readonly preparedOptions: object;
+    }>();
+    const deferredPreflightEntered = deferred<void>();
+    let partialExecutions = 0;
+    const partialReady = executeResolvedChecks({
+      checks: [
+        normalized(
+          () => {
+            partialExecutions += 1;
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "ready",
+            preflight: () => ({
+              status: "success",
+              preparedOptions: {},
+              messages: [
+                { level: "info", code: "prepared", message: "Prepared before cancellation" }
+              ]
+            })
+          }
+        ),
+        normalized(
+          () => {
+            partialExecutions += 1;
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "deferred",
+            preflight: (_options, signal) => {
+              assert.equal(signal, partialReadyController.signal);
+              deferredPreflightEntered.resolve();
+              return deferredPreflight.promise;
+            }
+          }
+        )
+      ],
+      maxParallel: 2,
+      project: PROJECT,
+      signal: partialReadyController.signal
+    });
+    await deferredPreflightEntered.promise;
+    partialReadyController.abort();
+    deferredPreflight.resolve({ status: "success", preparedOptions: {} });
+    const partialReadyResult = await partialReady;
+    assert.equal(partialReadyResult.kind, "cancelled");
+    assert.equal(partialExecutions, 0);
+    assert.deepEqual(
+      partialReadyResult.snapshot.checks.map((check) => check.outcome.status),
+      ["unavailable", "unavailable"]
+    );
+    assert.deepEqual(partialReadyResult.checkMessages, [
+      {
+        checkId: "ready",
+        level: "info",
+        code: "prepared",
+        message: "Prepared before cancellation"
+      }
+    ]);
+  });
+
+  it("canonicalizes continue fallbacks and retains preflight messages through execution settlement", async () => {
+    let frozenFallback = false;
+    const result = await executeResolvedChecks({
+      checks: [
+        normalized(
+          (context) => {
+            frozenFallback = Object.isFrozen(context.options);
+            assert.deepEqual(context.options, { value: 2 });
+            return {
+              status: "passed",
+              data: {},
+              messages: [{ level: "info", code: "execution", message: "Execution message" }]
+            };
+          },
+          {
+            checkId: "continued",
+            preflight: () => ({
+              status: "failure",
+              action: "continue",
+              reason: { code: "fallback" },
+              fallback: { value: 2 },
+              messages: [{ level: "warning", code: "preflight", message: "Preflight message" }]
+            })
+          }
+        ),
+        normalized(
+          () => {
+            throw new Error("contained");
+          },
+          {
+            checkId: "throws",
+            preflight: () => ({
+              status: "success",
+              preparedOptions: {},
+              messages: [{ level: "warning", code: "preflight", message: "Retained on throw" }]
+            })
+          }
+        )
+      ],
+      maxParallel: 2,
+      project: PROJECT,
+      signal: undefined
+    });
+    assert.equal(result.kind, "completed");
+    assert.equal(frozenFallback, true);
+    assert.deepEqual(result.checkMessages, [
+      { checkId: "continued", level: "warning", code: "preflight", message: "Preflight message" },
+      { checkId: "continued", level: "info", code: "execution", message: "Execution message" },
+      { checkId: "throws", level: "warning", code: "preflight", message: "Retained on throw" }
+    ]);
+    assert.deepEqual(outcomeFor(result, "throws"), {
+      status: "unavailable",
+      reason: { code: "execution-threw" }
+    });
+  });
+
+  it("fails closed for thrown, malformed, and noncanonical preflight results", async () => {
+    const cyclicPreparedOptions: { self?: unknown } = {};
+    cyclicPreparedOptions.self = cyclicPreparedOptions;
+    const executions: string[] = [];
+    const result = await executeResolvedChecks({
+      checks: [
+        normalized(
+          () => {
+            executions.push("throwing");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "throwing",
+            preflight: () => {
+              throw new Error("contained preflight failure");
+            }
+          }
+        ),
+        normalized(
+          () => {
+            executions.push("block-with-fallback");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "block-with-fallback",
+            preflight: () => {
+              const blocked = {
+                status: "failure" as const,
+                action: "block" as const,
+                reason: { code: "invalid-options" }
+              };
+              Object.defineProperty(blocked, "fallback", { enumerable: true, value: undefined });
+              return blocked;
+            }
+          }
+        ),
+        normalized(
+          () => {
+            executions.push("noncanonical-options");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "noncanonical-options",
+            preflight: () => ({ status: "success", preparedOptions: cyclicPreparedOptions })
+          }
+        ),
+        normalized(
+          () => {
+            executions.push("malformed-message");
+            return { status: "passed", data: {} };
+          },
+          {
+            checkId: "malformed-message",
+            preflight: () => {
+              const continued = {
+                status: "failure" as const,
+                action: "continue" as const,
+                reason: { code: "fallback" },
+                fallback: {},
+                messages: [
+                  { level: "warning" as const, code: "preflight", message: "Invalid level" }
+                ]
+              };
+              Object.defineProperty(continued.messages[0], "level", { value: "notice" });
+              return continued;
+            }
+          }
+        )
+      ],
+      maxParallel: 2,
+      project: PROJECT,
+      signal: undefined
+    });
+    assert.equal(result.kind, "completed");
+    assert.deepEqual(executions, []);
+    assert.deepEqual(outcomeFor(result, "throwing"), {
+      status: "unavailable",
+      reason: { code: "preflight-threw" }
+    });
+    for (const checkId of ["block-with-fallback", "malformed-message", "noncanonical-options"]) {
+      assert.deepEqual(outcomeFor(result, checkId), {
+        status: "unavailable",
+        reason: { code: "invalid-preflight-result" }
+      });
+    }
   });
 
   it("settles cancellation-before-start Checks without starting them", async () => {

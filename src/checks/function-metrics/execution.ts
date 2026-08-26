@@ -1,5 +1,5 @@
-import type { FunctionMetricsOptions, FunctionMetricsScannerOptions } from "./options.ts";
 import { validFunctionMetricsOptions } from "./options-validation.ts";
+import type { FunctionMetricsOptions, FunctionMetricsScannerOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { collectProjectFiles } from "../../project-files/collection.ts";
 import { selectLizardTargetFiles } from "./target-files.ts";
@@ -43,6 +43,7 @@ export async function executeFunctionMetrics(
   context: CheckExecutionContext<FunctionMetricsOptions>
 ): Promise<CheckResult> {
   if (!validFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
+
   const scanFiles = collectProjectFiles(context.project.root, context.options.files);
   const current: FunctionMetricsExactInputSet = Object.freeze({
     approvedExactPaths: Object.freeze(selectLizardTargetFiles(scanFiles, context.options.files)),

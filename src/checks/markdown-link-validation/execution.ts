@@ -1,7 +1,7 @@
+import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 import path from "node:path";
 
 import type { MarkdownLinkValidationOptions } from "./options.ts";
-import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { collectProjectFiles } from "../../project-files/collection.ts";
 import type { ProjectFileSelection } from "../../project-files/configuration.ts";
@@ -45,8 +45,8 @@ interface MarkdownLinkValidationRun {
 }
 
 type MarkdownLinkValidationUnavailableReason =
-  | "cancelled"
   | "invalid-options"
+  | "cancelled"
   | "occurrence-limit-exceeded"
   | "project-root-unavailable"
   | MarkdownLocalResolutionReason
@@ -86,6 +86,7 @@ export async function executeMarkdownLinkValidation(
   context: CheckExecutionContext<MarkdownLinkValidationOptions>
 ): Promise<CheckResult> {
   if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
+
   if (context.signal.aborted) return unavailable("cancelled");
   const createdResolver = await createMarkdownLocalResolver(
     context.project.root,

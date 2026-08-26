@@ -22,6 +22,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     checkAggregation: "CheckAggregation",
     checkExecution: "CheckExecution",
     checkExecutionContext: "CheckExecutionContext",
+    checkPreflight: "CheckPreflight",
+    checkPreflightResult: "CheckPreflightResult",
     checkOutcome: "CheckOutcome",
     checkResult: "CheckResult",
     checkUnavailableReason: "CheckUnavailableReason",

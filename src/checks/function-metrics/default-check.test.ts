@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import type { FunctionMetricsOptions } from "../function-metrics/options.ts";
 import { executeFunctionMetrics } from "../function-metrics/execution.ts";
+import { functionMetrics } from "../function-metrics/default-check.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -122,15 +123,24 @@ describe("default Check direct callbacks", () => {
         cyclomaticComplexity: { absoluteFloor: 5 },
         parameterCount: { absoluteFloor: 4 }
       };
-      const invalid = await execute(
-        executeFunctionMetrics,
-        { ...options, scanner: { ...options.scanner, executable: "" } },
-        root
+      const invalidPreflight = await functionMetrics.preflight!(
+        {
+          ...options,
+          scanner: { ...options.scanner, executable: "" }
+        },
+        new AbortController().signal
       );
-      assert.deepEqual(invalid.result, {
-        status: "unavailable",
-        reason: { code: "invalid-options" }
-      });
+      assert.equal(invalidPreflight.status, "failure");
+      assert.deepEqual(
+        (
+          await execute(
+            executeFunctionMetrics,
+            { ...options, scanner: { ...options.scanner, executable: "" } },
+            root
+          )
+        ).result,
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
       const result = await execute(executeFunctionMetrics, options, root);
       assert.deepEqual(result.result, { status: "failed", data: { findingCount: 3 } });
       assert.deepEqual(

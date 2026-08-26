@@ -29,6 +29,8 @@ export type {
   CheckAggregation,
   CheckExecution,
   CheckExecutionContext,
+  CheckPreflight,
+  CheckPreflightResult,
   CheckOutcome,
   CheckResult,
   CheckUnavailableReason,

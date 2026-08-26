@@ -45,9 +45,24 @@ function definition(checks: readonly Check[]) {
   });
 }
 
+function deferred(): Readonly<{ readonly promise: Promise<void>; readonly resolve: () => void }> {
+  let resolvePromise: (() => void) | undefined;
+  const promise = new Promise<void>((resolve) => {
+    resolvePromise = resolve;
+  });
+  return Object.freeze({
+    promise,
+    resolve: (): void => {
+      if (resolvePromise === undefined) throw new Error("Deferred promise is unavailable");
+      resolvePromise();
+    }
+  });
+}
+
 describe("Package Run", () => {
-  it("rejects invalid closed controls and definitions before any Check callback", async () => {
+  it("rejects invalid closed controls while a blocked preflight settles unavailable before execution", async () => {
     let calls = 0;
+    let preflightReceivedFrozenOptions = false;
     const source = definition([
       check({
         execution: () => {
@@ -59,6 +74,23 @@ describe("Package Run", () => {
 
     const badControls = await run(source, { unexpected: true });
     const badDefinition = await run({ ...source, unexpected: true }, {});
+    const badOptions = await run(
+      definition([
+        {
+          ...check({
+            execution: () => {
+              calls += 1;
+              return PASSED;
+            }
+          }),
+          options: { accepted: false },
+          preflight: (options) => {
+            preflightReceivedFrozenOptions = Object.isFrozen(options);
+            return { status: "failure", action: "block", reason: { code: "invalid-options" } };
+          }
+        }
+      ])
+    );
 
     assert.deepEqual(badControls, {
       kind: "configuration",
@@ -70,6 +102,15 @@ describe("Package Run", () => {
       }
     });
     assert.equal(badDefinition.kind, "configuration");
+    assert.equal(badOptions.kind, "completed");
+    if (badOptions.kind === "completed") {
+      assert.deepEqual(badOptions.snapshot.checks[0]?.outcome, {
+        status: "unavailable",
+        reason: { code: "invalid-options" }
+      });
+      assert.deepEqual(badOptions.checkDurations, [{ checkId: "custom", durationMs: null }]);
+    }
+    assert.equal(preflightReceivedFrozenOptions, true);
     assert.equal(calls, 0);
   });
 
@@ -143,6 +184,46 @@ describe("Package Run", () => {
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
+  });
+
+  it("returns the existing execution cancellation result when the preflight barrier aborts", async () => {
+    const controller = new AbortController();
+    const preflightEntered = deferred();
+    let callbackCalls = 0;
+    const cancelled = run(
+      definition([
+        {
+          ...check({
+            execution: () => {
+              callbackCalls += 1;
+              return PASSED;
+            }
+          }),
+          options: {},
+          preflight: async (_options, signal) => {
+            assert.equal(signal, controller.signal);
+            preflightEntered.resolve();
+            await new Promise<void>((resolve) =>
+              signal.addEventListener("abort", () => resolve(), { once: true })
+            );
+            return { status: "success", preparedOptions: {} };
+          }
+        }
+      ]),
+      { signal: controller.signal }
+    );
+    await preflightEntered.promise;
+    controller.abort();
+    const result = await cancelled;
+    assert.equal(result.kind, "cancelled");
+    if (result.kind === "cancelled") {
+      assert.equal(result.phase, "execution");
+      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+        status: "unavailable",
+        reason: { code: "execution-cancelled" }
+      });
+    }
+    assert.equal(callbackCalls, 0);
   });
 
   it("admits an unavailable dependency and exposes its read failure", async () => {

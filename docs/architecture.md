@@ -5,7 +5,8 @@
 ```text
 调用方 → 项目 Run → Product run
                     ├─ Definition validation 与 canonical Check catalog
-                    ├─ direct Check execution
+                    ├─ invocation-wide Check preflight barrier
+                    ├─ ready Check direct execution
                     └─ frozen Core facts → optional aggregation / publication / effects / RunResult
 ```
 
@@ -19,14 +20,16 @@
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
 `dependsOn`、`mutex` 和 `maxParallel`，不形成独立 Core 或 output entity。
 
-完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 callback、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical opaque JSON object，并 canonicalize scheduling collection。它不识别 package-provided Check ID，也不解释其 option shape；完整 options 由 owning Check 在 execution boundary 验证。trusted callback function 只保留给 execution；它们绝不进入 declarative fingerprint、Core snapshot 或 machine output。
+完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
-Definition grammar只描述递归 Check、调度、executable-only `visibility` 和 Check-owned execution/options。Typed provider 的 executable-only `parseData` 也是 trusted function：它保留给 runtime consumer，但不进入 declarative snapshot 或 fingerprint；其 public type relation 由 [Configuration](configuration.md#typed-dependency-data) 拥有。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
+Definition grammar 只描述递归 Check、调度、executable-only `visibility`、Check-owned execution/options 及可选 `preflight`。`preflight`、`execution` 与 typed provider 的 executable-only `parseData` 都是 trusted functions：Definition 保留函数 identity，但不调用函数，也不把它们写入 declarative snapshot、fingerprint、Core snapshot 或 machine output。Typed provider 的 public type relation 由 [Configuration](configuration.md#typed-dependency-data) 拥有。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
 
 ## Execution boundary
 
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
 dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
+
+Task admission 前，Run 按 Definition 顺序执行 invocation-wide Check preflight barrier；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不进入 scheduler，也没有 started lifecycle fact；ready Check 才以 prepared/fallback options 进入 Task graph。barrier 属于 execution phase，但 invocation preparation 和 progress setup 可以先发生；它只保证任何 author Check execution、scanner 或其它 Check-local execution work 尚未开始。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 
 每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project` 只携带 normalized root、cache context 与由 invocation controls 冻结的 `changedFiles`/canonical `flags`；Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 

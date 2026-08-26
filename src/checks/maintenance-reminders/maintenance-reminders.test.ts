@@ -208,10 +208,16 @@ describe("maintenance reminders", () => {
     for (const options of invalidOptions) {
       const invalid = { ...first, options } as Check;
       const invalidResult = await run(definition(invalid));
-      assert.deepEqual(onlyOutcome(invalidResult).outcome, {
-        status: "unavailable",
-        reason: { code: "invalid-options" }
-      });
+      assert.equal(invalidResult.kind, "completed");
+      if (invalidResult.kind === "completed") {
+        assert.deepEqual(invalidResult.snapshot.checks[0]?.outcome, {
+          status: "unavailable",
+          reason: { code: "invalid-options" }
+        });
+        assert.deepEqual(invalidResult.checkDurations, [
+          { checkId: "maintenance-reminders", durationMs: null }
+        ]);
+      }
     }
   });
 
@@ -626,6 +632,14 @@ describe("maintenance reminders", () => {
       assert.notEqual(check.execution, undefined);
       if (check.execution === undefined)
         throw new Error("maintenance reminders must be executable");
+      assert.deepEqual(
+        await check.execution({
+          ...context,
+          options: { ...check.options, git: { executable: "" } },
+          signal: new AbortController().signal
+        }),
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
       assert.deepEqual(await check.execution(context), {
         status: "unavailable",
         reason: { code: "execution-cancelled" }

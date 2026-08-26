@@ -198,12 +198,12 @@ export interface CheckProjectContext {
 /**
  * Check callback 收到的 Product-owned execution context。
  *
- * @typeParam Options - 此 Check `options` 的 authoring shape。
+ * @typeParam Options - 此 Check preflight 后传给 execution 的 options shape。
  */
 export interface CheckExecutionContext<Options extends object> {
   /** 读取当前 Check 的已声明 direct dependencies。 */
   readonly dependencies: CheckDependencies;
-  /** 深度只读的 validated Check options。 */
+  /** 深度只读、canonical 的 invocation-local prepared Check options。 */
   readonly options: DeepReadonly<Options>;
   /** 已规范化的项目、文件范围与 cache context。 */
   readonly project: CheckProjectContext;
@@ -216,13 +216,62 @@ export interface CheckExecutionContext<Options extends object> {
 /**
  * 一个 Check 的 callback signature。
  *
- * @typeParam Options - callback 从 context 读取的 validated options shape。
+ * @typeParam Options - callback 从 context 读取的 prepared options shape。
  * @returns terminal Check result 或其 Promise。
  */
 export type CheckExecution<Options extends object = object> = (
   this: void,
   context: CheckExecutionContext<Options>
 ) => CheckResult | Promise<CheckResult>;
+
+/**
+ * 在 Check execution 前，可选地为本次 invocation 准备 options。
+ *
+ * @remarks `signal` 与同一次 callback execution 使用同一个 cancellation signal；实现应在可等待工作中
+ * 协作退出，而不是留下悬挂 work。bivariant callback 保持具体 options Check 可进入普通递归 Check
+ * collection；Product 仍只会用该 Check 自己的 authored options 调用它。精确结果见
+ * {@link CheckPreflightResult}。
+ */
+export type CheckPreflight<
+  AuthoredOptions extends object = object,
+  PreparedOptions extends object = AuthoredOptions
+> = {
+  bivarianceHack(
+    this: void,
+    options: DeepReadonly<AuthoredOptions>,
+    signal: AbortSignal
+  ): CheckPreflightResult<PreparedOptions> | Promise<CheckPreflightResult<PreparedOptions>>;
+}["bivarianceHack"];
+
+/**
+ * Check-owned preflight 的判别结果。
+ *
+ * `failure/block` 不允许 fallback，直接以 owning reason 结算为 unavailable；`failure/continue` 必须给出
+ * fallback 并继续 execution。两种进入 execution 的值都只属于本次 invocation，Product canonicalize/freeze
+ * 后传递，不会改写 Definition 中 authored options。两个 failure 分支都必须给出 reason；continue reason
+ * 是 Check-owned diagnostic identity，当前不会单独 materialize 为 outcome，调用方通过 messages 与后续
+ * outcome 观察结果；block 物理上不含 fallback 字段。
+ */
+export type CheckPreflightResult<PreparedOptions extends object = object> = Readonly<
+  | {
+      readonly status: "success";
+      readonly preparedOptions: PreparedOptions;
+      readonly messages?: readonly CheckMessage[];
+    }
+  | {
+      readonly status: "failure";
+      readonly action: "block";
+      readonly reason: CheckDeclaredUnavailableReason;
+      readonly messages?: readonly CheckMessage[];
+    }
+  | {
+      readonly status: "failure";
+      readonly action: "continue";
+      readonly fallback: PreparedOptions;
+      readonly reason: CheckReason;
+      readonly messages?: readonly CheckMessage[];
+    }
+>;
 
 const INHERITED_CHECK_COLLECTION: unique symbol = Symbol("vibe-check.inherited-check-collection");
 
@@ -327,22 +376,23 @@ function isDataDescriptor(
 }
 
 /**
- * Project Definition 中的普通递归 Check authoring value。
+ * 普通递归 Check authoring value 的共享字段。
  *
- * @typeParam Options - `options` 与 executable callback 共享的 validated option shape。
+ * @typeParam AuthoredOptions - Definition 中的 declarative options shape。
+ * @typeParam PreparedOptions - preflight 后 callback 接收的 invocation-local options shape。
  * @remarks 该值可以同时有 `execution` 和 `checks`；只有 executable node 产生 final Check fact。
  */
-export interface Check<Options extends object = object> {
+interface CheckBase<AuthoredOptions extends object, PreparedOptions extends object> {
   /** 在 Definition 内唯一的 stable Check ID。 */
   readonly checkId: string;
   /** 人读 progress 与 output 使用的非空名称。 */
   readonly displayName: string;
   /** Check-owned declarative options；默认 Check 的嵌套 branch 以普通对象组合替换。 */
-  readonly options?: Options;
+  readonly options?: AuthoredOptions;
   /** 可执行节点的 callback；省略时此节点只承载递归 children。 */
   execution?(
     this: void,
-    context: CheckExecutionContext<Options>
+    context: CheckExecutionContext<PreparedOptions>
   ): CheckResult | Promise<CheckResult>;
   /** 继承 scheduling context 的 child Checks，不会单独形成 container result。 */
   readonly checks?: readonly Check[];
@@ -355,6 +405,38 @@ export interface Check<Options extends object = object> {
   /** 已结算 Check 的人读可见性；可执行节点默认 `always`。 */
   readonly visibility?: CheckVisibility;
 }
+
+/**
+ * 判断两个 options shape 是否互相可赋值；互相可赋值时 execution 不需要 preparation 转换。
+ */
+type HasSameOptionsShape<AuthoredOptions extends object, PreparedOptions extends object> = [
+  AuthoredOptions
+] extends [PreparedOptions]
+  ? [PreparedOptions] extends [AuthoredOptions]
+    ? true
+    : false
+  : false;
+
+/** Prepared shape 不同时，preflight 是建立安全转换的必填边界。 */
+type CheckPreflightField<AuthoredOptions extends object, PreparedOptions extends object> =
+  HasSameOptionsShape<AuthoredOptions, PreparedOptions> extends true
+    ? Readonly<{ readonly preflight?: CheckPreflight<AuthoredOptions, PreparedOptions> }>
+    : Readonly<{ readonly preflight: CheckPreflight<AuthoredOptions, PreparedOptions> }>;
+
+/**
+ * Project Definition 中的普通递归 Check authoring value。
+ *
+ * @typeParam AuthoredOptions - Definition 中的 declarative options shape。
+ * @typeParam PreparedOptions - preflight 后 callback 接收的 invocation-local options shape。
+ * @remarks Definition 只闭合 authored JSON options；preflight 在同一 Run 的所有 execution 前作为全局
+ * barrier 执行。`PreparedOptions` 与 `AuthoredOptions` 不同时必须提供 preflight；同形时可以省略。它不进入
+ * declarative fingerprint 或 machine output。
+ */
+export type Check<
+  AuthoredOptions extends object = object,
+  PreparedOptions extends object = AuthoredOptions
+> = CheckBase<AuthoredOptions, PreparedOptions> &
+  CheckPreflightField<AuthoredOptions, PreparedOptions>;
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
@@ -375,36 +457,43 @@ export type CheckDataParser<FinalData extends object = object> = (
   data: CanonicalJsonObject
 ) => FinalData & NonThenableData;
 
-type CheckAuthoringBase<Id extends string, Options extends object> = Omit<
-  Check<Options>,
-  "checkId" | "execution" | "options"
-> &
+type CheckAuthoringBase<
+  Id extends string,
+  AuthoredOptions extends object,
+  PreparedOptions extends object
+> = Omit<CheckBase<AuthoredOptions, PreparedOptions>, "checkId" | "execution" | "options"> &
+  CheckPreflightField<AuthoredOptions, PreparedOptions> &
   Readonly<{ readonly checkId: Id }>;
 
-interface OrdinaryCheckFields<Options extends object> {
+interface OrdinaryCheckFields<PreparedOptions extends object> {
   execution?(
     this: void,
-    context: CheckExecutionContext<Options>
+    context: CheckExecutionContext<PreparedOptions>
   ): CheckResult | Promise<CheckResult>;
   readonly parseData?: never;
 }
 
-export type CheckWithOptions<Id extends string, Options extends object> = CheckAuthoringBase<
-  Id,
-  Options
-> &
-  OrdinaryCheckFields<Options> &
+export type CheckWithOptions<
+  Id extends string,
+  AuthoredOptions extends object,
+  PreparedOptions extends object = AuthoredOptions
+> = CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+  OrdinaryCheckFields<PreparedOptions> &
   Readonly<{
-    readonly options: Options;
+    readonly options: AuthoredOptions;
   }>;
 
-export type CheckWithoutOptions<Id extends string> = CheckAuthoringBase<Id, EmptyCheckOptions> &
+export type CheckWithoutOptions<Id extends string> = CheckAuthoringBase<
+  Id,
+  EmptyCheckOptions,
+  EmptyCheckOptions
+> &
   OrdinaryCheckFields<EmptyCheckOptions> &
   Readonly<{
     readonly options?: never;
   }>;
 
-interface TypedCheckFields<Options extends object, Parser extends CheckDataParser> {
+interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckDataParser> {
   /**
    * 将 canonical runtime data 还原为 provider data。
    *
@@ -416,24 +505,29 @@ interface TypedCheckFields<Options extends object, Parser extends CheckDataParse
 
   execution(
     this: void,
-    context: CheckExecutionContext<Options>
+    context: CheckExecutionContext<PreparedOptions>
   ): CheckResult<NoInfer<ReturnType<Parser>>> | Promise<CheckResult<NoInfer<ReturnType<Parser>>>>;
 }
 
 export type TypedCheckWithOptions<
   Id extends string,
-  Options extends object,
-  Parser extends CheckDataParser
-> = CheckAuthoringBase<Id, Options> &
-  TypedCheckFields<Options, Parser> &
-  Readonly<{ readonly options: Options }>;
+  AuthoredOptions extends object,
+  Parser extends CheckDataParser,
+  PreparedOptions extends object = AuthoredOptions
+> = CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+  TypedCheckFields<PreparedOptions, Parser> &
+  Readonly<{
+    readonly options: AuthoredOptions;
+  }>;
 
 export type TypedCheckWithoutOptions<
   Id extends string,
   Parser extends CheckDataParser
-> = CheckAuthoringBase<Id, EmptyCheckOptions> &
+> = CheckAuthoringBase<Id, EmptyCheckOptions, EmptyCheckOptions> &
   TypedCheckFields<EmptyCheckOptions, Parser> &
-  Readonly<{ readonly options?: never }>;
+  Readonly<{
+    readonly options?: never;
+  }>;
 
 /**
  * 定义一个 Check，同时保留 literal `checkId`、options 与 typed-provider parser 的 inference。
@@ -441,10 +535,25 @@ export type TypedCheckWithoutOptions<
  * @remarks 此函数只改善 authoring 类型；Project Definition validation 仍在 {@link run} 的边界执行。
  * @example 定义带 options、Records 与 messages 的自定义 Check
  * ```ts
+ * function hasValidLicensePolicyOptions(options: object): boolean {
+ *   const denied: unknown = Reflect.get(options, "denied");
+ *   return (
+ *     Object.keys(options).length === 1 &&
+ *     Object.hasOwn(options, "denied") &&
+ *     Array.isArray(denied) &&
+ *     denied.every((license) => typeof license === "string")
+ *   );
+ * }
+ *
  * const licensePolicy = defineCheck({
  *   checkId: "license-policy",
  *   displayName: "License policy",
  *   options: { denied: ["GPL-3.0-only"] },
+ *   preflight(options) {
+ *     return hasValidLicensePolicyOptions(options)
+ *       ? { status: "success", preparedOptions: options }
+ *       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
+ *   },
  *   visibility: "attention",
  *   execution({ options, records, signal }) {
  *     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
@@ -463,17 +572,24 @@ export type TypedCheckWithoutOptions<
  * });
  * ```
  */
-export function defineCheck<const Id extends string, Options extends object>(
-  value: CheckWithOptions<Id, Options>
-): CheckWithOptions<Id, Options>;
+export function defineCheck<
+  const Id extends string,
+  AuthoredOptions extends object,
+  PreparedOptions extends object = AuthoredOptions
+>(
+  value: CheckWithOptions<Id, AuthoredOptions, PreparedOptions>
+): CheckWithOptions<Id, AuthoredOptions, PreparedOptions>;
 export function defineCheck<const Id extends string>(
   value: CheckWithoutOptions<Id>
 ): CheckWithoutOptions<Id>;
 export function defineCheck<
   const Id extends string,
-  Options extends object,
-  const Parser extends CheckDataParser
->(value: TypedCheckWithOptions<Id, Options, Parser>): TypedCheckWithOptions<Id, Options, Parser>;
+  AuthoredOptions extends object,
+  const Parser extends CheckDataParser,
+  PreparedOptions extends object = AuthoredOptions
+>(
+  value: TypedCheckWithOptions<Id, AuthoredOptions, Parser, PreparedOptions>
+): TypedCheckWithOptions<Id, AuthoredOptions, Parser, PreparedOptions>;
 export function defineCheck<const Id extends string, const Parser extends CheckDataParser>(
   value: TypedCheckWithoutOptions<Id, Parser>
 ): TypedCheckWithoutOptions<Id, Parser>;

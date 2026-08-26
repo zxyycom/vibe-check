@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import type { MarkdownLinkValidationOptions } from "../markdown-link-validation/options.ts";
 import { executeMarkdownLinkValidation } from "../markdown-link-validation/execution.ts";
+import { markdownLinkValidation } from "../markdown-link-validation/default-check.ts";
 import { validMarkdownLinkValidationOptions } from "../markdown-link-validation/options-validation.ts";
 import type { ProjectFileSelection } from "../../project-files/configuration.ts";
 import type {
@@ -105,29 +106,37 @@ function createRoot(prefix: string): string {
 }
 
 describe("default Check direct callbacks", () => {
-  it("requires the complete closed Markdown Link options shape and bounded limits", () => {
-    assert.equal(validMarkdownLinkValidationOptions(MARKDOWN_LINK_OPTIONS), true);
+  it("requires the complete closed Markdown Link options shape and bounded limits", async () => {
     assert.equal(
-      validMarkdownLinkValidationOptions({
-        ...MARKDOWN_LINK_OPTIONS,
-        limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000 }
-      }),
-      false
+      (await markdownLinkValidation.preflight!(MARKDOWN_LINK_OPTIONS, new AbortController().signal))
+        .status,
+      "success"
     );
-    assert.equal(
-      validMarkdownLinkValidationOptions({
+    for (const options of [
+      { ...MARKDOWN_LINK_OPTIONS, limits: { maxMarkdownBytes: 1_048_576, maxOccurrences: 10_000 } },
+      {
         ...MARKDOWN_LINK_OPTIONS,
         limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: 10_001 }
-      }),
-      false
-    );
-    assert.equal(
-      validMarkdownLinkValidationOptions({
-        ...MARKDOWN_LINK_OPTIONS,
-        unexpected: true
-      }),
-      false
-    );
+      },
+      { ...MARKDOWN_LINK_OPTIONS, unexpected: true }
+    ]) {
+      assert.equal(validMarkdownLinkValidationOptions(options), false);
+    }
+    const root = createRoot("vibe-check-invalid-markdown-link-");
+    const invalidDirectOptions = {
+      ...MARKDOWN_LINK_OPTIONS,
+      limits: { ...MARKDOWN_LINK_OPTIONS.limits }
+    };
+    Reflect.deleteProperty(invalidDirectOptions.limits, "maxTargetReads");
+    try {
+      assert.deepEqual(
+        (await execute(executeMarkdownLinkValidation, invalidDirectOptions, root, MARKDOWN_FILES))
+          .result,
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it("reports safe Markdown Link findings only after a complete traversal", async () => {

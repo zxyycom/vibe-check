@@ -9,6 +9,8 @@ import {
   type Check,
   type CheckExecution,
   type CheckExecutionContext,
+  type CheckPreflight,
+  type CheckPreflightResult,
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
@@ -24,6 +26,8 @@ export {
   type Check,
   type CheckExecution,
   type CheckExecutionContext,
+  type CheckPreflight,
+  type CheckPreflightResult,
   type CheckOutcome,
   type CheckResult,
   type CheckUnavailableReason,
@@ -154,6 +158,8 @@ export interface NormalizedCheckDeclaration {
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
   /** Trusted project code; deliberately excluded from `declarative`. */
   readonly execution: CheckExecution;
+  /** Optional trusted invocation-local options preparation, excluded from declarative identity. */
+  readonly preflight?: CheckPreflight;
 }
 
 export interface DeclarativeProjectSnapshot {
@@ -221,6 +227,7 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,
     options: leaf.options,
+    ...(leaf.preflight === undefined ? {} : { preflight: leaf.preflight }),
     visibility: leaf.visibility
   });
 }
@@ -234,7 +241,7 @@ function freezeDeclarativeSnapshot(
   checks: readonly NormalizedCheck[]
 ): DeclarativeProjectSnapshot {
   const declarations = checks
-    .map(({ execution: _execution, ...declaration }) => declaration)
+    .map(({ execution: _execution, preflight: _preflight, ...declaration }) => declaration)
     .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
   return deepFreeze({
     apiVersion: definition.apiVersion,

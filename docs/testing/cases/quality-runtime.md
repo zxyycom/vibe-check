@@ -21,16 +21,18 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 
-Owner: `docs/architecture.md#definition-boundary`
+Owner: `docs/configuration.md#invocation-and-results`
 Entities:
 
-- `bun|src/run/run.test.ts|Package Run > rejects invalid closed controls and definitions before any Check callback`
+- `bun|src/run/run.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
+- `bun|src/run/run.test.ts|Package Run > returns the existing execution cancellation result when the preflight barrier aborts`
 - `bun|src/run/run.test.ts|Package Run > executes each normalized Check directly with the public callback context`
+- `bun|src/run/check-execution.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preflight results`
 - `bun|src/run/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/run/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
 - `bun|src/run/core-integration.test.ts|Package Run core integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
   Proves:
-- Package Run validates closed definitions and controls before calling project code, invokes every normalized executable Check with only its public context, excludes callbacks from frozen facts, and derives no aggregate unless controls explicitly select one.
+- Package Run validates closed definitions and controls before execution callbacks or effects. An optional Check preflight receives detached frozen authored options and the invocation signal in a sequential global barrier; block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only its Check unavailable without callback execution, while accepted prepared/fallback values are invocation-local. Barrier cancellation returns the existing execution-phase `cancelled` result even with no scheduler task to admit and retains messages from preflights that completed before cancellation. Every ready executable Check receives only its public context; trusted preflight/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
 - The two `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input and the canonical immutable `project.flags` callback snapshot.
 
 ## Case WB-RUNTIME-CHECK-LIFECYCLE-001: Each executable Check closes as one Core fact

@@ -1,7 +1,7 @@
+import { validJsonValidationOptions } from "./options-validation.ts";
 import { resolve } from "node:path";
 
 import type { JsonValidationOptions } from "./options.ts";
-import { validJsonValidationOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { collectProjectFiles } from "../../project-files/collection.ts";
 import { readStrictJsonDocument } from "./strict-document.ts";
@@ -19,9 +19,9 @@ interface JsonValidationFinalData {
 }
 
 type JsonValidationUnavailableCode =
+  | "invalid-options"
   | "document-unavailable"
   | "execution-cancelled"
-  | "invalid-options"
   | "scan-input-unavailable";
 
 /** Validates the lower-case JSON subset selected by this Check's options. */

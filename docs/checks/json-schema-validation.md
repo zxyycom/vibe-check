@@ -37,7 +37,8 @@ Check value，拥有自己的 registry、identity、reference、validation 与 r
 
 ## 工作原理
 
-Check 先验证完整 options。zero bindings 直接为 `not-applicable`；否则从自己的 `files` selection 建立可读 path set，
+共享 preflight barrier 接受完整 options 后，zero bindings 直接为 `not-applicable`；否则 execution 从自己的 `files`
+selection 建立可读 path set，
 加载已注册 schemas，按 identity policy 编译，再验证每个 binding。声明 path 不在 selected set 时形成安全的
 `out-of-scope` domain issue，不会扩大 file selection。schema document、compile 与 instance issues 形成 Records。
 
@@ -48,8 +49,9 @@ invalid、blocked 与 issue counts；Records 表示具体可报告问题。
 
 ## `not-applicable` 与 `unavailable`
 
-没有 binding 时为 `not-applicable` / `no-bindings`。无效 options 为 `unavailable` / `invalid-options`。file collection、
-读取失败、document 超限、未获允许的 reference、engine/compile 无法安全完成或取消也为 `unavailable`。
+没有 binding 时为 `not-applicable` / `no-bindings`。非法 replacement options 的共享组合、Run preflight 与 direct
+execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到 file collection、读取
+失败、document 超限、未获允许的 reference、engine/compile 无法安全完成或取消时才返回 `unavailable`。
 
 ## 外部工具与安全边界
 

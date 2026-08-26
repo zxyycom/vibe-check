@@ -1,5 +1,5 @@
-import type { FileMetricsOptions, FileMetricsScannerOptions } from "./options.ts";
 import { validFileMetricsOptions } from "./options-validation.ts";
+import type { FileMetricsOptions, FileMetricsScannerOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { collectProjectFiles } from "../../project-files/collection.ts";
 import type { CodeAreaDefinition } from "../../project-files/configuration.ts";
@@ -33,6 +33,7 @@ export async function executeFileMetrics(
   context: CheckExecutionContext<FileMetricsOptions>
 ): Promise<CheckResult> {
   if (!validFileMetricsOptions(context.options)) return unavailable("invalid-options");
+
   const current: FileMetricsExactInputSet = Object.freeze({
     approvedExactPaths: Object.freeze(
       collectProjectFiles(context.project.root, context.options.files)

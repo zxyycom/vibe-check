@@ -54,9 +54,10 @@ source discovery，也不会递归产生新的 links。
 
 ## `not-applicable` 与 `unavailable`
 
-没有 selected Markdown source 时为 `not-applicable` / `no-eligible-input`。无效 options 为 `unavailable` /
-`invalid-options`；取消、source/target 不可读取、project root 无法 canonicalize、parse failure 或 work limit exceeded
-也为 `unavailable`。
+没有 selected Markdown source 时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run
+preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到
+取消、source/target 不可读取、project root 无法 canonicalize、parse failure 或 work limit exceeded 时才返回
+`unavailable`。
 
 ## 外部工具与安全边界
 

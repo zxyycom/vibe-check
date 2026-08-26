@@ -1,6 +1,6 @@
 ---
 title: 为 Markdown Link Check 定义离线本地目标边界
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-25T01:56:25Z
 purpose: 让 Markdown Link Check 在零网络前提下验证本机目标，并以显式选项处理 project root 外路径和目录语义。
@@ -23,7 +23,7 @@ relations: []
 - `ProjectDefinition.quality` 的 global scope 是 source 文档的唯一资格 owner；它不应因为一个 Link Check 的 target resolver 变成第二个递归 file collector。
 - project-local 文档常以相对路径指向 scope 外或 project root 外的 sibling workspace、monorepo 目录和本机资料。只允许 root 内目标会使 Link Check 偏离读者对链接完整性的直觉。
 - project root 外的路径也可能碰到调用者无意暴露的文件、symlink escape、不可移植 absolute path 或网络挂载；因此它不能由 Check registration、CLI profile 或隐式 fallback 获得读取权限。
-- HTTP(S)、`mailto:`、protocol-relative URL 与 remote `file:` authority 仍属于非本机/网络边界，必须继续遵守 [网络 Check 使用 Check-owned 显式授权](require-check-owned-network-authorization.md)。
+- HTTP(S)、`mailto:`、protocol-relative URL 与 remote `file:` authority 仍属于非本机/网络边界，必须继续遵守 [网络 Check 使用 Check-owned 显式授权](../require-check-owned-network-authorization.md)。
 
 ## 决策
 

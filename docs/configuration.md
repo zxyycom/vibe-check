@@ -63,7 +63,29 @@ export default defineConfig({
 });
 ```
 
-`defineCheck` improves TypeScript inference only. Definition validation snapshots the closed ordinary Check grammar, rejects unknown Check keys and malformed declarative fields, and leaves execution callbacks as trusted project code. A Check with `execution` owns its `options`; Definition snapshots those options as a canonical opaque JSON object but does not recognize package-provided Check IDs or interpret their domain shape. The owning callback validates the complete options it needs before domain work. A Check without execution is a container; it may only carry recursive `checks` and scheduling fields. An empty container is accepted with a definition warning rather than silently becoming executable.
+`defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execution` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
+
+### Check options preflight
+
+executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function；Run 在任一 author Check execution 前，按 Definition 顺序完成所有已提供 preflight 的全局 barrier。
+
+preflight 只能返回以下 closed result 之一：
+
+```ts
+{ status: "success", preparedOptions, messages? }
+{ status: "failure", action: "block", reason, messages? }
+{ status: "failure", action: "continue", reason, fallback, messages? }
+```
+
+- `success` 以 `preparedOptions` 进入 execution。
+- `failure/block` 不允许 `fallback`，不调用 execution，并把 reason 原样用于 owning Check 的 `unavailable` outcome。
+- `failure/continue` 必须同时提供 reason 与 `fallback`，再以 fallback 进入 execution。reason 是 Check-owned diagnostic identity，当前不单独形成 outcome；需要调用方观察的详情应写入 `messages`。
+
+prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Core facts 或 machine output。preflight messages 排在 execution terminal messages 之前，即使 execution 随后抛错也会保留。
+
+Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。barrier 属于 execution phase，可能晚于 invocation preparation 或 progress setup，但保证 author Check execution、scanner 及其它 Check-local execution work 尚未开始。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
+
+blocked Check 没有 started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、dependency readback、aggregation、settled lifecycle 与 progress。Core 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
 
 An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
 
@@ -223,7 +245,7 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Package-provided Check composition
 
-The six package-provided values are complete ordinary `Check` values built on the same contract available to project-owned Checks. Product core does not register them as built-ins. Each value owns its full options, runtime option validation, execution and domain result. A project customizes one with normal object spread and must supply every field of a nested branch it replaces. The owning Check fails closed with `unavailable` / `invalid-options` instead of filling omitted fields or merging a hidden operational map.
+The six package-provided values are complete ordinary `Check` values built on the same contract available to project-owned Checks. Product core does not register them as built-ins. Each value owns full options, block preflight, execution and domain result; execution reuses its Check-local options helper defensively. A project customizes one with normal object spread and must supply every field of a nested branch it replaces; object spread retains preflight. Definition preserves incomplete or unknown authored JSON as declarative input, then the owning block preflight settles that Check unavailable before scanner or callback work rather than filling branches or treating the whole Definition as configuration failure.
 
 All six file-reading Checks own a complete `options.files` branch. Its initial value is:
 
@@ -252,7 +274,7 @@ All six file-reading Checks own a complete `options.files` branch. Its initial v
 | `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
 | `markdownLinkValidation` | `markdown-link-validation` | —                                                       | —              | —                          | closed local-link options |
 
-`jsonValidation.options` contains exactly `{ files, maximumBytes }`; `maximumBytes` is a positive safe integer. Replacing `options` with native object composition must supply both fields. Each package-provided Check validates its own complete option shape; `duplicateDetection` additionally requires every `minimumTokensByCodeArea` key to exist in its own `codeAreas`. Definition/Product core does not perform these package-specific checks and does not interpret environment variables, Run Controls, or repository tool state as scanner overrides.
+`jsonValidation.options` contains exactly `{ files, maximumBytes }`; `maximumBytes` is a positive safe integer. Replacing `options` with native object composition must supply both fields. Each package-provided Check carries block preflight and reuses its Check-local helper for its complete option shape; `duplicateDetection` additionally requires every `minimumTokensByCodeArea` key to exist in its own `codeAreas`. Run invokes preflight without importing the Check or interpreting its domain fields. Environment variables, Run Controls and repository tool state are never scanner overrides.
 
 ### `jsonSchemaValidation` option contract
 
@@ -282,9 +304,10 @@ identifiers without userinfo, query, or fragment. Binding IDs are safe labels. S
 normalized, project-relative, lowercase-`.json` paths.
 
 Schema IDs are unique within `schemas`; HTTPS source IDs are unique within `sources`; binding IDs, schema paths,
-and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. At callback entry,
-the owning Check rejects unknown fields, sparse arrays, malformed paths or IDs, an unknown binding schema,
-duplicate entries, an incomplete branch, an invalid `files` branch or a non-positive byte limit as `invalid-options`.
+and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. Before execution,
+Run calls the ordinary owning block preflight before author execution. Unknown fields, sparse arrays, malformed paths or IDs,
+an unknown binding schema, duplicate entries, an incomplete branch, an invalid `files` branch or a non-positive byte
+limit settle only that Check as `unavailable / invalid-options`; they do not turn the whole Definition into a configuration result.
 
 #### Root identity
 
@@ -382,7 +405,7 @@ positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occu
 `checkId: "maintenance-reminders"`、显示名 `Maintenance reminders` 和
 `visibility: "attention"`。多个条目仅保留在该 Check 的局部最终数据中，不会成为子 Check、Record、依赖、聚合目标、进度行或机器输出行。
 
-每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值仍是普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 都会由 owning Check 在 execution entry 拒绝为 `invalid-options`，Product 不会深度合并默认值。
+每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值是带 owning block preflight 的合法普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 会在 Run preflight 中结算 owning Check unavailable，Product 不会深度合并默认值。
 
 ```ts
 import { defineConfig, maintenanceReminders } from "vibe-check";
@@ -429,7 +452,7 @@ export default defineConfig({ checks: [maintenance] });
 
 Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/effect facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ dependencies, options, project, records, signal }`. `project` contains the normalized root, cache context, frozen caller-supplied `changedFiles`, and canonical `flags`; file selection and domain policy, when needed, come from that Check's options. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary callback, record, and cancellation failures as an unavailable Check outcome. Invalid ordinary Definition grammar returns a configuration result before callback work; malformed package-specific options are instead settled by the owning Check as `unavailable` / `invalid-options`. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
+A callback receives exactly `{ dependencies, options, project, records, signal }`. `options` is the canonical immutable invocation-local authored snapshot or preflight prepared/fallback value. `project` contains the normalized root, cache context, frozen caller-supplied `changedFiles`, and canonical `flags`; file selection and domain policy, when needed, come from that Check's options. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Core failures remain separate boundaries that can prevent callback admission. Product contains ordinary execution, record, and cancellation failures as an unavailable Check outcome. Malformed ordinary grammar returns configuration. A throwing, malformed or blocking preflight settles only its owning Check unavailable before callback work; custom Checks may omit preflight. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress write failure instead marks the progress effect failed; when final facts are available, it returns the existing `effect-failed` diagnostic for `progress` rather than changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `effect`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
 
 ## Run effects and compatibility boundary
 

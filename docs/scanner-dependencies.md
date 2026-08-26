@@ -31,10 +31,12 @@ mechanism，以及 `src/project-files/**` 的 exact-path membership 等真实共
 这不是公共 scanner configuration、PATH discovery、environment override 或跨 Check backend。调用方提供其它完整
 `options.scanner` 时，jscpd adapter 精确执行这些 command values。
 
-每个 Check 在 callback 入口验证自己的完整 options。malformed/unknown/incomplete option shape 只使 owning Check 返回
-`unavailable`/`invalid-options`；Definition 只将 ordinary Check options 作为 canonical opaque JSON object，不按 package
-Check ID、tool name 或 option shape 分支。项目可用 normal object spread 组合完整 replacement options；Run Controls、
-environment variables、repository tooling 与 precedence map 都不会隐式替换它们。
+三个 scanner Check 都携带自己的 block preflight，并与 execution 内部保障复用 owning options helper。Definition 只形成
+canonical immutable authored snapshot；Run 在这些 Check 的 scanner 或 author callback work 前执行全局 preflight
+barrier，malformed/unknown/incomplete replacement 只把 owning Check 结算为
+`unavailable / invalid-options`。Definition 不按 package Check ID、tool name 或 option shape 分支，也不保存 validator
+registry。项目可用 normal object spread 组合完整 replacement options；Run Controls、environment variables、repository
+tooling 与 precedence map 都不会隐式替换它们。
 
 ## Exact-input handoff
 

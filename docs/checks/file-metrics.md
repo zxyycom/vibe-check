@@ -41,7 +41,7 @@ adapter 与 measurement model 都由 `file-metrics` 自己拥有。
 
 ## 工作原理
 
-owning Check 先验证 options，再把 `files` selected paths 作为 exact inputs 交给 `file-metrics/scc` adapter。adapter
+preflight 准备完成后，execution 把 `files` selected paths 作为 exact inputs 交给 `file-metrics/scc` adapter。adapter
 解析 scc CSV，measurement acceptance 拒绝任何不属于 exact set 的 path；Check 随后按自己的 `codeAreas` 和阈值生成
 Records。
 
@@ -52,8 +52,9 @@ supplemental Record 表示。
 
 ## `not-applicable` 与 `unavailable`
 
-没有 selected file 时为 `not-applicable` / `no-eligible-input`。无效 options 为 `unavailable` /
-`invalid-options`；scc 缺失、执行/解析失败、越界 measurement 或取消也为 `unavailable`。
+没有 selected file 时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run preflight
+与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到 scc 缺失、
+执行/解析失败、越界 measurement 或取消时才返回 `unavailable`。
 
 ## 外部工具与安全边界
 

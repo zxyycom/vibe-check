@@ -45,6 +45,8 @@ describe("public API inventory", () => {
         checkAggregation: "CheckAggregation",
         checkExecution: "CheckExecution",
         checkExecutionContext: "CheckExecutionContext",
+        checkPreflight: "CheckPreflight",
+        checkPreflightResult: "CheckPreflightResult",
         checkOutcome: "CheckOutcome",
         checkResult: "CheckResult",
         checkUnavailableReason: "CheckUnavailableReason",

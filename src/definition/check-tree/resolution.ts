@@ -1,5 +1,5 @@
 import type { CheckDefinition } from "../check-definition.ts";
-import type { CheckExecution, CheckVisibility } from "../custom-check.ts";
+import type { CheckExecution, CheckPreflight, CheckVisibility } from "../custom-check.ts";
 import {
   parseCheckTreeAuthoring,
   type MeaninglessCheckWarning,
@@ -17,6 +17,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly options: object;
+  readonly preflight?: CheckPreflight;
   readonly visibility: CheckVisibility;
 }
 
@@ -84,6 +85,7 @@ function flattenCheck(
         maxParallel: scheduling.maxParallel,
         mutex: scheduling.mutex,
         options: check.options,
+        ...(check.preflight === null ? {} : { preflight: check.preflight }),
         visibility
       })
     );

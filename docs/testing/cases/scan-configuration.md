@@ -13,15 +13,15 @@ Entities:
 - `bun|src/definition/project-definition.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
 - `bun|src/definition/project-definition.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/definition/project-definition.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
-- `bun|src/definition/project-definition.test.ts|Project Definition > keeps package-provided JSON options opaque to ordinary Definition validation`
-- `bun|src/definition/project-definition.test.ts|Project Definition > keeps package-provided JSON Schema options opaque to ordinary Definition validation`
+- `bun|src/definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
+- `bun|src/definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
 - `bun|src/definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
 - `bun|scripts/package/candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
 
 Proves:
 
-- The public authoring surface contains five operations and six package-provided ordinary Check values, plus the specialized `maintenanceReminders` constructor rather than a seventh package value or an operational-dependency API. `jsonValidation` owns its closed `{ files, maximumBytes }` options; `jsonSchemaValidation` additionally owns identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Definition keeps these package-specific options opaque; each owning Check validates its complete shape at execution entry, and native replacement never fills a missing branch.
-- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and callback functions stay outside declarative fingerprints. Closed declarative JSON preserves every own data key, including `__proto__`, without retaining an author-controlled prototype. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
+- The public authoring surface contains five operations and six complete, valid package-provided ordinary Check values, plus the specialized `maintenanceReminders` constructor rather than a seventh package value or an operational-dependency API. `jsonValidation` owns its closed `{ files, maximumBytes }` options; `jsonSchemaValidation` additionally owns identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Each value carries its own block preflight. Definition keeps package fields opaque and authored options declarative; Run calls the preflight barrier and settles an illegal replacement only as the owning Check unavailable, even when its Check ID is changed; native replacement never fills a missing branch.
+- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and trusted preflight/execution/parser functions stay outside declarative fingerprints. Options remain authored declarative JSON; an optional preflight runs before every execution, canonicalizes its invocation-local prepared/fallback value, and block/throw/malformed values settle only the owning Check unavailable. Closed declarative JSON preserves every own data key, including `__proto__`, without retaining an author-controlled prototype. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
 - The emitted public declaration keeps a provider parser required, anchors passed/failed data to its return type, and preserves ordinary, options, recursive, and native-spread authoring without a consumer cast or manual read generic.
 
 
@@ -32,7 +32,7 @@ Entities:
 
 - `bun|src/checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
   Proves:
-- `markdownLinkValidation` accepts only its complete closed native options shape and settles omitted, oversized, or unknown options as `unavailable` / `invalid-options` at execution entry.
+- The complete exported `markdownLinkValidation` value carries block preflight that rejects omitted, oversized, or unknown option shapes; Run owns the resulting unavailable Check settlement before execution.
 
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
@@ -43,7 +43,7 @@ Entities:
 - `bun|src/checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
   Proves:
 - `maintenanceReminders(entries)` creates exactly one fixed-ID, attention ordinary Check with package-owned Git options; it does not create a child Check collection.
-- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. Invalid/unknown replacement data closes as a Definition configuration result, while policy changes affect the declarative fingerprint.
+- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. Invalid/unknown replacement data settles the owning Check unavailable in preflight, while policy changes affect the declarative fingerprint.
 
 ## Case WB-PROGRESS-EFFECT-001: Progress remains an optional fail-open Run effect
 
@@ -72,10 +72,15 @@ Entities:
 
 - `bun|src/run/check-execution.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
 - `bun|src/run/check-execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
+- `bun|src/run/check-execution.test.ts|Package Run direct Check execution > finishes every sequential preflight before any author execution`
+- `bun|src/run/check-execution.test.ts|Package Run direct Check execution > settles blocked preflights before graph admission without a started fact or duration`
+- `bun|src/run/check-execution.test.ts|Package Run direct Check execution > passes the invocation signal to cooperative preflights and closes a cancelled barrier`
+- `bun|src/run/check-execution.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
 - `bun|src/run/core-integration.test.ts|Package Run core integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/run/core-integration.test.ts|Package Run core integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
 - `bun|src/run/progress-result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
   Proves:
 - Completed, effect-failed, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
+- The sequential preflight barrier receives the invocation signal; cooperative cancellation closes the existing execution phase as `cancelled` even when all blocked Checks leave no scheduler task to admit.
 - A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility.

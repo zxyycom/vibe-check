@@ -14,6 +14,12 @@ import { runTaskGraph, type SettledTask } from "../scheduler/scheduler.ts";
 import { executeCheckCallback } from "./check-callback.ts";
 import { planStaticCheckGraph } from "./check-execution-plan.ts";
 import { parseCheckTerminalResult } from "./check-terminal-result.ts";
+import {
+  prepareChecks,
+  type CheckPreflightResolution,
+  type PreparedCheck,
+  type ReadyCheckPreflightResolution
+} from "./check-preflight.ts";
 import type { CheckDuration, CheckRunMessage } from "./run-result.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
@@ -67,7 +73,7 @@ interface SettledCheckFacts {
 }
 
 interface ExecuteCheckInput extends CheckExecutionState {
-  readonly check: NormalizedCheck;
+  readonly preflight: ReadyCheckPreflightResolution;
   readonly clock: CheckExecutionClock;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
@@ -95,17 +101,51 @@ export async function executeResolvedChecks(
     readonly lifecycle?: CheckExecutionLifecycle;
   }>
 ): Promise<ResolvedCheckExecution> {
-  const graph = planStaticCheckGraph(input.checks);
-  prepareTaskGraph(graph, input.maxParallel);
+  const completeCheckGraph = planStaticCheckGraph(input.checks);
+  prepareTaskGraph(completeCheckGraph, input.maxParallel);
+  const preflightResolutions = await prepareChecks({
+    checks: input.checks,
+    signal: input.signal
+  });
 
-  const registrations = input.checks.map(({ definition }) => Object.freeze({ definition }));
-  const session = createCoreCheckSession(registrations);
+  const checkRegistrations = input.checks.map(({ definition }) => Object.freeze({ definition }));
+  const session = createCoreCheckSession(checkRegistrations);
   const clock = input.clock ?? SYSTEM_MONOTONIC_CLOCK;
-  const state: CheckExecutionState = {
+  const executionState: CheckExecutionState = {
     settledFactsByCheckId: new Map<string, SettledCheckFacts>(),
     lifecycle: input.lifecycle,
     session
   };
+  const readyPreflights: ReadyCheckPreflightResolution[] = [];
+  const blockedCheckIds = new Set<string>();
+  for (const resolution of preflightResolutions) {
+    if (resolution.kind === "ready") {
+      readyPreflights.push(resolution);
+      continue;
+    }
+    blockedCheckIds.add(resolution.check.definition.checkId);
+    settleBlockedPreflight(executionState, resolution);
+  }
+  const readyChecks = readyPreflights.map((preflight) => preflight.check);
+  // The barrier is execution-phase work. A signal received while it runs must close this
+  // phase as cancelled even when every preflight already blocked and the scheduler graph is empty.
+  if (input.signal?.aborted) {
+    executionState.session.closeUnresolvedAsCancelled();
+    const snapshot = executionState.session.freeze();
+    settleUnstartedCancelledChecks({
+      normalizedChecks: input.checks,
+      preparedChecks: readyChecks,
+      snapshot,
+      state: executionState
+    });
+    return resolvedExecution("cancelled", snapshot, executionState);
+  }
+  const readyPreflightByCheckId = new Map(
+    readyPreflights.map((preflight) => [preflight.check.definition.checkId, preflight])
+  );
+  const graph = planStaticCheckGraph(readyChecks, {
+    alreadySettledCheckIds: blockedCheckIds
+  });
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
   try {
     graphRun = await runTaskGraph({
@@ -113,13 +153,13 @@ export async function executeResolvedChecks(
       maxParallel: input.maxParallel,
       signal: input.signal,
       execute: (task, context) => {
-        const check = input.checks.find((candidate) => candidate.definition.checkId === task.id);
-        if (check === undefined) {
-          throw new CheckExecutionInvariantFailure("Task graph has no executable Check");
+        const preflight = readyPreflightByCheckId.get(task.id);
+        if (preflight === undefined) {
+          throw new CheckExecutionInvariantFailure("Task graph has no prepared Check");
         }
         return executeCheck({
-          ...state,
-          check,
+          ...executionState,
+          preflight,
           clock,
           project: input.project,
           signal: context.signal ?? INERT_SIGNAL
@@ -130,24 +170,52 @@ export async function executeResolvedChecks(
     throw trustedFailure(error);
   }
 
-  return closeResolvedChecks(input.checks, graphRun, state);
+  return closeResolvedChecks({
+    allChecks: input.checks,
+    graphRun,
+    readyChecks,
+    state: executionState
+  });
+}
+
+function settleBlockedPreflight(
+  state: CheckExecutionState,
+  preflight: Extract<CheckPreflightResolution, { readonly kind: "blocked" }>
+): void {
+  const scope = state.session.openCheckScope(preflight.check.definition.checkId);
+  const outcome = scope.settleProduct(preflight.outcome);
+  recordSettledCheck(
+    state,
+    checkIdentity(preflight.check),
+    outcome,
+    preflight.check.preflightMessages,
+    null
+  );
 }
 
 function closeResolvedChecks(
-  checks: readonly NormalizedCheck[],
-  graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>,
-  state: CheckExecutionState
+  input: Readonly<{
+    readonly allChecks: readonly NormalizedCheck[];
+    readonly graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
+    readonly readyChecks: readonly PreparedCheck[];
+    readonly state: CheckExecutionState;
+  }>
 ): ResolvedCheckExecution {
   try {
-    assertNoTaskEngineFailures(graphRun.settlements);
-    if (graphRun.cancelled) {
-      state.session.closeUnresolvedAsCancelled();
-      const snapshot = state.session.freeze();
-      settleUnstartedCancelledChecks(snapshot, checks, state);
-      return resolvedExecution("cancelled", snapshot, state);
+    assertNoTaskEngineFailures(input.graphRun.settlements);
+    if (input.graphRun.cancelled) {
+      input.state.session.closeUnresolvedAsCancelled();
+      const snapshot = input.state.session.freeze();
+      settleUnstartedCancelledChecks({
+        normalizedChecks: input.allChecks,
+        preparedChecks: input.readyChecks,
+        snapshot,
+        state: input.state
+      });
+      return resolvedExecution("cancelled", snapshot, input.state);
     }
-    assertEveryCheckClosed(checks, graphRun.settlements);
-    return resolvedExecution("completed", state.session.freeze(), state);
+    assertEveryCheckClosed(input.readyChecks, input.graphRun.settlements);
+    return resolvedExecution("completed", input.state.session.freeze(), input.state);
   } catch (error) {
     throw trustedFailure(error);
   }
@@ -167,19 +235,20 @@ function resolvedExecution(
 }
 
 async function executeCheck(input: ExecuteCheckInput): Promise<void> {
-  const checkId = input.check.definition.checkId;
+  const check = input.preflight.check;
+  const checkId = check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
-  const identity = checkIdentity(input.check);
+  const identity = checkIdentity(check);
   emitStarted(input.lifecycle, identity);
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
-    check: input.check,
+    check,
     dependencies: createCheckDependencies(input),
     project: input.project,
     scope,
     signal: input.signal
   });
-  const settled = settleCallback(scope, callback);
+  const settled = settleCallback(scope, callback, check.preflightMessages);
   recordSettledCheck(
     input,
     identity,
@@ -190,7 +259,7 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
 }
 
 function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
-  const directDependencyIds = input.check.dependsOn;
+  const directDependencyIds = input.preflight.check.dependsOn;
   return Object.freeze({
     get: (checkId: string): DependencyReadResult =>
       readDependency(input.session, directDependencyIds, checkId)
@@ -239,11 +308,12 @@ function dependencyNotDeclared(checkId: unknown): DependencyReadResult {
 
 function settleCallback(
   scope: ReturnType<CoreCheckSession["openCheckScope"]>,
-  callback: Awaited<ReturnType<typeof executeCheckCallback>>
+  callback: Awaited<ReturnType<typeof executeCheckCallback>>,
+  preflightMessages: readonly CheckMessage[]
 ): Readonly<{ readonly messages: readonly CheckMessage[]; readonly outcome: CheckOutcome }> {
   if (callback.source === "product") {
     return Object.freeze({
-      messages: EMPTY_MESSAGES,
+      messages: preflightMessages,
       outcome: scope.settleProduct(callback.result)
     });
   }
@@ -252,26 +322,36 @@ function settleCallback(
   return Object.freeze({
     messages:
       terminal !== undefined && settlement.authorResultAccepted
-        ? terminal.messages
-        : EMPTY_MESSAGES,
+        ? Object.freeze([...preflightMessages, ...terminal.messages])
+        : preflightMessages,
     outcome: settlement.outcome
   });
 }
 
 function settleUnstartedCancelledChecks(
-  snapshot: CoreSnapshot,
-  checks: readonly NormalizedCheck[],
-  state: CheckExecutionState
+  input: Readonly<{
+    readonly normalizedChecks: readonly NormalizedCheck[];
+    readonly preparedChecks: readonly PreparedCheck[];
+    readonly snapshot: CoreSnapshot;
+    readonly state: CheckExecutionState;
+  }>
 ): void {
-  for (const check of snapshot.checks) {
-    if (state.settledFactsByCheckId.has(check.checkId)) continue;
-    const normalized = checks.find((candidate) => candidate.definition.checkId === check.checkId);
+  const normalizedCheckById = new Map(
+    input.normalizedChecks.map((check) => [check.definition.checkId, check])
+  );
+  const preparedCheckById = new Map(
+    input.preparedChecks.map((check) => [check.definition.checkId, check])
+  );
+  for (const check of input.snapshot.checks) {
+    if (input.state.settledFactsByCheckId.has(check.checkId)) continue;
+    const normalized = normalizedCheckById.get(check.checkId);
     if (normalized === undefined) {
       throw new CheckExecutionInvariantFailure(
         "Cancelled Check does not identify a normalized Check"
       );
     }
-    recordSettledCheck(state, checkIdentity(normalized), check.outcome, EMPTY_MESSAGES, null);
+    const messages = preparedCheckById.get(check.checkId)?.preflightMessages ?? EMPTY_MESSAGES;
+    recordSettledCheck(input.state, checkIdentity(normalized), check.outcome, messages, null);
   }
 }
 
@@ -293,7 +373,7 @@ function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: Chec
   lifecycle?.started(Object.freeze({ checkId: check.checkId, displayName: check.displayName }));
 }
 
-function checkIdentity(check: NormalizedCheck): CheckIdentity {
+function checkIdentity(check: Pick<NormalizedCheck, "definition" | "visibility">): CheckIdentity {
   return Object.freeze({
     checkId: check.definition.checkId,
     displayName: check.definition.displayName,

@@ -1,8 +1,8 @@
+import { validJsonSchemaValidationOptions } from "./options-validation.ts";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 
 import type { JsonSchemaValidationOptions } from "./options.ts";
-import { validJsonSchemaValidationOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { collectProjectFiles } from "../../project-files/collection.ts";
 import {
@@ -33,9 +33,9 @@ interface JsonSchemaValidationFinalData {
 }
 
 type JsonSchemaValidationUnavailableCode =
+  | "invalid-options"
   | "engine-unavailable"
   | "execution-cancelled"
-  | "invalid-options"
   | "reference-transport-unavailable"
   | "scan-input-unavailable"
   | "document-unavailable";
@@ -78,6 +78,7 @@ export async function executeJsonSchemaValidation(
   context: CheckExecutionContext<JsonSchemaValidationOptions>
 ): Promise<CheckResult<JsonSchemaValidationFinalData>> {
   if (!validJsonSchemaValidationOptions(context.options)) return unavailable("invalid-options");
+
   try {
     return await execute(context);
   } catch {

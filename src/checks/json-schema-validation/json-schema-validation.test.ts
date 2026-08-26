@@ -12,6 +12,7 @@ import type {
   DeepReadonly
 } from "../../definition/custom-check.ts";
 import { executeJsonSchemaValidation } from "./json-schema-validation.ts";
+import { jsonSchemaValidation } from "./default-check.ts";
 import type { ProjectFileSelection } from "../../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
@@ -155,11 +156,19 @@ describe("JSON Schema validation default Check", () => {
         bindings: [{ id: "bad", instancePath: "bad.json", schemaId }],
         schemas: [{ id: schemaId, path: "schema.json" }]
       });
+      const invalidPreflight = await jsonSchemaValidation.preflight!(
+        {
+          ...invalidOptions,
+          maximumBytes: 0
+        },
+        new AbortController().signal
+      );
+      assert.equal(invalidPreflight.status, "failure");
       assert.deepEqual(
         (
           await runJsonSchemaValidation({
-            options: { ...invalidOptions, maximumBytes: 0 },
-            root
+            root,
+            options: { ...invalidOptions, maximumBytes: 0 }
           })
         ).result,
         { status: "unavailable", reason: { code: "invalid-options" } }

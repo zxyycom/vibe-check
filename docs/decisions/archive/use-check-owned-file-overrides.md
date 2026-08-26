@@ -1,6 +1,6 @@
 ---
 title: 由 Check options 表达文件级差异
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-22T05:52:33Z
 purpose: 让需要按文件或目录改变行为的 Check 在不扩大 scan scope 或建立共享配置层前提下声明自己的可审阅覆盖。

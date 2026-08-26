@@ -15,6 +15,7 @@ function materializeCheck(check: ParsedCheck): Check {
   const dependsOn = materializeCollection(check.dependsOn);
   const mutex = materializeCollection(check.mutex);
   const visibility = check.visibility;
+  const preflight = check.preflight;
   const scheduling = {
     ...(dependsOn === undefined ? {} : { dependsOn }),
     ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
@@ -38,8 +39,9 @@ function materializeCheck(check: ParsedCheck): Check {
     checks,
     displayName: check.displayName,
     execution: check.execution,
-    options: check.options,
     ...(check.parseData === null ? {} : { parseData: check.parseData }),
+    options: check.options,
+    ...(preflight === null ? {} : { preflight }),
     ...scheduling,
     visibility
   });

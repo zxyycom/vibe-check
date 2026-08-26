@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { CheckDataParser } from "./custom-check.ts";
+import type { CheckDataParser, CheckPreflightResult, CheckWithOptions } from "./custom-check.ts";
 import {
   createDeclarativeFingerprint,
   defineCheck,
@@ -39,6 +39,7 @@ describe("Project Definition", () => {
       checkId: "child-check",
       displayName: "Child check",
       options: { maximum: 3 },
+      preflight: (preparedOptions) => ({ status: "success", preparedOptions }),
       execution({ options }) {
         assert.equal(options.maximum, 3);
         return passed();
@@ -233,6 +234,7 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
+          preflight: (options) => ({ status: "success", preparedOptions: options }),
           dependsOn: ["prepare", "compile"],
           execution: passed
         })
@@ -244,6 +246,7 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { nested: { mode: "strict" }, threshold: 2 },
+          preflight: (options) => ({ status: "success", preparedOptions: options }),
           dependsOn: ["compile", "prepare", "compile"],
           execution: async () => passed()
         })
@@ -267,7 +270,8 @@ describe("Project Definition", () => {
             checkId: "own-prototype-key",
             displayName: "Own prototype key",
             execution: passed,
-            options
+            options,
+            preflight: (preparedOptions) => ({ status: "success", preparedOptions })
           }
         ]
       })
@@ -286,7 +290,7 @@ describe("Project Definition", () => {
     }
   });
 
-  it("keeps package-provided JSON options opaque to ordinary Definition validation", () => {
+  it("accepts ordinary authored JSON options while their Check preflight owns domain validation", () => {
     const invalidOptions: readonly object[] = [
       {},
       { maximumBytes: 0 },
@@ -297,22 +301,48 @@ describe("Project Definition", () => {
     ];
     for (const options of invalidOptions) {
       const result = validateProjectDefinition(
-        defineConfig({ checks: [{ ...jsonValidation, options }] })
+        defineConfig({ checks: [{ ...jsonValidation, checkId: "renamed-json-check", options }] })
       );
       assert.equal(result.ok, true);
     }
     assert.equal(
       validateProjectDefinition(
-        defineConfig({ checks: [{ ...jsonValidation, options: { maximumBytes: 1 } }] })
+        defineConfig({
+          checks: [
+            {
+              ...jsonValidation,
+              options: { ...jsonValidation.options, maximumBytes: 1 }
+            }
+          ]
+        })
+      ).ok,
+      true
+    );
+    assert.equal(
+      validateProjectDefinition(
+        defineConfig({
+          checks: [
+            defineCheck({
+              checkId: "throwing-preflight",
+              displayName: "Throwing preflight",
+              options: { accepted: true },
+              preflight: () => {
+                throw new Error("preflight failure");
+              },
+              execution: passed
+            })
+          ]
+        })
       ).ok,
       true
     );
   });
 
-  it("keeps package-provided JSON Schema options opaque to ordinary Definition validation", () => {
+  it("accepts ordinary JSON Schema options while their Check preflight owns domain validation", () => {
     const schemaId = "https://schemas.example.test/root";
     const validOptions = {
       bindings: [{ id: "instance", instancePath: "instances/one.json", schemaId }],
+      files: jsonSchemaValidation.options.files,
       maximumBytes: 1,
       referenceResolution: {
         mode: "allowlisted",
@@ -466,10 +496,62 @@ describe("Project Definition", () => {
 });
 
 function _typeCheckCheckAuthoring() {
+  const preparedFromOptionalAuthored = defineCheck<
+    "prepared-from-optional-authored",
+    { readonly maximum?: number },
+    { readonly maximum: number }
+  >({
+    checkId: "prepared-from-optional-authored",
+    displayName: "Prepared from optional authored",
+    options: {},
+    preflight(authored, signal) {
+      const maybeMaximum: number | undefined = authored.maximum;
+      void maybeMaximum;
+      void signal.aborted;
+      return { status: "success", preparedOptions: { maximum: authored.maximum ?? 1 } };
+    },
+    execution({ options }) {
+      const requiredMaximum: number = options.maximum;
+      void requiredMaximum;
+      return { status: "passed", data: {} };
+    }
+  });
+  const invalidBlockedPreflight: CheckPreflightResult = {
+    status: "failure",
+    action: "block",
+    reason: { code: "invalid-options" },
+    // @ts-expect-error block preflight results physically omit fallback, including undefined.
+    fallback: undefined
+  };
+  // @ts-expect-error a distinct prepared shape requires a preflight conversion.
+  const missingPreparedConversion: Check<
+    { readonly maximum?: number },
+    { readonly maximum: number }
+  > = {
+    checkId: "missing-prepared-conversion",
+    displayName: "Missing prepared conversion",
+    options: {},
+    execution: ({ options }) => ({ status: "passed", data: { maximum: options.maximum } })
+  };
+  // @ts-expect-error CheckWithOptions retains the same required conversion invariant.
+  const missingPreparedCheckWithOptions: CheckWithOptions<
+    "missing-prepared-check-with-options",
+    { readonly maximum?: number },
+    { readonly maximum: number }
+  > = {
+    checkId: "missing-prepared-check-with-options",
+    displayName: "Missing prepared CheckWithOptions conversion",
+    options: {}
+  };
+  void preparedFromOptionalAuthored;
+  void invalidBlockedPreflight;
+  void missingPreparedConversion;
+  void missingPreparedCheckWithOptions;
   const optionAware = defineCheck({
     checkId: "typed-check",
     displayName: "Typed check",
     options: { maximum: 5 },
+    preflight: (options) => ({ status: "success", preparedOptions: options }),
     execution({ options, project, records, signal }) {
       const maximum: number = options.maximum;
       void maximum;
@@ -590,6 +672,7 @@ function _typeCheckTypedProviderAuthoring() {
     checkId: "typed-options",
     displayName: "Typed options",
     options: { maximum: 5 },
+    preflight: (options) => ({ status: "success", preparedOptions: options }),
     parseData(data): { readonly count: number } {
       return { count: typeof data.count === "number" ? data.count : 0 };
     },

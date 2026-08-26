@@ -23,9 +23,9 @@ const MAINTENANCE_REMINDER_ENTRY_KEYS: readonly string[] = [
 const MAINTENANCE_REMINDER_LIMIT_KEYS: readonly string[] = ["commits", "changedLines"];
 const MAINTENANCE_REMINDER_GIT_KEYS: readonly string[] = ["executable"];
 const WHOLE_CHECK_UNAVAILABLE_CODE = Object.freeze({
+  invalidOptions: "invalid-options",
   executionCancelled: "execution-cancelled",
-  internalFailure: "maintenance-reminders-internal-failure",
-  invalidOptions: "invalid-options"
+  internalFailure: "maintenance-reminders-internal-failure"
 });
 const ENTRY_UNAVAILABLE_REASON = Object.freeze({
   baseCommitUnavailable: "base-commit-unavailable",
@@ -171,10 +171,14 @@ type ReminderMeasurement =
 export function maintenanceReminders(
   entries: readonly MaintenanceReminder[]
 ): CheckWithOptions<typeof MAINTENANCE_REMINDERS_CHECK_ID, MaintenanceReminderOptions> {
-  return defineCheck({
+  return defineCheck<typeof MAINTENANCE_REMINDERS_CHECK_ID, MaintenanceReminderOptions>({
     checkId: MAINTENANCE_REMINDERS_CHECK_ID,
     displayName: "Maintenance reminders",
     execution: executeMaintenanceReminders,
+    preflight: (options) =>
+      validMaintenanceReminderOptions(options)
+        ? { status: "success", preparedOptions: options }
+        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
     options: {
       entries,
       git: { executable: "git" }
@@ -190,9 +194,8 @@ export function validMaintenanceReminderOptions(value: object): boolean {
 }
 
 const executeMaintenanceReminders: CheckExecution<MaintenanceReminderOptions> = async (context) => {
-  if (!validMaintenanceReminderOptions(context.options)) {
-    return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.invalidOptions);
-  }
+  if (!validMaintenanceReminderOptions(context.options))
+    return unavailableResult("invalid-options");
   if (context.signal.aborted)
     return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.executionCancelled);
 

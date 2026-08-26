@@ -3,6 +3,7 @@ import { basename, join } from "node:path";
 import { errorMessage } from "../../../foundation/errors.ts";
 import { writeTextFile } from "../../../foundation/fs.ts";
 import { runProcess, type ProcessResult } from "../../../foundation/process.ts";
+import { isNonArrayRecord } from "../../../foundation/type-guards.ts";
 import { defineCheck, type Check, type CheckExecutionContext, type CheckResult } from "vibe-check";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
@@ -46,13 +47,59 @@ export function createProcessCheck(
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
 ): Check {
-  return defineCheck({
+  return defineCheck<string, ProcessCheckDefinition>({
     checkId: definition.checkId,
     displayName: definition.displayName,
     options: definition,
+    preflight: (options) =>
+      validProcessCheckDefinition(options)
+        ? { status: "success", preparedOptions: options }
+        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
     execution: async (context): Promise<CheckResult> =>
       executeProcessCheck(context, invocationLogDirectory, dependencies)
   });
+}
+
+function validProcessCheckDefinition(value: object): boolean {
+  if (!isNonArrayRecord(value)) return false;
+  const keys = Object.keys(value);
+  if (
+    keys.some(
+      (key) =>
+        key !== "args" &&
+        key !== "checkId" &&
+        key !== "command" &&
+        key !== "cwd" &&
+        key !== "displayName" &&
+        key !== "environment"
+    ) ||
+    !keys.includes("args") ||
+    !keys.includes("checkId") ||
+    !keys.includes("command") ||
+    !keys.includes("displayName")
+  ) {
+    return false;
+  }
+  const args = value.args;
+  return (
+    Array.isArray(args) &&
+    args.every((argument) => typeof argument === "string") &&
+    nonEmptyString(value.checkId) &&
+    nonEmptyString(value.command) &&
+    nonEmptyString(value.displayName) &&
+    (value.cwd === undefined || typeof value.cwd === "string") &&
+    validEnvironment(value.environment)
+  );
+}
+
+function validEnvironment(value: unknown): boolean {
+  if (value === undefined) return true;
+  if (value === null || typeof value !== "object" || Array.isArray(value)) return false;
+  return Object.values(value).every((item) => typeof item === "string");
+}
+
+function nonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
 }
 
 async function executeProcessCheck(

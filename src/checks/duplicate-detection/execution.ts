@@ -1,7 +1,7 @@
+import { validDuplicateDetectionOptions } from "./options-validation.ts";
 import { resolve } from "node:path";
 
 import type { DuplicateDetectionOptions, DuplicateDetectionScannerOptions } from "./options.ts";
-import { validDuplicateDetectionOptions } from "./options-validation.ts";
 import type { CheckExecutionContext, CheckResult } from "../../definition/custom-check.ts";
 import { buildFingerprints, collectProjectFiles } from "../../project-files/collection.ts";
 import { classifyFiles } from "../../project-files/code-area-classification.ts";
@@ -56,6 +56,7 @@ export async function executeDuplicateDetection(
   context: CheckExecutionContext<DuplicateDetectionOptions>
 ): Promise<CheckResult> {
   if (!validDuplicateDetectionOptions(context.options)) return unavailable("invalid-options");
+
   const current = prepareDirectInput(context.project.root, context);
   if (current.areas.every((area) => area.approvedExactPaths.length === 0)) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });

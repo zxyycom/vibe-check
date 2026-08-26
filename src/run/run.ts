@@ -14,8 +14,9 @@ export type { RunDiagnostic, RunResult } from "./run-result.ts";
  * @param controls - 只影响本次 invocation context 和 effects 的闭合控制值。
  * @returns ordinary configuration、planning、execution、cancellation 与 effect failures 通过 `RunResult`
  * 返回；调用方先按 `kind` narrow。
- * @remarks validation 是 project callback、dependency resolver、cache、scanner 或 reporter 运行前的唯一
- * 入口工作。`effect` branch 保留已完成的 final snapshot，但不能当作完全成功。
+ * @remarks Definition validation 只闭合 grammar；可选 Check preflight 属于 invocation execution barrier，
+ * 并在 execution callback、dependency resolver 或 scanner 前完成。`effect` branch 保留已完成的 final
+ * snapshot，但不能当作完全成功。
  */
 export async function run(
   definition: ProjectDefinition,

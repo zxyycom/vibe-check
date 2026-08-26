@@ -13,6 +13,7 @@ import type {
   DeepReadonly
 } from "../../definition/custom-check.ts";
 import { executeJsonValidation } from "./json-validation.ts";
+import { jsonValidation } from "./default-check.ts";
 import type { ProjectFileSelection } from "../../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
@@ -82,7 +83,7 @@ function createTemporaryProjectRoot(): string {
 }
 
 describe("JSON validation default Check", () => {
-  it("filters only lower-case .json paths from its file selection and returns exact final counts", () => {
+  it("filters only lower-case .json paths from its file selection and returns exact final counts", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "valid.json"), '{"enabled":true}', "utf8");
@@ -90,7 +91,15 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "ignored.JSON"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
 
-      assert.deepEqual(runJsonValidation({ options: { maximumBytes: 0 }, root }).result, {
+      const invalidPreflight = await jsonValidation.preflight!(
+        {
+          ...jsonValidation.options,
+          maximumBytes: 0
+        },
+        new AbortController().signal
+      );
+      assert.equal(invalidPreflight.status, "failure");
+      assert.deepEqual(runJsonValidation({ root, options: { maximumBytes: 0 } }).result, {
         status: "unavailable",
         reason: { code: "invalid-options" }
       });

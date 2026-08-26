@@ -27,7 +27,8 @@
 
 ## 工作原理
 
-owning Check 在 execution entry 验证 options，收集自己的 selected paths，以 private strict-document boundary 读取并
+共享 preflight barrier 接受 canonical authored options 后，execution 收集自己的 selected paths，以 private
+strict-document boundary 读取并
 解析每个小写 `.json` 文件。无效文档产生 supplemental Record；Check 不复用 `jsonSchemaValidation` 的 execution 或
 result，二者只是分别使用相同的 private strict JSON mechanism。
 
@@ -38,8 +39,9 @@ result，二者只是分别使用相同的 private strict JSON mechanism。
 
 ## `not-applicable` 与 `unavailable`
 
-没有合格小写 `.json` 输入时为 `not-applicable` / `no-eligible-input`。无效 options 为 `unavailable` /
-`invalid-options`；file collection、读取、大小限制、取消或无法形成可信解析结果也为 `unavailable`。
+没有合格小写 `.json` 输入时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run
+preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到
+file collection、读取、大小限制、取消或无法形成可信解析结果时才返回 `unavailable`。
 
 ## 外部工具与安全边界
 

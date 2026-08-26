@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import type { FileMetricsOptions } from "../file-metrics/options.ts";
 import { executeFileMetrics } from "../file-metrics/execution.ts";
+import { fileMetrics } from "../file-metrics/default-check.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -116,15 +117,24 @@ describe("default Check direct callbacks", () => {
           lowDecisionTokenAllowance: { codeLineFloor: 500, maxDecisionTokens: 10 }
         }
       };
-      const invalid = await execute(
-        executeFileMetrics,
-        { ...options, scanner: { ...options.scanner, executable: "" } },
-        root
+      const invalidPreflight = await fileMetrics.preflight!(
+        {
+          ...options,
+          scanner: { ...options.scanner, executable: "" }
+        },
+        new AbortController().signal
       );
-      assert.deepEqual(invalid.result, {
-        status: "unavailable",
-        reason: { code: "invalid-options" }
-      });
+      assert.equal(invalidPreflight.status, "failure");
+      assert.deepEqual(
+        (
+          await execute(
+            executeFileMetrics,
+            { ...options, scanner: { ...options.scanner, executable: "" } },
+            root
+          )
+        ).result,
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
       const result = await execute(executeFileMetrics, options, root);
       assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
       assert.deepEqual(result.records, [

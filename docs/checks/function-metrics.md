@@ -57,8 +57,9 @@ parser output 必须完整且 source path 不越界；Check-local analysis 规�
 
 ## `not-applicable` 与 `unavailable`
 
-没有支持的 exact input 时为 `not-applicable` / `no-eligible-input`。无效 options 为 `unavailable` /
-`invalid-options`；Lizard 不可用、调用/解析失败、越界 measurement 或取消也为 `unavailable`。
+没有支持的 exact input 时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run
+preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到
+Lizard 不可用、调用/解析失败、越界 measurement 或取消时才返回 `unavailable`。
 
 ## 外部工具与安全边界
 

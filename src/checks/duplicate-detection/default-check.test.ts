@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import type { DuplicateDetectionOptions } from "../duplicate-detection/options.ts";
 import { executeDuplicateDetection } from "../duplicate-detection/execution.ts";
+import { duplicateDetection } from "../duplicate-detection/default-check.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -135,15 +136,24 @@ describe("default Check direct callbacks", () => {
         defaultMinimumTokens: 50,
         minimumTokensByCodeArea: {}
       };
-      const invalid = await execute(
-        executeDuplicateDetection,
-        { ...options, minimumTokensByCodeArea: { unknown: 50 } },
-        root
+      const invalidPreflight = await duplicateDetection.preflight!(
+        {
+          ...options,
+          minimumTokensByCodeArea: { unknown: 50 }
+        },
+        new AbortController().signal
       );
-      assert.deepEqual(invalid.result, {
-        status: "unavailable",
-        reason: { code: "invalid-options" }
-      });
+      assert.equal(invalidPreflight.status, "failure");
+      assert.deepEqual(
+        (
+          await execute(
+            executeDuplicateDetection,
+            { ...options, minimumTokensByCodeArea: { unknown: 50 } },
+            root
+          )
+        ).result,
+        { status: "unavailable", reason: { code: "invalid-options" } }
+      );
       const result = await execute(executeDuplicateDetection, options, root);
       assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
       assert.equal(result.records.length, 1);
