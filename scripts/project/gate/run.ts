@@ -8,8 +8,8 @@ import {
   preparePackageCandidate,
   type PreparedPackageCandidate
 } from "../../package/candidate/prepare.ts";
-import { errorMessage } from "../../foundation/errors.ts";
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { errorMessage } from "../../error-message.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
 
 import {
   parseProjectGateArguments,

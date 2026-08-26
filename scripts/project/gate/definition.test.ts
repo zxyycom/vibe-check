@@ -4,19 +4,19 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { isNonArrayRecord, isStringArray } from "../../foundation/type-guards.ts";
+import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
 import { defineCheck, type Check } from "vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
-import { createNativeOperationCheck } from "./checks/native.ts";
+import { createNativeOperationCheck } from "./check-execution/native-operation.ts";
 import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
-import { writeProcessTranscript } from "./checks/process.ts";
+import { writeProcessTranscript } from "./check-execution/process.ts";
 import { projectGateAggregation } from "./project-run.ts";
 import {
   createTestEvidenceRuleTestsCheck,
   type TestEvidenceRuleTestsCheckDependencies
-} from "./checks/test-evidence-rule-tests.ts";
+} from "./test-evidence/ast-grep-rule-tests-check.ts";
 
 const expectedCheckIds = [
   "typecheck-product",

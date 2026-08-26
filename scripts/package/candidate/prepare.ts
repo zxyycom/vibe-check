@@ -1,7 +1,7 @@
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { artifactDocumentation } from "../artifact/audit.ts";
+import { artifactDocumentation } from "../artifact/documentation-audit.ts";
 import { buildCandidateArtifact, type CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import { inspectInstallation, installCandidate } from "./install.ts";

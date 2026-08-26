@@ -8,9 +8,9 @@ import { fileURLToPath } from "node:url";
 import { it } from "node:test";
 import * as ts from "typescript";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../docs/package-api/public-api-inventory.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import { renderPackageApiDocumentation } from "../../docs/package-api/render.ts";
-import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/registry.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/example-projections.ts";
 import { preparePackageCandidate } from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");

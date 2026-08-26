@@ -1,6 +1,6 @@
 import type { Check } from "vibe-check";
 
-import { isStringArray } from "../../foundation/type-guards.ts";
+import { isStringArray } from "../../value-guards.ts";
 import {
   PROJECT_GATE_PROFILES,
   PROJECT_GATE_TAGS,

@@ -60,8 +60,8 @@ Entities:
 Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
 Entities:
 
-- `bun|scripts/docs/validate.test.ts|docs validation CLI runs every task by default`
-- `bun|scripts/docs/validate.test.ts|docs validation CLI selects only requested tasks`
+- `bun|scripts/validation/documentation/workflow.test.ts|docs validation CLI runs every task by default`
+- `bun|scripts/validation/documentation/workflow.test.ts|docs validation CLI selects only requested tasks`
 - `bun|scripts/validation/workspace.test.ts|root validate CLI runs every docs task by default`
 - `bun|scripts/validation/workspace.test.ts|root validate CLI forwards focused docs selections`
   Proves:
@@ -75,7 +75,7 @@ Entities:
 
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
   Proves:
-- Workspace validation rejects retired source roots, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, and a package artifact entry other than `src/index.ts`.
+- Workspace validation rejects retired source roots, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
@@ -109,10 +109,10 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/checks/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
-- `bun|scripts/project/gate/checks/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
-- `bun|scripts/project/gate/checks/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
-- `bun|scripts/project/gate/checks/process.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
   Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
 - 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
@@ -150,34 +150,33 @@ Entities:
 - Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。
 - Executor failure 只阻断 dependent Task，unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting。
 
-## Case AUX-TOOLKIT-FOUNDATION-001: Foundation toolkit 的严格解析与失败结果稳定
+## Case AUX-SCRIPT-BOUNDARIES-001: Repository 与 process capability 的边界稳定
 
-Owner: `docs/script-tooling.md#environment-and-shared-foundation`
+Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
-- `bun|scripts/foundation/process.test.ts|detects failed process results`
-- `bun|scripts/foundation/fs.test.ts|keeps file traversal deterministic and reports filesystem and JSON boundaries`
-- `bun|scripts/foundation/path.test.ts|normalizes slash paths and identifies contained paths`
-- `bun|scripts/foundation/args.test.ts|parses strict positive integers`
+- `bun|scripts/process-execution/process.test.ts|detects failed process results`
+- `bun|scripts/repository-files/files.test.ts|walks repository files deterministically and reports unreadable roots`
+- `bun|scripts/repository-files/paths.test.ts|normalizes slash paths and identifies contained paths`
   Proves:
-- `parsePositiveInteger` 与 JSON parser 拒绝无效输入；`toSlashPath` 返回确定性 slash-normalized 路径，`isPathWithin` 只接受 resolved parent 的严格后代并拒绝 parent 自身与 sibling。
-- Foundation 文件遍历按稳定的相对路径顺序返回；无法读取目录、读取/解析 JSON 文件时包含目标路径，序列化 JSON 文件或 NDJSON record 时标识失败对象，不会静默跳过边界失败。
-- 失败的 process result 对开发脚本 consumer 保持可观察，不被误判为成功。
+- `toSlashPath` 返回确定性 slash-normalized 路径，`isPathWithin` 只接受 resolved parent 的严格后代并拒绝 parent 自身与 sibling。
+- repository 文件遍历忽略指定目录并返回稳定排序的相对路径；无法读取根目录时反馈实际目标，不静默返回空集合。
+- process failure 对开发脚本 consumer 保持可观察，不被误判为成功。
 
-## Case AUX-WORKSPACE-PROCESS-001: Foundation process runner 保持纯文本捕获边界
+## Case AUX-WORKSPACE-PROCESS-001: Process execution 保持纯文本捕获边界
 
-Owner: `docs/script-tooling.md#environment-and-shared-foundation`
+Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
-- `bun|scripts/foundation/process.test.ts|runs child processes with plain text output environment`
+- `bun|scripts/process-execution/process.test.ts|runs child processes with plain text output environment`
   Proves:
 - 开发脚本启动子进程时使用 plain-text / no-color 环境，并返回可判断的 status、stdout 与 stderr。
 
-## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Foundation process runner 保留运行中取消事实
+## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Process execution 保留运行中取消事实
 
-Owner: `docs/script-tooling.md#environment-and-shared-foundation`
+Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
-- `bun|scripts/foundation/process.test.ts|cancels an already-started child process`
+- `bun|scripts/process-execution/process.test.ts|cancels an already-started child process`
   Proves:
 - 已运行 child 收到 caller 的 `cancelSignal` 后终止；其结果保留 `error`、`SIGTERM` 与 `status: null`，不被误判为成功。

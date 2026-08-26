@@ -27,7 +27,7 @@ describe("runtime source maps", () => {
           file: "example.js",
           mappings: "",
           names: [],
-          sources: ["../../../../repository/src/nested/example.ts"],
+          sources: ["../../../../repository-files/src/nested/example.ts"],
           sourcesContent: [packagedSource],
           version: 3
         }),

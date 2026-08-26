@@ -1,7 +1,11 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { processFailure, runProcessSync, writeProcessOutput } from "../../foundation/process.ts";
+import {
+  processFailure,
+  runProcessSync,
+  writeProcessOutput
+} from "../../process-execution/execution.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const lockedRunPath = fileURLToPath(new URL("./locked-run.ts", import.meta.url));

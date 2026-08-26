@@ -1,6 +1,6 @@
 import path from "node:path";
 
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
 import { runAstGrep } from "./command.ts";
 import { diagnostic, type SourceRange, type TestEvidenceDiagnostic } from "../entities.ts";
 

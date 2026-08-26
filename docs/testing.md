@@ -9,7 +9,7 @@
 | Definition/Check facts | `src/project-definition/**`、`src/check-settlement/**` 的共置 tests：recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts。 |
 | Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/outputs 与 task admission。 |
 | Default adapters | `src/package-checks/**` 的共置 tests：Check-owned scanner options、exact scope、cache、availability/process/parser failure 与 supplemental Records。 |
-| Repository tooling | `scripts/**` 的共置 tests：foundation、docs/package API、validation、package artifact/candidate、Project quality/Gate 与 Test Evidence behavior。 |
+| Repository tooling | `scripts/**` 的共置 tests：process execution、repository-files、docs/package API、validation、package artifact/candidate、Project quality/Gate 与 Test Evidence behavior。 |
 | Consumer and dogfood | `scripts/project/**` private consumer 证明 exact candidate import、repository Definition/Run binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。 |
 
 ## 测试所有权

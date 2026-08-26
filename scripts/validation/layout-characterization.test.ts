@@ -15,6 +15,7 @@ const PRODUCT_OWNERS = [
   "project-definition",
   "project-run"
 ];
+const PRIVATE_PROCESS_IMPORT = ["../process-execution", "runner.ts"].join("/");
 
 it("characterizes repository layout and dependency boundaries", () => {
   assert.doesNotThrow(() => validateRepositoryLayout());
@@ -28,6 +29,16 @@ it("characterizes repository layout and dependency boundaries", () => {
       mutate: (root) => writeSource(root, "scripts/tools/legacy.ts", "export {};\n")
     },
     {
+      expected: "retired-source-directory: scripts/process-execution/process",
+      mutate: (root) =>
+        writeSource(root, "scripts/process-execution/process/legacy.ts", "export {};\n")
+    },
+    {
+      expected: "retired-source-directory: scripts/validation/documentation/repository",
+      mutate: (root) =>
+        writeSource(root, "scripts/validation/documentation/repository/legacy.ts", "export {};\n")
+    },
+    {
       expected: "unapproved-index: src/project-definition/index.ts",
       mutate: (root) => writeSource(root, "src/project-definition/index.ts", "export {};\n")
     },
@@ -37,12 +48,12 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "product-imports-scripts: src/project-definition/illegal.ts -> ../../scripts/foundation/path.ts",
+        "product-imports-scripts: src/project-definition/illegal.ts -> ../../scripts/repository-files/paths.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/project-definition/illegal.ts",
-          'import { toSlashPath } from "../../scripts/foundation/path.ts";\nvoid toSlashPath;\n'
+          'import { toSlashPath } from "../../scripts/repository-files/paths.ts";\nvoid toSlashPath;\n'
         )
     },
     {
@@ -63,6 +74,26 @@ it("characterizes repository layout and dependency boundaries", () => {
           root,
           "scripts/package/artifact/illegal.ts",
           'import type { GateRun } from "../../project/gate/run.ts";\nexport type { GateRun };\n'
+        )
+    },
+    {
+      expected:
+        "script-deep-imports-process-execution: scripts/development/illegal.ts -> ../process-execution/runner.ts",
+      mutate: (root) =>
+        writeSource(
+          root,
+          "scripts/development/illegal.ts",
+          `import { runProcess } from ${JSON.stringify(PRIVATE_PROCESS_IMPORT)};\nvoid runProcess;\n`
+        )
+    },
+    {
+      expected:
+        "environment-imports-process-execution: scripts/environment/manage.ts -> ../process-execution/execution.ts",
+      mutate: (root) =>
+        writeSource(
+          root,
+          "scripts/environment/manage.ts",
+          'import { runProcess } from "../process-execution/execution.ts";\nvoid runProcess;\n'
         )
     },
     {

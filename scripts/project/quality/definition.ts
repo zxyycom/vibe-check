@@ -27,16 +27,7 @@ const repositoryFiles = {
     ".log"
   ],
   generatedFiles: ["**/generated/**"],
-  include: [
-    "src/**/*.ts",
-    "scripts/docs/**/*.ts",
-    "scripts/project/quality/**/*.ts",
-    "scripts/foundation/**/*.ts",
-    "scripts/validation/**/*.ts",
-    "scripts/project/gate/**/*.ts",
-    "docs/**/*.md",
-    "changes/**/*.md"
-  ]
+  include: ["src/**/*.ts", "scripts/**/*.ts", "docs/**/*.md", "changes/**/*.md"]
 } as const;
 
 const metricCodeAreas = {
@@ -67,13 +58,7 @@ const metricCodeAreas = {
   "script-tooling": {
     description: "Vibe Check TypeScript quality tooling",
     excludeGlobs: ["scripts/**/*.test.ts", "**/fixtures/**", "**/generated/**"],
-    globs: [
-      "scripts/docs/**/*.ts",
-      "scripts/project/quality/**/*.ts",
-      "scripts/foundation/**/*.ts",
-      "scripts/validation/**/*.ts",
-      "scripts/project/gate/**/*.ts"
-    ],
+    globs: ["scripts/**/*.ts"],
     warningPolicy: "moderate"
   }
 } as const;

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { collectPackageCheckGuides } from "./check-guides.ts";
-import { PACKAGE_CHECK_GUIDES } from "./registry.ts";
+import { PACKAGE_CHECK_GUIDES } from "./check-guide-registry.ts";
 import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");

@@ -5,7 +5,7 @@ import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
   type PackageApiExampleProjection,
   type PackageApiExampleTarget
-} from "./registry.ts";
+} from "./example-projections.ts";
 
 const EXAMPLE_DIRECTORY = "docs/examples/package-api";
 const README_PATH = "README.md";

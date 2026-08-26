@@ -2,8 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { walkFiles } from "../foundation/fs.ts";
-import { FILE_SYSTEM } from "./docs-contract.ts";
+import { walkFiles } from "../repository-files/files.ts";
+import { FILE_SYSTEM } from "./documentation/task-contract.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -19,9 +19,15 @@ const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
 const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "src/product",
   "scripts/tools",
+  "scripts/foundation",
+  "scripts/diagnostics",
+  "scripts/data-boundary",
+  "scripts/process-execution/process",
+  "scripts/validation/documentation/repository",
   "scripts/package-candidate",
   "scripts/quality",
-  "scripts/project-gate"
+  "scripts/project-gate",
+  "scripts/project/gate/checks"
 ]);
 const GENERIC_BASENAMES = new Set([
   "current",
@@ -32,6 +38,13 @@ const GENERIC_BASENAMES = new Set([
   "utils",
   "helpers",
   "workflows"
+]);
+const PRIVATE_PROCESS_EXECUTION_FILES = new Set([
+  "scripts/process-execution/contract.ts",
+  "scripts/process-execution/failure.ts",
+  "scripts/process-execution/plain-text-environment.ts",
+  "scripts/process-execution/result.ts",
+  "scripts/process-execution/runner.ts"
 ]);
 
 export function validateRepositoryLayout(
@@ -139,6 +152,30 @@ function validateImportBoundaries(
         }
       }
     }
+
+    if (repositoryPath === "scripts/environment/manage.ts") {
+      for (const specifier of moduleSpecifiers(source)) {
+        if (resolvesUnder(root, sourcePath, specifier, "scripts/process-execution")) {
+          violations.push(
+            `environment-imports-process-execution: ${repositoryPath} -> ${specifier}`
+          );
+        }
+      }
+    }
+
+    if (
+      repositoryPath.startsWith("scripts/") &&
+      !repositoryPath.startsWith("scripts/process-execution/")
+    ) {
+      for (const specifier of moduleSpecifiers(source)) {
+        const targetPath = resolvedRelativeModulePath(root, sourcePath, specifier);
+        if (targetPath !== undefined && PRIVATE_PROCESS_EXECUTION_FILES.has(targetPath)) {
+          violations.push(
+            `script-deep-imports-process-execution: ${repositoryPath} -> ${specifier}`
+          );
+        }
+      }
+    }
   }
 }
 
@@ -168,9 +205,18 @@ function resolvesUnder(
   specifier: string,
   targetRoot: string
 ): boolean {
-  if (!specifier.startsWith(".")) return false;
-  const targetPath = relativePath(root, resolve(dirname(sourcePath), specifier));
+  const targetPath = resolvedRelativeModulePath(root, sourcePath, specifier);
+  if (targetPath === undefined) return false;
   return targetPath === targetRoot || targetPath.startsWith(`${targetRoot}/`);
+}
+
+function resolvedRelativeModulePath(
+  root: string,
+  sourcePath: string,
+  specifier: string
+): string | undefined {
+  if (!specifier.startsWith(".")) return undefined;
+  return relativePath(root, resolve(dirname(sourcePath), specifier));
 }
 
 function valueModuleSpecifiers(source: string): readonly string[] {

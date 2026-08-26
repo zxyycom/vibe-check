@@ -5,7 +5,7 @@
 Owner: `docs/configuration.md#public-authoring-surface`
 Entities:
 
-- `bun|scripts/docs/package-api/public-api-inventory.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
 - `bun|src/project-definition/output-defaults.test.ts|Project Definition output defaults > uses the Definition-owned default output values`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`

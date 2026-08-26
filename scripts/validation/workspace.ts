@@ -1,7 +1,7 @@
-import { reportProcessOutput, runCommand, runMain } from "../foundation/command.ts";
-import { TASK_NAMES } from "./docs-contract.ts";
+import { reportProcessOutput, runCommand, runMain } from "../process-execution/command.ts";
+import { TASK_NAMES } from "./documentation/task-contract.ts";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
-import { parseDocsValidationTasks, validateDocs } from "../docs/validate.ts";
+import { parseDocsValidationTasks, validateDocs } from "./documentation/workflow.ts";
 
 function validate(argv: readonly string[]): void {
   if (argv.length > 0 && argv[0] !== "docs") {

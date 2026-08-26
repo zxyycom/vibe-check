@@ -1,7 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { ProcessInvocation } from "../../foundation/command.ts";
+import type { ProcessInvocation } from "../../process-execution/command.ts";
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
@@ -11,13 +11,11 @@ import { defineConfig, type Check, type ProjectDefinition } from "vibe-check";
 
 import { defineProjectGateEntries, type ProjectGateEntry } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
-import {
-  createDecisionRecordsCheck,
-  createDocsValidationCheck,
-  createTestEvidenceCheck
-} from "./checks/native.ts";
-import { createProcessCheck } from "./checks/process.ts";
-import { createTestEvidenceRuleTestsCheck } from "./checks/test-evidence-rule-tests.ts";
+import { createDocsValidationCheck } from "./docs-validation-check.ts";
+import { createDecisionRecordsCheck } from "./decision-records-check.ts";
+import { createTestEvidenceCheck } from "./test-evidence/semantic-case-check.ts";
+import { createProcessCheck } from "./check-execution/process.ts";
+import { createTestEvidenceRuleTestsCheck } from "./test-evidence/ast-grep-rule-tests-check.ts";
 
 const requiredAndFull = ["required", "full"] as const;
 const scanEntryPath = fileURLToPath(new URL("../quality/scan.ts", import.meta.url));

@@ -1,13 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 
-import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 
 import {
   PACKAGE_CHECK_GUIDE_INDEX_PATH,
   PACKAGE_CHECK_GUIDES,
   type PackageCheckGuide
-} from "./registry.ts";
+} from "./check-guide-registry.ts";
 
 const GUIDE_HEADINGS = Object.freeze([
   "## 用途",

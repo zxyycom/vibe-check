@@ -5,8 +5,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { CURRENT_PUBLIC_CONTRACT } from "../../docs/package-api/public-api-inventory.ts";
-import { artifactDocumentation } from "./audit.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import { artifactDocumentation } from "./documentation-audit.ts";
 import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
 

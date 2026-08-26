@@ -1,9 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
 
-import { isPathWithin, toSlashPath } from "../../foundation/path.ts";
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
-import { PACKAGE_RUNTIME_DIRECTORY, PACKAGE_SOURCE_DIRECTORY } from "./package-contract.ts";
+import { isPathWithin, toSlashPath } from "../../repository-files/paths.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
+import { PACKAGE_RUNTIME_DIRECTORY, PACKAGE_SOURCE_DIRECTORY } from "../package-contract.ts";
 
 interface RuntimeSourceMap extends Readonly<Record<string, unknown>> {
   readonly sources: readonly string[];

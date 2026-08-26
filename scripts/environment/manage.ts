@@ -3,10 +3,23 @@ import { devNull } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { errorMessage } from "../foundation/errors.ts";
-import { DEFAULT_PROCESS_MAX_BUFFER_BYTES, PLAIN_TEXT_PROCESS_ENV } from "../foundation/process.ts";
+import { errorMessage } from "../error-message.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+// This bootstrap workflow must remain runnable before third-party dependencies are installed.
+const ENVIRONMENT_PROCESS_MAX_BUFFER_BYTES = 64 * 1024 * 1024;
+const ENVIRONMENT_PLAIN_TEXT_PROCESS_ENV = Object.freeze({
+  CARGO_TERM_COLOR: "never",
+  CLICOLOR: "0",
+  CLICOLOR_FORCE: "0",
+  FORCE_COLOR: "0",
+  NO_COLOR: "1",
+  PNPM_CONFIG_COLOR: "false",
+  PY_COLORS: "0",
+  TERM: "dumb",
+  UV_NO_COLOR: "1",
+  npm_config_color: "false"
+} satisfies NodeJS.ProcessEnv);
 const MISE_ENV = Object.freeze({
   ...process.env,
   MISE_GLOBAL_CONFIG_FILE: devNull
@@ -123,8 +136,8 @@ function runCommand({
   const commandResult = spawnSync(command, args, {
     cwd: REPO_ROOT,
     encoding: "utf8",
-    env: { ...environment, ...PLAIN_TEXT_PROCESS_ENV },
-    maxBuffer: DEFAULT_PROCESS_MAX_BUFFER_BYTES,
+    env: { ...environment, ...ENVIRONMENT_PLAIN_TEXT_PROCESS_ENV },
+    maxBuffer: ENVIRONMENT_PROCESS_MAX_BUFFER_BYTES,
     stdio: shouldCaptureOutput ? "pipe" : "inherit",
     windowsHide: true
   });

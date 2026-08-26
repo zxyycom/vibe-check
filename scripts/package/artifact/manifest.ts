@@ -11,7 +11,7 @@ import {
   PACKAGE_THIRD_PARTY_LICENSES_DIRECTORY,
   PACKAGE_TYPES_DIRECTORY,
   PACKAGE_TYPES_PATH
-} from "./package-contract.ts";
+} from "../package-contract.ts";
 
 /** Writes the only package manifest projection accepted by the artifact audit. */
 export function writeCandidateManifest(input: {

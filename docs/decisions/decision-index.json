@@ -59,7 +59,7 @@
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
-      "integrate-foundation-into-workspace-assurance.md": "sha256:2c49ec8904f018075cd557907eebd9a243969a97f22052a9a223562128eb8282",
+      "integrate-foundation-into-workspace-assurance.md": "sha256:485811888ed37325c599ce9b85015a02d243e4aab5c99bde5f07b4561b010e2a",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -1846,9 +1846,9 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-23T16:30:22Z",
-        "purpose": "让已迁入主仓的 Foundation 由普通项目检查和专门测试证明，不再保留子仓库时期的独立 Gate identities。",
-        "background": "Foundation 已是 repository-owned scripts source；独立 package gates 只重复 workspace source与test coverage。",
-        "decision": "保留 repository ownership，取消历史 package 形态产生的独立 Gate义务，并把真实不变量交给现有owner或专门测试。",
+        "purpose": "让原 Foundation 迁入主仓后的存活能力由普通项目检查和专门测试证明，不再恢复子仓库时期的独立 Gate identities。",
+        "background": "形成此 Decision 时 Foundation 已是主仓 scripts source；独立 package gates 只重复 workspace source 与 test coverage。",
+        "decision": "保留存活能力的 repository ownership，取消历史 package 形态产生的独立 Gate 义务，并把真实不变量交给现有 owner 或专门测试。",
         "tags": [
           "configuration",
           "workflow-policy"

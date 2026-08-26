@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { isNonArrayRecord } from "../foundation/type-guards.ts";
+import { isNonArrayRecord } from "../value-guards.ts";
 import { type BunTestSurface, isSafeRelativeGlob } from "./discovery/bun-files.ts";
 import { isSafeRelativePosixPath } from "./relative-path.ts";
 

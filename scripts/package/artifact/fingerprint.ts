@@ -3,23 +3,30 @@ import { readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
-import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
-import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "./package-contract.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
+import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
+import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "../package-contract.ts";
 import {
   PACKAGE_CHECK_GUIDE_INDEX_PATH,
   PACKAGE_CHECK_GUIDES
-} from "../../docs/package-api/registry.ts";
+} from "../../docs/package-api/check-guide-registry.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "docs/package-readme.template.md",
-  "scripts/docs/package-api/registry.ts",
-  "scripts/docs/package-api/render.ts"
+  "scripts/docs/package-api/example-projections.ts",
+  "scripts/docs/package-api/render.ts",
+  "scripts/docs/package-api/check-guide-registry.ts"
 ]);
 const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
 const ARTIFACT_TOOLCHAIN_PACKAGES = Object.freeze(["@typescript/native-preview", "typescript"]);
 
-/** Returns the deterministic source fingerprint that binds one local candidate version. */
+/**
+ * Returns the deterministic source fingerprint that binds one local candidate version.
+ *
+ * All `scripts/package/**` sources participate deliberately: artifact and candidate changes
+ * may alter the accepted tarball, receipt, install, or audit evidence. This conservative
+ * invalidation avoids reusing a candidate after any package-lifecycle boundary changes.
+ */
 export function createArtifactFingerprint(repositoryRoot: string): string {
   const hash = createHash("sha256");
   hash.update(`bun=${bunVersion()}\0`);
@@ -27,7 +34,7 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   hash.update(`candidate-dependencies=${JSON.stringify(CANDIDATE_DEPENDENCIES)}\0`);
 
   const inputFiles = [
-    ...collectRuntimeSourceFiles(join(repositoryRoot, "src")),
+    ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
     join(repositoryRoot, MOMOA_LICENSE_SOURCE_PATH)
@@ -43,7 +50,7 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
 }
 
 function collectPackageSourceFiles(repositoryRoot: string): readonly string[] {
-  return collectFiles(
+  return collectFilePaths(
     join(repositoryRoot, "scripts/package"),
     (relativePath) => relativePath.endsWith(".ts") && !relativePath.endsWith(".test.ts")
   );
@@ -52,7 +59,7 @@ function collectPackageSourceFiles(repositoryRoot: string): readonly string[] {
 function documentationInputFiles(repositoryRoot: string): readonly string[] {
   return Object.freeze([
     ...DOCUMENTATION_INPUT_PATHS.map((path) => join(repositoryRoot, path)),
-    ...collectFiles(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
+    ...collectFilePaths(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
       path.endsWith(".ts")
     ),
     join(repositoryRoot, PACKAGE_CHECK_GUIDE_INDEX_PATH),

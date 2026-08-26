@@ -3,11 +3,8 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  PACKAGE_API_EXAMPLE_PROJECTIONS,
-  PACKAGE_CHECK_GUIDE_INDEX_PATH,
-  PACKAGE_CHECK_GUIDES
-} from "./registry.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "./example-projections.ts";
+import { PACKAGE_CHECK_GUIDE_INDEX_PATH, PACKAGE_CHECK_GUIDES } from "./check-guide-registry.ts";
 
 type PackageApiJSDocTarget = Readonly<{
   readonly declarationName: string;

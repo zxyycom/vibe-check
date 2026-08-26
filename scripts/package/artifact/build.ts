@@ -1,13 +1,11 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, sep } from "node:path";
 
-import {
-  auditCandidateArtifact,
-  auditStagingRuntime,
-  type ArtifactDocumentation
-} from "./audit.ts";
+import { auditStagingRuntime } from "./staging-audit.ts";
+import { auditCandidateArtifact } from "./packed-tar-audit.ts";
+import type { ArtifactDocumentation } from "./documentation-audit.ts";
 import { rewriteRelativeEsmModuleExtensions } from "./esm-module-specifiers.ts";
-import { collectFiles, collectRuntimeSourceFiles } from "./file-inventory.ts";
+import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
   CANDIDATE_NAME,
   PACKAGE_ENTRY_PATH,
@@ -18,9 +16,9 @@ import {
   PACKAGE_SOURCE_DIRECTORY,
   MOMOA_LICENSE_SHA256,
   MOMOA_LICENSE_SOURCE_PATH
-} from "./package-contract.ts";
+} from "../package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
-import { runBun, sha256File } from "./pack.ts";
+import { runBun, sha256File } from "../pack.ts";
 import { normalizeRuntimeSourceMap } from "./runtime-source-maps.ts";
 
 export interface CandidateArtifact {
@@ -109,7 +107,7 @@ export async function buildCandidateArtifact(input: {
     expectedReadme: documentation.readme,
     stagingDirectory
   });
-  const expectedFiles = collectFiles(stagingDirectory, () => true).map(
+  const expectedFiles = collectFilePaths(stagingDirectory, () => true).map(
     (filePath) => `package/${relative(stagingDirectory, filePath).split(sep).join("/")}`
   );
   const artifactPath = join(artifactDirectory, `${CANDIDATE_NAME}-${candidateVersion}.tgz`);
@@ -162,7 +160,7 @@ function copyMomoaLicense(input: {
 /** Converts TypeScript's emitted .js module graph into the package's ESM .mjs tree. */
 function normalizeEmittedRuntime(input: { readonly stagingDirectory: string }): void {
   const runtimeDirectory = join(input.stagingDirectory, PACKAGE_RUNTIME_DIRECTORY);
-  const emittedJavaScriptPaths = collectFiles(runtimeDirectory, (relativePath) =>
+  const emittedJavaScriptPaths = collectFilePaths(runtimeDirectory, (relativePath) =>
     relativePath.endsWith(".js")
   );
   if (emittedJavaScriptPaths.length === 0) {
@@ -229,7 +227,7 @@ function copyRuntimeSources(input: {
   readonly stagingDirectory: string;
 }): void {
   const sourceRoot = join(input.repositoryRoot, "src");
-  for (const sourcePath of collectRuntimeSourceFiles(sourceRoot)) {
+  for (const sourcePath of collectRuntimeSourceFilePaths(sourceRoot)) {
     const destination = join(
       input.stagingDirectory,
       PACKAGE_SOURCE_DIRECTORY,

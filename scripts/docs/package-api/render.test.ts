@@ -3,7 +3,10 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { describe, it } from "node:test";
 
-import { PACKAGE_API_EXAMPLE_PROJECTIONS, type PackageApiExampleProjection } from "./registry.ts";
+import {
+  PACKAGE_API_EXAMPLE_PROJECTIONS,
+  type PackageApiExampleProjection
+} from "./example-projections.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 

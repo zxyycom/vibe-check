@@ -56,9 +56,9 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|scripts/validation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
-- `bun|scripts/validation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
-- `bun|scripts/validation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
+- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
+- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
   Proves:
 - The independent docs validator accepts only checked-in v4 schemas/examples and closes v4 framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator.
 
@@ -67,7 +67,7 @@ Entities:
 Owner: `docs/output.md#published-materials-and-historical-schemas`
 Entities:
 
-- `bun|scripts/validation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
   Proves:
 - The current docs artifact validator rejects v2 and v3 run/Record schema identities; it accepts current v4 artifacts only.
 

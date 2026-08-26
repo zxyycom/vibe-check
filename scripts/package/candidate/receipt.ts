@@ -1,9 +1,10 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
-import { isPathWithin } from "../../foundation/path.ts";
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
-import { auditCandidateArtifact, auditStagingRuntime } from "../artifact/audit.ts";
+import { isPathWithin } from "../../repository-files/paths.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
+import { auditStagingRuntime } from "../artifact/staging-audit.ts";
+import { auditCandidateArtifact } from "../artifact/packed-tar-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 

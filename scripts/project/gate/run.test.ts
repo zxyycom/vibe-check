@@ -4,7 +4,7 @@ import { dirname, relative, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
 
 import { parseProjectGateArguments, selectionFlags } from "./controls.ts";
 import {

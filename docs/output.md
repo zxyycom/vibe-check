@@ -91,7 +91,7 @@ The typed-provider parser is defined by [Configuration](configuration.md#typed-d
 ## Published materials and historical schemas
 
 当前 schemas 位于 `docs/schemas/`，examples 位于 `docs/examples/artifacts/**`；每个 example directory 有 `run.json`、`records.ndjson` 和 README。`scripts/docs/machine-artifacts/**` 维护 published material，
-`scripts/validation/schema/**` 的独立 validator 从 raw example bytes 解析并完整验证 set，随后检查 schema/example
+`scripts/validation/documentation/schema/**` 的独立 validator 从 raw example bytes 解析并完整验证 set，随后检查 schema/example
 generation drift；`src/machine-output/v4/**` tests 则确认 runtime schema source 与 serializer 一致。两条验证路径互不把对方的 validator 当作 acceptance authority。
 
 v2 schema bytes 只保留在 `docs/schemas/historical/v2/` 供明确 historical validation/reference 使用。v3 没有 current 或 historical runtime/publication path；其输入只会被 v4 validator 拒绝。历史材料不是 current schema entry、runtime reader/writer、example input 或 fallback；current output 只接受 v4。

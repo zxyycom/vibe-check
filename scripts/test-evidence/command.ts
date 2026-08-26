@@ -1,7 +1,7 @@
 import path from "node:path";
 import { parseArgs } from "node:util";
 
-import { errorMessage } from "../foundation/errors.ts";
+import { errorMessage } from "../error-message.ts";
 import {
   listTestCaseTopics,
   loadTestCaseCatalog,

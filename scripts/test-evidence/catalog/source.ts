@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { errorMessage } from "../../foundation/errors.ts";
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
+import { errorMessage } from "../../error-message.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
 import { diagnostic, type TestEvidenceDiagnostic } from "../entities.ts";
 import { resolveExistingWorkspacePath } from "../relative-path.ts";
 import type { TestCaseTopic } from "./catalog-types.ts";

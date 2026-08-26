@@ -7,20 +7,22 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 
 ## Source owners and dependency direction
 
-`scripts/**` 的当前 owner 如下：
+`scripts/**` 按实际 workflow 与生命周期组织；下表是当前 owner、入口和允许依赖方向的权威映射。
+目录层级只表达父子 owner，具体文件继续由所在目录和文件名共同表达职责。
 
 | Owner | 责任与入口 |
 | --- | --- |
-| `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`foundation/command.ts` 提供它们的进程边界。 |
+| `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。 |
 | `scripts/environment/manage.ts` | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理。 |
-| `scripts/foundation/**` | repository automation 共享的 filesystem、path、process、JSON、CSV、NDJSON、Git、argument、error 与 type-guard helpers。 |
-| `scripts/validation/**` | workspace validation、docs task contract、Markdown/JSON/schema/path validation 的 owner。 |
-| `scripts/docs/**` | `validate.ts` 编排文档校验；`package-api/**` 生成或检查 package README/JSDoc projection；`machine-artifacts/**` 维护 machine schema/example 资料。 |
-| `scripts/package/artifact/**` | package artifact 的 build、manifest、pack、fingerprint 与 audit。 |
-| `scripts/package/candidate/**` | local candidate 的 prepare、receipt 与 isolated installation；它消费 artifact owner，不反向启动 consumer。 |
-| `scripts/project/**` | 唯一 private candidate consumer root；`quality/**` 与 `gate/**` 是同级、绑定 Project Definition 的 repository Run。 |
+| `scripts/process-execution/**` | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execution.ts`。 |
+| `scripts/repository-files/**` | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。 |
+| `scripts/error-message.ts` 与 `scripts/value-guards.ts` | 明确的诊断字符串和值形状小边界；它们是 scripts root 直接拥有的 capability。 |
+| `scripts/validation/**` | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。 |
+| `scripts/docs/**` | machine artifact schema/example 与 package README/JSDoc/guide 的生成或投影 provider；不拥有 docs validation orchestration。 |
+| `scripts/package/**` | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 只准备、安装、receipt 与 isolated consumer。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
+| `scripts/project/**` | 唯一 private candidate consumer root；`quality/**` 与 `gate/**` 同级。Gate 的 `check-execution/**` 只拥有 native/process Check mapping；具体 docs、Decision Records 与 Test Evidence Checks 位于其领域 owner。 |
 | `scripts/decision-records/command.ts` | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。 |
-| `scripts/test-evidence/command.ts` | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner。 |
+| `scripts/test-evidence/command.ts` | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。 |
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json`
 从 exact installed `vibe-check` candidate 消费该入口；`scripts/package/**` 只负责准备该 candidate，不能
@@ -36,7 +38,7 @@ scripts helper、环境状态或 process adapter。
 | --- | --- | --- |
 | environment | `bun run env:setup`；`bun run env:check` | `scripts/environment/manage.ts` |
 | development | `bun run format [-- check]`；`bun run lint [-- product|scripts]`；`bun run typecheck [-- product|scripts]`；`bun run test` | `scripts/development/**` |
-| docs/workspace validation | `bun run validate`；`bun run validate -- docs [json|schema|examples|links|package-api-documentation]` | `scripts/validation/workspace.ts` and `scripts/docs/validate.ts` |
+| docs/workspace validation | `bun run validate`；`bun run validate -- docs [json|schema|examples|links|package-api-documentation]` | `scripts/validation/workspace.ts` and `scripts/validation/documentation/workflow.ts` |
 | governance | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations -- check`；`bun run test-evidence -- <command>` | their named owners |
 | quality dogfood | `bun run quality` | `scripts/project/quality/run.ts` |
 | Project Gate | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full` | `scripts/project/gate/run.ts` |
@@ -91,8 +93,9 @@ quality wrapper 不解析调用方配置、不重新声明 Project Definition，
 `scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。它先准备 candidate，并确认 private consumer
 解析到的 package entry 与准备结果相同；然后创建 invocation log directory，调用 `project-run.ts` 的 bound
 Gate Run。`definition.ts`、`entries.ts`、`eligibility.ts` 与 `controls.ts` 拥有 Gate membership、profile/tag
-selection 和 aggregation configuration；`checks/native.ts` 与 `checks/process.ts` 分别拥有 native 与 process
-Checks。
+selection 和 aggregation configuration；`check-execution/native-operation.ts` 与 `check-execution/process.ts`
+共同把 native/process operation 映射为 Gate Check facts、取消和安全 transcript。具体 adapter 分别位于
+`docs-validation-check.ts`、`decision-records-check.ts` 与 `test-evidence/**`，不进入泛化 Check 容器。
 
 Gate 从 Run 的 explicit aggregate 读取选择后的结论；它不遍历 Check snapshot 重新归约。Gate 不改变 quality 的
 locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence 各自的 command owner。
@@ -110,11 +113,11 @@ identity、log、execution 或 malformed-result failure 映射 `2`。
 
 `scripts/docs/package-api/command.ts` 的 `--write`/`--check` 适配 package API projection。可编辑输入是
 README template、allowlisted TypeScript examples、projection registry 和 source JSDoc prose；root `README.md`
-与 registry target 中生成的连续 `@example` tail 是 generated outputs。`scripts/docs/validate.ts` 在
+与 registry target 中生成的连续 `@example` tail 是 generated outputs。`scripts/validation/documentation/workflow.ts` 在
 `package-api-documentation` task 中调用 check mode。
 
 current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
-`scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/machine-artifacts/**` 独立验收已发布的 machine artifact。
+`scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。
 
 `bun run validate` 先运行全部文档 task，再执行 repository layout characterization，最后运行
 `git diff --check`；`bun run validate -- docs` 只运行文档 task，不执行 layout 或 diff 检查。
@@ -124,28 +127,29 @@ task 既检查 current published material 的 generation drift，也用 checked-
 完整 v4 two-file set；它不 import Product validator 作为 acceptance implementation。historical schema/example
 materials 只走显式 historical validation path，不进入 current traversal 或 runtime input。
 
-## Environment and shared foundation
+## Environment and shared script boundaries
 
-### Shared foundation
+### Process, repository-file, and narrow boundary capabilities
 
-`scripts/foundation/process.ts` 是跨 owner 的 process facade；其它 scripts owner 只能从该 facade 消费 process capability，不得 deep import `foundation/process/**`。
+`scripts/process-execution/execution.ts` 是跨 owner 的 process facade；其它 scripts owner 只能从该 facade 消费 process capability，不得 deep import `process-execution/{contract,failure,plain-text-environment,result,runner}.ts`。
 
-`scripts/foundation/**` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
-TypeScript config 或独立 Gate profile。它由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
-`bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它与 `src/data-boundary/**` 与 `src/package-checks/host-environment/**` 是不同
-owner：前者服务 repository automation，后者服务 Product runtime；Product 不得 import 前者。Foundation helper
+`scripts/process-execution/**`、`scripts/repository-files/**`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
+TypeScript config 或独立 Gate profile。它们由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
+`bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它们与 `src/data-boundary/**` 与 `src/package-checks/host-environment/**` 是不同
+owner：前者服务 repository automation，后者服务 Product runtime；Product 不得 import 前者。这些 script boundaries
 不定义 Product source-access boundary；适用的 Project consumer 与 package/docs 例外见
 [Source owners and dependency direction](#source-owners-and-dependency-direction)。
 
-Foundation helper 必须让开发脚本边界可复现和可诊断：文件遍历返回稳定 slash-normalized relative paths，
-JSON/NDJSON/filesystem/process failure 保留目标或失败事实，不静默跳过；已启动 child 的 cancellation 保留 error、
-signal 和 `status: null`，不能视为成功。它不替代 Product scan-scope 或 scanner contract。
+进程 facade、repository file/path capability 与两个根级小 capability 必须让开发脚本边界可复现和可诊断：
+文件遍历返回稳定 slash-normalized relative paths，文本与 process failure 保留目标或失败事实，不静默跳过；已启动 child 的 cancellation 保留 error、
+signal 和 `status: null`，不能视为成功。JSON validation、serialization 与 Product scan-scope/scanner contract 仍由各自 owner 承担。
 
 ### Environment setup and destructive boundary
 
 首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。它会 trust 当前 `mise.toml`、按锁定结果安装
 工具和 Node dependencies，并初始化/同步当前 checkout 的 CodeGraph；因此会写入 user-level mise trust/tool state、
-checkout `node_modules` 和 `.codegraph`。执行前审阅 `mise.toml`。`bun run env:check` 只检查已安装 tools、jscpd
+checkout `node_modules` 和 `.codegraph`。该 bootstrap 入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载
+`process-execution` 的第三方 runner。执行前审阅 `mise.toml`。`bun run env:check` 只检查已安装 tools、jscpd
 和 CodeGraph 状态，不执行 trust、安装或索引同步；失败后再运行 setup。两个命令以
 `MISE_GLOBAL_CONFIG_FILE` 隔离用户全局 mise 配置。
 

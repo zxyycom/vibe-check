@@ -15,7 +15,7 @@ import {
   thirdBunEntity,
   writeTopicFile,
   writeTopics
-} from "./catalog/fixture.ts";
+} from "./catalog/test-support.ts";
 import { workspaceRoot } from "./profile.ts";
 
 test("parses and queries topic-grouped semantic Cases", () => {

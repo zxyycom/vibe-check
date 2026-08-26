@@ -1,4 +1,4 @@
-import { errorMessage } from "../../foundation/errors.ts";
+import { errorMessage } from "../../error-message.ts";
 import { preparePackageCandidate } from "../../package/candidate/prepare.ts";
 
 type CandidateBackedQualitySteps = Readonly<{

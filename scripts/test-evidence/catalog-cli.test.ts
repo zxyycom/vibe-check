@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { createCaseFixture } from "./catalog/fixture.ts";
+import { createCaseFixture } from "./catalog/test-support.ts";
 
 const entrypoint = fileURLToPath(new URL("./command.ts", import.meta.url));
 const workspaceRoot = path.resolve(path.dirname(entrypoint), "..", "..");

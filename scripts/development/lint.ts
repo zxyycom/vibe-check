@@ -4,7 +4,7 @@ import {
   runProcessInvocationSync,
   runMain,
   type ProcessInvocation
-} from "../foundation/command.ts";
+} from "../process-execution/command.ts";
 
 export type LintScope = "product" | "scripts";
 

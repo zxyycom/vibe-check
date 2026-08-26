@@ -2,10 +2,10 @@ import { existsSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { errorMessage } from "../../foundation/errors.ts";
-import { isPathWithin } from "../../foundation/path.ts";
-import { isNonArrayRecord } from "../../foundation/type-guards.ts";
-import { assertJSDocExamplePayloads } from "../artifact/audit.ts";
+import { errorMessage } from "../../error-message.ts";
+import { isPathWithin } from "../../repository-files/paths.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
+import { assertJSDocExamplePayloads } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import {
   AJV_PACKAGE_NAME,
@@ -14,9 +14,9 @@ import {
   JSCPD_BIN_NAME,
   JSCPD_PACKAGE_NAME,
   PACKAGE_TYPES_DIRECTORY
-} from "../artifact/package-contract.ts";
-import { collectFiles } from "../artifact/file-inventory.ts";
-import { runBun, sha256File } from "../artifact/pack.ts";
+} from "../package-contract.ts";
+import { collectFilePaths } from "../file-inventory.ts";
+import { runBun, sha256File } from "../pack.ts";
 import type { InstalledCandidate } from "./receipt.ts";
 
 type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PACKAGE_NAME;
@@ -152,8 +152,9 @@ function verifyInstallation(input: {
   }
   try {
     assertJSDocExamplePayloads({
-      declarationSources: collectFiles(join(packageDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
-        path.endsWith(".d.ts")
+      declarationSources: collectFilePaths(
+        join(packageDirectory, PACKAGE_TYPES_DIRECTORY),
+        (path) => path.endsWith(".d.ts")
       ).map((path) => readFileSync(path, "utf8")),
       description: "installed candidate declarations",
       expectedPayloads: expectedJSDocExamplePayloads
