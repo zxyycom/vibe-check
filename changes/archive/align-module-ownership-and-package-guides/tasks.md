@@ -22,6 +22,8 @@
 - [x] 1.9 **Review correction — real common capability:** 将 Git-aware collection、project-relative normalization、code-area classification 与 exact-input acceptance 提升为 `src/project-files/**` 的真实共同能力，删除 checks 下的 `scan-scope` 并修复全部 owner imports。
 - [x] 1.10 **Review correction — contracts/docs/evidence:** 同步 public types/inventory、Configuration/Architecture/Scan Scope/Scanner docs、七份 package guides、tests 与 semantic Cases；明确 malformed package-provided options 由 owning Check fail closed，且不保留 `quality` 兼容字段。
 - [x] 1.11 **Review correction — candidate refresh:** 从修正后的最终 source 重建 package documentation/candidate/receipt，并废弃 `0.0.0-local.5151abc08085` 作为当前验收证据。
+- [x] 1.12 **Review correction — optional Check preparation:** 为普通 Check 增加可选的 self-described `preflight` authoring contract，由 Run 在任何 author execution 前执行 global preflight barrier；随包导出值与构造函数结果携带自己的 block preflight，并保留 execution-time `invalid-options` 防护。
+- [x] 1.13 **Review correction — contracts/docs/evidence:** 同步 public types/JSDoc、Configuration/Architecture/Check guides、tests、semantic Cases 与长期 Decision，明确完整随包 Check 始终合法、非法的是调用方构造的 Check。
 
 ## Verification
 
@@ -33,20 +35,40 @@
 - [x] 2.6 运行各 Check scanner/options、project-files、Definition/run 的最窄 tests 与 Product typecheck/lint/format，证明 core import graph 不再指向 package-provided Check owner。
 - [x] 2.7 运行 Test Evidence、Decision/Change checks、documentation/package candidate tests，并以最终 worktree 重新运行 `bun run verify:vibe-check-workspace:full`。
 - [x] 2.8 审阅最终目录与 import graph，证明不存在旧集中目录/registry/compatibility layer，且每个 scanner、measurement model 与 options failure 只有一个 Check owner。
+- [x] 2.9 运行 ordinary Definition、七项 Check 与 Run 的最窄 tests，证明 Run preflight 在任何 author execution/scanner 前把非法 options 结算为 owning unavailable、direct execution 也防御非法 options，并证明 core 不含 package Check ID/preflight registry。
+- [x] 2.10 运行 Test Evidence、Decision/Change、文档、package candidate 与 `bun run verify:vibe-check-workspace:full`，从最终 source 刷新 candidate/receipt 和 completion evidence。
 
-## Completion Evidence
+## Superseded First-Pass Evidence
+
+本节只保留第一轮实施在形成时的审计事实；后续 review 已证明它没有满足当前结构性成功标准，因此不得作为当前完成
+状态、candidate 或验证结论使用。
 
 - **Readiness / implementation review：** 独立结构复验确认 `src/checks/builtins/` 与 `src/definition/default-checks.ts` 均不存在；七项 public package-provided Check 分别位于其 Check owner（`duplicate-detection`、`file-metrics`、`function-metrics`、`json-validation`、`json-schema-validation`、`markdown-link-validation`、`maintenance-reminders`），其余跨 Check 能力位于明确命名的共享 owner。scripts 的 foundation、machine-artifacts、test-evidence ast-grep 与 package third-party-license 路径也已收敛。
 - **Product / scripts verification：** 独立复验已通过 Product tests 89/89、Product typecheck/lint/format，以及 scripts tests/typecheck/lint/docs；Test Evidence 为 214/214 测试节点、62 Cases。
 - **Package evidence：** 最终 candidate 为 `0.0.0-local.5151abc08085`，artifact SHA-256 为 `5e851c5c3344bac6a50561ce019ac72b8e3eed9c052223d760cb9e2b579f1716`；receipt 位于 `.cache/vibe-check/package-candidate/preparation-receipt.json`，列出 `README.md`、`docs/checks/index.md` 与七份 guide，并确认 `package.json` 只有 `.` root export。
 - **Final workspace gate：** `bun run verify:vibe-check-workspace:full` 已通过 14/14；可审计日志目录为 `.log/project-gate/2026-08-25T16-12-06.522Z-1951119-82b63e75-dc63-45ca-8467-39aec7a8eaff/`。其中记录了 format、Product/scripts lint 与 typecheck、repository-quality、Test Evidence ast-grep rule tests 和 `git diff --check` 的成功结果。
 
-以上证据只属于第一轮实施；用户 review 已证明其结构性成功标准未满足，因此不再作为当前完成证据。随后任务 1.7–2.8 重新打开并完成以下 correction evidence。任何新证据仍不构成 archive 授权；本 Change 保持 active/plan，只有当前任务明确授权后方可归档。
+随后任务 1.7–2.8 重新打开并完成结构修正。任何新证据仍不构成 archive 授权；本 Change 保持 active/plan，只有
+当前任务明确授权后方可归档。
 
-## Review Correction Evidence
+## Superseded Structure-Correction Evidence
 
-- **Ordinary Check/core boundary：** production `src/definition/**`、`src/run/**` 与 `src/core/**` 不 import package-provided Check owner，也不含 package Check IDs；`ProjectDefinition.quality`、`ProjectQualityConfiguration`、`CheckProjectContext.files` 与集中 validator registry 均不存在。新 active aligned Decisions `treat-package-provided-checks-as-ordinary.md` 与 `let-each-check-own-file-selection.md` 固定长期 owner；后者以 `归并` 关系承接并归档旧 file override 与 Markdown source/target boundary Decisions。`bun run decisions -- check` 通过 153 条记录、0 candidates。
+本节记录 options preflight 设计完成前的结构修正证据。它仍可用于审计当时的目录与 owner 迁移，但其中的 candidate、
+测试计数和完成判断已由下一节替代。
+
+- **Ordinary Check/core boundary：** production `src/definition/**`、`src/run/**` 与 `src/core/**` 不 import package-provided Check owner，也不含 package Check IDs；`ProjectDefinition.quality`、`ProjectQualityConfiguration`、`CheckProjectContext.files` 与集中 validator registry 均不存在。当时建立的 aligned Decisions `treat-package-provided-checks-as-ordinary.md` 与 `let-each-check-own-file-selection.md` 固定长期 owner；后者以 `归并` 关系承接并归档旧 file override 与 Markdown source/target boundary Decisions。它们随后由 options preflight 决策链归并、替代并保存在 archive 中。
 - **Owner layout：** jscpd、scc 与 Lizard 分别位于 `duplicate-detection/jscpd`、`file-metrics/scc` 与 `function-metrics/lizard`；三个 measurement models 分别位于 owning Check。`scanner-adapters`、`scan-scope`、`metric-model`、`metric-analysis`、`builtin-option-validation.ts` 与 `definition/quality-configuration.ts` 均不存在；真实共同 collection/exact-membership mechanism 位于 `src/project-files/**`。
 - **Focused verification：** 受影响 Product/docs/layout tests 通过 129/129；受影响 Gate tests 通过 8/8；Product typecheck、Product lint、scripts typecheck、format check 与 `git diff --check` 通过。Test Evidence 通过 214/214 Bun entities、62 Cases、9 topics；docs validation 通过 190 个 Markdown files 的 link closure。
 - **Package evidence：** 当前 candidate 为 `0.0.0-local.983ac4d30baa`，input fingerprint 为 `983ac4d30baa14c0233e6a8b70967d62ffece6e3fd9cd5315450610261169a69`，artifact SHA-256 为 `cbb9b0492678a9df35621bcd994a90e7a801b7d977f4edd5d7677d87bfe5c34b`。receipt 位于 `.cache/vibe-check/package-candidate/preparation-receipt.json`；installed package 包含 README、`docs/checks/index.md` 和七份独立指南，exports 仍只有 `.`。
 - **Final workspace gate：** `bun run verify:vibe-check-workspace:full` 通过 14/14；可审计日志目录为 `.log/project-gate/2026-08-26T02-34-24.722Z-2074488-b1ff62fc-759b-4887-8bbc-3e95eadc8252/`。
+
+## Current Completion Evidence
+
+- **Optional preparation boundary：** ordinary executable Check 可省略 `preflight`；Definition 仅 snapshot canonical authored options。Run 在任何 author execution 前顺序执行已提供的 global preflight barrier：block/throw/malformed/noncanonical preparation 只将 owning Check 结算为 `unavailable`，不会令整个 Definition 成为 configuration failure。production Definition/Run core 不 import package Check owner、不识别 package Check ID，也没有 preflight registry。
+- **Package Check contract：** 六个随包 Check values 与 `maintenanceReminders` 构造函数结果都携带 owner-local block preflight，默认结果本身完整合法；execution 与 block preflight 复用 Check-local options helper，direct execution 仍防御并返回 `invalid-options`。`unavailable` 也表达合法 Check 的取消、工具、文件、解析、测量或其它无法形成可信 final data 的边界。
+- **Decision / docs / tests：** active aligned Decision `prepare-check-options-before-execution.md` 以 `替代` 关系承接 archived `validate-ordinary-check-options-before-execution.md`；后者保留其对 `treat-package-provided-checks-as-ordinary.md` 与 `let-each-check-own-file-selection.md` 的归并关系，完整 trace 继续覆盖 ordinary Check、Check-owned scanner/file selection 与 Link-local target policy。Configuration、Architecture、Scanner、README/template、七份 Check guides、JSDoc example 和 semantic Cases 已同步。最窄 Product tests 25/25、isolated consumer 1/1 与 repository Project Run 1/1 通过；Product/scripts typecheck、lint、format 及 192 份 Markdown link closure 均通过。Decision check 为 155 records / 0 candidates，Test Evidence 为 220/220 Bun entities、62 Cases、9 topics，Change check 为 27/27 tasks。
+- **Package evidence：** 当前 candidate 为 `0.0.0-local.2c9c1a7004bc`，input fingerprint 为 `2c9c1a7004bcafd516dab57cb42ea5cf2e25465ae4bb398d4edb300de9158a4d`，artifact SHA-256 为 `88efe4d5e1eb78a8c7d08bb84d3b9e44677ab29ae009363526c4aa6319c8d6ae`。receipt 位于 `.cache/vibe-check/package-candidate/preparation-receipt.json`，列出 552 个 package files；isolated consumer 已验证 installed declarations、README 与七份 guides，package exports 仍只有 `.`。
+- **Final workspace gate：** `bun run verify:vibe-check-workspace:full` 通过 14/14；可审计日志目录为 `.log/project-gate/2026-08-26T06-14-41.406Z-2174981-6531b914-5385-459f-bef7-2f275c87bde4/`。
+
+本 Change 以 27/27 tasks 和上述完成证据通过归档前验收，并已在用户明确授权后归档；这些历史证据不自动授权后续
+发布或新的 Change。

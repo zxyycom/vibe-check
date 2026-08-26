@@ -28,7 +28,7 @@
 
 ### Intended Change
 
-1. **Ordinary Check core。** `src/definition/**` 与 Check execution core 只闭合 ordinary Check grammar、canonical opaque options、trusted callback、scheduling 与 uniform result boundary；不得 import package-provided Check owner、按 Check ID 分支或集中注册 Check-local validator。package-provided Check 与外部 Check 使用同一对象和 callback contract；每项 `src/checks/<check-owner>/` 自己验证 options 并映射为 owning `unavailable`，core 不承诺其业务 shape。
+1. **Ordinary Check core。** `src/definition/**` 与 Check execution core 只闭合 ordinary Check grammar、canonical options、trusted `preflight`/execution callbacks、scheduling 与 uniform result boundary；不得 import package-provided Check owner、按 Check ID 分支或集中注册 Check-local preflight。有显式 options 的 package-provided Check 与外部 Check 使用同一 self-described preflight contract：Run 对 canonical authored snapshot 调用可选 preflight，block/throw/malformed 只结算 owning Check unavailable；execution 接收 invocation-local prepared/fallback options。core 不承诺或解释任何具体业务 shape。
 
 2. **Check-local scanner 与 model。** jscpd、scc、lizard 分别是 duplicate-detection、file-metrics、function-metrics 的下级模块；各自拥有 command resolution、availability、process lifecycle、parser、raw/result model、failure mapping 与测试。不同工具只因都启动进程不构成共同 adapter owner。FileMetric、FunctionMetric 与 DuplicateFragment 等 measurement 类型各归 owning Check；不建立跨 Check metric model。确定性文本排序进入 foundation 的明确能力，不保留 metric-analysis 包装目录。
 
@@ -46,7 +46,7 @@
 
 ### Resulting Impacts
 
-- **First-release contract correction：** 移除 `quality` 与 `ProjectQualityConfiguration`、把 file/code-area policy 加入 Check options，并把 malformed package-provided options 从 Definition identity branch 改为 owning Check `unavailable`。所有 public docs、types、examples、fingerprint tests 与 dogfood Definition必须同步，不建立 compatibility alias。
+- **First-release contract correction：** 移除 `quality` 与 `ProjectQualityConfiguration`、把 file/code-area policy 加入 Check options，并把调用方构造的 malformed Check 交给普通 self-described preflight 在 Run preflight barrier 结算。完整 package-provided Check value 始终合法；非法 replacement 以 owning `unavailable / invalid-options` 结算，direct execution 也保留同一防护。所有 public docs、types、examples、fingerprint tests 与 dogfood Definition 必须同步，不建立 compatibility alias。
 - **Test Evidence：** A/B/C 如移动、拆分或重命名原生测试节点，均需遵循 `test-evidence-review`，更新直接 Case materials；全局 Case index/闭合验证留给 integration。
 - **Artifact consistency：** C 只能准备 guide sources 和 package-local tests；integration 在所有 source changes 后再更新 shared projection/manifest/fingerprint 并重新生成 candidate，以防投影/receipt 对旧模块树取证。
 - **Conflict handling：** Check-local code 若实际被多个 Check 调用，A 需先以 import/call evidence 判定为真实 shared owner，再放进现有明确共享模块；不能把 `builtins` 改名保留。其他任务不得删除或覆盖其它切面正在移动的路径，发现 destination 名称冲突或循环依赖无法不改 public contract 时报告协调者。
@@ -60,4 +60,4 @@
 
 ## Open Questions
 
-无。用户已确认 package-provided Check 不应在 core 中特殊化、scanner 不应集中；首发前 authoring contract 可按该方向修正。首版指南后续是否扩展为自动 API 参考、站点或更完整文档体系仍留待独立方案。
+无。用户已确认 package-provided Check 不应在 core 中特殊化、scanner 不应集中，并进一步确认完整随包 Check 本身始终合法；调用方构造的非法 Check 由其可选 Check-owned preflight 在 Run barrier 中结算，而不是由 Definition 解释业务 options。首版指南后续是否扩展为自动 API 参考、站点或更完整文档体系仍留待独立方案。

@@ -8,16 +8,24 @@
 
 ## Outcome
 
-完成后，Check core 只理解 ordinary Check grammar、opaque canonical options 与统一 execution contract，不按任何 package-provided Check 的 ID 或 options shape 分支；每项 package-provided Check 完整拥有自己的 scanner、measurement、options validation、execution 和指南。项目文件收集/exact-input 成为独立基础能力而非伪 Check，metric 聚合容器消失。首发 authoring contract 允许移除 `ProjectDefinition.quality` 并把所需 file/code-area policy 放入具体 Check options；程序化根入口、Bun 宿主及无 CLI/无 subpath API 的边界保持不变。
+完成后，Check core 只理解 ordinary Check grammar、canonical options、可选的 Check-owned options preflight 与统一
+execution contract，不按任何 package-provided Check 的 ID 或 options shape 分支；每项 package-provided Check 完整拥有
+自己的 scanner、measurement、options validation、execution 和指南。项目文件收集/exact-input 成为独立基础能力而非伪
+Check，metric 聚合容器消失。首发 authoring contract 移除 `ProjectDefinition.quality` 并把所需 file/code-area policy
+放入具体 Check options；程序化根入口、Bun 宿主及无 CLI/无 subpath API 的边界保持不变。
 
 ## Scope
 
 ### Intended Change
 
 - 以单项 package-provided Check 为 `src/checks/**` 的完整实现 owner，删除 `src/checks/builtins/` 与 `src/definition/default-checks.ts`，并将 options、默认构造、纯 options validation、execution、私有 parser/resolver/measurement/cache 和直接测试/Case 路径迁至实际 Check 或真实共享模块。
-- 删除 Definition/check-tree 对 package-provided Check ID 的 options 特判；Check-local execution 验证自己的完整 options。移除通用 `ProjectDefinition.quality`/`CheckProjectContext.files`，把文件选择与 code-area policy 作为所需 Check 自己的 ordinary options，由项目显式组合。
+- 删除 Definition/check-tree 对 package-provided Check ID 的 options 特判；ordinary Check 可以选择提供自己的 preflight，
+  Run 在任何 author execution 前的全局 barrier 调用已提供的函数，并把 block 结算为 owning Check unavailable。本 Change
+  中的 package-provided Check 以 owner-local 纯 preflight 保障自己的 options。移除通用
+  `ProjectDefinition.quality`/`CheckProjectContext.files`，把文件选择与 code-area policy 作为所需 Check 自己的
+  ordinary options，由项目显式组合。
 - 将 jscpd、scc、lizard 的 command/availability/parser/process/failure/test 边界分别迁回 duplicate-detection、file-metrics、function-metrics；解散 `scanner-adapters`、`metric-model`、`metric-analysis` 与 checks 下的 `scan-scope`，只保留由真实共同不变量支持的 project-files/foundation 能力。
-- 保留 `scripts/` 的现有顶层 owner，只在内部收敛 foundation command/process、machine-artifact 文档与 validator、test-evidence ast-grep 材料和 package artifact 第三方许可证等 owner；不改 workflow 的语义入口。
+- 保留 `scripts/` 的现有顶层 owner，只在内部收敛 foundation command/process、machine-artifact 文档与 preflight、test-evidence ast-grep 材料和 package artifact 第三方许可证等 owner；不改 workflow 的语义入口。
 - 增加每项 public package-provided Check 的首版 package 指南和可发现索引，并把其可编辑来源、投影、manifest/fingerprint 与 candidate artifact audit 接到 package 交付链路。
 - 用独立 Product、scripts、public-docs/package-artifact 三组实现任务推进；只让集成任务编辑跨组共享入口、registry、manifest、投影、fingerprint、全局 Case/测试索引和最终 candidate 证据。
 
@@ -32,7 +40,7 @@
 ## Success Criteria
 
 - `src/checks/builtins/` 和 `src/definition/default-checks.ts` 不存在；每个 public package-provided Check 的实现、options/default、validation 与直接私有支持代码可从一个 Check owner 目录或明确共享 owner 恢复。
-- Product core 不出现 package-provided Check ID/options registry；各 Check 的 options/scanner/measurement failure 只由该 Check owner 解释。`ProjectDefinition.quality` 与 `ProjectQualityConfiguration` 不再是 public authoring surface，所需 file/code-area policy 进入 Check options；Check IDs、根入口、无 CLI/bin/subpath 和 four-state Core contract 保持不变。
+- Product core 不出现 package-provided Check ID/options registry；Definition 只闭合 ordinary grammar 与 canonical authored options，Run 可选地调用 Check 自带 preflight 并将 block 结算为 owning `unavailable`，而 direct execution 仍防御 `invalid-options`。各 Check 的 options shape 与 scanner/measurement failure 只由该 Check owner 解释。`ProjectDefinition.quality` 与 `ProjectQualityConfiguration` 不再是 public authoring surface，所需 file/code-area policy 进入 Check options；Check IDs、根入口、无 CLI/bin/subpath 和 four-state Core contract 保持不变。
 - `src/checks/scanner-adapters`、`src/checks/scan-scope`、`src/checks/metric-model`、`src/checks/metric-analysis` 和 `src/checks/builtin-option-validation.ts` 均不存在；每个 scanner 的实现与测试可从唯一 Check owner 恢复，project-files 共享边界只承接真实共同文件不变量。
 - `scripts/` 顶层 owner 不变，指定内部材料不再跨 owner 倒置或放在泛化容器；现有开发 workflow 行为不变。
 - package 内有 README 可达的每项 package-provided Check 指南，中文说明完整且 artifact audit 证明它们随当前 candidate 交付。
