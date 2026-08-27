@@ -3,12 +3,18 @@ import { loadSupportedRunnerProfile } from "../../../test-evidence/profile.ts";
 
 const PACKAGE_ARTIFACT_TEST_FILE = "scripts/package/artifact/artifact.test.ts";
 const PACKAGE_CANDIDATE_TEST_FILE = "scripts/package/candidate/candidate.test.ts";
-const PACKAGE_CONSUMER_TEST_FILE = "scripts/package/candidate/isolated-consumer.test.ts";
+const PACKAGE_CONSUMER_TYPES_TEST_FILE =
+  "scripts/package/candidate/isolated-consumer-types.test.ts";
+const PACKAGE_CONSUMER_DOCS_TEST_FILE = "scripts/package/candidate/isolated-consumer-docs.test.ts";
+const PACKAGE_CONSUMER_RUNTIME_TEST_FILE =
+  "scripts/package/candidate/isolated-consumer-runtime.test.ts";
 
 export const PROJECT_GATE_TEST_LANE_NAMES = [
   "packageArtifact",
   "packageCandidate",
-  "packageConsumer",
+  "packageConsumerDocs",
+  "packageConsumerRuntime",
+  "packageConsumerTypes",
   "packageSupporting",
   "productDuplicateDetection",
   "productFileMetrics",
@@ -89,7 +95,9 @@ export function resolveProjectGateTestLanes(repositoryRoot: string): ProjectGate
 function testLaneForFile(file: string): ProjectGateTestLaneName {
   if (file === PACKAGE_ARTIFACT_TEST_FILE) return "packageArtifact";
   if (file === PACKAGE_CANDIDATE_TEST_FILE) return "packageCandidate";
-  if (file === PACKAGE_CONSUMER_TEST_FILE) return "packageConsumer";
+  if (file === PACKAGE_CONSUMER_TYPES_TEST_FILE) return "packageConsumerTypes";
+  if (file === PACKAGE_CONSUMER_DOCS_TEST_FILE) return "packageConsumerDocs";
+  if (file === PACKAGE_CONSUMER_RUNTIME_TEST_FILE) return "packageConsumerRuntime";
   if (file.startsWith("scripts/package/")) return "packageSupporting";
   if (file.startsWith("src/package-checks/")) return productPackageTestLane(file);
   if (file.startsWith("src/")) return "productRuntime";
@@ -114,7 +122,9 @@ function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {
   return {
     packageArtifact: [],
     packageCandidate: [],
-    packageConsumer: [],
+    packageConsumerDocs: [],
+    packageConsumerRuntime: [],
+    packageConsumerTypes: [],
     packageSupporting: [],
     productDuplicateDetection: [],
     productFileMetrics: [],
@@ -136,7 +146,9 @@ function freezeTestLanes(
   return Object.freeze({
     packageArtifact: Object.freeze([...laneFiles.packageArtifact]),
     packageCandidate: Object.freeze([...laneFiles.packageCandidate]),
-    packageConsumer: Object.freeze([...laneFiles.packageConsumer]),
+    packageConsumerDocs: Object.freeze([...laneFiles.packageConsumerDocs]),
+    packageConsumerRuntime: Object.freeze([...laneFiles.packageConsumerRuntime]),
+    packageConsumerTypes: Object.freeze([...laneFiles.packageConsumerTypes]),
     packageSupporting: Object.freeze([...laneFiles.packageSupporting]),
     productDuplicateDetection: Object.freeze([...laneFiles.productDuplicateDetection]),
     productFileMetrics: Object.freeze([...laneFiles.productFileMetrics]),

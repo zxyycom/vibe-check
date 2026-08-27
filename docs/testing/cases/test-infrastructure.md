@@ -1,17 +1,16 @@
 # test-infrastructure
 
-## Case AUX-TEST-EVIDENCE-CATALOG-001: 语义 Case source、查询与失败边界保持严格
+## Case AUX-TEST-EVIDENCE-CATALOG-001: 语义 Case source 与查询保持严格
 
 Owner: `docs/testing/case-maintenance.md#存储格式`
 Entities:
 
-- `bun|scripts/test-evidence/catalog-cli.test.ts|returns a query failure status at the CLI boundary`
 - `bun|scripts/test-evidence/catalog.test.ts|diagnoses malformed Case structure and stable identity conflicts`
 - `bun|scripts/test-evidence/catalog.test.ts|parses and queries topic-grouped semantic Cases`
-  Proves:
+Proves:
+
 - 受控 topic Markdown 解析 Owner、Entities 与 Proves，并支持按 topic、owner、entity 和文本有界查询。
 - 非法目录成员、symlink、heading、字段、Owner anchor、重复 ID/entity 与空语义产生阻断诊断。
-- CLI 对精确 show miss 返回稳定 query failure，不写入派生状态。
 
 ## Case AUX-TEST-EVIDENCE-CLOSURE-001: Static 与 runtime entity closure 对漂移 fail closed
 

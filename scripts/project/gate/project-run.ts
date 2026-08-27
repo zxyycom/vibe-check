@@ -11,6 +11,7 @@ import type { PreparedPackageCandidate } from "../../package/candidate/prepare.t
 
 import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
 import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
+import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
 import type { ProjectGateEntry } from "./entries.ts";
 import { projectGateEligibleCheckIds } from "./eligibility.ts";
 
@@ -32,16 +33,22 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
   if (selection === undefined)
     throw new TypeError("Project Gate controls failed closed validation");
 
+  const externalConsumerLease = createExternalConsumerMaterialLease();
   const entries = createProjectGateEntries({
+    externalConsumerLease,
     invocationLogDirectory: controls.invocationLogDirectory,
     preparedCandidate: controls.preparedCandidate
   });
-  return packageRun(createProjectGateDefinition(entries, selection), {
-    checkAggregation: projectGateAggregation(entries, selection),
-    flags: controls.flags,
-    projectRoot: repositoryRoot,
-    signal: controls.signal
-  });
+  try {
+    return await packageRun(createProjectGateDefinition(entries, selection), {
+      checkAggregation: projectGateAggregation(entries, selection),
+      flags: controls.flags,
+      projectRoot: repositoryRoot,
+      signal: controls.signal
+    });
+  } finally {
+    externalConsumerLease.cleanup();
+  }
 }
 
 /** Binds the exact eligible Check IDs to the required/full aggregation semantics. */

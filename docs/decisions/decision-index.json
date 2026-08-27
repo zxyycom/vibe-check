@@ -108,11 +108,12 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
-      "reuse-prepared-candidate-across-package-acceptance.md": "sha256:9cd0cc3945131d1302e41949f56afce364e6a29472f3f7bf83a5e112153b9612",
+      "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
+      "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
@@ -3365,16 +3366,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "reuse-prepared-candidate-across-package-acceptance.md",
+        "sourcePath": "archive/reuse-prepared-candidate-across-package-acceptance.md",
         "title": "在 package acceptance 间复用已准备 candidate",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-27T00:41:37Z",
         "purpose": "让 artifact 与 external consumer 分别消费同一次 prepared candidate，同时保留各自的物理验收责任。",
@@ -3520,6 +3521,42 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "split-external-consumer-acceptance-with-typed-provider-data.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "split-external-consumer-acceptance-with-typed-provider-data.md",
+        "title": "以 typed provider data 拆分 external consumer acceptance",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T05:00:42Z",
+        "purpose": "让一次外部安装成为可审计的共同运算，并由独立 consumer Checks 并行验收类型、文档和运行时行为。",
+        "background": "单一 external consumer 测试进程同时安装 package 并串行执行多类验收，隐藏共同依赖、阶段失败和可调度的只读工作。",
+        "decision": "用带进程证据和清理生命周期的 typed provider Check 产生外部安装结果，下游按行为 owner 消费；Case 语义不由执行 DAG 决定。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "reuse-prepared-candidate-across-package-acceptance.md"
+          }
+        ]
       }
     },
     "support-bun-as-the-package-host.md": {

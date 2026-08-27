@@ -21,15 +21,17 @@
 ## Case 账本
 
 `docs/testing/cases/**` 是 current semantic catalog。每个 Case 命名 stable owner、current Bun test entity 和可证伪的
-`Proves` statement。新增、删除、rename/move test node，修改 test body，或修改 Case owner/proof 前后，都运行：
+`Proves` statement。Case 按 owner contract 与责任方可观察结果划分，不按测试数量、Project Gate lane、provider/consumer
+执行 DAG 或性能特征划分；同一实体只有在它直接证明另一 owner 的独立结果时才可映射多个 Case。新增、删除、rename/move
+test node，修改 test body，或修改 Case owner/proof 前后，都运行：
 
 ```bash
 bun run test-evidence -- check --root .
 ```
 
 该命令从完整 profile 加载并注册测试，以 static/JUnit identity 闭合 Case；它不执行测试正文。还必须运行受影响的
-最窄测试，或由 Project Gate 对应 behavior 子 Check 执行。Case 描述 current public behavior，不描述已删除 helper、historical material 或 internal
-scheduler identity。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition 和
+最窄测试，或由 Project Gate 对应 behavior 子 Check 执行。Case 描述 current owner 承诺且能由失败信号判定的行为，不描述已删除 helper、historical material 或 internal
+scheduler identity；provider setup 的执行复用本身不产生 Case。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition 和
 fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason、dependency blocking、Check-facts Record
 ownership、cancellation 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
 lifecycle 和独立 docs validation。
@@ -45,7 +47,8 @@ bun run test-evidence -- check --root .
 
 产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。Project Gate 将 Test Evidence entity
 closure 与按稳定 owner 分区的 behavior execution 分别结算；required 还保留同次 exact package candidate 的 typed
-provider，但默认不执行三个物理 package acceptance Checks。
+provider，但默认不选择 `package-tests` physical acceptance Checks。full 或 required 加 `--enable-tag package-tests`
+才选择 candidate lifecycle、artifact、external-consumer provider 及其 types/docs/runtime consumer Checks。
 
 跨 owner、quality、Gate 或 output contract 的日常交付运行：
 

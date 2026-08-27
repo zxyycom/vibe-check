@@ -45,25 +45,42 @@ Proves:
 - JSON validation returns normal four-count final data only after every eligible file is settled; each of the five closed document reasons produces exactly one safe `{ id: path }` / `{ path, reason }` Record and no JSON source, key, pointer, location, or parser detail.
 - Empty eligible input is `not-applicable`; cancellation or a later unavailable document produces `unavailable` without final data while retaining already accepted Records.
 
-## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema Check closes safe document, reference, validation and display facts
+## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema validation publishes safe domain facts and exact counts
 
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
+Proves:
+
+- Registered schema/binding work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
+- Normal final data keeps valid, invalid, blocked, and total issue counts truthful. A 100-Record display prefix changes neither the full failed assessment nor its issue count, and `format` remains an annotation rather than a loaded plugin.
+
+## Case ADD-JSON-SCHEMA-VALIDATION-REMOTE-POLICY-001: JSON Schema reference policy is explicit and fail-closed
+
+Owner: `docs/configuration.md#jsonschemavalidation-option-contract`
+Entities:
+
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > resolves a registered local schema before requiring an external source`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
-
 Proves:
 
-- Explicit schema/binding work produces only the closed schema-document/schema-compile/instance-document/keyword-violation facts, safe authoring IDs/paths/pointers/keywords, deterministic local Record IDs, and exact valid/invalid/blocked final counts; JSON data keys that happen to be `$ref`/`$dynamicRef`/`$async` remain ordinary property names, and `format` remains a standard annotation rather than a loaded format plugin. It never publishes Ajv text, source bytes, raw external identities or credentials.
-- Default resolution remains offline; only an explicit HTTPS source can be called with `GET`, omitted credentials and rejected redirects. Authorization/document failures are failed domain facts, while an allowlisted transport failure and cancellation boundary are unavailable without final data.
-- The whole Check chooses exactly one root identity mode, scope failures do not trigger discovery, zero bindings are not applicable, and 100 displayed Records cap only presentation while total issue count and failed status remain truthful.
+- Reference resolution is offline by default. Only explicitly configured HTTPS sources may be requested with omitted credentials and no redirect; registered local schemas and the fixed catalog need no request.
+- Unapproved references, unsafe schema features, and redirects become safe failures, while an allowlisted transport failure is unavailable without exposing remote detail.
+
+## Case ADD-JSON-SCHEMA-VALIDATION-IDENTITY-OUTCOMES-001: JSON Schema identity and complete outcome boundaries remain explicit
+
+Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Entities:
+
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+Proves:
+
+- One Check-level root identity mode governs every configured schema without exposing document IDs. Scope or schema-document failures block their dependent bindings rather than inventing keyword results, and zero bindings settle as `not-applicable` without document work.

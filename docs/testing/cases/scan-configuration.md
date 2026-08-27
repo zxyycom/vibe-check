@@ -1,30 +1,45 @@
 # scan-configuration
 
-## Case WB-PROJECT-DEFINITION-001: Recursive Project Definition authoring fails closed
+## Case WB-PROJECT-DEFINITION-001: Recursive Project Definition grammar fails closed
 
-Owner: `docs/configuration.md#public-authoring-surface`
+Owner: `docs/configuration.md#recursive-check-tree`
 Entities:
 
-- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
-- `bun|src/project-definition/output-defaults.test.ts|Project Definition output defaults > uses the Definition-owned default output values`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > uses exact scheduling inheritance and rejects retired catalog fields`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
-- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > typechecks public imports and declaration QuickInfo`
-
 Proves:
 
-- The public authoring surface contains five operations and six complete, valid package-provided ordinary Check values, plus the specialized `maintenanceReminders` constructor rather than a seventh package value or an operational-dependency API. `jsonValidation` owns its closed `{ files, maximumBytes }` options; `jsonSchemaValidation` additionally owns identity mode, explicit registry/bindings and offline/allowlisted source policy; `markdownLinkValidation` closes its local-target policy and bounded limits. Each value carries its own block preflight. Definition keeps package fields opaque and authored options declarative; Run calls the preflight barrier and settles an illegal replacement only as the owning Check unavailable, even when its Check ID is changed; native replacement never fills a missing branch.
-- Recursive executable Checks normalize with their own final-result/reporting contract. Explicit `inherit` remains the only scheduling inheritance marker, unknown declarative inputs fail closed, and trusted preflight/execution/parser functions stay outside declarative fingerprints. Options remain authored declarative JSON; an optional preflight runs before every execution, canonicalizes its invocation-local prepared/fallback value, and block/throw/malformed values settle only the owning Check unavailable. Closed declarative JSON preserves every own data key, including `__proto__`, without retaining an author-controlled prototype. An executable typed provider retains its required parser for trusted runtime consumers but excludes it from declarative identity; a container or malformed parser fails closed. Executable `visibility` normalizes omitted/undefined to `always`, rejects container or unknown declarations, ignores inherited values, and makes `attention` a distinct declarative fingerprint.
-- The emitted public declaration keeps a provider parser required, anchors passed/failed data to its return type, and preserves ordinary, options, recursive, and native-spread authoring without a consumer cast or manual read generic.
+- Recursive ordinary Checks normalize only the declared executable/container grammar. Explicit `inherit` is the scheduling inheritance marker, executable visibility is canonical while container or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
+- Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed.
 
 
+## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
+
+Owner: `docs/configuration.md#package-provided-check-composition`
+Entities:
+
+- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
+- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
+Proves:
+
+- Definition preserves authored package Check options as declarative JSON without interpreting their domain shape; the owning Check preflight, not Definition normalization, decides whether ordinary JSON or JSON Schema options are valid before execution.
+
+## Case AUX-PUBLIC-AUTHORING-TYPES-001: Public authoring values and declarations remain usable from an installed package
+
+Owner: `docs/configuration.md#public-authoring-surface`
+Entities:
+
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
+- `bun|scripts/package/candidate/isolated-consumer-types.test.ts|external consumer type acceptance`
+Proves:
+
+- The public package exposes only the documented runtime authoring operations, six complete package-provided Check values, the specialized maintenance constructor, and their minimal type roots.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics.
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link options remain complete and bounded
 
 Owner: `docs/configuration.md#markdown-link-validation`

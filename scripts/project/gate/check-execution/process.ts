@@ -13,6 +13,7 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",
   exitUnavailable: "exit-unavailable",
   processTimeout: "process-timeout",
+  processOutputInvalid: "process-output-invalid",
   processUnavailable: "process-unavailable",
   transcriptUnavailable: "transcript-unavailable"
 } as const);
@@ -28,6 +29,13 @@ export interface ProcessCheckDataDependency<Data extends object> {
   readonly checkId: string;
   readonly environment: (data: Data) => Readonly<Record<string, string>>;
   readonly parseData: (data: unknown) => Data;
+}
+
+/** Parses one successful child process output into provider-owned final data. */
+export interface ProcessCheckSuccessData<Data extends object, DependencyData extends object> {
+  readonly fromStdout: (stdout: string) => unknown;
+  readonly parseData: (data: unknown) => Data;
+  readonly validateDependencyData?: (data: Data, dependency: DependencyData) => Data;
 }
 
 /** One Check's actual external command boundary. */
@@ -88,39 +96,104 @@ export function createProcessCheckWithDataDependency<Data extends object>(
         ? { status: "success", preparedOptions: options }
         : { status: "failure", action: "block", reason: { code: "invalid-options" } },
     execution: async (context): Promise<CheckResult> => {
-      const read = context.dependencies.get(dependency.checkId);
-      if (!read.ok) return unavailable(UNAVAILABLE_REASON_CODE.dependencyUnavailable);
-      if (read.status !== "passed") return unavailable(UNAVAILABLE_REASON_CODE.dependencyFailed);
-
-      let options: ProcessCheckDescriptor;
-      try {
-        const derivedEnvironment = dependency.environment(dependency.parseData(read.data));
-        if (
-          !isNonArrayRecord(derivedEnvironment) ||
-          !validEnvironment(derivedEnvironment) ||
-          Object.keys(derivedEnvironment).some((name) =>
-            Object.hasOwn(context.options.environment ?? {}, name)
-          )
-        ) {
-          return unavailable(UNAVAILABLE_REASON_CODE.dependencyDataInvalid);
-        }
-        options = Object.freeze({
-          ...context.options,
-          environment: Object.freeze({
-            ...(context.options.environment ?? {}),
-            ...derivedEnvironment
-          })
-        });
-      } catch {
-        return unavailable(UNAVAILABLE_REASON_CODE.dependencyDataInvalid);
-      }
+      const resolved = resolveDependencyProcessOptions(context, dependency);
+      if (resolved.kind === "unavailable") return unavailable(resolved.code);
       return executeProcessCheck(
-        Object.freeze({ ...context, options }),
+        Object.freeze({ ...context, options: resolved.options }),
         invocationLogDirectory,
         dependencies
       );
     }
   });
+}
+
+/** Creates a dependency-backed process provider with closed typed stdout data. */
+export function createProcessCheckWithDataDependencyAndSuccessData<
+  DependencyData extends object,
+  SuccessData extends object
+>(
+  definition: ProcessCheckDescriptor,
+  invocationLogDirectory: string,
+  dependency: ProcessCheckDataDependency<DependencyData>,
+  successData: ProcessCheckSuccessData<SuccessData, DependencyData>,
+  dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
+) {
+  return defineCheck({
+    checkId: definition.checkId,
+    dependsOn: [dependency.checkId],
+    displayName: definition.displayName,
+    options: definition,
+    parseData: successData.parseData,
+    preflight: (options) =>
+      validProcessCheckDescriptor(options)
+        ? { status: "success", preparedOptions: options }
+        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+    execution: async (context): Promise<CheckResult<SuccessData>> => {
+      const resolved = resolveDependencyProcessOptions(context, dependency);
+      if (resolved.kind === "unavailable") return unavailable(resolved.code);
+      return executeProcessCheck(
+        Object.freeze({ ...context, options: resolved.options }),
+        invocationLogDirectory,
+        dependencies,
+        (stdout) => {
+          const data = successData.parseData(successData.fromStdout(stdout));
+          return successData.validateDependencyData?.(data, resolved.data) ?? data;
+        }
+      );
+    }
+  });
+}
+
+type DependencyProcessResolution<Data extends object> =
+  | Readonly<{
+      readonly data: Data;
+      readonly kind: "resolved";
+      readonly options: ProcessCheckDescriptor;
+    }>
+  | Readonly<{ readonly code: UnavailableReasonCode; readonly kind: "unavailable" }>;
+
+/** Resolves one direct dependency into collision-free process options or a closed unavailable fact. */
+function resolveDependencyProcessOptions<Data extends object>(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  dependency: ProcessCheckDataDependency<Data>
+): DependencyProcessResolution<Data> {
+  const read = context.dependencies.get(dependency.checkId);
+  if (!read.ok)
+    return Object.freeze({
+      code: UNAVAILABLE_REASON_CODE.dependencyUnavailable,
+      kind: "unavailable"
+    });
+  if (read.status !== "passed")
+    return Object.freeze({ code: UNAVAILABLE_REASON_CODE.dependencyFailed, kind: "unavailable" });
+  try {
+    const data = dependency.parseData(read.data);
+    const environment = dependency.environment(data);
+    if (
+      !isNonArrayRecord(environment) ||
+      !validEnvironment(environment) ||
+      Object.keys(environment).some((name) =>
+        Object.hasOwn(context.options.environment ?? {}, name)
+      )
+    ) {
+      return Object.freeze({
+        code: UNAVAILABLE_REASON_CODE.dependencyDataInvalid,
+        kind: "unavailable"
+      });
+    }
+    return Object.freeze({
+      data,
+      kind: "resolved",
+      options: Object.freeze({
+        ...context.options,
+        environment: Object.freeze({ ...(context.options.environment ?? {}), ...environment })
+      })
+    });
+  } catch {
+    return Object.freeze({
+      code: UNAVAILABLE_REASON_CODE.dependencyDataInvalid,
+      kind: "unavailable"
+    });
+  }
 }
 
 function validProcessCheckDescriptor(value: unknown): boolean {
@@ -171,10 +244,22 @@ function positiveInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
-async function executeProcessCheck(
+function executeProcessCheck(
   context: CheckExecutionContext<ProcessCheckDescriptor>,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies
+): Promise<CheckResult>;
+function executeProcessCheck<Data extends object>(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  invocationLogDirectory: string,
+  dependencies: ProcessCheckDependencies,
+  successData: (stdout: string) => Data
+): Promise<CheckResult<Data>>;
+async function executeProcessCheck(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  invocationLogDirectory: string,
+  dependencies: ProcessCheckDependencies,
+  successData?: (stdout: string) => object
 ): Promise<CheckResult> {
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
 
@@ -234,7 +319,15 @@ async function executeProcessCheck(
   if (result.error !== undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
   const exitCode = result.status;
   if (exitCode === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
-  if (exitCode === 0) return Object.freeze({ status: "passed", data: Object.freeze({ exitCode }) });
+  if (exitCode === 0) {
+    if (successData === undefined)
+      return Object.freeze({ status: "passed", data: Object.freeze({ exitCode }) });
+    try {
+      return Object.freeze({ status: "passed", data: successData(result.stdout) });
+    } catch {
+      return unavailable(UNAVAILABLE_REASON_CODE.processOutputInvalid);
+    }
+  }
 
   return failedProcessResult(context, {
     command: context.options.command,
@@ -365,6 +458,6 @@ function commandToken(value: string): string {
   return JSON.stringify(value);
 }
 
-function unavailable(code: UnavailableReasonCode): CheckResult {
+function unavailable<Data extends object = object>(code: UnavailableReasonCode): CheckResult<Data> {
   return Object.freeze({ status: "unavailable", reason: { code } });
 }

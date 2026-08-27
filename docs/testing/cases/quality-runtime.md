@@ -117,22 +117,6 @@ Entities:
   Proves:
 - A frozen snapshot contains canonical `checks` and `records` only. The package-private settled Check seam reuses the same canonical final-data reference that the frozen snapshot projects; policy, publication, callbacks, scanner payloads, and scheduler state are not a third fact source.
 
-## Case WB-RUNTIME-PROGRESS-PRESENTATION-001: Progress renders four-state Run facts safely
-
-Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
-Entities:
-
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
-- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
-  Proves:
-- Progress presentation consumes only settled four-state Check facts and accepted terminal messages, prints a duration or `not run`, and renders no unsafe reason detail. `attention` hides only the passed/no-message settled row; every running Check remains visible on TTY.
-- TTY color and running-region behavior remain terminal-capability specific: only message level labels receive color, human text is escaped, and each visible settled row/message block is one write. Write faults stay observable instead of being hidden.
-
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 
 Owner: `docs/quality-metrics.md#markdown-link-findings-and-outcomes`
@@ -151,24 +135,15 @@ Entities:
 - A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
 - Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with no partial Records or final data; zero eligible source reaches `not-applicable` only after the root is usable.
 
-## Case AUX-RUNTIME-HOST-ENVIRONMENT-001: Package Check host environment boundaries remain explicit and typed
-
-Owner: `docs/coding-style.md#3-边界代码显式`
-Entities:
-
-- `bun|src/package-checks/host-environment/boundaries.test.ts|package Checks host environment boundaries > uses named file and process inputs while preserving explicit serialization failures`
-  Proves:
-- File writes and synchronous child-process execution use named input boundaries; JSON serialization failures name the affected file instead of being silently written or skipped.
-
 ## Case AUX-QUALITY-CACHE-001: Duplicate cache identity is stable
 
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
-- `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
-  Proves:
-- Duplicate cache identity depends on the measurement/backend and exact input identity, not policy or presentation settings. The default marker becomes a Bun plus installed-jscpd identity without consumer install paths, distinct from the prior Node launcher and explicit commands.
+Proves:
+
+- Duplicate cache identity depends on backend identity, code area, current commit, exact-input fingerprint, configuration version, and normalized command arguments rather than policy or presentation settings. The default marker is portable Bun plus installed-jscpd identity without a consumer install path and remains distinct from explicit commands.
 
 ## Case WB-MAINTENANCE-REMINDER-ASSESSMENT-001: One maintenance Check retains complete local Git assessments
 

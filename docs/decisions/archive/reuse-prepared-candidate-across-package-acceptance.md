@@ -1,6 +1,6 @@
 ---
 title: 在 package acceptance 间复用已准备 candidate
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-27T00:41:37Z
 purpose: 让 artifact 与 external consumer 分别消费同一次 prepared candidate，同时保留各自的物理验收责任。

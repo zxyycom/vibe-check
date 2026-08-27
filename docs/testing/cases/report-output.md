@@ -44,12 +44,18 @@ Entities:
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
+- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
-  Proves:
-- Product-owned progress presents lifecycle status/duration, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one block; message code is not terminal text.
-- `attention` omits only a passed/no-message settled row, never a TTY running row or accounting ordinal. While work remains, TTY running rows are redrawn every 5 seconds with per-Check elapsed time; this heartbeat is presentation-only. Plain/dumb output stays settled-only and uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
+- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
+- `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
+Proves:
+
+- Product-owned progress presents lifecycle status, measured duration or `not run`, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one atomic block, while a message code is not terminal text.
+- `attention` omits only a passed/no-message settled row, never a running row or accounting ordinal. TTY running rows use a single monotonic elapsed interval and heartbeat; plain/dumb output stays settled-only and append-only. Capability-specific color applies only to level labels, human text is terminal-escaped, and writer failures remain observable.
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 

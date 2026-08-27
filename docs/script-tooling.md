@@ -116,13 +116,19 @@ parser 验证 artifact digest、绝对路径、installed entry containment、非
 `preparationAction`、`preparationReason` 与 `reused` 的合法组合。该数据只保留在当前 Run snapshot；因为包含
 invocation-local 绝对路径，Gate 不启用 machine publication。
 
-Artifact acceptance 与 external consumer acceptance 都声明该 provider 为 direct dependency，并要求 provider
-通过后才启动 process：
+Artifact acceptance 直接声明 prepared candidate 为 direct dependency：它只接收 exact artifact path/digest 与 staging
+directory，重新验证 child-process input 并执行 staging material audit；直接运行该测试时才 fresh build 本地 fixture。
 
-- Artifact acceptance 接收 exact artifact path/digest 与 staging directory，重新验证 child-process input，并执行
-  staging material audit；直接运行该测试时才 fresh build 本地 fixture。
-- External consumer acceptance 只接收 exact artifact path/digest，并在 ancestry-external consumer 中真实安装、
-  typecheck 和运行；直接运行该测试时才回退到本地 candidate preparation。
+当 `package-tests` 被选择时，`prepared-external-package-consumer` 是 prepared candidate 的另一个 direct consumer。
+它以 30 秒 timeout 运行 provider process，在一次 invocation-owned lease root 内创建 ancestry-external install，并且只有在
+startup transcript 已被 settled transcript 替换后，才把零退出 stdout 解析为 closed typed material。这个 parser 与后续
+physical revalidation 必须同时确认 exact artifact path/hash、`consumer` 位于该 lease root、installed package/entry containment
+和当前 filesystem material；stdout 无法解析、shape/identity/provenance 不匹配或 material 已漂移时均以 unavailable 结算。
+bound Gate Run 的 `finally` 总是清理 lease root。
+
+provider 通过后，三个只读 consumer Checks 分别执行 installed package 的 TypeScript types、projected documentation examples
+和 runtime acceptance。它们只从 provider 的 typed data 得到 environment，并在使用前重新进行 physical revalidation；不自行
+build、install、删除或重新拥有该 consumer root。直接运行这些测试时才回退到本地 candidate preparation。
 
 Candidate lifecycle 中会被故意破坏的 receipt、installation 与故障注入状态仍由 test-local lazy fixture 拥有，
 不提升为跨 Check output。
@@ -136,7 +142,9 @@ Candidate lifecycle 中会被故意破坏的 receipt、installation 与故障注
   supporting/project behavior；每个行为 owner 独立结算。
 - Product runtime、Project tooling、Test Evidence tooling、validation 与 ordinary scripts tooling。
 - Package supporting：receipt classification、acceptance-input parser、module specifier、source map 与 public inventory。
-- Package acceptance：artifact、candidate lifecycle 与 external consumer 三个独立 Checks。
+- Package acceptance：candidate lifecycle、artifact，以及 types、documentation、runtime 三条 external-consumer execution
+  lanes。每个 supported Bun test file 恰好进入一个非空 lane；external-consumer provider process 是独立 Check，不属于
+  test lane，其实现单元证据进入 Project tooling lane，不兼作 consumer acceptance。
 
 `definition.ts`、`entries.ts`、`eligibility.ts` 与 `controls.ts` 拥有 membership、profile/tag selection 和 aggregation
 configuration；`check-execution/native-operation.ts` 与 `check-execution/process.ts` 共同把 native/process operation
@@ -154,16 +162,19 @@ commands 不传 tag override。
 `format`、`git`、`package-tests`、`product`、`quality`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
 对 package acceptance 的影响和可直接运行的示例，不能让调用方从 catalog 源码猜测 tag。
 
-- Required 默认执行 package supporting，但三个 package acceptance Checks 以
-  `tag-package-tests-not-enabled` 保持可见且不进入 aggregate；每个 excluded Check 还明确说明哪个动作没有运行，
-  并提示 `--enable-tag package-tests` 或 `--profile full`。显式 enable 可把它们加入 required。
-- Full 自动选择全部未禁用 Checks，包括三个 package acceptance Checks。
+- Required 默认执行 package supporting 和 prepared candidate typed provider，但不选择带 `package-tests` 的 physical
+  acceptance Checks；它们以 `tag-package-tests-not-enabled` 保持可见且不进入 aggregate。每个 excluded Check 都说明
+  未运行的动作，并提示 `--enable-tag package-tests` 或 `--profile full`。显式 enable 可把它们加入 required。
+- Full 自动选择全部未禁用 Checks，包括 candidate lifecycle、artifact、external-consumer provider 与三个 consumer
+  acceptance Checks。
 - 启动 Run 前的 selection summary 将 package acceptance 明确标为未选择、由 profile/tag 选择或被
   `package-tests` 禁用；其它 disabled tags 仍按规范化后的完整名称列出。
-- Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 与 external consumer 继续执行真实 build/install，
-  因而共享 `project-gate-package-lifecycle` mutex；只读 provider staging/tar 的 artifact acceptance 不持有该 mutex。
-- 三个物理 package acceptance process 各有 30 秒外层 timeout。该 timeout 用于终止内部同步 child 阻塞后无法及时
-  响应 Bun test timeout 的整条 test process，不是全局性能预算，也不把尚未产出 exit fact 的 command 伪装成测试失败。
+- Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 和 `prepared-external-package-consumer` 都会创建或改变
+  physical lifecycle state，因而共享 `project-gate-package-lifecycle` mutex。Artifact acceptance 直接消费 prepared candidate；
+  types、documentation、runtime consumers 都只读 provider material，均不持有该 mutex，因此可在 provider 成功后调度。
+- Candidate lifecycle、artifact、external-consumer provider 和三个 consumer acceptance process 各有 30 秒外层 timeout。
+  该 timeout 用于终止内部同步 child 阻塞后无法及时响应 Bun test timeout 的整条 test process，不是全局性能预算，也不把
+  尚未产出 exit fact 的 command 伪装成测试失败。
 
 ### Process evidence
 
@@ -172,6 +183,11 @@ Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程
 重写为 command、stdout、stderr、exit、signal、timeout fact 和安全 error summary。重写不承诺原子替换；若 settled
 transcript 写入失败，Check 结算为 transcript unavailable。这样 Gate 或 child 在结算前被外部终止时，已有 transcript
 仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。
+
+带 typed success stdout 的 process Check 也遵守该顺序：先完成 settled transcript，再对零退出 stdout 作 closed parse，
+并按需要复核其 provider provenance 与 physical material；因此 parse、identity 或 revalidation failure 是
+`process-output-invalid` unavailable，而不是已通过的 child result。`prepared-external-package-consumer` 是这一边界的
+具体使用者，不能把 stdout 或 transcript 原文提升为 Run public data。
 
 非零退出的 terminal message 只能包含 exit code、signal 和 transcript basename；timeout message 只包含配置时限和
 transcript basename。两者都不能复制 child output、完整路径、command、arguments、credential URL、digest 或 transcript

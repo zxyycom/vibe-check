@@ -9,6 +9,7 @@ import { defineConfig, run, type CheckResult } from "vibe-check";
 import {
   createProcessCheck,
   createProcessCheckWithDataDependency,
+  createProcessCheckWithDataDependencyAndSuccessData,
   type ProcessCheckDescriptor,
   type ProcessCheckDependencies
 } from "./process.ts";
@@ -22,6 +23,133 @@ const definition: ProcessCheckDescriptor = Object.freeze({
 });
 
 describe("Project Gate process Check", () => {
+  it("publishes closed success data only after a settled transcript", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
+    let stdoutOutput = '{"version":1}';
+    let validationShouldThrow = false;
+    let validationCalls = 0;
+    const events: string[] = [];
+    try {
+      const check = createProcessCheckWithDataDependencyAndSuccessData(
+        definition,
+        root,
+        {
+          checkId: "fixture-provider",
+          environment: () => ({}),
+          parseData: (data) => {
+            if (typeof data !== "object" || data === null || Reflect.get(data, "version") !== 1) {
+              throw new TypeError("invalid dependency");
+            }
+            return Object.freeze({ version: 1 });
+          }
+        },
+        {
+          fromStdout: (stdout) => {
+            events.push("from-stdout");
+            const value: unknown = JSON.parse(stdout);
+            return value;
+          },
+          parseData: (data) => {
+            events.push("parse-data");
+            if (typeof data !== "object" || data === null || Reflect.get(data, "version") !== 1) {
+              throw new TypeError("invalid output");
+            }
+            return Object.freeze({ version: 1 });
+          },
+          validateDependencyData: (data, dependency) => {
+            events.push("validate-dependency");
+            validationCalls += 1;
+            if (validationShouldThrow || data.version !== dependency.version) {
+              throw new TypeError("output does not match dependency");
+            }
+            return data;
+          }
+        },
+        {
+          runProcess: async (): Promise<ProcessResult> => ({
+            signal: null,
+            status: 0,
+            stderr: "",
+            stdout: stdoutOutput
+          }),
+          writeTextFile: ({ content, filePath }) => {
+            events.push(
+              content.includes("status: running") ? "startup-transcript" : "settled-transcript"
+            );
+            writeFileSync(filePath, content, "utf8");
+          }
+        }
+      );
+      const execution = check.execution;
+      if (execution === undefined) throw new Error("provider fixture must be executable");
+      const result = await execution({
+        dependencies: {
+          get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+        },
+        options: check.options ?? {},
+        project: { changedFiles: [], flags: [], root: process.cwd() },
+        records: { report: () => undefined },
+        signal: new AbortController().signal
+      });
+      assert.deepEqual(result, { status: "passed", data: { version: 1 } });
+      assert.equal(validationCalls, 1);
+      assert.deepEqual(events, [
+        "startup-transcript",
+        "settled-transcript",
+        "from-stdout",
+        "parse-data",
+        "validate-dependency"
+      ]);
+      assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /status: 0/);
+      validationShouldThrow = true;
+      events.length = 0;
+      assert.deepEqual(
+        await execution({
+          dependencies: {
+            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+          },
+          options: check.options ?? {},
+          project: { changedFiles: [], flags: [], root: process.cwd() },
+          records: { report: () => undefined },
+          signal: new AbortController().signal
+        }),
+        { status: "unavailable", reason: { code: "process-output-invalid" } }
+      );
+      assert.equal(validationCalls, 2);
+      assert.deepEqual(events, [
+        "startup-transcript",
+        "settled-transcript",
+        "from-stdout",
+        "parse-data",
+        "validate-dependency"
+      ]);
+      assert.match(
+        readFileSync(join(root, "fixture-command.log"), "utf8"),
+        /--- stdout ---\n\{"version":1\}/
+      );
+      validationShouldThrow = false;
+      stdoutOutput = "not JSON";
+      assert.deepEqual(
+        await execution({
+          dependencies: {
+            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+          },
+          options: check.options ?? {},
+          project: { changedFiles: [], flags: [], root: process.cwd() },
+          records: { report: () => undefined },
+          signal: new AbortController().signal
+        }),
+        { status: "unavailable", reason: { code: "process-output-invalid" } }
+      );
+      assert.match(
+        readFileSync(join(root, "fixture-command.log"), "utf8"),
+        /--- stdout ---\nnot JSON/
+      );
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   it("writes one complete transcript and passes only a zero command exit", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
@@ -476,51 +604,47 @@ describe("Project Gate process Check", () => {
     }
   });
 
-  it("cancels an already-started process and preserves its transcript", async () => {
+  it("maps a settled cancellation fact to transcript evidence and unavailable", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     const controller = new AbortController();
-    let outcomePromise: ReturnType<typeof invoke> | undefined;
     try {
-      const startedPath = join(root, "started");
-      const check = createProcessCheck(
-        {
-          ...definition,
-          args: [
-            "-e",
-            `require('node:fs').writeFileSync(${JSON.stringify(startedPath)}, 'started');setTimeout(() => process.exit(0), 5000)`
-          ]
+      const transcriptWrites: string[] = [];
+      let starts = 0;
+      const check = createProcessCheck(definition, root, {
+        runProcess: async ({ cancelSignal }): Promise<ProcessResult> => {
+          starts += 1;
+          assert.equal(cancelSignal, controller.signal);
+          assert.equal(cancelSignal?.aborted, false);
+          controller.abort();
+          return {
+            error: new Error("fixture cancellation"),
+            signal: "SIGTERM",
+            status: null,
+            stderr: "",
+            stdout: ""
+          };
         },
-        root
-      );
-      outcomePromise = invoke(check, [], undefined, controller.signal);
-      await waitForPath(startedPath, 2_000);
-      controller.abort();
-      const outcome = await outcomePromise;
+        writeTextFile: ({ content, filePath }) => {
+          transcriptWrites.push(content);
+          writeFileSync(filePath, content, "utf8");
+        }
+      });
+      const outcome = await invoke(check, [], undefined, controller.signal);
 
       assert.deepEqual(outcome, {
         status: "unavailable",
         reason: { code: "execution-cancelled" }
       });
-      assert.equal(existsSync(startedPath), true);
-      const transcript = readFileSync(join(root, "fixture-command.log"), "utf8");
-      assert.match(transcript, /check: fixture-command/);
-      assert.match(transcript, /signal: SIGTERM/);
-      assert.match(transcript, /error: /);
+      assert.equal(starts, 1);
+      assert.match(transcriptWrites[0] ?? "", /status: running/);
+      assert.match(transcriptWrites[1] ?? "", /check: fixture-command/);
+      assert.match(transcriptWrites[1] ?? "", /signal: SIGTERM/);
+      assert.match(transcriptWrites[1] ?? "", /error: "fixture cancellation"/);
     } finally {
-      controller.abort();
-      if (outcomePromise !== undefined) await outcomePromise;
       rmSync(root, { force: true, recursive: true });
     }
   });
 });
-
-async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  while (!existsSync(filePath)) {
-    if (Date.now() >= deadline) throw new Error(`child process did not create marker: ${filePath}`);
-    await new Promise((resolve) => setTimeout(resolve, 10));
-  }
-}
 
 interface ProcessScenario {
   readonly aborted?: boolean;

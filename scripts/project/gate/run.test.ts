@@ -29,6 +29,7 @@ import {
   type ProjectGateResult
 } from "./result.ts";
 import { createProjectGateEntries } from "./definition.ts";
+import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
 
 const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",
@@ -52,10 +53,13 @@ const expectedCheckIds = [
   "lint-scripts",
   "format-check",
   "prepared-package-candidate",
+  "prepared-external-package-consumer",
   "tests-package-supporting",
   "tests-package-candidate",
   "tests-package-artifact",
-  "tests-package-consumer",
+  "tests-package-consumer-types",
+  "tests-package-consumer-docs",
+  "tests-package-consumer-runtime",
   "tests-product-duplicate-detection",
   "tests-product-file-metrics",
   "tests-product-function-metrics",
@@ -107,6 +111,7 @@ describe("Project Gate entries, root binding, and controls", () => {
 
   it("keeps the explicit assurance identities and current profile membership closed", () => {
     const entries = createProjectGateEntries({
+      externalConsumerLease: createExternalConsumerMaterialLease(),
       invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate: prepared
     });

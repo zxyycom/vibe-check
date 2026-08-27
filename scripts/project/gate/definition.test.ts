@@ -11,6 +11,7 @@ import { defineProjectGateEntries } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
 import { createNativeOperationCheck } from "./check-execution/native-operation.ts";
 import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
+import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
 import { writeProcessTranscript } from "./check-execution/process.ts";
 import { projectGateAggregation } from "./project-run.ts";
 import {
@@ -41,10 +42,13 @@ const expectedCheckIds = [
   "lint-scripts",
   "format-check",
   "prepared-package-candidate",
+  "prepared-external-package-consumer",
   "tests-package-supporting",
   "tests-package-candidate",
   "tests-package-artifact",
-  "tests-package-consumer",
+  "tests-package-consumer-types",
+  "tests-package-consumer-docs",
+  "tests-package-consumer-runtime",
   "tests-product-duplicate-detection",
   "tests-product-file-metrics",
   "tests-product-function-metrics",
@@ -68,14 +72,18 @@ const expectedCheckIds = [
 ] as const;
 
 const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
+  "prepared-external-package-consumer",
   "tests-package-artifact",
   "tests-package-candidate",
-  "tests-package-consumer"
+  "tests-package-consumer-types",
+  "tests-package-consumer-docs",
+  "tests-package-consumer-runtime"
 ]);
 
 describe("Project Gate Definition", () => {
   it("projects ordinary Check entries without a command catalog or policy", () => {
     const entries = createProjectGateEntries({
+      externalConsumerLease: createExternalConsumerMaterialLease(),
       invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate
     });
@@ -133,7 +141,9 @@ describe("Project Gate Definition", () => {
       ["tests-package-supporting", expectedTestLanes.packageSupporting],
       ["tests-package-artifact", expectedTestLanes.packageArtifact],
       ["tests-package-candidate", expectedTestLanes.packageCandidate],
-      ["tests-package-consumer", expectedTestLanes.packageConsumer]
+      ["tests-package-consumer-types", expectedTestLanes.packageConsumerTypes],
+      ["tests-package-consumer-docs", expectedTestLanes.packageConsumerDocs],
+      ["tests-package-consumer-runtime", expectedTestLanes.packageConsumerRuntime]
     ] as const) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.ok(entry, `${checkId} must exist`);
@@ -146,7 +156,7 @@ describe("Project Gate Definition", () => {
         packageAcceptanceCheckIds.has(checkId) ? 30_000 : undefined
       );
     }
-    for (const checkId of ["tests-package-candidate", "tests-package-consumer"]) {
+    for (const checkId of ["tests-package-candidate", "prepared-external-package-consumer"]) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.deepEqual(entry?.check.mutex, ["project-gate-package-lifecycle"]);
     }
@@ -157,14 +167,25 @@ describe("Project Gate Definition", () => {
     const preparedCandidateEntry = entries.find(
       ({ check }) => check.checkId === "prepared-package-candidate"
     );
-    const packageConsumerEntry = entries.find(
-      ({ check }) => check.checkId === "tests-package-consumer"
+    const externalConsumerProviderEntry = entries.find(
+      ({ check }) => check.checkId === "prepared-external-package-consumer"
     );
     const packageArtifactEntry = entries.find(
       ({ check }) => check.checkId === "tests-package-artifact"
     );
     assert.deepEqual(packageArtifactEntry?.check.dependsOn, ["prepared-package-candidate"]);
-    assert.deepEqual(packageConsumerEntry?.check.dependsOn, ["prepared-package-candidate"]);
+    assert.deepEqual(externalConsumerProviderEntry?.check.dependsOn, [
+      "prepared-package-candidate"
+    ]);
+    for (const checkId of [
+      "tests-package-consumer-types",
+      "tests-package-consumer-docs",
+      "tests-package-consumer-runtime"
+    ]) {
+      assert.deepEqual(entries.find(({ check }) => check.checkId === checkId)?.check.dependsOn, [
+        "prepared-external-package-consumer"
+      ]);
+    }
     assert.equal(typeof Reflect.get(preparedCandidateEntry?.check ?? {}, "parseData"), "function");
 
     const prerequisite = defineCheck({
@@ -217,6 +238,7 @@ describe("Project Gate Definition", () => {
     const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
       const entries = createProjectGateEntries({
+        externalConsumerLease: createExternalConsumerMaterialLease(),
         invocationLogDirectory: logDirectory,
         preparedCandidate
       });
@@ -298,9 +320,12 @@ describe("Project Gate Definition", () => {
       assert.equal(existsSync(join(logDirectory, "repository-quality.log")), false);
 
       for (const packageCheckId of [
+        "prepared-external-package-consumer",
         "tests-package-artifact",
         "tests-package-candidate",
-        "tests-package-consumer"
+        "tests-package-consumer-types",
+        "tests-package-consumer-docs",
+        "tests-package-consumer-runtime"
       ]) {
         const packageTests = entries.find(({ check }) => check.checkId === packageCheckId);
         assert.ok(packageTests, `${packageCheckId} must exist`);

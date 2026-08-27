@@ -37,6 +37,20 @@ import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
 } from "./prepared-candidate-check.ts";
+import {
+  createExternalConsumerMaterialCheck,
+  type ExternalConsumerMaterialLease
+} from "./external-consumer-material-check.ts";
+import {
+  EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
+  EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV,
+  EXTERNAL_CONSUMER_INSTALLED_PACKAGE_ENV,
+  EXTERNAL_CONSUMER_RESOLVED_ENTRY_ENV,
+  EXTERNAL_CONSUMER_ROOT_ENV,
+  parseExternalConsumerMaterialData,
+  type ExternalConsumerMaterialData,
+  validateExternalConsumerMaterialPhysical
+} from "../../package/candidate/external-consumer-input.ts";
 
 const requiredAndFull = ["required", "full"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
@@ -44,7 +58,7 @@ const packageAcceptanceTimeoutMs = 30_000;
 const scanEntryPath = fileURLToPath(new URL("../quality/scan.ts", import.meta.url));
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-type PreparedCandidateProcessInput = "artifact" | "consumer";
+type PreparedCandidateProcessInput = "artifact" | "external-consumer";
 
 interface ProjectGateTestCheckDefinition {
   readonly candidateInput?: PreparedCandidateProcessInput;
@@ -78,15 +92,25 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
     { candidateInput: "artifact", timeoutMs: packageAcceptanceTimeoutMs }
   ),
   testCheck(
-    "packageConsumer",
-    "tests-package-consumer",
-    "Bun external package consumer acceptance",
+    "packageConsumerTypes",
+    "tests-package-consumer-types",
+    "Bun external package consumer type acceptance",
     ["package-tests", "tests"],
-    {
-      candidateInput: "consumer",
-      mutex: packageLifecycleMutex,
-      timeoutMs: packageAcceptanceTimeoutMs
-    }
+    { candidateInput: "external-consumer", timeoutMs: packageAcceptanceTimeoutMs }
+  ),
+  testCheck(
+    "packageConsumerDocs",
+    "tests-package-consumer-docs",
+    "Bun external package consumer documentation acceptance",
+    ["package-tests", "tests"],
+    { candidateInput: "external-consumer", timeoutMs: packageAcceptanceTimeoutMs }
+  ),
+  testCheck(
+    "packageConsumerRuntime",
+    "tests-package-consumer-runtime",
+    "Bun external package consumer runtime acceptance",
+    ["package-tests", "tests"],
+    { candidateInput: "external-consumer", timeoutMs: packageAcceptanceTimeoutMs }
   ),
   testCheck(
     "productDuplicateDetection",
@@ -145,6 +169,7 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
 ]);
 
 export interface ProjectGateRuntime {
+  readonly externalConsumerLease: ExternalConsumerMaterialLease;
   readonly invocationLogDirectory: string;
   readonly preparedCandidate: PreparedPackageCandidate;
 }
@@ -153,6 +178,12 @@ export interface ProjectGateRuntime {
 export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
   const testLanes = resolveProjectGateTestLanes(repositoryRoot);
   const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
+  const externalConsumer = createExternalConsumerMaterialCheck({
+    invocationLogDirectory: runtime.invocationLogDirectory,
+    lease: runtime.externalConsumerLease,
+    preparedCandidateCheckId: preparedCandidate.checkId,
+    timeoutMs: packageAcceptanceTimeoutMs
+  });
   return defineProjectGateEntries([
     processEntry({
       invocation: typecheckInvocation("product"),
@@ -195,7 +226,11 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       runtime
     }),
     commonEntry(preparedCandidate, ["tests"]),
-    ...projectGateTestEntries(testLanes, preparedCandidate, runtime),
+    commonEntry(
+      Object.freeze({ ...externalConsumer, mutex: Object.freeze([...packageLifecycleMutex]) }),
+      ["package-tests", "tests"]
+    ),
+    ...projectGateTestEntries(testLanes, preparedCandidate, externalConsumer, runtime),
     processEntry({
       invocation: {
         args: ["exec", "--", "bun", scanEntryPath],
@@ -294,11 +329,18 @@ function defineProjectGateTestChecks(
 function projectGateTestEntries(
   lanes: ProjectGateTestLanes,
   preparedCandidate: Check,
+  externalConsumer: Check,
   runtime: ProjectGateRuntime
 ): readonly ProjectGateEntry[] {
   return Object.freeze(
     PROJECT_GATE_TEST_CHECKS.map((definition) =>
-      projectGateTestEntry(definition, lanes[definition.lane], preparedCandidate, runtime)
+      projectGateTestEntry(
+        definition,
+        lanes[definition.lane],
+        preparedCandidate,
+        externalConsumer,
+        runtime
+      )
     )
   );
 }
@@ -307,6 +349,7 @@ function projectGateTestEntry(
   definition: ProjectGateTestCheckDefinition,
   files: readonly string[],
   preparedCandidate: Check,
+  externalConsumer: Check,
   runtime: ProjectGateRuntime
 ): ProjectGateEntry {
   const base = {
@@ -320,22 +363,24 @@ function projectGateTestEntry(
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
   if (definition.candidateInput === undefined) return processEntry(base);
-  return processEntry<ProjectGatePreparedCandidateData>({
+  if (definition.candidateInput === "artifact") {
+    return processEntry<ProjectGatePreparedCandidateData>({
+      ...base,
+      dataDependency: preparedCandidateProcessDependency(preparedCandidate.checkId)
+    });
+  }
+  return processEntry<ExternalConsumerMaterialData>({
     ...base,
-    dataDependency: preparedCandidateProcessDependency(
-      preparedCandidate.checkId,
-      definition.candidateInput
-    )
+    dataDependency: externalConsumerProcessDependency(externalConsumer.checkId)
   });
 }
 
 function preparedCandidateProcessDependency(
-  checkId: string,
-  input: PreparedCandidateProcessInput
+  checkId: string
 ): ProcessCheckDataDependency<ProjectGatePreparedCandidateData> {
   return Object.freeze({
     checkId,
-    environment: input === "artifact" ? artifactCandidateEnvironment : consumerCandidateEnvironment,
+    environment: artifactCandidateEnvironment,
     parseData: parseProjectGatePreparedCandidateData
   });
 }
@@ -350,12 +395,26 @@ function artifactCandidateEnvironment(
   });
 }
 
-function consumerCandidateEnvironment(
-  data: ProjectGatePreparedCandidateData
-): Readonly<Record<string, string>> {
+function externalConsumerProcessDependency(
+  checkId: string
+): ProcessCheckDataDependency<ExternalConsumerMaterialData> {
   return Object.freeze({
-    [CANDIDATE_ARTIFACT_PATH_ENV]: data.artifactPath,
-    [CANDIDATE_ARTIFACT_SHA256_ENV]: data.sha256
+    checkId,
+    environment: externalConsumerEnvironment,
+    parseData: parseExternalConsumerMaterialData
+  });
+}
+
+function externalConsumerEnvironment(
+  data: ExternalConsumerMaterialData
+): Readonly<Record<string, string>> {
+  validateExternalConsumerMaterialPhysical(data);
+  return Object.freeze({
+    [EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV]: data.artifactPath,
+    [EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV]: data.sha256,
+    [EXTERNAL_CONSUMER_ROOT_ENV]: data.consumerDirectory,
+    [EXTERNAL_CONSUMER_INSTALLED_PACKAGE_ENV]: data.installedPackageDirectory,
+    [EXTERNAL_CONSUMER_RESOLVED_ENTRY_ENV]: data.resolvedEntryPath
   });
 }
 
