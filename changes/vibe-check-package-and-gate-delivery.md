@@ -11,9 +11,8 @@
 
 ## Current active dependencies
 
-1. [refine-product-module-boundaries](refine-product-module-boundaries/) has completed Plan tasks but remains active; its hard cut must remain reflected in package declarations, docs, candidate and Gate evidence.
-2. The post-release directions [add-path-reference-validation](add-path-reference-validation/), [add-network-link-validation](add-network-link-validation/), [add-secret-detection](add-secret-detection/), and [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) are not a present release implementation claim.
-3. [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) is a Draft for a future named durable-evidence consumer. It does not add a logs output or block current package validation.
+1. The post-release directions [add-html-link-validation](add-html-link-validation/), [add-network-link-validation](add-network-link-validation/), [add-secret-detection](add-secret-detection/), and [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) are not a present release implementation claim.
+2. [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) is a Draft for a future named durable-evidence consumer. It does not add a logs output or block current package validation.
 
 ## Release authority
 
