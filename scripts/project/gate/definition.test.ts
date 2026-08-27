@@ -67,6 +67,12 @@ const expectedCheckIds = [
   "git-diff-whitespace"
 ] as const;
 
+const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
+  "tests-package-artifact",
+  "tests-package-candidate",
+  "tests-package-consumer"
+]);
+
 describe("Project Gate Definition", () => {
   it("projects ordinary Check entries without a command catalog or policy", () => {
     const entries = createProjectGateEntries({
@@ -135,6 +141,10 @@ describe("Project Gate Definition", () => {
       assert.equal(entry.check.options.command, process.execPath);
       assert.deepEqual(entry.check.options.args, ["test", ...files, "--reporter=dots"]);
       assert.equal(entry.check.options.args.includes("--parallel"), false);
+      assert.equal(
+        entry.check.options.timeoutMs,
+        packageAcceptanceCheckIds.has(checkId) ? 30_000 : undefined
+      );
     }
     for (const checkId of ["tests-package-candidate", "tests-package-consumer"]) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
@@ -237,17 +247,12 @@ describe("Project Gate Definition", () => {
       for (const selection of selections) {
         const disabledTags = new Set<string>(selection.disabledTags);
         const enabledTags = new Set<string>(selection.enabledTags);
-        const packageLifecycleCheckIds = new Set([
-          "tests-package-artifact",
-          "tests-package-candidate",
-          "tests-package-consumer"
-        ]);
         createProjectGateDefinition(entries, selection);
         assert.deepEqual(projectGateAggregation(entries, selection), {
           checks: expectedCheckIds.filter(
             (checkId) =>
               (checkId !== "repository-quality" || !disabledTags.has("quality")) &&
-              (!packageLifecycleCheckIds.has(checkId) ||
+              (!packageAcceptanceCheckIds.has(checkId) ||
                 (!disabledTags.has("package-tests") && selection.profile === "full") ||
                 enabledTags.has("package-tests"))
           ),
@@ -281,7 +286,14 @@ describe("Project Gate Definition", () => {
       });
       assert.deepEqual(result, {
         status: "not-applicable",
-        reason: { code: "tag-disabled" }
+        reason: { code: "tag-quality-disabled" },
+        messages: [
+          {
+            level: "info",
+            code: "project-gate-check-not-run",
+            message: "Repository Package Run dogfood did not run because tag quality was disabled."
+          }
+        ]
       });
       assert.equal(existsSync(join(logDirectory, "repository-quality.log")), false);
 
@@ -299,7 +311,14 @@ describe("Project Gate Definition", () => {
         });
         assert.deepEqual(await invokeCheck(notEnabled), {
           status: "not-applicable",
-          reason: { code: "tag-not-enabled" }
+          reason: { code: "tag-package-tests-not-enabled" },
+          messages: [
+            {
+              level: "info",
+              code: "project-gate-check-not-run",
+              message: `${packageTests.check.displayName} did not run; use --enable-tag package-tests or --profile full.`
+            }
+          ]
         });
       }
 
@@ -326,7 +345,15 @@ describe("Project Gate Definition", () => {
       });
       assert.deepEqual(await invokeCheck(profileExcluded), {
         status: "not-applicable",
-        reason: { code: "profile-excluded" }
+        reason: { code: "profile-required-excluded" },
+        messages: [
+          {
+            level: "info",
+            code: "project-gate-check-not-run",
+            message:
+              "Fixture full-only Check did not run because profile required does not include it."
+          }
+        ]
       });
       assert.equal(profileExcludedWorkStarted, false);
     } finally {

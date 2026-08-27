@@ -10,4 +10,4 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
 - Required, full and local partial repository Gate selections produce the same eligible Check IDs that the bound Project Run passes to explicit `all` aggregation, with unavailable propagation, included N/A failure and failed empty set.
-- The adapter reads the package-produced aggregate rather than traversing raw Check snapshots, and maps aggregate, definition-warning and progress-output facts to exit `0` or `1`; non-completed or malformed Run facts map to infrastructure exit `2`.
+- The adapter reads the package-produced aggregate rather than traversing raw Check snapshots and maps aggregate, definition-warning and progress-output facts to the initial Gate result; non-completed or malformed Run facts form an unavailable initial result.

@@ -145,25 +145,61 @@ configuration；`check-execution/native-operation.ts` 与 `check-execution/proce
 
 ### Profiles and scheduling
 
-Gate adapter 的完整参数 grammar 是 `--profile required|full`、可重复的 `--disable-tag <tag>`，以及受控的
-`--enable-tag package-tests`。无 profile 时默认 required；同一 tag 不能同时 enable 和 disable。正式 root commands
-不传 tag override。
+Gate adapter 的完整参数 grammar 是 `--profile required|full`、可重复的 `--disable-tag <tag>`、受控的
+`--enable-tag package-tests`，以及必须单独使用的 `-h` / `--help`。无 profile 时默认 required；同一 tag 不能同时
+enable 和 disable。`--help` 在 candidate preparation、package import 和 log-directory creation 前退出。正式 root
+commands 不传 tag override。
 
-- Required 默认执行 package supporting，但三个 package acceptance Checks 以 `tag-not-enabled` 保持可见且不进入
-  aggregate；显式 `--enable-tag package-tests` 可把它们加入 required。
+`--enable-tag` 当前只接受 opt-in tag `package-tests`。`--disable-tag` 接受且实际使用完整过滤集合：`catalog`、`docs`、
+`format`、`git`、`package-tests`、`product`、`quality`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
+对 package acceptance 的影响和可直接运行的示例，不能让调用方从 catalog 源码猜测 tag。
+
+- Required 默认执行 package supporting，但三个 package acceptance Checks 以
+  `tag-package-tests-not-enabled` 保持可见且不进入 aggregate；每个 excluded Check 还明确说明哪个动作没有运行，
+  并提示 `--enable-tag package-tests` 或 `--profile full`。显式 enable 可把它们加入 required。
 - Full 自动选择全部未禁用 Checks，包括三个 package acceptance Checks。
+- 启动 Run 前的 selection summary 将 package acceptance 明确标为未选择、由 profile/tag 选择或被
+  `package-tests` 禁用；其它 disabled tags 仍按规范化后的完整名称列出。
 - Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 与 external consumer 继续执行真实 build/install，
   因而共享 `project-gate-package-lifecycle` mutex；只读 provider staging/tar 的 artifact acceptance 不持有该 mutex。
+- 三个物理 package acceptance process 各有 30 秒外层 timeout。该 timeout 用于终止内部同步 child 阻塞后无法及时
+  响应 Bun test timeout 的整条 test process，不是全局性能预算，也不把尚未产出 exit fact 的 command 伪装成测试失败。
 
-### Process evidence and exits
+### Process evidence
 
-Native docs、Decision Records 与 Test Evidence Checks 不创建 process transcript。外部 command Check 将 command、
-stdout、stderr、exit、signal 和安全 error summary 写入自己的 transcript。Terminal message 只能包含 exit code、
-signal 和 transcript basename，不能复制 child output、完整路径、command、arguments、credential URL、digest 或
-transcript 内容。
+Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程 transcript。每个外部 command Check 在 child
+启动前先创建自己的 transcript，写入 Check/step、command、`status: running` 和配置 timeout；child 结算后，同一路径
+重写为 command、stdout、stderr、exit、signal、timeout fact 和安全 error summary。重写不承诺原子替换；若 settled
+transcript 写入失败，Check 结算为 transcript unavailable。这样 Gate 或 child 在结算前被外部终止时，已有 transcript
+仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。
 
-Completed Run 的 warning、progress failure 或非-`passed` aggregate 映射为 exit `1`；参数、candidate、import、
-identity、log、execution 或 malformed-result failure 映射为 exit `2`。
+非零退出的 terminal message 只能包含 exit code、signal 和 transcript basename；timeout message 只包含配置时限和
+transcript basename。两者都不能复制 child output、完整路径、command、arguments、credential URL、digest 或 transcript
+内容。Descriptor 已配置 timeout、process facade 明确报告 timed out 且没有可靠 exit fact 时，command 结算为
+`process-timeout` unavailable，而不是泛化成 `process-unavailable`；未配置时收到同类异常 fact 则 fail closed 为
+`process-unavailable`。Test Evidence ast-grep Check 的两步组合 transcript 仍在两步返回后一次写入；若未来需要定位其
+内部 step 卡住位置，应由该两步 runner 暴露 step-start，而不能把组合开始误写成当前具体 step。
+
+### Gate result post-processing and exits
+
+Bound Run 返回后，adapter 从同次 RunResult 的 warning、progress output 和 aggregate 形成一个不可变的初步
+`ProjectGateResult`；non-completed 或 malformed Run result 形成 `unavailable` 初步结果。项目私有且唯一的 `afterGate`
+阶段随后接收该结果与完整只读 `ProjectGateContext`，并返回同类型的最终结果。
+
+Context 按 Gate owner 收拢本次 invocation 到初步结果形成时已有的全部 owned facts：normalized selection、repository
+root、prepared candidate、invocation log directory 和原始 RunResult；timing 精确提供 `startedAtMs`、
+`initialResultAtMs` 和 `elapsedToInitialResultMs`。Timing 是完整 context 中的一类 observation，不定义 context 边界，
+也不包含 Hook 自身耗时。loader、clock、console writer 和 candidate preparer 属于执行依赖，不进入 context。
+
+Hook 返回 exact `{ status, messages }`：`status` 只接受 `passed | failed | unavailable`，每条 message 只含非空的
+`code`、`message` 和 `error | warning | info` level；code 与 message 不得包含 C0/C1 controls、U+2028 或 U+2029。
+Hook 可以返回新的状态与项目级消息，但不能修改 context、Check outcome、RunResult 或 Product aggregate。终端结果和
+process exit 只消费处理后的一个结果，不暴露要求调用方合并的 base/acceptances/final 集合。Hook 抛错、返回额外字段或
+返回其它无效结果时 fail closed 为 `unavailable`；当前只建立该转换机制，不配置未经测量的全局或逐 Check 性能预算。
+
+初步结果中，Completed Run 的 warning、progress failure 或非-`passed` aggregate 为 `failed`。处理后的 `passed`、
+`failed`、`unavailable` 分别映射为 exit `0`、`1`、`2`。参数、candidate、import、identity、log 或 execution failure
+仍在形成初步结果前直接映射为 exit `2`，不会调用 Hook。
 
 ## Documentation, validation, and package material
 

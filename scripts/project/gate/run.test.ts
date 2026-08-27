@@ -7,14 +7,27 @@ import { fileURLToPath } from "node:url";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 
-import { parseProjectGateArguments, selectionFlags, selectionFromFlags } from "./controls.ts";
+import {
+  parseProjectGateArguments,
+  projectGateHelp,
+  projectGateSelectionSummary,
+  selectionFlags,
+  selectionFromFlags
+} from "./controls.ts";
 import {
   createInvocationLogDirectory,
   PROJECT_GATE_EXIT_STATUS,
   projectGateExitStatus,
   runProjectGate,
+  type ProjectGateContext,
   type ProjectGateExitStatus
 } from "./run.ts";
+import {
+  createInitialProjectGateResult,
+  createProjectGateResult,
+  parseProjectGateResult,
+  type ProjectGateResult
+} from "./result.ts";
 import { createProjectGateEntries } from "./definition.ts";
 
 const prepared = Object.freeze({
@@ -69,6 +82,7 @@ const rootPackageManifestSource = readFileSync(
   fileURLToPath(new URL("../../../package.json", import.meta.url)),
   "utf8"
 );
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("Project Gate entries, root binding, and controls", () => {
   it("binds retained workspace verification names directly to the Gate profiles without disabled tags", () => {
@@ -119,6 +133,7 @@ describe("Project Gate entries, root binding, and controls", () => {
   it("defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags", () => {
     assert.deepEqual(parseProjectGateArguments([]), {
       ok: true,
+      action: "run",
       value: { profile: "required", disabledTags: [], enabledTags: [] }
     });
     const parsed = parseProjectGateArguments([
@@ -138,13 +153,14 @@ describe("Project Gate entries, root binding, and controls", () => {
 
     assert.deepEqual(parsed, {
       ok: true,
+      action: "run",
       value: {
         profile: "full",
         disabledTags: ["docs", "quality"],
         enabledTags: ["package-tests"]
       }
     });
-    if (!parsed.ok) return;
+    if (!parsed.ok || parsed.action !== "run") return;
     assert.deepEqual(selectionFlags(parsed.value), [
       "project-gate:profile=full",
       "project-gate:disable-tag=docs",
@@ -152,6 +168,28 @@ describe("Project Gate entries, root binding, and controls", () => {
       "project-gate:enable-tag=package-tests"
     ]);
     assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
+    assert.deepEqual(parseProjectGateArguments(["--help"]), { ok: true, action: "help" });
+    assert.deepEqual(parseProjectGateArguments(["-h"]), { ok: true, action: "help" });
+    assert.equal(parseProjectGateArguments(["--help", "--profile", "full"]).ok, false);
+    const help = projectGateHelp();
+    assert.match(help, /Opt-in tags: package-tests/);
+    assert.match(
+      help,
+      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, quality, scripts, tests/
+    );
+    assert.match(help, /candidate, artifact, and external-consumer acceptance/);
+    assert.equal(
+      projectGateSelectionSummary({ profile: "required", disabledTags: [], enabledTags: [] }),
+      "profile=required; package-acceptance=not-selected (use --enable-tag package-tests or --profile full); disabled-tags=none"
+    );
+    assert.equal(
+      projectGateSelectionSummary({
+        profile: "required",
+        disabledTags: [],
+        enabledTags: ["package-tests"]
+      }),
+      "profile=required; package-acceptance=selected-by-tag-package-tests; disabled-tags=none"
+    );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--disable-tag", ""]).ok, false);
     assert.equal(parseProjectGateArguments(["--enable-tag", "quality"]).ok, false);
@@ -172,6 +210,32 @@ describe("Project Gate entries, root binding, and controls", () => {
 });
 
 describe("Project Gate adapter closure", () => {
+  it("returns help before candidate or log work", async () => {
+    let gateWorkStarted = false;
+    const output = captureConsole();
+    try {
+      const status = await runProjectGate(["--help"], {
+        createInvocationLogDirectory: (): string => {
+          gateWorkStarted = true;
+          throw new Error("help must not create logs");
+        },
+        loadRunModule: async () => {
+          gateWorkStarted = true;
+          throw new Error("help must not load the candidate");
+        },
+        prepareCandidate: async () => {
+          gateWorkStarted = true;
+          throw new Error("help must not prepare the candidate");
+        }
+      });
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.equal(gateWorkStarted, false);
+      assert.deepEqual(output.logs, [projectGateHelp()]);
+    } finally {
+      output.restore();
+    }
+  });
+
   it("does not load or run a candidate consumer after preparation failure", async () => {
     let loaded = false;
     const status = await runProjectGate([], {
@@ -288,6 +352,126 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
+  it("post-processes one initial Gate result before reporting the final exit", async () => {
+    const runResult = completedResult("passed", {
+      checkDurations: [{ checkId: "fixture", durationMs: 40 }]
+    });
+    const clockValues = [100, 145];
+    let observedContext: ProjectGateContext | undefined;
+    let observedInitial: ProjectGateResult | undefined;
+    const output = captureConsole();
+    try {
+      const status = await runProjectGate([], {
+        afterGate: (initial, context) => {
+          observedInitial = initial;
+          observedContext = context;
+          assert.equal(Object.isFrozen(initial), true);
+          assert.equal(Object.isFrozen(initial.messages), true);
+          assert.equal(Object.isFrozen(context), true);
+          assert.equal(Object.isFrozen(context.timing), true);
+          return createProjectGateResult("failed", [
+            {
+              code: "fixture-post-processing",
+              level: "warning",
+              message: "Fixture post-processing rejected the initial result"
+            }
+          ]);
+        },
+        clock: {
+          now: () => {
+            const value = clockValues.shift();
+            if (value === undefined) throw new Error("fixture clock received too many reads");
+            return value;
+          }
+        },
+        createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => runResult
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+      assert.deepEqual(observedInitial, { messages: [], status: "passed" });
+      assert.deepEqual(observedContext, {
+        invocationLogDirectory: "/tmp/project-gate-after-gate",
+        preparedCandidate: prepared,
+        repositoryRoot,
+        runResult,
+        selection: {
+          disabledTags: [],
+          enabledTags: [],
+          profile: "required"
+        },
+        timing: {
+          elapsedToInitialResultMs: 45,
+          initialResultAtMs: 145,
+          startedAtMs: 100
+        }
+      });
+      assert.match(
+        output.warnings.join("\n"),
+        /project gate warning \[fixture-post-processing]: Fixture post-processing rejected the initial result/
+      );
+      assert.match(output.logs.join("\n"), /project gate result: failed/);
+      assert.doesNotMatch(output.logs.join("\n"), /project gate result: passed/);
+    } finally {
+      output.restore();
+    }
+  });
+
+  it("fails closed when afterGate throws", async () => {
+    const output = captureConsole();
+    try {
+      const status = await runProjectGate([], {
+        afterGate: () => {
+          throw new Error("fixture afterGate failure");
+        },
+        createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => completedResult("passed")
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
+      assert.match(output.errors.join("\n"), /\[after-gate-failed]:/);
+      assert.equal(
+        output.logs.filter((line) => line === "project gate result: unavailable").length,
+        1
+      );
+    } finally {
+      output.restore();
+    }
+  });
+
+  it("fails closed when afterGate returns an invalid result", async () => {
+    const output = captureConsole();
+    try {
+      const status = await runProjectGate([], {
+        afterGate: () => ({ ...createProjectGateResult("passed"), unexpected: true }),
+        createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => completedResult("passed")
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
+      assert.equal(parseProjectGateResult({ status: "passed" }), undefined);
+      assert.match(output.errors.join("\n"), /\[after-gate-invalid-result]:/);
+      assert.equal(
+        output.logs.filter((line) => line === "project gate result: unavailable").length,
+        1
+      );
+    } finally {
+      output.restore();
+    }
+  });
+
   it("maps aggregate, definition warning, output and malformed facts to Gate exits", () => {
     const complete = completedResult("passed");
     const cases: readonly [string, unknown, ProjectGateExitStatus][] = [
@@ -308,15 +492,53 @@ describe("Project Gate adapter closure", () => {
         { ...complete, outputs: { progressRendering: { status: "failed" } } },
         PROJECT_GATE_EXIT_STATUS.failed
       ],
+      [
+        "malformed progress status",
+        { ...complete, outputs: { progressRendering: { status: "fixture" } } },
+        PROJECT_GATE_EXIT_STATUS.unavailable
+      ],
       ["configuration", { kind: "configuration" }, PROJECT_GATE_EXIT_STATUS.unavailable],
       ["malformed", { kind: "completed" }, PROJECT_GATE_EXIT_STATUS.unavailable]
     ];
 
     for (const [name, result, expected] of cases) {
-      assert.equal(projectGateExitStatus(result), expected, name);
+      assert.equal(projectGateExitStatus(createInitialProjectGateResult(result)), expected, name);
     }
   });
 });
+
+function captureConsole(): Readonly<{
+  readonly errors: string[];
+  readonly logs: string[];
+  readonly restore: () => void;
+  readonly warnings: string[];
+}> {
+  const originalError = console.error;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const errors: string[] = [];
+  const logs: string[] = [];
+  const warnings: string[] = [];
+  console.error = (...values: unknown[]): void => {
+    errors.push(values.map(String).join(" "));
+  };
+  console.log = (...values: unknown[]): void => {
+    logs.push(values.map(String).join(" "));
+  };
+  console.warn = (...values: unknown[]): void => {
+    warnings.push(values.map(String).join(" "));
+  };
+  return Object.freeze({
+    errors,
+    logs,
+    restore: () => {
+      console.error = originalError;
+      console.log = originalLog;
+      console.warn = originalWarn;
+    },
+    warnings
+  });
+}
 
 function completedResult(
   aggregate: "failed" | "not-applicable" | "passed" | "unavailable",

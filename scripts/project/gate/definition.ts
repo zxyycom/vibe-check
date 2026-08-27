@@ -40,6 +40,7 @@ import {
 
 const requiredAndFull = ["required", "full"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
+const packageAcceptanceTimeoutMs = 30_000;
 const scanEntryPath = fileURLToPath(new URL("../quality/scan.ts", import.meta.url));
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -52,6 +53,7 @@ interface ProjectGateTestCheckDefinition {
   readonly lane: ProjectGateTestLaneName;
   readonly mutex?: readonly string[];
   readonly tags: readonly ProjectGateTag[];
+  readonly timeoutMs?: number;
 }
 
 const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
@@ -66,21 +68,25 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
     "tests-package-candidate",
     "Bun package candidate lifecycle acceptance",
     ["package-tests", "tests"],
-    { mutex: packageLifecycleMutex }
+    { mutex: packageLifecycleMutex, timeoutMs: packageAcceptanceTimeoutMs }
   ),
   testCheck(
     "packageArtifact",
     "tests-package-artifact",
     "Bun package artifact acceptance",
     ["package-tests", "tests"],
-    { candidateInput: "artifact" }
+    { candidateInput: "artifact", timeoutMs: packageAcceptanceTimeoutMs }
   ),
   testCheck(
     "packageConsumer",
     "tests-package-consumer",
     "Bun external package consumer acceptance",
     ["package-tests", "tests"],
-    { candidateInput: "consumer", mutex: packageLifecycleMutex }
+    {
+      candidateInput: "consumer",
+      mutex: packageLifecycleMutex,
+      timeoutMs: packageAcceptanceTimeoutMs
+    }
   ),
   testCheck(
     "productDuplicateDetection",
@@ -259,6 +265,7 @@ function testCheck(
   options: Readonly<{
     readonly candidateInput?: PreparedCandidateProcessInput;
     readonly mutex?: readonly string[];
+    readonly timeoutMs?: number;
   }> = {}
 ): ProjectGateTestCheckDefinition {
   return Object.freeze({
@@ -309,7 +316,8 @@ function projectGateTestEntry(
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     profiles: requiredAndFull,
     runtime,
-    tags: definition.tags
+    tags: definition.tags,
+    ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
   if (definition.candidateInput === undefined) return processEntry(base);
   return processEntry<ProjectGatePreparedCandidateData>({
@@ -384,17 +392,28 @@ function processEntry<Data extends object = object>(
     readonly profiles: readonly ProjectGateProfile[];
     readonly tags: readonly ProjectGateTag[];
     readonly runtime: ProjectGateRuntime;
+    readonly timeoutMs?: number;
   }>
 ): ProjectGateEntry {
-  const { checkId, dataDependency, displayName, invocation, mutex, profiles, runtime, tags } =
-    input;
+  const {
+    checkId,
+    dataDependency,
+    displayName,
+    invocation,
+    mutex,
+    profiles,
+    runtime,
+    tags,
+    timeoutMs
+  } = input;
   const descriptor = {
     args: invocation.args,
     checkId,
     command: invocation.command,
     cwd: invocation.cwd,
     displayName,
-    ...(invocation.env === undefined ? {} : { environment: definedEnvironment(invocation.env) })
+    ...(invocation.env === undefined ? {} : { environment: definedEnvironment(invocation.env) }),
+    ...(timeoutMs === undefined ? {} : { timeoutMs })
   };
   const processCheck =
     dataDependency === undefined

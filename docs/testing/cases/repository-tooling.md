@@ -117,8 +117,9 @@ Entities:
   Proves:
 - 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 不传 disabled tags。
 - Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check 与三个 package acceptance Checks 使用独立 assurance identities，Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度，只有继续 build/install 的 candidate 与 external consumer 共享 named mutex，只读 artifact acceptance 仍保留独立 terminal fact 与 transcript。
-- adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。
-- Required 默认排除三个 package lifecycle Checks，显式 enable tag 或 full 纳入；excluded Checks 保留稳定 `profile-excluded` / `tag-disabled` / `tag-not-enabled` raw facts，aggregate 只消费同次 selection 的 eligible identities。
+- adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
+- Required 默认排除三个 package acceptance Checks，显式 enable tag 或 full 纳入；excluded Checks 的 reason code 指明具体 profile/tag，terminal message 指明没有运行的 Check 动作和恢复命令，aggregate 只消费同次 selection 的 eligible identities。启动 summary 另明确 package acceptance 是未选择、按 profile/tag 选择还是被禁用。
+- 三个物理 package acceptance process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 
@@ -137,16 +138,19 @@ Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes a running transcript before process start and replaces it after settlement`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > derives process environment from one typed provider dependency`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > requires an explicit timeout before reporting safe timeout evidence`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
   Proves:
-- eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
+- eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。
 - Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
 - The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the corresponding `{ checkId, level, code, message }` item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
-- 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
+- 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。settled transcript replacement 失败时不把缺失最终日志误报为 command 结果；running evidence 只保证存在到 replacement 开始前。
+- Process descriptor 把显式 timeout 交给 process facade；只有 descriptor 声明该时限时，timeout fact 才结算为带安全 `command-timeout` message 的 `process-timeout` unavailable，否则 fail closed 为普通 process unavailable。timeout transcript 保留 `timed-out: yes`。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
 
 ## Case AUX-PROJECT-GATE-PREPARED-CANDIDATE-001: Gate 将已准备 candidate 保留为 typed fact
@@ -165,14 +169,28 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > returns help before candidate or log work`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
-- preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
+- `--help`、preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；help 与 mismatch 也在 invocation log 创建前停止，help 还不会准备或导入 candidate。
 - 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。
-- exit `0` 要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 为 `1`，non-completed 或 malformed result 为 `2`。adapter 不遍历 snapshot 重建质量结论。
+- 初步 Gate 结果要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 形成 failed，non-completed 或 malformed result 形成 unavailable。adapter 不遍历 snapshot 重建 aggregate。
+
+## Case AUX-PROJECT-GATE-POST-PROCESSING-001: Project Gate 后处理只产出一个最终结果
+
+Owner: `docs/script-tooling.md#project-gate`
+Entities:
+
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when afterGate throws`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when afterGate returns an invalid result`
+  Proves:
+- `afterGate` 在 bound Run 返回和初步 Gate 结果形成后执行一次，接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp 与 elapsed-to-initial-result 的只读 Gate context；它可用同类型新结果决定唯一终端状态与 exit。
+- Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖。
+- Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 
@@ -212,11 +230,20 @@ Entities:
   Proves:
 - 开发脚本启动子进程时使用 plain-text / no-color 环境，并返回可判断的 status、stdout 与 stderr。
 
-## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Process execution 保留运行中取消事实
+## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Process execution 保留 caller cancellation 事实
 
 Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
 - `bun|scripts/process-execution/process.test.ts|cancels an already-started child process`
   Proves:
-- 已运行 child 收到 caller 的 `cancelSignal` 后终止；其结果保留 `error`、`SIGTERM` 与 `status: null`，不被误判为成功。
+- 已运行 child 收到 caller 的 `cancelSignal` 后终止，并保留 `error`、`SIGTERM` 与 `status: null`，不被误判为成功。
+
+## Case AUX-WORKSPACE-PROCESS-TIMEOUT-001: Process execution 保留 timeout 事实
+
+Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
+Entities:
+
+- `bun|scripts/process-execution/process.test.ts|times out an already-started child process`
+  Proves:
+- 已运行 child 超过显式 timeout 后终止，并保留 `error`、`SIGTERM`、`status: null` 与 `timedOut`，不被误判为普通失败或成功。

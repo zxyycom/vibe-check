@@ -177,9 +177,12 @@ explicit ID list 可表达 Gate eligibility set，且不隐藏 excluded raw fact
 unavailable`。未配置 aggregation 时 `RunResultFacts.aggregate` 是 `null`。aggregate 不复制 evidence，不消费 Records、
 definition warnings、output statuses、progress presentation 或 arbitrary final data。
 
-`scripts/project/gate/**` 将 required/full eligibility selection 绑定到 explicit aggregation configuration，读取
-`RunResult.aggregate`，并单独把 configuration/run/output facts 映射到 process status `0`、`1` 或 `2`。它不遍历
-snapshot Checks 重建 quality conclusion；也不由 dependent Check 或 process-local reducer 取代。
+`scripts/project/gate/**` 将 required/full eligibility selection 绑定到 explicit aggregation configuration，并从
+`RunResult.aggregate`、definition warning 和 progress output 形成一个初步 `ProjectGateResult`。一个项目私有
+`afterGate` 阶段可以在 bound Run 返回后把该结果转换为同类型的最终结果。Hook 的完整上下文字段、执行依赖排除项和
+失败边界由[脚本工具](script-tooling.md#gate-result-post-processing-and-exits)拥有；quality aggregation 只约束它不得遍历
+snapshot Checks 重建 aggregate，也不得改写 Check outcome 或 Product facts。调用方与 process exit 只消费处理后的一个
+最终结果，不需要合并并行的 base、acceptance 和 final 模型；Product 不增加公共 lifecycle Hook。
 
 ## Verification
 

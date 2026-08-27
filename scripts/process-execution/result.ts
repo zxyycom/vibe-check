@@ -6,7 +6,8 @@ export function toProcessResult(result: ExecaResultLike, label: string): Process
     signal: result.signal ?? null,
     status: result.exitCode ?? null,
     stderr: outputString(result.stderr),
-    stdout: outputString(result.stdout)
+    stdout: outputString(result.stdout),
+    ...(result.timedOut === true ? { timedOut: true } : {})
   };
 }
 

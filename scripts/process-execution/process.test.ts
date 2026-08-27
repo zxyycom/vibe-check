@@ -55,6 +55,19 @@ test("cancels an already-started child process", async () => {
   }
 });
 
+test("times out an already-started child process", async () => {
+  const timedOutResult = await runProcess({
+    args: ["-e", "setTimeout(() => process.exit(0), 5000)"],
+    command: process.execPath,
+    timeout: 20
+  });
+
+  assert.equal(timedOutResult.error instanceof Error, true);
+  assert.equal(timedOutResult.signal, "SIGTERM");
+  assert.equal(timedOutResult.status, null);
+  assert.equal(timedOutResult.timedOut, true);
+});
+
 async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!fs.existsSync(filePath)) {

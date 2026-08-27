@@ -49,6 +49,38 @@ describe("Project Gate process Check", () => {
     }
   });
 
+  it("writes a running transcript before process start and replaces it after settlement", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
+    const transcriptPath = join(root, "fixture-command.log");
+    let startupTranscript = "";
+    try {
+      const check = createProcessCheck(
+        { ...definition, args: ["fixture-argument"], timeoutMs: 30_000 },
+        root,
+        {
+          runProcess: async (): Promise<ProcessResult> => {
+            startupTranscript = readFileSync(transcriptPath, "utf8");
+            return { signal: null, status: 0, stderr: "settled stderr", stdout: "settled stdout" };
+          },
+          writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+        }
+      );
+
+      assert.deepEqual(await invoke(check, []), { status: "passed", data: { exitCode: 0 } });
+      assert.match(startupTranscript, /step: command/);
+      assert.match(startupTranscript, /status: running/);
+      assert.match(startupTranscript, /timeout: 30s/);
+      assert.match(startupTranscript, /fixture-argument/);
+
+      const settledTranscript = readFileSync(transcriptPath, "utf8");
+      assert.equal(settledTranscript.includes("status: running"), false);
+      assert.match(settledTranscript, /status: 0/);
+      assert.match(settledTranscript, /--- stdout ---\nsettled stdout/);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   it("derives process environment from one typed provider dependency", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     let dependencyEnvironmentValid = true;
@@ -260,6 +292,54 @@ describe("Project Gate process Check", () => {
     }
   });
 
+  it("requires an explicit timeout before reporting safe timeout evidence", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
+    let observedTimeoutMs: number | undefined;
+    const dependencies: ProcessCheckDependencies = {
+      runProcess: async (input): Promise<ProcessResult> => {
+        observedTimeoutMs = input.timeout;
+        return {
+          error: new Error("fixture command timed out"),
+          signal: "SIGTERM",
+          status: null,
+          stderr: "",
+          stdout: "",
+          timedOut: true
+        };
+      },
+      writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+    };
+    try {
+      const configured = await invoke(
+        createProcessCheck({ ...definition, timeoutMs: 30_000 }, root, dependencies),
+        []
+      );
+
+      assert.equal(observedTimeoutMs, 30_000);
+      assert.deepEqual(configured, {
+        status: "unavailable",
+        reason: { code: "process-timeout" },
+        messages: [
+          {
+            level: "error",
+            code: "command-timeout",
+            message: "Command exceeded its 30s timeout; transcript: fixture-command.log."
+          }
+        ]
+      });
+      assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /timed-out: yes/);
+
+      const unconfigured = await invoke(createProcessCheck(definition, root, dependencies), []);
+      assert.equal(observedTimeoutMs, undefined);
+      assert.deepEqual(unconfigured, {
+        status: "unavailable",
+        reason: { code: "process-unavailable" }
+      });
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
   it("avoids starting cancelled work and maps process/log boundaries to unavailable", async () => {
     const scenarios: readonly ProcessScenario[] = [
       {
@@ -311,17 +391,33 @@ describe("Project Gate process Check", () => {
         })
       },
       {
-        name: "transcript write failure",
+        name: "startup transcript write failure",
         definition,
         flags: ["project-gate:profile=required"],
         expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
+        expectedStarts: 0,
         runProcess: async (): Promise<ProcessResult> => ({
           signal: null,
           status: 7,
           stderr: "secret error",
           stdout: "secret output"
         }),
-        writeFails: true
+        writeFailsAt: 1
+      },
+      {
+        name: "settled transcript write failure",
+        definition,
+        flags: ["project-gate:profile=required"],
+        expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
+        expectsTranscript: true,
+        expectedTranscriptRunning: true,
+        runProcess: async (): Promise<ProcessResult> => ({
+          signal: null,
+          status: 7,
+          stderr: "secret error",
+          stdout: "secret output"
+        }),
+        writeFailsAt: 2
       }
     ];
 
@@ -329,13 +425,18 @@ describe("Project Gate process Check", () => {
       const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
       try {
         let starts = 0;
+        let transcriptWrites = 0;
         const dependencies: ProcessCheckDependencies = {
           runProcess: async (input) => {
             starts += 1;
+            assert.equal(input.timeout, undefined, scenario.name);
             return scenario.runProcess(input);
           },
           writeTextFile: ({ content, filePath }) => {
-            if (scenario.writeFails) throw new Error("fixture transcript failure");
+            transcriptWrites += 1;
+            if (scenario.writeFailsAt === transcriptWrites) {
+              throw new Error("fixture transcript failure");
+            }
             writeFileSync(filePath, content, "utf8");
           }
         };
@@ -350,11 +451,11 @@ describe("Project Gate process Check", () => {
         );
 
         assert.deepEqual(outcome, scenario.expected, scenario.name);
-        if (scenario.name === "transcript write failure") {
+        if (scenario.writeFailsAt !== undefined) {
           assert.deepEqual(outcome.messages ?? [], [], scenario.name);
           assert.deepEqual(records, [], scenario.name);
         }
-        assert.equal(starts, scenario.aborted ? 0 : 1, scenario.name);
+        assert.equal(starts, scenario.expectedStarts ?? (scenario.aborted ? 0 : 1), scenario.name);
         if (scenario.expectsTranscript) {
           const transcriptPath = join(root, "fixture-command.log");
           assert.equal(existsSync(transcriptPath), true, scenario.name);
@@ -364,6 +465,9 @@ describe("Project Gate process Check", () => {
               new RegExp(`error: ${JSON.stringify(scenario.expectedTranscriptError)}`),
               scenario.name
             );
+          }
+          if (scenario.expectedTranscriptRunning === true) {
+            assert.match(readFileSync(transcriptPath, "utf8"), /status: running/, scenario.name);
           }
         }
       } finally {
@@ -422,12 +526,14 @@ interface ProcessScenario {
   readonly aborted?: boolean;
   readonly definition: ProcessCheckDescriptor;
   readonly expected: CheckResult;
+  readonly expectedStarts?: number;
   readonly expectedTranscriptError?: string;
+  readonly expectedTranscriptRunning?: boolean;
   readonly expectsTranscript?: boolean;
   readonly flags: readonly string[];
   readonly name: string;
   readonly runProcess: ProcessCheckDependencies["runProcess"];
-  readonly writeFails?: boolean;
+  readonly writeFailsAt?: number;
 }
 
 interface ReportedRecord {

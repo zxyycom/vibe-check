@@ -11,6 +11,16 @@ const PROFILE_FLAG_PREFIX = "project-gate:profile=";
 const DISABLED_TAG_FLAG_PREFIX = "project-gate:disable-tag=";
 const ENABLED_TAG_FLAG_PREFIX = "project-gate:enable-tag=";
 
+const PACKAGE_ACCEPTANCE_SELECTION = Object.freeze({
+  disabledByTag: "disabled-by-tag-package-tests",
+  notSelected: "not-selected (use --enable-tag package-tests or --profile full)",
+  selectedByProfile: "selected-by-profile",
+  selectedByTag: "selected-by-tag-package-tests"
+} as const);
+
+type PackageAcceptanceSelection =
+  (typeof PACKAGE_ACCEPTANCE_SELECTION)[keyof typeof PACKAGE_ACCEPTANCE_SELECTION];
+
 export interface ProjectGateSelection {
   readonly disabledTags: readonly ProjectGateTag[];
   readonly enabledTags: readonly ProjectGateOptInTag[];
@@ -18,13 +28,24 @@ export interface ProjectGateSelection {
 }
 
 export type ProjectGateArgumentParseResult =
-  | Readonly<{ readonly ok: true; readonly value: ProjectGateSelection }>
+  | Readonly<{ readonly ok: true; readonly action: "help" }>
+  | Readonly<{
+      readonly ok: true;
+      readonly action: "run";
+      readonly value: ProjectGateSelection;
+    }>
   | Readonly<{ readonly ok: false; readonly error: string }>;
 
 /** Parses the adapter's deliberately small public grammar. */
 export function parseProjectGateArguments(
   arguments_: readonly string[]
 ): ProjectGateArgumentParseResult {
+  if (arguments_.includes("--help") || arguments_.includes("-h")) {
+    return arguments_.length === 1
+      ? Object.freeze({ ok: true, action: "help" })
+      : parseFailure("--help and -h must be used without other arguments");
+  }
+
   let profile: ProjectGateProfile = "required";
   let profileSpecified = false;
   const disabledTags: ProjectGateTag[] = [];
@@ -71,12 +92,44 @@ export function parseProjectGateArguments(
 
   return Object.freeze({
     ok: true,
+    action: "run",
     value: Object.freeze({
       disabledTags: canonicalDisabledTags,
       enabledTags: canonicalEnabledTags,
       profile
     })
   });
+}
+
+/** Describes the complete adapter-owned profile and tag grammar. */
+export function projectGateHelp(): string {
+  return [
+    "Usage: bun scripts/project/gate/run.ts [options]",
+    "",
+    "Options:",
+    "  --profile <required|full>  Select the required or full Check profile (default: required).",
+    "  --enable-tag <tag>         Include an opt-in tag in the required profile; repeatable.",
+    "  --disable-tag <tag>        Exclude Checks carrying a tag; repeatable.",
+    "  -h, --help                 Show this help without preparing or running a candidate.",
+    "",
+    `Opt-in tags: ${PROJECT_GATE_OPT_IN_TAGS.join(", ")}`,
+    `Disable filters (all currently used): ${PROJECT_GATE_TAGS.join(", ")}`,
+    "",
+    "Package acceptance:",
+    "  required                  Not run unless --enable-tag package-tests is supplied.",
+    "  full                      Runs candidate, artifact, and external-consumer acceptance.",
+    "",
+    "Examples:",
+    "  bun scripts/project/gate/run.ts --profile required --enable-tag package-tests",
+    "  bun scripts/project/gate/run.ts --profile full --disable-tag docs"
+  ].join("\n");
+}
+
+/** Summarizes the effective package-acceptance action before Check output begins. */
+export function projectGateSelectionSummary(selection: ProjectGateSelection): string {
+  const disabledTags =
+    selection.disabledTags.length === 0 ? "none" : selection.disabledTags.join(",");
+  return `profile=${selection.profile}; package-acceptance=${packageAcceptanceSelection(selection)}; disabled-tags=${disabledTags}`;
 }
 
 export function selectionFlags(selection: ProjectGateSelection): readonly string[] {
@@ -142,6 +195,17 @@ function canonicalTags(tags: readonly ProjectGateTag[]): readonly ProjectGateTag
 
 function canonicalOptInTags(tags: readonly ProjectGateOptInTag[]): readonly ProjectGateOptInTag[] {
   return Object.freeze([...new Set(tags)].sort());
+}
+
+function packageAcceptanceSelection(selection: ProjectGateSelection): PackageAcceptanceSelection {
+  if (selection.disabledTags.includes("package-tests")) {
+    return PACKAGE_ACCEPTANCE_SELECTION.disabledByTag;
+  }
+  if (selection.profile === "full") return PACKAGE_ACCEPTANCE_SELECTION.selectedByProfile;
+  if (selection.enabledTags.includes("package-tests")) {
+    return PACKAGE_ACCEPTANCE_SELECTION.selectedByTag;
+  }
+  return PACKAGE_ACCEPTANCE_SELECTION.notSelected;
 }
 
 function parseFailure(error: string): ProjectGateArgumentParseResult {

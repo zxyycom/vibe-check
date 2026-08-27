@@ -16,6 +16,7 @@ export type ProcessResult = {
   readonly status: number | null;
   readonly stderr: string;
   readonly stdout: string;
+  readonly timedOut?: true;
 };
 
 export type RunProcessSyncOptions = {

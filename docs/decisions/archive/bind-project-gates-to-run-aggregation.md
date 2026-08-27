@@ -1,6 +1,6 @@
 ---
 title: 让 Project Gate 绑定 Run aggregation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:46Z
 purpose: 让项目 Gate 保持显式 Project Definition 与 Run 绑定，同时只消费该次 Run 的明确 aggregation 结果。

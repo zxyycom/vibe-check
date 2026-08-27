@@ -12,6 +12,7 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
   dependencyUnavailable: "dependency-unavailable",
   executionCancelled: "execution-cancelled",
   exitUnavailable: "exit-unavailable",
+  processTimeout: "process-timeout",
   processUnavailable: "process-unavailable",
   transcriptUnavailable: "transcript-unavailable"
 } as const);
@@ -37,6 +38,7 @@ export interface ProcessCheckDescriptor {
   readonly cwd?: string;
   readonly displayName: string;
   readonly environment?: Readonly<Record<string, string>>;
+  readonly timeoutMs?: number;
 }
 
 export interface ProcessTranscriptStep {
@@ -132,7 +134,8 @@ function validProcessCheckDescriptor(value: unknown): boolean {
         key !== "command" &&
         key !== "cwd" &&
         key !== "displayName" &&
-        key !== "environment"
+        key !== "environment" &&
+        key !== "timeoutMs"
     ) ||
     !keys.includes("args") ||
     !keys.includes("checkId") ||
@@ -149,7 +152,8 @@ function validProcessCheckDescriptor(value: unknown): boolean {
     nonEmptyString(value.command) &&
     nonEmptyString(value.displayName) &&
     (value.cwd === undefined || typeof value.cwd === "string") &&
-    validEnvironment(value.environment)
+    validEnvironment(value.environment) &&
+    (value.timeoutMs === undefined || positiveInteger(value.timeoutMs))
   );
 }
 
@@ -163,12 +167,27 @@ function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
+function positiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+}
+
 async function executeProcessCheck(
   context: CheckExecutionContext<ProcessCheckDescriptor>,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies
 ): Promise<CheckResult> {
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
+
+  const logPath = processTranscriptPath(invocationLogDirectory, context.options.checkId);
+  try {
+    writeProcessStartupTranscript({
+      definition: context.options,
+      invocationLogDirectory,
+      writeTextFile: dependencies.writeTextFile
+    });
+  } catch {
+    return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
+  }
 
   let result: ProcessResult;
   try {
@@ -178,15 +197,15 @@ async function executeProcessCheck(
       cwd: context.options.cwd ?? context.project.root,
       env: { ...process.env, ...context.options.environment },
       label: context.options.checkId,
-      cancelSignal: context.signal
+      cancelSignal: context.signal,
+      timeout: context.options.timeoutMs
     });
   } catch (error: unknown) {
     result = unavailableProcessResult(error);
   }
 
-  let logPath: string;
   try {
-    logPath = writeProcessTranscript({
+    writeProcessTranscript({
       checkId: context.options.checkId,
       invocationLogDirectory,
       steps: [{ definition: context.options, label: "command", result }],
@@ -197,6 +216,21 @@ async function executeProcessCheck(
   }
 
   if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
+  if (result.timedOut === true) {
+    const timeoutMs = context.options.timeoutMs;
+    if (timeoutMs === undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
+    return Object.freeze({
+      status: "unavailable",
+      reason: { code: UNAVAILABLE_REASON_CODE.processTimeout },
+      messages: Object.freeze([
+        Object.freeze({
+          level: "error",
+          code: "command-timeout",
+          message: `Command exceeded its ${formatTimeout(timeoutMs)} timeout; transcript: ${basename(logPath)}.`
+        })
+      ])
+    });
+  }
   if (result.error !== undefined) return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
   const exitCode = result.status;
   if (exitCode === null) return unavailable(UNAVAILABLE_REASON_CODE.exitUnavailable);
@@ -219,12 +253,39 @@ export function writeProcessTranscript(
     readonly writeTextFile?: typeof writeTextFile;
   }>
 ): string {
-  const logPath = join(input.invocationLogDirectory, `${input.checkId}.log`);
+  const logPath = processTranscriptPath(input.invocationLogDirectory, input.checkId);
   (input.writeTextFile ?? writeTextFile)({
     content: [`check: ${input.checkId}`, ...input.steps.map(transcriptStep)].join("\n\n"),
     filePath: logPath
   });
   return logPath;
+}
+
+function writeProcessStartupTranscript(
+  input: Readonly<{
+    readonly definition: ProcessCheckDescriptor;
+    readonly invocationLogDirectory: string;
+    readonly writeTextFile: typeof writeTextFile;
+  }>
+): void {
+  const { definition } = input;
+  const logPath = processTranscriptPath(input.invocationLogDirectory, definition.checkId);
+  const command = [definition.command, ...definition.args].map(commandToken).join(" ");
+  input.writeTextFile({
+    content: [
+      `check: ${definition.checkId}`,
+      "",
+      "step: command",
+      `command: ${command}`,
+      "status: running",
+      `timeout: ${definition.timeoutMs === undefined ? "none" : formatTimeout(definition.timeoutMs)}`
+    ].join("\n"),
+    filePath: logPath
+  });
+}
+
+function processTranscriptPath(invocationLogDirectory: string, checkId: string): string {
+  return join(invocationLogDirectory, `${checkId}.log`);
 }
 
 /** Produces the standard failure Record and presentation-safe terminal message. */
@@ -275,6 +336,7 @@ function transcriptStep(step: ProcessTranscriptStep): string {
     `command: ${command}`,
     `status: ${result.status === null ? "unavailable" : result.status}`,
     `signal: ${result.signal ?? "none"}`,
+    `timed-out: ${result.timedOut === true ? "yes" : "no"}`,
     `error: ${result.error === undefined ? "none" : commandToken(errorMessage(result.error))}`,
     "",
     "--- stdout ---",
@@ -282,6 +344,11 @@ function transcriptStep(step: ProcessTranscriptStep): string {
     "--- stderr ---",
     result.stderr
   ].join("\n");
+}
+
+function formatTimeout(timeoutMs: number): string {
+  if (timeoutMs % 1_000 === 0) return `${timeoutMs / 1_000}s`;
+  return `${timeoutMs}ms`;
 }
 
 function unavailableProcessResult(error: unknown): ProcessResult {

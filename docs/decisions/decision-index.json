@@ -13,7 +13,7 @@
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
-      "bind-project-gates-to-run-aggregation.md": "sha256:0f478222554db98730a36396fcbee39e4c74c57ad8748101ccdba558fed3a6d4",
+      "bind-project-gates-to-run-aggregation.md": "sha256:526b651624add03f1e7d304b425734db3ea132c8a48da3dce51824e1fcc73768",
       "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
@@ -83,6 +83,7 @@
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
+      "post-process-project-gate-with-owned-context.md": "sha256:06c74a02673c7a26bf1c4a0c6c0caaeed3baab4ac4ffde6fa47b6c8500923277",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
@@ -432,16 +433,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "bind-project-gates-to-run-aggregation.md",
+        "sourcePath": "archive/bind-project-gates-to-run-aggregation.md",
         "title": "让 Project Gate 绑定 Run aggregation",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-21T15:02:46Z",
         "purpose": "让项目 Gate 保持显式 Project Definition 与 Run 绑定，同时只消费该次 Run 的明确 aggregation 结果。",
@@ -2579,6 +2580,40 @@
           {
             "type": "修订",
             "target": "use-single-typescript-project-definition.md"
+          }
+        ]
+      }
+    },
+    "post-process-project-gate-with-owned-context.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "post-process-project-gate-with-owned-context.md",
+        "title": "以完整 Gate-owned invocation 上下文后处理一个 Gate 结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T03:52:26Z",
+        "purpose": "让项目级运行后验收转换一个 Gate 结论，并统一取得该次 invocation 的 Gate-owned facts。",
+        "background": "只为性能暴露 RunResult、elapsed 和日志路径会把通用后处理上下文错误绑定到单一验收用例。",
+        "decision": "Project Gate 以私有 afterGate 阶段和完整 Gate-owned invocation context 转换初步结果，对外仍只提供一个最终结果。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "bind-project-gates-to-run-aggregation.md"
           }
         ]
       }
