@@ -79,6 +79,7 @@
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
+      "make-package-build-evidence-discoverable.md": "sha256:98e8e005d848e3ae7ee6149f4fc7f2c090df2bf16a4450dc404b21cce9938592",
       "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
@@ -2450,6 +2451,35 @@
         "background": "项目虽用 mise 锁定 Lizard 与 scc，但普通 Bun 入口曾依赖调用 shell 注入 binding，缺失时 Product 会退回全局命令。",
         "decision": "消费锁定外部工具的正式 Bun package entry 自行进入 mise；Product dependency boundary 要求显式 binding，缺失时在 work 前失败。",
         "tags": [
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
+    "make-package-build-evidence-discoverable.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "make-package-build-evidence-discoverable.md",
+        "title": "将 package build evidence 置于可发现的受管输出",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T06:44:50Z",
+        "purpose": "让本地 package candidate 的完整 build evidence 可直接检查，同时保持缓存只承接可复用状态。",
+        "background": "现有 cache 同时保存 staging、tarball、receipt 与编译状态，既遮蔽产物也混淆可查看 evidence 与缓存责任。",
+        "decision": "默认将 unpacked evidence 与 versioned tarball 置于 build 下，cache 仅保存 receipt 和编译状态，并以明确命令绑定状态、构建与完整验收。",
+        "tags": [
+          "product-contract",
           "workflow-policy"
         ],
         "relations": []

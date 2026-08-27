@@ -15,6 +15,7 @@ Proves:
 Owner: `docs/script-tooling.md#package-artifact-与-candidate`
 Entities:
 
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > rejects overlapping package build and cache roots`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > rejects invalid private consumer manifests`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > builds, installs, and reuses a physical candidate`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > keeps staging audit in build acceptance after packed artifact reuse`
@@ -22,10 +23,12 @@ Entities:
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > reinstalls missing dependency without ancestor fallback`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > classifies a malformed preparation receipt for cold rebuild`
 - `bun|scripts/package/candidate/receipt.test.ts|rejects malformed and stale receipts before artifact reuse`
+- `bun|scripts/package/command.test.ts|package root commands distinguish stale status from a completed rebuild and bind verification to full acceptance`
 Proves:
 
-- Candidate preparation accepts only a valid private consumer manifest and derives a reusable local build, packed artifact, installation, and resolved entry from one exact package state.
+- Candidate preparation rejects overlapping build/cache roots and accepts only a valid private consumer manifest; it derives a reusable local build, packed artifact, installation, and resolved entry from one exact package state. Default build evidence is isolated from receipt/compiler cache state even when fixtures supply their own roots.
 - Reuse revalidates the packed artifact and installed consumer actually used downstream; invalid receipts, installed documentation drift, or a missing candidate-owned dependency select the declared reinstall or rebuild action rather than an ancestor fallback. Build-only staging material is re-audited by artifact acceptance, not re-scanned by reuse.
+- Root package status is read-only and reports `current` or `stale` separately from the required repair action; after build, its current state is reported separately from the performed preparation action. Root verify delegates to the complete package acceptance owner rather than accepting stale material or inventing another acceptance path.
 
 ## Case AUX-PACKAGE-ARTIFACT-MATERIAL-001: Artifact audit closes the physical package material
 

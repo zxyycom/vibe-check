@@ -26,13 +26,15 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
         }>
       >
     | undefined;
-  let stateDirectory: string | undefined;
+  let fixtureRoot: string | undefined;
 
   const fixture = () => {
     if (fixturePromise === undefined) {
-      stateDirectory = mkdtempSync(join(tmpdir(), "vibe-check-package-artifact-"));
+      fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-artifact-"));
       fixturePromise = (async () => {
-        if (stateDirectory === undefined) throw new Error("artifact fixture root must exist");
+        if (fixtureRoot === undefined) throw new Error("artifact fixture root must exist");
+        const buildDirectory = join(fixtureRoot, "build");
+        const stateDirectory = join(fixtureRoot, "state");
         const documentation = artifactDocumentation(repositoryRoot);
         const gateInput = readGateArtifactAcceptanceInput();
         if (gateInput !== undefined) {
@@ -45,7 +47,12 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
         }
         const artifact =
           gateInput ??
-          (await buildDirectArtifactFixture({ documentation, repositoryRoot, stateDirectory }));
+          (await buildDirectArtifactFixture({
+            buildDirectory,
+            documentation,
+            repositoryRoot,
+            stateDirectory
+          }));
         return Object.freeze({ artifact, documentation });
       })();
     }
@@ -53,7 +60,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
   };
 
   after(() => {
-    if (stateDirectory !== undefined) rmSync(stateDirectory, { force: true, recursive: true });
+    if (fixtureRoot !== undefined) rmSync(fixtureRoot, { force: true, recursive: true });
   });
 
   it("packages the approved documentation inventory", { timeout: 20_000 }, async () => {
@@ -113,19 +120,20 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
 });
 
 async function buildDirectArtifactFixture(input: {
+  readonly buildDirectory: string;
   readonly documentation: ReturnType<typeof artifactDocumentation>;
   readonly repositoryRoot: string;
   readonly stateDirectory: string;
 }) {
   const inputFingerprint = createArtifactFingerprint(input.repositoryRoot);
   return buildCandidateArtifact({
-    artifactDirectory: join(input.stateDirectory, "artifacts"),
+    artifactDirectory: join(input.buildDirectory, "artifacts"),
     candidateVersion: `0.0.0-local.${inputFingerprint.slice(0, 12)}`,
     documentation: input.documentation,
     inputFingerprint,
     repositoryRoot: input.repositoryRoot,
-    stagingDirectory: join(input.stateDirectory, "staging"),
-    stateDirectory: input.stateDirectory
+    stagingDirectory: join(input.buildDirectory, "package"),
+    tsBuildInfoPath: join(input.stateDirectory, "candidate.tsbuildinfo")
   });
 }
 

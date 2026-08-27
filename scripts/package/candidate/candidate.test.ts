@@ -23,6 +23,7 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
         Readonly<{
           consumerDirectory: string;
           first: Awaited<ReturnType<typeof preparePackageCandidate>>;
+          buildDirectory: string;
           fixtureRoot: string;
           stateDirectory: string;
         }>
@@ -37,16 +38,24 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
         if (candidateFixtureRoot === undefined)
           throw new Error("candidate fixture root must exist");
         const fixtureRoot = candidateFixtureRoot;
+        const buildDirectory = join(fixtureRoot, "build");
         const consumerDirectory = join(fixtureRoot, "consumer");
         const stateDirectory = join(fixtureRoot, "state");
         writeAncestorJscpdFallback(fixtureRoot);
         writeConsumerManifest(consumerDirectory);
         const first = await preparePackageCandidate({
+          buildDirectory,
           consumerDirectory,
           repositoryRoot,
           stateDirectory
         });
-        return Object.freeze({ consumerDirectory, first, fixtureRoot, stateDirectory });
+        return Object.freeze({
+          buildDirectory,
+          consumerDirectory,
+          first,
+          fixtureRoot,
+          stateDirectory
+        });
       })();
     }
     return fixturePromise;
@@ -55,6 +64,24 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
   after(() => {
     if (candidateFixtureRoot !== undefined)
       rmSync(candidateFixtureRoot, { force: true, recursive: true });
+  });
+
+  it("rejects overlapping package build and cache roots", () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-candidate-overlap-"));
+    try {
+      assert.throws(
+        () =>
+          assessPackageCandidatePreparation({
+            buildDirectory: root,
+            consumerDirectory: join(root, "consumer"),
+            repositoryRoot,
+            stateDirectory: root
+          }),
+        /buildDirectory and stateDirectory must not overlap/
+      );
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
   });
 
   it("rejects invalid private consumer manifests", () => {
@@ -67,11 +94,15 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
   });
 
   it("builds, installs, and reuses a physical candidate", { timeout: 20_000 }, async () => {
-    const { consumerDirectory, first, stateDirectory } = await fixture();
+    const { buildDirectory, consumerDirectory, first, stateDirectory } = await fixture();
     assert.equal(first.reused, false);
     assert.equal(first.preparationAction, "rebuild");
     assert.equal(first.preparationReason, "receipt-missing");
     assert.equal(existsSync(first.artifactPath), true);
+    assert.equal(first.stagingDirectory, join(buildDirectory, "package"));
+    assert.equal(first.artifactPath.startsWith(join(buildDirectory, "artifacts")), true);
+    assert.equal(existsSync(join(stateDirectory, "package")), false);
+    assert.equal(existsSync(join(stateDirectory, "artifacts")), false);
     assert.equal(lstatSync(first.installedPackageDirectory).isSymbolicLink(), false);
     assert.equal(existsSync(first.resolvedEntryPath), true);
     assert.equal(first.resolvedEntryPath.startsWith(first.installedPackageDirectory), true);
@@ -82,6 +113,7 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
       true
     );
     const reused = await preparePackageCandidate({
+      buildDirectory,
       consumerDirectory,
       repositoryRoot,
       stateDirectory
@@ -94,10 +126,15 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
   });
 
   it("keeps staging audit in build acceptance after packed artifact reuse", async () => {
-    const { consumerDirectory, first, stateDirectory } = await fixture();
+    const { buildDirectory, consumerDirectory, first, stateDirectory } = await fixture();
     writeFileSync(join(first.stagingDirectory, "README.md"), "drifted build evidence\n", "utf8");
     assert.deepEqual(
-      assessPackageCandidatePreparation({ consumerDirectory, repositoryRoot, stateDirectory }),
+      assessPackageCandidatePreparation({
+        buildDirectory,
+        consumerDirectory,
+        repositoryRoot,
+        stateDirectory
+      }),
       { action: "reuse", reason: "installation-current" }
     );
   });
@@ -118,7 +155,8 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
   });
 
   it("reinstalls missing dependency without ancestor fallback", { timeout: 20_000 }, async () => {
-    const { consumerDirectory, first, fixtureRoot, stateDirectory } = await fixture();
+    const { buildDirectory, consumerDirectory, first, fixtureRoot, stateDirectory } =
+      await fixture();
     rmSync(join(consumerDirectory, "node_modules", "jscpd"), { force: true, recursive: true });
     const ancestorResolvedJscpd = resolveJscpdFromFreshBunProcess(first.resolvedEntryPath);
     assert.equal(
@@ -127,6 +165,7 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
       ancestorResolvedJscpd
     );
     const reinstalled = prepareInFreshBunProcess({
+      buildDirectory,
       consumerDirectory,
       repositoryRoot,
       stateDirectory
@@ -141,10 +180,15 @@ describe("package candidate preparation", { concurrency: false, timeout: 20_000 
   });
 
   it("classifies a malformed preparation receipt for cold rebuild", async () => {
-    const { consumerDirectory, stateDirectory } = await fixture();
+    const { buildDirectory, consumerDirectory, stateDirectory } = await fixture();
     writeFileSync(join(stateDirectory, "preparation-receipt.json"), "not JSON\n", "utf8");
     assert.deepEqual(
-      assessPackageCandidatePreparation({ consumerDirectory, repositoryRoot, stateDirectory }),
+      assessPackageCandidatePreparation({
+        buildDirectory,
+        consumerDirectory,
+        repositoryRoot,
+        stateDirectory
+      }),
       { action: "rebuild", reason: "receipt-invalid" }
     );
   });
@@ -215,6 +259,7 @@ function resolveJscpdFromFreshBunProcess(candidateEntryPath: string): string {
 }
 
 function prepareInFreshBunProcess(input: {
+  readonly buildDirectory: string;
   readonly consumerDirectory: string;
   readonly repositoryRoot: string;
   readonly stateDirectory: string;
@@ -223,11 +268,12 @@ function prepareInFreshBunProcess(input: {
     process.execPath,
     [
       "-e",
-      "const { preparePackageCandidate } = await import(process.argv[1]); const candidate = await preparePackageCandidate({ repositoryRoot: process.argv[2], consumerDirectory: process.argv[3], stateDirectory: process.argv[4] }); process.stdout.write(candidate.preparationAction);",
+      "const { preparePackageCandidate } = await import(process.argv[1]); const candidate = await preparePackageCandidate({ repositoryRoot: process.argv[2], consumerDirectory: process.argv[3], stateDirectory: process.argv[4], buildDirectory: process.argv[5] }); process.stdout.write(candidate.preparationAction);",
       candidateModuleUrl,
       input.repositoryRoot,
       input.consumerDirectory,
-      input.stateDirectory
+      input.stateDirectory,
+      input.buildDirectory
     ],
     { encoding: "utf8" }
   );

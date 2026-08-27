@@ -38,7 +38,8 @@ export async function buildCandidateArtifact(input: {
   readonly inputFingerprint: string;
   readonly repositoryRoot: string;
   readonly stagingDirectory: string;
-  readonly stateDirectory: string;
+  /** Candidate cache-owned compiler state; package build evidence never shares this path. */
+  readonly tsBuildInfoPath: string;
 }): Promise<CandidateArtifact> {
   const {
     artifactDirectory,
@@ -47,7 +48,7 @@ export async function buildCandidateArtifact(input: {
     inputFingerprint,
     repositoryRoot,
     stagingDirectory,
-    stateDirectory
+    tsBuildInfoPath
   } = input;
   mkdirSync(stagingDirectory, { recursive: true });
   writeCandidateManifest({
@@ -91,7 +92,7 @@ export async function buildCandidateArtifact(input: {
       "--sourceMap",
       "--inlineSources",
       "--tsBuildInfoFile",
-      join(stateDirectory, "candidate.tsbuildinfo"),
+      tsBuildInfoPath,
       join(repositoryRoot, "src/index.ts")
     ],
     cwd: repositoryRoot,

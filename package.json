@@ -22,7 +22,10 @@
     "verify:vibe-check-workspace": "bun scripts/project/gate/run.ts",
     "verify:vibe-check-workspace:required": "bun scripts/project/gate/run.ts --profile required",
     "verify:vibe-check-workspace:full": "bun scripts/project/gate/run.ts --profile full",
-    "quality": "bun scripts/project/quality/run.ts"
+    "quality": "bun scripts/project/quality/run.ts",
+    "package:status": "bun scripts/package/command.ts status",
+    "package:build": "bun scripts/package/command.ts build",
+    "package:verify": "bun scripts/package/command.ts verify"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.0",

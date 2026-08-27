@@ -2,11 +2,13 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { artifactDocumentation } from "../artifact/documentation-audit.ts";
+import { CANDIDATE_NAME } from "../package-contract.ts";
 import { buildCandidateArtifact, type CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import { inspectInstallation, installCandidate } from "./install.ts";
 import {
   candidatePaths,
+  clearCandidateBuildEvidence,
   clearCandidateState,
   assessReusableArtifact,
   receiptMatchesInstallation,
@@ -55,6 +57,17 @@ export type PreparedPackageCandidate = Readonly<
   CandidateArtifact & PreparedPackageCandidateLocation & CandidatePreparationFact
 >;
 
+/** Read-only candidate state used by the root package status command. */
+export interface PackageCandidateStatus {
+  readonly candidateVersion: string;
+  readonly freshness: "current" | "stale";
+  readonly installedEntryPath: string | undefined;
+  /** The fail-closed repair action when the inspected state is stale. */
+  readonly requiredAction: CandidatePreparationDecision | undefined;
+  readonly tarballPath: string;
+  readonly unpackedPackagePath: string;
+}
+
 export interface PreparePackageCandidateOptions {
   /** Defaults to this checkout's repository root. */
   readonly repositoryRoot?: string;
@@ -62,6 +75,8 @@ export interface PreparePackageCandidateOptions {
   readonly consumerDirectory?: string;
   /** Defaults to the ignored candidate state directory in this checkout. */
   readonly stateDirectory?: string;
+  /** Defaults to this checkout's `build/` package evidence root. */
+  readonly buildDirectory?: string;
 }
 
 /**
@@ -105,6 +120,7 @@ export async function preparePackageCandidate(
   }
 
   clearCandidateState(plan.paths);
+  clearCandidateBuildEvidence(plan.paths);
   const artifact = await buildCandidateArtifact({
     artifactDirectory: plan.paths.artifactDirectory,
     candidateVersion: plan.candidateVersion,
@@ -112,7 +128,7 @@ export async function preparePackageCandidate(
     inputFingerprint: plan.inputFingerprint,
     repositoryRoot: plan.repositoryRoot,
     stagingDirectory: plan.paths.stagingDirectory,
-    stateDirectory: plan.paths.stateDirectory
+    tsBuildInfoPath: plan.paths.tsBuildInfoPath
   });
   const installation = installCandidate({
     artifactPath: artifact.artifactPath,
@@ -140,7 +156,31 @@ export async function preparePackageCandidate(
 export function assessPackageCandidatePreparation(
   options: PreparePackageCandidateOptions = {}
 ): CandidatePreparationDecision {
+  return candidatePreparationDecision(createCandidatePreparationPlan(options));
+}
+
+/** Inspects the exact state that preparation would accept without changing files or installation. */
+export function inspectPackageCandidate(
+  options: PreparePackageCandidateOptions = {}
+): PackageCandidateStatus {
   const plan = createCandidatePreparationPlan(options);
+  const preparation = candidatePreparationDecision(plan);
+  return Object.freeze({
+    candidateVersion: plan.candidateVersion,
+    freshness: preparation.action === "reuse" ? "current" : "stale",
+    installedEntryPath: plan.action === "reuse" ? plan.installation.resolvedEntryPath : undefined,
+    requiredAction: preparation.action === "reuse" ? undefined : preparation,
+    tarballPath: join(
+      plan.paths.artifactDirectory,
+      `${CANDIDATE_NAME}-${plan.candidateVersion}.tgz`
+    ),
+    unpackedPackagePath: plan.paths.stagingDirectory
+  });
+}
+
+function candidatePreparationDecision(
+  plan: CandidatePreparationPlan
+): CandidatePreparationDecision {
   switch (plan.action) {
     case "rebuild":
       return Object.freeze({ action: "rebuild", reason: plan.reason });
@@ -186,7 +226,10 @@ function createCandidatePreparationPlan(
   const consumerDirectory = resolve(
     options.consumerDirectory ?? join(repositoryRoot, "scripts/project")
   );
-  const paths = candidatePaths(repositoryRoot, options.stateDirectory);
+  const paths = candidatePaths(repositoryRoot, {
+    ...(options.buildDirectory === undefined ? {} : { buildDirectory: options.buildDirectory }),
+    ...(options.stateDirectory === undefined ? {} : { stateDirectory: options.stateDirectory })
+  });
   const documentation = artifactDocumentation(repositoryRoot);
   const inputFingerprint = createArtifactFingerprint(repositoryRoot);
   const candidateVersion = `0.0.0-local.${inputFingerprint.slice(0, 12)}`;

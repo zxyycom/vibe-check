@@ -38,6 +38,7 @@ scripts helper、环境状态或 process adapter。
 | --- | --- | --- |
 | environment | `bun run env:setup`；`bun run env:check` | `scripts/environment/manage.ts` |
 | development | `bun run format [-- check]`；`bun run lint [-- product|scripts]`；`bun run typecheck [-- product|scripts]`；`bun run test` | `scripts/development/**` |
+| package candidate | `bun run package:status`；`bun run package:build`；`bun run package:verify` | `scripts/package/command.ts` |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json|schema|examples|links|package-api-documentation]` | `scripts/validation/workspace.ts` and `scripts/validation/documentation/workflow.ts` |
 | governance | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations -- check`；`bun run test-evidence -- <command>` | their named owners |
 | quality dogfood | `bun run quality` | `scripts/project/quality/run.ts` |
@@ -70,6 +71,18 @@ artifact audit 在 pack 前验证根入口、公开运行时导出、可解析�
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。
+
+`scripts/package/build-contract.ts` 是 local candidate 默认路径与责任的唯一 owner：`build/package/` 是唯一完整
+unpacked package build evidence，`build/artifacts/` 保存 versioned `.tgz`。`.cache/vibe-check/package-candidate/`
+只保存 preparation receipt 与 `candidate.tsbuildinfo` 等 cache state；不得把 staging/tarball 放回 cache、挪用根
+`artifacts/`，或复制 cache staging 建立第二个 evidence source。fixture 传入 `buildDirectory` 和 `stateDirectory`
+时必须让两者保持 test-local 隔离，且 contract 拒绝彼此重叠。cold rebuild 只清理这两个精确拥有的 build paths 和 cache-owned receipt/compiler state。
+
+`package:status` 只读地报告 candidate version、`current`/`stale` freshness、unpacked path、tarball path 和经验证的
+installed entry；stale 时另报告 required preparation action，并以非零退出提示 `package:build`，不静默复用或修复。
+`package:build` 执行既有 prepare 的 `reuse`/`reinstall`/`rebuild` 选择和相应 audit，明确分别报告完成后的 current state 与
+performed action；`package:verify` 直接运行 full Project Gate，复用 candidate lifecycle、artifact 与 external-consumer
+package acceptance，而不建立平行 acceptance。
 
 Candidate preparation 先执行不修改文件系统的状态判断，再根据结果执行动作：
 

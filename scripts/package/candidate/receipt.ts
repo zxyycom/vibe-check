@@ -1,19 +1,23 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import { isPathWithin } from "../../repository-files/paths.ts";
+import { packageCandidatePaths, type PackageCandidatePathOptions } from "../build-contract.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { auditCandidateArtifact } from "../artifact/packed-tar-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 
-const RECEIPT_SCHEMA_VERSION = 2;
+const RECEIPT_SCHEMA_VERSION = 3;
 
 export interface CandidatePaths {
   readonly artifactDirectory: string;
+  readonly legacyArtifactDirectory: string;
+  readonly legacyStagingDirectory: string;
   readonly receiptPath: string;
   readonly stagingDirectory: string;
   readonly stateDirectory: string;
+  readonly tsBuildInfoPath: string;
 }
 
 export interface InstalledCandidate {
@@ -55,19 +59,20 @@ export type CandidateArtifactReuseAssessment =
   | Readonly<{ readonly status: "reusable"; readonly candidate: ReusableCandidateArtifact }>
   | Readonly<{ readonly status: "rejected"; readonly reason: CandidateArtifactReuseRejection }>;
 
-/** Owns the versioned local state paths and explicitly invalidates old receipt schemas. */
+/** Resolves the build-evidence and cache paths, rejecting receipts from older layout schemas. */
 export function candidatePaths(
   repositoryRoot: string,
-  stateDirectory: string | undefined
+  options: PackageCandidatePathOptions = {}
 ): CandidatePaths {
-  const root = resolve(
-    stateDirectory ?? join(repositoryRoot, ".cache/vibe-check/package-candidate")
-  );
+  const paths = packageCandidatePaths(repositoryRoot, options);
   return Object.freeze({
-    artifactDirectory: join(root, "artifacts"),
-    receiptPath: join(root, "preparation-receipt.json"),
-    stagingDirectory: join(root, "staging"),
-    stateDirectory: root
+    artifactDirectory: paths.artifactDirectory,
+    legacyArtifactDirectory: paths.legacyArtifactDirectory,
+    legacyStagingDirectory: paths.legacyStagingDirectory,
+    receiptPath: paths.receiptPath,
+    stagingDirectory: paths.packageDirectory,
+    stateDirectory: paths.stateDirectory,
+    tsBuildInfoPath: paths.tsBuildInfoPath
   });
 }
 
@@ -150,11 +155,17 @@ export function writeReceipt(input: {
 }
 
 export function clearCandidateState(paths: CandidatePaths): void {
+  rmSync(paths.legacyArtifactDirectory, { force: true, recursive: true });
+  rmSync(paths.legacyStagingDirectory, { force: true, recursive: true });
+  rmSync(paths.receiptPath, { force: true });
+  rmSync(paths.tsBuildInfoPath, { force: true });
+  mkdirSync(paths.stateDirectory, { recursive: true });
+}
+
+/** Removes only the owned unpacked package and tarball outputs before a cold rebuild. */
+export function clearCandidateBuildEvidence(paths: CandidatePaths): void {
   rmSync(paths.stagingDirectory, { force: true, recursive: true });
   rmSync(paths.artifactDirectory, { force: true, recursive: true });
-  rmSync(paths.receiptPath, { force: true });
-  rmSync(join(paths.stateDirectory, "candidate.tsbuildinfo"), { force: true });
-  mkdirSync(paths.stateDirectory, { recursive: true });
 }
 
 function readReceipt(receiptPath: string):
@@ -201,7 +212,7 @@ function artifactFromReceipt(
 ): CandidateArtifact | undefined {
   const artifactPath = resolve(receipt.artifact.path);
   if (
-    !isPathWithin(paths.stateDirectory, artifactPath) ||
+    !isPathWithin(paths.artifactDirectory, artifactPath) ||
     !existsSync(artifactPath) ||
     !pathIsDirectory(paths.stagingDirectory)
   ) {
