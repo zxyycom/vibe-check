@@ -1,9 +1,8 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { auditStagingRuntime } from "../artifact/staging-audit.ts";
 import { auditCandidateArtifact } from "../artifact/packed-tar-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
@@ -45,6 +44,17 @@ export interface ReusableCandidateArtifact {
   readonly receipt: CandidateReceipt;
 }
 
+export type CandidateArtifactReuseRejection =
+  | "artifact-invalid"
+  | "artifact-unavailable"
+  | "receipt-input-mismatch"
+  | "receipt-invalid"
+  | "receipt-missing";
+
+export type CandidateArtifactReuseAssessment =
+  | Readonly<{ readonly status: "reusable"; readonly candidate: ReusableCandidateArtifact }>
+  | Readonly<{ readonly status: "rejected"; readonly reason: CandidateArtifactReuseRejection }>;
+
 /** Owns the versioned local state paths and explicitly invalidates old receipt schemas. */
 export function candidatePaths(
   repositoryRoot: string,
@@ -61,32 +71,31 @@ export function candidatePaths(
   });
 }
 
-/** Reuses only an artifact whose current receipt and complete artifact audit agree. */
-export function readReusableArtifact(input: {
+/** Classifies reusable artifact state without mutating or rebuilding candidate material. */
+export function assessReusableArtifact(input: {
   readonly candidateVersion: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedReadme: string;
   readonly inputFingerprint: string;
   readonly paths: CandidatePaths;
-}): ReusableCandidateArtifact | undefined {
-  const receipt = readReceipt(input.paths.receiptPath);
+}): CandidateArtifactReuseAssessment {
+  const receiptResult = readReceipt(input.paths.receiptPath);
+  if (!receiptResult.ok) {
+    return Object.freeze({ status: "rejected", reason: receiptResult.rejection });
+  }
+  const receipt = receiptResult.receipt;
   if (
-    receipt === undefined ||
     receipt.inputFingerprint !== input.inputFingerprint ||
     receipt.candidateVersion !== input.candidateVersion
   ) {
-    return undefined;
+    return Object.freeze({ status: "rejected", reason: "receipt-input-mismatch" });
   }
   const artifact = artifactFromReceipt(receipt, input.paths);
-  if (artifact === undefined) return undefined;
+  if (artifact === undefined) {
+    return Object.freeze({ status: "rejected", reason: "artifact-unavailable" });
+  }
   try {
-    auditStagingRuntime({
-      expectedDocuments: input.expectedDocuments,
-      expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
-      expectedReadme: input.expectedReadme,
-      stagingDirectory: artifact.stagingDirectory
-    });
     auditCandidateArtifact({
       artifactPath: artifact.artifactPath,
       candidateVersion: artifact.candidateVersion,
@@ -97,9 +106,12 @@ export function readReusableArtifact(input: {
       expectedSha256: artifact.sha256
     });
   } catch {
-    return undefined;
+    return Object.freeze({ status: "rejected", reason: "artifact-invalid" });
   }
-  return Object.freeze({ artifact, receipt });
+  return Object.freeze({
+    status: "reusable",
+    candidate: Object.freeze({ artifact, receipt })
+  });
 }
 
 export function receiptMatchesInstallation(
@@ -145,13 +157,20 @@ export function clearCandidateState(paths: CandidatePaths): void {
   mkdirSync(paths.stateDirectory, { recursive: true });
 }
 
-function readReceipt(receiptPath: string): CandidateReceipt | undefined {
-  if (!existsSync(receiptPath)) return undefined;
+function readReceipt(receiptPath: string):
+  | Readonly<{ readonly ok: true; readonly receipt: CandidateReceipt }>
+  | Readonly<{
+      readonly ok: false;
+      readonly rejection: "receipt-invalid" | "receipt-missing";
+    }> {
+  if (!existsSync(receiptPath)) return Object.freeze({ ok: false, rejection: "receipt-missing" });
   try {
     const value: unknown = JSON.parse(readFileSync(receiptPath, "utf8"));
-    return isCandidateReceipt(value) ? value : undefined;
+    return isCandidateReceipt(value)
+      ? Object.freeze({ ok: true, receipt: value })
+      : Object.freeze({ ok: false, rejection: "receipt-invalid" });
   } catch {
-    return undefined;
+    return Object.freeze({ ok: false, rejection: "receipt-invalid" });
   }
 }
 
@@ -181,7 +200,11 @@ function artifactFromReceipt(
   paths: CandidatePaths
 ): CandidateArtifact | undefined {
   const artifactPath = resolve(receipt.artifact.path);
-  if (!isPathWithin(paths.stateDirectory, artifactPath) || !existsSync(artifactPath)) {
+  if (
+    !isPathWithin(paths.stateDirectory, artifactPath) ||
+    !existsSync(artifactPath) ||
+    !pathIsDirectory(paths.stagingDirectory)
+  ) {
     return undefined;
   }
   return Object.freeze({
@@ -192,4 +215,12 @@ function artifactFromReceipt(
     sha256: receipt.artifact.sha256,
     stagingDirectory: paths.stagingDirectory
   });
+}
+
+function pathIsDirectory(directoryPath: string): boolean {
+  try {
+    return statSync(directoryPath).isDirectory();
+  } catch {
+    return false;
+  }
 }

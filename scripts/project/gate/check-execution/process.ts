@@ -7,6 +7,9 @@ import { isNonArrayRecord } from "../../../value-guards.ts";
 import { defineCheck, type Check, type CheckExecutionContext, type CheckResult } from "vibe-check";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
+  dependencyDataInvalid: "dependency-data-invalid",
+  dependencyFailed: "dependency-failed",
+  dependencyUnavailable: "dependency-unavailable",
   executionCancelled: "execution-cancelled",
   exitUnavailable: "exit-unavailable",
   processUnavailable: "process-unavailable",
@@ -18,6 +21,12 @@ type UnavailableReasonCode = (typeof UNAVAILABLE_REASON_CODE)[keyof typeof UNAVA
 export interface ProcessCheckDependencies {
   readonly runProcess: typeof runProcess;
   readonly writeTextFile: typeof writeTextFile;
+}
+
+export interface ProcessCheckDataDependency<Data extends object> {
+  readonly checkId: string;
+  readonly environment: (data: Data) => Readonly<Record<string, string>>;
+  readonly parseData: (data: unknown) => Data;
 }
 
 /** One Check's actual external command boundary. */
@@ -57,6 +66,58 @@ export function createProcessCheck(
         : { status: "failure", action: "block", reason: { code: "invalid-options" } },
     execution: async (context): Promise<CheckResult> =>
       executeProcessCheck(context, invocationLogDirectory, dependencies)
+  });
+}
+
+/** Runs one process only after restoring typed data from one direct provider dependency. */
+export function createProcessCheckWithDataDependency<Data extends object>(
+  definition: ProcessCheckDescriptor,
+  invocationLogDirectory: string,
+  dependency: ProcessCheckDataDependency<Data>,
+  dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
+): Check {
+  return defineCheck<string, ProcessCheckDescriptor>({
+    checkId: definition.checkId,
+    dependsOn: [dependency.checkId],
+    displayName: definition.displayName,
+    options: definition,
+    preflight: (options) =>
+      validProcessCheckDescriptor(options)
+        ? { status: "success", preparedOptions: options }
+        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+    execution: async (context): Promise<CheckResult> => {
+      const read = context.dependencies.get(dependency.checkId);
+      if (!read.ok) return unavailable(UNAVAILABLE_REASON_CODE.dependencyUnavailable);
+      if (read.status !== "passed") return unavailable(UNAVAILABLE_REASON_CODE.dependencyFailed);
+
+      let options: ProcessCheckDescriptor;
+      try {
+        const derivedEnvironment = dependency.environment(dependency.parseData(read.data));
+        if (
+          !isNonArrayRecord(derivedEnvironment) ||
+          !validEnvironment(derivedEnvironment) ||
+          Object.keys(derivedEnvironment).some((name) =>
+            Object.hasOwn(context.options.environment ?? {}, name)
+          )
+        ) {
+          return unavailable(UNAVAILABLE_REASON_CODE.dependencyDataInvalid);
+        }
+        options = Object.freeze({
+          ...context.options,
+          environment: Object.freeze({
+            ...(context.options.environment ?? {}),
+            ...derivedEnvironment
+          })
+        });
+      } catch {
+        return unavailable(UNAVAILABLE_REASON_CODE.dependencyDataInvalid);
+      }
+      return executeProcessCheck(
+        Object.freeze({ ...context, options }),
+        invocationLogDirectory,
+        dependencies
+      );
+    }
   });
 }
 

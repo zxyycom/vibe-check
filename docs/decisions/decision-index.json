@@ -29,7 +29,7 @@
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
-      "default-project-gate-to-required-profile.md": "sha256:4a7a442cbaf55904625fa90ec86354e82bed9c2fc4593cb03c40eb6bc019285e",
+      "default-project-gate-to-required-profile.md": "sha256:81bc2c8e30f441b478e12fe88e8fe21ce5666971906d41ee3bca626bbf18b09e",
       "defer-future-feature-detail-until-prioritized.md": "sha256:7852346befd1c0227510085aafa4bb1403ba511f0c429e834cc051fa4bda1ac6",
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
       "defer-lizard-until-after-check-foundations.md": "sha256:9fb7523e521c64983c7978624dd246ae3473b515f5c8bf243d7a1cb14ba3ca46",
@@ -79,12 +79,14 @@
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
+      "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
+      "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:5f1f9b6f6c3ead439784a93d31795f06a4920c59f78ee4606aa6181ad2c81230",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
@@ -105,7 +107,10 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
+      "reuse-prepared-candidate-across-package-acceptance.md": "sha256:9cd0cc3945131d1302e41949f56afce364e6a29472f3f7bf83a5e112153b9612",
+      "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
+      "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
@@ -151,7 +156,7 @@
       "use-runtime-resolved-check-and-record-core.md": "sha256:b847d6f9fb1b4122e2b5d0671acf9ae37fab63b9081ce872fe0676920c38265f",
       "use-semantic-check-ids-in-project-config.md": "sha256:6573b9ba86972941d7312cd41ebe3f4f259d62ab86cdccc5fc2e6f579ab9e1d5",
       "use-semantic-check-ids-in-quality-records.md": "sha256:7e30b6b103d2a28334ab73707d138be4b1fac6c7166857536f292e62017a2b4c",
-      "use-semantic-test-case-closure.md": "sha256:be961f69ff231afe60c9fb5d7191a59a380199103607313e08b85697740a80dd",
+      "use-semantic-test-case-closure.md": "sha256:171eb708a4b7b35559182224a3165e7bcfe83c82f1a0b6e5c87cad5a58d079cc",
       "use-single-typescript-project-definition.md": "sha256:fd9e52f75b05e36c1e61fef77743df847c9a963ef6a670a5781c4260e27e12f7",
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
@@ -938,16 +943,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "default-project-gate-to-required-profile.md",
+        "sourcePath": "archive/default-project-gate-to-required-profile.md",
         "title": "让默认 Project Gate 使用 required profile",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-23T16:30:16Z",
         "purpose": "让无显式 profile 的正式 Gate 选择必须 assurance，并把 full 保留为显式全部选择。",
@@ -2448,6 +2453,40 @@
         "relations": []
       }
     },
+    "make-package-lifecycle-gate-tests-explicit.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/make-package-lifecycle-gate-tests-explicit.md",
+        "title": "让高成本 package lifecycle Gate 测试显式启用",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T16:55:30Z",
+        "purpose": "让默认 required Gate 保持快速必须 assurance，同时由 full 或显式 tag opt-in 承担高成本物理 package 验收。",
+        "background": "物理 artifact、candidate 与外部 consumer tests 占完整测试执行约八成时间，并具有独立的发布和 package lifecycle 风险边界。",
+        "decision": "required 默认不执行三项 package lifecycle Checks，显式 tag 加入；full 自动执行全部。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "default-project-gate-to-required-profile.md"
+          }
+        ]
+      }
+    },
     "match-change-detail-to-current-phase.md": {
       "keys": {
         "tag": [
@@ -2635,6 +2674,37 @@
             "target": "execute-recursive-checks-through-one-task-graph.md"
           }
         ]
+      }
+    },
+    "provide-prepared-package-candidate-as-typed-check-data.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/provide-prepared-package-candidate-as-typed-check-data.md",
+        "title": "将已准备的 package candidate 表达为 typed Check data",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T23:41:45Z",
+        "purpose": "让可复用的 exact package candidate 成为可验证、可依赖并保留在 Check facts 中的正式结果。",
+        "background": "Gate 在 Run 前必须准备并加载 candidate，但后续 consumer acceptance 仍从 receipt 状态重新恢复同一 artifact。",
+        "decision": "用 required typed provider Check 保留 prepared candidate，consumer Check 通过 direct dependency 消费。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "provide-product-owned-check-progress.md": {
@@ -3252,6 +3322,78 @@
         ]
       }
     },
+    "reuse-prepared-candidate-across-package-acceptance.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "reuse-prepared-candidate-across-package-acceptance.md",
+        "title": "在 package acceptance 间复用已准备 candidate",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T00:41:37Z",
+        "purpose": "让 artifact 与 external consumer 分别消费同一次 prepared candidate，同时保留各自的物理验收责任。",
+        "background": "Gate 已拥有 exact artifact、staging 与安装结果；重复 build 或在 reuse path 重扫 build-only staging 会增加成本但不增加独立证据。",
+        "decision": "扩展 typed provider data，由下游按需消费，并把 staging 内容验收留给 artifact acceptance。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "provide-prepared-package-candidate-as-typed-check-data.md"
+          }
+        ]
+      }
+    },
+    "schedule-project-gate-by-measured-resource-ownership.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "schedule-project-gate-by-measured-resource-ownership.md",
+        "title": "按测量与资源责任调度 Project Gate",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T00:41:38Z",
+        "purpose": "让 Gate 并发度、测试子 Check 与 package mutex 对应已验证的实际资源边界。",
+        "background": "粗粒度测试包遮蔽 owner 失败，四路调度在四核环境慢于三路；artifact 复用 provider 后不再 build 或 install。",
+        "decision": "按行为 owner 拆分测试，root 采用三路调度，只串行仍会执行 package build 或 install 的 Checks。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "make-package-lifecycle-gate-tests-explicit.md"
+          }
+        ]
+      }
+    },
     "separate-check-and-record-type-identities.md": {
       "keys": {
         "tag": [
@@ -3280,6 +3422,40 @@
           {
             "type": "替代",
             "target": "use-semantic-check-ids-in-quality-records.md"
+          }
+        ]
+      }
+    },
+    "separate-test-evidence-closure-from-execution.md": {
+      "keys": {
+        "tag": [
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-test-evidence-closure-from-execution.md",
+        "title": "将测试实体闭合与测试执行拆为独立 assurance",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-26T16:55:29Z",
+        "purpose": "让完整测试身份闭合不再强制由同一个 Check 串行执行全部测试，同时保持每项行为测试的独立失败事实。",
+        "background": "当前 Test Evidence 为取得 Bun JUnit 身份而执行全部测试，静态与 Case 校验不足一秒，而 package lifecycle 测试支配二十余秒关键路径。",
+        "decision": "Test Evidence 用完整测试面的静态声明与 Bun 注册报告闭合实体，实际测试由覆盖同一文件集合的独立 Gate execution 子 Checks 执行。",
+        "tags": [
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-semantic-test-case-closure.md"
           }
         ]
       }
@@ -4609,16 +4785,16 @@
           "testing"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-semantic-test-case-closure.md",
+        "sourcePath": "archive/use-semantic-test-case-closure.md",
         "title": "采用完整测试实体与语义 Case 闭合",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-30T03:24:22Z",
         "purpose": "让完整当前测试事实与长期证明目的分别可靠维护，并持续证明两者没有遗漏或悬空。",

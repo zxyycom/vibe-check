@@ -1,6 +1,6 @@
 ---
 title: 让默认 Project Gate 使用 required profile
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-23T16:30:16Z
 purpose: 让无显式 profile 的正式 Gate 选择必须 assurance，并把 full 保留为显式全部选择。

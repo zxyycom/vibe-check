@@ -36,6 +36,8 @@ export type BunJUnitCase = {
   line: number;
 };
 
+const REGISTRATION_ONLY_TEST_PATTERN = "a^";
+
 export async function discoverBunEntities(
   options: BunDiscoveryOptions
 ): Promise<BunDiscoveryResult> {
@@ -96,17 +98,23 @@ async function enumerateBunTests(
     const result = await runBunCommand({
       cancelSignal: options.cancelSignal,
       workspaceRoot: options.workspaceRoot,
-      args: ["test", ...files, "--reporter=junit", `--reporter-outfile=${reportPath}`],
-      label: "Bun test report"
+      args: [
+        "test",
+        ...files,
+        `--test-name-pattern=${REGISTRATION_ONLY_TEST_PATTERN}`,
+        "--reporter=junit",
+        `--reporter-outfile=${reportPath}`
+      ],
+      label: "Bun test registration report"
     });
-    if (result.status !== 0) {
+    if (result.status !== 0 && result.status !== 1) {
       return {
         entities: [],
         diagnostics: [
           diagnostic(
             "runner-report-failed",
             "runner",
-            processFailureMessage(result, "Bun test report"),
+            processFailureMessage(result, "Bun test registration report"),
             { runner: "bun" }
           )
         ]
@@ -125,9 +133,9 @@ async function enumerateBunTests(
         ]
       };
     }
-    let cases;
+    let cases: BunJUnitCase[];
     try {
-      cases = parseBunJUnit(fs.readFileSync(reportPath, "utf8"));
+      cases = parseBunRegistrationJUnit(fs.readFileSync(reportPath, "utf8"));
     } catch (error) {
       return {
         entities: [],
@@ -155,6 +163,26 @@ async function enumerateBunTests(
 }
 
 export function parseBunJUnit(source: string): BunJUnitCase[] {
+  return parseBunJUnitReport(source).cases;
+}
+
+/** Parses one registration-only report and proves every reported test stayed skipped. */
+export function parseBunRegistrationJUnit(source: string): BunJUnitCase[] {
+  const report = parseBunJUnitReport(source);
+  const skippedElements = [...source.matchAll(/<skipped\b[^>]*\/?>/gu)].length;
+  if (report.skipped !== report.tests || skippedElements !== report.tests) {
+    throw new Error(
+      `registration report must skip every test; reported ${report.skipped} skipped root tests and ${skippedElements} skipped testcase elements for ${report.tests} tests`
+    );
+  }
+  return report.cases;
+}
+
+function parseBunJUnitReport(source: string): Readonly<{
+  readonly cases: BunJUnitCase[];
+  readonly skipped: number;
+  readonly tests: number;
+}> {
   const rootMatch = /<testsuites\b([^>]*)>/u.exec(source);
   if (!rootMatch) {
     throw new Error("testsuites root is missing");
@@ -162,6 +190,7 @@ export function parseBunJUnit(source: string): BunJUnitCase[] {
   const rootAttributes = parseXmlAttributes(rootMatch[1]);
   const expectedTests = parseNonNegativeInteger(rootAttributes.tests, "tests");
   const failures = parseNonNegativeInteger(rootAttributes.failures, "failures");
+  const skipped = parseOptionalNonNegativeInteger(rootAttributes.skipped, "skipped");
   if (failures !== 0) {
     throw new Error(`report contains ${failures} failure(s)`);
   }
@@ -175,7 +204,7 @@ export function parseBunJUnit(source: string): BunJUnitCase[] {
       `testsuites reports ${expectedTests} tests but contains ${cases.length} testcase elements`
     );
   }
-  return cases;
+  return Object.freeze({ cases, skipped, tests: expectedTests });
 }
 
 async function scanBunStaticEntities(
@@ -292,6 +321,10 @@ function parseNonNegativeInteger(value: string | undefined, label: string): numb
     throw new Error(`${label} must be a non-negative integer`);
   }
   return Number.parseInt(value, 10);
+}
+
+function parseOptionalNonNegativeInteger(value: string | undefined, label: string): number {
+  return value === undefined ? 0 : parseNonNegativeInteger(value, label);
 }
 
 function bunLocationIdentity(sourcePath: string, line: number, name: string): string {

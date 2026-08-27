@@ -1,6 +1,6 @@
 ---
 title: 采用完整测试实体与语义 Case 闭合
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-30T03:24:22Z
 purpose: 让完整当前测试事实与长期证明目的分别可靠维护，并持续证明两者没有遗漏或悬空。

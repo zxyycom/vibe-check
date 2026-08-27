@@ -1,119 +1,152 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import {
-  existsSync,
-  lstatSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, it } from "node:test";
+import { after, describe, it } from "node:test";
 
 import { installCandidate } from "./install.ts";
-import { preparePackageCandidate } from "./prepare.ts";
+import {
+  assessPackageCandidatePreparation,
+  preparePackageCandidate,
+  type CandidatePreparationAction
+} from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const candidateModuleUrl = new URL("./prepare.ts", import.meta.url).href;
 
-describe("package candidate preparation", () => {
-  it("prepares a physical candidate lifecycle", { timeout: 20_000 }, async () => {
-    const temporaryRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-candidate-"));
-    const consumerDirectory = join(temporaryRoot, "consumer");
-    const stateDirectory = join(temporaryRoot, "state");
-    try {
-      assertPrivateConsumerManifestDiagnostics(temporaryRoot);
-      writeAncestorJscpdFallback(temporaryRoot);
-      writeConsumerManifest(consumerDirectory);
-      const first = await preparePackageCandidate({
-        consumerDirectory,
-        repositoryRoot,
-        stateDirectory
-      });
-      assert.equal(first.reused, false);
-      assert.equal(existsSync(first.artifactPath), true);
-      assert.equal(lstatSync(first.installedPackageDirectory).isSymbolicLink(), false);
-      assert.equal(existsSync(first.resolvedEntryPath), true);
-      assert.equal(first.resolvedEntryPath.startsWith(first.installedPackageDirectory), true);
-      assert.equal(
-        createRequire(first.resolvedEntryPath)
-          .resolve("jscpd/package.json")
-          .startsWith(join(consumerDirectory, "node_modules")),
-        true
-      );
-      assert.throws(
-        () =>
-          installCandidate({
-            artifactPath: first.artifactPath,
-            candidateVersion: first.candidateVersion,
-            consumerDirectory,
-            expectedJSDocExamplePayloads: [],
-            expectedReadme: "incorrect candidate README\n"
-          }),
-        /installed candidate README differs from the expected package documentation/
-      );
-      const reused = await preparePackageCandidate({
-        consumerDirectory,
-        repositoryRoot,
-        stateDirectory
-      });
-      assert.equal(reused.reused, true);
-      assert.equal(reused.inputFingerprint, first.inputFingerprint);
-      assert.equal(reused.sha256, first.sha256);
+describe("package candidate preparation", { concurrency: false, timeout: 20_000 }, () => {
+  let fixturePromise:
+    | Promise<
+        Readonly<{
+          consumerDirectory: string;
+          first: Awaited<ReturnType<typeof preparePackageCandidate>>;
+          fixtureRoot: string;
+          stateDirectory: string;
+        }>
+      >
+    | undefined;
+  let candidateFixtureRoot: string | undefined;
 
-      rmSync(join(consumerDirectory, "node_modules", "jscpd"), { force: true, recursive: true });
-      const ancestorResolvedJscpd = resolveJscpdFromFreshBunProcess(first.resolvedEntryPath);
-      assert.equal(
-        ancestorResolvedJscpd.startsWith(join(temporaryRoot, "node_modules")),
-        true,
-        ancestorResolvedJscpd
-      );
-      const reinstalled = prepareInFreshBunProcess({
-        consumerDirectory,
-        repositoryRoot,
-        stateDirectory
-      });
-      assert.equal(reinstalled, false);
-      assert.equal(
-        createRequire(first.resolvedEntryPath)
-          .resolve("jscpd/package.json")
-          .startsWith(join(consumerDirectory, "node_modules")),
-        true
-      );
-
-      const receiptSource = readFileSync(join(stateDirectory, "preparation-receipt.json"), "utf8");
-      assert.equal(receiptSource.includes(first.inputFingerprint), true);
-      writeFileSync(
-        join(stateDirectory, "preparation-receipt.json"),
-        receiptSource.replace(first.inputFingerprint, "stale-documentation-input-fingerprint"),
-        "utf8"
-      );
-      const rebuilt = await preparePackageCandidate({
-        consumerDirectory,
-        repositoryRoot,
-        stateDirectory
-      });
-      assert.equal(rebuilt.reused, false);
-      assert.equal(rebuilt.inputFingerprint, first.inputFingerprint);
-      assert.equal(existsSync(rebuilt.resolvedEntryPath), true);
-
-      writeFileSync(join(stateDirectory, "preparation-receipt.json"), "not JSON\n", "utf8");
-      const rebuiltFromMalformedReceipt = await preparePackageCandidate({
-        consumerDirectory,
-        repositoryRoot,
-        stateDirectory
-      });
-      assert.equal(rebuiltFromMalformedReceipt.reused, false);
-      assert.equal(rebuiltFromMalformedReceipt.inputFingerprint, first.inputFingerprint);
-      assert.equal(existsSync(rebuiltFromMalformedReceipt.resolvedEntryPath), true);
-    } finally {
-      rmSync(temporaryRoot, { force: true, recursive: true });
+  const fixture = () => {
+    if (fixturePromise === undefined) {
+      candidateFixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-candidate-"));
+      fixturePromise = (async () => {
+        if (candidateFixtureRoot === undefined)
+          throw new Error("candidate fixture root must exist");
+        const fixtureRoot = candidateFixtureRoot;
+        const consumerDirectory = join(fixtureRoot, "consumer");
+        const stateDirectory = join(fixtureRoot, "state");
+        writeAncestorJscpdFallback(fixtureRoot);
+        writeConsumerManifest(consumerDirectory);
+        const first = await preparePackageCandidate({
+          consumerDirectory,
+          repositoryRoot,
+          stateDirectory
+        });
+        return Object.freeze({ consumerDirectory, first, fixtureRoot, stateDirectory });
+      })();
     }
+    return fixturePromise;
+  };
+
+  after(() => {
+    if (candidateFixtureRoot !== undefined)
+      rmSync(candidateFixtureRoot, { force: true, recursive: true });
+  });
+
+  it("rejects invalid private consumer manifests", () => {
+    const diagnosticsRoot = mkdtempSync(join(tmpdir(), "vibe-check-candidate-diagnostics-"));
+    try {
+      assertPrivateConsumerManifestDiagnostics(diagnosticsRoot);
+    } finally {
+      rmSync(diagnosticsRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("builds, installs, and reuses a physical candidate", { timeout: 20_000 }, async () => {
+    const { consumerDirectory, first, stateDirectory } = await fixture();
+    assert.equal(first.reused, false);
+    assert.equal(first.preparationAction, "rebuild");
+    assert.equal(first.preparationReason, "receipt-missing");
+    assert.equal(existsSync(first.artifactPath), true);
+    assert.equal(lstatSync(first.installedPackageDirectory).isSymbolicLink(), false);
+    assert.equal(existsSync(first.resolvedEntryPath), true);
+    assert.equal(first.resolvedEntryPath.startsWith(first.installedPackageDirectory), true);
+    assert.equal(
+      createRequire(first.resolvedEntryPath)
+        .resolve("jscpd/package.json")
+        .startsWith(join(consumerDirectory, "node_modules")),
+      true
+    );
+    const reused = await preparePackageCandidate({
+      consumerDirectory,
+      repositoryRoot,
+      stateDirectory
+    });
+    assert.equal(reused.reused, true);
+    assert.equal(reused.preparationAction, "reuse");
+    assert.equal(reused.preparationReason, "installation-current");
+    assert.equal(reused.inputFingerprint, first.inputFingerprint);
+    assert.equal(reused.sha256, first.sha256);
+  });
+
+  it("keeps staging audit in build acceptance after packed artifact reuse", async () => {
+    const { consumerDirectory, first, stateDirectory } = await fixture();
+    writeFileSync(join(first.stagingDirectory, "README.md"), "drifted build evidence\n", "utf8");
+    assert.deepEqual(
+      assessPackageCandidatePreparation({ consumerDirectory, repositoryRoot, stateDirectory }),
+      { action: "reuse", reason: "installation-current" }
+    );
+  });
+
+  it("rejects installed documentation drift", { timeout: 20_000 }, async () => {
+    const { consumerDirectory, first } = await fixture();
+    assert.throws(
+      () =>
+        installCandidate({
+          artifactPath: first.artifactPath,
+          candidateVersion: first.candidateVersion,
+          consumerDirectory,
+          expectedJSDocExamplePayloads: [],
+          expectedReadme: "incorrect candidate README\n"
+        }),
+      /installed candidate README differs from the expected package documentation/
+    );
+  });
+
+  it("reinstalls missing dependency without ancestor fallback", { timeout: 20_000 }, async () => {
+    const { consumerDirectory, first, fixtureRoot, stateDirectory } = await fixture();
+    rmSync(join(consumerDirectory, "node_modules", "jscpd"), { force: true, recursive: true });
+    const ancestorResolvedJscpd = resolveJscpdFromFreshBunProcess(first.resolvedEntryPath);
+    assert.equal(
+      ancestorResolvedJscpd.startsWith(join(fixtureRoot, "node_modules")),
+      true,
+      ancestorResolvedJscpd
+    );
+    const reinstalled = prepareInFreshBunProcess({
+      consumerDirectory,
+      repositoryRoot,
+      stateDirectory
+    });
+    assert.equal(reinstalled, "reinstall");
+    assert.equal(
+      createRequire(first.resolvedEntryPath)
+        .resolve("jscpd/package.json")
+        .startsWith(join(consumerDirectory, "node_modules")),
+      true
+    );
+  });
+
+  it("classifies a malformed preparation receipt for cold rebuild", async () => {
+    const { consumerDirectory, stateDirectory } = await fixture();
+    writeFileSync(join(stateDirectory, "preparation-receipt.json"), "not JSON\n", "utf8");
+    assert.deepEqual(
+      assessPackageCandidatePreparation({ consumerDirectory, repositoryRoot, stateDirectory }),
+      { action: "rebuild", reason: "receipt-invalid" }
+    );
   });
 });
 
@@ -185,12 +218,12 @@ function prepareInFreshBunProcess(input: {
   readonly consumerDirectory: string;
   readonly repositoryRoot: string;
   readonly stateDirectory: string;
-}): boolean {
+}): CandidatePreparationAction {
   const result = spawnSync(
     process.execPath,
     [
       "-e",
-      "const { preparePackageCandidate } = await import(process.argv[1]); const candidate = await preparePackageCandidate({ repositoryRoot: process.argv[2], consumerDirectory: process.argv[3], stateDirectory: process.argv[4] }); process.stdout.write(candidate.reused ? 'reused' : 'updated');",
+      "const { preparePackageCandidate } = await import(process.argv[1]); const candidate = await preparePackageCandidate({ repositoryRoot: process.argv[2], consumerDirectory: process.argv[3], stateDirectory: process.argv[4] }); process.stdout.write(candidate.preparationAction);",
       candidateModuleUrl,
       input.repositoryRoot,
       input.consumerDirectory,
@@ -200,5 +233,9 @@ function prepareInFreshBunProcess(input: {
   );
   assert.equal(result.error, undefined);
   assert.equal(result.status, 0, result.stderr);
-  return result.stdout.trim() === "reused";
+  const action = result.stdout.trim();
+  if (action !== "rebuild" && action !== "reinstall" && action !== "reuse") {
+    throw new TypeError(`fresh candidate preparation returned an invalid action: ${action}`);
+  }
+  return action;
 }

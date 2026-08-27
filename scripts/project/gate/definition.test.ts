@@ -17,6 +17,22 @@ import {
   createTestEvidenceRuleTestsCheck,
   type TestEvidenceRuleTestsCheckDependencies
 } from "./test-evidence/ast-grep-rule-tests-check.ts";
+import { resolveProjectGateTestLanes } from "./test-execution/lanes.ts";
+
+const preparedCandidate = Object.freeze({
+  artifactPath: "/tmp/project-gate-candidate/artifacts/vibe-check.tgz",
+  candidateVersion: "0.0.0-local.fixture",
+  consumerDirectory: "/tmp/project-gate-candidate/consumer",
+  files: Object.freeze(["package/index.mjs"]),
+  inputFingerprint: "a".repeat(64),
+  installedPackageDirectory: "/tmp/project-gate-candidate/consumer/node_modules/vibe-check",
+  preparationAction: "reuse",
+  preparationReason: "installation-current",
+  resolvedEntryPath: "/tmp/project-gate-candidate/consumer/node_modules/vibe-check/index.mjs",
+  reused: true,
+  sha256: "b".repeat(64),
+  stagingDirectory: "/tmp/project-gate-candidate/staging"
+});
 
 const expectedCheckIds = [
   "typecheck-product",
@@ -24,6 +40,22 @@ const expectedCheckIds = [
   "typecheck-scripts",
   "lint-scripts",
   "format-check",
+  "prepared-package-candidate",
+  "tests-package-supporting",
+  "tests-package-candidate",
+  "tests-package-artifact",
+  "tests-package-consumer",
+  "tests-product-duplicate-detection",
+  "tests-product-file-metrics",
+  "tests-product-function-metrics",
+  "tests-product-json",
+  "tests-product-markdown-links",
+  "tests-product-supporting-checks",
+  "tests-product-runtime",
+  "tests-scripts-project",
+  "tests-scripts-test-evidence",
+  "tests-scripts-validation",
+  "tests-scripts-tooling",
   "repository-quality",
   "docs-json-validator",
   "docs-schema-validator",
@@ -37,10 +69,14 @@ const expectedCheckIds = [
 
 describe("Project Gate Definition", () => {
   it("projects ordinary Check entries without a command catalog or policy", () => {
-    const entries = createProjectGateEntries({ invocationLogDirectory: "/tmp/project-gate-logs" });
+    const entries = createProjectGateEntries({
+      invocationLogDirectory: "/tmp/project-gate-logs",
+      preparedCandidate
+    });
     const definition = createProjectGateDefinition(entries, {
       profile: "required",
-      disabledTags: []
+      disabledTags: [],
+      enabledTags: []
     });
 
     assert.deepEqual(
@@ -51,7 +87,7 @@ describe("Project Gate Definition", () => {
       machinePublication: { directory: "artifacts/vibe-check", enabled: false },
       progressRendering: { enabled: true }
     });
-    assert.deepEqual(definition.scheduler, { maxParallel: 4 });
+    assert.deepEqual(definition.scheduler, { maxParallel: 3 });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
 
@@ -74,6 +110,52 @@ describe("Project Gate Definition", () => {
     if (typeof scanOnlyEntry !== "string") throw new Error("fixture scan entry must be a string");
     assert.match(scanOnlyEntry, /scripts\/project\/quality\/scan\.ts$/);
     assert.equal(scanOnlyEntry.includes("run-quality"), false);
+
+    const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
+    for (const [checkId, files] of [
+      ["tests-product-duplicate-detection", expectedTestLanes.productDuplicateDetection],
+      ["tests-product-file-metrics", expectedTestLanes.productFileMetrics],
+      ["tests-product-function-metrics", expectedTestLanes.productFunctionMetrics],
+      ["tests-product-json", expectedTestLanes.productJsonChecks],
+      ["tests-product-markdown-links", expectedTestLanes.productMarkdownLinks],
+      ["tests-product-supporting-checks", expectedTestLanes.productSupportingChecks],
+      ["tests-product-runtime", expectedTestLanes.productRuntime],
+      ["tests-scripts-project", expectedTestLanes.scriptsProject],
+      ["tests-scripts-test-evidence", expectedTestLanes.scriptsTestEvidence],
+      ["tests-scripts-validation", expectedTestLanes.scriptsValidation],
+      ["tests-scripts-tooling", expectedTestLanes.scriptsTooling],
+      ["tests-package-supporting", expectedTestLanes.packageSupporting],
+      ["tests-package-artifact", expectedTestLanes.packageArtifact],
+      ["tests-package-candidate", expectedTestLanes.packageCandidate],
+      ["tests-package-consumer", expectedTestLanes.packageConsumer]
+    ] as const) {
+      const entry = entries.find(({ check }) => check.checkId === checkId);
+      assert.ok(entry, `${checkId} must exist`);
+      assert.ok(isNonArrayRecord(entry.check.options));
+      assert.equal(entry.check.options.command, process.execPath);
+      assert.deepEqual(entry.check.options.args, ["test", ...files, "--reporter=dots"]);
+      assert.equal(entry.check.options.args.includes("--parallel"), false);
+    }
+    for (const checkId of ["tests-package-candidate", "tests-package-consumer"]) {
+      const entry = entries.find(({ check }) => check.checkId === checkId);
+      assert.deepEqual(entry?.check.mutex, ["project-gate-package-lifecycle"]);
+    }
+    assert.equal(
+      entries.find(({ check }) => check.checkId === "tests-package-artifact")?.check.mutex,
+      undefined
+    );
+    const preparedCandidateEntry = entries.find(
+      ({ check }) => check.checkId === "prepared-package-candidate"
+    );
+    const packageConsumerEntry = entries.find(
+      ({ check }) => check.checkId === "tests-package-consumer"
+    );
+    const packageArtifactEntry = entries.find(
+      ({ check }) => check.checkId === "tests-package-artifact"
+    );
+    assert.deepEqual(packageArtifactEntry?.check.dependsOn, ["prepared-package-candidate"]);
+    assert.deepEqual(packageConsumerEntry?.check.dependsOn, ["prepared-package-candidate"]);
+    assert.equal(typeof Reflect.get(preparedCandidateEntry?.check ?? {}, "parseData"), "function");
 
     const prerequisite = defineCheck({
       checkId: "fixture-prerequisite",
@@ -124,18 +206,50 @@ describe("Project Gate Definition", () => {
   it("derives required, full, and partial aggregates from the same entries", async () => {
     const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
-      const entries = createProjectGateEntries({ invocationLogDirectory: logDirectory });
+      const entries = createProjectGateEntries({
+        invocationLogDirectory: logDirectory,
+        preparedCandidate
+      });
       const selections = [
-        { profile: "required" as const, disabledTags: [] as const },
-        { profile: "full" as const, disabledTags: [] as const },
-        { profile: "required" as const, disabledTags: ["quality"] as const }
+        {
+          profile: "required" as const,
+          disabledTags: [] as const,
+          enabledTags: [] as const
+        },
+        { profile: "full" as const, disabledTags: [] as const, enabledTags: [] as const },
+        {
+          profile: "required" as const,
+          disabledTags: ["quality"] as const,
+          enabledTags: [] as const
+        },
+        {
+          profile: "required" as const,
+          disabledTags: [] as const,
+          enabledTags: ["package-tests"] as const
+        },
+        {
+          profile: "full" as const,
+          disabledTags: ["package-tests"] as const,
+          enabledTags: [] as const
+        }
       ];
 
       for (const selection of selections) {
+        const disabledTags = new Set<string>(selection.disabledTags);
+        const enabledTags = new Set<string>(selection.enabledTags);
+        const packageLifecycleCheckIds = new Set([
+          "tests-package-artifact",
+          "tests-package-candidate",
+          "tests-package-consumer"
+        ]);
         createProjectGateDefinition(entries, selection);
         assert.deepEqual(projectGateAggregation(entries, selection), {
           checks: expectedCheckIds.filter(
-            (checkId) => checkId !== "repository-quality" || selection.disabledTags.length === 0
+            (checkId) =>
+              (checkId !== "repository-quality" || !disabledTags.has("quality")) &&
+              (!packageLifecycleCheckIds.has(checkId) ||
+                (!disabledTags.has("package-tests") && selection.profile === "full") ||
+                enabledTags.has("package-tests"))
           ),
           empty: "failed",
           mode: "all",
@@ -148,7 +262,8 @@ describe("Project Gate Definition", () => {
       assert.ok(repositoryQuality, "repository quality entry must exist");
       const excluded = projectGateCheckForSelection(repositoryQuality, {
         profile: "required",
-        disabledTags: ["quality"]
+        disabledTags: ["quality"],
+        enabledTags: []
       });
       assert.ok(excluded.execution, "eligible projection must preserve a Check callback");
       const result = await excluded.execution({
@@ -170,6 +285,24 @@ describe("Project Gate Definition", () => {
       });
       assert.equal(existsSync(join(logDirectory, "repository-quality.log")), false);
 
+      for (const packageCheckId of [
+        "tests-package-artifact",
+        "tests-package-candidate",
+        "tests-package-consumer"
+      ]) {
+        const packageTests = entries.find(({ check }) => check.checkId === packageCheckId);
+        assert.ok(packageTests, `${packageCheckId} must exist`);
+        const notEnabled = projectGateCheckForSelection(packageTests, {
+          profile: "required",
+          disabledTags: [],
+          enabledTags: []
+        });
+        assert.deepEqual(await invokeCheck(notEnabled), {
+          status: "not-applicable",
+          reason: { code: "tag-not-enabled" }
+        });
+      }
+
       let profileExcludedWorkStarted = false;
       const profileOnlyEntry = defineProjectGateEntries([
         {
@@ -188,7 +321,8 @@ describe("Project Gate Definition", () => {
       if (profileOnlyEntry === undefined) throw new Error("fixture entry must be present");
       const profileExcluded = projectGateCheckForSelection(profileOnlyEntry, {
         profile: "required",
-        disabledTags: []
+        disabledTags: [],
+        enabledTags: []
       });
       assert.deepEqual(await invokeCheck(profileExcluded), {
         status: "not-applicable",

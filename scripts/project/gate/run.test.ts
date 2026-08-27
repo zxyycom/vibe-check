@@ -5,8 +5,9 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
+import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 
-import { parseProjectGateArguments, selectionFlags } from "./controls.ts";
+import { parseProjectGateArguments, selectionFlags, selectionFromFlags } from "./controls.ts";
 import {
   createInvocationLogDirectory,
   PROJECT_GATE_EXIT_STATUS,
@@ -20,12 +21,14 @@ const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",
   candidateVersion: "0.0.0-local.fixture",
   consumerDirectory: "/tmp/consumer",
-  files: [],
-  inputFingerprint: "fixture",
+  files: ["package/index.mjs"],
+  inputFingerprint: "a".repeat(64),
   installedPackageDirectory: "/tmp/consumer/node_modules/vibe-check",
+  preparationAction: "reuse",
+  preparationReason: "installation-current",
   resolvedEntryPath: "/tmp/consumer/node_modules/vibe-check/index.mjs",
   reused: true,
-  sha256: "fixture",
+  sha256: "b".repeat(64),
   stagingDirectory: "/tmp/staging"
 });
 
@@ -35,6 +38,22 @@ const expectedCheckIds = [
   "typecheck-scripts",
   "lint-scripts",
   "format-check",
+  "prepared-package-candidate",
+  "tests-package-supporting",
+  "tests-package-candidate",
+  "tests-package-artifact",
+  "tests-package-consumer",
+  "tests-product-duplicate-detection",
+  "tests-product-file-metrics",
+  "tests-product-function-metrics",
+  "tests-product-json",
+  "tests-product-markdown-links",
+  "tests-product-supporting-checks",
+  "tests-product-runtime",
+  "tests-scripts-project",
+  "tests-scripts-test-evidence",
+  "tests-scripts-validation",
+  "tests-scripts-tooling",
   "repository-quality",
   "docs-json-validator",
   "docs-schema-validator",
@@ -73,7 +92,10 @@ describe("Project Gate entries, root binding, and controls", () => {
   });
 
   it("keeps the explicit assurance identities and current profile membership closed", () => {
-    const entries = createProjectGateEntries({ invocationLogDirectory: "/tmp/project-gate-logs" });
+    const entries = createProjectGateEntries({
+      invocationLogDirectory: "/tmp/project-gate-logs",
+      preparedCandidate: prepared
+    });
     const expectedIds = new Set(expectedCheckIds);
     const checkIds = new Set(entries.map(({ check }) => check.checkId));
 
@@ -94,10 +116,10 @@ describe("Project Gate entries, root binding, and controls", () => {
       assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
   });
 
-  it("defaults to required and normalizes explicit profile plus repeatable disabled tags into opaque flags", () => {
+  it("defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags", () => {
     assert.deepEqual(parseProjectGateArguments([]), {
       ok: true,
-      value: { profile: "required", disabledTags: [] }
+      value: { profile: "required", disabledTags: [], enabledTags: [] }
     });
     const parsed = parseProjectGateArguments([
       "--profile",
@@ -107,21 +129,45 @@ describe("Project Gate entries, root binding, and controls", () => {
       "--disable-tag",
       "docs",
       "--disable-tag",
-      "quality"
+      "quality",
+      "--enable-tag",
+      "package-tests",
+      "--enable-tag",
+      "package-tests"
     ]);
 
     assert.deepEqual(parsed, {
       ok: true,
-      value: { profile: "full", disabledTags: ["docs", "quality"] }
+      value: {
+        profile: "full",
+        disabledTags: ["docs", "quality"],
+        enabledTags: ["package-tests"]
+      }
     });
     if (!parsed.ok) return;
     assert.deepEqual(selectionFlags(parsed.value), [
       "project-gate:profile=full",
       "project-gate:disable-tag=docs",
-      "project-gate:disable-tag=quality"
+      "project-gate:disable-tag=quality",
+      "project-gate:enable-tag=package-tests"
     ]);
+    assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--disable-tag", ""]).ok, false);
+    assert.equal(parseProjectGateArguments(["--enable-tag", "quality"]).ok, false);
+    assert.equal(
+      parseProjectGateArguments(["--enable-tag", "package-tests", "--disable-tag", "package-tests"])
+        .ok,
+      false
+    );
+    assert.equal(
+      selectionFromFlags([
+        "project-gate:profile=required",
+        "project-gate:enable-tag=package-tests",
+        "project-gate:disable-tag=package-tests"
+      ]),
+      undefined
+    );
   });
 });
 
@@ -175,10 +221,23 @@ describe("Project Gate adapter closure", () => {
     let preparedCandidates = 0;
     let ran = 0;
     let runInput:
-      | Readonly<{ readonly flags: readonly string[]; readonly invocationLogDirectory: string }>
+      | Readonly<{
+          readonly flags: readonly string[];
+          readonly invocationLogDirectory: string;
+          readonly preparedCandidate: PreparedPackageCandidate;
+        }>
       | undefined;
     const status = await runProjectGate(
-      ["--profile", "full", "--disable-tag", "docs", "--disable-tag", "docs"],
+      [
+        "--profile",
+        "full",
+        "--disable-tag",
+        "docs",
+        "--disable-tag",
+        "docs",
+        "--enable-tag",
+        "package-tests"
+      ],
       {
         createInvocationLogDirectory: (): string => {
           createdLogs += 1;
@@ -208,8 +267,13 @@ describe("Project Gate adapter closure", () => {
     assert.equal(createdLogs, 1);
     assert.equal(ran, 1);
     assert.deepEqual(runInput, {
-      flags: ["project-gate:profile=full", "project-gate:disable-tag=docs"],
-      invocationLogDirectory: "/tmp/project-gate-logs"
+      flags: [
+        "project-gate:profile=full",
+        "project-gate:disable-tag=docs",
+        "project-gate:enable-tag=package-tests"
+      ],
+      invocationLogDirectory: "/tmp/project-gate-logs",
+      preparedCandidate: prepared
     });
 
     const logDirectory = createInvocationLogDirectory();

@@ -8,6 +8,7 @@ import type { ProcessResult } from "../../../process-execution/execution.ts";
 import { defineConfig, run, type CheckResult } from "vibe-check";
 import {
   createProcessCheck,
+  createProcessCheckWithDataDependency,
   type ProcessCheckDescriptor,
   type ProcessCheckDependencies
 } from "./process.ts";
@@ -43,6 +44,108 @@ describe("Project Gate process Check", () => {
       const transcript = readFileSync(join(root, "fixture-command.log"), "utf8");
       assert.match(transcript, /--- stdout ---\nout/);
       assert.match(transcript, /--- stderr ---\nerr/);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
+  it("derives process environment from one typed provider dependency", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
+    let dependencyEnvironmentValid = true;
+    let starts = 0;
+    let observedEnvironment: NodeJS.ProcessEnv | undefined;
+    try {
+      const check = createProcessCheckWithDataDependency(
+        definition,
+        root,
+        {
+          checkId: "fixture-provider",
+          parseData(data: unknown): Readonly<{ readonly version: 1 }> {
+            if (typeof data !== "object" || data === null || Reflect.get(data, "version") !== 1) {
+              throw new TypeError("invalid fixture provider data");
+            }
+            return Object.freeze({ version: 1 });
+          },
+          environment: (data) => {
+            if (dependencyEnvironmentValid)
+              return { PROJECT_GATE_TYPED_FIXTURE: String(data.version) };
+            const malformedEnvironment: Record<string, string> = {};
+            Object.defineProperty(malformedEnvironment, "PROJECT_GATE_TYPED_FIXTURE", {
+              enumerable: true,
+              get() {
+                throw new TypeError("fixture environment getter failed");
+              }
+            });
+            return malformedEnvironment;
+          }
+        },
+        {
+          runProcess: async (input): Promise<ProcessResult> => {
+            starts += 1;
+            observedEnvironment = input.env;
+            return { signal: null, status: 0, stderr: "", stdout: "" };
+          },
+          writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+        }
+      );
+      const execution = check.execution;
+      if (execution === undefined) throw new Error("dependent fixture Check must be executable");
+      const invokeDependency = (get: Parameters<typeof execution>[0]["dependencies"]["get"]) =>
+        execution({
+          dependencies: { get },
+          options: check.options ?? {},
+          project: { changedFiles: [], flags: [], root: process.cwd() },
+          records: { report: () => undefined },
+          signal: new AbortController().signal
+        });
+
+      assert.deepEqual(
+        await invokeDependency((checkId) => ({
+          ok: true,
+          checkId,
+          status: "passed",
+          data: { version: 1 }
+        })),
+        { status: "passed", data: { exitCode: 0 } }
+      );
+      assert.equal(observedEnvironment?.PROJECT_GATE_TYPED_FIXTURE, "1");
+      dependencyEnvironmentValid = false;
+      assert.deepEqual(
+        await invokeDependency((checkId) => ({
+          ok: true,
+          checkId,
+          status: "passed",
+          data: { version: 1 }
+        })),
+        { status: "unavailable", reason: { code: "dependency-data-invalid" } }
+      );
+      dependencyEnvironmentValid = true;
+      assert.deepEqual(
+        await invokeDependency((checkId) => ({
+          ok: true,
+          checkId,
+          status: "passed",
+          data: { version: 2 }
+        })),
+        { status: "unavailable", reason: { code: "dependency-data-invalid" } }
+      );
+      assert.deepEqual(
+        await invokeDependency((checkId) => ({
+          ok: true,
+          checkId,
+          status: "failed",
+          data: { version: 1 }
+        })),
+        { status: "unavailable", reason: { code: "dependency-failed" } }
+      );
+      assert.deepEqual(
+        await invokeDependency((checkId) => ({
+          ok: false,
+          error: { code: "upstream-data-unavailable", checkId, status: "unavailable" }
+        })),
+        { status: "unavailable", reason: { code: "dependency-unavailable" } }
+      );
+      assert.equal(starts, 1);
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

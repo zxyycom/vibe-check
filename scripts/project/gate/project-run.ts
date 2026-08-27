@@ -7,6 +7,7 @@ import {
   type RunControls,
   type RunResult
 } from "vibe-check";
+import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 
 import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
 import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
@@ -19,7 +20,10 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../.
 export const resolvedEntryPath = fileURLToPath(import.meta.resolve("vibe-check"));
 
 export type ProjectGateRunControls = Readonly<
-  Pick<RunControls, "flags" | "signal"> & { readonly invocationLogDirectory: string }
+  Pick<RunControls, "flags" | "signal"> & {
+    readonly invocationLogDirectory: string;
+    readonly preparedCandidate: PreparedPackageCandidate;
+  }
 >;
 
 /** Binds one fresh project Definition to one adapter-owned invocation log root. */
@@ -29,7 +33,8 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
     throw new TypeError("Project Gate controls failed closed validation");
 
   const entries = createProjectGateEntries({
-    invocationLogDirectory: controls.invocationLogDirectory
+    invocationLogDirectory: controls.invocationLogDirectory,
+    preparedCandidate: controls.preparedCandidate
   });
   return packageRun(createProjectGateDefinition(entries, selection), {
     checkAggregation: projectGateAggregation(entries, selection),

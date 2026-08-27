@@ -14,19 +14,37 @@ Entities:
 Owner: `docs/script-tooling.md#package-artifact-与-candidate`
 Entities:
 
-- `bun|scripts/package/artifact/artifact.test.ts|package artifact > builds and audits the approved package artifact`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages the approved documentation inventory`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits documented public declarations`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
+- `bun|scripts/package/artifact/acceptance-input.test.ts|accepts provider-owned artifact staging material`
+- `bun|scripts/package/artifact/acceptance-input.test.ts|rejects incomplete or unrelated artifact staging material`
 - `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings`
 - `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization`
 - `bun|scripts/package/artifact/runtime-source-maps.test.ts|runtime source maps > normalizes and verifies one map against its packaged TypeScript source`
-- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > prepares a physical candidate lifecycle`
-- `bun|scripts/package/candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > rejects invalid private consumer manifests`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > builds, installs, and reuses a physical candidate`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > keeps staging audit in build acceptance after packed artifact reuse`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > rejects installed documentation drift`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > reinstalls missing dependency without ancestor fallback`
+- `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > classifies a malformed preparation receipt for cold rebuild`
+- `bun|scripts/package/candidate/acceptance-input.test.ts|accepts an exact Gate candidate artifact input`
+- `bun|scripts/package/candidate/acceptance-input.test.ts|rejects incomplete or mismatched Gate candidate artifact input`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > installs the artifact outside repository ancestry`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > typechecks public imports and declaration QuickInfo`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > executes projected package API documentation examples`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > resolves runtime tooling without ancestry fallback`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > runs installed package and reports progress`
+- `bun|scripts/package/candidate/receipt.test.ts|rejects malformed and stale receipts before artifact reuse`
 - `bun|scripts/project/quality/locked-run.test.ts|candidate-backed quality workflow > does not start the repository scan when candidate preparation fails`
   Proves:
 - The candidate owner derives one local package with only the approved runtime exports, declared package dependencies (including the Product-owned Ajv 2020-12 and Markdown Link parser runtimes), a physical consumer install, and a resolved installed entry.
 - Artifact construction preserves ordinary path strings, rejects malformed emitted JavaScript, and normalizes every relative ESM import, re-export, dynamic import, and side-effect import to a resolvable `.mjs` target.
 - Runtime source-map normalization derives each packaged source path from its emitted module path, embeds that exact source, and rejects later source drift.
 - Before candidate installation, artifact audit independently verifies the exact root facade, readable `dist/esm/**.mjs` tree, source maps and packaged source correspondence, declarations, documentation inventory, and production dependency manifest.
-- A matching receipt reuses the existing build/pack/install state; a malformed receipt is never trusted and causes preparation to rebuild before returning a consumer entry.
+- Reuse revalidates the packed artifact digest/material and installed consumer that downstream execution actually uses; staging content remains build evidence and is re-audited by artifact acceptance rather than every candidate reuse.
+- A matching receipt reuses the existing build/pack/install state; stale and malformed receipts produce an explicit rebuild assessment before mutation. The same rebuild executor is physically proven by cold preparation rather than repeated solely for malformed-receipt routing.
 - A missing candidate-owned `jscpd` or Ajv closure is not satisfied by ancestor resolution: preparation reinstalls before returning a repository consumer entry.
 - An ancestry-external temporary Bun consumer installs the accepted tarball, typechecks the approved public operations, values, and type roots (including explicit aggregation, a versioned typed provider, non-generic string dependency reads, four-state custom final data with terminal messages, `attention` visibility, two-argument supplemental Record reporting, and final-snapshot `RunResult.checkDurations` / `checkMessages` without new duration or message type roots), then typechecks the specialized `maintenanceReminders` policy constructor and completes an integrated default Run including `duplicateDetection`, `jsonSchemaValidation`, and `markdownLinkValidation` using a `jscpd` manifest and declared bin resolved from that consumer's installation rather than repository sources or dependencies.
 - The external consumer needs neither casts, manual read generics, nor ancestry imports to have one changed-files provider execute once, let two direct consumers explicitly parse its settled data, and reuse that same versioned parser for both `RunResult` and the existing v4 machine final-data projection.
@@ -84,14 +102,14 @@ Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds retained workspace verification names directly to the Gate profiles without disabled tags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current profile membership closed`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable disabled tags into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects ordinary Check entries without a command catalog or policy`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > derives required, full, and partial aggregates from the same entries`
   Proves:
 - 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 不传 disabled tags。
-- Project-private entries 只附加 profile/tag metadata；current required/full 共用明确的 assurance identity set，Definition 与 explicit aggregation 从同一 entries 投影 eligibility。
-- adapter 无参时默认 required，只接受合法显式 profile 与重复 disabled tag，并将其规范化为 opaque flags；disabled tags 只留给 direct local partial invocation。
-- Excluded Checks 保留稳定 `profile-excluded` / `tag-disabled` raw facts，aggregate 只消费同次 selection 的 eligible identities。
+- Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check 与三个 package acceptance Checks 使用独立 assurance identities，Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度，只有继续 build/install 的 candidate 与 external consumer 共享 named mutex，只读 artifact acceptance 仍保留独立 terminal fact 与 transcript。
+- adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。
+- Required 默认排除三个 package lifecycle Checks，显式 enable tag 或 full 纳入；excluded Checks 保留稳定 `profile-excluded` / `tag-disabled` / `tag-not-enabled` raw facts，aggregate 只消费同次 selection 的 eligible identities。
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 
@@ -110,15 +128,28 @@ Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > derives process environment from one typed provider dependency`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > cancels an already-started process and preserves its transcript`
   Proves:
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。
+- Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
 - The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the corresponding `{ checkId, level, code, message }` item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
 - 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。
+
+## Case AUX-PROJECT-GATE-PREPARED-CANDIDATE-001: Gate 将已准备 candidate 保留为 typed fact
+
+Owner: `docs/script-tooling.md#project-gate`
+Entities:
+
+- `bun|scripts/project/gate/prepared-candidate-check.test.ts|prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts`
+- `bun|scripts/project/gate/prepared-candidate-check.test.ts|prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest`
+  Proves:
+- Required provider Check 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact。
+- Provider 在 artifact、staging 或 resolved entry 缺失以及 artifact digest 漂移时 fail closed；artifact 与 external consumer 只能按各自需要解析同一次 typed Gate candidate，不能把未验证路径当作 dependency input。
 
 ## Case AUX-PROJECT-GATE-ADAPTER-001: Project Gate 只闭合已准备的完整 invocation
 
@@ -131,7 +162,7 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
 - preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；mismatch 也在 invocation log 创建前停止。
-- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 交给 consumer。
+- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。
 - exit `0` 要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 为 `1`，non-completed 或 malformed result 为 `2`。adapter 不遍历 snapshot 重建质量结论。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约

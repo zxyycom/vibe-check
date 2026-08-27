@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { discoverTestEntities } from "../discover.ts";
-import { parseBunJUnit } from "./bun.ts";
+import { parseBunJUnit, parseBunRegistrationJUnit } from "./bun.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
 import { loadSupportedRunnerProfile, workspaceRoot } from "../profile.ts";
 
@@ -31,6 +31,31 @@ test("parses stable Bun runner reports without inferring missing fields", () => 
   assert.throws(
     () => parseBunJUnit('<testsuites tests="1" failures="0"></testsuites>'),
     /contains 0 testcase/
+  );
+
+  const registrationReport = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<testsuites tests="1" failures="0" skipped="1">',
+    '  <testcase name="registered" classname="suite" file="tests/example.test.ts" line="9">',
+    "    <skipped />",
+    "  </testcase>",
+    "</testsuites>"
+  ].join("\n");
+  assert.deepEqual(parseBunRegistrationJUnit(registrationReport), [
+    {
+      name: "registered",
+      className: "suite",
+      file: "tests/example.test.ts",
+      line: 9
+    }
+  ]);
+  assert.throws(
+    () => parseBunRegistrationJUnit(registrationReport.replace('skipped="1"', 'skipped="0"')),
+    /must skip every test/
+  );
+  assert.throws(
+    () => parseBunRegistrationJUnit(registrationReport.replace("    <skipped />\n", "")),
+    /must skip every test/
   );
 });
 

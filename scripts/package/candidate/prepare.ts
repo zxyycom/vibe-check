@@ -8,21 +8,52 @@ import { inspectInstallation, installCandidate } from "./install.ts";
 import {
   candidatePaths,
   clearCandidateState,
-  readReusableArtifact,
+  assessReusableArtifact,
   receiptMatchesInstallation,
   writeReceipt,
+  type CandidateArtifactReuseRejection,
   type InstalledCandidate
 } from "./receipt.ts";
 
 export type { CandidateArtifact } from "../artifact/build.ts";
 
-export interface PreparedPackageCandidate extends CandidateArtifact {
+interface PreparedPackageCandidateLocation {
   readonly consumerDirectory: string;
   readonly installedPackageDirectory: string;
   readonly resolvedEntryPath: string;
-  /** True only when no build, pack, or local install was needed. */
-  readonly reused: boolean;
 }
+
+export type CandidatePreparationAction = "rebuild" | "reinstall" | "reuse";
+export type CandidatePreparationReason =
+  | CandidateArtifactReuseRejection
+  | "installation-current"
+  | "installation-invalid";
+
+export type CandidatePreparationDecision =
+  | Readonly<{ readonly action: "rebuild"; readonly reason: CandidateArtifactReuseRejection }>
+  | Readonly<{ readonly action: "reinstall"; readonly reason: "installation-invalid" }>
+  | Readonly<{ readonly action: "reuse"; readonly reason: "installation-current" }>;
+
+export type CandidatePreparationFact =
+  | Readonly<{
+      readonly preparationAction: "rebuild";
+      readonly preparationReason: CandidateArtifactReuseRejection;
+      readonly reused: false;
+    }>
+  | Readonly<{
+      readonly preparationAction: "reinstall";
+      readonly preparationReason: "installation-invalid";
+      readonly reused: false;
+    }>
+  | Readonly<{
+      readonly preparationAction: "reuse";
+      readonly preparationReason: "installation-current";
+      readonly reused: true;
+    }>;
+
+export type PreparedPackageCandidate = Readonly<
+  CandidateArtifact & PreparedPackageCandidateLocation & CandidatePreparationFact
+>;
 
 export interface PreparePackageCandidateOptions {
   /** Defaults to this checkout's repository root. */
@@ -41,6 +72,116 @@ export interface PreparePackageCandidateOptions {
 export async function preparePackageCandidate(
   options: PreparePackageCandidateOptions = {}
 ): Promise<PreparedPackageCandidate> {
+  const plan = createCandidatePreparationPlan(options);
+  if (plan.action === "reuse") {
+    return createPreparedCandidate({
+      artifact: plan.artifact,
+      consumerDirectory: plan.consumerDirectory,
+      decision: plan,
+      installation: plan.installation
+    });
+  }
+  if (plan.action === "reinstall") {
+    const installation = installCandidate({
+      artifactPath: plan.artifact.artifactPath,
+      candidateVersion: plan.candidateVersion,
+      consumerDirectory: plan.consumerDirectory,
+      expectedDocuments: plan.documentation.documents,
+      expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
+      expectedReadme: plan.documentation.readme
+    });
+    writeReceipt({
+      artifact: plan.artifact,
+      consumerDirectory: plan.consumerDirectory,
+      installation,
+      receiptPath: plan.paths.receiptPath
+    });
+    return createPreparedCandidate({
+      artifact: plan.artifact,
+      consumerDirectory: plan.consumerDirectory,
+      decision: plan,
+      installation
+    });
+  }
+
+  clearCandidateState(plan.paths);
+  const artifact = await buildCandidateArtifact({
+    artifactDirectory: plan.paths.artifactDirectory,
+    candidateVersion: plan.candidateVersion,
+    documentation: plan.documentation,
+    inputFingerprint: plan.inputFingerprint,
+    repositoryRoot: plan.repositoryRoot,
+    stagingDirectory: plan.paths.stagingDirectory,
+    stateDirectory: plan.paths.stateDirectory
+  });
+  const installation = installCandidate({
+    artifactPath: artifact.artifactPath,
+    candidateVersion: plan.candidateVersion,
+    consumerDirectory: plan.consumerDirectory,
+    expectedDocuments: plan.documentation.documents,
+    expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
+    expectedReadme: plan.documentation.readme
+  });
+  writeReceipt({
+    artifact,
+    consumerDirectory: plan.consumerDirectory,
+    installation,
+    receiptPath: plan.paths.receiptPath
+  });
+  return createPreparedCandidate({
+    artifact,
+    consumerDirectory: plan.consumerDirectory,
+    decision: plan,
+    installation
+  });
+}
+
+/** Returns the mutation-free candidate action and reason used by preparation execution. */
+export function assessPackageCandidatePreparation(
+  options: PreparePackageCandidateOptions = {}
+): CandidatePreparationDecision {
+  const plan = createCandidatePreparationPlan(options);
+  switch (plan.action) {
+    case "rebuild":
+      return Object.freeze({ action: "rebuild", reason: plan.reason });
+    case "reinstall":
+      return Object.freeze({ action: "reinstall", reason: plan.reason });
+    case "reuse":
+      return Object.freeze({ action: "reuse", reason: plan.reason });
+  }
+}
+
+type CandidatePreparationContext = Readonly<{
+  readonly candidateVersion: string;
+  readonly consumerDirectory: string;
+  readonly documentation: ReturnType<typeof artifactDocumentation>;
+  readonly inputFingerprint: string;
+  readonly paths: ReturnType<typeof candidatePaths>;
+  readonly repositoryRoot: string;
+}>;
+
+type CandidatePreparationPlan = CandidatePreparationContext &
+  (
+    | Readonly<{
+        readonly action: "reinstall";
+        readonly artifact: CandidateArtifact;
+        readonly reason: "installation-invalid";
+      }>
+    | Readonly<{
+        readonly action: "reuse";
+        readonly artifact: CandidateArtifact;
+        readonly installation: InstalledCandidate;
+        readonly reason: "installation-current";
+      }>
+    | Readonly<{
+        readonly action: "rebuild";
+        readonly reason: CandidateArtifactReuseRejection;
+      }>
+  );
+
+function createCandidatePreparationPlan(
+  options: PreparePackageCandidateOptions
+): CandidatePreparationPlan {
   const repositoryRoot = resolve(options.repositoryRoot ?? repositoryRootFromModule());
   const consumerDirectory = resolve(
     options.consumerDirectory ?? join(repositoryRoot, "scripts/project")
@@ -50,7 +191,7 @@ export async function preparePackageCandidate(
   const inputFingerprint = createArtifactFingerprint(repositoryRoot);
   const candidateVersion = `0.0.0-local.${inputFingerprint.slice(0, 12)}`;
 
-  const reusable = readReusableArtifact({
+  const assessment = assessReusableArtifact({
     candidateVersion,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
@@ -58,7 +199,16 @@ export async function preparePackageCandidate(
     inputFingerprint,
     paths
   });
-  if (reusable !== undefined) {
+  const preparationContext: CandidatePreparationContext = Object.freeze({
+    candidateVersion,
+    consumerDirectory,
+    documentation,
+    inputFingerprint,
+    paths,
+    repositoryRoot
+  });
+  if (assessment.status === "reusable") {
+    const reusable = assessment.candidate;
     const installation = inspectInstallation({
       candidateVersion,
       consumerDirectory,
@@ -70,77 +220,69 @@ export async function preparePackageCandidate(
       installation !== undefined &&
       receiptMatchesInstallation(reusable.receipt, consumerDirectory, installation)
     ) {
-      return preparedCandidate({
+      return Object.freeze({
+        ...preparationContext,
+        action: "reuse",
         artifact: reusable.artifact,
-        consumerDirectory,
         installation,
-        reused: true
+        reason: "installation-current"
       });
     }
-    const installationAfterInstall = installCandidate({
-      artifactPath: reusable.artifact.artifactPath,
-      candidateVersion,
-      consumerDirectory,
-      expectedDocuments: documentation.documents,
-      expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
-      expectedReadme: documentation.readme
-    });
-    writeReceipt({
+    return Object.freeze({
+      ...preparationContext,
+      action: "reinstall",
       artifact: reusable.artifact,
-      consumerDirectory,
-      installation: installationAfterInstall,
-      receiptPath: paths.receiptPath
-    });
-    return preparedCandidate({
-      artifact: reusable.artifact,
-      consumerDirectory,
-      installation: installationAfterInstall,
-      reused: false
+      reason: "installation-invalid"
     });
   }
-
-  clearCandidateState(paths);
-  const artifact = await buildCandidateArtifact({
-    artifactDirectory: paths.artifactDirectory,
-    candidateVersion,
-    documentation,
-    inputFingerprint,
-    repositoryRoot,
-    stagingDirectory: paths.stagingDirectory,
-    stateDirectory: paths.stateDirectory
+  return Object.freeze({
+    ...preparationContext,
+    action: "rebuild",
+    reason: assessment.reason
   });
-  const installation = installCandidate({
-    artifactPath: artifact.artifactPath,
-    candidateVersion,
-    consumerDirectory,
-    expectedDocuments: documentation.documents,
-    expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
-    expectedReadme: documentation.readme
-  });
-  writeReceipt({
-    artifact,
-    consumerDirectory,
-    installation,
-    receiptPath: paths.receiptPath
-  });
-  return preparedCandidate({ artifact, consumerDirectory, installation, reused: false });
 }
 
 function repositoryRootFromModule(): string {
   return resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 }
 
-function preparedCandidate(input: {
+function createPreparedCandidate(input: {
   readonly artifact: CandidateArtifact;
   readonly consumerDirectory: string;
+  readonly decision: CandidatePreparationDecision;
   readonly installation: InstalledCandidate;
-  readonly reused: boolean;
 }): PreparedPackageCandidate {
   return Object.freeze({
     ...input.artifact,
     consumerDirectory: input.consumerDirectory,
     installedPackageDirectory: input.installation.installedPackageDirectory,
-    resolvedEntryPath: input.installation.resolvedEntryPath,
-    reused: input.reused
+    ...candidatePreparationFact(input.decision),
+    resolvedEntryPath: input.installation.resolvedEntryPath
   });
+}
+
+/** Projects the closed preparation decision into its retained Check fact. */
+export function candidatePreparationFact(
+  decision: CandidatePreparationDecision
+): CandidatePreparationFact {
+  switch (decision.action) {
+    case "rebuild":
+      return Object.freeze({
+        preparationAction: "rebuild",
+        preparationReason: decision.reason,
+        reused: false
+      });
+    case "reinstall":
+      return Object.freeze({
+        preparationAction: "reinstall",
+        preparationReason: decision.reason,
+        reused: false
+      });
+    case "reuse":
+      return Object.freeze({
+        preparationAction: "reuse",
+        preparationReason: decision.reason,
+        reused: true
+      });
+  }
 }

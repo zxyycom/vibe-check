@@ -71,6 +71,15 @@ artifact audit 在 pack 前验证根入口、公开运行时导出、可解析�
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。
 
+Candidate preparation 先执行不修改文件系统的状态判断，再根据结果执行动作：
+
+- `reuse`：receipt/input、packed artifact 与 installed consumer 都仍然有效，不执行 build、pack 或 install。
+- `reinstall`：packed artifact 仍然有效，但 installed consumer 无效；只重新安装。
+- `rebuild`：receipt 或 artifact 无法复用；清理 candidate state 后重新 build、pack 和 install。
+
+Reuse path 不重复扫描只服务 build evidence 的 staging 内容。Artifact acceptance 仍对同一次
+provider staging 执行完整 material audit，因此 staging corruption 不会从 full/package acceptance 中消失。
+
 ## Quality dogfood
 
 `quality` 是人或 AI 调用 repository Project Run 的唯一 dogfood root entry，不是产品第二入口。其调用方向为：
@@ -90,24 +99,71 @@ quality wrapper 不解析调用方配置、不重新声明 Project Definition，
 
 ## Project Gate
 
-`scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。它先准备 candidate，并确认 private consumer
-解析到的 package entry 与准备结果相同；然后创建 invocation log directory，调用 `project-run.ts` 的 bound
-Gate Run。`definition.ts`、`entries.ts`、`eligibility.ts` 与 `controls.ts` 拥有 Gate membership、profile/tag
-selection 和 aggregation configuration；`check-execution/native-operation.ts` 与 `check-execution/process.ts`
-共同把 native/process operation 映射为 Gate Check facts、取消和安全 transcript。具体 adapter 分别位于
-`docs-validation-check.ts`、`decision-records-check.ts` 与 `test-evidence/**`，不进入泛化 Check 容器。
+`scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。一次 invocation 按以下顺序建立：
 
-Gate 从 Run 的 explicit aggregate 读取选择后的结论；它不遍历 Check snapshot 重新归约。Gate 不改变 quality 的
-locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence 各自的 command owner。
+1. 准备 candidate，并确认 private consumer 解析到的 package entry 与准备结果相同。
+2. 创建 invocation log directory，并把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run。
+3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约。
 
-`--profile required|full` 和可重复的 `--disable-tag <tag>` 是 Gate adapter 的完整参数 grammar；无 profile
-默认 required，disabled tag 仅用于直接本地 partial invocation，正式 root commands 不传它。adapter 在 candidate
-准备、private consumer import 和 exact entry identity 全部成功后才创建 `.log/project-gate/<unique>/` 并运行 bound
-Run。native docs/Decision/Test Evidence Checks 不创建 process transcript；外部 command Check 将 command、stdout、
-stderr、exit、signal 和安全 error summary 写入自己的 transcript。其 terminal message 只能包含 exit code、signal
-和 transcript basename，不能复制 child output、完整路径、command、arguments、credential URL、digest 或 transcript
-内容。completed Run 的 warning、progress failure 或非-`passed` aggregate 都映射 `1`；参数、candidate、import、
-identity、log、execution 或 malformed-result failure 映射 `2`。
+参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。
+Gate 不改变 quality 的 locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence
+各自的 command owner。
+
+### Prepared candidate data
+
+`prepared-candidate-check.ts` 将 invocation-owned candidate 重新核对并发布为 versioned typed final data。Closed
+parser 验证 artifact digest、绝对路径、installed entry containment、非空且无重复的文件 inventory，以及
+`preparationAction`、`preparationReason` 与 `reused` 的合法组合。该数据只保留在当前 Run snapshot；因为包含
+invocation-local 绝对路径，Gate 不启用 machine publication。
+
+Artifact acceptance 与 external consumer acceptance 都声明该 provider 为 direct dependency，并要求 provider
+通过后才启动 process：
+
+- Artifact acceptance 接收 exact artifact path/digest 与 staging directory，重新验证 child-process input，并执行
+  staging material audit；直接运行该测试时才 fresh build 本地 fixture。
+- External consumer acceptance 只接收 exact artifact path/digest，并在 ancestry-external consumer 中真实安装、
+  typecheck 和运行；直接运行该测试时才回退到本地 candidate preparation。
+
+Candidate lifecycle 中会被故意破坏的 receipt、installation 与故障注入状态仍由 test-local lazy fixture 拥有，
+不提升为跨 Check output。
+
+### Test execution partition
+
+`test-execution/lanes.ts` 从 Test Evidence 的同一完整文件面导出互斥 execution lanes。每个测试文件必须恰好
+进入一个非空 lane；未知 Product package owner 文件在任何测试启动前失败。当前 lanes 按以下责任分组：
+
+- Product package-provided Checks：duplicate detection、file metrics、function metrics、JSON、Markdown link 与
+  supporting/project behavior；每个行为 owner 独立结算。
+- Product runtime、Project tooling、Test Evidence tooling、validation 与 ordinary scripts tooling。
+- Package supporting：receipt classification、acceptance-input parser、module specifier、source map 与 public inventory。
+- Package acceptance：artifact、candidate lifecycle 与 external consumer 三个独立 Checks。
+
+`definition.ts`、`entries.ts`、`eligibility.ts` 与 `controls.ts` 拥有 membership、profile/tag selection 和 aggregation
+configuration；`check-execution/native-operation.ts` 与 `check-execution/process.ts` 共同把 native/process operation
+映射为 Check facts、取消和安全 transcript。具体 adapter 分别位于 `docs-validation-check.ts`、
+`decision-records-check.ts` 与 `test-evidence/**`，不进入泛化 Check 容器。
+
+### Profiles and scheduling
+
+Gate adapter 的完整参数 grammar 是 `--profile required|full`、可重复的 `--disable-tag <tag>`，以及受控的
+`--enable-tag package-tests`。无 profile 时默认 required；同一 tag 不能同时 enable 和 disable。正式 root commands
+不传 tag override。
+
+- Required 默认执行 package supporting，但三个 package acceptance Checks 以 `tag-not-enabled` 保持可见且不进入
+  aggregate；显式 `--enable-tag package-tests` 可把它们加入 required。
+- Full 自动选择全部未禁用 Checks，包括三个 package acceptance Checks。
+- Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 与 external consumer 继续执行真实 build/install，
+  因而共享 `project-gate-package-lifecycle` mutex；只读 provider staging/tar 的 artifact acceptance 不持有该 mutex。
+
+### Process evidence and exits
+
+Native docs、Decision Records 与 Test Evidence Checks 不创建 process transcript。外部 command Check 将 command、
+stdout、stderr、exit、signal 和安全 error summary 写入自己的 transcript。Terminal message 只能包含 exit code、
+signal 和 transcript basename，不能复制 child output、完整路径、command、arguments、credential URL、digest 或
+transcript 内容。
+
+Completed Run 的 warning、progress failure 或非-`passed` aggregate 映射为 exit `1`；参数、candidate、import、
+identity、log、execution 或 malformed-result failure 映射为 exit `2`。
 
 ## Documentation, validation, and package material
 
@@ -169,7 +225,8 @@ typed operation；`change-plan` 与 `investigations` root commands 直接调用�
 metadata、index 或 lifecycle 语义。写入与归档仍由相应 subcommand/skill 和当前任务授权决定。
 
 `scripts/test-evidence/command.ts` 拥有 current test entity discovery、Case query 和 closure check。它把同一 caller
-`AbortSignal` 传给 ast-grep static scan 与 Bun runtime report process；测试分层和 Case maintenance 继续由
+`AbortSignal` 传给 ast-grep static scan 与 Bun registration report process，要求完整 profile 的每个 runner entity
+都以 skipped testcase 报告；测试正文由 Gate process 子 Checks 或最窄目标命令执行。测试分层和 Case maintenance 继续由
 [测试策略](testing.md)与[测试证据维护](testing/case-maintenance.md) owner 定义。
 
 ## Verification
@@ -183,10 +240,11 @@ bun run validate -- docs
 bun run test-evidence -- check --root .
 ```
 
-涉及 package、quality、Gate 或多个 owner 时运行：
+涉及 quality、Gate 或多个 owner 时运行 required；涉及 package artifact、candidate 或外部 consumer 时运行 full：
 
 ```bash
 bun run verify:vibe-check-workspace:required
+bun run verify:vibe-check-workspace:full
 ```
 
 报告实际运行的检查及未运行项。

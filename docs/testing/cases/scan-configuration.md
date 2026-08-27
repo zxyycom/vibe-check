@@ -16,7 +16,7 @@ Entities:
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
-- `bun|scripts/package/candidate/isolated-consumer.test.ts|accepts a candidate in an external consumer`
+- `bun|scripts/package/candidate/isolated-consumer.test.ts|external package consumer acceptance > typechecks public imports and declaration QuickInfo`
 
 Proves:
 

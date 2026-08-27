@@ -22,6 +22,7 @@ interface GateRunModule {
   runProjectGate(input: {
     readonly flags: readonly string[];
     readonly invocationLogDirectory: string;
+    readonly preparedCandidate: PreparedPackageCandidate;
   }): Promise<unknown>;
 }
 
@@ -91,7 +92,8 @@ export async function runProjectGate(
   try {
     const result = await runModule.runProjectGate({
       flags: selectionFlags(parsed.value),
-      invocationLogDirectory
+      invocationLogDirectory,
+      preparedCandidate: prepared
     });
     const status = projectGateExitStatus(result);
     console.log(`project gate logs: ${invocationLogDirectory}`);
@@ -164,7 +166,8 @@ function resultSummary(status: ProjectGateExitStatus): string {
 function selectionSummary(selection: ProjectGateSelection): string {
   const disabledTags =
     selection.disabledTags.length === 0 ? "none" : selection.disabledTags.join(",");
-  return `profile=${selection.profile}; disabled-tags=${disabledTags}`;
+  const enabledTags = selection.enabledTags.length === 0 ? "none" : selection.enabledTags.join(",");
+  return `profile=${selection.profile}; enabled-tags=${enabledTags}; disabled-tags=${disabledTags}`;
 }
 
 if (import.meta.main) {

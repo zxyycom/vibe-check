@@ -1,5 +1,6 @@
 import { type Check, type CheckResult } from "vibe-check";
 
+import { PROJECT_GATE_OPT_IN_TAGS } from "./catalog.ts";
 import type { ProjectGateSelection } from "./controls.ts";
 import type { ProjectGateEntry } from "./entries.ts";
 
@@ -7,7 +8,7 @@ export type ProjectGateEligibility =
   | Readonly<{ readonly eligible: true }>
   | Readonly<{
       readonly eligible: false;
-      readonly reasonCode: "profile-excluded" | "tag-disabled";
+      readonly reasonCode: "profile-excluded" | "tag-disabled" | "tag-not-enabled";
     }>;
 
 export function projectGateEligibility(
@@ -20,6 +21,14 @@ export function projectGateEligibility(
   const disabledTags = new Set(selection.disabledTags);
   if (entry.tags.some((tag) => disabledTags.has(tag))) {
     return Object.freeze({ eligible: false, reasonCode: "tag-disabled" });
+  }
+  if (
+    selection.profile !== "full" &&
+    PROJECT_GATE_OPT_IN_TAGS.some(
+      (tag) => entry.tags.includes(tag) && !selection.enabledTags.includes(tag)
+    )
+  ) {
+    return Object.freeze({ eligible: false, reasonCode: "tag-not-enabled" });
   }
   return Object.freeze({ eligible: true });
 }

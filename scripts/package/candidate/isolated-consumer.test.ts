@@ -5,61 +5,103 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { it } from "node:test";
+import { after, describe, it } from "node:test";
 import * as ts from "typescript";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import { renderPackageApiDocumentation } from "../../docs/package-api/render.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/example-projections.ts";
-import { preparePackageCandidate } from "./prepare.ts";
+import { resolveCandidateAcceptanceArtifact } from "./acceptance-input.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
 const ISOLATED_JSON_SCHEMA_ID = "https://schemas.vibe-check.example/person";
 
-it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () => {
-  const documentation = renderPackageApiDocumentation({ repositoryRoot });
-  const preparationDirectory = mkdtempSync(join(tmpdir(), "vibe-check-candidate-preparation-"));
-  const preparationConsumerDirectory = join(preparationDirectory, "consumer");
-  const consumerDirectory = mkdtempSync(join(tmpdir(), "vibe-check-isolated-consumer-"));
-  try {
-    writePackageManifest(preparationConsumerDirectory, "vibe-check-candidate-preparation");
-    const accepted = await preparePackageCandidate({
-      consumerDirectory: preparationConsumerDirectory,
-      stateDirectory: join(preparationDirectory, "state")
-    });
-    const reused = await preparePackageCandidate({
-      consumerDirectory: preparationConsumerDirectory,
-      stateDirectory: join(preparationDirectory, "state")
-    });
-    assert.equal(reused.reused, true);
-    assert.equal(reused.artifactPath, accepted.artifactPath);
-    assert.equal(reused.sha256, accepted.sha256);
+describe("external package consumer acceptance", { concurrency: false, timeout: 20_000 }, () => {
+  let fixturePromise:
+    | Promise<
+        Readonly<{
+          accepted: Awaited<ReturnType<typeof resolveCandidateAcceptanceArtifact>>;
+          consumerDirectory: string;
+          documentation: ReturnType<typeof renderPackageApiDocumentation>;
+          installedPackageDirectory: string;
+          resolvedEntryPath: string;
+        }>
+      >
+    | undefined;
+  let consumerFixtureDirectory: string | undefined;
+
+  const fixture = () => {
+    if (fixturePromise === undefined) {
+      consumerFixtureDirectory = mkdtempSync(join(tmpdir(), "vibe-check-isolated-consumer-"));
+      fixturePromise = (async () => {
+        if (consumerFixtureDirectory === undefined)
+          throw new Error("consumer fixture root must exist");
+        const consumerDirectory = consumerFixtureDirectory;
+        const documentation = renderPackageApiDocumentation({ repositoryRoot });
+        const accepted = await resolveCandidateAcceptanceArtifact();
+        writeConsumerFiles(consumerDirectory);
+        installCandidate(consumerDirectory, accepted.artifactPath);
+        const resolvedEntryPath = resolvePublicEntry(consumerDirectory);
+        const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
+        return Object.freeze({
+          accepted,
+          consumerDirectory,
+          documentation,
+          installedPackageDirectory,
+          resolvedEntryPath
+        });
+      })();
+    }
+    return fixturePromise;
+  };
+
+  after(() => {
+    if (consumerFixtureDirectory !== undefined)
+      rmSync(consumerFixtureDirectory, { force: true, recursive: true });
+  });
+
+  it("installs the artifact outside repository ancestry", { timeout: 20_000 }, async () => {
+    const {
+      accepted,
+      consumerDirectory,
+      documentation,
+      installedPackageDirectory,
+      resolvedEntryPath
+    } = await fixture();
     assert.equal(isAbsolute(accepted.artifactPath), true);
-
     assert.equal(isWithin(repositoryRoot, consumerDirectory), false);
-    writeConsumerFiles(consumerDirectory);
-    installCandidate(consumerDirectory, accepted.artifactPath);
-
-    const resolvedEntryPath = resolvePublicEntry(consumerDirectory);
-    const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
     assert.equal(isWithin(installedPackageDirectory, resolvedEntryPath), true);
     assert.equal(isWithin(repositoryRoot, resolvedEntryPath), false);
     assert.equal(
       readFileSync(join(installedPackageDirectory, "README.md"), "utf8"),
       documentation.readme.content
     );
+  });
 
+  it("typechecks public imports and declaration QuickInfo", { timeout: 20_000 }, async () => {
+    const { consumerDirectory } = await fixture();
     typecheckPublicImports(consumerDirectory);
     assertInstalledDeclarationQuickInfo(consumerDirectory);
+  });
+
+  it("executes projected package API documentation examples", { timeout: 20_000 }, async () => {
+    const { consumerDirectory } = await fixture();
     runDocumentationExamples(consumerDirectory);
+  });
+
+  it("resolves runtime tooling without ancestry fallback", { timeout: 20_000 }, async () => {
+    const { consumerDirectory, resolvedEntryPath } = await fixture();
     const jscpd = resolveCandidateJscpd(resolvedEntryPath);
     assert.equal(isWithin(consumerDirectory, jscpd.manifestPath), true);
     assert.equal(isWithin(repositoryRoot, jscpd.manifestPath), false);
     assert.equal(isWithin(consumerDirectory, jscpd.binPath), true);
     assert.equal(isWithin(repositoryRoot, jscpd.binPath), false);
     assert.equal(jscpd.version, "5.0.11");
+  });
 
+  it("runs installed package and reports progress", { timeout: 20_000 }, async () => {
+    const { consumerDirectory } = await fixture();
     const runEvidence = runCandidateFixture(consumerDirectory);
     assert.equal(runEvidence.kind, "completed");
     assert.equal(runEvidence.duplicateOutcome, "passed");
@@ -115,10 +157,7 @@ it("accepts a candidate in an external consumer", { timeout: 20_000 }, async () 
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "first-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "second-changed-files-consumer");
     assertCanonicalExecutedDuration(runEvidence.checkDurations, "installed-terminal-note");
-  } finally {
-    rmSync(preparationDirectory, { force: true, recursive: true });
-    rmSync(consumerDirectory, { force: true, recursive: true });
-  }
+  });
 });
 
 function writeConsumerFiles(consumerDirectory: string): void {

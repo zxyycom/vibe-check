@@ -21,7 +21,7 @@ Semantic Case.Entities       -> 一个或多个 current test entities
 权威来源按责任划分：
 
 1. `Owner` 指向的当前行为文档拥有 `Proves` 所依据的产品或工程契约。
-2. 当前源码和 Bun JUnit report 拥有测试实体的存在性与 runner 身份事实。
+2. 当前源码和 Bun registration JUnit report 拥有测试实体的存在性与 runner 身份事实。
 3. [`cases/topics.json`](cases/topics.json) 只拥有受控 topic 的 ID、说明和顺序。
 4. `cases/<topic>.md` 拥有当前 Case 的语义及 Case 与实体的映射。
 5. test-evidence 工具只发现和校验这些来源，不提交派生实体清单、查询索引或其它语义副本。
@@ -34,7 +34,7 @@ Semantic Case.Entities       -> 一个或多个 current test entities
 该 ID 也不得换作其它语义。`Owner` 必须真正拥有全部 `Proves` 所述契约，不是相关文档、
 测试文件或 topic 的代称。
 
-**当前测试实体** 是受支持 runner profile 能从源码静态发现、并由 Bun JUnit report
+**当前测试实体** 是受支持 runner profile 能从源码静态发现、并由 Bun registration JUnit report
 独立报告的可寻址节点。它使用确定性的完整 entity key；实体不手写、不持久化为第二套
 账本，也不承担长期语义。
 
@@ -112,12 +112,15 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 版本化 runner profile 位于
 [`scripts/test-evidence/supported-runner-profile.json`](../../scripts/test-evidence/supported-runner-profile.json)。
 它用 `scripts/**` 与 `src/**` 的目录规则定义当前受支持 Bun test surface；
-静态发现与 runtime report 必须复用同一文件集合。
+静态发现与 runtime registration report 必须复用同一文件集合。registration child 用专用不匹配
+test-name pattern 加载完整文件面；报告必须把每个 testcase 明确标为 skipped，并提供 file、line、suite 与 name。
+实际测试通过由 Project Gate 按稳定 owner 分区的独立 execution Checks 证明，不由 entity closure 推断；具体
+membership、package provider dependency、tag 与 scheduling 规则由[脚本工具](../script-tooling.md#project-gate)拥有。
 
 严格 `check` 总是从完整当前树重新发现，不使用 Git diff、缓存清单或历史账本作为发现
 范围，并验证：
 
-1. 规范化后的静态实体集合与 Bun JUnit runtime 集合完全相等。
+1. 规范化后的静态实体集合与 Bun JUnit runtime registration 集合完全相等。
 2. 每个当前实体至少被一个 Case 引用。
 3. 每个 Case 至少引用一个当前实体，且不引用未知实体。
 4. Case ID、topic、topic 文件、owner 引用和字段结构有效且无重复。
@@ -178,14 +181,14 @@ bun run test-evidence -- show <CASE-ID> --root .
 bun run test-evidence -- check --root .
 ```
 
-`topics`、`list` 和 `show` 只读取 Case 目录并输出 JSON；`check` 还会执行本 checkout
-的完整受支持 Bun test surface 并验证闭合。查询命令不修改文件，也不存在需要同步的
+`topics`、`list` 和 `show` 只读取 Case 目录并输出 JSON；`check` 还会加载并注册本 checkout
+的完整受支持 Bun test surface、要求全部 testcase skipped 并验证闭合，但不执行测试正文。查询命令不修改文件，也不存在需要同步的
 派生制品。精确 Case ID 只通过 `show <CASE-ID>` 查询。
 
 严格检查失败时按 diagnostic origin 处理：
 
 - `profile` / `static`：runner profile、路径边界、ast-grep 规则或不支持的注册形态。
-- `runner`：Bun 执行、JUnit report、static/runtime mismatch 或 entity identity。
+- `runner`：Bun registration、JUnit report、static/runtime mismatch 或 entity identity。
 - `case`：topic、Markdown、Owner、entity mapping 或 coverage。
 - `query`：参数、筛选或 Case ID。
 
@@ -198,4 +201,4 @@ bun run test-evidence -- check --root .
 3. `Owner` 真正拥有全部 `Proves`，且 `Proves` 不复述函数名或生成模板。
 4. Rename、move、split、merge、delete 与正文变化已按语义连续性处理。
 5. 账本没有 Entry、Contract、Status、marker、committed inventory/index 或兼容双读。
-6. 目标测试、`bun run test-evidence -- check --root .` 与范围匹配的 workspace verification 已通过。
+6. 目标行为测试、`bun run test-evidence -- check --root .` 与范围匹配的 required/full workspace verification 已通过。

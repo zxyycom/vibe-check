@@ -4,6 +4,8 @@ import { readFileSync } from "node:fs";
 
 import { errorMessage } from "../error-message.ts";
 
+const SHA256_DIGEST_PATTERN = /^[a-f0-9]{64}$/u;
+
 /** Runs Bun inside the package artifact/candidate lifecycle and keeps failures observable. */
 export function runBun(input: {
   readonly args: readonly string[];
@@ -35,4 +37,17 @@ export function runBun(input: {
 
 export function sha256File(filePath: string): string {
   return createHash("sha256").update(readFileSync(filePath)).digest("hex");
+}
+
+export function isSha256Digest(value: unknown): value is string {
+  return typeof value === "string" && SHA256_DIGEST_PATTERN.test(value);
+}
+
+/** Returns false when the path is unreadable or its bytes do not match the expected digest. */
+export function fileMatchesSha256(filePath: string, expectedDigest: string): boolean {
+  try {
+    return sha256File(filePath) === expectedDigest;
+  } catch {
+    return false;
+  }
 }

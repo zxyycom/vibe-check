@@ -3,75 +3,131 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, it } from "node:test";
+import { after, describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import {
+  readGateArtifactAcceptanceInput,
+  type ArtifactAcceptanceInput
+} from "./acceptance-input.ts";
 import { artifactDocumentation } from "./documentation-audit.ts";
 import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
+import { auditStagingRuntime } from "./staging-audit.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-describe("package artifact", () => {
-  it("builds and audits the approved package artifact", { timeout: 20_000 }, async () => {
-    const stateDirectory = mkdtempSync(join(tmpdir(), "vibe-check-package-artifact-"));
-    try {
-      const documentation = artifactDocumentation(repositoryRoot);
-      const inputFingerprint = createArtifactFingerprint(repositoryRoot);
-      const artifact = await buildCandidateArtifact({
-        artifactDirectory: join(stateDirectory, "artifacts"),
-        candidateVersion: `0.0.0-local.${inputFingerprint.slice(0, 12)}`,
-        documentation,
-        inputFingerprint,
-        repositoryRoot,
-        stagingDirectory: join(stateDirectory, "staging"),
-        stateDirectory
-      });
+describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
+  let fixturePromise:
+    | Promise<
+        Readonly<{
+          artifact: ArtifactAcceptanceInput;
+          documentation: ReturnType<typeof artifactDocumentation>;
+        }>
+      >
+    | undefined;
+  let stateDirectory: string | undefined;
 
-      assert.equal(existsSync(artifact.artifactPath), true);
-      assert.equal(artifact.files.includes("package/README.md"), true);
-      assert.equal(artifact.files.includes("package/docs/checks/index.md"), true);
-      for (const document of documentation.documents) {
-        assert.equal(artifact.files.includes(`package/${document.packagePath}`), true);
-        assert.equal(
-          readFileSync(join(artifact.stagingDirectory, document.packagePath), "utf8"),
-          document.content
-        );
-      }
-      assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
-      assert.equal(artifact.files.includes("package/dist/esm/index.mjs.map"), true);
-      assert.equal(artifact.files.includes("package/src/index.ts"), true);
-      assert.equal(
-        readFileSync(join(artifact.stagingDirectory, "README.md"), "utf8"),
-        documentation.readme
-      );
-      assertEmittedPublicDocumentation(artifact.stagingDirectory);
-      assertReadableRuntimeLayout(artifact.stagingDirectory);
-      assert.equal(
-        declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-        '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","run"]'
-      );
-      assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
-        "@humanwhocodes/momoa": "3.3.12",
-        ajv: "8.20.0",
-        "csv-parse": "7.0.1",
-        execa: "9.6.1",
-        "github-slugger": "2.0.0",
-        jscpd: "5.0.11",
-        "mdast-util-from-markdown": "2.0.3",
-        "mdast-util-frontmatter": "2.0.1",
-        "mdast-util-gfm": "3.1.0",
-        "micromark-extension-frontmatter": "2.0.0",
-        "micromark-extension-gfm": "3.0.0",
-        minimatch: "10.2.5",
-        neverthrow: "8.2.0",
-        typebox: "1.3.9"
-      });
-    } finally {
-      rmSync(stateDirectory, { force: true, recursive: true });
+  const fixture = () => {
+    if (fixturePromise === undefined) {
+      stateDirectory = mkdtempSync(join(tmpdir(), "vibe-check-package-artifact-"));
+      fixturePromise = (async () => {
+        if (stateDirectory === undefined) throw new Error("artifact fixture root must exist");
+        const documentation = artifactDocumentation(repositoryRoot);
+        const gateInput = readGateArtifactAcceptanceInput();
+        if (gateInput !== undefined) {
+          auditStagingRuntime({
+            expectedDocuments: documentation.documents,
+            expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+            expectedReadme: documentation.readme,
+            stagingDirectory: gateInput.stagingDirectory
+          });
+        }
+        const artifact =
+          gateInput ??
+          (await buildDirectArtifactFixture({ documentation, repositoryRoot, stateDirectory }));
+        return Object.freeze({ artifact, documentation });
+      })();
     }
+    return fixturePromise;
+  };
+
+  after(() => {
+    if (stateDirectory !== undefined) rmSync(stateDirectory, { force: true, recursive: true });
+  });
+
+  it("packages the approved documentation inventory", { timeout: 20_000 }, async () => {
+    const { artifact, documentation } = await fixture();
+    assert.equal(existsSync(artifact.artifactPath), true);
+    assert.equal(artifact.files.includes("package/README.md"), true);
+    assert.equal(artifact.files.includes("package/docs/checks/index.md"), true);
+    for (const document of documentation.documents) {
+      assert.equal(artifact.files.includes(`package/${document.packagePath}`), true);
+      assert.equal(
+        readFileSync(join(artifact.stagingDirectory, document.packagePath), "utf8"),
+        document.content
+      );
+    }
+    assert.equal(
+      readFileSync(join(artifact.stagingDirectory, "README.md"), "utf8"),
+      documentation.readme
+    );
+  });
+
+  it("emits documented public declarations", { timeout: 20_000 }, async () => {
+    const { artifact } = await fixture();
+    assert.equal(artifact.files.includes("package/src/index.ts"), true);
+    assertEmittedPublicDocumentation(artifact.stagingDirectory);
+  });
+
+  it("emits a readable ESM runtime layout and exact exports", { timeout: 20_000 }, async () => {
+    const { artifact } = await fixture();
+    assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
+    assert.equal(artifact.files.includes("package/dist/esm/index.mjs.map"), true);
+    assertReadableRuntimeLayout(artifact.stagingDirectory);
+    assert.equal(
+      declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
+      '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","run"]'
+    );
+  });
+
+  it("declares the audited production dependency set", { timeout: 20_000 }, async () => {
+    const { artifact } = await fixture();
+    assert.deepEqual(candidateDependencies(artifact.stagingDirectory), {
+      "@humanwhocodes/momoa": "3.3.12",
+      ajv: "8.20.0",
+      "csv-parse": "7.0.1",
+      execa: "9.6.1",
+      "github-slugger": "2.0.0",
+      jscpd: "5.0.11",
+      "mdast-util-from-markdown": "2.0.3",
+      "mdast-util-frontmatter": "2.0.1",
+      "mdast-util-gfm": "3.1.0",
+      "micromark-extension-frontmatter": "2.0.0",
+      "micromark-extension-gfm": "3.0.0",
+      minimatch: "10.2.5",
+      neverthrow: "8.2.0",
+      typebox: "1.3.9"
+    });
   });
 });
+
+async function buildDirectArtifactFixture(input: {
+  readonly documentation: ReturnType<typeof artifactDocumentation>;
+  readonly repositoryRoot: string;
+  readonly stateDirectory: string;
+}) {
+  const inputFingerprint = createArtifactFingerprint(input.repositoryRoot);
+  return buildCandidateArtifact({
+    artifactDirectory: join(input.stateDirectory, "artifacts"),
+    candidateVersion: `0.0.0-local.${inputFingerprint.slice(0, 12)}`,
+    documentation: input.documentation,
+    inputFingerprint,
+    repositoryRoot: input.repositoryRoot,
+    stagingDirectory: join(input.stateDirectory, "staging"),
+    stateDirectory: input.stateDirectory
+  });
+}
 
 function assertEmittedPublicDocumentation(stagingDirectory: string): void {
   const declarationRoot = join(stagingDirectory, "types");
