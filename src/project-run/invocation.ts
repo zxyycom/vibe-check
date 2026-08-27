@@ -22,6 +22,7 @@ import { createOutputStatuses, type OutputStatuses } from "./output-status.ts";
 import { effectiveOutputs } from "./output-configuration.ts";
 import {
   createProgressRendering,
+  type ProgressRefreshScheduler,
   type ProgressRendering,
   type ProgressWriterFactory
 } from "./progress-rendering/presentation.ts";
@@ -52,6 +53,7 @@ export type Invocation = Readonly<{
 }>;
 export interface RunInvocationDependencies {
   readonly clock?: CheckExecutionClock;
+  readonly progressRefreshScheduler?: ProgressRefreshScheduler;
   readonly progressWriterFactory?: ProgressWriterFactory;
 }
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
@@ -97,8 +99,9 @@ function createInvocation(
   const normalized = normalizeProjectDefinition(definition);
   const outputConfiguration = effectiveOutputs(definition, controls);
   const outputs = createOutputStatuses(outputConfiguration);
+  const clock = dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
   return Object.freeze({
-    clock: dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK,
+    clock,
     controls,
     declarativeFingerprint: createDeclarativeFingerprint(normalized.declarative),
     definition,
@@ -107,11 +110,11 @@ function createInvocation(
     outputs,
     invocationId: `invocation/v1:${randomUUID()}`,
     normalized,
-    progressRendering: createProgressRendering(
-      outputConfiguration.progressRendering,
-      outputs,
-      dependencies.progressWriterFactory
-    ),
+    progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
+      clock,
+      refreshScheduler: dependencies.progressRefreshScheduler,
+      writerFactory: dependencies.progressWriterFactory
+    }),
     projectRoot: resolve(controls.projectRoot ?? process.cwd())
   });
 }

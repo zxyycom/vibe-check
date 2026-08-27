@@ -36,7 +36,6 @@ export function validatePublishedMachineArtifactExamples(): number {
     );
     if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
   }
-  console.log(`current machine artifact examples ok: ${CURRENT_MACHINE_OUTCOMES.length} set(s)`);
   return CURRENT_MACHINE_OUTCOMES.length;
 }
 

@@ -175,6 +175,10 @@ README template、allowlisted TypeScript examples、projection registry 和 sour
 current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
 `scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。
 
+Documentation validation library functions 只通过 `validateDocs({ report })` 的显式 reporter 发布成功消息；不提供
+reporter 时保持静默。CLI 入口提供 console reporter，Project Gate 的 in-process docs Checks 不提供，从而不在 Product
+拥有 TTY running region 时向同一 stdout 插入未登记内容。
+
 `bun run validate` 先运行全部文档 task，再执行 repository layout characterization，最后运行
 `git diff --check`；`bun run validate -- docs` 只运行文档 task，不执行 layout 或 diff 检查。
 

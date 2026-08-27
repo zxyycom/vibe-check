@@ -49,7 +49,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
   Proves:
 - Product-owned progress presents lifecycle status/duration, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one block; message code is not terminal text.
-- `attention` omits only a passed/no-message settled row, never a TTY running row or accounting ordinal. Plain/dumb output uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
+- `attention` omits only a passed/no-message settled row, never a TTY running row or accounting ordinal. While work remains, TTY running rows are redrawn every 5 seconds with per-Check elapsed time; this heartbeat is presentation-only. Plain/dumb output stays settled-only and uses literal labels; color-capable TTY colors only message level labels and terminal-controlled human text is escaped.
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 

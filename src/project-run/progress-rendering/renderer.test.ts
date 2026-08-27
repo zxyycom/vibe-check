@@ -77,7 +77,8 @@ function visibleTerminalScreen(writes: readonly string[]): readonly string[] {
 describe("Package Run progress lifecycle presentation", () => {
   it("maintains a TTY-only running region and assigns completion ordinals by settlement order", () => {
     const output = createWriter({ isTTY: true });
-    const renderer = createProgressRenderer(output.writer);
+    let nowMs = 0;
+    const renderer = createProgressRenderer(output.writer, { now: () => nowMs });
 
     renderer.render({ kind: "prepared", totalChecks: 3 });
     renderer.render({
@@ -85,7 +86,10 @@ describe("Package Run progress lifecycle presentation", () => {
       checkId: "typescript",
       displayName: "TypeScript product lint"
     });
+    nowMs = 2_500;
     renderer.render({ kind: "started", checkId: "network", displayName: "Network links" });
+    nowMs = 5_000;
+    renderer.refresh();
     renderer.render(settled("network", "Network links", { status: "passed", data: {} }, 2_500));
 
     assert.deepEqual(output.writes, [
@@ -96,8 +100,12 @@ describe("Package Run progress lifecycle presentation", () => {
       "  [2/3] Network links | running\n",
       "\u001B[1A\u001B[2K",
       "\u001B[1A\u001B[2K",
+      "  [1/3] TypeScript product lint | running | 5s\n",
+      "  [2/3] Network links | running | 2.5s\n",
+      "\u001B[1A\u001B[2K",
+      "\u001B[1A\u001B[2K",
       "  [1/3] Network links | passed | 2.5s\n",
-      "  [2/3] TypeScript product lint | running\n"
+      "  [2/3] TypeScript product lint | running | 5s\n"
     ]);
   });
 

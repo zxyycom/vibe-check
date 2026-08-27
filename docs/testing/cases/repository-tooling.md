@@ -86,6 +86,15 @@ Entities:
 - The direct docs adapter and root validation adapter run every declared docs validation family when no focused task is supplied.
 - An explicit docs task selects only that validation family, so the CLI boundary does not silently broaden or skip requested work.
 
+## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process docs validation keeps output reporter-owned
+
+Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Entities:
+
+- `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
+  Proves:
+- Documentation library validation remains silent when no reporter is supplied and sends success summaries only to an explicit reporter, so an in-process Project Gate Check cannot corrupt Product-owned TTY progress with direct console output.
+
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
 
 Owner: `docs/coding-style.md#2-owner-与实现归属先行`

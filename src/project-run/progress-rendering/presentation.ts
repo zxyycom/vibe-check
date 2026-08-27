@@ -5,6 +5,7 @@ import type {
 } from "../check-execution/resolved-checks.ts";
 import {
   createProgressRenderer,
+  type ProgressClock,
   type ProgressFeedback,
   type ProgressOutcomeCounts,
   type ProgressWriter
@@ -22,30 +23,112 @@ export interface ProgressFinalFeedback {
   readonly execution: "cancelled" | "completed";
 }
 export type ProgressWriterFactory = () => ProgressWriter;
+
+export interface ProgressRefreshSchedule {
+  cancel(): void;
+}
+
+export interface ProgressRefreshScheduler {
+  schedule(refresh: () => void, intervalMs: number): ProgressRefreshSchedule;
+}
+
+export interface ProgressRenderingDependencies {
+  readonly clock?: ProgressClock;
+  readonly refreshScheduler?: ProgressRefreshScheduler;
+  readonly writerFactory?: ProgressWriterFactory;
+}
+
+const PROGRESS_REFRESH_INTERVAL_MS = 5_000;
+
+const defaultProgressRefreshScheduler: ProgressRefreshScheduler = Object.freeze({
+  schedule: (refresh: () => void, intervalMs: number) => {
+    const interval = setInterval(refresh, intervalMs);
+    interval.unref();
+    return Object.freeze({ cancel: () => clearInterval(interval) });
+  }
+});
+
 /** Owns progress writer lifecycle and rendering; failed writers are permanently muted. */
 export function createProgressRendering(
   configuration: ProjectOutputs["progressRendering"],
   statuses: OutputStatuses,
-  writerFactory: ProgressWriterFactory = defaultProgressWriter
+  dependencies: ProgressRenderingDependencies = {}
 ): ProgressRendering {
   if (!configuration.enabled) return inertProgressRendering();
   let failed = false;
+  const runningCheckIds = new Set<string>();
   let renderer: ReturnType<typeof createProgressRenderer> | undefined;
+  let refreshSchedule: ProgressRefreshSchedule | undefined;
+
+  const failRendering = (): void => {
+    if (failed) return;
+    failed = true;
+    const activeSchedule = refreshSchedule;
+    refreshSchedule = undefined;
+    try {
+      activeSchedule?.cancel();
+    } catch {
+      // The output is already failed; a scheduler cleanup fault must not reach Check execution.
+    }
+    statuses.failed("progressRendering");
+  };
+
+  const stopRefresh = (): void => {
+    const activeSchedule = refreshSchedule;
+    refreshSchedule = undefined;
+    try {
+      activeSchedule?.cancel();
+    } catch {
+      failRendering();
+    }
+  };
+
   const render = (feedback: ProgressFeedback): void => {
     if (failed) return;
     try {
-      renderer ??= createProgressRenderer(writerFactory());
+      renderer ??= createProgressRenderer(
+        (dependencies.writerFactory ?? defaultProgressWriter)(),
+        dependencies.clock
+      );
       renderer.render(feedback);
       if (feedback.kind === "final") statuses.succeeded("progressRendering");
     } catch {
-      failed = true;
-      statuses.failed("progressRendering");
+      failRendering();
     }
   };
+
+  const refresh = (): void => {
+    if (failed) return;
+    try {
+      renderer?.refresh();
+    } catch {
+      failRendering();
+    }
+  };
+
+  const startRefresh = (): void => {
+    if (
+      failed ||
+      refreshSchedule !== undefined ||
+      runningCheckIds.size === 0 ||
+      renderer?.refreshesRunningRegion !== true
+    ) {
+      return;
+    }
+    try {
+      refreshSchedule = (dependencies.refreshScheduler ?? defaultProgressRefreshScheduler).schedule(
+        refresh,
+        PROGRESS_REFRESH_INTERVAL_MS
+      );
+    } catch {
+      failRendering();
+    }
+  };
+
   return Object.freeze({
     prepared: (totalChecks: number) => render(Object.freeze({ kind: "prepared", totalChecks })),
     lifecycle: Object.freeze({
-      settled: (fact: CheckSettledFact) =>
+      settled: (fact: CheckSettledFact) => {
         render(
           Object.freeze({
             kind: "settled",
@@ -56,13 +139,20 @@ export function createProgressRendering(
             outcome: fact.outcome,
             visibility: fact.visibility
           })
-        ),
-      started: (fact: CheckStartedFact) =>
+        );
+        runningCheckIds.delete(fact.checkId);
+        if (runningCheckIds.size === 0) stopRefresh();
+      },
+      started: (fact: CheckStartedFact) => {
+        runningCheckIds.add(fact.checkId);
         render(
           Object.freeze({ kind: "started", checkId: fact.checkId, displayName: fact.displayName })
-        )
+        );
+        startRefresh();
+      }
     }),
-    final: (input: ProgressFinalFeedback) =>
+    final: (input: ProgressFinalFeedback) => {
+      stopRefresh();
       render(
         Object.freeze({
           kind: "final",
@@ -70,7 +160,8 @@ export function createProgressRendering(
           elapsedMs: input.elapsedMs,
           execution: input.execution
         })
-      )
+      );
+    }
   });
 }
 function inertProgressRendering(): ProgressRendering {

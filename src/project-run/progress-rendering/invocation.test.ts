@@ -7,6 +7,7 @@ import { describe, it } from "node:test";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check, CheckExecution } from "../../check/check.ts";
 import type { ProgressWriter } from "./renderer.ts";
+import type { ProgressRefreshScheduler } from "./presentation.ts";
 import { executeValidatedRun } from "../invocation.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
@@ -77,6 +78,36 @@ function deferred<T>(): Readonly<{
   });
 }
 
+function capturedRefreshScheduler(): Readonly<{
+  readonly cancellations: () => number;
+  readonly intervalMs: () => number | undefined;
+  readonly refresh: () => void;
+  readonly scheduler: ProgressRefreshScheduler;
+}> {
+  let scheduledRefresh: (() => void) | undefined;
+  let scheduledIntervalMs: number | undefined;
+  let cancellationCount = 0;
+  return Object.freeze({
+    cancellations: () => cancellationCount,
+    intervalMs: () => scheduledIntervalMs,
+    refresh: () => {
+      assert.ok(scheduledRefresh, "TTY progress must schedule a heartbeat while work is running");
+      scheduledRefresh();
+    },
+    scheduler: Object.freeze({
+      schedule: (refresh: () => void, intervalMs: number) => {
+        scheduledRefresh = refresh;
+        scheduledIntervalMs = intervalMs;
+        return Object.freeze({
+          cancel: () => {
+            cancellationCount += 1;
+          }
+        });
+      }
+    })
+  });
+}
+
 describe("Package Run progress rendering outputs", () => {
   it("presents enabled Package Run progress through the injected plain writer", async () => {
     const output = capturedProgressWriter();
@@ -136,11 +167,52 @@ describe("Package Run progress rendering outputs", () => {
     assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
   });
 
+  it("schedules one 5-second TTY heartbeat and cancels it after the last Check settles", async () => {
+    const output = capturedProgressWriter({ isTTY: true });
+    const slow = deferred<void>();
+    const slowStarted = deferred<void>();
+    const refresh = capturedRefreshScheduler();
+    let nowMs = 0;
+    const running = executeValidatedRun(
+      definition(
+        [
+          check({
+            execution: async () => {
+              slowStarted.resolve(undefined);
+              await slow.promise;
+              return PASSED;
+            }
+          })
+        ],
+        true
+      ),
+      {},
+      [],
+      {
+        clock: { now: () => nowMs },
+        progressRefreshScheduler: refresh.scheduler,
+        progressWriterFactory: () => output.writer
+      }
+    );
+
+    await slowStarted.promise;
+    assert.equal(refresh.intervalMs(), 5_000);
+    nowMs = 5_000;
+    refresh.refresh();
+    assert.equal(output.writes.at(-1), "  [1/1] Custom | running | 5s\n");
+    slow.resolve(undefined);
+    const result = await running;
+
+    assert.equal(result.kind, "completed");
+    assert.equal(result.outputs.progressRendering.status, "succeeded");
+    assert.equal(refresh.cancellations(), 1);
+  });
+
   it("contains a TTY rewrite failure without leaving Check or Record facts open", async () => {
     const output = capturedProgressWriter({ isTTY: true, throwAtWrite: 3 });
     const slow = deferred<void>();
     const slowStarted = deferred<void>();
-    const fastStarted = deferred<void>();
+    const refresh = capturedRefreshScheduler();
     const running = executeValidatedRun(
       definition(
         [
@@ -153,25 +225,22 @@ describe("Package Run progress rendering outputs", () => {
               return PASSED;
             },
             maxParallel: 2
-          }),
-          check({
-            checkId: "fast",
-            execution: () => {
-              fastStarted.resolve(undefined);
-              return PASSED;
-            },
-            maxParallel: 2
           })
         ],
         true
       ),
       {},
       [],
-      { progressWriterFactory: () => output.writer }
+      {
+        progressRefreshScheduler: refresh.scheduler,
+        progressWriterFactory: () => output.writer
+      }
     );
 
     await slowStarted.promise;
-    await fastStarted.promise;
+    assert.equal(refresh.intervalMs(), 5_000);
+    refresh.refresh();
+    assert.equal(refresh.cancellations(), 1);
     slow.resolve(undefined);
     const result = await running;
 
@@ -182,7 +251,7 @@ describe("Package Run progress rendering outputs", () => {
     assert.equal(output.attempts.length, 3);
     assert.equal(output.attempts[2], "\u001B[1A\u001B[2K");
     assert.equal(output.writes.length, 2);
-    assert.equal(result.snapshot.checks.length, 2);
+    assert.equal(result.snapshot.checks.length, 1);
     assert.equal(result.snapshot.records.length, 1);
   });
 

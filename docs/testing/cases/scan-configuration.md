@@ -53,6 +53,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
+- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
@@ -63,7 +64,8 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
   Proves:
 - Disabling progress rendering does not construct its writer or affect Check execution.
-- A progress writer failure marks only `outputs.progressRendering` failed and retains closed Check/Record facts.
+- Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
+- A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts.
 - Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. If both fail, both statuses are failed and `progress-rendering-failed` is selected deterministically.
 
 

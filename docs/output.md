@@ -82,6 +82,12 @@ candidate write 或首次 rename 的 handled failure 保留 prior canonical set�
 
 Product progress 向人显示 Check lifecycle status、duration、受控 reason code 和已接受的 terminal messages；它使用 producing Run 的 lifecycle facts，不从 machine artifacts 反向恢复状态。每个 visible settled block 先输出 row，再按 author order 输出缩进 message lines；message `code` 只留在 `RunResult.checkMessages`，不重复到终端。`attention` 只省略 passed 且无 messages 的 settled row，TTY running rows 始终可见，所有 settled outcomes 仍计入 canonical ordinal 和最终计数。
 
+当至少一个 Check 仍在运行时，普通 TTY 每 5 秒重绘 running region，并在 `running` 后显示该 Check 的已运行时间；首次 running row 在第一个 heartbeat 前不伪造时长。heartbeat 只刷新 Product-private presentation state，不新增 Check lifecycle fact、公共 observer 或 machine field。plain output 与 `TERM=dumb` 仍保持 append-only，Check row 只在 settled 后出现，也不启动 heartbeat timer。
+
+启用 TTY progress 时，renderer 在 Run 期间独占目标 terminal；同一进程内被 Check 调用的 operation 必须保持 stdout/stderr
+静默，并通过 Check result、terminal message 或 project-owned transcript 返回事实。独立 CLI 可以使用自己的 reporter，
+但不得把 library 内部的直接 console write 带入 in-process Check；否则未登记写入会破坏 running region 的 cursor state。
+
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只分别给这三个 level label 加 cyan、yellow、red，不给 message body 或 status 上色。display name、reason code 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029，防止它们控制终端；`RunResult.checkMessages` 保留已验证的原 message string。
 
 v4 machine publication carries structured final/Record data only; it defines no human-readable projection of arbitrary data. Product progress remains the current human-facing lifecycle surface.

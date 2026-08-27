@@ -42,13 +42,23 @@ export interface ProgressOutcomeCounts {
 }
 
 export interface ProgressRenderer {
+  refresh(): void;
+  readonly refreshesRunningRegion: boolean;
   render(feedback: ProgressFeedback): void;
+}
+
+export interface ProgressClock {
+  now(): number;
 }
 
 interface RunningCheck {
   readonly checkId: string;
   readonly displayName: string;
+  readonly startedAtMs: number;
+  elapsedMs: number | null;
 }
+
+const SYSTEM_PROGRESS_CLOCK: ProgressClock = Object.freeze({ now: () => performance.now() });
 
 const COLOR = Object.freeze({
   error: "\u001B[31m",
@@ -64,7 +74,10 @@ const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.
 });
 
 /** Product-private lifecycle presentation with one owner for feedback and its writer. */
-export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer {
+export function createProgressRenderer(
+  writer: ProgressWriter,
+  clock: ProgressClock = SYSTEM_PROGRESS_CLOCK
+): ProgressRenderer {
   const isTTY = writer.isTTY && writer.term?.toLowerCase() !== "dumb";
   const usesColor = isTTY && writer.color;
   const running: RunningCheck[] = [];
@@ -103,6 +116,20 @@ export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer
   };
 
   return Object.freeze({
+    refreshesRunningRegion: isTTY,
+    refresh: (): void => {
+      if (!isTTY || running.length === 0) return;
+      assertPrepared(preparedTotal);
+      clearRunningRegion(writer, renderedRunningRows);
+      renderedRunningRows = 0;
+      updateRunningDurations(running, clock.now());
+      renderedRunningRows = redrawRunningRegion({
+        completedCount,
+        running,
+        totalChecks: preparedTotal,
+        writer
+      });
+    },
     render: (feedback: ProgressFeedback): void => {
       switch (feedback.kind) {
         case "prepared":
@@ -115,7 +142,12 @@ export function createProgressRenderer(writer: ProgressWriter): ProgressRenderer
           assertPrepared(preparedTotal);
           clearRunningRegion(writer, renderedRunningRows);
           renderedRunningRows = 0;
-          running.push({ checkId: feedback.checkId, displayName: feedback.displayName });
+          running.push({
+            checkId: feedback.checkId,
+            displayName: feedback.displayName,
+            elapsedMs: null,
+            startedAtMs: clock.now()
+          });
           renderedRunningRows = redrawRunningRegion({
             completedCount,
             running,
@@ -159,6 +191,7 @@ function redrawRunningRegion(
       formatRunningRow({
         displayIndex: input.completedCount + index + 1,
         displayName: check.displayName,
+        elapsedMs: check.elapsedMs,
         totalChecks: input.totalChecks
       })
     );
@@ -171,14 +204,23 @@ function removeRunningCheck(running: RunningCheck[], checkId: string): void {
   if (index >= 0) running.splice(index, 1);
 }
 
+function updateRunningDurations(running: RunningCheck[], refreshedAtMs: number): void {
+  for (const check of running) {
+    const elapsedMs = refreshedAtMs - check.startedAtMs;
+    check.elapsedMs = Number.isFinite(elapsedMs) && elapsedMs >= 0 ? elapsedMs : 0;
+  }
+}
+
 function formatRunningRow(
   input: Readonly<{
     readonly displayIndex: number;
     readonly displayName: string;
+    readonly elapsedMs: number | null;
     readonly totalChecks: number;
   }>
 ): string {
-  return `  [${input.displayIndex}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | running\n`;
+  const elapsed = input.elapsedMs === null ? "" : ` | ${formatDuration(input.elapsedMs)}`;
+  return `  [${input.displayIndex}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | running${elapsed}\n`;
 }
 
 function shouldPresentSettledFeedback(

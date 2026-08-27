@@ -61,8 +61,9 @@ function validatePackageApiDocumentation(_report?: (message: string) => void): v
 }
 
 function validatePublishedExamples(report?: (message: string) => void): void {
-  validatePublishedMachineArtifactExamples();
+  const artifactSetCount = validatePublishedMachineArtifactExamples();
   checkPublishedMachineExamples();
+  report?.(`current machine artifact examples ok: ${artifactSetCount} set(s)`);
   validateReportExamples(report);
 }
 
