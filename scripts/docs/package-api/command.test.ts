@@ -14,12 +14,14 @@ describe("package API documentation CLI", () => {
       assert.equal(stale.exitCode, 1);
       assert.match(stale.diagnostics[0] ?? "", /README\.md/);
       assert.equal(existsSync(join(fixtureRoot, "README.md")), false);
+      assert.equal(existsSync(join(fixtureRoot, "docs/api-mechanics.md")), false);
 
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0
       );
       assert.equal(existsSync(join(fixtureRoot, "README.md")), true);
+      assert.equal(existsSync(join(fixtureRoot, "docs/api-mechanics.md")), true);
       assert.equal(
         runPackageApiDocumentationCli(["--check"], { repositoryRoot: fixtureRoot }).exitCode,
         0
@@ -31,6 +33,18 @@ describe("package API documentation CLI", () => {
       });
       assert.equal(staleReadme.exitCode, 1);
       assert.match(staleReadme.diagnostics[0] ?? "", /README\.md/);
+      assert.equal(
+        runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
+        0
+      );
+
+      const apiMechanicsPath = join(fixtureRoot, "docs/api-mechanics.md");
+      writeFileSync(apiMechanicsPath, "stale\n", "utf8");
+      const staleApiMechanics = runPackageApiDocumentationCli(["--check"], {
+        repositoryRoot: fixtureRoot
+      });
+      assert.equal(staleApiMechanics.exitCode, 1);
+      assert.match(staleApiMechanics.diagnostics[0] ?? "", /docs\/api-mechanics\.md/);
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0

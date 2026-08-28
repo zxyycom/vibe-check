@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
+import { isAcceptedPackageDependencyVersion } from "../dependency-version.ts";
+import { CANDIDATE_DEPENDENCIES } from "../package-contract.ts";
 import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
 import type { ExternalConsumerMaterial } from "./isolated-consumer-material.ts";
 
@@ -47,7 +49,13 @@ export function assertExternalConsumerRuntime(
   assert.equal(isPathWithin(repositoryRoot, jscpd.manifestPath), false);
   assert.equal(isPathWithin(material.consumerDirectory, jscpd.binPath), true);
   assert.equal(isPathWithin(repositoryRoot, jscpd.binPath), false);
-  assert.equal(jscpd.version, "5.0.11");
+  assert.equal(
+    isAcceptedPackageDependencyVersion({
+      requirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd },
+      resolvedVersion: jscpd.version
+    }),
+    true
+  );
   assertCandidateRunEvidence(runCandidateFixture(material.consumerDirectory));
 }
 
@@ -328,13 +336,9 @@ const secondChangedFilesConsumer = defineCheck({
 const result = await run(
   defineConfig({
     checks: [
-      {
-        ...duplicateDetection,
-        options: {
-          ...duplicateDetection.options,
-          defaultMinimumTokens: 20
-        }
-      },
+      duplicateDetection({
+        codeAreas: { project: { files: {}, minimumTokens: 20 } }
+      }),
       jsonValidation,
       {
         ...jsonSchemaValidation,

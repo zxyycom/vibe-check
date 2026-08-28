@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
@@ -14,18 +14,14 @@ describe("quality scc exact input projection", () => {
     const result = scanWithScc({
       cwd: REPO_ROOT,
       includePaths: [],
-      excludeDirs: [],
       dependency: {
-        args: [],
-        availabilityArgs: ["--version"],
         executable: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`)
       }
     });
 
     assert.deepEqual(result, {
       ok: true,
-      measurements: [],
-      aggregates: { byLanguage: [] }
+      measurements: []
     });
   });
 
@@ -36,7 +32,6 @@ describe("quality scc exact input projection", () => {
       const result = scanWithScc({
         cwd: REPO_ROOT,
         includePaths: ["src"],
-        excludeDirs: [],
         dependency
       });
 
@@ -50,16 +45,20 @@ describe("quality scc exact input projection", () => {
     }
   });
 });
+
 function createFakeSccToolConfig(stdout: string) {
   const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-scc-"));
-  const fakeSccPath = join(tempDir, "fake-scc.ts");
+  const fakeSccPath = join(tempDir, "fake-scc.mjs");
 
-  writeFileSync(fakeSccPath, `process.stdout.write(${JSON.stringify(stdout)});\n`, "utf8");
+  writeFileSync(
+    fakeSccPath,
+    `#!/usr/bin/env bun\nprocess.stdout.write(${JSON.stringify(stdout)});\n`,
+    "utf8"
+  );
+  chmodSync(fakeSccPath, 0o755);
 
   return {
-    args: [fakeSccPath],
-    availabilityArgs: [fakeSccPath, "--version"],
-    executable: process.execPath,
+    executable: fakeSccPath,
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

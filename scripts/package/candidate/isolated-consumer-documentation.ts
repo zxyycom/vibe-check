@@ -4,9 +4,10 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
+import { collectPackageDocumentation } from "../../docs/package-api/check-guides.ts";
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../docs/package-api/example-projections.ts";
 import { renderPackageApiDocumentation } from "../../docs/package-api/render.ts";
+import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
 import type { ExternalConsumerMaterial } from "./isolated-consumer-material.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -27,13 +28,19 @@ export function writeExternalConsumerDocumentationFixture(
   }
 }
 
-/** Owns installed README and projected documentation-example acceptance. */
+/** Owns installed package documentation and projected example acceptance. */
 export function assertExternalConsumerDocumentation(material: ExternalConsumerMaterial): void {
   const documentation = renderPackageApiDocumentation({ repositoryRoot });
-  assert.equal(
-    readFileSync(join(material.installedPackageDirectory, "README.md"), "utf8"),
-    documentation.readme.content
+  const supportingDocuments = collectPackageDocumentation(
+    repositoryRoot,
+    documentation.markdownDocuments
   );
+  for (const document of [documentation.readme, ...supportingDocuments]) {
+    assert.equal(
+      readFileSync(join(material.installedPackageDirectory, document.packagePath), "utf8"),
+      document.content
+    );
+  }
   runDocumentationExamples(material.consumerDirectory);
 }
 

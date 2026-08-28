@@ -1,81 +1,204 @@
 # `duplicateDetection`
 
+返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
+
 ## 用途
 
-使用 jscpd 在该 Check 自己选择的项目文件中发现重复代码片段，适合把重复实现作为可审计 finding 管理。
-它是普通 Check value；Definition 和 Core 不识别其 ID 或参数。
+本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
+policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
+policy 的重复片段报告为 supplemental Records，并用 `findingCount` 表示最终数量。
+
+默认 package command 使用随 `vibe-check` 安装的 jscpd v5；项目无需选择版本、提供 executable 或复制默认 options：
+
+```ts
+import { duplicateDetection } from "vibe-check";
+
+const check = duplicateDetection();
+```
 
 ## 参数与默认配置
 
+constructor 只接受可省略的 `cache`、`codeAreas` 与 `scanner` branches。无参调用物化成以下完整 Check options：
+
 ```ts
 {
-  files: {
-    include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
-  },
+  cache: { directory: ".cache/vibe-check", enabled: true },
   codeAreas: {
     project: {
-      description: "This project",
-      globs: ["**/*"],
-      excludeGlobs: [],
-      warningPolicy: "moderate"
+      files: {
+        include: ["**/*"],
+        excludeDirs: [
+          ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
+          "node_modules", "target", "vendor"
+        ],
+        generatedFiles: ["**/generated/**", "**/*.generated.*"]
+      },
+      minimumLines: 3,
+      minimumTokens: 75
     }
   },
   scanner: {
-    executable: "vibe-check-package-jscpd",
-    args: [],
-    availabilityArgs: ["--version"],
-    maxConcurrency: 4
-  },
-  defaultMinimumTokens: 75,
-  minimumTokensByCodeArea: {}
+    command: { kind: "package" }
+  }
 }
 ```
 
-- `files` 完整定义本 Check 的 project-file selection，不来自 `ProjectDefinition` 的全局 scope。
-- `codeAreas` 按声明顺序对 selected paths 分组，并为 finding policy 提供 area metadata。
-- `scanner` 只由 `duplicate-detection` 消费；default marker 由其私有 jscpd adapter 解析为随 package 安装的 jscpd。
-- `defaultMinimumTokens` 是未覆盖 area 的最小 token 数；`minimumTokensByCodeArea` 的每个 key 必须存在于本 Check
-  的 `codeAreas`。
+- 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
+- 每个显式 area 必须提供 `files` branch；其中 `include`、`excludeDirs`、`generatedFiles` 可分别省略并使用上述
+  package defaults。`minimumLines` 与 `minimumTokens` 可省略并分别使用 `3` 和 `75`，显式值必须是正安全整数。
+- `cache.directory` 省略时为 `.cache/vibe-check`，相对路径从 project root 解析；`cache.enabled` 省略时为 `true`。
+- `scanner.command` 省略时为 `{ kind: "package" }`。worker 数不是产品 policy，constructor 不公开这一调优项；
+  adapter 固定沿用 jscpd 的自动 worker policy。
+- 未知字段、空 area map、缺失 area `files`、非法阈值或非法 scanner policy 会让 constructor 同步抛出
+  `TypeError`；不会延迟到 scanner 启动时才发现。
 
-项目可先定义一个普通 `repositoryFiles` 或 `metricCodeAreas` value，再以 object spread 显式组合；替换完整
-`options` 或 nested branch 时不会自动深度合并。
+## 定制区域 policy
+
+调用方只声明要改变的 policy，不需要读取默认 Check 或编写 nested spread。下面将默认 `project` area 的 token
+阈值改为 `100`；空 `files` branch 表示三个 file lists 都使用 package defaults：
+
+```ts
+import { duplicateDetection } from "vibe-check";
+
+const stricterDuplicateDetection = duplicateDetection({
+  codeAreas: {
+    project: {
+      files: {},
+      minimumTokens: 100
+    }
+  }
+});
+```
+
+下面两个 area 各自拥有文件范围和阈值。省略的 file lists 与阈值仍由 constructor 补齐：
+
+```ts
+import { duplicateDetection } from "vibe-check";
+
+const sourceAndScriptsDuplicateDetection = duplicateDetection({
+  codeAreas: {
+    source: {
+      files: { include: ["src/**/*.ts"] },
+      minimumTokens: 20
+    },
+    scripts: {
+      files: {
+        include: ["scripts/**/*.ts"],
+        generatedFiles: ["scripts/**/*.test.ts", "**/*.generated.*"]
+      },
+      minimumLines: 10,
+      minimumTokens: 100
+    }
+  }
+});
+```
+
+没有顶层 file selection、全局阈值、area override map 或隐式 `unknown` area；`codeAreas[id]` 是该 area 文件范围
+与阈值的单一事实源。
+
+## 定制 jscpd executable
+
+只有项目确实授权另一个可执行文件时才设置 custom command：
+
+```ts
+import { duplicateDetection } from "vibe-check";
+
+const customDuplicateDetection = duplicateDetection({
+  scanner: {
+    command: {
+      kind: "custom",
+      executable: "/absolute/path/to/jscpd"
+    }
+  }
+});
+```
+
+`executable` 必须是已授权、可执行且**直接接受 jscpd CLI 参数**的 command。public input 不提供 argument passthrough、
+availability probe 或 worker tuning。adapter 会先用固定的 version probe 确认 command 可运行且能提供可识别的实际
+版本，再用本次完整 exact paths 与最低有效 line/token 阈值取得 JSON report；它不传 `--workers`。实际版本只用于区分
+cache provenance，不是 consumer 配置，也不要求 custom command 等于 package 当前安装的版本。
+
+需要靠前置参数才能转发到 jscpd 的通用 runtime（例如 `node path/to/jscpd.js`）不是受支持的 custom command；应直接
+提供 jscpd executable 或一个已授权的专用 wrapper executable。
+
+默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5；consumer 不配置 scanner version 或
+version range。package 或 custom command 的实际版本都会隔离 cache；command、config 或 report 不兼容时，Check fail
+closed 为 `unavailable`，不会把无法完成的扫描伪装成零 finding。
+
+## Constructor 与普通 Check 的边界
+
+constructor 返回的仍是普通 Check object，可直接进入 `defineConfig({ checks: [...] })`。constructor 会冻结并返回完整
+resolved options；owning preflight 与 execution 仍验证这个完整 shape，以安全拒绝 constructor 之后通过普通对象组合形成
+的缺失、未知或非法 options。constructor input 错误是同步 `TypeError`；非法 resolved Check replacement 则在 Run
+preflight 中结算为 `unavailable / invalid-options`。
+
+这个专用 constructor 不引入 generic deep merge、patch grammar、hidden brand 或第二种 Check execution model。其它随包
+default Check values 仍按各自指南使用。
 
 ## 工作原理
 
-Check 验证完整 options，收集 `files` 选中的 paths，按自己的 `codeAreas` 建立 exact input groups 和 fingerprints，
-再调用位于 `duplicate-detection/jscpd` owner 内的 adapter。adapter 不重新发现项目文件；每个 scanner measurement 的
-source paths 都必须属于对应 exact group。每个接受的重复片段形成一条 supplemental Record，Check-local cache 以 backend、
-commit、area、options 与 exact-input fingerprint 定位。
+Check 分别收集每个 `codeAreas[id].files` 选中的路径，再把全部路径去重成一个 approved exact scope。一个路径可同时
+属于多个 area；全部 exact paths 仍一次性交给 jscpd，因此同 area、跨 area 与重叠 area 文件都会互相比较：
+
+1. jscpd 使用所有实际输入 area 中最低的 line 阈值和最低的 token 阈值取得完整候选。
+2. 每个 raw fragment 的 location path 必须属于本次完整 exact scope；任一路径越界都会拒绝整批 measurement。
+3. Check 按 location path 恢复它匹配的全部 areas。fragment 的 line count 和 token count 必须分别达到所有涉及 area
+   对应阈值中的最大值，才形成 finding。
+
+例如 `source` 使用 line `3` / token `20`，`scripts` 使用 line `10` / token `100` 时，scanner 使用 line `3` /
+token `20` 取得候选；跨这两个 area 的 8-line / 120-token fragment 和 12-line / 80-token fragment 都会被过滤，只有
+同时达到 line `10` 与 token `100` 的 fragment 会保留。
+
+cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命中 cache，当前 area annotation 与最终 policy filtering
+都走同一路径。只有 package/custom command identity、实际 jscpd 版本、当前 commit、完整 exact-input fingerprint 和实际
+影响 scanner 结果的配置均匹配时才会复用；package command identity 不含 consumer 安装目录，custom command identity 使用
+项目显式提供的 executable。
 
 ## 效果与结果
 
-无 finding 时为 `passed`，final data 是 `{ findingCount: 0 }`；有 finding 时为 `failed`，`findingCount` 等于已报告
-Records 数量。
+`findingCount === 0` 时 outcome 为 `passed`；`findingCount > 0` 时 outcome 为 `failed`。`findingCount` 恰好等于
+该 Check 报告的 Records 数量。每个 Record data 使用以下字段：
+
+```ts
+{
+  metric: "duplicate-tokens",
+  tokenCount: number,
+  lineCount: number,
+  codeAreas: string[],
+  locations: Array<{ path: string; startLine: number; endLine: number }>
+}
+```
+
+按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄 `RunResult.kind`，再按
+`duplicate-detection` checkId 读取 outcome 和 supplemental Records。
 
 ## `not-applicable` 与 `unavailable`
 
-没有合格 exact input 时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run
-preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到
-jscpd 不可用、调用失败、输出无效、越界 measurement 或取消时才返回 `unavailable`，且不发布 partial scanner
-result。
+- 少于两个合格 exact inputs：`not-applicable / no-eligible-input`。
+- constructor 后形成的 resolved options 不符合完整 shape：`unavailable / invalid-options`。
+- package/custom command 缺失、version probe 失败或无法形成可识别版本 provenance：
+  `unavailable / external-dependency-unavailable`。
+- 已启动 jscpd 但进程执行失败：`unavailable / external-execution-failed`。
+- cache 写入失败：`unavailable / cache-write-failed`。
+- report、fragment 或 exact-input membership 无法形成可信完整结果：`unavailable / external-result-invalid`。
 
-## 外部工具与安全边界
+通用 preflight 机制见 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
 
-只启动本机配置的 jscpd，不请求网络。只有本 Check `files` 与 `codeAreas` 批准的 exact paths 会交给工具；显式替换
-`scanner.executable`/arguments 等同于授权执行该项目配置中的命令。
+## I/O 与安全边界
+
+execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].files` 批准的 exact paths 去重并集。显式配置
+`scanner.command.kind: "custom"` 表示项目授权执行其中的 executable；所有传入参数由 owning adapter 生成。该 Check
+不发起网络请求。
 
 ## 最小用法
 
 ```ts
 import { defineConfig, duplicateDetection, run } from "vibe-check";
-const result = await run(defineConfig({ checks: [duplicateDetection] }));
+
+const result = await run(defineConfig({ checks: [duplicateDetection()] }));
 ```
 
-## 非目标
+## 适用边界
 
-它不判断重复是否一定应消除，不自动改写代码，也不替代人工架构判断。
+该 Check 负责报告重复片段及其数量；consumer 根据代码语义和架构目标决定是否以及如何重构。它不会自动改写源码，
+也不会把 token 数量单独解释为重构优先级。

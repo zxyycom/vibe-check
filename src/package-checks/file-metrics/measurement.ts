@@ -1,9 +1,8 @@
-import type { FileMetricsScannerOptions } from "./options.ts";
-import { scanWithScc } from "./scc/scanner.ts";
-import { checkScc } from "./scc/availability.ts";
 import { acceptExactInputMeasurements } from "../project-files/exact-input-measurement.ts";
-import type { FileMetric } from "./measurement-model.ts";
-import type { FileMetricsExactInputSet } from "./execution.ts";
+import type { FileMetric, FileMetricsExactInputSet } from "./measurement-model.ts";
+import type { ResolvedFileMetricsScannerOptions } from "./options.ts";
+import { checkScc } from "./scc/availability.ts";
+import { scanWithScc } from "./scc/scanner.ts";
 
 export type FileMeasurementResult = Readonly<
   | { kind: "complete"; metrics: readonly FileMetric[] }
@@ -14,7 +13,7 @@ export type FileMeasurementResult = Readonly<
 
 export async function measureFileMetrics(
   input: FileMetricsExactInputSet,
-  dependency: FileMetricsScannerOptions
+  dependency: ResolvedFileMetricsScannerOptions
 ): Promise<FileMeasurementResult> {
   if (input.approvedExactPaths.length === 0) {
     return Object.freeze({ kind: "complete", metrics: Object.freeze([]) });
@@ -28,19 +27,13 @@ export async function measureFileMetrics(
 
 function runFileScanner(
   input: FileMetricsExactInputSet,
-  dependency: FileMetricsScannerOptions
+  dependency: ResolvedFileMetricsScannerOptions
 ): FileMeasurementResult {
-  let result: ReturnType<typeof scanWithScc>;
-  try {
-    result = scanWithScc({
-      cwd: input.rootDir,
-      dependency,
-      includePaths: input.approvedExactPaths,
-      excludeDirs: []
-    });
-  } catch {
-    return Object.freeze({ kind: "execution-failed" });
-  }
+  const result = scanWithScc({
+    cwd: input.rootDir,
+    dependency,
+    includePaths: input.approvedExactPaths
+  });
   if (!result.ok) {
     return Object.freeze({
       kind: result.reason === "execution" ? "execution-failed" : "invalid-result"

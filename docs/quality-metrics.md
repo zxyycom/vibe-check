@@ -50,11 +50,17 @@ consumer/provider，不由 Product registry、catalog、extractor 或 presentati
 `json-schema-validation` 与 `markdown-link-validation` 同样完整拥有自己的 options validation、execution 和 domain
 facts。Definition、Run 与 Check facts 不识别这些 Check ID 或 option shape。
 
-需要文件的 Check 各自从 `options.files` 形成 selected/exact input paths，并只在 detail 是 supplemental finding 时报告
+需要文件的 Check 各自从 Check-owned file selection 形成 selected/exact input paths：三个 metric Check 使用每个
+`codeAreas[id].files`，其它 file-reading Checks 使用顶层 `options.files`。它们只在 detail 是 supplemental finding 时报告
 Check-local Records。adapter availability、process、parser、cache 或 exact-input failure 将 owning Check settle 为
 unavailable，不创建并行 quality model。owner-local tool boundary 见
 [Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
 [Project files and Check exact inputs](scan-scope.md)。
+
+`function-metrics` 对每个超过 effective area limit 的 metric 发布一条 Record；data 包含 stable-sorted `codeAreas`、
+`blocking`、metric、limit 与 function location/value。它不会因 blocking finding 短路 scanner 或后续 conversion。正常
+final data 恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此 passed Check
+可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为 not-applicable 和 unavailable。
 
 `json-validation` 的 Check-local facts 固定如下：
 
@@ -89,9 +95,9 @@ unavailable，不创建并行 quality model。owner-local tool boundary 见
   catalog 无需 request；只有 explicit allowlisted HTTPS source 可以 fetch。adapter 不使用 credentials、headers、
   redirects、ambient callback 或 persistent cache；unapproved/unsupported reference 安全失败。
 
-All six package-provided values and custom callbacks use the same four-state grammar. Check options affect only their own
+All package-provided Checks, including the value returned by `duplicateDetection(options?)`, and custom callbacks use the
+same four-state grammar. Check options affect only their own
 semantics; aggregation and output presentation do not belong to these options.
-
 
 ### Markdown Link findings and outcomes
 
@@ -145,23 +151,23 @@ callback 只在项目根目录的已提交 Git 历史中工作：它解析 `HEAD
 
 `reason` 只会出现在 `unavailable` 条目上；它是稳定、可行动的原因代码：
 
-| `reason` | 含义与下一步 |
-| --- | --- |
-| `head-unavailable` | 无法执行或读取 `HEAD`；检查 Git 可执行文件和仓库状态。 |
-| `head-invalid` | `HEAD` 命令输出不是完整 commit ID；检查被调用的 Git 工具或仓库对象。 |
-| `first-parent-history-unavailable` | 无法读取 `HEAD` 的 `first-parent` 历史；检查 Git 命令和仓库历史。 |
-| `first-parent-history-invalid` | 返回的 `first-parent` 历史为空、含无效 ID 或未以 `HEAD` 开始；检查 Git 工具或仓库对象。 |
-| `base-commit-unavailable` | 条目的 `baseCommit` 无法解析；将其改为可用的完整 commit ID。 |
-| `base-not-first-parent-ancestor` | 条目的基线不在 `HEAD` 的 `first-parent` 链上；选择该链中的复核基线。 |
-| `numstat-unavailable` | 无法读取某个提交的 `numstat`；检查 Git 工具和仓库对象。 |
-| `numstat-invalid` | `numstat` 输出无法安全解析或累计；检查 Git 工具和仓库对象。 |
+| `reason`                           | 含义与下一步                                                                            |
+| ---------------------------------- | --------------------------------------------------------------------------------------- |
+| `head-unavailable`                 | 无法执行或读取 `HEAD`；检查 Git 可执行文件和仓库状态。                                  |
+| `head-invalid`                     | `HEAD` 命令输出不是完整 commit ID；检查被调用的 Git 工具或仓库对象。                    |
+| `first-parent-history-unavailable` | 无法读取 `HEAD` 的 `first-parent` 历史；检查 Git 命令和仓库历史。                       |
+| `first-parent-history-invalid`     | 返回的 `first-parent` 历史为空、含无效 ID 或未以 `HEAD` 开始；检查 Git 工具或仓库对象。 |
+| `base-commit-unavailable`          | 条目的 `baseCommit` 无法解析；将其改为可用的完整 commit ID。                            |
+| `base-not-first-parent-ancestor`   | 条目的基线不在 `HEAD` 的 `first-parent` 链上；选择该链中的复核基线。                    |
+| `numstat-unavailable`              | 无法读取某个提交的 `numstat`；检查 Git 工具和仓库对象。                                 |
+| `numstat-invalid`                  | `numstat` 输出无法安全解析或累计；检查 Git 工具和仓库对象。                             |
 
 无法解析 `HEAD` 或历史时，callback 仍会为每个条目形成 `unavailable` 评估；单条基线、祖先关系、`numstat` 或解析失败也只会使该条目不可测量，后续条目继续测量。这样在数据完整时不会把 `unavailable` 伪装为 `clear`，也不会丢掉其它条目。只有取消、内部失败或其他无法可信形成完整有序数组的边界，才会使整个 Check 以四态结果 `unavailable` 结束。
 
-| 条目评估 | `advisory`（默认） | `enforcing` |
-| --- | --- | --- |
-| `clear` | 不附提示，不导致失败。 | 不附提示，不导致失败。 |
-| `due` | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
+| 条目评估      | `advisory`（默认）               | `enforcing`                      |
+| ------------- | -------------------------------- | -------------------------------- |
+| `clear`       | 不附提示，不导致失败。           | 不附提示，不导致失败。           |
+| `due`         | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 | `unavailable` | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 
 提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#维护提醒评估数据)。

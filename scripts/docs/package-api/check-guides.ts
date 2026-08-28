@@ -1,23 +1,27 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-
-import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 
-import {
-  PACKAGE_CHECK_GUIDE_INDEX_PATH,
-  PACKAGE_CHECK_GUIDES,
-  type PackageCheckGuide
-} from "./check-guide-registry.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import { PACKAGE_CHECK_GUIDES, type PackageCheckGuide } from "./check-guide-registry.ts";
 
+const README_PATH = "README.md";
+const API_MECHANICS_PATH = "docs/api-mechanics.md";
+const CHECK_GUIDE_README_LINK = "(../../README.md#随包提供的-check)";
+const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
+  CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
+  CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
+  CURRENT_PUBLIC_CONTRACT.operations.inherit,
+  CURRENT_PUBLIC_CONTRACT.operations.run
+]);
 const GUIDE_HEADINGS = Object.freeze([
   "## 用途",
   "## 参数与默认配置",
   "## 工作原理",
   "## 效果与结果",
   "## `not-applicable` 与 `unavailable`",
-  "## 外部工具与安全边界",
+  "## I/O 与安全边界",
   "## 最小用法",
-  "## 非目标"
+  "## 适用边界"
 ]);
 
 export interface PackageDocumentationFile {
@@ -25,55 +29,70 @@ export interface PackageDocumentationFile {
   readonly packagePath: string;
 }
 
-/** Reads the exact hand-written guide inventory and rejects incomplete package documentation. */
-export function collectPackageCheckGuides(
+/** Closes the generated API guide and exact hand-written Check guide inventory. */
+export function collectPackageDocumentation(
   repositoryRoot: string,
-  readmeContent?: string
+  generatedMarkdown: readonly PackageDocumentationFile[]
 ): readonly PackageDocumentationFile[] {
   const root = resolve(repositoryRoot);
   assertGuideRegistry(PACKAGE_CHECK_GUIDES);
-  const guidePaths = [
-    PACKAGE_CHECK_GUIDE_INDEX_PATH,
-    ...PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
-  ];
-  assertExactGuideDirectory(root, guidePaths);
-  const documents = guidePaths.map((packagePath) => readDocument(root, packagePath));
-  const readme = Object.freeze({
-    content: readmeContent ?? readFileSync(join(root, "README.md"), "utf8"),
-    packagePath: "README.md"
-  });
-  assertGuideLinks(readme, documents);
-  assertLocalMarkdownLinks([readme, ...documents]);
-  return Object.freeze(documents);
+  const generated = assertGeneratedMarkdownInventory(generatedMarkdown);
+  assertExactGuideDirectory(
+    root,
+    PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
+  );
+  const checkGuides = PACKAGE_CHECK_GUIDES.map((guide) => readCheckGuide(root, guide.sourcePath));
+  const readme = requiredDocument(generated, README_PATH);
+  const supportingDocuments = [requiredDocument(generated, API_MECHANICS_PATH), ...checkGuides];
+  assertGuideLinks(readme, supportingDocuments);
+  assertLocalMarkdownLinks([readme, ...supportingDocuments]);
+  return Object.freeze(supportingDocuments);
+}
+
+function assertGeneratedMarkdownInventory(
+  documents: readonly PackageDocumentationFile[]
+): readonly PackageDocumentationFile[] {
+  const expected = [API_MECHANICS_PATH, README_PATH].sort();
+  const actual = documents.map((document) => document.packagePath).sort();
+  if (
+    actual.length !== expected.length ||
+    actual.some((packagePath, index) => packagePath !== expected[index])
+  ) {
+    throw new Error(
+      `generated package Markdown must be README.md plus one API mechanics guide: received ${actual.join(", ")}`
+    );
+  }
+  for (const document of documents) assertDocumentText(document);
+  return documents;
 }
 
 function assertGuideRegistry(guides: readonly PackageCheckGuide[]): void {
-  if (guides.length !== 7)
-    throw new Error("package Check guide registry must contain exactly seven entries");
   const ids = new Set<string>();
   const names = new Set<string>();
   const paths = new Set<string>();
   for (const guide of guides) {
     if (!/^[a-z][a-z0-9-]*$/.test(guide.checkId))
       throw new Error(`invalid package Check guide id: ${guide.checkId}`);
-    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(guide.constructorName))
-      throw new Error(`invalid package Check guide constructor: ${guide.constructorName}`);
+    if (!/^[A-Za-z][A-Za-z0-9]*$/.test(guide.exportName))
+      throw new Error(`invalid package Check guide export: ${guide.exportName}`);
     if (!guide.sourcePath.startsWith("docs/checks/") || !guide.sourcePath.endsWith(".md"))
       throw new Error(`invalid package Check guide path: ${guide.sourcePath}`);
-    if (ids.has(guide.checkId) || names.has(guide.constructorName) || paths.has(guide.sourcePath))
+    if (ids.has(guide.checkId) || names.has(guide.exportName) || paths.has(guide.sourcePath))
       throw new Error(`duplicate package Check guide registry entry: ${guide.checkId}`);
     ids.add(guide.checkId);
-    names.add(guide.constructorName);
+    names.add(guide.exportName);
     paths.add(guide.sourcePath);
   }
-  const expectedConstructors = [
+  const expectedCheckExports = [
     ...Object.values(CURRENT_PUBLIC_CONTRACT.values),
-    CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.operations).filter(
+      (operation) => !NON_CHECK_OPERATIONS.includes(operation)
+    )
   ].sort();
-  const actualConstructors = [...names].sort();
-  if (actualConstructors.join("\0") !== expectedConstructors.join("\0")) {
+  const actualCheckExports = [...names].sort();
+  if (actualCheckExports.join("\0") !== expectedCheckExports.join("\0")) {
     throw new Error(
-      `package Check guides must exactly cover package-provided Check values and constructors: expected ${expectedConstructors.join(", ")}; received ${actualConstructors.join(", ")}`
+      `package Check guides must exactly cover package-provided Check values and constructors: expected ${expectedCheckExports.join(", ")}; received ${actualCheckExports.join(", ")}`
     );
   }
 }
@@ -109,46 +128,60 @@ function collectMarkdownFiles(root: string, directory: string): string[] {
   return paths.sort();
 }
 
-function readDocument(root: string, packagePath: string): PackageDocumentationFile {
+function readCheckGuide(root: string, packagePath: string): PackageDocumentationFile {
   const path = join(root, packagePath);
   if (!existsSync(path)) throw new Error(`package documentation file is missing: ${packagePath}`);
-  const content = readFileSync(path, "utf8");
-  if (!content.endsWith("\n") || content.includes("\r"))
-    throw new Error(`package documentation must use LF and one trailing LF: ${packagePath}`);
+  const document = Object.freeze({ content: readFileSync(path, "utf8"), packagePath });
+  assertDocumentText(document);
+  for (const heading of GUIDE_HEADINGS) {
+    if (!document.content.includes(heading)) {
+      throw new Error(`package Check guide is missing required section ${heading}: ${packagePath}`);
+    }
+  }
+  return document;
+}
+
+function assertDocumentText(document: PackageDocumentationFile): void {
   if (
-    packagePath !== "README.md" &&
-    packagePath !== "docs/package-readme.template.md" &&
-    packagePath !== PACKAGE_CHECK_GUIDE_INDEX_PATH
-  )
-    for (const heading of GUIDE_HEADINGS)
-      if (!content.includes(heading))
-        throw new Error(
-          `package Check guide is missing required section ${heading}: ${packagePath}`
-        );
-  return Object.freeze({ content, packagePath });
+    !document.content.endsWith("\n") ||
+    document.content.endsWith("\n\n") ||
+    document.content.includes("\r")
+  ) {
+    throw new Error(
+      `package documentation must use LF and one trailing LF: ${document.packagePath}`
+    );
+  }
+}
+
+function requiredDocument(
+  documents: readonly PackageDocumentationFile[],
+  packagePath: string
+): PackageDocumentationFile {
+  const document = documents.find((candidate) => candidate.packagePath === packagePath);
+  if (document === undefined) throw new Error(`package documentation is missing: ${packagePath}`);
+  return document;
 }
 
 function assertGuideLinks(
   readme: PackageDocumentationFile,
   documents: readonly PackageDocumentationFile[]
 ): void {
-  if (!readme.content.includes(`(./${PACKAGE_CHECK_GUIDE_INDEX_PATH})`)) {
-    throw new Error(
-      `README is missing package Check guide index link: ${PACKAGE_CHECK_GUIDE_INDEX_PATH}`
-    );
+  if (!readme.content.includes(`(./${API_MECHANICS_PATH})`)) {
+    throw new Error(`README is missing the package API mechanics link: ${API_MECHANICS_PATH}`);
   }
-  const index = documents.find(
-    (document) => document.packagePath === PACKAGE_CHECK_GUIDE_INDEX_PATH
-  );
-  if (index === undefined) throw new Error("package Check guide index is missing");
   for (const guide of PACKAGE_CHECK_GUIDES) {
-    if (!index.content.includes(`](${guide.checkId}.md)`))
-      throw new Error(`package Check guide index is missing link: ${guide.sourcePath}`);
-    const document = documents.find((candidate) => candidate.packagePath === guide.sourcePath);
-    if (document === undefined || !document.content.includes(`# \`${guide.constructorName}\``))
+    if (!readme.content.includes(`](./${guide.sourcePath})`)) {
+      throw new Error(`README is missing a direct package Check guide link: ${guide.sourcePath}`);
+    }
+    const document = requiredDocument(documents, guide.sourcePath);
+    if (
+      !document.content.includes(`# \`${guide.exportName}\``) ||
+      !document.content.includes(CHECK_GUIDE_README_LINK)
+    ) {
       throw new Error(
-        `package Check guide does not identify its public constructor: ${guide.sourcePath}`
+        `package Check guide must identify its public export and link back to README: ${guide.sourcePath}`
       );
+    }
   }
 }
 
@@ -159,10 +192,11 @@ function assertLocalMarkdownLinks(documents: readonly PackageDocumentationFile[]
       const target = match[1].replace(/^<|>$/g, "").split(/[?#]/, 1)[0];
       if (target === "" || /^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("/")) continue;
       const resolved = normalize(join(dirname(document.packagePath), target)).replaceAll("\\", "/");
-      if (!paths.has(resolved))
+      if (!paths.has(resolved)) {
         throw new Error(
           `package documentation link does not resolve: ${document.packagePath} -> ${target}`
         );
+      }
     }
   }
 }

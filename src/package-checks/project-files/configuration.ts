@@ -1,23 +1,5 @@
 import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 
-export const CODE_AREA_WARNING_POLICIES = Object.freeze([
-  "strict",
-  "moderate",
-  "relaxed",
-  "watchlist-only",
-  "exclude-warnings"
-] as const);
-
-export type CodeAreaWarningPolicy = (typeof CODE_AREA_WARNING_POLICIES)[number];
-
-/** File classification policy consumed by checks that report code-area facts. */
-export interface CodeAreaDefinition {
-  readonly description: string;
-  readonly excludeGlobs: readonly string[];
-  readonly globs: readonly string[];
-  readonly warningPolicy: CodeAreaWarningPolicy;
-}
-
 /** Complete repository-file selection owned by a check that performs file work. */
 export interface ProjectFileSelection {
   readonly excludeDirs: readonly string[];
@@ -42,15 +24,6 @@ export const DEFAULT_PROJECT_FILE_SELECTION: ProjectFileSelection = deepFreeze({
   include: ["**/*"]
 });
 
-export const DEFAULT_CODE_AREAS: Readonly<Record<string, CodeAreaDefinition>> = deepFreeze({
-  project: {
-    description: "This project",
-    excludeGlobs: [],
-    globs: ["**/*"],
-    warningPolicy: "moderate"
-  }
-});
-
 export function validProjectFileSelection(value: unknown): value is ProjectFileSelection {
   const selection = exactRecord(value, ["excludeDirs", "generatedFiles", "include"]);
   return (
@@ -59,23 +32,6 @@ export function validProjectFileSelection(value: unknown): value is ProjectFileS
     validStringArray(selection.generatedFiles) &&
     validStringArray(selection.include)
   );
-}
-
-export function validCodeAreas(
-  value: unknown
-): value is Readonly<Record<string, CodeAreaDefinition>> {
-  const areas = snapshotClosedRecord(value);
-  if (areas === undefined) return false;
-  return Object.values(areas).every((candidate) => {
-    const area = exactRecord(candidate, ["description", "excludeGlobs", "globs", "warningPolicy"]);
-    return (
-      area !== undefined &&
-      typeof area.description === "string" &&
-      validStringArray(area.excludeGlobs) &&
-      validStringArray(area.globs) &&
-      CODE_AREA_WARNING_POLICIES.some((policy) => policy === area.warningPolicy)
-    );
-  });
 }
 
 function validStringArray(value: unknown): boolean {

@@ -1,9 +1,12 @@
 # `jsonValidation`
 
+返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
+
 ## 用途
 
-严格验证该 Check 自己选择且以小写 `.json` 结尾的文档，适合尽早发现语法错误、duplicate key 与不完整 document。
-它是普通 Check value，不依赖 Product-wide quality scope。
+本页说明 `jsonValidation` 的 options、terminal effects 与安全边界。该 Check 严格验证自己选择且以小写
+`.json` 结尾的文档，并报告 syntax error、duplicate key 与 incomplete document。导出值可以直接放入 Project
+Definition 的 `checks`。
 
 ## 参数与默认配置
 
@@ -27,25 +30,27 @@
 
 ## 工作原理
 
-共享 preflight barrier 接受 canonical authored options 后，execution 收集自己的 selected paths，以 private
-strict-document boundary 读取并
-解析每个小写 `.json` 文件。无效文档产生 supplemental Record；Check 不复用 `jsonSchemaValidation` 的 execution 或
-result，二者只是分别使用相同的 private strict JSON mechanism。
+Run 的全局 preflight barrier 接受 canonical authored options 后，execution 收集 selected paths，通过 strict-document
+boundary 读取并解析每个小写 `.json` 文件。无效文档产生 supplemental Record。
 
 ## 效果与结果
 
-所有文档有效时为 `passed`；出现无效文档时为 `failed`。final data 包含
-`scannedFileCount`、`validFileCount`、`invalidFileCount` 与 `issueCount`，Records 指向单个文档问题。
+`invalidFileCount === 0` 时 outcome 为 `passed`；`invalidFileCount > 0` 时 outcome 为 `failed`。final data
+包含 `scannedFileCount`、`validFileCount`、`invalidFileCount` 与 `issueCount`，Records 指向单个文档问题。
+
+按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄
+`RunResult.kind`，再按 `json-validation` checkId 读取 outcome。
 
 ## `not-applicable` 与 `unavailable`
 
-没有合格小写 `.json` 输入时为 `not-applicable` / `no-eligible-input`。非法 replacement options 的共享组合、Run
-preflight 与 direct execution 边界见[组合与 options preflight](index.md#组合与-options-preflight)。合法 Check 遇到
-file collection、读取、大小限制、取消或无法形成可信解析结果时才返回 `unavailable`。
+合格小写 `.json` 输入数量为零时结算为 `not-applicable` / `no-eligible-input`。Run preflight 按本页完整 shape
+验证 replacement options；验证失败结算为 `unavailable` / `invalid-options`。通用语法见
+[options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。file collection、读取、
+size limit、cancellation 或 parsing 无法形成可信完整结果时结算为 `unavailable`。
 
-## 外部工具与安全边界
+## I/O 与安全边界
 
-不启动外部命令，也不访问网络；只读取该 Check `files` 选中的本地文件。
+I/O scope 是 `files` 选中的本地文件；external command 和 network request 数均为零。
 
 ## 最小用法
 
@@ -54,6 +59,7 @@ import { defineConfig, jsonValidation, run } from "vibe-check";
 const result = await run(defineConfig({ checks: [jsonValidation] }));
 ```
 
-## 非目标
+## 适用边界
 
-它不按 JSON Schema 校验业务字段，也不自动格式化或修复 JSON。
+该 Check 适用于 JSON document integrity；需要按 schema 评估字段与结构时使用
+[`jsonSchemaValidation`](json-schema-validation.md)。

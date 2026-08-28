@@ -5,17 +5,24 @@ import { describe, it } from "node:test";
 
 import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
+  PACKAGE_API_MARKDOWN_DOCUMENTS,
   type PackageApiExampleProjection
 } from "./example-projections.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 
 describe("package API documentation renderer", () => {
-  it("projects every registry region to its declared README and JSDoc targets without changing payload bytes", () => {
+  it("projects every registry region to its declared Markdown and JSDoc targets without changing payload bytes", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
       const rendered = renderPackageApiDocumentation({ repositoryRoot: fixtureRoot });
       assert.equal(rendered.readme.path, join(fixtureRoot, "README.md"));
+      assert.deepEqual(
+        rendered.markdownDocuments
+          .map((document) => relative(fixtureRoot, document.path).split("\\").join("/"))
+          .sort(),
+        PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.outputPath).sort()
+      );
       assert.deepEqual(
         rendered.jsdocSources
           .map((source) => relative(fixtureRoot, source.path).split("\\").join("/"))
@@ -24,13 +31,31 @@ describe("package API documentation renderer", () => {
           .filter((sourcePath, index, paths) => paths.indexOf(sourcePath) === index)
           .sort()
       );
-      assert.equal(rendered.readme.content.includes("package-api-example:"), false);
+      assert.equal(
+        rendered.markdownDocuments.some(
+          (document) =>
+            document.content.includes("package-api-example:") ||
+            document.content.includes("package-markdown-link:")
+        ),
+        false
+      );
+      assert.equal(rendered.readme.content.includes("](./docs/api-mechanics.md)"), true);
+      assert.equal(
+        rendered.markdownDocuments
+          .find((document) => document.documentId === "api-mechanics")
+          ?.content.includes("](../README.md)"),
+        true
+      );
 
       for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
         const payload = regionPayload(fixtureRoot, projection.sourcePath, projection.regionId);
         for (const target of projection.targets) {
-          if (target.kind === "readme") {
-            assert.equal(rendered.readme.content.includes(`\`\`\`ts\n${payload}\`\`\``), true);
+          if (target.kind === "markdown") {
+            const document = rendered.markdownDocuments.find(
+              (candidate) => candidate.documentId === target.documentId
+            );
+            assert.ok(document);
+            assert.equal(document.content.includes(`\`\`\`ts\n${payload}\`\`\``), true);
           } else {
             const source = rendered.jsdocSources.find(
               (candidate) => candidate.path === join(fixtureRoot, target.sourcePath)
@@ -167,10 +192,26 @@ describe("package API documentation renderer", () => {
       );
       assert.throws(
         () => renderPackageApiDocumentation({ repositoryRoot: malformedPlaceholderFixture }),
-        /malformed package API README placeholder/
+        /malformed package API Markdown placeholder/
       );
     } finally {
       rmSync(malformedPlaceholderFixture, { force: true, recursive: true });
+    }
+
+    const escapingLinkFixture = createPackageApiDocumentationFixture();
+    try {
+      const templatePath = join(escapingLinkFixture, "docs/package-readme.template.md");
+      writeFileSync(
+        templatePath,
+        `${readFileSync(templatePath, "utf8")}\n[unsafe]<!-- package-markdown-link:../outside.md -->\n`,
+        "utf8"
+      );
+      assert.throws(
+        () => renderPackageApiDocumentation({ repositoryRoot: escapingLinkFixture }),
+        /invalid package Markdown link target/
+      );
+    } finally {
+      rmSync(escapingLinkFixture, { force: true, recursive: true });
     }
 
     const duplicateTargetFixture = createPackageApiDocumentationFixture();
@@ -274,7 +315,11 @@ function projectionsWithRemovedJSDocTarget(): readonly PackageApiExampleProjecti
       ? {
           ...projection,
           targets: Object.freeze([
-            Object.freeze({ kind: "readme" as const, placeholderId: "former-jsdoc" })
+            Object.freeze({
+              documentId: "readme",
+              kind: "markdown" as const,
+              placeholderId: "former-jsdoc"
+            })
           ])
         }
       : projection

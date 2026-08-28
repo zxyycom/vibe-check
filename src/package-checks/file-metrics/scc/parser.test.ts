@@ -44,8 +44,7 @@ describe("quality scanner output parsing", () => {
 function assertSccEmptyAndValidOutputs(): void {
   assert.deepEqual(parseSccCSV(SCC_BY_FILE_CSV_HEADER, "/repo"), {
     ok: true,
-    measurements: [],
-    aggregates: { byLanguage: [] }
+    measurements: []
   });
   for (const missingHeader of ["", " \n\t\n"]) {
     const result = parseSccCSV(missingHeader, "/repo");

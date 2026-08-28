@@ -1,5 +1,5 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
-/** 单次 run 调用的闭合上下文与输出 override，不能改写 Project Definition。 */
+/** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
 export interface RunControls {
   readonly checkAggregation?: CheckAggregation;
   readonly changedFiles?: readonly string[];

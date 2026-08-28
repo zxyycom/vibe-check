@@ -59,7 +59,8 @@ function assertInstalledDeclarationQuickInfo(consumerDirectory: string): void {
   try {
     const defineCheckInfo = quickInfoText(service, fixturePath, fixtureSource, "defineCheck({");
     assert.match(defineCheckInfo.documentation, /定义一个 Check/);
-    assert.match(defineCheckInfo.tags, /@remarks 此函数只改善 authoring 类型/);
+    assert.match(defineCheckInfo.tags, /@remarks 此函数负责 authoring inference/);
+    assert.match(defineCheckInfo.tags, /run.*负责 Project Definition validation/);
     assert.match(
       defineCheckInfo.tags,
       /@example 定义带 options、Records 与 messages 的自定义 Check/
@@ -213,7 +214,15 @@ const changedFilesConsumer = defineCheck({
 });
 
 const definition: ProjectDefinition = defineConfig({
-  checks: [duplicateDetection, markdownLinkValidation, directCheck, changedFiles, changedFilesConsumer]
+  checks: [
+    duplicateDetection(),
+    fileMetrics(),
+    functionMetrics(),
+    markdownLinkValidation,
+    directCheck,
+    changedFiles,
+    changedFilesConsumer
+  ]
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const reminder = maintenanceReminders([

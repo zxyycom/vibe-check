@@ -1,18 +1,18 @@
-import type { DuplicateCodeFragment, DuplicateCodeLocation } from "../measurement-model.ts";
-import type { ExactInputMeasurement } from "../../project-files/exact-input-measurement.ts";
-import { errorMessage } from "../../host-environment/error-message.ts";
 import { isNonArrayRecord } from "../../../data-boundary/value-shapes.ts";
+import { errorMessage } from "../../host-environment/error-message.ts";
+import type { ExactInputMeasurement } from "../../project-files/exact-input-measurement.ts";
 import { normalizeScannerReportedPath } from "../../project-files/reported-path.ts";
+import type { DuplicateCodeFragment, DuplicateCodeLocation } from "../measurement-model.ts";
 import { toScopedJscpdMeasurement } from "./scoped-fragments.ts";
 import type { JscpdScanResult } from "./scanner-contract.ts";
 
-type JscpdFileLocation = {
-  end?: unknown;
-  endLoc?: unknown;
-  name?: unknown;
-  start?: unknown;
-  startLoc?: unknown;
-};
+type JscpdFileLocation = Readonly<{
+  readonly end?: unknown;
+  readonly endLoc?: unknown;
+  readonly name?: unknown;
+  readonly start?: unknown;
+  readonly startLoc?: unknown;
+}>;
 
 export function parseJscpdJsonReport(json: string, cwd: string): JscpdScanResult {
   try {
@@ -102,8 +102,7 @@ function parseJscpdLocation(
   return {
     path: normalizeScannerReportedPath(filePath, cwd),
     startLine,
-    endLine: endLine || startLine + Math.max(0, lineCount - 1),
-    codeArea: "unknown"
+    endLine: endLine || startLine + Math.max(0, lineCount - 1)
   };
 }
 

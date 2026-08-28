@@ -1,9 +1,9 @@
-import { validFileMetricsOptions } from "./options-validation.ts";
-import type { FileMetricsOptions, FileMetricsScannerOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
-import type { CodeAreaDefinition } from "../project-files/configuration.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
+import type { FileMetricsExactInputSet } from "./measurement-model.ts";
+import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
+import { validResolvedFileMetricsOptions } from "./options-validation.ts";
 import { buildFileRecordCandidates } from "./records.ts";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
@@ -11,47 +11,26 @@ export const FILE_METRICS_CHECK_DEFINITION = {
   displayName: "File metrics"
 } as const;
 
-export interface FileMetricsSemantics {
-  readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
-  readonly generatedFiles: readonly string[];
-  readonly codeLines: Readonly<{
-    absoluteFloor: number;
-    lowDecisionTokenAllowance: Readonly<{
-      codeLineFloor: number;
-      maxDecisionTokens: number;
-    }>;
-  }>;
+interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
+  readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
 }
 
-export interface FileMetricsExactInputSet {
-  readonly approvedExactPaths: readonly string[];
-  readonly rootDir: string;
-}
-
-/** Default Check callback; all scanner selection now arrives through options. */
+/** Default Check callback; area policy 与 scanner selection 均从 resolved options 到达。 */
 export async function executeFileMetrics(
-  context: CheckExecutionContext<FileMetricsOptions>
+  context: CheckExecutionContext<ResolvedFileMetricsOptions>
 ): Promise<CheckResult> {
-  if (!validFileMetricsOptions(context.options)) return unavailable("invalid-options");
+  if (!validResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
 
-  const current: FileMetricsExactInputSet = Object.freeze({
-    approvedExactPaths: Object.freeze(
-      collectProjectFiles(context.project.root, context.options.files)
-    ),
-    rootDir: context.project.root
-  });
+  const current = collectAreaScope(context.project.root, context.options.codeAreas);
   if (current.approvedExactPaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
-  const dependency: FileMetricsScannerOptions = context.options.scanner;
-  const semantics: FileMetricsSemantics = {
-    codeAreas: context.options.codeAreas,
-    generatedFiles: context.options.files.generatedFiles,
-    codeLines: context.options.codeLines
-  };
-  const measurement = await measureFileMetrics(current, dependency);
+  const measurement = await measureFileMetrics(current, context.options.scanner);
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
-  const candidates = buildFileRecordCandidates(measurement.metrics, semantics);
+  const candidates = buildFileRecordCandidates(measurement.metrics, {
+    areaIdsByPath: current.areaIdsByPath,
+    codeAreas: context.options.codeAreas
+  });
   if (candidates === undefined) return unavailable("external-result-invalid");
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
@@ -59,6 +38,30 @@ export async function executeFileMetrics(
   return Object.freeze({
     status: candidates.length > 0 ? "failed" : "passed",
     data: Object.freeze({ findingCount: candidates.length })
+  });
+}
+
+function collectAreaScope(
+  rootDir: string,
+  codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>
+): CollectedFileMetricsScope {
+  const areaIdsByPath = new Map<string, string[]>();
+  for (const [areaId, area] of Object.entries(codeAreas)) {
+    for (const path of collectProjectFiles(rootDir, area.files)) {
+      const areaIds = areaIdsByPath.get(path);
+      if (areaIds === undefined) areaIdsByPath.set(path, [areaId]);
+      else areaIds.push(areaId);
+    }
+  }
+
+  const normalizedMembership = new Map<string, readonly string[]>();
+  for (const [path, areaIds] of areaIdsByPath) {
+    normalizedMembership.set(path, Object.freeze(areaIds.sort(compareText)));
+  }
+  return Object.freeze({
+    approvedExactPaths: Object.freeze([...normalizedMembership.keys()].sort(compareText)),
+    areaIdsByPath: normalizedMembership,
+    rootDir
   });
 }
 
@@ -72,4 +75,10 @@ function directMeasurementFailure(
 
 function unavailable(code: string): CheckResult {
   return Object.freeze({ status: "unavailable", reason: { code } });
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }

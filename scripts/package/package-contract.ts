@@ -4,6 +4,7 @@ export const CANDIDATE_NAME = "vibe-check";
 export const AJV_PACKAGE_NAME = "ajv";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
+export const JSCPD_VERSION_RANGE = "^5.0.11";
 
 export const CANDIDATE_DEPENDENCIES = Object.freeze({
   "@humanwhocodes/momoa": "3.3.12",
@@ -11,7 +12,7 @@ export const CANDIDATE_DEPENDENCIES = Object.freeze({
   "csv-parse": "7.0.1",
   execa: "9.6.1",
   "github-slugger": "2.0.0",
-  jscpd: "5.0.11",
+  [JSCPD_PACKAGE_NAME]: JSCPD_VERSION_RANGE,
   "mdast-util-from-markdown": "2.0.3",
   "mdast-util-frontmatter": "2.0.1",
   "mdast-util-gfm": "3.1.0",

@@ -1,5 +1,5 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
@@ -9,7 +9,7 @@ import {
   DEFAULT_JSCPD_COMMAND,
   readJscpdBinTarget,
   resolveJscpdCommand
-} from "./default-command.ts";
+} from "./command-resolution.ts";
 import { scanWithJscpd } from "./scanner.ts";
 import { checkJscpd } from "./availability.ts";
 
@@ -28,6 +28,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
+        minimumLines: 3,
         minimumTokens: 75
       });
 
@@ -54,6 +55,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
+        minimumLines: 3,
         minimumTokens: 75
       });
 
@@ -72,11 +74,12 @@ describe("quality jscpd wrapper failure projection", () => {
       files: ["scripts/a.ts", "scripts/b.ts"],
       cwd: REPO_ROOT,
       dependency: {
-        args: [],
-        availabilityArgs: ["--version"],
-        executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-        maxConcurrency: 1
+        command: {
+          executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
+          kind: "custom"
+        }
       },
+      minimumLines: 3,
       minimumTokens: 75
     });
 
@@ -89,26 +92,43 @@ describe("quality jscpd wrapper failure projection", () => {
 
   it("classifies unavailable jscpd dependency binaries in tool availability", async () => {
     const result = await checkJscpd(REPO_ROOT, {
-      args: [],
-      availabilityArgs: ["--version"],
-      executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
-      maxConcurrency: 1
+      command: {
+        executable: join(REPO_ROOT, `docnav-missing-jscpd-${process.pid}.cmd`),
+        kind: "custom"
+      }
     });
 
     assert.equal(result.available, false);
     assert.equal(result.reason, "tool-unavailable");
-    assert.equal(result.source, "repository devDependency");
-    assert.match(result.error ?? "", /jscpd dependency binary unavailable/);
+    assert.equal(result.source, "custom command");
+    assert.match(result.error, /jscpd dependency binary unavailable/);
+  });
 
-    const missingBinTargetPath = join(REPO_ROOT, `docnav-missing-jscpd-bin-${process.pid}.js`);
-    const missingBinTarget = await checkJscpd(REPO_ROOT, {
-      args: [missingBinTargetPath],
-      availabilityArgs: [missingBinTargetPath, "--version"],
-      executable: process.execPath,
-      maxConcurrency: 1
+  it("uses identifiable jscpd versions as provenance without exact locking", async () => {
+    const compatibleFutureVersion = createFakeJscpdToolConfig({
+      stdout: "cpd 5.1.0\n",
+      stderr: "",
+      exitCode: 0
     });
-    assert.equal(missingBinTarget.available, false);
-    assert.equal(missingBinTarget.reason, "execution-error");
+    const unrecognizedVersion = createFakeJscpdToolConfig({
+      stdout: "custom scanner\n",
+      stderr: "",
+      exitCode: 0
+    });
+
+    try {
+      const available = await checkJscpd(REPO_ROOT, compatibleFutureVersion);
+      assert.equal(available.available, true);
+      assert.equal(available.version, "5.1.0");
+
+      const unavailable = await checkJscpd(REPO_ROOT, unrecognizedVersion);
+      assert.equal(unavailable.available, false);
+      assert.equal(unavailable.reason, "execution-error");
+      assert.match(unavailable.error, /unrecognized output/);
+    } finally {
+      compatibleFutureVersion.cleanup();
+      unrecognizedVersion.cleanup();
+    }
   });
 
   it("keeps real duplicate findings non-fatal and normalizes jscpd JSON", async () => {
@@ -137,22 +157,19 @@ describe("quality jscpd wrapper failure projection", () => {
     try {
       const packageManifestPath = fileURLToPath(import.meta.resolve("jscpd/package.json"));
       const declaredBinTarget = readJscpdBinTarget(packageManifestPath);
-      assert.notEqual(DEFAULT_JSCPD_COMMAND.executable, process.execPath);
-      assert.deepEqual(DEFAULT_JSCPD_COMMAND.args, []);
-      assert.deepEqual(DEFAULT_JSCPD_COMMAND.availabilityArgs, ["--version"]);
+      assert.deepEqual(DEFAULT_JSCPD_COMMAND, { kind: "package" });
       const resolvedCommand = resolveJscpdCommand(DEFAULT_JSCPD_COMMAND);
       assert.equal(resolvedCommand.kind, "resolved");
       if (resolvedCommand.kind === "resolved") {
         assert.equal(resolvedCommand.command.executable, process.execPath);
-        assert.equal(resolvedCommand.command.args[0], declaredBinTarget);
-        assert.deepEqual(resolvedCommand.command.availabilityArgs, [
+        assert.equal(resolvedCommand.command.scanPrefixArguments[0], declaredBinTarget);
+        assert.deepEqual(resolvedCommand.command.versionArguments, [
           declaredBinTarget,
           "--version"
         ]);
       }
       const availability = await checkJscpd(tempDir, {
-        ...DEFAULT_JSCPD_COMMAND,
-        maxConcurrency: 1
+        command: DEFAULT_JSCPD_COMMAND
       });
       assert.equal(availability.available, true);
       assert.equal(availability.source, "package dependency");
@@ -160,7 +177,8 @@ describe("quality jscpd wrapper failure projection", () => {
       const result = scanWithJscpd({
         files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
         cwd: tempDir,
-        dependency: { ...DEFAULT_JSCPD_COMMAND, maxConcurrency: 1 },
+        dependency: { command: DEFAULT_JSCPD_COMMAND },
+        minimumLines: 3,
         minimumTokens: 20
       });
 
@@ -191,6 +209,7 @@ describe("quality jscpd wrapper failure projection", () => {
         files: ["scripts/a.ts", "scripts/b.ts"],
         cwd: REPO_ROOT,
         dependency,
+        minimumLines: 3,
         minimumTokens: 50
       });
 
@@ -220,7 +239,7 @@ function createFakeJscpdToolConfig({
 
   writeFileSync(
     fakeJscpdPath,
-    `
+    `#!/usr/bin/env bun
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 const outputIndex = process.argv.indexOf("--output");
@@ -235,12 +254,13 @@ process.exit(${JSON.stringify(exitCode)});
 `,
     "utf8"
   );
+  chmodSync(fakeJscpdPath, 0o755);
 
   return {
-    args: [fakeJscpdPath],
-    availabilityArgs: [fakeJscpdPath, "--version"],
-    executable: process.execPath,
-    maxConcurrency: 1,
+    command: {
+      executable: fakeJscpdPath,
+      kind: "custom" as const
+    },
     cleanup: () => rmSync(tempDir, { recursive: true, force: true })
   };
 }

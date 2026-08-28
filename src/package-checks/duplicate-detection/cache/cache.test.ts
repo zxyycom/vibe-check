@@ -11,10 +11,9 @@ import {
   type DuplicateCodeCacheIdentity
 } from "./cache.ts";
 import type { DuplicateCodeFragment } from "../measurement-model.ts";
-import { jscpdCacheArgs } from "../measurement.ts";
-import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "../jscpd/default-command.ts";
+import { jscpdCacheConfiguration } from "./identity.ts";
+import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "../jscpd/command-resolution.ts";
 
-const TEST_CODE_AREA = "typescript-production-scripts";
 describe("quality measurement cache", () => {
   it("keys duplicate-code cache by scanner and exact input identity", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-cache-"));
@@ -37,7 +36,7 @@ describe("quality measurement cache", () => {
   it("treats cache read I/O errors as a Check-local miss", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-cache-read-error-"));
     try {
-      writeFileSync(join(tempDir, "quality-scan-cache-v1"), "blocked");
+      writeFileSync(join(tempDir, "quality-scan-cache-v3"), "blocked");
       const hit = loadScanCacheEntry({ rootDir: tempDir, identity: cacheIdentity() });
       assert.equal(hit.hit, false);
       if (!hit.hit) assert.equal(hit.reason, "cache-miss");
@@ -48,7 +47,7 @@ describe("quality measurement cache", () => {
 });
 
 function assertIdentityInputs(baseKey: string, identity: DuplicateCodeCacheIdentity): void {
-  assert.notEqual(baseKey, buildScanCacheKey({ ...identity, codeArea: "rust-tests" }));
+  assert.notEqual(baseKey, buildScanCacheKey({ ...identity, configVersion: "changed" }));
   assert.notEqual(
     baseKey,
     buildScanCacheKey({
@@ -64,14 +63,26 @@ function assertIdentityInputs(baseKey: string, identity: DuplicateCodeCacheIdent
     baseKey,
     buildScanCacheKey({
       ...identity,
-      normalizedToolArgs: ["exec", "jscpd", "--min-tokens", "75", "--reporters", "json"]
+      scannerConfiguration: { ...identity.scannerConfiguration, minimumTokens: 76 }
     })
   );
 }
 
 function assertDefaultJscpdIdentity(tempDir: string): void {
-  const defaultCommandArgs = jscpdCacheArgs({ ...DEFAULT_JSCPD_COMMAND, maxConcurrency: 4 }, 75);
-  assert.deepEqual(defaultCommandArgs.slice(0, 2), ["<bun>", "<package-jscpd-bin>"]);
+  const defaultScanner = { command: DEFAULT_JSCPD_COMMAND };
+  const defaultConfiguration = jscpdCacheConfiguration({
+    dependency: defaultScanner,
+    minimumLines: 3,
+    minimumTokens: 75
+  });
+  assert.deepEqual(defaultConfiguration, {
+    backend: { kind: "package" },
+    minimumLines: 3,
+    minimumTokens: 75,
+    reportedPathMode: "absolute",
+    reporter: "json",
+    workerPolicy: "tool-default"
+  });
   const firstInstalledBin = fakeInstalledJscpdBin(tempDir, "first-consumer");
   const secondInstalledBin = fakeInstalledJscpdBin(tempDir, "second-consumer");
   assert.notEqual(firstInstalledBin, secondInstalledBin);
@@ -79,35 +90,40 @@ function assertDefaultJscpdIdentity(tempDir: string): void {
   assert.equal(publicDefaultCommand.includes(firstInstalledBin), false);
   assert.equal(publicDefaultCommand.includes(secondInstalledBin), false);
   assert.deepEqual(
-    jscpdCacheArgs({ ...DEFAULT_JSCPD_COMMAND, maxConcurrency: 4 }, 75),
-    jscpdCacheArgs({ ...DEFAULT_JSCPD_COMMAND, maxConcurrency: 4 }, 75)
+    jscpdCacheConfiguration({ dependency: defaultScanner, minimumLines: 3, minimumTokens: 75 }),
+    jscpdCacheConfiguration({ dependency: defaultScanner, minimumLines: 3, minimumTokens: 75 })
   );
-  assert.notDeepEqual(defaultCommandArgs, explicitNodeJscpdCacheArgs());
-  assert.equal(repositoryLocalJscpdCacheArgs()[0], "<repo-local-jscpd-bin>");
+  assert.notDeepEqual(defaultConfiguration, explicitCustomJscpdCacheConfiguration());
+  assert.deepEqual(repositoryLocalJscpdCacheConfiguration().backend, {
+    executable: "/workspace/consumer/node_modules/.bin/jscpd",
+    kind: "custom"
+  });
 }
 
-function explicitNodeJscpdCacheArgs(): readonly string[] {
-  return jscpdCacheArgs(
-    {
-      executable: "/opt/node",
-      args: ["/opt/jscpd/run-jscpd.js"],
-      availabilityArgs: ["/opt/jscpd/run-jscpd.js", "--version"],
-      maxConcurrency: 4
+function explicitCustomJscpdCacheConfiguration() {
+  return jscpdCacheConfiguration({
+    dependency: {
+      command: {
+        executable: "/opt/node",
+        kind: "custom"
+      }
     },
-    75
-  );
+    minimumLines: 3,
+    minimumTokens: 75
+  });
 }
 
-function repositoryLocalJscpdCacheArgs(): readonly string[] {
-  return jscpdCacheArgs(
-    {
-      executable: "/workspace/consumer/node_modules/.bin/jscpd",
-      args: [],
-      availabilityArgs: ["--version"],
-      maxConcurrency: 4
+function repositoryLocalJscpdCacheConfiguration() {
+  return jscpdCacheConfiguration({
+    dependency: {
+      command: {
+        executable: "/workspace/consumer/node_modules/.bin/jscpd",
+        kind: "custom"
+      }
     },
-    75
-  );
+    minimumLines: 3,
+    minimumTokens: 75
+  });
 }
 
 function assertCacheRoundTrip(
@@ -119,7 +135,7 @@ function assertCacheRoundTrip(
   assert.equal(hit.hit, true);
   assert.equal(
     hit.hit ? relative(tempDir, hit.cachePath).split("\\").join("/") : "",
-    `quality-scan-cache-v1/${baseKey}.json`
+    `quality-scan-cache-v3/${baseKey}.json`
   );
 }
 
@@ -135,16 +151,15 @@ function cacheIdentity(): DuplicateCodeCacheIdentity {
   return {
     toolName: "jscpd",
     toolVersion: "5.0.11",
-    normalizedToolArgs: [
-      "<bun>",
-      "<package-jscpd-bin>",
-      "--min-tokens",
-      "75",
-      "--reporters",
-      "json"
-    ],
+    scannerConfiguration: {
+      backend: { kind: "package" },
+      minimumLines: 3,
+      minimumTokens: 75,
+      reportedPathMode: "absolute",
+      reporter: "json",
+      workerPolicy: "tool-default"
+    },
     configVersion: "quality-observability-v1",
-    codeArea: TEST_CODE_AREA,
     commitSha: "abc123",
     inputFingerprint: {
       fileCount: 1,
@@ -170,8 +185,8 @@ function duplicateFragment(): DuplicateCodeFragment {
     lineCount: 10,
     codeAreas: [],
     locations: [
-      { path: "src/a.ts", startLine: 10, endLine: 20, codeArea: "unknown" },
-      { path: "src/b.ts", startLine: 11, endLine: 21, codeArea: "unknown" }
+      { path: "src/a.ts", startLine: 10, endLine: 20 },
+      { path: "src/b.ts", startLine: 11, endLine: 21 }
     ]
   };
 }

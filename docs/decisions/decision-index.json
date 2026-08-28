@@ -27,6 +27,8 @@
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
       "confirm-package-contract-names-before-publication.md": "sha256:0b376a91dd7c07eba32d7febd8109535ce0eb6cbbfeeb059a5c9af641cdca4c1",
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
+      "construct-duplicate-detection-from-defaulted-policy.md": "sha256:7b4e1e223ae4f2b5802b943f6a819aefc12ec459cd49274d048d8163da5389d1",
+      "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
       "default-project-gate-to-required-profile.md": "sha256:81bc2c8e30f441b478e12fe88e8fe21ce5666971906d41ee3bca626bbf18b09e",
@@ -53,7 +55,7 @@
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
       "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
-      "expose-ordinary-check-values-with-define-check.md": "sha256:a87ca566f1eaf26f512b6534b5da5b974238f1ccc78f542cc16b63ff560d9187",
+      "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
@@ -75,7 +77,12 @@
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
       "let-check-options-own-execution-dependencies.md": "sha256:c3afff6edab7ded3d3d7743d1c2773e5124fd1349d3b6bd1694ac8c8d630129e",
       "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
+      "let-duplicate-detection-adapter-own-cli-protocol.md": "sha256:4dd7c33f9b0754e8efc83e9f486fc650d9e34c329d7a4a7216a565cb490e1eb5",
       "let-each-check-own-file-selection.md": "sha256:d2c3009c71dc06f6602e3a29ad0f6ce2832590527624cffb0ebbb2229d87b764",
+      "let-each-duplicate-code-area-own-files-and-thresholds.md": "sha256:a41eb7580c74a8eea28a88eff1937cfd500c3a12290cc3262c192657ed057144",
+      "let-file-metrics-adapter-own-cli-protocol.md": "sha256:2ead275a0161dbcba2ac5a04f4d6605ab770398d07c88f547f755708572377e8",
+      "let-file-metrics-areas-own-files-and-thresholds.md": "sha256:c0f4a48d3b8c5d23da72fbbee216da4dde3a428a1d875dc33933381c8c387278",
+      "let-function-metrics-adapter-own-lizard-cli-protocol.md": "sha256:0a5c5b7c7a3ddeddf660793153e527854dc53235516fac1671bd8406318acf43",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
@@ -110,12 +117,15 @@
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
+      "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
+      "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
+      "treat-jscpd-version-as-adapter-provenance.md": "sha256:6887e63bb0a468538486d86540d84f27b376de43acbcc1f15a703d851ef04083",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:bb2c9ea1efbd05b455bcba1b37a1dd3a9ec2e803dc9151a6f6ec03445dc2d89b",
@@ -878,6 +888,73 @@
             "target": "confirm-built-in-check-and-adjustment-names-before-publication.md"
           }
         ]
+      }
+    },
+    "construct-duplicate-detection-from-defaulted-policy.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/construct-duplicate-detection-from-defaulted-policy.md",
+        "title": "从带默认值的区域政策构造重复检测 Check",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T05:31:57Z",
+        "purpose": "让 duplicateDetection 以专用构造函数补齐默认政策，并让 jscpd adapter 独占协议参数。",
+        "background": "多层对象展开把默认值维护推给 consumer，public custom args 又暴露了绝大多数不可覆盖的 adapter 责任。",
+        "decision": "使用 defaulted duplicateDetection constructor 和最小 package/custom executable 选择，返回完整普通 Check。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "expose-ordinary-check-values-with-define-check.md"
+          },
+          {
+            "type": "归并",
+            "target": "let-each-duplicate-code-area-own-files-and-thresholds.md"
+          }
+        ]
+      }
+    },
+    "construct-function-metrics-from-defaulted-area-policy.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "construct-function-metrics-from-defaulted-area-policy.md",
+        "title": "以带默认值的区域政策构造函数指标 Check",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T06:28:26Z",
+        "purpose": "让 functionMetrics 完整记录区域 findings，并以全局默认和区域覆盖明确区分阻断结果。",
+        "background": "完整默认 Check value 混合扫描范围、阈值和无实际分档的 warning policy，非法输入与未分类 measurement 还能静默通过。",
+        "decision": "functionMetrics 使用默认化 constructor 和区域政策，完整记录 findings 后按 effective blocking policy 结算。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "contain-project-code-behind-private-runtime-boundary.md": {
@@ -1664,16 +1741,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "expose-ordinary-check-values-with-define-check.md",
+        "sourcePath": "archive/expose-ordinary-check-values-with-define-check.md",
         "title": "公开普通 Check 值与 defineCheck authoring helper",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T15:00:43Z",
         "purpose": "让 package 同时提供普通默认 Check、独立声明的类型辅助和唯一产品运行入口，而不恢复对象调整 API。",
@@ -2332,6 +2409,40 @@
         ]
       }
     },
+    "let-duplicate-detection-adapter-own-cli-protocol.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/let-duplicate-detection-adapter-own-cli-protocol.md",
+        "title": "让重复检测 adapter 独占 CLI 协议与执行调优",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T05:40:11Z",
+        "purpose": "让 duplicateDetection 只暴露区域政策和 executable 选择，不把 jscpd CLI 协议或性能旋钮变成产品配置。",
+        "background": "public workers 虽是合法 jscpd 参数，但没有产品行为需求；version、config、output 与扫描阈值则是 adapter 形成可信 measurement 的内部步骤。",
+        "decision": "duplicateDetection 只暴露区域政策和 executable；adapter 固定版本探测、exact-input JSON 协议与自动 worker policy。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "construct-duplicate-detection-from-defaulted-policy.md"
+          }
+        ]
+      }
+    },
     "let-each-check-own-file-selection.md": {
       "keys": {
         "tag": [
@@ -2368,6 +2479,127 @@
             "target": "define-offline-markdown-link-target-boundaries.md"
           }
         ]
+      }
+    },
+    "let-each-duplicate-code-area-own-files-and-thresholds.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/let-each-duplicate-code-area-own-files-and-thresholds.md",
+        "title": "让每个重复检测区域共同拥有文件范围和阈值",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T04:31:52Z",
+        "purpose": "让 duplicateDetection 的每个 code area 成为自身输入范围与显著性阈值的单一配置事实源。",
+        "background": "顶层 files、默认阈值和 area override map 把同一策略拆散，并且无法自然表达重叠区域的完整规则。",
+        "decision": "每个 area 直接拥有完整 files 与 line/token 阈值，scanner 扫描各区域输入的去重并集并按最严格涉及区域策略过滤。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "scan-duplicate-code-once-across-code-areas.md"
+          }
+        ]
+      }
+    },
+    "let-file-metrics-adapter-own-cli-protocol.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "let-file-metrics-adapter-own-cli-protocol.md",
+        "title": "让文件指标 adapter 独占 SCC CLI 协议",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T06:39:32Z",
+        "purpose": "让 fileMetrics 只暴露 SCC executable 选择，不把版本探测、输出格式或参数透传变成产品配置。",
+        "background": "当前公共 scanner options 暴露 args 与 availabilityArgs，允许调用方改变可信 measurement 协议并扩大 scanner 输入。",
+        "decision": "fileMetrics scanner policy 只保留 executable，版本探测、CSV 参数、exact paths 与 timeout 全由 SCC adapter 固定。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "let-file-metrics-areas-own-files-and-thresholds.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "let-file-metrics-areas-own-files-and-thresholds.md",
+        "title": "让文件指标区域拥有文件范围与行数策略",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T06:39:31Z",
+        "purpose": "让 fileMetrics 以区域 ID 共同组织文件选择和行数策略，并对重叠区域使用明确的最严格语义。",
+        "background": "顶层文件选择与全局阈值使不同文件无法采用不同策略，现有事后 code-area 分类还会静默丢弃未匹配结果。",
+        "decision": "每个 fileMetrics code area 直接拥有 files 与 codeLines，一次扫描区域并集并按文件涉及区域的最严格上限结算。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "let-function-metrics-adapter-own-lizard-cli-protocol.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "let-function-metrics-adapter-own-lizard-cli-protocol.md",
+        "title": "让函数指标 adapter 独占 Lizard CLI 协议",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T06:28:26Z",
+        "purpose": "让 functionMetrics 只暴露 executable 选择，不把 Lizard version、CSV 和执行调优参数变成产品配置。",
+        "background": "public args 和 availabilityArgs 可以改变 adapter 的可信 measurement protocol，而它们没有独立 consumer policy 语义。",
+        "decision": "functionMetrics 只选择 executable，Lizard adapter 固定 version probe、CSV 调用与私有执行参数。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "license-package-under-mit.md": {
@@ -3424,6 +3656,35 @@
         ]
       }
     },
+    "scan-duplicate-code-once-across-code-areas.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/scan-duplicate-code-once-across-code-areas.md",
+        "title": "让重复检测以显式 command 扫描完整 Check scope",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T02:48:20Z",
+        "purpose": "让 duplicateDetection 安全配置 jscpd，并发现满足明确 area policy 的跨 area 重复。",
+        "background": "package marker 与 per-area 进程把启动细节、并发和质量范围混在一起，还会漏掉跨 area 重复。",
+        "decision": "使用 Check-owned package/custom command，一次扫描全部 exact inputs，并以所涉及 area 中最严格的阈值过滤 finding。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "schedule-project-gate-by-measured-resource-ownership.md": {
       "keys": {
         "tag": [
@@ -3589,6 +3850,35 @@
         ]
       }
     },
+    "structure-package-documentation-around-one-readme.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "structure-package-documentation-around-one-readme.md",
+        "title": "以单一 README 分级组织 package 文档",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-27T14:56:42Z",
+        "purpose": "让 package consumer 从唯一总入口理解常用自定义 API，并按需进入 Check 或机制说明。",
+        "background": "现有 README 同时承载入门、内置 Check、进阶机制和结果边界，另有 Check 索引页形成不必要的导航层级。",
+        "decision": "package 文档只以 README 作为总入口，直接链接每项 Check 指南，并最多提供一份深入 API 机制说明。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
     "support-bun-as-the-package-host.md": {
       "keys": {
         "tag": [
@@ -3614,6 +3904,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "treat-jscpd-version-as-adapter-provenance.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "treat-jscpd-version-as-adapter-provenance.md",
+        "title": "将 jscpd 版本作为 adapter provenance 而非项目政策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T06:12:49Z",
+        "purpose": "让 duplicateDetection 保留可信 v5 CLI 边界，同时用有界依赖范围和实际执行证据支持启发式门禁演进。",
+        "background": "精确锁定 scanner 只能购买逐版本复现，却不能直接提升防止项目过度偏离的门禁可信度，并会放大升级成本。",
+        "decision": "仓库锁定测试基线，发布 package 接受从该基线开始的同 major v5；实际版本只承担 availability、cache provenance 与诊断。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "let-duplicate-detection-adapter-own-cli-protocol.md"
+          }
+        ]
       }
     },
     "treat-package-provided-checks-as-ordinary.md": {

@@ -67,7 +67,9 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     const { artifact, documentation } = await fixture();
     assert.equal(existsSync(artifact.artifactPath), true);
     assert.equal(artifact.files.includes("package/README.md"), true);
-    assert.equal(artifact.files.includes("package/docs/checks/index.md"), true);
+    assert.equal(artifact.files.includes("package/docs/api-mechanics.md"), true);
+    assert.equal(artifact.files.includes("package/docs/index.md"), false);
+    assert.equal(artifact.files.includes("package/docs/checks/index.md"), false);
     for (const document of documentation.documents) {
       assert.equal(artifact.files.includes(`package/${document.packagePath}`), true);
       assert.equal(
@@ -106,7 +108,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "csv-parse": "7.0.1",
       execa: "9.6.1",
       "github-slugger": "2.0.0",
-      jscpd: "5.0.11",
+      jscpd: "^5.0.11",
       "mdast-util-from-markdown": "2.0.3",
       "mdast-util-frontmatter": "2.0.1",
       "mdast-util-gfm": "3.1.0",

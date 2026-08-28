@@ -523,7 +523,7 @@ export type TypedCheckWithoutOptions<
 /**
  * 定义一个 Check，同时保留 literal `checkId`、options 与 typed-provider parser 的 inference。
  *
- * @remarks 此函数只改善 authoring 类型；Project Definition validation 仍在 {@link run} 的边界执行。
+ * @remarks 此函数负责 authoring inference；{@link run} 负责 Project Definition validation。
  * @example 定义带 options、Records 与 messages 的自定义 Check
  * ```ts
  * function hasValidLicensePolicyOptions(options: object): boolean {

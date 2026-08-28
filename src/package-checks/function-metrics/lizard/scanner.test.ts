@@ -1,20 +1,24 @@
 import { strict as assert } from "node:assert";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { checkLizard } from "./availability.ts";
+import { scanWithLizard } from "./scanner.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("quality lizard availability projection", () => {
   it("classifies non-zero version exits with stderr as execution failures", async () => {
-    const dependency = createFakeVersionToolConfig({
-      stdout: "",
-      stderr: "No module named lizard",
-      exitCode: 1
+    const dependency = createFakeLizard({
+      source: [
+        "if (process.argv.includes('--version')) {",
+        "  console.error('No module named lizard');",
+        "  process.exit(1);",
+        "}"
+      ].join("\n")
     });
 
     try {
@@ -31,8 +35,6 @@ describe("quality lizard availability projection", () => {
 
   it("classifies missing dependency commands as unavailable tools", async () => {
     const result = await checkLizard(REPO_ROOT, {
-      args: [],
-      availabilityArgs: ["--version"],
       executable: join(REPO_ROOT, `vibe-check-missing-lizard-${process.pid}.cmd`)
     });
 
@@ -41,33 +43,71 @@ describe("quality lizard availability projection", () => {
     assert.equal(result.version, null);
     assert.match(result.error ?? "", /lizard command unavailable/);
   });
+
+  it("rejects empty version provenance instead of accepting an unknown tool", async () => {
+    const dependency = createFakeLizard({ source: "process.exit(0);" });
+
+    try {
+      const result = await checkLizard(REPO_ROOT, dependency);
+
+      assert.equal(result.available, false);
+      assert.equal(result.reason, "contract-error");
+      assert.equal(result.version, null);
+      assert.match(result.error, /returned empty output/);
+    } finally {
+      dependency.cleanup();
+    }
+  });
+
+  it("classifies signal termination as execution failure", () => {
+    const dependency = createFakeLizard({ source: "process.kill(process.pid, 'SIGTERM');" });
+
+    try {
+      const result = scanWithLizard({
+        cwd: REPO_ROOT,
+        dependency,
+        files: ["src/a.ts"]
+      });
+
+      assert.equal(result.ok, false);
+      if (!result.ok) {
+        assert.equal(result.reason, "execution");
+        assert.match(result.error, /SIGTERM/);
+      }
+    } finally {
+      dependency.cleanup();
+    }
+  });
+
+  it("passes only exact paths and adapter-owned CSV arguments to the executable", () => {
+    const dependency = createFakeLizard({
+      source: [
+        "const expected = ['src/a.ts', 'src/b.ts', '--csv'];",
+        "if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(expected)) process.exit(2);",
+        "process.stdout.write('NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line\\n12,2,30,1,12,a@1-12@src/a.ts,src/a.ts,a,a (),1,12\\n');"
+      ].join("\n")
+    });
+    try {
+      const result = scanWithLizard({
+        cwd: REPO_ROOT,
+        dependency,
+        files: ["src/a.ts", "src/b.ts"]
+      });
+      assert.equal(result.ok, true);
+      if (result.ok) assert.equal(result.measurements.length, 1);
+    } finally {
+      dependency.cleanup();
+    }
+  });
 });
-function createFakeVersionToolConfig({
-  stdout,
-  stderr,
-  exitCode
-}: {
-  exitCode: number;
-  stderr: string;
-  stdout: string;
-}) {
-  const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-version-tool-"));
-  const fakeToolPath = join(tempDir, "fake-version-tool.ts");
 
-  writeFileSync(
-    fakeToolPath,
-    `
-process.stdout.write(${JSON.stringify(stdout)});
-console.error(${JSON.stringify(stderr)});
-process.exit(${JSON.stringify(exitCode)});
-`,
-    "utf8"
-  );
-
+function createFakeLizard({ source }: { source: string }) {
+  const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-lizard-command-"));
+  const executable = join(tempDir, "fake-lizard");
+  writeFileSync(executable, `#!${process.execPath}\n${source}\n`, "utf8");
+  chmodSync(executable, 0o755);
   return {
-    args: [fakeToolPath],
-    availabilityArgs: [fakeToolPath, "--version"],
-    executable: process.execPath,
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
+    cleanup: () => rmSync(tempDir, { recursive: true, force: true }),
+    executable
   };
 }

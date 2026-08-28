@@ -1,31 +1,42 @@
+import { errorMessage } from "../../host-environment/error-message.ts";
 import { runProcess } from "../../host-environment/process/command.ts";
-import type { FileMetricsScannerOptions } from "../options.ts";
+import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
 import { SCC_VERSION_OUTPUT } from "./scanner.ts";
 
-type SccAvailability = Readonly<{
-  available: boolean;
-  error: string | null;
-  name: "scc";
-  reason: "contract-error" | "execution-error" | "tool-unavailable" | null;
-  source: "system";
-  version: string | null;
-}>;
+type SccAvailability = Readonly<
+  | {
+      readonly available: true;
+      readonly error: null;
+      readonly name: "scc";
+      readonly reason: null;
+      readonly source: "configured command";
+      readonly version: string;
+    }
+  | {
+      readonly available: false;
+      readonly error: string;
+      readonly name: "scc";
+      readonly reason: "contract-error" | "execution-error" | "tool-unavailable";
+      readonly source: "configured command";
+      readonly version: null;
+    }
+>;
 
 type ToolCommandResult = Awaited<ReturnType<typeof runProcess>>;
 
 export async function checkScc(
   rootDir: string,
-  dependency: FileMetricsScannerOptions
+  dependency: ResolvedFileMetricsScannerOptions
 ): Promise<SccAvailability> {
   try {
     const result = await runProcess({
-      args: [...dependency.availabilityArgs],
+      args: ["--version"],
       command: dependency.executable,
       cwd: rootDir
     });
     return availabilityFromVersionResult(result);
-  } catch {
-    return unavailableScc("unknown error", "execution-error");
+  } catch (error: unknown) {
+    return unavailableScc(`scc version error: ${errorMessage(error)}`, "execution-error");
   }
 }
 
@@ -44,7 +55,14 @@ function availabilityFromVersionResult(result: ToolCommandResult): SccAvailabili
       "contract-error"
     );
   }
-  return { name: "scc", available: true, version, error: null, source: "system", reason: null };
+  return {
+    name: "scc",
+    available: true,
+    version,
+    error: null,
+    source: "configured command",
+    reason: null
+  };
 }
 
 function processErrorAvailability(error: Error): SccAvailability {
@@ -59,7 +77,14 @@ function unavailableScc(
   error: string,
   reason: Exclude<SccAvailability["reason"], null>
 ): SccAvailability {
-  return { name: "scc", available: false, version: null, error, source: "system", reason };
+  return {
+    name: "scc",
+    available: false,
+    version: null,
+    error,
+    source: "configured command",
+    reason
+  };
 }
 
 function commandOutput(result: ToolCommandResult): string {

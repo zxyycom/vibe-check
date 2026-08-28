@@ -1,6 +1,68 @@
-/* eslint-disable no-unused-vars */
-import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
-import { validCodeAreas, validProjectFileSelection } from "../project-files/configuration.ts";
+import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import { validProjectFileSelection } from "../project-files/configuration.ts";
+import {
+  FUNCTION_METRICS_FINDING_POLICIES,
+  type ResolvedFunctionMetricsOptions
+} from "./options.ts";
+
+/** 验证 constructor 已物化的完整 function-metrics options。 */
+export function validResolvedFunctionMetricsOptions(
+  value: object
+): value is ResolvedFunctionMetricsOptions {
+  const options = exactRecord(value, ["codeAreas", "scanner"]);
+  return (
+    options !== undefined && validCodeAreas(options.codeAreas) && validScanner(options.scanner)
+  );
+}
+
+function validCodeAreas(value: unknown): boolean {
+  const areas = snapshotClosedRecord(value);
+  if (areas === undefined || Object.keys(areas).length === 0) return false;
+  return Object.entries(areas).every(([areaId, candidate]) => {
+    const area = exactRecord(candidate, ["files", "findingPolicy", "limits"]);
+    return (
+      nonEmptyString(areaId) &&
+      area !== undefined &&
+      validProjectFileSelection(area.files) &&
+      validFindingPolicy(area.findingPolicy) &&
+      validLimits(area.limits)
+    );
+  });
+}
+
+function validLimits(value: unknown): boolean {
+  const limits = exactRecord(value, ["codeLines", "cyclomaticComplexity", "parameters"]);
+  if (limits === undefined) return false;
+  const codeLines = exactRecord(limits.codeLines, ["lowComplexityAllowance", "maximum"]);
+  const allowance = exactRecord(codeLines?.lowComplexityAllowance, [
+    "cyclomaticComplexityBelow",
+    "maximum"
+  ]);
+  const cyclomaticComplexity = exactRecord(limits.cyclomaticComplexity, ["maximum"]);
+  const parameters = exactRecord(limits.parameters, ["maximum"]);
+  return (
+    codeLines !== undefined &&
+    allowance !== undefined &&
+    cyclomaticComplexity !== undefined &&
+    parameters !== undefined &&
+    positiveSafeInteger(codeLines.maximum) &&
+    positiveSafeInteger(allowance.maximum) &&
+    allowance.maximum >= codeLines.maximum &&
+    positiveSafeInteger(allowance.cyclomaticComplexityBelow) &&
+    positiveSafeInteger(cyclomaticComplexity.maximum) &&
+    positiveSafeInteger(parameters.maximum)
+  );
+}
+
+function validScanner(value: unknown): boolean {
+  const scanner = exactRecord(value, ["executable"]);
+  return scanner !== undefined && nonEmptyString(scanner.executable);
+}
+
+function validFindingPolicy(value: unknown): boolean {
+  return FUNCTION_METRICS_FINDING_POLICIES.some((policy) => policy === value);
+}
+
 function exactRecord(
   value: unknown,
   keys: readonly string[]
@@ -12,64 +74,11 @@ function exactRecord(
     ? record
     : undefined;
 }
-function finiteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
+
 function positiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
-function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
-  return positiveSafeInteger(value) && value <= maximum;
-}
+
 function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
-}
-function validStringArray(value: unknown): boolean {
-  const items = snapshotClosedArray(value);
-  return items !== undefined && items.every((item) => typeof item === "string");
-}
-export function validFunctionMetricsOptions(value: object): boolean {
-  const options = exactRecord(value, [
-    "codeAreas",
-    "files",
-    "scanner",
-    "codeLines",
-    "cyclomaticComplexity",
-    "parameterCount"
-  ]);
-  return (
-    options !== undefined &&
-    validCodeAreas(options.codeAreas) &&
-    validProjectFileSelection(options.files) &&
-    validScanner(options.scanner) &&
-    validExactNumberRecord(options.codeLines, ["absoluteFloor"], {
-      lowComplexityAllowance: ["codeLineFloor", "maxCyclomaticComplexityExclusive"]
-    }) &&
-    validExactNumberRecord(options.cyclomaticComplexity, ["absoluteFloor"]) &&
-    validExactNumberRecord(options.parameterCount, ["absoluteFloor"])
-  );
-}
-function validScanner(value: unknown): boolean {
-  const scanner = exactRecord(value, ["args", "availabilityArgs", "executable"]);
-  return (
-    scanner !== undefined &&
-    validStringArray(scanner.args) &&
-    validStringArray(scanner.availabilityArgs) &&
-    nonEmptyString(scanner.executable)
-  );
-}
-function validExactNumberRecord(
-  value: unknown,
-  numericKeys: readonly string[],
-  nested: Readonly<Record<string, readonly string[]>> = {}
-): boolean {
-  const expectedKeys = [...numericKeys, ...Object.keys(nested)];
-  const record = exactRecord(value, expectedKeys);
-  return (
-    record !== undefined &&
-    numericKeys.every((key) => finiteNumber(record[key])) &&
-    Object.entries(nested).every(([key, nestedKeys]) =>
-      validExactNumberRecord(record[key], nestedKeys)
-    )
-  );
 }

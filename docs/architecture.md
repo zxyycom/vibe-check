@@ -72,7 +72,10 @@ Run callback-local dependency view 只授权当前 Check 的 normalized effectiv
 
 ## Package-provided Checks and exact inputs
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 都只是从同一普通 Check 基础构造的 complete Check values；它们因为随 package 提供而方便使用，但不获得 Definition/Check facts 特权。每项 Check 完整拥有自己的 options type、runtime validation、execution、measurement/finding model 与 documentation。
+`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是从同一普通 Check
+基础构造的 complete Check values；`duplicateDetection(options?)`、`fileMetrics(options?)` 与 `functionMetrics(options?)` 是补齐默认 policy 后返回同类普通 Check value 的专用
+constructors。它们因为随 package 提供而方便使用，但不获得 Definition/Check facts 特权。每项 Check 完整拥有自己的
+options type、runtime validation、execution、measurement/finding model 与 documentation。
 
 需要项目文件的 Check 将完整 file selection 放在自己的 options 中，并独立调用 `src/package-checks/project-files/**` 的真实共同 collection/exact-membership mechanism；metric Check 也分别拥有自己的 code-area policy。jscpd、scc 与 Lizard adapter 分别位于唯一 producing Check 内，不存在集中 scanner owner 或 Definition registry。adapter 只接收所属 Check 的 exact accepted files、command options 与必要 Check-owned cache options，在 conversion 前拒绝任何 out-of-set result batch，且不向 Check facts 或 publication 暴露 raw scanner data。SCC 与 Lizard 的 CSV parsing 各由自身 adapter local module 承接，因 header/row 义务可独立变化。每个 Check 通过自己的 final data 表达 conclusion；只有详细 finding 是补充事实时才报告 Record。具体初始 option 值见 [Configuration](configuration.md#package-provided-check-composition)，file mechanism 见 [Project files and Check exact inputs](scan-scope.md)，private tool 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 

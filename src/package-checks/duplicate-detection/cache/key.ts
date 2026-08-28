@@ -9,9 +9,8 @@ export function buildScanCacheKey(identity: DuplicateCodeCacheIdentity): string 
     scan_cache_version: SCAN_CACHE_VERSION,
     tool_name: identity.toolName,
     tool_version: identity.toolVersion,
-    normalized_tool_args: [...identity.normalizedToolArgs],
+    scanner_configuration: identity.scannerConfiguration,
     config_version: identity.configVersion,
-    code_area: identity.codeArea,
     commit_sha: identity.commitSha,
     input_fingerprint: identity.inputFingerprint
   };

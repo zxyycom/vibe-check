@@ -19,7 +19,6 @@ describe("quality scanner output parsing", () => {
       payload: {
         name: "generateWarnings",
         file: "scripts/tools/quality-core/src/output/warnings/generator.ts",
-        codeArea: "unknown",
         startLine: 35,
         endLine: 360,
         lines: 271,

@@ -1,133 +1,88 @@
 # Vibe Check
 
-Vibe Check 是由项目在 **Bun** runtime 中显式调用的 TypeScript API：项目先定义 Check，再执行一次可审计的 Run。package root 只提供 API；当前没有 public CLI、配置发现、Node.js host、plugin API 或 subpath exports。
+Vibe Check 是由 consumer 项目在 **Bun** runtime 中调用的 TypeScript API。项目把一个质量动作定义为 **Check**，把 Checks 组成 **Project Definition**，再通过一次 **Run** 获得可审计结果。所有公开能力都从 `vibe-check` package root 导入，Definition 和 Run invocation 由 consumer 项目代码拥有。
 
-本指南面向已经取得 package 的 consumer。按“当前可用性 → 最小 Run → Check 编写 → 依赖数据 → controls 与结果”阅读：先确认 package 的可用性，再由项目代码创建 Definition 并调用 `run`。单个类型、字段和函数的局部含义可从 installed declarations 的 JSDoc 查看；随 package 提供的每项普通 Check 另有可直接阅读的用途、完整默认配置、工作原理、结果与安全边界，见<!-- package-check-guide-index -->。
+本 README 完整说明常见的自定义 Check 路径和结果读取方式。需要 options preflight、typed dependency、aggregation、outputs 或完整失败分支时，继续阅读[深入 API 机制]<!-- package-markdown-link:docs/api-mechanics.md -->；配置随包 Check 时，直接阅读对应的独立指南；查询单个类型、字段或函数签名时，以 installed declarations 的 JSDoc 为准。
 
-## 当前可用性与安装边界
+## 用自定义 Check 完成一次 Run
 
-当前事实是：仓库只验证本地 package candidate，尚未发布 registry package。本地 candidate 的准备、安装和隔离验证由仓库维护者执行；本文不提供未经验证的 shell 安装步骤。获得单独 release 授权后，consumer 才应按该 release 的说明使用精确 `0.0.x` version；不要把本文当作已发生发布或版本兼容承诺。
+三个核心术语对应三个责任：
 
-## 包内结构与源码恢复
+- **Check** 是一个普通对象，拥有稳定 `checkId`、人读名称、可选 options 和可选 `execution` callback。可执行 Check 最终形成自己的 terminal outcome。
+- **Project Definition** 是可重复执行的声明式输入，包含 Checks、output defaults 与 scheduler policy。
+- **Run** 是 `run(definition, controls?)` 发起的一次 invocation。project context、prepared options、Check outcomes 和 output statuses 都是本次 Run 的事实。
 
-安装包根部的 `index.mjs` 是唯一公开入口，它转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript 类型声明。每个运行时模块都有对应的源码映射，`src/**.ts` 同时保留生成这些模块的 Product 源码，便于检查实现和定位堆栈。
+按以下顺序完成常见集成：
 
-这些内部路径只用于阅读和调试，不是公开导入路径。`package.json` 的 `exports` 仍只开放根路径 `"."`：consumer 代码应从 `vibe-check` 导入，不得依赖 `vibe-check/dist/**`、`vibe-check/types/**` 或 `vibe-check/src/**`。
+1. 用 `defineCheck(value)` 保留 literal `checkId`、options 和 final data 的 TypeScript inference。符合 `Check` contract 的普通对象也可以直接进入 Definition。
+2. 用 `defineConfig({ checks })` 组成 Project Definition，并补齐 `apiVersion`、outputs 与 scheduler defaults。
+3. 用 `run(definition, controls?)` 验证并规范化 Definition 与本次 controls，再执行 Check callbacks。
+4. 先按 `RunResult.kind` 读取 Run lifecycle；`completed` 分支提供完整 snapshot，再从中读取目标 Check outcome。
 
-## 最小 Project Definition 与 Run
-
-Project Definition 由项目代码拥有：用 `defineConfig` 创建普通对象值，再由项目自己的 wrapper 调用 `run(definition, controls)`。Product 不会发现、加载或重载第二个配置模块。
-
-下面的示例只在 `result.kind === "completed"` 时继续处理，因为只有该分支表示成功的 Run。需要处理其它 `RunResult` 分支时，按后文的“Controls、outputs 与结果边界”判断 snapshot 与失败边界。
+下面的 Check 读取本次 Run 的 `changedFiles`，筛选自己的 source scope，发布一条 supplemental Record，并用 final data 表示实际统计结果：
 
 <!-- package-api-example:quick-start -->
 
-## 随包提供的普通 Check、组合与继承
+示例选择关闭两个 Run-owned outputs，以形成无文件写入和无 progress rendering 的独立调用。项目也可以保留默认 outputs：machine publication 与 progress rendering 默认启用，machine files 写到 project root 下的 `artifacts/vibe-check`。同一份 Definition 可以重复传给 `run`，每次调用都会形成独立的 invocation facts。
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是随 package 提供的完整 ordinary Check values；Definition、Run 与 Core 不识别这些 ID 或 options shape。需要读取项目文件的 Check 在自己的 `options.files` 中完整拥有 `include`、`excludeDirs` 与 `generatedFiles`，不存在 Project-wide `quality` scope。`jsonValidation` 只检查它自己选中且以小写 `.json` 结尾的 paths；其 `options` 必须恰含 `{ files, maximumBytes }`，`maximumBytes` 初始值为 `1_048_576`。
+### Check callback 形成的事实
 
-### `jsonSchemaValidation` 的配置边界
+`execution(context)` 可以读取本 Check 的 immutable prepared `options`、项目 `root` / `changedFiles` / `flags`、已声明 direct dependencies、同一次调用的 cancellation signal，以及 `records.report(...)`。callback 返回四种 terminal status 之一：
 
-`jsonSchemaValidation` 不会自动发现 schema 或遍历所有 JSON。项目必须以 closed `schemas` registry 与
-`bindings` 指定必须同时属于本 Check `files` selection 的 path；没有 binding 时，这个 Check 是 `not-applicable`。导出值的默认
-`options` 逐项如下：
+| Check status     | 含义与可观察结果                                     |
+| ---------------- | ---------------------------------------------------- |
+| `passed`         | Check 完成并形成通过的 `data`。                      |
+| `failed`         | Check 完成并形成失败的 `data`。                      |
+| `not-applicable` | 当前输入没有适用工作，可附受控 `reason`。            |
+| `unavailable`    | Check 无法形成可信 final data，并提供受控 `reason`。 |
 
-| `options` branch      | 默认值                      |
-| --------------------- | --------------------------- |
-| `files`               | 完整 repository-file selection |
-| `maximumBytes`        | `1_048_576`                 |
-| `schemaIdentity`      | `{ mode: "require-match" }` |
-| `referenceResolution` | `{ mode: "offline" }`       |
-| `schemas`             | `[]`                        |
-| `bindings`            | `[]`                        |
+`passed` / `failed` 的 final `data` 和 `records.report({ id }, data)` 的 Record data 使用 object-shaped canonical JSON：plain objects、dense arrays、finite numbers、strings、booleans 和 `null`。超出该数据 grammar 的 terminal data 或 Record 会把 owning Check 结算为 `unavailable`。
 
-`schemas` 的每项是 `{ id, path }`，`bindings` 的每项是 `{ id, instancePath, schemaId }`。两者都是 closed
-dense arrays；每个 binding 只能引用已声明 schema。该普通 Check 自带的 block preflight 会在它自己的 author execution、
-file 或 network work 前，将遗漏、未知或重复的 branch、ID 与 path 结算为 owning
-`unavailable / invalid-options`；direct execution 也会防御同一非法输入。`schemaIdentity` 是整个 Check 的一项选择：
+`data` 保存 Check 的主要终态事实；Records 保存 Check-local supplemental facts，每个 `id` 在 owning Check 内唯一；terminal `messages` 保存有序的人读说明。consumer 分别读取这三类信息并解释业务含义。
 
-| Mode                          | Root 与 engine identity                                                                                                   |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `require-match`（默认）       | root `$id` 必须与 configured schema ID 相同。                                                                             |
-| `configuration-authoritative` | configured schema ID 是 engine identity；object root 会在 private compile copy 中覆盖 `$id`，boolean root 直接使用该 ID。 |
-| `document-authoritative`      | safe root `$id` 是 engine identity；configured schema ID 仍是 binding/Record label。                                      |
+### 读取 Run 和 Check 结果
 
-默认模式不会发起网络 request。只有 `referenceResolution: { mode: "allowlisted", sources }` 中精确声明的 HTTPS
-origin/path prefix 才能提供额外 `$ref`；adapter 不使用 credentials、headers、redirect 或任意 resolver callback。
-allowlisted `sources` 只能使用 `{ kind: "bundled", catalog: "json-schema-2020-12" }` 或
-`{ kind: "https", id, origin, pathPrefix }`；后者的 `origin` 与 `pathPrefix` 必须精确匹配。package-fixed JSON
-Schema 2020-12 catalog 不需要 request。首版把 `format` 视为 2020-12 annotation，不安装 format assertion plugin；
-Ajv `$async` schema 与 `$dynamicRef`/`$recursiveRef` 会安全失败。
+| 要判断的内容      | 读取位置                                                         | 处理方式                                                                  |
+| ----------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Run lifecycle     | `RunResult.kind`                                                 | 先缩窄分支，再读取该分支提供的字段。                                      |
+| 单项 Check 结果   | `snapshot.checks[].outcome`                                      | 按 `checkId` 找到 `passed`、`failed`、`not-applicable` 或 `unavailable`。 |
+| 调用级 Check 结论 | `aggregate`                                                      | 在 `RunControls.checkAggregation` 中显式选择 policy 后读取。              |
+| 补充与呈现事实    | `snapshot.records`、`checkMessages`、`checkDurations`、`outputs` | 按对应责任分别消费。                                                      |
 
-`markdownLinkValidation` 只校验它自己的 `options.files` 选中 Markdown sources 中，受支持 occurrence 的**离线本机**目标与标题锚点：它不把 Markdown 文本当作风格/语法检查，也不请求 HTTP、DNS、TLS 或重定向。默认的 `rootExternalTargetMode: "report"` 会安全报告 root 外本机目标而不读取它；只有项目显式改为 `"validate"` 才允许读取该 direct target，因此只能用于已信任的本机配置。完整 fields、defaults 和运行边界可直接阅读 package 内对应 Check 指南，不必只依赖 LSP。
+`kind: "completed"` 表示 Run lifecycle 和已启用 outputs 已完成；Check 的业务结论由每项 outcome 或显式 aggregate 表达。`kind: "output"` 保留完整 Check facts，并附带 output failure diagnostic。其它结果分支及 cancellation phase 见[outputs 与 RunResult 边界]<!-- package-markdown-link:docs/api-mechanics.md#outputs-与-runresult-边界 -->。
 
-<!-- package-api-example:markdown-link-validation -->
+### 组合多个 Check
 
-随包导出的 value 或构造函数结果本身始终是完整、合法的普通 Check，并携带自己的纯 `preflight`。通过对象组合
-替换任一随包 Check 的 `options` branch 时，必须提供完整 closed shape；nested branch 不会自动深度合并。Run 在任一
-author Check execution 前完成全局 preflight barrier；非法 replacement 只将 owning Check 结算为
-`unavailable / invalid-options`，不会执行它的 author callback，也不会填充遗漏 branch。普通对象组合还可以替换
-display name 或 scheduling fields；递归 `checks` 形成编写树。直接提供
-`dependsOn` 或 `mutex` 数组会替换继承集合；使用 `inherit({ add, remove })` 才是在父集合上显式增删。
+`checks` 可以递归组织信息节点和可执行叶子；`dependsOn` 声明 final-data / scheduling dependency，`mutex` 与 `maxParallel` 声明调度约束。普通对象组合用于替换 display name、完整 `options` 或集合字段；`inherit({ add, remove })` 用于在父集合基础上增删 `dependsOn` / `mutex`。
 
-## 维护提醒
+options preparation、blocked Check、typed dependency parsing、aggregation、output failure 和 cancellation 的完整机制由[深入 API 机制]<!-- package-markdown-link:docs/api-mechanics.md -->说明。
 
-`maintenanceReminders(entries)` 是唯一的专用构造函数，而不是另一个无参默认 Check 值。它固定创建 ID 为 `maintenance-reminders` 的注意型 Check；多个条目仅保存在该 Check 按声明顺序排列的最终数据中，绝不会成为子 Check、Record 或单条聚合目标。每个条目都需要唯一的小写短横线命名 `id`、作为已复核基线的完整 40 或 64 位十六进制 `baseCommit`、至少一个正的 `commits` 或 `changedLines` 上限、非空 `message`，以及可省略的 `advisory` 或 `enforcing` `mode`。维护者在真实复核后手动更新基线；Product 只测量已提交的 `first-parent` 历史，不读取工作区或暂存区，也不会自动推进基线。
+## 随包提供的 Check
 
-条目到期或无法测量时，默认 `advisory` 仍返回 `passed` 和完整最终数据，并附加警告；`enforcing` 保留相同数据、附加错误并使所属 Check `failed`。调用方替换出的无效完整 options 会在 Run preflight 中结算为 owning Check unavailable；合法 callback 无法形成完整、可信的条目评估数据时，整个 Check 才会 `unavailable`。需要阻断进程时，调用方仍须在 `RunControls.checkAggregation` 中显式选择 `maintenance-reminders`。
+随包导出使用同一个 Check / execution contract。`jsonValidation`、`jsonSchemaValidation` 与
+`markdownLinkValidation` 是可直接放入 `checks` 的完整 Check values；`duplicateDetection(options?)`、
+`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)` 是返回普通 Check 的专用构造函数。
 
-<!-- package-api-example:maintenance-reminders -->
+| 导出                     | 用途与独立说明                                                                                                                                  |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `duplicateDetection`     | 以带默认值的 policy 构造 jscpd 重复检测 Check；见[`duplicateDetection` 指南]<!-- package-markdown-link:docs/checks/duplicate-detection.md -->。 |
+| `fileMetrics`            | 使用 scc 评估文件 code-line 指标；见[`fileMetrics` 指南]<!-- package-markdown-link:docs/checks/file-metrics.md -->。                            |
+| `functionMetrics`        | 以带默认值的 area 与 finding policy 构造 Lizard 函数指标 Check；见[`functionMetrics` 指南]<!-- package-markdown-link:docs/checks/function-metrics.md -->。 |
+| `jsonValidation`         | 严格验证 Check 自己选中的 JSON 文档；见[`jsonValidation` 指南]<!-- package-markdown-link:docs/checks/json-validation.md -->。                   |
+| `jsonSchemaValidation`   | 按显式 schema 与 binding 验证 JSON 实例；见[`jsonSchemaValidation` 指南]<!-- package-markdown-link:docs/checks/json-schema-validation.md -->。  |
+| `markdownLinkValidation` | 离线验证本地 Markdown 链接与锚点；见[`markdownLinkValidation` 指南]<!-- package-markdown-link:docs/checks/markdown-link-validation.md -->。     |
+| `maintenanceReminders`   | 按 Git first-parent 历史提示维护复核；见[`maintenanceReminders` 指南]<!-- package-markdown-link:docs/checks/maintenance-reminders.md -->。      |
 
-## 自定义 Check、Records 与 messages
+每份指南负责该 Check 的完整初始 options、工作过程、terminal effects、可用性、安全边界、最小用法和适用边界。consumer imports 继续使用 `vibe-check` package root。
 
-`defineCheck` 只改善 TypeScript inference；Definition validation 仍在 `run` 的边界关闭声明式 data。
+## 包内结构与源码恢复
 
-### options preflight
+安装包根部的 `index.mjs` 是公开 runtime entry，并转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript declarations。每个 runtime module 都有对应 source map，`src/**.ts` 保留生成模块的 Product source，供实现检查和堆栈定位。
 
-可执行 Check 可以提供 `preflight(options, signal)`，为本次 invocation 准备 execution options。authored 与 prepared
-options 同形时可以省略；显式使用不同 `PreparedOptions` shape 时，TypeScript 会要求提供 preflight。Run 在任一 author
-Check execution 前，按 Definition 顺序完成所有已提供 preflight 的全局 barrier，并把同一个 cancellation signal 传给
-preflight 与 execution。
+consumer code 从 `vibe-check` 导入；`dist/**`、`types/**` 和 `src/**` 用于 package inspection、类型解析与调试。
 
-preflight 必须返回以下三种结果之一：
+## 分发与兼容范围
 
-- success：`{ status: "success", preparedOptions, messages? }`
-- block failure：`{ status: "failure", action: "block", reason, messages? }`
-- continue failure：`{ status: "failure", action: "continue", reason, fallback, messages? }`
+当前经过验证的分发物是仓库生成的 exact local candidate 与对应 tarball。registry channel 尚未发布；现阶段使用构建流程提供的精确 candidate version，正式 release 后以 release 说明作为安装和兼容依据。
 
-`block` 不执行 owning Check 的 author callback；`continue` 必须提供 fallback，execution 使用 fallback 继续。prepared
-options 与 fallback 都会成为 detached、canonical、deep-frozen 的 invocation-local value，不会回写 Definition authored
-options 或改变 declarative fingerprint。`continue` reason 保留 Check-owned diagnostic identity，但当前不会单独成为
-outcome；需要让调用方观察的说明应放在 messages 中。
-
-### terminal result、Records 与 messages
-
-每个可执行 Check 返回恰好一个 terminal result：`passed`/`failed` 带对象 final data，
-`not-applicable`/`unavailable` 以 reason 表示没有 final data 的运行边界。`records.report({ id }, data)` 追加
-supplemental Record；有序 `messages` 是补充 detail，`visibility: "attention"` 只影响人读 progress，二者都不改变
-terminal status。
-
-下面的 Run 复用同一 source program 中已定义的 `licensePolicy`，并展示 controls 如何在调用处显式传入。
-
-<!-- package-api-example:custom-check -->
-
-## 类型化依赖数据
-
-类型化 provider 通过同时声明 `execution` 与 `parseData` 建立 final-data contract。consumer 先用非泛型的 `dependencies.get(checkId)` 读取已声明的直接依赖、收窄 `ok`，再调用 producer 自己的 parser；未声明、transitive 或没有 final data 的读取不会泄露 upstream facts。parser 的 version 和业务 shape validation 始终由 provider 拥有。
-
-<!-- package-api-example:typed-dependency -->
-
-## Controls、outputs 与结果边界
-
-`RunControls` 只在调用 `run` 时提供，例如 `changedFiles`、`flags`、`signal`、`outputs` 与显式 `checkAggregation`。对 machine publication、progress rendering 的覆盖只作用于当前调用；它们不改变 Check 定义、scanner commands 或 dependency 声明。machine output 的可信边界、human presentation 和 artifact reader 都不是 package 额外提供的 reader API。
-
-按 `RunResult.kind` 与 cancellation `phase` 收窄结果：
-
-- `completed`：有完整 final snapshot，且表示成功完成的 Run。
-- `output`：有完整 final snapshot，但至少一个 Run-owned output 已失败，因此不是成功的 Run。
-- `kind: "cancelled", phase: "execution"`：有取消时关闭的 `snapshot`、`checkDurations` 与 `checkMessages`，但不是成功的 Run。
-- `configuration`、`planning`、`execution`，以及 `phase: "pre-work" | "planning"` 的 `cancelled`：没有可作为成功 Check data 处理的完整 snapshot；应处理各自的 diagnostic 或 cancellation 边界。
-
-## 支持边界
-
-这是预稳定的 API-only surface：没有 public CLI、Node.js host、plugin API、subpath exports 或 compatibility alias。不要依赖未承诺的路径、registry 可用性或版本兼容性；任何 release、host 或 public surface 扩展都需要对应 owner 的单独变更与新的 candidate 验证。
+当前 public contract 是本文说明的 Bun / TypeScript root API。CLI、Node.js host、plugin API 与 subpath imports 位于该 public contract 之外。

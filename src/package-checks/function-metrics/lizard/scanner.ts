@@ -5,16 +5,17 @@
  * 圈复杂度、路径和排序。
  */
 
+import { errorMessage } from "../../host-environment/error-message.ts";
 import { runProcessSync } from "../../host-environment/process/command.ts";
-import type { FunctionMetricsScannerOptions } from "../options.ts";
+import type { ResolvedFunctionMetricsScannerOptions } from "../options.ts";
 import { parseLizardCSV, type LizardScanResult } from "./parser.ts";
 
 export { parseLizardCSV } from "./parser.ts";
 
 interface ScanWithLizardOptions {
-  cwd: string;
-  dependency: FunctionMetricsScannerOptions;
-  files: readonly string[];
+  readonly cwd: string;
+  readonly dependency: ResolvedFunctionMetricsScannerOptions;
+  readonly files: readonly string[];
 }
 
 export function scanWithLizard({
@@ -22,36 +23,42 @@ export function scanWithLizard({
   cwd,
   dependency
 }: ScanWithLizardOptions): LizardScanResult {
-  if (files.length === 0) {
-    return { ok: true, measurements: [] };
-  }
+  try {
+    if (files.length === 0) return { ok: true, measurements: [] };
 
-  const argv = [...dependency.args, ...files, "--csv"];
+    const child = runProcessSync({
+      args: [...files, "--csv"],
+      command: dependency.executable,
+      cwd,
+      timeout: 300_000
+    });
 
-  const child = runProcessSync({
-    args: argv,
-    command: dependency.executable,
-    cwd,
-    timeout: 300_000
-  });
+    if (child.error) {
+      return {
+        ok: false,
+        error: `lizard process error: ${child.error.message}`,
+        reason: "execution"
+      };
+    }
 
-  if (child.error) {
+    if (child.status !== 0) {
+      const stderr = (child.stderr || "").trim();
+      const stdout = (child.stdout || "").trim();
+      const termination =
+        child.status === null ? `signal ${child.signal ?? "unknown"}` : `exit ${child.status}`;
+      return {
+        ok: false,
+        error: `lizard ${termination}: ${stderr || stdout || "no output"}`,
+        reason: "execution"
+      };
+    }
+
+    return parseLizardCSV(child.stdout || "", cwd);
+  } catch (error: unknown) {
     return {
       ok: false,
-      error: `lizard process error: ${child.error.message}`,
+      error: `lizard adapter error: ${errorMessage(error)}`,
       reason: "execution"
     };
   }
-
-  if (child.status !== 0 && child.status !== null) {
-    const stderr = (child.stderr || "").trim();
-    return {
-      ok: false,
-      error: `lizard exit ${child.status}: ${stderr || "command succeeded but returned non-zero"}`,
-      reason: "execution"
-    };
-  }
-
-  const output = child.stdout || "";
-  return parseLizardCSV(output, cwd);
 }

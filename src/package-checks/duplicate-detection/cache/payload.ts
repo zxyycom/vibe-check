@@ -20,7 +20,7 @@ export function isMatchingPayload(
   );
 }
 
-export function isMetricArray(value: unknown): value is DuplicateCodeFragment[] {
+export function isMetricArray(value: unknown): value is readonly DuplicateCodeFragment[] {
   if (!Array.isArray(value)) return false;
   return value.every(isDuplicateCodeFragment);
 }
@@ -36,7 +36,6 @@ function cacheIdentityFieldsMatch(
     payload.toolName === identity.toolName &&
     payload.toolVersion === identity.toolVersion &&
     payload.configVersion === identity.configVersion &&
-    payload.codeArea === identity.codeArea &&
     payload.commitSha === identity.commitSha
   );
 }
@@ -46,8 +45,8 @@ function cacheStructuredFieldsMatch(
   identity: DuplicateCodeCacheIdentity
 ): boolean {
   return (
-    stableStringify(payload.normalizedToolArgs) ===
-      stableStringify([...identity.normalizedToolArgs]) &&
+    stableStringify(payload.scannerConfiguration) ===
+      stableStringify(identity.scannerConfiguration) &&
     stableStringify(payload.inputFingerprint) === stableStringify(identity.inputFingerprint)
   );
 }
@@ -70,8 +69,7 @@ function isDuplicateCodeLocation(value: unknown): value is DuplicateCodeLocation
     isNonArrayRecord(value) &&
     typeof value.path === "string" &&
     isFiniteNumber(value.startLine) &&
-    isFiniteNumber(value.endLine) &&
-    typeof value.codeArea === "string"
+    isFiniteNumber(value.endLine)
   );
 }
 

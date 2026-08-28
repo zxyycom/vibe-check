@@ -16,6 +16,11 @@ import {
   PACKAGE_TYPES_DIRECTORY
 } from "../package-contract.ts";
 import { collectFilePaths } from "../file-inventory.ts";
+import {
+  isAcceptedPackageDependencyVersion,
+  packageDependencyVersionRequirementText,
+  type PackageDependencyVersionRequirement
+} from "../dependency-version.ts";
 import { runBun, sha256File } from "../pack.ts";
 import type { InstalledCandidate } from "./receipt.ts";
 
@@ -168,8 +173,8 @@ function verifyInstallation(input: {
   verifyCandidateDependency({
     candidateEntryPath: resolvedEntryPath,
     consumerDirectory,
-    expectedVersion: CANDIDATE_DEPENDENCIES.ajv,
-    packageName: AJV_PACKAGE_NAME
+    packageName: AJV_PACKAGE_NAME,
+    versionRequirement: { kind: "exact", version: CANDIDATE_DEPENDENCIES.ajv }
   });
   return Object.freeze({
     installedPackageDirectory: packageDirectory,
@@ -196,8 +201,8 @@ function verifyCandidateJscpdDependency(
   const { manifest, packageManifestPath } = verifyCandidateDependency({
     candidateEntryPath,
     consumerDirectory,
-    expectedVersion: CANDIDATE_DEPENDENCIES.jscpd,
-    packageName: JSCPD_PACKAGE_NAME
+    packageName: JSCPD_PACKAGE_NAME,
+    versionRequirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd }
   });
 
   const binTarget = declaredJscpdBinTarget(manifest.bin);
@@ -220,10 +225,10 @@ function verifyCandidateJscpdDependency(
 function verifyCandidateDependency(input: {
   readonly candidateEntryPath: string;
   readonly consumerDirectory: string;
-  readonly expectedVersion: string;
   readonly packageName: CandidateRuntimeDependencyName;
+  readonly versionRequirement: PackageDependencyVersionRequirement;
 }): VerifiedCandidateDependency {
-  const { candidateEntryPath, consumerDirectory, expectedVersion, packageName } = input;
+  const { candidateEntryPath, consumerDirectory, packageName, versionRequirement } = input;
   const packageManifestPath = runBun({
     args: [
       "-e",
@@ -239,13 +244,21 @@ function verifyCandidateDependency(input: {
     );
   }
   const manifest = readJsonFile(packageManifestPath, `resolved ${packageName} package manifest`);
+  const resolvedVersion =
+    isNonArrayRecord(manifest) && typeof manifest.version === "string"
+      ? manifest.version
+      : undefined;
   if (
     !isNonArrayRecord(manifest) ||
     manifest.name !== packageName ||
-    manifest.version !== expectedVersion
+    resolvedVersion === undefined ||
+    !isAcceptedPackageDependencyVersion({
+      requirement: versionRequirement,
+      resolvedVersion
+    })
   ) {
     throw new Error(
-      `resolved ${packageName} package manifest must declare ${packageName}@${expectedVersion}: ${packageManifestPath}`
+      `resolved ${packageName} package manifest must satisfy ${packageName}@${packageDependencyVersionRequirementText(versionRequirement)}: ${packageManifestPath}`
     );
   }
   return Object.freeze({ manifest, packageManifestPath });

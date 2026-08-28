@@ -141,9 +141,9 @@ Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
-Proves:
+  Proves:
 
-- Duplicate cache identity depends on backend identity, code area, current commit, exact-input fingerprint, configuration version, and normalized command arguments rather than policy or presentation settings. The default marker is portable Bun plus installed-jscpd identity without a consumer install path and remains distinct from explicit commands.
+- Duplicate raw-scan cache identity depends on package/custom backend identity, current commit, the complete exact-input union fingerprint, configuration version, and structured scanner configuration including the effective line/token lower bounds, JSON/absolute report policy, and tool-default worker policy, rather than pseudo command arguments, current area annotation, or final strict policy. The package command remains portable without a consumer install path; a custom command is identified only by its executable and remains distinct from package command identity.
 
 ## Case WB-MAINTENANCE-REMINDER-ASSESSMENT-001: One maintenance Check retains complete local Git assessments
 

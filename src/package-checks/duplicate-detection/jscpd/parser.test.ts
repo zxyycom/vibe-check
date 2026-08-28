@@ -33,6 +33,7 @@ describe("quality scanner output parsing", () => {
 
     // jscpd 5.x delegates to its bundled Rust binary, which reports a cpd prefix.
     assert.equal(parseJscpdVersionOutput("cpd 5.0.11"), "5.0.11");
+    assert.equal(parseJscpdVersionOutput("not a version"), null);
     if (!result.ok) {
       assert.fail(result.error);
     }

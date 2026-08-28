@@ -1,7 +1,6 @@
 /**
- * Vibe Check 是由项目在 Bun runtime 中显式调用的 TypeScript API，用于定义并执行项目质量 Check。
- * 使用 package `README.md` 了解当前可用性和 consumer authoring 路径；本 package 不提供 public CLI、
- * Node.js host、plugin API 或 subpath exports。
+ * Vibe Check 是由项目在 Bun runtime 中调用的 TypeScript API，用于定义并执行项目质量 Check。
+ * 所有公开能力从 package root 导入；package `README.md` 说明 consumer authoring、结果读取和分发范围。
  *
  * @packageDocumentation
  */

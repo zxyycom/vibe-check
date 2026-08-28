@@ -2,14 +2,16 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const DEFAULT_JSCPD_COMMAND_MARKER = "vibe-check-package-jscpd";
+import { isNonArrayRecord } from "../../../data-boundary/value-shapes.ts";
+import type { DuplicateDetectionScannerCommand } from "../options.ts";
+
 const JSCPD_BIN_NAME = "jscpd";
 const JSCPD_PACKAGE_NAME = "jscpd";
 
 export interface JscpdCommand {
-  readonly args: readonly string[];
-  readonly availabilityArgs: readonly string[];
   readonly executable: string;
+  readonly scanPrefixArguments: readonly string[];
+  readonly versionArguments: readonly string[];
 }
 
 export type ResolvedJscpdCommand =
@@ -17,27 +19,31 @@ export type ResolvedJscpdCommand =
   | Readonly<{ error: string; kind: "unavailable" }>;
 
 /**
- * A portable marker for the package-provided Check's scanner command. Its executable is
- * resolved only by the private jscpd adapter, so public Definition values and
- * fingerprints never contain a consumer-specific Bun or package path.
+ * package-provided scanner 的可移植 marker。真实 executable 只由私有 jscpd adapter 解析，避免公共
+ * Definition 与 fingerprint 保存 consumer-specific Bun 或 package path。
  */
-export const DEFAULT_JSCPD_COMMAND: JscpdCommand = Object.freeze({
-  args: Object.freeze([]),
-  availabilityArgs: Object.freeze(["--version"]),
-  executable: DEFAULT_JSCPD_COMMAND_MARKER
+export const DEFAULT_JSCPD_COMMAND: DuplicateDetectionScannerCommand = Object.freeze({
+  kind: "package"
 });
 
-export function isDefaultJscpdCommand(command: JscpdCommand): boolean {
-  return (
-    command.executable === DEFAULT_JSCPD_COMMAND.executable &&
-    sameStrings(command.args, DEFAULT_JSCPD_COMMAND.args) &&
-    sameStrings(command.availabilityArgs, DEFAULT_JSCPD_COMMAND.availabilityArgs)
-  );
+export function isPackageJscpdCommand(
+  command: DuplicateDetectionScannerCommand
+): command is Extract<DuplicateDetectionScannerCommand, { readonly kind: "package" }> {
+  return command.kind === "package";
 }
 
-export function resolveJscpdCommand(command: JscpdCommand): ResolvedJscpdCommand {
-  if (!isDefaultJscpdCommand(command)) {
-    return Object.freeze({ command, kind: "resolved" });
+export function resolveJscpdCommand(
+  command: DuplicateDetectionScannerCommand
+): ResolvedJscpdCommand {
+  if (command.kind === "custom") {
+    return Object.freeze({
+      command: Object.freeze({
+        executable: command.executable,
+        scanPrefixArguments: Object.freeze([]),
+        versionArguments: Object.freeze(["--version"])
+      }),
+      kind: "resolved"
+    });
   }
 
   const binTarget = installedJscpdBinTarget();
@@ -50,9 +56,9 @@ export function resolveJscpdCommand(command: JscpdCommand): ResolvedJscpdCommand
 
   return Object.freeze({
     command: Object.freeze({
-      args: Object.freeze([binTarget]),
-      availabilityArgs: Object.freeze([binTarget, "--version"]),
-      executable: process.execPath
+      executable: process.execPath,
+      scanPrefixArguments: Object.freeze([binTarget]),
+      versionArguments: Object.freeze([binTarget, "--version"])
     }),
     kind: "resolved"
   });
@@ -97,18 +103,10 @@ function installedJscpdBinTarget(): string | null {
 }
 
 function declaredJscpdBinTarget(manifest: unknown): string | null {
-  if (!isRecord(manifest)) return null;
+  if (!isNonArrayRecord(manifest)) return null;
   const bin = manifest.bin;
   if (typeof bin === "string") return bin;
-  if (!isRecord(bin)) return null;
+  if (!isNonArrayRecord(bin)) return null;
   const target = bin[JSCPD_BIN_NAME];
   return typeof target === "string" ? target : null;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function sameStrings(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((value, index) => value === right[index]);
 }

@@ -1,32 +1,41 @@
+import { errorMessage } from "../../host-environment/error-message.ts";
 import { runProcess } from "../../host-environment/process/command.ts";
-import type { FunctionMetricsScannerOptions } from "../options.ts";
+import type { ResolvedFunctionMetricsScannerOptions } from "../options.ts";
 
-type LizardAvailability = Readonly<{
-  available: boolean;
-  error: string | null;
-  name: "lizard";
-  reason: "execution-error" | "tool-unavailable" | null;
-  source: "uv";
-  version: string | null;
-}>;
+type LizardAvailability = Readonly<
+  | {
+      readonly available: true;
+      readonly error: null;
+      readonly name: "lizard";
+      readonly reason: null;
+      readonly source: "configured command";
+      readonly version: string;
+    }
+  | {
+      readonly available: false;
+      readonly error: string;
+      readonly name: "lizard";
+      readonly reason: "contract-error" | "execution-error" | "tool-unavailable";
+      readonly source: "configured command";
+      readonly version: null;
+    }
+>;
 
 type ToolCommandResult = Awaited<ReturnType<typeof runProcess>>;
 
 export async function checkLizard(
   rootDir: string,
-  dependency: FunctionMetricsScannerOptions
+  dependency: ResolvedFunctionMetricsScannerOptions
 ): Promise<LizardAvailability> {
   try {
     const result = await runProcess({
-      args: [...dependency.availabilityArgs],
+      args: ["--version"],
       command: dependency.executable,
       cwd: rootDir
     });
     return availabilityFromVersionResult(result);
   } catch (error: unknown) {
-    return error instanceof Error
-      ? processErrorAvailability(error)
-      : unavailableLizard("unknown error", "execution-error");
+    return unavailableLizard(`lizard version error: ${errorMessage(error)}`, "execution-error");
   }
 }
 
@@ -39,12 +48,15 @@ function availabilityFromVersionResult(result: ToolCommandResult): LizardAvailab
       "execution-error"
     );
   }
+  if (output === "") {
+    return unavailableLizard("lizard --version returned empty output", "contract-error");
+  }
   return {
     name: "lizard",
     available: true,
-    version: output || "unknown",
+    version: output,
     error: null,
-    source: "uv",
+    source: "configured command",
     reason: null
   };
 }
@@ -63,7 +75,14 @@ function unavailableLizard(
   error: string,
   reason: Exclude<LizardAvailability["reason"], null>
 ): LizardAvailability {
-  return { name: "lizard", available: false, version: null, error, source: "uv", reason };
+  return {
+    name: "lizard",
+    available: false,
+    version: null,
+    error,
+    source: "configured command",
+    reason
+  };
 }
 
 function commandOutput(result: ToolCommandResult): string {

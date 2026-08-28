@@ -1,9 +1,8 @@
-import type { FunctionMetricsScannerOptions } from "./options.ts";
-import { scanWithLizard } from "./lizard/scanner.ts";
-import { checkLizard } from "./lizard/availability.ts";
 import { acceptExactInputMeasurements } from "../project-files/exact-input-measurement.ts";
-import type { FunctionMetric } from "./measurement-model.ts";
-import type { FunctionMetricsExactInputSet } from "./execution.ts";
+import { checkLizard } from "./lizard/availability.ts";
+import { scanWithLizard } from "./lizard/scanner.ts";
+import type { FunctionMetric, FunctionMetricsExactInputSet } from "./measurement-model.ts";
+import type { ResolvedFunctionMetricsScannerOptions } from "./options.ts";
 
 export type FunctionMeasurementResult = Readonly<
   | { kind: "complete"; metrics: readonly FunctionMetric[] }
@@ -14,7 +13,7 @@ export type FunctionMeasurementResult = Readonly<
 
 export async function measureFunctionMetrics(
   input: FunctionMetricsExactInputSet,
-  dependency: FunctionMetricsScannerOptions
+  dependency: ResolvedFunctionMetricsScannerOptions
 ): Promise<FunctionMeasurementResult> {
   if (input.approvedExactPaths.length === 0) {
     return Object.freeze({ kind: "complete", metrics: Object.freeze([]) });
@@ -28,18 +27,13 @@ export async function measureFunctionMetrics(
 
 function runFunctionScanner(
   input: FunctionMetricsExactInputSet,
-  dependency: FunctionMetricsScannerOptions
+  dependency: ResolvedFunctionMetricsScannerOptions
 ): FunctionMeasurementResult {
-  let result: ReturnType<typeof scanWithLizard>;
-  try {
-    result = scanWithLizard({
-      cwd: input.rootDir,
-      dependency,
-      files: input.approvedExactPaths
-    });
-  } catch {
-    return Object.freeze({ kind: "execution-failed" });
-  }
+  const result = scanWithLizard({
+    cwd: input.rootDir,
+    dependency,
+    files: input.approvedExactPaths
+  });
   if (!result.ok) {
     return Object.freeze({
       kind: result.reason === "execution" ? "execution-failed" : "invalid-result"

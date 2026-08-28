@@ -1,6 +1,6 @@
-/* eslint-disable no-unused-vars */
-import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
-import { validCodeAreas, validProjectFileSelection } from "../project-files/configuration.ts";
+import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import { validProjectFileSelection } from "../project-files/configuration.ts";
+
 function exactRecord(
   value: unknown,
   keys: readonly string[]
@@ -12,70 +12,57 @@ function exactRecord(
     ? record
     : undefined;
 }
-function finiteNumber(value: unknown): value is number {
-  return typeof value === "number" && Number.isFinite(value);
-}
+
 function positiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
-function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
-  return positiveSafeInteger(value) && value <= maximum;
-}
+
 function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
-function validStringArray(value: unknown): boolean {
-  const items = snapshotClosedArray(value);
-  return items !== undefined && items.every((item) => typeof item === "string");
-}
-export function validDuplicateDetectionOptions(value: object): boolean {
-  const options = exactRecord(value, [
-    "cache",
-    "codeAreas",
-    "files",
-    "scanner",
-    "defaultMinimumTokens",
-    "minimumTokensByCodeArea"
-  ]);
+
+export function validResolvedDuplicateDetectionOptions(value: object): boolean {
+  const options = exactRecord(value, ["cache", "codeAreas", "scanner"]);
   return (
     options !== undefined &&
     validDuplicateCache(options.cache) &&
-    validCodeAreas(options.codeAreas) &&
-    validProjectFileSelection(options.files) &&
-    validDuplicationScanner(options.scanner) &&
-    finiteNumber(options.defaultMinimumTokens) &&
-    validNumberRecord(options.minimumTokensByCodeArea) &&
-    codeAreaThresholdsAreKnown(options.minimumTokensByCodeArea, options.codeAreas)
+    validDuplicateCodeAreas(options.codeAreas) &&
+    validDuplicateDetectionScanner(options.scanner)
   );
 }
 
-function codeAreaThresholdsAreKnown(thresholdsValue: unknown, areasValue: unknown): boolean {
-  const thresholds = snapshotClosedRecord(thresholdsValue);
-  const areas = snapshotClosedRecord(areasValue);
-  return (
-    thresholds !== undefined &&
-    areas !== undefined &&
-    Object.keys(thresholds).every((area) => Object.hasOwn(areas, area))
-  );
+function validDuplicateCodeAreas(value: unknown): boolean {
+  const areas = snapshotClosedRecord(value);
+  if (areas === undefined || Object.keys(areas).length === 0) return false;
+  return Object.entries(areas).every(([areaId, candidate]) => {
+    const area = exactRecord(candidate, ["files", "minimumLines", "minimumTokens"]);
+    return (
+      nonEmptyString(areaId) &&
+      area !== undefined &&
+      validProjectFileSelection(area.files) &&
+      positiveSafeInteger(area.minimumLines) &&
+      positiveSafeInteger(area.minimumTokens)
+    );
+  });
 }
-function validDuplicationScanner(value: unknown): boolean {
-  const scanner = exactRecord(value, ["args", "availabilityArgs", "executable", "maxConcurrency"]);
-  return (
-    scanner !== undefined &&
-    validStringArray(scanner.args) &&
-    validStringArray(scanner.availabilityArgs) &&
-    nonEmptyString(scanner.executable) &&
-    positiveSafeInteger(scanner.maxConcurrency)
-  );
+
+function validDuplicateDetectionScanner(value: unknown): boolean {
+  const scanner = exactRecord(value, ["command"]);
+  return scanner !== undefined && validJscpdCommand(scanner.command);
 }
-function validNumberRecord(value: unknown): boolean {
+
+function validJscpdCommand(value: unknown): boolean {
   const record = snapshotClosedRecord(value);
-  return record !== undefined && Object.values(record).every(finiteNumber);
+  if (record?.kind === "package") {
+    return Object.keys(record).length === 1;
+  }
+  const command = exactRecord(value, ["executable", "kind"]);
+  return command?.kind === "custom" && nonEmptyString(command.executable);
 }
 
 function validDuplicateCache(value: unknown): boolean {
   const cache = exactRecord(value, ["directory", "enabled"]);
   return (
-    cache !== undefined && typeof cache.directory === "string" && typeof cache.enabled === "boolean"
+    cache !== undefined && nonEmptyString(cache.directory) && typeof cache.enabled === "boolean"
   );
 }

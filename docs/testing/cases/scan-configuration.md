@@ -12,11 +12,10 @@ Entities:
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
-Proves:
+  Proves:
 
 - Recursive ordinary Checks normalize only the declared executable/container grammar. Explicit `inherit` is the scheduling inheritance marker, executable visibility is canonical while container or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
 - Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed.
-
 
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
 
@@ -25,7 +24,7 @@ Entities:
 
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
 - `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
-Proves:
+  Proves:
 
 - Definition preserves authored package Check options as declarative JSON without interpreting their domain shape; the owning Check preflight, not Definition normalization, decides whether ordinary JSON or JSON Schema options are valid before execution.
 
@@ -34,12 +33,13 @@ Proves:
 Owner: `docs/configuration.md#public-authoring-surface`
 Entities:
 
-- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > owns five runtime functions, six package-provided ordinary Check values, and minimal type roots`
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
 - `bun|scripts/package/candidate/isolated-consumer-types.test.ts|external consumer type acceptance`
-Proves:
+  Proves:
 
-- The public package exposes only the documented runtime authoring operations, six complete package-provided Check values, the specialized maintenance constructor, and their minimal type roots.
+- The public package exposes only the documented generic authoring/run operations, three metric constructors, the maintenance constructor, three complete package-provided Check values, and their minimal type roots.
 - An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics.
+
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link options remain complete and bounded
 
 Owner: `docs/configuration.md#markdown-link-validation`
@@ -48,7 +48,6 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
   Proves:
 - The complete exported `markdownLinkValidation` value carries block preflight that rejects omitted, oversized, or unknown option shapes; Run owns the resulting unavailable Check settlement before execution.
-
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 
@@ -82,7 +81,6 @@ Entities:
 - Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
 - A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts.
 - Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. If both fail, both statuses are failed and `progress-rendering-failed` is selected deterministically.
-
 
 ## Case WB-RUN-RESULT-CHECK-MESSAGES-001: Final-snapshot Run results retain accepted Check messages
 

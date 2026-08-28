@@ -1,8 +1,8 @@
-import type { FileMetric, LanguageAggregate } from "../measurement-model.ts";
 import type { ExactInputMeasurement } from "../../project-files/exact-input-measurement.ts";
 import { errorMessage } from "../../host-environment/error-message.ts";
-import { parseCsvRows } from "./csv.ts";
 import { normalizeScannerReportedPath } from "../../project-files/reported-path.ts";
+import type { FileMetric } from "../measurement-model.ts";
+import { parseCsvRows } from "./csv.ts";
 
 export const SCC_VERSION = "3.7.0";
 export const SCC_VERSION_OUTPUT = `scc version ${SCC_VERSION}`;
@@ -11,7 +11,6 @@ export const SCC_BY_FILE_CSV_HEADER =
 
 export type SccScanResult =
   | {
-      readonly aggregates: { readonly byLanguage: readonly LanguageAggregate[] };
       readonly measurements: readonly ExactInputMeasurement<FileMetric>[];
       readonly ok: true;
     }
@@ -27,34 +26,25 @@ interface SccColumnIndexes {
   comments: number;
   complexity: number;
   filename: number;
-  language: number;
   lines: number;
   provider: number;
 }
 
-type ParsedSccFileMetric = FileMetric &
-  Required<Pick<FileMetric, "blankLines" | "codeLines" | "commentLines">>;
+interface ParsedSccRow {
+  readonly codeLines: number;
+  readonly complexity: number | null;
+  readonly path: string;
+}
 
-type ParsedSccRow = {
-  blankLines: number;
-  codeLines: number;
-  commentLines: number;
-  complexity: number | null;
-  language: string;
-  lineCount: number;
-  path: string;
-};
-
-type SccRawRow = {
-  blankLines: string;
-  codeLines: string;
-  commentLines: string;
-  complexity: string;
-  filename: string;
-  language: string;
-  lineCount: string;
-  providerPath: string;
-};
+interface SccRawRow {
+  readonly blankLines: string;
+  readonly codeLines: string;
+  readonly commentLines: string;
+  readonly complexity: string;
+  readonly filename: string;
+  readonly lineCount: string;
+  readonly providerPath: string;
+}
 
 /**
  * 解析 scc CSV 输出。
@@ -63,8 +53,8 @@ type SccRawRow = {
  * Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC
  *
  * - Lines 包含所有行（code + comments + blanks）
- * - Code 是文件级代码行数，用于文件大小 warning
- * - Complexity 是 scc complexitychecks token 命中数，不是完整语言解析后的函数级 CC
+ * - Code 是文件级代码行数，用于 code-line finding
+ * - Complexity 是 scc complexitychecks token 命中数，用于 low-decision-token allowance，不是函数级 CC
  * - ULOC (Usable Lines of Code) 由 3.7.0 输出，但首期不进入稳定 metrics
  */
 export function parseSccCSV(csv: string, cwd: string): SccScanResult {
@@ -80,11 +70,10 @@ export function parseSccCSV(csv: string, cwd: string): SccScanResult {
     }
 
     const columns = sccColumnIndexes(rows[headerIdx] ?? []);
-    const parsed = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2, cwd);
+    const measurements = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2, cwd);
     return {
       ok: true,
-      measurements: parsed.measurements,
-      aggregates: { byLanguage: parsed.byLanguage }
+      measurements
     };
   } catch (error: unknown) {
     return {
@@ -106,7 +95,6 @@ function observedSccHeader(rows: string[][]): string {
 
 function sccColumnIndexes(headerCols: string[]): SccColumnIndexes {
   return {
-    language: headerCols.indexOf("Language"),
     provider: headerCols.indexOf("Provider"),
     filename: headerCols.indexOf("Filename"),
     lines: headerCols.indexOf("Lines"),
@@ -122,22 +110,16 @@ function parseSccMetrics(
   columns: SccColumnIndexes,
   firstRowNumber: number,
   cwd: string
-): {
-  byLanguage: LanguageAggregate[];
-  measurements: ExactInputMeasurement<FileMetric>[];
-} {
+): ExactInputMeasurement<FileMetric>[] {
   const measurements: ExactInputMeasurement<FileMetric>[] = [];
-  const langMap = new Map<string, LanguageAggregate>();
 
   for (const [index, row] of rows.entries()) {
     const measurement = parseSccFileMetric(row, columns, firstRowNumber + index, cwd);
     measurements.push(measurement);
-    addLanguageMetric(langMap, measurement.payload);
   }
 
-  measurements.sort((a, b) => b.payload.lines - a.payload.lines);
-  const byLanguage = Array.from(langMap.values()).sort((a, b) => b.lines - a.lines);
-  return { measurements, byLanguage };
+  measurements.sort((left, right) => compareText(left.payload.path, right.payload.path));
+  return measurements;
 }
 
 function parseSccFileMetric(
@@ -145,19 +127,14 @@ function parseSccFileMetric(
   columns: SccColumnIndexes,
   rowNumber: number,
   cwd: string
-): ExactInputMeasurement<ParsedSccFileMetric> {
+): ExactInputMeasurement<FileMetric> {
   const row = parseSccRow(parts, columns, rowNumber);
   const sourcePath = normalizeScannerReportedPath(row.path, cwd);
   return {
     sourcePaths: [sourcePath],
     payload: {
       path: sourcePath,
-      language: row.language,
-      codeArea: "unknown",
-      lines: row.lineCount,
       codeLines: row.codeLines,
-      commentLines: row.commentLines,
-      blankLines: row.blankLines,
       decisionTokens: {
         value: row.complexity,
         source: "scc"
@@ -177,16 +154,19 @@ function parseSccRow(parts: string[], columns: SccColumnIndexes, rowNumber: numb
   if (!rawRow.filename) {
     throw new Error(`row ${rowNumber} field Filename must not be empty`);
   }
+  validateSccRowCounts(rawRow, rowNumber);
 
   return {
     path: rawRow.providerPath || rawRow.filename,
-    language: rawRow.language,
-    lineCount: parseRequiredInteger(rawRow.lineCount, "Lines", rowNumber),
     codeLines: parseRequiredInteger(rawRow.codeLines, "Code", rowNumber),
-    commentLines: parseRequiredInteger(rawRow.commentLines, "Comments", rowNumber),
-    blankLines: parseRequiredInteger(rawRow.blankLines, "Blanks", rowNumber),
     complexity: parseOptionalInteger(rawRow.complexity, "Complexity", rowNumber)
   };
+}
+
+function validateSccRowCounts(row: SccRawRow, rowNumber: number): void {
+  parseRequiredInteger(row.lineCount, "Lines", rowNumber);
+  parseRequiredInteger(row.commentLines, "Comments", rowNumber);
+  parseRequiredInteger(row.blankLines, "Blanks", rowNumber);
 }
 
 function sccRawRow(parts: string[], columns: SccColumnIndexes): SccRawRow {
@@ -196,44 +176,8 @@ function sccRawRow(parts: string[], columns: SccColumnIndexes): SccRawRow {
     commentLines: sccColumnValue(parts, columns.comments),
     complexity: sccColumnValue(parts, columns.complexity),
     filename: sccColumnValue(parts, columns.filename),
-    language: sccColumnValue(parts, columns.language),
     lineCount: sccColumnValue(parts, columns.lines),
     providerPath: sccColumnValue(parts, columns.provider)
-  };
-}
-
-function addLanguageMetric(
-  langMap: Map<string, LanguageAggregate>,
-  metric: ParsedSccFileMetric
-): void {
-  const existing = langMap.get(metric.language);
-  if (existing) {
-    incrementLanguageAggregate(existing, metric);
-    return;
-  }
-
-  langMap.set(metric.language, createLanguageAggregate(metric));
-}
-
-function incrementLanguageAggregate(
-  existing: LanguageAggregate,
-  metric: ParsedSccFileMetric
-): void {
-  existing.files++;
-  existing.lines += metric.lines;
-  existing.codeLines += metric.codeLines;
-  existing.commentLines += metric.commentLines;
-  existing.blankLines += metric.blankLines;
-}
-
-function createLanguageAggregate(metric: ParsedSccFileMetric): LanguageAggregate {
-  return {
-    language: metric.language,
-    files: 1,
-    lines: metric.lines,
-    codeLines: metric.codeLines,
-    commentLines: metric.commentLines,
-    blankLines: metric.blankLines
   };
 }
 
@@ -254,6 +198,12 @@ function parseOptionalInteger(value: string, field: string, rowNumber: number): 
 
 function sccColumnValue(parts: string[], index: number): string {
   return index >= 0 ? (parts[index] ?? "") : "";
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 function isCsvRow(row: string[], expected: string[]): boolean {

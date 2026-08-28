@@ -1,25 +1,37 @@
 import { runProcess } from "../../host-environment/process/command.ts";
-import type { DuplicateDetectionScannerOptions } from "../options.ts";
+import type { ResolvedDuplicateDetectionScannerOptions } from "../options.ts";
 import { isMissingExplicitCommand } from "./command-path.ts";
-import { isDefaultJscpdCommand, resolveJscpdCommand } from "./default-command.ts";
+import { isPackageJscpdCommand, resolveJscpdCommand } from "./command-resolution.ts";
 import { parseJscpdVersionOutput } from "./scanner.ts";
 
-type JscpdAvailability = Readonly<{
-  available: boolean;
-  error: string | null;
-  name: "jscpd";
-  reason: "execution-error" | "tool-unavailable" | null;
-  source: string;
-  version: string | null;
-}>;
+type JscpdAvailability = Readonly<
+  | {
+      available: true;
+      error: null;
+      name: "jscpd";
+      reason: null;
+      source: JscpdSource;
+      version: string;
+    }
+  | {
+      available: false;
+      error: string;
+      name: "jscpd";
+      reason: "execution-error" | "tool-unavailable";
+      source: JscpdSource;
+      version: null;
+    }
+>;
+
+type JscpdSource = "custom command" | "package dependency";
 
 type ToolCommandResult = Awaited<ReturnType<typeof runProcess>>;
 
 export async function checkJscpd(
   rootDir: string,
-  dependency: DuplicateDetectionScannerOptions
+  dependency: ResolvedDuplicateDetectionScannerOptions
 ): Promise<JscpdAvailability> {
-  const resolved = resolveJscpdCommand(dependency);
+  const resolved = resolveJscpdCommand(dependency.command);
   if (resolved.kind === "unavailable") {
     return unavailableJscpd(resolved.error, "tool-unavailable", dependency);
   }
@@ -29,7 +41,7 @@ export async function checkJscpd(
 
   try {
     const result = await runProcess({
-      args: [...resolved.command.availabilityArgs],
+      args: [...resolved.command.versionArguments],
       command: resolved.command.executable,
       cwd: rootDir
     });
@@ -43,7 +55,7 @@ export async function checkJscpd(
 
 function availabilityFromVersionResult(
   result: ToolCommandResult,
-  dependency: DuplicateDetectionScannerOptions
+  dependency: ResolvedDuplicateDetectionScannerOptions
 ): JscpdAvailability {
   if (result.error) return processErrorAvailability(result.error, dependency);
   const output = commandOutput(result);
@@ -54,10 +66,18 @@ function availabilityFromVersionResult(
       dependency
     );
   }
+  const version = parseJscpdVersionOutput(output);
+  if (version === null) {
+    return unavailableJscpd(
+      "jscpd --version returned unrecognized output",
+      "execution-error",
+      dependency
+    );
+  }
   return {
     name: "jscpd",
     available: true,
-    version: parseJscpdVersionOutput(output),
+    version,
     error: null,
     source: jscpdSource(dependency),
     reason: null
@@ -66,7 +86,7 @@ function availabilityFromVersionResult(
 
 function processErrorAvailability(
   error: Error,
-  dependency: DuplicateDetectionScannerOptions
+  dependency: ResolvedDuplicateDetectionScannerOptions
 ): JscpdAvailability {
   const isMissingTool = (error as NodeJS.ErrnoException).code === "ENOENT";
   return unavailableJscpd(
@@ -79,7 +99,7 @@ function processErrorAvailability(
 function unavailableJscpd(
   error: string,
   reason: Exclude<JscpdAvailability["reason"], null>,
-  dependency: DuplicateDetectionScannerOptions
+  dependency: ResolvedDuplicateDetectionScannerOptions
 ): JscpdAvailability {
   return {
     name: "jscpd",
@@ -91,8 +111,8 @@ function unavailableJscpd(
   };
 }
 
-function jscpdSource(dependency: DuplicateDetectionScannerOptions): string {
-  return isDefaultJscpdCommand(dependency) ? "package dependency" : "repository devDependency";
+function jscpdSource(dependency: ResolvedDuplicateDetectionScannerOptions): JscpdSource {
+  return isPackageJscpdCommand(dependency.command) ? "package dependency" : "custom command";
 }
 
 function commandOutput(result: ToolCommandResult): string {

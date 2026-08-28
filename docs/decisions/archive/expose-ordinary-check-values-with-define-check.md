@@ -1,6 +1,6 @@
 ---
 title: 公开普通 Check 值与 defineCheck authoring helper
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:00:43Z
 purpose: 让 package 同时提供普通默认 Check、独立声明的类型辅助和唯一产品运行入口，而不恢复对象调整 API。

@@ -4,14 +4,14 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   operations: Object.freeze({
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
+    duplicateDetection: "duplicateDetection",
+    fileMetrics: "fileMetrics",
+    functionMetrics: "functionMetrics",
     inherit: "inherit",
     maintenanceReminders: "maintenanceReminders",
     run: "run"
   }),
   values: Object.freeze({
-    duplicateDetection: "duplicateDetection",
-    fileMetrics: "fileMetrics",
-    functionMetrics: "functionMetrics",
     jsonSchemaValidation: "jsonSchemaValidation",
     jsonValidation: "jsonValidation",
     markdownLinkValidation: "markdownLinkValidation"

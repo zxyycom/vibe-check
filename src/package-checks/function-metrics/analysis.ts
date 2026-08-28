@@ -119,6 +119,8 @@ function functionIdentityKey(metric: Pick<FunctionMetric, "file" | "name">): str
 
 function compareFunctionInstances(left: FunctionMetric, right: FunctionMetric): number {
   return (
+    left.startLine - right.startLine ||
+    left.endLine - right.endLine ||
     left.lines - right.lines ||
     (left.cyclomaticComplexity.value ?? -1) - (right.cyclomaticComplexity.value ?? -1) ||
     left.parameterCount - right.parameterCount

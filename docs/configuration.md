@@ -2,14 +2,18 @@
 
 Vibe Check configuration is a project-owned TypeScript **Project Definition**. `defineConfig` creates its plain value; a project-owned wrapper calls `run(definition, controls)`. Product never discovers, reloads, or accepts a second configuration module.
 
-This document owns authoring and invocation. Check/Record semantics belong to [Quality Metrics](quality-metrics.md), scanner command semantics to [Check-owned scanner dependencies](scanner-dependencies.md), and result/output DTOs to [Output](output.md).
+本文拥有 authoring 与 invocation。Check/Record 通用语义属于 [Quality Metrics](quality-metrics.md)，每项随包 Check 的 consumer options 属于对应 `docs/checks/*.md` 指南，owner-local external-tool adapter boundary 属于 [Check-owned scanner dependencies](scanner-dependencies.md)，result/output DTOs 属于 [Output](output.md)。
 
 `ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与明确的 machine publication/progress rendering outputs。它没有 package-specific `quality`、file
 scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自己的完整 `options` 中声明并消费这些输入。
 
 ## Public authoring surface
 
-The package surface is `defineConfig`, `defineCheck`, `inherit`, `maintenanceReminders`, `run`, and the complete default values `duplicateDetection`, `fileMetrics`, `functionMetrics`, `jsonValidation`, `jsonSchemaValidation`, and `markdownLinkValidation`. `maintenanceReminders` is a specialized constructor, not a seventh default value. The repository dogfood definition is [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts).
+package surface 包含 `defineConfig`、`defineCheck`、`inherit`、`run`，专用 constructors
+`duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)`，以及完整 default values
+`jsonValidation`、`jsonSchemaValidation` 和 `markdownLinkValidation`。这些 constructor 都返回
+ordinary Check object，不引入第二种 execution model。仓库 dogfood Definition 位于
+[`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts)。
 
 ```ts
 import {
@@ -49,9 +53,9 @@ export default defineConfig({
       displayName: "Repository quality",
       maxParallel: 2,
       checks: [
-        duplicateDetection,
-        fileMetrics,
-        functionMetrics,
+        duplicateDetection(),
+        fileMetrics(),
+        functionMetrics(),
         jsonValidation,
         jsonSchemaValidation,
         markdownLinkValidation,
@@ -244,9 +248,19 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Package-provided Check composition
 
-The six package-provided values are complete ordinary `Check` values built on the same contract available to project-owned Checks. Product core does not register them as built-ins. Each value owns full options, block preflight, execution and domain result; execution reuses its Check-local options helper defensively. A project customizes one with normal object spread and must supply every field of a nested branch it replaces; object spread retains preflight. Definition preserves incomplete or unknown authored JSON as declarative input, then the owning block preflight settles that Check unavailable before scanner or callback work rather than filling branches or treating the whole Definition as configuration failure.
+三个 package-provided default values 是完整 ordinary `Check` values；`duplicateDetection(options?)`、
+`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)` 是返回同类 ordinary values 的专用 constructors。Product core 不把它们注册为 built-ins。
+每项 Check 都拥有 block preflight、execution、完整 resolved options 与 domain result；execution 也防御性复用 Check-local
+validator。
 
-All six file-reading Checks own a complete `options.files` branch. Its initial value is:
+default value 仍可用 normal object spread 定制，但替换 nested branch 时必须提供该 branch 的全部字段。
+`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是有意的例外：consumer 把可省略 policy 交给 constructor，由它同步拒绝未知/非法输入、补齐 defaults
+并返回完整冻结 options；不需要从某个导出默认对象 nested spread。constructor 返回后若再用普通对象组合替换完整 options，
+owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definition 不把这些问题升级为全局 configuration failure。
+
+`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 各自拥有完整
+`options.files` branch；三个 metric constructor 则为每个 `options.codeAreas[id]` 物化同样完整的 `files` branch。
+该 branch 的 package default 是：
 
 ```ts
 {
@@ -259,21 +273,49 @@ All six file-reading Checks own a complete `options.files` branch. Its initial v
 }
 ```
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 还分别拥有初始
-`codeAreas: { project: { description: "This project", globs: ["**/*"], excludeGlobs: [], warningPolicy: "moderate" } }`。
-这些相同初始 values 是随包 Check 各自 options 的组成部分，不是 `ProjectDefinition` 中的共享配置。项目需要统一 policy
-时，应像 repository dogfood Definition 一样用普通 TypeScript value 显式组合。
+无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
+`{ files: <上述 branch>, minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有 `files` 或默认/override 阈值。
+无参 `fileMetrics()` 的 `codeAreas.project` 恰为
+`{ files: <上述 branch>, codeLines: { maximum: 300, lowDecisionTokenAllowance: { maximumCodeLines: 500, maximumDecisionTokens: 10 } } }`；其顶层同样没有 `files` 或全局 threshold。
+无参 `functionMetrics()` 以 `"blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
+`codeAreas.project` 直接拥有上述 files、effective finding policy，以及
+`codeLines: { maximum: 50, lowComplexityAllowance: { maximum: 150, cyclomaticComplexityBelow: 5 } }`、
+`cyclomaticComplexity: { maximum: 10 }` 与 `parameters: { maximum: 5 }`。
+这些 defaults 是 owning Check 的 policy，不是
+`ProjectDefinition` 中的共享配置。项目需要统一 policy 时，应像 repository dogfood Definition 一样用普通 TypeScript
+value 显式组合。
 
-| Package value          | Check ID                  | `scanner.executable`                                      | `scanner.args` | `scanner.availabilityArgs` | Additional Check option                 |
-| ---------------------- | ------------------------- | --------------------------------------------------------- | -------------- | -------------------------- | --------------------------------------- |
-| `duplicateDetection`   | `duplicate-detection`     | `vibe-check-package-jscpd` (package-owned default marker) | `[]`           | `['--version']`            | `scanner.maxConcurrency: 4`             |
-| `fileMetrics`          | `file-metrics`            | `scc`                                                     | `[]`           | `['--version']`            | —                                       |
-| `functionMetrics`      | `function-metrics`        | `lizard`                                                  | `[]`           | `['--version']`            | —                                       |
-| `jsonValidation`       | `json-validation`         | —                                                         | —              | —                          | `maximumBytes: 1_048_576`               |
-| `jsonSchemaValidation` | `json-schema-validation` | —                                                         | —              | —                          | explicit JSON Schema registry/bindings |
-| `markdownLinkValidation` | `markdown-link-validation` | —                                                       | —              | —                          | closed local-link options |
+| Package export           | Kind        | Check ID                   | 初始 execution option                       | 其它 Check option                       |
+| ------------------------ | ----------- | -------------------------- | ------------------------------------------- | --------------------------------------- |
+| `duplicateDetection`     | constructor | `duplicate-detection`      | `scanner: { command: { kind: "package" } }` | cache 启用；area-owned files/thresholds |
+| `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area-owned files/code lines             |
+| `functionMetrics`        | constructor | `function-metrics`         | `scanner: { executable: "lizard" }`         | area-owned files/limits/finding policy  |
+| `jsonValidation`         | value       | `json-validation`          | —                                           | `maximumBytes: 1_048_576`               |
+| `jsonSchemaValidation`   | value       | `json-schema-validation`   | —                                           | 显式 JSON Schema registry 与 bindings   |
+| `markdownLinkValidation` | value       | `markdown-link-validation` | —                                           | closed local-link options               |
 
-`jsonValidation.options` contains exactly `{ files, maximumBytes }`; `maximumBytes` is a positive safe integer. Replacing `options` with native object composition must supply both fields. Each package-provided Check carries block preflight and reuses its Check-local helper for its complete option shape; `duplicateDetection` additionally requires every `minimumTokensByCodeArea` key to exist in its own `codeAreas`. Run invokes preflight without importing the Check or interpreting its domain fields. Environment variables, Run Controls and repository tool state are never scanner overrides.
+`jsonValidation.options` 恰好包含 `{ files, maximumBytes }`，其中 `maximumBytes` 必须是正安全整数；用普通 object
+composition 替换 `options` 时必须同时提供两个字段。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
+codeAreas, scanner }`；显式 area 必须提供 `files` branch，其中三个 lists 和两个阈值均可省略。constructor 产物的完整
+`options` 恰好包含 `{ cache, codeAreas, scanner }`；`codeAreas` 至少有一个非空 id，每个 value 恰好包含
+`{ files, minimumLines, minimumTokens }`，两个阈值都是正安全整数。resolved `scanner` 恰为 `{ command }`；package
+command 恰为 `{ kind: "package" }`，custom command 恰为 `{ kind: "custom", executable }`。version probe、exact-input
+config、JSON report output 和自动 worker policy 全部由 jscpd adapter 拥有；正确示例与 wrapper 边界见
+[`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)。
+
+`fileMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, scanner }`；显式 area 必须提供 `files` branch，files
+lists 与 code-line policy 均可局部省略。constructor 产物恰为 `{ codeAreas, scanner }`，每个 area 恰为
+`{ files, codeLines }`，resolved scanner 恰为 `{ executable }`。SCC version probe、by-file CSV protocol、exact paths
+与 timeout 不属于 public input；不同或重叠 area 的 paths 只扫描一次，每个文件按全部匹配 area 的最严格有效 maximum 结算。
+
+`functionMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, scanner }`；顶层 finding policy 只能是
+`"blocking" | "non-blocking"`。显式 area 必须提供 `files` branch，可省略 nested limits 与 area finding-policy override。
+constructor 产物恰为 `{ codeAreas, scanner }`，每个 area 恰为 `{ files, findingPolicy, limits }`，resolved
+scanner 恰为 `{ executable }`。Lizard version probe、exact paths、CSV protocol 与 timeout 不属于 public input；area paths
+只扫描一次，重叠 area 使用最严格 maximum 和 blocking policy。所有 findings 都保留为 Records，只有 effective blocking
+findings 使 Check failed；完整 contract 见 [`functionMetrics` 指南](checks/function-metrics.md)。
+
+Run 调用 preflight 时不会 import 该 Check 或解释其领域字段。environment variables、Run Controls 和 repository tool state 都不会成为 scanner override。
 
 ### `jsonSchemaValidation` option contract
 
@@ -312,11 +354,11 @@ limit settle only that Check as `unavailable / invalid-options`; they do not tur
 
 `schemaIdentity` is one Check-level choice, never a per-schema toggle:
 
-| Mode | Root requirement and engine identity |
-| --- | --- |
-| `require-match` (default) | Root `$id` must equal `schemas[].id`; that configured ID is the engine identity. |
+| Mode                          | Root requirement and engine identity                                                                                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `require-match` (default)     | Root `$id` must equal `schemas[].id`; that configured ID is the engine identity.                                                                                       |
 | `configuration-authoritative` | The configured schema ID is the engine identity. An object root receives a private compile copy with that `$id`; a boolean root uses the configured identity directly. |
-| `document-authoritative` | Root `$id` must be safe and becomes the engine identity. The configured schema ID remains the public binding and Record label. |
+| `document-authoritative`      | Root `$id` must be safe and becomes the engine identity. The configured schema ID remains the public binding and Record label.                                         |
 
 #### Reference policy
 
@@ -350,12 +392,15 @@ assertion plugin. Ajv `$async` schemas and `$dynamicRef`/`$recursiveRef` are clo
 policy applies only at actual schema positions: a JSON instance property literally named `$ref`, `$dynamicRef`, or
 `$async` remains ordinary instance data.
 
-The metric package values contain only their documented absolute floors and nested allowances; no initial option
+The metric Check options contain only their documented maxima and nested allowances; no initial option
 expresses a changed-file delta threshold. `RunControls.changedFiles` remains callback context, not a hidden
 metric option.
 
-For the three metric rows, the table gives the complete initial `options.scanner` branch. The duplication value's stable marker keeps its public Definition and declarative fingerprint portable. Only the `duplicate-detection`-owned jscpd adapter recognizes that package marker, resolves the installed package's `jscpd` manifest and declared bin target, and invokes it through the active Bun executable. That resolution is not an additional scanner option, environment lookup, executable-discovery API or shared adapter. A project that replaces a scanner branch still supplies the complete ordinary command values it wants the owning Check to execute. The handoff is defined in [Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options).
-
+表中的 `fileMetrics` 与 `functionMetrics` 行给出各自完整的初始 `options.scanner` branch。`duplicateDetection`
+行给出 constructor 形成的 portable package marker；只有 owning jscpd adapter 会把该 marker 解析成 installed manifest 的
+bin target 并通过 active Bun 执行。consumer 需要 custom executable 时通过 constructor 选择 custom command，而不是依赖
+environment lookup、executable discovery 或共享 scanner adapter。完整 handoff 见
+[Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
 
 ### Markdown Link Validation
 

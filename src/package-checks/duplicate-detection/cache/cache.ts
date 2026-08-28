@@ -1,5 +1,5 @@
 /**
- * Quality measurement cache helpers.
+ * Duplicate-code raw-scan cache helpers.
  */
 
 import { readJsonFile, writeJsonFile } from "../../host-environment/filesystem.ts";
@@ -56,7 +56,7 @@ export function writeScanCacheEntry({
   metrics
 }: {
   identity: DuplicateCodeCacheIdentity;
-  metrics: DuplicateCodeFragment[];
+  metrics: readonly DuplicateCodeFragment[];
   rootDir: string;
 }): { cacheKey: string; cachePath: string } {
   const cacheKey = buildScanCacheKey(identity);
@@ -66,9 +66,8 @@ export function writeScanCacheEntry({
     cacheKey,
     toolName: identity.toolName,
     toolVersion: identity.toolVersion,
-    normalizedToolArgs: [...identity.normalizedToolArgs],
+    scannerConfiguration: identity.scannerConfiguration,
     configVersion: identity.configVersion,
-    codeArea: identity.codeArea,
     commitSha: identity.commitSha,
     inputFingerprint: identity.inputFingerprint,
     metrics,

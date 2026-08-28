@@ -9,11 +9,11 @@ scanner command、adapter protocol 与 executable resolution 都不是 public op
 每个使用 external scanner 的 ordinary Check 完整拥有自己的 command options、availability probe、subprocess lifecycle、
 parser、scanner-native failure、measurement conversion 与相邻 tests：
 
-| Check | Tool | Private owner |
-| --- | --- | --- |
-| `duplicateDetection` | jscpd | `src/package-checks/duplicate-detection/jscpd/**` |
-| `fileMetrics` | scc | `src/package-checks/file-metrics/scc/**` |
-| `functionMetrics` | Lizard | `src/package-checks/function-metrics/lizard/**` |
+| Check                | Tool   | Private owner                                     |
+| -------------------- | ------ | ------------------------------------------------- |
+| `duplicateDetection` | jscpd  | `src/package-checks/duplicate-detection/jscpd/**` |
+| `fileMetrics`        | scc    | `src/package-checks/file-metrics/scc/**`          |
+| `functionMetrics`    | Lizard | `src/package-checks/function-metrics/lizard/**`   |
 
 这些 adapter 没有共享 registry、统一 backend interface 或集中目录。它们可依赖 `src/package-checks/host-environment/**` 的 process/error
 capability，以及 `src/package-checks/project-files/**` 的 exact-path membership 等真实共同不变量；SCC 与 Lizard 的 CSV parser 各自 local；共同使用底层机制不改变 scanner 仍由
@@ -21,38 +21,67 @@ capability，以及 `src/package-checks/project-files/**` 的 exact-path members
 
 ## Check-owned command options
 
-[Configuration](configuration.md#package-provided-check-composition) 拥有随包提供 Check 的初始 options。三个 scanner Check
-都以自己的 `options.scanner.executable` 和 `options.scanner.args` 执行工具，并以
-`options.scanner.availabilityArgs` 做 availability probe。`duplicateDetection` 另外拥有
-`scanner.maxConcurrency`。
+[Configuration](configuration.md#package-provided-check-composition) 拥有随包提供 Check 的初始 options。`fileMetrics` 与
+`functionMetrics` 的 public scanner 都只保留 executable；SCC adapter 固定 `--version` probe、`--by-file --format csv`
+与 exact paths，Lizard adapter 固定 `--version` probe、exact paths 与 `--csv`。两者都不允许参数透传扩大输入、改变
+parser contract 或把 tool tuning 变成产品配置。
+`duplicateDetection` 的 defaulted constructor input 与 custom 示例由
+[`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)定义；本页只拥有 constructor 形成的完整
+options 如何进入 private adapter：
 
-`duplicateDetection` 的默认 executable 是 package marker `vibe-check-package-jscpd`。只有其 Check-local jscpd adapter
-认识该 marker：它从 installed `jscpd` package manifest 解析声明的 bin target，并以 active Bun executable 调用。
-这不是公共 scanner configuration、PATH discovery、environment override 或跨 Check backend。调用方提供其它完整
-`options.scanner` 时，jscpd adapter 精确执行这些 command values。
+1. package command 从随 `vibe-check` 安装的 `jscpd` manifest 解析相对 bin target，确认 target 仍位于该 package 目录，
+   再以 active Bun 执行。仓库 lockfile 固定当前验证基线 `5.0.11`，发布 package 以 `^5.0.11` 接受从该基线开始的同
+   major v5 版本；它不是 PATH discovery、environment override 或跨 Check backend。
+2. custom command 只使用已验证的 executable。adapter 固定执行 version probe，并拥有 exact-input config 与 JSON report
+   output protocol；availability readback 将其 source 标为 `custom command`，不会猜测它来自 repository devDependency。
+3. adapter 不传 `--workers`，沿用 jscpd 自动 worker policy；没有真实 execution budget 或 profiling evidence 时，工具支持的
+   tuning flag 不成为 public capability。Check 也不按 code area 启动多个 scanner 进程。
 
-三个 scanner Check 都携带自己的 block preflight，并与 execution 内部保障复用 owning options helper。Definition 只形成
+version probe 的结果是 adapter provenance，不是 consumer version policy。package 和 custom command 只要返回可识别版本并
+满足实际 CLI/config/report contract，就不会因为不等于仓库基线而被拒绝；实际版本进入 raw-cache identity，防止版本变化后
+复用旧 measurement。无法识别版本、启动失败或不兼容升级导致的 process/report failure 都由 owning Check fail closed 为
+`unavailable`，不会形成成功空结果。candidate 安装验证实际解析版本满足声明范围，external consumer 再用该安装完成真实
+duplicate-detection Run；这证明当前 package 可用，而不声称启发式 scanner 的 findings 在所有兼容版本间逐条相同。
+
+三个 scanner Check 都携带自己的 block preflight，并与 execution 内部保障复用 owning options helper。三个 metric
+constructor 先同步拒绝 malformed/unknown/incomplete input 并补齐 defaults；Definition 只形成
 canonical immutable authored snapshot；Run 在这些 Check 的 scanner 或 author callback work 前执行全局 preflight
 barrier，malformed/unknown/incomplete replacement 只把 owning Check 结算为
 `unavailable / invalid-options`。Definition 不按 package Check ID、tool name 或 option shape 分支，也不保存 validator
-registry。项目可用 normal object spread 组合完整 replacement options；Run Controls、environment variables、repository
-tooling 与 precedence map 都不会隐式替换它们。
+registry。Run Controls、environment variables、repository tooling 与 precedence map 都不会隐式替换这些 options。
 
 ## Exact-input handoff
 
-owning Check 依据自己的 `options.files` 收集 candidates，并形成该工具的 approved exact paths；scanner 不接收 project root
-重新发现输入。adapter output 中每条 measurement 都声明 source paths，Check 在 Record conversion 前使用
+owning Check 依据自己的 file selection 收集 candidates，并形成该工具的 approved exact paths；三个 scanner Check 都使用
+每个 `codeAreas[id].files` 的去重并集。scanner
+不接收 project root 重新发现输入。adapter output 中每条 measurement 都声明 source paths，Check 在 Record conversion 前使用
 `src/package-checks/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
 partial result。
+
+`duplicateDetection` 一次把完整 approved exact scope 交给 jscpd，使不同或重叠 code areas 可以互相比较。scanner 的
+line/token 下界分别使用实际 input areas 的最低值；raw result 恢复每个 location 匹配的全部 areas 后，finding 的
+line/token 必须分别满足所有涉及 area 的最严格值。
+
+`fileMetrics` 同样一次把稳定去重的 area-path union 交给 SCC，并保存 collection 形成的 path membership。每个 file
+measurement 分别计算全部匹配 area 的普通或 low-decision-token maximum，以最小的最严格值结算；同一路径最多发布一条
+Record，并保存稳定排序的全部匹配 area IDs。
+
+`functionMetrics` 一次把稳定去重的 area-path union 交给 Lizard。每个 function measurement 恢复全部 matching areas，
+分别计算 function NLOC、cyclomatic complexity 与 parameter count 的最严格 maximum；同一 metric finding 最多发布一条
+Record，并保存全部 area IDs 与 effective blocking policy。blocking 只影响 Check outcome，不短路 measurement 或后续
+Record conversion。
 
 一次 Check invocation 只使用自己冻结的 options 与 exact input。scanner-private command data、raw results 和 parser AST
 不进入 declarative fingerprint、Core facts、public output 或 Run Controls。
 
 ## Cache and failures
 
-Duplicate detection 的 Check-local cache identity 包含 jscpd backend identity、code area、current commit、exact-input
-fingerprint、configuration version 与 normalized command arguments。default marker 映射到 Bun + installed-jscpd backend
-identity，不包含 consumer install directory；显式 command 则保留 command identity behavior。
+Duplicate detection 的 Check-local v3 cache 保存 exact-input accepted raw fragments；area annotation 和 policy filtering
+不持久化。identity 包含 jscpd backend identity、current commit、完整 exact-input union fingerprint、configuration version 与
+结构化 scanner configuration；其中明确记录最低 line/token 阈值、JSON/absolute report policy 和 tool-default worker policy，
+不再把 config fields 伪装成 command arguments。package command 使用 portable identity，不包含 consumer install
+directory；custom command 保留项目显式配置的 executable identity。只改变 area membership 或严格阈值但不改变
+exact-input union 和 scanner 下界时，可以复用 raw measurement，随后仍按当前 area policy 重新标注和过滤。
 
 availability、process、parse、cache 或 exact-input failure 由 owning Check 转换为 `unavailable` outcome。该 four-state fact 可安全
 进入 Run/Core；raw command、tool path 和 scanner output 不公开。各 tool 对合法空输出、非零 finding exit 和 parser header

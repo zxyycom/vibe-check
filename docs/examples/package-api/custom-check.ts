@@ -57,4 +57,11 @@ const result = await run(definition, {
   }
 });
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+if (result.aggregate !== "failed") throw new Error("Expected the selected Checks to fail");
+const outcome = result.snapshot.checks.find(
+  ({ checkId }) => checkId === licensePolicy.checkId
+)?.outcome;
+if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
+  throw new Error("License policy did not produce the expected failed outcome");
+}
 // #endregion package-api-example:custom-check-run

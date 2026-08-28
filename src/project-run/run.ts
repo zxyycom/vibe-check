@@ -11,13 +11,13 @@ export type { RunDiagnostic, RunResult } from "./result.ts";
 /**
  * 在调用方的 Bun runtime 中执行一个由项目拥有的 Project Definition。
  *
- * @param definition - 由 {@link defineConfig} 创建的定义，或将在 invocation 前 fail closed 的未知输入。
- * @param controls - 只影响本次 invocation context 和 outputs 的闭合控制值。
+ * @param definition - Project Definition input；{@link defineConfig} 补齐 defaults，run 在 invocation 前验证。
+ * @param controls - 本次 invocation context 与 outputs 使用的闭合控制值。
  * @returns ordinary configuration、planning、execution、cancellation 与 output failures 通过 `RunResult`
  * 返回；调用方先按 `kind` narrow。
- * @remarks Definition validation 只闭合 grammar；可选 Check preflight 属于 invocation execution barrier，
- * 并在 execution callback、dependency resolver 或 scanner 前完成。`output` branch 保留已完成的 final
- * snapshot，但不能当作完全成功。
+ * @remarks Definition validation 关闭 authoring grammar；可选 Check preflight 组成 invocation execution barrier，
+ * 并在 execution callback、dependency resolver 或 scanner 前完成。`output` branch 同时提供完整 final
+ * snapshot 与 output failure diagnostic。
  */
 export async function run(
   definition: ProjectDefinition,

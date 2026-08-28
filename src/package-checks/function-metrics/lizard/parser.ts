@@ -84,7 +84,6 @@ function functionMetricFromLizardRow(
     payload: {
       name: parts[LIZARD_COLUMNS.functionName] || "unknown",
       file: sourcePath,
-      codeArea: "unknown",
       startLine: values.startLine,
       endLine: values.endLine,
       lines: values.nloc,
@@ -97,13 +96,13 @@ function functionMetricFromLizardRow(
   };
 }
 
-type LizardMetricValues = {
-  ccn: number | null;
-  endLine: number;
-  nloc: number;
-  parameterCount: number;
-  startLine: number;
-};
+interface LizardMetricValues {
+  readonly ccn: number | null;
+  readonly endLine: number;
+  readonly nloc: number;
+  readonly parameterCount: number;
+  readonly startLine: number;
+}
 
 function parseLizardMetricValues(parts: string[]): LizardMetricValues | null {
   const ccnText = parts[LIZARD_COLUMNS.ccn].trim();
@@ -133,9 +132,21 @@ function parseLizardMetricValues(parts: string[]): LizardMetricValues | null {
 }
 
 function compareFunctionMetrics(a: FunctionMetric, b: FunctionMetric): number {
-  const ccDiff = (b.cyclomaticComplexity.value ?? 0) - (a.cyclomaticComplexity.value ?? 0);
-  if (ccDiff !== 0) return ccDiff;
-  return b.lines - a.lines;
+  return (
+    compareText(a.file, b.file) ||
+    a.startLine - b.startLine ||
+    a.endLine - b.endLine ||
+    compareText(a.name, b.name) ||
+    a.lines - b.lines ||
+    (a.cyclomaticComplexity.value ?? -1) - (b.cyclomaticComplexity.value ?? -1) ||
+    a.parameterCount - b.parameterCount
+  );
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 function parseInteger(value: string | undefined, minimum: number): number | null {

@@ -1,8 +1,7 @@
 import { createHash } from "node:crypto";
 
-import type { DuplicateCodeFragment, DuplicateCodeLocation } from "./measurement-model.ts";
 import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
-import type { DuplicateDetectionSemantics } from "./execution.ts";
+import type { DuplicateCodeFragment, DuplicateCodeLocation } from "./measurement-model.ts";
 
 export interface DuplicateRecordCandidate {
   readonly data: Readonly<{
@@ -21,17 +20,16 @@ export interface DuplicateRecordCandidate {
 
 /** Builds Check-owned supplemental facts without adding a Product record catalog. */
 export function buildDuplicateRecordCandidates(
-  fragments: readonly DuplicateCodeFragment[],
-  semantics: DuplicateDetectionSemantics
+  fragments: readonly DuplicateCodeFragment[]
 ): readonly DuplicateRecordCandidate[] | undefined {
   const ids = duplicateIdsInOrder(fragments);
   if (ids === undefined) return undefined;
 
   const candidates: DuplicateRecordCandidate[] = [];
   for (const [index, fragment] of fragments.entries()) {
-    const candidate = createDuplicateRecordCandidate(fragment, ids[index], semantics);
+    const candidate = createDuplicateRecordCandidate(fragment, ids[index]);
     if (candidate === undefined) return undefined;
-    if (candidate !== null) candidates.push(candidate);
+    candidates.push(candidate);
   }
   candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
@@ -39,21 +37,13 @@ export function buildDuplicateRecordCandidates(
 
 function createDuplicateRecordCandidate(
   fragment: DuplicateCodeFragment,
-  id: string | undefined,
-  semantics: DuplicateDetectionSemantics
-): DuplicateRecordCandidate | null | undefined {
+  id: string | undefined
+): DuplicateRecordCandidate | undefined {
   if (!isValidDuplicateFragment(fragment) || id === undefined) return undefined;
 
   const locations = sortedLocations(fragment.locations);
-  const codeAreas = uniqueSorted(locations.map((location) => location.codeArea));
-  if (
-    codeAreas.length > 0 &&
-    codeAreas.every(
-      (codeArea) => semantics.codeAreas[codeArea]?.warningPolicy === "exclude-warnings"
-    )
-  ) {
-    return null;
-  }
+  const codeAreas = uniqueSorted(fragment.codeAreas);
+  if (codeAreas.length === 0 || !sameStrings(codeAreas, fragment.codeAreas)) return undefined;
 
   return Object.freeze({
     id,
@@ -87,22 +77,28 @@ export function isValidDuplicateFragment(fragment: DuplicateCodeFragment): boole
     validMeasurements &&
     Array.isArray(fragment.locations) &&
     fragment.locations.length >= 2 &&
-    fragment.locations.every(isValidLocation)
+    fragment.locations.every(isValidLocation) &&
+    Array.isArray(fragment.codeAreas) &&
+    fragment.codeAreas.every(nonEmptyString)
   );
 }
 
 function isValidLocation(location: DuplicateCodeLocation): boolean {
-  const validPath =
-    typeof location.path === "string" &&
-    location.path.length > 0 &&
-    typeof location.codeArea === "string" &&
-    location.codeArea.length > 0;
+  const validPath = typeof location.path === "string" && location.path.length > 0;
   const validLines =
     Number.isSafeInteger(location.startLine) &&
     location.startLine >= 1 &&
     Number.isSafeInteger(location.endLine) &&
     location.endLine >= location.startLine;
   return validPath && validLines;
+}
+
+function nonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 function duplicateIdsInOrder(

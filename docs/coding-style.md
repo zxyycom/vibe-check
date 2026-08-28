@@ -220,7 +220,7 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 #### 修改与验收路径
 
-1. 修改 package guide 时编辑 README template；修改 declaration 说明时编辑 source JSDoc。不得直接把 generated README 或 generated JSDoc example 当作新的内容 owner。
+1. 修改 generated README 或 API mechanics guide 时编辑各自 template；修改手写 Check guide 时编辑对应 source Markdown；修改 declaration 说明时编辑 source JSDoc。不得直接把 generated Markdown 或 generated JSDoc example 当作新的内容 owner。
 2. 依照[脚本工具](script-tooling.md#documentation-validation-and-package-material)运行对应 projection 和验证；审查时确认范围内说明满足本节判断标准，且没有把该规则误实现为全量字符检测或无差别翻译。
 
 验收标准：agent 或 reviewer 能从本节确定是否适用、中文主叙述的通过条件、可保留原文、排除范围以及正确编辑和验证入口。

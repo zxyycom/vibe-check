@@ -1,12 +1,13 @@
 # Project files and Check exact inputs
 
-本文拥有 `src/package-checks/project-files/**` 的 project-root 文件收集、配置过滤、code-area 分类与 exact-input
+本文拥有 `src/package-checks/project-files/**` 的 project-root 文件收集、配置过滤、内容 fingerprint 与 exact-input
 acceptance 机制，以及 package-provided Check 如何使用这些能力。它不建立 Product-wide scan scope，也不定义
 Check final status、Record、aggregation、machine output 或 scanner protocol。
 
 ## Check-owned file selection
 
-需要读取项目文件的 Check 在自己的完整 `options` 中拥有 `files`：
+需要读取项目文件的 Check 在自己的完整 `options` 中拥有以下 `files` shape；三个 metric constructor 接受每个
+`codeAreas[id].files` 的可省略字段并物化成该完整 shape，其它 file-reading Checks 放在顶层 `options.files`：
 
 ```ts
 {
@@ -16,12 +17,13 @@ Check final status、Record、aggregation、machine output 或 scanner protocol�
 }
 ```
 
-`ProjectDefinition` 和 `CheckProjectContext` 都不保存全局文件选择。两个 Check 即使使用相同结构，也分别验证、
-冻结和消费自己的 policy；项目若希望它们选择相同文件，应以普通 TypeScript value 和 object composition 显式复用，
-而不是依赖 Product 的 hidden global configuration。
+`ProjectDefinition` 和 `CheckProjectContext` 都不保存全局文件选择。两个 Check 或两个 duplicate code areas 即使使用相同
+结构，也分别验证、冻结和消费自己的 policy；项目若希望它们选择相同文件，应以普通 TypeScript value 和 object
+composition 显式复用，而不是依赖 Product 的 hidden global configuration。
 
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 还在各自 options 中拥有 `codeAreas`。code-area
-classification 只服务调用它的 Check，不是 arbitrary Check 必须采用的公共领域模型，也不会由 Definition 按
+三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
+line/token policy，file area 使用 file code-line policy，function area 使用 function limits 与 effective finding policy。
+这些 code-area 模型都只服务 owning Check，不是 arbitrary Check 必须采用的公共领域模型，也不会由 Definition 按
 package-provided Check ID 解释。
 
 ## File collection mechanism
@@ -32,22 +34,32 @@ package-provided Check ID 解释。
 set，并加入已初始化 child Git worktree 的当前文件；Git command 失败时才使用 config-only filesystem fallback。
 fallback 不能读取 root 或任一遍历目录时以包含该目录的读取错误失败，不能把故障伪装为 empty set。
 
+### Exact-input fingerprint
+
+需要按输入内容隔离 cache 的 Check 调用 `fingerprintProjectFiles(root, paths)`。该机制先稳定排序 exact relative paths，
+再以 LF-normalized 当前文件内容形成 SHA-256；文件顺序不改变 fingerprint，路径或内容变化会改变 fingerprint。不可读文件
+使用明确 sentinel 参与 fingerprint，后续 scanner/read 边界仍负责把实际不可读输入结算为不可用，而不是把它解释为空文件。
+
 Git tree 中的 `160000` gitlink 只有在 child path 是独立初始化的 Git worktree 时才会下沉。child 的 canonical
 Git top-level 必须等于 child 自身 canonical path；普通目录即使替换了 HEAD gitlink，也不属于 child worktree，
 遍历不得回到 parent repository。该规则只描述 current worktree collection。
 
 `RunControls.changedFiles` 仍是冻结的 invocation string list，并原样进入 ordinary Check 的 project context。它不修改
-任何 Check 的 `options.files`，也不建立第二份 Product scope；需要 changed-file 语义的 Check 必须自行在 options 与
-callback 中定义。
+任何顶层 `options.files` 或 `codeAreas[id].files`，也不建立第二份 Product scope；需要 changed-file 语义的 Check 必须
+自行在 options 与 callback 中定义。
 
 ## Package-provided Check exact inputs
 
 每个 package-provided Check 独立调用 project-file mechanism，并从自己的 resolved candidates 形成 exact inputs；
 不同 Check 可以有不同 file selection。scanner 不接收 project root 来重新发现或扩大输入。
 
-- `duplicate-detection` 依据自己的 `codeAreas` 分组 exact inputs，再将每组交给 Check-local jscpd adapter。
-- `file-metrics` 将自己选择的文件交给 Check-local scc adapter。
-- `function-metrics` 只从自己的 candidates 中选择 `.ts`、`.d.ts` 与 `.rs`，再交给 Check-local Lizard adapter。
+- `duplicate-detection` 分别从每个 `codeAreas[id].files` 形成 paths，再把去重并集一次性交给 Check-local jscpd adapter；
+  因此同 area、跨 area 与重叠 area paths 都可比较，结果再按 location 涉及的全部 area line/token policy 过滤。未被
+  任何 area 选择的 path 不属于 exact scope，也不进入隐式 fallback area。
+- `file-metrics` 分别收集每个 area 的 paths，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按其全部实际
+  input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
+- `function-metrics` 分别从每个 area 选择 `.ts`、`.d.ts` 与 `.rs`，把稳定去重并集一次性交给 Check-local Lizard adapter；
+  每个结果恢复全部 matching areas，使用最严格 limits 与 blocking policy，同一 metric 最多产生一条 finding。
 - `json-validation` 只从自己的 candidates 中以 case-sensitive `path.endsWith(".json")` 选择文件；`.JSON` 不属于输入。
 - `json-schema-validation` 不从 suffix、`$schema`、filename 或 directory discovery 推断 work。只有
   `schemas[].path` 与 `bindings[].instancePath` 明确声明且同时属于该 Check `files` selection 的 path 才可读取；

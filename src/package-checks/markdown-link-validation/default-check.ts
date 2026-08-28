@@ -6,7 +6,24 @@ import {
 } from "./execution.ts";
 import type { MarkdownLinkValidationOptions } from "./options.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
-/** 校验离线本地 Markdown 引用完整性的完整 default Check。 */
+/**
+ * 校验离线本地 Markdown 引用完整性的完整 default Check。
+ * @example 离线 Markdown 本地链接完整性
+ * ```ts
+ * import { defineConfig, markdownLinkValidation, run } from "vibe-check";
+ *
+ * const definition = defineConfig({
+ *   checks: [markdownLinkValidation],
+ *   outputs: {
+ *     machinePublication: { enabled: false },
+ *     progressRendering: { enabled: false }
+ *   }
+ * });
+ *
+ * const result = await run(definition);
+ * if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+ * ```
+ */
 export const markdownLinkValidation = defineCheck<
   "markdown-link-validation",
   MarkdownLinkValidationOptions

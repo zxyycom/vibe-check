@@ -21,20 +21,20 @@ import {
 import { run } from "../../src/project-run/run.ts";
 
 describe("public API inventory", () => {
-  it("owns five runtime functions, six package-provided ordinary Check values, and minimal type roots", () => {
+  it("publishes only the approved runtime and type roots", () => {
     assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
       packageImport: "vibe-check",
       operations: {
         defineCheck: "defineCheck",
         defineConfig: "defineConfig",
+        duplicateDetection: "duplicateDetection",
+        fileMetrics: "fileMetrics",
+        functionMetrics: "functionMetrics",
         inherit: "inherit",
         maintenanceReminders: "maintenanceReminders",
         run: "run"
       },
       values: {
-        duplicateDetection: "duplicateDetection",
-        fileMetrics: "fileMetrics",
-        functionMetrics: "functionMetrics",
         jsonSchemaValidation: "jsonSchemaValidation",
         jsonValidation: "jsonValidation",
         markdownLinkValidation: "markdownLinkValidation"
@@ -68,28 +68,31 @@ describe("public API inventory", () => {
     });
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
+    assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
+    assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.fileMetrics);
+    assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.functionMetrics);
     assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
     assert.equal(
       maintenanceReminders.name,
       CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
     );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
-    assert.equal(typeof duplicateDetection, "object");
-    assert.equal(typeof fileMetrics, "object");
-    assert.equal(typeof functionMetrics, "object");
+    assert.equal(typeof duplicateDetection, "function");
+    assert.equal(typeof fileMetrics, "function");
+    assert.equal(typeof functionMetrics, "function");
     assert.equal(typeof jsonSchemaValidation, "object");
     assert.equal(typeof jsonValidation, "object");
     assert.equal(typeof markdownLinkValidation, "object");
-    for (const builtInCheck of [
-      duplicateDetection,
-      fileMetrics,
-      functionMetrics,
+    for (const packageCheck of [
+      duplicateDetection(),
+      fileMetrics(),
+      functionMetrics(),
       jsonSchemaValidation,
       jsonValidation,
       markdownLinkValidation
     ]) {
-      assert.equal(Object.hasOwn(builtInCheck, "replace"), false);
-      assert.equal(Object.hasOwn(builtInCheck, "append"), false);
+      assert.equal(Object.hasOwn(packageCheck, "replace"), false);
+      assert.equal(Object.hasOwn(packageCheck, "append"), false);
     }
 
     const packageManifest = packageManifestName(

@@ -1,14 +1,16 @@
-import { validDuplicateDetectionOptions } from "./options-validation.ts";
 import { resolve } from "node:path";
 
-import type { DuplicateDetectionOptions, DuplicateDetectionScannerOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
-import { buildFingerprints, collectProjectFiles } from "../project-files/collection.ts";
-import { classifyFiles } from "../project-files/code-area-classification.ts";
+import { collectProjectFiles } from "../project-files/collection.ts";
+import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { getGitSha } from "./project-revision.ts";
-import { selectJscpdTargetFileMap } from "./current-revision.ts";
-import type { CodeAreaDefinition } from "../project-files/configuration.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";
+import type {
+  DuplicateDetectionAreaInput,
+  DuplicateDetectionExactInputSet
+} from "./measurement-model.ts";
+import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
+import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 import { buildDuplicateRecordCandidates } from "./records.ts";
 
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
@@ -16,59 +18,24 @@ export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   displayName: "Duplicate detection"
 } as const;
 
-export interface DuplicateDetectionSemantics {
-  readonly codeAreas: Readonly<Record<string, CodeAreaDefinition>>;
-  readonly configVersion: string;
-}
-
-export interface DuplicateDetectionAreaInput {
-  readonly approvedExactPaths: readonly string[];
-  readonly codeArea: string;
-  readonly inputFingerprint: Readonly<{
-    readonly fileCount: number;
-    readonly fileList: readonly string[];
-    readonly fingerprint: string;
-  }>;
-  readonly minimumTokens: number;
-}
-
-export interface DuplicateDetectionExactInputSet {
-  readonly areas: readonly DuplicateDetectionAreaInput[];
-  readonly cacheRootDir: string;
-  readonly commitSha: string;
-  readonly rootDir: string;
-}
-
-export interface DuplicateMeasurementInput {
-  readonly cache: DuplicateDetectionOptions["cache"];
-  readonly dependency: DuplicateDetectionScannerOptions;
-  readonly input: DuplicateDetectionExactInputSet;
-  readonly semantics: DuplicateDetectionSemantics;
-}
-
-/** Default Check callback; it owns scanner configuration through its options. */
+/** Default Check callback；scanner configuration 由其完整 options 拥有。 */
 export async function executeDuplicateDetection(
-  context: CheckExecutionContext<DuplicateDetectionOptions>
+  context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
 ): Promise<CheckResult> {
-  if (!validDuplicateDetectionOptions(context.options)) return unavailable("invalid-options");
+  if (!validResolvedDuplicateDetectionOptions(context.options))
+    return unavailable("invalid-options");
 
-  const current = prepareDirectInput(context.project.root, context);
-  if (current.areas.every((area) => area.approvedExactPaths.length === 0)) {
+  const exactInput = prepareExactInputSet(context.project.root, context.options);
+  if (exactInput.approvedExactPaths.length < 2) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
-  const dependency: DuplicateDetectionScannerOptions = context.options.scanner;
-  const semantics: DuplicateDetectionSemantics = {
-    codeAreas: context.options.codeAreas,
-    configVersion: "1"
-  };
   const measurement = await measureDuplicateDetection({
     cache: context.options.cache,
-    dependency,
-    input: current,
-    semantics
+    dependency: context.options.scanner,
+    exactInput
   });
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
-  const candidates = buildDuplicateRecordCandidates(measurement.fragments, semantics);
+  const candidates = buildDuplicateRecordCandidates(measurement.fragments);
   if (candidates === undefined) return unavailable("external-result-invalid");
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
@@ -79,41 +46,57 @@ export async function executeDuplicateDetection(
   });
 }
 
-function prepareDirectInput(
-  root: string,
-  context: CheckExecutionContext<DuplicateDetectionOptions>
+function prepareExactInputSet(
+  rootDir: string,
+  options: ResolvedDuplicateDetectionOptions
 ): DuplicateDetectionExactInputSet {
-  const scanFiles = collectProjectFiles(root, context.options.files);
-  const fileMap = classifyFiles(
-    scanFiles,
-    context.options.codeAreas,
-    context.options.files.generatedFiles
-  );
-  const targets = selectJscpdTargetFileMap(fileMap, context.options.files);
-  const fingerprints = buildFingerprints(fileMap, root);
+  const areas = collectAreaInputs(rootDir, options.codeAreas);
+  const approvedExactPaths = uniqueSorted(areas.flatMap((area) => area.approvedExactPaths));
+  const inputFingerprint = fingerprintProjectFiles(rootDir, approvedExactPaths);
   return Object.freeze({
-    areas: Object.freeze(
-      Array.from(targets, ([codeArea, approvedExactPaths]) =>
-        Object.freeze({
-          approvedExactPaths: Object.freeze([...approvedExactPaths]),
-          codeArea,
-          inputFingerprint: Object.freeze(
-            fingerprints[codeArea] ?? {
-              fileCount: 0,
-              fileList: Object.freeze([]),
-              fingerprint: "empty"
-            }
-          ),
-          minimumTokens:
-            context.options.minimumTokensByCodeArea[codeArea] ??
-            context.options.defaultMinimumTokens
-        })
-      )
-    ),
-    cacheRootDir: resolve(root, context.options.cache.directory),
-    commitSha: getGitSha(root),
-    rootDir: root
+    approvedExactPaths: Object.freeze(approvedExactPaths),
+    areas,
+    cacheRootDir: resolve(rootDir, options.cache.directory),
+    commitSha: getGitSha(rootDir),
+    inputFingerprint: Object.freeze({
+      ...inputFingerprint,
+      fileList: Object.freeze([...inputFingerprint.fileList])
+    }),
+    rootDir
   });
+}
+
+function collectAreaInputs(
+  rootDir: string,
+  codeAreas: ResolvedDuplicateDetectionOptions["codeAreas"]
+): readonly DuplicateDetectionAreaInput[] {
+  const areas: DuplicateDetectionAreaInput[] = [];
+  const orderedPolicies = Object.entries(codeAreas).sort(([left], [right]) =>
+    compareText(left, right)
+  );
+  for (const [codeArea, policy] of orderedPolicies) {
+    const approvedExactPaths = collectProjectFiles(rootDir, policy.files);
+    if (approvedExactPaths.length === 0) continue;
+    areas.push(
+      Object.freeze({
+        approvedExactPaths: Object.freeze(approvedExactPaths),
+        codeArea,
+        minimumLines: policy.minimumLines,
+        minimumTokens: policy.minimumTokens
+      })
+    );
+  }
+  return Object.freeze(areas);
+}
+
+function uniqueSorted(values: readonly string[]): string[] {
+  return [...new Set(values)].sort(compareText);
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }
 
 function directMeasurementFailure(

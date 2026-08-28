@@ -1,17 +1,17 @@
 # warning-generation
 
-## Case AUX-QUALITY-RECORD-GENERATION-001: Built-in thresholds return final data and supplemental facts
+## Case AUX-QUALITY-RECORD-GENERATION-001: Package-provided thresholds return final data and supplemental facts
 
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/file-metrics/default-check.test.ts|default Check direct callbacks > executes file metrics from Check-owned scanner options with final data and supplemental Records`
-- `bun|src/package-checks/function-metrics/default-check.test.ts|default Check direct callbacks > executes function metrics from Check-owned scanner options with final data and local Record IDs`
+- `bun|src/package-checks/file-metrics/default-check.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
+- `bun|src/package-checks/function-metrics/default-check.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
 
 Proves:
 
-- Built-in threshold checks return their own passed or failed final data; detailed findings, when present, are separate Check-local supplemental Records. Neither Record count nor Record data is a generic warning or Gate channel.
+- Package-provided threshold Checks return their own passed or failed final data; detailed findings, when present, are separate Check-local supplemental Records. Function metrics keeps non-blocking Records in a passed result and fails only when its own blocking count is nonzero. Neither Record count nor Record data is a generic warning or Gate channel.
 
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
@@ -53,7 +53,7 @@ Entities:
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
-Proves:
+  Proves:
 
 - Registered schema/binding work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
 - Normal final data keeps valid, invalid, blocked, and total issue counts truthful. A 100-Record display prefix changes neither the full failed assessment nor its issue count, and `format` remains an annotation rather than a loaded plugin.
@@ -69,7 +69,7 @@ Entities:
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
-Proves:
+  Proves:
 
 - Reference resolution is offline by default. Only explicitly configured HTTPS sources may be requested with omitted credentials and no redirect; registered local schemas and the fixed catalog need no request.
 - Unapproved references, unsafe schema features, and redirects become safe failures, while an allowlisted transport failure is unavailable without exposing remote detail.
@@ -81,6 +81,6 @@ Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
-Proves:
+  Proves:
 
 - One Check-level root identity mode governs every configured schema without exposing document IDs. Scope or schema-document failures block their dependent bindings rather than inventing keyword results, and zero bindings settle as `not-applicable` without document work.
