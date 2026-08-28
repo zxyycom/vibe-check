@@ -6,7 +6,7 @@
 
 本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
 policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
-policy 的重复片段报告为 supplemental Records，并用 `findingCount` 表示最终数量。
+policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
 
 默认 package command 使用随 `vibe-check` 安装的 jscpd v5；项目无需选择版本、提供 executable 或复制默认 options：
 
@@ -28,11 +28,13 @@ options
 ├─ codeAreas?
 │  └─ [areaId]
 │     ├─ files
+│     │  ├─ source?
 │     │  ├─ include?
-│     │  ├─ excludeDirs?
-│     │  └─ generatedFiles?
+│     │  └─ exclude?
+│     ├─ findingPolicy?
 │     ├─ minimumLines?
 │     └─ minimumTokens?
+├─ findingPolicy?
 └─ scanner?
    └─ command?
       ├─ kind: "package" | "custom"
@@ -47,13 +49,16 @@ options
   codeAreas: {
     project: {
       files: {
+        source: "filesystem",
         include: ["**/*"],
-        excludeDirs: [
-          ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-          "node_modules", "target", "vendor"
-        ],
-        generatedFiles: ["**/generated/**", "**/*.generated.*"]
+        exclude: [
+          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+          "**/target/**", "**/vendor/**"
+        ]
       },
+      findingPolicy: "blocking",
       minimumLines: 3,
       minimumTokens: 75
     }
@@ -65,10 +70,12 @@ options
 ```
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
-- 每个显式 area 必须提供 `files` branch。`include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob
-  匹配；`excludeDirs` 按路径中的目录 segment 匹配。
-- `include`、`excludeDirs`、`generatedFiles` 可分别省略并使用上述 package defaults。显式数组是该字段的完整值；
-  `[]` 因而分别表示不包含路径、不排除目录或不排除 generated path。
+- 每个显式 area 必须提供 `files` branch。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`。
+  `filesystem` 枚举普通文件且不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的
+  未跟踪文件。来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
+- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。两者可分别省略并使用上述
+  package defaults；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `blocking`；area 可覆盖，省略时继承顶层值。
 - `minimumLines` 与 `minimumTokens` 可省略并分别使用 `3` 和 `75`，显式值必须是正安全整数。
 - `cache.directory` 省略时为 `.cache/vibe-check`，相对路径从 project root 解析；`cache.enabled` 省略时为 `true`。
 - `scanner.command` 省略时为 `{ kind: "package" }`。
@@ -78,7 +85,7 @@ options
 ## 定制区域 policy
 
 调用方只声明要改变的 policy，不需要读取默认 Check 或编写 nested spread。下面将默认 `project` area 的 token
-阈值改为 `100`；空 `files` branch 表示三个 file lists 都使用 package defaults：
+阈值改为 `100`；空 `files` branch 表示 source/include/exclude 都使用 package defaults：
 
 ```ts
 import { duplicateDetection } from "vibe-check";
@@ -93,7 +100,7 @@ const stricterDuplicateDetection = duplicateDetection({
 });
 ```
 
-下面两个 area 各自拥有文件范围和阈值。省略的 file lists 与阈值仍由 constructor 补齐：
+下面两个 area 各自拥有文件范围和阈值。省略的 file fields、finding policy 与阈值仍由 constructor 补齐：
 
 ```ts
 import { duplicateDetection } from "vibe-check";
@@ -107,11 +114,7 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
     scripts: {
       files: {
         include: ["scripts/**/*.ts"],
-        generatedFiles: [
-          "**/generated/**",
-          "**/*.generated.*",
-          "scripts/**/*.test.ts"
-        ]
+        exclude: ["scripts/**/*.test.ts"]
       },
       minimumLines: 10,
       minimumTokens: 100
@@ -120,8 +123,8 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 });
 ```
 
-每个 `codeAreas[id]` 都是该区域文件范围与 line/token 下限的单一事实源。上例在 `scripts.generatedFiles` 中显式保留
-两个 package default，再增加 test-file glob；这样符合显式数组完整替换的规则。
+每个 `codeAreas[id]` 都是该区域文件范围、有效 finding policy 与行数/token 下限的单一事实源。上例的
+`scripts.exclude` 只排除测试文件；显式数组是完整值，不会自动追加 package 默认排除项。
 
 ## 定制 jscpd executable
 
@@ -160,8 +163,9 @@ preflight 中结算为 `unavailable / invalid-options`。
 
 ## 工作原理
 
-Check 分别收集每个 `codeAreas[id].files` 选中的路径，再把全部路径去重成一个 approved exact scope。一个路径可同时
-属于多个 area；全部 exact paths 仍一次性交给 jscpd，因此同 area、跨 area 与重叠 area 文件都会互相比较：
+Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为各 `codeAreas[id].files` 应用自己的
+`include` / `exclude`，最后把全部路径去重成一个批准的精确范围。一个路径可同时属于多个 area；全部 exact paths 仍
+一次性交给 jscpd，因此同 area、跨 area 与重叠 area 文件都会互相比较：
 
 1. jscpd 使用所有实际输入 area 中最低的 line 阈值和最低的 token 阈值取得完整候选。
 2. 每个 raw fragment 的 location path 必须属于本次完整 exact scope；任一路径越界都会拒绝整批 measurement。
@@ -179,11 +183,16 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 
 ## 效果与结果
 
-`findingCount === 0` 时 outcome 为 `passed`；`findingCount > 0` 时 outcome 为 `failed`。`findingCount` 恰好等于
-该 Check 报告的 Records 数量。每个 Record data 使用以下字段：
+每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。若 fragment 涉及多个 areas，只要任一 effective
+`findingPolicy` 为 `blocking`，该 Record 的 `blocking` 就为 `true`。正常 final data 恰为
+`{ findingCount, blockingFindingCount }`；前者等于 Records 数量，后者等于其中 `blocking: true` 的数量。
+`blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带 non-blocking Records。
+
+每个 Record data 使用以下字段：
 
 ```ts
 {
+  blocking: boolean,
   metric: "duplicate-tokens",
   tokenCount: number,
   lineCount: number,
@@ -199,6 +208,7 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 
 - 少于两个合格 exact inputs：`not-applicable / no-eligible-input`。
 - constructor 后形成的 resolved options 不符合完整 shape：`unavailable / invalid-options`。
+- 所配置的 filesystem 或 git-worktree 来源无法形成候选快照：`unavailable / source-unavailable`。
 - package/custom command 缺失、version probe 失败或无法形成可识别版本 provenance：
   `unavailable / external-dependency-unavailable`。
 - 已启动 jscpd 但进程执行失败：`unavailable / external-execution-failed`。

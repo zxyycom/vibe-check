@@ -1,5 +1,6 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
+import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 
 function exactRecord(
   value: unknown,
@@ -35,11 +36,17 @@ function validDuplicateCodeAreas(value: unknown): boolean {
   const areas = snapshotClosedRecord(value);
   if (areas === undefined || Object.keys(areas).length === 0) return false;
   return Object.entries(areas).every(([areaId, candidate]) => {
-    const area = exactRecord(candidate, ["files", "minimumLines", "minimumTokens"]);
+    const area = exactRecord(candidate, [
+      "files",
+      "findingPolicy",
+      "minimumLines",
+      "minimumTokens"
+    ]);
     return (
       nonEmptyString(areaId) &&
       area !== undefined &&
       validProjectFileSelection(area.files) &&
+      validFindingPolicy(area.findingPolicy) &&
       positiveSafeInteger(area.minimumLines) &&
       positiveSafeInteger(area.minimumTokens)
     );

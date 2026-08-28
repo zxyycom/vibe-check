@@ -1,10 +1,13 @@
 import { createHash } from "node:crypto";
 
 import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
+import { isBlockingFinding, type FindingPolicy } from "../code-quality-findings/policy.ts";
 import type { DuplicateCodeFragment, DuplicateCodeLocation } from "./measurement-model.ts";
+import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
 
 export interface DuplicateRecordCandidate {
   readonly data: Readonly<{
+    readonly blocking: boolean;
     readonly codeAreas: readonly string[];
     readonly lineCount: number;
     readonly locations: readonly Readonly<{
@@ -20,14 +23,15 @@ export interface DuplicateRecordCandidate {
 
 /** Builds Check-owned supplemental facts without adding a Product record catalog. */
 export function buildDuplicateRecordCandidates(
-  fragments: readonly DuplicateCodeFragment[]
+  fragments: readonly DuplicateCodeFragment[],
+  codeAreas: ResolvedDuplicateDetectionOptions["codeAreas"]
 ): readonly DuplicateRecordCandidate[] | undefined {
   const ids = duplicateIdsInOrder(fragments);
   if (ids === undefined) return undefined;
 
   const candidates: DuplicateRecordCandidate[] = [];
   for (const [index, fragment] of fragments.entries()) {
-    const candidate = createDuplicateRecordCandidate(fragment, ids[index]);
+    const candidate = createDuplicateRecordCandidate(fragment, ids[index], codeAreas);
     if (candidate === undefined) return undefined;
     candidates.push(candidate);
   }
@@ -37,17 +41,25 @@ export function buildDuplicateRecordCandidates(
 
 function createDuplicateRecordCandidate(
   fragment: DuplicateCodeFragment,
-  id: string | undefined
+  id: string | undefined,
+  configuredAreas: ResolvedDuplicateDetectionOptions["codeAreas"]
 ): DuplicateRecordCandidate | undefined {
   if (!isValidDuplicateFragment(fragment) || id === undefined) return undefined;
 
   const locations = sortedLocations(fragment.locations);
   const codeAreas = uniqueSorted(fragment.codeAreas);
   if (codeAreas.length === 0 || !sameStrings(codeAreas, fragment.codeAreas)) return undefined;
+  const findingPolicies: FindingPolicy[] = [];
+  for (const areaId of codeAreas) {
+    const area = configuredAreas[areaId];
+    if (area === undefined) return undefined;
+    findingPolicies.push(area.findingPolicy);
+  }
 
   return Object.freeze({
     id,
     data: Object.freeze({
+      blocking: isBlockingFinding(findingPolicies),
       codeAreas: Object.freeze(codeAreas),
       lineCount: fragment.lineCount,
       locations: Object.freeze(

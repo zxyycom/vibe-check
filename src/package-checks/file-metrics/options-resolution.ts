@@ -1,9 +1,16 @@
 import {
   hasRequiredAndOptionalRecordKeys,
-  snapshotClosedArray,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
-import { DEFAULT_PROJECT_FILE_SELECTION } from "../project-files/configuration.ts";
+import {
+  resolveProjectFileSelection,
+  snapshotDefaultProjectFileSelection
+} from "../project-files/configuration.ts";
+import {
+  DEFAULT_FINDING_POLICY,
+  resolveFindingPolicy,
+  type FindingPolicy
+} from "../code-quality-findings/policy.ts";
 import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
@@ -21,10 +28,14 @@ interface PolicyRecordKeys {
 export function resolveFileMetricsOptions(
   authoredOptions: unknown
 ): ResolvedFileMetricsOptions | undefined {
-  const input = snapshotPolicyRecord(authoredOptions, { optional: ["codeAreas", "scanner"] });
+  const input = snapshotPolicyRecord(authoredOptions, {
+    optional: ["codeAreas", "findingPolicy", "scanner"]
+  });
   if (input === undefined) return undefined;
 
-  const codeAreas = resolveCodeAreas(input.codeAreas);
+  const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
+  if (findingPolicy === undefined) return undefined;
+  const codeAreas = resolveCodeAreas(input.codeAreas, findingPolicy);
   const scanner = resolveScanner(input.scanner);
   if (codeAreas === undefined || scanner === undefined) return undefined;
 
@@ -32,56 +43,47 @@ export function resolveFileMetricsOptions(
   return isValidResolvedFileMetricsOptions(options) ? options : undefined;
 }
 
-function resolveCodeAreas(value: unknown): ResolvedFileMetricsOptions["codeAreas"] | undefined {
-  if (value === undefined) return Object.freeze({ project: defaultCodeArea() });
+function resolveCodeAreas(
+  value: unknown,
+  defaultFindingPolicy: FindingPolicy
+): ResolvedFileMetricsOptions["codeAreas"] | undefined {
+  if (value === undefined) return Object.freeze({ project: defaultCodeArea(defaultFindingPolicy) });
   const areas = snapshotClosedRecord(value);
   if (areas === undefined || Object.keys(areas).length === 0) return undefined;
 
   const resolvedEntries: Array<readonly [string, ResolvedFileMetricsCodeAreaOptions]> = [];
   for (const [areaId, candidate] of Object.entries(areas)) {
     if (!isNonEmptyString(areaId)) return undefined;
-    const area = resolveCodeArea(candidate);
+    const area = resolveCodeArea(candidate, defaultFindingPolicy);
     if (area === undefined) return undefined;
     resolvedEntries.push([areaId, area]);
   }
   return Object.freeze(Object.fromEntries(resolvedEntries));
 }
 
-function defaultCodeArea(): ResolvedFileMetricsCodeAreaOptions {
-  return Object.freeze({ codeLines: defaultCodeLines(), files: snapshotDefaultFiles() });
+function defaultCodeArea(findingPolicy: FindingPolicy): ResolvedFileMetricsCodeAreaOptions {
+  return Object.freeze({
+    codeLines: defaultCodeLines(),
+    files: snapshotDefaultProjectFileSelection(),
+    findingPolicy
+  });
 }
 
-function resolveCodeArea(value: unknown): ResolvedFileMetricsCodeAreaOptions | undefined {
+function resolveCodeArea(
+  value: unknown,
+  defaultFindingPolicy: FindingPolicy
+): ResolvedFileMetricsCodeAreaOptions | undefined {
   const area = snapshotPolicyRecord(value, {
-    optional: ["codeLines"],
+    optional: ["codeLines", "findingPolicy"],
     required: ["files"]
   });
   if (area === undefined) return undefined;
-  const files = resolveFiles(area.files);
+  const files = resolveProjectFileSelection(area.files);
+  const findingPolicy = resolveFindingPolicy(area.findingPolicy, defaultFindingPolicy);
   const codeLines = resolveCodeLines(area.codeLines);
-  return files === undefined || codeLines === undefined
+  return files === undefined || findingPolicy === undefined || codeLines === undefined
     ? undefined
-    : Object.freeze({ codeLines, files });
-}
-
-function resolveFiles(value: unknown): ResolvedFileMetricsCodeAreaOptions["files"] | undefined {
-  const files = snapshotPolicyRecord(value, {
-    optional: ["excludeDirs", "generatedFiles", "include"]
-  });
-  if (files === undefined) return undefined;
-  const excludeDirs = resolveStringArray(
-    files.excludeDirs,
-    DEFAULT_PROJECT_FILE_SELECTION.excludeDirs
-  );
-  const generatedFiles = resolveStringArray(
-    files.generatedFiles,
-    DEFAULT_PROJECT_FILE_SELECTION.generatedFiles
-  );
-  const include = resolveStringArray(files.include, DEFAULT_PROJECT_FILE_SELECTION.include);
-  if (excludeDirs === undefined || generatedFiles === undefined || include === undefined) {
-    return undefined;
-  }
-  return Object.freeze({ excludeDirs, generatedFiles, include });
+    : Object.freeze({ codeLines, files, findingPolicy });
 }
 
 function resolveCodeLines(
@@ -134,29 +136,12 @@ function resolveAllowance(
   return Object.freeze({ maximumCodeLines, maximumDecisionTokens });
 }
 
-function snapshotDefaultFiles(): ResolvedFileMetricsCodeAreaOptions["files"] {
-  return Object.freeze({
-    excludeDirs: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.excludeDirs]),
-    generatedFiles: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.generatedFiles]),
-    include: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.include])
-  });
-}
-
 function resolveScanner(value: unknown): ResolvedFileMetricsOptions["scanner"] | undefined {
   if (value === undefined) return Object.freeze({ executable: DEFAULT_EXECUTABLE });
   const scanner = snapshotPolicyRecord(value, { optional: ["executable"] });
   if (scanner === undefined) return undefined;
   const executable = scanner.executable ?? DEFAULT_EXECUTABLE;
   return isNonEmptyString(executable) ? Object.freeze({ executable }) : undefined;
-}
-
-function resolveStringArray(
-  value: unknown,
-  fallback: readonly string[]
-): readonly string[] | undefined {
-  if (value === undefined) return Object.freeze([...fallback]);
-  const items = snapshotClosedArray(value);
-  return items === undefined || !items.every(isStringValue) ? undefined : Object.freeze(items);
 }
 
 function snapshotPolicyRecord(
@@ -183,8 +168,4 @@ function isNonNegativeSafeInteger(value: unknown): value is number {
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
-}
-
-function isStringValue(value: unknown): value is string {
-  return typeof value === "string";
 }

@@ -16,7 +16,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
   Proves:
-- `fileMetrics(options?)` materializes frozen area and executable defaults, rejects unknown or invalid authored input synchronously, and retains defensive resolved preflight/execution validation without public SCC argument passthrough.
+- `fileMetrics(options?)` materializes frozen area, finding-policy and executable defaults, rejects unknown or invalid authored input synchronously, and retains defensive resolved preflight/execution validation without public SCC argument passthrough.
 
 ## Case WB-SCANNER-FILE-METRICS-SCOPE-001: File metrics applies area-owned exact scope
 
@@ -25,7 +25,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
-- Each file-metrics area owns files and code-line policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum and retains every matching area ID.
+- Each file-metrics area owns files, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function constructor owns area and finding policy
 
@@ -47,7 +47,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
   Proves:
 
-- `duplicateDetection(options?)` materializes frozen defaults for cache, scanner and area-owned file/threshold policy, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns final data, and reports Check-local supplemental Records; preflight still rejects an invalid complete options replacement. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.
+- `duplicateDetection(options?)` materializes frozen defaults for cache, scanner and area-owned file/threshold/finding policy, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns exact finding counts, and reports every trusted Check-local supplemental Record with blocking state; preflight still rejects an invalid complete options replacement. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.
 
 ## Case WB-SCANNER-DUPLICATE-SCOPE-001: Duplicate detection compares the complete exact scope
 
@@ -57,7 +57,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
 
-- Each code area independently owns its file selection and line/token thresholds. One jscpd scan receives their deduplicated exact-path union with the lowest effective line/token scanner thresholds and jscpd's automatic worker policy; each accepted raw fragment is annotated with every current matching area and retained only when it satisfies the strictest line and token thresholds among all involved areas, including when an unchanged raw cache hit is filtered under a stricter area policy.
+- Each code area independently owns its file selection, line/token thresholds and effective finding policy. One jscpd scan receives their deduplicated exact-path union with the lowest effective line/token scanner thresholds and jscpd's automatic worker policy; each accepted raw fragment is annotated with every current matching area, retained only when it satisfies the strictest line and token thresholds, and marked blocking when any involved area is blocking. An unchanged raw cache hit is still re-evaluated under current thresholds and finding policies.
 
 ## Case AUX-JSCPD-ADAPTER-OUTCOMES-001: jscpd adapter preserves its private result boundary
 

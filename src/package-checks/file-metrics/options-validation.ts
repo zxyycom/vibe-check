@@ -1,5 +1,6 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
+import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedFileMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 产物或普通对象组合形成的完整 file-metrics options。 */
@@ -21,10 +22,11 @@ function isValidCodeAreas(value: unknown): boolean {
 }
 
 function isValidCodeArea(value: unknown): boolean {
-  const area = exactRecord(value, ["codeLines", "files"]);
+  const area = exactRecord(value, ["codeLines", "files", "findingPolicy"]);
   return (
     area !== undefined &&
     validProjectFileSelection(area.files) &&
+    validFindingPolicy(area.findingPolicy) &&
     isValidCodeLinePolicy(area.codeLines)
   );
 }

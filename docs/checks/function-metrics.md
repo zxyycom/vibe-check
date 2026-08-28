@@ -27,9 +27,9 @@ options
 ├─ codeAreas?
 │  └─ [areaId]
 │     ├─ files
+│     │  ├─ source?
 │     │  ├─ include?
-│     │  ├─ excludeDirs?
-│     │  └─ generatedFiles?
+│     │  └─ exclude?
 │     ├─ findingPolicy?
 │     └─ limits?
 │        ├─ codeLines?
@@ -52,12 +52,14 @@ options
   codeAreas: {
     project: {
       files: {
+        source: "filesystem",
         include: ["**/*"],
-        excludeDirs: [
-          ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-          "node_modules", "target", "vendor"
-        ],
-        generatedFiles: ["**/generated/**", "**/*.generated.*"]
+        exclude: [
+          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+          "**/target/**", "**/vendor/**"
+        ]
       },
       findingPolicy: "blocking",
       limits: {
@@ -77,20 +79,22 @@ options
 }
 ```
 
-顶层 `findingPolicy` 只为各 area 提供默认值；每个 resolved area 保存自己的 effective `findingPolicy`。所有 maximum 都是
-inclusive limit：measurement 必须严格大于 limit 才产生 finding。complexity 小于
+顶层 `findingPolicy` 只为各 area 提供默认值；每个 resolved area 保存自己的有效 `findingPolicy`。所有 maximum 都是
+包含等于值的上限：measurement 必须严格大于 limit 才产生 finding。complexity 小于
 `cyclomaticComplexityBelow` 时，function NLOC 使用 allowance maximum；所有 limit 都必须是正安全整数，allowance
 maximum 不得小于普通 code-line maximum。
 
-constructor 按字段补默认值。`include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob 匹配；
-`excludeDirs` 按路径中的目录 segment 匹配。省略任一文件数组时使用上述 package default；显式数组是该字段的完整值，
-`[]` 可明确清空对应规则。需要在默认项上增加规则时，调用方在自己的 TypeScript value 中组成完整数组。nested limit 字段和
-area `findingPolicy` 仍可分别省略并继承各自默认值。
+constructor 按字段补默认值。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem 不解释
+`.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check 结算为
+`unavailable`，不会切换到另一来源。`include` 与 `exclude` 都按
+project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用上述 package default；显式数组是完整替换值，
+`include: []` 不选择路径，`exclude: []` 不排除路径。需要在默认 exclude 上增加规则时，调用方在自己的 TypeScript value
+中组成完整数组。nested limit 字段和 area `findingPolicy` 仍可分别省略并继承各自默认值。
 
 ### 区域与阻断政策
 
 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，省略时为 `"blocking"`。显式 `codeAreas` 必须非空，
-每个非空 area ID 必须声明 `files: {}`；files lists、limits 和 area `findingPolicy` 都可省略并由 constructor 补齐。
+每个非空 area ID 必须声明 `files: {}`；file fields、limits 和 area `findingPolicy` 都可省略并由 constructor 补齐。
 
 ```ts
 const metrics = functionMetrics({
@@ -107,11 +111,7 @@ const metrics = functionMetrics({
     tooling: {
       files: {
         include: ["scripts/**/*.ts"],
-        generatedFiles: [
-          "**/generated/**",
-          "**/*.generated.*",
-          "scripts/**/*.test.ts"
-        ]
+        exclude: ["scripts/**/*.test.ts"]
       }
     }
   }
@@ -145,7 +145,8 @@ owning adapter 固定执行 `--version` probe，并以 approved exact paths 和 
 ## 工作原理
 
 1. constructor 关闭 input shape，补齐 files、limits、finding policy 与 scanner defaults，再冻结 resolved options。
-2. execution 分别按每个 area 的 files policy 收集路径，只保留受支持的 exact inputs，并形成稳定去重的路径并集。
+2. execution 按文件来源分组，每种不同来源只枚举一次候选文件，再按各 area 的 `include` / `exclude` 选择受支持的
+   exact inputs，并形成稳定去重的路径并集。
 3. Lizard adapter 对该并集执行一次 measurement；parser output 必须完整，且所有 source paths 必须属于本次 exact set，否则
    整批结果结算为 unavailable，不发布 partial Records。
 4. 可信 measurements 恢复全部 matching areas，按上一节的 overlap 规则计算 effective limit 与 blocking，再完整形成 Records
@@ -189,6 +190,7 @@ non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。按
 | `reason.code` | 触发边界 | 调用方检查项 |
 | --- | --- | --- |
 | `invalid-options` | constructor 之后被普通 object composition 替换的完整 options 未通过 preflight 或 execution 防御校验 | 对照本页 resolved options，补齐或删除字段 |
+| `source-unavailable` | 所配置的 filesystem 或 git-worktree 来源无法形成候选快照 | 检查 project root、目录读取权限或 Git worktree 状态 |
 | `external-dependency-unavailable` | Lizard executable 不存在、version probe 失败或没有可识别的 version output | 检查 `scanner.executable` 与该命令的 `--version` 行为 |
 | `external-execution-failed` | Lizard scan 无法启动、被 signal 终止或返回非零状态 | 直接运行配置的 executable，检查 exact-path 与 `--csv` 调用 |
 | `external-result-invalid` | CSV、measurement、exact-scope 或 function metric 完整性校验失败 | 检查 wrapper 是否返回 Lizard 1.23-compatible CSV，且没有扩大输入 |

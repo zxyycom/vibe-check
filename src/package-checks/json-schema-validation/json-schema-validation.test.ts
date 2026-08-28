@@ -16,9 +16,9 @@ import { jsonSchemaValidation } from "./default-check.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*"]),
+  source: "filesystem" as const
 });
 
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({

@@ -1,8 +1,9 @@
 import { resolve } from "node:path";
 
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
-import { collectProjectFiles } from "../project-files/collection.ts";
+import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
+import { settleFindings } from "../code-quality-findings/policy.ts";
 import { getGitSha } from "./project-revision.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";
 import type {
@@ -18,6 +19,14 @@ export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   displayName: "Duplicate detection"
 } as const;
 
+type DuplicateDetectionUnavailableReasonCode =
+  | "cache-write-failed"
+  | "external-dependency-unavailable"
+  | "external-execution-failed"
+  | "external-result-invalid"
+  | "invalid-options"
+  | "source-unavailable";
+
 /** Default Check callback；scanner configuration 由其完整 options 拥有。 */
 export async function executeDuplicateDetection(
   context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
@@ -25,7 +34,12 @@ export async function executeDuplicateDetection(
   if (!validResolvedDuplicateDetectionOptions(context.options))
     return unavailable("invalid-options");
 
-  const exactInput = prepareExactInputSet(context.project.root, context.options);
+  let exactInput: DuplicateDetectionExactInputSet;
+  try {
+    exactInput = prepareExactInputSet(context.project.root, context.options);
+  } catch {
+    return unavailable("source-unavailable");
+  }
   if (exactInput.approvedExactPaths.length < 2) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
@@ -35,15 +49,15 @@ export async function executeDuplicateDetection(
     exactInput
   });
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
-  const candidates = buildDuplicateRecordCandidates(measurement.fragments);
+  const candidates = buildDuplicateRecordCandidates(
+    measurement.fragments,
+    context.options.codeAreas
+  );
   if (candidates === undefined) return unavailable("external-result-invalid");
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return Object.freeze({
-    status: candidates.length > 0 ? "failed" : "passed",
-    data: Object.freeze({ findingCount: candidates.length })
-  });
+  return settleFindings(candidates.map((candidate) => candidate.data.blocking));
 }
 
 function prepareExactInputSet(
@@ -74,8 +88,12 @@ function collectAreaInputs(
   const orderedPolicies = Object.entries(codeAreas).sort(([left], [right]) =>
     compareText(left, right)
   );
+  const filesByArea = collectProjectFileSets(
+    rootDir,
+    Object.fromEntries(orderedPolicies.map(([areaId, policy]) => [areaId, policy.files]))
+  );
   for (const [codeArea, policy] of orderedPolicies) {
-    const approvedExactPaths = collectProjectFiles(rootDir, policy.files);
+    const approvedExactPaths = requireProjectFileSet(filesByArea, codeArea);
     if (approvedExactPaths.length === 0) continue;
     areas.push(
       Object.freeze({
@@ -102,12 +120,20 @@ function compareText(left: string, right: string): number {
 function directMeasurementFailure(
   measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
 ): CheckResult {
-  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
-  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
-  if (measurement.kind === "cache-write-failed") return unavailable("cache-write-failed");
-  return unavailable("external-result-invalid");
+  switch (measurement.kind) {
+    case "cache-write-failed":
+      return unavailable("cache-write-failed");
+    case "execution-failed":
+      return unavailable("external-execution-failed");
+    case "invalid-result":
+      return unavailable("external-result-invalid");
+    case "unavailable":
+      return unavailable("external-dependency-unavailable");
+  }
+  const exhaustiveMeasurement: never = measurement;
+  return exhaustiveMeasurement;
 }
 
-function unavailable(code: string): CheckResult {
+function unavailable(code: DuplicateDetectionUnavailableReasonCode): CheckResult {
   return Object.freeze({ status: "unavailable", reason: { code } });
 }

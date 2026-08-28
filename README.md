@@ -195,6 +195,16 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 | `markdownLinkValidation` | 离线验证本地 Markdown 链接与锚点；见[`markdownLinkValidation` 指南](./docs/checks/markdown-link-validation.md)。     |
 | `maintenanceReminders`   | 按 Git first-parent 历史提示维护复核；见[`maintenanceReminders` 指南](./docs/checks/maintenance-reminders.md)。      |
 
+### 三个代码质量构造函数的共通配置
+
+`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 都用 `codeAreas[id]` 组织区域策略。每个显式区域必须提供
+`files`：`source` 选择 `"filesystem" | "git-worktree"`，`include` 选择路径，`exclude` 以更高优先级移除路径。
+默认 `filesystem` 不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。
+
+顶层 `findingPolicy` 为区域提供 `"blocking" | "non-blocking"` 默认值。所有可信 finding 都形成带 `blocking` 的
+Record；正常 final data 为 `{ findingCount, blockingFindingCount }`。重复代码的行数与 token 下限、文件代码行策略、
+函数规模/复杂度/参数上限以及 scanner 配置分别由上表对应指南完整说明。
+
 每份指南负责该 Check 的完整初始 options、工作过程、terminal effects、可用性、安全边界、最小用法和适用边界。consumer imports 继续使用 `vibe-check` package root。
 
 ## 包内结构与源码恢复

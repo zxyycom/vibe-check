@@ -57,11 +57,22 @@ unavailable，不创建并行 quality model。owner-local tool boundary 见
 [Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
 [Project files and Check exact inputs](scan-scope.md)。
 
-`function-metrics` 对每个超过 effective area limit 的 metric 发布一条 Record；data 包含 stable-sorted `codeAreas`、
-`blocking`、metric、limit 与 function location/value。effective limit 是全部 matching areas 对该 metric 的适用 maximum
-最小值；任一 matching area blocking 时 `blocking` 为 true。它不会因 blocking finding 短路 scanner 或后续 conversion。正常
-final data 恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此 passed Check
-可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为 not-applicable 和 unavailable。
+三个 area-based 代码质量 Check 共用 Finding policy：constructor 顶层 `findingPolicy` 默认为 `"blocking"`，area 可覆盖；
+resolved area 保存自己的有效 policy。每个可信 finding 都发布一条带显式 `blocking` 的 Check-local Record；同一 finding
+涉及多个 matching areas 时，只要任一区域使用 blocking policy，Record 就是 blocking。scanner、conversion 与后续 Record
+不因首个 blocking finding 短路。
+
+- `duplicate-detection` 的 finding Record 还包含稳定排序的 `codeAreas`、line/token counts 与全部 locations；涉及区域的
+  line/token 下限按 owning duplicate policy 过滤。
+- `file-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、path、code lines 与 effective limit；同一路径使用全部
+  matching areas 中最严格的适用 code-line maximum。
+- `function-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、metric、limit 与 function location/value；effective
+  limit 是全部 matching areas 对该 metric 的适用 maximum 最小值。
+
+三者的正常 final data 都恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此
+passed Check 可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为
+not-applicable 和 unavailable。这个 Finding policy 属于 package code-quality owner，不会扩展 arbitrary Core Check、Record、
+aggregation 或 Gate grammar。
 
 `json-validation` 的 Check-local facts 固定如下：
 

@@ -12,12 +12,14 @@ instance bindings 验证选定的 JSON instances。导出值可以直接放入 P
 ```ts
 {
   files: {
+    source: "filesystem",
     include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+    exclude: [
+      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+      "**/target/**", "**/vendor/**"
+    ]
   },
   maximumBytes: 1_048_576,
   schemaIdentity: { mode: "require-match" },
@@ -27,7 +29,10 @@ instance bindings 验证选定的 JSON instances。导出值可以直接放入 P
 }
 ```
 
-- `files` 完整定义本 Check 可读取的 local paths；schema 与 instance 的读取 scope 是 selected set。
+- `files` 完整定义本 Check 可读取的 local paths；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
+  `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
+  规则排除的未跟踪文件。schema 与 instance 的读取 scope 是 selected set；来源不可用时 Check 结算为
+  `unavailable`，不会切换到另一来源。
 - `maximumBytes` 是每个 schema 或 instance document 的 raw byte 上限，必须是正安全整数。
 - `schemas` 每项为 `{ id, path }`；`bindings` 每项为 `{ id, instancePath, schemaId }`。ID、path、uniqueness 与引用关系
   都由 owning Check 的 closed validator 检查。

@@ -25,9 +25,9 @@ import type {
 } from "../../check/check.ts";
 
 const FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.ts"]),
+  source: "filesystem" as const
 });
 
 const CODE_AREAS = Object.freeze({
@@ -107,21 +107,25 @@ describe("default Check direct callbacks", () => {
       codeAreas: {
         project: {
           files: {
-            excludeDirs: [
-              ".git",
-              ".vibe-check",
-              ".cache",
-              ".venv",
-              "artifacts",
-              "build",
-              "dist",
-              "node_modules",
-              "target",
-              "vendor"
+            exclude: [
+              "**/.git",
+              "**/.git/**",
+              "**/.vibe-check/**",
+              "**/.cache/**",
+              "**/.venv/**",
+              "**/artifacts/**",
+              "**/build/**",
+              "**/dist/**",
+              "**/generated/**",
+              "**/*.generated.*",
+              "**/node_modules/**",
+              "**/target/**",
+              "**/vendor/**"
             ],
-            generatedFiles: ["**/generated/**", "**/*.generated.*"],
-            include: ["**/*"]
+            include: ["**/*"],
+            source: "filesystem"
           },
+          findingPolicy: "blocking",
           minimumLines: 3,
           minimumTokens: 75
         }
@@ -135,10 +139,11 @@ describe("default Check direct callbacks", () => {
       }).options.codeAreas.source,
       {
         files: {
-          excludeDirs: defaultCheck.options.codeAreas.project.files.excludeDirs,
-          generatedFiles: defaultCheck.options.codeAreas.project.files.generatedFiles,
-          include: ["src/**/*.ts"]
+          exclude: defaultCheck.options.codeAreas.project.files.exclude,
+          include: ["src/**/*.ts"],
+          source: "filesystem"
         },
+        findingPolicy: "blocking",
         minimumLines: 3,
         minimumTokens: 75
       }
@@ -150,6 +155,7 @@ describe("default Check direct callbacks", () => {
     assert.equal(Object.hasOwn(specialAreaCheck.options.codeAreas, specialAreaId), true);
     assert.deepEqual(specialAreaCheck.options.codeAreas[specialAreaId], {
       files: defaultCheck.options.codeAreas.project.files,
+      findingPolicy: "blocking",
       minimumLines: 3,
       minimumTokens: 75
     });
@@ -198,6 +204,7 @@ describe("default Check direct callbacks", () => {
         { ...options, codeAreas: { source: { ...sourceArea, minimumTokens: -1 } } },
         { ...options, codeAreas: { source: { ...sourceArea, minimumTokens: 1.5 } } },
         { ...options, codeAreas: { source: { ...sourceArea, minimumLines: 0 } } },
+        { ...options, codeAreas: { source: { ...sourceArea, findingPolicy: "warning" } } },
         { ...options, codeAreas: { source: { minimumLines: 3, minimumTokens: 50 } } },
         { ...options, codeAreas: { "": sourceArea } },
         { ...options, files: FILES },
@@ -215,6 +222,8 @@ describe("default Check direct callbacks", () => {
       for (const invalidInput of [
         { cache: { directory: "" } },
         { codeAreas: {} },
+        { codeAreas: { source: { files: { excludeDirs: [] } } } },
+        { findingPolicy: "warning" },
         { codeAreas: { source: { files: {}, minimumTokens: -1 } } },
         { codeAreas: { source: { minimumTokens: 75 } } },
         { files: FILES },
@@ -231,10 +240,14 @@ describe("default Check direct callbacks", () => {
         { status: "unavailable", reason: { code: "invalid-options" } }
       );
       const result = await execute(executeDuplicateDetection, options, root);
-      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
+      assert.deepEqual(result.result, {
+        status: "failed",
+        data: { blockingFindingCount: 1, findingCount: 1 }
+      });
       assert.equal(result.records.length, 1);
       assert.match(result.records[0]?.identity.id ?? "", /^duplicate-fragment\/v1\/sha256:/);
       assert.deepEqual(result.records[0]?.data, {
+        blocking: true,
         codeAreas: ["source"],
         lineCount: 12,
         locations: [
@@ -243,6 +256,23 @@ describe("default Check direct callbacks", () => {
         ],
         metric: "duplicate-tokens",
         tokenCount: 80
+      });
+      const sourceUnavailable = await execute(
+        executeDuplicateDetection,
+        {
+          ...options,
+          codeAreas: {
+            source: {
+              ...options.codeAreas.source,
+              files: { ...options.codeAreas.source.files, source: "git-worktree" }
+            }
+          }
+        },
+        root
+      );
+      assert.deepEqual(sourceUnavailable.result, {
+        status: "unavailable",
+        reason: { code: "source-unavailable" }
       });
       assert.equal(existsSync(join(root, ".cache", "vibe-check", "quality-scan-cache-v3")), true);
       writeFileSync(join(root, "blocked-cache"), "not a directory");
@@ -313,6 +343,7 @@ describe("default Check direct callbacks", () => {
     const check = duplicateDetection({
       cache: { directory: ".cache/vibe-check", enabled: true },
       codeAreas,
+      findingPolicy: "non-blocking",
       scanner: {
         command: { executable, kind: "custom" }
       }
@@ -321,10 +352,14 @@ describe("default Check direct callbacks", () => {
 
     try {
       const result = await execute(executeDuplicateDetection, options, root);
-      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
+      assert.deepEqual(result.result, {
+        status: "passed",
+        data: { blockingFindingCount: 0, findingCount: 1 }
+      });
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");
       assert.equal(result.records.length, 1);
       assert.deepEqual(result.records[0]?.data, {
+        blocking: false,
         codeAreas: ["scripts", "shared", "source"],
         lineCount: 12,
         locations: [
@@ -334,6 +369,23 @@ describe("default Check direct callbacks", () => {
         metric: "duplicate-tokens",
         tokenCount: 120
       });
+      const blockingOverlap = await execute(
+        executeDuplicateDetection,
+        {
+          ...options,
+          codeAreas: {
+            ...options.codeAreas,
+            scripts: { ...options.codeAreas.scripts, findingPolicy: "blocking" }
+          }
+        },
+        root
+      );
+      assert.deepEqual(blockingOverlap.result, {
+        status: "failed",
+        data: { blockingFindingCount: 1, findingCount: 1 }
+      });
+      assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
+      assert.equal(readFileSync(scanCountPath, "utf8"), "1");
       const stricter = await execute(
         executeDuplicateDetection,
         {
@@ -345,7 +397,10 @@ describe("default Check direct callbacks", () => {
         },
         root
       );
-      assert.deepEqual(stricter.result, { status: "passed", data: { findingCount: 0 } });
+      assert.deepEqual(stricter.result, {
+        status: "passed",
+        data: { blockingFindingCount: 0, findingCount: 0 }
+      });
       assert.equal(stricter.records.length, 0);
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");
     } finally {

@@ -1,4 +1,5 @@
-import type { FunctionMetricsFindingPolicy, ResolvedFunctionMetricsLimits } from "./options.ts";
+import type { FindingPolicy } from "../code-quality-findings/policy.ts";
+import type { ResolvedFunctionMetricsLimits } from "./options.ts";
 
 export interface MetricValue {
   readonly source: "lizard";
@@ -18,7 +19,7 @@ export interface FunctionMetric {
 export interface FunctionMetricsAreaInput {
   readonly approvedExactPaths: readonly string[];
   readonly codeArea: string;
-  readonly findingPolicy: FunctionMetricsFindingPolicy;
+  readonly findingPolicy: FindingPolicy;
   readonly limits: ResolvedFunctionMetricsLimits;
 }
 

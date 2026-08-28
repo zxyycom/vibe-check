@@ -1,22 +1,23 @@
 import {
   hasRequiredAndOptionalRecordKeys,
-  snapshotClosedArray,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
-  DEFAULT_PROJECT_FILE_SELECTION,
-  type ProjectFileSelection
+  resolveProjectFileSelection,
+  snapshotDefaultProjectFileSelection
 } from "../project-files/configuration.ts";
 import {
-  FUNCTION_METRICS_FINDING_POLICIES,
-  type FunctionMetricsFindingPolicy,
+  DEFAULT_FINDING_POLICY,
+  resolveFindingPolicy,
+  type FindingPolicy
+} from "../code-quality-findings/policy.ts";
+import {
   type ResolvedFunctionMetricsCodeAreaOptions,
   type ResolvedFunctionMetricsLimits,
   type ResolvedFunctionMetricsOptions
 } from "./options.ts";
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 
-const DEFAULT_FINDING_POLICY: FunctionMetricsFindingPolicy = "blocking";
 const DEFAULT_LIZARD_EXECUTABLE = "lizard";
 const DEFAULT_CODE_LINE_MAXIMUM = 50;
 const DEFAULT_LOW_COMPLEXITY_CODE_LINE_MAXIMUM = 150;
@@ -50,7 +51,7 @@ export function resolveFunctionMetricsOptions(
 
 function resolveCodeAreas(
   value: unknown,
-  defaultFindingPolicy: FunctionMetricsFindingPolicy
+  defaultFindingPolicy: FindingPolicy
 ): ResolvedFunctionMetricsOptions["codeAreas"] | undefined {
   if (value === undefined) {
     return Object.freeze({ project: defaultCodeArea(defaultFindingPolicy) });
@@ -68,11 +69,9 @@ function resolveCodeAreas(
   return Object.freeze(Object.fromEntries(resolvedEntries));
 }
 
-function defaultCodeArea(
-  findingPolicy: FunctionMetricsFindingPolicy
-): ResolvedFunctionMetricsCodeAreaOptions {
+function defaultCodeArea(findingPolicy: FindingPolicy): ResolvedFunctionMetricsCodeAreaOptions {
   return Object.freeze({
-    files: snapshotDefaultFiles(),
+    files: snapshotDefaultProjectFileSelection(),
     findingPolicy,
     limits: defaultLimits()
   });
@@ -80,38 +79,19 @@ function defaultCodeArea(
 
 function resolveCodeArea(
   value: unknown,
-  defaultFindingPolicy: FunctionMetricsFindingPolicy
+  defaultFindingPolicy: FindingPolicy
 ): ResolvedFunctionMetricsCodeAreaOptions | undefined {
   const area = snapshotPolicyRecord(value, {
     optional: ["findingPolicy", "limits"],
     required: ["files"]
   });
   if (area === undefined) return undefined;
-  const files = resolveFiles(area.files);
+  const files = resolveProjectFileSelection(area.files);
   const findingPolicy = resolveFindingPolicy(area.findingPolicy, defaultFindingPolicy);
   const limits = resolveLimits(area.limits);
   return files === undefined || findingPolicy === undefined || limits === undefined
     ? undefined
     : Object.freeze({ files, findingPolicy, limits });
-}
-
-function resolveFiles(value: unknown): ProjectFileSelection | undefined {
-  const files = snapshotPolicyRecord(value, {
-    optional: ["excludeDirs", "generatedFiles", "include"]
-  });
-  if (files === undefined) return undefined;
-  const excludeDirs = resolveStringArray(
-    files.excludeDirs,
-    DEFAULT_PROJECT_FILE_SELECTION.excludeDirs
-  );
-  const generatedFiles = resolveStringArray(
-    files.generatedFiles,
-    DEFAULT_PROJECT_FILE_SELECTION.generatedFiles
-  );
-  const include = resolveStringArray(files.include, DEFAULT_PROJECT_FILE_SELECTION.include);
-  return excludeDirs === undefined || generatedFiles === undefined || include === undefined
-    ? undefined
-    : Object.freeze({ excludeDirs, generatedFiles, include });
 }
 
 function resolveLimits(value: unknown): ResolvedFunctionMetricsLimits | undefined {
@@ -202,31 +182,6 @@ function resolveScanner(value: unknown): ResolvedFunctionMetricsOptions["scanner
   return nonEmptyString(executable) ? Object.freeze({ executable }) : undefined;
 }
 
-function resolveFindingPolicy(
-  value: unknown,
-  fallback: FunctionMetricsFindingPolicy
-): FunctionMetricsFindingPolicy | undefined {
-  if (value === undefined) return fallback;
-  return FUNCTION_METRICS_FINDING_POLICIES.find((policy) => policy === value);
-}
-
-function resolveStringArray(
-  value: unknown,
-  fallback: readonly string[]
-): readonly string[] | undefined {
-  if (value === undefined) return Object.freeze([...fallback]);
-  const items = snapshotClosedArray(value);
-  return items !== undefined && items.every(isString) ? Object.freeze(items) : undefined;
-}
-
-function snapshotDefaultFiles(): ProjectFileSelection {
-  return Object.freeze({
-    excludeDirs: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.excludeDirs]),
-    generatedFiles: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.generatedFiles]),
-    include: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.include])
-  });
-}
-
 function snapshotPolicyRecord(
   value: unknown,
   keys: PolicyRecordKeys
@@ -250,8 +205,4 @@ function positiveSafeInteger(value: unknown): value is number {
 
 function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === "string";
 }

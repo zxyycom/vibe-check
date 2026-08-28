@@ -1,12 +1,16 @@
 import {
   hasRequiredAndOptionalRecordKeys,
-  snapshotClosedArray,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
-  DEFAULT_PROJECT_FILE_SELECTION,
-  type ProjectFileSelection
+  resolveProjectFileSelection,
+  snapshotDefaultProjectFileSelection
 } from "../project-files/configuration.ts";
+import {
+  DEFAULT_FINDING_POLICY,
+  resolveFindingPolicy,
+  type FindingPolicy
+} from "../code-quality-findings/policy.ts";
 import { DEFAULT_JSCPD_COMMAND } from "./jscpd/command-resolution.ts";
 import type {
   DuplicateDetectionScannerCommand,
@@ -30,12 +34,14 @@ export function resolveDuplicateDetectionOptions(
   value: unknown
 ): ResolvedDuplicateDetectionOptions | undefined {
   const input = snapshotPolicyRecord(value, {
-    optional: ["cache", "codeAreas", "scanner"]
+    optional: ["cache", "codeAreas", "findingPolicy", "scanner"]
   });
   if (input === undefined) return undefined;
 
   const cache = resolveCache(input.cache);
-  const codeAreas = resolveCodeAreas(input.codeAreas);
+  const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
+  if (findingPolicy === undefined) return undefined;
+  const codeAreas = resolveCodeAreas(input.codeAreas, findingPolicy);
   const scanner = resolveScanner(input.scanner);
   if (cache === undefined || codeAreas === undefined || scanner === undefined) return undefined;
 
@@ -56,10 +62,11 @@ function resolveCache(value: unknown): ResolvedDuplicateDetectionOptions["cache"
 }
 
 function resolveCodeAreas(
-  value: unknown
+  value: unknown,
+  defaultFindingPolicy: FindingPolicy
 ): ResolvedDuplicateDetectionOptions["codeAreas"] | undefined {
   if (value === undefined) {
-    return Object.freeze({ project: defaultCodeArea() });
+    return Object.freeze({ project: defaultCodeArea(defaultFindingPolicy) });
   }
   const areas = snapshotClosedRecord(value);
   if (areas === undefined || Object.keys(areas).length === 0) return undefined;
@@ -67,76 +74,44 @@ function resolveCodeAreas(
   const resolvedEntries: Array<readonly [string, ResolvedDuplicateDetectionCodeAreaOptions]> = [];
   for (const [areaId, candidate] of Object.entries(areas)) {
     if (!nonEmptyString(areaId)) return undefined;
-    const area = resolveCodeArea(candidate);
+    const area = resolveCodeArea(candidate, defaultFindingPolicy);
     if (area === undefined) return undefined;
     resolvedEntries.push([areaId, area]);
   }
   return Object.freeze(Object.fromEntries(resolvedEntries));
 }
 
-function defaultCodeArea(): ResolvedDuplicateDetectionCodeAreaOptions {
+function defaultCodeArea(findingPolicy: FindingPolicy): ResolvedDuplicateDetectionCodeAreaOptions {
   return Object.freeze({
-    files: snapshotDefaultFiles(),
+    files: snapshotDefaultProjectFileSelection(),
+    findingPolicy,
     minimumLines: DEFAULT_MINIMUM_LINES,
     minimumTokens: DEFAULT_MINIMUM_TOKENS
   });
 }
 
-function resolveCodeArea(value: unknown): ResolvedDuplicateDetectionCodeAreaOptions | undefined {
+function resolveCodeArea(
+  value: unknown,
+  defaultFindingPolicy: FindingPolicy
+): ResolvedDuplicateDetectionCodeAreaOptions | undefined {
   const area = snapshotPolicyRecord(value, {
-    optional: ["minimumLines", "minimumTokens"],
+    optional: ["findingPolicy", "minimumLines", "minimumTokens"],
     required: ["files"]
   });
   if (area === undefined) return undefined;
-  const files = resolveFiles(area.files);
+  const files = resolveProjectFileSelection(area.files);
+  const findingPolicy = resolveFindingPolicy(area.findingPolicy, defaultFindingPolicy);
   const minimumLines = area.minimumLines ?? DEFAULT_MINIMUM_LINES;
   const minimumTokens = area.minimumTokens ?? DEFAULT_MINIMUM_TOKENS;
   if (
     files === undefined ||
+    findingPolicy === undefined ||
     !positiveSafeInteger(minimumLines) ||
     !positiveSafeInteger(minimumTokens)
   ) {
     return undefined;
   }
-  return Object.freeze({ files, minimumLines, minimumTokens });
-}
-
-function resolveFiles(value: unknown): ProjectFileSelection | undefined {
-  const files = snapshotPolicyRecord(value, {
-    optional: ["excludeDirs", "generatedFiles", "include"]
-  });
-  if (files === undefined) return undefined;
-  const excludeDirs = resolveStringArray(
-    files.excludeDirs,
-    DEFAULT_PROJECT_FILE_SELECTION.excludeDirs
-  );
-  const generatedFiles = resolveStringArray(
-    files.generatedFiles,
-    DEFAULT_PROJECT_FILE_SELECTION.generatedFiles
-  );
-  const include = resolveStringArray(files.include, DEFAULT_PROJECT_FILE_SELECTION.include);
-  if (excludeDirs === undefined || generatedFiles === undefined || include === undefined) {
-    return undefined;
-  }
-  return Object.freeze({ excludeDirs, generatedFiles, include });
-}
-
-function snapshotDefaultFiles(): ProjectFileSelection {
-  return Object.freeze({
-    excludeDirs: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.excludeDirs]),
-    generatedFiles: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.generatedFiles]),
-    include: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.include])
-  });
-}
-
-function resolveStringArray(
-  value: unknown,
-  fallback: readonly string[]
-): readonly string[] | undefined {
-  if (value === undefined) return Object.freeze([...fallback]);
-  const items = snapshotClosedArray(value);
-  if (items === undefined || !items.every(isString)) return undefined;
-  return Object.freeze(items);
+  return Object.freeze({ files, findingPolicy, minimumLines, minimumTokens });
 }
 
 function resolveScanner(value: unknown): ResolvedDuplicateDetectionScannerOptions | undefined {
@@ -184,8 +159,4 @@ function positiveSafeInteger(value: unknown): value is number {
 
 function nonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === "string";
 }

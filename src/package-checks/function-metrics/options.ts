@@ -1,31 +1,21 @@
-import type { ProjectFileSelection } from "../project-files/configuration.ts";
+import type {
+  ProjectFileSelection,
+  ProjectFileSelectionOptions
+} from "../project-files/configuration.ts";
+import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 
-export const FUNCTION_METRICS_FINDING_POLICIES = Object.freeze([
-  "blocking",
-  "non-blocking"
-] as const);
+/** `functionMetrics` 构造函数可省略的文件选择策略。 */
+export type FunctionMetricsFileOptions = ProjectFileSelectionOptions;
 
-export type FunctionMetricsFindingPolicy = (typeof FUNCTION_METRICS_FINDING_POLICIES)[number];
-
-/** `functionMetrics` constructor 可省略的 file-selection policy。 */
-export interface FunctionMetricsFileOptions {
-  /** 省略时使用 package 默认目录排除；显式数组完整替换该默认值。 */
-  readonly excludeDirs?: readonly string[];
-  /** 省略时排除 package 默认的 generated-file globs；显式数组完整替换该默认值。 */
-  readonly generatedFiles?: readonly string[];
-  /** 省略时包含全部相对路径；显式数组完整替换该默认值。 */
-  readonly include?: readonly string[];
-}
-
-/** `functionMetrics` constructor 可省略的 function metric limits。 */
+/** `functionMetrics` 构造函数可省略的函数指标上限。 */
 export interface FunctionMetricsLimitOptions {
   readonly codeLines?: Readonly<{
-    /** 省略时为 `50`；function NLOC 超过此值时产生 finding。 */
+    /** 省略时为 `50`；函数 NLOC 超过此值时产生 finding。 */
     readonly maximum?: number;
     readonly lowComplexityAllowance?: Readonly<{
-      /** 省略时为 `5`；complexity 小于此值时可使用较高 NLOC 上限。 */
+      /** 省略时为 `5`；复杂度小于此值时可使用较高 NLOC 上限。 */
       readonly cyclomaticComplexityBelow?: number;
-      /** 省略时为 `150`；不得小于普通 code-line maximum。 */
+      /** 省略时为 `150`；不得小于普通代码行上限。 */
       readonly maximum?: number;
     }>;
   }>;
@@ -39,33 +29,33 @@ export interface FunctionMetricsLimitOptions {
   }>;
 }
 
-/** 一个可独立选择文件和 finding policy 的 function-metrics 区域。 */
+/** 可独立选择文件、指标上限和 finding policy 的 function-metrics 区域。 */
 export interface FunctionMetricsCodeAreaOptions {
-  /** 显式 area 必须声明本 branch；其中各 list 可省略并使用 package defaults。 */
+  /** 显式区域必须声明本字段；其中各子字段可省略并使用 package 默认值。 */
   readonly files: FunctionMetricsFileOptions;
   /** 省略时继承顶层 `findingPolicy`。 */
-  readonly findingPolicy?: FunctionMetricsFindingPolicy;
-  /** 省略的 nested limits 使用 package defaults。 */
+  readonly findingPolicy?: FindingPolicy;
+  /** 省略的嵌套上限使用 package 默认值。 */
   readonly limits?: FunctionMetricsLimitOptions;
 }
 
-/** `functionMetrics` constructor 可省略的 Lizard executable policy。 */
+/** `functionMetrics` 构造函数可省略的 Lizard 可执行文件策略。 */
 export interface FunctionMetricsScannerOptions {
-  /** 省略时为 `lizard`；显式 command 必须直接接受 adapter-owned Lizard arguments。 */
+  /** 省略时为 `lizard`；显式命令必须直接接受 adapter 拥有的 Lizard 参数。 */
   readonly executable?: string;
 }
 
-/** `functionMetrics(options?)` 接受并补齐默认值的 public policy。 */
+/** `functionMetrics(options?)` 接受并补齐默认值的公开策略。 */
 export interface FunctionMetricsOptions {
-  /** 省略时建立默认 `project` area；显式 map 必须非空，且每个 area 必须声明 `files`。 */
+  /** 省略时建立默认 `project` 区域；显式映射必须非空，且每个区域必须声明 `files`。 */
   readonly codeAreas?: Readonly<Record<string, FunctionMetricsCodeAreaOptions>>;
-  /** 省略时为 `blocking`；area 可局部覆盖。 */
-  readonly findingPolicy?: FunctionMetricsFindingPolicy;
+  /** 省略时为 `blocking`；区域可局部覆盖。 */
+  readonly findingPolicy?: FindingPolicy;
   /** 省略时使用 PATH 中的 `lizard`。 */
   readonly scanner?: FunctionMetricsScannerOptions;
 }
 
-/** Constructor 生成并由 Check preflight/execution 消费的完整 options。 */
+/** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
 export interface ResolvedFunctionMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFunctionMetricsCodeAreaOptions>>;
   readonly scanner: ResolvedFunctionMetricsScannerOptions;
@@ -73,7 +63,7 @@ export interface ResolvedFunctionMetricsOptions {
 
 export interface ResolvedFunctionMetricsCodeAreaOptions {
   readonly files: ProjectFileSelection;
-  readonly findingPolicy: FunctionMetricsFindingPolicy;
+  readonly findingPolicy: FindingPolicy;
   readonly limits: ResolvedFunctionMetricsLimits;
 }
 

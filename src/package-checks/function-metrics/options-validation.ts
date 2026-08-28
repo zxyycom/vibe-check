@@ -1,9 +1,7 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
-import {
-  FUNCTION_METRICS_FINDING_POLICIES,
-  type ResolvedFunctionMetricsOptions
-} from "./options.ts";
+import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import type { ResolvedFunctionMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 已物化的完整 function-metrics options。 */
 export function validResolvedFunctionMetricsOptions(
@@ -57,10 +55,6 @@ function validLimits(value: unknown): boolean {
 function validScanner(value: unknown): boolean {
   const scanner = exactRecord(value, ["executable"]);
   return scanner !== undefined && nonEmptyString(scanner.executable);
-}
-
-function validFindingPolicy(value: unknown): boolean {
-  return FUNCTION_METRICS_FINDING_POLICIES.some((policy) => policy === value);
 }
 
 function exactRecord(

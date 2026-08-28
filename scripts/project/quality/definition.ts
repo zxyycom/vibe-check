@@ -7,32 +7,33 @@ import {
 } from "vibe-check";
 
 const repositoryFiles = {
-  excludeDirs: [
-    ".git",
-    "archive",
-    "target",
-    "node_modules",
-    ".venv",
-    ".uv-cache",
-    ".ruff_cache",
-    "dist",
-    "build",
-    "vendor",
-    "generated",
-    "fixtures",
-    ".cache",
-    "cache",
-    "artifacts",
-    ".tmp",
-    ".log"
+  exclude: [
+    "**/.git",
+    "**/.git/**",
+    "**/archive/**",
+    "**/target/**",
+    "**/node_modules/**",
+    "**/.venv/**",
+    "**/.uv-cache/**",
+    "**/.ruff_cache/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/vendor/**",
+    "**/generated/**",
+    "**/fixtures/**",
+    "**/.cache/**",
+    "**/cache/**",
+    "**/artifacts/**",
+    "**/.tmp/**",
+    "**/.log/**"
   ],
-  generatedFiles: ["**/generated/**"],
-  include: ["src/**/*.ts", "scripts/**/*.ts", "docs/**/*.md", "changes/**/*.md"]
+  include: ["src/**/*.ts", "scripts/**/*.ts", "docs/**/*.md", "changes/**/*.md"],
+  source: "filesystem"
 } as const;
 
 const areaFileDefaults = {
-  excludeDirs: repositoryFiles.excludeDirs,
-  generatedFiles: repositoryFiles.generatedFiles
+  exclude: repositoryFiles.exclude,
+  source: repositoryFiles.source
 } as const;
 
 const functionMetricCodeAreas = {
@@ -42,7 +43,7 @@ const functionMetricCodeAreas = {
   "script-tooling": {
     files: {
       ...areaFileDefaults,
-      generatedFiles: [...areaFileDefaults.generatedFiles, "scripts/**/*.test.ts"],
+      exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
       include: ["scripts/**/*.ts"]
     }
   }
@@ -52,7 +53,7 @@ const fileMetricCodeAreas = {
   "docs-specs": {
     files: {
       ...areaFileDefaults,
-      generatedFiles: [...areaFileDefaults.generatedFiles, "docs/examples/**", "docs/schemas/**"],
+      exclude: [...areaFileDefaults.exclude, "docs/examples/**", "docs/schemas/**"],
       include: ["docs/**/*.md", "changes/**/*.md"]
     }
   },
@@ -68,7 +69,7 @@ const fileMetricCodeAreas = {
   "script-tooling": {
     files: {
       ...areaFileDefaults,
-      generatedFiles: [...areaFileDefaults.generatedFiles, "scripts/**/*.test.ts"],
+      exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
       include: ["scripts/**/*.ts"]
     }
   }
@@ -78,7 +79,7 @@ const duplicateCodeAreas = {
   "docs-specs": {
     files: {
       ...areaFileDefaults,
-      generatedFiles: [...areaFileDefaults.generatedFiles, "docs/examples/**", "docs/schemas/**"],
+      exclude: [...areaFileDefaults.exclude, "docs/examples/**", "docs/schemas/**"],
       include: ["docs/**/*.md", "changes/**/*.md"]
     },
     minimumLines: 3,
@@ -105,7 +106,7 @@ const duplicateCodeAreas = {
   "script-tooling": {
     files: {
       ...areaFileDefaults,
-      generatedFiles: [...areaFileDefaults.generatedFiles, "scripts/**/*.test.ts"],
+      exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
       include: ["scripts/**/*.ts"]
     },
     minimumLines: 3,

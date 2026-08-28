@@ -215,9 +215,20 @@ const changedFilesConsumer = defineCheck({
 
 const definition: ProjectDefinition = defineConfig({
   checks: [
-    duplicateDetection(),
-    fileMetrics(),
-    functionMetrics(),
+    duplicateDetection({
+      codeAreas: {
+        source: {
+          files: {
+            exclude: ["**/*.generated.*"],
+            include: ["src/**/*.ts"],
+            source: "git-worktree"
+          }
+        }
+      },
+      findingPolicy: "non-blocking"
+    }),
+    fileMetrics({ findingPolicy: "non-blocking" }),
+    functionMetrics({ findingPolicy: "non-blocking" }),
     markdownLinkValidation,
     directCheck,
     changedFiles,

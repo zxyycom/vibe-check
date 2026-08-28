@@ -25,9 +25,9 @@ import { executeFileMetrics } from "./execution.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.ts"]),
+  source: "filesystem" as const
 });
 
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
@@ -107,21 +107,25 @@ describe("fileMetrics constructor and direct callback", () => {
             maximum: 300
           },
           files: {
-            excludeDirs: [
-              ".git",
-              ".vibe-check",
-              ".cache",
-              ".venv",
-              "artifacts",
-              "build",
-              "dist",
-              "node_modules",
-              "target",
-              "vendor"
+            exclude: [
+              "**/.git",
+              "**/.git/**",
+              "**/.vibe-check/**",
+              "**/.cache/**",
+              "**/.venv/**",
+              "**/artifacts/**",
+              "**/build/**",
+              "**/dist/**",
+              "**/generated/**",
+              "**/*.generated.*",
+              "**/node_modules/**",
+              "**/target/**",
+              "**/vendor/**"
             ],
-            generatedFiles: ["**/generated/**", "**/*.generated.*"],
-            include: ["**/*"]
-          }
+            include: ["**/*"],
+            source: "filesystem"
+          },
+          findingPolicy: "blocking"
         }
       },
       scanner: { executable: "scc" }
@@ -145,10 +149,11 @@ describe("fileMetrics constructor and direct callback", () => {
           maximum: 200
         },
         files: {
-          excludeDirs: defaultCheck.options.codeAreas.project.files.excludeDirs,
-          generatedFiles: defaultCheck.options.codeAreas.project.files.generatedFiles,
-          include: ["src/**/*.ts"]
-        }
+          exclude: defaultCheck.options.codeAreas.project.files.exclude,
+          include: ["src/**/*.ts"],
+          source: "filesystem"
+        },
+        findingPolicy: "blocking"
       }
     );
     const specialAreaId = "__proto__";
@@ -165,6 +170,10 @@ describe("fileMetrics constructor and direct callback", () => {
         codeAreas: {
           source: { ...sourceArea, codeLines: { ...sourceArea.codeLines, maximum: -1 } }
         }
+      },
+      {
+        ...defaultCheck.options,
+        codeAreas: { source: { ...sourceArea, findingPolicy: "warning" } }
       },
       {
         ...defaultCheck.options,
@@ -188,6 +197,8 @@ describe("fileMetrics constructor and direct callback", () => {
 
     for (const invalidInput of [
       { codeAreas: {} },
+      { codeAreas: { source: { files: { generatedFiles: [] } } } },
+      { findingPolicy: "warning" },
       { codeAreas: { source: { codeLines: { maximum: 300 } } } },
       { codeAreas: { source: { files: {}, codeLines: { maximum: -1 } } } },
       { codeAreas: { source: { files: {}, codeLines: { maximum: 1.5 } } } },
@@ -280,17 +291,22 @@ describe("fileMetrics constructor and direct callback", () => {
           }
         }
       },
+      findingPolicy: "non-blocking",
       scanner: { executable }
     });
 
     try {
       const result = await execute(executeFileMetrics, check.options, root);
-      assert.deepEqual(result.result, { status: "failed", data: { findingCount: 1 } });
+      assert.deepEqual(result.result, {
+        status: "passed",
+        data: { blockingFindingCount: 0, findingCount: 1 }
+      });
       assert.equal(existsSync(scanCountPath), true);
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");
       assert.deepEqual(result.records, [
         {
           data: {
+            blocking: false,
             codeAreas: ["shared", "source"],
             codeLines: 400,
             limit: 300,
@@ -300,6 +316,40 @@ describe("fileMetrics constructor and direct callback", () => {
           identity: { id: "src/a.ts" }
         }
       ]);
+      const blockingOverlap = await execute(
+        executeFileMetrics,
+        {
+          ...check.options,
+          codeAreas: {
+            ...check.options.codeAreas,
+            source: { ...check.options.codeAreas.source, findingPolicy: "blocking" }
+          }
+        },
+        root
+      );
+      assert.deepEqual(blockingOverlap.result, {
+        status: "failed",
+        data: { blockingFindingCount: 1, findingCount: 1 }
+      });
+      assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
+      assert.equal(readFileSync(scanCountPath, "utf8"), "2");
+      const sourceUnavailable = await execute(
+        executeFileMetrics,
+        {
+          ...check.options,
+          codeAreas: {
+            source: {
+              ...check.options.codeAreas.source,
+              files: { ...check.options.codeAreas.source.files, source: "git-worktree" }
+            }
+          }
+        },
+        root
+      );
+      assert.deepEqual(sourceUnavailable.result, {
+        status: "unavailable",
+        reason: { code: "source-unavailable" }
+      });
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

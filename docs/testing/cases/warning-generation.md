@@ -7,11 +7,11 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
+- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans area-owned exact inputs once and applies the strictest overlapping area policy`
 
 Proves:
 
-- Package-provided threshold Checks return their own passed or failed final data; detailed findings, when present, are separate Check-local supplemental Records. Function metrics keeps non-blocking Records in a passed result and fails only when its own blocking count is nonzero. Neither Record count nor Record data is a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return exact `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. This package policy does not turn arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 

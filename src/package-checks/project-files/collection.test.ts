@@ -1,26 +1,27 @@
-import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
 
-import { collectProjectFiles } from "./collection.ts";
+import { collectProjectFileSets, collectProjectFiles } from "./collection.ts";
+import { DEFAULT_PROJECT_FILE_SELECTION } from "./configuration.ts";
 import type { ProjectFileSelection } from "./configuration.ts";
 
 describe("quality submodule input", () => {
   it("includes initialized current submodule worktree files", { timeout: 20_000 }, () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-submodule-"));
+    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-submodule-"));
     const submoduleOrigin = join(tempDir, "submodule-origin");
     const repository = join(tempDir, "repository");
     const submodulePath = join(repository, "modules", "tool");
     const committedPath = "modules/tool/src/committed.ts";
     const untrackedPath = "modules/tool/src/untracked.ts";
     const workingPath = "modules/tool/src/working.ts";
-    const config = {
-      excludeDirs: [".git"],
-      generatedFiles: [],
-      include: ["modules/tool/**/*.ts"]
+    const selection = {
+      exclude: ["**/.git", "**/.git/**"],
+      include: ["modules/tool/**/*.ts"],
+      source: "git-worktree"
     } satisfies ProjectFileSelection;
 
     try {
@@ -47,25 +48,27 @@ describe("quality submodule input", () => {
       writeFixtureFile(submodulePath, "src/working.ts", "export const working = 2;\n");
       writeFixtureFile(submodulePath, "src/untracked.ts", "export const untracked = true;\n");
 
-      assert.deepEqual(collectProjectFiles(repository, config), [
+      assert.deepEqual(collectProjectFiles(repository, selection), [
         committedPath,
         untrackedPath,
         workingPath
       ]);
+      const broadSelection = { ...selection, include: ["**/*"] } as const;
+      assert.equal(collectProjectFiles(repository, broadSelection).includes("modules/tool"), false);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
   });
 
   it("does not re-enter parent from a replaced HEAD gitlink", { timeout: 5_000 }, () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-submodule-transition-"));
+    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-submodule-transition-"));
     const submoduleOrigin = join(tempDir, "submodule-origin");
     const repository = join(tempDir, "repository");
     const submodulePath = join(repository, "modules", "tool");
-    const config = {
-      excludeDirs: [".git"],
-      generatedFiles: [],
-      include: ["src/**/*.ts"]
+    const selection = {
+      exclude: ["**/.git", "**/.git/**"],
+      include: ["src/**/*.ts"],
+      source: "git-worktree"
     } satisfies ProjectFileSelection;
 
     try {
@@ -90,7 +93,7 @@ describe("quality submodule input", () => {
       writeFixtureFile(submodulePath, "lib/replaced.ts", "export const replaced = true;\n");
       git(repository, ["add", "modules/tool"]);
 
-      assert.deepEqual(collectProjectFiles(repository, config), ["src/kept.ts"]);
+      assert.deepEqual(collectProjectFiles(repository, selection), ["src/kept.ts"]);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -98,28 +101,29 @@ describe("quality submodule input", () => {
 });
 
 describe("quality input file collection", () => {
-  const config = {
-    excludeDirs: [".git", "vendor"],
-    generatedFiles: ["**/generated/**"],
-    include: ["src/**/*.ts"]
+  const gitSelection = {
+    exclude: ["**/.git", "**/.git/**", "**/generated/**", "**/vendor/**"],
+    include: ["src/**/*.ts"],
+    source: "git-worktree"
   } satisfies ProjectFileSelection;
 
   it("treats successful empty Git results as authoritative", () => {
-    const repository = mkdtempSync(join(tmpdir(), "docnav-quality-git-empty-"));
+    const repository = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-empty-"));
 
     try {
       initializeRepository(repository);
       writeFixtureFile(repository, ".gitignore", "src/ignored.ts\n");
       writeFixtureFile(repository, "src/ignored.ts", "export const ignored = true;\n");
 
-      assert.deepEqual(collectProjectFiles(repository, config), []);
+      assert.deepEqual(collectProjectFiles(repository, gitSelection), []);
     } finally {
       rmSync(repository, { recursive: true, force: true });
     }
   });
 
-  it("uses config-only fallback when Git fails", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-git-fallback-"));
+  it("enumerates the filesystem independently of Git ignore rules", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-filesystem-"));
+    const selection = { ...gitSelection, source: "filesystem" } as const;
 
     try {
       writeFixtureFile(projectRoot, ".gitignore", "src/ignored.ts\n");
@@ -133,12 +137,13 @@ describe("quality input file collection", () => {
       writeFixtureFile(projectRoot, "src/vendor/excluded.ts", "export const vendor = true;\n");
       writeFixtureFile(projectRoot, "docs/excluded.md", "# Not included\n");
 
-      const expected = ["src/ignored.ts", "src/kept.ts"];
-      assert.deepEqual(collectProjectFiles(projectRoot, config), expected);
+      assert.deepEqual(collectProjectFiles(projectRoot, selection), [
+        "src/ignored.ts",
+        "src/kept.ts"
+      ]);
 
-      const missingRoot = join(projectRoot, "missing-root");
       assert.throws(
-        () => collectProjectFiles(missingRoot, config),
+        () => collectProjectFiles(join(projectRoot, "missing-root"), selection),
         /could not read directory .*missing-root/u
       );
     } finally {
@@ -146,36 +151,49 @@ describe("quality input file collection", () => {
     }
   });
 
-  it("does not add built-in exclusions to the selected fallback config", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "docnav-quality-selected-config-"));
-    const selectedConfig = {
-      excludeDirs: [],
-      generatedFiles: [],
-      include: ["vendor/**/*.ts"]
-    } satisfies ProjectFileSelection;
+  it("fails closed when the selected Git source is unavailable", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-unavailable-"));
 
     try {
-      writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
-
-      assert.deepEqual(collectProjectFiles(projectRoot, selectedConfig), ["vendor/kept.ts"]);
+      writeFixtureFile(projectRoot, "src/kept.ts", "export const kept = true;\n");
+      assert.throws(
+        () => collectProjectFiles(projectRoot, gitSelection),
+        /could not enumerate git-worktree files/u
+      );
     } finally {
       rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 
-  it("uses minimatch include semantics for Git and fallback candidates", () => {
+  it("does not add exclusions outside the selected filesystem config", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-selected-config-"));
+    const selection = {
+      exclude: [],
+      include: ["vendor/**/*.ts"],
+      source: "filesystem"
+    } satisfies ProjectFileSelection;
+
+    try {
+      writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
+      assert.deepEqual(collectProjectFiles(projectRoot, selection), ["vendor/kept.ts"]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("uses the same minimatch semantics for Git and filesystem candidates", () => {
     const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-glob-owner-"));
     const repository = join(tempDir, "repository");
-    const fallbackRoot = join(tempDir, "fallback");
-    const braceConfig = {
-      excludeDirs: [".git"],
-      generatedFiles: [],
-      include: ["src/**/*.{ts,tsx}"]
+    const filesystemRoot = join(tempDir, "filesystem");
+    const selection = {
+      exclude: ["**/.git", "**/.git/**"],
+      include: ["src/**/*.{ts,tsx}"],
+      source: "git-worktree"
     } satisfies ProjectFileSelection;
 
     try {
       initializeRepository(repository);
-      for (const root of [repository, fallbackRoot]) {
+      for (const root of [repository, filesystemRoot]) {
         writeFixtureFile(root, "src/component.tsx", "export const component = true;\n");
         writeFixtureFile(root, "src/nested/module.ts", "export const module = true;\n");
         writeFixtureFile(root, "src/ignored.js", "export const ignored = true;\n");
@@ -183,13 +201,52 @@ describe("quality input file collection", () => {
       }
       commitAll(repository, "glob candidates");
       writeFixtureFile(repository, "src/untracked.ts", "export const untracked = true;\n");
-      writeFixtureFile(fallbackRoot, "src/untracked.ts", "export const untracked = true;\n");
+      writeFixtureFile(filesystemRoot, "src/untracked.ts", "export const untracked = true;\n");
 
       const expected = ["src/component.tsx", "src/nested/module.ts", "src/untracked.ts"];
-      assert.deepEqual(collectProjectFiles(repository, braceConfig), expected);
-      assert.deepEqual(collectProjectFiles(fallbackRoot, braceConfig), expected);
+      assert.deepEqual(collectProjectFiles(repository, selection), expected);
+      assert.deepEqual(
+        collectProjectFiles(filesystemRoot, { ...selection, source: "filesystem" }),
+        expected
+      );
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
+    }
+  });
+
+  it("resolves multiple filesystem sets from one named selection call", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-file-sets-"));
+
+    try {
+      writeFixtureFile(projectRoot, "src/product.ts", "export const product = true;\n");
+      writeFixtureFile(projectRoot, "scripts/tool.ts", "export const tool = true;\n");
+      const selected = collectProjectFileSets(projectRoot, {
+        product: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" },
+        tooling: { exclude: [], include: ["scripts/**/*.ts"], source: "filesystem" }
+      });
+
+      assert.deepEqual(selected.get("product"), ["src/product.ts"]);
+      assert.deepEqual(selected.get("tooling"), ["scripts/tool.ts"]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
+    }
+  });
+
+  it("applies explicit default exclusions while retaining other dot files", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-default-files-"));
+
+    try {
+      writeFixtureFile(projectRoot, ".visible-config", "enabled=true\n");
+      writeFixtureFile(projectRoot, ".git/config", "[core]\n");
+      writeFixtureFile(projectRoot, "src/value.generated.ts", "export const generated = true;\n");
+      writeFixtureFile(projectRoot, "src/value.ts", "export const value = true;\n");
+
+      assert.deepEqual(collectProjectFiles(projectRoot, DEFAULT_PROJECT_FILE_SELECTION), [
+        ".visible-config",
+        "src/value.ts"
+      ]);
+    } finally {
+      rmSync(projectRoot, { recursive: true, force: true });
     }
   });
 
@@ -200,8 +257,7 @@ describe("quality input file collection", () => {
     try {
       initializeRepository(repository);
       writeFixtureFile(repository, newlinePath, "export const newline = true;\n");
-
-      assert.deepEqual(collectProjectFiles(repository, config), [newlinePath]);
+      assert.deepEqual(collectProjectFiles(repository, gitSelection), [newlinePath]);
     } finally {
       rmSync(repository, { recursive: true, force: true });
     }

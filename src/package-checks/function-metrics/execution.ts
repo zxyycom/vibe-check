@@ -1,5 +1,6 @@
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
-import { collectProjectFiles } from "../project-files/collection.ts";
+import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
+import { settleFindings } from "../code-quality-findings/policy.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
 import { measureFunctionMetrics, type FunctionMeasurementResult } from "./measurement.ts";
 import type {
@@ -19,7 +20,8 @@ type FunctionMetricsUnavailableReasonCode =
   | "external-dependency-unavailable"
   | "external-execution-failed"
   | "external-result-invalid"
-  | "invalid-options";
+  | "invalid-options"
+  | "source-unavailable";
 
 /** Default Check callback；一次扫描完整 area exact-input union。 */
 export async function executeFunctionMetrics(
@@ -28,7 +30,12 @@ export async function executeFunctionMetrics(
   if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("cancelled");
 
-  const exactInput = prepareExactInputSet(context.project.root, context.options.codeAreas);
+  let exactInput: FunctionMetricsExactInputSet;
+  try {
+    exactInput = prepareExactInputSet(context.project.root, context.options.codeAreas);
+  } catch {
+    return unavailable("source-unavailable");
+  }
   if (context.signal.aborted) return unavailable("cancelled");
   if (exactInput.approvedExactPaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
@@ -46,14 +53,7 @@ export async function executeFunctionMetrics(
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  const blockingFindingCount = candidates.filter((candidate) => candidate.data.blocking).length;
-  return Object.freeze({
-    status: blockingFindingCount > 0 ? "failed" : "passed",
-    data: Object.freeze({
-      blockingFindingCount,
-      findingCount: candidates.length
-    })
-  });
+  return settleFindings(candidates.map((candidate) => candidate.data.blocking));
 }
 
 function prepareExactInputSet(
@@ -78,8 +78,14 @@ function collectAreaInputs(
   const orderedPolicies = Object.entries(codeAreas).sort(([left], [right]) =>
     compareText(left, right)
   );
+  const filesByArea = collectProjectFileSets(
+    rootDir,
+    Object.fromEntries(orderedPolicies.map(([areaId, policy]) => [areaId, policy.files]))
+  );
   for (const [codeArea, policy] of orderedPolicies) {
-    const approvedExactPaths = selectLizardTargetFiles(collectProjectFiles(rootDir, policy.files));
+    const approvedExactPaths = selectLizardTargetFiles(
+      requireProjectFileSet(filesByArea, codeArea)
+    );
     if (approvedExactPaths.length === 0) continue;
     areas.push(
       Object.freeze({

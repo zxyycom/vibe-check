@@ -267,21 +267,28 @@ owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definitio
 
 ```ts
 {
+  source: "filesystem",
   include: ["**/*"],
-  excludeDirs: [
-    ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-    "node_modules", "target", "vendor"
-  ],
-  generatedFiles: ["**/generated/**", "**/*.generated.*"]
+  exclude: [
+    "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+    "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+    "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+    "**/target/**", "**/vendor/**"
+  ]
 }
 ```
 
-metric constructor 对三个 files 数组分别补默认值：省略字段时使用上表值；显式提供某个数组时，该数组完整替换对应字段的
-default，不会自动追加或深度合并。需要保留默认规则并增加项目规则时，项目应先定义自己的完整数组，再通过普通 TypeScript
-composition 复用。nested threshold、allowance 与 finding-policy 字段仍按各 constructor 的下述规则独立补齐。
+metric constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上表值；source 只能是
+`"filesystem" | "git-worktree"`。显式提供某个数组时，该数组完整替换对应字段的默认值，不会自动追加或深度合并。
+`include` 与 `exclude` 都匹配相对项目根目录且使用 `/` 的路径，`exclude` 优先。filesystem 不解释 `.gitignore`；
+git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。文件选择始终只使用配置的来源；来源失败会让
+owning Check 结算为 unavailable，不会切换来源。需要保留默认排除并增加项目规则时，项目应先定义自己的完整数组，再通过
+普通 TypeScript composition 复用。nested threshold、allowance 与 finding-policy 字段仍按各 constructor 的下述规则
+独立补齐。
 
 无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
-`{ files: <上述 branch>, minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有 `files` 或默认/override 阈值。
+`{ files: <上述 branch>, findingPolicy: "blocking", minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有
+`files` 或默认/override 阈值。
 无参 `fileMetrics()` 建立一个 area-owned `project` policy 并使用默认 `scc` executable；完整字段与默认值见
 [`fileMetrics` 指南](checks/file-metrics.md#参数与默认配置)。
 无参 `functionMetrics()` 以 `"blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
@@ -294,8 +301,8 @@ value 显式组合。
 
 | Package export           | Kind        | Check ID                   | 初始 execution option                       | 其它 Check option                       |
 | ------------------------ | ----------- | -------------------------- | ------------------------------------------- | --------------------------------------- |
-| `duplicateDetection`     | constructor | `duplicate-detection`      | `scanner: { command: { kind: "package" } }` | cache 启用；area-owned files/thresholds |
-| `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area-owned files/code lines             |
+| `duplicateDetection`     | constructor | `duplicate-detection`      | `scanner: { command: { kind: "package" } }` | cache；area files/thresholds/finding policy |
+| `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area files/code lines/finding policy         |
 | `functionMetrics`        | constructor | `function-metrics`         | `scanner: { executable: "lizard" }`         | area-owned files/limits/finding policy  |
 | `jsonValidation`         | value       | `json-validation`          | —                                           | `maximumBytes: 1_048_576`               |
 | `jsonSchemaValidation`   | value       | `json-schema-validation`   | —                                           | 显式 JSON Schema registry 与 bindings   |
@@ -303,15 +310,18 @@ value 显式组合。
 
 `jsonValidation.options` 恰好包含 `{ files, maximumBytes }`，其中 `maximumBytes` 必须是正安全整数；用普通 object
 composition 替换 `options` 时必须同时提供两个字段。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
-codeAreas, scanner }`；显式 area 必须提供 `files` branch，其中三个 lists 和两个阈值均可省略。constructor 产物的完整
+codeAreas, findingPolicy, scanner }`；显式 area 必须提供 `files` branch，其中 `source`、`include`、`exclude`、finding
+policy 和两个阈值均可省略。constructor 产物的完整
 `options` 恰好包含 `{ cache, codeAreas, scanner }`；`codeAreas` 至少有一个非空 id，每个 value 恰好包含
-`{ files, minimumLines, minimumTokens }`，两个阈值都是正安全整数。resolved `scanner` 恰为 `{ command }`；package
+`{ files, findingPolicy, minimumLines, minimumTokens }`，两个阈值都是正安全整数。顶层 `findingPolicy` 默认为
+`"blocking"`，area 可覆盖并在 resolved area 中物化。resolved `scanner` 恰为 `{ command }`；package
 command 恰为 `{ kind: "package" }`，custom command 恰为 `{ kind: "custom", executable }`。version probe、exact-input
 config、JSON report output 和自动 worker policy 全部由 jscpd adapter 拥有；正确示例与 wrapper 边界见
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)。
 
-`fileMetrics(options?)` 以 area ID 共同组织 files 与 code-line policy，并只允许 consumer 选择 SCC executable；完整
-input/resolved shape、有效上限、重叠 area 和 adapter protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
+`fileMetrics(options?)` 以 area ID 共同组织 files、code-line policy 与 effective finding policy，并只允许 consumer 选择
+SCC executable；顶层 `findingPolicy` 默认为 `"blocking"`，area 可覆盖。完整 input/resolved shape、有效上限、重叠 area
+和 adapter protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
 
 `functionMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, scanner }`；顶层 finding policy 只能是
 `"blocking" | "non-blocking"`。显式 area 必须提供 `files` branch，可省略 nested limits 与 area finding-policy override。
@@ -329,12 +339,14 @@ The exported `jsonSchemaValidation.options` value is exactly:
 ```ts
 {
   files: {
+    source: "filesystem",
     include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+    exclude: [
+      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+      "**/target/**", "**/vendor/**"
+    ]
   },
   maximumBytes: 1_048_576,
   schemaIdentity: { mode: "require-match" },
@@ -415,12 +427,14 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
 ```ts
 {
   files: {
+    source: "filesystem",
     include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+    exclude: [
+      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+      "**/target/**", "**/vendor/**"
+    ]
   },
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,

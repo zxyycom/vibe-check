@@ -3,6 +3,7 @@ import {
   type FunctionMetricAnalysis,
   type FunctionMetricInstance
 } from "./analysis.ts";
+import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 import type { FunctionMetric, FunctionMetricsAreaInput } from "./measurement-model.ts";
 import type { ResolvedFunctionMetricsLimits } from "./options.ts";
 
@@ -86,7 +87,7 @@ function resolveFunctionPolicyContext(
   matchingAreas: MatchingFunctionMetricAreas
 ): Readonly<FunctionPolicyContext> {
   return Object.freeze({
-    blocking: matchingAreas.some((area) => area.findingPolicy === "blocking"),
+    blocking: isBlockingFinding(matchingAreas.map((area) => area.findingPolicy)),
     codeAreas: Object.freeze(uniqueSorted(matchingAreas.map((area) => area.codeArea))),
     functionName: isStableFunctionName(instance.metric.name) ? instance.metric.name : "<anonymous>"
   });

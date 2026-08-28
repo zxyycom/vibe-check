@@ -148,7 +148,7 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
 function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateFixture>): void {
   assert.equal(runEvidence.kind, "completed");
   assert.equal(runEvidence.duplicateOutcome, "passed");
-  assert.deepEqual(runEvidence.duplicateData, { findingCount: 0 });
+  assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 0 });
   assert.equal(runEvidence.jsonSchemaOutcome, "passed");
   assert.deepEqual(runEvidence.jsonSchemaData, {
     bindingCount: 1,

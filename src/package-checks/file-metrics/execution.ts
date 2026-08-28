@@ -1,5 +1,6 @@
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
-import { collectProjectFiles } from "../project-files/collection.ts";
+import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
+import { settleFindings } from "../code-quality-findings/policy.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
 import type { FileMetricsExactInputSet } from "./measurement-model.ts";
 import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
@@ -15,7 +16,8 @@ type FileMetricsUnavailableReasonCode =
   | "external-dependency-unavailable"
   | "external-execution-failed"
   | "external-result-invalid"
-  | "invalid-options";
+  | "invalid-options"
+  | "source-unavailable";
 
 interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
   readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
@@ -27,7 +29,12 @@ export async function executeFileMetrics(
 ): Promise<CheckResult> {
   if (!isValidResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
 
-  const collectedScope = collectAreaScope(context.project.root, context.options.codeAreas);
+  let collectedScope: CollectedFileMetricsScope;
+  try {
+    collectedScope = collectAreaScope(context.project.root, context.options.codeAreas);
+  } catch {
+    return unavailable("source-unavailable");
+  }
   if (collectedScope.approvedExactPaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
@@ -41,10 +48,7 @@ export async function executeFileMetrics(
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return Object.freeze({
-    status: candidates.length > 0 ? "failed" : "passed",
-    data: Object.freeze({ findingCount: candidates.length })
-  });
+  return settleFindings(candidates.map((candidate) => candidate.data.blocking));
 }
 
 function collectAreaScope(
@@ -52,8 +56,12 @@ function collectAreaScope(
   codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>
 ): CollectedFileMetricsScope {
   const areaIdsByPath = new Map<string, string[]>();
-  for (const [areaId, area] of Object.entries(codeAreas)) {
-    for (const path of collectProjectFiles(rootDir, area.files)) {
+  const filesByArea = collectProjectFileSets(
+    rootDir,
+    Object.fromEntries(Object.entries(codeAreas).map(([areaId, area]) => [areaId, area.files]))
+  );
+  for (const [areaId] of Object.entries(codeAreas)) {
+    for (const path of requireProjectFileSet(filesByArea, areaId)) {
       const areaIds = areaIdsByPath.get(path);
       if (areaIds === undefined) areaIdsByPath.set(path, [areaId]);
       else areaIds.push(areaId);

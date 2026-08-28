@@ -121,6 +121,8 @@ describe("functionMetrics constructor", () => {
     const invalidInputs: readonly unknown[] = [
       { unknown: true },
       { codeAreas: {} },
+      { codeAreas: { source: { files: { excludeDirs: [] } } } },
+      { codeAreas: { source: { files: { source: "auto" } } } },
       { codeAreas: { "": { files: {} } } },
       { codeAreas: { source: { files: {}, limits: { parameters: { maximum: 0 } } } } },
       { codeAreas: { source: { files: {}, limits: { parameters: { maximum: 1.5 } } } } },
@@ -222,7 +224,7 @@ describe("functionMetrics area findings", () => {
       const nonBlockingOptions = {
         codeAreas: {
           source: {
-            files: { excludeDirs: [], generatedFiles: [], include: ["src/**/*.ts"] },
+            files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" },
             limits: STRICT_LIMITS
           }
         },
@@ -246,7 +248,7 @@ describe("functionMetrics area findings", () => {
         codeAreas: {
           source: nonBlockingOptions.codeAreas.source,
           overlap: {
-            files: { excludeDirs: [], generatedFiles: [], include: ["src/a.ts"] },
+            files: { exclude: [], include: ["src/a.ts"], source: "filesystem" },
             findingPolicy: "blocking",
             limits: RELAXED_LIMITS
           }
@@ -285,6 +287,23 @@ describe("functionMetrics area findings", () => {
         ),
         true
       );
+      const sourceUnavailable = await execute(
+        executeFunctionMetrics,
+        {
+          ...mixed.options,
+          codeAreas: {
+            source: {
+              ...mixed.options.codeAreas.source,
+              files: { ...mixed.options.codeAreas.source.files, source: "git-worktree" }
+            }
+          }
+        },
+        root
+      );
+      assert.deepEqual(sourceUnavailable.result, {
+        status: "unavailable",
+        reason: { code: "source-unavailable" }
+      });
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

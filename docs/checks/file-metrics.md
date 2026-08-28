@@ -7,7 +7,7 @@
 ## 用途
 
 `fileMetrics(options?)` 返回一个普通 `file-metrics` Check。该 Check 使用 SCC 测量各区域所选文件的代码行数，
-将超过区域策略的文件发布为 supplemental Records，并在 Check final data 中报告 `findingCount`。
+将超过区域策略的文件发布为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
 
 无参调用使用完整默认策略：
 
@@ -22,21 +22,23 @@ SCC-compatible executable。
 
 ## 参数与默认配置
 
-constructor input 只有两个可省略的顶层字段：
+constructor input 只有三个可省略的顶层字段：
 
 ```text
 options
 ├─ codeAreas?
 │  └─ [areaId]
 │     ├─ files
+│     │  ├─ source?
 │     │  ├─ include?
-│     │  ├─ excludeDirs?
-│     │  └─ generatedFiles?
+│     │  └─ exclude?
+│     ├─ findingPolicy?
 │     └─ codeLines?
 │        ├─ maximum?
 │        └─ lowDecisionTokenAllowance?
 │           ├─ maximumCodeLines?
 │           └─ maximumDecisionTokens?
+├─ findingPolicy?
 └─ scanner?
    └─ executable?
 ```
@@ -50,13 +52,16 @@ options
   codeAreas: {
     project: {
       files: {
+        source: "filesystem",
         include: ["**/*"],
-        excludeDirs: [
-          ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-          "node_modules", "target", "vendor"
-        ],
-        generatedFiles: ["**/generated/**", "**/*.generated.*"]
+        exclude: [
+          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+          "**/target/**", "**/vendor/**"
+        ]
       },
+      findingPolicy: "blocking",
       codeLines: {
         maximum: 300,
         lowDecisionTokenAllowance: {
@@ -74,10 +79,12 @@ options
 
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
   非空 area ID。
-- 每个显式区域必须提供 `files`。`files.include`、`files.excludeDirs` 与 `files.generatedFiles` 可分别
-  省略；省略的列表使用上述 package default，显式 `[]` 才会清空对应规则。
-- `include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob 匹配；`excludeDirs` 按路径中的目录
-  segment 匹配。显式数组是该字段的完整值，因此 `[]` 可明确清空对应规则。
+- 每个显式区域必须提供 `files`。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem
+  不解释 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check
+  结算为 `unavailable`，不会切换到另一来源。
+- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用上述 package
+  default；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `blocking`；area 可覆盖，省略时继承顶层值。
 - 省略 `codeLines` 时使用完整默认代码行策略；`maximum` 与 allowance 内的字段也可分别省略。
 - `maximum` 与 `maximumCodeLines` 必须是正安全整数，`maximumDecisionTokens` 必须是非负安全整数；
   allowance 的 `maximumCodeLines` 必须严格大于同一区域的普通 `maximum`。
@@ -109,8 +116,9 @@ const sourceAndTests = fileMetrics({
 });
 ```
 
-本例只覆盖各区域显式给出的字段；省略的文件列表和代码行字段继续使用 package default。需要在某个默认文件数组上增加
-项目规则时，请在项目的 TypeScript value 中显式组成包含默认项与新增项的完整数组，再传给 constructor。
+本例只覆盖各区域显式给出的字段；省略的文件字段、finding policy 和代码行字段继续使用 package 默认值。需要在默认
+`exclude` 数组上增加项目规则时，请在项目的 TypeScript value 中显式组成包含默认项与新增项的完整数组，再传给
+constructor。
 
 ### 单个区域的有效上限
 
@@ -126,7 +134,8 @@ SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measure
 
 ## 工作原理
 
-1. Check 分别按每个 `codeAreas[areaId].files` 收集路径，并保存 path 到全部实际 area IDs 的 membership。
+1. Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为每个 area 应用自己的 `include` / `exclude`，
+   并保存 path 到全部实际 area IDs 的 membership。
 2. Check 对全部路径稳定排序、去重，只把这个 exact-path union 交给 SCC 一次。
 3. 每条 SCC measurement 必须声明属于该 union 的 source path；任一越界 measurement 会拒绝整批结果。
 4. 对属于多个区域的文件，Check 分别计算各区域的有效代码行上限，并使用其中最小的严格上限：
@@ -136,7 +145,7 @@ SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measure
    ```
 
 5. 一个超限路径最多发布一条 Record，因此区域重叠不会重复扫描、重复记录或重复计数。Record 保留稳定排序的
-   全部匹配 area IDs。
+   全部匹配 area IDs；任一 matching area 的 effective finding policy 为 blocking 时，该 Record blocking。
 
 ## 定制 SCC executable
 
@@ -167,17 +176,15 @@ shape。非法 replacement 不会重新获得 constructor defaults，而是结�
 
 ## 效果与结果
 
-正常完成的 Check 只使用以下两个 outcome：
-
-| 条件             | outcome  | final data                        |
-| ---------------- | -------- | --------------------------------- |
-| 没有超限文件     | `passed` | `{ findingCount: 0 }`             |
-| 至少一个超限文件 | `failed` | `{ findingCount: <Record 数量> }` |
+每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。正常 final data 恰为
+`{ findingCount, blockingFindingCount }`；前者等于 Records 数量，后者等于其中 `blocking: true` 的数量。
+`blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带 non-blocking Records。
 
 每个超限路径发布一条 supplemental Record。Record ID 是 path，data shape 为：
 
 ```ts
 {
+  blocking: boolean;
   codeAreas: string[]; // 稳定排序的全部匹配 area IDs
   codeLines: number;
   limit: number;       // 全部匹配区域中的最严格有效上限
@@ -195,6 +202,7 @@ shape。非法 replacement 不会重新获得 constructor defaults，而是结�
 | ---------------------------------------------------------------- | ----------------------------------------------- |
 | 全部区域的 exact-path union 为空                                 | `not-applicable / no-eligible-input`            |
 | resolved options 不符合完整 closed shape                         | `unavailable / invalid-options`                 |
+| 所配置的 filesystem 或 git-worktree 来源无法形成候选集合         | `unavailable / source-unavailable`              |
 | SCC command 缺失、version probe 失败或版本不匹配                 | `unavailable / external-dependency-unavailable` |
 | SCC measurement process 执行失败                                 | `unavailable / external-execution-failed`       |
 | CSV、measurement scope 或 Record conversion 不能形成可信完整结果 | `unavailable / external-result-invalid`         |

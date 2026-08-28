@@ -13,20 +13,24 @@ Definition 的 `checks`。
 ```ts
 {
   files: {
+    source: "filesystem",
     include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+    exclude: [
+      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+      "**/target/**", "**/vendor/**"
+    ]
   },
   maximumBytes: 1_048_576
 }
 ```
 
-`files` 完整定义本 Check 的 project-file selection；只有其中 case-sensitive `path.endsWith(".json")` 的 paths
-成为输入。`maximumBytes` 是每个 raw JSON document 的 byte 上限，必须是正安全整数。替换 options 时两个字段都必须
-保留。
+`files` 完整定义本 Check 的 project-file selection；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
+`include` 且不能命中 `exclude`。只有其中 case-sensitive `path.endsWith(".json")` 的 paths 成为输入。
+filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。两种来源都使用
+本页 `files` branch 的 `include` / `exclude` glob；来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
+`maximumBytes` 是每个 raw JSON document 的 byte 上限，必须是正安全整数。替换 options 时两个字段都必须保留。
 
 ## 工作原理
 

@@ -12,12 +12,14 @@ sources 中的本机链接、图片目标与标题锚点。导出值可以直接
 ```ts
 {
   files: {
+    source: "filesystem",
     include: ["**/*"],
-    excludeDirs: [
-      ".git", ".vibe-check", ".cache", ".venv", "artifacts", "build", "dist",
-      "node_modules", "target", "vendor"
-    ],
-    generatedFiles: ["**/generated/**", "**/*.generated.*"]
+    exclude: [
+      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
+      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
+      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+      "**/target/**", "**/vendor/**"
+    ]
   },
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
@@ -32,8 +34,10 @@ sources 中的本机链接、图片目标与标题锚点。导出值可以直接
 }
 ```
 
-- `files` 完整定义 Markdown source selection；其中 `.md` / `.markdown` 成为 sources，direct targets 仅用于
-  resolution。
+- `files` 完整定义 Markdown source selection；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
+  `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
+  规则排除的未跟踪文件。其中 `.md` / `.markdown` 成为 sources，direct targets 仅用于 resolution；来源不可用时
+  Check 结算为 `unavailable`，不会切换到另一来源。
 - `requireExistingTargets` 控制缺失 direct local target 是否是 finding。
 - `validateSameDocumentAnchors` / `validateCrossDocumentAnchors` 分别控制当前文档与直接 Markdown target 的 heading
   lookup。

@@ -17,9 +17,9 @@ import { jsonValidation } from "./default-check.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*"]),
+  source: "filesystem" as const
 });
 const DEFAULT_OPTIONS = Object.freeze({ maximumBytes: 1_048_576 });
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
@@ -117,7 +117,7 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("uses only its included JSON paths without re-adding excluded or generated files", () => {
+  it("uses only its included JSON paths without re-adding excluded paths", () => {
     const root = createTemporaryProjectRoot();
     try {
       mkdirSync(join(root, "generated"));
@@ -126,9 +126,9 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "generated", "invalid.json"), "{", "utf8");
       writeFileSync(join(root, "vendor", "invalid.json"), "{", "utf8");
       const files: ProjectFileSelection = Object.freeze({
-        excludeDirs: Object.freeze(["vendor"]),
-        generatedFiles: Object.freeze(["generated/**"]),
-        include: Object.freeze(["**/*"])
+        exclude: Object.freeze(["**/vendor/**", "generated/**"]),
+        include: Object.freeze(["**/*"]),
+        source: "filesystem"
       });
 
       assert.deepEqual(runJsonValidation({ fileConfiguration: files, root }), {

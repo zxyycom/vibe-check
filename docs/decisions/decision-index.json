@@ -122,9 +122,11 @@
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
+      "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
+      "share-finding-policy-across-area-quality-checks.md": "sha256:16e70625e6a80d693b5a59510241c55d72194edf7fed3750456a555d03a69aa0",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
@@ -3823,6 +3825,40 @@
         ]
       }
     },
+    "select-check-files-from-explicit-sources.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "select-check-files-from-explicit-sources.md",
+        "title": "从显式来源选择 Check 文件",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T11:14:37Z",
+        "purpose": "让读取文件的 Check 以稳定 source 和 include/exclude 完整表达候选文件与过滤规则，并在 owning Check 内复用同源枚举。",
+        "background": "当前三字段选择重复表达排除语义，Git 成功与失败还会让同一配置隐式切换候选来源。",
+        "decision": "文件选择使用 source/include/exclude；filesystem 与 git-worktree 均为显式来源且失败时停止，同一 Check 对每种来源至多枚举一次。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "let-each-check-own-file-selection.md"
+          }
+        ]
+      }
+    },
     "separate-check-and-record-type-identities.md": {
       "keys": {
         "tag": [
@@ -3911,6 +3947,35 @@
         "background": "availability 判定后仍可写入的 ack 或 record 会让已放行 dependent 的前提变得可追溯，破坏任务图的可信依赖边界。",
         "decision": "settlement 在返回 availability 前原子地关闭 Check 的执行 ports、冻结事实并据此计算 availability；late 调用被拒绝且不改变最终执行或完整性事实。",
         "tags": [
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "share-finding-policy-across-area-quality-checks.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "share-finding-policy-across-area-quality-checks.md",
+        "title": "在区域质量 Check 间共享 Finding 阻断政策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T11:14:38Z",
+        "purpose": "让三个基于 area 的质量 Check 完整保留 findings，并用同一 policy 决定哪些 finding 使 owning Check failed。",
+        "background": "三个 Check 都产生 area-owned quality findings，但只有 function metrics 能将 finding 保留为 non-blocking 证据。",
+        "decision": "三个 Check 共用 blocking/non-blocking、overlap 与计数规则；Core 不建立 Finding 模型。",
+        "tags": [
+          "configuration",
           "product-contract"
         ],
         "relations": []

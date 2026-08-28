@@ -24,7 +24,10 @@ export function collectSubmoduleWorktreeFiles({
 }>): string[] {
   const files: string[] = [];
   const visitedRepositories = new Set([canonicalRepositoryPath(repository)]);
-  for (const gitlink of gitlinksAtRevision({ repository, revision: "HEAD" }) ?? []) {
+  const revision = worktreeRevision(repository);
+  if (revision === null) return files;
+
+  for (const gitlink of gitlinksAtRevision({ repository, revision })) {
     const submoduleRepository = resolveDescendableGitlinkRepository({
       gitlinkPath: gitlink.path,
       repository,
@@ -61,19 +64,23 @@ function collectWorktreeFiles({
     args: ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--"],
     cwd: repository
   });
-  if (processFailed(result)) return [];
+  if (processFailed(result)) {
+    const detail =
+      result.stderr.trim() ||
+      result.error?.message ||
+      (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
+    throw new Error(`could not enumerate git-worktree files in ${repository}: ${detail}`);
+  }
 
   const files = prefixAndFilter({
     files: splitNulDelimitedGitFileList(result.stdout),
     prefix,
     scanInputPaths
   });
-  const revision = nonEmptyGitOutput(
-    runGit({ args: ["rev-parse", "HEAD"], cwd: repository }).stdout
-  );
-  if (!revision) return uniqueSortedPaths(files);
+  const revision = worktreeRevision(repository);
+  if (revision === null) return uniqueSortedPaths(files);
 
-  for (const gitlink of gitlinksAtRevision({ repository, revision }) ?? []) {
+  for (const gitlink of gitlinksAtRevision({ repository, revision })) {
     const submoduleRepository = resolveDescendableGitlinkRepository({
       gitlinkPath: gitlink.path,
       repository,
@@ -93,4 +100,24 @@ function collectWorktreeFiles({
     );
   }
   return uniqueSortedPaths(files);
+}
+
+function worktreeRevision(repository: string): string | null {
+  const result = runGit({ args: ["rev-parse", "--verify", "--quiet", "HEAD"], cwd: repository });
+  if (!processFailed(result)) {
+    const revision = nonEmptyGitOutput(result.stdout);
+    if (revision !== null) return revision;
+    throw new Error(`git-worktree revision inspection returned no revision in ${repository}`);
+  }
+  const headDoesNotExist =
+    result.error === undefined &&
+    result.signal === null &&
+    result.status === 1 &&
+    result.stderr.trim() === "";
+  if (headDoesNotExist) return null;
+  const detail =
+    result.stderr.trim() ||
+    result.error?.message ||
+    (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
+  throw new Error(`could not inspect git-worktree revision in ${repository}: ${detail}`);
 }

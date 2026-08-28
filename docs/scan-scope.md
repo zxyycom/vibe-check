@@ -11,15 +11,16 @@ Check final status、Record、aggregation、machine output 或 scanner protocol�
 
 ```ts
 {
-  excludeDirs: readonly string[];
-  generatedFiles: readonly string[];
+  source: "filesystem" | "git-worktree";
   include: readonly string[];
+  exclude: readonly string[];
 }
 ```
 
 `ProjectDefinition` 和 `CheckProjectContext` 都不保存全局文件选择。两个 Check 或两个 duplicate code areas 即使使用相同
 结构，也分别验证、冻结和消费自己的 policy；项目若希望它们选择相同文件，应以普通 TypeScript value 和 object
-composition 显式复用，而不是依赖 Product 的 hidden global configuration。
+composition 显式复用，而不是依赖 Product 的 hidden global configuration。同一个 area-based Check 会按 `source` 复用
+候选枚举；这个复用不创建 provider Check、dependency fact 或跨 Check hidden cache。
 
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
 line/token policy，file area 使用 file code-line policy，function area 使用 function limits 与 effective finding policy。
@@ -28,11 +29,20 @@ package-provided Check ID 解释。
 
 ## File collection mechanism
 
-`collectProjectFiles(root, files)` 从 project root 产生 slash-normalized、stable-sorted relative paths，再应用该次
-调用给出的 `include`、`excludeDirs` 与 `generatedFiles`。正常 collection 调用
-`git ls-files -z --cached --others --exclude-standard --`。Git 成功（包括空输出）时使用其 ignore-aware candidate
-set，并加入已初始化 child Git worktree 的当前文件；Git command 失败时才使用 config-only filesystem fallback。
-fallback 不能读取 root 或任一遍历目录时以包含该目录的读取错误失败，不能把故障伪装为 empty set。
+`collectProjectFileSets(root, selections)` 先按 `source` 分组，每种不同来源只建立一次稳定候选快照，再为每个命名选择应用
+自己的 `include` 与 `exclude`。`collectProjectFiles(root, files)` 是单个选择的入口。最终路径相对项目根目录并使用 `/`，
+经过稳定去重排序；路径必须命中至少一个 `include` 且不能命中任一 `exclude`，因此 `exclude` 优先。两组数组使用同一个
+minimatch glob grammar；点号开头的路径也参与显式 glob 匹配，不存在额外的隐藏 dotfile 规则。
+
+- `filesystem`（默认）递归枚举 project root 下的普通文件，不跟随 symlink，也不解释 `.gitignore`。实现可以从全部命名
+  选择共同拥有的完整目录排除规则安全派生遍历剪枝，但最终选择仍只由完整 glob 判断。
+- `git-worktree` 执行 `git ls-files -z --cached --others --exclude-standard --`，因此候选包含已跟踪文件和未被 Git 标准
+  忽略规则排除的未跟踪文件；它还加入可安全下沉的已初始化 submodule worktree 当前文件，但 gitlink 目录本身不作为
+  文件候选。Git 成功空输出是合法空候选。
+
+两种来源都会在失败时停止并报告错误。filesystem 无法读取 root 或遍历目录时报告包含该目录的读取错误；Git command、
+repository 或 gitlink inspection 失败时报告 Git 来源不可用。文件收集不会自动切换到另一来源，也不会把来源失败伪装成
+空集合。
 
 ### Exact-input fingerprint
 
@@ -53,12 +63,14 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
 每个 package-provided Check 独立调用 project-file mechanism，并从自己的 resolved candidates 形成 exact inputs；
 不同 Check 可以有不同 file selection。scanner 不接收 project root 来重新发现或扩大输入。
 
-- `duplicate-detection` 分别从每个 `codeAreas[id].files` 形成 paths，再把去重并集一次性交给 Check-local jscpd adapter；
+- `duplicate-detection` 按来源枚举一次并从每个 `codeAreas[id].files` 形成路径，再把去重并集一次性交给 Check-local
+  jscpd adapter；
   因此同 area、跨 area 与重叠 area paths 都可比较，结果再按 location 涉及的全部 area line/token policy 过滤。未被
-  任何 area 选择的 path 不属于 exact scope，也不进入隐式 fallback area。
-- `file-metrics` 分别收集每个 area 的 paths，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按其全部实际
-  input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
-- `function-metrics` 分别从每个 area 选择 `.ts`、`.d.ts` 与 `.rs`，把稳定去重并集一次性交给 Check-local Lizard adapter；
+  任何 area 选择的 path 不属于 exact scope。
+- `file-metrics` 按来源枚举一次并筛出每个 area 的路径，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按
+  其全部实际 input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
+- `function-metrics` 按来源枚举一次并从每个 area 选择 `.ts`、`.d.ts` 与 `.rs`，把稳定去重并集一次性交给 Check-local
+  Lizard adapter；
   每个结果恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area blocking 时 finding blocking，
   同一 metric 最多产生一条 finding。
 - `json-validation` 只从自己的 candidates 中以 case-sensitive `path.endsWith(".json")` 选择文件；`.JSON` 不属于输入。
@@ -68,7 +80,7 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
 - `markdown-link-validation` 只从自己的 candidates 中选择 `.md` 或 `.markdown` source；direct target 不成为新的
   source input，也不递归发现 links。
 
-zero eligible input 是 owning Check 的 applicability/work fact，不触发另一份 scope fallback。
+合格输入为零是 owning Check 的 applicability/work fact；本次 invocation 使用的文件来源保持不变。
 
 ### Markdown Link source occurrences
 
@@ -114,6 +126,6 @@ payload 重建领域事实。
 
 ## 验证
 
-`src/package-checks/project-files/**` tests 覆盖 include/exclude/generated filtering、Git success-empty 与 fallback、NUL paths、
-fingerprint、initialized submodule worktree collection 和 exact-input acceptance；各 Check 相邻 tests 证明 supported
-extensions、own options、scanner no-expansion 与 four-state settlement。
+`src/package-checks/project-files/**` tests 覆盖显式来源、include/exclude、Git 成功空集合、filesystem 与 ignore 规则独立、
+来源失败、命名集合、点号路径、NUL 路径、fingerprint、已初始化 submodule worktree 收集和 exact-input acceptance；各
+Check 相邻 tests 证明 supported extensions、own options、scanner no-expansion 与 four-state settlement。

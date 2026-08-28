@@ -18,15 +18,15 @@ import type {
 } from "../../check/check.ts";
 
 const FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.ts"]),
+  source: "filesystem" as const
 });
 
 const MARKDOWN_FILES = Object.freeze({
-  excludeDirs: Object.freeze([]),
-  generatedFiles: Object.freeze([]),
-  include: Object.freeze(["**/*.md", "**/*.markdown"])
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.md", "**/*.markdown"]),
+  source: "filesystem" as const
 });
 
 const MARKDOWN_LINK_OPTIONS: MarkdownLinkValidationOptions = Object.freeze({
@@ -115,6 +115,10 @@ describe("default Check direct callbacks", () => {
       {
         ...MARKDOWN_LINK_OPTIONS,
         limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxTargetReads: 10_001 }
+      },
+      {
+        ...MARKDOWN_LINK_OPTIONS,
+        files: { excludeDirs: [], generatedFiles: [], include: ["**/*"] }
       },
       { ...MARKDOWN_LINK_OPTIONS, unexpected: true }
     ]) {

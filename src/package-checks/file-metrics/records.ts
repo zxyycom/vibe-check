@@ -1,5 +1,6 @@
 import type { FileMetric } from "./measurement-model.ts";
 import type { ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
+import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 
 const FILE_CODE_LINES_METRIC = "code-lines" as const;
 
@@ -10,11 +11,13 @@ interface FileMetricsAreaPolicyContext {
 
 interface EffectiveFileRecordPolicy {
   readonly areaIds: readonly string[];
+  readonly blocking: boolean;
   readonly limit: number;
 }
 
 export interface FileRecordCandidate {
   readonly data: Readonly<{
+    readonly blocking: boolean;
     readonly codeAreas: readonly string[];
     readonly codeLines: number;
     readonly limit: number;
@@ -60,17 +63,23 @@ function effectiveFileRecordPolicy(
 ): EffectiveFileRecordPolicy | undefined {
   const areaIds = areaPolicy.areaIdsByPath.get(metric.path);
   if (areaIds === undefined || areaIds.length === 0) return undefined;
+  const matchingAreas: ResolvedFileMetricsCodeAreaOptions[] = [];
   let strictestMaximum: number | undefined;
   for (const areaId of areaIds) {
     const codeArea = areaPolicy.codeAreas[areaId];
     if (codeArea === undefined) return undefined;
+    matchingAreas.push(codeArea);
     const maximum = fileCodeLineMaximum(metric, codeArea);
     strictestMaximum =
       strictestMaximum === undefined ? maximum : Math.min(strictestMaximum, maximum);
   }
   return strictestMaximum === undefined
     ? undefined
-    : Object.freeze({ areaIds, limit: strictestMaximum });
+    : Object.freeze({
+        areaIds,
+        blocking: isBlockingFinding(matchingAreas.map((area) => area.findingPolicy)),
+        limit: strictestMaximum
+      });
 }
 
 function createFileRecordCandidate(
@@ -80,6 +89,7 @@ function createFileRecordCandidate(
   return Object.freeze({
     id: metric.path,
     data: Object.freeze({
+      blocking: recordPolicy.blocking,
       codeAreas: Object.freeze([...recordPolicy.areaIds]),
       codeLines: metric.codeLines,
       limit: recordPolicy.limit,

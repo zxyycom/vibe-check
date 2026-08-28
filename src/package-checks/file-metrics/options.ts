@@ -1,54 +1,55 @@
-import type { ProjectFileSelection } from "../project-files/configuration.ts";
+import type {
+  ProjectFileSelection,
+  ProjectFileSelectionOptions
+} from "../project-files/configuration.ts";
+import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 
-/** `fileMetrics` constructor 可省略的 SCC executable policy。 */
+/** `fileMetrics` 构造函数可省略的 SCC 可执行文件策略。 */
 export interface FileMetricsScannerOptions {
-  /** 省略时直接执行 `scc`；显式 command 必须直接接受 adapter-owned SCC 参数。 */
+  /** 省略时直接执行 `scc`；显式命令必须直接接受 adapter 拥有的 SCC 参数。 */
   readonly executable?: string;
 }
 
-/** 一个 file-metrics area 可省略并由 constructor 补齐的文件 policy。 */
-export interface FileMetricsFileOptions {
-  /** 省略时使用 package 默认目录排除；显式数组作为完整替换值。 */
-  readonly excludeDirs?: readonly string[];
-  /** 省略时使用 package 默认 generated-file globs；显式数组作为完整替换值。 */
-  readonly generatedFiles?: readonly string[];
-  /** 省略时包含全部相对路径；显式数组作为完整替换值。 */
-  readonly include?: readonly string[];
-}
+/** file-metrics 区域可省略并由构造函数补齐的文件策略。 */
+export type FileMetricsFileOptions = ProjectFileSelectionOptions;
 
-/** SCC decision-token 数较低的文件可使用的 code-line allowance。 */
+/** SCC decision-token 数较低的文件可使用的代码行宽限策略。 */
 export interface FileMetricsLowDecisionTokenAllowanceOptions {
-  /** 省略时为 `500`；必须严格大于同一区域的普通 code-line maximum。 */
+  /** 省略时为 `500`；必须严格大于同一区域的普通代码行上限。 */
   readonly maximumCodeLines?: number;
-  /** 省略时为 `10`；decision-token measurement 不大于此值时应用 allowance。 */
+  /** 省略时为 `10`；decision-token measurement 不大于此值时应用宽限上限。 */
   readonly maximumDecisionTokens?: number;
 }
 
-/** 一个 area 可省略的 file code-line policy。 */
+/** 一个区域可省略的文件代码行策略。 */
 export interface FileMetricsCodeLineOptions {
   /** 省略时为 `300`；只有严格超过此值才产生 finding。 */
   readonly maximum?: number;
-  /** 省略时使用完整默认 allowance。 */
+  /** 省略时使用完整默认宽限策略。 */
   readonly lowDecisionTokenAllowance?: FileMetricsLowDecisionTokenAllowanceOptions;
 }
 
-/** 一个可独立选择文件并定义 code-line policy 的 file-metrics area。 */
+/** 可独立选择文件并定义代码行与 finding policy 的 file-metrics 区域。 */
 export interface FileMetricsCodeAreaOptions {
-  /** 显式 area 必须声明本 branch；其中各 list 可省略并使用 package defaults。 */
+  /** 显式区域必须声明本字段；其中各子字段可省略并使用 package 默认值。 */
   readonly files: FileMetricsFileOptions;
-  /** 省略时使用 package default code-line policy。 */
+  /** 省略时继承顶层 `findingPolicy`。 */
+  readonly findingPolicy?: FindingPolicy;
+  /** 省略时使用 package 默认代码行策略。 */
   readonly codeLines?: FileMetricsCodeLineOptions;
 }
 
-/** `fileMetrics(options?)` 接受并补齐默认值的 public policy。 */
+/** `fileMetrics(options?)` 接受并补齐默认值的公开策略。 */
 export interface FileMetricsOptions {
-  /** 省略时建立默认 `project` area；显式 map 必须非空。 */
+  /** 省略时建立默认 `project` 区域；显式映射必须非空。 */
   readonly codeAreas?: Readonly<Record<string, FileMetricsCodeAreaOptions>>;
-  /** 省略时直接执行 `scc`，CLI protocol 由 owning adapter 固定。 */
+  /** 省略时为 `blocking`；区域可局部覆盖。 */
+  readonly findingPolicy?: FindingPolicy;
+  /** 省略时直接执行 `scc`；CLI 协议由 owning adapter 固定。 */
   readonly scanner?: FileMetricsScannerOptions;
 }
 
-/** Constructor 生成并由 Check preflight/execution 消费的完整 options。 */
+/** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
 export interface ResolvedFileMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>;
   readonly scanner: ResolvedFileMetricsScannerOptions;
@@ -57,6 +58,7 @@ export interface ResolvedFileMetricsOptions {
 export interface ResolvedFileMetricsCodeAreaOptions {
   readonly codeLines: ResolvedFileMetricsCodeLineOptions;
   readonly files: ProjectFileSelection;
+  readonly findingPolicy: FindingPolicy;
 }
 
 export interface ResolvedFileMetricsCodeLineOptions {
