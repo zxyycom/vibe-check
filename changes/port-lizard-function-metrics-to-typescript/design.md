@@ -1,10 +1,10 @@
 # Design
 
-本设计以 current owner-level outputs为兼容目标，使用 language-specific private analyzers完成一次性 Lizard hard cut。
+本设计以恢复实施时的 owner-level outputs 为兼容目标，使用 language-specific private analyzers 完成一次性 Lizard hard cut。
 
 ## Context
 
-当前 foundations已经成为 ordinary Check、统一 scheduler、Core Record和 TypeScript Project Definition；旧 Plan中 `src/product/**`、Manager/TaskPlan、named reference与 shared policy均不存在。Current paths are `src/package-checks/function-metrics/**` and its local `lizard/**` adapter, invoked through Check-owned `options.scanner`.
+当前 foundations 已经成为 ordinary Check、统一 scheduler、Core Record 和 TypeScript Project Definition；旧 Plan 中 `src/product/**`、Manager/TaskPlan、named reference 与 shared policy 均不存在。当前实现位于 `src/package-checks/function-metrics/**` 及其 local `lizard/**` adapter。已归档的 `fix-function-metrics-configuration` 把 public surface 收敛为 defaulted constructor、area-owned limits/finding policy 与 executable-only scanner input；恢复本 Plan 时以届时的稳定 owner contract 重新建立 parity baseline。
 
 [`defer-lizard-until-after-check-foundations.md`](../../docs/decisions/defer-lizard-until-after-check-foundations.md) 的 foundations条件已满足，但它还要求在没有交付、平台、可靠性、安全或许可证阻塞证据时默认后置。首版优先决策据此不把内部 backend迁移放入首次公开 release gate。
 
@@ -36,24 +36,26 @@
 
 ### Resulting Impacts
 
-- `FunctionMetricsOptions` 是否继续公开 `scanner` branch需要在恢复时作为真实 public contract migration判断；若移除会改变 surface，必须先演进对应长期 Decision与 package docs，不能在 private backend替换中悄悄删除。
+- 已完成的配置 Change 只临时保留 scanner executable；backend port 完成后该 execution dependency 没有消费者，必须在同一次 hard cut 中从 constructor input/resolved options、文档与 package acceptance 删除。
 - Full candidate/Gate必须证明 installed runtime无需 Python/Lizard。
 
 ## Risks / Trade-offs
 
 - TypeScript/Rust syntax和 metric parity工作量高，且收益主要是内部依赖简化；后置避免挤占首版用户能力。
-- 当前 public scanner options可能让纯 private hard cut不成立；Resume时必须先确认是保留 compatibility adapter、演进 public options还是缩小 Change。
+- 删除当前 public scanner executable policy 是有意的 contract migration，而不只是 private backend 替换；恢复实施时必须用 package documentation、types、runtime consumer 与迁移说明共同验证该影响。
 
 ## Open Questions
 
-- 恢复时如何处理当前 public `FunctionMetricsOptions.scanner`，以免“移除 Lizard”与已公开 native composition contract冲突。
+无。scanner executable policy 随 private Lizard backend 一起删除；恢复时仍需重基线 compatibility corpus、license/provenance 与 performance。
 
 ## Implementation Observations
 
-2026-08-24：Foundations已完成，但没有 release/platform/security/license阻塞证据；本 Change保持首版后。恢复前必须先解决 public scanner-options边界并刷新 baseline。
+2026-08-24：Foundations 已完成，但没有 release/platform/security/license 阻塞证据；本 Change 保持首版后。
+
+2026-08-28：`fix-function-metrics-configuration` 已完成并归档，scanner executable 的当前边界已经明确；恢复本 Change 时仍需按届时的稳定 owner contract 刷新 parity baseline。
 
 ## Resume Conditions
 
 1. 首版四项离线 Checks已完成并公开，或出现直接交付/平台/安全/许可证阻塞证据。
-2. Current function-metrics public options迁移方向已确认。
+2. 恢复实施时已复核届时稳定的 constructor/Record contract，并以对应 owner 建立 parity baseline。
 3. Fresh corpus与 source/license策略可提交、可复核。
