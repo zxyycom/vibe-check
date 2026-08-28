@@ -4,7 +4,13 @@ import type { DuplicateDetectionOptions, ResolvedDuplicateDetectionOptions } fro
 import { resolveDuplicateDetectionOptions } from "./options-resolution.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 
-/** 使用可省略的 policy 定义一个完整 duplicate-detection Check。 */
+/**
+ * 使用可省略的区域、cache 与 scanner policy 构造一个完整 duplicate-detection Check。
+ *
+ * @param options - 省略字段由 package 补齐；显式 files 数组作为对应字段的完整替换值。
+ * @returns 固定 `duplicate-detection` identity、完整冻结 options、preflight 与 execution。
+ * @throws {TypeError} input 含未知字段、空 area、非法阈值、非法 cache 或 scanner policy 时抛出。
+ */
 export function duplicateDetection(
   options: DuplicateDetectionOptions = {}
 ): CheckWithOptions<"duplicate-detection", ResolvedDuplicateDetectionOptions> {

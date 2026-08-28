@@ -17,20 +17,31 @@ import { fileMetrics } from "vibe-check";
 const check = fileMetrics();
 ```
 
+执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权的
+SCC-compatible executable。
+
 ## 参数与默认配置
 
 constructor input 只有两个可省略的顶层字段：
 
 ```text
 options
-├─ codeAreas[areaId]
-│  ├─ files
-│  └─ codeLines
-└─ scanner
+├─ codeAreas?
+│  └─ [areaId]
+│     ├─ files
+│     │  ├─ include?
+│     │  ├─ excludeDirs?
+│     │  └─ generatedFiles?
+│     └─ codeLines?
+│        ├─ maximum?
+│        └─ lowDecisionTokenAllowance?
+│           ├─ maximumCodeLines?
+│           └─ maximumDecisionTokens?
+└─ scanner?
+   └─ executable?
 ```
 
-每个 `codeAreas[areaId]` 同时拥有文件选择和代码行策略。顶层没有另一份共享 `files` 或全局
-`codeLines`；不同区域因此可以选择不同文件并使用不同上限。
+每个 `codeAreas[areaId]` 同时拥有文件选择和代码行策略，因此不同区域可以选择不同文件并使用不同上限。
 
 无参调用物化以下完整、冻结的 Check options：
 
@@ -64,7 +75,9 @@ options
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
   非空 area ID。
 - 每个显式区域必须提供 `files`。`files.include`、`files.excludeDirs` 与 `files.generatedFiles` 可分别
-  省略；省略的列表使用上述 package default，而不是空列表。
+  省略；省略的列表使用上述 package default，显式 `[]` 才会清空对应规则。
+- `include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob 匹配；`excludeDirs` 按路径中的目录
+  segment 匹配。显式数组是该字段的完整值，因此 `[]` 可明确清空对应规则。
 - 省略 `codeLines` 时使用完整默认代码行策略；`maximum` 与 allowance 内的字段也可分别省略。
 - `maximum` 与 `maximumCodeLines` 必须是正安全整数，`maximumDecisionTokens` 必须是非负安全整数；
   allowance 的 `maximumCodeLines` 必须严格大于同一区域的普通 `maximum`。
@@ -96,7 +109,8 @@ const sourceAndTests = fileMetrics({
 });
 ```
 
-本例只覆盖各区域显式给出的字段；省略的文件列表和代码行字段继续使用 package default。
+本例只覆盖各区域显式给出的字段；省略的文件列表和代码行字段继续使用 package default。需要在某个默认文件数组上增加
+项目规则时，请在项目的 TypeScript value 中显式组成包含默认项与新增项的完整数组，再传给 constructor。
 
 ### 单个区域的有效上限
 
@@ -134,8 +148,7 @@ const customFileMetrics = fileMetrics({
 });
 ```
 
-custom executable 必须直接接受 SCC CLI 参数。public input 不提供 scan args、version args、output format、exclude 或
-tuning passthrough；adapter 固定执行以下协议：
+custom executable 必须直接接受 SCC CLI 参数。public scanner policy 只选择 executable；owning adapter 固定执行以下协议：
 
 - availability probe：`--version`
 - measurement：`--by-file --format csv <approved exact paths...>`

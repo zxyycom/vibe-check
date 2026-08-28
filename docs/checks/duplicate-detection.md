@@ -18,7 +18,28 @@ const check = duplicateDetection();
 
 ## 参数与默认配置
 
-constructor 只接受可省略的 `cache`、`codeAreas` 与 `scanner` branches。无参调用物化成以下完整 Check options：
+调用方编写的是以下可省略 policy；显式 `codeAreas[areaId]` 只要求提供 `files` branch：
+
+```text
+options
+├─ cache?
+│  ├─ directory?
+│  └─ enabled?
+├─ codeAreas?
+│  └─ [areaId]
+│     ├─ files
+│     │  ├─ include?
+│     │  ├─ excludeDirs?
+│     │  └─ generatedFiles?
+│     ├─ minimumLines?
+│     └─ minimumTokens?
+└─ scanner?
+   └─ command?
+      ├─ kind: "package" | "custom"
+      └─ executable?  # required for custom command
+```
+
+无参调用物化成以下完整 Check options；调用方无需复制这份 resolved value：
 
 ```ts
 {
@@ -44,13 +65,15 @@ constructor 只接受可省略的 `cache`、`codeAreas` 与 `scanner` branches�
 ```
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
-- 每个显式 area 必须提供 `files` branch；其中 `include`、`excludeDirs`、`generatedFiles` 可分别省略并使用上述
-  package defaults。`minimumLines` 与 `minimumTokens` 可省略并分别使用 `3` 和 `75`，显式值必须是正安全整数。
+- 每个显式 area 必须提供 `files` branch。`include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob
+  匹配；`excludeDirs` 按路径中的目录 segment 匹配。
+- `include`、`excludeDirs`、`generatedFiles` 可分别省略并使用上述 package defaults。显式数组是该字段的完整值；
+  `[]` 因而分别表示不包含路径、不排除目录或不排除 generated path。
+- `minimumLines` 与 `minimumTokens` 可省略并分别使用 `3` 和 `75`，显式值必须是正安全整数。
 - `cache.directory` 省略时为 `.cache/vibe-check`，相对路径从 project root 解析；`cache.enabled` 省略时为 `true`。
-- `scanner.command` 省略时为 `{ kind: "package" }`。worker 数不是产品 policy，constructor 不公开这一调优项；
-  adapter 固定沿用 jscpd 的自动 worker policy。
-- 未知字段、空 area map、缺失 area `files`、非法阈值或非法 scanner policy 会让 constructor 同步抛出
-  `TypeError`；不会延迟到 scanner 启动时才发现。
+- `scanner.command` 省略时为 `{ kind: "package" }`。
+- 未知字段、空 area map、缺失 area `files`、非法阈值或非法 scanner policy 会由 constructor 同步抛出
+  `TypeError`。
 
 ## 定制区域 policy
 
@@ -84,7 +107,11 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
     scripts: {
       files: {
         include: ["scripts/**/*.ts"],
-        generatedFiles: ["scripts/**/*.test.ts", "**/*.generated.*"]
+        generatedFiles: [
+          "**/generated/**",
+          "**/*.generated.*",
+          "scripts/**/*.test.ts"
+        ]
       },
       minimumLines: 10,
       minimumTokens: 100
@@ -93,8 +120,8 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 });
 ```
 
-没有顶层 file selection、全局阈值、area override map 或隐式 `unknown` area；`codeAreas[id]` 是该 area 文件范围
-与阈值的单一事实源。
+每个 `codeAreas[id]` 都是该区域文件范围与 line/token 下限的单一事实源。上例在 `scripts.generatedFiles` 中显式保留
+两个 package default，再增加 test-file glob；这样符合显式数组完整替换的规则。
 
 ## 定制 jscpd executable
 
@@ -113,17 +140,16 @@ const customDuplicateDetection = duplicateDetection({
 });
 ```
 
-`executable` 必须是已授权、可执行且**直接接受 jscpd CLI 参数**的 command。public input 不提供 argument passthrough、
-availability probe 或 worker tuning。adapter 会先用固定的 version probe 确认 command 可运行且能提供可识别的实际
-版本，再用本次完整 exact paths 与最低有效 line/token 阈值取得 JSON report；它不传 `--workers`。实际版本只用于区分
-cache provenance，不是 consumer 配置，也不要求 custom command 等于 package 当前安装的版本。
+`executable` 必须是已授权、可执行且**直接接受 jscpd CLI 参数**的 command。public scanner policy 只选择 command；
+owning adapter 负责 version probe、exact-path config、JSON report 与 jscpd 的自动 worker policy。实际版本用于区分 cache
+provenance，不要求 custom command 等于 package 当前安装的版本。
 
 需要靠前置参数才能转发到 jscpd 的通用 runtime（例如 `node path/to/jscpd.js`）不是受支持的 custom command；应直接
 提供 jscpd executable 或一个已授权的专用 wrapper executable。
 
-默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5；consumer 不配置 scanner version 或
-version range。package 或 custom command 的实际版本都会隔离 cache；command、config 或 report 不兼容时，Check fail
-closed 为 `unavailable`，不会把无法完成的扫描伪装成零 finding。
+默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5。package 或 custom command 的实际版本都会
+隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
+finding。
 
 ## Constructor 与普通 Check 的边界
 
@@ -131,9 +157,6 @@ constructor 返回的仍是普通 Check object，可直接进入 `defineConfig({
 resolved options；owning preflight 与 execution 仍验证这个完整 shape，以安全拒绝 constructor 之后通过普通对象组合形成
 的缺失、未知或非法 options。constructor input 错误是同步 `TypeError`；非法 resolved Check replacement 则在 Run
 preflight 中结算为 `unavailable / invalid-options`。
-
-这个专用 constructor 不引入 generic deep merge、patch grammar、hidden brand 或第二种 Check execution model。其它随包
-default Check values 仍按各自指南使用。
 
 ## 工作原理
 

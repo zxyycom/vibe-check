@@ -8,9 +8,44 @@
 把超过 area limits 的结果保存为 supplemental Records，并让全局默认与 area override 共同决定 finding 是否阻断
 Check。阻断只改变最终 outcome；一次 invocation 仍扫描完整 exact scope 并保留后续 findings。
 
+```ts
+import { functionMetrics } from "vibe-check";
+
+const check = functionMetrics();
+```
+
+执行这个 Check 时，project runtime 需要让默认 `lizard` command 可用，或在 `scanner.executable` 中选择项目已授权的
+Lizard-compatible executable。
+
 ## 参数与默认配置
 
-`functionMetrics()` 会物化以下完整、冻结的 resolved options：
+调用方编写的是以下可省略 policy；显式 `codeAreas[areaId]` 只要求提供 `files` branch：
+
+```text
+options
+├─ findingPolicy?
+├─ codeAreas?
+│  └─ [areaId]
+│     ├─ files
+│     │  ├─ include?
+│     │  ├─ excludeDirs?
+│     │  └─ generatedFiles?
+│     ├─ findingPolicy?
+│     └─ limits?
+│        ├─ codeLines?
+│        │  ├─ maximum?
+│        │  └─ lowComplexityAllowance?
+│        │     ├─ maximum?
+│        │     └─ cyclomaticComplexityBelow?
+│        ├─ cyclomaticComplexity?
+│        │  └─ maximum?
+│        └─ parameters?
+│           └─ maximum?
+└─ scanner?
+   └─ executable?
+```
+
+`functionMetrics()` 会物化以下完整、冻结的 resolved options；调用方无需复制这份 value：
 
 ```ts
 {
@@ -42,14 +77,15 @@ Check。阻断只改变最终 outcome；一次 invocation 仍扫描完整 exact 
 }
 ```
 
-顶层 `findingPolicy` 是 constructor input 的 area 默认值，不会作为第二份 policy 保留在 resolved options；每个 resolved
-area 都只保存自己的 effective `findingPolicy`。所有 maximum 都是 inclusive limit：measurement 必须严格大于 limit 才产生
-finding。complexity 小于 `cyclomaticComplexityBelow` 时，function NLOC 使用 allowance maximum；所有 limit 都必须是
-正安全整数，allowance maximum 不得小于普通 code-line maximum。
+顶层 `findingPolicy` 只为各 area 提供默认值；每个 resolved area 保存自己的 effective `findingPolicy`。所有 maximum 都是
+inclusive limit：measurement 必须严格大于 limit 才产生 finding。complexity 小于
+`cyclomaticComplexityBelow` 时，function NLOC 使用 allowance maximum；所有 limit 都必须是正安全整数，allowance
+maximum 不得小于普通 code-line maximum。
 
-constructor 按字段补默认值。省略 `include`、`excludeDirs` 或 `generatedFiles` 时，该字段使用上述 package default；显式提供
-任一数组时，该数组完整替换对应字段的 default，不会自动追加或深度合并。需要在默认排除项上增加规则时，调用方必须在
-自己的 TypeScript value 中显式组合完整数组。nested limit 字段和 area `findingPolicy` 仍可分别省略并继承各自默认值。
+constructor 按字段补默认值。`include` 与 `generatedFiles` 按 project-root-relative slash path 的 glob 匹配；
+`excludeDirs` 按路径中的目录 segment 匹配。省略任一文件数组时使用上述 package default；显式数组是该字段的完整值，
+`[]` 可明确清空对应规则。需要在默认项上增加规则时，调用方在自己的 TypeScript value 中组成完整数组。nested limit 字段和
+area `findingPolicy` 仍可分别省略并继承各自默认值。
 
 ### 区域与阻断政策
 
@@ -102,9 +138,9 @@ const metrics = functionMetrics({
 });
 ```
 
-adapter 固定执行 `--version` probe，并以 approved exact paths 和 `--csv` 扫描。version arguments、scan args、output
-format、timeout 和 worker tuning 都不是 public input。显式 executable 表示项目授权执行该命令；不兼容命令会 fail
-closed 为 unavailable，而不会产生成功空结果。需要 wrapper 时由项目提供直接 executable wrapper，不通过参数透传改变协议。
+owning adapter 固定执行 `--version` probe，并以 approved exact paths 和 `--csv` 扫描。显式 executable 表示项目授权执行
+该命令；需要 wrapper 时由项目提供直接接受这套协议的 executable wrapper。不兼容命令会 fail closed 为 unavailable，
+而不会产生成功空结果。
 
 ## 工作原理
 

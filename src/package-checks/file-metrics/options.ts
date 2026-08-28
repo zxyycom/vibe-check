@@ -2,22 +2,25 @@ import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 /** `fileMetrics` constructor 可省略的 SCC executable policy。 */
 export interface FileMetricsScannerOptions {
-  /** 省略时直接执行 `scc`。 */
+  /** 省略时直接执行 `scc`；显式 command 必须直接接受 adapter-owned SCC 参数。 */
   readonly executable?: string;
 }
 
 /** 一个 file-metrics area 可省略并由 constructor 补齐的文件 policy。 */
 export interface FileMetricsFileOptions {
+  /** 省略时使用 package 默认目录排除；显式数组作为完整替换值。 */
   readonly excludeDirs?: readonly string[];
+  /** 省略时使用 package 默认 generated-file globs；显式数组作为完整替换值。 */
   readonly generatedFiles?: readonly string[];
+  /** 省略时包含全部相对路径；显式数组作为完整替换值。 */
   readonly include?: readonly string[];
 }
 
 /** SCC decision-token 数较低的文件可使用的 code-line allowance。 */
 export interface FileMetricsLowDecisionTokenAllowanceOptions {
-  /** 省略时为 `500`。 */
+  /** 省略时为 `500`；必须严格大于同一区域的普通 code-line maximum。 */
   readonly maximumCodeLines?: number;
-  /** 省略时为 `10`。 */
+  /** 省略时为 `10`；decision-token measurement 不大于此值时应用 allowance。 */
   readonly maximumDecisionTokens?: number;
 }
 

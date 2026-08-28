@@ -26,8 +26,11 @@ export interface DuplicateDetectionScannerOptions {
 
 /** 一个 duplicate code area 可省略并由 constructor 补齐的文件 policy。 */
 export interface DuplicateDetectionFileOptions {
+  /** 省略时使用 package 默认目录排除；显式数组作为完整替换值。 */
   readonly excludeDirs?: readonly string[];
+  /** 省略时使用 package 默认 generated-file globs；显式数组作为完整替换值。 */
   readonly generatedFiles?: readonly string[];
+  /** 省略时包含全部相对路径；显式数组作为完整替换值。 */
   readonly include?: readonly string[];
 }
 

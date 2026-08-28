@@ -99,9 +99,9 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 
 | 导出                     | 用途与独立说明                                                                                                                                  |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `duplicateDetection`     | 以带默认值的 policy 构造 jscpd 重复检测 Check；见[`duplicateDetection` 指南](./docs/checks/duplicate-detection.md)。 |
-| `fileMetrics`            | 使用 scc 评估文件 code-line 指标；见[`fileMetrics` 指南](./docs/checks/file-metrics.md)。                            |
-| `functionMetrics`        | 以带默认值的 area 与 finding policy 构造 Lizard 函数指标 Check；见[`functionMetrics` 指南](./docs/checks/function-metrics.md)。 |
+| `duplicateDetection`     | 使用 jscpd 报告重复代码片段；见[`duplicateDetection` 指南](./docs/checks/duplicate-detection.md)。                    |
+| `fileMetrics`            | 使用 SCC 评估文件代码行指标；见[`fileMetrics` 指南](./docs/checks/file-metrics.md)。                                |
+| `functionMetrics`        | 使用 Lizard 评估函数规模、复杂度与参数数量；见[`functionMetrics` 指南](./docs/checks/function-metrics.md)。           |
 | `jsonValidation`         | 严格验证 Check 自己选中的 JSON 文档；见[`jsonValidation` 指南](./docs/checks/json-validation.md)。                   |
 | `jsonSchemaValidation`   | 按显式 schema 与 binding 验证 JSON 实例；见[`jsonSchemaValidation` 指南](./docs/checks/json-schema-validation.md)。  |
 | `markdownLinkValidation` | 离线验证本地 Markdown 链接与锚点；见[`markdownLinkValidation` 指南](./docs/checks/markdown-link-validation.md)。     |

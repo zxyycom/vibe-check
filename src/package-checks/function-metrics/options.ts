@@ -25,7 +25,7 @@ export interface FunctionMetricsLimitOptions {
     readonly lowComplexityAllowance?: Readonly<{
       /** 省略时为 `5`；complexity 小于此值时可使用较高 NLOC 上限。 */
       readonly cyclomaticComplexityBelow?: number;
-      /** 省略时为 `150`。 */
+      /** 省略时为 `150`；不得小于普通 code-line maximum。 */
       readonly maximum?: number;
     }>;
   }>;
@@ -51,7 +51,7 @@ export interface FunctionMetricsCodeAreaOptions {
 
 /** `functionMetrics` constructor 可省略的 Lizard executable policy。 */
 export interface FunctionMetricsScannerOptions {
-  /** 省略时为 `lizard`；command 必须直接接受 adapter-owned Lizard arguments。 */
+  /** 省略时为 `lizard`；显式 command 必须直接接受 adapter-owned Lizard arguments。 */
   readonly executable?: string;
 }
 
