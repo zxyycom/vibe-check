@@ -1,5 +1,6 @@
-import { defineCheck, type CheckWithOptions } from "../../check/check.ts";
+import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import { DUPLICATE_DETECTION_CHECK_DEFINITION, executeDuplicateDetection } from "./execution.ts";
+import { parseDuplicateDetectionData } from "./final-data.ts";
 import type { DuplicateDetectionOptions, ResolvedDuplicateDetectionOptions } from "./options.ts";
 import { resolveDuplicateDetectionOptions } from "./options-resolution.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
@@ -13,20 +14,37 @@ import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts"
  */
 export function duplicateDetection(
   options: DuplicateDetectionOptions = {}
-): CheckWithOptions<"duplicate-detection", ResolvedDuplicateDetectionOptions> {
+): TypedCheckWithOptions<
+  "duplicate-detection",
+  ResolvedDuplicateDetectionOptions,
+  typeof parseDuplicateDetectionData
+> {
   const resolvedOptions = resolveDuplicateDetectionOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "duplicateDetection options are invalid; use the documented closed constructor policy"
     );
   }
-  return defineCheck<"duplicate-detection", ResolvedDuplicateDetectionOptions>({
+  return defineCheck({
     ...DUPLICATE_DETECTION_CHECK_DEFINITION,
     execution: executeDuplicateDetection,
+    parseData: parseDuplicateDetectionData,
     preflight: (preparedOptions) =>
       validResolvedDuplicateDetectionOptions(preparedOptions)
         ? { status: "success", preparedOptions }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+        : {
+            status: "failure",
+            action: "block",
+            reason: { code: "invalid-options" },
+            messages: [
+              {
+                code: "invalid-options",
+                level: "error",
+                message:
+                  "duplicateDetection options are invalid; recreate the Check with duplicateDetection(options) or restore its complete resolved options."
+              }
+            ]
+          },
     options: resolvedOptions
   });
 }

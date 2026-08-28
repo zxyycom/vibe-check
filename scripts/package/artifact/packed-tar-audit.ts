@@ -18,6 +18,7 @@ import {
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 
 interface TarEntry {
   readonly content: Buffer;
@@ -30,6 +31,7 @@ export function auditCandidateArtifact(input: {
   readonly expectedFiles: readonly string[];
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
   readonly expectedSha256: string;
 }): void {
@@ -39,6 +41,7 @@ export function auditCandidateArtifact(input: {
   }
   const entries = readTarEntries(input.artifactPath);
   assertTarPackageDocumentation(entries, input.expectedDocuments);
+  assertTarMachineMaterials(entries, input.expectedMachineMaterials);
   const files = entries.map((entry) => entry.path).sort();
   if (!sameOrderedStrings(files, input.expectedFiles)) {
     throw new Error(
@@ -70,6 +73,19 @@ export function auditCandidateArtifact(input: {
   });
   auditManifest(manifestEntry.content, input.candidateVersion, entries);
 }
+
+function assertTarMachineMaterials(
+  entries: readonly TarEntry[],
+  materials: readonly PackageMachineMaterial[]
+): void {
+  for (const material of materials) {
+    const entry = entries.find((candidate) => candidate.path === `package/${material.packagePath}`);
+    if (entry === undefined || !entry.content.equals(material.content)) {
+      throw new Error(`candidate artifact machine material differs: ${material.packagePath}`);
+    }
+  }
+}
+
 function assertTarPackageDocumentation(
   entries: readonly TarEntry[],
   documents: readonly PackageDocumentationFile[]
@@ -81,6 +97,7 @@ function assertTarPackageDocumentation(
     }
   }
 }
+
 function auditManifest(
   source: Buffer,
   candidateVersion: string,

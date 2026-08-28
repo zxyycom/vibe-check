@@ -4,7 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { JsonSchemaValidationOptions } from "./options.ts";
+import type {
+  JsonSchemaValidationOptions,
+  ResolvedJsonSchemaValidationOptions
+} from "./options.ts";
 import type {
   CheckDependencies,
   CheckExecutionContext,
@@ -13,6 +16,7 @@ import type {
 } from "../../check/check.ts";
 import { executeJsonSchemaValidation } from "./json-schema-validation.ts";
 import { jsonSchemaValidation } from "./default-check.ts";
+import { parseJsonSchemaValidationData } from "./final-data.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
@@ -36,7 +40,7 @@ interface ObservedRecord {
 
 interface RunInput {
   readonly fileConfiguration?: ProjectFileSelection;
-  readonly options: DeepReadonly<JsonSchemaValidationOptions>;
+  readonly options: DeepReadonly<ResolvedJsonSchemaValidationOptions>;
   readonly root: string;
   readonly signal?: AbortSignal;
 }
@@ -50,7 +54,7 @@ async function runJsonSchemaValidation({
   Readonly<{ readonly records: readonly ObservedRecord[]; readonly result: CheckResult }>
 > {
   const records: ObservedRecord[] = [];
-  const context: CheckExecutionContext<JsonSchemaValidationOptions> = Object.freeze({
+  const context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
     options: Object.freeze({ ...options, files: fileConfiguration }),
     project: Object.freeze({
@@ -83,10 +87,10 @@ function strictSchema(id: string, schema: object): object {
 }
 
 function offlineOptions(input: {
-  readonly bindings: JsonSchemaValidationOptions["bindings"];
+  readonly bindings: ResolvedJsonSchemaValidationOptions["bindings"];
   readonly schemaIdentity?: JsonSchemaValidationOptions["schemaIdentity"];
-  readonly schemas: JsonSchemaValidationOptions["schemas"];
-}): DeepReadonly<JsonSchemaValidationOptions> {
+  readonly schemas: ResolvedJsonSchemaValidationOptions["schemas"];
+}): DeepReadonly<ResolvedJsonSchemaValidationOptions> {
   return Object.freeze({
     bindings: input.bindings,
     files: DEFAULT_FILES,
@@ -150,11 +154,57 @@ describe("JSON Schema validation default Check", () => {
       });
       writeJson(root, "bad.json", { extra: true, name: 3 });
 
+      const defaultCheck = jsonSchemaValidation();
+      assert.deepEqual(defaultCheck.options.schemas, []);
+      assert.deepEqual(defaultCheck.options.bindings, []);
+      assert.deepEqual(defaultCheck.options.schemaIdentity, { mode: "require-match" });
+      assert.deepEqual(defaultCheck.options.referenceResolution, { mode: "offline" });
+      assert.throws(
+        () => Reflect.apply(jsonSchemaValidation, undefined, [{ unknown: true }]),
+        /documented closed policy/
+      );
+      assert.equal(defaultCheck.parseData, parseJsonSchemaValidationData);
+      assert.deepEqual(
+        defaultCheck.parseData({
+          bindingCount: 1,
+          blockedBindingCount: 0,
+          invalidBindingCount: 1,
+          issueCount: 1,
+          issuesTruncated: false,
+          reportedIssueCount: 1,
+          schemaCount: 1,
+          validBindingCount: 0
+        }),
+        {
+          bindingCount: 1,
+          blockedBindingCount: 0,
+          invalidBindingCount: 1,
+          issueCount: 1,
+          issuesTruncated: false,
+          reportedIssueCount: 1,
+          schemaCount: 1,
+          validBindingCount: 0
+        }
+      );
+      assert.throws(
+        () =>
+          defaultCheck.parseData({
+            bindingCount: 1,
+            blockedBindingCount: 0,
+            invalidBindingCount: 0,
+            issueCount: 2,
+            issuesTruncated: false,
+            reportedIssueCount: 1,
+            schemaCount: 1,
+            validBindingCount: 1
+          }),
+        /jsonSchemaValidation final data/
+      );
       const invalidOptions = offlineOptions({
         bindings: [{ id: "bad", instancePath: "bad.json", schemaId }],
         schemas: [{ id: schemaId, path: "schema.json" }]
       });
-      const invalidPreflight = await jsonSchemaValidation.preflight!(
+      const invalidPreflight = await defaultCheck.preflight!(
         {
           ...invalidOptions,
           maximumBytes: 0
@@ -169,7 +219,18 @@ describe("JSON Schema validation default Check", () => {
             options: { ...invalidOptions, maximumBytes: 0 }
           })
         ).result,
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        {
+          status: "unavailable",
+          reason: { code: "invalid-options" },
+          messages: [
+            {
+              code: "invalid-options",
+              level: "error",
+              message:
+                "jsonSchemaValidation options are invalid; recreate the Check with jsonSchemaValidation(options) or restore its complete resolved options."
+            }
+          ]
+        }
       );
 
       const observed = await runJsonSchemaValidation({
@@ -194,7 +255,14 @@ describe("JSON Schema validation default Check", () => {
           reportedIssueCount: 2,
           schemaCount: 1,
           validBindingCount: 1
-        }
+        },
+        messages: [
+          {
+            code: "schema-validation-issues",
+            level: "error",
+            message: "2 schema validation issue(s) were found; inspect this Check's Records."
+          }
+        ]
       });
       assert.deepEqual(
         observed.records.map((record) => record.data),
@@ -301,7 +369,14 @@ describe("JSON Schema validation default Check", () => {
               reportedIssueCount: 1,
               schemaCount: 1,
               validBindingCount: 0
-            }
+            },
+            messages: [
+              {
+                code: "schema-validation-issues",
+                level: "error",
+                message: "1 schema validation issue(s) were found; inspect this Check's Records."
+              }
+            ]
           });
           assert.deepEqual(
             observed.records.map((record) => record.data),
@@ -362,7 +437,14 @@ describe("JSON Schema validation default Check", () => {
               reportedIssueCount: 1,
               schemaCount: 2,
               validBindingCount: 0
-            }
+            },
+            messages: [
+              {
+                code: "schema-validation-issues",
+                level: "error",
+                message: "1 schema validation issue(s) were found; inspect this Check's Records."
+              }
+            ]
           });
           assert.deepEqual(
             observed.records.map((record) => record.data),
@@ -406,7 +488,7 @@ describe("JSON Schema validation default Check", () => {
           );
         },
         async () => {
-          const options: DeepReadonly<JsonSchemaValidationOptions> = Object.freeze({
+          const options: DeepReadonly<ResolvedJsonSchemaValidationOptions> = Object.freeze({
             bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
             files: DEFAULT_FILES,
             maximumBytes: 1_048_576,
@@ -436,7 +518,14 @@ describe("JSON Schema validation default Check", () => {
               reportedIssueCount: 1,
               schemaCount: 1,
               validBindingCount: 0
-            }
+            },
+            messages: [
+              {
+                code: "schema-validation-issues",
+                level: "error",
+                message: "1 schema validation issue(s) were found; inspect this Check's Records."
+              }
+            ]
           });
           assert.deepEqual(observed.records[0]?.data, {
             bindingId: "instance",
@@ -495,7 +584,18 @@ describe("JSON Schema validation default Check", () => {
           });
           assert.deepEqual(observed, {
             records: [],
-            result: { status: "unavailable", reason: { code: "reference-transport-unavailable" } }
+            result: {
+              status: "unavailable",
+              reason: { code: "reference-transport-unavailable" },
+              messages: [
+                {
+                  code: "reference-transport-unavailable",
+                  level: "error",
+                  message:
+                    "An allowlisted HTTPS schema reference could not be loaded; check the allowlist, network, and remote availability."
+                }
+              ]
+            }
           });
         }
       );
@@ -667,7 +767,14 @@ describe("JSON Schema validation default Check", () => {
           reportedIssueCount: 1,
           schemaCount: 1,
           validBindingCount: 0
-        }
+        },
+        messages: [
+          {
+            code: "schema-validation-issues",
+            level: "error",
+            message: "1 schema validation issue(s) were found; inspect this Check's Records."
+          }
+        ]
       });
       assert.deepEqual(
         scopeFailure.records.map((record) => record.data),
@@ -730,7 +837,15 @@ describe("JSON Schema validation default Check", () => {
           reportedIssueCount: 100,
           schemaCount: 1,
           validBindingCount: 0
-        }
+        },
+        messages: [
+          {
+            code: "schema-validation-issues",
+            level: "error",
+            message:
+              "101 schema validation issue(s) were found; inspect this Check's Records (the published Record list is truncated)."
+          }
+        ]
       });
       assert.equal(observed.records.length, 100);
       assert.equal(

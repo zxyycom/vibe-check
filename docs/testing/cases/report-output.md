@@ -2,7 +2,7 @@
 
 ## Case WB-OUTPUT-MACHINE-V4-CONTRACT-001: Machine v4 publication contract
 
-Owner: `docs/output.md#check-facts-to-machine-projection`
+Owner: `docs/output.md#check-facts-到-machine-files-的投影`
 Entities:
 
 - `bun|src/machine-output/v4/publication.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
@@ -15,7 +15,7 @@ Entities:
 
 ## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated v4 publication materials remain canonical
 
-Owner: `docs/output.md#published-materials-and-historical-schemas`
+Owner: `docs/output.md#随包材料与版本边界`
 Entities:
 
 - `bun|src/machine-output/v4/contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
@@ -24,7 +24,7 @@ Entities:
 
 ## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
 
-Owner: `docs/output.md#publication-lifecycle-and-trust-boundary`
+Owner: `docs/output.md#发布生命周期与可信边界`
 Entities:
 
 - `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
@@ -37,7 +37,7 @@ Entities:
 
 ## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
 
-Owner: `docs/output.md#progress-and-presentation-boundaries`
+Owner: `docs/output.md#进度呈现边界`
 Entities:
 
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
@@ -59,7 +59,7 @@ Proves:
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 
-Owner: `docs/output.md#published-materials-and-historical-schemas`
+Owner: `docs/output.md#package-材料的维护与验证`
 Entities:
 
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
@@ -70,7 +70,7 @@ Entities:
 
 ## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Current v4 example validation rejects historical machine identities
 
-Owner: `docs/output.md#published-materials-and-historical-schemas`
+Owner: `docs/output.md#package-材料的维护与验证`
 Entities:
 
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
@@ -79,7 +79,7 @@ Entities:
 
 ## Case WB-OUTPUT-MAINTENANCE-REMINDER-001: Maintenance reminders use the generic v4 final-data row
 
-Owner: `docs/output.md#维护提醒评估数据`
+Owner: `docs/checks/maintenance-reminders.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`

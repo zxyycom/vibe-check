@@ -9,17 +9,20 @@ import type { ResolvedFunctionMetricsLimits } from "./options.ts";
 
 type FunctionMetricName = "cyclomatic-complexity" | "function-code-density" | "parameter-count";
 
+/** 一条超出函数 metric 上限的 supplemental Record data。 */
+export type FunctionMetricsRecordData = Readonly<{
+  readonly blocking: boolean;
+  readonly codeAreas: readonly string[];
+  readonly functionName: string;
+  readonly limit: number;
+  readonly metric: FunctionMetricName;
+  readonly path: string;
+  readonly startLine: number;
+  readonly value: number;
+}>;
+
 export interface FunctionRecordCandidate {
-  readonly data: Readonly<{
-    readonly blocking: boolean;
-    readonly codeAreas: readonly string[];
-    readonly functionName: string;
-    readonly limit: number;
-    readonly metric: FunctionMetricName;
-    readonly path: string;
-    readonly startLine: number;
-    readonly value: number;
-  }>;
+  readonly data: FunctionMetricsRecordData;
   readonly id: string;
 }
 

@@ -7,6 +7,7 @@ import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { assertJSDocExamplePayloads } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import {
   AJV_PACKAGE_NAME,
   CANDIDATE_DEPENDENCIES,
@@ -38,6 +39,7 @@ export function installCandidate(input: {
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
 }): InstalledCandidate {
   const {
@@ -48,6 +50,7 @@ export function installCandidate(input: {
     expectedReadme
   } = input;
   const expectedDocuments = input.expectedDocuments ?? [];
+  const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
   assertPrivateCandidateConsumer(consumerDirectory);
   // This directory is a dedicated private candidate consumer. Replacing its whole
   // install prevents Bun from satisfying a missing candidate dependency through
@@ -63,6 +66,7 @@ export function installCandidate(input: {
     consumerDirectory,
     expectedDocuments,
     expectedJSDocExamplePayloads,
+    expectedMachineMaterials,
     expectedReadme
   });
 }
@@ -73,6 +77,7 @@ export function inspectInstallation(input: {
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
 }): InstalledCandidate | undefined {
   try {
@@ -88,11 +93,13 @@ function verifyInstallation(input: {
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
 }): InstalledCandidate {
   const { candidateVersion, consumerDirectory, expectedJSDocExamplePayloads, expectedReadme } =
     input;
   const expectedDocuments = input.expectedDocuments ?? [];
+  const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
   const packageDirectory = join(consumerDirectory, "node_modules", CANDIDATE_NAME);
   const manifestPath = join(packageDirectory, "package.json");
   if (!existsSync(manifestPath)) {
@@ -153,6 +160,12 @@ function verifyInstallation(input: {
       readFileSync(documentationPath, "utf8") !== document.content
     ) {
       throw new Error(`installed candidate package documentation differs: ${documentationPath}`);
+    }
+  }
+  for (const material of expectedMachineMaterials) {
+    const materialPath = join(packageDirectory, material.packagePath);
+    if (!existsSync(materialPath) || !readFileSync(materialPath).equals(material.content)) {
+      throw new Error(`installed candidate machine material differs: ${materialPath}`);
     }
   }
   try {

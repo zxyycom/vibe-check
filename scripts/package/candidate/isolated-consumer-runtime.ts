@@ -98,6 +98,7 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
   markdownLinkData: unknown;
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
+  parserEvidence: unknown;
   secondChangedFilesConsumer: unknown;
 }> {
   const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
@@ -141,6 +142,7 @@ function runCandidateFixture(consumerDirectory: string): Readonly<{
     jsonSchemaOutcome,
     markdownLinkData: evidence.markdownLinkData,
     markdownLinkOutcome,
+    parserEvidence: evidence.parserEvidence,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
 }
@@ -173,6 +175,30 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
     version: 1
   });
   assert.deepEqual(runEvidence.changedFilesFromRun, runEvidence.changedFilesFromMachine);
+  assert.deepEqual(runEvidence.parserEvidence, {
+    attachedJson: {
+      invalidFileCount: 0,
+      issueCount: 0,
+      scannedFileCount: 0,
+      validFileCount: 0
+    },
+    duplicate: { blockingFindingCount: 0, findingCount: 0 },
+    file: { blockingFindingCount: 0, findingCount: 0 },
+    function: { blockingFindingCount: 0, findingCount: 0 },
+    json: { invalidFileCount: 0, issueCount: 0, scannedFileCount: 0, validFileCount: 0 },
+    jsonSchema: {
+      bindingCount: 0,
+      blockedBindingCount: 0,
+      invalidBindingCount: 0,
+      issueCount: 0,
+      issuesTruncated: false,
+      reportedIssueCount: 0,
+      schemaCount: 0,
+      validBindingCount: 0
+    },
+    maintenance: { entries: [] },
+    markdown: { findingCount: 0, occurrenceCount: 0, sourceFileCount: 0, targetReadCount: 0 }
+  });
   assert.deepEqual(runEvidence.firstChangedFilesConsumer, { fileCount: 2 });
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
@@ -263,11 +289,54 @@ import {
   jsonSchemaValidation,
   jsonValidation,
   markdownLinkValidation,
+  parseDuplicateDetectionData,
+  parseFileMetricsData,
+  parseFunctionMetricsData,
+  parseJsonSchemaValidationData,
+  parseJsonValidationData,
+  parseMaintenanceRemindersData,
+  parseMarkdownLinkValidationData,
   run
 } from "vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
+
+const jsonCheck = jsonValidation();
+const parserEvidence = {
+  attachedJson: jsonCheck.parseData({
+    invalidFileCount: 0,
+    issueCount: 0,
+    scannedFileCount: 0,
+    validFileCount: 0
+  }),
+  duplicate: parseDuplicateDetectionData({ blockingFindingCount: 0, findingCount: 0 }),
+  file: parseFileMetricsData({ blockingFindingCount: 0, findingCount: 0 }),
+  function: parseFunctionMetricsData({ blockingFindingCount: 0, findingCount: 0 }),
+  json: parseJsonValidationData({
+    invalidFileCount: 0,
+    issueCount: 0,
+    scannedFileCount: 0,
+    validFileCount: 0
+  }),
+  jsonSchema: parseJsonSchemaValidationData({
+    bindingCount: 0,
+    blockedBindingCount: 0,
+    invalidBindingCount: 0,
+    issueCount: 0,
+    issuesTruncated: false,
+    reportedIssueCount: 0,
+    schemaCount: 0,
+    validBindingCount: 0
+  }),
+  maintenance: parseMaintenanceRemindersData({ entries: [] }),
+  markdown: parseMarkdownLinkValidationData({
+    findingCount: 0,
+    occurrenceCount: 0,
+    sourceFileCount: 0,
+    targetReadCount: 0
+  })
+};
 
 const terminalNote = defineCheck({
   checkId: "installed-terminal-note",
@@ -339,24 +408,20 @@ const result = await run(
       duplicateDetection({
         codeAreas: { project: { files: {}, minimumTokens: 20 } }
       }),
-      jsonValidation,
-      {
-        ...jsonSchemaValidation,
-        options: {
-          ...jsonSchemaValidation.options,
-          bindings: [
-            {
-              id: "person",
-              instancePath: "instance.json",
-              schemaId: "${ISOLATED_JSON_SCHEMA_ID}"
-            }
-          ],
-          schemas: [
-            { id: "${ISOLATED_JSON_SCHEMA_ID}", path: "schema.json" }
-          ]
-        }
-      },
-      markdownLinkValidation,
+      jsonCheck,
+      jsonSchemaValidation({
+        bindings: [
+          {
+            id: "person",
+            instancePath: "instance.json",
+            schemaId: "${ISOLATED_JSON_SCHEMA_ID}"
+          }
+        ],
+        schemas: [
+          { id: "${ISOLATED_JSON_SCHEMA_ID}", path: "schema.json" }
+        ]
+      }),
+      markdownLinkValidation(),
       changedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
@@ -412,6 +477,7 @@ process.stdout.write("__VIBE_CHECK_ISOLATED_RUN__" + JSON.stringify({
   kind: result.kind,
   firstChangedFilesConsumer: settledFinalData(firstConsumerCheck),
   machineSchemaVersion: publishedRun.schemaVersion,
+  parserEvidence,
   secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
   duplicateData: settledFinalData(duplicate),
   duplicateOutcome: duplicate?.outcome.status ?? null,

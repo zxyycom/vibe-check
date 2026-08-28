@@ -72,9 +72,9 @@ Run callback-local dependency view 只授权当前 Check 的 normalized effectiv
 
 ## Package-provided Checks and exact inputs
 
-`jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 是从同一普通 Check
-基础构造的 complete Check values；`duplicateDetection(options?)`、`fileMetrics(options?)` 与 `functionMetrics(options?)` 是补齐默认 policy 后返回同类普通 Check value 的专用
-constructors。它们因为随 package 提供而方便使用，但不获得 Definition/Check facts 特权。每项 Check 完整拥有自己的
+七个 package-provided exports 都从同一普通 Check 基础构造并返回 ordinary Check values；除
+`maintenanceReminders(entries)` 外，其余六个 constructors 接收可省略 authoring policy、补齐完整 resolved options。它们
+因为随 package 提供而方便使用，但不获得 Definition/Check facts 特权。每项 Check 完整拥有自己的
 options type、runtime validation、execution、领域 measurement/finding model 与 documentation。三个基于 area 的代码质量
 Check 只在 package-checks 内共享 `blocking | non-blocking` policy、重叠区域合并和 Finding 计数；各 Check 继续拥有阈值、
 scanner protocol、candidate conversion、Record identity/data 与 unavailable vocabulary，Core 不解释这套 Finding policy。
@@ -83,7 +83,7 @@ scanner protocol、candidate conversion、Record identity/data 与 unavailable v
 
 ## Output and downstream boundary
 
-Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 output result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary、accepted detached terminal-message readback 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Check-facts capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 

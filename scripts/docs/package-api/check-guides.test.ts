@@ -12,7 +12,7 @@ import { createPackageApiDocumentationFixture } from "./test-support.ts";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("package Check guides", () => {
-  it("requires one README-linked guide for every package-provided Check and constructor", () => {
+  it("requires one README-linked guide for every package-provided Check function", () => {
     const rendered = renderPackageApiDocumentation({ repositoryRoot });
     const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
     assert.equal(PACKAGE_CHECK_GUIDES.length, 7);

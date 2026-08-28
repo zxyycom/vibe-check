@@ -12,11 +12,11 @@
     Project Definition
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
-    declarative snapshot + fingerprint + task plan
+    declarative snapshot + fingerprint + complete static graph validation
       │ sequential all-Check preflight barrier
       ▼
     prepared Checks / blocked unavailable outcomes
-      │ dependency, mutex and parallel scheduling
+      │ build the ready task graph; apply dependency, mutex and parallel scheduling
       ▼
     author execution + terminal settlement
       ▼
@@ -25,7 +25,10 @@
       ▼
     RunResult
 
-Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files。所有 author execution 都在完整 preflight barrier 之后开始，optional aggregate 也在 terminal facts 结算后计算。
+Run 在 preflight 前验证包含全部可执行 Check 的静态 task graph；完整 barrier 结束后，blocked Check 先结算为
+`unavailable`，其余 prepared Checks 再形成 ready task graph。Run snapshot 保存 Check facts；progress rendering 呈现
+execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files。所有 author execution 都在完整
+preflight barrier 之后开始，optional aggregate 也在 terminal facts 结算后计算。
 
 ## Definition 与 invocation 的责任
 
@@ -125,11 +128,17 @@ if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
 
 `records.report({ id }, data)` 在 owning Check namespace 内追加 supplemental Record。每个 `id` 非空且在该 Check 内唯一，Record data 使用 canonical JSON object；无效或重复 Record 把 owning Check 结算为 `unavailable`。settlement 保留此前已经接受的 Records。
 
-`messages` 是有序的人读补充信息；`visibility: "attention"` 选择需要 attention 时呈现的 progress。final data、supplemental Records 和 messages 分别承载主要事实、补充事实和人读说明。
+`messages?` 是通用 Check API 允许携带的有序人读补充信息，不是所有 Check 或所有状态都必须提供的字段。owning Check 决定哪些 preflight / terminal 分支携带 message；consumer 必须先按 outcome 处理事实，不能依赖 message presence 判断状态。`visibility: "attention"` 只选择需要 attention 时呈现的 progress。final data、supplemental Records 和 messages 分别承载主要事实、补充事实和可选人读说明。
+
+随包 Check 对其代码明确结算的失败、不可用和 non-blocking finding 分支，均附带至少一条可操作 message；各 Check 指南列出
+具体 message codes。这项 Check-local 保证不会把 generic `messages?` 改成必需字段，也不覆盖 Product 在 callback 之外形成的
+防御性 settlement。
 
 ## 递归组合与继承
 
-带 `execution` 的 Check node 形成可执行叶子；只包含子 `checks` 的 node 组织 display 与 scheduling scope。解析后的每个可执行叶子获得自己的 effective display、options、dependency、mutex、visibility 与 parallel budget。
+带 `execution` 的 Check node 形成自己的 outcome，也可以同时包含子 `checks`；没有 `execution` 的 node 只组织子 Check
+及其 scheduling scope。解析后的每个可执行节点获得自己的 effective display、options、dependency、mutex、visibility 与
+parallel budget。container 自身不产生 outcome。
 
 普通对象字段表示显式 replacement：新的 `options` 提供 owning Check 的完整 closed shape，新的 `dependsOn` 或 `mutex` 数组替换 inherited collection。`inherit({ add, remove })` 表示在父 collection 上增删。effective configuration 完全由这些显式值和 edits 决定。
 
@@ -195,7 +204,7 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 version、shape validation 和 compatibility，consumer 显式调用该 parser 恢复 provider data。
+dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用该 parser 恢复 provider data。七个随包 Check 都在返回对象上提供 `parseData`，并从 package root 额外导出同一 final-data parser；名称与 final-data types 见 [README 的内置结果、消息与解析器](../README.md#内置结果消息与解析器)。
 
 ## RunControls 与 Check aggregation
 
@@ -213,7 +222,7 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 machine publication 和 progress rendering defaults，RunControls 可以对当前调用局部覆盖。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。两个 output 都由 Run 调度，并分别记录 status。
+Definition outputs 提供 machine publication 和 progress rendering defaults，RunControls 可以对当前调用局部覆盖。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。两个 output 都由 Run 调度，并分别记录 status。machine bytes、schema identity、完整 publication-set validation 与随包示例由 [machine output 契约](output.md)说明；Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 

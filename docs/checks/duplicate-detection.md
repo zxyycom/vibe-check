@@ -154,7 +154,7 @@ provenance，不要求 custom command 等于 package 当前安装的版本。
 隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
 finding。
 
-## Constructor 与普通 Check 的边界
+## 构造函数与普通 Check 的边界
 
 constructor 返回的仍是普通 Check object，可直接进入 `defineConfig({ checks: [...] })`。constructor 会冻结并返回完整
 resolved options；owning preflight 与 execution 仍验证这个完整 shape，以安全拒绝 constructor 之后通过普通对象组合形成
@@ -203,6 +203,16 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 
 按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄 `RunResult.kind`，再按
 `duplicate-detection` checkId 读取 outcome 和 supplemental Records。
+
+`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
+调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
+的 `passed` 与 `not-applicable` 不合成人为提示。
+
+用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseDuplicateDetectionData(value)` 验证 final data。两者返回
+`DuplicateDetectionFinalData`，Record 与不可用原因可分别用 `DuplicateDetectionRecordData` 和
+`DuplicateDetectionUnavailableReasonCode` 标注；authoring / resolved options types 是 `DuplicateDetectionOptions` 与
+`ResolvedDuplicateDetectionOptions`。parser 只适用于 `passed` / `failed` data，shape 或计数不变量不匹配时抛出
+`TypeError`。
 
 ## `not-applicable` 与 `unavailable`
 

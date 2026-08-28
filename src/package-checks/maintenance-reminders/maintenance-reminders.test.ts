@@ -12,6 +12,7 @@ import {
 } from "../../project-definition/project-definition.ts";
 import type { Check, CheckExecutionContext } from "../../check/check.ts";
 import { maintenanceReminders, type MaintenanceReminderOptions } from "./maintenance-reminders.ts";
+import { parseMaintenanceRemindersData } from "./final-data.ts";
 import { validateMachinePublicationSetV4 } from "../../machine-output/v4/validation.ts";
 import type { ProgressWriter } from "../../project-run/progress-rendering/renderer.ts";
 import { executeValidatedRun } from "../../project-run/invocation.ts";
@@ -95,6 +96,55 @@ describe("maintenance reminders", () => {
         message: "Review documentation"
       }
     ]);
+    assert.equal(first.parseData, parseMaintenanceRemindersData);
+    assert.deepEqual(
+      first.parseData({
+        entries: [
+          {
+            assessment: "clear",
+            baseCommit: FULL_BASE,
+            changedLines: 0,
+            commitCount: 0,
+            exceeded: [],
+            headCommit: FULL_BASE,
+            id: "docs-review",
+            mode: "advisory"
+          }
+        ]
+      }),
+      {
+        entries: [
+          {
+            assessment: "clear",
+            baseCommit: FULL_BASE,
+            changedLines: 0,
+            commitCount: 0,
+            exceeded: [],
+            headCommit: FULL_BASE,
+            id: "docs-review",
+            mode: "advisory"
+          }
+        ]
+      }
+    );
+    assert.throws(
+      () =>
+        first.parseData({
+          entries: [
+            {
+              assessment: "due",
+              baseCommit: FULL_BASE,
+              changedLines: 0,
+              commitCount: 0,
+              exceeded: [],
+              headCommit: FULL_BASE,
+              id: "docs-review",
+              mode: "advisory"
+            }
+          ]
+        }),
+      /maintenanceReminders final data/
+    );
     const second = maintenanceReminders([
       {
         id: "docs-review",
@@ -635,11 +685,30 @@ describe("maintenance reminders", () => {
           options: { ...check.options, git: { executable: "" } },
           signal: new AbortController().signal
         }),
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        {
+          status: "unavailable",
+          reason: { code: "invalid-options" },
+          messages: [
+            {
+              code: "invalid-options",
+              level: "error",
+              message:
+                "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options."
+            }
+          ]
+        }
       );
       assert.deepEqual(await check.execution(context), {
         status: "unavailable",
-        reason: { code: "execution-cancelled" }
+        reason: { code: "execution-cancelled" },
+        messages: [
+          {
+            code: "execution-cancelled",
+            level: "error",
+            message:
+              "Maintenance reminder evaluation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+          }
+        ]
       });
     } finally {
       rmSync(root, { force: true, recursive: true });

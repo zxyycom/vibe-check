@@ -22,6 +22,7 @@ import type {
 } from "../../check/check.ts";
 import { fileMetrics } from "./constructor.ts";
 import { executeFileMetrics } from "./execution.ts";
+import { parseFileMetricsData } from "./final-data.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const FILES = Object.freeze({
@@ -96,6 +97,15 @@ function scanner(root: string, source: string): string {
 describe("fileMetrics constructor and direct callback", () => {
   it("materializes closed defaults and rejects malformed authored or resolved policy", async () => {
     const defaultCheck = fileMetrics();
+    assert.equal(defaultCheck.parseData, parseFileMetricsData);
+    assert.deepEqual(defaultCheck.parseData({ blockingFindingCount: 0, findingCount: 1 }), {
+      blockingFindingCount: 0,
+      findingCount: 1
+    });
+    assert.throws(
+      () => defaultCheck.parseData({ blockingFindingCount: 2, findingCount: 1 }),
+      /fileMetrics final data/
+    );
     assert.deepEqual(defaultCheck.options, {
       codeAreas: {
         project: {
@@ -233,7 +243,18 @@ describe("fileMetrics constructor and direct callback", () => {
       assert.deepEqual(
         (await execute(executeFileMetrics, { ...defaultCheck.options, codeAreas: {} }, root))
           .result,
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        {
+          status: "unavailable",
+          reason: { code: "invalid-options" },
+          messages: [
+            {
+              code: "invalid-options",
+              level: "error",
+              message:
+                "fileMetrics options are invalid; recreate the Check with fileMetrics(options) or restore its complete resolved options."
+            }
+          ]
+        }
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -299,7 +320,15 @@ describe("fileMetrics constructor and direct callback", () => {
       const result = await execute(executeFileMetrics, check.options, root);
       assert.deepEqual(result.result, {
         status: "passed",
-        data: { blockingFindingCount: 0, findingCount: 1 }
+        data: { blockingFindingCount: 0, findingCount: 1 },
+        messages: [
+          {
+            code: "non-blocking-findings",
+            level: "warning",
+            message:
+              "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(existsSync(scanCountPath), true);
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");
@@ -329,7 +358,15 @@ describe("fileMetrics constructor and direct callback", () => {
       );
       assert.deepEqual(blockingOverlap.result, {
         status: "failed",
-        data: { blockingFindingCount: 1, findingCount: 1 }
+        data: { blockingFindingCount: 1, findingCount: 1 },
+        messages: [
+          {
+            code: "blocking-findings",
+            level: "error",
+            message:
+              "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
       assert.equal(readFileSync(scanCountPath, "utf8"), "2");
@@ -348,7 +385,15 @@ describe("fileMetrics constructor and direct callback", () => {
       );
       assert.deepEqual(sourceUnavailable.result, {
         status: "unavailable",
-        reason: { code: "source-unavailable" }
+        reason: { code: "source-unavailable" },
+        messages: [
+          {
+            code: "source-unavailable",
+            level: "error",
+            message:
+              "File metrics could not collect its configured project files; check the project root, file permissions, and selected file source."
+          }
+        ]
       });
     } finally {
       rmSync(root, { recursive: true, force: true });

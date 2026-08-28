@@ -1,7 +1,6 @@
-import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 import path from "node:path";
 
-import type { MarkdownLinkValidationOptions } from "./options.ts";
+import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
@@ -15,33 +14,39 @@ import {
   type MarkdownSourceReadFailureReason
 } from "./local-resolver.ts";
 import type { MarkdownLinkOccurrence, MarkdownSourceRange } from "./markdown-parser.ts";
+import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
+import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
 export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   checkId: "markdown-link-validation",
   displayName: "Markdown link validation"
 } as const;
 
-interface MarkdownLinkRecordCandidate {
-  readonly data: Readonly<{
-    readonly occurrenceKind: "link" | "image";
-    readonly range: Readonly<{
-      readonly end: Readonly<{ readonly column: number; readonly line: number }>;
-      readonly start: Readonly<{ readonly column: number; readonly line: number }>;
-    }>;
-    readonly reason: MarkdownLinkFindingReason;
-    readonly sourcePath: string;
-    readonly target: MarkdownSafeTargetDescriptor;
+/** 一条本地 Markdown link finding supplemental Record 的 data。 */
+export type MarkdownLinkValidationRecordData = Readonly<{
+  readonly occurrenceKind: "link" | "image";
+  readonly range: Readonly<{
+    readonly end: Readonly<{ readonly column: number; readonly line: number }>;
+    readonly start: Readonly<{ readonly column: number; readonly line: number }>;
   }>;
+  readonly reason: MarkdownLinkFindingReason;
+  readonly sourcePath: string;
+  readonly target: MarkdownSafeTargetDescriptor;
+}>;
+
+interface MarkdownLinkRecordCandidate {
+  readonly data: MarkdownLinkValidationRecordData;
   readonly id: string;
 }
 
 interface MarkdownLinkValidationRun {
-  readonly options: MarkdownLinkValidationOptions;
+  readonly options: ResolvedMarkdownLinkValidationOptions;
   readonly resolver: MarkdownLocalResolver;
   readonly signal: AbortSignal;
 }
 
-type MarkdownLinkValidationUnavailableReason =
+/** `markdown-link-validation` whole-Check unavailable outcome 的稳定 reason code。 */
+export type MarkdownLinkValidationUnavailableReason =
   | "invalid-options"
   | "cancelled"
   | "occurrence-limit-exceeded"
@@ -80,8 +85,8 @@ type MarkdownLinkTraversal =
 
 /** 验证本 Check 选中的 Markdown source 的离线本地链接完整性。 */
 export async function executeMarkdownLinkValidation(
-  context: CheckExecutionContext<MarkdownLinkValidationOptions>
-): Promise<CheckResult> {
+  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>
+): Promise<CheckResult<MarkdownLinkValidationFinalData>> {
   if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
 
   if (context.signal.aborted) return unavailable("cancelled");
@@ -111,19 +116,30 @@ export async function executeMarkdownLinkValidation(
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
+  const data = Object.freeze({
+    sourceFileCount: traversal.sourceFileCount,
+    occurrenceCount: traversal.occurrenceCount,
+    targetReadCount: createdResolver.resolver.targetReadCount,
+    findingCount: traversal.candidates.length
+  });
+  if (traversal.candidates.length === 0) {
+    return Object.freeze({ data, status: "passed" });
+  }
   return Object.freeze({
-    status: traversal.candidates.length === 0 ? "passed" : "failed",
-    data: Object.freeze({
-      sourceFileCount: traversal.sourceFileCount,
-      occurrenceCount: traversal.occurrenceCount,
-      targetReadCount: createdResolver.resolver.targetReadCount,
-      findingCount: traversal.candidates.length
-    })
+    data,
+    messages: Object.freeze([
+      Object.freeze({
+        code: "invalid-local-links",
+        level: "error" as const,
+        message: `${traversal.candidates.length} local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons.`
+      })
+    ]),
+    status: "failed"
   });
 }
 
 function discoverMarkdownSourcePaths(
-  project: CheckExecutionContext<MarkdownLinkValidationOptions>["project"],
+  project: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>["project"],
   files: ProjectFileSelection
 ): MarkdownSourceDiscovery {
   try {
@@ -247,9 +263,39 @@ function isMarkdownSourcePath(filePath: string): boolean {
   return extension === ".md" || extension === ".markdown";
 }
 
-function unavailable(reason: MarkdownLinkValidationUnavailableReason): CheckResult {
+function unavailable(
+  reason: MarkdownLinkValidationUnavailableReason
+): CheckResult<MarkdownLinkValidationFinalData> {
   return Object.freeze({
     status: "unavailable",
-    reason: { code: reason }
+    reason: { code: reason },
+    messages: Object.freeze([
+      Object.freeze({ code: reason, level: "error" as const, message: unavailableMessage(reason) })
+    ])
   });
+}
+
+function unavailableMessage(reason: MarkdownLinkValidationUnavailableReason): string {
+  switch (reason) {
+    case "invalid-options":
+      return "markdownLinkValidation options are invalid; recreate the Check with markdownLinkValidation(options) or restore its complete resolved options.";
+    case "project-root-unavailable":
+      return "Markdown link validation could not resolve the project root; check that the path exists and is accessible.";
+    case "source-unavailable":
+      return "A selected Markdown source could not be collected, read, decoded, or contained safely; check the file source and permissions.";
+    case "source-too-large":
+      return "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit.";
+    case "markdown-parse-failed":
+      return "A selected Markdown source could not be parsed completely; inspect that document's Markdown syntax and encoding.";
+    case "invalid-local-destination":
+      return "A local Markdown destination could not be parsed safely; inspect the affected link destination syntax.";
+    case "target-unavailable":
+      return "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding.";
+    case "occurrence-limit-exceeded":
+      return "Markdown link validation exceeded maxOccurrences; narrow the source selection or raise the bounded limit.";
+    case "target-read-limit-exceeded":
+      return "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit.";
+    case "cancelled":
+      return "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
+  }
 }

@@ -24,6 +24,7 @@ test("rejects malformed and stale receipts before artifact reuse", () => {
       candidateVersion,
       expectedDocuments: [],
       expectedJSDocExamplePayloads: [],
+      expectedMachineMaterials: [],
       expectedReadme: "",
       inputFingerprint: currentFingerprint,
       paths

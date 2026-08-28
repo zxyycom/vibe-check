@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../machine-artifacts/package-materials.ts";
 import { PACKAGE_CHECK_GUIDES, type PackageCheckGuide } from "./check-guide-registry.ts";
 
 const README_PATH = "README.md";
@@ -83,16 +84,13 @@ function assertGuideRegistry(guides: readonly PackageCheckGuide[]): void {
     names.add(guide.exportName);
     paths.add(guide.sourcePath);
   }
-  const expectedCheckExports = [
-    ...Object.values(CURRENT_PUBLIC_CONTRACT.values),
-    ...Object.values(CURRENT_PUBLIC_CONTRACT.operations).filter(
-      (operation) => !NON_CHECK_OPERATIONS.includes(operation)
-    )
-  ].sort();
+  const expectedCheckExports = Object.values(CURRENT_PUBLIC_CONTRACT.operations)
+    .filter((operation) => !NON_CHECK_OPERATIONS.includes(operation))
+    .sort();
   const actualCheckExports = [...names].sort();
   if (actualCheckExports.join("\0") !== expectedCheckExports.join("\0")) {
     throw new Error(
-      `package Check guides must exactly cover package-provided Check values and constructors: expected ${expectedCheckExports.join(", ")}; received ${actualCheckExports.join(", ")}`
+      `package Check guides must exactly cover package-provided Check functions: expected ${expectedCheckExports.join(", ")}; received ${actualCheckExports.join(", ")}`
     );
   }
 }
@@ -169,6 +167,9 @@ function assertGuideLinks(
   if (!readme.content.includes(`(./${API_MECHANICS_PATH})`)) {
     throw new Error(`README is missing the package API mechanics link: ${API_MECHANICS_PATH}`);
   }
+  if (!readme.content.includes("(./docs/output.md)")) {
+    throw new Error("README is missing the package machine output guide link: docs/output.md");
+  }
   for (const guide of PACKAGE_CHECK_GUIDES) {
     if (!readme.content.includes(`](./${guide.sourcePath})`)) {
       throw new Error(`README is missing a direct package Check guide link: ${guide.sourcePath}`);
@@ -186,7 +187,10 @@ function assertGuideLinks(
 }
 
 function assertLocalMarkdownLinks(documents: readonly PackageDocumentationFile[]): void {
-  const paths = new Set(documents.map((document) => document.packagePath));
+  const paths = new Set([
+    ...documents.map((document) => document.packagePath),
+    ...PACKAGE_MACHINE_MATERIAL_PATHS
+  ]);
   for (const document of documents) {
     for (const match of document.content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
       const target = match[1].replace(/^<|>$/g, "").split(/[?#]/, 1)[0];

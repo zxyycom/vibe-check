@@ -20,7 +20,7 @@
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
       "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
-      "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:b1a3d2e8292e03669e448ad31eaf891f2d611637ae2ff7df016fdb9cb46e5276",
+      "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:ad617a185302c8fca69581d6500c5554e005273407d1ac94736390270c2113b4",
       "complete-project-gate-before-public-package-release.md": "sha256:2d197c8559b62f2ff33d802a6f200e761695c39dc3b5306ad3dd82084a63e155",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
@@ -98,6 +98,7 @@
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
+      "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:5f1f9b6f6c3ead439784a93d31795f06a4920c59f78ee4606aa6181ad2c81230",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
@@ -127,6 +128,7 @@
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
       "share-finding-policy-across-area-quality-checks.md": "sha256:16e70625e6a80d693b5a59510241c55d72194edf7fed3750456a555d03a69aa0",
+      "ship-current-machine-contract-materials-in-the-package.md": "sha256:9621f25e30f6d1f6d998ff7a79bb6077bf968b4a535a0a7b1b8c59b3d50afdd2",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
@@ -665,16 +667,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "complete-first-release-check-set-with-specialized-maintenance-reminder.md",
+        "sourcePath": "archive/complete-first-release-check-set-with-specialized-maintenance-reminder.md",
         "title": "以专用构造函数完成首版维护提醒",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-24T13:52:31Z",
         "purpose": "让首版在不增加通用派生模型的前提下，以低样板方式提供可见且可选阻断的维护提醒。",
@@ -3078,6 +3080,40 @@
         ]
       }
     },
+    "provide-package-check-functions-parsers-and-actionable-messages.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "provide-package-check-functions-parsers-and-actionable-messages.md",
+        "title": "为随包 Check 提供构造函数、解析器与可行动消息",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T15:05:29Z",
+        "purpose": "让每项随包 Check 都通过类型化函数构造，并为其最终数据和可处理失败提供直接消费入口。",
+        "background": "当前公共表面混合 constructor 与完整 value，最终数据只能以通用对象读取，随包失败也不总是附带可行动消息。",
+        "decision": "七项随包 Check 均由领域函数构造并补齐默认值，提供最终数据解析器与辅助类型，并为 Check 自有问题附带安全消息。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "complete-first-release-check-set-with-specialized-maintenance-reminder.md"
+          }
+        ]
+      }
+    },
     "provide-prepared-package-candidate-as-typed-check-data.md": {
       "keys": {
         "tag": [
@@ -3977,6 +4013,35 @@
         "tags": [
           "configuration",
           "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "ship-current-machine-contract-materials-in-the-package.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "ship-current-machine-contract-materials-in-the-package.md",
+        "title": "在 package 中交付当前 machine contract 材料",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T15:05:30Z",
+        "purpose": "让 package consumer 从同一安装版本取得 machine v4 说明、schemas 与可验证示例。",
+        "background": "Package Run 默认可以发布 machine files，但当前安装包没有交付 output owner、current schemas 或 artifact examples。",
+        "decision": "Package 随当前 API 和 runtime 交付 consumer-oriented output guide、两份 v4 schema 与四组 current examples。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
         ],
         "relations": []
       }

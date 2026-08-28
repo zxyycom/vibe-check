@@ -2,7 +2,7 @@
 
 Vibe Check 是由 consumer 项目在 **Bun** runtime 中调用的 TypeScript API。项目把一个质量动作定义为 **Check**，把 Checks 组成 **Project Definition**，再通过一次 **Run** 获得可审计结果。所有公开能力都从 `vibe-check` package root 导入，Definition 和 Run invocation 由 consumer 项目代码拥有。
 
-本 README 直接列出常用自定义 API 的参数、默认值和可观察效果，并给出从 Check 定义到结果读取的完整最小路径。需要 options preflight、typed dependency、aggregation policy 或 output failure 的完整机制时，继续阅读[深入 API 机制](./docs/api-mechanics.md)；配置随包 Check 时，直接阅读对应的独立指南；查询精确 TypeScript overload 时，以 installed declarations 的 JSDoc 为准。
+本 README 直接列出常用自定义 API 的参数、默认值和可观察效果，并给出从 Check 定义到结果读取的完整最小路径。需要 options preflight、typed dependency、aggregation policy 或 output failure 的完整机制时，继续阅读[深入 API 机制](./docs/api-mechanics.md)；读取 `run.json` 与 `records.ndjson` 时，使用随包发布的 [machine output 契约](./docs/output.md)；配置随包 Check 时，直接阅读对应的独立指南；查询精确 TypeScript overload 时，以 installed declarations 的 JSDoc 为准。
 
 ## 自定义 Check 快速开始
 
@@ -99,7 +99,7 @@ Run 传给 callback 的 `context` 恰好包含以下字段：
 | `records.report({ id }, data)` | 为当前 Check 写入 supplemental Record；`id` 在当前 Check 内唯一，Record 不决定 terminal status。 |
 | `signal` | 本次 invocation 的 `AbortSignal`，供 preflight 与 execution 协作取消。 |
 
-callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之一；所有分支都可以附加有序的 `messages`：
+callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之一。通用 API 的每个分支都**允许但不保证**附加有序的 `messages`；是否提供以及何时提供由 owning Check 决定：
 
 | callback 返回值 | 含义与可观察结果 |
 | --- | --- |
@@ -112,7 +112,7 @@ callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之�
 
 `passed` / `failed` 的 final `data` 和 `records.report({ id }, data)` 的 Record data 使用 object-shaped canonical JSON：plain objects、dense arrays、finite numbers、strings、booleans 和 `null`。超出该数据 grammar 的 terminal data 或 Record 会把 owning Check 结算为 `unavailable`。
 
-`data` 保存 Check 的主要终态事实；Records 保存 Check-local supplemental facts，每个 `id` 在 owning Check 内唯一；terminal `messages` 保存有序的人读说明。consumer 分别读取这三类信息并解释业务含义。
+`data` 保存 Check 的主要终态事实；Records 保存 Check-local supplemental facts，每个 `id` 在 owning Check 内唯一；terminal `messages` 保存可选、有序的人读说明。consumer 分别读取这三类信息并解释业务含义，不能从 generic `CheckResult` 的类型推断某个 Check 一定携带 message。
 
 ### `defineConfig(value)`：组成可重复运行的 Definition
 
@@ -181,35 +181,70 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 
 ## 随包提供的 Check
 
-随包导出使用同一个 Check / execution contract。`jsonValidation`、`jsonSchemaValidation` 与
-`markdownLinkValidation` 是可直接放入 `checks` 的完整 Check values；`duplicateDetection(options?)`、
-`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)` 是返回普通 Check 的专用构造函数。
+随包提供的七个导出都是返回普通 Check 的函数。除 `maintenanceReminders(entries)` 必须接收提醒条目外，其余函数都接受可省略的 authoring options；无参调用会补齐该 Check 的完整默认 options。这六个 defaulting constructor 会同步拒绝 unknown 或非法 authoring 字段；`maintenanceReminders` 的条目政策由所属 Check 的 preflight 在 Run 全局 barrier 中验证。所有返回值仍遵循上一节的通用 execution、Records 与 result contract。
 
-| 导出                     | 用途与独立说明                                                                                                                                  |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `duplicateDetection`     | 使用 jscpd 报告重复代码片段；见[`duplicateDetection` 指南](./docs/checks/duplicate-detection.md)。                    |
-| `fileMetrics`            | 使用 SCC 评估文件代码行指标；见[`fileMetrics` 指南](./docs/checks/file-metrics.md)。                                |
-| `functionMetrics`        | 使用 Lizard 评估函数规模、复杂度与参数数量；见[`functionMetrics` 指南](./docs/checks/function-metrics.md)。           |
-| `jsonValidation`         | 严格验证 Check 自己选中的 JSON 文档；见[`jsonValidation` 指南](./docs/checks/json-validation.md)。                   |
-| `jsonSchemaValidation`   | 按显式 schema 与 binding 验证 JSON 实例；见[`jsonSchemaValidation` 指南](./docs/checks/json-schema-validation.md)。  |
-| `markdownLinkValidation` | 离线验证本地 Markdown 链接与锚点；见[`markdownLinkValidation` 指南](./docs/checks/markdown-link-validation.md)。     |
-| `maintenanceReminders`   | 按 Git first-parent 历史提示维护复核；见[`maintenanceReminders` 指南](./docs/checks/maintenance-reminders.md)。      |
+| 导出与 Check ID | 调用形式与主要效果 | 默认运行前提 |
+| --- | --- | --- |
+| [`duplicateDetection`](./docs/checks/duplicate-detection.md)；`duplicate-detection` | `duplicateDetection(options?)` 使用 jscpd 报告重复代码片段。 | package 解析并执行随安装依赖提供的兼容 jscpd v5。 |
+| [`fileMetrics`](./docs/checks/file-metrics.md)；`file-metrics` | `fileMetrics(options?)` 使用 SCC 评估文件代码行指标。 | project runtime 可以执行兼容 SCC 3.7.0 version output 与 CSV contract 的 command；默认名为 `scc`。 |
+| [`functionMetrics`](./docs/checks/function-metrics.md)；`function-metrics` | `functionMetrics(options?)` 使用 Lizard 评估函数规模、复杂度与参数数量。 | project runtime 可以执行兼容 Lizard 1.23 version output 与 CSV contract 的 command；默认名为 `lizard`。 |
+| [`jsonValidation`](./docs/checks/json-validation.md)；`json-validation` | `jsonValidation(options?)` 严格验证自己选中的 JSON 文档。 | 只读取本地文件，不执行外部 command，不发起网络请求。 |
+| [`jsonSchemaValidation`](./docs/checks/json-schema-validation.md)；`json-schema-validation` | `jsonSchemaValidation(options?)` 按显式 schema 与 binding 验证 JSON instances。 | 默认离线；只有显式 allowlisted HTTPS source 才会发起网络请求。 |
+| [`markdownLinkValidation`](./docs/checks/markdown-link-validation.md)；`markdown-link-validation` | `markdownLinkValidation(options?)` 离线验证本地 Markdown 链接与锚点。 | 只读取经过 policy 授权的本地路径，不执行外部 command 或网络请求。 |
+| [`maintenanceReminders`](./docs/checks/maintenance-reminders.md)；`maintenance-reminders` | `maintenanceReminders(entries)` 按 Git first-parent 历史提示维护复核。 | project root 是 Git repository，且 runtime 可以执行 `git`。 |
+
+构造函数按字段补默认值，包括 `jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 的 nested authoring branches。显式数组仍是完整替换值。函数返回后如果再用普通对象组合替换 `check.options`，替换值必须是完整 resolved shape；preflight 不会重新执行 constructor merge。`maintenanceReminders` 只接收 entries，并固定 Git execution policy。各指南分别列出 authoring options、resolved defaults 与合法组合示例。
+
+### 内置结果、消息与解析器
+
+随包 Check 对其代码明确结算的失败、不可用和“发现问题但 policy 不阻断”分支，均附带至少一条可操作 message：message
+说明下一步应检查 Records、配置、项目路径、外部工具或取消原因。通用 API 仍只规定 `messages?`；这项保证不延伸到
+Product 在 Check callback 之外形成的防御性失败，也不延伸到调用方自定义 Check。
+
+`passed` / `failed` outcome 的 `data` 可以用返回 Check 的 `parseData` 读取，也可以用 package root 的同名独立 parser 读取。两种入口使用同一实现，接受 `unknown`、验证该 Check 的 closed shape 与计数不变量，并返回脱离输入的只读数据；不匹配时抛出 `TypeError`。
+
+| Check | 独立 parser | final-data type |
+| --- | --- | --- |
+| `duplicate-detection` | `parseDuplicateDetectionData` | `DuplicateDetectionFinalData` |
+| `file-metrics` | `parseFileMetricsData` | `FileMetricsFinalData` |
+| `function-metrics` | `parseFunctionMetricsData` | `FunctionMetricsFinalData` |
+| `json-validation` | `parseJsonValidationData` | `JsonValidationFinalData` |
+| `json-schema-validation` | `parseJsonSchemaValidationData` | `JsonSchemaValidationFinalData` |
+| `markdown-link-validation` | `parseMarkdownLinkValidationData` | `MarkdownLinkValidationFinalData` |
+| `maintenance-reminders` | `parseMaintenanceRemindersData` | `MaintenanceRemindersFinalData` |
+
+```ts
+import { jsonValidation, parseJsonValidationData } from "vibe-check";
+
+const check = jsonValidation({ files: { include: ["config/**/*.json"] } });
+
+export function readJsonValidationData(dependencyData: unknown, validatedRunData: unknown) {
+  return {
+    fromDependency: check.parseData(dependencyData),
+    fromValidatedRunRow: parseJsonValidationData(validatedRunData)
+  };
+}
+```
+
+parser 只验证单个 Check 的 final-data object，不解析 JSON bytes，也不验证 machine artifact envelope、schema identity、Record set 或版本。读取外部 `run.json` / `records.ndjson` 时，先按 [machine output 契约](./docs/output.md)验证完整 publication set，再把目标 `passed` / `failed` row 的 `outcome.data` 交给对应 parser。`not-applicable` 与 `unavailable` 没有 final data，不应调用 parser。
 
 ### 三个代码质量构造函数的共通配置
 
 `duplicateDetection`、`fileMetrics` 与 `functionMetrics` 都用 `codeAreas[id]` 组织区域策略。每个显式区域必须提供
 `files`：`source` 选择 `"filesystem" | "git-worktree"`，`include` 选择路径，`exclude` 以更高优先级移除路径。
 默认 `filesystem` 不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。
+省略 `include` 时使用 `["**/*"]`；省略 `exclude` 时使用各指南列出的 package 默认排除项。显式数组会完整替换对应
+默认值，`include: []` 不选择路径，`exclude: []` 不排除路径。
 
 顶层 `findingPolicy` 为区域提供 `"blocking" | "non-blocking"` 默认值。所有可信 finding 都形成带 `blocking` 的
 Record；正常 final data 为 `{ findingCount, blockingFindingCount }`。重复代码的行数与 token 下限、文件代码行策略、
 函数规模/复杂度/参数上限以及 scanner 配置分别由上表对应指南完整说明。
 
-每份指南负责该 Check 的完整初始 options、工作过程、terminal effects、可用性、安全边界、最小用法和适用边界。consumer imports 继续使用 `vibe-check` package root。
+每份指南负责该 Check 的完整初始 options、工作过程、terminal effects、message codes、parser/types、可用性、安全边界、最小用法和适用边界。consumer imports 继续使用 `vibe-check` package root。
 
 ## 包内结构与源码恢复
 
-安装包根部的 `index.mjs` 是公开 runtime entry，并转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript declarations。每个 runtime module 都有对应 source map，`src/**.ts` 保留生成模块的 Product source，供实现检查和堆栈定位。
+安装包根部的 `index.mjs` 是公开 runtime entry，并转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript declarations。每个 runtime module 都有对应 source map，`src/**.ts` 保留生成模块的 Product source，供实现检查和堆栈定位。`docs/output.md`、当前 v4 run / Record schemas 与四组完整 artifact examples 也随包发布，供 machine consumer 在安装目录内直接核对契约和字节示例。
 
 consumer code 从 `vibe-check` 导入；`dist/**`、`types/**` 和 `src/**` 用于 package inspection、类型解析与调试。
 

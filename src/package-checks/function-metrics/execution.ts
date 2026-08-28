@@ -14,8 +14,10 @@ import type {
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 import { buildFunctionRecordCandidates } from "./records.ts";
 import { selectLizardTargetFiles } from "./target-files.ts";
+import type { FunctionMetricsFinalData } from "./final-data.ts";
 
-type FunctionMetricsUnavailableReasonCode =
+/** `function-metrics` whole-Check unavailable outcome 的稳定 reason code。 */
+export type FunctionMetricsUnavailableReasonCode =
   | "cancelled"
   | "external-dependency-unavailable"
   | "external-execution-failed"
@@ -26,7 +28,7 @@ type FunctionMetricsUnavailableReasonCode =
 /** Default Check callback；一次扫描完整 area exact-input union。 */
 export async function executeFunctionMetrics(
   context: CheckExecutionContext<ResolvedFunctionMetricsOptions>
-): Promise<CheckResult> {
+): Promise<CheckResult<FunctionMetricsFinalData>> {
   if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("cancelled");
 
@@ -101,7 +103,7 @@ function collectAreaInputs(
 
 function directMeasurementFailure(
   measurement: Exclude<FunctionMeasurementResult, { kind: "complete" }>
-): CheckResult {
+): CheckResult<FunctionMetricsFinalData> {
   switch (measurement.kind) {
     case "cancelled":
       return unavailable("cancelled");
@@ -116,8 +118,33 @@ function directMeasurementFailure(
   return exhaustiveMeasurement;
 }
 
-function unavailable(code: FunctionMetricsUnavailableReasonCode): CheckResult {
-  return Object.freeze({ status: "unavailable", reason: { code } });
+function unavailable(
+  code: FunctionMetricsUnavailableReasonCode
+): CheckResult<FunctionMetricsFinalData> {
+  return Object.freeze({
+    status: "unavailable",
+    reason: { code },
+    messages: Object.freeze([
+      Object.freeze({ code, level: "error" as const, message: unavailableMessage(code) })
+    ])
+  });
+}
+
+function unavailableMessage(code: FunctionMetricsUnavailableReasonCode): string {
+  switch (code) {
+    case "invalid-options":
+      return "functionMetrics options are invalid; recreate the Check with functionMetrics(options) or restore its complete resolved options.";
+    case "cancelled":
+      return "Function metrics was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
+    case "source-unavailable":
+      return "Function metrics could not collect its configured project files; check the project root, file permissions, and selected file source.";
+    case "external-dependency-unavailable":
+      return "The configured Lizard command is unavailable or incompatible; install Lizard 1.23.0 or configure a compatible executable.";
+    case "external-execution-failed":
+      return "Lizard did not complete successfully; run the configured command directly and inspect its environment.";
+    case "external-result-invalid":
+      return "Lizard output could not form a trusted complete result; check the executable version and CSV compatibility.";
+  }
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

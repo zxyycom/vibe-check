@@ -41,6 +41,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
           auditStagingRuntime({
             expectedDocuments: documentation.documents,
             expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+            expectedMachineMaterials: documentation.machineMaterials,
             expectedReadme: documentation.readme,
             stagingDirectory: gateInput.stagingDirectory
           });
@@ -63,7 +64,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     if (fixtureRoot !== undefined) rmSync(fixtureRoot, { force: true, recursive: true });
   });
 
-  it("packages the approved documentation inventory", { timeout: 20_000 }, async () => {
+  it("packages approved docs and machine materials", { timeout: 20_000 }, async () => {
     const { artifact, documentation } = await fixture();
     assert.equal(existsSync(artifact.artifactPath), true);
     assert.equal(artifact.files.includes("package/README.md"), true);
@@ -75,6 +76,15 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       assert.equal(
         readFileSync(join(artifact.stagingDirectory, document.packagePath), "utf8"),
         document.content
+      );
+    }
+    for (const material of documentation.machineMaterials) {
+      assert.equal(artifact.files.includes(`package/${material.packagePath}`), true);
+      assert.equal(
+        readFileSync(join(artifact.stagingDirectory, material.packagePath)).equals(
+          material.content
+        ),
+        true
       );
     }
     assert.equal(
@@ -96,7 +106,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     assertReadableRuntimeLayout(artifact.stagingDirectory);
     assert.equal(
       declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-      '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","run"]'
+      '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","parseDuplicateDetectionData","parseFileMetricsData","parseFunctionMetricsData","parseJsonSchemaValidationData","parseJsonValidationData","parseMaintenanceRemindersData","parseMarkdownLinkValidationData","run"]'
     );
   });
 
@@ -144,7 +154,7 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
   const declarations = readDeclarationSources(declarationRoot);
   const publicRoots = [
     ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
-    ...Object.values(CURRENT_PUBLIC_CONTRACT.values),
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.types)
   ];
   for (const publicRoot of publicRoots) {

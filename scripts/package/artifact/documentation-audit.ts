@@ -12,11 +12,16 @@ import {
   type RenderedPackageApiFile
 } from "../../docs/package-api/render.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
+import {
+  collectPackageMachineMaterials,
+  type PackageMachineMaterial
+} from "../../docs/machine-artifacts/package-materials.ts";
 import { PACKAGE_README_PATH } from "../package-contract.ts";
 
 export interface ArtifactDocumentation {
   readonly documents: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly machineMaterials: readonly PackageMachineMaterial[];
   readonly readme: string;
   readonly rendered: RenderedPackageApiDocumentation;
 }
@@ -25,10 +30,12 @@ export interface ArtifactDocumentation {
 export function artifactDocumentation(repositoryRoot: string): ArtifactDocumentation {
   const rendered = renderPackageApiDocumentation({ repositoryRoot });
   const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
+  const machineMaterials = collectPackageMachineMaterials(repositoryRoot);
   assertDocumentationMatchesSource(repositoryRoot, rendered);
   return Object.freeze({
     documents,
     expectedJSDocExamplePayloads: jsdocExamplePayloads(rendered),
+    machineMaterials,
     readme: rendered.readme.content,
     rendered
   });

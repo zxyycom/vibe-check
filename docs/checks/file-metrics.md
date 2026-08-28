@@ -17,8 +17,8 @@ import { fileMetrics } from "vibe-check";
 const check = fileMetrics();
 ```
 
-执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权的
-SCC-compatible executable。
+执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权且
+兼容 SCC 3.7.0 version output 与 CSV contract 的 executable。
 
 ## 参数与默认配置
 
@@ -166,7 +166,20 @@ custom executable 必须直接接受 SCC CLI 参数。public scanner policy 只�
 需要 prefix arguments 的通用 runtime（例如 `node path/to/tool.js`）不是受支持的直接 command；项目应提供一个已授权的
 专用 wrapper executable。当前 adapter 只接受 SCC `3.7.0` 的 version output 与对应 CSV header contract。
 
-## Constructor 与普通 Check 的边界
+### 安装兼容 SCC
+
+项目可以用自己的工具管理方式提供 `scc`。本仓库验证的项目拥有安装方式是在 `mise.toml` 固定 Go 与 SCC：
+
+```toml
+[tools]
+go = "1.25"
+"go:github.com/boyter/scc/v3" = { version = "v3.7.0", depends = ["go"] }
+```
+
+运行 `mise install` 后，用 `scc --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
+`scanner.executable` 指向已授权、直接接受上述协议并产生 SCC 3.7.0-compatible output 的 executable 即可。
+
+## 构造函数与普通 Check 的边界
 
 constructor 返回的仍是普通 Check object，可直接放入 `defineConfig({ checks: [...] })`。constructor 同步校验 authored
 input、补齐 defaults，并冻结完整 resolved options。
@@ -195,6 +208,15 @@ shape。非法 replacement 不会重新获得 constructor defaults，而是结�
 
 读取结果时先缩窄 `RunResult.kind`，再按 `file-metrics` checkId 查找 Check outcome；完整读取顺序见
 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)。
+
+`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
+调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
+的 `passed` 与 `not-applicable` 不合成人为提示。
+
+用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFileMetricsData(value)` 验证 final data。两者返回
+`FileMetricsFinalData`，Record 与不可用原因可分别用 `FileMetricsRecordData` 和
+`FileMetricsUnavailableReasonCode` 标注；authoring / resolved options types 是 `FileMetricsOptions` 与
+`ResolvedFileMetricsOptions`。parser 只适用于 `passed` / `failed` data，不匹配时抛出 `TypeError`。
 
 ## `not-applicable` 与 `unavailable`
 

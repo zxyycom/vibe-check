@@ -13,13 +13,15 @@ import type {
 import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 import { buildDuplicateRecordCandidates } from "./records.ts";
+import type { DuplicateDetectionFinalData } from "./final-data.ts";
 
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
   checkId: "duplicate-detection",
   displayName: "Duplicate detection"
 } as const;
 
-type DuplicateDetectionUnavailableReasonCode =
+/** `duplicate-detection` whole-Check unavailable outcome 的稳定 reason code。 */
+export type DuplicateDetectionUnavailableReasonCode =
   | "cache-write-failed"
   | "external-dependency-unavailable"
   | "external-execution-failed"
@@ -30,7 +32,7 @@ type DuplicateDetectionUnavailableReasonCode =
 /** Default Check callback；scanner configuration 由其完整 options 拥有。 */
 export async function executeDuplicateDetection(
   context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
-): Promise<CheckResult> {
+): Promise<CheckResult<DuplicateDetectionFinalData>> {
   if (!validResolvedDuplicateDetectionOptions(context.options))
     return unavailable("invalid-options");
 
@@ -119,7 +121,7 @@ function compareText(left: string, right: string): number {
 
 function directMeasurementFailure(
   measurement: Exclude<DuplicateMeasurementResult, { kind: "complete" }>
-): CheckResult {
+): CheckResult<DuplicateDetectionFinalData> {
   switch (measurement.kind) {
     case "cache-write-failed":
       return unavailable("cache-write-failed");
@@ -134,6 +136,31 @@ function directMeasurementFailure(
   return exhaustiveMeasurement;
 }
 
-function unavailable(code: DuplicateDetectionUnavailableReasonCode): CheckResult {
-  return Object.freeze({ status: "unavailable", reason: { code } });
+function unavailable(
+  code: DuplicateDetectionUnavailableReasonCode
+): CheckResult<DuplicateDetectionFinalData> {
+  return Object.freeze({
+    status: "unavailable",
+    reason: { code },
+    messages: Object.freeze([
+      Object.freeze({ code, level: "error" as const, message: unavailableMessage(code) })
+    ])
+  });
+}
+
+function unavailableMessage(code: DuplicateDetectionUnavailableReasonCode): string {
+  switch (code) {
+    case "invalid-options":
+      return "duplicateDetection options are invalid; recreate the Check with duplicateDetection(options) or restore its complete resolved options.";
+    case "source-unavailable":
+      return "Duplicate detection could not collect its configured project files; check the project root, file permissions, and selected file source.";
+    case "external-dependency-unavailable":
+      return "The configured jscpd command is unavailable or incompatible; restore the package dependency or configure a compatible executable.";
+    case "external-execution-failed":
+      return "jscpd did not complete successfully; run the configured command directly and inspect its environment.";
+    case "external-result-invalid":
+      return "jscpd output could not form a trusted complete result; check command and report compatibility.";
+    case "cache-write-failed":
+      return "Duplicate detection completed scanning but could not write its cache; check the configured cache directory permissions.";
+  }
 }

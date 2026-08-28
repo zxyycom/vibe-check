@@ -5,7 +5,7 @@
 ## Context
 
 - [`docs/architecture.md`](../../docs/architecture.md#execution-boundary) defines Product-owned per-Check durations, private lifecycle feedback, final-snapshot `RunResult.checkDurations`, and a progress stream. Detailed child process output stays in project-owned transcripts.
-- [`docs/output.md`](../../docs/output.md#publication-lifecycle-and-trust-boundary) defines machine v4 publication. `RunResult.outputs` carries machine-publication and progress-rendering status; machine v4 contains neither output status nor per-Check timing.
+- [`docs/output.md`](../../docs/output.md#发布生命周期与可信边界) defines machine v4 publication. `RunResult.outputs` carries machine-publication and progress-rendering status; machine v4 contains neither output status nor per-Check timing.
 - [`docs/script-tooling.md`](../../docs/script-tooling.md#project-gate) defines `.log/project-gate/<unique>/` as a Gate-owned local diagnostic directory. Eligible started Checks get separate transcripts; identity/preparation failures do not create an invocation log.
 
 Product lifecycle feedback has `prepared`, `started`, `settled`, and `final` facts. TTY rendering adds temporary running rows; non-TTY rendering is append-only human diagnostics, not a machine event protocol. Terminal messages are settled Check presentation and are not durable logging or machine publication.

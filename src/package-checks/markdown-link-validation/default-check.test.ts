@@ -4,9 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { MarkdownLinkValidationOptions } from "./options.ts";
+import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
 import { markdownLinkValidation } from "./default-check.ts";
+import { parseMarkdownLinkValidationData } from "./final-data.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import type {
@@ -29,7 +30,7 @@ const MARKDOWN_FILES = Object.freeze({
   source: "filesystem" as const
 });
 
-const MARKDOWN_LINK_OPTIONS: MarkdownLinkValidationOptions = Object.freeze({
+const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
   files: MARKDOWN_FILES,
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
@@ -59,8 +60,8 @@ function project(root: string): CheckProjectContext {
 }
 
 async function execute(
-  callback: CheckExecution<MarkdownLinkValidationOptions>,
-  options: MarkdownLinkValidationOptions,
+  callback: CheckExecution<ResolvedMarkdownLinkValidationOptions>,
+  options: ResolvedMarkdownLinkValidationOptions,
   root: string,
   files: ProjectFileSelection = FILES,
   signal: AbortSignal = new AbortController().signal
@@ -71,8 +72,11 @@ async function execute(
   }>
 > {
   const records: ReportedRecord[] = [];
-  const executionOptions: MarkdownLinkValidationOptions = Object.freeze({ ...options, files });
-  const context: CheckExecutionContext<MarkdownLinkValidationOptions> = Object.freeze({
+  const executionOptions: ResolvedMarkdownLinkValidationOptions = Object.freeze({
+    ...options,
+    files
+  });
+  const context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
     options: executionOptions,
     project: project(root),
@@ -104,10 +108,59 @@ function createRoot(prefix: string): string {
 }
 
 describe("default Check direct callbacks", () => {
-  it("requires the complete closed Markdown Link options shape and bounded limits", async () => {
+  it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
+    const defaultCheck = markdownLinkValidation();
+    assert.equal(defaultCheck.options.requireExistingTargets, true);
+    assert.deepEqual(
+      markdownLinkValidation({
+        files: { include: ["docs/**/*.md"] },
+        limits: { maxTargetReads: 50 },
+        rootExternalTargetMode: "ignore"
+      }).options,
+      {
+        files: {
+          exclude: defaultCheck.options.files.exclude,
+          include: ["docs/**/*.md"],
+          source: "filesystem"
+        },
+        limits: {
+          maxMarkdownBytes: 1_048_576,
+          maxOccurrences: 10_000,
+          maxTargetReads: 50
+        },
+        requireExistingTargets: true,
+        requireNonEmptyDirectories: false,
+        rootExternalTargetMode: "ignore",
+        validateCrossDocumentAnchors: true,
+        validateSameDocumentAnchors: true
+      }
+    );
+    assert.throws(
+      () => Reflect.apply(markdownLinkValidation, undefined, [{ unknown: true }]),
+      /documented closed policy/
+    );
+    assert.equal(defaultCheck.parseData, parseMarkdownLinkValidationData);
+    assert.deepEqual(
+      defaultCheck.parseData({
+        sourceFileCount: 1,
+        occurrenceCount: 2,
+        targetReadCount: 1,
+        findingCount: 1
+      }),
+      { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 }
+    );
+    assert.throws(
+      () =>
+        defaultCheck.parseData({
+          sourceFileCount: 1,
+          occurrenceCount: 1,
+          targetReadCount: 2,
+          findingCount: 0
+        }),
+      /markdownLinkValidation final data/
+    );
     assert.equal(
-      (await markdownLinkValidation.preflight!(MARKDOWN_LINK_OPTIONS, new AbortController().signal))
-        .status,
+      (await defaultCheck.preflight!(MARKDOWN_LINK_OPTIONS, new AbortController().signal)).status,
       "success"
     );
     for (const options of [
@@ -134,7 +187,18 @@ describe("default Check direct callbacks", () => {
       assert.deepEqual(
         (await execute(executeMarkdownLinkValidation, invalidDirectOptions, root, MARKDOWN_FILES))
           .result,
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        {
+          status: "unavailable",
+          reason: { code: "invalid-options" },
+          messages: [
+            {
+              code: "invalid-options",
+              level: "error",
+              message:
+                "markdownLinkValidation options are invalid; recreate the Check with markdownLinkValidation(options) or restore its complete resolved options."
+            }
+          ]
+        }
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -159,7 +223,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 }
+        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
+        messages: [
+          {
+            code: "invalid-local-links",
+            level: "error",
+            message:
+              "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+          }
+        ]
       });
       assert.deepEqual(result.records, [
         {
@@ -199,7 +271,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 0, findingCount: 1 }
+        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 0, findingCount: 1 },
+        messages: [
+          {
+            code: "invalid-local-links",
+            level: "error",
+            message:
+              "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+          }
+        ]
       });
       assert.deepEqual(result.records, [
         {
@@ -281,7 +361,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "occurrence-limit-exceeded" }
+        reason: { code: "occurrence-limit-exceeded" },
+        messages: [
+          {
+            code: "occurrence-limit-exceeded",
+            level: "error",
+            message:
+              "Markdown link validation exceeded maxOccurrences; narrow the source selection or raise the bounded limit."
+          }
+        ]
       });
       assert.deepEqual(result.records, []);
     } finally {
@@ -307,7 +395,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "target-read-limit-exceeded" }
+        reason: { code: "target-read-limit-exceeded" },
+        messages: [
+          {
+            code: "target-read-limit-exceeded",
+            level: "error",
+            message:
+              "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit."
+          }
+        ]
       });
       assert.deepEqual(result.records, []);
     } finally {
@@ -346,7 +442,15 @@ describe("default Check direct callbacks", () => {
     );
     assert.deepEqual(result.result, {
       status: "unavailable",
-      reason: { code: "project-root-unavailable" }
+      reason: { code: "project-root-unavailable" },
+      messages: [
+        {
+          code: "project-root-unavailable",
+          level: "error",
+          message:
+            "Markdown link validation could not resolve the project root; check that the path exists and is accessible."
+        }
+      ]
     });
     assert.deepEqual(result.records, []);
 
@@ -366,7 +470,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(sourceResult.result, {
         status: "unavailable",
-        reason: { code: "source-too-large" }
+        reason: { code: "source-too-large" },
+        messages: [
+          {
+            code: "source-too-large",
+            level: "error",
+            message:
+              "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit."
+          }
+        ]
       });
       assert.deepEqual(sourceResult.records, []);
     } finally {
@@ -388,7 +500,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "cancelled" }
+        reason: { code: "cancelled" },
+        messages: [
+          {
+            code: "cancelled",
+            level: "error",
+            message:
+              "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+          }
+        ]
       });
       assert.deepEqual(result.records, []);
     } finally {

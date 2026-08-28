@@ -6,13 +6,15 @@ import type { FileMetricsExactInputSet } from "./measurement-model.ts";
 import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 import { buildFileRecordCandidates } from "./records.ts";
+import type { FileMetricsFinalData } from "./final-data.ts";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
   checkId: "file-metrics",
   displayName: "File metrics"
 } as const;
 
-type FileMetricsUnavailableReasonCode =
+/** `file-metrics` whole-Check unavailable outcome 的稳定 reason code。 */
+export type FileMetricsUnavailableReasonCode =
   | "external-dependency-unavailable"
   | "external-execution-failed"
   | "external-result-invalid"
@@ -26,7 +28,7 @@ interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
 /** 使用 resolved area policy 和 scanner selection 执行一次完整的 file-metrics measurement。 */
 export async function executeFileMetrics(
   context: CheckExecutionContext<ResolvedFileMetricsOptions>
-): Promise<CheckResult> {
+): Promise<CheckResult<FileMetricsFinalData>> {
   if (!isValidResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
 
   let collectedScope: CollectedFileMetricsScope;
@@ -81,7 +83,7 @@ function collectAreaScope(
 
 function measurementFailureResult(
   measurement: Exclude<FileMeasurementResult, { kind: "complete" }>
-): CheckResult {
+): CheckResult<FileMetricsFinalData> {
   switch (measurement.kind) {
     case "execution-failed":
       return unavailable("external-execution-failed");
@@ -94,8 +96,29 @@ function measurementFailureResult(
   return exhaustiveMeasurement;
 }
 
-function unavailable(code: FileMetricsUnavailableReasonCode): CheckResult {
-  return Object.freeze({ status: "unavailable", reason: { code } });
+function unavailable(code: FileMetricsUnavailableReasonCode): CheckResult<FileMetricsFinalData> {
+  return Object.freeze({
+    status: "unavailable",
+    reason: { code },
+    messages: Object.freeze([
+      Object.freeze({ code, level: "error" as const, message: unavailableMessage(code) })
+    ])
+  });
+}
+
+function unavailableMessage(code: FileMetricsUnavailableReasonCode): string {
+  switch (code) {
+    case "invalid-options":
+      return "fileMetrics options are invalid; recreate the Check with fileMetrics(options) or restore its complete resolved options.";
+    case "source-unavailable":
+      return "File metrics could not collect its configured project files; check the project root, file permissions, and selected file source.";
+    case "external-dependency-unavailable":
+      return "The configured SCC command is unavailable or incompatible; install SCC 3.7.0 or configure a compatible executable.";
+    case "external-execution-failed":
+      return "SCC did not complete successfully; run the configured command directly and inspect its environment.";
+    case "external-result-invalid":
+      return "SCC output could not form a trusted complete result; check the executable version and CSV compatibility.";
+  }
 }
 
 function compareText(left: string, right: string): number {

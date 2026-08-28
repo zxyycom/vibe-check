@@ -1,6 +1,6 @@
 ---
 title: 以专用构造函数完成首版维护提醒
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-24T13:52:31Z
 purpose: 让首版在不增加通用派生模型的前提下，以低样板方式提供可见且可选阻断的维护提醒。

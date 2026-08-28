@@ -112,7 +112,11 @@ describe("package API documentation renderer", () => {
         diagnostic: /expected exactly one fenced TypeScript example.*found 2/
       },
       {
-        corruptSource: (source) => source.replace("\n```\n\n示例选择关闭", "\n\n示例选择关闭"),
+        corruptSource: (source) =>
+          source.replace(
+            "```ts\nimport { defineCheck, defineConfig, run }",
+            "````ts\nimport { defineCheck, defineConfig, run }"
+          ),
         diagnostic: /unclosed Markdown fence/
       },
       {

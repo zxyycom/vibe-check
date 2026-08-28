@@ -5,19 +5,22 @@ import { isBlockingFinding, type FindingPolicy } from "../code-quality-findings/
 import type { DuplicateCodeFragment, DuplicateCodeLocation } from "./measurement-model.ts";
 import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
 
+/** 一条可信重复片段 supplemental Record 的 data。 */
+export type DuplicateDetectionRecordData = Readonly<{
+  readonly blocking: boolean;
+  readonly codeAreas: readonly string[];
+  readonly lineCount: number;
+  readonly locations: readonly Readonly<{
+    readonly endLine: number;
+    readonly path: string;
+    readonly startLine: number;
+  }>[];
+  readonly metric: "duplicate-tokens";
+  readonly tokenCount: number;
+}>;
+
 export interface DuplicateRecordCandidate {
-  readonly data: Readonly<{
-    readonly blocking: boolean;
-    readonly codeAreas: readonly string[];
-    readonly lineCount: number;
-    readonly locations: readonly Readonly<{
-      readonly endLine: number;
-      readonly path: string;
-      readonly startLine: number;
-    }>[];
-    readonly metric: "duplicate-tokens";
-    readonly tokenCount: number;
-  }>;
+  readonly data: DuplicateDetectionRecordData;
   readonly id: string;
 }
 

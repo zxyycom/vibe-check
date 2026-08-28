@@ -103,6 +103,7 @@ export async function preparePackageCandidate(
       consumerDirectory: plan.consumerDirectory,
       expectedDocuments: plan.documentation.documents,
       expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
+      expectedMachineMaterials: plan.documentation.machineMaterials,
       expectedReadme: plan.documentation.readme
     });
     writeReceipt({
@@ -136,6 +137,7 @@ export async function preparePackageCandidate(
     consumerDirectory: plan.consumerDirectory,
     expectedDocuments: plan.documentation.documents,
     expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: plan.documentation.machineMaterials,
     expectedReadme: plan.documentation.readme
   });
   writeReceipt({
@@ -238,6 +240,7 @@ function createCandidatePreparationPlan(
     candidateVersion,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
     inputFingerprint,
     paths
@@ -257,6 +260,7 @@ function createCandidatePreparationPlan(
       consumerDirectory,
       expectedDocuments: documentation.documents,
       expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+      expectedMachineMaterials: documentation.machineMaterials,
       expectedReadme: documentation.readme
     });
     if (

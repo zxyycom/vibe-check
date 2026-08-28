@@ -37,17 +37,17 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-types.test.ts|external consumer type acceptance`
   Proves:
 
-- The public package exposes only the documented generic authoring/run operations, three metric constructors, the maintenance constructor, three complete package-provided Check values, and their minimal type roots.
-- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics.
+- The public package exposes only the documented generic authoring/run operations, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason type roots.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; every package Check export is callable and retains its typed parser relation.
 
-## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link options remain complete and bounded
+## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 
 Owner: `docs/configuration.md#markdown-link-validation`
 Entities:
 
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > requires the complete closed Markdown Link options shape and bounded limits`
+- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
   Proves:
-- The complete exported `markdownLinkValidation` value carries block preflight that rejects omitted, oversized, or unknown option shapes; Run owns the resulting unavailable Check settlement before execution.
+- `markdownLinkValidation(options?)` accepts closed partial authoring fields, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 
@@ -57,7 +57,7 @@ Entities:
 - `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
   Proves:
 - `maintenanceReminders(entries)` creates exactly one fixed-ID, attention ordinary Check with package-owned Git options; it does not create a child Check collection.
-- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. Invalid/unknown replacement data settles the owning Check unavailable in preflight, while policy changes affect the declarative fingerprint.
+- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preflight with an actionable message, while policy changes affect the declarative fingerprint.
 
 ## Case WB-PROGRESS-OUTPUT-001: Progress rendering is a Run-owned output
 

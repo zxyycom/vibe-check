@@ -302,9 +302,12 @@ describe("Project Definition", () => {
       { maximumBytes: Number.MAX_SAFE_INTEGER + 1 },
       { maximumBytes: 1, extra: true }
     ];
+    const defaultJsonValidation = jsonValidation();
     for (const options of invalidOptions) {
       const result = validateProjectDefinition(
-        defineConfig({ checks: [{ ...jsonValidation, checkId: "renamed-json-check", options }] })
+        defineConfig({
+          checks: [{ ...defaultJsonValidation, checkId: "renamed-json-check", options }]
+        })
       );
       assert.equal(result.ok, true);
     }
@@ -313,8 +316,8 @@ describe("Project Definition", () => {
         defineConfig({
           checks: [
             {
-              ...jsonValidation,
-              options: { ...jsonValidation.options, maximumBytes: 1 }
+              ...defaultJsonValidation,
+              options: { ...defaultJsonValidation.options, maximumBytes: 1 }
             }
           ]
         })
@@ -343,9 +346,10 @@ describe("Project Definition", () => {
 
   it("accepts ordinary JSON Schema options while their Check preflight owns domain validation", () => {
     const schemaId = "https://schemas.example.test/root";
+    const defaultJsonSchemaValidation = jsonSchemaValidation();
     const validOptions = {
       bindings: [{ id: "instance", instancePath: "instances/one.json", schemaId }],
-      files: jsonSchemaValidation.options.files,
+      files: defaultJsonSchemaValidation.options.files,
       maximumBytes: 1,
       referenceResolution: {
         mode: "allowlisted",
@@ -364,7 +368,7 @@ describe("Project Definition", () => {
     } as const;
     assert.equal(
       validateProjectDefinition(
-        defineConfig({ checks: [{ ...jsonSchemaValidation, options: validOptions }] })
+        defineConfig({ checks: [{ ...defaultJsonSchemaValidation, options: validOptions }] })
       ).ok,
       true
     );
@@ -412,8 +416,9 @@ describe("Project Definition", () => {
     ];
     for (const options of invalidOptions) {
       assert.equal(
-        validateProjectDefinition(defineConfig({ checks: [{ ...jsonSchemaValidation, options }] }))
-          .ok,
+        validateProjectDefinition(
+          defineConfig({ checks: [{ ...defaultJsonSchemaValidation, options }] })
+        ).ok,
         true
       );
     }

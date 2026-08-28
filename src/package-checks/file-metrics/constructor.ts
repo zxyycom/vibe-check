@@ -1,5 +1,6 @@
-import { defineCheck, type CheckWithOptions } from "../../check/check.ts";
+import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import { FILE_METRICS_CHECK_DEFINITION, executeFileMetrics } from "./execution.ts";
+import { parseFileMetricsData } from "./final-data.ts";
 import type { FileMetricsOptions, ResolvedFileMetricsOptions } from "./options.ts";
 import { resolveFileMetricsOptions } from "./options-resolution.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
@@ -13,20 +14,33 @@ import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
  */
 export function fileMetrics(
   options: FileMetricsOptions = {}
-): CheckWithOptions<"file-metrics", ResolvedFileMetricsOptions> {
+): TypedCheckWithOptions<"file-metrics", ResolvedFileMetricsOptions, typeof parseFileMetricsData> {
   const resolvedOptions = resolveFileMetricsOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "fileMetrics options must match the documented closed { codeAreas?, scanner? } constructor policy"
     );
   }
-  return defineCheck<"file-metrics", ResolvedFileMetricsOptions>({
+  return defineCheck({
     ...FILE_METRICS_CHECK_DEFINITION,
     execution: executeFileMetrics,
+    parseData: parseFileMetricsData,
     preflight: (preparedOptions) =>
       isValidResolvedFileMetricsOptions(preparedOptions)
         ? { status: "success", preparedOptions }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+        : {
+            status: "failure",
+            action: "block",
+            reason: { code: "invalid-options" },
+            messages: [
+              {
+                code: "invalid-options",
+                level: "error",
+                message:
+                  "fileMetrics options are invalid; recreate the Check with fileMetrics(options) or restore its complete resolved options."
+              }
+            ]
+          },
     options: resolvedOptions
   });
 }

@@ -8,7 +8,8 @@ import type { MarkdownHeading, ParsedMarkdownLinkFacts } from "./markdown-parser
 type RootExternalTargetMode = "ignore" | "report" | "validate";
 const NOT_LOCAL_FILE_URI: unique symbol = Symbol("not-local-file-uri");
 
-type MarkdownLinkFindingReason =
+/** Markdown local-link finding Record 的稳定 reason。 */
+export type MarkdownLinkFindingReason =
   | "anchor-on-directory"
   | "anchor-target-not-markdown"
   | "empty-directory"
@@ -696,7 +697,6 @@ function unavailable(reason: MarkdownLocalResolutionReason): MarkdownLocalResolu
 }
 
 export type {
-  MarkdownLinkFindingReason,
   MarkdownLinkSource,
   MarkdownLocalResolution,
   MarkdownLocalResolutionReason,

@@ -7,6 +7,7 @@ import { isNonArrayRecord } from "../../value-guards.ts";
 import { auditCandidateArtifact } from "../artifact/packed-tar-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 
 const RECEIPT_SCHEMA_VERSION = 3;
 
@@ -81,6 +82,7 @@ export function assessReusableArtifact(input: {
   readonly candidateVersion: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
   readonly inputFingerprint: string;
   readonly paths: CandidatePaths;
@@ -107,6 +109,7 @@ export function assessReusableArtifact(input: {
       expectedFiles: artifact.files,
       expectedDocuments: input.expectedDocuments,
       expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
+      expectedMachineMaterials: input.expectedMachineMaterials,
       expectedReadme: input.expectedReadme,
       expectedSha256: artifact.sha256
     });

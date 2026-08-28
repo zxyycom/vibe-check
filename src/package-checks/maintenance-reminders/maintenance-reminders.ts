@@ -1,13 +1,28 @@
 import { spawn } from "node:child_process";
 
-import { defineCheck, type CheckExecution, type CheckWithOptions } from "../../check/check.ts";
+import {
+  defineCheck,
+  type CheckExecutionContext,
+  type CheckMessage,
+  type CheckResult,
+  type TypedCheckWithOptions
+} from "../../check/check.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import {
+  isMaintenanceCommitId,
+  isMaintenanceReminderId,
+  MAINTENANCE_REMINDER_UNAVAILABLE_REASON,
+  parseMaintenanceRemindersData,
+  type MaintenanceReminderAssessment,
+  type MaintenanceReminderMode,
+  type MaintenanceReminderUnavailableReason,
+  type MaintenanceRemindersFinalData,
+  type UnavailableMaintenanceReminderAssessment
+} from "./final-data.ts";
 
 export const MAINTENANCE_REMINDERS_CHECK_ID = "maintenance-reminders";
 
 const MAX_GIT_OUTPUT_BYTES = 64 * 1024 * 1024;
-const REMINDER_ID = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-const FULL_COMMIT_ID = /^(?:[0-9a-fA-F]{40}|[0-9a-fA-F]{64})$/;
 const MAINTENANCE_REMINDER_OPTION_KEYS: readonly string[] = ["entries", "git"];
 const MAINTENANCE_REMINDER_ENTRY_KEYS: readonly string[] = [
   "id",
@@ -22,16 +37,6 @@ const WHOLE_CHECK_UNAVAILABLE_CODE = Object.freeze({
   invalidOptions: "invalid-options",
   executionCancelled: "execution-cancelled",
   internalFailure: "maintenance-reminders-internal-failure"
-});
-const ENTRY_UNAVAILABLE_REASON = Object.freeze({
-  baseCommitUnavailable: "base-commit-unavailable",
-  baseNotFirstParentAncestor: "base-not-first-parent-ancestor",
-  firstParentHistoryInvalid: "first-parent-history-invalid",
-  firstParentHistoryUnavailable: "first-parent-history-unavailable",
-  headInvalid: "head-invalid",
-  headUnavailable: "head-unavailable",
-  numstatInvalid: "numstat-invalid",
-  numstatUnavailable: "numstat-unavailable"
 });
 const REMINDER_MESSAGE_CODE = Object.freeze({
   due: "maintenance-reminder-due",
@@ -67,43 +72,17 @@ export interface MaintenanceReminderOptions {
   }>;
 }
 
-type ReminderMode = "advisory" | "enforcing";
-type WholeCheckUnavailableCode =
+/** `maintenance-reminders` whole-Check unavailable outcome 的稳定 reason code。 */
+export type MaintenanceRemindersUnavailableCode =
   (typeof WHOLE_CHECK_UNAVAILABLE_CODE)[keyof typeof WHOLE_CHECK_UNAVAILABLE_CODE];
-type ReminderUnavailableReason =
-  (typeof ENTRY_UNAVAILABLE_REASON)[keyof typeof ENTRY_UNAVAILABLE_REASON];
 type FirstParentHistoryUnavailableReason =
-  | typeof ENTRY_UNAVAILABLE_REASON.firstParentHistoryInvalid
-  | typeof ENTRY_UNAVAILABLE_REASON.firstParentHistoryUnavailable
-  | typeof ENTRY_UNAVAILABLE_REASON.headInvalid
-  | typeof ENTRY_UNAVAILABLE_REASON.headUnavailable;
+  | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryInvalid
+  | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryUnavailable
+  | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headInvalid
+  | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headUnavailable;
 
-type MeasuredReminderAssessment = Readonly<{
-  readonly assessment: "clear" | "due";
-  readonly baseCommit: string;
-  readonly changedLines: number;
-  readonly commitCount: number;
-  readonly exceeded: readonly ("commits" | "changed-lines")[];
-  readonly headCommit: string;
-  readonly id: string;
-  readonly mode: ReminderMode;
-}>;
-
-type UnavailableReminderAssessment = Readonly<{
-  readonly assessment: "unavailable";
-  readonly baseCommit: string;
-  readonly changedLines: null;
-  readonly commitCount: null;
-  readonly exceeded: readonly [];
-  readonly headCommit: string | null;
-  readonly id: string;
-  readonly mode: ReminderMode;
-  readonly reason: ReminderUnavailableReason;
-}>;
-
-type ReminderAssessment = MeasuredReminderAssessment | UnavailableReminderAssessment;
 type ReminderEvaluation = Readonly<{
-  readonly assessment: ReminderAssessment;
+  readonly assessment: MaintenanceReminderAssessment;
   readonly message: string;
 }>;
 
@@ -165,15 +144,32 @@ type ReminderMeasurement =
  */
 export function maintenanceReminders(
   entries: readonly MaintenanceReminder[]
-): CheckWithOptions<typeof MAINTENANCE_REMINDERS_CHECK_ID, MaintenanceReminderOptions> {
-  return defineCheck<typeof MAINTENANCE_REMINDERS_CHECK_ID, MaintenanceReminderOptions>({
+): TypedCheckWithOptions<
+  typeof MAINTENANCE_REMINDERS_CHECK_ID,
+  MaintenanceReminderOptions,
+  typeof parseMaintenanceRemindersData
+> {
+  return defineCheck({
     checkId: MAINTENANCE_REMINDERS_CHECK_ID,
     displayName: "Maintenance reminders",
     execution: executeMaintenanceReminders,
+    parseData: parseMaintenanceRemindersData,
     preflight: (options) =>
       validMaintenanceReminderOptions(options)
         ? { status: "success", preparedOptions: options }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+        : {
+            status: "failure",
+            action: "block",
+            reason: { code: "invalid-options" },
+            messages: [
+              {
+                code: "invalid-options",
+                level: "error",
+                message:
+                  "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options."
+              }
+            ]
+          },
     options: {
       entries,
       git: { executable: "git" }
@@ -183,12 +179,16 @@ export function maintenanceReminders(
 }
 
 /** 在普通对象组合后验证完整的选项形状。 */
-export function validMaintenanceReminderOptions(value: object): boolean {
+export function validMaintenanceReminderOptions(
+  value: unknown
+): value is MaintenanceReminderOptions {
   const options = exactRecord(value, MAINTENANCE_REMINDER_OPTION_KEYS);
   return options !== undefined && validEntries(options.entries) && validGit(options.git);
 }
 
-const executeMaintenanceReminders: CheckExecution<MaintenanceReminderOptions> = async (context) => {
+async function executeMaintenanceReminders(
+  context: CheckExecutionContext<MaintenanceReminderOptions>
+): Promise<CheckResult<MaintenanceRemindersFinalData>> {
   if (!validMaintenanceReminderOptions(context.options))
     return unavailableResult("invalid-options");
   if (context.signal.aborted)
@@ -230,7 +230,7 @@ const executeMaintenanceReminders: CheckExecution<MaintenanceReminderOptions> = 
   } catch {
     return unavailableResult(WHOLE_CHECK_UNAVAILABLE_CODE.internalFailure);
   }
-};
+}
 
 async function resolveFirstParentHistory(input: {
   readonly executable: string;
@@ -244,10 +244,12 @@ async function resolveFirstParentHistory(input: {
     signal: input.signal
   });
   if (head.kind === "cancelled") return head;
-  if (head.kind === "failed") return unavailableHistory(ENTRY_UNAVAILABLE_REASON.headUnavailable);
+  if (head.kind === "failed")
+    return unavailableHistory(MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headUnavailable);
 
   const headCommit = parseCommitId(head.stdout);
-  if (headCommit === null) return unavailableHistory(ENTRY_UNAVAILABLE_REASON.headInvalid);
+  if (headCommit === null)
+    return unavailableHistory(MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headInvalid);
 
   const history = await runGit({
     args: ["rev-list", "--first-parent", "HEAD"],
@@ -257,12 +259,14 @@ async function resolveFirstParentHistory(input: {
   });
   if (history.kind === "cancelled") return history;
   if (history.kind === "failed") {
-    return unavailableHistory(ENTRY_UNAVAILABLE_REASON.firstParentHistoryUnavailable);
+    return unavailableHistory(
+      MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryUnavailable
+    );
   }
 
   const firstParentHistory = parseFirstParentHistory(history.stdout, headCommit);
   if (firstParentHistory === undefined) {
-    return unavailableHistory(ENTRY_UNAVAILABLE_REASON.firstParentHistoryInvalid);
+    return unavailableHistory(MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryInvalid);
   }
 
   return {
@@ -291,7 +295,7 @@ async function measureReminder(input: {
       unavailableAssessment(
         input.entry,
         input.history.headCommit,
-        ENTRY_UNAVAILABLE_REASON.baseCommitUnavailable
+        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseCommitUnavailable
       )
     );
 
@@ -302,7 +306,7 @@ async function measureReminder(input: {
       unavailableAssessment(
         input.entry,
         input.history.headCommit,
-        ENTRY_UNAVAILABLE_REASON.baseCommitUnavailable
+        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseCommitUnavailable
       )
     );
   }
@@ -314,7 +318,7 @@ async function measureReminder(input: {
       unavailableAssessment(
         input.entry,
         input.history.headCommit,
-        ENTRY_UNAVAILABLE_REASON.baseNotFirstParentAncestor
+        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseNotFirstParentAncestor
       )
     );
   }
@@ -334,7 +338,7 @@ async function measureReminder(input: {
         unavailableAssessment(
           input.entry,
           input.history.headCommit,
-          ENTRY_UNAVAILABLE_REASON.numstatUnavailable
+          MAINTENANCE_REMINDER_UNAVAILABLE_REASON.numstatUnavailable
         )
       );
     }
@@ -345,7 +349,7 @@ async function measureReminder(input: {
         unavailableAssessment(
           input.entry,
           input.history.headCommit,
-          ENTRY_UNAVAILABLE_REASON.numstatInvalid
+          MAINTENANCE_REMINDER_UNAVAILABLE_REASON.numstatInvalid
         )
       );
     }
@@ -374,7 +378,9 @@ async function measureReminder(input: {
   });
 }
 
-function completedResult(evaluations: readonly ReminderEvaluation[]) {
+function completedResult(
+  evaluations: readonly ReminderEvaluation[]
+): CheckResult<MaintenanceRemindersFinalData> {
   const assessments = evaluations.map((evaluation) => evaluation.assessment);
   const messages = evaluations.flatMap(messageForEvaluation);
   const failed = evaluations.some(
@@ -388,11 +394,28 @@ function completedResult(evaluations: readonly ReminderEvaluation[]) {
   };
 }
 
-function unavailableResult(code: WholeCheckUnavailableCode) {
-  return { status: "unavailable" as const, reason: { code } };
+function unavailableResult(
+  code: MaintenanceRemindersUnavailableCode
+): CheckResult<MaintenanceRemindersFinalData> {
+  return {
+    status: "unavailable" as const,
+    reason: { code },
+    messages: [{ code, level: "error", message: wholeCheckUnavailableMessage(code) }]
+  };
 }
 
-function messageForEvaluation(evaluation: ReminderEvaluation) {
+function wholeCheckUnavailableMessage(code: MaintenanceRemindersUnavailableCode): string {
+  switch (code) {
+    case "invalid-options":
+      return "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options.";
+    case "execution-cancelled":
+      return "Maintenance reminder evaluation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
+    case "maintenance-reminders-internal-failure":
+      return "Maintenance reminders could not form a complete ordered assessment; check package/runtime integrity and retry.";
+  }
+}
+
+function messageForEvaluation(evaluation: ReminderEvaluation): readonly CheckMessage[] {
   const { assessment, message } = evaluation;
   if (assessment.assessment === "clear") return [];
   const level = assessment.mode === "enforcing" ? ("error" as const) : ("warning" as const);
@@ -412,8 +435,8 @@ function messageForEvaluation(evaluation: ReminderEvaluation) {
 function unavailableAssessment(
   entry: Readonly<MaintenanceReminder>,
   headCommit: string | null,
-  reason: ReminderUnavailableReason
-): UnavailableReminderAssessment {
+  reason: MaintenanceReminderUnavailableReason
+): UnavailableMaintenanceReminderAssessment {
   return {
     assessment: "unavailable",
     baseCommit: entry.baseCommit,
@@ -427,7 +450,7 @@ function unavailableAssessment(
   };
 }
 
-function modeOf(entry: Readonly<MaintenanceReminder>): ReminderMode {
+function modeOf(entry: Readonly<MaintenanceReminder>): MaintenanceReminderMode {
   return entry.mode === "enforcing" ? "enforcing" : "advisory";
 }
 
@@ -439,21 +462,21 @@ function unavailableHistory(
 
 function reminderEvaluation(
   entry: Readonly<MaintenanceReminder>,
-  assessment: ReminderAssessment
+  assessment: MaintenanceReminderAssessment
 ): ReminderEvaluation {
   return { assessment, message: entry.message };
 }
 
 function completedMeasurement(
   entry: Readonly<MaintenanceReminder>,
-  assessment: ReminderAssessment
+  assessment: MaintenanceReminderAssessment
 ): ReminderMeasurement {
   return { kind: "succeeded", value: reminderEvaluation(entry, assessment) };
 }
 
 function parseCommitId(stdout: string): string | null {
   const value = stdout.trim();
-  return FULL_COMMIT_ID.test(value) ? value.toLowerCase() : null;
+  return isMaintenanceCommitId(value) ? value.toLowerCase() : null;
 }
 
 function parseFirstParentHistory(
@@ -568,10 +591,8 @@ function validEntry(entry: Readonly<Record<string, unknown>>): boolean {
     Object.hasOwn(entry, "baseCommit") &&
     Object.hasOwn(entry, "limits") &&
     Object.hasOwn(entry, "message") &&
-    typeof entry.id === "string" &&
-    REMINDER_ID.test(entry.id) &&
-    typeof entry.baseCommit === "string" &&
-    FULL_COMMIT_ID.test(entry.baseCommit) &&
+    isMaintenanceReminderId(entry.id) &&
+    isMaintenanceCommitId(entry.baseCommit) &&
     typeof entry.message === "string" &&
     entry.message.length > 0 &&
     validLimits(entry.limits) &&

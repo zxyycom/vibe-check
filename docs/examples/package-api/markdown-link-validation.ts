@@ -2,7 +2,7 @@
 import { defineConfig, markdownLinkValidation, run } from "vibe-check";
 
 const definition = defineConfig({
-  checks: [markdownLinkValidation],
+  checks: [markdownLinkValidation()],
   outputs: {
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }

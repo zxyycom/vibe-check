@@ -128,10 +128,7 @@ export default defineConfig({
           codeAreas: functionMetricCodeAreas,
           findingPolicy: "non-blocking"
         }),
-        {
-          ...markdownLinkValidation,
-          options: { ...markdownLinkValidation.options, files: repositoryFiles }
-        }
+        markdownLinkValidation({ files: repositoryFiles })
       ]
     }
   ],

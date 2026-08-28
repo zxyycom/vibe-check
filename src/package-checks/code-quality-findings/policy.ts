@@ -1,4 +1,4 @@
-import type { CheckResult } from "../../check/check.ts";
+import type { CheckMessage, CheckResult } from "../../check/check.ts";
 
 export const FINDING_POLICIES = Object.freeze(["blocking", "non-blocking"] as const);
 
@@ -31,11 +31,36 @@ export function isBlockingFinding(policies: readonly FindingPolicy[]): boolean {
 
 export function settleFindings(blockingStates: readonly boolean[]): CheckResult<FindingSummary> {
   const blockingFindingCount = blockingStates.filter((isBlocking) => isBlocking).length;
+  const findingCount = blockingStates.length;
+  const messages = findingMessages({ blockingFindingCount, findingCount });
   return Object.freeze({
     status: blockingFindingCount > 0 ? "failed" : "passed",
     data: Object.freeze({
       blockingFindingCount,
-      findingCount: blockingStates.length
-    })
+      findingCount
+    }),
+    ...(messages.length === 0 ? {} : { messages })
   });
+}
+
+function findingMessages(summary: FindingSummary): readonly CheckMessage[] {
+  if (summary.blockingFindingCount > 0) {
+    return Object.freeze([
+      Object.freeze({
+        code: "blocking-findings",
+        level: "error",
+        message: `${summary.blockingFindingCount} blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy.`
+      })
+    ]);
+  }
+  if (summary.findingCount > 0) {
+    return Object.freeze([
+      Object.freeze({
+        code: "non-blocking-findings",
+        level: "warning",
+        message: `${summary.findingCount} non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy.`
+      })
+    ]);
+  }
+  return Object.freeze([]);
 }

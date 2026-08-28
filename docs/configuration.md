@@ -9,9 +9,9 @@ scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自
 
 ## Public authoring surface
 
-package surface 包含 `defineConfig`、`defineCheck`、`inherit`、`run`，专用 constructors
-`duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)`，以及完整 default values
-`jsonValidation`、`jsonSchemaValidation` 和 `markdownLinkValidation`。这些 constructor 都返回
+package surface 包含 `defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
+`duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)`、`jsonValidation(options?)`、
+`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及 `maintenanceReminders(entries)`。这些函数都返回
 ordinary Check object，不引入第二种 execution model。仓库 dogfood Definition 位于
 [`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts)。
 
@@ -56,9 +56,9 @@ export default defineConfig({
         duplicateDetection(),
         fileMetrics(),
         functionMetrics(),
-        jsonValidation,
-        jsonSchemaValidation,
-        markdownLinkValidation,
+        jsonValidation(),
+        jsonSchemaValidation(),
+        markdownLinkValidation(),
         licenses
       ]
     }
@@ -114,8 +114,9 @@ type deliberately remains the ordinary recursive/container surface and does not 
 executable Checks without a parser and recursive containers remain valid; a container cannot declare
 `parseData`.
 
-The public `CheckDataParser` annotation preserves that synchronous boundary even when its result type is
-broad: an `async` parser or any parser returning `PromiseLike` is rejected. This does not reject canonical
+The parser constraint carried by `defineCheck` preserves that synchronous boundary even when its result type is
+broad: an `async` parser or any parser returning `PromiseLike` is rejected. This does not add a separate named package-root
+type. It does not reject canonical
 JSON data merely because it has a `then` property: a non-callable `then` value remains ordinary data; only a
 callable `then` would make the returned value thenable.
 
@@ -196,6 +197,11 @@ implement `parseData` only as an identity/type anchor. That does not validate Ja
 producers, historical or cross-version artifacts, or untrusted input. Validate those boundaries in the
 provider instead of treating TypeScript inference as runtime proof.
 
+每个 package-provided Check 都附带 Check-specific `parseData`，并从 package root 导出同一 final-data parser 与对应
+final-data type。它们验证单个 `passed` / `failed` data object 的 closed shape 与业务不变量；不解析 machine bytes，也不
+替代 v4 publication-set/schema validation。自定义 Check 仍自行决定是否提供 parser，Product 不建立 generic
+parser registry。
+
 Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Check facts, or machine publication.
 
 `messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
@@ -251,14 +257,13 @@ The declaration order of `checks` is not execution order. After validation, Prod
 本节只拥有随包 Check 的普通 Check 组合规则、export inventory 与跨 Check 共性。每项 Check 的完整 consumer input、
 默认值、领域约束、结果和 custom dependency 用法由对应 `docs/checks/*.md` 指南拥有。
 
-三个 package-provided default values 是完整 ordinary `Check` values；`duplicateDetection(options?)`、
-`fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)` 是返回同类 ordinary values 的专用 constructors。Product core 不把它们注册为 built-ins。
+七个 package-provided Check exports 都是返回 ordinary `Check` values 的函数；其中六个接收可省略 authoring policy 并补齐
+defaults，`maintenanceReminders(entries)` 接收必须显式声明的提醒政策。Product core 不按 Check ID 注册或特殊处理它们。
 每项 Check 都拥有 block preflight、execution、完整 resolved options 与 domain result；execution 也防御性复用 Check-local
 validator。
 
-default value 仍可用 normal object spread 定制，但替换 nested branch 时必须提供该 branch 的全部字段。
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 是有意的例外：consumer 把可省略 policy 交给 constructor，由它同步拒绝未知/非法输入、补齐 defaults
-并返回完整冻结 options；不需要从某个导出默认对象 nested spread。constructor 返回后若再用普通对象组合替换完整 options，
+六个 defaulting constructor 都同步拒绝未知/非法 authoring input、按各自字段规则补齐 defaults 并返回完整冻结 options；
+consumer 不需要读取导出默认对象或使用 nested spread。constructor 返回后若再用普通对象组合替换完整 options，
 owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definition 不把这些问题升级为全局 configuration failure。
 
 `jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 各自拥有完整
@@ -278,7 +283,7 @@ owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definitio
 }
 ```
 
-metric constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上表值；source 只能是
+六个 file-selecting constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上表值；source 只能是
 `"filesystem" | "git-worktree"`。显式提供某个数组时，该数组完整替换对应字段的默认值，不会自动追加或深度合并。
 `include` 与 `exclude` 都匹配相对项目根目录且使用 `/` 的路径，`exclude` 优先。filesystem 不解释 `.gitignore`；
 git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。文件选择始终只使用配置的来源；来源失败会让
@@ -304,12 +309,13 @@ value 显式组合。
 | `duplicateDetection`     | constructor | `duplicate-detection`      | `scanner: { command: { kind: "package" } }` | cache；area files/thresholds/finding policy |
 | `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area files/code lines/finding policy         |
 | `functionMetrics`        | constructor | `function-metrics`         | `scanner: { executable: "lizard" }`         | area-owned files/limits/finding policy  |
-| `jsonValidation`         | value       | `json-validation`          | —                                           | `maximumBytes: 1_048_576`               |
-| `jsonSchemaValidation`   | value       | `json-schema-validation`   | —                                           | 显式 JSON Schema registry 与 bindings   |
-| `markdownLinkValidation` | value       | `markdown-link-validation` | —                                           | closed local-link options               |
+| `jsonValidation`         | constructor | `json-validation`          | —                                           | files；`maximumBytes: 1_048_576`         |
+| `jsonSchemaValidation`   | constructor | `json-schema-validation`   | —                                           | files；schema registry 与 bindings       |
+| `markdownLinkValidation` | constructor | `markdown-link-validation` | —                                           | files；local-link policy 与 work limits  |
 
-`jsonValidation.options` 恰好包含 `{ files, maximumBytes }`，其中 `maximumBytes` 必须是正安全整数；用普通 object
-composition 替换 `options` 时必须同时提供两个字段。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
+`jsonValidation(options?)` 的 authoring input 可省略 `files` 与 `maximumBytes`，resolved options 恰好包含
+`{ files, maximumBytes }`，其中 `maximumBytes` 必须是正安全整数；constructor 后用普通 object composition 替换
+`options` 时必须同时提供两个字段。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
 codeAreas, findingPolicy, scanner }`；显式 area 必须提供 `files` branch，其中 `source`、`include`、`exclude`、finding
 policy 和两个阈值均可省略。constructor 产物的完整
 `options` 恰好包含 `{ cache, codeAreas, scanner }`；`codeAreas` 至少有一个非空 id，每个 value 恰好包含
@@ -332,9 +338,15 @@ findings 使 Check failed；完整 contract 见 [`functionMetrics` 指南](check
 
 Run 调用 preflight 时不会 import 该 Check 或解释其领域字段。environment variables、Run Controls 和 repository tool state 都不会成为 scanner override。
 
+表中的 `fileMetrics` 与 `functionMetrics` 行给出各自完整的初始 `options.scanner` branch。`duplicateDetection`
+行给出 constructor 形成的 portable package marker；只有 owning jscpd adapter 会把该 marker 解析成 installed manifest 的
+bin target 并通过 active Bun 执行。consumer 需要 custom executable 时通过 constructor 选择 custom command，而不是依赖
+environment lookup、executable discovery 或共享 scanner adapter。完整 handoff 见
+[Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
+
 ### `jsonSchemaValidation` option contract
 
-The exported `jsonSchemaValidation.options` value is exactly:
+无参 `jsonSchemaValidation()` 物化以下完整 resolved options：
 
 ```ts
 {
@@ -356,20 +368,20 @@ The exported `jsonSchemaValidation.options` value is exactly:
 }
 ```
 
-All option branches and arrays are closed and dense. `schemas` contains `{ id, path }` records; `bindings` contains
-`{ id, instancePath, schemaId }` records. Schema IDs and HTTPS source IDs are safe absolute `https:` or `urn:`
-identifiers without userinfo, query, or fragment. Binding IDs are safe labels. Schema and instance paths are
-normalized, project-relative, lowercase-`.json` paths.
+authoring input 的六个顶层字段均可省略，`files` 中的字段也可分别省略；显式 discriminated branch 必须完整，显式数组是
+完整替换值。resolved options 的所有 branch 与数组都是 closed、dense shape。`schemas` 包含 `{ id, path }` records；
+`bindings` 包含 `{ id, instancePath, schemaId }` records。Schema ID 与 HTTPS source ID 必须是不含 userinfo、query 或
+fragment 的安全绝对 `https:` 或 `urn:` identifier。binding ID 使用安全 label；schema 与 instance path 必须是规范化、
+相对项目根目录且使用小写 `.json` 后缀的路径。
 
-Schema IDs are unique within `schemas`; HTTPS source IDs are unique within `sources`; binding IDs, schema paths,
-and `(instancePath, schemaId)` pairs are each unique. Every binding must name a declared schema. Before execution,
-Run calls the ordinary owning block preflight before author execution. Unknown fields, sparse arrays, malformed paths or IDs,
-an unknown binding schema, duplicate entries, an incomplete branch, an invalid `files` branch or a non-positive byte
-limit settle only that Check as `unavailable / invalid-options`; they do not turn the whole Definition into a configuration result.
+`schemas` 内的 schema ID、`sources` 内的 HTTPS source ID、binding ID、schema path 与
+`(instancePath, schemaId)` pair 分别唯一；每个 binding 必须引用已声明 schema。execution 前，Run 会调用 owning Check 的
+普通 block preflight。未知字段、sparse array、非法 path/ID、未声明 schema、重复项、不完整 branch、非法 `files` branch
+或非正 byte limit 只会令该 Check 结算为 `unavailable / invalid-options`，不会把整个 Definition 变为 configuration result。
 
-#### Root identity
+#### 根 schema identity
 
-`schemaIdentity` is one Check-level choice, never a per-schema toggle:
+`schemaIdentity` 是 Check-level 单选 policy，不是 per-schema toggle：
 
 | Mode                          | Root requirement and engine identity                                                                                                                                   |
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -377,7 +389,7 @@ limit settle only that Check as `unavailable / invalid-options`; they do not tur
 | `configuration-authoritative` | The configured schema ID is the engine identity. An object root receives a private compile copy with that `$id`; a boolean root uses the configured identity directly. |
 | `document-authoritative`      | Root `$id` must be safe and becomes the engine identity. The configured schema ID remains the public binding and Record label.                                         |
 
-#### Reference policy
+#### 引用解析 policy
 
 `referenceResolution: { mode: "offline" }` makes no network request and still permits the package-fixed JSON Schema
 2020-12 catalog. Only the allowlisted branch admits extra references:
@@ -402,27 +414,20 @@ environment registry, generic callback loader, or ambient network policy is acce
 its declared, Check-selected local files; remote settlement is owned by
 [Quality Metrics](quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs).
 
-#### First-release compatibility boundary
+#### JSON Schema 兼容边界
 
-The first release treats JSON Schema `format` as a 2020-12 annotation and does not install or load a format
-assertion plugin. Ajv `$async` schemas and `$dynamicRef`/`$recursiveRef` are closed schema-compile failures. This
-policy applies only at actual schema positions: a JSON instance property literally named `$ref`, `$dynamicRef`, or
-`$async` remains ordinary instance data.
-
-表中的 `fileMetrics` 与 `functionMetrics` 行给出各自完整的初始 `options.scanner` branch。`duplicateDetection`
-行给出 constructor 形成的 portable package marker；只有 owning jscpd adapter 会把该 marker 解析成 installed manifest 的
-bin target 并通过 active Bun 执行。consumer 需要 custom executable 时通过 constructor 选择 custom command，而不是依赖
-environment lookup、executable discovery 或共享 scanner adapter。完整 handoff 见
-[Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options)。
+本 Check 把 JSON Schema `format` 作为 2020-12 annotation，不安装或加载 format assertion plugin。Ajv `$async` schema 与
+`$dynamicRef` / `$recursiveRef` 会形成 closed schema-compile failure。该 policy 只作用于真实 schema 位置；JSON instance 中
+字面命名为 `$ref`、`$dynamicRef` 或 `$async` 的 property 仍是普通 instance data。
 
 ### Markdown Link Validation
 
-`markdownLinkValidation` 是 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
+`markdownLinkValidation(options?)` 构造 `checkId` 为 `markdown-link-validation` 的完整 ordinary Check。它校验受支持的
 Markdown occurrence 的本地引用完整性；它不是通用 Markdown syntax、network reachability 或 repository-wide path policy。
 source 与 direct target 的边界由 [Project files and Check exact inputs](scan-scope.md) 定义；finding 与 four-state result 由
 [Quality Metrics](quality-metrics.md) 定义。
 
-其 closed `options` 均为必填项；完整 default 为：
+其 authoring options 均可省略，`files` 与 `limits` 的 fields 也可分别省略；无参调用物化的完整 resolved default 为：
 
 ```ts
 {
@@ -456,7 +461,8 @@ cross-document anchor validation 时，direct regular-file target 上的 fragmen
 `requireNonEmptyDirectories` 是独立作用的 directory policy。`rootExternalTargetMode` 严格为
 `"ignore" | "report" | "validate"`；默认 `report` 不读取 root-external target。`limits` 只能包含上面所列的三个
 positive safe integer。runtime 拒绝超过 `16_777_216` bytes、`100_000` occurrences 或 `10_000` target reads 的上限。
-通过 native composition 替换 `limits` 时必须提供三个字段；Product 不合并缺失 nested field，也不静默提高调用方的 bound。
+constructor input 中的 partial `limits` 会补齐其它默认 fields；constructor 返回后通过 native composition 替换完整 resolved
+`limits` 时必须提供三个字段。Product 不静默提高调用方的 bound。
 
 ## 维护提醒
 
@@ -529,4 +535,4 @@ the repository Gate log directory, are not a Product output.
 
 Product has no shared comparison/reference channel or policy-selection layer. A repository Gate binds selected IDs and an explicit aggregation configuration in its own Project Run; its adapter only maps Run facts and `aggregate` to process exit. A producing Check owns any baseline or comparison behavior through its own options or composition.
 
-Product neither discovers JSON/JSONC configuration nor exposes editor profiles, adjustment helpers, parser/materializer APIs, operational dependency maps, a CLI, or a `bin` entry. Project-owned TypeScript Definition and bound Run are the only supported integration path.
+Product neither discovers JSON/JSONC configuration nor exposes editor profiles, adjustment helpers, a generic parser/materializer registry, operational dependency maps, a CLI, or a `bin` entry. Package-provided Checks do export their own final-data parsers; Project-owned TypeScript Definition and bound Run remain the only supported execution integration path.

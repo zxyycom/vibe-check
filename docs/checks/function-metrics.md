@@ -14,8 +14,8 @@ import { functionMetrics } from "vibe-check";
 const check = functionMetrics();
 ```
 
-执行这个 Check 时，project runtime 需要让默认 `lizard` command 可用，或在 `scanner.executable` 中选择项目已授权的
-Lizard-compatible executable。
+执行这个 Check 时，project runtime 需要让默认 `lizard` command 可用，或在 `scanner.executable` 中选择项目已授权且
+兼容 Lizard 1.23 version output 与 CSV contract 的 executable。
 
 ## 参数与默认配置
 
@@ -142,6 +142,19 @@ owning adapter 固定执行 `--version` probe，并以 approved exact paths 和 
 该命令；需要 wrapper 时由项目提供直接接受这套协议的 executable wrapper。不兼容命令会 fail closed 为 unavailable，
 而不会产生成功空结果。
 
+### 安装兼容 Lizard
+
+项目可以用自己的工具管理方式提供 `lizard`。本仓库验证的项目拥有安装方式是在 `mise.toml` 固定 uv 与 Lizard：
+
+```toml
+[tools]
+uv = "0.11.28"
+"pipx:lizard" = { version = "1.23.0", depends = ["uv"] }
+```
+
+运行 `mise install` 后，用 `lizard --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
+`scanner.executable` 指向已授权、直接接受上述协议并产生 Lizard 1.23-compatible output 的 executable 即可。
+
 ## 工作原理
 
 1. constructor 关闭 input shape，补齐 files、limits、finding policy 与 scanner defaults，再冻结 resolved options。
@@ -181,6 +194,15 @@ Record metric 与 measurement 的对应关系如下：
 non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。按
 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄 `RunResult.kind`，再按
 `function-metrics` checkId 读取 outcome。
+
+`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
+调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
+的 `passed` 与 `not-applicable` 不合成人为提示。
+
+用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFunctionMetricsData(value)` 验证 final data。两者返回
+`FunctionMetricsFinalData`，Record 与不可用原因可分别用 `FunctionMetricsRecordData` 和
+`FunctionMetricsUnavailableReasonCode` 标注；authoring / resolved options types 是 `FunctionMetricsOptions` 与
+`ResolvedFunctionMetricsOptions`。parser 只适用于 `passed` / `failed` data，不匹配时抛出 `TypeError`。
 
 ## `not-applicable` 与 `unavailable`
 

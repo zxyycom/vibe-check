@@ -131,9 +131,9 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
   Proves:
-- A completed traversal publishes only the documented safe local-reference Record projection and exact final counts; root-external findings retain no destination material.
+- A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. Failed results attach an actionable message without copying the unsafe destination.
 - A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
-- Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with no partial Records or final data; zero eligible source reaches `not-applicable` only after the root is usable.
+- Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with actionable Check-owned messages and no partial Records or final data; zero eligible source reaches `not-applicable` only after the root is usable.
 
 ## Case AUX-QUALITY-CACHE-001: Duplicate cache identity is stable
 
@@ -157,4 +157,4 @@ Entities:
 - `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
-- Every measurable entry retains an ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable because no complete payload is formed.
+- Every measurable entry retains a parser-validated ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable with an actionable error because no complete payload is formed.

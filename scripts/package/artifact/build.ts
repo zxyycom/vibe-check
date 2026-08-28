@@ -61,6 +61,11 @@ export async function buildCandidateArtifact(input: {
     mkdirSync(dirname(destination), { recursive: true });
     writeFileSync(destination, document.content, "utf8");
   }
+  for (const material of documentation.machineMaterials) {
+    const destination = join(stagingDirectory, material.packagePath);
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, material.content);
+  }
   copyMomoaLicense({ repositoryRoot, stagingDirectory });
 
   runBun({
@@ -105,6 +110,7 @@ export async function buildCandidateArtifact(input: {
   auditStagingRuntime({
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
     stagingDirectory
   });
@@ -128,6 +134,7 @@ export async function buildCandidateArtifact(input: {
     expectedFiles,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
     expectedSha256: sha256
   });

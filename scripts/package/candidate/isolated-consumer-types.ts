@@ -146,6 +146,13 @@ function publicImports(): string {
   maintenanceReminders,
   jsonSchemaValidation,
   jsonValidation,
+  parseDuplicateDetectionData,
+  parseFileMetricsData,
+  parseFunctionMetricsData,
+  parseJsonSchemaValidationData,
+  parseJsonValidationData,
+  parseMaintenanceRemindersData,
+  parseMarkdownLinkValidationData,
   run,
 ${typeImports}
 } from "vibe-check";
@@ -229,7 +236,7 @@ const definition: ProjectDefinition = defineConfig({
     }),
     fileMetrics({ findingPolicy: "non-blocking" }),
     functionMetrics({ findingPolicy: "non-blocking" }),
-    markdownLinkValidation,
+    markdownLinkValidation(),
     directCheck,
     changedFiles,
     changedFilesConsumer

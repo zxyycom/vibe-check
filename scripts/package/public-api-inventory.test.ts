@@ -16,80 +16,78 @@ import {
   inherit,
   maintenanceReminders,
   jsonSchemaValidation,
-  jsonValidation
+  jsonValidation,
+  parseDuplicateDetectionData,
+  parseFileMetricsData,
+  parseFunctionMetricsData,
+  parseJsonSchemaValidationData,
+  parseJsonValidationData,
+  parseMaintenanceRemindersData,
+  parseMarkdownLinkValidationData
 } from "../../src/index.ts";
 import { run } from "../../src/project-run/run.ts";
 
 describe("public API inventory", () => {
   it("publishes only the approved runtime and type roots", () => {
-    assert.deepEqual(CURRENT_PUBLIC_CONTRACT, {
-      packageImport: "vibe-check",
-      operations: {
-        defineCheck: "defineCheck",
-        defineConfig: "defineConfig",
-        duplicateDetection: "duplicateDetection",
-        fileMetrics: "fileMetrics",
-        functionMetrics: "functionMetrics",
-        inherit: "inherit",
-        maintenanceReminders: "maintenanceReminders",
-        run: "run"
-      },
-      values: {
-        jsonSchemaValidation: "jsonSchemaValidation",
-        jsonValidation: "jsonValidation",
-        markdownLinkValidation: "markdownLinkValidation"
-      },
-      types: {
-        check: "Check",
-        checkAggregate: "CheckAggregate",
-        checkAggregation: "CheckAggregation",
-        checkExecution: "CheckExecution",
-        checkExecutionContext: "CheckExecutionContext",
-        checkPreflight: "CheckPreflight",
-        checkPreflightResult: "CheckPreflightResult",
-        checkOutcome: "CheckOutcome",
-        checkResult: "CheckResult",
-        checkUnavailableReason: "CheckUnavailableReason",
-        duplicateDetectionOptions: "DuplicateDetectionOptions",
-        fileMetricsOptions: "FileMetricsOptions",
-        functionMetricsOptions: "FunctionMetricsOptions",
-        maintenanceReminder: "MaintenanceReminder",
-        maintenanceReminderOptions: "MaintenanceReminderOptions",
-        markdownLinkValidationOptions: "MarkdownLinkValidationOptions",
-        inheritableCheckCollection: "InheritableCheckCollection",
-        jsonSchemaValidationOptions: "JsonSchemaValidationOptions",
-        jsonValidationOptions: "JsonValidationOptions",
-        projectOutputs: "ProjectOutputs",
-        projectDefinition: "ProjectDefinition",
-        runControls: "RunControls",
-        runResult: "RunResult",
-        schedulerPolicy: "SchedulerPolicy"
-      }
-    });
+    assert.equal(CURRENT_PUBLIC_CONTRACT.packageImport, "vibe-check");
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
     assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
     assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.fileMetrics);
     assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.functionMetrics);
+    assert.equal(
+      jsonSchemaValidation.name,
+      CURRENT_PUBLIC_CONTRACT.operations.jsonSchemaValidation
+    );
+    assert.equal(jsonValidation.name, CURRENT_PUBLIC_CONTRACT.operations.jsonValidation);
     assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
     assert.equal(
       maintenanceReminders.name,
       CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
     );
+    assert.equal(
+      markdownLinkValidation.name,
+      CURRENT_PUBLIC_CONTRACT.operations.markdownLinkValidation
+    );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
     assert.equal(typeof duplicateDetection, "function");
     assert.equal(typeof fileMetrics, "function");
     assert.equal(typeof functionMetrics, "function");
-    assert.equal(typeof jsonSchemaValidation, "object");
-    assert.equal(typeof jsonValidation, "object");
-    assert.equal(typeof markdownLinkValidation, "object");
+    assert.equal(typeof jsonSchemaValidation, "function");
+    assert.equal(typeof jsonValidation, "function");
+    assert.equal(typeof markdownLinkValidation, "function");
+    assert.equal(
+      parseDuplicateDetectionData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseDuplicateDetectionData
+    );
+    assert.equal(parseFileMetricsData.name, CURRENT_PUBLIC_CONTRACT.parsers.parseFileMetricsData);
+    assert.equal(
+      parseFunctionMetricsData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseFunctionMetricsData
+    );
+    assert.equal(
+      parseJsonSchemaValidationData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseJsonSchemaValidationData
+    );
+    assert.equal(
+      parseJsonValidationData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseJsonValidationData
+    );
+    assert.equal(
+      parseMaintenanceRemindersData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseMaintenanceRemindersData
+    );
+    assert.equal(
+      parseMarkdownLinkValidationData.name,
+      CURRENT_PUBLIC_CONTRACT.parsers.parseMarkdownLinkValidationData
+    );
     for (const packageCheck of [
       duplicateDetection(),
       fileMetrics(),
       functionMetrics(),
-      jsonSchemaValidation,
-      jsonValidation,
-      markdownLinkValidation
+      jsonSchemaValidation(),
+      jsonValidation(),
+      markdownLinkValidation()
     ]) {
       assert.equal(Object.hasOwn(packageCheck, "replace"), false);
       assert.equal(Object.hasOwn(packageCheck, "append"), false);
@@ -112,7 +110,7 @@ describe("public API inventory", () => {
       packageValueExportNames(packageEntrySource),
       [
         ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
-        ...Object.values(CURRENT_PUBLIC_CONTRACT.values)
+        ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
       ].sort((left, right) => left.localeCompare(right))
     );
     const ownerSource = readFileSync(
@@ -127,7 +125,7 @@ describe("public API inventory", () => {
 function assertPublicRootsHaveChineseJSDoc(contract: typeof CURRENT_PUBLIC_CONTRACT): void {
   const publicRootNames = [
     ...Object.values(contract.operations),
-    ...Object.values(contract.values),
+    ...Object.values(contract.parsers),
     ...Object.values(contract.types)
   ];
   const productSources = productTypeScriptSources();

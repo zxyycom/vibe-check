@@ -11,7 +11,7 @@ Entities:
 
 Proves:
 
-- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return exact `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. This package policy does not turn arbitrary Records into a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Blocking and non-blocking outcomes attach actionable messages without turning arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
@@ -42,8 +42,8 @@ Entities:
 
 Proves:
 
-- JSON validation returns normal four-count final data only after every eligible file is settled; each of the five closed document reasons produces exactly one safe `{ id: path }` / `{ path, reason }` Record and no JSON source, key, pointer, location, or parser detail.
-- Empty eligible input is `not-applicable`; cancellation or a later unavailable document produces `unavailable` without final data while retaining already accepted Records.
+- `jsonValidation(options?)` fills partial file/byte authoring defaults and exposes a parser that enforces the four-count equations. JSON validation returns that final data only after every eligible file is settled; each of the five closed document reasons produces exactly one safe `{ id: path }` / `{ path, reason }` Record and no JSON source, key, pointer, location, or parser detail.
+- A failed document set and every Check-owned unavailable branch carry actionable safe messages. Empty eligible input is `not-applicable`; cancellation or a later unavailable document produces `unavailable` without final data while retaining already accepted Records.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema validation publishes safe domain facts and exact counts
 
@@ -55,8 +55,8 @@ Entities:
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
   Proves:
 
-- Registered schema/binding work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
-- Normal final data keeps valid, invalid, blocked, and total issue counts truthful. A 100-Record display prefix changes neither the full failed assessment nor its issue count, and `format` remains an annotation rather than a loaded plugin.
+- `jsonSchemaValidation(options?)` fills partial authoring defaults and exposes a parser for exact binding, issue, reported-count and truncation invariants. Registered work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
+- Normal final data keeps valid, invalid, blocked, and total issue counts truthful. A 100-Record display prefix changes neither the full failed assessment nor its issue count; failed results carry a safe message that identifies truncation, and `format` remains an annotation rather than a loaded plugin.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-REMOTE-POLICY-001: JSON Schema reference policy is explicit and fail-closed
 
@@ -72,7 +72,7 @@ Entities:
   Proves:
 
 - Reference resolution is offline by default. Only explicitly configured HTTPS sources may be requested with omitted credentials and no redirect; registered local schemas and the fixed catalog need no request.
-- Unapproved references, unsafe schema features, and redirects become safe failures, while an allowlisted transport failure is unavailable without exposing remote detail.
+- Unapproved references, unsafe schema features, and redirects become safe failures, while an allowlisted transport failure is unavailable with an actionable message and without exposing remote detail.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-IDENTITY-OUTCOMES-001: JSON Schema identity and complete outcome boundaries remain explicit
 

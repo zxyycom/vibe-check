@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
+import { parseFunctionMetricsData } from "./final-data.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -105,6 +106,15 @@ const RELAXED_LIMITS = {
 describe("functionMetrics constructor", () => {
   it("materializes frozen defaults and rejects malformed closed policy", async () => {
     const check = functionMetrics();
+    assert.equal(check.parseData, parseFunctionMetricsData);
+    assert.deepEqual(check.parseData({ blockingFindingCount: 1, findingCount: 1 }), {
+      blockingFindingCount: 1,
+      findingCount: 1
+    });
+    assert.throws(
+      () => check.parseData({ blockingFindingCount: 1, findingCount: 0 }),
+      /functionMetrics final data/
+    );
     assert.equal(check.options.scanner.executable, "lizard");
     assert.equal(check.options.codeAreas.project?.findingPolicy, "blocking");
     assert.deepEqual(check.options.codeAreas.project?.limits, {
@@ -192,7 +202,15 @@ describe("functionMetrics cancellation", () => {
         );
         assert.deepEqual(observed.result, {
           status: "unavailable",
-          reason: { code: "cancelled" }
+          reason: { code: "cancelled" },
+          messages: [
+            {
+              code: "cancelled",
+              level: "error",
+              message:
+                "Function metrics was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+            }
+          ]
         });
         assert.equal(observed.records.length, 0);
         assert.equal(existsSync(scanMarker), false);
@@ -235,7 +253,15 @@ describe("functionMetrics area findings", () => {
       const observed = await execute(executeFunctionMetrics, nonBlocking.options, root);
       assert.deepEqual(observed.result, {
         status: "passed",
-        data: { blockingFindingCount: 0, findingCount: 6 }
+        data: { blockingFindingCount: 0, findingCount: 6 },
+        messages: [
+          {
+            code: "non-blocking-findings",
+            level: "warning",
+            message:
+              "6 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(observed.records.length, 6);
       assert.equal(
@@ -257,7 +283,15 @@ describe("functionMetrics area findings", () => {
       const blocked = await execute(executeFunctionMetrics, mixed.options, root);
       assert.deepEqual(blocked.result, {
         status: "failed",
-        data: { blockingFindingCount: 3, findingCount: 6 }
+        data: { blockingFindingCount: 3, findingCount: 6 },
+        messages: [
+          {
+            code: "blocking-findings",
+            level: "error",
+            message:
+              "3 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       const aRecords = blocked.records.filter(
         (record) => recordField(record, "path") === "src/a.ts"
@@ -302,7 +336,15 @@ describe("functionMetrics area findings", () => {
       );
       assert.deepEqual(sourceUnavailable.result, {
         status: "unavailable",
-        reason: { code: "source-unavailable" }
+        reason: { code: "source-unavailable" },
+        messages: [
+          {
+            code: "source-unavailable",
+            level: "error",
+            message:
+              "Function metrics could not collect its configured project files; check the project root, file permissions, and selected file source."
+          }
+        ]
       });
     } finally {
       rmSync(root, { recursive: true, force: true });

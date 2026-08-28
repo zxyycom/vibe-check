@@ -22,18 +22,29 @@ import {
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 
 export function auditStagingRuntime(input: {
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
   readonly stagingDirectory: string;
 }): void {
-  const { expectedDocuments, expectedJSDocExamplePayloads, expectedReadme, stagingDirectory } =
-    input;
+  const {
+    expectedDocuments,
+    expectedJSDocExamplePayloads,
+    expectedMachineMaterials,
+    expectedReadme,
+    stagingDirectory
+  } = input;
   const entryPath = join(stagingDirectory, PACKAGE_ENTRY_PATH);
   const runtimeEntryPath = join(stagingDirectory, PACKAGE_RUNTIME_ENTRY_PATH);
   const typesPath = join(stagingDirectory, PACKAGE_TYPES_PATH);
+  const expectedPublishedMaterialPaths = new Set([
+    ...expectedDocuments.map((document) => document.packagePath),
+    ...expectedMachineMaterials.map((material) => material.packagePath)
+  ]);
   if (!existsSync(entryPath) || !existsSync(runtimeEntryPath) || !existsSync(typesPath)) {
     throw new Error("candidate staging is missing its public runtime entry or declarations entry");
   }
@@ -45,6 +56,7 @@ export function auditStagingRuntime(input: {
     path: join(stagingDirectory, PACKAGE_README_PATH)
   });
   assertPackageDocumentation(stagingDirectory, expectedDocuments);
+  assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
   assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
@@ -72,7 +84,7 @@ export function auditStagingRuntime(input: {
         filePath !== PACKAGE_ENTRY_PATH &&
         filePath !== PACKAGE_README_PATH &&
         filePath !== PACKAGE_MOMOA_LICENSE_PATH &&
-        !expectedDocumentationPaths(expectedDocuments).has(filePath) &&
+        !expectedPublishedMaterialPaths.has(filePath) &&
         !(
           filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
           (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
@@ -84,6 +96,18 @@ export function auditStagingRuntime(input: {
     throw new Error(
       `candidate staging contains materials outside its allowlisted runtime and declaration inventory: ${unexpectedFiles.join(", ")}`
     );
+  }
+}
+
+function assertPackageMachineMaterials(
+  stagingDirectory: string,
+  materials: readonly PackageMachineMaterial[]
+): void {
+  for (const material of materials) {
+    const path = join(stagingDirectory, material.packagePath);
+    if (!existsSync(path) || !readFileSync(path).equals(material.content)) {
+      throw new Error(`candidate staging machine material differs: ${material.packagePath}`);
+    }
   }
 }
 
@@ -147,12 +171,6 @@ function assertRelativeModuleReferencesResolve(input: {
       );
     }
   }
-}
-
-function expectedDocumentationPaths(
-  documents: readonly PackageDocumentationFile[]
-): ReadonlySet<string> {
-  return new Set(documents.map((document) => document.packagePath));
 }
 
 function assertPackageDocumentation(

@@ -1,7 +1,7 @@
 import { Ajv2020 } from "ajv/dist/2020.js";
 import type { AnySchema, AnySchemaObject, ErrorObject, ValidateFunction } from "ajv";
 
-import type { JsonSchemaValidationOptions } from "./options.ts";
+import type { ResolvedJsonSchemaValidationOptions } from "./options.ts";
 import { inspectStrictJsonBytes, type StrictJsonValue } from "../json-document/strict-document.ts";
 
 export type SchemaCompileReason =
@@ -48,7 +48,7 @@ interface PreparedSchema {
 }
 
 interface ControlledResolverInput {
-  readonly referenceResolution: JsonSchemaValidationOptions["referenceResolution"];
+  readonly referenceResolution: ResolvedJsonSchemaValidationOptions["referenceResolution"];
   readonly signal: AbortSignal;
 }
 
@@ -57,8 +57,8 @@ const REMOTE_TIMEOUT_MS = 5_000;
 
 /** Compiles a closed set without exposing Ajv objects, errors, or resolved remote material to callers. */
 export async function compileSchemaSet(input: {
-  readonly referenceResolution: JsonSchemaValidationOptions["referenceResolution"];
-  readonly schemaIdentity: JsonSchemaValidationOptions["schemaIdentity"];
+  readonly referenceResolution: ResolvedJsonSchemaValidationOptions["referenceResolution"];
+  readonly schemaIdentity: ResolvedJsonSchemaValidationOptions["schemaIdentity"];
   readonly schemas: readonly LoadedSchema[];
   readonly signal: AbortSignal;
 }): Promise<CompileSchemaSetResult> {
@@ -169,7 +169,7 @@ export function normalizeValidationErrors(
 
 function prepareSchema(
   loadedSchema: LoadedSchema,
-  mode: JsonSchemaValidationOptions["schemaIdentity"]["mode"]
+  mode: ResolvedJsonSchemaValidationOptions["schemaIdentity"]["mode"]
 ): PreparedSchema | SchemaCompileReason {
   if (mode === "configuration-authoritative") {
     const documentValue = withConfigurationIdentity(loadedSchema.documentValue, loadedSchema.id);

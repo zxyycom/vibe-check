@@ -1,5 +1,6 @@
-import { defineCheck, type CheckWithOptions } from "../../check/check.ts";
+import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import { executeFunctionMetrics } from "./execution.ts";
+import { parseFunctionMetricsData } from "./final-data.ts";
 import type { FunctionMetricsOptions, ResolvedFunctionMetricsOptions } from "./options.ts";
 import { resolveFunctionMetricsOptions } from "./options-resolution.ts";
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
@@ -18,20 +19,37 @@ const FUNCTION_METRICS_CHECK_DEFINITION = {
  */
 export function functionMetrics(
   options: FunctionMetricsOptions = {}
-): CheckWithOptions<"function-metrics", ResolvedFunctionMetricsOptions> {
+): TypedCheckWithOptions<
+  "function-metrics",
+  ResolvedFunctionMetricsOptions,
+  typeof parseFunctionMetricsData
+> {
   const resolvedOptions = resolveFunctionMetricsOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies, positive safe-integer limits, and a non-empty scanner executable"
     );
   }
-  return defineCheck<"function-metrics", ResolvedFunctionMetricsOptions>({
+  return defineCheck({
     ...FUNCTION_METRICS_CHECK_DEFINITION,
     execution: executeFunctionMetrics,
+    parseData: parseFunctionMetricsData,
     preflight: (preparedOptions) =>
       validResolvedFunctionMetricsOptions(preparedOptions)
         ? { status: "success", preparedOptions }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+        : {
+            status: "failure",
+            action: "block",
+            reason: { code: "invalid-options" },
+            messages: [
+              {
+                code: "invalid-options",
+                level: "error",
+                message:
+                  "functionMetrics options are invalid; recreate the Check with functionMetrics(options) or restore its complete resolved options."
+              }
+            ]
+          },
     options: resolvedOptions
   });
 }

@@ -40,8 +40,10 @@ Product protocol failure 只使 owning Check unavailable；已接受的 Records 
 facts。
 
 `src/project-run/**` 的 completed/output results 提供 canonical Check/Record readback；final-snapshot result 另提供已经
-接受的 terminal-message readback。Check data 的 business parser、field schema 与 sensitive-content policy 属于
-consumer/provider，不由 Product registry、catalog、extractor 或 presentation fallback 提供。
+接受的 terminal-message readback。自定义 Check 的 business parser、field schema 与 sensitive-content policy 属于
+consumer/provider，不由 Product registry、catalog、extractor 或 presentation fallback 提供。package-provided Check 是
+provider 自己拥有该责任的具体实例：七项都附带并从 package root 导出自己的 final-data parser，但仍不形成 generic
+registry 或 machine artifact reader。
 
 ## Package-provided ordinary Checks and exact inputs
 
@@ -49,6 +51,12 @@ consumer/provider，不由 Product registry、catalog、extractor 或 presentati
 `function-metrics` 分别拥有自己的 jscpd、scc 与 Lizard adapter；`json-validation`、
 `json-schema-validation` 与 `markdown-link-validation` 同样完整拥有自己的 options validation、execution 和 domain
 facts。Definition、Run 与 Check facts 不识别这些 Check ID 或 option shape。
+
+package-provided Check 自己结算的 failed、unavailable 与带 non-blocking finding 的 passed outcome 都附带至少一条可操作
+message；maintenance advisory 的 due / entry-unavailable 也附带 warning。零问题 passed 与 not-applicable 不合成人为提示。
+这项行为只覆盖 Check-owned execution / preflight 分支；Product 因 callback throw、malformed result 或 canonical boundary
+failure 形成的防御性 unavailable 继续遵循 generic optional-message contract。messages 不改变下述 final data、Records 或
+status 规则。
 
 需要文件的 Check 各自从 Check-owned file selection 形成 selected/exact input paths：三个 metric Check 使用每个
 `codeAreas[id].files`，其它 file-reading Checks 使用顶层 `options.files`。它们只在 detail 是 supplemental finding 时报告
@@ -73,6 +81,9 @@ resolved area 保存自己的有效 policy。每个可信 finding 都发布一�
 passed Check 可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为
 not-applicable 和 unavailable。这个 Finding policy 属于 package code-quality owner，不会扩展 arbitrary Core Check、Record、
 aggregation 或 Gate grammar。
+
+三者的 attached / named parser 验证相同的两个计数字段、非负安全整数与
+`blockingFindingCount <= findingCount`，并返回对应 Check-specific final-data type。
 
 `json-validation` 的 Check-local facts 固定如下：
 
@@ -107,9 +118,8 @@ aggregation 或 Gate grammar。
   catalog 无需 request；只有 explicit allowlisted HTTPS source 可以 fetch。adapter 不使用 credentials、headers、
   redirects、ambient callback 或 persistent cache；unapproved/unsupported reference 安全失败。
 
-All package-provided Checks, including the value returned by `duplicateDetection(options?)`, and custom callbacks use the
-same four-state grammar. Check options affect only their own
-semantics; aggregation and output presentation do not belong to these options.
+所有随包 Check 函数与自定义 callback 都使用同一套四状态结果语法。Check options 只改变 owning Check 的领域语义；
+aggregation 与 output presentation 不属于这些 options。
 
 ### Markdown Link findings and outcomes
 
@@ -182,7 +192,7 @@ callback 只在项目根目录的已提交 Git 历史中工作：它解析 `HEAD
 | `due`         | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 | `unavailable` | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 
-提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#维护提醒评估数据)。
+提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#当前产品输出)。
 
 ## Explicit aggregation and repository Gate mapping
 

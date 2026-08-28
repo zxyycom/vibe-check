@@ -105,7 +105,7 @@ provider staging 执行完整 material audit，因此 staging corruption 不会�
 3. `scan.ts` 调用 `project-run.ts` 的 bound Run，并将 completed、configuration 与其它 result branches 分别映射
    为既有 process status `0`、`3`、`2`。
 4. `definition.ts` 是 repository quality policy 的唯一 owner；它从 private consumer 已安装的 `vibe-check`
-   导入公开 Check values 和 `defineConfig`。`project-run.ts` 将该 Definition 与 repository root 绑定，调用
+   导入公开 Check constructors 和 `defineConfig`。`project-run.ts` 将该 Definition 与 repository root 绑定，调用
    package `run`。
 
 quality wrapper 不解析调用方配置、不重新声明 Project Definition，也不注入 scanner override。每项 scanner command
@@ -260,13 +260,18 @@ H2-H6 ancestor-to-target 的 heading text 排列；跳过数字层级不会产�
 `scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。artifact audit
 再次计算投影并要求 checked-in Markdown/JSDoc 与结果一致，再把同一 Markdown 交给 package material collector。
 
-package README 是 consumer 文档的唯一总入口：它直接链接 exact 七项 `docs/checks/*.md` 指南和唯一深入 API
-mechanics 文档，不发布 `docs/index.md` 或 `docs/checks/index.md`。Check guide registry 必须与 public Check values 和
-专用 constructor 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF
+package README 是 consumer 文档的唯一总入口：它直接链接 exact 七项 `docs/checks/*.md` 指南、唯一深入 API
+mechanics 文档和 machine output 指南，不发布 `docs/index.md` 或 `docs/checks/index.md`。Check guide registry 必须与
+public package-provided Check functions 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF
 且恰有一个 trailing LF，并拒绝缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
 
 current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
 `scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。
+`scripts/docs/machine-artifacts/package-materials.ts` 是随 package 发布的 machine material 精确 registry：它只包含
+`docs/output.md`、current v4 run / Record schemas 与四组 current artifact examples，并按原始 bytes 读取。package build、
+packed tar audit、candidate reuse、installed package audit 与 ancestry-external consumer acceptance 都比较同一 registry 的精确
+bytes；因此零字节 `records.ndjson` 不经过 Markdown 或 UTF-8 normalization。legacy schemas、historical examples、generator
+sources 与 validation scripts 不进入 package。
 
 Documentation validation library functions 只通过 `validateDocs({ report })` 的显式 reporter 发布成功消息；不提供
 reporter 时保持静默。CLI 入口提供 console reporter，Project Gate 的 in-process docs Checks 不提供，从而不在 Product

@@ -8,13 +8,15 @@ import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-invento
 import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "../package-contract.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
+import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/example-projections.ts",
   "scripts/docs/package-api/markdown-example-fences.ts",
   "scripts/docs/package-api/render.ts",
   "scripts/docs/package-api/check-guide-registry.ts",
-  "scripts/docs/package-api/check-guides.ts"
+  "scripts/docs/package-api/check-guides.ts",
+  "scripts/docs/machine-artifacts/package-materials.ts"
 ]);
 const DOCUMENTATION_EXAMPLES_DIRECTORY = "docs/examples/package-api";
 const ARTIFACT_TOOLCHAIN_PACKAGES = Object.freeze(["@typescript/native-preview", "typescript"]);
@@ -62,7 +64,8 @@ function documentationInputFiles(repositoryRoot: string): readonly string[] {
       path.endsWith(".ts")
     ),
     ...PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => join(repositoryRoot, document.packagePath)),
-    ...PACKAGE_CHECK_GUIDES.map((guide) => join(repositoryRoot, guide.sourcePath))
+    ...PACKAGE_CHECK_GUIDES.map((guide) => join(repositoryRoot, guide.sourcePath)),
+    ...PACKAGE_MACHINE_MATERIAL_PATHS.map((path) => join(repositoryRoot, path))
   ]);
 }
 

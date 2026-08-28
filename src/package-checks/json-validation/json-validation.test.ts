@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { JsonValidationOptions } from "./options.ts";
+import type { ResolvedJsonValidationOptions } from "./options.ts";
 import type {
   CheckDependencies,
   CheckExecutionContext,
@@ -14,6 +14,7 @@ import type {
 } from "../../check/check.ts";
 import { executeJsonValidation } from "./json-validation.ts";
 import { jsonValidation } from "./default-check.ts";
+import { parseJsonValidationData } from "./final-data.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 const DEFAULT_FILES = Object.freeze({
@@ -40,7 +41,7 @@ interface JsonValidationExecution {
 interface RunJsonValidationInput {
   readonly fileConfiguration?: ProjectFileSelection;
   readonly onRecordReported?: (record: ObservedRecord) => void;
-  readonly options?: DeepReadonly<Omit<JsonValidationOptions, "files">>;
+  readonly options?: DeepReadonly<Omit<ResolvedJsonValidationOptions, "files">>;
   readonly root: string;
   readonly signal?: AbortSignal;
 }
@@ -60,7 +61,7 @@ function runJsonValidation({
   signal = new AbortController().signal
 }: RunJsonValidationInput): JsonValidationExecution {
   const records: ObservedRecord[] = [];
-  const context: CheckExecutionContext<JsonValidationOptions> = Object.freeze({
+  const context: CheckExecutionContext<ResolvedJsonValidationOptions> = Object.freeze({
     dependencies: NO_DEPENDENCIES,
     options: Object.freeze({ ...options, files: fileConfiguration }),
     project: createProjectContext(root),
@@ -89,9 +90,51 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "ignored.JSON"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
 
-      const invalidPreflight = await jsonValidation.preflight!(
+      const defaultCheck = jsonValidation();
+      assert.equal(defaultCheck.options.maximumBytes, 1_048_576);
+      assert.equal(defaultCheck.options.files.source, "filesystem");
+      assert.deepEqual(
+        jsonValidation({ files: { include: ["config/**/*.json"] }, maximumBytes: 512 }).options,
         {
-          ...jsonValidation.options,
+          files: {
+            exclude: defaultCheck.options.files.exclude,
+            include: ["config/**/*.json"],
+            source: "filesystem"
+          },
+          maximumBytes: 512
+        }
+      );
+      assert.throws(
+        () => Reflect.apply(jsonValidation, undefined, [{ unknown: true }]),
+        /documented closed policy/
+      );
+      assert.throws(
+        () => Reflect.apply(jsonValidation, undefined, [{ maximumBytes: null }]),
+        /documented closed policy/
+      );
+      assert.equal(defaultCheck.parseData, parseJsonValidationData);
+      assert.deepEqual(
+        defaultCheck.parseData({
+          scannedFileCount: 2,
+          validFileCount: 1,
+          invalidFileCount: 1,
+          issueCount: 1
+        }),
+        { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 }
+      );
+      assert.throws(
+        () =>
+          defaultCheck.parseData({
+            scannedFileCount: 2,
+            validFileCount: 2,
+            invalidFileCount: 1,
+            issueCount: 1
+          }),
+        /jsonValidation final data/
+      );
+      const invalidPreflight = await defaultCheck.preflight!(
+        {
+          ...defaultCheck.options,
           maximumBytes: 0
         },
         new AbortController().signal
@@ -99,12 +142,28 @@ describe("JSON validation default Check", () => {
       assert.equal(invalidPreflight.status, "failure");
       assert.deepEqual(runJsonValidation({ root, options: { maximumBytes: 0 } }).result, {
         status: "unavailable",
-        reason: { code: "invalid-options" }
+        reason: { code: "invalid-options" },
+        messages: [
+          {
+            code: "invalid-options",
+            level: "error",
+            message:
+              "jsonValidation options are invalid; recreate the Check with jsonValidation(options) or restore its complete resolved options."
+          }
+        ]
       });
       const result = runJsonValidation({ root });
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 }
+        data: { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 },
+        messages: [
+          {
+            code: "invalid-json-documents",
+            level: "error",
+            message:
+              "1 JSON document(s) are invalid; inspect this Check's Records for each path and reason."
+          }
+        ]
       });
       assert.deepEqual(result.records, [
         {
@@ -175,7 +234,15 @@ describe("JSON validation default Check", () => {
       ]);
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { scannedFileCount: 6, validFileCount: 1, invalidFileCount: 5, issueCount: 5 }
+        data: { scannedFileCount: 6, validFileCount: 1, invalidFileCount: 5, issueCount: 5 },
+        messages: [
+          {
+            code: "invalid-json-documents",
+            level: "error",
+            message:
+              "5 JSON document(s) are invalid; inspect this Check's Records for each path and reason."
+          }
+        ]
       });
     } finally {
       rmSync(root, { force: true, recursive: true });
@@ -209,7 +276,15 @@ describe("JSON validation default Check", () => {
       ]);
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "document-unavailable" }
+        reason: { code: "document-unavailable" },
+        messages: [
+          {
+            code: "document-unavailable",
+            level: "error",
+            message:
+              "A selected JSON document could not be read safely; check that the file still exists, is readable, and was not replaced during the Run."
+          }
+        ]
       });
     } finally {
       rmSync(root, { force: true, recursive: true });
@@ -225,7 +300,18 @@ describe("JSON validation default Check", () => {
       before.abort();
       assert.deepEqual(runJsonValidation({ root, signal: before.signal }), {
         records: [],
-        result: { status: "unavailable", reason: { code: "execution-cancelled" } }
+        result: {
+          status: "unavailable",
+          reason: { code: "execution-cancelled" },
+          messages: [
+            {
+              code: "execution-cancelled",
+              level: "error",
+              message:
+                "JSON validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+            }
+          ]
+        }
       });
 
       const between = new AbortController();
@@ -239,7 +325,15 @@ describe("JSON validation default Check", () => {
       ]);
       assert.deepEqual(result.result, {
         status: "unavailable",
-        reason: { code: "execution-cancelled" }
+        reason: { code: "execution-cancelled" },
+        messages: [
+          {
+            code: "execution-cancelled",
+            level: "error",
+            message:
+              "JSON validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+          }
+        ]
       });
     } finally {
       rmSync(root, { force: true, recursive: true });

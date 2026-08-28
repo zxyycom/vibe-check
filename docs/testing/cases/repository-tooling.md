@@ -27,7 +27,7 @@ Entities:
   Proves:
 
 - Candidate preparation rejects overlapping build/cache roots and accepts only a valid private consumer manifest; it derives a reusable local build, packed artifact, installation, and resolved entry from one exact package state. Default build evidence is isolated from receipt/compiler cache state even when fixtures supply their own roots.
-- Reuse revalidates the packed artifact and installed consumer actually used downstream; invalid receipts, installed documentation drift, or a missing candidate-owned dependency select the declared reinstall or rebuild action rather than an ancestor fallback. Build-only staging material is re-audited by artifact acceptance, not re-scanned by reuse.
+- Reuse revalidates the packed artifact and installed consumer actually used downstream, including exact machine-contract resource bytes; invalid receipts, installed material drift, or a missing candidate-owned dependency select the declared reinstall or rebuild action rather than an ancestor fallback. Build-only staging material is re-audited by artifact acceptance, not re-scanned by reuse.
 - Root package status is read-only and reports `current` or `stale` separately from the required repair action; after build, its current state is reported separately from the performed preparation action. Root verify delegates to the complete package acceptance owner rather than accepting stale material or inventing another acceptance path.
 
 ## Case AUX-PACKAGE-ARTIFACT-MATERIAL-001: Artifact audit closes the physical package material
@@ -35,13 +35,14 @@ Entities:
 Owner: `docs/script-tooling.md#package-artifact-与-candidate`
 Entities:
 
-- `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages the approved documentation inventory`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages approved docs and machine materials`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits documented public declarations`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
+- The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, and all four complete current artifact examples through staging and tar audit, including exact zero-byte NDJSON files and excluding historical material.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
@@ -88,7 +89,7 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
-- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry.
+- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. It imports all seven named final-data parsers and exercises both named and Check-attached parser paths against the installed runtime.
 
 ## Case AUX-QUALITY-CANDIDATE-FAIL-CLOSED-001: Quality refuses to scan after candidate preparation failure
 
@@ -122,19 +123,19 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-docs.test.ts|external consumer docs acceptance`
   Proves:
 
-- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, and hand-written Check guides, and every projected package API runtime example executes against that exact candidate package.
+- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, hand-written Check guides, machine output guide, current v4 schemas, and four current artifact example sets; every projected package API runtime example executes against that exact candidate package.
 
 ## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
 
 Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
 Entities:
 
-- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one README-linked guide for every package-provided Check and constructor`
+- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one README-linked guide for every package-provided Check function`
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects a missing direct README link and an extra Check guide page`
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects package documentation without exactly one trailing LF`
   Proves:
 
-- Package documentation has exactly one README-linked guide for every package-provided Check value and specialized constructor; generated and hand-written Markdown use canonical LF text with one trailing LF, while the README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
+- Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link; generated and hand-written Markdown use canonical LF text with one trailing LF, while the README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions
 

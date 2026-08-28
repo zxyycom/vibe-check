@@ -14,6 +14,7 @@ import { describe, it } from "node:test";
 
 import { executeDuplicateDetection } from "./execution.ts";
 import { duplicateDetection } from "./default-check.ts";
+import { parseDuplicateDetectionData } from "./final-data.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 import type {
   CheckDependencies,
@@ -102,6 +103,15 @@ function scanner(root: string, source: string): string {
 describe("default Check direct callbacks", () => {
   it("executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options", async () => {
     const defaultCheck = duplicateDetection();
+    assert.equal(defaultCheck.parseData, parseDuplicateDetectionData);
+    assert.deepEqual(defaultCheck.parseData({ blockingFindingCount: 1, findingCount: 2 }), {
+      blockingFindingCount: 1,
+      findingCount: 2
+    });
+    assert.throws(
+      () => defaultCheck.parseData({ blockingFindingCount: 2, findingCount: 1 }),
+      /duplicateDetection final data/
+    );
     assert.deepEqual(defaultCheck.options, {
       cache: { directory: ".cache/vibe-check", enabled: true },
       codeAreas: {
@@ -237,12 +247,31 @@ describe("default Check direct callbacks", () => {
       }
       assert.deepEqual(
         (await execute(executeDuplicateDetection, { ...options, codeAreas: {} }, root)).result,
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        {
+          status: "unavailable",
+          reason: { code: "invalid-options" },
+          messages: [
+            {
+              code: "invalid-options",
+              level: "error",
+              message:
+                "duplicateDetection options are invalid; recreate the Check with duplicateDetection(options) or restore its complete resolved options."
+            }
+          ]
+        }
       );
       const result = await execute(executeDuplicateDetection, options, root);
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { blockingFindingCount: 1, findingCount: 1 }
+        data: { blockingFindingCount: 1, findingCount: 1 },
+        messages: [
+          {
+            code: "blocking-findings",
+            level: "error",
+            message:
+              "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(result.records.length, 1);
       assert.match(result.records[0]?.identity.id ?? "", /^duplicate-fragment\/v1\/sha256:/);
@@ -272,7 +301,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(sourceUnavailable.result, {
         status: "unavailable",
-        reason: { code: "source-unavailable" }
+        reason: { code: "source-unavailable" },
+        messages: [
+          {
+            code: "source-unavailable",
+            level: "error",
+            message:
+              "Duplicate detection could not collect its configured project files; check the project root, file permissions, and selected file source."
+          }
+        ]
       });
       assert.equal(existsSync(join(root, ".cache", "vibe-check", "quality-scan-cache-v3")), true);
       writeFileSync(join(root, "blocked-cache"), "not a directory");
@@ -283,7 +320,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(cacheWriteFailure.result, {
         status: "unavailable",
-        reason: { code: "cache-write-failed" }
+        reason: { code: "cache-write-failed" },
+        messages: [
+          {
+            code: "cache-write-failed",
+            level: "error",
+            message:
+              "Duplicate detection completed scanning but could not write its cache; check the configured cache directory permissions."
+          }
+        ]
       });
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -354,7 +399,15 @@ describe("default Check direct callbacks", () => {
       const result = await execute(executeDuplicateDetection, options, root);
       assert.deepEqual(result.result, {
         status: "passed",
-        data: { blockingFindingCount: 0, findingCount: 1 }
+        data: { blockingFindingCount: 0, findingCount: 1 },
+        messages: [
+          {
+            code: "non-blocking-findings",
+            level: "warning",
+            message:
+              "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");
       assert.equal(result.records.length, 1);
@@ -382,7 +435,15 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(blockingOverlap.result, {
         status: "failed",
-        data: { blockingFindingCount: 1, findingCount: 1 }
+        data: { blockingFindingCount: 1, findingCount: 1 },
+        messages: [
+          {
+            code: "blocking-findings",
+            level: "error",
+            message:
+              "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          }
+        ]
       });
       assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
       assert.equal(readFileSync(scanCountPath, "utf8"), "1");

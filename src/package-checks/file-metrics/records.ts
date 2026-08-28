@@ -15,15 +15,18 @@ interface EffectiveFileRecordPolicy {
   readonly limit: number;
 }
 
+/** 一条超出文件代码行上限的 supplemental Record data。 */
+export type FileMetricsRecordData = Readonly<{
+  readonly blocking: boolean;
+  readonly codeAreas: readonly string[];
+  readonly codeLines: number;
+  readonly limit: number;
+  readonly metric: "code-lines";
+  readonly path: string;
+}>;
+
 export interface FileRecordCandidate {
-  readonly data: Readonly<{
-    readonly blocking: boolean;
-    readonly codeAreas: readonly string[];
-    readonly codeLines: number;
-    readonly limit: number;
-    readonly metric: "code-lines";
-    readonly path: string;
-  }>;
+  readonly data: FileMetricsRecordData;
   readonly id: string;
 }
 

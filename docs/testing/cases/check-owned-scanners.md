@@ -16,7 +16,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
   Proves:
-- `fileMetrics(options?)` materializes frozen area, finding-policy and executable defaults, rejects unknown or invalid authored input synchronously, and retains defensive resolved preflight/execution validation without public SCC argument passthrough.
+- `fileMetrics(options?)` materializes frozen area, finding-policy and executable defaults, rejects unknown or invalid authored input synchronously, and retains defensive resolved preflight/execution validation without public SCC argument passthrough. Its attached/named parser validates exact finding-count invariants, and Check-owned invalid options are actionable messages rather than silent unavailable results.
 
 ## Case WB-SCANNER-FILE-METRICS-SCOPE-001: File metrics applies area-owned exact scope
 
@@ -25,7 +25,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
-- Each file-metrics area owns files, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
+- Each file-metrics area owns files, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking. Blocking, non-blocking, and Check-owned unavailable outcomes carry safe actionable messages.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function constructor owns area and finding policy
 
@@ -36,7 +36,7 @@ Entities:
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics cancellation > stops before scanner measurement when cancellation is observed after availability`
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
   Proves:
-- `functionMetrics(options?)` materializes frozen area, limit, finding-policy and executable defaults; rejects malformed authored input synchronously; and retains defensive resolved preflight validation. One Lizard scan receives the area exact-path union, overlapping areas use deterministic strict policy, all findings become local supplemental Records, and only effective blocking findings fail the Check. Cancellation observed after availability prevents scanner measurement and settles the Check unavailable without Records.
+- `functionMetrics(options?)` materializes frozen area, limit, finding-policy and executable defaults; rejects malformed authored input synchronously; retains defensive resolved preflight validation; and exposes the strict final-count parser. One Lizard scan receives the area exact-path union, overlapping areas use deterministic strict policy, all findings become local supplemental Records, and only effective blocking findings fail the Check. Blocking, non-blocking, cancellation, and other Check-owned unavailable outcomes carry safe actionable messages.
 
 ## Case WB-SCANNER-DUPLICATE-CHECK-001: Duplicate default owns its command and Check-owned cache options
 
@@ -47,7 +47,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
   Proves:
 
-- `duplicateDetection(options?)` materializes frozen defaults for cache, scanner and area-owned file/threshold/finding policy, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns exact finding counts, and reports every trusted Check-local supplemental Record with blocking state; preflight still rejects an invalid complete options replacement. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.
+- `duplicateDetection(options?)` materializes frozen defaults for cache, scanner and area-owned file/threshold/finding policy, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns exact finding counts, exposes the strict attached/named parser, and reports every trusted Check-local supplemental Record with blocking state; preflight still rejects an invalid complete options replacement. Failed and Check-owned unavailable branches carry safe actionable messages. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.
 
 ## Case WB-SCANNER-DUPLICATE-SCOPE-001: Duplicate detection compares the complete exact scope
 
