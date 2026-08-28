@@ -1,6 +1,6 @@
 ---
 title: 由 Check-owned execution options 驱动 Run
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:26Z
 purpose: 让 Project Definition 中的普通 Check functions 和各自完整 options 驱动执行，而 Run Controls 只补充共享 invocation 输入。

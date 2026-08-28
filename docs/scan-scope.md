@@ -44,9 +44,9 @@ Git tree 中的 `160000` gitlink 只有在 child path 是独立初始化的 Git 
 Git top-level 必须等于 child 自身 canonical path；普通目录即使替换了 HEAD gitlink，也不属于 child worktree，
 遍历不得回到 parent repository。该规则只描述 current worktree collection。
 
-`RunControls.changedFiles` 仍是冻结的 invocation string list，并原样进入 ordinary Check 的 project context。它不修改
-任何顶层 `options.files` 或 `codeAreas[id].files`，也不建立第二份 Product scope；需要 changed-file 语义的 Check 必须
-自行在 options 与 callback 中定义。
+Package-provided Checks 的 exact file selection 只由各自的顶层 `options.files` 或 `codeAreas[id].files` 决定。
+项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape，
+下游通过 direct `dependsOn` 读取；这些 facts 不会改写 package-provided Check 的 file selection。
 
 ## Package-provided Check exact inputs
 

@@ -620,7 +620,6 @@ describe("maintenance reminders", () => {
         },
         options: check.options,
         project: {
-          changedFiles: [],
           flags: [],
           root
         },

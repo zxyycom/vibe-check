@@ -47,7 +47,6 @@ interface RunJsonValidationInput {
 
 function createProjectContext(root: string): CheckProjectContext {
   return Object.freeze({
-    changedFiles: Object.freeze([]),
     flags: Object.freeze([]),
     root
   });

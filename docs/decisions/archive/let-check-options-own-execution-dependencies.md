@@ -1,6 +1,6 @@
 ---
 title: 让 Check options 拥有执行依赖
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:25Z
 purpose: 让每个普通 Check 通过自己的 options 持有外部程序等执行配置，并由自己的 execution 负责使用。

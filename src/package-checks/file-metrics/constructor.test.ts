@@ -40,7 +40,6 @@ const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
 
 function project(root: string): CheckProjectContext {
   return Object.freeze({
-    changedFiles: Object.freeze(["src/a.ts"]),
     flags: Object.freeze([]),
     root
   });

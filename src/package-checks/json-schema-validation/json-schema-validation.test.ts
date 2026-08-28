@@ -54,7 +54,6 @@ async function runJsonSchemaValidation({
     dependencies: NO_DEPENDENCIES,
     options: Object.freeze({ ...options, files: fileConfiguration }),
     project: Object.freeze({
-      changedFiles: Object.freeze([]),
       flags: Object.freeze([]),
       root
     }),

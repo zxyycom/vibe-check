@@ -1,20 +1,9 @@
-import {
-  isNonArrayRecord,
-  isStringArray,
-  isUnknownArray
-} from "../../data-boundary/value-shapes.ts";
+import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
 import type { RunControlDiagnostic, RunControlValidationResult } from "./validation-result.ts";
 import type { CheckAggregation, RunControls } from "./contract.ts";
 
-const RUN_CONTROL_KEYS = [
-  "checkAggregation",
-  "changedFiles",
-  "outputs",
-  "flags",
-  "projectRoot",
-  "signal"
-] as const;
+const RUN_CONTROL_KEYS = ["checkAggregation", "outputs", "flags", "projectRoot", "signal"] as const;
 
 export function validateRunControls(value: unknown = {}): RunControlValidationResult<RunControls> {
   try {
@@ -27,12 +16,6 @@ export function validateRunControls(value: unknown = {}): RunControlValidationRe
 function validateRunControlsValue(value: unknown): RunControlValidationResult<RunControls> {
   const data = exactControlRecord(value);
   if (!data.ok) return data;
-  const changedFiles = optionalControl(
-    data.value.changedFiles,
-    parseStringArray,
-    "controls.changedFiles"
-  );
-  if (!changedFiles.ok) return changedFiles;
   const flags = parseFlags(data.value.flags);
   if (!flags.ok) return flags;
   const checkAggregation = parseOptionalCheckAggregation(data.value.checkAggregation);
@@ -46,9 +29,6 @@ function validateRunControlsValue(value: unknown): RunControlValidationResult<Ru
   return Object.freeze({
     ok: true,
     value: Object.freeze({
-      ...(changedFiles.value === undefined
-        ? {}
-        : { changedFiles: Object.freeze([...changedFiles.value]) }),
       ...(checkAggregation.value === undefined ? {} : { checkAggregation: checkAggregation.value }),
       ...(outputs.value === undefined ? {} : { outputs: outputs.value }),
       flags: flags.value,
@@ -76,10 +56,6 @@ function optionalControl<T>(
   if (value === undefined) return Object.freeze({ ok: true, value: undefined });
   const parsed = parse(value);
   return parsed === undefined ? invalidControls(path) : Object.freeze({ ok: true, value: parsed });
-}
-
-function parseStringArray(value: unknown): readonly string[] | undefined {
-  return isStringArray(value) ? value : undefined;
 }
 
 function parseFlags(value: unknown): RunControlValidationResult<readonly string[]> {

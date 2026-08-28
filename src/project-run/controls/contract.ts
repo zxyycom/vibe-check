@@ -2,7 +2,6 @@ import type { ProjectOutputs } from "../../project-definition/project-definition
 /** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
 export interface RunControls {
   readonly checkAggregation?: CheckAggregation;
-  readonly changedFiles?: readonly string[];
   /** 仅为本次调用覆盖 machine publication 或 progress rendering。 */
   readonly outputs?: Partial<{
     machinePublication: Partial<ProjectOutputs["machinePublication"]>;

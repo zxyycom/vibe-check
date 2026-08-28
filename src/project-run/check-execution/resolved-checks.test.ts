@@ -20,9 +20,7 @@ import {
 } from "./resolved-checks.ts";
 
 const PROJECT = Object.freeze({
-  changedFiles: Object.freeze([]),
   flags: Object.freeze([]),
-  files: Object.freeze({ codeAreas: {}, excludeDirs: [], generatedFiles: [], include: ["**/*"] }),
   root: "/project"
 }) satisfies CheckProjectContext;
 

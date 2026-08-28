@@ -5,11 +5,7 @@ export function createProjectContext(
   input: Readonly<{ readonly controls: RunControls; readonly root: string }>
 ): CheckProjectContext {
   return Object.freeze({
-    changedFiles: snapshotInvocationStrings(input.controls.changedFiles),
-    flags: snapshotInvocationStrings(input.controls.flags),
+    flags: Object.freeze([...(input.controls.flags ?? [])]),
     root: input.root
   });
-}
-function snapshotInvocationStrings(value: readonly string[] | undefined): readonly string[] {
-  return Object.freeze([...(value ?? [])]);
 }

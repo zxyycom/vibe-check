@@ -87,7 +87,7 @@ describe("Project Gate process Check", () => {
           get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
         },
         options: check.options ?? {},
-        project: { changedFiles: [], flags: [], root: process.cwd() },
+        project: { flags: [], root: process.cwd() },
         records: { report: () => undefined },
         signal: new AbortController().signal
       });
@@ -109,7 +109,7 @@ describe("Project Gate process Check", () => {
             get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
           },
           options: check.options ?? {},
-          project: { changedFiles: [], flags: [], root: process.cwd() },
+          project: { flags: [], root: process.cwd() },
           records: { report: () => undefined },
           signal: new AbortController().signal
         }),
@@ -135,7 +135,7 @@ describe("Project Gate process Check", () => {
             get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
           },
           options: check.options ?? {},
-          project: { changedFiles: [], flags: [], root: process.cwd() },
+          project: { flags: [], root: process.cwd() },
           records: { report: () => undefined },
           signal: new AbortController().signal
         }),
@@ -254,7 +254,7 @@ describe("Project Gate process Check", () => {
         execution({
           dependencies: { get },
           options: check.options ?? {},
-          project: { changedFiles: [], flags: [], root: process.cwd() },
+          project: { flags: [], root: process.cwd() },
           records: { report: () => undefined },
           signal: new AbortController().signal
         });
@@ -684,7 +684,6 @@ async function invoke(
     options: check.options ?? {},
     project: {
       root: process.cwd(),
-      changedFiles: [],
       flags
     },
     records: {

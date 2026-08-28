@@ -27,7 +27,7 @@
     },
     {
       "id": "scan-scope",
-      "description": "输入 fingerprint、current worktree/Git candidates、config glob 与 changed-files context 的真实边界。"
+      "description": "输入 fingerprint、current worktree/Git candidates、config glob、Check-owned file selection 与 comparison facts 的真实边界。"
     },
     {
       "id": "check-owned-scanners",

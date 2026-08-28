@@ -180,8 +180,6 @@ export interface CheckDependencies {
 export interface CheckProjectContext {
   /** 本次 Run 使用的绝对项目根目录。 */
   readonly root: string;
-  /** 本次调用提供的已变更文件路径。 */
-  readonly changedFiles: readonly string[];
   /** 已去重、排序的 caller-supplied flags。 */
   readonly flags: readonly string[];
 }
@@ -196,7 +194,7 @@ export interface CheckExecutionContext<Options extends object> {
   readonly dependencies: CheckDependencies;
   /** 深度只读、canonical 的 invocation-local prepared Check options。 */
   readonly options: DeepReadonly<Options>;
-  /** 已规范化的项目根、changed files 与 flags。 */
+  /** 已规范化的项目根与 flags。 */
   readonly project: CheckProjectContext;
   /** 写入 supplemental Records 的 reporter。 */
   readonly records: CheckRecordReporter;

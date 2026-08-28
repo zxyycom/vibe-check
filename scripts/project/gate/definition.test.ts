@@ -300,7 +300,6 @@ describe("Project Gate Definition", () => {
         options: excluded.options ?? {},
         project: {
           root: process.cwd(),
-          changedFiles: [],
           flags: []
         },
         records: { report: () => undefined },
@@ -735,7 +734,6 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
     options: check.options ?? {},
     project: {
       root: process.cwd(),
-      changedFiles: [],
       flags: []
     },
     records: {

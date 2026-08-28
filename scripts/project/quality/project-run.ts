@@ -5,9 +5,7 @@ import projectDefinition from "./definition.ts";
 import { run as packageRun, type RunControls, type RunResult } from "vibe-check";
 
 /** The repository's bound Project Run. Callers cannot replace its definition. */
-export type RepositoryRunControls = Readonly<
-  Partial<Pick<RunControls, "changedFiles" | "outputs" | "signal">>
->;
+export type RepositoryRunControls = Readonly<Partial<Pick<RunControls, "outputs" | "signal">>>;
 
 export async function run(controls: RepositoryRunControls = {}): Promise<RunResult> {
   return packageRun(projectDefinition, {

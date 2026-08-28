@@ -126,7 +126,7 @@ async function invokeCheck(
       })
     },
     options: {},
-    project: { changedFiles: [], flags: [], root: process.cwd() },
+    project: { flags: [], root: process.cwd() },
     records: { report: () => undefined },
     signal: new AbortController().signal
   });

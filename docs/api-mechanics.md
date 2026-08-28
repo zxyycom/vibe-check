@@ -49,6 +49,8 @@ preflight 返回以下三种 closed result 之一：
 
 Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
 
+### 完整运行示例
+
 下面的完整示例故意让 Check 返回 `failed`。预期组合是 `RunResult.kind === "completed"`、该 Check outcome 为 `failed`、显式 aggregate 也为 `failed`；这三个值分别表达 Run lifecycle、单项业务结果和调用级 policy：
 
 <!-- package-api-example:start:custom-check -->
@@ -137,6 +139,8 @@ if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
 
 producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取 canonical data、收窄 `ok`，最后调用 producer 的 parser。
 
+### 完整运行示例
+
 <!-- package-api-example:start:typed-dependency -->
 ```ts
 import { defineCheck, defineConfig, run } from "vibe-check";
@@ -202,12 +206,14 @@ dependency reader 为已声明且具有 `passed` / `failed` final data 的 direc
 `RunControls` 只作用于一次 `run(definition, controls)`：
 
 - `projectRoot` 决定项目相对路径的解析根。
-- `changedFiles` 与 `flags` 成为 callback 可读的 normalized project context。
+- `flags` 成为 callback 可读的 normalized project context。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
 - `outputs` 覆盖本次 machine publication 或 progress rendering。
 - `checkAggregation` 选择 `checks`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。
 
 aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
+
+Check-specific invocation facts 由 owning Check 的 options 或 producing Check 的 final data 承载。多个 Checks 共享同一事实时，producer 负责 acquisition policy 与 data shape，下游通过 direct `dependsOn` 读取；上面的 typed dependency 示例聚焦这条 data handoff。
 
 ## outputs 与 RunResult 边界
 

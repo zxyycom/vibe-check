@@ -71,7 +71,7 @@ describe("Package Run", () => {
       })
     ]);
 
-    const badControls = await run(source, { unexpected: true });
+    const unknownControlResult = await run(source, { changedFiles: ["src/a.ts"] });
     const badDefinition = await run({ ...source, unexpected: true }, {});
     const badOptions = await run(
       definition([
@@ -91,12 +91,12 @@ describe("Package Run", () => {
       ])
     );
 
-    assert.deepEqual(badControls, {
+    assert.deepEqual(unknownControlResult, {
       kind: "configuration",
       definitionWarnings: [],
       diagnostic: {
         kind: "invalid-run-controls",
-        path: "controls.unexpected",
+        path: "controls.changedFiles",
         reason: "unknown-key"
       }
     });
@@ -116,11 +116,11 @@ describe("Package Run", () => {
   it("executes each normalized Check directly with the public callback context", async () => {
     let received:
       | Readonly<{
-          readonly changedFiles: readonly string[];
           readonly contextFrozen: boolean;
           readonly dependenciesFrozen: boolean;
           readonly dependencyRead: DependencyReadResult;
           readonly options: object;
+          readonly projectKeys: readonly string[];
           readonly root: string;
           readonly signal: AbortSignal;
         }>
@@ -129,11 +129,11 @@ describe("Package Run", () => {
       check({
         execution: (context) => {
           received = {
-            changedFiles: context.project.changedFiles,
             contextFrozen: Object.isFrozen(context),
             dependencyRead: context.dependencies.get("missing"),
             dependenciesFrozen: Object.isFrozen(context.dependencies),
             options: context.options,
+            projectKeys: Object.keys(context.project).sort(),
             root: context.project.root,
             signal: context.signal
           };
@@ -153,12 +153,11 @@ describe("Package Run", () => {
       });
       let result: Awaited<ReturnType<typeof run>>;
       try {
-        result = await run(source, { changedFiles: ["src/a.ts"], projectRoot: root });
+        result = await run(source, { projectRoot: root });
       } finally {
         Object.defineProperty(Date.prototype, "toISOString", toISOString);
       }
       assert.equal(result.kind, "completed");
-      assert.deepEqual(received?.changedFiles, ["src/a.ts"]);
       assert.equal(received?.contextFrozen, true);
       assert.deepEqual(received?.dependencyRead, {
         ok: false,
@@ -166,6 +165,7 @@ describe("Package Run", () => {
       });
       assert.equal(received?.dependenciesFrozen, true);
       assert.deepEqual(received?.options, {});
+      assert.deepEqual(received?.projectKeys, ["flags", "root"]);
       assert.equal(received?.root, root);
       assert.equal(received?.signal.aborted, false);
       if (result.kind !== "completed") return;
