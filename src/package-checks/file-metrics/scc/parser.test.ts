@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./scanner.ts";
+import { SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./parser.ts";
 
 describe("quality scanner output parsing", () => {
   it("parses scc 3.7 Provider paths and rejects unknown CSV headers", () => {

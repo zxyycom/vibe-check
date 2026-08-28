@@ -6,7 +6,7 @@
  */
 export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
 export type { DuplicateDetectionOptions } from "./package-checks/duplicate-detection/options.ts";
-export { fileMetrics } from "./package-checks/file-metrics/default-check.ts";
+export { fileMetrics } from "./package-checks/file-metrics/constructor.ts";
 export type { FileMetricsOptions } from "./package-checks/file-metrics/options.ts";
 export { functionMetrics } from "./package-checks/function-metrics/default-check.ts";
 export type { FunctionMetricsOptions } from "./package-checks/function-metrics/options.ts";

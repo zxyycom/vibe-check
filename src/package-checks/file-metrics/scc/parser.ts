@@ -60,8 +60,8 @@ interface SccRawRow {
 export function parseSccCSV(csv: string, cwd: string): SccScanResult {
   try {
     const rows = parseCsvRows(csv);
-    const headerIdx = findSccHeaderIndex(rows);
-    if (headerIdx < 0) {
+    const headerIndex = findSccHeaderIndex(rows);
+    if (headerIndex < 0) {
       return {
         ok: false,
         error: `expected scc ${SCC_VERSION} by-file CSV header "${SCC_BY_FILE_CSV_HEADER}", got "${observedSccHeader(rows)}"`,
@@ -69,8 +69,13 @@ export function parseSccCSV(csv: string, cwd: string): SccScanResult {
       };
     }
 
-    const columns = sccColumnIndexes(rows[headerIdx] ?? []);
-    const measurements = parseSccMetrics(rows.slice(headerIdx + 1), columns, headerIdx + 2, cwd);
+    const columns = sccColumnIndexes(rows[headerIndex] ?? []);
+    const measurements = parseSccMetrics(
+      rows.slice(headerIndex + 1),
+      columns,
+      headerIndex + 2,
+      cwd
+    );
     return {
       ok: true,
       measurements
@@ -93,15 +98,15 @@ function observedSccHeader(rows: string[][]): string {
   return rows.find((row) => row[0] === "Language")?.join(",") ?? rows[0]?.join(",") ?? "";
 }
 
-function sccColumnIndexes(headerCols: string[]): SccColumnIndexes {
+function sccColumnIndexes(headerColumns: string[]): SccColumnIndexes {
   return {
-    provider: headerCols.indexOf("Provider"),
-    filename: headerCols.indexOf("Filename"),
-    lines: headerCols.indexOf("Lines"),
-    code: headerCols.indexOf("Code"),
-    comments: headerCols.indexOf("Comments"),
-    blanks: headerCols.indexOf("Blanks"),
-    complexity: headerCols.indexOf("Complexity")
+    provider: headerColumns.indexOf("Provider"),
+    filename: headerColumns.indexOf("Filename"),
+    lines: headerColumns.indexOf("Lines"),
+    code: headerColumns.indexOf("Code"),
+    comments: headerColumns.indexOf("Comments"),
+    blanks: headerColumns.indexOf("Blanks"),
+    complexity: headerColumns.indexOf("Complexity")
   };
 }
 
@@ -123,12 +128,12 @@ function parseSccMetrics(
 }
 
 function parseSccFileMetric(
-  parts: string[],
+  rowValues: string[],
   columns: SccColumnIndexes,
   rowNumber: number,
   cwd: string
 ): ExactInputMeasurement<FileMetric> {
-  const row = parseSccRow(parts, columns, rowNumber);
+  const row = parseSccRow(rowValues, columns, rowNumber);
   const sourcePath = normalizeScannerReportedPath(row.path, cwd);
   return {
     sourcePaths: [sourcePath],
@@ -143,14 +148,18 @@ function parseSccFileMetric(
   };
 }
 
-function parseSccRow(parts: string[], columns: SccColumnIndexes, rowNumber: number): ParsedSccRow {
+function parseSccRow(
+  rowValues: string[],
+  columns: SccColumnIndexes,
+  rowNumber: number
+): ParsedSccRow {
   const expectedColumnCount = SCC_BY_FILE_CSV_HEADER.split(",").length;
-  if (parts.length !== expectedColumnCount) {
+  if (rowValues.length !== expectedColumnCount) {
     throw new Error(
-      `row ${rowNumber} has ${parts.length} columns; expected ${expectedColumnCount}`
+      `row ${rowNumber} has ${rowValues.length} columns; expected ${expectedColumnCount}`
     );
   }
-  const rawRow = sccRawRow(parts, columns);
+  const rawRow = sccRawRow(rowValues, columns);
   if (!rawRow.filename) {
     throw new Error(`row ${rowNumber} field Filename must not be empty`);
   }
@@ -169,15 +178,15 @@ function validateSccRowCounts(row: SccRawRow, rowNumber: number): void {
   parseRequiredInteger(row.blankLines, "Blanks", rowNumber);
 }
 
-function sccRawRow(parts: string[], columns: SccColumnIndexes): SccRawRow {
+function sccRawRow(rowValues: string[], columns: SccColumnIndexes): SccRawRow {
   return {
-    blankLines: sccColumnValue(parts, columns.blanks),
-    codeLines: sccColumnValue(parts, columns.code),
-    commentLines: sccColumnValue(parts, columns.comments),
-    complexity: sccColumnValue(parts, columns.complexity),
-    filename: sccColumnValue(parts, columns.filename),
-    lineCount: sccColumnValue(parts, columns.lines),
-    providerPath: sccColumnValue(parts, columns.provider)
+    blankLines: sccColumnValue(rowValues, columns.blanks),
+    codeLines: sccColumnValue(rowValues, columns.code),
+    commentLines: sccColumnValue(rowValues, columns.comments),
+    complexity: sccColumnValue(rowValues, columns.complexity),
+    filename: sccColumnValue(rowValues, columns.filename),
+    lineCount: sccColumnValue(rowValues, columns.lines),
+    providerPath: sccColumnValue(rowValues, columns.provider)
   };
 }
 
@@ -196,8 +205,8 @@ function parseOptionalInteger(value: string, field: string, rowNumber: number): 
   return value === "" ? null : parseRequiredInteger(value, field, rowNumber);
 }
 
-function sccColumnValue(parts: string[], index: number): string {
-  return index >= 0 ? (parts[index] ?? "") : "";
+function sccColumnValue(rowValues: string[], index: number): string {
+  return index >= 0 ? (rowValues[index] ?? "") : "";
 }
 
 function compareText(left: string, right: string): number {
@@ -206,6 +215,9 @@ function compareText(left: string, right: string): number {
   return 0;
 }
 
-function isCsvRow(row: string[], expected: string[]): boolean {
-  return row.length === expected.length && row.every((value, index) => value === expected[index]);
+function isCsvRow(row: string[], expectedValues: string[]): boolean {
+  return (
+    row.length === expectedValues.length &&
+    row.every((value, index) => value === expectedValues[index])
+  );
 }

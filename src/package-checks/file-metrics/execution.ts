@@ -3,7 +3,7 @@ import { collectProjectFiles } from "../project-files/collection.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
 import type { FileMetricsExactInputSet } from "./measurement-model.ts";
 import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
-import { validResolvedFileMetricsOptions } from "./options-validation.ts";
+import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 import { buildFileRecordCandidates } from "./records.ts";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
@@ -11,24 +11,30 @@ export const FILE_METRICS_CHECK_DEFINITION = {
   displayName: "File metrics"
 } as const;
 
+type FileMetricsUnavailableReasonCode =
+  | "external-dependency-unavailable"
+  | "external-execution-failed"
+  | "external-result-invalid"
+  | "invalid-options";
+
 interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
   readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
 }
 
-/** Default Check callback; area policy 与 scanner selection 均从 resolved options 到达。 */
+/** 使用 resolved area policy 和 scanner selection 执行一次完整的 file-metrics measurement。 */
 export async function executeFileMetrics(
   context: CheckExecutionContext<ResolvedFileMetricsOptions>
 ): Promise<CheckResult> {
-  if (!validResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
+  if (!isValidResolvedFileMetricsOptions(context.options)) return unavailable("invalid-options");
 
-  const current = collectAreaScope(context.project.root, context.options.codeAreas);
-  if (current.approvedExactPaths.length === 0) {
+  const collectedScope = collectAreaScope(context.project.root, context.options.codeAreas);
+  if (collectedScope.approvedExactPaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
-  const measurement = await measureFileMetrics(current, context.options.scanner);
-  if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
+  const measurement = await measureFileMetrics(collectedScope, context.options.scanner);
+  if (measurement.kind !== "complete") return measurementFailureResult(measurement);
   const candidates = buildFileRecordCandidates(measurement.metrics, {
-    areaIdsByPath: current.areaIdsByPath,
+    areaIdsByPath: collectedScope.areaIdsByPath,
     codeAreas: context.options.codeAreas
   });
   if (candidates === undefined) return unavailable("external-result-invalid");
@@ -65,15 +71,22 @@ function collectAreaScope(
   });
 }
 
-function directMeasurementFailure(
+function measurementFailureResult(
   measurement: Exclude<FileMeasurementResult, { kind: "complete" }>
 ): CheckResult {
-  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
-  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
-  return unavailable("external-result-invalid");
+  switch (measurement.kind) {
+    case "execution-failed":
+      return unavailable("external-execution-failed");
+    case "invalid-result":
+      return unavailable("external-result-invalid");
+    case "unavailable":
+      return unavailable("external-dependency-unavailable");
+  }
+  const exhaustiveMeasurement: never = measurement;
+  return exhaustiveMeasurement;
 }
 
-function unavailable(code: string): CheckResult {
+function unavailable(code: FileMetricsUnavailableReasonCode): CheckResult {
   return Object.freeze({ status: "unavailable", reason: { code } });
 }
 

@@ -9,40 +9,43 @@ import { runProcessSync } from "../../host-environment/process/command.ts";
 import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
 import { parseSccCSV, type SccScanResult } from "./parser.ts";
 
-export { SCC_VERSION, SCC_VERSION_OUTPUT, SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./parser.ts";
+const SCC_BY_FILE_ARGUMENTS = Object.freeze(["--by-file", "--format", "csv"]);
+const SCC_SCAN_TIMEOUT_MS = 300_000;
 
 interface ScanWithSccOptions {
   readonly cwd: string;
-  readonly dependency: ResolvedFileMetricsScannerOptions;
   readonly includePaths: readonly string[];
+  readonly scanner: ResolvedFileMetricsScannerOptions;
 }
 
-export function scanWithScc({ cwd, dependency, includePaths }: ScanWithSccOptions): SccScanResult {
+export function scanWithScc({ cwd, includePaths, scanner }: ScanWithSccOptions): SccScanResult {
   try {
     if (includePaths.length === 0) return { ok: true, measurements: [] };
 
-    const argv = buildSccArgs(includePaths);
+    const scanArguments = buildSccArgs(includePaths);
 
-    const child = runProcessSync({
-      args: argv,
-      command: dependency.executable,
+    const commandResult = runProcessSync({
+      args: scanArguments,
+      command: scanner.executable,
       cwd,
-      timeout: 300_000
+      timeout: SCC_SCAN_TIMEOUT_MS
     });
 
-    if (child.error) {
+    if (commandResult.error) {
       return {
         ok: false,
-        error: `scc process error: ${child.error.message}`,
+        error: `scc process error: ${commandResult.error.message}`,
         reason: "execution"
       };
     }
 
-    if (child.status !== 0) {
-      const stderr = (child.stderr || "").trim();
-      const stdout = (child.stdout || "").trim();
+    if (commandResult.status !== 0) {
+      const stderr = (commandResult.stderr || "").trim();
+      const stdout = (commandResult.stdout || "").trim();
       const termination =
-        child.status === null ? `signal ${child.signal ?? "unknown"}` : `exit ${child.status}`;
+        commandResult.status === null
+          ? `signal ${commandResult.signal ?? "unknown"}`
+          : `exit ${commandResult.status}`;
       return {
         ok: false,
         error: `scc ${termination}: ${stderr || stdout || "no output"}`,
@@ -50,7 +53,7 @@ export function scanWithScc({ cwd, dependency, includePaths }: ScanWithSccOption
       };
     }
 
-    return parseSccCSV(child.stdout || "", cwd);
+    return parseSccCSV(commandResult.stdout || "", cwd);
   } catch (error: unknown) {
     return {
       ok: false,
@@ -60,6 +63,6 @@ export function scanWithScc({ cwd, dependency, includePaths }: ScanWithSccOption
   }
 }
 
-export function buildSccArgs(includePaths: readonly string[]): string[] {
-  return ["--by-file", "--format", "csv", ...includePaths];
+function buildSccArgs(includePaths: readonly string[]): string[] {
+  return [...SCC_BY_FILE_ARGUMENTS, ...includePaths];
 }

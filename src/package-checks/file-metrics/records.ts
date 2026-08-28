@@ -1,9 +1,16 @@
 import type { FileMetric } from "./measurement-model.ts";
 import type { ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
 
-interface FileMetricsAreaPolicy {
+const FILE_CODE_LINES_METRIC = "code-lines" as const;
+
+interface FileMetricsAreaPolicyContext {
   readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
   readonly codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>;
+}
+
+interface EffectiveFileRecordPolicy {
+  readonly areaIds: readonly string[];
+  readonly limit: number;
 }
 
 export interface FileRecordCandidate {
@@ -20,56 +27,63 @@ export interface FileRecordCandidate {
 /** Converts trusted scanner metrics into area-policy-owned supplemental facts. */
 export function buildFileRecordCandidates(
   metrics: readonly FileMetric[],
-  semantics: FileMetricsAreaPolicy
+  areaPolicy: FileMetricsAreaPolicyContext
 ): readonly FileRecordCandidate[] | undefined {
   const seenPaths = new Set<string>();
   const candidates: FileRecordCandidate[] = [];
   for (const metric of metrics) {
-    const codeLines = validFileCodeLines(metric, seenPaths);
-    if (codeLines === undefined) return undefined;
+    if (!isValidUniqueFileMetric(metric, seenPaths)) return undefined;
     seenPaths.add(metric.path);
-    const candidate = createFileRecordCandidate(metric, codeLines, semantics);
-    if (candidate === undefined) return undefined;
-    if (candidate !== null) candidates.push(candidate);
+
+    const recordPolicy = effectiveFileRecordPolicy(metric, areaPolicy);
+    if (recordPolicy === undefined) return undefined;
+    if (metric.codeLines <= recordPolicy.limit) continue;
+    candidates.push(createFileRecordCandidate(metric, recordPolicy));
   }
   candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
 }
 
-function validFileCodeLines(
-  metric: FileMetric,
-  seenPaths: ReadonlySet<string>
-): number | undefined {
-  const isValid =
+function isValidUniqueFileMetric(metric: FileMetric, seenPaths: ReadonlySet<string>): boolean {
+  return (
     typeof metric.path === "string" &&
     metric.path.length > 0 &&
     Number.isSafeInteger(metric.codeLines) &&
     metric.codeLines >= 0 &&
-    !seenPaths.has(metric.path);
-  return isValid ? metric.codeLines : undefined;
+    !seenPaths.has(metric.path)
+  );
+}
+
+function effectiveFileRecordPolicy(
+  metric: FileMetric,
+  areaPolicy: FileMetricsAreaPolicyContext
+): EffectiveFileRecordPolicy | undefined {
+  const areaIds = areaPolicy.areaIdsByPath.get(metric.path);
+  if (areaIds === undefined || areaIds.length === 0) return undefined;
+  let strictestMaximum: number | undefined;
+  for (const areaId of areaIds) {
+    const codeArea = areaPolicy.codeAreas[areaId];
+    if (codeArea === undefined) return undefined;
+    const maximum = fileCodeLineMaximum(metric, codeArea);
+    strictestMaximum =
+      strictestMaximum === undefined ? maximum : Math.min(strictestMaximum, maximum);
+  }
+  return strictestMaximum === undefined
+    ? undefined
+    : Object.freeze({ areaIds, limit: strictestMaximum });
 }
 
 function createFileRecordCandidate(
   metric: FileMetric,
-  codeLines: number,
-  semantics: FileMetricsAreaPolicy
-): FileRecordCandidate | null | undefined {
-  const areaIds = semantics.areaIdsByPath.get(metric.path);
-  if (areaIds === undefined || areaIds.length === 0) return undefined;
-  let limit = Number.POSITIVE_INFINITY;
-  for (const areaId of areaIds) {
-    const policy = semantics.codeAreas[areaId];
-    if (policy === undefined) return undefined;
-    limit = Math.min(limit, fileCodeLineMaximum(metric, policy));
-  }
-  if (codeLines <= limit) return null;
+  recordPolicy: EffectiveFileRecordPolicy
+): FileRecordCandidate {
   return Object.freeze({
     id: metric.path,
     data: Object.freeze({
-      codeAreas: Object.freeze([...areaIds]),
-      codeLines,
-      limit,
-      metric: "code-lines" as const,
+      codeAreas: Object.freeze([...recordPolicy.areaIds]),
+      codeLines: metric.codeLines,
+      limit: recordPolicy.limit,
+      metric: FILE_CODE_LINES_METRIC,
       path: metric.path
     })
   });

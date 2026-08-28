@@ -1,7 +1,9 @@
 import { errorMessage } from "../../host-environment/error-message.ts";
-import { runProcess } from "../../host-environment/process/command.ts";
+import { processFailure, runProcess } from "../../host-environment/process/command.ts";
 import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
-import { SCC_VERSION_OUTPUT } from "./scanner.ts";
+import { SCC_VERSION_OUTPUT } from "./parser.ts";
+
+const SCC_VERSION_ARGUMENTS = Object.freeze(["--version"]);
 
 type SccAvailability = Readonly<
   | {
@@ -22,30 +24,30 @@ type SccAvailability = Readonly<
     }
 >;
 
-type ToolCommandResult = Awaited<ReturnType<typeof runProcess>>;
+type SccVersionCommandResult = Awaited<ReturnType<typeof runProcess>>;
 
 export async function checkScc(
   rootDir: string,
-  dependency: ResolvedFileMetricsScannerOptions
+  scanner: ResolvedFileMetricsScannerOptions
 ): Promise<SccAvailability> {
   try {
-    const result = await runProcess({
-      args: ["--version"],
-      command: dependency.executable,
+    const commandResult = await runProcess({
+      args: SCC_VERSION_ARGUMENTS,
+      command: scanner.executable,
       cwd: rootDir
     });
-    return availabilityFromVersionResult(result);
+    return availabilityFromVersionResult(commandResult);
   } catch (error: unknown) {
     return unavailableScc(`scc version error: ${errorMessage(error)}`, "execution-error");
   }
 }
 
-function availabilityFromVersionResult(result: ToolCommandResult): SccAvailability {
-  if (result.error) return processErrorAvailability(result.error);
-  const version = commandOutput(result);
-  if (result.status !== 0) {
+function availabilityFromVersionResult(commandResult: SccVersionCommandResult): SccAvailability {
+  if (commandResult.error) return processErrorAvailability(commandResult.error);
+  const version = commandOutput(commandResult);
+  if (commandResult.status !== 0) {
     return unavailableScc(
-      `scc --version failed, ${processTermination(result)}${version ? `: ${version}` : ""}`,
+      `scc --version failed, ${processTermination(commandResult)}${version ? `: ${version}` : ""}`,
       "execution-error"
     );
   }
@@ -66,7 +68,7 @@ function availabilityFromVersionResult(result: ToolCommandResult): SccAvailabili
 }
 
 function processErrorAvailability(error: Error): SccAvailability {
-  const isMissingTool = (error as NodeJS.ErrnoException).code === "ENOENT";
+  const isMissingTool = processFailure(error).code === "ENOENT";
   return unavailableScc(
     isMissingTool ? `scc not installed: ${error.message}` : `scc version error: ${error.message}`,
     isMissingTool ? "tool-unavailable" : "execution-error"
@@ -87,12 +89,12 @@ function unavailableScc(
   };
 }
 
-function commandOutput(result: ToolCommandResult): string {
-  return (result.stdout || "").trim() || (result.stderr || "").trim();
+function commandOutput(commandResult: SccVersionCommandResult): string {
+  return (commandResult.stdout || "").trim() || (commandResult.stderr || "").trim();
 }
 
-function processTermination(result: ToolCommandResult): string {
-  return typeof result.status === "number"
-    ? `exit ${result.status}`
-    : `signal ${result.signal || "unknown"}`;
+function processTermination(commandResult: SccVersionCommandResult): string {
+  return typeof commandResult.status === "number"
+    ? `exit ${commandResult.status}`
+    : `signal ${commandResult.signal || "unknown"}`;
 }

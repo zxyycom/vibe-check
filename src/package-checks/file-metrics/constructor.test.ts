@@ -20,9 +20,9 @@ import type {
   CheckResult,
   DeepReadonly
 } from "../../check/check.ts";
-import { fileMetrics } from "./default-check.ts";
+import { fileMetrics } from "./constructor.ts";
 import { executeFileMetrics } from "./execution.ts";
-import { validResolvedFileMetricsOptions } from "./options-validation.ts";
+import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const FILES = Object.freeze({
   excludeDirs: Object.freeze([]),
@@ -184,7 +184,7 @@ describe("fileMetrics constructor and direct callback", () => {
       },
       { ...defaultCheck.options, scanner: { executable: "scc", args: [] } }
     ]) {
-      assert.equal(validResolvedFileMetricsOptions(invalidOptions), false);
+      assert.equal(isValidResolvedFileMetricsOptions(invalidOptions), false);
     }
 
     for (const invalidInput of [
@@ -209,7 +209,7 @@ describe("fileMetrics constructor and direct callback", () => {
     ]) {
       assert.throws(
         () => Reflect.apply(fileMetrics, undefined, [invalidInput]),
-        /fileMetrics options are invalid/
+        /fileMetrics options must match/
       );
     }
 

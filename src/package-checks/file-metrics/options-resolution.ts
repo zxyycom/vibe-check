@@ -5,7 +5,7 @@ import {
 } from "../../data-boundary/closed-values.ts";
 import { DEFAULT_PROJECT_FILE_SELECTION } from "../project-files/configuration.ts";
 import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
-import { validResolvedFileMetricsOptions } from "./options-validation.ts";
+import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const DEFAULT_EXECUTABLE = "scc";
 const DEFAULT_MAXIMUM_CODE_LINES = 300;
@@ -18,8 +18,10 @@ interface PolicyRecordKeys {
 }
 
 /** 校验 constructor input，并将所有可省略 policy 物化为完整、冻结的 Check options。 */
-export function resolveFileMetricsOptions(value: unknown): ResolvedFileMetricsOptions | undefined {
-  const input = snapshotPolicyRecord(value, { optional: ["codeAreas", "scanner"] });
+export function resolveFileMetricsOptions(
+  authoredOptions: unknown
+): ResolvedFileMetricsOptions | undefined {
+  const input = snapshotPolicyRecord(authoredOptions, { optional: ["codeAreas", "scanner"] });
   if (input === undefined) return undefined;
 
   const codeAreas = resolveCodeAreas(input.codeAreas);
@@ -27,7 +29,7 @@ export function resolveFileMetricsOptions(value: unknown): ResolvedFileMetricsOp
   if (codeAreas === undefined || scanner === undefined) return undefined;
 
   const options = Object.freeze({ codeAreas, scanner });
-  return validResolvedFileMetricsOptions(options) ? options : undefined;
+  return isValidResolvedFileMetricsOptions(options) ? options : undefined;
 }
 
 function resolveCodeAreas(value: unknown): ResolvedFileMetricsOptions["codeAreas"] | undefined {
@@ -37,7 +39,7 @@ function resolveCodeAreas(value: unknown): ResolvedFileMetricsOptions["codeAreas
 
   const resolvedEntries: Array<readonly [string, ResolvedFileMetricsCodeAreaOptions]> = [];
   for (const [areaId, candidate] of Object.entries(areas)) {
-    if (!nonEmptyString(areaId)) return undefined;
+    if (!isNonEmptyString(areaId)) return undefined;
     const area = resolveCodeArea(candidate);
     if (area === undefined) return undefined;
     resolvedEntries.push([areaId, area]);
@@ -93,7 +95,7 @@ function resolveCodeLines(
   const maximum = codeLines.maximum ?? DEFAULT_MAXIMUM_CODE_LINES;
   const lowDecisionTokenAllowance = resolveAllowance(codeLines.lowDecisionTokenAllowance);
   if (
-    !positiveSafeInteger(maximum) ||
+    !isPositiveSafeInteger(maximum) ||
     lowDecisionTokenAllowance === undefined ||
     lowDecisionTokenAllowance.maximumCodeLines <= maximum
   ) {
@@ -123,7 +125,10 @@ function resolveAllowance(
   const maximumCodeLines = allowance.maximumCodeLines ?? DEFAULT_ALLOWANCE_MAXIMUM_CODE_LINES;
   const maximumDecisionTokens =
     allowance.maximumDecisionTokens ?? DEFAULT_ALLOWANCE_MAXIMUM_DECISION_TOKENS;
-  if (!positiveSafeInteger(maximumCodeLines) || !nonNegativeSafeInteger(maximumDecisionTokens)) {
+  if (
+    !isPositiveSafeInteger(maximumCodeLines) ||
+    !isNonNegativeSafeInteger(maximumDecisionTokens)
+  ) {
     return undefined;
   }
   return Object.freeze({ maximumCodeLines, maximumDecisionTokens });
@@ -142,7 +147,7 @@ function resolveScanner(value: unknown): ResolvedFileMetricsOptions["scanner"] |
   const scanner = snapshotPolicyRecord(value, { optional: ["executable"] });
   if (scanner === undefined) return undefined;
   const executable = scanner.executable ?? DEFAULT_EXECUTABLE;
-  return nonEmptyString(executable) ? Object.freeze({ executable }) : undefined;
+  return isNonEmptyString(executable) ? Object.freeze({ executable }) : undefined;
 }
 
 function resolveStringArray(
@@ -151,7 +156,7 @@ function resolveStringArray(
 ): readonly string[] | undefined {
   if (value === undefined) return Object.freeze([...fallback]);
   const items = snapshotClosedArray(value);
-  return items === undefined || !items.every(isString) ? undefined : Object.freeze(items);
+  return items === undefined || !items.every(isStringValue) ? undefined : Object.freeze(items);
 }
 
 function snapshotPolicyRecord(
@@ -168,18 +173,18 @@ function snapshotPolicyRecord(
     : undefined;
 }
 
-function positiveSafeInteger(value: unknown): value is number {
+function isPositiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
-function nonNegativeSafeInteger(value: unknown): value is number {
+function isNonNegativeSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-function nonEmptyString(value: unknown): value is string {
+function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
-function isString(value: unknown): value is string {
+function isStringValue(value: unknown): value is string {
   return typeof value === "string";
 }

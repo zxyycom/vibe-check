@@ -3,50 +3,50 @@ import { validProjectFileSelection } from "../project-files/configuration.ts";
 import type { ResolvedFileMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 产物或普通对象组合形成的完整 file-metrics options。 */
-export function validResolvedFileMetricsOptions(
-  value: object
-): value is ResolvedFileMetricsOptions {
-  const options = exactRecord(value, ["codeAreas", "scanner"]);
+export function isValidResolvedFileMetricsOptions(
+  resolvedOptions: unknown
+): resolvedOptions is ResolvedFileMetricsOptions {
+  const options = exactRecord(resolvedOptions, ["codeAreas", "scanner"]);
   return (
-    options !== undefined && validCodeAreas(options.codeAreas) && validScanner(options.scanner)
+    options !== undefined && isValidCodeAreas(options.codeAreas) && isValidScanner(options.scanner)
   );
 }
 
-function validCodeAreas(value: unknown): boolean {
+function isValidCodeAreas(value: unknown): boolean {
   const codeAreas = snapshotClosedRecord(value);
   if (codeAreas === undefined || Object.keys(codeAreas).length === 0) return false;
   return Object.entries(codeAreas).every(
-    ([areaId, candidate]) => areaId.length > 0 && validCodeArea(candidate)
+    ([areaId, candidate]) => areaId.length > 0 && isValidCodeArea(candidate)
   );
 }
 
-function validCodeArea(value: unknown): boolean {
+function isValidCodeArea(value: unknown): boolean {
   const area = exactRecord(value, ["codeLines", "files"]);
   return (
     area !== undefined &&
     validProjectFileSelection(area.files) &&
-    validCodeLinePolicy(area.codeLines)
+    isValidCodeLinePolicy(area.codeLines)
   );
 }
 
-function validCodeLinePolicy(value: unknown): boolean {
+function isValidCodeLinePolicy(value: unknown): boolean {
   const policy = exactRecord(value, ["lowDecisionTokenAllowance", "maximum"]);
-  if (policy === undefined || !positiveSafeInteger(policy.maximum)) return false;
+  if (policy === undefined || !isPositiveSafeInteger(policy.maximum)) return false;
   const allowance = exactRecord(policy.lowDecisionTokenAllowance, [
     "maximumCodeLines",
     "maximumDecisionTokens"
   ]);
   return (
     allowance !== undefined &&
-    positiveSafeInteger(allowance.maximumCodeLines) &&
+    isPositiveSafeInteger(allowance.maximumCodeLines) &&
     allowance.maximumCodeLines > policy.maximum &&
-    nonNegativeSafeInteger(allowance.maximumDecisionTokens)
+    isNonNegativeSafeInteger(allowance.maximumDecisionTokens)
   );
 }
 
-function validScanner(value: unknown): boolean {
+function isValidScanner(value: unknown): boolean {
   const scanner = exactRecord(value, ["executable"]);
-  return scanner !== undefined && nonEmptyString(scanner.executable);
+  return scanner !== undefined && isNonEmptyString(scanner.executable);
 }
 
 function exactRecord(
@@ -61,14 +61,14 @@ function exactRecord(
     : undefined;
 }
 
-function positiveSafeInteger(value: unknown): value is number {
+function isPositiveSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
-function nonNegativeSafeInteger(value: unknown): value is number {
+function isNonNegativeSafeInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
-function nonEmptyString(value: unknown): value is string {
+function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }

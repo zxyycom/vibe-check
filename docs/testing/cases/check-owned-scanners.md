@@ -14,7 +14,7 @@ Entities:
 Owner: `docs/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
-- `bun|src/package-checks/file-metrics/default-check.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
+- `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
   Proves:
 - `fileMetrics(options?)` materializes frozen area and executable defaults, rejects unknown or invalid authored input synchronously, and retains defensive resolved preflight/execution validation without public SCC argument passthrough.
 
@@ -23,7 +23,7 @@ Entities:
 Owner: `docs/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
-- `bun|src/package-checks/file-metrics/default-check.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
+- `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
 - Each file-metrics area owns files and code-line policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum and retains every matching area ID.
 

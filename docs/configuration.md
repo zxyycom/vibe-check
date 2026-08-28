@@ -248,6 +248,9 @@ The declaration order of `checks` is not execution order. After validation, Prod
 
 ## Package-provided Check composition
 
+本节只拥有随包 Check 的普通 Check 组合规则、export inventory 与跨 Check 共性。每项 Check 的完整 consumer input、
+默认值、领域约束、结果和 custom dependency 用法由对应 `docs/checks/*.md` 指南拥有。
+
 三个 package-provided default values 是完整 ordinary `Check` values；`duplicateDetection(options?)`、
 `fileMetrics(options?)`、`functionMetrics(options?)` 与 `maintenanceReminders(entries)` 是返回同类 ordinary values 的专用 constructors。Product core 不把它们注册为 built-ins。
 每项 Check 都拥有 block preflight、execution、完整 resolved options 与 domain result；execution 也防御性复用 Check-local
@@ -275,8 +278,8 @@ owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definitio
 
 无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
 `{ files: <上述 branch>, minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有 `files` 或默认/override 阈值。
-无参 `fileMetrics()` 的 `codeAreas.project` 恰为
-`{ files: <上述 branch>, codeLines: { maximum: 300, lowDecisionTokenAllowance: { maximumCodeLines: 500, maximumDecisionTokens: 10 } } }`；其顶层同样没有 `files` 或全局 threshold。
+无参 `fileMetrics()` 建立一个 area-owned `project` policy 并使用默认 `scc` executable；完整字段与默认值见
+[`fileMetrics` 指南](checks/file-metrics.md#参数与默认配置)。
 无参 `functionMetrics()` 以 `"blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
 `codeAreas.project` 直接拥有上述 files、effective finding policy，以及
 `codeLines: { maximum: 50, lowComplexityAllowance: { maximum: 150, cyclomaticComplexityBelow: 5 } }`、
@@ -303,10 +306,8 @@ command 恰为 `{ kind: "package" }`，custom command 恰为 `{ kind: "custom", 
 config、JSON report output 和自动 worker policy 全部由 jscpd adapter 拥有；正确示例与 wrapper 边界见
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)。
 
-`fileMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, scanner }`；显式 area 必须提供 `files` branch，files
-lists 与 code-line policy 均可局部省略。constructor 产物恰为 `{ codeAreas, scanner }`，每个 area 恰为
-`{ files, codeLines }`，resolved scanner 恰为 `{ executable }`。SCC version probe、by-file CSV protocol、exact paths
-与 timeout 不属于 public input；不同或重叠 area 的 paths 只扫描一次，每个文件按全部匹配 area 的最严格有效 maximum 结算。
+`fileMetrics(options?)` 以 area ID 共同组织 files 与 code-line policy，并只允许 consumer 选择 SCC executable；完整
+input/resolved shape、有效上限、重叠 area 和 adapter protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
 
 `functionMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, scanner }`；顶层 finding policy 只能是
 `"blocking" | "non-blocking"`。显式 area 必须提供 `files` branch，可省略 nested limits 与 area finding-policy override。

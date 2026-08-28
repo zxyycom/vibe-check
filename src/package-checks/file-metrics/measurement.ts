@@ -12,35 +12,41 @@ export type FileMeasurementResult = Readonly<
 >;
 
 export async function measureFileMetrics(
-  input: FileMetricsExactInputSet,
-  dependency: ResolvedFileMetricsScannerOptions
+  exactInputs: FileMetricsExactInputSet,
+  scanner: ResolvedFileMetricsScannerOptions
 ): Promise<FileMeasurementResult> {
-  if (input.approvedExactPaths.length === 0) {
+  if (exactInputs.approvedExactPaths.length === 0) {
     return Object.freeze({ kind: "complete", metrics: Object.freeze([]) });
   }
-  const availability = await checkScc(input.rootDir, dependency);
-  if (!availability.available) {
+  const scannerAvailability = await checkScc(exactInputs.rootDir, scanner);
+  if (!scannerAvailability.available) {
     return Object.freeze({ kind: "unavailable" });
   }
-  return runFileScanner(input, dependency);
+  return runFileScanner(exactInputs, scanner);
 }
 
 function runFileScanner(
-  input: FileMetricsExactInputSet,
-  dependency: ResolvedFileMetricsScannerOptions
+  exactInputs: FileMetricsExactInputSet,
+  scanner: ResolvedFileMetricsScannerOptions
 ): FileMeasurementResult {
-  const result = scanWithScc({
-    cwd: input.rootDir,
-    dependency,
-    includePaths: input.approvedExactPaths
+  const scanResult = scanWithScc({
+    cwd: exactInputs.rootDir,
+    scanner,
+    includePaths: exactInputs.approvedExactPaths
   });
-  if (!result.ok) {
+  if (!scanResult.ok) {
     return Object.freeze({
-      kind: result.reason === "execution" ? "execution-failed" : "invalid-result"
+      kind: scanResult.reason === "execution" ? "execution-failed" : "invalid-result"
     });
   }
-  const accepted = acceptExactInputMeasurements(result.measurements, input.approvedExactPaths);
-  return accepted.ok
-    ? Object.freeze({ kind: "complete", metrics: Object.freeze([...accepted.payloads]) })
+  const acceptedMeasurements = acceptExactInputMeasurements(
+    scanResult.measurements,
+    exactInputs.approvedExactPaths
+  );
+  return acceptedMeasurements.ok
+    ? Object.freeze({
+        kind: "complete",
+        metrics: Object.freeze([...acceptedMeasurements.payloads])
+      })
     : Object.freeze({ kind: "invalid-result" });
 }

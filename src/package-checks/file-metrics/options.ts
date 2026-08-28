@@ -1,3 +1,5 @@
+import type { ProjectFileSelection } from "../project-files/configuration.ts";
+
 /** `fileMetrics` constructor 可省略的 SCC executable policy。 */
 export interface FileMetricsScannerOptions {
   /** 省略时直接执行 `scc`。 */
@@ -11,7 +13,7 @@ export interface FileMetricsFileOptions {
   readonly include?: readonly string[];
 }
 
-/** 低 decision-token 文件可省略的较高 code-line allowance。 */
+/** SCC decision-token 数较低的文件可使用的 code-line allowance。 */
 export interface FileMetricsLowDecisionTokenAllowanceOptions {
   /** 省略时为 `500`。 */
   readonly maximumCodeLines?: number;
@@ -50,17 +52,20 @@ export interface ResolvedFileMetricsOptions {
 }
 
 export interface ResolvedFileMetricsCodeAreaOptions {
-  readonly codeLines: Readonly<{
-    readonly maximum: number;
-    readonly lowDecisionTokenAllowance: Readonly<{
-      readonly maximumCodeLines: number;
-      readonly maximumDecisionTokens: number;
-    }>;
-  }>;
+  readonly codeLines: ResolvedFileMetricsCodeLineOptions;
   readonly files: ProjectFileSelection;
+}
+
+export interface ResolvedFileMetricsCodeLineOptions {
+  readonly lowDecisionTokenAllowance: ResolvedFileMetricsLowDecisionTokenAllowanceOptions;
+  readonly maximum: number;
+}
+
+export interface ResolvedFileMetricsLowDecisionTokenAllowanceOptions {
+  readonly maximumCodeLines: number;
+  readonly maximumDecisionTokens: number;
 }
 
 export interface ResolvedFileMetricsScannerOptions {
   readonly executable: string;
 }
-import type { ProjectFileSelection } from "../project-files/configuration.ts";

@@ -89,6 +89,6 @@ availability、process、parse、cache 或 exact-input failure 由 owning Check 
 
 ## Verification
 
-三个 owner-local tool 目录的 tests 证明 command、availability、parser 与 scanner-specific failure；对应 Check 的
-`default-check.test.ts` 证明 option validation、exact-input handoff、Record 与 terminal result。`src/package-checks/project-files/**` tests 只
-证明真正共同的 collection/exact-membership 机制。
+三个 owner-local tool 目录的 tests 证明 command、availability、parser 与 scanner-specific failure；对应 Check owner 的
+integration test 证明 option validation、exact-input handoff、Record 与 terminal result。`src/package-checks/project-files/**`
+tests 只证明真正共同的 collection/exact-membership 机制。

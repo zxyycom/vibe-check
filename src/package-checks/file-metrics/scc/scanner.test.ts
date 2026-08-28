@@ -14,7 +14,7 @@ describe("quality scc exact input projection", () => {
     const result = scanWithScc({
       cwd: REPO_ROOT,
       includePaths: [],
-      dependency: {
+      scanner: {
         executable: join(REPO_ROOT, `vibe-check-missing-scc-${process.pid}.cmd`)
       }
     });
@@ -26,13 +26,13 @@ describe("quality scc exact input projection", () => {
   });
 
   it("rejects a successful scc invocation that produces no CSV header", () => {
-    const dependency = createFakeSccToolConfig("");
+    const scanner = createFakeSccScanner("");
 
     try {
       const result = scanWithScc({
         cwd: REPO_ROOT,
         includePaths: ["src"],
-        dependency
+        scanner
       });
 
       assert.equal(result.ok, false);
@@ -41,12 +41,12 @@ describe("quality scc exact input projection", () => {
         assert.match(result.error, /header/i);
       }
     } finally {
-      dependency.cleanup();
+      scanner.cleanup();
     }
   });
 });
 
-function createFakeSccToolConfig(stdout: string) {
+function createFakeSccScanner(stdout: string) {
   const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-scc-"));
   const fakeSccPath = join(tempDir, "fake-scc.mjs");
 
