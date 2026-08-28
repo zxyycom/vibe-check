@@ -2,15 +2,15 @@ export type PackageApiExampleEvidence = "runtime" | "typecheck";
 
 export interface PackageApiMarkdownDocument {
   readonly id: string;
-  readonly outputPath: string;
-  readonly templatePath: string;
+  /** The checked-in authoring source and exact path published in the package. */
+  readonly packagePath: string;
 }
 
 export type PackageApiExampleTarget =
   | Readonly<{
       readonly documentId: string;
       readonly kind: "markdown";
-      readonly placeholderId: string;
+      readonly managedRegionId: string;
     }>
   | Readonly<{
       readonly declarationName: string;
@@ -31,13 +31,11 @@ export interface PackageApiExampleProjection {
 export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
   Object.freeze({
     id: "readme",
-    outputPath: "README.md",
-    templatePath: "docs/package-readme.template.md"
+    packagePath: "README.md"
   }),
   Object.freeze({
     id: "api-mechanics",
-    outputPath: "docs/api-mechanics.md",
-    templatePath: "docs/api-mechanics.template.md"
+    packagePath: "docs/api-mechanics.md"
   })
 ] satisfies readonly PackageApiMarkdownDocument[]);
 
@@ -51,7 +49,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         documentId: "readme",
         kind: "markdown",
-        placeholderId: "quick-start"
+        managedRegionId: "quick-start"
       })
     ]),
     title: "最小 Project Definition 与 Run"
@@ -93,7 +91,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         documentId: "api-mechanics",
         kind: "markdown",
-        placeholderId: "custom-check"
+        managedRegionId: "custom-check"
       })
     ]),
     title: "运行自定义 Check"
@@ -121,7 +119,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       Object.freeze({
         documentId: "api-mechanics",
         kind: "markdown",
-        placeholderId: "typed-dependency"
+        managedRegionId: "typed-dependency"
       })
     ]),
     title: "读取 typed dependency final data"

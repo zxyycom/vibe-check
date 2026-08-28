@@ -22,15 +22,17 @@ export function runPackageApiDocumentationCli(
   collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
   const outputs = [...rendered.markdownDocuments, ...rendered.jsdocSources];
   if (mode === "--write") {
-    for (const output of outputs) writeFileSync(output.path, output.content, "utf8");
+    for (const output of outputs) writeFileSync(output.absolutePath, output.content, "utf8");
     return Object.freeze({ diagnostics: Object.freeze([]), exitCode: 0 });
   }
 
   const stalePaths = outputs
     .filter(
-      (output) => !existsSync(output.path) || readFileSync(output.path, "utf8") !== output.content
+      (output) =>
+        !existsSync(output.absolutePath) ||
+        readFileSync(output.absolutePath, "utf8") !== output.content
     )
-    .map((output) => relative(repositoryRoot, output.path));
+    .map((output) => relative(repositoryRoot, output.absolutePath));
   if (stalePaths.length === 0)
     return Object.freeze({ diagnostics: Object.freeze([]), exitCode: 0 });
   return Object.freeze({

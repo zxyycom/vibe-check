@@ -18,7 +18,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/repository-files/**`                           | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。                                                                                                                                                                                   |
 | `scripts/error-message.ts` 与 `scripts/value-guards.ts` | 明确的诊断字符串和值形状小边界；它们是 scripts root 直接拥有的 capability。                                                                                                                                                                                                          |
 | `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                   |
-| `scripts/docs/**`                                       | machine artifact schema/example 与 package README/JSDoc/guide 的生成或投影 provider；不拥有 docs validation orchestration。                                                                                                                                                          |
+| `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown managed region、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                      |
 | `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 只准备、安装、receipt 与 isolated consumer。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
 | `scripts/project/**`                                    | 唯一 private candidate consumer root；`quality/**` 与 `gate/**` 同级。Gate 的 `check-execution/**` 只拥有 native/process Check mapping；具体 docs、Decision Records 与 Test Evidence Checks 位于其领域 owner。                                                                       |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
@@ -234,16 +234,35 @@ process exit 只消费处理后的一个结果，不暴露要求调用方合并�
 
 ## Documentation, validation, and package material
 
-`scripts/docs/package-api/command.ts` 的 `--write`/`--check` 适配 package API projection。可编辑输入是
-README 与唯一 API mechanics templates、allowlisted TypeScript examples、projection registry 和 source JSDoc prose；
-root `README.md`、`docs/api-mechanics.md` 与 registry target 中生成的连续 `@example` tail 是 generated outputs。
-Markdown target 复用同一 template/output/placeholder 契约，JSDoc target 保留 declaration-owned 变体；两者都逐字投影
-同一个 example payload。`scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。
+package API 文档按下列 owner 维护：
+
+| 内容 | 可编辑事实源 | 投影或发布结果 |
+| --- | --- | --- |
+| README 与深入机制正文、标题和链接 | package root `README.md`、`docs/api-mechanics.md` 的 managed region 之外 | 同一 checked-in Markdown 直接进入 package。 |
+| Check guide | 对应 `docs/checks/*.md` | 同一 checked-in Markdown 直接进入 package。 |
+| 可执行 API 示例 | `docs/examples/package-api/*.ts` 的 allowlisted file 或 region | projection registry 指定的 Markdown managed region 或 source JSDoc `@example` tail。 |
+| declaration 说明 | declaration owner 中 managed `@example` tail 之前的 source JSDoc prose | emitted declarations 保留该说明和投影后的示例。 |
+
+每个 Markdown target 在最终文档中使用一对独占行标记：
+`<!-- package-api-example:start:<id> -->` 与 `<!-- package-api-example:end:<id> -->`。
+`scripts/docs/package-api/example-projections.ts` 中的 target 将 `<id>` 映射到一个 TypeScript example payload。
+renderer 逐字更新两条标记之间的 fenced TypeScript body，保留标记、区域外正文以及按最终发布路径书写的普通
+Markdown 链接；缺失、额外、重复、嵌套、格式错误或不配对的标记均使投影失败。
+
+按以下顺序修改和验证：
+
+1. 正文或链接直接编辑最终 Markdown；Check guide 直接编辑对应 guide。
+2. 受管示例编辑 allowlisted TypeScript source；新增或移动投影时同步 registry target 与最终 Markdown 标记或 source JSDoc target。
+3. 运行 `bun scripts/docs/package-api/command.ts --write` 更新 Markdown managed bodies 与 JSDoc example tails。
+4. 运行 `bun scripts/docs/package-api/command.ts --check`；check mode 不写文件，并在任一 checked-in projection stale 时失败。
+
+`scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。artifact audit
+再次计算投影并要求 checked-in Markdown/JSDoc 与结果一致，再把同一 Markdown 交给 package material collector。
 
 package README 是 consumer 文档的唯一总入口：它直接链接 exact 七项 `docs/checks/*.md` 指南和唯一深入 API
 mechanics 文档，不发布 `docs/index.md` 或 `docs/checks/index.md`。Check guide registry 必须与 public Check values 和
-专用 constructor 完整闭合；collector 要求 generated 与 hand-written Markdown 使用 LF 且恰有一个 trailing LF，并拒绝
-缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
+专用 constructor 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF
+且恰有一个 trailing LF，并拒绝缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
 
 current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
 `scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。

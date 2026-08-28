@@ -11,6 +11,7 @@ import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-p
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/example-projections.ts",
+  "scripts/docs/package-api/markdown-managed-regions.ts",
   "scripts/docs/package-api/render.ts",
   "scripts/docs/package-api/check-guide-registry.ts",
   "scripts/docs/package-api/check-guides.ts"
@@ -60,9 +61,7 @@ function documentationInputFiles(repositoryRoot: string): readonly string[] {
     ...collectFilePaths(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
       path.endsWith(".ts")
     ),
-    ...PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) =>
-      join(repositoryRoot, document.templatePath)
-    ),
+    ...PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => join(repositoryRoot, document.packagePath)),
     ...PACKAGE_CHECK_GUIDES.map((guide) => join(repositoryRoot, guide.sourcePath))
   ]);
 }

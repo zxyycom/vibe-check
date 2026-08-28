@@ -34,7 +34,7 @@ export const PACKAGE_API_JSDOC_TARGETS: readonly PackageApiJSDocTarget[] = Objec
 export function createPackageApiDocumentationFixture(): string {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-api-docs-"));
   for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
-    copyFixtureFile(fixtureRoot, document.templatePath);
+    copyFixtureFile(fixtureRoot, document.packagePath);
   }
   for (const guide of PACKAGE_CHECK_GUIDES) copyFixtureFile(fixtureRoot, guide.sourcePath);
   for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {

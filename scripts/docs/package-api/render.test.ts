@@ -11,34 +11,34 @@ import {
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 
+interface MarkdownManagedRegionFailureFixture {
+  readonly corruptSource: (source: string) => string;
+  readonly diagnostic: RegExp;
+}
+
 describe("package API documentation renderer", () => {
   it("projects every registry region to its declared Markdown and JSDoc targets without changing payload bytes", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
       const rendered = renderPackageApiDocumentation({ repositoryRoot: fixtureRoot });
-      assert.equal(rendered.readme.path, join(fixtureRoot, "README.md"));
+      assert.equal(rendered.readme.absolutePath, join(fixtureRoot, "README.md"));
       assert.deepEqual(
         rendered.markdownDocuments
-          .map((document) => relative(fixtureRoot, document.path).split("\\").join("/"))
+          .map((document) => relative(fixtureRoot, document.absolutePath).split("\\").join("/"))
           .sort(),
-        PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.outputPath).sort()
+        PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.packagePath).sort()
       );
       assert.deepEqual(
         rendered.jsdocSources
-          .map((source) => relative(fixtureRoot, source.path).split("\\").join("/"))
+          .map((source) => relative(fixtureRoot, source.absolutePath).split("\\").join("/"))
           .sort(),
         PACKAGE_API_JSDOC_TARGETS.map((target) => target.sourcePath)
           .filter((sourcePath, index, paths) => paths.indexOf(sourcePath) === index)
           .sort()
       );
-      assert.equal(
-        rendered.markdownDocuments.some(
-          (document) =>
-            document.content.includes("package-api-example:") ||
-            document.content.includes("package-markdown-link:")
-        ),
-        false
-      );
+      for (const document of rendered.markdownDocuments) {
+        assert.equal(document.content, readFileSync(document.absolutePath, "utf8"));
+      }
       assert.equal(rendered.readme.content.includes("](./docs/api-mechanics.md)"), true);
       assert.equal(
         rendered.markdownDocuments
@@ -55,10 +55,15 @@ describe("package API documentation renderer", () => {
               (candidate) => candidate.documentId === target.documentId
             );
             assert.ok(document);
-            assert.equal(document.content.includes(`\`\`\`ts\n${payload}\`\`\``), true);
+            assert.equal(
+              document.content.includes(
+                `<!-- package-api-example:start:${target.managedRegionId} -->\n\`\`\`ts\n${payload}\`\`\`\n<!-- package-api-example:end:${target.managedRegionId} -->`
+              ),
+              true
+            );
           } else {
             const source = rendered.jsdocSources.find(
-              (candidate) => candidate.path === join(fixtureRoot, target.sourcePath)
+              (candidate) => candidate.absolutePath === join(fixtureRoot, target.sourcePath)
             );
             assert.ok(source);
             const prefixedPayload = payload
@@ -80,17 +85,73 @@ describe("package API documentation renderer", () => {
     }
   });
 
-  it("replaces generated JSDoc tails and rejects malformed source regions", () => {
-    const fencedTemplateFixture = createPackageApiDocumentationFixture();
-    try {
-      const templatePath = join(fencedTemplateFixture, "docs/package-readme.template.md");
-      writeFileSync(templatePath, `${readFileSync(templatePath, "utf8")}\n  ~~~ts\n`, "utf8");
-      assert.throws(
-        () => renderPackageApiDocumentation({ repositoryRoot: fencedTemplateFixture }),
-        /must not contain fenced code/
-      );
-    } finally {
-      rmSync(fencedTemplateFixture, { force: true, recursive: true });
+  it("replaces generated JSDoc tails and rejects malformed source or Markdown managed regions", () => {
+    const markdownRegionFailures: readonly MarkdownManagedRegionFailureFixture[] = [
+      {
+        corruptSource: (source) =>
+          source.replace(
+            "<!-- package-api-example:end:quick-start -->",
+            "<!-- missing managed-region end -->"
+          ),
+        diagnostic: /unclosed package API Markdown managed region.*quick-start/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(
+            "<!-- package-api-example:end:quick-start -->",
+            "<!-- package-api-example:end:other -->"
+          ),
+        diagnostic: /mismatched package API Markdown managed region.*other/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(
+            "<!-- package-api-example:start:quick-start -->",
+            "<!-- package-api-example:start:quick-start -->\n<!-- package-api-example:start:other -->"
+          ),
+        diagnostic: /nested package API Markdown managed region.*other/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(
+            /\n$/,
+            "\n<!-- package-api-example:start:quick-start -->\nstale\n<!-- package-api-example:end:quick-start -->\n"
+          ),
+        diagnostic: /duplicate package API Markdown managed region.*quick-start/
+      },
+      {
+        corruptSource: (source) =>
+          source
+            .replace("<!-- package-api-example:start:quick-start -->\n", "")
+            .replace("<!-- package-api-example:end:quick-start -->\n", ""),
+        diagnostic: /missing package API Markdown managed region.*quick-start/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(
+            /\n$/,
+            "\n<!-- package-api-example:start:unknown -->\nstale\n<!-- package-api-example:end:unknown -->\n"
+          ),
+        diagnostic: /unknown package API Markdown managed region.*unknown/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(/\n$/, "\n<!-- package-api-example:unknown -->\n"),
+        diagnostic: /malformed package API Markdown managed-region marker/
+      }
+    ];
+    for (const failure of markdownRegionFailures) {
+      const fixtureRoot = createPackageApiDocumentationFixture();
+      try {
+        const readmePath = join(fixtureRoot, "README.md");
+        writeFileSync(readmePath, failure.corruptSource(readFileSync(readmePath, "utf8")), "utf8");
+        assert.throws(
+          () => renderPackageApiDocumentation({ repositoryRoot: fixtureRoot }),
+          failure.diagnostic
+        );
+      } finally {
+        rmSync(fixtureRoot, { force: true, recursive: true });
+      }
     }
 
     const staleJSDocFixture = createPackageApiDocumentationFixture();
@@ -112,7 +173,9 @@ describe("package API documentation renderer", () => {
         "utf8"
       );
       const rendered = renderPackageApiDocumentation({ repositoryRoot: staleJSDocFixture });
-      const source = rendered.jsdocSources.find((candidate) => candidate.path === sourcePath);
+      const source = rendered.jsdocSources.find(
+        (candidate) => candidate.absolutePath === sourcePath
+      );
       assert.ok(source);
       assert.equal(source.content.includes("manual example"), false);
     } finally {
@@ -123,13 +186,18 @@ describe("package API documentation renderer", () => {
     try {
       const sourcePath = join(removedJSDocTargetFixture, "src/check/check.ts");
       const current = renderPackageApiDocumentation({ repositoryRoot: removedJSDocTargetFixture });
-      const currentSource = current.jsdocSources.find((source) => source.path === sourcePath);
+      const currentSource = current.jsdocSources.find(
+        (source) => source.absolutePath === sourcePath
+      );
       assert.ok(currentSource);
       writeFileSync(sourcePath, currentSource.content, "utf8");
-      const templatePath = join(removedJSDocTargetFixture, "docs/package-readme.template.md");
+      const readmePath = join(removedJSDocTargetFixture, "README.md");
       writeFileSync(
-        templatePath,
-        `${readFileSync(templatePath, "utf8")}\n<!-- package-api-example:former-jsdoc -->\n`,
+        readmePath,
+        readFileSync(readmePath, "utf8").replace(
+          /\n$/,
+          "\n<!-- package-api-example:start:former-jsdoc -->\nstale\n<!-- package-api-example:end:former-jsdoc -->\n"
+        ),
         "utf8"
       );
 
@@ -137,7 +205,9 @@ describe("package API documentation renderer", () => {
         projections: projectionsWithRemovedJSDocTarget(),
         repositoryRoot: removedJSDocTargetFixture
       });
-      const source = rendered.jsdocSources.find((candidate) => candidate.path === sourcePath);
+      const source = rendered.jsdocSources.find(
+        (candidate) => candidate.absolutePath === sourcePath
+      );
       assert.ok(source);
       assert.equal(source.content.includes("@example"), false);
     } finally {
@@ -180,38 +250,6 @@ describe("package API documentation renderer", () => {
       );
     } finally {
       rmSync(duplicateRegionFixture, { force: true, recursive: true });
-    }
-
-    const malformedPlaceholderFixture = createPackageApiDocumentationFixture();
-    try {
-      const templatePath = join(malformedPlaceholderFixture, "docs/package-readme.template.md");
-      writeFileSync(
-        templatePath,
-        `${readFileSync(templatePath, "utf8")}extra package-api-example:unknown\n`,
-        "utf8"
-      );
-      assert.throws(
-        () => renderPackageApiDocumentation({ repositoryRoot: malformedPlaceholderFixture }),
-        /malformed package API Markdown placeholder/
-      );
-    } finally {
-      rmSync(malformedPlaceholderFixture, { force: true, recursive: true });
-    }
-
-    const escapingLinkFixture = createPackageApiDocumentationFixture();
-    try {
-      const templatePath = join(escapingLinkFixture, "docs/package-readme.template.md");
-      writeFileSync(
-        templatePath,
-        `${readFileSync(templatePath, "utf8")}\n[unsafe]<!-- package-markdown-link:../outside.md -->\n`,
-        "utf8"
-      );
-      assert.throws(
-        () => renderPackageApiDocumentation({ repositoryRoot: escapingLinkFixture }),
-        /invalid package Markdown link target/
-      );
-    } finally {
-      rmSync(escapingLinkFixture, { force: true, recursive: true });
     }
 
     const duplicateTargetFixture = createPackageApiDocumentationFixture();
@@ -318,7 +356,7 @@ function projectionsWithRemovedJSDocTarget(): readonly PackageApiExampleProjecti
             Object.freeze({
               documentId: "readme",
               kind: "markdown" as const,
-              placeholderId: "former-jsdoc"
+              managedRegionId: "former-jsdoc"
             })
           ])
         }

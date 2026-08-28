@@ -3,7 +3,7 @@
 本文档是 Vibe Check 实现者和 reviewer 的通用实现质量 owner，同时拥有项目自有 package 对外说明的
 语言规则。它与具体行为 owner、目标代码、相邻类型和测试一起使用，约束工程判断、实现模型、局部
 表达、边界处理、职责分层和交付验收；修改 package 对外说明时，它还规定中文主叙述的范围、判断和例外。
-产品行为契约、当前架构以及 package documentation 的生成与验证机械流程继续由各自 owner 定义。
+产品行为契约、当前架构以及 package documentation 的受管投影与验证机械流程继续由各自 owner 定义。
 
 使用本文的预期结果是：代码直接呈现 owner、领域含义、主要数据流、状态与失败、模块关系和
 验证证据；对外说明以中文直接呈现 consumer 所需的用途、正确使用方式和边界。实现者能按问题
@@ -200,11 +200,11 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 ### 6.4 package 对外说明以中文叙述为主
 
-本节是项目拥有的 package 对外说明的稳定语言规则 owner。修改这类材料或审查其改动时使用本节；产品契约仍由行为 owner 定义，README/JSDoc 的生成与验证机械流程仍由[脚本工具](script-tooling.md#documentation-validation-and-package-material)拥有。
+本节是项目拥有的 package 对外说明的稳定语言规则 owner。修改这类材料或审查其改动时使用本节；产品契约仍由行为 owner 定义，package Markdown/JSDoc 的受管投影与验证机械流程仍由[脚本工具](script-tooling.md#documentation-validation-and-package-material)拥有。
 
 #### 适用范围
 
-- package README template 及其生成的 root `README.md`。
+- package root `README.md`、`docs/api-mechanics.md` 与随包 Check guides；这些 published-path Markdown 直接拥有正文。
 - package entry 说明、public root JSDoc，以及 consumer 为正确使用 public API 必须读取的 supporting declaration 或字段 JSDoc。
 
 #### 判断标准
@@ -220,8 +220,8 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 
 #### 修改与验收路径
 
-1. 修改 generated README 或 API mechanics guide 时编辑各自 template；修改手写 Check guide 时编辑对应 source Markdown；修改 declaration 说明时编辑 source JSDoc。不得直接把 generated Markdown 或 generated JSDoc example 当作新的内容 owner。
-2. 依照[脚本工具](script-tooling.md#documentation-validation-and-package-material)运行对应 projection 和验证；审查时确认范围内说明满足本节判断标准，且没有把该规则误实现为全量字符检测或无差别翻译。
+1. 在[脚本工具](script-tooling.md#documentation-validation-and-package-material)指定的内容 owner 中修改正文或示例，不把受管投影当作新的说明事实源。
+2. 运行脚本工具 owner 指定的投影与验证；审查时确认范围内说明满足本节判断标准，且没有把该规则误实现为全量字符检测或无差别翻译。
 
 验收标准：agent 或 reviewer 能从本节确定是否适用、中文主叙述的通过条件、可保留原文、排除范围以及正确编辑和验证入口。
 

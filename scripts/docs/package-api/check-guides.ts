@@ -29,27 +29,27 @@ export interface PackageDocumentationFile {
   readonly packagePath: string;
 }
 
-/** Closes the generated API guide and exact hand-written Check guide inventory. */
+/** Closes the published-path API Markdown and exact hand-written Check guide inventory. */
 export function collectPackageDocumentation(
   repositoryRoot: string,
-  generatedMarkdown: readonly PackageDocumentationFile[]
+  renderedMarkdown: readonly PackageDocumentationFile[]
 ): readonly PackageDocumentationFile[] {
   const root = resolve(repositoryRoot);
   assertGuideRegistry(PACKAGE_CHECK_GUIDES);
-  const generated = assertGeneratedMarkdownInventory(generatedMarkdown);
+  const rendered = assertRenderedMarkdownInventory(renderedMarkdown);
   assertExactGuideDirectory(
     root,
     PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
   );
   const checkGuides = PACKAGE_CHECK_GUIDES.map((guide) => readCheckGuide(root, guide.sourcePath));
-  const readme = requiredDocument(generated, README_PATH);
-  const supportingDocuments = [requiredDocument(generated, API_MECHANICS_PATH), ...checkGuides];
+  const readme = requiredDocument(rendered, README_PATH);
+  const supportingDocuments = [requiredDocument(rendered, API_MECHANICS_PATH), ...checkGuides];
   assertGuideLinks(readme, supportingDocuments);
   assertLocalMarkdownLinks([readme, ...supportingDocuments]);
   return Object.freeze(supportingDocuments);
 }
 
-function assertGeneratedMarkdownInventory(
+function assertRenderedMarkdownInventory(
   documents: readonly PackageDocumentationFile[]
 ): readonly PackageDocumentationFile[] {
   const expected = [API_MECHANICS_PATH, README_PATH].sort();
@@ -59,7 +59,7 @@ function assertGeneratedMarkdownInventory(
     actual.some((packagePath, index) => packagePath !== expected[index])
   ) {
     throw new Error(
-      `generated package Markdown must be README.md plus one API mechanics guide: received ${actual.join(", ")}`
+      `rendered package Markdown must be README.md plus one API mechanics guide: received ${actual.join(", ")}`
     );
   }
   for (const document of documents) assertDocumentText(document);

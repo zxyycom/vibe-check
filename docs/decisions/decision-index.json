@@ -12,6 +12,7 @@
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
+      "author-package-markdown-at-published-paths.md": "sha256:ce26b8979b36361d3a45424d503d1a91082648d0c0a8938b131c0b2895b1ad02",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
       "bind-project-gates-to-run-aggregation.md": "sha256:526b651624add03f1e7d304b425734db3ea132c8a48da3dce51824e1fcc73768",
       "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
@@ -134,7 +135,7 @@
       "use-check-owned-file-overrides.md": "sha256:ff39a7a4352f42244a87cf202877bea87f16d1bab9910a2aee38b7b4f191b1d1",
       "use-check-scoped-invocation-wide-parallel-limits.md": "sha256:aa0c1a4e6de201cc28de641a92608e9dac31dcdd909c7d071c1fc5a22932c2e8",
       "use-check-value-derivation-contract.md": "sha256:664fe5893ec573221aee92d073ba17ee32c94e02b292e434325cd15797722ee4",
-      "use-chinese-as-primary-language-for-public-documentation.md": "sha256:2dc08d0308259e9d2859831189a82bf31e5d74a905b4cfcbda2cacbaaae5ae27",
+      "use-chinese-as-primary-language-for-public-documentation.md": "sha256:948212db2e82b486dd9e9f7412a087a7ff691490ff18097fd209b2ab39ed23ae",
       "use-closed-inheritable-check-collection-expressions.md": "sha256:4a1091611dd40e9e13daf7e4a4767952c54bb8e920c01bc6b0328a029840f628",
       "use-complete-upstream-governance-skills.md": "sha256:8befd7143f32439bf6a4ddc21387f63e8628c1ec8d1636ada84005fdd6497dee",
       "use-composable-check-tree-in-project-definition.md": "sha256:0f2d3dbc25a71aec0fbf4a9d4e2ad73f69b100e8097967a101f3b476a27803d6",
@@ -410,6 +411,35 @@
             "target": "use-versioned-npm-package-release-unit.md"
           }
         ]
+      }
+    },
+    "author-package-markdown-at-published-paths.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "author-package-markdown-at-published-paths.md",
+        "title": "让发布路径 Markdown 直接拥有 package 文档正文",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T08:30:34Z",
+        "purpose": "让维护者在最终 package 路径直接找到并编辑完整文档，同时只自动更新明确标记的受管片段。",
+        "background": "旧流程把 Markdown 正文源与最终发布文件分开，维护者无法从发布路径直接恢复编辑边界。",
+        "decision": "发布路径 Markdown 拥有正文与链接，投影代码只替换成对标记之间的已验证示例，不再生成整篇文档。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "bind-external-programs-outside-check-semantics.md": {

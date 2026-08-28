@@ -8,7 +8,8 @@ import {
 } from "../../docs/package-api/check-guides.ts";
 import {
   renderPackageApiDocumentation,
-  type RenderedPackageApiDocumentation
+  type RenderedPackageApiDocumentation,
+  type RenderedPackageApiFile
 } from "../../docs/package-api/render.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { PACKAGE_README_PATH } from "../package-contract.ts";
@@ -38,37 +39,35 @@ function assertDocumentationMatchesSource(
   documentation: RenderedPackageApiDocumentation
 ): void {
   const expectedReadmePath = join(repositoryRoot, PACKAGE_README_PATH);
-  if (resolve(documentation.readme.path) !== expectedReadmePath) {
+  if (resolve(documentation.readme.absolutePath) !== expectedReadmePath) {
     throw new Error(
-      `documentation operation must render ${expectedReadmePath}; received ${documentation.readme.path}`
+      `documentation operation must render ${expectedReadmePath}; received ${documentation.readme.absolutePath}`
     );
   }
   for (const markdownDocument of documentation.markdownDocuments) {
-    if (!isPathWithin(repositoryRoot, markdownDocument.path)) {
+    if (!isPathWithin(repositoryRoot, markdownDocument.absolutePath)) {
       throw new Error(
-        `documentation operation returned Markdown outside the repository: ${markdownDocument.path}`
+        `documentation operation returned Markdown outside the repository: ${markdownDocument.absolutePath}`
       );
     }
     assertFileContentMatches(markdownDocument);
   }
   for (const jsdocSource of documentation.jsdocSources) {
-    if (!isPathWithin(repositoryRoot, jsdocSource.path)) {
+    if (!isPathWithin(repositoryRoot, jsdocSource.absolutePath)) {
       throw new Error(
-        `documentation operation returned a JSDoc source outside the repository: ${jsdocSource.path}`
+        `documentation operation returned a JSDoc source outside the repository: ${jsdocSource.absolutePath}`
       );
     }
     assertFileContentMatches(jsdocSource);
   }
 }
 
-function assertFileContentMatches(
-  expected: Readonly<{ readonly content: string; readonly path: string }>
-): void {
-  if (!existsSync(expected.path)) {
-    throw new Error(`checked-in documentation projection is missing: ${expected.path}`);
+function assertFileContentMatches(renderedFile: RenderedPackageApiFile): void {
+  if (!existsSync(renderedFile.absolutePath)) {
+    throw new Error(`checked-in documentation projection is missing: ${renderedFile.absolutePath}`);
   }
-  if (readFileSync(expected.path, "utf8") !== expected.content) {
-    throw new Error(`checked-in documentation projection is stale: ${expected.path}`);
+  if (readFileSync(renderedFile.absolutePath, "utf8") !== renderedFile.content) {
+    throw new Error(`checked-in documentation projection is stale: ${renderedFile.absolutePath}`);
   }
 }
 

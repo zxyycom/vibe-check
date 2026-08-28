@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "node:fs";
-import { dirname, join, normalize, relative, resolve, sep } from "node:path";
+import { join, relative, resolve, sep } from "node:path";
 
 import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
@@ -8,19 +8,26 @@ import {
   type PackageApiExampleTarget,
   type PackageApiMarkdownDocument
 } from "./example-projections.ts";
+import {
+  renderMarkdownManagedRegions,
+  type MarkdownManagedRegionReplacement
+} from "./markdown-managed-regions.ts";
 
 const EXAMPLE_DIRECTORY = "docs/examples/package-api";
 const README_DOCUMENT_ID = "readme";
 
-export interface RenderedPackageApiMarkdownDocument {
+export interface RenderedPackageApiFile {
+  readonly absolutePath: string;
   readonly content: string;
+}
+
+export interface RenderedPackageApiMarkdownDocument extends RenderedPackageApiFile {
   readonly documentId: string;
   readonly packagePath: string;
-  readonly path: string;
 }
 
 export interface RenderedPackageApiDocumentation {
-  readonly jsdocSources: readonly Readonly<{ readonly content: string; readonly path: string }>[];
+  readonly jsdocSources: readonly RenderedPackageApiFile[];
   readonly markdownDocuments: readonly RenderedPackageApiMarkdownDocument[];
   readonly readme: RenderedPackageApiMarkdownDocument;
 }
@@ -53,37 +60,29 @@ function assertMarkdownDocumentRegistry(documents: readonly PackageApiMarkdownDo
     throw new Error("package API documentation must contain one README and one deeper guide");
   }
   const ids = new Set<string>();
-  const outputs = new Set<string>();
-  const templates = new Set<string>();
+  const paths = new Set<string>();
   for (const document of documents) {
     if (
       !validIdentifier(document.id) ||
-      !document.outputPath.endsWith(".md") ||
-      !document.templatePath.endsWith(".template.md") ||
+      !document.packagePath.endsWith(".md") ||
       ids.has(document.id) ||
-      outputs.has(document.outputPath) ||
-      templates.has(document.templatePath)
+      paths.has(document.packagePath)
     ) {
       throw new Error(`invalid package API Markdown document: ${document.id}`);
     }
     ids.add(document.id);
-    outputs.add(document.outputPath);
-    templates.add(document.templatePath);
+    paths.add(document.packagePath);
   }
   const readme = documents.find((document) => document.id === README_DOCUMENT_ID);
   const deeperGuide = documents.find((document) => document.id !== README_DOCUMENT_ID);
-  if (
-    readme?.outputPath !== "README.md" ||
-    readme.templatePath !== "docs/package-readme.template.md" ||
-    deeperGuide?.outputPath !== "docs/api-mechanics.md"
-  ) {
+  if (readme?.packagePath !== "README.md" || deeperGuide?.packagePath !== "docs/api-mechanics.md") {
     throw new Error("package API Markdown documents must be README.md plus docs/api-mechanics.md");
   }
 }
 
 /**
- * Computes the generated package guide and JSDoc example blocks without writing
- * files. The CLI and candidate preparation own their respective side effects.
+ * Computes managed Markdown-region and JSDoc example projections without writing files.
+ * The CLI and candidate preparation own their respective side effects.
  */
 export function renderPackageApiDocumentation(
   input: Readonly<{
@@ -152,9 +151,9 @@ function collectExamplePayloads(
     for (const target of projection.targets) {
       assertTarget(target, projection.id);
       if (target.kind !== "markdown") continue;
-      const targetKey = markdownTargetKey(target.documentId, target.placeholderId);
+      const targetKey = markdownTargetKey(target.documentId, target.managedRegionId);
       if (usedMarkdownTargets.has(targetKey)) {
-        throw new Error(`duplicate package API Markdown placeholder target: ${targetKey}`);
+        throw new Error(`duplicate package API Markdown managed-region target: ${targetKey}`);
       }
       usedMarkdownTargets.add(targetKey);
     }
@@ -293,10 +292,10 @@ function assertTarget(target: PackageApiExampleTarget, projectionId: string): vo
   if (target.kind === "markdown") {
     if (
       !validIdentifier(target.documentId) ||
-      !validIdentifier(target.placeholderId) ||
+      !validIdentifier(target.managedRegionId) ||
       !PACKAGE_API_MARKDOWN_DOCUMENTS.some((document) => document.id === target.documentId)
     ) {
-      throw new Error(`invalid package API Markdown placeholder target: ${projectionId}`);
+      throw new Error(`invalid package API Markdown managed-region target: ${projectionId}`);
     }
     return;
   }
@@ -337,70 +336,60 @@ function renderMarkdownDocuments(
   projections: readonly PackageApiExampleProjection[],
   payloads: ReadonlyMap<string, ExamplePayload>
 ): readonly RenderedPackageApiMarkdownDocument[] {
-  const rendered = PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => {
-    const templatePath = repositoryFilePath(repositoryRoot, document.templatePath);
-    const template = readText(templatePath);
-    if (/^(?: {0,3})(?:`{3,}|~{3,})/m.test(template)) {
-      throw new Error(
-        `package Markdown template must not contain fenced code: ${document.templatePath}`
+  return Object.freeze(
+    PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) =>
+      renderMarkdownDocument(repositoryRoot, document, projections, payloads)
+    )
+  );
+}
+
+function renderMarkdownDocument(
+  repositoryRoot: string,
+  document: PackageApiMarkdownDocument,
+  projections: readonly PackageApiExampleProjection[],
+  payloads: ReadonlyMap<string, ExamplePayload>
+): RenderedPackageApiMarkdownDocument {
+  const filePath = repositoryFilePath(repositoryRoot, document.packagePath);
+  const replacements = markdownManagedRegionReplacements(document.id, projections, payloads);
+  const content = renderMarkdownManagedRegions({
+    documentPackagePath: document.packagePath,
+    replacements,
+    sourceMarkdown: readText(filePath)
+  });
+  return Object.freeze({
+    absolutePath: filePath,
+    content,
+    documentId: document.id,
+    packagePath: document.packagePath
+  });
+}
+
+function markdownManagedRegionReplacements(
+  documentId: string,
+  projections: readonly PackageApiExampleProjection[],
+  payloads: ReadonlyMap<string, ExamplePayload>
+): readonly MarkdownManagedRegionReplacement[] {
+  const replacements: MarkdownManagedRegionReplacement[] = [];
+  for (const projection of projections) {
+    for (const target of projection.targets) {
+      if (target.kind !== "markdown" || target.documentId !== documentId) continue;
+      const payload = requiredPayload(payloads, projection.id);
+      replacements.push(
+        Object.freeze({
+          managedRegionId: target.managedRegionId,
+          replacementLines: Object.freeze(fencedTypeScript(payload.content).split("\n"))
+        })
       );
     }
-    const documentProjections = projections.filter((projection) =>
-      projection.targets.some(
-        (target) => target.kind === "markdown" && target.documentId === document.id
-      )
-    );
-    const expectedPlaceholders = new Set<string>();
-    for (const projection of documentProjections) {
-      for (const target of projection.targets) {
-        if (target.kind === "markdown" && target.documentId === document.id) {
-          expectedPlaceholders.add(target.placeholderId);
-        }
-      }
-    }
-    const foundPlaceholders = markdownPlaceholders(template);
-    for (const placeholderId of expectedPlaceholders) {
-      if (foundPlaceholders.get(placeholderId) !== 1) {
-        throw new Error(
-          `missing or duplicate package API Markdown placeholder in ${document.templatePath}: ${placeholderId}`
-        );
-      }
-    }
-    for (const placeholderId of foundPlaceholders.keys()) {
-      if (!expectedPlaceholders.has(placeholderId)) {
-        throw new Error(
-          `unknown package API Markdown placeholder in ${document.templatePath}: ${placeholderId}`
-        );
-      }
-    }
-
-    let content = template;
-    for (const projection of documentProjections) {
-      const payload = requiredPayload(payloads, projection.id);
-      for (const target of projection.targets) {
-        if (target.kind !== "markdown" || target.documentId !== document.id) continue;
-        content = content.replace(
-          markdownPlaceholder(target.placeholderId),
-          fencedTypeScript(payload.content)
-        );
-      }
-    }
-    content = renderPackageMarkdownLinks(content, document.outputPath);
-    return Object.freeze({
-      content,
-      documentId: document.id,
-      packagePath: document.outputPath,
-      path: repositoryFilePath(repositoryRoot, document.outputPath)
-    });
-  });
-  return Object.freeze(rendered);
+  }
+  return Object.freeze(replacements);
 }
 
 function renderJSDocSources(
   repositoryRoot: string,
   projections: readonly PackageApiExampleProjection[],
   payloads: ReadonlyMap<string, ExamplePayload>
-): readonly Readonly<{ readonly content: string; readonly path: string }>[] {
+): readonly RenderedPackageApiFile[] {
   const grouped = new Map<string, JSDocProjection[]>();
   for (const projection of projections) {
     const payload = requiredPayload(payloads, projection.id);
@@ -452,15 +441,17 @@ function renderJSDocSources(
     replacementsBySource.set(sourcePath, replacements);
   }
 
-  const jsdocSources: Readonly<{ readonly content: string; readonly path: string }>[] = [];
-  for (const [path, replacements] of replacementsBySource) {
-    let content = readText(path);
+  const jsdocSources: RenderedPackageApiFile[] = [];
+  for (const [absolutePath, replacements] of replacementsBySource) {
+    let content = readText(absolutePath);
     for (const replacement of replacements.sort((left, right) => right.start - left.start)) {
       content = `${content.slice(0, replacement.start)}${replacement.content}${content.slice(replacement.end)}`;
     }
-    jsdocSources.push(Object.freeze({ content, path }));
+    jsdocSources.push(Object.freeze({ absolutePath, content }));
   }
-  return Object.freeze(jsdocSources.sort((left, right) => left.path.localeCompare(right.path)));
+  return Object.freeze(
+    jsdocSources.sort((left, right) => left.absolutePath.localeCompare(right.absolutePath))
+  );
 }
 
 function discoverJSDocExampleTargets(repositoryRoot: string): readonly JSDocTarget[] {
@@ -618,52 +609,6 @@ function requiredPayload(
   return payload;
 }
 
-function markdownPlaceholders(template: string): ReadonlyMap<string, number> {
-  const markerPattern = /^<!-- package-api-example:([a-z][a-z0-9-]*) -->$/gm;
-  const found = new Map<string, number>();
-  for (const match of template.matchAll(markerPattern)) {
-    const placeholderId = match[1];
-    found.set(placeholderId, (found.get(placeholderId) ?? 0) + 1);
-  }
-  if (template.replace(markerPattern, "").includes("package-api-example:")) {
-    throw new Error("malformed package API Markdown placeholder");
-  }
-  return found;
-}
-
-function renderPackageMarkdownLinks(content: string, outputPath: string): string {
-  const rendered = content.replace(
-    /\]<!-- package-markdown-link:([^\s>]+) -->/g,
-    (_match, target: string) => {
-      const suffixIndex = target.search(/[?#]/);
-      const packagePath = suffixIndex === -1 ? target : target.slice(0, suffixIndex);
-      const suffix = suffixIndex === -1 ? "" : target.slice(suffixIndex);
-      const normalized = normalize(packagePath).replaceAll("\\", "/");
-      if (
-        packagePath.includes("\\") ||
-        normalized === "." ||
-        normalized === ".." ||
-        normalized.startsWith("../") ||
-        normalized.startsWith("/") ||
-        /^[a-z][a-z0-9+.-]*:/i.test(normalized)
-      ) {
-        throw new Error(`invalid package Markdown link target: ${target}`);
-      }
-      const relativeTarget = relative(dirname(outputPath), normalized).replaceAll("\\", "/");
-      const href = relativeTarget.startsWith(".") ? relativeTarget : `./${relativeTarget}`;
-      return `](${href}${suffix})`;
-    }
-  );
-  if (rendered.includes("package-markdown-link:")) {
-    throw new Error(`malformed package Markdown link in ${outputPath}`);
-  }
-  return rendered;
-}
-
-function markdownPlaceholder(placeholderId: string): string {
-  return `<!-- package-api-example:${placeholderId} -->`;
-}
-
 function repositoryFilePath(repositoryRoot: string, repositoryPath: string): string {
   const filePath = resolve(repositoryRoot, repositoryPath);
   const relativePath = relative(repositoryRoot, filePath);
@@ -687,12 +632,12 @@ function jsdocTargetKey(sourcePath: string, declarationName: string): string {
 
 function projectionTargetKey(target: PackageApiExampleTarget): string {
   return target.kind === "markdown"
-    ? `markdown#${markdownTargetKey(target.documentId, target.placeholderId)}`
+    ? `markdown#${markdownTargetKey(target.documentId, target.managedRegionId)}`
     : `jsdoc#${jsdocTargetKey(target.sourcePath, target.declarationName)}`;
 }
 
-function markdownTargetKey(documentId: string, placeholderId: string): string {
-  return `${documentId}#${placeholderId}`;
+function markdownTargetKey(documentId: string, managedRegionId: string): string {
+  return `${documentId}#${managedRegionId}`;
 }
 
 function validIdentifier(value: string): boolean {

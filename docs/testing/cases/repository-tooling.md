@@ -107,11 +107,12 @@ Entities:
 
 - `bun|scripts/docs/package-api/command.test.ts|package API documentation CLI > writes expected projections and detects stale output through --check`
 - `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > projects every registry region to its declared Markdown and JSDoc targets without changing payload bytes`
-- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source regions`
+- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown managed regions`
   Proves:
 
-- The typed registry and read-only renderer project every allowlisted TypeScript region only to its declared README, API mechanics Markdown, or JSDoc targets without changing payload bytes, resolve package-output-relative Markdown links, replace current registry-managed JSDoc example tails, discover and clear obsolete generated tails after a target leaves the registry, and reject duplicate projection/region/target identities, escaping package links, unsafe JSDoc tails, and malformed or unknown placeholders/regions.
-- The CLI writes the renderer's complete README, API mechanics, and JSDoc projections, while check mode writes nothing and fails when a checked-in projection is missing or stale.
+- The renderer projects each allowlisted TypeScript payload byte-for-byte into its declared Markdown managed region or source JSDoc target. Markdown markers, region-external prose, and ordinary links remain unchanged.
+- The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, and missing, extra, malformed, nested, or mismatched Markdown managed regions. Removing a JSDoc target clears its obsolete managed tail.
+- Write mode updates only managed Markdown bodies and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
@@ -121,7 +122,7 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-docs.test.ts|external consumer docs acceptance`
   Proves:
 
-- The ancestry-external installation carries the exact generated README, API mechanics guide, and hand-written Check guides, and every projected package API runtime example executes against that exact candidate package.
+- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, and hand-written Check guides, and every projected package API runtime example executes against that exact candidate package.
 
 ## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
 

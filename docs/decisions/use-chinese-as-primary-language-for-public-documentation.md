@@ -20,12 +20,12 @@ relations: []
 
 ## 背景
 
-- package README、package entry JSDoc、public root JSDoc 和正确使用 API 所需的 supporting declaration 共同构成 consumer 的人读说明；其 source prose 由项目拥有，生成 README 和 emitted declaration 只是消费投影。
+- package README、package entry JSDoc、public root JSDoc 和正确使用 API 所需的 supporting declaration 共同构成 consumer 的人读说明；这些说明的 source prose 由项目拥有，受管示例和 emitted declaration 不改变语言规则 owner。
 - 先前 package documentation Change 曾采用中文主叙述，但该判断未进入 active Decision 或 current coding-style；现有 public-root 检查只证明相邻 JSDoc 含有汉字，不能代表完整 consumer 文档闭包。
 
 ## 决策
 
-- 采用: 项目拥有、直接服务 package consumer 的 README template 与生成 README、package entry 说明、public root JSDoc，以及正确使用 public API 所需的 supporting declaration/field JSDoc，以连续中文叙述承载主要人读语义。
+- 采用: 项目拥有、直接服务 package consumer 的 README、package entry 说明、public root JSDoc，以及正确使用 public API 所需的 supporting declaration/field JSDoc，以连续中文叙述承载主要人读语义。
 - 采用: “中文为主”由材料的读者、用途和上下文作编辑判断；不按字符比例计算，不要求逐字翻译或双语镜像，也不新增要求所有对外材料必须中文的全面机器门禁。现有 public-root 中文检查只保留为局部证据。
 - 采用: API identifier、代码、字面量、schema/协议字段、命令、路径、专有名、互操作或法律惯例材料可保留原语言；周围中文应在需要时说明其语义和边界。
 - 采用: 内部实现注释、历史 provenance 与归档、机器契约以及不面向 package consumer 的文档不纳入本规则的机械整改范围；它们只在各自 owner 或任务要求时修改。
