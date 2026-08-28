@@ -68,8 +68,8 @@ Record，并保存稳定排序的全部匹配 area IDs。
 
 `functionMetrics` 一次把稳定去重的 area-path union 交给 Lizard。每个 function measurement 恢复全部 matching areas，
 分别计算 function NLOC、cyclomatic complexity 与 parameter count 的最严格 maximum；同一 metric finding 最多发布一条
-Record，并保存全部 area IDs 与 effective blocking policy。blocking 只影响 Check outcome，不短路 measurement 或后续
-Record conversion。
+Record，并保存全部 area IDs。effective blocking policy 是“任一 matching area blocking 即 blocking”，不依赖 area 顺序或
+最严格 maximum 来自哪个 area。blocking 只影响 Check outcome，不短路 measurement 或后续 Record conversion。
 
 一次 Check invocation 只使用自己冻结的 options 与 exact input。scanner-private command data、raw results 和 parser AST
 不进入 declarative fingerprint、Core facts、public output 或 Run Controls。

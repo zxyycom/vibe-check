@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { parseLizardCSV } from "./scanner.ts";
+import { parseLizardCSV } from "./parser.ts";
 
 describe("quality scanner output parsing", () => {
   it("parses Lizard 1.23 function rows", () => {

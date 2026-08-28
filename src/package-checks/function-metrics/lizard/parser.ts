@@ -4,7 +4,7 @@ import { errorMessage } from "../../host-environment/error-message.ts";
 import { parseCsvRows } from "./csv.ts";
 import { normalizeScannerReportedPath } from "../../project-files/reported-path.ts";
 
-export type LizardScanResult =
+export type LizardParseResult =
   | {
       readonly measurements: readonly ExactInputMeasurement<FunctionMetric>[];
       readonly ok: true;
@@ -12,7 +12,7 @@ export type LizardScanResult =
   | {
       readonly error: string;
       readonly ok: false;
-      readonly reason: "execution" | "invalid-result";
+      readonly reason: "invalid-result";
     };
 
 const LIZARD_COLUMNS = {
@@ -31,7 +31,7 @@ const LIZARD_COLUMNS = {
  * Lizard 1.23 CSV 列（--csv）：
  * NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line
  */
-export function parseLizardCSV(csv: string, cwd: string): LizardScanResult {
+export function parseLizardCSV(csv: string, cwd: string): LizardParseResult {
   try {
     const measurements: ExactInputMeasurement<FunctionMetric>[] = [];
 

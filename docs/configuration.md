@@ -276,6 +276,10 @@ owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definitio
 }
 ```
 
+metric constructor 对三个 files 数组分别补默认值：省略字段时使用上表值；显式提供某个数组时，该数组完整替换对应字段的
+default，不会自动追加或深度合并。需要保留默认规则并增加项目规则时，项目应先定义自己的完整数组，再通过普通 TypeScript
+composition 复用。nested threshold、allowance 与 finding-policy 字段仍按各 constructor 的下述规则独立补齐。
+
 无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
 `{ files: <上述 branch>, minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有 `files` 或默认/override 阈值。
 无参 `fileMetrics()` 建立一个 area-owned `project` policy 并使用默认 `scc` executable；完整字段与默认值见

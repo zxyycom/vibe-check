@@ -5,24 +5,35 @@ import type { FunctionMetric, FunctionMetricsExactInputSet } from "./measurement
 import type { ResolvedFunctionMetricsScannerOptions } from "./options.ts";
 
 export type FunctionMeasurementResult = Readonly<
+  | { kind: "cancelled" }
   | { kind: "complete"; metrics: readonly FunctionMetric[] }
   | { kind: "execution-failed" }
   | { kind: "invalid-result" }
   | { kind: "unavailable" }
 >;
 
-export async function measureFunctionMetrics(
-  input: FunctionMetricsExactInputSet,
-  dependency: ResolvedFunctionMetricsScannerOptions
-): Promise<FunctionMeasurementResult> {
+interface FunctionMeasurementInput {
+  readonly dependency: ResolvedFunctionMetricsScannerOptions;
+  readonly input: FunctionMetricsExactInputSet;
+  readonly signal: AbortSignal;
+}
+
+export async function measureFunctionMetrics({
+  dependency,
+  input,
+  signal
+}: FunctionMeasurementInput): Promise<FunctionMeasurementResult> {
+  if (signal.aborted) return Object.freeze({ kind: "cancelled" });
   if (input.approvedExactPaths.length === 0) {
     return Object.freeze({ kind: "complete", metrics: Object.freeze([]) });
   }
   const availability = await checkLizard(input.rootDir, dependency);
+  if (signal.aborted) return Object.freeze({ kind: "cancelled" });
   if (!availability.available) {
     return Object.freeze({ kind: "unavailable" });
   }
-  return runFunctionScanner(input, dependency);
+  const measurement = runFunctionScanner(input, dependency);
+  return signal.aborted ? Object.freeze({ kind: "cancelled" }) : measurement;
 }
 
 function runFunctionScanner(

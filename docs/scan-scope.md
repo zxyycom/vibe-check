@@ -59,7 +59,8 @@ Git top-level 必须等于 child 自身 canonical path；普通目录即使替�
 - `file-metrics` 分别收集每个 area 的 paths，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按其全部实际
   input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
 - `function-metrics` 分别从每个 area 选择 `.ts`、`.d.ts` 与 `.rs`，把稳定去重并集一次性交给 Check-local Lizard adapter；
-  每个结果恢复全部 matching areas，使用最严格 limits 与 blocking policy，同一 metric 最多产生一条 finding。
+  每个结果恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area blocking 时 finding blocking，
+  同一 metric 最多产生一条 finding。
 - `json-validation` 只从自己的 candidates 中以 case-sensitive `path.endsWith(".json")` 选择文件；`.JSON` 不属于输入。
 - `json-schema-validation` 不从 suffix、`$schema`、filename 或 directory discovery 推断 work。只有
   `schemas[].path` 与 `bindings[].instancePath` 明确声明且同时属于该 Check `files` selection 的 path 才可读取；

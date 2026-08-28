@@ -7,7 +7,7 @@ import {
 
 /** 验证 constructor 已物化的完整 function-metrics options。 */
 export function validResolvedFunctionMetricsOptions(
-  value: object
+  value: unknown
 ): value is ResolvedFunctionMetricsOptions {
   const options = exactRecord(value, ["codeAreas", "scanner"]);
   return (

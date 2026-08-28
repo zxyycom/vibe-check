@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { functionMetrics } from "./default-check.ts";
+import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import type {
   CheckDependencies,
@@ -139,12 +139,14 @@ describe("functionMetrics constructor", () => {
         }
       },
       { findingPolicy: "warning" },
-      { scanner: { executable: "" } }
+      { scanner: { executable: "" } },
+      { scanner: { args: ["--csv"] } },
+      { scanner: { availabilityArgs: ["--version"] } }
     ];
     for (const input of invalidInputs) {
       assert.throws(
         () => Reflect.apply(functionMetrics, undefined, [input]),
-        /functionMetrics options are invalid/
+        /functionMetrics options must use the documented closed policy/
       );
     }
 
@@ -159,6 +161,46 @@ describe("functionMetrics constructor", () => {
       codeAreas: Object.fromEntries([[specialAreaId, { files: {} }]])
     });
     assert.equal(Object.hasOwn(specialAreaCheck.options.codeAreas, specialAreaId), true);
+  });
+});
+
+describe("functionMetrics cancellation", () => {
+  it("stops before scanner measurement when cancellation is observed after availability", async () => {
+    const root = createRoot("vibe-check-function-cancelled-");
+    const scanMarker = join(root, "scan-called");
+    try {
+      const executable = createExecutable(
+        root,
+        [
+          "if (process.argv.includes('--version')) {",
+          "  setTimeout(() => process.stdout.write('lizard 1.23\\n'), 50);",
+          "} else {",
+          "  require('node:fs').writeFileSync('scan-called', '');",
+          "}"
+        ].join("\n")
+      );
+      const check = functionMetrics({ scanner: { executable } });
+      const controller = new AbortController();
+      const cancellation = setTimeout(() => controller.abort(), 5);
+      try {
+        const observed = await execute(
+          executeFunctionMetrics,
+          check.options,
+          root,
+          controller.signal
+        );
+        assert.deepEqual(observed.result, {
+          status: "unavailable",
+          reason: { code: "cancelled" }
+        });
+        assert.equal(observed.records.length, 0);
+        assert.equal(existsSync(scanMarker), false);
+      } finally {
+        clearTimeout(cancellation);
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 

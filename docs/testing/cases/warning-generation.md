@@ -6,7 +6,7 @@ Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-input
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
-- `bun|src/package-checks/function-metrics/default-check.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
 
 Proves:

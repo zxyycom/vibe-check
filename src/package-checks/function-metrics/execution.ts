@@ -14,22 +14,30 @@ import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 import { buildFunctionRecordCandidates } from "./records.ts";
 import { selectLizardTargetFiles } from "./target-files.ts";
 
-export const FUNCTION_METRICS_CHECK_DEFINITION = {
-  checkId: "function-metrics",
-  displayName: "Function metrics"
-} as const;
+type FunctionMetricsUnavailableReasonCode =
+  | "cancelled"
+  | "external-dependency-unavailable"
+  | "external-execution-failed"
+  | "external-result-invalid"
+  | "invalid-options";
 
 /** Default Check callback；一次扫描完整 area exact-input union。 */
 export async function executeFunctionMetrics(
   context: CheckExecutionContext<ResolvedFunctionMetricsOptions>
 ): Promise<CheckResult> {
   if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
+  if (context.signal.aborted) return unavailable("cancelled");
 
   const exactInput = prepareExactInputSet(context.project.root, context.options.codeAreas);
+  if (context.signal.aborted) return unavailable("cancelled");
   if (exactInput.approvedExactPaths.length === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
   }
-  const measurement = await measureFunctionMetrics(exactInput, context.options.scanner);
+  const measurement = await measureFunctionMetrics({
+    dependency: context.options.scanner,
+    input: exactInput,
+    signal: context.signal
+  });
   if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
   const analysis = analyzeFunctionMetrics(measurement.metrics);
   if (analysis === undefined) return unavailable("external-result-invalid");
@@ -88,12 +96,21 @@ function collectAreaInputs(
 function directMeasurementFailure(
   measurement: Exclude<FunctionMeasurementResult, { kind: "complete" }>
 ): CheckResult {
-  if (measurement.kind === "unavailable") return unavailable("external-dependency-unavailable");
-  if (measurement.kind === "execution-failed") return unavailable("external-execution-failed");
-  return unavailable("external-result-invalid");
+  switch (measurement.kind) {
+    case "cancelled":
+      return unavailable("cancelled");
+    case "execution-failed":
+      return unavailable("external-execution-failed");
+    case "invalid-result":
+      return unavailable("external-result-invalid");
+    case "unavailable":
+      return unavailable("external-dependency-unavailable");
+  }
+  const exhaustiveMeasurement: never = measurement;
+  return exhaustiveMeasurement;
 }
 
-function unavailable(code: string): CheckResult {
+function unavailable(code: FunctionMetricsUnavailableReasonCode): CheckResult {
   return Object.freeze({ status: "unavailable", reason: { code } });
 }
 

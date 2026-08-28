@@ -32,10 +32,11 @@ Entities:
 Owner: `docs/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
-- `bun|src/package-checks/function-metrics/default-check.test.ts|functionMetrics constructor > materializes frozen defaults and rejects malformed closed policy`
-- `bun|src/package-checks/function-metrics/default-check.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics constructor > materializes frozen defaults and rejects malformed closed policy`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics cancellation > stops before scanner measurement when cancellation is observed after availability`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
   Proves:
-- `functionMetrics(options?)` materializes frozen area, limit, finding-policy and executable defaults; rejects malformed authored input synchronously; and retains defensive resolved preflight validation. One Lizard scan receives the area exact-path union, overlapping areas use deterministic strict policy, all findings become local supplemental Records, and only effective blocking findings fail the Check.
+- `functionMetrics(options?)` materializes frozen area, limit, finding-policy and executable defaults; rejects malformed authored input synchronously; and retains defensive resolved preflight validation. One Lizard scan receives the area exact-path union, overlapping areas use deterministic strict policy, all findings become local supplemental Records, and only effective blocking findings fail the Check. Cancellation observed after availability prevents scanner measurement and settles the Check unavailable without Records.
 
 ## Case WB-SCANNER-DUPLICATE-CHECK-001: Duplicate default owns its command and Check-owned cache options
 
@@ -81,11 +82,11 @@ Entities:
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|quality lizard availability projection > classifies missing dependency commands as unavailable tools`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|quality lizard availability projection > classifies non-zero version exits with stderr as execution failures`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|quality lizard availability projection > classifies signal termination as execution failure`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|quality lizard availability projection > passes only exact paths and adapter-owned CSV arguments to the executable`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|quality lizard availability projection > rejects empty version provenance instead of accepting an unknown tool`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies missing dependency commands as unavailable tools`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies non-zero version exits with stderr as execution failures`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies signal termination as execution failure`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > passes only exact paths and adapter-owned CSV arguments to the executable`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects empty version provenance instead of accepting an unknown tool`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > keeps legitimate Lizard zero-function output successful`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > parses Lizard 1.23 function rows`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > rejects malformed Lizard rows without accepting partial output`

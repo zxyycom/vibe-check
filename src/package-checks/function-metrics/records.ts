@@ -22,7 +22,18 @@ export interface FunctionRecordCandidate {
   readonly id: string;
 }
 
-interface CandidateInput {
+type MatchingFunctionMetricAreas = readonly [
+  FunctionMetricsAreaInput,
+  ...FunctionMetricsAreaInput[]
+];
+
+interface FunctionPolicyContext {
+  readonly blocking: boolean;
+  readonly codeAreas: readonly string[];
+  readonly functionName: string;
+}
+
+interface FunctionMetricEvaluation {
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
   readonly functionName: string;
@@ -34,142 +45,142 @@ interface CandidateInput {
   readonly value: number;
 }
 
-/** Builds every supplemental fact that exceeds the strictest matching area limit. */
+/** 为每个超过 matching-area 最严格阈值的 metric 构造 supplemental fact。 */
 export function buildFunctionRecordCandidates(
   analysis: FunctionMetricAnalysis,
   areas: readonly FunctionMetricsAreaInput[]
 ): readonly FunctionRecordCandidate[] | undefined {
-  const policiesByPath = buildPathPolicies(areas);
+  const areasByPath = indexAreasByPath(areas);
   const candidates: FunctionRecordCandidate[] = [];
   for (const instance of analysis.instances) {
-    const policies = policiesByPath.get(instance.metric.file);
-    if (policies === undefined || policies.length === 0) return undefined;
-    const context = candidateContext(instance, policies);
-    for (const input of metricCandidateInputs(instance, context, policies)) {
-      appendCandidate(candidates, input);
+    const [firstArea, ...remainingAreas] = areasByPath.get(instance.metric.file) ?? [];
+    if (firstArea === undefined) return undefined;
+    const matchingAreas = [firstArea, ...remainingAreas] as const;
+    const policyContext = resolveFunctionPolicyContext(instance, matchingAreas);
+    for (const evaluation of metricEvaluations(instance, policyContext, matchingAreas)) {
+      appendFindingCandidate(candidates, evaluation);
     }
   }
   candidates.sort((left, right) => compareText(left.id, right.id));
   return Object.freeze(candidates);
 }
 
-function buildPathPolicies(
+function indexAreasByPath(
   areas: readonly FunctionMetricsAreaInput[]
 ): ReadonlyMap<string, readonly FunctionMetricsAreaInput[]> {
-  const mutablePolicies = new Map<string, FunctionMetricsAreaInput[]>();
+  const mutableAreas = new Map<string, FunctionMetricsAreaInput[]>();
   for (const area of areas) {
     for (const path of area.approvedExactPaths) {
-      const policies = mutablePolicies.get(path) ?? [];
-      policies.push(area);
-      mutablePolicies.set(path, policies);
+      const matchingAreas = mutableAreas.get(path) ?? [];
+      matchingAreas.push(area);
+      mutableAreas.set(path, matchingAreas);
     }
   }
   return new Map(
-    Array.from(mutablePolicies, ([path, policies]) => [path, Object.freeze(policies)] as const)
+    Array.from(mutableAreas, ([path, matchingAreas]) => [path, Object.freeze(matchingAreas)])
   );
 }
 
-function candidateContext(
+function resolveFunctionPolicyContext(
   instance: FunctionMetricInstance,
-  policies: readonly FunctionMetricsAreaInput[]
-): Readonly<{
-  readonly blocking: boolean;
-  readonly codeAreas: readonly string[];
-  readonly functionName: string;
-}> {
+  matchingAreas: MatchingFunctionMetricAreas
+): Readonly<FunctionPolicyContext> {
   return Object.freeze({
-    blocking: policies.some((policy) => policy.findingPolicy === "blocking"),
-    codeAreas: Object.freeze(uniqueSorted(policies.map((policy) => policy.codeArea))),
+    blocking: matchingAreas.some((area) => area.findingPolicy === "blocking"),
+    codeAreas: Object.freeze(uniqueSorted(matchingAreas.map((area) => area.codeArea))),
     functionName: isStableFunctionName(instance.metric.name) ? instance.metric.name : "<anonymous>"
   });
 }
 
-function metricCandidateInputs(
+function metricEvaluations(
   instance: FunctionMetricInstance,
-  context: ReturnType<typeof candidateContext>,
-  policies: readonly FunctionMetricsAreaInput[]
-): CandidateInput[] {
-  const inputs: CandidateInput[] = [];
-  const complexityInput = complexityCandidateInput(instance, context, policies);
-  if (complexityInput !== null) inputs.push(complexityInput);
-  inputs.push(
-    codeLinesCandidateInput(instance, context, policies),
-    parameterCandidateInput(instance, context, policies)
+  policyContext: FunctionPolicyContext,
+  matchingAreas: MatchingFunctionMetricAreas
+): FunctionMetricEvaluation[] {
+  const evaluations: FunctionMetricEvaluation[] = [];
+  const complexityEvaluation = complexityMetricEvaluation(instance, policyContext, matchingAreas);
+  if (complexityEvaluation !== null) evaluations.push(complexityEvaluation);
+  evaluations.push(
+    codeLinesMetricEvaluation(instance, policyContext, matchingAreas),
+    parameterMetricEvaluation(instance, policyContext, matchingAreas)
   );
-  return inputs;
+  return evaluations;
 }
 
-function sharedCandidateInput(
+function sharedMetricEvaluation(
   instance: FunctionMetricInstance,
-  context: ReturnType<typeof candidateContext>
+  policyContext: FunctionPolicyContext
 ) {
   return {
-    blocking: context.blocking,
-    codeAreas: context.codeAreas,
-    functionName: context.functionName,
+    blocking: policyContext.blocking,
+    codeAreas: policyContext.codeAreas,
+    functionName: policyContext.functionName,
     path: instance.metric.file,
     startLine: instance.metric.startLine,
     subject: instance.semanticSubject
   } as const;
 }
 
-function complexityCandidateInput(
+function complexityMetricEvaluation(
   instance: FunctionMetricInstance,
-  context: ReturnType<typeof candidateContext>,
-  policies: readonly FunctionMetricsAreaInput[]
-): CandidateInput | null {
+  policyContext: FunctionPolicyContext,
+  matchingAreas: MatchingFunctionMetricAreas
+): FunctionMetricEvaluation | null {
   const value = instance.metric.cyclomaticComplexity.value;
   if (value === null) return null;
   return {
-    ...sharedCandidateInput(instance, context),
-    limit: Math.min(...policies.map((policy) => policy.limits.cyclomaticComplexity.maximum)),
+    ...sharedMetricEvaluation(instance, policyContext),
+    limit: Math.min(...matchingAreas.map((area) => area.limits.cyclomaticComplexity.maximum)),
     metric: "cyclomatic-complexity",
     value
   };
 }
 
-function codeLinesCandidateInput(
+function codeLinesMetricEvaluation(
   instance: FunctionMetricInstance,
-  context: ReturnType<typeof candidateContext>,
-  policies: readonly FunctionMetricsAreaInput[]
-): CandidateInput {
+  policyContext: FunctionPolicyContext,
+  matchingAreas: MatchingFunctionMetricAreas
+): FunctionMetricEvaluation {
   return {
-    ...sharedCandidateInput(instance, context),
+    ...sharedMetricEvaluation(instance, policyContext),
     limit: Math.min(
-      ...policies.map((policy) => functionCodeLineMaximum(instance.metric, policy.limits))
+      ...matchingAreas.map((area) => functionCodeLineMaximum(instance.metric, area.limits))
     ),
     metric: "function-code-density",
     value: instance.metric.lines
   };
 }
 
-function parameterCandidateInput(
+function parameterMetricEvaluation(
   instance: FunctionMetricInstance,
-  context: ReturnType<typeof candidateContext>,
-  policies: readonly FunctionMetricsAreaInput[]
-): CandidateInput {
+  policyContext: FunctionPolicyContext,
+  matchingAreas: MatchingFunctionMetricAreas
+): FunctionMetricEvaluation {
   return {
-    ...sharedCandidateInput(instance, context),
-    limit: Math.min(...policies.map((policy) => policy.limits.parameters.maximum)),
+    ...sharedMetricEvaluation(instance, policyContext),
+    limit: Math.min(...matchingAreas.map((area) => area.limits.parameters.maximum)),
     metric: "parameter-count",
     value: instance.metric.parameterCount
   };
 }
 
-function appendCandidate(candidates: FunctionRecordCandidate[], input: CandidateInput): void {
-  if (input.value <= input.limit) return;
+function appendFindingCandidate(
+  candidates: FunctionRecordCandidate[],
+  evaluation: FunctionMetricEvaluation
+): void {
+  if (evaluation.value <= evaluation.limit) return;
   candidates.push(
     Object.freeze({
-      id: `${input.subject}:${input.metric}`,
+      id: `${evaluation.subject}:${evaluation.metric}`,
       data: Object.freeze({
-        blocking: input.blocking,
-        codeAreas: input.codeAreas,
-        functionName: input.functionName,
-        limit: input.limit,
-        metric: input.metric,
-        path: input.path,
-        startLine: input.startLine,
-        value: input.value
+        blocking: evaluation.blocking,
+        codeAreas: evaluation.codeAreas,
+        functionName: evaluation.functionName,
+        limit: evaluation.limit,
+        metric: evaluation.metric,
+        path: evaluation.path,
+        startLine: evaluation.startLine,
+        value: evaluation.value
       })
     })
   );

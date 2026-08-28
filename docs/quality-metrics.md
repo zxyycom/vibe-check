@@ -58,7 +58,8 @@ unavailable，不创建并行 quality model。owner-local tool boundary 见
 [Project files and Check exact inputs](scan-scope.md)。
 
 `function-metrics` 对每个超过 effective area limit 的 metric 发布一条 Record；data 包含 stable-sorted `codeAreas`、
-`blocking`、metric、limit 与 function location/value。它不会因 blocking finding 短路 scanner 或后续 conversion。正常
+`blocking`、metric、limit 与 function location/value。effective limit 是全部 matching areas 对该 metric 的适用 maximum
+最小值；任一 matching area blocking 时 `blocking` 为 true。它不会因 blocking finding 短路 scanner 或后续 conversion。正常
 final data 恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此 passed Check
 可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为 not-applicable 和 unavailable。
 

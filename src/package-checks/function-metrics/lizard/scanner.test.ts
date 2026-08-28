@@ -10,7 +10,7 @@ import { scanWithLizard } from "./scanner.ts";
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-describe("quality lizard availability projection", () => {
+describe("Lizard adapter command boundary", () => {
   it("classifies non-zero version exits with stderr as execution failures", async () => {
     const dependency = createFakeLizard({
       source: [
@@ -26,8 +26,7 @@ describe("quality lizard availability projection", () => {
 
       assert.equal(result.available, false);
       assert.equal(result.reason, "execution-error");
-      assert.equal(result.version, null);
-      assert.match(result.error ?? "", /lizard --version failed, exit 1: No module named lizard/);
+      assert.match(result.error, /lizard --version failed, exit 1: No module named lizard/);
     } finally {
       dependency.cleanup();
     }
@@ -40,8 +39,7 @@ describe("quality lizard availability projection", () => {
 
     assert.equal(result.available, false);
     assert.equal(result.reason, "tool-unavailable");
-    assert.equal(result.version, null);
-    assert.match(result.error ?? "", /lizard command unavailable/);
+    assert.match(result.error, /lizard command unavailable/);
   });
 
   it("rejects empty version provenance instead of accepting an unknown tool", async () => {
@@ -52,7 +50,6 @@ describe("quality lizard availability projection", () => {
 
       assert.equal(result.available, false);
       assert.equal(result.reason, "contract-error");
-      assert.equal(result.version, null);
       assert.match(result.error, /returned empty output/);
     } finally {
       dependency.cleanup();

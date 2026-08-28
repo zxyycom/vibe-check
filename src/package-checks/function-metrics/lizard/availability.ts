@@ -5,21 +5,19 @@ import type { ResolvedFunctionMetricsScannerOptions } from "../options.ts";
 type LizardAvailability = Readonly<
   | {
       readonly available: true;
-      readonly error: null;
-      readonly name: "lizard";
-      readonly reason: null;
-      readonly source: "configured command";
       readonly version: string;
     }
   | {
       readonly available: false;
       readonly error: string;
-      readonly name: "lizard";
       readonly reason: "contract-error" | "execution-error" | "tool-unavailable";
-      readonly source: "configured command";
-      readonly version: null;
     }
 >;
+
+interface UnavailableLizardInput {
+  readonly error: string;
+  readonly reason: Extract<LizardAvailability, { available: false }>["reason"];
+}
 
 type ToolCommandResult = Awaited<ReturnType<typeof runProcess>>;
 
@@ -35,54 +33,50 @@ export async function checkLizard(
     });
     return availabilityFromVersionResult(result);
   } catch (error: unknown) {
-    return unavailableLizard(`lizard version error: ${errorMessage(error)}`, "execution-error");
+    return unavailableLizard({
+      error: `lizard version error: ${errorMessage(error)}`,
+      reason: "execution-error"
+    });
   }
 }
 
 function availabilityFromVersionResult(result: ToolCommandResult): LizardAvailability {
+  if (result.signal !== null) {
+    const output = commandOutput(result);
+    return unavailableLizard({
+      error: `lizard --version failed, signal ${result.signal}${output ? `: ${output}` : ""}`,
+      reason: "execution-error"
+    });
+  }
   if (result.error) return processErrorAvailability(result.error);
   const output = commandOutput(result);
   if (result.status !== 0) {
-    return unavailableLizard(
-      `lizard --version failed, ${processTermination(result)}${output ? `: ${output}` : ""}`,
-      "execution-error"
-    );
+    return unavailableLizard({
+      error: `lizard --version failed, ${processTermination(result)}${output ? `: ${output}` : ""}`,
+      reason: "execution-error"
+    });
   }
   if (output === "") {
-    return unavailableLizard("lizard --version returned empty output", "contract-error");
+    return unavailableLizard({
+      error: "lizard --version returned empty output",
+      reason: "contract-error"
+    });
   }
-  return {
-    name: "lizard",
-    available: true,
-    version: output,
-    error: null,
-    source: "configured command",
-    reason: null
-  };
+  return Object.freeze({ available: true, version: output });
 }
 
 function processErrorAvailability(error: Error): LizardAvailability {
-  const isMissingTool = (error as NodeJS.ErrnoException).code === "ENOENT";
-  return unavailableLizard(
-    isMissingTool
+  const isMissingTool = Object.hasOwn(error, "code") && Reflect.get(error, "code") === "ENOENT";
+  return unavailableLizard({
+    error: isMissingTool
       ? `lizard command unavailable: ${error.message}`
       : `lizard version error: ${error.message}`,
-    isMissingTool ? "tool-unavailable" : "execution-error"
-  );
+    reason: isMissingTool ? "tool-unavailable" : "execution-error"
+  });
 }
 
-function unavailableLizard(
-  error: string,
-  reason: Exclude<LizardAvailability["reason"], null>
-): LizardAvailability {
-  return {
-    name: "lizard",
-    available: false,
-    version: null,
-    error,
-    source: "configured command",
-    reason
-  };
+function unavailableLizard({ error, reason }: UnavailableLizardInput): LizardAvailability {
+  return Object.freeze({ available: false, error, reason });
 }
 
 function commandOutput(result: ToolCommandResult): string {

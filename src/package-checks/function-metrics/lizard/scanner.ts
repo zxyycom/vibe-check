@@ -1,16 +1,17 @@
-/**
- * Lizard 函数级指标 wrapper。
- *
- * 封装 Lizard 调用，统一输出函数名称、所属文件、函数行数、参数数量、
- * 圈复杂度、路径和排序。
- */
+/** 对 approved exact paths 执行 adapter-owned Lizard CSV 协议。 */
 
 import { errorMessage } from "../../host-environment/error-message.ts";
 import { runProcessSync } from "../../host-environment/process/command.ts";
 import type { ResolvedFunctionMetricsScannerOptions } from "../options.ts";
-import { parseLizardCSV, type LizardScanResult } from "./parser.ts";
+import { parseLizardCSV, type LizardParseResult } from "./parser.ts";
 
-export { parseLizardCSV } from "./parser.ts";
+export type LizardScanResult =
+  | LizardParseResult
+  | Readonly<{
+      error: string;
+      ok: false;
+      reason: "execution";
+    }>;
 
 interface ScanWithLizardOptions {
   readonly cwd: string;
@@ -33,32 +34,29 @@ export function scanWithLizard({
       timeout: 300_000
     });
 
+    if (child.signal !== null) {
+      return failedLizardScan(
+        `lizard signal ${child.signal}: ${(child.stderr || child.stdout || "no output").trim()}`
+      );
+    }
     if (child.error) {
-      return {
-        ok: false,
-        error: `lizard process error: ${child.error.message}`,
-        reason: "execution"
-      };
+      return failedLizardScan(`lizard process error: ${child.error.message}`);
     }
 
     if (child.status !== 0) {
       const stderr = (child.stderr || "").trim();
       const stdout = (child.stdout || "").trim();
-      const termination =
-        child.status === null ? `signal ${child.signal ?? "unknown"}` : `exit ${child.status}`;
-      return {
-        ok: false,
-        error: `lizard ${termination}: ${stderr || stdout || "no output"}`,
-        reason: "execution"
-      };
+      return failedLizardScan(
+        `lizard ${child.status === null ? "invalid process state" : `exit ${child.status}`}: ${stderr || stdout || "no output"}`
+      );
     }
 
     return parseLizardCSV(child.stdout || "", cwd);
   } catch (error: unknown) {
-    return {
-      ok: false,
-      error: `lizard adapter error: ${errorMessage(error)}`,
-      reason: "execution"
-    };
+    return failedLizardScan(`lizard adapter error: ${errorMessage(error)}`);
   }
+}
+
+function failedLizardScan(error: string): LizardScanResult {
+  return Object.freeze({ error, ok: false, reason: "execution" });
 }

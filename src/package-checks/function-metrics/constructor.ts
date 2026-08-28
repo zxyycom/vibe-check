@@ -1,17 +1,28 @@
 import { defineCheck, type CheckWithOptions } from "../../check/check.ts";
-import { FUNCTION_METRICS_CHECK_DEFINITION, executeFunctionMetrics } from "./execution.ts";
+import { executeFunctionMetrics } from "./execution.ts";
 import type { FunctionMetricsOptions, ResolvedFunctionMetricsOptions } from "./options.ts";
 import { resolveFunctionMetricsOptions } from "./options-resolution.ts";
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 
-/** 使用可省略的区域与 finding policy 构造一个完整 function-metrics Check。 */
+const FUNCTION_METRICS_CHECK_DEFINITION = {
+  checkId: "function-metrics",
+  displayName: "Function metrics"
+} as const;
+
+/**
+ * 使用可省略的区域、阈值与 finding policy 构造一个完整 function-metrics Check。
+ *
+ * @param options - 省略字段由 package 补齐；显式 files 数组完整替换对应字段的默认数组。
+ * @returns 固定 `function-metrics` identity、完整冻结 options、preflight 与 execution。
+ * @throws {TypeError} input 含未知字段、空 area、非法 finding policy、非法 limit 或空 executable 时抛出。
+ */
 export function functionMetrics(
   options: FunctionMetricsOptions = {}
 ): CheckWithOptions<"function-metrics", ResolvedFunctionMetricsOptions> {
   const resolvedOptions = resolveFunctionMetricsOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
-      "functionMetrics options are invalid; use the documented closed constructor policy"
+      "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies, positive safe-integer limits, and a non-empty scanner executable"
     );
   }
   return defineCheck<"function-metrics", ResolvedFunctionMetricsOptions>({

@@ -9,8 +9,11 @@ export type FunctionMetricsFindingPolicy = (typeof FUNCTION_METRICS_FINDING_POLI
 
 /** `functionMetrics` constructor 可省略的 file-selection policy。 */
 export interface FunctionMetricsFileOptions {
+  /** 省略时使用 package 默认目录排除；显式数组完整替换该默认值。 */
   readonly excludeDirs?: readonly string[];
+  /** 省略时排除 package 默认的 generated-file globs；显式数组完整替换该默认值。 */
   readonly generatedFiles?: readonly string[];
+  /** 省略时包含全部相对路径；显式数组完整替换该默认值。 */
   readonly include?: readonly string[];
 }
 
@@ -54,7 +57,7 @@ export interface FunctionMetricsScannerOptions {
 
 /** `functionMetrics(options?)` 接受并补齐默认值的 public policy。 */
 export interface FunctionMetricsOptions {
-  /** 省略时建立默认 `project` area；显式 map 必须非空。 */
+  /** 省略时建立默认 `project` area；显式 map 必须非空，且每个 area 必须声明 `files`。 */
   readonly codeAreas?: Readonly<Record<string, FunctionMetricsCodeAreaOptions>>;
   /** 省略时为 `blocking`；area 可局部覆盖。 */
   readonly findingPolicy?: FunctionMetricsFindingPolicy;
