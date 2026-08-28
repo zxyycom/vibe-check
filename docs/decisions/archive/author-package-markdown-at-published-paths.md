@@ -1,6 +1,6 @@
 ---
 title: 让发布路径 Markdown 直接拥有 package 文档正文
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T08:30:34Z
 purpose: 让维护者在最终 package 路径直接找到并编辑完整文档，同时只自动更新明确标记的受管片段。

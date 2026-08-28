@@ -53,7 +53,6 @@ Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结�
 
 下面的完整示例故意让 Check 返回 `failed`。预期组合是 `RunResult.kind === "completed"`、该 Check outcome 为 `failed`、显式 aggregate 也为 `failed`；这三个值分别表达 Run lifecycle、单项业务结果和调用级 policy：
 
-<!-- package-api-example:start:custom-check -->
 ```ts
 import { defineCheck, defineConfig, run } from "vibe-check";
 
@@ -119,7 +118,6 @@ if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
   throw new Error("License policy did not produce the expected failed outcome");
 }
 ```
-<!-- package-api-example:end:custom-check -->
 
 ## terminal result、Records 与 messages
 
@@ -141,7 +139,6 @@ producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data cont
 
 ### 完整运行示例
 
-<!-- package-api-example:start:typed-dependency -->
 ```ts
 import { defineCheck, defineConfig, run } from "vibe-check";
 
@@ -197,7 +194,6 @@ const definition = defineConfig({
 const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
-<!-- package-api-example:end:typed-dependency -->
 
 dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 version、shape validation 和 compatibility，consumer 显式调用该 parser 恢复 provider data。
 

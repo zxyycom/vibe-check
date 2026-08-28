@@ -106,13 +106,13 @@ Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/docs/package-api/command.test.ts|package API documentation CLI > writes expected projections and detects stale output through --check`
-- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > projects every registry region to its declared Markdown and JSDoc targets without changing payload bytes`
-- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown managed regions`
+- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes`
+- `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets`
   Proves:
 
-- The renderer projects each allowlisted TypeScript payload byte-for-byte into its declared Markdown managed region or source JSDoc target. Markdown markers, region-external prose, and ordinary links remain unchanged.
-- The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, and missing, extra, malformed, nested, or mismatched Markdown managed regions. Removing a JSDoc target clears its obsolete managed tail.
-- Write mode updates only managed Markdown bodies and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
+- The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments.
+- The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, malformed heading paths, missing or duplicate heading targets, ambiguous or unclosed example fences, and package example projection markers. Heading paths follow authored ancestry even when heading levels skip; removing a JSDoc target clears its obsolete managed tail.
+- Write mode updates only projected Markdown fences and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 

@@ -11,7 +11,7 @@ import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-p
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/example-projections.ts",
-  "scripts/docs/package-api/markdown-managed-regions.ts",
+  "scripts/docs/package-api/markdown-example-fences.ts",
   "scripts/docs/package-api/render.ts",
   "scripts/docs/package-api/check-guide-registry.ts",
   "scripts/docs/package-api/check-guides.ts"

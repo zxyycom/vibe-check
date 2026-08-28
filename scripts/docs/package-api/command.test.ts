@@ -25,7 +25,10 @@ describe("package API documentation CLI", () => {
       writeFileSync(
         readmePath,
         readFileSync(readmePath, "utf8")
-          .replace("下面的 Check 读取", "这段标记外正文必须保留。\n\n下面的 Check 读取")
+          .replace(
+            "## 自定义 Check 快速开始\n",
+            "## 自定义 Check 快速开始\n\n这段 example fence 外正文必须保留。"
+          )
           .replace('import { defineCheck, defineConfig, run } from "vibe-check";', "stale"),
         "utf8"
       );
@@ -39,7 +42,10 @@ describe("package API documentation CLI", () => {
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0
       );
-      assert.equal(readFileSync(readmePath, "utf8").includes("这段标记外正文必须保留。"), true);
+      assert.equal(
+        readFileSync(readmePath, "utf8").includes("这段 example fence 外正文必须保留。"),
+        true
+      );
       assert.equal(readFileSync(readmePath, "utf8").includes("\nstale\n"), false);
 
       const apiMechanicsPath = join(fixtureRoot, "docs/api-mechanics.md");

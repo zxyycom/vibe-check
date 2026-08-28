@@ -21,7 +21,6 @@ Vibe Check 是由 consumer 项目在 **Bun** runtime 中调用的 TypeScript API
 
 下面的 `bundle-size` Check 把本 Check 的输入与阈值放在 `options`，用一条 supplemental Record 保存被评估的 artifact，并用 final data 表示大小评估的主要结果：
 
-<!-- package-api-example:start:quick-start -->
 ```ts
 import { defineCheck, defineConfig, run } from "vibe-check";
 
@@ -62,7 +61,6 @@ if (outcome?.status !== "passed" || outcome.data.actualBytes !== 82_000) {
   throw new Error("Bundle-size Check did not produce the expected result");
 }
 ```
-<!-- package-api-example:end:quick-start -->
 
 示例选择关闭两个 Run-owned outputs，以形成无文件写入和无 progress rendering 的独立调用。项目也可以保留默认 outputs：machine publication 与 progress rendering 默认启用，machine files 写到 project root 下的 `artifacts/vibe-check`。同一份 Definition 可以重复传给 `run`，每次调用都会形成独立的 invocation facts。
 

@@ -9,8 +9,9 @@ export interface PackageApiMarkdownDocument {
 export type PackageApiExampleTarget =
   | Readonly<{
       readonly documentId: string;
+      /** Natural ATX H2-H6 path whose section owns exactly one fenced TypeScript example. */
+      readonly headingPath: readonly string[];
       readonly kind: "markdown";
-      readonly managedRegionId: string;
     }>
   | Readonly<{
       readonly declarationName: string;
@@ -48,8 +49,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     targets: Object.freeze([
       Object.freeze({
         documentId: "readme",
-        kind: "markdown",
-        managedRegionId: "quick-start"
+        headingPath: Object.freeze(["自定义 Check 快速开始"]),
+        kind: "markdown"
       })
     ]),
     title: "最小 Project Definition 与 Run"
@@ -90,8 +91,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     targets: Object.freeze([
       Object.freeze({
         documentId: "api-mechanics",
-        kind: "markdown",
-        managedRegionId: "custom-check"
+        headingPath: Object.freeze(["options preflight 与 execution", "完整运行示例"]),
+        kind: "markdown"
       })
     ]),
     title: "运行自定义 Check"
@@ -118,8 +119,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     targets: Object.freeze([
       Object.freeze({
         documentId: "api-mechanics",
-        kind: "markdown",
-        managedRegionId: "typed-dependency"
+        headingPath: Object.freeze(["类型化依赖数据", "完整运行示例"]),
+        kind: "markdown"
       })
     ]),
     title: "读取 typed dependency final data"

@@ -12,7 +12,7 @@
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
-      "author-package-markdown-at-published-paths.md": "sha256:ce26b8979b36361d3a45424d503d1a91082648d0c0a8938b131c0b2895b1ad02",
+      "author-package-markdown-at-published-paths.md": "sha256:24eb73622c39c142cf9e44ef4e15df200c16834217407a4ec7cdbd080e857d1d",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
       "bind-project-gates-to-run-aggregation.md": "sha256:526b651624add03f1e7d304b425734db3ea132c8a48da3dce51824e1fcc73768",
       "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
@@ -87,6 +87,7 @@
       "let-function-metrics-adapter-own-lizard-cli-protocol.md": "sha256:0a5c5b7c7a3ddeddf660793153e527854dc53235516fac1671bd8406318acf43",
       "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
+      "locate-package-examples-by-natural-markdown-headings.md": "sha256:80efb0bc7bf9e50444fa8ad0b8c5ad2a245b1fc76180f437145cb0eee8405a2a",
       "make-bun-entries-use-pinned-tools.md": "sha256:43f53baf47e9cc3e8526d83301bbb998be1acb2e63bcaedc81751b3acc7ec4ef",
       "make-package-build-evidence-discoverable.md": "sha256:98e8e005d848e3ae7ee6149f4fc7f2c090df2bf16a4450dc404b21cce9938592",
       "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
@@ -421,16 +422,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "author-package-markdown-at-published-paths.md",
+        "sourcePath": "archive/author-package-markdown-at-published-paths.md",
         "title": "让发布路径 Markdown 直接拥有 package 文档正文",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T08:30:34Z",
         "purpose": "让维护者在最终 package 路径直接找到并编辑完整文档，同时只自动更新明确标记的受管片段。",
@@ -2724,6 +2725,40 @@
           {
             "type": "修订",
             "target": "keep-public-config-tool-neutral.md"
+          }
+        ]
+      }
+    },
+    "locate-package-examples-by-natural-markdown-headings.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "locate-package-examples-by-natural-markdown-headings.md",
+        "title": "以自然 Markdown section 定位 package 可执行示例",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T09:58:28Z",
+        "purpose": "让发布文档不携带投影标记，同时保持可执行示例与最终 Markdown 精确同步。",
+        "background": "成对注释虽能限定替换范围，却会把生成机制痕迹保留在 consumer 可检查的 package 文档原文中。",
+        "decision": "使用自然 heading path 定位 section 中唯一的 TypeScript fence，并拒绝歧义目标和旧投影标记。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "author-package-markdown-at-published-paths.md"
           }
         ]
       }

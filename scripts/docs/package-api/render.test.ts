@@ -11,13 +11,13 @@ import {
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 
-interface MarkdownManagedRegionFailureFixture {
+interface MarkdownExampleTargetFailureFixture {
   readonly corruptSource: (source: string) => string;
   readonly diagnostic: RegExp;
 }
 
 describe("package API documentation renderer", () => {
-  it("projects every registry region to its declared Markdown and JSDoc targets without changing payload bytes", () => {
+  it("projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
       const rendered = renderPackageApiDocumentation({ repositoryRoot: fixtureRoot });
@@ -55,12 +55,7 @@ describe("package API documentation renderer", () => {
               (candidate) => candidate.documentId === target.documentId
             );
             assert.ok(document);
-            assert.equal(
-              document.content.includes(
-                `<!-- package-api-example:start:${target.managedRegionId} -->\n\`\`\`ts\n${payload}\`\`\`\n<!-- package-api-example:end:${target.managedRegionId} -->`
-              ),
-              true
-            );
+            assert.equal(document.content.includes(fencedTypeScript(payload)), true);
           } else {
             const source = rendered.jsdocSources.find(
               (candidate) => candidate.absolutePath === join(fixtureRoot, target.sourcePath)
@@ -80,67 +75,53 @@ describe("package API documentation renderer", () => {
           }
         }
       }
+      assert.equal(
+        rendered.markdownDocuments.some((document) =>
+          document.content.includes("<!-- package-api-example:")
+        ),
+        false
+      );
     } finally {
       rmSync(fixtureRoot, { force: true, recursive: true });
     }
   });
 
-  it("replaces generated JSDoc tails and rejects malformed source or Markdown managed regions", () => {
-    const markdownRegionFailures: readonly MarkdownManagedRegionFailureFixture[] = [
+  it("replaces generated JSDoc tails and rejects malformed source or Markdown example targets", () => {
+    const markdownTargetFailures: readonly MarkdownExampleTargetFailureFixture[] = [
       {
         corruptSource: (source) =>
-          source.replace(
-            "<!-- package-api-example:end:quick-start -->",
-            "<!-- missing managed-region end -->"
-          ),
-        diagnostic: /unclosed package API Markdown managed region.*quick-start/
+          source.replace("## 自定义 Check 快速开始", "## Renamed quick start"),
+        diagnostic: /expected exactly one package API Markdown heading target.*found 0/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(/\n$/, "\n## 自定义 Check 快速开始\n\n```ts\nvoid 0;\n```\n"),
+        diagnostic: /expected exactly one package API Markdown heading target.*found 2/
       },
       {
         corruptSource: (source) =>
           source.replace(
-            "<!-- package-api-example:end:quick-start -->",
-            "<!-- package-api-example:end:other -->"
+            "```ts\nimport { defineCheck, defineConfig, run }",
+            "```text\nimport { defineCheck, defineConfig, run }"
           ),
-        diagnostic: /mismatched package API Markdown managed region.*other/
+        diagnostic: /expected exactly one fenced TypeScript example.*found 0/
       },
       {
         corruptSource: (source) =>
-          source.replace(
-            "<!-- package-api-example:start:quick-start -->",
-            "<!-- package-api-example:start:quick-start -->\n<!-- package-api-example:start:other -->"
-          ),
-        diagnostic: /nested package API Markdown managed region.*other/
+          source.replace("\n```\n\n示例选择关闭", "\n```\n\n```ts\nvoid 0;\n```\n\n示例选择关闭"),
+        diagnostic: /expected exactly one fenced TypeScript example.*found 2/
+      },
+      {
+        corruptSource: (source) => source.replace("\n```\n\n示例选择关闭", "\n\n示例选择关闭"),
+        diagnostic: /unclosed Markdown fence/
       },
       {
         corruptSource: (source) =>
-          source.replace(
-            /\n$/,
-            "\n<!-- package-api-example:start:quick-start -->\nstale\n<!-- package-api-example:end:quick-start -->\n"
-          ),
-        diagnostic: /duplicate package API Markdown managed region.*quick-start/
-      },
-      {
-        corruptSource: (source) =>
-          source
-            .replace("<!-- package-api-example:start:quick-start -->\n", "")
-            .replace("<!-- package-api-example:end:quick-start -->\n", ""),
-        diagnostic: /missing package API Markdown managed region.*quick-start/
-      },
-      {
-        corruptSource: (source) =>
-          source.replace(
-            /\n$/,
-            "\n<!-- package-api-example:start:unknown -->\nstale\n<!-- package-api-example:end:unknown -->\n"
-          ),
-        diagnostic: /unknown package API Markdown managed region.*unknown/
-      },
-      {
-        corruptSource: (source) =>
-          source.replace(/\n$/, "\n<!-- package-api-example:unknown -->\n"),
-        diagnostic: /malformed package API Markdown managed-region marker/
+          source.replace(/\n$/, "\n<!-- package-api-example:start:obsolete -->\n"),
+        diagnostic: /package Markdown contains a package example projection marker/
       }
     ];
-    for (const failure of markdownRegionFailures) {
+    for (const failure of markdownTargetFailures) {
       const fixtureRoot = createPackageApiDocumentationFixture();
       try {
         const readmePath = join(fixtureRoot, "README.md");
@@ -152,6 +133,46 @@ describe("package API documentation renderer", () => {
       } finally {
         rmSync(fixtureRoot, { force: true, recursive: true });
       }
+    }
+
+    const headingLevelGapFixture = createPackageApiDocumentationFixture();
+    try {
+      const readmePath = join(headingLevelGapFixture, "README.md");
+      const readme = readFileSync(readmePath, "utf8");
+      const readmeWithHeadingLevelGap = readme.replace(
+        "## 自定义 Check 快速开始",
+        "  ### 自定义 Check 快速开始"
+      );
+      assert.notEqual(readmeWithHeadingLevelGap, readme);
+      writeFileSync(readmePath, readmeWithHeadingLevelGap, "utf8");
+      assert.doesNotThrow(() =>
+        renderPackageApiDocumentation({ repositoryRoot: headingLevelGapFixture })
+      );
+    } finally {
+      rmSync(headingLevelGapFixture, { force: true, recursive: true });
+    }
+
+    const invalidHeadingPathFixture = createPackageApiDocumentationFixture();
+    try {
+      assert.throws(
+        () =>
+          renderPackageApiDocumentation({
+            projections: projectionsWithEmptyMarkdownHeadingPath(),
+            repositoryRoot: invalidHeadingPathFixture
+          }),
+        /invalid package API Markdown example target: quick-start/
+      );
+      const sparseHeadingPath = Object.freeze(Array<string>(1));
+      assert.throws(
+        () =>
+          renderPackageApiDocumentation({
+            projections: projectionsWithMarkdownHeadingPath(sparseHeadingPath),
+            repositoryRoot: invalidHeadingPathFixture
+          }),
+        /invalid package API Markdown example target: quick-start/
+      );
+    } finally {
+      rmSync(invalidHeadingPathFixture, { force: true, recursive: true });
     }
 
     const staleJSDocFixture = createPackageApiDocumentationFixture();
@@ -196,7 +217,7 @@ describe("package API documentation renderer", () => {
         readmePath,
         readFileSync(readmePath, "utf8").replace(
           /\n$/,
-          "\n<!-- package-api-example:start:former-jsdoc -->\nstale\n<!-- package-api-example:end:former-jsdoc -->\n"
+          "\n## Former JSDoc example\n\n```ts\nstale\n```\n"
         ),
         "utf8"
       );
@@ -355,13 +376,32 @@ function projectionsWithRemovedJSDocTarget(): readonly PackageApiExampleProjecti
           targets: Object.freeze([
             Object.freeze({
               documentId: "readme",
-              kind: "markdown" as const,
-              managedRegionId: "former-jsdoc"
+              headingPath: Object.freeze(["Former JSDoc example"]),
+              kind: "markdown" as const
             })
           ])
         }
       : projection
   );
+}
+
+function projectionsWithEmptyMarkdownHeadingPath(): readonly PackageApiExampleProjection[] {
+  return projectionsWithMarkdownHeadingPath(Object.freeze([]));
+}
+
+function projectionsWithMarkdownHeadingPath(
+  headingPath: readonly string[]
+): readonly PackageApiExampleProjection[] {
+  return PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => {
+    if (projection.id !== "quick-start") return projection;
+    return {
+      ...projection,
+      targets: projection.targets.map((target) => {
+        if (target.kind !== "markdown") return target;
+        return { ...target, headingPath };
+      })
+    };
+  });
 }
 
 function projectionsWithDuplicateJSDocTarget(): readonly PackageApiExampleProjection[] {
@@ -411,4 +451,10 @@ function regionPayload(
     .split("\n")
     .filter((line) => !/^\/\/ #(?:end)?region package-api-example:[a-z][a-z0-9-]*$/.test(line))
     .join("\n");
+}
+
+function fencedTypeScript(payload: string): string {
+  let fence = "```";
+  while (payload.includes(fence)) fence = `${fence}\``;
+  return `${fence}ts\n${payload}${fence}`;
 }
