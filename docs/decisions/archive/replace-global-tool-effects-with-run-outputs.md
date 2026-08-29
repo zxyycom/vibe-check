@@ -1,6 +1,6 @@
 ---
 title: 用明确 Run outputs 与 Check-owned cache 取代旧全局工具模型
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-26T09:17:19Z
 purpose: 让 Run 只拥有 machine publication 与 progress rendering，并让 cache 保持在 producing Check。

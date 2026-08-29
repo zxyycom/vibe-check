@@ -5,6 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
+      "add-ephemeral-project-run-diagnostic-logging.md": "sha256:4d2b361376efedd181cedae05e45381a7bb13c6b9258a8af00aa11bad76a0e1b",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
@@ -113,7 +114,7 @@
       "refine-project-run-and-settlement-owners.md": "sha256:e87a4f23e054a1fcbf43d1498f12a241caae41553b1f954841049e9d7176e1b5",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
       "remove-unconsumed-option-capability.md": "sha256:017a1039a6a482705f5a386ee133af3d09db1d388a0b0f1aec5b83657be03ad8",
-      "replace-global-tool-effects-with-run-outputs.md": "sha256:46576aea4fd9a50123da5e9baf9787d59addca227b7c09978baf01e094064473",
+      "replace-global-tool-effects-with-run-outputs.md": "sha256:c38862f6dcc06d266d1e0019b88381789bac04664bdbdac1246014d0f24a9e1b",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
       "require-check-owned-network-authorization.md": "sha256:aac8d0a8b853264dc340636a7badd75d25aeeb052ee7b6058c4a1135af7d753f",
       "require-explicit-named-comparison-references.md": "sha256:c3ec4599de940a68ebc14eae6f51993a191ba1cb154f56e7ad888826c4a44d08",
@@ -210,6 +211,38 @@
     }
   ],
   "entries": {
+    "add-ephemeral-project-run-diagnostic-logging.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "add-ephemeral-project-run-diagnostic-logging.md",
+        "title": "增加一次性 Project Run core 诊断日志 output",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-29T06:20:34Z",
+        "purpose": "让维护者无需断点调试即可恢复 Project Run core 的详细运行路径。",
+        "background": "最终 Run facts、progress 与 Gate transcripts 无法共同还原 Product 编排过程。",
+        "decision": "增加外部默认关闭、仓库消费者默认开启的一次性人读 diagnostic logging output。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "replace-global-tool-effects-with-run-outputs.md"
+          }
+        ]
+      }
+    },
     "adopt-low-level-markdown-link-parser-architecture.md": {
       "keys": {
         "tag": [
@@ -3560,16 +3593,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "replace-global-tool-effects-with-run-outputs.md",
+        "sourcePath": "archive/replace-global-tool-effects-with-run-outputs.md",
         "title": "用明确 Run outputs 与 Check-owned cache 取代旧全局工具模型",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-26T09:17:19Z",
         "purpose": "让 Run 只拥有 machine publication 与 progress rendering，并让 cache 保持在 producing Check。",

@@ -8,9 +8,9 @@
 | --- | --- | --- |
 | [add-html-link-validation](add-html-link-validation/) | explicit HTML link-bearing attribute 的本地引用校验。 | 当前仅保留 Draft；需 named consumer、source/attribute corpus、parser 与 occurrence owner 证据。 |
 | [add-network-link-validation](add-network-link-validation/) | opt-in、SSRF-safe、bounded network reachability。 | 需 named consumer、安全 transport 与 hermetic evidence；不由现有离线 Link Check 推断。 |
+| [add-project-run-diagnostic-logging](add-project-run-diagnostic-logging/) | 一次性详细 Project Run core 人读日志。 | 外部默认关闭，仓库 quality/Gate 默认开启；Check-specific 信息继续使用 final data/Record，不建立 Check logger 或稳定日志解析。 |
 | [add-secret-detection](add-secret-detection/) | high-confidence secret detection 与 leak-canary safety。 | 需 detector provenance/license、precision/recall corpus 与全 surface evidence。 |
 | [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | `functionMetrics` 的 Lizard backend hard cut。 | 配置 Change 已完成；恢复实施时需按当前 `src/package-checks/function-metrics/**` 重新建立 constructor parity 与迁移证据。 |
-| [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) | future durable receipt/event sink owner boundary。 | 当前 Product outputs 仅为 machine publication 与 progress rendering；Gate transcript 是本地 evidence。 |
 
 ## 公开发布 Draft
 
