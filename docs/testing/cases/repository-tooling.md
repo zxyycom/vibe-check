@@ -310,6 +310,7 @@ Entities:
 
 - Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。
 - Executor failure 只阻断 dependent Task，unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting。
+- 纯 `SchedulerDecision` 从 immutable scheduler snapshot 与 trigger 选择下一项 generic Task action；命令式 shell 对同一个 value 记录一次 `[SCHEDULER] scheduler.decision`，再执行 admission、wait/drain、blocked settlement、cancellation 或 completion。abort 首次观察使用 `cancellation-observed`，取消 application 后的 drain 使用 `cancellation-applied`；recorder 断言实际 decision 的顺序、taskId、trigger、reason 与 capacity，且 scheduler 不取得 Check owner 身份。
 
 ## Case AUX-SCRIPT-BOUNDARIES-001: Repository 与 process capability 的边界稳定
 

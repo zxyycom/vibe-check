@@ -126,7 +126,7 @@ callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之�
 | `outputs.machinePublication.enabled` | `true` | 在 terminal snapshot 形成后发布 `run.json` 与 `records.ndjson`。 |
 | `outputs.machinePublication.directory` | `"artifacts/vibe-check"` | 指定 machine files 目录；相对路径按本次 project root 解析。 |
 | `outputs.diagnosticLogging.enabled` | `false` | 启用本次 invocation 的 Product core 人读诊断日志。 |
-| `outputs.diagnosticLogging.directory` | `".log/vibe-check"` | 指定 invocation-specific `run-<uuid>.log` 的目录；相对路径按本次 project root 解析。 |
+| `outputs.diagnosticLogging.directory` | `".log/vibe-check"` | 指定 invocation-specific `run-<UTC 紧凑时间>-<UUID>.log` 的目录；相对路径按本次 project root 解析。 |
 | `outputs.progressRendering.enabled` | `true` | 呈现本次 Run 的人读 Check lifecycle 与汇总。 |
 | `scheduler.maxParallel` | `4` | 设置 Check scheduler 的最外层并行预算；必须是正安全整数。 |
 

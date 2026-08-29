@@ -524,7 +524,7 @@ A callback receives exactly `{ dependencies, options, project, records, signal }
 Run-owned outputs are diagnostic logging, machine publication, and progress rendering; Definition establishes their defaults, and
 RunControls can partially override each output for one invocation. `diagnosticLogging` defaults to
 `{ enabled: false, directory: ".log/vibe-check" }`. Its `directory` is a non-empty relative directory contained by the
-effective `projectRoot`; when enabled, Product creates an invocation-specific `run-<uuid>.log` there for manual core
+effective `projectRoot`; when enabled, Product creates an invocation-specific `run-<UTC 紧凑时间>-<UUID>.log` there for manual core
 diagnosis. Invalid Definition, controls or aggregation selection have no trusted effective output configuration, so their
 configuration result creates no diagnostic log. The exact output readback, logging failure priority and non-machine boundary
 belong to [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界).

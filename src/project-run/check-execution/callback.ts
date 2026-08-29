@@ -38,7 +38,7 @@ interface CheckReporterLifecycle {
 /** Runs one trusted callback and closes its Check-owned reporter before return. */
 export async function executeCheckCallback(input: CheckCallbackInput): Promise<CallbackExecution> {
   const checkId = input.check.definition.checkId;
-  const diagnosticScope = `check:${checkId}:execution`;
+  const diagnosticScope = `CHECK ${checkId} / execution`;
   const reporter = createCheckReporter(input.scope, input.diagnosticLogger, diagnosticScope);
   let result: CallbackExecution;
   try {
@@ -50,12 +50,6 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       signal: input.signal
     });
     const callbackResult = await input.check.execution(context);
-    input.diagnosticLogger?.observe({
-      scope: diagnosticScope,
-      event: "callback.returned",
-      summary: "Check callback returned a raw terminal value",
-      details: { result: callbackResult }
-    });
     if (input.signal.aborted) {
       input.diagnosticLogger?.observe({
         scope: diagnosticScope,

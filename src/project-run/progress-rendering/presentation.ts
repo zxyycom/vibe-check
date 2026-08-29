@@ -11,7 +11,6 @@ import {
   type ProgressWriter
 } from "./renderer.ts";
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
-import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { OutputStatuses } from "../output-status.ts";
 export interface ProgressRendering {
   readonly final: (input: ProgressFinalFeedback) => void;
@@ -35,7 +34,6 @@ export interface ProgressRefreshScheduler {
 
 export interface ProgressRenderingDependencies {
   readonly clock?: ProgressClock;
-  readonly diagnosticLogger?: DiagnosticLogger;
   readonly refreshScheduler?: ProgressRefreshScheduler;
   readonly writerFactory?: ProgressWriterFactory;
 }
@@ -73,12 +71,6 @@ export function createProgressRendering(
       // The output is already failed; a scheduler cleanup fault must not reach Check execution.
     }
     statuses.failed("progressRendering");
-    dependencies.diagnosticLogger?.observe({
-      scope: "output:progressRendering",
-      event: "output.failed",
-      summary: "progress rendering output was closed after a writer failure",
-      details: { status: "failed" }
-    });
   };
 
   const stopRefresh = (): void => {
@@ -101,12 +93,6 @@ export function createProgressRendering(
       renderer.render(feedback);
       if (feedback.kind === "final") {
         statuses.succeeded("progressRendering");
-        dependencies.diagnosticLogger?.observe({
-          scope: "output:progressRendering",
-          event: "output.succeeded",
-          summary: "progress rendering output was closed",
-          details: { status: "succeeded" }
-        });
       }
     } catch {
       failRendering();

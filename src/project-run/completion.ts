@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 import { failedOutput } from "./output-status.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
 import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "./result.ts";
+import type { CheckAggregate } from "./controls/contract.ts";
 import type { CoreExecution, Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
@@ -23,14 +24,6 @@ export function completeInvocation(
         invocation.projectRoot,
         invocation.outputConfiguration.machinePublication.directory
       )
-    });
-    invocation.diagnosticLogger.observe({
-      scope: "output:machinePublication",
-      event: published ? "output.succeeded" : "output.failed",
-      summary: published
-        ? "machine publication output was closed"
-        : "machine publication output was closed after a publish failure",
-      details: { status: invocation.outputs.value().machinePublication.status }
     });
     if (!published) return failure(invocation, facts);
   }
@@ -102,10 +95,14 @@ export function finalizeInvocation(
 ): NonConfigurationRunResult {
   const preCloseOutputs = invocation.outputs.value();
   invocation.diagnosticLogger.observe({
-    scope: "run",
-    event: "invocation.closing",
+    scope: "RUN",
+    event: "run.closing",
     summary: "pre-logging result selected",
-    details: { candidateKind: candidate.kind, outputs: preCloseOutputs }
+    details: {
+      ...closingFacts(candidate),
+      diagnosticLogging: "pending-close",
+      outputs: preCloseOutputs
+    }
   });
   const diagnosticLoggingStatus = invocation.diagnosticLogger.close();
   if (diagnosticLoggingStatus === "failed") invocation.outputs.failed("diagnosticLogging");
@@ -141,6 +138,72 @@ export function finalizeInvocation(
     case "execution":
       return Object.freeze({ ...candidate, outputs });
   }
+}
+
+function closingFacts(candidate: NonConfigurationRunResult): Readonly<{
+  readonly aggregate: CheckAggregate | null;
+  readonly candidateKind: NonConfigurationRunResult["kind"];
+  readonly counts: Readonly<{
+    readonly failed: number;
+    readonly notApplicable: number;
+    readonly passed: number;
+    readonly unavailable: number;
+  }> | null;
+  readonly nonPassed: readonly Readonly<{
+    readonly checkId: string;
+    readonly reason: unknown;
+    readonly status: string;
+  }>[];
+}> {
+  if (!("snapshot" in candidate)) {
+    return Object.freeze({
+      aggregate: null,
+      candidateKind: candidate.kind,
+      counts: null,
+      nonPassed: []
+    });
+  }
+  const counts = { failed: 0, notApplicable: 0, passed: 0, unavailable: 0 };
+  const nonPassed: Array<Readonly<{ checkId: string; reason: unknown; status: string }>> = [];
+  for (const check of candidate.snapshot.checks) {
+    switch (check.outcome.status) {
+      case "passed":
+        counts.passed += 1;
+        break;
+      case "failed":
+        counts.failed += 1;
+        nonPassed.push(
+          Object.freeze({ checkId: check.checkId, reason: null, status: check.outcome.status })
+        );
+        break;
+      case "not-applicable":
+        counts.notApplicable += 1;
+        nonPassed.push(
+          Object.freeze({
+            checkId: check.checkId,
+            reason: check.outcome.reason ?? null,
+            status: check.outcome.status
+          })
+        );
+        break;
+      case "unavailable":
+        counts.unavailable += 1;
+        nonPassed.push(
+          Object.freeze({
+            checkId: check.checkId,
+            reason: check.outcome.reason,
+            status: check.outcome.status
+          })
+        );
+        break;
+    }
+  }
+  return Object.freeze({
+    aggregate: "aggregate" in candidate ? candidate.aggregate : null,
+    candidateKind: candidate.kind,
+    counts: Object.freeze(counts),
+    nonPassed: Object.freeze(nonPassed)
+  });
 }
 
 function finalSnapshotFacts(

@@ -234,15 +234,10 @@ describe("Package Run direct Check execution", () => {
       ]
     );
     assert.deepEqual(
-      observations.find((observation) => observation.event === "callback.returned")?.details,
-      { result: { status: "passed", data: {} } }
-    );
-    assert.deepEqual(
-      observations.find((observation) => observation.event === "check.settlement")?.details,
+      observations.find((observation) => observation.event === "check.contained")?.details,
       {
-        authorResultAccepted: false,
-        outcome: { status: "unavailable", reason: { code: "record-conflict" } },
-        terminalParsed: true
+        outcome: { reason: { code: "record-conflict" }, status: "unavailable" },
+        raw: { status: "passed", data: {} }
       }
     );
 
@@ -795,24 +790,27 @@ describe("Package Run direct Check execution", () => {
       observations
         .filter(
           (observation) =>
-            observation.scope === "check:dependent:execution" &&
-            observation.event === "dependency.requested"
-        )
-        .map((observation) => observation.details),
-      [{ checkId: "middle" }, { checkId: "source" }, { checkId: 42 }]
-    );
-    assert.deepEqual(
-      observations
-        .filter(
-          (observation) =>
-            observation.scope === "check:dependent:execution" &&
-            observation.event === "dependency.resolved"
+            observation.scope === "CHECK dependent / execution" &&
+            observation.event === "dependency.read"
         )
         .map((observation) => observation.details),
       [
-        { checkId: "middle", result: directRead },
-        { checkId: "source", result: transitiveRead },
-        { checkId: 42, result: malformedRead }
+        {
+          hasData: true,
+          ok: true,
+          producer: "middle",
+          status: "passed"
+        },
+        {
+          error: { code: "dependency-not-declared", checkId: "source" },
+          ok: false,
+          requestedCheckId: "source"
+        },
+        {
+          error: { code: "dependency-not-declared", checkId: "" },
+          ok: false,
+          requestedCheckId: 42
+        }
       ]
     );
   });
@@ -935,22 +933,29 @@ describe("Package Run direct Check execution", () => {
     ]);
     assert.equal(settled.find((fact) => fact.checkId === "blocked")?.durationMs, null);
     assert.deepEqual(
-      observations.find((observation) => observation.event === "preflight.blocked")?.details,
+      observations.find(
+        (observation) =>
+          observation.scope === "CHECK blocked / preflight" &&
+          observation.event === "preflight.finished"
+      )?.details,
       {
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
         outcome: { status: "unavailable", reason: { code: "invalid-options" } },
-        reason: { code: "invalid-options" }
+        reason: { code: "invalid-options" },
+        result: "blocked"
       }
     );
     assert.deepEqual(
       observations.find(
         (observation) =>
-          observation.scope === "check:blocked:preflight" && observation.event === "check.settled"
+          observation.scope === "CHECK blocked / preflight" &&
+          observation.event === "check.finished"
       )?.details,
       {
         durationMs: null,
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
-        outcome: { status: "unavailable", reason: { code: "invalid-options" } }
+        outcome: { reason: { code: "invalid-options" }, status: "unavailable" },
+        phase: "preflight"
       }
     );
   });
@@ -1133,16 +1138,20 @@ describe("Package Run direct Check execution", () => {
       reason: { code: "execution-threw" }
     });
     assert.deepEqual(
-      observations.find((observation) => observation.event === "preflight.continued")?.details,
+      observations.find(
+        (observation) =>
+          observation.scope === "CHECK continued / preflight" &&
+          observation.event === "preflight.finished"
+      )?.details,
       {
-        fallback: { value: 2 },
         messages: [{ level: "warning", code: "preflight", message: "Preflight message" }],
-        options: { value: 2 },
-        reason: { code: "fallback" }
+        options: { availability: "available", bytes: 11, keys: 1, shape: "object" },
+        reason: { code: "fallback" },
+        result: "continued"
       }
     );
     assert.equal(
-      observations.some((observation) => observation.event === "preflight.succeeded"),
+      observations.some((observation) => observation.event === "preflight.finished"),
       true
     );
     assert.equal(
@@ -1239,11 +1248,25 @@ describe("Package Run direct Check execution", () => {
       });
     }
     assert.equal(
-      observations.some((observation) => observation.event === "preflight.threw"),
+      observations.some(
+        (observation) =>
+          observation.event === "preflight.finished" &&
+          observation.details !== null &&
+          typeof observation.details === "object" &&
+          "result" in observation.details &&
+          observation.details.result === "threw"
+      ),
       true
     );
     assert.equal(
-      observations.filter((observation) => observation.event === "preflight.malformed").length,
+      observations.filter(
+        (observation) =>
+          observation.event === "preflight.finished" &&
+          observation.details !== null &&
+          typeof observation.details === "object" &&
+          "result" in observation.details &&
+          observation.details.result === "malformed"
+      ).length,
       3
     );
   });
@@ -1277,12 +1300,21 @@ describe("Package Run direct Check execution", () => {
     );
     assert.deepEqual(
       observations
-        .filter((observation) => observation.event === "check.cancelled")
+        .filter(
+          (observation) =>
+            observation.scope === "CHECK pending / execution" &&
+            observation.event === "check.finished"
+        )
         .map((observation) => ({ scope: observation.scope, details: observation.details })),
       [
         {
-          scope: "check:pending:execution",
-          details: { outcome: { status: "unavailable", reason: { code: "execution-cancelled" } } }
+          scope: "CHECK pending / execution",
+          details: {
+            durationMs: null,
+            messages: [],
+            outcome: { reason: { code: "execution-cancelled" }, status: "unavailable" },
+            phase: "execution"
+          }
         }
       ]
     );

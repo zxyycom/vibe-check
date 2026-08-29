@@ -11,6 +11,8 @@ import type { ProgressRefreshScheduler } from "./presentation.ts";
 import { executeValidatedRun } from "../invocation.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
+const DIAGNOSTIC_FILE =
+  /^.+\/run-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
 
 function check(
   overrides: Readonly<{
@@ -278,28 +280,23 @@ describe("Package Run progress rendering outputs", () => {
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-      assert.match(
-        result.outputs.diagnosticLogging.file ?? "",
-        /^diagnostic\/run-[0-9a-f-]+\.log$/
-      );
+      assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
       assert.equal(existsSync(join(root, result.outputs.diagnosticLogging.file ?? "")), true);
       const diagnosticLog = readFileSync(
         join(root, result.outputs.diagnosticLogging.file ?? ""),
         "utf8"
       );
-      assert.match(diagnosticLog, /^#000001 \+\d+\.\dms run invocation\.started /);
-      assert.match(diagnosticLog, /run planning\.succeeded normalized task graph was accepted/);
-      assert.match(diagnosticLog, /run aggregation\.completed no Check aggregation was selected/);
+      assert.match(diagnosticLog, /^#000001 \+\d+\.\dms \[RUN\] run\.started /);
       assert.match(
         diagnosticLog,
-        /output:progressRendering output\.failed progress rendering output was closed after a writer failure/
+        /\[RUN\] run\.planning\.succeeded normalized task graph was accepted/
       );
       assert.match(
         diagnosticLog,
-        /output:machinePublication output\.succeeded machine publication output was closed/
+        /\[RUN\] run\.aggregation\.completed no Check aggregation was selected/
       );
-      assert.match(diagnosticLog, /run invocation\.closing pre-logging result selected/);
-      assert.match(diagnosticLog, /"diagnosticLogging":\{"enabled":true,"file":"diagnostic\//);
+      assert.match(diagnosticLog, /\[RUN\] run\.closing pre-logging result selected/);
+      assert.match(diagnosticLog, /"diagnosticLogging":"pending-close"/);
       assert.match(diagnosticLog, /"machinePublication":\{"enabled":true,"status":"succeeded"}/);
       assert.match(diagnosticLog, /"progressRendering":\{"enabled":true,"status":"failed"}/);
       assert.equal(diagnosticLog.endsWith("\n"), true);
@@ -355,14 +352,14 @@ describe("Package Run progress rendering outputs", () => {
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "failed");
       assert.equal(result.outputs.diagnosticLogging.status, "failed");
-      assert.match(result.outputs.diagnosticLogging.file ?? "", /^blocked\/run-[0-9a-f-]+\.log$/);
+      assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
       assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
   });
 
-  it("writes each normalized Check catalog entry separately from the compact invocation start", async () => {
+  it("writes one compact invocation start instead of catalog entries for every Check", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-catalog-"));
     try {
       const catalog = Array.from({ length: 70 }, (_, index) =>
@@ -382,30 +379,43 @@ describe("Package Run progress rendering outputs", () => {
       const file = result.outputs.diagnosticLogging.file;
       assert.ok(file);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      const start = diagnosticLog
-        .split("\n")
-        .find((line) => line.includes(" run invocation.started "));
-      assert.ok(start);
-      assert.doesNotMatch(start, /details-unavailable/);
-      assert.doesNotMatch(start, /"catalog"/);
-      assert.match(start, /"aggregation":null/);
-      assert.match(start, /"flags":\[\]/);
-      assert.match(start, /"invocationId":"invocation\/v1:/);
-      assert.match(start, /"outputs":/);
-      assert.match(start, /"projectRoot":/);
-      assert.match(start, /"scheduler":/);
-      assert.equal(
-        [...diagnosticLog.matchAll(/run catalog\.check normalized Check catalog entry accepted/g)]
-          .length,
-        catalog.length
-      );
-      for (const entry of catalog) {
-        assert.match(
-          diagnosticLog,
-          new RegExp(`run catalog\\.check .*"checkId":"${entry.checkId}"`)
-        );
-      }
+      assert.equal([...diagnosticLog.matchAll(/\[RUN\] run\.started /g)].length, 1);
+      assert.match(diagnosticLog, /"aggregation":null/);
+      assert.match(diagnosticLog, /"checkCount":70/);
+      assert.match(diagnosticLog, /"flags":\[\]/);
+      assert.match(diagnosticLog, /"invocationId":"invocation\/v1:/);
+      assert.match(diagnosticLog, /"outputs":/);
+      assert.match(diagnosticLog, /"scheduler":/);
+      assert.doesNotMatch(diagnosticLog, /catalog\.check/);
       assert.doesNotMatch(diagnosticLog, /details=details-unavailable:(?:value-limit|width-limit)/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("summarizes accepted final data instead of copying it into the diagnostic log", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-final-data-"));
+    try {
+      const files = Array.from({ length: 700 }, (_, index) => `package/file-${index}.ts`);
+      const result = await executeValidatedRun(
+        definition([check({ execution: () => ({ status: "passed", data: { files } }) })]),
+        {
+          outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
+          projectRoot: root
+        },
+        []
+      );
+
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      const file = result.outputs.diagnosticLogging.file;
+      assert.ok(file);
+      const diagnosticLog = readFileSync(join(root, file), "utf8");
+      assert.match(
+        diagnosticLog,
+        /"outcome":\{"data":\{"availability":"available","bytes":\d+,"keys":1,"shape":"object"\},"status":"passed"\}/
+      );
+      assert.doesNotMatch(diagnosticLog, /package\/file-699\.ts/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -460,9 +470,9 @@ describe("Package Run progress rendering outputs", () => {
       const file = result.outputs.diagnosticLogging.file;
       assert.ok(file);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      assert.match(diagnosticLog, /preflight\.malformed/);
+      assert.match(diagnosticLog, /preflight\.finished/);
       assert.match(diagnosticLog, /record\.reported/);
-      assert.match(diagnosticLog, /callback\.returned/);
+      assert.match(diagnosticLog, /check\.contained/);
       assert.match(diagnosticLog, /details=details-unavailable:unsupported-function/);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -566,10 +576,7 @@ describe("Package Run progress rendering outputs", () => {
         assert.equal(result.outputs.progressRendering.status, "disabled");
         assert.equal(result.outputs.diagnosticLogging.enabled, true);
         assert.equal(result.outputs.diagnosticLogging.status, "failed");
-        assert.match(
-          result.outputs.diagnosticLogging.file ?? "",
-          /^diagnostic\/run-[0-9a-f-]+\.log$/
-        );
+        assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
         assert.equal(delegateCloseCalls, failure === "factory-throws" ? 0 : 1, failure);
         if (failure === "factory-throws") assert.equal(delegateObserveCalls, 0, failure);
         else if (failure === "observe-throws") assert.equal(delegateObserveCalls, 1, failure);

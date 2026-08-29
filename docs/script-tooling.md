@@ -122,7 +122,7 @@ quality wrapper 不解析调用方配置、不重新声明 Project Definition，
 3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约。
 
 参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。成功启动的
-Gate 总是显示 invocation directory；该目录中的 Product `run-<uuid>.log` 与各 Check-owned process transcript 并列，
+Gate 总是显示 invocation directory；该目录中的 Product `run-<UTC 紧凑时间>-<UUID>.log` 与各 Check-owned process transcript 并列，
 不建立 `latest`、index、retention 或相互解析关系。
 Gate 不改变 quality 的 locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence
 各自的 command owner。

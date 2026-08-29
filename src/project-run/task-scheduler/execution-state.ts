@@ -1,5 +1,6 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
@@ -51,7 +52,6 @@ export interface RuntimeScope {
 }
 
 export interface SchedulerState<TResult> {
-  readonly blockerSignaturesByTaskId: Map<string, string>;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
   readonly maxParallel: number;
@@ -79,7 +79,6 @@ export function createSchedulerState<TResult>(
     });
   }
   return {
-    blockerSignaturesByTaskId: new Map(),
     diagnosticLogger: options.diagnosticLogger,
     graph,
     maxParallel: options.maxParallel,
@@ -95,6 +94,30 @@ export function createSchedulerState<TResult>(
   };
 }
 
+/** Projects mutable execution state into the pure scheduler-decision input. */
+export function snapshotSchedulerState<TResult>(state: SchedulerState<TResult>): SchedulerSnapshot {
+  return Object.freeze({
+    activeScopeIds: Object.freeze(
+      [...state.scopesById.values()]
+        .filter((scope) => scope.isActive)
+        .map((scope) => scope.scope.id)
+    ),
+    graph: state.graph,
+    isAbortRequested: state.signal?.aborted === true,
+    isCancelled: state.isCancelled,
+    maxParallel: state.maxParallel,
+    pendingTaskIds: Object.freeze(state.pending.map((task) => task.id)),
+    reservationTaskId: state.reservationTaskId,
+    runningMutexes: Object.freeze([...state.runningMutexes]),
+    runningTaskIds: Object.freeze([...state.runningById.keys()]),
+    settledTasks: Object.freeze(
+      [...state.settlementsByTaskId].map(([taskId, settlement]) =>
+        Object.freeze({ kind: settlement.kind, taskId })
+      )
+    )
+  });
+}
+
 export function scopeForTask<TResult>(
   task: PlannedTask,
   state: SchedulerState<TResult>
@@ -103,19 +126,7 @@ export function scopeForTask<TResult>(
 }
 
 export function cancelPendingTasks<TResult>(state: SchedulerState<TResult>): void {
-  if (!state.isCancelled) {
-    state.isCancelled = true;
-    state.diagnosticLogger?.observe({
-      scope: "scheduler",
-      event: "scheduler.cancelled",
-      summary: "Scheduler observed invocation cancellation",
-      details: {
-        pending: state.pending.length,
-        reservationTaskId: state.reservationTaskId,
-        running: state.runningById.size
-      }
-    });
-  }
+  state.isCancelled = true;
   state.reservationTaskId = undefined;
   while (state.pending.length > 0) {
     const task = state.pending.shift();
@@ -134,30 +145,9 @@ export function recordSettlement<TResult>(
   if (state.settlementsByTaskId.has(task.id)) {
     throw new Error(`task ${task.id} settled more than once`);
   }
-  state.blockerSignaturesByTaskId.delete(task.id);
   state.settlementsByTaskId.set(task.id, settlement);
   const scope = scopeForTask(task, state);
   if (scope?.scope.terminalTaskId === task.id) {
     scope.isActive = false;
   }
-  state.diagnosticLogger?.observe({
-    scope: "scheduler",
-    event: "check.settled",
-    summary: "Scheduled Check state settled",
-    details: {
-      checkId: task.id,
-      pending: state.pending.length,
-      running: state.runningById.size,
-      settlement: schedulerSettlementDetails(settlement)
-    }
-  });
-}
-
-function schedulerSettlementDetails<TResult>(settlement: TaskSettlement<TResult>): Readonly<{
-  readonly kind: TaskSettlement<TResult>["kind"];
-  readonly dependencyIds?: readonly string[];
-}> {
-  return settlement.kind === "blocked"
-    ? Object.freeze({ kind: settlement.kind, dependencyIds: settlement.dependencyIds })
-    : Object.freeze({ kind: settlement.kind });
 }

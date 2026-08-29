@@ -123,14 +123,15 @@ function createInvocation(
   const outputConfiguration = effectiveOutputs(definition, controls);
   const clock = dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
   const projectRoot = resolve(controls.projectRoot ?? process.cwd());
-  const invocationId = `invocation/v1:${randomUUID()}`;
+  const invocationUuid = randomUUID();
+  const invocationId = `invocation/v1:${invocationUuid}`;
   const diagnosticLoggingFile = outputConfiguration.diagnosticLogging.enabled
     ? relative(
         projectRoot,
         resolve(
           projectRoot,
           outputConfiguration.diagnosticLogging.directory,
-          `run-${invocationId.slice("invocation/v1:".length)}.log`
+          diagnosticLogFileName(new Date(), invocationUuid)
         )
       )
     : null;
@@ -154,7 +155,6 @@ function createInvocation(
     normalized,
     progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
       clock,
-      diagnosticLogger,
       refreshScheduler: dependencies.progressRefreshScheduler,
       writerFactory: dependencies.progressWriterFactory
     }),
@@ -167,32 +167,18 @@ function observeInvocationStarted(
   aggregation: CheckAggregation | undefined
 ): void {
   invocation.diagnosticLogger.observe({
-    scope: "run",
-    event: "invocation.started",
+    scope: "RUN",
+    event: "run.started",
     summary: "validated Project Run started",
     details: {
       aggregation: aggregation ?? null,
+      checkCount: invocation.normalized.checks.length,
       flags: invocation.controls.flags ?? [],
       invocationId: invocation.invocationId,
       outputs: invocation.outputConfiguration,
-      projectRoot: invocation.projectRoot,
       scheduler: invocation.normalized.declarative.scheduler
     }
   });
-  for (const check of invocation.normalized.checks) {
-    invocation.diagnosticLogger.observe({
-      scope: "run",
-      event: "catalog.check",
-      summary: "normalized Check catalog entry accepted",
-      details: {
-        checkId: check.definition.checkId,
-        dependsOn: check.dependsOn,
-        maxParallel: check.maxParallel,
-        mutex: check.mutex,
-        visibility: check.visibility
-      }
-    });
-  }
 }
 
 function createDiagnosticLoggerSafely(
@@ -240,8 +226,8 @@ function validateTaskGraph(invocation: Invocation): boolean {
       invocation.normalized.declarative.scheduler.maxParallel
     );
     invocation.diagnosticLogger.observe({
-      scope: "run",
-      event: "planning.succeeded",
+      scope: "RUN",
+      event: "run.planning.succeeded",
       summary: "normalized task graph was accepted",
       details: {
         checkCount: invocation.normalized.checks.length,
@@ -251,8 +237,8 @@ function validateTaskGraph(invocation: Invocation): boolean {
     return true;
   } catch {
     invocation.diagnosticLogger.observe({
-      scope: "run",
-      event: "planning.failed",
+      scope: "RUN",
+      event: "run.planning.failed",
       summary: "normalized task graph was rejected",
       details: {
         checkCount: invocation.normalized.checks.length,
@@ -290,8 +276,8 @@ async function executePreparedInvocation(
   });
   if (executed.kind === "cancelled") {
     invocation.diagnosticLogger.observe({
-      scope: "run",
-      event: "execution.cancelled",
+      scope: "RUN",
+      event: "run.execution.cancelled",
       summary: "execution completed after cancellation closure",
       details: { checkCount: executed.snapshot.checks.length }
     });
@@ -307,8 +293,8 @@ async function executePreparedInvocation(
   const aggregate =
     aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
   invocation.diagnosticLogger.observe({
-    scope: "run",
-    event: "aggregation.completed",
+    scope: "RUN",
+    event: "run.aggregation.completed",
     summary:
       aggregation === undefined
         ? "no Check aggregation was selected"
@@ -329,8 +315,8 @@ function cancelledBeforeExecution(
   phase: "pre-work" | "planning"
 ): NonConfigurationRunResult {
   invocation.diagnosticLogger.observe({
-    scope: "run",
-    event: "invocation.cancelled",
+    scope: "RUN",
+    event: "run.cancelled",
     summary: "cancellation was observed before Check execution",
     details: { phase }
   });
@@ -340,6 +326,11 @@ function cancelledBeforeExecution(
     invocation.outputs.value(),
     phase
   );
+}
+
+function diagnosticLogFileName(startedAt: Date, invocationUuid: string): string {
+  const compactUtc = startedAt.toISOString().replaceAll("-", "").replaceAll(":", "");
+  return `run-${compactUtc}-${invocationUuid}.log`;
 }
 async function executeChecks(
   invocation: Invocation,

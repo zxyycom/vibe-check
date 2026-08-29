@@ -89,7 +89,9 @@ Entities:
 
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
 - `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger > renders only bounded descriptor-safe details without invoking author hooks`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > writes each normalized Check catalog entry separately from the compact invocation start`
+- `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger > summarizes descriptor-safe normal values without rendering their full lifecycle payload`
+- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > writes one compact invocation start instead of catalog entries for every Check`
+- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > summarizes accepted final data instead of copying it into the diagnostic log`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > does not invoke hostile author details while diagnostic logging is enabled`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > closes diagnostic logging once after an unexpected nonconfiguration failure`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains diagnostic logger implementation failures without revising final facts`
@@ -98,7 +100,8 @@ Entities:
 Proves:
 
 - Disabled diagnostic logging constructs neither directory/file nor writer; its disabled status and `null` file are independently observable without changing progress, publication or Check execution.
-- An enabled log has a newline-terminated initial invocation observation, one ordered `catalog.check` event per normalized Check and a pre-close result branch; a progress failure does not prevent this independent Product output from closing.
+- An enabled log uses one UTC-compact-time-and-UUID-named file and newline-terminated header-plus-continuation observations. Its compact initial Run observation reports the Check count without one `catalog.check` projection per normalized Check; the pre-close branch reports the pending diagnostic close state, and a progress failure does not prevent this independent Product output from closing.
+- Normal accepted final data is reported once by the owning final Check through a bounded safe shape/size summary. Successful dependency reads retain only producer, status and data presence; each Record report and exceptional boundary still uses the same descriptor-only safety boundary for its one full value.
 - Diagnostic details use bounded descriptor-only rendering: accessors, `toJSON`, Proxy traps, cyclic/deep/extreme-wide/oversized values and malformed author handoff data cannot execute author hooks or alter Check facts.
 - Every non-configuration result path closes diagnostic logging at most once, including unexpected runtime containment failures. Factory, append/render and close failures preserve final Check/Record facts; all output statuses remain observable, and diagnostic logging is selected only after the existing progress-rendering and machine-publication failure priorities.
 

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createDiagnosticLogger } from "./logger.ts";
+import { createDiagnosticLogger, summarizeDiagnosticValue } from "./logger.ts";
 
 describe("Project Run diagnostic logger", () => {
   it("renders only bounded descriptor-safe details without invoking author hooks", () => {
@@ -108,29 +108,58 @@ describe("Project Run diagnostic logger", () => {
       assert.equal(proxyTraps, 0);
       assert.equal(toJsonCalls, 0);
       const log = readFileSync(join(root, "run.log"), "utf8");
-      assert.match(log, /details={"a":\[true,2\],"z":"ready"}/);
-      assert.match(log, /details=details-unavailable:accessor-or-hidden-property/);
-      assert.match(log, /details=details-unavailable:unsupported-function/);
-      assert.match(log, /details=details-unavailable:proxy/);
-      assert.match(log, /details=details-unavailable:cycle/);
-      assert.match(log, /details=details-unavailable:depth-limit/);
       assert.match(
         log,
-        /scope\\\\path\\u000aforged event\\u0085\\u000dfabricated summary\\u2028separated\\u2029text\\u009f/
+        /^#000001 \+0\.0ms \[run\] safe safe details\n│ details={"a":\[true,2\],"z":"ready"}\n/m
+      );
+      assert.match(log, /│ details=details-unavailable:accessor-or-hidden-property/);
+      assert.match(log, /│ details=details-unavailable:unsupported-function/);
+      assert.match(log, /│ details=details-unavailable:proxy/);
+      assert.match(log, /│ details=details-unavailable:cycle/);
+      assert.match(log, /│ details=details-unavailable:depth-limit/);
+      assert.match(
+        log,
+        /\[scope\\\\path\\u000aforged\] event\\u0085\\u000dfabricated summary\\u2028separated\\u2029text\\u009f/
       );
       assert.equal(log.endsWith("\n"), true);
-      const records = log.slice(0, -1).split("\n");
+      const records = log.match(/^#\d{6} /gm) ?? [];
       assert.equal(records.length, 10);
-      assert.ok(records.every((record) => record.startsWith("#")));
-      const ordinaryWidthLine = log.split("\n").find((line) => line.includes(" ordinary-width "));
-      assert.ok(ordinaryWidthLine);
-      assert.doesNotMatch(ordinaryWidthLine, /details-unavailable/);
-      assert.match(ordinaryWidthLine, /\["entry-0","entry-1"/);
-      assert.match(ordinaryWidthLine, /"entry-699"\]/);
+      const ordinaryWidthDetails = log
+        .split("\n")
+        .find((line) => line.startsWith('│ details=["entry-0","entry-1"'));
+      assert.ok(ordinaryWidthDetails);
+      assert.doesNotMatch(ordinaryWidthDetails, /details-unavailable/);
+      assert.match(ordinaryWidthDetails, /"entry-699"\]/);
       assert.match(log, /details=details-unavailable:width-limit/);
       assert.match(log, /details=details-unavailable:size-limit/);
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
+  });
+
+  it("summarizes descriptor-safe normal values without rendering their full lifecycle payload", () => {
+    assert.deepEqual(summarizeDiagnosticValue({ files: ["a", "b"], ready: true }), {
+      availability: "available",
+      bytes: 32,
+      keys: 2,
+      shape: "object"
+    });
+    assert.deepEqual(summarizeDiagnosticValue(["a", "b"]), {
+      availability: "available",
+      bytes: 9,
+      items: 2,
+      shape: "array"
+    });
+    const hostile: Record<string, unknown> = {};
+    Object.defineProperty(hostile, "value", {
+      enumerable: true,
+      get: (): never => {
+        throw new Error("must not read");
+      }
+    });
+    assert.deepEqual(summarizeDiagnosticValue(hostile), {
+      availability: "unavailable",
+      reason: "accessor-or-hidden-property"
+    });
   });
 });

@@ -9,7 +9,7 @@ import type {
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
-import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import { summarizeDiagnosticValue, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { runTaskGraph, type SettledTask } from "../task-scheduler/scheduler.ts";
 import { executeCheckCallback } from "./callback.ts";
@@ -135,8 +135,7 @@ export async function executeResolvedChecks(
   // The barrier is execution-phase work. A signal received while it runs must close this
   // phase as cancelled even when every preflight already blocked and the scheduler graph is empty.
   if (input.signal?.aborted) {
-    const cancelledChecks = executionState.session.closeUnresolvedAsCancelled();
-    observeCancelledCheckClosures(executionState.diagnosticLogger, cancelledChecks);
+    executionState.session.closeUnresolvedAsCancelled();
     const snapshot = executionState.session.freeze();
     settleUnstartedCancelledChecks({
       normalizedChecks: input.checks,
@@ -212,8 +211,7 @@ function closeResolvedChecks(
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
     if (input.graphRun.cancelled) {
-      const cancelledChecks = input.state.session.closeUnresolvedAsCancelled();
-      observeCancelledCheckClosures(input.state.diagnosticLogger, cancelledChecks);
+      input.state.session.closeUnresolvedAsCancelled();
       const snapshot = input.state.session.freeze();
       settleUnstartedCancelledChecks({
         normalizedChecks: input.allChecks,
@@ -255,7 +253,7 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
     details: {
       dependencies: check.dependsOn,
       displayName: check.definition.displayName,
-      options: check.options
+      options: summarizeDiagnosticValue(check.options)
     }
   });
   emitStarted(input.lifecycle, identity);
@@ -290,21 +288,34 @@ function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
   const checkId = input.preflight.check.definition.checkId;
   return Object.freeze({
     get: (dependencyId: string): DependencyReadResult => {
-      input.diagnosticLogger?.observe({
-        scope: checkExecutionScope(checkId),
-        event: "dependency.requested",
-        summary: "Check requested a dependency result",
-        details: { checkId: dependencyId }
-      });
       const result = readDependency(input.session, directDependencyIds, dependencyId);
       input.diagnosticLogger?.observe({
         scope: checkExecutionScope(checkId),
-        event: "dependency.resolved",
+        event: "dependency.read",
         summary: "Check dependency read completed",
-        details: { checkId: dependencyId, result }
+        details: dependencyReadDetails(dependencyId, result)
       });
       return result;
     }
+  });
+}
+
+function dependencyReadDetails(
+  requestedCheckId: unknown,
+  result: DependencyReadResult
+): Readonly<Record<string, unknown>> {
+  if (!result.ok) {
+    return Object.freeze({
+      error: result.error,
+      ok: false,
+      requestedCheckId
+    });
+  }
+  return Object.freeze({
+    hasData: true,
+    ok: true,
+    producer: result.checkId,
+    status: result.status
   });
 }
 
@@ -361,12 +372,6 @@ function settleCallback(
   const { callback } = input;
   if (callback.source === "product") {
     const outcome = input.scope.settleProduct(callback.result);
-    input.diagnosticLogger?.observe({
-      scope: diagnosticScope,
-      event: "check.settlement",
-      summary: "Product-controlled Check result was settled",
-      details: { outcome, source: callback.source }
-    });
     return Object.freeze({
       messages: input.preflightMessages,
       outcome
@@ -382,18 +387,14 @@ function settleCallback(
     });
   }
   const settlement = input.scope.settle(terminal?.result ?? callback.result);
-  input.diagnosticLogger?.observe({
-    scope: diagnosticScope,
-    event: "check.settlement",
-    summary: settlement.authorResultAccepted
-      ? "Check callback terminal result was accepted"
-      : "Check callback terminal result was contained",
-    details: {
-      authorResultAccepted: settlement.authorResultAccepted,
-      outcome: settlement.outcome,
-      terminalParsed: terminal !== undefined
-    }
-  });
+  if (terminal !== undefined && !settlement.authorResultAccepted) {
+    input.diagnosticLogger?.observe({
+      scope: diagnosticScope,
+      event: "check.contained",
+      summary: "Check callback terminal result was contained",
+      details: { outcome: diagnosticOutcome(settlement.outcome), raw: callback.result }
+    });
+  }
   return Object.freeze({
     messages:
       terminal !== undefined && settlement.authorResultAccepted
@@ -452,31 +453,32 @@ function recordSettledCheck(
   state.diagnosticLogger?.observe({
     scope:
       phase === "preflight"
-        ? `check:${check.checkId}:preflight`
+        ? `CHECK ${check.checkId} / preflight`
         : checkExecutionScope(check.checkId),
-    event: "check.settled",
+    event: "check.finished",
     summary: "Final Check outcome and lifecycle facts were recorded",
-    details: { durationMs, messages, outcome }
+    details: { durationMs, messages, outcome: diagnosticOutcome(outcome), phase }
   });
   emitSettled(state.lifecycle, check, outcome, messages, durationMs);
 }
 
-function observeCancelledCheckClosures(
-  diagnosticLogger: DiagnosticLogger | undefined,
-  cancelledChecks: readonly Readonly<{ readonly checkId: string; readonly outcome: CheckOutcome }>[]
-): void {
-  for (const cancelled of cancelledChecks) {
-    diagnosticLogger?.observe({
-      scope: checkExecutionScope(cancelled.checkId),
-      event: "check.cancelled",
-      summary: "Unresolved Check was closed by execution cancellation",
-      details: { outcome: cancelled.outcome }
-    });
+function diagnosticOutcome(outcome: CheckOutcome): Readonly<Record<string, unknown>> {
+  switch (outcome.status) {
+    case "passed":
+    case "failed":
+      return Object.freeze({
+        data: summarizeDiagnosticValue(outcome.data),
+        status: outcome.status
+      });
+    case "not-applicable":
+      return Object.freeze({ reason: outcome.reason ?? null, status: outcome.status });
+    case "unavailable":
+      return Object.freeze({ reason: outcome.reason, status: outcome.status });
   }
 }
 
 function checkExecutionScope(checkId: string): string {
-  return `check:${checkId}:execution`;
+  return `CHECK ${checkId} / execution`;
 }
 
 function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {

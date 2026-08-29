@@ -1,9 +1,15 @@
 import { prepareTaskGraph, type PlannedTask } from "./graph.ts";
-import { admitReadyTasks } from "./scheduler-admission.ts";
+import {
+  decideScheduler,
+  type SchedulerDecision,
+  type SchedulerTrigger
+} from "./scheduler-decision.ts";
 import {
   cancelPendingTasks,
   createSchedulerState,
   recordSettlement,
+  scopeForTask,
+  snapshotSchedulerState,
   type RunningTaskCompletion,
   type RunTaskGraphOptions,
   type SchedulerState,
@@ -24,82 +30,136 @@ export async function runTaskGraph<TResult>(
 ): Promise<TaskGraphRun<TResult>> {
   const graph = prepareTaskGraph(options.graph, options.maxParallel);
   const state = createSchedulerState(graph, options);
+  let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
-  while (state.pending.length > 0 || state.runningById.size > 0) {
-    if (state.signal?.aborted === true) {
-      cancelPendingTasks(state);
-    } else {
-      settleBlockedPendingTasks(state);
-      admitReadyTasks(state);
-    }
+  while (true) {
+    const decision = decideScheduler(snapshotSchedulerState(state), trigger);
+    observeSchedulerDecision(state, decision);
 
-    if (state.runningById.size === 0) {
-      if (state.pending.length > 0) {
-        throw new Error(`unable to settle task graph: ${describePendingTasks(state)}`);
+    switch (decision.kind) {
+      case "admit":
+        applyAdmission(state, decision);
+        trigger = Object.freeze({ kind: "admission-continued" });
+        continue;
+      case "settle-blocked":
+        applyBlockedSettlement(state, decision);
+        trigger = Object.freeze({ kind: "blocked-settled", taskId: decision.taskId });
+        continue;
+      case "cancel-pending":
+        applyCancellation(state, decision);
+        trigger = Object.freeze({ kind: "cancellation-applied" });
+        continue;
+      case "await-running": {
+        applyReservationUpdate(state, decision.reservation);
+        const completion = await nextRunningSettlement(state);
+        settleRunningTask(state, completion);
+        trigger = Object.freeze({
+          kind: "task-settled",
+          settlementKind: completion.settlement.kind,
+          taskId: completion.taskId
+        });
+        continue;
       }
-      continue;
+      case "complete":
+        return buildTaskGraphRun(state);
     }
-
-    settleRunningTask(state, await nextRunningSettlement(state));
   }
+}
 
-  return Object.freeze({
-    cancelled: state.isCancelled,
-    settlements: Object.freeze(
-      graph.tasks.map((task) => {
-        const settlement = state.settlementsByTaskId.get(task.id);
-        if (settlement === undefined) {
-          throw new Error(`task ${task.id} was not settled`);
-        }
-        return Object.freeze({ task, settlement });
-      })
-    )
+function observeSchedulerDecision<TResult>(
+  state: SchedulerState<TResult>,
+  decision: SchedulerDecision
+): void {
+  state.diagnosticLogger?.observe({
+    scope: "SCHEDULER",
+    event: "scheduler.decision",
+    summary: "Scheduler made a task-graph decision",
+    details: decision
   });
 }
 
-function settleBlockedPendingTasks<TResult>(state: SchedulerState<TResult>): void {
-  let didSettleBlockedTask = true;
-  while (didSettleBlockedTask) {
-    didSettleBlockedTask = false;
-    for (let index = state.pending.length - 1; index >= 0; index -= 1) {
-      const task = state.pending[index];
-      const dependencyIds = blockingDependencyIds(task, state.settlementsByTaskId);
-      if (dependencyIds === undefined) {
-        continue;
-      }
-      state.pending.splice(index, 1);
-      recordSettlement(
-        state,
-        task,
-        Object.freeze({
-          kind: "blocked",
-          dependencyIds: Object.freeze(dependencyIds)
-        })
-      );
-      didSettleBlockedTask = true;
-    }
+function applyAdmission<TResult>(
+  state: SchedulerState<TResult>,
+  decision: Extract<SchedulerDecision, { readonly kind: "admit" }>
+): void {
+  const task = takePendingTask(state, decision.taskId, "admission");
+  applyReservationUpdate(state, decision.reservation);
+  for (const mutex of task.mutex) {
+    state.runningMutexes.add(mutex);
+  }
+  const scope = scopeForTask(task, state);
+  if (scope?.activationTaskIds.has(task.id) === true) scope.isActive = true;
+
+  const completion = Promise.resolve()
+    .then(() => state.execute(task, Object.freeze({ signal: state.signal })))
+    .then((value) => completedTaskCompletion(task.id, value))
+    .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
+  state.runningById.set(task.id, { task, completion });
+}
+
+function applyBlockedSettlement<TResult>(
+  state: SchedulerState<TResult>,
+  decision: Extract<SchedulerDecision, { readonly kind: "settle-blocked" }>
+): void {
+  const task = takePendingTask(state, decision.taskId, "blocked settlement");
+  recordSettlement(
+    state,
+    task,
+    Object.freeze({ kind: "blocked", dependencyIds: decision.dependencyIds })
+  );
+}
+
+function applyCancellation<TResult>(
+  state: SchedulerState<TResult>,
+  decision: Extract<SchedulerDecision, { readonly kind: "cancel-pending" }>
+): void {
+  const pendingTaskIds = state.pending.map((task) => task.id);
+  if (!sameTaskIds(pendingTaskIds, decision.taskIds)) {
+    throw new Error("scheduler cancellation decision no longer matches pending tasks");
+  }
+  if (state.reservationTaskId !== decision.reservationTaskId) {
+    throw new Error("scheduler cancellation decision no longer matches reservation state");
+  }
+  cancelPendingTasks(state);
+}
+
+function applyReservationUpdate<TResult>(
+  state: SchedulerState<TResult>,
+  reservation: Extract<
+    SchedulerDecision,
+    { readonly kind: "admit" | "await-running" }
+  >["reservation"]
+): void {
+  switch (reservation.kind) {
+    case "unchanged":
+      return;
+    case "set":
+      state.reservationTaskId = reservation.taskId;
+      return;
+    case "clear":
+      state.reservationTaskId = undefined;
+      return;
   }
 }
 
-function blockingDependencyIds<TResult>(
-  task: PlannedTask,
-  settlementsByTaskId: ReadonlyMap<string, TaskSettlement<TResult>>
-): string[] | undefined {
-  const settlements = task.dependsOn.map(
-    (dependencyId) => [dependencyId, settlementsByTaskId.get(dependencyId)] as const
-  );
-  if (settlements.some(([, settlement]) => settlement === undefined)) {
-    return undefined;
-  }
-  const dependencyIds = settlements.flatMap(([dependencyId, settlement]) =>
-    settlement?.kind === "completed" ? [] : [dependencyId]
-  );
-  return dependencyIds.length === 0 ? undefined : dependencyIds;
+function takePendingTask<TResult>(
+  state: SchedulerState<TResult>,
+  taskId: string,
+  action: string
+): PlannedTask {
+  const index = state.pending.findIndex((task) => task.id === taskId);
+  if (index < 0) throw new Error(`task ${taskId} is not pending for ${action}`);
+  const [task] = state.pending.splice(index, 1);
+  if (task === undefined) throw new Error(`task ${taskId} disappeared during ${action}`);
+  return task;
 }
 
 async function nextRunningSettlement<TResult>(
   state: SchedulerState<TResult>
 ): Promise<RunningTaskCompletion<TResult>> {
+  if (state.runningById.size === 0) {
+    throw new Error("scheduler cannot await a task when no task is running");
+  }
   return Promise.race([...state.runningById.values()].map((running) => running.completion));
 }
 
@@ -118,13 +178,37 @@ function settleRunningTask<TResult>(
   recordSettlement(state, running.task, result.settlement);
 }
 
-function describePendingTasks<TResult>(state: SchedulerState<TResult>): string {
-  return state.pending
-    .map((task) => {
-      const unsettled = task.dependsOn.filter(
-        (dependencyId) => !state.settlementsByTaskId.has(dependencyId)
-      );
-      return unsettled.length > 0 ? `${task.id} waits for ${unsettled.join(", ")}` : task.id;
-    })
-    .join("; ");
+function completedTaskCompletion<TResult>(
+  taskId: string,
+  value: TResult
+): RunningTaskCompletion<TResult> {
+  const settlement: TaskSettlement<TResult> = { kind: "completed", value };
+  return Object.freeze({ taskId, settlement: Object.freeze(settlement) });
+}
+
+function failedTaskCompletion<TResult>(
+  taskId: string,
+  error: unknown
+): RunningTaskCompletion<TResult> {
+  const settlement: TaskSettlement<TResult> = { kind: "failed", error };
+  return Object.freeze({ taskId, settlement: Object.freeze(settlement) });
+}
+
+function buildTaskGraphRun<TResult>(state: SchedulerState<TResult>): TaskGraphRun<TResult> {
+  return Object.freeze({
+    cancelled: state.isCancelled,
+    settlements: Object.freeze(
+      state.graph.tasks.map((task) => {
+        const settlement = state.settlementsByTaskId.get(task.id);
+        if (settlement === undefined) {
+          throw new Error(`task ${task.id} was not settled`);
+        }
+        return Object.freeze({ task, settlement });
+      })
+    )
+  });
+}
+
+function sameTaskIds(left: readonly string[], right: readonly string[]): boolean {
+  return left.length === right.length && left.every((taskId, index) => taskId === right[index]);
 }

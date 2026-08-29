@@ -150,7 +150,7 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
 `outputs.diagnosticLogging` 的形状为 `{ enabled, status, file }`，其中 `status` 是
 `"disabled" | "not-run" | "succeeded" | "failed"`；禁用时 `file` 为 `null`，启用时即使文件创建失败也保留预先计算的、
-project-root-relative `run-<uuid>.log` 目标。无效 Definition、controls 或 aggregation selection 直接返回
+project-root-relative `run-<UTC 紧凑时间>-<UUID>.log` 目标。无效 Definition、controls 或 aggregation selection 直接返回
 configuration diagnostic，不创建诊断日志。
 
 diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation

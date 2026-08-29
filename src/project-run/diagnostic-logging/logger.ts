@@ -18,6 +18,17 @@ export interface DiagnosticLogger {
   observe(observation: DiagnosticObservation): void;
 }
 
+/** A bounded, descriptor-safe description for normal diagnostic payloads. */
+export type DiagnosticValueSummary =
+  | Readonly<{
+      readonly availability: "available";
+      readonly bytes: number;
+      readonly items?: number;
+      readonly keys?: number;
+      readonly shape: "array" | "boolean" | "null" | "number" | "object" | "string";
+    }>
+  | Readonly<{ readonly availability: "unavailable"; readonly reason: string }>;
+
 /** Test-only construction seam; Product invocation owns its lifecycle and output mapping. */
 export type DiagnosticLoggerFactory = (
   input: Readonly<{
@@ -104,10 +115,11 @@ function renderObservation(
   }>
 ): string {
   const details = renderDetails(input.observation.details);
-  return `#${String(input.sequence).padStart(6, "0")} +${input.elapsedMs.toFixed(1)}ms ${escapeLogHeaderField(input.observation.scope)} ${escapeLogHeaderField(input.observation.event)} ${escapeLogHeaderField(input.observation.summary)}${details}\n`;
+  const header = `#${String(input.sequence).padStart(6, "0")} +${input.elapsedMs.toFixed(1)}ms [${escapeLogHeaderField(input.observation.scope)}] ${escapeLogHeaderField(input.observation.event)} ${escapeLogHeaderField(input.observation.summary)}`;
+  return details === "" ? `${header}\n` : `${header}\n│ ${details}\n`;
 }
 
-/** Keeps each diagnostic observation to one physical line when author IDs reach its header. */
+/** Keeps author-controlled header fields on one physical header line. */
 function escapeLogHeaderField(text: string): string {
   let escaped = "";
   for (const character of text) {
@@ -129,14 +141,61 @@ function escapeLogHeaderField(text: string): string {
 
 function renderDetails(details: unknown): string {
   if (details === undefined) return "";
-  const rendered = renderDetailValue(details, {
+  const rendered = renderSafeDetailValue(details);
+  return rendered.ok
+    ? `details=${rendered.text}`
+    : `details=details-unavailable:${rendered.reason}`;
+}
+
+/**
+ * Describes a normal payload without invoking author hooks or preserving its
+ * full value in a lifecycle event. `bytes` measures this logger's safe JSON
+ * rendering rather than an author-defined serialization.
+ */
+export function summarizeDiagnosticValue(value: unknown): DiagnosticValueSummary {
+  const rendered = renderSafeDetailValue(value);
+  if (!rendered.ok) return Object.freeze({ availability: "unavailable", reason: rendered.reason });
+
+  const parsed: unknown = JSON.parse(rendered.text);
+  const bytes = Buffer.byteLength(rendered.text, "utf8");
+  if (parsed === null) return Object.freeze({ availability: "available", bytes, shape: "null" });
+  if (Array.isArray(parsed))
+    return Object.freeze({
+      availability: "available",
+      bytes,
+      items: parsed.length,
+      shape: "array"
+    });
+  switch (typeof parsed) {
+    case "boolean":
+      return Object.freeze({ availability: "available", bytes, shape: "boolean" });
+    case "number":
+      return Object.freeze({ availability: "available", bytes, shape: "number" });
+    case "string":
+      return Object.freeze({ availability: "available", bytes, shape: "string" });
+    case "object":
+      return Object.freeze({
+        availability: "available",
+        bytes,
+        keys: Object.keys(parsed).length,
+        shape: "object"
+      });
+    case "bigint":
+    case "function":
+    case "symbol":
+    case "undefined":
+      throw new Error("safe diagnostic rendering produced a non-JSON value");
+    default:
+      throw new Error("safe diagnostic rendering produced an unknown value");
+  }
+}
+
+function renderSafeDetailValue(value: unknown): DetailRendering {
+  return renderDetailValue(value, {
     ancestors: new Set<object>(),
     remainingCharacters: MAX_DETAIL_CHARACTERS,
     remainingValues: MAX_DETAIL_VALUES
   });
-  return rendered.ok
-    ? ` details=${rendered.text}`
-    : ` details=details-unavailable:${rendered.reason}`;
 }
 
 // These bounds admit ordinary package handoffs while keeping diagnostic work finite.

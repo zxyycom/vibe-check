@@ -1,7 +1,7 @@
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
-import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import { summarizeDiagnosticValue, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import {
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedRecord
@@ -65,7 +65,7 @@ async function prepareCheck(
     scope,
     event: "preflight.started",
     summary: "Check preflight started",
-    details: { authoredOptions: input.check.options }
+    details: { authoredOptions: summarizeDiagnosticValue(input.check.options) }
   });
   if (input.signal?.aborted) {
     const resolution = blockedResolution({
@@ -75,9 +75,9 @@ async function prepareCheck(
     });
     input.diagnosticLogger?.observe({
       scope,
-      event: "preflight.cancelled",
+      event: "preflight.finished",
       summary: "Check preflight was cancelled before callback handoff",
-      details: { outcome: resolution.outcome }
+      details: { outcome: resolution.outcome, result: "cancelled-before-callback" }
     });
     return resolution;
   }
@@ -87,8 +87,8 @@ async function prepareCheck(
       messages: EMPTY_MESSAGES,
       preparedOptions: input.check.options
     });
-    observePreflightResolution(input.diagnosticLogger, scope, resolution, "preflight.skipped", {
-      authoredOptions: input.check.options
+    observePreflightResolution(input.diagnosticLogger, scope, resolution, "skipped", {
+      source: "authored"
     });
     return resolution;
   }
@@ -106,11 +106,15 @@ async function prepareCheck(
     });
     input.diagnosticLogger?.observe({
       scope,
-      event: input.signal?.aborted ? "preflight.cancelled" : "preflight.threw",
+      event: "preflight.finished",
       summary: input.signal?.aborted
         ? "Check preflight was cancelled while callback ran"
         : "Check preflight callback threw",
-      details: { error, outcome: resolution.outcome }
+      details: {
+        error,
+        outcome: resolution.outcome,
+        result: input.signal?.aborted ? "cancelled-after-throw" : "threw"
+      }
     });
     return resolution;
   }
@@ -122,9 +126,13 @@ async function prepareCheck(
     });
     input.diagnosticLogger?.observe({
       scope,
-      event: "preflight.cancelled",
+      event: "preflight.finished",
       summary: "Check preflight was cancelled after callback returned",
-      details: { output: preflightOutput, outcome: resolution.outcome }
+      details: {
+        outcome: resolution.outcome,
+        raw: preflightOutput,
+        result: "cancelled-after-callback"
+      }
     });
     return resolution;
   }
@@ -137,9 +145,9 @@ async function prepareCheck(
     });
     input.diagnosticLogger?.observe({
       scope,
-      event: "preflight.malformed",
+      event: "preflight.finished",
       summary: "Check preflight returned an invalid result",
-      details: { output: preflightOutput, outcome: resolution.outcome }
+      details: { outcome: resolution.outcome, raw: preflightOutput, result: "malformed" }
     });
     return resolution;
   }
@@ -151,12 +159,13 @@ async function prepareCheck(
     });
     input.diagnosticLogger?.observe({
       scope,
-      event: "preflight.blocked",
+      event: "preflight.finished",
       summary: "Check preflight blocked execution",
       details: {
         messages: preflightResult.messages,
         outcome: resolution.outcome,
-        reason: preflightResult.reason
+        reason: preflightResult.reason,
+        result: "blocked"
       }
     });
     return resolution;
@@ -173,9 +182,10 @@ async function prepareCheck(
     input.diagnosticLogger,
     scope,
     resolution,
-    preflightResult.status === "success" ? "preflight.succeeded" : "preflight.continued",
+    preflightResult.status === "success" ? "prepared" : "continued",
     {
       messages: preflightResult.messages,
+      raw: preflightOutput,
       ...(preflightResult.status === "success"
         ? { preparedOptions: preflightResult.preparedOptions }
         : { fallback: preflightResult.fallback, reason: preflightResult.reason })
@@ -188,40 +198,49 @@ function observePreflightResolution(
   diagnosticLogger: DiagnosticLogger | undefined,
   scope: string,
   resolution: CheckPreflightResolution,
-  event: "preflight.skipped" | "preflight.succeeded" | "preflight.continued",
+  result: "skipped" | "prepared" | "continued",
   details: Readonly<Record<string, unknown>>
 ): void {
   if (resolution.kind === "blocked") {
     diagnosticLogger?.observe({
       scope,
-      event: "preflight.malformed",
+      event: "preflight.finished",
       summary: "Check preflight options were not canonical",
-      details: { ...details, outcome: resolution.outcome }
+      details: {
+        outcome: resolution.outcome,
+        raw: "raw" in details ? details.raw : details,
+        result: "malformed"
+      }
     });
     return;
   }
   let summary: string;
-  switch (event) {
-    case "preflight.skipped":
+  switch (result) {
+    case "skipped":
       summary = "Check authored options were accepted without preflight";
       break;
-    case "preflight.succeeded":
+    case "prepared":
       summary = "Check preflight prepared options were accepted";
       break;
-    case "preflight.continued":
+    case "continued":
       summary = "Check preflight fallback options were accepted";
       break;
   }
   diagnosticLogger?.observe({
     scope,
-    event,
+    event: "preflight.finished",
     summary,
-    details: { ...details, options: resolution.check.options }
+    details: {
+      messages: "messages" in details ? details.messages : [],
+      options: summarizeDiagnosticValue(resolution.check.options),
+      reason: "reason" in details ? details.reason : null,
+      result
+    }
   });
 }
 
 function preflightScope(checkId: string): string {
-  return `check:${checkId}:preflight`;
+  return `CHECK ${checkId} / preflight`;
 }
 
 function readyResolution(
