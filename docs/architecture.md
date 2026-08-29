@@ -91,4 +91,4 @@ Publication 创建一个 validated machine v4 model，再从它投影 `run.json`
 
 项目 callback 在调用方的 Bun runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source 不 import `scripts/**`、docs、fixture 或 toolkit code。
 
-Repository dogfood 是单向的：`scripts/project/quality/project-run.ts` 从 exact installed `vibe-check` public entry 导入 `run`，绑定 repository Definition 后执行。quality 显式启用其 `.log/project-run` diagnostic output；Project Gate 只通过本次 Run Controls 将同一 output 定向到自己的 invocation directory，以与 process transcripts 并列。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。
+Repository Gate 单向地从 exact installed `vibe-check` public entry 导入 `run`。Gate adapter 为每次 invocation 创建并拥有其 directory，再只通过本次 Run Controls 将 diagnostic output 定向到该 directory，与 process transcripts 并列；测试则使用并清理自己的 fixture directory。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。

@@ -32,6 +32,17 @@ export type CheckPreflightResolution =
   | ReadyCheckPreflightResolution
   | BlockedCheckPreflightResolution;
 
+type PreflightResolutionResult =
+  | "skipped"
+  | "prepared"
+  | "continued"
+  | "blocked"
+  | "cancelled-before-callback"
+  | "cancelled-after-callback"
+  | "cancelled-after-throw"
+  | "threw"
+  | "malformed";
+
 /** Completes the sequential invocation-wide barrier before any Check enters the Task graph. */
 export async function prepareChecks(
   input: Readonly<{
@@ -61,24 +72,19 @@ async function prepareCheck(
   }>
 ): Promise<CheckPreflightResolution> {
   const scope = preflightScope(input.check.definition.checkId);
-  input.diagnosticLogger?.observe({
-    scope,
-    event: "preflight.started",
-    summary: "Check preflight started",
-    details: { authoredOptions: summarizeDiagnosticValue(input.check.options) }
-  });
   if (input.signal?.aborted) {
     const resolution = blockedResolution({
       check: input.check,
       messages: EMPTY_MESSAGES,
       reasonCode: "execution-cancelled"
     });
-    input.diagnosticLogger?.observe({
+    observePreflightResolution(
+      input.diagnosticLogger,
       scope,
-      event: "preflight.finished",
-      summary: "Check preflight was cancelled before callback handoff",
-      details: { outcome: resolution.outcome, result: "cancelled-before-callback" }
-    });
+      resolution,
+      "cancelled-before-callback",
+      {}
+    );
     return resolution;
   }
   if (input.check.preflight === undefined) {
@@ -87,7 +93,7 @@ async function prepareCheck(
       messages: EMPTY_MESSAGES,
       preparedOptions: input.check.options
     });
-    observePreflightResolution(input.diagnosticLogger, scope, resolution, "skipped", {
+    observeReadyOrMalformedResolution(input.diagnosticLogger, scope, resolution, "skipped", {
       source: "authored"
     });
     return resolution;
@@ -104,18 +110,13 @@ async function prepareCheck(
       messages: EMPTY_MESSAGES,
       reasonCode: input.signal?.aborted ? "execution-cancelled" : "preflight-threw"
     });
-    input.diagnosticLogger?.observe({
+    observePreflightResolution(
+      input.diagnosticLogger,
       scope,
-      event: "preflight.finished",
-      summary: input.signal?.aborted
-        ? "Check preflight was cancelled while callback ran"
-        : "Check preflight callback threw",
-      details: {
-        error,
-        outcome: resolution.outcome,
-        result: input.signal?.aborted ? "cancelled-after-throw" : "threw"
-      }
-    });
+      resolution,
+      input.signal?.aborted ? "cancelled-after-throw" : "threw",
+      { error }
+    );
     return resolution;
   }
   if (input.signal?.aborted) {
@@ -124,16 +125,15 @@ async function prepareCheck(
       messages: EMPTY_MESSAGES,
       reasonCode: "execution-cancelled"
     });
-    input.diagnosticLogger?.observe({
+    observePreflightResolution(
+      input.diagnosticLogger,
       scope,
-      event: "preflight.finished",
-      summary: "Check preflight was cancelled after callback returned",
-      details: {
-        outcome: resolution.outcome,
-        raw: preflightOutput,
-        result: "cancelled-after-callback"
+      resolution,
+      "cancelled-after-callback",
+      {
+        raw: preflightOutput
       }
-    });
+    );
     return resolution;
   }
   const preflightResult = parseCheckPreflightResult(preflightOutput);
@@ -143,11 +143,8 @@ async function prepareCheck(
       messages: EMPTY_MESSAGES,
       reasonCode: "invalid-preflight-result"
     });
-    input.diagnosticLogger?.observe({
-      scope,
-      event: "preflight.finished",
-      summary: "Check preflight returned an invalid result",
-      details: { outcome: resolution.outcome, raw: preflightOutput, result: "malformed" }
+    observePreflightResolution(input.diagnosticLogger, scope, resolution, "malformed", {
+      raw: preflightOutput
     });
     return resolution;
   }
@@ -157,19 +154,13 @@ async function prepareCheck(
       messages: preflightResult.messages,
       reasonCode: preflightResult.reason.code
     });
-    input.diagnosticLogger?.observe({
-      scope,
-      event: "preflight.finished",
-      summary: "Check preflight blocked execution",
-      details: {
-        messages: preflightResult.messages,
-        outcome: resolution.outcome,
-        reason: preflightResult.reason,
-        result: "blocked"
-      }
+    observePreflightResolution(input.diagnosticLogger, scope, resolution, "blocked", {
+      messages: preflightResult.messages,
+      reason: preflightResult.reason
     });
     return resolution;
   }
+  const result = preflightResult.status === "success" ? "prepared" : "continued";
   const resolution = readyResolution({
     authoredCheck: input.check,
     messages: preflightResult.messages,
@@ -178,23 +169,15 @@ async function prepareCheck(
         ? preflightResult.preparedOptions
         : preflightResult.fallback
   });
-  observePreflightResolution(
-    input.diagnosticLogger,
-    scope,
-    resolution,
-    preflightResult.status === "success" ? "prepared" : "continued",
-    {
-      messages: preflightResult.messages,
-      raw: preflightOutput,
-      ...(preflightResult.status === "success"
-        ? { preparedOptions: preflightResult.preparedOptions }
-        : { fallback: preflightResult.fallback, reason: preflightResult.reason })
-    }
-  );
+  observeReadyOrMalformedResolution(input.diagnosticLogger, scope, resolution, result, {
+    messages: preflightResult.messages,
+    ...(preflightResult.status === "success" ? {} : { reason: preflightResult.reason }),
+    raw: preflightOutput
+  });
   return resolution;
 }
 
-function observePreflightResolution(
+function observeReadyOrMalformedResolution(
   diagnosticLogger: DiagnosticLogger | undefined,
   scope: string,
   resolution: CheckPreflightResolution,
@@ -202,41 +185,59 @@ function observePreflightResolution(
   details: Readonly<Record<string, unknown>>
 ): void {
   if (resolution.kind === "blocked") {
-    diagnosticLogger?.observe({
-      scope,
-      event: "preflight.finished",
-      summary: "Check preflight options were not canonical",
-      details: {
-        outcome: resolution.outcome,
-        raw: "raw" in details ? details.raw : details,
-        result: "malformed"
-      }
+    observePreflightResolution(diagnosticLogger, scope, resolution, "malformed", {
+      raw: "raw" in details ? details.raw : summarizeDiagnosticValue(details)
     });
     return;
   }
-  let summary: string;
-  switch (result) {
-    case "skipped":
-      summary = "Check authored options were accepted without preflight";
-      break;
-    case "prepared":
-      summary = "Check preflight prepared options were accepted";
-      break;
-    case "continued":
-      summary = "Check preflight fallback options were accepted";
-      break;
-  }
+  observePreflightResolution(diagnosticLogger, scope, resolution, result, {
+    messages: "messages" in details ? details.messages : EMPTY_MESSAGES,
+    options: summarizeDiagnosticValue(resolution.check.options),
+    reason: "reason" in details ? details.reason : null,
+    ...("source" in details ? { source: details.source } : {})
+  });
+}
+
+function observePreflightResolution(
+  diagnosticLogger: DiagnosticLogger | undefined,
+  scope: string,
+  resolution: CheckPreflightResolution,
+  result: PreflightResolutionResult,
+  details: Readonly<Record<string, unknown>>
+): void {
   diagnosticLogger?.observe({
     scope,
-    event: "preflight.finished",
-    summary,
+    event: "preflight.resolved",
+    summary: preflightResolutionSummary(result),
     details: {
-      messages: "messages" in details ? details.messages : [],
-      options: summarizeDiagnosticValue(resolution.check.options),
-      reason: "reason" in details ? details.reason : null,
+      ...details,
+      ...(resolution.kind === "blocked" ? { outcome: resolution.outcome } : {}),
       result
     }
   });
+}
+
+function preflightResolutionSummary(result: PreflightResolutionResult): string {
+  switch (result) {
+    case "skipped":
+      return "Check authored options were accepted without preflight";
+    case "prepared":
+      return "Check preflight prepared options were accepted";
+    case "continued":
+      return "Check preflight fallback options were accepted";
+    case "blocked":
+      return "Check preflight blocked execution";
+    case "cancelled-before-callback":
+      return "Check preflight was cancelled before callback handoff";
+    case "cancelled-after-callback":
+      return "Check preflight was cancelled after callback returned";
+    case "cancelled-after-throw":
+      return "Check preflight was cancelled while callback ran";
+    case "threw":
+      return "Check preflight callback threw";
+    case "malformed":
+      return "Check preflight returned an invalid result";
+  }
 }
 
 function preflightScope(checkId: string): string {

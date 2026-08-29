@@ -55,7 +55,6 @@ import {
 const requiredAndFull = ["required", "full"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
-const scanEntryPath = fileURLToPath(new URL("../quality/scan.ts", import.meta.url));
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 type PreparedCandidateProcessInput = "artifact" | "external-consumer";
@@ -231,18 +230,6 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       ["package-tests", "tests"]
     ),
     ...projectGateTestEntries(testLanes, preparedCandidate, externalConsumer, runtime),
-    processEntry({
-      invocation: {
-        args: ["exec", "--", "bun", scanEntryPath],
-        command: "mise",
-        cwd: repositoryRoot
-      },
-      checkId: "repository-quality",
-      displayName: "Repository Package Run dogfood",
-      profiles: requiredAndFull,
-      tags: ["quality"],
-      runtime
-    }),
     commonEntry(
       createDocsValidationCheck({
         checkId: "docs-json-validator",

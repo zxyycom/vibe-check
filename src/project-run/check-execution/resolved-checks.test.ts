@@ -12,6 +12,7 @@ import type { NormalizedCheck } from "../../project-definition/project-definitio
 import { CoreInvariantFailure, createCoreCheckSession } from "../../check-settlement/session.ts";
 import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { executeCheckCallback } from "./callback.ts";
+import { prepareChecks } from "./preflight.ts";
 import {
   executeResolvedChecks,
   type CheckExecutionClock,
@@ -65,6 +66,15 @@ function execute(
     project: PROJECT,
     signal: undefined
   });
+}
+
+function diagnosticDetailsRecord(details: unknown): Readonly<Record<string, unknown>> {
+  if (!isDiagnosticDetailsRecord(details)) throw new Error("expected diagnostic details record");
+  return details;
+}
+
+function isDiagnosticDetailsRecord(details: unknown): details is Readonly<Record<string, unknown>> {
+  return details !== null && typeof details === "object" && !Array.isArray(details);
 }
 
 function recordingLogger(observations: DiagnosticObservation[]): DiagnosticLogger {
@@ -936,7 +946,7 @@ describe("Package Run direct Check execution", () => {
       observations.find(
         (observation) =>
           observation.scope === "CHECK blocked / preflight" &&
-          observation.event === "preflight.finished"
+          observation.event === "preflight.resolved"
       )?.details,
       {
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
@@ -944,6 +954,14 @@ describe("Package Run direct Check execution", () => {
         reason: { code: "invalid-options" },
         result: "blocked"
       }
+    );
+    assert.equal(
+      observations.filter(
+        (observation) =>
+          observation.scope === "CHECK blocked / preflight" &&
+          observation.event === "preflight.resolved"
+      ).length,
+      1
     );
     assert.deepEqual(
       observations.find(
@@ -961,6 +979,85 @@ describe("Package Run direct Check execution", () => {
   });
 
   it("passes the invocation signal to cooperative preflights and closes a cancelled barrier", async () => {
+    const observations: DiagnosticObservation[] = [];
+    await prepareChecks({
+      checks: [normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" })],
+      diagnosticLogger: recordingLogger(observations),
+      signal: undefined
+    });
+    const controller = new AbortController();
+    controller.abort();
+    const resolutions = await prepareChecks({
+      checks: [
+        normalized(() => ({ status: "passed", data: {} }), { checkId: "cancelled" }),
+        normalized(() => ({ status: "passed", data: {} }), { checkId: "also-cancelled" })
+      ],
+      diagnosticLogger: recordingLogger(observations),
+      signal: controller.signal
+    });
+    assert.deepEqual(
+      resolutions.map((resolution) => resolution.kind),
+      ["blocked", "blocked"]
+    );
+    assert.deepEqual(
+      observations.map((observation) => ({
+        event: observation.event,
+        details: observation.details
+      })),
+      [
+        {
+          event: "preflight.resolved",
+          details: {
+            messages: [],
+            options: { availability: "available", bytes: 2, keys: 0, shape: "object" },
+            reason: null,
+            result: "skipped",
+            source: "authored"
+          }
+        },
+        {
+          event: "preflight.resolved",
+          details: {
+            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } },
+            result: "cancelled-before-callback"
+          }
+        },
+        {
+          event: "preflight.resolved",
+          details: {
+            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } },
+            result: "cancelled-before-callback"
+          }
+        }
+      ]
+    );
+    assert.equal(
+      observations.some(
+        (observation) =>
+          observation.event === "preflight.started" || observation.event === "preflight.finished"
+      ),
+      false
+    );
+    const afterCallbackController = new AbortController();
+    const afterCallbackOutput = { status: "success" as const, preparedOptions: { retained: true } };
+    const afterCallbackObservations: DiagnosticObservation[] = [];
+    await prepareChecks({
+      checks: [
+        normalized(() => ({ status: "passed", data: {} }), {
+          checkId: "cancelled-after-callback",
+          preflight: () => {
+            afterCallbackController.abort();
+            return afterCallbackOutput;
+          }
+        })
+      ],
+      diagnosticLogger: recordingLogger(afterCallbackObservations),
+      signal: afterCallbackController.signal
+    });
+    const afterCallbackDetails = diagnosticDetailsRecord(afterCallbackObservations[0]?.details);
+    assert.equal(afterCallbackDetails.result, "cancelled-after-callback");
+    assert.equal(afterCallbackDetails.raw, afterCallbackOutput);
+
     const allBlockedController = new AbortController();
     const cooperativePreflightEntered = deferred<void>();
     let observedAllBlockedSignal: AbortSignal | undefined;
@@ -1141,7 +1238,7 @@ describe("Package Run direct Check execution", () => {
       observations.find(
         (observation) =>
           observation.scope === "CHECK continued / preflight" &&
-          observation.event === "preflight.finished"
+          observation.event === "preflight.resolved"
       )?.details,
       {
         messages: [{ level: "warning", code: "preflight", message: "Preflight message" }],
@@ -1151,7 +1248,7 @@ describe("Package Run direct Check execution", () => {
       }
     );
     assert.equal(
-      observations.some((observation) => observation.event === "preflight.finished"),
+      observations.some((observation) => observation.event === "preflight.resolved"),
       true
     );
     assert.equal(
@@ -1163,6 +1260,19 @@ describe("Package Run direct Check execution", () => {
   it("fails closed for thrown, malformed, and noncanonical preflight results", async () => {
     const cyclicPreparedOptions: { self?: unknown } = {};
     cyclicPreparedOptions.self = cyclicPreparedOptions;
+    const preflightError = { code: "contained-preflight-failure" };
+    const noncanonicalOutput = {
+      status: "success" as const,
+      preparedOptions: cyclicPreparedOptions
+    };
+    const malformedMessageOutput = {
+      status: "failure" as const,
+      action: "continue" as const,
+      reason: { code: "fallback" },
+      fallback: {},
+      messages: [{ level: "warning" as const, code: "preflight", message: "Invalid level" }]
+    };
+    Object.defineProperty(malformedMessageOutput.messages[0], "level", { value: "notice" });
     const executions: string[] = [];
     const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
@@ -1175,7 +1285,7 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "throwing",
             preflight: () => {
-              throw new Error("contained preflight failure");
+              throw preflightError;
             }
           }
         ),
@@ -1204,7 +1314,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "noncanonical-options",
-            preflight: () => ({ status: "success", preparedOptions: cyclicPreparedOptions })
+            preflight: () => noncanonicalOutput
           }
         ),
         normalized(
@@ -1214,19 +1324,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "malformed-message",
-            preflight: () => {
-              const continued = {
-                status: "failure" as const,
-                action: "continue" as const,
-                reason: { code: "fallback" },
-                fallback: {},
-                messages: [
-                  { level: "warning" as const, code: "preflight", message: "Invalid level" }
-                ]
-              };
-              Object.defineProperty(continued.messages[0], "level", { value: "notice" });
-              return continued;
-            }
+            preflight: () => malformedMessageOutput
           }
         )
       ],
@@ -1247,21 +1345,34 @@ describe("Package Run direct Check execution", () => {
         reason: { code: "invalid-preflight-result" }
       });
     }
+    const preflightObservations = observations.filter(
+      (observation) => observation.event === "preflight.resolved"
+    );
+    assert.equal(preflightObservations.length, 4);
+    assert.equal(new Set(preflightObservations.map((observation) => observation.scope)).size, 4);
     assert.equal(
       observations.some(
         (observation) =>
-          observation.event === "preflight.finished" &&
-          observation.details !== null &&
-          typeof observation.details === "object" &&
-          "result" in observation.details &&
-          observation.details.result === "threw"
+          observation.event === "preflight.started" || observation.event === "preflight.finished"
       ),
-      true
+      false
     );
+    const throwingDetails = observations.find(
+      (observation) => observation.scope === "CHECK throwing / preflight"
+    )?.details;
+    const noncanonicalDetails = observations.find(
+      (observation) => observation.scope === "CHECK noncanonical-options / preflight"
+    )?.details;
+    const malformedMessageDetails = observations.find(
+      (observation) => observation.scope === "CHECK malformed-message / preflight"
+    )?.details;
+    assert.equal(diagnosticDetailsRecord(throwingDetails).error, preflightError);
+    assert.equal(diagnosticDetailsRecord(noncanonicalDetails).raw, noncanonicalOutput);
+    assert.equal(diagnosticDetailsRecord(malformedMessageDetails).raw, malformedMessageOutput);
     assert.equal(
       observations.filter(
         (observation) =>
-          observation.event === "preflight.finished" &&
+          observation.event === "preflight.resolved" &&
           observation.details !== null &&
           typeof observation.details === "object" &&
           "result" in observation.details &&

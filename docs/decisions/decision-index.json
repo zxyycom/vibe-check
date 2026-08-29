@@ -5,7 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "add-ephemeral-project-run-diagnostic-logging.md": "sha256:6f6662b4a875a7876d084c158dd74e6fce84e222aaba32dbef89890a83e989ea",
+      "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
@@ -29,6 +29,7 @@
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
       "confirm-package-contract-names-before-publication.md": "sha256:0b376a91dd7c07eba32d7febd8109535ce0eb6cbbfeeb059a5c9af641cdca4c1",
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
+      "consolidate-project-gate-run-evidence.md": "sha256:2ea8a12dc5062c94dd975a3fae2ea96e10e509ffd9a83befdc8c50187c400ce9",
       "construct-duplicate-detection-from-defaulted-policy.md": "sha256:7b4e1e223ae4f2b5802b943f6a819aefc12ec459cd49274d048d8163da5389d1",
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
@@ -217,16 +218,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "add-ephemeral-project-run-diagnostic-logging.md",
+        "sourcePath": "archive/add-ephemeral-project-run-diagnostic-logging.md",
         "title": "增加一次性 Project Run core 诊断日志 output",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T06:20:34Z",
         "purpose": "让维护者无需断点调试即可恢复 Project Run core 的详细运行路径。",
@@ -958,6 +959,42 @@
           {
             "type": "修订",
             "target": "confirm-built-in-check-and-adjustment-names-before-publication.md"
+          }
+        ]
+      }
+    },
+    "consolidate-project-gate-run-evidence.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "consolidate-project-gate-run-evidence.md",
+        "title": "将 Gate Run 证据收敛为单次高信噪 invocation",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T10:03:43Z",
+        "purpose": "让一次 Project Gate invocation 只保留影响其结论的执行证据，并使关联 Run diagnostic 可在测试 owner 内独立复核。",
+        "background": "非阻断 repository-quality 嵌套 Run 只贡献 process completed；诊断仍有重复与状态冲突。",
+        "decision": "删除无结论贡献的 Gate quality wrapper 与短命令，并按测试 owner 收敛单核心 diagnostic evidence。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "add-ephemeral-project-run-diagnostic-logging.md"
           }
         ]
       }

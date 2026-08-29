@@ -3,9 +3,8 @@
 ## 项目边界与入口
 
 - Vibe Check 的产品运行时是 `src/**` 下由本仓库拥有的 TypeScript/Bun Product runtime；正式集成入口是 `src/index.ts` 提供的程序化 API，以及项目拥有的 TypeScript Project Definition 与 bound Project Run；Product 不提供 CLI 或 `bin`。
-- `quality` 是人或 AI 调用仓库 Project Run 的唯一 dogfood root entry；
-  `scripts/project/quality/run.ts` 只绑定锁定 scanner 工具环境，`scripts/project/quality/scan.ts` 是它调用的 pure
-  process adapter。它们都不解析参数或发现配置，开发脚本由 `scripts/**` 拥有。
+- `scripts/project/gate/run.ts` 是仓库 Project Gate 的唯一 root entry；它准备 exact candidate，绑定 Gate Run，并从
+  explicit aggregate 映射 process exit。开发脚本由 `scripts/**` 拥有。
 - 项目文档从 [`docs/navigation.md`](docs/navigation.md) 进入。先按任务定位唯一 owner 和验证入口，
   再读取相邻源码与测试；不要为获取上下文扫描全部文档。
 - 历史材料不参与当前规范、计划或验证。只有任务明确要求历史审计、恢复形成时依据或比较演进时，

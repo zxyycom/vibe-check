@@ -8,7 +8,6 @@ import {
   cancelPendingTasks,
   createSchedulerState,
   recordSettlement,
-  scopeForTask,
   snapshotSchedulerState,
   type RunningTaskCompletion,
   type RunTaskGraphOptions,
@@ -50,7 +49,7 @@ export async function runTaskGraph<TResult>(
         trigger = Object.freeze({ kind: "cancellation-applied" });
         continue;
       case "await-running": {
-        applyReservationUpdate(state, decision.reservation);
+        applyReservationUpdate(state, decision.reservationUpdate);
         const completion = await nextRunningSettlement(state);
         settleRunningTask(state, completion);
         trigger = Object.freeze({
@@ -73,9 +72,26 @@ function observeSchedulerDecision<TResult>(
   state.diagnosticLogger?.observe({
     scope: "SCHEDULER",
     event: "scheduler.decision",
-    summary: "Scheduler made a task-graph decision",
+    summary: schedulerDecisionSummary(decision),
     details: decision
   });
+}
+
+function schedulerDecisionSummary(decision: SchedulerDecision): string {
+  switch (decision.kind) {
+    case "admit":
+      return `Scheduler admitted task ${decision.taskId}`;
+    case "await-running":
+      return `Scheduler awaits running tasks: ${decision.reason}`;
+    case "settle-blocked":
+      return `Scheduler settled blocked task ${decision.taskId}`;
+    case "cancel-pending":
+      return "Scheduler cancelled pending tasks";
+    case "complete":
+      return decision.cancelled
+        ? "Scheduler completed cancelled task graph"
+        : "Scheduler completed task graph";
+  }
 }
 
 function applyAdmission<TResult>(
@@ -83,18 +99,25 @@ function applyAdmission<TResult>(
   decision: Extract<SchedulerDecision, { readonly kind: "admit" }>
 ): void {
   const task = takePendingTask(state, decision.taskId, "admission");
-  applyReservationUpdate(state, decision.reservation);
+  applyReservationUpdate(state, decision.reservationUpdate);
   for (const mutex of task.mutex) {
     state.runningMutexes.add(mutex);
   }
-  const scope = scopeForTask(task, state);
-  if (scope?.activationTaskIds.has(task.id) === true) scope.isActive = true;
+  activateScope(state, decision.scopeToActivate);
 
   const completion = Promise.resolve()
     .then(() => state.execute(task, Object.freeze({ signal: state.signal })))
     .then((value) => completedTaskCompletion(task.id, value))
     .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
   state.runningById.set(task.id, { task, completion });
+}
+
+function activateScope<TResult>(state: SchedulerState<TResult>, scopeId: string | null): void {
+  if (scopeId === null) return;
+  const scope = state.scopesById.get(scopeId);
+  if (scope === undefined)
+    throw new Error(`scheduler admission references unknown scope ${scopeId}`);
+  scope.isActive = true;
 }
 
 function applyBlockedSettlement<TResult>(
@@ -117,7 +140,7 @@ function applyCancellation<TResult>(
   if (!sameTaskIds(pendingTaskIds, decision.taskIds)) {
     throw new Error("scheduler cancellation decision no longer matches pending tasks");
   }
-  if (state.reservationTaskId !== decision.reservationTaskId) {
+  if ((state.reservationTaskId ?? null) !== decision.reservation.taskId) {
     throw new Error("scheduler cancellation decision no longer matches reservation state");
   }
   cancelPendingTasks(state);
@@ -128,7 +151,7 @@ function applyReservationUpdate<TResult>(
   reservation: Extract<
     SchedulerDecision,
     { readonly kind: "admit" | "await-running" }
-  >["reservation"]
+  >["reservationUpdate"]
 ): void {
   switch (reservation.kind) {
     case "unchanged":

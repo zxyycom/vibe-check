@@ -297,6 +297,10 @@ describe("Package Run progress rendering outputs", () => {
       );
       assert.match(diagnosticLog, /\[RUN\] run\.closing pre-logging result selected/);
       assert.match(diagnosticLog, /"diagnosticLogging":"pending-close"/);
+      assert.doesNotMatch(
+        diagnosticLog,
+        /"diagnosticLogging":\{"enabled":true,"status":"not-run"\}/
+      );
       assert.match(diagnosticLog, /"machinePublication":\{"enabled":true,"status":"succeeded"}/);
       assert.match(diagnosticLog, /"progressRendering":\{"enabled":true,"status":"failed"}/);
       assert.equal(diagnosticLog.endsWith("\n"), true);
@@ -470,7 +474,6 @@ describe("Package Run progress rendering outputs", () => {
       const file = result.outputs.diagnosticLogging.file;
       assert.ok(file);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      assert.match(diagnosticLog, /preflight\.finished/);
       assert.match(diagnosticLog, /record\.reported/);
       assert.match(diagnosticLog, /check\.contained/);
       assert.match(diagnosticLog, /details=details-unavailable:unsupported-function/);

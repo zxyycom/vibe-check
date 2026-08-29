@@ -39,9 +39,18 @@ interface SchedulerCapacity {
 interface SchedulerBlockerSummary {
   readonly dependency: number;
   readonly mutex: number;
-  readonly reservationTaskId?: string;
   readonly rootCapacity: boolean;
   readonly scopeCapacity: boolean;
+}
+
+interface SchedulerReservationContext {
+  readonly taskId: string | null;
+}
+
+interface SchedulerDecisionContext {
+  readonly blockers: SchedulerBlockerSummary;
+  readonly capacity: SchedulerCapacity;
+  readonly reservation: SchedulerReservationContext;
 }
 
 type ReservationUpdate =
@@ -49,52 +58,51 @@ type ReservationUpdate =
   | Readonly<{ readonly kind: "set"; readonly taskId: string }>
   | Readonly<{ readonly kind: "clear" }>;
 
-export type SchedulerDecision =
-  | Readonly<{
-      readonly capacity: SchedulerCapacity;
-      readonly eligibleCount: number;
-      readonly kind: "admit";
-      readonly reason:
-        | "reservation"
-        | "tightening-scope"
-        | "constrained-continuation"
-        | "canonical-order";
-      readonly reservation: ReservationUpdate;
-      readonly taskId: string;
-      readonly trigger: SchedulerTrigger;
-    }>
-  | Readonly<{
-      readonly dependencyIds: readonly string[];
-      readonly kind: "settle-blocked";
-      readonly taskId: string;
-      readonly trigger: SchedulerTrigger;
-    }>
-  | Readonly<{
-      readonly blockers: SchedulerBlockerSummary;
-      readonly capacity: SchedulerCapacity;
-      readonly eligibleCount: number;
-      readonly kind: "await-running";
-      readonly reason:
-        | "cancellation-drain"
-        | "dependency-or-mutex"
-        | "running-drain"
-        | "root-capacity"
-        | "active-scope-capacity"
-        | "reserved-tightening-scope";
-      readonly reservation: ReservationUpdate;
-      readonly trigger: SchedulerTrigger;
-    }>
-  | Readonly<{
-      readonly kind: "cancel-pending";
-      readonly reservationTaskId?: string;
-      readonly taskIds: readonly string[];
-      readonly trigger: SchedulerTrigger;
-    }>
-  | Readonly<{
-      readonly cancelled: boolean;
-      readonly kind: "complete";
-      readonly trigger: SchedulerTrigger;
-    }>;
+export type SchedulerDecision = SchedulerDecisionContext &
+  (
+    | Readonly<{
+        readonly eligibleCount: number;
+        readonly kind: "admit";
+        readonly reason:
+          | "reservation"
+          | "tightening-scope"
+          | "constrained-continuation"
+          | "canonical-order";
+        readonly reservationUpdate: ReservationUpdate;
+        readonly scopeToActivate: string | null;
+        readonly taskId: string;
+        readonly trigger: SchedulerTrigger;
+      }>
+    | Readonly<{
+        readonly dependencyIds: readonly string[];
+        readonly kind: "settle-blocked";
+        readonly taskId: string;
+        readonly trigger: SchedulerTrigger;
+      }>
+    | Readonly<{
+        readonly eligibleCount: number;
+        readonly kind: "await-running";
+        readonly reason:
+          | "cancellation-drain"
+          | "dependency-or-mutex"
+          | "running-drain"
+          | "root-capacity"
+          | "active-scope-capacity"
+          | "reserved-tightening-scope";
+        readonly reservationUpdate: ReservationUpdate;
+        readonly trigger: SchedulerTrigger;
+      }>
+    | Readonly<{
+        readonly kind: "cancel-pending";
+        readonly taskIds: readonly string[];
+        readonly trigger: SchedulerTrigger;
+      }>
+    | Readonly<{
+        readonly cancelled: boolean;
+        readonly kind: "complete";
+        readonly trigger: SchedulerTrigger;
+      }>
+  );
 
 /**
  * Computes the next generic task-engine action from an immutable state projection.
@@ -106,32 +114,37 @@ export function decideScheduler(
   trigger: SchedulerTrigger
 ): SchedulerDecision {
   const state = inspectSnapshot(snapshot);
+  const context = decisionContext(state);
   if (state.pendingTasks.length === 0 && state.runningTaskIds.size === 0) {
-    return freezeDecision({ cancelled: snapshot.isCancelled, kind: "complete", trigger });
+    return freezeDecision({
+      ...context,
+      cancelled: snapshot.isCancelled,
+      kind: "complete",
+      trigger
+    });
   }
   if (snapshot.isAbortRequested && !snapshot.isCancelled) {
     return freezeDecision({
+      ...context,
       kind: "cancel-pending",
       taskIds: snapshot.pendingTaskIds,
-      trigger: Object.freeze({ kind: "cancellation-observed" }),
-      ...(snapshot.reservationTaskId === undefined
-        ? {}
-        : { reservationTaskId: snapshot.reservationTaskId })
+      trigger: Object.freeze({ kind: "cancellation-observed" })
     });
   }
   if (snapshot.isCancelled) {
     if (state.pendingTasks.length > 0) {
       throw new Error("cancelled scheduler state retains pending tasks");
     }
-    return awaitDecision(state, trigger, [], "cancellation-drain", reservationUnchanged());
+    return awaitDecision(state, context, trigger, [], "cancellation-drain", reservationUnchanged());
   }
   if (state.pendingTasks.length === 0) {
-    return awaitDecision(state, trigger, [], "running-drain", reservationUnchanged());
+    return awaitDecision(state, context, trigger, [], "running-drain", reservationUnchanged());
   }
 
   const blocked = selectBlockedTask(state);
   if (blocked !== undefined) {
     return freezeDecision({
+      ...context,
       dependencyIds: blocked.dependencyIds,
       kind: "settle-blocked",
       taskId: blocked.task.id,
@@ -139,7 +152,7 @@ export function decideScheduler(
     });
   }
 
-  return decideAdmission(state, trigger);
+  return decideAdmission(state, context, trigger);
 }
 
 interface SchedulerInspection {
@@ -175,6 +188,15 @@ function inspectSnapshot(snapshot: SchedulerSnapshot): SchedulerInspection {
   });
 }
 
+function decisionContext(state: SchedulerInspection): SchedulerDecisionContext {
+  const capacity = capacityFor(state);
+  return Object.freeze({
+    blockers: blockerSummary(state, capacity),
+    capacity,
+    reservation: Object.freeze({ taskId: state.reservationTaskId ?? null })
+  });
+}
+
 function selectBlockedTask(
   state: SchedulerInspection
 ): Readonly<{ readonly dependencyIds: readonly string[]; readonly task: PlannedTask }> | undefined {
@@ -201,18 +223,19 @@ function blockingDependencyIds(
   return dependencyIds.length === 0 ? undefined : dependencyIds;
 }
 
-function decideAdmission(state: SchedulerInspection, trigger: SchedulerTrigger): SchedulerDecision {
+function decideAdmission(
+  state: SchedulerInspection,
+  context: SchedulerDecisionContext,
+  trigger: SchedulerTrigger
+): SchedulerDecision {
   const eligibleTasks = state.pendingTasks.filter((task) => isDependencyMutexEligible(task, state));
-  const capacity = capacityFor(state);
-  const blockers = blockerSummary(state, capacity);
   if (eligibleTasks.length === 0) {
     return freezeDecision({
-      blockers,
-      capacity,
+      ...context,
       eligibleCount: 0,
       kind: "await-running",
       reason: "dependency-or-mutex",
-      reservation: reservationUnchanged(),
+      reservationUpdate: reservationUnchanged(),
       trigger
     });
   }
@@ -220,9 +243,10 @@ function decideAdmission(state: SchedulerInspection, trigger: SchedulerTrigger):
   const reservedTask = taskById(state.reservationTaskId, eligibleTasks);
   if (reservedTask !== undefined) {
     return canAdmit(state, reservedTask)
-      ? admitDecision(state, trigger, reservedTask, "reservation", reservationClear())
+      ? admitDecision(state, context, trigger, reservedTask, "reservation", reservationClear())
       : awaitDecision(
           state,
+          context,
           trigger,
           eligibleTasks,
           "reserved-tightening-scope",
@@ -230,14 +254,26 @@ function decideAdmission(state: SchedulerInspection, trigger: SchedulerTrigger):
         );
   }
 
-  const reservation =
+  const reservationUpdate =
     state.reservationTaskId === undefined ? reservationUnchanged() : reservationClear();
-  const tighteningTask = selectTighteningTask(state, eligibleTasks, capacity.effectiveMaxParallel);
+  const tighteningTask = selectTighteningTask(
+    state,
+    eligibleTasks,
+    context.capacity.effectiveMaxParallel
+  );
   if (tighteningTask !== undefined) {
     return canAdmit(state, tighteningTask)
-      ? admitDecision(state, trigger, tighteningTask, "tightening-scope", reservation)
+      ? admitDecision(
+          state,
+          context,
+          trigger,
+          tighteningTask,
+          "tightening-scope",
+          reservationUpdate
+        )
       : awaitDecision(
           state,
+          context,
           trigger,
           eligibleTasks,
           "reserved-tightening-scope",
@@ -248,18 +284,39 @@ function decideAdmission(state: SchedulerInspection, trigger: SchedulerTrigger):
   const continuation = selectConstrainedContinuation(
     state,
     eligibleTasks,
-    capacity.effectiveMaxParallel
+    context.capacity.effectiveMaxParallel
   );
   if (continuation !== undefined) {
     return canAdmit(state, continuation)
-      ? admitDecision(state, trigger, continuation, "constrained-continuation", reservation)
-      : awaitDecision(state, trigger, eligibleTasks, capacityWaitReason(state), reservation);
+      ? admitDecision(
+          state,
+          context,
+          trigger,
+          continuation,
+          "constrained-continuation",
+          reservationUpdate
+        )
+      : awaitDecision(
+          state,
+          context,
+          trigger,
+          eligibleTasks,
+          capacityWaitReason(state),
+          reservationUpdate
+        );
   }
 
   const task = eligibleTasks[0];
   return canAdmit(state, task)
-    ? admitDecision(state, trigger, task, "canonical-order", reservation)
-    : awaitDecision(state, trigger, eligibleTasks, capacityWaitReason(state), reservation);
+    ? admitDecision(state, context, trigger, task, "canonical-order", reservationUpdate)
+    : awaitDecision(
+        state,
+        context,
+        trigger,
+        eligibleTasks,
+        capacityWaitReason(state),
+        reservationUpdate
+      );
 }
 
 function taskById(
@@ -279,19 +336,21 @@ function isDependencyMutexEligible(task: PlannedTask, state: SchedulerInspection
 
 function admitDecision(
   state: SchedulerInspection,
+  context: SchedulerDecisionContext,
   trigger: SchedulerTrigger,
   task: PlannedTask,
   reason: Extract<SchedulerDecision, { readonly kind: "admit" }>["reason"],
-  reservation: ReservationUpdate
+  reservationUpdate: ReservationUpdate
 ): SchedulerDecision {
   return freezeDecision({
-    capacity: capacityFor(state, task),
+    ...context,
     eligibleCount: state.pendingTasks.filter((candidate) =>
       isDependencyMutexEligible(candidate, state)
     ).length,
     kind: "admit",
     reason,
-    reservation,
+    reservationUpdate,
+    scopeToActivate: activationScopeFor(state, task)?.id ?? null,
     taskId: task.id,
     trigger
   });
@@ -299,22 +358,21 @@ function admitDecision(
 
 function awaitDecision(
   state: SchedulerInspection,
+  context: SchedulerDecisionContext,
   trigger: SchedulerTrigger,
   eligibleTasks: readonly PlannedTask[],
   reason: Extract<SchedulerDecision, { readonly kind: "await-running" }>["reason"],
-  reservation: ReservationUpdate
+  reservationUpdate: ReservationUpdate
 ): SchedulerDecision {
   if (state.runningTaskIds.size === 0) {
     throw new Error("scheduler has pending tasks but no runnable or running task");
   }
-  const capacity = capacityFor(state);
   return freezeDecision({
-    blockers: blockerSummary(state, capacity),
-    capacity,
+    ...context,
     eligibleCount: eligibleTasks.length,
     kind: "await-running",
     reason,
-    reservation,
+    reservationUpdate,
     trigger
   });
 }
@@ -325,13 +383,9 @@ function capacityWaitReason(
   return state.runningTaskIds.size >= state.maxParallel ? "root-capacity" : "active-scope-capacity";
 }
 
-function capacityFor(state: SchedulerInspection, admittedTask?: PlannedTask): SchedulerCapacity {
-  const effectiveMaxParallel =
-    admittedTask === undefined
-      ? effectiveMaxParallelFor(state)
-      : prospectiveMaxParallel(state, admittedTask);
+function capacityFor(state: SchedulerInspection): SchedulerCapacity {
   return Object.freeze({
-    effectiveMaxParallel,
+    effectiveMaxParallel: effectiveMaxParallelFor(state),
     maxParallel: state.maxParallel,
     running: state.runningTaskIds.size
   });
@@ -346,8 +400,8 @@ function effectiveMaxParallelFor(state: SchedulerInspection): number {
 }
 
 function prospectiveMaxParallel(state: SchedulerInspection, task: PlannedTask): number {
-  const scope = scopeForTask(state, task);
-  return scope?.activationTaskIds.includes(task.id) === true && !state.activeScopeIds.has(scope.id)
+  const scope = activationScopeFor(state, task);
+  return scope !== undefined
     ? Math.min(effectiveMaxParallelFor(state), scope.maxParallel)
     : effectiveMaxParallelFor(state);
 }
@@ -371,12 +425,18 @@ function activatesTighteningScope(
   task: PlannedTask,
   effectiveMaxParallel: number
 ): boolean {
+  const scope = activationScopeFor(state, task);
+  return scope !== undefined && scope.maxParallel < effectiveMaxParallel;
+}
+
+function activationScopeFor(
+  state: SchedulerInspection,
+  task: PlannedTask
+): PlannedTaskGraph["scopes"][number] | undefined {
   const scope = scopeForTask(state, task);
-  return (
-    scope?.activationTaskIds.includes(task.id) === true &&
-    !state.activeScopeIds.has(scope.id) &&
-    scope.maxParallel < effectiveMaxParallel
-  );
+  return scope?.activationTaskIds.includes(task.id) === true && !state.activeScopeIds.has(scope.id)
+    ? scope
+    : undefined;
 }
 
 function selectConstrainedContinuation(
@@ -458,8 +518,7 @@ function blockerSummary(
     rootCapacity: state.runningTaskIds.size >= state.maxParallel,
     scopeCapacity:
       capacity.effectiveMaxParallel < state.maxParallel &&
-      state.runningTaskIds.size >= capacity.effectiveMaxParallel,
-    ...(state.reservationTaskId === undefined ? {} : { reservationTaskId: state.reservationTaskId })
+      state.runningTaskIds.size >= capacity.effectiveMaxParallel
   });
 }
 
@@ -479,6 +538,7 @@ function freezeDecision(decision: SchedulerDecision): SchedulerDecision {
   const trigger = freezeTrigger(decision.trigger);
   switch (decision.kind) {
     case "admit":
+    case "await-running":
       return Object.freeze({ ...decision, trigger });
     case "settle-blocked":
       return Object.freeze({
@@ -486,8 +546,6 @@ function freezeDecision(decision: SchedulerDecision): SchedulerDecision {
         dependencyIds: Object.freeze([...decision.dependencyIds]),
         trigger
       });
-    case "await-running":
-      return Object.freeze({ ...decision, trigger });
     case "cancel-pending":
       return Object.freeze({
         ...decision,

@@ -43,9 +43,28 @@ function recordedSchedulerDecisions(
     if (!isSchedulerDecision(observation.details)) {
       assert.fail("scheduler observation did not contain a SchedulerDecision");
     }
+    assertSchedulerDecisionContext(observation.details);
     decisions.push(observation.details);
   }
   return Object.freeze(decisions);
+}
+
+function assertSchedulerDecisionContext(decision: SchedulerDecision): void {
+  assert.deepEqual(Object.keys(decision.capacity).sort(), [
+    "effectiveMaxParallel",
+    "maxParallel",
+    "running"
+  ]);
+  assert.deepEqual(Object.keys(decision.blockers).sort(), [
+    "dependency",
+    "mutex",
+    "rootCapacity",
+    "scopeCapacity"
+  ]);
+  assert.deepEqual(Object.keys(decision.reservation), ["taskId"]);
+  assert.equal(Object.isFrozen(decision.capacity), true);
+  assert.equal(Object.isFrozen(decision.blockers), true);
+  assert.equal(Object.isFrozen(decision.reservation), true);
 }
 
 function assertNoUndefinedValue(value: unknown): void {
@@ -263,7 +282,8 @@ describe("static task engine", () => {
     });
     assert.equal(staleReservation.kind, "admit");
     assert.equal(staleReservation.taskId, "independent");
-    assert.deepEqual(staleReservation.reservation, { kind: "clear" });
+    assert.deepEqual(staleReservation.reservationUpdate, { kind: "clear" });
+    assert.equal(staleReservation.scopeToActivate, null);
 
     const mutexWait = decisionFor(graph, {
       maxParallel: 3,
@@ -300,6 +320,9 @@ describe("static task engine", () => {
     assert.equal(copiedDecision.kind, "await-running");
     assert.notEqual(copiedDecision.trigger, mutableTrigger);
     assert.equal(Object.isFrozen(copiedDecision.trigger), true);
+    assert.equal(Object.isFrozen(copiedDecision.capacity), true);
+    assert.equal(Object.isFrozen(copiedDecision.blockers), true);
+    assert.equal(Object.isFrozen(copiedDecision.reservation), true);
 
     const releaseFirst = createDeferred<void>();
     const budgetObservations: DiagnosticObservation[] = [];
@@ -444,7 +467,7 @@ describe("static task engine", () => {
     });
     assert.equal(reservationWait.kind, "await-running");
     assert.equal(reservationWait.reason, "reserved-tightening-scope");
-    assert.deepEqual(reservationWait.reservation, { kind: "set", taskId: "low" });
+    assert.deepEqual(reservationWait.reservationUpdate, { kind: "set", taskId: "low" });
 
     const reservedAdmission = decisionFor(graph, {
       activeScopeIds: ["wide"],
@@ -456,7 +479,8 @@ describe("static task engine", () => {
     assert.equal(reservedAdmission.kind, "admit");
     assert.equal(reservedAdmission.taskId, "low");
     assert.equal(reservedAdmission.reason, "reservation");
-    assert.deepEqual(reservedAdmission.reservation, { kind: "clear" });
+    assert.deepEqual(reservedAdmission.reservationUpdate, { kind: "clear" });
+    assert.equal(reservedAdmission.scopeToActivate, "low");
     assert.equal(events.includes("start:wide-two"), false);
     assert.equal(events.includes("start:low"), false);
     releaseWide.resolve();
@@ -600,7 +624,7 @@ describe("static task engine", () => {
     assert.equal(cancellation.kind, "cancel-pending");
     assert.deepEqual(cancellation.taskIds, ["pending"]);
     assert.equal(Object.isFrozen(cancellation.taskIds), true);
-    assert.equal("reservationTaskId" in cancellation, false);
+    assert.deepEqual(cancellation.reservation, { taskId: null });
     assert.equal(cancellation.trigger.kind, "cancellation-observed");
 
     const cancellationDrain = decisionFor(graph, {

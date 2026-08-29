@@ -58,11 +58,11 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "project-deep-imports-product: scripts/project/quality/illegal.ts -> ../../../src/index.ts",
+        "project-deep-imports-product: scripts/project/gate/illegal.ts -> ../../../src/index.ts",
       mutate: (root) =>
         writeSource(
           root,
-          "scripts/project/quality/illegal.ts",
+          "scripts/project/gate/illegal.ts",
           'import type { ProjectDefinition } from "../../../src/index.ts";\nexport type { ProjectDefinition };\n'
         )
     },
@@ -136,7 +136,7 @@ function createTargetLayout(): string {
     "scripts/package/artifact/build.ts",
     'const entry = join(repositoryRoot, "src/index.ts");\nvoid entry;\n'
   );
-  writeSource(root, "scripts/project/quality/run.ts", "export {};\n");
+  writeSource(root, "scripts/project/gate/run.ts", "export {};\n");
   writeSource(root, "scripts/package/candidate/prepare.ts", "export {};\n");
   return root;
 }

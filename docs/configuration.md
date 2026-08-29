@@ -12,8 +12,8 @@ scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自
 package surface 包含 `defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
 `duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)`、`jsonValidation(options?)`、
 `jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及 `maintenanceReminders(entries)`。这些函数都返回
-ordinary Check object，不引入第二种 execution model。仓库 dogfood Definition 位于
-[`scripts/project/quality/definition.ts`](../scripts/project/quality/definition.ts)。
+ordinary Check object，不引入第二种 execution model。仓库 private consumer 的 Definition 由
+[`scripts/project/gate/definition.ts`](../scripts/project/gate/definition.ts) 组装；下例只说明 Project Definition 的 authoring 形状，不是该 Gate Definition 的逐行副本。
 
 ```ts
 import {
@@ -49,8 +49,8 @@ const licenses = defineCheck({
 export default defineConfig({
   checks: [
     {
-      checkId: "repository-quality",
-      displayName: "Repository quality",
+      checkId: "repository-checks",
+      displayName: "Repository checks",
       maxParallel: 2,
       checks: [
         duplicateDetection(),

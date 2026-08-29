@@ -71,7 +71,6 @@ const expectedCheckIds = [
   "tests-scripts-test-evidence",
   "tests-scripts-validation",
   "tests-scripts-tooling",
-  "repository-quality",
   "docs-json-validator",
   "docs-schema-validator",
   "docs-example-validator",
@@ -129,8 +128,6 @@ describe("Project Gate entries, root binding, and controls", () => {
         expectedIds
       );
     }
-    const repositoryQuality = entries.find(({ check }) => check.checkId === "repository-quality");
-    assert.deepEqual(repositoryQuality?.check.dependsOn ?? [], []);
     for (const entry of entries)
       assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
   });
@@ -145,11 +142,7 @@ describe("Project Gate entries, root binding, and controls", () => {
       "--profile",
       "full",
       "--disable-tag",
-      "quality",
-      "--disable-tag",
       "docs",
-      "--disable-tag",
-      "quality",
       "--enable-tag",
       "package-tests",
       "--enable-tag",
@@ -161,7 +154,7 @@ describe("Project Gate entries, root binding, and controls", () => {
       action: "run",
       value: {
         profile: "full",
-        disabledTags: ["docs", "quality"],
+        disabledTags: ["docs"],
         enabledTags: ["package-tests"]
       }
     });
@@ -169,7 +162,6 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.deepEqual(selectionFlags(parsed.value), [
       "project-gate:profile=full",
       "project-gate:disable-tag=docs",
-      "project-gate:disable-tag=quality",
       "project-gate:enable-tag=package-tests"
     ]);
     assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
@@ -180,7 +172,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.match(help, /Opt-in tags: package-tests/);
     assert.match(
       help,
-      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, quality, scripts, tests/
+      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, scripts, tests/
     );
     assert.match(help, /candidate, artifact, and external-consumer acceptance/);
     assert.equal(
@@ -197,7 +189,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--disable-tag", ""]).ok, false);
-    assert.equal(parseProjectGateArguments(["--enable-tag", "quality"]).ok, false);
+    assert.equal(parseProjectGateArguments(["--enable-tag", "docs"]).ok, false);
     assert.equal(
       parseProjectGateArguments(["--enable-tag", "package-tests", "--disable-tag", "package-tests"])
         .ok,

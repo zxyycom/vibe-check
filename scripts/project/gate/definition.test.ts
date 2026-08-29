@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
+import { isNonArrayRecord } from "../../value-guards.ts";
 import { defineCheck, type Check } from "vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries } from "./entries.ts";
@@ -60,7 +60,6 @@ const expectedCheckIds = [
   "tests-scripts-test-evidence",
   "tests-scripts-validation",
   "tests-scripts-tooling",
-  "repository-quality",
   "docs-json-validator",
   "docs-schema-validator",
   "docs-example-validator",
@@ -109,22 +108,7 @@ describe("Project Gate Definition", () => {
     const nativeDocsCheck = definition.checks.find(
       ({ checkId }) => checkId === "docs-json-validator"
     );
-    const repositoryQualityCheck = definition.checks.find(
-      ({ checkId }) => checkId === "repository-quality"
-    );
     assert.equal(nativeDocsCheck?.options, undefined);
-    assert.deepEqual(repositoryQualityCheck?.dependsOn ?? [], []);
-    const repositoryQualityOptions = repositoryQualityCheck?.options;
-    assert.ok(isNonArrayRecord(repositoryQualityOptions));
-    assert.equal(repositoryQualityOptions.command, "mise");
-    const processArgs = repositoryQualityOptions.args;
-    assert.ok(isStringArray(processArgs));
-    assert.deepEqual(processArgs.slice(0, 3), ["exec", "--", "bun"]);
-    const scanOnlyEntry = processArgs[3];
-    assert.equal(typeof scanOnlyEntry, "string");
-    if (typeof scanOnlyEntry !== "string") throw new Error("fixture scan entry must be a string");
-    assert.match(scanOnlyEntry, /scripts\/project\/quality\/scan\.ts$/);
-    assert.equal(scanOnlyEntry.includes("run-quality"), false);
 
     const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
     for (const [checkId, files] of [
@@ -209,7 +193,7 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, profiles: ["required", "full"], tags: ["quality"] },
+          { check: prerequisite, profiles: ["required", "full"], tags: ["docs"] },
           { check: dependent, profiles: ["required", "full"], tags: [] }
         ]),
       /selection-closed: fixture-dependent -> fixture-prerequisite/
@@ -252,11 +236,6 @@ describe("Project Gate Definition", () => {
         { profile: "full" as const, disabledTags: [] as const, enabledTags: [] as const },
         {
           profile: "required" as const,
-          disabledTags: ["quality"] as const,
-          enabledTags: [] as const
-        },
-        {
-          profile: "required" as const,
           disabledTags: [] as const,
           enabledTags: ["package-tests"] as const
         },
@@ -274,10 +253,9 @@ describe("Project Gate Definition", () => {
         assert.deepEqual(projectGateAggregation(entries, selection), {
           checks: expectedCheckIds.filter(
             (checkId) =>
-              (checkId !== "repository-quality" || !disabledTags.has("quality")) &&
-              (!packageAcceptanceCheckIds.has(checkId) ||
-                (!disabledTags.has("package-tests") && selection.profile === "full") ||
-                enabledTags.has("package-tests"))
+              !packageAcceptanceCheckIds.has(checkId) ||
+              (!disabledTags.has("package-tests") && selection.profile === "full") ||
+              enabledTags.has("package-tests")
           ),
           empty: "failed",
           mode: "all",
@@ -285,39 +263,6 @@ describe("Project Gate Definition", () => {
           unavailable: "propagate"
         });
       }
-
-      const repositoryQuality = entries.find(({ check }) => check.checkId === "repository-quality");
-      assert.ok(repositoryQuality, "repository quality entry must exist");
-      const excluded = projectGateCheckForSelection(repositoryQuality, {
-        profile: "required",
-        disabledTags: ["quality"],
-        enabledTags: []
-      });
-      assert.ok(excluded.execution, "eligible projection must preserve a Check callback");
-      const result = await excluded.execution({
-        dependencies: {
-          get: () => ({ ok: false, error: { code: "dependency-not-declared", checkId: "fixture" } })
-        },
-        options: excluded.options ?? {},
-        project: {
-          root: process.cwd(),
-          flags: []
-        },
-        records: { report: () => undefined },
-        signal: new AbortController().signal
-      });
-      assert.deepEqual(result, {
-        status: "not-applicable",
-        reason: { code: "tag-quality-disabled" },
-        messages: [
-          {
-            level: "info",
-            code: "project-gate-check-not-run",
-            message: "Repository Package Run dogfood did not run because tag quality was disabled."
-          }
-        ]
-      });
-      assert.equal(existsSync(join(logDirectory, "repository-quality.log")), false);
 
       for (const packageCheckId of [
         "prepared-external-package-consumer",

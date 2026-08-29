@@ -20,7 +20,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                   |
 | `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                     |
 | `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 只准备、安装、receipt 与 isolated consumer。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
-| `scripts/project/**`                                    | 唯一 private candidate consumer root；`quality/**` 与 `gate/**` 同级。Gate 的 `check-execution/**` 只拥有 native/process Check mapping；具体 docs、Decision Records 与 Test Evidence Checks 位于其领域 owner。                                                                       |
+| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/**` 拥有 Project Gate。Gate 的 `check-execution/**` 只拥有 native/process Check mapping；具体 docs、Decision Records 与 Test Evidence Checks 位于其领域 owner。                                                                       |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
 | `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
 
@@ -41,7 +41,6 @@ scripts helper、环境状态或 process adapter。
 | package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`                                                                   | `scripts/package/command.ts`              |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
 | governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations -- check`；`bun run test-evidence -- <command>` | their named owners                        |
-| quality dogfood           | `bun run quality`                                                                                                                             | `scripts/project/quality/run.ts`          |
 | Project Gate              | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full`             | `scripts/project/gate/run.ts`             |
 
 无 suffix 的 Project Gate 与 `:required` 都选择 required profile；`:full` 显式选择 full。scope、action
@@ -95,23 +94,6 @@ Candidate preparation 先执行不修改文件系统的状态判断，再根据�
 Reuse path 不重复扫描只服务 build evidence 的 staging 内容。Artifact acceptance 仍对同一次
 provider staging 执行完整 material audit，因此 staging corruption 不会从 full/package acceptance 中消失。
 
-## Quality dogfood
-
-`quality` 是人或 AI 调用 repository Project Run 的唯一 dogfood root entry，不是产品第二入口。其调用方向为：
-
-1. `scripts/project/quality/run.ts` 在 mise 锁定的 scanner toolchain 中启动 `locked-run.ts`，并保留 child
-   stdout、stderr 与 exit status。
-2. `locked-run.ts` 先通过 `scripts/package/candidate/prepare.ts` 准备 exact local candidate，再加载 `scan.ts`。
-3. `scan.ts` 调用 `project-run.ts` 的 bound Run；对 non-configuration result，它向调用方显示本次 diagnostic log file，
-   并将 completed、configuration 与其它 result branches 分别映射为既有 process status `0`、`3`、`2`。
-4. `definition.ts` 是 repository quality policy 的唯一 owner；它从 private consumer 已安装的 `vibe-check`
-   导入公开 Check constructors 和 `defineConfig`，并显式把 diagnostic logging 设为 `.log/project-run`。`project-run.ts`
-   将该 Definition 与 repository root 绑定，调用 package `run`。
-
-quality wrapper 不解析调用方配置、不重新声明 Project Definition，也不注入 scanner override。每项 scanner command
-与 availability command 都属于使用它的 package-provided ordinary Check options；详见
-[Check-owned scanner dependencies](scanner-dependencies.md)。
-
 ## Project Gate
 
 `scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。一次 invocation 按以下顺序建立：
@@ -124,8 +106,7 @@ quality wrapper 不解析调用方配置、不重新声明 Project Definition，
 参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。成功启动的
 Gate 总是显示 invocation directory；该目录中的 Product `run-<UTC 紧凑时间>-<UUID>.log` 与各 Check-owned process transcript 并列，
 不建立 `latest`、index、retention 或相互解析关系。
-Gate 不改变 quality 的 locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence
-各自的 command owner。
+Gate 不替代 development、docs、decision-records 或 test-evidence 各自的 command owner。
 
 ### Prepared candidate data
 
@@ -177,7 +158,7 @@ enable 和 disable。`--help` 在 candidate preparation、package import 和 log
 commands 不传 tag override。
 
 `--enable-tag` 当前只接受 opt-in tag `package-tests`。`--disable-tag` 接受且实际使用完整过滤集合：`catalog`、`docs`、
-`format`、`git`、`package-tests`、`product`、`quality`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
+`format`、`git`、`package-tests`、`product`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
 对 package acceptance 的影响和可直接运行的示例，不能让调用方从 catalog 源码猜测 tag。
 
 - Required 默认执行 package supporting 和 prepared candidate typed provider，但不选择带 `package-tests` 的 physical
@@ -325,9 +306,8 @@ checkout `node_modules` 和 `.codegraph`。该 bootstrap 入口只依赖 Node/Bu
 `git restore --staged --worktree -- .` 与 `git clean -fd -- .`；这会不可恢复地删除 tracked 改动和未跟踪、
 非 ignored 文件。只有明确授权丢弃目标 worktree 内容时才能选择它。
 
-`quality` 是唯一需要 mise 锁定 scanner toolchain 的日常 workflow；它不会从 ambient `PATH` 取得同名 scanner，
-也不接受 scanner override。Product Check 的 scanner command、availability command 和 unavailable behavior 仍由
-[Check-owned scanner dependencies](scanner-dependencies.md) 所列的各 Check owner 定义。
+Product Check 的 scanner command、availability command 和 unavailable behavior 仍由
+[Check-owned scanner dependencies](scanner-dependencies.md) 所列的各 Check owner 定义；Gate 不创建第二套 scanner workflow。
 
 ## Governance and Test Evidence adapters
 
@@ -351,7 +331,7 @@ bun run validate -- docs
 bun run test-evidence -- check --root .
 ```
 
-涉及 quality、Gate 或多个 owner 时运行 required；涉及 package artifact、candidate 或外部 consumer 时运行 full：
+涉及 Gate 或多个 owner 时运行 required；涉及 package artifact、candidate 或外部 consumer 时运行 full：
 
 ```bash
 bun run verify:vibe-check-workspace:required

@@ -101,7 +101,7 @@ export function finalizeInvocation(
     details: {
       ...closingFacts(candidate),
       diagnosticLogging: "pending-close",
-      outputs: preCloseOutputs
+      outputs: preCloseOutputDetails(preCloseOutputs)
     }
   });
   const diagnosticLoggingStatus = invocation.diagnosticLogger.close();
@@ -138,6 +138,16 @@ export function finalizeInvocation(
     case "execution":
       return Object.freeze({ ...candidate, outputs });
   }
+}
+
+function preCloseOutputDetails(outputs: ReturnType<Invocation["outputs"]["value"]>): Readonly<{
+  readonly machinePublication: (typeof outputs)["machinePublication"];
+  readonly progressRendering: (typeof outputs)["progressRendering"];
+}> {
+  return Object.freeze({
+    machinePublication: outputs.machinePublication,
+    progressRendering: outputs.progressRendering
+  });
 }
 
 function closingFacts(candidate: NonConfigurationRunResult): Readonly<{
