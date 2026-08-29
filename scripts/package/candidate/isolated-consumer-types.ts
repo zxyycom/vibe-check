@@ -110,7 +110,11 @@ function typecheckConfig(): string {
         target: "esnext",
         verbatimModuleSyntax: true
       },
-      include: ["public-imports.ts", "docs/examples/package-api/*.ts"]
+      include: [
+        "public-imports.ts",
+        "docs/examples/package-api/*.ts",
+        "node_modules/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"
+      ]
     },
     null,
     2

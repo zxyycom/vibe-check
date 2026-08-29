@@ -15,18 +15,9 @@ export const PACKAGE_MACHINE_MATERIAL_PATHS = Object.freeze([
   "docs/output.md",
   "docs/schemas/vibe-check-record.schema.json",
   "docs/schemas/vibe-check-run.schema.json",
-  "docs/examples/artifacts/complete-failed-with-record/README.md",
-  "docs/examples/artifacts/complete-failed-with-record/records.ndjson",
-  "docs/examples/artifacts/complete-failed-with-record/run.json",
-  "docs/examples/artifacts/complete-passed/README.md",
-  "docs/examples/artifacts/complete-passed/records.ndjson",
-  "docs/examples/artifacts/complete-passed/run.json",
-  "docs/examples/artifacts/legitimate-empty/README.md",
-  "docs/examples/artifacts/legitimate-empty/records.ndjson",
-  "docs/examples/artifacts/legitimate-empty/run.json",
-  "docs/examples/artifacts/unavailable/README.md",
-  "docs/examples/artifacts/unavailable/records.ndjson",
-  "docs/examples/artifacts/unavailable/run.json"
+  "docs/examples/artifacts/mixed-outcomes/definition.ts",
+  "docs/examples/artifacts/mixed-outcomes/records.ndjson",
+  "docs/examples/artifacts/mixed-outcomes/run.json"
 ] as const);
 
 /** Reads the closed package machine-material registry without text normalization. */

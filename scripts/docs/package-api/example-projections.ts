@@ -85,20 +85,6 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
-    id: "custom-check-run",
-    regionId: "custom-check-run",
-    sourcePath: "docs/examples/package-api/custom-check.ts",
-    targets: Object.freeze([
-      Object.freeze({
-        documentId: "api-mechanics",
-        headingPath: Object.freeze(["options preflight 与 execution", "完整运行示例"]),
-        kind: "markdown"
-      })
-    ]),
-    title: "运行自定义 Check"
-  }),
-  Object.freeze({
-    evidence: "runtime",
     id: "maintenance-reminders",
     regionId: "maintenance-reminders",
     sourcePath: "docs/examples/package-api/maintenance-reminders.ts",

@@ -19,9 +19,9 @@ export function createDocsValidationCheck(
   return createNativeOperationCheck({
     checkId: input.checkId,
     displayName: input.displayName,
-    operation: (): NativeOperationResult => {
+    operation: async (): Promise<NativeOperationResult> => {
       try {
-        validateDocs({ tasks: [input.task] });
+        await validateDocs({ tasks: [input.task] });
         return nativePassed();
       } catch {
         return nativeFailed({

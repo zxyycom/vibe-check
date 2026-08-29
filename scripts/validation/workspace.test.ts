@@ -14,7 +14,7 @@ test("root validate CLI runs every docs task by default", () => {
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
   assert.match(result.stdout, /json syntax ok:/);
-  assert.match(result.stdout, /current machine artifact examples ok: 4 set\(s\)/);
+  assert.match(result.stdout, /current machine artifact examples ok: 1 set\(s\)/);
   assert.match(result.stdout, /schema strict compile ok:/);
   assert.match(result.stdout, /report examples ok:/);
   assert.match(result.stdout, /markdown links ok:/);

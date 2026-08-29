@@ -30,12 +30,12 @@ interface ExpectedDiagnostic {
 }
 
 describe("independent docs machine artifact validation", () => {
-  it("accepts exactly the current v4 examples and positive JSON grammar variants", () => {
-    assert.equal(validatePublishedMachineArtifactExamples(), 4);
-    const context = loadContext("complete-failed-with-record");
+  it("accepts exactly the current v4 example and positive JSON grammar variants", () => {
+    assert.equal(validatePublishedMachineArtifactExamples(), 1);
+    const context = loadContext();
     context.artifacts.runJson = encoder.encode(`\t${JSON.stringify(context.run)}\r\n`);
     context.artifacts.recordsNdjson = encoder.encode(
-      `${JSON.stringify(firstRecord(context.records))}\r\n`
+      `${context.records.map((record) => JSON.stringify(record)).join("\r\n")}\r\n`
     );
     expectSuccess(validateDocsMachineArtifactSet(context.artifacts, "positive/reordered"));
   });
@@ -95,15 +95,15 @@ describe("independent docs machine artifact validation", () => {
         expected: {
           category: "schema",
           logicalArtifact: "run.json",
-          pointer: "/checks/0/outcome/data"
+          pointer: "/checks/2/outcome/data"
         },
         mutate: ({ run, artifacts }) => {
           const checks = arrayField(run, "checks");
-          const check = recordField(firstArrayItem(checks, "checks"), "check");
+          const check = recordField(arrayItem(checks, 2, "checks"), "check");
           const outcome = recordField(check.outcome, "check outcome");
           delete outcome.data;
           check.outcome = outcome;
-          checks[0] = check;
+          checks[2] = check;
           artifacts.runJson = encoder.encode(JSON.stringify(run));
         }
       },
@@ -117,7 +117,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "record-check-ownership"
         },
         mutate: ({ records, artifacts }) => {
-          firstRecord(records).checkId = "unknown-check";
+          firstRecord(records).checkId = "aaa-unknown-check";
           artifacts.recordsNdjson = encodeRecords(records);
         }
       },
@@ -131,7 +131,7 @@ describe("independent docs machine artifact validation", () => {
           relationship: "record-canonical-order"
         },
         mutate: ({ records, artifacts }) => {
-          records.push(structuredClone(firstRecord(records)));
+          records.splice(1, 0, structuredClone(firstRecord(records)));
           artifacts.recordsNdjson = encodeRecords(records);
         }
       },
@@ -158,7 +158,7 @@ describe("independent docs machine artifact validation", () => {
           artifacts.runJson = encoder.encode(
             new TextDecoder()
               .decode(artifacts.runJson)
-              .replace('"summary":"supplemental record retained"', '"summary":1e400')
+              .replace('"minimumFileCount":2', '"minimumFileCount":1e400')
           );
         }
       },
@@ -173,13 +173,13 @@ describe("independent docs machine artifact validation", () => {
           artifacts.recordsNdjson = encoder.encode(
             new TextDecoder()
               .decode(artifacts.recordsNdjson)
-              .replace('"severity":"warning"', '"severity":1e400')
+              .replace('"actual":1', '"actual":1e400')
           );
         }
       }
     ];
     for (const testCase of cases) {
-      const context = loadContext("complete-failed-with-record");
+      const context = loadContext();
       testCase.mutate(context);
       assertExpectedDiagnostic(
         expectFailure(
@@ -191,14 +191,18 @@ describe("independent docs machine artifact validation", () => {
     }
   });
 
-  it("detects generated schema and example drift", () => {
-    proveDrift("docs/schemas/vibe-check-run.schema.json", checkPublishedMachineSchemas);
-    proveDrift("docs/examples/artifacts/complete-passed/run.json", checkPublishedMachineExamples);
+  it("detects generated schema and example drift", async () => {
+    await proveDrift("docs/schemas/vibe-check-run.schema.json", checkPublishedMachineSchemas);
+    await proveDrift(
+      "docs/examples/artifacts/mixed-outcomes/run.json",
+      checkPublishedMachineExamples
+    );
+    await proveDefinitionDrift(checkPublishedMachineExamples);
   });
 });
 
-function loadContext(outcome: string): MutationContext {
-  const root = `docs/examples/artifacts/${outcome}`;
+function loadContext(): MutationContext {
+  const root = "docs/examples/artifacts/mixed-outcomes";
   const run = parseJsonRecord(
     fs.readFileSync(toDocumentationAbsolutePath(`${root}/run.json`), "utf8"),
     "run artifact"
@@ -240,9 +244,9 @@ function arrayField(record: JsonRecord, key: string): unknown[] {
   return value;
 }
 
-function firstArrayItem(values: readonly unknown[], label: string): unknown {
-  const value = values[0];
-  if (value === undefined) throw new TypeError(`${label} has no first item`);
+function arrayItem(values: readonly unknown[], index: number, label: string): unknown {
+  const value = values[index];
+  if (value === undefined) throw new TypeError(`${label} has no item at index ${index}`);
   return value;
 }
 
@@ -288,13 +292,26 @@ function expectFailure(
   return result.diagnostic;
 }
 
-function proveDrift(path: string, check: () => void): void {
+async function proveDrift(path: string, check: () => void | Promise<void>): Promise<void> {
   const absolute = toDocumentationAbsolutePath(path);
   const original = fs.readFileSync(absolute, "utf8");
   fs.writeFileSync(absolute, `${original}\n`, "utf8");
   try {
-    assert.throws(check, /drift/);
+    await assert.rejects(async () => check(), /drift/);
   } finally {
     fs.writeFileSync(absolute, original, "utf8");
+  }
+}
+
+async function proveDefinitionDrift(check: () => Promise<void>): Promise<void> {
+  const path = toDocumentationAbsolutePath("docs/examples/artifacts/mixed-outcomes/definition.ts");
+  const original = fs.readFileSync(path, "utf8");
+  const changed = original.replace("minimumFileCount: 2", "minimumFileCount: 3");
+  assert.notEqual(changed, original);
+  fs.writeFileSync(path, changed, "utf8");
+  try {
+    await assert.rejects(check, /drift/);
+  } finally {
+    fs.writeFileSync(path, original, "utf8");
   }
 }

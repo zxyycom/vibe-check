@@ -19,33 +19,8 @@ const check = functionMetrics();
 
 ## 参数与默认配置
 
-调用方编写的是以下可省略 policy；显式 `codeAreas[areaId]` 只要求提供 `files` branch：
-
-```text
-options
-├─ findingPolicy?
-├─ codeAreas?
-│  └─ [areaId]
-│     ├─ files
-│     │  ├─ source?
-│     │  ├─ include?
-│     │  └─ exclude?
-│     ├─ findingPolicy?
-│     └─ limits?
-│        ├─ codeLines?
-│        │  ├─ maximum?
-│        │  └─ lowComplexityAllowance?
-│        │     ├─ maximum?
-│        │     └─ cyclomaticComplexityBelow?
-│        ├─ cyclomaticComplexity?
-│        │  └─ maximum?
-│        └─ parameters?
-│           └─ maximum?
-└─ scanner?
-   └─ executable?
-```
-
-`functionMetrics()` 会物化以下完整、冻结的 resolved options；调用方无需复制这份 value：
+顶层 `findingPolicy`、`codeAreas` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供 `files` branch。
+`functionMetrics()` 会物化以下完整、冻结的 resolved options，调用方无需复制：
 
 ```ts
 {
@@ -191,9 +166,7 @@ Record metric 与 measurement 的对应关系如下：
 | `parameter-count` | function parameter count | matching areas 的 `parameters.maximum` 最小值 |
 
 正常 final data 是 `{ findingCount, blockingFindingCount }`。`blockingFindingCount > 0` 时 outcome 为 `failed`；只有
-non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。按
-[README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄 `RunResult.kind`，再按
-`function-metrics` checkId 读取 outcome。
+non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。
 
 `failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
 调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding

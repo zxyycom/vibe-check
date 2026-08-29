@@ -91,12 +91,8 @@ type FinalData = Readonly<{ entries: readonly EntryAssessment[] }>;
 `passed`。`due` message 正文是 `<id>: <message>`；`unavailable` 还在末尾追加 ` (<reason>)`。该 Check 不发布
 supplemental Records；条目也不会成为独立 Check、aggregation target 或 progress row。
 
-启用 machine publication 时，`run.json` 只投影这一项普通 `maintenance-reminders` Check row 及其 final data；entry 不形成
-独立 machine row，terminal messages 也不进入 `run.json` 或 `records.ndjson`。完整 publication-set 读取规则见
-[machine output 契约](../output.md#当前产品输出)。
-
-按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄
-`RunResult.kind`，再按 `maintenance-reminders` checkId 读取 outcome。
+启用 machine publication 时，entries 只作为一项普通 `maintenance-reminders` Check 的 final data；entry 不形成独立
+machine row，terminal messages 也不进入 machine files。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMaintenanceRemindersData(value)` 验证 final data。parser
 验证每个 discriminated assessment、commit ID、唯一 reminder ID、计数、`exceeded` 与 reason 不变量，并返回

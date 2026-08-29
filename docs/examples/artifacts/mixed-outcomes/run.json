@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "checkId": "example-external-review",
+      "displayName": "Example external review",
+      "outcome": {
+        "status": "unavailable",
+        "reason": {
+          "code": "review-service-unconfigured"
+        }
+      }
+    },
+    {
+      "checkId": "example-optional-documentation",
+      "displayName": "Example optional documentation",
+      "outcome": {
+        "status": "not-applicable",
+        "reason": {
+          "code": "documentation-disabled"
+        }
+      }
+    },
+    {
+      "checkId": "example-release-inputs",
+      "displayName": "Example release inputs",
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "files": [
+            "package.json"
+          ],
+          "version": 1
+        }
+      }
+    },
+    {
+      "checkId": "example-release-policy",
+      "displayName": "Example release policy",
+      "outcome": {
+        "status": "failed",
+        "data": {
+          "manifestValid": true,
+          "minimumFileCount": 2,
+          "selectedFileCount": 1
+        }
+      }
+    },
+    {
+      "checkId": "json-validation",
+      "displayName": "JSON validation",
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "scannedFileCount": 1,
+          "validFileCount": 1
+        }
+      }
+    }
+  ],
+  "invocation": {
+    "invocationId": "invocation/v1:docs-mixed-outcomes",
+    "projectRoot": ".",
+    "timestamp": "2026-08-12T00:00:00.000Z"
+  },
+  "recordsFingerprint": "check-record/v2/records/sha256:d35ff68c8a089bc03df035ede9f114f5e23478eab61c33243e13feaad6b9a393",
+  "schemaVersion": "vibe-check.run.v4"
+}

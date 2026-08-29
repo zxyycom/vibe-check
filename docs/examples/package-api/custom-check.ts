@@ -1,4 +1,3 @@
-// #region package-api-example:custom-check-run
 import { defineCheck, defineConfig, run } from "vibe-check";
 
 // #region package-api-example:custom-check-definition
@@ -64,4 +63,3 @@ const outcome = result.snapshot.checks.find(
 if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
   throw new Error("License policy did not produce the expected failed outcome");
 }
-// #endregion package-api-example:custom-check-run

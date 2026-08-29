@@ -123,7 +123,7 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-docs.test.ts|external consumer docs acceptance`
   Proves:
 
-- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, hand-written Check guides, machine output guide, current v4 schemas, and four current artifact example sets; every projected package API runtime example executes against that exact candidate package.
+- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, hand-written Check guides, machine output guide, current v4 schemas, and the mixed-outcomes Definition/output example. The installed Definition typechecks and executes against that exact candidate, runs the documented package-provided and custom dependency workflow, publishes its configured machine output, and forms the documented four outcome states, three RunResult messages and two Records; every projected package API runtime example also executes against the same candidate.
 
 ## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
 

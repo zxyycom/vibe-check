@@ -18,30 +18,8 @@ const check = duplicateDetection();
 
 ## 参数与默认配置
 
-调用方编写的是以下可省略 policy；显式 `codeAreas[areaId]` 只要求提供 `files` branch：
-
-```text
-options
-├─ cache?
-│  ├─ directory?
-│  └─ enabled?
-├─ codeAreas?
-│  └─ [areaId]
-│     ├─ files
-│     │  ├─ source?
-│     │  ├─ include?
-│     │  └─ exclude?
-│     ├─ findingPolicy?
-│     ├─ minimumLines?
-│     └─ minimumTokens?
-├─ findingPolicy?
-└─ scanner?
-   └─ command?
-      ├─ kind: "package" | "custom"
-      └─ executable?  # required for custom command
-```
-
-无参调用物化成以下完整 Check options；调用方无需复制这份 resolved value：
+顶层 `cache`、`codeAreas`、`findingPolicy` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供
+`files` branch。无参调用物化成以下完整 Check options，调用方无需复制：
 
 ```ts
 {
@@ -84,23 +62,8 @@ options
 
 ## 定制区域 policy
 
-调用方只声明要改变的 policy，不需要读取默认 Check 或编写 nested spread。下面将默认 `project` area 的 token
-阈值改为 `100`；空 `files` branch 表示 source/include/exclude 都使用 package defaults：
-
-```ts
-import { duplicateDetection } from "vibe-check";
-
-const stricterDuplicateDetection = duplicateDetection({
-  codeAreas: {
-    project: {
-      files: {},
-      minimumTokens: 100
-    }
-  }
-});
-```
-
-下面两个 area 各自拥有文件范围和阈值。省略的 file fields、finding policy 与阈值仍由 constructor 补齐：
+调用方只声明要改变的 policy，不需要读取默认 Check 或编写 nested spread。下面两个 area 各自拥有文件范围和阈值；
+省略的 file fields、finding policy 与阈值由 constructor 补齐，`files: {}` 则表示全部 file fields 使用默认值：
 
 ```ts
 import { duplicateDetection } from "vibe-check";
@@ -154,13 +117,6 @@ provenance，不要求 custom command 等于 package 当前安装的版本。
 隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
 finding。
 
-## 构造函数与普通 Check 的边界
-
-constructor 返回的仍是普通 Check object，可直接进入 `defineConfig({ checks: [...] })`。constructor 会冻结并返回完整
-resolved options；owning preflight 与 execution 仍验证这个完整 shape，以安全拒绝 constructor 之后通过普通对象组合形成
-的缺失、未知或非法 options。constructor input 错误是同步 `TypeError`；非法 resolved Check replacement 则在 Run
-preflight 中结算为 `unavailable / invalid-options`。
-
 ## 工作原理
 
 Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为各 `codeAreas[id].files` 应用自己的
@@ -200,9 +156,6 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
   locations: Array<{ path: string; startLine: number; endLine: number }>
 }
 ```
-
-按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄 `RunResult.kind`，再按
-`duplicate-detection` checkId 读取 outcome 和 supplemental Records。
 
 `failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
 调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding

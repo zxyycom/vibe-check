@@ -5,50 +5,40 @@ import { fileURLToPath } from "node:url";
 
 import { serializeMachinePublicationV4 } from "../../../../src/machine-output/v4/serializers.ts";
 import { validateMachinePublicationSetV4 } from "../../../../src/machine-output/v4/validation.ts";
-import { canonicalMachineExamples } from "./fixtures.ts";
-import {
-  MACHINE_EXAMPLES_ROOT,
-  MACHINE_EXAMPLE_OUTCOMES,
-  type GeneratedMachineExampleFile
-} from "./contract.ts";
+import { runAsyncMain } from "../../../process-execution/command.ts";
+import { MACHINE_EXAMPLE_ROOT, type GeneratedMachineExampleFile } from "./contract.ts";
+import { buildCanonicalMachineExample } from "./definition-execution.ts";
 import { checkPublishedMachineExampleFiles, publishMachineExampleFiles } from "./publication.ts";
-import { renderMachineExampleReadme } from "./readme.ts";
 
 const encoder = new TextEncoder();
 
-export function generatePublishedMachineExamples(): void {
-  publishMachineExampleFiles(generatedFiles());
+export async function generatePublishedMachineExamples(): Promise<void> {
+  publishMachineExampleFiles(await generatedFiles());
 }
 
-export function checkPublishedMachineExamples(): void {
-  checkPublishedMachineExampleFiles(generatedFiles());
+export async function checkPublishedMachineExamples(): Promise<void> {
+  checkPublishedMachineExampleFiles(await generatedFiles());
 }
 
-function generatedFiles(): readonly GeneratedMachineExampleFile[] {
-  return canonicalMachineExamples().flatMap((example) => {
-    const candidates = serializeMachinePublicationV4(example.publication);
-    const validation = validateMachinePublicationSetV4({
-      runJson: encoder.encode(candidates.runJson),
-      recordsNdjson: encoder.encode(candidates.recordsNdjson)
-    });
-    if (!validation.ok) {
-      throw new Error(
-        `generated ${example.outcome} example is invalid: ${validation.diagnostic.logicalArtifact}: ${validation.diagnostic.message}`
-      );
-    }
-    const outcomeRoot = `${MACHINE_EXAMPLES_ROOT}/${example.outcome}`;
-    return [
-      { contents: candidates.runJson, relativePath: `${outcomeRoot}/run.json` },
-      {
-        contents: candidates.recordsNdjson,
-        relativePath: `${outcomeRoot}/records.ndjson`
-      },
-      {
-        contents: renderMachineExampleReadme(example),
-        relativePath: `${outcomeRoot}/README.md`
-      }
-    ];
+async function generatedFiles(): Promise<readonly GeneratedMachineExampleFile[]> {
+  const example = await buildCanonicalMachineExample();
+  const candidates = serializeMachinePublicationV4(example.publication);
+  const validation = validateMachinePublicationSetV4({
+    runJson: encoder.encode(candidates.runJson),
+    recordsNdjson: encoder.encode(candidates.recordsNdjson)
   });
+  if (!validation.ok) {
+    throw new Error(
+      `generated mixed-outcomes example is invalid: ${validation.diagnostic.logicalArtifact}: ${validation.diagnostic.message}`
+    );
+  }
+  return [
+    { contents: candidates.runJson, relativePath: `${MACHINE_EXAMPLE_ROOT}/run.json` },
+    {
+      contents: candidates.recordsNdjson,
+      relativePath: `${MACHINE_EXAMPLE_ROOT}/records.ndjson`
+    }
+  ];
 }
 
 function isMainModule(): boolean {
@@ -56,21 +46,16 @@ function isMainModule(): boolean {
 }
 
 if (isMainModule()) {
-  const args = process.argv.slice(2);
-  try {
+  await runAsyncMain(async () => {
+    const args = process.argv.slice(2);
     if (args.length === 0) {
-      generatePublishedMachineExamples();
-      console.log(`generated machine examples: ${MACHINE_EXAMPLE_OUTCOMES.length} artifact set(s)`);
+      await generatePublishedMachineExamples();
+      console.log("generated machine examples: 1 artifact set");
     } else if (args.length === 1 && args[0] === "--check") {
-      checkPublishedMachineExamples();
-      console.log(
-        `machine example generation current: ${MACHINE_EXAMPLE_OUTCOMES.length} artifact set(s)`
-      );
+      await checkPublishedMachineExamples();
+      console.log("machine example generation current: 1 artifact set");
     } else {
       throw new Error("usage: machine-artifacts/examples/command.ts [--check]");
     }
-  } catch (error: unknown) {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  }
+  });
 }

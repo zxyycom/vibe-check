@@ -1,6 +1,6 @@
 ---
 title: 在 package 中交付当前 machine contract 材料
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T15:05:30Z
 purpose: 让 package consumer 从同一安装版本取得 machine v4 说明、schemas 与可验证示例。

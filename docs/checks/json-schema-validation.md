@@ -142,9 +142,6 @@ remote-schema-id-mismatch
 这些 issue 会让正常 outcome 为 `failed`，不同于 engine 或 transport `unavailable`。Records 不包含 source/response
 bytes、raw reference、credentials、engine message 或 stack。
 
-按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄
-`RunResult.kind`，再按 `json-schema-validation` checkId 读取 outcome。
-
 `failed` outcome 携带 `schema-validation-issues` error message；当 Records 因 100 条上限被截断时，message 会直接说明。
 由本 Check 结算的 `unavailable` 使用对应 `reason.code` 提供可操作 error message；`passed` 与 `not-applicable` 不合成人为
 提示。

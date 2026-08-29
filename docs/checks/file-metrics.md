@@ -22,30 +22,8 @@ const check = fileMetrics();
 
 ## 参数与默认配置
 
-constructor input 只有三个可省略的顶层字段：
-
-```text
-options
-├─ codeAreas?
-│  └─ [areaId]
-│     ├─ files
-│     │  ├─ source?
-│     │  ├─ include?
-│     │  └─ exclude?
-│     ├─ findingPolicy?
-│     └─ codeLines?
-│        ├─ maximum?
-│        └─ lowDecisionTokenAllowance?
-│           ├─ maximumCodeLines?
-│           └─ maximumDecisionTokens?
-├─ findingPolicy?
-└─ scanner?
-   └─ executable?
-```
-
-每个 `codeAreas[areaId]` 同时拥有文件选择和代码行策略，因此不同区域可以选择不同文件并使用不同上限。
-
-无参调用物化以下完整、冻结的 Check options：
+顶层 `codeAreas`、`findingPolicy` 与 `scanner` 都可省略。每个 `codeAreas[areaId]` 同时拥有文件选择和代码行
+策略，因此不同区域可以选择不同文件并使用不同上限。无参调用物化以下完整、冻结的 Check options：
 
 ```ts
 {
@@ -179,14 +157,6 @@ go = "1.25"
 运行 `mise install` 后，用 `scc --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
 `scanner.executable` 指向已授权、直接接受上述协议并产生 SCC 3.7.0-compatible output 的 executable 即可。
 
-## 构造函数与普通 Check 的边界
-
-constructor 返回的仍是普通 Check object，可直接放入 `defineConfig({ checks: [...] })`。constructor 同步校验 authored
-input、补齐 defaults，并冻结完整 resolved options。
-
-constructor 返回后，项目仍可用普通对象组合替换 Check options；owning preflight 和 execution 会再次验证该完整 resolved
-shape。非法 replacement 不会重新获得 constructor defaults，而是结算为 `unavailable / invalid-options`。
-
 ## 效果与结果
 
 每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。正常 final data 恰为
@@ -205,9 +175,6 @@ shape。非法 replacement 不会重新获得 constructor defaults，而是结�
   path: string;
 }
 ```
-
-读取结果时先缩窄 `RunResult.kind`，再按 `file-metrics` checkId 查找 Check outcome；完整读取顺序见
-[README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)。
 
 `failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
 调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding

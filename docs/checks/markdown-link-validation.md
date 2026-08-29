@@ -116,9 +116,6 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 `range` 使用 one-based、end-exclusive 的 decoded UTF-16 line/column。`outside-project-root` descriptor 不携带 target
 path 或 fragment。
 
-按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄
-`RunResult.kind`，再按 `markdown-link-validation` checkId 读取 outcome。
-
 `failed` outcome 携带 `invalid-local-links` error message，并引导调用方检查 Records 的 source range、target 与 reason。由本
 Check 结算的 `unavailable` 使用对应 `reason.code` 提供可操作 error message；`passed` 与 `not-applicable` 不合成人为提示。
 

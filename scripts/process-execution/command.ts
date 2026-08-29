@@ -62,8 +62,20 @@ export function runMain(action: () => void): void {
   try {
     action();
   } catch (error) {
-    const failure = processFailure(error);
-    console.error(failure.message);
-    process.exitCode = typeof failure.code === "number" ? failure.code : 1;
+    reportMainFailure(error);
   }
+}
+
+export async function runAsyncMain(action: () => Promise<void>): Promise<void> {
+  try {
+    await action();
+  } catch (error) {
+    reportMainFailure(error);
+  }
+}
+
+function reportMainFailure(error: unknown): void {
+  const failure = processFailure(error);
+  console.error(failure.message);
+  process.exitCode = typeof failure.code === "number" ? failure.code : 1;
 }

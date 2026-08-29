@@ -2,7 +2,7 @@
 
 ## Case WB-OUTPUT-MACHINE-V4-CONTRACT-001: Machine v4 publication contract
 
-Owner: `docs/output.md#check-facts-到-machine-files-的投影`
+Owner: `docs/output.md#字段与完整集合验证`
 Entities:
 
 - `bun|src/machine-output/v4/publication.test.ts|machine publication v4 contract > projects four terminal Check outcomes and minimal supplemental Records`
@@ -15,16 +15,16 @@ Entities:
 
 ## Case WB-OUTPUT-PUBLISHED-MATERIALS-001: Generated v4 publication materials remain canonical
 
-Owner: `docs/output.md#随包材料与版本边界`
+Owner: `docs/output.md#随包材料与版本`
 Entities:
 
 - `bun|src/machine-output/v4/contract-materials.test.ts|machine publication v4 materials > serializes candidate bytes accepted by the current schemas`
   Proves:
-- Runtime v4 serializer candidates are accepted by the current runtime schemas, without publishing a second contract-material helper.
+- Runtime v4 serializer candidates are accepted by the current runtime schemas, without publishing a second contract-material helper. The packaged mixed-outcomes Definition/output correspondence is closed separately by the independent docs material evidence.
 
 ## Case WB-OUTPUT-PUBLICATION-LIFECYCLE-001: Publication lifecycle closes candidates before trusted paths
 
-Owner: `docs/output.md#发布生命周期与可信边界`
+Owner: `docs/output.md#发布与并发读取边界`
 Entities:
 
 - `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
@@ -37,7 +37,7 @@ Entities:
 
 ## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
 
-Owner: `docs/output.md#进度呈现边界`
+Owner: `docs/api-mechanics.md#outputs-与-runresult-边界`
 Entities:
 
 - `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
@@ -59,18 +59,18 @@ Proves:
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 
-Owner: `docs/output.md#package-材料的维护与验证`
+Owner: `docs/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
-- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 examples and positive JSON grammar variants`
+- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants`
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
   Proves:
-- The independent docs validator accepts only checked-in v4 schemas/examples and closes v4 framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator.
+- The independent docs validator accepts only the checked-in mixed-outcomes Definition/output set and current v4 schemas. It executes the Definition through the public Run to close built-in/custom Check and dependency-derived output drift, then independently verifies framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator as its artifact acceptance authority.
 
 ## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Current v4 example validation rejects historical machine identities
 
-Owner: `docs/output.md#package-材料的维护与验证`
+Owner: `docs/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`

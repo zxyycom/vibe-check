@@ -69,6 +69,7 @@
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
+      "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:585dece1c07c03f6e0108392e41efb0d8d353c9ac0e8e0ba962c0aa640c861e7",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
       "keep-project-workflow-skill-overrides-bounded.md": "sha256:91f4836ca23599c2afe5a117368d3e6630bb412d520c1189f77aac339a60800a",
@@ -128,7 +129,9 @@
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
       "share-finding-policy-across-area-quality-checks.md": "sha256:16e70625e6a80d693b5a59510241c55d72194edf7fed3750456a555d03a69aa0",
-      "ship-current-machine-contract-materials-in-the-package.md": "sha256:9621f25e30f6d1f6d998ff7a79bb6077bf968b4a535a0a7b1b8c59b3d50afdd2",
+      "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
+      "ship-one-capability-rich-machine-example.md": "sha256:6f58fc71d58bd72d614af34475b0d2f07a585a934d0b85fc66210ca0ab2754e8",
+      "ship-one-definition-backed-machine-example.md": "sha256:9d6ee52c5758930a8647616927a8e615a6819082dd232523aaa34530106796b8",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:e31723b8ca3ca4757cb9897633bae197999cb1d30043807111e10e3b61fa561e",
@@ -2175,6 +2178,40 @@
         ]
       }
     },
+    "keep-package-machine-docs-consumer-focused.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/keep-package-machine-docs-consumer-focused.md",
+        "title": "让 package machine 文档只承接消费契约",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T02:17:38Z",
+        "purpose": "让安装包只交付读取 machine publication 所需的契约、schema 与代表性 bytes。",
+        "background": "Output guide 的仓库维护章节和四份重复示例 README 增加了安装包阅读负担，却不改变 consumer 的读取动作。",
+        "decision": "将 machine consumer 契约与仓库维护说明分开，package 示例只交付每组完整 publication bytes。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "ship-current-machine-contract-materials-in-the-package.md"
+          }
+        ]
+      }
+    },
     "keep-prestable-package-releases-on-0-0-x.md": {
       "keys": {
         "tag": [
@@ -4024,16 +4061,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "ship-current-machine-contract-materials-in-the-package.md",
+        "sourcePath": "archive/ship-current-machine-contract-materials-in-the-package.md",
         "title": "在 package 中交付当前 machine contract 材料",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T15:05:30Z",
         "purpose": "让 package consumer 从同一安装版本取得 machine v4 说明、schemas 与可验证示例。",
@@ -4044,6 +4081,74 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "ship-one-capability-rich-machine-example.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "ship-one-capability-rich-machine-example.md",
+        "title": "让唯一 machine 示例覆盖代表性公共 Check 能力",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T04:17:23Z",
+        "purpose": "让 package consumer 从一组可执行材料同时理解内置 Check、自定义工作流与 machine publication 的对应效果。",
+        "background": "只有四个直接返回终态的自定义 Check 虽能覆盖 wire grammar，却不能展示真实 Definition 如何组合公共能力或使用随包 Check。",
+        "decision": "保留唯一 mixed-outcomes 示例，以一个真实内置 Check 和一条自定义依赖工作流形成代表性结果，并由完整 public Run 生成输出。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "ship-one-definition-backed-machine-example.md"
+          }
+        ]
+      }
+    },
+    "ship-one-definition-backed-machine-example.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/ship-one-definition-backed-machine-example.md",
+        "title": "只随包交付一组由 Definition 支撑的 machine 示例",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T03:49:57Z",
+        "purpose": "让 package consumer 用一份可执行配置和对应输出理解完整 machine publication，同时避免按 outcome 重复整组材料。",
+        "background": "四组示例只替换 terminal outcome，却重复同一 two-file 结构；只交付输出又无法说明哪些 Project Definition 会形成这些事实。",
+        "decision": "只交付一组 mixed-outcomes Definition 与对应输出，并从该 Definition 生成 Check/Record facts。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "keep-package-machine-docs-consumer-focused.md"
+          }
+        ]
       }
     },
     "split-external-consumer-acceptance-with-typed-provider-data.md": {

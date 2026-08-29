@@ -1,9 +1,9 @@
 export const CURRENT_MACHINE_EXAMPLES_ROOT = "docs/examples/artifacts";
-export const CURRENT_MACHINE_OUTCOMES = [
-  "complete-passed",
-  "complete-failed-with-record",
-  "legitimate-empty",
-  "unavailable"
+export const CURRENT_MACHINE_EXAMPLE = "mixed-outcomes";
+export const CURRENT_MACHINE_EXAMPLE_FILES = [
+  "definition.ts",
+  "records.ndjson",
+  "run.json"
 ] as const;
 export const RECORDS_ARTIFACT = "records.ndjson";
 export const RUN_ARTIFACT = "run.json";

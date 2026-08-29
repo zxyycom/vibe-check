@@ -2,7 +2,7 @@
 
 Vibe Check 是由 consumer 项目在 **Bun** runtime 中调用的 TypeScript API。项目把一个质量动作定义为 **Check**，把 Checks 组成 **Project Definition**，再通过一次 **Run** 获得可审计结果。所有公开能力都从 `vibe-check` package root 导入，Definition 和 Run invocation 由 consumer 项目代码拥有。
 
-本 README 直接列出常用自定义 API 的参数、默认值和可观察效果，并给出从 Check 定义到结果读取的完整最小路径。需要 options preflight、typed dependency、aggregation policy 或 output failure 的完整机制时，继续阅读[深入 API 机制](./docs/api-mechanics.md)；读取 `run.json` 与 `records.ndjson` 时，使用随包发布的 [machine output 契约](./docs/output.md)；配置随包 Check 时，直接阅读对应的独立指南；查询精确 TypeScript overload 时，以 installed declarations 的 JSDoc 为准。
+本 README 直接列出常用自定义 API 的参数、默认值和可观察效果，并给出从 Check 定义到结果读取的完整最小路径。需要 options preflight、typed dependency、aggregation policy 或 output failure 的完整机制时，继续阅读[深入 API 机制](./docs/api-mechanics.md)；读取 `run.json` 与 `records.ndjson` 时，使用随包发布的[机器输出契约](./docs/output.md)；配置随包 Check 时，直接阅读对应的独立指南；查询精确 TypeScript overload 时，以 installed declarations 的 JSDoc 为准。
 
 ## 自定义 Check 快速开始
 
@@ -181,7 +181,7 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 
 ## 随包提供的 Check
 
-随包提供的七个导出都是返回普通 Check 的函数。除 `maintenanceReminders(entries)` 必须接收提醒条目外，其余函数都接受可省略的 authoring options；无参调用会补齐该 Check 的完整默认 options。这六个 defaulting constructor 会同步拒绝 unknown 或非法 authoring 字段；`maintenanceReminders` 的条目政策由所属 Check 的 preflight 在 Run 全局 barrier 中验证。所有返回值仍遵循上一节的通用 execution、Records 与 result contract。
+随包提供的七个导出都是返回普通 Check 的函数。除 `maintenanceReminders(entries)` 必须接收提醒条目外，其余函数都可无参调用并补齐默认 options。参数、默认值、结果和运行前提由表中的独立指南完整说明。
 
 | 导出与 Check ID | 调用形式与主要效果 | 默认运行前提 |
 | --- | --- | --- |
@@ -193,58 +193,15 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 | [`markdownLinkValidation`](./docs/checks/markdown-link-validation.md)；`markdown-link-validation` | `markdownLinkValidation(options?)` 离线验证本地 Markdown 链接与锚点。 | 只读取经过 policy 授权的本地路径，不执行外部 command 或网络请求。 |
 | [`maintenanceReminders`](./docs/checks/maintenance-reminders.md)；`maintenance-reminders` | `maintenanceReminders(entries)` 按 Git first-parent 历史提示维护复核。 | project root 是 Git repository，且 runtime 可以执行 `git`。 |
 
-构造函数按字段补默认值，包括 `jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 的 nested authoring branches。显式数组仍是完整替换值。函数返回后如果再用普通对象组合替换 `check.options`，替换值必须是完整 resolved shape；preflight 不会重新执行 constructor merge。`maintenanceReminders` 只接收 entries，并固定 Git execution policy。各指南分别列出 authoring options、resolved defaults 与合法组合示例。
+六个 defaulting constructor 会同步拒绝 unknown 或非法 authoring fields；`maintenanceReminders` 在 Run 的全局 preflight barrier 中验证 entries。显式数组是完整替换值；constructor 返回后若用普通对象组合替换 `check.options`，替换值必须是完整 resolved shape。
 
-### 内置结果、消息与解析器
+每项随包 Check 都在返回对象上提供 `parseData(unknown)`，并从 package root 导出同一 final-data parser 与相关类型；具体名称见对应指南。parser 只处理 `passed` / `failed` 的单项 final data，不验证 machine bytes。随包 Check 自己结算的失败、不可用和 non-blocking finding 会附带可操作 message；通用 API 和自定义 Check 仍只保证可选的 `messages?`。
 
-随包 Check 对其代码明确结算的失败、不可用和“发现问题但 policy 不阻断”分支，均附带至少一条可操作 message：message
-说明下一步应检查 Records、配置、项目路径、外部工具或取消原因。通用 API 仍只规定 `messages?`；这项保证不延伸到
-Product 在 Check callback 之外形成的防御性失败，也不延伸到调用方自定义 Check。
-
-`passed` / `failed` outcome 的 `data` 可以用返回 Check 的 `parseData` 读取，也可以用 package root 的同名独立 parser 读取。两种入口使用同一实现，接受 `unknown`、验证该 Check 的 closed shape 与计数不变量，并返回脱离输入的只读数据；不匹配时抛出 `TypeError`。
-
-| Check | 独立 parser | final-data type |
-| --- | --- | --- |
-| `duplicate-detection` | `parseDuplicateDetectionData` | `DuplicateDetectionFinalData` |
-| `file-metrics` | `parseFileMetricsData` | `FileMetricsFinalData` |
-| `function-metrics` | `parseFunctionMetricsData` | `FunctionMetricsFinalData` |
-| `json-validation` | `parseJsonValidationData` | `JsonValidationFinalData` |
-| `json-schema-validation` | `parseJsonSchemaValidationData` | `JsonSchemaValidationFinalData` |
-| `markdown-link-validation` | `parseMarkdownLinkValidationData` | `MarkdownLinkValidationFinalData` |
-| `maintenance-reminders` | `parseMaintenanceRemindersData` | `MaintenanceRemindersFinalData` |
-
-```ts
-import { jsonValidation, parseJsonValidationData } from "vibe-check";
-
-const check = jsonValidation({ files: { include: ["config/**/*.json"] } });
-
-export function readJsonValidationData(dependencyData: unknown, validatedRunData: unknown) {
-  return {
-    fromDependency: check.parseData(dependencyData),
-    fromValidatedRunRow: parseJsonValidationData(validatedRunData)
-  };
-}
-```
-
-parser 只验证单个 Check 的 final-data object，不解析 JSON bytes，也不验证 machine artifact envelope、schema identity、Record set 或版本。读取外部 `run.json` / `records.ndjson` 时，先按 [machine output 契约](./docs/output.md)验证完整 publication set，再把目标 `passed` / `failed` row 的 `outcome.data` 交给对应 parser。`not-applicable` 与 `unavailable` 没有 final data，不应调用 parser。
-
-### 三个代码质量构造函数的共通配置
-
-`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 都用 `codeAreas[id]` 组织区域策略。每个显式区域必须提供
-`files`：`source` 选择 `"filesystem" | "git-worktree"`，`include` 选择路径，`exclude` 以更高优先级移除路径。
-默认 `filesystem` 不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。
-省略 `include` 时使用 `["**/*"]`；省略 `exclude` 时使用各指南列出的 package 默认排除项。显式数组会完整替换对应
-默认值，`include: []` 不选择路径，`exclude: []` 不排除路径。
-
-顶层 `findingPolicy` 为区域提供 `"blocking" | "non-blocking"` 默认值。所有可信 finding 都形成带 `blocking` 的
-Record；正常 final data 为 `{ findingCount, blockingFindingCount }`。重复代码的行数与 token 下限、文件代码行策略、
-函数规模/复杂度/参数上限以及 scanner 配置分别由上表对应指南完整说明。
-
-每份指南负责该 Check 的完整初始 options、工作过程、terminal effects、message codes、parser/types、可用性、安全边界、最小用法和适用边界。consumer imports 继续使用 `vibe-check` package root。
+三个代码质量 Check 都用 `codeAreas[id]` 组合文件范围、阈值与 `blocking | non-blocking` policy；每项指南分别拥有该 Check 的指标和 scanner options。consumer 按目标 Check 的指南配置，imports 始终使用 `vibe-check` package root。
 
 ## 包内结构与源码恢复
 
-安装包根部的 `index.mjs` 是公开 runtime entry，并转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript declarations。每个 runtime module 都有对应 source map，`src/**.ts` 保留生成模块的 Product source，供实现检查和堆栈定位。`docs/output.md`、当前 v4 run / Record schemas 与四组完整 artifact examples 也随包发布，供 machine consumer 在安装目录内直接核对契约和字节示例。
+安装包根部的 `index.mjs` 是公开 runtime entry，并转发到可读的 `dist/esm/**.mjs` 实现模块；`types/**.d.ts` 提供 TypeScript declarations。每个 runtime module 都有对应 source map，`src/**.ts` 保留生成模块的 Product source，供实现检查和堆栈定位。`docs/output.md`、当前 v4 run / Record schemas，以及一组由 TypeScript Definition 支撑、混合内置与自定义 Check 的完整 artifact example 也随包发布，供 machine consumer 在安装目录内直接核对输入、契约和输出 bytes。
 
 consumer code 从 `vibe-check` 导入；`dist/**`、`types/**` 和 `src/**` 用于 package inspection、类型解析与调试。
 

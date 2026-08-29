@@ -52,95 +52,17 @@ preflight 返回以下三种 closed result 之一：
 
 Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
 
-### 完整运行示例
-
-下面的完整示例故意让 Check 返回 `failed`。预期组合是 `RunResult.kind === "completed"`、该 Check outcome 为 `failed`、显式 aggregate 也为 `failed`；这三个值分别表达 Run lifecycle、单项业务结果和调用级 policy：
-
-```ts
-import { defineCheck, defineConfig, run } from "vibe-check";
-
-function hasValidLicensePolicyOptions(options: object): boolean {
-  const denied: unknown = Reflect.get(options, "denied");
-  return (
-    Object.keys(options).length === 1 &&
-    Object.hasOwn(options, "denied") &&
-    Array.isArray(denied) &&
-    denied.every((license) => typeof license === "string")
-  );
-}
-
-const licensePolicy = defineCheck({
-  checkId: "license-policy",
-  displayName: "License policy",
-  options: { denied: ["GPL-3.0-only"] },
-  preflight(options) {
-    return hasValidLicensePolicyOptions(options)
-      ? { status: "success", preparedOptions: options }
-      : { status: "failure", action: "block", reason: { code: "invalid-options" } };
-  },
-  visibility: "attention",
-  execution({ options, records, signal }) {
-    if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
-
-    const deniedCount = options.denied.length;
-    if (deniedCount > 0) {
-      records.report({ id: "denied-license" }, { count: deniedCount });
-      return {
-        status: "failed",
-        data: { deniedCount },
-        messages: [{ level: "warning", code: "denied-license", message: "Denied licenses found." }]
-      };
-    }
-    return { status: "passed", data: { deniedCount: 0 } };
-  }
-});
-
-const definition = defineConfig({
-  checks: [licensePolicy],
-  outputs: {
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  }
-});
-
-const result = await run(definition, {
-  checkAggregation: {
-    checks: "all",
-    mode: "all",
-    unavailable: "propagate",
-    notApplicable: "exclude",
-    empty: "passed"
-  }
-});
-if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-if (result.aggregate !== "failed") throw new Error("Expected the selected Checks to fail");
-const outcome = result.snapshot.checks.find(
-  ({ checkId }) => checkId === licensePolicy.checkId
-)?.outcome;
-if (outcome?.status !== "failed" || outcome.data.deniedCount !== 1) {
-  throw new Error("License policy did not produce the expected failed outcome");
-}
-```
-
 ## terminal result、Records 与 messages
 
 每个可执行 Check 返回一个 terminal result：`passed` / `failed` 带 Check-owned object final data；`not-applicable` / `unavailable` 以 reason 表示本次调用的数据边界。settlement 会 detach、canonicalize 并关闭 final data；callback throw、malformed result 或 noncanonical data 对应 `unavailable` outcome。
 
 `records.report({ id }, data)` 在 owning Check namespace 内追加 supplemental Record。每个 `id` 非空且在该 Check 内唯一，Record data 使用 canonical JSON object；无效或重复 Record 把 owning Check 结算为 `unavailable`。settlement 保留此前已经接受的 Records。
 
-`messages?` 是通用 Check API 允许携带的有序人读补充信息，不是所有 Check 或所有状态都必须提供的字段。owning Check 决定哪些 preflight / terminal 分支携带 message；consumer 必须先按 outcome 处理事实，不能依赖 message presence 判断状态。`visibility: "attention"` 只选择需要 attention 时呈现的 progress。final data、supplemental Records 和 messages 分别承载主要事实、补充事实和可选人读说明。
-
-随包 Check 对其代码明确结算的失败、不可用和 non-blocking finding 分支，均附带至少一条可操作 message；各 Check 指南列出
-具体 message codes。这项 Check-local 保证不会把 generic `messages?` 改成必需字段，也不覆盖 Product 在 callback 之外形成的
-防御性 settlement。
+`messages?` 是 owning Check 可选的有序人读说明；consumer 必须先按 outcome 处理事实，不能用 message presence 推断状态。final data、Records 和 messages 分别承载主要事实、补充事实和人读说明。随包 Check 的额外 message 保证由各自指南说明。
 
 ## 递归组合与继承
 
-带 `execution` 的 Check node 形成自己的 outcome，也可以同时包含子 `checks`；没有 `execution` 的 node 只组织子 Check
-及其 scheduling scope。解析后的每个可执行节点获得自己的 effective display、options、dependency、mutex、visibility 与
-parallel budget。container 自身不产生 outcome。
-
-普通对象字段表示显式 replacement：新的 `options` 提供 owning Check 的完整 closed shape，新的 `dependsOn` 或 `mutex` 数组替换 inherited collection。`inherit({ add, remove })` 表示在父 collection 上增删。effective configuration 完全由这些显式值和 edits 决定。
+带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、dependencies、mutexes、visibility 与 parallel budget。
 
 ## 类型化依赖数据
 
@@ -204,7 +126,7 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用该 parser 恢复 provider data。七个随包 Check 都在返回对象上提供 `parseData`，并从 package root 额外导出同一 final-data parser；名称与 final-data types 见 [README 的内置结果、消息与解析器](../README.md#内置结果消息与解析器)。
+dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。七个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
 
 ## RunControls 与 Check aggregation
 
@@ -222,7 +144,9 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 machine publication 和 progress rendering defaults，RunControls 可以对当前调用局部覆盖。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。两个 output 都由 Run 调度，并分别记录 status。machine bytes、schema identity、完整 publication-set validation 与随包示例由 [machine output 契约](output.md)说明；Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
+Definition outputs 提供 machine publication 和 progress rendering defaults，RunControls 可以对当前调用局部覆盖。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。两个 output 都由 Run 调度，并分别记录 status。machine bytes、schema identity、完整 publication-set validation 与随包示例由[机器输出契约](output.md)说明；Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
+
+progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted message 的 code 保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 

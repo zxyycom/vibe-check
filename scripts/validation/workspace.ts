@@ -1,9 +1,9 @@
-import { reportProcessOutput, runCommand, runMain } from "../process-execution/command.ts";
+import { reportProcessOutput, runAsyncMain, runCommand } from "../process-execution/command.ts";
 import { TASK_NAMES } from "./documentation/task-contract.ts";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
 import { parseDocsValidationTasks, validateDocs } from "./documentation/workflow.ts";
 
-function validate(argv: readonly string[]): void {
+async function validate(argv: readonly string[]): Promise<void> {
   if (argv.length > 0 && argv[0] !== "docs") {
     throw new Error(
       `usage: bun scripts/validation/workspace.ts [docs [json|schema|examples|links|${TASK_NAMES.packageApiDocumentation}]...]`
@@ -12,7 +12,7 @@ function validate(argv: readonly string[]): void {
 
   const docsOnly = argv[0] === "docs";
   const tasks = parseDocsValidationTasks(argv.slice(docsOnly ? 1 : 0));
-  validateDocs({
+  await validateDocs({
     ...(tasks.length === 0 ? {} : { tasks }),
     report: (message) => console.log(message)
   });
@@ -23,5 +23,5 @@ function validate(argv: readonly string[]): void {
 }
 
 if (import.meta.main) {
-  runMain(() => validate(process.argv.slice(2)));
+  await runAsyncMain(() => validate(process.argv.slice(2)));
 }

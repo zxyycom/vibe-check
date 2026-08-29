@@ -5,8 +5,9 @@ import { artifactPath, formatDiagnostic } from "./diagnostics.ts";
 import { validateArtifactSetInvariants } from "./invariants.ts";
 import { createCurrentSchemaValidators, validateRecordStream, validateRun } from "./parsing.ts";
 import {
+  CURRENT_MACHINE_EXAMPLE,
+  CURRENT_MACHINE_EXAMPLE_FILES,
   CURRENT_MACHINE_EXAMPLES_ROOT,
-  CURRENT_MACHINE_OUTCOMES,
   RECORDS_ARTIFACT,
   RUN_ARTIFACT,
   type DocsMachineArtifactBytes,
@@ -22,21 +23,19 @@ export type {
 } from "./artifact-shapes.ts";
 
 export function validatePublishedMachineArtifactExamples(): number {
-  assertExactOutcomeInventory();
+  assertExactExampleInventory();
   const schemas = createCurrentSchemaValidators();
-  for (const outcome of CURRENT_MACHINE_OUTCOMES) {
-    const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${outcome}`;
-    const result = validateDocsMachineArtifactSetWithSchemas(
-      {
-        runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
-        recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
-      },
-      artifactRoot,
-      schemas
-    );
-    if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
-  }
-  return CURRENT_MACHINE_OUTCOMES.length;
+  const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`;
+  const result = validateDocsMachineArtifactSetWithSchemas(
+    {
+      runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
+      recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
+    },
+    artifactRoot,
+    schemas
+  );
+  if (!result.ok) throw new Error(formatDiagnostic(result.diagnostic));
+  return 1;
 }
 
 export function validateDocsMachineArtifactSet(
@@ -71,7 +70,7 @@ function validateDocsMachineArtifactSetWithSchemas(
   };
 }
 
-function assertExactOutcomeInventory(): void {
+function assertExactExampleInventory(): void {
   let entries: fs.Dirent[];
   try {
     entries = fs.readdirSync(toDocumentationAbsolutePath(CURRENT_MACHINE_EXAMPLES_ROOT), {
@@ -82,20 +81,43 @@ function assertExactOutcomeInventory(): void {
       `current machine artifact example root is missing or unreadable: ${CURRENT_MACHINE_EXAMPLES_ROOT}`
     );
   }
-  const expected = new Set<string>(CURRENT_MACHINE_OUTCOMES);
   for (const entry of entries) {
-    if (!entry.isDirectory() || !expected.has(entry.name)) {
+    if (!entry.isDirectory() || entry.name !== CURRENT_MACHINE_EXAMPLE) {
       throw new Error(
-        `unexpected current machine artifact example path: ${CURRENT_MACHINE_EXAMPLES_ROOT}/${entry.name}; expected exactly ${CURRENT_MACHINE_OUTCOMES.join(", ")}`
+        `unexpected current machine artifact example path: ${CURRENT_MACHINE_EXAMPLES_ROOT}/${entry.name}; expected exactly ${CURRENT_MACHINE_EXAMPLE}`
       );
     }
   }
-  for (const outcome of CURRENT_MACHINE_OUTCOMES) {
-    if (!entries.some((entry) => entry.isDirectory() && entry.name === outcome)) {
+  const example = entries.find(
+    (entry) => entry.isDirectory() && entry.name === CURRENT_MACHINE_EXAMPLE
+  );
+  if (example === undefined) {
+    throw new Error(
+      `missing current machine artifact example directory: ${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`
+    );
+  }
+  const exampleRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`;
+  const files = readExampleDirectory(exampleRoot);
+  const expectedFiles = new Set<string>(CURRENT_MACHINE_EXAMPLE_FILES);
+  for (const entry of files) {
+    if (!entry.isFile() || !expectedFiles.has(entry.name)) {
       throw new Error(
-        `missing current machine artifact example directory: ${CURRENT_MACHINE_EXAMPLES_ROOT}/${outcome}`
+        `unexpected current machine artifact example path: ${exampleRoot}/${entry.name}`
       );
     }
+  }
+  for (const fileName of CURRENT_MACHINE_EXAMPLE_FILES) {
+    if (!files.some((entry) => entry.isFile() && entry.name === fileName)) {
+      throw new Error(`missing current machine artifact example file: ${exampleRoot}/${fileName}`);
+    }
+  }
+}
+
+function readExampleDirectory(relativePath: string): fs.Dirent[] {
+  try {
+    return fs.readdirSync(toDocumentationAbsolutePath(relativePath), { withFileTypes: true });
+  } catch {
+    throw new Error(`current machine artifact example directory is unreadable: ${relativePath}`);
   }
 }
 

@@ -265,15 +265,20 @@ mechanics 文档和 machine output 指南，不发布 `docs/index.md` 或 `docs/
 public package-provided Check functions 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF
 且恰有一个 trailing LF，并拒绝缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
 
-current machine schemas 位于 `docs/schemas/`，artifact examples 位于 `docs/examples/artifacts/**`；
-`scripts/docs/machine-artifacts/examples/**` 维护 machine example 的生成与投影；`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。
+current machine schemas 位于 `docs/schemas/`，唯一 artifact example 位于
+`docs/examples/artifacts/mixed-outcomes/`；其中 `definition.ts` 是直接随包发布的可执行 Project Definition，
+`scripts/docs/machine-artifacts/examples/**` 通过完整 public Run 执行其中的内置 Check 与自定义依赖 workflow，并生成同目录的
+`run.json` 与 `records.ndjson`；
+`scripts/validation/documentation/machine-artifacts/**` 独立验收已发布的 machine artifact。实现与材料维护边界见
+[机器输出实现与材料维护](output-maintenance.md)。
 `scripts/docs/machine-artifacts/package-materials.ts` 是随 package 发布的 machine material 精确 registry：它只包含
-`docs/output.md`、current v4 run / Record schemas 与四组 current artifact examples，并按原始 bytes 读取。package build、
+`docs/output.md`、current v4 run / Record schemas 与这一组 Definition/output materials，并按原始 bytes 读取。package build、
 packed tar audit、candidate reuse、installed package audit 与 ancestry-external consumer acceptance 都比较同一 registry 的精确
-bytes；因此零字节 `records.ndjson` 不经过 Markdown 或 UTF-8 normalization。legacy schemas、historical examples、generator
-sources 与 validation scripts 不进入 package。
+bytes；installed consumer typecheck 直接检查 Definition，documentation acceptance 还用 candidate runtime 执行它并核对
+documented built-in/custom facts、RunResult messages 与 machine publication。legacy schemas、historical examples、generator sources 与 validation scripts 不进入
+package。
 
-Documentation validation library functions 只通过 `validateDocs({ report })` 的显式 reporter 发布成功消息；不提供
+Documentation validation library functions 返回 Promise，调用方必须等待 completion；它们只通过 `validateDocs({ report })` 的显式 reporter 发布成功消息。不提供
 reporter 时保持静默。CLI 入口提供 console reporter，Project Gate 的 in-process docs Checks 不提供，从而不在 Product
 拥有 TTY running region 时向同一 stdout 插入未登记内容。
 

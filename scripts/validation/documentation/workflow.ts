@@ -10,11 +10,14 @@ import {
 import { checkPublishedMachineExamples } from "../../docs/machine-artifacts/examples/command.ts";
 import { checkPublishedMachineSchemas } from "../../docs/machine-artifacts/schemas.ts";
 import { runPackageApiDocumentationCli } from "../../docs/package-api/command.ts";
+import { runAsyncMain } from "../../process-execution/command.ts";
 
 /** Documentation acceptance task names; providers remain under scripts/docs. */
 export type DocsValidationTask = (typeof TASK_NAMES)[keyof typeof TASK_NAMES];
 
-const tasks: Readonly<Record<DocsValidationTask, (report?: (message: string) => void) => void>> = {
+type DocsValidationAction = (report?: (message: string) => void) => void | Promise<void>;
+
+const tasks: Readonly<Record<DocsValidationTask, DocsValidationAction>> = {
   [TASK_NAMES.json]: validateJsonSyntax,
   [TASK_NAMES.schema]: validatePublishedSchemas,
   [TASK_NAMES.examples]: validatePublishedExamples,
@@ -40,18 +43,18 @@ export function parseDocsValidationTasks(argv: readonly string[]): readonly Docs
   return selectedTasks;
 }
 
-export function validateDocs(
+export async function validateDocs(
   options: Readonly<{
     tasks?: readonly DocsValidationTask[];
     report?: (message: string) => void;
   }> = {}
-): void {
+): Promise<void> {
   const selectedTasks =
     options.tasks === undefined ? Object.values(TASK_NAMES) : [...new Set(options.tasks)];
   for (const taskName of selectedTasks) {
     const task = tasks[taskName];
     assert(task, `unknown validation task: ${taskName}`);
-    task(options.report);
+    await task(options.report);
   }
 }
 
@@ -60,9 +63,9 @@ function validatePackageApiDocumentation(_report?: (message: string) => void): v
   if (result.exitCode !== 0) throw new Error(result.diagnostics.join("\n"));
 }
 
-function validatePublishedExamples(report?: (message: string) => void): void {
+async function validatePublishedExamples(report?: (message: string) => void): Promise<void> {
   const artifactSetCount = validatePublishedMachineArtifactExamples();
-  checkPublishedMachineExamples();
+  await checkPublishedMachineExamples();
   report?.(`current machine artifact examples ok: ${artifactSetCount} set(s)`);
   validateReportExamples(report);
 }
@@ -73,14 +76,11 @@ function validatePublishedSchemas(report?: (message: string) => void): void {
 }
 
 if (import.meta.main) {
-  try {
+  await runAsyncMain(async () => {
     const requestedTasks = parseDocsValidationTasks(process.argv.slice(2));
-    validateDocs({
+    await validateDocs({
       ...(requestedTasks.length === 0 ? {} : { tasks: requestedTasks }),
       report: (message) => console.log(message)
     });
-  } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 1;
-  }
+  });
 }

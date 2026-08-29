@@ -52,7 +52,7 @@ describe("package API documentation CLI", () => {
       writeFileSync(
         apiMechanicsPath,
         readFileSync(apiMechanicsPath, "utf8").replace(
-          "function hasValidLicensePolicyOptions(options: object): boolean {",
+          "const CHANGED_FILES_DATA_VERSION = 1 as const;",
           "stale"
         ),
         "utf8"

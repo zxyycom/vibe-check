@@ -1,0 +1,2 @@
+{"checkId":"example-release-policy","data":{"actual":1,"expected":2,"severity":"error"},"id":"minimum-file-count","schemaVersion":"vibe-check.record.v4"}
+{"checkId":"example-release-policy","data":{"kind":"release-input","path":"package.json"},"id":"selected:package.json","schemaVersion":"vibe-check.record.v4"}

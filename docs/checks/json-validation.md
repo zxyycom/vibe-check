@@ -79,9 +79,6 @@ Record；Record ID 是 project-root-relative path，data 恰为：
 `reason` 表示 strict-document boundary 观察到的第一项文档问题；Record 不包含 JSON 内容、key、pointer、parser message
 或 stack。
 
-按 [README 的 Run / Check 结果规则](../../README.md#读取-run-和-check-结果)，先缩窄
-`RunResult.kind`，再按 `json-validation` checkId 读取 outcome。
-
 `failed` outcome 携带 `invalid-json-documents` error message，并引导调用方按 path / reason 检查 Records。由本 Check 结算的
 `unavailable` 使用对应 `reason.code` 提供可操作 error message；`passed` 与 `not-applicable` 不合成人为提示。
 
