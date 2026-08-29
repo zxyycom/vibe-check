@@ -1,17 +1,20 @@
 import { resolve } from "node:path";
 import { failedOutput } from "./output-status.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
-import { outputFailure, type RunResult, type RunResultFacts } from "./result.ts";
+import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "./result.ts";
 import type { CoreExecution, Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
   type TrustedPublicationModelV4
 } from "../machine-output/v4/publication-model.ts";
-export function completeInvocation(invocation: Invocation, core: CoreExecution): RunResult {
+export function completeInvocation(
+  invocation: Invocation,
+  core: CoreExecution
+): NonConfigurationRunResult {
   const facts = runFacts(core);
   if (invocation.outputConfiguration.machinePublication.enabled) {
     const model = createModel(invocation, core.snapshot);
-    if (isRunResult(model)) return model;
+    if (isExecutionResult(model)) return model;
     const published = publishMachineOutput({
       configuration: invocation.outputConfiguration.machinePublication,
       statuses: invocation.outputs,
@@ -42,7 +45,7 @@ export function completeInvocation(invocation: Invocation, core: CoreExecution):
       })
     : failure(invocation, facts);
 }
-function failure(invocation: Invocation, facts: RunResultFacts): RunResult {
+function failure(invocation: Invocation, facts: RunResultFacts): ReturnType<typeof outputFailure> {
   const output = failedOutput(invocation.outputs.value());
   if (output === undefined) throw new Error("Run output failed without a failed status");
   return outputFailure(
@@ -64,7 +67,7 @@ function runFacts(core: CoreExecution): RunResultFacts {
 function createModel(
   invocation: Invocation,
   snapshot: CoreExecution["snapshot"]
-): TrustedPublicationModelV4 | RunResult {
+): TrustedPublicationModelV4 | Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
   try {
     return createPublicationModelV4({
       invocation: {
@@ -84,12 +87,19 @@ function createModel(
     });
   }
 }
-function isRunResult(value: TrustedPublicationModelV4 | RunResult): value is RunResult {
+function isExecutionResult(
+  value:
+    | TrustedPublicationModelV4
+    | Extract<NonConfigurationRunResult, { readonly kind: "execution" }>
+): value is Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
   return "kind" in value;
 }
 
 /** Closes diagnostic logging and applies final output priority to a non-configuration candidate. */
-export function finalizeInvocation(invocation: Invocation, candidate: RunResult): RunResult {
+export function finalizeInvocation(
+  invocation: Invocation,
+  candidate: NonConfigurationRunResult
+): NonConfigurationRunResult {
   const preCloseOutputs = invocation.outputs.value();
   invocation.diagnosticLogger.observe({
     scope: "run",
@@ -112,12 +122,7 @@ export function finalizeInvocation(invocation: Invocation, candidate: RunResult)
             candidate.definitionWarnings,
             outputs,
             output,
-            resultFacts({
-              aggregate: candidate.aggregate,
-              checkDurations: candidate.checkDurations,
-              checkMessages: candidate.checkMessages,
-              snapshot: candidate.snapshot
-            })
+            finalSnapshotFacts(candidate)
           );
     }
     case "output": {
@@ -128,23 +133,23 @@ export function finalizeInvocation(invocation: Invocation, candidate: RunResult)
         candidate.definitionWarnings,
         outputs,
         output,
-        resultFacts({
-          aggregate: candidate.aggregate,
-          checkDurations: candidate.checkDurations,
-          checkMessages: candidate.checkMessages,
-          snapshot: candidate.snapshot
-        })
+        finalSnapshotFacts(candidate)
       );
     }
     case "planning":
     case "cancelled":
     case "execution":
       return Object.freeze({ ...candidate, outputs });
-    case "configuration":
-      return candidate;
   }
 }
 
-function resultFacts(facts: RunResultFacts): RunResultFacts {
-  return Object.freeze(facts);
+function finalSnapshotFacts(
+  candidate: Extract<NonConfigurationRunResult, RunResultFacts>
+): RunResultFacts {
+  return Object.freeze({
+    aggregate: candidate.aggregate,
+    checkDurations: candidate.checkDurations,
+    checkMessages: candidate.checkMessages,
+    snapshot: candidate.snapshot
+  });
 }

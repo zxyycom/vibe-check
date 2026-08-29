@@ -63,7 +63,7 @@ if (outcome?.status !== "passed" || outcome.data.actualBytes !== 82_000) {
 }
 ```
 
-示例选择关闭两个 Run-owned outputs，以形成无文件写入和无 progress rendering 的独立调用。项目也可以保留默认 outputs：machine publication 与 progress rendering 默认启用，machine files 写到 project root 下的 `artifacts/vibe-check`。同一份 Definition 可以重复传给 `run`，每次调用都会形成独立的 invocation facts。
+示例关闭三个 Run-owned outputs，以形成无文件写入、无 progress rendering 的独立调用。默认情况下，diagnostic logging 关闭；machine publication 与 progress rendering 开启，machine files 写到 project root 下的 `artifacts/vibe-check`。同一份 Definition 可以重复传给 `run`，每次调用都会形成独立的 invocation facts。
 
 ## 基础 API 的参数与效果
 
@@ -154,6 +154,10 @@ Definition 或 controls 的 unknown / invalid field 会得到 `kind: "configurat
 | 单项 Check 结果   | `snapshot.checks[].outcome`                                      | 按 `checkId` 找到 `passed`、`failed`、`not-applicable` 或 `unavailable`。 |
 | 调用级 Check 结论 | `aggregate`                                                      | 在 `RunControls.checkAggregation` 中显式选择 policy 后读取。              |
 | 补充与呈现事实    | `snapshot.records`、`checkMessages`、`checkDurations`、`outputs` | 按对应责任分别消费。                                                      |
+
+对非 configuration result，启用的 diagnostic logging 通过
+`outputs.diagnosticLogging` 返回 status 与 project-root-relative `file`；禁用时 `file` 为 `null`。它只供本次人工排障，
+不应作为 machine input。配置、失败边界和完整读回规则见[深入 API 机制](./docs/api-mechanics.md#outputs-与-runresult-边界)。
 
 `RunResult.kind` 的各分支表示 invocation lifecycle，而不是单项 Check 的业务通过或失败：
 

@@ -6,7 +6,7 @@
 
 - [x] 0.1 已恢复Project Run、progress、scheduler、preflight/Check handoff、output/result、quality/Gate和相关active Decisions，定位到Product core缺少连续运行证据。
 - [x] 0.2 已确认外部package默认关闭、本仓库quality/Gate默认开启；只记录Product core运行时信息，不给Check authoring或package-provided Checks增加logger，Check-specific信息继续由final data/Record/message承接。
-- [x] 0.3 已运行49项现有owner tests固定logging-off基线，并在design Audit Baseline明确logging-on/off语义等价口径及complete/partial目标样例；实际logging-on证据由2.2的完整与中断日志审计闭合。
+- [x] 0.3 已运行现有 owner tests 固定 logging-off 基线，并在 design Audit Baseline 明确 logging-on/off 语义等价口径及 complete/partial 目标样例；实际 logging-on 证据由 2.2 的完整与中断日志审计闭合。
 
 ## Implementation
 
@@ -19,7 +19,7 @@
 
 ## Verification
 
-- [x] 2.1 已运行56项最窄Product output/lifecycle/scheduler/preflight/dependency/Record与Project quality/Gate tests；Test Evidence门禁确认263个当前test entities全部由81个Semantic Cases映射。
+- [x] 2.1 已运行最窄 Product output/lifecycle/scheduler/preflight/dependency/Record 与 Project quality/Gate tests；Test Evidence 门禁确认当前 test entities 都有 Semantic Case 映射。
 - [x] 2.2 已验收representative complete/partial logs：外部默认零I/O，内部默认创建；entry不交错，中断时末事件可定位，required event set完整，create/render/append/close failure不改写Check facts。
 - [x] 2.3 已通过product/scripts typecheck、lint、format、docs/package projection、installed consumer、Decision与Change checks；Check authoring、package-provided Check执行契约、machine v4和其它outputs未被无关扩张。
-- [x] 2.4 已重建exact package candidate `0.0.0-local.ed8f94950f51`；required Gate 27 passed/6 not-applicable，full Gate 33/33 passed，logging-on/off等价、Decision alignment和全部Success Criteria已复核。
+- [x] 2.4 已重建 exact package candidate，并运行 `bun run verify:vibe-check-workspace:required` 与 `bun run verify:vibe-check-workspace:full`；logging-on/off 等价、Decision alignment 和全部 Success Criteria 已复核。

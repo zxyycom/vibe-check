@@ -108,7 +108,7 @@ describe("package API documentation renderer", () => {
       },
       {
         corruptSource: (source) =>
-          source.replace("\n```\n\n示例选择关闭", "\n```\n\n```ts\nvoid 0;\n```\n\n示例选择关闭"),
+          source.replace("\n```\n\n示例关闭三个", "\n```\n\n```ts\nvoid 0;\n```\n\n示例关闭三个"),
         diagnostic: /expected exactly one fenced TypeScript example.*found 2/
       },
       {
@@ -125,11 +125,18 @@ describe("package API documentation renderer", () => {
         diagnostic: /package Markdown contains a package example projection marker/
       }
     ];
-    for (const failure of markdownTargetFailures) {
+    for (const [index, failure] of markdownTargetFailures.entries()) {
       const fixtureRoot = createPackageApiDocumentationFixture();
       try {
         const readmePath = join(fixtureRoot, "README.md");
-        writeFileSync(readmePath, failure.corruptSource(readFileSync(readmePath, "utf8")), "utf8");
+        const source = readFileSync(readmePath, "utf8");
+        const corrupted = failure.corruptSource(source);
+        assert.notEqual(
+          corrupted,
+          source,
+          `Markdown target failure fixture ${index + 1} did not modify README source`
+        );
+        writeFileSync(readmePath, corrupted, "utf8");
         assert.throws(
           () => renderPackageApiDocumentation({ repositoryRoot: fixtureRoot }),
           failure.diagnostic

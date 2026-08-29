@@ -521,14 +521,15 @@ A callback receives exactly `{ dependencies, options, project, records, signal }
 
 ## Run outputs and compatibility boundary
 
-Run-owned outputs are diagnostic logging, machine publication, and progress rendering; controls may override their settings for an
-invocation. Diagnostic logging is disabled by the Product default. When enabled, it appends one human-readable,
-invocation-specific core lifecycle log below its relative directory (default `.log/vibe-check`) and returns its
-project-root-relative path through `RunResult.outputs.diagnosticLogging.file`. It is for current manual diagnosis
-only: there is no parser, versioned schema, compatibility, retention, `latest`, or cross-invocation index contract;
-it does not replace Check final data, Records, messages, or project-owned process transcripts. Logging failure is
-isolated to that output status and cannot alter Check/Record facts or block the other outputs. Progress is enabled
-by the Product default: it owns the execution header, settled Check lifecycle
+Run-owned outputs are diagnostic logging, machine publication, and progress rendering; Definition establishes their defaults, and
+RunControls can partially override each output for one invocation. `diagnosticLogging` defaults to
+`{ enabled: false, directory: ".log/vibe-check" }`. Its `directory` is a non-empty relative directory contained by the
+effective `projectRoot`; when enabled, Product creates an invocation-specific `run-<uuid>.log` there for manual core
+diagnosis. Invalid Definition, controls or aggregation selection have no trusted effective output configuration, so their
+configuration result creates no diagnostic log. The exact output readback, logging failure priority and non-machine boundary
+belong to [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界).
+
+Progress is enabled by the Product default: it owns the execution header, settled Check lifecycle
 feedback, and final execution summary on its target stream. TTY targets additionally show every running Check
 in a temporary region; non-TTY or dumb targets retain only settled feedback and the final summary. On
 settlement, `attention` hides only a passed Check with no messages. Every other four-state outcome, and a
@@ -537,8 +538,8 @@ Checks still consume the canonical completion ordinal and final counts. Progress
 callback, observer, or renderer API, and a progress write failure fails that output without changing Check
 execution facts or accepted `checkMessages`. Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned process transcripts remain
-owned by their Check/process adapter. A project may colocate a Product diagnostic log with such transcripts, but
-the two materials remain distinct and neither interprets the other.
+owned by their Check/process adapter. A project may colocate a Product diagnostic log with such transcripts, but the
+two materials remain distinct and neither interprets the other.
 
 Product has no shared comparison/reference channel or policy-selection layer. A repository Gate binds selected IDs and an explicit aggregation configuration in its own Project Run; its adapter only maps Run facts and `aggregate` to process exit. A producing Check owns any baseline or comparison behavior through its own options or composition.
 

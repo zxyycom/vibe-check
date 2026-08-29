@@ -12,22 +12,24 @@ type QualityScanResult = Readonly<
     }
 >;
 
-interface QualityScanSteps {
+interface QualityScanDependencies {
   readonly run: () => Promise<QualityScanResult>;
   readonly writeLine: (line: string) => void;
 }
 
-const defaultScanSteps: QualityScanSteps = Object.freeze({
+const defaultQualityScanDependencies: QualityScanDependencies = Object.freeze({
   run,
   writeLine: (line: string): void => console.log(line)
 });
 
 /** Maps the bound Project Run result to the existing scan-only process contract. */
-export async function runScan(steps: QualityScanSteps = defaultScanSteps): Promise<number> {
-  const result = await steps.run();
+export async function runScan(
+  dependencies: QualityScanDependencies = defaultQualityScanDependencies
+): Promise<number> {
+  const result = await dependencies.run();
   if (result.kind !== "configuration") {
     const file = result.outputs.diagnosticLogging.file;
-    if (file !== null) steps.writeLine(`repository quality diagnostic log: ${file}`);
+    if (file !== null) dependencies.writeLine(`repository quality diagnostic log: ${file}`);
   }
   if (result.kind === "completed") return 0;
   return result.kind === "configuration" ? 3 : 2;

@@ -21,7 +21,7 @@
     author execution + terminal settlement
       ▼
     snapshot + messages + durations
-      │ optional aggregation + machine publication
+      │ optional aggregation + enabled output completion
       ▼
     RunResult
 
@@ -136,7 +136,7 @@ dependency reader 为已声明且具有 `passed` / `failed` final data 的 direc
 - `projectRoot` 决定项目相对路径的解析根。
 - `flags` 成为 callback 可读的 normalized project context。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
-- `outputs` 覆盖本次 machine publication 或 progress rendering。
+- `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering。
 - `checkAggregation` 选择 `checks`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。
 
 aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
@@ -145,7 +145,20 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 machine publication 和 progress rendering defaults，RunControls 可以对当前调用局部覆盖。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。两个 output 都由 Run 调度，并分别记录 status。machine bytes、schema identity、完整 publication-set validation 与随包示例由[机器输出契约](output.md)说明；Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
+Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。configuration 成功后，启用的 diagnostic logging 在 preflight 前开始记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 事实，并在 Run 结束时关闭；它不要求 Check author 写入任何内容。machine publication 从完整 snapshot 产生 `run.json` 与 `records.ndjson`；progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
+
+只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
+`outputs.diagnosticLogging` 的形状为 `{ enabled, status, file }`，其中 `status` 是
+`"disabled" | "not-run" | "succeeded" | "failed"`；禁用时 `file` 为 `null`，启用时即使文件创建失败也保留预先计算的、
+project-root-relative `run-<uuid>.log` 目标。无效 Definition、controls 或 aggregation selection 直接返回
+configuration diagnostic，不创建诊断日志。
+
+diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation
+discovery contract，也不替代 Check final data、Record、terminal message 或 Check/process adapter 自有的 transcript。logging
+failure 只把该 output 标为 failed，不改写已形成的 Check/Record facts，也不阻断 progress rendering 或 machine publication 的
+闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；唯一 `output` diagnostic 依次选择 progress rendering、
+machine publication、diagnostic logging。diagnostic logging 不进入 machine v4；其 machine-field 排除见
+[机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
 
 progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted message 的 code 保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
 
@@ -161,4 +174,4 @@ progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM
 | `planning` | task-graph diagnostic 与 invocation metadata。 |
 | `execution` | Product execution-settlement diagnostic 与 invocation metadata。 |
 
-Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 publication / rendering diagnostic。
+Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 diagnostic logging、publication 或 rendering failure diagnostic。

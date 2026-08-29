@@ -211,7 +211,7 @@ describe("static task engine", () => {
           },
           effectiveCapacity: 1,
           pending: 1,
-          ready: 1,
+          dependencyMutexEligible: 1,
           running: 1
         }
       ]
@@ -268,7 +268,7 @@ describe("static task engine", () => {
       },
       effectiveCapacity: 1,
       pending: 3,
-      ready: 2,
+      dependencyMutexEligible: 2,
       running: 1
     });
     assert.equal(events.includes("start:wide-one"), false);
@@ -331,7 +331,7 @@ describe("static task engine", () => {
       },
       effectiveCapacity: 2,
       pending: 3,
-      ready: 2,
+      dependencyMutexEligible: 2,
       running: 1
     });
     const reservedTaskWaiting = observations.find(
@@ -361,7 +361,7 @@ describe("static task engine", () => {
       },
       effectiveCapacity: 1,
       pending: 3,
-      ready: 2,
+      dependencyMutexEligible: 2,
       running: 1
     });
     assert.equal(events.includes("start:wide-two"), false);

@@ -104,7 +104,27 @@ function renderObservation(
   }>
 ): string {
   const details = renderDetails(input.observation.details);
-  return `#${String(input.sequence).padStart(6, "0")} +${input.elapsedMs.toFixed(1)}ms ${input.observation.scope} ${input.observation.event} ${input.observation.summary}${details}\n`;
+  return `#${String(input.sequence).padStart(6, "0")} +${input.elapsedMs.toFixed(1)}ms ${escapeLogHeaderField(input.observation.scope)} ${escapeLogHeaderField(input.observation.event)} ${escapeLogHeaderField(input.observation.summary)}${details}\n`;
+}
+
+/** Keeps each diagnostic observation to one physical line when author IDs reach its header. */
+function escapeLogHeaderField(text: string): string {
+  let escaped = "";
+  for (const character of text) {
+    if (character === "\\") {
+      escaped += "\\\\";
+      continue;
+    }
+    const codeUnit = character.charCodeAt(0);
+    escaped +=
+      codeUnit <= 0x1f ||
+      (codeUnit >= 0x7f && codeUnit <= 0x9f) ||
+      codeUnit === 0x2028 ||
+      codeUnit === 0x2029
+        ? `\\u${codeUnit.toString(16).padStart(4, "0")}`
+        : character;
+  }
+  return escaped;
 }
 
 function renderDetails(details: unknown): string {

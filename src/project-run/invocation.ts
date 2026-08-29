@@ -35,6 +35,7 @@ import {
   preExecutionCancellation,
   type CheckDuration,
   type CheckRunMessage,
+  type NonConfigurationRunResult,
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
@@ -96,7 +97,7 @@ export async function executeValidatedRun(
     normalized,
     dependencies
   );
-  let candidate: RunResult;
+  let candidate: NonConfigurationRunResult;
   try {
     observeInvocationStarted(invocation, aggregation.value);
     if (isCancelled(controls)) {
@@ -264,7 +265,7 @@ function validateTaskGraph(invocation: Invocation): boolean {
 async function executePlannedInvocation(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined
-): Promise<RunResult> {
+): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "pre-work");
   return executePreparedInvocation(
     invocation,
@@ -276,7 +277,7 @@ async function executePreparedInvocation(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined,
   project: CheckProjectContext
-): Promise<RunResult> {
+): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
@@ -326,7 +327,7 @@ async function executePreparedInvocation(
 function cancelledBeforeExecution(
   invocation: Invocation,
   phase: "pre-work" | "planning"
-): RunResult {
+): NonConfigurationRunResult {
   invocation.diagnosticLogger.observe({
     scope: "run",
     event: "invocation.cancelled",
@@ -344,7 +345,7 @@ async function executeChecks(
   invocation: Invocation,
   project: CheckProjectContext,
   clock: CheckExecutionClock
-): Promise<ResolvedCheckExecution | RunResult> {
+): Promise<ResolvedCheckExecution | NonConfigurationRunResult> {
   try {
     return await executeResolvedChecks({
       checks: invocation.normalized.checks,
@@ -394,7 +395,7 @@ function elapsedSince(startedAt: number, clock: CheckExecutionClock): number {
 function planningResult(
   invocation: Invocation,
   code: Extract<RunDiagnostic["code"], "task-graph-invalid">
-): RunResult {
+): NonConfigurationRunResult {
   return planning(
     invocation.declarativeFingerprint,
     invocation.definitionWarnings,
@@ -405,7 +406,7 @@ function planningResult(
 function executionResult(
   invocation: Invocation,
   code: Extract<RunDiagnostic["code"], "publication-model-failed" | "task-engine-failed">
-): RunResult {
+): NonConfigurationRunResult {
   return Object.freeze({
     kind: "execution",
     declarativeFingerprint: invocation.declarativeFingerprint,
@@ -414,6 +415,8 @@ function executionResult(
     outputs: invocation.outputs.value()
   });
 }
-function isExecutionRunResult(value: ResolvedCheckExecution | RunResult): value is RunResult {
+function isExecutionRunResult(
+  value: ResolvedCheckExecution | NonConfigurationRunResult
+): value is NonConfigurationRunResult {
   return "declarativeFingerprint" in value;
 }

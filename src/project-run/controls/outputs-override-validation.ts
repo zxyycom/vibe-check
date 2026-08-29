@@ -2,6 +2,12 @@ import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isContainedRelativeDirectory } from "../../project-definition/output-validation.ts";
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import type { RunControls } from "./contract.ts";
+
+type DirectoryOutputOverride = Readonly<{
+  readonly directory?: string;
+  readonly enabled?: boolean;
+}>;
+
 /** Parses invocation-local outputs without changing Definition defaults. */
 export function parseOutputsOverride(value: unknown): RunControls["outputs"] | undefined {
   const data = snapshotClosedRecord(value);
@@ -46,9 +52,7 @@ function optionalOutput<T>(
     ? Object.freeze({ ok: false })
     : Object.freeze({ ok: true, value: parsed });
 }
-function parseDirectoryOutputOverride(
-  value: unknown
-): Partial<ProjectOutputs["machinePublication"]> | undefined {
+function parseDirectoryOutputOverride(value: unknown): DirectoryOutputOverride | undefined {
   const data = snapshotClosedRecord(value);
   if (
     data === undefined ||

@@ -1,9 +1,10 @@
-import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
+import { isAbsolute, relative, resolve, sep } from "node:path";
 
 import type { ProjectOutputs } from "./project-definition.ts";
 import { snapshotClosedRecord } from "../data-boundary/closed-values.ts";
 
 const OUTPUT_NAMES = ["machinePublication", "progressRendering", "diagnosticLogging"] as const;
+const DIRECTORY_VALIDATION_ROOT = "/vibe-check-validation-root";
 
 export function parseOutputs(value: unknown): ProjectOutputs | undefined {
   const data = exactKeys(value, OUTPUT_NAMES);
@@ -21,8 +22,8 @@ export function parseOutputs(value: unknown): ProjectOutputs | undefined {
 
 export function isContainedRelativeDirectory(directory: string): boolean {
   if (directory.length === 0 || isAbsolute(directory)) return false;
-  const root = resolve("/vibe-check-validation-root");
-  const relativeDirectory = relative(root, resolve(root, normalize(directory)));
+  const root = resolve(DIRECTORY_VALIDATION_ROOT);
+  const relativeDirectory = relative(root, resolve(root, directory));
   return relativeDirectory !== ".." && !relativeDirectory.startsWith(`..${sep}`);
 }
 

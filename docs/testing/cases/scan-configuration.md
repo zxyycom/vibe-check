@@ -76,20 +76,31 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > continues output publication after a progress writer failure`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > returns output facts when machine publication alone fails`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
+  Proves:
+- Disabling progress rendering does not construct its writer or affect Check execution.
+- Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
+- A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts.
+- Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. When progress rendering and machine publication both fail, their statuses remain observable and progress rendering keeps its existing diagnostic priority.
+
+## Case WB-DIAGNOSTIC-LOGGING-OUTPUT-001: Diagnostic logging is a Product-owned Run output
+
+Owner: `docs/api-mechanics.md#outputs-与-runresult-边界`
+Entities:
+
+- `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
 - `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger > renders only bounded descriptor-safe details without invoking author hooks`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > writes each normalized Check catalog entry separately from the compact invocation start`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > does not invoke hostile author details while diagnostic logging is enabled`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > closes diagnostic logging once after an unexpected nonconfiguration failure`
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains diagnostic logger implementation failures without revising final facts`
-  Proves:
-- Disabled diagnostic logging has no file or writer; default diagnostic logging status/file is separately observable and does not affect progress, publication, or Check execution.
-- An enabled diagnostic log is newline-terminated and contains the compact initial invocation observation, one ordered `catalog.check` event per normalized Check, and its pre-close result branch; progress failure does not prevent that independent Product output from closing.
-- Diagnostic details use bounded descriptor-only rendering: ordinary package-scale values remain readable, while accessors, `toJSON`, Proxy traps, cyclic/deep/extreme-wide/oversized values and malformed author handoff data cannot execute author hooks or alter Check facts.
-- Every non-configuration result path closes diagnostic logging exactly once, including unexpected runtime containment failures; the original execution diagnostic and independently successful/failed logging status remain observable.
-- Disabling progress rendering does not construct its writer or affect Check execution.
-- Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
-- A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts.
-- Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. Factory, append/render and close failures of diagnostic logging are contained: ordinary observations mute after failure, close is attempted at most once, final Check/Record facts remain intact, and `diagnostic-logging-failed` is selected only when no higher-priority output failed. If all three outputs fail, all statuses remain visible and the existing progress, then machine-publication, priority selects the one Run diagnostic deterministically.
+- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > continues output publication after a progress writer failure`
+- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
+Proves:
+
+- Disabled diagnostic logging constructs neither directory/file nor writer; its disabled status and `null` file are independently observable without changing progress, publication or Check execution.
+- An enabled log has a newline-terminated initial invocation observation, one ordered `catalog.check` event per normalized Check and a pre-close result branch; a progress failure does not prevent this independent Product output from closing.
+- Diagnostic details use bounded descriptor-only rendering: accessors, `toJSON`, Proxy traps, cyclic/deep/extreme-wide/oversized values and malformed author handoff data cannot execute author hooks or alter Check facts.
+- Every non-configuration result path closes diagnostic logging at most once, including unexpected runtime containment failures. Factory, append/render and close failures preserve final Check/Record facts; all output statuses remain observable, and diagnostic logging is selected only after the existing progress-rendering and machine-publication failure priorities.
 
 ## Case WB-RUN-RESULT-CHECK-MESSAGES-001: Final-snapshot Run results retain accepted Check messages
 

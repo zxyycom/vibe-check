@@ -28,8 +28,8 @@ Check-local parser。
 
 `run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 包含
 `checkId`、`displayName` 和一种 terminal outcome：`passed` / `failed` 带 object-shaped final `data`；
-`not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status（包括
-diagnostic logging 的 file）、duration、terminal messages、visibility 和 progress presentation 不属于 machine fields。
+`not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status 与
+diagnostic logging file、duration、terminal messages、visibility 和 progress presentation 不属于 machine fields。
 
 每个 `records.ndjson` row 的结构是：
 
@@ -55,8 +55,9 @@ own-key enumeration 与序列化时的 key 排列也不是 public contract。
 
 Publisher 在修改 canonical paths 前先形成并完整验证两份文件。写入或首次 canonical rename 失败时保留 prior set；一次
 canonical replacement 已发生后的 handled failure 会清理可能混合的 canonical files。pre-work configuration failure
-不进行 output I/O。Project Run 的 diagnostic logging 是另一个人读 output，不加入 v4 directory、schema、example 或
-publication-set；它既不是本节的 machine field，也不承诺 machine reader 可发现或解析。
+不进行 output I/O。diagnostic logging 是独立的人读 Run output，不进入 v4 directory、schema、example 或 publication set；
+machine consumer 不发现或解析它。其 configuration 与 `RunResult` readback 见
+[深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)。
 
 两个 canonical files 是独立 filesystem paths，rename 不提供跨路径原子可见性。并发 reader 可能观察到 mixed
 generation，因此必须按完整集合执行 fingerprint validation；需要 generation pointer、reader lock 或跨路径 atomic

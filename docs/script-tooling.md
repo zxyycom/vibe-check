@@ -102,8 +102,8 @@ provider staging 执行完整 material audit，因此 staging corruption 不会�
 1. `scripts/project/quality/run.ts` 在 mise 锁定的 scanner toolchain 中启动 `locked-run.ts`，并保留 child
    stdout、stderr 与 exit status。
 2. `locked-run.ts` 先通过 `scripts/package/candidate/prepare.ts` 准备 exact local candidate，再加载 `scan.ts`。
-3. `scan.ts` 调用 `project-run.ts` 的 bound Run，向调用方显示本次 diagnostic log file，并将 completed、configuration
-   与其它 result branches 分别映射为既有 process status `0`、`3`、`2`。
+3. `scan.ts` 调用 `project-run.ts` 的 bound Run；对 non-configuration result，它向调用方显示本次 diagnostic log file，
+   并将 completed、configuration 与其它 result branches 分别映射为既有 process status `0`、`3`、`2`。
 4. `definition.ts` 是 repository quality policy 的唯一 owner；它从 private consumer 已安装的 `vibe-check`
    导入公开 Check constructors 和 `defineConfig`，并显式把 diagnostic logging 设为 `.log/project-run`。`project-run.ts`
    将该 Definition 与 repository root 绑定，调用 package `run`。

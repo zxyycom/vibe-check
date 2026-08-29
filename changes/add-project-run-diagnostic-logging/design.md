@@ -7,12 +7,12 @@
 当前事实来源及其对本 Change 的约束如下：
 
 - [`docs/architecture.md`](../../docs/architecture.md#execution-boundary) 与 `src/project-run/**` 拥有 normalization、planning、preflight handoff、scheduler、Check execution/settlement、cancellation、aggregation 和 outputs；日志事件必须在这些事实形成位置产生。
-- [`docs/output.md`](../../docs/output.md) 与 `RunResult`/machine v4 只拥有最终 publication/result contract；日志不得进入 machine v4，也不能从 final facts 倒推 chronology。
+- [`docs/api-mechanics.md`](../../docs/api-mechanics.md#outputs-与-runresult-边界) 拥有 `RunResult` output readback；[`docs/output.md`](../../docs/output.md) 只拥有 machine v4 publication 及其对 diagnostic logging 的排除。两者都不得从 final facts 倒推 chronology，日志也不得进入 machine v4。
 - [`docs/script-tooling.md`](../../docs/script-tooling.md#process-evidence) 与 `scripts/project/gate/**` 拥有 command transcripts；Product log解释 core 如何调度和结算 Check，不复制或解释 transcript 内部内容。
 - Check callback 已用 final data、Record 和 message 表达领域输出。给 Check 增加 logger 会建立第四条输出路径，且 Product 无法定义各 Check 应写什么，因此 Check surface保持不变。
-- active、aligned 的 [`add-ephemeral-project-run-diagnostic-logging.md`](../../docs/decisions/add-ephemeral-project-run-diagnostic-logging.md) 已显式修订并归档 [`replace-global-tool-effects-with-run-outputs.md`](../../docs/decisions/archive/replace-global-tool-effects-with-run-outputs.md)；第三个 Run output 的实现、稳定 owner 和 package material 已完成对齐。
+- [`add-ephemeral-project-run-diagnostic-logging.md`](../../docs/decisions/add-ephemeral-project-run-diagnostic-logging.md) 以“修订”关系演进 [`replace-global-tool-effects-with-run-outputs.md`](../../docs/decisions/archive/replace-global-tool-effects-with-run-outputs.md)：保留明确 Run output 与 Check-owned cache 的方向，并接受第三个一次性 diagnostic logging output。Decision 生命周期由该 Decision 自身拥有。
 
-完成态审阅以 proposal 的 Outcome/Scope/Success Criteria 判断交付边界，以本 design 的 Decisions 复核方案约束，以 tasks 的 checkbox 和本文 Implementation Observations 定位验收证据；链接的 docs、源码与 tests仍是当前事实来源。日志格式示例只定义本 Change 的人读验收结果，不建立外部解析契约。
+proposal 的 Outcome/Scope/Success Criteria 划定交付边界，本 design 的 Decisions 说明方案约束，tasks 记录实施与验证完成状态；链接的稳定 owner、源码与 tests仍是当前事实来源。日志格式示例只定义本 Change 的人读验收结果，不建立外部解析契约。
 
 ## Goals / Non-Goals
 
@@ -92,7 +92,7 @@
 
 7. **logging failure 隔离且不遮蔽已有 output failure。** logger的方法不向调用者抛出；details值本身无法表示时写`details-unavailable`占位并继续，logger实现、create、append或close失败时才把logging永久标为failed并停止普通写入；已打开的writer仍由finalizer best-effort关闭一次，close不得覆盖先前failure。Run/Check、progress和machine publication继续闭合，`RunResult.outputs`保留每项完整status。需要选择唯一`output` diagnostic时沿用现有`progressRendering`、`machinePublication`优先顺序，并把`diagnosticLogging`放在最后，避免排障output遮蔽产品结果output；planning、execution和cancellation branch继续优先于output diagnostic。
 
-8. **通过 Decision 演进接受新增 output。** `add-ephemeral-project-run-diagnostic-logging.md` 以 `修订` 指向 `replace-global-tool-effects-with-run-outputs.md`。successor 保留“Run output必须有明确 consumer/lifecycle”和“cache留在 producing Check”，仅把“两种 outputs”修订为增加本 Change 的一次性 diagnostic logging。先建立为 active、unaligned；实现、docs、package material和验证成为当前事实后再标记 aligned。
+8. **通过 Decision 演进接受新增 output。** `add-ephemeral-project-run-diagnostic-logging.md` 以 `修订` 指向 `replace-global-tool-effects-with-run-outputs.md`。successor 保留“Run output必须有明确 consumer/lifecycle”和“cache留在 producing Check”，仅把“两种 outputs”修订为增加本 Change 的一次性 diagnostic logging。
 
 ### Resulting Impacts
 
@@ -104,21 +104,9 @@
 
 ### Audit Baseline
 
-Plan 审计以当前 logging-off 行为作为实现前基线。下列 owner tests 在 2026-08-29 共 49 项通过，覆盖 Run configuration/planning、preflight、dependency read、Record report、four-state settlement、cancellation、并行与 dependency/mutex/root-budget admission、progress/machine output failure priority，以及 Project Gate invocation/transcript closure：
+Plan 审计以 logging-off 行为作为语义基线；实际命令与执行证据由 tasks 的 Verification 项记录，不把某次运行的计数或 candidate 标识当作产品契约。验收中的 logging-on/off 等价不是逐字节、duration 或并发 wall-clock 相等，而是以下语义事实相同：被选择和执行的 Check、accepted settlement、final data、Records、messages、aggregation、cancellation branch，以及 progress/machine 的既有 status。logging-on成功时只增加日志 I/O 和`diagnosticLogging` status/file；logging-off不得创建 directory、file或writer；logging failure只允许改变`diagnosticLogging` status和既定唯一 output diagnostic选择。
 
-```text
-src/project-run/run.test.ts
-src/project-run/check-execution/resolved-checks.test.ts
-src/project-run/task-scheduler/task-engine.test.ts
-src/project-run/progress-rendering/invocation.test.ts
-src/project-run/progress-rendering/result-priority.test.ts
-scripts/project/gate/run.test.ts
-scripts/project/gate/definition.test.ts
-```
-
-验收中的 logging-on/off 等价不是逐字节、duration 或并发 wall-clock 相等，而是以下语义事实相同：被选择和执行的 Check、accepted settlement、final data、Records、messages、aggregation、cancellation branch，以及 progress/machine 的既有 status。logging-on成功时只增加日志 I/O 和`diagnosticLogging` status/file；logging-off不得创建 directory、file或writer；logging failure只允许改变`diagnosticLogging` status和既定唯一 output diagnostic选择。
-
-当前实现的代表性 complete log 能够形成下列连续故事；sequence和elapsed的具体值由运行决定：
+代表性 complete log 应形成下列连续故事；sequence和elapsed的具体值由运行决定：
 
 ```text
 #000001 +0.0ms run invocation.started validated Project Run started details={invocationId:...,root:...,outputs:...}
@@ -142,7 +130,7 @@ scripts/project/gate/definition.test.ts
 <process interrupted; no later complete entry>
 ```
 
-确定性 owner tests 已覆盖上述等价与failure isolation；真实 full Gate 和强制中断审计已覆盖 complete/partial 文件特性，结果汇总见 Implementation Observations。
+验证必须同时检查上述语义等价、failure isolation 与 complete/partial 文件特性；具体执行证据由 tasks 的 Verification 项记录。
 
 ## Risks / Trade-offs
 
@@ -154,11 +142,4 @@ scripts/project/gate/definition.test.ts
 
 ## Open Questions
 
-无。外部/仓库默认值、Product-only owner、Check信息路径、日志生命周期、内容范围、failure priority、审计基线和Decision演进均已明确，实现与验收没有待决策项。
-
-## Implementation Observations
-
-- 完整 full Gate Run 的 33 项 Check 全部通过；Product log 含 1,275 条、567,410 bytes，sequence 从 1 连续到末条，每条换行闭合，没有`details-unavailable`占位，required event set 全部出现且`invocation.closing`为末条。
-- 强制终止fixture留下 8 条连续、换行闭合的 partial log；末条为`check.started`，没有伪造`invocation.closing`。
-- 目标tests分别注入create、observe/render/append、close和factory外溢失败；所有分支保留原 Check/Record facts，logger 最多关闭一次，并仅通过`diagnosticLogging` status 与既定 output diagnostic priority暴露失败。
-- Decision `add-ephemeral-project-run-diagnostic-logging.md` 已在实现、docs、package material 与验证对齐后标记为active、aligned；Change 保持active Plan，归档仍需单独授权。
+无。外部/仓库默认值、Product-only owner、Check信息路径、日志生命周期、内容范围、failure priority、审计基线和Decision演进均已明确。

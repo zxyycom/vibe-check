@@ -26,18 +26,20 @@ export function admitReadyTasks<TResult>(state: SchedulerState<TResult>): void {
 }
 
 function selectNextReadyTask<TResult>(state: SchedulerState<TResult>): PlannedTask | undefined {
-  const readyTasks = state.pending.filter((task) => canAdmitTask(task, state));
-  if (readyTasks.length === 0) return undefined;
+  const dependencyMutexEligibleTasks = state.pending.filter((task) =>
+    isDependencyMutexEligible(task, state)
+  );
+  if (dependencyMutexEligibleTasks.length === 0) return undefined;
 
   const effectiveMaxParallel = effectiveMaxParallelFor(state);
-  const reservation = reservedTask(state, readyTasks);
+  const reservation = reservedTask(state, dependencyMutexEligibleTasks);
   if (reservation !== undefined) {
     return state.runningById.size < prospectiveMaxParallel(state, reservation)
       ? reservation
       : undefined;
   }
 
-  const tightening = readyTasks
+  const tightening = dependencyMutexEligibleTasks
     .filter((task) => activatesTighteningScope(task, state, effectiveMaxParallel))
     .sort((left, right) => compareConstrainedTasks(left, right, state));
   if (tightening.length > 0) {
@@ -47,30 +49,35 @@ function selectNextReadyTask<TResult>(state: SchedulerState<TResult>): PlannedTa
     return undefined;
   }
 
-  const constrainedContinuations = readyTasks
+  const constrainedContinuations = dependencyMutexEligibleTasks
     .filter((task) => isConstrainedContinuation(task, state, effectiveMaxParallel))
     .sort((left, right) => compareConstrainedTasks(left, right, state));
   if (constrainedContinuations.length > 0) {
     return state.runningById.size < effectiveMaxParallel ? constrainedContinuations[0] : undefined;
   }
 
-  return state.runningById.size < effectiveMaxParallel ? readyTasks[0] : undefined;
+  return state.runningById.size < effectiveMaxParallel
+    ? dependencyMutexEligibleTasks[0]
+    : undefined;
 }
 
 function reservedTask<TResult>(
   state: SchedulerState<TResult>,
-  readyTasks: readonly PlannedTask[]
+  eligibleTasks: readonly PlannedTask[]
 ): PlannedTask | undefined {
   if (state.reservationTaskId === undefined) return undefined;
 
-  const task = readyTasks.find((candidate) => candidate.id === state.reservationTaskId);
+  const task = eligibleTasks.find((candidate) => candidate.id === state.reservationTaskId);
   if (task !== undefined) return task;
 
   state.reservationTaskId = undefined;
   return undefined;
 }
 
-function canAdmitTask<TResult>(task: PlannedTask, state: SchedulerState<TResult>): boolean {
+function isDependencyMutexEligible<TResult>(
+  task: PlannedTask,
+  state: SchedulerState<TResult>
+): boolean {
   return (
     task.dependsOn.every(
       (dependencyId) => state.settlementsByTaskId.get(dependencyId)?.kind === "completed"
@@ -239,12 +246,13 @@ function observePendingBlockers<TResult>(state: SchedulerState<TResult>): void {
 
 function schedulerCounts<TResult>(state: SchedulerState<TResult>): Readonly<{
   readonly pending: number;
-  readonly ready: number;
+  readonly dependencyMutexEligible: number;
   readonly running: number;
 }> {
   return Object.freeze({
     pending: state.pending.length,
-    ready: state.pending.filter((task) => canAdmitTask(task, state)).length,
+    dependencyMutexEligible: state.pending.filter((task) => isDependencyMutexEligible(task, state))
+      .length,
     running: state.runningById.size
   });
 }

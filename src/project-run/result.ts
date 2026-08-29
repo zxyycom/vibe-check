@@ -83,13 +83,19 @@ export type RunResult = Readonly<
       readonly outputs: RunOutputStatuses;
     } & RunResultFacts)
 >;
+
+/** Any Run result produced after controls and Definition validation have completed. */
+export type NonConfigurationRunResult = Exclude<RunResult, { readonly kind: "configuration" }>;
+
+type OutputRunResult = Extract<RunResult, { readonly kind: "output" }>;
+
 export function outputFailure(
   declarativeFingerprint: string,
   definitionWarnings: readonly DefinitionWarning[],
   outputs: RunOutputStatuses,
   output: keyof RunOutputStatuses,
   facts: RunResultFacts
-): RunResult {
+): OutputRunResult {
   return Object.freeze({
     kind: "output",
     declarativeFingerprint,
@@ -120,7 +126,7 @@ export function planning(
   definitionWarnings: readonly DefinitionWarning[],
   outputs: RunOutputStatuses,
   code: Extract<RunDiagnostic["code"], "task-graph-invalid">
-): RunResult {
+): Extract<NonConfigurationRunResult, { readonly kind: "planning" }> {
   return Object.freeze({
     kind: "planning",
     declarativeFingerprint,
@@ -134,7 +140,10 @@ export function preExecutionCancellation(
   definitionWarnings: readonly DefinitionWarning[],
   outputs: RunOutputStatuses,
   phase: "pre-work" | "planning"
-): RunResult {
+): Extract<
+  NonConfigurationRunResult,
+  { readonly kind: "cancelled"; readonly phase: "pre-work" | "planning" }
+> {
   return Object.freeze({
     kind: "cancelled",
     declarativeFingerprint,
@@ -150,7 +159,7 @@ export function executionCancellation(
   snapshot: CoreSnapshot,
   checkDurations: readonly CheckDuration[],
   checkMessages: readonly CheckRunMessage[]
-): RunResult {
+): Extract<NonConfigurationRunResult, { readonly kind: "cancelled"; readonly phase: "execution" }> {
   return Object.freeze({
     kind: "cancelled",
     declarativeFingerprint,

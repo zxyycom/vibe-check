@@ -80,6 +80,11 @@ describe("Project Run diagnostic logger", () => {
       logger.observe({ scope: "run", event: "cycle", summary: "cycle", details: { cyclic } });
       logger.observe({ scope: "run", event: "depth", summary: "depth", details: deeplyNested });
       logger.observe({
+        scope: "scope\\path\nforged",
+        event: "event\u0085\rfabricated",
+        summary: "summary\u2028separated\u2029text\u009f"
+      });
+      logger.observe({
         scope: "run",
         event: "ordinary-width",
         summary: "ordinary width",
@@ -109,6 +114,14 @@ describe("Project Run diagnostic logger", () => {
       assert.match(log, /details=details-unavailable:proxy/);
       assert.match(log, /details=details-unavailable:cycle/);
       assert.match(log, /details=details-unavailable:depth-limit/);
+      assert.match(
+        log,
+        /scope\\\\path\\u000aforged event\\u0085\\u000dfabricated summary\\u2028separated\\u2029text\\u009f/
+      );
+      assert.equal(log.endsWith("\n"), true);
+      const records = log.slice(0, -1).split("\n");
+      assert.equal(records.length, 10);
+      assert.ok(records.every((record) => record.startsWith("#")));
       const ordinaryWidthLine = log.split("\n").find((line) => line.includes(" ordinary-width "));
       assert.ok(ordinaryWidthLine);
       assert.doesNotMatch(ordinaryWidthLine, /details-unavailable/);
