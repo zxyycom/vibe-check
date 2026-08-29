@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { runPackageCommand } from "./command.ts";
+import { FULL_PACKAGE_ACCEPTANCE_INVOCATION, runPackageCommand } from "./command.ts";
 import type { PreparedPackageCandidate } from "./candidate/prepare.ts";
 
 const staleStatus = Object.freeze({
@@ -36,6 +36,13 @@ const rebuiltCandidate: PreparedPackageCandidate = Object.freeze({
 });
 
 test("package root commands distinguish stale status from a completed rebuild and bind verification to full acceptance", async () => {
+  assert.equal(FULL_PACKAGE_ACCEPTANCE_INVOCATION.command, "mise");
+  assert.deepEqual(FULL_PACKAGE_ACCEPTANCE_INVOCATION.args.slice(-2), ["--profile", "full"]);
+  assert.deepEqual(FULL_PACKAGE_ACCEPTANCE_INVOCATION.args.slice(0, 3), ["exec", "--", "bun"]);
+  assert.match(
+    FULL_PACKAGE_ACCEPTANCE_INVOCATION.args[3] ?? "",
+    /scripts\/project\/gate\/run\.ts$/
+  );
   let verified = false;
   const staleMessages: string[] = [];
   assert.equal(

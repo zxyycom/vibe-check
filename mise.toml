@@ -7,9 +7,9 @@ package_manager = "npm"
 [env]
 VIBE_CHECK_LIZARD_CMD = { tools = true, value = """
 {%- if os() == 'windows' -%}
-{{ tools['pipx:lizard'].path }}/lizard/Scripts/python.exe
+{{ tools['pipx:lizard'].path }}/lizard/Scripts/lizard.exe
 {%- else -%}
-{{ tools['pipx:lizard'].path }}/lizard/bin/python
+{{ tools['pipx:lizard'].path }}/lizard/bin/lizard
 {%- endif -%}
 """ }
 VIBE_CHECK_SCC_CMD = { tools = true, value = """

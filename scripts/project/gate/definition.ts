@@ -18,6 +18,7 @@ import { defineConfig, type Check, type ProjectDefinition } from "vibe-check";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
 import { createDocsValidationCheck } from "./docs-validation-check.ts";
+import { createRepositoryQualityChecks } from "./repository-quality-checks.ts";
 import { createDecisionRecordsCheck } from "./decision-records-check.ts";
 import { createTestEvidenceCheck } from "./test-evidence/semantic-case-check.ts";
 import {
@@ -230,6 +231,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       ["package-tests", "tests"]
     ),
     ...projectGateTestEntries(testLanes, preparedCandidate, externalConsumer, runtime),
+    ...createRepositoryQualityChecks().map((check) => commonEntry(check, ["quality"], false)),
     commonEntry(
       createDocsValidationCheck({
         checkId: "docs-json-validator",
@@ -475,14 +477,19 @@ function processEntry<Data extends object = object>(
       mutex === undefined
         ? processCheck
         : Object.freeze({ ...processCheck, mutex: Object.freeze([...mutex]) }),
+    contributesToAggregate: true,
     profiles,
     tags
   });
 }
 
 /** Assigns the selection metadata shared by every required and full Check. */
-function commonEntry(check: Check, tags: readonly ProjectGateTag[]): ProjectGateEntry {
-  return Object.freeze({ check, profiles: requiredAndFull, tags });
+function commonEntry(
+  check: Check,
+  tags: readonly ProjectGateTag[],
+  contributesToAggregate = true
+): ProjectGateEntry {
+  return Object.freeze({ check, contributesToAggregate, profiles: requiredAndFull, tags });
 }
 
 function definedEnvironment(environment: NodeJS.ProcessEnv): Readonly<Record<string, string>> {

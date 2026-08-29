@@ -8,6 +8,7 @@ export const PROJECT_GATE_TAGS = [
   "git",
   "package-tests",
   "product",
+  "quality",
   "scripts",
   "tests"
 ] as const;

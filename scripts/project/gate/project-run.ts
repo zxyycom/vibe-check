@@ -43,18 +43,22 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
     return await packageRun(createProjectGateDefinition(entries, selection), {
       checkAggregation: projectGateAggregation(entries, selection),
       flags: controls.flags,
-      outputs: {
-        diagnosticLogging: {
-          directory: relative(repositoryRoot, controls.invocationLogDirectory),
-          enabled: true
-        }
-      },
+      outputs: projectGateOutputOverrides(controls.invocationLogDirectory),
       projectRoot: repositoryRoot,
       signal: controls.signal
     });
   } finally {
     externalConsumerLease.cleanup();
   }
+}
+
+/** Publishes standard machine facts beside the Gate diagnostic log for this invocation. */
+export function projectGateOutputOverrides(invocationLogDirectory: string) {
+  const directory = relative(repositoryRoot, invocationLogDirectory);
+  return Object.freeze({
+    diagnosticLogging: { directory, enabled: true },
+    machinePublication: { directory, enabled: true }
+  });
 }
 
 /** Binds the exact eligible Check IDs to the required/full aggregation semantics. */

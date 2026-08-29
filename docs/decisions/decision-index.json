@@ -95,6 +95,8 @@
       "make-package-build-evidence-discoverable.md": "sha256:98e8e005d848e3ae7ee6149f4fc7f2c090df2bf16a4450dc404b21cce9938592",
       "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
+      "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
+      "observe-repository-quality-checks-inside-project-gate.md": "sha256:56232d9a3c90e7a2ae369f8b5453e9a1974f9d925fb02ba89a5e3b01a6f651be",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "post-process-project-gate-with-owned-context.md": "sha256:06c74a02673c7a26bf1c4a0c6c0caaeed3baab4ac4ffde6fa47b6c8500923277",
@@ -107,6 +109,7 @@
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:3ae814f1118990ddca937a4ddb70c4b37ad43fa04bee832063d0edcef62223e6",
+      "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:0c5c22b2bc4015a694c78478ade7f0135b6a0ad6f3b4584e09a73daf11ccb0d4",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
@@ -124,6 +127,7 @@
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
+      "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
@@ -2996,6 +3000,69 @@
         ]
       }
     },
+    "monitor-project-gate-performance-advisory.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "monitor-project-gate-performance-advisory.md",
+        "title": "用 Gate-owned Hook 提示标准运行的性能偏移",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:36:05Z",
+        "purpose": "让标准 Project Gate invocation 显示可比较的 elapsed observation，并在明显偏离实测基线时提示审阅。",
+        "background": "本 Decision 形成时，Gate 已有 afterGate context，但没有经测量 baseline 或默认项目规则。",
+        "decision": "以 afterGate 对匹配基线的标准 workload 做 advisory 比较，超界只警告且不改变 Gate status；硬门禁留待受控环境和明确预算。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
+    "observe-repository-quality-checks-inside-project-gate.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "observe-repository-quality-checks-inside-project-gate.md",
+        "title": "在 Project Gate 内直接观察仓库质量 Checks",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:39:14Z",
+        "purpose": "让 Gate 直接运行并显示仓库质量事实，同时保持这些诊断性 findings 非阻断且不恢复嵌套 Run。",
+        "background": "本 Decision 形成时，原始 policy 会产生 blocking Check statuses；用户要求去除无感知包装而不把既有非阻断质量报告升级为硬门禁。",
+        "decision": "四项原始质量 Checks 在同一 Gate Run 中直接运行并保留真实事实，但不进入 assurance aggregate。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "run-repository-quality-checks-inside-project-gate.md"
+          }
+        ]
+      }
+    },
     "pass-project-definition-check-functions-to-run.md": {
       "keys": {
         "tag": [
@@ -3368,6 +3435,35 @@
             "target": "publish-fingerprint-bound-check-record-machine-v3.md"
           }
         ]
+      }
+    },
+    "publish-project-gate-machine-facts-with-invocation-evidence.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-project-gate-machine-facts-with-invocation-evidence.md",
+        "title": "将 Project Gate machine facts 写入 invocation evidence",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:40:19Z",
+        "purpose": "让 Gate 中的 Check final data 与 Records 在进程结束后仍可直接检查，而不建立质量专用报告器。",
+        "background": "本 Decision 形成时，direct quality Checks 需要 Records，但 Gate 关闭 machine publication。",
+        "decision": "在 Gate invocation directory 发布既有标准 machine fact set，并把它限定为本次运行的临时本地证据。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "publish-readable-esm-package-layout.md": {
@@ -3901,6 +3997,35 @@
             "target": "provide-prepared-package-candidate-as-typed-check-data.md"
           }
         ]
+      }
+    },
+    "run-repository-quality-checks-inside-project-gate.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/run-repository-quality-checks-inside-project-gate.md",
+        "title": "在 Project Gate 内直接运行仓库质量 Checks",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-29T15:36:05Z",
+        "purpose": "让 Gate 直接结算仓库重复、文件指标、函数指标与 Markdown 链接质量，而不恢复嵌套 Run 或二次汇总器。",
+        "background": "删除无感知的 repository-quality process wrapper 后，Gate 只保留了质量 Check 的实现测试，没有扫描当前仓库的同类事实。",
+        "decision": "将四项原始 package Check 直接纳入 Gate Definition 和 aggregate，并由正式 Gate 入口显式绑定仓库锁定的 scanner 工具。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "scan-duplicate-code-once-across-code-areas.md": {

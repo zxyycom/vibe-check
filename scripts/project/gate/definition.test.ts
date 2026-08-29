@@ -60,6 +60,10 @@ const expectedCheckIds = [
   "tests-scripts-test-evidence",
   "tests-scripts-validation",
   "tests-scripts-tooling",
+  "duplicate-detection",
+  "file-metrics",
+  "function-metrics",
+  "markdown-link-validation",
   "docs-json-validator",
   "docs-schema-validator",
   "docs-example-validator",
@@ -69,6 +73,13 @@ const expectedCheckIds = [
   "test-evidence-rule-tests",
   "git-diff-whitespace"
 ] as const;
+
+const qualityCheckIds: ReadonlySet<string> = new Set([
+  "duplicate-detection",
+  "file-metrics",
+  "function-metrics",
+  "markdown-link-validation"
+]);
 
 const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "prepared-external-package-consumer",
@@ -80,7 +91,7 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
 ]);
 
 describe("Project Gate Definition", () => {
-  it("projects ordinary Check entries without a command catalog or policy", () => {
+  it("projects ordinary Check entries without a command catalog or policy", async () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
       invocationLogDirectory: "/tmp/project-gate-logs",
@@ -109,6 +120,35 @@ describe("Project Gate Definition", () => {
       ({ checkId }) => checkId === "docs-json-validator"
     );
     assert.equal(nativeDocsCheck?.options, undefined);
+
+    for (const checkId of qualityCheckIds) {
+      const entry = entries.find(({ check }) => check.checkId === checkId);
+      assert.equal(entry?.contributesToAggregate, false);
+      assert.deepEqual(entry?.profiles, ["required", "full"]);
+      assert.deepEqual(entry?.tags, ["quality"]);
+    }
+    const qualityEntry = entries.find(({ check }) => check.checkId === "duplicate-detection");
+    assert.ok(qualityEntry);
+    assert.deepEqual(
+      await invokeCheck(
+        projectGateCheckForSelection(qualityEntry, {
+          profile: "required",
+          disabledTags: ["quality"],
+          enabledTags: []
+        })
+      ),
+      {
+        status: "not-applicable",
+        reason: { code: "tag-quality-disabled" },
+        messages: [
+          {
+            level: "info",
+            code: "project-gate-check-not-run",
+            message: "Duplicate detection did not run because tag quality was disabled."
+          }
+        ]
+      }
+    );
 
     const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
     for (const [checkId, files] of [
@@ -185,16 +225,31 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, profiles: ["full"], tags: [] },
-          { check: dependent, profiles: ["required", "full"], tags: [] }
+          { check: prerequisite, contributesToAggregate: true, profiles: ["full"], tags: [] },
+          {
+            check: dependent,
+            contributesToAggregate: true,
+            profiles: ["required", "full"],
+            tags: []
+          }
         ]),
       /selection-closed: fixture-dependent -> fixture-prerequisite/
     );
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, profiles: ["required", "full"], tags: ["docs"] },
-          { check: dependent, profiles: ["required", "full"], tags: [] }
+          {
+            check: prerequisite,
+            contributesToAggregate: true,
+            profiles: ["required", "full"],
+            tags: ["docs"]
+          },
+          {
+            check: dependent,
+            contributesToAggregate: true,
+            profiles: ["required", "full"],
+            tags: []
+          }
         ]),
       /selection-closed: fixture-dependent -> fixture-prerequisite/
     );
@@ -204,7 +259,10 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture self-dependent"
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: selfDependent, profiles: ["required"], tags: [] }]),
+      () =>
+        defineProjectGateEntries([
+          { check: selfDependent, contributesToAggregate: true, profiles: ["required"], tags: [] }
+        ]),
       /cannot depend on itself: fixture-self-dependent/
     );
     const missingDependency = defineCheck({
@@ -214,7 +272,14 @@ describe("Project Gate Definition", () => {
     });
     assert.throws(
       () =>
-        defineProjectGateEntries([{ check: missingDependency, profiles: ["required"], tags: [] }]),
+        defineProjectGateEntries([
+          {
+            check: missingDependency,
+            contributesToAggregate: true,
+            profiles: ["required"],
+            tags: []
+          }
+        ]),
       /dependency is missing: fixture-missing-dependency -> fixture-absent/
     );
   });
@@ -243,6 +308,11 @@ describe("Project Gate Definition", () => {
           profile: "full" as const,
           disabledTags: ["package-tests"] as const,
           enabledTags: [] as const
+        },
+        {
+          profile: "required" as const,
+          disabledTags: ["quality"] as const,
+          enabledTags: [] as const
         }
       ];
 
@@ -253,9 +323,10 @@ describe("Project Gate Definition", () => {
         assert.deepEqual(projectGateAggregation(entries, selection), {
           checks: expectedCheckIds.filter(
             (checkId) =>
-              !packageAcceptanceCheckIds.has(checkId) ||
-              (!disabledTags.has("package-tests") && selection.profile === "full") ||
-              enabledTags.has("package-tests")
+              !qualityCheckIds.has(checkId) &&
+              (!packageAcceptanceCheckIds.has(checkId) ||
+                (!disabledTags.has("package-tests") && selection.profile === "full") ||
+                enabledTags.has("package-tests"))
           ),
           empty: "failed",
           mode: "all",
@@ -303,6 +374,7 @@ describe("Project Gate Definition", () => {
               return { status: "passed", data: {} };
             }
           }),
+          contributesToAggregate: true,
           profiles: ["full"],
           tags: []
         }

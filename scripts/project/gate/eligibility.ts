@@ -117,7 +117,9 @@ export function projectGateEligibleCheckIds(
 ): readonly string[] {
   return Object.freeze(
     entries
-      .filter((entry) => projectGateEligibility(entry, selection).eligible)
+      .filter(
+        (entry) => entry.contributesToAggregate && projectGateEligibility(entry, selection).eligible
+      )
       .map(({ check }) => check.checkId)
   );
 }

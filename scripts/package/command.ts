@@ -14,6 +14,11 @@ type PackageCommand = (typeof PACKAGE_COMMANDS)[number];
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const projectGatePath = resolve(repositoryRoot, "scripts/project/gate/run.ts");
 
+export const FULL_PACKAGE_ACCEPTANCE_INVOCATION = Object.freeze({
+  args: Object.freeze(["exec", "--", "bun", projectGatePath, "--profile", "full"]),
+  command: "mise"
+});
+
 interface PackageCommandSteps {
   readonly inspect: () => PackageCandidateStatus;
   readonly prepare: typeof preparePackageCandidate;
@@ -29,7 +34,7 @@ const defaultSteps: PackageCommandSteps = Object.freeze({
 });
 
 function runFullPackageAcceptance(): Promise<number> {
-  runCommand(process.execPath, [projectGatePath, "--profile", "full"], {
+  runCommand(FULL_PACKAGE_ACCEPTANCE_INVOCATION.command, FULL_PACKAGE_ACCEPTANCE_INVOCATION.args, {
     cwd: repositoryRoot,
     report: reportProcessOutput
   });

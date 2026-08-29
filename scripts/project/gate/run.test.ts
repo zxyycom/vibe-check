@@ -28,6 +28,8 @@ import {
   parseProjectGateResult,
   type ProjectGateResult
 } from "./result.ts";
+import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
+import { observeProjectGatePerformance } from "./performance-observation.ts";
 import { createProjectGateEntries } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
 
@@ -45,6 +47,24 @@ const prepared = Object.freeze({
   sha256: "b".repeat(64),
   stagingDirectory: "/tmp/staging"
 });
+
+const performanceRuntime = Object.freeze({
+  architecture: "x64",
+  bunVersion: "1.3.14",
+  platform: "linux"
+});
+const performanceBaseline = Object.freeze({
+  medianMs: 90,
+  p90Ms: 100,
+  samplesMs: Object.freeze([80, 90, 100]),
+  thresholdMs: 135,
+  workload: Object.freeze({
+    candidatePreparation: "reuse" as const,
+    declarativeFingerprint: "performance-fixture",
+    profile: "required" as const,
+    runtime: performanceRuntime
+  })
+} satisfies ProjectGatePerformanceBaseline);
 
 const expectedCheckIds = [
   "typecheck-product",
@@ -71,6 +91,10 @@ const expectedCheckIds = [
   "tests-scripts-test-evidence",
   "tests-scripts-validation",
   "tests-scripts-tooling",
+  "duplicate-detection",
+  "file-metrics",
+  "function-metrics",
+  "markdown-link-validation",
   "docs-json-validator",
   "docs-schema-validator",
   "docs-example-validator",
@@ -101,9 +125,9 @@ describe("Project Gate entries, root binding, and controls", () => {
         required: rootScripts["verify:vibe-check-workspace:required"]
       },
       {
-        base: "bun scripts/project/gate/run.ts",
-        full: "bun scripts/project/gate/run.ts --profile full",
-        required: "bun scripts/project/gate/run.ts --profile required"
+        base: "mise exec -- bun scripts/project/gate/run.ts",
+        full: "mise exec -- bun scripts/project/gate/run.ts --profile full",
+        required: "mise exec -- bun scripts/project/gate/run.ts --profile required"
       }
     );
   });
@@ -129,7 +153,12 @@ describe("Project Gate entries, root binding, and controls", () => {
       );
     }
     for (const entry of entries)
-      assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
+      assert.deepEqual(Object.keys(entry).sort(), [
+        "check",
+        "contributesToAggregate",
+        "profiles",
+        "tags"
+      ]);
   });
 
   it("defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags", () => {
@@ -143,6 +172,8 @@ describe("Project Gate entries, root binding, and controls", () => {
       "full",
       "--disable-tag",
       "docs",
+      "--disable-tag",
+      "quality",
       "--enable-tag",
       "package-tests",
       "--enable-tag",
@@ -154,7 +185,7 @@ describe("Project Gate entries, root binding, and controls", () => {
       action: "run",
       value: {
         profile: "full",
-        disabledTags: ["docs"],
+        disabledTags: ["docs", "quality"],
         enabledTags: ["package-tests"]
       }
     });
@@ -162,6 +193,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.deepEqual(selectionFlags(parsed.value), [
       "project-gate:profile=full",
       "project-gate:disable-tag=docs",
+      "project-gate:disable-tag=quality",
       "project-gate:enable-tag=package-tests"
     ]);
     assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
@@ -172,7 +204,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.match(help, /Opt-in tags: package-tests/);
     assert.match(
       help,
-      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, scripts, tests/
+      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, quality, scripts, tests/
     );
     assert.match(help, /candidate, artifact, and external-consumer acceptance/);
     assert.equal(
@@ -418,6 +450,64 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
+  it("uses the default performance observer and keeps advisory warnings non-blocking", async () => {
+    const runResult = completedResult("passed", {
+      checkDurations: [
+        { checkId: "lint-product", durationMs: 70 },
+        { checkId: "typecheck-scripts", durationMs: 60 }
+      ],
+      declarativeFingerprint: "performance-fixture"
+    });
+    const defaultOutput = captureConsole();
+    try {
+      const defaultStatus = await runProjectGate([], {
+        clock: scriptedClock([100, 145]),
+        createInvocationLogDirectory: () => "/tmp/project-gate-default-performance",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => runResult
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(defaultStatus, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.match(
+        defaultOutput.logs.join("\n"),
+        /project gate info \[project-gate-performance-elapsed]: elapsed 45\.0ms was not comparable \(no matching baseline\)/
+      );
+    } finally {
+      defaultOutput.restore();
+    }
+
+    const warningOutput = captureConsole();
+    try {
+      const warningStatus = await runProjectGate([], {
+        afterGate: (initial, context) =>
+          observeProjectGatePerformance(
+            initial,
+            context,
+            [performanceBaseline],
+            performanceRuntime
+          ),
+        clock: scriptedClock([100, 236]),
+        createInvocationLogDirectory: () => "/tmp/project-gate-warning-performance",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => runResult
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(warningStatus, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.deepEqual(warningOutput.warnings, [
+        "project gate warning [project-gate-performance-outside-range]: elapsed 136.0ms exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms"
+      ]);
+      assert.equal(warningOutput.errors.length, 0);
+    } finally {
+      warningOutput.restore();
+    }
+  });
+
   it("fails closed when afterGate throws", async () => {
     const output = captureConsole();
     try {
@@ -548,4 +638,15 @@ function completedResult(
     outputs: { progressRendering: { status: "succeeded" } },
     ...extra
   };
+}
+
+function scriptedClock(values: readonly number[]): Readonly<{ now(): number }> {
+  const remaining = [...values];
+  return Object.freeze({
+    now: (): number => {
+      const value = remaining.shift();
+      if (value === undefined) throw new Error("fixture clock received too many reads");
+      return value;
+    }
+  });
 }

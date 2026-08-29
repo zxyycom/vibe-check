@@ -50,6 +50,17 @@ barrier，malformed/unknown/incomplete replacement 只把 owning Check 结算为
 `unavailable / invalid-options`。Definition 不按 package Check ID、tool name 或 option shape 分支，也不保存 validator
 registry。Run Controls、environment variables、repository tooling 与 precedence map 都不会隐式替换这些 options。
 
+### Gate-bound repository observations
+
+Project Gate 只在自己的四项 repository observations 构造时，为 `fileMetrics` 与 `functionMetrics` 显式给出 SCC/Lizard
+executable；这不是 package Check 的默认 resolution、public environment override 或跨 Check registry。正式 Gate root 与
+`package:verify` 的 full child 都经 `mise exec` 启动，mise 提供 `VIBE_CHECK_SCC_CMD` 和 `VIBE_CHECK_LIZARD_CMD` 的绝对
+tool paths。Gate 只接受绝对值并将其作为 owning Check 的已创作 scanner option 传入。
+
+mise binding 缺失或不是绝对路径时，或调用方直接注入相对 command 时，Gate 都不回退到 ambient `PATH`；它构造一个不可用的绝对 command，使 owning scanner Check 在其
+正常 availability/process boundary 结算为 `unavailable`。这一 Gate-private fail-closed handoff 不改变 SCC/Lizard adapter
+自己的 version probe、exact-input protocol、parser 或 failure semantics，也不适用于 standalone package consumer。
+
 ## Exact-input handoff
 
 owning Check 依据自己的 file selection 收集 candidates，并形成该工具的 approved exact paths；三个 scanner Check 都使用

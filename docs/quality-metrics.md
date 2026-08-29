@@ -212,6 +212,14 @@ definition warnings、output statuses、progress presentation 或 arbitrary fina
 snapshot Checks 重建 aggregate，也不得改写 Check outcome 或 Product facts。调用方与 process exit 只消费处理后的一个
 最终结果，不需要合并并行的 base、acceptance 和 final 模型；Product 不增加公共 lifecycle Hook。
 
+当前 Project Gate 将 `duplicate-detection`、`file-metrics`、`function-metrics` 与 `markdown-link-validation` 作为
+required/full 的 direct raw observations。四项 entry 明确 `contributesToAggregate: false`，所以它们的 `passed`、`failed`、
+`not-applicable` 或 `unavailable` terminal fact、final data、Records 与 messages 仍属于同一 Run，却不参与 Gate assurance
+aggregate 或 process-exit mapping。`quality` tag 只可禁用这四项；该 selection 不建立 parent quality Check、第二个 Run 或
+按 Records 重算 quality result。因此 Gate aggregate 为 `passed` 只证明被选入 aggregate 的 assurance identities 通过，不能推断
+四项 raw quality observations 也为 `passed`。Gate 对 repository inputs 和 pinned scanner handoff 的私有配置见
+[脚本工具](script-tooling.md#direct-repository-quality-observations)。
+
 ## Verification
 
 current evidence 覆盖 recursive Definition validation、direct callback four-state outcomes、canonical final/Record data、

@@ -100,20 +100,22 @@ provider staging 执行完整 material audit，因此 staging corruption 不会�
 
 1. 准备 candidate，并确认 private consumer 解析到的 package entry 与准备结果相同。
 2. 创建 invocation log directory，并把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run；该 Run
-   通过 invocation-local output override 把 Product diagnostic log 写到这个目录。
+   通过 invocation-local output override 把 Product diagnostic log 与标准 machine fact set 写到这个目录。
 3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约。
 
 参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。成功启动的
-Gate 总是显示 invocation directory；该目录中的 Product `run-<UTC 紧凑时间>-<UUID>.log` 与各 Check-owned process transcript 并列，
-不建立 `latest`、index、retention 或相互解析关系。
+Gate 总是显示 invocation directory；该目录中的 Product `run-<UTC 紧凑时间>-<UUID>.log`、标准 `run.json` /
+`records.ndjson` 与各 Check-owned process transcript 并列，不建立 `latest`、index、retention 或相互解析关系。machine
+files 必须作为 [Output](output.md) 定义的完整二文件 set 读取；它们是本次 invocation 的本地 evidence，不是 quality-only
+report、package release artifact 或跨 invocation 的合并视图。
 Gate 不替代 development、docs、decision-records 或 test-evidence 各自的 command owner。
 
 ### Prepared candidate data
 
 `prepared-candidate-check.ts` 将 invocation-owned candidate 重新核对并发布为 versioned typed final data。Closed
 parser 验证 artifact digest、绝对路径、installed entry containment、非空且无重复的文件 inventory，以及
-`preparationAction`、`preparationReason` 与 `reused` 的合法组合。该数据只保留在当前 Run snapshot；因为包含
-invocation-local 绝对路径，Gate 不启用 machine publication。
+`preparationAction`、`preparationReason` 与 `reused` 的合法组合。该数据也会随 Gate 的标准 machine fact set 写入
+invocation directory；其中的 invocation-local 绝对路径使该 set 只能作为本地短期 evidence，不能当作可发布或可移植材料。
 
 Artifact acceptance 直接声明 prepared candidate 为 direct dependency：它只接收 exact artifact path/digest 与 staging
 directory，重新验证 child-process input 并执行 staging material audit；直接运行该测试时才 fresh build 本地 fixture。
@@ -155,10 +157,11 @@ configuration；`check-execution/native-operation.ts` 与 `check-execution/proce
 Gate adapter 的完整参数 grammar 是 `--profile required|full`、可重复的 `--disable-tag <tag>`、受控的
 `--enable-tag package-tests`，以及必须单独使用的 `-h` / `--help`。无 profile 时默认 required；同一 tag 不能同时
 enable 和 disable。`--help` 在 candidate preparation、package import 和 log-directory creation 前退出。正式 root
-commands 不传 tag override。
+commands 都由 `mise exec -- bun scripts/project/gate/run.ts` 启动，且不传 tag override；`package:verify` 对其 full
+child 使用相同的 mise-bound invocation。
 
 `--enable-tag` 当前只接受 opt-in tag `package-tests`。`--disable-tag` 接受且实际使用完整过滤集合：`catalog`、`docs`、
-`format`、`git`、`package-tests`、`product`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
+`format`、`git`、`package-tests`、`product`、`quality`、`scripts`、`tests`。help 必须同时列出这两个集合、profile
 对 package acceptance 的影响和可直接运行的示例，不能让调用方从 catalog 源码猜测 tag。
 
 - Required 默认执行 package supporting 和 prepared candidate typed provider，但不选择带 `package-tests` 的 physical
@@ -166,6 +169,10 @@ commands 不传 tag override。
   未运行的动作，并提示 `--enable-tag package-tests` 或 `--profile full`。显式 enable 可把它们加入 required。
 - Full 自动选择全部未禁用 Checks，包括 candidate lifecycle、artifact、external-consumer provider 与三个 consumer
   acceptance Checks。
+- required 与 full 都直接选择四个 `quality` observation Checks：`duplicate-detection`、`file-metrics`、
+  `function-metrics` 与 `markdown-link-validation`。`quality` 是仅覆盖这四项的 disable filter；禁用时每项以自己的
+  `not-applicable` fact 保留，不存在父 Check、嵌套 Run 或独立 quality command。它们仍由同一 scheduler 执行，但不进入
+  assurance aggregate；真实 status、final data、Records 与 Check-owned messages 保持在同次 Run 中。
 - 启动 Run 前的 selection summary 将 package acceptance 明确标为未选择、由 profile/tag 选择或被
   `package-tests` 禁用；其它 disabled tags 仍按规范化后的完整名称列出。
 - Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 和 `prepared-external-package-consumer` 都会创建或改变
@@ -174,6 +181,15 @@ commands 不传 tag override。
 - Candidate lifecycle、artifact、external-consumer provider 和三个 consumer acceptance process 各有 30 秒外层 timeout。
   该 timeout 用于终止内部同步 child 阻塞后无法及时响应 Bun test timeout 的整条 test process，不是全局性能预算，也不把
   尚未产出 exit fact 的 command 伪装成测试失败。
+
+### Direct repository quality observations
+
+四项 direct observation 的 repository file selection、code areas 与 finding policy 由 Gate 私有 policy 构造；它们不是
+package-provided Check 的默认 options，也不形成 Product-wide scanner registry。`duplicate-detection` 继续由 prepared
+package 自解析 `jscpd`。正式 Gate 的 mise environment 提供 `VIBE_CHECK_SCC_CMD` 与 `VIBE_CHECK_LIZARD_CMD`：Gate 只接受
+absolute executable，并显式传给 `file-metrics` 与 `function-metrics` 的 owning Check。缺失或非绝对 binding 不会退回
+ambient `PATH`；owning observation 将按普通 scanner failure 结算为 `unavailable`。scanner command/adapter 的私有边界见
+[Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence
 
@@ -209,9 +225,27 @@ root、prepared candidate、invocation log directory 和原始 RunResult；timin
 
 Hook 返回 exact `{ status, messages }`：`status` 只接受 `passed | failed | unavailable`，每条 message 只含非空的
 `code`、`message` 和 `error | warning | info` level；code 与 message 不得包含 C0/C1 controls、U+2028 或 U+2029。
+默认 `afterGate` 是 Gate-owned performance observer。它恰追加一条 elapsed observation：只有初步结果为 passed、没有 tag
+override、candidate 是当前安装的 reuse，以及 profile、declarative fingerprint、platform、architecture 和 Bun version 都与
+baseline workload 匹配时才比较；threshold 内为 info，超出时为 warning。两者都不修改初步 status、已有消息、Check facts、
+RunResult、aggregate 或 process exit。
+
+当前 baseline 于 2026-08-29 在一台 `linux/x64`、Bun `1.3.14` 开发机的同一 worktree、无并发 Gate 下，对标准 required/full 各交错顺序
+运行五次；所有样本的 candidate 都是 `reuse / installation-current`，且 declarative fingerprint 相同。样本包含最终
+machine-evidence integration fixture 的真实 quality scans。required raw samples 为
+`9278.3, 14673.0, 8539.4, 8426.0, 8362.3ms`，median `8539.4ms`、p90 `14673.0ms`；full raw samples 为
+`23195.2, 16219.4, 17297.0, 18005.7, 14029.0ms`，median `17297.0ms`、p90 `23195.2ms`。advisory threshold 取
+`ceil(max(p90 * 1.25, median * 1.5))`，分别为 `18342ms` 与 `28994ms`。这些值仅是该开发机 workload 的宽松 advisory
+comparison，不是性能 budget、merge 条件或跨环境承诺。workload identity 不匹配时只输出 `not-comparable`，不能用一次运行、
+process timeout 或提高阈值来替代重新采样。
+
+比较前 observer 重新校验 baseline：raw samples 必须是非空的有限非负 duration；median 必须等于排序样本的中位数；p90
+必须等于排序样本的 nearest-rank `ceil(n * 0.9)`；threshold 必须等于 `ceil(max(p90 * 1.25, median * 1.5))`。任一闭合
+条件不成立的 baseline 不参与匹配，invocation 仍只追加一条 `not-comparable` advisory，而不改变 Gate status 或 exit。
+
 Hook 可以返回新的状态与项目级消息，但不能修改 context、Check outcome、RunResult 或 Product aggregate。终端结果和
 process exit 只消费处理后的一个结果，不暴露要求调用方合并的 base/acceptances/final 集合。Hook 抛错、返回额外字段或
-返回其它无效结果时 fail closed 为 `unavailable`；当前只建立该转换机制，不配置未经测量的全局或逐 Check 性能预算。
+返回其它无效结果时 fail closed 为 `unavailable`。
 
 初步结果中，Completed Run 的 warning、progress failure 或非-`passed` aggregate 为 `failed`。处理后的 `passed`、
 `failed`、`unavailable` 分别映射为 exit `0`、`1`、`2`。参数、candidate、import、identity、log 或 execution failure

@@ -24,6 +24,7 @@ import {
   type ProjectGateMessage,
   type ProjectGateResult
 } from "./result.ts";
+import { observeProjectGatePerformance } from "./performance-observation.ts";
 
 interface GateRunModule {
   readonly resolvedEntryPath: string;
@@ -73,7 +74,7 @@ const SYSTEM_PROJECT_GATE_CLOCK: ProjectGateClock = Object.freeze({
 const PROJECT_GATE_REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const defaultSteps: ProjectGateSteps = Object.freeze({
-  afterGate: (result: ProjectGateResult): ProjectGateResult => result,
+  afterGate: observeProjectGatePerformance,
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./project-run.ts"),
