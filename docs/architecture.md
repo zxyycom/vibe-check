@@ -20,7 +20,7 @@
 - `src/project-definition/**` 拥有 Project Definition tree、defaults、validation、normalization 与 fingerprint；
 - `src/check-settlement/**` 拥有 terminal Check/Record facts、session、store 与 fact validation；
 - `src/project-run/**` 拥有 Run entry、invocation、aggregation、project context、completion/result，以及独立的
-  `check-execution/**`、`controls/**`、`progress-rendering/**` 与 `task-scheduler/**` 子 owner；
+  `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `task-scheduler/**` 子 owner；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
 - `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
 - `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 core owner 的 type guards；
@@ -83,7 +83,7 @@ scanner protocol、candidate conversion、Record identity/data 与 unavailable v
 
 ## Output and downstream boundary
 
-Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 output result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary、accepted detached terminal-message readback 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Check-facts capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 
@@ -91,4 +91,4 @@ Publication 创建一个 validated machine v4 model，再从它投影 `run.json`
 
 项目 callback 在调用方的 Bun runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source 不 import `scripts/**`、docs、fixture 或 toolkit code。
 
-Repository dogfood 是单向的：`scripts/project/quality/project-run.ts` 从 exact installed `vibe-check` public entry 导入 `run`，绑定 repository Definition 后执行。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。
+Repository dogfood 是单向的：`scripts/project/quality/project-run.ts` 从 exact installed `vibe-check` public entry 导入 `run`，绑定 repository Definition 后执行。quality 显式启用其 `.log/project-run` diagnostic output；Project Gate 只通过本次 Run Controls 将同一 output 定向到自己的 invocation directory，以与 process transcripts 并列。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。

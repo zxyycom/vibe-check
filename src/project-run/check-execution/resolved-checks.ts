@@ -9,6 +9,7 @@ import type {
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
+import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { runTaskGraph, type SettledTask } from "../task-scheduler/scheduler.ts";
 import { executeCheckCallback } from "./callback.ts";
@@ -62,6 +63,7 @@ export type ResolvedCheckExecution =
   | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts);
 
 interface CheckExecutionState {
+  readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
   readonly session: CoreCheckSession;
@@ -98,6 +100,7 @@ export async function executeResolvedChecks(
     readonly project: CheckProjectContext;
     readonly signal: AbortSignal | undefined;
     readonly clock?: CheckExecutionClock;
+    readonly diagnosticLogger?: DiagnosticLogger;
     readonly lifecycle?: CheckExecutionLifecycle;
   }>
 ): Promise<ResolvedCheckExecution> {
@@ -105,6 +108,7 @@ export async function executeResolvedChecks(
   prepareTaskGraph(completeCheckGraph, input.maxParallel);
   const preflightResolutions = await prepareChecks({
     checks: input.checks,
+    diagnosticLogger: input.diagnosticLogger,
     signal: input.signal
   });
 
@@ -112,6 +116,7 @@ export async function executeResolvedChecks(
   const session = createCoreCheckSession(checkRegistrations);
   const clock = input.clock ?? SYSTEM_MONOTONIC_CLOCK;
   const executionState: CheckExecutionState = {
+    diagnosticLogger: input.diagnosticLogger,
     settledFactsByCheckId: new Map<string, SettledCheckFacts>(),
     lifecycle: input.lifecycle,
     session
@@ -130,7 +135,8 @@ export async function executeResolvedChecks(
   // The barrier is execution-phase work. A signal received while it runs must close this
   // phase as cancelled even when every preflight already blocked and the scheduler graph is empty.
   if (input.signal?.aborted) {
-    executionState.session.closeUnresolvedAsCancelled();
+    const cancelledChecks = executionState.session.closeUnresolvedAsCancelled();
+    observeCancelledCheckClosures(executionState.diagnosticLogger, cancelledChecks);
     const snapshot = executionState.session.freeze();
     settleUnstartedCancelledChecks({
       normalizedChecks: input.checks,
@@ -151,6 +157,7 @@ export async function executeResolvedChecks(
     graphRun = await runTaskGraph({
       graph,
       maxParallel: input.maxParallel,
+      diagnosticLogger: input.diagnosticLogger,
       signal: input.signal,
       execute: (task, context) => {
         const preflight = readyPreflightByCheckId.get(task.id);
@@ -189,7 +196,8 @@ function settleBlockedPreflight(
     checkIdentity(preflight.check),
     outcome,
     preflight.check.preflightMessages,
-    null
+    null,
+    "preflight"
   );
 }
 
@@ -204,7 +212,8 @@ function closeResolvedChecks(
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
     if (input.graphRun.cancelled) {
-      input.state.session.closeUnresolvedAsCancelled();
+      const cancelledChecks = input.state.session.closeUnresolvedAsCancelled();
+      observeCancelledCheckClosures(input.state.diagnosticLogger, cancelledChecks);
       const snapshot = input.state.session.freeze();
       settleUnstartedCancelledChecks({
         normalizedChecks: input.allChecks,
@@ -239,30 +248,63 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const checkId = check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   const identity = checkIdentity(check);
+  input.diagnosticLogger?.observe({
+    scope: checkExecutionScope(checkId),
+    event: "check.started",
+    summary: "Check callback handoff started",
+    details: {
+      dependencies: check.dependsOn,
+      displayName: check.definition.displayName,
+      options: check.options
+    }
+  });
   emitStarted(input.lifecycle, identity);
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
     check,
     dependencies: createCheckDependencies(input),
+    diagnosticLogger: input.diagnosticLogger,
     project: input.project,
     scope,
     signal: input.signal
   });
-  const settled = settleCallback(scope, callback, check.preflightMessages);
+  const settled = settleCallback({
+    callback,
+    checkId,
+    diagnosticLogger: input.diagnosticLogger,
+    preflightMessages: check.preflightMessages,
+    scope
+  });
   recordSettledCheck(
     input,
     identity,
     settled.outcome,
     settled.messages,
-    durationSince(startedAt, input.clock)
+    durationSince(startedAt, input.clock),
+    "execution"
   );
 }
 
 function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
   const directDependencyIds = input.preflight.check.dependsOn;
+  const checkId = input.preflight.check.definition.checkId;
   return Object.freeze({
-    get: (checkId: string): DependencyReadResult =>
-      readDependency(input.session, directDependencyIds, checkId)
+    get: (dependencyId: string): DependencyReadResult => {
+      input.diagnosticLogger?.observe({
+        scope: checkExecutionScope(checkId),
+        event: "dependency.requested",
+        summary: "Check requested a dependency result",
+        details: { checkId: dependencyId }
+      });
+      const result = readDependency(input.session, directDependencyIds, dependencyId);
+      input.diagnosticLogger?.observe({
+        scope: checkExecutionScope(checkId),
+        event: "dependency.resolved",
+        summary: "Check dependency read completed",
+        details: { checkId: dependencyId, result }
+      });
+      return result;
+    }
   });
 }
 
@@ -307,23 +349,56 @@ function dependencyNotDeclared(checkId: unknown): DependencyReadResult {
 }
 
 function settleCallback(
-  scope: ReturnType<CoreCheckSession["openCheckScope"]>,
-  callback: Awaited<ReturnType<typeof executeCheckCallback>>,
-  preflightMessages: readonly CheckMessage[]
+  input: Readonly<{
+    readonly callback: Awaited<ReturnType<typeof executeCheckCallback>>;
+    readonly checkId: string;
+    readonly diagnosticLogger: DiagnosticLogger | undefined;
+    readonly preflightMessages: readonly CheckMessage[];
+    readonly scope: ReturnType<CoreCheckSession["openCheckScope"]>;
+  }>
 ): Readonly<{ readonly messages: readonly CheckMessage[]; readonly outcome: CheckOutcome }> {
+  const diagnosticScope = checkExecutionScope(input.checkId);
+  const { callback } = input;
   if (callback.source === "product") {
+    const outcome = input.scope.settleProduct(callback.result);
+    input.diagnosticLogger?.observe({
+      scope: diagnosticScope,
+      event: "check.settlement",
+      summary: "Product-controlled Check result was settled",
+      details: { outcome, source: callback.source }
+    });
     return Object.freeze({
-      messages: preflightMessages,
-      outcome: scope.settleProduct(callback.result)
+      messages: input.preflightMessages,
+      outcome
     });
   }
   const terminal = parseCheckTerminalResult(callback.result);
-  const settlement = scope.settle(terminal?.result ?? callback.result);
+  if (terminal === undefined) {
+    input.diagnosticLogger?.observe({
+      scope: diagnosticScope,
+      event: "callback.malformed",
+      summary: "Check callback returned a malformed terminal value",
+      details: { result: callback.result }
+    });
+  }
+  const settlement = input.scope.settle(terminal?.result ?? callback.result);
+  input.diagnosticLogger?.observe({
+    scope: diagnosticScope,
+    event: "check.settlement",
+    summary: settlement.authorResultAccepted
+      ? "Check callback terminal result was accepted"
+      : "Check callback terminal result was contained",
+    details: {
+      authorResultAccepted: settlement.authorResultAccepted,
+      outcome: settlement.outcome,
+      terminalParsed: terminal !== undefined
+    }
+  });
   return Object.freeze({
     messages:
       terminal !== undefined && settlement.authorResultAccepted
-        ? Object.freeze([...preflightMessages, ...terminal.messages])
-        : preflightMessages,
+        ? Object.freeze([...input.preflightMessages, ...terminal.messages])
+        : input.preflightMessages,
     outcome: settlement.outcome
   });
 }
@@ -351,7 +426,14 @@ function settleUnstartedCancelledChecks(
       );
     }
     const messages = preparedCheckById.get(check.checkId)?.preflightMessages ?? EMPTY_MESSAGES;
-    recordSettledCheck(input.state, checkIdentity(normalized), check.outcome, messages, null);
+    recordSettledCheck(
+      input.state,
+      checkIdentity(normalized),
+      check.outcome,
+      messages,
+      null,
+      "execution"
+    );
   }
 }
 
@@ -360,13 +442,41 @@ function recordSettledCheck(
   check: CheckIdentity,
   outcome: CheckOutcome,
   messages: readonly CheckMessage[],
-  durationMs: number | null
+  durationMs: number | null,
+  phase: "execution" | "preflight"
 ): void {
   if (state.settledFactsByCheckId.has(check.checkId)) {
     throw new CheckExecutionInvariantFailure("Check lifecycle settled more than once");
   }
   state.settledFactsByCheckId.set(check.checkId, Object.freeze({ durationMs, messages }));
+  state.diagnosticLogger?.observe({
+    scope:
+      phase === "preflight"
+        ? `check:${check.checkId}:preflight`
+        : checkExecutionScope(check.checkId),
+    event: "check.settled",
+    summary: "Final Check outcome and lifecycle facts were recorded",
+    details: { durationMs, messages, outcome }
+  });
   emitSettled(state.lifecycle, check, outcome, messages, durationMs);
+}
+
+function observeCancelledCheckClosures(
+  diagnosticLogger: DiagnosticLogger | undefined,
+  cancelledChecks: readonly Readonly<{ readonly checkId: string; readonly outcome: CheckOutcome }>[]
+): void {
+  for (const cancelled of cancelledChecks) {
+    diagnosticLogger?.observe({
+      scope: checkExecutionScope(cancelled.checkId),
+      event: "check.cancelled",
+      summary: "Unresolved Check was closed by execution cancellation",
+      details: { outcome: cancelled.outcome }
+    });
+  }
+}
+
+function checkExecutionScope(checkId: string): string {
+  return `check:${checkId}:execution`;
 }
 
 function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {

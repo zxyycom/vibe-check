@@ -15,6 +15,10 @@ export function effectiveOutputs(
     progressRendering: Object.freeze({
       ...definition.outputs.progressRendering,
       ...controls.outputs?.progressRendering
+    }),
+    diagnosticLogging: Object.freeze({
+      ...definition.outputs.diagnosticLogging,
+      ...controls.outputs?.diagnosticLogging
     })
   });
 }

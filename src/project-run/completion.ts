@@ -21,6 +21,14 @@ export function completeInvocation(invocation: Invocation, core: CoreExecution):
         invocation.outputConfiguration.machinePublication.directory
       )
     });
+    invocation.diagnosticLogger.observe({
+      scope: "output:machinePublication",
+      event: published ? "output.succeeded" : "output.failed",
+      summary: published
+        ? "machine publication output was closed"
+        : "machine publication output was closed after a publish failure",
+      details: { status: invocation.outputs.value().machinePublication.status }
+    });
     if (!published) return failure(invocation, facts);
   }
   const output = failedOutput(invocation.outputs.value());
@@ -78,4 +86,65 @@ function createModel(
 }
 function isRunResult(value: TrustedPublicationModelV4 | RunResult): value is RunResult {
   return "kind" in value;
+}
+
+/** Closes diagnostic logging and applies final output priority to a non-configuration candidate. */
+export function finalizeInvocation(invocation: Invocation, candidate: RunResult): RunResult {
+  const preCloseOutputs = invocation.outputs.value();
+  invocation.diagnosticLogger.observe({
+    scope: "run",
+    event: "invocation.closing",
+    summary: "pre-logging result selected",
+    details: { candidateKind: candidate.kind, outputs: preCloseOutputs }
+  });
+  const diagnosticLoggingStatus = invocation.diagnosticLogger.close();
+  if (diagnosticLoggingStatus === "failed") invocation.outputs.failed("diagnosticLogging");
+  if (diagnosticLoggingStatus === "succeeded") invocation.outputs.succeeded("diagnosticLogging");
+
+  const outputs = invocation.outputs.value();
+  switch (candidate.kind) {
+    case "completed": {
+      const output = failedOutput(outputs);
+      return output === undefined
+        ? Object.freeze({ ...candidate, outputs })
+        : outputFailure(
+            candidate.declarativeFingerprint,
+            candidate.definitionWarnings,
+            outputs,
+            output,
+            resultFacts({
+              aggregate: candidate.aggregate,
+              checkDurations: candidate.checkDurations,
+              checkMessages: candidate.checkMessages,
+              snapshot: candidate.snapshot
+            })
+          );
+    }
+    case "output": {
+      const output = failedOutput(outputs);
+      if (output === undefined) throw new Error("Run output failed without a failed status");
+      return outputFailure(
+        candidate.declarativeFingerprint,
+        candidate.definitionWarnings,
+        outputs,
+        output,
+        resultFacts({
+          aggregate: candidate.aggregate,
+          checkDurations: candidate.checkDurations,
+          checkMessages: candidate.checkMessages,
+          snapshot: candidate.snapshot
+        })
+      );
+    }
+    case "planning":
+    case "cancelled":
+    case "execution":
+      return Object.freeze({ ...candidate, outputs });
+    case "configuration":
+      return candidate;
+  }
+}
+
+function resultFacts(facts: RunResultFacts): RunResultFacts {
+  return Object.freeze(facts);
 }

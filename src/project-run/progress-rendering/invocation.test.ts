@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -262,7 +262,10 @@ describe("Package Run progress rendering outputs", () => {
       const result = await executeValidatedRun(
         definition([check()], true),
         {
-          outputs: { machinePublication: { directory: "published", enabled: true } },
+          outputs: {
+            machinePublication: { directory: "published", enabled: true },
+            diagnosticLogging: { directory: "diagnostic", enabled: true }
+          },
           projectRoot: root
         },
         [],
@@ -274,6 +277,32 @@ describe("Package Run progress rendering outputs", () => {
       assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "succeeded");
+      assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
+      assert.match(
+        result.outputs.diagnosticLogging.file ?? "",
+        /^diagnostic\/run-[0-9a-f-]+\.log$/
+      );
+      assert.equal(existsSync(join(root, result.outputs.diagnosticLogging.file ?? "")), true);
+      const diagnosticLog = readFileSync(
+        join(root, result.outputs.diagnosticLogging.file ?? ""),
+        "utf8"
+      );
+      assert.match(diagnosticLog, /^#000001 \+\d+\.\dms run invocation\.started /);
+      assert.match(diagnosticLog, /run planning\.succeeded normalized task graph was accepted/);
+      assert.match(diagnosticLog, /run aggregation\.completed no Check aggregation was selected/);
+      assert.match(
+        diagnosticLog,
+        /output:progressRendering output\.failed progress rendering output was closed after a writer failure/
+      );
+      assert.match(
+        diagnosticLog,
+        /output:machinePublication output\.succeeded machine publication output was closed/
+      );
+      assert.match(diagnosticLog, /run invocation\.closing pre-logging result selected/);
+      assert.match(diagnosticLog, /"diagnosticLogging":\{"enabled":true,"file":"diagnostic\//);
+      assert.match(diagnosticLog, /"machinePublication":\{"enabled":true,"status":"succeeded"}/);
+      assert.match(diagnosticLog, /"progressRendering":\{"enabled":true,"status":"failed"}/);
+      assert.equal(diagnosticLog.endsWith("\n"), true);
       assert.equal(existsSync(join(root, "published", "run.json")), true);
       assert.equal(existsSync(join(root, "published", "records.ndjson")), true);
     } finally {
@@ -312,7 +341,10 @@ describe("Package Run progress rendering outputs", () => {
         definition([check()], true),
         {
           projectRoot: root,
-          outputs: { machinePublication: { directory: "blocked", enabled: true } }
+          outputs: {
+            machinePublication: { directory: "blocked", enabled: true },
+            diagnosticLogging: { directory: "blocked", enabled: true }
+          }
         },
         [],
         { progressWriterFactory: () => output.writer }
@@ -322,7 +354,227 @@ describe("Package Run progress rendering outputs", () => {
       assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "failed");
+      assert.equal(result.outputs.diagnosticLogging.status, "failed");
+      assert.match(result.outputs.diagnosticLogging.file ?? "", /^blocked\/run-[0-9a-f-]+\.log$/);
       assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("writes each normalized Check catalog entry separately from the compact invocation start", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-catalog-"));
+    try {
+      const catalog = Array.from({ length: 70 }, (_, index) =>
+        check({ checkId: `catalog-${index}` })
+      );
+      const result = await executeValidatedRun(
+        definition(catalog),
+        {
+          outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
+          projectRoot: root
+        },
+        []
+      );
+
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      const file = result.outputs.diagnosticLogging.file;
+      assert.ok(file);
+      const diagnosticLog = readFileSync(join(root, file), "utf8");
+      const start = diagnosticLog
+        .split("\n")
+        .find((line) => line.includes(" run invocation.started "));
+      assert.ok(start);
+      assert.doesNotMatch(start, /details-unavailable/);
+      assert.doesNotMatch(start, /"catalog"/);
+      assert.match(start, /"aggregation":null/);
+      assert.match(start, /"flags":\[\]/);
+      assert.match(start, /"invocationId":"invocation\/v1:/);
+      assert.match(start, /"outputs":/);
+      assert.match(start, /"projectRoot":/);
+      assert.match(start, /"scheduler":/);
+      assert.equal(
+        [...diagnosticLog.matchAll(/run catalog\.check normalized Check catalog entry accepted/g)]
+          .length,
+        catalog.length
+      );
+      for (const entry of catalog) {
+        assert.match(
+          diagnosticLog,
+          new RegExp(`run catalog\\.check .*"checkId":"${entry.checkId}"`)
+        );
+      }
+      assert.doesNotMatch(diagnosticLog, /details=details-unavailable:(?:value-limit|width-limit)/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("does not invoke hostile author details while diagnostic logging is enabled", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-hostile-diagnostics-"));
+    try {
+      let toJsonCalls = 0;
+      const hostile: Record<string, unknown> = {};
+      Object.defineProperty(hostile, "toJSON", {
+        enumerable: true,
+        value: (): object => {
+          toJsonCalls += 1;
+          return { leaked: true };
+        }
+      });
+      const source = definition(
+        [
+          {
+            checkId: "hostile-preflight",
+            displayName: "Hostile preflight",
+            execution: () => PASSED,
+            preflight: () => ({ status: "success", preparedOptions: hostile })
+          },
+          check({
+            checkId: "hostile-callback",
+            execution: ({ records }) => {
+              records.report({ id: "hostile" }, hostile);
+              return { status: "passed", data: hostile };
+            }
+          })
+        ],
+        false
+      );
+      const result = await executeValidatedRun(
+        source,
+        {
+          outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
+          projectRoot: root
+        },
+        []
+      );
+
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(toJsonCalls, 0);
+      assert.deepEqual(
+        result.snapshot.checks.map((settledCheck) => settledCheck.outcome.status),
+        ["unavailable", "unavailable"]
+      );
+      const file = result.outputs.diagnosticLogging.file;
+      assert.ok(file);
+      const diagnosticLog = readFileSync(join(root, file), "utf8");
+      assert.match(diagnosticLog, /preflight\.malformed/);
+      assert.match(diagnosticLog, /record\.reported/);
+      assert.match(diagnosticLog, /callback\.returned/);
+      assert.match(diagnosticLog, /details=details-unavailable:unsupported-function/);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("closes diagnostic logging once after an unexpected nonconfiguration failure", async () => {
+    let closeCalls = 0;
+    const result = await executeValidatedRun(
+      defineConfig({
+        checks: [],
+        outputs: {
+          diagnosticLogging: { enabled: true },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        }
+      }),
+      {},
+      [],
+      {
+        clock: {
+          now: (): never => {
+            throw new Error("clock fault");
+          }
+        },
+        diagnosticLoggerFactory: () =>
+          Object.freeze({
+            close: () => {
+              closeCalls += 1;
+              return "succeeded" as const;
+            },
+            observe: () => undefined
+          })
+      }
+    );
+
+    assert.equal(result.kind, "execution");
+    if (result.kind !== "execution") return;
+    assert.deepEqual(result.diagnostic, { code: "task-engine-failed" });
+    assert.equal(closeCalls, 1);
+    assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
+  });
+
+  it("contains diagnostic logger implementation failures without revising final facts", async () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-failure-"));
+    try {
+      const source = definition([
+        check({
+          execution: ({ records }) => {
+            records.report({ id: "accepted" }, { source: "callback" });
+            return { status: "passed", data: { accepted: true } };
+          }
+        })
+      ]);
+      const failures = [
+        "factory-throws",
+        "observe-throws",
+        "close-failed",
+        "close-throws"
+      ] as const;
+      for (const failure of failures) {
+        let delegateCloseCalls = 0;
+        let delegateObserveCalls = 0;
+        const result = await executeValidatedRun(
+          source,
+          {
+            outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
+            projectRoot: root
+          },
+          [],
+          {
+            diagnosticLoggerFactory: () => {
+              if (failure === "factory-throws") throw new Error("logger creation failed");
+              return Object.freeze({
+                close: () => {
+                  delegateCloseCalls += 1;
+                  if (failure === "close-throws") throw new Error("logger close failed");
+                  return failure === "close-failed" ? "failed" : "succeeded";
+                },
+                observe: () => {
+                  delegateObserveCalls += 1;
+                  if (failure === "observe-throws") throw new Error("logger append failed");
+                }
+              });
+            }
+          }
+        );
+
+        assert.equal(result.kind, "output", failure);
+        if (result.kind !== "output") continue;
+        assert.deepEqual(result.diagnostic, { code: "diagnostic-logging-failed" }, failure);
+        assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+          status: "passed",
+          data: { accepted: true }
+        });
+        assert.deepEqual(result.snapshot.records, [
+          { checkId: "custom", id: "accepted", data: { source: "callback" } }
+        ]);
+        assert.deepEqual(result.checkMessages, []);
+        assert.equal(result.outputs.machinePublication.status, "disabled");
+        assert.equal(result.outputs.progressRendering.status, "disabled");
+        assert.equal(result.outputs.diagnosticLogging.enabled, true);
+        assert.equal(result.outputs.diagnosticLogging.status, "failed");
+        assert.match(
+          result.outputs.diagnosticLogging.file ?? "",
+          /^diagnostic\/run-[0-9a-f-]+\.log$/
+        );
+        assert.equal(delegateCloseCalls, failure === "factory-throws" ? 0 : 1, failure);
+        if (failure === "factory-throws") assert.equal(delegateObserveCalls, 0, failure);
+        else if (failure === "observe-throws") assert.equal(delegateObserveCalls, 1, failure);
+        else assert.ok(delegateObserveCalls > 1, failure);
+      }
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

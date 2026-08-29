@@ -45,6 +45,7 @@ const analyzeChangedFiles = defineCheck({
 const definition = defineConfig({
   checks: [changedFiles, analyzeChangedFiles],
   outputs: {
+    diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   }

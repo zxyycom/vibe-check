@@ -10,9 +10,9 @@
 - [`docs/output.md`](../../docs/output.md) 与 `RunResult`/machine v4 只拥有最终 publication/result contract；日志不得进入 machine v4，也不能从 final facts 倒推 chronology。
 - [`docs/script-tooling.md`](../../docs/script-tooling.md#process-evidence) 与 `scripts/project/gate/**` 拥有 command transcripts；Product log解释 core 如何调度和结算 Check，不复制或解释 transcript 内部内容。
 - Check callback 已用 final data、Record 和 message 表达领域输出。给 Check 增加 logger 会建立第四条输出路径，且 Product 无法定义各 Check 应写什么，因此 Check surface保持不变。
-- 当前实现仍只接受 machine publication 与 progress rendering；active、unaligned 的 [`add-ephemeral-project-run-diagnostic-logging.md`](../../docs/decisions/add-ephemeral-project-run-diagnostic-logging.md) 已显式修订并归档 [`replace-global-tool-effects-with-run-outputs.md`](../../docs/decisions/archive/replace-global-tool-effects-with-run-outputs.md)，约束实现新增第三个 output 后再完成 alignment。
+- active、aligned 的 [`add-ephemeral-project-run-diagnostic-logging.md`](../../docs/decisions/add-ephemeral-project-run-diagnostic-logging.md) 已显式修订并归档 [`replace-global-tool-effects-with-run-outputs.md`](../../docs/decisions/archive/replace-global-tool-effects-with-run-outputs.md)；第三个 Run output 的实现、稳定 owner 和 package material 已完成对齐。
 
-实施者以 proposal 的 Outcome/Scope/Success Criteria 判断完成边界，以本 design 的 Decisions 作为方案约束，以 tasks 的未完成项推进工作；链接的 docs、源码与 tests仍是当前事实来源。日志格式示例只定义本 Change 的人读验收结果，不建立外部解析契约。
+完成态审阅以 proposal 的 Outcome/Scope/Success Criteria 判断交付边界，以本 design 的 Decisions 复核方案约束，以 tasks 的 checkbox 和本文 Implementation Observations 定位验收证据；链接的 docs、源码与 tests仍是当前事实来源。日志格式示例只定义本 Change 的人读验收结果，不建立外部解析契约。
 
 ## Goals / Non-Goals
 
@@ -86,7 +86,7 @@
 
    Product 直接记录 owner 已形成的参数和结果，不解析 progress/stdout，也不通过 final snapshot 或 transcript timestamp 重建缺失事件。scheduler 只在 blocker set 或状态转换变化时写 entry，避免循环轮询产生没有新信息的重复行。
 
-5. **Check 领域输出保持单一路径。** `CheckExecutionContext`、`CheckPreflight`、`src/package-checks/**` 和 Check guides 不修改。core log 中的 options、Record data、callback result 和 message 是 Product 对实际 handoff 的观察，不是 Check-author 新输出。需要额外领域信息的 Check 继续使用 final data、supplemental Record 或 terminal message。
+5. **Check 领域输出保持单一路径。** `CheckExecutionContext`、`CheckPreflight`、package-provided Check 执行与 Check guides 的 authoring contract 不修改。core log 中的 options、Record data、callback result 和 message 是 Product 对实际 handoff 的观察，不是 Check-author 新输出。Package JSDoc 中的 Project Definition 示例可以同步新 output 字段，但不向 Check 增加 logger。需要额外领域信息的 Check 继续使用 final data、supplemental Record 或 terminal message。
 
 6. **repository consumers 明确覆盖默认值。** package default保持关闭；repository quality Definition 显式启用并使用 `.log/project-run`。Project Gate 通过 Run Controls启用，并把 directory设为当前 `.log/project-gate/<invocation-id>`；Product log与 process transcripts位于同一目录。quality/Gate 向调用方显示本次 file或 directory，不增加 `latest`、index或 retention。
 
@@ -98,7 +98,7 @@
 
 - Definition/Controls/output validation/status/result/public declaration同步增加 logging；closed-key、defaults、override、path containment和result-priority tests都需覆盖第三项。
 - invocation组合 Product-private logger；scheduler、preflight/Check handoff、dependency/Record和completion增加只观察事实的 seam，原 execution/settlement/cancellation owner不变。
-- Check callback、preflight、package-provided Check、final data与Record authoring surface保持不变。
+- Check callback、preflight、package-provided Check 执行、final data与Record authoring surface保持不变。
 - repository logging-on会增加本地IO和时序扰动；性能比较必须明确 logging条件，且 logging-on/off需证明最终运行事实等价。
 - machine schema、Check/Record data和progress text不变；未来若需要稳定解析，必须建立新的 machine contract，不能反向提升此人读文件。
 
@@ -116,33 +116,33 @@ scripts/project/gate/run.test.ts
 scripts/project/gate/definition.test.ts
 ```
 
-Implementation 的 logging-on/off 等价不是逐字节、duration 或并发 wall-clock 相等，而是以下语义事实相同：被选择和执行的 Check、accepted settlement、final data、Records、messages、aggregation、cancellation branch，以及 progress/machine 的既有 status。logging-on成功时只增加日志 I/O 和`diagnosticLogging` status/file；logging-off不得创建 directory、file或writer；logging failure只允许改变`diagnosticLogging` status和既定唯一 output diagnostic选择。
+验收中的 logging-on/off 等价不是逐字节、duration 或并发 wall-clock 相等，而是以下语义事实相同：被选择和执行的 Check、accepted settlement、final data、Records、messages、aggregation、cancellation branch，以及 progress/machine 的既有 status。logging-on成功时只增加日志 I/O 和`diagnosticLogging` status/file；logging-off不得创建 directory、file或writer；logging failure只允许改变`diagnosticLogging` status和既定唯一 output diagnostic选择。
 
-代表性 complete log 至少能够形成下列连续故事；sequence和elapsed的具体值由运行决定：
+当前实现的代表性 complete log 能够形成下列连续故事；sequence和elapsed的具体值由运行决定：
 
 ```text
 #000001 +0.0ms run invocation.started validated Project Run started details={invocationId:...,root:...,outputs:...}
-#000002 +0.4ms run planning.completed catalog and task graph accepted details={checks:[...],rootBudget:...,mutexes:[...]}
-#000003 +0.6ms check:prepare:preflight preflight.continued fallback options accepted details={messages:[...]}
-#000004 +0.8ms scheduler check.waiting metrics is blocked details={dependencies:[prepare],mutexes:[],rootBudget:false}
-#000005 +1.1ms scheduler check.admitted prepare acquired constraints details={running:1,...}
-#000006 +2.3ms check:prepare:execution record.reported supplemental Record accepted details={identity:...,data:...}
-#000007 +2.8ms check:prepare:execution check.settled passed result accepted details={outcome:passed,durationMs:...}
-#000008 +3.0ms scheduler check.admitted metrics acquired constraints details={dependencies:[prepare],...}
-#000009 +4.6ms run aggregation.completed final aggregate selected details={...}
-#000010 +5.1ms output:machinePublication output.succeeded machine output closed details={...}
-#000011 +5.3ms run invocation.closing pre-logging result selected details={candidateKind:completed}
+#000002 +0.4ms run catalog.check normalized Check catalog entry accepted details={checkId:prepare,...}
+#000003 +0.5ms run planning.succeeded normalized task graph was accepted details={checkCount:...,maxParallel:...}
+#000004 +0.6ms check:prepare:preflight preflight.continued fallback options accepted details={messages:[...]}
+#000005 +0.8ms scheduler check.waiting metrics is blocked details={dependencies:[prepare],mutexes:[],rootBudget:false}
+#000006 +1.1ms scheduler check.admitted prepare acquired constraints details={running:1,...}
+#000007 +2.3ms check:prepare:execution record.reported supplemental Record accepted details={identity:...,data:...}
+#000008 +2.8ms check:prepare:execution check.settled passed result accepted details={outcome:passed,durationMs:...}
+#000009 +3.0ms scheduler check.admitted metrics acquired constraints details={dependencies:[prepare],...}
+#000010 +4.6ms run aggregation.completed final aggregate selected details={...}
+#000011 +5.1ms output:machinePublication output.succeeded machine output closed details={...}
+#000012 +5.3ms run invocation.closing pre-logging result selected details={candidateKind:completed}
 ```
 
-代表性 abrupt interruption 接受没有 final entry 的 partial file和至多一个截断尾行；最后一条newline-terminated entry 必须仍可定位已开始的工作和未解除 blocker，而不能伪造未观察到的 closure：
+代表性 abrupt interruption 保留没有 final entry 的 partial file；最后一条newline-terminated entry 仍可定位已开始的工作，且不伪造未观察到的 closure：
 
 ```text
-#000021 +18.1ms check:slow:execution check.started callback handoff started details={...}
-#000022 +18.4ms scheduler check.waiting report is blocked details={dependencies:[],mutexes:[workspace],rootBudget:false}
+#000008 +18.1ms check:slow:execution check.started callback handoff started details={...}
 <process interrupted; no later complete entry>
 ```
 
-Implementation 必须把这些目标样例变成由确定性 fixture 产生的验收材料；本节证明 Plan 已固定观察义务与等价口径，不证明 logging 已存在。
+确定性 owner tests 已覆盖上述等价与failure isolation；真实 full Gate 和强制中断审计已覆盖 complete/partial 文件特性，结果汇总见 Implementation Observations。
 
 ## Risks / Trade-offs
 
@@ -154,4 +154,11 @@ Implementation 必须把这些目标样例变成由确定性 fixture 产生的�
 
 ## Open Questions
 
-无。外部/仓库默认值、Product-only owner、Check信息路径、日志生命周期、内容范围、failure priority、审计基线和Decision演进均已明确；剩余工作按tasks进入implementation与verification。
+无。外部/仓库默认值、Product-only owner、Check信息路径、日志生命周期、内容范围、failure priority、审计基线和Decision演进均已明确，实现与验收没有待决策项。
+
+## Implementation Observations
+
+- 完整 full Gate Run 的 33 项 Check 全部通过；Product log 含 1,275 条、567,410 bytes，sequence 从 1 连续到末条，每条换行闭合，没有`details-unavailable`占位，required event set 全部出现且`invocation.closing`为末条。
+- 强制终止fixture留下 8 条连续、换行闭合的 partial log；末条为`check.started`，没有伪造`invocation.closing`。
+- 目标tests分别注入create、observe/render/append、close和factory外溢失败；所有分支保留原 Check/Record facts，logger 最多关闭一次，并仅通过`diagnosticLogging` status 与既定 output diagnostic priority暴露失败。
+- Decision `add-ephemeral-project-run-diagnostic-logging.md` 已在实现、docs、package material 与验证对齐后标记为active、aligned；Change 保持active Plan，归档仍需单独授权。

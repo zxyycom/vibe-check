@@ -133,6 +133,7 @@ type ReminderMeasurement =
  * const definition = defineConfig({
  *   checks: [maintenance],
  *   outputs: {
+ *     diagnosticLogging: { enabled: false },
  *     machinePublication: { enabled: false },
  *     progressRendering: { enabled: false }
  *   }

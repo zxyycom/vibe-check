@@ -1,4 +1,4 @@
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -43,6 +43,12 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
     return await packageRun(createProjectGateDefinition(entries, selection), {
       checkAggregation: projectGateAggregation(entries, selection),
       flags: controls.flags,
+      outputs: {
+        diagnosticLogging: {
+          directory: relative(repositoryRoot, controls.invocationLogDirectory),
+          enabled: true
+        }
+      },
       projectRoot: repositoryRoot,
       signal: controls.signal
     });

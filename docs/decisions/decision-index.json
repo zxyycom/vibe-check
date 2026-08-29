@@ -5,7 +5,7 @@
   "metadata": {},
   "sourceRevision": {
     "entries": {
-      "add-ephemeral-project-run-diagnostic-logging.md": "sha256:4d2b361376efedd181cedae05e45381a7bb13c6b9258a8af00aa11bad76a0e1b",
+      "add-ephemeral-project-run-diagnostic-logging.md": "sha256:6f6662b4a875a7876d084c158dd74e6fce84e222aaba32dbef89890a83e989ea",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
@@ -220,14 +220,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "add-ephemeral-project-run-diagnostic-logging.md",
         "title": "增加一次性 Project Run core 诊断日志 output",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-29T06:20:34Z",
         "purpose": "让维护者无需断点调试即可恢复 Project Run core 的详细运行路径。",
         "background": "最终 Run facts、progress 与 Gate transcripts 无法共同还原 Product 编排过程。",

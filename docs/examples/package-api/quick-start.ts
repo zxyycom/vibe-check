@@ -24,6 +24,7 @@ const bundleSize = defineCheck({
 const definition = defineConfig({
   checks: [bundleSize],
   outputs: {
+    diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   }

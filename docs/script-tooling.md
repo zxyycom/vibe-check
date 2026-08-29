@@ -102,11 +102,11 @@ provider staging 执行完整 material audit，因此 staging corruption 不会�
 1. `scripts/project/quality/run.ts` 在 mise 锁定的 scanner toolchain 中启动 `locked-run.ts`，并保留 child
    stdout、stderr 与 exit status。
 2. `locked-run.ts` 先通过 `scripts/package/candidate/prepare.ts` 准备 exact local candidate，再加载 `scan.ts`。
-3. `scan.ts` 调用 `project-run.ts` 的 bound Run，并将 completed、configuration 与其它 result branches 分别映射
-   为既有 process status `0`、`3`、`2`。
+3. `scan.ts` 调用 `project-run.ts` 的 bound Run，向调用方显示本次 diagnostic log file，并将 completed、configuration
+   与其它 result branches 分别映射为既有 process status `0`、`3`、`2`。
 4. `definition.ts` 是 repository quality policy 的唯一 owner；它从 private consumer 已安装的 `vibe-check`
-   导入公开 Check constructors 和 `defineConfig`。`project-run.ts` 将该 Definition 与 repository root 绑定，调用
-   package `run`。
+   导入公开 Check constructors 和 `defineConfig`，并显式把 diagnostic logging 设为 `.log/project-run`。`project-run.ts`
+   将该 Definition 与 repository root 绑定，调用 package `run`。
 
 quality wrapper 不解析调用方配置、不重新声明 Project Definition，也不注入 scanner override。每项 scanner command
 与 availability command 都属于使用它的 package-provided ordinary Check options；详见
@@ -117,10 +117,13 @@ quality wrapper 不解析调用方配置、不重新声明 Project Definition，
 `scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。一次 invocation 按以下顺序建立：
 
 1. 准备 candidate，并确认 private consumer 解析到的 package entry 与准备结果相同。
-2. 创建 invocation log directory，并把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run。
+2. 创建 invocation log directory，并把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run；该 Run
+   通过 invocation-local output override 把 Product diagnostic log 写到这个目录。
 3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约。
 
-参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。
+参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。成功启动的
+Gate 总是显示 invocation directory；该目录中的 Product `run-<uuid>.log` 与各 Check-owned process transcript 并列，
+不建立 `latest`、index、retention 或相互解析关系。
 Gate 不改变 quality 的 locked scanner boundary，也不替代 development、docs、decision-records 或 test-evidence
 各自的 command owner。
 
@@ -199,7 +202,8 @@ Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程
 transcript 写入失败，Check 结算为 transcript unavailable。这样 Gate 或 child 在结算前被外部终止时，已有 transcript
 仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。
 
-带 typed success stdout 的 process Check 也遵守该顺序：先完成 settled transcript，再对零退出 stdout 作 closed parse，
+Product diagnostic log 记录 Project Run 的 scheduler、handoff 与 output facts；它不复制、解析或解释下述 child stdout/stderr
+transcript。带 typed success stdout 的 process Check 也遵守该顺序：先完成 settled transcript，再对零退出 stdout 作 closed parse，
 并按需要复核其 provider provenance 与 physical material；因此 parse、identity 或 revalidation failure 是
 `process-output-invalid` unavailable，而不是已通过的 child result。`prepared-external-package-consumer` 是这一边界的
 具体使用者，不能把 stdout 或 transcript 原文提升为 Run public data。

@@ -30,10 +30,21 @@ describe("Project Definition", () => {
     assert.deepEqual(definition.checks, []);
     assert.deepEqual(definition.outputs, {
       machinePublication: { directory: "artifacts/vibe-check", enabled: true },
-      progressRendering: { enabled: true }
+      progressRendering: { enabled: true },
+      diagnosticLogging: { directory: ".log/vibe-check", enabled: false }
     });
     assert.equal(definition.apiVersion, "1");
     assert.equal(definition.scheduler.maxParallel, 4);
+    assert.equal(
+      validateProjectDefinition({
+        ...definition,
+        outputs: {
+          ...definition.outputs,
+          diagnosticLogging: { directory: "../outside-project", enabled: true }
+        }
+      }).ok,
+      false
+    );
     assert.equal(Object.getPrototypeOf(definition), Object.prototype);
   });
 

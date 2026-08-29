@@ -1,7 +1,7 @@
 ---
 title: 增加一次性 Project Run core 诊断日志 output
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-29T06:20:34Z
 purpose: 让维护者无需断点调试即可恢复 Project Run core 的详细运行路径。
 background: 最终 Run facts、progress 与 Gate transcripts 无法共同还原 Product 编排过程。

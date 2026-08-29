@@ -1,4 +1,5 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import { isContainedRelativeDirectory } from "../../project-definition/output-validation.ts";
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import type { RunControls } from "./contract.ts";
 /** Parses invocation-local outputs without changing Definition defaults. */
@@ -6,7 +7,10 @@ export function parseOutputsOverride(value: unknown): RunControls["outputs"] | u
   const data = snapshotClosedRecord(value);
   if (
     data === undefined ||
-    Object.keys(data).some((key) => key !== "machinePublication" && key !== "progressRendering")
+    Object.keys(data).some(
+      (key) =>
+        key !== "machinePublication" && key !== "progressRendering" && key !== "diagnosticLogging"
+    )
   )
     return undefined;
   const machinePublication = optionalOutput(
@@ -15,12 +19,20 @@ export function parseOutputsOverride(value: unknown): RunControls["outputs"] | u
     parseDirectoryOutputOverride
   );
   const progressRendering = optionalOutput(data, "progressRendering", parseProgressOutputOverride);
-  if (!machinePublication.ok || !progressRendering.ok) return undefined;
+  const diagnosticLogging = optionalOutput(
+    data,
+    "diagnosticLogging",
+    parseDiagnosticLoggingOverride
+  );
+  if (!machinePublication.ok || !progressRendering.ok || !diagnosticLogging.ok) return undefined;
   return Object.freeze({
     ...(machinePublication.value === undefined
       ? {}
       : { machinePublication: machinePublication.value }),
-    ...(progressRendering.value === undefined ? {} : { progressRendering: progressRendering.value })
+    ...(progressRendering.value === undefined
+      ? {}
+      : { progressRendering: progressRendering.value }),
+    ...(diagnosticLogging.value === undefined ? {} : { diagnosticLogging: diagnosticLogging.value })
   });
 }
 function optionalOutput<T>(
@@ -57,4 +69,14 @@ function parseProgressOutputOverride(
   if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) return undefined;
   if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
   return Object.freeze(data.enabled === undefined ? {} : { enabled: data.enabled });
+}
+
+function parseDiagnosticLoggingOverride(
+  value: unknown
+): Partial<ProjectOutputs["diagnosticLogging"]> | undefined {
+  const parsed = parseDirectoryOutputOverride(value);
+  return parsed === undefined ||
+    (parsed.directory !== undefined && !isContainedRelativeDirectory(parsed.directory))
+    ? undefined
+    : parsed;
 }

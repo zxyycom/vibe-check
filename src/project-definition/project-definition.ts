@@ -21,6 +21,13 @@ export interface ProjectOutputs {
     /** `false` 时不构造或写入 progress writer。 */
     readonly enabled: boolean;
   }>;
+  /** 仅供维护者读取的一次 invocation diagnostic log。 */
+  readonly diagnosticLogging: Readonly<{
+    /** 相对目录以 project root 解析，默认 `.log/vibe-check`。 */
+    readonly directory: string;
+    /** `false` 时不创建 diagnostic writer 或 file。 */
+    readonly enabled: boolean;
+  }>;
 }
 
 /** 定义级的 Check 调度预算。 */
@@ -40,6 +47,7 @@ type ProjectDefinitionInput = Readonly<{
   outputs?: Partial<{
     machinePublication: Partial<ProjectOutputs["machinePublication"]>;
     progressRendering: Partial<ProjectOutputs["progressRendering"]>;
+    diagnosticLogging: Partial<ProjectOutputs["diagnosticLogging"]>;
   }>;
   scheduler?: Partial<SchedulerPolicy>;
 }>;
@@ -100,6 +108,14 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
         enabled:
           value.outputs?.progressRendering?.enabled ??
           DEFAULT_PROJECT_OUTPUTS.progressRendering.enabled
+      },
+      diagnosticLogging: {
+        directory:
+          value.outputs?.diagnosticLogging?.directory ??
+          DEFAULT_PROJECT_OUTPUTS.diagnosticLogging.directory,
+        enabled:
+          value.outputs?.diagnosticLogging?.enabled ??
+          DEFAULT_PROJECT_OUTPUTS.diagnosticLogging.enabled
       }
     },
     scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 }

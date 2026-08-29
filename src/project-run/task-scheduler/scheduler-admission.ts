@@ -9,15 +9,19 @@ import {
 
 /** Admits ready work according to dependencies, mutexes, and active scope caps. */
 export function admitReadyTasks<TResult>(state: SchedulerState<TResult>): void {
+  observePendingBlockers(state);
   while (state.runningById.size < state.maxParallel) {
     if (state.signal?.aborted === true) {
-      state.isCancelled = true;
       cancelPendingTasks(state);
       return;
     }
     const task = selectNextReadyTask(state);
-    if (task === undefined) return;
+    if (task === undefined) {
+      observePendingBlockers(state);
+      return;
+    }
     admitTask(state, task);
+    observePendingBlockers(state);
   }
 }
 
@@ -166,6 +170,83 @@ function admitTask<TResult>(state: SchedulerState<TResult>, task: PlannedTask): 
     .then((value) => completedTaskCompletion(task.id, value))
     .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
   state.runningById.set(task.id, { task, completion });
+  state.diagnosticLogger?.observe({
+    scope: "scheduler",
+    event: "check.admitted",
+    summary: "Check was admitted with scheduler constraints",
+    details: {
+      checkId: task.id,
+      constraints: {
+        dependencies: task.dependsOn,
+        maxParallel: prospectiveMaxParallel(state, task),
+        mutexes: task.mutex,
+        scopeId: task.scopeId
+      },
+      ...schedulerCounts(state)
+    }
+  });
+}
+
+function observePendingBlockers<TResult>(state: SchedulerState<TResult>): void {
+  const counts = schedulerCounts(state);
+  for (const task of state.pending) {
+    const dependencies = task.dependsOn.filter(
+      (dependencyId) => state.settlementsByTaskId.get(dependencyId)?.kind !== "completed"
+    );
+    const mutexes = task.mutex.filter((mutex) => state.runningMutexes.has(mutex));
+    const effectiveCapacity = prospectiveMaxParallel(state, task);
+    const rootBudget = state.runningById.size >= state.maxParallel;
+    const scopeBudget =
+      effectiveCapacity < state.maxParallel && state.runningById.size >= effectiveCapacity;
+    const reservationTaskId =
+      dependencies.length === 0 &&
+      mutexes.length === 0 &&
+      !rootBudget &&
+      !scopeBudget &&
+      state.reservationTaskId !== undefined &&
+      state.reservationTaskId !== task.id
+        ? state.reservationTaskId
+        : undefined;
+    const status =
+      dependencies.length === 0 &&
+      mutexes.length === 0 &&
+      !rootBudget &&
+      !scopeBudget &&
+      reservationTaskId === undefined
+        ? "ready"
+        : "waiting";
+    const blockers = Object.freeze({
+      dependencies,
+      mutexes,
+      rootBudget,
+      scopeBudget,
+      ...(reservationTaskId === undefined ? {} : { reservationTaskId })
+    });
+    const signature = JSON.stringify({ blockers, status });
+    if (state.blockerSignaturesByTaskId.get(task.id) === signature) continue;
+    state.blockerSignaturesByTaskId.set(task.id, signature);
+    state.diagnosticLogger?.observe({
+      scope: "scheduler",
+      event: `check.${status}`,
+      summary:
+        status === "ready"
+          ? "Check is ready for admission"
+          : "Check is waiting on scheduler blockers",
+      details: { checkId: task.id, blockers, effectiveCapacity, ...counts }
+    });
+  }
+}
+
+function schedulerCounts<TResult>(state: SchedulerState<TResult>): Readonly<{
+  readonly pending: number;
+  readonly ready: number;
+  readonly running: number;
+}> {
+  return Object.freeze({
+    pending: state.pending.length,
+    ready: state.pending.filter((task) => canAdmitTask(task, state)).length,
+    running: state.runningById.size
+  });
 }
 
 function completedTaskCompletion<TResult>(

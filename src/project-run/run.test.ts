@@ -72,6 +72,9 @@ describe("Package Run", () => {
     ]);
 
     const unknownControlResult = await run(source, { changedFiles: ["src/a.ts"] });
+    const unsafeDiagnosticDirectory = await run(source, {
+      outputs: { diagnosticLogging: { directory: "../escape" } }
+    });
     const badDefinition = await run({ ...source, unexpected: true }, {});
     const badOptions = await run(
       definition([
@@ -98,6 +101,15 @@ describe("Package Run", () => {
         kind: "invalid-run-controls",
         path: "controls.changedFiles",
         reason: "unknown-key"
+      }
+    });
+    assert.deepEqual(unsafeDiagnosticDirectory, {
+      kind: "configuration",
+      definitionWarnings: [],
+      diagnostic: {
+        kind: "invalid-run-controls",
+        path: "controls.outputs",
+        reason: "invalid-value"
       }
     });
     assert.equal(badDefinition.kind, "configuration");

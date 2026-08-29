@@ -40,8 +40,14 @@ export interface AuthorCheckSettlement {
 export interface CoreCheckSession {
   openCheckScope(checkId: string): TrustedCheckScope;
   readSettledCheckOutcome(checkId: string): CheckOutcome;
-  closeUnresolvedAsCancelled(): void;
+  closeUnresolvedAsCancelled(): readonly CancelledCheckClosure[];
   freeze(): CoreSnapshot;
+}
+
+/** Product-private cancellation facts emitted at the exact Core closure boundary. */
+export interface CancelledCheckClosure {
+  readonly checkId: string;
+  readonly outcome: CheckOutcome;
 }
 
 /** A trusted integration bug is fatal to the invocation, not a Check outcome. */
@@ -134,19 +140,22 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     return slot.lifecycle.outcome;
   }
 
-  public closeUnresolvedAsCancelled(): void {
+  public closeUnresolvedAsCancelled(): readonly CancelledCheckClosure[] {
     if (this.#snapshot !== undefined) {
       coreInvariant("Cancelled closure cannot mutate a frozen Core snapshot");
     }
+    const closures: CancelledCheckClosure[] = [];
     for (const slot of this.#slots) {
       if (slot.lifecycle.kind !== "settled") {
-        this.#commitTerminal(
+        const outcome = this.#commitTerminal(
           slot,
           Object.freeze({ status: "unavailable", reason: { code: "execution-cancelled" } }),
           true
         );
+        closures.push(Object.freeze({ checkId: slot.checkId, outcome }));
       }
     }
+    return Object.freeze(closures);
   }
 
   public freeze(): CoreSnapshot {

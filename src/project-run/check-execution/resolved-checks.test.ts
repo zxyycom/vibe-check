@@ -10,6 +10,7 @@ import type {
 } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { CoreInvariantFailure, createCoreCheckSession } from "../../check-settlement/session.ts";
+import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { executeCheckCallback } from "./callback.ts";
 import {
   executeResolvedChecks,
@@ -51,16 +52,27 @@ function execute(
   execution: CheckExecution,
   options: Readonly<{
     readonly clock?: CheckExecutionClock;
+    readonly diagnosticLogger?: DiagnosticLogger;
     readonly lifecycle?: CheckExecutionLifecycle;
   }> = {}
 ) {
   return executeResolvedChecks({
     checks: [normalized(execution)],
     clock: options.clock,
+    diagnosticLogger: options.diagnosticLogger,
     lifecycle: options.lifecycle,
     maxParallel: 1,
     project: PROJECT,
     signal: undefined
+  });
+}
+
+function recordingLogger(observations: DiagnosticObservation[]): DiagnosticLogger {
+  return Object.freeze({
+    close: () => "disabled" as const,
+    observe: (observation: DiagnosticObservation): void => {
+      observations.push(observation);
+    }
   });
 }
 
@@ -194,11 +206,15 @@ describe("Package Run direct Check execution", () => {
   });
 
   it("contains invalid or duplicate Record writes without revising prior Records", async () => {
-    const result = await execute((context) => {
-      context.records.report({ id: "retained" }, { value: true });
-      context.records.report({ id: "retained" }, { value: false });
-      return { status: "passed", data: {} };
-    });
+    const observations: DiagnosticObservation[] = [];
+    const result = await execute(
+      (context) => {
+        context.records.report({ id: "retained" }, { value: true });
+        context.records.report({ id: "retained" }, { value: false });
+        return { status: "passed", data: {} };
+      },
+      { diagnosticLogger: recordingLogger(observations) }
+    );
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {
@@ -208,6 +224,27 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(result.snapshot.records, [
       { checkId: "direct-check", id: "retained", data: { value: true } }
     ]);
+    assert.deepEqual(
+      observations
+        .filter((observation) => observation.event === "record.reported")
+        .map((observation) => observation.details),
+      [
+        { identity: { id: "retained" }, data: { value: true }, result: "committed" },
+        { identity: { id: "retained" }, data: { value: false }, result: "rejected" }
+      ]
+    );
+    assert.deepEqual(
+      observations.find((observation) => observation.event === "callback.returned")?.details,
+      { result: { status: "passed", data: {} } }
+    );
+    assert.deepEqual(
+      observations.find((observation) => observation.event === "check.settlement")?.details,
+      {
+        authorResultAccepted: false,
+        outcome: { status: "unavailable", reason: { code: "record-conflict" } },
+        terminalParsed: true
+      }
+    );
 
     const invalidMessageItems: readonly unknown[] = [
       { level: "verbose", code: "invalid-level", message: "Invalid level" },
@@ -217,25 +254,33 @@ describe("Package Run direct Check execution", () => {
       { level: "info", code: "extra-key", message: "Unknown field", extra: true }
     ];
     for (const invalidItem of invalidMessageItems) {
-      const invalidMessageResult = await execute(() => {
-        const terminal: CheckResult = { status: "passed", data: {}, messages: [] };
-        Object.defineProperty(terminal, "messages", {
-          configurable: true,
-          enumerable: true,
-          value: [
-            { level: "info", code: "valid-prefix", message: "This must not escape" },
-            invalidItem
-          ],
-          writable: true
-        });
-        return terminal;
-      });
+      const malformedObservations: DiagnosticObservation[] = [];
+      const invalidMessageResult = await execute(
+        () => {
+          const terminal: CheckResult = { status: "passed", data: {}, messages: [] };
+          Object.defineProperty(terminal, "messages", {
+            configurable: true,
+            enumerable: true,
+            value: [
+              { level: "info", code: "valid-prefix", message: "This must not escape" },
+              invalidItem
+            ],
+            writable: true
+          });
+          return terminal;
+        },
+        { diagnosticLogger: recordingLogger(malformedObservations) }
+      );
       assert.ok(
         ["passed", "unavailable"].includes(
           invalidMessageResult.snapshot.checks[0]?.outcome.status ?? ""
         )
       );
       assert.deepEqual(invalidMessageResult.checkMessages, []);
+      assert.equal(
+        malformedObservations.some((observation) => observation.event === "callback.malformed"),
+        true
+      );
     }
 
     const nonKebabMessageResult = await execute(() => ({
@@ -690,6 +735,7 @@ describe("Package Run direct Check execution", () => {
     let directRead: DependencyReadResult | undefined;
     let transitiveRead: DependencyReadResult | undefined;
     let malformedRead: unknown;
+    const observations: DiagnosticObservation[] = [];
     const directOnly = await executeResolvedChecks({
       checks: [
         normalized(() => ({ status: "passed", data: { source: true } }), {
@@ -720,6 +766,7 @@ describe("Package Run direct Check execution", () => {
           }
         )
       ],
+      diagnosticLogger: recordingLogger(observations),
       maxParallel: 1,
       project: PROJECT,
       signal: undefined
@@ -744,6 +791,30 @@ describe("Package Run direct Check execution", () => {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "" }
     });
+    assert.deepEqual(
+      observations
+        .filter(
+          (observation) =>
+            observation.scope === "check:dependent:execution" &&
+            observation.event === "dependency.requested"
+        )
+        .map((observation) => observation.details),
+      [{ checkId: "middle" }, { checkId: "source" }, { checkId: 42 }]
+    );
+    assert.deepEqual(
+      observations
+        .filter(
+          (observation) =>
+            observation.scope === "check:dependent:execution" &&
+            observation.event === "dependency.resolved"
+        )
+        .map((observation) => observation.details),
+      [
+        { checkId: "middle", result: directRead },
+        { checkId: "source", result: transitiveRead },
+        { checkId: 42, result: malformedRead }
+      ]
+    );
   });
 
   it("finishes every sequential preflight before any author execution", async () => {
@@ -801,6 +872,7 @@ describe("Package Run direct Check execution", () => {
   it("settles blocked preflights before graph admission without a started fact or duration", async () => {
     const started: CheckStartedFact[] = [];
     const settled: CheckSettledFact[] = [];
+    const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
       checks: [
         normalized(
@@ -834,6 +906,7 @@ describe("Package Run direct Check execution", () => {
           { checkId: "dependent", dependsOn: ["blocked"] }
         )
       ],
+      diagnosticLogger: recordingLogger(observations),
       lifecycle: { started: (fact) => started.push(fact), settled: (fact) => settled.push(fact) },
       maxParallel: 1,
       project: PROJECT,
@@ -861,6 +934,25 @@ describe("Package Run direct Check execution", () => {
       }
     ]);
     assert.equal(settled.find((fact) => fact.checkId === "blocked")?.durationMs, null);
+    assert.deepEqual(
+      observations.find((observation) => observation.event === "preflight.blocked")?.details,
+      {
+        messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
+        outcome: { status: "unavailable", reason: { code: "invalid-options" } },
+        reason: { code: "invalid-options" }
+      }
+    );
+    assert.deepEqual(
+      observations.find(
+        (observation) =>
+          observation.scope === "check:blocked:preflight" && observation.event === "check.settled"
+      )?.details,
+      {
+        durationMs: null,
+        messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
+        outcome: { status: "unavailable", reason: { code: "invalid-options" } }
+      }
+    );
   });
 
   it("passes the invocation signal to cooperative preflights and closes a cancelled barrier", async () => {
@@ -986,6 +1078,7 @@ describe("Package Run direct Check execution", () => {
 
   it("canonicalizes continue fallbacks and retains preflight messages through execution settlement", async () => {
     let frozenFallback = false;
+    const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
       checks: [
         normalized(
@@ -1023,6 +1116,7 @@ describe("Package Run direct Check execution", () => {
           }
         )
       ],
+      diagnosticLogger: recordingLogger(observations),
       maxParallel: 2,
       project: PROJECT,
       signal: undefined
@@ -1038,12 +1132,30 @@ describe("Package Run direct Check execution", () => {
       status: "unavailable",
       reason: { code: "execution-threw" }
     });
+    assert.deepEqual(
+      observations.find((observation) => observation.event === "preflight.continued")?.details,
+      {
+        fallback: { value: 2 },
+        messages: [{ level: "warning", code: "preflight", message: "Preflight message" }],
+        options: { value: 2 },
+        reason: { code: "fallback" }
+      }
+    );
+    assert.equal(
+      observations.some((observation) => observation.event === "preflight.succeeded"),
+      true
+    );
+    assert.equal(
+      observations.some((observation) => observation.event === "callback.threw"),
+      true
+    );
   });
 
   it("fails closed for thrown, malformed, and noncanonical preflight results", async () => {
     const cyclicPreparedOptions: { self?: unknown } = {};
     cyclicPreparedOptions.self = cyclicPreparedOptions;
     const executions: string[] = [];
+    const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
       checks: [
         normalized(
@@ -1109,6 +1221,7 @@ describe("Package Run direct Check execution", () => {
           }
         )
       ],
+      diagnosticLogger: recordingLogger(observations),
       maxParallel: 2,
       project: PROJECT,
       signal: undefined
@@ -1125,10 +1238,19 @@ describe("Package Run direct Check execution", () => {
         reason: { code: "invalid-preflight-result" }
       });
     }
+    assert.equal(
+      observations.some((observation) => observation.event === "preflight.threw"),
+      true
+    );
+    assert.equal(
+      observations.filter((observation) => observation.event === "preflight.malformed").length,
+      3
+    );
   });
 
   it("settles cancellation-before-start Checks without starting them", async () => {
     const controller = new AbortController();
+    const observations: DiagnosticObservation[] = [];
     const cancelled = await executeResolvedChecks({
       checks: [
         normalized(
@@ -1143,6 +1265,7 @@ describe("Package Run direct Check execution", () => {
           displayName: "Pending"
         })
       ],
+      diagnosticLogger: recordingLogger(observations),
       maxParallel: 1,
       project: PROJECT,
       signal: controller.signal
@@ -1151,6 +1274,17 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       cancelled.snapshot.checks.map((check) => check.outcome.status),
       ["unavailable", "unavailable"]
+    );
+    assert.deepEqual(
+      observations
+        .filter((observation) => observation.event === "check.cancelled")
+        .map((observation) => ({ scope: observation.scope, details: observation.details })),
+      [
+        {
+          scope: "check:pending:execution",
+          details: { outcome: { status: "unavailable", reason: { code: "execution-cancelled" } } }
+        }
+      ]
     );
   });
 });

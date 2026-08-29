@@ -41,6 +41,7 @@ const licensePolicy = defineCheck({
 const definition = defineConfig({
   checks: [licensePolicy],
   outputs: {
+    diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   }

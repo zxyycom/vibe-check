@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import { runTaskGraph } from "./scheduler.ts";
 import { validateTaskGraph } from "./graph.ts";
+import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import {
   cancellationGraph,
   completedValues,
@@ -16,6 +17,15 @@ import {
   tighteningScopeGraph,
   waitFor
 } from "./task-engine.test-support.ts";
+
+function recordingLogger(observations: DiagnosticObservation[]): DiagnosticLogger {
+  return Object.freeze({
+    close: () => "disabled" as const,
+    observe: (observation: DiagnosticObservation): void => {
+      observations.push(observation);
+    }
+  });
+}
 
 describe("static task engine", () => {
   it("validates static task identity dependency and scope structure before execution", async () => {
@@ -120,6 +130,7 @@ describe("static task engine", () => {
 
   it("uses one root budget for dependency order and named mutex admission", async () => {
     const events: string[] = [];
+    const observations: DiagnosticObservation[] = [];
     let active = 0;
     let maxActive = 0;
     const graph = rootBudgetGraph();
@@ -127,6 +138,7 @@ describe("static task engine", () => {
     const run = await runTaskGraph<string>({
       graph,
       maxParallel: 3,
+      diagnosticLogger: recordingLogger(observations),
       execute: async (task) => {
         active += 1;
         maxActive = Math.max(maxActive, active);
@@ -148,16 +160,76 @@ describe("static task engine", () => {
       "mutex-two",
       "independent"
     ]);
+    assert.equal(
+      observations.some(
+        (observation) =>
+          observation.event === "check.waiting" &&
+          observation.details !== null &&
+          typeof observation.details === "object" &&
+          JSON.stringify(observation.details).includes('"dependencies":["base"]')
+      ),
+      true
+    );
+    assert.equal(
+      observations.some(
+        (observation) =>
+          observation.event === "check.waiting" &&
+          observation.details !== null &&
+          typeof observation.details === "object" &&
+          JSON.stringify(observation.details).includes('"mutexes":["shared"]')
+      ),
+      true
+    );
+
+    const releaseFirst = createDeferred<void>();
+    const budgetObservations: DiagnosticObservation[] = [];
+    const rootBudgetRun = runTaskGraph({
+      graph: { tasks: [{ id: "first" }, { id: "waiting" }] },
+      maxParallel: 1,
+      diagnosticLogger: recordingLogger(budgetObservations),
+      execute: async (task) => {
+        if (task.id === "first") await releaseFirst.promise;
+        return task.id;
+      }
+    });
+    await waitFor(() =>
+      budgetObservations.some((observation) => observation.event === "check.waiting")
+    );
+    const rootBudgetWaiting = budgetObservations.filter(
+      (observation) => observation.event === "check.waiting"
+    );
+    assert.deepEqual(
+      rootBudgetWaiting.map((observation) => observation.details),
+      [
+        {
+          checkId: "waiting",
+          blockers: {
+            dependencies: [],
+            mutexes: [],
+            rootBudget: true,
+            scopeBudget: false
+          },
+          effectiveCapacity: 1,
+          pending: 1,
+          ready: 1,
+          running: 1
+        }
+      ]
+    );
+    releaseFirst.resolve(undefined);
+    await rootBudgetRun;
   });
 
   it("keeps a scope cap active through terminal settlement and prioritizes its continuation", async () => {
     const events: string[] = [];
+    const observations: DiagnosticObservation[] = [];
     const releaseTerminal = createDeferred<void>();
     const graph = continuationPriorityGraph();
 
     const running = runTaskGraph({
       graph,
       maxParallel: 3,
+      diagnosticLogger: recordingLogger(observations),
       execute: async (task) => {
         events.push(`start:${task.id}`);
         if (task.id === "limited-terminal") {
@@ -169,6 +241,36 @@ describe("static task engine", () => {
     });
 
     await waitFor(() => events.includes("start:limited-terminal"));
+    const scopeBudgetWaiting = observations.find(
+      (observation) =>
+        observation.event === "check.waiting" &&
+        observation.details !== null &&
+        typeof observation.details === "object" &&
+        "checkId" in observation.details &&
+        observation.details.checkId === "wide-one" &&
+        "blockers" in observation.details &&
+        observation.details.blockers !== null &&
+        typeof observation.details.blockers === "object" &&
+        "scopeBudget" in observation.details.blockers &&
+        observation.details.blockers.scopeBudget === true &&
+        "dependencies" in observation.details.blockers &&
+        Array.isArray(observation.details.blockers.dependencies) &&
+        observation.details.blockers.dependencies.length === 0
+    );
+    assert.ok(scopeBudgetWaiting);
+    assert.deepEqual(scopeBudgetWaiting.details, {
+      checkId: "wide-one",
+      blockers: {
+        dependencies: [],
+        mutexes: [],
+        rootBudget: false,
+        scopeBudget: true
+      },
+      effectiveCapacity: 1,
+      pending: 3,
+      ready: 2,
+      running: 1
+    });
     assert.equal(events.includes("start:wide-one"), false);
     assert.equal(events.includes("start:wide-two"), false);
     releaseTerminal.resolve();
@@ -178,6 +280,7 @@ describe("static task engine", () => {
 
   it("uses the minimum active cap and reserves capacity for a newly ready tighter scope", async () => {
     const events: string[] = [];
+    const observations: DiagnosticObservation[] = [];
     const releaseWide = createDeferred<void>();
     const releaseLow = createDeferred<void>();
     const graph = tighteningScopeGraph();
@@ -185,6 +288,7 @@ describe("static task engine", () => {
     const running = runTaskGraph({
       graph,
       maxParallel: 2,
+      diagnosticLogger: recordingLogger(observations),
       execute: async (task) => {
         events.push(`start:${task.id}`);
         if (task.id === "gate") {
@@ -203,6 +307,63 @@ describe("static task engine", () => {
 
     await waitFor(() => events.includes("end:gate"));
     await delay(2);
+    const reservationWaiting = observations.find(
+      (observation) =>
+        observation.event === "check.waiting" &&
+        observation.details !== null &&
+        typeof observation.details === "object" &&
+        "checkId" in observation.details &&
+        observation.details.checkId === "wide-two" &&
+        "blockers" in observation.details &&
+        observation.details.blockers !== null &&
+        typeof observation.details.blockers === "object" &&
+        "reservationTaskId" in observation.details.blockers
+    );
+    assert.ok(reservationWaiting);
+    assert.deepEqual(reservationWaiting.details, {
+      checkId: "wide-two",
+      blockers: {
+        dependencies: [],
+        mutexes: [],
+        rootBudget: false,
+        scopeBudget: false,
+        reservationTaskId: "low"
+      },
+      effectiveCapacity: 2,
+      pending: 3,
+      ready: 2,
+      running: 1
+    });
+    const reservedTaskWaiting = observations.find(
+      (observation) =>
+        observation.event === "check.waiting" &&
+        observation.details !== null &&
+        typeof observation.details === "object" &&
+        "checkId" in observation.details &&
+        observation.details.checkId === "low" &&
+        "blockers" in observation.details &&
+        observation.details.blockers !== null &&
+        typeof observation.details.blockers === "object" &&
+        "scopeBudget" in observation.details.blockers &&
+        observation.details.blockers.scopeBudget === true &&
+        "dependencies" in observation.details.blockers &&
+        Array.isArray(observation.details.blockers.dependencies) &&
+        observation.details.blockers.dependencies.length === 0
+    );
+    assert.ok(reservedTaskWaiting);
+    assert.deepEqual(reservedTaskWaiting.details, {
+      checkId: "low",
+      blockers: {
+        dependencies: [],
+        mutexes: [],
+        rootBudget: false,
+        scopeBudget: true
+      },
+      effectiveCapacity: 1,
+      pending: 3,
+      ready: 2,
+      running: 1
+    });
     assert.equal(events.includes("start:wide-two"), false);
     assert.equal(events.includes("start:low"), false);
     releaseWide.resolve();
@@ -263,12 +424,14 @@ describe("static task engine", () => {
   it("stops new admission after abort while admitted work receives the same signal and drains", async () => {
     const controller = new AbortController();
     const started: string[] = [];
+    const observations: DiagnosticObservation[] = [];
     let observedSignal: AbortSignal | undefined;
     const graph = cancellationGraph();
 
     const running = runTaskGraph({
       graph,
       maxParallel: 1,
+      diagnosticLogger: recordingLogger(observations),
       signal: controller.signal,
       execute: async (task, context) => {
         started.push(task.id);
@@ -288,5 +451,34 @@ describe("static task engine", () => {
     assert.deepEqual(settlementFor(run, "started"), { kind: "completed", value: "started" });
     assert.deepEqual(settlementFor(run, "pending-one"), { kind: "cancelled-before-start" });
     assert.deepEqual(settlementFor(run, "pending-two"), { kind: "cancelled-before-start" });
+    assert.deepEqual(
+      observations.find((observation) => observation.event === "scheduler.cancelled")?.details,
+      { pending: 2, reservationTaskId: undefined, running: 0 }
+    );
+    assert.deepEqual(
+      observations
+        .filter((observation) => observation.event === "check.settled")
+        .map((observation) => observation.details),
+      [
+        {
+          checkId: "started",
+          pending: 2,
+          running: 0,
+          settlement: { kind: "completed" }
+        },
+        {
+          checkId: "pending-one",
+          pending: 1,
+          running: 0,
+          settlement: { kind: "cancelled-before-start" }
+        },
+        {
+          checkId: "pending-two",
+          pending: 0,
+          running: 0,
+          settlement: { kind: "cancelled-before-start" }
+        }
+      ]
+    );
   });
 });

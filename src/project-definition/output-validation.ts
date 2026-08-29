@@ -1,15 +1,31 @@
+import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
+
 import type { ProjectOutputs } from "./project-definition.ts";
 import { snapshotClosedRecord } from "../data-boundary/closed-values.ts";
-const OUTPUT_NAMES = ["machinePublication", "progressRendering"] as const;
+
+const OUTPUT_NAMES = ["machinePublication", "progressRendering", "diagnosticLogging"] as const;
+
 export function parseOutputs(value: unknown): ProjectOutputs | undefined {
   const data = exactKeys(value, OUTPUT_NAMES);
   if (data === undefined) return undefined;
   const machinePublication = parseDirectoryOutput(data.machinePublication);
   const progressRendering = parseSwitchOutput(data.progressRendering);
-  return machinePublication === undefined || progressRendering === undefined
+  const diagnosticLogging = parseDirectoryOutput(data.diagnosticLogging);
+  return machinePublication === undefined ||
+    progressRendering === undefined ||
+    diagnosticLogging === undefined ||
+    !isContainedRelativeDirectory(diagnosticLogging.directory)
     ? undefined
-    : Object.freeze({ machinePublication, progressRendering });
+    : Object.freeze({ machinePublication, progressRendering, diagnosticLogging });
 }
+
+export function isContainedRelativeDirectory(directory: string): boolean {
+  if (directory.length === 0 || isAbsolute(directory)) return false;
+  const root = resolve("/vibe-check-validation-root");
+  const relativeDirectory = relative(root, resolve(root, normalize(directory)));
+  return relativeDirectory !== ".." && !relativeDirectory.startsWith(`..${sep}`);
+}
+
 function parseDirectoryOutput(
   value: unknown
 ): Readonly<{ readonly directory: string; readonly enabled: boolean }> | undefined {
@@ -18,10 +34,12 @@ function parseDirectoryOutput(
     ? Object.freeze({ directory: data.directory, enabled: data.enabled })
     : undefined;
 }
+
 function parseSwitchOutput(value: unknown): Readonly<{ readonly enabled: boolean }> | undefined {
   const data = exactKeys(value, ["enabled"]);
   return typeof data?.enabled === "boolean" ? Object.freeze({ enabled: data.enabled }) : undefined;
 }
+
 function exactKeys(
   value: unknown,
   keys: readonly string[]

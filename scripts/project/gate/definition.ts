@@ -434,6 +434,7 @@ export function createProjectGateDefinition(
   return defineConfig({
     checks: entries.map((entry) => projectGateCheckForSelection(entry, selection)),
     outputs: {
+      diagnosticLogging: { enabled: false },
       machinePublication: { enabled: false },
       progressRendering: { enabled: true }
     },

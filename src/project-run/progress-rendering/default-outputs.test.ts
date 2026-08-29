@@ -44,12 +44,18 @@ describe("Package Run default outputs", () => {
       assert.equal(result.kind, "completed");
       assert.equal(result.outputs.progressRendering.status, "succeeded");
       assert.equal(result.outputs.machinePublication.status, "succeeded");
+      assert.deepEqual(result.outputs.diagnosticLogging, {
+        enabled: false,
+        file: null,
+        status: "disabled"
+      });
       assert.equal(
         output.writes.some((write) => write.includes("Execution summary:\n  execution: completed")),
         true
       );
       assert.equal(existsSync(join(root, "artifacts", "vibe-check", "run.json")), true);
       assert.equal(existsSync(join(root, "artifacts", "vibe-check", "records.ndjson")), true);
+      assert.equal(existsSync(join(root, ".log", "vibe-check")), false);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

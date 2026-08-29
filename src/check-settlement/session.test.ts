@@ -127,7 +127,17 @@ describe("check-record Core Check session", () => {
     const open = session.openCheckScope("open-check");
     assert.equal(open.records.report({ id: "retained" }, { value: 1 }), "committed");
 
-    session.closeUnresolvedAsCancelled();
+    const closures = session.closeUnresolvedAsCancelled();
+    assert.deepEqual(closures, [
+      {
+        checkId: "open-check",
+        outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
+      },
+      {
+        checkId: "pending-check",
+        outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
+      }
+    ]);
     assert.equal(open.records.report({ id: "late" }, {}), "rejected");
     const snapshot = session.freeze();
     assert.deepEqual(snapshot.records, [

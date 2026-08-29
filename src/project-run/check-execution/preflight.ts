@@ -1,6 +1,7 @@
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
+import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import {
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedRecord
@@ -35,12 +36,19 @@ export type CheckPreflightResolution =
 export async function prepareChecks(
   input: Readonly<{
     readonly checks: readonly NormalizedCheck[];
+    readonly diagnosticLogger?: DiagnosticLogger;
     readonly signal: AbortSignal | undefined;
   }>
 ): Promise<readonly CheckPreflightResolution[]> {
   const resolutions: CheckPreflightResolution[] = [];
   for (const check of input.checks) {
-    resolutions.push(await prepareCheck({ check, signal: input.signal }));
+    resolutions.push(
+      await prepareCheck({
+        check,
+        diagnosticLogger: input.diagnosticLogger,
+        signal: input.signal
+      })
+    );
   }
   return Object.freeze(resolutions);
 }
@@ -48,22 +56,41 @@ export async function prepareChecks(
 async function prepareCheck(
   input: Readonly<{
     readonly check: NormalizedCheck;
+    readonly diagnosticLogger: DiagnosticLogger | undefined;
     readonly signal: AbortSignal | undefined;
   }>
 ): Promise<CheckPreflightResolution> {
+  const scope = preflightScope(input.check.definition.checkId);
+  input.diagnosticLogger?.observe({
+    scope,
+    event: "preflight.started",
+    summary: "Check preflight started",
+    details: { authoredOptions: input.check.options }
+  });
   if (input.signal?.aborted) {
-    return blockedResolution({
+    const resolution = blockedResolution({
       check: input.check,
       messages: EMPTY_MESSAGES,
       reasonCode: "execution-cancelled"
     });
+    input.diagnosticLogger?.observe({
+      scope,
+      event: "preflight.cancelled",
+      summary: "Check preflight was cancelled before callback handoff",
+      details: { outcome: resolution.outcome }
+    });
+    return resolution;
   }
   if (input.check.preflight === undefined) {
-    return readyResolution({
+    const resolution = readyResolution({
       authoredCheck: input.check,
       messages: EMPTY_MESSAGES,
       preparedOptions: input.check.options
     });
+    observePreflightResolution(input.diagnosticLogger, scope, resolution, "preflight.skipped", {
+      authoredOptions: input.check.options
+    });
+    return resolution;
   }
   let preflightOutput: unknown;
   try {
@@ -71,36 +98,70 @@ async function prepareCheck(
       input.check.options,
       input.signal ?? INERT_SIGNAL
     );
-  } catch {
-    return blockedResolution({
+  } catch (error) {
+    const resolution = blockedResolution({
       check: input.check,
       messages: EMPTY_MESSAGES,
       reasonCode: input.signal?.aborted ? "execution-cancelled" : "preflight-threw"
     });
+    input.diagnosticLogger?.observe({
+      scope,
+      event: input.signal?.aborted ? "preflight.cancelled" : "preflight.threw",
+      summary: input.signal?.aborted
+        ? "Check preflight was cancelled while callback ran"
+        : "Check preflight callback threw",
+      details: { error, outcome: resolution.outcome }
+    });
+    return resolution;
   }
   if (input.signal?.aborted) {
-    return blockedResolution({
+    const resolution = blockedResolution({
       check: input.check,
       messages: EMPTY_MESSAGES,
       reasonCode: "execution-cancelled"
     });
+    input.diagnosticLogger?.observe({
+      scope,
+      event: "preflight.cancelled",
+      summary: "Check preflight was cancelled after callback returned",
+      details: { output: preflightOutput, outcome: resolution.outcome }
+    });
+    return resolution;
   }
   const preflightResult = parseCheckPreflightResult(preflightOutput);
   if (preflightResult === undefined) {
-    return blockedResolution({
+    const resolution = blockedResolution({
       check: input.check,
       messages: EMPTY_MESSAGES,
       reasonCode: "invalid-preflight-result"
     });
+    input.diagnosticLogger?.observe({
+      scope,
+      event: "preflight.malformed",
+      summary: "Check preflight returned an invalid result",
+      details: { output: preflightOutput, outcome: resolution.outcome }
+    });
+    return resolution;
   }
   if (preflightResult.status === "failure" && preflightResult.action === "block") {
-    return blockedResolution({
+    const resolution = blockedResolution({
       check: input.check,
       messages: preflightResult.messages,
       reasonCode: preflightResult.reason.code
     });
+    input.diagnosticLogger?.observe({
+      scope,
+      event: "preflight.blocked",
+      summary: "Check preflight blocked execution",
+      details: {
+        messages: preflightResult.messages,
+        outcome: resolution.outcome,
+        reason: preflightResult.reason
+      }
+    });
+    return resolution;
   }
-  return readyResolution({
+  const resolution = readyResolution({
     authoredCheck: input.check,
     messages: preflightResult.messages,
     preparedOptions:
@@ -108,6 +169,59 @@ async function prepareCheck(
         ? preflightResult.preparedOptions
         : preflightResult.fallback
   });
+  observePreflightResolution(
+    input.diagnosticLogger,
+    scope,
+    resolution,
+    preflightResult.status === "success" ? "preflight.succeeded" : "preflight.continued",
+    {
+      messages: preflightResult.messages,
+      ...(preflightResult.status === "success"
+        ? { preparedOptions: preflightResult.preparedOptions }
+        : { fallback: preflightResult.fallback, reason: preflightResult.reason })
+    }
+  );
+  return resolution;
+}
+
+function observePreflightResolution(
+  diagnosticLogger: DiagnosticLogger | undefined,
+  scope: string,
+  resolution: CheckPreflightResolution,
+  event: "preflight.skipped" | "preflight.succeeded" | "preflight.continued",
+  details: Readonly<Record<string, unknown>>
+): void {
+  if (resolution.kind === "blocked") {
+    diagnosticLogger?.observe({
+      scope,
+      event: "preflight.malformed",
+      summary: "Check preflight options were not canonical",
+      details: { ...details, outcome: resolution.outcome }
+    });
+    return;
+  }
+  let summary: string;
+  switch (event) {
+    case "preflight.skipped":
+      summary = "Check authored options were accepted without preflight";
+      break;
+    case "preflight.succeeded":
+      summary = "Check preflight prepared options were accepted";
+      break;
+    case "preflight.continued":
+      summary = "Check preflight fallback options were accepted";
+      break;
+  }
+  diagnosticLogger?.observe({
+    scope,
+    event,
+    summary,
+    details: { ...details, options: resolution.check.options }
+  });
+}
+
+function preflightScope(checkId: string): string {
+  return `check:${checkId}:preflight`;
 }
 
 function readyResolution(

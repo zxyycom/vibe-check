@@ -75,7 +75,10 @@ export type RunResult = Readonly<
       readonly declarativeFingerprint: string;
       readonly definitionWarnings: readonly DefinitionWarning[];
       readonly diagnostic: Readonly<{
-        readonly code: "machine-publication-failed" | "progress-rendering-failed";
+        readonly code:
+          | "machine-publication-failed"
+          | "progress-rendering-failed"
+          | "diagnostic-logging-failed";
       }>;
       readonly outputs: RunOutputStatuses;
     } & RunResultFacts)
@@ -91,14 +94,24 @@ export function outputFailure(
     kind: "output",
     declarativeFingerprint,
     definitionWarnings,
-    diagnostic: Object.freeze({
-      code:
-        output === "machinePublication" ? "machine-publication-failed" : "progress-rendering-failed"
-    }),
+    diagnostic: Object.freeze({ code: outputDiagnosticCode(output) }),
     outputs,
     ...facts
   });
 }
+function outputDiagnosticCode(
+  output: keyof RunOutputStatuses
+): Extract<RunResult, { readonly kind: "output" }>["diagnostic"]["code"] {
+  switch (output) {
+    case "machinePublication":
+      return "machine-publication-failed";
+    case "progressRendering":
+      return "progress-rendering-failed";
+    case "diagnosticLogging":
+      return "diagnostic-logging-failed";
+  }
+}
+
 export function isCancelled(controls: RunControls): boolean {
   return controls.signal?.aborted === true;
 }

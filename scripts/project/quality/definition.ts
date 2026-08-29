@@ -133,6 +133,7 @@ export default defineConfig({
     }
   ],
   outputs: {
+    diagnosticLogging: { directory: ".log/project-run", enabled: true },
     machinePublication: { directory: "artifacts/vibe-check-quality", enabled: true },
     progressRendering: { enabled: false }
   },

@@ -13,6 +13,11 @@ it("repository Project Run binds its definition before another caller supplies c
     import.meta.resolve("vibe-check").startsWith(pathToFileURL(installedCandidateDirectory).href)
   );
   const { run } = await import("./project-run.ts");
+  const { default: definition } = await import("./definition.ts");
+  assert.deepEqual(definition.outputs.diagnosticLogging, {
+    directory: ".log/project-run",
+    enabled: true
+  });
   const controller = new AbortController();
   controller.abort();
 

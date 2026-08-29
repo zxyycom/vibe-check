@@ -27,7 +27,6 @@ export async function runTaskGraph<TResult>(
 
   while (state.pending.length > 0 || state.runningById.size > 0) {
     if (state.signal?.aborted === true) {
-      state.isCancelled = true;
       cancelPendingTasks(state);
     } else {
       settleBlockedPendingTasks(state);

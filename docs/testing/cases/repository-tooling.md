@@ -8,7 +8,7 @@ Entities:
 - `bun|scripts/project/quality/project-run.test.ts|repository Project Run binds its definition before another caller supplies controls`
   Proves:
 
-- The repository Run imports the installed public `vibe-check` entry, binds the repository Project Definition, and lets another caller supply only the controls that Run exposes.
+- The repository Run imports the installed public `vibe-check` entry, binds the repository Project Definition with its `.log/project-run` diagnostic output enabled, and lets another caller supply only the controls that Run exposes.
 
 ## Case AUX-PACKAGE-CANDIDATE-001: Candidate lifecycle reuses only verified local package state
 
@@ -100,6 +100,16 @@ Entities:
   Proves:
 
 - Candidate preparation failure is an infrastructure failure before repository scanning begins; quality never falls back to a stale installed candidate.
+
+## Case AUX-QUALITY-DIAGNOSTIC-LOG-DISCOVERY-001: Quality reports its Product diagnostic log
+
+Owner: `docs/script-tooling.md#quality-dogfood`
+Entities:
+
+- `bun|scripts/project/quality/scan.test.ts|reports the enabled Product diagnostic log file without starting a Run`
+Proves:
+
+- The scan adapter reports the non-configuration Run result's root-relative diagnostic log file to its caller without executing a real Product Run; this discovery line does not alter its existing process-status mapping.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
@@ -195,6 +205,16 @@ Entities:
 - adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
 - Required 默认不选择带 `package-tests` 的 candidate lifecycle、artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 仍在 required 中。显式 enable tag 或 full 才纳入这些 Checks；excluded Checks 的 reason code 指明具体 profile/tag，terminal message 指明没有运行的 Check 动作和恢复命令，aggregate 只消费同次 selection 的 eligible identities。启动 summary 另明确 package acceptance 是未选择、按 profile/tag 选择还是被禁用。
 - Candidate lifecycle、artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共六个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。
+
+## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate co-locates the Product diagnostic log
+
+Owner: `docs/script-tooling.md#project-gate`
+Entities:
+
+- `bun|scripts/project/gate/project-run.test.ts|binds the Product diagnostic log to the Gate invocation directory`
+Proves:
+
+- Gate enables Product diagnostic logging through its invocation controls, exposes the root-relative file in the Run result, and places that file in the adapter-owned `.log/project-gate/<invocation-id>` directory rather than creating a separate discovery root.
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 

@@ -29,7 +29,7 @@ Check-specific 领域细节不属于这个缺口。Check 需要发布额外业�
 - 增加第三个明确 Run output `diagnosticLogging`，覆盖 Definition/Controls 配置、validation、effective configuration、status/file readback、result failure 与 output priority；machine v4 保持不变。
 - 在 `src/project-run/diagnostic-logging/**` 建立 Product-private invocation logger，以唯一 sequence、monotonic elapsed、scope、event、summary 和 details 持续追加一次性人读文本。
 - 只在 Product core 的真实事实形成位置记录事件：invocation/graph、preflight handoff、scheduler waiting/admission、dependency read、Record report、callback handoff、settlement、cancellation、aggregation 和 outputs；不解析 progress/stdout，也不根据 final snapshot 重建过程。
-- 保持 `CheckExecutionContext`、`CheckPreflight`、`src/package-checks/**` 和 Check guides 不变。Product 可以记录它亲自观察到的 options、callback result、dependency readback 和 Record report；Check-specific 新信息继续由 final data/Record/message 承接。
+- 保持 `CheckExecutionContext`、`CheckPreflight`、package-provided Check 执行与 Check guides 的 authoring contract 不变。Product 可以记录它亲自观察到的 options、callback result、dependency readback 和 Record report；Check-specific 新信息继续由 final data/Record/message 承接。Package JSDoc 中的 Project Definition 示例只同步新 output 字段，不向 Check 增加 logger。
 - 让 repository quality 与 Project Gate 默认启用。Gate 把 Product log 与现有 process transcripts 放入同一个 invocation directory；两者并列且各自保留 owner。
 - 建立 `add-ephemeral-project-run-diagnostic-logging.md`，以“修订”关系演进 `replace-global-tool-effects-with-run-outputs.md`：保留明确 Run outputs 与 Check-owned cache，增加已有真实消费者的一次性 diagnostic logging output。
 

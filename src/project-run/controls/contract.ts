@@ -2,10 +2,11 @@ import type { ProjectOutputs } from "../../project-definition/project-definition
 /** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
 export interface RunControls {
   readonly checkAggregation?: CheckAggregation;
-  /** 仅为本次调用覆盖 machine publication 或 progress rendering。 */
+  /** 仅为本次调用覆盖 Run-owned outputs。 */
   readonly outputs?: Partial<{
     machinePublication: Partial<ProjectOutputs["machinePublication"]>;
     progressRendering: Partial<ProjectOutputs["progressRendering"]>;
+    diagnosticLogging: Partial<ProjectOutputs["diagnosticLogging"]>;
   }>;
   readonly flags?: readonly string[];
   readonly projectRoot?: string;

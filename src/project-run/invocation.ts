@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { resolve } from "node:path";
+import { relative, resolve } from "node:path";
 import type { CheckProjectContext } from "../check/check.ts";
 import {
   createDeclarativeFingerprint,
@@ -26,7 +26,7 @@ import {
   type ProgressRendering,
   type ProgressWriterFactory
 } from "./progress-rendering/presentation.ts";
-import { completeInvocation } from "./completion.ts";
+import { completeInvocation, finalizeInvocation } from "./completion.ts";
 import { createProjectContext } from "./project-context.ts";
 import {
   executionCancellation,
@@ -38,12 +38,19 @@ import {
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
+import {
+  createDiagnosticLogger,
+  type DiagnosticLogger,
+  type DiagnosticLoggerFactory,
+  type DiagnosticObservation
+} from "./diagnostic-logging/logger.ts";
 export type Invocation = Readonly<{
   readonly clock: CheckExecutionClock;
   readonly controls: RunControls;
   readonly declarativeFingerprint: string;
   readonly definition: ProjectDefinition;
   readonly definitionWarnings: readonly DefinitionWarning[];
+  readonly diagnosticLogger: DiagnosticLogger;
   readonly outputConfiguration: ProjectDefinition["outputs"];
   readonly outputs: OutputStatuses;
   readonly invocationId: string;
@@ -55,6 +62,7 @@ export interface RunInvocationDependencies {
   readonly clock?: CheckExecutionClock;
   readonly progressRefreshScheduler?: ProgressRefreshScheduler;
   readonly progressWriterFactory?: ProgressWriterFactory;
+  readonly diagnosticLoggerFactory?: DiagnosticLoggerFactory;
 }
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 export type CoreExecution = Readonly<{
@@ -69,63 +77,187 @@ export async function executeValidatedRun(
   definitionWarnings: readonly DefinitionWarning[],
   dependencies: RunInvocationDependencies = {}
 ): Promise<RunResult> {
-  const invocation = createInvocation(definition, controls, definitionWarnings, dependencies);
+  const normalized = normalizeProjectDefinition(definition);
   const aggregation = validateCheckAggregationSelection(
     controls.checkAggregation,
-    invocation.normalized.checks.map((check) => check.definition.checkId)
+    normalized.checks.map((check) => check.definition.checkId)
   );
   if (!aggregation.ok)
     return Object.freeze({
       kind: "configuration",
-      definitionWarnings: invocation.definitionWarnings,
+      definitionWarnings: Object.freeze([...definitionWarnings]),
       diagnostic: aggregation.error
     });
-  if (isCancelled(controls))
-    return preExecutionCancellation(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.outputs.value(),
-      "pre-work"
-    );
-  if (!validateTaskGraph(invocation)) return planningResult(invocation, "task-graph-invalid");
-  return executePlannedInvocation(invocation, aggregation.value);
+
+  const invocation = createInvocation(
+    definition,
+    controls,
+    definitionWarnings,
+    normalized,
+    dependencies
+  );
+  let candidate: RunResult;
+  try {
+    observeInvocationStarted(invocation, aggregation.value);
+    if (isCancelled(controls)) {
+      candidate = cancelledBeforeExecution(invocation, "pre-work");
+    } else if (!validateTaskGraph(invocation)) {
+      candidate = planningResult(invocation, "task-graph-invalid");
+    } else {
+      candidate = await executePlannedInvocation(invocation, aggregation.value);
+    }
+  } catch {
+    candidate = executionResult(invocation, "task-engine-failed");
+  }
+  return finalizeInvocation(invocation, candidate);
 }
+
 function createInvocation(
   definition: ProjectDefinition,
   controls: RunControls,
   definitionWarnings: readonly DefinitionWarning[],
+  normalized: NormalizedProjectDefinition,
   dependencies: RunInvocationDependencies
 ): Invocation {
-  const normalized = normalizeProjectDefinition(definition);
   const outputConfiguration = effectiveOutputs(definition, controls);
-  const outputs = createOutputStatuses(outputConfiguration);
   const clock = dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
+  const projectRoot = resolve(controls.projectRoot ?? process.cwd());
+  const invocationId = `invocation/v1:${randomUUID()}`;
+  const diagnosticLoggingFile = outputConfiguration.diagnosticLogging.enabled
+    ? relative(
+        projectRoot,
+        resolve(
+          projectRoot,
+          outputConfiguration.diagnosticLogging.directory,
+          `run-${invocationId.slice("invocation/v1:".length)}.log`
+        )
+      )
+    : null;
+  const outputs = createOutputStatuses(outputConfiguration, diagnosticLoggingFile);
+  const diagnosticLoggerFactory = dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger;
+  const diagnosticLogger = createDiagnosticLoggerSafely(diagnosticLoggerFactory, {
+    clock,
+    enabled: outputConfiguration.diagnosticLogging.enabled,
+    file: diagnosticLoggingFile === null ? null : resolve(projectRoot, diagnosticLoggingFile)
+  });
   return Object.freeze({
     clock,
     controls,
     declarativeFingerprint: createDeclarativeFingerprint(normalized.declarative),
     definition,
     definitionWarnings: Object.freeze([...definitionWarnings]),
+    diagnosticLogger,
     outputConfiguration,
     outputs,
-    invocationId: `invocation/v1:${randomUUID()}`,
+    invocationId,
     normalized,
     progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
       clock,
+      diagnosticLogger,
       refreshScheduler: dependencies.progressRefreshScheduler,
       writerFactory: dependencies.progressWriterFactory
     }),
-    projectRoot: resolve(controls.projectRoot ?? process.cwd())
+    projectRoot
   });
 }
+
+function observeInvocationStarted(
+  invocation: Invocation,
+  aggregation: CheckAggregation | undefined
+): void {
+  invocation.diagnosticLogger.observe({
+    scope: "run",
+    event: "invocation.started",
+    summary: "validated Project Run started",
+    details: {
+      aggregation: aggregation ?? null,
+      flags: invocation.controls.flags ?? [],
+      invocationId: invocation.invocationId,
+      outputs: invocation.outputConfiguration,
+      projectRoot: invocation.projectRoot,
+      scheduler: invocation.normalized.declarative.scheduler
+    }
+  });
+  for (const check of invocation.normalized.checks) {
+    invocation.diagnosticLogger.observe({
+      scope: "run",
+      event: "catalog.check",
+      summary: "normalized Check catalog entry accepted",
+      details: {
+        checkId: check.definition.checkId,
+        dependsOn: check.dependsOn,
+        maxParallel: check.maxParallel,
+        mutex: check.mutex,
+        visibility: check.visibility
+      }
+    });
+  }
+}
+
+function createDiagnosticLoggerSafely(
+  factory: DiagnosticLoggerFactory,
+  input: Parameters<DiagnosticLoggerFactory>[0]
+): DiagnosticLogger {
+  let delegate: DiagnosticLogger;
+  try {
+    delegate = factory(input);
+  } catch {
+    return failedDiagnosticLogger();
+  }
+  let failed = false;
+  return Object.freeze({
+    close: () => {
+      try {
+        const status = delegate.close();
+        return failed ? "failed" : status;
+      } catch {
+        return "failed";
+      }
+    },
+    observe: (observation: DiagnosticObservation) => {
+      if (failed) return;
+      try {
+        delegate.observe(observation);
+      } catch {
+        failed = true;
+      }
+    }
+  });
+}
+
+function failedDiagnosticLogger(): DiagnosticLogger {
+  return Object.freeze({
+    close: () => "failed" as const,
+    observe: () => undefined
+  });
+}
+
 function validateTaskGraph(invocation: Invocation): boolean {
   try {
     prepareTaskGraph(
       planStaticCheckGraph(invocation.normalized.checks),
       invocation.normalized.declarative.scheduler.maxParallel
     );
+    invocation.diagnosticLogger.observe({
+      scope: "run",
+      event: "planning.succeeded",
+      summary: "normalized task graph was accepted",
+      details: {
+        checkCount: invocation.normalized.checks.length,
+        maxParallel: invocation.normalized.declarative.scheduler.maxParallel
+      }
+    });
     return true;
   } catch {
+    invocation.diagnosticLogger.observe({
+      scope: "run",
+      event: "planning.failed",
+      summary: "normalized task graph was rejected",
+      details: {
+        checkCount: invocation.normalized.checks.length,
+        maxParallel: invocation.normalized.declarative.scheduler.maxParallel
+      }
+    });
     return false;
   }
 }
@@ -133,13 +265,7 @@ async function executePlannedInvocation(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined
 ): Promise<RunResult> {
-  if (isCancelled(invocation.controls))
-    return preExecutionCancellation(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.outputs.value(),
-      "pre-work"
-    );
+  if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "pre-work");
   return executePreparedInvocation(
     invocation,
     aggregation,
@@ -151,13 +277,7 @@ async function executePreparedInvocation(
   aggregation: CheckAggregation | undefined,
   project: CheckProjectContext
 ): Promise<RunResult> {
-  if (isCancelled(invocation.controls))
-    return preExecutionCancellation(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.outputs.value(),
-      "planning"
-    );
+  if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
   const executed = await executeChecks(invocation, project, invocation.clock);
@@ -167,7 +287,13 @@ async function executePreparedInvocation(
     elapsedMs: elapsedSince(executionStartedAt, invocation.clock),
     execution: executed.kind
   });
-  if (executed.kind === "cancelled")
+  if (executed.kind === "cancelled") {
+    invocation.diagnosticLogger.observe({
+      scope: "run",
+      event: "execution.cancelled",
+      summary: "execution completed after cancellation closure",
+      details: { checkCount: executed.snapshot.checks.length }
+    });
     return executionCancellation(
       invocation.declarativeFingerprint,
       invocation.definitionWarnings,
@@ -176,14 +302,43 @@ async function executePreparedInvocation(
       executed.checkDurations,
       executed.checkMessages
     );
+  }
+  const aggregate =
+    aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
+  invocation.diagnosticLogger.observe({
+    scope: "run",
+    event: "aggregation.completed",
+    summary:
+      aggregation === undefined
+        ? "no Check aggregation was selected"
+        : "Check aggregation completed",
+    details: { aggregate, selection: aggregation ?? null }
+  });
   const core: CoreExecution = Object.freeze({
-    aggregate:
-      aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation),
+    aggregate,
     checkDurations: executed.checkDurations,
     checkMessages: executed.checkMessages,
     snapshot: executed.snapshot
   });
   return completeInvocation(invocation, core);
+}
+
+function cancelledBeforeExecution(
+  invocation: Invocation,
+  phase: "pre-work" | "planning"
+): RunResult {
+  invocation.diagnosticLogger.observe({
+    scope: "run",
+    event: "invocation.cancelled",
+    summary: "cancellation was observed before Check execution",
+    details: { phase }
+  });
+  return preExecutionCancellation(
+    invocation.declarativeFingerprint,
+    invocation.definitionWarnings,
+    invocation.outputs.value(),
+    phase
+  );
 }
 async function executeChecks(
   invocation: Invocation,
@@ -194,6 +349,7 @@ async function executeChecks(
     return await executeResolvedChecks({
       checks: invocation.normalized.checks,
       clock,
+      diagnosticLogger: invocation.diagnosticLogger,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       lifecycle: invocation.progressRendering.lifecycle,
       project,

@@ -47,6 +47,7 @@ const bundleSize = defineCheck({
 const definition = defineConfig({
   checks: [bundleSize],
   outputs: {
+    diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   }
@@ -124,6 +125,8 @@ callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之�
 | `checks` | `[]` | 提供递归 Check tree；只有带 `execution` 的节点产生 Check facts。 |
 | `outputs.machinePublication.enabled` | `true` | 在 terminal snapshot 形成后发布 `run.json` 与 `records.ndjson`。 |
 | `outputs.machinePublication.directory` | `"artifacts/vibe-check"` | 指定 machine files 目录；相对路径按本次 project root 解析。 |
+| `outputs.diagnosticLogging.enabled` | `false` | 启用本次 invocation 的 Product core 人读诊断日志。 |
+| `outputs.diagnosticLogging.directory` | `".log/vibe-check"` | 指定 invocation-specific `run-<uuid>.log` 的目录；相对路径按本次 project root 解析。 |
 | `outputs.progressRendering.enabled` | `true` | 呈现本次 Run 的人读 Check lifecycle 与汇总。 |
 | `scheduler.maxParallel` | `4` | 设置 Check scheduler 的最外层并行预算；必须是正安全整数。 |
 
@@ -135,10 +138,10 @@ callback 可以同步返回或通过 `Promise` 返回四种 terminal status 之�
 
 | `controls` 字段 | 默认值 | 对当前 invocation 的效果 |
 | --- | --- | --- |
-| `projectRoot` | `process.cwd()` | 解析为绝对路径，并通过 `context.project.root` 提供给 Checks；相对 machine output 也以此为根。 |
+| `projectRoot` | `process.cwd()` | 解析为绝对路径，并通过 `context.project.root` 提供给 Checks；相对 output 也以此为根。 |
 | `flags` | `[]` | 接受非空 string tokens，复制、去重、排序后提供给每个 callback。 |
 | `signal` | 未取消 | 把 caller 的 `AbortSignal` 传给 preflight 与 execution，并在 RunResult 中区分取消 phase。 |
-| `outputs` | 使用 Definition outputs | 只覆盖本次 machine publication 或 progress rendering，不改写 Definition。 |
+| `outputs` | 使用 Definition outputs | 只覆盖本次 diagnostic logging、machine publication 或 progress rendering，不改写 Definition。 |
 | `checkAggregation` | 不聚合，`aggregate` 为 `null` | 选择 Checks 及四态折叠 policy，在单项 outcomes 之外形成 invocation-level aggregate。 |
 
 Definition 或 controls 的 unknown / invalid field 会得到 `kind: "configuration"`，并且不会调用 Check execution。合法调用的 Check 业务状态继续由每项 outcome 表达；`failed` Check 可以存在于成功完成的 `kind: "completed"` Run 中。
@@ -157,7 +160,7 @@ Definition 或 controls 的 unknown / invalid field 会得到 `kind: "configurat
 | `kind` | 可观察效果与处理入口 |
 | --- | --- |
 | `"completed"` | Checks 与已启用 outputs 均已完成；读取完整 snapshot、messages、durations、output statuses 与可选 aggregate。 |
-| `"output"` | Check facts 已完整形成，但 machine publication 或 progress rendering 失败；读取 facts，并处理 `diagnostic` 指出的 output。 |
+| `"output"` | Check facts 已完整形成，但 diagnostic logging、machine publication 或 progress rendering 失败；读取 facts，并处理 `diagnostic` 指出的 output。 |
 | `"configuration"` | Definition、RunControls 或 aggregation selection 无效；读取字段路径 diagnostic，Check execution 未开始。 |
 | `"planning"` | Definition 已验证，但 task graph 无法形成；读取 planning diagnostic。 |
 | `"execution"` | invocation infrastructure 未能完成可信 settlement；读取 execution diagnostic。 |

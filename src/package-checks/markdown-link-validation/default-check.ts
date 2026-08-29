@@ -24,6 +24,7 @@ import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
  * const definition = defineConfig({
  *   checks: [markdownLinkValidation()],
  *   outputs: {
+ *     diagnosticLogging: { enabled: false },
  *     machinePublication: { enabled: false },
  *     progressRendering: { enabled: false }
  *   }
