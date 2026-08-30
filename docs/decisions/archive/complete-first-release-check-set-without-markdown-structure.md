@@ -1,6 +1,6 @@
 ---
 title: 在首次公开发布前完成四项选定的首版 Checks
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-24T14:01:40Z
 purpose: 让首次公开 package 交付可验证的本地引用完整性与其它高价值、低风险能力，而不把 Markdown 标题偏好伪装成通用有效性。

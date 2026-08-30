@@ -8,6 +8,7 @@ background: 决策形成前 adapter 只将 TypeScript 与 Rust 路径交给 Liza
 decision: 将 functionMetrics 的受支持扩展名集合对齐 Lizard 1.23.0 官方语言范围，同时继续在交给 adapter 前拒绝不受支持输入。
 tags:
   - configuration
+  - dependency-policy
   - product-contract
 relations: []
 ---

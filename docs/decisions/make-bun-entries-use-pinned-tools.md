@@ -7,6 +7,7 @@ purpose: 让正式 Bun 命令可复现地使用仓库锁定工具，并拒绝执
 background: 项目虽用 mise 锁定 Lizard 与 scc，但普通 Bun 入口曾依赖调用 shell 注入 binding，缺失时 Product 会退回全局命令。
 decision: 消费锁定外部工具的正式 Bun package entry 自行进入 mise；Product dependency boundary 要求显式 binding，缺失时在 work 前失败。
 tags:
+  - dependency-policy
   - workflow-policy
 relations: []
 ---

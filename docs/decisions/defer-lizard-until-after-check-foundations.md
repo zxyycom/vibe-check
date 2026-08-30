@@ -7,6 +7,7 @@ purpose: 先建立新的 Check 产品运行边界，再重基线高风险且用�
 background: Lizard port 主要改善内部依赖，而 Check/Record、执行编排和 Project Definition 正在替换其旧前置路线。
 decision: 先落地 Check/Record、执行编排与 TypeScript Project Definition，再重审 Lizard port。
 tags:
+  - dependency-policy
   - product-priority
 relations:
   - type: 修订

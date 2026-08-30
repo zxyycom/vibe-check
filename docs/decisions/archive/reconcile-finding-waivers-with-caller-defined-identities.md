@@ -1,6 +1,6 @@
 ---
 title: 用调用方定义的身份对账质量 Finding 豁免
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:43:38Z
 purpose: 让质量 Finding 的例外既保留原始证据和理由，又可审计失效或过宽的豁免配置。

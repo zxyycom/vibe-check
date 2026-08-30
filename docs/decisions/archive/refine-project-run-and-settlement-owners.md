@@ -1,6 +1,6 @@
 ---
 title: 收敛 Project Run 与 Check settlement owner
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-26T08:52:11Z
 purpose: 让结算、项目运行、progress rendering、JSON document 与 package tooling 路径表达其实际责任。

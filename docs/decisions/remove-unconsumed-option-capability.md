@@ -7,6 +7,7 @@ purpose: 删除没有生产消费者或稳定 owner 的项目自制 Option，避
 background: Option 及测试只引用自身；第三方预装能力不因当前 source consumer 数量而自动移除。
 decision: 保留前序政策已选择的第三方能力和原生表达，删除 Product Option 及其文档、Case 与实现约束。
 tags:
+  - dependency-policy
   - workflow-policy
 relations:
   - type: 修订

@@ -1,7 +1,7 @@
 ---
 title: 让程序化 API 成为唯一正式产品执行入口
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-12T09:12:51Z
 purpose: 让 package 消费者通过类型化调用获得稳定结果，而不依赖产品拥有的 argv、console 或退出码协议。
 background: 使用方需要把产品组合进自己的工具与流程；正式 CLI 会把调用方差异固化为额外产品契约。

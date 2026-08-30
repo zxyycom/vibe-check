@@ -8,6 +8,7 @@ background: 精确锁定 scanner 只能购买逐版本复现，却不能直接�
 decision: 仓库锁定测试基线，发布 package 接受从该基线开始的同 major v5；实际版本只承担 availability、cache provenance 与诊断。
 tags:
   - configuration
+  - dependency-policy
   - product-contract
 relations:
   - type: 修订

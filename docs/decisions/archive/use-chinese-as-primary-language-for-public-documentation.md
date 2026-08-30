@@ -1,6 +1,6 @@
 ---
 title: 让 package 对外说明以中文叙述为主
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-24T07:23:03Z
 purpose: 让项目拥有的 package 对外说明以中文承载主要语义，同时保留必要技术原文和编辑判断空间。

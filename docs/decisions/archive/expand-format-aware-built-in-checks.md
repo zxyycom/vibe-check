@@ -1,6 +1,6 @@
 ---
 title: 扩展格式感知的 Product-provided Checks
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
 purpose: 让 Vibe Check 为常见文档和结构化资料风险提供开箱即用的格式感知检查。

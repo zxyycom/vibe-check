@@ -8,6 +8,7 @@ background: 形成此 Decision 时 Foundation 已是主仓 scripts source；独�
 decision: 保留存活能力的 repository ownership，取消历史 package 形态产生的独立 Gate 义务，并把真实不变量交给现有 owner 或专门测试。
 tags:
   - configuration
+  - testing
   - workflow-policy
 relations:
   - type: 修订

@@ -23,4 +23,4 @@ relations: []
 ## 决策
 - 采用: 将上游 `decision-records` 原样安装在 `.codex/skills/decision-records`；项目接入文件留在 skill 目录外，升级时替换 skill 并严格检查现有决策集合。
 - 采用: 使用 `docs/decisions` 保存已确认的长期决策；代码、配置、规范和项目文档继续承接当前事实与行为。
-- 采用: 由 `scripts/decision-records.ts` 显式传入仓库根并复用 skill 的 ESM 导出，package scripts 提供查询、校验和显式维护入口。
+- 采用: 由项目拥有的 decision-records wrapper 显式绑定仓库根并复用 skill 的 ESM capability，package scripts 提供查询、校验和显式维护入口；具体脚本位置由脚本工具 owner 维护，不作为长期判断。

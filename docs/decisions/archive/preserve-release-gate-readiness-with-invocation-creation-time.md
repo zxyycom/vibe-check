@@ -1,6 +1,6 @@
 ---
 title: 以 invocation 创建时间保持发布前 Gate 就绪边界
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:18:43Z
 purpose: 让首次公开 package 继续先满足完整 Gate consumer 证据，同时使 machine invocation timestamp 准确表示 Run 创建时刻。

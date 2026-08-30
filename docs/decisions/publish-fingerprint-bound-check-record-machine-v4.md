@@ -31,5 +31,5 @@ relations:
 - 采用：`records.ndjson` 只发布 canonical ordered `{ checkId, id, data }` Record rows。validators 重算 canonical JSON、order、composite identity、ownership 与 complete Record-set fingerprint；空集合也有确定 fingerprint。
 - 采用：Output 只投影 validated Core snapshot，不重算 Check status，不解释 Check-local data，也不从 Record 内容推断 presentation、aggregate、owner、count 或 ID。
 - 采用：writer 在替换 canonical paths 前完成 candidate validation、serialization、complete-set validation 与同目录 temp writes；consumer 必须完整验证两个文件，mixed/partial set 绝不可信。
-- 采用：v4 是单版本 hard cut：删除并拒绝 v3 identity、writer、reader、validator、example、adapter 与 fallback。当前 machine 不发布 catalog、decision、reference、acceptance、view、blocking evidence、output status、timing 或 human-readable report。
+- 采用：v4 是单版本 hard cut：删除并拒绝 v3 identity、writer、reader、validator、example、adapter 与 fallback。当前 machine 不发布 catalog、decision、reference、acceptance、view、blocking evidence、output status、per-Check wall-clock timing、独立 execution telemetry 或 human-readable report。
 - 不采用：dual writer/reader、permissive v3 converter、filesystem-atomic-snapshot 声称、generation pointer、reader lock，或从 arbitrary final/Record data 生成 fallback presentation。

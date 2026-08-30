@@ -1,6 +1,6 @@
 ---
 title: 在首发 Checks 中提供受控 Schema 引用
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-25T08:08:27Z
 purpose: 让首次公开 package 交付五项默认 Check，并以默认离线、显式授权的方式支持 JSON Schema 引用。

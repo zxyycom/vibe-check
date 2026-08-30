@@ -8,6 +8,7 @@ background: npm 是分发机制，不代表 package 已经能够由 Node.js 直�
 decision: 首个公开 package 只承诺由 Bun 直接 import 和执行；Node.js 与 dual-runtime 支持必须作为独立后续方向建立。
 tags:
   - product-contract
+  - product-priority
 relations: []
 ---
 
