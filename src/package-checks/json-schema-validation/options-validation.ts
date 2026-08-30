@@ -79,34 +79,44 @@ function validJsonSchemaReferenceSources(sources: readonly unknown[]): boolean {
   const sourceLocations = new Set<string>();
   let bundledCatalogCount = 0;
   for (const sourceCandidate of sources) {
-    const sourceRecord = snapshotClosedRecord(sourceCandidate);
-    if (sourceRecord === undefined || typeof sourceRecord.kind !== "string") return false;
-    if (sourceRecord.kind === "bundled") {
-      const bundledSource = exactRecord(sourceRecord, ["kind", "catalog"]);
-      if (bundledSource === undefined || bundledSource.catalog !== "json-schema-2020-12") {
-        return false;
-      }
+    const source = validatedReferenceSource(sourceCandidate);
+    if (source === undefined) return false;
+    if (source.kind === "bundled") {
       bundledCatalogCount += 1;
       if (bundledCatalogCount > 1) return false;
       continue;
     }
-    if (sourceRecord.kind !== "https") return false;
-    const httpsSource = exactRecord(sourceRecord, ["kind", "id", "origin", "pathPrefix"]);
-    if (
-      httpsSource === undefined ||
-      !safeAbsoluteIdentifier(httpsSource.id) ||
-      !safeHttpsOrigin(httpsSource.origin) ||
-      !safePathPrefix(httpsSource.pathPrefix) ||
-      sourceIds.has(httpsSource.id)
-    ) {
-      return false;
-    }
-    const sourceLocation = `${httpsSource.origin}\n${httpsSource.pathPrefix}`;
-    if (sourceLocations.has(sourceLocation)) return false;
-    sourceIds.add(httpsSource.id);
-    sourceLocations.add(sourceLocation);
+    if (sourceIds.has(source.id) || sourceLocations.has(source.location)) return false;
+    sourceIds.add(source.id);
+    sourceLocations.add(source.location);
   }
   return true;
+}
+
+function validatedReferenceSource(sourceCandidate: unknown) {
+  const source = snapshotClosedRecord(sourceCandidate);
+  if (source === undefined || typeof source.kind !== "string") return undefined;
+  if (source.kind === "bundled")
+    return validBundledSource(source) ? { kind: "bundled" as const } : undefined;
+  if (source.kind !== "https") return undefined;
+  const httpsSource = validatedHttpsSource(source);
+  return httpsSource === undefined ? undefined : { kind: "https" as const, ...httpsSource };
+}
+
+function validBundledSource(source: Readonly<Record<string, unknown>>): boolean {
+  return exactRecord(source, ["kind", "catalog"])?.catalog === "json-schema-2020-12";
+}
+
+function validatedHttpsSource(source: Readonly<Record<string, unknown>>) {
+  const httpsSource = exactRecord(source, ["kind", "id", "origin", "pathPrefix"]);
+  if (
+    httpsSource === undefined ||
+    !safeAbsoluteIdentifier(httpsSource.id) ||
+    !safeHttpsOrigin(httpsSource.origin) ||
+    !safePathPrefix(httpsSource.pathPrefix)
+  )
+    return undefined;
+  return { id: httpsSource.id, location: `${httpsSource.origin}\n${httpsSource.pathPrefix}` };
 }
 
 /** Returns declared IDs only after the whole schema registry satisfies its closed authoring invariant. */
@@ -157,63 +167,71 @@ function validJsonSchemaBindings(
 }
 
 function safeAbsoluteIdentifier(identifier: unknown): identifier is string {
-  if (typeof identifier !== "string" || identifier.length === 0 || identifier.length > 256) {
-    return false;
-  }
+  if (!boundedNonEmptyString(identifier, 256)) return false;
   try {
     const url = new URL(identifier);
-    if (url.protocol !== "https:" && url.protocol !== "urn:") return false;
-    if (
-      url.username.length > 0 ||
-      url.password.length > 0 ||
-      url.search.length > 0 ||
-      url.hash.length > 0
-    ) {
-      return false;
-    }
-    return url.href === identifier;
+    return safeIdentifierUrl(url, identifier);
   } catch {
     return false;
   }
+}
+
+function safeIdentifierUrl(url: URL, identifier: string): boolean {
+  return (
+    (url.protocol === "https:" || url.protocol === "urn:") &&
+    url.username.length === 0 &&
+    url.password.length === 0 &&
+    url.search.length === 0 &&
+    url.hash.length === 0 &&
+    url.href === identifier
+  );
 }
 
 function safeHttpsOrigin(origin: unknown): origin is string {
-  if (typeof origin !== "string" || origin.length === 0 || origin.length > 200) return false;
+  if (!boundedNonEmptyString(origin, 200)) return false;
   try {
     const url = new URL(origin);
-    return (
-      url.protocol === "https:" &&
-      url.hostname.length > 0 &&
-      url.username.length === 0 &&
-      url.password.length === 0 &&
-      url.search.length === 0 &&
-      url.hash.length === 0 &&
-      url.pathname === "/" &&
-      url.origin === origin
-    );
+    return safeHttpsOriginUrl(url, origin);
   } catch {
     return false;
   }
 }
 
+function safeHttpsOriginUrl(url: URL, origin: string): boolean {
+  return (
+    url.protocol === "https:" &&
+    url.hostname.length > 0 &&
+    url.username.length === 0 &&
+    url.password.length === 0 &&
+    url.search.length === 0 &&
+    url.hash.length === 0 &&
+    url.pathname === "/" &&
+    url.origin === origin
+  );
+}
+
 function safePathPrefix(pathPrefix: unknown): pathPrefix is string {
-  if (
-    typeof pathPrefix !== "string" ||
-    pathPrefix.length === 0 ||
-    pathPrefix.length > 256 ||
-    !pathPrefix.startsWith("/") ||
-    (pathPrefix !== "/" && !pathPrefix.endsWith("/")) ||
-    pathPrefix.includes("\\") ||
-    pathPrefix.includes("?") ||
-    pathPrefix.includes("#") ||
-    pathPrefix.includes("//")
-  ) {
-    return false;
-  }
+  if (!validPathPrefixSyntax(pathPrefix)) return false;
   const segments = pathPrefix.split("/");
   return segments.every(
     (segment, index) => index === 0 || segment === "" || (segment !== "." && segment !== "..")
   );
+}
+
+function validPathPrefixSyntax(pathPrefix: unknown): pathPrefix is string {
+  return (
+    boundedNonEmptyString(pathPrefix, 256) &&
+    pathPrefix.startsWith("/") &&
+    (pathPrefix === "/" || pathPrefix.endsWith("/")) &&
+    !pathPrefix.includes("\\") &&
+    !pathPrefix.includes("?") &&
+    !pathPrefix.includes("#") &&
+    !pathPrefix.includes("//")
+  );
+}
+
+function boundedNonEmptyString(value: unknown, maximumLength: number): value is string {
+  return typeof value === "string" && value.length > 0 && value.length <= maximumLength;
 }
 
 function normalizedProjectJsonPath(projectPath: unknown): projectPath is string {

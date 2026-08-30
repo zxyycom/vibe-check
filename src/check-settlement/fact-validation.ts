@@ -98,38 +98,48 @@ function validateRecords(
   const records: CoreRecord[] = [];
   let previous: Readonly<{ readonly checkId: string; readonly id: string }> | undefined;
   for (const [index, value] of values.entries()) {
-    const record = snapshotClosedRecord(value);
-    if (record === undefined || !hasExactKeys(record, ["checkId", "id", "data"])) {
-      return invalid(`$.records[${index}]`, "Core Record must be closed");
-    }
-    if (
-      typeof record.checkId !== "string" ||
-      !ownerIds.has(record.checkId) ||
-      typeof record.id !== "string" ||
-      record.id.length === 0
-    ) {
-      return invalid(`$.records[${index}]`, "Core Record identity is invalid", "identity-mismatch");
-    }
-    const data = canonicalizeJsonObject(record.data);
-    if (data === undefined)
-      return invalid(`$.records[${index}].data`, "Core Record data is invalid");
-    const ids = recordIdsByCheckId.get(record.checkId) ?? new Set<string>();
-    if (ids.has(record.id)) {
+    const record = validateRecordRow(value, index, ownerIds);
+    if (!record.ok) return record;
+    const current = record.value;
+    const ids = recordIdsByCheckId.get(current.checkId) ?? new Set<string>();
+    if (ids.has(current.id)) {
       return invalid(`$.records[${index}].id`, "Duplicate Check-local Record id", "duplicate");
     }
     if (
       previous !== undefined &&
-      (compareText(previous.checkId, record.checkId) > 0 ||
-        (previous.checkId === record.checkId && compareText(previous.id, record.id) >= 0))
+      (compareText(previous.checkId, current.checkId) > 0 ||
+        (previous.checkId === current.checkId && compareText(previous.id, current.id) >= 0))
     ) {
       return invalid(`$.records[${index}]`, "Core Records must be sorted by checkId then id");
     }
-    ids.add(record.id);
-    recordIdsByCheckId.set(record.checkId, ids);
-    records.push(Object.freeze({ checkId: record.checkId, id: record.id, data }));
-    previous = { checkId: record.checkId, id: record.id };
+    ids.add(current.id);
+    recordIdsByCheckId.set(current.checkId, ids);
+    records.push(current);
+    previous = { checkId: current.checkId, id: current.id };
   }
   return accepted(Object.freeze(records));
+}
+
+function validateRecordRow(
+  value: unknown,
+  index: number,
+  ownerIds: ReadonlySet<string>
+): ValidationResult<CoreRecord> {
+  const record = snapshotClosedRecord(value);
+  if (record === undefined || !hasExactKeys(record, ["checkId", "id", "data"]))
+    return invalid(`$.records[${index}]`, "Core Record must be closed");
+  if (
+    typeof record.checkId !== "string" ||
+    !ownerIds.has(record.checkId) ||
+    typeof record.id !== "string" ||
+    record.id.length === 0
+  ) {
+    return invalid(`$.records[${index}]`, "Core Record identity is invalid", "identity-mismatch");
+  }
+  const data = canonicalizeJsonObject(record.data);
+  return data === undefined
+    ? invalid(`$.records[${index}].data`, "Core Record data is invalid")
+    : accepted(Object.freeze({ checkId: record.checkId, id: record.id, data }));
 }
 
 function validateOutcome(value: unknown, path: string): ValidationResult<CheckOutcome> {
@@ -137,6 +147,17 @@ function validateOutcome(value: unknown, path: string): ValidationResult<CheckOu
   if (outcome === undefined || typeof outcome.status !== "string") {
     return invalid(path, "Check outcome is invalid");
   }
+  if (outcome.status === "passed" || outcome.status === "failed")
+    return validateFinalOutcome(outcome, path);
+  if (outcome.status === "not-applicable") return validateNotApplicableOutcome(outcome, path);
+  if (outcome.status === "unavailable") return validateUnavailableOutcome(outcome, path);
+  return invalid(`${path}.status`, "Unknown Check outcome status");
+}
+
+function validateFinalOutcome(
+  outcome: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
   if (outcome.status === "passed" || outcome.status === "failed") {
     if (!hasExactKeys(outcome, ["status", "data"]))
       return invalid(path, "Final outcome is not closed");
@@ -145,30 +166,35 @@ function validateOutcome(value: unknown, path: string): ValidationResult<CheckOu
       ? invalid(`${path}.data`, "Final data is invalid")
       : accepted(Object.freeze({ status: outcome.status, data }));
   }
-  if (outcome.status === "not-applicable") {
-    if (!hasOptionalKeys(outcome, ["status"], ["reason"])) {
-      return invalid(path, "Not-applicable outcome is not closed");
-    }
-    const reason = validateReason(outcome.reason, false);
-    return reason === null
-      ? invalid(`${path}.reason`, "Not-applicable reason is invalid")
-      : accepted(
-          Object.freeze(
-            reason === undefined
-              ? { status: "not-applicable" }
-              : { status: "not-applicable", reason }
-          )
-        );
-  }
-  if (outcome.status === "unavailable") {
-    if (!hasExactKeys(outcome, ["status", "reason"]))
-      return invalid(path, "Unavailable outcome is not closed");
-    const reason = validateReason(outcome.reason, true);
-    return reason === null || reason === undefined
-      ? invalid(`${path}.reason`, "Unavailable reason is invalid")
-      : accepted(Object.freeze({ status: "unavailable", reason }));
-  }
   return invalid(`${path}.status`, "Unknown Check outcome status");
+}
+
+function validateNotApplicableOutcome(
+  outcome: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
+  if (!hasOptionalKeys(outcome, ["status"], ["reason"]))
+    return invalid(path, "Not-applicable outcome is not closed");
+  const reason = validateReason(outcome.reason, false);
+  return reason === null
+    ? invalid(`${path}.reason`, "Not-applicable reason is invalid")
+    : accepted(
+        Object.freeze(
+          reason === undefined ? { status: "not-applicable" } : { status: "not-applicable", reason }
+        )
+      );
+}
+
+function validateUnavailableOutcome(
+  outcome: Readonly<Record<string, unknown>>,
+  path: string
+): ValidationResult<CheckOutcome> {
+  if (!hasExactKeys(outcome, ["status", "reason"]))
+    return invalid(path, "Unavailable outcome is not closed");
+  const reason = validateReason(outcome.reason, true);
+  return reason === null || reason === undefined
+    ? invalid(`${path}.reason`, "Unavailable reason is invalid")
+    : accepted(Object.freeze({ status: "unavailable", reason }));
 }
 
 function validateReason(
@@ -177,24 +203,44 @@ function validateReason(
 ): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | null | undefined {
   if (value === undefined) return undefined;
   const reason = snapshotClosedRecord(value);
-  if (reason === undefined || typeof reason.code !== "string" || reason.code.length === 0)
-    return null;
+  if (!isClosedReason(reason, allowCheckIds)) return null;
   if (!hasOptionalKeys(reason, ["code"], allowCheckIds ? ["checkIds"] : [])) return null;
   if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
-  const checkIds = snapshotClosedArray(reason.checkIds);
+  const normalizedCheckIds = normalizedReasonCheckIds(reason.checkIds, allowCheckIds);
+  if (normalizedCheckIds === undefined) return null;
+  return Object.freeze({ code: reason.code, checkIds: Object.freeze(normalizedCheckIds) });
+}
+
+function isClosedReason(
+  value: Readonly<Record<string, unknown>> | undefined,
+  allowCheckIds: boolean
+): value is Readonly<Record<string, unknown>> & Readonly<{ readonly code: string }> {
+  return (
+    value !== undefined &&
+    typeof value.code === "string" &&
+    value.code.length > 0 &&
+    hasOptionalKeys(value, ["code"], allowCheckIds ? ["checkIds"] : [])
+  );
+}
+
+function normalizedReasonCheckIds(
+  value: unknown,
+  allowCheckIds: boolean
+): readonly string[] | undefined {
+  const checkIds = snapshotClosedArray(value);
   if (
     !allowCheckIds ||
     checkIds === undefined ||
     checkIds.length === 0 ||
     checkIds.some((checkId) => typeof checkId !== "string" || !isSettlementCheckReference(checkId))
   )
-    return null;
+    return undefined;
   const normalizedCheckIds: string[] = [];
   for (const checkId of checkIds) {
-    if (typeof checkId !== "string") return null;
+    if (typeof checkId !== "string") return undefined;
     normalizedCheckIds.push(checkId);
   }
-  return Object.freeze({ code: reason.code, checkIds: Object.freeze(normalizedCheckIds) });
+  return Object.freeze(normalizedCheckIds);
 }
 
 function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {

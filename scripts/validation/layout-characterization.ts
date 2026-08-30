@@ -46,6 +46,25 @@ const PRIVATE_PROCESS_EXECUTION_FILES = new Set([
   "scripts/process-execution/result.ts",
   "scripts/process-execution/runner.ts"
 ]);
+const PACKAGE_ARTIFACT_ENTRY_SOURCE = new RegExp(
+  "join\\(\\s*repositoryRoot\\s*,\\s*[\"']src/index\\.ts[\"']\\s*\\)",
+  "u"
+);
+const MODULE_BASENAME_SUFFIX = new RegExp("(?:\\.test-support|\\.test)?\\.ts$", "u");
+const MODULE_SPECIFIER_FROM_PATTERN = new RegExp(
+  "\\b(?:import|export)\\s+(type\\s+)?[\\s\\S]*?\\sfrom\\s*[\"']([^\"']+)[\"']",
+  "gu"
+);
+const SIDE_EFFECT_IMPORT_PATTERN = new RegExp("\\bimport\\s*[\"']([^\"']+)[\"']", "gu");
+const DYNAMIC_IMPORT_PATTERN = new RegExp("\\bimport\\s*\\(\\s*[\"']([^\"']+)[\"']\\s*\\)", "gu");
+
+interface ImportBoundaryInput {
+  readonly repositoryPath: string;
+  readonly root: string;
+  readonly source: string;
+  readonly sourcePath: string;
+  readonly violations: string[];
+}
 
 export function validateRepositoryLayout(
   input: Readonly<{ readonly repositoryRoot?: string }> = {}
@@ -126,55 +145,82 @@ function validateImportBoundaries(
   violations: string[]
 ): void {
   for (const sourcePath of sourceFiles) {
-    const repositoryPath = relativePath(root, sourcePath);
-    const source = readFileSync(sourcePath, "utf8");
+    const input: ImportBoundaryInput = {
+      repositoryPath: relativePath(root, sourcePath),
+      root,
+      source: readFileSync(sourcePath, "utf8"),
+      sourcePath,
+      violations
+    };
+    validateProductImportsScripts(input);
+    validateProjectImportsProduct(input);
+    validatePackageImportsProject(input);
+    validateEnvironmentImportsProcessExecution(input);
+    validateScriptPrivateProcessExecutionImports(input);
+  }
+}
 
-    if (repositoryPath.startsWith("src/")) {
-      for (const specifier of valueModuleSpecifiers(source)) {
-        if (resolvesUnder(root, sourcePath, specifier, "scripts")) {
-          violations.push(`product-imports-scripts: ${repositoryPath} -> ${specifier}`);
-        }
-      }
+function validateProductImportsScripts(input: ImportBoundaryInput): void {
+  if (!input.repositoryPath.startsWith("src/")) return;
+  reportImportsUnder(
+    input,
+    valueModuleSpecifiers(input.source),
+    "scripts",
+    "product-imports-scripts"
+  );
+}
+
+function validateProjectImportsProduct(input: ImportBoundaryInput): void {
+  if (!input.repositoryPath.startsWith("scripts/project/")) return;
+  reportImportsUnder(input, moduleSpecifiers(input.source), "src", "project-deep-imports-product");
+}
+
+function validatePackageImportsProject(input: ImportBoundaryInput): void {
+  if (!input.repositoryPath.startsWith("scripts/package/")) return;
+  reportImportsUnder(
+    input,
+    moduleSpecifiers(input.source),
+    "scripts/project",
+    "package-imports-project"
+  );
+}
+
+function validateEnvironmentImportsProcessExecution(input: ImportBoundaryInput): void {
+  if (input.repositoryPath !== "scripts/environment/manage.ts") return;
+  reportImportsUnder(
+    input,
+    moduleSpecifiers(input.source),
+    "scripts/process-execution",
+    "environment-imports-process-execution"
+  );
+}
+
+function reportImportsUnder(
+  input: ImportBoundaryInput,
+  specifiers: readonly string[],
+  targetRoot: string,
+  violationCode: string
+): void {
+  for (const specifier of specifiers) {
+    if (resolvesUnder(input.root, input.sourcePath, specifier, targetRoot)) {
+      input.violations.push(`${violationCode}: ${input.repositoryPath} -> ${specifier}`);
     }
+  }
+}
 
-    if (repositoryPath.startsWith("scripts/project/")) {
-      for (const specifier of moduleSpecifiers(source)) {
-        if (resolvesUnder(root, sourcePath, specifier, "src")) {
-          violations.push(`project-deep-imports-product: ${repositoryPath} -> ${specifier}`);
-        }
-      }
-    }
-
-    if (repositoryPath.startsWith("scripts/package/")) {
-      for (const specifier of moduleSpecifiers(source)) {
-        if (resolvesUnder(root, sourcePath, specifier, "scripts/project")) {
-          violations.push(`package-imports-project: ${repositoryPath} -> ${specifier}`);
-        }
-      }
-    }
-
-    if (repositoryPath === "scripts/environment/manage.ts") {
-      for (const specifier of moduleSpecifiers(source)) {
-        if (resolvesUnder(root, sourcePath, specifier, "scripts/process-execution")) {
-          violations.push(
-            `environment-imports-process-execution: ${repositoryPath} -> ${specifier}`
-          );
-        }
-      }
-    }
-
-    if (
-      repositoryPath.startsWith("scripts/") &&
-      !repositoryPath.startsWith("scripts/process-execution/")
-    ) {
-      for (const specifier of moduleSpecifiers(source)) {
-        const targetPath = resolvedRelativeModulePath(root, sourcePath, specifier);
-        if (targetPath !== undefined && PRIVATE_PROCESS_EXECUTION_FILES.has(targetPath)) {
-          violations.push(
-            `script-deep-imports-process-execution: ${repositoryPath} -> ${specifier}`
-          );
-        }
-      }
+function validateScriptPrivateProcessExecutionImports(input: ImportBoundaryInput): void {
+  if (
+    !input.repositoryPath.startsWith("scripts/") ||
+    input.repositoryPath.startsWith("scripts/process-execution/")
+  ) {
+    return;
+  }
+  for (const specifier of moduleSpecifiers(input.source)) {
+    const targetPath = resolvedRelativeModulePath(input.root, input.sourcePath, specifier);
+    if (targetPath !== undefined && PRIVATE_PROCESS_EXECUTION_FILES.has(targetPath)) {
+      input.violations.push(
+        `script-deep-imports-process-execution: ${input.repositoryPath} -> ${specifier}`
+      );
     }
   }
 }
@@ -186,13 +232,13 @@ function validatePackageArtifactEntry(root: string, violations: string[]): void 
     return;
   }
   const source = readFileSync(buildPath, "utf8");
-  if (!/join\(\s*repositoryRoot\s*,\s*["']src\/index\.ts["']\s*\)/u.test(source)) {
+  if (!PACKAGE_ARTIFACT_ENTRY_SOURCE.test(source)) {
     violations.push("package-artifact-entry: expected src/index.ts");
   }
 }
 
 function moduleBasename(sourcePath: string): string {
-  return basename(sourcePath).replace(/(?:\.test-support|\.test)?\.ts$/u, "");
+  return basename(sourcePath).replace(MODULE_BASENAME_SUFFIX, "");
 }
 
 function relativePath(root: string, absolutePath: string): string {
@@ -228,19 +274,16 @@ function moduleSpecifiers(
   options: Readonly<{ readonly includeTypeOnly?: boolean }> = {}
 ): readonly string[] {
   const specifiers = new Set<string>();
-  const fromPattern = /\b(?:import|export)\s+(type\s+)?[\s\S]*?\sfrom\s*["']([^"']+)["']/gu;
-  for (const match of source.matchAll(fromPattern)) {
+  for (const match of source.matchAll(MODULE_SPECIFIER_FROM_PATTERN)) {
     if (options.includeTypeOnly === false && match[1] !== undefined) continue;
     const specifier = match[2];
     if (specifier !== undefined) specifiers.add(specifier);
   }
-  const sideEffectPattern = /\bimport\s*["']([^"']+)["']/gu;
-  for (const match of source.matchAll(sideEffectPattern)) {
+  for (const match of source.matchAll(SIDE_EFFECT_IMPORT_PATTERN)) {
     const specifier = match[1];
     if (specifier !== undefined) specifiers.add(specifier);
   }
-  const dynamicPattern = /\bimport\s*\(\s*["']([^"']+)["']\s*\)/gu;
-  for (const match of source.matchAll(dynamicPattern)) {
+  for (const match of source.matchAll(DYNAMIC_IMPORT_PATTERN)) {
     const specifier = match[1];
     if (specifier !== undefined) specifiers.add(specifier);
   }

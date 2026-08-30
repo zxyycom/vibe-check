@@ -37,15 +37,12 @@ export function canonicalJsonBytes(value: unknown): Uint8Array {
 }
 
 function canonicalize(value: unknown, ancestors: Set<object>): CanonicalJsonValue | undefined {
-  if (value === null || typeof value === "boolean" || typeof value === "string") return value;
-  if (typeof value === "number") {
-    if (!Number.isFinite(value)) return undefined;
-    return Object.is(value, -0) ? 0 : value;
-  }
+  if (value === null) return null;
+  const primitive = canonicalPrimitive(value);
+  if (primitive !== undefined) return primitive;
   if (typeof value !== "object") return undefined;
-  if (ancestors.has(value)) return undefined;
+  if (!admitCanonicalObject(value, ancestors)) return undefined;
 
-  ancestors.add(value);
   try {
     return Array.isArray(value)
       ? canonicalizeArray(value, ancestors)
@@ -57,15 +54,33 @@ function canonicalize(value: unknown, ancestors: Set<object>): CanonicalJsonValu
   }
 }
 
+function canonicalPrimitive(value: unknown): CanonicalJsonValue | undefined {
+  if (typeof value === "boolean" || typeof value === "string") return value;
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+  return Object.is(value, -0) ? 0 : value;
+}
+
+function admitCanonicalObject(value: object, ancestors: Set<object>): boolean {
+  if (ancestors.has(value)) return false;
+  ancestors.add(value);
+  return true;
+}
+
 function canonicalizeArray(
   value: readonly unknown[],
   ancestors: Set<object>
 ): readonly CanonicalJsonValue[] | undefined {
+  const length = denseCanonicalArrayLength(value);
+  if (length === undefined) return undefined;
+  return canonicalArrayElements(value, length, ancestors);
+}
+
+function denseCanonicalArrayLength(value: readonly unknown[]): number | undefined {
   if (Object.getPrototypeOf(value) !== Array.prototype) return undefined;
   const keys = Reflect.ownKeys(value);
   const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
   if (!isDataDescriptor(lengthDescriptor) || lengthDescriptor.enumerable) return undefined;
-  const length = lengthDescriptor.value as unknown;
+  const length = lengthDescriptor.value;
   if (
     typeof length !== "number" ||
     !Number.isSafeInteger(length) ||
@@ -74,13 +89,20 @@ function canonicalizeArray(
   )
     return undefined;
   if (!keys.includes("length")) return undefined;
+  return length;
+}
 
+function canonicalArrayElements(
+  value: readonly unknown[],
+  length: number,
+  ancestors: Set<object>
+): readonly CanonicalJsonValue[] | undefined {
   const values: CanonicalJsonValue[] = [];
   for (let index = 0; index < length; index += 1) {
     const key = String(index);
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
     if (!isEnumerableDataDescriptor(descriptor)) return undefined;
-    const item = canonicalize(descriptor.value as unknown, ancestors);
+    const item = canonicalize(descriptor.value, ancestors);
     if (item === undefined) return undefined;
     values.push(item);
   }
@@ -104,7 +126,7 @@ function canonicalizeObject(
   for (const key of keys.sort(compareText)) {
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
     if (!isEnumerableDataDescriptor(descriptor)) return undefined;
-    const item = canonicalize(descriptor.value as unknown, ancestors);
+    const item = canonicalize(descriptor.value, ancestors);
     if (item === undefined) return undefined;
     Object.defineProperty(snapshot, key, {
       configurable: false,
@@ -116,15 +138,27 @@ function canonicalizeObject(
   return Object.freeze(snapshot);
 }
 
+type DataDescriptor = Omit<PropertyDescriptor, "get" | "set" | "value"> &
+  Readonly<{
+    get?: undefined;
+    set?: undefined;
+    value: unknown;
+  }>;
+
 function isDataDescriptor(
   descriptor: PropertyDescriptor | undefined
-): descriptor is PropertyDescriptor {
-  return descriptor !== undefined && descriptor.get === undefined && descriptor.set === undefined;
+): descriptor is DataDescriptor {
+  return (
+    descriptor !== undefined &&
+    descriptor.get === undefined &&
+    descriptor.set === undefined &&
+    Object.hasOwn(descriptor, "value")
+  );
 }
 
 function isEnumerableDataDescriptor(
   descriptor: PropertyDescriptor | undefined
-): descriptor is PropertyDescriptor {
+): descriptor is DataDescriptor {
   return isDataDescriptor(descriptor) && descriptor.enumerable === true;
 }
 

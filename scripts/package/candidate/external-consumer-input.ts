@@ -37,6 +37,28 @@ export function parseExternalConsumerMaterialData(value: unknown): ExternalConsu
   if (!isNonArrayRecord(value) || !exactKeys(value, EXTERNAL_CONSUMER_MATERIAL_KEYS)) {
     throw new TypeError("external consumer material has an invalid shape");
   }
+  assertExternalConsumerMaterialShape(value);
+  assertExternalConsumerMaterialIdentity(value);
+  return Object.freeze({
+    artifactPath: value.artifactPath,
+    consumerDirectory: value.consumerDirectory,
+    installedPackageDirectory: value.installedPackageDirectory,
+    resolvedEntryPath: value.resolvedEntryPath,
+    schemaVersion: EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION,
+    sha256: value.sha256
+  });
+}
+
+function assertExternalConsumerMaterialShape(
+  value: Readonly<Record<string, unknown>>
+): asserts value is Readonly<{
+  readonly artifactPath: string;
+  readonly consumerDirectory: string;
+  readonly installedPackageDirectory: string;
+  readonly resolvedEntryPath: string;
+  readonly schemaVersion: typeof EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION;
+  readonly sha256: string;
+}> {
   if (
     value.schemaVersion !== EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION ||
     !nonEmptyString(value.artifactPath) ||
@@ -47,6 +69,9 @@ export function parseExternalConsumerMaterialData(value: unknown): ExternalConsu
   ) {
     throw new TypeError("external consumer material has an invalid shape");
   }
+}
+
+function assertExternalConsumerMaterialIdentity(value: ExternalConsumerMaterialData): void {
   if (
     !isAbsolute(value.artifactPath) ||
     !isAbsolute(value.consumerDirectory) ||
@@ -57,14 +82,6 @@ export function parseExternalConsumerMaterialData(value: unknown): ExternalConsu
   ) {
     throw new TypeError("external consumer material has an invalid identity");
   }
-  return Object.freeze({
-    artifactPath: value.artifactPath,
-    consumerDirectory: value.consumerDirectory,
-    installedPackageDirectory: value.installedPackageDirectory,
-    resolvedEntryPath: value.resolvedEntryPath,
-    schemaVersion: EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION,
-    sha256: value.sha256
-  });
 }
 
 /** Rechecks invocation-local filesystem material immediately before it is consumed. */

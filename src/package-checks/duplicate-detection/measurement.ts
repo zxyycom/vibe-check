@@ -73,23 +73,8 @@ export async function measureDuplicateDetection(
 }
 
 function validMeasurementInput(exactInput: DuplicateDetectionExactInputSet): boolean {
-  if (
-    exactInput.approvedExactPaths.length < 2 ||
-    !nonEmptyString(exactInput.rootDir) ||
-    !nonEmptyString(exactInput.cacheRootDir) ||
-    !nonEmptyString(exactInput.commitSha)
-  ) {
-    return false;
-  }
-
   const approvedExactPaths = exactInput.approvedExactPaths;
-  if (
-    approvedExactPaths.some((path) => !nonEmptyString(path)) ||
-    !sameStrings(approvedExactPaths, uniqueSorted(approvedExactPaths)) ||
-    !validFingerprintForPaths(exactInput.inputFingerprint, approvedExactPaths)
-  ) {
-    return false;
-  }
+  if (!hasValidScopeIdentity(exactInput) || !hasValidApprovedPaths(exactInput)) return false;
 
   const approvedPathSet = new Set(approvedExactPaths);
   const coveredPathSet = new Set<string>();
@@ -103,6 +88,24 @@ function validMeasurementInput(exactInput: DuplicateDetectionExactInputSet): boo
     }
   }
   return coveredPathSet.size === approvedPathSet.size;
+}
+
+function hasValidScopeIdentity(exactInput: DuplicateDetectionExactInputSet): boolean {
+  return (
+    exactInput.approvedExactPaths.length >= 2 &&
+    nonEmptyString(exactInput.rootDir) &&
+    nonEmptyString(exactInput.cacheRootDir) &&
+    nonEmptyString(exactInput.commitSha)
+  );
+}
+
+function hasValidApprovedPaths(exactInput: DuplicateDetectionExactInputSet): boolean {
+  const paths = exactInput.approvedExactPaths;
+  return (
+    paths.every(nonEmptyString) &&
+    sameStrings(paths, uniqueSorted(paths)) &&
+    validFingerprintForPaths(exactInput.inputFingerprint, paths)
+  );
 }
 
 function isValidAreaInput(area: DuplicateDetectionAreaInput): boolean {

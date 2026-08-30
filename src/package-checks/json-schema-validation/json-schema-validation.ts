@@ -1,22 +1,14 @@
-import { createHash } from "node:crypto";
-import { resolve } from "node:path";
-
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
+import type { JsonDocumentIssue } from "../json-document/strict-document.ts";
+import { compileSchemaSet, type SchemaCompileReason } from "./schema-engine.ts";
 import {
-  readStrictJsonDocument,
-  type JsonDocumentIssue
-} from "../json-document/strict-document.ts";
-import {
-  compileSchemaSet,
-  normalizeValidationErrors,
-  type LoadedSchema,
-  type SchemaCompileReason
-} from "./schema-engine.ts";
-import {
-  MAX_REPORTED_JSON_SCHEMA_ISSUES,
-  type JsonSchemaValidationFinalData
-} from "./final-data.ts";
+  loadConfiguredSchemas,
+  reportCompilationFailures,
+  validateSchemaBindings
+} from "./execution-stages.ts";
+import { type JsonSchemaValidationFinalData } from "./final-data.ts";
+import { SchemaIssueCollector } from "./issue-collector.ts";
 import type { ResolvedJsonSchemaValidationOptions } from "./options.ts";
 import { validJsonSchemaValidationOptions } from "./options-validation.ts";
 
@@ -87,225 +79,86 @@ async function execute(
   context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>
 ): Promise<CheckResult<JsonSchemaValidationFinalData>> {
   if (context.signal.aborted) return unavailable("execution-cancelled");
-  if (context.options.bindings.length === 0) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-bindings" } });
-  }
-
-  let selectedPaths: ReadonlySet<string>;
-  try {
-    selectedPaths = new Set(collectProjectFiles(context.project.root, context.options.files));
-  } catch {
-    return unavailable("scan-input-unavailable");
-  }
+  if (context.options.bindings.length === 0) return noBindingsResult();
+  const selectedPaths = selectedProjectPaths(context);
+  if (selectedPaths === undefined) return unavailable("scan-input-unavailable");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
   const issueCollector = new SchemaIssueCollector(context);
-  const schemaFailures = new Set<string>();
-  const loadedSchemas: LoadedSchema[] = [];
-
-  for (const schema of context.options.schemas) {
-    if (context.signal.aborted) return unavailable("execution-cancelled");
-    if (!selectedPaths.has(schema.path)) {
-      schemaFailures.add(schema.id);
-      issueCollector.add(
-        Object.freeze({
-          kind: "schema-document",
-          path: schema.path,
-          reason: "out-of-scope",
-          schemaId: schema.id
-        })
-      );
-      continue;
-    }
-    const document = readStrictJsonDocument({
-      filePath: resolve(context.project.root, schema.path),
-      maximumBytes: context.options.maximumBytes
-    });
-    if (context.signal.aborted) return unavailable("execution-cancelled");
-    if (document.kind === "unavailable") return unavailable("document-unavailable");
-    if (document.kind === "issue") {
-      schemaFailures.add(schema.id);
-      issueCollector.add(
-        Object.freeze({
-          kind: "schema-document",
-          path: schema.path,
-          reason: document.reason,
-          schemaId: schema.id
-        })
-      );
-      continue;
-    }
-    loadedSchemas.push(Object.freeze({ documentValue: document.jsonValue, id: schema.id }));
-  }
-
-  const compilationResult = await compileSchemaSet({
+  const loaded = await loadConfiguredSchemas(context, selectedPaths, issueCollector);
+  if (loaded.kind === "unavailable") return unavailable(loaded.code);
+  const compilation = await compileSchemaSet({
     referenceResolution: context.options.referenceResolution,
     schemaIdentity: context.options.schemaIdentity,
-    schemas: loadedSchemas,
+    schemas: loaded.value.schemas,
     signal: context.signal
   });
-  if (compilationResult.kind === "unavailable") return unavailable(compilationResult.reason);
+  if (compilation.kind === "unavailable") return unavailable(compilation.reason);
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
-  for (const schema of context.options.schemas) {
-    const reason = compilationResult.compiledSchemaSet.failures.get(schema.id);
-    if (reason === undefined) continue;
-    schemaFailures.add(schema.id);
-    issueCollector.add(
-      Object.freeze({ kind: "schema-compile", path: schema.path, reason, schemaId: schema.id })
-    );
+  const schemaFailures = new Set(loaded.value.failures);
+  reportCompilationFailures(context, compilation.compiledSchemaSet, schemaFailures, issueCollector);
+  const bindings = await validateSchemaBindings(
+    context,
+    selectedPaths,
+    compilation.compiledSchemaSet,
+    schemaFailures,
+    issueCollector
+  );
+  if (bindings.kind === "unavailable") return unavailable(bindings.code);
+  return completedValidationResult(context, bindings.value, issueCollector);
+}
+
+function selectedProjectPaths(
+  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>
+): ReadonlySet<string> | undefined {
+  try {
+    return new Set(collectProjectFiles(context.project.root, context.options.files));
+  } catch {
+    return undefined;
   }
+}
 
-  let blockedBindingCount = 0;
-  let invalidBindingCount = 0;
-  let validBindingCount = 0;
-  for (const binding of context.options.bindings) {
-    if (context.signal.aborted) return unavailable("execution-cancelled");
-    const schemaFailed = schemaFailures.has(binding.schemaId);
-    const isInstancePathInScope = selectedPaths.has(binding.instancePath);
-    if (!isInstancePathInScope) {
-      issueCollector.add(
-        Object.freeze({
-          bindingId: binding.id,
-          kind: "instance-document",
-          path: binding.instancePath,
-          reason: "out-of-scope",
-          schemaId: binding.schemaId
-        })
-      );
-    }
-    if (schemaFailed) {
-      blockedBindingCount += 1;
-      continue;
-    }
-    if (!isInstancePathInScope) {
-      invalidBindingCount += 1;
-      continue;
-    }
+function noBindingsResult(): CheckResult<JsonSchemaValidationFinalData> {
+  return Object.freeze({ status: "not-applicable", reason: { code: "no-bindings" } });
+}
 
-    const document = readStrictJsonDocument({
-      filePath: resolve(context.project.root, binding.instancePath),
-      maximumBytes: context.options.maximumBytes
-    });
-    if (context.signal.aborted) return unavailable("execution-cancelled");
-    if (document.kind === "unavailable") return unavailable("document-unavailable");
-    if (document.kind === "issue") {
-      invalidBindingCount += 1;
-      issueCollector.add(
-        Object.freeze({
-          bindingId: binding.id,
-          kind: "instance-document",
-          path: binding.instancePath,
-          reason: document.reason,
-          schemaId: binding.schemaId
-        })
-      );
-      continue;
-    }
-
-    const validator = compilationResult.compiledSchemaSet.validators.get(binding.schemaId);
-    if (validator === undefined) return unavailable("engine-unavailable");
-    let isValid: boolean;
-    try {
-      isValid = validator(document.jsonValue);
-    } catch {
-      return unavailable("engine-unavailable");
-    }
-    if (isValid) {
-      validBindingCount += 1;
-      continue;
-    }
-
-    invalidBindingCount += 1;
-    const violations = normalizeValidationErrors(validator.errors);
-    if (violations.length === 0) {
-      issueCollector.add(
-        Object.freeze({
-          bindingId: binding.id,
-          keyword: "other",
-          kind: "keyword-violation",
-          path: binding.instancePath,
-          pointer: "",
-          schemaId: binding.schemaId
-        })
-      );
-      continue;
-    }
-    for (const violation of violations) {
-      issueCollector.add(
-        Object.freeze({
-          bindingId: binding.id,
-          keyword: violation.keyword,
-          kind: "keyword-violation",
-          path: binding.instancePath,
-          pointer: violation.pointer,
-          schemaId: binding.schemaId
-        })
-      );
-    }
-  }
-
-  const finalData = Object.freeze({
+function completedValidationResult(
+  context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>,
+  bindings: Readonly<{
+    readonly blockedBindingCount: number;
+    readonly invalidBindingCount: number;
+    readonly validBindingCount: number;
+  }>,
+  issueCollector: SchemaIssueCollector
+): CheckResult<JsonSchemaValidationFinalData> {
+  const data = Object.freeze({
     bindingCount: context.options.bindings.length,
-    blockedBindingCount,
-    invalidBindingCount,
+    blockedBindingCount: bindings.blockedBindingCount,
+    invalidBindingCount: bindings.invalidBindingCount,
     issueCount: issueCollector.count,
     issuesTruncated: issueCollector.truncated,
     reportedIssueCount: issueCollector.reportedCount,
     schemaCount: context.options.schemas.length,
-    validBindingCount
+    validBindingCount: bindings.validBindingCount
   });
-  if (issueCollector.count === 0) {
-    return Object.freeze({ data: finalData, status: "passed" });
-  }
+  if (issueCollector.count === 0) return Object.freeze({ data, status: "passed" });
   return Object.freeze({
-    data: finalData,
+    data,
     messages: Object.freeze([
       Object.freeze({
         code: "schema-validation-issues",
         level: "error" as const,
-        message: `${issueCollector.count} schema validation issue(s) were found; inspect this Check's Records${issueCollector.truncated ? " (the published Record list is truncated)" : ""}.`
+        message: validationIssueMessage(issueCollector)
       })
     ]),
     status: "failed"
   });
 }
 
-/** Owns the invocation-local issue count, display cap, and deterministic Record identity ordinal. */
-class SchemaIssueCollector {
-  #count = 0;
-  #reportedCount = 0;
-  readonly #issueOccurrences = new Map<string, number>();
-  readonly #checkContext: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>;
-
-  constructor(context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions>) {
-    this.#checkContext = context;
-  }
-
-  get count(): number {
-    return this.#count;
-  }
-
-  get reportedCount(): number {
-    return this.#reportedCount;
-  }
-
-  get truncated(): boolean {
-    return this.#count > this.#reportedCount;
-  }
-
-  add(issue: JsonSchemaValidationRecordData): void {
-    this.#count += 1;
-    if (this.#reportedCount >= MAX_REPORTED_JSON_SCHEMA_ISSUES) return;
-    const semanticKey = JSON.stringify(issue);
-    const occurrence = this.#issueOccurrences.get(semanticKey) ?? 0;
-    this.#issueOccurrences.set(semanticKey, occurrence + 1);
-    const digest = createHash("sha256")
-      .update(`${semanticKey}\n${occurrence}`, "utf8")
-      .digest("hex");
-    this.#checkContext.records.report({ id: `json-schema:${issue.kind}:${digest}` }, issue);
-    this.#reportedCount += 1;
-  }
+function validationIssueMessage(issueCollector: SchemaIssueCollector): string {
+  const truncation = issueCollector.truncated ? " (the published Record list is truncated)" : "";
+  return `${issueCollector.count} schema validation issue(s) were found; inspect this Check's Records${truncation}.`;
 }
 
 function unavailable(

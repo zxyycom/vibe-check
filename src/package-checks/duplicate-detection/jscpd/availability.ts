@@ -59,21 +59,9 @@ function availabilityFromVersionResult(
 ): JscpdAvailability {
   if (result.error) return processErrorAvailability(result.error, dependency);
   const output = commandOutput(result);
-  if (result.status !== 0) {
-    return unavailableJscpd(
-      `jscpd --version failed, ${processTermination(result)}${output ? `: ${output}` : ""}`,
-      "execution-error",
-      dependency
-    );
-  }
+  if (result.status !== 0) return failedVersionAvailability(result, output, dependency);
   const version = parseJscpdVersionOutput(output);
-  if (version === null) {
-    return unavailableJscpd(
-      "jscpd --version returned unrecognized output",
-      "execution-error",
-      dependency
-    );
-  }
+  if (version === null) return unrecognizedVersionAvailability(dependency);
   return {
     name: "jscpd",
     available: true,
@@ -82,6 +70,29 @@ function availabilityFromVersionResult(
     source: jscpdSource(dependency),
     reason: null
   };
+}
+
+function failedVersionAvailability(
+  result: ToolCommandResult,
+  output: string,
+  dependency: ResolvedDuplicateDetectionScannerOptions
+): JscpdAvailability {
+  const detail = output ? `: ${output}` : "";
+  return unavailableJscpd(
+    `jscpd --version failed, ${processTermination(result)}${detail}`,
+    "execution-error",
+    dependency
+  );
+}
+
+function unrecognizedVersionAvailability(
+  dependency: ResolvedDuplicateDetectionScannerOptions
+): JscpdAvailability {
+  return unavailableJscpd(
+    "jscpd --version returned unrecognized output",
+    "execution-error",
+    dependency
+  );
 }
 
 function processErrorAvailability(

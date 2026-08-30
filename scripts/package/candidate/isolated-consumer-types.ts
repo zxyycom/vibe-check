@@ -84,19 +84,23 @@ function quickInfoText(
 ): Readonly<{ readonly documentation: string; readonly tags: string }> {
   const position = fixtureSource.indexOf(usage);
   assert.notEqual(position, -1, `hover fixture is missing ${usage}`);
+  const info = quickInfoAtUsage(service, fixturePath, position, usage);
+  return Object.freeze({
+    documentation: ts.displayPartsToString(info.documentation),
+    tags: quickInfoTags(info.tags)
+  });
+}
+
+function quickInfoAtUsage(
+  service: ts.LanguageService,
+  fixturePath: string,
+  position: number,
+  usage: string
+): ts.QuickInfo {
   const info = service.getQuickInfoAtPosition(fixturePath, position);
   assert.notEqual(info, undefined, `LanguageService did not return QuickInfo for ${usage}`);
   if (info === undefined) throw new Error(`LanguageService did not return QuickInfo for ${usage}`);
-  const tags = info.tags
-    ?.map(
-      (tag) =>
-        `@${tag.name}${tag.text === undefined ? "" : ` ${ts.displayPartsToString(tag.text)}`}`
-    )
-    .join("\n");
-  return Object.freeze({
-    documentation: ts.displayPartsToString(info.documentation),
-    tags: tags ?? ""
-  });
+  return info;
 }
 
 function typecheckConfig(): string {
@@ -134,12 +138,17 @@ await run(definition);
 `;
 }
 
+const PUBLIC_TYPE_IMPORTS_MARKER = "__VIBE_CHECK_PUBLIC_TYPE_IMPORTS__";
+
 function publicImports(): string {
   const typeImports = Object.values(CURRENT_PUBLIC_CONTRACT.types)
     .sort((left, right) => left.localeCompare(right))
     .map((name) => `  type ${name}`)
     .join(",\n");
-  return `import {
+  return PUBLIC_IMPORTS_TEMPLATE.replace(PUBLIC_TYPE_IMPORTS_MARKER, typeImports);
+}
+
+const PUBLIC_IMPORTS_TEMPLATE = `import {
   defineCheck,
   defineConfig,
   defaultProjectFileSelection,
@@ -159,7 +168,7 @@ function publicImports(): string {
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
   run,
-${typeImports}
+__VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
 } from "vibe-check";
 
 const directCheck = defineCheck({
@@ -336,4 +345,14 @@ void [
   result
 ];
 `;
+
+function quickInfoTags(tags: readonly ts.JSDocTagInfo[] | undefined): string {
+  return (
+    tags
+      ?.map(
+        (tag) =>
+          `@${tag.name}${tag.text === undefined ? "" : ` ${ts.displayPartsToString(tag.text)}`}`
+      )
+      .join("\n") ?? ""
+  );
 }

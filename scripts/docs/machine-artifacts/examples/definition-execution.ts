@@ -34,6 +34,7 @@ const expectedCheckOutcomes = [
   checkId: string;
   status: packageApi.CheckOutcome["status"];
 }>[];
+type ExampleSnapshot = Awaited<ReturnType<typeof executeExampleDefinition>>;
 
 /** Executes the public example Definition through the complete public Run boundary. */
 export async function buildCanonicalMachineExample(): Promise<CanonicalMachineExample> {
@@ -114,24 +115,48 @@ function assertExampleMessages(messages: ReadonlyArray<Readonly<{ readonly code:
   }
 }
 
-function assertExampleFacts(snapshot: Awaited<ReturnType<typeof executeExampleDefinition>>): void {
+function assertExampleFacts(snapshot: ExampleSnapshot): void {
+  assertExampleOutcomeStatuses(snapshot);
+  assertExpectedExampleCheckOutcomes(snapshot);
+  assertExampleSnapshotCardinality(snapshot);
+  assertExampleJsonValidation(snapshot);
+  assertExampleRecords(snapshot);
+}
+
+function assertExampleOutcomeStatuses(snapshot: ExampleSnapshot): void {
   const statuses = new Set(snapshot.checks.map(({ outcome }) => outcome.status));
   for (const status of ["passed", "failed", "not-applicable", "unavailable"] as const) {
     if (!statuses.has(status)) {
       throw new Error(`machine example Definition is missing ${status} outcome`);
     }
   }
+}
+
+function assertExpectedExampleCheckOutcomes(snapshot: ExampleSnapshot): void {
   for (const expected of expectedCheckOutcomes) {
-    const check = snapshot.checks.find(({ checkId }) => checkId === expected.checkId);
-    if (check?.outcome.status !== expected.status) {
+    const receivedStatus = exampleCheckOutcomeStatus(snapshot, expected.checkId);
+    if (receivedStatus !== expected.status) {
       throw new Error(
-        `machine example Check ${expected.checkId} must be ${expected.status}; received ${check?.outcome.status ?? "missing"}`
+        `machine example Check ${expected.checkId} must be ${expected.status}; received ${receivedStatus ?? "missing"}`
       );
     }
   }
+}
+
+function exampleCheckOutcomeStatus(
+  snapshot: ExampleSnapshot,
+  checkId: string
+): packageApi.CheckOutcome["status"] | undefined {
+  return snapshot.checks.find((check) => check.checkId === checkId)?.outcome.status;
+}
+
+function assertExampleSnapshotCardinality(snapshot: ExampleSnapshot): void {
   if (snapshot.checks.length !== expectedCheckOutcomes.length || snapshot.records.length !== 2) {
     throw new Error("machine example Definition must produce five Checks and two Records");
   }
+}
+
+function assertExampleJsonValidation(snapshot: ExampleSnapshot): void {
   const jsonCheck = snapshot.checks.find(({ checkId }) => checkId === "json-validation");
   if (
     jsonCheck?.outcome.status !== "passed" ||
@@ -140,6 +165,9 @@ function assertExampleFacts(snapshot: Awaited<ReturnType<typeof executeExampleDe
   ) {
     throw new Error("machine example built-in JSON validation did not validate one manifest");
   }
+}
+
+function assertExampleRecords(snapshot: ExampleSnapshot): void {
   if (
     snapshot.records.some(({ checkId }) => checkId !== "example-release-policy") ||
     !snapshot.records.some(({ id }) => id === "minimum-file-count") ||

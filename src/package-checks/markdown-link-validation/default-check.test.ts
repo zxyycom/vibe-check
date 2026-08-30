@@ -9,20 +9,7 @@ import { executeMarkdownLinkValidation } from "./execution.ts";
 import { markdownLinkValidation } from "./default-check.ts";
 import { parseMarkdownLinkValidationData } from "./final-data.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
-import type { ProjectFileSelection } from "../project-files/configuration.ts";
-import type {
-  CheckDependencies,
-  CheckExecution,
-  CheckExecutionContext,
-  CheckProjectContext,
-  CheckResult
-} from "../../check/check.ts";
-
-const FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"]),
-  source: "filesystem" as const
-});
+import { execute } from "./default-check.test-support.ts";
 
 const MARKDOWN_FILES = Object.freeze({
   exclude: Object.freeze([]),
@@ -44,61 +31,6 @@ const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.free
     maxTargetReads: 1_000
   })
 });
-
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({
-      ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
-    })
-});
-
-function project(root: string): CheckProjectContext {
-  return Object.freeze({
-    flags: Object.freeze([]),
-    root
-  });
-}
-
-async function execute(
-  callback: CheckExecution<ResolvedMarkdownLinkValidationOptions>,
-  options: ResolvedMarkdownLinkValidationOptions,
-  root: string,
-  files: ProjectFileSelection = FILES,
-  signal: AbortSignal = new AbortController().signal
-): Promise<
-  Readonly<{
-    readonly records: readonly ReportedRecord[];
-    readonly result: CheckResult;
-  }>
-> {
-  const records: ReportedRecord[] = [];
-  const executionOptions: ResolvedMarkdownLinkValidationOptions = Object.freeze({
-    ...options,
-    files
-  });
-  const context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions> = Object.freeze({
-    dependencies: NO_DEPENDENCIES,
-    options: executionOptions,
-    project: project(root),
-    records: Object.freeze({
-      report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
-        records.push(Object.freeze({ data, identity }));
-      }
-    }),
-    signal
-  });
-  const result = await callback(context);
-  return Object.freeze({
-    records: Object.freeze(records),
-    result
-  });
-}
-
-interface ReportedRecord {
-  readonly data: object;
-  readonly identity: Readonly<{ readonly id: string }>;
-}
 
 function createRoot(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));

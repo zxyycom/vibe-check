@@ -132,15 +132,22 @@ function parseLizardMetricValues(parts: string[]): LizardMetricValues | null {
 }
 
 function compareFunctionMetrics(a: FunctionMetric, b: FunctionMetric): number {
-  return (
-    compareText(a.file, b.file) ||
-    a.startLine - b.startLine ||
-    a.endLine - b.endLine ||
-    compareText(a.name, b.name) ||
-    a.lines - b.lines ||
-    (a.cyclomaticComplexity.value ?? -1) - (b.cyclomaticComplexity.value ?? -1) ||
+  for (const comparison of functionMetricComparisons(a, b)) {
+    if (comparison !== 0) return comparison;
+  }
+  return 0;
+}
+
+function functionMetricComparisons(a: FunctionMetric, b: FunctionMetric): readonly number[] {
+  return [
+    compareText(a.file, b.file),
+    a.startLine - b.startLine,
+    a.endLine - b.endLine,
+    compareText(a.name, b.name),
+    a.lines - b.lines,
+    (a.cyclomaticComplexity.value ?? -1) - (b.cyclomaticComplexity.value ?? -1),
     a.parameterCount - b.parameterCount
-  );
+  ];
 }
 
 function compareText(left: string, right: string): number {

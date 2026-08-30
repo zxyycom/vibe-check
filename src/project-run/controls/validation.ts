@@ -1,9 +1,14 @@
+import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
 import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
 import type { RunControlDiagnostic, RunControlValidationResult } from "./validation-result.ts";
 import type { CheckAggregation, RunControls } from "./contract.ts";
 
 const RUN_CONTROL_KEYS = ["checkAggregation", "outputs", "flags", "projectRoot", "signal"] as const;
+const CHECK_AGGREGATION_MODES = ["all", "any"] as const;
+const UNAVAILABLE_HANDLING = ["propagate", "fail", "exclude"] as const;
+const NOT_APPLICABLE_HANDLING = ["exclude", "pass", "fail"] as const;
+const EMPTY_AGGREGATION_RESULTS = ["passed", "failed", "not-applicable"] as const;
 
 export function validateRunControls(value: unknown = {}): RunControlValidationResult<RunControls> {
   try {
@@ -85,61 +90,45 @@ function parseOptionalCheckAggregation(
   if (data === undefined) return invalidControls("controls.checkAggregation");
   const checks = data.checks === "all" ? "all" : parseClosedCheckIds(data.checks);
   if (checks === undefined) return invalidControls("controls.checkAggregation.checks");
+  const mode = parseLiteral(data.mode, CHECK_AGGREGATION_MODES);
+  const unavailable = parseLiteral(data.unavailable, UNAVAILABLE_HANDLING);
+  const notApplicable = parseLiteral(data.notApplicable, NOT_APPLICABLE_HANDLING);
+  const empty = parseLiteral(data.empty, EMPTY_AGGREGATION_RESULTS);
   if (
-    (data.mode !== "all" && data.mode !== "any") ||
-    (data.unavailable !== "propagate" &&
-      data.unavailable !== "fail" &&
-      data.unavailable !== "exclude") ||
-    (data.notApplicable !== "exclude" &&
-      data.notApplicable !== "pass" &&
-      data.notApplicable !== "fail") ||
-    (data.empty !== "passed" && data.empty !== "failed" && data.empty !== "not-applicable")
+    mode === undefined ||
+    unavailable === undefined ||
+    notApplicable === undefined ||
+    empty === undefined
   )
     return invalidControls("controls.checkAggregation");
   return Object.freeze({
     ok: true,
     value: Object.freeze({
       checks,
-      mode: data.mode,
-      unavailable: data.unavailable,
-      notApplicable: data.notApplicable,
-      empty: data.empty
+      mode,
+      unavailable,
+      notApplicable,
+      empty
     })
   });
 }
 
 function parseClosedCheckIds(value: unknown): readonly string[] | undefined {
-  if (!isUnknownArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return undefined;
-  const keys = Reflect.ownKeys(value);
-  const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
-  const length = lengthDescriptor?.value as unknown;
-  if (
-    lengthDescriptor === undefined ||
-    lengthDescriptor.get !== undefined ||
-    lengthDescriptor.set !== undefined ||
-    lengthDescriptor.enumerable ||
-    typeof length !== "number" ||
-    !Number.isSafeInteger(length) ||
-    length < 0 ||
-    keys.length !== length + 1 ||
-    !keys.includes("length")
-  )
-    return undefined;
+  const values = snapshotClosedArray(value);
+  if (values === undefined) return undefined;
   const checkIds: string[] = [];
-  for (let index = 0; index < length; index += 1) {
-    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
-    if (
-      descriptor === undefined ||
-      descriptor.get !== undefined ||
-      descriptor.set !== undefined ||
-      descriptor.enumerable !== true
-    )
-      return undefined;
-    const checkId = descriptor.value as unknown;
+  for (const checkId of values) {
     if (typeof checkId !== "string" || checkId.length === 0) return undefined;
     checkIds.push(checkId);
   }
   return Object.freeze(checkIds);
+}
+
+function parseLiteral<Value extends string>(
+  value: unknown,
+  allowed: readonly Value[]
+): Value | undefined {
+  return typeof value === "string" ? allowed.find((option) => option === value) : undefined;
 }
 
 function isRunControlKey(value: string): boolean {

@@ -35,19 +35,30 @@ export function validMarkdownLinkValidationOptions(
     "requireNonEmptyDirectories",
     "limits"
   ]);
+  return options !== undefined && validOptionFields(options);
+}
+
+function validOptionFields(options: Readonly<Record<string, unknown>>): boolean {
   return (
-    options !== undefined &&
     validProjectFileSelection(options.files) &&
     validFindingPolicy(options.findingPolicy) &&
+    validAnchorValidationOptions(options) &&
+    validMarkdownLinkLimits(options.limits)
+  );
+}
+
+function validAnchorValidationOptions(options: Readonly<Record<string, unknown>>): boolean {
+  return (
     typeof options.requireExistingTargets === "boolean" &&
     typeof options.validateSameDocumentAnchors === "boolean" &&
     typeof options.validateCrossDocumentAnchors === "boolean" &&
-    (options.rootExternalTargetMode === "ignore" ||
-      options.rootExternalTargetMode === "report" ||
-      options.rootExternalTargetMode === "validate") &&
-    typeof options.requireNonEmptyDirectories === "boolean" &&
-    validMarkdownLinkLimits(options.limits)
+    validRootExternalTargetMode(options.rootExternalTargetMode) &&
+    typeof options.requireNonEmptyDirectories === "boolean"
   );
+}
+
+function validRootExternalTargetMode(value: unknown): boolean {
+  return value === "ignore" || value === "report" || value === "validate";
 }
 
 function validMarkdownLinkLimits(value: unknown): boolean {

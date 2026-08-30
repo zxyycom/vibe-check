@@ -81,35 +81,10 @@ export function parseProjectGatePreparedCandidateData(
 function parsePreparedCandidateIdentity(
   value: Readonly<Record<string, unknown>>
 ): ProjectGatePreparedCandidateIdentity {
-  if (
-    value.schemaVersion !== PREPARED_CANDIDATE_DATA_VERSION ||
-    !nonEmptyString(value.artifactPath) ||
-    !nonEmptyString(value.candidateVersion) ||
-    !nonEmptyString(value.consumerDirectory) ||
-    !nonEmptyString(value.installedPackageDirectory) ||
-    !nonEmptyString(value.resolvedEntryPath) ||
-    !nonEmptyString(value.stagingDirectory)
-  ) {
-    throw new TypeError("prepared candidate data has an invalid shape");
-  }
-  if (
-    !isStringArray(value.files) ||
-    value.files.length === 0 ||
-    value.files.some((file) => file.length === 0) ||
-    new Set(value.files).size !== value.files.length ||
-    !isSha256Digest(value.inputFingerprint) ||
-    !isSha256Digest(value.sha256)
-  ) {
-    throw new TypeError("prepared candidate data has an invalid shape");
-  }
-  const absolutePaths = [
-    value.artifactPath,
-    value.consumerDirectory,
-    value.installedPackageDirectory,
-    value.resolvedEntryPath,
-    value.stagingDirectory
-  ];
-  if (absolutePaths.some((candidatePath) => !isAbsolute(candidatePath))) {
+  assertPreparedCandidateIdentityScalars(value);
+  const files = parsePreparedCandidateFiles(value.files);
+  const paths = preparedCandidatePaths(value);
+  if (paths.some((candidatePath) => !isAbsolute(candidatePath))) {
     throw new TypeError("prepared candidate path must be absolute");
   }
   if (
@@ -122,7 +97,7 @@ function parsePreparedCandidateIdentity(
     artifactPath: value.artifactPath,
     candidateVersion: value.candidateVersion,
     consumerDirectory: value.consumerDirectory,
-    files: Object.freeze([...value.files]),
+    files,
     inputFingerprint: value.inputFingerprint,
     installedPackageDirectory: value.installedPackageDirectory,
     resolvedEntryPath: value.resolvedEntryPath,
@@ -130,6 +105,65 @@ function parsePreparedCandidateIdentity(
     sha256: value.sha256,
     stagingDirectory: value.stagingDirectory
   });
+}
+
+function assertPreparedCandidateIdentityScalars(
+  value: Readonly<Record<string, unknown>>
+): asserts value is Readonly<{
+  readonly artifactPath: string;
+  readonly candidateVersion: string;
+  readonly consumerDirectory: string;
+  readonly files: unknown;
+  readonly inputFingerprint: string;
+  readonly installedPackageDirectory: string;
+  readonly resolvedEntryPath: string;
+  readonly schemaVersion: typeof PREPARED_CANDIDATE_DATA_VERSION;
+  readonly sha256: string;
+  readonly stagingDirectory: string;
+}> {
+  if (
+    value.schemaVersion !== PREPARED_CANDIDATE_DATA_VERSION ||
+    !nonEmptyString(value.artifactPath) ||
+    !nonEmptyString(value.candidateVersion) ||
+    !nonEmptyString(value.consumerDirectory) ||
+    !nonEmptyString(value.installedPackageDirectory) ||
+    !nonEmptyString(value.resolvedEntryPath) ||
+    !nonEmptyString(value.stagingDirectory) ||
+    !isSha256Digest(value.inputFingerprint) ||
+    !isSha256Digest(value.sha256)
+  ) {
+    throw new TypeError("prepared candidate data has an invalid shape");
+  }
+}
+
+function parsePreparedCandidateFiles(value: unknown): readonly string[] {
+  if (
+    !isStringArray(value) ||
+    value.length === 0 ||
+    value.some((file) => file.length === 0) ||
+    new Set(value).size !== value.length
+  ) {
+    throw new TypeError("prepared candidate data has an invalid shape");
+  }
+  return Object.freeze([...value]);
+}
+
+function preparedCandidatePaths(
+  value: Readonly<{
+    readonly artifactPath: string;
+    readonly consumerDirectory: string;
+    readonly installedPackageDirectory: string;
+    readonly resolvedEntryPath: string;
+    readonly stagingDirectory: string;
+  }>
+): readonly string[] {
+  return [
+    value.artifactPath,
+    value.consumerDirectory,
+    value.installedPackageDirectory,
+    value.resolvedEntryPath,
+    value.stagingDirectory
+  ];
 }
 
 function parseCandidatePreparationFact(

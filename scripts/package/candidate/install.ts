@@ -1,22 +1,21 @@
 import { existsSync, readFileSync, rmSync } from "node:fs";
+
+import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import { dirname, join, resolve } from "node:path";
+import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import { fileURLToPath } from "node:url";
 
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { assertJSDocExamplePayloads } from "../package-material-audit.ts";
-import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
-import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import {
   AJV_PACKAGE_NAME,
   CANDIDATE_DEPENDENCIES,
   CANDIDATE_NAME,
   JSCPD_BIN_NAME,
-  JSCPD_PACKAGE_NAME,
-  PACKAGE_TYPES_DIRECTORY
+  JSCPD_PACKAGE_NAME
 } from "../package-contract.ts";
-import { collectFilePaths } from "../file-inventory.ts";
 import {
   isAcceptedPackageDependencyVersion,
   packageDependencyVersionRequirementText,
@@ -101,20 +100,51 @@ function verifyInstallation(input: {
   const expectedDocuments = input.expectedDocuments ?? [];
   const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
   const packageDirectory = join(consumerDirectory, "node_modules", CANDIDATE_NAME);
+  assertInstalledCandidateManifest(packageDirectory, candidateVersion);
+  const resolvedEntryPath = resolveInstalledCandidateEntry(consumerDirectory, packageDirectory);
+  assertInstalledCandidateMaterials({
+    packageDirectory,
+    expectedDocuments,
+    expectedMachineMaterials,
+    expectedJSDocExamplePayloads,
+    expectedReadme
+  });
+  verifyCandidateJscpdDependency(consumerDirectory, resolvedEntryPath);
+  verifyCandidateDependency({
+    candidateEntryPath: resolvedEntryPath,
+    consumerDirectory,
+    packageName: AJV_PACKAGE_NAME,
+    versionRequirement: { kind: "exact", version: CANDIDATE_DEPENDENCIES.ajv }
+  });
+  return Object.freeze({
+    installedPackageDirectory: packageDirectory,
+    resolvedEntryPath,
+    resolvedEntrySha256: sha256File(resolvedEntryPath)
+  });
+}
+
+function assertInstalledCandidateManifest(
+  packageDirectory: string,
+  candidateVersion: string
+): void {
   const manifestPath = join(packageDirectory, "package.json");
-  if (!existsSync(manifestPath)) {
+  if (!existsSync(manifestPath))
     throw new Error(`installed candidate package manifest is missing: ${manifestPath}`);
-  }
   const manifest = readJsonFile(manifestPath, "installed candidate package manifest");
   if (
     !isNonArrayRecord(manifest) ||
     manifest.name !== CANDIDATE_NAME ||
     manifest.version !== candidateVersion
-  ) {
+  )
     throw new Error(
       `installed candidate package manifest must declare ${CANDIDATE_NAME}@${candidateVersion}: ${manifestPath}`
     );
-  }
+}
+
+function resolveInstalledCandidateEntry(
+  consumerDirectory: string,
+  packageDirectory: string
+): string {
   const resolvedUrl = runBun({
     args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", CANDIDATE_NAME],
     cwd: consumerDirectory,
@@ -129,71 +159,11 @@ function verifyInstallation(input: {
       { cause: error }
     );
   }
-  if (!existsSync(resolvedEntryPath)) {
+  if (!existsSync(resolvedEntryPath))
     throw new Error(`candidate entry resolved to a missing path: ${resolvedEntryPath}`);
-  }
-  if (!isPathWithin(packageDirectory, resolvedEntryPath)) {
+  if (!isPathWithin(packageDirectory, resolvedEntryPath))
     throw new Error(`candidate entry resolved outside its installed package: ${resolvedEntryPath}`);
-  }
-  const readmePath = join(packageDirectory, "README.md");
-  if (!existsSync(readmePath)) {
-    throw new Error(`installed candidate README is missing: ${readmePath}`);
-  }
-  let readme: string;
-  try {
-    readme = readFileSync(readmePath, "utf8");
-  } catch (error: unknown) {
-    throw new Error(
-      `could not read installed candidate README ${readmePath}: ${errorMessage(error)}`,
-      { cause: error }
-    );
-  }
-  if (readme !== expectedReadme) {
-    throw new Error(
-      `installed candidate README differs from the expected package documentation: ${readmePath}`
-    );
-  }
-  for (const document of expectedDocuments) {
-    const documentationPath = join(packageDirectory, document.packagePath);
-    if (
-      !existsSync(documentationPath) ||
-      readFileSync(documentationPath, "utf8") !== document.content
-    ) {
-      throw new Error(`installed candidate package documentation differs: ${documentationPath}`);
-    }
-  }
-  for (const material of expectedMachineMaterials) {
-    const materialPath = join(packageDirectory, material.packagePath);
-    if (!existsSync(materialPath) || !readFileSync(materialPath).equals(material.content)) {
-      throw new Error(`installed candidate machine material differs: ${materialPath}`);
-    }
-  }
-  try {
-    assertJSDocExamplePayloads({
-      declarationSources: collectFilePaths(
-        join(packageDirectory, PACKAGE_TYPES_DIRECTORY),
-        (path) => path.endsWith(".d.ts")
-      ).map((path) => readFileSync(path, "utf8")),
-      description: "installed candidate declarations",
-      expectedPayloads: expectedJSDocExamplePayloads
-    });
-  } catch (error: unknown) {
-    throw new Error(`installed candidate declaration validation failed: ${errorMessage(error)}`, {
-      cause: error
-    });
-  }
-  verifyCandidateJscpdDependency(consumerDirectory, resolvedEntryPath);
-  verifyCandidateDependency({
-    candidateEntryPath: resolvedEntryPath,
-    consumerDirectory,
-    packageName: AJV_PACKAGE_NAME,
-    versionRequirement: { kind: "exact", version: CANDIDATE_DEPENDENCIES.ajv }
-  });
-  return Object.freeze({
-    installedPackageDirectory: packageDirectory,
-    resolvedEntryPath,
-    resolvedEntrySha256: sha256File(resolvedEntryPath)
-  });
+  return resolvedEntryPath;
 }
 
 function assertPrivateCandidateConsumer(consumerDirectory: string): void {

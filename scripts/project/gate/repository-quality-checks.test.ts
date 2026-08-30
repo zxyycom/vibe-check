@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { isAbsolute } from "node:path";
 import { describe, it } from "node:test";
+import { minimatch } from "minimatch";
 
 import {
   createRepositoryQualityChecks,
@@ -36,6 +37,28 @@ describe("repository quality Checks", () => {
       "non-blocking"
     );
     assert.equal(duplicateDetection.options.codeAreas["script-tests"]?.minimumTokens, 100);
+    const schemasExamples = fileMetrics.options.codeAreas["schemas-examples"];
+    assert.ok(schemasExamples);
+    assert.deepEqual(schemasExamples.files.include, ["docs/schemas/**", "docs/examples/**"]);
+    assert.equal(
+      selectsPath(schemasExamples.files, "docs/schemas/historical/v2/vibe-check-run.schema.json"),
+      false
+    );
+    assert.equal(
+      selectsPath(
+        schemasExamples.files,
+        "docs/schemas/historical/v2/vibe-check-record.schema.json"
+      ),
+      true
+    );
+    assert.equal(
+      selectsPath(schemasExamples.files, "docs/schemas/vibe-check-run.schema.json"),
+      true
+    );
+    assert.equal(
+      selectsPath(schemasExamples.files, "docs/schemas/vibe-check-record.schema.json"),
+      true
+    );
     for (const area of Object.values(fileMetrics.options.codeAreas)) {
       assert.deepEqual(area.codeLines, {
         lowDecisionTokenAllowance: {
@@ -75,3 +98,13 @@ describe("repository quality Checks", () => {
     assert.notEqual(checks[2].options.scanner.executable, "lizard");
   });
 });
+
+function selectsPath(
+  files: Readonly<{ readonly exclude: readonly string[]; readonly include: readonly string[] }>,
+  path: string
+): boolean {
+  return (
+    files.include.some((glob) => minimatch(path, glob, { dot: true })) &&
+    !files.exclude.some((glob) => minimatch(path, glob, { dot: true }))
+  );
+}

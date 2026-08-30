@@ -14,6 +14,7 @@ const unavailableScannerDirectory = resolve(
   "vibe-check",
   "unavailable-repository-quality-scanner"
 );
+const bytePreservedHistoricalV2RunSchema = "docs/schemas/historical/v2/vibe-check-run.schema.json";
 
 const repositoryFiles = {
   exclude: [
@@ -94,6 +95,7 @@ const fileMetricCodeAreas = {
     codeLines: repositoryFileCodeLines,
     files: {
       ...areaFileDefaults,
+      exclude: [...areaFileDefaults.exclude, bytePreservedHistoricalV2RunSchema],
       include: ["docs/schemas/**", "docs/examples/**"]
     }
   },

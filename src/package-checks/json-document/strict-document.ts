@@ -160,29 +160,44 @@ function toStrictJsonValue(node: ValueNode): StrictJsonValue {
     case "String":
       return node.value;
     case "Array":
-      return Object.freeze(node.elements.map((element) => toStrictJsonValue(element.value)));
-    case "Object": {
-      const strictObject: Record<string, StrictJsonValue> = {};
-      Object.setPrototypeOf(strictObject, null);
-      for (const member of node.members) {
-        if (member.name.type !== "String") {
-          throw new TypeError("strict JSON object member must be a string");
-        }
-        Object.defineProperty(strictObject, member.name.value, {
-          configurable: false,
-          enumerable: true,
-          value: toStrictJsonValue(member.value),
-          writable: false
-        });
-      }
-      return Object.freeze(strictObject);
-    }
+      return strictJsonArray(node);
+    case "Object":
+      return strictJsonObject(node);
     case "Infinity":
     case "NaN":
       throw new TypeError("strict JSON value node must not be a non-finite number");
     default:
       throw new TypeError("strict JSON value node must be a standard JSON node");
   }
+}
+
+function strictJsonArray(node: Extract<ValueNode, { type: "Array" }>): StrictJsonArray {
+  return Object.freeze(node.elements.map((element) => toStrictJsonValue(element.value)));
+}
+
+function strictJsonObject(node: Extract<ValueNode, { type: "Object" }>): StrictJsonObject {
+  const strictObject: Record<string, StrictJsonValue> = {};
+  Object.setPrototypeOf(strictObject, null);
+  for (const member of node.members) {
+    defineStrictJsonProperty(strictObject, member.name, member.value);
+  }
+  return Object.freeze(strictObject);
+}
+
+function defineStrictJsonProperty(
+  target: Record<string, StrictJsonValue>,
+  name: { readonly type: string; readonly value?: string },
+  value: ValueNode
+): void {
+  if (name.type !== "String" || name.value === undefined) {
+    throw new TypeError("strict JSON object member must be a string");
+  }
+  Object.defineProperty(target, name.value, {
+    configurable: false,
+    enumerable: true,
+    value: toStrictJsonValue(value),
+    writable: false
+  });
 }
 
 function issue(reason: JsonDocumentIssue): StrictJsonDocumentResult {

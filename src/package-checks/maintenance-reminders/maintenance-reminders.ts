@@ -1,46 +1,33 @@
-import { spawn } from "node:child_process";
-
 import {
   defineCheck,
   type CheckExecutionContext,
-  type CheckMessage,
   type CheckResult,
   type TypedCheckWithOptions
 } from "../../check/check.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import {
-  isMaintenanceCommitId,
-  isMaintenanceReminderId,
   MAINTENANCE_REMINDER_UNAVAILABLE_REASON,
   parseMaintenanceRemindersData,
   type MaintenanceReminderAssessment,
-  type MaintenanceReminderMode,
-  type MaintenanceReminderUnavailableReason,
-  type MaintenanceRemindersFinalData,
-  type UnavailableMaintenanceReminderAssessment
+  type MaintenanceRemindersFinalData
 } from "./final-data.ts";
+import { runGit } from "./maintenance-support.ts";
+import { exactRecord, validEntries, validGit } from "./options-validation.ts";
+import {
+  completedResult,
+  reminderEvaluation,
+  unavailableAssessment,
+  unavailableHistory,
+  unavailableResult
+} from "./assessment-results.ts";
+import { measureReminder, parseCommitId, parseFirstParentHistory } from "./measurement.ts";
 
 export const MAINTENANCE_REMINDERS_CHECK_ID = "maintenance-reminders";
 
-const MAX_GIT_OUTPUT_BYTES = 64 * 1024 * 1024;
 const MAINTENANCE_REMINDER_OPTION_KEYS: readonly string[] = ["entries", "git"];
-const MAINTENANCE_REMINDER_ENTRY_KEYS: readonly string[] = [
-  "id",
-  "baseCommit",
-  "limits",
-  "message",
-  "mode"
-];
-const MAINTENANCE_REMINDER_LIMIT_KEYS: readonly string[] = ["commits", "changedLines"];
-const MAINTENANCE_REMINDER_GIT_KEYS: readonly string[] = ["executable"];
 const WHOLE_CHECK_UNAVAILABLE_CODE = Object.freeze({
   invalidOptions: "invalid-options",
   executionCancelled: "execution-cancelled",
   internalFailure: "maintenance-reminders-internal-failure"
-});
-const REMINDER_MESSAGE_CODE = Object.freeze({
-  due: "maintenance-reminder-due",
-  unavailable: "maintenance-reminder-unavailable"
 });
 
 /** 一项维护提醒的项目政策输入。 */
@@ -75,33 +62,33 @@ export interface MaintenanceReminderOptions {
 /** `maintenance-reminders` whole-Check unavailable outcome 的稳定 reason code。 */
 export type MaintenanceRemindersUnavailableCode =
   (typeof WHOLE_CHECK_UNAVAILABLE_CODE)[keyof typeof WHOLE_CHECK_UNAVAILABLE_CODE];
-type FirstParentHistoryUnavailableReason =
+export type FirstParentHistoryUnavailableReason =
   | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryInvalid
   | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.firstParentHistoryUnavailable
   | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headInvalid
   | typeof MAINTENANCE_REMINDER_UNAVAILABLE_REASON.headUnavailable;
 
-type ReminderEvaluation = Readonly<{
+export type ReminderEvaluation = Readonly<{
   readonly assessment: MaintenanceReminderAssessment;
   readonly message: string;
 }>;
 
-type GitCommandResult =
+export type GitCommandResult =
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "failed" }>
   | Readonly<{ readonly kind: "succeeded"; readonly stdout: string }>;
 
-type FirstParentHistory = Readonly<{
+export type FirstParentHistory = Readonly<{
   readonly commits: readonly string[];
   readonly headCommit: string;
 }>;
 
-type FirstParentHistoryResolution =
+export type FirstParentHistoryResolution =
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "unavailable"; readonly reason: FirstParentHistoryUnavailableReason }>
   | Readonly<{ readonly kind: "succeeded"; readonly value: FirstParentHistory }>;
 
-type ReminderMeasurement =
+export type ReminderMeasurement =
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "succeeded"; readonly value: ReminderEvaluation }>;
 
@@ -274,366 +261,4 @@ async function resolveFirstParentHistory(input: {
     kind: "succeeded",
     value: firstParentHistory
   };
-}
-
-async function measureReminder(input: {
-  readonly entry: Readonly<MaintenanceReminder>;
-  readonly executable: string;
-  readonly history: FirstParentHistory;
-  readonly projectRoot: string;
-  readonly signal: AbortSignal;
-}): Promise<ReminderMeasurement> {
-  const base = await runGit({
-    args: ["rev-parse", "--verify", `${input.entry.baseCommit}^{commit}`],
-    executable: input.executable,
-    projectRoot: input.projectRoot,
-    signal: input.signal
-  });
-  if (base.kind === "cancelled") return base;
-  if (base.kind === "failed")
-    return completedMeasurement(
-      input.entry,
-      unavailableAssessment(
-        input.entry,
-        input.history.headCommit,
-        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseCommitUnavailable
-      )
-    );
-
-  const baseCommit = parseCommitId(base.stdout);
-  if (baseCommit === null) {
-    return completedMeasurement(
-      input.entry,
-      unavailableAssessment(
-        input.entry,
-        input.history.headCommit,
-        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseCommitUnavailable
-      )
-    );
-  }
-
-  const baseIndex = input.history.commits.indexOf(baseCommit);
-  if (baseIndex < 0) {
-    return completedMeasurement(
-      input.entry,
-      unavailableAssessment(
-        input.entry,
-        input.history.headCommit,
-        MAINTENANCE_REMINDER_UNAVAILABLE_REASON.baseNotFirstParentAncestor
-      )
-    );
-  }
-
-  let changedLines = 0;
-  for (const commit of input.history.commits.slice(0, baseIndex)) {
-    const numstat = await runGit({
-      args: ["diff-tree", "--no-commit-id", "--numstat", "-r", `${commit}^`, commit],
-      executable: input.executable,
-      projectRoot: input.projectRoot,
-      signal: input.signal
-    });
-    if (numstat.kind === "cancelled") return numstat;
-    if (numstat.kind === "failed") {
-      return completedMeasurement(
-        input.entry,
-        unavailableAssessment(
-          input.entry,
-          input.history.headCommit,
-          MAINTENANCE_REMINDER_UNAVAILABLE_REASON.numstatUnavailable
-        )
-      );
-    }
-    const count = parseChangedLines(numstat.stdout);
-    if (count === null || !Number.isSafeInteger(changedLines + count)) {
-      return completedMeasurement(
-        input.entry,
-        unavailableAssessment(
-          input.entry,
-          input.history.headCommit,
-          MAINTENANCE_REMINDER_UNAVAILABLE_REASON.numstatInvalid
-        )
-      );
-    }
-    changedLines += count;
-  }
-
-  const mode = modeOf(input.entry);
-  const exceeded = [
-    ...(input.entry.limits.commits !== undefined && baseIndex > input.entry.limits.commits
-      ? (["commits"] as const)
-      : []),
-    ...(input.entry.limits.changedLines !== undefined &&
-    changedLines > input.entry.limits.changedLines
-      ? (["changed-lines"] as const)
-      : [])
-  ];
-  return completedMeasurement(input.entry, {
-    assessment: exceeded.length > 0 ? "due" : "clear",
-    baseCommit: input.entry.baseCommit,
-    changedLines,
-    commitCount: baseIndex,
-    exceeded,
-    headCommit: input.history.headCommit,
-    id: input.entry.id,
-    mode
-  });
-}
-
-function completedResult(
-  evaluations: readonly ReminderEvaluation[]
-): CheckResult<MaintenanceRemindersFinalData> {
-  const assessments = evaluations.map((evaluation) => evaluation.assessment);
-  const messages = evaluations.flatMap(messageForEvaluation);
-  const failed = evaluations.some(
-    (evaluation) =>
-      evaluation.assessment.mode === "enforcing" && evaluation.assessment.assessment !== "clear"
-  );
-  return {
-    status: failed ? ("failed" as const) : ("passed" as const),
-    data: { entries: assessments },
-    ...(messages.length === 0 ? {} : { messages })
-  };
-}
-
-function unavailableResult(
-  code: MaintenanceRemindersUnavailableCode
-): CheckResult<MaintenanceRemindersFinalData> {
-  return {
-    status: "unavailable" as const,
-    reason: { code },
-    messages: [{ code, level: "error", message: wholeCheckUnavailableMessage(code) }]
-  };
-}
-
-function wholeCheckUnavailableMessage(code: MaintenanceRemindersUnavailableCode): string {
-  switch (code) {
-    case "invalid-options":
-      return "maintenanceReminders options are invalid; recreate the Check with maintenanceReminders(entries) or restore its complete resolved options.";
-    case "execution-cancelled":
-      return "Maintenance reminder evaluation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
-    case "maintenance-reminders-internal-failure":
-      return "Maintenance reminders could not form a complete ordered assessment; check package/runtime integrity and retry.";
-  }
-}
-
-function messageForEvaluation(evaluation: ReminderEvaluation): readonly CheckMessage[] {
-  const { assessment, message } = evaluation;
-  if (assessment.assessment === "clear") return [];
-  const level = assessment.mode === "enforcing" ? ("error" as const) : ("warning" as const);
-  const suffix = assessment.assessment === "unavailable" ? ` (${assessment.reason})` : "";
-  return [
-    {
-      code:
-        assessment.assessment === "due"
-          ? REMINDER_MESSAGE_CODE.due
-          : REMINDER_MESSAGE_CODE.unavailable,
-      level,
-      message: `${assessment.id}: ${message}${suffix}`
-    }
-  ];
-}
-
-function unavailableAssessment(
-  entry: Readonly<MaintenanceReminder>,
-  headCommit: string | null,
-  reason: MaintenanceReminderUnavailableReason
-): UnavailableMaintenanceReminderAssessment {
-  return {
-    assessment: "unavailable",
-    baseCommit: entry.baseCommit,
-    changedLines: null,
-    commitCount: null,
-    exceeded: [],
-    headCommit,
-    id: entry.id,
-    mode: modeOf(entry),
-    reason
-  };
-}
-
-function modeOf(entry: Readonly<MaintenanceReminder>): MaintenanceReminderMode {
-  return entry.mode === "enforcing" ? "enforcing" : "advisory";
-}
-
-function unavailableHistory(
-  reason: FirstParentHistoryUnavailableReason
-): FirstParentHistoryResolution {
-  return { kind: "unavailable", reason };
-}
-
-function reminderEvaluation(
-  entry: Readonly<MaintenanceReminder>,
-  assessment: MaintenanceReminderAssessment
-): ReminderEvaluation {
-  return { assessment, message: entry.message };
-}
-
-function completedMeasurement(
-  entry: Readonly<MaintenanceReminder>,
-  assessment: MaintenanceReminderAssessment
-): ReminderMeasurement {
-  return { kind: "succeeded", value: reminderEvaluation(entry, assessment) };
-}
-
-function parseCommitId(stdout: string): string | null {
-  const value = stdout.trim();
-  return isMaintenanceCommitId(value) ? value.toLowerCase() : null;
-}
-
-function parseFirstParentHistory(
-  stdout: string,
-  headCommit: string
-): FirstParentHistory | undefined {
-  const commits: string[] = [];
-  for (const line of stdout.split(/\r?\n/)) {
-    if (line.trim().length === 0) continue;
-    const commit = parseCommitId(line);
-    if (commit === null) return undefined;
-    commits.push(commit);
-  }
-  if (commits.length === 0 || commits[0] !== headCommit) return undefined;
-  return Object.freeze({ commits: Object.freeze(commits), headCommit });
-}
-
-function parseChangedLines(stdout: string): number | null {
-  let changedLines = 0;
-  for (const line of stdout.split(/\r?\n/)) {
-    if (line.length === 0) continue;
-    const [additions, deletions] = line.split("\t", 3);
-    if (additions === "-" && deletions === "-") continue;
-    if (!decimal(additions) || !decimal(deletions)) return null;
-    const count = Number(additions) + Number(deletions);
-    if (!Number.isSafeInteger(count) || !Number.isSafeInteger(changedLines + count)) return null;
-    changedLines += count;
-  }
-  return changedLines;
-}
-
-async function runGit(input: {
-  readonly args: readonly string[];
-  readonly executable: string;
-  readonly projectRoot: string;
-  readonly signal: AbortSignal;
-}): Promise<GitCommandResult> {
-  if (input.signal.aborted) return { kind: "cancelled" };
-
-  return new Promise((resolve) => {
-    let settled = false;
-    let outputBytes = 0;
-    let stdout = "";
-    let overflowed = false;
-    let child: ReturnType<typeof spawn>;
-
-    const settle = (result: GitCommandResult): void => {
-      if (settled) return;
-      settled = true;
-      input.signal.removeEventListener("abort", abort);
-      resolve(result);
-    };
-    const abort = (): void => {
-      child.kill("SIGTERM");
-    };
-
-    try {
-      child = spawn(input.executable, input.args, {
-        cwd: input.projectRoot,
-        stdio: ["ignore", "pipe", "ignore"],
-        windowsHide: true
-      });
-    } catch {
-      settle({ kind: "failed" });
-      return;
-    }
-
-    input.signal.addEventListener("abort", abort, { once: true });
-    child.stdout?.on("data", (chunk: Buffer | string) => {
-      const text = String(chunk);
-      outputBytes += Buffer.byteLength(text);
-      if (outputBytes > MAX_GIT_OUTPUT_BYTES) {
-        overflowed = true;
-        child.kill("SIGTERM");
-        return;
-      }
-      stdout += text;
-    });
-    child.once("error", () =>
-      settle(input.signal.aborted ? { kind: "cancelled" } : { kind: "failed" })
-    );
-    child.once("close", (status) => {
-      if (input.signal.aborted) {
-        settle({ kind: "cancelled" });
-      } else if (overflowed || status !== 0) {
-        settle({ kind: "failed" });
-      } else {
-        settle({ kind: "succeeded", stdout });
-      }
-    });
-  });
-}
-
-function validEntries(value: unknown): boolean {
-  const entries = snapshotClosedArray(value);
-  if (entries === undefined) return false;
-  const identifiers = new Set<string>();
-  return entries.every((candidate) => {
-    const entry = snapshotClosedRecord(candidate);
-    if (entry === undefined || !validEntry(entry)) return false;
-    const identifier = entry.id;
-    if (typeof identifier !== "string" || identifiers.has(identifier)) return false;
-    identifiers.add(identifier);
-    return true;
-  });
-}
-
-function validEntry(entry: Readonly<Record<string, unknown>>): boolean {
-  return (
-    Object.keys(entry).every((key) => MAINTENANCE_REMINDER_ENTRY_KEYS.includes(key)) &&
-    Object.hasOwn(entry, "id") &&
-    Object.hasOwn(entry, "baseCommit") &&
-    Object.hasOwn(entry, "limits") &&
-    Object.hasOwn(entry, "message") &&
-    isMaintenanceReminderId(entry.id) &&
-    isMaintenanceCommitId(entry.baseCommit) &&
-    typeof entry.message === "string" &&
-    entry.message.length > 0 &&
-    validLimits(entry.limits) &&
-    (!Object.hasOwn(entry, "mode") || entry.mode === "advisory" || entry.mode === "enforcing")
-  );
-}
-
-function validGit(value: unknown): boolean {
-  const git = exactRecord(value, MAINTENANCE_REMINDER_GIT_KEYS);
-  return git !== undefined && typeof git.executable === "string" && git.executable.length > 0;
-}
-
-function validLimits(value: unknown): boolean {
-  const limits = snapshotClosedRecord(value);
-  if (limits === undefined) return false;
-  const keys = Object.keys(limits);
-  return (
-    keys.length > 0 &&
-    keys.every((key) => MAINTENANCE_REMINDER_LIMIT_KEYS.includes(key)) &&
-    (!Object.hasOwn(limits, "commits") || positiveSafeInteger(limits.commits)) &&
-    (!Object.hasOwn(limits, "changedLines") || positiveSafeInteger(limits.changedLines))
-  );
-}
-
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined &&
-    Object.keys(record).length === keys.length &&
-    keys.every((key) => Object.hasOwn(record, key))
-    ? record
-    : undefined;
-}
-
-function positiveSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-}
-
-function decimal(value: string | undefined): value is string {
-  return value !== undefined && /^(?:0|[1-9]\d*)$/.test(value);
 }

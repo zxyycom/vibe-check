@@ -24,6 +24,13 @@ import {
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 
+const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
+  "package.json",
+  PACKAGE_ENTRY_PATH,
+  PACKAGE_README_PATH,
+  PACKAGE_MOMOA_LICENSE_PATH
+]);
+
 export function auditStagingRuntime(input: {
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -45,12 +52,45 @@ export function auditStagingRuntime(input: {
     ...expectedDocuments.map((document) => document.packagePath),
     ...expectedMachineMaterials.map((material) => material.packagePath)
   ]);
-  if (!existsSync(entryPath) || !existsSync(runtimeEntryPath) || !existsSync(typesPath)) {
-    throw new Error("candidate staging is missing its public runtime entry or declarations entry");
-  }
+  assertStagingEntries(entryPath, runtimeEntryPath, typesPath);
   if (readFileSync(entryPath, "utf8") !== PACKAGE_ENTRY_SOURCE) {
     throw new Error("candidate public facade does not match the approved runtime entry");
   }
+  assertStagingPublishedMaterials({
+    expectedDocuments,
+    expectedJSDocExamplePayloads,
+    expectedMachineMaterials,
+    expectedReadme,
+    stagingDirectory
+  });
+  assertStagingRuntimeContract(stagingDirectory, runtimeEntryPath, typesPath);
+  assertStagingAllowlist(stagingDirectory, expectedPublishedMaterialPaths);
+}
+
+function assertStagingEntries(
+  entryPath: string,
+  runtimeEntryPath: string,
+  typesPath: string
+): void {
+  if (!existsSync(entryPath) || !existsSync(runtimeEntryPath) || !existsSync(typesPath)) {
+    throw new Error("candidate staging is missing its public runtime entry or declarations entry");
+  }
+}
+
+function assertStagingPublishedMaterials(input: {
+  readonly expectedDocuments: readonly PackageDocumentationFile[];
+  readonly expectedJSDocExamplePayloads: readonly string[];
+  readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
+  readonly expectedReadme: string;
+  readonly stagingDirectory: string;
+}): void {
+  const {
+    expectedDocuments,
+    expectedJSDocExamplePayloads,
+    expectedMachineMaterials,
+    expectedReadme,
+    stagingDirectory
+  } = input;
   assertFileContentMatches({
     content: expectedReadme,
     path: join(stagingDirectory, PACKAGE_README_PATH)
@@ -65,6 +105,13 @@ export function auditStagingRuntime(input: {
     description: "candidate staging declarations",
     expectedPayloads: expectedJSDocExamplePayloads
   });
+}
+
+function assertStagingRuntimeContract(
+  stagingDirectory: string,
+  runtimeEntryPath: string,
+  typesPath: string
+): void {
   const actualExports = declaredRuntimeExports(readFileSync(runtimeEntryPath, "utf8"));
   if (!sameOrderedStrings(actualExports, RUNTIME_EXPORTS)) {
     throw new Error(
@@ -76,27 +123,57 @@ export function auditStagingRuntime(input: {
     throw new Error("candidate declarations must not use wildcard public exports");
   }
   assertReadableRuntimeLayout(stagingDirectory);
-  const unexpectedFiles = collectFilePaths(stagingDirectory, () => true)
-    .map((filePath) => relative(stagingDirectory, filePath).split(sep).join("/"))
-    .filter(
-      (filePath) =>
-        filePath !== "package.json" &&
-        filePath !== PACKAGE_ENTRY_PATH &&
-        filePath !== PACKAGE_README_PATH &&
-        filePath !== PACKAGE_MOMOA_LICENSE_PATH &&
-        !expectedPublishedMaterialPaths.has(filePath) &&
-        !(
-          filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
-          (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
-        ) &&
-        !(filePath.startsWith(`${PACKAGE_TYPES_DIRECTORY}/`) && filePath.endsWith(".d.ts")) &&
-        !(filePath.startsWith(`${PACKAGE_SOURCE_DIRECTORY}/`) && filePath.endsWith(".ts"))
-    );
+}
+
+function assertStagingAllowlist(
+  stagingDirectory: string,
+  expectedPublishedMaterialPaths: ReadonlySet<string>
+): void {
+  const unexpectedFiles: string[] = [];
+  for (const filePath of stagingFilePaths(stagingDirectory)) {
+    if (!isAllowlistedStagingMaterial(filePath, expectedPublishedMaterialPaths)) {
+      unexpectedFiles.push(filePath);
+    }
+  }
   if (unexpectedFiles.length > 0) {
     throw new Error(
       `candidate staging contains materials outside its allowlisted runtime and declaration inventory: ${unexpectedFiles.join(", ")}`
     );
   }
+}
+
+function stagingFilePaths(stagingDirectory: string): readonly string[] {
+  return collectFilePaths(stagingDirectory, () => true).map((filePath) =>
+    relative(stagingDirectory, filePath).split(sep).join("/")
+  );
+}
+
+function isAllowlistedStagingMaterial(
+  filePath: string,
+  expectedPublishedMaterialPaths: ReadonlySet<string>
+): boolean {
+  return (
+    fixedStagingMaterialPaths.has(filePath) ||
+    expectedPublishedMaterialPaths.has(filePath) ||
+    isRuntimeStagingMaterial(filePath) ||
+    isDeclarationStagingMaterial(filePath) ||
+    isPackageSourceMaterial(filePath)
+  );
+}
+
+function isRuntimeStagingMaterial(filePath: string): boolean {
+  return (
+    filePath.startsWith(`${PACKAGE_RUNTIME_DIRECTORY}/`) &&
+    (filePath.endsWith(".mjs") || filePath.endsWith(".mjs.map"))
+  );
+}
+
+function isDeclarationStagingMaterial(filePath: string): boolean {
+  return filePath.startsWith(`${PACKAGE_TYPES_DIRECTORY}/`) && filePath.endsWith(".d.ts");
+}
+
+function isPackageSourceMaterial(filePath: string): boolean {
+  return filePath.startsWith(`${PACKAGE_SOURCE_DIRECTORY}/`) && filePath.endsWith(".ts");
 }
 
 function assertPackageMachineMaterials(

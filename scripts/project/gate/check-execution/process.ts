@@ -1,11 +1,24 @@
-import { mkdirSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
-
 import { errorMessage } from "../../../error-message.ts";
 import { writeTextFile } from "../../../repository-files/files.ts";
 import { runProcess, type ProcessResult } from "../../../process-execution/execution.ts";
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import { defineCheck, type Check, type CheckExecutionContext, type CheckResult } from "vibe-check";
+import {
+  defineCheck,
+  type Check,
+  type CheckExecutionContext,
+  type CheckPreflight,
+  type CheckResult
+} from "vibe-check";
+
+import {
+  failedProcessResult,
+  formatTimeout,
+  processTranscriptPath,
+  processTranscriptReference,
+  writeProcessStartupTranscript,
+  writeProcessTranscript
+} from "./transcript.ts";
+import { validProcessCheckDescriptor, validProcessEnvironment } from "./process-descriptor.ts";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   dependencyDataInvalid: "dependency-data-invalid",
@@ -50,31 +63,34 @@ export interface ProcessCheckDescriptor {
   readonly timeoutMs?: number;
 }
 
-export interface ProcessTranscriptStep {
-  readonly definition: Pick<ProcessCheckDescriptor, "args" | "command">;
-  readonly label: string;
-  readonly result: ProcessResult;
-}
+export type { ProcessTranscriptStep } from "./transcript.ts";
+export {
+  failedProcessResult,
+  processTranscriptReference,
+  writeProcessTranscript
+} from "./transcript.ts";
 
 const defaultProcessCheckDependencies: ProcessCheckDependencies = Object.freeze({
   runProcess,
   writeTextFile
 });
 
+const prepareProcessDescriptor: CheckPreflight<ProcessCheckDescriptor> = (options) =>
+  validProcessCheckDescriptor(options)
+    ? { status: "success", preparedOptions: options }
+    : { status: "failure", action: "block", reason: { code: "invalid-options" } };
+
 /** Creates an ordinary Check that owns an external process and its transcript. */
 export function createProcessCheck(
   definition: ProcessCheckDescriptor,
   invocationLogDirectory: string,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
-): Check {
+) {
   return defineCheck<string, ProcessCheckDescriptor>({
     checkId: definition.checkId,
     displayName: definition.displayName,
     options: definition,
-    preflight: (options) =>
-      validProcessCheckDescriptor(options)
-        ? { status: "success", preparedOptions: options }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+    preflight: prepareProcessDescriptor,
     execution: async (context): Promise<CheckResult> =>
       executeProcessCheck(context, invocationLogDirectory, dependencies)
   });
@@ -87,16 +103,15 @@ export function createProcessCheckWithDataDependency<Data extends object>(
   dependency: ProcessCheckDataDependency<Data>,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
 ): Check {
-  return defineCheck<string, ProcessCheckDescriptor>({
+  const check = {
     checkId: definition.checkId,
     dependsOn: [dependency.checkId],
     displayName: definition.displayName,
     options: definition,
-    preflight: (options) =>
-      validProcessCheckDescriptor(options)
-        ? { status: "success", preparedOptions: options }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
-    execution: async (context): Promise<CheckResult> => {
+    preflight: prepareProcessDescriptor,
+    execution: async (
+      context: CheckExecutionContext<ProcessCheckDescriptor>
+    ): Promise<CheckResult> => {
       const resolved = resolveDependencyProcessOptions(context, dependency);
       if (resolved.kind === "unavailable") return unavailable(resolved.code);
       return executeProcessCheck(
@@ -105,7 +120,8 @@ export function createProcessCheckWithDataDependency<Data extends object>(
         dependencies
       );
     }
-  });
+  } as const;
+  return defineCheck<string, ProcessCheckDescriptor>(check);
 }
 
 /** Creates a dependency-backed process provider with closed typed stdout data. */
@@ -118,18 +134,17 @@ export function createProcessCheckWithDataDependencyAndSuccessData<
   dependency: ProcessCheckDataDependency<DependencyData>,
   successData: ProcessCheckSuccessData<SuccessData, DependencyData>,
   dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
-) {
-  return defineCheck({
+): Check {
+  const check = {
     checkId: definition.checkId,
     dependsOn: [dependency.checkId],
     displayName: definition.displayName,
     options: definition,
     parseData: successData.parseData,
-    preflight: (options) =>
-      validProcessCheckDescriptor(options)
-        ? { status: "success", preparedOptions: options }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
-    execution: async (context): Promise<CheckResult<SuccessData>> => {
+    preflight: prepareProcessDescriptor,
+    execution: async (
+      context: CheckExecutionContext<ProcessCheckDescriptor>
+    ): Promise<CheckResult<SuccessData>> => {
       const resolved = resolveDependencyProcessOptions(context, dependency);
       if (resolved.kind === "unavailable") return unavailable(resolved.code);
       return executeProcessCheck(
@@ -142,7 +157,8 @@ export function createProcessCheckWithDataDependencyAndSuccessData<
         }
       );
     }
-  });
+  } as const;
+  return defineCheck(check);
 }
 
 type DependencyProcessResolution<Data extends object> =
@@ -171,7 +187,7 @@ function resolveDependencyProcessOptions<Data extends object>(
     const environment = dependency.environment(data);
     if (
       !isNonArrayRecord(environment) ||
-      !validEnvironment(environment) ||
+      !validProcessEnvironment(environment) ||
       Object.keys(environment).some((name) =>
         Object.hasOwn(context.options.environment ?? {}, name)
       )
@@ -195,54 +211,6 @@ function resolveDependencyProcessOptions<Data extends object>(
       kind: "unavailable"
     });
   }
-}
-
-function validProcessCheckDescriptor(value: unknown): boolean {
-  if (!isNonArrayRecord(value)) return false;
-  const keys = Object.keys(value);
-  if (
-    keys.some(
-      (key) =>
-        key !== "args" &&
-        key !== "checkId" &&
-        key !== "command" &&
-        key !== "cwd" &&
-        key !== "displayName" &&
-        key !== "environment" &&
-        key !== "timeoutMs"
-    ) ||
-    !keys.includes("args") ||
-    !keys.includes("checkId") ||
-    !keys.includes("command") ||
-    !keys.includes("displayName")
-  ) {
-    return false;
-  }
-  const args = value.args;
-  return (
-    Array.isArray(args) &&
-    args.every((argument) => typeof argument === "string") &&
-    nonEmptyString(value.checkId) &&
-    nonEmptyString(value.command) &&
-    nonEmptyString(value.displayName) &&
-    (value.cwd === undefined || typeof value.cwd === "string") &&
-    validEnvironment(value.environment) &&
-    (value.timeoutMs === undefined || positiveInteger(value.timeoutMs))
-  );
-}
-
-function validEnvironment(value: unknown): boolean {
-  if (value === undefined) return true;
-  if (!isNonArrayRecord(value)) return false;
-  return Object.values(value).every((item) => typeof item === "string");
-}
-
-function nonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
-}
-
-function positiveInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
 function executeProcessCheck(
@@ -338,120 +306,6 @@ async function executeProcessCheck(
   });
 }
 
-/** Writes one safe Check-owned transcript for every actual process step. */
-export function writeProcessTranscript(
-  input: Readonly<{
-    readonly checkId: string;
-    readonly invocationLogDirectory: string;
-    readonly steps: readonly ProcessTranscriptStep[];
-    readonly writeTextFile?: typeof writeTextFile;
-  }>
-): string {
-  const logPath = processTranscriptPath(input.invocationLogDirectory, input.checkId);
-  mkdirSync(dirname(logPath), { recursive: true });
-  (input.writeTextFile ?? writeTextFile)({
-    content: [`check: ${input.checkId}`, ...input.steps.map(transcriptStep)].join("\n\n"),
-    filePath: logPath
-  });
-  return logPath;
-}
-
-function writeProcessStartupTranscript(
-  input: Readonly<{
-    readonly definition: ProcessCheckDescriptor;
-    readonly invocationLogDirectory: string;
-    readonly writeTextFile: typeof writeTextFile;
-  }>
-): void {
-  const { definition } = input;
-  const logPath = processTranscriptPath(input.invocationLogDirectory, definition.checkId);
-  mkdirSync(dirname(logPath), { recursive: true });
-  const command = [definition.command, ...definition.args].map(commandToken).join(" ");
-  input.writeTextFile({
-    content: [
-      `check: ${definition.checkId}`,
-      "",
-      "step: command",
-      `command: ${command}`,
-      "status: running",
-      `timeout: ${definition.timeoutMs === undefined ? "none" : formatTimeout(definition.timeoutMs)}`
-    ].join("\n"),
-    filePath: logPath
-  });
-}
-
-function processTranscriptPath(invocationLogDirectory: string, checkId: string): string {
-  return join(invocationLogDirectory, "process", `${checkId}.log`);
-}
-
-/** Returns the invocation-relative reference shown by Check messages and Records. */
-export function processTranscriptReference(logPath: string): string {
-  return `process/${basename(logPath)}`;
-}
-
-/** Produces the standard failure Record and presentation-safe terminal message. */
-export function failedProcessResult(
-  context: Pick<CheckExecutionContext<object>, "records">,
-  input: CommandFailureRecordInput
-): CheckResult {
-  context.records.report({ id: "command-failure" }, failureRecord(input));
-  return Object.freeze({
-    status: "failed",
-    data: Object.freeze({ exitCode: input.exitCode }),
-    messages: Object.freeze([
-      Object.freeze({
-        level: "error",
-        code: "command-failed",
-        message: `Command exited with code ${input.exitCode}; signal: ${input.signal ?? "none"}; transcript: ${processTranscriptReference(input.logPath)}.`
-      })
-    ])
-  });
-}
-
-interface CommandFailureRecordInput {
-  readonly command: string;
-  readonly exitCode: number;
-  readonly logPath: string;
-  readonly signal: NodeJS.Signals | null;
-}
-
-function failureRecord(input: CommandFailureRecordInput): Readonly<{
-  readonly command: string;
-  readonly exitCode: number;
-  readonly log: string;
-  readonly signal: NodeJS.Signals | "none";
-}> {
-  return Object.freeze({
-    command: input.command,
-    exitCode: input.exitCode,
-    log: processTranscriptReference(input.logPath),
-    signal: input.signal ?? "none"
-  });
-}
-
-function transcriptStep(step: ProcessTranscriptStep): string {
-  const { definition, label, result } = step;
-  const command = [definition.command, ...definition.args].map(commandToken).join(" ");
-  return [
-    `step: ${label}`,
-    `command: ${command}`,
-    `status: ${result.status === null ? "unavailable" : result.status}`,
-    `signal: ${result.signal ?? "none"}`,
-    `timed-out: ${result.timedOut === true ? "yes" : "no"}`,
-    `error: ${result.error === undefined ? "none" : commandToken(errorMessage(result.error))}`,
-    "",
-    "--- stdout ---",
-    result.stdout,
-    "--- stderr ---",
-    result.stderr
-  ].join("\n");
-}
-
-function formatTimeout(timeoutMs: number): string {
-  if (timeoutMs % 1_000 === 0) return `${timeoutMs / 1_000}s`;
-  return `${timeoutMs}ms`;
-}
-
 function unavailableProcessResult(error: unknown): ProcessResult {
   return {
     error: error instanceof Error ? error : new Error(errorMessage(error)),
@@ -460,10 +314,6 @@ function unavailableProcessResult(error: unknown): ProcessResult {
     stderr: "",
     stdout: ""
   };
-}
-
-function commandToken(value: string): string {
-  return JSON.stringify(value);
 }
 
 function unavailable<Data extends object = object>(code: UnavailableReasonCode): CheckResult<Data> {

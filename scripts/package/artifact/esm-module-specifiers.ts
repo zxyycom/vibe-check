@@ -11,16 +11,32 @@ export function rewriteRelativeEsmModuleExtensions(input: {
   readonly fileName: string;
   readonly source: string;
 }): string {
-  const replacements = relativeEsmModuleSpecifierRanges(input)
+  return rewriteModuleSpecifierTokens(input.source, relativeJavaScriptSpecifierRanges(input));
+}
+
+function relativeJavaScriptSpecifierRanges(input: {
+  readonly fileName: string;
+  readonly source: string;
+}): readonly ModuleSpecifierRange[] {
+  return relativeEsmModuleSpecifierRanges(input)
     .filter((specifier) => specifier.text.endsWith(".js"))
     .sort((left, right) => right.start - left.start);
-  let rewritten = input.source;
+}
+
+function rewriteModuleSpecifierTokens(
+  source: string,
+  replacements: readonly ModuleSpecifierRange[]
+): string {
+  let rewritten = source;
   for (const specifier of replacements) {
-    rewritten = `${rewritten.slice(0, specifier.start)}${JSON.stringify(
-      `${specifier.text.slice(0, -".js".length)}.mjs`
-    )}${rewritten.slice(specifier.end)}`;
+    rewritten = replaceModuleSpecifierToken(rewritten, specifier);
   }
   return rewritten;
+}
+
+function replaceModuleSpecifierToken(source: string, specifier: ModuleSpecifierRange): string {
+  const mjsSpecifier = `${specifier.text.slice(0, -".js".length)}.mjs`;
+  return `${source.slice(0, specifier.start)}${JSON.stringify(mjsSpecifier)}${source.slice(specifier.end)}`;
 }
 
 /** Returns every relative ESM static, re-export, and dynamic module specifier in a source file. */

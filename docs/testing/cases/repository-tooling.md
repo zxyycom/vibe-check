@@ -299,13 +299,15 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > uses one root budget for dependency order and named mutex admission`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
+- `bun|src/project-run/task-scheduler/task-engine.static-validation.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > respects one root budget for dependency order and named mutex execution`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits immutable root admission, reservation, and mutex decisions`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits root capacity and running-drain decisions`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > does not activate a cap for a scope with no activation task`
+- `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
+- `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
   Proves:
 
 - Engine 在任何 executor work 前验证静态 Task identity、dependency、scope membership、activation/terminal relation 和 cap；它以一个 root budget 处理 dependency、mutex 与 generic scope cap。

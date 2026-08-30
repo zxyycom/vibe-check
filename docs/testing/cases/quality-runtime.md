@@ -24,13 +24,13 @@ Entities:
 Owner: `docs/configuration.md#invocation-and-results`
 Entities:
 
-- `bun|src/project-run/run.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
-- `bun|src/project-run/run.test.ts|Package Run > returns the existing execution cancellation result when the preflight barrier aborts`
-- `bun|src/project-run/run.test.ts|Package Run > executes each normalized Check directly with the public callback context`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preflight results`
+- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
+- `bun|src/project-run/run-preflight-cancellation.test.ts|Package Run > returns the existing execution cancellation result when the preflight barrier aborts`
+- `bun|src/project-run/run-callback-context.test.ts|Package Run > executes each normalized Check directly with the public callback context`
+- `bun|src/project-run/check-execution/preflight-failures.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preflight results`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
+- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
   Proves:
 - Package Run validates closed definitions and controls before execution callbacks or outputs, rejecting unknown Run control keys. An optional Check preflight receives detached frozen authored options and the invocation signal in a sequential global barrier; block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only its Check unavailable without callback execution, while accepted prepared/fallback values are invocation-local. Barrier cancellation returns the existing execution-phase `cancelled` result even with no scheduler task to admit and retains messages from preflights that completed before cancellation. Every ready executable Check receives only its public context, whose `project` value contains normalized `root` and canonical `flags`; trusted preflight/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
 - The two `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input and the canonical immutable `project.flags` callback snapshot.
@@ -40,9 +40,9 @@ Entities:
 Owner: `docs/quality-metrics.md#check-and-record-facts`
 Entities:
 
-- `bun|src/check-settlement/session.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
-- `bun|src/check-settlement/session.test.ts|check-record Core Check session > maps unresolved scopes to Product unavailable outcomes while retaining accepted Records`
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
+- `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
+- `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > maps unresolved scopes to Product unavailable outcomes while retaining accepted Records`
+- `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
   Proves:
 - Every registered Check closes exactly once. Passed, failed, not-applicable, malformed callback result, invalid Record use, and unresolved cancellation all use the same four-state outcome boundary rather than a second lifecycle model.
 
@@ -51,11 +51,11 @@ Entities:
 Owner: `docs/quality-metrics.md#check-and-record-facts`
 Entities:
 
-- `bun|src/check-settlement/session.test.ts|check-record Core Check session > binds structural Record ownership, retains prior Records, and contains invalid author writes`
-- `bun|src/check-settlement/session.test.ts|check-record Core Check session > rejects malformed data and duplicate lifecycle closure without revising frozen facts`
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
+- `bun|src/check-settlement/session-record-misuse.test.ts|check-record Core Check session > binds structural Record ownership, retains prior Records, and contains invalid author writes`
+- `bun|src/check-settlement/session-record-misuse.test.ts|check-record Core Check session > rejects malformed data and duplicate lifecycle closure without revising frozen facts`
+- `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
+- `bun|src/project-run/check-execution/resolved-checks.failure.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
   Proves:
 - The reporter accepts only Check-local Record identity/data, preserves accepted independent Records, and closes with its Check. Duplicate, invalid, or late activity cannot revise frozen facts.
 
@@ -64,8 +64,8 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
+- `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
+- `bun|src/project-run/check-execution/resolved-checks.failure.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
   Proves:
 - Ordinary malformed results, malformed terminal-message attachments, and Record misuse become the owning unavailable Check outcome without a partial message escape. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
 
@@ -74,10 +74,10 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/run.test.ts|Package Run > admits an unavailable dependency and exposes its read failure`
-- `bun|src/project-run/run.test.ts|Package Run > rejects an invalid projected generic Task graph before any Check callback runs`
+- `bun|src/project-run/run-dependency-data.test.ts|Package Run > admits an unavailable dependency and exposes its read failure`
+- `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected generic Task graph before any Check callback runs`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > keeps dependent admission after local not-applicable`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > admits all settled dependency outcomes and limits reads to direct dependencies`
+- `bun|src/project-run/check-execution/resolved-checks.dependencies.test.ts|Package Run direct Check execution > admits all settled dependency outcomes and limits reads to direct dependencies`
   Proves:
 - Direct executable Checks use the shared dependency graph. Every settled upstream outcome admits a dependent; its frozen callback-local string getter returns canonical final data only for an effective direct passed/failed dependency, or one of the two closed read failures without exposing undeclared or transitive facts.
 - A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped. Cancellation-before-start and generic Task failures remain separate lifecycle/engine boundaries.
@@ -87,9 +87,9 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > settles cancellation-before-start Checks without starting them`
+- `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
+- `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
+- `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > settles cancellation-before-start Checks without starting them`
 - `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
   Proves:
 - Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Check-facts outcome and a finite duration, while cancellation-before-start Checks settle without a start and use `null`/`not run` duration.
@@ -100,9 +100,9 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
-- `bun|src/project-run/task-scheduler/task-engine.test.ts|static task engine > does not activate a cap for a scope with no activation task`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > does not activate a cap for a scope with no activation task`
   Proves:
 - Effective Check parallel limits project to generic graph scope metadata. The shared engine uses the active minimum without preemption and does not make a non-executing scope consume capacity.
 
@@ -111,7 +111,7 @@ Entities:
 Owner: `docs/architecture.md#check-facts`
 Entities:
 
-- `bun|src/check-settlement/session.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
+- `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot with structural Record identity`
 - `bun|src/check-settlement/fact-validation.test.ts|check-record foundation runtime validation > rejects non-canonical final or Record data and invalid ownership`
   Proves:
@@ -150,11 +150,11 @@ Entities:
 Owner: `docs/quality-metrics.md#维护提醒评估`
 Entities:
 
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > uses first-parent merge diffs, reverts, binary and rename activity`
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
+- `bun|src/package-checks/maintenance-reminders/first-parent-activity.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`
+- `bun|src/package-checks/maintenance-reminders/first-parent-special-history.test.ts|maintenance reminders > uses first-parent merge diffs, reverts, binary and rename activity`
+- `bun|src/package-checks/maintenance-reminders/history-failure-assessments.test.ts|maintenance reminders > classifies Git history failures as complete advisory or enforcing assessments`
+- `bun|src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts|maintenance reminders > renders due reminders through progress and retains their message readback`
+- `bun|src/package-checks/maintenance-reminders/progress-and-cancellation.test.ts|maintenance reminders > keeps cancellation as a whole-Check unavailable boundary`
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
 - Every measurable entry retains a parser-validated ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable with an actionable error because no complete payload is formed.

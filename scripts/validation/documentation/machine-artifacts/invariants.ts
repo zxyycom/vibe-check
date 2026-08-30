@@ -13,6 +13,31 @@ export function validateArtifactSetInvariants(
   records: readonly RecordShape[],
   artifactRoot: string
 ): DocsMachineValidationFailure | null {
+  for (const validateInvariant of artifactSetInvariants) {
+    const failure = validateInvariant(run, records, artifactRoot);
+    if (failure !== null) return failure;
+  }
+  return null;
+}
+
+type ArtifactSetInvariant = (
+  run: RunShape,
+  records: readonly RecordShape[],
+  artifactRoot: string
+) => DocsMachineValidationFailure | null;
+
+const artifactSetInvariants: readonly ArtifactSetInvariant[] = [
+  validateCanonicalCheckOrder,
+  validateCanonicalRecordOrder,
+  validateRecordCheckOwnership,
+  validateCanonicalPublishedData
+];
+
+function validateCanonicalCheckOrder(
+  run: RunShape,
+  _records: readonly RecordShape[],
+  artifactRoot: string
+): DocsMachineValidationFailure | null {
   if (!isCanonicalText(run.checks.map(({ checkId }) => checkId))) {
     return setFailure(artifactRoot, RUN_ARTIFACT, {
       message: "Checks must be uniquely sorted by checkId.",
@@ -20,6 +45,14 @@ export function validateArtifactSetInvariants(
       relationship: "check-canonical-order"
     });
   }
+  return null;
+}
+
+function validateCanonicalRecordOrder(
+  _run: RunShape,
+  records: readonly RecordShape[],
+  artifactRoot: string
+): DocsMachineValidationFailure | null {
   const recordOrderFailure = recordOrderFailureIndex(records);
   if (recordOrderFailure !== undefined) {
     return setFailure(artifactRoot, RECORDS_ARTIFACT, {
@@ -29,6 +62,14 @@ export function validateArtifactSetInvariants(
       relationship: "record-canonical-order"
     });
   }
+  return null;
+}
+
+function validateRecordCheckOwnership(
+  run: RunShape,
+  records: readonly RecordShape[],
+  artifactRoot: string
+): DocsMachineValidationFailure | null {
   const checkIds = new Set(run.checks.map(({ checkId }) => checkId));
   const unknownIndex = records.findIndex(({ checkId }) => !checkIds.has(checkId));
   if (unknownIndex !== -1) {
@@ -39,6 +80,14 @@ export function validateArtifactSetInvariants(
       relationship: "record-check-ownership"
     });
   }
+  return null;
+}
+
+function validateCanonicalPublishedData(
+  run: RunShape,
+  records: readonly RecordShape[],
+  artifactRoot: string
+): DocsMachineValidationFailure | null {
   const projectedCore = {
     checks: run.checks,
     records: records.map(({ schemaVersion: _schemaVersion, ...record }) => record)

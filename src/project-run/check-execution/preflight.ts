@@ -6,11 +6,7 @@ import {
   summarizeDiagnosticValue,
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
-import {
-  hasRequiredAndOptionalRecordKeys,
-  snapshotClosedRecord
-} from "../../data-boundary/closed-values.ts";
-import { parseCheckMessages } from "./messages.ts";
+import { parseCheckPreflightResult, type ParsedCheckPreflightResult } from "./preflight-result.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 const INERT_SIGNAL = new AbortController().signal;
@@ -47,6 +43,16 @@ type PreflightResolutionResult =
   | "threw"
   | "malformed";
 
+type PrepareCheckInput = Readonly<{
+  readonly check: NormalizedCheck;
+  readonly diagnosticLogger: DiagnosticLogger | undefined;
+  readonly signal: AbortSignal | undefined;
+}>;
+
+type PreflightInvocation =
+  | Readonly<{ readonly kind: "returned"; readonly output: unknown }>
+  | Readonly<{ readonly kind: "threw"; readonly error: unknown }>;
+
 /** Completes the sequential invocation-wide barrier before any Check enters the Task graph. */
 export async function prepareChecks(
   input: Readonly<{
@@ -68,102 +74,111 @@ export async function prepareChecks(
   return Object.freeze(resolutions);
 }
 
-async function prepareCheck(
-  input: Readonly<{
-    readonly check: NormalizedCheck;
-    readonly diagnosticLogger: DiagnosticLogger | undefined;
-    readonly signal: AbortSignal | undefined;
-  }>
-): Promise<CheckPreflightResolution> {
-  const checkId = input.check.definition.checkId;
+async function prepareCheck(input: PrepareCheckInput): Promise<CheckPreflightResolution> {
   if (input.signal?.aborted) {
-    const resolution = blockedResolution({
+    return observeBlockedPreflight({
       check: input.check,
-      messages: EMPTY_MESSAGES,
+      diagnosticLogger: input.diagnosticLogger,
+      details: {},
+      result: "cancelled-before-callback",
       reasonCode: "execution-cancelled"
     });
-    observePreflightResolution(
-      input.diagnosticLogger,
-      checkId,
-      resolution,
-      "cancelled-before-callback",
-      {}
-    );
-    return resolution;
   }
   if (input.check.preflight === undefined) {
-    const resolution = readyResolution({
-      authoredCheck: input.check,
-      messages: EMPTY_MESSAGES,
-      preparedOptions: input.check.options
-    });
-    observeReadyOrMalformedResolution(input.diagnosticLogger, checkId, resolution, "skipped", {
-      source: "authored"
-    });
-    return resolution;
+    return resolveAuthoredOptions(input);
   }
-  let preflightOutput: unknown;
-  try {
-    preflightOutput = await input.check.preflight(
-      input.check.options,
-      input.signal ?? INERT_SIGNAL
-    );
-  } catch (error) {
-    const resolution = blockedResolution({
+  return resolvePreflightInvocation(input, await invokePreflight(input.check, input.signal));
+}
+
+function resolveAuthoredOptions(input: PrepareCheckInput): CheckPreflightResolution {
+  const resolution = readyResolution({
+    authoredCheck: input.check,
+    messages: EMPTY_MESSAGES,
+    preparedOptions: input.check.options
+  });
+  observeReadyOrMalformedResolution(
+    input.diagnosticLogger,
+    input.check.definition.checkId,
+    resolution,
+    "skipped",
+    { source: "authored" }
+  );
+  return resolution;
+}
+
+function resolvePreflightInvocation(
+  input: PrepareCheckInput,
+  invocation: PreflightInvocation
+): CheckPreflightResolution {
+  if (invocation.kind === "threw") {
+    return observeBlockedPreflight({
       check: input.check,
-      messages: EMPTY_MESSAGES,
+      diagnosticLogger: input.diagnosticLogger,
+      details: { error: invocation.error },
+      result: input.signal?.aborted ? "cancelled-after-throw" : "threw",
       reasonCode: input.signal?.aborted ? "execution-cancelled" : "preflight-threw"
     });
-    observePreflightResolution(
-      input.diagnosticLogger,
-      checkId,
-      resolution,
-      input.signal?.aborted ? "cancelled-after-throw" : "threw",
-      { error }
-    );
-    return resolution;
   }
+  return resolveReturnedPreflight(input, invocation.output);
+}
+
+function resolveReturnedPreflight(
+  input: PrepareCheckInput,
+  preflightOutput: unknown
+): CheckPreflightResolution {
   if (input.signal?.aborted) {
-    const resolution = blockedResolution({
+    return observeBlockedPreflight({
       check: input.check,
-      messages: EMPTY_MESSAGES,
+      diagnosticLogger: input.diagnosticLogger,
+      details: { raw: preflightOutput },
+      result: "cancelled-after-callback",
       reasonCode: "execution-cancelled"
     });
-    observePreflightResolution(
-      input.diagnosticLogger,
-      checkId,
-      resolution,
-      "cancelled-after-callback",
-      {
-        raw: preflightOutput
-      }
-    );
-    return resolution;
   }
   const preflightResult = parseCheckPreflightResult(preflightOutput);
   if (preflightResult === undefined) {
-    const resolution = blockedResolution({
+    return observeBlockedPreflight({
       check: input.check,
-      messages: EMPTY_MESSAGES,
+      diagnosticLogger: input.diagnosticLogger,
+      details: { raw: preflightOutput },
+      result: "malformed",
       reasonCode: "invalid-preflight-result"
     });
-    observePreflightResolution(input.diagnosticLogger, checkId, resolution, "malformed", {
-      raw: preflightOutput
-    });
-    return resolution;
   }
   if (preflightResult.status === "failure" && preflightResult.action === "block") {
-    const resolution = blockedResolution({
-      check: input.check,
-      messages: preflightResult.messages,
-      reasonCode: preflightResult.reason.code
-    });
-    observePreflightResolution(input.diagnosticLogger, checkId, resolution, "blocked", {
+    return resolveBlockedPreflightResult(input, preflightResult);
+  }
+  return resolveReadyPreflightResult(input, preflightOutput, preflightResult);
+}
+
+function resolveBlockedPreflightResult(
+  input: PrepareCheckInput,
+  preflightResult: Extract<ParsedCheckPreflightResult, { readonly action: "block" }>
+): CheckPreflightResolution {
+  const resolution = blockedResolution({
+    check: input.check,
+    messages: preflightResult.messages,
+    reasonCode: preflightResult.reason.code
+  });
+  observePreflightResolution(
+    input.diagnosticLogger,
+    input.check.definition.checkId,
+    resolution,
+    "blocked",
+    {
       ...(preflightResult.messages.length === 0 ? {} : { messages: preflightResult.messages }),
       reason: preflightResult.reason
-    });
-    return resolution;
-  }
+    }
+  );
+  return resolution;
+}
+
+function resolveReadyPreflightResult(
+  input: PrepareCheckInput,
+  preflightOutput: unknown,
+  preflightResult: Exclude<ParsedCheckPreflightResult, { readonly action: "block" }>
+): CheckPreflightResolution {
+  const checkId = input.check.definition.checkId;
   const result = preflightResult.status === "success" ? "prepared" : "continued";
   const resolution = readyResolution({
     authoredCheck: input.check,
@@ -178,6 +193,44 @@ async function prepareCheck(
     ...(preflightResult.status === "success" ? {} : { reason: preflightResult.reason }),
     raw: preflightOutput
   });
+  return resolution;
+}
+
+async function invokePreflight(
+  check: NormalizedCheck,
+  signal: AbortSignal | undefined
+): Promise<PreflightInvocation> {
+  try {
+    return Object.freeze({
+      kind: "returned",
+      output: await check.preflight!(check.options, signal ?? INERT_SIGNAL)
+    });
+  } catch (error) {
+    return Object.freeze({ kind: "threw", error });
+  }
+}
+
+function observeBlockedPreflight(
+  input: Readonly<{
+    readonly check: NormalizedCheck;
+    readonly diagnosticLogger: DiagnosticLogger | undefined;
+    readonly details: Readonly<Record<string, unknown>>;
+    readonly result: PreflightResolutionResult;
+    readonly reasonCode: string;
+  }>
+): BlockedCheckPreflightResolution {
+  const resolution = blockedResolution({
+    check: input.check,
+    messages: EMPTY_MESSAGES,
+    reasonCode: input.reasonCode
+  });
+  observePreflightResolution(
+    input.diagnosticLogger,
+    input.check.definition.checkId,
+    resolution,
+    input.result,
+    input.details
+  );
   return resolution;
 }
 
@@ -265,87 +318,4 @@ function blockedResolution(
       reason: Object.freeze({ code: input.reasonCode })
     })
   });
-}
-
-type ParsedCheckPreflightResult =
-  | Readonly<{
-      readonly status: "success";
-      readonly preparedOptions: unknown;
-      readonly messages: readonly CheckMessage[];
-    }>
-  | Readonly<{
-      readonly status: "failure";
-      readonly action: "block";
-      readonly reason: { readonly code: string };
-      readonly messages: readonly CheckMessage[];
-    }>
-  | Readonly<{
-      readonly status: "failure";
-      readonly action: "continue";
-      readonly fallback: unknown;
-      readonly reason: { readonly code: string };
-      readonly messages: readonly CheckMessage[];
-    }>;
-
-function parseCheckPreflightResult(value: unknown): ParsedCheckPreflightResult | undefined {
-  const preflightResult = snapshotClosedRecord(value);
-  if (preflightResult === undefined || typeof preflightResult.status !== "string") {
-    return undefined;
-  }
-  const messages = parseCheckMessages(preflightResult.messages);
-  if (messages === undefined) return undefined;
-  if (preflightResult.status === "success") {
-    return hasRequiredAndOptionalRecordKeys(preflightResult, {
-      optional: ["messages"],
-      required: ["status", "preparedOptions"]
-    })
-      ? Object.freeze({
-          status: "success",
-          preparedOptions: preflightResult.preparedOptions,
-          messages
-        })
-      : undefined;
-  }
-  if (preflightResult.status !== "failure" || typeof preflightResult.action !== "string") {
-    return undefined;
-  }
-  const reason = parsePreflightReason(preflightResult.reason);
-  if (reason === undefined) return undefined;
-  if (preflightResult.action === "block") {
-    return hasRequiredAndOptionalRecordKeys(preflightResult, {
-      optional: ["messages"],
-      required: ["status", "action", "reason"]
-    })
-      ? Object.freeze({ status: "failure", action: "block", reason, messages })
-      : undefined;
-  }
-  if (
-    preflightResult.action !== "continue" ||
-    !hasRequiredAndOptionalRecordKeys(preflightResult, {
-      optional: ["messages"],
-      required: ["status", "action", "fallback", "reason"]
-    })
-  ) {
-    return undefined;
-  }
-  return Object.freeze({
-    status: "failure",
-    action: "continue" as const,
-    fallback: preflightResult.fallback,
-    reason,
-    messages
-  });
-}
-
-function parsePreflightReason(value: unknown): Readonly<{ readonly code: string }> | undefined {
-  const reason = snapshotClosedRecord(value);
-  if (
-    reason === undefined ||
-    Object.keys(reason).length !== 1 ||
-    typeof reason.code !== "string" ||
-    reason.code.length === 0
-  ) {
-    return undefined;
-  }
-  return Object.freeze({ code: reason.code });
 }

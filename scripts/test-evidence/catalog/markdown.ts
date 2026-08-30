@@ -95,6 +95,19 @@ function invalidCaseHeading(
   );
 }
 
+type CaseContentLine = Readonly<{ readonly line: number; readonly text: string }>;
+
+interface CaseBlockParser {
+  readonly content: readonly CaseContentLine[];
+  readonly id: string;
+  readonly options: {
+    readonly diagnostics: TestEvidenceDiagnostic[];
+    readonly sourcePath: string;
+    readonly start: number;
+  };
+  cursor: number;
+}
+
 function parseCaseBlock(
   options: {
     lines: readonly string[];
@@ -107,106 +120,18 @@ function parseCaseBlock(
   match: RegExpExecArray
 ): SemanticTestCase {
   const [, id, title] = match;
-  const content = options.lines
-    .slice(options.start + 1, options.end)
-    .map((text, index) => ({ text: text.trim(), line: options.start + index + 2 }))
-    .filter(({ text }) => text.length > 0);
-  let cursor = 0;
-  const current = (): { text: string; line: number } | undefined => content[cursor];
-  const report = (code: string, message: string, line = options.start + 1): void => {
-    options.diagnostics.push(
-      diagnostic(code, "case", message, {
-        caseId: id,
-        path: options.sourcePath,
-        line
-      })
-    );
+  const parser: CaseBlockParser = {
+    content: options.lines
+      .slice(options.start + 1, options.end)
+      .map((text, index) => ({ text: text.trim(), line: options.start + index + 2 }))
+      .filter(({ text }) => text.length > 0),
+    id,
+    options,
+    cursor: 0
   };
-
-  let ownerRef = "";
-  if (!current()?.text.startsWith("Owner:")) {
-    report("case.owner-missing", `Case ${id} has no Owner field`);
-  } else {
-    const owner = /^Owner: `([^`]+)`$/.exec(current()?.text ?? "");
-    if (owner === null || !isOwnerRef(owner[1])) {
-      report(
-        "case.owner-invalid",
-        `Case ${id} Owner must be a backticked workspace-relative .md#heading reference`,
-        current()?.line
-      );
-    } else {
-      ownerRef = owner[1];
-    }
-    cursor += 1;
-  }
-
-  const entityKeys: string[] = [];
-  if (current()?.text !== "Entities:") {
-    report("case.entities-missing", `Case ${id} has no Entities field`, current()?.line);
-  } else {
-    cursor += 1;
-    const seen = new Set<string>();
-    while (current() !== undefined && current()?.text !== "Proves:") {
-      const item = current();
-      const entity = /^- `([^`]+)`$/.exec(item?.text ?? "");
-      if (entity === null || entity[1].trim() !== entity[1]) {
-        report(
-          "case.entity-invalid",
-          `Case ${id} Entities must contain exact backticked entity key bullets`,
-          item?.line
-        );
-      } else if (seen.has(entity[1])) {
-        options.diagnostics.push(
-          diagnostic(
-            "case.entity-duplicate",
-            "case",
-            `Case ${id} repeats test entity ${entity[1]}`,
-            {
-              caseId: id,
-              entityKey: entity[1],
-              path: options.sourcePath,
-              line: item?.line
-            }
-          )
-        );
-      } else {
-        seen.add(entity[1]);
-        entityKeys.push(entity[1]);
-      }
-      cursor += 1;
-    }
-    if (entityKeys.length === 0) {
-      report(
-        "case.entities-empty",
-        `implemented Case ${id} must reference at least one test entity`
-      );
-    }
-  }
-
-  const proves: string[] = [];
-  if (current()?.text !== "Proves:") {
-    report("case.proves-missing", `Case ${id} has no Proves field`, current()?.line);
-  } else {
-    cursor += 1;
-    while (current() !== undefined) {
-      const item = current();
-      const proof = /^- (\S.*)$/.exec(item?.text ?? "");
-      if (proof === null) {
-        report(
-          "case.proves-invalid",
-          `Case ${id} Proves must contain non-empty semantic bullets`,
-          item?.line
-        );
-      } else {
-        proves.push(proof[1]);
-      }
-      cursor += 1;
-    }
-    if (proves.length === 0) {
-      report("case.proves-empty", `Case ${id} must have at least one non-empty Proves bullet`);
-    }
-  }
-
+  const ownerRef = parseCaseOwner(parser);
+  const entityKeys = parseCaseEntities(parser);
+  const proves = parseCaseProofs(parser);
   return {
     id,
     title,
@@ -217,6 +142,129 @@ function parseCaseBlock(
     sourcePath: options.sourcePath,
     sourceLine: options.start + 1
   };
+}
+
+function parseCaseOwner(parser: CaseBlockParser): string {
+  const item = currentCaseContent(parser);
+  if (!item?.text.startsWith("Owner:")) {
+    reportCaseDiagnostic(parser, "case.owner-missing", `Case ${parser.id} has no Owner field`);
+    return "";
+  }
+  const owner = /^Owner: `([^`]+)`$/.exec(item.text);
+  parser.cursor += 1;
+  if (owner === null || !isOwnerRef(owner[1])) {
+    reportCaseDiagnostic(
+      parser,
+      "case.owner-invalid",
+      `Case ${parser.id} Owner must be a backticked workspace-relative .md#heading reference`,
+      item.line
+    );
+    return "";
+  }
+  return owner[1];
+}
+
+function parseCaseEntities(parser: CaseBlockParser): string[] {
+  if (currentCaseContent(parser)?.text !== "Entities:") {
+    reportCaseDiagnostic(
+      parser,
+      "case.entities-missing",
+      `Case ${parser.id} has no Entities field`,
+      currentCaseContent(parser)?.line
+    );
+    return [];
+  }
+  parser.cursor += 1;
+  const entities: string[] = [];
+  const seen = new Set<string>();
+  while (
+    currentCaseContent(parser) !== undefined &&
+    currentCaseContent(parser)?.text !== "Proves:"
+  ) {
+    const item = currentCaseContent(parser)!;
+    const match = /^- `([^`]+)`$/.exec(item.text);
+    if (match === null || match[1].trim() !== match[1])
+      reportCaseDiagnostic(
+        parser,
+        "case.entity-invalid",
+        `Case ${parser.id} Entities must contain exact backticked entity key bullets`,
+        item.line
+      );
+    else if (seen.has(match[1]))
+      parser.options.diagnostics.push(
+        diagnostic(
+          "case.entity-duplicate",
+          "case",
+          `Case ${parser.id} repeats test entity ${match[1]}`,
+          {
+            caseId: parser.id,
+            entityKey: match[1],
+            path: parser.options.sourcePath,
+            line: item.line
+          }
+        )
+      );
+    else {
+      seen.add(match[1]);
+      entities.push(match[1]);
+    }
+    parser.cursor += 1;
+  }
+  if (entities.length === 0)
+    reportCaseDiagnostic(
+      parser,
+      "case.entities-empty",
+      `implemented Case ${parser.id} must reference at least one test entity`
+    );
+  return entities;
+}
+
+function parseCaseProofs(parser: CaseBlockParser): string[] {
+  if (currentCaseContent(parser)?.text !== "Proves:") {
+    reportCaseDiagnostic(
+      parser,
+      "case.proves-missing",
+      `Case ${parser.id} has no Proves field`,
+      currentCaseContent(parser)?.line
+    );
+    return [];
+  }
+  parser.cursor += 1;
+  const proves: string[] = [];
+  while (currentCaseContent(parser) !== undefined) {
+    const item = currentCaseContent(parser)!;
+    const match = /^- (\S.*)$/.exec(item.text);
+    if (match === null)
+      reportCaseDiagnostic(
+        parser,
+        "case.proves-invalid",
+        `Case ${parser.id} Proves must contain non-empty semantic bullets`,
+        item.line
+      );
+    else proves.push(match[1]);
+    parser.cursor += 1;
+  }
+  if (proves.length === 0)
+    reportCaseDiagnostic(
+      parser,
+      "case.proves-empty",
+      `Case ${parser.id} must have at least one non-empty Proves bullet`
+    );
+  return proves;
+}
+
+function currentCaseContent(parser: CaseBlockParser): CaseContentLine | undefined {
+  return parser.content[parser.cursor];
+}
+function reportCaseDiagnostic(
+  parser: CaseBlockParser,
+  code: string,
+  message: string,
+  line = parser.options.start + 1
+): void {
+  parser.options.diagnostics.push(
+    diagnostic(code, "case", message, { caseId: parser.id, path: parser.options.sourcePath, line })
+  );
 }
 
 function findNextH2(lines: readonly string[], start: number): number {

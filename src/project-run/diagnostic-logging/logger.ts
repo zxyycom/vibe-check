@@ -1,8 +1,9 @@
 import { closeSync, mkdirSync, openSync, writeSync } from "node:fs";
 import { dirname } from "node:path";
-import { types } from "node:util";
 
 import type { CheckExecutionClock } from "../check-execution/resolved-checks.ts";
+import { renderSafeDiagnosticDetail } from "./diagnostic-detail-rendering.ts";
+export { summarizeDiagnosticValue } from "./diagnostic-detail-rendering.ts";
 
 /** Product-private observation written synchronously at the fact owner. */
 export interface DiagnosticObservation {
@@ -147,7 +148,7 @@ function escapeLogHeaderField(text: string): string {
 
 function diagnosticFacts(observation: DiagnosticObservation): readonly string[] {
   if (observation.details === undefined) return Object.freeze([]);
-  const rendered = renderSafeDetailValue(observation.details);
+  const rendered = renderSafeDiagnosticDetail(observation.details);
   if (!rendered.ok)
     return Object.freeze([`details=unavailable:${escapeLogHeaderField(rendered.reason)}`]);
 
@@ -164,32 +165,50 @@ function flattenDiagnosticFacts(
   observation: DiagnosticObservation
 ): void {
   if (Array.isArray(value)) {
-    const inline = JSON.stringify(value);
-    if (inline.length <= MAX_INLINE_DIAGNOSTIC_VALUE_CHARACTERS) {
-      facts.push(`${factKey(path)}=${inline}`);
-      return;
-    }
-    const arrayPath = path.length === 0 ? ["details"] : path;
-    for (let index = 0; index < value.length; index += 1) {
-      flattenDiagnosticFacts(value[index], [...arrayPath, String(index)], facts, observation);
-    }
+    flattenDiagnosticArrayFacts(value, path, facts, observation);
     return;
   }
 
   if (value !== null && typeof value === "object") {
-    const entries = Object.entries(value);
-    if (entries.length === 0) {
-      facts.push(`${factKey(path)}={}`);
-      return;
-    }
-    for (const [key, nested] of entries) {
-      if (path.length === 0 && isTopLevelFactRepresentedByTag(observation, key, nested)) continue;
-      flattenDiagnosticFacts(nested, [...path, key], facts, observation);
-    }
+    flattenDiagnosticRecordFacts(value, path, facts, observation);
     return;
   }
 
   facts.push(`${factKey(path)}=${factValue(path, value)}`);
+}
+
+function flattenDiagnosticArrayFacts(
+  value: readonly unknown[],
+  path: readonly string[],
+  facts: string[],
+  observation: DiagnosticObservation
+): void {
+  const inline = JSON.stringify(value);
+  if (inline.length <= MAX_INLINE_DIAGNOSTIC_VALUE_CHARACTERS) {
+    facts.push(`${factKey(path)}=${inline}`);
+    return;
+  }
+  const arrayPath = path.length === 0 ? ["details"] : path;
+  for (let index = 0; index < value.length; index += 1) {
+    flattenDiagnosticFacts(value[index], [...arrayPath, String(index)], facts, observation);
+  }
+}
+
+function flattenDiagnosticRecordFacts(
+  value: object,
+  path: readonly string[],
+  facts: string[],
+  observation: DiagnosticObservation
+): void {
+  const entries = Object.entries(value);
+  if (entries.length === 0) {
+    facts.push(`${factKey(path)}={}`);
+    return;
+  }
+  for (const [key, nested] of entries) {
+    if (path.length === 0 && isTopLevelFactRepresentedByTag(observation, key, nested)) continue;
+    flattenDiagnosticFacts(nested, [...path, key], facts, observation);
+  }
 }
 
 /** Omits only exact producer facts already visible in the observation's filter tags. */
@@ -289,187 +308,6 @@ function formatElapsed(elapsedMs: number): string {
   const seconds = Math.floor((totalMilliseconds % 60_000) / 1_000);
   const milliseconds = totalMilliseconds % 1_000;
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${String(milliseconds).padStart(3, "0")}`;
-}
-
-/**
- * Describes a normal payload without invoking author hooks or preserving its
- * full value in a lifecycle event. `bytes` measures this logger's safe JSON
- * rendering rather than an author-defined serialization.
- */
-export function summarizeDiagnosticValue(value: unknown): DiagnosticValueSummary {
-  const rendered = renderSafeDetailValue(value);
-  if (!rendered.ok) return Object.freeze({ availability: "unavailable", reason: rendered.reason });
-
-  const parsed: unknown = JSON.parse(rendered.text);
-  const bytes = Buffer.byteLength(rendered.text, "utf8");
-  if (parsed === null) return Object.freeze({ availability: "available", bytes, shape: "null" });
-  if (Array.isArray(parsed))
-    return Object.freeze({
-      availability: "available",
-      bytes,
-      items: parsed.length,
-      shape: "array"
-    });
-  switch (typeof parsed) {
-    case "boolean":
-      return Object.freeze({ availability: "available", bytes, shape: "boolean" });
-    case "number":
-      return Object.freeze({ availability: "available", bytes, shape: "number" });
-    case "string":
-      return Object.freeze({ availability: "available", bytes, shape: "string" });
-    case "object":
-      return Object.freeze({
-        availability: "available",
-        bytes,
-        keys: Object.keys(parsed).length,
-        shape: "object"
-      });
-    case "bigint":
-    case "function":
-    case "symbol":
-    case "undefined":
-      throw new Error("safe diagnostic rendering produced a non-JSON value");
-    default:
-      throw new Error("safe diagnostic rendering produced an unknown value");
-  }
-}
-
-function renderSafeDetailValue(value: unknown): DetailRendering {
-  return renderDetailValue(value, {
-    ancestors: new Set<object>(),
-    remainingCharacters: MAX_DETAIL_CHARACTERS,
-    remainingValues: MAX_DETAIL_VALUES
-  });
-}
-
-// These bounds admit ordinary package handoffs while keeping diagnostic work finite.
-const MAX_DETAIL_CHARACTERS = 1_048_576;
-const MAX_DETAIL_DEPTH = 16;
-const MAX_DETAIL_VALUES = 32_768;
-const MAX_DETAIL_WIDTH = 4_096;
-
-type DetailRendering =
-  | Readonly<{ readonly ok: true; readonly text: string }>
-  | Readonly<{ readonly ok: false; readonly reason: string }>;
-
-interface DetailRenderingContext {
-  readonly ancestors: Set<object>;
-  remainingCharacters: number;
-  remainingValues: number;
-}
-
-/** Renders only descriptor-readable JSON values; diagnostics must never invoke author hooks. */
-function renderDetailValue(
-  value: unknown,
-  context: DetailRenderingContext,
-  depth = 0
-): DetailRendering {
-  if (context.remainingValues <= 0) return unavailable("value-limit");
-  context.remainingValues -= 1;
-  if (value === null || typeof value === "boolean" || typeof value === "string")
-    return renderDetailText(JSON.stringify(value), context);
-  if (typeof value === "number")
-    return Number.isFinite(value)
-      ? renderDetailText(JSON.stringify(value), context)
-      : unavailable("non-finite-number");
-  if (typeof value !== "object") return unavailable(`unsupported-${typeof value}`);
-  if (types.isProxy(value)) return unavailable("proxy");
-  if (context.ancestors.has(value)) return unavailable("cycle");
-  if (depth >= MAX_DETAIL_DEPTH) return unavailable("depth-limit");
-  return Array.isArray(value)
-    ? renderDetailArray(value, context, depth)
-    : renderDetailRecord(value, context, depth);
-}
-
-function renderDetailArray(
-  value: readonly unknown[],
-  context: DetailRenderingContext,
-  depth: number
-): DetailRendering {
-  if (Object.getPrototypeOf(value) !== Array.prototype) return unavailable("unsupported-prototype");
-  const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
-  const length: unknown = lengthDescriptor?.value;
-  if (
-    lengthDescriptor?.get !== undefined ||
-    lengthDescriptor?.set !== undefined ||
-    typeof length !== "number" ||
-    !Number.isSafeInteger(length) ||
-    length < 0
-  )
-    return unavailable("invalid-array");
-  if (length > MAX_DETAIL_WIDTH) return unavailable("width-limit");
-  const keys = Reflect.ownKeys(value);
-  if (keys.length !== length + 1) return unavailable("invalid-array");
-  context.ancestors.add(value);
-  try {
-    const items: string[] = [];
-    for (let index = 0; index < length; index += 1) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
-      if (!isEnumerableDataDescriptor(descriptor)) return unavailable("accessor-or-sparse-array");
-      const rendered = renderDetailValue(descriptor.value, context, depth + 1);
-      if (!rendered.ok) return rendered;
-      items.push(rendered.text);
-    }
-    return renderDetailText(`[${items.join(",")}]`, context);
-  } finally {
-    context.ancestors.delete(value);
-  }
-}
-
-function renderDetailRecord(
-  value: object,
-  context: DetailRenderingContext,
-  depth: number
-): DetailRendering {
-  const prototype: unknown = Object.getPrototypeOf(value);
-  if (prototype !== Object.prototype && prototype !== null)
-    return unavailable("unsupported-prototype");
-  const keys = Reflect.ownKeys(value);
-  if (keys.length > MAX_DETAIL_WIDTH) return unavailable("width-limit");
-  const textKeys: string[] = [];
-  for (let index = 0; index < keys.length; index += 1) {
-    const key = keys[index];
-    if (typeof key !== "string") return unavailable("symbol-key");
-    textKeys.push(key);
-  }
-  textKeys.sort();
-  context.ancestors.add(value);
-  try {
-    const entries: string[] = [];
-    for (const key of textKeys) {
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (!isEnumerableDataDescriptor(descriptor))
-        return unavailable("accessor-or-hidden-property");
-      const rendered = renderDetailValue(descriptor.value, context, depth + 1);
-      if (!rendered.ok) return rendered;
-      entries.push(`${JSON.stringify(key)}:${rendered.text}`);
-    }
-    return renderDetailText(`{${entries.join(",")}}`, context);
-  } finally {
-    context.ancestors.delete(value);
-  }
-}
-
-function isEnumerableDataDescriptor(
-  descriptor: PropertyDescriptor | undefined
-): descriptor is PropertyDescriptor & Readonly<{ readonly value: unknown }> {
-  return (
-    descriptor !== undefined &&
-    descriptor.enumerable === true &&
-    descriptor.get === undefined &&
-    descriptor.set === undefined &&
-    Object.hasOwn(descriptor, "value")
-  );
-}
-
-function renderDetailText(text: string, context: DetailRenderingContext): DetailRendering {
-  if (text.length > context.remainingCharacters) return unavailable("size-limit");
-  context.remainingCharacters -= text.length;
-  return Object.freeze({ ok: true, text });
-}
-
-function unavailable(reason: string): DetailRendering {
-  return Object.freeze({ ok: false, reason });
 }
 
 function safeNow(clock: CheckExecutionClock): number {

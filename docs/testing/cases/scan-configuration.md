@@ -5,13 +5,13 @@
 Owner: `docs/configuration.md#recursive-check-tree`
 Entities:
 
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > uses exact scheduling inheritance and rejects retired catalog fields`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
+- `bun|src/project-definition/project-definition.authoring-defaults.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
+- `bun|src/project-definition/project-definition.recursive-checks.test.ts|Project Definition > normalizes ordinary recursive Checks without a Record catalog`
+- `bun|src/project-definition/project-definition.scheduling-inheritance.test.ts|Project Definition > uses exact scheduling inheritance and rejects retired catalog fields`
+- `bun|src/project-definition/project-definition.visibility.test.ts|Project Definition > normalizes executable visibility and rejects container visibility`
+- `bun|src/project-definition/project-definition.visibility.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
+- `bun|src/project-definition/project-definition.fingerprint.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
+- `bun|src/project-definition/project-definition.typed-provider.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
   Proves:
 
 - Recursive ordinary Checks normalize only the declared executable/container grammar. Explicit `inherit` is the scheduling inheritance marker, executable visibility is canonical while container or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
@@ -22,8 +22,8 @@ Entities:
 Owner: `docs/configuration.md#package-provided-check-composition`
 Entities:
 
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
-- `bun|src/project-definition/project-definition.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
+- `bun|src/project-definition/project-definition.options-preflight.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
+- `bun|src/project-definition/project-definition.options-preflight.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
   Proves:
 
 - Definition preserves authored package Check options as declarative JSON without interpreting their domain shape; the owning Check preflight, not Definition normalization, decides whether ordinary JSON or JSON Schema options are valid before execution.
@@ -64,18 +64,18 @@ Entities:
 Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
 Entities:
 
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps execution cancellation distinct when progress presentation has failed`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains a TTY rewrite failure without leaving Check or Record facts open`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > continues output publication after a progress writer failure`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > returns output facts when machine publication alone fails`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains a TTY rewrite failure without leaving Check or Record facts open`
+- `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > continues output publication after a progress writer failure`
+- `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > returns output facts when machine publication alone fails`
+- `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > keeps both failed outputs and prioritizes progress rendering`
   Proves:
 - Disabling progress rendering does not construct its writer or affect Check execution.
 - Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
@@ -88,16 +88,17 @@ Owner: `docs/api-mechanics.md#outputs-与-runresult-边界`
 Entities:
 
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
-- `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger > renders only bounded descriptor-safe details without invoking author hooks`
+- `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger detail safety > rejects descriptor-unsafe details without invoking author hooks`
+- `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger observation formatting > renders bounded filterable facts without changing their format`
 - `bun|src/project-run/diagnostic-logging/logger.test.ts|Project Run diagnostic logger > summarizes descriptor-safe normal values without rendering their full lifecycle payload`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > writes one compact invocation start instead of catalog entries for every Check`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > summarizes accepted final data instead of copying it into the diagnostic log`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > does not invoke hostile author details while diagnostic logging is enabled`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > closes diagnostic logging once after an unexpected nonconfiguration failure`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > contains diagnostic logger implementation failures without revising final facts`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > continues output publication after a progress writer failure`
-- `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
-Proves:
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-start.test.ts|Package Run diagnostic logging output > writes one compact invocation start instead of catalog entries for every Check`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-data.test.ts|Package Run diagnostic logging output > summarizes accepted final data instead of copying it into the diagnostic log`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-hostile.test.ts|Package Run diagnostic logging output > does not invoke hostile author details while diagnostic logging is enabled`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > closes diagnostic logging once after an unexpected nonconfiguration failure`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-failures.test.ts|Package Run diagnostic logging output > contains diagnostic logger implementation failures without revising final facts`
+- `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > continues output publication after a progress writer failure`
+- `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > keeps both failed outputs and prioritizes progress rendering`
+  Proves:
 
 - Disabled diagnostic logging constructs neither directory/file nor writer; its disabled status and `null` file are independently observable without changing progress, publication or Check execution. Only diagnostic logging or machine publication enables one invocation-creation wall-clock capture: machine-only publication serializes it as `invocation.timestamp`; diagnostic-only logging uses it for the UTC-compact filename; when both are enabled they share the same immutable instant; when both are disabled the Run does not read or serialize wall clock.
 - An enabled log uses one UTC-compact-time-and-UUID-named file and newline-terminated timeline observations. Each event has one sequence/elapsed header, filterable `[]` tags and semantic `key=value` facts; long facts continue on bounded physical lines without becoming a parser or versioned format. Its instant is not publication completion time. Its compact initial Run observation reports the Check count without one `catalog.check` projection per normalized Check; `run.terminal-before-log-close` reports that the terminal fact is written while diagnostic close remains unconfirmed, and a progress failure does not prevent this independent Product output from closing.
@@ -111,13 +112,13 @@ Owner: `docs/configuration.md#invocation-and-results`
 Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > finishes every sequential preflight before any author execution`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > settles blocked preflights before graph admission without a started fact or duration`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > passes the invocation signal to cooperative preflights and closes a cancelled barrier`
-- `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
-- `bun|src/project-run/check-facts-integration.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
+- `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > finishes every sequential preflight before any author execution`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > settles blocked preflights before graph admission without a started fact or duration`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to cooperative preflights and closes a cancelled barrier`
+- `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
+- `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
+- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.

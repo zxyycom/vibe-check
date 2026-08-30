@@ -189,20 +189,35 @@ function readReceipt(receiptPath: string):
 }
 
 function isCandidateReceipt(value: unknown): value is CandidateReceipt {
-  if (!isNonArrayRecord(value) || value.schemaVersion !== RECEIPT_SCHEMA_VERSION) return false;
+  if (!hasCandidateReceiptShape(value) || !hasCandidateReceiptIdentity(value)) return false;
+  return hasCandidateReceiptMaterial(value);
+}
+
+function hasCandidateReceiptShape(value: unknown): value is Readonly<Record<string, unknown>> {
+  return isNonArrayRecord(value) && value.schemaVersion === RECEIPT_SCHEMA_VERSION;
+}
+
+function hasCandidateReceiptIdentity(value: Readonly<Record<string, unknown>>): boolean {
   if (
     typeof value.inputFingerprint !== "string" ||
     typeof value.candidateVersion !== "string" ||
-    !isNonArrayRecord(value.artifact) ||
+    !Array.isArray(value.files) ||
+    !value.files.every((file) => typeof file === "string")
+  ) {
+    return false;
+  }
+  return true;
+}
+
+function hasCandidateReceiptMaterial(value: Readonly<Record<string, unknown>>): boolean {
+  if (!isNonArrayRecord(value.artifact) || !isNonArrayRecord(value.consumer)) return false;
+  if (
     typeof value.artifact.path !== "string" ||
     typeof value.artifact.sha256 !== "string" ||
-    !isNonArrayRecord(value.consumer) ||
     typeof value.consumer.directory !== "string" ||
     typeof value.consumer.installedPackageDirectory !== "string" ||
     typeof value.consumer.resolvedEntryPath !== "string" ||
-    typeof value.consumer.resolvedEntrySha256 !== "string" ||
-    !Array.isArray(value.files) ||
-    !value.files.every((file) => typeof file === "string")
+    typeof value.consumer.resolvedEntrySha256 !== "string"
   ) {
     return false;
   }

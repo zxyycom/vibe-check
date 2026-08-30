@@ -29,55 +29,88 @@ export function executeJsonValidation(
   if (!validJsonValidationOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
-  let paths: string[];
-  try {
-    paths = collectProjectFiles(context.project.root, context.options.files).filter((path) =>
-      path.endsWith(".json")
-    );
-  } catch {
-    return unavailable("scan-input-unavailable");
-  }
+  const paths = eligibleJsonPaths(context);
+  if (paths === undefined) return unavailable("scan-input-unavailable");
   if (context.signal.aborted) return unavailable("execution-cancelled");
-  if (paths.length === 0) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
-  }
+  if (paths.length === 0) return noEligibleInput();
+  return validateJsonPaths(context, paths);
+}
 
-  let invalidFileCount = 0;
-  let validFileCount = 0;
+function validateJsonPaths(
+  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  paths: readonly string[]
+): CheckResult<JsonValidationFinalData> {
+  const counts = { invalidFileCount: 0, validFileCount: 0 };
   for (const path of paths) {
     if (context.signal.aborted) return unavailable("execution-cancelled");
-    const document = readStrictJsonDocument({
-      filePath: resolve(context.project.root, path),
-      maximumBytes: context.options.maximumBytes
-    });
+    const document = readJsonDocument(context, path);
     if (context.signal.aborted) return unavailable("execution-cancelled");
     if (document.kind === "unavailable") return unavailable("document-unavailable");
     if (document.kind === "valid") {
-      validFileCount += 1;
+      counts.validFileCount += 1;
       continue;
     }
 
-    invalidFileCount += 1;
-    const record: JsonValidationRecordData = Object.freeze({ path, reason: document.reason });
-    context.records.report({ id: path }, record);
+    counts.invalidFileCount += 1;
+    reportInvalidDocument(context, path, document.reason);
   }
 
-  const data = Object.freeze({
-    scannedFileCount: paths.length,
-    validFileCount,
-    invalidFileCount,
-    issueCount: invalidFileCount
-  });
-  if (invalidFileCount === 0) {
-    return Object.freeze({ data, status: "passed" });
+  return resultForValidationCounts(paths.length, counts);
+}
+
+function eligibleJsonPaths(
+  context: CheckExecutionContext<ResolvedJsonValidationOptions>
+): string[] | undefined {
+  try {
+    return collectProjectFiles(context.project.root, context.options.files).filter((path) =>
+      path.endsWith(".json")
+    );
+  } catch {
+    return undefined;
   }
+}
+
+function noEligibleInput(): CheckResult<JsonValidationFinalData> {
+  return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+}
+
+function readJsonDocument(
+  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  path: string
+) {
+  return readStrictJsonDocument({
+    filePath: resolve(context.project.root, path),
+    maximumBytes: context.options.maximumBytes
+  });
+}
+
+function reportInvalidDocument(
+  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  path: string,
+  reason: JsonDocumentIssue
+): void {
+  const record: JsonValidationRecordData = Object.freeze({ path, reason });
+  context.records.report({ id: path }, record);
+}
+
+function resultForValidationCounts(
+  scannedFileCount: number,
+  counts: Readonly<{ invalidFileCount: number; validFileCount: number }>
+): CheckResult<JsonValidationFinalData> {
+  const data = Object.freeze({
+    scannedFileCount,
+    validFileCount: counts.validFileCount,
+    invalidFileCount: counts.invalidFileCount,
+    issueCount: counts.invalidFileCount
+  });
+  if (counts.invalidFileCount === 0) return Object.freeze({ data, status: "passed" });
   return Object.freeze({
     data,
     messages: Object.freeze([
       Object.freeze({
         code: "invalid-json-documents",
         level: "error" as const,
-        message: `${invalidFileCount} JSON document(s) are invalid; inspect this Check's Records for each path and reason.`
+        message: `${counts.invalidFileCount} JSON document(s) are invalid; inspect this Check's Records for each path and reason.`
       })
     ]),
     status: "failed"

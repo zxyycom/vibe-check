@@ -193,7 +193,7 @@ callback 只在项目根目录的已提交 Git 历史中工作：它解析 `HEAD
 | `due`         | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 | `unavailable` | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
 
-提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#当前产品输出)。
+提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#读取与验证顺序)。
 
 ## Explicit aggregation and repository Gate mapping
 

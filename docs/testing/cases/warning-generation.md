@@ -50,9 +50,9 @@ Proves:
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.default-contract.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > accepts standard conditional keywords and format annotations without extra plugins`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.result-reporting.test.ts|JSON Schema validation default Check > caps only displayed issues while retaining the full failed assessment`
   Proves:
 
 - `jsonSchemaValidation(options?)` fills partial authoring defaults and exposes a parser for exact binding, issue, reported-count and truncation invariants. Registered work publishes only the closed schema-document, schema-compile, instance-document, and keyword-violation facts with safe IDs, paths, pointers, and keywords; it never exposes engine text, source bytes, raw external identity, or credentials.
@@ -63,12 +63,12 @@ Entities:
 Owner: `docs/configuration.md#jsonschemavalidation-option-contract`
 Entities:
 
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > resolves a registered local schema before requiring an external source`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.offline-and-local-reference.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.offline-and-local-reference.test.ts|JSON Schema validation default Check > resolves a registered local schema before requiring an external source`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.allowlisted-reference.test.ts|JSON Schema validation default Check > uses an explicit HTTPS allowlist with omitted credentials and no redirect`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts|JSON Schema validation default Check > maps an allowlisted transport failure to unavailable without remote detail`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.reference-failure-boundaries.test.ts|JSON Schema validation default Check > treats an allowlisted redirect as a safe schema failure without following it`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.unsafe-schema-boundaries.test.ts|JSON Schema validation default Check > rejects credential-bearing, dynamic, recursive, and async schemas before any fetch or native diagnostic can escape`
   Proves:
 
 - Reference resolution is offline by default. Only explicitly configured HTTPS sources may be requested with omitted credentials and no redirect; registered local schemas and the fixed catalog need no request.
@@ -79,8 +79,8 @@ Entities:
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
   Proves:
 
 - One Check-level root identity mode governs every configured schema without exposing document IDs. Scope or schema-document failures block their dependent bindings rather than inventing keyword results, and zero bindings settle as `not-applicable` without document work.

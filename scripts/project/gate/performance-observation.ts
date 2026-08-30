@@ -76,29 +76,39 @@ function comparableBaseline(
   if (initialResult.status !== "passed") return notComparable("initial result was not passed");
   if (context.selection.disabledTags.length > 0 || context.selection.enabledTags.length > 0)
     return notComparable("tag override");
-  if (
-    context.preparedCandidate.preparationAction !== "reuse" ||
-    context.preparedCandidate.preparationReason !== "installation-current" ||
-    context.preparedCandidate.reused !== true
-  ) {
-    return notComparable("candidate was not reused");
-  }
+  if (!isReusableCandidate(context)) return notComparable("candidate was not reused");
 
   const run = readComparableRunFacts(context.runResult);
   if (run === undefined) return notComparable("Run facts were incomplete");
 
-  const baseline = baselines.find(
-    (candidate) =>
-      isValidBaseline(candidate) &&
-      candidate.workload.profile === context.selection.profile &&
-      candidate.workload.declarativeFingerprint === run.declarativeFingerprint &&
-      candidate.workload.runtime.platform === runtime.platform &&
-      candidate.workload.runtime.architecture === runtime.architecture &&
-      candidate.workload.runtime.bunVersion === runtime.bunVersion
-  );
+  const baseline = matchingBaseline(baselines, context.selection.profile, run, runtime);
   return baseline === undefined
     ? notComparable("no matching baseline")
     : Object.freeze({ baseline, kind: "comparable", run });
+}
+
+function isReusableCandidate(context: ProjectGateContext): boolean {
+  const candidate = context.preparedCandidate;
+  return (
+    candidate.preparationAction === "reuse" &&
+    candidate.preparationReason === "installation-current" &&
+    candidate.reused === true
+  );
+}
+
+function matchingBaseline(
+  baselines: readonly ProjectGatePerformanceBaseline[],
+  profile: ProjectGateContext["selection"]["profile"],
+  run: ComparableRunFacts,
+  runtime: ProjectGatePerformanceRuntime
+): ProjectGatePerformanceBaseline | undefined {
+  return baselines.find(
+    (candidate) =>
+      isValidBaseline(candidate) &&
+      candidate.workload.profile === profile &&
+      candidate.workload.declarativeFingerprint === run.declarativeFingerprint &&
+      runtimeMatches(candidate.workload.runtime, runtime)
+  );
 }
 
 function appendOutsideRangeObservation(
@@ -178,16 +188,9 @@ function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined 
   if (!Array.isArray(checkDurations)) return undefined;
   const parsedDurations: CheckDuration[] = [];
   for (const duration of checkDurations) {
-    const checkId = isNonArrayRecord(duration) ? duration.checkId : undefined;
-    const durationMs = isNonArrayRecord(duration) ? duration.durationMs : undefined;
-    if (
-      typeof checkId !== "string" ||
-      !CHECK_ID_PATTERN.test(checkId) ||
-      (durationMs !== null && !isDuration(durationMs))
-    ) {
-      return undefined;
-    }
-    parsedDurations.push(Object.freeze({ checkId, durationMs }));
+    const parsed = parseCheckDuration(duration);
+    if (parsed === undefined) return undefined;
+    parsedDurations.push(parsed);
   }
   return Object.freeze({
     checkDurations: Object.freeze(parsedDurations),
@@ -195,22 +198,49 @@ function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined 
   });
 }
 
-function isValidBaseline(value: ProjectGatePerformanceBaseline): boolean {
+function parseCheckDuration(value: unknown): CheckDuration | undefined {
+  if (!isNonArrayRecord(value)) return undefined;
+  const { checkId, durationMs } = value;
   if (
-    value.workload.candidatePreparation !== "reuse" ||
-    typeof value.workload.declarativeFingerprint !== "string" ||
-    value.workload.declarativeFingerprint.length === 0 ||
-    (value.workload.profile !== "required" && value.workload.profile !== "full") ||
-    !isRuntime(value.workload.runtime) ||
-    value.samplesMs.length === 0 ||
-    !value.samplesMs.every(isDuration) ||
-    !isDuration(value.medianMs) ||
-    !isDuration(value.p90Ms) ||
-    !isDuration(value.thresholdMs)
+    typeof checkId !== "string" ||
+    !CHECK_ID_PATTERN.test(checkId) ||
+    (durationMs !== null && !isDuration(durationMs))
   ) {
-    return false;
+    return undefined;
   }
+  return Object.freeze({ checkId, durationMs });
+}
 
+function isValidBaseline(value: ProjectGatePerformanceBaseline): boolean {
+  return hasValidBaselineShape(value) && hasConsistentBaselineStatistics(value);
+}
+
+function hasValidBaselineShape(value: ProjectGatePerformanceBaseline): boolean {
+  return (
+    hasComparableWorkload(value) &&
+    hasValidSamples(value.samplesMs) &&
+    isDuration(value.medianMs) &&
+    isDuration(value.p90Ms) &&
+    isDuration(value.thresholdMs)
+  );
+}
+
+function hasComparableWorkload(value: ProjectGatePerformanceBaseline): boolean {
+  const { workload } = value;
+  return (
+    workload.candidatePreparation === "reuse" &&
+    typeof workload.declarativeFingerprint === "string" &&
+    workload.declarativeFingerprint.length > 0 &&
+    (workload.profile === "required" || workload.profile === "full") &&
+    isRuntime(workload.runtime)
+  );
+}
+
+function hasValidSamples(samplesMs: readonly number[]): boolean {
+  return samplesMs.length > 0 && samplesMs.every(isDuration);
+}
+
+function hasConsistentBaselineStatistics(value: ProjectGatePerformanceBaseline): boolean {
   const orderedSamples = [...value.samplesMs].sort((left, right) => left - right);
   const middleIndex = Math.floor(orderedSamples.length / 2);
   const medianMs =
@@ -220,6 +250,17 @@ function isValidBaseline(value: ProjectGatePerformanceBaseline): boolean {
   const p90Ms = orderedSamples[Math.ceil(orderedSamples.length * 0.9) - 1];
   const thresholdMs = Math.ceil(Math.max(p90Ms * 1.25, medianMs * 1.5));
   return value.medianMs === medianMs && value.p90Ms === p90Ms && value.thresholdMs === thresholdMs;
+}
+
+function runtimeMatches(
+  expected: ProjectGatePerformanceRuntime,
+  actual: ProjectGatePerformanceRuntime
+): boolean {
+  return (
+    expected.platform === actual.platform &&
+    expected.architecture === actual.architecture &&
+    expected.bunVersion === actual.bunVersion
+  );
 }
 
 function isRuntime(value: ProjectGatePerformanceRuntime): boolean {

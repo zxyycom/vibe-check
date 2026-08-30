@@ -46,21 +46,35 @@ function parseGitlinkEntry({
   readonly repository: string;
   readonly revision: string;
 }>): Gitlink | null {
-  const separator = entry.indexOf("\t");
-  const metadata = separator < 0 ? [] : entry.slice(0, separator).split(/\s+/u);
-  const path = separator < 0 ? "" : entry.slice(separator + 1);
-  if (metadata.length !== 3 || path.length === 0) {
-    throw new Error(`invalid git tree output at ${revision} in ${repository}`);
-  }
-  const [mode, type, sha] = metadata;
-  if (mode === undefined || type === undefined || sha === undefined || !isFullGitObjectId(sha)) {
-    throw new Error(`invalid git tree output at ${revision} in ${repository}`);
-  }
+  const parsed = gitTreeEntryParts(entry);
+  if (parsed === undefined) throw invalidTreeOutput(revision, repository);
+  const [mode, type, sha] = parsed.metadata;
+  if (!validGitTreeMetadata(mode, type, sha)) throw invalidTreeOutput(revision, repository);
   if (mode !== "160000") return null;
   if (type !== "commit") {
     throw new Error(`invalid gitlink output at ${revision} in ${repository}`);
   }
-  return Object.freeze({ path: toSlashPath(path), sha });
+  return Object.freeze({ path: toSlashPath(parsed.path), sha });
+}
+
+function gitTreeEntryParts(entry: string): { metadata: string[]; path: string } | undefined {
+  const separator = entry.indexOf("\t");
+  if (separator < 0) return undefined;
+  const metadata = entry.slice(0, separator).split(/\s+/u);
+  const path = entry.slice(separator + 1);
+  return metadata.length === 3 && path.length > 0 ? { metadata, path } : undefined;
+}
+
+function validGitTreeMetadata(
+  mode: string | undefined,
+  type: string | undefined,
+  sha: string | undefined
+): sha is string {
+  return mode !== undefined && type !== undefined && sha !== undefined && isFullGitObjectId(sha);
+}
+
+function invalidTreeOutput(revision: string, repository: string): Error {
+  return new Error(`invalid git tree output at ${revision} in ${repository}`);
 }
 
 function isFullGitObjectId(value: string): boolean {

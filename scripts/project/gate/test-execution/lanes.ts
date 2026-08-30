@@ -9,6 +9,14 @@ const PACKAGE_CONSUMER_DOCS_TEST_FILE = "scripts/package/candidate/isolated-cons
 const PACKAGE_CONSUMER_RUNTIME_TEST_FILE =
   "scripts/package/candidate/isolated-consumer-runtime.test.ts";
 
+const PACKAGE_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
+  [PACKAGE_ARTIFACT_TEST_FILE, "packageArtifact"],
+  [PACKAGE_CANDIDATE_TEST_FILE, "packageCandidate"],
+  [PACKAGE_CONSUMER_TYPES_TEST_FILE, "packageConsumerTypes"],
+  [PACKAGE_CONSUMER_DOCS_TEST_FILE, "packageConsumerDocs"],
+  [PACKAGE_CONSUMER_RUNTIME_TEST_FILE, "packageConsumerRuntime"]
+]);
+
 export const PROJECT_GATE_TEST_LANE_NAMES = [
   "packageArtifact",
   "packageCandidate",
@@ -93,19 +101,22 @@ export function resolveProjectGateTestLanes(repositoryRoot: string): ProjectGate
 }
 
 function testLaneForFile(file: string): ProjectGateTestLaneName {
-  if (file === PACKAGE_ARTIFACT_TEST_FILE) return "packageArtifact";
-  if (file === PACKAGE_CANDIDATE_TEST_FILE) return "packageCandidate";
-  if (file === PACKAGE_CONSUMER_TYPES_TEST_FILE) return "packageConsumerTypes";
-  if (file === PACKAGE_CONSUMER_DOCS_TEST_FILE) return "packageConsumerDocs";
-  if (file === PACKAGE_CONSUMER_RUNTIME_TEST_FILE) return "packageConsumerRuntime";
+  const packageLane = PACKAGE_TEST_LANES.get(file);
+  if (packageLane !== undefined) return packageLane;
   if (file.startsWith("scripts/package/")) return "packageSupporting";
   if (file.startsWith("src/package-checks/")) return productPackageTestLane(file);
   if (file.startsWith("src/")) return "productRuntime";
+  const scriptsLane = scriptTestLane(file);
+  if (scriptsLane !== undefined) return scriptsLane;
+  throw new TypeError(`Project Gate test file has no execution subcheck: ${file}`);
+}
+
+function scriptTestLane(file: string): ProjectGateTestLaneName | undefined {
+  if (!file.startsWith("scripts/")) return undefined;
   if (file.startsWith("scripts/project/")) return "scriptsProject";
   if (file.startsWith("scripts/test-evidence/")) return "scriptsTestEvidence";
   if (file.startsWith("scripts/validation/")) return "scriptsValidation";
-  if (file.startsWith("scripts/")) return "scriptsTooling";
-  throw new TypeError(`Project Gate test file has no execution subcheck: ${file}`);
+  return "scriptsTooling";
 }
 
 function productPackageTestLane(file: string): ProductPackageTestLaneName {

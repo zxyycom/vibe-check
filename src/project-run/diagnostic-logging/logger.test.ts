@@ -6,128 +6,47 @@ import { describe, it } from "node:test";
 
 import { createDiagnosticLogger, diagnosticTags, summarizeDiagnosticValue } from "./logger.ts";
 
-describe("Project Run diagnostic logger", () => {
-  it("renders only bounded descriptor-safe details without invoking author hooks", () => {
+describe("Project Run diagnostic logger detail safety", () => {
+  it("rejects descriptor-unsafe details without invoking author hooks", () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-logger-"));
     try {
-      let accessorReads = 0;
-      let proxyTraps = 0;
-      let toJsonCalls = 0;
-      const accessor: Record<string, unknown> = {};
-      Object.defineProperty(accessor, "value", {
-        enumerable: true,
-        get: (): string => {
-          accessorReads += 1;
-          return "must-not-read";
-        }
-      });
-      const toJson: Record<string, unknown> = {};
-      Object.defineProperty(toJson, "toJSON", {
-        enumerable: true,
-        value: (): object => {
-          toJsonCalls += 1;
-          return { leaked: true };
-        }
-      });
-      const proxy = new Proxy(
-        {},
-        {
-          get: (): never => {
-            proxyTraps += 1;
-            throw new Error("must-not-read");
-          },
-          getPrototypeOf: (): never => {
-            proxyTraps += 1;
-            throw new Error("must-not-read");
-          },
-          ownKeys: (): never => {
-            proxyTraps += 1;
-            throw new Error("must-not-read");
-          }
-        }
-      );
-      const cyclic: Record<string, unknown> = {};
-      cyclic.self = cyclic;
-      let deep: Record<string, unknown> = {};
-      const deeplyNested = deep;
-      for (let index = 0; index < 16; index += 1) {
-        const next: Record<string, unknown> = {};
-        deep.next = next;
-        deep = next;
-      }
-      const ordinaryWidth = Array.from({ length: 700 }, (_, index) => `entry-${index}`);
-      const extremeWidth = Array.from({ length: 4_097 }, (_, index) => `entry-${index}`);
-
+      const authorHooks = { accessorReads: 0, proxyTraps: 0, toJsonCalls: 0 };
+      const unsafeDetails = createUnsafeDiagnosticDetails(authorHooks);
       const logger = createDiagnosticLogger({
         clock: { now: () => 0 },
         enabled: true,
         file: join(root, "run.log")
       });
-      logger.observe({
-        event: "safe",
-        tags: diagnosticTags("RUN", "SAFE"),
-        details: { z: "ready", a: [true, 2] }
-      });
-      logger.observe({
-        event: "accessor",
-        tags: diagnosticTags("RUN", "ACCESSOR"),
-        details: { accessor }
-      });
-      logger.observe({ event: "to-json", tags: diagnosticTags("RUN"), details: { toJson } });
-      logger.observe({ event: "proxy", tags: diagnosticTags("RUN"), details: { proxy } });
-      logger.observe({ event: "cycle", tags: diagnosticTags("RUN"), details: { cyclic } });
-      logger.observe({ event: "depth", tags: diagnosticTags("RUN"), details: deeplyNested });
-      logger.observe({
-        event: "scheduler.decision",
-        tags: diagnosticTags("SCHEDULER", "ADMIT", "TASK:compile"),
-        details: {
-          kind: "admit",
-          reason: "canonical-order",
-          taskId: "compile",
-          trigger: { kind: "execution-started" }
-        }
-      });
-      logger.observe({
-        event: "record.reported",
-        tags: diagnosticTags("CHECK:quality", "RECORD", "COMMITTED"),
-        details: { identity: { id: "finding" }, result: "committed" }
-      });
-      logger.observe({
-        event: "callback.cancelled",
-        tags: diagnosticTags("CHECK:fixture", "EXECUTION", "CANCELLED"),
-        details: { result: "cancelled" }
-      });
-      logger.observe({
-        event: "event\u0085\rfabricated",
-        tags: diagnosticTags("scope\\path\nforged", "closing]tag")
-      });
-      logger.observe({
-        event: "ordinary-width",
-        tags: diagnosticTags("RUN"),
-        details: ordinaryWidth
-      });
-      logger.observe({
-        event: "extreme-width",
-        tags: diagnosticTags("RUN"),
-        details: extremeWidth
-      });
-      logger.observe({
-        event: "size",
-        tags: diagnosticTags("RUN"),
-        details: { value: "x".repeat(1_048_577) }
-      });
-
+      observeUnsafeDiagnosticDetails(logger, unsafeDetails);
       assert.equal(logger.close(), "succeeded");
-      assert.equal(accessorReads, 0);
-      assert.equal(proxyTraps, 0);
-      assert.equal(toJsonCalls, 0);
+      assert.deepEqual(authorHooks, { accessorReads: 0, proxyTraps: 0, toJsonCalls: 0 });
       const log = readFileSync(join(root, "run.log"), "utf8");
-      assert.match(log, /^#000001 \+00:00:00\.000 \[RUN\] \[SAFE\] safe a=\[true,2\] z="ready"\n/m);
       assert.match(log, /details=unavailable:accessor-or-hidden-property/);
       assert.match(log, /details=unavailable:unsupported-function/);
       assert.match(log, /details=unavailable:proxy/);
       assert.match(log, /details=unavailable:cycle/);
       assert.match(log, /details=unavailable:depth-limit/);
+      assert.equal((log.match(/^#\d{6} /gm) ?? []).length, 5);
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+});
+
+describe("Project Run diagnostic logger observation formatting", () => {
+  it("renders bounded filterable facts without changing their format", () => {
+    const root = mkdtempSync(join(tmpdir(), "vibe-check-diagnostic-logger-"));
+    try {
+      const logger = createDiagnosticLogger({
+        clock: { now: () => 0 },
+        enabled: true,
+        file: join(root, "run.log")
+      });
+      observeDiagnosticFormattingExamples(logger);
+      assert.equal(logger.close(), "succeeded");
+
+      const log = readFileSync(join(root, "run.log"), "utf8");
+      assert.match(log, /^#000001 \+00:00:00\.000 \[RUN\] \[SAFE\] safe a=\[true,2\] z="ready"\n/m);
       const schedulerRecord = observationText(log, "scheduler.decision");
       assert.match(schedulerRecord, /reason="canonical-order"/);
       assert.match(schedulerRecord, /trigger\.kind="execution-started"/);
@@ -146,8 +65,7 @@ describe("Project Run diagnostic logger", () => {
         log.split("\n").every((line) => line.length <= 200),
         "diagnostic observations must use bounded physical lines"
       );
-      const records = log.match(/^#\d{6} /gm) ?? [];
-      assert.equal(records.length, 13);
+      assert.equal((log.match(/^#\d{6} /gm) ?? []).length, 8);
       assert.match(log, /details\.0="entry-0"/);
       assert.match(log, /details\.699="entry-699"/);
       assert.match(log, /details=unavailable:width-limit/);
@@ -156,7 +74,9 @@ describe("Project Run diagnostic logger", () => {
       rmSync(root, { force: true, recursive: true });
     }
   });
+});
 
+describe("Project Run diagnostic logger", () => {
   it("summarizes descriptor-safe normal values without rendering their full lifecycle payload", () => {
     assert.deepEqual(summarizeDiagnosticValue({ files: ["a", "b"], ready: true }), {
       availability: "available",
@@ -183,6 +103,140 @@ describe("Project Run diagnostic logger", () => {
     });
   });
 });
+
+interface UnsafeDiagnosticDetails {
+  readonly accessor: Record<string, unknown>;
+  readonly cyclic: Record<string, unknown>;
+  readonly deeplyNested: Record<string, unknown>;
+  readonly proxy: object;
+  readonly toJson: Record<string, unknown>;
+}
+
+function createUnsafeDiagnosticDetails(authorHooks: {
+  accessorReads: number;
+  proxyTraps: number;
+  toJsonCalls: number;
+}): UnsafeDiagnosticDetails {
+  const accessor: Record<string, unknown> = {};
+  Object.defineProperty(accessor, "value", {
+    enumerable: true,
+    get: (): string => {
+      authorHooks.accessorReads += 1;
+      return "must-not-read";
+    }
+  });
+  const toJson: Record<string, unknown> = {};
+  Object.defineProperty(toJson, "toJSON", {
+    enumerable: true,
+    value: (): object => {
+      authorHooks.toJsonCalls += 1;
+      return { leaked: true };
+    }
+  });
+  const proxy = new Proxy(
+    {},
+    {
+      get: (): never => {
+        authorHooks.proxyTraps += 1;
+        throw new Error("must-not-read");
+      },
+      getPrototypeOf: (): never => {
+        authorHooks.proxyTraps += 1;
+        throw new Error("must-not-read");
+      },
+      ownKeys: (): never => {
+        authorHooks.proxyTraps += 1;
+        throw new Error("must-not-read");
+      }
+    }
+  );
+  const cyclic: Record<string, unknown> = {};
+  cyclic.self = cyclic;
+  let deepest: Record<string, unknown> = {};
+  const deeplyNested = deepest;
+  for (let index = 0; index < 16; index += 1) {
+    const next: Record<string, unknown> = {};
+    deepest.next = next;
+    deepest = next;
+  }
+  return { accessor, cyclic, deeplyNested, proxy, toJson };
+}
+
+function observeUnsafeDiagnosticDetails(
+  logger: ReturnType<typeof createDiagnosticLogger>,
+  details: UnsafeDiagnosticDetails
+): void {
+  logger.observe({
+    event: "accessor",
+    tags: diagnosticTags("RUN", "ACCESSOR"),
+    details: { accessor: details.accessor }
+  });
+  logger.observe({
+    event: "to-json",
+    tags: diagnosticTags("RUN"),
+    details: { toJson: details.toJson }
+  });
+  logger.observe({
+    event: "proxy",
+    tags: diagnosticTags("RUN"),
+    details: { proxy: details.proxy }
+  });
+  logger.observe({
+    event: "cycle",
+    tags: diagnosticTags("RUN"),
+    details: { cyclic: details.cyclic }
+  });
+  logger.observe({ event: "depth", tags: diagnosticTags("RUN"), details: details.deeplyNested });
+}
+
+function observeDiagnosticFormattingExamples(
+  logger: ReturnType<typeof createDiagnosticLogger>
+): void {
+  logger.observe({
+    event: "safe",
+    tags: diagnosticTags("RUN", "SAFE"),
+    details: { z: "ready", a: [true, 2] }
+  });
+  logger.observe({
+    event: "scheduler.decision",
+    tags: diagnosticTags("SCHEDULER", "ADMIT", "TASK:compile"),
+    details: {
+      kind: "admit",
+      reason: "canonical-order",
+      taskId: "compile",
+      trigger: { kind: "execution-started" }
+    }
+  });
+  logger.observe({
+    event: "record.reported",
+    tags: diagnosticTags("CHECK:quality", "RECORD", "COMMITTED"),
+    details: { identity: { id: "finding" }, result: "committed" }
+  });
+  logger.observe({
+    event: "callback.cancelled",
+    tags: diagnosticTags("CHECK:fixture", "EXECUTION", "CANCELLED"),
+    details: { result: "cancelled" }
+  });
+  logger.observe({
+    event: "event\u0085\rfabricated",
+    tags: diagnosticTags("scope\\path\nforged", "closing]tag")
+  });
+  logger.observe({
+    event: "ordinary-width",
+    tags: diagnosticTags("RUN"),
+    details: Array.from({ length: 700 }, (_, index) => `entry-${index}`)
+  });
+  logger.observe({
+    event: "extreme-width",
+    tags: diagnosticTags("RUN"),
+    details: Array.from({ length: 4_097 }, (_, index) => `entry-${index}`)
+  });
+  logger.observe({
+    event: "size",
+    tags: diagnosticTags("RUN"),
+    details: { value: "x".repeat(1_048_577) }
+  });
+}
 
 function observationText(log: string, event: string): string {
   const start = log.indexOf(event);

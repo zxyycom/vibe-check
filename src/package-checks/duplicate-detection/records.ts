@@ -81,21 +81,26 @@ function createDuplicateRecordCandidate(
 }
 
 export function isValidDuplicateFragment(fragment: DuplicateCodeFragment): boolean {
-  const validMeasurements =
-    Number.isSafeInteger(fragment.id) &&
-    fragment.id >= 0 &&
-    Number.isSafeInteger(fragment.lineCount) &&
-    fragment.lineCount >= 0 &&
-    Number.isSafeInteger(fragment.tokenCount) &&
-    fragment.tokenCount >= 0;
   return (
-    validMeasurements &&
+    hasValidFragmentMeasurements(fragment) &&
     Array.isArray(fragment.locations) &&
     fragment.locations.length >= 2 &&
     fragment.locations.every(isValidLocation) &&
     Array.isArray(fragment.codeAreas) &&
     fragment.codeAreas.every(nonEmptyString)
   );
+}
+
+function hasValidFragmentMeasurements(fragment: DuplicateCodeFragment): boolean {
+  return (
+    nonNegativeSafeInteger(fragment.id) &&
+    nonNegativeSafeInteger(fragment.lineCount) &&
+    nonNegativeSafeInteger(fragment.tokenCount)
+  );
+}
+
+function nonNegativeSafeInteger(value: number): boolean {
+  return Number.isSafeInteger(value) && value >= 0;
 }
 
 function isValidLocation(location: DuplicateCodeLocation): boolean {

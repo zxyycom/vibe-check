@@ -36,6 +36,28 @@ export type ProjectGateArgumentParseResult =
     }>
   | Readonly<{ readonly ok: false; readonly error: string }>;
 
+type ProjectGateArgumentFailure = Readonly<{ readonly ok: false; readonly error: string }>;
+
+type ParsedProjectGateArgument =
+  | Readonly<{ readonly ok: true; readonly kind: "profile"; readonly value: ProjectGateProfile }>
+  | Readonly<{ readonly ok: true; readonly kind: "disable-tag"; readonly value: ProjectGateTag }>
+  | Readonly<{
+      readonly ok: true;
+      readonly kind: "enable-tag";
+      readonly value: ProjectGateOptInTag;
+    }>
+  | ProjectGateArgumentFailure;
+
+type ParsedProjectGateFlag =
+  | Readonly<{ readonly ok: true; readonly kind: "profile"; readonly value: ProjectGateProfile }>
+  | Readonly<{ readonly ok: true; readonly kind: "disable-tag"; readonly value: ProjectGateTag }>
+  | Readonly<{
+      readonly ok: true;
+      readonly kind: "enable-tag";
+      readonly value: ProjectGateOptInTag;
+    }>
+  | undefined;
+
 /** Parses the adapter's deliberately small public grammar. */
 export function parseProjectGateArguments(
   arguments_: readonly string[]
@@ -52,36 +74,18 @@ export function parseProjectGateArguments(
   const enabledTags: ProjectGateOptInTag[] = [];
 
   for (let index = 0; index < arguments_.length; index += 1) {
-    const token = arguments_[index];
-    if (token === "--profile") {
-      const value = arguments_[index + 1];
-      if (profileSpecified || !isProjectGateProfile(value)) {
-        return parseFailure("--profile requires one of: required, full");
-      }
-      profile = value;
+    const parsed = parseProjectGateArgument(arguments_[index], arguments_[index + 1]);
+    if (parsed.ok === false) return parsed;
+    if (parsed.kind === "profile") {
+      if (profileSpecified) return parseFailure("--profile requires one of: required, full");
+      profile = parsed.value;
       profileSpecified = true;
-      index += 1;
-      continue;
+    } else if (parsed.kind === "disable-tag") {
+      disabledTags.push(parsed.value);
+    } else {
+      enabledTags.push(parsed.value);
     }
-    if (token === "--disable-tag") {
-      const value = arguments_[index + 1];
-      if (!isProjectGateTag(value)) {
-        return parseFailure("--disable-tag requires a known non-empty tag");
-      }
-      disabledTags.push(value);
-      index += 1;
-      continue;
-    }
-    if (token === "--enable-tag") {
-      const value = arguments_[index + 1];
-      if (!isProjectGateOptInTag(value)) {
-        return parseFailure("--enable-tag requires a known opt-in tag");
-      }
-      enabledTags.push(value);
-      index += 1;
-      continue;
-    }
-    return parseFailure(`unknown Project Gate argument: ${token}`);
+    index += 1;
   }
 
   const canonicalDisabledTags = canonicalTags(disabledTags);
@@ -146,25 +150,16 @@ export function selectionFromFlags(flags: readonly string[]): ProjectGateSelecti
   const disabledTags: ProjectGateTag[] = [];
   const enabledTags: ProjectGateOptInTag[] = [];
   for (const flag of flags) {
-    if (flag.startsWith(PROFILE_FLAG_PREFIX)) {
-      const candidate = flag.slice(PROFILE_FLAG_PREFIX.length);
-      if (profile !== undefined || !isProjectGateProfile(candidate)) return undefined;
-      profile = candidate;
-      continue;
+    const parsed = parseProjectGateFlag(flag);
+    if (parsed === undefined) return undefined;
+    if (parsed.kind === "profile") {
+      if (profile !== undefined) return undefined;
+      profile = parsed.value;
+    } else if (parsed.kind === "disable-tag") {
+      disabledTags.push(parsed.value);
+    } else {
+      enabledTags.push(parsed.value);
     }
-    if (flag.startsWith(DISABLED_TAG_FLAG_PREFIX)) {
-      const candidate = flag.slice(DISABLED_TAG_FLAG_PREFIX.length);
-      if (!isProjectGateTag(candidate)) return undefined;
-      disabledTags.push(candidate);
-      continue;
-    }
-    if (flag.startsWith(ENABLED_TAG_FLAG_PREFIX)) {
-      const candidate = flag.slice(ENABLED_TAG_FLAG_PREFIX.length);
-      if (!isProjectGateOptInTag(candidate)) return undefined;
-      enabledTags.push(candidate);
-      continue;
-    }
-    return undefined;
   }
   if (profile === undefined) return undefined;
   const canonicalDisabledTags = canonicalTags(disabledTags);
@@ -189,6 +184,50 @@ export function isProjectGateOptInTag(value: unknown): value is ProjectGateOptIn
   return typeof value === "string" && PROJECT_GATE_OPT_IN_TAGS.some((tag) => tag === value);
 }
 
+function parseProjectGateArgument(
+  token: string | undefined,
+  value: string | undefined
+): ParsedProjectGateArgument {
+  if (token === "--profile") {
+    return isProjectGateProfile(value)
+      ? Object.freeze({ ok: true, kind: "profile", value })
+      : parseFailure("--profile requires one of: required, full");
+  }
+  if (token === "--disable-tag") {
+    return isProjectGateTag(value)
+      ? Object.freeze({ ok: true, kind: "disable-tag", value })
+      : parseFailure("--disable-tag requires a known non-empty tag");
+  }
+  if (token === "--enable-tag") {
+    return isProjectGateOptInTag(value)
+      ? Object.freeze({ ok: true, kind: "enable-tag", value })
+      : parseFailure("--enable-tag requires a known opt-in tag");
+  }
+  return parseFailure(`unknown Project Gate argument: ${token}`);
+}
+
+function parseProjectGateFlag(flag: string): ParsedProjectGateFlag {
+  if (flag.startsWith(PROFILE_FLAG_PREFIX)) {
+    const value = flag.slice(PROFILE_FLAG_PREFIX.length);
+    return isProjectGateProfile(value)
+      ? Object.freeze({ ok: true, kind: "profile", value })
+      : undefined;
+  }
+  if (flag.startsWith(DISABLED_TAG_FLAG_PREFIX)) {
+    const value = flag.slice(DISABLED_TAG_FLAG_PREFIX.length);
+    return isProjectGateTag(value)
+      ? Object.freeze({ ok: true, kind: "disable-tag", value })
+      : undefined;
+  }
+  if (flag.startsWith(ENABLED_TAG_FLAG_PREFIX)) {
+    const value = flag.slice(ENABLED_TAG_FLAG_PREFIX.length);
+    return isProjectGateOptInTag(value)
+      ? Object.freeze({ ok: true, kind: "enable-tag", value })
+      : undefined;
+  }
+  return undefined;
+}
+
 function canonicalTags(tags: readonly ProjectGateTag[]): readonly ProjectGateTag[] {
   return Object.freeze([...new Set(tags)].sort());
 }
@@ -208,6 +247,6 @@ function packageAcceptanceSelection(selection: ProjectGateSelection): PackageAcc
   return PACKAGE_ACCEPTANCE_SELECTION.notSelected;
 }
 
-function parseFailure(error: string): ProjectGateArgumentParseResult {
+function parseFailure(error: string): ProjectGateArgumentFailure {
   return Object.freeze({ ok: false, error });
 }

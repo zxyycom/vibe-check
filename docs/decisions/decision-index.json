@@ -50,6 +50,7 @@
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
+      "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:f2f02dd354895c420bbc3f114964050e9dfcc30890f12df0e486d7db73a13e86",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:ed9d534a2469cbdba03347edb3f294c65c1215d6e07206d551e644a6d35b02d6",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
@@ -1622,6 +1623,35 @@
             "target": "keep-decision-policies-closed-and-declarative.md"
           }
         ]
+      }
+    },
+    "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md",
+        "title": "从仓库文件指标中精确排除保留字节的历史 v2 schema",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T14:06:36Z",
+        "purpose": "让 repository-private file-metrics 不以重写历史 v2 schema 的方式处理其不可拆分的单文件规模。",
+        "background": "v2 run schema 的历史 identity 与 bytes 必须保留，而 current runtime、package 和消费者验证均已隔离该材料。",
+        "decision": "仅从 Gate 的 schemas-examples file-metrics 输入排除该 v2 run schema，并继续保留其严格 schema 校验与其余当前材料的指标检查。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "exclude-undefined-markdown-references-from-link-check.md": {

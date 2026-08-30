@@ -12,7 +12,6 @@ import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
 
 type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
-type TrustedCheckPreflight = CheckPreflight;
 
 export type ParsedCheckCollection = Readonly<
   | { readonly kind: "exact"; readonly values: readonly string[] }
@@ -35,7 +34,7 @@ export interface ParsedCheck {
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: TrustedCheckPreflight | null;
+  readonly preflight: CheckPreflight | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -64,7 +63,7 @@ interface ParsedCheckFields {
   readonly execution: CheckExecution | null;
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: TrustedCheckPreflight | null;
+  readonly preflight: CheckPreflight | null;
   readonly visibility: CheckVisibility | null;
 }
 
@@ -169,28 +168,22 @@ function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
 
 function parseExecution(data: CheckAuthoringData): CheckExecution | null | undefined {
   if (!Object.hasOwn(data, "execution")) return null;
-  return isCheckExecution(data.execution) ? data.execution : undefined;
-}
-
-function isCheckExecution(value: unknown): value is CheckExecution {
-  return typeof value === "function";
+  return isTrustedFunction<CheckExecution>(data.execution) ? data.execution : undefined;
 }
 
 function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | undefined {
   if (!Object.hasOwn(data, "parseData") || data.parseData === undefined) return null;
-  return isTrustedDataParser(data.parseData) ? data.parseData : undefined;
+  return isTrustedFunction<TrustedDataParser>(data.parseData) ? data.parseData : undefined;
 }
 
-function isTrustedDataParser(value: unknown): value is TrustedDataParser {
-  return typeof value === "function";
-}
-
-function parsePreflight(data: CheckAuthoringData): TrustedCheckPreflight | null | undefined {
+function parsePreflight(data: CheckAuthoringData): CheckPreflight | null | undefined {
   if (!Object.hasOwn(data, "preflight")) return null;
-  return isTrustedCheckPreflight(data.preflight) ? data.preflight : undefined;
+  return isTrustedFunction<CheckPreflight>(data.preflight) ? data.preflight : undefined;
 }
 
-function isTrustedCheckPreflight(value: unknown): value is TrustedCheckPreflight {
+function isTrustedFunction<FunctionType extends (...parameters: never[]) => unknown>(
+  value: unknown
+): value is FunctionType {
   return typeof value === "function";
 }
 
@@ -230,7 +223,7 @@ function parseCheckFields(
   data: CheckAuthoringData,
   execution: CheckExecution | null,
   parseData: TrustedDataParser | null,
-  preflight: TrustedCheckPreflight | null
+  preflight: CheckPreflight | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
     return Object.hasOwn(data, "options") ||
@@ -305,20 +298,18 @@ function parseCollection(
 ): ParsedCheckCollection | null | undefined {
   if (!Object.hasOwn(data, field)) return undefined;
   const value = data[field];
-  if (isInheritedCheckCollection(value)) return parseInheritedCollection(value, field);
-  const values = parseCollectionItems(value, field);
+  if (isInheritedCheckCollection(value)) return parseInheritedCollection(value);
+  const values = parseCollectionItems(value);
   return values === undefined ? null : Object.freeze({ kind: "exact", values });
 }
 
 function parseInheritedCollection(
-  value: InheritedCheckCollection<unknown>,
-  field: "dependsOn" | "mutex"
+  value: InheritedCheckCollection<unknown>
 ): ParsedCheckCollection | null {
   const data = snapshotInheritedCheckCollection(value);
   if (data === undefined || !hasExactInheritedKeys(data)) return null;
-  const add = data.add === undefined ? Object.freeze([]) : parseCollectionItems(data.add, field);
-  const remove =
-    data.remove === undefined ? Object.freeze([]) : parseCollectionItems(data.remove, field);
+  const add = data.add === undefined ? Object.freeze([]) : parseCollectionItems(data.add);
+  const remove = data.remove === undefined ? Object.freeze([]) : parseCollectionItems(data.remove);
   if (add === undefined || remove === undefined) return null;
   return Object.freeze({ kind: "inherit", add, remove });
 }
@@ -328,10 +319,7 @@ function hasExactInheritedKeys(data: Readonly<Record<string, unknown>>): boolean
   return keys.length > 0 && keys.every((key) => key === "add" || key === "remove");
 }
 
-function parseCollectionItems(
-  value: unknown,
-  _field: "dependsOn" | "mutex"
-): readonly string[] | undefined {
+function parseCollectionItems(value: unknown): readonly string[] | undefined {
   const items = snapshotClosedArray(value);
   if (items === undefined) return undefined;
   const values: string[] = [];

@@ -19,6 +19,22 @@ export function readGateArtifactAcceptanceInput(
   const artifact = readGateCandidateAcceptanceArtifact(environment);
   const stagingDirectory = environment[CANDIDATE_STAGING_DIRECTORY_ENV];
   if (artifact === undefined && stagingDirectory === undefined) return undefined;
+  const input = parseArtifactAcceptanceDirectories(artifact, stagingDirectory);
+  const files = stagingPackageFiles(input.stagingDirectory);
+  if (files.length === 0) {
+    throw new TypeError("Gate artifact acceptance staging inventory is empty");
+  }
+  return Object.freeze({
+    artifactPath: input.artifactPath,
+    files: Object.freeze(files),
+    stagingDirectory: input.stagingDirectory
+  });
+}
+
+function parseArtifactAcceptanceDirectories(
+  artifact: ReturnType<typeof readGateCandidateAcceptanceArtifact>,
+  stagingDirectory: string | undefined
+): Readonly<{ readonly artifactPath: string; readonly stagingDirectory: string }> {
   const artifactStateDirectory =
     artifact === undefined ? undefined : dirname(dirname(artifact.artifactPath));
   const stagingStateDirectory =
@@ -32,22 +48,17 @@ export function readGateArtifactAcceptanceInput(
   ) {
     throw new TypeError("Gate artifact acceptance input is incomplete or invalid");
   }
-  let files: string[];
+  return Object.freeze({ artifactPath: artifact.artifactPath, stagingDirectory });
+}
+
+function stagingPackageFiles(stagingDirectory: string): readonly string[] {
   try {
-    files = collectFilePaths(stagingDirectory, () => true).map(
+    return collectFilePaths(stagingDirectory, () => true).map(
       (filePath) => `package/${relative(stagingDirectory, filePath).split(sep).join("/")}`
     );
   } catch {
     throw new TypeError("Gate artifact acceptance input is incomplete or invalid");
   }
-  if (files.length === 0) {
-    throw new TypeError("Gate artifact acceptance staging inventory is empty");
-  }
-  return Object.freeze({
-    artifactPath: artifact.artifactPath,
-    files: Object.freeze(files),
-    stagingDirectory
-  });
 }
 
 function pathIsDirectory(directoryPath: string): boolean {

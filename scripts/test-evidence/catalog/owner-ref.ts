@@ -100,19 +100,29 @@ function markdownHeadingAnchors(source: string): Set<string> {
       fence = openingFence;
       continue;
     }
-    const match = /^#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$/u.exec(line);
-    if (match === null) {
-      continue;
-    }
-    const base = match[1]
-      .toLowerCase()
-      .replace(/[^\p{Letter}\p{Mark}\p{Number}\s_-]/gu, "")
-      .replace(/\s/gu, "-");
-    const occurrence = repetitions.get(base) ?? 0;
-    anchors.add(occurrence === 0 ? base : `${base}-${occurrence}`);
-    repetitions.set(base, occurrence + 1);
+    projectHeadingAnchor(line, anchors, repetitions);
   }
   return anchors;
+}
+
+function projectHeadingAnchor(
+  line: string,
+  anchors: Set<string>,
+  repetitions: Map<string, number>
+): void {
+  const match = /^#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$/u.exec(line);
+  if (match === null) return;
+  const base = headingSlug(match[1]);
+  const occurrence = repetitions.get(base) ?? 0;
+  anchors.add(occurrence === 0 ? base : `${base}-${occurrence}`);
+  repetitions.set(base, occurrence + 1);
+}
+
+function headingSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Mark}\p{Number}\s_-]/gu, "")
+    .replace(/\s/gu, "-");
 }
 
 function skipDocumentFrontmatter(lines: readonly string[]): number {

@@ -42,6 +42,26 @@ export async function scanAstRule(
   matches: AstMatch[];
   diagnostics: TestEvidenceDiagnostic[];
 }> {
+  const ruleName = path.basename(options.rulePath);
+  const result = await astGrepScanResult(options, runRule);
+  if (result.kind === "failure") return result.value;
+  if (result.value.status !== 0 && result.value.status !== 1)
+    return staticScanFailure(
+      `ast-grep rule ${ruleName} failed with status ${String(result.value.status)}: ${result.value.stderr.trim()}`
+    );
+  return parsedAstScanResult(result.value.stdout, ruleName);
+}
+
+async function astGrepScanResult(
+  options: Parameters<typeof scanAstRule>[0],
+  runRule: typeof runAstGrep
+): Promise<
+  | Readonly<{ readonly kind: "result"; readonly value: Awaited<ReturnType<typeof runAstGrep>> }>
+  | Readonly<{
+      readonly kind: "failure";
+      readonly value: { matches: AstMatch[]; diagnostics: TestEvidenceDiagnostic[] };
+    }>
+> {
   let result;
   try {
     result = await runRule(
@@ -52,48 +72,32 @@ export async function scanAstRule(
       }
     );
   } catch (error) {
-    return {
-      matches: [],
-      diagnostics: [
-        diagnostic(
-          "static-scan-failed",
-          "static",
-          error instanceof Error ? error.message : String(error)
-        )
-      ]
-    };
+    return Object.freeze({
+      kind: "failure",
+      value: staticScanFailure(error instanceof Error ? error.message : String(error))
+    });
   }
+  return Object.freeze({ kind: "result", value: result });
+}
 
-  if (result.status !== 0 && result.status !== 1) {
-    return {
-      matches: [],
-      diagnostics: [
-        diagnostic(
-          "static-scan-failed",
-          "static",
-          `ast-grep rule ${path.basename(options.rulePath)} failed with status ${String(result.status)}: ${result.stderr.trim()}`
-        )
-      ]
-    };
-  }
-
+function parsedAstScanResult(
+  stdout: string,
+  ruleName: string
+): { matches: AstMatch[]; diagnostics: TestEvidenceDiagnostic[] } {
   try {
-    return {
-      matches: parseAstMatches(result.stdout),
-      diagnostics: []
-    };
+    return { matches: parseAstMatches(stdout), diagnostics: [] };
   } catch (error) {
-    return {
-      matches: [],
-      diagnostics: [
-        diagnostic(
-          "static-scan-failed",
-          "static",
-          `ast-grep rule ${path.basename(options.rulePath)} returned malformed JSON: ${error instanceof Error ? error.message : String(error)}`
-        )
-      ]
-    };
+    return staticScanFailure(
+      `ast-grep rule ${ruleName} returned malformed JSON: ${error instanceof Error ? error.message : String(error)}`
+    );
   }
+}
+
+function staticScanFailure(message: string): {
+  matches: AstMatch[];
+  diagnostics: TestEvidenceDiagnostic[];
+} {
+  return { matches: [], diagnostics: [diagnostic("static-scan-failed", "static", message)] };
 }
 
 export function astSourceRange(match: AstMatch): SourceRange {

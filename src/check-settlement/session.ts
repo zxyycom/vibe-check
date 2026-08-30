@@ -1,6 +1,5 @@
 import type { CheckDescriptor } from "../check/descriptor.ts";
 import type { CheckOutcome } from "../check/check.ts";
-import { canonicalizeJsonObject } from "../data-boundary/canonical-data.ts";
 import {
   CoreRecordStore,
   type CoreRecordSlot,
@@ -8,8 +7,8 @@ import {
   type RecordSubmissionResult
 } from "./record-store.ts";
 import type { CoreCheck, CoreSnapshot } from "./facts.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
 import { validateCheckDescriptor } from "../check/descriptor-validation.ts";
+import { normalizeCheckOutcome } from "./outcome-normalization.ts";
 
 export type { RecordSubmissionResult } from "./record-store.ts";
 
@@ -197,7 +196,13 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     }
     const diagnostic = terminalDiagnostic(slot);
     const normalized =
-      diagnostic === undefined ? normalizeOutcome(terminal, false, this.#checkIds()) : undefined;
+      diagnostic === undefined
+        ? normalizeCheckOutcome({
+            knownCheckIds: this.#checkIds(),
+            productOutcome: false,
+            value: terminal
+          })
+        : undefined;
     const outcome = normalized ?? unavailable(diagnostic ?? "invalid-execution-result");
     slot.lifecycle = Object.freeze({ kind: "settled", outcome });
     return Object.freeze({
@@ -213,8 +218,11 @@ class CoreCheckSessionImpl implements CoreCheckSession {
     const diagnostic = terminalDiagnostic(slot);
     const outcome =
       diagnostic === undefined
-        ? (normalizeOutcome(terminal, productOutcome, this.#checkIds()) ??
-          unavailable("invalid-execution-result"))
+        ? (normalizeCheckOutcome({
+            knownCheckIds: this.#checkIds(),
+            productOutcome,
+            value: terminal
+          }) ?? unavailable("invalid-execution-result"))
         : unavailable(diagnostic);
     slot.lifecycle = Object.freeze({ kind: "settled", outcome });
     return outcome;
@@ -238,80 +246,6 @@ function coreCheckFor(slot: CoreSlot): CoreCheck {
   });
 }
 
-function normalizeOutcome(
-  value: unknown,
-  productOutcome: boolean,
-  knownCheckIds: ReadonlySet<string>
-): CheckOutcome | undefined {
-  const outcome = snapshotClosedRecord(value);
-  if (outcome === undefined || typeof outcome.status !== "string") return undefined;
-  if (outcome.status === "passed" || outcome.status === "failed") {
-    if (!hasExactKeys(outcome, ["status", "data"])) return undefined;
-    const data = canonicalizeJsonObject(outcome.data);
-    return data === undefined ? undefined : Object.freeze({ status: outcome.status, data });
-  }
-  if (outcome.status === "not-applicable") {
-    if (!hasOptionalKeys(outcome, ["status"], ["reason"])) return undefined;
-    if (outcome.reason === undefined) return Object.freeze({ status: "not-applicable" });
-    const reason = normalizeReason(outcome.reason, false, knownCheckIds);
-    return reason === undefined ? undefined : Object.freeze({ status: "not-applicable", reason });
-  }
-  if (outcome.status === "unavailable") {
-    if (!hasExactKeys(outcome, ["status", "reason"])) return undefined;
-    const reason = normalizeReason(outcome.reason, productOutcome, knownCheckIds);
-    return reason === undefined ? undefined : Object.freeze({ status: "unavailable", reason });
-  }
-  return undefined;
-}
-
-function normalizeReason(
-  value: unknown,
-  allowCheckIds: boolean,
-  knownCheckIds: ReadonlySet<string>
-): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | undefined {
-  const reason = snapshotClosedRecord(value);
-  if (
-    reason === undefined ||
-    typeof reason.code !== "string" ||
-    reason.code.length === 0 ||
-    !hasOptionalKeys(reason, ["code"], allowCheckIds ? ["checkIds"] : [])
-  )
-    return undefined;
-  if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
-  const rawCheckIds = snapshotClosedArray(reason.checkIds);
-  if (!allowCheckIds || rawCheckIds === undefined || rawCheckIds.length === 0) return undefined;
-  const checkIds: string[] = [];
-  for (const checkId of rawCheckIds) {
-    if (
-      typeof checkId !== "string" ||
-      !isSettlementCheckReference(checkId) ||
-      !knownCheckIds.has(checkId) ||
-      checkIds.includes(checkId)
-    )
-      return undefined;
-    checkIds.push(checkId);
-  }
-  return Object.freeze({ code: reason.code, checkIds: Object.freeze(checkIds) });
-}
-
-function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
-  return (
-    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
-  );
-}
-
-function hasOptionalKeys(
-  value: Readonly<Record<string, unknown>>,
-  required: readonly string[],
-  optional: readonly string[]
-): boolean {
-  const supported = new Set([...required, ...optional]);
-  return (
-    required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => supported.has(key))
-  );
-}
-
 function unavailable(code: string): CheckOutcome {
   return Object.freeze({ status: "unavailable", reason: Object.freeze({ code }) });
 }
@@ -320,8 +254,4 @@ export function createCoreCheckSession(
   registrations: readonly CoreCheckRegistration[]
 ): CoreCheckSession {
   return new CoreCheckSessionImpl(registrations);
-}
-
-function isSettlementCheckReference(value: string): boolean {
-  return value.length > 0;
 }

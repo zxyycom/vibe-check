@@ -1,15 +1,12 @@
-import { randomUUID } from "node:crypto";
-import { relative, resolve } from "node:path";
 import type { CheckProjectContext } from "../check/check.ts";
+import type { CoreSnapshot } from "../check-settlement/facts.ts";
 import {
-  createDeclarativeFingerprint,
   normalizeProjectDefinition,
   type DefinitionWarning,
   type NormalizedProjectDefinition,
   type ProjectDefinition
 } from "../project-definition/project-definition.ts";
-import type { CoreSnapshot } from "../check-settlement/facts.ts";
-import type { CheckAggregate, CheckAggregation, RunControls } from "./controls/contract.ts";
+import type { CheckAggregation, RunControls } from "./controls/contract.ts";
 import { prepareTaskGraph } from "./task-scheduler/graph.ts";
 import { aggregateCheckOutcomes, validateCheckAggregationSelection } from "./aggregation.ts";
 import {
@@ -18,34 +15,29 @@ import {
   type ResolvedCheckExecution
 } from "./check-execution/resolved-checks.ts";
 import { planStaticCheckGraph } from "./check-execution/plan.ts";
-import { createOutputStatuses, type OutputStatuses } from "./output-status.ts";
-import { effectiveOutputs } from "./output-configuration.ts";
 import {
-  createProgressRendering,
   type ProgressRefreshScheduler,
   type ProgressRendering,
   type ProgressWriterFactory
 } from "./progress-rendering/presentation.ts";
-import { completeInvocation, finalizeInvocation } from "./completion.ts";
+import { completeInvocation, finalizeInvocation, type CoreExecution } from "./completion.ts";
 import { createProjectContext } from "./project-context.ts";
 import {
   executionCancellation,
   isCancelled,
   planning,
   preExecutionCancellation,
-  type CheckDuration,
-  type CheckRunMessage,
   type NonConfigurationRunResult,
   type RunDiagnostic,
   type RunResult
 } from "./result.ts";
 import {
-  createDiagnosticLogger,
   diagnosticTags,
   type DiagnosticLogger,
-  type DiagnosticLoggerFactory,
-  type DiagnosticObservation
+  type DiagnosticLoggerFactory
 } from "./diagnostic-logging/logger.ts";
+import { createInvocation } from "./invocation-creation.ts";
+import type { OutputStatuses } from "./output-status.ts";
 export type Invocation = Readonly<{
   readonly clock: CheckExecutionClock;
   readonly controls: RunControls;
@@ -70,13 +62,6 @@ export interface RunInvocationDependencies {
   /** Test seam for the invocation's machine-readable wall-clock timestamp. */
   readonly wallClock?: Readonly<{ now(): Date }>;
 }
-const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
-export type CoreExecution = Readonly<{
-  readonly aggregate: CheckAggregate | null;
-  readonly checkDurations: readonly CheckDuration[];
-  readonly checkMessages: readonly CheckRunMessage[];
-  readonly snapshot: CoreSnapshot;
-}>;
 export async function executeValidatedRun(
   definition: ProjectDefinition,
   controls: RunControls,
@@ -95,13 +80,13 @@ export async function executeValidatedRun(
       diagnostic: aggregation.error
     });
 
-  const invocation = createInvocation(
-    definition,
+  const invocation = createInvocation({
     controls,
+    definition,
     definitionWarnings,
-    normalized,
-    dependencies
-  );
+    dependencies,
+    normalized
+  });
   let candidate: NonConfigurationRunResult;
   try {
     observeInvocationStarted(invocation, aggregation.value);
@@ -116,60 +101,6 @@ export async function executeValidatedRun(
     candidate = executionResult(invocation, "task-engine-failed");
   }
   return finalizeInvocation(invocation, candidate);
-}
-
-function createInvocation(
-  definition: ProjectDefinition,
-  controls: RunControls,
-  definitionWarnings: readonly DefinitionWarning[],
-  normalized: NormalizedProjectDefinition,
-  dependencies: RunInvocationDependencies
-): Invocation {
-  const outputConfiguration = effectiveOutputs(definition, controls);
-  const clock = dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
-  const projectRoot = resolve(controls.projectRoot ?? process.cwd());
-  const startedAtUtc =
-    outputConfiguration.diagnosticLogging.enabled || outputConfiguration.machinePublication.enabled
-      ? (dependencies.wallClock?.now() ?? new Date()).toISOString()
-      : null;
-  const invocationUuid = randomUUID();
-  const invocationId = `invocation/v1:${invocationUuid}`;
-  const diagnosticLoggingFile = outputConfiguration.diagnosticLogging.enabled
-    ? relative(
-        projectRoot,
-        resolve(
-          projectRoot,
-          outputConfiguration.diagnosticLogging.directory,
-          diagnosticLogFileName(requireStartedAtUtc(startedAtUtc), invocationUuid)
-        )
-      )
-    : null;
-  const outputs = createOutputStatuses(outputConfiguration, diagnosticLoggingFile);
-  const diagnosticLoggerFactory = dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger;
-  const diagnosticLogger = createDiagnosticLoggerSafely(diagnosticLoggerFactory, {
-    clock,
-    enabled: outputConfiguration.diagnosticLogging.enabled,
-    file: diagnosticLoggingFile === null ? null : resolve(projectRoot, diagnosticLoggingFile)
-  });
-  return Object.freeze({
-    clock,
-    controls,
-    declarativeFingerprint: createDeclarativeFingerprint(normalized.declarative),
-    definition,
-    definitionWarnings: Object.freeze([...definitionWarnings]),
-    diagnosticLogger,
-    outputConfiguration,
-    outputs,
-    invocationId,
-    normalized,
-    progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
-      clock,
-      refreshScheduler: dependencies.progressRefreshScheduler,
-      writerFactory: dependencies.progressWriterFactory
-    }),
-    projectRoot,
-    startedAtUtc
-  });
 }
 
 function observeInvocationStarted(
@@ -187,44 +118,6 @@ function observeInvocationStarted(
       outputs: invocation.outputConfiguration,
       scheduler: invocation.normalized.declarative.scheduler
     }
-  });
-}
-
-function createDiagnosticLoggerSafely(
-  factory: DiagnosticLoggerFactory,
-  input: Parameters<DiagnosticLoggerFactory>[0]
-): DiagnosticLogger {
-  let delegate: DiagnosticLogger;
-  try {
-    delegate = factory(input);
-  } catch {
-    return failedDiagnosticLogger();
-  }
-  let failed = false;
-  return Object.freeze({
-    close: () => {
-      try {
-        const status = delegate.close();
-        return failed ? "failed" : status;
-      } catch {
-        return "failed";
-      }
-    },
-    observe: (observation: DiagnosticObservation) => {
-      if (failed) return;
-      try {
-        delegate.observe(observation);
-      } catch {
-        failed = true;
-      }
-    }
-  });
-}
-
-function failedDiagnosticLogger(): DiagnosticLogger {
-  return Object.freeze({
-    close: () => "failed" as const,
-    observe: () => undefined
   });
 }
 
@@ -287,14 +180,14 @@ async function executePreparedInvocation(
       tags: diagnosticTags("RUN", "EXECUTION", "CANCELLED"),
       details: { checkCount: executed.snapshot.checks.length }
     });
-    return executionCancellation(
-      invocation.declarativeFingerprint,
-      invocation.definitionWarnings,
-      invocation.outputs.value(),
-      executed.snapshot,
-      executed.checkDurations,
-      executed.checkMessages
-    );
+    return executionCancellation({
+      checkDurations: executed.checkDurations,
+      checkMessages: executed.checkMessages,
+      declarativeFingerprint: invocation.declarativeFingerprint,
+      definitionWarnings: invocation.definitionWarnings,
+      outputs: invocation.outputs.value(),
+      snapshot: executed.snapshot
+    });
   }
   const aggregate =
     aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
@@ -329,15 +222,6 @@ function cancelledBeforeExecution(
   );
 }
 
-function diagnosticLogFileName(startedAtUtc: string, invocationUuid: string): string {
-  const compactUtc = startedAtUtc.replaceAll("-", "").replaceAll(":", "");
-  return `run-${compactUtc}-${invocationUuid}.log`;
-}
-
-function requireStartedAtUtc(startedAtUtc: string | null): string {
-  if (startedAtUtc === null) throw new Error("Enabled output requires an invocation timestamp");
-  return startedAtUtc;
-}
 async function executeChecks(
   invocation: Invocation,
   project: CheckProjectContext,

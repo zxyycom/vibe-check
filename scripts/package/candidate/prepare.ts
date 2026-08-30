@@ -16,42 +16,25 @@ import {
   type CandidateArtifactReuseRejection,
   type InstalledCandidate
 } from "./receipt.ts";
+import {
+  candidatePreparationFact,
+  type CandidatePreparationDecision,
+  type CandidatePreparationFact
+} from "./preparation-decision.ts";
 
 export type { CandidateArtifact } from "../artifact/build.ts";
+export type {
+  CandidatePreparationAction,
+  CandidatePreparationDecision,
+  CandidatePreparationFact,
+  CandidatePreparationReason
+} from "./preparation-decision.ts";
 
 interface PreparedPackageCandidateLocation {
   readonly consumerDirectory: string;
   readonly installedPackageDirectory: string;
   readonly resolvedEntryPath: string;
 }
-
-export type CandidatePreparationAction = "rebuild" | "reinstall" | "reuse";
-export type CandidatePreparationReason =
-  | CandidateArtifactReuseRejection
-  | "installation-current"
-  | "installation-invalid";
-
-export type CandidatePreparationDecision =
-  | Readonly<{ readonly action: "rebuild"; readonly reason: CandidateArtifactReuseRejection }>
-  | Readonly<{ readonly action: "reinstall"; readonly reason: "installation-invalid" }>
-  | Readonly<{ readonly action: "reuse"; readonly reason: "installation-current" }>;
-
-export type CandidatePreparationFact =
-  | Readonly<{
-      readonly preparationAction: "rebuild";
-      readonly preparationReason: CandidateArtifactReuseRejection;
-      readonly reused: false;
-    }>
-  | Readonly<{
-      readonly preparationAction: "reinstall";
-      readonly preparationReason: "installation-invalid";
-      readonly reused: false;
-    }>
-  | Readonly<{
-      readonly preparationAction: "reuse";
-      readonly preparationReason: "installation-current";
-      readonly reused: true;
-    }>;
 
 export type PreparedPackageCandidate = Readonly<
   CandidateArtifact & PreparedPackageCandidateLocation & CandidatePreparationFact
@@ -224,68 +207,73 @@ type CandidatePreparationPlan = CandidatePreparationContext &
 function createCandidatePreparationPlan(
   options: PreparePackageCandidateOptions
 ): CandidatePreparationPlan {
-  const repositoryRoot = resolve(options.repositoryRoot ?? repositoryRootFromModule());
-  const consumerDirectory = resolve(
-    options.consumerDirectory ?? join(repositoryRoot, "scripts/project")
-  );
-  const paths = candidatePaths(repositoryRoot, {
-    ...(options.buildDirectory === undefined ? {} : { buildDirectory: options.buildDirectory }),
-    ...(options.stateDirectory === undefined ? {} : { stateDirectory: options.stateDirectory })
-  });
-  const documentation = artifactDocumentation(repositoryRoot);
-  const inputFingerprint = createArtifactFingerprint(repositoryRoot);
-  const candidateVersion = `0.0.0-local.${inputFingerprint.slice(0, 12)}`;
-
+  const context = createCandidatePreparationContext(options);
   const assessment = assessReusableArtifact({
-    candidateVersion,
-    expectedDocuments: documentation.documents,
-    expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
-    expectedMachineMaterials: documentation.machineMaterials,
-    expectedReadme: documentation.readme,
-    inputFingerprint,
-    paths
+    candidateVersion: context.candidateVersion,
+    expectedDocuments: context.documentation.documents,
+    expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: context.documentation.machineMaterials,
+    expectedReadme: context.documentation.readme,
+    inputFingerprint: context.inputFingerprint,
+    paths: context.paths
   });
-  const preparationContext: CandidatePreparationContext = Object.freeze({
-    candidateVersion,
-    consumerDirectory,
-    documentation,
+  return assessment.status === "reusable"
+    ? reusableCandidatePlan(context, assessment.candidate)
+    : Object.freeze({ ...context, action: "rebuild", reason: assessment.reason });
+}
+
+function createCandidatePreparationContext(
+  options: PreparePackageCandidateOptions
+): CandidatePreparationContext {
+  const repositoryRoot = resolve(options.repositoryRoot ?? repositoryRootFromModule());
+  const inputFingerprint = createArtifactFingerprint(repositoryRoot);
+  return Object.freeze({
+    candidateVersion: `0.0.0-local.${inputFingerprint.slice(0, 12)}`,
+    consumerDirectory: resolve(
+      options.consumerDirectory ?? join(repositoryRoot, "scripts/project")
+    ),
+    documentation: artifactDocumentation(repositoryRoot),
     inputFingerprint,
-    paths,
+    paths: candidatePaths(repositoryRoot, {
+      ...(options.buildDirectory === undefined ? {} : { buildDirectory: options.buildDirectory }),
+      ...(options.stateDirectory === undefined ? {} : { stateDirectory: options.stateDirectory })
+    }),
     repositoryRoot
   });
-  if (assessment.status === "reusable") {
-    const reusable = assessment.candidate;
-    const installation = inspectInstallation({
-      candidateVersion,
-      consumerDirectory,
-      expectedDocuments: documentation.documents,
-      expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
-      expectedMachineMaterials: documentation.machineMaterials,
-      expectedReadme: documentation.readme
-    });
-    if (
-      installation !== undefined &&
-      receiptMatchesInstallation(reusable.receipt, consumerDirectory, installation)
-    ) {
-      return Object.freeze({
-        ...preparationContext,
-        action: "reuse",
-        artifact: reusable.artifact,
-        installation,
-        reason: "installation-current"
-      });
-    }
+}
+
+function reusableCandidatePlan(
+  context: CandidatePreparationContext,
+  reusable: Extract<
+    ReturnType<typeof assessReusableArtifact>,
+    { readonly status: "reusable" }
+  >["candidate"]
+): CandidatePreparationPlan {
+  const installation = inspectInstallation({
+    candidateVersion: context.candidateVersion,
+    consumerDirectory: context.consumerDirectory,
+    expectedDocuments: context.documentation.documents,
+    expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,
+    expectedMachineMaterials: context.documentation.machineMaterials,
+    expectedReadme: context.documentation.readme
+  });
+  if (
+    installation !== undefined &&
+    receiptMatchesInstallation(reusable.receipt, context.consumerDirectory, installation)
+  ) {
     return Object.freeze({
-      ...preparationContext,
-      action: "reinstall",
+      ...context,
+      action: "reuse",
       artifact: reusable.artifact,
-      reason: "installation-invalid"
+      installation,
+      reason: "installation-current"
     });
   }
   return Object.freeze({
-    ...preparationContext,
-    action: "rebuild",
-    reason: assessment.reason
+    ...context,
+    action: "reinstall",
+    artifact: reusable.artifact,
+    reason: "installation-invalid"
   });
 }
 
@@ -306,30 +294,4 @@ function createPreparedCandidate(input: {
     ...candidatePreparationFact(input.decision),
     resolvedEntryPath: input.installation.resolvedEntryPath
   });
-}
-
-/** Projects the closed preparation decision into its retained Check fact. */
-export function candidatePreparationFact(
-  decision: CandidatePreparationDecision
-): CandidatePreparationFact {
-  switch (decision.action) {
-    case "rebuild":
-      return Object.freeze({
-        preparationAction: "rebuild",
-        preparationReason: decision.reason,
-        reused: false
-      });
-    case "reinstall":
-      return Object.freeze({
-        preparationAction: "reinstall",
-        preparationReason: decision.reason,
-        reused: false
-      });
-    case "reuse":
-      return Object.freeze({
-        preparationAction: "reuse",
-        preparationReason: decision.reason,
-        reused: true
-      });
-  }
 }

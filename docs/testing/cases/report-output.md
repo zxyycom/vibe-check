@@ -40,19 +40,19 @@ Entities:
 Owner: `docs/api-mechanics.md#outputs-与-runresult-边界`
 Entities:
 
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > formats every terminal status with measured duration or not run and only the safe reason code`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > uses ANSI color only for message level labels on color-capable TTY writers`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > renders an empty final TTY running region after zero-Check or fully settled progress`
-- `bun|src/project-run/progress-rendering/renderer.test.ts|Package Run progress lifecycle presentation > propagates writer failures without swallowing them or attempting later writes`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only and settled-only`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/project-run/progress-rendering/renderer-formatting-statuses.test.ts|Package Run progress terminal formatting > formats every terminal status with measured duration or not run and only the safe reason code`
+- `bun|src/project-run/progress-rendering/renderer-formatting-color.test.ts|Package Run progress terminal formatting > uses ANSI color only for message level labels on color-capable TTY writers`
+- `bun|src/project-run/progress-rendering/renderer-formatting-final.test.ts|Package Run progress terminal formatting > renders an empty final TTY running region after zero-Check or fully settled progress`
+- `bun|src/project-run/progress-rendering/renderer-formatting-writer-failure.test.ts|Package Run progress terminal formatting > propagates writer failures without swallowing them or attempting later writes`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders unstarted cancellation as execution-cancelled and not run`
 - `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
-Proves:
+  Proves:
 
 - Product-owned progress presents lifecycle status, measured duration or `not run`, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. A visible settled row and author-ordered message lines form one atomic block, while a message code is not terminal text.
 - `attention` omits only a passed/no-message settled row, never a running row or accounting ordinal. TTY running rows use a single monotonic elapsed interval and heartbeat; plain/dumb output stays settled-only and append-only. Capability-specific color applies only to level labels, human text is terminal-escaped, and writer failures remain observable.
@@ -82,6 +82,6 @@ Entities:
 Owner: `docs/checks/maintenance-reminders.md#效果与结果`
 Entities:
 
-- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
+- `bun|src/package-checks/maintenance-reminders/machine-publication.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
   Proves:
 - A due advisory maintenance reminder publishes exactly one ordinary `maintenance-reminders` passed Check outcome with its ordered assessment final data. It publishes no supplemental Records, entry-level machine rows, terminal messages, or visibility fields.

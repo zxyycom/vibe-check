@@ -59,7 +59,7 @@ Proves:
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/json-schema-validation/json-schema-validation.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
+- `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
 
 Proves:
 

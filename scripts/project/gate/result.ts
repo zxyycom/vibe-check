@@ -107,17 +107,18 @@ function isProjectGateMessage(value: unknown): value is ProjectGateMessage {
 function isSafeTerminalText(value: unknown): value is string {
   if (typeof value !== "string" || value.length === 0) return false;
   for (const character of value) {
-    const codePoint = character.codePointAt(0) ?? 0;
-    if (
-      codePoint <= 0x1f ||
-      (codePoint >= 0x7f && codePoint <= 0x9f) ||
-      codePoint === 0x2028 ||
-      codePoint === 0x2029
-    ) {
-      return false;
-    }
+    if (isUnsafeTerminalCodePoint(character.codePointAt(0) ?? 0)) return false;
   }
   return true;
+}
+
+function isUnsafeTerminalCodePoint(codePoint: number): boolean {
+  return (
+    codePoint <= 0x1f ||
+    (codePoint >= 0x7f && codePoint <= 0x9f) ||
+    codePoint === 0x2028 ||
+    codePoint === 0x2029
+  );
 }
 
 function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {

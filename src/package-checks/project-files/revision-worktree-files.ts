@@ -79,7 +79,32 @@ function collectWorktreeFiles({
   });
   const revision = worktreeRevision(repository);
   if (revision === null) return uniqueSortedPaths(files);
+  files.push(
+    ...collectNestedWorktreeFiles({
+      prefix,
+      repository,
+      revision,
+      scanInputPaths,
+      visitedRepositories
+    })
+  );
+  return uniqueSortedPaths(files);
+}
 
+function collectNestedWorktreeFiles({
+  prefix,
+  repository,
+  revision,
+  scanInputPaths,
+  visitedRepositories
+}: Readonly<{
+  readonly prefix: string;
+  readonly repository: string;
+  readonly revision: string;
+  readonly scanInputPaths: readonly string[];
+  readonly visitedRepositories: ReadonlySet<string>;
+}>): string[] {
+  const files: string[] = [];
   for (const gitlink of gitlinksAtRevision({ repository, revision })) {
     const submoduleRepository = resolveDescendableGitlinkRepository({
       gitlinkPath: gitlink.path,
@@ -99,7 +124,7 @@ function collectWorktreeFiles({
       })
     );
   }
-  return uniqueSortedPaths(files);
+  return files;
 }
 
 function worktreeRevision(repository: string): string | null {

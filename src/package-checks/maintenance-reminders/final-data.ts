@@ -91,44 +91,74 @@ export function parseMaintenanceRemindersData(data: unknown): MaintenanceReminde
 }
 
 function parseAssessment(value: unknown): MaintenanceReminderAssessment {
-  const record = exactFinalDataRecord(
+  const record = assessmentRecord(value);
+  const identity = assessmentIdentity(record);
+  if (record.assessment === "unavailable") {
+    return parseUnavailableAssessment(record, identity);
+  }
+  return parseMeasuredAssessment(record, identity);
+}
+
+function assessmentRecord(value: unknown): Readonly<Record<string, unknown>> {
+  return exactFinalDataRecord(
     value,
     valueAssessment(value) === "unavailable"
-      ? [
-          "assessment",
-          "baseCommit",
-          "changedLines",
-          "commitCount",
-          "exceeded",
-          "headCommit",
-          "id",
-          "mode",
-          "reason"
-        ]
-      : [
-          "assessment",
-          "baseCommit",
-          "changedLines",
-          "commitCount",
-          "exceeded",
-          "headCommit",
-          "id",
-          "mode"
-        ],
+      ? unavailableAssessmentKeys()
+      : measuredAssessmentKeys(),
     "maintenanceReminders"
   );
+}
+
+function unavailableAssessmentKeys(): readonly string[] {
+  return [
+    "assessment",
+    "baseCommit",
+    "changedLines",
+    "commitCount",
+    "exceeded",
+    "headCommit",
+    "id",
+    "mode",
+    "reason"
+  ];
+}
+
+function measuredAssessmentKeys(): readonly string[] {
+  return [
+    "assessment",
+    "baseCommit",
+    "changedLines",
+    "commitCount",
+    "exceeded",
+    "headCommit",
+    "id",
+    "mode"
+  ];
+}
+
+function assessmentIdentity(record: Readonly<Record<string, unknown>>): Readonly<{
+  readonly baseCommit: string;
+  readonly id: string;
+  readonly mode: MaintenanceReminderMode;
+}> {
   const id = isMaintenanceReminderId(record.id) ? record.id : undefined;
   const mode = record.mode === "advisory" || record.mode === "enforcing" ? record.mode : undefined;
   const baseCommit = isMaintenanceCommitId(record.baseCommit) ? record.baseCommit : undefined;
-  if (id === undefined || mode === undefined || baseCommit === undefined) {
+  if (id === undefined || mode === undefined || baseCommit === undefined)
     throw invalidFinalData("maintenanceReminders");
-  }
-  if (record.assessment === "unavailable") {
-    return parseUnavailableAssessment(record, { baseCommit, id, mode });
-  }
-  if (record.assessment !== "clear" && record.assessment !== "due") {
+  return { baseCommit, id, mode };
+}
+
+function parseMeasuredAssessment(
+  record: Readonly<Record<string, unknown>>,
+  identity: Readonly<{
+    readonly baseCommit: string;
+    readonly id: string;
+    readonly mode: MaintenanceReminderMode;
+  }>
+): MeasuredMaintenanceReminderAssessment {
+  if (record.assessment !== "clear" && record.assessment !== "due")
     throw invalidFinalData("maintenanceReminders");
-  }
   const commitCount = nonNegativeSafeInteger(record.commitCount);
   const changedLines = nonNegativeSafeInteger(record.changedLines);
   const headCommit = isMaintenanceCommitId(record.headCommit) ? record.headCommit : undefined;
@@ -144,13 +174,13 @@ function parseAssessment(value: unknown): MaintenanceReminderAssessment {
   }
   return Object.freeze({
     assessment: record.assessment,
-    baseCommit,
+    baseCommit: identity.baseCommit,
     changedLines,
     commitCount,
     exceeded,
     headCommit,
-    id,
-    mode
+    id: identity.id,
+    mode: identity.mode
   });
 }
 

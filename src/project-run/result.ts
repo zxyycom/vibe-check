@@ -153,21 +153,23 @@ export function preExecutionCancellation(
   });
 }
 export function executionCancellation(
-  declarativeFingerprint: string,
-  definitionWarnings: readonly DefinitionWarning[],
-  outputs: RunOutputStatuses,
-  snapshot: CoreSnapshot,
-  checkDurations: readonly CheckDuration[],
-  checkMessages: readonly CheckRunMessage[]
+  input: Readonly<{
+    readonly checkDurations: readonly CheckDuration[];
+    readonly checkMessages: readonly CheckRunMessage[];
+    readonly declarativeFingerprint: string;
+    readonly definitionWarnings: readonly DefinitionWarning[];
+    readonly outputs: RunOutputStatuses;
+    readonly snapshot: CoreSnapshot;
+  }>
 ): Extract<NonConfigurationRunResult, { readonly kind: "cancelled"; readonly phase: "execution" }> {
   return Object.freeze({
     kind: "cancelled",
-    declarativeFingerprint,
-    definitionWarnings,
-    outputs,
+    declarativeFingerprint: input.declarativeFingerprint,
+    definitionWarnings: input.definitionWarnings,
+    outputs: input.outputs,
     phase: "execution",
-    checkDurations,
-    checkMessages,
-    snapshot
+    checkDurations: input.checkDurations,
+    checkMessages: input.checkMessages,
+    snapshot: input.snapshot
   });
 }

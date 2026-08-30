@@ -31,25 +31,36 @@ function validCodeAreas(value: unknown): boolean {
 function validLimits(value: unknown): boolean {
   const limits = exactRecord(value, ["codeLines", "cyclomaticComplexity", "parameters"]);
   if (limits === undefined) return false;
-  const codeLines = exactRecord(limits.codeLines, ["lowComplexityAllowance", "maximum"]);
+  const codeLineLimits = codeLineLimitsFrom(limits.codeLines);
+  const cyclomaticComplexity = maximumLimitFrom(limits.cyclomaticComplexity);
+  const parameters = maximumLimitFrom(limits.parameters);
+  return (
+    codeLineLimits !== undefined &&
+    cyclomaticComplexity !== undefined &&
+    parameters !== undefined &&
+    positiveSafeInteger(cyclomaticComplexity.maximum) &&
+    positiveSafeInteger(parameters.maximum)
+  );
+}
+
+function codeLineLimitsFrom(value: unknown): Readonly<Record<string, unknown>> | undefined {
+  const codeLines = exactRecord(value, ["lowComplexityAllowance", "maximum"]);
   const allowance = exactRecord(codeLines?.lowComplexityAllowance, [
     "cyclomaticComplexityBelow",
     "maximum"
   ]);
-  const cyclomaticComplexity = exactRecord(limits.cyclomaticComplexity, ["maximum"]);
-  const parameters = exactRecord(limits.parameters, ["maximum"]);
-  return (
-    codeLines !== undefined &&
+  return codeLines !== undefined &&
     allowance !== undefined &&
-    cyclomaticComplexity !== undefined &&
-    parameters !== undefined &&
     positiveSafeInteger(codeLines.maximum) &&
     positiveSafeInteger(allowance.maximum) &&
     allowance.maximum >= codeLines.maximum &&
-    positiveSafeInteger(allowance.cyclomaticComplexityBelow) &&
-    positiveSafeInteger(cyclomaticComplexity.maximum) &&
-    positiveSafeInteger(parameters.maximum)
-  );
+    positiveSafeInteger(allowance.cyclomaticComplexityBelow)
+    ? codeLines
+    : undefined;
+}
+
+function maximumLimitFrom(value: unknown): Readonly<Record<string, unknown>> | undefined {
+  return exactRecord(value, ["maximum"]);
 }
 
 function validScanner(value: unknown): boolean {

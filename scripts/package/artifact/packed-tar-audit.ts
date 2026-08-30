@@ -112,6 +112,15 @@ function auditManifest(
     });
   }
   if (!isNonArrayRecord(manifest)) throw new Error("candidate artifact manifest must be an object");
+  assertManifestIdentity(manifest, candidateVersion);
+  assertManifestPublicSurface(manifest);
+  assertManifestPackageEntries(entries);
+}
+
+function assertManifestIdentity(
+  manifest: Readonly<Record<string, unknown>>,
+  candidateVersion: string
+): void {
   if (
     manifest.name !== CANDIDATE_NAME ||
     manifest.version !== candidateVersion ||
@@ -119,6 +128,9 @@ function auditManifest(
   ) {
     throw new Error("candidate artifact manifest identity does not match the prepared candidate");
   }
+}
+
+function assertManifestPublicSurface(manifest: Readonly<Record<string, unknown>>): void {
   if (Object.hasOwn(manifest, "bin"))
     throw new Error("candidate artifact must not expose an executable bin");
   if (!sameDependencies(manifest.dependencies)) {
@@ -131,6 +143,9 @@ function auditManifest(
       "candidate artifact must expose only its approved import and declarations entries"
     );
   }
+}
+
+function assertManifestPackageEntries(entries: readonly TarEntry[]): void {
   if (
     !entries.some((entry) => entry.path === `package/${PACKAGE_ENTRY_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||

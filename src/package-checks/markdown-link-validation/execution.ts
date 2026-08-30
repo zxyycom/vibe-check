@@ -15,6 +15,7 @@ import {
 } from "./local-resolver.ts";
 import type { MarkdownLinkOccurrence, MarkdownSourceRange } from "./markdown-parser.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
+import { settledMarkdownTraversalResult } from "./traversal-result.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
 export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
@@ -88,57 +89,65 @@ export async function executeMarkdownLinkValidation(
   context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>
 ): Promise<CheckResult<MarkdownLinkValidationFinalData>> {
   if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
-
-  if (context.signal.aborted) return unavailable("cancelled");
-  const createdResolver = await createMarkdownLocalResolver(
-    context.project.root,
-    context.options.limits.maxTargetReads
-  );
-  if (!createdResolver.ok) return unavailable(createdResolver.reason);
-  if (context.signal.aborted) return unavailable("cancelled");
-
-  const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
-  if (sourceDiscovery.kind === "unavailable") return unavailable(sourceDiscovery.reason);
-  const { sourcePaths } = sourceDiscovery;
-  if (sourcePaths.length === 0) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
-  }
-  if (context.signal.aborted) return unavailable("cancelled");
-
-  const traversal = await traverseMarkdownSources(sourcePaths, {
-    resolver: createdResolver.resolver,
-    options: context.options,
-    signal: context.signal
-  });
-  if (traversal.kind === "unavailable") return unavailable(traversal.reason);
-  if (context.signal.aborted) return unavailable("cancelled");
+  const prepared = await prepareMarkdownTraversal(context);
+  if (prepared.kind === "result") return prepared.result;
+  const { traversal, resolver } = prepared;
 
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  const data = Object.freeze({
-    sourceFileCount: traversal.sourceFileCount,
+  return settledMarkdownTraversalResult({
+    findingCount: traversal.candidates.length,
+    findingPolicy: context.options.findingPolicy,
     occurrenceCount: traversal.occurrenceCount,
-    targetReadCount: createdResolver.resolver.targetReadCount,
-    findingCount: traversal.candidates.length
+    sourceFileCount: traversal.sourceFileCount,
+    targetReadCount: resolver.targetReadCount
   });
-  if (traversal.candidates.length === 0) {
-    return Object.freeze({ data, status: "passed" });
-  }
-  const isBlocking = context.options.findingPolicy === "blocking";
-  return Object.freeze({
-    data,
-    messages: Object.freeze([
-      Object.freeze({
-        code: "invalid-local-links",
-        level: isBlocking ? ("error" as const) : ("warning" as const),
-        message: isBlocking
-          ? `${traversal.candidates.length} local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons.`
-          : `${traversal.candidates.length} local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons.`
-      })
-    ]),
-    status: isBlocking ? "failed" : "passed"
+}
+
+type PreparedMarkdownTraversal =
+  | Readonly<{
+      readonly kind: "result";
+      readonly result: CheckResult<MarkdownLinkValidationFinalData>;
+    }>
+  | Readonly<{
+      readonly kind: "traversal";
+      readonly resolver: MarkdownLocalResolver;
+      readonly traversal: Extract<MarkdownLinkTraversal, { readonly kind: "complete" }>;
+    }>;
+
+async function prepareMarkdownTraversal(
+  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>
+): Promise<PreparedMarkdownTraversal> {
+  if (context.signal.aborted) return result(unavailable("cancelled"));
+  const created = await createMarkdownLocalResolver(
+    context.project.root,
+    context.options.limits.maxTargetReads
+  );
+  if (!created.ok) return result(unavailable(created.reason));
+  if (context.signal.aborted) return result(unavailable("cancelled"));
+  const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
+  if (sourceDiscovery.kind === "unavailable") return result(unavailable(sourceDiscovery.reason));
+  if (sourceDiscovery.sourcePaths.length === 0) return result(noEligibleInput());
+  if (context.signal.aborted) return result(unavailable("cancelled"));
+  const traversal = await traverseMarkdownSources(sourceDiscovery.sourcePaths, {
+    resolver: created.resolver,
+    options: context.options,
+    signal: context.signal
   });
+  if (traversal.kind === "unavailable") return result(unavailable(traversal.reason));
+  if (context.signal.aborted) return result(unavailable("cancelled"));
+  return Object.freeze({ kind: "traversal", resolver: created.resolver, traversal });
+}
+
+function result(
+  checkResult: CheckResult<MarkdownLinkValidationFinalData>
+): PreparedMarkdownTraversal {
+  return Object.freeze({ kind: "result", result: checkResult });
+}
+
+function noEligibleInput(): CheckResult<MarkdownLinkValidationFinalData> {
+  return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
 }
 
 function discoverMarkdownSourcePaths(
@@ -279,26 +288,28 @@ function unavailable(
 }
 
 function unavailableMessage(reason: MarkdownLinkValidationUnavailableReason): string {
-  switch (reason) {
-    case "invalid-options":
-      return "markdownLinkValidation options are invalid; recreate the Check with markdownLinkValidation(options) or restore its complete resolved options.";
-    case "project-root-unavailable":
-      return "Markdown link validation could not resolve the project root; check that the path exists and is accessible.";
-    case "source-unavailable":
-      return "A selected Markdown source could not be collected, read, decoded, or contained safely; check the file source and permissions.";
-    case "source-too-large":
-      return "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit.";
-    case "markdown-parse-failed":
-      return "A selected Markdown source could not be parsed completely; inspect that document's Markdown syntax and encoding.";
-    case "invalid-local-destination":
-      return "A local Markdown destination could not be parsed safely; inspect the affected link destination syntax.";
-    case "target-unavailable":
-      return "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding.";
-    case "occurrence-limit-exceeded":
-      return "Markdown link validation exceeded maxOccurrences; narrow the source selection or raise the bounded limit.";
-    case "target-read-limit-exceeded":
-      return "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit.";
-    case "cancelled":
-      return "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
-  }
+  return UNAVAILABLE_MESSAGES[reason];
 }
+
+const UNAVAILABLE_MESSAGES: Readonly<Record<MarkdownLinkValidationUnavailableReason, string>> = {
+  "invalid-options":
+    "markdownLinkValidation options are invalid; recreate the Check with markdownLinkValidation(options) or restore its complete resolved options.",
+  "project-root-unavailable":
+    "Markdown link validation could not resolve the project root; check that the path exists and is accessible.",
+  "source-unavailable":
+    "A selected Markdown source could not be collected, read, decoded, or contained safely; check the file source and permissions.",
+  "source-too-large":
+    "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit.",
+  "markdown-parse-failed":
+    "A selected Markdown source could not be parsed completely; inspect that document's Markdown syntax and encoding.",
+  "invalid-local-destination":
+    "A local Markdown destination could not be parsed safely; inspect the affected link destination syntax.",
+  "target-unavailable":
+    "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding.",
+  "occurrence-limit-exceeded":
+    "Markdown link validation exceeded maxOccurrences; narrow the source selection or raise the bounded limit.",
+  "target-read-limit-exceeded":
+    "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit.",
+  cancelled:
+    "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+};

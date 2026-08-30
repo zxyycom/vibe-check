@@ -21,7 +21,26 @@ export interface JsonSchemaValidationFinalData {
 
 /** 验证计数与截断不变量并脱离 canonical final data。 */
 export function parseJsonSchemaValidationData(data: unknown): JsonSchemaValidationFinalData {
-  const value = exactFinalDataRecord(
+  const value = jsonSchemaFinalDataRecord(data);
+  const counts = parsedCounts(value);
+  const issuesTruncated = value.issuesTruncated;
+  if (typeof issuesTruncated !== "boolean" || !validFinalDataInvariants(issuesTruncated, counts)) {
+    throw invalidFinalData("jsonSchemaValidation");
+  }
+  return Object.freeze({
+    bindingCount: counts.bindingCount,
+    blockedBindingCount: counts.blockedBindingCount,
+    invalidBindingCount: counts.invalidBindingCount,
+    issueCount: counts.issueCount,
+    issuesTruncated,
+    reportedIssueCount: counts.reportedIssueCount,
+    schemaCount: counts.schemaCount,
+    validBindingCount: counts.validBindingCount
+  });
+}
+
+function jsonSchemaFinalDataRecord(data: unknown): Readonly<Record<string, unknown>> {
+  return exactFinalDataRecord(
     data,
     [
       "bindingCount",
@@ -35,41 +54,62 @@ export function parseJsonSchemaValidationData(data: unknown): JsonSchemaValidati
     ],
     "jsonSchemaValidation"
   );
-  const bindingCount = nonNegativeSafeInteger(value.bindingCount);
-  const blockedBindingCount = nonNegativeSafeInteger(value.blockedBindingCount);
-  const invalidBindingCount = nonNegativeSafeInteger(value.invalidBindingCount);
-  const issueCount = nonNegativeSafeInteger(value.issueCount);
-  const reportedIssueCount = nonNegativeSafeInteger(value.reportedIssueCount);
-  const schemaCount = nonNegativeSafeInteger(value.schemaCount);
-  const validBindingCount = nonNegativeSafeInteger(value.validBindingCount);
-  const issuesShouldBeTruncated =
-    issueCount !== undefined && reportedIssueCount !== undefined
-      ? issueCount > reportedIssueCount
-      : undefined;
-  if (
-    bindingCount === undefined ||
-    blockedBindingCount === undefined ||
-    invalidBindingCount === undefined ||
-    issueCount === undefined ||
-    reportedIssueCount === undefined ||
-    schemaCount === undefined ||
-    validBindingCount === undefined ||
-    typeof value.issuesTruncated !== "boolean" ||
-    bindingCount !== blockedBindingCount + invalidBindingCount + validBindingCount ||
-    reportedIssueCount > issueCount ||
-    reportedIssueCount > MAX_REPORTED_JSON_SCHEMA_ISSUES ||
-    value.issuesTruncated !== issuesShouldBeTruncated
-  ) {
-    throw invalidFinalData("jsonSchemaValidation");
-  }
-  return Object.freeze({
-    bindingCount,
-    blockedBindingCount,
-    invalidBindingCount,
-    issueCount,
-    issuesTruncated: value.issuesTruncated,
-    reportedIssueCount,
-    schemaCount,
-    validBindingCount
-  });
+}
+
+interface ParsedCounts {
+  readonly bindingCount: number | undefined;
+  readonly blockedBindingCount: number | undefined;
+  readonly invalidBindingCount: number | undefined;
+  readonly issueCount: number | undefined;
+  readonly reportedIssueCount: number | undefined;
+  readonly schemaCount: number | undefined;
+  readonly validBindingCount: number | undefined;
+}
+
+function parsedCounts(value: Readonly<Record<string, unknown>>): ParsedCounts {
+  return {
+    bindingCount: nonNegativeSafeInteger(value.bindingCount),
+    blockedBindingCount: nonNegativeSafeInteger(value.blockedBindingCount),
+    invalidBindingCount: nonNegativeSafeInteger(value.invalidBindingCount),
+    issueCount: nonNegativeSafeInteger(value.issueCount),
+    reportedIssueCount: nonNegativeSafeInteger(value.reportedIssueCount),
+    schemaCount: nonNegativeSafeInteger(value.schemaCount),
+    validBindingCount: nonNegativeSafeInteger(value.validBindingCount)
+  };
+}
+
+interface CompleteCounts {
+  readonly bindingCount: number;
+  readonly blockedBindingCount: number;
+  readonly invalidBindingCount: number;
+  readonly issueCount: number;
+  readonly reportedIssueCount: number;
+  readonly schemaCount: number;
+  readonly validBindingCount: number;
+}
+
+function validFinalDataInvariants(
+  issuesTruncated: boolean,
+  counts: ParsedCounts
+): counts is CompleteCounts {
+  if (!allCountsDefined(counts)) return false;
+  return (
+    counts.bindingCount ===
+      counts.blockedBindingCount + counts.invalidBindingCount + counts.validBindingCount &&
+    counts.reportedIssueCount <= counts.issueCount &&
+    counts.reportedIssueCount <= MAX_REPORTED_JSON_SCHEMA_ISSUES &&
+    issuesTruncated === counts.issueCount > counts.reportedIssueCount
+  );
+}
+
+function allCountsDefined(counts: ParsedCounts): counts is CompleteCounts {
+  return (
+    counts.bindingCount !== undefined &&
+    counts.blockedBindingCount !== undefined &&
+    counts.invalidBindingCount !== undefined &&
+    counts.issueCount !== undefined &&
+    counts.reportedIssueCount !== undefined &&
+    counts.schemaCount !== undefined &&
+    counts.validBindingCount !== undefined
+  );
 }

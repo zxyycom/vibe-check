@@ -1,14 +1,37 @@
 import { resolve } from "node:path";
 import { failedOutput } from "./output-status.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
-import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "./result.ts";
+import {
+  outputFailure,
+  type CheckDuration,
+  type CheckRunMessage,
+  type NonConfigurationRunResult,
+  type RunResultFacts
+} from "./result.ts";
 import type { CheckAggregate } from "./controls/contract.ts";
 import { diagnosticTags } from "./diagnostic-logging/logger.ts";
-import type { CoreExecution, Invocation } from "./invocation.ts";
+import type { Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
   type TrustedPublicationModelV4
 } from "../machine-output/v4/publication-model.ts";
+import type { CoreCheck, CoreSnapshot } from "../check-settlement/facts.ts";
+
+type OutcomeCounts = {
+  readonly failed: number;
+  readonly notApplicable: number;
+  readonly passed: number;
+  readonly unavailable: number;
+};
+
+/** Settled Check facts consumed by completion and output publication. */
+export type CoreExecution = Readonly<{
+  readonly aggregate: CheckAggregate | null;
+  readonly checkDurations: readonly CheckDuration[];
+  readonly checkMessages: readonly CheckRunMessage[];
+  readonly snapshot: CoreSnapshot;
+}>;
+
 export function completeInvocation(
   invocation: Invocation,
   core: CoreExecution
@@ -182,46 +205,49 @@ function closingFacts(candidate: NonConfigurationRunResult): Readonly<{
       nonPassed: []
     });
   }
-  const counts = { failed: 0, notApplicable: 0, passed: 0, unavailable: 0 };
-  const nonPassed: Array<Readonly<{ checkId: string; reason: unknown; status: string }>> = [];
-  for (const check of candidate.snapshot.checks) {
-    switch (check.outcome.status) {
-      case "passed":
-        counts.passed += 1;
-        break;
-      case "failed":
-        counts.failed += 1;
-        nonPassed.push(
-          Object.freeze({ checkId: check.checkId, reason: null, status: check.outcome.status })
-        );
-        break;
-      case "not-applicable":
-        counts.notApplicable += 1;
-        nonPassed.push(
-          Object.freeze({
-            checkId: check.checkId,
-            reason: check.outcome.reason ?? null,
-            status: check.outcome.status
-          })
-        );
-        break;
-      case "unavailable":
-        counts.unavailable += 1;
-        nonPassed.push(
-          Object.freeze({
-            checkId: check.checkId,
-            reason: check.outcome.reason,
-            status: check.outcome.status
-          })
-        );
-        break;
-    }
-  }
+  const summary = summarizeSnapshot(candidate.snapshot);
   return Object.freeze({
     aggregate: "aggregate" in candidate ? candidate.aggregate : null,
     candidateKind: candidate.kind,
+    ...summary
+  });
+}
+
+function summarizeSnapshot(snapshot: CoreSnapshot): Readonly<{
+  readonly counts: OutcomeCounts;
+  readonly nonPassed: readonly Readonly<{
+    readonly checkId: string;
+    readonly reason: unknown;
+    readonly status: string;
+  }>[];
+}> {
+  const counts = { failed: 0, notApplicable: 0, passed: 0, unavailable: 0 };
+  const nonPassed: Array<Readonly<{ checkId: string; reason: unknown; status: string }>> = [];
+  for (const check of snapshot.checks) {
+    counts[statusCountKey(check)] += 1;
+    const fact = nonPassedFact(check);
+    if (fact !== undefined) nonPassed.push(fact);
+  }
+  return Object.freeze({
     counts: Object.freeze(counts),
     nonPassed: Object.freeze(nonPassed)
+  });
+}
+
+function statusCountKey(check: CoreCheck): keyof OutcomeCounts {
+  return check.outcome.status === "not-applicable" ? "notApplicable" : check.outcome.status;
+}
+
+function nonPassedFact(
+  check: CoreCheck
+):
+  | Readonly<{ readonly checkId: string; readonly reason: unknown; readonly status: string }>
+  | undefined {
+  if (check.outcome.status === "passed") return undefined;
+  return Object.freeze({
+    checkId: check.checkId,
+    reason: check.outcome.status === "failed" ? null : (check.outcome.reason ?? null),
+    status: check.outcome.status
   });
 }
 

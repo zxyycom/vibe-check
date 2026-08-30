@@ -2,6 +2,7 @@ import {
   runTestEvidenceRuleTests,
   testEvidenceRuleTestFailureMessage,
   testEvidenceRuleTestInvocations,
+  type TestEvidenceRuleTestInvocations,
   type TestEvidenceRuleTestResult
 } from "../../../test-evidence/ast-grep/rule-tests.ts";
 import { type ProcessResult } from "../../../process-execution/execution.ts";
@@ -22,6 +23,14 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
 } as const);
 
 type UnavailableReasonCode = (typeof UNAVAILABLE_REASON_CODE)[keyof typeof UNAVAILABLE_REASON_CODE];
+type RuleTestCheckContext = Parameters<NonNullable<Check["execution"]>>[0];
+
+interface RuleTestExecution {
+  readonly invocations: TestEvidenceRuleTestInvocations;
+  readonly result: TestEvidenceRuleTestResult;
+}
+
+type TranscriptWriteResult = { readonly ok: false } | { readonly ok: true; readonly path: string };
 
 export interface TestEvidenceRuleTestsCheckDependencies {
   readonly runRuleTests: typeof runTestEvidenceRuleTests;
@@ -46,81 +55,112 @@ export function createTestEvidenceRuleTestsCheck(
     execution: async (context): Promise<CheckResult> => {
       if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
 
-      let result: TestEvidenceRuleTestResult;
-      let invocations: ReturnType<TestEvidenceRuleTestsCheckDependencies["ruleTestInvocations"]>;
-      try {
-        invocations = dependencies.ruleTestInvocations(context.project.root);
-        result = await dependencies.runRuleTests({
-          cancelSignal: context.signal,
-          workspaceRoot: context.project.root
-        });
-      } catch {
-        return unavailable(UNAVAILABLE_REASON_CODE.processUnavailable);
-      }
+      const execution = await executeRuleTestWorkflow(
+        context.project.root,
+        context.signal,
+        dependencies
+      );
+      if (typeof execution === "string") return unavailable(execution);
 
-      const steps = [
-        {
-          definition: transcriptDefinition(invocations.version),
-          label: "version",
-          result: result.version
-        },
-        ...(result.ruleTests === undefined
-          ? []
-          : [
-              {
-                definition: transcriptDefinition(invocations.ruleTests),
-                label: "rule-tests",
-                result: result.ruleTests
-              }
-            ])
-      ];
-      let logPath: string;
-      try {
-        logPath = dependencies.writeTranscript({
-          checkId: "test-evidence-rule-tests",
-          invocationLogDirectory,
-          steps
-        });
-      } catch {
-        return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
-      }
+      const transcript = writeRuleTestTranscript(execution, invocationLogDirectory, dependencies);
+      if (!transcript.ok) return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
 
       if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
-      const unavailableResult = firstUnavailableProcessResult(result);
-      if (unavailableResult !== undefined) return unavailable(unavailableResult);
-
-      const failureMessage = testEvidenceRuleTestFailureMessage(result);
-      if (failureMessage === undefined) {
-        return Object.freeze({
-          status: "passed",
-          data: Object.freeze({
-            ruleTestsExitCode: result.ruleTests?.status ?? null,
-            versionExitCode: result.version.status
-          })
-        });
-      }
-
-      const failedProcess = firstFailedProcessResult(result);
-      if (failedProcess !== undefined) {
-        return failedProcessResult(context, {
-          command: failedProcess.command,
-          exitCode: failedProcess.result.status,
-          logPath,
-          signal: failedProcess.result.signal
-        });
-      }
-      return Object.freeze({
-        status: "failed",
-        data: Object.freeze({ versionExitCode: result.version.status }),
-        messages: Object.freeze([
-          Object.freeze({
-            level: "error",
-            code: "ast-grep-version-mismatch",
-            message: `The ast-grep version did not match; transcript: ${processTranscriptReference(logPath)}.`
-          })
-        ])
-      });
+      return settleRuleTestResult(execution.result, transcript.path, context);
     }
+  });
+}
+
+async function executeRuleTestWorkflow(
+  workspaceRoot: string,
+  cancelSignal: AbortSignal,
+  dependencies: TestEvidenceRuleTestsCheckDependencies
+): Promise<RuleTestExecution | UnavailableReasonCode> {
+  try {
+    const invocations = dependencies.ruleTestInvocations(workspaceRoot);
+    const result = await dependencies.runRuleTests({ cancelSignal, workspaceRoot });
+    return { invocations, result };
+  } catch {
+    return UNAVAILABLE_REASON_CODE.processUnavailable;
+  }
+}
+
+function writeRuleTestTranscript(
+  execution: RuleTestExecution,
+  invocationLogDirectory: string,
+  dependencies: TestEvidenceRuleTestsCheckDependencies
+): TranscriptWriteResult {
+  try {
+    return {
+      ok: true,
+      path: dependencies.writeTranscript({
+        checkId: "test-evidence-rule-tests",
+        invocationLogDirectory,
+        steps: ruleTestTranscriptSteps(execution)
+      })
+    };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function ruleTestTranscriptSteps(execution: RuleTestExecution) {
+  const { invocations, result } = execution;
+  return [
+    {
+      definition: transcriptDefinition(invocations.version),
+      label: "version",
+      result: result.version
+    },
+    ...(result.ruleTests === undefined
+      ? []
+      : [
+          {
+            definition: transcriptDefinition(invocations.ruleTests),
+            label: "rule-tests",
+            result: result.ruleTests
+          }
+        ])
+  ];
+}
+
+function settleRuleTestResult(
+  result: TestEvidenceRuleTestResult,
+  logPath: string,
+  context: RuleTestCheckContext
+): CheckResult {
+  const unavailableResult = firstUnavailableProcessResult(result);
+  if (unavailableResult !== undefined) return unavailable(unavailableResult);
+
+  if (testEvidenceRuleTestFailureMessage(result) === undefined) {
+    return Object.freeze({
+      status: "passed",
+      data: Object.freeze({
+        ruleTestsExitCode: result.ruleTests?.status ?? null,
+        versionExitCode: result.version.status
+      })
+    });
+  }
+
+  const failedProcess = firstFailedProcessResult(result);
+  if (failedProcess !== undefined) {
+    return failedProcessResult(context, {
+      command: failedProcess.command,
+      exitCode: failedProcess.result.status,
+      logPath,
+      signal: failedProcess.result.signal
+    });
+  }
+  return Object.freeze({
+    status: "failed",
+    data: Object.freeze({ versionExitCode: result.version.status }),
+    messages: Object.freeze([
+      Object.freeze({
+        level: "error",
+        code: "ast-grep-version-mismatch",
+        message: `The ast-grep version did not match; transcript: ${processTranscriptReference(logPath)}.`
+      })
+    ])
   });
 }
 

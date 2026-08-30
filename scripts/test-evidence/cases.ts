@@ -48,8 +48,18 @@ export function validateTestCaseCoverage(options: {
 }): TestEvidenceDiagnostic[] {
   const diagnostics: TestEvidenceDiagnostic[] = [];
   const entitiesByKey = new Map(options.entities.map((entity) => [entity.entityKey, entity]));
+  const mapped = diagnoseUnknownCaseEntities(options.catalog.cases, entitiesByKey, diagnostics);
+  diagnoseEntitiesWithoutCase(options.entities, mapped, diagnostics);
+  return diagnostics;
+}
+
+function diagnoseUnknownCaseEntities(
+  cases: readonly SemanticTestCase[],
+  entitiesByKey: ReadonlyMap<string, TestEntity>,
+  diagnostics: TestEvidenceDiagnostic[]
+): ReadonlySet<string> {
   const mapped = new Set<string>();
-  for (const testCase of options.catalog.cases) {
+  for (const testCase of cases) {
     for (const entityKey of testCase.entityKeys) {
       if (entitiesByKey.has(entityKey)) {
         mapped.add(entityKey);
@@ -70,7 +80,15 @@ export function validateTestCaseCoverage(options: {
       }
     }
   }
-  for (const entity of options.entities) {
+  return mapped;
+}
+
+function diagnoseEntitiesWithoutCase(
+  entities: readonly TestEntity[],
+  mapped: ReadonlySet<string>,
+  diagnostics: TestEvidenceDiagnostic[]
+): void {
+  for (const entity of entities) {
     if (!mapped.has(entity.entityKey)) {
       diagnostics.push(
         diagnostic(
@@ -90,7 +108,6 @@ export function validateTestCaseCoverage(options: {
       );
     }
   }
-  return diagnostics;
 }
 
 export function listTestCaseTopics(options: { workspaceRoot: string }): {

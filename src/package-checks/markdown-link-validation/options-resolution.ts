@@ -22,32 +22,24 @@ export function resolveMarkdownLinkValidationOptions(
   value: unknown
 ): ResolvedMarkdownLinkValidationOptions | undefined {
   const input = snapshotClosedRecord(value);
-  if (
-    input === undefined ||
-    !hasRequiredAndOptionalRecordKeys(input, {
-      optional: [
-        "files",
-        "findingPolicy",
-        "requireExistingTargets",
-        "validateSameDocumentAnchors",
-        "validateCrossDocumentAnchors",
-        "rootExternalTargetMode",
-        "requireNonEmptyDirectories",
-        "limits"
-      ],
-      required: []
-    })
-  ) {
-    return undefined;
-  }
+  if (!isMarkdownLinkValidationInput(input)) return undefined;
   const limits = resolvedLimits(input.limits);
-  const files =
-    input.files === undefined
-      ? snapshotDefaultProjectFileSelection()
-      : resolveProjectFileSelection(input.files);
+  const files = resolvedFiles(input.files);
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
   if (limits === undefined || files === undefined || findingPolicy === undefined) return undefined;
-  const candidate = canonicalizeJsonObject({
+  const candidate = optionsCandidate(input, files, findingPolicy, limits);
+  return candidate !== undefined && validMarkdownLinkValidationOptions(candidate)
+    ? candidate
+    : undefined;
+}
+
+function optionsCandidate(
+  input: Readonly<Record<string, unknown>>,
+  files: Exclude<ReturnType<typeof resolvedFiles>, undefined>,
+  findingPolicy: Exclude<ReturnType<typeof resolveFindingPolicy>, undefined>,
+  limits: Readonly<Record<string, unknown>>
+) {
+  return canonicalizeJsonObject({
     files,
     findingPolicy,
     requireExistingTargets:
@@ -62,9 +54,33 @@ export function resolveMarkdownLinkValidationOptions(
       input.requireNonEmptyDirectories === undefined ? false : input.requireNonEmptyDirectories,
     limits
   });
-  return candidate !== undefined && validMarkdownLinkValidationOptions(candidate)
-    ? candidate
-    : undefined;
+}
+
+function isMarkdownLinkValidationInput(
+  input: Readonly<Record<string, unknown>> | undefined
+): input is Readonly<Record<string, unknown>> {
+  return (
+    input !== undefined &&
+    hasRequiredAndOptionalRecordKeys(input, {
+      optional: [
+        "files",
+        "findingPolicy",
+        "requireExistingTargets",
+        "validateSameDocumentAnchors",
+        "validateCrossDocumentAnchors",
+        "rootExternalTargetMode",
+        "requireNonEmptyDirectories",
+        "limits"
+      ],
+      required: []
+    })
+  );
+}
+
+function resolvedFiles(value: unknown) {
+  return value === undefined
+    ? snapshotDefaultProjectFileSelection()
+    : resolveProjectFileSelection(value);
 }
 
 function resolvedLimits(value: unknown): Readonly<Record<string, unknown>> | undefined {

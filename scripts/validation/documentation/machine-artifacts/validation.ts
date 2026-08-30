@@ -71,9 +71,15 @@ function validateDocsMachineArtifactSetWithSchemas(
 }
 
 function assertExactExampleInventory(): void {
-  let entries: fs.Dirent[];
+  const entries = readCurrentExampleRootDirectory();
+  assertCurrentExampleDirectoryInventory(entries);
+  const exampleRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`;
+  assertCurrentExampleFileInventory(readExampleDirectory(exampleRoot), exampleRoot);
+}
+
+function readCurrentExampleRootDirectory(): fs.Dirent[] {
   try {
-    entries = fs.readdirSync(toDocumentationAbsolutePath(CURRENT_MACHINE_EXAMPLES_ROOT), {
+    return fs.readdirSync(toDocumentationAbsolutePath(CURRENT_MACHINE_EXAMPLES_ROOT), {
       withFileTypes: true
     });
   } catch {
@@ -81,6 +87,9 @@ function assertExactExampleInventory(): void {
       `current machine artifact example root is missing or unreadable: ${CURRENT_MACHINE_EXAMPLES_ROOT}`
     );
   }
+}
+
+function assertCurrentExampleDirectoryInventory(entries: readonly fs.Dirent[]): void {
   for (const entry of entries) {
     if (!entry.isDirectory() || entry.name !== CURRENT_MACHINE_EXAMPLE) {
       throw new Error(
@@ -88,16 +97,14 @@ function assertExactExampleInventory(): void {
       );
     }
   }
-  const example = entries.find(
-    (entry) => entry.isDirectory() && entry.name === CURRENT_MACHINE_EXAMPLE
-  );
-  if (example === undefined) {
+  if (entries.length === 0) {
     throw new Error(
       `missing current machine artifact example directory: ${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`
     );
   }
-  const exampleRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`;
-  const files = readExampleDirectory(exampleRoot);
+}
+
+function assertCurrentExampleFileInventory(files: readonly fs.Dirent[], exampleRoot: string): void {
   const expectedFiles = new Set<string>(CURRENT_MACHINE_EXAMPLE_FILES);
   for (const entry of files) {
     if (!entry.isFile() || !expectedFiles.has(entry.name)) {
@@ -106,8 +113,9 @@ function assertExactExampleInventory(): void {
       );
     }
   }
+  const presentFiles = new Set(files.map((entry) => entry.name));
   for (const fileName of CURRENT_MACHINE_EXAMPLE_FILES) {
-    if (!files.some((entry) => entry.isFile() && entry.name === fileName)) {
+    if (!presentFiles.has(fileName)) {
       throw new Error(`missing current machine artifact example file: ${exampleRoot}/${fileName}`);
     }
   }

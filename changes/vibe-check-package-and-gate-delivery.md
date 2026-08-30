@@ -11,8 +11,11 @@
 
 ## Current active dependencies
 
-1. The post-release directions [add-html-link-validation](add-html-link-validation/), [add-network-link-validation](add-network-link-validation/), [add-secret-detection](add-secret-detection/), and [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) are not a present release implementation claim.
-2. [define-project-run-log-evidence-boundaries](define-project-run-log-evidence-boundaries/) is a Draft for a future named durable-evidence consumer. It does not add a logs output or block current package validation.
+The post-release directions [add-html-link-validation](add-html-link-validation/), [add-network-link-validation](add-network-link-validation/), [add-secret-detection](add-secret-detection/), and [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) are not a present release implementation claim.
+
+## Reserved future direction
+
+`define-project-run-log-evidence-boundaries` is only a reserved name for a future durable-evidence consumer, not a current active Change. That reservation does not add a logs output or block current package validation.
 
 ## Release authority
 

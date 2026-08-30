@@ -19,6 +19,8 @@ import {
 import type { SupportedRunnerProfile } from "../profile.ts";
 import { processFailureMessage, runBunCommand } from "../runner-process.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
+import { parseBunRegistrationJUnit, type BunJUnitCase } from "./bun-junit.ts";
+export { parseBunJUnit, parseBunRegistrationJUnit, type BunJUnitCase } from "./bun-junit.ts";
 
 type BunDiscoveryOptions = {
   cancelSignal?: AbortSignal;
@@ -28,13 +30,6 @@ type BunDiscoveryOptions = {
 type BunDiscoveryResult = { entities: TestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
 type BunRuntimeResult = { entities: RuntimeTestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
 type BunStaticResult = { entities: StaticTestEntity[]; diagnostics: TestEvidenceDiagnostic[] };
-
-export type BunJUnitCase = {
-  name: string;
-  className: string;
-  file: string;
-  line: number;
-};
 
 const REGISTRATION_ONLY_TEST_PATTERN = "a^";
 
@@ -95,116 +90,69 @@ async function enumerateBunTests(
   const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "vibe-check-bun-report-"));
   const reportPath = path.join(temporaryRoot, "junit.xml");
   try {
-    const result = await runBunCommand({
-      cancelSignal: options.cancelSignal,
-      workspaceRoot: options.workspaceRoot,
-      args: [
-        "test",
-        ...files,
-        `--test-name-pattern=${REGISTRATION_ONLY_TEST_PATTERN}`,
-        "--reporter=junit",
-        `--reporter-outfile=${reportPath}`
-      ],
-      label: "Bun test registration report"
-    });
+    const result = await runBunRegistrationReport(options, files, reportPath);
     if (result.status !== 0 && result.status !== 1) {
-      return {
-        entities: [],
-        diagnostics: [
-          diagnostic(
-            "runner-report-failed",
-            "runner",
-            processFailureMessage(result, "Bun test registration report"),
-            { runner: "bun" }
-          )
-        ]
-      };
+      return runtimeDiagnostic(
+        "runner-report-failed",
+        processFailureMessage(result, "Bun test registration report")
+      );
     }
-    if (!fs.existsSync(reportPath)) {
-      return {
-        entities: [],
-        diagnostics: [
-          diagnostic(
-            "runner-report-invalid",
-            "runner",
-            "Bun test did not create the requested JUnit report",
-            { runner: "bun" }
-          )
-        ]
-      };
-    }
-    let cases: BunJUnitCase[];
-    try {
-      cases = parseBunRegistrationJUnit(fs.readFileSync(reportPath, "utf8"));
-    } catch (error) {
-      return {
-        entities: [],
-        diagnostics: [
-          diagnostic(
-            "runner-report-invalid",
-            "runner",
-            `Bun JUnit report is malformed: ${error instanceof Error ? error.message : String(error)}`,
-            { runner: "bun" }
-          )
-        ]
-      };
-    }
-    return {
-      entities: cases.map((testCase) => ({
-        identity: bunLocationIdentity(testCase.file, testCase.line, testCase.name),
-        target: testCase.file,
-        selector: testCase.className ? `${testCase.className} > ${testCase.name}` : testCase.name
-      })),
-      diagnostics: []
-    };
+    return runtimeEntitiesFromReport(reportPath);
   } finally {
     fs.rmSync(temporaryRoot, { force: true, recursive: true });
   }
 }
 
-export function parseBunJUnit(source: string): BunJUnitCase[] {
-  return parseBunJUnitReport(source).cases;
+async function runBunRegistrationReport(
+  options: BunDiscoveryOptions,
+  files: readonly string[],
+  reportPath: string
+) {
+  return runBunCommand({
+    cancelSignal: options.cancelSignal,
+    workspaceRoot: options.workspaceRoot,
+    args: [
+      "test",
+      ...files,
+      `--test-name-pattern=${REGISTRATION_ONLY_TEST_PATTERN}`,
+      "--reporter=junit",
+      `--reporter-outfile=${reportPath}`
+    ],
+    label: "Bun test registration report"
+  });
 }
 
-/** Parses one registration-only report and proves every reported test stayed skipped. */
-export function parseBunRegistrationJUnit(source: string): BunJUnitCase[] {
-  const report = parseBunJUnitReport(source);
-  const skippedElements = [...source.matchAll(/<skipped\b[^>]*\/?>/gu)].length;
-  if (report.skipped !== report.tests || skippedElements !== report.tests) {
-    throw new Error(
-      `registration report must skip every test; reported ${report.skipped} skipped root tests and ${skippedElements} skipped testcase elements for ${report.tests} tests`
+function runtimeEntitiesFromReport(reportPath: string): BunRuntimeResult {
+  if (!fs.existsSync(reportPath))
+    return runtimeDiagnostic(
+      "runner-report-invalid",
+      "Bun test did not create the requested JUnit report"
+    );
+  try {
+    return {
+      entities: parseBunRegistrationJUnit(fs.readFileSync(reportPath, "utf8")).map(runtimeEntity),
+      diagnostics: []
+    };
+  } catch (error) {
+    return runtimeDiagnostic(
+      "runner-report-invalid",
+      `Bun JUnit report is malformed: ${error instanceof Error ? error.message : String(error)}`
     );
   }
-  return report.cases;
 }
 
-function parseBunJUnitReport(source: string): Readonly<{
-  readonly cases: BunJUnitCase[];
-  readonly skipped: number;
-  readonly tests: number;
-}> {
-  const rootMatch = /<testsuites\b([^>]*)>/u.exec(source);
-  if (!rootMatch) {
-    throw new Error("testsuites root is missing");
-  }
-  const rootAttributes = parseXmlAttributes(rootMatch[1]);
-  const expectedTests = parseNonNegativeInteger(rootAttributes.tests, "tests");
-  const failures = parseNonNegativeInteger(rootAttributes.failures, "failures");
-  const skipped = parseOptionalNonNegativeInteger(rootAttributes.skipped, "skipped");
-  if (failures !== 0) {
-    throw new Error(`report contains ${failures} failure(s)`);
-  }
-
-  const cases: BunJUnitCase[] = [];
-  for (const match of source.matchAll(/<testcase\b([^>]*)\/?>/gu)) {
-    cases.push(parseBunJUnitCase(match[1]));
-  }
-  if (cases.length !== expectedTests) {
-    throw new Error(
-      `testsuites reports ${expectedTests} tests but contains ${cases.length} testcase elements`
-    );
-  }
-  return Object.freeze({ cases, skipped, tests: expectedTests });
+function runtimeEntity(testCase: BunJUnitCase): RuntimeTestEntity {
+  return {
+    identity: bunLocationIdentity(testCase.file, testCase.line, testCase.name),
+    target: testCase.file,
+    selector: testCase.className ? `${testCase.className} > ${testCase.name}` : testCase.name
+  };
+}
+function runtimeDiagnostic(
+  code: "runner-report-failed" | "runner-report-invalid",
+  message: string
+): BunRuntimeResult {
+  return { entities: [], diagnostics: [diagnostic(code, "runner", message, { runner: "bun" })] };
 }
 
 async function scanBunStaticEntities(
@@ -263,68 +211,6 @@ function bunStaticCandidates(matches: readonly AstMatch[]): BunStaticResult {
     });
   }
   return { entities, diagnostics };
-}
-
-function parseBunJUnitCase(source: string): BunJUnitCase {
-  const attributes = parseXmlAttributes(source);
-  if (
-    attributes.name === undefined ||
-    attributes.file === undefined ||
-    attributes.line === undefined
-  ) {
-    throw new Error("testcase is missing name, file or line");
-  }
-  const line = parseNonNegativeInteger(attributes.line, "testcase line");
-  if (line < 1) {
-    throw new Error("testcase line must be 1-based");
-  }
-  return {
-    name: attributes.name,
-    className: attributes.classname ?? "",
-    file: attributes.file.replaceAll("\\", "/"),
-    line
-  };
-}
-
-function parseXmlAttributes(source: string): Record<string, string> {
-  const attributes: Record<string, string> = {};
-  for (const match of source.matchAll(/([A-Za-z_:][A-Za-z0-9_.:-]*)="([^"]*)"/gu)) {
-    attributes[match[1]] = decodeXml(match[2]);
-  }
-  return attributes;
-}
-
-function decodeXml(value: string): string {
-  return value.replace(/&(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);/gu, (entity) => {
-    switch (entity) {
-      case "&amp;":
-        return "&";
-      case "&lt;":
-        return "<";
-      case "&gt;":
-        return ">";
-      case "&quot;":
-        return '"';
-      case "&apos;":
-        return "'";
-      default:
-        if (entity.startsWith("&#x")) {
-          return String.fromCodePoint(Number.parseInt(entity.slice(3, -1), 16));
-        }
-        return String.fromCodePoint(Number.parseInt(entity.slice(2, -1), 10));
-    }
-  });
-}
-
-function parseNonNegativeInteger(value: string | undefined, label: string): number {
-  if (value === undefined || !/^\d+$/u.test(value)) {
-    throw new Error(`${label} must be a non-negative integer`);
-  }
-  return Number.parseInt(value, 10);
-}
-
-function parseOptionalNonNegativeInteger(value: string | undefined, label: string): number {
-  return value === undefined ? 0 : parseNonNegativeInteger(value, label);
 }
 
 function bunLocationIdentity(sourcePath: string, line: number, name: string): string {

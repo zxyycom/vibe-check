@@ -17,26 +17,8 @@ export function resolveJsonSchemaValidationOptions(
   value: unknown
 ): ResolvedJsonSchemaValidationOptions | undefined {
   const input = snapshotClosedRecord(value);
-  if (
-    input === undefined ||
-    !hasRequiredAndOptionalRecordKeys(input, {
-      optional: [
-        "files",
-        "maximumBytes",
-        "schemaIdentity",
-        "referenceResolution",
-        "schemas",
-        "bindings"
-      ],
-      required: []
-    })
-  ) {
-    return undefined;
-  }
-  const files =
-    input.files === undefined
-      ? snapshotDefaultProjectFileSelection()
-      : resolveProjectFileSelection(input.files);
+  if (!validOptionInput(input)) return undefined;
+  const files = resolvedFiles(input.files);
   if (files === undefined) return undefined;
   const candidate = canonicalizeJsonObject({
     files,
@@ -51,4 +33,29 @@ export function resolveJsonSchemaValidationOptions(
   return candidate !== undefined && validJsonSchemaValidationOptions(candidate)
     ? candidate
     : undefined;
+}
+
+function validOptionInput(
+  input: Readonly<Record<string, unknown>> | undefined
+): input is Readonly<Record<string, unknown>> {
+  return (
+    input !== undefined &&
+    hasRequiredAndOptionalRecordKeys(input, {
+      optional: [
+        "files",
+        "maximumBytes",
+        "schemaIdentity",
+        "referenceResolution",
+        "schemas",
+        "bindings"
+      ],
+      required: []
+    })
+  );
+}
+
+function resolvedFiles(value: unknown) {
+  return value === undefined
+    ? snapshotDefaultProjectFileSelection()
+    : resolveProjectFileSelection(value);
 }
