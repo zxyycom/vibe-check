@@ -3,8 +3,9 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
+  defaultProjectFileSelection,
   resolveProjectFileSelection,
-  snapshotDefaultProjectFileSelection
+  snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import {
   DEFAULT_FINDING_POLICY,
@@ -17,6 +18,7 @@ import {
   type ResolvedFunctionMetricsOptions
 } from "./options.ts";
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
+import { LIZARD_SUPPORTED_FILE_GLOBS } from "./target-files.ts";
 
 const DEFAULT_LIZARD_EXECUTABLE = "lizard";
 const DEFAULT_CODE_LINE_MAXIMUM = 60;
@@ -24,6 +26,11 @@ const DEFAULT_LOW_COMPLEXITY_CODE_LINE_MAXIMUM = 180;
 const DEFAULT_LOW_COMPLEXITY_BELOW = 6;
 const DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM = 12;
 const DEFAULT_PARAMETER_MAXIMUM = 6;
+const DEFAULT_FILES = Object.freeze({
+  exclude: defaultProjectFileSelection.exclude,
+  include: LIZARD_SUPPORTED_FILE_GLOBS,
+  source: defaultProjectFileSelection.source
+});
 
 interface PolicyRecordKeys {
   readonly optional?: readonly string[];
@@ -71,7 +78,7 @@ function resolveCodeAreas(
 
 function defaultCodeArea(findingPolicy: FindingPolicy): ResolvedFunctionMetricsCodeAreaOptions {
   return Object.freeze({
-    files: snapshotDefaultProjectFileSelection(),
+    files: snapshotProjectFileSelection(DEFAULT_FILES),
     findingPolicy,
     limits: defaultLimits()
   });
@@ -86,7 +93,7 @@ function resolveCodeArea(
     required: ["files"]
   });
   if (area === undefined) return undefined;
-  const files = resolveProjectFileSelection(area.files);
+  const files = resolveProjectFileSelection(area.files, DEFAULT_FILES);
   const findingPolicy = resolveFindingPolicy(area.findingPolicy, defaultFindingPolicy);
   const limits = resolveLimits(area.limits);
   return files === undefined || findingPolicy === undefined || limits === undefined

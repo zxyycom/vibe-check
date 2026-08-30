@@ -20,33 +20,21 @@ const check = functionMetrics();
 ## 参数与默认配置
 
 顶层 `findingPolicy`、`codeAreas` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供 `files` branch。
-`functionMetrics()` 会物化以下完整、冻结的 resolved options，调用方无需复制：
+`functionMetrics()` 按下表物化完整、冻结的 resolved options，调用方无需复制默认数组：
 
-```ts
-{
-  codeAreas: {
-    project: {
-      files: defaultProjectFileSelection,
-      findingPolicy: "non-blocking",
-      limits: {
-        codeLines: {
-          maximum: 60,
-          lowComplexityAllowance: {
-            maximum: 180,
-            cyclomaticComplexityBelow: 6
-          }
-        },
-        cyclomaticComplexity: { maximum: 12 },
-        parameters: { maximum: 6 }
-      }
-    }
-  },
-  scanner: { executable: "lizard" }
-}
-```
+| Resolved field | 无参默认值 |
+| --- | --- |
+| `codeAreas.project.files.source` | `"filesystem"` |
+| `codeAreas.project.files.include` | 从同一 Check-local Lizard 1.23.0 extension registry 生成；每个官方支持 extension 对应一个大小写不敏感 glob |
+| `codeAreas.project.files.exclude` | detached copy of `defaultProjectFileSelection.exclude` |
+| `codeAreas.project.findingPolicy` | `"non-blocking"` |
+| `codeAreas.project.limits.codeLines` | `{ maximum: 60, lowComplexityAllowance: { maximum: 180, cyclomaticComplexityBelow: 6 } }` |
+| `codeAreas.project.limits.cyclomaticComplexity` | `{ maximum: 12 }` |
+| `codeAreas.project.limits.parameters` | `{ maximum: 6 }` |
+| `scanner` | `{ executable: "lizard" }` |
 
-这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
-自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
+需要核对当前完整 glob array 时，读取 `functionMetrics().options.codeAreas.project.files.include`；它与 runtime eligibility
+predicate 来自同一 extension registry。source/exclude 沿用公开深冻结基线，include 精准匹配 Lizard 能力。
 
 顶层 `findingPolicy` 只为各 area 提供默认值；每个 resolved area 保存自己的有效 `findingPolicy`。所有 maximum 都是
 包含等于值的上限：measurement 必须严格大于 limit 才产生 finding。complexity 小于
@@ -55,10 +43,11 @@ maximum 不得小于普通 code-line maximum。
 
 constructor 按字段补默认值。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem 不解释
 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check 结算为
-`unavailable`，不会切换到另一来源。`include` 与 `exclude` 都按
-project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用公开的 `defaultProjectFileSelection`；显式数组是
-完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。nested limit 字段和 area `findingPolicy` 仍可分别省略
-并继承各自默认值。
+`unavailable`，不会切换到另一来源。`include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude
+优先。省略 source/exclude 时沿用公开 baseline，省略 include 时使用上述 Lizard-specific globs；显式数组完整替换对应
+默认值，`include: []` 不选择路径，`exclude: []` 不排除路径。显式组合完整 `defaultProjectFileSelection` 会明确选择
+`**/*`，不受支持的路径因而形成 input-rejection Records。nested limit 字段和 area `findingPolicy` 仍可分别省略并继承
+各自默认值。
 
 ### 区域与阻断政策
 
@@ -130,16 +119,17 @@ uv = "0.11.28"
 ## 工作原理
 
 1. constructor 关闭 input shape，补齐 files、limits、finding policy 与 scanner defaults，再冻结 resolved options。
-2. execution 按文件来源分组，每种不同来源只枚举一次候选文件，再按各 area 的 `include` / `exclude` 选择受支持的
-   exact inputs，并形成稳定去重的路径并集。
-3. Lizard adapter 对该并集执行一次 measurement；parser output 必须完整，且所有 source paths 必须属于本次 exact set，否则
-   整批结果结算为 unavailable，不发布 partial Records。
+2. execution 按文件来源分组，每种不同来源只枚举一次候选文件，再按各 area 的 `include` / `exclude` 形成完整 selected
+   paths，并以 Lizard extension registry 分成 accepted/rejected。每个 rejected path 只产生一条 Record，并保留全部 matching
+   area IDs；accepted paths 形成稳定去重的 exact-input 并集。
+3. accepted 并集非空时，Lizard adapter 对它执行一次 measurement；parser output 必须完整，且所有 source paths 必须属于
+   本次 exact set，否则整批结果结算为 unavailable，不发布 partial Records。
 4. 可信 measurements 恢复全部 matching areas，按上一节的 overlap 规则计算 effective limit 与 blocking，再完整形成 Records
    和 final counts，不因首个 finding 短路。
 
 ## 效果与结果
 
-每个超过 effective limit 的 metric 产生一个 Record，data 包含：
+每个超过 effective limit 的 metric 产生一个 metric Record，data 包含：
 
 ```ts
 {
@@ -162,12 +152,29 @@ Record metric 与 measurement 的对应关系如下：
 | `function-code-density` | function NLOC；该 ID 不表示比例 | matching areas 按各自 allowance 条件计算后的 code-line maximum 最小值 |
 | `parameter-count` | function parameter count | matching areas 的 `parameters.maximum` 最小值 |
 
-正常 final data 是 `{ findingCount, blockingFindingCount }`。`blockingFindingCount > 0` 时 outcome 为 `failed`；只有
-non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。
+每个 rejected selected path 另产生一条 ID 为 `/input-rejected/<path>` 的 Record：
 
-`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
-调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
-的 `passed` 与 `not-applicable` 不合成人为提示。
+```ts
+{
+  blocking: false,
+  codeAreas: readonly string[],
+  kind: "input-rejected",
+  path: string,
+  reason: "unsupported-file-type"
+}
+```
+
+`codeAreas` 是该 path 被选中的全部 area IDs，经去重和稳定排序。即使 area policy 为 blocking，这个 Finding 也固定
+non-blocking；它不包含函数或伪造 measurement。
+
+正常 final data 是 `{ findingCount, blockingFindingCount }`。`findingCount` 包含 metric 与 input-rejection Records，
+`blockingFindingCount` 只统计 effective blocking metric findings。后者大于零时 outcome 为 `failed`；只有 non-blocking
+findings 时 outcome 为 `passed`，Records 仍完整保留。
+
+`failed` 的 `blocking-findings` message 与携带 non-blocking metric Records 的 `passed` 的 `non-blocking-findings` message
+都会引导调用方检查本 Check 的 Records；有 rejected input 时另附一条 `input-rejected` warning，只汇总数量，不省略逐路径
+Record。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；若 rejection Records 已发布，它们与
+对应 warning 仍保留。零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFunctionMetricsData(value)` 验证 final data。两者返回
 `FunctionMetricsFinalData`，Record 与不可用原因可分别用 `FunctionMetricsRecordData` 和
@@ -176,8 +183,9 @@ non-blocking findings 时 outcome 为 `passed`，Records 仍完整保留。
 
 ## `not-applicable` 与 `unavailable`
 
-所有 area 的受支持 exact input 并集为空时结算为 `not-applicable` / `no-eligible-input`。其它无法形成可信 final data 的边界
-结算为 `unavailable`：
+所有 area 的 selected path 去重并集为空时结算为 `not-applicable / no-eligible-input`。selected 非空但全部被 extension
+registry 拒绝时，不启动 Lizard，直接以带 input-rejection Records、warning 和 final counts 的 `passed` 结算。其它无法形成
+可信 final data 的边界结算为 `unavailable`：
 
 | `reason.code` | 触发边界 | 调用方检查项 |
 | --- | --- | --- |
@@ -195,8 +203,10 @@ constructor 返回后又被替换的 resolved options。通用 preflight 语法�
 ## I/O 与安全边界
 
 execution 只把各 area files 中 Lizard 1.23.0 官方 reader 支持的 extension exact paths 交给本机 Lizard；匹配大小写不敏感，
-支持的 extension table 由 Check-local adapter 固定。未被该 table 识别的 Markdown、JSON 等文件不交给 Lizard，避免其
-C-like fallback 误解析非代码文本；scanner 不接收 project root 重新发现输入。该 Check 的网络 request 数为零。
+支持的 extension table 同时生成默认 globs 与 runtime predicate。未被该 table 识别的 Markdown、JSON 等 selected files
+产生拒绝 Finding，但不交给 Lizard，避免其 C-like fallback 误解析非代码文本；scanner 不接收 project root 重新发现输入。
+该 Check 的网络 request 数为零。Lizard 收到 accepted exact path 后是否产生函数 row 属于 backend measurement semantics，
+不能由本 Check 推断为 input rejection。
 
 ## 最小用法
 

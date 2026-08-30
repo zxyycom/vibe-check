@@ -4,8 +4,9 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
+  defaultProjectFileSelection,
   resolveProjectFileSelection,
-  snapshotDefaultProjectFileSelection
+  snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
@@ -15,6 +16,11 @@ const DEFAULT_LIMITS = Object.freeze({
   maxMarkdownBytes: 1_048_576,
   maxOccurrences: 10_000,
   maxTargetReads: 1_000
+});
+const DEFAULT_FILES = Object.freeze({
+  exclude: defaultProjectFileSelection.exclude,
+  include: Object.freeze(["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]),
+  source: defaultProjectFileSelection.source
 });
 
 /** 将可省略 Markdown link policy 物化为完整、冻结的 execution options。 */
@@ -79,8 +85,8 @@ function isMarkdownLinkValidationInput(
 
 function resolvedFiles(value: unknown) {
   return value === undefined
-    ? snapshotDefaultProjectFileSelection()
-    : resolveProjectFileSelection(value);
+    ? snapshotProjectFileSelection(DEFAULT_FILES)
+    : resolveProjectFileSelection(value, DEFAULT_FILES);
 }
 
 function resolvedLimits(value: unknown): Readonly<Record<string, unknown>> | undefined {

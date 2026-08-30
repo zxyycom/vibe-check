@@ -22,11 +22,13 @@ Check final status、Record、aggregation、machine output 或 scanner protocol�
 composition 显式复用，而不是依赖 Product 的 hidden global configuration。同一个 area-based Check 会按 `source` 复用
 候选枚举；这个复用不创建 provider Check、dependency fact 或跨 Check hidden cache。
 
-Package root 的 `defaultProjectFileSelection` 是六项 file-selecting constructor 共用的深冻结完整基线。它明确排除常见
+Package root 的 `defaultProjectFileSelection` 是六项 file-selecting constructor 共用的深冻结、可组合基线。它明确排除常见
 VCS/Product state、dependencies、build/generated、cache、coverage、log、temporary 与 virtual-environment paths；它不读取
-`.gitignore`，也不是 global setting。省略 file field 时 constructor 从该 value 物化默认；显式数组完整替换。项目需要追加
-排除时，通过 `{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 建立自己的
-selection。完整默认 glob 列表由 [Configuration](configuration.md#package-provided-check-composition) 拥有。
+`.gitignore`，也不是 global setting。`duplicateDetection`、`fileMetrics` 与 `jsonSchemaValidation` 原样采用该基线；
+`functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 保留同一 source/exclude，并按各自支持的文件类型派生精准
+默认 include。显式数组完整替换 owning Check 的对应默认值。项目需要追加排除时，通过
+`{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 建立自己的 selection。
+完整公共基线与 Check-specific defaults 由 [Configuration](configuration.md#package-provided-check-composition) 拥有。
 
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
 line/token policy，file area 使用 file code-line policy，function area 使用 function limits 与 effective finding policy。
@@ -69,24 +71,33 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
 每个 package-provided Check 独立调用 project-file mechanism，并从自己的 resolved candidates 形成 exact inputs；
 不同 Check 可以有不同 file selection。scanner 不接收 project root 来重新发现或扩大输入。
 
+`source/include/exclude` 首先形成 selected paths。若 owning Check 随后还有受支持文件类型 predicate，它必须把 selected set
+完整分为互不相交的 accepted 与 rejected paths，且两者并集等于 selected。每个 rejected path 发布一条 non-blocking
+`input-rejected / unsupported-file-type` Record 和一条 Check-level 汇总 warning；显式宽泛 include 不因数量较多而省略
+Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-rejected 表示分类已完成，返回带拒绝 Finding 的
+`passed`。这项规则只覆盖 Product-owned eligibility filter；backend 已收到 accepted exact path 后是否返回 measurement，
+必须由对应 adapter 的协议判断，不能推断为 input rejection。
+
 - `duplicate-detection` 按来源枚举一次并从每个 `codeAreas[id].files` 形成路径，再把去重并集一次性交给 Check-local
   jscpd adapter；
   因此同 area、跨 area 与重叠 area paths 都可比较，结果再按 location 涉及的全部 area line/token policy 过滤。未被
   任何 area 选择的 path 不属于 exact scope。
 - `file-metrics` 按来源枚举一次并筛出每个 area 的路径，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按
   其全部实际 input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
-- `function-metrics` 按来源枚举一次，并按 Lizard 1.23.0 的官方 reader extension table 选择其支持的 source files（大小写不敏感）；把稳定去重并集一次性交给 Check-local
-  Lizard adapter。未被该 table 识别的文件不会传给 Lizard，避免其 C-like fallback 将非代码文本当作 source；
-  每个结果恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area blocking 时 finding blocking，
-  同一 metric 最多产生一条 finding。
-- `json-validation` 只从自己的 candidates 中以 case-sensitive `path.endsWith(".json")` 选择文件；`.JSON` 不属于输入。
+- `function-metrics` 的默认 include 与 Lizard 1.23.0 官方 reader extension table 来自同一 Check-local registry，并按大小写
+  不敏感语义匹配。execution 对每个 area 的 selected paths 分类；accepted 稳定去重并集一次性交给 Lizard，rejected path
+  只发布一条 Record，并保留其全部稳定排序 area IDs。未被 table 识别的文件不传给 Lizard，避免其 C-like fallback 将非代码
+  文本当作 source。每个 measurement 恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area
+  blocking 时 metric finding blocking，同一 metric 最多产生一条 finding；input rejection 始终 non-blocking。
+- `json-validation` 的默认 include 是 `**/*.json`。execution 对 selected candidates 使用 case-sensitive
+  `path.endsWith(".json")`；`.JSON` 与其它类型成为 rejected input，不进入 document read。
 - `json-schema-validation` 不从 suffix、`$schema`、filename 或 directory discovery 推断 work。只有
   `schemas[].path` 与 `bindings[].instancePath` 明确声明且同时属于该 Check `files` selection 的 path 才可读取；
   out-of-selection declaration 形成安全的 `out-of-scope` domain issue，zero bindings 是 `not-applicable`。
-- `markdown-link-validation` 只从自己的 candidates 中选择 `.md` 或 `.markdown` source；direct target 不成为新的
-  source input，也不递归发现 links。
+- `markdown-link-validation` 的默认 include 用大小写不敏感 glob 精准选择 `.md` 与 `.markdown`。execution 以相同 suffix
+  语义分类 selected candidates；rejected input 不成为 source，direct target 也不成为新的 source input 或递归发现 links。
 
-合格输入为零是 owning Check 的 applicability/work fact；本次 invocation 使用的文件来源保持不变。
+分类不会改变本次 invocation 使用的文件来源，也不会把 rejected path 交给 scanner、document reader 或 Markdown parser。
 
 ### Markdown Link source occurrences
 

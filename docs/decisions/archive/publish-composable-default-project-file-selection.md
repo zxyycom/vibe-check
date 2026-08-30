@@ -1,6 +1,6 @@
 ---
 title: 公开可组合的默认项目文件选择
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T11:39:49Z
 purpose: 让 file-selecting Checks 共用并公开一个常见、不可变且可由 consumer 显式微调的 files 基线。

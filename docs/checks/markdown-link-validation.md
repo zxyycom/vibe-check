@@ -12,7 +12,11 @@ Definition `checks` 的普通 Check。
 
 ```ts
 {
-  files: defaultProjectFileSelection,
+  files: {
+    source: "filesystem",
+    include: ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"],
+    exclude: defaultProjectFileSelection.exclude
+  },
   findingPolicy: "non-blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
@@ -27,9 +31,10 @@ Definition `checks` 的普通 Check。
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options；`defaultProjectFileSelection` 是 package root 公开的同值深冻结
-基线；完整默认 glob 可直接从该 public value 读取。所有顶层 authoring fields 都可省略，`files` 与 `limits` 内的字段也可分别省略。显式 `include` / `exclude` 数组是
-完整替换值。
+上面的代码块是无参调用物化后的完整 resolved options；`exclude` 表示 constructor detached-copy 了 package root 公开
+`defaultProjectFileSelection.exclude` 的全部条目，不是调用方必须复制的输入。所有顶层 authoring fields 都可省略，
+`files` 与 `limits` 内的字段也可分别省略。显式 `include` / `exclude` 数组是完整替换值；显式宽泛 include 选中的非 Markdown
+path 会产生拒绝 Finding，而不是被静默过滤。
 
 - `files` 定义 Markdown source selection；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
   `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
@@ -67,9 +72,10 @@ const documentationLinks = markdownLinkValidation({
 ## 工作原理
 
 Check 验证 options，收集 Markdown source paths，每份 source decode / parse 一次，再处理 supported inline、
-reference 与 autolink occurrences。target file、directory 与 GitHub-priority heading anchor 按上面 policy 做 bounded
-validation；每个 finding 产生一条 supplemental Record。direct target 可以参与当前 occurrence validation，source
-discovery 始终由 `files` selection 决定。
+reference 与 autolink occurrences。完整 selected paths 先按 `.md` / `.markdown` suffix 分为 accepted/rejected，每个
+rejected path 产生 supplemental Record，只有 accepted path 成为 source。target file、directory 与 GitHub-priority heading
+anchor 按上面 policy 做 bounded validation；每个 link finding 产生另一种 supplemental Record。direct target 可以参与当前
+occurrence validation，source discovery 始终由 `files` selection 决定。
 
 受支持 occurrence 包含 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 和选定的 GFM
 autolink literal。YAML front matter、code/fenced code、HTML attribute、普通 prose URL 与 undefined reference 不进入本
@@ -77,21 +83,24 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 
 ## 效果与结果
 
-`findingCount === 0` 时 outcome 为 `passed`；`findingCount > 0` 时，`findingPolicy: "blocking"` 为 `failed`，
-`findingPolicy: "non-blocking"` 为 `passed`。两种 finding policy 都保留相同的 final data 与每 finding 一条 Record；
-blocking finding 附带 `invalid-local-links` error message，non-blocking finding 附带同 code 的 warning message。正常 final data 恰为：
+没有 normal link finding 时 outcome 为 `passed`；有 normal link finding 时，`findingPolicy: "blocking"` 为 `failed`，
+`findingPolicy: "non-blocking"` 为 `passed`。input rejection 固定 non-blocking，不受该 policy 影响。两种 finding policy 都
+保留相同的 final data 与每 finding 一条 Record；blocking link finding 附带 `invalid-local-links` error message，
+non-blocking link finding 附带同 code 的 warning message。正常 final data 恰为：
 
 ```ts
 {
   sourceFileCount: number,
   occurrenceCount: number,
   targetReadCount: number,
-  findingCount: number
+  findingCount: number,
+  rejectedInputCount: number
 }
 ```
 
 `occurrenceCount` 包含所有 parser-semantic occurrences，包括没有进入 local target validation 的项；
-`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。每个 finding 恰好形成一条 Record，data 恰为：
+`targetReadCount` 统计进入 direct endpoint validation 的 occurrence；`findingCount - rejectedInputCount` 是 normal link
+finding 数量并且不超过 `occurrenceCount`。每个 normal link finding 恰好形成一条 Record，data 恰为：
 
 ```ts
 {
@@ -118,9 +127,21 @@ blocking finding 附带 `invalid-local-links` error message，non-blocking findi
 `range` 使用 one-based、end-exclusive 的 decoded UTF-16 line/column。`outside-project-root` descriptor 不携带 target
 path 或 fragment。
 
+每个 rejected selected path 产生一条 ID 为 `/input-rejected/<path>` 的 Record：
+
+```ts
+{
+  blocking: false,
+  kind: "input-rejected",
+  path: string,
+  reason: "unsupported-file-type"
+}
+```
+
 blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message；non-blocking finding 的 `passed` outcome
-携带同 code 的 warning message；两者都引导调用方检查 Records 的 source range、target 与 reason。由本 Check 结算的
-`unavailable` 使用对应 `reason.code` 提供可操作 error message；零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
+携带同 code 的 warning message；两者都引导调用方检查 Records 的 source range、target 与 reason。存在 rejected input 时
+另附一条 `input-rejected` warning，只汇总数量而不省略逐路径 Record。由本 Check 结算的 `unavailable` 使用对应
+`reason.code` 提供可操作 error message；无 Finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMarkdownLinkValidationData(value)` 验证 final data。两者返回
 `MarkdownLinkValidationFinalData`；Records 与原因可用 `MarkdownLinkValidationRecordData`、
@@ -130,7 +151,8 @@ blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message
 
 ## `not-applicable` 与 `unavailable`
 
-selected Markdown source 数量为零时结算为 `not-applicable / no-eligible-input`。`unavailable.reason.code` 使用以下受控值：
+selected path 数量为零时结算为 `not-applicable / no-eligible-input`。selected 非空但全部 rejected 时，不解析 source，直接以
+带 final data、Records 与 warning 的 `passed` 结算。`unavailable.reason.code` 使用以下受控值：
 
 | `reason.code` | 触发边界与调用方检查项 |
 | --- | --- |
@@ -145,12 +167,14 @@ selected Markdown source 数量为零时结算为 `not-applicable / no-eligible-
 | `target-read-limit-exceeded` | direct endpoint validation work 超过 `maxTargetReads`。 |
 | `cancelled` | invocation signal 取消本 Check；不要把结果解释为 clean validation。 |
 
-这些边界不发布 partial finding Records，也不提供 final data。通用 preflight 语法见
+这些边界不发布 partial link-finding Records，也不提供 final data；若 selected classification 已完成，已发布的
+rejected-input Records 与对应 warning 仍保留。通用 preflight 语法见
 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
 
 ## I/O 与安全边界
 
-resolver I/O scope 是本地 filesystem，HTTP、DNS、TLS 与 redirect request 数为零。默认 `report` mode 对 root-external
+source I/O scope 只包含通过 `.md` / `.markdown` eligibility 的 accepted paths；rejected path 不读取内容。resolver I/O scope
+是本地 filesystem，HTTP、DNS、TLS 与 redirect request 数为零。默认 `report` mode 对 root-external
 target 形成 finding，显式 `validate` mode 授权 bounded read。published facts 排除 raw external absolute path、target
 bytes 与 remote credentials。
 

@@ -65,6 +65,14 @@ unavailable，不创建并行 quality model。owner-local tool boundary 见
 [Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
 [Project files and Check exact inputs](scan-scope.md)。
 
+其中 `function-metrics`、`json-validation` 与 `markdown-link-validation` 在 files selection 后还有 Check-owned 文件类型
+eligibility。三者把完整 selected set 对账为 accepted/rejected；每个 rejected path 发布一条独立 ID 域中的
+`{ kind: "input-rejected", reason: "unsupported-file-type", path, blocking: false }` Record，并附一条汇总 warning。
+function-metrics 的分支还携带全部 matching `codeAreas`。这些 Findings 永远 non-blocking，不受 area 或 Link finding policy
+改写。默认 include 精准匹配各自能力；调用方显式提供宽泛 include 时，所有 rejected paths 仍逐条保留。duplicate/file
+metrics 已把 selected exact paths 交给 backend，JSON Schema files 是显式 declaration 的授权范围；backend 不返回某个已接受
+path 不能由本规则推断为 rejected input。
+
 三个 area-based 代码质量 Check 共用 Finding policy：constructor 顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖；
 resolved area 保存自己的有效 policy。每个可信 finding 都发布一条带显式 `blocking` 的 Check-local Record；同一 finding
 涉及多个 matching areas 时，只要任一区域使用 blocking policy，Record 就是 blocking。scanner、conversion 与后续 Record
@@ -76,13 +84,15 @@ resolved area 保存自己的有效 policy。每个可信 finding 都发布一�
   matching areas 中最严格的适用 code-line maximum。它还可用声明式 `{ identity: { metric, path }, reason }` waiver 在完整 SCC
   finding 集合形成后做精确对账：applied finding 保留 Record 和 reason，但不进入 actionable/blocking settlement；unused 或
   overmatched waiver 各发布 audit Record 与 warning，后者不会豁免 finding。
-- `function-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、metric、limit 与 function location/value；effective
-  limit 是全部 matching areas 对该 metric 的适用 maximum 最小值。
+- `function-metrics` 的 metric finding Record 还包含稳定排序的 `codeAreas`、metric、limit 与 function location/value；
+  effective limit 是全部 matching areas 对该 metric 的适用 maximum 最小值。它的 input-rejection branch 没有 function
+  measurement，只含稳定排序的 matching `codeAreas` 与上述通用拒绝字段。
 
 三者的正常 final data 都恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此
-passed Check 可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为
-not-applicable 和 unavailable。这个 Finding policy 只改变 owning package Check 的 finding settlement，不改变通用
-Check/Record 或 aggregation contract。
+passed Check 可以携带 non-blocking finding Records。对 function-metrics，`findingCount` 同时包含 metric 与 input-rejection
+Records，`blockingFindingCount` 只统计 effective blocking metric finding；all-rejected 因而是带 final data 的 passed，zero
+selected 才是 not-applicable。adapter/measurement failure 仍结算为 unavailable，并保留分类阶段已接受的 rejection Records。
+这个 Finding policy 只改变 owning package Check 的 finding settlement，不改变通用 Check/Record 或 aggregation contract。
 
 三者的 attached / named parser 验证相同的两个计数字段、非负安全整数与
 `blockingFindingCount <= findingCount`，并返回对应 Check-specific final-data type。
@@ -91,14 +101,17 @@ Check/Record 或 aggregation contract。
 
 - 每个 invalid eligible file 恰报告一个 `{ id: path }` / `{ path, reason }` Record；第一个发现的 document
   issue 决定这个唯一 Record，`reason` 只能是 `too-large | bom | invalid-utf8 | invalid-json | duplicate-key`。
-- 所有 eligible file 都正常结算后，Check 才以 `passed` 或 `failed` 返回恰为
-  `{ scannedFileCount, validFileCount, invalidFileCount, issueCount }` 的 final data；其中
-  `scannedFileCount = validFileCount + invalidFileCount`，`issueCount = invalidFileCount`。
-- 没有 eligible input 时返回带 `no-eligible-input` 的 `not-applicable`；cancellation、read 或 strict-document
-  boundary failure 返回没有 final data 的 `unavailable`。后续文件 unavailable 时，先前已接受的 Records 保留普通
-  Check-facts semantics。
-- JSON-specific published facts 仅为 path、counts 和 closed reason；不得发布 document bytes/text、key、pointer、
-  location、parser message 或 stack。
+- 每个 rejected selected file 使用 `/input-rejected/<path>` ID 和上述固定 rejection Record；它不进入 document read，也不受
+  invalid-document failure policy 影响。
+- 所有 accepted files 都正常结算后，Check 才以 `passed` 或 `failed` 返回恰为
+  `{ scannedFileCount, validFileCount, invalidFileCount, issueCount, rejectedInputCount }` 的 final data；其中
+  `scannedFileCount = validFileCount + invalidFileCount`，`issueCount = invalidFileCount + rejectedInputCount`。只有
+  `invalidFileCount > 0` 使 Check failed；只有 rejected input 时是带 warning 的 passed。
+- zero selected 时返回带 `no-eligible-input` 的 `not-applicable`；all-rejected 是已完成的 passed。cancellation、read 或
+  strict-document boundary failure 返回没有 final data 的 `unavailable`。后续文件 unavailable 时，分类阶段和此前文档
+  阶段已接受的 Records 均保留 ordinary Check-facts semantics。
+- JSON-specific published facts 仅为 path、counts、`blocking: false`、closed kind/reason；不得发布 document bytes/text、
+  key、pointer、location、parser message 或 stack。
 
 `json-schema-validation` 的 Check-local facts 固定如下：
 
@@ -125,7 +138,7 @@ aggregation 与 output presentation 不属于这些 options。
 
 ### Markdown Link findings and outcomes
 
-`markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal issue 恰好报告一个
+`markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal link issue 恰好报告一个
 Check-local Record，其 reason 只能是 `missing-target`、`target-outside-project-root`、`empty-directory`、
 `anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。其公开
 `findingPolicy` 默认为 `"non-blocking"`：normal issue 默认保留相同 final data 与 Records、结算为 `passed` 并附 warning；
@@ -138,11 +151,15 @@ decode 后 fragment。`project-path` 表示尚未确定 endpoint type，包括�
 descriptor 不携带 target path 或 fragment。这是在 shared canonical JSON boundary 下的普通 supplemental Record data，
 不是新的 Record family 或 cross-Check catalog。
 
-`passed` 和 `failed` 的 final data 严格为 `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`；normal
-finding 的 `passed`/`failed` 差别只由 `findingPolicy` 决定。`occurrenceCount` 包含每一个 parser-semantic occurrence，
-包括未进入 local target validation 的 occurrence；`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。没有 eligible Markdown source 时，Check 以
-`no-eligible-input` 结算为 `not-applicable`。cancellation、source/target read、decode、parser、containment 或 limit
-failure 均为 `unavailable`：它们不带 final data，也绝不能把 partial work 变为 clean result 或 partial Record set。
+`passed` 和 `failed` 的 final data 严格为
+`{ sourceFileCount, occurrenceCount, targetReadCount, findingCount, rejectedInputCount }`；
+`findingCount - rejectedInputCount` 是 normal link finding 数量，且不超过 `occurrenceCount`。`sourceFileCount` 统计全部完整
+解析的 accepted source；`occurrenceCount` 包含每一个 parser-semantic occurrence，包括未进入 local target validation 的项；
+`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。只有 normal link finding 按 `findingPolicy` 决定 failed；
+input rejection 始终 non-blocking。zero selected 时以 `no-eligible-input` 结算为 `not-applicable`，all-rejected 则以带 warning
+和 final data 的 passed 结算。cancellation、source/target read、decode、parser、containment 或 limit failure 均为
+`unavailable`：它们不带 final data，也不能发布 partial link-finding Record set；如果 selected classification 已完成，
+它此前发布的 rejection Records 仍按 ordinary Check-facts semantics 保留。
 其 `unavailable.reason.code` 是共享 four-state grammar 中的受控 public code，且只能是：`cancelled`、
 `project-root-unavailable`、`source-unavailable`、`source-too-large`、`markdown-parse-failed`、
 `invalid-local-destination`、`target-unavailable`、`occurrence-limit-exceeded` 或 `target-read-limit-exceeded`。

@@ -26,6 +26,7 @@ const parserEvidence = {
   attachedJson: jsonCheck.parseData({
     invalidFileCount: 0,
     issueCount: 0,
+    rejectedInputCount: 0,
     scannedFileCount: 0,
     validFileCount: 0
   }),
@@ -35,6 +36,7 @@ const parserEvidence = {
   json: parseJsonValidationData({
     invalidFileCount: 0,
     issueCount: 0,
+    rejectedInputCount: 0,
     scannedFileCount: 0,
     validFileCount: 0
   }),
@@ -52,6 +54,7 @@ const parserEvidence = {
   markdown: parseMarkdownLinkValidationData({
     findingCount: 0,
     occurrenceCount: 0,
+    rejectedInputCount: 0,
     sourceFileCount: 0,
     targetReadCount: 0
   })

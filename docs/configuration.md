@@ -269,7 +269,7 @@ owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definitio
 `jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 各自拥有完整
 `options.files` branch；三个 metric constructor 则为每个 `options.codeAreas[id]` 物化同样完整的 `files` branch。
 Package root 公开以下深冻结的 `defaultProjectFileSelection: ProjectFileSelection`。该 value 是六个 constructor 共同使用的
-完整基线；每个 constructor 会在自己的 resolved options 中物化同值、不可变的 files branch：
+通用组合基线，而不是所有 constructor 的同值 work set：
 
 ```ts
 {
@@ -285,8 +285,11 @@ Package root 公开以下深冻结的 `defaultProjectFileSelection: ProjectFileS
 }
 ```
 
-六个 file-selecting constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上述对象的对应值；source 只能是
-`"filesystem" | "git-worktree"`。显式提供某个数组时，该数组完整替换对应字段的默认值，不会自动追加或深度合并。
+六个 file-selecting constructor 都以 `filesystem` 作为 source 默认值，并采用上述对象的 exclude；source 只能是
+`"filesystem" | "git-worktree"`。`duplicateDetection`、`fileMetrics` 与 `jsonSchemaValidation` 的 include 默认值是
+`["**/*"]`；`functionMetrics` 从 Lizard 1.23.0 官方 extension registry 产生大小写不敏感的精确 globs，`jsonValidation`
+使用 `["**/*.json"]`，`markdownLinkValidation` 使用 `["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]`。
+显式提供某个数组时，该数组完整替换 owning Check 的对应默认值，不会自动追加或深度合并。
 `include` 与 `exclude` 都匹配相对项目根目录且使用 `/` 的路径，`exclude` 优先。filesystem 不解释 `.gitignore`；
 git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。文件选择始终只使用配置的来源；来源失败会让
 owning Check 结算为 unavailable，不会切换来源。默认对象本身不能修改；需要保留基线并增加项目规则时，项目通过普通
@@ -301,8 +304,11 @@ const projectFiles = {
 };
 ```
 
-这段 composition 是 consumer-owned 完整 selection，不是 Product-wide global config。nested threshold、allowance 与
-finding-policy 字段仍按各 constructor 的下述规则独立补齐。
+这段 composition 是 consumer-owned、显式 `include: ["**/*"]` 的完整 selection，不是 Product-wide global config。
+传给 `functionMetrics`、`jsonValidation` 或 `markdownLinkValidation` 时，Check 会为每个不受支持但实际选中的路径发布
+non-blocking `input-rejected` Record。若要追加项目排除并保留目标 Check 的精准默认 include，应 author
+`{ exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 而不显式提供 include；也可以同时提供目标 Check 的精准
+include。nested threshold、allowance 与 finding-policy 字段仍按各 constructor 的下述规则独立补齐。
 
 无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
 `{ files: <上述 branch>, findingPolicy: "non-blocking", minimumLines: 4, minimumTokens: 100 }`；其顶层 options 没有
@@ -310,7 +316,7 @@ finding-policy 字段仍按各 constructor 的下述规则独立补齐。
 无参 `fileMetrics()` 建立一个 area-owned `project` policy 并使用默认 `scc` executable；完整字段与默认值见
 [`fileMetrics` 指南](checks/file-metrics.md#参数与默认配置)。
 无参 `functionMetrics()` 以 `"non-blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
-`codeAreas.project` 直接拥有上述 files、effective finding policy，以及
+`codeAreas.project` 直接拥有 Lizard-supported precise files、effective finding policy，以及
 `codeLines: { maximum: 60, lowComplexityAllowance: { maximum: 180, cyclomaticComplexityBelow: 6 } }`、
 `cyclomaticComplexity: { maximum: 12 }` 与 `parameters: { maximum: 6 }`。
 这些 defaults 是 owning Check 的 policy，不是
@@ -327,8 +333,10 @@ value 显式组合。
 | `markdownLinkValidation` | constructor | `markdown-link-validation` | —                                           | files；local-link policy 与 work limits  |
 
 `jsonValidation(options?)` 的 authoring input 可省略 `files` 与 `maximumBytes`，resolved options 恰好包含
-`{ files, maximumBytes }`，其中 `maximumBytes` 必须是正安全整数；constructor 后用普通 object composition 替换
-`options` 时必须同时提供两个字段。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
+`{ files, maximumBytes }`，其中 files 默认以 common baseline 的 source/exclude 配合 `include: ["**/*.json"]`，
+`maximumBytes` 必须是正安全整数；constructor 后用普通 object composition 替换 `options` 时必须同时提供两个字段。
+显式 files 选中但不是小写 `.json` suffix 的路径会产生 non-blocking `input-rejected` Record，只有 invalid JSON document
+使 Check failed。`duplicateDetection(options?)` 的 input 只含可省略的 `{ cache,
 codeAreas, findingPolicy, scanner }`；显式 area 必须提供 `files` branch，其中 `source`、`include`、`exclude`、finding
 policy 和两个阈值均可省略。constructor 产物的完整
 `options` 恰好包含 `{ cache, codeAreas, scanner }`；`codeAreas` 至少有一个非空 id，每个 value 恰好包含
@@ -348,8 +356,9 @@ protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
 `"blocking" | "non-blocking"`。显式 area 必须提供 `files` branch，可省略 nested limits 与 area finding-policy override。
 constructor 产物恰为 `{ codeAreas, scanner }`，每个 area 恰为 `{ files, findingPolicy, limits }`，resolved
 scanner 恰为 `{ executable }`。Lizard version probe、exact paths、CSV protocol 与 timeout 不属于 public input；area paths
-只扫描一次，重叠 area 使用最严格 maximum 和 blocking policy。所有 findings 都保留为 Records，只有 effective blocking
-findings 使 Check failed；完整 contract 见 [`functionMetrics` 指南](checks/function-metrics.md)。
+先完整分类为 accepted/rejected，accepted union 只扫描一次，重叠 area 使用最严格 maximum 和 blocking policy。所有 metric
+与 input-rejection findings 都保留为 Records；input rejection 固定 non-blocking，只有 effective blocking metric findings
+使 Check failed。完整 contract 见 [`functionMetrics` 指南](checks/function-metrics.md)。
 
 Run 调用 preflight 时不会 import 该 Check 或解释其领域字段。environment variables、Run Controls 和 repository tool state 都不会成为 scanner override。
 
@@ -437,7 +446,11 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
 
 ```ts
 {
-  files: defaultProjectFileSelection,
+  files: {
+    source: "filesystem",
+    include: ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"],
+    exclude: defaultProjectFileSelection.exclude
+  },
   findingPolicy: "non-blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,

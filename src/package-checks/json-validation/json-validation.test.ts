@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -82,7 +82,7 @@ function createTemporaryProjectRoot(): string {
 }
 
 describe("JSON validation default Check", () => {
-  it("filters only lower-case .json paths from its file selection and returns exact final counts", async () => {
+  it("reports selected non-JSON paths and returns exact mixed final counts", async () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "valid.json"), '{"enabled":true}', "utf8");
@@ -93,6 +93,7 @@ describe("JSON validation default Check", () => {
       const defaultCheck = jsonValidation();
       assert.equal(defaultCheck.options.maximumBytes, 1_048_576);
       assert.equal(defaultCheck.options.files.source, "filesystem");
+      assert.deepEqual(defaultCheck.options.files.include, ["**/*.json"]);
       assert.deepEqual(
         jsonValidation({ files: { include: ["config/**/*.json"] }, maximumBytes: 512 }).options,
         {
@@ -118,9 +119,16 @@ describe("JSON validation default Check", () => {
           scannedFileCount: 2,
           validFileCount: 1,
           invalidFileCount: 1,
-          issueCount: 1
+          issueCount: 2,
+          rejectedInputCount: 1
         }),
-        { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 }
+        {
+          scannedFileCount: 2,
+          validFileCount: 1,
+          invalidFileCount: 1,
+          issueCount: 2,
+          rejectedInputCount: 1
+        }
       );
       assert.throws(
         () =>
@@ -128,7 +136,8 @@ describe("JSON validation default Check", () => {
             scannedFileCount: 2,
             validFileCount: 2,
             invalidFileCount: 1,
-            issueCount: 1
+            issueCount: 1,
+            rejectedInputCount: 0
           }),
         /jsonValidation final data/
       );
@@ -155,17 +164,47 @@ describe("JSON validation default Check", () => {
       const result = runJsonValidation({ root });
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { scannedFileCount: 2, validFileCount: 1, invalidFileCount: 1, issueCount: 1 },
+        data: {
+          scannedFileCount: 2,
+          validFileCount: 1,
+          invalidFileCount: 1,
+          issueCount: 3,
+          rejectedInputCount: 2
+        },
         messages: [
           {
             code: "invalid-json-documents",
             level: "error",
             message:
               "1 JSON document(s) are invalid; inspect this Check's Records for each path and reason."
+          },
+          {
+            code: "input-rejected",
+            level: "warning",
+            message:
+              "2 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
           }
         ]
       });
       assert.deepEqual(result.records, [
+        {
+          identity: { id: "/input-rejected/ignored.JSON" },
+          data: {
+            blocking: false,
+            kind: "input-rejected",
+            path: "ignored.JSON",
+            reason: "unsupported-file-type"
+          }
+        },
+        {
+          identity: { id: "/input-rejected/notes.txt" },
+          data: {
+            blocking: false,
+            kind: "input-rejected",
+            path: "notes.txt",
+            reason: "unsupported-file-type"
+          }
+        },
         {
           identity: { id: "invalid.json" },
           data: { path: "invalid.json", reason: "duplicate-key" }
@@ -194,7 +233,13 @@ describe("JSON validation default Check", () => {
         records: [],
         result: {
           status: "passed",
-          data: { scannedFileCount: 1, validFileCount: 1, invalidFileCount: 0, issueCount: 0 }
+          data: {
+            scannedFileCount: 1,
+            validFileCount: 1,
+            invalidFileCount: 0,
+            issueCount: 0,
+            rejectedInputCount: 0
+          }
         }
       });
     } finally {
@@ -234,7 +279,13 @@ describe("JSON validation default Check", () => {
       ]);
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { scannedFileCount: 6, validFileCount: 1, invalidFileCount: 5, issueCount: 5 },
+        data: {
+          scannedFileCount: 6,
+          validFileCount: 1,
+          invalidFileCount: 5,
+          issueCount: 5,
+          rejectedInputCount: 0
+        },
         messages: [
           {
             code: "invalid-json-documents",
@@ -249,14 +300,64 @@ describe("JSON validation default Check", () => {
     }
   });
 
-  it("is not applicable when its file selection has no lower-case JSON input", () => {
+  it("settles all rejected selected inputs as non-blocking findings", () => {
     const root = createTemporaryProjectRoot();
     try {
       writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");
       assert.deepEqual(runJsonValidation({ root }), {
-        records: [],
-        result: { status: "not-applicable", reason: { code: "no-eligible-input" } }
+        records: [
+          {
+            identity: { id: "/input-rejected/ignored.JSON" },
+            data: {
+              blocking: false,
+              kind: "input-rejected",
+              path: "ignored.JSON",
+              reason: "unsupported-file-type"
+            }
+          }
+        ],
+        result: {
+          status: "passed",
+          data: {
+            scannedFileCount: 0,
+            validFileCount: 0,
+            invalidFileCount: 0,
+            issueCount: 1,
+            rejectedInputCount: 1
+          },
+          messages: [
+            {
+              code: "input-rejected",
+              level: "warning",
+              message:
+                "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
+            }
+          ]
+        }
       });
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  });
+
+  it("is not applicable only when its file selection is empty", () => {
+    const root = createTemporaryProjectRoot();
+    try {
+      writeFileSync(join(root, "ignored.JSON"), "{}", "utf8");
+      assert.deepEqual(
+        runJsonValidation({
+          fileConfiguration: Object.freeze({
+            exclude: Object.freeze([]),
+            include: Object.freeze(["missing/**"]),
+            source: "filesystem"
+          }),
+          root
+        }),
+        {
+          records: [],
+          result: { status: "not-applicable", reason: { code: "no-eligible-input" } }
+        }
+      );
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
@@ -267,11 +368,21 @@ describe("JSON validation default Check", () => {
     try {
       writeFileSync(join(root, "bad.json"), '{"a":1,"a":2}', "utf8");
       writeFileSync(join(root, "gone.json"), "{}", "utf8");
+      writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
       const result = runJsonValidation({
-        onRecordReported: () => unlinkSync(join(root, "gone.json")),
+        onRecordReported: () => rmSync(join(root, "gone.json"), { force: true }),
         root
       });
       assert.deepEqual(result.records, [
+        {
+          identity: { id: "/input-rejected/notes.txt" },
+          data: {
+            blocking: false,
+            kind: "input-rejected",
+            path: "notes.txt",
+            reason: "unsupported-file-type"
+          }
+        },
         { identity: { id: "bad.json" }, data: { path: "bad.json", reason: "duplicate-key" } }
       ]);
       assert.deepEqual(result.result, {
@@ -283,6 +394,12 @@ describe("JSON validation default Check", () => {
             level: "error",
             message:
               "A selected JSON document could not be read safely; check that the file still exists, is readable, and was not replaced during the Run."
+          },
+          {
+            code: "input-rejected",
+            level: "warning",
+            message:
+              "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
           }
         ]
       });

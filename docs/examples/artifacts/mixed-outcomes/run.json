@@ -53,6 +53,7 @@
         "data": {
           "invalidFileCount": 0,
           "issueCount": 0,
+          "rejectedInputCount": 0,
           "scannedFileCount": 1,
           "validFileCount": 1
         }

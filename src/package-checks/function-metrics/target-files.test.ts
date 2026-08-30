@@ -1,7 +1,8 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { selectLizardTargetFiles } from "./target-files.ts";
+import { matchesAnyConfigGlob } from "../project-files/config-glob.ts";
+import { isLizardTarget, LIZARD_SUPPORTED_FILE_GLOBS } from "./target-files.ts";
 
 describe("Lizard target files", () => {
   it("selects every Lizard 1.23-supported extension case-insensitively and excludes fallback inputs", () => {
@@ -75,10 +76,14 @@ describe("Lizard target files", () => {
       "ts"
     ];
 
-    assert.deepEqual(selectLizardTargetFiles(files), [
+    assert.deepEqual(files.filter(isLizardTarget), [
       ...supported,
       "source/upper-case.CPP",
       "source/upper-case.R"
     ]);
+    assert.equal(LIZARD_SUPPORTED_FILE_GLOBS.length, supported.length);
+    assert.equal(matchesAnyConfigGlob("source/upper-case.CPP", LIZARD_SUPPORTED_FILE_GLOBS), true);
+    assert.equal(matchesAnyConfigGlob("source/mixed.TsX", LIZARD_SUPPORTED_FILE_GLOBS), true);
+    assert.equal(matchesAnyConfigGlob("README.md", LIZARD_SUPPORTED_FILE_GLOBS), false);
   });
 });

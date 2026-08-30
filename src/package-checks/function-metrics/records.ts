@@ -8,9 +8,10 @@ import type { FunctionMetric, FunctionMetricsAreaInput } from "./measurement-mod
 import type { ResolvedFunctionMetricsLimits } from "./options.ts";
 
 type FunctionMetricName = "cyclomatic-complexity" | "function-code-density" | "parameter-count";
+const INPUT_REJECTED_RECORD_ID_PREFIX = "/input-rejected/";
 
 /** 一条超出函数 metric 上限的 supplemental Record data。 */
-export type FunctionMetricsRecordData = Readonly<{
+export type FunctionMetricsFindingRecordData = Readonly<{
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
   readonly functionName: string;
@@ -21,9 +22,50 @@ export type FunctionMetricsRecordData = Readonly<{
   readonly value: number;
 }>;
 
+/** 一条已被 files policy 选中、但不受 functionMetrics 支持的输入 Finding。 */
+export type FunctionMetricsInputRejectedRecordData = Readonly<{
+  readonly blocking: false;
+  readonly codeAreas: readonly string[];
+  readonly kind: "input-rejected";
+  readonly path: string;
+  readonly reason: "unsupported-file-type";
+}>;
+
+/** functionMetrics 发布的 metric 或 input-rejection Record data。 */
+export type FunctionMetricsRecordData =
+  | FunctionMetricsFindingRecordData
+  | FunctionMetricsInputRejectedRecordData;
+
 export interface FunctionRecordCandidate {
-  readonly data: FunctionMetricsRecordData;
+  readonly data: FunctionMetricsFindingRecordData;
   readonly id: string;
+}
+
+export interface FunctionInputRejectedCandidate {
+  readonly data: FunctionMetricsInputRejectedRecordData;
+  readonly id: string;
+}
+
+/** 为每个 rejected path 构造一条 area-aware、固定 non-blocking 的 Finding。 */
+export function buildFunctionInputRejectedCandidates(
+  codeAreasByPath: ReadonlyMap<string, readonly string[]>
+): readonly FunctionInputRejectedCandidate[] {
+  return Object.freeze(
+    [...codeAreasByPath]
+      .sort(([left], [right]) => compareText(left, right))
+      .map(([path, codeAreas]) =>
+        Object.freeze({
+          data: Object.freeze({
+            blocking: false as const,
+            codeAreas: Object.freeze(uniqueSorted(codeAreas)),
+            kind: "input-rejected" as const,
+            path,
+            reason: "unsupported-file-type" as const
+          }),
+          id: `${INPUT_REJECTED_RECORD_ID_PREFIX}${path}`
+        })
+      )
+  );
 }
 
 type MatchingFunctionMetricAreas = readonly [

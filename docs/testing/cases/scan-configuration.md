@@ -47,7 +47,7 @@ Entities:
 
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
   Proves:
-- `markdownLinkValidation(options?)` accepts closed partial authoring fields, defaults `findingPolicy` to non-blocking, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
+- `markdownLinkValidation(options?)` accepts closed partial authoring fields, derives its precise case-insensitive Markdown include from the public source/exclude baseline, defaults `findingPolicy` to non-blocking, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 

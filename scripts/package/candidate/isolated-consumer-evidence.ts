@@ -178,6 +178,7 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
   assert.deepEqual(runEvidence.markdownLinkData, {
     findingCount: 0,
     occurrenceCount: 1,
+    rejectedInputCount: 0,
     sourceFileCount: 2,
     targetReadCount: 1
   });
@@ -191,13 +192,20 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
     attachedJson: {
       invalidFileCount: 0,
       issueCount: 0,
+      rejectedInputCount: 0,
       scannedFileCount: 0,
       validFileCount: 0
     },
     duplicate: { blockingFindingCount: 0, findingCount: 0 },
     file: { blockingFindingCount: 0, findingCount: 0 },
     function: { blockingFindingCount: 0, findingCount: 0 },
-    json: { invalidFileCount: 0, issueCount: 0, scannedFileCount: 0, validFileCount: 0 },
+    json: {
+      invalidFileCount: 0,
+      issueCount: 0,
+      rejectedInputCount: 0,
+      scannedFileCount: 0,
+      validFileCount: 0
+    },
     jsonSchema: {
       bindingCount: 0,
       blockedBindingCount: 0,
@@ -209,7 +217,13 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
       validBindingCount: 0
     },
     maintenance: { entries: [] },
-    markdown: { findingCount: 0, occurrenceCount: 0, sourceFileCount: 0, targetReadCount: 0 }
+    markdown: {
+      findingCount: 0,
+      occurrenceCount: 0,
+      rejectedInputCount: 0,
+      sourceFileCount: 0,
+      targetReadCount: 0
+    }
   });
   assert.deepEqual(runEvidence.firstChangedFilesConsumer, { fileCount: 2 });
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });

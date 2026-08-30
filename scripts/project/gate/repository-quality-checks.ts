@@ -51,6 +51,10 @@ const areaFileDefaults = {
   exclude: repositoryFiles.exclude,
   source: repositoryFiles.source
 } as const;
+const repositoryMarkdownFiles = {
+  ...areaFileDefaults,
+  include: ["docs/**/*.md", "changes/**/*.md"]
+} as const;
 
 const repositoryFileCodeLines = {
   lowDecisionTokenAllowance: {
@@ -190,7 +194,7 @@ export function createRepositoryQualityChecks(
       findingPolicy: "non-blocking",
       scanner: { executable: absoluteScannerCommand(scanners.lizard, MISE_LIZARD_COMMAND_ENV) }
     }),
-    markdownLinkValidation({ files: repositoryFiles, findingPolicy: "non-blocking" })
+    markdownLinkValidation({ files: repositoryMarkdownFiles, findingPolicy: "non-blocking" })
   ]);
 }
 

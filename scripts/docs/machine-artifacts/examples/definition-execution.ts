@@ -161,7 +161,8 @@ function assertExampleJsonValidation(snapshot: ExampleSnapshot): void {
   if (
     jsonCheck?.outcome.status !== "passed" ||
     jsonCheck.outcome.data.scannedFileCount !== 1 ||
-    jsonCheck.outcome.data.invalidFileCount !== 0
+    jsonCheck.outcome.data.invalidFileCount !== 0 ||
+    jsonCheck.outcome.data.rejectedInputCount !== 0
   ) {
     throw new Error("machine example built-in JSON validation did not validate one manifest");
   }

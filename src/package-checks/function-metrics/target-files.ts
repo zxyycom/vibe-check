@@ -1,5 +1,5 @@
 /** Lizard 1.23.0 官方 language readers 支持的 exact input 扩展名。 */
-const LIZARD_SUPPORTED_FILE_EXTENSIONS: ReadonlySet<string> = new Set([
+const LIZARD_SUPPORTED_FILE_EXTENSIONS = Object.freeze([
   "c",
   "cc",
   "cjs",
@@ -55,15 +55,31 @@ const LIZARD_SUPPORTED_FILE_EXTENSIONS: ReadonlySet<string> = new Set([
   "tsx",
   "vue",
   "zig"
-]);
+] as const);
 
-export function selectLizardTargetFiles(files: readonly string[]): string[] {
-  return files.filter(isLizardTarget);
-}
+const LIZARD_SUPPORTED_FILE_EXTENSION_SET: ReadonlySet<string> = new Set(
+  LIZARD_SUPPORTED_FILE_EXTENSIONS
+);
 
-function isLizardTarget(filePath: string): boolean {
+/** functionMetrics 默认 files.include 使用的 case-insensitive extension globs。 */
+export const LIZARD_SUPPORTED_FILE_GLOBS = Object.freeze(
+  LIZARD_SUPPORTED_FILE_EXTENSIONS.map(
+    (extension) => `**/*.${caseInsensitiveExtensionPattern(extension)}`
+  )
+);
+
+export function isLizardTarget(filePath: string): boolean {
   const extensionSeparator = filePath.lastIndexOf(".");
   if (extensionSeparator < 0) return false;
   const extension = filePath.slice(extensionSeparator + 1).toLowerCase();
-  return LIZARD_SUPPORTED_FILE_EXTENSIONS.has(extension);
+  return LIZARD_SUPPORTED_FILE_EXTENSION_SET.has(extension);
+}
+
+function caseInsensitiveExtensionPattern(extension: string): string {
+  return extension
+    .split("")
+    .map((character) =>
+      /[a-z]/u.test(character) ? `[${character}${character.toUpperCase()}]` : character
+    )
+    .join("");
 }

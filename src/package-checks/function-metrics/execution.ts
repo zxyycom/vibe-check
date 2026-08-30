@@ -1,5 +1,6 @@
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
+import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
 import { measureFunctionMetrics, type FunctionMeasurementResult } from "./measurement.ts";
@@ -12,8 +13,13 @@ import type {
   ResolvedFunctionMetricsOptions
 } from "./options.ts";
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
-import { buildFunctionRecordCandidates } from "./records.ts";
-import { selectLizardTargetFiles } from "./target-files.ts";
+import {
+  buildFunctionInputRejectedCandidates,
+  buildFunctionRecordCandidates,
+  type FunctionInputRejectedCandidate,
+  type FunctionRecordCandidate
+} from "./records.ts";
+import { isLizardTarget } from "./target-files.ts";
 import type { FunctionMetricsFinalData } from "./final-data.ts";
 
 /** `function-metrics` whole-Check unavailable outcome 的稳定 reason code。 */
@@ -32,53 +38,102 @@ export async function executeFunctionMetrics(
   if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("cancelled");
 
-  let exactInput: FunctionMetricsExactInputSet;
+  let prepared: PreparedFunctionInputs;
   try {
-    exactInput = prepareExactInputSet(context.project.root, context.options.codeAreas);
+    prepared = prepareFunctionInputs(context.project.root, context.options.codeAreas);
   } catch {
     return unavailable("source-unavailable");
   }
   if (context.signal.aborted) return unavailable("cancelled");
-  if (exactInput.approvedExactPaths.length === 0) {
+  return executePreparedFunctionMetrics(context, prepared);
+}
+
+async function executePreparedFunctionMetrics(
+  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
+  prepared: PreparedFunctionInputs
+): Promise<CheckResult<FunctionMetricsFinalData>> {
+  if (prepared.selectedPathCount === 0) {
     return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+  }
+  reportInputRejections(context, prepared.rejectedCandidates);
+  if (prepared.exactInput.approvedExactPaths.length === 0) {
+    return settleFunctionFindings([], prepared.rejectedCandidates);
   }
   const measurement = await measureFunctionMetrics({
     dependency: context.options.scanner,
-    input: exactInput,
+    input: prepared.exactInput,
     signal: context.signal
   });
-  if (measurement.kind !== "complete") return directMeasurementFailure(measurement);
+  if (measurement.kind !== "complete") {
+    return appendInputRejectedMessage(
+      directMeasurementFailure(measurement),
+      prepared.rejectedCandidates.length
+    );
+  }
   const analysis = analyzeFunctionMetrics(measurement.metrics);
-  if (analysis === undefined) return unavailable("external-result-invalid");
-  const candidates = buildFunctionRecordCandidates(analysis, exactInput.areas);
-  if (candidates === undefined) return unavailable("external-result-invalid");
+  if (analysis === undefined) {
+    return appendInputRejectedMessage(
+      unavailable("external-result-invalid"),
+      prepared.rejectedCandidates.length
+    );
+  }
+  const candidates = buildFunctionRecordCandidates(analysis, prepared.exactInput.areas);
+  if (candidates === undefined) {
+    return appendInputRejectedMessage(
+      unavailable("external-result-invalid"),
+      prepared.rejectedCandidates.length
+    );
+  }
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return settleFindings(
-    candidates.map((candidate) => ({ actionable: true, blocking: candidate.data.blocking }))
-  );
+  return settleFunctionFindings(candidates, prepared.rejectedCandidates);
 }
 
-function prepareExactInputSet(
+interface PreparedFunctionInputs {
+  readonly exactInput: FunctionMetricsExactInputSet;
+  readonly rejectedCandidates: readonly FunctionInputRejectedCandidate[];
+  readonly selectedPathCount: number;
+}
+
+function prepareFunctionInputs(
   rootDir: string,
   codeAreas: ResolvedFunctionMetricsOptions["codeAreas"]
-): FunctionMetricsExactInputSet {
-  const areas = collectAreaInputs(rootDir, codeAreas);
+): PreparedFunctionInputs {
+  const collected = collectAreaInputs(rootDir, codeAreas);
   return Object.freeze({
-    approvedExactPaths: Object.freeze(
-      uniqueSorted(areas.flatMap((area) => area.approvedExactPaths))
+    exactInput: Object.freeze({
+      approvedExactPaths: Object.freeze(
+        uniqueSorted(collected.areas.flatMap((area) => area.approvedExactPaths))
+      ),
+      areas: collected.areas,
+      rootDir
+    }),
+    rejectedCandidates: buildFunctionInputRejectedCandidates(
+      new Map(
+        [...collected.rejectedCodeAreasByPath].map(([path, matchingAreas]) => [
+          path,
+          Object.freeze(matchingAreas)
+        ])
+      )
     ),
-    areas,
-    rootDir
+    selectedPathCount: collected.selectedPaths.size
   });
+}
+
+interface CollectedFunctionAreaInputs {
+  readonly areas: readonly FunctionMetricsAreaInput[];
+  readonly rejectedCodeAreasByPath: ReadonlyMap<string, readonly string[]>;
+  readonly selectedPaths: ReadonlySet<string>;
 }
 
 function collectAreaInputs(
   rootDir: string,
   codeAreas: Readonly<Record<string, ResolvedFunctionMetricsCodeAreaOptions>>
-): readonly FunctionMetricsAreaInput[] {
+): CollectedFunctionAreaInputs {
   const areas: FunctionMetricsAreaInput[] = [];
+  const rejectedCodeAreasByPath = new Map<string, string[]>();
+  const selectedPaths = new Set<string>();
   const orderedPolicies = Object.entries(codeAreas).sort(([left], [right]) =>
     compareText(left, right)
   );
@@ -87,20 +142,68 @@ function collectAreaInputs(
     Object.fromEntries(orderedPolicies.map(([areaId, policy]) => [areaId, policy.files]))
   );
   for (const [codeArea, policy] of orderedPolicies) {
-    const approvedExactPaths = selectLizardTargetFiles(
-      requireProjectFileSet(filesByArea, codeArea)
-    );
-    if (approvedExactPaths.length === 0) continue;
+    const selectedForArea = requireProjectFileSet(filesByArea, codeArea);
+    for (const path of selectedForArea) selectedPaths.add(path);
+    const partition = partitionProjectFilesByEligibility(selectedForArea, isLizardTarget);
+    for (const path of partition.rejectedPaths) {
+      const matchingAreas = rejectedCodeAreasByPath.get(path) ?? [];
+      matchingAreas.push(codeArea);
+      rejectedCodeAreasByPath.set(path, matchingAreas);
+    }
+    if (partition.acceptedPaths.length === 0) continue;
     areas.push(
       Object.freeze({
-        approvedExactPaths: Object.freeze(approvedExactPaths),
+        approvedExactPaths: partition.acceptedPaths,
         codeArea,
         findingPolicy: policy.findingPolicy,
         limits: policy.limits
       })
     );
   }
-  return Object.freeze(areas);
+  return Object.freeze({
+    areas: Object.freeze(areas),
+    rejectedCodeAreasByPath,
+    selectedPaths
+  });
+}
+
+function reportInputRejections(
+  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
+  candidates: readonly FunctionInputRejectedCandidate[]
+): void {
+  for (const candidate of candidates) {
+    context.records.report({ id: candidate.id }, candidate.data);
+  }
+}
+
+function settleFunctionFindings(
+  metricCandidates: readonly FunctionRecordCandidate[],
+  rejectedCandidates: readonly FunctionInputRejectedCandidate[]
+): CheckResult<FunctionMetricsFinalData> {
+  const settlement = settleFindings([
+    ...metricCandidates.map((candidate) => ({
+      actionable: true,
+      blocking: candidate.data.blocking
+    })),
+    ...rejectedCandidates.map(() => ({ actionable: false, blocking: false }))
+  ]);
+  return appendInputRejectedMessage(settlement, rejectedCandidates.length);
+}
+
+function appendInputRejectedMessage(
+  result: CheckResult<FunctionMetricsFinalData>,
+  rejectedInputCount: number
+): CheckResult<FunctionMetricsFinalData> {
+  if (rejectedInputCount === 0) return result;
+  const message: CheckMessage = Object.freeze({
+    code: "input-rejected",
+    level: "warning",
+    message: `${rejectedInputCount} selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.include/exclude.`
+  });
+  return Object.freeze({
+    ...result,
+    messages: Object.freeze([...(result.messages ?? []), message])
+  });
 }
 
 function directMeasurementFailure(

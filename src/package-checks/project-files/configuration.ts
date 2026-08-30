@@ -11,11 +11,11 @@ export type ProjectFileSource = (typeof PROJECT_FILE_SOURCES)[number];
 
 /** 读取项目文件的 Check 所拥有的文件选择输入。 */
 export interface ProjectFileSelectionOptions {
-  /** 候选文件来源；省略时使用不解释 `.gitignore` 的 `filesystem`。 */
+  /** 候选文件来源；省略时使用 owning Check 的来源默认值，当前随包 Check 均为 `filesystem`。 */
   readonly source?: ProjectFileSource;
-  /** 相对项目根目录且使用 `/` 的 glob；省略时使用 `defaultProjectFileSelection.include`，显式数组完整替换。 */
+  /** 相对项目根目录且使用 `/` 的 glob；省略时使用 owning Check 的 include 默认值，显式数组完整替换。 */
   readonly include?: readonly string[];
-  /** 优先于 `include` 的 glob；省略时使用 `defaultProjectFileSelection.exclude`，显式数组完整替换。 */
+  /** 优先于 `include` 的 glob；省略时使用 owning Check 的 exclude 默认值，显式数组完整替换。 */
   readonly exclude?: readonly string[];
 }
 
@@ -27,9 +27,10 @@ export interface ProjectFileSelection {
 }
 
 /**
- * Package-provided Checks 共用的完整文件选择基线。
+ * Package-provided Checks 共用的通用文件选择基线。
  *
  * 对象与数组均不可变；需要保留默认排除并追加项目规则时，使用对象与数组 spread 建立新值。
+ * 个别 Check 会从此 baseline 派生更精准的默认 include；显式组合此 value 仍表示通配全部路径。
  */
 export const defaultProjectFileSelection: ProjectFileSelection = deepFreeze({
   exclude: [
@@ -58,7 +59,11 @@ export const defaultProjectFileSelection: ProjectFileSelection = deepFreeze({
   source: "filesystem"
 });
 
-export function resolveProjectFileSelection(value: unknown): ProjectFileSelection | undefined {
+/** 按 owning Check 提供的可信完整 defaults 解析并冻结一份 authoring selection。 */
+export function resolveProjectFileSelection(
+  value: unknown,
+  defaults: ProjectFileSelection = defaultProjectFileSelection
+): ProjectFileSelection | undefined {
   const selection = snapshotClosedRecord(value);
   if (
     selection === undefined ||
@@ -70,9 +75,9 @@ export function resolveProjectFileSelection(value: unknown): ProjectFileSelectio
     return undefined;
   }
 
-  const exclude = resolveStringArray(selection.exclude, defaultProjectFileSelection.exclude);
-  const include = resolveStringArray(selection.include, defaultProjectFileSelection.include);
-  const source = selection.source ?? defaultProjectFileSelection.source;
+  const exclude = resolveStringArray(selection.exclude, defaults.exclude);
+  const include = resolveStringArray(selection.include, defaults.include);
+  const source = selection.source ?? defaults.source;
   if (exclude === undefined || include === undefined || !isProjectFileSource(source)) {
     return undefined;
   }
@@ -81,10 +86,17 @@ export function resolveProjectFileSelection(value: unknown): ProjectFileSelectio
 }
 
 export function snapshotDefaultProjectFileSelection(): ProjectFileSelection {
+  return snapshotProjectFileSelection(defaultProjectFileSelection);
+}
+
+/** 为 owning Check 对可信的完整 selection 建立 detached、冻结快照。 */
+export function snapshotProjectFileSelection(
+  selection: ProjectFileSelection
+): ProjectFileSelection {
   return Object.freeze({
-    exclude: Object.freeze([...defaultProjectFileSelection.exclude]),
-    include: Object.freeze([...defaultProjectFileSelection.include]),
-    source: defaultProjectFileSelection.source
+    exclude: Object.freeze([...selection.exclude]),
+    include: Object.freeze([...selection.include]),
+    source: selection.source
   });
 }
 

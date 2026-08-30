@@ -44,6 +44,10 @@ describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
     const defaultCheck = markdownLinkValidation();
     assert.equal(defaultCheck.options.findingPolicy, "non-blocking");
+    assert.deepEqual(defaultCheck.options.files.include, [
+      "**/*.[mM][dD]",
+      "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
+    ]);
     assert.equal(defaultCheck.options.requireExistingTargets, true);
     assert.deepEqual(
       markdownLinkValidation({
@@ -80,9 +84,16 @@ describe("default Check direct callbacks", () => {
         sourceFileCount: 1,
         occurrenceCount: 2,
         targetReadCount: 1,
-        findingCount: 1
+        findingCount: 1,
+        rejectedInputCount: 0
       }),
-      { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 }
+      {
+        sourceFileCount: 1,
+        occurrenceCount: 2,
+        targetReadCount: 1,
+        findingCount: 1,
+        rejectedInputCount: 0
+      }
     );
     assert.throws(
       () =>
@@ -90,7 +101,8 @@ describe("default Check direct callbacks", () => {
           sourceFileCount: 1,
           occurrenceCount: 1,
           targetReadCount: 2,
-          findingCount: 0
+          findingCount: 0,
+          rejectedInputCount: 0
         }),
       /markdownLinkValidation final data/
     );
@@ -159,7 +171,13 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(defaultResult.result, {
         status: "passed",
-        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
+        data: {
+          sourceFileCount: 1,
+          occurrenceCount: 2,
+          targetReadCount: 1,
+          findingCount: 1,
+          rejectedInputCount: 0
+        },
         messages: [
           {
             code: "invalid-local-links",
@@ -192,7 +210,13 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(blockingResult.result, {
         status: "failed",
-        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
+        data: {
+          sourceFileCount: 1,
+          occurrenceCount: 2,
+          targetReadCount: 1,
+          findingCount: 1,
+          rejectedInputCount: 0
+        },
         messages: [
           {
             code: "invalid-local-links",
@@ -226,7 +250,13 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "failed",
-        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 0, findingCount: 1 },
+        data: {
+          sourceFileCount: 1,
+          occurrenceCount: 1,
+          targetReadCount: 0,
+          findingCount: 1,
+          rejectedInputCount: 0
+        },
         messages: [
           {
             code: "invalid-local-links",
@@ -290,7 +320,13 @@ describe("default Check direct callbacks", () => {
       );
       assert.deepEqual(result.result, {
         status: "passed",
-        data: { sourceFileCount: 1, occurrenceCount: 1, targetReadCount: 1, findingCount: 0 }
+        data: {
+          sourceFileCount: 1,
+          occurrenceCount: 1,
+          targetReadCount: 1,
+          findingCount: 0,
+          rejectedInputCount: 0
+        }
       });
       assert.deepEqual(result.records, []);
     } finally {
@@ -359,25 +395,6 @@ describe("default Check direct callbacks", () => {
               "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit."
           }
         ]
-      });
-      assert.deepEqual(result.records, []);
-    } finally {
-      rmSync(root, { recursive: true, force: true });
-    }
-  });
-
-  it("is not applicable when its file selection has no eligible Markdown source", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-empty-");
-    try {
-      const result = await execute(
-        executeMarkdownLinkValidation,
-        MARKDOWN_LINK_OPTIONS,
-        root,
-        MARKDOWN_FILES
-      );
-      assert.deepEqual(result.result, {
-        status: "not-applicable",
-        reason: { code: "no-eligible-input" }
       });
       assert.deepEqual(result.records, []);
     } finally {

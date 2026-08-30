@@ -1,0 +1,149 @@
+import assert from "node:assert/strict";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { describe, it } from "node:test";
+
+import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
+import { executeMarkdownLinkValidation } from "./execution.ts";
+import { execute } from "./default-check.test-support.ts";
+
+const MARKDOWN_FILES = Object.freeze({
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.md", "**/*.markdown"]),
+  source: "filesystem" as const
+});
+
+const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
+  files: MARKDOWN_FILES,
+  findingPolicy: "blocking",
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: Object.freeze({
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  })
+});
+
+function createRoot(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  mkdirSync(join(root, "src"), { recursive: true });
+  writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
+  writeFileSync(join(root, "src", "b.ts"), "export const b = 2;\n", "utf8");
+  return root;
+}
+
+describe("Markdown Link input rejection", () => {
+  it("is not applicable only when its file selection selects no path", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-empty-");
+    try {
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        MARKDOWN_LINK_OPTIONS,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(result.result, {
+        status: "not-applicable",
+        reason: { code: "no-eligible-input" }
+      });
+      assert.deepEqual(result.records, []);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("reports every selected non-Markdown path without making blocking policy fail", async () => {
+    const root = createRoot("vibe-check-direct-markdown-link-rejected-");
+    try {
+      const broadFiles = Object.freeze({
+        exclude: Object.freeze([]),
+        include: Object.freeze(["**/*"]),
+        source: "filesystem" as const
+      });
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        { ...MARKDOWN_LINK_OPTIONS, files: broadFiles },
+        root,
+        broadFiles
+      );
+
+      assert.deepEqual(result.result, {
+        status: "passed",
+        data: {
+          sourceFileCount: 0,
+          occurrenceCount: 0,
+          targetReadCount: 0,
+          findingCount: 2,
+          rejectedInputCount: 2
+        },
+        messages: [
+          {
+            code: "input-rejected",
+            level: "warning",
+            message:
+              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude."
+          }
+        ]
+      });
+      assert.deepEqual(result.records, [
+        {
+          identity: { id: "/input-rejected/src/a.ts" },
+          data: {
+            blocking: false,
+            kind: "input-rejected",
+            path: "src/a.ts",
+            reason: "unsupported-file-type"
+          }
+        },
+        {
+          identity: { id: "/input-rejected/src/b.ts" },
+          data: {
+            blocking: false,
+            kind: "input-rejected",
+            path: "src/b.ts",
+            reason: "unsupported-file-type"
+          }
+        }
+      ]);
+
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "too-large.md"), "# Too large\n", "utf8");
+      const unavailableResult = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          files: broadFiles,
+          limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxMarkdownBytes: 1 }
+        },
+        root,
+        broadFiles
+      );
+      assert.deepEqual(unavailableResult.records, result.records);
+      assert.deepEqual(unavailableResult.result, {
+        status: "unavailable",
+        reason: { code: "source-too-large" },
+        messages: [
+          {
+            code: "source-too-large",
+            level: "error",
+            message:
+              "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit."
+          },
+          {
+            code: "input-rejected",
+            level: "warning",
+            message:
+              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude."
+          }
+        ]
+      });
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});

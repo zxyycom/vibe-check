@@ -77,10 +77,8 @@ export type {
   MarkdownLinkValidationOptions,
   ResolvedMarkdownLinkValidationOptions
 } from "./package-checks/markdown-link-validation/options.ts";
-export type {
-  MarkdownLinkValidationRecordData,
-  MarkdownLinkValidationUnavailableReason
-} from "./package-checks/markdown-link-validation/execution.ts";
+export type { MarkdownLinkValidationUnavailableReason } from "./package-checks/markdown-link-validation/execution.ts";
+export type { MarkdownLinkValidationRecordData } from "./package-checks/markdown-link-validation/records.ts";
 export type { MarkdownLinkFindingReason } from "./package-checks/markdown-link-validation/local-resolver.ts";
 export type { FindingPolicy } from "./package-checks/code-quality-findings/policy.ts";
 export { reconcileFindingWaivers } from "./finding-waivers/reconciliation.ts";

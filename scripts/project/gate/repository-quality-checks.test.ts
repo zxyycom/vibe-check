@@ -26,6 +26,11 @@ describe("repository quality Checks", () => {
     );
     assert.equal(fileMetrics.options.codeAreas["product-source"]?.findingPolicy, "non-blocking");
     assert.equal(markdownLinkValidation.options.findingPolicy, "non-blocking");
+    assert.deepEqual(markdownLinkValidation.options.files, {
+      exclude: duplicateDetection.options.codeAreas["product-source"]?.files.exclude,
+      include: ["docs/**/*.md", "changes/**/*.md"],
+      source: "filesystem"
+    });
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");
     assert.equal(functionMetrics.options.scanner.executable, "/tools/lizard");
     assert.equal(

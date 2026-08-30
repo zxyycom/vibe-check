@@ -1,11 +1,12 @@
 import { resolve } from "node:path";
 
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
 import {
   readStrictJsonDocument,
   type JsonDocumentIssue
 } from "../json-document/strict-document.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
+import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import type { JsonValidationFinalData } from "./final-data.ts";
 import type { ResolvedJsonValidationOptions } from "./options.ts";
 import { validJsonValidationOptions } from "./options-validation.ts";
@@ -29,16 +30,21 @@ export function executeJsonValidation(
   if (!validJsonValidationOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("execution-cancelled");
 
-  const paths = eligibleJsonPaths(context);
-  if (paths === undefined) return unavailable("scan-input-unavailable");
+  const inputs = jsonInputPaths(context);
+  if (inputs === undefined) return unavailable("scan-input-unavailable");
   if (context.signal.aborted) return unavailable("execution-cancelled");
-  if (paths.length === 0) return noEligibleInput();
-  return validateJsonPaths(context, paths);
+  if (inputs.selectedPathCount === 0) return noEligibleInput();
+  reportRejectedInputs(context, inputs.rejectedPaths);
+  return appendRejectedInputMessage(
+    validateJsonPaths(context, inputs.acceptedPaths, inputs.rejectedPaths.length),
+    inputs.rejectedPaths.length
+  );
 }
 
 function validateJsonPaths(
   context: CheckExecutionContext<ResolvedJsonValidationOptions>,
-  paths: readonly string[]
+  paths: readonly string[],
+  rejectedInputCount: number
 ): CheckResult<JsonValidationFinalData> {
   const counts = { invalidFileCount: 0, validFileCount: 0 };
   for (const path of paths) {
@@ -55,19 +61,29 @@ function validateJsonPaths(
     reportInvalidDocument(context, path, document.reason);
   }
 
-  return resultForValidationCounts(paths.length, counts);
+  return resultForValidationCounts(paths.length, rejectedInputCount, counts);
 }
 
-function eligibleJsonPaths(
+interface JsonInputPaths {
+  readonly acceptedPaths: readonly string[];
+  readonly rejectedPaths: readonly string[];
+  readonly selectedPathCount: number;
+}
+
+function jsonInputPaths(
   context: CheckExecutionContext<ResolvedJsonValidationOptions>
-): string[] | undefined {
+): JsonInputPaths | undefined {
   try {
-    return collectProjectFiles(context.project.root, context.options.files).filter((path) =>
-      path.endsWith(".json")
-    );
+    const selectedPaths = collectProjectFiles(context.project.root, context.options.files);
+    const partition = partitionProjectFilesByEligibility(selectedPaths, isJsonInputPath);
+    return Object.freeze({ ...partition, selectedPathCount: selectedPaths.length });
   } catch {
     return undefined;
   }
+}
+
+function isJsonInputPath(path: string): boolean {
+  return path.endsWith(".json");
 }
 
 function noEligibleInput(): CheckResult<JsonValidationFinalData> {
@@ -95,13 +111,15 @@ function reportInvalidDocument(
 
 function resultForValidationCounts(
   scannedFileCount: number,
+  rejectedInputCount: number,
   counts: Readonly<{ invalidFileCount: number; validFileCount: number }>
 ): CheckResult<JsonValidationFinalData> {
   const data = Object.freeze({
     scannedFileCount,
     validFileCount: counts.validFileCount,
     invalidFileCount: counts.invalidFileCount,
-    issueCount: counts.invalidFileCount
+    issueCount: counts.invalidFileCount + rejectedInputCount,
+    rejectedInputCount
   });
   if (counts.invalidFileCount === 0) return Object.freeze({ data, status: "passed" });
   return Object.freeze({
@@ -114,6 +132,37 @@ function resultForValidationCounts(
       })
     ]),
     status: "failed"
+  });
+}
+
+function reportRejectedInputs(
+  context: CheckExecutionContext<ResolvedJsonValidationOptions>,
+  paths: readonly string[]
+): void {
+  for (const path of paths) {
+    const data: JsonValidationInputRejectedRecordData = Object.freeze({
+      blocking: false,
+      kind: "input-rejected",
+      path,
+      reason: "unsupported-file-type"
+    });
+    context.records.report({ id: `/input-rejected/${path}` }, data);
+  }
+}
+
+function appendRejectedInputMessage(
+  result: CheckResult<JsonValidationFinalData>,
+  rejectedInputCount: number
+): CheckResult<JsonValidationFinalData> {
+  if (rejectedInputCount === 0) return result;
+  const message: CheckMessage = Object.freeze({
+    code: "input-rejected",
+    level: "warning",
+    message: `${rejectedInputCount} selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude.`
+  });
+  return Object.freeze({
+    ...result,
+    messages: Object.freeze([...(result.messages ?? []), message])
   });
 }
 
@@ -141,10 +190,23 @@ function unavailableMessage(code: JsonValidationUnavailableCode): string {
 }
 
 /** 一条 invalid JSON document supplemental Record 的 data。 */
-export interface JsonValidationRecordData {
+export interface JsonValidationDocumentRecordData {
   readonly path: string;
   readonly reason: JsonValidationRecordReason;
 }
+
+/** 一条 files policy 已选中但不受 JSON validation 支持的输入 Finding。 */
+export interface JsonValidationInputRejectedRecordData {
+  readonly blocking: false;
+  readonly kind: "input-rejected";
+  readonly path: string;
+  readonly reason: "unsupported-file-type";
+}
+
+/** JSON validation 发布的 document issue 或 input-rejection Record data。 */
+export type JsonValidationRecordData =
+  | JsonValidationDocumentRecordData
+  | JsonValidationInputRejectedRecordData;
 
 /** JSON document Record 的稳定问题原因。 */
 export type JsonValidationRecordReason = JsonDocumentIssue;

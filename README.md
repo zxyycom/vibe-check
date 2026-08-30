@@ -202,7 +202,16 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 
 六个 defaulting constructor 会同步拒绝 unknown 或非法 authoring fields；`maintenanceReminders` 在 Run 的全局 preflight barrier 中验证 entries。显式数组是完整替换值；constructor 返回后若用普通对象组合替换 `check.options`，替换值必须是完整 resolved shape。
 
-六个读取项目文件的 constructor 共用并从 package root 导出深冻结的 `defaultProjectFileSelection`。它排除常见 VCS/Product state、dependency、build/generated、cache、coverage、log、temporary 与 virtual-environment paths，完整默认 glob 可直接从该 public value 读取。省略 `source`、`include` 或 `exclude` 时会采用这份基线；显式数组仍完整替换。需要追加项目排除时，可组合 `{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"] }`，而不复制整份默认数组或修改全局状态。
+六个读取项目文件的 constructor 共用并从 package root 导出深冻结的 `defaultProjectFileSelection`。它是可组合的通用
+基线，排除常见 VCS/Product state、dependency、build/generated、cache、coverage、log、temporary 与
+virtual-environment paths。`duplicateDetection`、`fileMetrics` 与 `jsonSchemaValidation` 原样采用它；
+`functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 则保留相同 source/exclude，并派生各自支持类型的精准默认
+include。
+
+显式数组始终完整替换 owning Check 的对应默认值。显式宽泛 include 选中但不受支持的每个路径会成为 non-blocking
+`input-rejected` Record，而不是被静默丢弃。需要追加项目排除时，可组合
+`{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"] }`，而不复制整份默认
+数组或修改全局状态。
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `markdownLinkValidation` 的 normal Finding 默认 non-blocking：Check 保留 Records/final data、返回 `passed` 并附 warning。要让 Finding 直接使该 Check `failed`，请显式设置 `findingPolicy: "blocking"`；Run aggregation 仍只消费各 Check 最终 status。
 

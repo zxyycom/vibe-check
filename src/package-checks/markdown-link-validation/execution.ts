@@ -4,17 +4,19 @@ import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
+import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import {
   createMarkdownLocalResolver,
-  type MarkdownLinkFindingReason,
-  type MarkdownLocalResolution,
   type MarkdownLocalResolutionReason,
   type MarkdownLocalResolver,
-  type MarkdownSafeTargetDescriptor,
   type MarkdownSourceReadFailureReason
 } from "./local-resolver.ts";
-import type { MarkdownLinkOccurrence, MarkdownSourceRange } from "./markdown-parser.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
+import {
+  buildMarkdownInputRejectedRecord,
+  buildMarkdownLinkRecordCandidate,
+  type MarkdownLinkRecordCandidate
+} from "./records.ts";
 import { settledMarkdownTraversalResult } from "./traversal-result.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
@@ -22,23 +24,6 @@ export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   checkId: "markdown-link-validation",
   displayName: "Markdown link validation"
 } as const;
-
-/** 一条本地 Markdown link finding supplemental Record 的 data。 */
-export type MarkdownLinkValidationRecordData = Readonly<{
-  readonly occurrenceKind: "link" | "image";
-  readonly range: Readonly<{
-    readonly end: Readonly<{ readonly column: number; readonly line: number }>;
-    readonly start: Readonly<{ readonly column: number; readonly line: number }>;
-  }>;
-  readonly reason: MarkdownLinkFindingReason;
-  readonly sourcePath: string;
-  readonly target: MarkdownSafeTargetDescriptor;
-}>;
-
-interface MarkdownLinkRecordCandidate {
-  readonly data: MarkdownLinkValidationRecordData;
-  readonly id: string;
-}
 
 interface MarkdownLinkValidationRun {
   readonly options: ResolvedMarkdownLinkValidationOptions;
@@ -63,6 +48,8 @@ type MarkdownLinkValidationUnavailable = Readonly<{
 type MarkdownSourceDiscovery =
   | Readonly<{
       readonly kind: "complete";
+      readonly rejectedPaths: readonly string[];
+      readonly selectedPathCount: number;
       readonly sourcePaths: readonly string[];
     }>
   | MarkdownLinkValidationUnavailable;
@@ -91,7 +78,7 @@ export async function executeMarkdownLinkValidation(
   if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
   const prepared = await prepareMarkdownTraversal(context);
   if (prepared.kind === "result") return prepared.result;
-  const { traversal, resolver } = prepared;
+  const { rejectedInputCount, traversal, resolver } = prepared;
 
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
@@ -100,6 +87,7 @@ export async function executeMarkdownLinkValidation(
     findingCount: traversal.candidates.length,
     findingPolicy: context.options.findingPolicy,
     occurrenceCount: traversal.occurrenceCount,
+    rejectedInputCount,
     sourceFileCount: traversal.sourceFileCount,
     targetReadCount: resolver.targetReadCount
   });
@@ -112,6 +100,7 @@ type PreparedMarkdownTraversal =
     }>
   | Readonly<{
       readonly kind: "traversal";
+      readonly rejectedInputCount: number;
       readonly resolver: MarkdownLocalResolver;
       readonly traversal: Extract<MarkdownLinkTraversal, { readonly kind: "complete" }>;
     }>;
@@ -128,16 +117,33 @@ async function prepareMarkdownTraversal(
   if (context.signal.aborted) return result(unavailable("cancelled"));
   const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
   if (sourceDiscovery.kind === "unavailable") return result(unavailable(sourceDiscovery.reason));
-  if (sourceDiscovery.sourcePaths.length === 0) return result(noEligibleInput());
+  if (sourceDiscovery.selectedPathCount === 0) return result(noEligibleInput());
   if (context.signal.aborted) return result(unavailable("cancelled"));
+  reportRejectedInputs(context, sourceDiscovery.rejectedPaths);
   const traversal = await traverseMarkdownSources(sourceDiscovery.sourcePaths, {
     resolver: created.resolver,
     options: context.options,
     signal: context.signal
   });
-  if (traversal.kind === "unavailable") return result(unavailable(traversal.reason));
-  if (context.signal.aborted) return result(unavailable("cancelled"));
-  return Object.freeze({ kind: "traversal", resolver: created.resolver, traversal });
+  if (traversal.kind === "unavailable") {
+    return result(
+      appendRejectedInputMessage(
+        unavailable(traversal.reason),
+        sourceDiscovery.rejectedPaths.length
+      )
+    );
+  }
+  if (context.signal.aborted) {
+    return result(
+      appendRejectedInputMessage(unavailable("cancelled"), sourceDiscovery.rejectedPaths.length)
+    );
+  }
+  return Object.freeze({
+    kind: "traversal",
+    rejectedInputCount: sourceDiscovery.rejectedPaths.length,
+    resolver: created.resolver,
+    traversal
+  });
 }
 
 function result(
@@ -155,15 +161,45 @@ function discoverMarkdownSourcePaths(
   files: ProjectFileSelection
 ): MarkdownSourceDiscovery {
   try {
+    const selectedPaths = collectProjectFiles(project.root, files);
+    const partition = partitionProjectFilesByEligibility(selectedPaths, isMarkdownSourcePath);
     return Object.freeze({
       kind: "complete" as const,
-      sourcePaths: Object.freeze(
-        collectProjectFiles(project.root, files).filter(isMarkdownSourcePath)
-      )
+      rejectedPaths: partition.rejectedPaths,
+      selectedPathCount: selectedPaths.length,
+      sourcePaths: partition.acceptedPaths
     });
   } catch {
     return unavailableValidation("source-unavailable");
   }
+}
+
+function reportRejectedInputs(
+  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>,
+  paths: readonly string[]
+): void {
+  for (const selectedPath of paths) {
+    const record = buildMarkdownInputRejectedRecord(selectedPath);
+    context.records.report({ id: record.id }, record.data);
+  }
+}
+
+function appendRejectedInputMessage(
+  checkResult: CheckResult<MarkdownLinkValidationFinalData>,
+  rejectedInputCount: number
+): CheckResult<MarkdownLinkValidationFinalData> {
+  if (rejectedInputCount === 0) return checkResult;
+  return Object.freeze({
+    ...checkResult,
+    messages: Object.freeze([
+      ...(checkResult.messages ?? []),
+      Object.freeze({
+        code: "input-rejected",
+        level: "warning" as const,
+        message: `${rejectedInputCount} selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude.`
+      })
+    ])
+  });
 }
 
 function unavailableValidation(
@@ -228,7 +264,7 @@ async function validateMarkdownSource(
     });
     if (run.signal.aborted) return unavailableValidation("cancelled");
     if (resolution.kind === "unavailable") return unavailableValidation(resolution.reason);
-    const candidate = recordCandidate(
+    const candidate = buildMarkdownLinkRecordCandidate(
       sourceRead.source.path,
       occurrenceIndex,
       occurrence,
@@ -241,32 +277,6 @@ async function validateMarkdownSource(
     kind: "complete" as const,
     candidates: Object.freeze(candidates),
     occurrenceCount
-  });
-}
-
-function recordCandidate(
-  sourcePath: string,
-  occurrenceIndex: number,
-  occurrence: MarkdownLinkOccurrence,
-  resolution: MarkdownLocalResolution
-): MarkdownLinkRecordCandidate | undefined {
-  if (resolution.kind !== "finding") return undefined;
-  return Object.freeze({
-    id: `source:${encodeURIComponent(sourcePath)}:occurrence:${occurrenceIndex + 1}:reason:${resolution.reason}`,
-    data: Object.freeze({
-      reason: resolution.reason,
-      occurrenceKind: occurrence.kind,
-      sourcePath,
-      range: publicRange(occurrence.range),
-      target: resolution.target
-    })
-  });
-}
-
-function publicRange(range: MarkdownSourceRange): MarkdownLinkRecordCandidate["data"]["range"] {
-  return Object.freeze({
-    start: Object.freeze({ line: range.start.line, column: range.start.column }),
-    end: Object.freeze({ line: range.end.line, column: range.end.column })
   });
 }
 

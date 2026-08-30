@@ -36,10 +36,12 @@ Entities:
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > does not add exclusions outside the selected filesystem config`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > resolves multiple filesystem sets from one named selection call`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > applies explicit default exclusions while retaining other dot files`
+- `bun|src/package-checks/project-files/input-eligibility.test.ts|project file eligibility partition > assigns every selected path once while preserving accepted and rejected order`
   Proves:
 - Filesystem source 不解释 `.gitignore`，只应用 selection 自己的 include/exclude；公开、深冻结的默认 selection 明确移除 common VCS/Product state、dependency、build/generated、cache、coverage、log、temporary 与 virtual-environment paths，同时其它 dot files 仍可选择。
 - 每个明确选择的来源都在失败时停止，不会在 Git 与 filesystem 之间自动切换；目录读取或 Git 来源失败与合法空集合不同。
 - 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
+- Check-owned eligibility partition 按 selected 顺序只评估每个 path 一次，并把它恰好保留在 accepted 或 rejected 一侧；结果与两侧数组均冻结。
 
 ## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly Lizard-supported source inputs
 
@@ -47,23 +49,28 @@ Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/function-metrics/target-files.test.ts|Lizard target files > selects every Lizard 1.23-supported extension case-insensitively and excludes fallback inputs`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
 
 Proves:
 
-- function-metrics forwards every extension supported by Lizard 1.23.0's official language readers, using its case-insensitive matcher semantics, and excludes unsupported Markdown, JSON, YAML and extensionless inputs so Lizard's C-like fallback cannot measure them.
+- function-metrics derives precise default globs and runtime acceptance from every extension supported by Lizard 1.23.0's official language readers, using the same case-insensitive semantics.
+- Explicitly selected unsupported Markdown, JSON, YAML or extensionless inputs each produce one area-aware rejection Record instead of reaching Lizard's C-like fallback; all-rejected input completes without starting Lizard.
 
 ## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of its Check-owned file selection
 
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > filters only lower-case .json paths from its file selection and returns exact final counts`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > reports selected non-JSON paths and returns exact mixed final counts`
 - `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > uses only its included JSON paths without re-adding excluded paths`
-- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable when its file selection has no lower-case JSON input`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > settles all rejected selected inputs as non-blocking findings`
+- `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > is not applicable only when its file selection is empty`
 
 Proves:
 
-- JSON validation filters only its own selected candidates with case-sensitive `.json` suffix matching; `.JSON`, non-JSON and excluded paths are not eligible, and no path is rediscovered outside that selection.
+- JSON validation defaults to a precise lower-case `.json` include and classifies only its own selected candidates with the same case-sensitive suffix rule; excluded or out-of-selection paths are never rediscovered.
+- Every selected `.JSON` or other unsupported path becomes a non-blocking rejection fact, including all-rejected input; only a genuinely empty selected set is not applicable.
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-SCOPE-001: Registered Schema inputs remain an exact declared subset
 
