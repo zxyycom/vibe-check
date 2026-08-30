@@ -1,22 +1,19 @@
-# TypeScript Result 与 Option 库调查
+---
+title: "采用 neverthrow 与项目自有 Option"
+formedAt: "2026-08-11T07:54:34Z"
+question: "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？"
+tags:
+  - "implementation-libraries"
+relations: []
+---
 
-## 调查信息
-- 核心问题: Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？
-- 状态: 已结束
-- 最新报告时间: 2026-08-11T07:54:34Z
-
-## 调查报告
-
-### 采用 neverthrow 与项目自有 Option
-- 形成时间: 2026-08-11T07:54:34Z
-
-#### 形成时背景
+## 形成时背景
 
 Vibe Check 是使用 Bun、strict TypeScript 和 NodeNext module resolution 的私有 CLI 工作区。
 编码规范需要分别表达“值存在或缺失”和“成功或带原因失败”，并避免多个 Result、Either、Maybe
 实现同时进入代码。项目还需要让常用能力在实现前已经可用，避免每次遇到相同问题重新选库。
 
-#### 调查目的
+## 调查目的
 
 本轮需要回答三个问题：
 
@@ -24,7 +21,7 @@ Vibe Check 是使用 Bun、strict TypeScript 和 NodeNext module resolution 的�
 2. 项目是否应拥有一个窄 `Option` 原语，以及它与 Result 的职责如何衔接。
 3. 采用后应固定哪些使用边界、验证义务和重新调查条件。
 
-#### 调查范围与依据
+## 调查范围与依据
 
 候选比较覆盖 `neverthrow`、`true-myth`、`purify-ts`、`oxide.ts`，并以较宽的 `fp-ts` 作为
 对照。外部指标观测于 2026-08-07：版本、生产依赖、文件数、unpacked size、license、Node
@@ -39,7 +36,7 @@ stars、默认分支活动和归档状态来自候选的官方 GitHub 仓库。�
 TypeScript native preview 下运行。未执行供应链审计、bundle 测量，也未在项目声明的 Node 24
 二进制下单独运行；当前安装环境为 Node 26。
 
-#### 调查结果与边界
+## 调查结果与边界
 
 Vibe Check 采用一个第三方 Result 实现和一个项目自有 Option：
 

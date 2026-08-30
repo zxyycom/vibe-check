@@ -1,22 +1,19 @@
-# TypeScript 穷尽匹配与轻量状态建模库调查
+---
+title: "采用 ts-pattern，状态机保持按需调查"
+formedAt: "2026-08-11T07:54:34Z"
+question: "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？"
+tags:
+  - "implementation-libraries"
+relations: []
+---
 
-## 调查信息
-- 核心问题: Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？
-- 状态: 已结束
-- 最新报告时间: 2026-08-11T07:54:34Z
-
-## 调查报告
-
-### 采用 ts-pattern，状态机保持按需调查
-- 形成时间: 2026-08-11T07:54:34Z
-
-#### 形成时背景
+## 形成时背景
 
 Vibe Check 的编码规范把“结果只取决于当前值的封闭分支”和“行为由当前状态与事件共同决定的
 合法转移”定义为两种问题形态。项目需要为非平凡穷尽匹配提供稳定能力，但不能把模式匹配库
 误当作状态机解释器，也不能在没有真实状态机工作负载时预装完整框架。
 
-#### 调查目的
+## 调查目的
 
 本轮需要回答三个问题：
 
@@ -24,7 +21,7 @@ Vibe Check 的编码规范把“结果只取决于当前值的封闭分支”和
 2. 真正需要状态、事件和合法转移约束时，是否存在值得通用预装的轻量状态机库。
 3. 当前采用范围、原生语言边界以及重新调查状态机的触发条件是什么。
 
-#### 调查范围与依据
+## 调查范围与依据
 
 外部指标快照为 2026-08-07。穷尽匹配候选包括 `ts-pattern`、`match-iz`、`assert-never`、
 `@typemint/core` 和 `@praha/tagged`；状态机候选包括 `robot3`、`@xstate/fsm`、
@@ -39,7 +36,7 @@ Vibe Check 的编码规范把“结果只取决于当前值的封闭分支”和
 preview 下运行 `ts-pattern@5.9.0` 的判别联合穷尽匹配运行时和类型样例。没有构造真实状态机
 工作负载，也没有复测候选的 bundle、性能或供应链安全。
 
-#### 调查结果与边界
+## 调查结果与边界
 
 封闭分支与状态机使用不同判断标准：
 
@@ -53,7 +50,7 @@ preview 下运行 `ts-pattern@5.9.0` 的判别联合穷尽匹配运行时和类�
 分支、嵌套判别联合组合和需要表达式结果的穷尽映射。简单单值分支继续使用 TypeScript 原生
 `switch` 与 `never`。状态机类别当前不预装。
 
-#### 穷尽匹配候选对照
+## 穷尽匹配候选对照
 
 | 候选 | 版本与最新发布 | gzip 体积 / npm 解压尺寸 | 生产依赖 | 30 日下载 | GitHub stars | 项目判断 |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
@@ -63,7 +60,7 @@ preview 下运行 `ts-pattern@5.9.0` 的判别联合穷尽匹配运行时和类�
 | [`@typemint/core`](https://registry.npmjs.org/%40typemint%2Fcore/0.16.2) | 0.16.2 / 2026-06-26 | [1,442 B](https://bundlephobia.com/package/@typemint/core@0.16.2) / 285,664 B | 0 | [3,389](https://api.npmjs.org/downloads/point/2026-07-08:2026-08-06/@typemint/core) | [0](https://github.com/typemint-dev/typemint) | **不采用**：仍为 0.x，采用与维护证据不足以替代当前选择 |
 | [`@praha/tagged`](https://registry.npmjs.org/%40praha%2Ftagged/1.0.0) | 1.0.0 / 2026-03-24 | [207 B](https://bundlephobia.com/package/@praha/tagged@1.0.0) / 17,808 B | 0 | [5,415](https://api.npmjs.org/downloads/point/2026-07-08:2026-08-06/@praha/tagged) | [1](https://github.com/praha-inc/tagged) | **不采用**：提供 tagged-union 构造与收窄，但不由库强制穷尽分支 |
 
-#### 轻量状态机候选对照
+## 轻量状态机候选对照
 
 | 候选 | 版本与最新发布 | gzip 体积 / npm 解压尺寸 | 生产依赖 | 30 日下载 | GitHub stars | 项目判断 |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
@@ -74,7 +71,7 @@ preview 下运行 `ts-pattern@5.9.0` 的判别联合穷尽匹配运行时和类�
 
 `*` 表示整个上游 monorepo 的 stars，不是候选包单独获得的 stars。
 
-#### 使用边界与复核条件
+## 使用边界与复核条件
 
 1. 简单单值分支使用原生 `switch` 与 `never`；非平凡封闭分支才使用 `ts-pattern`。
 2. 使用 `ts-pattern` 时通过 `.exhaustive()` 证明封闭集合完整；若类型检查成本成为可测问题，

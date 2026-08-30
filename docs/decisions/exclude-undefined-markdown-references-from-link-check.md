@@ -19,7 +19,7 @@ relations: []
 ## 背景
 
 - 用户已明确取消 Markdown Structure Check；当前 Link Change 的非目标是不判定 Markdown 文本是否“语法有效”。
-- 在 2026-08-25 的临时 Bun 1.3.14 fixture 中，`mdast-util-from-markdown` 配合当前 GFM/front matter candidates 会把未定义的 `[label][missing]` 保留为 text，而带 definition 的 reference 产出 `linkReference` 与 `definition` facts。该行为也与 [Markdown Link Validation 库策略与可实施难度](../investigations/implementation-libraries/markdown-link-validation-library-strategy.md) 的候选比较一致。
+- 在 2026-08-25 的临时 Bun 1.3.14 fixture 中，`mdast-util-from-markdown` 配合当前 GFM/front matter candidates 会把未定义的 `[label][missing]` 保留为 text，而带 definition 的 reference 产出 `linkReference` 与 `definition` facts。该行为也与 [离线 Link Check 的 parser、slug 与完整 validator 候选比较](../investigations/markdown-link-validation-library-strategy.md) 的候选比较一致。
 - 为保留未定义 reference，需要另行做语法级 token/文本识别；这会扩大 Link 的职责，并和当前取消的 generic Markdown validation 方向冲突。
 
 ## 决策

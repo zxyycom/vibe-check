@@ -136,9 +136,9 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 | `Mnemonist` | 访问模式、复杂度或专用语义明确需要 Heap、Deque、Trie、LRU 等结构 | 普通集合使用原生 `Array`、`Map` 与 `Set` |
 
 选型依据与复核边界见
-[Result/Option](investigations/implementation-libraries/result-and-option-libraries.md)、
-[穷尽匹配/状态建模](investigations/implementation-libraries/pattern-matching-and-state-modeling-libraries.md)
-和[函数式工具/数据结构](investigations/implementation-libraries/functional-utilities-and-data-structures.md)
+[Result/Option](investigations/result-and-option-libraries.md)、
+[穷尽匹配/状态建模](investigations/pattern-matching-and-state-modeling-libraries.md)
+和[函数式工具/数据结构](investigations/functional-utilities-and-data-structures.md)
 调查。没有表中触发条件时，使用能完整表达当前职责的最简单语言结构。现有能力不能覆盖真实
 问题时，把缺口交给依赖 owner 重新评估；实现任务不临时安装同类替代库，也不建立第二套基础原语。
 

@@ -21,7 +21,7 @@ relations: []
 ## 背景
 
 - [在执行前验证普通 Check options](prepare-check-options-before-execution.md) 已归并并承接 Link-owned source selection、direct-only target resolution、root 外 `ignore | report | validate`、directory 和 GitHub-priority anchor 的长期边界。
-- [Markdown Link Validation 库策略与可实施难度](../investigations/implementation-libraries/markdown-link-validation-library-strategy.md) 的临时 Bun experiment 和一手资料表明，低层 mdast/micromark 组合能提供所需 AST facts；`remark-validate-links` 的 Git discovery / child-process 行为和 Node API 跨文件 heading 限制不适合作为 Product core。
+- [离线 Link Check 的 parser、slug 与完整 validator 候选比较](../investigations/markdown-link-validation-library-strategy.md) 的临时 Bun experiment 和一手资料表明，低层 mdast/micromark 组合能提供所需 AST facts；`remark-validate-links` 的 Git discovery / child-process 行为和 Node API 跨文件 heading 限制不适合作为 Product core。
 - 用户已确认“现成 parser/slug + Link-owned resolver”方向。此确认不等于依赖已经安装、版本已接受或 Check 已实现；这些仍需 Change 的 Readiness 与 implementation evidence 闭合。
 
 ## 决策

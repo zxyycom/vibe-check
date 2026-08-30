@@ -1,22 +1,19 @@
-# TypeScript 函数式工具与专用数据结构库调查
+---
+title: "采用 Remeda 与 Mnemonist，保留原生集合默认"
+formedAt: "2026-08-11T07:54:34Z"
+question: "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？"
+tags:
+  - "implementation-libraries"
+relations: []
+---
 
-## 调查信息
-- 核心问题: Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？
-- 状态: 已结束
-- 最新报告时间: 2026-08-11T07:54:34Z
-
-## 调查报告
-
-### 采用 Remeda 与 Mnemonist，保留原生集合默认
-- 形成时间: 2026-08-11T07:54:34Z
-
-#### 形成时背景
+## 形成时背景
 
 Vibe Check 是 Bun/Node TypeScript 工具工作区。编码规范需要支持连续无状态数据转换，也需要在
 真实复杂度或访问模式出现时使用可靠的专用数据结构；与此同时，简单集合处理仍应保持原生，
 同一职责不应在多套 utility API 之间随机切换。
 
-#### 调查目的
+## 调查目的
 
 本轮需要回答两个问题：
 
@@ -24,7 +21,7 @@ Vibe Check 是 Bun/Node TypeScript 工具工作区。编码规范需要支持连
    默认可选能力。
 2. 专用数据结构是否值得预装，以及 Mnemonist 是否比窄用途包或其他综合库更适合承担该职责。
 
-#### 调查范围与依据
+## 调查范围与依据
 
 外部指标观测于 2026-08-07（Asia/Shanghai）：版本、发布时间、发布文件数、unpacked size、
 生产依赖、内置类型、ESM/exports 和 `sideEffects` 来自 [npm registry](https://registry.npmjs.org/)；
@@ -46,7 +43,7 @@ Vibe Check 是 Bun/Node TypeScript 工具工作区。编码规范需要支持连
 native preview 下运行 `remeda@2.39.0` 的 `pipe`/`map` 和 `mnemonist@0.40.4` 的 `Heap`
 运行时与类型样例。未执行浏览器 bundle、工作负载性能或供应链安全测量。
 
-#### 调查结果与边界
+## 调查结果与边界
 
 根 `devDependencies` 精确锁定 `remeda@2.39.0` 与 `mnemonist@0.40.4`：
 
@@ -57,7 +54,7 @@ native preview 下运行 `remeda@2.39.0` 的 `pipe`/`map` 和 `mnemonist@0.40.4`
 - 不安装第二套通用 utility 库。es-toolkit 虽是可用的互补候选，但当前没有与 Remeda 明确分离
   的稳定职责；其他候选的维护、类型适配、生态或安装面也没有形成更强理由。
 
-#### 函数式与通用工具对照
+## 函数式与通用工具对照
 
 | 候选 | 安装面快照 | 采用与维护快照 | TypeScript 与风格边界 | 项目判断 |
 | --- | --- | --- | --- | --- |
@@ -68,7 +65,7 @@ native preview 下运行 `remeda@2.39.0` 的 `pipe`/`map` 和 `mnemonist@0.40.4`
 | [Ramda 0.32.0](https://registry.npmjs.org/ramda/0.32.0) | 1.15 MiB、744 文件、0 生产依赖 | [30 日 60,526,801 次下载](https://api.npmjs.org/downloads/point/2026-07-07:2026-08-05/ramda)；24,061 stars；2026-07-26 仍有提交 | 类型外置，自动 curry 与 data-last 会显著塑造调用风格 | **不预装**：生态成熟，但不是当前 TypeScript 工作区的低摩擦选项 |
 | [Rambda 11.2.0](https://registry.npmjs.org/rambda/11.2.0) | 703 KiB、151 文件、0 生产依赖；`sideEffects: false` | [30 日 12,554,655 次下载](https://api.npmjs.org/downloads/point/2026-07-07:2026-08-05/rambda)；1,755 stars；2026-05-15 发布 | 内置类型，多参数方法以 curry 和 `pipe` 为主路径 | **不预装**：与 Remeda 重叠且风格锚定更强 |
 
-#### 专用数据结构对照
+## 专用数据结构对照
 
 | 候选 | 安装面快照 | 采用与维护快照 | 能力边界 | 项目判断 |
 | --- | --- | --- | --- | --- |
@@ -78,7 +75,7 @@ native preview 下运行 `remeda@2.39.0` 的 `pipe`/`map` 和 `mnemonist@0.40.4`
 | [data-structure-typed 2.6.4](https://registry.npmjs.org/data-structure-typed/2.6.4) | 10.54 MiB、393 文件、0 生产依赖 | [30 日 115,028 次下载](https://api.npmjs.org/downloads/point/2026-07-07:2026-08-05/data-structure-typed)；204 stars；2026-07-30 发布 | TypeScript 原生，结构覆盖广，支持子路径导入 | **不预装**：安装面和采用证据未达到当前门槛 |
 | 原生 `Array` / `Map` / `Set` | 无依赖和安装开销 | JavaScript 标准生态 | 承担普通集合、索引、去重和排序 | **默认**：没有专用复杂度或语义要求时使用 |
 
-#### 使用边界与复核条件
+## 使用边界与复核条件
 
 1. 先判断问题是连续无状态转换、结构化副作用流程还是专用数据结构需求，再选择对应表达。
 2. Remeda 链中的每一步必须仍能用领域语言识别；回调开始包含分支、mutation、错误映射或

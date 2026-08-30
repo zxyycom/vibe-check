@@ -6,7 +6,7 @@
   "sourceRevision": {
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
-      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
+      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:4b18315fe872612cbb5b20eabe6687e7507bea592c81d989a20bdcf3f2a8bb58",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:99f675194933c022523f86f44f4f527c0ce02401f692e6d80428afcdf0bc895b",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
@@ -52,7 +52,7 @@
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
-      "exclude-undefined-markdown-references-from-link-check.md": "sha256:ed9d534a2469cbdba03347edb3f294c65c1215d6e07206d551e644a6d35b02d6",
+      "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
       "execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:7e5f18d1edf6aa3d33e4865bff789d16c492ecc84d1de508d9f4c046133babe4",

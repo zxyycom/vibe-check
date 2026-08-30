@@ -1,16 +1,13 @@
-# TypeScript Schema 与运行时校验框架调查
+---
+title: "Record schema authoring 的框架选择、替代项与互操作边界"
+formedAt: "2026-08-21T02:22:26Z"
+question: "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
+tags:
+  - "implementation-libraries"
+relations: []
+---
 
-## 调查信息
-- 核心问题: Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？
-- 状态: 已结束
-- 最新报告时间: 2026-08-21T02:22:26Z
-
-## 调查报告
-
-### Record schema authoring 的框架选择、替代项与互操作边界
-- 形成时间: 2026-08-21T02:22:26Z
-
-#### 形成时背景
+## 形成时背景
 
 `complete-typed-record-authoring` Change 正在补齐 `defineCheck(...)` 中 literal `recordTypes` 到
 `records.report(...)` / `records.reportReference(...)` 的静态类型投影。其当前范围明确保持普通
@@ -33,7 +30,7 @@ contract-material test support。编码规范把 TypeBox 列为“需要 runtime
 `implementation-libraries` 下三个报告。它们只讨论函数/数据结构、模式匹配/状态机和 Result/Option；
 没有同一核心问题的既有 schema 或 validation-library 调查。因此本轮新建本主题，而非追加历史报告。
 
-#### 调查目的
+## 调查目的
 
 回答以下问题，并为后续是否改变 Record authoring/runtime contract 提供可复核输入：
 
@@ -47,7 +44,7 @@ contract-material test support。编码规范把 TypeBox 列为“需要 runtime
 
 本报告不授权修改 Change、产品实现、依赖、lockfile、Decision 或测试；也不把推荐表述成已经采用。
 
-#### 调查范围与依据
+## 调查范围与依据
 
 **项目事实。** 在 Git `f63e046fdd7c60cead84f24b292cdb7cc86eac8c` 和有未提交 typed Record
 Change 改动的工作树中，读取了：
@@ -98,9 +95,9 @@ bundle 测量；本轮未安装候选、未跑 benchmark、未做供应链审计
 native preview/Bun 组合中的 declaration behavior。下载量包含 transitive installs、CI 和镜像，stars
 也不等于独立用户、正确性、安全性或本项目适配，故只作为维护/采用信号，不能替代技术判断。
 
-#### 调查结果与边界
+## 调查结果与边界
 
-##### 已确认的项目结论
+### 已确认的项目结论
 
 1. **当前 active Plan 的事实范围。** 它的明确 non-goal 是不改变 Record runtime shape /
    validation / identity / Core / policy / machine。把 `fields` 改为某一框架 Schema 会实质改变公开
@@ -118,7 +115,7 @@ native preview/Bun 组合中的 declaration behavior。下载量包含 transitiv
    不过这只证明未来 schema-first 方案的**首选候选**，不等于 current Record descriptor 已经应被
    替换。
 
-##### 候选对照
+### 候选对照
 
 | 候选 | runtime validation 与 static inference | JSON Schema、动态 schema、错误模型 | 公共 authoring 耦合与项目适配判断 |
 | --- | --- | --- | --- |
@@ -128,7 +125,7 @@ native preview/Bun 组合中的 declaration behavior。下载量包含 transitiv
 | **ArkType** | 强类型 DSL / object definition，`infer` 与 `inferIn` 分开，调用/`assert`/`allows` 负责 runtime。可表达的 TypeScript 语义较强。 | 每个 Type 可 `toJsonSchema()`；官方说支持 bidirectional conversion，JSON Schema import 是额外 `@ark/json-schema` 包。错误信息更偏人读表达；若让产品维持稳定 pointer/diagnostic 协议仍须适配。运行期 JSON Schema input 仍不能为未知 input 生成可静态访问的类型。 | 实现 Standard Schema 与 Standard JSON Schema，但 DSL 的表达力显著超过当前四种 scalar descriptor，容易把 product policy semantics 混进库语法；有三个 production dependencies。**适合需要其类型级语言的产品，不是窄、可发布 Record catalog 的默认。** |
 | **Ajv 8** | 专业 JSON Schema/JTD validator；`compile<T>` 可以把使用者已有 `T` 接到 type guard，JTD 有 `JTDDataType`，但它不是从任意 JSON Schema authoring literal 自动产生完整 TS 类型的 DSL。 | 五者中最适合任意外部/动态 JSON Schema 的编译、标准 draft/JTD 支持和独立验证。错误为 JSON Schema `ErrorObject`；官方说明 JSON Schema 与 JTD 错误类型是开放 union，需要按 keyword cast/narrow。 | 不提供 Record authoring 的同源 static inference，因此单独采用会继续保留 TypeScript types 与 schema 的双源风险。它已存在于仓库的独立 artifact check 支持中，适合作为 **TypeBox schema 的独立 verifier** 或将来用户提供 raw JSON Schema 的 boundary；**不作为 schema-first authoring 框架。** |
 
-##### 维护、热度与安装面快照
+### 维护、热度与安装面快照
 
 | 包（latest 于观测日） | latest npm publish | 30 日下载 | GitHub stars / default-branch push | unpacked size / files / production dependencies | 解读 |
 | --- | ---: | ---: | ---: | --- | --- |
@@ -141,7 +138,7 @@ native preview/Bun 组合中的 declaration behavior。下载量包含 transitiv
 上述五个官方 GitHub API 均报告 `archived: false`。没有将 package tarball size 误报为 bundle size，也
 没有以下载量排序替代功能适配。
 
-##### Standard Schema / Standard JSON Schema 是否改变耦合
+### Standard Schema / Standard JSON Schema 是否改变耦合
 
 **已确认事实：** Standard Schema V1 是一个在 `~standard.validate` 上提供 runtime validation、
 input/output type 与标准化 `message`/`path` issues 的 TypeScript interface；validate 可以是同步或
@@ -163,7 +160,7 @@ runtime validation。因而二者不会取消 Vibe Check 的 descriptor/domain v
 直接与 Zod/Valibot/ArkType authoring 无缝互换。若公共 API 导出/引用 `@standard-schema/spec` 类型，
 其官方 FAQ 还要求该 package 是 regular dependency 而非仅 devDependency。
 
-##### 建议、未采用状态与复核条件
+### 建议、未采用状态与复核条件
 
 1. **路径 A——继续当前 Plan（推荐的最小路径）：** 保持 descriptor-array + helper-local TypeScript
    projection 的既定范围，继续将 runtime validation 当 final authority；不在本轮实现中引入 schema

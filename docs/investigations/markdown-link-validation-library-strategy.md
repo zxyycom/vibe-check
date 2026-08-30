@@ -1,16 +1,13 @@
-# Markdown Link Validation 库策略与可实施难度
+---
+title: "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
+formedAt: "2026-08-25T02:35:35Z"
+question: "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？"
+tags:
+  - "implementation-libraries"
+relations: []
+---
 
-## 调查信息
-- 核心问题: Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？
-- 状态: 调查中
-- 最新报告时间: 2026-08-25T02:35:35Z
-
-## 调查报告
-
-### 离线 Link Check 的 parser、slug 与完整 validator 候选比较
-- 形成时间: 2026-08-25T02:35:35Z
-
-#### 形成时背景
+## 形成时背景
 
 `changes/add-markdown-link-validation/` 正在为 TypeScript/Bun Product 规划 `markdownLinkValidation` ordinary Check；截至本报告形成时，尚未实现、未向 `package.json` 或 lockfile 加入 Markdown 依赖。工作区基线为 Git commit `36bdeea01add43b8044bb6431d030315384ce086`，但本 Change 的 proposal/design 和 `docs/decisions/define-offline-markdown-link-target-boundaries.md` 有未提交改动（Decision 当时为未跟踪文件）；本报告的产品边界以实际读取到的这些形成时材料为准，而不把它们表述为已发布实现。
 
@@ -18,7 +15,7 @@
 
 本报告只调查库选择与实施可行性；不固定最终 public option 名、Record DTO、limits 或 GitHub edge corpus，也不授权安装依赖、修改 Change/Decision/代码/测试或网络验证功能。
 
-#### 调查目的
+## 调查目的
 
 回答下列问题，并把事实、推断与尚未采用的决定分开：
 
@@ -27,9 +24,9 @@
 3. parser/slug 和 Link-owned resolver 的组合是否能在 Bun 中实施，而不把 filesystem policy、Git discovery、child process、网络或递归 crawling 交给依赖？
 4. 在一致口径下比较热度、生态、维护活跃度、许可证与依赖足迹；这些信号能否支持维护风险判断而不是伪造精确排名？
 
-#### 调查范围与依据
+## 调查范围与依据
 
-**项目事实。** 读取了本 Change 的 [`proposal.md`](../../../changes/archive/add-markdown-link-validation/proposal.md)、[`design.md`](../../../changes/archive/add-markdown-link-validation/design.md) 及形成时 Decision [`define-offline-markdown-link-target-boundaries.md`](../../decisions/archive/define-offline-markdown-link-target-boundaries.md)。它们是本报告对安全/功能适配的主依据；现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
+**项目事实。** 读取了本 Change 的 [`proposal.md`](../../changes/archive/add-markdown-link-validation/proposal.md)、[`design.md`](../../changes/archive/add-markdown-link-validation/design.md) 及形成时 Decision [`define-offline-markdown-link-target-boundaries.md`](../decisions/archive/define-offline-markdown-link-target-boundaries.md)。它们是本报告对安全/功能适配的主依据；现有 `scripts/validation/links.ts` 只作为该 Change 已明确排除的 repository-local 对照，不作为候选实现。
 
 **候选与版本。** 于 2026-08-25（UTC）查询 npm registry：`remark-validate-links@13.1.0`、`mdast-util-from-markdown@2.0.3`、`micromark-extension-gfm@3.0.0`、`mdast-util-gfm@3.1.0`、`micromark-extension-frontmatter@2.0.0`、`mdast-util-frontmatter@2.0.1`、`github-slugger@2.0.0`、`unified@11.0.5`、`remark-parse@11.0.0`、`remark-gfm@4.0.1`、`remark-frontmatter@5.0.0`、`markdown-it@15.0.0`、`markdown-link-check@3.15.0` 与 `linkinator@8.0.4` 的 package metadata。版本、许可证和直接 runtime dependency 以对应 [npm registry metadata](https://registry.npmjs.org/remark-validate-links/13.1.0)（其他候选同样以 `https://registry.npmjs.org/<package>/<version>` 查询）为事实来源；registry manifest 只证明发布者声明，**并未**完成全部传递依赖的 license/security audit。
 
@@ -45,9 +42,9 @@
 - **GitHub 社区信号**：同一观察日读取各官方 repository API 的 `stargazers_count`、`forks_count`、`open_issues_count`；stars/forks 是累积社区可见度，不能衡量质量、Bun 支持或安全。例：[remark validator](https://api.github.com/repos/remarkjs/remark-validate-links)、[mdast parser](https://api.github.com/repos/syntax-tree/mdast-util-from-markdown)、[unified](https://api.github.com/repos/unifiedjs/unified)、[markdown-it](https://api.github.com/repos/markdown-it/markdown-it)、[markdown-link-check](https://api.github.com/repos/tcort/markdown-link-check)、[Linkinator](https://api.github.com/repos/JustinBeckwith/linkinator)。
 - **维护近期性**：同一 API 的 `pushed_at` 和 release endpoint 的 `published_at`，不是 issue 被动活动。查询到的 release/tag 链接见 [mdast 2.0.3](https://github.com/syntax-tree/mdast-util-from-markdown/releases/tag/2.0.3)、[remark validator 13.1.0](https://github.com/remarkjs/remark-validate-links/releases/tag/13.1.0)、[remark-gfm 4.0.1](https://github.com/remarkjs/remark-gfm/releases/tag/4.0.1)、[markdown-link-check v3.15.0](https://github.com/tcort/markdown-link-check/releases/tag/v3.15.0)、[Linkinator v8.0.4](https://github.com/JustinBeckwith/linkinator/releases/tag/linkinator-v8.0.4)。没有 release JSON 的 `markdown-it` 不据此作负面推断，只记录其 repository `pushed_at`。
 
-#### 调查结果与边界
+## 调查结果与边界
 
-##### 已确认事实：功能与边界适配
+### 已确认事实：功能与边界适配
 
 | 候选 | occurrence / reference / image / source range | front matter 与 GitHub anchor | cross-file target 与 resolver 所需行为 | Git/child process/network/crawl 边界 | 结论 |
 | --- | --- | --- | --- | --- | --- |
@@ -59,7 +56,7 @@
 
 这里“低层 package 无 Git/network API”是针对查询到的 package interface、manifest 和最小 parse 调用的有限事实；不是对传递依赖源代码的安全证明。最终 implementation 必须以 source scan、fixture 和 runtime canary 证明零 Product-owned network、无 child process、无 recursive discovery，不能以依赖品牌替代验证。
 
-##### 已确认事实：依赖、许可证、Bun 与维护信号
+### 已确认事实：依赖、许可证、Bun 与维护信号
 
 下表的“tree entries”是上述临时、忽略 install scripts、无 lockfile安装后 `npm ls --all --parseable` 的行数，**包含临时 root**，仅用于同一实验条件下的近似传递图规模，不是去重 package 数、bundle size、漏洞数或生产 lockfile 结论。直接依赖是本次为 fixture 显式指定或 package manifest 声明的 runtime dependencies。
 
@@ -74,7 +71,7 @@
 
 指标数字均来自本节声明口径的 [npm downloads API](https://api.npmjs.org/downloads/point/last-month/mdast-util-from-markdown) 和官方 GitHub API；不同 package 的 download 不能相加，也不能与 stars/forks 合成排名。生态扩展性以实现模型定性判断：unified/remark 的插件生态最大且直接支持 mdast transforms；micromark/mdast 是其较低层语法生态，足够覆盖当前受控 adapter；markdown-it 有大型 renderer/plugin 生态但使本 Change 必需语义落到适配层；crawler 的生态主要扩展网络/CLI 能力，正是应隔离的能力。
 
-##### 推断与推荐
+### 推断与推荐
 
 **推荐（尚未采用的决定）：选择“现成 parser/slug + Link-owned resolver”，首选低层 `mdast-util-from-markdown`、GFM/frontmatter 解析 extensions、对应 mdast extensions 与 `github-slugger`；不要采用 `remark-validate-links` 作为现成完整 validator。**
 
@@ -87,7 +84,7 @@
 
 **可实施难度：中等、可控，但不是“安装一个 validator”即可完成。** Parser adapter 原型预计是低风险（本实验已打通）；整体 Link Check 仍是中等复杂度，因为安全 resolver 和 fixture matrix 才是主要工作量。只要保持 parser 输入为已读取的 source bytes、所有 target I/O 只经 Link-owned gate、绝不调用 Git/CLI/crawler/network API，依赖引入不会扩大产品授权。若为追求“完整”改用现成 validator，复杂度会从自有 resolver 变为与其 Git/CLI/跨文件限制和安全投影进行不可靠对抗，风险反而更高。
 
-##### 尚未关闭的风险、未采用决定与复核条件
+### 尚未关闭的风险、未采用决定与复核条件
 
 1. **未采用任何依赖或版本。** 推荐不是批准：还需在 Change 的 L4/L5 证据中选择精确 semver、做 production lockfile 的完整 direct/transitive license 与 security review，并通过 isolated installed-Bun consumer。报告中的 manifest 许可证不替代项目依赖策略或扫描结果。
 2. **Anchor corpus 未闭合。** 需要 fixtures 覆盖 ATX/Setext、inline formatting/plain-text extraction、front matter、Unicode normalization、punctuation/case/whitespace、duplicate headings、fragment percent-decoding和 GitHub-priority expected outputs；遇到 `github-slugger` 与 GitHub 目前行为差异时，以明确 Product corpus/Decision 补充处理，不静默升级依赖。

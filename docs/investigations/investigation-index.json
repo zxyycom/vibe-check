@@ -1,204 +1,266 @@
 {
-  "definitionVersion": 5,
+  "definitionVersion": 6,
   "entries": {
-    "implementation-libraries/functional-utilities-and-data-structures.md": {
+    "choose-minimal-library-for-strict-json-and-duplicate-keys.md": {
       "keys": {
-        "category": [
-          "implementation-libraries"
+        "formed-at": [
+          1787577141000
         ],
-        "latest-report-at": [
-          1786434874000
-        ],
-        "status": [
-          "已结束"
+        "tag": [
+          "implementation-libraries",
+          "json-validation"
         ],
         "text": [
-          "TypeScript 函数式工具与专用数据结构库调查",
+          "严格 JSON 与重复 key 的最小库选择",
+          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-24T13:12:21Z",
+        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "title": "严格 JSON 与重复 key 的最小库选择"
+      }
+    },
+    "compare-minimal-json-duplicate-key-candidates.md": {
+      "keys": {
+        "formed-at": [
+          1787579986000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "text": [
+          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+          "极简候选复核：保留 duplicate-key 时的最小可行面"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-24T13:59:46Z",
+        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+        "relations": [
+          {
+            "target": "recheck-json-dependency-and-zero-dependency-path.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "title": "极简候选复核：保留 duplicate-key 时的最小可行面"
+      }
+    },
+    "confirm-momoa-with-bun-and-candidate-spike.md": {
+      "keys": {
+        "formed-at": [
+          1787581736000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "text": [
+          "Momoa 选型确认与 Bun/candidate 闭合 spike",
+          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-24T14:28:56Z",
+        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+        "relations": [
+          {
+            "target": "compare-minimal-json-duplicate-key-candidates.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "title": "Momoa 选型确认与 Bun/candidate 闭合 spike"
+      }
+    },
+    "functional-utilities-and-data-structures.md": {
+      "keys": {
+        "formed-at": [
+          1786434874000
+        ],
+        "tag": [
+          "implementation-libraries"
+        ],
+        "text": [
           "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
           "采用 Remeda 与 Mnemonist，保留原生集合默认"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-11T07:54:34Z",
-        "path": "implementation-libraries/functional-utilities-and-data-structures.md",
+        "formedAt": "2026-08-11T07:54:34Z",
         "question": "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
-        "reportCount": 1,
-        "reportTitles": [
-          "采用 Remeda 与 Mnemonist，保留原生集合默认"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript 函数式工具与专用数据结构库调查"
-      }
-    },
-    "implementation-libraries/json-document-validation-libraries.md": {
-      "keys": {
-        "category": [
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
           "implementation-libraries"
         ],
-        "latest-report-at": [
-          1787581736000
-        ],
-        "status": [
-          "已结束"
-        ],
-        "text": [
-          "Momoa 选型确认与 Bun/candidate 闭合 spike",
-          "严格 JSON 与重复 key 的最小库选择",
-          "严格 JSON 文档校验库调查",
-          "依赖实际加载面与零依赖严格 grammar 路径",
-          "在 Vibe Check 的 add-json-validation Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-          "极简候选复核：保留 duplicate-key 时的最小可行面"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-24T14:28:56Z",
-        "path": "implementation-libraries/json-document-validation-libraries.md",
-        "question": "在 Vibe Check 的 add-json-validation Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-        "reportCount": 4,
-        "reportTitles": [
-          "严格 JSON 与重复 key 的最小库选择",
-          "依赖实际加载面与零依赖严格 grammar 路径",
-          "极简候选复核：保留 duplicate-key 时的最小可行面",
-          "Momoa 选型确认与 Bun/candidate 闭合 spike"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "严格 JSON 文档校验库调查"
+        "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
       }
     },
-    "implementation-libraries/markdown-link-validation-library-strategy.md": {
+    "markdown-link-validation-library-strategy.md": {
       "keys": {
-        "category": [
-          "implementation-libraries"
-        ],
-        "latest-report-at": [
+        "formed-at": [
           1787625335000
         ],
-        "status": [
-          "调查中"
+        "tag": [
+          "implementation-libraries"
         ],
         "text": [
-          "Markdown Link Validation 库策略与可实施难度",
           "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
           "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-25T02:35:35Z",
-        "path": "implementation-libraries/markdown-link-validation-library-strategy.md",
+        "formedAt": "2026-08-25T02:35:35Z",
         "question": "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
-        "reportCount": 1,
-        "reportTitles": [
-          "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
-        ],
-        "resourceReferences": [],
-        "status": "调查中",
-        "title": "Markdown Link Validation 库策略与可实施难度"
-      }
-    },
-    "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
-      "keys": {
-        "category": [
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
           "implementation-libraries"
         ],
-        "latest-report-at": [
+        "title": "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
+      }
+    },
+    "pattern-matching-and-state-modeling-libraries.md": {
+      "keys": {
+        "formed-at": [
           1786434874000
         ],
-        "status": [
-          "已结束"
+        "tag": [
+          "implementation-libraries"
         ],
         "text": [
-          "TypeScript 穷尽匹配与轻量状态建模库调查",
           "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
           "采用 ts-pattern，状态机保持按需调查"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-11T07:54:34Z",
-        "path": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+        "formedAt": "2026-08-11T07:54:34Z",
         "question": "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
-        "reportCount": 1,
-        "reportTitles": [
-          "采用 ts-pattern，状态机保持按需调查"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
-      }
-    },
-    "implementation-libraries/result-and-option-libraries.md": {
-      "keys": {
-        "category": [
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
           "implementation-libraries"
         ],
-        "latest-report-at": [
-          1786434874000
+        "title": "采用 ts-pattern，状态机保持按需调查"
+      }
+    },
+    "recheck-json-dependency-and-zero-dependency-path.md": {
+      "keys": {
+        "formed-at": [
+          1787578729000
         ],
-        "status": [
-          "已结束"
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "implementation-libraries",
+          "json-validation"
         ],
         "text": [
-          "TypeScript Result 与 Option 库调查",
+          "依赖实际加载面与零依赖严格 grammar 路径",
+          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-24T13:38:49Z",
+        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+        "relations": [
+          {
+            "target": "choose-minimal-library-for-strict-json-and-duplicate-keys.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries",
+          "json-validation"
+        ],
+        "title": "依赖实际加载面与零依赖严格 grammar 路径"
+      }
+    },
+    "result-and-option-libraries.md": {
+      "keys": {
+        "formed-at": [
+          1786434874000
+        ],
+        "tag": [
+          "implementation-libraries"
+        ],
+        "text": [
           "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
           "采用 neverthrow 与项目自有 Option"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-11T07:54:34Z",
-        "path": "implementation-libraries/result-and-option-libraries.md",
+        "formedAt": "2026-08-11T07:54:34Z",
         "question": "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
-        "reportCount": 1,
-        "reportTitles": [
-          "采用 neverthrow 与项目自有 Option"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript Result 与 Option 库调查"
-      }
-    },
-    "implementation-libraries/schema-validation-and-static-inference.md": {
-      "keys": {
-        "category": [
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
           "implementation-libraries"
         ],
-        "latest-report-at": [
+        "title": "采用 neverthrow 与项目自有 Option"
+      }
+    },
+    "schema-validation-and-static-inference.md": {
+      "keys": {
+        "formed-at": [
           1787278946000
         ],
-        "status": [
-          "已结束"
+        "tag": [
+          "implementation-libraries"
         ],
         "text": [
           "Record schema authoring 的框架选择、替代项与互操作边界",
-          "TypeScript Schema 与运行时校验框架调查",
           "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-21T02:22:26Z",
-        "path": "implementation-libraries/schema-validation-and-static-inference.md",
+        "formedAt": "2026-08-21T02:22:26Z",
         "question": "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？",
-        "reportCount": 1,
-        "reportTitles": [
-          "Record schema authoring 的框架选择、替代项与互操作边界"
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries"
         ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript Schema 与运行时校验框架调查"
+        "title": "Record schema authoring 的框架选择、替代项与互操作边界"
       }
     }
   },
   "keyDefinitions": [
     {
-      "name": "category",
-      "mode": "exact"
-    },
-    {
-      "name": "latest-report-at",
+      "name": "formed-at",
       "mode": "range"
     },
     {
-      "name": "status",
+      "name": "relation-type",
+      "mode": "exact"
+    },
+    {
+      "name": "tag",
       "mode": "exact"
     },
     {
@@ -211,13 +273,16 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:35d28f35b357753db86def36fec343a6e4a58e9a2f293c2c918d308ab7862f5d",
-      "implementation-libraries/json-document-validation-libraries.md": "sha256:3997e6c161c08459ef8f7acad663c227b708437af7aeb724593f76891a2a0599",
-      "implementation-libraries/markdown-link-validation-library-strategy.md": "sha256:09ef0d81dc8011da8f92f28a7160337cd840a723009d243f22982dad6deb73fb",
-      "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:899f54ebce5815e09153f3d93a41af1f72f57ca1f379adf5cc0baafe11c92a53",
-      "implementation-libraries/result-and-option-libraries.md": "sha256:511d005599d38ba505f5d1d3542d81e2a1501ab8094a4d810badc6bf3735be53",
-      "implementation-libraries/schema-validation-and-static-inference.md": "sha256:25b315332a0ee981a473a4da57539b9539b87a690c9d073fad6ede20d149effd"
+      "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
+      "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
+      "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
+      "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
+      "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
+      "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
+      "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
+      "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",
+      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb"
     },
-    "metadata": "sha256:bb46b05dcddfd42513b7c9c3e68af97db6bdf58cecee29006a53cd5e5e081567"
+    "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
 }
