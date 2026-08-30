@@ -441,6 +441,7 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
       "**/target/**", "**/vendor/**"
     ]
   },
+  findingPolicy: "blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -454,8 +455,10 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
 }
 ```
 
-`requireExistingTargets` 使缺失的 direct regular-file 或 directory target 成为普通 `missing-target` finding；它为
-`false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和
+`findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `"blocking"`：它只决定 normal local-reference finding
+使 owning Check `failed`，还是保留全部 Records/final data 并以 warning message 结算为 `passed`；它不处理 source、parse
+或 target unavailable，也不改变 Run aggregation。`requireExistingTargets` 使缺失的 direct regular-file 或 directory target
+成为普通 `missing-target` finding；它为 `false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和
 `validateCrossDocumentAnchors` 分别启用 same-document anchor 与 direct Markdown target anchor lookup。关闭
 cross-document anchor validation 时，direct regular-file target 上的 fragment 不触发 Markdown eligibility 或 heading lookup。
 `requireNonEmptyDirectories` 是独立作用的 directory policy。`rootExternalTargetMode` 严格为

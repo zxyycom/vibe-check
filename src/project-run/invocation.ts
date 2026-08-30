@@ -58,12 +58,16 @@ export type Invocation = Readonly<{
   readonly normalized: NormalizedProjectDefinition;
   readonly progressRendering: ProgressRendering;
   readonly projectRoot: string;
+  /** Immutable UTC instant captured for enabled diagnostic or machine output, otherwise `null`. */
+  readonly startedAtUtc: string | null;
 }>;
 export interface RunInvocationDependencies {
   readonly clock?: CheckExecutionClock;
   readonly progressRefreshScheduler?: ProgressRefreshScheduler;
   readonly progressWriterFactory?: ProgressWriterFactory;
   readonly diagnosticLoggerFactory?: DiagnosticLoggerFactory;
+  /** Test seam for the invocation's machine-readable wall-clock timestamp. */
+  readonly wallClock?: Readonly<{ now(): Date }>;
 }
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 export type CoreExecution = Readonly<{
@@ -123,6 +127,10 @@ function createInvocation(
   const outputConfiguration = effectiveOutputs(definition, controls);
   const clock = dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
   const projectRoot = resolve(controls.projectRoot ?? process.cwd());
+  const startedAtUtc =
+    outputConfiguration.diagnosticLogging.enabled || outputConfiguration.machinePublication.enabled
+      ? (dependencies.wallClock?.now() ?? new Date()).toISOString()
+      : null;
   const invocationUuid = randomUUID();
   const invocationId = `invocation/v1:${invocationUuid}`;
   const diagnosticLoggingFile = outputConfiguration.diagnosticLogging.enabled
@@ -131,7 +139,7 @@ function createInvocation(
         resolve(
           projectRoot,
           outputConfiguration.diagnosticLogging.directory,
-          diagnosticLogFileName(new Date(), invocationUuid)
+          diagnosticLogFileName(requireStartedAtUtc(startedAtUtc), invocationUuid)
         )
       )
     : null;
@@ -158,7 +166,8 @@ function createInvocation(
       refreshScheduler: dependencies.progressRefreshScheduler,
       writerFactory: dependencies.progressWriterFactory
     }),
-    projectRoot
+    projectRoot,
+    startedAtUtc
   });
 }
 
@@ -328,9 +337,14 @@ function cancelledBeforeExecution(
   );
 }
 
-function diagnosticLogFileName(startedAt: Date, invocationUuid: string): string {
-  const compactUtc = startedAt.toISOString().replaceAll("-", "").replaceAll(":", "");
+function diagnosticLogFileName(startedAtUtc: string, invocationUuid: string): string {
+  const compactUtc = startedAtUtc.replaceAll("-", "").replaceAll(":", "");
   return `run-${compactUtc}-${invocationUuid}.log`;
+}
+
+function requireStartedAtUtc(startedAtUtc: string | null): string {
+  if (startedAtUtc === null) throw new Error("Enabled output requires an invocation timestamp");
+  return startedAtUtc;
 }
 async function executeChecks(
   invocation: Invocation,

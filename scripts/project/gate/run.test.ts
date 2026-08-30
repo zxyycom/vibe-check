@@ -153,12 +153,7 @@ describe("Project Gate entries, root binding, and controls", () => {
       );
     }
     for (const entry of entries)
-      assert.deepEqual(Object.keys(entry).sort(), [
-        "check",
-        "contributesToAggregate",
-        "profiles",
-        "tags"
-      ]);
+      assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
   });
 
   it("defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags", () => {
@@ -385,7 +380,7 @@ describe("Project Gate adapter closure", () => {
     const runResult = completedResult("passed", {
       checkDurations: [{ checkId: "fixture", durationMs: 40 }]
     });
-    const clockValues = [100, 145];
+    const clockValues = [100, 110, 125, 145];
     let observedContext: ProjectGateContext | undefined;
     let observedInitial: ProjectGateResult | undefined;
     const output = captureConsole();
@@ -434,14 +429,21 @@ describe("Project Gate adapter closure", () => {
           profile: "required"
         },
         timing: {
+          adapterSetupMs: 15,
+          candidatePreparationMs: 10,
           elapsedToInitialResultMs: 45,
           initialResultAtMs: 145,
+          productRunMs: 20,
           startedAtMs: 100
         }
       });
       assert.match(
         output.warnings.join("\n"),
         /project gate warning \[fixture-post-processing]: Fixture post-processing rejected the initial result/
+      );
+      assert.match(
+        output.logs.join("\n"),
+        /project gate aggregation: mode=all over eligible Check statuses; failed\/not-applicable\/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
       );
       assert.match(output.logs.join("\n"), /project gate result: failed/);
       assert.doesNotMatch(output.logs.join("\n"), /project gate result: passed/);
@@ -461,7 +463,7 @@ describe("Project Gate adapter closure", () => {
     const defaultOutput = captureConsole();
     try {
       const defaultStatus = await runProjectGate([], {
-        clock: scriptedClock([100, 145]),
+        clock: scriptedClock([100, 110, 125, 145]),
         createInvocationLogDirectory: () => "/tmp/project-gate-default-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
@@ -473,7 +475,7 @@ describe("Project Gate adapter closure", () => {
       assert.equal(defaultStatus, PROJECT_GATE_EXIT_STATUS.passed);
       assert.match(
         defaultOutput.logs.join("\n"),
-        /project gate info \[project-gate-performance-elapsed]: elapsed 45\.0ms was not comparable \(no matching baseline\)/
+        /project gate info \[project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 45\.0ms \(candidate preparation 10\.0ms; adapter\/setup 15\.0ms; Product Run 20\.0ms\) was not comparable \(no matching baseline\)/
       );
     } finally {
       defaultOutput.restore();
@@ -489,7 +491,7 @@ describe("Project Gate adapter closure", () => {
             [performanceBaseline],
             performanceRuntime
           ),
-        clock: scriptedClock([100, 236]),
+        clock: scriptedClock([100, 120, 150, 236]),
         createInvocationLogDirectory: () => "/tmp/project-gate-warning-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
@@ -500,11 +502,33 @@ describe("Project Gate adapter closure", () => {
 
       assert.equal(warningStatus, PROJECT_GATE_EXIT_STATUS.passed);
       assert.deepEqual(warningOutput.warnings, [
-        "project gate warning [project-gate-performance-outside-range]: elapsed 136.0ms exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms"
+        "project gate warning [project-gate-performance-outside-range]: elapsed-to-initial-result 136.0ms (candidate preparation 20.0ms; adapter/setup 30.0ms; Product Run 86.0ms) exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms"
       ]);
       assert.equal(warningOutput.errors.length, 0);
     } finally {
       warningOutput.restore();
+    }
+
+    const invalidTimingOutput = captureConsole();
+    try {
+      const status = await runProjectGate([], {
+        clock: scriptedClock([100, Number.NaN, Number.NaN, Number.NaN]),
+        createInvocationLogDirectory: () => "/tmp/project-gate-invalid-timing",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => completedResult("passed")
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.match(
+        invalidTimingOutput.logs.join("\n"),
+        /elapsed-to-initial-result timing was not comparable \(invalid total timing\)/
+      );
+      assert.doesNotMatch(invalidTimingOutput.logs.join("\n"), /within advisory range/);
+    } finally {
+      invalidTimingOutput.restore();
     }
   });
 

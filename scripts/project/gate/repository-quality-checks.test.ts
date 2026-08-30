@@ -18,7 +18,13 @@ describe("repository quality Checks", () => {
       checks.map(({ checkId }) => checkId),
       ["duplicate-detection", "file-metrics", "function-metrics", "markdown-link-validation"]
     );
-    const [duplicateDetection, fileMetrics, functionMetrics] = checks;
+    const [duplicateDetection, fileMetrics, functionMetrics, markdownLinkValidation] = checks;
+    assert.equal(
+      duplicateDetection.options.codeAreas["product-source"]?.findingPolicy,
+      "non-blocking"
+    );
+    assert.equal(fileMetrics.options.codeAreas["product-source"]?.findingPolicy, "non-blocking");
+    assert.equal(markdownLinkValidation.options.findingPolicy, "non-blocking");
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");
     assert.equal(functionMetrics.options.scanner.executable, "/tools/lizard");
     assert.equal(

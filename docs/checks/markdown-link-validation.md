@@ -22,6 +22,7 @@ Definition `checks` 的普通 Check。
       "**/target/**", "**/vendor/**"
     ]
   },
+  findingPolicy: "blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -42,6 +43,9 @@ Definition `checks` 的普通 Check。
   `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
   规则排除的未跟踪文件。其中 extension 大小写不敏感的 `.md` / `.markdown` 成为 sources，direct targets 仅用于
   resolution；来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
+- `findingPolicy` 为 `blocking | non-blocking`，默认 `blocking`。它只结算本 Check 的 normal local-reference
+  findings：`blocking` 使 finding outcome 为 `failed`，`non-blocking` 保留相同的 Records、计数与 final data，但以
+  `passed` outcome 和 warning message 提示；它不会改写 Project Run、aggregation 或 Gate outcome。
 - `requireExistingTargets` 控制缺失 direct local target 是否是 finding。
 - `validateSameDocumentAnchors` / `validateCrossDocumentAnchors` 分别控制当前文档与直接 Markdown target 的 heading
   lookup。
@@ -77,7 +81,9 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 
 ## 效果与结果
 
-`findingCount === 0` 时 outcome 为 `passed`；`findingCount > 0` 时 outcome 为 `failed`。正常 final data 恰为：
+`findingCount === 0` 时 outcome 为 `passed`；`findingCount > 0` 时，`findingPolicy: "blocking"` 为 `failed`，
+`findingPolicy: "non-blocking"` 为 `passed`。两种 finding policy 都保留相同的 final data 与每 finding 一条 Record；
+blocking finding 附带 `invalid-local-links` error message，non-blocking finding 附带同 code 的 warning message。正常 final data 恰为：
 
 ```ts
 {
@@ -116,8 +122,9 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 `range` 使用 one-based、end-exclusive 的 decoded UTF-16 line/column。`outside-project-root` descriptor 不携带 target
 path 或 fragment。
 
-`failed` outcome 携带 `invalid-local-links` error message，并引导调用方检查 Records 的 source range、target 与 reason。由本
-Check 结算的 `unavailable` 使用对应 `reason.code` 提供可操作 error message；`passed` 与 `not-applicable` 不合成人为提示。
+blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message；non-blocking finding 的 `passed` outcome
+携带同 code 的 warning message；两者都引导调用方检查 Records 的 source range、target 与 reason。由本 Check 结算的
+`unavailable` 使用对应 `reason.code` 提供可操作 error message；零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMarkdownLinkValidationData(value)` 验证 final data。两者返回
 `MarkdownLinkValidationFinalData`；Records 与原因可用 `MarkdownLinkValidationRecordData`、

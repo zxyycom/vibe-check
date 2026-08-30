@@ -12,8 +12,6 @@ const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 
 /** Project-local selection metadata for one ordinary Check value. */
 export interface ProjectGateEntry {
-  /** Whether this Check status contributes to the Gate assurance aggregate. */
-  readonly contributesToAggregate: boolean;
   readonly check: Check;
   readonly profiles: readonly ProjectGateProfile[];
   readonly tags: readonly ProjectGateTag[];
@@ -25,9 +23,7 @@ export function defineProjectGateEntries(
 ): readonly ProjectGateEntry[] {
   const entriesByCheckId = new Map<string, ProjectGateEntry>();
   for (const entry of entries) {
-    const { check, contributesToAggregate, profiles, tags } = entry;
-    if (typeof contributesToAggregate !== "boolean")
-      throw new TypeError(`Project Gate aggregate contribution is invalid: ${check.checkId}`);
+    const { check, profiles, tags } = entry;
     if (!CHECK_ID_PATTERN.test(check.checkId))
       throw new TypeError(`Project Gate Check ID is invalid: ${check.checkId}`);
     if (entriesByCheckId.has(check.checkId))

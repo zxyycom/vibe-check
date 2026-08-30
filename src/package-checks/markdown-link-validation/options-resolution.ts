@@ -7,6 +7,7 @@ import {
   resolveProjectFileSelection,
   snapshotDefaultProjectFileSelection
 } from "../project-files/configuration.ts";
+import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
@@ -26,6 +27,7 @@ export function resolveMarkdownLinkValidationOptions(
     !hasRequiredAndOptionalRecordKeys(input, {
       optional: [
         "files",
+        "findingPolicy",
         "requireExistingTargets",
         "validateSameDocumentAnchors",
         "validateCrossDocumentAnchors",
@@ -43,9 +45,11 @@ export function resolveMarkdownLinkValidationOptions(
     input.files === undefined
       ? snapshotDefaultProjectFileSelection()
       : resolveProjectFileSelection(input.files);
-  if (limits === undefined || files === undefined) return undefined;
+  const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
+  if (limits === undefined || files === undefined || findingPolicy === undefined) return undefined;
   const candidate = canonicalizeJsonObject({
     files,
+    findingPolicy,
     requireExistingTargets:
       input.requireExistingTargets === undefined ? true : input.requireExistingTargets,
     validateSameDocumentAnchors:

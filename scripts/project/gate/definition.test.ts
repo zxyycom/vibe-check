@@ -120,10 +120,35 @@ describe("Project Gate Definition", () => {
       ({ checkId }) => checkId === "docs-json-validator"
     );
     assert.equal(nativeDocsCheck?.options, undefined);
+    assert.equal(
+      definition.checks.find(({ checkId }) => checkId === "markdown-link-validation")?.displayName,
+      "Markdown link validation"
+    );
+    assert.equal(
+      definition.checks.find(({ checkId }) => checkId === "docs-links-validator")?.displayName,
+      "Documentation path existence validation"
+    );
+    for (const checkId of [
+      "docs-schema-validator",
+      "docs-example-validator",
+      "tests-scripts-validation"
+    ]) {
+      assert.deepEqual(entries.find(({ check }) => check.checkId === checkId)?.check.mutex, [
+        "project-gate-documentation-materials"
+      ]);
+    }
+    assert.equal(
+      entries.find(({ check }) => check.checkId === "docs-links-validator")?.check.mutex,
+      undefined
+    );
+    assert.equal(
+      entries.find(({ check }) => check.checkId === "docs-json-validator")?.check.mutex,
+      undefined
+    );
 
     for (const checkId of qualityCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
-      assert.equal(entry?.contributesToAggregate, false);
+      assert.equal(Object.hasOwn(entry ?? {}, "contributesToAggregate"), false);
       assert.deepEqual(entry?.profiles, ["required", "full"]);
       assert.deepEqual(entry?.tags, ["quality"]);
     }
@@ -225,10 +250,9 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, contributesToAggregate: true, profiles: ["full"], tags: [] },
+          { check: prerequisite, profiles: ["full"], tags: [] },
           {
             check: dependent,
-            contributesToAggregate: true,
             profiles: ["required", "full"],
             tags: []
           }
@@ -240,13 +264,11 @@ describe("Project Gate Definition", () => {
         defineProjectGateEntries([
           {
             check: prerequisite,
-            contributesToAggregate: true,
             profiles: ["required", "full"],
             tags: ["docs"]
           },
           {
             check: dependent,
-            contributesToAggregate: true,
             profiles: ["required", "full"],
             tags: []
           }
@@ -259,10 +281,7 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture self-dependent"
     });
     assert.throws(
-      () =>
-        defineProjectGateEntries([
-          { check: selfDependent, contributesToAggregate: true, profiles: ["required"], tags: [] }
-        ]),
+      () => defineProjectGateEntries([{ check: selfDependent, profiles: ["required"], tags: [] }]),
       /cannot depend on itself: fixture-self-dependent/
     );
     const missingDependency = defineCheck({
@@ -275,7 +294,6 @@ describe("Project Gate Definition", () => {
         defineProjectGateEntries([
           {
             check: missingDependency,
-            contributesToAggregate: true,
             profiles: ["required"],
             tags: []
           }
@@ -321,13 +339,16 @@ describe("Project Gate Definition", () => {
         const enabledTags = new Set<string>(selection.enabledTags);
         createProjectGateDefinition(entries, selection);
         assert.deepEqual(projectGateAggregation(entries, selection), {
-          checks: expectedCheckIds.filter(
-            (checkId) =>
-              !qualityCheckIds.has(checkId) &&
-              (!packageAcceptanceCheckIds.has(checkId) ||
-                (!disabledTags.has("package-tests") && selection.profile === "full") ||
-                enabledTags.has("package-tests"))
-          ),
+          checks: entries
+            .filter(
+              (entry) =>
+                entry.profiles.includes(selection.profile) &&
+                !entry.tags.some((tag) => disabledTags.has(tag)) &&
+                (selection.profile === "full" ||
+                  !entry.tags.includes("package-tests") ||
+                  enabledTags.has("package-tests"))
+            )
+            .map(({ check }) => check.checkId),
           empty: "failed",
           mode: "all",
           notApplicable: "fail",
@@ -374,7 +395,6 @@ describe("Project Gate Definition", () => {
               return { status: "passed", data: {} };
             }
           }),
-          contributesToAggregate: true,
           profiles: ["full"],
           tags: []
         }

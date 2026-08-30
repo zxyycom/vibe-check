@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check, CheckExecution } from "../../check/check.ts";
+import { isRecord } from "../../data-boundary/value-shapes.ts";
 import type { ProgressWriter } from "./renderer.ts";
 import type { ProgressRefreshScheduler } from "./presentation.ts";
 import { executeValidatedRun } from "../invocation.ts";
@@ -271,7 +272,10 @@ describe("Package Run progress rendering outputs", () => {
           projectRoot: root
         },
         [],
-        { progressWriterFactory: () => output.writer }
+        {
+          progressWriterFactory: () => output.writer,
+          wallClock: { now: () => new Date("2026-08-30T12:34:56.789Z") }
+        }
       );
 
       assert.equal(result.kind, "output");
@@ -281,6 +285,10 @@ describe("Package Run progress rendering outputs", () => {
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
       assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
+      assert.match(
+        result.outputs.diagnosticLogging.file ?? "",
+        /^diagnostic\/run-20260830T123456\.789Z-/
+      );
       assert.equal(existsSync(join(root, result.outputs.diagnosticLogging.file ?? "")), true);
       const diagnosticLog = readFileSync(
         join(root, result.outputs.diagnosticLogging.file ?? ""),
@@ -295,8 +303,11 @@ describe("Package Run progress rendering outputs", () => {
         diagnosticLog,
         /\[RUN\] run\.aggregation\.completed no Check aggregation was selected/
       );
-      assert.match(diagnosticLog, /\[RUN\] run\.closing pre-logging result selected/);
-      assert.match(diagnosticLog, /"diagnosticLogging":"pending-close"/);
+      assert.match(
+        diagnosticLog,
+        /\[RUN\] run\.terminal-before-log-close terminal diagnostic event written before logger close is confirmed/
+      );
+      assert.match(diagnosticLog, /"diagnosticLogging":"close-not-yet-confirmed"/);
       assert.doesNotMatch(
         diagnosticLog,
         /"diagnosticLogging":\{"enabled":true,"status":"not-run"\}/
@@ -306,6 +317,15 @@ describe("Package Run progress rendering outputs", () => {
       assert.equal(diagnosticLog.endsWith("\n"), true);
       assert.equal(existsSync(join(root, "published", "run.json")), true);
       assert.equal(existsSync(join(root, "published", "records.ndjson")), true);
+      const publishedRun: unknown = JSON.parse(
+        readFileSync(join(root, "published", "run.json"), "utf8")
+      );
+      assert.equal(
+        isRecord(publishedRun)
+          ? isRecord(publishedRun.invocation) && publishedRun.invocation.timestamp
+          : undefined,
+        "2026-08-30T12:34:56.789Z"
+      );
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -375,13 +395,15 @@ describe("Package Run progress rendering outputs", () => {
           outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
           projectRoot: root
         },
-        []
+        [],
+        { wallClock: { now: () => new Date("2026-08-30T12:34:56.789Z") } }
       );
 
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
       const file = result.outputs.diagnosticLogging.file;
       assert.ok(file);
+      assert.match(file, /^diagnostic\/run-20260830T123456\.789Z-/);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.equal([...diagnosticLog.matchAll(/\[RUN\] run\.started /g)].length, 1);
       assert.match(diagnosticLog, /"aggregation":null/);

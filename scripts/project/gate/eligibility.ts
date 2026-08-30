@@ -64,7 +64,7 @@ export function projectGateEligibility(
   return Object.freeze({ eligible: true });
 }
 
-/** Keeps excluded raw facts visible without admitting them to aggregation. */
+/** Keeps excluded Checks visible as their own terminal facts. */
 export function projectGateCheckForSelection(
   entry: ProjectGateEntry,
   selection: ProjectGateSelection
@@ -117,9 +117,7 @@ export function projectGateEligibleCheckIds(
 ): readonly string[] {
   return Object.freeze(
     entries
-      .filter(
-        (entry) => entry.contributesToAggregate && projectGateEligibility(entry, selection).eligible
-      )
+      .filter((entry) => projectGateEligibility(entry, selection).eligible)
       .map(({ check }) => check.checkId)
   );
 }

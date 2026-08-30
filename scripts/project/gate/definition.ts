@@ -54,6 +54,7 @@ import {
 } from "../../package/candidate/external-consumer-input.ts";
 
 const requiredAndFull = ["required", "full"] as const;
+const documentationMaterialsMutex = ["project-gate-documentation-materials"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -158,10 +159,13 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
     "Bun Test Evidence tooling tests",
     ["scripts", "tests"]
   ),
-  testCheck("scriptsValidation", "tests-scripts-validation", "Bun validation tooling tests", [
-    "scripts",
-    "tests"
-  ]),
+  testCheck(
+    "scriptsValidation",
+    "tests-scripts-validation",
+    "Bun validation tooling tests",
+    ["scripts", "tests"],
+    { mutex: documentationMaterialsMutex }
+  ),
   testCheck("scriptsTooling", "tests-scripts-tooling", "Bun ordinary script tooling tests", [
     "scripts",
     "tests"
@@ -231,7 +235,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       ["package-tests", "tests"]
     ),
     ...projectGateTestEntries(testLanes, preparedCandidate, externalConsumer, runtime),
-    ...createRepositoryQualityChecks().map((check) => commonEntry(check, ["quality"], false)),
+    ...createRepositoryQualityChecks().map((check) => commonEntry(check, ["quality"])),
     commonEntry(
       createDocsValidationCheck({
         checkId: "docs-json-validator",
@@ -246,7 +250,8 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
         displayName: "Docs schema validator",
         task: "schema"
       }),
-      ["docs"]
+      ["docs"],
+      documentationMaterialsMutex
     ),
     commonEntry(
       createDocsValidationCheck({
@@ -254,12 +259,13 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
         displayName: "Docs example validator",
         task: "examples"
       }),
-      ["docs"]
+      ["docs"],
+      documentationMaterialsMutex
     ),
     commonEntry(
       createDocsValidationCheck({
         checkId: "docs-links-validator",
-        displayName: "Docs links validator",
+        displayName: "Documentation path existence validation",
         task: "links"
       }),
       ["docs"]
@@ -477,7 +483,6 @@ function processEntry<Data extends object = object>(
       mutex === undefined
         ? processCheck
         : Object.freeze({ ...processCheck, mutex: Object.freeze([...mutex]) }),
-    contributesToAggregate: true,
     profiles,
     tags
   });
@@ -487,9 +492,14 @@ function processEntry<Data extends object = object>(
 function commonEntry(
   check: Check,
   tags: readonly ProjectGateTag[],
-  contributesToAggregate = true
+  mutex?: readonly string[]
 ): ProjectGateEntry {
-  return Object.freeze({ check, contributesToAggregate, profiles: requiredAndFull, tags });
+  return Object.freeze({
+    check:
+      mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),
+    profiles: requiredAndFull,
+    tags
+  });
 }
 
 function definedEnvironment(environment: NodeJS.ProcessEnv): Readonly<Record<string, string>> {

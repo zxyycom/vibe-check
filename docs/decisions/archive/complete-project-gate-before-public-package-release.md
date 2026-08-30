@@ -1,6 +1,6 @@
 ---
 title: 在公开 package 发布前完成项目门禁
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-19T06:34:27Z
 purpose: 让首次公开 package 已由完整项目门禁的真实消费者证明，而非只完成 quality dogfood。

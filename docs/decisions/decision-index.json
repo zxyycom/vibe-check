@@ -7,6 +7,7 @@
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
+      "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
       "allow-controlled-json-schema-reference-sources.md": "sha256:626a9424cb152eb81f9d82cdf29286b246d026090d386f9cc086e06aa4ae119d",
@@ -23,7 +24,7 @@
       "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:ad617a185302c8fca69581d6500c5554e005273407d1ac94736390270c2113b4",
-      "complete-project-gate-before-public-package-release.md": "sha256:2d197c8559b62f2ff33d802a6f200e761695c39dc3b5306ad3dd82084a63e155",
+      "complete-project-gate-before-public-package-release.md": "sha256:c06bdaf6a8f8b5bb159c639170abeb1fd70a7d2e9adfca511e8ae94d89598b8f",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
@@ -58,6 +59,7 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
+      "expose-markdown-link-finding-policy.md": "sha256:330cc830e52258b40f92e294c84cf0d61739da1ef15db750f34e7e6d88cecc5e",
       "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
       "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
@@ -96,12 +98,13 @@
       "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
-      "observe-repository-quality-checks-inside-project-gate.md": "sha256:56232d9a3c90e7a2ae369f8b5453e9a1974f9d925fb02ba89a5e3b01a6f651be",
+      "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
-      "post-process-project-gate-with-owned-context.md": "sha256:06c74a02673c7a26bf1c4a0c6c0caaeed3baab4ac4ffde6fa47b6c8500923277",
+      "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
+      "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:959eb39d054d8f36e30422b08f8ea8504090e43b5b6ccc4975f45dd046700062",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
@@ -109,12 +112,14 @@
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:3ae814f1118990ddca937a4ddb70c4b37ad43fa04bee832063d0edcef62223e6",
+      "publish-invocation-creation-time-without-execution-telemetry.md": "sha256:dd0b0d8631379eb31ff7cda58d4bfa662da7e22e245885240c7ac62b14dd9d92",
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:0c5c22b2bc4015a694c78478ade7f0135b6a0ad6f3b4584e09a73daf11ccb0d4",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "refine-product-module-boundaries.md": "sha256:ca807ad24d1b8282e1c6a1291c4b09c0ff4b0e0a8e0d127e352ea0ea756e42a4",
+      "refine-project-gate-context-timing-phases.md": "sha256:e3b93f579701e290aa78c1216305e5939260c178d76f27f68dcc0e2c19b351a6",
       "refine-project-run-and-settlement-owners.md": "sha256:e87a4f23e054a1fcbf43d1498f12a241caae41553b1f954841049e9d7176e1b5",
       "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
       "remove-unconsumed-option-capability.md": "sha256:017a1039a6a482705f5a386ee133af3d09db1d388a0b0f1aec5b83657be03ad8",
@@ -126,13 +131,16 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
+      "require-known-repository-quality-remediation-before-public-release.md": "sha256:a72d8e6502eb7d5a2cf2aa5df43dd28d986c884a5297f49c2f551221a9c13460",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
-      "schedule-project-gate-by-measured-resource-ownership.md": "sha256:cc1bfbdae85f81a220026afe4706a382042ae1522a2f5194f5b0c1dd269254f4",
+      "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:9eefc7735ffcb0b309a65e8aea75472b7aa2944c59ed204222a1bd5c4398d877",
+      "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
+      "serialize-project-gate-documentation-materials-by-ownership.md": "sha256:c94a7deebfa1d65486ca0deecb47fc1577f785687bac574f62dd1da8d1760d73",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
       "share-finding-policy-across-area-quality-checks.md": "sha256:16e70625e6a80d693b5a59510241c55d72194edf7fed3750456a555d03a69aa0",
       "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
@@ -275,6 +283,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "aggregate-all-eligible-project-gate-check-statuses.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "aggregate-all-eligible-project-gate-check-statuses.md",
+        "title": "聚合 Project Gate 的全部 eligible Check statuses",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:05:34Z",
+        "purpose": "让 Project Gate 的调用级结论只由同次 selection 的全部 eligible Check terminal statuses 通过显式 all policy 形成。",
+        "background": "旧 Gate 以 quality entry 排除 raw failed；用户确认非阻断应由 producing Check policy 表达。",
+        "decision": "以 all 聚合全部 eligible statuses；非阻断由 producing Check policy 形成，Records/messages/findings 不参与。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "observe-repository-quality-checks-inside-project-gate.md"
+          }
+        ]
       }
     },
     "align-source-layout-and-naming-with-module-owners.md": {
@@ -785,16 +827,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "complete-project-gate-before-public-package-release.md",
+        "sourcePath": "archive/complete-project-gate-before-public-package-release.md",
         "title": "在公开 package 发布前完成项目门禁",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-19T06:34:27Z",
         "purpose": "让首次公开 package 已由完整项目门禁的真实消费者证明，而非只完成 quality dogfood。",
@@ -1850,6 +1892,35 @@
             "target": "expose-two-public-operations.md"
           }
         ]
+      }
+    },
+    "expose-markdown-link-finding-policy.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "expose-markdown-link-finding-policy.md",
+        "title": "公开 Markdown Link 的 Finding Policy",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:05:35Z",
+        "purpose": "让 markdownLinkValidation 的 consumer 显式选择 link finding 是否阻断，同时保持默认兼容的 blocking 语义与完整 Check facts。",
+        "background": "area quality Checks 已有 findingPolicy；Markdown Link 仍不能以自身 policy 表达非阻断 finding。",
+        "decision": "Link 公开默认 blocking 的 findingPolicy；非阻断保留 passed、完整 facts/warning，unavailable 不受影响。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "expose-minimal-check-and-run-public-surface.md": {
@@ -3036,16 +3107,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "observe-repository-quality-checks-inside-project-gate.md",
+        "sourcePath": "archive/observe-repository-quality-checks-inside-project-gate.md",
         "title": "在 Project Gate 内直接观察仓库质量 Checks",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T15:39:14Z",
         "purpose": "让 Gate 直接运行并显示仓库质量事实，同时保持这些诊断性 findings 非阻断且不恢复嵌套 Run。",
@@ -3134,16 +3205,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "post-process-project-gate-with-owned-context.md",
+        "sourcePath": "archive/post-process-project-gate-with-owned-context.md",
         "title": "以完整 Gate-owned invocation 上下文后处理一个 Gate 结果",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-27T03:52:26Z",
         "purpose": "让项目级运行后验收转换一个 Gate 结论，并统一取得该次 invocation 的 Gate-owned facts。",
@@ -3218,6 +3289,40 @@
           {
             "type": "替代",
             "target": "validate-ordinary-check-options-before-execution.md"
+          }
+        ]
+      }
+    },
+    "preserve-release-gate-readiness-with-invocation-creation-time.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "preserve-release-gate-readiness-with-invocation-creation-time.md",
+        "title": "以 invocation 创建时间保持发布前 Gate 就绪边界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:18:43Z",
+        "purpose": "让首次公开 package 继续先满足完整 Gate consumer 证据，同时使 machine invocation timestamp 准确表示 Run 创建时刻。",
+        "background": "旧 timestamp 修订遗漏了更宽 release-Gate Decision 的部分当前义务。",
+        "decision": "保留完整 Gate 发布顺序与最小 timing 边界；timestamp 仅表示 Run 创建 instant。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "publish-invocation-creation-time-without-execution-telemetry.md"
           }
         ]
       }
@@ -3437,6 +3542,40 @@
         ]
       }
     },
+    "publish-invocation-creation-time-without-execution-telemetry.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/publish-invocation-creation-time-without-execution-telemetry.md",
+        "title": "发布 invocation 创建时间而非执行遥测",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:14:36Z",
+        "purpose": "让 machine invocation timestamp 可靠表示一次 Run 创建时刻，同时不把执行起止遥测加入 Check 或 Record contract。",
+        "background": "前序排除 wall-clock start/end；现在既有 invocation timestamp 已明确为 Run creation instant，需演进边界。",
+        "decision": "发布 invocation creation timestamp；继续排除 per-Check start/end、Record report time 与独立 telemetry。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "complete-project-gate-before-public-package-release.md"
+          }
+        ]
+      }
+    },
     "publish-project-gate-machine-facts-with-invocation-evidence.md": {
       "keys": {
         "tag": [
@@ -3618,6 +3757,40 @@
           {
             "type": "修订",
             "target": "align-source-layout-and-naming-with-module-owners.md"
+          }
+        ]
+      }
+    },
+    "refine-project-gate-context-timing-phases.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "refine-project-gate-context-timing-phases.md",
+        "title": "用连续阶段解释 Gate 初步结果耗时",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:14:37Z",
+        "purpose": "让 Gate-owned context 用连续三阶段解释 elapsed-to-initial-result。",
+        "background": "既有 afterGate context 只列举 startedAt、initialResultAt 与 total elapsed；当前 Gate 已提供三段连续 phase 以解释总耗时。",
+        "decision": "保留一个 Gate-owned afterGate context 和总 elapsed，并增加三段只读 phase timing；observer 仍只输出 advisory。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "post-process-project-gate-with-owned-context.md"
           }
         ]
       }
@@ -3963,6 +4136,35 @@
         ]
       }
     },
+    "require-known-repository-quality-remediation-before-public-release.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "require-known-repository-quality-remediation-before-public-release.md",
+        "title": "公开发布前处置已知仓库质量 Findings",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-30T04:05:36Z",
+        "purpose": "防止 Project Gate 的暂时 non-blocking repository-quality Checks 被误解为公开 package 已具备质量发布条件。",
+        "background": "用户原始运行的初始快照为 27 file、129 function 与 2 Markdown link findings；数量可变，公开发布前必须处置届时全部已知 findings。",
+        "decision": "在公开发布前处置并复验这些已知 findings；Gate policy上的 non-blocking 仅维持开发期观察，不构成 release waiver。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": []
+      }
+    },
     "reuse-prepared-candidate-across-package-acceptance.md": {
       "keys": {
         "tag": [
@@ -4057,7 +4259,7 @@
         "relations": []
       }
     },
-    "schedule-project-gate-by-measured-resource-ownership.md": {
+    "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": {
       "keys": {
         "tag": [
           "configuration",
@@ -4072,9 +4274,45 @@
         ]
       },
       "state": {
-        "sourcePath": "schedule-project-gate-by-measured-resource-ownership.md",
-        "title": "按测量与资源责任调度 Project Gate",
+        "sourcePath": "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md",
+        "title": "按实测资源所有权调度 Gate 与文档材料",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:53:50Z",
+        "purpose": "让 Gate 的 test partition、并发度和 named mutex 都对应可验证的物理资源边界，并只串行会竞争的文档材料。",
+        "background": "前序 docs-material mutex 修订只保留新增文档竞争边界，遗漏了其归档调度 Decision 的 partition、容量和 package lifecycle 义务。",
+        "decision": "保留实测 partition/容量/package mutex，并为 schema/example 读写竞争增加最小 docs-materials mutex。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "serialize-project-gate-documentation-materials-by-ownership.md"
+          }
+        ]
+      }
+    },
+    "schedule-project-gate-by-measured-resource-ownership.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/schedule-project-gate-by-measured-resource-ownership.md",
+        "title": "按测量与资源责任调度 Project Gate",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-27T00:41:38Z",
         "purpose": "让 Gate 并发度、测试子 Check 与 package mutex 对应已验证的实际资源边界。",
@@ -4189,6 +4427,42 @@
           {
             "type": "修订",
             "target": "use-semantic-test-case-closure.md"
+          }
+        ]
+      }
+    },
+    "serialize-project-gate-documentation-materials-by-ownership.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/serialize-project-gate-documentation-materials-by-ownership.md",
+        "title": "按材料所有权串行 Project Gate 文档验证",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:42:15Z",
+        "purpose": "让 Gate 仅在实测的 generated documentation material 读写边界串行，而保留无关验证的并行。",
+        "background": "validation test 的 drift evidence 临时改写发布 schema/example；一次并行 Gate 因 docs example validator 读到该中间状态失败。",
+        "decision": "保留 package lifecycle mutex；仅让 validation lane 与 schema/example readers 共享 docs-materials mutex。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "schedule-project-gate-by-measured-resource-ownership.md"
           }
         ]
       }

@@ -32,6 +32,7 @@ const MARKDOWN_FILES = Object.freeze({
 
 const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
   files: MARKDOWN_FILES,
+  findingPolicy: "blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -110,6 +111,7 @@ function createRoot(prefix: string): string {
 describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
     const defaultCheck = markdownLinkValidation();
+    assert.equal(defaultCheck.options.findingPolicy, "blocking");
     assert.equal(defaultCheck.options.requireExistingTargets, true);
     assert.deepEqual(
       markdownLinkValidation({
@@ -123,6 +125,7 @@ describe("default Check direct callbacks", () => {
           include: ["docs/**/*.md"],
           source: "filesystem"
         },
+        findingPolicy: "blocking",
         limits: {
           maxMarkdownBytes: 1_048_576,
           maxOccurrences: 10_000,
@@ -173,6 +176,7 @@ describe("default Check direct callbacks", () => {
         ...MARKDOWN_LINK_OPTIONS,
         files: { excludeDirs: [], generatedFiles: [], include: ["**/*"] }
       },
+      { ...MARKDOWN_LINK_OPTIONS, findingPolicy: "not-a-policy" },
       { ...MARKDOWN_LINK_OPTIONS, unexpected: true }
     ]) {
       assert.equal(validMarkdownLinkValidationOptions(options), false);
@@ -248,6 +252,25 @@ describe("default Check direct callbacks", () => {
           }
         }
       ]);
+      const nonBlockingResult = await execute(
+        executeMarkdownLinkValidation,
+        { ...MARKDOWN_LINK_OPTIONS, findingPolicy: "non-blocking" },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(nonBlockingResult.result, {
+        status: "passed",
+        data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
+        messages: [
+          {
+            code: "invalid-local-links",
+            level: "warning",
+            message:
+              "1 local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons."
+          }
+        ]
+      });
+      assert.deepEqual(nonBlockingResult.records, result.records);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

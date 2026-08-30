@@ -1,6 +1,6 @@
 ---
 title: 以完整 Gate-owned invocation 上下文后处理一个 Gate 结果
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-27T03:52:26Z
 purpose: 让项目级运行后验收转换一个 Gate 结论，并统一取得该次 invocation 的 Gate-owned facts。

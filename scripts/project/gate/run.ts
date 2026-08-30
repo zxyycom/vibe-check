@@ -53,8 +53,11 @@ export interface ProjectGateContext {
 }
 
 export interface ProjectGateTiming {
+  readonly adapterSetupMs: number;
+  readonly candidatePreparationMs: number;
   readonly elapsedToInitialResultMs: number;
   readonly initialResultAtMs: number;
+  readonly productRunMs: number;
   readonly startedAtMs: number;
 }
 
@@ -114,6 +117,7 @@ export async function runProjectGate(
     console.error(`project gate candidate preparation failed: ${errorMessage(error)}`);
     return PROJECT_GATE_EXIT_STATUS.unavailable;
   }
+  const candidatePreparedAtMs = steps.clock.now();
 
   let runModule: GateRunModule;
   try {
@@ -136,8 +140,12 @@ export async function runProjectGate(
     console.error(`project gate log setup failed: ${errorMessage(error)}`);
     return PROJECT_GATE_EXIT_STATUS.unavailable;
   }
+  const productRunStartedAtMs = steps.clock.now();
   console.log(`project gate candidate: ${prepared.candidateVersion}`);
   console.log(`project gate selection: ${projectGateSelectionSummary(parsed.value)}`);
+  console.log(
+    "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
+  );
   let runResult: unknown;
   try {
     runResult = await runModule.runProjectGate({
@@ -152,14 +160,16 @@ export async function runProjectGate(
   }
 
   const initialResult = createInitialProjectGateResult(runResult);
-  const initialResultAtMs = Math.max(gateStartedAtMs, steps.clock.now());
+  const initialResultAtMs = steps.clock.now();
   const context = createProjectGateContext({
+    candidatePreparedAtMs,
     initialResultAtMs,
     invocationLogDirectory,
     preparedCandidate: prepared,
     runResult,
     selection: parsed.value,
-    startedAtMs: gateStartedAtMs
+    startedAtMs: gateStartedAtMs,
+    productRunStartedAtMs
   });
   const finalResult = await applyAfterGate(steps.afterGate, initialResult, context);
   reportProjectGateMessages(finalResult.messages);
@@ -207,12 +217,14 @@ function afterGateFailure(code: AfterGateFailureCode, message: string): ProjectG
 
 function createProjectGateContext(
   input: Readonly<{
+    readonly candidatePreparedAtMs: number;
     readonly initialResultAtMs: number;
     readonly invocationLogDirectory: string;
     readonly preparedCandidate: PreparedPackageCandidate;
     readonly runResult: unknown;
     readonly selection: ProjectGateSelection;
     readonly startedAtMs: number;
+    readonly productRunStartedAtMs: number;
   }>
 ): ProjectGateContext {
   return Object.freeze({
@@ -222,8 +234,11 @@ function createProjectGateContext(
     runResult: input.runResult,
     selection: input.selection,
     timing: Object.freeze({
+      adapterSetupMs: input.productRunStartedAtMs - input.candidatePreparedAtMs,
+      candidatePreparationMs: input.candidatePreparedAtMs - input.startedAtMs,
       elapsedToInitialResultMs: input.initialResultAtMs - input.startedAtMs,
       initialResultAtMs: input.initialResultAtMs,
+      productRunMs: input.initialResultAtMs - input.productRunStartedAtMs,
       startedAtMs: input.startedAtMs
     })
   });

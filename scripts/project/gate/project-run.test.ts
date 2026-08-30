@@ -4,60 +4,43 @@ import { join, relative, resolve } from "node:path";
 import { it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { preparePackageCandidate } from "../../package/candidate/prepare.ts";
+import { defineCheck, defineConfig, run } from "vibe-check";
+
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { selectionFlags } from "./controls.ts";
 import { projectGateOutputOverrides } from "./project-run.ts";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
-const qualityCheckIds = [
-  "duplicate-detection",
-  "file-metrics",
-  "function-metrics",
-  "markdown-link-validation"
-] as const;
 
 // Keep the test-name literal on its registration line so Test Evidence locations agree.
 // prettier-ignore
-it("binds the Product diagnostic log and standard machine facts to the Gate invocation directory", { timeout: 20_000 }, async () => {
-  const ordinaryDiagnosticDirectory = join(repositoryRoot, ".log", "project-run");
-  const ordinaryDiagnosticFilesBefore = diagnosticFileInventory(ordinaryDiagnosticDirectory);
-  const invocationLogRoot = join(repositoryRoot, ".log", "project-gate");
-  mkdirSync(invocationLogRoot, { recursive: true });
-  const invocationLogDirectory = mkdtempSync(join(invocationLogRoot, "fixture-"));
+it("binds the Product diagnostic log and standard machine facts to the Gate invocation directory", async () => {
+  const testLogRoot = join(repositoryRoot, ".log", "project-gate-tests");
+  mkdirSync(testLogRoot, { recursive: true });
+  const invocationLogDirectory = mkdtempSync(join(testLogRoot, "output-override-"));
   try {
-    const preparedCandidate = await preparePackageCandidate();
-    const { runProjectGate } = await import("./project-run.ts");
-
-    const result = await runProjectGate({
-      flags: selectionFlags({
-        disabledTags: [
-          "catalog",
-          "docs",
-          "format",
-          "git",
-          "package-tests",
-          "product",
-          "scripts",
-          "tests"
+    const result = await run(
+      defineConfig({
+        checks: [
+          defineCheck({
+            checkId: "fixture-output-override",
+            displayName: "Fixture output override",
+            execution: () => ({ status: "passed", data: { completed: true } })
+          })
         ],
-        enabledTags: [],
-        profile: "required"
+        outputs: { progressRendering: { enabled: false } }
       }),
-      invocationLogDirectory,
-      preparedCandidate
-    });
+      {
+        outputs: projectGateOutputOverrides(invocationLogDirectory),
+        projectRoot: repositoryRoot
+      }
+    );
 
     assert.equal(result.kind, "completed");
     assert.equal(result.outputs.diagnosticLogging.enabled, true);
     assert.equal(result.outputs.machinePublication.enabled, true);
     assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-    assert.match(result.outputs.diagnosticLogging.file ?? "", /^\.log\/project-gate\/fixture-/);
-    const file = result.outputs.diagnosticLogging.file;
-    assert.notEqual(file, null);
-    if (file === null) throw new Error("enabled Gate logging must expose its file");
-    const diagnosticFile = join(repositoryRoot, file);
-    assert.equal(existsSync(diagnosticFile), true);
+    assert.equal(result.outputs.machinePublication.status, "succeeded");
+    assert.equal(result.outputs.progressRendering.status, "disabled");
     assert.deepEqual(projectGateOutputOverrides(invocationLogDirectory), {
       diagnosticLogging: {
         directory: relative(repositoryRoot, invocationLogDirectory),
@@ -68,9 +51,14 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
         enabled: true
       }
     });
-    assert.equal(result.outputs.machinePublication.status, "succeeded");
+
+    const diagnosticFile = result.outputs.diagnosticLogging.file;
+    assert.notEqual(diagnosticFile, null);
+    if (diagnosticFile === null) throw new Error("enabled Gate logging must expose its file");
+    assert.equal(existsSync(join(repositoryRoot, diagnosticFile)), true);
     assert.equal(existsSync(join(invocationLogDirectory, "run.json")), true);
     assert.equal(existsSync(join(invocationLogDirectory, "records.ndjson")), true);
+
     const publishedRun: unknown = JSON.parse(
       readFileSync(join(invocationLogDirectory, "run.json"), "utf8")
     );
@@ -80,58 +68,22 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
     assert.equal(Array.isArray(publishedRun.checks), true);
     if (!Array.isArray(publishedRun.checks))
       throw new Error("Gate run publication must contain Checks");
-    const qualityFacts = publishedRun.checks.filter(
-      (check): check is Record<string, unknown> =>
-        isNonArrayRecord(check) &&
-        qualityCheckIds.some((qualityCheckId) => qualityCheckId === check.checkId)
-    );
     assert.deepEqual(
-      qualityFacts.map(({ checkId }) => checkId),
-      qualityCheckIds
+      publishedRun.checks.map((check) => (isNonArrayRecord(check) ? check.checkId : undefined)),
+      ["fixture-output-override"]
     );
-    for (const qualityFact of qualityFacts) {
-      const outcome = qualityFact.outcome;
-      assert.equal(isNonArrayRecord(outcome), true);
-      if (!isNonArrayRecord(outcome)) throw new Error("Quality Check outcome must be an object");
-      const reasonCode =
-        outcome.status === "not-applicable" && isNonArrayRecord(outcome.reason)
-          ? outcome.reason.code
-          : undefined;
-      assert.notEqual(reasonCode, "tag-quality-disabled");
-    }
-    const recordLines = readFileSync(join(invocationLogDirectory, "records.ndjson"), "utf8");
-    if (recordLines.length > 0) {
-      for (const recordLine of recordLines.trimEnd().split("\n")) {
-        const record: unknown = JSON.parse(recordLine);
-        assert.equal(isNonArrayRecord(record), true);
-        if (!isNonArrayRecord(record)) throw new Error("Gate Record must be an object");
-        assert.equal(
-          qualityCheckIds.some((qualityCheckId) => qualityCheckId === record.checkId),
-          true
-        );
-      }
-    }
     assert.deepEqual(diagnosticFileInventory(invocationLogDirectory), [
       "records.ndjson",
-      relative(invocationLogDirectory, diagnosticFile),
+      relative(invocationLogDirectory, join(repositoryRoot, diagnosticFile)),
       "run.json"
     ]);
-    assert.deepEqual(
-      diagnosticFileInventory(ordinaryDiagnosticDirectory),
-      ordinaryDiagnosticFilesBefore
-    );
   } finally {
     rmSync(invocationLogDirectory, { force: true, recursive: true });
     assert.equal(existsSync(invocationLogDirectory), false);
-    assert.deepEqual(
-      diagnosticFileInventory(ordinaryDiagnosticDirectory),
-      ordinaryDiagnosticFilesBefore
-    );
   }
 });
 
 function diagnosticFileInventory(directory: string): readonly string[] {
-  if (!existsSync(directory)) return [];
   const files: string[] = [];
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);

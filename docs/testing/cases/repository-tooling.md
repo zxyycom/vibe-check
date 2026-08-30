@@ -173,7 +173,7 @@ Entities:
   Proves:
 
 - 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 通过 mise 进入锁定 scanner 环境，且不传 disabled tags。
-- Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check、candidate lifecycle、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities；直接的 duplicate/file/function/Markdown repository-quality Checks 保留原始 status/Record、可由 quality tag 禁用但不进入 assurance aggregate，且不启动附加的 nested repository Run。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度，只有 candidate lifecycle 与 provider 共享 named lifecycle mutex，artifact 直接消费 prepared candidate，三个 consumer 只读 provider material。
+- Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check、candidate lifecycle、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities。直接的 duplicate/file/function/Markdown repository-quality Checks 可由 quality tag 禁用；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate，findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度：candidate lifecycle 与 provider 共享 named lifecycle mutex，artifact 直接消费 prepared candidate，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。
 - adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
 - Required 默认不选择带 `package-tests` 的 candidate lifecycle、artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 仍在 required 中。显式 enable tag 或 full 才纳入这些 Checks；excluded Checks 的 reason code 指明具体 profile/tag，terminal message 指明没有运行的 Check 动作和恢复命令，aggregate 只消费同次 selection 的 eligible identities。启动 summary 另明确 package acceptance 是未选择、按 profile/tag 选择还是被禁用。
 - Candidate lifecycle、artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共六个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。
@@ -186,7 +186,7 @@ Entities:
 - `bun|scripts/project/gate/project-run.test.ts|binds the Product diagnostic log and standard machine facts to the Gate invocation directory`
   Proves:
 
-- Gate enables Product diagnostic logging and standard machine publication through the same invocation-local output directory; one completed Gate Run therefore publishes the paired `run.json` and `records.ndjson` facts beside exactly one root-relative core log, without a quality-specific report or nested Run. The fixture selects only the four quality observations, asserts that their outcome identities are present and not `quality`-disabled, and, only when `records.ndjson` is nonempty, verifies every row belongs to one of them. It neither requires nonempty Records nor asserts every outcome has final data; it then removes its test-owned `.log/project-gate/fixture-*` directory while preserving the pre-existing `.log/project-run` inventory. Its 20-second `node:test` harness timeout bounds only this integration test; it is not a Gate performance budget.
+- Gate output overrides colocate Product diagnostic logging and standard machine publication in one deterministic, test-owned invocation directory. The isolated fixture runs one synthetic Check rather than scanning the current repository; it proves exactly one core log plus paired `run.json` and `records.ndjson`, then removes only its own `.log/project-gate-tests/output-override-*` directory. It does not inspect, clean, or infer facts from pre-existing `.log/project-run` inventory, create a quality-only report, or establish a Gate performance budget.
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 
@@ -262,8 +262,8 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when afterGate returns an invalid result`
   Proves:
 
-- `afterGate` 在 bound Run 返回和初步 Gate 结果形成后执行一次，接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp 与 elapsed-to-initial-result 的只读 Gate context；它可用同类型新结果决定唯一终端状态与 exit。
-- Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖。
+- `afterGate` 在 bound Run 返回和初步 Gate 结果形成后执行一次，接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp、总 `elapsed-to-initial-result` 与 candidate preparation / adapter-setup / Product Run 三个连续 phase 的只读 Gate context；它可用同类型新结果决定唯一终端状态与 exit。
+- Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 只能形成不可比较 observation，不能被归一化为 0ms 后进入 baseline comparison。
 - Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
 ## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 性能观察保持 advisory
@@ -275,8 +275,8 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses the default performance observer and keeps advisory warnings non-blocking`
   Proves:
 
-- Gate-owned observer 每次形成单条 elapsed observation：没有同一标准 workload baseline、tag override、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
-- 可比较的标准 workload 在 threshold 内形成 info，超界只形成一条含 elapsed、threshold 和至多三个最慢 Check 的 warning；两种 observation 都保留初步 Gate status、既有消息和 process exit，不能成为第二个硬性能预算。
+- Gate-owned observer 每次形成单条 `elapsed-to-initial-result` observation，并显示 candidate preparation、adapter/setup 与 Product Run phase：没有同一标准 workload baseline、tag override、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
+- 可比较的标准 workload 以总 `elapsed-to-initial-result` 在 threshold 内形成 info，超界只形成一条含总值、三段 phase、threshold 和至多三个最慢 Check 的 warning；两种 observation 都保留初步 Gate status、既有消息和 process exit，不能成为第二个硬性能预算。
 - 默认 `afterGate` 实际调用 observer；测试可替换该 step 注入 fixture baseline。正式 baseline 已记录标准 required/full 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约

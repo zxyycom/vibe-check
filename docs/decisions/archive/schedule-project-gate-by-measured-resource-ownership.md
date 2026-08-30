@@ -1,6 +1,6 @@
 ---
 title: 按测量与资源责任调度 Project Gate
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-27T00:41:38Z
 purpose: 让 Gate 并发度、测试子 Check 与 package mutex 对应已验证的实际资源边界。

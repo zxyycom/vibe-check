@@ -26,7 +26,9 @@ Check-local parser。
 | `run.json` | invocation、完整 Record-set fingerprint 与按 `checkId` 排序的 terminal Check rows；`urn:vibe-check:schema:run:v4` |
 | `records.ndjson` | 按 `{ checkId, id }` 排序的 supplemental Record rows；`urn:vibe-check:schema:record:v4` |
 
-`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。每个 Check row 包含
+`run.json` 只发布 `schemaVersion`、`invocation`、`recordsFingerprint` 和 `checks`。启用 machine publication 时，
+`invocation.timestamp` 是 Run 创建阶段一次捕获的 UTC instant，不是 machine publication 完成的时间；若 diagnostic logging
+也启用，二者共享该 instant。两项 output 都禁用时，Run 不读取或序列化 wall clock。每个 Check row 包含
 `checkId`、`displayName` 和一种 terminal outcome：`passed` / `failed` 带 object-shaped final `data`；
 `not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status 与
 diagnostic logging file、duration、terminal messages、visibility 和 progress presentation 不属于 machine fields。

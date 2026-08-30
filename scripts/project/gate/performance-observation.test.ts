@@ -39,9 +39,10 @@ describe("Project Gate performance observation", () => {
       messages: [
         existingMessage,
         {
-          code: "project-gate-performance-elapsed",
+          code: "project-gate-performance-elapsed-to-initial-result",
           level: "info",
-          message: "elapsed 135.0ms was within advisory range (threshold 135.0ms)"
+          message:
+            "elapsed-to-initial-result 135.0ms (candidate preparation 20.0ms; adapter/setup 30.0ms; Product Run 85.0ms) was within advisory range (threshold 135.0ms)"
         }
       ],
       status: "passed"
@@ -59,7 +60,7 @@ describe("Project Gate performance observation", () => {
           code: "project-gate-performance-outside-range",
           level: "warning",
           message:
-            "elapsed 136.0ms exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms, format-check=20.0ms"
+            "elapsed-to-initial-result 136.0ms (candidate preparation 20.0ms; adapter/setup 30.0ms; Product Run 86.0ms) exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms, format-check=20.0ms"
         }
       ],
       status: "passed"
@@ -74,9 +75,10 @@ describe("Project Gate performance observation", () => {
     assert.deepEqual(notComparable, {
       messages: [
         {
-          code: "project-gate-performance-elapsed",
+          code: "project-gate-performance-elapsed-to-initial-result",
           level: "info",
-          message: "elapsed 120.0ms was not comparable (initial result was not passed)"
+          message:
+            "elapsed-to-initial-result 120.0ms (candidate preparation 20.0ms; adapter/setup 30.0ms; Product Run 70.0ms) was not comparable (initial result was not passed)"
         }
       ],
       status: "unavailable"
@@ -89,6 +91,45 @@ describe("Project Gate performance observation", () => {
       runtime
     );
     assert.match(tagOverride.messages.at(-1)?.message ?? "", /not comparable \(tag override\)/);
+
+    const floatingPointPhaseClosure = observeProjectGatePerformance(
+      createProjectGateResult("passed"),
+      context({
+        elapsedToInitialResultMs: 1.2,
+        timing: Object.freeze({
+          adapterSetupMs: 0.8 - 0.4,
+          candidatePreparationMs: 0.4 - 0.1,
+          elapsedToInitialResultMs: 1.3 - 0.1,
+          initialResultAtMs: 1.3,
+          productRunMs: 1.3 - 0.8,
+          startedAtMs: 0.1
+        })
+      }),
+      [baseline],
+      runtime
+    );
+    assert.match(floatingPointPhaseClosure.messages.at(-1)?.message ?? "", /within advisory range/);
+
+    const invalidPhaseTiming = observeProjectGatePerformance(
+      createProjectGateResult("passed"),
+      context({
+        elapsedToInitialResultMs: 120,
+        timing: Object.freeze({
+          adapterSetupMs: 30,
+          candidatePreparationMs: 20,
+          elapsedToInitialResultMs: 120,
+          initialResultAtMs: 120,
+          productRunMs: 80,
+          startedAtMs: 0
+        })
+      }),
+      [baseline],
+      runtime
+    );
+    assert.match(
+      invalidPhaseTiming.messages.at(-1)?.message ?? "",
+      /not comparable \(invalid phase timing\)/
+    );
 
     const malformedDurations = observeProjectGatePerformance(
       createProjectGateResult("passed"),
@@ -125,6 +166,7 @@ function context(
     }>[];
     readonly elapsedToInitialResultMs: number;
     readonly enabledTags?: readonly "package-tests"[];
+    readonly timing?: ProjectGateContext["timing"];
   }>
 ): ProjectGateContext {
   return Object.freeze({
@@ -146,11 +188,16 @@ function context(
       enabledTags: overrides.enabledTags ?? [],
       profile: "required"
     }),
-    timing: Object.freeze({
-      elapsedToInitialResultMs: overrides.elapsedToInitialResultMs,
-      initialResultAtMs: 1_000,
-      startedAtMs: 0
-    })
+    timing:
+      overrides.timing ??
+      Object.freeze({
+        adapterSetupMs: 30,
+        candidatePreparationMs: 20,
+        elapsedToInitialResultMs: overrides.elapsedToInitialResultMs,
+        initialResultAtMs: 1_000,
+        productRunMs: overrides.elapsedToInitialResultMs - 50,
+        startedAtMs: 0
+      })
   });
 }
 

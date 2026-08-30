@@ -1,6 +1,6 @@
 ---
 title: 在 Project Gate 内直接观察仓库质量 Checks
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:39:14Z
 purpose: 让 Gate 直接运行并显示仓库质量事实，同时保持这些诊断性 findings 非阻断且不恢复嵌套 Run。

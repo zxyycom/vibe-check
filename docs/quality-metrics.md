@@ -125,8 +125,9 @@ aggregation 与 output presentation 不属于这些 options。
 
 `markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal issue 恰好报告一个
 Check-local Record，其 reason 只能是 `missing-target`、`target-outside-project-root`、`empty-directory`、
-`anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。有 normal issue 时
-Check 为 `failed`；没有 normal issue 时为 `passed`。
+`anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。其公开
+`findingPolicy` 默认为 `"blocking"`：normal issue 在 blocking policy 下结算为 `failed`，在 `"non-blocking"` 下保留
+相同 final data 与 Records、结算为 `passed` 并附 warning message；没有 normal issue 时为无 message 的 `passed`。
 
 Link Record 标识 source relative path、one-based occurrence ordinal 和 reason。其 data 只能包含 reason、occurrence kind
 （`link` 或 `image`）、slash-normalized root-relative source path、source navigation range 与 safe target descriptor。对
@@ -135,9 +136,9 @@ decode 后 fragment。`project-path` 表示尚未确定 endpoint type，包括�
 descriptor 不携带 target path 或 fragment。这是在 shared canonical JSON boundary 下的普通 supplemental Record data，
 不是新的 Record family 或 cross-Check catalog。
 
-`passed` 和 `failed` 的 final data 严格为 `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`。
-`occurrenceCount` 包含每一个 parser-semantic occurrence，包括未进入 local target validation 的 occurrence；
-`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。没有 eligible Markdown source 时，Check 以
+`passed` 和 `failed` 的 final data 严格为 `{ sourceFileCount, occurrenceCount, targetReadCount, findingCount }`；normal
+finding 的 `passed`/`failed` 差别只由 `findingPolicy` 决定。`occurrenceCount` 包含每一个 parser-semantic occurrence，
+包括未进入 local target validation 的 occurrence；`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。没有 eligible Markdown source 时，Check 以
 `no-eligible-input` 结算为 `not-applicable`。cancellation、source/target read、decode、parser、containment 或 limit
 failure 均为 `unavailable`：它们不带 final data，也绝不能把 partial work 变为 clean result 或 partial Record set。
 其 `unavailable.reason.code` 是共享 four-state grammar 中的受控 public code，且只能是：`cancelled`、
@@ -213,12 +214,12 @@ snapshot Checks 重建 aggregate，也不得改写 Check outcome 或 Product fac
 最终结果，不需要合并并行的 base、acceptance 和 final 模型；Product 不增加公共 lifecycle Hook。
 
 当前 Project Gate 将 `duplicate-detection`、`file-metrics`、`function-metrics` 与 `markdown-link-validation` 作为
-required/full 的 direct raw observations。四项 entry 明确 `contributesToAggregate: false`，所以它们的 `passed`、`failed`、
-`not-applicable` 或 `unavailable` terminal fact、final data、Records 与 messages 仍属于同一 Run，却不参与 Gate assurance
-aggregate 或 process-exit mapping。`quality` tag 只可禁用这四项；该 selection 不建立 parent quality Check、第二个 Run 或
-按 Records 重算 quality result。因此 Gate aggregate 为 `passed` 只证明被选入 aggregate 的 assurance identities 通过，不能推断
-四项 raw quality observations 也为 `passed`。Gate 对 repository inputs 和 pinned scanner handoff 的私有配置见
-[脚本工具](script-tooling.md#direct-repository-quality-observations)。
+required/full 的四项 direct repository-quality Checks。所有 eligible Check 的 terminal status 均进入同一 `all` aggregate；因此任一质量
+Check failed 使 Gate failed。`quality` tag 只可禁用这四项；被禁用的 Check 以自己的 `not-applicable` fact 保留，但不是 eligible
+aggregate input。该 selection 不建立 parent quality Check、第二个 Run 或按 Records 重算 quality result：findings、Records、
+messages 与 final data 都不是 aggregate inputs，quality Check 的 producing policy 自己将 blocking 或 non-blocking findings
+结算为 failed 或 passed。Gate 对 repository inputs 和 pinned scanner handoff 的私有配置见
+[脚本工具](script-tooling.md#direct-repository-quality-checks)。
 
 ## Verification
 

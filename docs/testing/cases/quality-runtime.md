@@ -131,7 +131,7 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
   Proves:
-- A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. Failed results attach an actionable message without copying the unsafe destination.
+- A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. Default blocking findings are failed with an actionable error, while explicit non-blocking findings retain the same Records/final data and settle passed with an actionable warning; neither message copies the unsafe destination.
 - A direct root-contained target outside source scope can provide its own anchor facts but cannot recursively create more source work.
 - Source/target limits, root canonicalization failure, and cancellation settle as `unavailable` with actionable Check-owned messages and no partial Records or final data; zero eligible source reaches `not-applicable` only after the root is usable.
 

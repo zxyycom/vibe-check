@@ -148,9 +148,10 @@ export function createRepositoryQualityChecks(
   ReturnType<typeof markdownLinkValidation>
 ] {
   return Object.freeze([
-    duplicateDetection({ codeAreas: duplicateCodeAreas }),
+    duplicateDetection({ codeAreas: duplicateCodeAreas, findingPolicy: "non-blocking" }),
     fileMetrics({
       codeAreas: fileMetricCodeAreas,
+      findingPolicy: "non-blocking",
       scanner: { executable: absoluteScannerCommand(scanners.scc, MISE_SCC_COMMAND_ENV) }
     }),
     functionMetrics({
@@ -158,7 +159,7 @@ export function createRepositoryQualityChecks(
       findingPolicy: "non-blocking",
       scanner: { executable: absoluteScannerCommand(scanners.lizard, MISE_LIZARD_COMMAND_ENV) }
     }),
-    markdownLinkValidation({ files: repositoryFiles })
+    markdownLinkValidation({ files: repositoryFiles, findingPolicy: "non-blocking" })
   ]);
 }
 

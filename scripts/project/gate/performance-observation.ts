@@ -32,23 +32,31 @@ export function observeProjectGatePerformance(
 ): ProjectGateResult {
   const elapsedMs = context.timing.elapsedToInitialResultMs;
   if (!isDuration(elapsedMs))
-    return appendObservation(initialResult, "elapsed timing was not comparable (invalid elapsed)");
+    return appendObservation(
+      initialResult,
+      "elapsed-to-initial-result timing was not comparable (invalid total timing)"
+    );
+  if (!hasValidPhaseTiming(context.timing))
+    return appendObservation(
+      initialResult,
+      "elapsed-to-initial-result timing was not comparable (invalid phase timing)"
+    );
 
   const comparison = comparableBaseline(initialResult, context, baselines, runtime);
   if (comparison.kind === "not-comparable")
     return appendObservation(
       initialResult,
-      `elapsed ${formatDuration(elapsedMs)} was not comparable (${comparison.reason})`
+      `${timingDescription(context.timing)} was not comparable (${comparison.reason})`
     );
 
   if (elapsedMs <= comparison.baseline.thresholdMs) {
     return appendObservation(
       initialResult,
-      `elapsed ${formatDuration(elapsedMs)} was within advisory range (threshold ${formatDuration(comparison.baseline.thresholdMs)})`
+      `${timingDescription(context.timing)} was within advisory range (threshold ${formatDuration(comparison.baseline.thresholdMs)})`
     );
   }
 
-  return appendOutsideRangeObservation(initialResult, elapsedMs, comparison);
+  return appendOutsideRangeObservation(initialResult, context.timing, comparison);
 }
 
 type BaselineComparison =
@@ -95,7 +103,7 @@ function comparableBaseline(
 
 function appendOutsideRangeObservation(
   initialResult: ProjectGateResult,
-  elapsedMs: number,
+  timing: ProjectGateContext["timing"],
   comparison: Extract<BaselineComparison, { readonly kind: "comparable" }>
 ): ProjectGateResult {
   const slowestChecks = comparison.run.checkDurations
@@ -112,7 +120,7 @@ function appendOutsideRangeObservation(
     Object.freeze({
       code: "project-gate-performance-outside-range",
       level: "warning",
-      message: `elapsed ${formatDuration(elapsedMs)} exceeded advisory threshold ${formatDuration(comparison.baseline.thresholdMs)}${suffix}`
+      message: `${timingDescription(timing)} exceeded advisory threshold ${formatDuration(comparison.baseline.thresholdMs)}${suffix}`
     })
   ]);
 }
@@ -125,7 +133,38 @@ function appendObservation(initialResult: ProjectGateResult, message: string): P
 }
 
 function observationMessage(message: string): ProjectGateMessage {
-  return Object.freeze({ code: "project-gate-performance-elapsed", level: "info", message });
+  return Object.freeze({
+    code: "project-gate-performance-elapsed-to-initial-result",
+    level: "info",
+    message
+  });
+}
+
+function hasValidPhaseTiming(timing: ProjectGateContext["timing"]): boolean {
+  if (
+    !isDuration(timing.candidatePreparationMs) ||
+    !isDuration(timing.adapterSetupMs) ||
+    !isDuration(timing.productRunMs)
+  ) {
+    return false;
+  }
+  const phaseTotal = timing.candidatePreparationMs + timing.adapterSetupMs + timing.productRunMs;
+  // Subtractions from the same monotonic timestamps can re-associate by a few ULPs.
+  const timestampMagnitude = Math.max(
+    1,
+    Math.abs(timing.startedAtMs),
+    Math.abs(timing.initialResultAtMs),
+    Math.abs(phaseTotal),
+    Math.abs(timing.elapsedToInitialResultMs)
+  );
+  return (
+    Math.abs(phaseTotal - timing.elapsedToInitialResultMs) <=
+    Number.EPSILON * timestampMagnitude * 8
+  );
+}
+
+function timingDescription(timing: ProjectGateContext["timing"]): string {
+  return `elapsed-to-initial-result ${formatDuration(timing.elapsedToInitialResultMs)} (candidate preparation ${formatDuration(timing.candidatePreparationMs)}; adapter/setup ${formatDuration(timing.adapterSetupMs)}; Product Run ${formatDuration(timing.productRunMs)})`;
 }
 
 function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined {

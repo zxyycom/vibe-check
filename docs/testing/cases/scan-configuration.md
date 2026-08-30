@@ -47,7 +47,7 @@ Entities:
 
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
   Proves:
-- `markdownLinkValidation(options?)` accepts closed partial authoring fields, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
+- `markdownLinkValidation(options?)` accepts closed partial authoring fields, defaults `findingPolicy` to blocking, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 
@@ -99,8 +99,8 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation.test.ts|Package Run progress rendering outputs > keeps both failed outputs and prioritizes progress rendering`
 Proves:
 
-- Disabled diagnostic logging constructs neither directory/file nor writer; its disabled status and `null` file are independently observable without changing progress, publication or Check execution.
-- An enabled log uses one UTC-compact-time-and-UUID-named file and newline-terminated header-plus-continuation observations. Its compact initial Run observation reports the Check count without one `catalog.check` projection per normalized Check; the pre-close branch reports the pending diagnostic close state, and a progress failure does not prevent this independent Product output from closing.
+- Disabled diagnostic logging constructs neither directory/file nor writer; its disabled status and `null` file are independently observable without changing progress, publication or Check execution. Only diagnostic logging or machine publication enables one invocation-creation wall-clock capture: machine-only publication serializes it as `invocation.timestamp`; diagnostic-only logging uses it for the UTC-compact filename; when both are enabled they share the same immutable instant; when both are disabled the Run does not read or serialize wall clock.
+- An enabled log uses one UTC-compact-time-and-UUID-named file and newline-terminated header-plus-continuation observations. Its instant is not publication completion time. Its compact initial Run observation reports the Check count without one `catalog.check` projection per normalized Check; `run.terminal-before-log-close` reports that the terminal fact is written while diagnostic close remains unconfirmed, and a progress failure does not prevent this independent Product output from closing.
 - Normal accepted final data is reported once by the owning final Check through a bounded safe shape/size summary. Successful dependency reads retain only producer, status and data presence; each Record report and exceptional boundary still uses the same descriptor-only safety boundary for its one full value.
 - Diagnostic details use bounded descriptor-only rendering: accessors, `toJSON`, Proxy traps, cyclic/deep/extreme-wide/oversized values and malformed author handoff data cannot execute author hooks or alter Check facts.
 - Every non-configuration result path closes diagnostic logging at most once, including unexpected runtime containment failures. Factory, append/render and close failures preserve final Check/Record facts; all output statuses remain observable, and diagnostic logging is selected only after the existing progress-rendering and machine-publication failure priorities.

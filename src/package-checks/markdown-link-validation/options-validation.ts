@@ -3,6 +3,7 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
+import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
 function exactRecord(
@@ -26,6 +27,7 @@ export function validMarkdownLinkValidationOptions(
 ): value is ResolvedMarkdownLinkValidationOptions {
   const options = exactRecord(value, [
     "files",
+    "findingPolicy",
     "requireExistingTargets",
     "validateSameDocumentAnchors",
     "validateCrossDocumentAnchors",
@@ -36,6 +38,7 @@ export function validMarkdownLinkValidationOptions(
   return (
     options !== undefined &&
     validProjectFileSelection(options.files) &&
+    validFindingPolicy(options.findingPolicy) &&
     typeof options.requireExistingTargets === "boolean" &&
     typeof options.validateSameDocumentAnchors === "boolean" &&
     typeof options.validateCrossDocumentAnchors === "boolean" &&

@@ -62,11 +62,13 @@ function createModel(
   snapshot: CoreExecution["snapshot"]
 ): TrustedPublicationModelV4 | Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
   try {
+    if (invocation.startedAtUtc === null)
+      throw new Error("Machine publication requires an invocation timestamp");
     return createPublicationModelV4({
       invocation: {
         invocationId: invocation.invocationId,
         projectRoot: ".",
-        timestamp: new Date().toISOString()
+        timestamp: invocation.startedAtUtc
       },
       snapshot
     });
@@ -96,11 +98,11 @@ export function finalizeInvocation(
   const preCloseOutputs = invocation.outputs.value();
   invocation.diagnosticLogger.observe({
     scope: "RUN",
-    event: "run.closing",
-    summary: "pre-logging result selected",
+    event: "run.terminal-before-log-close",
+    summary: "terminal diagnostic event written before logger close is confirmed",
     details: {
       ...closingFacts(candidate),
-      diagnosticLogging: "pending-close",
+      diagnosticLogging: "close-not-yet-confirmed",
       outputs: preCloseOutputDetails(preCloseOutputs)
     }
   });

@@ -169,29 +169,43 @@ child 使用相同的 mise-bound invocation。
   未运行的动作，并提示 `--enable-tag package-tests` 或 `--profile full`。显式 enable 可把它们加入 required。
 - Full 自动选择全部未禁用 Checks，包括 candidate lifecycle、artifact、external-consumer provider 与三个 consumer
   acceptance Checks。
-- required 与 full 都直接选择四个 `quality` observation Checks：`duplicate-detection`、`file-metrics`、
+- required 与 full 都直接选择四个 `quality` repository-quality Checks：`duplicate-detection`、`file-metrics`、
   `function-metrics` 与 `markdown-link-validation`。`quality` 是仅覆盖这四项的 disable filter；禁用时每项以自己的
-  `not-applicable` fact 保留，不存在父 Check、嵌套 Run 或独立 quality command。它们仍由同一 scheduler 执行，但不进入
-  assurance aggregate；真实 status、final data、Records 与 Check-owned messages 保持在同次 Run 中。
+  `not-applicable` fact 保留，不存在父 Check、嵌套 Run 或独立 quality command。每个 eligible Check 的 terminal status
+  都进入同一 `all` aggregate：必须全部为 `passed`；任一 `failed` 使 Gate failed，`unavailable` propagate，
+  `not-applicable` fail，空 selection failed。findings、messages、Records、final data 和 definition/output facts 都不参与
+  aggregate；quality Check 自己用 finding policy 决定自己的 passed 或 failed status。
 - 启动 Run 前的 selection summary 将 package acceptance 明确标为未选择、由 profile/tag 选择或被
   `package-tests` 禁用；其它 disabled tags 仍按规范化后的完整名称列出。
 - Root scheduler 当前使用 `maxParallel: 3`。Candidate lifecycle 和 `prepared-external-package-consumer` 都会创建或改变
   physical lifecycle state，因而共享 `project-gate-package-lifecycle` mutex。Artifact acceptance 直接消费 prepared candidate；
   types、documentation、runtime consumers 都只读 provider material，均不持有该 mutex，因此可在 provider 成功后调度。
+- 两个会将这些材料解释为 published output 的 direct docs validator（schema、example）与
+  `tests-scripts-validation` 共享 `project-gate-documentation-materials` mutex。后者的 drift evidence 会在自身测试范围内
+  短暂改写 checked-in machine schema/example materials；该 mutex 确保 schema/example validator 只读取稳定材料，而不以 timeout
+  或重试掩盖同一 worktree 的读写竞争。`docs-json-validator` 对追加换行仍接受为 JSON grammar，
+  `docs-links-validator` 只读取 Markdown path；两者不读取会改变其 terminal result 的材料，因此不持有该 mutex。
 - Candidate lifecycle、artifact、external-consumer provider 和三个 consumer acceptance process 各有 30 秒外层 timeout。
   该 timeout 用于终止内部同步 child 阻塞后无法及时响应 Bun test timeout 的整条 test process，不是全局性能预算，也不把
   尚未产出 exit fact 的 command 伪装成测试失败。
 
-### Direct repository quality observations
+### Direct repository-quality Checks
 
-四项 direct observation 的 repository file selection、code areas 与 finding policy 由 Gate 私有 policy 构造；它们不是
-package-provided Check 的默认 options，也不形成 Product-wide scanner registry。`duplicate-detection` 继续由 prepared
+四项 direct repository-quality Check 的 repository file selection、code areas 与 finding policy 由 Gate 私有 policy 构造；它们不是
+package-provided Check 的默认 options，也不形成 Product-wide scanner registry。当前 Gate 对四项都选择 non-blocking
+finding policy：normal finding 由 producing Check 结算为带完整 final data/Records 和 warning 的 `passed`，而不是由 Gate
+排除该 Check；scanner/source/parse failure 仍是普通 `unavailable`。`duplicate-detection` 继续由 prepared
 package 自解析 `jscpd`。正式 Gate 的 mise environment 提供 `VIBE_CHECK_SCC_CMD` 与 `VIBE_CHECK_LIZARD_CMD`：Gate 只接受
 absolute executable，并显式传给 `file-metrics` 与 `function-metrics` 的 owning Check。缺失或非绝对 binding 不会退回
-ambient `PATH`；owning observation 将按普通 scanner failure 结算为 `unavailable`。scanner command/adapter 的私有边界见
+ambient `PATH`；owning Check 将按普通 scanner failure 结算为 `unavailable`。scanner command/adapter 的私有边界见
 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence
+
+Gate 同时显示两个不同职责的 link Check：package-provided `markdown-link-validation` 的显示名是
+`Markdown link validation`，它扫描 Gate repository 的 selected Markdown sources；docs task `docs-links-validator` 的显示名是
+`Documentation path existence validation`，它只执行 repository documentation acceptance 的 path-existence task。二者不共享
+finding policy、source scope 或 output 语义。
 
 Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程 transcript。每个外部 command Check 在 child
 启动前先创建自己的 transcript，写入 Check/step、command、`status: running` 和配置 timeout；child 结算后，同一路径
@@ -199,7 +213,8 @@ Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程
 transcript 写入失败，Check 结算为 transcript unavailable。这样 Gate 或 child 在结算前被外部终止时，已有 transcript
 仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。
 
-Product diagnostic log 记录 Project Run 的 scheduler、handoff 与 output facts；它不复制、解析或解释下述 child stdout/stderr
+Product diagnostic log 记录 Project Run 的 scheduler、handoff 与 output facts；最后一条可写事件明确标为
+`run.terminal-before-log-close`，只表示 terminal fact 已写入、logger close 尚未确认，不能误读为 close 已成功。它不复制、解析或解释下述 child stdout/stderr
 transcript。带 typed success stdout 的 process Check 也遵守该顺序：先完成 settled transcript，再对零退出 stdout 作 closed parse，
 并按需要复核其 provider provenance 与 physical material；因此 parse、identity 或 revalidation failure 是
 `process-output-invalid` unavailable，而不是已通过的 child result。`prepared-external-package-consumer` 是这一边界的
@@ -220,22 +235,24 @@ Bound Run 返回后，adapter 从同次 RunResult 的 warning、progress output 
 
 Context 按 Gate owner 收拢本次 invocation 到初步结果形成时已有的全部 owned facts：normalized selection、repository
 root、prepared candidate、invocation log directory 和原始 RunResult；timing 精确提供 `startedAtMs`、
-`initialResultAtMs` 和 `elapsedToInitialResultMs`。Timing 是完整 context 中的一类 observation，不定义 context 边界，
-也不包含 Hook 自身耗时。loader、clock、console writer 和 candidate preparer 属于执行依赖，不进入 context。
+`initialResultAtMs`、总 `elapsedToInitialResultMs`，以及连续的 `candidatePreparationMs`、`adapterSetupMs` 与
+`productRunMs`。总值仍是 baseline 的比较值；phase 只解释这次 invocation 的等待位置。Timing 是完整 context 中的一类
+observation，不定义 context 边界，也不包含 Hook 自身耗时。loader、clock、console writer 和 candidate preparer 属于执行依赖，
+不进入 context。
 
 Hook 返回 exact `{ status, messages }`：`status` 只接受 `passed | failed | unavailable`，每条 message 只含非空的
 `code`、`message` 和 `error | warning | info` level；code 与 message 不得包含 C0/C1 controls、U+2028 或 U+2029。
-默认 `afterGate` 是 Gate-owned performance observer。它恰追加一条 elapsed observation：只有初步结果为 passed、没有 tag
-override、candidate 是当前安装的 reuse，以及 profile、declarative fingerprint、platform、architecture 和 Bun version 都与
-baseline workload 匹配时才比较；threshold 内为 info，超出时为 warning。两者都不修改初步 status、已有消息、Check facts、
-RunResult、aggregate 或 process exit。
+默认 `afterGate` 是 Gate-owned performance observer。它恰追加一条 `elapsed-to-initial-result` observation，并显示
+candidate preparation、adapter/setup 和 Product Run phases：只有初步结果为 passed、没有 tag override、candidate 是当前安装的
+reuse，以及 profile、declarative fingerprint、platform、architecture 和 Bun version 都与 baseline workload 匹配时才用总 elapsed
+比较；threshold 内为 info，超出时为 warning。两者都不修改初步 status、已有消息、Check facts、RunResult、aggregate 或 process exit。
 
-当前 baseline 于 2026-08-29 在一台 `linux/x64`、Bun `1.3.14` 开发机的同一 worktree、无并发 Gate 下，对标准 required/full 各交错顺序
-运行五次；所有样本的 candidate 都是 `reuse / installation-current`，且 declarative fingerprint 相同。样本包含最终
-machine-evidence integration fixture 的真实 quality scans。required raw samples 为
-`9278.3, 14673.0, 8539.4, 8426.0, 8362.3ms`，median `8539.4ms`、p90 `14673.0ms`；full raw samples 为
-`23195.2, 16219.4, 17297.0, 18005.7, 14029.0ms`，median `17297.0ms`、p90 `23195.2ms`。advisory threshold 取
-`ceil(max(p90 * 1.25, median * 1.5))`，分别为 `18342ms` 与 `28994ms`。这些值仅是该开发机 workload 的宽松 advisory
+当前 baseline 于 2026-08-30 在一台 `linux/x64`、Bun `1.3.14` 开发机的同一 worktree、无并发 Gate 下，对标准 required/full 各交错顺序
+运行五次；所有样本的 candidate 都是 `reuse / installation-current`，且 declarative fingerprint 同为
+`e443355505b751fa3e893c227575599c5cc19fe8594e9dc50189d41041784d66`。样本来自最终的真实 Gate workload：四项 direct repository-quality Checks 扫描本仓库，而 machine-evidence integration fixture 自身只运行 synthetic Check。required raw samples 为
+`8046.2, 8539.9, 8129.6, 8274.1, 8160.6ms`，median `8160.6ms`、p90 `8539.9ms`；full raw samples 为
+`14545.2, 14328.4, 14100.9, 13928.0, 14446.2ms`，median `14328.4ms`、p90 `14545.2ms`。advisory threshold 取
+`ceil(max(p90 * 1.25, median * 1.5))`，分别为 `12241ms` 与 `21493ms`。这些值仅是该开发机 workload 的宽松 advisory
 comparison，不是性能 budget、merge 条件或跨环境承诺。workload identity 不匹配时只输出 `not-comparable`，不能用一次运行、
 process timeout 或提高阈值来替代重新采样。
 

@@ -125,16 +125,19 @@ export async function executeMarkdownLinkValidation(
   if (traversal.candidates.length === 0) {
     return Object.freeze({ data, status: "passed" });
   }
+  const isBlocking = context.options.findingPolicy === "blocking";
   return Object.freeze({
     data,
     messages: Object.freeze([
       Object.freeze({
         code: "invalid-local-links",
-        level: "error" as const,
-        message: `${traversal.candidates.length} local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons.`
+        level: isBlocking ? ("error" as const) : ("warning" as const),
+        message: isBlocking
+          ? `${traversal.candidates.length} local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons.`
+          : `${traversal.candidates.length} local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons.`
       })
     ]),
-    status: "failed"
+    status: isBlocking ? "failed" : "passed"
   });
 }
 

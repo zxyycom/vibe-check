@@ -2,7 +2,7 @@ import type { CheckMessage, CheckResult } from "../../check/check.ts";
 
 export const FINDING_POLICIES = Object.freeze(["blocking", "non-blocking"] as const);
 
-/** 三个基于区域的代码质量 Check 共用的 finding 阻断策略。 */
+/** package-provided Check 用于结算 normal finding 的阻断策略。 */
 export type FindingPolicy = (typeof FINDING_POLICIES)[number];
 
 export const DEFAULT_FINDING_POLICY: FindingPolicy = "blocking";

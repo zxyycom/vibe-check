@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
+import { isRecord } from "../../data-boundary/value-shapes.ts";
 import type { ProgressWriter } from "./renderer.ts";
 import { executeValidatedRun } from "../invocation.ts";
 
@@ -38,7 +39,10 @@ describe("Package Run default outputs", () => {
         }),
         { projectRoot: root },
         [],
-        { progressWriterFactory: () => output.writer }
+        {
+          progressWriterFactory: () => output.writer,
+          wallClock: { now: () => new Date("2026-08-30T12:34:56.789Z") }
+        }
       );
 
       assert.equal(result.kind, "completed");
@@ -56,6 +60,15 @@ describe("Package Run default outputs", () => {
       assert.equal(existsSync(join(root, "artifacts", "vibe-check", "run.json")), true);
       assert.equal(existsSync(join(root, "artifacts", "vibe-check", "records.ndjson")), true);
       assert.equal(existsSync(join(root, ".log", "vibe-check")), false);
+      const publishedRun: unknown = JSON.parse(
+        readFileSync(join(root, "artifacts", "vibe-check", "run.json"), "utf8")
+      );
+      assert.equal(
+        isRecord(publishedRun) && isRecord(publishedRun.invocation)
+          ? publishedRun.invocation.timestamp
+          : undefined,
+        "2026-08-30T12:34:56.789Z"
+      );
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
