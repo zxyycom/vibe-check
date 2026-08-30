@@ -21,8 +21,8 @@ import type {
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 
 const DEFAULT_CACHE_DIRECTORY = ".cache/vibe-check";
-const DEFAULT_MINIMUM_LINES = 3;
-const DEFAULT_MINIMUM_TOKENS = 75;
+const DEFAULT_MINIMUM_LINES = 4;
+const DEFAULT_MINIMUM_TOKENS = 100;
 
 interface PolicyRecordKeys {
   readonly optional?: readonly string[];

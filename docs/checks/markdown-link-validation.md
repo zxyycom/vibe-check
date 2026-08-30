@@ -12,17 +12,8 @@ Definition `checks` 的普通 Check。
 
 ```ts
 {
-  files: {
-    source: "filesystem",
-    include: ["**/*"],
-    exclude: [
-      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-      "**/target/**", "**/vendor/**"
-    ]
-  },
-  findingPolicy: "blocking",
+  files: defaultProjectFileSelection,
+  findingPolicy: "non-blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -36,14 +27,15 @@ Definition `checks` 的普通 Check。
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options。所有顶层 authoring fields 都可省略，`files` 与 `limits` 内的字段也可
-分别省略。显式 `include` / `exclude` 数组是完整替换值。
+上面的代码块是无参调用物化后的完整 resolved options；`defaultProjectFileSelection` 是 package root 公开的同值深冻结
+基线；完整默认 glob 可直接从该 public value 读取。所有顶层 authoring fields 都可省略，`files` 与 `limits` 内的字段也可分别省略。显式 `include` / `exclude` 数组是
+完整替换值。
 
 - `files` 定义 Markdown source selection；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
   `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
   规则排除的未跟踪文件。其中 extension 大小写不敏感的 `.md` / `.markdown` 成为 sources，direct targets 仅用于
   resolution；来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
-- `findingPolicy` 为 `blocking | non-blocking`，默认 `blocking`。它只结算本 Check 的 normal local-reference
+- `findingPolicy` 为 `blocking | non-blocking`，默认 `non-blocking`。它只结算本 Check 的 normal local-reference
   findings：`blocking` 使 finding outcome 为 `failed`，`non-blocking` 保留相同的 Records、计数与 final data，但以
   `passed` outcome 和 warning message 提示；它不会改写 Project Run、aggregation 或 Gate outcome。
 - `requireExistingTargets` 控制缺失 direct local target 是否是 finding。
@@ -57,13 +49,17 @@ Definition `checks` 的普通 Check。
 
 ### 定制 authoring options
 
-下面只扫描 `docs/**`，忽略 project root 外目标，并保留其它 defaults：
+下面只扫描 `docs/**`、排除 `docs/fixtures/**`、忽略 project root 外目标，并保留其它 defaults：
 
 ```ts
-import { markdownLinkValidation } from "vibe-check";
+import { defaultProjectFileSelection, markdownLinkValidation } from "vibe-check";
 
 const documentationLinks = markdownLinkValidation({
-  files: { include: ["docs/**/*.md", "docs/**/*.markdown"] },
+  files: {
+    ...defaultProjectFileSelection,
+    exclude: [...defaultProjectFileSelection.exclude, "docs/fixtures/**"],
+    include: ["docs/**/*.md", "docs/**/*.markdown"]
+  },
   rootExternalTargetMode: "ignore"
 });
 ```

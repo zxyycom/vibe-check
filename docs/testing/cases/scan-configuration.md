@@ -37,8 +37,8 @@ Entities:
 - `bun|scripts/package/candidate/isolated-consumer-types.test.ts|external consumer type acceptance`
   Proves:
 
-- The public package exposes only the documented generic authoring/run operations, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason type roots.
-- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; every package Check export is callable and retains its typed parser relation.
+- The public package exposes only the documented generic authoring/run operations, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason type roots.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; the deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 
@@ -47,7 +47,7 @@ Entities:
 
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > materializes bounded Markdown Link defaults and rejects malformed resolved options`
   Proves:
-- `markdownLinkValidation(options?)` accepts closed partial authoring fields, defaults `findingPolicy` to blocking, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
+- `markdownLinkValidation(options?)` accepts closed partial authoring fields, defaults `findingPolicy` to non-blocking, fills and freezes the complete bounded resolved policy, and exposes its final-data parser. Unknown authoring fields or an unsupported policy fail synchronously; malformed complete replacements fail in the owning Check before execution with an actionable message.
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 

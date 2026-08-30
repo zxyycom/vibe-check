@@ -13,9 +13,9 @@ export type ProjectFileSource = (typeof PROJECT_FILE_SOURCES)[number];
 export interface ProjectFileSelectionOptions {
   /** 候选文件来源；省略时使用不解释 `.gitignore` 的 `filesystem`。 */
   readonly source?: ProjectFileSource;
-  /** 相对项目根目录且使用 `/` 的 glob；省略时使用 package 默认值，显式数组完整替换。 */
+  /** 相对项目根目录且使用 `/` 的 glob；省略时使用 `defaultProjectFileSelection.include`，显式数组完整替换。 */
   readonly include?: readonly string[];
-  /** 优先于 `include` 的 glob；省略时使用 package 默认值，显式数组完整替换。 */
+  /** 优先于 `include` 的 glob；省略时使用 `defaultProjectFileSelection.exclude`，显式数组完整替换。 */
   readonly exclude?: readonly string[];
 }
 
@@ -26,21 +26,33 @@ export interface ProjectFileSelection {
   readonly source: ProjectFileSource;
 }
 
-export const DEFAULT_PROJECT_FILE_SELECTION: ProjectFileSelection = deepFreeze({
+/**
+ * Package-provided Checks 共用的完整文件选择基线。
+ *
+ * 对象与数组均不可变；需要保留默认排除并追加项目规则时，使用对象与数组 spread 建立新值。
+ */
+export const defaultProjectFileSelection: ProjectFileSelection = deepFreeze({
   exclude: [
+    "**/.cache/**",
     "**/.git",
     "**/.git/**",
-    "**/.vibe-check/**",
-    "**/.cache/**",
+    "**/.log/**",
+    "**/.pytest_cache/**",
+    "**/.tmp/**",
     "**/.venv/**",
+    "**/.vibe-check/**",
+    "**/__pycache__/**",
     "**/artifacts/**",
     "**/build/**",
+    "**/coverage/**",
     "**/dist/**",
     "**/generated/**",
     "**/*.generated.*",
     "**/node_modules/**",
     "**/target/**",
-    "**/vendor/**"
+    "**/tmp/**",
+    "**/vendor/**",
+    "**/venv/**"
   ],
   include: ["**/*"],
   source: "filesystem"
@@ -58,9 +70,9 @@ export function resolveProjectFileSelection(value: unknown): ProjectFileSelectio
     return undefined;
   }
 
-  const exclude = resolveStringArray(selection.exclude, DEFAULT_PROJECT_FILE_SELECTION.exclude);
-  const include = resolveStringArray(selection.include, DEFAULT_PROJECT_FILE_SELECTION.include);
-  const source = selection.source ?? DEFAULT_PROJECT_FILE_SELECTION.source;
+  const exclude = resolveStringArray(selection.exclude, defaultProjectFileSelection.exclude);
+  const include = resolveStringArray(selection.include, defaultProjectFileSelection.include);
+  const source = selection.source ?? defaultProjectFileSelection.source;
   if (exclude === undefined || include === undefined || !isProjectFileSource(source)) {
     return undefined;
   }
@@ -70,9 +82,9 @@ export function resolveProjectFileSelection(value: unknown): ProjectFileSelectio
 
 export function snapshotDefaultProjectFileSelection(): ProjectFileSelection {
   return Object.freeze({
-    exclude: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.exclude]),
-    include: Object.freeze([...DEFAULT_PROJECT_FILE_SELECTION.include]),
-    source: DEFAULT_PROJECT_FILE_SELECTION.source
+    exclude: Object.freeze([...defaultProjectFileSelection.exclude]),
+    include: Object.freeze([...defaultProjectFileSelection.include]),
+    source: defaultProjectFileSelection.source
   });
 }
 

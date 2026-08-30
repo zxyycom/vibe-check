@@ -35,6 +35,7 @@
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
+      "default-package-quality-findings-to-advisory.md": "sha256:5b7e16dea967c3845ed3a622ac3aa7160168ed55dadc39fb4ef4678d5a834248",
       "default-project-gate-to-required-profile.md": "sha256:81bc2c8e30f441b478e12fe88e8fe21ce5666971906d41ee3bca626bbf18b09e",
       "defer-future-feature-detail-until-prioritized.md": "sha256:7852346befd1c0227510085aafa4bb1403ba511f0c429e834cc051fa4bda1ac6",
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
@@ -59,7 +60,7 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
-      "expose-markdown-link-finding-policy.md": "sha256:330cc830e52258b40f92e294c84cf0d61739da1ef15db750f34e7e6d88cecc5e",
+      "expose-markdown-link-finding-policy.md": "sha256:ab2134d56080e7bd28d92d20fd70290bbeca1f4a7cfd3ca79232b77d05561979",
       "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
       "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
@@ -111,6 +112,7 @@
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:5f1f9b6f6c3ead439784a93d31795f06a4920c59f78ee4606aa6181ad2c81230",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
+      "publish-composable-default-project-file-selection.md": "sha256:e5d5390d830cdd9270b884748892d77a9c294482b3ab1a1be0da468527d243a2",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:3ae814f1118990ddca937a4ddb70c4b37ad43fa04bee832063d0edcef62223e6",
       "publish-invocation-creation-time-without-execution-telemetry.md": "sha256:dd0b0d8631379eb31ff7cda58d4bfa662da7e22e245885240c7ac62b14dd9d92",
@@ -143,7 +145,7 @@
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "serialize-project-gate-documentation-materials-by-ownership.md": "sha256:c94a7deebfa1d65486ca0deecb47fc1577f785687bac574f62dd1da8d1760d73",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
-      "share-finding-policy-across-area-quality-checks.md": "sha256:16e70625e6a80d693b5a59510241c55d72194edf7fed3750456a555d03a69aa0",
+      "share-finding-policy-across-area-quality-checks.md": "sha256:4cb66eeb5f71ed930ecb685a28bb332b53292eb3f004c3c40261406f6128d72b",
       "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
       "ship-one-capability-rich-machine-example.md": "sha256:6f58fc71d58bd72d614af34475b0d2f07a585a934d0b85fc66210ca0ab2754e8",
       "ship-one-definition-backed-machine-example.md": "sha256:9d6ee52c5758930a8647616927a8e615a6819082dd232523aaa34530106796b8",
@@ -1172,6 +1174,44 @@
         "relations": []
       }
     },
+    "default-package-quality-findings-to-advisory.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "default-package-quality-findings-to-advisory.md",
+        "title": "默认将 Package 质量 Finding 作为非阻断观察",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T11:39:49Z",
+        "purpose": "让普通 consumer 从完整质量证据开始，而不是无意继承本仓库的严格阻断政策。",
+        "background": "形成决策时，四项质量 Check 默认 blocking，数值型 package defaults 与本仓库 Gate 相同或接近。",
+        "decision": "四项质量 Check 默认 non-blocking，三项数值阈值略宽；Project Gate 显式保留自己的严格阈值与 non-blocking policy。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "expose-markdown-link-finding-policy.md"
+          },
+          {
+            "type": "归并",
+            "target": "share-finding-policy-across-area-quality-checks.md"
+          }
+        ]
+      }
+    },
     "default-project-gate-to-required-profile.md": {
       "keys": {
         "tag": [
@@ -1902,16 +1942,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "expose-markdown-link-finding-policy.md",
+        "sourcePath": "archive/expose-markdown-link-finding-policy.md",
         "title": "公开 Markdown Link 的 Finding Policy",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T04:05:35Z",
         "purpose": "让 markdownLinkValidation 的 consumer 显式选择 link finding 是否阻断，同时保持默认兼容的 blocking 语义与完整 Check facts。",
@@ -3510,6 +3550,35 @@
         "relations": []
       }
     },
+    "publish-composable-default-project-file-selection.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-composable-default-project-file-selection.md",
+        "title": "公开可组合的默认项目文件选择",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T11:39:49Z",
+        "purpose": "让 file-selecting Checks 共用并公开一个常见、不可变且可由 consumer 显式微调的 files 基线。",
+        "background": "形成决策时，constructor 共用 package-private files defaults；consumer 无法从 package root 复用，只能复制排除数组。",
+        "decision": "Package root 公开深冻结的 defaultProjectFileSelection；显式数组仍完整替换，consumer 通过普通 TypeScript composition 扩展。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "publish-fingerprint-bound-check-record-machine-v3.md": {
       "keys": {
         "tag": [
@@ -4533,16 +4602,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "share-finding-policy-across-area-quality-checks.md",
+        "sourcePath": "archive/share-finding-policy-across-area-quality-checks.md",
         "title": "在区域质量 Check 间共享 Finding 阻断政策",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T11:14:38Z",
         "purpose": "让三个基于 area 的质量 Check 完整保留 findings，并用同一 policy 决定哪些 finding 使 owning Check failed。",

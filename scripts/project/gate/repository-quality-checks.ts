@@ -45,21 +45,41 @@ const areaFileDefaults = {
   source: repositoryFiles.source
 } as const;
 
+const repositoryFileCodeLines = {
+  lowDecisionTokenAllowance: {
+    maximumCodeLines: 500,
+    maximumDecisionTokens: 10
+  },
+  maximum: 300
+} as const;
+
+const repositoryFunctionLimits = {
+  codeLines: {
+    lowComplexityAllowance: { cyclomaticComplexityBelow: 5, maximum: 150 },
+    maximum: 50
+  },
+  cyclomaticComplexity: { maximum: 10 },
+  parameters: { maximum: 5 }
+} as const;
+
 const functionMetricCodeAreas = {
   "product-source": {
-    files: { ...areaFileDefaults, include: ["src/**/*.ts"] }
+    files: { ...areaFileDefaults, include: ["src/**/*.ts"] },
+    limits: repositoryFunctionLimits
   },
   "script-tooling": {
     files: {
       ...areaFileDefaults,
       exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
       include: ["scripts/**/*.ts"]
-    }
+    },
+    limits: repositoryFunctionLimits
   }
 } as const;
 
 const fileMetricCodeAreas = {
   "docs-specs": {
+    codeLines: repositoryFileCodeLines,
     files: {
       ...areaFileDefaults,
       exclude: [...areaFileDefaults.exclude, "docs/examples/**", "docs/schemas/**"],
@@ -67,15 +87,18 @@ const fileMetricCodeAreas = {
     }
   },
   "product-source": {
+    codeLines: repositoryFileCodeLines,
     files: { ...areaFileDefaults, include: ["src/**/*.ts"] }
   },
   "schemas-examples": {
+    codeLines: repositoryFileCodeLines,
     files: {
       ...areaFileDefaults,
       include: ["docs/schemas/**", "docs/examples/**"]
     }
   },
   "script-tooling": {
+    codeLines: repositoryFileCodeLines,
     files: {
       ...areaFileDefaults,
       exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],

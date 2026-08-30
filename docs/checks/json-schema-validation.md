@@ -12,16 +12,7 @@ Definition `checks` 的普通 Check。
 
 ```ts
 {
-  files: {
-    source: "filesystem",
-    include: ["**/*"],
-    exclude: [
-      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-      "**/target/**", "**/vendor/**"
-    ]
-  },
+  files: defaultProjectFileSelection,
   maximumBytes: 1_048_576,
   schemaIdentity: { mode: "require-match" },
   referenceResolution: { mode: "offline" },
@@ -30,8 +21,9 @@ Definition `checks` 的普通 Check。
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options。六个顶层 authoring fields 都可省略；`files` 内的三个字段也可分别
-省略。显式 `schemas`、`bindings` 与 `referenceResolution.sources` 数组是完整替换值。`schemaIdentity` 与
+上面的代码块是无参调用物化后的完整 resolved options；`defaultProjectFileSelection` 是 package root 公开的同值深冻结
+基线；完整默认 glob 可直接从该 public value 读取。六个顶层 authoring fields 都可省略；`files` 内的三个字段也可分别省略。显式 `schemas`、`bindings` 与
+`referenceResolution.sources` 数组是完整替换值。`schemaIdentity` 与
 `referenceResolution` 的显式 discriminated branch 必须自身完整。无参调用不会发现 schema；由于 `bindings: []`，它结算为
 `not-applicable / no-bindings`。constructor 返回后若通过普通对象组合替换 `check.options`，replacement 才必须保留完整
 resolved shape。

@@ -36,6 +36,25 @@ describe("repository quality Checks", () => {
       "non-blocking"
     );
     assert.equal(duplicateDetection.options.codeAreas["script-tests"]?.minimumTokens, 100);
+    for (const area of Object.values(fileMetrics.options.codeAreas)) {
+      assert.deepEqual(area.codeLines, {
+        lowDecisionTokenAllowance: {
+          maximumCodeLines: 500,
+          maximumDecisionTokens: 10
+        },
+        maximum: 300
+      });
+    }
+    for (const area of Object.values(functionMetrics.options.codeAreas)) {
+      assert.deepEqual(area.limits, {
+        codeLines: {
+          lowComplexityAllowance: { cyclomaticComplexityBelow: 5, maximum: 150 },
+          maximum: 50
+        },
+        cyclomaticComplexity: { maximum: 10 },
+        parameters: { maximum: 5 }
+      });
+    }
   });
 
   it("substitutes an unavailable absolute command when mise bindings are missing or relative", () => {

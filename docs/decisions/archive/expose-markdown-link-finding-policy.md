@@ -1,6 +1,6 @@
 ---
 title: 公开 Markdown Link 的 Finding Policy
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:05:35Z
 purpose: 让 markdownLinkValidation 的 consumer 显式选择 link finding 是否阻断，同时保持默认兼容的 blocking 语义与完整 Check facts。

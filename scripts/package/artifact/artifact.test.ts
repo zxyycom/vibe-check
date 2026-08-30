@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { after, describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import { RUNTIME_EXPORTS } from "../../package/package-contract.ts";
 import {
   readGateArtifactAcceptanceInput,
   type ArtifactAcceptanceInput
@@ -106,7 +107,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     assertReadableRuntimeLayout(artifact.stagingDirectory);
     assert.equal(
       declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
-      '["defineCheck","defineConfig","duplicateDetection","fileMetrics","functionMetrics","inherit","jsonSchemaValidation","jsonValidation","maintenanceReminders","markdownLinkValidation","parseDuplicateDetectionData","parseFileMetricsData","parseFunctionMetricsData","parseJsonSchemaValidationData","parseJsonValidationData","parseMaintenanceRemindersData","parseMarkdownLinkValidationData","run"]'
+      JSON.stringify(RUNTIME_EXPORTS)
     );
   });
 
@@ -153,6 +154,7 @@ function assertEmittedPublicDocumentation(stagingDirectory: string): void {
   const declarationRoot = join(stagingDirectory, "types");
   const declarations = readDeclarationSources(declarationRoot);
   const publicRoots = [
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.types)

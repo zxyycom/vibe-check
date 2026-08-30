@@ -26,33 +26,27 @@ const check = functionMetrics();
 {
   codeAreas: {
     project: {
-      files: {
-        source: "filesystem",
-        include: ["**/*"],
-        exclude: [
-          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-          "**/target/**", "**/vendor/**"
-        ]
-      },
-      findingPolicy: "blocking",
+      files: defaultProjectFileSelection,
+      findingPolicy: "non-blocking",
       limits: {
         codeLines: {
-          maximum: 50,
+          maximum: 60,
           lowComplexityAllowance: {
-            maximum: 150,
-            cyclomaticComplexityBelow: 5
+            maximum: 180,
+            cyclomaticComplexityBelow: 6
           }
         },
-        cyclomaticComplexity: { maximum: 10 },
-        parameters: { maximum: 5 }
+        cyclomaticComplexity: { maximum: 12 },
+        parameters: { maximum: 6 }
       }
     }
   },
   scanner: { executable: "lizard" }
 }
 ```
+
+这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
+自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
 
 顶层 `findingPolicy` 只为各 area 提供默认值；每个 resolved area 保存自己的有效 `findingPolicy`。所有 maximum 都是
 包含等于值的上限：measurement 必须严格大于 limit 才产生 finding。complexity 小于
@@ -62,16 +56,18 @@ maximum 不得小于普通 code-line maximum。
 constructor 按字段补默认值。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem 不解释
 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check 结算为
 `unavailable`，不会切换到另一来源。`include` 与 `exclude` 都按
-project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用上述 package default；显式数组是完整替换值，
-`include: []` 不选择路径，`exclude: []` 不排除路径。需要在默认 exclude 上增加规则时，调用方在自己的 TypeScript value
-中组成完整数组。nested limit 字段和 area `findingPolicy` 仍可分别省略并继承各自默认值。
+project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用公开的 `defaultProjectFileSelection`；显式数组是
+完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。nested limit 字段和 area `findingPolicy` 仍可分别省略
+并继承各自默认值。
 
 ### 区域与阻断政策
 
-顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，省略时为 `"blocking"`。显式 `codeAreas` 必须非空，
+顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，省略时为 `"non-blocking"`。显式 `codeAreas` 必须非空，
 每个非空 area ID 必须声明 `files: {}`；file fields、limits 和 area `findingPolicy` 都可省略并由 constructor 补齐。
 
 ```ts
+import { defaultProjectFileSelection, functionMetrics } from "vibe-check";
+
 const metrics = functionMetrics({
   findingPolicy: "non-blocking",
   codeAreas: {
@@ -85,8 +81,9 @@ const metrics = functionMetrics({
     },
     tooling: {
       files: {
+        ...defaultProjectFileSelection,
         include: ["scripts/**/*.ts"],
-        exclude: ["scripts/**/*.test.ts"]
+        exclude: [...defaultProjectFileSelection.exclude, "scripts/**/*.test.ts"]
       }
     }
   }

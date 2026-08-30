@@ -15,9 +15,9 @@ import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } f
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const DEFAULT_EXECUTABLE = "scc";
-const DEFAULT_MAXIMUM_CODE_LINES = 300;
-const DEFAULT_ALLOWANCE_MAXIMUM_CODE_LINES = 500;
-const DEFAULT_ALLOWANCE_MAXIMUM_DECISION_TOKENS = 10;
+const DEFAULT_MAXIMUM_CODE_LINES = 360;
+const DEFAULT_ALLOWANCE_MAXIMUM_CODE_LINES = 600;
+const DEFAULT_ALLOWANCE_MAXIMUM_DECISION_TOKENS = 12;
 
 interface PolicyRecordKeys {
   readonly optional?: readonly string[];

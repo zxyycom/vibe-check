@@ -22,6 +22,12 @@ Check final status、Record、aggregation、machine output 或 scanner protocol�
 composition 显式复用，而不是依赖 Product 的 hidden global configuration。同一个 area-based Check 会按 `source` 复用
 候选枚举；这个复用不创建 provider Check、dependency fact 或跨 Check hidden cache。
 
+Package root 的 `defaultProjectFileSelection` 是六项 file-selecting constructor 共用的深冻结完整基线。它明确排除常见
+VCS/Product state、dependencies、build/generated、cache、coverage、log、temporary 与 virtual-environment paths；它不读取
+`.gitignore`，也不是 global setting。省略 file field 时 constructor 从该 value 物化默认；显式数组完整替换。项目需要追加
+排除时，通过 `{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 建立自己的
+selection。完整默认 glob 列表由 [Configuration](configuration.md#package-provided-check-composition) 拥有。
+
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
 line/token policy，file area 使用 file code-line policy，function area 使用 function limits 与 effective finding policy。
 这些 code-area 模型都只服务 owning Check，不是 arbitrary Check 必须采用的公共领域模型，也不会由 Definition 按

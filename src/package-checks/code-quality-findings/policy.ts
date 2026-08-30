@@ -5,7 +5,7 @@ export const FINDING_POLICIES = Object.freeze(["blocking", "non-blocking"] as co
 /** package-provided Check 用于结算 normal finding 的阻断策略。 */
 export type FindingPolicy = (typeof FINDING_POLICIES)[number];
 
-export const DEFAULT_FINDING_POLICY: FindingPolicy = "blocking";
+export const DEFAULT_FINDING_POLICY: FindingPolicy = "non-blocking";
 
 /** 三个代码质量 Check 正常完成时返回的精确 finding 计数。 */
 export interface FindingSummary {

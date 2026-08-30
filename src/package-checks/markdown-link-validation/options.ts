@@ -17,7 +17,7 @@ export interface MarkdownLinkValidationLimitOptions {
 export interface MarkdownLinkValidationOptions {
   /** 参与本 Check 的 Markdown source selection；省略字段使用 package defaults。 */
   readonly files?: ProjectFileSelectionOptions;
-  /** local-reference finding 是否使本 Check failed；省略时为 blocking。 */
+  /** local-reference finding 是否使本 Check failed；省略时为 non-blocking。 */
   readonly findingPolicy?: FindingPolicy;
   /** `false` 时缺失的本地文件或目录不构成 finding。 */
   readonly requireExistingTargets?: boolean;

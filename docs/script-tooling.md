@@ -209,7 +209,9 @@ child 使用相同的 mise-bound invocation。
 四项 direct repository-quality Check 的 repository file selection、code areas 与 finding policy 由 Gate 私有 policy 构造；它们不是
 package-provided Check 的默认 options，也不形成 Product-wide scanner registry。当前 Gate 对四项都选择 non-blocking
 finding policy：normal finding 由 producing Check 结算为带完整 final data/Records 和 warning 的 `passed`，而不是由 Gate
-排除该 Check；scanner/source/parse failure 仍是普通 `unavailable`。`duplicate-detection` 继续由 prepared
+排除该 Check；scanner/source/parse failure 仍是普通 `unavailable`。Gate 还显式固定 duplicate 各 area 的 line/token
+阈值、file metrics 的 `300 + low-decision 500/10`，以及 function metrics 的 `50 + low-complexity 150/below 5 + CC 10 +
+parameters 5`，不会继承更宽的 package defaults。`duplicate-detection` 继续由 prepared
 package 自解析 `jscpd`。正式 Gate 的 mise environment 提供 `VIBE_CHECK_SCC_CMD` 与 `VIBE_CHECK_LIZARD_CMD`：Gate 只接受
 absolute executable，并显式传给 `file-metrics` 与 `function-metrics` 的 owning Check。缺失或非绝对 binding 不会退回
 ambient `PATH`；owning Check 将按普通 scanner failure 结算为 `unavailable`。scanner command/adapter 的私有边界见

@@ -1,6 +1,9 @@
 /** Package-private inventory of the approved public package roots. */
 export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   packageImport: "vibe-check",
+  defaults: Object.freeze({
+    defaultProjectFileSelection: "defaultProjectFileSelection"
+  }),
   operations: Object.freeze({
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",

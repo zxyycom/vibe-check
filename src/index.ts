@@ -81,6 +81,7 @@ export type {
 } from "./package-checks/markdown-link-validation/execution.ts";
 export type { MarkdownLinkFindingReason } from "./package-checks/markdown-link-validation/local-resolver.ts";
 export type { FindingPolicy } from "./package-checks/code-quality-findings/policy.ts";
+export { defaultProjectFileSelection } from "./package-checks/project-files/configuration.ts";
 export type {
   ProjectFileSelection,
   ProjectFileSelectionOptions,

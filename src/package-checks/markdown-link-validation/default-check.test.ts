@@ -111,7 +111,7 @@ function createRoot(prefix: string): string {
 describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
     const defaultCheck = markdownLinkValidation();
-    assert.equal(defaultCheck.options.findingPolicy, "blocking");
+    assert.equal(defaultCheck.options.findingPolicy, "non-blocking");
     assert.equal(defaultCheck.options.requireExistingTargets, true);
     assert.deepEqual(
       markdownLinkValidation({
@@ -125,7 +125,7 @@ describe("default Check direct callbacks", () => {
           include: ["docs/**/*.md"],
           source: "filesystem"
         },
-        findingPolicy: "blocking",
+        findingPolicy: "non-blocking",
         limits: {
           maxMarkdownBytes: 1_048_576,
           maxOccurrences: 10_000,
@@ -219,25 +219,25 @@ describe("default Check direct callbacks", () => {
         "utf8"
       );
 
-      const result = await execute(
+      const defaultResult = await execute(
         executeMarkdownLinkValidation,
-        MARKDOWN_LINK_OPTIONS,
+        markdownLinkValidation({ files: MARKDOWN_FILES }).options,
         root,
         MARKDOWN_FILES
       );
-      assert.deepEqual(result.result, {
-        status: "failed",
+      assert.deepEqual(defaultResult.result, {
+        status: "passed",
         data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
         messages: [
           {
             code: "invalid-local-links",
-            level: "error",
+            level: "warning",
             message:
-              "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+              "1 local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons."
           }
         ]
       });
-      assert.deepEqual(result.records, [
+      assert.deepEqual(defaultResult.records, [
         {
           identity: { id: "source:docs%2Fguide.md:occurrence:1:reason:missing-target" },
           data: {
@@ -252,25 +252,25 @@ describe("default Check direct callbacks", () => {
           }
         }
       ]);
-      const nonBlockingResult = await execute(
+      const blockingResult = await execute(
         executeMarkdownLinkValidation,
-        { ...MARKDOWN_LINK_OPTIONS, findingPolicy: "non-blocking" },
+        MARKDOWN_LINK_OPTIONS,
         root,
         MARKDOWN_FILES
       );
-      assert.deepEqual(nonBlockingResult.result, {
-        status: "passed",
+      assert.deepEqual(blockingResult.result, {
+        status: "failed",
         data: { sourceFileCount: 1, occurrenceCount: 2, targetReadCount: 1, findingCount: 1 },
         messages: [
           {
             code: "invalid-local-links",
-            level: "warning",
+            level: "error",
             message:
-              "1 local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons."
+              "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
           }
         ]
       });
-      assert.deepEqual(nonBlockingResult.records, result.records);
+      assert.deepEqual(blockingResult.records, defaultResult.records);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

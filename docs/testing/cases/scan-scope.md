@@ -37,7 +37,7 @@ Entities:
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > resolves multiple filesystem sets from one named selection call`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > applies explicit default exclusions while retaining other dot files`
   Proves:
-- Filesystem source 不解释 `.gitignore`，只应用 selection 自己的 include/exclude；默认 exclude 明确移除 package-owned ignored paths，同时其它 dot files 仍可选择。
+- Filesystem source 不解释 `.gitignore`，只应用 selection 自己的 include/exclude；公开、深冻结的默认 selection 明确移除 common VCS/Product state、dependency、build/generated、cache、coverage、log、temporary 与 virtual-environment paths，同时其它 dot files 仍可选择。
 - 每个明确选择的来源都在失败时停止，不会在 Git 与 filesystem 之间自动切换；目录读取或 Git 来源失败与合法空集合不同。
 - 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
 

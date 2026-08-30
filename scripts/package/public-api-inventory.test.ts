@@ -9,6 +9,7 @@ import { isNonArrayRecord } from "../../src/data-boundary/value-shapes.ts";
 import {
   defineCheck,
   defineConfig,
+  defaultProjectFileSelection,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
@@ -30,6 +31,20 @@ import { run } from "../../src/project-run/run.ts";
 describe("public API inventory", () => {
   it("publishes only the approved runtime and type roots", () => {
     assert.equal(CURRENT_PUBLIC_CONTRACT.packageImport, "vibe-check");
+    assert.equal(
+      CURRENT_PUBLIC_CONTRACT.defaults.defaultProjectFileSelection,
+      "defaultProjectFileSelection"
+    );
+    assert.equal(defaultProjectFileSelection.source, "filesystem");
+    assert.equal(Object.isFrozen(defaultProjectFileSelection), true);
+    assert.equal(Object.isFrozen(defaultProjectFileSelection.exclude), true);
+    assert.equal(
+      {
+        ...defaultProjectFileSelection,
+        exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"]
+      }.exclude.at(-1),
+      "**/fixtures/**"
+    );
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
     assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
@@ -109,6 +124,7 @@ describe("public API inventory", () => {
     assert.deepEqual(
       packageValueExportNames(packageEntrySource),
       [
+        ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
       ].sort((left, right) => left.localeCompare(right))
@@ -124,6 +140,7 @@ describe("public API inventory", () => {
 });
 function assertPublicRootsHaveChineseJSDoc(contract: typeof CURRENT_PUBLIC_CONTRACT): void {
   const publicRootNames = [
+    ...Object.values(contract.defaults),
     ...Object.values(contract.operations),
     ...Object.values(contract.parsers),
     ...Object.values(contract.types)

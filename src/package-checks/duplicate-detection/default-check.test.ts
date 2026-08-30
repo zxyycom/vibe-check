@@ -16,6 +16,7 @@ import { executeDuplicateDetection } from "./execution.ts";
 import { duplicateDetection } from "./default-check.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
+import { defaultProjectFileSelection } from "../project-files/configuration.ts";
 import type {
   CheckDependencies,
   CheckExecution,
@@ -116,28 +117,10 @@ describe("default Check direct callbacks", () => {
       cache: { directory: ".cache/vibe-check", enabled: true },
       codeAreas: {
         project: {
-          files: {
-            exclude: [
-              "**/.git",
-              "**/.git/**",
-              "**/.vibe-check/**",
-              "**/.cache/**",
-              "**/.venv/**",
-              "**/artifacts/**",
-              "**/build/**",
-              "**/dist/**",
-              "**/generated/**",
-              "**/*.generated.*",
-              "**/node_modules/**",
-              "**/target/**",
-              "**/vendor/**"
-            ],
-            include: ["**/*"],
-            source: "filesystem"
-          },
-          findingPolicy: "blocking",
-          minimumLines: 3,
-          minimumTokens: 75
+          files: defaultProjectFileSelection,
+          findingPolicy: "non-blocking",
+          minimumLines: 4,
+          minimumTokens: 100
         }
       },
       scanner: { command: { kind: "package" } }
@@ -153,9 +136,9 @@ describe("default Check direct callbacks", () => {
           include: ["src/**/*.ts"],
           source: "filesystem"
         },
-        findingPolicy: "blocking",
-        minimumLines: 3,
-        minimumTokens: 75
+        findingPolicy: "non-blocking",
+        minimumLines: 4,
+        minimumTokens: 100
       }
     );
     const specialAreaId = "__proto__";
@@ -165,9 +148,9 @@ describe("default Check direct callbacks", () => {
     assert.equal(Object.hasOwn(specialAreaCheck.options.codeAreas, specialAreaId), true);
     assert.deepEqual(specialAreaCheck.options.codeAreas[specialAreaId], {
       files: defaultCheck.options.codeAreas.project.files,
-      findingPolicy: "blocking",
-      minimumLines: 3,
-      minimumTokens: 75
+      findingPolicy: "non-blocking",
+      minimumLines: 4,
+      minimumTokens: 100
     });
     const root = createRoot("vibe-check-direct-duplicate-");
     try {
@@ -262,21 +245,21 @@ describe("default Check direct callbacks", () => {
       );
       const result = await execute(executeDuplicateDetection, options, root);
       assert.deepEqual(result.result, {
-        status: "failed",
-        data: { blockingFindingCount: 1, findingCount: 1 },
+        status: "passed",
+        data: { blockingFindingCount: 0, findingCount: 1 },
         messages: [
           {
-            code: "blocking-findings",
-            level: "error",
+            code: "non-blocking-findings",
+            level: "warning",
             message:
-              "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+              "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
           }
         ]
       });
       assert.equal(result.records.length, 1);
       assert.match(result.records[0]?.identity.id ?? "", /^duplicate-fragment\/v1\/sha256:/);
       assert.deepEqual(result.records[0]?.data, {
-        blocking: true,
+        blocking: false,
         codeAreas: ["source"],
         lineCount: 12,
         locations: [

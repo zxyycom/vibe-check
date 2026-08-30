@@ -1,6 +1,6 @@
 ---
 title: 在区域质量 Check 间共享 Finding 阻断政策
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T11:14:38Z
 purpose: 让三个基于 area 的质量 Check 完整保留 findings，并用同一 policy 决定哪些 finding 使 owning Check failed。

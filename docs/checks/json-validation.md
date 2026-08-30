@@ -12,21 +12,13 @@
 
 ```ts
 {
-  files: {
-    source: "filesystem",
-    include: ["**/*"],
-    exclude: [
-      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-      "**/target/**", "**/vendor/**"
-    ]
-  },
+  files: defaultProjectFileSelection,
   maximumBytes: 1_048_576
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options，不是调用方必须复制的输入。authoring options 的 `files` 与
+上面的代码块是无参调用物化后的完整 resolved options；`defaultProjectFileSelection` 是 package root 公开的同值深冻结
+基线，不是调用方必须复制的输入；完整默认 glob 可直接从该 public value 读取。authoring options 的 `files` 与
 `maximumBytes` 都可以省略；`files.source`、`files.include` 与 `files.exclude` 也可分别省略。source 可选 `filesystem` 或
 `git-worktree`，selected path 必须命中
 `include` 且不能命中 `exclude`。只有其中 case-sensitive `path.endsWith(".json")` 的 paths 成为输入。

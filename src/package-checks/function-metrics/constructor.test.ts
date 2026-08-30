@@ -116,14 +116,14 @@ describe("functionMetrics constructor", () => {
       /functionMetrics final data/
     );
     assert.equal(check.options.scanner.executable, "lizard");
-    assert.equal(check.options.codeAreas.project?.findingPolicy, "blocking");
+    assert.equal(check.options.codeAreas.project?.findingPolicy, "non-blocking");
     assert.deepEqual(check.options.codeAreas.project?.limits, {
       codeLines: {
-        lowComplexityAllowance: { cyclomaticComplexityBelow: 5, maximum: 150 },
-        maximum: 50
+        lowComplexityAllowance: { cyclomaticComplexityBelow: 6, maximum: 180 },
+        maximum: 60
       },
-      cyclomaticComplexity: { maximum: 10 },
-      parameters: { maximum: 5 }
+      cyclomaticComplexity: { maximum: 12 },
+      parameters: { maximum: 6 }
     });
     assert.equal(Object.isFrozen(check.options), true);
     assert.equal(Object.isFrozen(check.options.codeAreas.project?.files.include), true);
@@ -246,7 +246,6 @@ describe("functionMetrics area findings", () => {
             limits: STRICT_LIMITS
           }
         },
-        findingPolicy: "non-blocking",
         scanner: { executable }
       } as const;
       const nonBlocking = functionMetrics(nonBlockingOptions);

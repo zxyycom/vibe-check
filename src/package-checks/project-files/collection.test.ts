@@ -6,7 +6,10 @@ import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 
 import { collectProjectFileSets, collectProjectFiles } from "./collection.ts";
-import { DEFAULT_PROJECT_FILE_SELECTION } from "./configuration.ts";
+import {
+  defaultProjectFileSelection,
+  snapshotDefaultProjectFileSelection
+} from "./configuration.ts";
 import type { ProjectFileSelection } from "./configuration.ts";
 
 describe("quality submodule input", () => {
@@ -237,11 +240,36 @@ describe("quality input file collection", () => {
 
     try {
       writeFixtureFile(projectRoot, ".visible-config", "enabled=true\n");
+      writeFixtureFile(projectRoot, ".cache/state", "cached\n");
       writeFixtureFile(projectRoot, ".git/config", "[core]\n");
+      writeFixtureFile(projectRoot, ".log/vibe-check/run.log", "diagnostic\n");
+      writeFixtureFile(projectRoot, ".pytest_cache/state", "cached\n");
+      writeFixtureFile(projectRoot, ".tmp/generated.ts", "export const temporary = true;\n");
+      writeFixtureFile(projectRoot, ".venv/module.py", "value = True\n");
+      writeFixtureFile(projectRoot, ".vibe-check/state", "generated\n");
+      writeFixtureFile(projectRoot, "__pycache__/module.pyc", "cached\n");
+      writeFixtureFile(projectRoot, "artifacts/report.json", "{}\n");
+      writeFixtureFile(projectRoot, "build/output.ts", "export const build = true;\n");
+      writeFixtureFile(projectRoot, "coverage/report.json", "{}\n");
+      writeFixtureFile(projectRoot, "dist/output.ts", "export const dist = true;\n");
+      writeFixtureFile(projectRoot, "generated/output.ts", "export const generated = true;\n");
+      writeFixtureFile(projectRoot, "node_modules/package/index.js", "module.exports = {};\n");
       writeFixtureFile(projectRoot, "src/value.generated.ts", "export const generated = true;\n");
       writeFixtureFile(projectRoot, "src/value.ts", "export const value = true;\n");
+      writeFixtureFile(projectRoot, "target/output.rs", "fn generated() {}\n");
+      writeFixtureFile(projectRoot, "tmp/generated.ts", "export const temporary = true;\n");
+      writeFixtureFile(projectRoot, "vendor/package/index.js", "module.exports = {};\n");
+      writeFixtureFile(projectRoot, "venv/module.py", "value = True\n");
 
-      assert.deepEqual(collectProjectFiles(projectRoot, DEFAULT_PROJECT_FILE_SELECTION), [
+      assert.equal(Object.isFrozen(defaultProjectFileSelection), true);
+      assert.equal(Object.isFrozen(defaultProjectFileSelection.exclude), true);
+      assert.equal(Object.isFrozen(defaultProjectFileSelection.include), true);
+      const snapshot = snapshotDefaultProjectFileSelection();
+      assert.deepEqual(snapshot, defaultProjectFileSelection);
+      assert.notEqual(snapshot, defaultProjectFileSelection);
+      assert.notEqual(snapshot.exclude, defaultProjectFileSelection.exclude);
+      assert.notEqual(snapshot.include, defaultProjectFileSelection.include);
+      assert.deepEqual(collectProjectFiles(projectRoot, defaultProjectFileSelection), [
         ".visible-config",
         "src/value.ts"
       ]);

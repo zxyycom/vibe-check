@@ -52,6 +52,10 @@ preflight 返回以下三种 closed result 之一：
 
 Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
 
+Package root 的 `defaultProjectFileSelection` 只是 file-selecting constructor 共用的可组合、深冻结 value；constructor 会把
+它物化到自己的完整 options。spread 该 value 不会建立跨 Check global config，显式 `include` / `exclude` 数组仍由 owning
+Check 视为完整替换；完整默认 glob 可直接从该 public value 读取。
+
 ## terminal result、Records 与 messages
 
 每个可执行 Check 返回一个 terminal result：`passed` / `failed` 带 Check-owned object final data；`not-applicable` / `unavailable` 以 reason 表示本次调用的数据边界。settlement 会 detach、canonicalize 并关闭 final data；callback throw、malformed result 或 noncanonical data 对应 `unavailable` outcome。

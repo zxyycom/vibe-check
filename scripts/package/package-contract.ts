@@ -44,6 +44,7 @@ export const MOMOA_LICENSE_SOURCE_PATH =
 
 export const RUNTIME_EXPORTS = Object.freeze(
   [
+    ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
     ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
   ].sort()

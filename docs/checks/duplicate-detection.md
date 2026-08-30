@@ -26,19 +26,10 @@ const check = duplicateDetection();
   cache: { directory: ".cache/vibe-check", enabled: true },
   codeAreas: {
     project: {
-      files: {
-        source: "filesystem",
-        include: ["**/*"],
-        exclude: [
-          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-          "**/target/**", "**/vendor/**"
-        ]
-      },
-      findingPolicy: "blocking",
-      minimumLines: 3,
-      minimumTokens: 75
+      files: defaultProjectFileSelection,
+      findingPolicy: "non-blocking",
+      minimumLines: 4,
+      minimumTokens: 100
     }
   },
   scanner: {
@@ -47,14 +38,17 @@ const check = duplicateDetection();
 }
 ```
 
+这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
+自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
+
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
 - 每个显式 area 必须提供 `files` branch。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`。
   `filesystem` 枚举普通文件且不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的
   未跟踪文件。来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
-- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。两者可分别省略并使用上述
-  package defaults；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
-- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `blocking`；area 可覆盖，省略时继承顶层值。
-- `minimumLines` 与 `minimumTokens` 可省略并分别使用 `3` 和 `75`，显式值必须是正安全整数。
+- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。两者可分别省略并使用公开的
+  `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
+- `minimumLines` 与 `minimumTokens` 可省略并分别使用 `4` 和 `100`，显式值必须是正安全整数。
 - `cache.directory` 省略时为 `.cache/vibe-check`，相对路径从 project root 解析；`cache.enabled` 省略时为 `true`。
 - `scanner.command` 省略时为 `{ kind: "package" }`。
 - 未知字段、空 area map、缺失 area `files`、非法阈值或非法 scanner policy 会由 constructor 同步抛出
@@ -62,11 +56,11 @@ const check = duplicateDetection();
 
 ## 定制区域 policy
 
-调用方只声明要改变的 policy，不需要读取默认 Check 或编写 nested spread。下面两个 area 各自拥有文件范围和阈值；
-省略的 file fields、finding policy 与阈值由 constructor 补齐，`files: {}` 则表示全部 file fields 使用默认值：
+调用方只声明要改变的 policy，不需要读取默认 Check。下面两个 area 各自拥有文件范围和阈值；省略的 file fields、
+finding policy 与阈值由 constructor 补齐。只有追加默认数组时才组合公开的 files 基线：
 
 ```ts
-import { duplicateDetection } from "vibe-check";
+import { defaultProjectFileSelection, duplicateDetection } from "vibe-check";
 
 const sourceAndScriptsDuplicateDetection = duplicateDetection({
   codeAreas: {
@@ -76,8 +70,9 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
     },
     scripts: {
       files: {
+        ...defaultProjectFileSelection,
         include: ["scripts/**/*.ts"],
-        exclude: ["scripts/**/*.test.ts"]
+        exclude: [...defaultProjectFileSelection.exclude, "scripts/**/*.test.ts"]
       },
       minimumLines: 10,
       minimumTokens: 100
@@ -87,7 +82,7 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 ```
 
 每个 `codeAreas[id]` 都是该区域文件范围、有效 finding policy 与行数/token 下限的单一事实源。上例的
-`scripts.exclude` 只排除测试文件；显式数组是完整值，不会自动追加 package 默认排除项。
+`scripts.exclude` 显式保留 common defaults 并追加测试文件；若只写 `["scripts/**/*.test.ts"]`，它会完整替换默认排除数组。
 
 ## 定制 jscpd executable
 

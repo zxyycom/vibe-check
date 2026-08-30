@@ -263,43 +263,56 @@ defaults，`maintenanceReminders(entries)` 接收必须显式声明的提醒政�
 validator。
 
 六个 defaulting constructor 都同步拒绝未知/非法 authoring input、按各自字段规则补齐 defaults 并返回完整冻结 options；
-consumer 不需要读取导出默认对象或使用 nested spread。constructor 返回后若再用普通对象组合替换完整 options，
+无参或只覆盖单个字段时，consumer 不需要读取默认对象或使用 nested spread。constructor 返回后若再用普通对象组合替换完整 options，
 owning preflight 仍会拒绝缺失、未知或非法 resolved shape。Definition 不把这些问题升级为全局 configuration failure。
 
 `jsonValidation`、`jsonSchemaValidation` 与 `markdownLinkValidation` 各自拥有完整
 `options.files` branch；三个 metric constructor 则为每个 `options.codeAreas[id]` 物化同样完整的 `files` branch。
-该 branch 的 package default 是：
+Package root 公开以下深冻结的 `defaultProjectFileSelection: ProjectFileSelection`。该 value 是六个 constructor 共同使用的
+完整基线；每个 constructor 会在自己的 resolved options 中物化同值、不可变的 files branch：
 
 ```ts
 {
   source: "filesystem",
   include: ["**/*"],
   exclude: [
-    "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-    "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-    "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-    "**/target/**", "**/vendor/**"
+    "**/.cache/**", "**/.git", "**/.git/**", "**/.log/**",
+    "**/.pytest_cache/**", "**/.tmp/**", "**/.venv/**", "**/.vibe-check/**",
+    "**/__pycache__/**", "**/artifacts/**", "**/build/**", "**/coverage/**",
+    "**/dist/**", "**/generated/**", "**/*.generated.*", "**/node_modules/**",
+    "**/target/**", "**/tmp/**", "**/vendor/**", "**/venv/**"
   ]
 }
 ```
 
-六个 file-selecting constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上表值；source 只能是
+六个 file-selecting constructor 对 `source`、`include`、`exclude` 分别补默认值：省略字段时使用上述对象的对应值；source 只能是
 `"filesystem" | "git-worktree"`。显式提供某个数组时，该数组完整替换对应字段的默认值，不会自动追加或深度合并。
 `include` 与 `exclude` 都匹配相对项目根目录且使用 `/` 的路径，`exclude` 优先。filesystem 不解释 `.gitignore`；
 git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。文件选择始终只使用配置的来源；来源失败会让
-owning Check 结算为 unavailable，不会切换来源。需要保留默认排除并增加项目规则时，项目应先定义自己的完整数组，再通过
-普通 TypeScript composition 复用。nested threshold、allowance 与 finding-policy 字段仍按各 constructor 的下述规则
-独立补齐。
+owning Check 结算为 unavailable，不会切换来源。默认对象本身不能修改；需要保留基线并增加项目规则时，项目通过普通
+TypeScript composition 建立新对象：
+
+```ts
+import { defaultProjectFileSelection } from "vibe-check";
+
+const projectFiles = {
+  ...defaultProjectFileSelection,
+  exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"]
+};
+```
+
+这段 composition 是 consumer-owned 完整 selection，不是 Product-wide global config。nested threshold、allowance 与
+finding-policy 字段仍按各 constructor 的下述规则独立补齐。
 
 无参 `duplicateDetection()` 的 `codeAreas.project` 恰为
-`{ files: <上述 branch>, findingPolicy: "blocking", minimumLines: 3, minimumTokens: 75 }`；其顶层 options 没有
+`{ files: <上述 branch>, findingPolicy: "non-blocking", minimumLines: 4, minimumTokens: 100 }`；其顶层 options 没有
 `files` 或默认/override 阈值。
 无参 `fileMetrics()` 建立一个 area-owned `project` policy 并使用默认 `scc` executable；完整字段与默认值见
 [`fileMetrics` 指南](checks/file-metrics.md#参数与默认配置)。
-无参 `functionMetrics()` 以 `"blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
+无参 `functionMetrics()` 以 `"non-blocking"` 作为 constructor 的 area policy 默认值；产物不保留第二份顶层 policy，
 `codeAreas.project` 直接拥有上述 files、effective finding policy，以及
-`codeLines: { maximum: 50, lowComplexityAllowance: { maximum: 150, cyclomaticComplexityBelow: 5 } }`、
-`cyclomaticComplexity: { maximum: 10 }` 与 `parameters: { maximum: 5 }`。
+`codeLines: { maximum: 60, lowComplexityAllowance: { maximum: 180, cyclomaticComplexityBelow: 6 } }`、
+`cyclomaticComplexity: { maximum: 12 }` 与 `parameters: { maximum: 6 }`。
 这些 defaults 是 owning Check 的 policy，不是
 `ProjectDefinition` 中的共享配置。项目需要统一 policy 时，应像 repository dogfood Definition 一样用普通 TypeScript
 value 显式组合。
@@ -320,13 +333,13 @@ codeAreas, findingPolicy, scanner }`；显式 area 必须提供 `files` branch�
 policy 和两个阈值均可省略。constructor 产物的完整
 `options` 恰好包含 `{ cache, codeAreas, scanner }`；`codeAreas` 至少有一个非空 id，每个 value 恰好包含
 `{ files, findingPolicy, minimumLines, minimumTokens }`，两个阈值都是正安全整数。顶层 `findingPolicy` 默认为
-`"blocking"`，area 可覆盖并在 resolved area 中物化。resolved `scanner` 恰为 `{ command }`；package
+`"non-blocking"`，area 可覆盖并在 resolved area 中物化。resolved `scanner` 恰为 `{ command }`；package
 command 恰为 `{ kind: "package" }`，custom command 恰为 `{ kind: "custom", executable }`。version probe、exact-input
 config、JSON report output 和自动 worker policy 全部由 jscpd adapter 拥有；正确示例与 wrapper 边界见
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)。
 
 `fileMetrics(options?)` 以 area ID 共同组织 files、code-line policy 与 effective finding policy，并只允许 consumer 选择
-SCC executable；顶层 `findingPolicy` 默认为 `"blocking"`，area 可覆盖。完整 input/resolved shape、有效上限、重叠 area
+SCC executable；顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖。完整 input/resolved shape、有效上限、重叠 area
 和 adapter protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
 
 `functionMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, scanner }`；顶层 finding policy 只能是
@@ -350,16 +363,7 @@ environment lookup、executable discovery 或共享 scanner adapter。完整 han
 
 ```ts
 {
-  files: {
-    source: "filesystem",
-    include: ["**/*"],
-    exclude: [
-      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-      "**/target/**", "**/vendor/**"
-    ]
-  },
+  files: defaultProjectFileSelection,
   maximumBytes: 1_048_576,
   schemaIdentity: { mode: "require-match" },
   referenceResolution: { mode: "offline" },
@@ -431,17 +435,8 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
 
 ```ts
 {
-  files: {
-    source: "filesystem",
-    include: ["**/*"],
-    exclude: [
-      "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-      "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-      "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-      "**/target/**", "**/vendor/**"
-    ]
-  },
-  findingPolicy: "blocking",
+  files: defaultProjectFileSelection,
+  findingPolicy: "non-blocking",
   requireExistingTargets: true,
   validateSameDocumentAnchors: true,
   validateCrossDocumentAnchors: true,
@@ -455,7 +450,7 @@ source 与 direct target 的边界由 [Project files and Check exact inputs](sca
 }
 ```
 
-`findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `"blocking"`：它只决定 normal local-reference finding
+`findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `"non-blocking"`：它只决定 normal local-reference finding
 使 owning Check `failed`，还是保留全部 Records/final data 并以 warning message 结算为 `passed`；它不处理 source、parse
 或 target unavailable，也不改变 Run aggregation。`requireExistingTargets` 使缺失的 direct regular-file 或 directory target
 成为普通 `missing-target` finding；它为 `false` 时，该缺失 target 的 anchor work 停止。`validateSameDocumentAnchors` 和

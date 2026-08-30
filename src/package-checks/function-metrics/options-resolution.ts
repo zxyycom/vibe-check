@@ -19,11 +19,11 @@ import {
 import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 
 const DEFAULT_LIZARD_EXECUTABLE = "lizard";
-const DEFAULT_CODE_LINE_MAXIMUM = 50;
-const DEFAULT_LOW_COMPLEXITY_CODE_LINE_MAXIMUM = 150;
-const DEFAULT_LOW_COMPLEXITY_BELOW = 5;
-const DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM = 10;
-const DEFAULT_PARAMETER_MAXIMUM = 5;
+const DEFAULT_CODE_LINE_MAXIMUM = 60;
+const DEFAULT_LOW_COMPLEXITY_CODE_LINE_MAXIMUM = 180;
+const DEFAULT_LOW_COMPLEXITY_BELOW = 6;
+const DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM = 12;
+const DEFAULT_PARAMETER_MAXIMUM = 6;
 
 interface PolicyRecordKeys {
   readonly optional?: readonly string[];

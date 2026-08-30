@@ -15,15 +15,15 @@ export type FileMetricsFileOptions = ProjectFileSelectionOptions;
 
 /** SCC decision-token 数较低的文件可使用的代码行宽限策略。 */
 export interface FileMetricsLowDecisionTokenAllowanceOptions {
-  /** 省略时为 `500`；必须严格大于同一区域的普通代码行上限。 */
+  /** 省略时为 `600`；必须严格大于同一区域的普通代码行上限。 */
   readonly maximumCodeLines?: number;
-  /** 省略时为 `10`；decision-token measurement 不大于此值时应用宽限上限。 */
+  /** 省略时为 `12`；decision-token measurement 不大于此值时应用宽限上限。 */
   readonly maximumDecisionTokens?: number;
 }
 
 /** 一个区域可省略的文件代码行策略。 */
 export interface FileMetricsCodeLineOptions {
-  /** 省略时为 `300`；只有严格超过此值才产生 finding。 */
+  /** 省略时为 `360`；只有严格超过此值才产生 finding。 */
   readonly maximum?: number;
   /** 省略时使用完整默认宽限策略。 */
   readonly lowDecisionTokenAllowance?: FileMetricsLowDecisionTokenAllowanceOptions;
@@ -43,7 +43,7 @@ export interface FileMetricsCodeAreaOptions {
 export interface FileMetricsOptions {
   /** 省略时建立默认 `project` 区域；显式映射必须非空。 */
   readonly codeAreas?: Readonly<Record<string, FileMetricsCodeAreaOptions>>;
-  /** 省略时为 `blocking`；区域可局部覆盖。 */
+  /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
   /** 省略时直接执行 `scc`；CLI 协议由 owning adapter 固定。 */
   readonly scanner?: FileMetricsScannerOptions;

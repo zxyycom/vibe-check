@@ -65,7 +65,7 @@ unavailable，不创建并行 quality model。owner-local tool boundary 见
 [Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
 [Project files and Check exact inputs](scan-scope.md)。
 
-三个 area-based 代码质量 Check 共用 Finding policy：constructor 顶层 `findingPolicy` 默认为 `"blocking"`，area 可覆盖；
+三个 area-based 代码质量 Check 共用 Finding policy：constructor 顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖；
 resolved area 保存自己的有效 policy。每个可信 finding 都发布一条带显式 `blocking` 的 Check-local Record；同一 finding
 涉及多个 matching areas 时，只要任一区域使用 blocking policy，Record 就是 blocking。scanner、conversion 与后续 Record
 不因首个 blocking finding 短路。
@@ -126,8 +126,8 @@ aggregation 与 output presentation 不属于这些 options。
 `markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal issue 恰好报告一个
 Check-local Record，其 reason 只能是 `missing-target`、`target-outside-project-root`、`empty-directory`、
 `anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。其公开
-`findingPolicy` 默认为 `"blocking"`：normal issue 在 blocking policy 下结算为 `failed`，在 `"non-blocking"` 下保留
-相同 final data 与 Records、结算为 `passed` 并附 warning message；没有 normal issue 时为无 message 的 `passed`。
+`findingPolicy` 默认为 `"non-blocking"`：normal issue 默认保留相同 final data 与 Records、结算为 `passed` 并附 warning；
+显式 blocking policy 才结算为 `failed` 并附 error。没有 normal issue 时为无 message 的 `passed`。
 
 Link Record 标识 source relative path、one-based occurrence ordinal 和 reason。其 data 只能包含 reason、occurrence kind
 （`link` 或 `image`）、slash-normalized root-relative source path、source navigation range 与 safe target descriptor。对

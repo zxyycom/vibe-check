@@ -37,9 +37,9 @@ export interface DuplicateDetectionCodeAreaOptions {
   readonly files: DuplicateDetectionFileOptions;
   /** 省略时继承顶层 `findingPolicy`。 */
   readonly findingPolicy?: FindingPolicy;
-  /** 省略时为 `3`。 */
+  /** 省略时为 `4`。 */
   readonly minimumLines?: number;
-  /** 省略时为 `75`。 */
+  /** 省略时为 `100`。 */
   readonly minimumTokens?: number;
 }
 
@@ -48,7 +48,7 @@ export interface DuplicateDetectionOptions {
   /** 省略时建立默认 `project` 区域；显式映射必须非空。 */
   readonly codeAreas?: Readonly<Record<string, DuplicateDetectionCodeAreaOptions>>;
   readonly cache?: DuplicateDetectionCacheOptions;
-  /** 省略时为 `blocking`；区域可局部覆盖。 */
+  /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
   readonly scanner?: DuplicateDetectionScannerOptions;
 }

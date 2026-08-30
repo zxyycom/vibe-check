@@ -24,6 +24,7 @@ import { fileMetrics } from "./constructor.ts";
 import { executeFileMetrics } from "./execution.ts";
 import { parseFileMetricsData } from "./final-data.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
+import { defaultProjectFileSelection } from "../project-files/configuration.ts";
 
 const FILES = Object.freeze({
   exclude: Object.freeze([]),
@@ -111,31 +112,13 @@ describe("fileMetrics constructor and direct callback", () => {
         project: {
           codeLines: {
             lowDecisionTokenAllowance: {
-              maximumCodeLines: 500,
-              maximumDecisionTokens: 10
+              maximumCodeLines: 600,
+              maximumDecisionTokens: 12
             },
-            maximum: 300
+            maximum: 360
           },
-          files: {
-            exclude: [
-              "**/.git",
-              "**/.git/**",
-              "**/.vibe-check/**",
-              "**/.cache/**",
-              "**/.venv/**",
-              "**/artifacts/**",
-              "**/build/**",
-              "**/dist/**",
-              "**/generated/**",
-              "**/*.generated.*",
-              "**/node_modules/**",
-              "**/target/**",
-              "**/vendor/**"
-            ],
-            include: ["**/*"],
-            source: "filesystem"
-          },
-          findingPolicy: "blocking"
+          files: defaultProjectFileSelection,
+          findingPolicy: "non-blocking"
         }
       },
       scanner: { executable: "scc" }
@@ -153,8 +136,8 @@ describe("fileMetrics constructor and direct callback", () => {
       {
         codeLines: {
           lowDecisionTokenAllowance: {
-            maximumCodeLines: 500,
-            maximumDecisionTokens: 10
+            maximumCodeLines: 600,
+            maximumDecisionTokens: 12
           },
           maximum: 200
         },
@@ -163,7 +146,7 @@ describe("fileMetrics constructor and direct callback", () => {
           include: ["src/**/*.ts"],
           source: "filesystem"
         },
-        findingPolicy: "blocking"
+        findingPolicy: "non-blocking"
       }
     );
     const specialAreaId = "__proto__";
@@ -312,7 +295,6 @@ describe("fileMetrics constructor and direct callback", () => {
           }
         }
       },
-      findingPolicy: "non-blocking",
       scanner: { executable }
     });
 

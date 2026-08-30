@@ -29,22 +29,13 @@ const check = fileMetrics();
 {
   codeAreas: {
     project: {
-      files: {
-        source: "filesystem",
-        include: ["**/*"],
-        exclude: [
-          "**/.git", "**/.git/**", "**/.vibe-check/**", "**/.cache/**",
-          "**/.venv/**", "**/artifacts/**", "**/build/**", "**/dist/**",
-          "**/generated/**", "**/*.generated.*", "**/node_modules/**",
-          "**/target/**", "**/vendor/**"
-        ]
-      },
-      findingPolicy: "blocking",
+      files: defaultProjectFileSelection,
+      findingPolicy: "non-blocking",
       codeLines: {
-        maximum: 300,
+        maximum: 360,
         lowDecisionTokenAllowance: {
-          maximumCodeLines: 500,
-          maximumDecisionTokens: 10
+          maximumCodeLines: 600,
+          maximumDecisionTokens: 12
         }
       }
     }
@@ -53,6 +44,9 @@ const check = fileMetrics();
 }
 ```
 
+这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
+自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
+
 ### 字段规则
 
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
@@ -60,9 +54,9 @@ const check = fileMetrics();
 - 每个显式区域必须提供 `files`。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem
   不解释 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check
   结算为 `unavailable`，不会切换到另一来源。
-- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用上述 package
-  default；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
-- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `blocking`；area 可覆盖，省略时继承顶层值。
+- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用公开的
+  `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
 - 省略 `codeLines` 时使用完整默认代码行策略；`maximum` 与 allowance 内的字段也可分别省略。
 - `maximum` 与 `maximumCodeLines` 必须是正安全整数，`maximumDecisionTokens` 必须是非负安全整数；
   allowance 的 `maximumCodeLines` 必须严格大于同一区域的普通 `maximum`。
@@ -72,7 +66,7 @@ const check = fileMetrics();
 ### 为不同文件配置策略
 
 ```ts
-import { fileMetrics } from "vibe-check";
+import { defaultProjectFileSelection, fileMetrics } from "vibe-check";
 
 const sourceAndTests = fileMetrics({
   codeAreas: {
@@ -81,7 +75,11 @@ const sourceAndTests = fileMetrics({
       codeLines: { maximum: 300 }
     },
     tests: {
-      files: { include: ["test/**/*.ts", "src/**/*.test.ts"] },
+      files: {
+        ...defaultProjectFileSelection,
+        exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
+        include: ["test/**/*.ts", "src/**/*.test.ts"]
+      },
       codeLines: {
         maximum: 600,
         lowDecisionTokenAllowance: {
@@ -94,9 +92,8 @@ const sourceAndTests = fileMetrics({
 });
 ```
 
-本例只覆盖各区域显式给出的字段；省略的文件字段、finding policy 和代码行字段继续使用 package 默认值。需要在默认
-`exclude` 数组上增加项目规则时，请在项目的 TypeScript value 中显式组成包含默认项与新增项的完整数组，再传给
-constructor。
+本例只覆盖各区域显式给出的字段；省略的文件字段、finding policy 和代码行字段继续使用 package 默认值。`tests` area
+通过公开的深冻结 `defaultProjectFileSelection` 保留 common exclusions，再追加项目的 fixture 规则。
 
 ### 单个区域的有效上限
 

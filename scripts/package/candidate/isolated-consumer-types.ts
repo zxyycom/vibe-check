@@ -142,6 +142,7 @@ function publicImports(): string {
   return `import {
   defineCheck,
   defineConfig,
+  defaultProjectFileSelection,
   duplicateDetection,
   fileMetrics,
   functionMetrics,
@@ -176,6 +177,12 @@ interface ChangedFilesData {
   readonly files: readonly string[];
   readonly version: 1;
 }
+
+const sourceFiles: ProjectFileSelection = {
+  ...defaultProjectFileSelection,
+  exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
+  include: ["src/**/*.ts"]
+};
 
 const changedFilesData: ChangedFilesData = {
   files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
@@ -230,16 +237,14 @@ const definition: ProjectDefinition = defineConfig({
       codeAreas: {
         source: {
           files: {
-            exclude: ["**/*.generated.*"],
-            include: ["src/**/*.ts"],
+            ...sourceFiles,
             source: "git-worktree"
           }
         }
-      },
-      findingPolicy: "non-blocking"
+      }
     }),
-    fileMetrics({ findingPolicy: "non-blocking" }),
-    functionMetrics({ findingPolicy: "non-blocking" }),
+    fileMetrics(),
+    functionMetrics(),
     markdownLinkValidation(),
     directCheck,
     changedFiles,

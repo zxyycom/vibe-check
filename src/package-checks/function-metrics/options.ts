@@ -10,21 +10,21 @@ export type FunctionMetricsFileOptions = ProjectFileSelectionOptions;
 /** `functionMetrics` 构造函数可省略的函数指标上限。 */
 export interface FunctionMetricsLimitOptions {
   readonly codeLines?: Readonly<{
-    /** 省略时为 `50`；函数 NLOC 超过此值时产生 finding。 */
+    /** 省略时为 `60`；函数 NLOC 超过此值时产生 finding。 */
     readonly maximum?: number;
     readonly lowComplexityAllowance?: Readonly<{
-      /** 省略时为 `5`；复杂度小于此值时可使用较高 NLOC 上限。 */
+      /** 省略时为 `6`；复杂度小于此值时可使用较高 NLOC 上限。 */
       readonly cyclomaticComplexityBelow?: number;
-      /** 省略时为 `150`；不得小于普通代码行上限。 */
+      /** 省略时为 `180`；不得小于普通代码行上限。 */
       readonly maximum?: number;
     }>;
   }>;
   readonly cyclomaticComplexity?: Readonly<{
-    /** 省略时为 `10`。 */
+    /** 省略时为 `12`。 */
     readonly maximum?: number;
   }>;
   readonly parameters?: Readonly<{
-    /** 省略时为 `5`。 */
+    /** 省略时为 `6`。 */
     readonly maximum?: number;
   }>;
 }
@@ -49,7 +49,7 @@ export interface FunctionMetricsScannerOptions {
 export interface FunctionMetricsOptions {
   /** 省略时建立默认 `project` 区域；显式映射必须非空，且每个区域必须声明 `files`。 */
   readonly codeAreas?: Readonly<Record<string, FunctionMetricsCodeAreaOptions>>;
-  /** 省略时为 `blocking`；区域可局部覆盖。 */
+  /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
   /** 省略时使用 PATH 中的 `lizard`。 */
   readonly scanner?: FunctionMetricsScannerOptions;
