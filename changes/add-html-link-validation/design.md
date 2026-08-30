@@ -4,7 +4,7 @@
 
 ## Context
 
-[`docs/scan-scope.md`](../../docs/scan-scope.md) 规定当前 Markdown Link source occurrences 不包含 HTML attribute；[`adopt-low-level-markdown-link-parser-architecture.md`](../../docs/decisions/adopt-low-level-markdown-link-parser-architecture.md) 也将现有 parser facts 和 resolver 保持为 Link-private implementation。活动但未对齐的 [`expand-format-aware-built-in-checks.md`](../../docs/decisions/expand-format-aware-built-in-checks.md) 允许不同格式风险形成独立 future Product-provided Checks，但不决定本方向的优先级、public identity 或精确 contract。
+[`docs/scan-scope.md`](../../docs/scan-scope.md) 规定当前 Markdown Link source occurrences 不包含 HTML attribute；[`adopt-low-level-markdown-link-parser-architecture.md`](../../docs/decisions/adopt-low-level-markdown-link-parser-architecture.md) 也将现有 parser facts 和 resolver 保持为 Link-private implementation。活动且已对齐的 [`keep-format-aware-check-capabilities-independent.md`](../../docs/decisions/keep-format-aware-check-capabilities-independent.md) 要求不同格式风险保持独立 Check owner，并要求未来能力只在有新的真实 consumer、风险证据或明确优先级时重新基线化；它不决定本 Draft 的 public identity 或精确 contract。
 
 当前没有要求实现 HTML 校验的命名 consumer。用户只确认 `<a href="docs/a.md">` 可以作为未来校验内容，当前不需要。
 
