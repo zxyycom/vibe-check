@@ -1,5 +1,3 @@
-import { basename } from "node:path";
-
 import {
   runTestEvidenceRuleTests,
   testEvidenceRuleTestFailureMessage,
@@ -11,6 +9,7 @@ import { defineCheck, type Check, type CheckResult } from "vibe-check";
 
 import {
   failedProcessResult,
+  processTranscriptReference,
   writeProcessTranscript,
   type ProcessCheckDescriptor
 } from "../check-execution/process.ts";
@@ -117,7 +116,7 @@ export function createTestEvidenceRuleTestsCheck(
           Object.freeze({
             level: "error",
             code: "ast-grep-version-mismatch",
-            message: `The ast-grep version did not match; transcript: ${basename(logPath)}.`
+            message: `The ast-grep version did not match; transcript: ${processTranscriptReference(logPath)}.`
           })
         ])
       });

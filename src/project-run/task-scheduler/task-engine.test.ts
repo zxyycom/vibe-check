@@ -37,7 +37,7 @@ function recordedSchedulerDecisions(
   assert.ok(observations.length > 0, "expected scheduler decisions to be observed");
   const decisions: SchedulerDecision[] = [];
   for (const observation of observations) {
-    assert.equal(observation.scope, "SCHEDULER");
+    assert.equal(observation.tags[0], "SCHEDULER");
     assert.equal(observation.event, "scheduler.decision");
     assertNoUndefinedValue(observation.details);
     if (!isSchedulerDecision(observation.details)) {

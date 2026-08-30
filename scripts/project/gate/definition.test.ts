@@ -559,7 +559,10 @@ describe("Project Gate Definition", () => {
         const invocation = await invokeCheckWithRecords(scenario.check);
         assert.deepEqual(invocation.result, scenario.expected);
         assert.deepEqual(invocation.records, scenario.records ?? []);
-        assert.equal(existsSync(join(logDirectory, `${scenario.check.checkId}.log`)), false);
+        assert.equal(
+          existsSync(join(logDirectory, "process", `${scenario.check.checkId}.log`)),
+          false
+        );
       }
 
       const cancelled = new AbortController();
@@ -575,7 +578,10 @@ describe("Project Gate Definition", () => {
         status: "unavailable",
         reason: { code: "execution-cancelled" }
       });
-      assert.equal(existsSync(join(logDirectory, "fixture-native-cancelled.log")), false);
+      assert.equal(
+        existsSync(join(logDirectory, "process", "fixture-native-cancelled.log")),
+        false
+      );
 
       const afterOperationCancellation = new AbortController();
       let operationWorkspaceRoot: string | undefined;
@@ -596,7 +602,10 @@ describe("Project Gate Definition", () => {
       });
       assert.equal(operationWorkspaceRoot, process.cwd());
       assert.equal(operationSignal, afterOperationCancellation.signal);
-      assert.equal(existsSync(join(logDirectory, "fixture-native-operation-cancelled.log")), false);
+      assert.equal(
+        existsSync(join(logDirectory, "process", "fixture-native-operation-cancelled.log")),
+        false
+      );
     } finally {
       rmSync(logDirectory, { force: true, recursive: true });
     }
@@ -631,7 +640,7 @@ describe("Project Gate Definition", () => {
         status: "passed",
         data: { ruleTestsExitCode: 0, versionExitCode: 0 }
       });
-      const transcriptPath = join(logDirectory, "test-evidence-rule-tests.log");
+      const transcriptPath = join(logDirectory, "process", "test-evidence-rule-tests.log");
       assert.match(readFileSync(transcriptPath, "utf8"), /step: version/);
       assert.match(readFileSync(transcriptPath, "utf8"), /step: rule-tests/);
 
@@ -648,7 +657,8 @@ describe("Project Gate Definition", () => {
           {
             level: "error",
             code: "ast-grep-version-mismatch",
-            message: "The ast-grep version did not match; transcript: test-evidence-rule-tests.log."
+            message:
+              "The ast-grep version did not match; transcript: process/test-evidence-rule-tests.log."
           }
         ]
       });
@@ -671,7 +681,7 @@ describe("Project Gate Definition", () => {
             level: "error",
             code: "command-failed",
             message:
-              "Command exited with code 7; signal: none; transcript: test-evidence-rule-tests.log."
+              "Command exited with code 7; signal: none; transcript: process/test-evidence-rule-tests.log."
           }
         ]
       });
@@ -680,7 +690,7 @@ describe("Project Gate Definition", () => {
           data: {
             command: "ast-grep",
             exitCode: 7,
-            log: "test-evidence-rule-tests.log",
+            log: "process/test-evidence-rule-tests.log",
             signal: "none"
           },
           identity: { id: "command-failure" }

@@ -99,15 +99,30 @@ provider staging 执行完整 material audit，因此 staging corruption 不会�
 `scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。一次 invocation 按以下顺序建立：
 
 1. 准备 candidate，并确认 private consumer 解析到的 package entry 与准备结果相同。
-2. 创建 invocation log directory，并把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run；该 Run
-   通过 invocation-local output override 把 Product diagnostic log 与标准 machine fact set 写到这个目录。
-3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约。
+2. 创建 invocation log directory 和 Gate transcript，再把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run；
+   该 Run 通过 invocation-local output override 把 Product diagnostic log 与标准 machine fact set 写到这个目录。
+3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约，并在关闭 transcript 前写入
+   最终 Gate result 与 process exit mapping。
 
 参数、candidate preparation、private consumer import 或 exact entry identity 失败时，adapter 不启动 Gate Run。成功启动的
-Gate 总是显示 invocation directory；该目录中的 Product `run-<UTC 紧凑时间>-<UUID>.log`、标准 `run.json` /
-`records.ndjson` 与各 Check-owned process transcript 并列，不建立 `latest`、index、retention 或相互解析关系。machine
-files 必须作为 [Output](output.md) 定义的完整二文件 set 读取；它们是本次 invocation 的本地 evidence，不是 quality-only
-report、package release artifact 或跨 invocation 的合并视图。
+Gate 总是显示 invocation directory。一次完整 invocation 使用以下人读与 machine evidence 布局：
+
+```text
+<invocation-directory>/
+├── gate.log
+├── run-<UTC 紧凑时间>-<UUID>.log
+├── run.json
+├── records.ndjson
+└── process/
+    └── <check-id>.log
+```
+
+`gate.log` 是 Gate 外层 stdout/stderr 的 plain transcript；Product `run-*.log` 是 core 时间线；`run.json` 与
+`records.ndjson` 是标准 machine fact set；`process/` 只保存已进入 process handoff 的 Check-owned transcripts，包括 child
+启动前写入的 running evidence。
+该目录不建立 `latest`、index、retention 或文件间解析关系。machine files 必须作为 [Output](output.md) 定义的完整二文件
+set 读取；它们是本次 invocation 的本地 evidence，不是 quality-only report、package release artifact 或跨 invocation 的
+合并视图。
 Gate 不替代 development、docs、decision-records 或 test-evidence 各自的 command owner。
 
 ### Prepared candidate data
@@ -208,10 +223,11 @@ Gate 同时显示两个不同职责的 link Check：package-provided `markdown-l
 finding policy、source scope 或 output 语义。
 
 Native docs、Decision Records 与 Test Evidence Checks 不创建普通单进程 transcript。每个外部 command Check 在 child
-启动前先创建自己的 transcript，写入 Check/step、command、`status: running` 和配置 timeout；child 结算后，同一路径
+启动前先创建 `process/<check-id>.log`，写入 Check/step、command、`status: running` 和配置 timeout；child 结算后，同一路径
 重写为 command、stdout、stderr、exit、signal、timeout fact 和安全 error summary。重写不承诺原子替换；若 settled
 transcript 写入失败，Check 结算为 transcript unavailable。这样 Gate 或 child 在结算前被外部终止时，已有 transcript
-仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。
+仍能指出最后启动的 command；startup transcript 写入失败时不得启动 child。Check message 与 failure Record 使用
+invocation-relative `process/<check-id>.log` 指向该文件，不暴露 invocation 的绝对路径。
 
 Product diagnostic log 记录 Project Run 的 scheduler、handoff 与 output facts；最后一条可写事件明确标为
 `run.terminal-before-log-close`，只表示 terminal fact 已写入、logger close 尚未确认，不能误读为 close 已成功。它不复制、解析或解释下述 child stdout/stderr
@@ -220,8 +236,8 @@ transcript。带 typed success stdout 的 process Check 也遵守该顺序：先
 `process-output-invalid` unavailable，而不是已通过的 child result。`prepared-external-package-consumer` 是这一边界的
 具体使用者，不能把 stdout 或 transcript 原文提升为 Run public data。
 
-非零退出的 terminal message 只能包含 exit code、signal 和 transcript basename；timeout message 只包含配置时限和
-transcript basename。两者都不能复制 child output、完整路径、command、arguments、credential URL、digest 或 transcript
+非零退出的 terminal message 只能包含 exit code、signal 和 invocation-relative transcript reference；timeout message 只包含配置时限和
+同一 reference。两者都不能复制 child output、完整路径、command、arguments、credential URL、digest 或 transcript
 内容。Descriptor 已配置 timeout、process facade 明确报告 timed out 且没有可靠 exit fact 时，command 结算为
 `process-timeout` unavailable，而不是泛化成 `process-unavailable`；未配置时收到同类异常 fact 则 fail closed 为
 `process-unavailable`。Test Evidence ast-grep Check 的两步组合 transcript 仍在两步返回后一次写入；若未来需要定位其
@@ -263,6 +279,17 @@ process timeout 或提高阈值来替代重新采样。
 Hook 可以返回新的状态与项目级消息，但不能修改 context、Check outcome、RunResult 或 Product aggregate。终端结果和
 process exit 只消费处理后的一个结果，不暴露要求调用方合并的 base/acceptances/final 集合。Hook 抛错、返回额外字段或
 返回其它无效结果时 fail closed 为 `unavailable`。
+
+Gate transcript 从 invocation directory 与 `gate.log` 成功建立后开始：它把 Gate console 与 direct process stdout/stderr
+原样送回终端，同时在文件中移除 TTY control sequences，并以 `[STDOUT]` / `[STDERR]` 区分物理行。成功关闭时由 Gate 直接
+追加带 `[GATE]` 标签的 invocation directory、唯一最终 result 与 exit status；它不解析 Product log、machine files 或 child
+transcripts。
+
+argument、candidate preparation、import 和 exact entry identity 检查发生在 transcript 之前；`gate.log` 记录的是准备完成后的
+candidate identity 与后续 invocation，不回放 preparation 过程。directory 已建立但 transcript setup 失败时，adapter 不启动
+Product Run，返回 exit `2` 并显示该 directory；已开始的 transcript 无法完整关闭时也 fail closed 为 exit `2`，只在终端报告
+唯一 `project gate result: unavailable` 并显示 directory。失败后的残留 `gate.log` 可能不完整，不能把其中计划写入的 result
+行当作成功关闭证据。
 
 初步结果中，Completed Run 的 warning、progress failure 或非-`passed` aggregate 为 `failed`。处理后的 `passed`、
 `failed`、`unavailable` 分别映射为 exit `0`、`1`、`2`。参数、candidate、import、identity、log 或 execution failure

@@ -32,6 +32,7 @@ import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
 import { observeProjectGatePerformance } from "./performance-observation.ts";
 import { createProjectGateEntries } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
+import type { ProjectGateTranscriptCompletion } from "./transcript.ts";
 
 const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",
@@ -238,7 +239,7 @@ describe("Project Gate adapter closure", () => {
     let gateWorkStarted = false;
     const output = captureConsole();
     try {
-      const status = await runProjectGate(["--help"], {
+      const status = await runProjectGateWithoutTranscript(["--help"], {
         createInvocationLogDirectory: (): string => {
           gateWorkStarted = true;
           throw new Error("help must not create logs");
@@ -262,7 +263,7 @@ describe("Project Gate adapter closure", () => {
 
   it("does not load or run a candidate consumer after preparation failure", async () => {
     let loaded = false;
-    const status = await runProjectGate([], {
+    const status = await runProjectGateWithoutTranscript([], {
       createInvocationLogDirectory: (): string => {
         throw new Error("logs must not be created");
       },
@@ -282,7 +283,7 @@ describe("Project Gate adapter closure", () => {
   it("rejects an imported entry that differs from the prepared candidate before log/run", async () => {
     let createdLogs = false;
     let ran = false;
-    const status = await runProjectGate([], {
+    const status = await runProjectGateWithoutTranscript([], {
       createInvocationLogDirectory: (): string => {
         createdLogs = true;
         return "/tmp/logs";
@@ -302,6 +303,38 @@ describe("Project Gate adapter closure", () => {
     assert.equal(ran, false);
   });
 
+  it("reports the invocation directory when Gate transcript setup fails", async () => {
+    let ran = false;
+    const output = captureConsole();
+    try {
+      const status = await runProjectGateWithoutTranscript([], {
+        createInvocationLogDirectory: () => "/tmp/project-gate-transcript-setup-failure",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => {
+            ran = true;
+            return completedResult("passed");
+          }
+        }),
+        prepareCandidate: async () => prepared,
+        startTranscript: () => {
+          throw new Error("fixture transcript setup failure");
+        }
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
+      assert.equal(ran, false);
+      assert.deepEqual(output.errors, [
+        "project gate log setup failed: fixture transcript setup failure"
+      ]);
+      assert.deepEqual(output.logs, [
+        "project gate logs: /tmp/project-gate-transcript-setup-failure"
+      ]);
+    } finally {
+      output.restore();
+    }
+  });
+
   it("consumes package aggregation without traversing the raw Check snapshot", async () => {
     const complete = completedResult("passed", { snapshot: { malformed: true } });
     let createdLogs = 0;
@@ -315,7 +348,7 @@ describe("Project Gate adapter closure", () => {
           readonly preparedCandidate: PreparedPackageCandidate;
         }>
       | undefined;
-    const status = await runProjectGate(
+    const status = await runProjectGateWithoutTranscript(
       [
         "--profile",
         "full",
@@ -383,9 +416,10 @@ describe("Project Gate adapter closure", () => {
     const clockValues = [100, 110, 125, 145];
     let observedContext: ProjectGateContext | undefined;
     let observedInitial: ProjectGateResult | undefined;
+    let transcriptCompletion: ProjectGateTranscriptCompletion | undefined;
     const output = captureConsole();
     try {
-      const status = await runProjectGate([], {
+      const status = await runProjectGateWithoutTranscript([], {
         afterGate: (initial, context) => {
           observedInitial = initial;
           observedContext = context;
@@ -413,7 +447,16 @@ describe("Project Gate adapter closure", () => {
           resolvedEntryPath: prepared.resolvedEntryPath,
           runProjectGate: async () => runResult
         }),
-        prepareCandidate: async () => prepared
+        prepareCandidate: async () => prepared,
+        startTranscript: (invocationLogDirectory) => {
+          assert.equal(invocationLogDirectory, "/tmp/project-gate-after-gate");
+          return Object.freeze({
+            complete: (completion: ProjectGateTranscriptCompletion) => {
+              transcriptCompletion = completion;
+              return "succeeded" as const;
+            }
+          });
+        }
       });
 
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
@@ -447,6 +490,48 @@ describe("Project Gate adapter closure", () => {
       );
       assert.match(output.logs.join("\n"), /project gate result: failed/);
       assert.doesNotMatch(output.logs.join("\n"), /project gate result: passed/);
+      assert.deepEqual(transcriptCompletion, {
+        exitStatus: PROJECT_GATE_EXIT_STATUS.failed,
+        invocationLogDirectory: "/tmp/project-gate-after-gate",
+        result: "failed"
+      });
+    } finally {
+      output.restore();
+    }
+  });
+
+  it("fails closed when the Gate transcript cannot be completed", async () => {
+    let transcriptCompletion: ProjectGateTranscriptCompletion | undefined;
+    const output = captureConsole();
+    try {
+      const status = await runProjectGateWithoutTranscript([], {
+        createInvocationLogDirectory: () => "/tmp/project-gate-transcript-failure",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          runProjectGate: async () => completedResult("passed")
+        }),
+        prepareCandidate: async () => prepared,
+        startTranscript: () =>
+          Object.freeze({
+            complete: (completion: ProjectGateTranscriptCompletion) => {
+              transcriptCompletion = completion;
+              return "failed" as const;
+            }
+          })
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
+      assert.deepEqual(transcriptCompletion, {
+        exitStatus: PROJECT_GATE_EXIT_STATUS.passed,
+        invocationLogDirectory: "/tmp/project-gate-transcript-failure",
+        result: "passed"
+      });
+      assert.deepEqual(output.errors, ["project gate log failure: gate.log was not completed"]);
+      assert.equal(
+        output.logs.filter((line) => line.startsWith("project gate result:")).join("\n"),
+        "project gate result: unavailable"
+      );
+      assert.equal(output.logs.at(-2), "project gate logs: /tmp/project-gate-transcript-failure");
     } finally {
       output.restore();
     }
@@ -462,7 +547,7 @@ describe("Project Gate adapter closure", () => {
     });
     const defaultOutput = captureConsole();
     try {
-      const defaultStatus = await runProjectGate([], {
+      const defaultStatus = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, 110, 125, 145]),
         createInvocationLogDirectory: () => "/tmp/project-gate-default-performance",
         loadRunModule: async () => ({
@@ -483,7 +568,7 @@ describe("Project Gate adapter closure", () => {
 
     const warningOutput = captureConsole();
     try {
-      const warningStatus = await runProjectGate([], {
+      const warningStatus = await runProjectGateWithoutTranscript([], {
         afterGate: (initial, context) =>
           observeProjectGatePerformance(
             initial,
@@ -511,7 +596,7 @@ describe("Project Gate adapter closure", () => {
 
     const invalidTimingOutput = captureConsole();
     try {
-      const status = await runProjectGate([], {
+      const status = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, Number.NaN, Number.NaN, Number.NaN]),
         createInvocationLogDirectory: () => "/tmp/project-gate-invalid-timing",
         loadRunModule: async () => ({
@@ -535,7 +620,7 @@ describe("Project Gate adapter closure", () => {
   it("fails closed when afterGate throws", async () => {
     const output = captureConsole();
     try {
-      const status = await runProjectGate([], {
+      const status = await runProjectGateWithoutTranscript([], {
         afterGate: () => {
           throw new Error("fixture afterGate failure");
         },
@@ -561,7 +646,7 @@ describe("Project Gate adapter closure", () => {
   it("fails closed when afterGate returns an invalid result", async () => {
     const output = captureConsole();
     try {
-      const status = await runProjectGate([], {
+      const status = await runProjectGateWithoutTranscript([], {
         afterGate: () => ({ ...createProjectGateResult("passed"), unexpected: true }),
         createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
         loadRunModule: async () => ({
@@ -617,6 +702,19 @@ describe("Project Gate adapter closure", () => {
     }
   });
 });
+
+function runProjectGateWithoutTranscript(
+  arguments_: readonly string[],
+  stepOverrides: Parameters<typeof runProjectGate>[1] = {}
+): Promise<ProjectGateExitStatus> {
+  return runProjectGate(arguments_, {
+    startTranscript: () =>
+      Object.freeze({
+        complete: () => "succeeded" as const
+      }),
+    ...stepOverrides
+  });
+}
 
 function captureConsole(): Readonly<{
   readonly errors: string[];

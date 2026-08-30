@@ -145,7 +145,14 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。configuration 成功后，只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。启用的 diagnostic logging 在 preflight 前以该 instant 命名其 UTC-compact log path 并开始记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 事实。启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。Run 结束前最后一条可写 diagnostic event 是 `run.terminal-before-log-close`：它只证明 terminal fact 已写入、logger close 尚未确认，随后才尝试关闭日志。progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
+Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。configuration 成功后的职责如下：
+
+- 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
+- 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
+- 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
+- progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
+
+这些 diagnostic 行不建立可解析 schema。Run 结束前最后一条可写 diagnostic event 是 `run.terminal-before-log-close`：它只证明 terminal fact 已写入、logger close 尚未确认，随后才尝试关闭日志。
 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
 `outputs.diagnosticLogging` 的形状为 `{ enabled, status, file }`，其中 `status` 是

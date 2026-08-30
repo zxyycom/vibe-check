@@ -86,6 +86,17 @@ function recordingLogger(observations: DiagnosticObservation[]): DiagnosticLogge
   });
 }
 
+function hasDiagnosticTags(
+  observation: DiagnosticObservation,
+  ...tags: readonly string[]
+): boolean {
+  return tags.every((tag) => observation.tags.includes(tag));
+}
+
+function checkDiagnosticTag(observation: DiagnosticObservation): string | undefined {
+  return observation.tags.find((tag) => tag.startsWith("CHECK:"));
+}
+
 function scriptedClock(values: readonly number[]): CheckExecutionClock {
   const remaining = [...values];
   return Object.freeze({
@@ -800,7 +811,7 @@ describe("Package Run direct Check execution", () => {
       observations
         .filter(
           (observation) =>
-            observation.scope === "CHECK dependent / execution" &&
+            hasDiagnosticTags(observation, "CHECK:dependent", "EXECUTION") &&
             observation.event === "dependency.read"
         )
         .map((observation) => observation.details),
@@ -945,20 +956,19 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       observations.find(
         (observation) =>
-          observation.scope === "CHECK blocked / preflight" &&
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
           observation.event === "preflight.resolved"
       )?.details,
       {
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
         outcome: { status: "unavailable", reason: { code: "invalid-options" } },
-        reason: { code: "invalid-options" },
-        result: "blocked"
+        reason: { code: "invalid-options" }
       }
     );
     assert.equal(
       observations.filter(
         (observation) =>
-          observation.scope === "CHECK blocked / preflight" &&
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
           observation.event === "preflight.resolved"
       ).length,
       1
@@ -966,14 +976,13 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       observations.find(
         (observation) =>
-          observation.scope === "CHECK blocked / preflight" &&
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
           observation.event === "check.finished"
       )?.details,
       {
         durationMs: null,
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
-        outcome: { reason: { code: "invalid-options" }, status: "unavailable" },
-        phase: "preflight"
+        reason: { code: "invalid-options" }
       }
     );
   });
@@ -1008,25 +1017,20 @@ describe("Package Run direct Check execution", () => {
         {
           event: "preflight.resolved",
           details: {
-            messages: [],
             options: { availability: "available", bytes: 2, keys: 0, shape: "object" },
-            reason: null,
-            result: "skipped",
             source: "authored"
           }
         },
         {
           event: "preflight.resolved",
           details: {
-            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } },
-            result: "cancelled-before-callback"
+            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
           }
         },
         {
           event: "preflight.resolved",
           details: {
-            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } },
-            result: "cancelled-before-callback"
+            outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
           }
         }
       ]
@@ -1055,7 +1059,7 @@ describe("Package Run direct Check execution", () => {
       signal: afterCallbackController.signal
     });
     const afterCallbackDetails = diagnosticDetailsRecord(afterCallbackObservations[0]?.details);
-    assert.equal(afterCallbackDetails.result, "cancelled-after-callback");
+    assert.equal(hasDiagnosticTags(afterCallbackObservations[0], "CANCELLED-AFTER-CALLBACK"), true);
     assert.equal(afterCallbackDetails.raw, afterCallbackOutput);
 
     const allBlockedController = new AbortController();
@@ -1237,14 +1241,13 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       observations.find(
         (observation) =>
-          observation.scope === "CHECK continued / preflight" &&
+          hasDiagnosticTags(observation, "CHECK:continued", "PREFLIGHT") &&
           observation.event === "preflight.resolved"
       )?.details,
       {
         messages: [{ level: "warning", code: "preflight", message: "Preflight message" }],
         options: { availability: "available", bytes: 11, keys: 1, shape: "object" },
-        reason: { code: "fallback" },
-        result: "continued"
+        reason: { code: "fallback" }
       }
     );
     assert.equal(
@@ -1349,7 +1352,7 @@ describe("Package Run direct Check execution", () => {
       (observation) => observation.event === "preflight.resolved"
     );
     assert.equal(preflightObservations.length, 4);
-    assert.equal(new Set(preflightObservations.map((observation) => observation.scope)).size, 4);
+    assert.equal(new Set(preflightObservations.map(checkDiagnosticTag)).size, 4);
     assert.equal(
       observations.some(
         (observation) =>
@@ -1357,14 +1360,14 @@ describe("Package Run direct Check execution", () => {
       ),
       false
     );
-    const throwingDetails = observations.find(
-      (observation) => observation.scope === "CHECK throwing / preflight"
+    const throwingDetails = observations.find((observation) =>
+      hasDiagnosticTags(observation, "CHECK:throwing", "PREFLIGHT")
     )?.details;
-    const noncanonicalDetails = observations.find(
-      (observation) => observation.scope === "CHECK noncanonical-options / preflight"
+    const noncanonicalDetails = observations.find((observation) =>
+      hasDiagnosticTags(observation, "CHECK:noncanonical-options", "PREFLIGHT")
     )?.details;
-    const malformedMessageDetails = observations.find(
-      (observation) => observation.scope === "CHECK malformed-message / preflight"
+    const malformedMessageDetails = observations.find((observation) =>
+      hasDiagnosticTags(observation, "CHECK:malformed-message", "PREFLIGHT")
     )?.details;
     assert.equal(diagnosticDetailsRecord(throwingDetails).error, preflightError);
     assert.equal(diagnosticDetailsRecord(noncanonicalDetails).raw, noncanonicalOutput);
@@ -1372,11 +1375,7 @@ describe("Package Run direct Check execution", () => {
     assert.equal(
       observations.filter(
         (observation) =>
-          observation.event === "preflight.resolved" &&
-          observation.details !== null &&
-          typeof observation.details === "object" &&
-          "result" in observation.details &&
-          observation.details.result === "malformed"
+          observation.event === "preflight.resolved" && hasDiagnosticTags(observation, "MALFORMED")
       ).length,
       3
     );
@@ -1413,18 +1412,16 @@ describe("Package Run direct Check execution", () => {
       observations
         .filter(
           (observation) =>
-            observation.scope === "CHECK pending / execution" &&
+            hasDiagnosticTags(observation, "CHECK:pending", "EXECUTION") &&
             observation.event === "check.finished"
         )
-        .map((observation) => ({ scope: observation.scope, details: observation.details })),
+        .map((observation) => ({ tags: observation.tags, details: observation.details })),
       [
         {
-          scope: "CHECK pending / execution",
+          tags: ["CHECK:pending", "EXECUTION", "FINISHED", "UNAVAILABLE"],
           details: {
             durationMs: null,
-            messages: [],
-            outcome: { reason: { code: "execution-cancelled" }, status: "unavailable" },
-            phase: "execution"
+            reason: { code: "execution-cancelled" }
           }
         }
       ]

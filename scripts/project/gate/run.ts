@@ -25,6 +25,7 @@ import {
   type ProjectGateResult
 } from "./result.ts";
 import { observeProjectGatePerformance } from "./performance-observation.ts";
+import { startProjectGateTranscript, type ProjectGateTranscript } from "./transcript.ts";
 
 interface GateRunModule {
   readonly resolvedEntryPath: string;
@@ -41,6 +42,7 @@ interface ProjectGateSteps {
   readonly createInvocationLogDirectory: () => string;
   readonly loadRunModule: () => Promise<GateRunModule>;
   readonly prepareCandidate: () => Promise<PreparedPackageCandidate>;
+  readonly startTranscript: typeof startProjectGateTranscript;
 }
 
 export interface ProjectGateContext {
@@ -81,7 +83,8 @@ const defaultSteps: ProjectGateSteps = Object.freeze({
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./project-run.ts"),
-  prepareCandidate: preparePackageCandidate
+  prepareCandidate: preparePackageCandidate,
+  startTranscript: startProjectGateTranscript
 });
 
 export const PROJECT_GATE_EXIT_STATUS = Object.freeze({
@@ -140,42 +143,75 @@ export async function runProjectGate(
     console.error(`project gate log setup failed: ${errorMessage(error)}`);
     return PROJECT_GATE_EXIT_STATUS.unavailable;
   }
-  const productRunStartedAtMs = steps.clock.now();
-  console.log(`project gate candidate: ${prepared.candidateVersion}`);
-  console.log(`project gate selection: ${projectGateSelectionSummary(parsed.value)}`);
-  console.log(
-    "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
-  );
-  let runResult: unknown;
+  let transcript: ProjectGateTranscript;
   try {
-    runResult = await runModule.runProjectGate({
+    transcript = steps.startTranscript(invocationLogDirectory);
+  } catch (error: unknown) {
+    console.error(`project gate log setup failed: ${errorMessage(error)}`);
+    console.log(`project gate logs: ${invocationLogDirectory}`);
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
+  const productRunStartedAtMs = steps.clock.now();
+  let finalResult = createProjectGateResult("unavailable");
+  let exitStatus: ProjectGateExitStatus;
+  let transcriptStatus: "failed" | "succeeded";
+  try {
+    console.log(`project gate candidate: ${prepared.candidateVersion}`);
+    console.log(`project gate selection: ${projectGateSelectionSummary(parsed.value)}`);
+    console.log(
+      "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
+    );
+    const runResult = await runModule.runProjectGate({
       flags: selectionFlags(parsed.value),
       invocationLogDirectory,
       preparedCandidate: prepared
     });
+    const initialResult = createInitialProjectGateResult(runResult);
+    const initialResultAtMs = steps.clock.now();
+    const context = createProjectGateContext({
+      candidatePreparedAtMs,
+      initialResultAtMs,
+      invocationLogDirectory,
+      preparedCandidate: prepared,
+      runResult,
+      selection: parsed.value,
+      startedAtMs: gateStartedAtMs,
+      productRunStartedAtMs
+    });
+    finalResult = await applyAfterGate(steps.afterGate, initialResult, context);
+    reportProjectGateMessages(finalResult.messages);
   } catch (error: unknown) {
+    finalResult = createProjectGateResult("unavailable");
     console.error(`project gate execution failed: ${errorMessage(error)}`);
-    console.error(`project gate logs: ${invocationLogDirectory}`);
-    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  } finally {
+    exitStatus = projectGateExitStatus(finalResult);
+    transcriptStatus = completeProjectGateTranscript(transcript, {
+      exitStatus,
+      invocationLogDirectory,
+      result: finalResult.status
+    });
   }
 
-  const initialResult = createInitialProjectGateResult(runResult);
-  const initialResultAtMs = steps.clock.now();
-  const context = createProjectGateContext({
-    candidatePreparedAtMs,
-    initialResultAtMs,
-    invocationLogDirectory,
-    preparedCandidate: prepared,
-    runResult,
-    selection: parsed.value,
-    startedAtMs: gateStartedAtMs,
-    productRunStartedAtMs
-  });
-  const finalResult = await applyAfterGate(steps.afterGate, initialResult, context);
-  reportProjectGateMessages(finalResult.messages);
+  if (transcriptStatus === "failed") {
+    console.error("project gate log failure: gate.log was not completed");
+    console.log(`project gate logs: ${invocationLogDirectory}`);
+    console.log("project gate result: unavailable");
+    return PROJECT_GATE_EXIT_STATUS.unavailable;
+  }
   console.log(`project gate logs: ${invocationLogDirectory}`);
   console.log(`project gate result: ${finalResult.status}`);
-  return projectGateExitStatus(finalResult);
+  return exitStatus;
+}
+
+function completeProjectGateTranscript(
+  transcript: ProjectGateTranscript,
+  completion: Parameters<ProjectGateTranscript["complete"]>[0]
+): "failed" | "succeeded" {
+  try {
+    return transcript.complete(completion);
+  } catch {
+    return "failed";
+  }
 }
 
 /** Converts the single final Gate result into its process boundary. */

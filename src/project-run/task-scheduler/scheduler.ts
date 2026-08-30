@@ -1,4 +1,5 @@
 import { prepareTaskGraph, type PlannedTask } from "./graph.ts";
+import { diagnosticTags } from "../diagnostic-logging/logger.ts";
 import {
   decideScheduler,
   type SchedulerDecision,
@@ -70,28 +71,18 @@ function observeSchedulerDecision<TResult>(
   decision: SchedulerDecision
 ): void {
   state.diagnosticLogger?.observe({
-    scope: "SCHEDULER",
     event: "scheduler.decision",
-    summary: schedulerDecisionSummary(decision),
+    tags: schedulerDecisionTags(decision),
     details: decision
   });
 }
 
-function schedulerDecisionSummary(decision: SchedulerDecision): string {
-  switch (decision.kind) {
-    case "admit":
-      return `Scheduler admitted task ${decision.taskId}`;
-    case "await-running":
-      return `Scheduler awaits running tasks: ${decision.reason}`;
-    case "settle-blocked":
-      return `Scheduler settled blocked task ${decision.taskId}`;
-    case "cancel-pending":
-      return "Scheduler cancelled pending tasks";
-    case "complete":
-      return decision.cancelled
-        ? "Scheduler completed cancelled task graph"
-        : "Scheduler completed task graph";
-  }
+function schedulerDecisionTags(decision: SchedulerDecision): readonly string[] {
+  return diagnosticTags(
+    "SCHEDULER",
+    decision.kind.toUpperCase(),
+    ...("taskId" in decision ? [`TASK:${decision.taskId}`] : [])
+  );
 }
 
 function applyAdmission<TResult>(

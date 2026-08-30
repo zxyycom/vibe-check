@@ -294,26 +294,25 @@ describe("Package Run progress rendering outputs", () => {
         join(root, result.outputs.diagnosticLogging.file ?? ""),
         "utf8"
       );
-      assert.match(diagnosticLog, /^#000001 \+\d+\.\dms \[RUN\] run\.started /);
       assert.match(
         diagnosticLog,
-        /\[RUN\] run\.planning\.succeeded normalized task graph was accepted/
+        /^#000001 \+\d{2}:\d{2}:\d{2}\.\d{3} \[RUN\] \[STARTED\] run\.started /
       );
+      assert.match(diagnosticLog, /\[RUN\] \[PLANNING\] \[SUCCEEDED\] run\.planning\.succeeded/);
       assert.match(
         diagnosticLog,
-        /\[RUN\] run\.aggregation\.completed no Check aggregation was selected/
+        /\[RUN\] \[AGGREGATION\] \[COMPLETED\] run\.aggregation\.completed/
       );
-      assert.match(
-        diagnosticLog,
-        /\[RUN\] run\.terminal-before-log-close terminal diagnostic event written before logger close is confirmed/
-      );
-      assert.match(diagnosticLog, /"diagnosticLogging":"close-not-yet-confirmed"/);
+      assert.match(diagnosticLog, /\[RUN\] \[TERMINAL\] \[OUTPUT\] run\.terminal-before-log-close/);
+      assert.match(diagnosticLog, /diagnosticLogging="close-not-yet-confirmed"/);
       assert.doesNotMatch(
         diagnosticLog,
         /"diagnosticLogging":\{"enabled":true,"status":"not-run"\}/
       );
-      assert.match(diagnosticLog, /"machinePublication":\{"enabled":true,"status":"succeeded"}/);
-      assert.match(diagnosticLog, /"progressRendering":\{"enabled":true,"status":"failed"}/);
+      assert.match(diagnosticLog, /outputs\.machinePublication\.enabled=true/);
+      assert.match(diagnosticLog, /outputs\.machinePublication\.status="succeeded"/);
+      assert.match(diagnosticLog, /outputs\.progressRendering\.enabled=true/);
+      assert.match(diagnosticLog, /outputs\.progressRendering\.status="failed"/);
       assert.equal(diagnosticLog.endsWith("\n"), true);
       assert.equal(existsSync(join(root, "published", "run.json")), true);
       assert.equal(existsSync(join(root, "published", "records.ndjson")), true);
@@ -405,15 +404,15 @@ describe("Package Run progress rendering outputs", () => {
       assert.ok(file);
       assert.match(file, /^diagnostic\/run-20260830T123456\.789Z-/);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      assert.equal([...diagnosticLog.matchAll(/\[RUN\] run\.started /g)].length, 1);
-      assert.match(diagnosticLog, /"aggregation":null/);
-      assert.match(diagnosticLog, /"checkCount":70/);
-      assert.match(diagnosticLog, /"flags":\[\]/);
-      assert.match(diagnosticLog, /"invocationId":"invocation\/v1:/);
-      assert.match(diagnosticLog, /"outputs":/);
-      assert.match(diagnosticLog, /"scheduler":/);
+      assert.equal([...diagnosticLog.matchAll(/\[RUN\] \[STARTED\] run\.started /g)].length, 1);
+      assert.match(diagnosticLog, /aggregation=null/);
+      assert.match(diagnosticLog, /checkCount=70/);
+      assert.match(diagnosticLog, /flags=\[\]/);
+      assert.match(diagnosticLog, /invocationId="invocation\/v1:/);
+      assert.match(diagnosticLog, /outputs\./);
+      assert.match(diagnosticLog, /scheduler\./);
       assert.doesNotMatch(diagnosticLog, /catalog\.check/);
-      assert.doesNotMatch(diagnosticLog, /details=details-unavailable:(?:value-limit|width-limit)/);
+      assert.doesNotMatch(diagnosticLog, /details=unavailable:(?:value-limit|width-limit)/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -437,10 +436,11 @@ describe("Package Run progress rendering outputs", () => {
       const file = result.outputs.diagnosticLogging.file;
       assert.ok(file);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      assert.match(
-        diagnosticLog,
-        /"outcome":\{"data":\{"availability":"available","bytes":\d+,"keys":1,"shape":"object"\},"status":"passed"\}/
-      );
+      assert.match(diagnosticLog, /data\.availability="available"/);
+      assert.match(diagnosticLog, /data\.bytes=\d+/);
+      assert.match(diagnosticLog, /data\.keys=1/);
+      assert.match(diagnosticLog, /data\.shape="object"/);
+      assert.match(diagnosticLog, /\[FINISHED] \[PASSED] check\.finished/);
       assert.doesNotMatch(diagnosticLog, /package\/file-699\.ts/);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -498,7 +498,7 @@ describe("Package Run progress rendering outputs", () => {
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.match(diagnosticLog, /record\.reported/);
       assert.match(diagnosticLog, /check\.contained/);
-      assert.match(diagnosticLog, /details=details-unavailable:unsupported-function/);
+      assert.match(diagnosticLog, /details=unavailable:unsupported-function/);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

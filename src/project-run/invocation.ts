@@ -41,6 +41,7 @@ import {
 } from "./result.ts";
 import {
   createDiagnosticLogger,
+  diagnosticTags,
   type DiagnosticLogger,
   type DiagnosticLoggerFactory,
   type DiagnosticObservation
@@ -176,9 +177,8 @@ function observeInvocationStarted(
   aggregation: CheckAggregation | undefined
 ): void {
   invocation.diagnosticLogger.observe({
-    scope: "RUN",
     event: "run.started",
-    summary: "validated Project Run started",
+    tags: diagnosticTags("RUN", "STARTED"),
     details: {
       aggregation: aggregation ?? null,
       checkCount: invocation.normalized.checks.length,
@@ -235,9 +235,8 @@ function validateTaskGraph(invocation: Invocation): boolean {
       invocation.normalized.declarative.scheduler.maxParallel
     );
     invocation.diagnosticLogger.observe({
-      scope: "RUN",
       event: "run.planning.succeeded",
-      summary: "normalized task graph was accepted",
+      tags: diagnosticTags("RUN", "PLANNING", "SUCCEEDED"),
       details: {
         checkCount: invocation.normalized.checks.length,
         maxParallel: invocation.normalized.declarative.scheduler.maxParallel
@@ -246,9 +245,8 @@ function validateTaskGraph(invocation: Invocation): boolean {
     return true;
   } catch {
     invocation.diagnosticLogger.observe({
-      scope: "RUN",
       event: "run.planning.failed",
-      summary: "normalized task graph was rejected",
+      tags: diagnosticTags("RUN", "PLANNING", "FAILED"),
       details: {
         checkCount: invocation.normalized.checks.length,
         maxParallel: invocation.normalized.declarative.scheduler.maxParallel
@@ -285,9 +283,8 @@ async function executePreparedInvocation(
   });
   if (executed.kind === "cancelled") {
     invocation.diagnosticLogger.observe({
-      scope: "RUN",
       event: "run.execution.cancelled",
-      summary: "execution completed after cancellation closure",
+      tags: diagnosticTags("RUN", "EXECUTION", "CANCELLED"),
       details: { checkCount: executed.snapshot.checks.length }
     });
     return executionCancellation(
@@ -302,12 +299,8 @@ async function executePreparedInvocation(
   const aggregate =
     aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
   invocation.diagnosticLogger.observe({
-    scope: "RUN",
     event: "run.aggregation.completed",
-    summary:
-      aggregation === undefined
-        ? "no Check aggregation was selected"
-        : "Check aggregation completed",
+    tags: diagnosticTags("RUN", "AGGREGATION", "COMPLETED"),
     details: { aggregate, selection: aggregation ?? null }
   });
   const core: CoreExecution = Object.freeze({
@@ -324,9 +317,8 @@ function cancelledBeforeExecution(
   phase: "pre-work" | "planning"
 ): NonConfigurationRunResult {
   invocation.diagnosticLogger.observe({
-    scope: "RUN",
     event: "run.cancelled",
-    summary: "cancellation was observed before Check execution",
+    tags: diagnosticTags("RUN", "CANCELLED"),
     details: { phase }
   });
   return preExecutionCancellation(

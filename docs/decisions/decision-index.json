@@ -99,6 +99,7 @@
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
       "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
+      "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:2968e8285b8a2be1ea9b93afd741477b63542fe9ca0b7332f347076451c515ed",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
@@ -3132,6 +3133,37 @@
             "target": "run-repository-quality-checks-inside-project-gate.md"
           }
         ]
+      }
+    },
+    "organize-project-run-and-gate-diagnostics-for-human-inspection.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "organize-project-run-and-gate-diagnostics-for-human-inspection.md",
+        "title": "按人工检查目的组织 Project Run 与 Gate 诊断",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T10:20:40Z",
+        "purpose": "让维护者从同一次 invocation 快速筛选 core 时间线、Gate 外层过程与子进程输出。",
+        "background": "通用 JSON 事件包装、未保存的 Gate 终端过程和根级平铺 process transcripts 降低了诊断可读性。",
+        "decision": "用带标签的紧凑 core 时间线、Gate plain transcript 和 process 子目录组织一次性人读诊断。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "pass-project-definition-check-functions-to-run.md": {

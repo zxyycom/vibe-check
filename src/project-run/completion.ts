@@ -3,6 +3,7 @@ import { failedOutput } from "./output-status.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
 import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "./result.ts";
 import type { CheckAggregate } from "./controls/contract.ts";
+import { diagnosticTags } from "./diagnostic-logging/logger.ts";
 import type { CoreExecution, Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
@@ -97,9 +98,8 @@ export function finalizeInvocation(
 ): NonConfigurationRunResult {
   const preCloseOutputs = invocation.outputs.value();
   invocation.diagnosticLogger.observe({
-    scope: "RUN",
     event: "run.terminal-before-log-close",
-    summary: "terminal diagnostic event written before logger close is confirmed",
+    tags: diagnosticTags("RUN", "TERMINAL", terminalStatusTag(candidate)),
     details: {
       ...closingFacts(candidate),
       diagnosticLogging: "close-not-yet-confirmed",
@@ -140,6 +140,13 @@ export function finalizeInvocation(
     case "execution":
       return Object.freeze({ ...candidate, outputs });
   }
+}
+
+function terminalStatusTag(candidate: NonConfigurationRunResult): string {
+  if ("aggregate" in candidate && candidate.aggregate !== null)
+    return candidate.aggregate.toUpperCase();
+  if (candidate.kind === "cancelled") return "CANCELLED";
+  return candidate.kind.toUpperCase();
 }
 
 function preCloseOutputDetails(outputs: ReturnType<Invocation["outputs"]["value"]>): Readonly<{

@@ -9,7 +9,11 @@ import type {
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
-import { summarizeDiagnosticValue, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import {
+  diagnosticTags,
+  summarizeDiagnosticValue,
+  type DiagnosticLogger
+} from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { runTaskGraph, type SettledTask } from "../task-scheduler/scheduler.ts";
 import { executeCheckCallback } from "./callback.ts";
@@ -247,9 +251,8 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
   const scope = input.session.openCheckScope(checkId);
   const identity = checkIdentity(check);
   input.diagnosticLogger?.observe({
-    scope: checkExecutionScope(checkId),
     event: "check.started",
-    summary: "Check callback handoff started",
+    tags: diagnosticTags(`CHECK:${checkId}`, "EXECUTION", "STARTED"),
     details: {
       dependencies: check.dependsOn,
       displayName: check.definition.displayName,
@@ -290,9 +293,8 @@ function createCheckDependencies(input: ExecuteCheckInput): CheckDependencies {
     get: (dependencyId: string): DependencyReadResult => {
       const result = readDependency(input.session, directDependencyIds, dependencyId);
       input.diagnosticLogger?.observe({
-        scope: checkExecutionScope(checkId),
         event: "dependency.read",
-        summary: "Check dependency read completed",
+        tags: diagnosticTags(`CHECK:${checkId}`, "EXECUTION", "DEPENDENCY-READ"),
         details: dependencyReadDetails(dependencyId, result)
       });
       return result;
@@ -368,7 +370,7 @@ function settleCallback(
     readonly scope: ReturnType<CoreCheckSession["openCheckScope"]>;
   }>
 ): Readonly<{ readonly messages: readonly CheckMessage[]; readonly outcome: CheckOutcome }> {
-  const diagnosticScope = checkExecutionScope(input.checkId);
+  const executionTags = diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION");
   const { callback } = input;
   if (callback.source === "product") {
     const outcome = input.scope.settleProduct(callback.result);
@@ -380,18 +382,16 @@ function settleCallback(
   const terminal = parseCheckTerminalResult(callback.result);
   if (terminal === undefined) {
     input.diagnosticLogger?.observe({
-      scope: diagnosticScope,
       event: "callback.malformed",
-      summary: "Check callback returned a malformed terminal value",
+      tags: diagnosticTags(...executionTags, "MALFORMED"),
       details: { result: callback.result }
     });
   }
   const settlement = input.scope.settle(terminal?.result ?? callback.result);
   if (terminal !== undefined && !settlement.authorResultAccepted) {
     input.diagnosticLogger?.observe({
-      scope: diagnosticScope,
       event: "check.contained",
-      summary: "Check callback terminal result was contained",
+      tags: diagnosticTags(...executionTags, "CONTAINED"),
       details: { outcome: diagnosticOutcome(settlement.outcome), raw: callback.result }
     });
   }
@@ -451,15 +451,34 @@ function recordSettledCheck(
   }
   state.settledFactsByCheckId.set(check.checkId, Object.freeze({ durationMs, messages }));
   state.diagnosticLogger?.observe({
-    scope:
-      phase === "preflight"
-        ? `CHECK ${check.checkId} / preflight`
-        : checkExecutionScope(check.checkId),
     event: "check.finished",
-    summary: "Final Check outcome and lifecycle facts were recorded",
-    details: { durationMs, messages, outcome: diagnosticOutcome(outcome), phase }
+    tags: diagnosticTags(
+      `CHECK:${check.checkId}`,
+      phase.toUpperCase(),
+      "FINISHED",
+      outcome.status.toUpperCase()
+    ),
+    details: {
+      durationMs,
+      ...(messages.length === 0 ? {} : { messages }),
+      ...diagnosticSettledOutcome(outcome)
+    }
   });
   emitSettled(state.lifecycle, check, outcome, messages, durationMs);
+}
+
+function diagnosticSettledOutcome(outcome: CheckOutcome): Readonly<Record<string, unknown>> {
+  switch (outcome.status) {
+    case "passed":
+    case "failed":
+      return Object.freeze({ data: summarizeDiagnosticValue(outcome.data) });
+    case "not-applicable":
+      return outcome.reason === undefined
+        ? Object.freeze({})
+        : Object.freeze({ reason: outcome.reason });
+    case "unavailable":
+      return Object.freeze({ reason: outcome.reason });
+  }
 }
 
 function diagnosticOutcome(outcome: CheckOutcome): Readonly<Record<string, unknown>> {
@@ -475,10 +494,6 @@ function diagnosticOutcome(outcome: CheckOutcome): Readonly<Record<string, unkno
     case "unavailable":
       return Object.freeze({ reason: outcome.reason, status: outcome.status });
   }
-}
-
-function checkExecutionScope(checkId: string): string {
-  return `CHECK ${checkId} / execution`;
 }
 
 function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {

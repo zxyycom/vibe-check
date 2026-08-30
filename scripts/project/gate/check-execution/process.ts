@@ -1,4 +1,5 @@
-import { basename, join } from "node:path";
+import { mkdirSync } from "node:fs";
+import { basename, dirname, join } from "node:path";
 
 import { errorMessage } from "../../../error-message.ts";
 import { writeTextFile } from "../../../repository-files/files.ts";
@@ -311,7 +312,7 @@ async function executeProcessCheck(
         Object.freeze({
           level: "error",
           code: "command-timeout",
-          message: `Command exceeded its ${formatTimeout(timeoutMs)} timeout; transcript: ${basename(logPath)}.`
+          message: `Command exceeded its ${formatTimeout(timeoutMs)} timeout; transcript: ${processTranscriptReference(logPath)}.`
         })
       ])
     });
@@ -347,6 +348,7 @@ export function writeProcessTranscript(
   }>
 ): string {
   const logPath = processTranscriptPath(input.invocationLogDirectory, input.checkId);
+  mkdirSync(dirname(logPath), { recursive: true });
   (input.writeTextFile ?? writeTextFile)({
     content: [`check: ${input.checkId}`, ...input.steps.map(transcriptStep)].join("\n\n"),
     filePath: logPath
@@ -363,6 +365,7 @@ function writeProcessStartupTranscript(
 ): void {
   const { definition } = input;
   const logPath = processTranscriptPath(input.invocationLogDirectory, definition.checkId);
+  mkdirSync(dirname(logPath), { recursive: true });
   const command = [definition.command, ...definition.args].map(commandToken).join(" ");
   input.writeTextFile({
     content: [
@@ -378,7 +381,12 @@ function writeProcessStartupTranscript(
 }
 
 function processTranscriptPath(invocationLogDirectory: string, checkId: string): string {
-  return join(invocationLogDirectory, `${checkId}.log`);
+  return join(invocationLogDirectory, "process", `${checkId}.log`);
+}
+
+/** Returns the invocation-relative reference shown by Check messages and Records. */
+export function processTranscriptReference(logPath: string): string {
+  return `process/${basename(logPath)}`;
 }
 
 /** Produces the standard failure Record and presentation-safe terminal message. */
@@ -394,7 +402,7 @@ export function failedProcessResult(
       Object.freeze({
         level: "error",
         code: "command-failed",
-        message: `Command exited with code ${input.exitCode}; signal: ${input.signal ?? "none"}; transcript: ${basename(input.logPath)}.`
+        message: `Command exited with code ${input.exitCode}; signal: ${input.signal ?? "none"}; transcript: ${processTranscriptReference(input.logPath)}.`
       })
     ])
   });
@@ -416,7 +424,7 @@ function failureRecord(input: CommandFailureRecordInput): Readonly<{
   return Object.freeze({
     command: input.command,
     exitCode: input.exitCode,
-    log: basename(input.logPath),
+    log: processTranscriptReference(input.logPath),
     signal: input.signal ?? "none"
   });
 }

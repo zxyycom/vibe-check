@@ -188,6 +188,20 @@ Entities:
 
 - Gate output overrides colocate Product diagnostic logging and standard machine publication in one deterministic, test-owned invocation directory. The isolated fixture runs one synthetic Check rather than scanning the current repository; it proves exactly one core log plus paired `run.json` and `records.ndjson`, then removes only its own `.log/project-gate-tests/output-override-*` directory. It does not inspect, clean, or infer facts from pre-existing `.log/project-run` inventory, create a quality-only report, or establish a Gate performance budget.
 
+## Case AUX-PROJECT-GATE-TRANSCRIPT-001: Project Gate 保存并闭合外层运行过程
+
+Owner: `docs/script-tooling.md#project-gate`
+Entities:
+
+- `bun|scripts/project/gate/transcript.test.ts|Project Gate transcript > tees tagged plain output, records final Gate facts, and restores process and console writers`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when the Gate transcript cannot be completed`
+  Proves:
+
+- invocation-local `gate.log` 将 console 与 direct process stdout/stderr 原内容继续送到原 terminal writers，并以 `[STDOUT]` / `[STDERR]` 保存去除 TTY controls 的 plain lines；关闭时写入 `[GATE]` 标记的 invocation directory、最终 result 与 exit status，随后恢复被接管的 console/stream writers，重复关闭不会伪装成功。
+- transcript 消费 afterGate 处理后的唯一 result 及其 exit mapping，而不是初步结果或另一套聚合；directory 已创建但 transcript 无法建立时不启动 Product Run 并显示该 directory，已开始的 transcript 无法完整关闭时 fail closed 为 unavailable，只在终端报告 unavailable result 并保留 directory 供检查。
+
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 
 Owner: `docs/script-tooling.md#project-gate`
@@ -197,8 +211,8 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
   Proves:
 
-- Native operations 直接形成 passed/failed/unavailable Check facts；validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应 focused root command，不暴露 raw diagnostics，也不会创建空 process transcript。
-- Test Evidence rule validation 向真实 ast-grep 步骤传递 cancellation，保留已发生的 version/rule-test process transcript，并区分 nonzero、version mismatch 和 unavailable 结果。
+- Native operations 直接形成 passed/failed/unavailable Check facts；validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应 focused root command，不暴露 raw diagnostics，也不会在 `process/` 创建空 transcript。
+- Test Evidence rule validation 向真实 ast-grep 步骤传递 cancellation，在 `process/test-evidence-rule-tests.log` 保留已发生的 version/rule-test process evidence，并区分 nonzero、version mismatch 和 unavailable 结果。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 
@@ -215,10 +229,10 @@ Entities:
 - `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
   Proves:
 
-- eligible command 只有在零退出并写入包含 stdout/stderr 的 per-Check transcript 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。
+- eligible command 只有在零退出并写入包含 stdout/stderr 的 `process/<check-id>.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。失败 message 与 Record 使用同一 invocation-relative `process/<check-id>.log` reference，而不暴露 invocation absolute path。
 - Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - A typed-success process publishes its typed final data only after a zero exit and a successfully written settled transcript. It then closed-parses stdout and validates it against its typed dependency; malformed stdout or invalid parsed/provenance data settles `unavailable / process-output-invalid`, never a passed result.
-- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 transcript basename，不复制 child output、完整路径、command、credential URL 或 digest。
+- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 invocation-relative transcript reference，不复制 child output、完整路径、command、credential URL 或 digest。
 - The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the corresponding `{ checkId, level, code, message }` item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
 - 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。settled transcript replacement 失败时不把缺失最终日志误报为 command 结果；running evidence 只保证存在到 replacement 开始前。
 - Process descriptor 把显式 timeout 交给 process facade；只有 descriptor 声明该时限时，timeout fact 才结算为带安全 `command-timeout` message 的 `process-timeout` unavailable，否则 fail closed 为普通 process unavailable。timeout transcript 保留 `timed-out: yes`。

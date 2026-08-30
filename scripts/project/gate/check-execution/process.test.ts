@@ -100,7 +100,7 @@ describe("Project Gate process Check", () => {
         "parse-data",
         "validate-dependency"
       ]);
-      assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /status: 0/);
+      assert.match(readFileSync(join(root, "process", "fixture-command.log"), "utf8"), /status: 0/);
       validationShouldThrow = true;
       events.length = 0;
       assert.deepEqual(
@@ -124,7 +124,7 @@ describe("Project Gate process Check", () => {
         "validate-dependency"
       ]);
       assert.match(
-        readFileSync(join(root, "fixture-command.log"), "utf8"),
+        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
         /--- stdout ---\n\{"version":1\}/
       );
       validationShouldThrow = false;
@@ -142,7 +142,7 @@ describe("Project Gate process Check", () => {
         { status: "unavailable", reason: { code: "process-output-invalid" } }
       );
       assert.match(
-        readFileSync(join(root, "fixture-command.log"), "utf8"),
+        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
         /--- stdout ---\nnot JSON/
       );
     } finally {
@@ -169,7 +169,7 @@ describe("Project Gate process Check", () => {
 
       assert.deepEqual(outcome, { status: "passed", data: { exitCode: 0 } });
       assert.deepEqual(records, []);
-      const transcript = readFileSync(join(root, "fixture-command.log"), "utf8");
+      const transcript = readFileSync(join(root, "process", "fixture-command.log"), "utf8");
       assert.match(transcript, /--- stdout ---\nout/);
       assert.match(transcript, /--- stderr ---\nerr/);
     } finally {
@@ -179,7 +179,7 @@ describe("Project Gate process Check", () => {
 
   it("writes a running transcript before process start and replaces it after settlement", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
-    const transcriptPath = join(root, "fixture-command.log");
+    const transcriptPath = join(root, "process", "fixture-command.log");
     let startupTranscript = "";
     try {
       const check = createProcessCheck(
@@ -334,7 +334,8 @@ describe("Project Gate process Check", () => {
           {
             level: "error",
             code: "command-failed",
-            message: "Command exited with code 7; signal: none; transcript: fixture-command.log."
+            message:
+              "Command exited with code 7; signal: none; transcript: process/fixture-command.log."
           }
         ]
       });
@@ -343,13 +344,16 @@ describe("Project Gate process Check", () => {
           data: {
             command: process.execPath,
             exitCode: 7,
-            log: "fixture-command.log",
+            log: "process/fixture-command.log",
             signal: "none"
           },
           identity: { id: "command-failure" }
         }
       ]);
-      assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /secret output/);
+      assert.match(
+        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        /secret output/
+      );
       const renderedMessage =
         outcome.status === "failed" ? outcome.messages?.[0]?.message : undefined;
       assert.equal(renderedMessage?.includes("secret output"), false);
@@ -388,19 +392,20 @@ describe("Project Gate process Check", () => {
           checkId: "fixture-command",
           level: "error",
           code: "command-failed",
-          message: "Command exited with code 7; signal: none; transcript: fixture-command.log."
+          message:
+            "Command exited with code 7; signal: none; transcript: process/fixture-command.log."
         }
       ]);
       assert.match(
         productRun.output,
-        /^ {2}\[1\/1] Fixture command \| failed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[error] Command exited with code 7; signal: none; transcript: fixture-command\.log\.$/m
+        /^ {2}\[1\/1] Fixture command \| failed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[error] Command exited with code 7; signal: none; transcript: process\/fixture-command\.log\.$/m
       );
       const record = productRun.result.snapshot.records[0];
       assert.equal(record?.checkId, "fixture-command");
       assert.equal(record?.id, "command-failure");
       assert.equal(record?.data.command, process.execPath);
       assert.equal(record?.data.exitCode, 7);
-      assert.equal(record?.data.log, "fixture-command.log");
+      assert.equal(record?.data.log, "process/fixture-command.log");
       assert.equal(record?.data.signal, "none");
       const presented = `${productRun.output}\n${JSON.stringify(productRun.result.checkMessages)}`;
       for (const secret of [
@@ -451,11 +456,14 @@ describe("Project Gate process Check", () => {
           {
             level: "error",
             code: "command-timeout",
-            message: "Command exceeded its 30s timeout; transcript: fixture-command.log."
+            message: "Command exceeded its 30s timeout; transcript: process/fixture-command.log."
           }
         ]
       });
-      assert.match(readFileSync(join(root, "fixture-command.log"), "utf8"), /timed-out: yes/);
+      assert.match(
+        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        /timed-out: yes/
+      );
 
       const unconfigured = await invoke(createProcessCheck(definition, root, dependencies), []);
       assert.equal(observedTimeoutMs, undefined);
@@ -585,7 +593,7 @@ describe("Project Gate process Check", () => {
         }
         assert.equal(starts, scenario.expectedStarts ?? (scenario.aborted ? 0 : 1), scenario.name);
         if (scenario.expectsTranscript) {
-          const transcriptPath = join(root, "fixture-command.log");
+          const transcriptPath = join(root, "process", "fixture-command.log");
           assert.equal(existsSync(transcriptPath), true, scenario.name);
           if (scenario.expectedTranscriptError !== undefined) {
             assert.match(

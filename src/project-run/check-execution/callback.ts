@@ -6,7 +6,7 @@ import type {
 } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { CoreInvariantFailure, type TrustedCheckScope } from "../../check-settlement/session.ts";
-import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 
 export type CallbackExecution = Readonly<
   | {
@@ -38,8 +38,8 @@ interface CheckReporterLifecycle {
 /** Runs one trusted callback and closes its Check-owned reporter before return. */
 export async function executeCheckCallback(input: CheckCallbackInput): Promise<CallbackExecution> {
   const checkId = input.check.definition.checkId;
-  const diagnosticScope = `CHECK ${checkId} / execution`;
-  const reporter = createCheckReporter(input.scope, input.diagnosticLogger, diagnosticScope);
+  const checkTags = diagnosticTags(`CHECK:${checkId}`, "EXECUTION");
+  const reporter = createCheckReporter(input.scope, input.diagnosticLogger, checkTags);
   let result: CallbackExecution;
   try {
     const context = Object.freeze({
@@ -52,9 +52,8 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
     const callbackResult = await input.check.execution(context);
     if (input.signal.aborted) {
       input.diagnosticLogger?.observe({
-        scope: diagnosticScope,
         event: "callback.cancelled",
-        summary: "Check callback result was replaced after cancellation",
+        tags: diagnosticTags(...checkTags, "CANCELLED"),
         details: { result: callbackResult }
       });
     }
@@ -64,11 +63,8 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
   } catch (error) {
     if (error instanceof CoreInvariantFailure) throw error;
     input.diagnosticLogger?.observe({
-      scope: diagnosticScope,
       event: input.signal.aborted ? "callback.cancelled" : "callback.threw",
-      summary: input.signal.aborted
-        ? "Check callback was cancelled after throwing"
-        : "Check callback threw",
+      tags: diagnosticTags(...checkTags, input.signal.aborted ? "CANCELLED" : "THREW"),
       details: { error }
     });
     result = productResult(input.signal.aborted ? "execution-cancelled" : "execution-threw");
@@ -81,7 +77,7 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
 function createCheckReporter(
   scope: TrustedCheckScope,
   diagnosticLogger: DiagnosticLogger | undefined,
-  diagnosticScope: string
+  checkTags: readonly string[]
 ): CheckReporterLifecycle {
   let isOpen = true;
   return Object.freeze({
@@ -93,12 +89,8 @@ function createCheckReporter(
         if (!isOpen) throw new Error("Check record reporter is closed");
         const result = scope.records.report(identity, data);
         diagnosticLogger?.observe({
-          scope: diagnosticScope,
           event: "record.reported",
-          summary:
-            result === "committed"
-              ? "Supplemental Record was committed"
-              : "Supplemental Record was rejected",
+          tags: diagnosticTags(...checkTags, "RECORD", result.toUpperCase()),
           details: { data, identity, result }
         });
       }

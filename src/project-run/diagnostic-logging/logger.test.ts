@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createDiagnosticLogger, summarizeDiagnosticValue } from "./logger.ts";
+import { createDiagnosticLogger, diagnosticTags, summarizeDiagnosticValue } from "./logger.ts";
 
 describe("Project Run diagnostic logger", () => {
   it("renders only bounded descriptor-safe details without invoking author hooks", () => {
@@ -64,42 +64,56 @@ describe("Project Run diagnostic logger", () => {
         file: join(root, "run.log")
       });
       logger.observe({
-        scope: "run",
         event: "safe",
-        summary: "safe details",
+        tags: diagnosticTags("RUN", "SAFE"),
         details: { z: "ready", a: [true, 2] }
       });
       logger.observe({
-        scope: "run",
         event: "accessor",
-        summary: "accessor",
+        tags: diagnosticTags("RUN", "ACCESSOR"),
         details: { accessor }
       });
-      logger.observe({ scope: "run", event: "to-json", summary: "to JSON", details: { toJson } });
-      logger.observe({ scope: "run", event: "proxy", summary: "proxy", details: { proxy } });
-      logger.observe({ scope: "run", event: "cycle", summary: "cycle", details: { cyclic } });
-      logger.observe({ scope: "run", event: "depth", summary: "depth", details: deeplyNested });
+      logger.observe({ event: "to-json", tags: diagnosticTags("RUN"), details: { toJson } });
+      logger.observe({ event: "proxy", tags: diagnosticTags("RUN"), details: { proxy } });
+      logger.observe({ event: "cycle", tags: diagnosticTags("RUN"), details: { cyclic } });
+      logger.observe({ event: "depth", tags: diagnosticTags("RUN"), details: deeplyNested });
       logger.observe({
-        scope: "scope\\path\nforged",
-        event: "event\u0085\rfabricated",
-        summary: "summary\u2028separated\u2029text\u009f"
+        event: "scheduler.decision",
+        tags: diagnosticTags("SCHEDULER", "ADMIT", "TASK:compile"),
+        details: {
+          kind: "admit",
+          reason: "canonical-order",
+          taskId: "compile",
+          trigger: { kind: "execution-started" }
+        }
       });
       logger.observe({
-        scope: "run",
+        event: "record.reported",
+        tags: diagnosticTags("CHECK:quality", "RECORD", "COMMITTED"),
+        details: { identity: { id: "finding" }, result: "committed" }
+      });
+      logger.observe({
+        event: "callback.cancelled",
+        tags: diagnosticTags("CHECK:fixture", "EXECUTION", "CANCELLED"),
+        details: { result: "cancelled" }
+      });
+      logger.observe({
+        event: "event\u0085\rfabricated",
+        tags: diagnosticTags("scope\\path\nforged", "closing]tag")
+      });
+      logger.observe({
         event: "ordinary-width",
-        summary: "ordinary width",
+        tags: diagnosticTags("RUN"),
         details: ordinaryWidth
       });
       logger.observe({
-        scope: "run",
         event: "extreme-width",
-        summary: "extreme width",
+        tags: diagnosticTags("RUN"),
         details: extremeWidth
       });
       logger.observe({
-        scope: "run",
         event: "size",
-        summary: "size",
+        tags: diagnosticTags("RUN"),
         details: { value: "x".repeat(1_048_577) }
       });
 
@@ -108,30 +122,36 @@ describe("Project Run diagnostic logger", () => {
       assert.equal(proxyTraps, 0);
       assert.equal(toJsonCalls, 0);
       const log = readFileSync(join(root, "run.log"), "utf8");
+      assert.match(log, /^#000001 \+00:00:00\.000 \[RUN\] \[SAFE\] safe a=\[true,2\] z="ready"\n/m);
+      assert.match(log, /details=unavailable:accessor-or-hidden-property/);
+      assert.match(log, /details=unavailable:unsupported-function/);
+      assert.match(log, /details=unavailable:proxy/);
+      assert.match(log, /details=unavailable:cycle/);
+      assert.match(log, /details=unavailable:depth-limit/);
+      const schedulerRecord = observationText(log, "scheduler.decision");
+      assert.match(schedulerRecord, /reason="canonical-order"/);
+      assert.match(schedulerRecord, /trigger\.kind="execution-started"/);
+      assert.doesNotMatch(schedulerRecord, /(?:^|[ │])kind="admit"/m);
+      assert.doesNotMatch(schedulerRecord, /(?:^|[ │])taskId="compile"/m);
+      const recordObservation = observationText(log, "record.reported");
+      assert.match(recordObservation, /identity\.id="finding"/);
+      assert.doesNotMatch(recordObservation, /(?:^|[ │])result="committed"/m);
+      assert.match(observationText(log, "callback.cancelled"), /result="cancelled"/);
       assert.match(
         log,
-        /^#000001 \+0\.0ms \[run\] safe safe details\n│ details={"a":\[true,2\],"z":"ready"}\n/m
-      );
-      assert.match(log, /│ details=details-unavailable:accessor-or-hidden-property/);
-      assert.match(log, /│ details=details-unavailable:unsupported-function/);
-      assert.match(log, /│ details=details-unavailable:proxy/);
-      assert.match(log, /│ details=details-unavailable:cycle/);
-      assert.match(log, /│ details=details-unavailable:depth-limit/);
-      assert.match(
-        log,
-        /\[scope\\\\path\\u000aforged\] event\\u0085\\u000dfabricated summary\\u2028separated\\u2029text\\u009f/
+        /\[scope\\\\path\\u000aforged\] \[closing\\u005dtag\] event\\u0085\\u000dfabricated/
       );
       assert.equal(log.endsWith("\n"), true);
+      assert.ok(
+        log.split("\n").every((line) => line.length <= 200),
+        "diagnostic observations must use bounded physical lines"
+      );
       const records = log.match(/^#\d{6} /gm) ?? [];
-      assert.equal(records.length, 10);
-      const ordinaryWidthDetails = log
-        .split("\n")
-        .find((line) => line.startsWith('│ details=["entry-0","entry-1"'));
-      assert.ok(ordinaryWidthDetails);
-      assert.doesNotMatch(ordinaryWidthDetails, /details-unavailable/);
-      assert.match(ordinaryWidthDetails, /"entry-699"\]/);
-      assert.match(log, /details=details-unavailable:width-limit/);
-      assert.match(log, /details=details-unavailable:size-limit/);
+      assert.equal(records.length, 13);
+      assert.match(log, /details\.0="entry-0"/);
+      assert.match(log, /details\.699="entry-699"/);
+      assert.match(log, /details=unavailable:width-limit/);
+      assert.match(log, /details=unavailable:size-limit/);
     } finally {
       rmSync(root, { force: true, recursive: true });
     }
@@ -163,3 +183,10 @@ describe("Project Run diagnostic logger", () => {
     });
   });
 });
+
+function observationText(log: string, event: string): string {
+  const start = log.indexOf(event);
+  assert.notEqual(start, -1);
+  const end = log.indexOf("\n#", start);
+  return log.slice(start, end < 0 ? undefined : end);
+}
