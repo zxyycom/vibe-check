@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import type { ExternalConsumerMaterialData } from "../../package/candidate/external-consumer-input.ts";
+import type { ExternalConsumerMaterialData } from "../../package/candidate/external-consumer/input.ts";
 import type { ProjectGatePreparedCandidateData } from "./prepared-candidate-check.ts";
 import { validateExternalConsumerProviderProvenance } from "./external-consumer-material-check.ts";
 

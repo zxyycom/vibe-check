@@ -44,7 +44,7 @@ Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
-- `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
+- `bun|src/package-checks/duplicate-detection/cache/store.test.ts|quality measurement cache > treats cache read I/O errors as a Check-local miss`
   Proves:
 
 - `duplicateDetection(options?)` materializes frozen defaults for cache, package scanner, non-blocking area policy, minimum lines `4`, and minimum tokens `100`, while synchronously rejecting unknown or invalid constructor input, including public custom arguments. Its resolved Check consumes package or executable-only custom command policy, returns exact finding counts, exposes the strict attached/named parser, and reports every trusted Check-local supplemental Record with blocking state; an omitted finding policy produces passed-with-warning evidence, while explicit blocking still fails and preflight still rejects an invalid complete options replacement. Check-owned unavailable branches carry safe actionable messages. The raw cache remains Check-owned: a read failure is a miss while a write failure settles the Check unavailable; the portable package command resolves installed `jscpd` through active Bun and the adapter alone supplies availability and scan arguments to a custom executable.

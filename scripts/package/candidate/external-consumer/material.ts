@@ -5,18 +5,18 @@ import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { isPathWithin } from "../../repository-files/paths.ts";
-import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
+import { isPathWithin } from "../../../repository-files/paths.ts";
+import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import {
   resolveCandidateAcceptanceArtifact,
   type CandidateAcceptanceArtifact
-} from "./acceptance-input.ts";
-import { writeExternalConsumerDocumentationFixture } from "./isolated-consumer-documentation.ts";
-import { writeExternalConsumerRuntimeFixture } from "./isolated-consumer-runtime.ts";
-import { writeExternalConsumerTypesFixture } from "./isolated-consumer-types.ts";
-import { readGateExternalConsumerMaterial } from "./external-consumer-input.ts";
+} from "../acceptance-input.ts";
+import { writeExternalConsumerDocumentationFixture } from "./documentation.ts";
+import { writeExternalConsumerRuntimeFixture } from "./runtime.ts";
+import { writeExternalConsumerTypesFixture } from "./type-acceptance.ts";
+import { readGateExternalConsumerMaterial } from "./input.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 /** Invocation-local isolated install shared only by Gate external-consumer Checks. */
 export interface ExternalConsumerMaterial extends CandidateAcceptanceArtifact {

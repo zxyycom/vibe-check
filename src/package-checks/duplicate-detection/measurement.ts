@@ -4,7 +4,7 @@ import {
   loadScanCacheEntry,
   writeScanCacheEntry,
   type DuplicateCodeCacheIdentity
-} from "./cache/cache.ts";
+} from "./cache/store.ts";
 import { createDuplicateScanCacheIdentity } from "./cache/identity.ts";
 import { checkJscpd } from "./jscpd/availability.ts";
 import { scanWithJscpdAsync } from "./jscpd/scanner.ts";

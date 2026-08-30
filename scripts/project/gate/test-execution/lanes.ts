@@ -4,10 +4,11 @@ import { loadSupportedRunnerProfile } from "../../../test-evidence/profile.ts";
 const PACKAGE_ARTIFACT_TEST_FILE = "scripts/package/artifact/artifact.test.ts";
 const PACKAGE_CANDIDATE_TEST_FILE = "scripts/package/candidate/candidate.test.ts";
 const PACKAGE_CONSUMER_TYPES_TEST_FILE =
-  "scripts/package/candidate/isolated-consumer-types.test.ts";
-const PACKAGE_CONSUMER_DOCS_TEST_FILE = "scripts/package/candidate/isolated-consumer-docs.test.ts";
+  "scripts/package/candidate/external-consumer/type-acceptance.test.ts";
+const PACKAGE_CONSUMER_DOCS_TEST_FILE =
+  "scripts/package/candidate/external-consumer/documentation.test.ts";
 const PACKAGE_CONSUMER_RUNTIME_TEST_FILE =
-  "scripts/package/candidate/isolated-consumer-runtime.test.ts";
+  "scripts/package/candidate/external-consumer/runtime.test.ts";
 
 const PACKAGE_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
   [PACKAGE_ARTIFACT_TEST_FILE, "packageArtifact"],

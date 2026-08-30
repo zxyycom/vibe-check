@@ -18,7 +18,7 @@ import {
   parseExternalConsumerMaterialData,
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
-} from "../../../package/candidate/external-consumer-input.ts";
+} from "../../../package/candidate/external-consumer/input.ts";
 import { createProjectGateProcessEntry, type ProjectGateRuntime } from "../process-entry.ts";
 import {
   parseProjectGatePreparedCandidateData,

@@ -2,12 +2,9 @@
 
 import { isAbsolute, join } from "node:path";
 
-import { readGateCandidateAcceptanceArtifact } from "./acceptance-input.ts";
-import {
-  EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION,
-  EXTERNAL_CONSUMER_ROOT_ENV
-} from "./external-consumer-input.ts";
-import { prepareExternalConsumerMaterial } from "./isolated-consumer-material.ts";
+import { readGateCandidateAcceptanceArtifact } from "../acceptance-input.ts";
+import { EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION, EXTERNAL_CONSUMER_ROOT_ENV } from "./input.ts";
+import { prepareExternalConsumerMaterial } from "./material.ts";
 
 /** Performs the cancellable child setup owned by the Gate external-consumer provider Check. */
 export function prepareExternalConsumerProviderOutput(

@@ -5,14 +5,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { errorMessage } from "../../error-message.ts";
-import { isPathWithin } from "../../repository-files/paths.ts";
-import { isAcceptedPackageDependencyVersion } from "../dependency-version.ts";
-import { CANDIDATE_DEPENDENCIES } from "../package-contract.ts";
-import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
-import type { ExternalConsumerMaterial } from "./isolated-consumer-material.ts";
+import { errorMessage } from "../../../error-message.ts";
+import { isPathWithin } from "../../../repository-files/paths.ts";
+import { isAcceptedPackageDependencyVersion } from "../../dependency-version.ts";
+import { CANDIDATE_DEPENDENCIES } from "../../package-contract.ts";
+import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
+import type { ExternalConsumerMaterial } from "./material.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 /** Verifies runtime dependency containment and package Run behavior. */
 export function assertExternalConsumerRuntime(

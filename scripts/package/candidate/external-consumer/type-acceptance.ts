@@ -5,10 +5,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as ts from "typescript";
 
-import { assertExternalConsumerCommandSucceeded } from "./external-consumer-command-result.ts";
-import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
+import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
 
 /** Writes declaration and QuickInfo fixtures contributed by type acceptance. */

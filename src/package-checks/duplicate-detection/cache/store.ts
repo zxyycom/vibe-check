@@ -1,6 +1,4 @@
-/**
- * Duplicate-code raw-scan cache helpers.
- */
+/** 读取和写入 duplicate-code raw-scan cache entries。 */
 
 import { readJsonFile, writeJsonFile } from "../../host-environment/filesystem.ts";
 import type { DuplicateCodeFragment } from "../measurement-model.ts";

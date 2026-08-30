@@ -155,7 +155,7 @@ Entities:
 Owner: `docs/scanner-dependencies.md#cache-and-failures`
 Entities:
 
-- `bun|src/package-checks/duplicate-detection/cache/cache.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
+- `bun|src/package-checks/duplicate-detection/cache/store.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
   Proves:
 
 - Duplicate raw-scan cache identity depends on package/custom backend identity, current commit, the complete exact-input union fingerprint, configuration version, and structured scanner configuration including the effective line/token lower bounds, JSON/absolute report policy, and tool-default worker policy, rather than pseudo command arguments, current area annotation, or final strict policy. The package command remains portable without a consumer install path; a custom command is identified only by its executable and remains distinct from package command identity.

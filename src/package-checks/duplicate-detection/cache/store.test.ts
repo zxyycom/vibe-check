@@ -9,7 +9,7 @@ import {
   loadScanCacheEntry,
   writeScanCacheEntry,
   type DuplicateCodeCacheIdentity
-} from "./cache.ts";
+} from "./store.ts";
 import type { DuplicateCodeFragment } from "../measurement-model.ts";
 import { jscpdCacheConfiguration } from "./identity.ts";
 import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "../jscpd/command-resolution.ts";

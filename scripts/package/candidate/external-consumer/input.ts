@@ -1,9 +1,9 @@
 import { statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 
-import { isPathWithin } from "../../repository-files/paths.ts";
-import { isNonArrayRecord } from "../../value-guards.ts";
-import { fileMatchesSha256, isSha256Digest } from "../pack.ts";
+import { isPathWithin } from "../../../repository-files/paths.ts";
+import { isNonArrayRecord } from "../../../value-guards.ts";
+import { fileMatchesSha256, isSha256Digest } from "../../pack.ts";
 
 export const EXTERNAL_CONSUMER_MATERIAL_DATA_VERSION = 1 as const;
 export const EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV = "VIBE_CHECK_EXTERNAL_CONSUMER_ARTIFACT_PATH";

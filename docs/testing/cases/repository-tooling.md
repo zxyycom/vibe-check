@@ -64,7 +64,7 @@ Entities:
 - `bun|scripts/package/artifact/acceptance-input.test.ts|rejects incomplete or unrelated artifact staging material`
 - `bun|scripts/package/candidate/acceptance-input.test.ts|accepts an exact Gate candidate artifact input`
 - `bun|scripts/package/candidate/acceptance-input.test.ts|rejects incomplete or mismatched Gate candidate artifact input`
-- `bun|scripts/package/candidate/external-consumer-input.test.ts|external consumer provider input is closed and fail-closed`
+- `bun|scripts/package/candidate/external-consumer/input.test.ts|external consumer provider input is closed and fail-closed`
 - `bun|scripts/project/gate/external-consumer-material-check.test.ts|external consumer provider binds typed output to invocation provenance`
   Proves:
 
@@ -76,7 +76,7 @@ Entities:
 Owner: `docs/script-tooling.md#prepared-candidate-data`
 Entities:
 
-- `bun|scripts/package/candidate/isolated-consumer-runtime.test.ts|external consumer runtime acceptance`
+- `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
 - An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. It imports all seven named final-data parsers and exercises both named and Check-attached parser paths against the installed runtime.
@@ -100,7 +100,7 @@ Entities:
 Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
 Entities:
 
-- `bun|scripts/package/candidate/isolated-consumer-docs.test.ts|external consumer docs acceptance`
+- `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
   Proves:
 
 - The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, hand-written Check guides, machine output guide, current v4 schemas, and the mixed-outcomes Definition/output example. The installed Definition typechecks and executes against that exact candidate, runs the documented package-provided and custom dependency workflow, publishes its configured machine output, and forms the documented four outcome states, three RunResult messages and two Records; every projected package API runtime example also executes against the same candidate.

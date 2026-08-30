@@ -12,7 +12,7 @@ import {
   parseExternalConsumerMaterialData,
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
-} from "../../package/candidate/external-consumer-input.ts";
+} from "../../package/candidate/external-consumer/input.ts";
 import {
   createProcessCheckWithDataDependencyAndSuccessData,
   type ProcessCheckDataDependency
@@ -23,7 +23,7 @@ import {
 } from "./prepared-candidate-check.ts";
 
 const providerAdapterPath = fileURLToPath(
-  new URL("../../package/candidate/external-consumer-provider.ts", import.meta.url)
+  new URL("../../package/candidate/external-consumer/provider.ts", import.meta.url)
 );
 const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 

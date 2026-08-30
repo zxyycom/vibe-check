@@ -28,11 +28,11 @@ export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): 
   writeFileSync(join(consumerDirectory, "link-target.md"), "# Target\n", "utf8");
 }
 
-export { assertExternalConsumerRuntime } from "./isolated-consumer-evidence.ts";
+export { assertExternalConsumerRuntime } from "./runtime-evidence.ts";
 
 function runFixture(): string {
   const source = readFileSync(
-    fileURLToPath(new URL("./fixtures/isolated-consumer-runtime.mjs", import.meta.url)),
+    fileURLToPath(new URL("./fixtures/runtime.mjs", import.meta.url)),
     "utf8"
   );
   return source.replaceAll("__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", ISOLATED_JSON_SCHEMA_ID);

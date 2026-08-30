@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 
-import { sha256File } from "../pack.ts";
+import { sha256File } from "../../pack.ts";
 import {
   EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
   EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV,
@@ -14,8 +14,8 @@ import {
   parseExternalConsumerMaterialData,
   readGateExternalConsumerMaterial,
   validateExternalConsumerMaterialPhysical
-} from "./external-consumer-input.ts";
-import { prepareExternalConsumerMaterial } from "./isolated-consumer-material.ts";
+} from "./input.ts";
+import { prepareExternalConsumerMaterial } from "./material.ts";
 
 test("external consumer provider input is closed and fail-closed", () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-external-consumer-input-"));

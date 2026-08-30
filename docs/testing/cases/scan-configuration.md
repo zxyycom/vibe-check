@@ -34,7 +34,7 @@ Owner: `docs/configuration.md#public-authoring-surface`
 Entities:
 
 - `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
-- `bun|scripts/package/candidate/isolated-consumer-types.test.ts|external consumer type acceptance`
+- `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
   Proves:
 
 - The public package exposes only the documented generic authoring/run operations, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason type roots.
