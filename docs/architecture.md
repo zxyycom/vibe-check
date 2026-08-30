@@ -22,6 +22,8 @@
 - `src/project-run/**` 拥有 Run entry、invocation、aggregation、project context、completion/result，以及独立的
   `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `task-scheduler/**` 子 owner；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
+- `src/finding-waivers/**` 拥有按调用方语义 identity 对账 finding waiver 的公开纯函数；它不发布
+  Record、不决定 Check outcome，也不依赖 Core 或 Gate；
 - `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
 - `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 core owner 的 type guards；
 - `scripts/docs/package-api/**` 拥有 package、文档与 candidate tooling 共用的 public-root inventory。

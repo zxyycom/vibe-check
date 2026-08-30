@@ -10,6 +10,7 @@ const PRODUCT_OWNERS = [
   "check",
   "check-settlement",
   "data-boundary",
+  "finding-waivers",
   "machine-output",
   "package-checks",
   "project-definition",

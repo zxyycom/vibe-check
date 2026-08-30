@@ -17,6 +17,8 @@ export { fileMetrics } from "./package-checks/file-metrics/constructor.ts";
 export { parseFileMetricsData } from "./package-checks/file-metrics/final-data.ts";
 export type { FileMetricsFinalData } from "./package-checks/file-metrics/final-data.ts";
 export type {
+  FileMetricsFindingIdentity,
+  FileMetricsFindingWaiver,
   FileMetricsOptions,
   ResolvedFileMetricsOptions
 } from "./package-checks/file-metrics/options.ts";
@@ -81,6 +83,15 @@ export type {
 } from "./package-checks/markdown-link-validation/execution.ts";
 export type { MarkdownLinkFindingReason } from "./package-checks/markdown-link-validation/local-resolver.ts";
 export type { FindingPolicy } from "./package-checks/code-quality-findings/policy.ts";
+export { reconcileFindingWaivers } from "./finding-waivers/reconciliation.ts";
+export type {
+  FindingWaiver,
+  FindingWaiverAudit,
+  FindingWaiverReconciliation,
+  MaterializedFindingWaiver,
+  ReconciledFinding,
+  ReconcileFindingWaiversOptions
+} from "./finding-waivers/reconciliation.ts";
 export { defaultProjectFileSelection } from "./package-checks/project-files/configuration.ts";
 export type {
   ProjectFileSelection,

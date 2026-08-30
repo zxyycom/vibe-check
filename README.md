@@ -206,6 +206,8 @@ options preparation、blocked Check、typed dependency parsing、aggregation、o
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `markdownLinkValidation` 的 normal Finding 默认 non-blocking：Check 保留 Records/final data、返回 `passed` 并附 warning。要让 Finding 直接使该 Check `failed`，请显式设置 `findingPolicy: "blocking"`；Run aggregation 仍只消费各 Check 最终 status。
 
+[`reconcileFindingWaivers({ findings, identify, waivers })`](./docs/api-mechanics.md#finding-waiver-reconciliation) 是独立的公开 helper，供 custom Check author 在完整 finding 集合形成后按自己选择的稳定语义 identity 对账 waiver。它的输入、audit、materialized evidence 与错误边界见该 API section；`fileMetrics` 已采用它，其声明式 `findingWaivers` 与 Record/audit 语义见对应指南。
+
 每项随包 Check 都在返回对象上提供 `parseData(unknown)`，并从 package root 导出同一 final-data parser 与相关类型；具体名称见对应指南。parser 只处理 `passed` / `failed` 的单项 final data，不验证 machine bytes。随包 Check 自己结算的失败、不可用和 non-blocking finding 会附带可操作 message；通用 API 和自定义 Check 仍只保证可选的 `messages?`。
 
 三个 area-based 代码质量 Check 都用 `codeAreas[id]` 组合文件范围、阈值与 `blocking | non-blocking` policy；Markdown Link 在顶层拥有同类 Finding policy。每项指南分别拥有该 Check 的指标和 scanner options。consumer 按目标 Check 的指南配置，imports 始终使用 `vibe-check` package root。

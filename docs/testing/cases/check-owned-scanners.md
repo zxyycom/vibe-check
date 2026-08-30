@@ -25,7 +25,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
-- Each file-metrics area owns files, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking. Blocking, non-blocking, and Check-owned unavailable outcomes carry safe actionable messages.
+- Each file-metrics area owns its file selection, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function constructor owns area and finding policy
 

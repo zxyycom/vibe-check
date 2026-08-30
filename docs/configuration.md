@@ -320,7 +320,7 @@ value 显式组合。
 | Package export           | Kind        | Check ID                   | 初始 execution option                       | 其它 Check option                       |
 | ------------------------ | ----------- | -------------------------- | ------------------------------------------- | --------------------------------------- |
 | `duplicateDetection`     | constructor | `duplicate-detection`      | `scanner: { command: { kind: "package" } }` | cache；area files/thresholds/finding policy |
-| `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area files/code lines/finding policy         |
+| `fileMetrics`            | constructor | `file-metrics`             | `scanner: { executable: "scc" }`            | area files/code lines/finding policy；finding waivers |
 | `functionMetrics`        | constructor | `function-metrics`         | `scanner: { executable: "lizard" }`         | area-owned files/limits/finding policy  |
 | `jsonValidation`         | constructor | `json-validation`          | —                                           | files；`maximumBytes: 1_048_576`         |
 | `jsonSchemaValidation`   | constructor | `json-schema-validation`   | —                                           | files；schema registry 与 bindings       |
@@ -338,9 +338,11 @@ command 恰为 `{ kind: "package" }`，custom command 恰为 `{ kind: "custom", 
 config、JSON report output 和自动 worker policy 全部由 jscpd adapter 拥有；正确示例与 wrapper 边界见
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)。
 
-`fileMetrics(options?)` 以 area ID 共同组织 files、code-line policy 与 effective finding policy，并只允许 consumer 选择
-SCC executable；顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖。完整 input/resolved shape、有效上限、重叠 area
-和 adapter protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
+`fileMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, findingWaivers, scanner }`，resolved options
+恰为 `{ codeAreas, findingWaivers, scanner }`。它以 area ID 共同组织 files、code-line policy 与 effective finding policy，
+并只允许 consumer 选择 SCC executable；顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖。`findingWaivers`
+省略时物化为 `[]`，由 owning Check 在完整 finding 集合形成后对账。完整字段、有效上限、重叠 area、waiver 和 adapter
+protocol 见 [`fileMetrics` 指南](checks/file-metrics.md)。
 
 `functionMetrics(options?)` 的 input 只含可省略的 `{ codeAreas, findingPolicy, scanner }`；顶层 finding policy 只能是
 `"blocking" | "non-blocking"`。显式 area 必须提供 `files` branch，可省略 nested limits 与 area finding-policy override。

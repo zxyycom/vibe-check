@@ -42,7 +42,7 @@ describe("repository quality Checks", () => {
     assert.deepEqual(schemasExamples.files.include, ["docs/schemas/**", "docs/examples/**"]);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/historical/v2/vibe-check-run.schema.json"),
-      false
+      true
     );
     assert.equal(
       selectsPath(
@@ -51,6 +51,15 @@ describe("repository quality Checks", () => {
       ),
       true
     );
+    assert.deepEqual(fileMetrics.options.findingWaivers, [
+      {
+        identity: {
+          metric: "code-lines",
+          path: "docs/schemas/historical/v2/vibe-check-run.schema.json"
+        },
+        reason: "Historical v2 schema bytes and URN must remain unchanged."
+      }
+    ]);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/vibe-check-run.schema.json"),
       true

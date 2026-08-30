@@ -12,6 +12,7 @@ const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
   CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
   CURRENT_PUBLIC_CONTRACT.operations.inherit,
+  CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers,
   CURRENT_PUBLIC_CONTRACT.operations.run
 ]);
 const GUIDE_HEADINGS = Object.freeze([

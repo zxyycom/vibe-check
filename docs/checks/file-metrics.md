@@ -7,7 +7,8 @@
 ## 用途
 
 `fileMetrics(options?)` 返回一个普通 `file-metrics` Check。该 Check 使用 SCC 测量各区域所选文件的代码行数，
-将超过区域策略的文件发布为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
+将超过区域策略的文件发布为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。可选的声明式
+waiver 在完整 finding 集合形成后对账；它不会把路径排除在 SCC 输入之外。
 
 无参调用使用完整默认策略：
 
@@ -22,7 +23,7 @@ const check = fileMetrics();
 
 ## 参数与默认配置
 
-顶层 `codeAreas`、`findingPolicy` 与 `scanner` 都可省略。每个 `codeAreas[areaId]` 同时拥有文件选择和代码行
+顶层 `codeAreas`、`findingPolicy`、`findingWaivers` 与 `scanner` 都可省略。每个 `codeAreas[areaId]` 同时拥有文件选择和代码行
 策略，因此不同区域可以选择不同文件并使用不同上限。无参调用物化以下完整、冻结的 Check options：
 
 ```ts
@@ -40,6 +41,7 @@ const check = fileMetrics();
       }
     }
   },
+  findingWaivers: [],
   scanner: { executable: "scc" }
 }
 ```
@@ -57,6 +59,10 @@ const check = fileMetrics();
 - `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用公开的
   `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
+- `findingWaivers` 省略时为 `[]`。每项必须是 `{ identity: { metric: "code-lines", path }, reason }`；`path` 必须已经是
+  normalized project-root-relative slash path：非空、不以 `/` 开头、不含 `\\`、Windows drive prefix、空 segment、`.` 或 `..`。
+  `reason` 必须非空，同一 `{ metric, path }` 不得重复。它不接受 callback 或 glob：metric 和 path 是该 Check 承诺的稳定
+  identity，实际行数与上限仍会随策略变化。
 - 省略 `codeLines` 时使用完整默认代码行策略；`maximum` 与 allowance 内的字段也可分别省略。
 - `maximum` 与 `maximumCodeLines` 必须是正安全整数，`maximumDecisionTokens` 必须是非负安全整数；
   allowance 的 `maximumCodeLines` 必须严格大于同一区域的普通 `maximum`。
@@ -157,8 +163,9 @@ go = "1.25"
 ## 效果与结果
 
 每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。正常 final data 恰为
-`{ findingCount, blockingFindingCount }`；前者等于 Records 数量，后者等于其中 `blocking: true` 的数量。
-`blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带 non-blocking Records。
+`{ findingCount, blockingFindingCount }`；前者等于 SCC 形成的 finding 数量，后者只计没有被 applied waiver 覆盖的
+`blocking: true` finding。`blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带
+non-blocking 或 waived finding Records。
 
 每个超限路径发布一条 supplemental Record。Record ID 是 path，data shape 为：
 
@@ -170,12 +177,20 @@ go = "1.25"
   limit: number;       // 全部匹配区域中的最严格有效上限
   metric: "code-lines";
   path: string;
+  waiver?: { reason: string };
 }
 ```
 
+精确命中一项 finding 的 waiver 会保留原 finding Record，并写入 `waiver.reason`、将 `blocking` 设为 `false`，同时附加
+`finding-waived` info message。未命中或命中多项的 waiver 不会隐藏 finding；各自产生一条 `kind: "finding-waiver-audit"`
+Record，带 identity、reason、matchCount 和 `"unused" | "overmatched"` status，并附 warning。这样 stale 或过宽配置可见，
+而不是悄悄失效或覆盖多个 finding。audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-slash domain
+与正常 finding 的 normalized relative path ID 不相交。
+
 `failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
-调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
-的 `passed` 与 `not-applicable` 不合成人为提示。
+调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding
+且没有 waiver audit 时，`passed` 与 `not-applicable` 不合成人为提示。若已配置 waiver，即使 exact-path union 为空，Check
+仍会对已知空 finding 集合产生 `unused` audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` outcome。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFileMetricsData(value)` 验证 final data。两者返回
 `FileMetricsFinalData`，Record 与不可用原因可分别用 `FileMetricsRecordData` 和
@@ -186,7 +201,7 @@ go = "1.25"
 
 | 阶段或条件                                                       | Check 结果                                      |
 | ---------------------------------------------------------------- | ----------------------------------------------- |
-| 全部区域的 exact-path union 为空                                 | `not-applicable / no-eligible-input`            |
+| 全部区域的 exact-path union 为空                                 | `not-applicable / no-eligible-input`；已配置 waiver 仍产生 unused audit |
 | resolved options 不符合完整 closed shape                         | `unavailable / invalid-options`                 |
 | 所配置的 filesystem 或 git-worktree 来源无法形成候选集合         | `unavailable / source-unavailable`              |
 | SCC command 缺失、version probe 失败或版本不匹配                 | `unavailable / external-dependency-unavailable` |

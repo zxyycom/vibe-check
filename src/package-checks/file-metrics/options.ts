@@ -3,6 +3,7 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
+import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
 
 /** `fileMetrics` 构造函数可省略的 SCC 可执行文件策略。 */
 export interface FileMetricsScannerOptions {
@@ -39,12 +40,25 @@ export interface FileMetricsCodeAreaOptions {
   readonly codeLines?: FileMetricsCodeLineOptions;
 }
 
+/** file-metrics 用于识别可豁免 finding 的稳定语义字段。 */
+export interface FileMetricsFindingIdentity {
+  /** file-metrics 当前只产生文件代码行 finding。 */
+  readonly metric: "code-lines";
+  /** 已 normalized 的 project-root-relative slash path；不得为绝对、含反斜杠或含 `.`/`..` 的路径。 */
+  readonly path: string;
+}
+
+/** 一项 file-metrics finding 的声明式豁免；执行时仍会扫描并发布该 finding。 */
+export type FileMetricsFindingWaiver = FindingWaiver<FileMetricsFindingIdentity>;
+
 /** `fileMetrics(options?)` 接受并补齐默认值的公开策略。 */
 export interface FileMetricsOptions {
   /** 省略时建立默认 `project` 区域；显式映射必须非空。 */
   readonly codeAreas?: Readonly<Record<string, FileMetricsCodeAreaOptions>>;
   /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
+  /** 省略时没有豁免；每项以 `{ metric, path }` 精确匹配，并必须提供非空理由。 */
+  readonly findingWaivers?: readonly FileMetricsFindingWaiver[];
   /** 省略时直接执行 `scc`；CLI 协议由 owning adapter 固定。 */
   readonly scanner?: FileMetricsScannerOptions;
 }
@@ -52,6 +66,7 @@ export interface FileMetricsOptions {
 /** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
 export interface ResolvedFileMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>;
+  readonly findingWaivers: readonly FileMetricsFindingWaiver[];
   readonly scanner: ResolvedFileMetricsScannerOptions;
 }
 

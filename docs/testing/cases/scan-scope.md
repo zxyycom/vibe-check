@@ -41,6 +41,17 @@ Entities:
 - 每个明确选择的来源都在失败时停止，不会在 Git 与 filesystem 之间自动切换；目录读取或 Git 来源失败与合法空集合不同。
 - 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
 
+## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly Lizard-supported source inputs
+
+Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Entities:
+
+- `bun|src/package-checks/function-metrics/target-files.test.ts|Lizard target files > selects every Lizard 1.23-supported extension case-insensitively and excludes fallback inputs`
+
+Proves:
+
+- function-metrics forwards every extension supported by Lizard 1.23.0's official language readers, using its case-insensitive matcher semantics, and excludes unsupported Markdown, JSON, YAML and extensionless inputs so Lizard's C-like fallback cannot measure them.
+
 ## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of its Check-owned file selection
 
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`

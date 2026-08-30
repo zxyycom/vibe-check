@@ -1,99 +1,14 @@
 import assert from "node:assert/strict";
-import {
-  chmodSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync
-} from "node:fs";
-import { tmpdir } from "node:os";
+import { existsSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type {
-  CheckDependencies,
-  CheckExecution,
-  CheckExecutionContext,
-  CheckProjectContext,
-  CheckResult,
-  DeepReadonly
-} from "../../check/check.ts";
+import { defaultProjectFileSelection } from "../project-files/configuration.ts";
 import { fileMetrics } from "./constructor.ts";
 import { executeFileMetrics } from "./execution.ts";
 import { parseFileMetricsData } from "./final-data.ts";
+import { FILES, createRoot, execute, scanner } from "./file-metrics.test-support.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
-import { defaultProjectFileSelection } from "../project-files/configuration.ts";
-
-const FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"]),
-  source: "filesystem" as const
-});
-
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({
-      ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
-    })
-});
-
-function project(root: string): CheckProjectContext {
-  return Object.freeze({
-    flags: Object.freeze([]),
-    root
-  });
-}
-
-async function execute<Options extends object>(
-  callback: CheckExecution<Options>,
-  options: DeepReadonly<Options>,
-  root: string,
-  signal: AbortSignal = new AbortController().signal
-): Promise<
-  Readonly<{
-    readonly records: readonly ReportedRecord[];
-    readonly result: CheckResult;
-  }>
-> {
-  const records: ReportedRecord[] = [];
-  const context: CheckExecutionContext<Options> = Object.freeze({
-    dependencies: NO_DEPENDENCIES,
-    options,
-    project: project(root),
-    records: Object.freeze({
-      report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
-        records.push(Object.freeze({ data, identity }));
-      }
-    }),
-    signal
-  });
-  const result = await callback(context);
-  return Object.freeze({ records: Object.freeze(records), result });
-}
-
-interface ReportedRecord {
-  readonly data: object;
-  readonly identity: Readonly<{ readonly id: string }>;
-}
-
-function createRoot(prefix: string): string {
-  const root = mkdtempSync(join(tmpdir(), prefix));
-  mkdirSync(join(root, "scripts"), { recursive: true });
-  mkdirSync(join(root, "src"), { recursive: true });
-  writeFileSync(join(root, "scripts", "b.ts"), "export const b = 2;\n", "utf8");
-  writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
-  return root;
-}
-
-function scanner(root: string, source: string): string {
-  const path = join(root, "scanner.mjs");
-  writeFileSync(path, `#!/usr/bin/env bun\n${source}`, "utf8");
-  chmodSync(path, 0o755);
-  return path;
-}
 
 describe("fileMetrics constructor and direct callback", () => {
   it("materializes closed defaults and rejects malformed authored or resolved policy", async () => {
@@ -121,6 +36,7 @@ describe("fileMetrics constructor and direct callback", () => {
           findingPolicy: "non-blocking"
         }
       },
+      findingWaivers: [],
       scanner: { executable: "scc" }
     });
     assert.equal(Object.isFrozen(defaultCheck.options), true);
@@ -215,7 +131,6 @@ describe("fileMetrics constructor and direct callback", () => {
         /fileMetrics options must match/
       );
     }
-
     const invalidPreflight = await defaultCheck.preflight!(
       { ...defaultCheck.options, codeAreas: {} },
       new AbortController().signal

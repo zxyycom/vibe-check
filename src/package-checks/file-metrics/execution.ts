@@ -1,11 +1,24 @@
-import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
+import {
+  reconcileFindingWaivers,
+  type FindingWaiverReconciliation
+} from "../../finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
 import type { FileMetricsExactInputSet } from "./measurement-model.ts";
-import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
+import type {
+  FileMetricsFindingWaiver,
+  ResolvedFileMetricsCodeAreaOptions,
+  ResolvedFileMetricsOptions
+} from "./options.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
-import { buildFileRecordCandidates } from "./records.ts";
+import {
+  buildFileRecordCandidates,
+  fileMetricsWaiverAuditRecord,
+  fileMetricsWaiverIdentity,
+  type FileRecordCandidate
+} from "./records.ts";
 import type { FileMetricsFinalData } from "./final-data.ts";
 
 export const FILE_METRICS_CHECK_DEFINITION = {
@@ -38,7 +51,7 @@ export async function executeFileMetrics(
     return unavailable("source-unavailable");
   }
   if (collectedScope.approvedExactPaths.length === 0) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+    return noEligibleInputResult(context);
   }
   const measurement = await measureFileMetrics(collectedScope, context.options.scanner);
   if (measurement.kind !== "complete") return measurementFailureResult(measurement);
@@ -47,10 +60,102 @@ export async function executeFileMetrics(
     codeAreas: context.options.codeAreas
   });
   if (candidates === undefined) return unavailable("external-result-invalid");
-  for (const candidate of candidates) {
-    context.records.report({ id: candidate.id }, candidate.data);
+  const reconciliation = reconcileFileMetricWaivers(candidates, context.options.findingWaivers);
+  for (const finding of reconciliation.findings) {
+    const data =
+      finding.disposition === "waived"
+        ? Object.freeze({
+            ...finding.finding.data,
+            blocking: false,
+            waiver: Object.freeze({ reason: finding.waiver.reason })
+          })
+        : finding.finding.data;
+    context.records.report({ id: finding.finding.id }, data);
   }
-  return settleFindings(candidates.map((candidate) => candidate.data.blocking));
+  reportWaiverAuditRecords(context, reconciliation);
+  const settlement = settleFindings(
+    reconciliation.findings.map(({ disposition, finding }) => ({
+      actionable: disposition !== "waived",
+      blocking: finding.data.blocking
+    }))
+  );
+  return appendWaiverMessages(settlement, reconciliation);
+}
+
+function noEligibleInputResult(
+  context: CheckExecutionContext<ResolvedFileMetricsOptions>
+): CheckResult<FileMetricsFinalData> {
+  const reconciliation = reconcileFileMetricWaivers([], context.options.findingWaivers);
+  reportWaiverAuditRecords(context, reconciliation);
+  return appendWaiverMessages(
+    Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),
+    reconciliation
+  );
+}
+
+function reconcileFileMetricWaivers(
+  candidates: readonly FileRecordCandidate[],
+  waivers: readonly FileMetricsFindingWaiver[]
+): FindingWaiverReconciliation<FileRecordCandidate> {
+  return reconcileFindingWaivers({
+    findings: candidates,
+    identify: ({ data }) => ({ metric: data.metric, path: data.path }),
+    waivers
+  });
+}
+
+function reportWaiverAuditRecords(
+  context: CheckExecutionContext<ResolvedFileMetricsOptions>,
+  reconciliation: FindingWaiverReconciliation<FileRecordCandidate>
+): void {
+  for (const audit of reconciliation.waiverAudits) {
+    const record = fileMetricsWaiverAuditRecord(audit);
+    if (record !== undefined) context.records.report({ id: record.id }, record.data);
+  }
+}
+
+function appendWaiverMessages(
+  settlement: CheckResult<FileMetricsFinalData>,
+  reconciliation: FindingWaiverReconciliation<FileRecordCandidate>
+): CheckResult<FileMetricsFinalData> {
+  const waiverMessages: CheckMessage[] = [];
+  for (const audit of reconciliation.waiverAudits) {
+    const identity = fileMetricsWaiverIdentity(audit.waiver);
+    switch (audit.status) {
+      case "applied":
+        waiverMessages.push(
+          Object.freeze({
+            code: "finding-waived",
+            level: "info",
+            message: `File metric finding for ${identity.path} was waived: ${audit.waiver.reason}`
+          })
+        );
+        break;
+      case "unused":
+        waiverMessages.push(
+          Object.freeze({
+            code: "unused-finding-waiver",
+            level: "warning",
+            message: `Configured file-metrics finding waiver for ${identity.path} matched no finding; remove it or update its identity. Reason: ${audit.waiver.reason}`
+          })
+        );
+        break;
+      case "overmatched":
+        waiverMessages.push(
+          Object.freeze({
+            code: "overmatched-finding-waiver",
+            level: "warning",
+            message: `Configured file-metrics finding waiver for ${identity.path} matched ${audit.matchCount} findings and was not applied; narrow its identity. Reason: ${audit.waiver.reason}`
+          })
+        );
+        break;
+    }
+  }
+  if (waiverMessages.length === 0) return settlement;
+  return Object.freeze({
+    ...settlement,
+    messages: Object.freeze([...(settlement.messages ?? []), ...waiverMessages])
+  });
 }
 
 function collectAreaScope(

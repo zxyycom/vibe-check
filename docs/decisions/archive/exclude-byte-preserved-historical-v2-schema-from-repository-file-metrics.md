@@ -1,6 +1,6 @@
 ---
 title: 从仓库文件指标中精确排除保留字节的历史 v2 schema
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:06:36Z
 purpose: 让 repository-private file-metrics 不以重写历史 v2 schema 的方式处理其不可拆分的单文件规模。

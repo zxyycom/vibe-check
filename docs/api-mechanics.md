@@ -64,6 +64,22 @@ Check 视为完整替换；完整默认 glob 可直接从该 public value 读取
 
 `messages?` 是 owning Check 可选的有序人读说明；consumer 必须先按 outcome 处理事实，不能用 message presence 推断状态。final data、Records 和 messages 分别承载主要事实、补充事实和人读说明。随包 Check 的额外 message 保证由各自指南说明。
 
+## Finding waiver reconciliation
+
+`reconcileFindingWaivers({ findings, identify, waivers })` 是 package root 提供的独立 helper，供 custom Check 或其它
+finding producer 在**完整** finding 候选集合形成后对账。`identify(finding)` 对输入顺序中的每个原 finding 接收完整
+finding；调用方自行选择稳定的语义 identity，例如 path、function name 和 metric 的组合。`identify` 的结果与
+`waiver.identity` 都必须可安全 materialize 为 canonical JSON，helper 按 canonical JSON 的结构而非对象引用匹配。
+
+每项 waiver 的 identity 必须唯一且 reason 为非空 string。重复 canonical identity、无法 canonicalize 的 finding 或
+waiver identity、无效 reason，或 malformed / hostile waiver authoring 都抛出 `TypeError`。每个 configured waiver 都在完整
+集合上获得 audit：`0` 次匹配是 `unused`，`1` 次是 `applied`，`>1` 次是 `overmatched`；过宽 waiver 不会豁免任一 finding。
+
+输出 `findings` 保持输入顺序，并在每项结果中保留同一个原 finding reference。applied waiver 附带的 evidence 是 detached、
+deep-frozen 的 canonical materialization，因此调用方之后修改 authored identity 或 reason 不会改变结果。helper 只返回
+finding disposition 和 waiver audit；它不发布 Record、message 或 terminal outcome。采用它的 Check 自己决定如何发布证据及
+如何结算 actionable finding。
+
 ## 递归组合与继承
 
 带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、dependencies、mutexes、visibility 与 parallel budget。

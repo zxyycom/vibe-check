@@ -10,7 +10,7 @@ import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
  *
  * @param options - 省略字段由 package 补齐；显式 files 数组作为对应字段的完整替换值。
  * @returns 固定 `file-metrics` identity、完整冻结 options、preflight 与 execution。
- * @throws {TypeError} input 含未知字段、空 area、非法代码行 policy 或空 executable 时抛出。
+ * @throws {TypeError} input 含未知字段、空 area、非法代码行 policy、非法 waiver 或空 executable 时抛出。
  */
 export function fileMetrics(
   options: FileMetricsOptions = {}
@@ -18,7 +18,7 @@ export function fileMetrics(
   const resolvedOptions = resolveFileMetricsOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
-      "fileMetrics options must match the documented closed { codeAreas?, scanner? } constructor policy"
+      "fileMetrics options must match the documented closed { codeAreas?, findingPolicy?, findingWaivers?, scanner? } constructor policy"
     );
   }
   return defineCheck({

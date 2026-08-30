@@ -19,6 +19,19 @@ Entities:
 - Canonical bytes and detached data reject accessors, proxies, sparse arrays, and non-JSON values without evaluating author hooks.
 - A Check-facts Check has exactly one closed `passed`, `failed`, `not-applicable`, or `unavailable` outcome, and a snapshot contains only canonical Checks and structural `(checkId, id)` Records.
 
+## Case API-FINDING-WAIVER-RECONCILIATION-001: Public helper reconciles caller-defined finding identities
+
+Owner: `docs/api-mechanics.md#finding-waiver-reconciliation`
+Entities:
+
+- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > matches caller-defined structural identities, preserves reasons, and audits unused waivers`
+- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > materializes waiver identity and reason without copying caller findings`
+- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > does not waive findings when one caller-defined identity matches more than once`
+- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > rejects malformed and hostile waiver boundaries without invoking caller accessors`
+  Proves:
+- The public helper reconciles each configured waiver against the complete caller-provided finding collection by caller-defined canonical structural identity, preserving finding order and original finding references. Zero, one, and multiple matches respectively produce unused, applied, and overmatched audit outcomes; overmatched identities do not waive findings.
+- Applied evidence is a detached, deep-frozen materialization of the authored waiver rather than a mutable authored object. Duplicate, malformed, noncanonical, or hostile waiver authoring and invalid finding identity fail with `TypeError` without invoking author accessors.
+
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 
 Owner: `docs/configuration.md#invocation-and-results`

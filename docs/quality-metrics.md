@@ -73,14 +73,16 @@ resolved area 保存自己的有效 policy。每个可信 finding 都发布一�
 - `duplicate-detection` 的 finding Record 还包含稳定排序的 `codeAreas`、line/token counts 与全部 locations；涉及区域的
   line/token 下限按 owning duplicate policy 过滤。
 - `file-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、path、code lines 与 effective limit；同一路径使用全部
-  matching areas 中最严格的适用 code-line maximum。
+  matching areas 中最严格的适用 code-line maximum。它还可用声明式 `{ identity: { metric, path }, reason }` waiver 在完整 SCC
+  finding 集合形成后做精确对账：applied finding 保留 Record 和 reason，但不进入 actionable/blocking settlement；unused 或
+  overmatched waiver 各发布 audit Record 与 warning，后者不会豁免 finding。
 - `function-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、metric、limit 与 function location/value；effective
   limit 是全部 matching areas 对该 metric 的适用 maximum 最小值。
 
 三者的正常 final data 都恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此
 passed Check 可以携带 non-blocking finding Records。zero input 与 adapter/measurement failure 仍分别结算为
-not-applicable 和 unavailable。这个 Finding policy 属于 package code-quality owner，不会扩展 arbitrary Core Check、Record、
-aggregation 或 Gate grammar。
+not-applicable 和 unavailable。这个 Finding policy 只改变 owning package Check 的 finding settlement，不改变通用
+Check/Record 或 aggregation contract。
 
 三者的 attached / named parser 验证相同的两个计数字段、非负安全整数与
 `blockingFindingCount <= findingCount`，并返回对应 Check-specific final-data type。

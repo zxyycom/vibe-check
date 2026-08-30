@@ -1,5 +1,6 @@
 import {
   hasRequiredAndOptionalRecordKeys,
+  snapshotClosedArray,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
@@ -11,7 +12,13 @@ import {
   resolveFindingPolicy,
   type FindingPolicy
 } from "../code-quality-findings/policy.ts";
-import type { ResolvedFileMetricsCodeAreaOptions, ResolvedFileMetricsOptions } from "./options.ts";
+import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import type {
+  FileMetricsFindingIdentity,
+  FileMetricsFindingWaiver,
+  ResolvedFileMetricsCodeAreaOptions,
+  ResolvedFileMetricsOptions
+} from "./options.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
 
 const DEFAULT_EXECUTABLE = "scc";
@@ -29,18 +36,53 @@ export function resolveFileMetricsOptions(
   authoredOptions: unknown
 ): ResolvedFileMetricsOptions | undefined {
   const input = snapshotPolicyRecord(authoredOptions, {
-    optional: ["codeAreas", "findingPolicy", "scanner"]
+    optional: ["codeAreas", "findingPolicy", "findingWaivers", "scanner"]
   });
   if (input === undefined) return undefined;
 
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
   if (findingPolicy === undefined) return undefined;
   const codeAreas = resolveCodeAreas(input.codeAreas, findingPolicy);
+  const findingWaivers = resolveFindingWaivers(input.findingWaivers);
   const scanner = resolveScanner(input.scanner);
-  if (codeAreas === undefined || scanner === undefined) return undefined;
+  if (codeAreas === undefined || findingWaivers === undefined || scanner === undefined)
+    return undefined;
 
-  const options = Object.freeze({ codeAreas, scanner });
+  const options = Object.freeze({ codeAreas, findingWaivers, scanner });
   return isValidResolvedFileMetricsOptions(options) ? options : undefined;
+}
+
+function resolveFindingWaivers(value: unknown): readonly FileMetricsFindingWaiver[] | undefined {
+  if (value === undefined) return Object.freeze([]);
+  const candidates = snapshotClosedArray(value);
+  if (candidates === undefined) return undefined;
+  const waivers: FileMetricsFindingWaiver[] = [];
+  const seenIdentities = new Set<string>();
+  for (const candidate of candidates) {
+    const waiver = resolveFindingWaiver(candidate);
+    if (waiver === undefined) return undefined;
+    const identityKey = `${waiver.identity.metric}\u0000${waiver.identity.path}`;
+    if (seenIdentities.has(identityKey)) return undefined;
+    seenIdentities.add(identityKey);
+    waivers.push(waiver);
+  }
+  return Object.freeze(waivers);
+}
+
+function resolveFindingWaiver(value: unknown): FileMetricsFindingWaiver | undefined {
+  const waiver = snapshotPolicyRecord(value, { required: ["identity", "reason"] });
+  if (waiver === undefined || !isNonEmptyString(waiver.reason)) return undefined;
+  const identity = resolveFindingIdentity(waiver.identity);
+  return identity === undefined ? undefined : Object.freeze({ identity, reason: waiver.reason });
+}
+
+function resolveFindingIdentity(value: unknown): FileMetricsFindingIdentity | undefined {
+  const identity = snapshotPolicyRecord(value, { required: ["metric", "path"] });
+  return identity === undefined ||
+    identity.metric !== "code-lines" ||
+    !isNormalizedProjectRelativePath(identity.path)
+    ? undefined
+    : Object.freeze({ metric: "code-lines", path: identity.path });
 }
 
 function resolveCodeAreas(

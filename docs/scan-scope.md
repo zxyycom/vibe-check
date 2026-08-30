@@ -75,8 +75,8 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
   任何 area 选择的 path 不属于 exact scope。
 - `file-metrics` 按来源枚举一次并筛出每个 area 的路径，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按
   其全部实际 input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
-- `function-metrics` 按来源枚举一次并从每个 area 选择 `.ts`、`.d.ts` 与 `.rs`，把稳定去重并集一次性交给 Check-local
-  Lizard adapter；
+- `function-metrics` 按来源枚举一次，并按 Lizard 1.23.0 的官方 reader extension table 选择其支持的 source files（大小写不敏感）；把稳定去重并集一次性交给 Check-local
+  Lizard adapter。未被该 table 识别的文件不会传给 Lizard，避免其 C-like fallback 将非代码文本当作 source；
   每个结果恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area blocking 时 finding blocking，
   同一 metric 最多产生一条 finding。
 - `json-validation` 只从自己的 candidates 中以 case-sensitive `path.endsWith(".json")` 选择文件；`.JSON` 不属于输入。

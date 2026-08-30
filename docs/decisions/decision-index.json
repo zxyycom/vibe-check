@@ -8,6 +8,7 @@
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:e851af0e501232bda67674f2aceddfa6a9b737d3c3bdcb8686dc1fadced3ca7c",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
+      "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:99f675194933c022523f86f44f4f527c0ce02401f692e6d80428afcdf0bc895b",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
       "allow-controlled-json-schema-reference-sources.md": "sha256:626a9424cb152eb81f9d82cdf29286b246d026090d386f9cc086e06aa4ae119d",
@@ -50,7 +51,7 @@
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
-      "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:f2f02dd354895c420bbc3f114964050e9dfcc30890f12df0e486d7db73a13e86",
+      "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:ed9d534a2469cbdba03347edb3f294c65c1215d6e07206d551e644a6d35b02d6",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
@@ -121,6 +122,7 @@
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
+      "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:d81657acfa9fc2c582a34b73730807304d86b45f88f61c0064c8a7b09cd46acc",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
       "refine-product-module-boundaries.md": "sha256:ca807ad24d1b8282e1c6a1291c4b09c0ff4b0e0a8e0d127e352ea0ea756e42a4",
       "refine-project-gate-context-timing-phases.md": "sha256:e3b93f579701e290aa78c1216305e5939260c178d76f27f68dcc0e2c19b351a6",
@@ -321,6 +323,35 @@
             "target": "observe-repository-quality-checks-inside-project-gate.md"
           }
         ]
+      }
+    },
+    "align-function-metrics-inputs-with-lizard-supported-languages.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "align-function-metrics-inputs-with-lizard-supported-languages.md",
+        "title": "让函数指标输入范围与 Lizard 支持语言对齐",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T14:43:39Z",
+        "purpose": "让 functionMetrics 对 Lizard 1.23.0 正式支持的源文件类型提供完整而受控的 exact-input eligibility。",
+        "background": "决策形成前 adapter 只将 TypeScript 与 Rust 路径交给 Lizard，任意未知文本又可能被 Lizard 的 CLike fallback 误测。",
+        "decision": "将 functionMetrics 的受支持扩展名集合对齐 Lizard 1.23.0 官方语言范围，同时继续在交给 adapter 前拒绝不受支持输入。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "align-source-layout-and-naming-with-module-owners.md": {
@@ -1632,16 +1663,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md",
+        "sourcePath": "archive/exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md",
         "title": "从仓库文件指标中精确排除保留字节的历史 v2 schema",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T14:06:36Z",
         "purpose": "让 repository-private file-metrics 不以重写历史 v2 schema 的方式处理其不可拆分的单文件规模。",
@@ -3822,6 +3853,40 @@
           {
             "type": "修订",
             "target": "let-dependent-checks-read-settled-upstream-outputs.md"
+          }
+        ]
+      }
+    },
+    "reconcile-finding-waivers-with-caller-defined-identities.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "reconcile-finding-waivers-with-caller-defined-identities.md",
+        "title": "用调用方定义的身份对账质量 Finding 豁免",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T14:43:38Z",
+        "purpose": "让质量 Finding 的例外既保留原始证据和理由，又可审计失效或过宽的豁免配置。",
+        "background": "决策形成前的路径 glob 排除会在扫描前抹去 Finding，且 Core Record ID 不是所有 Check 都可稳定预测或适合作为豁免键。",
+        "decision": "提供独立泛型 helper，按调用方从完整 Finding 投影出的结构化身份批量对账 waiver，并由采用它的 Check 自行发布和结算结果。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md"
           }
         ]
       }

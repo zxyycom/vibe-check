@@ -1,8 +1,18 @@
 import type { FileMetric } from "./measurement-model.ts";
-import type { ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
+import type { FileMetricsFindingIdentity, ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
+import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
+import type {
+  FindingWaiverAudit,
+  MaterializedFindingWaiver
+} from "../../finding-waivers/reconciliation.ts";
+import type {
+  CanonicalJsonObject,
+  CanonicalJsonValue
+} from "../../data-boundary/canonical-data.ts";
 
 const FILE_CODE_LINES_METRIC = "code-lines" as const;
+const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 
 interface FileMetricsAreaPolicyContext {
   readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
@@ -16,18 +26,73 @@ interface EffectiveFileRecordPolicy {
 }
 
 /** 一条超出文件代码行上限的 supplemental Record data。 */
-export type FileMetricsRecordData = Readonly<{
+export type FileMetricsFindingRecordData = Readonly<{
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
   readonly codeLines: number;
   readonly limit: number;
   readonly metric: "code-lines";
   readonly path: string;
+  /** 精确匹配 waiver 时保留理由，并令该 finding 不再参与 actionable settlement。 */
+  readonly waiver?: Readonly<{ readonly reason: string }>;
 }>;
 
+/** 未使用或过宽 file-metrics waiver 的 supplemental audit Record data。 */
+export type FileMetricsFindingWaiverAuditRecordData = Readonly<{
+  readonly identity: FileMetricsFindingIdentity;
+  readonly kind: "finding-waiver-audit";
+  readonly matchCount: number;
+  readonly reason: string;
+  readonly status: "overmatched" | "unused";
+}>;
+
+/** file-metrics 发布的 finding 或 waiver-audit supplemental Record data。 */
+export type FileMetricsRecordData =
+  | FileMetricsFindingRecordData
+  | FileMetricsFindingWaiverAuditRecordData;
+
 export interface FileRecordCandidate {
-  readonly data: FileMetricsRecordData;
+  readonly data: FileMetricsFindingRecordData;
   readonly id: string;
+}
+
+/** 仅为未使用和过宽 waiver 构造补充 audit Record；正常 applied waiver 由 finding Record 自己保留。 */
+export function fileMetricsWaiverAuditRecord(
+  audit: FindingWaiverAudit
+):
+  | Readonly<{ readonly data: FileMetricsFindingWaiverAuditRecordData; readonly id: string }>
+  | undefined {
+  if (audit.status === "applied") return undefined;
+  const identity = fileMetricsWaiverIdentity(audit.waiver);
+  return Object.freeze({
+    data: Object.freeze({
+      identity,
+      kind: "finding-waiver-audit",
+      matchCount: audit.matchCount,
+      reason: audit.waiver.reason,
+      status: audit.status
+    }),
+    id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}${identity.path}`
+  });
+}
+
+export function fileMetricsWaiverIdentity(
+  waiver: MaterializedFindingWaiver
+): FileMetricsFindingIdentity {
+  const identity = waiver.identity;
+  if (
+    !isCanonicalObject(identity) ||
+    identity.metric !== "code-lines" ||
+    typeof identity.path !== "string" ||
+    !isNormalizedProjectRelativePath(identity.path)
+  ) {
+    throw new TypeError("fileMetrics waiver identity must retain a normalized code-lines path");
+  }
+  return Object.freeze({ metric: "code-lines", path: identity.path });
+}
+
+function isCanonicalObject(value: CanonicalJsonValue): value is CanonicalJsonObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /** Converts trusted scanner metrics into area-policy-owned supplemental facts. */

@@ -13,6 +13,13 @@ export interface FindingSummary {
   readonly findingCount: number;
 }
 
+/** 一项 finding 在 Check 自己结算前的领域中性处置。 */
+export interface FindingSettlement {
+  /** 该 finding 是否仍需要进入该 Check 的正常 finding 结算。 */
+  readonly actionable: boolean;
+  readonly blocking: boolean;
+}
+
 export function resolveFindingPolicy(
   value: unknown,
   fallback: FindingPolicy = DEFAULT_FINDING_POLICY
@@ -29,10 +36,17 @@ export function isBlockingFinding(policies: readonly FindingPolicy[]): boolean {
   return policies.some((policy) => policy === "blocking");
 }
 
-export function settleFindings(blockingStates: readonly boolean[]): CheckResult<FindingSummary> {
-  const blockingFindingCount = blockingStates.filter((isBlocking) => isBlocking).length;
-  const findingCount = blockingStates.length;
-  const messages = findingMessages({ blockingFindingCount, findingCount });
+export function settleFindings(
+  findings: readonly FindingSettlement[]
+): CheckResult<FindingSummary> {
+  const blockingFindingCount = findings.filter(
+    (finding) => finding.actionable && finding.blocking
+  ).length;
+  const findingCount = findings.length;
+  const actionableNonBlockingFindingCount = findings.filter(
+    (finding) => finding.actionable && !finding.blocking
+  ).length;
+  const messages = findingMessages({ actionableNonBlockingFindingCount, blockingFindingCount });
   return Object.freeze({
     status: blockingFindingCount > 0 ? "failed" : "passed",
     data: Object.freeze({
@@ -43,7 +57,12 @@ export function settleFindings(blockingStates: readonly boolean[]): CheckResult<
   });
 }
 
-function findingMessages(summary: FindingSummary): readonly CheckMessage[] {
+function findingMessages(
+  summary: Readonly<{
+    readonly actionableNonBlockingFindingCount: number;
+    readonly blockingFindingCount: number;
+  }>
+): readonly CheckMessage[] {
   if (summary.blockingFindingCount > 0) {
     return Object.freeze([
       Object.freeze({
@@ -53,12 +72,12 @@ function findingMessages(summary: FindingSummary): readonly CheckMessage[] {
       })
     ]);
   }
-  if (summary.findingCount > 0) {
+  if (summary.actionableNonBlockingFindingCount > 0) {
     return Object.freeze([
       Object.freeze({
         code: "non-blocking-findings",
         level: "warning",
-        message: `${summary.findingCount} non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy.`
+        message: `${summary.actionableNonBlockingFindingCount} non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy.`
       })
     ]);
   }

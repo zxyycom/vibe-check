@@ -1,16 +1,44 @@
-import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
 import type { ResolvedFileMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 产物或普通对象组合形成的完整 file-metrics options。 */
 export function isValidResolvedFileMetricsOptions(
   resolvedOptions: unknown
 ): resolvedOptions is ResolvedFileMetricsOptions {
-  const options = exactRecord(resolvedOptions, ["codeAreas", "scanner"]);
+  const options = exactRecord(resolvedOptions, ["codeAreas", "findingWaivers", "scanner"]);
   return (
-    options !== undefined && isValidCodeAreas(options.codeAreas) && isValidScanner(options.scanner)
+    options !== undefined &&
+    isValidCodeAreas(options.codeAreas) &&
+    isValidFindingWaivers(options.findingWaivers) &&
+    isValidScanner(options.scanner)
   );
+}
+
+function isValidFindingWaivers(value: unknown): boolean {
+  const waivers = snapshotClosedArray(value);
+  if (waivers === undefined) return false;
+  const identities = new Set<string>();
+  for (const candidate of waivers) {
+    const waiver = exactRecord(candidate, ["identity", "reason"]);
+    const identity =
+      waiver === undefined ? undefined : exactRecord(waiver.identity, ["metric", "path"]);
+    if (
+      waiver === undefined ||
+      identity === undefined ||
+      identity.metric !== "code-lines" ||
+      !isNormalizedProjectRelativePath(identity.path) ||
+      !isNonEmptyString(waiver.reason)
+    ) {
+      return false;
+    }
+    const identityKey = `${identity.metric}\u0000${identity.path}`;
+    if (identities.has(identityKey)) return false;
+    identities.add(identityKey);
+  }
+  return true;
 }
 
 function isValidCodeAreas(value: unknown): boolean {

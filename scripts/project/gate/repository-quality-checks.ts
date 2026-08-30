@@ -15,6 +15,12 @@ const unavailableScannerDirectory = resolve(
   "unavailable-repository-quality-scanner"
 );
 const bytePreservedHistoricalV2RunSchema = "docs/schemas/historical/v2/vibe-check-run.schema.json";
+const fileMetricFindingWaivers = [
+  {
+    identity: { metric: "code-lines" as const, path: bytePreservedHistoricalV2RunSchema },
+    reason: "Historical v2 schema bytes and URN must remain unchanged."
+  }
+] as const;
 
 const repositoryFiles = {
   exclude: [
@@ -95,7 +101,6 @@ const fileMetricCodeAreas = {
     codeLines: repositoryFileCodeLines,
     files: {
       ...areaFileDefaults,
-      exclude: [...areaFileDefaults.exclude, bytePreservedHistoricalV2RunSchema],
       include: ["docs/schemas/**", "docs/examples/**"]
     }
   },
@@ -177,6 +182,7 @@ export function createRepositoryQualityChecks(
     fileMetrics({
       codeAreas: fileMetricCodeAreas,
       findingPolicy: "non-blocking",
+      findingWaivers: fileMetricFindingWaivers,
       scanner: { executable: absoluteScannerCommand(scanners.scc, MISE_SCC_COMMAND_ENV) }
     }),
     functionMetrics({

@@ -194,8 +194,9 @@ constructor 返回后又被替换的 resolved options。通用 preflight 语法�
 
 ## I/O 与安全边界
 
-execution 只把各 area files 选中的 `.ts`、`.d.ts` 与 `.rs` exact paths 交给本机 Lizard；scanner 不接收 project root
-重新发现输入。该 Check 的网络 request 数为零。
+execution 只把各 area files 中 Lizard 1.23.0 官方 reader 支持的 extension exact paths 交给本机 Lizard；匹配大小写不敏感，
+支持的 extension table 由 Check-local adapter 固定。未被该 table 识别的 Markdown、JSON 等文件不交给 Lizard，避免其
+C-like fallback 误解析非代码文本；scanner 不接收 project root 重新发现输入。该 Check 的网络 request 数为零。
 
 ## 最小用法
 

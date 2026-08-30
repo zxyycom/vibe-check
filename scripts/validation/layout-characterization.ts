@@ -11,6 +11,7 @@ const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
   "check",
   "check-settlement",
   "data-boundary",
+  "finding-waivers",
   "machine-output",
   "package-checks",
   "project-definition",

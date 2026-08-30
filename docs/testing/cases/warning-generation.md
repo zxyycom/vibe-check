@@ -13,6 +13,19 @@ Proves:
 
 - The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Blocking and non-blocking outcomes attach actionable messages without turning arbitrary Records into a generic warning or Gate channel.
 
+## Case ADD-FILE-METRICS-FINDING-WAIVER-001: File metrics publishes reconciled waiver evidence
+
+Owner: `docs/checks/file-metrics.md#filemetrics`
+Entities:
+
+- `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > validates declared waiver authoring and resolved options`
+- `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > reconciles declared waivers after SCC forms findings without settling them as actionable`
+- `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > audits unused waivers even when no eligible file reaches SCC`
+- `bun|src/package-checks/file-metrics/finding-waivers.test.ts|fileMetrics finding waivers > uses a waiver-audit Record identity outside the normal normalized-path domain`
+  Proves:
+- `fileMetrics` accepts only its declared, normalized `{ metric, path }` waiver identity and non-empty reason. SCC still receives the complete eligible exact input set; waiver reconciliation starts only after its complete finding set is formed.
+- An applied waiver retains its finding Record and reason while excluding it from actionable settlement. An unused waiver remains observable as an audit Record and warning, including the known empty-input case; the audit Record ID is outside the normal finding-path domain.
+
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
 Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`

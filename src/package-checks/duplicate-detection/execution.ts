@@ -59,7 +59,9 @@ export async function executeDuplicateDetection(
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return settleFindings(candidates.map((candidate) => candidate.data.blocking));
+  return settleFindings(
+    candidates.map((candidate) => ({ actionable: true, blocking: candidate.data.blocking }))
+  );
 }
 
 function prepareExactInputSet(
