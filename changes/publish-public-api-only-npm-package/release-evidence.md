@@ -39,7 +39,7 @@
 
 | Evidence | Current status |
 | --- | --- |
-| Clean source revision | Pending consumer-facing release docs review and commit. |
+| Clean source revision | Formal-build readiness passed; the formal receipt will bind the exact clean HEAD used by preparation. |
 | `vibe-check@0.0.1` formal staging | Not built. |
 | Receipted tarball and SHA-256/SHA-512 | Not built. |
 | Staging/packed audits | Not run against a formal artifact. |
@@ -47,7 +47,7 @@
 | Same-artifact full Project Gate | Not run. |
 | Repository-quality finding disposition | Pending the formal full Gate invocation. |
 
-Earlier full Gate results consumed a fingerprint local candidate and are not formal release evidence. Formal preparation must start from the next clean reviewed commit and may build the `0.0.1` tarball only once; any package-byte change restarts preparation and verification.
+The latest readiness Gate passed 36/36 against fingerprint local candidate `0.0.0-local.663307f7539d`; it is not formal release evidence. Formal preparation must start from the clean checkpoint commit and may build the `0.0.1` tarball only once; any package-byte change restarts preparation and verification.
 
 ## Publication and registry acceptance
 

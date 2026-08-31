@@ -8,15 +8,15 @@
 
 本节记录 2026-08-31 最后一次本地审阅后的恢复点；继续执行前仍须按 design 的恢复顺序核对 current source、artifact 与授权事实。
 
-- Lifecycle 是 `plan`，当前完成 9/17；本地 tooling、manifest/legal contract、receipt grammar、Gate handoff、registry preflight 与 consumer-facing release docs 已完成。
+- Lifecycle 是 `plan`，当前完成 10/17；本地 tooling、manifest/legal contract、receipt grammar、Gate handoff、registry preflight、consumer-facing release docs 与 formal-build readiness 已完成。
 - 2026-08-31 的当次只读 preflight 冻结 `vibe-check@0.0.1`、`latest`、public 与 local direct+2FA；`vibe-check` 的 not-found 和 authentication 都只是查询时事实，不是名称保留或持续授权。当前仍没有 formal tarball、release receipt 或 same-artifact full Gate evidence。
-- `ec90790b4b6734b4fae109570ae558c0a4b28cc7` 是本轮 release-doc edits 前的 clean baseline；当前恢复动作是审阅这些 edits 并取得 Git commit 授权。提交后从 clean HEAD 完成 0.5，再执行 1.5；任何后续 registry read、authentication/configuration write、publish 或 registry install 都必须重新确认范围。
+- `50bb8ee3c7df2b83b41befd4f9bd020693c2c846` 是已审阅并通过 full Gate 的 release-doc commit。Plan distance 只包含本 Change 的 formal tooling、checkpoint 与文档提交；相关 Decisions、public inventory、dependency/legal inputs、documentation projection、Gate owner 和四项 post-release Changes 均保持一致。当前恢复动作是从包含本 checkpoint 的 clean HEAD 执行 1.5；任何后续 registry read、authentication/configuration write、publish 或 registry install 都必须重新确认范围。
 
 - [x] 0.1 已在 2026-08-31 按 current docs/source/tests、active Decisions 和 `package:status` 恢复 Plan baseline，确认 root workspace 与 `0.0.0-local.*` candidate 均不是正式 publish input，并排除四项 post-release active Changes。
 - [x] 0.2 已用 AI-ready consumer contract 重写 proposal/design，明确 owner、单向状态链、authorization checkpoints、same-artifact 证据、失败恢复和可检查 Success Criteria；Plan formation 未授予任何外部操作，后续新增的 local implementation/validation 授权已单独记录且仍不包含 registry 或 credential access。
 - [x] 0.3 用户已确认 GitHub username 作为个人项目权利人，own MIT notice 固定为 `Copyright (c) 2026 zxyycom`；current Git remote 确认 canonical repository 为 `zxyycom/vibe-check`，本地 full consumer matrix 在 pinned Bun `1.3.14` 通过，因此 manifest lower bound 取 `>=1.3.14`。Formal tarball 与 registry consumer 仍须在同一版本复验该 lower bound。
 - [x] 0.4 用户在本机 web login 后授权并完成当次 registry/account 只读 preflight，冻结本次 exact selection 与 mechanism；脱敏观察值、未执行事项和时效 caveat 只由 [`release-evidence.md`](release-evidence.md#registry-preflight) 完整记录。该 read scope 已消费，未产生 credential、configuration 或 registry write 授权。
-- [ ] 0.5 已复核 Plan distance 只来自本 Change 的 implementation/checkpoint commits，相关 active Decisions、public inventory、production dependency/legal inputs、README/docs projection、Gate owner 与四项 post-release Changes 均未改变 Plan；待 consumer-facing release docs 形成新 commit 后，立即以 current HEAD、clean index/worktree 和 fresh package status 完成 formal-build 前最后检查。
+- [x] 0.5 已在 release-doc commit 后复核 Plan distance 只来自本 Change 的 implementation/checkpoint commits，确认相关 active Decisions、public inventory、production dependency/legal inputs、README/docs projection、Gate owner 与四项 post-release Changes 均未改变 Plan；clean HEAD 的 `package:status` 报告 current local candidate `0.0.0-local.663307f7539d`，`package:verify` full Gate 36/36 通过。
 
 ## Implementation
 
