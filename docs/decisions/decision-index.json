@@ -72,6 +72,7 @@
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
+      "install-check-console-router-before-preflight.md": "sha256:ab3cfdf48feb9fa27daa8f6dc8fe178e90c50ceb3c11f483c1ea55f91a94a1c7",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
@@ -122,7 +123,7 @@
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:75eafea7bbed4a4dce2e7557eedc42edd094cb4c848c38e26272102ccf641652",
-      "provide-product-progress-with-check-console-capture.md": "sha256:14d777b613237bfc3883051a6002a348430ec7ede8d306d86e5cff4a27ac24fe",
+      "provide-product-progress-with-check-console-capture.md": "sha256:dcb8f2169d643ec6f90885a2e380e76ce60b9e3f0aed5376192900cbcf0afa3c",
       "publish-check-record-machine-v3.md": "sha256:7697ae36a4e23abb0b61acfe9434fdbba3cdd07708a6a2bb5445a862d9dfcebf",
       "publish-composable-default-project-file-selection.md": "sha256:e8d74fcb08a3c3ab2d96cbed4f2717f059874b0cd4f43b0a471e3b6d55d7ed36",
       "publish-fingerprint-bound-check-record-machine-v3.md": "sha256:1d8940b284c417bf847009bab72acb23223d0d67a0302b290ef6b86c55bceee0",
@@ -2329,6 +2330,38 @@
         "relations": []
       }
     },
+    "install-check-console-router-before-preflight.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "install-check-console-router-before-preflight.md",
+        "title": "在 Check preflight 前一次安装 console router",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T09:53:01Z",
+        "purpose": "让一轮 resolved Check execution 在任何 author work 前建立唯一 console 路由，同时保持每项 Check 的异步归属隔离。",
+        "background": "按单个 callback 获取和释放全局路由会在 preflight 与 execution 之间反复改写 console，无法直接呈现整轮执行的资源生命周期。",
+        "decision": "静态 graph 校验后、任何 author preflight 或 execution 前安装一次路由，全部 Check 闭合后恢复，并用独立异步 context 隔离每项调用。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "provide-product-progress-with-check-console-capture.md"
+          }
+        ]
+      }
+    },
     "integrate-foundation-into-workspace-assurance.md": {
       "keys": {
         "tag": [
@@ -3918,16 +3951,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "provide-product-progress-with-check-console-capture.md",
+        "sourcePath": "archive/provide-product-progress-with-check-console-capture.md",
         "title": "由 Product progress 捕获并结算 Check console 输出",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T09:23:57Z",
         "purpose": "保持 Product-owned Check progress 的一致生命周期，同时让普通 console logging 不再破坏受管 TTY region。",

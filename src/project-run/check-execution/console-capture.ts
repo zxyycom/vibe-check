@@ -32,34 +32,37 @@ interface InstalledConsoleMethod {
 
 const HOST_CONSOLE = globalThis.console;
 const captureContext = new AsyncLocalStorage<CheckConsoleCapture>();
-let activeCaptureCount = 0;
+let activeRouterOwnerCount = 0;
 let installedMethods: readonly InstalledConsoleMethod[] = Object.freeze([]);
 
+/** Installs one shared router around the complete resolved-Check execution lifecycle. */
+export async function runWithCheckConsoleRouter<Result>(
+  operation: () => Result | Promise<Result>
+): Promise<Result> {
+  const release = acquireConsoleRouter();
+  try {
+    return await operation();
+  } finally {
+    release();
+  }
+}
+
 /**
- * Runs one author-owned Check function while routing its global `console.*` calls into terminal
- * messages. Calls in concurrent async contexts keep separate capture state; host calls outside a
- * Check context continue to use the original console.
+ * Runs one author-owned Check function in an isolated console capture context. Concurrent contexts
+ * keep separate buffers; the resolved-Check lifecycle owns router installation and restoration.
  */
 export async function invokeWithCapturedConsole<Result>(
   operation: () => Result | Promise<Result>
 ): Promise<ConsoleInvocation<Result>> {
-  let release: (() => void) | undefined;
-  try {
-    const capture = new CheckConsoleCapture();
-    release = acquireConsoleRouter();
-    return await captureContext.run(capture, async () => {
-      try {
-        const output = await operation();
-        return Object.freeze({ kind: "returned", messages: capture.snapshot(), output });
-      } catch (error) {
-        return Object.freeze({ kind: "threw", error, messages: capture.snapshot() });
-      }
-    });
-  } catch (error) {
-    return Object.freeze({ kind: "threw", error, messages: Object.freeze([]) });
-  } finally {
-    release?.();
-  }
+  const capture = new CheckConsoleCapture();
+  return captureContext.run(capture, async () => {
+    try {
+      const output = await operation();
+      return Object.freeze({ kind: "returned", messages: capture.snapshot(), output });
+    } catch (error) {
+      return Object.freeze({ kind: "threw", error, messages: capture.snapshot() });
+    }
+  });
 }
 
 class CheckConsoleCapture {
@@ -136,14 +139,14 @@ class CheckConsoleCapture {
 }
 
 function acquireConsoleRouter(): () => void {
-  if (activeCaptureCount === 0) installConsoleRouter();
-  activeCaptureCount += 1;
+  if (activeRouterOwnerCount === 0) installConsoleRouter();
+  activeRouterOwnerCount += 1;
   let released = false;
   return () => {
     if (released) return;
     released = true;
-    activeCaptureCount -= 1;
-    if (activeCaptureCount === 0) restoreConsoleRouter();
+    activeRouterOwnerCount -= 1;
+    if (activeRouterOwnerCount === 0) restoreConsoleRouter();
   };
 }
 

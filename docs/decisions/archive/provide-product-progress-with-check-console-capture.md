@@ -1,6 +1,6 @@
 ---
 title: 由 Product progress 捕获并结算 Check console 输出
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:23:57Z
 purpose: 保持 Product-owned Check progress 的一致生命周期，同时让普通 console logging 不再破坏受管 TTY region。

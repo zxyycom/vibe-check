@@ -114,7 +114,9 @@ bun run quality.ts
 final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check 可以附带有序的人读 `messages`，但通用 API
 不保证每个结果都有 message。默认 progress 会在 TTY 中维护临时 running region；Check preflight/execution 通过全局
 `console.*` 写入的文本会按异步 Check context 捕获，settlement 后统一呈现并保留在 `RunResult.checkMessages`，不会破坏
-running region。高容量或流式日志以及直接 stdout/stderr 写入仍应使用独立 sink；完整边界见
+running region。`process.stdout.write` / `process.stderr.write` 绕过这个 console router；如果直接写入 progress 使用的
+terminal stream，文本可能与光标控制交错，造成内容被覆盖或遗留 running row。直接 stream write、高容量或流式日志应改用
+Check-owned file、transcript 或独立 logger；完整边界见
 [深入 API 机制的 Check 输出](./docs/api-mechanics.md#check-输出与受管-progress)。
 
 ### 组成 Project Definition

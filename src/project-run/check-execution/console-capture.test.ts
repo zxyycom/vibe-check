@@ -103,6 +103,8 @@ describe("Package Run Check console capture", () => {
 
   it("retains preflight and execution console calls when the author callback throws", async () => {
     const output = capturedProgressWriter();
+    const originalLog = console.log;
+    const routedLogMethods: Array<typeof console.log> = [];
     const result = await executeValidatedRun(
       consoleDefinition([
         {
@@ -110,6 +112,7 @@ describe("Package Run Check console capture", () => {
           displayName: "Throwing",
           options: { ready: true },
           preflight(options) {
+            routedLogMethods.push(console.log);
             console.info("preflight ready", Reflect.get(options, "ready"));
             return {
               status: "success",
@@ -118,6 +121,7 @@ describe("Package Run Check console capture", () => {
             };
           },
           execution() {
+            routedLogMethods.push(console.log);
             console.group("execution detail");
             console.log({ attempt: 1 });
             console.groupEnd();
@@ -131,6 +135,10 @@ describe("Package Run Check console capture", () => {
       { progressWriterFactory: () => output.writer }
     );
 
+    assert.equal(routedLogMethods.length, 2);
+    assert.equal(routedLogMethods[0], routedLogMethods[1]);
+    assert.notEqual(routedLogMethods[0], originalLog);
+    assert.equal(console.log, originalLog);
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
     assert.deepEqual(result.snapshot.checks[0]?.outcome, {

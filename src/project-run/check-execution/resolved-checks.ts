@@ -14,6 +14,7 @@ import {
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
 import { executeCheckCallback } from "./callback.ts";
+import { runWithCheckConsoleRouter } from "./console-capture.ts";
 import { createCheckDependencies } from "./dependencies.ts";
 import {
   CheckExecutionInvariantFailure,
@@ -87,20 +88,29 @@ type PreparedResolvedCheckExecution = Readonly<{
   readonly state: CheckExecutionState;
 }>;
 
+type ResolvedCheckExecutionInput = Readonly<{
+  readonly checks: readonly NormalizedCheck[];
+  readonly maxParallel: number;
+  readonly project: CheckProjectContext;
+  readonly signal: AbortSignal | undefined;
+  readonly clock?: CheckExecutionClock;
+  readonly diagnosticLogger?: DiagnosticLogger;
+  readonly lifecycle?: CheckExecutionLifecycle;
+}>;
+
 /**
  * Runs the already normalized executable Check collection through one generic
  * Task per Check. Graph validation happens before Core scopes or callbacks.
  */
 export async function executeResolvedChecks(
-  input: Readonly<{
-    readonly checks: readonly NormalizedCheck[];
-    readonly maxParallel: number;
-    readonly project: CheckProjectContext;
-    readonly signal: AbortSignal | undefined;
-    readonly clock?: CheckExecutionClock;
-    readonly diagnosticLogger?: DiagnosticLogger;
-    readonly lifecycle?: CheckExecutionLifecycle;
-  }>
+  input: ResolvedCheckExecutionInput
+): Promise<ResolvedCheckExecution> {
+  prepareTaskGraph(planStaticCheckGraph(input.checks), input.maxParallel);
+  return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input));
+}
+
+async function executePreparedResolvedChecks(
+  input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
   const prepared = await prepareResolvedCheckExecution(input);
   // The barrier is execution-phase work. A signal received while it runs must close this
@@ -160,7 +170,6 @@ async function prepareResolvedCheckExecution(
     readonly signal: AbortSignal | undefined;
   }>
 ): Promise<PreparedResolvedCheckExecution> {
-  prepareTaskGraph(planStaticCheckGraph(input.checks), input.maxParallel);
   const preflights = await prepareChecks({
     checks: input.checks,
     diagnosticLogger: input.diagnosticLogger,

@@ -51,7 +51,7 @@ Entities:
 - `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > retains preflight and execution console calls when the author callback throws`
   Proves:
 - Concurrent awaited Check console calls remain attributed to their async Check contexts, become method-coded messages in canonical Check order, appear only in settled progress blocks, and leave no stale TTY running rows; progress-disabled Runs retain the same readback without direct console output, and the original host console method is restored after capture.
-- Captured preflight and execution output preserves phase order and remains readable when execution throws, while author-provided preflight messages keep their relative place and terminal control bytes are escaped only by presentation.
+- One router is installed before preflight, reused by preflight and execution capture contexts, and restored only after resolved Check execution closes. Captured output preserves phase order and remains readable when execution throws, while author-provided preflight messages keep their relative place and terminal control bytes are escaped only by presentation.
 
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 

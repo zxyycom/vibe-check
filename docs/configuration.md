@@ -556,8 +556,9 @@ settlement, `attention` hides only a passed Check with no author or captured-con
 passed `attention` Check with messages, emits its row plus all messages as one contiguous write; hidden
 Checks still consume the canonical completion ordinal and final counts. Progress presentation is not a project
 callback, observer, or renderer API, and a progress write failure fails that output without changing Check
-execution facts or accepted `checkMessages`. Product 在 awaited preflight/execution async context 内临时路由全局
-`console.*`，把每项调用转换为 settlement-time message；context 外 host console 不变，并发 Check 各自保留顺序。
+execution facts or accepted `checkMessages`. Product 在静态 Check graph 校验后、preflight barrier 前安装一次全局
+`console.*` router，并在全部 Check 闭合后恢复；每个 awaited preflight/execution async context 把调用转换为
+settlement-time message，context 外 host console 仍委托原方法，并发 Check 各自保留顺序。
 直接 stdout/stderr、预先保存的 console method reference、全局 console replacement 和 floating async work 不属于可靠
 捕获边界；详细或流式输出仍由 Check-owned sink 承接。Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned process transcripts remain

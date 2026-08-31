@@ -68,10 +68,11 @@ selected-but-rejected 行为由对应 Check 指南说明。
 ### Check 输出与受管 progress
 
 Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
-region，并在同一个 terminal 上移动光标。Product 在每个 Check 的 awaited preflight/execution async context 中临时路由
-全局 `console.*`：当前 Check 的调用先进入独立内存数组，settlement 后再与该 Check 的 row 连续呈现，并以
-`console-<method>` code 保留在 `RunResult.checkMessages`。并发 Check 的数组互不混合；Check context 外的 host console
-继续走原方法。
+region，并在同一个 terminal 上移动光标。Product 先完成静态 Check graph 校验，再在任何 author preflight 或 execution
+之前安装一次全局 `console.*` router；router 贯穿完整 preflight barrier 与 Check execution，所有 Check 闭合后统一恢复原
+method descriptors。每个 awaited preflight/execution 只建立独立 async capture context：当前 Check 的调用先进入自己的
+内存数组，settlement 后再与该 Check 的 row 连续呈现，并以 `console-<method>` code 保留在
+`RunResult.checkMessages`。并发 Check 的数组互不混合；没有 Check capture context 的 host console 调用继续走原方法。
 
 - `console.log` / `info` / `debug` 等普通输出映射为 `info`，`warn` 映射为 `warning`，`error` / `trace` / failed
   `assert` 映射为 `error`。Product 使用非彩色 Console formatting，并在最终 renderer 中转义 terminal controls。
@@ -79,10 +80,14 @@ region，并在同一个 terminal 上移动光标。Product 在每个 Check 的 
   随后 throw、取消或返回 malformed result 时，已经捕获的 console 文本仍保留，非法 author message attachment
   仍按原规则整体拒绝。
 - 捕获只覆盖通过当前全局 `console` 发起、且属于 callback 已等待 async work 的调用。预先保存的 method reference、
-  callback 自行替换全局 console、未等待的 floating work，以及 `process.stdout.write` / `process.stderr.write` 不在
-  可靠归属边界内。
-- 高容量、流式或 child-process 输出必须写入 Check-owned file、transcript 或独立 logger；不要让它继承受管 terminal
-  stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久诊断材料。
+  callback 自行替换全局 console，以及未等待的 floating work 不在可靠归属边界内。
+- `process.stdout.write` / `process.stderr.write` 直接写入 process stream，不经过 global console methods，因此绕过 console
+  router。Product 不 patch 这些 host-wide streams：它们同时承载 Product、宿主和第三方输出，raw writes 也没有稳定的
+  console-call 边界；全局接管会扩大副作用且仍不能可靠覆盖 inherited child-process stdio。直接写入 progress 使用的
+  terminal stream 时，文本可能与 TTY cursor update 交错，造成内容被覆盖或遗留 running row。
+- 直接 stream write、高容量、流式或 child-process 输出必须写入 Check-owned file、transcript 或独立 logger；不要让它
+  继承受管 terminal stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久
+  诊断材料。
 
 `diagnosticLogging` 默认关闭；调用方显式启用后，`check.finished` diagnostic 会像其它 settled messages 一样包含 captured
 console 内容。因此 console 不应写入 secret；只需要内存 readback 时保持 diagnostic logging disabled。
