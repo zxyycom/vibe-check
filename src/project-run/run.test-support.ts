@@ -63,10 +63,20 @@ export async function assertInvalidRunControlsAndDefinition(calls: () => number)
     })
   ]);
   const unknown = await run(source, { changedFiles: ["src/a.ts"] });
-  const unsafe = await run(source, { outputs: { diagnosticLogging: { directory: "../escape" } } });
+  const emptyDirectory = await run(source, {
+    outputs: { diagnosticLogging: { directory: "" } }
+  });
+  const nulDirectory = await run(source, {
+    outputs: { machinePublication: { directory: "machine\0output" } }
+  });
+  const unknownOutputKey = await run(source, {
+    outputs: { diagnosticLogging: { directory: "diagnostic", unexpected: true } }
+  });
   const invalidDefinition = await run({ ...source, unexpected: true }, {});
   assertInvalidControl(unknown, "controls.changedFiles", "unknown-key");
-  assertInvalidControl(unsafe, "controls.outputs", "invalid-value");
+  assertInvalidControl(emptyDirectory, "controls.outputs", "invalid-value");
+  assertInvalidControl(nulDirectory, "controls.outputs", "invalid-value");
+  assertInvalidControl(unknownOutputKey, "controls.outputs", "invalid-value");
   assert.equal(invalidDefinition.kind, "configuration");
 }
 

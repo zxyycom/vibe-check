@@ -11,7 +11,7 @@ import { isNonArrayRecord } from "../data-boundary/value-shapes.ts";
 export interface ProjectOutputs {
   /** `run.json` 与 `records.ndjson` publication。 */
   readonly machinePublication: Readonly<{
-    /** 相对目录以 project root 解析，默认 `artifacts/vibe-check`。 */
+    /** 相对目录从 project root 解析；绝对目录直接作为 target，默认 `artifacts/vibe-check`。 */
     readonly directory: string;
     /** `false` 时本次 Run 不发布 machine output。 */
     readonly enabled: boolean;
@@ -23,7 +23,7 @@ export interface ProjectOutputs {
   }>;
   /** 仅供维护者读取的一次 invocation diagnostic log。 */
   readonly diagnosticLogging: Readonly<{
-    /** 相对目录以 project root 解析，默认 `.log/vibe-check`。 */
+    /** 相对目录从 project root 解析；绝对目录直接作为 target，默认 `.log/vibe-check`。 */
     readonly directory: string;
     /** `false` 时不创建 diagnostic writer 或 file。 */
     readonly enabled: boolean;

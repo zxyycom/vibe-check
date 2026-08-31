@@ -12,10 +12,12 @@ Entities:
 - `bun|src/project-definition/project-definition.visibility.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/project-definition/project-definition.fingerprint.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
 - `bun|src/project-definition/project-definition.typed-provider.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
+- `bun|src/project-run/output-directories.test.ts|Package Run output directories > accepts child, parent, and absolute directories in Definition and RunControls`
   Proves:
 
 - Recursive ordinary Checks normalize only the declared executable/container grammar. Explicit `inherit` is the scheduling inheritance marker, executable visibility is canonical while container or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
 - Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed.
+- Definition and RunControls use one closed directory grammar for machine publication and diagnostic logging: child, parent and absolute targets are valid without output I/O; empty, U+0000 and unknown output keys remain configuration failures before callbacks run.
 
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
 

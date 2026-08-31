@@ -131,6 +131,7 @@ Check-owned file、transcript 或独立 logger；完整边界见
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
 
 `outputs` 和 `scheduler` 都可以只覆盖需要改变的 nested field；同一份 Definition 可以安全地传给多次 `run(...)`。
+machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 RunControls 中使用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。相对值（包括 `..`）从本次 effective `projectRoot` 解析；绝对值直接作为明确 target。两项仍是独立 output，可以填写同一目录（machine 只拥有 `run.json` 与 `records.ndjson`，diagnostic logging 只创建 invocation-specific `.log`）。这不是 filesystem sandbox、目录清空或 containment 承诺；可移植的可重复 Definition 应优先使用相对目录，把 invocation-specific 的外部绝对 target 放进 `run(..., { outputs })`。
 
 ### 运行并读取结果
 

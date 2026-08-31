@@ -274,9 +274,10 @@ Definition 为三项相互独立的 Run output 建立以下 defaults；RunContro
 | progress rendering | `{ enabled: true }` | 呈现 invocation 与 Check lifecycle；终端和 console capture 边界见 [API mechanisms](api-mechanics.md#check-输出与受管-progress)。 |
 | diagnostic logging | `{ enabled: false, directory: ".log/vibe-check" }` | 记录 Product core 时间线；格式与失败边界见 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)。 |
 
-两个 directory 都必须是位于 effective `projectRoot` 内的非空相对目录。Definition、controls 或 aggregation selection 无效时
-尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine
-边界与读取顺序由上表链接的 owner 完整表达。
+machine publication 与 diagnostic logging 的 `directory` 共用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。
+相对值从 effective `projectRoot` 解析，`..` 保持合法；绝对值直接作为明确 target。Definition 与 RunControls 对两项 output 使用相同 grammar，且两项仍独立配置、独立 status/failure，也可以显式填写同一目录。grammar 不 trim author text、不建立跨平台字符禁用表，也不提供 lexical/realpath/symlink containment、directory allowlist、清空或 filesystem sandbox。Definition 中的 author directory string 仍进入 declarative fingerprint；因此可移植、可重复的 Definition 应优先使用相对目录，而 invocation-specific 外部 target 通常放在 RunControls。
+
+Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由上表链接的 owner 完整表达。
 
 Product 没有共享 comparison/reference channel 或 policy-selection layer。Producing Check 通过自己的 options 或 composition
 拥有 baseline/comparison behavior；repository Gate 只在 project-owned Run 中绑定 selected Check IDs 和 aggregation。

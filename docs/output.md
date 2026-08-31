@@ -58,8 +58,7 @@ own-key enumeration 与序列化时的 key 排列也不是 public contract。
 
 Publisher 在修改 canonical paths 前先形成并完整验证两份文件。写入或首次 canonical rename 失败时保留 prior set；一次
 canonical replacement 已发生后的 handled failure 会清理可能混合的 canonical files。pre-work configuration failure
-不进行 output I/O。diagnostic logging 是独立的人读 Run output，不进入 v4 directory、schema、example 或 publication set；
-machine consumer 不发现或解析它。其 configuration 与 `RunResult` readback 见
+不进行 output I/O。machine directory 是调用方选择的受信任 target，不是 containment/sandbox；publisher 只拥有其中的两个 canonical files 及其私有临时文件，绝不清空整个目录。diagnostic logging 是独立的人读 Run output；即使调用方为它选择同一目录，它也不进入 v4 schema、example 或 publication set，machine consumer 不发现或解析它。其 configuration 与 `RunResult` readback 见
 [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)。
 
 两个 canonical files 是独立 filesystem paths，rename 不提供跨路径原子可见性。并发 reader 可能观察到 mixed

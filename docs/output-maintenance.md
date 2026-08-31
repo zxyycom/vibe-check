@@ -24,10 +24,10 @@ import Product validator 作为 acceptance authority。
 
 Candidate stages 依次是 validate publication model、serialize machine candidates、validate complete machine set；均在
 canonical path 变更前完成。Artifact stages 先清理 stale owned temps，再写齐同目录 temps；全部 candidate writes 成功后
-才依次以单文件 rename 替换 `run.json` 与 `records.ndjson`，清理 retired artifacts，并宣布 trusted paths。
+才依次以单文件 rename 替换 `run.json` 与 `records.ndjson`，并宣布 trusted paths。legacy-named 和其它调用方文件不属于 runtime publisher 的删除范围。
 
 Candidate write 或首次 rename 的 handled failure 保留 prior canonical set。一次 replacement 已成功后的 handled failure
-清理可能混合的 canonical files、retired human artifacts 与 owned temps，并返回 typed publication failure；unrelated files
+清理可能混合的 canonical files 与 owned temps，并返回 typed publication failure；legacy-named 和其它调用方文件
 不在 cleanup scope，pre-work configuration failure 不进行 output I/O。两个 independent paths 不形成 OS-level atomic
 snapshot，完整集合 fingerprint 与 handled-failure cleanup 承接 fail-closed 边界。
 

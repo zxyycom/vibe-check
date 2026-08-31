@@ -16,12 +16,25 @@ import { createPublicationModelV4 } from "./publication-model.ts";
 import { PUBLICATION_INVOCATION, publicationSnapshot } from "./publication.test-support.ts";
 
 describe("machine publication v4 lifecycle", () => {
+  it("replaces only canonical files while preserving legacy-named and unrelated files", () => {
+    const directory = mkdtempSync(join(tmpdir(), "vibe-check-publication-v4-"));
+    try {
+      writeFixtureFiles(directory);
+      publishScanV4({ artifactDir: directory, model: model() });
+      assert.equal(readFileSync(join(directory, "run.json"), "utf8").startsWith("{"), true);
+      assert.notEqual(
+        readFileSync(join(directory, "records.ndjson"), "utf8"),
+        "prior-records.ndjson"
+      );
+      assertPreservedLegacyAndUnrelatedFiles(directory);
+    } finally {
+      rmSync(directory, { force: true, recursive: true });
+    }
+  });
   it("preserves prior artifacts when candidate writing fails before replacement", () => {
     const directory = mkdtempSync(join(tmpdir(), "vibe-check-publication-v4-"));
     try {
-      for (const name of ["run.json", "records.ndjson", "report.md", "unrelated.json"]) {
-        writeFileSync(join(directory, name), `prior-${name}`, "utf8");
-      }
+      writeFixtureFiles(directory);
       writeFileSync(join(directory, ".vibe-check-publication-prior.tmp"), "prior", "utf8");
 
       const originalWrite = fs.writeFileSync;
@@ -42,8 +55,7 @@ describe("machine publication v4 lifecycle", () => {
 
       assert.equal(readFileSync(join(directory, "run.json"), "utf8"), "prior-run.json");
       assert.equal(readFileSync(join(directory, "records.ndjson"), "utf8"), "prior-records.ndjson");
-      assert.equal(readFileSync(join(directory, "report.md"), "utf8"), "prior-report.md");
-      assert.equal(readFileSync(join(directory, "unrelated.json"), "utf8"), "prior-unrelated.json");
+      assertPreservedLegacyAndUnrelatedFiles(directory);
       assert.deepEqual(
         readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
         []
@@ -57,9 +69,7 @@ describe("machine publication v4 lifecycle", () => {
   it("preserves prior artifacts when the first canonical rename fails", () => {
     const directory = mkdtempSync(join(tmpdir(), "vibe-check-publication-v4-"));
     try {
-      for (const name of ["run.json", "records.ndjson", "report.md", "unrelated.json"]) {
-        writeFileSync(join(directory, name), `prior-${name}`, "utf8");
-      }
+      writeFixtureFiles(directory);
       writeFileSync(join(directory, ".vibe-check-publication-prior.tmp"), "prior", "utf8");
 
       const originalRename = fs.renameSync;
@@ -77,8 +87,7 @@ describe("machine publication v4 lifecycle", () => {
 
       assert.equal(readFileSync(join(directory, "run.json"), "utf8"), "prior-run.json");
       assert.equal(readFileSync(join(directory, "records.ndjson"), "utf8"), "prior-records.ndjson");
-      assert.equal(readFileSync(join(directory, "report.md"), "utf8"), "prior-report.md");
-      assert.equal(readFileSync(join(directory, "unrelated.json"), "utf8"), "prior-unrelated.json");
+      assertPreservedLegacyAndUnrelatedFiles(directory);
       assert.deepEqual(
         readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
         []
@@ -89,12 +98,10 @@ describe("machine publication v4 lifecycle", () => {
     }
   });
 
-  it("cleans a partial replacement and retired artifacts without creating raw output", () => {
+  it("cleans a partial replacement without deleting legacy-named or unrelated files", () => {
     const directory = mkdtempSync(join(tmpdir(), "vibe-check-publication-v4-"));
     try {
-      for (const name of ["run.json", "records.ndjson", "report.md", "unrelated.json"]) {
-        writeFileSync(join(directory, name), `prior-${name}`, "utf8");
-      }
+      writeFixtureFiles(directory);
       writeFileSync(join(directory, ".vibe-check-publication-prior.tmp"), "prior", "utf8");
 
       const originalRename = fs.renameSync;
@@ -114,15 +121,32 @@ describe("machine publication v4 lifecycle", () => {
       }
       assert.equal(existsSync(join(directory, "run.json")), false);
       assert.equal(existsSync(join(directory, "records.ndjson")), false);
-      assert.equal(existsSync(join(directory, "report.md")), false);
+      assertPreservedLegacyAndUnrelatedFiles(directory);
       assert.equal(existsSync(join(directory, ".vibe-check-publication-prior.tmp")), false);
       assert.equal(existsSync(join(directory, "raw")), false);
-      assert.equal(readFileSync(join(directory, "unrelated.json"), "utf8"), "prior-unrelated.json");
     } finally {
       rmSync(directory, { force: true, recursive: true });
     }
   });
 });
+
+const LEGACY_AND_UNRELATED_NAMES = [
+  "metrics.json",
+  "report.md",
+  "warnings-all.ndjson",
+  "warnings.ndjson",
+  "unrelated.json"
+] as const;
+
+function writeFixtureFiles(directory: string): void {
+  for (const name of ["run.json", "records.ndjson", ...LEGACY_AND_UNRELATED_NAMES])
+    writeFileSync(join(directory, name), `prior-${name}`, "utf8");
+}
+
+function assertPreservedLegacyAndUnrelatedFiles(directory: string): void {
+  for (const name of LEGACY_AND_UNRELATED_NAMES)
+    assert.equal(readFileSync(join(directory, name), "utf8"), `prior-${name}`);
+}
 
 function model() {
   return createPublicationModelV4({

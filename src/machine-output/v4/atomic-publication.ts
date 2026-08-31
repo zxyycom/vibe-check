@@ -3,12 +3,6 @@ import fs from "node:fs";
 import { join } from "node:path";
 
 const CANONICAL_NAMES = ["records.ndjson", "run.json"] as const;
-const RETIRED_NAMES = [
-  "metrics.json",
-  "report.md",
-  "warnings-all.ndjson",
-  "warnings.ndjson"
-] as const;
 const OWNED_TEMP_PREFIX = ".vibe-check-publication-";
 
 interface PublicationCandidatePath {
@@ -39,7 +33,6 @@ export function publishPublicationCandidatesV4(
       fs.renameSync(file.temp, file.canonical);
       hasReplacedCanonicalPath = true;
     }
-    cleanupRetiredArtifacts(artifactDir);
   } catch (error: unknown) {
     if (hasReplacedCanonicalPath) cleanupPublicationV4BestEffort(artifactDir);
     else cleanupOwnedTempsBestEffort(artifactDir);
@@ -48,11 +41,7 @@ export function publishPublicationCandidatesV4(
 }
 
 export function cleanupPublicationV4(artifactDir: string): void {
-  removePaths([
-    ...artifactPaths(artifactDir, CANONICAL_NAMES),
-    ...artifactPaths(artifactDir, RETIRED_NAMES),
-    ...ownedTempPaths(artifactDir)
-  ]);
+  removePaths([...artifactPaths(artifactDir, CANONICAL_NAMES), ...ownedTempPaths(artifactDir)]);
 }
 
 export function cleanupPublicationV4BestEffort(artifactDir: string): void {
@@ -92,10 +81,6 @@ function cleanupOwnedTempsBestEffort(artifactDir: string): void {
   } catch {
     // Failure cleanup cannot conceal the original publication failure.
   }
-}
-
-function cleanupRetiredArtifacts(artifactDir: string): void {
-  removePaths(artifactPaths(artifactDir, RETIRED_NAMES));
 }
 
 function artifactPaths(artifactDir: string, names: readonly string[]): readonly string[] {

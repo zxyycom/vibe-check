@@ -155,6 +155,7 @@
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
+      "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
@@ -177,6 +178,7 @@
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:4b5d97d7136fa1093e1830418725607f5823b61b54f544a8aea125ad207afc59",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
+      "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
@@ -4947,6 +4949,38 @@
         "relations": []
       }
     },
+    "restrict-machine-publication-to-canonical-file-ownership.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "restrict-machine-publication-to-canonical-file-ownership.md",
+        "title": "将 machine publication 限于 canonical file ownership",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T15:26:59Z",
+        "purpose": "让显式 machine target 中调用方已有的 legacy-named 文件不被 v4 publication 删除。",
+        "background": "root 外或 absolute target 是可信调用方选择，runtime 删除旧人读文件会越过 v4 的 canonical two-file ownership。",
+        "decision": "publisher 只替换或失败清理 run.json、records.ndjson 和私有 temp；不删除 legacy-named 或其它调用方文件。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "treat-run-output-directories-as-explicit-trusted-targets.md"
+          }
+        ]
+      }
+    },
     "reuse-prepared-candidate-across-package-acceptance.md": {
       "keys": {
         "tag": [
@@ -5649,6 +5683,35 @@
         "background": "导入 TypeScript module 并调用同进程函数会执行项目代码，函数入口本身不提供 sandbox、隔离或强制终止。",
         "decision": "Project Definition 与 custom runner 以调用者权限同进程执行；产品不声称隔离，并为不可信项目提供完全跳过项目代码的显式路径。",
         "tags": [
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "treat-run-output-directories-as-explicit-trusted-targets.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/treat-run-output-directories-as-explicit-trusted-targets.md",
+        "title": "将 Run output directory 视为显式受信任 target",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T15:15:51Z",
+        "purpose": "让 machine publication 与 diagnostic logging 使用同一可审阅的目录选择契约，而不虚构文件系统隔离。",
+        "background": "受信任 TypeScript 配置可选择任意文件系统工作；旧 diagnostic containment 与 machine 实际行为不一致且不能约束 symlink。",
+        "decision": "两项 output 允许非空且无 U+0000 的相对或绝对目录；相对值从 projectRoot 解析，绝对值为明确 target，且不建立 containment 或共享 outputRoot。",
+        "tags": [
+          "configuration",
           "product-contract"
         ],
         "relations": []

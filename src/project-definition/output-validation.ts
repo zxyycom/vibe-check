@@ -1,10 +1,7 @@
-import { isAbsolute, relative, resolve, sep } from "node:path";
-
 import type { ProjectOutputs } from "./project-definition.ts";
 import { snapshotClosedRecord } from "../data-boundary/closed-values.ts";
 
 const OUTPUT_NAMES = ["machinePublication", "progressRendering", "diagnosticLogging"] as const;
-const DIRECTORY_VALIDATION_ROOT = "/vibe-check-validation-root";
 
 export function parseOutputs(value: unknown): ProjectOutputs | undefined {
   const data = exactKeys(value, OUTPUT_NAMES);
@@ -14,24 +11,23 @@ export function parseOutputs(value: unknown): ProjectOutputs | undefined {
   const diagnosticLogging = parseDirectoryOutput(data.diagnosticLogging);
   return machinePublication === undefined ||
     progressRendering === undefined ||
-    diagnosticLogging === undefined ||
-    !isContainedRelativeDirectory(diagnosticLogging.directory)
+    diagnosticLogging === undefined
     ? undefined
     : Object.freeze({ machinePublication, progressRendering, diagnosticLogging });
 }
 
-export function isContainedRelativeDirectory(directory: string): boolean {
-  if (directory.length === 0 || isAbsolute(directory)) return false;
-  const root = resolve(DIRECTORY_VALIDATION_ROOT);
-  const relativeDirectory = relative(root, resolve(root, directory));
-  return relativeDirectory !== ".." && !relativeDirectory.startsWith(`..${sep}`);
+/** Accepts trusted output targets without claiming filesystem containment. */
+export function isOutputDirectory(directory: string): boolean {
+  return directory.length > 0 && !directory.includes("\0");
 }
 
 function parseDirectoryOutput(
   value: unknown
 ): Readonly<{ readonly directory: string; readonly enabled: boolean }> | undefined {
   const data = exactKeys(value, ["directory", "enabled"]);
-  return typeof data?.directory === "string" && typeof data.enabled === "boolean"
+  return typeof data?.directory === "string" &&
+    isOutputDirectory(data.directory) &&
+    typeof data.enabled === "boolean"
     ? Object.freeze({ directory: data.directory, enabled: data.enabled })
     : undefined;
 }

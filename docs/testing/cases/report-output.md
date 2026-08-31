@@ -29,11 +29,23 @@ Entities:
 
 - `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when candidate writing fails before replacement`
 - `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > preserves prior artifacts when the first canonical rename fails`
-- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement and retired artifacts without creating raw output`
+- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > replaces only canonical files while preserving legacy-named and unrelated files`
+- `bun|src/machine-output/v4/lifecycle.test.ts|machine publication v4 lifecycle > cleans a partial replacement without deleting legacy-named or unrelated files`
   Proves:
-- A candidate-write failure before replacement preserves prior canonical and retired artifact bytes, clears owned temps, preserves unrelated files, and creates no scanner-private `raw/` output.
+- A successful publication replaces only the canonical pair. Candidate-write and first-rename failures preserve prior canonical bytes, clear owned temps, and preserve legacy-named and unrelated files without creating scanner-private `raw/` output.
 - A first canonical-rename failure preserves that same prior set and cleans owned temps before any canonical replacement.
-- A handled partial replacement removes canonical files, retired human artifacts, and owned temps without touching unrelated files or creating scanner-private `raw/` output.
+- A handled partial replacement removes canonical files and owned temps while preserving legacy-named and unrelated files, without creating scanner-private `raw/` output.
+
+## Case WB-OUTPUT-DIRECTORY-TARGETS-001: Run outputs own only their exact files at explicit targets
+
+Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
+Entities:
+
+- `bun|src/project-run/output-directories.test.ts|Package Run output directories > writes independent machine and diagnostic files to one Definition-selected parent directory`
+- `bun|src/project-run/output-directories.test.ts|Package Run output directories > uses an absolute RunControls target without changing Definition defaults`
+  Proves:
+- A Definition-selected root-external parent directory and a RunControls-selected absolute directory can each host machine publication and diagnostic logging together. The diagnostic readback is `path.relative(projectRoot, resolvedFile)` for the invocation-specific log, while machine publication owns only `run.json` and `records.ndjson`.
+- Sharing a target directory does not create an `outputRoot`, containment promise, cleanup/retention protocol or coupled status: each output creates, replaces or cleans only its own exact files.
 
 ## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
 

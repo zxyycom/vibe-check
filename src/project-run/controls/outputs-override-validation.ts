@@ -1,5 +1,5 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
-import { isContainedRelativeDirectory } from "../../project-definition/output-validation.ts";
+import { isOutputDirectory } from "../../project-definition/output-validation.ts";
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import type { RunControls } from "./contract.ts";
 
@@ -25,11 +25,7 @@ export function parseOutputsOverride(value: unknown): RunControls["outputs"] | u
     parseDirectoryOutputOverride
   );
   const progressRendering = optionalOutput(data, "progressRendering", parseProgressOutputOverride);
-  const diagnosticLogging = optionalOutput(
-    data,
-    "diagnosticLogging",
-    parseDiagnosticLoggingOverride
-  );
+  const diagnosticLogging = optionalOutput(data, "diagnosticLogging", parseDirectoryOutputOverride);
   if (!machinePublication.ok || !progressRendering.ok || !diagnosticLogging.ok) return undefined;
   return Object.freeze({
     ...(machinePublication.value === undefined
@@ -59,7 +55,11 @@ function parseDirectoryOutputOverride(value: unknown): DirectoryOutputOverride |
     Object.keys(data).some((key) => key !== "directory" && key !== "enabled")
   )
     return undefined;
-  if (data.directory !== undefined && typeof data.directory !== "string") return undefined;
+  if (
+    data.directory !== undefined &&
+    (typeof data.directory !== "string" || !isOutputDirectory(data.directory))
+  )
+    return undefined;
   if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
   return Object.freeze({
     ...(data.directory === undefined ? {} : { directory: data.directory }),
@@ -73,14 +73,4 @@ function parseProgressOutputOverride(
   if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) return undefined;
   if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
   return Object.freeze(data.enabled === undefined ? {} : { enabled: data.enabled });
-}
-
-function parseDiagnosticLoggingOverride(
-  value: unknown
-): Partial<ProjectOutputs["diagnosticLogging"]> | undefined {
-  const parsed = parseDirectoryOutputOverride(value);
-  return parsed === undefined ||
-    (parsed.directory !== undefined && !isContainedRelativeDirectory(parsed.directory))
-    ? undefined
-    : parsed;
 }

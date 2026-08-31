@@ -226,7 +226,7 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。configuration 成功后的职责如下：
+Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。machine publication 与 diagnostic logging 各自的 `directory` 都是受信任调用方选择的非空、无 U+0000 target：relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target；没有 containment 或 sandbox 语义，两个 output 也不因同目录而合并。configuration 成功后的职责如下：
 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
 - 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
@@ -237,8 +237,8 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
 `outputs.diagnosticLogging` 的形状为 `{ enabled, status, file }`，其中 `status` 是
-`"disabled" | "not-run" | "succeeded" | "failed"`；禁用时 `file` 为 `null`，启用时即使文件创建失败也保留预先计算的、
-project-root-relative `run-<UTC 紧凑时间>-<UUID>.log` 目标。无效 Definition、controls 或 aggregation selection 直接返回
+`"disabled" | "not-run" | "succeeded" | "failed"`；禁用时 `file` 为 `null`，启用时即使文件创建失败也保留
+`path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。实际 filename 始终是 invocation-specific `run-<UTC 紧凑时间>-<UUID>.log`。无效 Definition、controls 或 aggregation selection 直接返回
 configuration diagnostic，不创建诊断日志。
 
 diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation

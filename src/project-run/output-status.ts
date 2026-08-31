@@ -6,7 +6,7 @@ export interface RunOutputStatus {
 }
 
 export interface RunDiagnosticLoggingOutputStatus extends RunOutputStatus {
-  /** Project-root-relative target when enabled, otherwise `null`. */
+  /** `path.relative(projectRoot, resolvedFile)` when enabled, otherwise `null`. */
   readonly file: string | null;
 }
 
