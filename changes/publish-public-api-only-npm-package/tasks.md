@@ -10,7 +10,7 @@
 
 - Lifecycle 是 `plan`，当前完成 7/17；本地 tooling、manifest/legal contract、receipt grammar、Gate handoff 及其最窄测试已经实现。
 - 已通过的 full Gate 只消费 fingerprint local candidate，不是 formal artifact evidence。当前没有冻结 exact patch/tag/mechanism，也没有 formal tarball、release receipt、registry fact 或外部操作授权。
-- 本轮 local implementation 与规范审阅结果将形成 Git revision；恢复时先用 current HEAD/status 确认该 revision 仍是 clean source baseline。下一可恢复动作是取得 0.4 的 registry-read 当次授权；任何 registry/authentication/publish/install 操作都必须重新确认范围。
+- 本轮 local implementation 与规范审阅结果已形成 Git revision；恢复时先用 current HEAD/status 确认该 revision 仍是 clean source baseline。下一可恢复动作是取得 0.4 的 registry-read 当次授权；任何 registry/authentication/publish/install 操作都必须重新确认范围。
 
 - [x] 0.1 已在 2026-08-31 按 current docs/source/tests、active Decisions 和 `package:status` 恢复 Plan baseline，确认 root workspace 与 `0.0.0-local.*` candidate 均不是正式 publish input，并排除四项 post-release active Changes。
 - [x] 0.2 已用 AI-ready consumer contract 重写 proposal/design，明确 owner、单向状态链、authorization checkpoints、same-artifact 证据、失败恢复和可检查 Success Criteria；Plan formation 未授予任何外部操作，后续新增的 local implementation/validation 授权已单独记录且仍不包含 registry 或 credential access。
