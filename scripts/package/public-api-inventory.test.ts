@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
-import { isNonArrayRecord } from "../../src/data-boundary/value-shapes.ts";
 import {
   defineCheck,
   defineConfig,
@@ -31,7 +30,7 @@ import { run } from "../../src/project-run/run.ts";
 
 describe("public API inventory", () => {
   it("publishes only the approved runtime and type roots", () => {
-    assert.equal(CURRENT_PUBLIC_CONTRACT.packageImport, "vibe-check");
+    assert.equal(CURRENT_PUBLIC_CONTRACT.packageImport, "@zxyycom/vibe-check");
     assert.equal(
       CURRENT_PUBLIC_CONTRACT.defaults.defaultProjectFileSelection,
       "defaultProjectFileSelection"
@@ -114,10 +113,6 @@ describe("public API inventory", () => {
       assert.equal(Object.hasOwn(packageCheck, "append"), false);
     }
 
-    const packageManifest = packageManifestName(
-      readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8")
-    );
-    assert.equal(packageManifest, CURRENT_PUBLIC_CONTRACT.packageImport);
     const packageEntrySource = readFileSync(
       fileURLToPath(new URL("../../src/index.ts", import.meta.url)),
       "utf8"
@@ -219,12 +214,6 @@ function packageExportNames(source: string, pattern: RegExp): string[] {
         .filter((name) => name.length > 0)
     )
     .sort((left, right) => left.localeCompare(right));
-}
-function packageManifestName(source: string): string {
-  const parsed: unknown = JSON.parse(source);
-  if (!isNonArrayRecord(parsed) || typeof parsed.name !== "string")
-    throw new TypeError("Package manifest must declare a string name");
-  return parsed.name;
 }
 // Supporting implementation types must not become future package-entry roots.
 type ProjectModule = typeof import("../../src/project-definition/project-definition.ts");

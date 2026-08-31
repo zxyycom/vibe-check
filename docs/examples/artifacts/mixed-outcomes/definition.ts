@@ -1,4 +1,4 @@
-import { defineCheck, defineConfig, inherit, jsonValidation } from "vibe-check";
+import { defineCheck, defineConfig, inherit, jsonValidation } from "@zxyycom/vibe-check";
 
 interface ReleaseInputsData {
   readonly files: readonly string[];

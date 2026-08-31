@@ -12,9 +12,9 @@ import { isNonArrayRecord } from "../../value-guards.ts";
 import {
   AJV_PACKAGE_NAME,
   CANDIDATE_DEPENDENCIES,
-  CANDIDATE_NAME,
   JSCPD_BIN_NAME,
-  JSCPD_PACKAGE_NAME
+  JSCPD_PACKAGE_NAME,
+  PACKAGE_NAME
 } from "../package-contract.ts";
 import {
   isAcceptedPackageDependencyVersion,
@@ -99,7 +99,7 @@ function verifyInstallation(input: {
     input;
   const expectedDocuments = input.expectedDocuments ?? [];
   const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
-  const packageDirectory = join(consumerDirectory, "node_modules", CANDIDATE_NAME);
+  const packageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
   assertInstalledCandidateManifest(packageDirectory, candidateVersion);
   const resolvedEntryPath = resolveInstalledCandidateEntry(consumerDirectory, packageDirectory);
   assertInstalledCandidateMaterials({
@@ -133,11 +133,11 @@ function assertInstalledCandidateManifest(
   const manifest = readJsonFile(manifestPath, "installed candidate package manifest");
   if (
     !isNonArrayRecord(manifest) ||
-    manifest.name !== CANDIDATE_NAME ||
+    manifest.name !== PACKAGE_NAME ||
     manifest.version !== candidateVersion
   )
     throw new Error(
-      `installed candidate package manifest must declare ${CANDIDATE_NAME}@${candidateVersion}: ${manifestPath}`
+      `installed candidate package manifest must declare ${PACKAGE_NAME}@${candidateVersion}: ${manifestPath}`
     );
 }
 
@@ -146,7 +146,7 @@ function resolveInstalledCandidateEntry(
   packageDirectory: string
 ): string {
   const resolvedUrl = runBun({
-    args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", CANDIDATE_NAME],
+    args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", PACKAGE_NAME],
     cwd: consumerDirectory,
     phase: `resolve candidate in ${consumerDirectory}`
   }).trim();

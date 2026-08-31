@@ -1,5 +1,5 @@
 // #region package-api-example:quick-start
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const bundleSize = defineCheck({
   checkId: "bundle-size",

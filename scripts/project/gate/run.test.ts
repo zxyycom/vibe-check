@@ -41,10 +41,10 @@ const prepared = Object.freeze({
   consumerDirectory: "/tmp/consumer",
   files: ["package/index.mjs"],
   inputFingerprint: "a".repeat(64),
-  installedPackageDirectory: "/tmp/consumer/node_modules/vibe-check",
+  installedPackageDirectory: "/tmp/consumer/node_modules/@zxyycom/vibe-check",
   preparationAction: "reuse",
   preparationReason: "installation-current",
-  resolvedEntryPath: "/tmp/consumer/node_modules/vibe-check/index.mjs",
+  resolvedEntryPath: "/tmp/consumer/node_modules/@zxyycom/vibe-check/index.mjs",
   reused: true,
   sha256: "b".repeat(64),
   stagingDirectory: "/tmp/staging"
@@ -249,14 +249,14 @@ describe("Project Gate entries, root binding, and controls", () => {
         "--profile",
         "full",
         "--release-receipt",
-        "build/releases/vibe-check-0.0.1.release.json"
+        "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]),
       {
         ok: true,
         action: "run",
         candidateInput: {
           kind: "release-receipt",
-          receiptPath: "build/releases/vibe-check-0.0.1.release.json"
+          receiptPath: "build/releases/zxyycom-vibe-check-0.0.1.release.json"
         },
         selection: { profile: "full", disabledTags: [], enabledTags: [] }
       }
@@ -264,7 +264,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.equal(
       parseProjectGateInvocationArguments([
         "--release-receipt",
-        "build/releases/vibe-check-0.0.1.release.json"
+        "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]).ok,
       false
     );
@@ -275,7 +275,7 @@ describe("Project Gate entries, root binding, and controls", () => {
         "--disable-tag",
         "docs",
         "--release-receipt",
-        "build/releases/vibe-check-0.0.1.release.json"
+        "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]).ok,
       false
     );
@@ -344,7 +344,12 @@ describe("Project Gate adapter closure", () => {
     let observedReceiptPath: string | undefined;
     let observedCandidate: PreparedPackageCandidate | undefined;
     const status = await runProjectGateWithoutTranscript(
-      ["--profile", "full", "--release-receipt", "build/releases/vibe-check-0.0.1.release.json"],
+      [
+        "--profile",
+        "full",
+        "--release-receipt",
+        "build/releases/zxyycom-vibe-check-0.0.1.release.json"
+      ],
       {
         createInvocationLogDirectory: () => "/tmp/project-gate-release",
         loadRunModule: async () => ({
@@ -367,7 +372,7 @@ describe("Project Gate adapter closure", () => {
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
     assert.equal(localPreparationStarted, false);
-    assert.equal(observedReceiptPath, "build/releases/vibe-check-0.0.1.release.json");
+    assert.equal(observedReceiptPath, "build/releases/zxyycom-vibe-check-0.0.1.release.json");
     assert.equal(observedCandidate, preparedRelease);
   });
 

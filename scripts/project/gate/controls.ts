@@ -127,7 +127,7 @@ export function projectGateHelp(): string {
     "Examples:",
     "  bun scripts/project/gate/run.ts --profile required --enable-tag package-tests",
     "  bun scripts/project/gate/run.ts --profile full --disable-tag docs",
-    "  bun scripts/project/gate/run.ts --profile full --release-receipt build/releases/vibe-check-0.0.1.release.json"
+    "  bun scripts/project/gate/run.ts --profile full --release-receipt build/releases/zxyycom-vibe-check-0.0.1.release.json"
   ].join("\n");
 }
 

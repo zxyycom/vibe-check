@@ -6,6 +6,7 @@ import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isPathWithin } from "../../../repository-files/paths.ts";
+import { PACKAGE_NAME } from "../../package-contract.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import {
   resolveCandidateAcceptanceArtifact,
@@ -49,7 +50,7 @@ export function prepareExternalConsumerMaterial(
     writeExternalConsumerFixture(consumerDirectory);
     installCandidate(consumerDirectory, artifact.artifactPath);
     const resolvedEntryPath = resolvePublicEntry(consumerDirectory);
-    const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
+    const installedPackageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
     const material = {
       ...artifact,
       consumerDirectory,
@@ -109,7 +110,7 @@ function installCandidate(consumerDirectory: string, artifactPath: string): void
 function resolvePublicEntry(consumerDirectory: string): string {
   const result = spawnSync(
     process.execPath,
-    ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", "vibe-check"],
+    ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", PACKAGE_NAME],
     { cwd: consumerDirectory, encoding: "utf8" }
   );
   assertExternalConsumerCommandSucceeded(result, "isolated public-entry resolution");

@@ -1,5 +1,5 @@
 // #region package-api-example:markdown-link-validation
-import { defineConfig, markdownLinkValidation, run } from "vibe-check";
+import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
 
 const definition = defineConfig({
   checks: [markdownLinkValidation()],

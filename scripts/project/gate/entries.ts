@@ -1,4 +1,4 @@
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 
 import { isStringArray } from "../../value-guards.ts";
 import {

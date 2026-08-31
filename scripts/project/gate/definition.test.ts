@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { defineCheck, type Check } from "vibe-check";
+import { defineCheck, type Check } from "@zxyycom/vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries } from "./entries.ts";
 import { projectGateCheckForSelection } from "./eligibility.ts";
@@ -26,10 +26,12 @@ const preparedCandidate = Object.freeze({
   consumerDirectory: "/tmp/project-gate-candidate/consumer",
   files: Object.freeze(["package/index.mjs"]),
   inputFingerprint: "a".repeat(64),
-  installedPackageDirectory: "/tmp/project-gate-candidate/consumer/node_modules/vibe-check",
+  installedPackageDirectory:
+    "/tmp/project-gate-candidate/consumer/node_modules/@zxyycom/vibe-check",
   preparationAction: "reuse",
   preparationReason: "installation-current",
-  resolvedEntryPath: "/tmp/project-gate-candidate/consumer/node_modules/vibe-check/index.mjs",
+  resolvedEntryPath:
+    "/tmp/project-gate-candidate/consumer/node_modules/@zxyycom/vibe-check/index.mjs",
   reused: true,
   sha256: "b".repeat(64),
   stagingDirectory: "/tmp/project-gate-candidate/staging"

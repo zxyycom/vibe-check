@@ -8,10 +8,10 @@
 policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
 policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
 
-默认 package command 使用随 `vibe-check` 安装的 jscpd v5；项目无需选择版本、提供 executable 或复制默认 options：
+默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5；项目无需选择版本、提供 executable 或复制默认 options：
 
 ```ts
-import { duplicateDetection } from "vibe-check";
+import { duplicateDetection } from "@zxyycom/vibe-check";
 
 const check = duplicateDetection();
 ```
@@ -60,7 +60,7 @@ const check = duplicateDetection();
 finding policy 与阈值由 constructor 补齐。只有追加默认数组时才组合公开的 files 基线：
 
 ```ts
-import { defaultProjectFileSelection, duplicateDetection } from "vibe-check";
+import { defaultProjectFileSelection, duplicateDetection } from "@zxyycom/vibe-check";
 
 const sourceAndScriptsDuplicateDetection = duplicateDetection({
   codeAreas: {
@@ -89,7 +89,7 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 只有项目确实授权另一个可执行文件时才设置 custom command：
 
 ```ts
-import { duplicateDetection } from "vibe-check";
+import { duplicateDetection } from "@zxyycom/vibe-check";
 
 const customDuplicateDetection = duplicateDetection({
   scanner: {
@@ -184,7 +184,7 @@ execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].fi
 ## 最小用法
 
 ```ts
-import { defineConfig, duplicateDetection, run } from "vibe-check";
+import { defineConfig, duplicateDetection, run } from "@zxyycom/vibe-check";
 
 const result = await run(defineConfig({ checks: [duplicateDetection()] }));
 ```

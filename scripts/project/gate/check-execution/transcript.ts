@@ -4,7 +4,7 @@ import { basename, dirname, join } from "node:path";
 import { errorMessage } from "../../../error-message.ts";
 import { writeTextFile } from "../../../repository-files/files.ts";
 import type { ProcessResult } from "../../../process-execution/execution.ts";
-import type { CheckExecutionContext, CheckResult } from "vibe-check";
+import type { CheckExecutionContext, CheckResult } from "@zxyycom/vibe-check";
 
 import type { ProcessCheckDescriptor } from "./process.ts";
 

@@ -1,6 +1,6 @@
 import { join, resolve } from "node:path";
 
-import { CANDIDATE_NAME } from "../package-contract.ts";
+import { PACKAGE_TARBALL_STEM } from "../package-contract.ts";
 
 export interface FormalReleasePaths {
   readonly artifactDirectory: string;
@@ -23,8 +23,8 @@ export function createFormalReleasePaths(
   const stateDirectory = join(repository, ".cache/vibe-check/package-release");
   return Object.freeze({
     artifactDirectory,
-    artifactPath: join(artifactDirectory, `${CANDIDATE_NAME}-${version}.tgz`),
-    receiptPath: join(releaseReceiptDirectory, `${CANDIDATE_NAME}-${version}.release.json`),
+    artifactPath: join(artifactDirectory, `${PACKAGE_TARBALL_STEM}-${version}.tgz`),
+    receiptPath: join(releaseReceiptDirectory, `${PACKAGE_TARBALL_STEM}-${version}.release.json`),
     stagingDirectory: join(buildDirectory, "release-package"),
     stateDirectory,
     tsBuildInfoPath: join(stateDirectory, "release.tsbuildinfo")

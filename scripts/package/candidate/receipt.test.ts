@@ -46,8 +46,11 @@ test("rejects malformed and stale receipts before artifact reuse", () => {
       },
       consumerDirectory: join(temporaryRoot, "consumer"),
       installation: {
-        installedPackageDirectory: join(temporaryRoot, "consumer/node_modules/vibe-check"),
-        resolvedEntryPath: join(temporaryRoot, "consumer/node_modules/vibe-check/index.mjs"),
+        installedPackageDirectory: join(temporaryRoot, "consumer/node_modules/@zxyycom/vibe-check"),
+        resolvedEntryPath: join(
+          temporaryRoot,
+          "consumer/node_modules/@zxyycom/vibe-check/index.mjs"
+        ),
         resolvedEntrySha256: "stale-entry-sha256"
       },
       receiptPath: paths.receiptPath

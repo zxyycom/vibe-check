@@ -6,7 +6,7 @@ import {
   nativePassed,
   type NativeOperationResult
 } from "./check-execution/native-operation.ts";
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 
 /** Adapts one documentation acceptance task into a Gate Check. */
 export function createDocsValidationCheck(

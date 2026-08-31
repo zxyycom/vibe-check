@@ -1,6 +1,6 @@
 ---
 title: 公开发布 unscoped vibe-check package
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-14T05:52:50Z
 purpose: 让 package consumer 使用一个明确且公开可安装的 npm 产品身份。

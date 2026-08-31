@@ -1,5 +1,5 @@
 // #region package-api-example:maintenance-reminders
-import { defineConfig, maintenanceReminders, run } from "vibe-check";
+import { defineConfig, maintenanceReminders, run } from "@zxyycom/vibe-check";
 
 // 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
 const maintenance = maintenanceReminders([

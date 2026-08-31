@@ -1,6 +1,6 @@
 import type { ProcessInvocation } from "../../process-execution/command.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 
 import type { ProjectGateProfile, ProjectGateTag } from "./catalog.ts";
 import {

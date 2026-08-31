@@ -98,7 +98,7 @@ export type ReminderMeasurement =
  * @remarks 构造函数只接收项目无法可靠推断的提醒政策；它补齐 Git 可执行文件、身份、可见性和直接执行逻辑。返回值仍是普通 Check，可按现有原生对象组合规则替换完整 `options` 分支。
  * @example 创建一个单一 Check 的维护提醒
  * ```ts
- * import { defineConfig, maintenanceReminders, run } from "vibe-check";
+ * import { defineConfig, maintenanceReminders, run } from "@zxyycom/vibe-check";
  *
  * // 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
  * const maintenance = maintenanceReminders([

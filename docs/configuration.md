@@ -25,7 +25,7 @@ import {
   jsonSchemaValidation,
   jsonValidation,
   markdownLinkValidation
-} from "vibe-check";
+} from "@zxyycom/vibe-check";
 
 const licenses = defineCheck({
   checkId: "licenses",
@@ -127,7 +127,7 @@ but does not manufacture the TypeScript relation; the provider remains responsib
 the materialized Check does not retain that key, so it does not create a typed provider.
 
 ```ts
-import { defineCheck } from "vibe-check";
+import { defineCheck } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
 
@@ -226,7 +226,7 @@ Every node has a unique `checkId` and non-empty `displayName`. An executable nod
 The following field fragments are the only three collection forms. They belong on an ordinary Check; they are not a second configuration format. Use Check IDs that are executable in the same Definition.
 
 ```ts
-import { inherit } from "vibe-check";
+import { inherit } from "@zxyycom/vibe-check";
 
 const inheritedScheduling = {
   // Omit `dependsOn` or `mutex` to retain the parent's collection.
@@ -296,7 +296,7 @@ owning Check 结算为 unavailable，不会切换来源。默认对象本身不�
 TypeScript composition 建立新对象：
 
 ```ts
-import { defaultProjectFileSelection } from "vibe-check";
+import { defaultProjectFileSelection } from "@zxyycom/vibe-check";
 
 const projectFiles = {
   ...defaultProjectFileSelection,
@@ -486,7 +486,7 @@ constructor input 中的 partial `limits` 会补齐其它默认 fields；constru
 每个稠密条目都必须有唯一的小写短横线命名 `id`、不可变的 40 或 64 位十六进制 `baseCommit`、至少一个正安全整数 `limits.commits` 或 `limits.changedLines`、非空 `message`，以及可省略的 `mode`。省略 `mode` 等同于 `advisory`；`enforcing` 是唯一会阻断的模式。构造函数固定提供 package 持有的 `git.executable: "git"`，且不接受 Git 覆盖参数。返回值是带 owning block preflight 的合法普通 Check，因此调用方可以用原生对象组合替换**完整**的 `options` 分支；只替换 `git` 或省略 `entries` 会在 Run preflight 中结算 owning Check unavailable，Product 不会深度合并默认值。
 
 ```ts
-import { defineConfig, maintenanceReminders } from "vibe-check";
+import { defineConfig, maintenanceReminders } from "@zxyycom/vibe-check";
 
 // 下列 baseCommit 都是示例占位值；实际使用时，每条都必须替换为该提醒最近一次真实复核对应的完整 commit ID。
 const maintenance = maintenanceReminders([

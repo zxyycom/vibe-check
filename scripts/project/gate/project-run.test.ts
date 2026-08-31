@@ -4,7 +4,7 @@ import { join, relative, resolve } from "node:path";
 import { it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { projectGateOutputOverrides } from "./project-run.ts";

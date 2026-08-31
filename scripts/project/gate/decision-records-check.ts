@@ -1,5 +1,5 @@
 import { validateDecisionRecords } from "../../decision-records/command.ts";
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 import {
   createNativeOperationCheck,
   nativeFailed,

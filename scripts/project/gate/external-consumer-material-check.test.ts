@@ -13,10 +13,10 @@ test("external consumer provider binds typed output to invocation provenance", (
     consumerDirectory: "/tmp/candidate-consumer",
     files: ["package/index.mjs"],
     inputFingerprint: "a".repeat(64),
-    installedPackageDirectory: "/tmp/candidate-consumer/node_modules/vibe-check",
+    installedPackageDirectory: "/tmp/candidate-consumer/node_modules/@zxyycom/vibe-check",
     preparationAction: "reuse",
     preparationReason: "installation-current",
-    resolvedEntryPath: "/tmp/candidate-consumer/node_modules/vibe-check/index.mjs",
+    resolvedEntryPath: "/tmp/candidate-consumer/node_modules/@zxyycom/vibe-check/index.mjs",
     reused: true,
     schemaVersion: 3,
     sha256: "b".repeat(64),
@@ -25,8 +25,8 @@ test("external consumer provider binds typed output to invocation provenance", (
   const data: ExternalConsumerMaterialData = {
     artifactPath: candidate.artifactPath,
     consumerDirectory: `${providerRoot}/consumer`,
-    installedPackageDirectory: `${providerRoot}/consumer/node_modules/vibe-check`,
-    resolvedEntryPath: `${providerRoot}/consumer/node_modules/vibe-check/index.mjs`,
+    installedPackageDirectory: `${providerRoot}/consumer/node_modules/@zxyycom/vibe-check`,
+    resolvedEntryPath: `${providerRoot}/consumer/node_modules/@zxyycom/vibe-check/index.mjs`,
     schemaVersion: 1,
     sha256: candidate.sha256
   };

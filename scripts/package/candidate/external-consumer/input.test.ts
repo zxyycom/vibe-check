@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 
 import { sha256File } from "../../pack.ts";
+import { PACKAGE_NAME } from "../../package-contract.ts";
 import {
   EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
   EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV,
@@ -22,7 +23,7 @@ test("external consumer provider input is closed and fail-closed", () => {
   try {
     const artifactPath = join(root, "candidate.tgz");
     const consumerDirectory = join(root, "consumer");
-    const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
+    const installedPackageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
     const resolvedEntryPath = join(installedPackageDirectory, "index.mjs");
     mkdirSync(installedPackageDirectory, { recursive: true });
     writeFileSync(artifactPath, "candidate artifact\n", "utf8");

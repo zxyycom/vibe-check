@@ -2,12 +2,12 @@
 
 Vibe Check 是面向 Bun 项目的 TypeScript 质量检查库。你可以直接使用随包提供的代码、JSON、Schema、Markdown 和维护检查，也可以把项目自己的规则写成 Check，然后在项目脚本、测试或 CI 中获得结构化结果。
 
-所有公开能力都从 `vibe-check` package root 导入。Vibe Check 不要求额外的配置文件，也不提供 CLI：检查内容、组合方式和运行时机都由你的 TypeScript 代码决定。
+所有公开能力都从 `@zxyycom/vibe-check` package root 导入。Vibe Check 不要求额外的配置文件，也不提供 CLI：检查内容、组合方式和运行时机都由你的 TypeScript 代码决定。
 
 ## 安装
 
 ```sh
-npm install vibe-check
+npm install @zxyycom/vibe-check
 ```
 
 npm 负责安装 package；应用代码和质量脚本使用 **Bun `>=1.3.14`** 执行。安装完成后，可以用 `bun run <file>` 运行下面的示例。
@@ -23,7 +23,7 @@ npm 负责安装 package；应用代码和质量脚本使用 **Bun `>=1.3.14`** 
 示例保留默认的进度输出，但关闭 machine publication，因此第一次运行不会写入 `run.json` 或 `records.ndjson`：
 
 ```ts
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const bundleSize = defineCheck({
   checkId: "bundle-size",
@@ -141,7 +141,7 @@ final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check
 
 ## 包内结构与调试
 
-业务代码始终从 `vibe-check` 导入。安装包中的 `index.mjs` 是公开 runtime entry，`types/**.d.ts` 提供 TypeScript declarations；source maps、`src/**.ts` 和可读的 `dist/esm/**.mjs` 用于堆栈定位与实现检查，不是额外的 public import path。
+业务代码始终从 `@zxyycom/vibe-check` 导入。安装包中的 `index.mjs` 是公开 runtime entry，`types/**.d.ts` 提供 TypeScript declarations；source maps、`src/**.ts` 和可读的 `dist/esm/**.mjs` 用于堆栈定位与实现检查，不是额外的 public import path。
 
 安装包还包含机器输出文档、v4 run / Record schemas 和一组完整 artifact example，便于需要消费机器结果的工具核对实际 bytes。
 
@@ -149,6 +149,6 @@ final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check
 
 npm 只负责分发和安装 package；受支持的产品 host 是 **Bun `>=1.3.14`**。通过 npm 安装不表示 Node.js runtime 已受支持。
 
-当前 public contract 只有 `vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
+当前 public contract 只有 `@zxyycom/vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
 
 `0.0.x` patch 之间不承诺 package-level 兼容。项目应提交 lockfile，并在升级前检查对应版本的变更。Vibe Check 使用 MIT License，完整许可文本随 package 一起安装。

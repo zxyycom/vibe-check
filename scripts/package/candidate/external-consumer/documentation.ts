@@ -8,6 +8,7 @@ import { collectPackageDocumentation } from "../../../docs/package-api/check-gui
 import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../../docs/package-api/example-projections.ts";
 import { renderPackageApiDocumentation } from "../../../docs/package-api/render.ts";
 import { collectPackageMachineMaterials } from "../../../docs/machine-artifacts/package-materials.ts";
+import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import type { ExternalConsumerMaterial } from "./material.ts";
 
@@ -95,7 +96,7 @@ function machineDefinitionRunnerSource(): string {
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { run } from "vibe-check";
+import { run } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
 
 const definitionPath = process.argv[1];
 const definition = (await import(definitionPath)).default;

@@ -1,7 +1,7 @@
 import { statSync } from "node:fs";
 import { isAbsolute } from "node:path";
 
-import { defineCheck } from "vibe-check";
+import { defineCheck } from "@zxyycom/vibe-check";
 
 import type {
   CandidatePreparationFact,

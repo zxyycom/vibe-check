@@ -4,11 +4,11 @@ import { errorMessage } from "../../error-message.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import {
   CANDIDATE_DEPENDENCIES,
-  CANDIDATE_NAME,
   PACKAGE_BUN_ENGINE,
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE,
   PACKAGE_MANIFEST_FILES,
+  PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_REPOSITORY_MANIFEST_URL,
@@ -36,7 +36,7 @@ export function writeCandidateManifest(input: {
   readonly version: string;
 }): void {
   const manifest = {
-    name: CANDIDATE_NAME,
+    name: PACKAGE_NAME,
     version: input.version,
     type: "module",
     license: PACKAGE_LICENSE,
@@ -90,7 +90,7 @@ function assertManifestIdentity(
   candidateVersion: string
 ): void {
   if (
-    manifest.name !== CANDIDATE_NAME ||
+    manifest.name !== PACKAGE_NAME ||
     manifest.version !== candidateVersion ||
     manifest.type !== "module" ||
     manifest.license !== PACKAGE_LICENSE

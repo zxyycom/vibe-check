@@ -57,7 +57,7 @@ path 会产生拒绝 Finding，而不是被静默过滤。
 下面只扫描 `docs/**`、排除 `docs/fixtures/**`、忽略 project root 外目标，并保留其它 defaults：
 
 ```ts
-import { defaultProjectFileSelection, markdownLinkValidation } from "vibe-check";
+import { defaultProjectFileSelection, markdownLinkValidation } from "@zxyycom/vibe-check";
 
 const documentationLinks = markdownLinkValidation({
   files: {
@@ -181,7 +181,7 @@ bytes 与 remote credentials。
 ## 最小用法
 
 ```ts
-import { defineConfig, markdownLinkValidation, run } from "vibe-check";
+import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
 const result = await run(defineConfig({ checks: [markdownLinkValidation()] }));
 ```
 

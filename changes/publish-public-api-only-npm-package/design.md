@@ -13,7 +13,7 @@
 1. 先读 `.change-plan.json` 和 `tasks.md`，恢复 lifecycle、已完成任务、下一 checkpoint 与当前授权边界。
 2. 对 `tasks.md` 声称已完成的 registry、artifact、Gate 或 publish 步骤，再读 `release-evidence.md`；对应 evidence 缺失时，把该步骤视为尚未证明。
 3. 再按 `Affected Owners` 读取 current owner、源码和测试，确认 Plan 中的实现描述仍与当前工作树一致。
-4. 只有 `build/releases/vibe-check-<version>.release.json` 存在时，才按当前 release verifier 重验 receipt；文件名、旧日志或任务勾选不能证明 formal artifact 仍有效。
+4. 只有 `build/releases/zxyycom-vibe-check-<version>.release.json` 存在时，才按当前 release verifier 重验 receipt；文件名、旧日志或任务勾选不能证明 formal artifact 仍有效。
 
 ### Authority and evidence layers
 
@@ -38,7 +38,7 @@
 
 2026-08-31 的 Plan baseline 位于 Git commit `7615379e3468dd96b7923dfbe9b60b777845c2b2`：`package:status` 报告 current local candidate `0.0.0-local.6caf6d959ed1`；其 manifest 只有 local version、root export、file allowlist 与 dependencies，没有 Vibe Check own `LICENSE`、`license`、Bun engine、repository 或 publish configuration。该快照只解释本 Plan 的起点，实施前必须按当前 HEAD 复核。
 
-直接约束本 Plan 的 aligned directions 包括 [`require-complete-project-gate-evidence-before-public-release`](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)、[`keep-first-release-check-set-to-four-without-markdown-structure`](../../docs/decisions/keep-first-release-check-set-to-four-without-markdown-structure.md)、[`use-programmatic-api-as-product-entry`](../../docs/decisions/use-programmatic-api-as-product-entry.md)、[`make-package-build-evidence-discoverable`](../../docs/decisions/make-package-build-evidence-discoverable.md) 与 [`publish-readable-esm-package-layout`](../../docs/decisions/publish-readable-esm-package-layout.md)。本 Plan 同时实施 active/unaligned 的 npm unit、unscoped identity、MIT、Bun host、`0.0.x` 和 repository-quality directions；unaligned 是待当前事实完整落地的方向，不是未确认建议，也不产生实施或发布授权。
+直接约束本 Plan 的 aligned directions 包括 [`require-complete-project-gate-evidence-before-public-release`](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)、[`keep-first-release-check-set-to-four-without-markdown-structure`](../../docs/decisions/keep-first-release-check-set-to-four-without-markdown-structure.md)、[`use-programmatic-api-as-product-entry`](../../docs/decisions/use-programmatic-api-as-product-entry.md)、[`make-package-build-evidence-discoverable`](../../docs/decisions/make-package-build-evidence-discoverable.md) 与 [`publish-readable-esm-package-layout`](../../docs/decisions/publish-readable-esm-package-layout.md)。本 Plan 同时实施 active/unaligned 的 npm unit、user-scoped identity、MIT、Bun host、`0.0.x` 和 repository-quality directions；[`publish-user-scoped-vibe-check-publicly`](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md) 已替代被 npm 拒绝的 unscoped direction。Unaligned 是待当前事实完整落地的方向，不是未确认建议，也不产生实施或发布授权。
 
 ### Release state chain
 
@@ -66,13 +66,13 @@ Any byte-affecting change before publish returns to “build and receipt”; any
 | Publish | fresh authorization after same-artifact full Gate | registry, public access, exact version, tag, absolute tarball path, SHA-256/SHA-512, mechanism and any provenance mode |
 | Post-publication metadata/install | fresh authorization after publish result is known | exact version, registry metadata fields, temporary consumer and acceptance commands |
 
-The user subsequently authorized local implementation/validation and one 2026-08-31 npm registry/account read-only preflight. That read scope has been consumed; sanitized results are owned by [`release-evidence.md`](release-evidence.md), while credential material, authentication configuration and every external write remained outside it. Current authorization covers version-specific local docs, formal artifact preparation, tests and full Gate. A later registry read, account/configuration write, publish or registry installation still requires a fresh scope.
+当前已完成步骤、下一 checkpoint 和实际授权范围只由 [`tasks.md`](tasks.md#current-checkpoint) 承接；[`release-evidence.md`](release-evidence.md#reading-contract) 只记录对应操作的脱敏结果。执行者不得从本设计的 checkpoint 规则、历史授权或工具可访问性推断当前仍有外部操作权限。
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- Establish one formal `vibe-check@0.0.<patch>` artifact identity from source inputs through full Gate, npm publication and registry consumer acceptance.
+- Establish one formal `@zxyycom/vibe-check@0.0.<patch>` artifact identity from source inputs through full Gate, npm publication and registry consumer acceptance.
 - Make legal, Bun host, dependency, public inventory, documentation, repository-quality and authorization requirements explicit and independently checkable.
 - Keep external writes narrow, reviewable and recoverable without exposing credentials or using implicit npm defaults.
 - Leave enough owner paths, task outputs and failure rules for a future agent to implement the release without consulting archived Changes.
@@ -82,7 +82,7 @@ The user subsequently authorized local implementation/validation and one 2026-08
 - Change Check/Run/Core semantics, expand the four first-release Check set, or implement any active post-release direction.
 - Add a Product CLI/`bin`, Node.js or dual-runtime support, CJS/browser build, plugin API, subpath export or compatibility alias.
 - Publish the root workspace, turn the root `package.json` into the public manifest, or maintain a hand-written second runtime/declaration tree.
-- Query `vibe-check` registry state, inspect credentials, configure Trusted Publishing/staged publishing, publish, install from registry, create a GitHub release or modify dist-tags/access during Plan formation.
+- Query current `@zxyycom/vibe-check` registry state without fresh authorization, inspect credentials, configure Trusted Publishing/staged publishing, publish, install from registry, create a GitHub release or modify dist-tags/access during Plan formation.
 - Treat npm provenance as mandatory when the selected authorized mechanism cannot produce it; artifact digests and registry integrity remain mandatory in every mode.
 
 ## Decisions
@@ -91,7 +91,7 @@ The user subsequently authorized local implementation/validation and one 2026-08
 
 #### 1. Build a formal artifact; never transform an accepted local candidate
 
-The existing fingerprint version remains the default development candidate. Formal preparation accepts an explicit positive canonical `0.0.<patch>` only after registry preflight, feeds that version into the same authoritative artifact builder, and emits isolated `build/release-package/` staging, `build/artifacts/vibe-check-<version>.tgz` and `build/releases/vibe-check-<version>.release.json`. It does not rename, edit or repack `0.0.0-local.*`, overwrite `build/package/`, or share local receipt/compiler state. Changing version, README, legal text, manifest, dependencies, source, docs or toolchain invalidates the receipt and requires a new build and full Gate.
+The existing fingerprint version remains the default development candidate. Formal preparation accepts an explicit positive canonical `0.0.<patch>` only after registry preflight, feeds that version into the same authoritative artifact builder, and emits isolated `build/release-package/` staging, `build/artifacts/zxyycom-vibe-check-<version>.tgz` and `build/releases/zxyycom-vibe-check-<version>.release.json`. The filesystem-safe `zxyycom-vibe-check` stem is the Bun pack filename for manifest name `@zxyycom/vibe-check`; it is not another package identity. Preparation does not rename, edit or repack `0.0.0-local.*`, overwrite `build/package/`, or share local receipt/compiler state. Changing package name, version, README, legal text, manifest, dependencies, source, docs or toolchain invalidates the receipt and requires a new build and full Gate.
 
 The root workspace manifest remains `private: true` and Node-oriented for repository tooling. Formal publication only accepts the absolute path of the receipted `.tgz`; `npm publish .`, a workspace, `build/package/`, a registry package spec or an unreceipted tarball is invalid.
 
@@ -105,13 +105,13 @@ Release verification passes closed receipt data into `scripts/project/gate/run.t
 
 The generated formal manifest owns, and packed audits enforce, at least:
 
-- unscoped name `vibe-check`, selected `0.0.<patch>`, ESM type, one root export, approved files and complete production dependencies;
+- user-scoped name `@zxyycom/vibe-check`, selected `0.0.<patch>`, ESM type, one root export, approved files and complete production dependencies;
 - SPDX `MIT`, a packed own `LICENSE` with the user-verified `Copyright (c) 2026 zxyycom` notice, and continued exact audit of any third-party text copied into the artifact;
 - `engines.bun: ">=1.3.14"`, whose lower bound matches the pinned Bun used by current local consumer acceptance, plus README platform/prerequisite wording that does not imply Node.js support; the same version must still pass formal consumer and post-registry acceptance;
 - canonical `git+https://github.com/zxyycom/vibe-check.git` repository metadata and explicit `https://registry.npmjs.org/` / `public` publish configuration for the authorized target;
 - no `private`, `bin`, lifecycle publish script, CJS/browser entry or subpath export.
 
-The dependency/license review covers direct requirements, resolved versions/ranges, licenses and install/runtime prerequisites. Dependencies installed separately keep their own legal materials; only bytes copied into `vibe-check` are part of this tarball's file allowlist.
+The dependency/license review covers direct requirements, resolved versions/ranges, licenses and install/runtime prerequisites. Dependencies installed separately keep their own legal materials; only bytes copied into `@zxyycom/vibe-check` are part of this tarball's file allowlist.
 
 #### 4. Bind all local evidence to one closed receipt
 
@@ -132,7 +132,7 @@ npm publish <absolute-receipted-tarball> \
 
 Actual flags must match the installed npm CLI and final authorization. Trusted Publishing, staged publish, 2FA/OTP and provenance are mechanism variants, not assumptions: configuring them is a separate external write. Credential material stays in the operator/npm authentication boundary and is never echoed or stored in repository evidence.
 
-For the current first release only, the mechanism decision is local direct publish with interactive 2FA. [`release-evidence.md`](release-evidence.md#release-selection) owns the exact package/version/tag/access selection and the time-scoped registry/account observations that support it. Trusted Publishing and staged publish are not part of this release mechanism, and the mechanism is not a default for later releases.
+For the current first release only, the mechanism decision is local direct publish with interactive 2FA. [`release-evidence.md`](release-evidence.md#current-scoped-selection) owns the exact package/version/tag/access selection and the time-scoped registry/account observations that support it. Trusted Publishing and staged publish are not part of this release mechanism, and the mechanism is not a default for later releases.
 
 If version availability changes or the publish response is ambiguous, stop. First obtain authorization to read the exact registry version; only an absent version may return to version selection and a complete rebuild/reverification. A published name/version is never reused, including after unpublish.
 
@@ -140,11 +140,11 @@ If version availability changes or the publish response is ambiguous, stop. Firs
 
 After publish and new read/install authorization, compare `dist.integrity` with the local SHA-512 receipt and verify exact name/version/tag/access. If provenance was intentionally produced, verify its repository/source-commit binding; otherwise record “not produced” rather than infer it.
 
-Create an ancestry-external temporary consumer and explicitly run `npm install vibe-check@<exact-version>` against the authorized registry, then run the same separate types, documentation and Bun runtime acceptance categories used for the local artifact. This release-verification command deliberately pins the selected artifact even though the consumer README recommends the conventional unversioned install command. npm is the registry installer; Bun remains the supported product host. No local tarball, workspace link, ancestor `node_modules` or cache fallback may satisfy this check. Always clean the temporary consumer; preserve only sanitized evidence.
+Create an ancestry-external temporary consumer and explicitly run `npm install @zxyycom/vibe-check@<exact-version>` against the authorized registry, then run the same separate types, documentation and Bun runtime acceptance categories used for the local artifact. This release-verification command deliberately pins the selected artifact even though the consumer README recommends the conventional unversioned install command. npm is the registry installer; Bun remains the supported product host. No local tarball, workspace link, ancestor `node_modules` or cache fallback may satisfy this check. Always clean the temporary consumer; preserve only sanitized evidence.
 
 #### 7. Synchronize facts only after their evidence exists
 
-Before the artifact build, README/package docs may adopt consumer-facing installation guidance so those bytes enter Gate. The README recommends the conventional `npm install vibe-check` command and does not carry time-scoped preflight, Gate or publication status; those facts stay in release evidence and delivery owners. After registry acceptance, current delivery navigation and release notes record the exact public version and evidence boundary.
+Before the artifact build, README/package docs may adopt consumer-facing installation guidance so those bytes enter Gate. The README recommends the conventional `npm install @zxyycom/vibe-check` command and does not carry time-scoped preflight, Gate or publication status; those facts stay in release evidence and delivery owners. After registry acceptance, current delivery navigation and release notes record the exact public version and evidence boundary.
 
 Only then review the npm unit/name/MIT/Bun/`0.0.x`/release-quality Decisions for alignment. Change completion does not automatically align them, and Plan completion does not authorize archive.
 
@@ -159,7 +159,8 @@ Only then review the npm unit/name/MIT/Bun/`0.0.x`/release-quality Decisions for
 ## Risks / Trade-offs
 
 - **Irreversible public identity:** explicit version/tag/access and no-blind-retry rules add steps but prevent publishing or overwriting the wrong unit.
-- **Artifact drift:** consumer-facing README/legal bytes and the selected manifest version are formal inputs, so registry preflight precedes the final build; a race can still consume the version, in which case the complete build/Gate cycle repeats for a new version.
+- **Artifact drift:** package identity、consumer-facing README/legal bytes and the selected manifest version are formal inputs, so registry preflight precedes the final build; a race can still consume the version, in which case the complete build/Gate cycle repeats for a new version.
+- **Scoped consumer specifier:** consumers must install and import the complete `@zxyycom/vibe-check` name. This is more explicit than the rejected unscoped name and avoids global-name similarity conflicts, while leaving the product display name and repository unchanged.
 - **Credential exposure:** manual/CI authentication is outside repository state. This limits automation but prevents the Plan or evidence from becoming a credential owner.
 - **First-release provenance:** The selected local direct mechanism does not produce OIDC provenance. This release instead requires receipt digests and registry integrity; configuring Trusted Publishing after the package exists is a separately authorized follow-up, not an implicit part of `0.0.1`.
 - **Host compatibility:** declaring the lowest directly tested Bun version is narrower than assuming all future Bun versions, but it keeps the promise evidence-based and leaves broader compatibility to later releases.
@@ -167,7 +168,7 @@ Only then review the npm unit/name/MIT/Bun/`0.0.x`/release-quality Decisions for
 
 ## Open Questions
 
-无设计开放问题。Copyright holder/year、repository metadata 与拟验证的 Bun lower bound 已由本地实现闭合；formal consumer acceptance 仍须证明该 Bun bound。Authorized preflight 已闭合本次 selection，精确值与时效边界只由 [`release-evidence.md`](release-evidence.md#release-selection) 完整记录。下一 formal-build 前提是 consumer-facing release docs 所在的 clean reviewed commit；查询时的 package absence 与 authentication 不能替代 publish 前的新授权复核。
+无设计开放问题。Copyright holder/year、repository metadata、scoped identity 与拟验证的 Bun lower bound 已由当前方向闭合；formal consumer acceptance 仍须证明该 Bun bound。尚未完成的当次 selection、preflight、formal artifact、Gate 与授权状态不属于设计问题，统一从 [`tasks.md`](tasks.md#current-checkpoint) 和 [`release-evidence.md`](release-evidence.md#reading-contract) 恢复。
 
 ## External Reference Boundary
 

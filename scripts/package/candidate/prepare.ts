@@ -2,7 +2,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { artifactDocumentation } from "../artifact/documentation-audit.ts";
-import { CANDIDATE_NAME } from "../package-contract.ts";
+import { PACKAGE_TARBALL_STEM } from "../package-contract.ts";
 import { buildCandidateArtifact, type CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import { inspectInstallation, installCandidate } from "./install.ts";
@@ -159,7 +159,7 @@ export function inspectPackageCandidate(
     requiredAction: preparation.action === "reuse" ? undefined : preparation,
     tarballPath: join(
       plan.paths.artifactDirectory,
-      `${CANDIDATE_NAME}-${plan.candidateVersion}.tgz`
+      `${PACKAGE_TARBALL_STEM}-${plan.candidateVersion}.tgz`
     ),
     unpackedPackagePath: plan.paths.stagingDirectory
   });

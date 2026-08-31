@@ -26,7 +26,7 @@ relations:
 - `duplicateDetection(options?)` 已以带默认值的专用 constructor 暴露 area-owned files/thresholds，以及 `{ kind: "package" } | { kind: "custom", executable }` command；adapter 独占 version、config、output 与自动 worker protocol。
 - jscpd v5 npm package 只提供 Rust binary wrapper 和 CLI，不提供 Node.js function API；当前任务确认继续使用 v5，而不是迁回 v4 programmatic API。
 - Vibe Check 的目标是通过可信门禁防止项目整体过度偏离，不是提供逐版本完全一致的精密性能或静态分析结果。exact inputs、malformed/out-of-scope rejection、失败闭合和实际 consumer execution 比 scanner patch identity 更直接地支撑该目标。
-- 仓库当前以 lockfile 解析 jscpd `5.0.11`，可提供开发和 candidate 测试基线；若发布 manifest 也永远精确锁定，所有兼容升级、安全修复与安装协调都必须等待新的 `vibe-check` 发版。
+- 仓库当前以 lockfile 解析 jscpd `5.0.11`，可提供开发和 candidate 测试基线；若发布 manifest 也永远精确锁定，所有兼容升级、安全修复与安装协调都必须等待新的 `@zxyycom/vibe-check` 发版。
 
 ## 决策
 

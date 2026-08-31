@@ -19,7 +19,7 @@ import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
  * @throws {TypeError} input 含未知字段、非法 target policy 或非法 work limit 时抛出。
  * @example 离线 Markdown 本地链接完整性
  * ```ts
- * import { defineConfig, markdownLinkValidation, run } from "vibe-check";
+ * import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
  *
  * const definition = defineConfig({
  *   checks: [markdownLinkValidation()],

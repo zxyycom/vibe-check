@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { defineConfig, run as packageRun } from "vibe-check";
+import { defineConfig, run as packageRun } from "@zxyycom/vibe-check";
 
 import { sha256File } from "../../package/pack.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
@@ -102,7 +102,12 @@ function createCandidateFixture(): Readonly<{
   const root = mkdtempSync(join(tmpdir(), "vibe-check-prepared-candidate-"));
   const artifactPath = join(root, "artifacts", "vibe-check.tgz");
   const consumerDirectory = join(root, "consumer");
-  const installedPackageDirectory = join(consumerDirectory, "node_modules", "vibe-check");
+  const installedPackageDirectory = join(
+    consumerDirectory,
+    "node_modules",
+    "@zxyycom",
+    "vibe-check"
+  );
   const resolvedEntryPath = join(installedPackageDirectory, "index.mjs");
   const stagingDirectory = join(root, "staging");
   mkdirSync(join(root, "artifacts"), { recursive: true });

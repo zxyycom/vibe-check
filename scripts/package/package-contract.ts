@@ -1,6 +1,8 @@
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 
-export const CANDIDATE_NAME = "vibe-check";
+export const PACKAGE_NAME = CURRENT_PUBLIC_CONTRACT.packageImport;
+/** Exact filesystem-safe stem emitted by Bun when it packs {@link PACKAGE_NAME}. */
+export const PACKAGE_TARBALL_STEM = "zxyycom-vibe-check";
 export const PACKAGE_BUN_ENGINE = ">=1.3.14";
 export const PACKAGE_LICENSE = "MIT";
 export const PACKAGE_LICENSE_PATH = "LICENSE";

@@ -55,7 +55,7 @@ describe("formal package release", () => {
         tag: "latest"
       });
       assert.equal(Object.isFrozen(receipt), true);
-      assert.equal(receipt.artifact.path, "build/artifacts/vibe-check-0.0.1.tgz");
+      assert.equal(receipt.artifact.path, "build/artifacts/zxyycom-vibe-check-0.0.1.tgz");
       assert.equal(receipt.staging.path, "build/release-package");
       assert.match(receipt.artifact.integrity, /^sha512-/u);
       const source = readFileSync(paths.receiptPath, "utf8");
@@ -64,7 +64,7 @@ describe("formal package release", () => {
       assert.deepEqual(parseFormalReleaseReceipt(JSON.parse(source)), receipt);
 
       const escapedPath = mutableReceipt(receipt);
-      escapedPath.artifact.path = "../vibe-check-0.0.1.tgz";
+      escapedPath.artifact.path = "../zxyycom-vibe-check-0.0.1.tgz";
       assert.throws(() => parseFormalReleaseReceipt(escapedPath), /artifact identity/);
 
       const duplicatedInventory = mutableReceipt(receipt);
@@ -128,7 +128,10 @@ describe("formal package release", () => {
     assert.notEqual(formal.stagingDirectory, local.packageDirectory);
     assert.notEqual(formal.stateDirectory, local.stateDirectory);
     assert.notEqual(formal.receiptPath, local.receiptPath);
-    assert.match(formal.receiptPath, /build\/releases\/vibe-check-0\.0\.1\.release\.json$/u);
+    assert.match(
+      formal.receiptPath,
+      /build\/releases\/zxyycom-vibe-check-0\.0\.1\.release\.json$/u
+    );
   });
 
   it("requires one exact clean Git worktree revision before formal preparation", () => {

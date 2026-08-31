@@ -6,7 +6,7 @@ import {
   type CheckAggregation,
   type RunControls,
   type RunResult
-} from "vibe-check";
+} from "@zxyycom/vibe-check";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 
 import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
@@ -18,7 +18,7 @@ import { projectGateEligibleCheckIds } from "./eligibility.ts";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 /** The installed public entry selected by this private consumer. */
-export const resolvedEntryPath = fileURLToPath(import.meta.resolve("vibe-check"));
+export const resolvedEntryPath = fileURLToPath(import.meta.resolve("@zxyycom/vibe-check"));
 
 export type ProjectGateRunControls = Readonly<
   Pick<RunControls, "flags" | "signal"> & {

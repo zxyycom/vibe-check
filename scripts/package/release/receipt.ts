@@ -7,13 +7,13 @@ import { auditStagingRuntime } from "../artifact/staging-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import {
-  CANDIDATE_NAME,
   MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
@@ -174,7 +174,7 @@ function createFormalReleaseReceipt(input: {
 }): FormalReleaseReceipt {
   return parseFormalReleaseReceipt({
     schemaVersion: 1,
-    package: { name: CANDIDATE_NAME, version: input.artifact.candidateVersion, tag: input.tag },
+    package: { name: PACKAGE_NAME, version: input.artifact.candidateVersion, tag: input.tag },
     source: {
       commit: input.sourceCommit,
       inputFingerprint: input.artifact.inputFingerprint

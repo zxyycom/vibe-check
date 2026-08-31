@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
-import { defineConfig, type ProjectDefinition } from "vibe-check";
+import { defineConfig, type ProjectDefinition } from "@zxyycom/vibe-check";
 
 import type { ProjectGateSelection } from "./controls.ts";
 import { createDecisionRecordsCheck } from "./decision-records-check.ts";
@@ -164,7 +164,7 @@ export function createProjectGateDefinition(
 }
 
 function commonEntry(
-  check: import("vibe-check").Check,
+  check: import("@zxyycom/vibe-check").Check,
   tags: readonly import("./catalog.ts").ProjectGateTag[],
   mutex?: readonly string[]
 ): ProjectGateEntry {

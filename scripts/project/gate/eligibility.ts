@@ -1,4 +1,4 @@
-import { type Check, type CheckResult } from "vibe-check";
+import { type Check, type CheckResult } from "@zxyycom/vibe-check";
 
 import {
   PROJECT_GATE_OPT_IN_TAGS,

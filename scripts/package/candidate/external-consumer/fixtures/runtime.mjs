@@ -16,7 +16,7 @@ import {
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
   run
-} from "vibe-check";
+} from "@zxyycom/vibe-check";
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");

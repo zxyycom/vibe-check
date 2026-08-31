@@ -207,10 +207,10 @@ const preparedCandidate = Object.freeze({
   consumerDirectory: "/tmp/consumer",
   files: ["package/index.mjs"],
   inputFingerprint: "a".repeat(64),
-  installedPackageDirectory: "/tmp/consumer/node_modules/vibe-check",
+  installedPackageDirectory: "/tmp/consumer/node_modules/@zxyycom/vibe-check",
   preparationAction: "reuse",
   preparationReason: "installation-current",
-  resolvedEntryPath: "/tmp/consumer/node_modules/vibe-check/index.mjs",
+  resolvedEntryPath: "/tmp/consumer/node_modules/@zxyycom/vibe-check/index.mjs",
   reused: true,
   sha256: "b".repeat(64),
   stagingDirectory: "/tmp/staging"

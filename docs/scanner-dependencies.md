@@ -29,7 +29,7 @@ parser contract 或把 tool tuning 变成产品配置。
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)定义；本页只拥有 constructor 形成的完整
 options 如何进入 private adapter：
 
-1. package command 从随 `vibe-check` 安装的 `jscpd` manifest 解析相对 bin target，确认 target 仍位于该 package 目录，
+1. package command 从随 `@zxyycom/vibe-check` 安装的 `jscpd` manifest 解析相对 bin target，确认 target 仍位于该 package 目录，
    再以 active Bun 执行。仓库 lockfile 固定当前验证基线 `5.0.11`，发布 package 以 `^5.0.11` 接受从该基线开始的同
    major v5 版本；它不是 PATH discovery、environment override 或跨 Check backend。
 2. custom command 只使用已验证的 executable。adapter 固定执行 version probe，并拥有 exact-input config 与 JSON report

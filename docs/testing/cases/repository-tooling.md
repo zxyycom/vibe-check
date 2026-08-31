@@ -34,7 +34,7 @@ Entities:
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
-- The closed generated manifest and physical allowlist carry Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
+- The closed generated manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
 - The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, and all four complete current artifact examples through staging and tar audit, including exact zero-byte NDJSON files and excluding historical material.
 
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
@@ -50,7 +50,7 @@ Entities:
   Proves:
 
 - Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
-- The versioned receipt uses repository-relative canonical paths and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/legal/README identities, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
+- The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/legal/README identities, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
 - The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified full Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable

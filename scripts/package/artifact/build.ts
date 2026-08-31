@@ -7,7 +7,6 @@ import type { ArtifactDocumentation } from "./documentation-audit.ts";
 import { rewriteRelativeEsmModuleExtensions } from "./esm-module-specifiers.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
-  CANDIDATE_NAME,
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_LICENSE_PATH,
@@ -16,6 +15,7 @@ import {
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
+  PACKAGE_TARBALL_STEM,
   MOMOA_LICENSE_SHA256,
   MOMOA_LICENSE_SOURCE_PATH
 } from "../package-contract.ts";
@@ -120,7 +120,7 @@ export async function buildCandidateArtifact(input: {
   const expectedFiles = collectFilePaths(stagingDirectory, () => true).map(
     (filePath) => `package/${relative(stagingDirectory, filePath).split(sep).join("/")}`
   );
-  const artifactPath = join(artifactDirectory, `${CANDIDATE_NAME}-${candidateVersion}.tgz`);
+  const artifactPath = join(artifactDirectory, `${PACKAGE_TARBALL_STEM}-${candidateVersion}.tgz`);
   mkdirSync(artifactDirectory, { recursive: true });
   runBun({
     args: ["pm", "pack", `--destination=${artifactDirectory}`, "--ignore-scripts", "--quiet"],

@@ -1,5 +1,5 @@
 // #region package-api-example:typed-dependency
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
 

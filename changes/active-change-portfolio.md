@@ -15,7 +15,7 @@
 
 | Change | 唯一方向 | 授权边界 |
 | --- | --- | --- |
-| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 形成 formal-version exact artifact，让同一 tarball 通过 full Gate 后完成 npm public release。 | 当次只读 preflight 已完成；精确 selection 与证据见 [release evidence](publish-public-api-only-npm-package/release-evidence.md)。当前授权覆盖 local docs、artifact build、tests 与 Gate，后续 registry recheck、credential access、publish 和 post-publish install 仍需新的当次明确授权。 |
+| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 将被 npm 拒绝的 unscoped 首发身份改为 `@zxyycom/vibe-check`，重新形成 formal-version exact artifact，并让同一 tarball 通过 full Gate 后完成 public release。 | 当前进度、下一 checkpoint 与授权只读 [tasks](publish-public-api-only-npm-package/tasks.md#current-checkpoint)；当次 selection、失败和验证结果只读 [release evidence](publish-public-api-only-npm-package/release-evidence.md#reading-contract)。本导航不授予 registry 或 publish 操作。 |
 
 ## 读取顺序
 

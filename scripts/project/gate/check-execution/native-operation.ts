@@ -1,4 +1,4 @@
-import { defineCheck, type Check, type CheckResult } from "vibe-check";
+import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",

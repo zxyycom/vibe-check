@@ -17,6 +17,9 @@ test("generated package manifest rejects legal, host, publish, executable, and e
 
     for (const mutation of [
       (manifest: MutableManifest) => {
+        manifest.name = "vibe-check";
+      },
+      (manifest: MutableManifest) => {
         manifest.license = "UNLICENSED";
       },
       (manifest: MutableManifest) => {

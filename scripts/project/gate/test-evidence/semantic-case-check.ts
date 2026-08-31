@@ -1,5 +1,5 @@
 import { checkTestEvidence } from "../../../test-evidence/command.ts";
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 import {
   createNativeOperationCheck,
   nativeFailed,

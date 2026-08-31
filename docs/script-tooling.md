@@ -25,7 +25,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json`
-从 exact installed `vibe-check` candidate 消费该入口；`scripts/package/**` 只负责准备该 candidate，不能
+从 exact installed `@zxyycom/vibe-check` candidate 消费该入口；`scripts/package/**` 只负责准备该 candidate，不能
 import 或启动 project consumer。artifact/package-API documentation build 与 audit 可以读取各自显式 allowlisted 的
 Product source 或 contract material，但不成为 Package Run consumer。产品 runtime、Definition 和 Check 不得依赖
 scripts helper、环境状态或 process adapter。
@@ -69,7 +69,7 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且可审计的直接运行时依赖要求。依赖的行为 owner
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
 execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
-local candidate 与 formal release 共用同一 closed generated manifest：unscoped `vibe-check`、唯一 root export、MIT、
+local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、唯一 root export、MIT、
 Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
 完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Node host 或 subpath export。
 仓库根 [`LICENSE`](../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还继续
@@ -112,14 +112,14 @@ positive `0.0.<patch>` 与保守 lowercase tag，并要求 repository root、ind
 registry fact。
 
 Active release 的 exact version/tag/access/mechanism 与当次 registry observations 由对应
-[release evidence](../changes/publish-public-api-only-npm-package/release-evidence.md#release-selection) 承接，不在本稳定
+[release evidence](../changes/publish-public-api-only-npm-package/release-evidence.md#current-scoped-selection) 承接，不在本稳定
 行为 owner 中复制。执行者从 evidence 取得 `<selected-version>` 与 `<selected-tag>` 后，调用
 `bun run package:release:prepare -- --version <selected-version> --tag <selected-tag>`。Evidence 中的值不是后续版本的默认值、
 registry availability 证明或 publish 授权；public access 仍由 generated manifest 的 closed `publishConfig` 承接，外部
 publish mechanism 也不由此脚本执行。
 
-Prepare 清理的范围仅是 `build/release-package/`、该 version 的 `build/artifacts/vibe-check-<version>.tgz`、
-`build/releases/vibe-check-<version>.release.json` 与 `.cache/vibe-check/package-release/`；其中 release staging/cache
+Prepare 清理的范围仅是 `build/release-package/`、该 version 的 `build/artifacts/zxyycom-vibe-check-<version>.tgz`、
+`build/releases/zxyycom-vibe-check-<version>.release.json` 与 `.cache/vibe-check/package-release/`；其中 release staging/cache
 与默认 `build/package/`、`.cache/vibe-check/package-candidate/` 隔离，versioned tarball root 由 artifact builder 共用。
 Receipt writer 在写入前要求 artifact、staging 与 receipt path 都匹配这些 owned paths，并重新核对 artifact SHA-256；失败
 不会把任意 caller path 写成 release evidence。

@@ -29,7 +29,10 @@ describe("package API documentation CLI", () => {
             "## 自定义 Check 快速开始\n",
             "## 自定义 Check 快速开始\n\n这段 example fence 外正文必须保留。"
           )
-          .replace('import { defineCheck, defineConfig, run } from "vibe-check";', "stale"),
+          .replace(
+            'import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";',
+            "stale"
+          ),
         "utf8"
       );
       const staleReadme = runPackageApiDocumentationCli(["--check"], {

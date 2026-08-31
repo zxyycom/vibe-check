@@ -5,7 +5,7 @@ import {
   fileMetrics,
   functionMetrics,
   markdownLinkValidation
-} from "vibe-check";
+} from "@zxyycom/vibe-check";
 
 const MISE_LIZARD_COMMAND_ENV = "VIBE_CHECK_LIZARD_CMD";
 const MISE_SCC_COMMAND_ENV = "VIBE_CHECK_SCC_CMD";

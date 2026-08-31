@@ -8,7 +8,7 @@ import {
   type CheckExecutionContext,
   type CheckPreflight,
   type CheckResult
-} from "vibe-check";
+} from "@zxyycom/vibe-check";
 
 import {
   failedProcessResult,

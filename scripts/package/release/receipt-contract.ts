@@ -2,13 +2,13 @@ import { isAbsolute } from "node:path";
 
 import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
 import {
-  CANDIDATE_NAME,
   MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
@@ -22,7 +22,7 @@ const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 1 as const;
 export interface FormalReleaseReceipt {
   readonly schemaVersion: typeof FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION;
   readonly package: Readonly<{
-    readonly name: typeof CANDIDATE_NAME;
+    readonly name: typeof PACKAGE_NAME;
     readonly tag: string;
     readonly version: string;
   }>;
@@ -91,11 +91,11 @@ function parsePackageIdentity(value: unknown): FormalReleaseReceipt["package"] {
   if (!isNonArrayRecord(value) || !hasExactKeys(value, ["name", "tag", "version"])) {
     throw new TypeError("formal release receipt package identity is invalid");
   }
-  if (value.name !== CANDIDATE_NAME) {
+  if (value.name !== PACKAGE_NAME) {
     throw new TypeError("formal release receipt package name is invalid");
   }
   return Object.freeze({
-    name: CANDIDATE_NAME,
+    name: PACKAGE_NAME,
     tag: parseReleaseTag(value.tag),
     version: parseFormalReleaseVersion(value.version)
   });

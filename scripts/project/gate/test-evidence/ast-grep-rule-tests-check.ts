@@ -6,7 +6,7 @@ import {
   type TestEvidenceRuleTestResult
 } from "../../../test-evidence/ast-grep/rule-tests.ts";
 import { type ProcessResult } from "../../../process-execution/execution.ts";
-import { defineCheck, type Check, type CheckResult } from "vibe-check";
+import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
 
 import {
   failedProcessResult,

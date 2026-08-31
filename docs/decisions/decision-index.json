@@ -98,7 +98,7 @@
       "let-file-metrics-adapter-own-cli-protocol.md": "sha256:2ead275a0161dbcba2ac5a04f4d6605ab770398d07c88f547f755708572377e8",
       "let-file-metrics-areas-own-files-and-thresholds.md": "sha256:c0f4a48d3b8c5d23da72fbbee216da4dde3a428a1d875dc33933381c8c387278",
       "let-function-metrics-adapter-own-lizard-cli-protocol.md": "sha256:0a5c5b7c7a3ddeddf660793153e527854dc53235516fac1671bd8406318acf43",
-      "license-package-under-mit.md": "sha256:ff226fa4698464b1482d5ecc856cd92d781c3bb1cc0a9f09d77ee9a596395fa4",
+      "license-package-under-mit.md": "sha256:0ede9155a22fa0a572e845b4301db240ac45e8aec8e445797932cb09827042be",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "locate-package-examples-by-natural-markdown-headings.md": "sha256:80efb0bc7bf9e50444fa8ad0b8c5ad2a245b1fc76180f437145cb0eee8405a2a",
       "make-bun-entries-use-pinned-tools.md": "sha256:ded05bd471b43f4e323bd7ceb4a60a499bb242018bc865301b75d0fbd928fd62",
@@ -127,7 +127,8 @@
       "publish-invocation-creation-timestamp-without-check-telemetry.md": "sha256:07f76379cade1144f1bc2dca91fda7fa403f5867607fd3b644c3831c732573e4",
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:0c5c22b2bc4015a694c78478ade7f0135b6a0ad6f3b4584e09a73daf11ccb0d4",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
-      "publish-unscoped-vibe-check-publicly.md": "sha256:2e263e0b0757100c111c902ec475c3ff3aba816a2c95a0424fca2bd2e2a4cdc2",
+      "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
+      "publish-user-scoped-vibe-check-publicly.md": "sha256:669a891f9e8e54fbc9de182e333bef767631b580ed69c6cc6fa433cf39aa9e5a",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:bff18bd78ea8bf7692235dc0725ca5869ea07cdb41f6a94b207d9c47e19c0ed8",
       "reconcile-selected-files-with-check-eligibility.md": "sha256:96f45700240c9a71057e555a3768230996afcbf86f40b22179cdd3fd3887d971",
@@ -147,7 +148,7 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
-      "require-known-repository-quality-remediation-before-public-release.md": "sha256:04c079c4d31a3fbd5c83f8b2518b2940358899da21a938f2430e7645da6c902a",
+      "require-known-repository-quality-remediation-before-public-release.md": "sha256:167cd5caf50ec3ba735c74d1d8d4d373aacf5fd63a4846482f53bc84441a4ff0",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
@@ -167,7 +168,7 @@
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:1221defd045c4df6b233c687e5e53b941027096c272a29503293b09fc7a819ed",
-      "treat-jscpd-version-as-adapter-provenance.md": "sha256:ddc3f158c453e83ef63b94107cf9bd9a5daea24a041e6cbfe624cea76b97ad27",
+      "treat-jscpd-version-as-adapter-provenance.md": "sha256:4b5d97d7136fa1093e1830418725607f5823b61b54f544a8aea125ad207afc59",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
@@ -3176,7 +3177,7 @@
         "createdAt": "2026-08-14T05:52:51Z",
         "purpose": "让公开 package 的使用、分发和法律材料使用一个明确的开放源码许可边界。",
         "background": "Public npm package 的 manifest、legal text 和 provenance 必须使用一致许可，不能从 repository visibility 推断。",
-        "decision": "`vibe-check` package 使用 SPDX `MIT`；candidate 和发布材料必须包含匹配的许可文本及权利人信息。",
+        "decision": "`@zxyycom/vibe-check` package 使用 SPDX `MIT`；candidate 和发布材料必须包含匹配的许可文本及权利人信息。",
         "tags": [
           "product-contract"
         ],
@@ -4068,16 +4069,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "publish-unscoped-vibe-check-publicly.md",
+        "sourcePath": "archive/publish-unscoped-vibe-check-publicly.md",
         "title": "公开发布 unscoped vibe-check package",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-14T05:52:50Z",
         "purpose": "让 package consumer 使用一个明确且公开可安装的 npm 产品身份。",
@@ -4087,6 +4088,38 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "publish-user-scoped-vibe-check-publicly.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-user-scoped-vibe-check-publicly.md",
+        "title": "在个人 npm scope 公开发布 Vibe Check package",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-31T03:56:03Z",
+        "purpose": "让消费者从发布者可控制的个人 npm namespace 安装公开的 Vibe Check package。",
+        "background": "unscoped vibe-check 因 npm 近似名称保护被拒绝，而 zxyycom 个人 scope 可承接同一公开产品身份。",
+        "decision": "使用公开的 @zxyycom/vibe-check 作为 registry identifier，并让 manifest、文档与验收共享这一身份。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "publish-unscoped-vibe-check-publicly.md"
+          }
+        ]
       }
     },
     "read-direct-dependency-final-data-by-string.md": {

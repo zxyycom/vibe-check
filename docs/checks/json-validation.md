@@ -37,7 +37,7 @@ constructor 返回后若通过普通对象组合替换 `check.options`，该 rep
 下面只把输入限制到 `config/**`；constructor 保留默认 source、exclude 与 `maximumBytes`：
 
 ```ts
-import { jsonValidation } from "vibe-check";
+import { jsonValidation } from "@zxyycom/vibe-check";
 
 const configJsonValidation = jsonValidation({
   files: { include: ["config/**/*.json"] }
@@ -123,7 +123,7 @@ command 和 network request 数均为零。
 ## 最小用法
 
 ```ts
-import { defineConfig, jsonValidation, run } from "vibe-check";
+import { defineConfig, jsonValidation, run } from "@zxyycom/vibe-check";
 const result = await run(defineConfig({ checks: [jsonValidation()] }));
 ```
 

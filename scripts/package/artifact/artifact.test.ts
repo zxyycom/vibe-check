@@ -135,6 +135,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
   it("declares the approved MIT, Bun host, repository, and public registry contract", async () => {
     const { artifact } = await fixture();
     const manifest = candidateManifest(artifact.stagingDirectory);
+    assert.equal(manifest.name, "@zxyycom/vibe-check");
     assert.equal(artifact.files.includes("package/LICENSE"), true);
     assert.match(
       readFileSync(join(artifact.stagingDirectory, "LICENSE"), "utf8"),

@@ -117,7 +117,7 @@ function typecheckConfig(): string {
       include: [
         "public-imports.ts",
         "docs/examples/package-api/*.ts",
-        "node_modules/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"
+        `node_modules/${CURRENT_PUBLIC_CONTRACT.packageImport}/docs/examples/artifacts/mixed-outcomes/definition.ts`
       ]
     },
     null,
@@ -126,7 +126,7 @@ function typecheckConfig(): string {
 }
 
 function hoverFixture(): string {
-  return `import { defineCheck, defineConfig, run } from "vibe-check";
+  return `import { defineCheck, defineConfig, run } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
 
 const documentedCheck = defineCheck({
   checkId: "hover-fixture",
@@ -169,7 +169,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   parseMarkdownLinkValidationData,
   run,
 __VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
-} from "vibe-check";
+} from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
 
 const directCheck = defineCheck({
   checkId: "isolated-public-import",

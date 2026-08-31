@@ -21,7 +21,7 @@ const definitionLoader = createJiti(import.meta.url, {
   fsCache: false,
   moduleCache: false,
   tryNative: false,
-  virtualModules: { "vibe-check": packageApi }
+  virtualModules: { "@zxyycom/vibe-check": packageApi }
 });
 const exampleProjectManifest = '{"name":"vibe-check-machine-example","private":true}\n';
 const expectedCheckOutcomes = [

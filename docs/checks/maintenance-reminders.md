@@ -137,7 +137,7 @@ request 数为零，baseline 更新由维护者提交。
 ## 最小用法
 
 ```ts
-import { defineConfig, maintenanceReminders, run } from "vibe-check";
+import { defineConfig, maintenanceReminders, run } from "@zxyycom/vibe-check";
 const check = maintenanceReminders([
   {
     id: "docs",

@@ -9,27 +9,27 @@ const staleStatus = Object.freeze({
   freshness: "stale" as const,
   installedEntryPath: undefined,
   requiredAction: Object.freeze({ action: "rebuild" as const, reason: "receipt-missing" as const }),
-  tarballPath: "/fixture/build/artifacts/vibe-check-0.0.0-local.stale.tgz",
+  tarballPath: "/fixture/build/artifacts/zxyycom-vibe-check-0.0.0-local.stale.tgz",
   unpackedPackagePath: "/fixture/build/package"
 });
 
 const currentStatus = Object.freeze({
   ...staleStatus,
   freshness: "current" as const,
-  installedEntryPath: "/fixture/consumer/node_modules/vibe-check/index.mjs",
+  installedEntryPath: "/fixture/consumer/node_modules/@zxyycom/vibe-check/index.mjs",
   requiredAction: undefined
 });
 
 const rebuiltCandidate: PreparedPackageCandidate = Object.freeze({
-  artifactPath: "/fixture/build/artifacts/vibe-check-0.0.0-local.stale.tgz",
+  artifactPath: "/fixture/build/artifacts/zxyycom-vibe-check-0.0.0-local.stale.tgz",
   candidateVersion: "0.0.0-local.stale",
   consumerDirectory: "/fixture/consumer",
   files: Object.freeze(["package/index.mjs"]),
   inputFingerprint: "fingerprint",
-  installedPackageDirectory: "/fixture/consumer/node_modules/vibe-check",
+  installedPackageDirectory: "/fixture/consumer/node_modules/@zxyycom/vibe-check",
   preparationAction: "rebuild",
   preparationReason: "receipt-missing",
-  resolvedEntryPath: "/fixture/consumer/node_modules/vibe-check/index.mjs",
+  resolvedEntryPath: "/fixture/consumer/node_modules/@zxyycom/vibe-check/index.mjs",
   reused: false,
   sha256: "digest",
   stagingDirectory: "/fixture/build/package"

@@ -14,7 +14,7 @@ relations: []
 
 ## 目的
 
-- 让公开 `vibe-check` package 的 release readiness 不会把“Gate 可用且 quality finding 非阻断”误读成“已接受已知质量债务”。
+- 让公开 `@zxyycom/vibe-check` package 的 release readiness 不会把“Gate 可用且 quality finding 非阻断”误读成“已接受已知质量债务”。
 - 将用户原始运行的 27 file-metrics、129 function-metrics、2 Markdown link findings 作为形成时初始快照，并要求公开发布前处置与复验届时全部已知 findings。
 - 保持当前开发期 Gate 对 quality finding 的 non-blocking 观察能力，同时不削弱既有 candidate、consumer、registry 与外部写入授权条件。
 
@@ -22,7 +22,7 @@ relations: []
 
 - 形成时可复核的两次 Gate 快照分别为 27 file-metrics、129 function-metrics、2 Markdown link findings，以及 28、134、2。它们都是特定 invocation 的证据快照，只用于追溯数量与身份变化，不是稳定 policy 的配额，也不证明任何 finding 已解决。
 - 当前 Project Gate 使用 producing-Check non-blocking policy 与 all eligible aggregation；这可以使可信 finding 所属 Check passed，却不是对 public release 风险的自动接受。
-- `require-complete-project-gate-evidence-before-public-release.md` 规定公开发布前需要完整 Gate 的真实消费者证据；`publish-unscoped-vibe-check-publicly.md` 仍要求发布前重新核验 registry authority、authentication、目标 version 与外部写入授权。当前稳定 owner 尚未把初始、最终或发布时任一已知 finding 的 remediation evidence 记为已满足的 current fact。
+- `require-complete-project-gate-evidence-before-public-release.md` 规定公开发布前需要完整 Gate 的真实消费者证据；`publish-user-scoped-vibe-check-publicly.md` 仍要求发布前重新核验 registry authority、authentication、目标 version 与外部写入授权。当前稳定 owner 尚未把初始、最终或发布时任一已知 finding 的 remediation evidence 记为已满足的 current fact。
 - 因而本记录只能作为 active/unaligned future direction：只有处置标准、稳定 release owner 和独立实际证据均已完成，才可审阅对齐；它不授予 publish 或任何外部写入授权。
 
 ## 决策

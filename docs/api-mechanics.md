@@ -92,7 +92,7 @@ producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data cont
 ### 完整运行示例
 
 ```ts
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const CHANGED_FILES_DATA_VERSION = 1 as const;
 

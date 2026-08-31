@@ -6,7 +6,7 @@ import {
   CANDIDATE_STAGING_DIRECTORY_ENV,
   CANDIDATE_VERSION_ENV
 } from "../../../package/artifact/acceptance-input.ts";
-import type { Check } from "vibe-check";
+import type { Check } from "@zxyycom/vibe-check";
 
 import type { ProjectGateTag } from "../catalog.ts";
 import type { ProcessCheckDataDependency } from "../check-execution/process.ts";

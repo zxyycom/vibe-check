@@ -170,7 +170,7 @@ headers，也不跟随 redirect。remote reference authorization 保持 local fi
 ## 最小用法
 
 ```ts
-import { defineConfig, jsonSchemaValidation, run } from "vibe-check";
+import { defineConfig, jsonSchemaValidation, run } from "@zxyycom/vibe-check";
 
 const configured = {
   schemas: [{ id: "urn:example:config", path: "schema/config.json" }],

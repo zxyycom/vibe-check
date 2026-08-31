@@ -9,7 +9,7 @@
 Check。阻断只改变最终 outcome；一次 invocation 仍扫描完整 exact scope 并保留后续 findings。
 
 ```ts
-import { functionMetrics } from "vibe-check";
+import { functionMetrics } from "@zxyycom/vibe-check";
 
 const check = functionMetrics();
 ```
@@ -55,7 +55,7 @@ constructor 按字段补默认值。`source` 只能是 `"filesystem" | "git-work
 每个非空 area ID 必须声明 `files: {}`；file fields、limits 和 area `findingPolicy` 都可省略并由 constructor 补齐。
 
 ```ts
-import { defaultProjectFileSelection, functionMetrics } from "vibe-check";
+import { defaultProjectFileSelection, functionMetrics } from "@zxyycom/vibe-check";
 
 const metrics = functionMetrics({
   findingPolicy: "non-blocking",
@@ -211,7 +211,7 @@ execution 只把各 area files 中 Lizard 1.23.0 官方 reader 支持的 extensi
 ## 最小用法
 
 ```ts
-import { defineConfig, functionMetrics, run } from "vibe-check";
+import { defineConfig, functionMetrics, run } from "@zxyycom/vibe-check";
 const result = await run(defineConfig({ checks: [functionMetrics()] }));
 ```
 

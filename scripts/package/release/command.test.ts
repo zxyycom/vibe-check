@@ -12,7 +12,7 @@ import { sha256File } from "../pack.ts";
 test("formal release root commands require closed inputs and bind verification to one full-Gate receipt", async () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-release-command-"));
   try {
-    const artifactPath = join(root, "vibe-check-0.0.1.tgz");
+    const artifactPath = join(root, "zxyycom-vibe-check-0.0.1.tgz");
     writeFileSync(artifactPath, "fixture artifact\n", "utf8");
     const receipt = parseFormalReleaseReceipt(formalReleaseReceiptFixture());
     const prepared = Object.freeze({
@@ -25,7 +25,7 @@ test("formal release root commands require closed inputs and bind verification t
         stagingDirectory: join(root, "release-package")
       }),
       receipt,
-      receiptPath: join(root, "vibe-check-0.0.1.release.json")
+      receiptPath: join(root, "zxyycom-vibe-check-0.0.1.release.json")
     });
     let prepareInput: Readonly<{ readonly tag: string; readonly version: string }> | undefined;
     const messages: string[] = [];
@@ -40,7 +40,7 @@ test("formal release root commands require closed inputs and bind verification t
       0
     );
     assert.deepEqual(prepareInput, { tag: "latest", version: "0.0.1" });
-    assert.match(messages.join("\n"), /formal release package: vibe-check@0\.0\.1/u);
+    assert.match(messages.join("\n"), /formal release package: @zxyycom\/vibe-check@0\.0\.1/u);
     assert.ok(
       messages.includes(`formal release integrity: ${prepared.receipt.artifact.integrity}`)
     );
@@ -48,7 +48,7 @@ test("formal release root commands require closed inputs and bind verification t
     let verifiedReceipt: string | undefined;
     assert.equal(
       await runFormalReleaseCommand(
-        ["verify", "--receipt", "build/releases/vibe-check-0.0.1.release.json"],
+        ["verify", "--receipt", "build/releases/zxyycom-vibe-check-0.0.1.release.json"],
         {
           verify: async (receiptPath) => {
             verifiedReceipt = receiptPath;
@@ -58,10 +58,10 @@ test("formal release root commands require closed inputs and bind verification t
       ),
       0
     );
-    assert.equal(verifiedReceipt, "build/releases/vibe-check-0.0.1.release.json");
+    assert.equal(verifiedReceipt, "build/releases/zxyycom-vibe-check-0.0.1.release.json");
     assert.equal(
       await runFormalReleaseCommand(
-        ["verify", "--receipt", "build/releases/vibe-check-0.0.1.release.json"],
+        ["verify", "--receipt", "build/releases/zxyycom-vibe-check-0.0.1.release.json"],
         { verify: () => 2 }
       ),
       2
@@ -74,7 +74,7 @@ test("formal release root commands require closed inputs and bind verification t
     assert.equal(invocation.args.at(-2), "--release-receipt");
     assert.match(
       invocation.args.at(-1) ?? "",
-      /build\/releases\/vibe-check-0\.0\.1\.release\.json$/u
+      /build\/releases\/zxyycom-vibe-check-0\.0\.1\.release\.json$/u
     );
 
     const rootManifest: unknown = JSON.parse(
@@ -108,10 +108,10 @@ test("formal release root commands require closed inputs and bind verification t
 function formalReleaseReceiptFixture(): unknown {
   return {
     schemaVersion: 1,
-    package: { name: "vibe-check", version: "0.0.1", tag: "latest" },
+    package: { name: "@zxyycom/vibe-check", version: "0.0.1", tag: "latest" },
     source: { commit: "b".repeat(40), inputFingerprint: "a".repeat(64) },
     artifact: {
-      path: "build/artifacts/vibe-check-0.0.1.tgz",
+      path: "build/artifacts/zxyycom-vibe-check-0.0.1.tgz",
       files: ["package/index.mjs"],
       sha256: "c".repeat(64),
       integrity: `sha512-${"A".repeat(86)}==`

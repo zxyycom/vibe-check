@@ -13,7 +13,7 @@ waiver 在完整 finding 集合形成后对账；它不会把路径排除在 SCC
 无参调用使用完整默认策略：
 
 ```ts
-import { fileMetrics } from "vibe-check";
+import { fileMetrics } from "@zxyycom/vibe-check";
 
 const check = fileMetrics();
 ```
@@ -72,7 +72,7 @@ const check = fileMetrics();
 ### 为不同文件配置策略
 
 ```ts
-import { defaultProjectFileSelection, fileMetrics } from "vibe-check";
+import { defaultProjectFileSelection, fileMetrics } from "@zxyycom/vibe-check";
 
 const sourceAndTests = fileMetrics({
   codeAreas: {
@@ -218,7 +218,7 @@ execution 只启动本机已授权的 SCC executable，输入仅包含各区域�
 ## 最小用法
 
 ```ts
-import { defineConfig, fileMetrics, run } from "vibe-check";
+import { defineConfig, fileMetrics, run } from "@zxyycom/vibe-check";
 
 const result = await run(defineConfig({ checks: [fileMetrics()] }));
 ```

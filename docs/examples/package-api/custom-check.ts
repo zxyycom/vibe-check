@@ -1,4 +1,4 @@
-import { defineCheck, defineConfig, run } from "vibe-check";
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 // #region package-api-example:custom-check-definition
 function hasValidLicensePolicyOptions(options: object): boolean {

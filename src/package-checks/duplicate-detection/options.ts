@@ -5,7 +5,7 @@ import type {
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 
 export type DuplicateDetectionScannerCommand =
-  /** 使用随 `vibe-check` 安装的 jscpd。 */
+  /** 使用随 `@zxyycom/vibe-check` 安装的 jscpd。 */
   | Readonly<{ readonly kind: "package" }>
   /** 显式授权另一个 jscpd 命令。 */
   | Readonly<{
@@ -24,7 +24,7 @@ export interface DuplicateDetectionCacheOptions {
 
 /** `duplicateDetection` 构造函数可省略的 scanner 策略。 */
 export interface DuplicateDetectionScannerOptions {
-  /** 省略时使用随 `vibe-check` 安装的 jscpd。 */
+  /** 省略时使用随 `@zxyycom/vibe-check` 安装的 jscpd。 */
   readonly command?: DuplicateDetectionScannerCommand;
 }
 
