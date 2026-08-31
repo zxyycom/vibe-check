@@ -226,7 +226,7 @@ package API 文档按下列 owner 维护：
 | 内容 | 可编辑事实源 | 投影或发布结果 |
 | --- | --- | --- |
 | README 与深入机制正文、标题和链接 | package root `README.md`、`docs/api-mechanics.md` 的 projected example fence 之外 | 同一 checked-in Markdown 直接进入 package。 |
-| Check guide | 对应 `docs/checks/*.md` | 同一 checked-in Markdown 直接进入 package。 |
+| Check guide | [package README 的随包 Check 索引](../README.md#随包提供的-check)所链接的对应 guide | 同一 checked-in Markdown 直接进入 package。 |
 | 可执行 API 示例 | `docs/examples/package-api/*.ts` 的 allowlisted file 或 region | projection registry 指定的自然 Markdown heading 下的唯一 TypeScript fence，或 source JSDoc `@example` tail。 |
 | declaration 说明 | declaration owner 中 managed `@example` tail 之前的 source JSDoc prose | emitted declarations 保留该说明和投影后的示例。 |
 
@@ -247,7 +247,7 @@ H2-H6 ancestor-to-target 的 heading text 排列；跳过数字层级不会产�
 `scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。artifact audit
 再次计算投影并要求 checked-in Markdown/JSDoc 与结果一致，再把同一 Markdown 交给 package material collector。
 
-package README 是 consumer 文档的唯一总入口：它直接链接 exact 七项 `docs/checks/*.md` 指南、唯一深入 API
+package README 是 consumer 文档的唯一总入口：[随包 Check 索引](../README.md#随包提供的-check)逐项直链七份指南，并直链唯一深入 API
 mechanics 文档和 machine output 指南，不发布 `docs/index.md` 或 `docs/checks/index.md`。Check guide registry 必须与
 public package-provided Check functions 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF
 且恰有一个 trailing LF，并拒绝缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。

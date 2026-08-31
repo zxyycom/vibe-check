@@ -88,6 +88,9 @@ selection 建立可读 path set，加载 registered schemas，按 identity polic
 之外的声明 path 形成 `out-of-scope` domain issue，读取 scope 保持为 selected set。schema document、compile 与
 instance issues 形成 Records。
 
+local schema 与 instance document 复用 [JSON Validation 工作原理](json-validation.md#工作原理)定义的 strict-document
+boundary；本指南只增加 schema identity、reference resolution、binding 与 engine settlement，不建立另一套 JSON 解析规则。
+
 ## 效果与结果
 
 `issueCount === 0` 时 outcome 为 `passed`；`issueCount > 0` 时 outcome 为 `failed`。正常 final data 恰为：

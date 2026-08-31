@@ -50,6 +50,10 @@ constructor 先关闭 authoring shape、补齐并冻结 resolved options。Run �
 execution 收集 selected paths，按小写 `.json` suffix 完整分成 accepted/rejected。每个 rejected path 先产生 supplemental
 Record，accepted path 才通过 strict-document boundary 读取和解析；无效文档产生另一种 supplemental Record。
 
+strict-document boundary 先按 byte length 应用 `maximumBytes`，再依次区分 BOM、fatal UTF-8、strict JSON grammar 与 decoded
+duplicate key；每个文档只返回最先成立的封闭 reason。合法文档只向 owning Check 交付不含 prototype 的深冻结私有值，
+不会保留 source、AST、key 或 parser detail；读取或边界执行失败结算为 unavailable，而不是伪装成 invalid document。
+
 ## 效果与结果
 
 `invalidFileCount === 0` 时 outcome 为 `passed`；`invalidFileCount > 0` 时 outcome 为 `failed`。正常 final data 恰为：

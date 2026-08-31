@@ -21,7 +21,8 @@ capability，以及 `src/package-checks/project-files/**` 的 exact-path members
 
 ## Check-owned command options
 
-[Configuration](configuration.md#package-provided-check-composition) 拥有随包提供 Check 的初始 options。`fileMetrics` 与
+[随包 Check 指南](navigation.md#随包-check-指南)拥有各 Check 的初始 options。[Configuration](configuration.md#package-provided-check-composition)
+只拥有它们与普通 Project Definition 的组合边界。`fileMetrics` 与
 `functionMetrics` 的 public scanner 都只保留 executable；SCC adapter 固定 `--version` probe、`--by-file --format csv`
 与 exact paths，Lizard adapter 固定 `--version` probe、exact paths 与 `--csv`。两者都不允许参数透传扩大输入、改变
 parser contract 或把 tool tuning 变成产品配置。

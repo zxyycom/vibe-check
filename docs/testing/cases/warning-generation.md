@@ -30,7 +30,7 @@ Entities:
 
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
-Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Owner: `docs/checks/json-validation.md#工作原理`
 Entities:
 
 - `bun|src/package-checks/json-document/strict-document.test.ts|strict JSON document boundary > uses byte length with a strict greater-than limit before every document issue`
@@ -46,7 +46,7 @@ Proves:
 
 ## Case ADD-JSON-VALIDATION-RESULTS-001: JSON validation emits safe per-file facts and four-state outcomes
 
-Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Owner: `docs/checks/json-validation.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > reports selected non-JSON paths and returns exact mixed final counts`
@@ -63,7 +63,7 @@ Proves:
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-RESULTS-001: JSON Schema validation publishes safe domain facts and exact counts
 
-Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Owner: `docs/checks/json-schema-validation.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.default-contract.test.ts|JSON Schema validation default Check > validates registered schema bindings and publishes only safe normalized keyword facts`
@@ -76,7 +76,7 @@ Entities:
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-REMOTE-POLICY-001: JSON Schema reference policy is explicit and fail-closed
 
-Owner: `docs/configuration.md#jsonschemavalidation-option-contract`
+Owner: `docs/checks/json-schema-validation.md#referenceresolution-引用解析规则`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.offline-and-local-reference.test.ts|JSON Schema validation default Check > keeps the default offline and fails an unapproved reference without calling fetch`
@@ -92,7 +92,7 @@ Entities:
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-IDENTITY-OUTCOMES-001: JSON Schema identity and complete outcome boundaries remain explicit
 
-Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Owner: `docs/checks/json-schema-validation.md#jsonschemavalidation`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > applies all three Check-level root identity modes without exposing document IDs`

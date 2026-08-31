@@ -153,7 +153,7 @@ Entities:
 
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 
-Owner: `docs/quality-metrics.md#markdown-link-findings-and-outcomes`
+Owner: `docs/checks/markdown-link-validation.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
@@ -183,7 +183,7 @@ Entities:
 
 ## Case WB-MAINTENANCE-REMINDER-ASSESSMENT-001: One maintenance Check retains complete local Git assessments
 
-Owner: `docs/quality-metrics.md#维护提醒评估`
+Owner: `docs/checks/maintenance-reminders.md#效果与结果`
 Entities:
 
 - `bun|src/package-checks/maintenance-reminders/first-parent-activity.test.ts|maintenance reminders > measures committed first-parent activity while ignoring worktree changes and folds due entries`

@@ -1,9 +1,10 @@
 # Quality Metrics
 
-本文拥有 Check、supplemental Record 与 explicit Check aggregation 的事实语义。Definition authoring、typed direct
-dependency readback 见 [Configuration](configuration.md)；machine DTO/bytes 见 [Output](output.md)；repository Gate
-adapter 见 [脚本工具](script-tooling.md#project-gate)。本文不拥有 scanner commands、machine serialization、argv
-parsing、generic scheduler 或 human presentation grammar。
+本文拥有通用 Check、supplemental Record 与 explicit Check aggregation 的事实语义。每项随包 Check 的领域 options、
+outcome、final data、Record、message 与不可用原因由对应[随包 Check 指南](navigation.md#随包-check-指南)拥有。Definition authoring、typed
+direct dependency readback 见 [Configuration](configuration.md)；machine DTO/bytes 见 [Output](output.md)；repository Gate
+adapter 见 [脚本工具](script-tooling.md#project-gate)。本文不拥有 scanner commands、machine serialization、argv parsing、
+generic scheduler 或 human presentation grammar。
 
 ## Check and Record facts
 
@@ -47,207 +48,44 @@ registry 或 machine artifact reader。
 
 ## Package-provided ordinary Checks and exact inputs
 
-每项 `src/package-checks/<check-owner>/**` 都实现一个普通 Check。`duplicate-detection`、`file-metrics` 与
-`function-metrics` 分别拥有自己的 jscpd、scc 与 Lizard adapter；`json-validation`、
-`json-schema-validation` 与 `markdown-link-validation` 同样完整拥有自己的 options validation、execution 和 domain
-facts。Definition、Run 与 Check facts 不识别这些 Check ID 或 option shape。
+本节只拥有随包 Check 共同服从的 Check/Record 事实边界；具体字段、默认值、Finding identity、状态映射、message、
+不可用原因和安全限制由各 Check 指南拥有。Definition、Run、Check facts、aggregation 与 machine publication 不识别这些
+Check ID 或 options shape。
 
-package-provided Check 自己结算的 failed、unavailable 与带 non-blocking finding 的 passed outcome 都附带至少一条可操作
-message；maintenance advisory 的 due / entry-unavailable 也附带 warning。零问题 passed 与 not-applicable 不合成人为提示。
-这项行为只覆盖 Check-owned execution / preflight 分支；Product 因 callback throw、malformed result 或 canonical boundary
-failure 形成的防御性 unavailable 继续遵循 generic optional-message contract。messages 不改变下述 final data、Records 或
-status 规则。
+共同事实如下：
 
-四项带普通质量 Finding 的 Check 在数量/处置 message 后，按各自稳定 Finding 顺序默认附带最多十条安全摘要；超过十条时
-再说明未显示数量并引导读取 owning Check 的 Records。摘要只能使用 Check owner 已确认安全的项目相对路径、位置、指标、
-阈值、函数名和封闭 reason，不复制 absolute path、raw Link destination、scanner/command output 或 remote material。完整
-Finding identity 与 data 仍只由 final data 和 Records 拥有；generic progress、aggregation 与 machine publication 不解释摘要。
-十条上限和安全字段投影仍是这些随包 Check 自己的 policy；Product 不从 Record shape 自动推断 Finding。package root
-提供通用 `presentCheckFindings(...)`，让 custom Check 显式给出自己的 `limit`、单条安全 message hook 和超限 hook。
-超限 hook 负责说明完整明细实际位于 Records、artifact、transcript 或其它 Check-owned 位置；helper 只返回 messages，
-不发布、复制或截断完整 Finding facts。
+1. 每项随包能力仍是 ordinary Check，使用本页定义的四状态结果与 Check-local Records；adapter、parser、cache、I/O 或
+   exact-input failure 只结算 owning Check，不建立第二套 quality model。
+2. `failed`、`unavailable` 与带 non-blocking Finding 的 `passed` 由 owning Check 附带可操作 message；零问题
+   `passed` 与 `not-applicable` 不合成人为提示。message 不改变 final data、Records 或 status。
+3. `duplicate-detection`、`file-metrics` 与 `function-metrics` 的正常 final data 都使用
+   `{ findingCount, blockingFindingCount }`；每条可信 Finding 保留为带显式 blocking 状态的 Check-local Record，任一
+   effective blocking Finding 使 owning Check failed。各 Check 的 area overlap、threshold、waiver 与 Record 字段仍由其
+   指南分别定义。
+4. package Check 的 Finding 摘要是 Check-owned presentation，不是通用 Record 投影。Producing Check 决定安全字段、显示
+   上限和完整明细入口；通用 `presentCheckFindings(...)` 只执行调用方给出的 presentation hooks，见
+   [Finding presentation](api-mechanics.md#finding-presentation)。
+5. 读取文件的 Check 从自己的 options 形成 selected/exact input；文件分类与完整性见
+   [Project files and Check exact inputs](scan-scope.md)，外部工具边界见
+   [Check-owned scanner dependencies](scanner-dependencies.md)。
 
-需要文件的 Check 各自从 Check-owned file selection 形成 selected/exact input paths：三个 metric Check 使用每个
-`codeAreas[id].files`，其它 file-reading Checks 使用顶层 `options.files`。它们只在 detail 是 supplemental finding 时报告
-Check-local Records。adapter availability、process、parser、cache 或 exact-input failure 将 owning Check settle 为
-unavailable，不创建并行 quality model。owner-local tool boundary 见
-[Check-owned scanner dependencies](scanner-dependencies.md)，file mechanism 见
-[Project files and Check exact inputs](scan-scope.md)。
-
-其中 `function-metrics`、`json-validation` 与 `markdown-link-validation` 在 files selection 后还有 Check-owned 文件类型
-eligibility。三者把完整 selected set 对账为 accepted/rejected；每个 rejected path 发布一条独立 ID 域中的
-`{ kind: "input-rejected", reason: "unsupported-file-type", path, blocking: false }` Record，并附一条汇总 warning。
-function-metrics 的分支还携带全部 matching `codeAreas`。这些 Findings 永远 non-blocking，不受 area 或 Link finding policy
-改写。默认 include 精准匹配各自能力；调用方显式提供宽泛 include 时，所有 rejected paths 仍逐条保留。duplicate/file
-metrics 已把 selected exact paths 交给 backend，JSON Schema files 是显式 declaration 的授权范围；backend 不返回某个已接受
-path 不能由本规则推断为 rejected input。
-
-三个 area-based 代码质量 Check 共用 Finding policy：constructor 顶层 `findingPolicy` 默认为 `"non-blocking"`，area 可覆盖；
-resolved area 保存自己的有效 policy。每个可信 finding 都发布一条带显式 `blocking` 的 Check-local Record；同一 finding
-涉及多个 matching areas 时，只要任一区域使用 blocking policy，Record 就是 blocking。scanner、conversion 与后续 Record
-不因首个 blocking finding 短路。
-
-- `duplicate-detection` 的 finding Record 还包含稳定排序的 `codeAreas`、line/token counts 与全部 locations；涉及区域的
-  line/token 下限按 owning duplicate policy 过滤。
-- `file-metrics` 的 finding Record 还包含稳定排序的 `codeAreas`、path、code lines 与 effective limit；同一路径使用全部
-  matching areas 中最严格的适用 code-line maximum。它还可用声明式 `{ identity: { metric, path }, reason }` waiver 在完整 SCC
-  finding 集合形成后做精确对账：applied finding 保留 Record 和 reason，但不进入 actionable/blocking settlement；unused 或
-  overmatched waiver 各发布 audit Record 与 warning，后者不会豁免 finding。
-- `function-metrics` 的 metric finding Record 还包含稳定排序的 `codeAreas`、metric、limit 与 function location/value；
-  effective limit 是全部 matching areas 对该 metric 的适用 maximum 最小值。它的 input-rejection branch 没有 function
-  measurement，只含稳定排序的 matching `codeAreas` 与上述通用拒绝字段。
-
-三者的正常 final data 都恰为 `{ findingCount, blockingFindingCount }`；blocking count 非零时 failed，否则 passed，因此
-passed Check 可以携带 non-blocking finding Records。对 function-metrics，`findingCount` 同时包含 metric 与 input-rejection
-Records，`blockingFindingCount` 只统计 effective blocking metric finding；all-rejected 因而是带 final data 的 passed，zero
-selected 才是 not-applicable。adapter/measurement failure 仍结算为 unavailable，并保留分类阶段已接受的 rejection Records。
-这个 Finding policy 只改变 owning package Check 的 finding settlement，不改变通用 Check/Record 或 aggregation contract。
-
-三者的 attached / named parser 验证相同的两个计数字段、非负安全整数与
-`blockingFindingCount <= findingCount`，并返回对应 Check-specific final-data type。
-
-`json-validation` 的 Check-local facts 固定如下：
-
-- 每个 invalid eligible file 恰报告一个 `{ id: path }` / `{ path, reason }` Record；第一个发现的 document
-  issue 决定这个唯一 Record，`reason` 只能是 `too-large | bom | invalid-utf8 | invalid-json | duplicate-key`。
-- 每个 rejected selected file 使用 `/input-rejected/<path>` ID 和上述固定 rejection Record；它不进入 document read，也不受
-  invalid-document failure policy 影响。
-- 所有 accepted files 都正常结算后，Check 才以 `passed` 或 `failed` 返回恰为
-  `{ scannedFileCount, validFileCount, invalidFileCount, issueCount, rejectedInputCount }` 的 final data；其中
-  `scannedFileCount = validFileCount + invalidFileCount`，`issueCount = invalidFileCount + rejectedInputCount`。只有
-  `invalidFileCount > 0` 使 Check failed；只有 rejected input 时是带 warning 的 passed。
-- zero selected 时返回带 `no-eligible-input` 的 `not-applicable`；all-rejected 是已完成的 passed。cancellation、read 或
-  strict-document boundary failure 返回没有 final data 的 `unavailable`。后续文件 unavailable 时，分类阶段和此前文档
-  阶段已接受的 Records 均保留 ordinary Check-facts semantics。
-- JSON-specific published facts 仅为 path、counts、`blocking: false`、closed kind/reason；不得发布 document bytes/text、
-  key、pointer、location、parser message 或 stack。
-
-`json-schema-validation` 的 Check-local facts 固定如下：
-
-- **输入与 normal final data：** Check 只拥有显式配置的 schema resources 和 bindings。正常 final data 恰为
-  `{ schemaCount, bindingCount, validBindingCount, invalidBindingCount, blockedBindingCount, issueCount, reportedIssueCount, issuesTruncated }`，
-  且 `validBindingCount + invalidBindingCount + blockedBindingCount = bindingCount`。schema document 或 compile
-  failure 会 block 其 dependent bindings；它不会为这些 bindings 猜测 keyword violation。
-- **Record 形状与脱敏：** domain Record 只能是 `schema-document`、`schema-compile`、`instance-document` 或
-  `keyword-violation`。它只含 configured schema/binding ID、normalized project path、closed document/compile
-  reason，或 sanitized instance pointer 和 allowlisted keyword。它绝不含 raw `$id`/`$ref`、source/response
-  bytes、URI userinfo/query、absolute path、engine `schemaPath`、message、stack 或 transport detail。
-- **显示上限：** Check 会验证每个可处理 binding，但每次 invocation 最多发布 100 条 domain Record。
-  `issueCount` 是真实发现总数；`reportedIssueCount` 是已发布 prefix；`issuesTruncated` 只说明该 prefix 是否
-  漏掉一条或多条 Record。该显示上限不会制造 synthetic issue，也不会把 `failed` 改成 `passed`。
-- **状态与 resolution：** zero bindings 带 `no-bindings` 返回 `not-applicable`；正常无 issue 返回 `passed`；
-  任一 domain issue 返回 `failed`。cancellation、local strict-document I/O/boundary failure、engine failure 或
-  authorized HTTPS transport failure 都返回没有 final data 的 `unavailable`，已接受的 Records 保留 ordinary
-  Check-facts semantics。resolution 由 Check 自己拥有：local registered engine identities 和 package-fixed 2020-12
-  catalog 无需 request；只有 explicit allowlisted HTTPS source 可以 fetch。adapter 不使用 credentials、headers、
-  redirects、ambient callback 或 persistent cache；unapproved/unsupported reference 安全失败。
-
-所有随包 Check 函数与自定义 callback 都使用同一套四状态结果语法。Check options 只改变 owning Check 的领域语义；
-aggregation 与 output presentation 不属于这些 options。
-
-### Markdown Link findings and outcomes
-
-`markdown-link-validation` 拥有 local-reference finding，而不是 general target validator。每个 normal link issue 恰好报告一个
-Check-local Record，其 reason 只能是 `missing-target`、`target-outside-project-root`、`empty-directory`、
-`anchor-on-directory`、`anchor-target-not-markdown`、`missing-anchor` 或 `unsupported-target-type`。其公开
-`findingPolicy` 默认为 `"non-blocking"`：normal issue 默认保留相同 final data 与 Records、结算为 `passed` 并附 warning；
-显式 blocking policy 才结算为 `failed` 并附 error。没有 normal issue 时为无 message 的 `passed`。
-
-Link Record 标识 source relative path、one-based occurrence ordinal 和 reason。其 data 只能包含 reason、occurrence kind
-（`link` 或 `image`）、slash-normalized root-relative source path、source navigation range 与 safe target descriptor。对
-`same-document`、`project-file`、`project-directory` 或 `project-path` target，descriptor 可携带 root 内 relative path 和
-decode 后 fragment。`project-path` 表示尚未确定 endpoint type，包括缺失的 direct target。`outside-project-root`
-descriptor 不携带 target path 或 fragment。这是在 shared canonical JSON boundary 下的普通 supplemental Record data，
-不是新的 Record family 或 cross-Check catalog。
-
-`passed` 和 `failed` 的 final data 严格为
-`{ sourceFileCount, occurrenceCount, targetReadCount, findingCount, rejectedInputCount }`；
-`findingCount - rejectedInputCount` 是 normal link finding 数量，且不超过 `occurrenceCount`。`sourceFileCount` 统计全部完整
-解析的 accepted source；`occurrenceCount` 包含每一个 parser-semantic occurrence，包括未进入 local target validation 的项；
-`targetReadCount` 统计进入 direct endpoint validation 的 occurrence。只有 normal link finding 按 `findingPolicy` 决定 failed；
-input rejection 始终 non-blocking。zero selected 时以 `no-eligible-input` 结算为 `not-applicable`，all-rejected 则以带 warning
-和 final data 的 passed 结算。cancellation、source/target read、decode、parser、containment 或 limit failure 均为
-`unavailable`：它们不带 final data，也不能发布 partial link-finding Record set；如果 selected classification 已完成，
-它此前发布的 rejection Records 仍按 ordinary Check-facts semantics 保留。
-其 `unavailable.reason.code` 是共享 four-state grammar 中的受控 public code，且只能是：`cancelled`、
-`project-root-unavailable`、`source-unavailable`、`source-too-large`、`markdown-parse-failed`、
-`invalid-local-destination`、`target-unavailable`、`occurrence-limit-exceeded` 或 `target-read-limit-exceeded`。
-`source-unavailable` 汇总 source collection/read/decode/access failure；`target-unavailable` 汇总 containment probe、
-target I/O/read/decode/parse 与 directory error。code 不得以 raw target path、URL、query/userinfo 或 target content
-代替；resolver private type 与 target detail 不构成 public catalog。
-
-## 维护提醒评估
-
-`maintenanceReminders(entries)` 不是另一个无参 package Check value，也不会为每个条目创建 Check。它只形成一个
-`maintenance-reminders` 所属 Check；条目 ID、评估结果、提示文本和基线都只在该 Check 内有意义。输入规则、固定身份和原生对象组合边界见[配置](configuration.md#维护提醒)。
-
-callback 只在项目根目录的已提交 Git 历史中工作：它解析 `HEAD`，要求每个不可变的完整 `baseCommit` 位于
-`HEAD` 的 `first-parent` 链上，并统计不含基线的 `base..HEAD` `first-parent` 提交。每个提交的变更行数是相对其第一个父提交的 Git `numstat` 增加行加删除行；合并提交只按第一个父提交的差异计算一次，回滚按实际差异计算，二进制文件计为零行，重命名遵循 Git `numstat`。工作区和暂存区差异不参与；任一已配置上限被**严格超过**才算到期，Product 不会自动推进基线。
-
-成功完成的 callback 的最终数据始终为 `{ entries }`，并按作者声明顺序保存以下局部评估：
-
-```ts
-{
-  id: string;
-  mode: "advisory" | "enforcing";
-  assessment: "clear" | "due" | "unavailable";
-  baseCommit: string;
-  headCommit: string | null;
-  commitCount: number | null;
-  changedLines: number | null;
-  exceeded: readonly ("commits" | "changed-lines")[];
-  reason?: string;
-}
-```
-
-`reason` 只会出现在 `unavailable` 条目上；它是稳定、可行动的原因代码：
-
-| `reason`                           | 含义与下一步                                                                            |
-| ---------------------------------- | --------------------------------------------------------------------------------------- |
-| `head-unavailable`                 | 无法执行或读取 `HEAD`；检查 Git 可执行文件和仓库状态。                                  |
-| `head-invalid`                     | `HEAD` 命令输出不是完整 commit ID；检查被调用的 Git 工具或仓库对象。                    |
-| `first-parent-history-unavailable` | 无法读取 `HEAD` 的 `first-parent` 历史；检查 Git 命令和仓库历史。                       |
-| `first-parent-history-invalid`     | 返回的 `first-parent` 历史为空、含无效 ID 或未以 `HEAD` 开始；检查 Git 工具或仓库对象。 |
-| `base-commit-unavailable`          | 条目的 `baseCommit` 无法解析；将其改为可用的完整 commit ID。                            |
-| `base-not-first-parent-ancestor`   | 条目的基线不在 `HEAD` 的 `first-parent` 链上；选择该链中的复核基线。                    |
-| `numstat-unavailable`              | 无法读取某个提交的 `numstat`；检查 Git 工具和仓库对象。                                 |
-| `numstat-invalid`                  | `numstat` 输出无法安全解析或累计；检查 Git 工具和仓库对象。                             |
-
-无法解析 `HEAD` 或历史时，callback 仍会为每个条目形成 `unavailable` 评估；单条基线、祖先关系、`numstat` 或解析失败也只会使该条目不可测量，后续条目继续测量。这样在数据完整时不会把 `unavailable` 伪装为 `clear`，也不会丢掉其它条目。只有取消、内部失败或其他无法可信形成完整有序数组的边界，才会使整个 Check 以四态结果 `unavailable` 结束。
-
-| 条目评估      | `advisory`（默认）               | `enforcing`                      |
-| ------------- | -------------------------------- | -------------------------------- |
-| `clear`       | 不附提示，不导致失败。           | 不附提示，不导致失败。           |
-| `due`         | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
-| `unavailable` | 所属 Check 为 `passed`，附警告。 | 所属 Check 为 `failed`，附错误。 |
-
-提示使用所属 Check 持有的稳定 code，只经 progress 和 `RunResult.checkMessages` 供人阅读；不会创建补充 Record。若要通过聚合阻断进程，仍须显式选择唯一的 `maintenance-reminders` Check ID，不能选择单个条目。机器发布继续只投影通用最终数据，见[输出](output.md#读取与验证顺序)。
+按能力读取完整事实契约时，从[随包 Check 指南](navigation.md#随包-check-指南)选择唯一 owner，不从本节推断
+Check-specific 字段或状态。
 
 ## Explicit aggregation and repository Gate mapping
 
-multi-Check aggregation 是每次 invocation 的 derived result，不是 Check-facts status 或 implicit quality policy。需要它的
-caller 显式在 `RunControls.checkAggregation` 配置 selected Checks、`all | any` mode、unavailable handling、
-not-applicable handling 与 empty-set handling。selection 在 work 前验证；`"all"` 选择全部 normalized Checks，
-explicit ID list 可表达 Gate eligibility set，且不隐藏 excluded raw facts。
+multi-Check aggregation 是一次 invocation 的 derived result，不是 Check-facts status、evidence container 或隐式 quality policy。
+调用方通过 `RunControls.checkAggregation` 显式选择 Check IDs、`all | any` mode，以及 unavailable、not-applicable 和 empty-set
+handling；selection 在 work 前验证。未配置时 `RunResultFacts.aggregate` 为 `null`。
 
-`src/project-run/aggregation.ts` 仅从 selected settled Check statuses 计算 `passed | failed | not-applicable |
-unavailable`。未配置 aggregation 时 `RunResultFacts.aggregate` 是 `null`。aggregate 不复制 evidence，不消费 Records、
-definition warnings、output statuses、progress presentation 或 arbitrary final data。
+aggregation 只读取 selected settled Check statuses 并返回 `passed | failed | not-applicable | unavailable`。它不复制或解释
+final data、Records、messages、definition warnings、output statuses 或 progress presentation；这些原始 facts 不因 aggregate
+存在而隐藏或改写。
 
-`scripts/project/gate/**` 将 required/full eligibility selection 绑定到 explicit aggregation configuration，并从
-`RunResult.aggregate`、definition warning 和 progress output 形成一个初步 `ProjectGateResult`。一个项目私有
-`afterGate` 阶段可以在 bound Run 返回后把该结果转换为同类型的最终结果。Hook 的完整上下文字段、执行依赖排除项和
-失败边界由[脚本工具](script-tooling.md#gate-result-post-processing-and-exits)拥有；quality aggregation 只约束它不得遍历
-snapshot Checks 重建 aggregate，也不得改写 Check outcome 或 Product facts。调用方与 process exit 只消费处理后的一个
-最终结果，不需要合并并行的 base、acceptance 和 final 模型；Product 不增加公共 lifecycle Hook。
-
-当前 Project Gate 将 `duplicate-detection`、`file-metrics`、`function-metrics` 与 `markdown-link-validation` 作为
-required/full 的四项 direct repository-quality Checks。所有 eligible Check 的 terminal status 均进入同一 `all` aggregate；因此任一质量
-Check failed 使 Gate failed。`quality` tag 只可禁用这四项；被禁用的 Check 以自己的 `not-applicable` fact 保留，但不是 eligible
-aggregate input。该 selection 不建立 parent quality Check、第二个 Run 或按 Records 重算 quality result：findings、Records、
-messages 与 final data 都不是 aggregate inputs，quality Check 的 producing policy 自己将 blocking 或 non-blocking findings
-结算为 failed 或 passed。Gate 对 repository inputs 和 pinned scanner handoff 的私有配置见
-[脚本工具](script-tooling.md#direct-repository-quality-checks)。
+repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 eligibility selection 和 aggregation，并从最终
+`RunResult.aggregate` 映射 process result。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
+Product Check outcomes。当前 profile/tag selection、`afterGate` hook、transcript 与 exit mapping 只见
+[脚本工具的 Project Gate](script-tooling.md#project-gate)。
 
 ## Verification
 

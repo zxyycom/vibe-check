@@ -13,8 +13,9 @@
 | 修改 TypeScript/Bun 产品实现、组件职责、调用链或运行边界                                                                                               | [架构](architecture.md)、[编码规范](coding-style.md)                                             | 下列对应行为 owner、`src/**` 与相邻测试                                                                                     |
 | 修改项目 Run adapter、project root 或 Run Controls                                                                                                     | [Configuration](configuration.md)、[编码规范](coding-style.md)                                  | [Output](output.md)、`src/index.ts` 与项目 wrapper 测试                                                                     |
 | 修改 Project Definition、`defineConfig` defaults、ordinary Check grammar、validation、normalization、precedence 或 legacy JSON migration              | [Configuration](configuration.md)、[编码规范](coding-style.md)                                   | [Project files and Check exact inputs](scan-scope.md) 与 Project Definition tests                                           |
+| 修改随包 Check 的 consumer options、默认值、Finding、outcome、Record、message、不可用原因或安全边界                                           | 对应[随包 Check 指南](#随包-check-指南)、[编码规范](coding-style.md)                              | [Configuration](configuration.md)、[Quality Metrics](quality-metrics.md)、相邻 Check 源码与测试                             |
 | 修改 Check-owned file selection、项目文件收集、默认排除、supported file 分类、exact inputs 或 collection diagnostic                                   | [Project files and Check exact inputs](scan-scope.md)、[编码规范](coding-style.md)                | [架构](architecture.md)、[Check-owned scanner dependencies](scanner-dependencies.md) 与相邻 Check/collection tests          |
-| 修改 Check final status、final/supplemental Record data、Run aggregation 或 repository Gate exit mapping                                               | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md)                               | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)与相关测试                                                  |
+| 修改普通 Check four-state status、通用 final/supplemental Record data、Run aggregation 或 repository Gate exit mapping                                  | [Quality Metrics](quality-metrics.md)、[编码规范](coding-style.md)                               | [Output](output.md)、[Scanner 依赖选择](scanner-dependencies.md)与相关测试                                                  |
 | 修改 package-provided Check 的 scanner command、owner-local adapter、eligibility、exact-input handoff、cache identity 或 tool 替换                    | [Check-owned scanner dependencies](scanner-dependencies.md)、[架构](architecture.md)             | [Quality Metrics](quality-metrics.md)、对应 Check owner 内的 adapter tests 与 fixtures                                      |
 | 修改 machine DTO/schema、contract-valid set / published set、serialization、validator、publication/evidence、console/report、artifact 或 output status | [机器输出契约](output.md)、[机器输出实现与材料维护](output-maintenance.md)、[编码规范](coding-style.md) | [Configuration](configuration.md)、[Quality Metrics](quality-metrics.md)、`docs/schemas/`、`docs/examples/` 与 output tests |
 | 修改 package Markdown、Check guide、可验证 API 示例或 Markdown/JSDoc projection                                                                       | [脚本工具](script-tooling.md)、[编码规范](coding-style.md)                                       | 目标 Markdown、`docs/examples/package-api/`、projection registry/renderer/command、declaration owner 与 candidate tests     |
@@ -23,6 +24,13 @@
 | 恢复、审阅或维护跨任务沿用的长期判断                                                                                                                   | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner                  | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md)                                                   |
 | 创建、恢复、实施、搁置、验收或归档较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`             | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner                                               |
 | 创建、更新或审阅持久调查报告                                                                                                                           | `investigation-report` skill                                                                     | [Governance and Test Evidence adapters](script-tooling.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源     |
+
+## 随包 Check 指南
+
+随包 Check 的唯一逐项索引由 [package README](../README.md#随包提供的-check) 拥有，并由 package guide registry
+验证其与 public constructors 和已发布 guides 完整闭合。每项指南完整拥有该 Check 的 consumer options、resolved
+defaults、execution、outcomes、final data、Records、messages、不可用原因、I/O 与安全边界；Configuration 和
+Quality Metrics 只保留跨 Check 通用契约。本文只提供任务路由，不复制该清单。
 
 ## 权威性与状态
 
