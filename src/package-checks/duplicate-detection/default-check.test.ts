@@ -14,6 +14,7 @@ import { describe, it } from "node:test";
 
 import { executeDuplicateDetection } from "./execution.ts";
 import { duplicateDetection } from "./default-check.ts";
+import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 import { defaultProjectFileSelection } from "../project-files/configuration.ts";
@@ -371,7 +372,8 @@ async function assertInitialOverlappingAreaResult(
         level: "warning",
         message:
           "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-      }
+      },
+      DUPLICATE_DETAILS.overlapWarning
     ]
   });
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
@@ -414,7 +416,8 @@ async function assertReevaluatedOverlappingPolicies(
         level: "error",
         message:
           "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-      }
+      },
+      DUPLICATE_DETAILS.overlapError
     ]
   });
   assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
@@ -463,7 +466,8 @@ describe("default Check direct callbacks", () => {
             level: "warning",
             message:
               "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          }
+          },
+          DUPLICATE_DETAILS.direct
         ]
       });
       assert.equal(result.records.length, 1);

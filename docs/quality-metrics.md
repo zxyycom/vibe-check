@@ -58,6 +58,13 @@ message；maintenance advisory 的 due / entry-unavailable 也附带 warning。�
 failure 形成的防御性 unavailable 继续遵循 generic optional-message contract。messages 不改变下述 final data、Records 或
 status 规则。
 
+四项带普通质量 Finding 的 Check 在数量/处置 message 后，按各自稳定 Finding 顺序默认附带最多十条安全摘要；超过十条时
+再说明未显示数量并引导读取 owning Check 的 Records。摘要只能使用 Check owner 已确认安全的项目相对路径、位置、指标、
+阈值、函数名和封闭 reason，不复制 absolute path、raw Link destination、scanner/command output 或 remote material。完整
+Finding identity 与 data 仍只由 final data 和 Records 拥有；generic progress、aggregation 与 machine publication 不解释摘要。
+十条上限和安全字段投影是这些随包 Check 共用的内部 presentation policy，不是所有 Check 自动获得的 generic Finding
+机制。通用能力只有 terminal `messages`；custom Check 必须自行决定是否生成摘要及其安全字段。
+
 需要文件的 Check 各自从 Check-owned file selection 形成 selected/exact input paths：三个 metric Check 使用每个
 `codeAreas[id].files`，其它 file-reading Checks 使用顶层 `options.files`。它们只在 detail 是 supplemental finding 时报告
 Check-local Records。adapter availability、process、parser、cache 或 exact-input failure 将 owning Check settle 为

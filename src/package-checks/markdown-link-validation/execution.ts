@@ -5,20 +5,23 @@ import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
-import {
-  createMarkdownLocalResolver,
-  type MarkdownLocalResolutionReason,
-  type MarkdownLocalResolver,
-  type MarkdownSourceReadFailureReason
-} from "./local-resolver.ts";
+import { appendFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { createMarkdownLocalResolver, type MarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
+import { markdownFindingMessages } from "./finding-messages.ts";
 import {
   buildMarkdownInputRejectedRecord,
   buildMarkdownLinkRecordCandidate,
   type MarkdownLinkRecordCandidate
 } from "./records.ts";
 import { settledMarkdownTraversalResult } from "./traversal-result.ts";
+import {
+  markdownLinkUnavailableMessage,
+  type MarkdownLinkValidationUnavailableReason
+} from "./unavailable-reasons.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
+
+export type { MarkdownLinkValidationUnavailableReason } from "./unavailable-reasons.ts";
 
 export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   checkId: "markdown-link-validation",
@@ -30,15 +33,6 @@ interface MarkdownLinkValidationRun {
   readonly resolver: MarkdownLocalResolver;
   readonly signal: AbortSignal;
 }
-
-/** `markdown-link-validation` whole-Check unavailable outcome 的稳定 reason code。 */
-export type MarkdownLinkValidationUnavailableReason =
-  | "invalid-options"
-  | "cancelled"
-  | "occurrence-limit-exceeded"
-  | "project-root-unavailable"
-  | MarkdownLocalResolutionReason
-  | MarkdownSourceReadFailureReason;
 
 type MarkdownLinkValidationUnavailable = Readonly<{
   readonly kind: "unavailable";
@@ -78,19 +72,26 @@ export async function executeMarkdownLinkValidation(
   if (!validMarkdownLinkValidationOptions(context.options)) return unavailable("invalid-options");
   const prepared = await prepareMarkdownTraversal(context);
   if (prepared.kind === "result") return prepared.result;
-  const { rejectedInputCount, traversal, resolver } = prepared;
+  const { rejectedPaths, traversal, resolver } = prepared;
 
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return settledMarkdownTraversalResult({
-    findingCount: traversal.candidates.length,
-    findingPolicy: context.options.findingPolicy,
-    occurrenceCount: traversal.occurrenceCount,
-    rejectedInputCount,
-    sourceFileCount: traversal.sourceFileCount,
-    targetReadCount: resolver.targetReadCount
-  });
+  return appendFindingMessages(
+    settledMarkdownTraversalResult({
+      findingCount: traversal.candidates.length,
+      findingPolicy: context.options.findingPolicy,
+      occurrenceCount: traversal.occurrenceCount,
+      rejectedInputCount: rejectedPaths.length,
+      sourceFileCount: traversal.sourceFileCount,
+      targetReadCount: resolver.targetReadCount
+    }),
+    markdownFindingMessages(
+      traversal.candidates,
+      rejectedPaths,
+      context.options.findingPolicy === "blocking"
+    )
+  );
 }
 
 type PreparedMarkdownTraversal =
@@ -100,7 +101,7 @@ type PreparedMarkdownTraversal =
     }>
   | Readonly<{
       readonly kind: "traversal";
-      readonly rejectedInputCount: number;
+      readonly rejectedPaths: readonly string[];
       readonly resolver: MarkdownLocalResolver;
       readonly traversal: Extract<MarkdownLinkTraversal, { readonly kind: "complete" }>;
     }>;
@@ -140,7 +141,7 @@ async function prepareMarkdownTraversal(
   }
   return Object.freeze({
     kind: "traversal",
-    rejectedInputCount: sourceDiscovery.rejectedPaths.length,
+    rejectedPaths: sourceDiscovery.rejectedPaths,
     resolver: created.resolver,
     traversal
   });
@@ -292,34 +293,11 @@ function unavailable(
     status: "unavailable",
     reason: { code: reason },
     messages: Object.freeze([
-      Object.freeze({ code: reason, level: "error" as const, message: unavailableMessage(reason) })
+      Object.freeze({
+        code: reason,
+        level: "error" as const,
+        message: markdownLinkUnavailableMessage(reason)
+      })
     ])
   });
 }
-
-function unavailableMessage(reason: MarkdownLinkValidationUnavailableReason): string {
-  return UNAVAILABLE_MESSAGES[reason];
-}
-
-const UNAVAILABLE_MESSAGES: Readonly<Record<MarkdownLinkValidationUnavailableReason, string>> = {
-  "invalid-options":
-    "markdownLinkValidation options are invalid; recreate the Check with markdownLinkValidation(options) or restore its complete resolved options.",
-  "project-root-unavailable":
-    "Markdown link validation could not resolve the project root; check that the path exists and is accessible.",
-  "source-unavailable":
-    "A selected Markdown source could not be collected, read, decoded, or contained safely; check the file source and permissions.",
-  "source-too-large":
-    "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit.",
-  "markdown-parse-failed":
-    "A selected Markdown source could not be parsed completely; inspect that document's Markdown syntax and encoding.",
-  "invalid-local-destination":
-    "A local Markdown destination could not be parsed safely; inspect the affected link destination syntax.",
-  "target-unavailable":
-    "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding.",
-  "occurrence-limit-exceeded":
-    "Markdown link validation exceeded maxOccurrences; narrow the source selection or raise the bounded limit.",
-  "target-read-limit-exceeded":
-    "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit.",
-  cancelled:
-    "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
-};

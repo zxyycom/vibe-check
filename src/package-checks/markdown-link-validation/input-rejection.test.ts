@@ -87,6 +87,16 @@ describe("Markdown Link input rejection", () => {
             level: "warning",
             message:
               "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude."
+          },
+          {
+            code: "finding-detail",
+            level: "warning",
+            message: "src/a.ts: selected input is not a supported Markdown source."
+          },
+          {
+            code: "finding-detail",
+            level: "warning",
+            message: "src/b.ts: selected input is not a supported Markdown source."
           }
         ]
       });

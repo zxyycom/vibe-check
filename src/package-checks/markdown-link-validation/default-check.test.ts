@@ -184,6 +184,11 @@ describe("default Check direct callbacks", () => {
             level: "warning",
             message:
               "1 local Markdown link finding(s) were recorded as non-blocking; inspect this Check's Records for source ranges, targets, and reasons."
+          },
+          {
+            code: "finding-detail",
+            level: "warning",
+            message: "docs/guide.md:1:1 link: missing-target."
           }
         ]
       });
@@ -223,6 +228,11 @@ describe("default Check direct callbacks", () => {
             level: "error",
             message:
               "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+          },
+          {
+            code: "finding-detail",
+            level: "error",
+            message: "docs/guide.md:1:1 link: missing-target."
           }
         ]
       });
@@ -263,6 +273,11 @@ describe("default Check direct callbacks", () => {
             level: "error",
             message:
               "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+          },
+          {
+            code: "finding-detail",
+            level: "error",
+            message: "docs/guide.md:1:1 link: target-outside-project-root."
           }
         ]
       });

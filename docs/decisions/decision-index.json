@@ -113,6 +113,7 @@
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
+      "present-bounded-safe-finding-summaries.md": "sha256:d526e5238bdb39d27e7cc6497677a81e53a0d47b662523f67f1e8bdc7cb66dd5",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
@@ -3626,6 +3627,33 @@
             "target": "validate-ordinary-check-options-before-execution.md"
           }
         ]
+      }
+    },
+    "present-bounded-safe-finding-summaries.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "present-bounded-safe-finding-summaries.md",
+        "title": "默认展示有界且安全的 Finding 摘要",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T07:11:25Z",
+        "purpose": "让少量 Finding 直接出现在 Check 终态输出中，同时保持大量或敏感明细的受控边界。",
+        "background": "当前随包 Check 只显示 Finding 数量，维护者必须另行读取 Records 才能定位普通问题。",
+        "decision": "由 producing Check 默认展示至多十条安全摘要，超限时报告剩余数量，完整事实仍由 Records 拥有。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "preserve-release-gate-readiness-with-invocation-creation-time.md": {

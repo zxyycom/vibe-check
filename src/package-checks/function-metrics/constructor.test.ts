@@ -5,6 +5,12 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { functionMetrics } from "./constructor.ts";
+import {
+  MIXED_DETAILS,
+  NON_BLOCKING_DETAILS,
+  REJECTED_DETAILS,
+  TWO_OMITTED_DETAILS
+} from "./finding-messages.test-support.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import { parseFunctionMetricsData } from "./final-data.ts";
 import type {
@@ -261,7 +267,8 @@ describe("functionMetrics area findings", () => {
             level: "warning",
             message:
               "6 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          }
+          },
+          ...NON_BLOCKING_DETAILS
         ]
       });
       assert.equal(observed.records.length, 6);
@@ -291,7 +298,8 @@ describe("functionMetrics area findings", () => {
             level: "error",
             message:
               "3 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          }
+          },
+          ...MIXED_DETAILS
         ]
       });
       const aRecords = blocked.records.filter(
@@ -397,7 +405,8 @@ describe("functionMetrics area findings", () => {
             level: "warning",
             message:
               "2 selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.include/exclude."
-          }
+          },
+          ...REJECTED_DETAILS
         ]
       });
       assert.deepEqual(observed.records, [
@@ -461,7 +470,13 @@ describe("functionMetrics area findings", () => {
     const marker = join(root, "lizard-called");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
-      writeFileSync(join(root, "docs", "guide.md"), "# Guide\n", "utf8");
+      const rejectedPaths = Array.from(
+        { length: 12 },
+        (_, index) => `docs/guide-${String(index + 1).padStart(2, "0")}.md`
+      );
+      for (const path of rejectedPaths) {
+        writeFileSync(join(root, path), "# Guide\n", "utf8");
+      }
       const executable = createExecutable(
         root,
         "require('node:fs').writeFileSync('lizard-called', '');"
@@ -479,17 +494,23 @@ describe("functionMetrics area findings", () => {
       const observed = await execute(executeFunctionMetrics, check.options, root);
       assert.deepEqual(observed.result, {
         status: "passed",
-        data: { blockingFindingCount: 0, findingCount: 1 },
+        data: { blockingFindingCount: 0, findingCount: 12 },
         messages: [
           {
             code: "input-rejected",
             level: "warning",
             message:
-              "1 selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.include/exclude."
-          }
+              "12 selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.include/exclude."
+          },
+          ...rejectedPaths.slice(0, 10).map((path) => ({
+            code: "finding-detail",
+            level: "warning",
+            message: `${path}: selected input is not supported by function metrics (areas: docs).`
+          })),
+          TWO_OMITTED_DETAILS
         ]
       });
-      assert.equal(observed.records.length, 1);
+      assert.equal(observed.records.length, 12);
       assert.equal(existsSync(marker), false);
     } finally {
       rmSync(root, { recursive: true, force: true });

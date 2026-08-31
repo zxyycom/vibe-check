@@ -13,7 +13,7 @@ Entities:
 
 Proves:
 
-- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and do not start Lizard when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages without turning arbitrary Records into a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and do not start Lizard when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message, without turning arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-FILE-METRICS-FINDING-WAIVER-001: File metrics publishes reconciled waiver evidence
 

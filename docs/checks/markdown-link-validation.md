@@ -139,8 +139,10 @@ path 或 fragment。
 ```
 
 blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message；non-blocking finding 的 `passed` outcome
-携带同 code 的 warning message；两者都引导调用方检查 Records 的 source range、target 与 reason。存在 rejected input 时
-另附一条 `input-rejected` warning，只汇总数量而不省略逐路径 Record。由本 Check 结算的 `unavailable` 使用对应
+携带同 code 的 warning message。两者随后按 normal link、再按 input rejection 的稳定顺序直接展示最多十条安全摘要：normal
+摘要只含 source project-relative path、start line/column、occurrence kind 与封闭 reason，不复制 target；rejection 摘要只含
+项目相对 path。存在 rejected input 时仍先附 `input-rejected` 数量 warning；Finding 超过十条时再用 `findings-omitted` 说明
+未显示数量，完整 source range、safe target 与 reason 仍从 Records 读取。由本 Check 结算的 `unavailable` 使用对应
 `reason.code` 提供可操作 error message；无 Finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMarkdownLinkValidationData(value)` 验证 final data。两者返回

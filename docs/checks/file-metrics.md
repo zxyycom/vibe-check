@@ -187,8 +187,10 @@ Record，带 identity、reason、matchCount 和 `"unused" | "overmatched"` statu
 而不是悄悄失效或覆盖多个 finding。audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-slash domain
 与正常 finding 的 normalized relative path ID 不相交。
 
-`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
-调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding
+`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 后，会按
+稳定 path 顺序直接展示最多十条未被 waiver 精确豁免的安全摘要，包含项目相对 path、code lines、effective limit 和 areas；
+超限时用 `findings-omitted` 说明未显示数量。完整集合仍从本 Check 的 Records 读取，精确 applied waiver 继续由上述
+`finding-waived` message 单独说明。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding
 且没有 waiver audit 时，`passed` 与 `not-applicable` 不合成人为提示。若已配置 waiver，即使 exact-path union 为空，Check
 仍会对已知空 finding 集合产生 `unused` audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` outcome。
 

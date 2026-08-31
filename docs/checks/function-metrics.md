@@ -172,9 +172,11 @@ non-blocking；它不包含函数或伪造 measurement。
 findings 时 outcome 为 `passed`，Records 仍完整保留。
 
 `failed` 的 `blocking-findings` message 与携带 non-blocking metric Records 的 `passed` 的 `non-blocking-findings` message
-都会引导调用方检查本 Check 的 Records；有 rejected input 时另附一条 `input-rejected` warning，只汇总数量，不省略逐路径
-Record。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；若 rejection Records 已发布，它们与
-对应 warning 仍保留。零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
+之后，会按 metric finding、再按 input rejection 的稳定顺序直接展示最多十条安全摘要；metric 摘要包含项目相对 path、
+start line、函数名、metric/value/limit 和 areas，rejection 摘要只包含项目相对 path 与 areas。有 rejected input 时仍先附
+`input-rejected` 数量 warning；Finding 超过十条时再用 `findings-omitted` 说明未显示数量，完整集合仍从 Records 读取。由本
+Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；若 rejection Records 已发布，它们与对应 warning
+仍保留。零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFunctionMetricsData(value)` 验证 final data。两者返回
 `FunctionMetricsFinalData`，Record 与不可用原因可分别用 `FunctionMetricsRecordData` 和

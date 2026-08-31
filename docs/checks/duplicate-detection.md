@@ -152,9 +152,11 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 }
 ```
 
-`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 都会引导
-调用方检查本 Check 的 Records。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding
-的 `passed` 与 `not-applicable` 不合成人为提示。
+`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 后，会按
+稳定 Record 顺序直接展示最多十条安全摘要；每条只包含 token/line counts 和最多两个项目相对 location，更多 location
+只显示剩余数量。Finding 超过十条时再用 `findings-omitted` 说明未显示数量，完整集合仍从本 Check 的 Records 读取。由本
+Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding 的 `passed` 与 `not-applicable` 不合成
+人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseDuplicateDetectionData(value)` 验证 final data。两者返回
 `DuplicateDetectionFinalData`，Record 与不可用原因可分别用 `DuplicateDetectionRecordData` 和

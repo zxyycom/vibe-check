@@ -224,6 +224,11 @@ describe("fileMetrics constructor and direct callback", () => {
             level: "warning",
             message:
               "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          },
+          {
+            code: "finding-detail",
+            level: "warning",
+            message: "src/a.ts: 400 code lines exceeds the 300 line limit (areas: shared, source)."
           }
         ]
       });
@@ -262,6 +267,11 @@ describe("fileMetrics constructor and direct callback", () => {
             level: "error",
             message:
               "1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+          },
+          {
+            code: "finding-detail",
+            level: "error",
+            message: "src/a.ts: 400 code lines exceeds the 300 line limit (areas: shared, source)."
           }
         ]
       });
