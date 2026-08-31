@@ -175,7 +175,7 @@ describe("quality jscpd wrapper failure projection", () => {
       assert.equal(availability.source, "package dependency");
 
       const result = scanWithJscpd({
-        files: [join(tempDir, "a.ts"), join(tempDir, "b.ts")],
+        files: ["a.ts", "b.ts"],
         cwd: tempDir,
         dependency: { command: DEFAULT_JSCPD_COMMAND },
         minimumLines: 3,

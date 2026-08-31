@@ -8,7 +8,7 @@
 
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import { errorMessage } from "../../host-environment/error-message.ts";
 import {
@@ -131,6 +131,7 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
     cwd,
     dependency: resolved.command,
     invocation: prepareJscpdInvocation({
+      cwd,
       scanPrefixArguments: resolved.command.scanPrefixArguments,
       files,
       minimumLines,
@@ -140,11 +141,13 @@ function prepareJscpdScan(options: ScanWithJscpdOptions): PreparedJscpdScan {
 }
 
 function prepareJscpdInvocation({
+  cwd,
   scanPrefixArguments,
   files,
   minimumLines,
   minimumTokens
 }: {
+  readonly cwd: string;
   readonly scanPrefixArguments: readonly string[];
   readonly files: readonly string[];
   readonly minimumLines: number;
@@ -154,7 +157,7 @@ function prepareJscpdInvocation({
   const outputDir = join(tempDir, "report");
   const configPath = join(tempDir, ".jscpd.json");
   const config = {
-    path: files,
+    path: files.map((path) => resolve(cwd, path)),
     reporters: ["json"],
     minTokens: minimumTokens,
     minLines: minimumLines,

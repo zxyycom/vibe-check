@@ -64,6 +64,7 @@ type CandidateFixtureEvidence = Readonly<{
   changedFilesFromRun: unknown;
   duplicateData: unknown;
   duplicateOutcome: string | null;
+  duplicateRecords: unknown;
   firstChangedFilesConsumer: unknown;
   humanOutput: string;
   kind: string;
@@ -119,6 +120,7 @@ function projectCandidateFixtureEvidence(
     changedFilesFromRun: evidence.changedFilesFromRun,
     duplicateData: evidence.duplicateData,
     duplicateOutcome,
+    duplicateRecords: evidence.duplicateRecords,
     firstChangedFilesConsumer: evidence.firstChangedFilesConsumer,
     humanOutput: humanOutput,
     kind,
@@ -162,7 +164,8 @@ function optionalOutcome(value: unknown, description: string): string | null {
 function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateFixture>): void {
   assert.equal(runEvidence.kind, "completed");
   assert.equal(runEvidence.duplicateOutcome, "passed");
-  assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 0 });
+  assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 1 });
+  assertTrustedNonBlockingDuplicateRecord(runEvidence.duplicateRecords);
   assert.equal(runEvidence.jsonSchemaOutcome, "passed");
   assert.deepEqual(runEvidence.jsonSchemaData, {
     bindingCount: 1,
@@ -228,14 +231,7 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
   assert.deepEqual(runEvidence.firstChangedFilesConsumer, { fileCount: 2 });
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
-  assert.deepEqual(runEvidence.checkMessages, [
-    {
-      checkId: "installed-terminal-note",
-      code: "installed-terminal-note",
-      level: "info",
-      message: "Installed candidate terminal message."
-    }
-  ]);
+  assertDuplicateAndTerminalMessages(runEvidence.checkMessages);
   assert.match(runEvidence.humanOutput, /total\s+8\s+checks/i);
   assert.match(runEvidence.humanOutput, /Checks:/);
   assert.match(runEvidence.humanOutput, /\[1\/8\].*duplicate detection/i);
@@ -254,6 +250,85 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
   ]) {
     assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
   }
+}
+
+function assertDuplicateAndTerminalMessages(value: unknown): void {
+  if (!isUnknownArray(value)) throw new TypeError("isolated Run checkMessages must be an array");
+  assert.equal(value.length, 3);
+  assert.deepEqual(
+    value.find(
+      (message): message is Readonly<Record<string, unknown>> =>
+        isRecord(message) &&
+        message.checkId === "duplicate-detection" &&
+        message.code === "non-blocking-findings"
+    ),
+    {
+      checkId: "duplicate-detection",
+      code: "non-blocking-findings",
+      level: "warning",
+      message:
+        "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+    }
+  );
+  assert.deepEqual(
+    value.find(
+      (message): message is Readonly<Record<string, unknown>> =>
+        isRecord(message) &&
+        message.checkId === "duplicate-detection" &&
+        message.code === "finding-detail"
+    ),
+    {
+      checkId: "duplicate-detection",
+      code: "finding-detail",
+      level: "warning",
+      message:
+        "Duplicate fragment contains 80 tokens across 19 lines at duplicate-a.ts:1-19, duplicate-b.ts:1-19."
+    }
+  );
+  assert.deepEqual(
+    value.find(
+      (message): message is Readonly<Record<string, unknown>> =>
+        isRecord(message) && message.checkId === "installed-terminal-note"
+    ),
+    {
+      checkId: "installed-terminal-note",
+      code: "installed-terminal-note",
+      level: "info",
+      message: "Installed candidate terminal message."
+    }
+  );
+}
+
+function assertTrustedNonBlockingDuplicateRecord(value: unknown): void {
+  if (!isUnknownArray(value)) {
+    throw new TypeError("isolated duplicate records must be an array");
+  }
+  assert.equal(value.length, 1);
+  const record = value[0];
+  if (!isRecord(record)) throw new TypeError("isolated duplicate record must be an object");
+  assert.equal(record.checkId, "duplicate-detection");
+  assert.match(
+    requiredString(record.id, "isolated duplicate record id"),
+    /^duplicate-fragment\/v1\/sha256:/
+  );
+  if (!isRecord(record.data))
+    throw new TypeError("isolated duplicate record data must be an object");
+  assert.equal(record.data.blocking, false);
+  assert.equal(hasFixtureDuplicateLocations(record.data.locations), true);
+}
+
+function hasFixtureDuplicateLocations(value: unknown): boolean {
+  if (!isUnknownArray(value) || value.length !== 2) return false;
+  if (
+    !value.every(
+      (location): location is Readonly<{ path: string }> =>
+        isRecord(location) && typeof location.path === "string"
+    )
+  ) {
+    return false;
+  }
+  const paths = value.map((location) => location.path).sort();
+  return paths[0] === "duplicate-a.ts" && paths[1] === "duplicate-b.ts";
 }
 
 function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: string): void {

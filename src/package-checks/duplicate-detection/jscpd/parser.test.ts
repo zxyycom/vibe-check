@@ -9,19 +9,20 @@ describe("quality scanner output parsing", () => {
       duplicates: [
         {
           firstFile: {
-            name: "\\\\?\\D:\\repo\\crates\\docnav\\src\\a.rs",
+            name: "\\\\?\\D:\\repo\\crates\\docnav\\src\\a.rs:rust",
             start: 10,
             end: 20,
             startLoc: { line: 10 },
             endLoc: { line: 20 }
           },
           secondFile: {
-            name: "\\\\?\\D:\\repo\\crates\\docnav\\src\\b.rs",
+            name: "\\\\?\\D:\\repo\\crates\\docnav\\src\\b.rs:rust",
             start: 5,
             end: 15,
             startLoc: { line: 5 },
             endLoc: { line: 15 }
           },
+          format: "rust",
           lines: 10,
           tokens: 50
         }

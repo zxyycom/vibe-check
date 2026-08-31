@@ -128,7 +128,12 @@ const result = await run(
   defineConfig({
     checks: [
       duplicateDetection({
-        codeAreas: { project: { files: {}, minimumTokens: 20 } }
+        codeAreas: {
+          project: {
+            files: { include: ["duplicate-a.ts", "duplicate-b.ts"] },
+            minimumTokens: 20
+          }
+        }
       }),
       jsonCheck,
       jsonSchemaValidation({
@@ -160,6 +165,10 @@ const duplicate =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === "duplicate-detection")
     : undefined;
+const duplicateRecords =
+  result.kind === "completed"
+    ? result.snapshot.records.filter((record) => record.checkId === "duplicate-detection")
+    : null;
 const jsonSchemaCheck =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === "json-schema-validation")
@@ -212,6 +221,7 @@ process.stdout.write(
       secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
       duplicateData: settledFinalData(duplicate),
       duplicateOutcome: duplicate?.outcome.status ?? null,
+      duplicateRecords,
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       markdownLinkData: settledFinalData(markdownLink),

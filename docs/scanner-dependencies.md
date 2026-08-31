@@ -70,8 +70,7 @@ owning Check 依据自己的 file selection 收集 candidates，并形成该工�
 `src/package-checks/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
 partial result。
 
-`duplicateDetection` 一次把完整 approved exact scope 交给 jscpd，使不同或重叠 code areas 可以互相比较。scanner 的
-line/token 下界分别使用实际 input areas 的最低值；raw result 恢复每个 location 匹配的全部 areas 后，finding 的
+`duplicateDetection` 一次把完整 approved exact scope 交给 jscpd，使不同或重叠 code areas 可以互相比较。collection 继续用 project-relative slash paths 保存 exact-input identity；jscpd adapter 在项目根外临时 config 中把每个 approved path 按本次 project root 解析为平台原生绝对路径，避免 config 目录改变 scan target。report locations 再归一化为 project-relative identity 后才进入 exact-scope reconciliation。scanner 的 line/token 下界分别使用实际 input areas 的最低值；raw result 恢复每个 location 匹配的全部 areas 后，finding 的
 line/token 必须分别满足所有涉及 area 的最严格值。
 
 `fileMetrics` 同样一次把稳定去重的 area-path union 交给 SCC，并保存 collection 形成的 path membership。每个 file
@@ -88,8 +87,8 @@ Record，并保存全部 area IDs。effective blocking policy 是“任一 match
 
 ## Cache and failures
 
-Duplicate detection 的 Check-local v3 cache 保存 exact-input accepted raw fragments；area annotation 和 policy filtering
-不持久化。identity 包含 jscpd backend identity、current commit、完整 exact-input union fingerprint、configuration version 与
+Duplicate detection 的 Check-local v3 cache **storage format** 保存 exact-input accepted raw fragments；area annotation 和 policy filtering
+不持久化。identity 另含 raw-scan configuration version（当前为 `4`）以及 jscpd backend identity、current commit、完整 exact-input union fingerprint、configuration version 与
 结构化 scanner configuration；其中明确记录最低 line/token 阈值、JSON/absolute report policy 和 tool-default worker policy，
 不再把 config fields 伪装成 command arguments。package command 使用 portable identity，不包含 consumer install
 directory；custom command 保留项目显式配置的 executable identity。只改变 area membership 或严格阈值但不改变

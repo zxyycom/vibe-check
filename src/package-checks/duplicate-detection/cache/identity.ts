@@ -6,7 +6,7 @@ import type {
   DuplicateScannerCacheConfiguration
 } from "./cache-contract.ts";
 
-const RAW_SCAN_CONFIGURATION_VERSION = "3";
+const RAW_SCAN_CONFIGURATION_VERSION = "4";
 
 interface DuplicateScanCacheIdentityInput {
   readonly dependency: ResolvedDuplicateDetectionScannerOptions;

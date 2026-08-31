@@ -11,7 +11,7 @@ import {
   type DuplicateCodeCacheIdentity
 } from "./store.ts";
 import type { DuplicateCodeFragment } from "../measurement-model.ts";
-import { jscpdCacheConfiguration } from "./identity.ts";
+import { createDuplicateScanCacheIdentity, jscpdCacheConfiguration } from "./identity.ts";
 import { DEFAULT_JSCPD_COMMAND, readJscpdBinTarget } from "../jscpd/command-resolution.ts";
 
 describe("quality measurement cache", () => {
@@ -24,6 +24,7 @@ describe("quality measurement cache", () => {
       const baseKey = buildScanCacheKey(identity);
       assertIdentityInputs(baseKey, identity);
       assertDefaultJscpdIdentity(tempDir);
+      assertRawScanConfigurationVersion();
 
       writeScanCacheEntry({ rootDir: tempDir, identity, metrics: [fragment] });
       assertCacheRoundTrip(tempDir, identity, baseKey);
@@ -65,6 +66,32 @@ function assertIdentityInputs(baseKey: string, identity: DuplicateCodeCacheIdent
       ...identity,
       scannerConfiguration: { ...identity.scannerConfiguration, minimumTokens: 76 }
     })
+  );
+}
+
+function assertRawScanConfigurationVersion(): void {
+  const current = createDuplicateScanCacheIdentity({
+    dependency: { command: DEFAULT_JSCPD_COMMAND },
+    exactInput: {
+      approvedExactPaths: ["src/risky.ts"],
+      areas: [],
+      cacheRootDir: ".cache/vibe-check",
+      commitSha: "abc123",
+      inputFingerprint: {
+        fileCount: 1,
+        fileList: ["src/risky.ts"],
+        fingerprint: "sha256:test:1"
+      },
+      rootDir: "/workspace/consumer"
+    },
+    minimumLines: 3,
+    minimumTokens: 75,
+    toolVersion: "5.0.11"
+  });
+  assert.equal(current.configVersion, "4");
+  assert.notEqual(
+    buildScanCacheKey(current),
+    buildScanCacheKey({ ...current, configVersion: "3" })
   );
 }
 

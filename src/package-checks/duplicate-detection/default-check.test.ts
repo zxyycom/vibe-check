@@ -9,9 +9,11 @@ import {
   writeFileSync
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { describe, it } from "node:test";
 
+import { defineConfig } from "../../project-definition/project-definition.ts";
+import { run } from "../../project-run/run.ts";
 import { executeDuplicateDetection } from "./execution.ts";
 import { duplicateDetection } from "./default-check.ts";
 import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
@@ -92,6 +94,30 @@ function createRoot(prefix: string): string {
   mkdirSync(join(root, "src"), { recursive: true });
   writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
   writeFileSync(join(root, "src", "b.ts"), "export const b = 2;\n", "utf8");
+  return root;
+}
+
+function createRealDuplicateRoot(): string {
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-public-duplicate-"));
+  const source = [
+    "export function duplicateExample(value: number): number {",
+    "  let total = value;",
+    "  total += 1;",
+    "  total += 2;",
+    "  total += 3;",
+    "  total += 4;",
+    "  total += 5;",
+    "  total += 6;",
+    "  total += 7;",
+    "  total += 8;",
+    "  total += 9;",
+    "  total += 10;",
+    "  return total;",
+    "}",
+    ""
+  ].join("\n");
+  writeFileSync(join(root, "duplicate-a.ts"), source, "utf8");
+  writeFileSync(join(root, "duplicate-b.ts"), source, "utf8");
   return root;
 }
 
@@ -266,7 +292,7 @@ function createOverlappingAreaCheck(root: string) {
       "if (process.argv.includes('--version')) process.stdout.write('jscpd 5.0.11\\n');",
       "else {",
       "  const config = JSON.parse(readFileSync(process.argv[process.argv.indexOf('--config') + 1], 'utf8'));",
-      `  if (config.minTokens !== 20 || config.minLines !== 3 || JSON.stringify(config.path) !== ${JSON.stringify(JSON.stringify(["scripts/b.ts", "src/a.ts"]))}) process.exit(2);`,
+      `  if (config.minTokens !== 20 || config.minLines !== 3 || JSON.stringify(config.path) !== ${JSON.stringify(JSON.stringify([resolve(root, "scripts/b.ts"), resolve(root, "src/a.ts")]))}) process.exit(2);`,
       "  if (process.argv.includes('--workers')) process.exit(3);",
       `  const countPath = ${JSON.stringify(scanCountPath)};`,
       "  const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) : 0;",
@@ -484,6 +510,49 @@ describe("default Check direct callbacks", () => {
         tokenCount: 80
       });
       await assertSourceAndCacheWriteFailures(options, root);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("detects project-relative duplicates through the public Check and fails an explicit all aggregate", async function detectsProjectRelativeDuplicatesThroughPublicCheck() {
+    const root = createRealDuplicateRoot();
+    try {
+      const result = await run(
+        defineConfig({
+          checks: [
+            duplicateDetection({
+              codeAreas: { project: { files: {}, minimumLines: 3, minimumTokens: 20 } },
+              findingPolicy: "blocking"
+            })
+          ],
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            machinePublication: { enabled: false },
+            progressRendering: { enabled: false }
+          }
+        }),
+        {
+          checkAggregation: {
+            checks: "all",
+            empty: "failed",
+            mode: "all",
+            notApplicable: "fail",
+            unavailable: "fail"
+          },
+          projectRoot: root
+        }
+      );
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(result.aggregate, "failed");
+      assert.equal(result.snapshot.checks.length, 1);
+      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+        data: { blockingFindingCount: 1, findingCount: 1 },
+        status: "failed"
+      });
+      assert.equal(result.snapshot.records.length, 1);
+      assert.equal(result.snapshot.records[0]?.checkId, "duplicate-detection");
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

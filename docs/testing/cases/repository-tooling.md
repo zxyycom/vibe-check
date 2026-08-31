@@ -98,7 +98,7 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
-- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. It imports all seven named final-data parsers and exercises both named and Check-attached parser paths against the installed runtime.
+- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths against the installed runtime.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 

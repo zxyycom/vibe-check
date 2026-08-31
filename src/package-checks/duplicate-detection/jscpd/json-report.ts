@@ -60,7 +60,12 @@ function parseJscpdFragment(
 ): DuplicateCodeFragment {
   const lineCount = integerField(duplication, "lines");
   const tokenCount = integerField(duplication, "tokens");
-  const locations = parseJscpdLocations(duplication, cwd, lineCount);
+  const locations = parseJscpdLocations(
+    duplication,
+    cwd,
+    lineCount,
+    optionalStringField(duplication, "format")
+  );
 
   return {
     id,
@@ -74,12 +79,13 @@ function parseJscpdFragment(
 function parseJscpdLocations(
   duplication: Record<string, unknown>,
   cwd: string,
-  lineCount: number
+  lineCount: number,
+  format: string | null
 ): DuplicateCodeLocation[] {
   return [
     parseJscpdLocationObject(duplication.firstFile, "firstFile"),
     parseJscpdLocationObject(duplication.secondFile, "secondFile")
-  ].map((location) => parseJscpdLocation(location, cwd, lineCount));
+  ].map((location) => parseJscpdLocation(location, cwd, lineCount, format));
 }
 
 function parseJscpdLocationObject(value: unknown, name: string): JscpdFileLocation {
@@ -92,7 +98,8 @@ function parseJscpdLocationObject(value: unknown, name: string): JscpdFileLocati
 function parseJscpdLocation(
   location: JscpdFileLocation,
   cwd: string,
-  lineCount: number
+  lineCount: number,
+  format: string | null
 ): DuplicateCodeLocation {
   const filePath = stringField(location, "name");
   const startLine =
@@ -100,10 +107,22 @@ function parseJscpdLocation(
   const endLine = nestedIntegerField(location, "endLoc", "line") ?? integerField(location, "end");
 
   return {
-    path: normalizeScannerReportedPath(filePath, cwd),
+    path: normalizeScannerReportedPath(stripJscpdFormatSuffix(filePath, format), cwd),
     startLine,
     endLine: endLine || startLine + Math.max(0, lineCount - 1)
   };
+}
+
+function stripJscpdFormatSuffix(filePath: string, format: string | null): string {
+  const suffix = format === null ? null : `:${format}`;
+  return suffix !== null && filePath.endsWith(suffix)
+    ? filePath.slice(0, -suffix.length)
+    : filePath;
+}
+
+function optionalStringField(record: Record<string, unknown>, name: string): string | null {
+  const value = record[name];
+  return typeof value === "string" && value.length > 0 ? value : null;
 }
 
 function integerField(record: Record<string, unknown>, name: string): number {

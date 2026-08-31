@@ -54,10 +54,11 @@ Entities:
 Owner: `docs/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
+- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > detects project-relative duplicates through the public Check and fails an explicit all aggregate`
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
 
-- Each code area independently owns its file selection, line/token thresholds and effective finding policy. One jscpd scan receives their deduplicated exact-path union with the lowest effective line/token scanner thresholds and jscpd's automatic worker policy; each accepted raw fragment is annotated with every current matching area, retained only when it satisfies the strictest line and token thresholds, and marked blocking when any involved area is blocking. An unchanged raw cache hit is still re-evaluated under current thresholds and finding policies.
+- One jscpd scan receives the deduplicated approved exact-path union with the lowest effective line/token scanner thresholds and automatic worker policy. Project-relative paths remain the stable input identity but are resolved against the invocation project root for jscpd's project-external config; a real duplicate produces a trusted Record and fails an explicit blocking `all` aggregate rather than becoming an empty report. Each accepted raw fragment is annotated with every current matching area, retained only when it satisfies the strictest line and token thresholds, and marked blocking when any involved area is blocking. An unchanged raw cache hit is still re-evaluated under current thresholds and finding policies.
 
 ## Case AUX-JSCPD-ADAPTER-OUTCOMES-001: jscpd adapter preserves its private result boundary
 
@@ -75,7 +76,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/jscpd/parser.test.ts|quality scanner output parsing > parses jscpd version and JSON output`
   Proves:
 
-- The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports; availability identifies package dependency versus custom command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter normalizes only valid JSON and never accepts a partial trusted result.
+- The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports; availability identifies package dependency versus custom command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter removes only a duplicate report `format`-matched path suffix before normalizing valid JSON and never accepts a partial trusted result.
 
 ## Case AUX-LIZARD-ADAPTER-OUTCOMES-001: Lizard adapter preserves its private result boundary
 
