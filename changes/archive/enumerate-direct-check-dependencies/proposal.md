@@ -10,7 +10,7 @@
 
 ## Outcome
 
-Check execution 可以调用 `dependencies.list()`，按稳定顺序读取全部已声明 direct dependency 的四态终态和可用 final data，并据此执行自己的检查或项目动作。列表不能授权 transitive/undeclared Check，也不能修改、重新执行或重新结算上游。
+Check execution 可以调用 `dependencies.list()`，按 normalized effective direct ID 的稳定顺序读取全部已声明 direct dependency 的冻结四态终态和可用 final data，并据此只形成当前 consumer 的 I/O、Records、messages 与 terminal result。列表不能授权 ambient executed、transitive 或 undeclared Check，也不反映 scheduler history，更不能修改、重新执行或重新结算上游。
 
 ## Scope
 

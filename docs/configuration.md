@@ -107,7 +107,7 @@ An executable Check returns exactly one terminal result, optionally with ordered
 
 ### Typed dependency data
 
-This section is the current owner for the public typed-provider and `dependencies.get` contract. [Architecture](architecture.md) owns the runtime handoff, [Quality Metrics](quality-metrics.md) owns four-state final-data availability, and [Output](output.md) owns the separate machine-publication boundary.
+This section is the current owner for the public typed-provider and `dependencies.get` / `dependencies.list` contract. [Architecture](architecture.md) owns the runtime handoff, [Quality Metrics](quality-metrics.md) owns four-state final-data availability, and [Output](output.md) owns the separate machine-publication boundary.
 
 A TypeScript typed provider is authored through `defineCheck({ execution, parseData })`. Its synchronous
 parser return type is the provider-local data contract: the same type constrains that Check's `passed` and
@@ -138,6 +138,14 @@ facts. A declared `passed` or `failed` dependency returns its status and its can
 `not-applicable` or `unavailable` returns `upstream-data-unavailable` with that status. TypeScript types do
 not grant access: the consumer first performs the string read, narrows its result, and then calls the
 producing Check's parser.
+
+`dependencies.list()` takes no selection input. It returns a frozen array of frozen `{ checkId, outcome }`
+observations for exactly those same normalized effective direct dependency IDs, in their stable normalized ID
+order. Each `outcome` is the complete frozen Core `CheckOutcome`: `passed` and `failed` retain canonical final
+data, while `not-applicable` and `unavailable` retain their original reason. The result includes inherited direct
+IDs, but never ambient executed Checks, transitive dependencies, undeclared IDs, scheduler timing, Records, or a
+way to change upstream execution. A consumer that reads final data from an observation still invokes the producing
+Check's parser, and may only use observations to form that consumer's own I/O, Records, messages and terminal result.
 
 The parser receives the Check-facts-owned canonical runtime object: a detached, deeply frozen object with canonical
 JSON values. It does not receive the author's original object or JSON text. The provider owns business-shape
@@ -258,7 +266,8 @@ selection 在执行前拒绝 unknown、duplicate 或 non-normalized Check ID。�
 每个 callback 恰好收到 `{ dependencies, options, project, records, signal }`。`options` 是 invocation-local canonical
 snapshot 或 preflight prepared/fallback；`project` 只含 normalized root 与 flags；Check-specific 输入、file selection、
 领域 policy 和 cache 仍由 owning Check options 承接。四种 upstream outcome 都完成 dependency ordering；需要数据的
-consumer 通过已声明 direct dependency 的 `dependencies.get` 显式判断可用性。
+consumer 通过已声明 direct dependency 的 `dependencies.get` 显式判断可用性，或用 `dependencies.list()`
+稳定枚举全部已声明 direct outcomes；两者都不授予 transitive、未声明或 scheduler-history access。
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、

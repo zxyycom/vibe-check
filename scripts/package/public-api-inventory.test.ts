@@ -241,3 +241,5 @@ type _UnsupportedCheckDataParser = ProjectModule["CheckDataParser"];
 type _UnsupportedCheckDependencies = ProjectModule["CheckDependencies"];
 // @ts-expect-error DependencyReadResult is supporting syntax, not a named public type root.
 type _UnsupportedDependencyReadResult = ProjectModule["DependencyReadResult"];
+// @ts-expect-error DependencyObservation is supporting syntax, not a named public type root.
+type _UnsupportedDependencyObservation = ProjectModule["DependencyObservation"];

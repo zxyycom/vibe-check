@@ -779,7 +779,11 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
   > = [];
   const result = await check.execution({
     dependencies: {
-      get: (checkId: string) => ({ ok: false, error: { code: "dependency-not-declared", checkId } })
+      get: (checkId: string) => ({
+        ok: false,
+        error: { code: "dependency-not-declared", checkId }
+      }),
+      list: () => Object.freeze([])
     },
     options: check.options ?? {},
     project: {

@@ -177,6 +177,14 @@ export type DependencyReadResult = Readonly<
     }
 >;
 
+/** 当前 Check 的一个已规范化直接 dependency 及其完整终态事实。 */
+export type DependencyObservation = Readonly<{
+  /** 已规范化、稳定排序的 direct dependency ID。 */
+  readonly checkId: string;
+  /** Core 已结算并冻结的四态 outcome。 */
+  readonly outcome: CheckOutcome;
+}>;
+
 /** 当前 Check 的已规范化直接 dependencies 的 data reader。 */
 export interface CheckDependencies {
   /**
@@ -186,6 +194,14 @@ export interface CheckDependencies {
    * `ok: false`，不会授权 transitive dependency。
    */
   get(checkId: string): DependencyReadResult;
+
+  /**
+   * 枚举当前 Check 的全部已规范化 direct dependencies。
+   *
+   * @returns 按有效 dependency ID 稳定排序、深度冻结的 `{ checkId, outcome }` observations；只含当前
+   * Check 显式或继承得到的 direct dependencies，不暴露 scheduler 历史、transitive 或未声明 Check。
+   */
+  list(): readonly DependencyObservation[];
 }
 
 /** callback 可读取的、由 Product 规范化的项目上下文。 */

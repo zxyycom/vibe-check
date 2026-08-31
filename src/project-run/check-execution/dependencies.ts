@@ -1,4 +1,9 @@
-import type { CheckDependencies, CheckOutcome, DependencyReadResult } from "../../check/check.ts";
+import type {
+  CheckDependencies,
+  CheckOutcome,
+  DependencyObservation,
+  DependencyReadResult
+} from "../../check/check.ts";
 import type { CoreCheckSession } from "../../check-settlement/session.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 
@@ -19,7 +24,39 @@ export function createCheckDependencies(
         details: dependencyReadDetails(dependencyId, result)
       });
       return result;
+    },
+    list: (): readonly DependencyObservation[] => {
+      const observations = listDirectDependencyObservations(
+        input.session,
+        input.directDependencyIds
+      );
+      input.diagnosticLogger?.observe({
+        event: "dependency.list",
+        tags: diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION", "DEPENDENCY-LIST"),
+        details: directDependencyListDetails(observations)
+      });
+      return observations;
     }
+  });
+}
+
+function listDirectDependencyObservations(
+  session: CoreCheckSession,
+  directDependencyIds: readonly string[]
+): readonly DependencyObservation[] {
+  return Object.freeze(
+    directDependencyIds.map((checkId) =>
+      Object.freeze({ checkId, outcome: session.readSettledCheckOutcome(checkId) })
+    )
+  );
+}
+
+function directDependencyListDetails(
+  observations: readonly DependencyObservation[]
+): Readonly<Record<string, unknown>> {
+  return Object.freeze({
+    dependencyIds: Object.freeze(observations.map(({ checkId }) => checkId)),
+    count: observations.length
   });
 }
 

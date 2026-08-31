@@ -105,10 +105,15 @@ const firstChangedFilesConsumer = defineCheck({
   displayName: "First changed-files consumer",
   dependsOn: [changedFiles.checkId],
   execution: ({ dependencies }) => {
-    const read = dependencies.get(changedFiles.checkId);
-    if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
-    const parsedChangedFiles = changedFiles.parseData(read.data);
-    return { status: read.status, data: { fileCount: parsedChangedFiles.files.length } };
+    const observation = dependencies.list().find(({ checkId }) => checkId === changedFiles.checkId);
+    if (
+      observation === undefined ||
+      (observation.outcome.status !== "passed" && observation.outcome.status !== "failed")
+    ) {
+      return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
+    }
+    const parsedChangedFiles = changedFiles.parseData(observation.outcome.data);
+    return { status: observation.outcome.status, data: { fileCount: parsedChangedFiles.files.length } };
   }
 });
 

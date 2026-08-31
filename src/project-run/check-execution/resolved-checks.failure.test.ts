@@ -228,6 +228,9 @@ async function assertTrustedInvariantFaultEscapes(): Promise<void> {
   const throwingDependencies: CheckDependencies = Object.freeze({
     get: () => {
       throw trustedFailure;
+    },
+    list: () => {
+      throw trustedFailure;
     }
   });
   await assert.rejects(

@@ -40,7 +40,7 @@ Entities:
   Proves:
 
 - The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver operations, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason type roots.
-- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; the deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; it can enumerate its declared direct dependency outcomes through the callback-local `dependencies.list()` surface and still uses the producing parser for final data. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 

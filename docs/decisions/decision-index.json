@@ -52,6 +52,7 @@
       "drive-run-from-check-owned-inputs-and-explicit-providers.md": "sha256:504d28792a65a179cae6dadb5dfc4eb60e5c8ecc21310d4ba311658169bbe9d8",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
+      "enumerate-normalized-direct-dependency-outcomes.md": "sha256:9d9e48c67add48999a1d98e1e874a84bc488bdcac3d8aab63e8836f16a55054d",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
@@ -135,7 +136,7 @@
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
       "publish-user-scoped-vibe-check-publicly.md": "sha256:e27ee857bfd31ac3c25a12f2d0c264a2762cbb045974ed6c56d9d9c5b9e6bc39",
       "rate-limit-non-force-main-auto-push-after-commit.md": "sha256:39f730309a2843c029911c8c06127ba628603e5618920f922f81ec00941046e9",
-      "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
+      "read-direct-dependency-final-data-by-string.md": "sha256:80c15df161b683b4dfd6cf4dc4e09514935aaf86d7b0589224baff0db8aa315d",
       "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:bff18bd78ea8bf7692235dc0725ca5869ea07cdb41f6a94b207d9c47e19c0ed8",
       "reconcile-selected-files-with-check-eligibility.md": "sha256:96f45700240c9a71057e555a3768230996afcbf86f40b22179cdd3fd3887d971",
       "record-paused-change-state-in-artifacts.md": "sha256:f6d12ad722ca87b3a89efbe16817178fe7cf0c5bdf84400e890f251c0812ed33",
@@ -1720,6 +1721,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "enumerate-normalized-direct-dependency-outcomes.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "enumerate-normalized-direct-dependency-outcomes.md",
+        "title": "枚举已规范化的直接 dependency outcomes",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T15:38:59Z",
+        "purpose": "让 downstream Check 能稳定批量读取全部已声明直接上游终态，而不依赖调度历史。",
+        "background": "string getter 只能读取一个指定 direct dependency，消费者仍要复制自己的静态 ID 列表。",
+        "decision": "在同一 direct-edge 授权边界提供稳定 outcome 列表，不提供全局 registry 或上游控制能力。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "read-direct-dependency-final-data-by-string.md"
+          }
+        ]
       }
     },
     "evaluate-decision-policies-from-core-facts.md": {
@@ -4316,16 +4351,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "read-direct-dependency-final-data-by-string.md",
+        "sourcePath": "archive/read-direct-dependency-final-data-by-string.md",
         "title": "用 string getter 读取 direct dependency final data",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-23T11:13:59Z",
         "purpose": "让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。",

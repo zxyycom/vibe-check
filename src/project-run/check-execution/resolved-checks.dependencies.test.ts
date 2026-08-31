@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { CheckResult, DependencyReadResult } from "../../check/check.ts";
+import type {
+  CheckResult,
+  DependencyObservation,
+  DependencyReadResult
+} from "../../check/check.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
@@ -11,11 +15,17 @@ import {
   outcomeFor,
   recordingLogger
 } from "./resolved-checks.test-support.ts";
+import {
+  assertDirectDependencyLists,
+  assertEmptyDependencyList
+} from "./resolved-checks.dependencies.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
   it("admits all settled dependency outcomes and limits reads to direct dependencies", async () => {
     await assertSettledDependencyReads();
     await assertDirectDependencyReads();
+    await assertDirectDependencyLists();
+    await assertEmptyDependencyList();
   });
 
   async function assertSettledDependencyReads(): Promise<void> {
@@ -125,6 +135,7 @@ describe("Package Run direct Check execution", () => {
 
   async function assertDirectDependencyReads(): Promise<void> {
     let directRead: DependencyReadResult | undefined;
+    let directList: readonly DependencyObservation[] | undefined;
     let transitiveRead: DependencyReadResult | undefined;
     let malformedRead: unknown;
     const observations: DiagnosticObservation[] = [];
@@ -143,6 +154,7 @@ describe("Package Run direct Check execution", () => {
           (context) => {
             const { dependencies } = context;
             directRead = dependencies.get("middle");
+            directList = dependencies.list();
             transitiveRead = dependencies.get("source");
             malformedRead = Reflect.apply(
               (checkId: string) => dependencies.get(checkId),
@@ -179,6 +191,9 @@ describe("Package Run direct Check execution", () => {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "source" }
     });
+    assert.deepEqual(directList, [
+      { checkId: "middle", outcome: { status: "passed", data: { middle: true } } }
+    ]);
     assert.deepEqual(malformedRead, {
       ok: false,
       error: { code: "dependency-not-declared", checkId: "" }

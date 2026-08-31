@@ -25,7 +25,11 @@ const DEFAULT_FILES = Object.freeze({
 const DEFAULT_OPTIONS = Object.freeze({ maximumBytes: 1_048_576 });
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
   get: (checkId: string) =>
-    Object.freeze({ ok: false, error: Object.freeze({ code: "dependency-not-declared", checkId }) })
+    Object.freeze({
+      ok: false,
+      error: Object.freeze({ code: "dependency-not-declared", checkId })
+    }),
+  list: () => Object.freeze([])
 });
 
 interface ObservedRecord {

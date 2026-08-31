@@ -1,6 +1,6 @@
 ---
 title: 用 string getter 读取 direct dependency final data
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-23T11:13:59Z
 purpose: 让 downstream Check 安全复用 upstream canonical final data，而不建立第二事实源。

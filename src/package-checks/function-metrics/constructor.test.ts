@@ -29,7 +29,8 @@ const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
     Object.freeze({
       ok: false,
       error: Object.freeze({ code: "dependency-not-declared", checkId })
-    })
+    }),
+  list: () => Object.freeze([])
 });
 
 function project(root: string): CheckProjectContext {

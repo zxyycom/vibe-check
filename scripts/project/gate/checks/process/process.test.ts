@@ -84,7 +84,8 @@ describe("Project Gate process Check", () => {
       if (execution === undefined) throw new Error("provider fixture must be executable");
       const result = await execution({
         dependencies: {
-          get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+          get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
+          list: () => Object.freeze([])
         },
         options: check.options ?? {},
         project: { flags: [], root: process.cwd() },
@@ -106,7 +107,8 @@ describe("Project Gate process Check", () => {
       assert.deepEqual(
         await execution({
           dependencies: {
-            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
+            list: () => Object.freeze([])
           },
           options: check.options ?? {},
           project: { flags: [], root: process.cwd() },
@@ -132,7 +134,8 @@ describe("Project Gate process Check", () => {
       assert.deepEqual(
         await execution({
           dependencies: {
-            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } })
+            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
+            list: () => Object.freeze([])
           },
           options: check.options ?? {},
           project: { flags: [], root: process.cwd() },
@@ -252,7 +255,7 @@ describe("Project Gate process Check", () => {
       if (execution === undefined) throw new Error("dependent fixture Check must be executable");
       const invokeDependency = (get: Parameters<typeof execution>[0]["dependencies"]["get"]) =>
         execution({
-          dependencies: { get },
+          dependencies: { get, list: () => Object.freeze([]) },
           options: check.options ?? {},
           project: { flags: [], root: process.cwd() },
           records: { report: () => undefined },
@@ -687,7 +690,8 @@ async function invoke(
         Object.freeze({
           ok: false,
           error: Object.freeze({ code: "dependency-not-declared", checkId })
-        })
+        }),
+      list: () => Object.freeze([])
     }),
     options: check.options ?? {},
     project: {

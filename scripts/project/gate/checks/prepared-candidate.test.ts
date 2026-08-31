@@ -144,7 +144,8 @@ async function invokeCheck(
       get: (checkId) => ({
         ok: false,
         error: { code: "dependency-not-declared", checkId }
-      })
+      }),
+      list: () => Object.freeze([])
     },
     options: {},
     project: { flags: [], root: process.cwd() },

@@ -147,7 +147,7 @@ finding disposition 和 waiver audit；它不发布 Record、message 或 termina
 
 ## 类型化依赖数据
 
-producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取 canonical data、收窄 `ok`，最后调用 producer 的 parser。
+producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取一个 canonical data、收窄 `ok`，最后调用 producer 的 parser。
 
 ### 完整运行示例
 
@@ -209,6 +209,46 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 ```
 
 dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。七个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
+
+### 批量审计 direct outcomes
+
+当 consumer 需要批量审计自己的全部 direct upstream outcomes，而不是读取一个指定 provider 时，使用
+`dependencies.list()`。它没有参数，返回按 normalized effective direct dependency ID 的稳定顺序排列的冻结
+`{ checkId, outcome }[]`；每项及其 Core-owned `outcome` 都是冻结的完整四态 `CheckOutcome`。因此
+`not-applicable` 和 `unavailable` 是正常的可观察 terminal facts，不是 `get` 的 read error；继承得到的
+direct dependency 也在列表中。列表不读取 ambient executed Checks、scheduler history、transitive 或 undeclared Checks。
+以下 Check 只能据此形成自己的 summary、I/O、Records、messages 和 terminal result，不能修改、取消、重跑或重结算 producer：
+
+```ts
+const auditChangedFiles = defineCheck({
+  checkId: "audit-changed-files",
+  displayName: "Audit changed files",
+  dependsOn: [changedFiles.checkId, analyzeChangedFiles.checkId],
+  execution({ dependencies }) {
+    const observations = dependencies.list();
+    const readable = observations.filter(
+      ({ outcome }) => outcome.status === "passed" || outcome.status === "failed"
+    );
+    const changedFilesObservation = readable.find(
+      ({ checkId }) => checkId === changedFiles.checkId
+    );
+    if (changedFilesObservation === undefined) {
+      return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
+    }
+
+    const data = changedFiles.parseData(changedFilesObservation.outcome.data);
+    return {
+      status: "passed",
+      data: { directDependencyCount: observations.length, changedFileCount: data.files.length }
+    };
+  }
+});
+```
+
+`list()` observations preserve Core-owned frozen outcomes. `passed` / `failed` data must still be passed to
+the producer parser; `not-applicable` / `unavailable` keep their original reason. The owning consumer may
+only use the observations for its own I/O, Records, messages and terminal result; it cannot write back to
+upstream facts.
 
 ## RunControls 与 Check aggregation
 

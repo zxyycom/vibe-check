@@ -113,7 +113,7 @@ Entities:
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > keeps dependent admission after local not-applicable`
 - `bun|src/project-run/check-execution/resolved-checks.dependencies.test.ts|Package Run direct Check execution > admits all settled dependency outcomes and limits reads to direct dependencies`
   Proves:
-- Direct executable Checks use the shared dependency graph. Every settled upstream outcome admits a dependent; its frozen callback-local string getter returns canonical final data only for an effective direct passed/failed dependency, or one of the two closed read failures without exposing undeclared or transitive facts.
+- Direct executable Checks use the shared dependency graph. Every settled upstream outcome admits a dependent; its frozen callback-local string getter returns canonical final data only for an effective direct passed/failed dependency, or one of the two closed read failures without exposing undeclared or transitive facts. Its zero-argument list reader returns only normalized effective direct IDs (including inherited IDs), in their stable order, with frozen Core four-state outcomes; empty, ambient, transitive and scheduler-history views are excluded.
 - A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped. Cancellation-before-start and generic Task failures remain separate lifecycle/engine boundaries.
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts

@@ -79,7 +79,8 @@ describe("maintenance reminders", () => {
       controller.abort();
       const context: CheckExecutionContext<MaintenanceReminderOptions> = {
         dependencies: {
-          get: () => ({ ok: false, error: { code: "dependency-not-declared", checkId: "" } })
+          get: () => ({ ok: false, error: { code: "dependency-not-declared", checkId: "" } }),
+          list: () => Object.freeze([])
         },
         options: check.options,
         project: {
