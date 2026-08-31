@@ -10,7 +10,7 @@ import {
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
-import { createProjectGateDefinition, createProjectGateEntries } from "../definition.ts";
+import { afterGate, createProjectGateDefinition, createProjectGateEntries } from "../definition.ts";
 import { createExternalConsumerMaterialLease } from "../checks/external-consumer-material.ts";
 import type { ProjectGateEntry } from "./entries.ts";
 import { projectGateEligibleCheckIds } from "./eligibility.ts";
@@ -28,7 +28,7 @@ export type ProjectGateRunControls = Readonly<
 >;
 
 /** Binds one fresh project Definition to one adapter-owned invocation log root. */
-export async function runProjectGate(controls: ProjectGateRunControls): Promise<RunResult> {
+export async function run(controls: ProjectGateRunControls): Promise<RunResult> {
   const selection = selectionFromFlags(controls.flags ?? []);
   if (selection === undefined)
     throw new TypeError("Project Gate controls failed closed validation");
@@ -51,6 +51,9 @@ export async function runProjectGate(controls: ProjectGateRunControls): Promise<
     externalConsumerLease.cleanup();
   }
 }
+
+/** Projects central post-processing configuration with this candidate-bound Run. */
+export { afterGate };
 
 /** Publishes standard machine facts beside the Gate diagnostic log for this invocation. */
 export function projectGateOutputOverrides(invocationLogDirectory: string) {

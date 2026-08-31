@@ -7,9 +7,17 @@ import { fileURLToPath } from "node:url";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import { projectGateOutputOverrides } from "./bound-run.ts";
+import { afterGate as definitionAfterGate } from "../definition.ts";
+import { afterGate, projectGateOutputOverrides, run as runProjectGate } from "./bound-run.ts";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
+
+// Keep the test-name literal on its registration line so Test Evidence locations agree.
+// prettier-ignore
+it("projects the central afterGate configuration with candidate-bound run", () => {
+  assert.equal(afterGate, definitionAfterGate);
+  assert.equal(typeof runProjectGate, "function");
+});
 
 // Keep the test-name literal on its registration line so Test Evidence locations agree.
 // prettier-ignore

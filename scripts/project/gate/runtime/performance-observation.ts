@@ -1,4 +1,4 @@
-import type { ProjectGateContext } from "../run.ts";
+import type { ProjectGateContext } from "./after-gate.ts";
 import { isNonArrayRecord } from "../../../value-guards.ts";
 import {
   createProjectGateResult,

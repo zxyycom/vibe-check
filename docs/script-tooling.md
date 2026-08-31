@@ -168,7 +168,7 @@ scripts/project/gate/
 └── runtime/             # bound Run、selection、aggregation、result 与 transcript mechanics
 ```
 
-`definition.ts` 是阅读完整 Gate 配置的入口：普通 process Check 在此显式声明，全部 test Check 由同文件中的闭合表声明，四个 repository-quality Check 的 file selection、area、阈值、waiver 与 finding policy 也在同文件声明。`checks/**` 只实现这些声明所需的 adapter；`runtime/**` 不另行拥有 Check membership 或 quality policy。
+`definition.ts` 是阅读完整 Gate 配置的入口：普通 process Check 在此显式声明，全部 test Check 由同文件中的闭合表声明，四个 repository-quality Check 的 file selection、area、阈值、waiver 与 finding policy 也在同文件声明；唯一 project-owned `afterGate` 也在这里配置。`checks/**` 只实现这些声明所需的 adapter；`runtime/**` 不另行拥有 Check membership、quality policy 或第二个 Hook 配置面。
 
 一次运行先解析参数并准备 exact local candidate，或在 full profile 下重验显式 release receipt；之后才动态导入 `runtime/bound-run.ts`。这个分层不是第二个运行入口：`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的 package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入 package implementation 会绕过这个 candidate 边界，因此不允许。
 
@@ -213,7 +213,9 @@ Check message 和 failure Record 只引用 invocation-relative transcript path�
 
 ### Gate result post-processing and exits
 
-`runtime/bound-run.ts` 把 `definition.ts` 的 entries、selection、aggregation 与本次 output directory 绑定到一次 Product Run。Run 完成后，`run.ts` 从同一个 RunResult 形成初步 Gate result，再调用唯一 `afterGate` hook。默认 hook 只添加 elapsed/per-phase performance observation；只有 workload identity 与 checked-in baseline 匹配时才比较，其结果是 advisory，不能修改 Check facts、aggregate 或 process exit。
+`runtime/bound-run.ts` 只在 exact candidate 准备后由 `run.ts` 动态加载；它投影 `resolvedEntryPath`、Product `run` 与 `definition.ts` 配置的唯一 `afterGate`。`run.ts` 必须先验证该 entry 等于 prepared candidate 的 exact entry，随后才运行 Product Run、从同一个 RunResult 形成初步 Gate result，并调用该 Hook。默认 Hook 显式调用 elapsed/per-phase performance observer；只有 workload identity 与 checked-in baseline 匹配时才比较，其结果是 advisory，不能修改 Check facts、aggregate 或 process exit。
+
+`afterGate` 是 result post-processing，不是 Check `preflight`：后者是 Product Run 内每项 Check 在 execution 前的 options 准备边界，而前者只在整个 candidate-backed Run 已形成初步 Gate result 后执行。Hook 是受信任的项目 JavaScript/Bun 代码，可同步或异步执行项目授权范围内的工作；它不是 package API、plugin、sandbox 或 registry，也没有 `beforeGate` 对应物。正式配置只在 `definition.ts`，`run.ts` 的 loader、clock 与 transcript injection 仅为 adapter 测试 seam，不能用作另一配置入口。
 
 Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 RunResult；抛错或返回非法 shape 时 fail closed 为 `unavailable`。最终 `passed`、`failed`、`unavailable` 分别映射 exit `0`、`1`、`2`。参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时也映射为 `2`。
 

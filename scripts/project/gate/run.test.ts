@@ -1,8 +1,19 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import { dirname, relative, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync
+} from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, relative, resolve } from "node:path";
 import { describe, it } from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
@@ -31,7 +42,7 @@ import {
 } from "./runtime/result.ts";
 import type { ProjectGatePerformanceBaseline } from "./runtime/performance-baseline.ts";
 import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
-import { createProjectGateEntries } from "./definition.ts";
+import { afterGate as defaultAfterGate, createProjectGateEntries } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import type { ProjectGateTranscriptCompletion } from "./runtime/transcript.ts";
 
@@ -339,6 +350,54 @@ describe("Project Gate adapter closure", () => {
     assert.equal(loaded, false);
   });
 
+  it("loads no Definition or package runtime before candidate preparation", () => {
+    const sandboxRoot = mkdtempSync(join(tmpdir(), "vibe-check-gate-import-boundary-"));
+    try {
+      const sandboxScripts = join(sandboxRoot, "scripts");
+      const sandboxGate = join(sandboxScripts, "project", "gate");
+      mkdirSync(dirname(sandboxGate), { recursive: true });
+      cpSync(join(repositoryRoot, "scripts", "project", "gate"), sandboxGate, {
+        recursive: true
+      });
+      // A root static or indirect Definition import must fail before preparation.
+      writeFileSync(
+        join(sandboxGate, "definition.ts"),
+        'throw new Error("Definition loaded before candidate preparation");\n',
+        "utf8"
+      );
+      // There is deliberately no scripts/project/node_modules candidate in this sandbox.
+      symlinkSync(join(repositoryRoot, "scripts", "package"), join(sandboxScripts, "package"));
+      symlinkSync(
+        join(repositoryRoot, "scripts", "error-message.ts"),
+        join(sandboxScripts, "error-message.ts")
+      );
+      symlinkSync(
+        join(repositoryRoot, "scripts", "value-guards.ts"),
+        join(sandboxScripts, "value-guards.ts")
+      );
+
+      const probe = spawnSync(
+        process.execPath,
+        [
+          fileURLToPath(new URL("./runtime/root-import-boundary.test-support.ts", import.meta.url)),
+          pathToFileURL(join(sandboxGate, "run.ts")).href
+        ],
+        {
+          cwd: sandboxRoot,
+          encoding: "utf8"
+        }
+      );
+
+      assert.equal(
+        probe.status,
+        0,
+        `isolated root import probe failed:\nstdout:\n${processOutput(probe.stdout)}\nstderr:\n${processOutput(probe.stderr)}`
+      );
+    } finally {
+      rmSync(sandboxRoot, { force: true, recursive: true });
+    }
+  });
+
   it("uses explicit formal receipt preparation without invoking local candidate preparation", async () => {
     let localPreparationStarted = false;
     let observedReceiptPath: string | undefined;
@@ -354,7 +413,8 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-release",
         loadRunModule: async () => ({
           resolvedEntryPath: preparedRelease.resolvedEntryPath,
-          runProjectGate: async ({ preparedCandidate }) => {
+          afterGate: defaultAfterGate,
+          run: async ({ preparedCandidate }) => {
             observedCandidate = preparedCandidate;
             return completedResult("passed");
           }
@@ -376,8 +436,9 @@ describe("Project Gate adapter closure", () => {
     assert.equal(observedCandidate, preparedRelease);
   });
 
-  it("rejects an imported entry that differs from the prepared candidate before log/run", async () => {
+  it("rejects an imported entry that differs from the prepared candidate before run or afterGate", async () => {
     let createdLogs = false;
+    let afterGateRan = false;
     let ran = false;
     const status = await runProjectGateWithoutTranscript([], {
       createInvocationLogDirectory: (): string => {
@@ -386,7 +447,11 @@ describe("Project Gate adapter closure", () => {
       },
       loadRunModule: async () => ({
         resolvedEntryPath: "/tmp/other/index.mjs",
-        runProjectGate: async () => {
+        afterGate: () => {
+          afterGateRan = true;
+          return createProjectGateResult("passed");
+        },
+        run: async () => {
           ran = true;
           return completedResult("passed");
         }
@@ -396,6 +461,7 @@ describe("Project Gate adapter closure", () => {
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
     assert.equal(createdLogs, false);
+    assert.equal(afterGateRan, false);
     assert.equal(ran, false);
   });
 
@@ -407,7 +473,8 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-transcript-setup-failure",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => {
+          afterGate: defaultAfterGate,
+          run: async () => {
             ran = true;
             return completedResult("passed");
           }
@@ -464,7 +531,8 @@ describe("Project Gate adapter closure", () => {
           loaded += 1;
           return {
             resolvedEntryPath: prepared.resolvedEntryPath,
-            runProjectGate: async (input) => {
+            afterGate: defaultAfterGate,
+            run: async (input) => {
               ran += 1;
               runInput = input;
               return complete;
@@ -516,21 +584,6 @@ describe("Project Gate adapter closure", () => {
     const output = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {
-        afterGate: (initial, context) => {
-          observedInitial = initial;
-          observedContext = context;
-          assert.equal(Object.isFrozen(initial), true);
-          assert.equal(Object.isFrozen(initial.messages), true);
-          assert.equal(Object.isFrozen(context), true);
-          assert.equal(Object.isFrozen(context.timing), true);
-          return createProjectGateResult("failed", [
-            {
-              code: "fixture-post-processing",
-              level: "warning",
-              message: "Fixture post-processing rejected the initial result"
-            }
-          ]);
-        },
         clock: {
           now: () => {
             const value = clockValues.shift();
@@ -541,7 +594,23 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => runResult
+          afterGate: async (initial, context) => {
+            await Promise.resolve();
+            observedInitial = initial;
+            observedContext = context;
+            assert.equal(Object.isFrozen(initial), true);
+            assert.equal(Object.isFrozen(initial.messages), true);
+            assert.equal(Object.isFrozen(context), true);
+            assert.equal(Object.isFrozen(context.timing), true);
+            return createProjectGateResult("failed", [
+              {
+                code: "fixture-post-processing",
+                level: "warning",
+                message: "Fixture post-processing rejected the initial result"
+              }
+            ]);
+          },
+          run: async () => runResult
         }),
         prepareCandidate: async () => prepared,
         startTranscript: (invocationLogDirectory) => {
@@ -604,7 +673,8 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-transcript-failure",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => completedResult("passed")
+          afterGate: defaultAfterGate,
+          run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared,
         startTranscript: () =>
@@ -648,7 +718,8 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-default-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => runResult
+          afterGate: defaultAfterGate,
+          run: async () => runResult
         }),
         prepareCandidate: async () => prepared
       });
@@ -665,18 +736,18 @@ describe("Project Gate adapter closure", () => {
     const warningOutput = captureConsole();
     try {
       const warningStatus = await runProjectGateWithoutTranscript([], {
-        afterGate: (initial, context) =>
-          observeProjectGatePerformance(
-            initial,
-            context,
-            [performanceBaseline],
-            performanceRuntime
-          ),
         clock: scriptedClock([100, 120, 150, 236]),
         createInvocationLogDirectory: () => "/tmp/project-gate-warning-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => runResult
+          afterGate: (initial, context) =>
+            observeProjectGatePerformance(
+              initial,
+              context,
+              [performanceBaseline],
+              performanceRuntime
+            ),
+          run: async () => runResult
         }),
         prepareCandidate: async () => prepared
       });
@@ -697,7 +768,8 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-invalid-timing",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => completedResult("passed")
+          afterGate: defaultAfterGate,
+          run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared
       });
@@ -717,13 +789,13 @@ describe("Project Gate adapter closure", () => {
     const output = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {
-        afterGate: () => {
-          throw new Error("fixture afterGate failure");
-        },
         createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => completedResult("passed")
+          afterGate: () => {
+            throw new Error("fixture afterGate failure");
+          },
+          run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared
       });
@@ -743,11 +815,11 @@ describe("Project Gate adapter closure", () => {
     const output = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {
-        afterGate: () => ({ ...createProjectGateResult("passed"), unexpected: true }),
         createInvocationLogDirectory: () => "/tmp/project-gate-after-gate",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          runProjectGate: async () => completedResult("passed")
+          afterGate: () => ({ ...createProjectGateResult("passed"), unexpected: true }),
+          run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared
       });
@@ -867,4 +939,8 @@ function scriptedClock(values: readonly number[]): Readonly<{ now(): number }> {
       return value;
     }
   });
+}
+
+function processOutput(value: string | Buffer | null): string {
+  return typeof value === "string" ? value : (value?.toString() ?? "");
 }

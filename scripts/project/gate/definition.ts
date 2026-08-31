@@ -6,7 +6,9 @@ import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
 import { defineConfig, type ProjectDefinition } from "@zxyycom/vibe-check";
 
+import type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
 import type { ProjectGateSelection } from "./runtime/controls.ts";
+import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
 import { createDecisionRecordsCheck } from "./checks/decision-records.ts";
 import { createDocsValidationCheck } from "./checks/docs-validation.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
@@ -76,6 +78,18 @@ const repositoryFunctionLimits = {
   cyclomaticComplexity: { maximum: 10 },
   parameters: { maximum: 5 }
 } as const;
+
+/**
+ * Project-owned post-processing run after one candidate-backed Product result.
+ *
+ * This is trusted repository code: it may use normal Bun/JavaScript capabilities,
+ * must return the only final Gate result, and may be synchronous or asynchronous.
+ */
+export type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
+
+/** Default Gate post-processing keeps performance observation explicit in central configuration. */
+export const afterGate: ProjectGateAfterHook = (initialResult, context) =>
+  observeProjectGatePerformance(initialResult, context);
 
 /** Complete repository-quality policy owned by this Gate Definition. */
 export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {

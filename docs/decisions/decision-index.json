@@ -22,7 +22,8 @@
       "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
-      "centralize-project-gate-definition-and-separate-adapters.md": "sha256:2bba2881d18d1e523b6f4a28c23b76a42d7cfacb8c95cca1f240663a4ed626ff",
+      "centralize-project-gate-after-hook-configuration.md": "sha256:20bd7f463dc8863a31d58caeb4885725cca404aeda5dd60de26b12d9cb9fcad5",
+      "centralize-project-gate-definition-and-separate-adapters.md": "sha256:3342a6f2f6ef0023573441fc21d705e066a66721dbce40d9c80bc5612c32438b",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
       "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
@@ -789,7 +790,7 @@
         ]
       }
     },
-    "centralize-project-gate-definition-and-separate-adapters.md": {
+    "centralize-project-gate-after-hook-configuration.md": {
       "keys": {
         "tag": [
           "configuration",
@@ -803,9 +804,43 @@
         ]
       },
       "state": {
-        "sourcePath": "centralize-project-gate-definition-and-separate-adapters.md",
-        "title": "集中 Project Gate 定义并分离 adapter 与 runtime",
+        "sourcePath": "centralize-project-gate-after-hook-configuration.md",
+        "title": "由中央 Definition 配置 Project Gate afterGate",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T16:03:14Z",
+        "purpose": "让维护者从 Gate 的中央 Definition 直接发现并维护唯一项目自有的结果后处理配置，同时保持 exact candidate 边界。",
+        "background": "既有中央 Definition 拥有 Check 配置，但 afterGate 仍隐藏在 run.ts 默认 steps，配置入口与 candidate-bound 执行顺序分离。",
+        "decision": "唯一 afterGate 由 definition.ts 配置并经动态 bound module 投影；run.ts 验证 entry 后执行并保持 fail-closed 结果与 exit。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "centralize-project-gate-definition-and-separate-adapters.md"
+          }
+        ]
+      }
+    },
+    "centralize-project-gate-definition-and-separate-adapters.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/centralize-project-gate-definition-and-separate-adapters.md",
+        "title": "集中 Project Gate 定义并分离 adapter 与 runtime",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T07:49:37Z",
         "purpose": "让维护者从一个定义文件恢复完整 Gate 配置，同时让运行入口、Check adapter 与 bound runtime 的目录职责清晰可见。",

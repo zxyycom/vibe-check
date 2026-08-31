@@ -279,13 +279,14 @@ Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > returns help before candidate or log work`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > loads no Definition or package runtime before candidate preparation`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before run or afterGate`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
 
-- `--help`、preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；help 与 mismatch 也在 invocation log 创建前停止，help 还不会准备或导入 candidate。
+- 隔离 child process 在没有 candidate package 的 project root 中加载真实 root adapter，并以会 throw 的本地 Definition 替身取代 Definition；它证明 candidate preparation 前不会直接或间接加载 package public runtime 或 Definition。`--help`、preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 与 definition-owned `afterGate` 前停止；help 与 mismatch 也在 invocation log 创建前停止，help 还不会准备或导入 candidate。
 - 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。Formal mode 只调用 receipt preparer 并把其 exact installed artifact 交给 Run，不调用或回退到 local fingerprint preparer。
 - 初步 Gate 结果要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 形成 failed，non-completed 或 malformed result 形成 unavailable。adapter 不遍历 snapshot 重建 aggregate。
 
@@ -294,12 +295,13 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
+- `bun|scripts/project/gate/runtime/bound-run.test.ts|projects the central afterGate configuration with candidate-bound run`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when afterGate throws`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when afterGate returns an invalid result`
   Proves:
 
-- `afterGate` 在 bound Run 返回和初步 Gate 结果形成后执行一次，接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp、总 `elapsed-to-initial-result` 与 candidate preparation / adapter-setup / Product Run 三个连续 phase 的只读 Gate context；它可用同类型新结果决定唯一终端状态与 exit。
+- candidate-bound module 从中央 `definition.ts` 投影唯一 `afterGate` 与 Product `run`；entry identity 验证后，Hook 在 bound Run 返回并形成初步 Gate 结果后执行一次。它可以同步或异步接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp、总 `elapsed-to-initial-result` 与 candidate preparation / adapter-setup / Product Run 三个连续 phase 的只读 Gate context，并以同类型新结果决定唯一终端状态与 exit。
 - Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 只能形成不可比较 observation，不能被归一化为 0ms 后进入 baseline comparison。
 - Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
@@ -314,7 +316,7 @@ Entities:
 
 - Gate-owned observer 每次形成单条 `elapsed-to-initial-result` observation，并显示 candidate preparation、adapter/setup 与 Product Run phase：没有同一标准 workload baseline、tag override、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
 - 可比较的标准 workload 以总 `elapsed-to-initial-result` 在 threshold 内形成 info，超界只形成一条含总值、三段 phase、threshold 和至多三个最慢 Check 的 warning；两种 observation 都保留初步 Gate status、既有消息和 process exit，不能成为第二个硬性能预算。
-- 默认 `afterGate` 实际调用 observer；测试可替换该 step 注入 fixture baseline。正式 baseline 已记录标准 required/full 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
+- `definition.ts` 的默认 `afterGate` 实际调用 observer；adapter 测试可通过 loader seam 提供 fixture Hook，但该 seam 不构成配置入口。正式 baseline 已记录标准 required/full 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

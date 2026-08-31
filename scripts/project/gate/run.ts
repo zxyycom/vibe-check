@@ -28,12 +28,13 @@ import {
   type ProjectGateMessage,
   type ProjectGateResult
 } from "./runtime/result.ts";
-import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
 import { startProjectGateTranscript, type ProjectGateTranscript } from "./runtime/transcript.ts";
+import type { ProjectGateAfterHook, ProjectGateContext } from "./runtime/after-gate.ts";
 
 interface GateRunModule {
+  readonly afterGate: ProjectGateAfterHook;
   readonly resolvedEntryPath: string;
-  runProjectGate(input: {
+  run(input: {
     readonly flags: readonly string[];
     readonly invocationLogDirectory: string;
     readonly preparedCandidate: PreparedPackageCandidate;
@@ -41,7 +42,6 @@ interface GateRunModule {
 }
 
 interface ProjectGateSteps {
-  readonly afterGate: ProjectGateAfterHook;
   readonly clock: ProjectGateClock;
   readonly createInvocationLogDirectory: () => string;
   readonly loadRunModule: () => Promise<GateRunModule>;
@@ -50,28 +50,7 @@ interface ProjectGateSteps {
   readonly startTranscript: typeof startProjectGateTranscript;
 }
 
-export interface ProjectGateContext {
-  readonly invocationLogDirectory: string;
-  readonly preparedCandidate: PreparedPackageCandidate;
-  readonly repositoryRoot: string;
-  readonly runResult: unknown;
-  readonly selection: ProjectGateSelection;
-  readonly timing: ProjectGateTiming;
-}
-
-export interface ProjectGateTiming {
-  readonly adapterSetupMs: number;
-  readonly candidatePreparationMs: number;
-  readonly elapsedToInitialResultMs: number;
-  readonly initialResultAtMs: number;
-  readonly productRunMs: number;
-  readonly startedAtMs: number;
-}
-
-export type ProjectGateAfterHook = (
-  result: ProjectGateResult,
-  context: ProjectGateContext
-) => ProjectGateResult | Promise<ProjectGateResult>;
+export type { ProjectGateContext, ProjectGateTiming } from "./runtime/after-gate.ts";
 
 interface ProjectGateClock {
   now(): number;
@@ -84,7 +63,6 @@ const SYSTEM_PROJECT_GATE_CLOCK: ProjectGateClock = Object.freeze({
 const PROJECT_GATE_REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 const defaultSteps: ProjectGateSteps = Object.freeze({
-  afterGate: observeProjectGatePerformance,
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./runtime/bound-run.ts"),
@@ -169,7 +147,7 @@ export async function runProjectGate(
     console.log(
       "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
     );
-    const runResult = await runModule.runProjectGate({
+    const runResult = await runModule.run({
       flags: selectionFlags(parsed.selection),
       invocationLogDirectory,
       preparedCandidate: prepared
@@ -186,7 +164,7 @@ export async function runProjectGate(
       startedAtMs: gateStartedAtMs,
       productRunStartedAtMs
     });
-    finalResult = await applyAfterGate(steps.afterGate, initialResult, context);
+    finalResult = await applyAfterGate(runModule.afterGate, initialResult, context);
     reportProjectGateMessages(finalResult.messages);
   } catch (error: unknown) {
     finalResult = createProjectGateResult("unavailable");

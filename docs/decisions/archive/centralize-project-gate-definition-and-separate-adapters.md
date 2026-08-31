@@ -1,6 +1,6 @@
 ---
 title: 集中 Project Gate 定义并分离 adapter 与 runtime
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T07:49:37Z
 purpose: 让维护者从一个定义文件恢复完整 Gate 配置，同时让运行入口、Check adapter 与 bound runtime 的目录职责清晰可见。
