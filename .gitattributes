@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# Exclude embedded skill implementations and archived evidence from GitHub language statistics.
+.codex/skills/**/scripts/** -linguist-detectable
+changes/archive/**/evidence/** -linguist-detectable
