@@ -42,7 +42,7 @@ describe("formal package release", () => {
       const artifact = {
         artifactPath: paths.artifactPath,
         candidateVersion: "0.0.1",
-        files: ["package/index.mjs"],
+        files: ["package/LICENSE", "package/index.mjs"],
         inputFingerprint: "a".repeat(64),
         sha256: sha256File(paths.artifactPath),
         stagingDirectory: paths.stagingDirectory
@@ -70,6 +70,10 @@ describe("formal package release", () => {
       const duplicatedInventory = mutableReceipt(receipt);
       duplicatedInventory.artifact.files = ["package/index.mjs", "package/index.mjs"];
       assert.throws(() => parseFormalReleaseReceipt(duplicatedInventory), /artifact identity/);
+
+      const reorderedInventory = mutableReceipt(receipt);
+      reorderedInventory.artifact.files = ["package/index.mjs", "package/LICENSE"];
+      assert.throws(() => parseFormalReleaseReceipt(reorderedInventory), /artifact identity/);
 
       const wrongContract = mutableReceipt(receipt);
       wrongContract.contract.bunEngine = ">=1.0.0";

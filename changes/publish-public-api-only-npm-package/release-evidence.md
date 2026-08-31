@@ -49,6 +49,8 @@
 
 The latest readiness Gate passed 36/36 against fingerprint local candidate `0.0.0-local.663307f7539d`; it is not formal release evidence. Formal preparation must start from the clean checkpoint commit and may build the `0.0.1` tarball only once; any package-byte change restarts preparation and verification.
 
+The first preparation invocation from clean commit `01a6ae5633167f21bab0e28e5cd19020ba18bc22` built staging and a tarball but rejected them before writing a receipt: the receipt parser's locale-sensitive inventory order disagreed with the artifact builder's deterministic string order. The release-owned partial staging, tarball and cache were removed and are not formal artifacts; the corrective commit must be the source of the next preparation.
+
 ## Publication and registry acceptance
 
 `npm publish` is not authorized and has not run. No package version, dist-tag, access state or provenance has been written to npm. After same-artifact full Gate passes, publish requires a fresh authorization naming registry, access, version, tag, absolute receipted tarball, both digests and the local direct+2FA mechanism. Post-publication metadata reads and ancestry-external registry installation require another authorization after the publish result is known; that acceptance explicitly runs `npm install vibe-check@<exact-version>` and executes the product checks on Bun.

@@ -229,7 +229,7 @@ function isClosedFileInventory(value: unknown): value is readonly string[] {
   ) {
     return false;
   }
-  const sorted = [...value].sort((left, right) => left.localeCompare(right));
+  const sorted = [...value].sort();
   return value.every((path, index) => path === sorted[index]);
 }
 
