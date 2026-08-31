@@ -6,30 +6,51 @@ AUTO_PUSH_INTERVAL_SECONDS=3600
 STATE_DIRECTORY_NAME="vibe-check-hooks"
 STATE_FILE_NAME="main-auto-push.last-at"
 
-warn() {
-  printf '%s\n' "vibe-check post-commit: $1" >&2
+print_context() {
+  printf '%s\n' "vibe-check post-commit auto-push"
+  printf '  commit: %s\n' "$current_commit"
+  printf '  branch: %s\n' "$display_branch"
+  printf '  target: %s/%s\n' "$AUTO_PUSH_REMOTE" "$AUTO_PUSH_BRANCH"
+}
+
+print_skip() {
+  printf '%s\n' "  action: skipped"
+  printf '  reason: %s\n' "$1"
 }
 
 current_branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)"
+current_commit="$(git rev-parse --short=12 HEAD 2>/dev/null || true)"
+if [ -z "$current_commit" ]; then
+  current_commit="unknown"
+fi
+
+display_branch="$current_branch"
+if [ -z "$display_branch" ]; then
+  display_branch="<detached>"
+fi
+
+print_context
+
 if [ "$current_branch" != "$AUTO_PUSH_BRANCH" ]; then
+  print_skip "only branch '$AUTO_PUSH_BRANCH' is eligible; no push was attempted."
   exit 0
 fi
 
 if ! git remote get-url "$AUTO_PUSH_REMOTE" >/dev/null 2>&1; then
-  warn "skipped auto-push because remote '$AUTO_PUSH_REMOTE' is unavailable."
+  print_skip "remote '$AUTO_PUSH_REMOTE' is unavailable; no push was attempted."
   exit 0
 fi
 
 state_directory="$(git rev-parse --git-path "$STATE_DIRECTORY_NAME" 2>/dev/null || true)"
 if [ -z "$state_directory" ] || ! mkdir -p "$state_directory"; then
-  warn "skipped auto-push because its Git-local state directory is unavailable."
+  print_skip "the Git-local state directory is unavailable; no push was attempted."
   exit 0
 fi
 
 current_epoch_seconds="$(date +%s 2>/dev/null || true)"
 case "$current_epoch_seconds" in
   '' | *[!0-9]*)
-    warn "skipped auto-push because the current time is unavailable."
+    print_skip "the current time is unavailable; no push was attempted."
     exit 0
     ;;
 esac
@@ -47,8 +68,7 @@ fi
 next_attempt_epoch_seconds=$((last_attempt_epoch_seconds + AUTO_PUSH_INTERVAL_SECONDS))
 if [ "$current_epoch_seconds" -lt "$next_attempt_epoch_seconds" ]; then
   remaining_seconds=$((next_attempt_epoch_seconds - current_epoch_seconds))
-  printf '%s\n' \
-    "vibe-check post-commit: skipped auto-push; cooldown has ${remaining_seconds}s remaining."
+  print_skip "cooldown has ${remaining_seconds}s remaining; no push was attempted."
   exit 0
 fi
 
@@ -57,20 +77,23 @@ temporary_state_file="$state_file.tmp.$$"
 if ! (umask 077 && printf '%s\n' "$current_epoch_seconds" >"$temporary_state_file") || \
   ! mv "$temporary_state_file" "$state_file"; then
   rm -f "$temporary_state_file"
-  warn "skipped auto-push because its attempt time could not be recorded safely."
+  print_skip "the attempt time could not be recorded safely; no push was attempted."
   exit 0
 fi
 
-printf '%s\n' \
-  "vibe-check post-commit: attempting a non-force push of '$AUTO_PUSH_BRANCH' to '$AUTO_PUSH_REMOTE'."
+printf '%s\n' "  action: push (non-force, no tags)"
 
-if ! GIT_TERMINAL_PROMPT=0 git push \
+if GIT_TERMINAL_PROMPT=0 git push \
   --porcelain \
   --no-force \
   --no-follow-tags \
   "$AUTO_PUSH_REMOTE" \
   "refs/heads/$AUTO_PUSH_BRANCH:refs/heads/$AUTO_PUSH_BRANCH"; then
-  warn "auto-push failed; the commit remains local and the hook will not retry before the cooldown expires."
+  printf '%s\n' "  result: success; '$AUTO_PUSH_REMOTE/$AUTO_PUSH_BRANCH' contains commit '$current_commit'."
+else
+  printf '%s\n' "  result: failed; commit '$current_commit' remains local." >&2
+  printf '%s\n' \
+    "  next: no hook retry before cooldown expiry; no pull, rebase, or force was attempted." >&2
 fi
 
 exit 0
