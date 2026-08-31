@@ -8,6 +8,7 @@
 - Project Run owns only `outputs.machinePublication` and `outputs.progressRendering`. Project Gate owns process transcripts under `.log/project-gate/<unique>/`; those local diagnostics are not Product outputs or release artifacts.
 - Exact candidate preparation, docs projection, installed-consumer acceptance and the formal workspace Gate must be regenerated after any public/runtime/docs change. A past receipt never proves a later artifact.
 - `scripts/package/release/**` now provides local-only formal prepare/verify entrypoints: it requires a clean commit and explicit version/tag, writes a portable digest-bound receipt, and makes full Gate consume that receipt without falling back to local candidate preparation. No publish action exists in those entrypoints.
+- The authorized npm read-only preflight is complete. The active Change's [release evidence](publish-public-api-only-npm-package/release-evidence.md) owns the exact selection, sanitized observations and time-scoped caveats; this navigation does not duplicate them or turn not-found into a name reservation.
 - The only active release Plan is [publish-public-api-only-npm-package](publish-public-api-only-npm-package/). It first establishes a formal-version exact artifact, then consumes current candidate/Gate/docs owners without implementing missing runtime contracts or authoring API semantics.
 
 ## Current active dependencies
@@ -20,7 +21,7 @@ The post-release directions [add-html-link-validation](add-html-link-validation/
 
 ## Release authority
 
-Local validation may prepare and verify candidate material. It does not authorize registry reads, credential access, version reservation, Trusted Publishing configuration, `npm publish`, or post-publication installation. Before each such action, obtain scoped user authorization naming the operation and target artifact/version.
+The completed registry preflight consumed its one-time read authorization; its result neither reserves the selected package/version nor grants continuing account access. Current authorization covers local documentation, formal artifact preparation, tests and Gate only. Any later registry recheck, credential access, Trusted Publishing/staged configuration, `npm publish`, dist-tag/access write or post-publication installation requires a fresh scope naming the operation and exact artifact/version.
 
 ## Verification route
 

@@ -6,14 +6,14 @@
 
 ### AI consumption contract
 
-本 Plan 面向恢复并实施 npm release 的后续 agent。它实际获得的权威输入是本 Change、所链接的 current docs/Decisions、当前源码/tests 和当次生成的 release receipt；归档 Change、旧 Gate log、旧 tarball 或口头状态都不能替代这些输入。预期操作是补齐 release tooling/materials、形成并验证一个 formal tarball、在每个外部 checkpoint 前请求授权、发布该 exact tarball 并完成 registry consumer acceptance。可观察出口是 proposal 的全部 Success Criteria 与 `tasks.md` 状态均有直接证据。
+本 Plan 面向恢复并实施 npm release 的后续 agent。它实际获得的权威输入是本 Change、所链接的 current docs/Decisions、当前源码/tests、`release-evidence.md` 和当次生成的 release receipt；归档 Change、旧 Gate log、旧 tarball 或口头状态都不能替代这些输入。预期操作是补齐 release tooling/materials、形成并验证一个 formal tarball、在每个外部 checkpoint 前请求授权、发布该 exact tarball 并完成 registry consumer acceptance。可观察出口是 proposal 的全部 Success Criteria 与 `tasks.md` 状态均有直接证据。
 
 恢复执行时按以下顺序取证，后一步不能反向替代前一步：
 
-1. 先读 `.change-plan.json` 和 `tasks.md`，恢复 lifecycle、已完成证据、下一未完成 checkpoint 与授权边界。
-2. 再按 `Affected Owners` 读取 current owner、源码和测试，确认 Plan 中的实现描述仍与当前工作树一致。
-3. 只有 `build/releases/vibe-check-<version>.release.json` 存在时，才按当前 release verifier 重验 receipt；文件名、旧日志或任务勾选不能证明 formal artifact 仍有效。
-4. 只有本 Change 明确记录了当次授权和脱敏结果时，才恢复 registry fact 或外部操作结果；缺失即视为尚未执行，而不是从 npm 默认值或口头上下文推断。
+1. 先读 `.change-plan.json` 和 `tasks.md`，恢复 lifecycle、已完成任务、下一 checkpoint 与当前授权边界。
+2. 对 `tasks.md` 声称已完成的 registry、artifact、Gate 或 publish 步骤，再读 `release-evidence.md`；对应 evidence 缺失时，把该步骤视为尚未证明。
+3. 再按 `Affected Owners` 读取 current owner、源码和测试，确认 Plan 中的实现描述仍与当前工作树一致。
+4. 只有 `build/releases/vibe-check-<version>.release.json` 存在时，才按当前 release verifier 重验 receipt；文件名、旧日志或任务勾选不能证明 formal artifact 仍有效。
 
 ### Authority and evidence layers
 
@@ -21,8 +21,9 @@
 | --- | --- | --- | --- |
 | 当前产品与 package 事实 | `src/index.ts`、`scripts/package/**`、`README.md`、tests、当次 build | public entry、artifact bytes、declarations/docs、local install 与当前实现 | registry authority、版本可用性、publish 权限或 registry bytes |
 | 长期方向 | active Decision records | package identity、MIT、Bun-only、`0.0.x`、API-only、full-Gate/repository-quality 要求 | 当前实现已对齐、任务完成或外部授权 |
-| 本 Change Plan | `proposal.md`、本设计、`tasks.md`、`.change-plan.json` | 本次 release 的范围、顺序、owner、验收和进度 | registry facts、credential、publish 或归档授权 |
-| 外部事实与写入 | 当次 npm/identity check、publish response、registry metadata 与 isolated install | 查询或操作发生时的 name/version/access/integrity/consumer 结果 | 后续时点状态或其它版本的结果 |
+| 本次范围与流程规则 | `proposal.md` 与本设计 | release 的 Outcome、范围、owner、状态链、授权规则和验收结构 | 当前任务进度、当次 registry/artifact 事实或外部授权 |
+| 当前进度与恢复动作 | `.change-plan.json` 与 `tasks.md` | lifecycle、已完成任务、下一 checkpoint 和当前授权边界 | 任务所引用的 artifact、Gate、registry 或 publish 结果本身 |
+| 当次 release evidence | `release-evidence.md`、formal receipt、same-artifact Gate result 与 authorized registry result | 对应时点的 selection、artifact identity/digest、Gate、registry 与 consumer 结果 | 后续时点状态、其它版本、credential 或未明确取得的授权 |
 
 ### Terms used by this Plan
 
@@ -49,7 +50,7 @@ local release tooling + verified legal/host inputs
   -> full Project Gate consumes that same tarball
   -> final authorization names the exact tarball and digest
   -> npm publishes that tarball once
-  -> authorized registry metadata + isolated Bun exact-install acceptance
+  -> authorized registry metadata + npm exact-version install + Bun runtime acceptance
   -> synchronize current owners, Decision alignment and Change evidence
 ```
 
@@ -65,7 +66,7 @@ Any byte-affecting change before publish returns to “build and receipt”; any
 | Publish | fresh authorization after same-artifact full Gate | registry, public access, exact version, tag, absolute tarball path, SHA-256/SHA-512, mechanism and any provenance mode |
 | Post-publication metadata/install | fresh authorization after publish result is known | exact version, registry metadata fields, temporary consumer and acceptance commands |
 
-The user subsequently authorized local implementation and validation: repository edits, local artifact builds/tests and full Gate are in scope. npm registry reads, authentication access, publishing configuration and every external write remain unauthorized.
+The user subsequently authorized local implementation/validation and one 2026-08-31 npm registry/account read-only preflight. That read scope has been consumed; sanitized results are owned by [`release-evidence.md`](release-evidence.md), while credential material, authentication configuration and every external write remained outside it. Current authorization covers version-specific local docs, formal artifact preparation, tests and full Gate. A later registry read, account/configuration write, publish or registry installation still requires a fresh scope.
 
 ## Goals / Non-Goals
 
@@ -131,17 +132,19 @@ npm publish <absolute-receipted-tarball> \
 
 Actual flags must match the installed npm CLI and final authorization. Trusted Publishing, staged publish, 2FA/OTP and provenance are mechanism variants, not assumptions: configuring them is a separate external write. Credential material stays in the operator/npm authentication boundary and is never echoed or stored in repository evidence.
 
+For the current first release only, the mechanism decision is local direct publish with interactive 2FA. [`release-evidence.md`](release-evidence.md#release-selection) owns the exact package/version/tag/access selection and the time-scoped registry/account observations that support it. Trusted Publishing and staged publish are not part of this release mechanism, and the mechanism is not a default for later releases.
+
 If version availability changes or the publish response is ambiguous, stop. First obtain authorization to read the exact registry version; only an absent version may return to version selection and a complete rebuild/reverification. A published name/version is never reused, including after unpublish.
 
 #### 6. Treat registry installation as the final product proof
 
 After publish and new read/install authorization, compare `dist.integrity` with the local SHA-512 receipt and verify exact name/version/tag/access. If provenance was intentionally produced, verify its repository/source-commit binding; otherwise record “not produced” rather than infer it.
 
-Create an ancestry-external temporary Bun consumer, install `vibe-check@<exact-version>` with exact pinning from the authorized registry, and run the same separate types, documentation and runtime acceptance categories used for the local artifact. No local tarball, workspace link, ancestor `node_modules` or cache fallback may satisfy this check. Always clean the temporary consumer; preserve only sanitized evidence.
+Create an ancestry-external temporary consumer and explicitly run `npm install vibe-check@<exact-version>` against the authorized registry, then run the same separate types, documentation and Bun runtime acceptance categories used for the local artifact. This release-verification command deliberately pins the selected artifact even though the consumer README recommends the conventional unversioned install command. npm is the registry installer; Bun remains the supported product host. No local tarball, workspace link, ancestor `node_modules` or cache fallback may satisfy this check. Always clean the temporary consumer; preserve only sanitized evidence.
 
 #### 7. Synchronize facts only after their evidence exists
 
-Before the artifact build, README/package docs may be changed from “registry not published” to version-specific installation guidance so those bytes enter Gate. They must not claim publication until publish succeeds; use release-ready wording while local. After registry acceptance, current delivery navigation and release notes record the exact public version and evidence boundary.
+Before the artifact build, README/package docs may adopt consumer-facing installation guidance so those bytes enter Gate. The README recommends the conventional `npm install vibe-check` command and does not carry time-scoped preflight, Gate or publication status; those facts stay in release evidence and delivery owners. After registry acceptance, current delivery navigation and release notes record the exact public version and evidence boundary.
 
 Only then review the npm unit/name/MIT/Bun/`0.0.x`/release-quality Decisions for alignment. Change completion does not automatically align them, and Plan completion does not authorize archive.
 
@@ -156,15 +159,15 @@ Only then review the npm unit/name/MIT/Bun/`0.0.x`/release-quality Decisions for
 ## Risks / Trade-offs
 
 - **Irreversible public identity:** explicit version/tag/access and no-blind-retry rules add steps but prevent publishing or overwriting the wrong unit.
-- **Artifact drift:** version-specific README/legal bytes mean registry preflight precedes the final build; a race can still consume the version, in which case the complete build/Gate cycle repeats for a new version.
+- **Artifact drift:** consumer-facing README/legal bytes and the selected manifest version are formal inputs, so registry preflight precedes the final build; a race can still consume the version, in which case the complete build/Gate cycle repeats for a new version.
 - **Credential exposure:** manual/CI authentication is outside repository state. This limits automation but prevents the Plan or evidence from becoming a credential owner.
-- **First-release provenance:** Trusted Publishing may require package/account configuration unavailable before the first version. The Plan requires digest/integrity evidence in all modes and records provenance only when the chosen mechanism actually supplies it.
+- **First-release provenance:** The selected local direct mechanism does not produce OIDC provenance. This release instead requires receipt digests and registry integrity; configuring Trusted Publishing after the package exists is a separately authorized follow-up, not an implicit part of `0.0.1`.
 - **Host compatibility:** declaring the lowest directly tested Bun version is narrower than assuming all future Bun versions, but it keeps the promise evidence-based and leaves broader compatibility to later releases.
 - **Post-publish failure:** registry acceptance can expose a defect after an irreversible write. The workflow stops and reports an incident; it never silently unpublishes, retags or publishes a replacement.
 
 ## Open Questions
 
-无设计开放问题。Copyright holder/year、repository metadata 与拟验证的 Bun lower bound 已由本地实现闭合；formal consumer acceptance 仍须证明该 Bun bound。Exact patch、tag 与 publisher/authentication mechanism 必须在获授权 registry preflight 后取得并记录；任一缺失都会阻断 formal build/publish，但不会改变本 Plan 的 artifact、授权或验收结构。
+无设计开放问题。Copyright holder/year、repository metadata 与拟验证的 Bun lower bound 已由本地实现闭合；formal consumer acceptance 仍须证明该 Bun bound。Authorized preflight 已闭合本次 selection，精确值与时效边界只由 [`release-evidence.md`](release-evidence.md#release-selection) 完整记录。下一 formal-build 前提是 consumer-facing release docs 所在的 clean reviewed commit；查询时的 package absence 与 authentication 不能替代 publish 前的新授权复核。
 
 ## External Reference Boundary
 

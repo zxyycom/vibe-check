@@ -108,7 +108,10 @@ describe("package API documentation renderer", () => {
       },
       {
         corruptSource: (source) =>
-          source.replace("\n```\n\n示例关闭三个", "\n```\n\n```ts\nvoid 0;\n```\n\n示例关闭三个"),
+          source.replace(
+            /(## 自定义 Check 快速开始[\s\S]*?```(?:ts|typescript)\n[\s\S]*?\n```)/,
+            "$1\n\n```ts\nvoid 0;\n```"
+          ),
         diagnostic: /expected exactly one fenced TypeScript example.*found 2/
       },
       {
@@ -152,7 +155,7 @@ describe("package API documentation renderer", () => {
       const readme = readFileSync(readmePath, "utf8");
       const readmeWithHeadingLevelGap = readme.replace(
         "## 自定义 Check 快速开始",
-        "  ### 自定义 Check 快速开始"
+        "# Fixture heading reset\n\n  ### 自定义 Check 快速开始"
       );
       assert.notEqual(readmeWithHeadingLevelGap, readme);
       writeFileSync(readmePath, readmeWithHeadingLevelGap, "utf8");
