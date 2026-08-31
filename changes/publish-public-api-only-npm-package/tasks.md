@@ -14,8 +14,8 @@
 | Public selection | `@zxyycom/vibe-check@0.0.1`、tag `latest`、public access、local direct publish with interactive 2FA。 | 这是拟议 selection；尚未执行 scoped registry preflight，不证明 name/version availability 或 publish authority。 |
 | Local implementation | Scoped generated manifest、artifact/receipt path、consumer import/install path、README/docs、Decision 与 tests 已同步。 | 本地 candidate `0.0.0-local.315a2ef74ea8` current；full Gate 36/36，Markdown finding count 为 0，仅保留历史 schema 的既有 file-metric waiver。 |
 | Formal release | 当前没有 scoped formal tarball、receipt 或 same-artifact release Gate。 | 旧 `vibe-check@0.0.1` artifact/receipt 已失效并删除；其 E403 与 Gate 只作为历史 evidence。 |
-| Current authorization | 允许提交本轮 scoped 本地实现、文档与证据；不允许 scoped registry/account read、配置写入、publish、dist-tag/access change 或 registry install。 | 工具可访问性、Plan stage、Decision status 或本地 Gate 不能扩大该范围。 |
-| Next checkpoint | 从 clean reviewed HEAD 恢复后，请求 fresh scoped registry-read authorization 并执行 preflight。 | Preflight 通过后才能冻结 version/tag/mechanism 并从该 HEAD 新建 formal receipt；publish 仍需 same-artifact full Gate 后的另一次明确授权。 |
+| Current authorization | Scoped 本地实现、文档与证据已提交为 `6dfc297aadb1f5e490bd2b4ca1c3c211b0faa887`；当前没有尚未消费的外部操作授权。 | 不允许 scoped registry/account read、配置写入、publish、dist-tag/access change 或 registry install；工具可访问性、Plan stage、Decision status 或本地 Gate 不能扩大该范围。 |
+| Next checkpoint | 从当前 clean reviewed HEAD 恢复后，请求 fresh scoped registry-read authorization 并执行 preflight。 | Preflight 通过后才能冻结 version/tag/mechanism 并从该 HEAD 新建 formal receipt；publish 仍需 same-artifact full Gate 后的另一次明确授权。 |
 
 - [x] 0.1 已在 2026-08-31 按 current docs/source/tests、active Decisions 和 `package:status` 恢复 Plan baseline，确认 root workspace 与 `0.0.0-local.*` candidate 均不是正式 publish input，并排除四项 post-release active Changes。
 - [x] 0.2 已用 AI-ready consumer contract 重写 proposal/design，明确 owner、单向状态链、authorization checkpoints、same-artifact 证据、失败恢复和可检查 Success Criteria；Plan formation 未授予任何外部操作，后续新增的 local implementation/validation 授权已单独记录且仍不包含 registry 或 credential access。
