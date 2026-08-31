@@ -41,7 +41,9 @@ machine artifacts 恢复状态。每个 visible settled block 先输出 row，�
 普通 TTY 在仍有 Check 运行时每 5 秒重绘 running region，并显示基于共享 monotonic interval 的 elapsed time；首次 running
 row 在 heartbeat 前不伪造时长。Plain output 与 `TERM=dumb` 保持 append-only，只在 settled 后输出 row，也不启动
 heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；in-process Check operation 必须保持 stdout/stderr 静默，
-通过 Check result、message 或 project-owned transcript 返回事实。
+通过 Check result、message 或 project-owned transcript 返回事实。Product 不 monkey-patch 全局 `console` 或
+`process.stdout`；需要从 execution 直接写 console 的 invocation 必须关闭 progress rendering，不能依赖当前 target
+偶然是 non-TTY 来建立兼容保证。
 
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只给 level label 加色。display name、
 reason 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029；原 message string

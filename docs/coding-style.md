@@ -235,6 +235,8 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 2. Promise 必须被 `await`、返回或显式处理；生产路径不得遗留未观察 rejection。
 3. 外部命令失败、工具不可用、解析失败和无发现分别建模。
 4. `catch` 中把未知值按 `unknown` 处理，并在统一边界生成可定位、可行动的消息。
+5. 不得仅因函数是 `async` 就增加 `try/catch`；只有当前层负责失败翻译、恢复、资源释放或 process / Check
+   结算时才捕获，否则让 rejection 交给调用链的 owning boundary，避免捕获后原样抛出或重复记录。
 
 验收标准：错误路径能被测试或命令输出观察到，并且不会把不同失败混成同一种状态。
 

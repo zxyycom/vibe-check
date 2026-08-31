@@ -107,7 +107,10 @@ bun run quality.ts
 | `not-applicable` | 当前输入没有适用的工作；可以附带 reason。 |
 | `unavailable` | 无法形成可信结果；必须附带 reason。 |
 
-final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check 可以附带有序的人读 `messages`，但通用 API 不保证每个结果都有 message。
+final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check 可以附带有序的人读 `messages`，但通用 API
+不保证每个结果都有 message。默认 progress 会在 TTY 中维护临时 running region；Check 的普通终态说明应返回
+`messages`，而不是直接写 console。需要流式日志时，关闭该次 Run 的 progress 或改用独立 sink；完整边界见
+[深入 API 机制的 Check 输出](./docs/api-mechanics.md#check-输出与受管-progress)。
 
 ### 组成 Project Definition
 

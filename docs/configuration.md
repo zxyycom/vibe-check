@@ -549,7 +549,11 @@ settlement, `attention` hides only a passed Check with no messages. Every other 
 passed `attention` Check with messages, emits its row plus all messages as one contiguous write; hidden
 Checks still consume the canonical completion ordinal and final counts. Progress presentation is not a project
 callback, observer, or renderer API, and a progress write failure fails that output without changing Check
-execution facts or accepted `checkMessages`. Flags are callback-local context: Product does not interpret
+execution facts or accepted `checkMessages`. While progress is enabled, Check execution must not bypass the
+renderer with `console.log` / `console.error` or direct stdout/stderr writes: Product does not patch the caller's
+global console or multiplex arbitrary writes with the TTY running region. Authors return terminal `messages` or
+capture detailed output in a Check-owned sink; an invocation that requires direct console output must disable
+progress rendering. Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned process transcripts remain
 owned by their Check/process adapter. A project may colocate a Product diagnostic log with such transcripts, but the
 two materials remain distinct and neither interprets the other.

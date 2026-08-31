@@ -65,6 +65,24 @@ selected-but-rejected 行为由对应 Check 指南说明。
 
 `messages?` 是 owning Check 可选的有序人读说明；consumer 必须先按 outcome 处理事实，不能用 message presence 推断状态。final data、Records 和 messages 分别承载主要事实、补充事实和人读说明。随包 Check 的额外 message 保证由各自指南说明。
 
+### Check 输出与受管 progress
+
+Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
+region，并在同一个 terminal 上移动光标；execution 中直接调用 `console.log`、`console.error`、
+`process.stdout.write` 或 `process.stderr.write` 会绕过 renderer，使光标状态与实际终端内容不一致。Product 不替换
+全局 `console`，也不拦截或归属这些写入。
+
+- 需要随 terminal result 一起呈现和读取的说明，返回结构化 `messages`。它们在 Check settlement 后由 renderer
+  连续输出，并保留在 `RunResult.checkMessages`。
+- 需要详细过程证据时，把输出捕获到 Check-owned file、transcript 或调用方注入的独立 logger；不要让 child
+  process 继承受管 terminal stream。
+- 必须由 execution 直接写 console 时，对该次 invocation 使用
+  `run(definition, { outputs: { progressRendering: { enabled: false } } })`。这会关闭 Product progress，而不会把
+  console 文本变成 Check fact、message 或 machine output。
+
+在 `run(...)` 返回之后再由调用方打印汇总不受 running region 约束。Product 不承诺 progress enabled 时与任意直接
+console/stdout/stderr 写入可靠交错。
+
 ## Finding waiver reconciliation
 
 `reconcileFindingWaivers({ findings, identify, waivers })` 是 package root 提供的独立 helper，供 custom Check 或其它
