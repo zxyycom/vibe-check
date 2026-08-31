@@ -5,6 +5,8 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { functionMetrics } from "./constructor.ts";
+import { defineConfig } from "../../project-definition/project-definition.ts";
+import { run } from "../../project-run/run.ts";
 import {
   MIXED_DETAILS,
   NON_BLOCKING_DETAILS,
@@ -183,6 +185,49 @@ describe("functionMetrics constructor", () => {
   });
 });
 
+describe("functionMetrics availability", () => {
+  it("fails aggregate and does not scan when version provenance is unsupported", async () => {
+    const root = createRoot("vibe-check-function-version-rejection-");
+    const scanMarker = join(root, "scan-called");
+    try {
+      const executable = createExecutable(
+        root,
+        [
+          "if (process.argv.includes('--version')) {",
+          "  process.stdout.write('1.24.0\\n');",
+          "} else {",
+          "  require('node:fs').writeFileSync('scan-called', '');",
+          "}"
+        ].join("\n")
+      );
+      const result = await run(
+        defineConfig({ checks: [functionMetrics({ scanner: { executable } })] }),
+        {
+          checkAggregation: {
+            checks: "all",
+            empty: "failed",
+            mode: "all",
+            notApplicable: "fail",
+            unavailable: "fail"
+          },
+          projectRoot: root
+        }
+      );
+
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(result.aggregate, "failed");
+      assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+        status: "unavailable",
+        reason: { code: "external-dependency-unavailable" }
+      });
+      assert.equal(existsSync(scanMarker), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("functionMetrics cancellation", () => {
   it("stops before scanner measurement when cancellation is observed after availability", async () => {
     const root = createRoot("vibe-check-function-cancelled-");
@@ -192,7 +237,7 @@ describe("functionMetrics cancellation", () => {
         root,
         [
           "if (process.argv.includes('--version')) {",
-          "  setTimeout(() => process.stdout.write('lizard 1.23\\n'), 50);",
+          "  setTimeout(() => process.stdout.write('1.23.0\\n'), 50);",
           "} else {",
           "  require('node:fs').writeFileSync('scan-called', '');",
           "}"
@@ -239,7 +284,7 @@ describe("functionMetrics area findings", () => {
         root,
         [
           "if (process.argv.includes('--version')) {",
-          "  process.stdout.write('lizard 1.23\\n');",
+          "  process.stdout.write('1.23.0\\n');",
           "} else {",
           "  const expected = ['src/a.ts', 'src/b.ts', '--csv'];",
           "  if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(expected)) process.exit(2);",
@@ -370,7 +415,7 @@ describe("functionMetrics area findings", () => {
         root,
         [
           "if (process.argv.includes('--version')) {",
-          "  process.stdout.write('lizard 1.23\\n');",
+          "  process.stdout.write('1.23.0\\n');",
           "} else {",
           "  const expected = ['src/a.ts', '--csv'];",
           "  if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(expected)) process.exit(2);",
@@ -436,7 +481,7 @@ describe("functionMetrics area findings", () => {
         root,
         [
           "if (process.argv.includes('--version')) {",
-          "  process.stdout.write('lizard 1.23\\n');",
+          "  process.stdout.write('1.23.0\\n');",
           "} else process.exit(2);"
         ].join("\n")
       );

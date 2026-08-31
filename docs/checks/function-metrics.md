@@ -15,7 +15,7 @@ const check = functionMetrics();
 ```
 
 执行这个 Check 时，project runtime 需要让默认 `lizard` command 可用，或在 `scanner.executable` 中选择项目已授权且
-兼容 Lizard 1.23 version output 与 CSV contract 的 executable。
+兼容 Lizard canonical `1.23.<patch>` version output（每段为 `0` 或无 leading zero 的十进制整数）与 CSV contract 的 executable。
 
 ## 参数与默认配置
 
@@ -99,9 +99,7 @@ const metrics = functionMetrics({
 });
 ```
 
-owning adapter 固定执行 `--version` probe，并以 approved exact paths 和 `--csv` 扫描。显式 executable 表示项目授权执行
-该命令；需要 wrapper 时由项目提供直接接受这套协议的 executable wrapper。不兼容命令会 fail closed 为 unavailable，
-而不会产生成功空结果。
+owning adapter 固定执行 `--version` probe，并以 approved exact paths 和 `--csv` 扫描。probe 的 trim 后完整 output 必须为 canonical `1.23.<patch>`：三个段各为 `0` 或不以 `0` 开头的十进制整数；`1.23.0` 与 `1.23.1` 可用，`1.23.00`、`lizard 1.23.0` 与其它 series 不可用。显式 executable 表示项目授权执行该命令；需要 wrapper 时由项目提供直接接受这套协议的 executable wrapper。若项目要求精确 `1.23.0`，wrapper 在其 `--version` path 拒绝其它 patch，并将 scan 调用原样交给 Lizard。不兼容命令会 fail closed 为 unavailable，而不会产生成功空结果。
 
 ### 安装兼容 Lizard
 
@@ -114,7 +112,7 @@ uv = "0.11.28"
 ```
 
 运行 `mise install` 后，用 `lizard --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
-`scanner.executable` 指向已授权、直接接受上述协议并产生 Lizard 1.23-compatible output 的 executable 即可。
+`scanner.executable` 指向已授权、直接接受上述协议并产生 canonical `1.23.<patch>` output 的 executable 即可。
 
 ## 工作原理
 
@@ -193,7 +191,7 @@ registry 拒绝时，不启动 Lizard，直接以带 input-rejection Records、w
 | --- | --- | --- |
 | `invalid-options` | constructor 之后被普通 object composition 替换的完整 options 未通过 preflight 或 execution 防御校验 | 对照本页 resolved options，补齐或删除字段 |
 | `source-unavailable` | 所配置的 filesystem 或 git-worktree 来源无法形成候选快照 | 检查 project root、目录读取权限或 Git worktree 状态 |
-| `external-dependency-unavailable` | Lizard executable 不存在、version probe 失败或没有可识别的 version output | 检查 `scanner.executable` 与该命令的 `--version` 行为 |
+| `external-dependency-unavailable` | Lizard executable 不存在、version probe 失败或没有 canonical `1.23.<patch>` output | 检查 `scanner.executable` 与该命令的 `--version` 行为 |
 | `external-execution-failed` | Lizard scan 无法启动、被 signal 终止或返回非零状态 | 直接运行配置的 executable，检查 exact-path 与 `--csv` 调用 |
 | `external-result-invalid` | CSV、measurement、exact-scope 或 function metric 完整性校验失败 | 检查 wrapper 是否返回 Lizard 1.23-compatible CSV，且没有扩大输入 |
 | `cancelled` | invocation signal 在可观察的工作边界终止本 Check | 检查调用方取消原因；不要把该结果解释为 clean scan |

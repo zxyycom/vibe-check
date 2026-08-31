@@ -4,9 +4,9 @@
 
 ## Context
 
-`src/package-checks/function-metrics/lizard/availability.ts` 已拥有 `<executable> --version` probe：它拒绝 command/process/signal/nonzero failure 与空 output，却接受任何其它 output。`measureFunctionMetrics` 已先调用 availability，只有可用时才调用 `<approved exact paths> --csv`。
+Plan 形成时，`src/package-checks/function-metrics/lizard/availability.ts` 已拥有 `<executable> --version` probe：它拒绝 command/process/signal/nonzero failure 与空 output，却接受任何其它 output。`measureFunctionMetrics` 已先调用 availability，只有可用时才调用 `<approved exact paths> --csv`。
 
-`docs/checks/function-metrics.md` 将消费者契约定义为兼容 Lizard 1.23 version output 与 CSV contract；本仓库 `mise exec -- lizard --version` 的实际输出为 `1.23.0`。`docs/decisions/let-function-metrics-adapter-own-lizard-cli-protocol.md` 规定 version probe、exact paths、CSV 与 failure mapping 都由 adapter 拥有。
+Plan 形成时，`docs/checks/function-metrics.md` 将消费者契约定义为兼容 Lizard 1.23 version output 与 CSV contract；本仓库 `mise exec -- lizard --version` 的实际输出为 `1.23.0`。`docs/decisions/let-function-metrics-adapter-own-lizard-cli-protocol.md` 规定 version probe、exact paths、CSV 与 failure mapping 都由 adapter 拥有。
 
 相邻 `port-lizard-function-metrics-to-typescript` Plan 是独立、后置的 backend hard cut；它没有授权本 Change 预先修改其范围或恢复实施。
 

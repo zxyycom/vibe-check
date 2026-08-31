@@ -87,13 +87,17 @@ Entities:
 - `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies signal termination as execution failure`
 - `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > passes only exact paths and adapter-owned CSV arguments to the executable`
 - `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects empty version provenance instead of accepting an unknown tool`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > accepts canonical supported 1.23 versions`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects noncanonical version provenance without echoing it`
+- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects unsupported canonical version provenance`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics availability > fails aggregate and does not scan when version provenance is unsupported`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > keeps legitimate Lizard zero-function output successful`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > parses Lizard 1.23 function rows`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > rejects malformed Lizard rows without accepting partial output`
 - `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > rejects malformed or partial Lizard CSV headers instead of treating them as zero functions`
   Proves:
 
-- The function-metrics-owned Lizard adapter alone supplies version, exact-path and CSV arguments, requires nonempty version provenance, treats legitimate zero-function and valid 1.23 rows as complete output, and lets unavailable commands, failed probes, signal termination, malformed rows, or partial headers fail without a trusted prefix.
+- The function-metrics-owned Lizard adapter alone supplies version, exact-path and CSV arguments. It accepts only canonical `1.23.<patch>` version output with no leading-zero segment, fails unsupported or unrecognized provenance closed before scan without echoing unrecognized raw output, and lets aggregate policy observe that unavailable Check result. Legitimate zero-function and valid 1.23 CSV rows remain complete output; unavailable commands, failed probes, signal termination, malformed rows, or partial headers never publish a trusted prefix.
 
 ## Case AUX-SCC-ADAPTER-OUTCOMES-001: scc adapter preserves its private result boundary
 

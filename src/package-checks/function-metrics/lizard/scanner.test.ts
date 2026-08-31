@@ -50,9 +50,62 @@ describe("Lizard adapter command boundary", () => {
 
       assert.equal(result.available, false);
       assert.equal(result.reason, "contract-error");
-      assert.match(result.error, /returned empty output/);
+      assert.match(result.error, /must output canonical 1\.23\.<patch>/);
     } finally {
       dependency.cleanup();
+    }
+  });
+
+  it("accepts canonical supported 1.23 versions", async () => {
+    for (const version of ["1.23.0", "1.23.1"]) {
+      const dependency = createFakeLizard({
+        source: `if (process.argv.includes('--version')) process.stdout.write('${version}\\n');`
+      });
+      try {
+        const result = await checkLizard(REPO_ROOT, dependency);
+        assert.deepEqual(result, { available: true, version });
+      } finally {
+        dependency.cleanup();
+      }
+    }
+  });
+
+  it("rejects noncanonical version provenance without echoing it", async () => {
+    for (const version of [
+      "1.23",
+      "lizard 1.23.0",
+      "1.23.00",
+      "01.23.0",
+      "1.023.0",
+      "untrusted version output"
+    ]) {
+      const dependency = createFakeLizard({
+        source: `if (process.argv.includes('--version')) process.stdout.write('${version}\\n');`
+      });
+      try {
+        const result = await checkLizard(REPO_ROOT, dependency);
+        assert.equal(result.available, false);
+        assert.equal(result.reason, "contract-error");
+        assert.equal(result.error, "lizard --version must output canonical 1.23.<patch>");
+      } finally {
+        dependency.cleanup();
+      }
+    }
+  });
+
+  it("rejects unsupported canonical version provenance", async () => {
+    for (const version of ["1.22.9", "2.0.0"]) {
+      const dependency = createFakeLizard({
+        source: `if (process.argv.includes('--version')) process.stdout.write('${version}\\n');`
+      });
+      try {
+        const result = await checkLizard(REPO_ROOT, dependency);
+        assert.equal(result.available, false);
+        assert.equal(result.reason, "contract-error");
+        assert.match(result.error, new RegExp(version.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+      } finally {
+        dependency.cleanup();
+      }
     }
   });
 

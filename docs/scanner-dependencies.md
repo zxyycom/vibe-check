@@ -24,7 +24,7 @@ capability，以及 `src/package-checks/project-files/**` 的 exact-path members
 [随包 Check 指南](navigation.md#随包-check-指南)拥有各 Check 的初始 options。[Configuration](configuration.md#package-provided-check-composition)
 只拥有它们与普通 Project Definition 的组合边界。`fileMetrics` 与
 `functionMetrics` 的 public scanner 都只保留 executable；SCC adapter 固定 `--version` probe、`--by-file --format csv`
-与 exact paths，Lizard adapter 固定 `--version` probe、exact paths 与 `--csv`。两者都不允许参数透传扩大输入、改变
+与 exact paths，Lizard adapter 固定 `--version` probe、exact paths 与 `--csv`，并在 scan 前执行 [`functionMetrics` 指南拥有的 version output contract](checks/function-metrics.md#定制-lizard-executable)。两者都不允许参数透传扩大输入、改变
 parser contract 或把 tool tuning 变成产品配置。
 `duplicateDetection` 的 defaulted constructor input 与 custom 示例由
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)定义；本页只拥有 constructor 形成的完整

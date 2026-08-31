@@ -4,7 +4,7 @@
 
 ## Why
 
-当前 adapter 对 `<executable> --version` 的成功退出只排除空输出，因此任意非空文本都会被当作可用 provenance。这样 version probe 不能兑现已有的“兼容 Lizard 1.23 version output 与 CSV contract”边界，也可能让不受支持的 executable 进入 measurement。
+Plan 形成时，adapter 对 `<executable> --version` 的成功退出只排除空输出，因此任意非空文本都会被当作可用 provenance。该 pre-change 行为不能兑现已有的“兼容 Lizard 1.23 version output 与 CSV contract”边界，也可能让不受支持的 executable 进入 measurement。
 
 这不是精确锁定 `1.23.0` 的 Product 政策，也不证明某个真实 patch release 不兼容。Product 应识别支持的 `1.23.x` 系列；需要精确 patch 的消费项目自行拥有 wrapper。
 

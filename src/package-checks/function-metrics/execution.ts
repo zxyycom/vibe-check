@@ -249,7 +249,7 @@ function unavailableMessage(code: FunctionMetricsUnavailableReasonCode): string 
     case "source-unavailable":
       return "Function metrics could not collect its configured project files; check the project root, file permissions, and selected file source.";
     case "external-dependency-unavailable":
-      return "The configured Lizard command is unavailable or incompatible; install Lizard 1.23.0 or configure a compatible executable.";
+      return "The configured Lizard command is unavailable or incompatible; install compatible Lizard 1.23.x or configure a compatible executable.";
     case "external-execution-failed":
       return "Lizard did not complete successfully; run the configured command directly and inspect its environment.";
     case "external-result-invalid":
