@@ -84,6 +84,9 @@ region，并在同一个 terminal 上移动光标。Product 在每个 Check 的 
 - 高容量、流式或 child-process 输出必须写入 Check-owned file、transcript 或独立 logger；不要让它继承受管 terminal
   stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久诊断材料。
 
+`diagnosticLogging` 默认关闭；调用方显式启用后，`check.finished` diagnostic 会像其它 settled messages 一样包含 captured
+console 内容。因此 console 不应写入 secret；只需要内存 readback 时保持 diagnostic logging disabled。
+
 需要稳定补充说明时仍优先在 terminal result 返回结构化 `messages`；console capture 是对常见 author logging 的安全
 兼容边界，不是新的 live observer 或 Check logger API。在 `run(...)` 返回后由调用方打印汇总不受 running region 约束。
 

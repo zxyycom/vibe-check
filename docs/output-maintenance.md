@@ -46,6 +46,9 @@ heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；Product 通
 恢复原 method descriptors。Product 不 patch `process.stdout` / `process.stderr`；in-process Check 的直接 stream writes 和
 child-process 输出必须进入独立 sink，不能依赖当前 target 偶然是 non-TTY 来建立兼容保证。
 
+Captured console 进入 settlement messages，因此显式启用 diagnostic logging 时，同一内容也会写入 `check.finished`
+diagnostic details；默认 disabled 不创建该文件。它仍不进入 machine v4，Check author 不得把 secret 当作 console 日志。
+
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只给 level label 加色。display name、
 reason 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029；原 message string
 保留在 `RunResult.checkMessages`。Writer failure 保持可观察，不吞掉错误或继续后续 write。
