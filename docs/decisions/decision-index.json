@@ -129,6 +129,7 @@
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
       "publish-user-scoped-vibe-check-publicly.md": "sha256:669a891f9e8e54fbc9de182e333bef767631b580ed69c6cc6fa433cf39aa9e5a",
+      "rate-limit-non-force-main-auto-push-after-commit.md": "sha256:39f730309a2843c029911c8c06127ba628603e5618920f922f81ec00941046e9",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:bff18bd78ea8bf7692235dc0725ca5869ea07cdb41f6a94b207d9c47e19c0ed8",
       "reconcile-selected-files-with-check-eligibility.md": "sha256:96f45700240c9a71057e555a3768230996afcbf86f40b22179cdd3fd3887d971",
@@ -4120,6 +4121,33 @@
             "target": "publish-unscoped-vibe-check-publicly.md"
           }
         ]
+      }
+    },
+    "rate-limit-non-force-main-auto-push-after-commit.md": {
+      "keys": {
+        "tag": [
+          "repository-automation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "rate-limit-non-force-main-auto-push-after-commit.md",
+        "title": "对 main 提交后的非强制自动推送限频",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T06:18:20Z",
+        "purpose": "让个人项目的 main 提交可以低干扰地同步到远端，同时保留 Git 的非快进保护和本地提交结果。",
+        "background": "post-commit 自动推送属于持续外部写入；网络、鉴权或远端领先都可能失败，未经约束的重试或同步修复会扩大副作用。",
+        "decision": "使用显式启用的仓库 post-commit hook，只对 main 向 origin 执行不带 tag 的普通 push，每小时最多尝试一次，任何失败都不改变 commit 或触发同步修复。",
+        "tags": [
+          "repository-automation"
+        ],
+        "relations": []
       }
     },
     "read-direct-dependency-final-data-by-string.md": {

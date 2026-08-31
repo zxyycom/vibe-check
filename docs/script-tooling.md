@@ -58,6 +58,24 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 修改 lint rule、format option 或目标范围时，修改相应配置或 development owner；不要在 package、子目录或
 文档复制同义规则表或 target list。实现原则仍以[编码规范](coding-style.md)为准。
 
+### Local post-commit auto-push
+
+`.githooks/post-commit` 是仓库拥有的 Git `post-commit` 入口。Git 不会在 clone 后自动启用版本化 hook；需要该行为的
+checkout 必须显式运行 `git config --local core.hooksPath .githooks`，只修改当前 checkout 的本地 Git 配置。使用
+`git config --local --unset core.hooksPath` 可以停用它。
+
+启用后，hook 只在当前分支精确为 `main` 时处理提交，并且：
+
+- 每 3,600 秒最多执行一次真实 push 尝试；attempt time 保存在 Git-local state 中，失败的尝试同样占用该窗口，避免在
+  网络、鉴权或远端状态持续失败时由每次 commit 重复触发。
+- 只向 `origin` 推送显式 refspec `refs/heads/main:refs/heads/main`，同时关闭 force 与 follow-tags；远端包含本地没有的
+  提交时，普通 non-fast-forward 保护会拒绝 push。
+- 远端、时间或 state 不可用以及 push 被拒绝时只输出诊断并返回成功，不改变 commit 结果，也不自动 fetch、pull、rebase、
+  merge、创建或推送 tag。
+
+该 hook 只同步开发分支，不发布 npm package，也不创建 GitHub Release。npm package 仍是产品发布单元；只有未来存在
+GitHub-specific 附件或独立 release notes consumer 时，才应单独评估 tag-driven GitHub Release workflow。
+
 ## Package artifact 与 candidate
 
 `scripts/package/artifact/**` 从唯一 Product 入口 `src/index.ts` 构造 local candidate。artifact fingerprint
