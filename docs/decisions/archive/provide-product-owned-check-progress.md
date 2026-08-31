@@ -1,6 +1,6 @@
 ---
 title: 由 Product Run 提供 Check 生命周期进度
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-20T06:43:50Z
 purpose: 让 package consumer 通过现有 progress rendering output 获得一致且无需公共 observer 的 Check 执行反馈。

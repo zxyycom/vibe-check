@@ -1,6 +1,8 @@
 import type { CheckMessage } from "../../check/check.ts";
-import { boundedFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { presentCheckFindings } from "../../check/finding-presentation.ts";
 import type { MarkdownLinkRecordCandidate } from "./records.ts";
+
+const PRESENTED_FINDING_LIMIT = 10;
 
 type PresentedMarkdownFinding =
   | Readonly<{ readonly kind: "link"; readonly candidate: MarkdownLinkRecordCandidate }>
@@ -16,8 +18,9 @@ export function markdownFindingMessages(
     ...candidates.map((candidate) => Object.freeze({ kind: "link" as const, candidate })),
     ...rejectedPaths.map((path) => Object.freeze({ kind: "input-rejected" as const, path }))
   ];
-  return boundedFindingMessages({
+  return presentCheckFindings({
     findings,
+    limit: PRESENTED_FINDING_LIMIT,
     message: (finding) => {
       if (finding.kind === "input-rejected") {
         return Object.freeze({
@@ -33,13 +36,13 @@ export function markdownFindingMessages(
         message: `${sourcePath}:${range.start.line}:${range.start.column} ${occurrenceKind}: ${reason}.`
       });
     },
-    omittedMessage: (omittedFindings) =>
+    omittedMessage: ({ omittedCount, omittedFindings }) =>
       Object.freeze({
         code: "findings-omitted",
         level: omittedFindings.some((finding) => finding.kind === "link" && blocking)
           ? ("error" as const)
           : ("warning" as const),
-        message: `${omittedFindings.length} additional Markdown link finding(s) were not shown; inspect this Check's Records for the complete set.`
+        message: `${omittedCount} additional Markdown link finding(s) were not shown; inspect this Check's Records for the complete set.`
       })
   });
 }

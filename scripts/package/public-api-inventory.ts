@@ -15,6 +15,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     jsonValidation: "jsonValidation",
     maintenanceReminders: "maintenanceReminders",
     markdownLinkValidation: "markdownLinkValidation",
+    presentCheckFindings: "presentCheckFindings",
     reconcileFindingWaivers: "reconcileFindingWaivers",
     run: "run"
   }),

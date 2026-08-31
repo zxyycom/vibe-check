@@ -1,6 +1,6 @@
 ---
 title: 默认展示有界且安全的 Finding 摘要
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T07:11:25Z
 purpose: 让少量 Finding 直接出现在 Check 终态输出中，同时保持大量或敏感明细的受控边界。

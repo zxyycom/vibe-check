@@ -82,6 +82,10 @@ bun run quality.ts
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 
+自定义 Check 可用 `presentCheckFindings(...)` 生成有界摘要：Check 自己设置显示上限、选择安全字段，并在超限 hook
+中明确完整明细的实际读取位置。helper 不定义 Finding shape，也不会替 Check 保存或发布完整 facts；详见
+[Finding presentation](./docs/api-mechanics.md#finding-presentation)。
+
 ## 自定义 Check API
 
 只使用随包 Check 时，可以跳过本节。需要表达项目自己的规则时，通常只需要定义 Check、组成 Definition、运行并读取结果；preflight、依赖调度、waiver 对账、聚合和取消等进阶能力放在[深入 API 机制](./docs/api-mechanics.md)中。
@@ -108,8 +112,9 @@ bun run quality.ts
 | `unavailable` | 无法形成可信结果；必须附带 reason。 |
 
 final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check 可以附带有序的人读 `messages`，但通用 API
-不保证每个结果都有 message。默认 progress 会在 TTY 中维护临时 running region；Check 的普通终态说明应返回
-`messages`，而不是直接写 console。需要流式日志时，关闭该次 Run 的 progress 或改用独立 sink；完整边界见
+不保证每个结果都有 message。默认 progress 会在 TTY 中维护临时 running region；Check preflight/execution 通过全局
+`console.*` 写入的文本会按异步 Check context 捕获，settlement 后统一呈现并保留在 `RunResult.checkMessages`，不会破坏
+running region。高容量或流式日志以及直接 stdout/stderr 写入仍应使用独立 sink；完整边界见
 [深入 API 机制的 Check 输出](./docs/api-mechanics.md#check-输出与受管-progress)。
 
 ### 组成 Project Definition
@@ -138,7 +143,7 @@ final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check
 
 ## 输出与进阶用法
 
-- [深入 API 机制](./docs/api-mechanics.md)说明 options preflight、依赖、组合、aggregation、finding waiver、cancellation 和 output failure 边界。
+- [深入 API 机制](./docs/api-mechanics.md)说明 options preflight、依赖、组合、Finding presentation/waiver、console capture、cancellation 和 output failure 边界。
 - [机器输出契约](./docs/output.md)说明 `run.json`、`records.ndjson` 和对应 schemas；只有需要把结果交给其他工具时才需要读取它。
 - 精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 

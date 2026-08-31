@@ -85,7 +85,7 @@ preflight 只能返回以下 closed result 之一：
 - `failure/block` 不允许 `fallback`，不调用 execution，并把 reason 原样用于 owning Check 的 `unavailable` outcome。
 - `failure/continue` 必须同时提供 reason 与 `fallback`，再以 fallback 进入 execution。reason 是 Check-owned diagnostic identity，当前不单独形成 outcome；需要调用方观察的详情应写入 `messages`。
 
-prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Check facts 或 machine output。preflight messages 排在 execution terminal messages 之前，即使 execution 随后抛错也会保留。
+prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Check facts 或 machine output。preflight 中捕获的 console messages、accepted preflight messages、execution 中捕获的 console messages 与 accepted terminal messages 依次排列；即使 execution 随后抛错，前两组仍会保留。
 
 Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。barrier 属于 execution phase，可能晚于 invocation preparation 或 progress setup，但保证 author Check execution、scanner 及其它 Check-local execution work 尚未开始。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
 
@@ -205,13 +205,20 @@ parser registry。
 Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Check facts, or machine publication.
 
 `messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
-`info | warning | error`; `code` is a non-empty Check-owned string; and `message` is a non-empty string, without trimming, Unicode normalization, or a Product item/length cap.
+`info | warning | error`; author attachment 的 `code` 是 non-empty Check-owned string，`message` 是 non-empty string，
+without trimming, Unicode normalization, or a Product item/length cap。Product 捕获的 console call 使用
+`console-<method>` code 和对应 level；它不是 author attachment，但复用相同 settlement/readback presentation shape。
 `CheckMessage` is a supporting declaration used by `CheckResult`; it does not expand the package-root named-type inventory.
 Omitted, own-property `undefined`, and an empty array all mean no messages. Product keeps author item order
 without de-duplication or normalization. It validates the complete attachment
 descriptor-safely with the terminal result: a malformed item or attachment makes the author result
 unavailable and no partial messages are accepted. Messages are supplemental human/programmatic detail,
 not final data or supplemental Records.
+
+`presentCheckFindings({ findings, limit, message, omittedMessage })` 是公共 Check-authoring helper：producer
+决定非负上限和安全单条格式，超限 hook 决定省略项等级，并提供实际的完整明细读取位置。它只形成已冻结 messages，
+不建立统一 Finding/Record shape，也不替 producer 保存完整 facts。完整使用契约见
+[深入 API 机制](api-mechanics.md#finding-presentation)。
 
 ## Recursive Check tree
 
@@ -530,7 +537,7 @@ export default defineConfig({ checks: [maintenance] });
 
 Unknown, duplicate, or non-normalized Check IDs fail validation before work. With no `checkAggregation`, completed/output facts contain `aggregate: null`; when present, Run derives `passed | failed | not-applicable | unavailable` only from the selected settled Check statuses. Raw canonical Check/Record facts are always retained for generic readback.
 
-A callback receives exactly `{ dependencies, options, project, records, signal }`. `options` is the canonical immutable invocation-local authored snapshot or preflight prepared/fallback value. `project` contains only the normalized root and canonical `flags`; owning Check options define Check-specific input acquisition, file selection, domain policy, and cache configuration, while declared dependencies provide shared final data. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Check-facts failures remain separate boundaries that can prevent callback admission. Product contains ordinary execution, record, and cancellation failures as an unavailable Check outcome. Malformed ordinary grammar returns configuration. A throwing, malformed or blocking preflight settles only its owning Check unavailable before callback work; custom Checks may omit preflight. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress writer failure marks `outputs.progressRendering` failed; when final facts are available it returns the `output` branch with `progress-rendering-failed`, without changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `output`, and execution-phase `cancelled` final-snapshot branches. It contains only accepted author attachments, ordered by canonical `snapshot.checks` order and then author item order; progress-disabled and progress-writer-failed runs retain the same readback.
+A callback receives exactly `{ dependencies, options, project, records, signal }`. `options` is the canonical immutable invocation-local authored snapshot or preflight prepared/fallback value. `project` contains only the normalized root and canonical `flags`; owning Check options define Check-specific input acquisition, file selection, domain policy, and cache configuration, while declared dependencies provide shared final data. All four ordinary upstream outcomes complete dependency ordering and admit downstream callbacks; Product does not translate an `unavailable` outcome into an implicit prerequisite failure. A downstream Check uses `dependencies.get` when its own result depends on upstream data. Cancellation before start, an invalid graph, and trusted engine/Check-facts failures remain separate boundaries that can prevent callback admission. Product contains ordinary execution, record, and cancellation failures as an unavailable Check outcome. Malformed ordinary grammar returns configuration. A throwing, malformed or blocking preflight settles only its owning Check unavailable before callback work; custom Checks may omit preflight. Every `RunResult` branch includes `definitionWarnings`; planning/execution diagnostics use documented run vocabulary. A progress writer failure marks `outputs.progressRendering` failed; when final facts are available it returns the `output` branch with `progress-rendering-failed`, without changing Check facts. A branch with a final `snapshot` also includes `checkDurations`, a frozen canonical-order array of `{ checkId, durationMs }` entries aligned one-for-one with `snapshot.checks`, and `checkMessages`, a frozen array of `{ checkId, level, code, message }`. `checkMessages` occurs only on `completed`, `output`, and execution-phase `cancelled` final-snapshot branches. It contains accepted author attachments and Product-captured Check console calls, ordered by canonical `snapshot.checks` order and then preflight console、preflight author、execution console、terminal author order; progress-disabled and progress-writer-failed runs retain the same readback.
 
 ## Run outputs and compatibility boundary
 
@@ -545,15 +552,14 @@ belong to [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界).
 Progress is enabled by the Product default: it owns the execution header, settled Check lifecycle
 feedback, and final execution summary on its target stream. TTY targets additionally show every running Check
 in a temporary region; non-TTY or dumb targets retain only settled feedback and the final summary. On
-settlement, `attention` hides only a passed Check with no messages. Every other four-state outcome, and a
+settlement, `attention` hides only a passed Check with no author or captured-console messages. Every other four-state outcome, and a
 passed `attention` Check with messages, emits its row plus all messages as one contiguous write; hidden
 Checks still consume the canonical completion ordinal and final counts. Progress presentation is not a project
 callback, observer, or renderer API, and a progress write failure fails that output without changing Check
-execution facts or accepted `checkMessages`. While progress is enabled, Check execution must not bypass the
-renderer with `console.log` / `console.error` or direct stdout/stderr writes: Product does not patch the caller's
-global console or multiplex arbitrary writes with the TTY running region. Authors return terminal `messages` or
-capture detailed output in a Check-owned sink; an invocation that requires direct console output must disable
-progress rendering. Flags are callback-local context: Product does not interpret
+execution facts or accepted `checkMessages`. Product 在 awaited preflight/execution async context 内临时路由全局
+`console.*`，把每项调用转换为 settlement-time message；context 外 host console 不变，并发 Check 各自保留顺序。
+直接 stdout/stderr、预先保存的 console method reference、全局 console replacement 和 floating async work 不属于可靠
+捕获边界；详细或流式输出仍由 Check-owned sink 承接。Flags are callback-local context: Product does not interpret
 their tokens or use them for Product-level Check selection or scheduling. Project-owned process transcripts remain
 owned by their Check/process adapter. A project may colocate a Product diagnostic log with such transcripts, but the
 two materials remain distinct and neither interprets the other.

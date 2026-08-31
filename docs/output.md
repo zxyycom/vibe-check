@@ -31,7 +31,8 @@ Check-local parser。
 也启用，二者共享该 instant。两项 output 都禁用时，Run 不读取或序列化 wall clock。每个 Check row 包含
 `checkId`、`displayName` 和一种 terminal outcome：`passed` / `failed` 带 object-shaped final `data`；
 `not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status 与
-diagnostic logging file、duration、terminal messages、visibility 和 progress presentation 不属于 machine fields。
+diagnostic logging file、duration、author terminal messages、Product-captured Check console messages、visibility 和
+progress presentation 不属于 machine fields。
 
 每个 `records.ndjson` row 的结构是：
 

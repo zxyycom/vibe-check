@@ -6,6 +6,7 @@ import {
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
 import { parseCheckTerminalResult } from "./terminal-result.ts";
+import { combineCheckMessages } from "./messages.ts";
 import type { CheckExecutionLifecycle } from "./resolved-checks.ts";
 import type { executeCheckCallback } from "./callback.ts";
 
@@ -46,7 +47,10 @@ export function settleCallback(
   const { callback } = input;
   if (callback.source === "product") {
     const outcome = input.scope.settleProduct(callback.result);
-    return Object.freeze({ messages: input.preflightMessages, outcome });
+    return Object.freeze({
+      messages: combineCheckMessages(input.preflightMessages, callback.consoleMessages),
+      outcome
+    });
   }
   const terminal = parseCheckTerminalResult(callback.result);
   if (terminal === undefined) {
@@ -67,8 +71,8 @@ export function settleCallback(
   return Object.freeze({
     messages:
       terminal !== undefined && settlement.authorResultAccepted
-        ? Object.freeze([...input.preflightMessages, ...terminal.messages])
-        : input.preflightMessages,
+        ? combineCheckMessages(input.preflightMessages, callback.consoleMessages, terminal.messages)
+        : combineCheckMessages(input.preflightMessages, callback.consoleMessages),
     outcome: settlement.outcome
   });
 }

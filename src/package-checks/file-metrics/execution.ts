@@ -5,7 +5,7 @@ import {
 } from "../../finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
-import { appendFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { fileMetricFindingMessages } from "./finding-messages.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
 import type { FileMetricsExactInputSet } from "./measurement-model.ts";
@@ -85,7 +85,7 @@ export async function executeFileMetrics(
     .filter(({ disposition }) => disposition !== "waived")
     .map(({ finding }) => finding);
   return appendWaiverMessages(
-    appendFindingMessages(settlement, fileMetricFindingMessages(actionableFindings)),
+    appendCheckMessages(settlement, fileMetricFindingMessages(actionableFindings)),
     reconciliation
   );
 }

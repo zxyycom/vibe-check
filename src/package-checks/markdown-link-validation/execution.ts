@@ -5,7 +5,7 @@ import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
-import { appendFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { createMarkdownLocalResolver, type MarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
 import { markdownFindingMessages } from "./finding-messages.ts";
@@ -77,7 +77,7 @@ export async function executeMarkdownLinkValidation(
   for (const candidate of traversal.candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return appendFindingMessages(
+  return appendCheckMessages(
     settledMarkdownTraversalResult({
       findingCount: traversal.candidates.length,
       findingPolicy: context.options.findingPolicy,

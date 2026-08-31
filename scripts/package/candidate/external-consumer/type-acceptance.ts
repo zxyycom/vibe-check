@@ -167,6 +167,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   parseJsonValidationData,
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
+  presentCheckFindings,
   run,
 __VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
 } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
@@ -292,6 +293,20 @@ const attentionCheck: Check = {
   execution: () => messagedResult,
   visibility: "attention"
 };
+const findingMessages = presentCheckFindings({
+  findings: [{ path: "src/example.ts" }],
+  limit: 1,
+  message: (finding) => ({
+    code: "finding-detail",
+    level: "warning",
+    message: finding.path
+  }),
+  omittedMessage: ({ omittedCount }) => ({
+    code: "findings-omitted",
+    level: "warning",
+    message: String(omittedCount) + " findings omitted"
+  })
+});
 const settledOutcome: CheckOutcome = { status: "passed", data: { selected: true } };
 if (settledOutcome.status === "passed") {
   // @ts-expect-error Settled Run outcomes expose readonly canonical data.
@@ -341,6 +356,8 @@ void [
   changedFilesConsumer,
   inheritedCheckIds,
   observeFinalDurations,
+  findingMessages,
+  presentCheckFindings,
   reminder,
   result
 ];

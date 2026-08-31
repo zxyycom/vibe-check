@@ -4,7 +4,7 @@ import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
-import { appendFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { duplicateFindingMessages } from "./finding-messages.ts";
 import { getGitSha } from "./project-revision.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";
@@ -61,7 +61,7 @@ export async function executeDuplicateDetection(
   for (const candidate of candidates) {
     context.records.report({ id: candidate.id }, candidate.data);
   }
-  return appendFindingMessages(
+  return appendCheckMessages(
     settleFindings(
       candidates.map((candidate) => ({ actionable: true, blocking: candidate.data.blocking }))
     ),

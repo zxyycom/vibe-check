@@ -7,6 +7,14 @@ import {
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 
+/** Preserves phase-local order while avoiding mutable or per-call empty message collections. */
+export function combineCheckMessages(
+  ...collections: readonly (readonly CheckMessage[])[]
+): readonly CheckMessage[] {
+  const messages = collections.flat();
+  return messages.length === 0 ? EMPTY_MESSAGES : Object.freeze(messages);
+}
+
 /** Parses the shared closed Check-message attachment without retaining author input. */
 export function parseCheckMessages(value: unknown): readonly CheckMessage[] | undefined {
   if (value === undefined) return EMPTY_MESSAGES;

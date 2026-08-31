@@ -7,6 +7,8 @@ import {
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
 import { parseCheckPreflightResult, type ParsedCheckPreflightResult } from "./preflight-result.ts";
+import { invokeWithCapturedConsole } from "./console-capture.ts";
+import { combineCheckMessages } from "./messages.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 const INERT_SIGNAL = new AbortController().signal;
@@ -49,9 +51,7 @@ type PrepareCheckInput = Readonly<{
   readonly signal: AbortSignal | undefined;
 }>;
 
-type PreflightInvocation =
-  | Readonly<{ readonly kind: "returned"; readonly output: unknown }>
-  | Readonly<{ readonly kind: "threw"; readonly error: unknown }>;
+type PreflightInvocation = Awaited<ReturnType<typeof invokeWithCapturedConsole<unknown>>>;
 
 /** Completes the sequential invocation-wide barrier before any Check enters the Task graph. */
 export async function prepareChecks(
@@ -115,22 +115,25 @@ function resolvePreflightInvocation(
       check: input.check,
       diagnosticLogger: input.diagnosticLogger,
       details: { error: invocation.error },
+      messages: invocation.messages,
       result: input.signal?.aborted ? "cancelled-after-throw" : "threw",
       reasonCode: input.signal?.aborted ? "execution-cancelled" : "preflight-threw"
     });
   }
-  return resolveReturnedPreflight(input, invocation.output);
+  return resolveReturnedPreflight(input, invocation.output, invocation.messages);
 }
 
 function resolveReturnedPreflight(
   input: PrepareCheckInput,
-  preflightOutput: unknown
+  preflightOutput: unknown,
+  consoleMessages: readonly CheckMessage[]
 ): CheckPreflightResolution {
   if (input.signal?.aborted) {
     return observeBlockedPreflight({
       check: input.check,
       diagnosticLogger: input.diagnosticLogger,
       details: { raw: preflightOutput },
+      messages: consoleMessages,
       result: "cancelled-after-callback",
       reasonCode: "execution-cancelled"
     });
@@ -141,23 +144,25 @@ function resolveReturnedPreflight(
       check: input.check,
       diagnosticLogger: input.diagnosticLogger,
       details: { raw: preflightOutput },
+      messages: consoleMessages,
       result: "malformed",
       reasonCode: "invalid-preflight-result"
     });
   }
   if (preflightResult.status === "failure" && preflightResult.action === "block") {
-    return resolveBlockedPreflightResult(input, preflightResult);
+    return resolveBlockedPreflightResult(input, preflightResult, consoleMessages);
   }
-  return resolveReadyPreflightResult(input, preflightOutput, preflightResult);
+  return resolveReadyPreflightResult(input, preflightOutput, preflightResult, consoleMessages);
 }
 
 function resolveBlockedPreflightResult(
   input: PrepareCheckInput,
-  preflightResult: Extract<ParsedCheckPreflightResult, { readonly action: "block" }>
+  preflightResult: Extract<ParsedCheckPreflightResult, { readonly action: "block" }>,
+  consoleMessages: readonly CheckMessage[]
 ): CheckPreflightResolution {
   const resolution = blockedResolution({
     check: input.check,
-    messages: preflightResult.messages,
+    messages: combineCheckMessages(consoleMessages, preflightResult.messages),
     reasonCode: preflightResult.reason.code
   });
   observePreflightResolution(
@@ -176,13 +181,14 @@ function resolveBlockedPreflightResult(
 function resolveReadyPreflightResult(
   input: PrepareCheckInput,
   preflightOutput: unknown,
-  preflightResult: Exclude<ParsedCheckPreflightResult, { readonly action: "block" }>
+  preflightResult: Exclude<ParsedCheckPreflightResult, { readonly action: "block" }>,
+  consoleMessages: readonly CheckMessage[]
 ): CheckPreflightResolution {
   const checkId = input.check.definition.checkId;
   const result = preflightResult.status === "success" ? "prepared" : "continued";
   const resolution = readyResolution({
     authoredCheck: input.check,
-    messages: preflightResult.messages,
+    messages: combineCheckMessages(consoleMessages, preflightResult.messages),
     preparedOptions:
       preflightResult.status === "success"
         ? preflightResult.preparedOptions
@@ -200,14 +206,7 @@ async function invokePreflight(
   check: NormalizedCheck,
   signal: AbortSignal | undefined
 ): Promise<PreflightInvocation> {
-  try {
-    return Object.freeze({
-      kind: "returned",
-      output: await check.preflight!(check.options, signal ?? INERT_SIGNAL)
-    });
-  } catch (error) {
-    return Object.freeze({ kind: "threw", error });
-  }
+  return invokeWithCapturedConsole(() => check.preflight!(check.options, signal ?? INERT_SIGNAL));
 }
 
 function observeBlockedPreflight(
@@ -215,13 +214,14 @@ function observeBlockedPreflight(
     readonly check: NormalizedCheck;
     readonly diagnosticLogger: DiagnosticLogger | undefined;
     readonly details: Readonly<Record<string, unknown>>;
+    readonly messages?: readonly CheckMessage[];
     readonly result: PreflightResolutionResult;
     readonly reasonCode: string;
   }>
 ): BlockedCheckPreflightResolution {
   const resolution = blockedResolution({
     check: input.check,
-    messages: EMPTY_MESSAGES,
+    messages: input.messages ?? EMPTY_MESSAGES,
     reasonCode: input.reasonCode
   });
   observePreflightResolution(
@@ -284,7 +284,7 @@ function readyResolution(
   if (preparedOptions === undefined) {
     return blockedResolution({
       check: input.authoredCheck,
-      messages: EMPTY_MESSAGES,
+      messages: input.messages,
       reasonCode: "invalid-preflight-result"
     });
   }

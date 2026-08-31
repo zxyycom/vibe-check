@@ -82,6 +82,7 @@ export type { MarkdownLinkValidationRecordData } from "./package-checks/markdown
 export type { MarkdownLinkFindingReason } from "./package-checks/markdown-link-validation/local-resolver.ts";
 export type { FindingPolicy } from "./package-checks/code-quality-findings/policy.ts";
 export { reconcileFindingWaivers } from "./finding-waivers/reconciliation.ts";
+export { presentCheckFindings } from "./check/finding-presentation.ts";
 export type {
   FindingWaiver,
   FindingWaiverAudit,

@@ -2,7 +2,7 @@ import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../che
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
-import { appendFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { functionFindingMessages } from "./finding-messages.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
 import { measureFunctionMetrics, type FunctionMeasurementResult } from "./measurement.ts";
@@ -189,7 +189,7 @@ function settleFunctionFindings(
     })),
     ...rejectedCandidates.map(() => ({ actionable: false, blocking: false }))
   ]);
-  return appendFindingMessages(
+  return appendCheckMessages(
     appendInputRejectedMessage(settlement, rejectedCandidates.length),
     functionFindingMessages([...metricCandidates, ...rejectedCandidates])
   );

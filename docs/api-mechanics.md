@@ -68,20 +68,54 @@ selected-but-rejected 行为由对应 Check 指南说明。
 ### Check 输出与受管 progress
 
 Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
-region，并在同一个 terminal 上移动光标；execution 中直接调用 `console.log`、`console.error`、
-`process.stdout.write` 或 `process.stderr.write` 会绕过 renderer，使光标状态与实际终端内容不一致。Product 不替换
-全局 `console`，也不拦截或归属这些写入。
+region，并在同一个 terminal 上移动光标。Product 在每个 Check 的 awaited preflight/execution async context 中临时路由
+全局 `console.*`：当前 Check 的调用先进入独立内存数组，settlement 后再与该 Check 的 row 连续呈现，并以
+`console-<method>` code 保留在 `RunResult.checkMessages`。并发 Check 的数组互不混合；Check context 外的 host console
+继续走原方法。
 
-- 需要随 terminal result 一起呈现和读取的说明，返回结构化 `messages`。它们在 Check settlement 后由 renderer
-  连续输出，并保留在 `RunResult.checkMessages`。
-- 需要详细过程证据时，把输出捕获到 Check-owned file、transcript 或调用方注入的独立 logger；不要让 child
-  process 继承受管 terminal stream。
-- 必须由 execution 直接写 console 时，对该次 invocation 使用
-  `run(definition, { outputs: { progressRendering: { enabled: false } } })`。这会关闭 Product progress，而不会把
-  console 文本变成 Check fact、message 或 machine output。
+- `console.log` / `info` / `debug` 等普通输出映射为 `info`，`warn` 映射为 `warning`，`error` / `trace` / failed
+  `assert` 映射为 `error`。Product 使用非彩色 Console formatting，并在最终 renderer 中转义 terminal controls。
+- preflight console 排在 preflight author messages 前；execution console 排在 terminal author messages 前。callback
+  随后 throw、取消或返回 malformed result 时，已经捕获的 console 文本仍保留，非法 author message attachment
+  仍按原规则整体拒绝。
+- 捕获只覆盖通过当前全局 `console` 发起、且属于 callback 已等待 async work 的调用。预先保存的 method reference、
+  callback 自行替换全局 console、未等待的 floating work，以及 `process.stdout.write` / `process.stderr.write` 不在
+  可靠归属边界内。
+- 高容量、流式或 child-process 输出必须写入 Check-owned file、transcript 或独立 logger；不要让它继承受管 terminal
+  stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久诊断材料。
 
-在 `run(...)` 返回之后再由调用方打印汇总不受 running region 约束。Product 不承诺 progress enabled 时与任意直接
-console/stdout/stderr 写入可靠交错。
+需要稳定补充说明时仍优先在 terminal result 返回结构化 `messages`；console capture 是对常见 author logging 的安全
+兼容边界，不是新的 live observer 或 Check logger API。在 `run(...)` 返回后由调用方打印汇总不受 running region 约束。
+
+## Finding presentation
+
+`presentCheckFindings(...)` 是 package root 的通用 presentation helper。它不规定 Finding shape 或完整明细位置；producing
+Check 必须提供稳定排序的 `findings`、非负安全整数 `limit`、单条 `message` hook，以及超限时的
+`omittedMessage` hook：
+
+```ts
+import { presentCheckFindings } from "@zxyycom/vibe-check";
+
+const messages = presentCheckFindings({
+  findings,
+  limit: 20,
+  message: (finding) => ({
+    code: "finding-detail",
+    level: finding.blocking ? "error" : "warning",
+    message: `${finding.path}:${finding.line} ${finding.summary}`
+  }),
+  omittedMessage: ({ omittedCount, omittedFindings, presentedCount, totalCount }) => ({
+    code: "findings-omitted",
+    level: omittedFindings.some((finding) => finding.blocking) ? "error" : "warning",
+    message: `${omittedCount} more of ${totalCount} findings; inspect reports/my-check.json after the first ${presentedCount}.`
+  })
+});
+```
+
+helper 只调用前 `limit` 项的 `message` hook；超限时再调用一次 `omittedMessage`。超限 context 同时给出完整计数和
+原 `omittedFindings` references，因此 Check 可以决定省略项等级，并明确告诉 consumer 去 Records、artifact、transcript
+或其它实际位置深入查看。返回值只是已冻结 `CheckMessage[]`；Check 仍需把它附加到自己的 terminal result，并自行保存
+完整 Finding facts。四项随包质量 Check 使用该通用机制但各自选择 `limit: 10` 和安全字段。
 
 ## Finding waiver reconciliation
 
@@ -206,7 +240,7 @@ failure 只把该 output 标为 failed，不改写已形成的 Check/Record fact
 machine publication、diagnostic logging。diagnostic logging 不进入 machine v4；其 machine-field 排除见
 [机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
 
-progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted message 的 code 保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
+progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 author/captured messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 

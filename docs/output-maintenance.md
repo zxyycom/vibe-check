@@ -33,17 +33,18 @@ snapshot，完整集合 fingerprint 与 handled-failure cleanup 承接 fail-clos
 
 ## 进度呈现实现
 
-Product progress 从 producing Run 的 lifecycle facts 呈现 status、duration、受控 reason code 和已接受 messages，不从
-machine artifacts 恢复状态。每个 visible settled block 先输出 row，再按 author order 输出 message lines；message code
-保留在 `RunResult.checkMessages`，不重复到终端。`attention` 只省略 passed 且无 messages 的 settled row，所有 outcomes
+Product progress 从 producing Run 的 lifecycle facts 呈现 status、duration、受控 reason code 和受管 messages，不从
+machine artifacts 恢复状态。每个 visible settled block 先输出 row，再按 preflight console、preflight author、execution
+console、terminal author order 输出 message lines；message code 保留在 `RunResult.checkMessages`，不重复到终端。
+`attention` 只省略 passed 且无 messages 的 settled row，所有 outcomes
 仍计入 canonical ordinal 和最终计数。
 
 普通 TTY 在仍有 Check 运行时每 5 秒重绘 running region，并显示基于共享 monotonic interval 的 elapsed time；首次 running
 row 在 heartbeat 前不伪造时长。Plain output 与 `TERM=dumb` 保持 append-only，只在 settled 后输出 row，也不启动
-heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；in-process Check operation 必须保持 stdout/stderr 静默，
-通过 Check result、message 或 project-owned transcript 返回事实。Product 不 monkey-patch 全局 `console` 或
-`process.stdout`；需要从 execution 直接写 console 的 invocation 必须关闭 progress rendering，不能依赖当前 target
-偶然是 non-TTY 来建立兼容保证。
+heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；Product 通过 async-context-aware global-console router
+捕获 awaited Check preflight/execution 的 `console.*`，context 外调用继续委托 host console，并在最后一个 capture 结束后
+恢复原 method descriptors。Product 不 patch `process.stdout` / `process.stderr`；in-process Check 的直接 stream writes 和
+child-process 输出必须进入独立 sink，不能依赖当前 target 偶然是 non-TTY 来建立兼容保证。
 
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只给 level label 加色。display name、
 reason 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029；原 message string

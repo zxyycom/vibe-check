@@ -62,8 +62,10 @@ status 规则。
 再说明未显示数量并引导读取 owning Check 的 Records。摘要只能使用 Check owner 已确认安全的项目相对路径、位置、指标、
 阈值、函数名和封闭 reason，不复制 absolute path、raw Link destination、scanner/command output 或 remote material。完整
 Finding identity 与 data 仍只由 final data 和 Records 拥有；generic progress、aggregation 与 machine publication 不解释摘要。
-十条上限和安全字段投影是这些随包 Check 共用的内部 presentation policy，不是所有 Check 自动获得的 generic Finding
-机制。通用能力只有 terminal `messages`；custom Check 必须自行决定是否生成摘要及其安全字段。
+十条上限和安全字段投影仍是这些随包 Check 自己的 policy；Product 不从 Record shape 自动推断 Finding。package root
+提供通用 `presentCheckFindings(...)`，让 custom Check 显式给出自己的 `limit`、单条安全 message hook 和超限 hook。
+超限 hook 负责说明完整明细实际位于 Records、artifact、transcript 或其它 Check-owned 位置；helper 只返回 messages，
+不发布、复制或截断完整 Finding facts。
 
 需要文件的 Check 各自从 Check-owned file selection 形成 selected/exact input paths：三个 metric Check 使用每个
 `codeAreas[id].files`，其它 file-reading Checks 使用顶层 `options.files`。它们只在 detail 是 supplemental finding 时报告

@@ -32,6 +32,27 @@ Entities:
 - The public helper reconciles each configured waiver against the complete caller-provided finding collection by caller-defined canonical structural identity, preserving finding order and original finding references. Zero, one, and multiple matches respectively produce unused, applied, and overmatched audit outcomes; overmatched identities do not waive findings.
 - Applied evidence is a detached, deep-frozen materialization of the authored waiver rather than a mutable authored object. Duplicate, malformed, noncanonical, or hostile waiver authoring and invalid finding identity fail with `TypeError` without invoking author accessors.
 
+## Case API-FINDING-PRESENTATION-001: Producing Checks own bounded Finding presentation
+
+Owner: `docs/api-mechanics.md#finding-presentation`
+Entities:
+
+- `bun|src/check/finding-presentation.test.ts|Check Finding presentation > lets the producing Check own the visible limit and overflow navigation`
+  Proves:
+- The public helper formats only the caller-selected stable prefix, freezes its messages, and calls the overflow hook once with exact omitted/presented/total counts and the original omitted Finding references.
+- A custom Check can choose a zero or positive limit and provide its actual full-detail location without Product knowledge of Finding shape or storage; an invalid limit fails before any Finding hook runs.
+
+## Case WB-RUNTIME-CHECK-CONSOLE-001: Product settles Check console output without TTY interference
+
+Owner: `docs/api-mechanics.md#check-输出与受管-progress`
+Entities:
+
+- `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > attributes concurrent console calls and presents them only after Check settlement`
+- `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > retains preflight and execution console calls when the author callback throws`
+  Proves:
+- Concurrent awaited Check console calls remain attributed to their async Check contexts, become method-coded messages in canonical Check order, appear only in settled progress blocks, and leave no stale TTY running rows; progress-disabled Runs retain the same readback without direct console output, and the original host console method is restored after capture.
+- Captured preflight and execution output preserves phase order and remains readable when execution throws, while author-provided preflight messages keep their relative place and terminal control bytes are escaped only by presentation.
+
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 
 Owner: `docs/configuration.md#invocation-and-results`

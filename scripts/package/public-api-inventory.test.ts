@@ -24,6 +24,7 @@ import {
   parseJsonValidationData,
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
+  presentCheckFindings,
   reconcileFindingWaivers
 } from "../../src/index.ts";
 import { run } from "../../src/project-run/run.ts";
@@ -65,6 +66,10 @@ describe("public API inventory", () => {
       CURRENT_PUBLIC_CONTRACT.operations.markdownLinkValidation
     );
     assert.equal(
+      presentCheckFindings.name,
+      CURRENT_PUBLIC_CONTRACT.operations.presentCheckFindings
+    );
+    assert.equal(
       reconcileFindingWaivers.name,
       CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers
     );
@@ -75,6 +80,7 @@ describe("public API inventory", () => {
     assert.equal(typeof jsonSchemaValidation, "function");
     assert.equal(typeof jsonValidation, "function");
     assert.equal(typeof markdownLinkValidation, "function");
+    assert.equal(typeof presentCheckFindings, "function");
     assert.equal(typeof reconcileFindingWaivers, "function");
     assert.equal(
       parseDuplicateDetectionData.name,

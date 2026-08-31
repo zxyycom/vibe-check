@@ -1,23 +1,29 @@
 import type {
   CheckDependencies,
   CheckExecutionContext,
+  CheckMessage,
   CheckOutcome,
   CheckProjectContext
 } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { CoreInvariantFailure, type TrustedCheckScope } from "../../check-settlement/session.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import { invokeWithCapturedConsole } from "./console-capture.ts";
+
+const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 
 export type CallbackExecution = Readonly<
   | {
       /** Raw author result; Core owns its sole validation and canonicalization. */
       readonly source: "author";
       readonly result: unknown;
+      readonly consoleMessages: readonly CheckMessage[];
     }
   | {
       /** Only callback containment may create a Product-controlled outcome. */
       readonly source: "product";
       readonly result: CheckOutcome;
+      readonly consoleMessages: readonly CheckMessage[];
     }
 >;
 
@@ -41,6 +47,7 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
   const checkTags = diagnosticTags(`CHECK:${checkId}`, "EXECUTION");
   const reporter = createCheckReporter(input.scope, input.diagnosticLogger, checkTags);
   let result: CallbackExecution;
+  let consoleMessages = EMPTY_MESSAGES;
   try {
     const context = Object.freeze({
       dependencies: input.dependencies,
@@ -49,7 +56,10 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       records: reporter.records,
       signal: input.signal
     });
-    const callbackResult = await input.check.execution(context);
+    const invocation = await invokeWithCapturedConsole(() => input.check.execution(context));
+    consoleMessages = invocation.messages;
+    if (invocation.kind === "threw") throw invocation.error;
+    const callbackResult = invocation.output;
     if (input.signal.aborted) {
       input.diagnosticLogger?.observe({
         event: "callback.cancelled",
@@ -58,8 +68,12 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       });
     }
     result = input.signal.aborted
-      ? productResult("execution-cancelled")
-      : Object.freeze({ source: "author", result: callbackResult });
+      ? productResult("execution-cancelled", consoleMessages)
+      : Object.freeze({
+          source: "author",
+          result: callbackResult,
+          consoleMessages
+        });
   } catch (error) {
     if (error instanceof CoreInvariantFailure) throw error;
     input.diagnosticLogger?.observe({
@@ -67,7 +81,10 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       tags: diagnosticTags(...checkTags, input.signal.aborted ? "CANCELLED" : "THREW"),
       details: { error }
     });
-    result = productResult(input.signal.aborted ? "execution-cancelled" : "execution-threw");
+    result = productResult(
+      input.signal.aborted ? "execution-cancelled" : "execution-threw",
+      consoleMessages
+    );
   } finally {
     reporter.close();
   }
@@ -98,8 +115,9 @@ function createCheckReporter(
   });
 }
 
-function productResult(code: string): CallbackExecution {
+function productResult(code: string, consoleMessages: readonly CheckMessage[]): CallbackExecution {
   return Object.freeze({
+    consoleMessages,
     source: "product",
     result: Object.freeze({ status: "unavailable", reason: Object.freeze({ code }) })
   });

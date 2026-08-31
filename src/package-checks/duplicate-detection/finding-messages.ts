@@ -1,26 +1,29 @@
 import type { CheckMessage } from "../../check/check.ts";
-import { boundedFindingMessages } from "../finding-presentation/bounded-messages.ts";
+import { presentCheckFindings } from "../../check/finding-presentation.ts";
 import type { DuplicateDetectionRecordData, DuplicateRecordCandidate } from "./records.ts";
+
+const PRESENTED_FINDING_LIMIT = 10;
 
 /** Projects duplicate Records into bounded, project-relative terminal summaries. */
 export function duplicateFindingMessages(
   candidates: readonly DuplicateRecordCandidate[]
 ): readonly CheckMessage[] {
-  return boundedFindingMessages({
+  return presentCheckFindings({
     findings: candidates,
+    limit: PRESENTED_FINDING_LIMIT,
     message: ({ data }) =>
       Object.freeze({
         code: "finding-detail",
         level: data.blocking ? ("error" as const) : ("warning" as const),
         message: `Duplicate fragment contains ${data.tokenCount} tokens across ${data.lineCount} lines at ${duplicateLocations(data.locations)}.`
       }),
-    omittedMessage: (omittedFindings) =>
+    omittedMessage: ({ omittedCount, omittedFindings }) =>
       Object.freeze({
         code: "findings-omitted",
         level: omittedFindings.some(({ data }) => data.blocking)
           ? ("error" as const)
           : ("warning" as const),
-        message: `${omittedFindings.length} additional duplicate finding(s) were not shown; inspect this Check's Records for the complete set.`
+        message: `${omittedCount} additional duplicate finding(s) were not shown; inspect this Check's Records for the complete set.`
       })
   });
 }
