@@ -5,6 +5,7 @@ import { collectFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_LICENSE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
@@ -19,19 +20,23 @@ import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 import {
   assertJSDocExamplePayloads,
   assertMomoaLicenseContent,
+  assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
+import { auditCandidateManifest } from "./manifest.ts";
 
 const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   "package.json",
   PACKAGE_ENTRY_PATH,
+  PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_MOMOA_LICENSE_PATH
 ]);
 
 export function auditStagingRuntime(input: {
+  readonly candidateVersion: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
@@ -39,6 +44,7 @@ export function auditStagingRuntime(input: {
   readonly stagingDirectory: string;
 }): void {
   const {
+    candidateVersion,
     expectedDocuments,
     expectedJSDocExamplePayloads,
     expectedMachineMaterials,
@@ -53,6 +59,10 @@ export function auditStagingRuntime(input: {
     ...expectedMachineMaterials.map((material) => material.packagePath)
   ]);
   assertStagingEntries(entryPath, runtimeEntryPath, typesPath);
+  auditCandidateManifest(
+    readFileSync(join(stagingDirectory, "package.json"), "utf8"),
+    candidateVersion
+  );
   if (readFileSync(entryPath, "utf8") !== PACKAGE_ENTRY_SOURCE) {
     throw new Error("candidate public facade does not match the approved runtime entry");
   }
@@ -98,6 +108,7 @@ function assertStagingPublishedMaterials(input: {
   assertPackageDocumentation(stagingDirectory, expectedDocuments);
   assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
   assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
+  assertPackageLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
       path.endsWith(".d.ts")

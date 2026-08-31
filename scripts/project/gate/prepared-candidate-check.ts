@@ -10,8 +10,9 @@ import type {
 import { fileMatchesSha256, isSha256Digest } from "../../package/pack.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
+import { parseCandidatePreparationFact } from "./prepared-candidate-fact.ts";
 
-const PREPARED_CANDIDATE_DATA_VERSION = 2 as const;
+const PREPARED_CANDIDATE_DATA_VERSION = 3 as const;
 const PREPARED_CANDIDATE_DATA_KEYS = [
   "artifactPath",
   "candidateVersion",
@@ -166,45 +167,6 @@ function preparedCandidatePaths(
   ];
 }
 
-function parseCandidatePreparationFact(
-  value: Readonly<Record<string, unknown>>
-): CandidatePreparationFact {
-  if (
-    value.preparationAction === "reuse" &&
-    value.preparationReason === "installation-current" &&
-    value.reused === true
-  ) {
-    return Object.freeze({
-      preparationAction: "reuse",
-      preparationReason: "installation-current",
-      reused: true
-    });
-  }
-  if (
-    value.preparationAction === "reinstall" &&
-    value.preparationReason === "installation-invalid" &&
-    value.reused === false
-  ) {
-    return Object.freeze({
-      preparationAction: "reinstall",
-      preparationReason: "installation-invalid",
-      reused: false
-    });
-  }
-  if (
-    value.preparationAction === "rebuild" &&
-    isArtifactReuseRejection(value.preparationReason) &&
-    value.reused === false
-  ) {
-    return Object.freeze({
-      preparationAction: "rebuild",
-      preparationReason: value.preparationReason,
-      reused: false
-    });
-  }
-  throw new TypeError("prepared candidate data has an invalid preparation fact");
-}
-
 function candidateData(candidate: PreparedPackageCandidate): ProjectGatePreparedCandidateData {
   const identity: ProjectGatePreparedCandidateIdentity = Object.freeze({
     artifactPath: candidate.artifactPath,
@@ -244,21 +206,6 @@ function validatePreparedCandidateFiles(data: ProjectGatePreparedCandidateData):
 function exactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
   const actual = Object.keys(value).sort();
   return actual.length === keys.length && actual.every((key, index) => key === keys[index]);
-}
-
-function isArtifactReuseRejection(
-  value: unknown
-): value is Extract<
-  CandidatePreparationFact,
-  { readonly preparationAction: "rebuild" }
->["preparationReason"] {
-  return (
-    value === "artifact-invalid" ||
-    value === "artifact-unavailable" ||
-    value === "receipt-input-mismatch" ||
-    value === "receipt-invalid" ||
-    value === "receipt-missing"
-  );
 }
 
 function nonEmptyString(value: unknown): value is string {

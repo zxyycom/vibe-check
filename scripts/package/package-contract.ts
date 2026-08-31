@@ -1,6 +1,15 @@
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 
 export const CANDIDATE_NAME = "vibe-check";
+export const PACKAGE_BUN_ENGINE = ">=1.3.14";
+export const PACKAGE_LICENSE = "MIT";
+export const PACKAGE_LICENSE_PATH = "LICENSE";
+export const PACKAGE_LICENSE_SHA256 =
+  "2c005fcd357a0fd2f0136a9cbb3b80645ace42b186368c8ffe144b2912bb107a";
+export const PACKAGE_LICENSE_SOURCE_PATH = "LICENSE";
+export const PACKAGE_PUBLISH_ACCESS = "public";
+export const PACKAGE_PUBLISH_REGISTRY = "https://registry.npmjs.org/";
+export const PACKAGE_REPOSITORY_MANIFEST_URL = "git+https://github.com/zxyycom/vibe-check.git";
 export const AJV_PACKAGE_NAME = "ajv";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
@@ -35,6 +44,17 @@ export const PACKAGE_THIRD_PARTY_LICENSES_DIRECTORY = "third-party-licenses";
 export const PACKAGE_TYPES_DIRECTORY = "types";
 export const PACKAGE_TYPES_PATH = `${PACKAGE_TYPES_DIRECTORY}/index.d.ts`;
 export const PACKAGE_ENTRY_SOURCE = `export * from "./${PACKAGE_RUNTIME_ENTRY_PATH}";\n`;
+
+export const PACKAGE_MANIFEST_FILES = Object.freeze([
+  PACKAGE_ENTRY_PATH,
+  PACKAGE_LICENSE_PATH,
+  PACKAGE_README_PATH,
+  PACKAGE_DOCUMENTATION_DIRECTORY,
+  PACKAGE_DISTRIBUTION_DIRECTORY,
+  PACKAGE_TYPES_DIRECTORY,
+  PACKAGE_SOURCE_DIRECTORY,
+  PACKAGE_THIRD_PARTY_LICENSES_DIRECTORY
+]);
 
 /** Exact Apache-2.0 text from Momoa's `momoa-js-v3.3.12` source tag. */
 export const MOMOA_LICENSE_SHA256 =

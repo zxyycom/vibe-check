@@ -1,9 +1,11 @@
-import type { ProcessInvocation } from "../../../process-execution/command.ts";
 import {
   CANDIDATE_ARTIFACT_PATH_ENV,
   CANDIDATE_ARTIFACT_SHA256_ENV
 } from "../../../package/candidate/acceptance-input.ts";
-import { CANDIDATE_STAGING_DIRECTORY_ENV } from "../../../package/artifact/acceptance-input.ts";
+import {
+  CANDIDATE_STAGING_DIRECTORY_ENV,
+  CANDIDATE_VERSION_ENV
+} from "../../../package/artifact/acceptance-input.ts";
 import type { Check } from "vibe-check";
 
 import type { ProjectGateTag } from "../catalog.ts";
@@ -246,7 +248,8 @@ function artifactCandidateEnvironment(
   return Object.freeze({
     [CANDIDATE_ARTIFACT_PATH_ENV]: data.artifactPath,
     [CANDIDATE_ARTIFACT_SHA256_ENV]: data.sha256,
-    [CANDIDATE_STAGING_DIRECTORY_ENV]: data.stagingDirectory
+    [CANDIDATE_STAGING_DIRECTORY_ENV]: data.stagingDirectory,
+    [CANDIDATE_VERSION_ENV]: data.candidateVersion
   });
 }
 
@@ -273,7 +276,7 @@ function externalConsumerEnvironment(
   });
 }
 
-function bunTestInvocation(files: readonly string[], repositoryRoot: string): ProcessInvocation {
+function bunTestInvocation(files: readonly string[], repositoryRoot: string) {
   return Object.freeze({
     args: Object.freeze(["test", ...files, "--reporter=dots"]),
     command: process.execPath,

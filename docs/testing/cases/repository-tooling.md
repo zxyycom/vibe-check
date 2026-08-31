@@ -2,7 +2,7 @@
 
 ## Case AUX-PACKAGE-CANDIDATE-001: Candidate lifecycle reuses only verified local package state
 
-Owner: `docs/script-tooling.md#package-artifact-与-candidate`
+Owner: `docs/script-tooling.md#local-candidate-lifecycle`
 Entities:
 
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation > rejects overlapping package build and cache roots`
@@ -29,10 +29,29 @@ Entities:
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits documented public declarations`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved MIT, Bun host, repository, and public registry contract`
+- `bun|scripts/package/artifact/manifest.test.ts|generated package manifest rejects legal, host, publish, executable, and export drift`
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
+- The closed generated manifest and physical allowlist carry Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
 - The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, and all four complete current artifact examples through staging and tar audit, including exact zero-byte NDJSON files and excluding historical material.
+
+## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
+
+Owner: `docs/script-tooling.md#formal-release-preparation-and-receipt`
+Entities:
+
+- `bun|scripts/package/release/release.test.ts|formal package release > accepts only explicit canonical prestable versions and conservative tags`
+- `bun|scripts/package/release/release.test.ts|formal package release > writes a portable sanitized receipt and rejects identity or artifact drift`
+- `bun|scripts/package/release/release.test.ts|formal package release > isolates formal staging and receipt state from the default local candidate`
+- `bun|scripts/package/release/release.test.ts|formal package release > requires one exact clean Git worktree revision before formal preparation`
+- `bun|scripts/package/release/command.test.ts|formal release root commands require closed inputs and bind verification to one full-Gate receipt`
+  Proves:
+
+- Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
+- The versioned receipt uses repository-relative canonical paths and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/legal/README identities, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
+- The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified full Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
@@ -68,7 +87,7 @@ Entities:
 - `bun|scripts/project/gate/external-consumer-material-check.test.ts|external consumer provider binds typed output to invocation provenance`
   Proves:
 
-- Artifact, candidate, and external-consumer acceptance each consume only their closed provider-owned path, digest, containment, and inventory material; incomplete, unrelated, mismatched, or malformed material fails before acceptance work begins.
+- Artifact, candidate, and external-consumer acceptance each consume only their closed provider-owned path, digest, containment, inventory, and exact candidate-version material; incomplete, unrelated, mismatched, or malformed material fails before acceptance work begins. Artifact staging uses that version to audit the same manifest identity as the prepared tarball.
 - The external-consumer provider additionally binds its typed output to the prepared artifact path and digest plus its invocation-owned lease root and consumer paths; a same-digest foreign artifact or escaped consumer provenance fails closed.
 
 ## Case AUX-PACKAGE-EXTERNAL-CONSUMER-001: An external consumer runs the installed candidate without ancestry fallback
@@ -166,6 +185,7 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds retained workspace verification names directly to the Gate profiles without disabled tags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current profile membership closed`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete full selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects ordinary Check entries without a command catalog or policy`
 - `bun|scripts/project/gate/repository-quality-checks.test.ts|repository quality Checks > uses the retained repository policy and mise-provided absolute scanner commands`
 - `bun|scripts/project/gate/repository-quality-checks.test.ts|repository quality Checks > substitutes an unavailable absolute command when mise bindings are missing or relative`
@@ -176,6 +196,7 @@ Entities:
 - Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check、candidate lifecycle、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities。直接的 duplicate/file/function/Markdown repository-quality Checks 可由 quality tag 禁用；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate，findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度：candidate lifecycle 与 provider 共享 named lifecycle mutex，artifact 直接消费 prepared candidate，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。
 - Gate 自有 quality 构造显式保留 repository-specific files 与 duplicate thresholds、file-metrics `300 + 500/10`、function-metrics `50 + 150/below 5 + CC 10 + parameters 5` 和 non-blocking findings，不继承更宽松的 package consumer defaults；Markdown selection 只包含 `docs/**/*.md` 与 `changes/**/*.md`，不会用 TypeScript scope 制造 input-rejection noise。
 - adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
+- `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求无 tag override 的完整 full profile；普通无参/required/full 调用仍使用 local candidate source。
 - Required 默认不选择带 `package-tests` 的 candidate lifecycle、artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 仍在 required 中。显式 enable tag 或 full 才纳入这些 Checks；excluded Checks 的 reason code 指明具体 profile/tag，terminal message 指明没有运行的 Check 动作和恢复命令，aggregate 只消费同次 selection 的 eligible identities。启动 summary 另明确 package acceptance 是未选择、按 profile/tag 选择还是被禁用。
 - Candidate lifecycle、artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共六个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。
 
@@ -248,7 +269,7 @@ Entities:
 - `bun|scripts/project/gate/prepared-candidate-check.test.ts|prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest`
   Proves:
 
-- Required provider Check 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact。
+- Required provider Check 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact；schema 明确区分 local rebuild/reinstall/reuse 与 formal `release / release-receipt`。
 - Provider 在 artifact、staging 或 resolved entry 缺失以及 artifact digest 漂移时 fail closed；artifact acceptance 与 external-consumer provider 只能按各自需要解析同一次 typed Gate candidate，不能把未验证路径当作 dependency input。
 
 ## Case AUX-PROJECT-GATE-ADAPTER-001: Project Gate 只闭合已准备的完整 invocation
@@ -258,13 +279,14 @@ Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > returns help before candidate or log work`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > does not load or run a candidate consumer after preparation failure`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses explicit formal receipt preparation without invoking local candidate preparation`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > rejects an imported entry that differs from the prepared candidate before log/run`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > consumes package aggregation without traversing the raw Check snapshot`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > maps aggregate, definition warning, output and malformed facts to Gate exits`
   Proves:
 
 - `--help`、preparation failure 或 prepared/imported entry mismatch 均在 consumer execution 前停止；help 与 mismatch 也在 invocation log 创建前停止，help 还不会准备或导入 candidate。
-- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。
+- 成功 invocation 只各执行一次 candidate preparation、consumer load、log-directory creation 和 bound Run，并把同次 normalized selection flags 与 prepared candidate 交给 consumer。Formal mode 只调用 receipt preparer 并把其 exact installed artifact 交给 Run，不调用或回退到 local fingerprint preparer。
 - 初步 Gate 结果要求 Package Run 的 explicit aggregate 为 passed；definition warning、progress failure 或非-passed aggregate 形成 failed，non-completed 或 malformed result 形成 unavailable。adapter 不遍历 snapshot 重建 aggregate。
 
 ## Case AUX-PROJECT-GATE-POST-PROCESSING-001: Project Gate 后处理只产出一个最终结果

@@ -2,10 +2,18 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { errorMessage } from "../../error-message.ts";
-import { assertJSDocExamplePayloads } from "../package-material-audit.ts";
+import {
+  assertJSDocExamplePayloads,
+  assertMomoaLicenseContent,
+  assertPackageLicenseContent
+} from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
-import { PACKAGE_TYPES_DIRECTORY } from "../package-contract.ts";
+import {
+  PACKAGE_LICENSE_PATH,
+  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_TYPES_DIRECTORY
+} from "../package-contract.ts";
 import { collectFilePaths } from "../file-inventory.ts";
 
 export function assertInstalledCandidateMaterials(input: {
@@ -16,9 +24,24 @@ export function assertInstalledCandidateMaterials(input: {
   readonly expectedReadme: string;
 }): void {
   assertInstalledReadme(input.packageDirectory, input.expectedReadme);
+  assertInstalledLegalMaterials(input.packageDirectory);
   assertInstalledDocumentation(input.packageDirectory, input.expectedDocuments);
   assertInstalledMachineMaterials(input.packageDirectory, input.expectedMachineMaterials);
   assertInstalledDeclarationPayloads(input.packageDirectory, input.expectedJSDocExamplePayloads);
+}
+
+function assertInstalledLegalMaterials(packageDirectory: string): void {
+  try {
+    assertPackageLicenseContent(readFileSync(join(packageDirectory, PACKAGE_LICENSE_PATH)));
+    assertMomoaLicenseContent(readFileSync(join(packageDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
+  } catch (error: unknown) {
+    throw new Error(
+      `installed candidate legal material validation failed: ${errorMessage(error)}`,
+      {
+        cause: error
+      }
+    );
+  }
 }
 
 function assertInstalledReadme(packageDirectory: string, expectedReadme: string): void {

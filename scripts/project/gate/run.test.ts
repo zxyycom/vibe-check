@@ -14,6 +14,7 @@ import {
   selectionFlags,
   selectionFromFlags
 } from "./controls.ts";
+import { parseProjectGateInvocationArguments } from "./invocation.ts";
 import {
   createInvocationLogDirectory,
   PROJECT_GATE_EXIT_STATUS,
@@ -47,6 +48,14 @@ const prepared = Object.freeze({
   reused: true,
   sha256: "b".repeat(64),
   stagingDirectory: "/tmp/staging"
+});
+
+const preparedRelease = Object.freeze({
+  ...prepared,
+  candidateVersion: "0.0.1",
+  preparationAction: "release" as const,
+  preparationReason: "release-receipt" as const,
+  reused: false
 });
 
 const performanceRuntime = Object.freeze({
@@ -203,6 +212,7 @@ describe("Project Gate entries, root binding, and controls", () => {
       /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, quality, scripts, tests/
     );
     assert.match(help, /candidate, artifact, and external-consumer acceptance/);
+    assert.match(help, /--release-receipt <path>/);
     assert.equal(
       projectGateSelectionSummary({ profile: "required", disabledTags: [], enabledTags: [] }),
       "profile=required; package-acceptance=not-selected (use --enable-tag package-tests or --profile full); disabled-tags=none"
@@ -230,6 +240,55 @@ describe("Project Gate entries, root binding, and controls", () => {
         "project-gate:disable-tag=package-tests"
       ]),
       undefined
+    );
+  });
+
+  it("requires the complete full selection for one explicit formal release receipt", () => {
+    assert.deepEqual(
+      parseProjectGateInvocationArguments([
+        "--profile",
+        "full",
+        "--release-receipt",
+        "build/releases/vibe-check-0.0.1.release.json"
+      ]),
+      {
+        ok: true,
+        action: "run",
+        candidateInput: {
+          kind: "release-receipt",
+          receiptPath: "build/releases/vibe-check-0.0.1.release.json"
+        },
+        selection: { profile: "full", disabledTags: [], enabledTags: [] }
+      }
+    );
+    assert.equal(
+      parseProjectGateInvocationArguments([
+        "--release-receipt",
+        "build/releases/vibe-check-0.0.1.release.json"
+      ]).ok,
+      false
+    );
+    assert.equal(
+      parseProjectGateInvocationArguments([
+        "--profile",
+        "full",
+        "--disable-tag",
+        "docs",
+        "--release-receipt",
+        "build/releases/vibe-check-0.0.1.release.json"
+      ]).ok,
+      false
+    );
+    assert.equal(
+      parseProjectGateInvocationArguments([
+        "--profile",
+        "full",
+        "--release-receipt",
+        "first.json",
+        "--release-receipt",
+        "second.json"
+      ]).ok,
+      false
     );
   });
 });
@@ -278,6 +337,38 @@ describe("Project Gate adapter closure", () => {
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
     assert.equal(loaded, false);
+  });
+
+  it("uses explicit formal receipt preparation without invoking local candidate preparation", async () => {
+    let localPreparationStarted = false;
+    let observedReceiptPath: string | undefined;
+    let observedCandidate: PreparedPackageCandidate | undefined;
+    const status = await runProjectGateWithoutTranscript(
+      ["--profile", "full", "--release-receipt", "build/releases/vibe-check-0.0.1.release.json"],
+      {
+        createInvocationLogDirectory: () => "/tmp/project-gate-release",
+        loadRunModule: async () => ({
+          resolvedEntryPath: preparedRelease.resolvedEntryPath,
+          runProjectGate: async ({ preparedCandidate }) => {
+            observedCandidate = preparedCandidate;
+            return completedResult("passed");
+          }
+        }),
+        prepareCandidate: async () => {
+          localPreparationStarted = true;
+          throw new Error("release mode must not prepare a local candidate");
+        },
+        prepareReleaseCandidate: async (receiptPath) => {
+          observedReceiptPath = receiptPath;
+          return preparedRelease;
+        }
+      }
+    );
+
+    assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+    assert.equal(localPreparationStarted, false);
+    assert.equal(observedReceiptPath, "build/releases/vibe-check-0.0.1.release.json");
+    assert.equal(observedCandidate, preparedRelease);
   });
 
   it("rejects an imported entry that differs from the prepared candidate before log/run", async () => {

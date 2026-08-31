@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { MOMOA_LICENSE_SHA256 } from "./package-contract.ts";
+import { MOMOA_LICENSE_SHA256, PACKAGE_LICENSE_SHA256 } from "./package-contract.ts";
 
 export function assertJSDocExamplePayloads(input: {
   readonly declarationSources: readonly string[];
@@ -18,12 +18,21 @@ export function assertJSDocExamplePayloads(input: {
     }
   }
 }
+
 export function assertMomoaLicenseContent(content: Buffer): void {
   const sha256 = createHash("sha256").update(content).digest("hex");
   if (sha256 !== MOMOA_LICENSE_SHA256) {
     throw new Error("candidate Momoa license material does not match the approved source text");
   }
 }
+
+export function assertPackageLicenseContent(content: Buffer): void {
+  const sha256 = createHash("sha256").update(content).digest("hex");
+  if (sha256 !== PACKAGE_LICENSE_SHA256) {
+    throw new Error("candidate own MIT license does not match the approved holder and text");
+  }
+}
+
 export function sameOrderedStrings(left: readonly string[], right: readonly string[]): boolean {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }

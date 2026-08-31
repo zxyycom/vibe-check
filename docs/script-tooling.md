@@ -19,7 +19,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/error-message.ts` 与 `scripts/value-guards.ts` | 明确的诊断字符串和值形状小边界；它们是 scripts root 直接拥有的 capability。                                                                                                                                                                                                          |
 | `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                   |
 | `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                     |
-| `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 准备、安装并核对 receipt，`candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
+| `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 准备、安装并核对 fingerprint local receipt，`release/**` 验证 clean source、formal version/tag、portable receipt 与 same-artifact Gate handoff，`candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
 | `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/**` 拥有 Project Gate。Gate 的 `check-execution/**` 只拥有 native/process Check mapping；具体 docs、Decision Records 与 Test Evidence Checks 位于其领域 owner。                                                                       |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
 | `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
@@ -39,6 +39,7 @@ scripts helper、环境状态或 process adapter。
 | environment               | `bun run env:setup`；`bun run env:check`                                                                                                      | `scripts/environment/manage.ts`           |
 | development               | `bun run format [-- check]`；`bun run lint [-- product \| scripts]`；`bun run typecheck [-- product \| scripts]`；`bun run test`              | `scripts/development/**`                |
 | package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`                                                                   | `scripts/package/command.ts`              |
+| formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                   | `scripts/package/release/command.ts`      |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
 | governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations -- check`；`bun run test-evidence -- <command>` | their named owners                        |
 | Project Gate              | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full`             | `scripts/project/gate/run.ts`             |
@@ -68,12 +69,19 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且可审计的直接运行时依赖要求。依赖的行为 owner
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
 execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
+local candidate 与 formal release 共用同一 closed generated manifest：unscoped `vibe-check`、唯一 root export、MIT、
+Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
+完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Node host 或 subpath export。
+仓库根 [`LICENSE`](../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还继续
+携带并精确核对实际复制进 tarball 的 Momoa third-party text。SPDX 字段不能替代两份 physical legal-material audit。
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。
 `candidate/external-consumer/**` 是 candidate 下级模块：它建立一次隔离安装及 typed material，并分别验证 types、
 documentation 与 runtime；父级 candidate lifecycle 不吸收这些验收职责。
+
+### Local candidate lifecycle
 
 `scripts/package/build-contract.ts` 是 local candidate 默认路径与责任的唯一 owner：`build/package/` 是唯一完整
 unpacked package build evidence，`build/artifacts/` 保存 versioned `.tgz`。`.cache/vibe-check/package-candidate/`
@@ -96,11 +104,34 @@ Candidate preparation 先执行不修改文件系统的状态判断，再根据�
 Reuse path 不重复扫描只服务 build evidence 的 staging 内容。Artifact acceptance 仍对同一次
 provider staging 执行完整 material audit，因此 staging corruption 不会从 full/package acceptance 中消失。
 
+### Formal release preparation and receipt
+
+Formal release 不复用 local receipt 或把 `0.0.0-local.*` 改名。`package:release:prepare` 要求 caller 显式提供 canonical
+positive `0.0.<patch>` 与保守 lowercase tag，并要求 repository root、index 和 worktree 位于同一 clean `HEAD`。这些输入只
+选择本地 build identity；命令不会核验 npm 上的版本可用性、publisher authority 或授权状态，也不会把 caller input 变成
+registry fact。
+
+Prepare 清理的范围仅是 `build/release-package/`、该 version 的 `build/artifacts/vibe-check-<version>.tgz`、
+`build/releases/vibe-check-<version>.release.json` 与 `.cache/vibe-check/package-release/`；其中 release staging/cache
+与默认 `build/package/`、`.cache/vibe-check/package-candidate/` 隔离，versioned tarball root 由 artifact builder 共用。
+Receipt writer 在写入前要求 artifact、staging 与 receipt path 都匹配这些 owned paths，并重新核对 artifact SHA-256；失败
+不会把任意 caller path 写成 release evidence。
+
+Release receipt 只保存 repository-relative canonical paths，并闭合 source commit、package input fingerprint、version/tag、
+ordered tar inventory、SHA-256、SHA-512 SRI、manifest/legal/README identity；它不保存 token、OTP、`.npmrc`、publisher secret、
+临时 consumer 或 absolute checkout path。prepare 在 build 前后复核 clean commit/fingerprint，写入 receipt 后再按该 receipt
+重验；任一 source 或 byte drift 都失败。只有 receipt 通过 current verifier 后，这些本地材料才构成完整 formal preparation
+结果；receipt 本身仍不证明 Gate 或 registry 状态。`package:release:verify` 只把显式 receipt 交给 full Gate，不查询 registry，
+也不发布。
+
 ## Project Gate
 
 `scripts/project/gate/run.ts` 是 Project Gate 的 process adapter。一次 invocation 按以下顺序建立：
 
-1. 准备 candidate，并确认 private consumer 解析到的 package entry 与准备结果相同。
+1. 普通 invocation 准备 fingerprint local candidate；`--profile full --release-receipt <path>` 则重验 closed formal receipt、
+   两种 digest、source/fingerprint、staging/tar audits，并把 receipt 指向的 exact tarball 安装到 private consumer。Release mode
+   要求 full profile 且禁止 tag overrides，不调用或回退到 local preparer。两种模式都确认 consumer 解析到的 package entry
+   与准备结果相同。
 2. 创建 invocation log directory 和 Gate transcript，再把同一个 prepared candidate 交给 `project-run.ts` 的 bound Gate Run；
    该 Run 通过 invocation-local output override 把 Product diagnostic log 与标准 machine fact set 写到这个目录。
 3. 从 Package Run 的 explicit aggregate 取得 Gate 结论；adapter 不遍历 Check snapshot 重新归约，并在关闭 transcript 前写入
@@ -129,13 +160,15 @@ Gate 不替代 development、docs、decision-records 或 test-evidence 各自的
 
 ### Prepared candidate data
 
-`prepared-candidate-check.ts` 将 invocation-owned candidate 重新核对并发布为 versioned typed final data。Closed
+`prepared-candidate-check.ts` 将 invocation-owned candidate 重新核对并发布为 schema v3 typed final data。Closed
 parser 验证 artifact digest、绝对路径、installed entry containment、非空且无重复的文件 inventory，以及
-`preparationAction`、`preparationReason` 与 `reused` 的合法组合。该数据也会随 Gate 的标准 machine fact set 写入
+`preparationAction`、`preparationReason` 与 `reused` 的合法组合；local actions 与 formal
+`release / release-receipt / reused=false` 是不同闭合分支。该数据也会随 Gate 的标准 machine fact set 写入
 invocation directory；其中的 invocation-local 绝对路径使该 set 只能作为本地短期 evidence，不能当作可发布或可移植材料。
 
-Artifact acceptance 直接声明 prepared candidate 为 direct dependency：它只接收 exact artifact path/digest 与 staging
-directory，重新验证 child-process input 并执行 staging material audit；直接运行该测试时才 fresh build 本地 fixture。
+Artifact acceptance 直接声明 prepared candidate 为 direct dependency：它只接收 exact artifact path/digest、candidate
+version 与 staging directory，重新验证 child-process input，并用该 version 执行 staging manifest/material audit；直接运行
+该测试时才 fresh build 本地 fixture。
 
 当 `package-tests` 被选择时，`prepared-external-package-consumer` 是 prepared candidate 的另一个 direct consumer。
 它以 30 秒 timeout 运行 provider process，在一次 invocation-owned lease root 内创建 ancestry-external install，并且只有在

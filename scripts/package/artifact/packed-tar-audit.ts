@@ -2,11 +2,9 @@ import { readFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 
 import { errorMessage } from "../../error-message.ts";
-import { isNonArrayRecord } from "../../value-guards.ts";
 import {
-  CANDIDATE_DEPENDENCIES,
-  CANDIDATE_NAME,
   PACKAGE_ENTRY_PATH,
+  PACKAGE_LICENSE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_TYPES_PATH
@@ -15,10 +13,12 @@ import { sha256File } from "../pack.ts";
 import {
   assertJSDocExamplePayloads,
   assertMomoaLicenseContent,
+  assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
+import { auditCandidateManifest } from "./manifest.ts";
 
 interface TarEntry {
   readonly content: Buffer;
@@ -42,36 +42,66 @@ export function auditCandidateArtifact(input: {
   const entries = readTarEntries(input.artifactPath);
   assertTarPackageDocumentation(entries, input.expectedDocuments);
   assertTarMachineMaterials(entries, input.expectedMachineMaterials);
+  assertTarInventory(entries, input.expectedFiles);
+  assertTarCoreMaterials(entries, input);
+}
+
+function assertTarInventory(entries: readonly TarEntry[], expectedFiles: readonly string[]): void {
   const files = entries.map((entry) => entry.path).sort();
-  if (!sameOrderedStrings(files, input.expectedFiles)) {
+  if (!sameOrderedStrings(files, expectedFiles)) {
     throw new Error(
-      `candidate artifact files differ from the staging allowlist: expected ${input.expectedFiles.join(", ")}; received ${files.join(", ")}`
+      `candidate artifact files differ from the staging allowlist: expected ${expectedFiles.join(", ")}; received ${files.join(", ")}`
     );
   }
-  const manifestEntry = entries.find((entry) => entry.path === "package/package.json");
-  if (manifestEntry === undefined)
-    throw new Error("candidate artifact is missing package/package.json");
-  const readmeEntry = entries.find((entry) => entry.path === `package/${PACKAGE_README_PATH}`);
-  if (readmeEntry === undefined)
-    throw new Error(`candidate artifact is missing package/${PACKAGE_README_PATH}`);
-  if (!readmeEntry.content.equals(Buffer.from(input.expectedReadme, "utf8"))) {
+}
+
+function assertTarCoreMaterials(
+  entries: readonly TarEntry[],
+  input: Readonly<{
+    readonly candidateVersion: string;
+    readonly expectedJSDocExamplePayloads: readonly string[];
+    readonly expectedReadme: string;
+  }>
+): void {
+  const manifest = requiredTarEntry(entries, "package/package.json");
+  assertTarReadme(entries, input.expectedReadme);
+  assertTarLegalMaterials(entries);
+  assertTarDeclarationExamples(entries, input.expectedJSDocExamplePayloads);
+  auditCandidateManifest(manifest.content, input.candidateVersion);
+  assertManifestPackageEntries(entries);
+}
+
+function assertTarReadme(entries: readonly TarEntry[], expectedReadme: string): void {
+  const readme = requiredTarEntry(entries, `package/${PACKAGE_README_PATH}`);
+  if (!readme.content.equals(Buffer.from(expectedReadme, "utf8"))) {
     throw new Error("candidate artifact README does not match the documentation projection");
   }
-  const momoaLicenseEntry = entries.find(
-    (entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`
-  );
-  if (momoaLicenseEntry === undefined) {
-    throw new Error("candidate artifact is missing Momoa license material");
-  }
-  assertMomoaLicenseContent(momoaLicenseEntry.content);
+}
+
+function assertTarLegalMaterials(entries: readonly TarEntry[]): void {
+  const packageLicense = requiredTarEntry(entries, `package/${PACKAGE_LICENSE_PATH}`);
+  const momoaLicense = requiredTarEntry(entries, `package/${PACKAGE_MOMOA_LICENSE_PATH}`);
+  assertPackageLicenseContent(packageLicense.content);
+  assertMomoaLicenseContent(momoaLicense.content);
+}
+
+function assertTarDeclarationExamples(
+  entries: readonly TarEntry[],
+  expectedPayloads: readonly string[]
+): void {
   assertJSDocExamplePayloads({
     declarationSources: entries
       .filter((entry) => entry.path.startsWith("package/types/") && entry.path.endsWith(".d.ts"))
       .map((entry) => entry.content.toString("utf8")),
     description: "candidate artifact declarations",
-    expectedPayloads: input.expectedJSDocExamplePayloads
+    expectedPayloads
   });
-  auditManifest(manifestEntry.content, input.candidateVersion, entries);
+}
+
+function requiredTarEntry(entries: readonly TarEntry[], path: string): TarEntry {
+  const entry = entries.find((candidate) => candidate.path === path);
+  if (entry === undefined) throw new Error(`candidate artifact is missing ${path}`);
+  return entry;
 }
 
 function assertTarMachineMaterials(
@@ -98,90 +128,18 @@ function assertTarPackageDocumentation(
   }
 }
 
-function auditManifest(
-  source: Buffer,
-  candidateVersion: string,
-  entries: readonly TarEntry[]
-): void {
-  let manifest: unknown;
-  try {
-    manifest = JSON.parse(source.toString("utf8"));
-  } catch (error: unknown) {
-    throw new Error(`candidate artifact manifest is invalid JSON: ${errorMessage(error)}`, {
-      cause: error
-    });
-  }
-  if (!isNonArrayRecord(manifest)) throw new Error("candidate artifact manifest must be an object");
-  assertManifestIdentity(manifest, candidateVersion);
-  assertManifestPublicSurface(manifest);
-  assertManifestPackageEntries(entries);
-}
-
-function assertManifestIdentity(
-  manifest: Readonly<Record<string, unknown>>,
-  candidateVersion: string
-): void {
-  if (
-    manifest.name !== CANDIDATE_NAME ||
-    manifest.version !== candidateVersion ||
-    manifest.type !== "module"
-  ) {
-    throw new Error("candidate artifact manifest identity does not match the prepared candidate");
-  }
-}
-
-function assertManifestPublicSurface(manifest: Readonly<Record<string, unknown>>): void {
-  if (Object.hasOwn(manifest, "bin"))
-    throw new Error("candidate artifact must not expose an executable bin");
-  if (!sameDependencies(manifest.dependencies)) {
-    throw new Error(
-      "candidate artifact production dependencies do not match the candidate dependency contract"
-    );
-  }
-  if (!hasPublicExports(manifest.exports)) {
-    throw new Error(
-      "candidate artifact must expose only its approved import and declarations entries"
-    );
-  }
-}
-
 function assertManifestPackageEntries(entries: readonly TarEntry[]): void {
   if (
     !entries.some((entry) => entry.path === `package/${PACKAGE_ENTRY_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
+    !entries.some((entry) => entry.path === `package/${PACKAGE_LICENSE_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`)
   ) {
     throw new Error(
-      "candidate artifact is missing its approved runtime, declarations, README, or Momoa license entry"
+      "candidate artifact is missing its approved runtime, declarations, README, or legal entry"
     );
   }
-}
-
-function sameDependencies(value: unknown): boolean {
-  if (!isNonArrayRecord(value)) return false;
-  const dependencies = Object.entries(CANDIDATE_DEPENDENCIES);
-  const dependencyNames = dependencies.map(([name]) => name).sort();
-  return (
-    sameOrderedStrings(Object.keys(value).sort(), dependencyNames) &&
-    dependencies.every(([key, version]) => value[key] === version)
-  );
-}
-
-function hasPublicExports(value: unknown): boolean {
-  if (
-    !isNonArrayRecord(value) ||
-    Object.keys(value).length !== 1 ||
-    !isNonArrayRecord(value["."])
-  ) {
-    return false;
-  }
-  const root = value["."];
-  return (
-    Object.keys(root).sort().join("\0") === "import\0types" &&
-    root.import === `./${PACKAGE_ENTRY_PATH}` &&
-    root.types === `./${PACKAGE_TYPES_PATH}`
-  );
 }
 
 function readTarEntries(artifactPath: string): readonly TarEntry[] {

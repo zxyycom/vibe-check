@@ -18,7 +18,7 @@ test("external consumer provider binds typed output to invocation provenance", (
     preparationReason: "installation-current",
     resolvedEntryPath: "/tmp/candidate-consumer/node_modules/vibe-check/index.mjs",
     reused: true,
-    schemaVersion: 2,
+    schemaVersion: 3,
     sha256: "b".repeat(64),
     stagingDirectory: "/tmp/candidate-staging"
   };

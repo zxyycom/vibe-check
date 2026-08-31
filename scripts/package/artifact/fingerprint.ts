@@ -5,7 +5,11 @@ import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
-import { CANDIDATE_DEPENDENCIES, MOMOA_LICENSE_SOURCE_PATH } from "../package-contract.ts";
+import {
+  CANDIDATE_DEPENDENCIES,
+  MOMOA_LICENSE_SOURCE_PATH,
+  PACKAGE_LICENSE_SOURCE_PATH
+} from "../package-contract.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
 import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
@@ -38,6 +42,7 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
+    join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
     join(repositoryRoot, MOMOA_LICENSE_SOURCE_PATH)
   ].sort();
   for (const filePath of inputFiles) {

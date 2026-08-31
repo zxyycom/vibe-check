@@ -40,6 +40,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
         const gateInput = readGateArtifactAcceptanceInput();
         if (gateInput !== undefined) {
           auditStagingRuntime({
+            candidateVersion: gateInput.candidateVersion,
             expectedDocuments: documentation.documents,
             expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
             expectedMachineMaterials: documentation.machineMaterials,
@@ -129,6 +130,31 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       neverthrow: "8.2.0",
       typebox: "1.3.9"
     });
+  });
+
+  it("declares the approved MIT, Bun host, repository, and public registry contract", async () => {
+    const { artifact } = await fixture();
+    const manifest = candidateManifest(artifact.stagingDirectory);
+    assert.equal(artifact.files.includes("package/LICENSE"), true);
+    assert.match(
+      readFileSync(join(artifact.stagingDirectory, "LICENSE"), "utf8"),
+      /^MIT License\n\nCopyright \(c\) 2026 zxyycom\n/u
+    );
+    assert.equal(manifest.license, "MIT");
+    assert.deepEqual(manifest.engines, { bun: ">=1.3.14" });
+    assert.deepEqual(manifest.repository, {
+      type: "git",
+      url: "git+https://github.com/zxyycom/vibe-check.git"
+    });
+    assert.deepEqual(manifest.publishConfig, {
+      access: "public",
+      registry: "https://registry.npmjs.org/"
+    });
+    assert.equal(Object.hasOwn(manifest, "private"), false);
+    assert.equal(Object.hasOwn(manifest, "bin"), false);
+    assert.equal(Object.hasOwn(manifest, "scripts"), false);
+    assert.ok(isRecord(manifest.exports));
+    assert.deepEqual(Object.keys(manifest.exports), ["."]);
   });
 });
 
@@ -255,11 +281,15 @@ function hasAdjacentChineseJSDoc(source: string, declarationName: string): boole
 }
 
 function candidateDependencies(stagingDirectory: string): unknown {
+  return candidateManifest(stagingDirectory).dependencies;
+}
+
+function candidateManifest(stagingDirectory: string): Readonly<Record<string, unknown>> {
   const manifest: unknown = JSON.parse(
     readFileSync(join(stagingDirectory, "package.json"), "utf8")
   );
   if (!isRecord(manifest)) throw new TypeError("candidate manifest must be an object");
-  return manifest.dependencies;
+  return manifest;
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {

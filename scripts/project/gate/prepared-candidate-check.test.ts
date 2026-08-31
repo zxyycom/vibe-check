@@ -34,7 +34,7 @@ describe("prepared package candidate Check", () => {
       if (outcome?.status !== "passed") throw new Error("fixture provider must pass");
       assert.deepEqual(parseProjectGatePreparedCandidateData(outcome.data), {
         ...fixture.candidate,
-        schemaVersion: 2
+        schemaVersion: 3
       });
       assert.throws(
         () => parseProjectGatePreparedCandidateData({ ...outcome.data, unexpected: true }),
@@ -58,6 +58,22 @@ describe("prepared package candidate Check", () => {
             reused: true
           }),
         /invalid preparation fact/
+      );
+      assert.deepEqual(
+        parseProjectGatePreparedCandidateData({
+          ...outcome.data,
+          candidateVersion: "0.0.1",
+          preparationAction: "release",
+          preparationReason: "release-receipt",
+          reused: false
+        }),
+        {
+          ...outcome.data,
+          candidateVersion: "0.0.1",
+          preparationAction: "release",
+          preparationReason: "release-receipt",
+          reused: false
+        }
       );
     } finally {
       rmSync(fixture.root, { force: true, recursive: true });

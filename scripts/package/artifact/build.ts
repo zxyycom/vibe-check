@@ -10,6 +10,8 @@ import {
   CANDIDATE_NAME,
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_LICENSE_PATH,
+  PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
@@ -66,7 +68,7 @@ export async function buildCandidateArtifact(input: {
     mkdirSync(dirname(destination), { recursive: true });
     writeFileSync(destination, material.content);
   }
-  copyMomoaLicense({ repositoryRoot, stagingDirectory });
+  copyLegalMaterials({ repositoryRoot, stagingDirectory });
 
   runBun({
     args: [
@@ -108,6 +110,7 @@ export async function buildCandidateArtifact(input: {
   writeFileSync(join(stagingDirectory, PACKAGE_ENTRY_PATH), PACKAGE_ENTRY_SOURCE, "utf8");
 
   auditStagingRuntime({
+    candidateVersion,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
@@ -148,11 +151,17 @@ export async function buildCandidateArtifact(input: {
   });
 }
 
-/** Copies the audited Momoa text instead of treating its SPDX manifest field as legal material. */
-function copyMomoaLicense(input: {
+/** Copies approved own and third-party texts instead of treating SPDX fields as legal material. */
+function copyLegalMaterials(input: {
   readonly repositoryRoot: string;
   readonly stagingDirectory: string;
 }): void {
+  const packageLicenseSource = join(input.repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH);
+  if (!existsSync(packageLicenseSource)) {
+    throw new Error(`candidate source is missing own license material: ${packageLicenseSource}`);
+  }
+  copyFileSync(packageLicenseSource, join(input.stagingDirectory, PACKAGE_LICENSE_PATH));
+
   const sourcePath = join(input.repositoryRoot, MOMOA_LICENSE_SOURCE_PATH);
   const destinationPath = join(input.stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH);
   if (!existsSync(sourcePath)) {

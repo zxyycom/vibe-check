@@ -1,17 +1,17 @@
 import type { CandidateArtifactReuseRejection } from "./receipt.ts";
 
-export type CandidatePreparationAction = "rebuild" | "reinstall" | "reuse";
-export type CandidatePreparationReason =
+export type LocalCandidatePreparationAction = "rebuild" | "reinstall" | "reuse";
+export type LocalCandidatePreparationReason =
   | CandidateArtifactReuseRejection
   | "installation-current"
   | "installation-invalid";
 
-export type CandidatePreparationDecision =
+export type LocalCandidatePreparationDecision =
   | Readonly<{ readonly action: "rebuild"; readonly reason: CandidateArtifactReuseRejection }>
   | Readonly<{ readonly action: "reinstall"; readonly reason: "installation-invalid" }>
   | Readonly<{ readonly action: "reuse"; readonly reason: "installation-current" }>;
 
-export type CandidatePreparationFact =
+export type LocalCandidatePreparationFact =
   | Readonly<{
       readonly preparationAction: "rebuild";
       readonly preparationReason: CandidateArtifactReuseRejection;
@@ -28,10 +28,24 @@ export type CandidatePreparationFact =
       readonly reused: true;
     }>;
 
+export type FormalReleasePreparationFact = Readonly<{
+  readonly preparationAction: "release";
+  readonly preparationReason: "release-receipt";
+  readonly reused: false;
+}>;
+
+export type CandidatePreparationFact = LocalCandidatePreparationFact | FormalReleasePreparationFact;
+
+export const RELEASE_RECEIPT_PREPARATION_FACT: FormalReleasePreparationFact = Object.freeze({
+  preparationAction: "release",
+  preparationReason: "release-receipt",
+  reused: false
+});
+
 /** Projects the closed preparation decision into its retained Check fact. */
 export function candidatePreparationFact(
-  decision: CandidatePreparationDecision
-): CandidatePreparationFact {
+  decision: LocalCandidatePreparationDecision
+): LocalCandidatePreparationFact {
   switch (decision.action) {
     case "rebuild":
       return Object.freeze({

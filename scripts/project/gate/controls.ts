@@ -114,6 +114,7 @@ export function projectGateHelp(): string {
     "  --profile <required|full>  Select the required or full Check profile (default: required).",
     "  --enable-tag <tag>         Include an opt-in tag in the required profile; repeatable.",
     "  --disable-tag <tag>        Exclude Checks carrying a tag; repeatable.",
+    "  --release-receipt <path>   Consume one closed formal receipt; requires unmodified full profile.",
     "  -h, --help                 Show this help without preparing or running a candidate.",
     "",
     `Opt-in tags: ${PROJECT_GATE_OPT_IN_TAGS.join(", ")}`,
@@ -125,7 +126,8 @@ export function projectGateHelp(): string {
     "",
     "Examples:",
     "  bun scripts/project/gate/run.ts --profile required --enable-tag package-tests",
-    "  bun scripts/project/gate/run.ts --profile full --disable-tag docs"
+    "  bun scripts/project/gate/run.ts --profile full --disable-tag docs",
+    "  bun scripts/project/gate/run.ts --profile full --release-receipt build/releases/vibe-check-0.0.1.release.json"
   ].join("\n");
 }
 

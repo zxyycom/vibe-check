@@ -11,11 +11,11 @@
 | [add-secret-detection](add-secret-detection/) | high-confidence secret detection 与 leak-canary safety。 | 需 detector provenance/license、precision/recall corpus 与全 surface evidence。 |
 | [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | `functionMetrics` 的 Lizard backend hard cut。 | 配置 Change 已完成；恢复实施时需按当前 `src/package-checks/function-metrics/**` 重新建立 constructor parity 与迁移证据。 |
 
-## 公开发布 Draft
+## 公开发布 Plan
 
 | Change | 唯一方向 | 授权边界 |
 | --- | --- | --- |
-| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 在已验证 exact candidate 与 Gate 之后完成 npm public release。 | registry reads、credential access、publish 和 post-publish install 均需当次明确授权。 |
+| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 形成 formal-version exact artifact，让同一 tarball 通过 full Gate 后完成 npm public release。 | 当前授权仅覆盖 local tooling、artifact build、tests 与 Gate；registry reads、credential access、publish 和 post-publish install 均需新的当次明确授权。 |
 
 ## 读取顺序
 

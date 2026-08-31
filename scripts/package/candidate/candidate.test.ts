@@ -11,7 +11,7 @@ import { installCandidate } from "./install.ts";
 import {
   assessPackageCandidatePreparation,
   preparePackageCandidate,
-  type CandidatePreparationAction
+  type LocalCandidatePreparationAction
 } from "./prepare.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -263,7 +263,7 @@ function prepareInFreshBunProcess(input: {
   readonly consumerDirectory: string;
   readonly repositoryRoot: string;
   readonly stateDirectory: string;
-}): CandidatePreparationAction {
+}): LocalCandidatePreparationAction {
   const result = spawnSync(
     process.execPath,
     [

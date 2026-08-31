@@ -229,6 +229,6 @@ consumer code 从 `vibe-check` 导入；`dist/**`、`types/**` 和 `src/**` 用�
 
 ## 分发与兼容范围
 
-当前经过验证的分发物是仓库生成的 exact local candidate 与对应 tarball。registry channel 尚未发布；现阶段使用构建流程提供的精确 candidate version，正式 release 后以 release 说明作为安装和兼容依据。
+当前经过验证的分发物是仓库生成的 exact local candidate 与对应 tarball。registry channel 尚未发布；现阶段使用构建流程提供的精确 candidate version，正式 release 后以 release 说明中的 exact `0.0.x` version 安装。`0.0.x` patch 之间不承诺 package-level 兼容，consumer 应精确锁定所选版本。
 
-当前 public contract 是本文说明的 Bun / TypeScript root API。CLI、Node.js host、plugin API 与 subpath imports 位于该 public contract 之外。
+当前 public contract 是由 **Bun `>=1.3.14`** 直接 import 的 TypeScript root API；通过 npm 分发不表示 Node.js host 已受支持。CLI、Node.js host、plugin API 与 subpath imports 位于该 public contract 之外。Package 使用 MIT license，tarball 中的 `LICENSE` 保留 `Copyright (c) 2026 zxyycom` notice。

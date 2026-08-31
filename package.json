@@ -24,7 +24,9 @@
     "verify:vibe-check-workspace:full": "mise exec -- bun scripts/project/gate/run.ts --profile full",
     "package:status": "bun scripts/package/command.ts status",
     "package:build": "bun scripts/package/command.ts build",
-    "package:verify": "bun scripts/package/command.ts verify"
+    "package:verify": "bun scripts/package/command.ts verify",
+    "package:release:prepare": "bun scripts/package/release/command.ts prepare",
+    "package:release:verify": "bun scripts/package/release/command.ts verify"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.0",

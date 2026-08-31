@@ -18,16 +18,18 @@ import {
 } from "./receipt.ts";
 import {
   candidatePreparationFact,
-  type CandidatePreparationDecision,
+  type LocalCandidatePreparationDecision,
   type CandidatePreparationFact
 } from "./preparation-decision.ts";
 
 export type { CandidateArtifact } from "../artifact/build.ts";
 export type {
-  CandidatePreparationAction,
-  CandidatePreparationDecision,
   CandidatePreparationFact,
-  CandidatePreparationReason
+  FormalReleasePreparationFact,
+  LocalCandidatePreparationAction,
+  LocalCandidatePreparationDecision,
+  LocalCandidatePreparationFact,
+  LocalCandidatePreparationReason
 } from "./preparation-decision.ts";
 
 interface PreparedPackageCandidateLocation {
@@ -46,7 +48,7 @@ export interface PackageCandidateStatus {
   readonly freshness: "current" | "stale";
   readonly installedEntryPath: string | undefined;
   /** The fail-closed repair action when the inspected state is stale. */
-  readonly requiredAction: CandidatePreparationDecision | undefined;
+  readonly requiredAction: LocalCandidatePreparationDecision | undefined;
   readonly tarballPath: string;
   readonly unpackedPackagePath: string;
 }
@@ -140,7 +142,7 @@ export async function preparePackageCandidate(
 /** Returns the mutation-free candidate action and reason used by preparation execution. */
 export function assessPackageCandidatePreparation(
   options: PreparePackageCandidateOptions = {}
-): CandidatePreparationDecision {
+): LocalCandidatePreparationDecision {
   return candidatePreparationDecision(createCandidatePreparationPlan(options));
 }
 
@@ -165,7 +167,7 @@ export function inspectPackageCandidate(
 
 function candidatePreparationDecision(
   plan: CandidatePreparationPlan
-): CandidatePreparationDecision {
+): LocalCandidatePreparationDecision {
   switch (plan.action) {
     case "rebuild":
       return Object.freeze({ action: "rebuild", reason: plan.reason });
@@ -284,7 +286,7 @@ function repositoryRootFromModule(): string {
 function createPreparedCandidate(input: {
   readonly artifact: CandidateArtifact;
   readonly consumerDirectory: string;
-  readonly decision: CandidatePreparationDecision;
+  readonly decision: LocalCandidatePreparationDecision;
   readonly installation: InstalledCandidate;
 }): PreparedPackageCandidate {
   return Object.freeze({

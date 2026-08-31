@@ -8,15 +8,19 @@ import {
   preparePackageCandidate,
   type PreparedPackageCandidate
 } from "../../package/candidate/prepare.ts";
+import { prepareReleaseCandidateFromReceipt } from "../../package/release/prepare.ts";
 import { errorMessage } from "../../error-message.ts";
 
 import {
-  parseProjectGateArguments,
   projectGateHelp,
   projectGateSelectionSummary,
   selectionFlags,
   type ProjectGateSelection
 } from "./controls.ts";
+import {
+  parseProjectGateInvocationArguments,
+  type ProjectGateCandidateInput
+} from "./invocation.ts";
 import {
   createInitialProjectGateResult,
   createProjectGateResult,
@@ -42,6 +46,7 @@ interface ProjectGateSteps {
   readonly createInvocationLogDirectory: () => string;
   readonly loadRunModule: () => Promise<GateRunModule>;
   readonly prepareCandidate: () => Promise<PreparedPackageCandidate>;
+  readonly prepareReleaseCandidate: (receiptPath: string) => Promise<PreparedPackageCandidate>;
   readonly startTranscript: typeof startProjectGateTranscript;
 }
 
@@ -84,6 +89,8 @@ const defaultSteps: ProjectGateSteps = Object.freeze({
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./project-run.ts"),
   prepareCandidate: preparePackageCandidate,
+  prepareReleaseCandidate: (receiptPath: string) =>
+    prepareReleaseCandidateFromReceipt({ receiptPath }),
   startTranscript: startProjectGateTranscript
 });
 
@@ -102,7 +109,7 @@ export async function runProjectGate(
   stepOverrides: Partial<ProjectGateSteps> = {}
 ): Promise<ProjectGateExitStatus> {
   const steps: ProjectGateSteps = Object.freeze({ ...defaultSteps, ...stepOverrides });
-  const parsed = parseProjectGateArguments(arguments_);
+  const parsed = parseProjectGateInvocationArguments(arguments_);
   if (!parsed.ok) {
     console.error(`project gate argument error: ${parsed.error}`);
     return PROJECT_GATE_EXIT_STATUS.unavailable;
@@ -115,7 +122,7 @@ export async function runProjectGate(
 
   let prepared: PreparedPackageCandidate;
   try {
-    prepared = await steps.prepareCandidate();
+    prepared = await prepareInvocationCandidate(parsed.candidateInput, steps);
   } catch (error: unknown) {
     console.error(`project gate candidate preparation failed: ${errorMessage(error)}`);
     return PROJECT_GATE_EXIT_STATUS.unavailable;
@@ -157,12 +164,13 @@ export async function runProjectGate(
   let transcriptStatus: "failed" | "succeeded";
   try {
     console.log(`project gate candidate: ${prepared.candidateVersion}`);
-    console.log(`project gate selection: ${projectGateSelectionSummary(parsed.value)}`);
+    console.log(`project gate candidate source: ${parsed.candidateInput.kind}`);
+    console.log(`project gate selection: ${projectGateSelectionSummary(parsed.selection)}`);
     console.log(
       "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
     );
     const runResult = await runModule.runProjectGate({
-      flags: selectionFlags(parsed.value),
+      flags: selectionFlags(parsed.selection),
       invocationLogDirectory,
       preparedCandidate: prepared
     });
@@ -174,7 +182,7 @@ export async function runProjectGate(
       invocationLogDirectory,
       preparedCandidate: prepared,
       runResult,
-      selection: parsed.value,
+      selection: parsed.selection,
       startedAtMs: gateStartedAtMs,
       productRunStartedAtMs
     });
@@ -201,6 +209,18 @@ export async function runProjectGate(
   console.log(`project gate logs: ${invocationLogDirectory}`);
   console.log(`project gate result: ${finalResult.status}`);
   return exitStatus;
+}
+
+function prepareInvocationCandidate(
+  candidateInput: ProjectGateCandidateInput,
+  steps: ProjectGateSteps
+): Promise<PreparedPackageCandidate> {
+  switch (candidateInput.kind) {
+    case "local":
+      return steps.prepareCandidate();
+    case "release-receipt":
+      return steps.prepareReleaseCandidate(candidateInput.receiptPath);
+  }
 }
 
 function completeProjectGateTranscript(

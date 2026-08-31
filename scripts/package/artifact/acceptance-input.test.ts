@@ -11,6 +11,7 @@ import {
 import { sha256File } from "../pack.ts";
 import {
   CANDIDATE_STAGING_DIRECTORY_ENV,
+  CANDIDATE_VERSION_ENV,
   readGateArtifactAcceptanceInput
 } from "./acceptance-input.ts";
 
@@ -19,6 +20,7 @@ test("accepts provider-owned artifact staging material", () => {
   try {
     assert.deepEqual(readGateArtifactAcceptanceInput(fixture.environment), {
       artifactPath: fixture.artifactPath,
+      candidateVersion: "0.0.1",
       files: ["package/index.mjs"],
       stagingDirectory: fixture.stagingDirectory
     });
@@ -72,7 +74,8 @@ function createFixture(): Readonly<{
     environment: Object.freeze({
       [CANDIDATE_ARTIFACT_PATH_ENV]: artifactPath,
       [CANDIDATE_ARTIFACT_SHA256_ENV]: sha256File(artifactPath),
-      [CANDIDATE_STAGING_DIRECTORY_ENV]: stagingDirectory
+      [CANDIDATE_STAGING_DIRECTORY_ENV]: stagingDirectory,
+      [CANDIDATE_VERSION_ENV]: "0.0.1"
     }),
     root,
     stagingDirectory
