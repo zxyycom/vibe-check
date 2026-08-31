@@ -1,7 +1,7 @@
 ---
 title: 在稳定承诺前让 package 保持 0.0.x 版本线
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-12T09:27:03Z
 purpose: 让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。
 background: Public package API、公共声明、名称与运行行为仍在形成，相邻预稳定 package versions 可能包含破坏式变化。

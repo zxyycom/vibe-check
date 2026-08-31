@@ -1,7 +1,7 @@
 ---
 title: 首个 package 只支持 Bun 宿主
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-12T10:30:27Z
 purpose: 让首个 npm package 的可运行宿主与当前 TypeScript Project Definition 和产品运行时能力保持一致。
 background: npm 是分发机制，不代表 package 已经能够由 Node.js 直接加载和执行；同时承诺多个宿主会扩大构建、依赖和验收责任。

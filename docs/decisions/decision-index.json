@@ -81,7 +81,7 @@
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
-      "keep-prestable-package-releases-on-0-0-x.md": "sha256:585dece1c07c03f6e0108392e41efb0d8d353c9ac0e8e0ba962c0aa640c861e7",
+      "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
       "keep-project-workflow-skill-overrides-bounded.md": "sha256:91f4836ca23599c2afe5a117368d3e6630bb412d520c1189f77aac339a60800a",
       "keep-public-config-tool-neutral.md": "sha256:20f27b3206cc31de25e12f1f66c4f199ddeca3ec5cc5ba8d2c05108d119813f6",
@@ -98,7 +98,7 @@
       "let-file-metrics-adapter-own-cli-protocol.md": "sha256:2ead275a0161dbcba2ac5a04f4d6605ab770398d07c88f547f755708572377e8",
       "let-file-metrics-areas-own-files-and-thresholds.md": "sha256:c0f4a48d3b8c5d23da72fbbee216da4dde3a428a1d875dc33933381c8c387278",
       "let-function-metrics-adapter-own-lizard-cli-protocol.md": "sha256:0a5c5b7c7a3ddeddf660793153e527854dc53235516fac1671bd8406318acf43",
-      "license-package-under-mit.md": "sha256:0ede9155a22fa0a572e845b4301db240ac45e8aec8e445797932cb09827042be",
+      "license-package-under-mit.md": "sha256:d15d5030805e27139ff79d6c493f0297262854e37b25b3a60d5a389d83f59ecc",
       "limit-tool-neutrality-to-built-in-checks.md": "sha256:a7ce4c1f1dcdca9f16ba39221d5d26d0aebca46daa02f399b1da264475da6cfc",
       "locate-package-examples-by-natural-markdown-headings.md": "sha256:80efb0bc7bf9e50444fa8ad0b8c5ad2a245b1fc76180f437145cb0eee8405a2a",
       "make-bun-entries-use-pinned-tools.md": "sha256:ded05bd471b43f4e323bd7ceb4a60a499bb242018bc865301b75d0fbd928fd62",
@@ -128,7 +128,7 @@
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:0c5c22b2bc4015a694c78478ade7f0135b6a0ad6f3b4584e09a73daf11ccb0d4",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
-      "publish-user-scoped-vibe-check-publicly.md": "sha256:669a891f9e8e54fbc9de182e333bef767631b580ed69c6cc6fa433cf39aa9e5a",
+      "publish-user-scoped-vibe-check-publicly.md": "sha256:e27ee857bfd31ac3c25a12f2d0c264a2762cbb045974ed6c56d9d9c5b9e6bc39",
       "rate-limit-non-force-main-auto-push-after-commit.md": "sha256:39f730309a2843c029911c8c06127ba628603e5618920f922f81ec00941046e9",
       "read-direct-dependency-final-data-by-string.md": "sha256:c393201db6999613f621077b2658205ad49aa3f8d40099a211395e52c4461305",
       "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:bff18bd78ea8bf7692235dc0725ca5869ea07cdb41f6a94b207d9c47e19c0ed8",
@@ -137,7 +137,7 @@
       "refine-product-module-boundaries.md": "sha256:ca807ad24d1b8282e1c6a1291c4b09c0ff4b0e0a8e0d127e352ea0ea756e42a4",
       "refine-project-gate-context-timing-phases.md": "sha256:e3b93f579701e290aa78c1216305e5939260c178d76f27f68dcc0e2c19b351a6",
       "refine-project-run-and-settlement-owners.md": "sha256:50ed6c51b7f852dc6e87e6c66d092cec58a0d3be2348ecfce9d631b709ea0621",
-      "release-one-versioned-npm-product-unit.md": "sha256:122ce8bbd7aef09c4844b4c665a8a3bbe29b8357a2f1ec7fbae59b41dc25b214",
+      "release-one-versioned-npm-product-unit.md": "sha256:e2ef341a200e9f743b2351f376cdc74eb899d78691286970ffe477fc865029ac",
       "remove-unconsumed-option-capability.md": "sha256:d9c25f4d9086f43513bfccbf7ae616935e1301a2f1b162aee56fc2f6b1b5d6f7",
       "replace-global-tool-effects-with-run-outputs.md": "sha256:c38862f6dcc06d266d1e0019b88381789bac04664bdbdac1246014d0f24a9e1b",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
@@ -149,7 +149,7 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
-      "require-known-repository-quality-remediation-before-public-release.md": "sha256:167cd5caf50ec3ba735c74d1d8d4d373aacf5fd63a4846482f53bc84441a4ff0",
+      "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
@@ -168,7 +168,7 @@
       "ship-one-definition-backed-machine-example.md": "sha256:9d6ee52c5758930a8647616927a8e615a6819082dd232523aaa34530106796b8",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
-      "support-bun-as-the-package-host.md": "sha256:1221defd045c4df6b233c687e5e53b941027096c272a29503293b09fc7a819ed",
+      "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:4b5d97d7136fa1093e1830418725607f5823b61b54f544a8aea125ad207afc59",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
@@ -2636,14 +2636,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "keep-prestable-package-releases-on-0-0-x.md",
         "title": "在稳定承诺前让 package 保持 0.0.x 版本线",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-12T09:27:03Z",
         "purpose": "让 `0.0.x` patch 递增不被误解为已经提供 package-level 兼容承诺。",
         "background": "Public package API、公共声明、名称与运行行为仍在形成，相邻预稳定 package versions 可能包含破坏式变化。",
@@ -3167,14 +3167,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "license-package-under-mit.md",
         "title": "使用 MIT 许可发布 Vibe Check package",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-14T05:52:51Z",
         "purpose": "让公开 package 的使用、分发和法律材料使用一个明确的开放源码许可边界。",
         "background": "Public npm package 的 manifest、legal text 和 provenance 必须使用一致许可，不能从 repository visibility 推断。",
@@ -4100,14 +4100,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "publish-user-scoped-vibe-check-publicly.md",
         "title": "在个人 npm scope 公开发布 Vibe Check package",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-31T03:56:03Z",
         "purpose": "让消费者从发布者可控制的个人 npm namespace 安装公开的 Vibe Check package。",
         "background": "unscoped vibe-check 因 npm 近似名称保护被拒绝，而 zxyycom 个人 scope 可承接同一公开产品身份。",
@@ -4395,14 +4395,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "release-one-versioned-npm-product-unit.md",
         "title": "以版本化 npm package 交付完整产品单元",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-12T09:12:51Z",
         "purpose": "让消费者从一个明确版本获得彼此匹配的执行实现、公共声明与已承诺 package materials。",
         "background": "产品执行、类型化 authoring 与必要 package materials 需要统一版本边界，而源码树入口不能证明可安装产物完整。",
@@ -4771,14 +4771,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "require-known-repository-quality-remediation-before-public-release.md",
         "title": "公开发布前处置已知仓库质量 Findings",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-30T04:05:36Z",
         "purpose": "防止 Project Gate 的暂时 non-blocking repository-quality Checks 被误解为公开 package 已具备质量发布条件。",
         "background": "用户原始运行的初始快照为 27 file、129 function 与 2 Markdown link findings；数量可变，公开发布前必须处置届时全部已知 findings。",
@@ -5386,14 +5386,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "support-bun-as-the-package-host.md",
         "title": "首个 package 只支持 Bun 宿主",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-12T10:30:27Z",
         "purpose": "让首个 npm package 的可运行宿主与当前 TypeScript Project Definition 和产品运行时能力保持一致。",
         "background": "npm 是分发机制，不代表 package 已经能够由 Node.js 直接加载和执行；同时承诺多个宿主会扩大构建、依赖和验收责任。",

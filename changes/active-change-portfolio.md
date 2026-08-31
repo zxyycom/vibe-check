@@ -11,12 +11,6 @@
 | [add-secret-detection](add-secret-detection/) | high-confidence secret detection 与 leak-canary safety。 | 需 detector provenance/license、precision/recall corpus 与全 surface evidence。 |
 | [port-lizard-function-metrics-to-typescript](port-lizard-function-metrics-to-typescript/) | `functionMetrics` 的 Lizard backend hard cut。 | 配置 Change 已完成；恢复实施时需按当前 `src/package-checks/function-metrics/**` 重新建立 constructor parity 与迁移证据。 |
 
-## 公开发布 Plan
-
-| Change | 唯一方向 | 授权边界 |
-| --- | --- | --- |
-| [publish-public-api-only-npm-package](publish-public-api-only-npm-package/) | 将被 npm 拒绝的 unscoped 首发身份改为 `@zxyycom/vibe-check`，重新形成 formal-version exact artifact，并让同一 tarball 通过 full Gate 后完成 public release。 | 当前进度、下一 checkpoint 与授权只读 [tasks](publish-public-api-only-npm-package/tasks.md#current-checkpoint)；当次 selection、失败和验证结果只读 [release evidence](publish-public-api-only-npm-package/release-evidence.md#reading-contract)。本导航不授予 registry 或 publish 操作。 |
-
 ## 读取顺序
 
 1. 运行 `bun run change-plan -- list changes`。

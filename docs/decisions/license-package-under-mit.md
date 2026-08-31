@@ -1,7 +1,7 @@
 ---
 title: 使用 MIT 许可发布 Vibe Check package
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-14T05:52:51Z
 purpose: 让公开 package 的使用、分发和法律材料使用一个明确的开放源码许可边界。
 background: Public npm package 的 manifest、legal text 和 provenance 必须使用一致许可，不能从 repository visibility 推断。

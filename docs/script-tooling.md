@@ -134,9 +134,11 @@ positive `0.0.<patch>` 与保守 lowercase tag，并要求 repository root、ind
 选择本地 build identity；命令不会核验 npm 上的版本可用性、publisher authority 或授权状态，也不会把 caller input 变成
 registry fact。
 
-Active release 的 exact version/tag/access/mechanism 与当次 registry observations 由对应
-[release evidence](../changes/publish-public-api-only-npm-package/release-evidence.md#current-scoped-selection) 承接，不在本稳定
-行为 owner 中复制。执行者从 evidence 取得 `<selected-version>` 与 `<selected-tag>` 后，调用
+一次 active release 的 exact version/tag/access/mechanism 与当次 registry observations 由该 release 的 active Change
+evidence 承接，不在本稳定行为 owner 中复制。当前没有 active release Plan；已发布 `0.0.1` 的形成时结果只保存在
+[archived release evidence](../changes/archive/publish-public-api-only-npm-package/release-evidence.md#current-scoped-selection)，不得恢复成
+后续版本的 selection、availability 或授权。未来执行者必须先建立新的 active release owner，再从其 current evidence 取得
+`<selected-version>` 与 `<selected-tag>`，然后调用
 `bun run package:release:prepare -- --version <selected-version> --tag <selected-tag>`。Evidence 中的值不是后续版本的默认值、
 registry availability 证明或 publish 授权；public access 仍由 generated manifest 的 closed `publishConfig` 承接，外部
 publish mechanism 也不由此脚本执行。

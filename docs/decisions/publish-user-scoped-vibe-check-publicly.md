@@ -1,7 +1,7 @@
 ---
 title: 在个人 npm scope 公开发布 Vibe Check package
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-31T03:56:03Z
 purpose: 让消费者从发布者可控制的个人 npm namespace 安装公开的 Vibe Check package。
 background: unscoped vibe-check 因 npm 近似名称保护被拒绝，而 zxyycom 个人 scope 可承接同一公开产品身份。

@@ -6,10 +6,11 @@
 
 - Product is API-only: `src/index.ts` is the public programmatic entry; it has no product CLI, `bin`, subpath export, configuration discovery, or registry operation.
 - Project Run owns only `outputs.machinePublication` and `outputs.progressRendering`. Project Gate owns process transcripts under `.log/project-gate/<unique>/`; those local diagnostics are not Product outputs or release artifacts.
+- `@zxyycom/vibe-check@0.0.1` 已公开发布到 canonical npm registry，public `latest` 在归档审阅时指向 `0.0.1`；README 的普通 consumer 入口是 `npm install @zxyycom/vibe-check`，产品 host 仍是 Bun `>=1.3.14`。
 - Exact candidate preparation, docs projection, installed-consumer acceptance and the formal workspace Gate must be regenerated after any public/runtime/docs change. A past receipt never proves a later artifact.
 - `scripts/package/release/**` now provides local-only formal prepare/verify entrypoints: it requires a clean commit and explicit version/tag, writes a portable digest-bound receipt, and makes full Gate consume that receipt without falling back to local candidate preparation. No publish action exists in those entrypoints.
-- The authorized npm read-only preflight is complete. The active Change's [release evidence](publish-public-api-only-npm-package/release-evidence.md) owns the exact selection, sanitized observations and time-scoped caveats; this navigation does not duplicate them or turn not-found into a name reservation.
-- The only active release Plan is [publish-public-api-only-npm-package](publish-public-api-only-npm-package/). It first establishes a formal-version exact artifact, then consumes current candidate/Gate/docs owners without implementing missing runtime contracts or authoring API semantics.
+- `0.0.1` 的 source commit、formal receipt/tarball digests、same-artifact Gate 36/36、registry integrity、无凭据 exact npm install、types/documentation/runtime acceptance 与 annotated `v0.0.1` tag 已闭合；完整脱敏结果保存在已归档 Change 的 [release evidence](archive/publish-public-api-only-npm-package/release-evidence.md) 中。
+- `publish-public-api-only-npm-package` 已以 18/18 tasks 完成并归档；当前没有 active npm release Plan。后续版本需要新的 Outcome、artifact evidence 与授权，不能恢复 archived Change 作为 current Plan。
 
 ## Current active dependencies
 
@@ -21,7 +22,7 @@ The post-release directions [add-html-link-validation](add-html-link-validation/
 
 ## Release authority
 
-The completed registry preflight consumed its one-time read authorization; its result neither reserves the selected package/version nor grants continuing account access. Current authorization covers local documentation, formal artifact preparation, tests and Gate only. Any later registry recheck, credential access, Trusted Publishing/staged configuration, `npm publish`, dist-tag/access write or post-publication installation requires a fresh scope naming the operation and exact artifact/version.
+`0.0.1` 的 preflight、publish、post-publication read/install 与 tag 授权均已消费；公开版本存在不产生 continuing account、credential 或 registry-write authority。任何后续版本、Trusted Publishing/staged configuration、`npm publish`、dist-tag/access 修改、unpublish/deprecate 或新 tag 都必须建立新的精确 scope、artifact evidence 与外部写入授权。
 
 ## Verification route
 

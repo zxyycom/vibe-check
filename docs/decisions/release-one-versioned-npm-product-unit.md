@@ -1,7 +1,7 @@
 ---
 title: 以版本化 npm package 交付完整产品单元
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-12T09:12:51Z
 purpose: 让消费者从一个明确版本获得彼此匹配的执行实现、公共声明与已承诺 package materials。
 background: 产品执行、类型化 authoring 与必要 package materials 需要统一版本边界，而源码树入口不能证明可安装产物完整。
