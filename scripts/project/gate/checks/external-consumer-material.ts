@@ -6,26 +6,26 @@ import { fileURLToPath } from "node:url";
 import {
   CANDIDATE_ARTIFACT_PATH_ENV,
   CANDIDATE_ARTIFACT_SHA256_ENV
-} from "../../package/candidate/acceptance-input.ts";
+} from "../../../package/candidate/acceptance-input.ts";
 import {
   EXTERNAL_CONSUMER_ROOT_ENV,
   parseExternalConsumerMaterialData,
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
-} from "../../package/candidate/external-consumer/input.ts";
+} from "../../../package/candidate/external-consumer/input.ts";
 import {
   createProcessCheckWithDataDependencyAndSuccessData,
   type ProcessCheckDataDependency
-} from "./check-execution/process.ts";
+} from "./process/process.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
-} from "./prepared-candidate-check.ts";
+} from "./prepared-candidate.ts";
 
 const providerAdapterPath = fileURLToPath(
-  new URL("../../package/candidate/external-consumer/provider.ts", import.meta.url)
+  new URL("../../../package/candidate/external-consumer/provider.ts", import.meta.url)
 );
-const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
+const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 
 /** Owns the one temporary root for a bound Gate Run, including cancelled child setup. */
 export interface ExternalConsumerMaterialLease {
@@ -33,7 +33,7 @@ export interface ExternalConsumerMaterialLease {
   providerRoot(): string;
 }
 
-/** Creates a lazily allocated root which is always removed by project-run's finally block. */
+/** Creates a lazily allocated root which the bound Gate Run always removes in `finally`. */
 export function createExternalConsumerMaterialLease(): ExternalConsumerMaterialLease {
   let root: string | undefined;
   return Object.freeze({

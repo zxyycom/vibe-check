@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { ProcessResult } from "../../../process-execution/execution.ts";
+import type { ProcessResult } from "../../../../process-execution/execution.ts";
 import { defineConfig, run, type CheckResult } from "@zxyycom/vibe-check";
 import {
   createProcessCheck,

@@ -1,5 +1,5 @@
-import { resolveBunTestFiles } from "../../../test-evidence/discovery/bun-files.ts";
-import { loadSupportedRunnerProfile } from "../../../test-evidence/profile.ts";
+import { resolveBunTestFiles } from "../../../../test-evidence/discovery/bun-files.ts";
+import { loadSupportedRunnerProfile } from "../../../../test-evidence/profile.ts";
 
 const PACKAGE_ARTIFACT_TEST_FILE = "scripts/package/artifact/artifact.test.ts";
 const PACKAGE_CANDIDATE_TEST_FILE = "scripts/package/candidate/candidate.test.ts";

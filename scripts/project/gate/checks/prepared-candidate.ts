@@ -6,10 +6,10 @@ import { defineCheck } from "@zxyycom/vibe-check";
 import type {
   CandidatePreparationFact,
   PreparedPackageCandidate
-} from "../../package/candidate/prepare.ts";
-import { fileMatchesSha256, isSha256Digest } from "../../package/pack.ts";
-import { isPathWithin } from "../../repository-files/paths.ts";
-import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
+} from "../../../package/candidate/prepare.ts";
+import { fileMatchesSha256, isSha256Digest } from "../../../package/pack.ts";
+import { isPathWithin } from "../../../repository-files/paths.ts";
+import { isNonArrayRecord, isStringArray } from "../../../value-guards.ts";
 import { parseCandidatePreparationFact } from "./prepared-candidate-fact.ts";
 
 const PREPARED_CANDIDATE_DATA_VERSION = 3 as const;

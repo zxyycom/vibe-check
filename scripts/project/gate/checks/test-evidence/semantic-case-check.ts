@@ -1,11 +1,11 @@
-import { checkTestEvidence } from "../../../test-evidence/command.ts";
+import { checkTestEvidence } from "../../../../test-evidence/command.ts";
 import type { Check } from "@zxyycom/vibe-check";
 import {
   createNativeOperationCheck,
   nativeFailed,
   nativePassed,
   type NativeOperationResult
-} from "../check-execution/native-operation.ts";
+} from "../process/native-operation.ts";
 
 /** Adapts semantic Case closure into its Gate Check. */
 export function createTestEvidenceCheck(): Check {

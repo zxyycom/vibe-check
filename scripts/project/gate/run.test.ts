@@ -13,8 +13,8 @@ import {
   projectGateSelectionSummary,
   selectionFlags,
   selectionFromFlags
-} from "./controls.ts";
-import { parseProjectGateInvocationArguments } from "./invocation.ts";
+} from "./runtime/controls.ts";
+import { parseProjectGateInvocationArguments } from "./runtime/invocation.ts";
 import {
   createInvocationLogDirectory,
   PROJECT_GATE_EXIT_STATUS,
@@ -28,12 +28,12 @@ import {
   createProjectGateResult,
   parseProjectGateResult,
   type ProjectGateResult
-} from "./result.ts";
-import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
-import { observeProjectGatePerformance } from "./performance-observation.ts";
+} from "./runtime/result.ts";
+import type { ProjectGatePerformanceBaseline } from "./runtime/performance-baseline.ts";
+import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
 import { createProjectGateEntries } from "./definition.ts";
-import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
-import type { ProjectGateTranscriptCompletion } from "./transcript.ts";
+import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
+import type { ProjectGateTranscriptCompletion } from "./runtime/transcript.ts";
 
 const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",

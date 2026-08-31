@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { walkFiles } from "../repository-files/files.ts";
 import { FILE_SYSTEM } from "./documentation/task-contract.ts";
+import { validateProjectGateRoot } from "./project-gate-layout.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -27,8 +28,7 @@ const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "scripts/validation/documentation/repository",
   "scripts/package-candidate",
   "scripts/quality",
-  "scripts/project-gate",
-  "scripts/project/gate/checks"
+  "scripts/project-gate"
 ]);
 const GENERIC_BASENAMES = new Set([
   "current",
@@ -79,6 +79,7 @@ export function validateRepositoryLayout(
 
   validateRetiredSourceDirectories(root, violations);
   validateProductOwners(root, violations);
+  validateProjectGateRoot(root, violations);
   validateSourceNames(root, sourceFiles, violations);
   validateImportBoundaries(root, sourceFiles, violations);
   validatePackageArtifactEntry(root, violations);

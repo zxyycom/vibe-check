@@ -7,18 +7,18 @@ import { describe, it } from "node:test";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { defineCheck, type Check } from "@zxyycom/vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
-import { defineProjectGateEntries } from "./entries.ts";
-import { projectGateCheckForSelection } from "./eligibility.ts";
-import { createNativeOperationCheck } from "./check-execution/native-operation.ts";
+import { defineProjectGateEntries } from "./runtime/entries.ts";
+import { projectGateCheckForSelection } from "./runtime/eligibility.ts";
+import { createNativeOperationCheck } from "./checks/process/native-operation.ts";
 import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
-import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
-import { writeProcessTranscript } from "./check-execution/process.ts";
-import { projectGateAggregation } from "./project-run.ts";
+import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
+import { writeProcessTranscript } from "./checks/process/process.ts";
+import { projectGateAggregation } from "./runtime/bound-run.ts";
 import {
   createTestEvidenceRuleTestsCheck,
   type TestEvidenceRuleTestsCheckDependencies
-} from "./test-evidence/ast-grep-rule-tests-check.ts";
-import { resolveProjectGateTestLanes } from "./test-execution/lanes.ts";
+} from "./checks/test-evidence/ast-grep-rule-tests-check.ts";
+import { resolveProjectGateTestLanes } from "./checks/test-execution/lanes.ts";
 
 const preparedCandidate = Object.freeze({
   artifactPath: "/tmp/project-gate-candidate/artifacts/vibe-check.tgz",

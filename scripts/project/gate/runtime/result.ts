@@ -1,4 +1,4 @@
-import { isNonArrayRecord } from "../../value-guards.ts";
+import { isNonArrayRecord } from "../../../value-guards.ts";
 
 export const PROJECT_GATE_RESULT_STATUS = Object.freeze({
   failed: "failed",

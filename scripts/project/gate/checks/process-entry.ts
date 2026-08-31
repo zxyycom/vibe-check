@@ -1,15 +1,15 @@
-import type { ProcessInvocation } from "../../process-execution/command.ts";
-import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
+import type { ProcessInvocation } from "../../../process-execution/command.ts";
+import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 import type { Check } from "@zxyycom/vibe-check";
 
-import type { ProjectGateProfile, ProjectGateTag } from "./catalog.ts";
+import type { ProjectGateProfile, ProjectGateTag } from "../runtime/catalog.ts";
 import {
   createProcessCheck,
   createProcessCheckWithDataDependency,
   type ProcessCheckDataDependency
-} from "./check-execution/process.ts";
-import type { ProjectGateEntry } from "./entries.ts";
-import type { ExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
+} from "./process/process.ts";
+import type { ProjectGateEntry } from "../runtime/entries.ts";
+import type { ExternalConsumerMaterialLease } from "./external-consumer-material.ts";
 
 /** Runtime material bound to one Project Gate invocation. */
 export interface ProjectGateRuntime {

@@ -1,11 +1,14 @@
-import { validateDocs, type DocsValidationTask } from "../../validation/documentation/workflow.ts";
+import {
+  validateDocs,
+  type DocsValidationTask
+} from "../../../validation/documentation/workflow.ts";
 
 import {
   createNativeOperationCheck,
   nativeFailed,
   nativePassed,
   type NativeOperationResult
-} from "./check-execution/native-operation.ts";
+} from "./process/native-operation.ts";
 import type { Check } from "@zxyycom/vibe-check";
 
 /** Adapts one documentation acceptance task into a Gate Check. */

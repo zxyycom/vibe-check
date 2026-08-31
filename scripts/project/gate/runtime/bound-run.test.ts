@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
-import { isNonArrayRecord } from "../../value-guards.ts";
-import { projectGateOutputOverrides } from "./project-run.ts";
+import { isNonArrayRecord } from "../../../value-guards.ts";
+import { projectGateOutputOverrides } from "./bound-run.ts";
 
-const repositoryRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
+const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 
 // Keep the test-name literal on its registration line so Test Evidence locations agree.
 // prettier-ignore

@@ -84,7 +84,7 @@ Entities:
 - `bun|scripts/package/candidate/acceptance-input.test.ts|accepts an exact Gate candidate artifact input`
 - `bun|scripts/package/candidate/acceptance-input.test.ts|rejects incomplete or mismatched Gate candidate artifact input`
 - `bun|scripts/package/candidate/external-consumer/input.test.ts|external consumer provider input is closed and fail-closed`
-- `bun|scripts/project/gate/external-consumer-material-check.test.ts|external consumer provider binds typed output to invocation provenance`
+- `bun|scripts/project/gate/checks/external-consumer-material.test.ts|external consumer provider binds typed output to invocation provenance`
   Proves:
 
 - Artifact, candidate, and external-consumer acceptance each consume only their closed provider-owned path, digest, containment, inventory, and exact candidate-version material; incomplete, unrelated, mismatched, or malformed material fails before acceptance work begins. Artifact staging uses that version to audit the same manifest identity as the prepared tarball.
@@ -175,7 +175,7 @@ Entities:
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
   Proves:
 
-- Workspace validation rejects retired source roots, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
+- Workspace validation rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
@@ -187,13 +187,13 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete full selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects ordinary Check entries without a command catalog or policy`
-- `bun|scripts/project/gate/repository-quality-checks.test.ts|repository quality Checks > uses the retained repository policy and mise-provided absolute scanner commands`
-- `bun|scripts/project/gate/repository-quality-checks.test.ts|repository quality Checks > substitutes an unavailable absolute command when mise bindings are missing or relative`
+- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the retained repository policy and mise-provided absolute scanner commands`
+- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute command when mise bindings are missing or relative`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > derives required, full, and partial aggregates from the same entries`
   Proves:
 
 - 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 通过 mise 进入锁定 scanner 环境，且不传 disabled tags。
-- Project-private entries 只附加 profile/tag metadata；Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check、candidate lifecycle、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities。直接的 duplicate/file/function/Markdown repository-quality Checks 可由 quality tag 禁用；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate，findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度：candidate lifecycle 与 provider 共享 named lifecycle mutex，artifact 直接消费 prepared candidate，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。
+- 根级 `definition.ts` 是单一 Gate 配置 owner：普通 entries、完整 test lane-to-Check 映射和 repository-quality options 都从这里进入同一个 Project Definition；`checks/**` 只实现 adapter，`runtime/**` 只绑定 selection、aggregation 和 Run mechanics。Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、轻量 package calculation/material Check、candidate lifecycle、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities。直接的 duplicate/file/function/Markdown repository-quality Checks 可由 quality tag 禁用；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate，findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；root 使用三路调度：candidate lifecycle 与 provider 共享 named lifecycle mutex，artifact 直接消费 prepared candidate，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。
 - Gate 自有 quality 构造显式保留 repository-specific files 与 duplicate thresholds、file-metrics `300 + 500/10`、function-metrics `50 + 150/below 5 + CC 10 + parameters 5` 和 non-blocking findings，不继承更宽松的 package consumer defaults；Markdown selection 只包含 `docs/**/*.md` 与 `changes/**/*.md`，不会用 TypeScript scope 制造 input-rejection noise。
 - adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
 - `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求无 tag override 的完整 full profile；普通无参/required/full 调用仍使用 local candidate source。
@@ -205,7 +205,7 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/project-run.test.ts|binds the Product diagnostic log and standard machine facts to the Gate invocation directory`
+- `bun|scripts/project/gate/runtime/bound-run.test.ts|binds the Product diagnostic log and standard machine facts to the Gate invocation directory`
   Proves:
 
 - Gate output overrides colocate Product diagnostic logging and standard machine publication in one deterministic, test-owned invocation directory. The isolated fixture runs one synthetic Check rather than scanning the current repository; it proves exactly one core log plus paired `run.json` and `records.ndjson`, then removes only its own `.log/project-gate-tests/output-override-*` directory. It does not inspect, clean, or infer facts from pre-existing `.log/project-run` inventory, create a quality-only report, or establish a Gate performance budget.
@@ -215,7 +215,7 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/transcript.test.ts|Project Gate transcript > tees tagged plain output, records final Gate facts, and restores process and console writers`
+- `bun|scripts/project/gate/runtime/transcript.test.ts|Project Gate transcript > tees tagged plain output, records final Gate facts, and restores process and console writers`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when the Gate transcript cannot be completed`
@@ -241,14 +241,14 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > publishes closed success data only after a settled transcript`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > writes a running transcript before process start and replaces it after settlement`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > derives process environment from one typed provider dependency`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > requires an explicit timeout before reporting safe timeout evidence`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
-- `bun|scripts/project/gate/check-execution/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > publishes closed success data only after a settled transcript`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > writes a running transcript before process start and replaces it after settlement`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > derives process environment from one typed provider dependency`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > requires an explicit timeout before reporting safe timeout evidence`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
+- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
   Proves:
 
 - eligible command 只有在零退出并写入包含 stdout/stderr 的 `process/<check-id>.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。失败 message 与 Record 使用同一 invocation-relative `process/<check-id>.log` reference，而不暴露 invocation absolute path。
@@ -265,8 +265,8 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/prepared-candidate-check.test.ts|prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts`
-- `bun|scripts/project/gate/prepared-candidate-check.test.ts|prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest`
+- `bun|scripts/project/gate/checks/prepared-candidate.test.ts|prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts`
+- `bun|scripts/project/gate/checks/prepared-candidate.test.ts|prepared package candidate Check > fails closed when the prepared artifact no longer matches its digest`
   Proves:
 
 - Required provider Check 只发布 closed、versioned、绝对路径且 containment 合法的 candidate data，并保留 artifact digest、文件 inventory、installed entry、preparation action/reason 与 reuse fact；schema 明确区分 local rebuild/reinstall/reuse 与 formal `release / release-receipt`。
@@ -308,7 +308,7 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/performance-observation.test.ts|Project Gate performance observation > emits elapsed observations and preserves Gate status across comparable advisory outcomes`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance observation > emits elapsed observations and preserves Gate status across comparable advisory outcomes`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses the default performance observer and keeps advisory warnings non-blocking`
   Proves:
 

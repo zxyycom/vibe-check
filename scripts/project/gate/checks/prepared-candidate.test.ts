@@ -5,12 +5,12 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { defineConfig, run as packageRun } from "@zxyycom/vibe-check";
 
-import { sha256File } from "../../package/pack.ts";
-import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
+import { sha256File } from "../../../package/pack.ts";
+import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 import {
   createPreparedCandidateCheck,
   parseProjectGatePreparedCandidateData
-} from "./prepared-candidate-check.ts";
+} from "./prepared-candidate.ts";
 
 describe("prepared package candidate Check", () => {
   it("publishes versioned typed candidate data and rejects malformed dependency facts", async () => {

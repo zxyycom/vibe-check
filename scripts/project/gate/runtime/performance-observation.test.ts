@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
+import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
-import type { ProjectGateContext } from "./run.ts";
+import type { ProjectGateContext } from "../run.ts";
 import { createProjectGateResult } from "./result.ts";
 import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
 import { observeProjectGatePerformance } from "./performance-observation.ts";

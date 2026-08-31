@@ -1,4 +1,4 @@
-import { isNonArrayRecord } from "../../../value-guards.ts";
+import { isNonArrayRecord } from "../../../../value-guards.ts";
 
 import type { ProcessCheckDescriptor } from "./process.ts";
 

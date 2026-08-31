@@ -7,15 +7,15 @@ import {
   type RunControls,
   type RunResult
 } from "@zxyycom/vibe-check";
-import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
+import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
-import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
-import { createExternalConsumerMaterialLease } from "./external-consumer-material-check.ts";
+import { createProjectGateDefinition, createProjectGateEntries } from "../definition.ts";
+import { createExternalConsumerMaterialLease } from "../checks/external-consumer-material.ts";
 import type { ProjectGateEntry } from "./entries.ts";
 import { projectGateEligibleCheckIds } from "./eligibility.ts";
 
-const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
 /** The installed public entry selected by this private consumer. */
 export const resolvedEntryPath = fileURLToPath(import.meta.resolve("@zxyycom/vibe-check"));

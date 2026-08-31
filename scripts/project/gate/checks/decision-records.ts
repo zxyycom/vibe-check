@@ -1,11 +1,11 @@
-import { validateDecisionRecords } from "../../decision-records/command.ts";
+import { validateDecisionRecords } from "../../../decision-records/command.ts";
 import type { Check } from "@zxyycom/vibe-check";
 import {
   createNativeOperationCheck,
   nativeFailed,
   nativePassed,
   type NativeOperationResult
-} from "./check-execution/native-operation.ts";
+} from "./process/native-operation.ts";
 
 /** Adapts Decision Records validation into its Gate Check. */
 export function createDecisionRecordsCheck(): Check {

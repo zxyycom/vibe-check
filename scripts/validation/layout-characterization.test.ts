@@ -40,6 +40,10 @@ it("characterizes repository layout and dependency boundaries", () => {
         writeSource(root, "scripts/validation/documentation/repository/legacy.ts", "export {};\n")
     },
     {
+      expected: "project-gate-root-layout:",
+      mutate: (root) => writeSource(root, "scripts/project/gate/extra.ts", "export {};\n")
+    },
+    {
       expected: "unapproved-index: src/project-definition/index.ts",
       mutate: (root) => writeSource(root, "src/project-definition/index.ts", "export {};\n")
     },
@@ -137,7 +141,16 @@ function createTargetLayout(): string {
     "scripts/package/artifact/build.ts",
     'const entry = join(repositoryRoot, "src/index.ts");\nvoid entry;\n'
   );
-  writeSource(root, "scripts/project/gate/run.ts", "export {};\n");
+  for (const path of [
+    "scripts/project/gate/definition.test.ts",
+    "scripts/project/gate/definition.ts",
+    "scripts/project/gate/run.test.ts",
+    "scripts/project/gate/run.ts",
+    "scripts/project/gate/checks/process/process.ts",
+    "scripts/project/gate/runtime/bound-run.ts"
+  ]) {
+    writeSource(root, path, "export {};\n");
+  }
   writeSource(root, "scripts/package/candidate/prepare.ts", "export {};\n");
   return root;
 }

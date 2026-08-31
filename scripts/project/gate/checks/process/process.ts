@@ -1,7 +1,7 @@
-import { errorMessage } from "../../../error-message.ts";
-import { writeTextFile } from "../../../repository-files/files.ts";
-import { runProcess, type ProcessResult } from "../../../process-execution/execution.ts";
-import { isNonArrayRecord } from "../../../value-guards.ts";
+import { errorMessage } from "../../../../error-message.ts";
+import { writeTextFile } from "../../../../repository-files/files.ts";
+import { runProcess, type ProcessResult } from "../../../../process-execution/execution.ts";
+import { isNonArrayRecord } from "../../../../value-guards.ts";
 import {
   defineCheck,
   type Check,

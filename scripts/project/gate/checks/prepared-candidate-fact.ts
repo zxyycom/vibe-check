@@ -2,7 +2,7 @@ import type {
   CandidatePreparationFact,
   FormalReleasePreparationFact,
   LocalCandidatePreparationFact
-} from "../../package/candidate/prepare.ts";
+} from "../../../package/candidate/prepare.ts";
 
 type RebuildPreparationFact = Extract<
   LocalCandidatePreparationFact,

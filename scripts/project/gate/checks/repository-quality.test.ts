@@ -6,20 +6,26 @@ import { minimatch } from "minimatch";
 import {
   createRepositoryQualityChecks,
   repositoryQualityScannerCommands
-} from "./repository-quality-checks.ts";
+} from "./repository-quality.ts";
+import { PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS } from "../definition.ts";
 
 describe("repository quality Checks", () => {
   it("uses the retained repository policy and mise-provided absolute scanner commands", () => {
-    const checks = createRepositoryQualityChecks({
+    const checks = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS, {
       lizard: "/tools/lizard",
       scc: "/tools/scc"
     });
 
     assert.deepEqual(
-      checks.map(({ checkId }) => checkId),
+      [
+        checks.duplicateDetection.checkId,
+        checks.fileMetrics.checkId,
+        checks.functionMetrics.checkId,
+        checks.markdownLinkValidation.checkId
+      ],
       ["duplicate-detection", "file-metrics", "function-metrics", "markdown-link-validation"]
     );
-    const [duplicateDetection, fileMetrics, functionMetrics, markdownLinkValidation] = checks;
+    const { duplicateDetection, fileMetrics, functionMetrics, markdownLinkValidation } = checks;
     assert.equal(
       duplicateDetection.options.codeAreas["product-source"]?.findingPolicy,
       "non-blocking"
@@ -105,11 +111,14 @@ describe("repository quality Checks", () => {
     assert.notEqual(commands.lizard, "lizard");
     assert.notEqual(commands.scc, "scc");
 
-    const checks = createRepositoryQualityChecks({ lizard: "lizard", scc: "scc" });
-    assert.equal(isAbsolute(checks[1].options.scanner.executable), true);
-    assert.equal(isAbsolute(checks[2].options.scanner.executable), true);
-    assert.notEqual(checks[1].options.scanner.executable, "scc");
-    assert.notEqual(checks[2].options.scanner.executable, "lizard");
+    const checks = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS, {
+      lizard: "lizard",
+      scc: "scc"
+    });
+    assert.equal(isAbsolute(checks.fileMetrics.options.scanner.executable), true);
+    assert.equal(isAbsolute(checks.functionMetrics.options.scanner.executable), true);
+    assert.notEqual(checks.fileMetrics.options.scanner.executable, "scc");
+    assert.notEqual(checks.functionMetrics.options.scanner.executable, "lizard");
   });
 });
 

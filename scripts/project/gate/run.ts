@@ -16,20 +16,20 @@ import {
   projectGateSelectionSummary,
   selectionFlags,
   type ProjectGateSelection
-} from "./controls.ts";
+} from "./runtime/controls.ts";
 import {
   parseProjectGateInvocationArguments,
   type ProjectGateCandidateInput
-} from "./invocation.ts";
+} from "./runtime/invocation.ts";
 import {
   createInitialProjectGateResult,
   createProjectGateResult,
   parseProjectGateResult,
   type ProjectGateMessage,
   type ProjectGateResult
-} from "./result.ts";
-import { observeProjectGatePerformance } from "./performance-observation.ts";
-import { startProjectGateTranscript, type ProjectGateTranscript } from "./transcript.ts";
+} from "./runtime/result.ts";
+import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
+import { startProjectGateTranscript, type ProjectGateTranscript } from "./runtime/transcript.ts";
 
 interface GateRunModule {
   readonly resolvedEntryPath: string;
@@ -87,7 +87,7 @@ const defaultSteps: ProjectGateSteps = Object.freeze({
   afterGate: observeProjectGatePerformance,
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
-  loadRunModule: async (): Promise<GateRunModule> => import("./project-run.ts"),
+  loadRunModule: async (): Promise<GateRunModule> => import("./runtime/bound-run.ts"),
   prepareCandidate: preparePackageCandidate,
   prepareReleaseCandidate: (receiptPath: string) =>
     prepareReleaseCandidateFromReceipt({ receiptPath }),

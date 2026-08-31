@@ -4,8 +4,8 @@ import {
   testEvidenceRuleTestInvocations,
   type TestEvidenceRuleTestInvocations,
   type TestEvidenceRuleTestResult
-} from "../../../test-evidence/ast-grep/rule-tests.ts";
-import { type ProcessResult } from "../../../process-execution/execution.ts";
+} from "../../../../test-evidence/ast-grep/rule-tests.ts";
+import { type ProcessResult } from "../../../../process-execution/execution.ts";
 import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
 
 import {
@@ -13,7 +13,7 @@ import {
   processTranscriptReference,
   writeProcessTranscript,
   type ProcessCheckDescriptor
-} from "../check-execution/process.ts";
+} from "../process/process.ts";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",
