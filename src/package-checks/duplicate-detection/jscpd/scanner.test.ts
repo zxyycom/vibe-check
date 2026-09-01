@@ -1,10 +1,11 @@
 import { strict as assert } from "node:assert";
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { isNonArrayRecord } from "../../../data-boundary/value-shapes.ts";
 import {
   DEFAULT_JSCPD_COMMAND,
   readJscpdBinTarget,
@@ -157,6 +158,10 @@ describe("quality jscpd wrapper failure projection", () => {
     try {
       const packageManifestPath = fileURLToPath(import.meta.resolve("jscpd/package.json"));
       const declaredBinTarget = readJscpdBinTarget(packageManifestPath);
+      const packageManifest = JSON.parse(readFileSync(packageManifestPath, "utf8")) as unknown;
+      if (!isNonArrayRecord(packageManifest) || typeof packageManifest.version !== "string") {
+        assert.fail("installed jscpd manifest must declare its version");
+      }
       assert.deepEqual(DEFAULT_JSCPD_COMMAND, { kind: "package" });
       const resolvedCommand = resolveJscpdCommand(DEFAULT_JSCPD_COMMAND);
       assert.equal(resolvedCommand.kind, "resolved");
@@ -173,6 +178,7 @@ describe("quality jscpd wrapper failure projection", () => {
       });
       assert.equal(availability.available, true);
       assert.equal(availability.source, "package dependency");
+      if (availability.available) assert.equal(availability.version, packageManifest.version);
 
       const result = scanWithJscpd({
         files: ["a.ts", "b.ts"],

@@ -29,6 +29,7 @@ type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PAC
 interface VerifiedCandidateDependency {
   readonly manifest: Readonly<Record<string, unknown>>;
   readonly packageManifestPath: string;
+  readonly version: string;
 }
 
 /** Replaces the dedicated private install and verifies the exact installed package entry. */
@@ -181,7 +182,7 @@ function verifyCandidateJscpdDependency(
   consumerDirectory: string,
   candidateEntryPath: string
 ): void {
-  const { manifest, packageManifestPath } = verifyCandidateDependency({
+  const { manifest, packageManifestPath, version } = verifyCandidateDependency({
     candidateEntryPath,
     consumerDirectory,
     packageName: JSCPD_PACKAGE_NAME,
@@ -201,6 +202,31 @@ function verifyCandidateJscpdDependency(
   }
   if (!existsSync(binPath)) {
     throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin is missing: ${binPath}`);
+  }
+  assertJscpdEngineVersion({
+    binPath,
+    consumerDirectory,
+    expectedVersion: version,
+    packageManifestPath
+  });
+}
+
+function assertJscpdEngineVersion(input: {
+  readonly binPath: string;
+  readonly consumerDirectory: string;
+  readonly expectedVersion: string;
+  readonly packageManifestPath: string;
+}): void {
+  const output = runBun({
+    args: [input.binPath, "--version"],
+    cwd: input.consumerDirectory,
+    phase: `run resolved ${JSCPD_PACKAGE_NAME} engine in ${input.consumerDirectory}`
+  });
+  const actualVersion = output.trim().match(/(?:jscpd|cpd)\s+([^\s]+)/iu)?.[1];
+  if (actualVersion !== input.expectedVersion) {
+    throw new Error(
+      `resolved ${JSCPD_PACKAGE_NAME} engine version must match manifest ${input.expectedVersion}: ${input.packageManifestPath}`
+    );
   }
 }
 
@@ -244,7 +270,7 @@ function verifyCandidateDependency(input: {
       `resolved ${packageName} package manifest must satisfy ${packageName}@${packageDependencyVersionRequirementText(versionRequirement)}: ${packageManifestPath}`
     );
   }
-  return Object.freeze({ manifest, packageManifestPath });
+  return Object.freeze({ manifest, packageManifestPath, version: resolvedVersion });
 }
 
 function readJsonFile(filePath: string, description: string): unknown {

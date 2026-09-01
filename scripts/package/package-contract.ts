@@ -15,7 +15,7 @@ export const PACKAGE_REPOSITORY_MANIFEST_URL = "git+https://github.com/zxyycom/v
 export const AJV_PACKAGE_NAME = "ajv";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
-export const JSCPD_VERSION_RANGE = "^5.0.11";
+export const JSCPD_VERSION_RANGE = "^5.1.1";
 
 export const CANDIDATE_DEPENDENCIES = Object.freeze({
   "@humanwhocodes/momoa": "3.3.12",

@@ -10,3 +10,11 @@ minimumReleaseAgeExclude:
   - "@typescript/native-preview-win32-arm64@7.0.0-dev.20260621.1"
   - "@typescript/native-preview-win32-x64@7.0.0-dev.20260621.1"
   - "@typescript/native-preview@7.0.0-dev.20260621.1"
+  - jscpd-darwin-arm64@5.1.1
+  - jscpd-darwin-x64@5.1.1
+  - jscpd-linux-arm64-gnu@5.1.1
+  - jscpd-linux-x64-gnu@5.1.1
+  - jscpd-linux-x64-musl@5.1.1
+  - jscpd-windows-arm64-msvc@5.1.1
+  - jscpd-windows-x64-msvc@5.1.1
+  - jscpd@5.1.1

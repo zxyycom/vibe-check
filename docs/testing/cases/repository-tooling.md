@@ -98,7 +98,7 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
-- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths. The installed public cache computes once, then returns a parser-backed digest-keyed hit without changing either Check execution settlement.
+- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies, proves that its resolved jscpd manifest, contained bin and actual engine version agree, and completes the supported package Run with the installed entry. This is release acceptance evidence for the installed candidate, not a claim that every Product Run requires the exact 5.1.1 engine. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths. The installed public cache computes once, then returns a parser-backed digest-keyed hit without changing either Check execution settlement.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
@@ -144,7 +144,7 @@ Entities:
 - `bun|scripts/package/dependency-version.test.ts|package dependency versions satisfy only their declared requirement`
   Proves:
 
-- Package tooling distinguishes exact dependency versions from bounded semver ranges, accepts only actual resolutions covered by the declared requirement, and renders the same requirement in rejection diagnostics.
+- Package tooling distinguishes exact dependency versions from bounded semver ranges, accepts only actual resolutions covered by the declared requirement (including rejection of jscpd `5.1.0` below the `^5.1.1` lower bound), and renders the same requirement in rejection diagnostics.
 
 ## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused docs selection
 

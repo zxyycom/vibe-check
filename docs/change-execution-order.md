@@ -48,9 +48,13 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 基于 Git `36a4fd933507a0ec38af4762c274ede78d1f04f0` 审阅；形成时
-`change-plan check-all` 报告 16 个 active Change 结构有效。该提交只标识本次依赖审阅的输入，不冻结后续
-Change 状态，也不证明任何 Implementation 已完成。
+本节于 2026-09-01 基于当前工作树和 Git HEAD
+`ce8cba61217291b51921b014f44918e3a194fa85` 审阅；审阅输入是
+`bun run change-plan -- list changes` 与 `bun run change-plan -- check-all changes`。当前工作树中
+`upgrade-jscpd-duplicate-detection-to-5-1-1` 已位于 `changes/archive/`，因此不再是 active scanner 轨道节点；
+`check-all` 报告其余 15 个 active Change 结构有效。该 HEAD 只标识审阅时的提交输入：尚未提交的归档和本次
+文档维护存在于当前工作树，不能据此声称它们已经存在于该父提交中，也不冻结后续 Change 状态或证明任何
+Implementation 已完成。
 
 ### Scheduler 主线
 
@@ -107,17 +111,16 @@ custom hook duration 与 Product Scheduler 自有耗时、diagnostic observation
 
 ### Scanner 迁移轨道
 
-以下三项没有硬语义依赖，但都会修改 package 或工具材料、scanner 文档、Case owner、环境或 Gate。默认按
+以下两项没有硬语义依赖，但都会修改 package 或工具材料、scanner 文档、Case owner、环境或 Gate。默认按
 推荐顺序串行合入，避免并行维护 `package.json`、lockfile 和共享 scanner owner：
 
-1. [`upgrade-jscpd-duplicate-detection-to-5-1-1`](../changes/upgrade-jscpd-duplicate-detection-to-5-1-1/proposal.md)
-2. [`upgrade-scc-file-metrics-to-v4`](../changes/upgrade-scc-file-metrics-to-v4/proposal.md)
-3. [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)
+1. [`upgrade-scc-file-metrics-to-v4`](../changes/upgrade-scc-file-metrics-to-v4/proposal.md)
+2. [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)
 
 差分语料、provenance 和平台调查可以在独立 worktree 并行形成；实际依赖、lockfile、environment、candidate 和
 文档切换必须在前一项合入后重新基线化。Lizard 迁移还受其自身 Resume Conditions 与活动长期 Decision 约束，
-不能因排在本表中就推断已经获得实施优先级。当前把 jscpd 放在 SCC 前，是因为其 Plan 基线更新、目标更窄且
-直接排除已知 5.1.0 wrapper/engine 错配；把 Lizard 放在最后，是因为它的 owner 迁移最宽且仍受后置方向约束。
+不能因排在本表中就推断已经获得实施优先级。jscpd upgrade 已归档，SCC 因而是当前轨道首个 active 实现项；
+Lizard 仍排在其后，因为它的 owner 迁移最宽且仍受后置方向约束。
 
 ### 可独立推进与证据轨道
 
