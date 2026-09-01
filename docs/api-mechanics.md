@@ -61,6 +61,8 @@ relation/mutex candidate、当前 capacity 可 admission 且未越过 lifecycle/
 snapshot。它不重新判断 policy 是否公平、是否饥饿、是否应选择另一个 candidate 或等待的理由，并独占 readiness、mutex、capacity、
 cancellation、Task start、await、blocked settlement 与 terminal settlement。
 
+即使启用 Scheduler human diagnostics，custom callback 仍不获得 clock、logger、accumulator 或 per-policy timing；这些 imperative observation 只属于 Scheduler shell，不能成为 callback context、public telemetry 或 policy result。
+
 throw、thenable proposal、malformed proposal、non-candidate/capacity/lifecycle-invalid select 或 undrainable wait 都是 fatal
 admission-policy fault：Product 停止新 admission、取消 pending Tasks、drain 已启动 Task，并返回
 `{ kind: "execution", diagnostic: { code: "admission-policy-failed" } }`；它不 fallback 到 static policy。启用 diagnostic logging
@@ -310,6 +312,7 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
 - 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
 - Scheduler evidence 记录本轮 `select`/`wait` 与 hard-guard facts，不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
+- effective diagnostic logging enabled 时，private Scheduler shell 在实际进入后于 normal、caller-cancelled 或 admission-policy-fault drain 的 terminal path 尝试一条有界 `scheduler.summary`。它分开记录 shell control path、decision observation、slot·ms/capacity ratio、accepted policy wait、admission delay 与 tail；clock/integral fault 明确形成 unavailable timing 而不伪造零值，合法 zero span 与之不同。各 projection 允许重叠，不能相加为 wall/CPU/thread/OS utilization；`proposal: null` 的被动 drain 不计 accepted wait。pre-work/planning failure 没有这条 summary，writer failure 也不改写 Run 结果。
 - 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
 - progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
 
@@ -327,6 +330,8 @@ failure 只把该 output 标为 failed，不改写已形成的 Check/Record fact
 闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；唯一 `output` diagnostic 依次选择 progress rendering、
 machine publication、diagnostic logging。diagnostic logging 不进入 machine v4；其 machine-field 排除见
 [机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
+
+因此 `scheduler.summary` 不进入 `RunResult`、Check/Record facts、machine v4、progress、warning、autotune 或任何 public API；它不获得 parser/schema/version、跨 invocation discovery 或 retention contract。以后若 fail-fast 或 named-resource capacity 改变 Scheduler capacity/hard guard，必须重新审阅 summary 的 capacity denominator、boundary 与 wait 解释，而不是静默重用旧 projection。
 
 progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 author/captured messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
 

@@ -48,8 +48,8 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 基于 Git `b114ed3b3d0715cb36fc0806a6795d8c755e75e6` 与当次 Change 集合审阅；
-`require-passed-dependencies-and-observe-outcomes` 与 `extract-scheduler-admission-selection-policy` 已完成、归档，当前集合保留 14 个 active Change。该提交只标识
+本节于 2026-09-01 基于 Git `9c0171243136bf72888be60999b8d8e5fb1aba34` 与当次 Change 集合审阅；
+`require-passed-dependencies-and-observe-outcomes`、`extract-scheduler-admission-selection-policy` 与 `expose-custom-admission-selection-policy` 已完成、归档，当前集合保留 13 个 active Change。该提交只标识
 本次依赖审阅的输入，不冻结后续 Change 状态，也不证明其它 Implementation 已完成。
 
 ### Scheduler 主线
@@ -64,44 +64,34 @@ proposal 只保留形成时实施语境；active 下游 Change 应以稳定 owne
 [`extract-scheduler-admission-selection-policy`](../changes/archive/extract-scheduler-admission-selection-policy/proposal.md)：
 它已完成并归档，记录了形成时的 private full-graph handoff、select/wait/reservation implementation 与 Scheduler guard。reservation 是该历史实现的 current-at-formation fact，不是 active 下游的目标 contract；active Change 必须以当前源码、active Decisions 与 stable owners 恢复事实，不能把 archive 当作 current Plan。
 
-以下是剩余 active Scheduler 主线的硬依赖：
+custom selector 已完成并归档：[`expose-custom-admission-selection-policy`](../changes/archive/expose-custom-admission-selection-policy/proposal.md)。其 active Decision 继续约束 custom callback 的 synchronous pure boundary；该 archived Change 不再作为 active worktree 或后续 Plan 的硬前置。
+
+剩余 active Scheduler 主线为：
 
 ```text
-expose-custom-admission-selection-policy
-                         |
-                         v
-schedule-checks-from-learned-durations
-```
-
-- [`expose-custom-admission-selection-policy`](../changes/expose-custom-admission-selection-policy/proposal.md)
-  是当前最早的 active Scheduler 节点：先实施 stateless successor、移除形成时的 private reservation Core state/trace，再以同一 hard guard 公开 custom callback；它复用已经合入的私有 guard，并使用最终 directed readiness vocabulary。
-- [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md)
-  是后续 active 主线节点；它必须等待 custom callback 与其性能诊断验收前置闭合，并扩展已经形成的 closed public policy union，而不是建立第二套 Scheduler 或把 history 写入 Scheduler state。
-
-[`add-scheduler-performance-diagnostics`](../changes/add-scheduler-performance-diagnostics/proposal.md) 是 learned
-policy 的验收前置：learned policy 验收需要它提供或同步提供 admission delay、slot utilization 和 tail 的同 workload
-证据。已归档基础不再占用 active worktree；为减少剩余共享 owner 冲突并保持 callback 不产生 timing telemetry，当前推荐的
-active Change 合入顺序是：
-
-```text
-expose-custom-admission-selection-policy
-  -> add-scheduler-performance-diagnostics
+add-scheduler-performance-diagnostics
   -> schedule-checks-from-learned-durations
 ```
 
-这四项与已归档基础共同涉及 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 和公共说明；
-remaining active Change 不得在多个 worktree 中同时实施。Readiness 调查可以并行，但不得各自复制候选规则、图状态或时间 owner。
-custom Change 合入后，启动 performance diagnostics 前必须同步其 Plan：它只观察无状态 selected/wait 和 hard-guard facts，并将 Product Scheduler 自有耗时与 diagnostic observation 耗时分开；不建立 custom hook timing。
+[`add-scheduler-performance-diagnostics`](../changes/add-scheduler-performance-diagnostics/proposal.md) 是 learned policy 的验收前置：learned policy 验收需要它提供或同步提供 admission delay、slot utilization 和 tail 的 matching-workload 证据。performance diagnostics 当前只观察 root/scope capacity、无状态 selected/wait 与 hard-guard facts，且不建立 custom callback timing。
+
+因此推荐剩余 active Change 合入顺序为：
+
+```text
+add-scheduler-performance-diagnostics
+  -> schedule-checks-from-learned-durations
+```
+
+这两项与已归档基础共同涉及 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 和公共说明；remaining active Change 不得在多个 worktree 中同时实施。Readiness 调查可以并行，但不得各自复制候选规则、图状态或时间 owner。
 
 ### Scheduler 条件分支
 
 | Change | 恢复条件 | 激活后的推荐位置 |
 | --- | --- | --- |
-| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 已归档私有策略基础已满足；若激活，在 custom selector 后、performance diagnostics 前 |
-| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | 已归档私有策略基础已满足；若激活，在 custom selector 后、performance diagnostics 前 |
+| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 cutoff、terminal summary 与 drain boundary |
+| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 named capacity denominator、hard-guard facts 与 interval boundary |
 
-两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断需要在其合入后
-重新审阅 selected/wait hard-guard facts、effective capacity 和 timing 投影。
+两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断必须在其合入后重新审阅 Plan；不能把新 cutoff/resource facts 静默解释为现有 wait 或 effective capacity。
 
 ### Scanner 迁移轨道
 

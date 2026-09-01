@@ -1,58 +1,51 @@
 # Proposal
 
-本 Change 为 Product-private Task Scheduler 增加一次 invocation 的有界性能诊断汇总，让维护者区分槽位占用、policy `wait` 区间、执行长尾与调度器自身开销，而不把 Task 并发误称为 CPU 或线程利用率。
+本 Plan 的 Intended Change 是为 Product-private Task Scheduler 增加一次 invocation 的有界性能诊断汇总；稳定 owner、源码与测试才证明当前实现。它让维护者检查 Scheduler control path、Task slot/capacity、准入延迟与 drain，而不把并发 Task 误称为 CPU、线程或 OS 资源利用率。
 
 ## Why
 
-当前 diagnostic log 已逐次记录 Scheduler decision 的 elapsed、capacity、blocker、selected Task 或 wait 与 hard-guard facts，`RunResult` 也提供每项 Check 的执行时长，但一次运行结束后仍需人工重建并发槽位、ready-to-admission 延迟、`wait` 区间和尾部 drain。已有 admission priority 对照进一步证明，显著提前一个长 Check 的启动时间并不保证所有 profile 的总 wall time下降；只有执行耗时或单项启动顺序不足以解释实际瓶颈。
+逐次 `scheduler.decision` 已记录候选、capacity、blocker、selected/wait 与 hard-guard facts，per-Check `durationMs` 也已存在，但一次运行结束后仍需手工重建 Scheduler 在何处等待、何时准入、槽位占用多少以及最后 drain 的边界。单项启动顺序或 duration 不能单独解释 wall-time 瓶颈，且并行 Task 的 active 时间相加也不等于 wall time。
 
-把 `running / maxParallel` 直接称为多线程或 CPU 利用率同样不可信：一个 Product Task 可以执行 JavaScript、等待 I/O、启动一个进程，或在其内部创建多个 worker。通用 Product 只能可靠报告自己拥有的 Task admission 与 settlement 时间线；OS 进程树资源属于项目 benchmark/profiler，而不是 Scheduler 可推导事实。
+本 Change 只观察 Product Scheduler 已拥有的 state transition 和同步 control path。OS CPU、线程、event-loop、I/O、进程树与跨 invocation performance history 均没有可由该 owner 安全推导的事实来源。
 
 ## Outcome
 
-启用且成功写入 diagnostic logging 的 Project Run 在 Scheduler 结算后得到一条 `scheduler.summary` 人读事件。它用明确单位报告调度跨度、调度器自身处理时间、Scheduler decision observation 时间、Task 槽位占用与 root/effective capacity、最大运行 Task 数、接受的 `wait` 区间计数/时长、ready-to-admission 长延迟和尾部 drain。逐次 decision 继续保留该轮 candidate/capacity/blocker hard-guard facts；汇总不把 wait 归因为 policy 理由。指标名称和文档明确说明 Task slot utilization 不是 CPU、线程或 OS 资源利用率。
+effective diagnostic logging enabled 的 Scheduler invocation 在实际进入 Scheduler 后，终态路径尝试一次有界人读 `scheduler.summary`。它报告明确单位的 `schedulerControlPathMs`、decision observation、Scheduler span、slot·ms/capacity、utilization ratio、接受的 policy wait、admission delay 和 completion tail；所有 time projection 都明确不可相加以重建 wall time。
 
-该汇总只帮助维护者诊断和建立后续性能证据，不进入 public `RunResult`、Core、Check/Record facts、machine publication、progress rendering、aggregation 或自动 priority/capacity 调整。没有匹配 workload baseline 时，Product 不根据这些值产生 warning 或失败。
+summary 是 invocation-local human diagnostic，不进入 public `RunResult`、Core、Check/Record facts、machine、progress、warning、autotune 或跨 invocation telemetry。未启用 diagnostic logging 时不创建 accumulator 或产生新增 clock sampling；若 timing 无法安全取得，summary 明确给出 unavailable，而不是伪造零值或空 timing。
 
 ## Scope
 
 ### Intended Change
 
-- 在 imperative Scheduler shell 中使用 invocation 的 monotonic clock，累计从首次 decision 到 terminal decision 的 `schedulerSpanMs`，以及不含 Promise await、Task callback 和 diagnostic observation 的 Scheduler decision/state-transition 自有耗时。
-- 将每次 `scheduler.decision` observation 的同步调用耗时单列为 `schedulerDecisionObservationMs`，避免把 diagnostic observer 的序列化、可用时的同步写入及失败后的 no-op 调用误判为纯调度算法成本；`scheduler.summary` 自身的 observation 不递归计入该值。
-- 以 event-driven 区间积分计算 `taskSlotMs`、`rootCapacityMs`、`effectiveCapacityMs`、root/effective slot utilization 与 `maxRunning`。slot utilization 只描述 Product-managed Task 槽位占用。
-- 当无状态 policy 提议的 wait 经 Scheduler 确认可由 running settlement 推进时，累计 interval 次数和毫秒数；逐次 decision 保留当轮 candidate/capacity/blocker hard-guard facts，但汇总不把 interval 分类或归因为 policy wait reason。该区间与正在运行的 Task 执行时间可以重叠，不把它表述为调度器 CPU 开销。
-- 对每个最终 admitted Task 记录 graph-ready、admission 与 settlement 的 monotonic 点；按 `admission - graphReady` 形成 `admissionDelayMs`，稳定输出延迟最高的三项，并报告最后 admission 到 Scheduler completion 的 tail 与最后 settlement Task。没有 directed readiness relation 的 Task 在 Scheduler 启动时 graph-ready；永不 admission 的 blocked/cancelled Task 不伪造执行时间。
-- effective output configuration 中的 diagnostic logging 启用时才创建性能累计状态。clock throw、非有限值或倒退不得改变 Task admission、settlement、Check outcome 或 Run result；时间型汇总保守标记 unavailable，仍可保留不依赖时钟的 decision/task counts。
-- 在现有人读 diagnostic owner 中记录一条有界、确定性 `scheduler.summary`；不建立 parser、schema/version、跨 invocation discovery、retention 或稳定 telemetry stream。
+- 只在 imperative Scheduler shell 建立 diagnostic-only accumulator，并在每个 admit、settle、graph-ready、accepted wait、terminal mutation 的逻辑 boundary **先**安全采样和 flush 旧区间，**再**变更 state/phase。clock.now 是 imperative side effect；pure decide、policy 与 hard guard 一律不取得 clock 或 accumulator。
+- 以 `schedulerControlPathMs` 取代不准确的 `schedulerOwnMs`。它累计 Scheduler shell 内 snapshot、同步 decision path（包括 custom callback）及 state transition；不包含 Promise await、Task callback 或 diagnostic observation，且不建立 per-policy timing、更不声称纯 Scheduler CPU。
+- 单列 `schedulerDecisionObservationMs`：每次 `scheduler.decision` observation 的同步调用（含 writer 可用时的 serialization/sync write 或 writer failure 后的 no-op）；`scheduler.summary` 自身不递归计入。
+- 在有效 monotonic interval 上计算 `taskSlotMs`、`rootCapacitySlotMs`、`effectiveCapacitySlotMs`（单位均为 slot·ms）与 root/effective utilization ratio。Task slot 与 capacity projection 可以互相重叠，也可与 wait、active duration 重叠；任何 projection 均不得相加重建 wall time，utilization 不是 CPU/线程/OS utilization。
+- 仅 proposal.kind 为 `wait` 且 Scheduler 接受时记录 wait interval；proposal 为 `null` 的被动 drain 不计入。graph-ready、admitted、settled 仅为实际 admitted Task 形成 chronology；top admission delays 按 delay 降序、Task ID 升序，至多三项。
+- sampler throw、NaN/infinity、倒退、负 interval 或不能证明的 integral 只令 timing projection unavailable，并保留稳定 reason；合法零跨度必须与 clock fault 区分。离散 counts 可继续形成，既有 shared invocation clock failure 语义、admission、settlement、cancellation 和 policy-fault drain 均不改变。
+- 只要 Scheduler 已进入，normal、caller cancellation 与 admission-policy failure 的 drain 完成均尝试一次 summary；writer containment 可令该 observation no-op。pre-work/planning failure 不伪造 summary。
 
 ### Resulting Impacts
 
-- `src/project-run/task-scheduler/**` 的 execution state、imperative shell 与 tests 需要拥有 timing interval、Task chronology、counts 和 summary calculation；pure `decideScheduler` 继续只根据 immutable snapshot 形成下一动作。
-- invocation/check-execution 的 private handoff 需要把同一个 monotonic clock 和 effective diagnostic-enabled 状态交给 Scheduler，不新增 public clock、lifecycle hook 或 author callback capability。
-- diagnostic logging tests 需要验证 summary 的有界安全渲染与事件顺序；日志失败或 timing unavailable 继续由现有 output containment 处理。
-- 依赖/观测、fail-fast 与 named resource capacity 的 active Changes 都可能改变 readiness、hard-guard facts 或 capacity state。实施前必须确定顺序并审阅它们的最终模型；本 Change 不复制这些图或 admission 规则，只从 Scheduler 的最终事实派生指标。
-- `docs/architecture.md` 与 `docs/api-mechanics.md` 需要说明指标定义、重叠区间、输出边界和不可推导的 OS 资源；`docs/testing.md` 与语义 Case owner需要覆盖 deterministic timing evidence。
-- 现有 diagnostic、人读 timing、per-Check duration 与 priority Decisions 需要在实现前演进，明确 summary 是 invocation-local observation，且不撤销 no-machine/no-cross-run-telemetry 边界。
+- `src/project-run/task-scheduler/**` 的 shell/state 所有 timing interval、Task chronology、count、summary calculation；pure `decideScheduler` 仍只处理 immutable snapshot。
+- `src/project-run/check-execution/**` 与 invocation private handoff 只在 effective diagnostic logging enabled 时把同一 monotonic clock 提供给 Scheduler；不新增 public clock、hook 或 author capability。
+- diagnostic rendering/tests 必须证明有界、稳定的人读文本、event order 与 writer containment，不把日志字符串变成第二套 metrics implementation。
+- 当前 root/scope capacity、directed readiness 和 selected/wait hard guard 是实现输入。fail-fast 与 named resource capacity 均仍为 Draft，不阻塞本 Change、也不预置字段；若以后激活，必须重审 capacity model、boundary sample、wait facts 和 Plan。
+- `docs/architecture.md`、`docs/api-mechanics.md`、`docs/testing.md` 与语义 Case owner在实施时说明公式、overlap、output boundary 与 deterministic evidence。
+- 新的 active + unaligned Decision `add-invocation-local-scheduler-performance-summary.md` 承接长期方向；diagnostic organization、per-Check duration、priority 和 custom-policy Decisions 仍独立 active/aligned，summary 不修改其 public、evidence 或 purity 边界。
 
 ## Success Criteria
 
-- 一个 scripted monotonic workload 可以精确验证 `schedulerSpanMs`、Scheduler own/observation time、`taskSlotMs`、root/effective capacity 积分、两种 utilization、接受的 `wait` intervals、admission delay、maximum running 与 completion tail。
-- 并行 Task 的 `taskSlotMs` 可以大于 wall span；文档、字段与测试均不把它解释为 CPU、线程或 event-loop utilization，也不把 Check duration 相加后与 wall time机械比较。
-- wait intervals 只累计经 Scheduler 接受的次数和时长；逐次 decision 保留当前 candidate/capacity/blocker hard-guard facts，汇总不保存或推断 policy reason。它们明确允许与 Task execution overlap，不能被重复解释为 Scheduler own cost。
-- delay top list 只包含实际 admitted Task，按 `admissionDelayMs` 降序和 Task ID 升序稳定排序，最多三项；空图、单 Task、依赖释放、mutex/capacity wait、priority、scope tightening、running/cancellation drain 均有明确结果。
-- diagnostic logging disabled 时不创建 summary 或新增 Scheduler timing collection；enabled 且 writer 可用时恰好写入一条 terminal `scheduler.summary`。writer setup/append 失败继续只形成既有 output failure；summary observation 不改变 admission trace、Task settlement、Check facts、progress、machine bytes 或 public `RunResult` shape。
-- clock throw、NaN、infinity 或倒退只使 timing facts unavailable；不得让 invocation 变成 `execution` failure，也不得伪造负时长或超过 100% 的 effective utilization。
-- Scheduler pure decision owner不获得 clock、logger、performance policy 或历史状态；实现不引入公共 telemetry service、event bus、OS sampler、自动 priority/capacity、性能 warning 或硬门禁。
-- 代表性 required/full Gate 前后运行保持相同 Task membership、terminal outcomes 和配置语义，并记录 instrumentation 对 wall time与 diagnostic size 的观察；只有匹配既有 workload baseline 时才作 advisory 比较。
+- named scripted-clock fixtures 精确证明 control-path/observation 分离、slot·ms integrals、ratio denominators、zero span、timing unavailable、accepted wait 与 passive drain 的区别、admission delay、max running 和 tail。
+- 全部 state mutation boundary 都先 flush 旧区间再切换；top list、tail 与 counts 只从 Scheduler-owned discrete facts 形成，不建立第二个 pending/running truth。
+- disabled 时无 summary/accumulator/新增采样；enabled 且 writer 可用时 Scheduler entered 的每条 normal/cancelled/admission-policy-failed drain 路径恰好一条 summary，writer/clock failure 不改变 Run 行为。
+- summary 仍是 human-only diagnostic，无 parser/schema/version 或 public/machine/progress/warning/autotune consumer；任何 time projection 都不被解释或测试为可相加的 wall/CPU/线程利用率。
+- 已记录的 0.3/2.3 before/after 工作负载证据只作本机 advisory comparison；它不建立 budget、hard gate 或因果收益主张。未来没有满足同一 matching contract 的样本时，也不得从本 summary 推出 budget 或 hard gate。
 
 ## Affected Owners
 
-- [`docs/architecture.md`](../../docs/architecture.md)：Project Run、private Scheduler 与 diagnostic owner 边界。
-- [`docs/api-mechanics.md`](../../docs/api-mechanics.md)：一次性 diagnostic logging 的消费者语义和指标解释。
-- [`docs/testing.md`](../../docs/testing.md)、`docs/testing/cases/**`：Scheduler/Run diagnostic 的语义证据。
-- `src/project-run/task-scheduler/**`：Scheduler 状态、时间区间、汇总计算和 terminal observation。
-- `src/project-run/check-execution/**`、`src/project-run/invocation.ts`：private monotonic clock 与 diagnostic-enabled handoff。
-- `src/project-run/diagnostic-logging/**`：人读 summary rendering、failure containment 与事件顺序。
-- `docs/decisions/**`：diagnostic、duration、priority 与 public telemetry 边界的长期判断。
-- `scripts/project/gate/runtime/**`：代表性 workload 的非阻断性能与日志体积观察。
+- `docs/architecture.md`、`docs/api-mechanics.md`、`docs/testing.md` 与 `docs/testing/cases/**`。
+- `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、`src/project-run/invocation.ts`、`src/project-run/diagnostic-logging/**`。
+- `docs/decisions/**`：invocation-local diagnostic、duration、priority、custom policy 与 no-public telemetry 边界。
+- `scripts/project/gate/runtime/**`：后续匹配 workload 的 advisory wall/bytes observation。

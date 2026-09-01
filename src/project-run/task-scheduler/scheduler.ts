@@ -1,5 +1,5 @@
 import { prepareTaskGraph, type PlannedTask } from "./graph.ts";
-import { diagnosticTags } from "../diagnostic-logging/logger.ts";
+import { diagnosticTags, type DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import {
   decideScheduler,
   type SchedulerDecision,
@@ -24,47 +24,84 @@ export type {
   TaskSettlement
 } from "./execution-state.ts";
 import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
+import { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
 
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>
 ): Promise<TaskGraphRun<TResult>> {
   const graph = prepareTaskGraph(options.graph, options.maxParallel);
   const state = createSchedulerState(graph, options);
+  const diagnostics =
+    options.performanceDiagnostics === undefined
+      ? undefined
+      : new SchedulerPerformanceDiagnostics(
+          options.performanceDiagnostics,
+          performanceState(state)
+        );
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
+    recordGraphReadiness(state, diagnostics);
     let decision: SchedulerDecision;
     try {
-      decision = decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
+      decision =
+        diagnostics?.measureControlPath(() =>
+          decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy)
+        ) ?? decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
     } catch (error) {
       if (!(error instanceof AdmissionPolicyFault)) throw error;
-      applyAdmissionPolicyFault(state, error);
+      diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
+      if (diagnostics === undefined) applyAdmissionPolicyFault(state, error);
+      else diagnostics.measureControlPath(() => applyAdmissionPolicyFault(state, error));
+      diagnostics?.captureState(performanceState(state));
+      observeAdmissionPolicyFault(state, error);
       trigger = Object.freeze({ kind: "cancellation-applied" });
       continue;
     }
-    observeSchedulerDecision(state, decision);
+    observeSchedulerDecision(state, decision, diagnostics);
 
     switch (decision.kind) {
       case "admit":
         if (state.signal?.aborted === true) {
-          applyAdmissionPolicyFault(state, new AdmissionPolicyFault("lifecycle-invalid-select"));
+          diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
+          const lifecycleFault = new AdmissionPolicyFault("lifecycle-invalid-select");
+          if (diagnostics === undefined) applyAdmissionPolicyFault(state, lifecycleFault);
+          else
+            diagnostics.measureControlPath(() => applyAdmissionPolicyFault(state, lifecycleFault));
+          diagnostics?.captureState(performanceState(state));
+          observeAdmissionPolicyFault(state, lifecycleFault);
           trigger = Object.freeze({ kind: "cancellation-applied" });
           continue;
         }
-        applyAdmission(state, decision);
+        diagnostics?.beforeAdmission(decision.taskId);
+        if (diagnostics === undefined) applyAdmission(state, decision);
+        else diagnostics.measureControlPath(() => applyAdmission(state, decision));
+        diagnostics?.captureState(performanceState(state));
         trigger = Object.freeze({ kind: "admission-continued" });
         continue;
       case "settle-blocked":
-        applyBlockedSettlement(state, decision);
+        diagnostics?.beforePendingSettlement([decision.taskId]);
+        if (diagnostics === undefined) applyBlockedSettlement(state, decision);
+        else diagnostics.measureControlPath(() => applyBlockedSettlement(state, decision));
+        diagnostics?.captureState(performanceState(state));
         trigger = Object.freeze({ kind: "blocked-settled", taskId: decision.taskId });
         continue;
       case "cancel-pending":
-        applyCancellation(state, decision);
+        diagnostics?.beforePendingSettlement(decision.taskIds);
+        if (diagnostics === undefined) applyCancellation(state, decision);
+        else diagnostics.measureControlPath(() => applyCancellation(state, decision));
+        diagnostics?.captureState(performanceState(state));
         trigger = Object.freeze({ kind: "cancellation-applied" });
         continue;
       case "await-running": {
+        if (decision.proposal?.kind === "wait") {
+          diagnostics?.beforeAcceptedWait();
+        }
         const completion = await nextRunningSettlement(state);
-        settleRunningTask(state, completion);
+        diagnostics?.beforeRunningSettlement(completion.taskId);
+        if (diagnostics === undefined) settleRunningTask(state, completion);
+        else diagnostics.measureControlPath(() => settleRunningTask(state, completion));
+        diagnostics?.captureState(performanceState(state));
         trigger = Object.freeze({
           kind: "task-settled",
           settlementKind: completion.settlement.kind,
@@ -72,8 +109,12 @@ export async function runTaskGraph<TResult>(
         });
         continue;
       }
-      case "complete":
-        return buildTaskGraphRun(state);
+      case "complete": {
+        if (diagnostics === undefined) return buildTaskGraphRun(state);
+        const run = diagnostics.measureControlPath(() => buildTaskGraphRun(state));
+        diagnostics.observeSummary();
+        return run;
+      }
     }
   }
 }
@@ -86,22 +127,83 @@ function applyAdmissionPolicyFault<TResult>(
     throw new Error("scheduler received more than one admission policy fault");
   }
   state.admissionPolicyFault = fault.category;
-  state.diagnosticLogger?.observe({
+  cancelPendingTasks(state);
+}
+
+/** Fault logging is observational and therefore excluded from Scheduler control-path timing. */
+function observeAdmissionPolicyFault<TResult>(
+  state: SchedulerState<TResult>,
+  fault: AdmissionPolicyFault
+): void {
+  observeSchedulerDiagnostic(state, {
     event: "scheduler.admission-policy-failed",
     tags: diagnosticTags("SCHEDULER", "ADMISSION_POLICY_FAILED", fault.category.toUpperCase()),
     details: Object.freeze({ category: fault.category })
   });
-  cancelPendingTasks(state);
 }
 
 function observeSchedulerDecision<TResult>(
   state: SchedulerState<TResult>,
-  decision: SchedulerDecision
+  decision: SchedulerDecision,
+  diagnostics: SchedulerPerformanceDiagnostics | undefined
 ): void {
-  state.diagnosticLogger?.observe({
+  const observation: DiagnosticObservation = {
     event: "scheduler.decision",
     tags: schedulerDecisionTags(decision),
     details: decision
+  };
+  const observe = () => observeSchedulerDiagnostic(state, observation);
+  if (diagnostics === undefined) observe();
+  else diagnostics.observeDecision(observe);
+}
+
+/** Logger failures are observational and must not revise Scheduler lifecycle state. */
+function observeSchedulerDiagnostic<TResult>(
+  state: SchedulerState<TResult>,
+  observation: DiagnosticObservation
+): void {
+  try {
+    state.diagnosticLogger?.observe(observation);
+  } catch {
+    // Invocation logging has its own containment; retain it for direct Scheduler seams as well.
+  }
+}
+
+function recordGraphReadiness<TResult>(
+  state: SchedulerState<TResult>,
+  diagnostics: SchedulerPerformanceDiagnostics | undefined
+): void {
+  if (diagnostics === undefined) return;
+  const graphReadyTaskIds: string[] = [];
+  for (const task of state.pending) {
+    if (task.dependsOn.length === 0 && task.observes.length === 0) {
+      graphReadyTaskIds.push(task.id);
+      continue;
+    }
+    if (
+      [...task.dependsOn, ...task.observes].every((taskId) => state.settlementsByTaskId.has(taskId))
+    ) {
+      graphReadyTaskIds.push(task.id);
+    }
+  }
+  diagnostics.recordGraphReady(graphReadyTaskIds);
+}
+
+function performanceState<TResult>(state: SchedulerState<TResult>): Readonly<{
+  readonly effectiveMaxParallel: number;
+  readonly rootMaxParallel: number;
+  readonly running: number;
+}> {
+  let effectiveMaxParallel = state.maxParallel;
+  for (const runtimeScope of state.scopesById.values()) {
+    if (runtimeScope.isActive) {
+      effectiveMaxParallel = Math.min(effectiveMaxParallel, runtimeScope.scope.maxParallel);
+    }
+  }
+  return Object.freeze({
+    effectiveMaxParallel,
+    rootMaxParallel: state.maxParallel,
+    running: state.runningById.size
   });
 }
 

@@ -6,6 +6,7 @@ import {
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
+import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
@@ -35,6 +36,8 @@ export interface RunTaskGraphOptions<TResult> {
   /** Product-private policy handoff; package consumers cannot author this through the public API. */
   readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly diagnosticLogger?: DiagnosticLogger;
+  /** Explicit enabled-only handoff; no Scheduler behavior is inferred from a logger shape. */
+  readonly performanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   readonly graph: TaskGraph;
   readonly maxParallel: number;
   readonly signal?: AbortSignal;

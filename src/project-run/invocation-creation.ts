@@ -61,6 +61,7 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     definition: input.definition,
     definitionWarnings: Object.freeze([...input.definitionWarnings]),
     diagnosticLogger,
+    diagnosticLoggingEnabled: outputConfiguration.diagnosticLogging.enabled,
     outputConfiguration,
     outputs,
     invocationId: identity.id,

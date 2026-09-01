@@ -19,6 +19,38 @@ export function recordingLogger(observations: DiagnosticObservation[]): Diagnost
   });
 }
 
+/** Named phase clock keeps Scheduler timing fixtures readable without call-count arrays. */
+export function scriptedClock(initialMs = 0): Readonly<{
+  readonly advance: (phase: string, milliseconds: number) => void;
+  readonly now: () => number;
+  readonly reads: () => number;
+}> {
+  let currentMs = initialMs;
+  let reads = 0;
+  return Object.freeze({
+    advance: (phase, milliseconds) => {
+      assert.ok(phase.length > 0, "scripted clock phase must be named");
+      assert.ok(Number.isFinite(milliseconds) && milliseconds >= 0, "phase time must be finite");
+      currentMs += milliseconds;
+    },
+    now: () => {
+      reads += 1;
+      return currentMs;
+    },
+    reads: () => reads
+  });
+}
+
+export function schedulerSummary(
+  observations: readonly DiagnosticObservation[]
+): Readonly<Record<string, unknown>> {
+  const summaries = observations.filter((observation) => observation.event === "scheduler.summary");
+  assert.equal(summaries.length, 1, "expected exactly one scheduler summary");
+  const details = summaries[0]?.details;
+  if (!isRecord(details)) assert.fail("scheduler summary must have ordinary object details");
+  return details;
+}
+
 export function recordedSchedulerDecisions(
   observations: readonly DiagnosticObservation[]
 ): readonly SchedulerDecision[] {

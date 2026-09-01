@@ -6,6 +6,7 @@
   "sourceRevision": {
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
+      "add-invocation-local-scheduler-performance-summary.md": "sha256:500fb470eb4c7736eea3ae290ba74ab616381916b8a7b087a4c85343a8d8b234",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
@@ -297,6 +298,35 @@
             "target": "replace-global-tool-effects-with-run-outputs.md"
           }
         ]
+      }
+    },
+    "add-invocation-local-scheduler-performance-summary.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "add-invocation-local-scheduler-performance-summary.md",
+        "title": "将 Scheduler 性能汇总限定为 invocation-local 人读诊断",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T16:13:40Z",
+        "purpose": "让一次 Scheduler 运行提供安全、可解释的性能汇总，而不扩大公共或自动化契约。",
+        "background": "人读诊断、Check 时长、优先级与 custom policy 已各有独立边界，新的汇总必须只补充 Scheduler 自有观察。",
+        "decision": "以 Scheduler shell 安全采样并输出一次人读 summary，保持计时失败与调度、公共结果和自动调优隔离。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "adopt-low-level-markdown-link-parser-architecture.md": {

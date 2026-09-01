@@ -237,3 +237,23 @@ Entities:
   Proves:
 - One owning Check measures only committed first-parent activity after each base, excludes worktree/index delta and base itself, sums Git numstat additions/deletions, and treats merge, revert, binary, rename, and strict thresholds as declared by the quality owner.
 - Every measurable entry retains a parser-validated ordered clear/due assessment. A Git measurement failure retains a complete unavailable assessment with an actionable `reason`, plus an advisory warning or enforcing error/failure, rather than being mistaken for clear or discarded; due messages remain visible through progress and `RunResult.checkMessages`; cancellation instead closes the whole Check unavailable with an actionable error because no complete payload is formed.
+
+## Case WB-RUNTIME-SCHEDULER-PERFORMANCE-DIAGNOSTICS-001: Enabled Scheduler diagnostics retain bounded honest timing projections
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > excludes a passive running drain with a null proposal`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > contains terminal writer failures`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > hands enabled diagnostics to the Scheduler for one terminal human summary`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > does not sample Scheduler diagnostics when diagnostic logging is disabled`
+  Proves:
+- An explicitly enabled Scheduler-only diagnostic handoff emits one bounded human summary after terminal drain. It separates shell control work from decision observation, integrates Scheduler slot/capacity state without claiming wall/CPU utilization, records accepted policy waits rather than passive drains, and retains actual discrete admissions/settlements when timing is unavailable.
+- Named scripted clock phases distinguish valid zero spans from invalid clock samples; absent diagnostics add no Scheduler clock reads, and writer failures cannot revise the settled Scheduler result.

@@ -45,6 +45,8 @@ export type Invocation = Readonly<{
   readonly definition: ProjectDefinition;
   readonly definitionWarnings: readonly DefinitionWarning[];
   readonly diagnosticLogger: DiagnosticLogger;
+  /** Effective output selection, retained privately for enabled-only Scheduler diagnostics. */
+  readonly diagnosticLoggingEnabled: boolean;
   readonly outputConfiguration: ProjectDefinition["outputs"];
   readonly outputs: OutputStatuses;
   readonly invocationId: string;
@@ -236,6 +238,9 @@ async function executeChecks(
       checks: invocation.normalized.checks,
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
+      schedulerPerformanceDiagnostics: invocation.diagnosticLoggingEnabled
+        ? Object.freeze({ clock, logger: invocation.diagnosticLogger })
+        : undefined,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       lifecycle: invocation.progressRendering.lifecycle,
       project,

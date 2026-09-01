@@ -17,6 +17,7 @@ import {
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { admissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
+import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/scheduler-performance-diagnostics.ts";
 import { executeCheckCallback } from "./callback.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
 import { createCheckDependencies } from "./dependencies.ts";
@@ -93,6 +94,8 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly signal: AbortSignal | undefined;
   readonly clock?: CheckExecutionClock;
   readonly diagnosticLogger?: DiagnosticLogger;
+  /** Explicit enabled-only diagnostics handoff from the invocation output owner. */
+  readonly schedulerPerformanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   readonly lifecycle?: CheckExecutionLifecycle;
 }>;
 
@@ -128,6 +131,7 @@ async function executePreparedResolvedChecks(
           : admissionSelectionPolicyFor(input.admissionPolicy),
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
+      performanceDiagnostics: input.schedulerPerformanceDiagnostics,
       signal: input.signal,
       isPrerequisiteSatisfied: (satisfied) => satisfied,
       onTaskBlocked: (task, dependencyIds) => {

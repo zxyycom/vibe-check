@@ -217,7 +217,7 @@ Check message 和 failure Record 只引用 invocation-relative transcript path�
 
 ### Gate result post-processing and exits
 
-`runtime/bound-run.ts` 只在 exact candidate 准备后由 `run.ts` 动态加载；它投影 `resolvedEntryPath`、Product `run` 与 `definition.ts` 配置的唯一 `afterGate`。`run.ts` 必须先验证该 entry 等于 prepared candidate 的 exact entry，随后才运行 Product Run、从同一个 RunResult 形成初步 Gate result，并调用该 Hook。默认 Hook 显式调用 elapsed/per-phase performance observer；只有 workload identity 与 checked-in baseline 匹配时才比较，其结果是 advisory，不能修改 Check facts、aggregate 或 process exit。
+`runtime/bound-run.ts` 只在 exact candidate 准备后由 `run.ts` 动态加载；它投影 `resolvedEntryPath`、Product `run` 与 `definition.ts` 配置的唯一 `afterGate`。`run.ts` 必须先验证该 entry 等于 prepared candidate 的 exact entry，随后才运行 Product Run、从同一个 RunResult 形成初步 Gate result，并调用该 Hook。默认 Hook 显式调用 elapsed/per-phase performance observer；只有 workload identity 与 checked-in baseline 匹配时才比较，其结果是 advisory，不能修改 Check facts、aggregate 或 process exit。observer 不读取、解析或归约 Product diagnostic log 的 `scheduler.summary`，也不把它变成新的 warning、budget、autotune 或比较输入。
 
 `afterGate` 是 result post-processing，不是 Check `preflight`：后者是 Product Run 内每项 Check 在 execution 前的 options 准备边界，而前者只在整个 candidate-backed Run 已形成初步 Gate result 后执行。Hook 是受信任的项目 JavaScript/Bun 代码，可同步或异步执行项目授权范围内的工作；它不是 package API、plugin、sandbox 或 registry，也没有 `beforeGate` 对应物。正式配置只在 `definition.ts`，`run.ts` 的 loader、clock 与 transcript injection 仅为 adapter 测试 seam，不能用作另一配置入口。
 
