@@ -49,7 +49,7 @@
 ## 当前协调基线
 
 本节于 2026-09-01 基于 Git `ce8cba61217291b51921b014f44918e3a194fa85` 与当次 Change 集合审阅；
-`require-passed-dependencies-and-observe-outcomes` 已完成、归档，当前集合保留 15 个 active Change。该提交只标识
+`require-passed-dependencies-and-observe-outcomes` 与 `extract-scheduler-admission-selection-policy` 已完成、归档，当前集合保留 14 个 active Change。该提交只标识
 本次依赖审阅的输入，不冻结后续 Change 状态，也不证明其它 Implementation 已完成。
 
 ### Scheduler 主线
@@ -60,24 +60,24 @@
 proposal 只保留形成时实施语境；active 下游 Change 应以稳定 owner 文档、active Decisions 和当前源码确认最终模型，不能把它当作
 当前 Plan。
 
+已满足的私有策略基础是
+[`extract-scheduler-admission-selection-policy`](../changes/archive/extract-scheduler-admission-selection-policy/proposal.md)：
+它已完成并归档，提供 private full-graph handoff、select/wait/reservation result 与 Scheduler guard。该 archived proposal
+只保留形成时实施语境；active 下游 Change 以稳定 owner 文档、active Decisions 和当前源码恢复当前事实，不能把它当作 current Plan。
+
 以下是剩余 active Scheduler 主线的硬依赖：
 
 ```text
-extract-scheduler-admission-selection-policy
-                         |
-                         v
 expose-custom-admission-selection-policy
                          |
                          v
 schedule-checks-from-learned-durations
 ```
 
-- [`extract-scheduler-admission-selection-policy`](../changes/extract-scheduler-admission-selection-policy/proposal.md)
-  是当前最早的 active Scheduler 节点；Readiness 必须确认上述最终图语义，再建立私有 candidate、selector result 和 guard 边界。
 - [`expose-custom-admission-selection-policy`](../changes/expose-custom-admission-selection-policy/proposal.md)
-  必须复用已经合入的私有 guard，并使用最终 directed readiness vocabulary。
+  是当前最早的 active Scheduler 节点；它必须复用已经合入的私有 guard，并使用最终 directed readiness vocabulary。
 - [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md)
-  必须等三个 remaining active 主线节点归档，并扩展已经形成的 closed public policy union，而不是建立第二套 Scheduler。
+  是后续 active 主线节点；它必须等待 custom selector 与其性能诊断验收前置闭合，并扩展已经形成的 closed public policy union，而不是建立第二套 Scheduler。
 
 [`add-scheduler-performance-diagnostics`](../changes/add-scheduler-performance-diagnostics/proposal.md) 是 learned
 policy 的验收前置：learned policy 验收需要它提供或同步提供 admission delay、slot utilization 和 tail 的同 workload
@@ -85,8 +85,7 @@ policy 的验收前置：learned policy 验收需要它提供或同步提供 adm
 active Change 合入顺序是：
 
 ```text
-extract-scheduler-admission-selection-policy
-  -> expose-custom-admission-selection-policy
+expose-custom-admission-selection-policy
   -> add-scheduler-performance-diagnostics
   -> schedule-checks-from-learned-durations
 ```
@@ -100,8 +99,8 @@ custom hook duration 与 Product Scheduler 自有耗时、diagnostic observation
 
 | Change | 恢复条件 | 激活后的推荐位置 |
 | --- | --- | --- |
-| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 已归档基础已满足；若激活，`extract-scheduler...` 后、performance diagnostics 前 |
-| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | `extract-scheduler...` 后、performance diagnostics 前 |
+| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 已归档私有策略基础已满足；若激活，在 custom selector 后、performance diagnostics 前 |
+| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | 已归档私有策略基础已满足；若激活，在 custom selector 后、performance diagnostics 前 |
 
 两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断需要在其合入后
 重新审阅 await reason、effective capacity 和 timing 投影。

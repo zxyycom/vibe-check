@@ -125,7 +125,7 @@ policy仍按以下顺序保证正确性和进展：
 3. constrained continuation优先于ordinary；使用同样的score、priority和既有tie-break。
 4. ordinary ready按critical-path score、priority和canonical order。
 
-policy只比较Scheduler给出的候选并返回select/wait；不能准入的Task仍由硬约束排除或形成wait。该list-scheduling heuristic可在代表性graph降低makespan，但dependency、mutex、capacity、variance和未来执行时间不确定时不保证全局最优。
+policy读取Scheduler给出的relation/mutex eligible candidates和per-candidate capacity facts并返回select/wait；当前capacity不能准入的candidate不被预先移除，因而可形成可drain的wait。Scheduler在select后守capacity、reservation set target candidate与wait-drain，不重演policy的reservation/fairness策略。该list-scheduling heuristic可在代表性graph降低makespan，但dependency、mutex、capacity、variance和未来执行时间不确定时不保证全局最优。
 
 #### 7. History I/O与执行失败隔离
 
@@ -147,7 +147,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 1. `extract-scheduler-admission-selection-policy`已归档并提供private select/wait contract；
 2. `expose-custom-admission-selection-policy`已归档并建立closed static/custom public union；
-3. `require-passed-dependencies-and-observe-outcomes`已闭合directed readiness graph；
+3. `separate-passed-dependencies-from-settled-observations` Decision 已闭合directed readiness graph；
 4. `add-scheduler-performance-diagnostics`已实施，或同一分支提供等价的slot/admission/tail A/B证据；
 5. 已审阅fail-fast和named resource当前状态，确认它们只改变cutoff、candidate legality或started samples；
 6. 已用successor Decision演进“静态priority且不基于history调权”的现行判断。
@@ -159,7 +159,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 - Definition新增policy union与Check override会改变declarative schema；省略与显式static必须规范化为同一snapshot。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
 - preflight后history identity构造需要复用canonical data boundary，但不能把prepared options写入history或diagnostic。
 - history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入Check duration或Scheduler own time。
-- estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。
+- estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。policy仍接收完整 graph、relation/mutex eligible candidates 与 capacity facts；priority只存在于Task metadata，不设旁路输入。
 - Project Gate若采用learned mode，其state directory、忽略/清理policy和performance baseline需要由Gate owner维护；Product文档只说明通用state lifecycle。
 
 ## Risks / Trade-offs

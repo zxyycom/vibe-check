@@ -1,137 +1,65 @@
 # Design
 
-本设计只把候选选择偏好开放为一个同步trusted hook；Scheduler继续形成候选、保护reservation、验证返回值并独占所有imperative动作。
+本设计把 custom policy 限为对 private select/wait/reservation 策略的 trusted public adapter；它扩展选择偏好，不扩展 Scheduler 的合法性或 execution 权限。
 
 ## Context
 
-Project Definition的`preflight`、`execution`与`parseData`已经是caller-runtime trusted functions。Definition保留function identity供同次Run调用，但declarative snapshot和fingerprint不序列化functions。现有Decision也明确trusted function可能infinite loop、`process.exit`、修改global或不协作取消，Product不提供worker sandbox。
+当前 private admission policy 每轮读取同一 frozen complete `PlannedTaskGraph`、immutable inspection、relation/mutex eligible candidates 与 per-candidate capacity facts。Task-owned `admissionPriority`、relations、scope 和 canonical order 都在 graph 内；policy 可以因 capacity facts 返回可 drain 的 wait。Scheduler 只在 policy 后验证 result shape、candidate membership、selected Task capacity、reservation `set` target 与 wait-drain，并独占 state transition、imperative execution 和 settlement。
 
-`extract-scheduler-admission-selection-policy`计划把每次准入收敛为private select/waitresult，并在形成`SchedulerDecision`前校验candidate、capacity和reservation。公共扩展必须适配到这个guarded边界，而不能让author callback直接返回`SchedulerDecision`或调用imperativeshell。
-
-本Change中的“custom policy”准确表示：
-
-> 在Product已经确定的同层合法候选中，选择下一项Task ID；不改变什么Task合法，也不控制何时settle。
+public custom authoring 必须映射到这个 contract，而不能把 caller callback 限制为 Task-ID-only selection，也不能把 private engine types 直接作为 package API。已确定的长期边界只包括 select/wait/reservation、full-graph handoff、graph-owned priority 和 Scheduler guards；custom fault、console、diagnostic 与 timing protocol 尚未决定。
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- 让项目拥有Product无法统一解释的候选排序依据，而不伪造dependency或修改Definition顺序。
-- 用一个同步hook和static fallback保持API最小、可测试且有确定故障出口。
-- 让publicview足以实现长任务优先、项目自有score或预先加载的模型，同时不暴露mutableScheduler internals。
-- 让hook identity、调用时机、console、fault和caller-runtime风险可从文档直接恢复。
+- 让项目以 trusted synchronous callback 选择或等待，并能按自身策略更新 reservation。
+- 让 callback 获得足够的 immutable full-graph、candidate 和 capacity facts，以使用后继或全貌而不重建 topology。
+- 保持 Scheduler 对 hard legality、capacity guard、progress drain 和 imperative execution 的唯一责任。
 
 **Non-Goals**
 
-- 不开放依赖合法性、outcome predicate、mutex、capacity、reservation、fail-fast、cancellation或settlement hook。
-- 不允许async/thenable selector、deliberate idle、preemption、dynamic Task、Task retry或priority inheritance。
-- 不提供prepare/finalize/onSettlement lifecycle、policy registry、plugin discovery或多个policy的composition DSL。
-- 不让custom policy读取Check final data、Records、messages、options、functions、project filesystem capability或diagnostic logger。
-- 不承诺trusted function isolation、timeout、determinism或side-effect rollback。
+- 不公开 private `SchedulerDecision`、inspection、planned Task、execution state 或 imperative capability。
+- 不让 callback 重定义 dependency/observation readiness、mutex、capacity、cancellation、blocked settlement、scope lifecycle 或 terminal aggregation。
+- 不增加 async/lifecycle hook、plugin discovery、composition DSL、dynamic Task、priority side map/list、public history owner 或第二状态机。
+- 不预先承诺 custom fault fallback、console capture、diagnostic event、timing field或 output behavior。
 
 ## Decisions
 
 ### Intended Change
 
-#### 1. Public authoring是普通trusted Definition value
+#### 1. Public value adapts the closed private decision
 
-authoring形状以实现时公共命名为准，目标contract如下：
+`defineAdmissionPolicy(...)` and equivalent inline authoring create a closed custom variant in `ProjectDefinition.scheduler.admissionPolicy`. Its trusted synchronous callback receives a documented deep-frozen public view and returns a documented closed public projection of `select | wait`, each with reservation update. The adapter maps that projection to the private `AdmissionPolicyDecision`; no public value is a `SchedulerDecision` or imperative command.
 
-```ts
-const policy = defineAdmissionPolicy({
-  kind: "custom",
-  policyId: "project-long-tail",
-  policyVersion: "1",
-  selectNext({ candidates }) {
-    return candidates[0]?.taskId;
-  }
-});
+The final public field names, identity projection and invalid-result handling are deferred to the Change’s Readiness Decision work. They must preserve the confirmed result capability; a later implementation may not replace it with Task-ID-only selection or prohibit wait/reservation update without a new explicit decision.
 
-defineConfig({
-  checks,
-  scheduler: { maxParallel: 4, admissionPolicy: policy }
-});
-```
+#### 2. The view has one static handoff and bounded dynamic facts
 
-`defineAdmissionPolicy`只改善literal inference并返回同shape ordinary value。inline object具有相同runtime语义；Product不按module path发现或重新加载policy，也不注册global strategy。
+The public graph view is a deep-frozen projection of the full normalized Task graph. Task metadata remains the sole source of priority and topology. The dynamic view contains the Scheduler-formed relation/mutex eligible candidates and their current capacity facts, plus only the immutable invocation-local inspection facts needed to interpret them. It excludes functions, options, data, Records, messages, logger, clock, signal and mutable collections.
 
-`policyId`与`policyVersion`都是non-empty string，沿用Check ID的author-text语义：不trim、不做Unicode normalization，并以原值进入declarative snapshot/fingerprint。diagnostic renderer负责安全转义，而不是修改identity。`selectNext`必须是function但不进入snapshot。author改变function行为时负责更新version；Product无法hash closure、源码、依赖或外部state，也不把id/version宣称为代码真实性证明。同一Definition value重复或重叠执行时复用同一function与closure identity，Product不会clone、reset或序列化closure。
+Candidates are not capacity-filtered: a custom policy may choose a legal `wait` while running work drains. It must not use a capacity-inadmissible candidate as `select`.
 
-#### 2. Hook只接收stable read-only view
+#### 3. Scheduler guards effects without repeating policy
 
-hook context是deep-frozen ordinary object：
+After adapting the callback result, Scheduler verifies closed shape. It admits only a selected current candidate that is currently capacity-admissible; it accepts reservation `set` only for a current candidate; and it accepts wait only while running work can drain. It does not require a reservation to stay sticky, preserve a default order, or implement fairness/anti-starvation: custom policy owns clear/replace/reservation preference, while default static policy retains its own existing trace.
 
-```ts
-interface AdmissionSelectionContext {
-  readonly layer: "tightening-scope" | "constrained-continuation" | "ordinary-ready";
-  readonly candidates: readonly AdmissionCandidateView[];
-  readonly graph: AdmissionGraphView;
-  readonly runningTaskIds: readonly string[];
-  readonly settledTaskIds: readonly string[];
-  readonly capacity: Readonly<{
-    rootMaxParallel: number;
-    effectiveMaxParallel: number;
-    running: number;
-  }>;
-}
-```
+#### 4. Deferred contracts remain explicitly deferred
 
-每个candidate至少包含Task ID、normalized `admissionPriority`、effective `maxParallel`和canonical order index；candidate数组按当前layer在调用custom hook前原本使用的stable tie-break顺序排列。graph view按最终dependency/observation Change提供closed directed readiness edges与同一组静态Task IDs，并按canonical graph order排列。running/settled Task IDs也按canonical graph order投影，不把Map iteration或settlement chronology意外发布为契约。是否公开mutex名称或未来resource claims只在相应稳定contract已实施且custom selector有真实consumer时增加，不预先镜像全部internal graph。
-
-running/settled只表示Task lifecycle，不承诺ordinaryCheck terminal status；custom policy不能从这里读取`passed`、`failed`、`not-applicable`或`unavailable`。需要基于outcome执行另一Check时使用正式observation graph，而不是调度hook。
-
-#### 3. Product先固定layer与progress guarantee
-
-Scheduler先处理cancellation、blocked settlement、completion和sticky reservation。有效reservation存在时不调用custom hook。没有reservation时，Product按当前规则确定本轮selection layer，并在tightening/constrained层先应用维护scope合法进展所需的hard cap过滤；hook只看到此后仍可相互替换的同层candidates。
-
-这使custom policy可以任意选择候选，却不能让ordinary Task越过tightening progress、让高score Task偷走reservation或绕过`canAdmit`。named resource若以后增加新的progress guarantee，也必须先由Product形成候选层，再调用同一hook。
-
-#### 4. 一个同步返回值足以表达选择偏好
-
-`selectNext(context)`的合法返回只有：
-
-- 一个`context.candidates`中存在的Task ID：请求选择该Task；
-- `undefined`：本轮委托static-priority comparator。
-
-hook不能返回wait、scoremap、reservation update、Task object或command。需要复杂算法时，author可以在同步function内计算并返回一个ID；需要I/O准备时，project-owned wrapper应在构造Definition前完成，并通过closure提供immutable model。Product不为此增加async prepare/finalize lifecycle。
-
-#### 5. Fault后整轮禁用custom hook
-
-以下任一情况构成policy fault：throw、返回Promise/thenable、返回非string且非undefined、空string或不属于candidate的ID。Product不把fault映射为configuration、planning、execution或Check failure；它拒绝该返回值，对本轮使用static fallback，并在同一invocation余下cycles不再调用hook。
-
-disable-on-first-fault避免反复执行有副作用的错误代码、日志洪泛和不稳定的“有时custom有时fallback”。禁用状态属于单次invocation；一个重叠Run中的fault不能禁用另一个Run。diagnostic启用时恰好记录一个fault event，包含policy identity、fault code与selection layer，不序列化thrown value或closure state。
-
-#### 6. Console有独立policy归属
-
-resolved Check console router已经在preflight前安装并贯穿Scheduler。custom hook调用时建立policy-local capture context：常用`console.*`被格式化为有界diagnostic observation，不进入任一Check buffer、`RunResult.checkMessages`或managed progress stream。diagnostic disabled时capture被丢弃，避免恢复host console破坏TTY。
-
-直接`process.stdout.write`/`stderr.write`、预先保存的console method、global console replacement与hook创建的floating work仍可能绕过归属；consumer文档要求selector保持短小、同步、无I/O，并把高容量调试写入项目自有transcript。
-
-#### 7. Timing与diagnostic不改变选择
-
-imperative adapter用invocation monotonic clock测量同步hook调用，clock anomaly只使duration unavailable。逐次`SchedulerDecision`继续记录最终selected Task和reason；custom event另记录policy identity、layer、candidate count、result=`selected | delegated | fault-disabled`及hook duration。
-
-若`add-scheduler-performance-diagnostics`已实施，custom hook duration必须与pureProduct scheduler own time分列。diagnostic logger failure沿用现有output containment，不能触发policy fallback或改变selector input。
-
-#### 8. Public contract不暴露private engine types
-
-package root只导出authoring helper和闭合view/result supporting types。它不导出`SchedulerDecision`、`SchedulerInspection`、`PlannedTask`、reservation update、execution state、imperative callbacks或logger/clock handoff。public adapter显式从private snapshot投影并freeze view，防止internal字段自然泄漏成为兼容承诺。
+Fault handling, diagnostics, console attribution and timing may affect public output and trusted-host behavior. This Change does not choose them by analogy to Check callbacks. Before implementation tasks that depend on them run, their owner must add a decision and corresponding Configuration/API/testing contract; until then no example or success criterion asserts a fallback, console routing or telemetry shape.
 
 ### Resulting Impacts
 
-- `ProjectDefinition.scheduler`从单一数据policy扩展为包含trusted function的ordinaryvalue；validation需要像Check trusted functions一样保留function，同时为fingerprint建立独立declarativeprojection。
-- hook invocation发生在Check console router生命周期内，但不属于Check execution；console router需要支持policycontext而不改变Check message owner。
-- pure built-inpolicy仍可直接测试；custom adapter包含trusted callback side effect，因此imperative boundary必须单独测试fault、timing和overlappingRun隔离。
-- learned-critical-path仍是Product-ownedbuilt-in variant；custom author若自行学习，历史key、I/O和正确性完全由项目closure负责，Product不提供隐式state manager。
+- Definition must preserve trusted callback identity for invocation while declarative fingerprinting retains only the explicitly decided declarative identity projection.
+- A public adapter must project/freeze data without leaking private types or mutable state; pure private policy tests and adapter/imperative tests remain separately owned.
+- learned-critical-path remains a separate closed Product-owned variant. Both downstream Changes share full-graph/priority facts and private result capability, not a public composition protocol.
 
 ## Risks / Trade-offs
 
-- customselector能在合法候选中制造很差的性能或非确定顺序；policyId/version、diagnostic和staticfallback提供可审计性，但Product不替author证明算法质量。
-- sync trusted code可以阻塞整个caller runtime；禁止async避免stale Scheduler snapshot，却不能防止slow I/O或infinite loop。重复/重叠Run复用closure，因此有mutable state的selector还必须自行保证reentrancy。
-- public graph view过宽会冻结internal模型，过窄会迫使author复制Definition；首版只提供实现候选排序所需的normalizedreadiness与capacity事实，新增字段要求真实consumer。
-- fault回退隐藏了项目策略错误对质量结论的影响，但custompolicy只承接优化偏好；让fault直接失败Gate会把性能插件提升为质量owner。diagnostic是首版明确出口。
-- console discard在diagnostic disabled时可能让错误debug困难；这是保护managedconsole的取舍，项目可启用diagnostic或使用自有transcript。
+- A trusted synchronous callback can block or mutate its caller runtime; freezing input and guarding results protect Product state but do not sandbox host code.
+- Exposing a full graph freezes an intentionally bounded public projection. New fields require a demonstrated consumer rather than mirroring every private field.
+- Deferring fault/console/diagnostic details avoids false public commitments but blocks related implementation until their owners decide the behavior.
 
 ## Open Questions
 
-无。首版采用一个同步`selectNext`、candidate-only返回、undefined staticfallback、first-fault整轮禁用、声明式id/version、policy-local console capture与internal-type projection；其它lifecycle hooks和composition明确后置。
+- Before implementation, which public discriminated result shape and declarative identity fields provide the smallest stable custom authoring contract?
+- Before fault/console/diagnostic/timing implementation, what are their owned result, output and testing boundaries?

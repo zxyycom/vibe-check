@@ -1,27 +1,26 @@
 # Tasks
 
-任务先闭合内部policy与directed graph，再建立最小trusted selector contract、guard和console归属，最后证明公共扩展不能越过Scheduler不变量。
+任务先确认 public adapter 的未决 contract，再将其适配到既有 private select/wait/reservation boundary，最后证明它未取得 Scheduler 的 hard-legality 或 execution ownership。
 
 ## Readiness
 
-- [ ] 0.1 确认`extract-scheduler-admission-selection-policy`已归档，`require-passed-dependencies-and-observe-outcomes`已闭合publicgraph所需的directed readiness vocabulary，并记录performance diagnostics与learned policy的实施顺序。
-- [ ] 0.2 使用Decision Records建立或演进trusted caller-runtime、priority、fingerprint和console router判断，固定candidate-only selector、id/version责任、fault fallback与非sandbox边界。
-- [ ] 0.3 按`test-evidence-review`恢复Definition function、fingerprint、Scheduler guard、console capture、diagnostic和installed consumer Case owner，确认publicview没有复制privateenginecontract。
+- [ ] 0.1 确认`extract-scheduler-admission-selection-policy`已归档，`separate-passed-dependencies-from-settled-observations` Decision 已闭合 public graph 所需的 directed readiness vocabulary，并记录 performance diagnostics 与 learned policy 的实际实施顺序。
+- [ ] 0.2 使用 Decision Records 闭合 custom public discriminated select/wait/reservation result、identity projection、invalid-result handling，以及是否纳入 fault、console、diagnostic、timing contract；不得把 callback 限缩为 Task-ID-only 或禁止 policy-owned reservation update。
+- [ ] 0.3 按`test-evidence-review`恢复 Definition/fingerprint、private Scheduler guard、public adapter 与 installed consumer Case owner，确认 public view 完整交接 graph-owned priority/topology，却不复制 private engine contract。
 
 ## Implementation
 
-- [ ] 1.1 从package root提供`defineAdmissionPolicy`和最小supporting types，扩展closedstatic/customDefinition grammar、defaults、validation、normalization、deep-freeze、declarativeprojection与fingerprint。
-- [ ] 1.2 在preparedgraph闭合后从privateSchedulerfacts投影并deep-freezepubliclayer、candidate、graph、running/settled和capacityview，排除options、functions、data、Records、messages、logger、clock、signal与mutablecollections。
-- [ ] 1.3 将同步`selectNext`适配到privatepolicy边界，只接受candidate ID或undefined delegation；保持reservation、hard layer、capacity和imperativeguard优先。
-- [ ] 1.4 实现throw、thenable、malformed和non-candidatefault的staticfallback及first-fault invocation disable，确保不重复hook副作用或形成新Run result branch。
-- [ ] 1.5 为custom policy增加独立console capture context与有界diagnostic/timing，保持Check message、progress、machine和diagnostic failure owner不变。
-- [ ] 1.6 更新Configuration、Architecture、API mechanics、testing、public inventory与installed consumer example，明确trusted host风险、version责任、undefinedfallback和不支持的lifecycle hooks。
+- [ ] 1.1 从 package root 提供`defineAdmissionPolicy`和最小 supporting types，扩展 closed static/custom Definition grammar、validation、normalization、deep-freeze、declarative projection 与 fingerprint。
+- [ ] 1.2 在 prepared graph 闭合后投影并 deep-freeze full normalized graph、relation/mutex eligible candidates、per-candidate capacity facts 和必要 inspection view；排除 options、functions、data、Records、messages、logger、clock、signal 与 mutable collections。
+- [ ] 1.3 将同步 custom select/wait/reservation result 适配到 private policy：Scheduler guard selected candidate/current capacity、reservation set target candidate 与 drainable wait，不重演 policy-owned reservation/fairness/anti-starvation strategy。
+- [ ] 1.4 仅在 0.2 明确决定后实现 custom invalid-result/fault、console、diagnostic 或 timing behavior 及其 owner；不要从本计划推断 fallback、console routing 或 telemetry shape。
+- [ ] 1.5 更新 Configuration、Architecture、API mechanics、testing、public inventory 与 installed consumer example，明确 full graph/priority handoff、select/wait/reservation capability、hard guards、trusted host risk 和已决定的 deferred contracts。
 
 ## Verification
 
-- [ ] 2.1 运行Definition/helper type inference、closed validation、function preservation、id/version fingerprint、explicit/omitted static canonicalization与package declaration tests。
-- [ ] 2.2 运行valid selection、undefined delegation、各fault分支、invocation-local first-fault disable、frozeninput、stablearrayorder、reservation/layer/capacityguard、cancellation和shared-closure overlappingRun Scheduler tests。
-- [ ] 2.3 运行policy console capture、direct process-stream边界、diagnostic disabled/enabled、hook timing anomaly与logger failure containment tests，证明Check messages、progress和RunResult不变。
-- [ ] 2.4 运行真实installed consumer和public inventory/example validation，并运行`bun run test-evidence -- check --root .`。
-- [ ] 2.5 运行format、typecheck、lint、dependency/public-entry检查和`bun run verify:vibe-check-workspace:required`；公共contract与output边界闭合后运行full Gate。
-- [ ] 2.6 按编码规范审阅public/privateprojection、trusted callback containment、exhaustive unions与文件职责，并用AI-ready审阅确认实现者不会把selector误解为dependency、wait、settlement或dynamic Task hook。
+- [ ] 2.1 运行 Definition/helper type inference、closed validation、function preservation、identity fingerprint、explicit/omitted static canonicalization 与 package declaration tests。
+- [ ] 2.2 运行 custom select、custom wait、reservation set/clear/replace、full frozen graph/capacity view、candidate membership、selected-capacity、wait-drain、cancellation 和 shared-closure overlapping Run Scheduler tests。
+- [ ] 2.3 运行 0.2 所决定的 invalid-result/fault、console、diagnostic、timing behavior tests；未决定前不得将其作为完成证据。
+- [ ] 2.4 运行真实 installed consumer、public inventory/example validation 与`bun run test-evidence -- check --root .`。
+- [ ] 2.5 运行 format、typecheck、lint、dependency/public-entry 检查和`bun run verify:vibe-check-workspace:required`；公共 contract 与 output boundary 闭合后运行 full Gate。
+- [ ] 2.6 按编码规范审阅 public/private projection、trusted callback containment、exhaustive closed unions 与文件职责，并用 AI-ready 审阅确认实现者不会把 selector 误解为 graph/priority side channel、hard-legality owner 或 imperative Task hook。

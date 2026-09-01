@@ -10,7 +10,7 @@
 
 ## Outcome
 
-项目在 Definition 的 Scheduler 设置中选择 `learned-critical-path` 并提供一个 cross-run state directory 后，所有实际启动的 Check 自动贡献真实 active-duration 样本。下一次 Run 在任何 Task admission 前加载有界历史，形成 immutable per-Task duration prediction 与 estimated downstream critical-path score；admission policy 只在 Scheduler 已允许比较的候选中优先选择更高分 Task。
+项目在 Definition 的 Scheduler 设置中选择 `learned-critical-path` 并提供一个 cross-run state directory 后，所有实际启动的 Check 自动贡献真实 active-duration 样本。下一次 Run 在任何 Task admission 前加载有界历史，形成 immutable per-Task duration prediction 与 estimated downstream critical-path score；admission policy 读取 Scheduler 形成的 relation/mutex eligible candidates 与 per-candidate capacity facts；它可以在 running work 可 drain 时等待，Scheduler 仍只准入当前 capacity 允许的 selected Task。
 
 没有历史的 Check 使用本轮模型的 project prior；整个项目无历史时使用相同正值，因此第一轮降级到图结构、静态优先级 tie-break 与规范顺序。Check 一旦产生样本，后续预测直接来自其最近真实样本；可选 per-Check duration override 只处理已知例外，不要求完整配置。
 
@@ -25,7 +25,7 @@
 - 在 preflight barrier 完成后、Scheduler 启动前，按 model version、Check ID、canonical prepared-options digest 与 canonical project flags 构造 history identity。历史文件不保存 raw options、flags 或 caller secret；这些输入只参与本地 digest。
 - 将所有实际 started Check 的有效 monotonic active-duration measurement 作为事实样本，不按最终 status 删除；同时保留 outcome 分类供诊断。public duration 的 clock-anomaly fallback、preflight-blocked、dependency-blocked、fail-fast/cancel-before-start 与其它未启动 Check 不产生样本，admission delay 和 resource wait 不进入 execution-duration model。
 - 每个 identity 只保留最近 32 个真实样本；使用窗口 arithmetic mean 作为下一次 expected duration，并报告 sample count 与 p90。没有 identity 样本时使用当前模型内已有 Check estimates 的中位数；完全冷启动时所有 Check 使用同一常数 `1`。
-- 在 final directed readiness graph 上计算 `estimatedDurationMs + longest estimated downstream path`。选择继续服从 sticky reservation 与当前 tightening/constrained/ordinary 层级；同一层级和既有 cap tie-break 内先按 critical-path score 降序，再按 `admissionPriority` 降序，最后按现有 canonical tie-break。
+- 在 final directed readiness graph 上计算 `estimatedDurationMs + longest estimated downstream path`。learned policy 按自己的 reservation/fairness strategy 在当前 relation/mutex eligible candidates 与 capacity facts中作 select/wait；Scheduler 只守 selected-capacity、reservation-set target candidate 与 wait-drain。default static policy 的 sticky behavior 不成为 Scheduler 硬规则。其余 selection preference按实现时确认的层级、critical-path score、`admissionPriority` 与 canonical tie-break组织。
 - 使用一个 versioned、最多保留 4096 个 identity 的 Product-private history file，读取时视为不可信输入，写入时在目标目录 atomic replace。missing 是正常 cold start；invalid/read/write failure 降级为可诊断的 static/prior scheduling，不改变 Check settlement 或 Run result kind。并发 invocation 允许丢失一次优化样本，但不得产生 partial/corrupt publication或影响执行正确性。
 - diagnostic logging 启用时记录 history read/write status、model version/digest、选中 Task 的 estimate source、sample count、estimated duration 与 critical-path score；不输出 raw identity input或完整历史，不建立 public telemetry stream。
 
@@ -35,7 +35,7 @@
 - Check execution owner需要在 preflight 后组装 prediction identity，在 settlement 后把现有 duration/outcome交给 history owner；Task Scheduler只接收 immutable score snapshot，不执行 filesystem I/O或统计更新。
 - `src/project-run/task-scheduler/**` 依赖 `extract-scheduler-admission-selection-policy` 的 private contract和`expose-custom-admission-selection-policy`的closed public union，并在 learned policy中计算graph bottom-level score；现有static policy保持默认。
 - history 是可变统计状态，不是 caller-keyed computation result；`src/cache/**` 与 `cacheJsonByKey` contract不修改、不迁移，也不获得 Scheduler或Run lifecycle capability。
-- `require-passed-dependencies-and-observe-outcomes` 必须先闭合 success dependency和outcome observation的 directed readiness edge；关键路径同时读取两者，但不把 outcome predicate变成预测输入。
+- `separate-passed-dependencies-from-settled-observations` Decision 必须先闭合 success dependency和outcome observation的 directed readiness edge；关键路径同时读取两者，但不把 outcome predicate变成预测输入。
 - `add-scheduler-performance-diagnostics` 应先提供或同步提供 admission delay、slot utilization与tail证据，用于验证 learned policy是否改善代表性 workload；fail-fast与named resource若随后落地，只改变 candidate legality/started samples，不能绕过同一 policy。
 - 当前 priority Decision明确不采用历史自动调权；实施前必须建立后继 Decision，保留 static默认并定义 learned mode下 priority仅为同分 tie-break。Project Gate只有在重复A/B证据不退化时才启用 learned setting。
 
@@ -47,7 +47,7 @@
 - 每个有样本identity的estimate只由最近32项真实active duration的arithmetic mean形成；一次样本立即参与下一轮，旧样本随窗口推进退出。outcome分类、sample count和p90不伪造成独立执行时间。
 - 对一个包含并行短Tasks与较长downstream chain的deterministic workload，learned critical-path policy比static order更早启动目标链并降低makespan；不声称该greedy heuristic对任意dependency/resource图全局最优。
 - `expectedDurationMs`只覆盖owning executable Check，拒绝zero、负数、非safe integer、container与unknown key；未覆盖Checks继续使用learned/prior值。
-- sticky reservation不能被高score或高priority Task偷取；blocked、mutex/capacity-ineligible或未ready Task不能被policy选择。static priority在learned mode只处理同分，不能让人工排序普遍屏蔽预测。
+- learned policy 的 reservation preference不能被其自身较低层偏好任意绕开；blocked、mutex-ineligible、未ready或当前 capacity 不可 admission 的 Task不能被 Scheduler 启动。capacity-inadmissible candidate仍可支持可 drain的 policy `wait`；static priority在learned mode只处理同分，不能让人工排序普遍屏蔽预测。
 - missing、invalid、read failure、write failure、clock anomaly和并发last-writer情况只降低或丢失优化证据，不改变Task membership、outcome、Check/Record facts、aggregate、machine bytes或Run result kind；diagnostic启用时能解释降级。
 - history file有version、closed parser、每identity 32样本和最多4096个identity，atomic publish不暴露raw options/flags；state directory是调用方显式授权且可整体删除的本地状态。
 - repository required/full Gate完成同candidate、同membership、交错A/B测量。只有两个profile的learned wall median均不高于static且至少一个更低时才在Gate Definition启用；否则Product能力完成但本仓Gate保持static。
