@@ -27,6 +27,38 @@
         "title": "严格 JSON 与重复 key 的最小库选择"
       }
     },
+    "compare-lizard-and-scc-typescript-port-priority.md": {
+      "keys": {
+        "formed-at": [
+          1788241833000
+        ],
+        "tag": [
+          "dependency-policy",
+          "file-metrics",
+          "function-metrics",
+          "scanner-backends",
+          "typescript-migration"
+        ],
+        "text": [
+          "Lizard 与 SCC 的 TypeScript 迁移优先级比较",
+          "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-01T05:50:33Z",
+        "question": "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "dependency-policy",
+          "file-metrics",
+          "function-metrics",
+          "scanner-backends",
+          "typescript-migration"
+        ],
+        "title": "Lizard 与 SCC 的 TypeScript 迁移优先级比较"
+      }
+    },
     "compare-minimal-json-duplicate-key-candidates.md": {
       "keys": {
         "formed-at": [
@@ -274,6 +306,7 @@
   "sourceRevision": {
     "entries": {
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
+      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
