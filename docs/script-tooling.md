@@ -41,7 +41,7 @@ scripts helper、环境状态或 process adapter。
 | package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`                                                                   | `scripts/package/command.ts`              |
 | formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                   | `scripts/package/release/command.ts`      |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
-| governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations -- check`；`bun run test-evidence -- <command>` | their named owners                        |
+| governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` | their named owners                        |
 | Project Gate              | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full`             | `scripts/project/gate/run.ts`             |
 
 无 suffix 的 Project Gate 与 `:required` 都选择 required profile；`:full` 显式选择 full。scope、action
@@ -78,8 +78,7 @@ checkout 必须显式运行 `git config --local core.hooksPath .githooks`，只�
 请求”“正在执行安全 push”“成功”和“提交仍留在本地”。这些内容写到 hook 的 stdout/stderr；图形化 Git client 是否展示
 hook transcript 仍由该 client 决定。
 
-该 hook 只同步开发分支，不发布 npm package，也不创建 GitHub Release。npm package 仍是产品发布单元；只有未来存在
-GitHub-specific 附件或独立 release notes consumer 时，才应单独评估 tag-driven GitHub Release workflow。
+该 hook 只同步开发分支，不发布 npm package，也不创建 GitHub Release。npm package 仍是产品发布单元。
 
 ## Package artifact 与 candidate
 
@@ -135,9 +134,8 @@ positive `0.0.<patch>` 与保守 lowercase tag，并要求 repository root、ind
 registry fact。
 
 一次 active release 的 exact version/tag/access/mechanism 与当次 registry observations 由该 release 的 active Change
-evidence 承接，不在本稳定行为 owner 中复制。当前没有 active release Plan；已发布 `0.0.1` 的形成时结果只保存在
-[archived release evidence](../changes/archive/publish-public-api-only-npm-package/release-evidence.md#current-scoped-selection)，不得恢复成
-后续版本的 selection、availability 或授权。未来执行者必须先建立新的 active release owner，再从其 current evidence 取得
+evidence 承接，不在本稳定行为 owner 中复制。归档 release 中的形成时结果不得恢复成后续版本的
+selection、availability 或授权。执行者必须先建立新的 active release owner，再从其 current evidence 取得
 `<selected-version>` 与 `<selected-tag>`，然后调用
 `bun run package:release:prepare -- --version <selected-version> --tag <selected-tag>`。Evidence 中的值不是后续版本的默认值、
 registry availability 证明或 publish 授权；public access 仍由 generated manifest 的 closed `publishConfig` 承接，外部

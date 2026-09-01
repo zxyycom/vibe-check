@@ -19,6 +19,10 @@ skill 拥有，项目安装与命令接线由[脚本工具](script-tooling.md#go
 授权或验收完成事实。Change Plan 是可持续改写的临时实施上下文，不成为稳定事实或跨 change
 方向的第二 owner。`decision-index.json` 和 investigation index 都是可重建查询视图。
 
+一个方向成为当前基线后，Decision 保留“为什么采用”，对应 `docs/` owner 保留“当前如何工作”；
+两者职责不同，不互相替代。普通文档只有在拥有独立当前契约、任务入口或验收责任时才单独保留；
+否则并入对应 owner 或删除。
+
 ## Decision 与 Change 协作
 
 活动决策的一般解释、任务关系分类、alignment、拆分和生命周期由项目内完整上游
@@ -43,8 +47,11 @@ Decision 与 Change 之间的项目级交接：
 需要跨文件、owner 或验证阶段持久交接的明确 change 使用 `$change-plan`。简单局部改动直接同步
 owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
 
-项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划。需要在全部 active Change 中定位产品路径、直接相关 Decision 或恢复边界时，可在该命令之后阅读 [Active Change Portfolio](../changes/active-change-portfolio.md)；它只是导航，不能代替目标 Change 的 artifacts、动态 stage 或 Decision owner。固定 artifact、
-严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内完整上游
+项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划，
+再阅读目标 Change 的 proposal、design 与 tasks。`changes/` 根目录不维护手工 active Change 清单、
+发布状态快照或跨 Change 事实副本；动态成员、stage、任务进度和 Git 距离以命令输出与目标
+artifacts 为准。固定 artifact、严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态只由项目内
+完整上游
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
 [脚本工具](script-tooling.md#governance-and-test-evidence-adapters)。
 

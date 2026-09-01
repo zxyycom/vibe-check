@@ -34,8 +34,6 @@
 ordinary Check contract。task scheduler 只是 Run 的 private child，不形成第二个顶层产品模块。源码不为这些模块额外建立
 `index.ts` barrel 或 compatibility re-export。
 
-可能改变此边界的 active Change 与直接相关 Decision 见 [Active Change Portfolio](../changes/active-change-portfolio.md)。这些导航不改变本页当前运行时契约；只有实现、验证并同步对应 owner 后才更新架构事实。
-
 ## Definition boundary
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
