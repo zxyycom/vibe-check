@@ -13,7 +13,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | Owner                                                   | 责任与入口                                                                                                                                                                                                                                                                           |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `scripts/development/**`                                | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。                                                                                                                                                    |
-| `scripts/environment/manage.ts`                         | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理。                                                                                                                                                                                                                      |
+| `scripts/environment/manage.ts`                         | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理，以及 `env:setup` 返回前完成的 local package candidate 自举。                                                                                                                                                           |
 | `scripts/process-execution/**`                          | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execution.ts`。                                                                                                                                        |
 | `scripts/repository-files/**`                           | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。                                                                                                                                                                                   |
 | `scripts/error-message.ts` 与 `scripts/value-guards.ts` | 明确的诊断字符串和值形状小边界；它们是 scripts root 直接拥有的 capability。                                                                                                                                                                                                          |
@@ -297,11 +297,23 @@ signal 和 `status: null`，不能视为成功。JSON validation、serialization
 
 ### Environment setup and destructive boundary
 
-首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。它会 trust 当前 `mise.toml`、按锁定结果安装
-工具和 Node dependencies，并初始化/同步当前 checkout 的 CodeGraph；因此会写入 user-level mise trust/tool state、
-checkout `node_modules` 和 `.codegraph`。该 bootstrap 入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载
-`process-execution` 的第三方 runner。执行前审阅 `mise.toml`。`bun run env:check` 只检查已安装 tools、jscpd
-和 CodeGraph 状态，不执行 trust、安装或索引同步；失败后再运行 setup。两个命令以
+首次检出、工具 pin 变更或环境缺失时运行 `bun run env:setup`。成功返回表示 checkout 已按以下顺序完成标准自举：
+
+1. trust 当前 `mise.toml`，按锁定结果安装工具和 Node dependencies；
+2. 初始化并同步当前 checkout 的 CodeGraph；
+3. 通过现有根命令 `bun run package:build` 准备 exact local package candidate。
+
+标准开发与验证命令以 `env:setup` 成功返回为前置条件；项目不承诺未自举的 cold checkout 可以直接运行
+Project Gate。后续独立启动的 Gate 从已自举的 private consumer 解析 candidate，并由自己的 preparation
+assessment 重验 exact installation 后复用；`package:build` 不建立第二套 package acceptance。
+
+首次自举会写入 user-level mise trust/tool state、checkout `node_modules`、`.codegraph`、candidate build/cache
+evidence 和 `scripts/project/node_modules`；后续执行按各 owner 的 reuse 规则更新或复用这些状态。该 bootstrap
+入口只依赖 Node/Bun 内置能力与根级错误映射，不能在依赖安装前加载 `process-execution` 的第三方 runner；
+`package:build` 只在 frozen dependency install 和 CodeGraph setup 成功后运行，失败会使 `env:setup` 失败。
+
+执行前审阅 `mise.toml`。`bun run env:check` 只检查已安装 tools、jscpd 和 CodeGraph 状态，不检查或准备 candidate，
+也不执行 trust、安装或索引同步；检查失败后再运行 setup。两个命令以
 `MISE_GLOBAL_CONFIG_FILE` 隔离用户全局 mise 配置。
 
 `.codex/environments/environment.toml` 在 setup 后运行默认 Project Gate，不清理 worktree。

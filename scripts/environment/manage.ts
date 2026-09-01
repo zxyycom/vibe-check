@@ -63,6 +63,9 @@ function setupEnvironment(): void {
 
   runCommandInMise({ args: ["init", "."], command: "codegraph" });
   runCommandInMise({ args: ["sync", "--quiet", "."], command: "codegraph" });
+  // Complete bootstrap before later Bun processes start: installing the private candidate
+  // after a Bun process has begun resolving modules can leave bare-package resolution stale.
+  runCommandInMise({ args: ["run", "package:build"], command: "bun" });
 }
 
 function checkEnvironment(): void {
