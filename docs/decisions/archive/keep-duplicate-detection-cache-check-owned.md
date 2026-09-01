@@ -1,6 +1,6 @@
 ---
 title: 保持 duplicate-detection cache 由 Check 拥有
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
 purpose: 让 cache 配置、读写、失效与失败只服务实际需要它的 duplicate-detection Check。

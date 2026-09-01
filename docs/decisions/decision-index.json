@@ -80,7 +80,7 @@
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
-      "keep-duplicate-detection-cache-check-owned.md": "sha256:16134e3833cd57de7067364d10946cb11964275e604efe49dc0a1b7badbc9426",
+      "keep-duplicate-detection-cache-check-owned.md": "sha256:6edbd78f7d5d539a9728120da82e500c2965764edaf165a3ed84d2e15fd9cca9",
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
@@ -120,6 +120,7 @@
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
+      "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:150cdd3b4988aa299fed0ff221e6d5e6fd77e243734c7220d34e93b850f74005",
       "provide-generic-bounded-finding-presentation.md": "sha256:bc7f7750493deb6340426e2f8cc9d5d0539c2ac224f83ac5867679be8052ec35",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
@@ -2601,16 +2602,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "keep-duplicate-detection-cache-check-owned.md",
+        "sourcePath": "archive/keep-duplicate-detection-cache-check-owned.md",
         "title": "保持 duplicate-detection cache 由 Check 拥有",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T17:34:11Z",
         "purpose": "让 cache 配置、读写、失效与失败只服务实际需要它的 duplicate-detection Check。",
@@ -3855,6 +3856,40 @@
           {
             "type": "修订",
             "target": "execute-recursive-checks-through-one-task-graph.md"
+          }
+        ]
+      }
+    },
+    "provide-caller-keyed-json-cache-without-run-caching.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "provide-caller-keyed-json-cache-without-run-caching.md",
+        "title": "提供 caller-keyed JSON cache 且不缓存 Run settlement",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-09-01T03:20:25Z",
+        "purpose": "让 custom Check 和项目代码复用 caller-owned key 的持久化 JSON 结果，同时保持失效语义与 Check settlement owner 不变。",
+        "background": "duplicate detection 当前独占领域 cache；新的真实 consumer 只需要通用存储机制，并明确由项目生成完整 key。",
+        "decision": "package root 提供 cacheJsonByKey；caller 拥有 key、parser 和计算语义，Run 不缓存 Check settlement。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "keep-duplicate-detection-cache-check-owned.md"
           }
         ]
       }
