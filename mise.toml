@@ -14,9 +14,9 @@ VIBE_CHECK_LIZARD_CMD = { tools = true, value = """
 """ }
 VIBE_CHECK_SCC_CMD = { tools = true, value = """
 {%- if os() == 'windows' -%}
-{{ tools['go:github.com/boyter/scc/v3'].path }}/bin/scc.exe
+{{ tools['go:github.com/boyter/scc/v4'].path }}/bin/scc.exe
 {%- else -%}
-{{ tools['go:github.com/boyter/scc/v3'].path }}/bin/scc
+{{ tools['go:github.com/boyter/scc/v4'].path }}/bin/scc
 {%- endif -%}
 """ }
 
@@ -25,7 +25,7 @@ node = "24"
 bun = "1.3.14"
 pnpm = "11.1.3"
 uv = "0.11.28"
-go = "1.25"
+go = "1.26.4"
 "pipx:lizard" = { version = "1.23.0", depends = ["uv"] }
-"go:github.com/boyter/scc/v3" = { version = "v3.7.0", depends = ["go"] }
+"go:github.com/boyter/scc/v4" = { version = "v4.0.0", depends = ["go"] }
 "npm:@colbymchenry/codegraph" = { version = "1.5.0", depends = ["node"] }

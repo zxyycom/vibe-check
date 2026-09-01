@@ -9,7 +9,7 @@ import { runProcessSync } from "../../host-environment/process/command.ts";
 import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
 import { parseSccCSV, type SccScanResult } from "./parser.ts";
 
-const SCC_BY_FILE_ARGUMENTS = Object.freeze(["--by-file", "--format", "csv"]);
+const SCC_BY_FILE_ARGUMENTS = Object.freeze(["--no-config", "--by-file", "--format", "csv"]);
 const SCC_SCAN_TIMEOUT_MS = 300_000;
 
 interface ScanWithSccOptions {

@@ -105,10 +105,19 @@ Entities:
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > rejects a successful scc invocation that produces no CSV header`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header`
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
-- `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 3.7 Provider paths and rejects unknown CSV headers`
+- `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 4.0 Provider paths and rejects unknown CSV headers`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
   Proves:
 
-- The file-metrics-owned scc adapter skips invocation for empty exact input, accepts only the supported complete CSV shape, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+- The file-metrics-owned SCC 4.0 adapter skips invocation for empty exact input, always sends `--no-config` before its fixed by-file CSV protocol, accepts only the supported complete CSV shape, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+
+## Case AUX-SCC-V4-AVAILABILITY-001: SCC v4 exact executable contract
+
+Owner: `docs/scanner-dependencies.md#check-owned-command-options`
+Entities:
+
+- `bun|src/package-checks/file-metrics/scc/availability.test.ts|SCC availability > accepts only the SCC 4.0.0 executable contract`
+  Proves:
+- The file-metrics adapter accepts only exact `scc version 4.0.0`; a custom SCC 3.7.0 executable is an actionable contract error rather than a fallback measurement source.

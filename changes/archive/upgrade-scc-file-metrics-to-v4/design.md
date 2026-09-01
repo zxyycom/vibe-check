@@ -5,7 +5,7 @@
 
 ## Context
 
-当前 `fileMetrics` 只接受一个直接执行 SCC CLI 的 `scanner.executable`。owning adapter 负责 `--version`、
+本 Change 形成时，`fileMetrics` 只接受一个直接执行 SCC CLI 的 `scanner.executable`。owning adapter 负责 `--version`、
 `--by-file --format csv`、exact accepted paths、process lifecycle、CSV parsing 和 measurement conversion；public config
 不拥有 SCC arguments。SCC 3.7.0 的 exact version text 与十列 by-file CSV 已进入 parser、tests、docs、mise tool key
 和 Project Gate 环境绑定。
@@ -27,7 +27,7 @@ SCC 4.0.0 不只是 packaging major：上游语言定义和 complexity counting 
 - 不把 SCC config、flags、language remap、reporter 或性能旋钮变成 public Product configuration。
 - 不引入 shared scanner registry/backend interface，也不顺带迁移 Lizard 或 jscpd。
 - 不启用 SCC MCP、Git/history、LOCOMO、infographic 或额外 metrics，不重新分发 SCC binary。
-- 不以“Gate 重新变绿”为理由自动放宽 threshold；threshold 变化必须由 corpus 与产品含义支持。
+- 不改变既有 threshold：它仍由 `fileMetrics` area owner 作为非阻断观测策略拥有，不因本次 migration 或 Gate 结果调整。
 
 ## Decisions
 
@@ -55,9 +55,9 @@ SCC 4.0.0 不只是 packaging major：上游语言定义和 complexity counting 
 
 #### 3. Differential measurement migration
 
-- checked-in corpus 至少覆盖 repository 中实际参与 `fileMetrics` 的 TypeScript/JavaScript、Rust、Python、C/C++、
-  CUDA 和 diff/Patch representative，并包含 comments/docstrings、Rust `?`、generated/remapped candidates、零文件、
-  特殊字符和平台 path cases。
+- checked-in corpus 覆盖 repository 实际参与 `fileMetrics` 的 TypeScript/JavaScript、Rust、Python、C/C++、CUDA 与
+  diff/Patch representative，并包含 comments/docstrings、Rust `?`、带空格路径和稳定非阻断 finding。空 exact input、
+  malformed output 与 Windows/Unix path contract 由 owning adapter tests 证明，而不是由该双版本 corpus 伪装覆盖。
 - 对相同 exact path union 分别运行 3.7.0 和 4.0.0，保存 machine-readable observation：version、CSV header、
   normalized Provider/path、`Lines`/`Code`/`Comments`/`Blanks`/`Complexity`，以及进入 owner conversion 后的 Record 与
   finding outcome。
@@ -86,7 +86,8 @@ SCC 4.0.0 不只是 packaging major：上游语言定义和 complexity counting 
 ### Resulting Impacts
 
 - 版本 hard cut 会让仍指向 SCC 3.7.0 的 custom executable settle unavailable，这是有意兼容性边界。
-- 某些语言的 Code/Complexity 会改变；产品影响通过 corpus、Record/finding snapshot 与 repository Gate 显式呈现。
+- 已验证的产品影响只有 Rust `?` 的 `Complexity` `0 → 1`；它未改变 corpus 的 Record/finding settlement。其余 corpus 的
+  `Code`、Provider/path、Record 与 finding 保持一致，threshold 仍不阻断。
 - 如果采用 private config，新增的 adapter material 成为内部 protocol owner，必须与 v4 version 一起维护；如果不采用，
   文档应明确没有隐藏 config dependency。
 - Go baseline 更新会影响 project environment bootstrap，但不改变发布包的 TypeScript API，也不表示 package 内携带 SCC。
@@ -103,18 +104,22 @@ SCC 4.0.0 不只是 packaging major：上游语言定义和 complexity counting 
 
 ## Open Questions
 
-- v4.0.0 的 production ten-column CSV 是否与 3.7.0 完全同 shape，还是需要新的明确 parser contract？
-- Product 是否需要非默认 v4 remap/generated/complexity semantics；如果需要，哪些最小字段进入 private config？
-- repository 的既有 file-metric thresholds 是否仍表达相同工程政策，还是需另立有依据的 policy Change？
+已由 [`evidence/differential/classification.json`](evidence/differential/classification.json) 关闭：
 
-这些问题由 1.1 differential evidence 回答；在回答前不得修改 production protocol 或 threshold。
+- v4.0.0 保留十列 production CSV shape，所以 parser 只更新 exact version，不改变字段 contract。
+- v4 defaults 在受控 corpus 上满足 Product semantics；不采用 Product-owned private config。
+- threshold 保持既有非阻断观测策略；没有 policy Change。唯一 Rust `?` Complexity drift 有上游修正依据，且不改变 corpus 的 Record/finding settlement。
 
-## Resume Conditions
+## Implementation Observations
 
-- 开始实现前再次确认 SCC 4.0.0 official release、`/v4` module、Go 1.26.4 requirement 与 config precedence 没有被
-  新 stable/errata 改写。
-- 取得实施授权，并在当前 HEAD 重新读取 file-metrics、scanner dependency、environment、Gate 与 Test Evidence owners。
-- 准备可同时运行 3.7.0 和 4.0.0 的隔离工具环境及 representative corpus；若任一版本不可重复安装，先保存 provenance
-  和替代 oracle 决策，不得直接改 production pin。
-- 若差分要求改变 public options、增加新 metric、放宽 exact version 或调整 product threshold，先更新 Proposal/Decision；
-  不把扩大的产品决策藏在依赖提交中。
+- 完成的 Linux x64/glibc evidence、重跑步骤和 observation/classification 的职责边界见
+  [`evidence/verification.md`](evidence/verification.md) 与
+  [`evidence/differential/README.md`](evidence/differential/README.md)。它们是本 Change 的完成证据，不是所有
+  consumer language 或 Windows 实机兼容性的声明。
+- 已确认的 current protocol 由
+  [`docs/checks/file-metrics.md`](../../docs/checks/file-metrics.md) 和
+  [`docs/scanner-dependencies.md`](../../docs/scanner-dependencies.md) 持有；长期 hard-cut 判断由
+  [`use-scc-v4-file-metrics-cli-protocol`](../../docs/decisions/use-scc-v4-file-metrics-cli-protocol.md) 持有。
+- 如需重新评估 SCC 版本、config precedence 或差分，则先重新验证 SCC 4.0.0、`/v4` module 和 Go 1.26.4，再重跑受控
+  corpus；未分类漂移阻止 production change。任何 public option、metric、version-range 或 threshold 政策变更都不属于
+  本 Change，必须另行取得产品决策与 Change 授权。

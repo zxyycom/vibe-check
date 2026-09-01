@@ -25,8 +25,11 @@ describe("quality scc exact input projection", () => {
     });
   });
 
-  it("rejects a successful scc invocation that produces no CSV header", () => {
-    const scanner = createFakeSccScanner("");
+  it("sends --no-config and rejects a successful scc invocation that produces no CSV header", () => {
+    const scanner = createFakeSccScanner(
+      "",
+      "if (!process.argv.includes('--no-config')) process.exit(9);"
+    );
 
     try {
       const result = scanWithScc({
@@ -46,13 +49,13 @@ describe("quality scc exact input projection", () => {
   });
 });
 
-function createFakeSccScanner(stdout: string) {
+function createFakeSccScanner(stdout: string, setup = "") {
   const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-scc-"));
   const fakeSccPath = join(tempDir, "fake-scc.mjs");
 
   writeFileSync(
     fakeSccPath,
-    `#!/usr/bin/env bun\nprocess.stdout.write(${JSON.stringify(stdout)});\n`,
+    `#!/usr/bin/env bun\n${setup}\nprocess.stdout.write(${JSON.stringify(stdout)});\n`,
     "utf8"
   );
   chmodSync(fakeSccPath, 0o755);

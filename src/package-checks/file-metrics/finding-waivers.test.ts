@@ -67,7 +67,7 @@ describe("fileMetrics finding waivers", () => {
     const executable = scanner(
       root,
       [
-        "if (process.argv.includes('--version')) process.stdout.write('scc version 3.7.0\\n');",
+        "if (process.argv.includes('--version')) process.stdout.write('scc version 4.0.0\\n');",
         "else process.stdout.write('Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\\nTypeScript,,src/a.ts,700,650,20,30,5,1000,650\\n');"
       ].join("\n")
     );
@@ -199,7 +199,7 @@ describe("fileMetrics finding waivers", () => {
     const executable = scanner(
       root,
       [
-        "if (process.argv.includes('--version')) process.stdout.write('scc version 3.7.0\\n');",
+        "if (process.argv.includes('--version')) process.stdout.write('scc version 4.0.0\\n');",
         `else process.stdout.write(${JSON.stringify(
           "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\nTypeScript,,finding-waiver:src/removed.ts,700,650,20,30,5,1000,650\n"
         )});`
