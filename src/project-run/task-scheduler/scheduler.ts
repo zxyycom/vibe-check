@@ -33,7 +33,7 @@ export async function runTaskGraph<TResult>(
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
-    const decision = decideScheduler(snapshotSchedulerState(state), trigger);
+    const decision = decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
     observeSchedulerDecision(state, decision);
 
     switch (decision.kind) {

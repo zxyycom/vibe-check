@@ -47,8 +47,7 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 ## Execution boundary
 
-Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
-dependency/mutex admission、root budget、immutable task admission priority、cancellation 与 settlement。priority 只在既有 ready selection layer 内作静态 tie-break；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
+Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private admission policy 每轮读取同一 immutable 完整 graph、动态 inspection、Scheduler 形成的 relation/mutex eligible candidates 与每项当前 capacity fact（候选可因当前 capacity 尚不能 admission），并只返回 select 或带 reason 的 wait 及 reservation update；priority 不另有 map/list 或旁路输入。Scheduler 仍拥有 readiness、mutex、capacity、cancellation、blocked settlement、结果 guard 与状态机：它只验证 selected Task 仍为 candidate 且当前可 admission、reservation `set` target 仍为 candidate、以及 wait 可 drain，不重演 reservation、公平或防饥饿策略。policy 不启动、等待或结算 Task；默认 static policy 才保留既有 sticky reservation 行为，并只在既有 ready selection layer 内作静态 tie-break；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
 
 Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 

@@ -170,6 +170,7 @@
       "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
+      "separate-admission-policy-from-scheduler-state-machine.md": "sha256:ec2595caa559adf183a17e4bdd7a31986960530ac4c33ad1c35aa11ea895c2c9",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-passed-dependencies-from-settled-observations.md": "sha256:2349cdb396874f0568717c181550eb55ad0f08ee6227e2024ad975366b01ddd5",
       "separate-settlement-run-progress-and-machine-owners.md": "sha256:93fa3b097ccdc6553c1e14e956203b9f014b014f6eb5356600e99f28d91eff4b",
@@ -5457,6 +5458,35 @@
             "target": "let-each-check-own-file-selection.md"
           }
         ]
+      }
+    },
+    "separate-admission-policy-from-scheduler-state-machine.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-admission-policy-from-scheduler-state-machine.md",
+        "title": "将准入选择策略与 Scheduler 状态机分离",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T13:03:39Z",
+        "purpose": "让 Scheduler 在不放弃硬合法性和状态机责任的前提下，把候选选择交给可利用完整 Task graph 的私有纯策略。",
+        "background": "静态与学习型选择都需要动态事实及后继；图外 priority 或拓扑输入会形成双重事实来源。",
+        "decision": "私有 policy 以完整图和 inspection 选择或等待；priority 内置 Task，Scheduler guard 合法性并拥有状态机。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "separate-check-and-record-type-identities.md": {

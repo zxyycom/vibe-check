@@ -1,3 +1,5 @@
+import type { AdmissionSelectionPolicy } from "./admission-selection-policy.ts";
+import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import { decideAdmission, type SchedulerDecisionCycle } from "./scheduler-admission-decision.ts";
 import {
   decisionContext,
@@ -25,11 +27,13 @@ export type {
  */
 export function decideScheduler(
   snapshot: SchedulerSnapshot,
-  trigger: SchedulerTrigger
+  trigger: SchedulerTrigger,
+  policy: AdmissionSelectionPolicy = staticAdmissionSelectionPolicy
 ): SchedulerDecision {
   const state = inspectSnapshot(snapshot);
   const cycle: SchedulerDecisionCycle = Object.freeze({
     context: decisionContext(state),
+    policy,
     state,
     trigger
   });
@@ -62,7 +66,7 @@ function decideTerminalSchedulerAction(
       trigger: Object.freeze({ kind: "cancellation-observed" })
     });
   }
-  if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.size === 0) {
+  if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.length === 0) {
     return freezeDecision({
       ...cycle.context,
       cancelled: snapshot.isCancelled,

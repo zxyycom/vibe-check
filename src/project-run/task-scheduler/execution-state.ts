@@ -1,4 +1,8 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
+import {
+  staticAdmissionSelectionPolicy,
+  type AdmissionSelectionPolicy
+} from "./admission-selection-policy.ts";
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 
@@ -26,6 +30,8 @@ export interface TaskGraphRun<TResult> {
 }
 
 export interface RunTaskGraphOptions<TResult> {
+  /** Product-private policy handoff; package consumers cannot author this through the public API. */
+  readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly diagnosticLogger?: DiagnosticLogger;
   readonly graph: TaskGraph;
   readonly maxParallel: number;
@@ -57,6 +63,7 @@ export interface RuntimeScope {
 }
 
 export interface SchedulerState<TResult> {
+  readonly admissionPolicy: AdmissionSelectionPolicy;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
   readonly isPrerequisiteSatisfied: RunTaskGraphOptions<TResult>["isPrerequisiteSatisfied"];
@@ -77,6 +84,10 @@ export function createSchedulerState<TResult>(
   graph: PlannedTaskGraph,
   options: RunTaskGraphOptions<TResult>
 ): SchedulerState<TResult> {
+  const admissionPolicy = options.admissionPolicy ?? staticAdmissionSelectionPolicy;
+  if (!Object.isFrozen(admissionPolicy) || typeof admissionPolicy.decide !== "function") {
+    throw new TypeError("task engine admission policy must be a frozen policy value");
+  }
   const scopesById = new Map<string, RuntimeScope>();
   for (const scope of graph.scopes) {
     scopesById.set(scope.id, {
@@ -86,6 +97,7 @@ export function createSchedulerState<TResult>(
     });
   }
   return {
+    admissionPolicy,
     diagnosticLogger: options.diagnosticLogger,
     graph,
     isPrerequisiteSatisfied: options.isPrerequisiteSatisfied,

@@ -67,7 +67,8 @@ export type SchedulerAdmissionReason =
   | "reservation"
   | "tightening-scope"
   | "constrained-continuation"
-  | "canonical-order";
+  | "canonical-order"
+  | "policy-selection";
 
 export type SchedulerAwaitReason =
   | "cancellation-drain"
@@ -75,7 +76,8 @@ export type SchedulerAwaitReason =
   | "running-drain"
   | "root-capacity"
   | "active-scope-capacity"
-  | "reserved-tightening-scope";
+  | "reserved-tightening-scope"
+  | "policy-wait";
 
 export type SchedulerDecision = SchedulerDecisionContext &
   (
