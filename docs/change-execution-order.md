@@ -48,13 +48,13 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 基于当前工作树和 Git HEAD
-`ce8cba61217291b51921b014f44918e3a194fa85` 审阅；审阅输入是
-`bun run change-plan -- list changes` 与 `bun run change-plan -- check-all changes`。当前工作树中
-`upgrade-jscpd-duplicate-detection-to-5-1-1` 已位于 `changes/archive/`，因此不再是 active scanner 轨道节点；
-`check-all` 报告其余 15 个 active Change 结构有效。该 HEAD 只标识审阅时的提交输入：尚未提交的归档和本次
-文档维护存在于当前工作树，不能据此声称它们已经存在于该父提交中，也不冻结后续 Change 状态或证明任何
-Implementation 已完成。
+本节于 2026-09-01 在形成提交前审阅；审阅输入是父 HEAD
+`ce8cba61217291b51921b014f44918e3a194fa85`、当时含归档和本文维护的待提交工作树，以及
+`bun run change-plan -- list changes` 与 `bun run change-plan -- check-all changes`。命令报告其余 15 个
+active Change 结构有效，且 `upgrade-jscpd-duplicate-detection-to-5-1-1` 已位于 `changes/archive/`，因此不再是
+active scanner 轨道节点。随后提交 `21b4d23ab8bbd28532744a5e8dfcfbfb89b80ad0` 建立该归档和本文维护；父 HEAD
+只标识审阅时的提交输入，不能把提交结果倒置为审阅前提，也不冻结后续 Change 状态或证明任何 Implementation
+已完成。
 
 ### Scheduler 主线
 
