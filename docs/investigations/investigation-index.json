@@ -1,6 +1,38 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "assess-scc-and-jscpd-upgrade-readiness.md": {
+      "keys": {
+        "formed-at": [
+          1788243922000
+        ],
+        "tag": [
+          "dependency-upgrades",
+          "duplicate-detection",
+          "file-metrics",
+          "jscpd",
+          "scc"
+        ],
+        "text": [
+          "SCC 与 jscpd 升级就绪性评估",
+          "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-01T06:25:22+00:00",
+        "question": "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "dependency-upgrades",
+          "duplicate-detection",
+          "file-metrics",
+          "jscpd",
+          "scc"
+        ],
+        "title": "SCC 与 jscpd 升级就绪性评估"
+      }
+    },
     "choose-minimal-library-for-strict-json-and-duplicate-keys.md": {
       "keys": {
         "formed-at": [
@@ -305,6 +337,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
