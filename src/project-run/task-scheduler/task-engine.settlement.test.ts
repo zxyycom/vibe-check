@@ -139,7 +139,6 @@ describe("static task engine", () => {
     if (appliedCancellationDrain?.kind !== "await-running") {
       assert.fail("expected cancellation drain decision");
     }
-    assert.equal(appliedCancellationDrain.reason, "cancellation-drain");
     assert.equal(appliedCancellationDrain.trigger.kind, "cancellation-applied");
     const cancellationComplete = cancellationDecisions[5];
     if (cancellationComplete?.kind !== "complete") {
@@ -155,7 +154,6 @@ describe("static task engine", () => {
     assert.equal(cancellation.kind, "cancel-pending");
     assert.deepEqual(cancellation.taskIds, ["pending"]);
     assert.equal(Object.isFrozen(cancellation.taskIds), true);
-    assert.deepEqual(cancellation.reservation, { taskId: null });
     assert.equal(cancellation.trigger.kind, "cancellation-observed");
 
     const cancellationDrain = decisionFor(graph, {
@@ -165,7 +163,6 @@ describe("static task engine", () => {
       runningTaskIds: ["started-one"]
     });
     assert.equal(cancellationDrain.kind, "await-running");
-    assert.equal(cancellationDrain.reason, "cancellation-drain");
 
     const complete = decisionFor(graph, { isCancelled: true, maxParallel: 2, pendingTaskIds: [] });
     assert.equal(complete.kind, "complete");

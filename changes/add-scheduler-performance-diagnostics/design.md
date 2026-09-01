@@ -1,14 +1,14 @@
 # Design
 
-本设计把性能分析限定为 Scheduler 已拥有的单次运行时间线，并用 event-driven 累计区分槽位占用、admission 阻塞、调度器自有工作与 diagnostic observation 成本。
+本设计把性能分析限定为 Scheduler 已拥有的单次运行时间线，并用 event-driven 累计区分槽位占用、policy `wait` 区间、调度器自有工作与 diagnostic observation 成本。
 
 ## Context
 
-`runTaskGraph` 当前由一个 imperative loop 驱动：pure `decideScheduler` 从 immutable snapshot 返回 `admit`、`settle-blocked`、`cancel-pending`、`await-running` 或 `complete`，shell 负责观察 decision、改变 execution state、启动 executor、等待 Promise settlement 和释放运行资源。每条 decision diagnostic 已包含 elapsed header 和 `capacity`、`blockers`、`reservation` 等事实，但日志没有稳定 parser，也没有 terminal Scheduler summary。
+`runTaskGraph` 当前由一个 imperative loop 驱动：pure `decideScheduler` 从 immutable snapshot 返回 `admit`、`settle-blocked`、`cancel-pending`、`await-running` 或 `complete`，shell 负责观察 decision、改变 execution state、启动 executor、等待 Promise settlement 和释放运行资源。每条 decision diagnostic 已包含 elapsed header 和 `capacity`、`blockers`、selected Task 或 wait 的 hard-guard facts，但日志没有稳定 parser，也没有 terminal Scheduler summary。
 
 Product 的 `CheckExecutionClock` 是 invocation-private monotonic seam，现用于 Check duration、progress 与 diagnostic elapsed。`RunResult.checkDurations` 只测量实际 Check callback 执行，不包含 Task graph-ready 后的排队，也不等于 Scheduler wall time。Scheduler Task 又可能把工作交给子进程或 worker，因此 Task active interval 只证明 Product 槽位被占用。
 
-当前 priority evidence 已记录 ready-to-start delay、execution duration 和 wall time：目标 Check 的 delay 全部显著下降，但 full profile 的 tuned wall median 反而上升。这说明新的诊断必须同时回答“容量是否被利用”“为何不能继续 admission”“长 Task 何时 ready/admit/settle”和“调度器本身花了多少时间”，不能从单项 duration 自动生成调度政策。
+当前 priority evidence 已记录 ready-to-start delay、execution duration 和 wall time：目标 Check 的 delay 全部显著下降，但 full profile 的 tuned wall median 反而上升。这说明新的诊断必须同时回答“容量是否被利用”“wait 时有哪些 hard facts”“长 Task 何时 ready/admit/settle”和“调度器本身花了多少时间”，不能从单项 duration 自动生成调度政策。
 
 相关 active Changes 正在重新定义 `dependsOn`/`observes`、fail-fast admission cutoff 和 named resource capacity。它们拥有图语义与 admission 行为；本 Change 只能观察最终 Scheduler state，不能提前复制其候选规则或建立平行状态机。
 
@@ -22,7 +22,7 @@ Product 的 `CheckExecutionClock` 是 invocation-private monotonic seam，现用
 | graph-ready | Scheduler 的 directed readiness relations 已满足 | 已取得 mutex/capacity 或已经 admission |
 | `admissionDelayMs` | graph-ready 到 admission 的差值 | Check callback duration |
 | `taskSlotMs` | 各 Task admission-to-settlement active interval 的总和 | CPU、线程或 event-loop utilization |
-| blocked-admission interval | `await-running` decision 到下一项 running settlement 的区间 | Scheduler idle/CPU 时间；该区间可与 Task execution 重叠 |
+| `wait` interval | 经 Scheduler 接受的 `wait` 到下一项 running settlement 的区间 | 无法 admission 或某个 policy reason 的证明；该区间可与 Task execution 重叠 |
 | root/effective slot utilization | `taskSlotMs` 相对 root 或 scope-adjusted capacity integral 的比例 | OS 或 Task 内部资源利用率 |
 | completion tail | 最后一次 admission 到 Scheduler completion 的区间 | 理论 critical path |
 
@@ -54,7 +54,7 @@ Product 的 `CheckExecutionClock` 是 invocation-private monotonic seam，现用
 pure `decideScheduler`、inspection 与 admission selector 不接收 clock、logger 或 accumulator。计时只包围 imperative shell 已拥有的阶段：
 
 - `decisionMs`：调用 `decideScheduler` 的同步区间；
-- `transitionMs`：应用 admit、blocked settlement、cancellation、reservation update、running settlement 与 terminal result construction 的同步区间；
+- `transitionMs`：应用 admit、blocked settlement、cancellation、running settlement 与 terminal result construction 的同步区间；
 - `schedulerOwnMs = decisionMs + transitionMs`；
 - `schedulerDecisionObservationMs`：调用 `observeSchedulerDecision` 的同步区间，不包含最后 `scheduler.summary` 自身 observation；writer 可用时该区间包含序列化与同步写入，writer 已失败时可能只是 no-op；
 - `schedulerSpanMs`：从首次 Scheduler cycle 开始到 `complete` transition结束，包含 executor await 和 drain，因此绝不等同于 Scheduler own cost。
@@ -84,7 +84,7 @@ effective capacity 只积分 Scheduler 当时真正采用的 root/scope capacity
 
 #### 3. 区分 graph-ready、admission 与 settlement
 
-每个 pending Task 在全部 Scheduler-directed readiness relations 已满足时取得一次 `graphReadyAt`。没有 directed relation 的 Task 在 Scheduler span 起点 ready；关系未成功满足而直接 blocked 的 Task 不形成 admission delay。mutex、root/scope capacity、reservation和同层 priority selection 都发生在 graph-ready 之后，因此：
+每个 pending Task 在全部 Scheduler-directed readiness relations 已满足时取得一次 `graphReadyAt`。没有 directed relation 的 Task 在 Scheduler span 起点 ready；关系未成功满足而直接 blocked 的 Task 不形成 admission delay。mutex、root/scope capacity和同轮无状态 policy selection 都发生在 graph-ready 之后，因此：
 
 ```text
 admissionDelayMs = admittedAt - graphReadyAt
@@ -97,13 +97,13 @@ Summary 只列 admission delay 最大的三项，按 `admissionDelayMs` 降序�
 
 `dependsOn`/`observes` Change完成后，graph-ready 必须使用其最终 directed relation owner；本 Change不得用 Core Check status或 dependency reader在 Scheduler 外重建 readiness。
 
-#### 4. blocked-admission intervals 是并行重叠观察
+#### 4. `wait` intervals 是并行重叠观察
 
-每个 `await-running` decision 表示 Scheduler 当前无法继续 admission 并将等待下一项 running settlement。Accumulator 从该 decision 到实际取得 settlement 的区间，按 decision 的闭合 `reason` 累计 `count` 和 `durationMs`。第一版沿用当前 reason vocabulary：dependency-or-mutex、root capacity、active scope capacity、reserved tightening scope、running drain 与 cancellation drain。
+每个经 Scheduler 接受的 `wait` 只表示 policy 选择等待下一项 running settlement；它并不证明当轮没有可 admission 的 candidate。Accumulator 从该 decision 到实际取得 settlement 的区间累计 `count` 和 `durationMs`。逐次 decision 已保留当轮 candidate、capacity 与 blocker hard-guard facts；terminal summary 不将 interval 分类，也不记录或推断 policy 的选择理由、reservation 或公平状态。
 
-这些 reason 对单个 await interval互斥，因此不会在 summary 内重复累计；但 interval 期间已有 Task 正在运行，所以它会与 `taskSlotMs` 和 Task active duration 重叠。文档不得将 blocked-admission duration 与 executor duration相加以重建 wall time，也不得称其为 Scheduler idle/CPU time。`blockers` count仍留在逐次 decision trace，summary不尝试从同时存在的 blockers分摊比例。
+每个 accepted wait interval 只计一次；interval 期间已有 Task 正在运行，所以它会与 `taskSlotMs` 和 Task active duration 重叠。文档不得将 wait duration 与 executor duration相加以重建 wall time，也不得称其为 Scheduler idle/CPU time。`blockers` count与其它 hard facts仍留在逐次 decision trace，summary不尝试从同时存在的 blockers 分摊比例或推断 wait 的理由。
 
-若 fail-fast或named resource Change新增 await reason，TypeScript exhaustive handling和语义测试必须迫使本 summary显式分类；不得静默并入最接近的旧类别。
+若 fail-fast或named resource Change改变 hard guard 或 capacity facts，逐次 decision 的事实投影与语义测试必须同步演进；不得把新的状态静默解释为 policy reason 或为 summary 预置 reason taxonomy。
 
 #### 5. timing 不得成为执行失败源
 
@@ -121,7 +121,7 @@ Telemetry failure不得 throw到 Scheduler loop，不得改变 cancellation obse
 
 writer 可用时，日志中恰好出现一次该事件；writer setup/append 已失败时，现有 logger containment 可以使 observation 成为 no-op，并由 diagnostic output status报告失败。Scheduler不另写文件或把缺失 summary视为执行失败。
 
-summary details使用有界普通对象：counts、timing、capacity/utilization、blockedAdmissionByReason、topAdmissionDelays和tail。顺序由对象字段及数组稳定构造；不输出完整 Task chronology，逐次 decision已拥有原始过程。pre-work/planning cancellation或graph validation failure没有 Scheduler execution，因此不伪造 summary。
+summary details使用有界普通对象：counts、timing、capacity/utilization、waitIntervals、topAdmissionDelays和tail。顺序由对象字段及数组稳定构造；不输出完整 Task chronology，逐次 decision已拥有原始过程。pre-work/planning cancellation或graph validation failure没有 Scheduler execution，因此不伪造 summary。
 
 该事件继续服从 diagnostic log “人读、无 parser/schema/version、无跨版本兼容”的现有契约。它不进入 `RunResult`、machine v4、progress或Gate performance observer；需要自动比较时，consumer必须先获得独立结构化契约与对应长期决策，不能解析此日志。
 
@@ -132,7 +132,7 @@ summary details使用有界普通对象：counts、timing、capacity/utilization
 - private clock handoff应复用 invocation的 `CheckExecutionClock`，同时显式携带 diagnostic-enabled selection，避免仅从 logger对象形状猜测配置。
 - scripted clock tests必须按每次 sample的明确调用顺序构造，且通过领域 helper表达时间阶段；不得用脆弱的大型数字数组掩盖计时语义。
 - diagnostic formatting tests只证明安全、有界、稳定文本；Scheduler metric formulas由task-scheduler tests拥有，避免日志字符串成为第二个计算实现。
-- [`organize-project-run-and-gate-diagnostics-for-human-inspection.md`](../../docs/decisions/organize-project-run-and-gate-diagnostics-for-human-inspection.md)、[`report-per-check-duration-without-changing-check-facts.md`](../../docs/decisions/report-per-check-duration-without-changing-check-facts.md)、[`retain-running-parallel-limits-and-order-ready-admission-by-priority.md`](../../docs/decisions/retain-running-parallel-limits-and-order-ready-admission-by-priority.md) 与 no-public-check-telemetry 边界需要形成一致的长期演进；Change artifacts不替代该 owner。
+- [`organize-project-run-and-gate-diagnostics-for-human-inspection.md`](../../docs/decisions/organize-project-run-and-gate-diagnostics-for-human-inspection.md)、[`report-per-check-duration-without-changing-check-facts.md`](../../docs/decisions/report-per-check-duration-without-changing-check-facts.md)、[`use-stateless-admission-policies-with-hard-scheduler-guards.md`](../../docs/decisions/use-stateless-admission-policies-with-hard-scheduler-guards.md) 与 no-public-check-telemetry 边界需要形成一致的长期演进；Change artifacts不替代该 owner。
 - Gate benchmark只保存匹配 workload 的原始 before/after wall、diagnostic bytes与summary观察。没有性能预算时结果保持 observation，不能因为指标新增而建立 required failure。
 
 ## Risks / Trade-offs

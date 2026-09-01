@@ -1,14 +1,5 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
-import {
-  reservationClear,
-  reservationSet,
-  reservationUnchanged,
-  type ReservationUpdate,
-  type SchedulerAdmissionReason,
-  type SchedulerAwaitReason,
-  type SchedulerDecisionContext
-} from "./scheduler-decision-model.ts";
 
 export interface AdmissionCandidate {
   readonly canAdmit: boolean;
@@ -17,23 +8,13 @@ export interface AdmissionCandidate {
 
 export interface AdmissionPolicyInput {
   readonly candidates: readonly AdmissionCandidate[];
-  readonly context: SchedulerDecisionContext;
   readonly graph: PlannedTaskGraph;
   readonly inspection: SchedulerInspection;
 }
 
 export type AdmissionPolicyDecision =
-  | Readonly<{
-      readonly kind: "select";
-      readonly reason: SchedulerAdmissionReason;
-      readonly reservationUpdate: ReservationUpdate;
-      readonly taskId: string;
-    }>
-  | Readonly<{
-      readonly kind: "wait";
-      readonly reason: SchedulerAwaitReason;
-      readonly reservationUpdate: ReservationUpdate;
-    }>;
+  | Readonly<{ readonly kind: "select"; readonly taskId: string }>
+  | Readonly<{ readonly kind: "wait" }>;
 
 /** A Product-private pure admission policy; it receives no executor or mutable scheduler state. */
 export interface AdmissionSelectionPolicy {
@@ -45,48 +26,19 @@ export const staticAdmissionSelectionPolicy: AdmissionSelectionPolicy = Object.f
 });
 
 function decideStaticAdmission(input: AdmissionPolicyInput): AdmissionPolicyDecision {
-  const reserved = candidateById(input.inspection.reservationTaskId, input.candidates);
-  if (reserved !== undefined) {
-    return reserved.canAdmit
-      ? select(reserved.task, "reservation", reservationClear())
-      : wait("reserved-tightening-scope", reservationUnchanged());
-  }
-
-  const staleReservation =
-    input.inspection.reservationTaskId === undefined ? reservationUnchanged() : reservationClear();
   const tightening = selectTighteningCandidate(input);
-  if (tightening !== undefined) {
-    return tightening.canAdmit
-      ? select(tightening.task, "tightening-scope", staleReservation)
-      : wait("reserved-tightening-scope", reservationSet(tightening.task.id));
-  }
+  if (tightening !== undefined) return proposalFor(tightening);
 
   const continuation = selectConstrainedContinuation(input);
-  if (continuation !== undefined) {
-    return continuation.canAdmit
-      ? select(continuation.task, "constrained-continuation", staleReservation)
-      : wait(capacityWaitReason(input), staleReservation);
-  }
+  if (continuation !== undefined) return proposalFor(continuation);
 
-  const ordinary = selectOrdinaryReadyCandidate(input.candidates);
-  return ordinary.canAdmit
-    ? select(ordinary.task, "canonical-order", staleReservation)
-    : wait(capacityWaitReason(input), staleReservation);
+  return proposalFor(selectOrdinaryReadyCandidate(input.candidates));
 }
 
-function select(
-  task: PlannedTask,
-  reason: SchedulerAdmissionReason,
-  reservationUpdate: ReservationUpdate
-): AdmissionPolicyDecision {
-  return Object.freeze({ kind: "select", reason, reservationUpdate, taskId: task.id });
-}
-
-function wait(
-  reason: SchedulerAwaitReason,
-  reservationUpdate: ReservationUpdate
-): AdmissionPolicyDecision {
-  return Object.freeze({ kind: "wait", reason, reservationUpdate });
+function proposalFor(candidate: AdmissionCandidate): AdmissionPolicyDecision {
+  return candidate.canAdmit
+    ? Object.freeze({ kind: "select", taskId: candidate.task.id })
+    : Object.freeze({ kind: "wait" });
 }
 
 function selectTighteningCandidate(input: AdmissionPolicyInput): AdmissionCandidate | undefined {
@@ -117,7 +69,7 @@ function selectOrdinaryReadyCandidate(
 
 function activatesTighteningScope(input: AdmissionPolicyInput, task: PlannedTask): boolean {
   const scope = activationScopeFor(input, task);
-  return scope !== undefined && scope.maxParallel < input.context.capacity.effectiveMaxParallel;
+  return scope !== undefined && scope.maxParallel < input.inspection.maxParallel;
 }
 
 function isConstrainedContinuation(input: AdmissionPolicyInput, task: PlannedTask): boolean {
@@ -125,8 +77,7 @@ function isConstrainedContinuation(input: AdmissionPolicyInput, task: PlannedTas
   return (
     scope !== undefined &&
     input.inspection.activeScopeIds.includes(scope.id) &&
-    scope.maxParallel < input.inspection.maxParallel &&
-    scope.maxParallel === input.context.capacity.effectiveMaxParallel
+    scope.maxParallel < input.inspection.maxParallel
   );
 }
 
@@ -148,12 +99,6 @@ function compareConstrainedCandidates(
   );
 }
 
-function capacityWaitReason(input: AdmissionPolicyInput): SchedulerAwaitReason {
-  return input.inspection.runningTaskIds.length >= input.inspection.maxParallel
-    ? "root-capacity"
-    : "active-scope-capacity";
-}
-
 function activationScopeFor(
   input: AdmissionPolicyInput,
   task: PlannedTask
@@ -169,15 +114,6 @@ function scopeForTask(graph: PlannedTaskGraph, task: PlannedTask): PlannedTaskSc
   return task.scopeId === undefined
     ? undefined
     : graph.scopes.find((scope) => scope.id === task.scopeId);
-}
-
-function candidateById(
-  taskId: string | undefined,
-  candidates: readonly AdmissionCandidate[]
-): AdmissionCandidate | undefined {
-  return taskId === undefined
-    ? undefined
-    : candidates.find((candidate) => candidate.task.id === taskId);
 }
 
 function compareText(left: string, right: string): number {

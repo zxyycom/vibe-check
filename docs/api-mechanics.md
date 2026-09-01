@@ -35,9 +35,37 @@ snapshot 形成后写入 machine files；optional aggregate 也在 terminal fact
 
 - `defineCheck(value)` 保留 literal `checkId`、options 和 typed-provider parser 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
 - `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition。
+- `defineAdmissionPolicy(value)` 只保留 custom admission callback 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
-fingerprint 使用 normalized declarative fields；preflight 与 execution callbacks 保持为执行行为。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 只区分 `static` 或 `custom` kind，绝不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+
+### custom admission policy
+
+`scheduler.admissionPolicy` 省略时与 `{ kind: "static" }` 相同。custom value 以同步
+`proposeAdmission(context)` 表达调用方知道、但 Product 不能统一解释的准入偏好；它每轮只返回
+`{ kind: "select", taskId }` 或 `{ kind: "wait" }`，没有 reason、reservation、history、identity/version、registry 或 composition
+协议。`defineAdmissionPolicy(...)` 只改善该 callback 的 TypeScript inference，inline object 与 helper 的运行语义完全相同。
+
+每次 callback 获得独立、deep-frozen 的 `AdmissionPolicyContext`：`graph` 以 canonical arrays 提供完整 normalized tasks、scopes
+及每个 Task 的 relation arrays，Task metadata 是 topology 和 `admissionPriority` 的唯一来源；dynamic facts 只有 relation/mutex candidates 的
+`{ taskId, canAdmit }`、capacity、running/settled/active-scope IDs 以及最小 cancellation runtime 状态。它不是 private Scheduler
+inspection 的别名，也不带 `Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或 Task capability。
+
+callback 是调用方 trusted synchronous code。Product 不 sandbox、timeout、isolate 或为它建立全局 lock；同一 Definition 的
+overlapping Runs 共享 caller closure，因此 closure reentrancy 由调用方负责。冻结 context 保护 Product data，不限制 caller
+自己的 host-side effects。
+
+Scheduler 在 callback 前形成 candidate，在 callback 后只守下一运行选项的 hard guard：selected Task 必须仍 pending、是当前
+relation/mutex candidate、当前 capacity 可 admission 且未越过 lifecycle/cancellation cutoff；`wait` 必须有 running work 能推进下一
+snapshot。它不重新判断 policy 是否公平、是否饥饿、是否应选择另一个 candidate 或等待的理由，并独占 readiness、mutex、capacity、
+cancellation、Task start、await、blocked settlement 与 terminal settlement。
+
+throw、thenable proposal、malformed proposal、non-candidate/capacity/lifecycle-invalid select 或 undrainable wait 都是 fatal
+admission-policy fault：Product 停止新 admission、取消 pending Tasks、drain 已启动 Task，并返回
+`{ kind: "execution", diagnostic: { code: "admission-policy-failed" } }`；它不 fallback 到 static policy。启用 diagnostic logging
+时只记录有界 fault category 与 Scheduler hard-guard facts，不输出 raw thrown value、proposal、stack 或 caller data，也不建立 policy
+console capture、`checkMessages` ownership、timing telemetry、parser/schema 或稳定 event grammar。
 
 ## options preflight 与 execution
 
@@ -281,6 +309,7 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
 - 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
+- Scheduler evidence 记录本轮 `select`/`wait` 与 hard-guard facts，不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
 - 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
 - progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
 
@@ -311,6 +340,6 @@ progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM
 | `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。 |
 | `configuration` | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。 |
 | `planning` | task-graph diagnostic 与 invocation metadata。 |
-| `execution` | Product execution-settlement diagnostic 与 invocation metadata。 |
+| `execution` | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。 |
 
 Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 diagnostic logging、publication 或 rendering failure diagnostic。

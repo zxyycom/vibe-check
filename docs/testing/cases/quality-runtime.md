@@ -178,7 +178,7 @@ Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
-- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > recomputes tighter-scope selection after capacity becomes available`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > does not activate a cap for a scope with no activation task`
   Proves:
 - Effective Check parallel limits project to generic graph scope metadata. The shared engine uses the active minimum without preemption and does not make a non-executing scope consume capacity.

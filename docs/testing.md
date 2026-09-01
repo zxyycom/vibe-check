@@ -6,8 +6,8 @@
 
 | 层级 | 位置与证明 |
 | --- | --- |
-| Definition/Check facts | `src/project-definition/**`、`src/check-settlement/**` 的共置 tests：recursive Check validation、native default composition、direct callback result validation、terminal Check/Record facts。 |
-| Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/outputs 与 task admission。 |
+| Definition/Check facts | `src/project-definition/**`、`src/check-settlement/**` 的共置 tests：recursive Check validation、native default composition、closed static/custom admission policy、callback-preserving fingerprint、direct callback result validation、terminal Check/Record facts。 |
+| Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/outputs、stateless full-graph task admission、hard guard 与 admission-policy fault drain。 |
 | Default adapters | `src/package-checks/**` 的共置 tests：Check-owned scanner options、exact scope、cache、availability/process/parser failure 与 supplemental Records。 |
 | Repository tooling | `scripts/**` 的共置 tests：process execution、repository-files、docs/package API、validation、package artifact/candidate、Project Gate 与 Test Evidence behavior。 |
 | Consumer and Gate | `scripts/project/**` private consumer 证明 exact candidate import、repository Gate binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。 |
@@ -31,9 +31,9 @@ bun run test-evidence -- check --root .
 
 该命令从完整 profile 加载并注册测试，以 static/JUnit identity 闭合 Case；它不执行测试正文。还必须运行受影响的
 最窄测试，或由 Project Gate 对应 behavior 子 Check 执行。Case 描述 current owner 承诺且能由失败信号判定的行为，不描述已删除 helper、historical material 或 internal
-scheduler identity；provider setup 的执行复用本身不产生 Case。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition 和
+scheduler identity；provider setup 的执行复用本身不产生 Case。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition、static/custom admission grammar 与
 fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason、dependency blocking、Check-facts Record
-ownership、cancellation 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
+ownership、cancellation、stateless policy hard guard/fault drain 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
 lifecycle 和独立 docs validation。
 
 ## 验证入口

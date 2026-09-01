@@ -61,6 +61,36 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(withoutObserves).declarative)
     );
 
+    const firstCustomPolicy = defineConfig({
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          proposeAdmission: () => ({ kind: "wait" })
+        }
+      }
+    });
+    const secondCustomPolicy = defineConfig({
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          proposeAdmission: () => ({ kind: "select", taskId: "different-closure" })
+        }
+      }
+    });
+    const staticPolicy = defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } });
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(secondCustomPolicy).declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(staticPolicy).declarative)
+    );
+    assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
+      admissionPolicy: { kind: "custom" },
+      maxParallel: 4
+    });
+
     const options = {};
     Object.defineProperty(options, "__proto__", {
       enumerable: true,

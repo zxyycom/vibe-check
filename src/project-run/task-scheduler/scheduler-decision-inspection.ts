@@ -10,9 +10,10 @@ import type {
 export interface SchedulerInspection {
   readonly activeScopeIds: readonly string[];
   readonly graph: PlannedTaskGraph;
+  readonly isAbortRequested: boolean;
+  readonly isCancelled: boolean;
   readonly maxParallel: number;
   readonly pendingTasks: readonly PlannedTask[];
-  readonly reservationTaskId: string | undefined;
   readonly runningMutexes: readonly string[];
   readonly runningTaskIds: readonly string[];
   readonly settledTasks: readonly Readonly<{
@@ -27,9 +28,10 @@ export function inspectSnapshot(snapshot: SchedulerSnapshot): SchedulerInspectio
   return Object.freeze({
     activeScopeIds: Object.freeze([...snapshot.activeScopeIds]),
     graph: snapshot.graph,
+    isAbortRequested: snapshot.isAbortRequested,
+    isCancelled: snapshot.isCancelled,
     maxParallel: snapshot.maxParallel,
     pendingTasks: Object.freeze(pendingTasks),
-    reservationTaskId: snapshot.reservationTaskId,
     runningMutexes: Object.freeze([...snapshot.runningMutexes]),
     runningTaskIds: Object.freeze([...snapshot.runningTaskIds]),
     settledTasks: Object.freeze(
@@ -43,7 +45,30 @@ export function decisionContext(state: SchedulerInspection): SchedulerDecisionCo
   return Object.freeze({
     blockers: summarizeSchedulerBlockers(state, capacity),
     capacity,
-    reservation: Object.freeze({ taskId: state.reservationTaskId ?? null })
+    graphIdentity: Object.freeze({
+      scopes: Object.freeze(
+        state.graph.scopes.map((scope) =>
+          Object.freeze({
+            activationTaskIds: Object.freeze([...scope.activationTaskIds]),
+            id: scope.id,
+            maxParallel: scope.maxParallel,
+            terminalTaskId: scope.terminalTaskId
+          })
+        )
+      ),
+      tasks: Object.freeze(
+        state.graph.tasks.map((task) =>
+          Object.freeze({
+            admissionPriority: task.admissionPriority,
+            dependsOn: Object.freeze([...task.dependsOn]),
+            id: task.id,
+            mutex: Object.freeze([...task.mutex]),
+            observes: Object.freeze([...task.observes]),
+            scopeId: task.scopeId ?? null
+          })
+        )
+      )
+    })
   });
 }
 
@@ -106,7 +131,7 @@ function blockingDependencyIds(
   return dependencyIds.length === 0 ? undefined : dependencyIds;
 }
 
-function capacityFor(state: SchedulerInspection): SchedulerCapacity {
+export function capacityFor(state: SchedulerInspection): SchedulerCapacity {
   return Object.freeze({
     effectiveMaxParallel: effectiveMaxParallelFor(state),
     maxParallel: state.maxParallel,

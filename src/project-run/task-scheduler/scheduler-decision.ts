@@ -6,7 +6,7 @@ import {
   inspectSnapshot,
   selectBlockedTask
 } from "./scheduler-decision-inspection.ts";
-import { freezeDecision, reservationUnchanged } from "./scheduler-decision-model.ts";
+import { freezeDecision } from "./scheduler-decision-model.ts";
 import type {
   SchedulerDecision,
   SchedulerSnapshot,
@@ -85,23 +85,21 @@ function decideTerminalSchedulerAction(
 }
 
 function cancellationDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  return awaitDrainDecision(cycle, "cancellation-drain");
+  return awaitDrainDecision(cycle);
 }
 
 function runningDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
-  return awaitDrainDecision(cycle, "running-drain");
+  return awaitDrainDecision(cycle);
 }
 
-function awaitDrainDecision(
-  cycle: SchedulerDecisionCycle,
-  reason: Extract<SchedulerDecision, { readonly kind: "await-running" }>["reason"]
-): SchedulerDecision {
+function awaitDrainDecision(cycle: SchedulerDecisionCycle): SchedulerDecision {
   return freezeDecision({
     ...cycle.context,
+    candidates: Object.freeze([]),
     eligibleCount: 0,
+    hardGuard: Object.freeze({ kind: "wait", runningCanDrain: true }),
     kind: "await-running",
-    reason,
-    reservationUpdate: reservationUnchanged(),
+    proposal: null,
     trigger: cycle.trigger
   });
 }

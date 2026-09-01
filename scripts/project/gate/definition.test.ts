@@ -114,7 +114,10 @@ describe("Project Gate Definition", () => {
       machinePublication: { directory: "artifacts/vibe-check", enabled: false },
       progressRendering: { enabled: true }
     });
-    assert.deepEqual(definition.scheduler, { maxParallel: 3 });
+    assert.deepEqual(definition.scheduler, {
+      admissionPolicy: { kind: "static" },
+      maxParallel: 3
+    });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
 

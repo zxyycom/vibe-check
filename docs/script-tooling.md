@@ -197,7 +197,7 @@ Package supporting、candidate/artifact acceptance、三个 external-consumer ac
 - 两个 profile 都选择四个 `quality` Checks。禁用 tag 时对应 Check 保留 `not-applicable` fact。
 - 所有 eligible Check status 进入同一个 `all` aggregate：必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
 - scheduler 的 root `maxParallel`、每个 Check 的 timeout 与 mutex 都在 `definition.ts` 声明。会改变 package lifecycle 的 Check 共享 lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。
-- 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity 或 reservation。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 和 full 的 median，因此所有 Check 的 effective priority 都是 `0`。
+- 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 和 full 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
 完整 tag 集合和可执行例子由 `--help` 输出；root package scripts 使用 mise-bound scanner commands 调用同一个 `run.ts`。
 

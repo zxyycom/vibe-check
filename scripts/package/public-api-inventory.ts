@@ -6,6 +6,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   }),
   operations: Object.freeze({
     cacheJsonByKey: "cacheJsonByKey",
+    defineAdmissionPolicy: "defineAdmissionPolicy",
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
     duplicateDetection: "duplicateDetection",
@@ -30,6 +31,9 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     parseMarkdownLinkValidationData: "parseMarkdownLinkValidationData"
   }),
   types: Object.freeze({
+    AdmissionPolicy: "AdmissionPolicy",
+    AdmissionPolicyContext: "AdmissionPolicyContext",
+    AdmissionProposal: "AdmissionProposal",
     CacheJsonByKeyOptions: "CacheJsonByKeyOptions",
     CacheJsonByKeyResult: "CacheJsonByKeyResult",
     Check: "Check",

@@ -2,98 +2,23 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
-  staticAdmissionSelectionPolicy,
-  type AdmissionPolicyDecision,
-  type AdmissionPolicyInput,
-  type AdmissionSelectionPolicy
-} from "./admission-selection-policy.ts";
-import { prepareTaskGraph, type PlannedTaskGraph, type TaskGraph } from "./graph.ts";
+  defineConfig,
+  type AdmissionPolicyContext,
+  type AdmissionProposal
+} from "../../project-definition/project-definition.ts";
+import { run } from "../run.ts";
+import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
+import { prepareTaskGraph } from "./graph.ts";
 import { decideScheduler, type SchedulerSnapshot } from "./scheduler-decision.ts";
 import { runTaskGraph } from "./scheduler.ts";
+import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
+import { createDeferred, recordingLogger, waitFor } from "./task-engine.test-support.ts";
+import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 
 const EXECUTION_STARTED = Object.freeze({ kind: "execution-started" as const });
 
-function snapshot(graph: TaskGraph, overrides: Partial<SchedulerSnapshot> = {}): SchedulerSnapshot {
-  const plannedGraph = prepareTaskGraph(graph, overrides.maxParallel ?? 2);
-  return Object.freeze({
-    activeScopeIds: Object.freeze([]),
-    graph: plannedGraph,
-    isAbortRequested: false,
-    isCancelled: false,
-    maxParallel: 2,
-    pendingTaskIds: Object.freeze(plannedGraph.tasks.map((task) => task.id)),
-    reservationTaskId: undefined,
-    runningMutexes: Object.freeze([]),
-    runningTaskIds: Object.freeze([]),
-    settledTasks: Object.freeze([]),
-    ...overrides
-  });
-}
-
-function policy(decide: AdmissionSelectionPolicy["decide"]): AdmissionSelectionPolicy {
-  return Object.freeze({ decide });
-}
-
-function invalidPolicy(
-  mutate: (decision: AdmissionPolicyDecision) => void
-): AdmissionSelectionPolicy {
-  return policy(() => {
-    const decision: AdmissionPolicyDecision = {
-      kind: "select",
-      reason: "policy-selection",
-      reservationUpdate: { kind: "unchanged" },
-      taskId: "ready"
-    };
-    mutate(decision);
-    return decision;
-  });
-}
-
 describe("task engine admission policy", () => {
-  it("keeps the static policy trace identical for omitted and explicit policy handoff", async () => {
-    const graph = {
-      tasks: [
-        { id: "source" },
-        { id: "dependent", dependsOn: ["source"], admissionPriority: 4 },
-        { id: "ordinary", admissionPriority: 2 }
-      ]
-    };
-    const scenarios = [
-      snapshot(graph),
-      snapshot(graph, { pendingTaskIds: Object.freeze(["dependent", "ordinary"]) }),
-      snapshot(graph, {
-        pendingTaskIds: Object.freeze(["dependent", "ordinary"]),
-        runningTaskIds: Object.freeze(["source"])
-      }),
-      snapshot(graph, {
-        pendingTaskIds: Object.freeze(["dependent", "ordinary"]),
-        settledTasks: Object.freeze([
-          Object.freeze({ kind: "completed" as const, taskId: "source" })
-        ])
-      })
-    ];
-
-    for (const current of scenarios) {
-      assert.deepEqual(
-        decideScheduler(current, EXECUTION_STARTED),
-        decideScheduler(current, EXECUTION_STARTED, staticAdmissionSelectionPolicy)
-      );
-    }
-
-    const defaultRun = await runTaskGraph({ graph, maxParallel: 2, execute: (task) => task.id });
-    const explicitStaticRun = await runTaskGraph({
-      admissionPolicy: staticAdmissionSelectionPolicy,
-      graph,
-      maxParallel: 2,
-      execute: (task) => task.id
-    });
-    assert.deepEqual(
-      defaultRun.settlements.map(({ settlement, task }) => [task.id, settlement.kind]),
-      explicitStaticRun.settlements.map(({ settlement, task }) => [task.id, settlement.kind])
-    );
-  });
-
-  it("hands a policy the frozen full graph and immutable dynamic facts without a priority side input", () => {
+  it("recomputes static select or wait from each frozen scheduler snapshot without reservation state", () => {
     const graph = prepareTaskGraph(
       {
         tasks: [
@@ -101,215 +26,450 @@ describe("task engine admission policy", () => {
           { id: "second", dependsOn: ["first"], admissionPriority: 9 }
         ]
       },
-      2
+      1
     );
-    let received: AdmissionPolicyInput | undefined;
-    const inspected = snapshotFromGraph(graph, {
-      runningTaskIds: Object.freeze(["running"]),
-      settledTasks: Object.freeze([Object.freeze({ kind: "completed", taskId: "first" })])
-    });
-    const selected = decideScheduler(
-      inspected,
+    const initial = decideScheduler(
+      snapshot(graph),
       EXECUTION_STARTED,
-      policy((input) => {
-        received = input;
+      staticAdmissionSelectionPolicy
+    );
+    const capacityBlocked = decideScheduler(
+      snapshot(graph, { pendingTaskIds: ["second"], runningTaskIds: ["first"] }),
+      EXECUTION_STARTED,
+      staticAdmissionSelectionPolicy
+    );
+    const afterSettlement = decideScheduler(
+      snapshot(graph, {
+        pendingTaskIds: ["second"],
+        settledTasks: [{ kind: "completed", taskId: "first" }]
+      }),
+      EXECUTION_STARTED,
+      staticAdmissionSelectionPolicy
+    );
+
+    assert.equal(initial.kind, "admit");
+    assert.equal(initial.taskId, "first");
+    assert.equal(capacityBlocked.kind, "await-running");
+    assert.equal(afterSettlement.kind, "admit");
+    assert.equal(afterSettlement.taskId, "second");
+    assert.equal("reason" in initial, false);
+    assert.equal("reservation" in initial, false);
+    assert.equal("reservationUpdate" in initial, false);
+  });
+
+  it("adapts custom select from a detached frozen full-graph context", async () => {
+    let received: AdmissionPolicyContext | undefined;
+    const selected: string[] = [];
+    const policy = admissionSelectionPolicyFor({
+      kind: "custom",
+      proposeAdmission: (context) => {
+        if (received === undefined) received = context;
+        const admissible = context.candidates.find((candidate) => candidate.canAdmit);
+        if (admissible === undefined) return { kind: "wait" };
         return {
           kind: "select",
-          reason: "policy-selection",
-          reservationUpdate: { kind: "unchanged" },
-          taskId: "second"
+          taskId:
+            context.candidates.find(
+              (candidate) => candidate.canAdmit && candidate.taskId === "second"
+            )?.taskId ?? admissible.taskId
         };
+      }
+    });
+    if (policy === undefined) assert.fail("expected custom policy adapter");
+
+    const graph = {
+      tasks: [
+        { id: "first", admissionPriority: 1, mutex: ["shared"], scopeId: "limited" },
+        { id: "second", admissionPriority: 9 }
+      ],
+      scopes: [
+        {
+          activationTaskIds: ["first"],
+          id: "limited",
+          maxParallel: 1,
+          terminalTaskId: "first"
+        }
+      ]
+    };
+    const graphRun = await runTaskGraph({
+      admissionPolicy: policy,
+      execute: (task) => {
+        selected.push(task.id);
+        return task.id;
+      },
+      graph,
+      maxParallel: 1
+    });
+
+    assert.deepEqual(selected, ["second", "first"]);
+    assert.equal(graphRun.admissionPolicyFault, undefined);
+    assert.ok(received);
+    const context = received;
+    assert.deepEqual(context.graph.tasks, [
+      {
+        admissionPriority: 1,
+        dependsOn: [],
+        mutex: ["shared"],
+        observes: [],
+        scopeId: "limited",
+        taskId: "first"
+      },
+      {
+        admissionPriority: 9,
+        dependsOn: [],
+        mutex: [],
+        observes: [],
+        scopeId: null,
+        taskId: "second"
+      }
+    ]);
+    assert.deepEqual(context.graph.scopes, [
+      {
+        activationTaskIds: ["first"],
+        id: "limited",
+        maxParallel: 1,
+        terminalTaskId: "first"
+      }
+    ]);
+    assert.deepEqual(context.candidates, [
+      { canAdmit: true, taskId: "first" },
+      { canAdmit: true, taskId: "second" }
+    ]);
+    assert.deepEqual(context.capacity, { effectiveMaxParallel: 1, maxParallel: 1, running: 0 });
+    assert.deepEqual(context.runtime, { abortRequested: false, cancelled: false });
+    assert.equal(Object.isFrozen(context), true);
+    assert.equal(Object.isFrozen(context.graph), true);
+    assert.equal(Object.isFrozen(context.graph.tasks), true);
+    assert.equal(Object.isFrozen(context.graph.tasks[0]), true);
+    assert.equal(Object.isFrozen(context.candidates), true);
+    assert.equal(context.graph.tasks instanceof Map, false);
+    assert.equal(context.candidates instanceof Set, false);
+    assert.equal("priority" in context, false);
+    assert.throws(
+      () => Reflect.apply(Array.prototype.push, context.graph.tasks, [context.graph.tasks[0]]),
+      TypeError
+    );
+    assert.throws(
+      () =>
+        Reflect.apply(Array.prototype.push, context.candidates, [
+          { canAdmit: true, taskId: "other" }
+        ]),
+      TypeError
+    );
+  });
+
+  it("preserves the caller closure across overlapping custom Runs without a Scheduler callback lock", async () => {
+    let callbackCalls = 0;
+    const policy = admissionSelectionPolicyFor({
+      kind: "custom",
+      proposeAdmission: (context) => {
+        callbackCalls += 1;
+        const candidate = context.candidates.find((item) => item.canAdmit);
+        return candidate === undefined
+          ? { kind: "wait" }
+          : { kind: "select", taskId: candidate.taskId };
+      }
+    });
+    if (policy === undefined) assert.fail("expected custom policy adapter");
+
+    await Promise.all([
+      runTaskGraph({
+        admissionPolicy: policy,
+        execute: async () => undefined,
+        graph: { tasks: [{ id: "first" }] },
+        maxParallel: 1
+      }),
+      runTaskGraph({
+        admissionPolicy: policy,
+        execute: async () => undefined,
+        graph: { tasks: [{ id: "second" }] },
+        maxParallel: 1
+      })
+    ]);
+
+    assert.equal(callbackCalls, 2);
+  });
+
+  it("fails custom policy faults without fallback, cancels pending work, and drains admitted work", async () => {
+    const started = createDeferred<void>();
+    const calls: string[] = [];
+    let proposals = 0;
+    const policy = admissionSelectionPolicyFor({
+      kind: "custom",
+      proposeAdmission: () => {
+        proposals += 1;
+        return proposals === 1 ? { kind: "select", taskId: "started" } : malformedWaitProposal();
+      }
+    });
+    if (policy === undefined) assert.fail("expected custom policy adapter");
+
+    const running = runTaskGraph({
+      admissionPolicy: policy,
+      execute: async (task) => {
+        calls.push(task.id);
+        if (task.id === "started") await started.promise;
+        return task.id;
+      },
+      graph: { tasks: [{ id: "started" }, { id: "pending" }] },
+      maxParallel: 2
+    });
+    await waitFor(() => calls.includes("started"));
+    started.resolve();
+    const graphRun = await running;
+
+    assert.deepEqual(calls, ["started"]);
+    assert.equal(graphRun.admissionPolicyFault, "malformed-proposal");
+    assert.equal(graphRun.cancelled, true);
+    assert.equal(
+      graphRun.settlements.find(({ task }) => task.id === "started")?.settlement.kind,
+      "completed"
+    );
+    assert.equal(
+      graphRun.settlements.find(({ task }) => task.id === "pending")?.settlement.kind,
+      "cancelled-before-start"
+    );
+  });
+
+  it("classifies every bounded custom fault without exposing callback values", async () => {
+    const immediateFaults: readonly Readonly<{
+      readonly category:
+        | "callback-threw"
+        | "thenable-proposal"
+        | "malformed-proposal"
+        | "non-candidate-select"
+        | "undrainable-wait";
+      readonly proposeAdmission: () => AdmissionProposal;
+    }>[] = [
+      {
+        category: "callback-threw",
+        proposeAdmission: () => {
+          throw new Error("secret");
+        }
+      },
+      { category: "thenable-proposal", proposeAdmission: thenableWaitProposal },
+      { category: "malformed-proposal", proposeAdmission: malformedWaitProposal },
+      {
+        category: "non-candidate-select",
+        proposeAdmission: () => ({ kind: "select", taskId: "missing" })
+      },
+      { category: "undrainable-wait", proposeAdmission: () => ({ kind: "wait" }) }
+    ];
+
+    for (const fault of immediateFaults) {
+      const graphRun = await runWithCustomProposal(fault.proposeAdmission, {
+        tasks: [{ id: "pending" }]
+      });
+      assert.equal(graphRun.admissionPolicyFault, fault.category);
+      assert.equal(graphRun.settlements[0]?.settlement.kind, "cancelled-before-start");
+    }
+
+    let proposals = 0;
+    const capacityRun = await runWithCustomProposal(
+      () => {
+        proposals += 1;
+        return proposals === 1
+          ? { kind: "select", taskId: "started" }
+          : { kind: "select", taskId: "pending" };
+      },
+      { tasks: [{ id: "started" }, { id: "pending" }] }
+    );
+    assert.equal(capacityRun.admissionPolicyFault, "capacity-invalid-select");
+
+    const controller = new AbortController();
+    const lifecycleRun = await runWithCustomProposal(
+      () => {
+        controller.abort();
+        return { kind: "select", taskId: "pending" };
+      },
+      { tasks: [{ id: "pending" }] },
+      controller.signal
+    );
+    assert.equal(lifecycleRun.admissionPolicyFault, "lifecycle-invalid-select");
+
+    const observations: DiagnosticObservation[] = [];
+    const policy = admissionSelectionPolicyFor({
+      kind: "custom",
+      proposeAdmission: () => {
+        const proposal: AdmissionProposal = { kind: "wait" };
+        Reflect.set(proposal, "raw", { caller: "secret" });
+        return proposal;
+      }
+    });
+    if (policy === undefined) assert.fail("expected custom policy adapter");
+    await runTaskGraph({
+      admissionPolicy: policy,
+      diagnosticLogger: recordingLogger(observations),
+      execute: () => undefined,
+      graph: { tasks: [{ id: "pending" }] },
+      maxParallel: 1
+    });
+    const diagnostic = observations.find(
+      (observation) => observation.event === "scheduler.admission-policy-failed"
+    );
+    assert.deepEqual(diagnostic?.details, { category: "malformed-proposal" });
+    assert.equal(JSON.stringify(diagnostic).includes("secret"), false);
+  });
+
+  it("drains an admitted public Check before returning an admission policy fault", async () => {
+    const started = createDeferred<void>();
+    const release = createDeferred<void>();
+    const executions: string[] = [];
+    let proposals = 0;
+    let resolved = false;
+    const resultPromise = run(
+      defineConfig({
+        checks: [
+          {
+            checkId: "started",
+            displayName: "Started",
+            execution: async () => {
+              executions.push("started");
+              started.resolve();
+              await release.promise;
+              return { status: "passed", data: {} };
+            }
+          },
+          {
+            checkId: "pending",
+            displayName: "Pending",
+            execution: () => {
+              executions.push("pending");
+              return { status: "passed", data: {} };
+            }
+          }
+        ],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          admissionPolicy: {
+            kind: "custom",
+            proposeAdmission: () => {
+              proposals += 1;
+              return proposals === 1
+                ? { kind: "select", taskId: "started" }
+                : malformedWaitProposal();
+            }
+          },
+          maxParallel: 2
+        }
+      })
+    );
+    void resultPromise.then(
+      () => {
+        resolved = true;
+      },
+      () => undefined
+    );
+
+    await started.promise;
+    await Promise.resolve();
+    assert.equal(resolved, false);
+    assert.deepEqual(executions, ["started"]);
+    release.resolve();
+    const result = await resultPromise;
+
+    assert.equal(result.kind, "execution");
+    if (result.kind !== "execution") return;
+    assert.deepEqual(result.diagnostic, { code: "admission-policy-failed" });
+    assert.deepEqual(executions, ["started"]);
+    assert.deepEqual(Object.keys(result).sort(), [
+      "declarativeFingerprint",
+      "definitionWarnings",
+      "diagnostic",
+      "kind",
+      "outputs"
+    ]);
+    assert.equal("checkMessages" in result, false);
+    assert.equal("checkDurations" in result, false);
+    assert.equal("timing" in result, false);
+  });
+
+  it("returns the dedicated execution result for a custom callback failure", async () => {
+    let executions = 0;
+    const result = await run(
+      defineConfig({
+        checks: [
+          {
+            checkId: "never-started",
+            displayName: "Never started",
+            execution: () => {
+              executions += 1;
+              return { status: "passed", data: {} };
+            }
+          }
+        ],
+        outputs: {
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          admissionPolicy: {
+            kind: "custom",
+            proposeAdmission: () => {
+              throw new Error("caller detail must not escape");
+            }
+          },
+          maxParallel: 1
+        }
       })
     );
 
-    assert.equal(selected.kind, "admit");
-    assert.equal(selected.taskId, "second");
-    assert.ok(received);
-    const policyInput = received;
-    assert.equal(policyInput.graph, graph);
-    assert.deepEqual(
-      policyInput.graph.tasks.map((task) => task.id),
-      ["first", "second"]
-    );
-    assert.equal("priority" in policyInput, false);
-    assert.equal("priorities" in policyInput, false);
-    assert.equal(Object.isFrozen(policyInput), true);
-    assert.equal(Object.isFrozen(policyInput.candidates), true);
-    assert.equal(Object.isFrozen(policyInput.inspection), true);
-    assert.equal(Object.isFrozen(policyInput.inspection.runningTaskIds), true);
-    assert.equal(Object.isFrozen(policyInput.inspection.settledTasks), true);
-    assert.equal(policyInput.inspection.runningTaskIds instanceof Set, false);
-    assert.equal(policyInput.inspection.settledTasks instanceof Map, false);
-    assert.throws(
-      () => Reflect.apply(Array.prototype.push, policyInput.candidates, [{}]),
-      TypeError
-    );
-    assert.throws(
-      () => Reflect.apply(Array.prototype.push, policyInput.inspection.runningTaskIds, ["other"]),
-      TypeError
-    );
-    assert.throws(
-      () => Reflect.apply(Array.prototype.push, policyInput.graph.tasks, [{}]),
-      TypeError
-    );
-  });
-
-  it("rejects invalid policy selections and malformed results before execution", async () => {
-    const selectedTaskIds: string[] = [];
-    const graph = {
-      tasks: [{ id: "source" }, { id: "ready" }, { id: "blocked", dependsOn: ["source"] }]
-    };
-    const candidateSnapshot = snapshot(graph, {
-      pendingTaskIds: Object.freeze(["ready", "blocked"])
-    });
-    const capacitySnapshot = snapshot(
-      { tasks: [{ id: "waiting" }] },
-      { maxParallel: 1, runningTaskIds: Object.freeze(["running"]) }
-    );
-    const invalidResults = [
-      invalidPolicy((decision) => Reflect.set(decision, "taskId", "unknown")),
-      invalidPolicy((decision) => Reflect.set(decision, "taskId", "blocked")),
-      invalidPolicy((decision) => Reflect.set(decision, "taskId", "waiting")),
-      invalidPolicy((decision) => Reflect.set(decision, "reason", "unknown")),
-      invalidPolicy((decision) =>
-        Reflect.set(decision, "reservationUpdate", { kind: "set", taskId: "blocked" })
-      ),
-      invalidPolicy((decision) => {
-        Reflect.set(decision, "kind", "wait");
-        Reflect.set(decision, "reason", "policy-wait");
-      }),
-      invalidPolicy((decision) => Reflect.set(decision, "reservationUpdate", { kind: "set" })),
-      invalidPolicy((decision) => Reflect.defineProperty(decision, "unexpected", { value: true }))
-    ];
-
-    assert.throws(
-      () => decideScheduler(candidateSnapshot, EXECUTION_STARTED, invalidResults[0]),
-      /cannot be admitted/
-    );
-    assert.throws(
-      () => decideScheduler(candidateSnapshot, EXECUTION_STARTED, invalidResults[1]),
-      /cannot be admitted/
-    );
-    assert.throws(
-      () => decideScheduler(capacitySnapshot, EXECUTION_STARTED, invalidResults[2]),
-      /cannot be admitted/
-    );
-    for (const invalid of invalidResults.slice(3)) {
-      assert.throws(() => decideScheduler(candidateSnapshot, EXECUTION_STARTED, invalid));
+    assert.equal(executions, 0);
+    assert.equal(result.kind, "execution");
+    if (result.kind === "execution") {
+      assert.deepEqual(result.diagnostic, { code: "admission-policy-failed" });
     }
-    await assert.rejects(
-      () =>
-        runTaskGraph({
-          admissionPolicy: invalidResults[0],
-          execute: (task) => {
-            selectedTaskIds.push(task.id);
-            return task.id;
-          },
-          graph: { tasks: [{ id: "ready" }] },
-          maxParallel: 1
-        }),
-      /cannot be admitted/
-    );
-    assert.deepEqual(selectedTaskIds, []);
-  });
-
-  it("allows a policy-owned deliberate wait with a candidate reservation but rejects an undrainable wait", () => {
-    const waitingSnapshot = snapshot(
-      { tasks: [{ id: "first" }, { id: "second" }] },
-      { maxParallel: 1, runningTaskIds: Object.freeze(["running"]) }
-    );
-    const deliberateWait = decideScheduler(
-      waitingSnapshot,
-      EXECUTION_STARTED,
-      policy(() => ({
-        kind: "wait",
-        reason: "policy-wait",
-        reservationUpdate: { kind: "set", taskId: "second" }
-      }))
-    );
-    assert.equal(deliberateWait.kind, "await-running");
-    assert.equal(deliberateWait.reason, "policy-wait");
-    assert.deepEqual(deliberateWait.reservationUpdate, { kind: "set", taskId: "second" });
-    assert.throws(
-      () =>
-        decideScheduler(
-          snapshot({ tasks: [{ id: "ready" }] }),
-          EXECUTION_STARTED,
-          policy(() => ({
-            kind: "wait",
-            reason: "policy-wait",
-            reservationUpdate: { kind: "unchanged" }
-          }))
-        ),
-      /cannot wait when no task is running/
-    );
-  });
-
-  it("does not invoke the policy for cancellation, blocked settlement, or completion", () => {
-    let calls = 0;
-    const neverCalled = policy(() => {
-      calls += 1;
-      return {
-        kind: "select",
-        reason: "policy-selection",
-        reservationUpdate: { kind: "unchanged" },
-        taskId: "ready"
-      };
-    });
-    const graph = { tasks: [{ id: "source" }, { id: "blocked", dependsOn: ["source"] }] };
-
-    assert.equal(
-      decideScheduler(snapshot(graph, { isAbortRequested: true }), EXECUTION_STARTED, neverCalled)
-        .kind,
-      "cancel-pending"
-    );
-    assert.equal(
-      decideScheduler(
-        snapshot(graph, {
-          pendingTaskIds: Object.freeze(["blocked"]),
-          settledTasks: Object.freeze([Object.freeze({ kind: "failed", taskId: "source" })])
-        }),
-        EXECUTION_STARTED,
-        neverCalled
-      ).kind,
-      "settle-blocked"
-    );
-    assert.equal(
-      decideScheduler(snapshot({ tasks: [] }), EXECUTION_STARTED, neverCalled).kind,
-      "complete"
-    );
-    assert.equal(calls, 0);
-  });
-
-  it("requires a frozen policy value when the imperative task engine receives one", async () => {
-    await assert.rejects(
-      () =>
-        runTaskGraph({
-          admissionPolicy: { decide: staticAdmissionSelectionPolicy.decide },
-          execute: () => undefined,
-          graph: { tasks: [{ id: "ready" }] },
-          maxParallel: 1
-        }),
-      /must be a frozen policy value/
-    );
   });
 });
 
-function snapshotFromGraph(
-  graph: PlannedTaskGraph,
+function snapshot(
+  graph: ReturnType<typeof prepareTaskGraph>,
   overrides: Partial<SchedulerSnapshot> = {}
 ): SchedulerSnapshot {
   return Object.freeze({
-    activeScopeIds: Object.freeze([]),
+    activeScopeIds: [],
     graph,
     isAbortRequested: false,
     isCancelled: false,
-    maxParallel: 2,
-    pendingTaskIds: Object.freeze(graph.tasks.map((task) => task.id)),
-    reservationTaskId: undefined,
-    runningMutexes: Object.freeze([]),
-    runningTaskIds: Object.freeze([]),
-    settledTasks: Object.freeze([]),
+    maxParallel: 1,
+    pendingTaskIds: graph.tasks.map((task) => task.id),
+    runningMutexes: [],
+    runningTaskIds: [],
+    settledTasks: [],
     ...overrides
   });
+}
+
+function runWithCustomProposal(
+  proposeAdmission: () => AdmissionProposal,
+  graph: { readonly tasks: readonly { readonly id: string }[] },
+  signal?: AbortSignal
+) {
+  const policy = admissionSelectionPolicyFor({
+    kind: "custom",
+    proposeAdmission
+  });
+  if (policy === undefined) assert.fail("expected custom policy adapter");
+  return runTaskGraph({
+    admissionPolicy: policy,
+    execute: () => undefined,
+    graph,
+    maxParallel: 1,
+    signal
+  });
+}
+
+function malformedWaitProposal(): AdmissionProposal {
+  const proposal: AdmissionProposal = { kind: "wait" };
+  Reflect.set(proposal, "extra", true);
+  return proposal;
+}
+
+function thenableWaitProposal(): AdmissionProposal {
+  const proposal: AdmissionProposal = { kind: "wait" };
+  Reflect.set(proposal, "then", () => undefined);
+  return proposal;
 }

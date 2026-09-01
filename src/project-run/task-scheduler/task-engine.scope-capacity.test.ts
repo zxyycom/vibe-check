@@ -45,7 +45,6 @@ describe("static task engine", () => {
       settledTasks: [{ kind: "completed", taskId: "limited-work" }]
     });
     assert.equal(scopeBudgetWait.kind, "await-running");
-    assert.equal(scopeBudgetWait.reason, "active-scope-capacity");
     assert.equal(scopeBudgetWait.blockers.scopeCapacity, true);
     assert.equal(events.includes("start:wide-one"), false);
     assert.equal(events.includes("start:wide-two"), false);
@@ -55,7 +54,7 @@ describe("static task engine", () => {
     recordedSchedulerDecisions(observations);
   });
 
-  it("uses the minimum active cap and reserves capacity for a newly ready tighter scope", async () => {
+  it("recomputes tighter-scope selection after capacity becomes available", async () => {
     const events: string[] = [];
     const observations: DiagnosticObservation[] = [];
     const releaseWide = createDeferred<void>();
@@ -84,40 +83,24 @@ describe("static task engine", () => {
 
     await waitFor(() => events.includes("end:gate"));
     await delay(2);
-    const reservationWait = decisionFor(graph, {
+    const constrainedWait = decisionFor(graph, {
       activeScopeIds: ["wide"],
       maxParallel: 2,
       pendingTaskIds: ["wide-two", "wide-terminal", "low"],
       runningTaskIds: ["wide-one"],
       settledTasks: [{ kind: "completed", taskId: "gate" }]
     });
-    assert.equal(reservationWait.kind, "await-running");
-    assert.equal(reservationWait.reason, "reserved-tightening-scope");
-    assert.deepEqual(reservationWait.reservationUpdate, { kind: "set", taskId: "low" });
+    assert.equal(constrainedWait.kind, "await-running");
 
-    const preservedReservationWait = decisionFor(graph, {
+    const recomputedAdmission = decisionFor(graph, {
       activeScopeIds: ["wide"],
       maxParallel: 2,
       pendingTaskIds: ["wide-two", "wide-terminal", "low"],
-      reservationTaskId: "low",
-      runningTaskIds: ["wide-one"],
       settledTasks: [{ kind: "completed", taskId: "gate" }]
     });
-    assert.equal(preservedReservationWait.kind, "await-running");
-    assert.deepEqual(preservedReservationWait.reservationUpdate, { kind: "unchanged" });
-
-    const reservedAdmission = decisionFor(graph, {
-      activeScopeIds: ["wide"],
-      maxParallel: 2,
-      pendingTaskIds: ["wide-two", "wide-terminal", "low"],
-      reservationTaskId: "low",
-      settledTasks: [{ kind: "completed", taskId: "gate" }]
-    });
-    assert.equal(reservedAdmission.kind, "admit");
-    assert.equal(reservedAdmission.taskId, "low");
-    assert.equal(reservedAdmission.reason, "reservation");
-    assert.deepEqual(reservedAdmission.reservationUpdate, { kind: "clear" });
-    assert.equal(reservedAdmission.scopeToActivate, "low");
+    assert.equal(recomputedAdmission.kind, "admit");
+    assert.equal(recomputedAdmission.taskId, "low");
+    assert.equal(recomputedAdmission.scopeToActivate, "low");
     assert.equal(events.includes("start:wide-two"), false);
     assert.equal(events.includes("start:low"), false);
     releaseWide.resolve();
@@ -129,7 +112,7 @@ describe("static task engine", () => {
     recordedSchedulerDecisions(observations);
   });
 
-  it("orders constrained selectors by cap then priority and keeps an existing reservation sticky", () => {
+  it("orders constrained selectors by cap then priority without Scheduler policy state", () => {
     const graph = {
       tasks: [
         { id: "ordinary", admissionPriority: 99 },
@@ -196,7 +179,6 @@ describe("static task engine", () => {
       pendingTaskIds: ["ordinary", "tight-low", "tight-high"]
     });
     assert.equal(continuation.kind, "admit");
-    assert.equal(continuation.reason, "constrained-continuation");
     assert.equal(continuation.taskId, "tight-high");
 
     const tighteningGraph = tighteningScopeGraph();
@@ -209,12 +191,10 @@ describe("static task engine", () => {
         activeScopeIds: ["wide"],
         maxParallel: 2,
         pendingTaskIds: ["wide-two", "wide-terminal", "low", "urgent"],
-        reservationTaskId: "low",
         settledTasks: [{ kind: "completed", taskId: "gate" }]
       }
     );
     assert.equal(reserved.kind, "admit");
-    assert.equal(reserved.reason, "reservation");
     assert.equal(reserved.taskId, "low");
   });
 

@@ -5,6 +5,7 @@ import {
 } from "./admission-selection-policy.ts";
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
+import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
@@ -24,6 +25,7 @@ export interface TaskExecutionContext {
 }
 
 export interface TaskGraphRun<TResult> {
+  readonly admissionPolicyFault: AdmissionPolicyFaultCategory | undefined;
   readonly cancelled: boolean;
   /** One entry per static graph Task, in static graph order. */
   readonly settlements: readonly SettledTask<TResult>[];
@@ -76,8 +78,8 @@ export interface SchedulerState<TResult> {
   readonly runningMutexes: Set<string>;
   readonly settlementsByTaskId: Map<string, TaskSettlement<TResult>>;
   readonly scopesById: ReadonlyMap<string, RuntimeScope>;
-  reservationTaskId: string | undefined;
   isCancelled: boolean;
+  admissionPolicyFault: AdmissionPolicyFaultCategory | undefined;
 }
 
 export function createSchedulerState<TResult>(
@@ -110,8 +112,8 @@ export function createSchedulerState<TResult>(
     runningMutexes: new Set(),
     settlementsByTaskId: new Map(),
     scopesById,
-    reservationTaskId: undefined,
-    isCancelled: false
+    isCancelled: false,
+    admissionPolicyFault: undefined
   };
 }
 
@@ -128,7 +130,6 @@ export function snapshotSchedulerState<TResult>(state: SchedulerState<TResult>):
     isCancelled: state.isCancelled,
     maxParallel: state.maxParallel,
     pendingTaskIds: Object.freeze(state.pending.map((task) => task.id)),
-    reservationTaskId: state.reservationTaskId,
     runningMutexes: Object.freeze([...state.runningMutexes]),
     runningTaskIds: Object.freeze([...state.runningById.keys()]),
     settledTasks: Object.freeze(
@@ -148,7 +149,6 @@ export function scopeForTask<TResult>(
 
 export function cancelPendingTasks<TResult>(state: SchedulerState<TResult>): void {
   state.isCancelled = true;
-  state.reservationTaskId = undefined;
   while (state.pending.length > 0) {
     const task = state.pending.shift();
     if (task === undefined) {

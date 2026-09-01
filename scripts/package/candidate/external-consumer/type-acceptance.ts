@@ -150,6 +150,7 @@ function publicImports(): string {
 
 const PUBLIC_IMPORTS_TEMPLATE = `import {
   cacheJsonByKey,
+  defineAdmissionPolicy,
   defineCheck,
   defineConfig,
   defaultProjectFileSelection,
@@ -297,6 +298,55 @@ const definition: ProjectDefinition = defineConfig({
     changedFilesConsumer
   ]
 });
+const customAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
+  kind: "custom",
+  proposeAdmission(context): AdmissionProposal {
+    const firstTask = context.graph.tasks[0];
+    const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
+    const capacity = context.capacity.effectiveMaxParallel;
+    const runtime = context.runtime.abortRequested || context.runtime.cancelled;
+    void [
+      firstTask?.admissionPriority,
+      context.graph.scopes,
+      context.activeScopeIds,
+      context.runningTaskIds,
+      context.settledTaskIds,
+      capacity,
+      runtime
+    ];
+    return candidate === undefined
+      ? { kind: "wait" }
+      : { kind: "select", taskId: candidate.taskId };
+  }
+});
+defineConfig({ scheduler: { admissionPolicy: customAdmissionPolicy } });
+defineConfig({
+  scheduler: {
+    admissionPolicy: {
+      kind: "custom",
+      proposeAdmission: (context) => {
+        const candidate = context.candidates[0];
+        return candidate === undefined
+          ? { kind: "wait" as const }
+          : { kind: "select" as const, taskId: candidate.taskId };
+      }
+    }
+  }
+});
+defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } });
+defineConfig({});
+defineAdmissionPolicy({
+  kind: "custom",
+  // @ts-expect-error admission policies must synchronously return an exact proposal.
+  async proposeAdmission() {
+    return { kind: "wait" };
+  }
+});
+defineAdmissionPolicy({
+  kind: "static",
+  // @ts-expect-error admission policy authoring is a closed union.
+  unsupported: true
+});
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const reminder = maintenanceReminders([
   {
@@ -374,6 +424,7 @@ function observeFinalDurations(runResult: RunResult): void {
 
 void [
   cacheJsonByKey,
+  defineAdmissionPolicy,
   cacheResult,
   defineCheck,
   defineConfig,
@@ -392,6 +443,7 @@ void [
   changedFiles,
   changedFilesData,
   changedFilesConsumer,
+  customAdmissionPolicy,
   inheritedCheckIds,
   observeFinalDurations,
   findingMessages,

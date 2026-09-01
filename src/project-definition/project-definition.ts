@@ -30,8 +30,68 @@ export interface ProjectOutputs {
   }>;
 }
 
-/** 定义级的 Check 调度预算。 */
+/** 自定义准入 policy 对当前 Task 的唯一提议。 */
+export type AdmissionProposal =
+  | Readonly<{ readonly kind: "select"; readonly taskId: string }>
+  | Readonly<{ readonly kind: "wait" }>;
+
+/**
+ * 自定义准入 policy 每轮获得的不可变普通数据快照。
+ *
+ * 它只提供完整调度图及当前可观察的准入事实，不能启动、取消或结算 Task。
+ */
+export interface AdmissionPolicyContext {
+  /** 已规范化的完整静态调度图；Task metadata 是拓扑和 priority 的唯一来源。 */
+  readonly graph: Readonly<{
+    readonly scopes: readonly Readonly<{
+      readonly activationTaskIds: readonly string[];
+      readonly id: string;
+      readonly maxParallel: number;
+      readonly terminalTaskId: string;
+    }>[];
+    readonly tasks: readonly Readonly<{
+      readonly admissionPriority: number;
+      readonly dependsOn: readonly string[];
+      readonly mutex: readonly string[];
+      readonly observes: readonly string[];
+      readonly scopeId: string | null;
+      readonly taskId: string;
+    }>[];
+  }>;
+  /** 已满足 relation/mutex 条件的 pending Task 及其本轮 capacity 可准入性。 */
+  readonly candidates: readonly Readonly<{ readonly canAdmit: boolean; readonly taskId: string }>[];
+  /** 当前 root 与已激活 scope 合成后的 capacity 事实。 */
+  readonly capacity: Readonly<{
+    readonly effectiveMaxParallel: number;
+    readonly maxParallel: number;
+    readonly running: number;
+  }>;
+  /** 当前已激活 scope 的 canonical IDs。 */
+  readonly activeScopeIds: readonly string[];
+  /** 当前正在执行的 Task IDs。 */
+  readonly runningTaskIds: readonly string[];
+  /** 当前已结算的 Task IDs；不携带 Check result、data 或 message。 */
+  readonly settledTaskIds: readonly string[];
+  /** 本轮与生命周期有关的最小只读事实。 */
+  readonly runtime: Readonly<{ readonly abortRequested: boolean; readonly cancelled: boolean }>;
+}
+
+/** Definition authoring 的 closed admission policy；custom callback 必须同步返回 {@link AdmissionProposal}。 */
+export type AdmissionPolicy =
+  | Readonly<{ readonly kind: "static" }>
+  | Readonly<{
+      readonly kind: "custom";
+      readonly proposeAdmission: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+    }>;
+
+/** 定义级的 Check 调度预算与 admission policy。 */
 export interface SchedulerPolicy {
+  readonly admissionPolicy: AdmissionPolicy;
+  readonly maxParallel: number;
+}
+
+interface DeclarativeSchedulerPolicy {
+  readonly admissionPolicy: Readonly<{ readonly kind: AdmissionPolicy["kind"] }>;
   readonly maxParallel: number;
 }
 /** 已补齐默认 outputs、可交给 run 执行的项目定义。 */
@@ -83,13 +143,35 @@ export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
   readonly checks: readonly NormalizedCheckDeclaration[];
   readonly outputs: ProjectOutputs;
-  readonly scheduler: SchedulerPolicy;
+  readonly scheduler: DeclarativeSchedulerPolicy;
 }
 export interface NormalizedProjectDefinition {
   readonly checks: readonly NormalizedCheck[];
   readonly declarative: DeclarativeProjectSnapshot;
   readonly definitionWarnings: readonly DefinitionWarning[];
+  /** Runtime scheduler policy；custom callback 保留在此处，不进入 declarative snapshot。 */
+  readonly scheduler: SchedulerPolicy;
 }
+const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({ kind: "static" });
+type ExactAdmissionPolicy<T extends AdmissionPolicy> =
+  T extends Readonly<{ readonly kind: "static" }>
+    ? T & Record<Exclude<keyof T, "kind">, never>
+    : T extends Readonly<{ readonly kind: "custom" }>
+      ? T & Record<Exclude<keyof T, "kind" | "proposeAdmission">, never>
+      : never;
+
+/**
+ * 为 custom admission policy 保留 callback/context 的 TypeScript inference，不创建额外运行语义。
+ *
+ * @remarks inline `{ kind: "custom", proposeAdmission }` 与此 helper 的结果完全等价；callback 会在
+ * Run 中以调用方 closure 同步调用，重叠 Run 的可重入性由调用方负责。
+ */
+export function defineAdmissionPolicy<const T extends AdmissionPolicy>(
+  policy: ExactAdmissionPolicy<T>
+): T {
+  return policy;
+}
+
 /** 使用 Product 默认输出创建普通 Project Definition。 */
 export function defineConfig<const T extends ProjectDefinitionInput>(
   value: T & Record<Exclude<keyof T, keyof ProjectDefinitionInput>, never>
@@ -120,7 +202,10 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
           DEFAULT_PROJECT_OUTPUTS.diagnosticLogging.enabled
       }
     },
-    scheduler: { maxParallel: value.scheduler?.maxParallel ?? 4 }
+    scheduler: {
+      admissionPolicy: value.scheduler?.admissionPolicy ?? STATIC_ADMISSION_POLICY,
+      maxParallel: value.scheduler?.maxParallel ?? 4
+    }
   };
 }
 export function normalizeProjectDefinition(
@@ -133,7 +218,8 @@ export function normalizeProjectDefinition(
   return Object.freeze({
     checks,
     declarative: freezeDeclarativeSnapshot(definition, checks),
-    definitionWarnings: tree.warnings
+    definitionWarnings: tree.warnings,
+    scheduler: normalizeSchedulerPolicy(definition.scheduler)
   });
 }
 function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
@@ -164,8 +250,21 @@ function freezeDeclarativeSnapshot(
     apiVersion: definition.apiVersion,
     checks: declarations,
     outputs: definition.outputs,
-    scheduler: definition.scheduler
+    scheduler: Object.freeze({
+      admissionPolicy: Object.freeze({ kind: definition.scheduler.admissionPolicy.kind }),
+      maxParallel: definition.scheduler.maxParallel
+    })
   });
+}
+function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
+  const admissionPolicy =
+    policy.admissionPolicy.kind === "static"
+      ? STATIC_ADMISSION_POLICY
+      : Object.freeze({
+          kind: "custom" as const,
+          proposeAdmission: policy.admissionPolicy.proposeAdmission
+        });
+  return Object.freeze({ admissionPolicy, maxParallel: policy.maxParallel });
 }
 function compareText(left: string, right: string): number {
   if (left < right) return -1;

@@ -16,7 +16,6 @@ import {
   type TaskGraphRun,
   type TaskSettlement
 } from "./execution-state.ts";
-
 export type {
   RunTaskGraphOptions,
   SettledTask,
@@ -24,6 +23,7 @@ export type {
   TaskGraphRun,
   TaskSettlement
 } from "./execution-state.ts";
+import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
 
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>
@@ -33,11 +33,24 @@ export async function runTaskGraph<TResult>(
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
-    const decision = decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
+    let decision: SchedulerDecision;
+    try {
+      decision = decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
+    } catch (error) {
+      if (!(error instanceof AdmissionPolicyFault)) throw error;
+      applyAdmissionPolicyFault(state, error);
+      trigger = Object.freeze({ kind: "cancellation-applied" });
+      continue;
+    }
     observeSchedulerDecision(state, decision);
 
     switch (decision.kind) {
       case "admit":
+        if (state.signal?.aborted === true) {
+          applyAdmissionPolicyFault(state, new AdmissionPolicyFault("lifecycle-invalid-select"));
+          trigger = Object.freeze({ kind: "cancellation-applied" });
+          continue;
+        }
         applyAdmission(state, decision);
         trigger = Object.freeze({ kind: "admission-continued" });
         continue;
@@ -50,7 +63,6 @@ export async function runTaskGraph<TResult>(
         trigger = Object.freeze({ kind: "cancellation-applied" });
         continue;
       case "await-running": {
-        applyReservationUpdate(state, decision.reservationUpdate);
         const completion = await nextRunningSettlement(state);
         settleRunningTask(state, completion);
         trigger = Object.freeze({
@@ -64,6 +76,22 @@ export async function runTaskGraph<TResult>(
         return buildTaskGraphRun(state);
     }
   }
+}
+
+function applyAdmissionPolicyFault<TResult>(
+  state: SchedulerState<TResult>,
+  fault: AdmissionPolicyFault
+): void {
+  if (state.admissionPolicyFault !== undefined) {
+    throw new Error("scheduler received more than one admission policy fault");
+  }
+  state.admissionPolicyFault = fault.category;
+  state.diagnosticLogger?.observe({
+    event: "scheduler.admission-policy-failed",
+    tags: diagnosticTags("SCHEDULER", "ADMISSION_POLICY_FAILED", fault.category.toUpperCase()),
+    details: Object.freeze({ category: fault.category })
+  });
+  cancelPendingTasks(state);
 }
 
 function observeSchedulerDecision<TResult>(
@@ -90,7 +118,6 @@ function applyAdmission<TResult>(
   decision: Extract<SchedulerDecision, { readonly kind: "admit" }>
 ): void {
   const task = takePendingTask(state, decision.taskId, "admission");
-  applyReservationUpdate(state, decision.reservationUpdate);
   for (const mutex of task.mutex) {
     state.runningMutexes.add(mutex);
   }
@@ -132,29 +159,7 @@ function applyCancellation<TResult>(
   if (!sameTaskIds(pendingTaskIds, decision.taskIds)) {
     throw new Error("scheduler cancellation decision no longer matches pending tasks");
   }
-  if ((state.reservationTaskId ?? null) !== decision.reservation.taskId) {
-    throw new Error("scheduler cancellation decision no longer matches reservation state");
-  }
   cancelPendingTasks(state);
-}
-
-function applyReservationUpdate<TResult>(
-  state: SchedulerState<TResult>,
-  reservation: Extract<
-    SchedulerDecision,
-    { readonly kind: "admit" | "await-running" }
-  >["reservationUpdate"]
-): void {
-  switch (reservation.kind) {
-    case "unchanged":
-      return;
-    case "set":
-      state.reservationTaskId = reservation.taskId;
-      return;
-    case "clear":
-      state.reservationTaskId = undefined;
-      return;
-  }
 }
 
 function takePendingTask<TResult>(
@@ -215,6 +220,7 @@ function failedTaskCompletion<TResult>(
 
 function buildTaskGraphRun<TResult>(state: SchedulerState<TResult>): TaskGraphRun<TResult> {
   return Object.freeze({
+    admissionPolicyFault: state.admissionPolicyFault,
     cancelled: state.isCancelled,
     settlements: Object.freeze(
       state.graph.tasks.map((task) => {

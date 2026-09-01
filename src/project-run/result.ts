@@ -8,7 +8,11 @@ import type { CheckMessageLevel } from "../check/check.ts";
 import type { CoreSnapshot } from "../check-settlement/facts.ts";
 import type { RunOutputStatuses } from "./output-status.ts";
 export type RunDiagnostic = Readonly<{
-  readonly code: "task-graph-invalid" | "task-engine-failed" | "publication-model-failed";
+  readonly code:
+    | "admission-policy-failed"
+    | "task-graph-invalid"
+    | "task-engine-failed"
+    | "publication-model-failed";
 }>;
 export type CheckDuration = Readonly<{
   readonly checkId: string;

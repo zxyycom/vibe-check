@@ -1,6 +1,6 @@
 ---
 title: 将 Gate Run 证据收敛为单次高信噪 invocation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T10:03:43Z
 purpose: 让一次 Project Gate invocation 只保留影响其结论的执行证据，并使关联 Run diagnostic 可在测试 owner 内独立复核。

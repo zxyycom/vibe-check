@@ -10,6 +10,7 @@ const API_MECHANICS_PATH = "docs/api-mechanics.md";
 const CHECK_GUIDE_README_LINK = "(../../README.md#随包提供的-check)";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
+  CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy,
   CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
   CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
   CURRENT_PUBLIC_CONTRACT.operations.inherit,

@@ -10,10 +10,8 @@ import {
 } from "./scheduler-decision-inspection.ts";
 import {
   freezeDecision,
-  reservationUnchanged,
-  type ReservationUpdate,
-  type SchedulerAdmissionReason,
-  type SchedulerAwaitReason,
+  type SchedulerAdmissionCandidateFact,
+  type SchedulerAdmissionHardGuard,
   type SchedulerDecision,
   type SchedulerDecisionContext,
   type SchedulerTrigger
@@ -33,25 +31,20 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
       .filter((task) => isRelationMutexEligible(task, cycle.state))
       .map((task) => Object.freeze({ canAdmit: canAdmit(cycle.state, task), task }))
   );
-  if (candidates.length === 0) {
-    return awaitDecision(cycle, candidates, "dependency-or-mutex", reservationUnchanged());
-  }
+  if (candidates.length === 0) return awaitDecision(cycle, candidates);
 
   const result = validatePolicyDecision(
     cycle.policy.decide(
       Object.freeze({
         candidates,
-        context: cycle.context,
         graph: cycle.state.graph,
         inspection: cycle.state
       })
-    ),
-    candidates,
-    cycle.state
+    )
   );
   return result.kind === "select"
     ? admitDecision(cycle, candidates, result)
-    : awaitDecision(cycle, candidates, result.reason, result.reservationUpdate);
+    : awaitDecision(cycle, candidates, result);
 }
 
 function admitDecision(
@@ -60,16 +53,20 @@ function admitDecision(
   result: Extract<AdmissionPolicyDecision, { readonly kind: "select" }>
 ): SchedulerDecision {
   const candidate = candidateFor(result.taskId, candidates);
-  if (candidate === undefined || !candidate.canAdmit) {
-    throw new Error("scheduler policy selected a task that cannot be admitted");
+  if (candidate === undefined) {
+    throw new AdmissionPolicyFault("non-candidate-select");
+  }
+  if (!candidate.canAdmit) {
+    throw new AdmissionPolicyFault("capacity-invalid-select");
   }
   return freezeDecision({
     ...cycle.context,
     admissionPriority: candidate.task.admissionPriority,
+    candidates: candidateFacts(candidates),
     eligibleCount: candidates.length,
+    hardGuard: selectHardGuard(candidate.task.id),
     kind: "admit",
-    reason: result.reason,
-    reservationUpdate: result.reservationUpdate,
+    proposal: result,
     scopeToActivate: activationScopeFor(cycle.state, candidate.task)?.id ?? null,
     taskId: candidate.task.id,
     trigger: cycle.trigger
@@ -79,80 +76,62 @@ function admitDecision(
 function awaitDecision(
   cycle: SchedulerDecisionCycle,
   candidates: readonly AdmissionCandidate[],
-  reason: SchedulerAwaitReason,
-  reservationUpdate: ReservationUpdate
+  proposal: AdmissionPolicyDecision | null = null
 ): SchedulerDecision {
   if (cycle.state.runningTaskIds.length === 0) {
-    throw new Error("scheduler has pending tasks but no runnable or running task");
+    throw new AdmissionPolicyFault("undrainable-wait");
   }
   return freezeDecision({
     ...cycle.context,
+    candidates: candidateFacts(candidates),
     eligibleCount: candidates.length,
+    hardGuard: waitHardGuard(),
     kind: "await-running",
-    reason,
-    reservationUpdate,
+    proposal,
     trigger: cycle.trigger
   });
 }
 
-function validatePolicyDecision(
-  value: unknown,
-  candidates: readonly AdmissionCandidate[],
-  state: SchedulerInspection
-): AdmissionPolicyDecision {
-  if (!isRecord(value)) throw new Error("scheduler policy returned an invalid decision");
-  const kind = value["kind"];
-  if (kind === "select") {
-    requireExactKeys(value, ["kind", "reason", "reservationUpdate", "taskId"]);
-    if (typeof value["taskId"] !== "string" || !isAdmissionReason(value["reason"])) {
-      throw new Error("scheduler policy returned an invalid select decision");
-    }
-    const reservationUpdate = validateReservationUpdate(value["reservationUpdate"], candidates);
-    return Object.freeze({
-      kind,
-      reason: value["reason"],
-      reservationUpdate,
-      taskId: value["taskId"]
-    });
-  }
-  if (kind === "wait") {
-    requireExactKeys(value, ["kind", "reason", "reservationUpdate"]);
-    if (!isAwaitReason(value["reason"])) {
-      throw new Error("scheduler policy returned an invalid wait decision");
-    }
-    if (state.runningTaskIds.length === 0) {
-      throw new Error("scheduler policy cannot wait when no task is running");
-    }
-    return Object.freeze({
-      kind,
-      reason: value["reason"],
-      reservationUpdate: validateReservationUpdate(value["reservationUpdate"], candidates)
-    });
-  }
-  throw new Error("scheduler policy returned an invalid decision");
+function candidateFacts(
+  candidates: readonly AdmissionCandidate[]
+): readonly SchedulerAdmissionCandidateFact[] {
+  return Object.freeze(
+    candidates.map((candidate) =>
+      Object.freeze({ canAdmit: candidate.canAdmit, taskId: candidate.task.id })
+    )
+  );
 }
 
-function validateReservationUpdate(
-  value: unknown,
-  candidates: readonly AdmissionCandidate[]
-): ReservationUpdate {
-  if (!isRecord(value)) throw new Error("scheduler policy returned an invalid reservation update");
-  const kind = value["kind"];
-  if (kind === "unchanged" || kind === "clear") {
-    requireExactKeys(value, ["kind"]);
-    return Object.freeze({ kind });
-  }
-  if (kind === "set") {
+function selectHardGuard(
+  taskId: string
+): Extract<SchedulerAdmissionHardGuard, { readonly kind: "select" }> {
+  return Object.freeze({
+    canAdmit: true,
+    isCandidate: true,
+    kind: "select",
+    lifecycleOpen: true,
+    taskId
+  });
+}
+
+function waitHardGuard(): Extract<SchedulerAdmissionHardGuard, { readonly kind: "wait" }> {
+  return Object.freeze({ kind: "wait", runningCanDrain: true });
+}
+
+function validatePolicyDecision(value: unknown): AdmissionPolicyDecision {
+  if (!isRecord(value)) throw new AdmissionPolicyFault("malformed-proposal");
+  if (value["kind"] === "select") {
     requireExactKeys(value, ["kind", "taskId"]);
-    if (
-      typeof value["taskId"] !== "string" ||
-      candidateFor(value["taskId"], candidates) === undefined
-    ) {
-      throw new Error("scheduler policy reserved a task that is not a candidate");
+    if (typeof value["taskId"] !== "string") {
+      throw new AdmissionPolicyFault("malformed-proposal");
     }
-    return Object.freeze({ kind, taskId: value["taskId"] });
+    return Object.freeze({ kind: "select", taskId: value["taskId"] });
   }
-  throw new Error("scheduler policy returned an invalid reservation update");
+  if (value["kind"] === "wait") {
+    requireExactKeys(value, ["kind"]);
+    return Object.freeze({ kind: "wait" });
+  }
+  throw new AdmissionPolicyFault("malformed-proposal");
 }
 
 function candidateFor(
@@ -165,39 +144,35 @@ function candidateFor(
 function requireExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): void {
   const prototype = Reflect.getPrototypeOf(value);
   if (prototype !== Object.prototype && prototype !== null) {
-    throw new Error("scheduler policy returned an invalid decision shape");
+    throw new AdmissionPolicyFault("malformed-proposal");
   }
   const actualKeys = Reflect.ownKeys(value);
   if (
     actualKeys.length !== keys.length ||
     actualKeys.some((key) => typeof key !== "string" || !keys.includes(key))
   ) {
-    throw new Error("scheduler policy returned an invalid decision shape");
+    throw new AdmissionPolicyFault("malformed-proposal");
   }
-}
-
-function isAdmissionReason(value: unknown): value is SchedulerAdmissionReason {
-  return (
-    value === "reservation" ||
-    value === "tightening-scope" ||
-    value === "constrained-continuation" ||
-    value === "canonical-order" ||
-    value === "policy-selection"
-  );
-}
-
-function isAwaitReason(value: unknown): value is SchedulerAwaitReason {
-  return (
-    value === "cancellation-drain" ||
-    value === "dependency-or-mutex" ||
-    value === "running-drain" ||
-    value === "root-capacity" ||
-    value === "active-scope-capacity" ||
-    value === "reserved-tightening-scope" ||
-    value === "policy-wait"
-  );
 }
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export type AdmissionPolicyFaultCategory =
+  | "callback-threw"
+  | "thenable-proposal"
+  | "malformed-proposal"
+  | "non-candidate-select"
+  | "capacity-invalid-select"
+  | "lifecycle-invalid-select"
+  | "undrainable-wait";
+
+export class AdmissionPolicyFault extends Error {
+  public readonly category: AdmissionPolicyFaultCategory;
+
+  public constructor(category: AdmissionPolicyFaultCategory) {
+    super("admission policy fault");
+    this.category = category;
+  }
 }

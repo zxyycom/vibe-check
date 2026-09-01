@@ -326,28 +326,30 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.static-validation.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
 - `bun|src/project-run/check-execution/plan.test.ts|Check execution plan > projects normalized admission priority into the static task graph`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > respects one root budget for dependency order and named mutex execution`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits immutable root admission, reservation, and mutex decisions`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits immutable root admission and mutex decisions`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits root capacity and running-drain decisions`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
-- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > uses the minimum active cap and reserves capacity for a newly ready tighter scope`
-- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > orders constrained selectors by cap then priority and keeps an existing reservation sticky`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > recomputes tighter-scope selection after capacity becomes available`
+- `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > orders constrained selectors by cap then priority without Scheduler policy state`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > does not activate a cap for a scope with no activation task`
 - `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > settles executor failures and blocks only their dependent tasks`
 - `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > blocks unmet prerequisites while admitting terminal observers`
 - `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > keeps the static policy trace identical for omitted and explicit policy handoff`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > hands a policy the frozen full graph and immutable dynamic facts without a priority side input`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > rejects invalid policy selections and malformed results before execution`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > allows a policy-owned deliberate wait with a candidate reservation but rejects an undrainable wait`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > does not invoke the policy for cancellation, blocked settlement, or completion`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > requires a frozen policy value when the imperative task engine receives one`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > recomputes static select or wait from each frozen scheduler snapshot without reservation state`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > adapts custom select from a detached frozen full-graph context`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > fails custom policy faults without fallback, cancels pending work, and drains admitted work`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > drains an admitted public Check before returning an admission policy fault`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > classifies every bounded custom fault without exposing callback values`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > returns the dedicated execution result for a custom callback failure`
   Proves:
 
 - Engine 在任何 executor work 前验证静态 Task identity、`dependsOn` / `observes` union、scope membership、activation/terminal relation、cap 和 signed admission priority；它以一个 root budget 处理 relation readiness、mutex 与 generic scope cap。
 - Executor failure 或 product-supplied prerequisite-unsatisfied signal 只阻断 `dependsOn` dependent Task，terminal observers 与 unrelated Task 仍可完成。abort 后不再 admission pending Task，已 admitted Task 接收同一 signal 并 drain；engine 的 settlement 是唯一通用 execution accounting，且不读取 Check status、reason 或 data。
-- 纯 `SchedulerDecision` 从 immutable scheduler snapshot 与 trigger 选择下一项 generic Task action：priority 只比较同一 ready layer 的 eligible Task；dependency、mutex、cap 与 sticky reservation 均优先。命令式 shell 对同一个 value 记录一次 `[SCHEDULER] scheduler.decision`，再执行 admission、wait/drain、blocked settlement、cancellation 或 completion。abort 首次观察使用 `cancellation-observed`，取消 application 后的 drain 使用 `cancellation-applied`；recorder 断言实际 decision 的顺序、taskId、trigger、reason、effective priority 与 capacity，且 scheduler 不取得 Check owner 身份。
-- Product-private admission policy receives the same frozen complete `PlannedTaskGraph`, immutable dynamic inspection, Scheduler-formed relation/mutex eligible candidates and per-candidate capacity facts; priority remains Task metadata rather than a side map/list. The default static policy has the same select/wait and sticky-reservation trace whether omitted or explicitly handed off. Before executor work, Scheduler rejects malformed, unknown, non-candidate or currently capacity-inadmissible selections; it requires any reservation `set` target to be a candidate and permits wait only while work can drain. Reservation replacement/clear and fairness remain policy semantics, and policy is never called during cancellation, blocked settlement or completion.
+- 纯 `SchedulerDecision` 从 immutable scheduler snapshot 与 trigger 选择下一项 generic Task action：每轮依完整图、relation/mutex candidate、capacity 与 runtime facts 重算 exact `select(taskId)` 或 `wait`；priority 只来自 Task metadata，不能越过 dependency、mutex、capacity 或 lifecycle hard guard。命令式 shell 记录无状态 decision evidence，再执行 admission、wait/drain、blocked settlement、cancellation 或 completion；它不保存或解释 reservation、sticky、reason、公平或饥饿 state，也不取得 Check owner 身份。
+- custom adapter 仅交接 detached、ordinary、deep-frozen 的完整 graph 和最小动态 DTO；callback 不获得 private Scheduler objects、`Set`/`Map`、priority side input 或 Task capability。Scheduler 对 malformed/thenable/throw、non-candidate、capacity/lifecycle-invalid select 和 undrainable wait 以有界 admission-policy fault 停止 admission、取消 pending 并 drain running，不 fallback；public Run 直到已 admitted Check settlement 才以专用 `admission-policy-failed` execution result 返回，且不暴露 policy console、checkMessages 或 timing artifact。diagnostic 不泄漏 caller value。
 
 ## Case AUX-SCRIPT-BOUNDARIES-001: Repository 与 process capability 的边界稳定
 

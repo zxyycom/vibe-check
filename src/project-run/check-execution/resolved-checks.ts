@@ -4,7 +4,10 @@ import type {
   CheckProjectContext,
   CheckVisibility
 } from "../../check/check.ts";
-import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
+import type {
+  AdmissionPolicy,
+  NormalizedCheck
+} from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import {
   diagnosticTags,
@@ -12,6 +15,7 @@ import {
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
+import { admissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
 import { executeCheckCallback } from "./callback.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
@@ -67,7 +71,8 @@ type ResolvedCheckExecutionFacts = Readonly<{
 
 export type ResolvedCheckExecution =
   | (Readonly<{ readonly kind: "completed" }> & ResolvedCheckExecutionFacts)
-  | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts);
+  | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts)
+  | (Readonly<{ readonly kind: "admission-policy-failed" }> & ResolvedCheckExecutionFacts);
 
 export interface CheckExecutionState extends CheckExecutionSettlementState {
   readonly session: CoreCheckSession;
@@ -81,6 +86,7 @@ interface ExecuteCheckInput extends CheckExecutionState {
 }
 
 type ResolvedCheckExecutionInput = Readonly<{
+  readonly admissionPolicy?: AdmissionPolicy;
   readonly checks: readonly NormalizedCheck[];
   readonly maxParallel: number;
   readonly project: CheckProjectContext;
@@ -116,6 +122,10 @@ async function executePreparedResolvedChecks(
   try {
     graphRun = await runTaskGraph({
       graph: planStaticCheckGraph(input.checks),
+      admissionPolicy:
+        input.admissionPolicy === undefined
+          ? undefined
+          : admissionSelectionPolicyFor(input.admissionPolicy),
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
       signal: input.signal,

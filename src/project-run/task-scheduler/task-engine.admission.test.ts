@@ -56,13 +56,107 @@ describe("static task engine", () => {
     if (rootAdmission?.kind !== "admit") assert.fail("expected initial scheduler admission");
     assert.equal(rootAdmission.trigger.kind, "execution-started");
     assert.equal(rootAdmission.taskId, "base");
-    assert.equal(rootAdmission.reason, "canonical-order");
     assert.equal(rootAdmission.admissionPriority, 0);
     assert.deepEqual(rootAdmission.capacity, {
       effectiveMaxParallel: 3,
       maxParallel: 3,
       running: 0
     });
+    assert.deepEqual(rootAdmission.graphIdentity, {
+      scopes: [],
+      tasks: [
+        { admissionPriority: 0, dependsOn: [], id: "base", mutex: [], observes: [], scopeId: null },
+        {
+          admissionPriority: 0,
+          dependsOn: ["base"],
+          id: "dependent",
+          mutex: [],
+          observes: [],
+          scopeId: null
+        },
+        {
+          admissionPriority: 0,
+          dependsOn: [],
+          id: "mutex-one",
+          mutex: ["shared"],
+          observes: [],
+          scopeId: null
+        },
+        {
+          admissionPriority: 0,
+          dependsOn: [],
+          id: "mutex-two",
+          mutex: ["shared"],
+          observes: [],
+          scopeId: null
+        },
+        {
+          admissionPriority: 0,
+          dependsOn: [],
+          id: "independent",
+          mutex: [],
+          observes: [],
+          scopeId: null
+        }
+      ]
+    });
+    assert.deepEqual(rootAdmission.candidates, [
+      { canAdmit: true, taskId: "base" },
+      { canAdmit: true, taskId: "mutex-one" },
+      { canAdmit: true, taskId: "mutex-two" },
+      { canAdmit: true, taskId: "independent" }
+    ]);
+    assert.deepEqual(rootAdmission.proposal, { kind: "select", taskId: "base" });
+    assert.deepEqual(rootAdmission.hardGuard, {
+      canAdmit: true,
+      isCandidate: true,
+      kind: "select",
+      lifecycleOpen: true,
+      taskId: "base"
+    });
+  });
+
+  it("distinguishes full graph identities with identical Task IDs but different scheduler semantics", () => {
+    const baseline = decisionFor(
+      {
+        tasks: [
+          { id: "source", mutex: ["shared"], scopeId: "limited" },
+          { admissionPriority: 1, id: "target", observes: ["source"], scopeId: "limited" }
+        ],
+        scopes: [
+          {
+            activationTaskIds: ["source"],
+            id: "limited",
+            maxParallel: 1,
+            terminalTaskId: "target"
+          }
+        ]
+      },
+      { maxParallel: 2 }
+    );
+    const changed = decisionFor(
+      {
+        tasks: [
+          { admissionPriority: 3, id: "source", mutex: ["other"], scopeId: "limited" },
+          { admissionPriority: 9, dependsOn: ["source"], id: "target", scopeId: "limited" }
+        ],
+        scopes: [
+          {
+            activationTaskIds: ["source"],
+            id: "limited",
+            maxParallel: 2,
+            terminalTaskId: "target"
+          }
+        ]
+      },
+      { maxParallel: 2 }
+    );
+
+    assert.deepEqual(
+      baseline.graphIdentity.tasks.map((task) => task.id),
+      changed.graphIdentity.tasks.map((task) => task.id)
+    );
+    assert.notDeepEqual(baseline.graphIdentity, changed.graphIdentity);
   });
 
   it("uses priority only among dependency and mutex eligible ordinary ready tasks", () => {
@@ -117,26 +211,22 @@ describe("static task engine", () => {
       { maxParallel: 1, pendingTaskIds: ["high"], runningTaskIds: ["running"] }
     );
     assert.equal(noPreemption.kind, "await-running");
-    assert.equal(noPreemption.reason, "root-capacity");
   });
 
-  it("emits immutable root admission, reservation, and mutex decisions", () => {
+  it("emits immutable root admission and mutex decisions", () => {
     const graph = rootBudgetGraph();
     const initialDecision = decisionFor(graph, { maxParallel: 3 });
     assert.equal(initialDecision.kind, "admit");
     assert.equal(initialDecision.taskId, "base");
-    assert.equal(initialDecision.reason, "canonical-order");
     assert.equal(Object.isFrozen(initialDecision), true);
 
-    const staleReservation = decisionFor(graph, {
+    const independentAdmission = decisionFor(graph, {
       maxParallel: 3,
-      pendingTaskIds: ["independent"],
-      reservationTaskId: "base"
+      pendingTaskIds: ["independent"]
     });
-    assert.equal(staleReservation.kind, "admit");
-    assert.equal(staleReservation.taskId, "independent");
-    assert.deepEqual(staleReservation.reservationUpdate, { kind: "clear" });
-    assert.equal(staleReservation.scopeToActivate, null);
+    assert.equal(independentAdmission.kind, "admit");
+    assert.equal(independentAdmission.taskId, "independent");
+    assert.equal(independentAdmission.scopeToActivate, null);
 
     const mutexWait = decisionFor(graph, {
       maxParallel: 3,
@@ -145,7 +235,6 @@ describe("static task engine", () => {
       runningTaskIds: ["mutex-one"]
     });
     assert.equal(mutexWait.kind, "await-running");
-    assert.equal(mutexWait.reason, "dependency-or-mutex");
     assert.equal(mutexWait.blockers.mutex, 1);
     assertSchedulerDecisionCopiesSnapshotInputs();
   });
@@ -175,7 +264,6 @@ describe("static task engine", () => {
     assert.equal(capacityAdmission.taskId, "first");
     assert.equal(capacityAdmission.trigger.kind, "execution-started");
     const capacityWait = awaitingDecision(capacityDecisions[1]);
-    assert.equal(capacityWait.reason, "root-capacity");
     assert.equal(capacityWait.trigger.kind, "admission-continued");
     assert.deepEqual(capacityWait.capacity, {
       effectiveMaxParallel: 1,
@@ -191,7 +279,6 @@ describe("static task engine", () => {
       }
     );
     assert.equal(rootBudgetWait.kind, "await-running");
-    assert.equal(rootBudgetWait.reason, "root-capacity");
 
     const runningDrain = decisionFor(graph, {
       maxParallel: 3,
@@ -199,7 +286,6 @@ describe("static task engine", () => {
       runningTaskIds: ["independent"]
     });
     assert.equal(runningDrain.kind, "await-running");
-    assert.equal(runningDrain.reason, "running-drain");
     releaseFirst.resolve(undefined);
     await rootBudgetRun;
     const completedBudgetDecisions = recordedSchedulerDecisions(observations);
@@ -208,7 +294,6 @@ describe("static task engine", () => {
       ["admit", "await-running", "admit", "await-running", "complete"]
     );
     const drain = awaitingDecision(completedBudgetDecisions[3]);
-    assert.equal(drain.reason, "running-drain");
     assert.equal(drain.trigger.kind, "admission-continued");
     const complete = completionDecision(completedBudgetDecisions[4]);
     assert.equal(complete.trigger.kind, "task-settled");

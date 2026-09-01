@@ -12,10 +12,11 @@ scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自
 
 ## Public authoring surface
 
-package surface 包含 `defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
+package surface 包含 `defineAdmissionPolicy`、`defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
 `duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)`、`jsonValidation(options?)`、
-`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及 `maintenanceReminders(entries)`。这些函数都返回
-ordinary Check object，不引入第二种 execution model。仓库 private consumer 的 Definition 由
+`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及 `maintenanceReminders(entries)`。六个 constructor
+与 `maintenanceReminders` 返回 ordinary Check object，不引入第二种 execution model；其余 authoring helper、Definition
+value 与 invocation operation 各自保持其显式责任。仓库 private consumer 的 Definition 由
 [`scripts/project/gate/definition.ts`](../scripts/project/gate/definition.ts) 组装；下例只说明 Project Definition 的 authoring 形状，不是该 Gate Definition 的逐行副本。
 
 ```ts
@@ -71,6 +72,19 @@ export default defineConfig({
 ```
 
 `defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execution` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
+
+`scheduler.admissionPolicy` 是 closed `static | custom` authoring field。省略与显式
+`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 custom callback 的
+TypeScript inference，与同形 inline object 没有额外运行语义。custom policy 的
+`proposeAdmission(context)` 必须同步返回精确的 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`；异步
+Promise/thenable、reason、reservation、identity/version 或 composition fields 都不属于该 grammar。
+
+`AdmissionPolicyContext` 是每轮新建的 detached、deep-frozen ordinary data snapshot。它完整交接 canonical
+static graph 的 tasks、scopes 及每个 Task 的 relation arrays，且 topology 与 `admissionPriority` 只在 `graph.tasks` 的 Task metadata 中出现；动态
+部分只包含 relation/mutex candidates 的 `{ taskId, canAdmit }`、root/effective capacity、running/settled/active-scope IDs
+及 cancellation runtime facts。它不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、
+logger、clock、signal 或 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
+[深入 API 机制](api-mechanics.md#custom-admission-policy)。
 
 ### Check options preflight
 
@@ -182,7 +196,7 @@ Every node has a unique `checkId` and non-empty `displayName`. An executable nod
 
 `maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a node's value is inherited by descendants unless a child supplies its own value.
 
-`admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It only orders otherwise-ready work in the same scheduler selection layer; it does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or an already-established tightening reservation. Use a few relative bands rather than a unique number for every Check.
+`admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It is immutable Task metadata: static/custom policies can read it only through the full graph, and it only orders otherwise-ready work in the same scheduler selection layer. It does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or lifecycle cancellation. Use a few relative bands rather than a unique number for every Check.
 
 `dependsOn`、`observes` 与 `mutex` 都接受 exact string collection 或 `inherit({ add, remove })`：
 

@@ -5,6 +5,7 @@ import { parseOutputs } from "./output-validation.ts";
 import {
   type ProjectDefinitionDiagnostic,
   type ProjectDefinitionValidationResult,
+  type AdmissionPolicy,
   type SchedulerPolicy
 } from "./project-definition.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
@@ -88,12 +89,47 @@ function exactRecord(
 }
 
 function parseScheduler(value: unknown): SchedulerPolicy | undefined {
-  const data = exactKeys(value, ["maxParallel"]);
-  return typeof data?.maxParallel === "number" &&
+  const data = snapshotClosedRecord(value);
+  if (
+    data === undefined ||
+    !Object.hasOwn(data, "maxParallel") ||
+    Object.keys(data).some((key) => key !== "admissionPolicy" && key !== "maxParallel")
+  ) {
+    return undefined;
+  }
+  const admissionPolicy = Object.hasOwn(data, "admissionPolicy")
+    ? parseAdmissionPolicy(data.admissionPolicy)
+    : Object.freeze({ kind: "static" as const });
+  return typeof data.maxParallel === "number" &&
     Number.isSafeInteger(data.maxParallel) &&
-    data.maxParallel > 0
-    ? Object.freeze({ maxParallel: data.maxParallel })
+    data.maxParallel > 0 &&
+    admissionPolicy !== undefined
+    ? Object.freeze({ admissionPolicy, maxParallel: data.maxParallel })
     : undefined;
+}
+
+function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
+  const data = snapshotClosedRecord(value);
+  if (data === undefined || typeof data.kind !== "string") return undefined;
+  if (data.kind === "static") {
+    return exactKeys(data, ["kind"]) === undefined ? undefined : Object.freeze({ kind: "static" });
+  }
+  if (data.kind === "custom") {
+    const policy = exactKeys(data, ["kind", "proposeAdmission"]);
+    const proposeAdmission = policy?.proposeAdmission;
+    if (!isCustomAdmissionCallback(proposeAdmission)) return undefined;
+    return Object.freeze({
+      kind: "custom",
+      proposeAdmission
+    });
+  }
+  return undefined;
+}
+
+function isCustomAdmissionCallback(
+  value: unknown
+): value is Extract<AdmissionPolicy, { readonly kind: "custom" }>["proposeAdmission"] {
+  return typeof value === "function";
 }
 
 function exactKeys(

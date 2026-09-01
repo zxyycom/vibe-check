@@ -169,6 +169,9 @@ async function executePreparedInvocation(
   const executionStartedAt = invocation.clock.now();
   const executed = await executeChecks(invocation, project, invocation.clock);
   if (isExecutionRunResult(executed)) return executed;
+  if (executed.kind === "admission-policy-failed") {
+    return executionResult(invocation, "admission-policy-failed");
+  }
   invocation.progressRendering.final({
     counts: outcomeCounts(executed.snapshot),
     elapsedMs: elapsedSince(executionStartedAt, invocation.clock),
@@ -229,6 +232,7 @@ async function executeChecks(
 ): Promise<ResolvedCheckExecution | NonConfigurationRunResult> {
   try {
     return await executeResolvedChecks({
+      admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
       checks: invocation.normalized.checks,
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
@@ -286,7 +290,10 @@ function planningResult(
 }
 function executionResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"], "publication-model-failed" | "task-engine-failed">
+  code: Extract<
+    RunDiagnostic["code"],
+    "admission-policy-failed" | "publication-model-failed" | "task-engine-failed"
+  >
 ): NonConfigurationRunResult {
   return Object.freeze({
     kind: "execution",

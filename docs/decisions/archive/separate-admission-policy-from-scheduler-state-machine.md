@@ -1,6 +1,6 @@
 ---
 title: 将准入选择策略与 Scheduler 状态机分离
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T13:03:39Z
 purpose: 让 Scheduler 在不放弃硬合法性和状态机责任的前提下，把候选选择交给可利用完整 Task graph 的私有纯策略。

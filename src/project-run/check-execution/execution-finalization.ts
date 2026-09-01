@@ -25,6 +25,12 @@ export function closeResolvedChecks(
 ): ResolvedCheckExecution {
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
+    if (input.graphRun.admissionPolicyFault !== undefined) {
+      return closeAdmissionPolicyFailed({
+        normalizedChecks: input.allChecks,
+        state: input.state
+      });
+    }
     if (input.graphRun.cancelled) {
       return closeCancelledExecution({
         normalizedChecks: input.allChecks,
@@ -36,6 +42,18 @@ export function closeResolvedChecks(
   } catch (error) {
     throw trustedFailure(error);
   }
+}
+
+export function closeAdmissionPolicyFailed(
+  input: Readonly<{
+    readonly normalizedChecks: readonly NormalizedCheck[];
+    readonly state: CheckExecutionState;
+  }>
+): ResolvedCheckExecution {
+  input.state.session.closeUnresolvedAsCancelled();
+  const snapshot = input.state.session.freeze();
+  settleUnstartedCancelledChecks({ ...input, snapshot });
+  return resolvedExecution("admission-policy-failed", snapshot, input.state);
 }
 
 export function closeCancelledExecution(

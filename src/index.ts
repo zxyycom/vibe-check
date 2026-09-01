@@ -111,8 +111,11 @@ export type {
   CheckUnavailableReason,
   InheritableCheckCollection
 } from "./check/check.ts";
-export { defineConfig } from "./project-definition/project-definition.ts";
+export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
 export type {
+  AdmissionPolicy,
+  AdmissionPolicyContext,
+  AdmissionProposal,
   ProjectOutputs,
   ProjectDefinition,
   SchedulerPolicy

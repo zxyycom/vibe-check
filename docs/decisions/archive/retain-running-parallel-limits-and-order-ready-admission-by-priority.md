@@ -1,6 +1,6 @@
 ---
 title: 保留运行期并行上限并按优先级选择 ready Task
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T04:56:52Z
 purpose: 在每个 Check Task 的运行期容量上限不变时，让作者能以静态优先级安排同一既有准入层级中的 ready Task。

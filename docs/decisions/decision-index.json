@@ -35,7 +35,7 @@
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
       "confirm-package-contract-names-before-publication.md": "sha256:0b376a91dd7c07eba32d7febd8109535ce0eb6cbbfeeb059a5c9af641cdca4c1",
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
-      "consolidate-project-gate-run-evidence.md": "sha256:2ea8a12dc5062c94dd975a3fae2ea96e10e509ffd9a83befdc8c50187c400ce9",
+      "consolidate-project-gate-run-evidence.md": "sha256:ae7705d30f4eceab02e1e4f983cd6e4c5a5820bcaabe26fe94fa3572c3cb3487",
       "construct-duplicate-detection-from-defaulted-policy.md": "sha256:7b4e1e223ae4f2b5802b943f6a819aefc12ec459cd49274d048d8163da5389d1",
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
@@ -72,6 +72,7 @@
       "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
+      "expose-stateless-custom-admission-policy-to-callers.md": "sha256:0a768b30ed2df7f7141b7e863218db14a0dfb2268b37fd14178cd8b0c421bc4d",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
@@ -87,6 +88,7 @@
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
+      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:9c07be5fe5ce302d3d9c993ca62b2607520f35c0fd9b736db58b1936c1515168",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
@@ -162,7 +164,7 @@
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
-      "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:cef5887bc74826acf92706b19104624f5a18b297bbf18176e634e22ed3150e0b",
+      "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
@@ -170,7 +172,7 @@
       "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
-      "separate-admission-policy-from-scheduler-state-machine.md": "sha256:ec2595caa559adf183a17e4bdd7a31986960530ac4c33ad1c35aa11ea895c2c9",
+      "separate-admission-policy-from-scheduler-state-machine.md": "sha256:8fb2972519574d3bceac5a1e4c8b2d173a6ce9f9e6cce91577ad4d93dd1f8d27",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
       "separate-passed-dependencies-from-settled-observations.md": "sha256:2349cdb396874f0568717c181550eb55ad0f08ee6227e2024ad975366b01ddd5",
       "separate-settlement-run-progress-and-machine-owners.md": "sha256:93fa3b097ccdc6553c1e14e956203b9f014b014f6eb5356600e99f28d91eff4b",
@@ -236,6 +238,7 @@
       "use-single-typescript-project-definition.md": "sha256:fd9e52f75b05e36c1e61fef77743df847c9a963ef6a670a5781c4260e27e12f7",
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
+      "use-stateless-admission-policies-with-hard-scheduler-guards.md": "sha256:da53a04d3385755beb5bed48f501e4d9966bbf6e429d33e8f602c6913423163f",
       "use-static-check-task-plans-with-shared-scheduling.md": "sha256:f1c2e855642425f1eb965569659bd3d9469c88d2edde7176d0a33e6d07b8984c",
       "use-string-flags-for-project-run-controls.md": "sha256:a8282eef7fcdcd623f6d6c6b7c2474441df50d9720f179a00ab9c71161412fc1",
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
@@ -1229,16 +1232,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "consolidate-project-gate-run-evidence.md",
+        "sourcePath": "archive/consolidate-project-gate-run-evidence.md",
         "title": "将 Gate Run 证据收敛为单次高信噪 invocation",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T10:03:43Z",
         "purpose": "让一次 Project Gate invocation 只保留影响其结论的执行证据，并使关联 Run diagnostic 可在测试 owner 内独立复核。",
@@ -2366,6 +2369,35 @@
         ]
       }
     },
+    "expose-stateless-custom-admission-policy-to-callers.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "expose-stateless-custom-admission-policy-to-callers.md",
+        "title": "向调用方公开无状态 custom admission policy",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:55:23Z",
+        "purpose": "让调用方以最小 trusted synchronous callback 表达无状态准入偏好，同时不取得 Scheduler 的状态机、执行或硬合法性所有权。",
+        "background": "完整 Graph 与无状态 select/wait 已是 private policy 边界；公开契约必须投影所需事实并明确 trusted callback 的故障收束。",
+        "decision": "采用 closed static/custom、冻结 context 与 select/wait；非法 policy 以 fatal fault 收束。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "expose-two-public-operations.md": {
       "keys": {
         "tag": [
@@ -2836,6 +2868,42 @@
           {
             "type": "重划",
             "target": "expand-format-aware-built-in-checks.md"
+          }
+        ]
+      }
+    },
+    "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md",
+        "title": "以无状态 Scheduler context 保持完整 Gate Run 证据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:54:27Z",
+        "purpose": "让单次高信噪 Gate invocation 保留可独立复核的完整 Scheduler decision evidence，而不记录已删除的 reservation 状态。",
+        "background": "reservation 已从 Scheduler Core 移除；诊断必须解释本轮无状态 select 或 wait 及其 hard-guard facts，而不能保留退休字段。",
+        "decision": "保留单核心诊断边界，修订 Scheduler evidence 为无状态 hard-guard context。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "consolidate-project-gate-run-evidence.md"
           }
         ]
       }
@@ -5200,16 +5268,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "retain-running-parallel-limits-and-order-ready-admission-by-priority.md",
+        "sourcePath": "archive/retain-running-parallel-limits-and-order-ready-admission-by-priority.md",
         "title": "保留运行期并行上限并按优先级选择 ready Task",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T04:56:52Z",
         "purpose": "在每个 Check Task 的运行期容量上限不变时，让作者能以静态优先级安排同一既有准入层级中的 ready Task。",
@@ -5467,16 +5535,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "separate-admission-policy-from-scheduler-state-machine.md",
+        "sourcePath": "archive/separate-admission-policy-from-scheduler-state-machine.md",
         "title": "将准入选择策略与 Scheduler 状态机分离",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T13:03:39Z",
         "purpose": "让 Scheduler 在不放弃硬合法性和状态机责任的前提下，把候选选择交给可利用完整 Task graph 的私有纯策略。",
@@ -7457,6 +7525,46 @@
           {
             "type": "替代",
             "target": "use-generic-machine-v2-for-content-findings.md"
+          }
+        ]
+      }
+    },
+    "use-stateless-admission-policies-with-hard-scheduler-guards.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-stateless-admission-policies-with-hard-scheduler-guards.md",
+        "title": "使用无状态准入策略与 Scheduler 硬 guard",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:51:15Z",
+        "purpose": "让准入偏好以每轮重算的纯算法表达，同时由唯一 Scheduler 守住执行状态机与下一选项的硬合法性。",
+        "background": "reservation 把防饥饿记忆植入 Core，既与纯策略边界冲突，也与完整静态图上的有限进展模型重复。",
+        "decision": "归并既有策略分离和优先级/并行上限方向，删除 Core reservation，采用无状态 select/wait policy 与硬 Scheduler guard。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "separate-admission-policy-from-scheduler-state-machine.md"
+          },
+          {
+            "type": "归并",
+            "target": "retain-running-parallel-limits-and-order-ready-admission-by-priority.md"
           }
         ]
       }
