@@ -1,0 +1,147 @@
+# 项目知识与变更治理
+
+本文档是 Vibe Check 项目知识载体的权威性、内容归属和变更交接规则的唯一 owner。维护者与 AI
+使用它区分当前稳定规则、当前实现证据、形成时调查认识、跨任务长期方向和单次实施上下文，并把
+调查、决策、实施与验收结果交给正确载体。
+
+本文不定义各载体的固定格式、字段、关系或生命周期命令；这些机械契约分别由
+`investigation-report`、`decision-records` 和 `change-plan` skill 拥有。项目安装、命令接线与
+adapter 由[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)拥有。
+
+## 按用途选择权威载体
+
+| 要恢复或维护的内容 | 权威载体 | 该载体不拥有或不证明的内容 |
+| --- | --- | --- |
+| 已成为当前基线的稳定行为、public contract、职责边界和验证语义 | `docs/` 中对应的 owner 文档 | 当前二进制已经实现或通过验收 |
+| 当前实现状态及其可执行或可发布证据 | 代码、测试和 release artifact | 为什么采用某个长期方向，或未来准备怎样改变 |
+| 达到本项目自动沉淀条件，或由用户明确要求保存的一轮形成时背景、依据、认识和适用边界 | `docs/investigations/` | 当前事实、Bug 状态、实施授权或修复完成事实 |
+| 已确认且跨 change 持续有效的方向、理由、约束、对齐状态和演进关系 | `docs/decisions/` | 当前实现副本、优先级、实施任务、授权或验收完成事实 |
+| 一个当前 change 的范围、设计、任务、验证、Git 基线和生命周期状态 | `changes/<change>/` | 当前稳定事实或跨 change 方向的第二份 owner |
+
+`decision-index.json` 和 investigation index 都是从权威 Markdown 重建的查询视图，不拥有独立事实。
+一个方向成为当前基线后，Decision 保留“为什么采用”，对应 owner 文档保留“当前如何工作”；二者
+不互相替代。普通文档只有在拥有独立当前契约、任务入口或验收责任时才单独保留，否则并入对应
+owner 或删除。
+
+## 复杂或严重 Bug 的自动调查沉淀
+
+本项目明确要求：代理在调查或修复过程中确认 Bug 达到下列“复杂”或“严重”条件后，必须在同一
+任务内使用 `investigation-report` skill 创建调查报告，不等待用户再次催促或确认。该规则提供项目
+owner 对后续相关任务的预先明确要求，满足该 skill 的显式请求前提；执行时不再就单个 Bug 请求
+重复确认。该规则不建立独立的 Bug 报告格式或 open/closed 生命周期，也不扩大当前任务对产品修复、
+外部写入或其他副作用的授权。
+
+满足以下任一条件即视为**复杂 Bug**：
+
+1. 复现依赖特定版本、环境、时序、外部系统或难以再次取得的现场证据。
+2. 症状、直接原因与根因跨越多个 owner、进程或运行时边界，或者调查实际排除了多个合理解释。
+3. 修复涉及 workaround、兼容边界、恢复路径或重要的未采用方案，后续维护者需要恢复取舍依据。
+4. 修复只能在有限条件下验证，仍有未知项、不可外推范围或明确的重新调查条件。
+
+满足以下任一条件即视为**严重 Bug**，即使根因和修复本身简单也自动沉淀：
+
+1. 影响安全、隐私、权限、敏感信息、数据完整性，或者可能产生不可逆副作用。
+2. 阻断正式产品入口或常用 public API，或者使 Project Gate、release candidate 或发布验收无法形成
+   可信结论。
+3. 对常见合法输入产生静默错误结果、伪成功、错误可信 artifact，或者把失败掩盖为合法空结果。
+4. 影响多个独立消费者、环境或平台，并且不能由一个局部失败清楚限定影响范围。
+
+自动沉淀按以下顺序执行：
+
+1. 先取得足以判断复杂度、严重度和结论强度的实际证据，不为满足形式预建空报告。
+2. 确认达到自动触发条件后，继续完成当前任务已经授权的调查、修复和验证；未授权的产品修改、
+   外部写入或其他副作用仍需遵守当前任务边界。
+3. 在当前任务交付前，按本轮实际结果一次形成完整报告。Bug 尚未解决时，报告已确认认识、未知项
+   和继续调查条件，不把推测写成完成事实。
+4. 按 `investigation-report` skill 完成索引同步、全量检查和语义审阅。报告建立后若又出现实质新证据
+   或结论变化，按关系规则形成后继报告，不改写前一轮认识。
+5. 普通局部 Bug 如果根因直接、修复局部、具有最窄回归测试且不满足任何严重条件，不自动创建报告；
+   用户仍可明确要求沉淀。
+
+调查报告可以保存形成时症状、复现条件、实际依据、根因判断、候选修复、排除方案、已执行动作、
+验证结果和未知项，但这些内容仍按下表交给当前 owner：
+
+| Bug 处理结果 | 当前 owner |
+| --- | --- |
+| 已实施的修复 | 代码或配置 |
+| 防回归证明和当前验证结果 | 测试及对应验证 artifact |
+| 只约束当前实施的范围、任务、进度与恢复条件 | 当前 Change Plan；简单局部修复不预建 Change |
+| 已成为当前稳定规则的行为或边界 | 对应 `docs/` owner 文档 |
+| 已确认且跨 change 持续有效的方向或取舍 | Decision |
+
+## Decision 与 Change 交接
+
+活动决策的一般解释、任务关系分类、alignment、拆分和生命周期由项目内完整上游
+[`decision-records` skill](../.codex/skills/decision-records/SKILL.md) 与对应决策记录拥有。本文只定义
+Decision 与 Change 之间的项目级交接：
+
+1. 进入一个 Change 前，运行 `bun run decisions -- list`，再按 `decision-records` 恢复会直接改变该
+   Change 目标或结果的活动决策；当前请求决定本次授权，当前请求与 Change artifacts 共同限定
+   交付范围。
+2. Change 直接使用 `change-plan` 的 proposal、design、tasks 与 lifecycle，不为决策引用增加项目
+   自定义字段、章节或平行清单。
+3. 一条 `active + unaligned` 决策可以直接按已确认方向进入 Change 目标和 plan；当前请求明确把它
+   纳入实施授权时再实施。开始 Change 前不预先修改 alignment，也不把未对齐本身当作退回探索的
+   理由。
+4. 一个 Change 可以落实一条或多条决策，一条决策也可以跨多个 Change 落实；Change 的任务完成、
+   stage 转换或归档都不会自动改变决策状态。
+5. Change 的稳定事实 owner 已同步且相关验证通过后，对直接相关的活动决策触发 alignment 核对；
+   是否改变 alignment、是否需要拆分或演进只按 `decision-records` 的判断与命令执行。
+
+## Change Plan 使用边界
+
+需要跨文件、owner 或验证阶段持久交接的明确 change 使用 `$change-plan`。简单局部改动直接同步
+owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
+
+项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划，
+再阅读目标 Change 的 proposal、design 与 tasks。`changes/` 根目录不维护手工 active Change 清单、
+发布状态快照或跨 Change 事实副本；动态成员、stage、任务进度和 Git 距离以命令输出与目标
+artifacts 为准。只约束当前 Change 的开放问题、暂停原因和恢复条件写入对应 artifacts；metadata
+只使用 `change-plan` 定义的规范 stage，不另建暂停状态。
+
+固定 artifact、严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态由项目内完整上游
+[`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
+[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)。
+
+同时推进多个 Change 时，从[Change 执行依赖与 Worktree 协调](change-execution-order.md)恢复跨 Change 的
+硬前置、推荐合入顺序和共享 owner 冲突。该文档是依据当前 Change artifacts 维护的协调视图，不拥有
+active membership、stage、进度、暂停或实施授权；它与目标 artifacts 不一致时，先按当前事实修正
+协调视图，不能反向覆盖目标 Change。
+
+## 从调查和实施交接到当前事实
+
+1. 普通调查、排障和未确认判断留在当前任务；复杂或严重 Bug 按本项目自动触发条件沉淀，其他调查
+   只在用户明确要求时进入 `docs/investigations/`。报告本身不产生方向、任务或实施授权。
+2. 已确认且跨 change 持续有效的判断写入 `docs/decisions/`；未确认草稿留在当前任务或 Change 中。
+3. 获得授权的实施按“Change Plan 使用边界”判断是直接完成局部修改，还是写入
+   `changes/<change>/` 持久交接。
+4. 已成为当前稳定规则的结果写入对应 `docs/` owner 文档；当前实现及其证明写入代码、测试和
+   release artifact。
+5. Change 完成后先同步上述 owner，再完成语义验收；alignment 按“Decision 与 Change 交接”核对，
+   归档只在当前任务明确授权后执行。
+
+载体出现差异时，按内容类型从权威 owner 恢复：当前稳定规则看 owner 文档，当前实现看代码、测试
+和 release artifact，形成时认识看调查报告，未来方向看活动决策，当前实施上下文看 active Change。
+确认差异后更新失配的当前载体，不让调查报告、Change 或历史材料反向覆盖现行事实。
+
+## 历史读取边界
+
+只有任务明确要求历史审计、恢复形成时依据或比较演进时，才读取
+[`archive/legacy/historical-openspec-materials.md`](../archive/legacy/historical-openspec-materials.md)
+并按需进入其快照。历史内容不参与当前规范、计划或验证；恢复方向必须从当前 owner、活动决策和
+实现证据重新建立基线。
+
+恢复时不继承历史 lifecycle、任务完成状态或实现基线，但这不表示已经形成的计划内容必须退回探索。
+经当前 owner、活动决策和实现证据重新核对后仍成立的范围、设计、任务与验证，应重建到当前 Change
+的固定 artifacts，再通过 `change-plan` 的正常门禁确认 plan；只有失去依据或仍存在实质未决的部分
+才重新探索。
+
+## 验证
+
+| 改动范围 | 验证入口 |
+| --- | --- |
+| 本文档、标题、路径或文档路由 | `bun run validate -- docs` |
+| Investigation Report 正文、资源、关系或索引 | `bun run investigations` |
+| Decision Markdown、生命周期、关系或索引 | `bun run decisions -- check` |
+| Change Plan | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
+| 同时改变多个工作流边界 | `bun run verify:vibe-check-workspace:required` |

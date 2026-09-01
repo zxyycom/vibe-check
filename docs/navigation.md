@@ -21,10 +21,11 @@
 | 修改 package Markdown、Check guide、可验证 API 示例或 Markdown/JSDoc projection                                                                       | [脚本工具](script-tooling.md)、[编码规范](coding-style.md)                                       | 目标 Markdown、`docs/examples/package-api/`、projection registry/renderer/command、declaration owner 与 candidate tests     |
 | 修改开发脚本、Project Gate、共享 process/repository capability、根级诊断/值守卫或 docs validator                                               | [脚本工具](script-tooling.md)、[编码规范](coding-style.md)                                       | Project Gate 的 Check 与 `afterGate` 配置从 `scripts/project/gate/definition.ts` 读取；docs provider 见 `scripts/docs/**`，docs acceptance 见 `scripts/validation/documentation/**`；涉及产品时再读正式产品入口及 consumer contract |
 | 新增或修改测试、fixture、Case 或验证脚本                                                                                                               | [测试策略](testing.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](coding-style.md) | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试                                                  |
-| 恢复、审阅或维护跨任务沿用的长期判断                                                                                                                   | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner                  | 与 Change 交接时读[决策与 Change 治理](decision-and-change-governance.md)                                                   |
-| 创建、恢复、实施、搁置、验收或归档较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`             | [决策与 Change 治理](decision-and-change-governance.md)、相关决策与行为 owner                                               |
-| 协调多个 active Change 的依赖、合入顺序或 Git worktree                                                                                                  | [Change 执行依赖与 Worktree 协调](change-execution-order.md)、`bun run change-plan -- list changes` | 目标 Change artifacts、[决策与 Change 治理](decision-and-change-governance.md)                                              |
-| 创建、更新或审阅持久调查报告                                                                                                                           | `investigation-report` skill                                                                     | [Governance and Test Evidence adapters](script-tooling.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源     |
+| 恢复、审阅或维护跨任务沿用的长期判断                                                                                                                   | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner                  | 与 Change 交接时读[项目知识与变更治理](project-knowledge-and-change-governance.md)                                                   |
+| 创建、恢复、实施、搁置、验收或归档较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`             | [项目知识与变更治理](project-knowledge-and-change-governance.md)、相关决策与行为 owner                                               |
+| 协调多个 active Change 的依赖、合入顺序或 Git worktree                                                                                                  | [Change 执行依赖与 Worktree 协调](change-execution-order.md)、`bun run change-plan -- list changes` | 目标 Change artifacts、[项目知识与变更治理](project-knowledge-and-change-governance.md)                                              |
+| 调查或修复中确认 Bug 达到项目定义的复杂或严重条件                                                                                                       | [复杂或严重 Bug 的自动调查沉淀](project-knowledge-and-change-governance.md#复杂或严重-bug-的自动调查沉淀)、`investigation-report` skill | 目标报告、按需随附资源与 [Governance adapters](script-tooling.md#governance-and-test-evidence-adapters) |
+| 创建、更新或审阅其他持久调查报告                                                                                                                       | `investigation-report` skill                                                                     | [Governance adapters](script-tooling.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源                       |
 
 ## 随包 Check 指南
 
@@ -37,8 +38,8 @@ Quality Metrics 只保留跨 Check 通用契约。本文只提供任务路由，
 
 `docs/` owner 文档承接当前稳定规则；代码、测试和 release artifact 证明当前实现状态；活动决策
 承接已确认且跨 change 持续有效的方向；active Change Plan 承接单次 change 的实施上下文；调查
-报告保存形成时认识。完整载体分工、Decision / Change 协作和历史读取边界只见
-[决策与 Change 治理](decision-and-change-governance.md)。
+报告保存形成时认识。完整载体分工、调查与实施交接、Decision / Change 协作和历史读取边界只见
+[项目知识与变更治理](project-knowledge-and-change-governance.md)。
 
 除非文档明确标注 Current 或已实现，目标性 `MUST` / `SHALL` 只表示目标契约或决策要求，不证明
 当前二进制已经支持。发现材料不一致时，先判断它是稳定规则、未来方向、当前计划、实现证据还是
