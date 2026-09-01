@@ -120,7 +120,7 @@
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
-      "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:150cdd3b4988aa299fed0ff221e6d5e6fd77e243734c7220d34e93b850f74005",
+      "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:a4202b9217e59872a9d2777688722d72bceeaa6dc5b2564b59bbefed0db74a73",
       "provide-generic-bounded-finding-presentation.md": "sha256:bc7f7750493deb6340426e2f8cc9d5d0539c2ac224f83ac5867679be8052ec35",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
@@ -3870,14 +3870,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "provide-caller-keyed-json-cache-without-run-caching.md",
         "title": "提供 caller-keyed JSON cache 且不缓存 Run settlement",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-01T03:20:25Z",
         "purpose": "让 custom Check 和项目代码复用 caller-owned key 的持久化 JSON 结果，同时保持失效语义与 Check settlement owner 不变。",
         "background": "duplicate detection 当前独占领域 cache；新的真实 consumer 只需要通用存储机制，并明确由项目生成完整 key。",

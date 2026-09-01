@@ -1,7 +1,7 @@
 ---
 title: 提供 caller-keyed JSON cache 且不缓存 Run settlement
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-01T03:20:25Z
 purpose: 让 custom Check 和项目代码复用 caller-owned key 的持久化 JSON 结果，同时保持失效语义与 Check settlement owner 不变。
 background: duplicate detection 当前独占领域 cache；新的真实 consumer 只需要通用存储机制，并明确由项目生成完整 key。

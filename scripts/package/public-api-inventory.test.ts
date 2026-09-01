@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 import {
+  cacheJsonByKey,
   defineCheck,
   defineConfig,
   defaultProjectFileSelection,
@@ -46,6 +47,7 @@ describe("public API inventory", () => {
       }.exclude.at(-1),
       "**/fixtures/**"
     );
+    assert.equal(cacheJsonByKey.name, CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey);
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
     assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
@@ -74,6 +76,7 @@ describe("public API inventory", () => {
       CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers
     );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
+    assert.equal(typeof cacheJsonByKey, "function");
     assert.equal(typeof duplicateDetection, "function");
     assert.equal(typeof fileMetrics, "function");
     assert.equal(typeof functionMetrics, "function");

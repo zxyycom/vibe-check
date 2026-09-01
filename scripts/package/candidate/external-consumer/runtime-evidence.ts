@@ -59,7 +59,10 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 type CandidateFixtureEvidence = Readonly<{
   checkMessages: unknown;
   checkDurations: unknown;
+  cacheComputations: unknown;
   changedFilesCalls: unknown;
+  firstCacheRead: unknown;
+  secondCacheRead: unknown;
   changedFilesFromMachine: unknown;
   changedFilesFromRun: unknown;
   duplicateData: unknown;
@@ -115,7 +118,10 @@ function projectCandidateFixtureEvidence(
   return Object.freeze({
     checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
+    cacheComputations: evidence.cacheComputations,
     changedFilesCalls: evidence.changedFilesCalls,
+    firstCacheRead: evidence.firstCacheRead,
+    secondCacheRead: evidence.secondCacheRead,
     changedFilesFromMachine: evidence.changedFilesFromMachine,
     changedFilesFromRun: evidence.changedFilesFromRun,
     duplicateData: evidence.duplicateData,
@@ -163,6 +169,19 @@ function optionalOutcome(value: unknown, description: string): string | null {
 
 function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateFixture>): void {
   assert.equal(runEvidence.kind, "completed");
+  assert.equal(runEvidence.cacheComputations, 1);
+  assert.deepEqual(runEvidence.firstCacheRead, {
+    read: "miss",
+    source: "computed",
+    value: { count: 1 },
+    write: "stored"
+  });
+  assert.deepEqual(runEvidence.secondCacheRead, {
+    read: "hit",
+    source: "cache",
+    value: { count: 1 },
+    write: "not-attempted"
+  });
   assert.equal(runEvidence.duplicateOutcome, "passed");
   assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 1 });
   assertTrustedNonBlockingDuplicateRecord(runEvidence.duplicateRecords);

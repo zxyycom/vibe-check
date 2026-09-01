@@ -1,7 +1,10 @@
 import { readFileSync } from "node:fs";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
+  cacheJsonByKey,
   defineCheck,
   defineConfig,
   duplicateDetection,
@@ -20,6 +23,8 @@ import {
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
+
+const cacheEvidence = await observeCacheReuse();
 
 const jsonCheck = jsonValidation();
 const parserEvidence = {
@@ -216,6 +221,9 @@ process.stdout.write(
     JSON.stringify({
       checkMessages: result.kind === "completed" ? result.checkMessages : null,
       checkDurations: result.kind === "completed" ? result.checkDurations : null,
+      cacheComputations: cacheEvidence.computations,
+      firstCacheRead: cacheEvidence.firstRead,
+      secondCacheRead: cacheEvidence.secondRead,
       changedFilesCalls,
       changedFilesFromMachine: parsedChangedFilesFromMachine,
       changedFilesFromRun: parsedChangedFilesFromRun,
@@ -233,3 +241,33 @@ process.stdout.write(
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
 );
+
+async function observeCacheReuse() {
+  const directory = await mkdtemp(join(tmpdir(), "vibe-check-installed-cache-"));
+  let computations = 0;
+  try {
+    const options = {
+      compute: () => ({ count: ++computations }),
+      directory,
+      key: "installed-runtime-v1",
+      namespace: "installed.consumer",
+      parse(value) {
+        if (
+          value === null ||
+          typeof value !== "object" ||
+          Array.isArray(value) ||
+          typeof value.count !== "number"
+        ) {
+          throw new TypeError("installed cache payload is invalid");
+        }
+        return value;
+      },
+      version: "1"
+    };
+    const firstRead = await cacheJsonByKey(options);
+    const secondRead = await cacheJsonByKey(options);
+    return Object.freeze({ computations, firstRead, secondRead });
+  } finally {
+    await rm(directory, { force: true, recursive: true });
+  }
+}

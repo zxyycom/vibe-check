@@ -7,6 +7,7 @@ import { it } from "node:test";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
 
 const PRODUCT_OWNERS = [
+  "cache",
   "check",
   "check-settlement",
   "data-boundary",

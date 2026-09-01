@@ -95,6 +95,16 @@ console 内容。因此 console 不应写入 secret；只需要内存 readback �
 需要稳定补充说明时仍优先在 terminal result 返回结构化 `messages`；console capture 是对常见 author logging 的安全
 兼容边界，不是新的 live observer 或 Check logger API。在 `run(...)` 返回后由调用方打印汇总不受 running region 约束。
 
+## Caller-keyed JSON cache
+
+`cacheJsonByKey(...)` 是 package root 的 standalone local-storage helper，不属于 `ProjectDefinition`、`RunControls`、`CheckExecutionContext` 或 Run settlement。调用方提供 absolute `directory`、非空 `namespace`、payload `version`、opaque `key`、同步 `parse` 与同步/异步 `compute`。`key` 必须覆盖所有会改变 computation 结果的输入、实现版本、options、toolchain 与声明的外部状态；helper 不分析依赖，也不判断 key 是否完整。
+
+helper 对固定 API version、namespace、version 和 key 的 canonical structure 计算 SHA-256 identity，并只以 digest 命名 entry。raw key 不进入文件名、envelope、result 或 helper-owned diagnostics。磁盘 entry 在 closed envelope、identity、canonical object payload 与同步 parser 都成功前不可信；只有全部通过才是 hit。miss、invalid payload 或 read failure 后，helper 恰好调用一次 `compute`，并让 computed payload 经过相同的 detached canonical-object/parser boundary。
+
+返回的冻结 result envelope 表示本次调用，而非 Check 结算：hit 为 `{ source: "cache", read: "hit", write: "not-attempted" }`；computed 为 `{ source: "computed", read: "miss" | "invalid" | "failed", write: "stored" | "failed" }`。compute 或 parser failure 直接传播且不写 entry；storage failure 不改变已接受的 computed value，也不自动创建 Check message、Record 或 terminal status。parser 返回的 domain value 由 parser owner 决定是否进一步冻结。
+
+写入在 caller directory 内经 unique temporary file 和 atomic rename 发布。并发 miss 可以重复 computation，但 target 只作为完整有效 entry 读取；helper 不提供 lock、single-flight、global mutable cache、cleanup 或 whole-Check replay。directory 是 caller 信任且可删除的本地 state，不提供 containment、remote sharing、authenticity 或 secret protection；不得将 secret、token 或低熵敏感材料放入 key。consumer 自己决定是否把 observation 转换为 Check 事实。
+
 ## Finding presentation
 
 `presentCheckFindings(...)` 是 package root 的通用 presentation helper。它不规定 Finding shape 或完整明细位置；producing

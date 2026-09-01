@@ -66,6 +66,42 @@ bun run quality.ts
 
 `RunResult.kind === "completed"` 表示这次 Run 已经完整结算，不等于其中每项 Check 都通过。示例继续读取 `bundle-size` 的 `outcome.status`，并在结果不符合预期时让脚本失败。
 
+## 复用 caller-owned JSON cache
+
+当 custom Check 或普通项目代码已经能生成**完整的 semantic key**时，使用 `cacheJsonByKey(...)` 复用本地 canonical JSON object。`key` 必须随所有会改变计算结果的输入、实现版本、options、toolchain 与声明的外部状态变化；helper 不会自动分析依赖，也不会跳过或重放整个 Check。
+
+调用方提供 absolute、信任且可删除的 `directory`，并用同步 `parse` 验证缓存 payload。文件名只使用 identity digest，但 digest 不是 secret protection：不要把 secret、token 或低熵敏感值放进 `key`。`read`/`write` observation 让调用方决定缓存退化如何影响自己的 Check 或项目代码。完整输入、结果、并发和安全边界见[Caller-keyed JSON cache](./docs/api-mechanics.md#caller-keyed-json-cache)。
+
+```ts
+import { cacheJsonByKey } from "@zxyycom/vibe-check";
+
+const directory = `/tmp/my-project-vibe-check-cache-${Date.now()}-${Math.random()}`;
+let measurements = 0;
+const options = {
+  compute: () => ({ bytes: ++measurements * 1024 }),
+  directory,
+  key: "bundle-input:source-v3:tool-v1",
+  namespace: "my-project.bundle-size",
+  parse(value: unknown): { readonly bytes: number } {
+    if (
+      value === null ||
+      typeof value !== "object" ||
+      Array.isArray(value) ||
+      typeof (value as { bytes?: unknown }).bytes !== "number"
+    ) {
+      throw new TypeError("Invalid bundle-size cache payload");
+    }
+    return value as { readonly bytes: number };
+  },
+  version: "1"
+};
+const first = await cacheJsonByKey(options);
+const second = await cacheJsonByKey(options);
+if (first.source !== "computed" || second.source !== "cache" || measurements !== 1) {
+  throw new Error("Expected one computation followed by a cache hit");
+}
+```
+
 ## 随包提供的 Check
 
 如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 必须接收提醒条目外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。

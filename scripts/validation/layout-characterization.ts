@@ -9,6 +9,7 @@ import { validateProjectGateRoot } from "./project-gate-layout.ts";
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
+  "cache",
   "check",
   "check-settlement",
   "data-boundary",

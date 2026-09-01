@@ -149,6 +149,7 @@ function publicImports(): string {
 }
 
 const PUBLIC_IMPORTS_TEMPLATE = `import {
+  cacheJsonByKey,
   defineCheck,
   defineConfig,
   defaultProjectFileSelection,
@@ -171,6 +172,35 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   run,
 __VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
 } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
+
+function isCacheRecord(value: unknown): value is Readonly<Record<string, unknown>> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+const cacheOptions: CacheJsonByKeyOptions<{ readonly count: number }> = {
+  compute: () => ({ count: 1 }),
+  directory: "/tmp/isolated-vibe-check-cache",
+  key: "type-acceptance",
+  namespace: "isolated.consumer",
+  parse: (value) => {
+    if (!isCacheRecord(value) || typeof value.count !== "number") {
+      throw new TypeError("cache value is invalid");
+    }
+    return { count: value.count };
+  },
+  version: "1"
+};
+const cacheResult: Promise<CacheJsonByKeyResult<{ readonly count: number }>> = cacheJsonByKey(cacheOptions);
+const asyncCacheParser = async (_value: unknown) => ({ count: 1 });
+cacheJsonByKey({
+  compute: () => ({ count: 1 }),
+  directory: "/tmp/isolated-vibe-check-cache",
+  key: "async-parser-rejection",
+  namespace: "isolated.consumer",
+  // @ts-expect-error cache payload parsing must synchronously return a non-thenable value.
+  parse: asyncCacheParser,
+  version: "1"
+});
 
 const directCheck = defineCheck({
   checkId: "isolated-public-import",
@@ -342,6 +372,8 @@ function observeFinalDurations(runResult: RunResult): void {
 }
 
 void [
+  cacheJsonByKey,
+  cacheResult,
   defineCheck,
   defineConfig,
   duplicateDetection,

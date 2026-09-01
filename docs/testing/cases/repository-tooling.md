@@ -98,7 +98,7 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
-- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths against the installed runtime.
+- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies and completes the supported package Run with the installed entry. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths. The installed public cache computes once, then returns a parser-backed digest-keyed hit without changing either Check execution settlement.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
@@ -175,7 +175,7 @@ Entities:
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
   Proves:
 
-- Workspace validation rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
+- Workspace validation keeps the Product owner inventory closed, including the standalone `cache` owner, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 

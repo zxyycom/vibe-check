@@ -57,6 +57,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "cache-json-by-key",
+    regionId: "cache-json-by-key",
+    sourcePath: "docs/examples/package-api/cache-json-by-key.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "readme",
+        headingPath: Object.freeze(["复用 caller-owned JSON cache"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "以完整 caller key 复用 canonical JSON object"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "markdown-link-validation",
     regionId: "markdown-link-validation",
     sourcePath: "docs/examples/package-api/markdown-link-validation.ts",

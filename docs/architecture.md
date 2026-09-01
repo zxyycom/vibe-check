@@ -24,6 +24,7 @@
 - `src/project-run/**` 拥有 Run entry、invocation、aggregation、project context、completion/result，以及独立的
   `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `task-scheduler/**` 子 owner；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
+- `src/cache/**` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload domain 或 Check adoption；
 - `src/finding-waivers/**` 拥有按调用方语义 identity 对账 finding waiver 的公开纯函数；它不发布
   Record、不决定 Check outcome，也不依赖 Core 或 Gate；
 - `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
@@ -71,6 +72,12 @@ callback 只能通过自己的 reporter 提交 supplemental Record：`records.re
 Raw Check facts 始终可供 completed/output `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。aggregation 不读取 Record data、definition warning、output status 或 presentation，也不替代项目的 raw facts。
 
 Run callback-local dependency view 只授权当前 Check 的 normalized effective direct dependency IDs。`dependencies.get(checkId)` 读取 Check-facts package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
+
+## Caller-keyed cache boundary
+
+`src/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储 mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit 也不跳过 execution 或重放 Check settlement。完整 public contract 由 [API mechanics](api-mechanics.md#caller-keyed-json-cache) 拥有。
+
+cache directory 是 caller-trusted disposable local state。atomic temporary publication 只保护完整 target，不引入 lock、single-flight、cleanup、remote sharing、tamper resistance 或 secret protection。duplicate detection 的 Check-local raw fragment cache 继续由该 Check 的 scanner/availability owner 解释，不因 standalone helper 而迁移或改变 unavailable mapping。
 
 ## Package-provided Checks and exact inputs
 

@@ -5,6 +5,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     defaultProjectFileSelection: "defaultProjectFileSelection"
   }),
   operations: Object.freeze({
+    cacheJsonByKey: "cacheJsonByKey",
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
     duplicateDetection: "duplicateDetection",
@@ -29,6 +30,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     parseMarkdownLinkValidationData: "parseMarkdownLinkValidationData"
   }),
   types: Object.freeze({
+    CacheJsonByKeyOptions: "CacheJsonByKeyOptions",
+    CacheJsonByKeyResult: "CacheJsonByKeyResult",
     Check: "Check",
     CheckAggregate: "CheckAggregate",
     CheckAggregation: "CheckAggregation",

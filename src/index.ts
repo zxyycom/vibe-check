@@ -4,6 +4,8 @@
  *
  * @packageDocumentation
  */
+export { cacheJsonByKey } from "./cache/cache-json-by-key.ts";
+export type { CacheJsonByKeyOptions, CacheJsonByKeyResult } from "./cache/cache-json-by-key.ts";
 export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";
 export type { DuplicateDetectionFinalData } from "./package-checks/duplicate-detection/final-data.ts";

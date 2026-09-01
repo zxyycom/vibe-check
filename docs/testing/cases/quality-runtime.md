@@ -1,5 +1,25 @@
 # quality-runtime
 
+## Case AUX-CALLER-KEYED-JSON-CACHE-001: Caller-owned JSON cache isolates storage mechanics
+
+Owner: `docs/api-mechanics.md#caller-keyed-json-cache`
+Entities:
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > validates a closed absolute input grammar before reading or computing`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses a digest-only identity and returns a parser-backed hit without recomputing`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > isolates namespace, payload version, and key identities`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > recovers malformed, mismatched, parser-rejected, and read-failed entries by computing once`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > rejects thenable parsers at runtime without writing an entry`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > counts only an EEXIST rename with a valid reread as stored`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > classifies an ordinary rename failure as failed without rereading a target`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses the same canonical payload/parser boundary for computation and cache hits`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > does not publish thrown, cancelled, noncanonical, or parser-rejected computations`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > keeps computed values when the target directory cannot be published`
+- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > permits concurrent computation while exposing only a complete cached target`
+Proves:
+- A closed absolute caller directory plus non-empty namespace, payload version and key identify one digest-only entry; raw key material is absent from names and envelopes, and namespace/version/key changes isolate values.
+- The public parser type and runtime both reject thenable parser output. Only a complete envelope with matching identity, canonical object payload and synchronous caller parser is a hit. Missing, malformed, mismatched, parser-rejected or unreadable state computes exactly once; computed values pass the same detached canonical payload/parser boundary, while compute/parser failure never publishes an entry.
+- Publication uses same-directory unique temporary files and atomic rename. Only a deterministic `EEXIST` target conflict can reread a complete valid target as stored; ordinary filesystem failure preserves the accepted computed value with `write: "failed"`. Concurrent misses may duplicate compute but only leave a complete readable target without lock, single-flight or global cache state.
+
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check and Record foundation is exact and closed
 
 Owner: `docs/quality-metrics.md#check-and-record-facts`
