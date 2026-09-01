@@ -14,6 +14,9 @@ export type ProgressFeedback = Readonly<
       readonly totalChecks: number;
     }
   | {
+      readonly kind: "preparation-completed";
+    }
+  | {
       readonly kind: "started";
       readonly checkId: string;
       readonly displayName: string;

@@ -10,7 +10,7 @@
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
-      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:d8afb1d2f33c1ec39f974dc7637c9121c0e3b85e712391d80ba909aea3082629",
+      "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:01332542252de16f11e837ea196f4bfab17013809ef2ba4028249bbaa4108aa6",
       "allow-controlled-json-schema-reference-sources.md": "sha256:94e4b7a4903ed8c11b18d5c6d06c5bae703e4f8628d575891f597fdf2d01ce43",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "allow-explicitly-controlled-json-schema-reference-sources.md": "sha256:fad4fd5e005e91fd702dd68f108610781f055c4e2cd441a061b1f2ce8538081e",
@@ -73,6 +73,7 @@
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
+      "group-flag-disabled-checks-in-progress.md": "sha256:5646b0f05f279dbd44f768532af95e685af23457bccf5851d6c97137d6f075e6",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "install-check-console-router-before-preflight.md": "sha256:ab3cfdf48feb9fa27daa8f6dc8fe178e90c50ceb3c11f483c1ea55f91a94a1c7",
@@ -421,16 +422,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "allow-check-terminal-messages-and-explicit-visibility.md",
+        "sourcePath": "archive/allow-check-terminal-messages-and-explicit-visibility.md",
         "title": "允许 Check 返回终态消息并显式声明 visibility",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-22T08:48:11Z",
         "purpose": "让需要补充提示的 Check 在终态返回结构化消息，并以显式 visibility 控制人读行。",
@@ -2386,6 +2387,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "group-flag-disabled-checks-in-progress.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "group-flag-disabled-checks-in-progress.md",
+        "title": "在 progress 中按名称分组未命中 flag 的 Checks",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T15:57:07Z",
+        "purpose": "保留终态消息和 visibility 的同时，集中呈现因 flag 条件未匹配而未启动的 Checks。",
+        "background": "逐项输出相同的未运行状态会放大可预期控制结果，并掩盖真正执行或需要关注的 Check。",
+        "decision": "终态消息和 attention visibility 保持独立；progress 在 preparation 结束时按名称分组明确的 flag 条件未匹配结果。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "allow-check-terminal-messages-and-explicit-visibility.md"
+          }
+        ]
       }
     },
     "hard-cut-legacy-tool-shaped-config.md": {

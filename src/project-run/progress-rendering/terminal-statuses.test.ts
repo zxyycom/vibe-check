@@ -9,14 +9,36 @@ import { executeValidatedRun } from "../invocation.ts";
 function check(
   input: Readonly<{
     readonly checkId: string;
+    readonly displayName?: string;
+    readonly enabledByFlags?: Check["enabledByFlags"];
     readonly execution: Check["execution"];
   }>
 ): Check {
   return {
     checkId: input.checkId,
-    displayName: input.checkId,
+    displayName: input.displayName ?? input.checkId,
+    ...(input.enabledByFlags === undefined ? {} : { enabledByFlags: input.enabledByFlags }),
     execution: input.execution
   };
+}
+
+function checkDisabledByMissingFlag(
+  input: Readonly<{
+    readonly checkId: string;
+    readonly displayName: string;
+    readonly flag: string;
+    readonly onUnexpectedExecution: () => void;
+  }>
+): Check {
+  return check({
+    checkId: input.checkId,
+    displayName: input.displayName,
+    enabledByFlags: { flags: [input.flag], mode: "all" },
+    execution: () => {
+      input.onUnexpectedExecution();
+      return { status: "passed", data: {} };
+    }
+  });
 }
 
 function progressDefinition(checks: readonly Check[], maxParallel?: number) {
@@ -43,7 +65,80 @@ function capturedProgressWriter() {
   return { writes, writer };
 }
 
+function assertFlagDisabledFacts(result: Awaited<ReturnType<typeof executeValidatedRun>>): void {
+  assert(result.kind === "completed");
+  assert.deepEqual(
+    result.snapshot.checks
+      .filter((settledCheck) => settledCheck.checkId !== "always-on")
+      .map((settledCheck) => ({
+        checkId: settledCheck.checkId,
+        outcome: settledCheck.outcome
+      })),
+    [
+      {
+        checkId: "a-dependency-audit",
+        outcome: {
+          status: "not-applicable",
+          reason: { code: "flag-condition-not-matched" }
+        }
+      },
+      {
+        checkId: "z-deep-audit",
+        outcome: {
+          status: "not-applicable",
+          reason: { code: "flag-condition-not-matched" }
+        }
+      }
+    ]
+  );
+}
+
 describe("Package Run progress terminal statuses", () => {
+  it("groups flag-disabled Check names before execution while preserving their terminal facts", async () => {
+    const output = capturedProgressWriter();
+    let disabledCalls = 0;
+    const result = await executeValidatedRun(
+      progressDefinition([
+        checkDisabledByMissingFlag({
+          checkId: "z-deep-audit",
+          displayName: "Deep audit",
+          flag: "deep-audit",
+          onUnexpectedExecution: () => {
+            disabledCalls += 1;
+          }
+        }),
+        checkDisabledByMissingFlag({
+          checkId: "a-dependency-audit",
+          displayName: "Dependency audit",
+          flag: "dependency-audit",
+          onUnexpectedExecution: () => {
+            disabledCalls += 1;
+          }
+        }),
+        check({
+          checkId: "always-on",
+          displayName: "Always on",
+          execution: () => ({ status: "passed", data: {} })
+        })
+      ]),
+      {},
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assertFlagDisabledFacts(result);
+    assert.equal(disabledCalls, 0);
+    assert.equal(
+      output.writes[1],
+      "  The following 2 checks did not run because the run flags did not match their conditions:\n" +
+        "    - Deep audit\n" +
+        "    - Dependency audit\n"
+    );
+    assert.match(output.writes[2] ?? "", /^ {2}\[3\/3] Always on \| passed \| \d+(?:\.\d+)?ms\n$/);
+    assert.equal(output.writes.join("").includes("flag-condition-not-matched"), false);
+    assert.equal(output.writes.at(-1)?.includes("not applicable: 2"), true);
+  });
+
   it("renders a duration-bearing row for an executed not-applicable Check without a reason", async () => {
     const output = capturedProgressWriter();
     const result = await executeValidatedRun(

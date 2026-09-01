@@ -2,7 +2,7 @@ import type {
   CheckExecutionLifecycle,
   CheckSettledFact,
   CheckStartedFact
-} from "../check-execution/resolved-checks.ts";
+} from "../check-execution/lifecycle.ts";
 import {
   createProgressRenderer,
   type ProgressClock,
@@ -130,6 +130,7 @@ export function createProgressRendering(
   return Object.freeze({
     prepared: (totalChecks: number) => render(Object.freeze({ kind: "prepared", totalChecks })),
     lifecycle: Object.freeze({
+      preparationCompleted: () => render(Object.freeze({ kind: "preparation-completed" })),
       settled: (fact: CheckSettledFact) => {
         render(
           Object.freeze({
@@ -168,6 +169,7 @@ export function createProgressRendering(
 }
 function inertProgressRendering(): ProgressRendering {
   const lifecycle = Object.freeze({
+    preparationCompleted: (): void => undefined,
     settled: (_fact: CheckSettledFact): void => undefined,
     started: (_fact: CheckStartedFact): void => undefined
   });

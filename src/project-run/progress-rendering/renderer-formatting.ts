@@ -1,4 +1,5 @@
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
+import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/preparation-settlement.ts";
 import type { ProgressFeedback, ProgressOutcomeCounts } from "./renderer.ts";
 
 const COLOR = Object.freeze({
@@ -34,6 +35,29 @@ export function shouldPresentSettledFeedback(
     feedback.outcome.status !== "passed" ||
     feedback.messages.length > 0
   );
+}
+
+export function isFlagConditionNotMatchedFeedback(
+  feedback: Extract<ProgressFeedback, { readonly kind: "settled" }>
+): boolean {
+  return (
+    feedback.durationMs === null &&
+    feedback.messages.length === 0 &&
+    feedback.outcome.status === "not-applicable" &&
+    feedback.outcome.reason?.code === FLAG_CONDITION_NOT_MATCHED_CODE
+  );
+}
+
+export function formatFlagConditionNotMatchedBlock(
+  displayNames: readonly [string, ...string[]]
+): string {
+  const subject =
+    displayNames.length === 1
+      ? "The following check did not run because the run flags did not match its condition:"
+      : `The following ${displayNames.length} checks did not run because the run flags did not match their conditions:`;
+  return `  ${subject}\n${displayNames
+    .map((displayName) => `    - ${escapeTerminalText(displayName)}\n`)
+    .join("")}`;
 }
 
 export function formatSettledBlock(

@@ -1,9 +1,4 @@
-import type {
-  CheckMessage,
-  CheckOutcome,
-  CheckProjectContext,
-  CheckVisibility
-} from "../../check/check.ts";
+import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import {
@@ -24,6 +19,7 @@ import {
   type CheckIdentity,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
+import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import {
   checkIdentity,
   closeCancelledExecution,
@@ -41,24 +37,8 @@ import {
 const INERT_SIGNAL = new AbortController().signal;
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
 
-/** Private Run handoff for Check lifecycle presentation and accounting. */
-export type CheckExecutionLifecycle = Readonly<{
-  readonly started: (fact: CheckStartedFact) => void;
-  readonly settled: (fact: CheckSettledFact) => void;
-}>;
-
 /** Package-private monotonic clock seam for execution accounting. */
 export type CheckExecutionClock = Readonly<{ now(): number }>;
-
-export type CheckStartedFact = Readonly<{ checkId: string; displayName: string }>;
-
-export type CheckSettledFact = CheckStartedFact &
-  Readonly<{
-    durationMs: number | null;
-    messages: readonly CheckMessage[];
-    outcome: CheckOutcome;
-    visibility: CheckVisibility;
-  }>;
 
 type ResolvedCheckExecutionFacts = Readonly<{
   readonly checkDurations: readonly import("../result.ts").CheckDuration[];
@@ -186,6 +166,7 @@ async function prepareResolvedCheckExecution(
     lifecycle: input.lifecycle
   });
   const partition = settlePreparationResolutions(state, preparations);
+  input.lifecycle?.preparationCompleted();
   return Object.freeze({ ...partition, state });
 }
 

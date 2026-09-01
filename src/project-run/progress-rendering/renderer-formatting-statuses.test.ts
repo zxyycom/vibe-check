@@ -1,10 +1,19 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import { formatFlagConditionNotMatchedBlock } from "./renderer-formatting.ts";
 import { createProgressRenderer } from "./renderer.ts";
 import { createWriter, settled } from "./renderer.test-support.ts";
 
 describe("Package Run progress terminal formatting", () => {
+  it("formats a singular flag-condition group with a terminal-safe Check name", () => {
+    assert.equal(
+      formatFlagConditionNotMatchedBlock(["Deep\naudit\u001B[31m"]),
+      "  The following check did not run because the run flags did not match its condition:\n" +
+        "    - Deep\\naudit\\u001B[31m\n"
+    );
+  });
+
   it("formats every terminal status with measured duration or not run and only the safe reason code", () => {
     const output = createWriter();
     const renderer = createProgressRenderer(output.writer);

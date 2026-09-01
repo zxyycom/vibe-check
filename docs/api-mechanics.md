@@ -299,7 +299,20 @@ failure 只把该 output 标为 failed，不改写已形成的 Check/Record fact
 machine publication、diagnostic logging。diagnostic logging 不进入 machine v4；其 machine-field 排除见
 [机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
 
-progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled rows。`visibility: "attention"` 只隐藏无 author/captured messages 的 passed settled row，不改变 outcome、Records 或 machine output；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
+progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled presentation。preparation barrier
+结束时，因 `enabledByFlags` 未匹配而没有启动的 Checks 不逐项呈现完整 settled row；renderer 写一个原因说明块，并按
+Definition 顺序列出这些 Checks 的 `displayName`。该分组只识别 Product 形成的
+`not-applicable / flag-condition-not-matched`、`durationMs: null` 且无 messages 的事实；preflight failure、cancellation、其它
+`not-applicable` / `unavailable` 和带 messages 的 Check 仍各自呈现。`visibility: "attention"` 继续只隐藏无 author/captured
+messages 的 passed settled row。两种压缩都不改变 accounting ordinal、outcome、Records、machine output、dependency、aggregation
+或 `RunResult`；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。
+renderer failure 进入对应 output status，不改写已形成的 Check facts。
+
+```text
+  The following 2 checks did not run because the run flags did not match their conditions:
+    - Deep audit
+    - Dependency audit
+```
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 

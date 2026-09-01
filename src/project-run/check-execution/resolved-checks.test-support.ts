@@ -1,11 +1,8 @@
 import type { CheckExecution, CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
-import {
-  executeResolvedChecks,
-  type CheckExecutionClock,
-  type CheckExecutionLifecycle
-} from "./resolved-checks.ts";
+import { executeResolvedChecks, type CheckExecutionClock } from "./resolved-checks.ts";
+import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 
 export const PROJECT = Object.freeze({
   flags: Object.freeze([]),

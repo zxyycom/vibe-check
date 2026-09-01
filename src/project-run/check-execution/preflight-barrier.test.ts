@@ -2,11 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
-import {
-  executeResolvedChecks,
-  type CheckSettledFact,
-  type CheckStartedFact
-} from "./resolved-checks.ts";
+import type { CheckSettledFact, CheckStartedFact } from "./lifecycle.ts";
+import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
   PROJECT,
   deferred,
@@ -109,7 +106,11 @@ describe("Package Run direct Check execution", () => {
         )
       ],
       diagnosticLogger: recordingLogger(observations),
-      lifecycle: { started: (fact) => started.push(fact), settled: (fact) => settled.push(fact) },
+      lifecycle: {
+        preparationCompleted: () => undefined,
+        started: (fact) => started.push(fact),
+        settled: (fact) => settled.push(fact)
+      },
       maxParallel: 1,
       project: PROJECT,
       signal: undefined

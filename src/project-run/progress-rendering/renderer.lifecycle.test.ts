@@ -39,7 +39,7 @@ describe("Package Run progress lifecycle presentation", () => {
       "  [2/3] TypeScript product lint | running | 5s\n"
     ]);
   });
-  it("keeps plain and dumb-terminal output append-only and settled-only", () => {
+  it("keeps plain and dumb-terminal output append-only without running rows", () => {
     for (const writerOptions of [{ isTTY: false }, { isTTY: true, term: "dumb" }]) {
       const output = createWriter(writerOptions);
       const renderer = createProgressRenderer(output.writer);

@@ -5,9 +5,11 @@ import type {
   ProgressWriter
 } from "./renderer.ts";
 import {
+  formatFlagConditionNotMatchedBlock,
   formatFinalSummary,
   formatRunningRow,
   formatSettledBlock,
+  isFlagConditionNotMatchedFeedback,
   shouldPresentSettledFeedback
 } from "./renderer-formatting.ts";
 
@@ -25,6 +27,7 @@ export class ProgressRendererController implements ProgressRenderer {
   private readonly clock: ProgressClock;
   private readonly writer: ProgressWriter;
   private completedCount = 0;
+  private readonly flagConditionNotMatchedDisplayNames: string[] = [];
   private preparedTotal: number | undefined;
   private renderedRunningRows = 0;
   private readonly running: RunningCheck[] = [];
@@ -49,6 +52,9 @@ export class ProgressRendererController implements ProgressRenderer {
     switch (feedback.kind) {
       case "prepared":
         this.prepare(feedback.totalChecks);
+        return;
+      case "preparation-completed":
+        this.completePreparation();
         return;
       case "started":
         this.start(feedback);
@@ -85,7 +91,9 @@ export class ProgressRendererController implements ProgressRenderer {
     if (this.refreshesRunningRegion) this.eraseRunningRegion();
     this.completedCount += 1;
     this.removeRunningCheck(feedback.checkId);
-    if (shouldPresentSettledFeedback(feedback)) {
+    if (isFlagConditionNotMatchedFeedback(feedback)) {
+      this.flagConditionNotMatchedDisplayNames.push(feedback.displayName);
+    } else if (shouldPresentSettledFeedback(feedback)) {
       this.writer.write(
         formatSettledBlock({
           completionOrdinal: this.completedCount,
@@ -106,7 +114,25 @@ export class ProgressRendererController implements ProgressRenderer {
     if (this.running.length > 0) {
       throw new Error("Progress feedback finalized while Checks are still running");
     }
+    this.flushFlagConditionNotMatchedChecks();
     this.writer.write(formatFinalSummary(feedback));
+  }
+
+  private completePreparation(): void {
+    this.requirePrepared();
+    this.flushFlagConditionNotMatchedChecks();
+  }
+
+  private flushFlagConditionNotMatchedChecks(): void {
+    const firstDisplayName = this.flagConditionNotMatchedDisplayNames[0];
+    if (firstDisplayName === undefined) return;
+    this.writer.write(
+      formatFlagConditionNotMatchedBlock([
+        firstDisplayName,
+        ...this.flagConditionNotMatchedDisplayNames.slice(1)
+      ])
+    );
+    this.flagConditionNotMatchedDisplayNames.length = 0;
   }
 
   private eraseRunningRegion(): void {

@@ -7,7 +7,7 @@ import {
 } from "../diagnostic-logging/logger.ts";
 import { parseCheckTerminalResult } from "./terminal-result.ts";
 import { combineCheckMessages } from "./messages.ts";
-import type { CheckExecutionLifecycle } from "./resolved-checks.ts";
+import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import type { executeCheckCallback } from "./callback.ts";
 
 export type CheckIdentity = Readonly<{

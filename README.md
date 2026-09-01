@@ -145,6 +145,10 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 
 `enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。深入执行顺序与 settlement 见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
 
+默认 progress 会把因 flag 条件未匹配而没有启动的 Checks 合成一个原因说明块，并在下面列出各自的
+`displayName`；完整 Check facts、最终计数和 machine output 不会被压缩或删除。完整分组条件与其它未启动状态的
+呈现边界见 [API 机制](docs/api-mechanics.md#outputs-与-runresult-边界)。
+
 需要读取一个已声明 direct dependency 的 final data 时，使用 `context.dependencies.get(checkId)`，并由 producing
 Check 的 `parseData` 恢复其业务类型。需要审计所有已声明 direct dependencies 时，使用零参数
 `context.dependencies.list()`：它按 normalized effective direct ID 的稳定顺序返回冻结的 observation array；每项都是冻结的

@@ -2,12 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
-import {
-  executeResolvedChecks,
-  type CheckExecutionLifecycle,
-  type CheckSettledFact,
-  type CheckStartedFact
-} from "./resolved-checks.ts";
+import type { CheckExecutionLifecycle, CheckSettledFact, CheckStartedFact } from "./lifecycle.ts";
+import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
   PROJECT,
   deferred,
@@ -23,6 +19,7 @@ describe("Package Run direct Check execution", () => {
     const started: unknown[] = [];
     const settled: unknown[] = [];
     const lifecycle: CheckExecutionLifecycle = Object.freeze({
+      preparationCompleted: () => undefined,
       started: (fact: CheckStartedFact): void => {
         started.push(fact);
       },
@@ -85,6 +82,7 @@ describe("Package Run direct Check execution", () => {
       ],
       clock: scriptedClock([10, 20, 30, 40]),
       lifecycle: Object.freeze({
+        preparationCompleted: () => undefined,
         started: (fact: CheckStartedFact): void => {
           events.push(`started:${fact.checkId}`);
         },

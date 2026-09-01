@@ -113,7 +113,9 @@ flag 条件匹配时，Check 继续普通 preflight 与 execution；条件不匹
 scanner 或其它 Check-local work 前把它结算为
 `{ status: "not-applicable", reason: { code: "flag-condition-not-matched" } }`。该 Check 没有 started fact，
 duration 为 `null`，但仍保留在 Check facts、dependency readback 与显式 aggregation 中；已声明 dependent 在这个
-终态后仍会正常 admission。
+终态后仍会正常 admission。默认 progress 在 preparation barrier 结束时用一个原因说明和 `displayName` 列表呈现全部这类
+未启动 Checks，不为每项重复完整 settled row；其它未启动或非成功结果不进入该分组。完整人读输出边界见
+[深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)。
 
 **责任边界。** callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、
 嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。需要这些复杂条件时，owning Check 在 callback 中解释
