@@ -4,11 +4,11 @@
 
 ## Context
 
-- 当前 Task Scheduler 只把依赖 Task 的 `completed` settlement 当作 ready；Check callback 正常返回的四态结果都会让对应 Task completed。
-- `dependencies.get(...)` 对 upstream `passed` 与 `failed` 返回 final data，对 `not-applicable` 与 `unavailable` 返回受控 read failure；`dependencies.list()` 保留全部四态 direct outcomes。
-- current preflight 在任何 execution admission 前按 Definition 顺序经过全局 barrier。blocked preflight 会先形成 unavailable fact，但依赖它的 ready Check 仍可执行。
-- generic Task engine 已有 private `blocked` settlement，却只用于 executor failure propagation；Check finalizer 当前把任何 blocked Product Check 视为 invariant failure。
-- aligned dependency Decision 以现有 `dependsOn` 同时拥有 wait 与 read authorization；aligned preflight Decision 明确要求 global barrier；aligned inheritance Decision 只允许 `dependsOn` 与 `mutex` 使用 `inherit(...)`。本 Change 必须演进这些长期判断，不能把 Plan 文本冒充已对齐事实。
+- Plan 形成时，Task Scheduler 只把依赖 Task 的 `completed` settlement 当作 ready；Check callback 正常返回的四态结果都会让对应 Task completed。
+- Plan 形成时，`dependencies.get(...)` 对 upstream `passed` 与 `failed` 返回 final data，对 `not-applicable` 与 `unavailable` 返回受控 read failure；`dependencies.list()` 保留全部四态 direct outcomes。
+- Plan 形成时，preflight 在任何 execution admission 前按 Definition 顺序经过全局 barrier。blocked preflight 会先形成 unavailable fact，但依赖它的 ready Check 仍可执行。
+- Plan 形成时，generic Task engine 已有 private `blocked` settlement，却只用于 executor failure propagation；Check finalizer 把任何 blocked Product Check 视为 invariant failure。
+- Plan 形成时的 aligned Decisions 让 `dependsOn` 同时拥有 wait 与 read authorization、要求 global preflight barrier，并只允许 `dependsOn` 与 `mutex` 使用 `inherit(...)`。本 Change 已通过正式 Decision evolution 替代这些判断。
 - 本 Plan 采用一次 public hard cut，不提供旧语义 alias 或双读期；实施必须迁移仓库内与 installed consumer 中的全部现有使用，并由对应长期 Decision确认版本边界。
 
 三种图 relation 的职责固定如下；`maxParallel` 与 `admissionPriority` 仍是调度参数，不形成第四种 relation：
@@ -69,3 +69,10 @@
 ## Open Questions
 
 无。用户已确认成功前置与终态观测是唯一两种有向 relation，且不建立按状态路由的工作流 DSL；本 Plan 采用上述硬切和完整 preflight gating。
+
+## Implementation Observations
+
+- `separate-passed-dependencies-from-settled-observations.md`、`run-check-preflight-with-task-admission.md`、`inherit-depends-on-and-observes-independently.md`、`keep-console-router-through-task-local-check-lifecycle.md` 与 `settle-non-passed-dependents-as-unavailable.md` 已成为 active + aligned Decisions；对应前序 Decisions 已按正式演进关系归档。
+- Product 已实现独立 `dependsOn` / `observes` authoring、inheritance、normalization、fingerprint、union graph validation 与 direct read authorization；Scheduler 只消费中性的 prerequisite satisfaction signal。
+- task-local preflight、Product-owned `dependency-not-passed` closure、observer 四态 readback、consumer 迁移、package 文档与 Case 账本已同步；独立 correctness、AI-ready 与编码规范/最小抽象审查均无剩余阻断。
+- 最终证据包括 226 项 source tests、327/327 Test Evidence entities、exact package candidate 与 ancestry-external consumer acceptance，以及 36/36 passed 的 full Project Gate。
