@@ -1,6 +1,6 @@
 ---
 title: 在 Check preflight 前一次安装 console router
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:53:01Z
 purpose: 让一轮 resolved Check execution 在任何 author work 前建立唯一 console 路由，同时保持每项 Check 的异步归属隔离。

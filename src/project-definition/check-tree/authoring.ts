@@ -32,6 +32,7 @@ export interface ParsedCheck {
   readonly execution: CheckExecution | null;
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
+  readonly observes: ParsedCheckCollection | undefined;
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
@@ -78,6 +79,7 @@ const CHECK_KEYS = [
   "maxParallel",
   "mutex",
   "options",
+  "observes",
   "parseData",
   "preflight",
   "visibility"
@@ -139,6 +141,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     execution: fields.execution,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
+    observes: scheduling.observes,
     options: fields.options,
     path,
     parseData: fields.parseData,
@@ -277,15 +280,18 @@ function parseScheduling(data: CheckAuthoringData):
       readonly dependsOn: ParsedCheckCollection | undefined;
       readonly maxParallel: number | undefined;
       readonly mutex: ParsedCheckCollection | undefined;
+      readonly observes: ParsedCheckCollection | undefined;
     }>
   | undefined {
   const dependsOn = parseCollection(data, "dependsOn");
   const mutex = parseCollection(data, "mutex");
+  const observes = parseCollection(data, "observes");
   const admissionPriority = data.admissionPriority;
   const maxParallel = data.maxParallel;
   if (
     dependsOn === null ||
     mutex === null ||
+    observes === null ||
     (admissionPriority !== undefined &&
       (typeof admissionPriority !== "number" || !Number.isSafeInteger(admissionPriority))) ||
     (maxParallel !== undefined &&
@@ -296,13 +302,14 @@ function parseScheduling(data: CheckAuthoringData):
     admissionPriority,
     dependsOn: dependsOn ?? undefined,
     maxParallel,
-    mutex: mutex ?? undefined
+    mutex: mutex ?? undefined,
+    observes: observes ?? undefined
   });
 }
 
 function parseCollection(
   data: CheckAuthoringData,
-  field: "dependsOn" | "mutex"
+  field: "dependsOn" | "mutex" | "observes"
 ): ParsedCheckCollection | null | undefined {
   if (!Object.hasOwn(data, field)) return undefined;
   const value = data[field];

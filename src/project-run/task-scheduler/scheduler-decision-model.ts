@@ -1,6 +1,11 @@
 import type { PlannedTaskGraph } from "./graph.ts";
 
-export type SchedulerSettlementKind = "completed" | "failed" | "blocked" | "cancelled-before-start";
+export type SchedulerSettlementKind =
+  | "completed"
+  | "prerequisite-unsatisfied"
+  | "failed"
+  | "blocked"
+  | "cancelled-before-start";
 
 export type SchedulerTrigger =
   | Readonly<{ readonly kind: "execution-started" }>

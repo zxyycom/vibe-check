@@ -26,15 +26,14 @@ import {
 } from "./execution-settlement.ts";
 import {
   checkIdentity,
-  closeCancelledExecution,
   closeResolvedChecks,
+  settleBlockedDependent,
   trustedFailure
 } from "./execution-finalization.ts";
 import { planStaticCheckGraph } from "./plan.ts";
 import {
-  prepareChecks,
+  prepareCheck,
   type CheckPreflightResolution,
-  type PreparedCheck,
   type ReadyCheckPreflightResolution
 } from "./preflight.ts";
 
@@ -75,18 +74,11 @@ export interface CheckExecutionState extends CheckExecutionSettlementState {
 }
 
 interface ExecuteCheckInput extends CheckExecutionState {
-  readonly preflight: ReadyCheckPreflightResolution;
+  readonly check: NormalizedCheck;
   readonly clock: CheckExecutionClock;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
-
-type PreparedResolvedCheckExecution = Readonly<{
-  readonly blockedCheckIds: ReadonlySet<string>;
-  readonly readyChecks: readonly PreparedCheck[];
-  readonly readyPreflights: readonly ReadyCheckPreflightResolution[];
-  readonly state: CheckExecutionState;
-}>;
 
 type ResolvedCheckExecutionInput = Readonly<{
   readonly checks: readonly NormalizedCheck[];
@@ -112,37 +104,37 @@ export async function executeResolvedChecks(
 async function executePreparedResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
-  const prepared = await prepareResolvedCheckExecution(input);
-  // The barrier is execution-phase work. A signal received while it runs must close this
-  // phase as cancelled even when every preflight already blocked and the scheduler graph is empty.
-  if (input.signal?.aborted) {
-    return closeCancelledExecution({
-      normalizedChecks: input.checks,
-      preparedChecks: prepared.readyChecks,
-      state: prepared.state
-    });
-  }
-  const readyPreflightByCheckId = new Map(
-    prepared.readyPreflights.map((preflight) => [preflight.check.definition.checkId, preflight])
-  );
-  const graph = planStaticCheckGraph(prepared.readyChecks, {
-    alreadySettledCheckIds: prepared.blockedCheckIds
+  const state = createExecutionState({
+    checks: input.checks,
+    diagnosticLogger: input.diagnosticLogger,
+    lifecycle: input.lifecycle
   });
-  let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
+  const checksByCheckId = new Map(
+    input.checks.map((check) => [check.definition.checkId, check] as const)
+  );
+  let graphRun: Awaited<ReturnType<typeof runTaskGraph<boolean>>>;
   try {
     graphRun = await runTaskGraph({
-      graph,
+      graph: planStaticCheckGraph(input.checks),
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
       signal: input.signal,
-      execute: (task, context) => {
-        const preflight = readyPreflightByCheckId.get(task.id);
-        if (preflight === undefined) {
-          throw new CheckExecutionInvariantFailure("Task graph has no prepared Check");
+      isPrerequisiteSatisfied: (satisfied) => satisfied,
+      onTaskBlocked: (task, dependencyIds) => {
+        const check = checksByCheckId.get(task.id);
+        if (check === undefined) {
+          throw new CheckExecutionInvariantFailure("Blocked Task has no normalized Check");
         }
-        return executeCheck({
-          ...prepared.state,
-          preflight,
+        settleBlockedDependent({ check, dependencyIds, state });
+      },
+      execute: (task, context) => {
+        const check = checksByCheckId.get(task.id);
+        if (check === undefined) {
+          throw new CheckExecutionInvariantFailure("Task graph has no normalized Check");
+        }
+        return executeAdmittedCheck({
+          ...state,
+          check,
           clock: input.clock ?? SYSTEM_MONOTONIC_CLOCK,
           project: input.project,
           signal: context.signal ?? INERT_SIGNAL
@@ -156,32 +148,8 @@ async function executePreparedResolvedChecks(
   return closeResolvedChecks({
     allChecks: input.checks,
     graphRun,
-    readyChecks: prepared.readyChecks,
-    state: prepared.state
+    state
   });
-}
-
-async function prepareResolvedCheckExecution(
-  input: Readonly<{
-    readonly checks: readonly NormalizedCheck[];
-    readonly diagnosticLogger?: DiagnosticLogger;
-    readonly lifecycle?: CheckExecutionLifecycle;
-    readonly maxParallel: number;
-    readonly signal: AbortSignal | undefined;
-  }>
-): Promise<PreparedResolvedCheckExecution> {
-  const preflights = await prepareChecks({
-    checks: input.checks,
-    diagnosticLogger: input.diagnosticLogger,
-    signal: input.signal
-  });
-  const state = createExecutionState({
-    checks: input.checks,
-    diagnosticLogger: input.diagnosticLogger,
-    lifecycle: input.lifecycle
-  });
-  const partition = settlePreflightResolutions(state, preflights);
-  return Object.freeze({ ...partition, state });
 }
 
 function createExecutionState(
@@ -201,27 +169,6 @@ function createExecutionState(
   };
 }
 
-function settlePreflightResolutions(
-  state: CheckExecutionState,
-  resolutions: readonly CheckPreflightResolution[]
-): Omit<PreparedResolvedCheckExecution, "state"> {
-  const readyPreflights: ReadyCheckPreflightResolution[] = [];
-  const blockedCheckIds = new Set<string>();
-  for (const resolution of resolutions) {
-    if (resolution.kind === "ready") {
-      readyPreflights.push(resolution);
-      continue;
-    }
-    blockedCheckIds.add(resolution.check.definition.checkId);
-    settleBlockedPreflight(state, resolution);
-  }
-  return Object.freeze({
-    blockedCheckIds,
-    readyChecks: Object.freeze(readyPreflights.map((preflight) => preflight.check)),
-    readyPreflights: Object.freeze(readyPreflights)
-  });
-}
-
 function settleBlockedPreflight(
   state: CheckExecutionState,
   preflight: Extract<CheckPreflightResolution, { readonly kind: "blocked" }>
@@ -238,7 +185,22 @@ function settleBlockedPreflight(
   });
 }
 
-async function executeCheck(input: ExecuteCheckInput): Promise<void> {
+async function executeAdmittedCheck(input: ExecuteCheckInput): Promise<boolean> {
+  const preflight = await prepareCheck({
+    check: input.check,
+    diagnosticLogger: input.diagnosticLogger,
+    signal: input.signal
+  });
+  if (preflight.kind === "blocked") {
+    settleBlockedPreflight(input, preflight);
+    return false;
+  }
+  return executeReadyCheck({ ...input, preflight });
+}
+
+async function executeReadyCheck(
+  input: ExecuteCheckInput & Readonly<{ readonly preflight: ReadyCheckPreflightResolution }>
+): Promise<boolean> {
   const check = input.preflight.check;
   const checkId = check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
@@ -259,7 +221,7 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
     dependencies: createCheckDependencies({
       checkId,
       diagnosticLogger: input.diagnosticLogger,
-      directDependencyIds: check.dependsOn,
+      directRelationCheckIds: directRelationCheckIds(check),
       session: input.session
     }),
     diagnosticLogger: input.diagnosticLogger,
@@ -282,6 +244,13 @@ async function executeCheck(input: ExecuteCheckInput): Promise<void> {
     phase: "execution",
     state: input
   });
+  return settled.outcome.status === "passed";
+}
+
+function directRelationCheckIds(
+  check: Pick<NormalizedCheck, "dependsOn" | "observes">
+): readonly string[] {
+  return Object.freeze([...new Set([...check.dependsOn, ...check.observes])].sort());
 }
 
 function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {

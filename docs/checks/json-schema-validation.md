@@ -82,7 +82,7 @@ fragment 的精确 HTTPS origin；`pathPrefix` 最长 256 字符，从 `/` 开�
 
 ## 工作原理
 
-constructor 先关闭 authoring shape、补齐并冻结 resolved options。Run 的全局 preflight barrier 验证完整 options 后，zero
+constructor 先关闭 authoring shape、补齐并冻结 resolved options。该 Check 获 Scheduler admission 后，其 task-local preflight 验证完整 options；zero
 bindings 结算为 `not-applicable`；其它调用从 `files`
 selection 建立可读 path set，加载 registered schemas，按 identity policy 编译，再验证每个 binding。selected set
 之外的声明 path 形成 `out-of-scope` domain issue，读取 scope 保持为 selected set。schema document、compile 与

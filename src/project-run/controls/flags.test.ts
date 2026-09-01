@@ -83,7 +83,7 @@ describe("Package Run flags", () => {
     assert.deepEqual(snapshots, [[], [], [], ["disabled:docs", "enabled:docs"]]);
   });
 
-  it("keeps dependent admission after local not-applicable", async () => {
+  it("blocks a dependent after a local not-applicable outcome", async () => {
     let flagControlledCalls = 0;
     let dependentCalls = 0;
     const result = await run(
@@ -114,13 +114,16 @@ describe("Package Run flags", () => {
     assert.equal(result.kind, "completed");
     if (result.kind !== "completed") return;
     assert.equal(flagControlledCalls, 0);
-    assert.equal(dependentCalls, 1);
+    assert.equal(dependentCalls, 0);
     assert.deepEqual(
       result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
       [
         {
           checkId: "dependent",
-          outcome: PASSED
+          outcome: {
+            status: "unavailable",
+            reason: { code: "dependency-not-passed", checkIds: ["flag-controlled"] }
+          }
         },
         {
           checkId: "flag-controlled",

@@ -53,28 +53,8 @@ type PrepareCheckInput = Readonly<{
 
 type PreflightInvocation = Awaited<ReturnType<typeof invokeWithCapturedConsole<unknown>>>;
 
-/** Completes the sequential invocation-wide barrier before any Check enters the Task graph. */
-export async function prepareChecks(
-  input: Readonly<{
-    readonly checks: readonly NormalizedCheck[];
-    readonly diagnosticLogger?: DiagnosticLogger;
-    readonly signal: AbortSignal | undefined;
-  }>
-): Promise<readonly CheckPreflightResolution[]> {
-  const resolutions: CheckPreflightResolution[] = [];
-  for (const check of input.checks) {
-    resolutions.push(
-      await prepareCheck({
-        check,
-        diagnosticLogger: input.diagnosticLogger,
-        signal: input.signal
-      })
-    );
-  }
-  return Object.freeze(resolutions);
-}
-
-async function prepareCheck(input: PrepareCheckInput): Promise<CheckPreflightResolution> {
+/** Resolves one Check's task-local preparation after Scheduler admission. */
+export async function prepareCheck(input: PrepareCheckInput): Promise<CheckPreflightResolution> {
   if (input.signal?.aborted) {
     return observeBlockedPreflight({
       check: input.check,

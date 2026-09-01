@@ -4,6 +4,7 @@ import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
+  | { readonly kind: "prerequisite-unsatisfied"; readonly value: TResult }
   | { readonly kind: "failed"; readonly error: unknown }
   | { readonly kind: "blocked"; readonly dependencyIds: readonly string[] }
   | { readonly kind: "cancelled-before-start" }
@@ -33,6 +34,10 @@ export interface RunTaskGraphOptions<TResult> {
     task: PlannedTask,
     context: TaskExecutionContext
   ) => TResult | Promise<TResult>;
+  /** Maps a completed Task's opaque product value to prerequisite satisfaction. */
+  readonly isPrerequisiteSatisfied?: (value: TResult) => boolean;
+  /** Lets a product close a blocked Task before any terminal observer can be admitted. */
+  readonly onTaskBlocked?: (task: PlannedTask, dependencyIds: readonly string[]) => void;
 }
 
 export type RunningTaskCompletion<TResult> = Readonly<{
@@ -54,9 +59,11 @@ export interface RuntimeScope {
 export interface SchedulerState<TResult> {
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
+  readonly isPrerequisiteSatisfied: RunTaskGraphOptions<TResult>["isPrerequisiteSatisfied"];
   readonly maxParallel: number;
   readonly signal: AbortSignal | undefined;
   readonly execute: RunTaskGraphOptions<TResult>["execute"];
+  readonly onTaskBlocked: RunTaskGraphOptions<TResult>["onTaskBlocked"];
   readonly pending: PlannedTask[];
   readonly runningById: Map<string, RunningTask<TResult>>;
   readonly runningMutexes: Set<string>;
@@ -81,7 +88,9 @@ export function createSchedulerState<TResult>(
   return {
     diagnosticLogger: options.diagnosticLogger,
     graph,
+    isPrerequisiteSatisfied: options.isPrerequisiteSatisfied,
     maxParallel: options.maxParallel,
+    onTaskBlocked: options.onTaskBlocked,
     signal: options.signal,
     execute: options.execute,
     pending: [...graph.tasks],

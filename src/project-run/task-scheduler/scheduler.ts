@@ -98,7 +98,7 @@ function applyAdmission<TResult>(
 
   const completion = Promise.resolve()
     .then(() => state.execute(task, Object.freeze({ signal: state.signal })))
-    .then((value) => completedTaskCompletion(task.id, value))
+    .then((value) => completedTaskCompletion(task.id, value, state.isPrerequisiteSatisfied))
     .catch((error: unknown) => failedTaskCompletion<TResult>(task.id, error));
   state.runningById.set(task.id, { task, completion });
 }
@@ -121,6 +121,7 @@ function applyBlockedSettlement<TResult>(
     task,
     Object.freeze({ kind: "blocked", dependencyIds: decision.dependencyIds })
   );
+  state.onTaskBlocked?.(task, decision.dependencyIds);
 }
 
 function applyCancellation<TResult>(
@@ -194,9 +195,13 @@ function settleRunningTask<TResult>(
 
 function completedTaskCompletion<TResult>(
   taskId: string,
-  value: TResult
+  value: TResult,
+  isPrerequisiteSatisfied: RunTaskGraphOptions<TResult>["isPrerequisiteSatisfied"]
 ): RunningTaskCompletion<TResult> {
-  const settlement: TaskSettlement<TResult> = { kind: "completed", value };
+  const settlement: TaskSettlement<TResult> =
+    isPrerequisiteSatisfied?.(value) === false
+      ? { kind: "prerequisite-unsatisfied", value }
+      : { kind: "completed", value };
   return Object.freeze({ taskId, settlement: Object.freeze(settlement) });
 }
 

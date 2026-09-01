@@ -105,20 +105,32 @@ const changedFiles = defineCheck({
   }
 });
 
+const failedChangedFiles = defineCheck({
+  checkId: "failed-changed-files",
+  displayName: "Failed changed files",
+  parseData: changedFiles.parseData,
+  execution: () => ({
+    status: "failed",
+    data: { files: ["src/failed-change.ts"], version: 1 }
+  })
+});
+
 const firstChangedFilesConsumer = defineCheck({
   checkId: "first-changed-files-consumer",
   displayName: "First changed-files consumer",
-  dependsOn: [changedFiles.checkId],
+  observes: [failedChangedFiles.checkId],
   execution: ({ dependencies }) => {
-    const observation = dependencies.list().find(({ checkId }) => checkId === changedFiles.checkId);
-    if (
-      observation === undefined ||
-      (observation.outcome.status !== "passed" && observation.outcome.status !== "failed")
-    ) {
+    const observation = dependencies
+      .list()
+      .find(({ checkId }) => checkId === failedChangedFiles.checkId);
+    if (observation === undefined || observation.outcome.status !== "failed") {
       return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
     }
-    const parsedChangedFiles = changedFiles.parseData(observation.outcome.data);
-    return { status: observation.outcome.status, data: { fileCount: parsedChangedFiles.files.length } };
+    const parsedChangedFiles = failedChangedFiles.parseData(observation.outcome.data);
+    return {
+      status: "passed",
+      data: { fileCount: parsedChangedFiles.files.length, observedStatus: observation.outcome.status }
+    };
   }
 });
 
@@ -131,6 +143,17 @@ const secondChangedFilesConsumer = defineCheck({
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const parsedChangedFiles = changedFiles.parseData(read.data);
     return { status: read.status, data: { firstFile: parsedChangedFiles.files[0] } };
+  }
+});
+
+let blockedChangedFilesConsumerCalls = 0;
+const blockedChangedFilesConsumer = defineCheck({
+  checkId: "blocked-changed-files-consumer",
+  displayName: "Blocked changed-files consumer",
+  dependsOn: [failedChangedFiles.checkId],
+  execution: () => {
+    blockedChangedFilesConsumerCalls += 1;
+    return { status: "passed", data: {} };
   }
 });
 
@@ -160,8 +183,10 @@ const result = await run(
       }),
       markdownLinkValidation(),
       changedFiles,
+      failedChangedFiles,
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
+      blockedChangedFilesConsumer,
       terminalNote
     ],
     outputs: {
@@ -210,6 +235,10 @@ const secondConsumerCheck =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === secondChangedFilesConsumer.checkId)
     : undefined;
+const blockedConsumerCheck =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === blockedChangedFilesConsumer.checkId)
+    : undefined;
 
 function settledFinalData(check) {
   if (check?.outcome.status !== "passed" && check?.outcome.status !== "failed") return null;
@@ -224,6 +253,8 @@ process.stdout.write(
       cacheComputations: cacheEvidence.computations,
       firstCacheRead: cacheEvidence.firstRead,
       secondCacheRead: cacheEvidence.secondRead,
+      blockedChangedFilesConsumer: blockedConsumerCheck?.outcome ?? null,
+      blockedChangedFilesConsumerCalls,
       changedFilesCalls,
       changedFilesFromMachine: parsedChangedFilesFromMachine,
       changedFilesFromRun: parsedChangedFilesFromRun,

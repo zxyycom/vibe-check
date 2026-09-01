@@ -46,7 +46,7 @@ const configJsonValidation = jsonValidation({
 
 ## 工作原理
 
-constructor 先关闭 authoring shape、补齐并冻结 resolved options。Run 的全局 preflight barrier 再验证该完整 options；
+constructor 先关闭 authoring shape、补齐并冻结 resolved options。该 Check 获 Scheduler admission 后，其 task-local preflight 再验证完整 options；
 execution 收集 selected paths，按小写 `.json` suffix 完整分成 accepted/rejected。每个 rejected path 先产生 supplemental
 Record，accepted path 才通过 strict-document boundary 读取和解析；无效文档产生另一种 supplemental Record。
 

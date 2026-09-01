@@ -13,10 +13,10 @@
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
     declarative snapshot + fingerprint + complete static graph validation
-      │ sequential all-Check preflight barrier
+      │ Scheduler applies direct relations, mutex and parallel scheduling
       ▼
-    prepared Checks / blocked unavailable outcomes
-      │ build the ready task graph; apply dependency, mutex and parallel scheduling
+    task-local preflight / Product-owned blocked unavailable outcomes
+      │ admitted Checks continue to author callback
       ▼
     author execution + terminal settlement
       ▼
@@ -25,10 +25,11 @@
       ▼
     RunResult
 
-Run 在 preflight 前验证包含全部可执行 Check 的静态 task graph；完整 barrier 结束后，blocked Check 先结算为
-`unavailable`，其余 prepared Checks 再形成 ready task graph。Run snapshot 保存 Check facts；progress rendering 呈现
-execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files。所有 author execution 都在完整
-preflight barrier 之后开始，optional aggregate 也在 terminal facts 结算后计算。
+Run 在 author work 前验证包含全部可执行 Check 的静态 task graph。每个被 Scheduler admission 的 Check 在自己的 task 中执行
+preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。`dependsOn` 的任一 direct provider 非 `passed` 会在
+preflight 与 callback 之前把 dependent 结算为 Product-owned `unavailable / dependency-not-passed`；`observes` 等待每个 direct provider
+各自形成任意 terminal outcome。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal
+snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
 
 ## Definition 与 invocation 的责任
 
@@ -50,7 +51,7 @@ preflight 返回以下三种 closed result 之一：
 | `{ status: "failure", action: "block", reason, messages? }` | owning Check 以 `unavailable` 结算。 |
 | `{ status: "failure", action: "continue", reason, fallback, messages? }` | 使用 `fallback` 进入 execution。 |
 
-Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
+Run 先验证完整 static task graph；Scheduler 在 direct relation、mutex 与 capacity 允许后 admission 单个 Check，并在该 Check 的 author callback 前执行其 task-local preflight。互不约束的 preflight 可以并行，不形成按 Definition 顺序的全局 barrier。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`；其 `dependsOn` dependent 因此不会开始 author work。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
 
 Package root 的 `defaultProjectFileSelection` 只是 file-selecting constructor 共用的可组合、深冻结 baseline；spread 该
 value 不会建立跨 Check global config。部分 constructor 原样物化它，具有更窄文件类型能力的 constructor 从相同
@@ -69,7 +70,7 @@ selected-but-rejected 行为由对应 Check 指南说明。
 
 Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
 region，并在同一个 terminal 上移动光标。Product 先完成静态 Check graph 校验，再在任何 author preflight 或 execution
-之前安装一次全局 `console.*` router；router 贯穿完整 preflight barrier 与 Check execution，所有 Check 闭合后统一恢复原
+之前安装一次全局 `console.*` router；router 贯穿 task-local preflight 与 Check execution，所有 Check 闭合后统一恢复原
 method descriptors。每个 awaited preflight/execution 只建立独立 async capture context：当前 Check 的调用先进入自己的
 内存数组，settlement 后再与该 Check 的 row 连续呈现，并以 `console-<method>` code 保留在
 `RunResult.checkMessages`。并发 Check 的数组互不混合；没有 Check capture context 的 host console 调用继续走原方法。
@@ -153,11 +154,11 @@ finding disposition 和 waiver audit；它不发布 Record、message 或 termina
 
 ## 递归组合与继承
 
-带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、dependencies、mutexes、visibility、parallel budget 与 admission priority。
+带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、visibility、parallel budget 与 admission priority。
 
 ## 类型化依赖数据
 
-producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取一个 canonical data、收窄 `ok`，最后调用 producer 的 parser。
+producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。需要其成功 data 才能工作时，consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取 canonical data、收窄 `ok`，最后调用 producer 的 parser。需要在每个 observed upstream 各自结算后，根据任意 terminal outcome 审计或制定 policy 时，改声明 direct `observes`；两类 relation 的 union 才是 dependency reader 的授权范围。
 
 ### 完整运行示例
 
@@ -201,7 +202,7 @@ const analyzeChangedFiles = defineCheck({
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
     const data = changedFiles.parseData(read.data);
-    return { status: read.status, data: { analyzedFileCount: data.files.length } };
+    return { status: "passed", data: { analyzedFileCount: data.files.length } };
   }
 });
 
@@ -218,22 +219,22 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-dependency reader 为已声明且具有 `passed` / `failed` final data 的 direct dependency 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。七个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
+dependency reader 为两类 relation union 中、具有 `passed` / `failed` final data 的 direct provider 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。上例的 `dependsOn` 已保证 callback 只在 provider `passed` 后开始，因此它不会把 upstream `failed` 继续传播为自己的结果；`!read.ok` 仍保留为 boundary defense。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。七个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
 
 ### 批量审计 direct outcomes
 
-当 consumer 需要批量审计自己的全部 direct upstream outcomes，而不是读取一个指定 provider 时，使用
+当 consumer 需要批量审计自己的全部 direct upstream outcomes，而不是读取一个成功 prerequisite 时，先声明 `observes`，再使用
 `dependencies.list()`。它没有参数，返回按 normalized effective direct dependency ID 的稳定顺序排列的冻结
 `{ checkId, outcome }[]`；每项及其 Core-owned `outcome` 都是冻结的完整四态 `CheckOutcome`。因此
-`not-applicable` 和 `unavailable` 是正常的可观察 terminal facts，不是 `get` 的 read error；继承得到的
-direct dependency 也在列表中。列表不读取 ambient executed Checks、scheduler history、transitive 或 undeclared Checks。
+`not-applicable` 和 `unavailable` 是正常的可观察 terminal facts，不是 `get` 的 read error；两类 relation 各自继承得到的
+direct ID 在去重 union 中只出现一次。列表不读取 ambient executed Checks、scheduler history、transitive 或 undeclared Checks。
 以下 Check 只能据此形成自己的 summary、I/O、Records、messages 和 terminal result，不能修改、取消、重跑或重结算 producer：
 
 ```ts
 const auditChangedFiles = defineCheck({
   checkId: "audit-changed-files",
   displayName: "Audit changed files",
-  dependsOn: [changedFiles.checkId, analyzeChangedFiles.checkId],
+  observes: [changedFiles.checkId, analyzeChangedFiles.checkId],
   execution({ dependencies }) {
     const observations = dependencies.list();
     const readable = observations.filter(
@@ -272,7 +273,7 @@ upstream facts.
 
 aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
 
-Check-specific invocation facts 由 owning Check 的 options 或 producing Check 的 final data 承载。多个 Checks 共享同一事实时，producer 负责 acquisition policy 与 data shape，下游通过 direct `dependsOn` 读取；上面的 typed dependency 示例聚焦这条 data handoff。
+Check-specific invocation facts 由 owning Check 的 options 或 producing Check 的 final data 承载。多个 Checks 共享且必须成功的事实时，producer 负责 acquisition policy 与 data shape，下游通过 direct `dependsOn` 读取；需要处理任意 settled outcome 的 policy 则使用 `observes`。上面的 typed dependency 示例聚焦前者 data handoff。
 
 ## outputs 与 RunResult 边界
 

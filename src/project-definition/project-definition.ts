@@ -71,6 +71,7 @@ export interface NormalizedCheckDeclaration {
   readonly dependsOn: readonly string[];
   readonly maxParallel: number;
   readonly mutex: readonly string[];
+  readonly observes: readonly string[];
   readonly options: object;
   readonly visibility: CheckVisibility;
 }
@@ -143,6 +144,7 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     execution: leaf.execution,
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,
+    observes: leaf.observes,
     options: leaf.options,
     ...(leaf.preflight === undefined ? {} : { preflight: leaf.preflight }),
     visibility: leaf.visibility

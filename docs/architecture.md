@@ -5,8 +5,8 @@
 ```text
 调用方 → 项目 Run → Product run
                     ├─ Definition validation 与 canonical Check catalog
-                    ├─ invocation-wide Check preflight barrier
-                    ├─ ready Check direct execution
+                    ├─ Scheduler admission + task-local Check preflight
+                    ├─ Check direct execution / blocked-dependent settlement
                     └─ frozen Check facts → optional aggregation / publication / outputs / RunResult
 ```
 
@@ -39,7 +39,7 @@ ordinary Check contract。task scheduler 只是 Run 的 private child，不形�
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
-`dependsOn`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
+`dependsOn`、`observes`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
 
 完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
@@ -50,13 +50,13 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
 dependency/mutex admission、root budget、immutable task admission priority、cancellation 与 settlement。priority 只在既有 ready selection layer 内作静态 tie-break；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
 
-Task admission 前，Run 按 Definition 顺序执行 invocation-wide Check preflight barrier；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不进入 scheduler，也没有 started lifecycle fact；ready Check 才以 prepared/fallback options 进入 Task graph。barrier 属于 execution phase，但 invocation preparation 和 progress setup 可以先发生；它只保证任何 author Check execution、scanner 或其它 Check-local execution work 尚未开始。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
+Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 
 每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project` 只携带 normalized root 与由 invocation controls 形成的 canonical `flags`；Check-owned file selection 与 cache configuration 保留在 owning Check options，共享领域事实通过声明的 direct dependencies 进入。Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
-Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，detached author messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。四种 ordinary terminal status 都完成正常 dependency settlement；downstream 在 direct upstream settle 后运行，并通过 `dependencies.get(checkId)` 显式判断上游是否有可读 final data。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
+Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，detached author messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。`dependsOn` 只在每个 direct upstream `passed` 后允许 dependent 的 preflight/execution；全部 direct prerequisite terminal 后若任一非 `passed`，Product 以 `unavailable / dependency-not-passed`、稳定 direct blocker `checkIds`、null duration 结算 dependent，且不调用其 author work。`observes` 等待每个 direct upstream 各自形成任意四态 terminal outcome。两类 relation 的 normalized union 授权 `dependencies.get` / `list`，但同一 direct ID 不得双重声明。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`；duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。resolved-Check execution owner 在 preflight barrier 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
+Run 在 author callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`；duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。preflight-blocked 与 prerequisite-blocked Check 都保留 `null` duration。resolved-Check execution owner 在 task-local preflight/admission 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
 
 ## Check facts
 
@@ -71,7 +71,7 @@ callback 只能通过自己的 reporter 提交 supplemental Record：`records.re
 
 Raw Check facts 始终可供 completed/output `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。aggregation 不读取 Record data、definition warning、output status 或 presentation，也不替代项目的 raw facts。
 
-Run callback-local dependency view 只授权当前 Check 的 normalized effective direct dependency IDs。`dependencies.get(checkId)` 读取 Check-facts package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
+Run callback-local dependency view 只授权当前 Check 的 normalized effective `dependsOn ∪ observes` direct ID。`dependencies.get(checkId)` 读取 Check-facts package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
 
 ## Caller-keyed cache boundary
 

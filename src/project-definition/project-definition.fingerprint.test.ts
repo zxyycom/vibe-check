@@ -20,6 +20,7 @@ describe("Project Definition", () => {
           options: { threshold: 2, nested: { mode: "strict" } },
           preflight: (options) => ({ status: "success", preparedOptions: options }),
           dependsOn: ["prepare", "compile"],
+          observes: ["release", "audit"],
           execution: passed
         })
       ]
@@ -32,6 +33,7 @@ describe("Project Definition", () => {
           options: { nested: { mode: "strict" }, threshold: 2 },
           preflight: (options) => ({ status: "success", preparedOptions: options }),
           dependsOn: ["compile", "prepare", "compile"],
+          observes: ["audit", "release", "audit"],
           execution: async () => passed()
         })
       ]
@@ -40,6 +42,23 @@ describe("Project Definition", () => {
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(second).declarative)
+    );
+
+    const withoutObserves = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "check",
+          displayName: "Check",
+          options: { threshold: 2, nested: { mode: "strict" } },
+          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          dependsOn: ["prepare", "compile"],
+          execution: passed
+        })
+      ]
+    });
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(withoutObserves).declarative)
     );
 
     const options = {};

@@ -17,6 +17,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly execution: CheckExecution;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
+  readonly observes: readonly string[];
   readonly options: object;
   readonly preflight?: CheckPreflight;
   readonly visibility: CheckVisibility;
@@ -32,6 +33,7 @@ interface InheritedScheduling {
   readonly dependsOn: readonly string[];
   readonly maxParallel: number;
   readonly mutex: readonly string[];
+  readonly observes: readonly string[];
 }
 
 /**
@@ -57,7 +59,8 @@ export function resolveParsedCheckTree(
     admissionPriority: 0,
     dependsOn: Object.freeze([]),
     maxParallel: rootMaxParallel,
-    mutex: Object.freeze([])
+    mutex: Object.freeze([]),
+    observes: Object.freeze([])
   });
   for (const check of parsed.checks) flattenCheck(check, root, leaves);
   return Object.freeze({ leaves: Object.freeze(leaves), warnings: parsed.warnings });
@@ -72,7 +75,8 @@ function flattenCheck(
     admissionPriority: check.admissionPriority ?? inherited.admissionPriority,
     dependsOn: resolveCollection(inherited.dependsOn, check.dependsOn),
     maxParallel: check.maxParallel ?? inherited.maxParallel,
-    mutex: resolveCollection(inherited.mutex, check.mutex)
+    mutex: resolveCollection(inherited.mutex, check.mutex),
+    observes: resolveCollection(inherited.observes, check.observes)
   });
   const visibility = check.visibility;
   if (
@@ -89,6 +93,7 @@ function flattenCheck(
         execution: check.execution,
         maxParallel: scheduling.maxParallel,
         mutex: scheduling.mutex,
+        observes: scheduling.observes,
         options: check.options,
         ...(check.preflight === null ? {} : { preflight: check.preflight }),
         visibility

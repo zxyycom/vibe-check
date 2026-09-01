@@ -1,6 +1,6 @@
 ---
 title: 在执行前准备普通 Check options
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-26T05:00:24Z
 purpose: 让普通 Check 可选地在 invocation 内准备 options，并在任何 execution 前以统一 barrier 结算准备失败。

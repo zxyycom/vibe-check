@@ -21,7 +21,7 @@ import {
 } from "./resolved-checks.dependencies.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("admits all settled dependency outcomes and limits reads to direct dependencies", async () => {
+  it("waits for direct observations and limits readback to direct relations", async () => {
     await assertSettledDependencyReads();
     await assertDirectDependencyReads();
     await assertDirectDependencyLists();
@@ -104,7 +104,7 @@ describe("Package Run direct Check execution", () => {
             if (!observedRead.ok) assert.equal(Object.isFrozen(observedRead.error), true);
             return { status: "passed", data: { dependent: true } };
           },
-          { checkId: "dependent", dependsOn: ["source"], displayName: "Dependent" }
+          { checkId: "dependent", observes: ["source"], displayName: "Dependent" }
         )
       ],
       maxParallel: 1,
@@ -150,12 +150,16 @@ describe("Package Run direct Check execution", () => {
           dependsOn: ["source"],
           displayName: "Middle"
         }),
+        normalized(() => ({ status: "passed", data: { ambient: true } }), {
+          checkId: "ambient",
+          displayName: "Ambient"
+        }),
         normalized(
           (context) => {
             const { dependencies } = context;
             directRead = dependencies.get("middle");
             directList = dependencies.list();
-            transitiveRead = dependencies.get("source");
+            transitiveRead = dependencies.get("ambient");
             malformedRead = Reflect.apply(
               (checkId: string) => dependencies.get(checkId),
               undefined,
@@ -166,6 +170,7 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "dependent",
             dependsOn: ["middle"],
+            observes: ["source"],
             displayName: "Dependent"
           }
         )
@@ -189,10 +194,11 @@ describe("Package Run direct Check execution", () => {
     }
     assert.deepEqual(transitiveRead, {
       ok: false,
-      error: { code: "dependency-not-declared", checkId: "source" }
+      error: { code: "dependency-not-declared", checkId: "ambient" }
     });
     assert.deepEqual(directList, [
-      { checkId: "middle", outcome: { status: "passed", data: { middle: true } } }
+      { checkId: "middle", outcome: { status: "passed", data: { middle: true } } },
+      { checkId: "source", outcome: { status: "passed", data: { source: true } } }
     ]);
     assert.deepEqual(malformedRead, {
       ok: false,
@@ -214,9 +220,9 @@ describe("Package Run direct Check execution", () => {
           status: "passed"
         },
         {
-          error: { code: "dependency-not-declared", checkId: "source" },
+          error: { code: "dependency-not-declared", checkId: "ambient" },
           ok: false,
-          requestedCheckId: "source"
+          requestedCheckId: "ambient"
         },
         {
           error: { code: "dependency-not-declared", checkId: "" },

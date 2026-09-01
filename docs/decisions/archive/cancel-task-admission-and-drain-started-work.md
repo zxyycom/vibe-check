@@ -1,6 +1,6 @@
 ---
 title: 取消 Task admission 并收尾已启动工作
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T10:28:59Z
 purpose: 让一次 invocation 的取消在唯一 Task engine 停止新 admission，同时按普通 Task 语义收尾已启动工作并闭合 Check facts。

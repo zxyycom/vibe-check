@@ -56,6 +56,36 @@ describe("static task engine", () => {
     assert.equal(appliedBlock.trigger.kind, "task-settled");
   });
 
+  it("blocks unmet prerequisites while admitting terminal observers", async () => {
+    const calls: string[] = [];
+    const run = await runTaskGraph<boolean>({
+      graph: {
+        tasks: [
+          { id: "source" },
+          { id: "dependent", dependsOn: ["source"] },
+          { id: "observer", observes: ["source"] }
+        ]
+      },
+      maxParallel: 1,
+      isPrerequisiteSatisfied: (value) => value,
+      execute: (task) => {
+        calls.push(task.id);
+        return task.id !== "source";
+      }
+    });
+
+    assert.deepEqual(calls, ["source", "observer"]);
+    assert.deepEqual(settlementFor(run, "source"), {
+      kind: "prerequisite-unsatisfied",
+      value: false
+    });
+    assert.deepEqual(settlementFor(run, "dependent"), {
+      kind: "blocked",
+      dependencyIds: ["source"]
+    });
+    assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+  });
+
   it("stops new admission after abort while admitted work receives the same signal and drains", async () => {
     const controller = new AbortController();
     const started: string[] = [];

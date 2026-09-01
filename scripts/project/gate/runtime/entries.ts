@@ -9,6 +9,9 @@ import {
 } from "./catalog.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
+const PROJECT_GATE_RELATIONS = ["dependsOn", "observes"] as const;
+
+type ProjectGateRelation = (typeof PROJECT_GATE_RELATIONS)[number];
 
 /** Project-local selection metadata for one ordinary Check value. */
 export interface ProjectGateEntry {
@@ -17,7 +20,7 @@ export interface ProjectGateEntry {
   readonly tags: readonly ProjectGateTag[];
 }
 
-/** Freezes entries after validating their selection and static dependency closure. */
+/** Freezes entries after validating their selection and static relation closure. */
 export function defineProjectGateEntries(
   entries: readonly ProjectGateEntry[]
 ): readonly ProjectGateEntry[] {
@@ -27,46 +30,51 @@ export function defineProjectGateEntries(
   }
 
   for (const entry of entries) {
-    validateProjectGateEntryDependencies(entry, entriesByCheckId);
+    validateProjectGateEntryRelations(entry, entriesByCheckId);
   }
 
   return Object.freeze([...entries]);
 }
 
-function validateProjectGateEntryDependencies(
+function validateProjectGateEntryRelations(
   entry: ProjectGateEntry,
   entriesByCheckId: ReadonlyMap<string, ProjectGateEntry>
 ): void {
-  const dependencies = entry.check.dependsOn ?? [];
-  if (!isStringArray(dependencies)) {
-    throw new TypeError(
-      `Project Gate dependency is not an exact collection: ${entry.check.checkId}`
-    );
-  }
-  for (const dependency of dependencies) {
-    validateProjectGateDependency(entry, dependency, entriesByCheckId);
+  for (const relation of PROJECT_GATE_RELATIONS) {
+    const checkIds = entry.check[relation] ?? [];
+    if (!isStringArray(checkIds)) {
+      throw new TypeError(
+        `Project Gate ${relation} relation is not an exact collection: ${entry.check.checkId}`
+      );
+    }
+    for (const checkId of checkIds) {
+      validateProjectGateRelation(entry, relation, checkId, entriesByCheckId);
+    }
   }
 }
 
-function validateProjectGateDependency(
+function validateProjectGateRelation(
   entry: ProjectGateEntry,
-  dependency: string,
+  relation: ProjectGateRelation,
+  checkId: string,
   entriesByCheckId: ReadonlyMap<string, ProjectGateEntry>
 ): void {
-  if (dependency === entry.check.checkId)
-    throw new TypeError(`Project Gate Check cannot depend on itself: ${entry.check.checkId}`);
-  const dependencyEntry = entriesByCheckId.get(dependency);
-  if (dependencyEntry === undefined)
+  if (checkId === entry.check.checkId) {
+    const action = relation === "dependsOn" ? "depend on" : "observe";
+    throw new TypeError(`Project Gate Check cannot ${action} itself: ${entry.check.checkId}`);
+  }
+  const relatedEntry = entriesByCheckId.get(checkId);
+  if (relatedEntry === undefined)
     throw new TypeError(
-      `Project Gate dependency is missing: ${entry.check.checkId} -> ${dependency}`
+      `Project Gate ${relation} relation is missing: ${entry.check.checkId} -> ${checkId}`
     );
-  if (entry.profiles.some((profile) => !dependencyEntry.profiles.includes(profile)))
+  if (entry.profiles.some((profile) => !relatedEntry.profiles.includes(profile)))
     throw new TypeError(
-      `Project Gate dependency is not selection-closed: ${entry.check.checkId} -> ${dependency}`
+      `Project Gate ${relation} relation is not selection-closed: ${entry.check.checkId} -> ${checkId}`
     );
-  if (dependencyEntry.tags.some((tag) => !entry.tags.includes(tag)))
+  if (relatedEntry.tags.some((tag) => !entry.tags.includes(tag)))
     throw new TypeError(
-      `Project Gate dependency is not selection-closed: ${entry.check.checkId} -> ${dependency}`
+      `Project Gate ${relation} relation is not selection-closed: ${entry.check.checkId} -> ${checkId}`
     );
 }
 

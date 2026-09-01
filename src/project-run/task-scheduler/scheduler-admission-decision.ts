@@ -3,7 +3,7 @@ import {
   activationScopeFor,
   canAdmit,
   capacityWaitReason,
-  isDependencyMutexEligible,
+  isRelationMutexEligible,
   selectConstrainedContinuation,
   selectOrdinaryReadyTask,
   selectTighteningTask,
@@ -42,7 +42,7 @@ interface AwaitingSchedulerDecision {
 
 export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
   const eligibleTasks = cycle.state.pendingTasks.filter((task) =>
-    isDependencyMutexEligible(task, cycle.state)
+    isRelationMutexEligible(task, cycle.state)
   );
   if (eligibleTasks.length === 0) {
     return awaitDecision(cycle, {

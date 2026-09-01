@@ -5,7 +5,7 @@ import { check, definition, deferred, PASSED } from "./run.test-support.ts";
 import { run } from "./run.ts";
 
 describe("Package Run", () => {
-  it("returns the existing execution cancellation result when the preflight barrier aborts", async () => {
+  it("returns execution cancellation when an admitted preflight aborts", async () => {
     const controller = new AbortController();
     const preflightEntered = deferred();
     let callbackCalls = 0;

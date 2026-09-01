@@ -6,7 +6,7 @@
   "sourceRevision": {
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
-      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:4b18315fe872612cbb5b20eabe6687e7507bea592c81d989a20bdcf3f2a8bb58",
+      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
@@ -19,7 +19,7 @@
       "author-package-markdown-at-published-paths.md": "sha256:24eb73622c39c142cf9e44ef4e15df200c16834217407a4ec7cdbd080e857d1d",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
       "bind-project-gates-to-run-aggregation.md": "sha256:526b651624add03f1e7d304b425734db3ea132c8a48da3dce51824e1fcc73768",
-      "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
+      "cancel-task-admission-and-drain-started-work.md": "sha256:7e09f6eaf3ce692124ef210207e58a6d25e11b51f0ff03a646afbf608ff0ab04",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "centralize-project-gate-after-hook-configuration.md": "sha256:20bd7f463dc8863a31d58caeb4885725cca404aeda5dd60de26b12d9cb9fcad5",
@@ -54,7 +54,7 @@
       "drive-run-from-check-owned-inputs-and-explicit-providers.md": "sha256:504d28792a65a179cae6dadb5dfc4eb60e5c8ecc21310d4ba311658169bbe9d8",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
-      "enumerate-normalized-direct-dependency-outcomes.md": "sha256:9d9e48c67add48999a1d98e1e874a84bc488bdcac3d8aab63e8836f16a55054d",
+      "enumerate-normalized-direct-dependency-outcomes.md": "sha256:1d0e5a30bee3ab73973a8c3f624ad8e6730fae975cda1d0a2967e98666fc0316",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
@@ -75,11 +75,13 @@
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
-      "install-check-console-router-before-preflight.md": "sha256:ab3cfdf48feb9fa27daa8f6dc8fe178e90c50ceb3c11f483c1ea55f91a94a1c7",
+      "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
+      "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
+      "keep-console-router-through-task-local-check-lifecycle.md": "sha256:aa44178ce0b2ece953a710d2abe714c93fa51e3cdcddc10033a27be61dd8b352",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
       "keep-duplicate-detection-cache-check-owned.md": "sha256:6edbd78f7d5d539a9728120da82e500c2965764edaf165a3ed84d2e15fd9cca9",
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
@@ -117,7 +119,7 @@
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
-      "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
+      "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
@@ -162,16 +164,19 @@
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:cef5887bc74826acf92706b19104624f5a18b297bbf18176e634e22ed3150e0b",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
+      "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
+      "separate-passed-dependencies-from-settled-observations.md": "sha256:2349cdb396874f0568717c181550eb55ad0f08ee6227e2024ad975366b01ddd5",
       "separate-settlement-run-progress-and-machine-owners.md": "sha256:93fa3b097ccdc6553c1e14e956203b9f014b014f6eb5356600e99f28d91eff4b",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "serialize-project-gate-documentation-materials-by-ownership.md": "sha256:c94a7deebfa1d65486ca0deecb47fc1577f785687bac574f62dd1da8d1760d73",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
+      "settle-non-passed-dependents-as-unavailable.md": "sha256:ebc1c03d5245cd4dd3ab6b93ab04b1470fc80122e0dc3e305502ced9f6f71c98",
       "share-finding-policy-across-area-quality-checks.md": "sha256:4cb66eeb5f71ed930ecb685a28bb332b53292eb3f004c3c40261406f6128d72b",
       "share-strict-json-document-boundary-between-json-checks.md": "sha256:4360670260b04a13c076a10645128b10f03b8b7692c9e63141da7bc043bddeb5",
       "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
@@ -210,7 +215,7 @@
       "use-fixed-semantic-config-version.md": "sha256:a5cc24fdb79c8bc237232eceb20949e92f61c75d2abf0bf297f7356bd7b22d53",
       "use-four-state-check-results-with-final-data.md": "sha256:95da95eeaf00296a6f99d3653b04e4e189b15b5dfb2c55c8fcb9851c804283f7",
       "use-generic-machine-v2-for-content-findings.md": "sha256:536a4765555159389dac22e2dd3452cd9e6537c354ede1e26df3a0fd2189e6cd",
-      "use-inherit-for-check-collection-edits.md": "sha256:455344353f62cd98173cd11bc21e40c1e5dc83e375a2b39ed1418dfce096cc50",
+      "use-inherit-for-check-collection-edits.md": "sha256:45bd43d8f709d52ec79c3368196c369f452128ddcfe3ef8188e160349a348ac7",
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
@@ -703,16 +708,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "cancel-task-admission-and-drain-started-work.md",
+        "sourcePath": "archive/cancel-task-admission-and-drain-started-work.md",
         "title": "取消 Task admission 并收尾已启动工作",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T10:28:59Z",
         "purpose": "让一次 invocation 的取消在唯一 Task engine 停止新 admission，同时按普通 Task 语义收尾已启动工作并闭合 Check facts。",
@@ -1804,16 +1809,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "enumerate-normalized-direct-dependency-outcomes.md",
+        "sourcePath": "archive/enumerate-normalized-direct-dependency-outcomes.md",
         "title": "枚举已规范化的直接 dependency outcomes",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T15:38:59Z",
         "purpose": "让 downstream Check 能稳定批量读取全部已声明直接上游终态，而不依赖调度历史。",
@@ -2441,10 +2446,10 @@
         "relations": []
       }
     },
-    "install-check-console-router-before-preflight.md": {
+    "inherit-depends-on-and-observes-independently.md": {
       "keys": {
         "tag": [
-          "product-contract"
+          "configuration"
         ],
         "status": [
           "active"
@@ -2454,9 +2459,41 @@
         ]
       },
       "state": {
-        "sourcePath": "install-check-console-router-before-preflight.md",
-        "title": "在 Check preflight 前一次安装 console router",
+        "sourcePath": "inherit-depends-on-and-observes-independently.md",
+        "title": "分别继承 dependsOn 与 observes relation",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:20Z",
+        "purpose": "让两种有向 Check relation 以同一闭合语法独立继承，而不混淆各自调度含义。",
+        "background": "dependsOn 已有 inherit collection grammar，新增 observes 必须继承同等编辑能力且保持 relation 边界。",
+        "decision": "dependsOn、observes 与 mutex 都使用唯一 inherit grammar；两个有向 relation 分别 canonicalize 并在 effective 层拒绝重叠。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-inherit-for-check-collection-edits.md"
+          }
+        ]
+      }
+    },
+    "install-check-console-router-before-preflight.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/install-check-console-router-before-preflight.md",
+        "title": "在 Check preflight 前一次安装 console router",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T09:53:01Z",
         "purpose": "让一轮 resolved Check execution 在任何 author work 前建立唯一 console 路由，同时保持每项 Check 的异步归属隔离。",
@@ -2598,6 +2635,38 @@
           {
             "type": "替代",
             "target": "require-explicit-named-comparison-references.md"
+          }
+        ]
+      }
+    },
+    "keep-console-router-through-task-local-check-lifecycle.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-console-router-through-task-local-check-lifecycle.md",
+        "title": "在 task-local Check 生命周期中保持 console router",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:21Z",
+        "purpose": "让一次 Run 的 console capture 覆盖 task-local preflight 与 execution，而不依赖全局 preflight barrier。",
+        "background": "preflight 已移入各 Check Task；router 仍须在任何 author work 前建立并在全部 Check 闭合后恢复。",
+        "decision": "静态图校验后安装一次 router，覆盖每个获准入 Check 的 preflight/execution，直至 resolved Checks 全部结算。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "install-check-console-router-before-preflight.md"
           }
         ]
       }
@@ -3778,16 +3847,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "prepare-check-options-before-execution.md",
+        "sourcePath": "archive/prepare-check-options-before-execution.md",
         "title": "在执行前准备普通 Check options",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-26T05:00:24Z",
         "purpose": "让普通 Check 可选地在 invocation 内准备 options，并在任何 execution 前以统一 barrier 结算准备失败。",
@@ -5192,6 +5261,40 @@
         ]
       }
     },
+    "run-check-preflight-with-task-admission.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "run-check-preflight-with-task-admission.md",
+        "title": "在 Check Task 准入后执行 preflight",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:19Z",
+        "purpose": "让 preflight 与 execution 同受每个 Check 的调度、依赖和取消生命周期约束。",
+        "background": "全局 preflight barrier 会在 dependency readiness 前启动 dependent author work，并隐含 Definition 顺序。",
+        "decision": "每个 Check 在自身获准入后顺序执行 preflight 和 execution，不再建立全局 preflight barrier。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "prepare-check-options-before-execution.md"
+          }
+        ]
+      }
+    },
     "run-repository-quality-checks-inside-project-gate.md": {
       "keys": {
         "tag": [
@@ -5388,6 +5491,40 @@
         ]
       }
     },
+    "separate-passed-dependencies-from-settled-observations.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-passed-dependencies-from-settled-observations.md",
+        "title": "分离成功前置与已结算终态观测",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:18Z",
+        "purpose": "让默认依赖阻止未满足前置的作者工作，同时保留显式终态审计读取。",
+        "background": "当前 dependsOn 同时承担 settled wait 与 read authorization，导致非成功上游后仍会启动 dependent。",
+        "decision": "dependsOn 只表示 all-passed prerequisite；observes 单独等待所有终态，并与 dependsOn 共同构成直接读取授权。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "enumerate-normalized-direct-dependency-outcomes.md"
+          }
+        ]
+      }
+    },
     "separate-settlement-run-progress-and-machine-owners.md": {
       "keys": {
         "tag": [
@@ -5517,6 +5654,38 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "settle-non-passed-dependents-as-unavailable.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "settle-non-passed-dependents-as-unavailable.md",
+        "title": "将未通过前置的 dependent 结算为 unavailable",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:22Z",
+        "purpose": "让未满足成功前置的 Check 不执行作者工作，并形成完整、可追溯的 Product outcome。",
+        "background": "现有 blocked 只传播 executor failure，Product finalizer 将 blocked Check 视为 invariant failure。",
+        "decision": "未满足 dependsOn 时，Product 将 private blocked 单次映射为 dependency-not-passed unavailable。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "cancel-task-admission-and-drain-started-work.md"
+          }
+        ]
       }
     },
     "share-finding-policy-across-area-quality-checks.md": {
@@ -6682,16 +6851,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-inherit-for-check-collection-edits.md",
+        "sourcePath": "archive/use-inherit-for-check-collection-edits.md",
         "title": "使用 inherit 编辑可继承 Check 集合",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T14:42:02Z",
         "purpose": "让 Check 的集合型调度字段通过固定的 inherit 表达式继承并编辑 parent effective collection。",

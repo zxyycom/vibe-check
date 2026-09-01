@@ -54,20 +54,20 @@ function decideTerminalSchedulerAction(
   cycle: SchedulerDecisionCycle,
   snapshot: SchedulerSnapshot
 ): SchedulerDecision | undefined {
-  if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.size === 0) {
-    return freezeDecision({
-      ...cycle.context,
-      cancelled: snapshot.isCancelled,
-      kind: "complete",
-      trigger: cycle.trigger
-    });
-  }
   if (snapshot.isAbortRequested && !snapshot.isCancelled) {
     return freezeDecision({
       ...cycle.context,
       kind: "cancel-pending",
       taskIds: snapshot.pendingTaskIds,
       trigger: Object.freeze({ kind: "cancellation-observed" })
+    });
+  }
+  if (cycle.state.pendingTasks.length === 0 && cycle.state.runningTaskIds.size === 0) {
+    return freezeDecision({
+      ...cycle.context,
+      cancelled: snapshot.isCancelled,
+      kind: "complete",
+      trigger: cycle.trigger
     });
   }
   if (snapshot.isCancelled) {

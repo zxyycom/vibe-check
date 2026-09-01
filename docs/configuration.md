@@ -74,7 +74,7 @@ export default defineConfig({
 
 ### Check options preflight
 
-executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function；Run 在任一 author Check execution 前，按 Definition 顺序完成所有已提供 preflight 的全局 barrier。
+executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function；Run 在 Scheduler admission 单个 Check 后、该 Check 的 author execution 前运行其 task-local preflight。它受 direct relation、mutex、capacity、priority 与 cancellation 约束，不形成按 Definition 顺序的全局 barrier。
 
 preflight 只能返回以下 closed result 之一：
 
@@ -90,9 +90,9 @@ preflight 只能返回以下 closed result 之一：
 
 prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Check facts 或 machine output。preflight 中捕获的 console messages、accepted preflight messages、execution 中捕获的 console messages 与 accepted terminal messages 依次排列；即使 execution 随后抛错，前两组仍会保留。
 
-Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。barrier 属于 execution phase，可能晚于 invocation preparation 或 progress setup，但保证 author Check execution、scanner 及其它 Check-local execution work 尚未开始。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
+Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。preflight 是已经通过 `dependsOn` prerequisite、`observes` terminal wait、mutex 与 capacity admission 的单 Check task-local work，而不是 invocation-wide barrier；互不相关的 preflight 可以按 Scheduler 约束并行。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
 
-blocked Check 没有 started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、dependency readback、aggregation、settled lifecycle 与 progress。Check facts 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
+preflight `block` 的 Check 没有 author execution started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、aggregation、settled lifecycle 与 progress。因 direct `dependsOn` 非 `passed` 而未获 author work 的 Check 同样以 Product-owned `unavailable / dependency-not-passed` 结算，带稳定的 direct blocker `checkIds` 与 `null` duration；它不调用 preflight 或 execution，也没有 author Record/message。Check facts 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
 
 An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
 
@@ -107,7 +107,7 @@ An executable Check returns exactly one terminal result, optionally with ordered
 
 ### Typed dependency data
 
-This section is the current owner for the public typed-provider and `dependencies.get` / `dependencies.list` contract. [Architecture](architecture.md) owns the runtime handoff, [Quality Metrics](quality-metrics.md) owns four-state final-data availability, and [Output](output.md) owns the separate machine-publication boundary.
+本节拥有 public typed provider 与 `dependencies.get` / `dependencies.list` contract。[Architecture](architecture.md) 拥有 runtime handoff，[Quality Metrics](quality-metrics.md) 拥有四态 final-data availability，[Output](output.md) 拥有独立 machine-publication boundary。
 
 A TypeScript typed provider is authored through `defineCheck({ execution, parseData })`. Its synchronous
 parser return type is the provider-local data contract: the same type constrains that Check's `passed` and
@@ -131,21 +131,17 @@ the materialized Check does not retain that key, so it does not create a typed p
 
 完整的 producer、consumer 与 `run(...)` 组合示例见[深入 API 机制的类型化依赖数据](api-mechanics.md#类型化依赖数据)。
 
-`dependencies.get(checkId: string)` is deliberately non-generic. At runtime it authorizes only the current
-Check's normalized effective direct dependency IDs, including inherited direct IDs. An undeclared,
-transitive, malformed, or otherwise unauthorized ID returns `dependency-not-declared` without upstream
-facts. A declared `passed` or `failed` dependency returns its status and its canonical final data;
-`not-applicable` or `unavailable` returns `upstream-data-unavailable` with that status. TypeScript types do
-not grant access: the consumer first performs the string read, narrows its result, and then calls the
-producing Check's parser.
+`dependencies.get(checkId: string)` 有意保持 non-generic。它只授权当前 Check 的 normalized effective
+`dependsOn ∪ observes` direct ID，并包含两类 relation 各自继承得到的 ID；未声明、transitive、malformed 或其它未授权
+ID 都返回不携带 upstream fact 的 `dependency-not-declared`。已声明的 `passed` 或 `failed` outcome 返回其 status 与 canonical
+final data；`not-applicable` 或 `unavailable` 返回带该 status 的 `upstream-data-unavailable`。TypeScript type 不授予访问权：consumer
+先完成 string read、收窄结果，再调用 producing Check 的 parser。
 
-`dependencies.list()` takes no selection input. It returns a frozen array of frozen `{ checkId, outcome }`
-observations for exactly those same normalized effective direct dependency IDs, in their stable normalized ID
-order. Each `outcome` is the complete frozen Core `CheckOutcome`: `passed` and `failed` retain canonical final
-data, while `not-applicable` and `unavailable` retain their original reason. The result includes inherited direct
-IDs, but never ambient executed Checks, transitive dependencies, undeclared IDs, scheduler timing, Records, or a
-way to change upstream execution. A consumer that reads final data from an observation still invokes the producing
-Check's parser, and may only use observations to form that consumer's own I/O, Records, messages and terminal result.
+`dependencies.list()` 不接收 selection input。它返回冻结的 `{ checkId, outcome }` array，精确覆盖上述 normalized effective
+direct ID 并集，并按稳定 normalized ID 顺序排列。每个 `outcome` 是完整冻结的 Core `CheckOutcome`：`passed` 与 `failed` 保留 canonical
+final data，`not-applicable` 与 `unavailable` 保留原始 reason。结果包含两类 relation 各自继承的 direct ID，但绝不包含 ambient executed
+Checks、transitive dependencies、undeclared IDs、scheduler timing、Records 或改变 upstream execution 的方式。从 observation 读取 final
+data 的 consumer 仍调用 producing Check 的 parser，并且只能用 observations 形成自身 I/O、Records、messages 与 terminal result。
 
 The parser receives the Check-facts-owned canonical runtime object: a detached, deeply frozen object with canonical
 JSON values. It does not receive the author's original object or JSON text. The provider owns business-shape
@@ -188,11 +184,12 @@ Every node has a unique `checkId` and non-empty `displayName`. An executable nod
 
 `admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It only orders otherwise-ready work in the same scheduler selection layer; it does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or an already-established tightening reservation. Use a few relative bands rather than a unique number for every Check.
 
-`dependsOn` and `mutex` accept an exact string collection or `inherit({ add, remove })`:
+`dependsOn`、`observes` 与 `mutex` 都接受 exact string collection 或 `inherit({ add, remove })`：
 
 - an exact collection replaces the inherited collection, including `[]` to clear it;
 - `inherit` changes the parent collection deliberately, then canonicalizes and de-duplicates it;
-- dependencies name executable Check IDs; mutex values name shared resources.
+- `dependsOn` 与 `observes` 都命名同一 Definition 中的 executable Check IDs；mutex values 命名 shared resources。
+- `dependsOn` 只在所有 direct provider 都已 `passed` 后授权本 Check 的 preflight/execution；`observes` 只等待所有 direct provider 形成任意 terminal outcome。两类 relation 的 union 授权 `dependencies.get` / `list`，同一 provider 不得同时出现在两者。
 
 The following field fragments are the only three collection forms. They belong on an ordinary Check; they are not a second configuration format. Use Check IDs that are executable in the same Definition.
 
@@ -200,16 +197,18 @@ The following field fragments are the only three collection forms. They belong o
 import { inherit } from "@zxyycom/vibe-check";
 
 const inheritedScheduling = {
-  // Omit `dependsOn` or `mutex` to retain the parent's collection.
+  // Omit `dependsOn`, `observes`, or `mutex` to retain the parent's collection.
 };
 
 const exactScheduling = {
   dependsOn: ["compile"], // Replace the inherited dependencies.
+  observes: ["publish-summary"], // Replace the inherited terminal observations.
   mutex: [] // Deliberately clear inherited mutexes.
 };
 
 const editedScheduling = {
   dependsOn: inherit({ add: ["test"], remove: ["lint"] }),
+  observes: inherit({ add: ["report"] }),
   mutex: inherit({ add: ["network"] })
 };
 ```
@@ -221,7 +220,7 @@ declarations always carry it, so `always` has the same fingerprint whether omitt
 `attention` changes that fingerprint. It does not change scheduling, execution, options, Check/Record
 facts, machine output, Run Controls, or invocation-wide progress configuration.
 
-The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs their direct callbacks subject to dependencies, mutexes, and the effective parallel budget.
+The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs task-local preflight plus direct callbacks subject to `dependsOn` / `observes` relation semantics, mutexes, and the effective parallel budget.
 
 ## Package-provided Check composition
 
@@ -269,9 +268,9 @@ selection 在执行前拒绝 unknown、duplicate 或 non-normalized Check ID。�
 
 每个 callback 恰好收到 `{ dependencies, options, project, records, signal }`。`options` 是 invocation-local canonical
 snapshot 或 preflight prepared/fallback；`project` 只含 normalized root 与 flags；Check-specific 输入、file selection、
-领域 policy 和 cache 仍由 owning Check options 承接。四种 upstream outcome 都完成 dependency ordering；需要数据的
-consumer 通过已声明 direct dependency 的 `dependencies.get` 显式判断可用性，或用 `dependencies.list()`
-稳定枚举全部已声明 direct outcomes；两者都不授予 transitive、未声明或 scheduler-history access。
+领域 policy 和 cache 仍由 owning Check options 承接。需要成功 provider data 的 consumer 用 `dependsOn`；需要四态 outcome
+审计的 consumer 用 `observes`。两者的 direct union 都可由 `dependencies.get` 显式判断 data 可用性，或由 `dependencies.list()`
+稳定枚举；二者都不授予 transitive、未声明或 scheduler-history access。
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、

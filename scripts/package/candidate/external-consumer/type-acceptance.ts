@@ -263,7 +263,7 @@ defineCheck({
 const changedFilesConsumer = defineCheck({
   checkId: "isolated-changed-files-consumer",
   displayName: "Isolated changed-files consumer",
-  dependsOn: [changedFiles.checkId],
+  observes: [changedFiles.checkId],
   execution: ({ dependencies }) => {
     const observation = dependencies.list().find(({ checkId }) => checkId === changedFiles.checkId);
     if (

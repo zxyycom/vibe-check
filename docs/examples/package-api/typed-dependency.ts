@@ -38,7 +38,7 @@ const analyzeChangedFiles = defineCheck({
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
     const data = changedFiles.parseData(read.data);
-    return { status: read.status, data: { analyzedFileCount: data.files.length } };
+    return { status: "passed", data: { analyzedFileCount: data.files.length } };
   }
 });
 

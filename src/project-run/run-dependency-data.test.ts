@@ -8,7 +8,7 @@ import {
 } from "./run.test-support.ts";
 
 describe("Package Run", () => {
-  it("admits an unavailable dependency and exposes its read failure", async () => {
+  it("observes an unavailable Check and exposes its read failure", async () => {
     await assertUnavailableDependencyRead();
     await assertInheritedDependencyRead();
     await assertInheritedDependencyList();

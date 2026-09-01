@@ -5,6 +5,7 @@ export interface TaskNode {
   readonly id: string;
   readonly dependsOn?: readonly string[];
   readonly mutex?: readonly string[];
+  readonly observes?: readonly string[];
   readonly scopeId?: string;
 }
 
@@ -30,6 +31,7 @@ export interface PlannedTask {
   readonly id: string;
   readonly dependsOn: readonly string[];
   readonly mutex: readonly string[];
+  readonly observes: readonly string[];
   readonly scopeId: string | undefined;
 }
 
@@ -46,7 +48,14 @@ export interface PlannedTaskGraph {
 }
 
 const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
-const TASK_NODE_KEYS = ["admissionPriority", "id", "dependsOn", "mutex", "scopeId"] as const;
+const TASK_NODE_KEYS = [
+  "admissionPriority",
+  "id",
+  "dependsOn",
+  "mutex",
+  "observes",
+  "scopeId"
+] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
 
 /** Validates untrusted graph-shaped input without admitting it to scheduler execution. */
@@ -91,6 +100,7 @@ function normalizeTasks(value: unknown): PlannedTask[] {
         id,
         dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
         mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
+        observes: Object.freeze(stringList(data.observes, `task ${id}.observes`)),
         scopeId
       })
     );

@@ -1,6 +1,6 @@
 ---
 title: 使用 inherit 编辑可继承 Check 集合
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T14:42:02Z
 purpose: 让 Check 的集合型调度字段通过固定的 inherit 表达式继承并编辑 parent effective collection。

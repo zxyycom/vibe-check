@@ -57,11 +57,13 @@ export function selectBlockedTask(
   return undefined;
 }
 
-export function isDependencyMutexEligible(task: PlannedTask, state: SchedulerInspection): boolean {
+export function isRelationMutexEligible(task: PlannedTask, state: SchedulerInspection): boolean {
   return (
     task.dependsOn.every(
       (dependencyId) => state.settlementKindByTaskId.get(dependencyId) === "completed"
-    ) && task.mutex.every((mutex) => !state.runningMutexes.has(mutex))
+    ) &&
+    task.observes.every((observationId) => state.settlementKindByTaskId.has(observationId)) &&
+    task.mutex.every((mutex) => !state.runningMutexes.has(mutex))
   );
 }
 

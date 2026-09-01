@@ -9,7 +9,7 @@ export function summarizeSchedulerBlockers(
   let dependency = 0;
   let mutex = 0;
   for (const task of state.pendingTasks) {
-    if (hasUncompletedDependency(task.dependsOn, state.settlementKindByTaskId)) {
+    if (hasUnsatisfiedRelation(task, state.settlementKindByTaskId)) {
       dependency += 1;
       continue;
     }
@@ -25,12 +25,14 @@ export function summarizeSchedulerBlockers(
   });
 }
 
-function hasUncompletedDependency(
-  dependencyIds: readonly string[],
+function hasUnsatisfiedRelation(
+  task: SchedulerInspection["pendingTasks"][number],
   settlementKindByTaskId: SchedulerInspection["settlementKindByTaskId"]
 ): boolean {
-  return dependencyIds.some(
-    (dependencyId) => settlementKindByTaskId.get(dependencyId) !== "completed"
+  return (
+    task.dependsOn.some(
+      (dependencyId) => settlementKindByTaskId.get(dependencyId) !== "completed"
+    ) || task.observes.some((observationId) => !settlementKindByTaskId.has(observationId))
   );
 }
 

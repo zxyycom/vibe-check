@@ -28,7 +28,7 @@ const inheritedCollections = new WeakSet();
 type InheritedCollectionEntry = "data" | "invalid" | "marker";
 
 /**
- * 创建可用于 `dependsOn` 或 `mutex` 的受信任继承编辑。
+ * 创建可用于 `dependsOn`、`observes` 或 `mutex` 的受信任继承编辑。
  *
  * @typeParam T - 要添加或移除的 collection item 类型。
  * @param value - 至少提供 `add` 或 `remove` 的 edit；空数组可显式表示不添加或不移除。

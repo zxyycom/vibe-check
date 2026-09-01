@@ -1,6 +1,6 @@
 ---
 title: 枚举已规范化的直接 dependency outcomes
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T15:38:59Z
 purpose: 让 downstream Check 能稳定批量读取全部已声明直接上游终态，而不依赖调度历史。

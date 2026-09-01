@@ -8,39 +8,57 @@ interface PreparedTaskGraphValidationInput {
   readonly tasks: readonly PlannedTask[];
 }
 
-interface DependencyPathQuery {
-  readonly requiredDependencyId: string;
+type TaskRelationField = "dependsOn" | "observes";
+
+interface TaskRelationPathQuery {
+  readonly requiredRelatedTaskId: string;
   readonly taskById: ReadonlyMap<string, PlannedTask>;
   readonly taskId: string;
 }
 
-interface DependencyTraversal {
+interface TaskRelationTraversal {
   readonly pending: string[];
-  readonly query: DependencyPathQuery;
+  readonly query: TaskRelationPathQuery;
   readonly visited: Set<string>;
 }
 
-/** Validates dependency and scope relations after graph-shaped input is normalized. */
+/** Validates direct relations and scope structure after graph-shaped input is normalized. */
 export function validatePreparedTaskGraph(input: PreparedTaskGraphValidationInput): void {
-  validateDependencies(input.tasks, input.taskById);
-  validateDependencyCycles(input.tasks, input.taskById);
+  validateTaskRelations(input.tasks, input.taskById);
+  validateTaskRelationCycles(input.tasks, input.taskById);
   validateScopes(input);
 }
 
-function validateDependencies(
+function validateTaskRelations(
   tasks: readonly PlannedTask[],
   taskById: ReadonlyMap<string, PlannedTask>
 ): void {
   for (const task of tasks) {
-    for (const dependency of task.dependsOn) {
-      if (!taskById.has(dependency)) {
-        throw new Error(`task ${task.id} depends on unknown task ${dependency}`);
+    validateRelatedTaskIds(task, "dependsOn", task.dependsOn, taskById);
+    validateRelatedTaskIds(task, "observes", task.observes, taskById);
+    for (const dependencyId of task.dependsOn) {
+      if (task.observes.includes(dependencyId)) {
+        throw new Error(`task ${task.id} cannot both depend on and observe task ${dependencyId}`);
       }
     }
   }
 }
 
-function validateDependencyCycles(
+function validateRelatedTaskIds(
+  task: PlannedTask,
+  relation: TaskRelationField,
+  relationTargetIds: readonly string[],
+  taskById: ReadonlyMap<string, PlannedTask>
+): void {
+  const action = relation === "dependsOn" ? "depends on" : "observes";
+  for (const relatedTaskId of relationTargetIds) {
+    if (!taskById.has(relatedTaskId)) {
+      throw new Error(`task ${task.id} ${action} unknown task ${relatedTaskId}`);
+    }
+  }
+}
+
+function validateTaskRelationCycles(
   tasks: readonly PlannedTask[],
   taskById: ReadonlyMap<string, PlannedTask>
 ): void {
@@ -54,12 +72,12 @@ function validateDependencyCycles(
     if (visited.has(task.id)) return;
 
     visiting.add(task.id);
-    for (const dependency of task.dependsOn) {
-      const dependencyTask = taskById.get(dependency);
-      if (dependencyTask === undefined) {
-        throw new Error(`task ${task.id} depends on unknown task ${dependency}`);
+    for (const relatedTaskId of relatedTaskIds(task)) {
+      const relatedTask = taskById.get(relatedTaskId);
+      if (relatedTask === undefined) {
+        throw new Error(`task ${task.id} relates to unknown task ${relatedTaskId}`);
       }
-      visit(dependencyTask);
+      visit(relatedTask);
     }
     visiting.delete(task.id);
     visited.add(task.id);
@@ -141,36 +159,42 @@ function validateScopeTerminalReachability(
 ): void {
   for (const task of tasks) {
     if (task.scopeId !== scope.id || task.id === scope.terminalTaskId) continue;
-    if (!dependsOnTask({ requiredDependencyId: task.id, taskById, taskId: scope.terminalTaskId })) {
-      throw new Error(`task scope ${scope.id} terminal task must depend on scoped task ${task.id}`);
+    if (
+      !isRelatedToTask({ requiredRelatedTaskId: task.id, taskById, taskId: scope.terminalTaskId })
+    ) {
+      throw new Error(`task scope ${scope.id} terminal task must relate to scoped task ${task.id}`);
     }
   }
 }
 
-function dependsOnTask(query: DependencyPathQuery): boolean {
-  return traverseDependencies({
-    pending: [...taskDependencies(query.taskById, query.taskId)],
+function isRelatedToTask(query: TaskRelationPathQuery): boolean {
+  return traverseTaskRelations({
+    pending: [...relatedTaskIdsFor(query.taskById, query.taskId)],
     query,
     visited: new Set()
   });
 }
 
-function traverseDependencies(traversal: DependencyTraversal): boolean {
+function traverseTaskRelations(traversal: TaskRelationTraversal): boolean {
   while (traversal.pending.length > 0) {
-    const dependencyId = traversal.pending.pop();
-    if (dependencyId === undefined || traversal.visited.has(dependencyId)) continue;
-    if (dependencyId === traversal.query.requiredDependencyId) return true;
+    const relatedTaskId = traversal.pending.pop();
+    if (relatedTaskId === undefined || traversal.visited.has(relatedTaskId)) continue;
+    if (relatedTaskId === traversal.query.requiredRelatedTaskId) return true;
 
-    traversal.visited.add(dependencyId);
-    traversal.pending.push(...taskDependencies(traversal.query.taskById, dependencyId));
+    traversal.visited.add(relatedTaskId);
+    traversal.pending.push(...relatedTaskIdsFor(traversal.query.taskById, relatedTaskId));
   }
   return false;
 }
 
-function taskDependencies(
+function relatedTaskIdsFor(
   taskById: ReadonlyMap<string, PlannedTask>,
   taskId: string
 ): readonly string[] {
   const task = taskById.get(taskId);
-  return task === undefined ? [] : task.dependsOn;
+  return task === undefined ? [] : relatedTaskIds(task);
+}
+
+function relatedTaskIds(task: PlannedTask): readonly string[] {
+  return [...task.dependsOn, ...task.observes];
 }

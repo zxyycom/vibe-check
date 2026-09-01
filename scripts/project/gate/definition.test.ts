@@ -266,6 +266,23 @@ describe("Project Gate Definition", () => {
         ]),
       /selection-closed: fixture-dependent -> fixture-prerequisite/
     );
+    const observer = defineCheck({
+      checkId: "fixture-observer",
+      displayName: "Fixture observer",
+      observes: ["fixture-prerequisite"]
+    });
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          { check: prerequisite, profiles: ["full"], tags: [] },
+          {
+            check: observer,
+            profiles: ["required", "full"],
+            tags: []
+          }
+        ]),
+      /observes relation is not selection-closed: fixture-observer -> fixture-prerequisite/
+    );
     assert.throws(
       () =>
         defineProjectGateEntries([
@@ -291,6 +308,15 @@ describe("Project Gate Definition", () => {
       () => defineProjectGateEntries([{ check: selfDependent, profiles: ["required"], tags: [] }]),
       /cannot depend on itself: fixture-self-dependent/
     );
+    const selfObserver = defineCheck({
+      checkId: "fixture-self-observer",
+      displayName: "Fixture self observer",
+      observes: ["fixture-self-observer"]
+    });
+    assert.throws(
+      () => defineProjectGateEntries([{ check: selfObserver, profiles: ["required"], tags: [] }]),
+      /cannot observe itself: fixture-self-observer/
+    );
     const missingDependency = defineCheck({
       checkId: "fixture-missing-dependency",
       dependsOn: ["fixture-absent"],
@@ -305,7 +331,23 @@ describe("Project Gate Definition", () => {
             tags: []
           }
         ]),
-      /dependency is missing: fixture-missing-dependency -> fixture-absent/
+      /dependsOn relation is missing: fixture-missing-dependency -> fixture-absent/
+    );
+    const missingObservation = defineCheck({
+      checkId: "fixture-missing-observation",
+      displayName: "Fixture missing observation",
+      observes: ["fixture-absent"]
+    });
+    assert.throws(
+      () =>
+        defineProjectGateEntries([
+          {
+            check: missingObservation,
+            profiles: ["required"],
+            tags: []
+          }
+        ]),
+      /observes relation is missing: fixture-missing-observation -> fixture-absent/
     );
   });
 

@@ -4,6 +4,7 @@
 
 Owner: `docs/api-mechanics.md#caller-keyed-json-cache`
 Entities:
+
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > validates a closed absolute input grammar before reading or computing`
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses a digest-only identity and returns a parser-backed hit without recomputing`
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > isolates namespace, payload version, and key identities`
@@ -15,7 +16,7 @@ Entities:
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > does not publish thrown, cancelled, noncanonical, or parser-rejected computations`
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > keeps computed values when the target directory cannot be published`
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > permits concurrent computation while exposing only a complete cached target`
-Proves:
+  Proves:
 - A closed absolute caller directory plus non-empty namespace, payload version and key identify one digest-only entry; raw key material is absent from names and envelopes, and namespace/version/key changes isolate values.
 - The public parser type and runtime both reject thenable parser output. Only a complete envelope with matching identity, canonical object payload and synchronous caller parser is a hit. Missing, malformed, mismatched, parser-rejected or unreadable state computes exactly once; computed values pass the same detached canonical payload/parser boundary, while compute/parser failure never publishes an entry.
 - Publication uses same-directory unique temporary files and atomic rename. Only a deterministic `EEXIST` target conflict can reread a complete valid target as stored; ordinary filesystem failure preserves the accepted computed value with `write: "failed"`. Concurrent misses may duplicate compute but only leave a complete readable target without lock, single-flight or global cache state.
@@ -79,14 +80,15 @@ Owner: `docs/configuration.md#invocation-and-results`
 Entities:
 
 - `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
-- `bun|src/project-run/run-preflight-cancellation.test.ts|Package Run > returns the existing execution cancellation result when the preflight barrier aborts`
+- `bun|src/project-run/run-preflight-cancellation.test.ts|Package Run > returns execution cancellation when an admitted preflight aborts`
 - `bun|src/project-run/run-callback-context.test.ts|Package Run > executes each normalized Check directly with the public callback context`
 - `bun|src/project-run/check-execution/preflight-failures.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preflight results`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
   Proves:
-- Package Run validates closed definitions and controls before execution callbacks or outputs, rejecting unknown Run control keys. An optional Check preflight receives detached frozen authored options and the invocation signal in a sequential global barrier; block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only its Check unavailable without callback execution, while accepted prepared/fallback values are invocation-local. Barrier cancellation returns the existing execution-phase `cancelled` result even with no scheduler task to admit and retains messages from preflights that completed before cancellation. Every ready executable Check receives only its public context, whose `project` value contains normalized `root` and canonical `flags`; trusted preflight/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
+- Package Run validates closed definitions and controls before execution callbacks or outputs, rejecting unknown Run control keys. An admitted Check runs optional preflight with detached frozen authored options and the invocation signal before its own callback; independent admitted Tasks can prepare concurrently, while block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only the owning Check unavailable without callback execution. Cancellation closes the execution phase without admitting new author work. Every ready executable Check receives only its public context, whose `project` value contains normalized `root` and canonical `flags`; trusted preflight/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
 - The two `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input and the canonical immutable `project.flags` callback snapshot.
 
 ## Case WB-RUNTIME-CHECK-LIFECYCLE-001: Each executable Check closes as one Check-facts fact
@@ -123,18 +125,38 @@ Entities:
   Proves:
 - Ordinary malformed results, malformed terminal-message attachments, and Record misuse become the owning unavailable Check outcome without a partial message escape. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
 
-## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct dependencies run through the shared graph
+## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct Check relations run through the shared graph
 
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/run-dependency-data.test.ts|Package Run > admits an unavailable dependency and exposes its read failure`
-- `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected generic Task graph before any Check callback runs`
-- `bun|src/project-run/controls/flags.test.ts|Package Run flags > keeps dependent admission after local not-applicable`
-- `bun|src/project-run/check-execution/resolved-checks.dependencies.test.ts|Package Run direct Check execution > admits all settled dependency outcomes and limits reads to direct dependencies`
+- `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected Check relation graph before any Check callback runs`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
   Proves:
-- Direct executable Checks use the shared dependency graph. Every settled upstream outcome admits a dependent; its frozen callback-local string getter returns canonical final data only for an effective direct passed/failed dependency, or one of the two closed read failures without exposing undeclared or transitive facts. Its zero-argument list reader returns only normalized effective direct IDs (including inherited IDs), in their stable order, with frozen Core four-state outcomes; empty, ambient, transitive and scheduler-history views are excluded.
-- A Check can use `project.flags.includes(...)` to return `not-applicable`; in the mapped dependent fixture, its dependent still runs rather than being scheduler-level skipped. Cancellation-before-start and generic Task failures remain separate lifecycle/engine boundaries.
+- Direct executable Checks project both `dependsOn` and `observes` into one statically validated shared graph before any author work. Task-local preflight is itself admitted work, so it remains subject to direct relation readiness, mutex, capacity, priority and cancellation rather than a Definition-order barrier.
+
+## Case WB-RUNTIME-DEPENDENCY-BLOCKING-001: Non-passed prerequisites settle dependents without author work
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > settles every direct non-passed prerequisite before dependent author work`
+- `bun|src/project-run/controls/flags.test.ts|Package Run flags > blocks a dependent after a local not-applicable outcome`
+  Proves:
+- A `failed`, `not-applicable`, or `unavailable` direct `dependsOn` outcome prevents both the dependent preflight and callback. Product, rather than the generic Scheduler, then closes that Check as `unavailable` with `dependency-not-passed`, only stable direct blocker IDs, no author message/Record, and `null` duration.
+- Prerequisite blocking does not cancel the invocation or suppress an explicit observer; cancellation-before-start and generic executor failure remain separate scheduler boundaries.
+
+## Case WB-RUNTIME-DEPENDENCY-OBSERVATION-001: Observers read direct terminal outcomes
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/run-dependency-data.test.ts|Package Run > observes an unavailable Check and exposes its read failure`
+- `bun|src/project-run/check-execution/resolved-checks.dependencies.test.ts|Package Run direct Check execution > waits for direct observations and limits readback to direct relations`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > makes a scheduler-blocked outcome available to its terminal observer`
+  Proves:
+- `observes` waits for each direct Check to reach any of the four terminal outcomes and then admits ordinary author work. Callback-local `get` and `list` authorize exactly the normalized direct union of `dependsOn` and `observes`: passed/failed retain canonical data, unavailable/not-applicable retain the closed data-read failure, and list values are frozen in stable ID order without ambient, transitive or scheduler-history access.
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
 
@@ -144,9 +166,10 @@ Entities:
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > settles cancellation-before-start Checks without starting them`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
 - `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
   Proves:
-- Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Check-facts outcome and a finite duration, while cancellation-before-start Checks settle without a start and use `null`/`not run` duration.
+- Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Check-facts outcome and a finite duration, while cancellation-before-start and Product-owned prerequisite-blocked Checks settle without a start and use `null`/`not run` duration.
 - The final duration summary follows canonical snapshot order and identity even when lifecycle completion order follows parallel settlement; a single monotonic invocation interval supplies elapsed time rather than summing overlapping Check durations.
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine

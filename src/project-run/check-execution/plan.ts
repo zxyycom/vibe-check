@@ -6,12 +6,8 @@ import type { NormalizedCheck } from "../../project-definition/project-definitio
  * identities: containment has already been resolved by Definition and has no
  * runtime alias or completion semantics here.
  */
-export function planStaticCheckGraph(
-  checks: readonly NormalizedCheck[],
-  options: Readonly<{ readonly alreadySettledCheckIds?: ReadonlySet<string> }> = {}
-): TaskGraph {
-  const alreadySettledCheckIds = options.alreadySettledCheckIds ?? new Set<string>();
-  const tasks = checks.map((check) => taskForCheck(check, alreadySettledCheckIds));
+export function planStaticCheckGraph(checks: readonly NormalizedCheck[]): TaskGraph {
+  const tasks = checks.map(taskForCheck);
   const scopes = checks.map(scopeForCheck);
   return Object.freeze({
     tasks: Object.freeze(tasks),
@@ -19,15 +15,13 @@ export function planStaticCheckGraph(
   });
 }
 
-function taskForCheck(
-  check: NormalizedCheck,
-  alreadySettledCheckIds: ReadonlySet<string>
-): TaskNode {
+function taskForCheck(check: NormalizedCheck): TaskNode {
   return Object.freeze({
     admissionPriority: check.admissionPriority,
-    dependsOn: check.dependsOn.filter((checkId) => !alreadySettledCheckIds.has(checkId)),
+    dependsOn: check.dependsOn,
     id: check.definition.checkId,
     mutex: check.mutex,
+    observes: check.observes,
     scopeId: scopeIdFor(check)
   });
 }

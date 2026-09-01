@@ -19,6 +19,7 @@ describe("Check execution plan", () => {
             admissionPriority: -2,
             checkId: "lowered",
             displayName: "Lowered",
+            observes: ["defaulted"],
             execution: passed
           }),
           defineCheck({ checkId: "defaulted", displayName: "Defaulted", execution: passed })
@@ -27,13 +28,14 @@ describe("Check execution plan", () => {
     ).checks;
 
     assert.deepEqual(
-      planStaticCheckGraph(checks).tasks.map(({ admissionPriority, id }) => ({
+      planStaticCheckGraph(checks).tasks.map(({ admissionPriority, id, observes }) => ({
         admissionPriority,
-        id
+        id,
+        observes
       })),
       [
-        { admissionPriority: -2, id: "lowered" },
-        { admissionPriority: 0, id: "defaulted" }
+        { admissionPriority: -2, id: "lowered", observes: ["defaulted"] },
+        { admissionPriority: 0, id: "defaulted", observes: [] }
       ]
     );
   });

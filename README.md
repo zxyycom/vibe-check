@@ -135,17 +135,19 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | `checkId` | 在同一 Definition 中唯一的稳定标识；用于查找 outcome、Record、message 和 duration。 |
 | `displayName` | 进度和人读结果中显示的名称。 |
 | `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
-| `dependsOn` | 此 Check 要读取或等待的 direct Check IDs；可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
+| `dependsOn` | 必须先结算为 `passed` 的 direct prerequisite IDs；任一非 `passed` 都阻止本 Check 的 preflight 和 execution。可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
+| `observes` | 所列每个 direct Check 都只需先各自形成任意 terminal outcome 的 IDs；用于审计、汇总或基于 outcome 形成本 Check 的 policy，不把上游非 `passed` 当作本 Check 的 prerequisite；同样可用 `inherit({ add, remove })` 显式编辑继承值。 |
 | `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或已建立的 capacity reservation。 |
 | `options` | 当前 Check 的配置；Run 会把准备后的只读副本交给 `context.options`。 |
 | `checks` | 可选的子 Check 列表，用于组织一组相关规则。 |
 
-`execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、已声明依赖的数据、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
+`execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、两类 relation 授权的 direct outcome、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
 
-需要读取一个已声明 direct dependency 的 final data 时，使用 `context.dependencies.get(checkId)`，并由 producing
-Check 的 `parseData` 恢复其业务类型。需要审计所有已声明 direct dependencies 时，使用零参数
+必须取得成功 provider data 才能开始工作时，使用 `dependsOn`，再以 `context.dependencies.get(checkId)` 读取 final data，并由 producing
+Check 的 `parseData` 恢复其业务类型。需要在所有 observed upstream 各自结算为任意 terminal outcome 后审计时，使用 `observes`，再用零参数
 `context.dependencies.list()`：它按 normalized effective direct ID 的稳定顺序返回冻结的 observation array；每项都是冻结的
-`{ checkId, outcome }`，`outcome` 保留 Core 已结算的完整四态，包含继承得到的直接声明。它不是全局已执行 Check 列表，
+`{ checkId, outcome }`，`outcome` 保留 Core 已结算的完整四态，包含两类 relation 分别继承后形成的 direct ID 并集。`get` 和 `list`
+都只授权这个并集；同一 ID 不能同时出现在两类 relation。它不是全局已执行 Check 列表，
 不包含 ambient executed、transitive 或未声明 Check，也不反映 scheduler history。consumer 只能根据这些只读事实形成自己
 Check 的 I/O、Records、messages 和 terminal result，不能重跑、修改或重新结算上游。完整示例与 parser 边界见
 [深入 API 机制的类型化依赖数据](./docs/api-mechanics.md#类型化依赖数据)。

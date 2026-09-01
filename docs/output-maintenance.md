@@ -42,7 +42,7 @@ console、terminal author order 输出 message lines；message code 保留在 `R
 普通 TTY 在仍有 Check 运行时每 5 秒重绘 running region，并显示基于共享 monotonic interval 的 elapsed time；首次 running
 row 在 heartbeat 前不伪造时长。Plain output 与 `TERM=dumb` 保持 append-only，只在 settled 后输出 row，也不启动
 heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；resolved-Check execution 在静态 graph 校验后、preflight
-barrier 前安装一次 async-context-aware global-console router，在全部 Check 闭合后恢复原 method descriptors。每个 awaited
+task-local Check work 前安装一次 async-context-aware global-console router，在全部 Check 闭合后恢复原 method descriptors。每个 awaited
 Check preflight/execution 只建立自己的 capture buffer；context 外调用继续委托 host console。Product 不 patch
 `process.stdout` / `process.stderr`；in-process Check 的直接 stream writes 和
 child-process 输出必须进入独立 sink，不能依赖当前 target 偶然是 non-TTY 来建立兼容保证。
