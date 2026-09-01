@@ -17,6 +17,12 @@ describe("static task engine", () => {
         }),
       /task graph tasks\[0\] has unknown property: command/
     );
+    for (const admissionPriority of [Number.NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+      assert.throws(
+        () => validateTaskGraph({ tasks: [{ admissionPriority, id: "priority" }] }),
+        /task priority\.admissionPriority must be a safe integer/
+      );
+    }
     assert.throws(
       () =>
         validateTaskGraph({

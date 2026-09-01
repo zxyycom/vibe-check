@@ -23,6 +23,7 @@ export type ParsedCheckCollection = Readonly<
 >;
 
 export interface ParsedCheck {
+  readonly admissionPriority: number | undefined;
   readonly checkId: string;
   readonly checks: readonly ParsedCheck[];
   readonly definition: CheckDescriptor | null;
@@ -68,6 +69,7 @@ interface ParsedCheckFields {
 }
 
 const CHECK_KEYS = [
+  "admissionPriority",
   "checkId",
   "checks",
   "dependsOn",
@@ -128,6 +130,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   warnForMeaninglessCheck(data, checks, fields, path, state);
 
   return Object.freeze({
+    admissionPriority: scheduling.admissionPriority,
     checkId: data.checkId,
     checks,
     definition: fields.definition,
@@ -270,6 +273,7 @@ function warnForMeaninglessCheck(
 
 function parseScheduling(data: CheckAuthoringData):
   | Readonly<{
+      readonly admissionPriority: number | undefined;
       readonly dependsOn: ParsedCheckCollection | undefined;
       readonly maxParallel: number | undefined;
       readonly mutex: ParsedCheckCollection | undefined;
@@ -277,15 +281,19 @@ function parseScheduling(data: CheckAuthoringData):
   | undefined {
   const dependsOn = parseCollection(data, "dependsOn");
   const mutex = parseCollection(data, "mutex");
+  const admissionPriority = data.admissionPriority;
   const maxParallel = data.maxParallel;
   if (
     dependsOn === null ||
     mutex === null ||
+    (admissionPriority !== undefined &&
+      (typeof admissionPriority !== "number" || !Number.isSafeInteger(admissionPriority))) ||
     (maxParallel !== undefined &&
       (typeof maxParallel !== "number" || !Number.isSafeInteger(maxParallel) || maxParallel <= 0))
   )
     return undefined;
   return Object.freeze({
+    admissionPriority,
     dependsOn: dependsOn ?? undefined,
     maxParallel,
     mutex: mutex ?? undefined

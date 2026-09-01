@@ -24,6 +24,7 @@ export function normalized(
 ): NormalizedCheck {
   const checkId = overrides.checkId ?? "direct-check";
   return {
+    admissionPriority: 0,
     definition: { checkId, displayName: overrides.displayName ?? checkId },
     dependsOn: overrides.dependsOn ?? [],
     execution,

@@ -24,6 +24,7 @@ function taskForCheck(
   alreadySettledCheckIds: ReadonlySet<string>
 ): TaskNode {
   return Object.freeze({
+    admissionPriority: check.admissionPriority,
     dependsOn: check.dependsOn.filter((checkId) => !alreadySettledCheckIds.has(checkId)),
     id: check.definition.checkId,
     mutex: check.mutex,

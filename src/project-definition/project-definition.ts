@@ -66,6 +66,7 @@ export type ProjectDefinitionValidationResult = Readonly<
   | { readonly ok: false; readonly error: ProjectDefinitionDiagnostic }
 >;
 export interface NormalizedCheckDeclaration {
+  readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
   readonly maxParallel: number;
@@ -136,6 +137,7 @@ export function normalizeProjectDefinition(
 }
 function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
   return Object.freeze({
+    admissionPriority: leaf.admissionPriority,
     definition: leaf.definition,
     dependsOn: leaf.dependsOn,
     execution: leaf.execution,

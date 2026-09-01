@@ -14,7 +14,7 @@
       "allow-controlled-json-schema-reference-sources.md": "sha256:94e4b7a4903ed8c11b18d5c6d06c5bae703e4f8628d575891f597fdf2d01ce43",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
       "allow-explicitly-controlled-json-schema-reference-sources.md": "sha256:fad4fd5e005e91fd702dd68f108610781f055c4e2cd441a061b1f2ce8538081e",
-      "apply-check-parallel-limit-while-task-runs.md": "sha256:0e8bf452deacf72e384232ed0c63ca2fac598c4d966972760ea9b465ebb645c4",
+      "apply-check-parallel-limit-while-task-runs.md": "sha256:a22a2492d2909f34f2ff3c708ebc15518a1c61688b53b09f1e09cdf4c13f3c52",
       "approve-public-names-before-publication.md": "sha256:b1afc744523757aa5fd25f458f93343a677b886628002e2ab2cd86d2202a18b1",
       "author-package-markdown-at-published-paths.md": "sha256:24eb73622c39c142cf9e44ef4e15df200c16834217407a4ec7cdbd080e857d1d",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
@@ -29,6 +29,7 @@
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:98287aa77d20eec27c838c7923f1bc425ba117b80ccc545a84ae08914749469b",
       "complete-project-gate-before-public-package-release.md": "sha256:c06bdaf6a8f8b5bb159c639170abeb1fd70a7d2e9adfca511e8ae94d89598b8f",
+      "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": "sha256:52eeec99a8343294cfd1834176034ce638bcf9ce8c7fa7294b4d30e260d29e10",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
@@ -159,10 +160,11 @@
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
+      "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:cef5887bc74826acf92706b19104624f5a18b297bbf18176e634e22ed3150e0b",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
-      "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:9eefc7735ffcb0b309a65e8aea75472b7aa2944c59ed204222a1bd5c4398d877",
+      "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
@@ -549,16 +551,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "apply-check-parallel-limit-while-task-runs.md",
+        "sourcePath": "archive/apply-check-parallel-limit-while-task-runs.md",
         "title": "在 Check Task 运行期间应用并行上限",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T15:28:17Z",
         "purpose": "让每个 executable Check 的 maxParallel 在其 Task admission 和运行期间约束 Product 总并发。",
@@ -1015,6 +1017,42 @@
           "product-priority"
         ],
         "relations": []
+      }
+    },
+    "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md",
+        "title": "用重复对照证据配置 Project Gate 的准入优先级",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T04:56:53Z",
+        "purpose": "让 Gate 的 test partition、容量、mutex 与任何非零 admission priority 都对应可复核的同工作负载资源和关键路径证据。",
+        "background": "资源互斥与 root capacity 已有实测依据，但静态 priority 可能改善或伤害不同 Gate profile 的关键路径。",
+        "decision": "保留 Gate 的实测资源调度；仅以重复对照证据配置非零 admission priority。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md"
+          }
+        ]
       }
     },
     "confirm-built-in-check-and-adjustment-names-before-publication.md": {
@@ -5086,6 +5124,38 @@
         ]
       }
     },
+    "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": {
+      "keys": {
+        "tag": [
+          "configuration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "retain-running-parallel-limits-and-order-ready-admission-by-priority.md",
+        "title": "保留运行期并行上限并按优先级选择 ready Task",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T04:56:52Z",
+        "purpose": "在每个 Check Task 的运行期容量上限不变时，让作者能以静态优先级安排同一既有准入层级中的 ready Task。",
+        "background": "容量收紧 reservation 保证局部上限可达，而 Definition 顺序不能可靠表达 ready Task 的启动偏好。",
+        "decision": "maxParallel 继续限制 admission 与运行期总并发；静态 priority 只在现有准入层级内打破 ready Task 的选择顺序，且不得抢占 reservation 或容量规则。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "apply-check-parallel-limit-while-task-runs.md"
+          }
+        ]
+      }
+    },
     "reuse-prepared-candidate-across-package-acceptance.md": {
       "keys": {
         "tag": [
@@ -5188,16 +5258,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md",
+        "sourcePath": "archive/schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md",
         "title": "按实测资源所有权调度 Gate 与文档材料",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T04:53:50Z",
         "purpose": "让 Gate 的 test partition、并发度和 named mutex 都对应可验证的物理资源边界，并只串行会竞争的文档材料。",

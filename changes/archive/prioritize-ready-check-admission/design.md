@@ -95,7 +95,7 @@ Gate Definition 改变后必须为新 declarative fingerprint 重新采集 check
 - pure decision helper 可以增加局部 comparator/selection helper，但 imperative scheduler shell 不应知道 priority 规则。
 - 手写 task/normalized declaration fixtures 需要补充显式默认值或通过统一 normalization 获得默认值，避免测试临时绕过公共 grammar。
 - semantic Cases 需要覆盖 authoring/inheritance/fingerprint 与 scheduler admission 两个 owner；性能 A/B 是 Gate 配置证据，不替代 deterministic unit tests。
-- 实现前用 Decision Records 演进 [`apply-check-parallel-limit-while-task-runs.md`](../../docs/decisions/apply-check-parallel-limit-while-task-runs.md) 和 [`schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md`](../../docs/decisions/schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md)，不得让 Plan 单独成为长期规范 owner。
+- 实现前用 Decision Records 演进 [`retain-running-parallel-limits-and-order-ready-admission-by-priority.md`](../../docs/decisions/retain-running-parallel-limits-and-order-ready-admission-by-priority.md) 和 [`configure-project-gate-admission-priority-by-repeated-comparative-evidence.md`](../../docs/decisions/configure-project-gate-admission-priority-by-repeated-comparative-evidence.md)，不得让 Plan 单独成为长期规范 owner。
 
 ## Risks / Trade-offs
 

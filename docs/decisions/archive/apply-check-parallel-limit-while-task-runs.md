@@ -1,6 +1,6 @@
 ---
 title: 在 Check Task 运行期间应用并行上限
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:28:17Z
 purpose: 让每个 executable Check 的 maxParallel 在其 Task admission 和运行期间约束 Product 总并发。

@@ -2,7 +2,11 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { defineCheck, inherit, type Check } from "../check/check.ts";
-import { defineConfig, normalizeProjectDefinition } from "./project-definition.ts";
+import {
+  createDeclarativeFingerprint,
+  defineConfig,
+  normalizeProjectDefinition
+} from "./project-definition.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import { passed } from "./project-definition.test-support.ts";
 
@@ -60,5 +64,87 @@ describe("Project Definition", () => {
       }).ok,
       false
     );
+  });
+
+  it("normalizes signed admission priority by nearest explicit ancestor", () => {
+    const inherited = defineCheck({
+      checkId: "inherited-priority",
+      displayName: "Inherited priority",
+      execution: passed
+    });
+    const overridden = defineCheck({
+      admissionPriority: 7,
+      checkId: "overridden-priority",
+      displayName: "Overridden priority",
+      execution: passed
+    });
+    const parent = {
+      admissionPriority: -3,
+      checkId: "priority-group",
+      checks: [inherited, overridden],
+      displayName: "Priority group"
+    } satisfies Check;
+    const defaultPriority = normalizeProjectDefinition(
+      defineConfig({
+        checks: [
+          defineCheck({
+            checkId: "default-priority",
+            displayName: "Default priority",
+            execution: passed
+          })
+        ]
+      })
+    );
+    const explicitZero = normalizeProjectDefinition(
+      defineConfig({
+        checks: [
+          defineCheck({
+            admissionPriority: 0,
+            checkId: "default-priority",
+            displayName: "Default priority",
+            execution: passed
+          })
+        ]
+      })
+    );
+    const normalized = normalizeProjectDefinition(defineConfig({ checks: [parent] }));
+
+    assert.deepEqual(
+      normalized.checks.map(({ definition, admissionPriority }) => ({
+        admissionPriority,
+        checkId: definition.checkId
+      })),
+      [
+        { admissionPriority: -3, checkId: "inherited-priority" },
+        { admissionPriority: 7, checkId: "overridden-priority" }
+      ]
+    );
+    assert.equal(Object.isFrozen(normalized.checks[0]), true);
+    assert.equal(Object.isFrozen(normalized.declarative.checks[0]), true);
+    assert.equal(
+      createDeclarativeFingerprint(defaultPriority.declarative),
+      createDeclarativeFingerprint(explicitZero.declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(defaultPriority.declarative),
+      createDeclarativeFingerprint(normalized.declarative)
+    );
+
+    for (const admissionPriority of [Number.NaN, 0.5, Number.MAX_SAFE_INTEGER + 1]) {
+      assert.equal(
+        validateProjectDefinition({
+          ...defineConfig({}),
+          checks: [
+            {
+              admissionPriority,
+              checkId: "invalid-priority",
+              displayName: "Invalid priority",
+              execution: passed
+            }
+          ]
+        }).ok,
+        false
+      );
+    }
   });
 });

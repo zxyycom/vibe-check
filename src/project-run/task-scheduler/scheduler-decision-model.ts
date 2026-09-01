@@ -75,6 +75,7 @@ export type SchedulerAwaitReason =
 export type SchedulerDecision = SchedulerDecisionContext &
   (
     | Readonly<{
+        readonly admissionPriority: number;
         readonly eligibleCount: number;
         readonly kind: "admit";
         readonly reason: SchedulerAdmissionReason;

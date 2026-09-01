@@ -11,6 +11,7 @@ import {
 export type { Check, InheritableCheckCollection } from "../../check/check.ts";
 
 export interface ResolvedCheckTreeLeaf {
+  readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
   readonly execution: CheckExecution;
@@ -27,6 +28,7 @@ export interface ResolvedCheckTree {
 }
 
 interface InheritedScheduling {
+  readonly admissionPriority: number;
   readonly dependsOn: readonly string[];
   readonly maxParallel: number;
   readonly mutex: readonly string[];
@@ -52,6 +54,7 @@ export function resolveParsedCheckTree(
   if (!Number.isSafeInteger(rootMaxParallel) || rootMaxParallel <= 0) return undefined;
   const leaves: ResolvedCheckTreeLeaf[] = [];
   const root: InheritedScheduling = Object.freeze({
+    admissionPriority: 0,
     dependsOn: Object.freeze([]),
     maxParallel: rootMaxParallel,
     mutex: Object.freeze([])
@@ -66,6 +69,7 @@ function flattenCheck(
   leaves: ResolvedCheckTreeLeaf[]
 ): void {
   const scheduling: InheritedScheduling = Object.freeze({
+    admissionPriority: check.admissionPriority ?? inherited.admissionPriority,
     dependsOn: resolveCollection(inherited.dependsOn, check.dependsOn),
     maxParallel: check.maxParallel ?? inherited.maxParallel,
     mutex: resolveCollection(inherited.mutex, check.mutex)
@@ -79,6 +83,7 @@ function flattenCheck(
   ) {
     leaves.push(
       Object.freeze({
+        admissionPriority: scheduling.admissionPriority,
         definition: check.definition,
         dependsOn: scheduling.dependsOn,
         execution: check.execution,

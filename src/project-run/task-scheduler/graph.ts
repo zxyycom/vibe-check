@@ -1,6 +1,7 @@
 import { validatePreparedTaskGraph } from "./graph-validation.ts";
 
 export interface TaskNode {
+  readonly admissionPriority?: number;
   readonly id: string;
   readonly dependsOn?: readonly string[];
   readonly mutex?: readonly string[];
@@ -25,6 +26,7 @@ export interface TaskGraph {
 }
 
 export interface PlannedTask {
+  readonly admissionPriority: number;
   readonly id: string;
   readonly dependsOn: readonly string[];
   readonly mutex: readonly string[];
@@ -44,7 +46,7 @@ export interface PlannedTaskGraph {
 }
 
 const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
-const TASK_NODE_KEYS = ["id", "dependsOn", "mutex", "scopeId"] as const;
+const TASK_NODE_KEYS = ["admissionPriority", "id", "dependsOn", "mutex", "scopeId"] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
 
 /** Validates untrusted graph-shaped input without admitting it to scheduler execution. */
@@ -81,9 +83,11 @@ function normalizeTasks(value: unknown): PlannedTask[] {
       throw new TypeError(`duplicate task id: ${id}`);
     }
     ids.add(id);
+    const admissionPriority = admissionPriorityOrDefault(data.admissionPriority, id);
     const scopeId = optionalNonEmptyString(data.scopeId, `task ${id}.scopeId`);
     tasks.push(
       Object.freeze({
+        admissionPriority,
         id,
         dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
         mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
@@ -180,6 +184,14 @@ function requiredStringList(value: unknown, fieldName: string): string[] {
 function positiveSafeInteger(value: unknown, fieldName: string): number {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) {
     throw new TypeError(`${fieldName} must be a positive safe integer`);
+  }
+  return value;
+}
+
+function admissionPriorityOrDefault(value: unknown, taskId: string): number {
+  if (value === undefined) return 0;
+  if (typeof value !== "number" || !Number.isSafeInteger(value)) {
+    throw new TypeError(`task ${taskId}.admissionPriority must be a safe integer`);
   }
   return value;
 }

@@ -39,7 +39,7 @@ ordinary Check contract。task scheduler 只是 Run 的 private child，不形�
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
-`dependsOn`、`mutex` 和 `maxParallel`，不形成独立 Check-facts 或 output entity。
+`dependsOn`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
 
 完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
@@ -48,7 +48,7 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 ## Execution boundary
 
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
-dependency/mutex admission、root budget、cancellation 与 settlement。engine 不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
+dependency/mutex admission、root budget、immutable task admission priority、cancellation 与 settlement。priority 只在既有 ready selection layer 内作静态 tie-break；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
 
 Task admission 前，Run 按 Definition 顺序执行 invocation-wide Check preflight barrier；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不进入 scheduler，也没有 started lifecycle fact；ready Check 才以 prepared/fallback options 进入 Task graph。barrier 属于 execution phase，但 invocation preparation 和 progress setup 可以先发生；它只保证任何 author Check execution、scanner 或其它 Check-local execution work 尚未开始。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 

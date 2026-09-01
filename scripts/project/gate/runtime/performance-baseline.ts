@@ -28,32 +28,32 @@ export interface ProjectGatePerformanceBaseline {
 }
 
 /**
- * Advisory baselines collected on 2026-08-30 with five interleaved, sequential
+ * Advisory baselines collected on 2026-09-01 with five interleaved, sequential
  * invocations per profile. The threshold is the greater of p90 * 1.25 and
  * median * 1.5 so ordinary workstation noise remains non-blocking.
  */
 export const PROJECT_GATE_PERFORMANCE_BASELINES: readonly ProjectGatePerformanceBaseline[] =
   Object.freeze([
     {
-      medianMs: 8_160.6,
-      p90Ms: 8_539.9,
-      samplesMs: Object.freeze([8_046.2, 8_539.9, 8_129.6, 8_274.1, 8_160.6]),
-      thresholdMs: 12_241,
+      medianMs: 8_558.9,
+      p90Ms: 9_179.6,
+      samplesMs: Object.freeze([9_179.6, 8_558.9, 8_214.5, 9_062.2, 8_539.2]),
+      thresholdMs: 12_839,
       workload: Object.freeze({
         candidatePreparation: "reuse",
-        declarativeFingerprint: "e443355505b751fa3e893c227575599c5cc19fe8594e9dc50189d41041784d66",
+        declarativeFingerprint: "35f41c18d236e833261e413f680747fd59e54a0cbd28d01057e99bccdd9dec2b",
         profile: "required",
         runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
       })
     },
     {
-      medianMs: 14_328.4,
-      p90Ms: 14_545.2,
-      samplesMs: Object.freeze([14_545.2, 14_328.4, 14_100.9, 13_928, 14_446.2]),
-      thresholdMs: 21_493,
+      medianMs: 13_888.5,
+      p90Ms: 15_516.6,
+      samplesMs: Object.freeze([15_516.6, 14_032.8, 13_831, 13_716.9, 13_888.5]),
+      thresholdMs: 20_833,
       workload: Object.freeze({
         candidatePreparation: "reuse",
-        declarativeFingerprint: "e443355505b751fa3e893c227575599c5cc19fe8594e9dc50189d41041784d66",
+        declarativeFingerprint: "35f41c18d236e833261e413f680747fd59e54a0cbd28d01057e99bccdd9dec2b",
         profile: "full",
         runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
       })

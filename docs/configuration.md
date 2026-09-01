@@ -184,7 +184,11 @@ not final data or supplemental Records.
 
 Every node has a unique `checkId` and non-empty `displayName`. An executable node can also contain children; execution and containment are independent ordinary fields. Containment contributes scheduling inheritance only: it does not create a separately published Check or a hierarchy in the final snapshot.
 
-`maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a node's value is inherited by descendants unless a child supplies its own value. `dependsOn` and `mutex` accept an exact string collection or `inherit({ add, remove })`:
+`maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a node's value is inherited by descendants unless a child supplies its own value.
+
+`admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It only orders otherwise-ready work in the same scheduler selection layer; it does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or an already-established tightening reservation. Use a few relative bands rather than a unique number for every Check.
+
+`dependsOn` and `mutex` accept an exact string collection or `inherit({ add, remove })`:
 
 - an exact collection replaces the inherited collection, including `[]` to clear it;
 - `inherit` changes the parent collection deliberately, then canonicalizes and de-duplicates it;

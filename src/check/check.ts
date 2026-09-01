@@ -315,6 +315,8 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   readonly dependsOn?: InheritableCheckCollection<string>;
   /** 此 Check 及其 descendants 的最大并行预算。 */
   readonly maxParallel?: number;
+  /** 同一 ready admission 层级中的静态优先级；省略时继承并最终规范化为 `0`。 */
+  readonly admissionPriority?: number;
   /** 共享资源名称，或对父 mutex collection 的显式 edit。 */
   readonly mutex?: InheritableCheckCollection<string>;
   /** 已结算 Check 的人读可见性；可执行节点默认 `always`。 */

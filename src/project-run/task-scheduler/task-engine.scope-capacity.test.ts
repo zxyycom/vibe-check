@@ -129,6 +129,95 @@ describe("static task engine", () => {
     recordedSchedulerDecisions(observations);
   });
 
+  it("orders constrained selectors by cap then priority and keeps an existing reservation sticky", () => {
+    const graph = {
+      tasks: [
+        { id: "ordinary", admissionPriority: 99 },
+        { id: "tight-low", admissionPriority: 1, scopeId: "tight-low" },
+        { id: "tight-high", admissionPriority: 5, scopeId: "tight-high" },
+        { id: "tighter", admissionPriority: -1, scopeId: "tighter" }
+      ],
+      scopes: [
+        {
+          id: "tight-low",
+          maxParallel: 2,
+          activationTaskIds: ["tight-low"],
+          terminalTaskId: "tight-low"
+        },
+        {
+          id: "tight-high",
+          maxParallel: 2,
+          activationTaskIds: ["tight-high"],
+          terminalTaskId: "tight-high"
+        },
+        { id: "tighter", maxParallel: 1, activationTaskIds: ["tighter"], terminalTaskId: "tighter" }
+      ]
+    };
+    const capFirst = decisionFor(graph, { maxParallel: 3 });
+    assert.equal(capFirst.kind, "admit");
+    assert.equal(capFirst.taskId, "tighter");
+
+    const priorityWithinCap = decisionFor(graph, {
+      maxParallel: 3,
+      pendingTaskIds: ["ordinary", "tight-low", "tight-high"]
+    });
+    assert.equal(priorityWithinCap.kind, "admit");
+    assert.equal(priorityWithinCap.taskId, "tight-high");
+
+    const preservedTieBreak = decisionFor(
+      {
+        tasks: [
+          { id: "later-task", admissionPriority: 5, scopeId: "later-scope" },
+          { id: "earlier-task", admissionPriority: 5, scopeId: "earlier-scope" }
+        ],
+        scopes: [
+          {
+            id: "later-scope",
+            maxParallel: 2,
+            activationTaskIds: ["later-task"],
+            terminalTaskId: "later-task"
+          },
+          {
+            id: "earlier-scope",
+            maxParallel: 2,
+            activationTaskIds: ["earlier-task"],
+            terminalTaskId: "earlier-task"
+          }
+        ]
+      },
+      { maxParallel: 3 }
+    );
+    assert.equal(preservedTieBreak.kind, "admit");
+    assert.equal(preservedTieBreak.taskId, "earlier-task");
+
+    const continuation = decisionFor(graph, {
+      activeScopeIds: ["tight-low", "tight-high"],
+      maxParallel: 3,
+      pendingTaskIds: ["ordinary", "tight-low", "tight-high"]
+    });
+    assert.equal(continuation.kind, "admit");
+    assert.equal(continuation.reason, "constrained-continuation");
+    assert.equal(continuation.taskId, "tight-high");
+
+    const tighteningGraph = tighteningScopeGraph();
+    const reserved = decisionFor(
+      {
+        ...tighteningGraph,
+        tasks: [...tighteningGraph.tasks, { id: "urgent", admissionPriority: 99 }]
+      },
+      {
+        activeScopeIds: ["wide"],
+        maxParallel: 2,
+        pendingTaskIds: ["wide-two", "wide-terminal", "low", "urgent"],
+        reservationTaskId: "low",
+        settledTasks: [{ kind: "completed", taskId: "gate" }]
+      }
+    );
+    assert.equal(reserved.kind, "admit");
+    assert.equal(reserved.reason, "reservation");
+    assert.equal(reserved.taskId, "low");
+  });
+
   it("does not activate a cap for a scope with no activation task", async () => {
     const started: string[] = [];
     const release = createDeferred<void>();

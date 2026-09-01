@@ -1,6 +1,6 @@
 ---
 title: 按实测资源所有权调度 Gate 与文档材料
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:53:50Z
 purpose: 让 Gate 的 test partition、并发度和 named mutex 都对应可验证的物理资源边界，并只串行会竞争的文档材料。

@@ -136,6 +136,7 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | `displayName` | 进度和人读结果中显示的名称。 |
 | `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
 | `dependsOn` | 此 Check 要读取或等待的 direct Check IDs；可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
+| `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或已建立的 capacity reservation。 |
 | `options` | 当前 Check 的配置；Run 会把准备后的只读副本交给 `context.options`。 |
 | `checks` | 可选的子 Check 列表，用于组织一组相关规则。 |
 

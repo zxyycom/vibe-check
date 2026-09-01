@@ -127,6 +127,11 @@ describe("Project Gate Definition", () => {
       "Markdown link validation"
     );
     assert.equal(
+      definition.checks.find(({ checkId }) => checkId === "markdown-link-validation")
+        ?.admissionPriority,
+      undefined
+    );
+    assert.equal(
       definition.checks.find(({ checkId }) => checkId === "docs-links-validator")?.displayName,
       "Documentation path existence validation"
     );

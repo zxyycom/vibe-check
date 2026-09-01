@@ -203,6 +203,7 @@ cacheJsonByKey({
 });
 
 const directCheck = defineCheck({
+  admissionPriority: 2,
   checkId: "isolated-public-import",
   displayName: "Isolated public import",
   execution: (context) => {

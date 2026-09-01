@@ -103,6 +103,16 @@ export function selectConstrainedContinuation(
     .sort((left, right) => compareConstrainedTasks(state, left, right))[0];
 }
 
+/** Selects the greatest static priority while preserving pending order for ties. */
+export function selectOrdinaryReadyTask(tasks: readonly PlannedTask[]): PlannedTask {
+  const [first, ...remaining] = tasks;
+  if (first === undefined) throw new Error("ordinary scheduler selection requires a task");
+  return remaining.reduce(
+    (selected, task) => (task.admissionPriority > selected.admissionPriority ? task : selected),
+    first
+  );
+}
+
 function pendingTaskFor(taskId: string, tasksById: ReadonlyMap<string, PlannedTask>): PlannedTask {
   const task = tasksById.get(taskId);
   if (task === undefined) throw new Error(`scheduler snapshot has unknown pending task ${taskId}`);
@@ -181,6 +191,7 @@ function compareConstrainedTasks(
   }
   return (
     leftScope.maxParallel - rightScope.maxParallel ||
+    right.admissionPriority - left.admissionPriority ||
     compareText(leftScope.id, rightScope.id) ||
     compareText(left.id, right.id)
   );

@@ -5,6 +5,7 @@ import {
   capacityWaitReason,
   isDependencyMutexEligible,
   selectConstrainedContinuation,
+  selectOrdinaryReadyTask,
   selectTighteningTask,
   type SchedulerInspection
 } from "./scheduler-decision-inspection.ts";
@@ -112,7 +113,11 @@ function decideUnreservedAdmission(
   return admissionOrCapacityWait(
     cycle,
     eligibleTasks,
-    { reason: "canonical-order", reservationUpdate, task: eligibleTasks[0] },
+    {
+      reason: "canonical-order",
+      reservationUpdate,
+      task: selectOrdinaryReadyTask(eligibleTasks)
+    },
     capacityWaitReason(cycle.state)
   );
 }
@@ -138,6 +143,7 @@ function admitDecision(
 ): SchedulerDecision {
   return freezeDecision({
     ...cycle.context,
+    admissionPriority: selection.task.admissionPriority,
     eligibleCount: eligibleTasks.length,
     kind: "admit",
     reason: selection.reason,

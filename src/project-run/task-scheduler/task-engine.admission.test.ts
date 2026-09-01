@@ -57,11 +57,67 @@ describe("static task engine", () => {
     assert.equal(rootAdmission.trigger.kind, "execution-started");
     assert.equal(rootAdmission.taskId, "base");
     assert.equal(rootAdmission.reason, "canonical-order");
+    assert.equal(rootAdmission.admissionPriority, 0);
     assert.deepEqual(rootAdmission.capacity, {
       effectiveMaxParallel: 3,
       maxParallel: 3,
       running: 0
     });
+  });
+
+  it("uses priority only among dependency and mutex eligible ordinary ready tasks", () => {
+    const graph = {
+      tasks: [
+        { id: "low", admissionPriority: -1 },
+        { id: "high", admissionPriority: 4 },
+        { id: "blocked", admissionPriority: 99, dependsOn: ["missing-ready"] },
+        { id: "missing-ready" },
+        { id: "mutex-blocked", admissionPriority: 98, mutex: ["shared"] }
+      ]
+    };
+    const selected = decisionFor(graph, {
+      maxParallel: 2,
+      pendingTaskIds: ["low", "high", "blocked"]
+    });
+    assert.equal(selected.kind, "admit");
+    assert.equal(selected.taskId, "high");
+    assert.equal(selected.admissionPriority, 4);
+
+    const stableTie = decisionFor(
+      {
+        tasks: [
+          { id: "first", admissionPriority: 3 },
+          { id: "second", admissionPriority: 3 }
+        ]
+      },
+      { maxParallel: 2 }
+    );
+    assert.equal(stableTie.kind, "admit");
+    assert.equal(stableTie.taskId, "first");
+
+    const dependencyBlocked = decisionFor(graph, {
+      maxParallel: 2,
+      pendingTaskIds: ["low", "blocked"],
+      settledTasks: []
+    });
+    assert.equal(dependencyBlocked.kind, "admit");
+    assert.equal(dependencyBlocked.taskId, "low");
+
+    const mutexBlocked = decisionFor(graph, {
+      maxParallel: 2,
+      pendingTaskIds: ["low", "mutex-blocked"],
+      runningMutexes: ["shared"],
+      runningTaskIds: ["running"]
+    });
+    assert.equal(mutexBlocked.kind, "admit");
+    assert.equal(mutexBlocked.taskId, "low");
+
+    const noPreemption = decisionFor(
+      { tasks: [{ id: "running" }, { id: "high", admissionPriority: 4 }] },
+      { maxParallel: 1, pendingTaskIds: ["high"], runningTaskIds: ["running"] }
+    );
+    assert.equal(noPreemption.kind, "await-running");
+    assert.equal(noPreemption.reason, "root-capacity");
   });
 
   it("emits immutable root admission, reservation, and mutex decisions", () => {

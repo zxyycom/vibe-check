@@ -17,6 +17,9 @@ function materializeCheck(check: ParsedCheck): Check {
   const visibility = check.visibility;
   const preflight = check.preflight;
   const scheduling = {
+    ...(check.admissionPriority === undefined
+      ? {}
+      : { admissionPriority: check.admissionPriority }),
     ...(dependsOn === undefined ? {} : { dependsOn }),
     ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
     ...(mutex === undefined ? {} : { mutex })

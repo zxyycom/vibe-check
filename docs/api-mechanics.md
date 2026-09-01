@@ -153,7 +153,7 @@ finding disposition 和 waiver audit；它不发布 Record、message 或 termina
 
 ## 递归组合与继承
 
-带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、dependencies、mutexes、visibility 与 parallel budget。
+带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、dependencies、mutexes、visibility、parallel budget 与 admission priority。
 
 ## 类型化依赖数据
 
