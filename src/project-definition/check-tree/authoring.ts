@@ -3,6 +3,8 @@ import {
   isInheritedCheckCollection,
   snapshotInheritedCheckCollection,
   type CheckVisibility,
+  type CheckFlagEnablement,
+  type CheckFlagEnablementMode,
   type CheckExecution,
   type CheckPreflight,
   type InheritedCheckCollection
@@ -29,6 +31,7 @@ export interface ParsedCheck {
   readonly definition: CheckDescriptor | null;
   readonly dependsOn: ParsedCheckCollection | undefined;
   readonly displayName: string;
+  readonly enabledByFlags: CheckFlagEnablement | null;
   readonly execution: CheckExecution | null;
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
@@ -61,6 +64,7 @@ interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
 
 interface ParsedCheckFields {
   readonly definition: CheckDescriptor | null;
+  readonly enabledByFlags: CheckFlagEnablement | null;
   readonly execution: CheckExecution | null;
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
@@ -74,6 +78,7 @@ const CHECK_KEYS = [
   "checks",
   "dependsOn",
   "displayName",
+  "enabledByFlags",
   "execution",
   "maxParallel",
   "mutex",
@@ -85,6 +90,7 @@ const CHECK_KEYS = [
 
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
+  enabledByFlags: null,
   execution: null,
   options: null,
   parseData: null,
@@ -121,11 +127,13 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   if (parseData === undefined) return undefined;
   const preflight = parsePreflight(data);
   if (preflight === undefined) return undefined;
+  const enabledByFlags = parseEnabledByFlags(data);
+  if (enabledByFlags === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
   const scheduling = parseScheduling(data);
   if (scheduling === undefined) return undefined;
-  const fields = parseCheckFields(data, execution, parseData, preflight);
+  const fields = parseCheckFields(data, enabledByFlags, execution, parseData, preflight);
   if (fields === undefined) return undefined;
   warnForMeaninglessCheck(data, checks, fields, path, state);
 
@@ -136,6 +144,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     definition: fields.definition,
     dependsOn: scheduling.dependsOn,
     displayName: data.displayName,
+    enabledByFlags: fields.enabledByFlags,
     execution: fields.execution,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
@@ -224,12 +233,14 @@ function parseOptions(data: CheckAuthoringData): object | undefined {
 
 function parseCheckFields(
   data: CheckAuthoringData,
+  enabledByFlags: CheckFlagEnablement | null,
   execution: CheckExecution | null,
   parseData: TrustedDataParser | null,
   preflight: CheckPreflight | null
 ): ParsedCheckFields | undefined {
   if (execution === null) {
     return Object.hasOwn(data, "options") ||
+      Object.hasOwn(data, "enabledByFlags") ||
       Object.hasOwn(data, "visibility") ||
       parseData !== null ||
       preflight !== null
@@ -244,12 +255,37 @@ function parseCheckFields(
   if (visibility === undefined) return undefined;
   return Object.freeze({
     definition,
+    enabledByFlags,
     execution,
     options,
     parseData,
     preflight,
     visibility
   });
+}
+
+function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | null | undefined {
+  if (!Object.hasOwn(data, "enabledByFlags")) return null;
+  const control = snapshotClosedRecord(data.enabledByFlags);
+  if (
+    control === undefined ||
+    Object.keys(control).length !== 2 ||
+    !Object.hasOwn(control, "flags") ||
+    !Object.hasOwn(control, "mode") ||
+    !isCheckFlagEnablementMode(control.mode)
+  ) {
+    return undefined;
+  }
+  const flags = parseCollectionItems(control.flags);
+  if (flags === undefined) return undefined;
+  const [firstFlag, ...remainingFlags] = [...flags].sort();
+  if (firstFlag === undefined) return undefined;
+  const canonicalFlags: [string, ...string[]] = [firstFlag, ...remainingFlags];
+  return Object.freeze({ flags: Object.freeze(canonicalFlags), mode: control.mode });
+}
+
+function isCheckFlagEnablementMode(value: unknown): value is CheckFlagEnablementMode {
+  return value === "all" || value === "any" || value === "none" || value === "not-all";
 }
 
 function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {

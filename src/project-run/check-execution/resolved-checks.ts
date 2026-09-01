@@ -33,10 +33,10 @@ import {
 import { planStaticCheckGraph } from "./plan.ts";
 import {
   prepareChecks,
-  type CheckPreflightResolution,
+  type CheckPreparationResolution,
   type PreparedCheck,
-  type ReadyCheckPreflightResolution
-} from "./preflight.ts";
+  type ReadyCheckPreparationResolution
+} from "./preparation-barrier.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
@@ -75,16 +75,16 @@ export interface CheckExecutionState extends CheckExecutionSettlementState {
 }
 
 interface ExecuteCheckInput extends CheckExecutionState {
-  readonly preflight: ReadyCheckPreflightResolution;
+  readonly preparation: ReadyCheckPreparationResolution;
   readonly clock: CheckExecutionClock;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
 
 type PreparedResolvedCheckExecution = Readonly<{
-  readonly blockedCheckIds: ReadonlySet<string>;
+  readonly preparationSettledCheckIds: ReadonlySet<string>;
   readonly readyChecks: readonly PreparedCheck[];
-  readonly readyPreflights: readonly ReadyCheckPreflightResolution[];
+  readonly readyPreparations: readonly ReadyCheckPreparationResolution[];
   readonly state: CheckExecutionState;
 }>;
 
@@ -113,8 +113,8 @@ async function executePreparedResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
   const prepared = await prepareResolvedCheckExecution(input);
-  // The barrier is execution-phase work. A signal received while it runs must close this
-  // phase as cancelled even when every preflight already blocked and the scheduler graph is empty.
+  // The barrier is execution-phase work. A signal received while it runs must close this phase
+  // as cancelled even when preparation has settled every Check and left no scheduler task.
   if (input.signal?.aborted) {
     return closeCancelledExecution({
       normalizedChecks: input.checks,
@@ -122,11 +122,14 @@ async function executePreparedResolvedChecks(
       state: prepared.state
     });
   }
-  const readyPreflightByCheckId = new Map(
-    prepared.readyPreflights.map((preflight) => [preflight.check.definition.checkId, preflight])
+  const readyPreparationByCheckId = new Map(
+    prepared.readyPreparations.map((preparation) => [
+      preparation.check.definition.checkId,
+      preparation
+    ])
   );
   const graph = planStaticCheckGraph(prepared.readyChecks, {
-    alreadySettledCheckIds: prepared.blockedCheckIds
+    alreadySettledCheckIds: prepared.preparationSettledCheckIds
   });
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<void>>>;
   try {
@@ -136,13 +139,13 @@ async function executePreparedResolvedChecks(
       diagnosticLogger: input.diagnosticLogger,
       signal: input.signal,
       execute: (task, context) => {
-        const preflight = readyPreflightByCheckId.get(task.id);
-        if (preflight === undefined) {
+        const preparation = readyPreparationByCheckId.get(task.id);
+        if (preparation === undefined) {
           throw new CheckExecutionInvariantFailure("Task graph has no prepared Check");
         }
         return executeCheck({
           ...prepared.state,
-          preflight,
+          preparation,
           clock: input.clock ?? SYSTEM_MONOTONIC_CLOCK,
           project: input.project,
           signal: context.signal ?? INERT_SIGNAL
@@ -167,12 +170,14 @@ async function prepareResolvedCheckExecution(
     readonly diagnosticLogger?: DiagnosticLogger;
     readonly lifecycle?: CheckExecutionLifecycle;
     readonly maxParallel: number;
+    readonly project: CheckProjectContext;
     readonly signal: AbortSignal | undefined;
   }>
 ): Promise<PreparedResolvedCheckExecution> {
-  const preflights = await prepareChecks({
+  const preparations = await prepareChecks({
     checks: input.checks,
     diagnosticLogger: input.diagnosticLogger,
+    flags: input.project.flags,
     signal: input.signal
   });
   const state = createExecutionState({
@@ -180,7 +185,7 @@ async function prepareResolvedCheckExecution(
     diagnosticLogger: input.diagnosticLogger,
     lifecycle: input.lifecycle
   });
-  const partition = settlePreflightResolutions(state, preflights);
+  const partition = settlePreparationResolutions(state, preparations);
   return Object.freeze({ ...partition, state });
 }
 
@@ -201,45 +206,45 @@ function createExecutionState(
   };
 }
 
-function settlePreflightResolutions(
+function settlePreparationResolutions(
   state: CheckExecutionState,
-  resolutions: readonly CheckPreflightResolution[]
+  resolutions: readonly CheckPreparationResolution[]
 ): Omit<PreparedResolvedCheckExecution, "state"> {
-  const readyPreflights: ReadyCheckPreflightResolution[] = [];
-  const blockedCheckIds = new Set<string>();
+  const readyPreparations: ReadyCheckPreparationResolution[] = [];
+  const preparationSettledCheckIds = new Set<string>();
   for (const resolution of resolutions) {
     if (resolution.kind === "ready") {
-      readyPreflights.push(resolution);
+      readyPreparations.push(resolution);
       continue;
     }
-    blockedCheckIds.add(resolution.check.definition.checkId);
-    settleBlockedPreflight(state, resolution);
+    preparationSettledCheckIds.add(resolution.check.definition.checkId);
+    settlePreparationOutcome(state, resolution);
   }
   return Object.freeze({
-    blockedCheckIds,
-    readyChecks: Object.freeze(readyPreflights.map((preflight) => preflight.check)),
-    readyPreflights: Object.freeze(readyPreflights)
+    preparationSettledCheckIds,
+    readyChecks: Object.freeze(readyPreparations.map((preparation) => preparation.check)),
+    readyPreparations: Object.freeze(readyPreparations)
   });
 }
 
-function settleBlockedPreflight(
+function settlePreparationOutcome(
   state: CheckExecutionState,
-  preflight: Extract<CheckPreflightResolution, { readonly kind: "blocked" }>
+  preparation: Extract<CheckPreparationResolution, { readonly kind: "settled" }>
 ): void {
-  const scope = state.session.openCheckScope(preflight.check.definition.checkId);
-  const outcome = scope.settleProduct(preflight.outcome);
+  const scope = state.session.openCheckScope(preparation.check.definition.checkId);
+  const outcome = scope.settleProduct(preparation.outcome);
   recordSettledCheck({
-    check: checkIdentity(preflight.check),
+    check: checkIdentity(preparation.check),
     durationMs: null,
-    messages: preflight.check.preflightMessages,
+    messages: preparation.check.messages,
     outcome,
-    phase: "preflight",
+    phase: preparation.phase,
     state
   });
 }
 
 async function executeCheck(input: ExecuteCheckInput): Promise<void> {
-  const check = input.preflight.check;
+  const check = input.preparation.check;
   const checkId = check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   const identity = checkIdentity(check);

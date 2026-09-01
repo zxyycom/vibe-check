@@ -9,7 +9,7 @@ import {
   type CheckIdentity,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
-import type { PreparedCheck } from "./preflight.ts";
+import type { PreparedCheck } from "./preparation-barrier.ts";
 import type { CheckExecutionState, ResolvedCheckExecution } from "./resolved-checks.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);

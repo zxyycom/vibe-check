@@ -3,7 +3,13 @@ import { createHash } from "node:crypto";
 import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDescriptor } from "../check/descriptor.ts";
-import type { Check, CheckExecution, CheckPreflight, CheckVisibility } from "../check/check.ts";
+import type {
+  Check,
+  CheckExecution,
+  CheckFlagEnablement,
+  CheckPreflight,
+  CheckVisibility
+} from "../check/check.ts";
 import { DEFAULT_PROJECT_OUTPUTS } from "./output-defaults.ts";
 import { isNonArrayRecord } from "../data-boundary/value-shapes.ts";
 
@@ -69,6 +75,7 @@ export interface NormalizedCheckDeclaration {
   readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
+  readonly enabledByFlags?: CheckFlagEnablement;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly options: object;
@@ -140,6 +147,7 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     admissionPriority: leaf.admissionPriority,
     definition: leaf.definition,
     dependsOn: leaf.dependsOn,
+    ...(leaf.enabledByFlags === undefined ? {} : { enabledByFlags: leaf.enabledByFlags }),
     execution: leaf.execution,
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,

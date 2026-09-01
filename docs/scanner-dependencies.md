@@ -46,7 +46,7 @@ duplicate-detection Run；这证明当前 package 可用，而不声称启发式
 
 三个 scanner Check 都携带自己的 block preflight，并与 execution 内部保障复用 owning options helper。三个 metric
 constructor 先同步拒绝 malformed/unknown/incomplete input 并补齐 defaults；Definition 只形成
-canonical immutable authored snapshot；Run 在这些 Check 的 scanner 或 author callback work 前执行全局 preflight
+canonical immutable authored snapshot；对进入 preflight 的 Check，Run 在 scanner 或 author callback work 前执行全局 preparation
 barrier，malformed/unknown/incomplete replacement 只把 owning Check 结算为
 `unavailable / invalid-options`。Definition 不按 package Check ID、tool name 或 option shape 分支，也不保存 validator
 registry。Run Controls、environment variables、repository tooling 与 precedence map 都不会隐式替换这些 options。

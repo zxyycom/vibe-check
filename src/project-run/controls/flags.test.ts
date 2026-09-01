@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
-import type { Check } from "../../check/check.ts";
+import type { Check, CheckFlagEnablementMode } from "../../check/check.ts";
 import { run } from "../run.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
@@ -15,6 +15,73 @@ function definition(checks: readonly Check[]) {
       progressRendering: { enabled: false }
     }
   });
+}
+
+const CONTROL_FLAGS = ["feature:alpha", "feature:beta"] as const;
+
+function requireCompletedRun(result: Awaited<ReturnType<typeof run>>) {
+  assert(result.kind === "completed");
+  return result;
+}
+
+async function assertFlagEnablementMode(
+  input: Readonly<{
+    readonly mode: CheckFlagEnablementMode;
+    readonly matchingFlags: readonly string[];
+    readonly nonmatchingFlags: readonly string[];
+  }>
+): Promise<void> {
+  let preflightCalls = 0;
+  let controlledCalls = 0;
+  let dependentCalls = 0;
+  const observedFlags: (readonly string[])[] = [];
+  const source = definition([
+    {
+      checkId: "flag-controlled",
+      displayName: "Flag-controlled",
+      enabledByFlags: { flags: CONTROL_FLAGS, mode: input.mode },
+      preflight: (options) => {
+        preflightCalls += 1;
+        return { status: "success", preparedOptions: options };
+      },
+      execution: ({ project }) => {
+        controlledCalls += 1;
+        observedFlags.push(project.flags);
+        return PASSED;
+      }
+    },
+    {
+      checkId: "dependent",
+      displayName: "Dependent",
+      dependsOn: ["flag-controlled"],
+      execution: () => {
+        dependentCalls += 1;
+        return PASSED;
+      }
+    }
+  ]);
+
+  const enabled = requireCompletedRun(await run(source, { flags: input.matchingFlags }));
+  const disabled = requireCompletedRun(await run(source, { flags: input.nonmatchingFlags }));
+  assert.equal(preflightCalls, 1);
+  assert.equal(controlledCalls, 1);
+  assert.equal(dependentCalls, 2);
+  assert.deepEqual(observedFlags, [Object.freeze([...new Set(input.matchingFlags)].sort())]);
+  assert.deepEqual(
+    enabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,
+    PASSED
+  );
+  assert.deepEqual(
+    disabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,
+    {
+      status: "not-applicable",
+      reason: { code: "flag-condition-not-matched" }
+    }
+  );
+  assert.deepEqual(
+    disabled.checkDurations.find(({ checkId }) => checkId === "flag-controlled"),
+    { checkId: "flag-controlled", durationMs: null }
+  );
 }
 
 describe("Package Run flags", () => {
@@ -83,50 +150,45 @@ describe("Package Run flags", () => {
     assert.deepEqual(snapshots, [[], [], [], ["disabled:docs", "enabled:docs"]]);
   });
 
-  it("keeps dependent admission after local not-applicable", async () => {
-    let flagControlledCalls = 0;
-    let dependentCalls = 0;
-    const result = await run(
-      definition([
-        {
-          checkId: "flag-controlled",
-          displayName: "Flag-controlled",
-          execution: (context) => {
-            if (context.project.flags.includes("disabled:flag-controlled")) {
-              return { status: "not-applicable", reason: { code: "project-disabled" } };
-            }
-            flagControlledCalls += 1;
-            return PASSED;
-          }
-        },
-        {
-          checkId: "dependent",
-          displayName: "Dependent",
-          dependsOn: ["flag-controlled"],
-          execution: () => {
-            dependentCalls += 1;
-            return PASSED;
-          }
-        }
-      ]),
-      { flags: ["disabled:flag-controlled"] }
-    );
-    assert.equal(result.kind, "completed");
-    if (result.kind !== "completed") return;
-    assert.equal(flagControlledCalls, 0);
-    assert.equal(dependentCalls, 1);
-    assert.deepEqual(
-      result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
-      [
-        {
-          checkId: "dependent",
-          outcome: PASSED
-        },
-        {
-          checkId: "flag-controlled",
-          outcome: { status: "not-applicable", reason: { code: "project-disabled" } }
-        }
-      ]
-    );
+  it("enables all mode only when every configured flag is present", async () => {
+    await assertFlagEnablementMode({
+      matchingFlags: CONTROL_FLAGS,
+      mode: "all",
+      nonmatchingFlags: ["feature:alpha"]
+    });
+  });
+
+  it("enables any mode when at least one configured flag is present", async () => {
+    await assertFlagEnablementMode({
+      matchingFlags: ["feature:beta"],
+      mode: "any",
+      nonmatchingFlags: ["feature:other"]
+    });
+    await assertFlagEnablementMode({
+      matchingFlags: CONTROL_FLAGS,
+      mode: "any",
+      nonmatchingFlags: ["feature:other"]
+    });
+  });
+
+  it("enables none mode only when no configured flag is present", async () => {
+    await assertFlagEnablementMode({
+      matchingFlags: ["feature:other"],
+      mode: "none",
+      nonmatchingFlags: ["feature:alpha"]
+    });
+  });
+
+  it("enables not-all mode when at least one configured flag is absent", async () => {
+    await assertFlagEnablementMode({
+      matchingFlags: ["feature:alpha"],
+      mode: "not-all",
+      nonmatchingFlags: CONTROL_FLAGS
+    });
+    await assertFlagEnablementMode({
+      matchingFlags: [],
+      mode: "not-all",
+      nonmatchingFlags: CONTROL_FLAGS
+    });
   });
 });

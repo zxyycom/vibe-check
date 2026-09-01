@@ -1,5 +1,10 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
-import type { CheckExecution, CheckPreflight, CheckVisibility } from "../../check/check.ts";
+import type {
+  CheckExecution,
+  CheckFlagEnablement,
+  CheckPreflight,
+  CheckVisibility
+} from "../../check/check.ts";
 import {
   parseCheckTreeAuthoring,
   type MeaninglessCheckWarning,
@@ -14,6 +19,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
+  readonly enabledByFlags?: CheckFlagEnablement;
   readonly execution: CheckExecution;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
@@ -86,6 +92,7 @@ function flattenCheck(
         admissionPriority: scheduling.admissionPriority,
         definition: check.definition,
         dependsOn: scheduling.dependsOn,
+        ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
         execution: check.execution,
         maxParallel: scheduling.maxParallel,
         mutex: scheduling.mutex,

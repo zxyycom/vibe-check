@@ -1,6 +1,6 @@
 ---
 title: 对 Project Run controls 使用字符串 flag
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-20T02:15:14Z
 purpose: 让 Project Run 的共享 invocation control 使用简单且可验证的字符串 flag 集合。

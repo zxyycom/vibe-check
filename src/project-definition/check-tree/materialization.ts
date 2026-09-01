@@ -13,6 +13,7 @@ function materializeChecks(checks: readonly ParsedCheck[]): readonly Check[] {
 function materializeCheck(check: ParsedCheck): Check {
   const checks = materializeChecks(check.checks);
   const dependsOn = materializeCollection(check.dependsOn);
+  const enabledByFlags = check.enabledByFlags;
   const mutex = materializeCollection(check.mutex);
   const visibility = check.visibility;
   const preflight = check.preflight;
@@ -41,6 +42,7 @@ function materializeCheck(check: ParsedCheck): Check {
     checkId: check.checkId,
     checks,
     displayName: check.displayName,
+    ...(enabledByFlags === null ? {} : { enabledByFlags }),
     execution: check.execution,
     ...(check.parseData === null ? {} : { parseData: check.parseData }),
     options: check.options,

@@ -180,6 +180,7 @@
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
+      "support-multi-flag-check-enablement-strategies.md": "sha256:9fc673aecd1d18f81e44248235b414799346d3a539406eecdef95d863eced6d4",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:4b5d97d7136fa1093e1830418725607f5823b61b54f544a8aea125ad207afc59",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
@@ -231,7 +232,7 @@
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
       "use-static-check-task-plans-with-shared-scheduling.md": "sha256:f1c2e855642425f1eb965569659bd3d9469c88d2edde7176d0a33e6d07b8984c",
-      "use-string-flags-for-project-run-controls.md": "sha256:a8282eef7fcdcd623f6d6c6b7c2474441df50d9720f179a00ab9c71161412fc1",
+      "use-string-flags-for-project-run-controls.md": "sha256:78c9ad0ddf124571cd1041031ba2572a49336690f067933f1e7f0d351cb91146",
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
       "use-upstream-project-skill-packages.md": "sha256:61f5dcae84429943a164f1b82c37ddf341d40e47e32288f593b007a82487e46a",
       "use-upstream-skills-with-project-local-exceptions.md": "sha256:f13dabc892def9236b38ff07f65b231492babc571794468167706cae2284b390",
@@ -5771,6 +5772,40 @@
         "relations": []
       }
     },
+    "support-multi-flag-check-enablement-strategies.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "support-multi-flag-check-enablement-strategies.md",
+        "title": "支持多 flag Check 启用策略",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:32:05Z",
+        "purpose": "让 Check 用一个闭合声明表达全部、任一、全无或非全部 flag 条件。",
+        "background": "单 token presence 无法承接多个 flag 的四种常见集合判断，继续放在 callback 会恢复重复控制逻辑。",
+        "decision": "executable Check 使用 enabledByFlags 的非空 flags 集合与四态 mode，在 author work 前统一判定是否启用。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-string-flags-for-project-run-controls.md"
+          }
+        ]
+      }
+    },
     "treat-jscpd-version-as-adapter-provenance.md": {
       "keys": {
         "tag": [
@@ -7295,16 +7330,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-string-flags-for-project-run-controls.md",
+        "sourcePath": "archive/use-string-flags-for-project-run-controls.md",
         "title": "对 Project Run controls 使用字符串 flag",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-20T02:15:14Z",
         "purpose": "让 Project Run 的共享 invocation control 使用简单且可验证的字符串 flag 集合。",

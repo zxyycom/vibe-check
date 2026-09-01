@@ -72,9 +72,56 @@ export default defineConfig({
 
 `defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execution` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
 
+### Flag-enabled Checks
+
+当启用条件只取决于本次 `RunControls.flags` 中是否存在指定 token 时，可以在 executable Check 上声明
+`enabledByFlags`，不必在 callback 中重复编写控制分支：
+
+```ts
+const deepAudit = defineCheck({
+  checkId: "deep-audit",
+  displayName: "Deep audit",
+  enabledByFlags: {
+    flags: ["deep-audit", "release"],
+    mode: "all"
+  },
+  execution: () => ({ status: "passed", data: {} })
+});
+
+await run(defineConfig({ checks: [deepAudit] }), {
+  flags: ["deep-audit", "release"]
+});
+```
+
+**声明与规范化。** `enabledByFlags.flags` 必须是非空 string-token array，不允许 sparse hole，且每项都是非空字符串。
+Definition 会复制、去重、按文本排序并冻结这组 token。`mode` 的精确语义如下；本次 Run 中未被声明的
+其它 flags 不影响判断：
+
+| Mode | Check 启用条件 |
+| --- | --- |
+| `all` | 每个声明 token 都存在。 |
+| `any` | 一个或多个声明 token 存在；全部存在时也启用，不是“恰好一个”。 |
+| `none` | 没有任何声明 token 存在。 |
+| `not-all` | 一个或多个声明 token 不存在；全部不存在时也启用。 |
+
+该字段只属于 executable Check，并作为 canonical declarative identity 进入 Definition fingerprint。container
+不接受该字段，也不向 children 继承它。空 flags 集合没有有效的控制含义，因此属于 malformed Definition。
+
+**执行顺序。** Run 在任何 preparation settlement 前验证包含全部 executable Checks 的完整静态 graph。随后，
+每个 Check 的 preparation 依次检查 invocation cancellation、`enabledByFlags` 和 Check-owned preflight。字段省略或
+flag 条件匹配时，Check 继续普通 preflight 与 execution；条件不匹配时，Product 在任何 owning preflight、execution、
+scanner 或其它 Check-local work 前把它结算为
+`{ status: "not-applicable", reason: { code: "flag-condition-not-matched" } }`。该 Check 没有 started fact，
+duration 为 `null`，但仍保留在 Check facts、dependency readback 与显式 aggregation 中；已声明 dependent 在这个
+终态后仍会正常 admission。
+
+**责任边界。** callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、
+嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。需要这些复杂条件时，owning Check 在 callback 中解释
+`project.flags` 并返回领域适当的终态。
+
 ### Check options preflight
 
-executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function；Run 在任一 author Check execution 前，按 Definition 顺序完成所有已提供 preflight 的全局 barrier。
+executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function；Run 只为尚未因 cancellation 或 `enabledByFlags` 结算的 Check 调用 preflight，并在任一 author Check execution 前按 Definition 顺序完成全局 preparation barrier。
 
 preflight 只能返回以下 closed result 之一：
 
@@ -247,9 +294,9 @@ scanner executable、command marker 和 adapter protocol 由 owning Check 及
 `projectRoot`、`flags`、显式 `checkAggregation`、`signal` 和 output overrides；它不能替换 Checks、改变 scanner
 commands、注册 dependencies 或选择另一份 Definition。
 
-`flags` 是可省略的 dense string-token array。省略、显式 `undefined` 和 `[]` 都向 callback 提供冻结空数组；合法 token
-必须是非空字符串，并在进入 callback 前复制、去重和按文本排序。非数组、sparse hole、空 token 或非字符串形成
-`invalid-run-controls`。Flags 只进入 callback-local project context，Product 不用它选择或调度 Check。
+`flags` 是可省略的 dense string-token array。省略、显式 `undefined` 和 `[]` 都形成冻结空数组；合法 token
+必须是非空字符串，并在进入 Check preparation 前复制、去重和按文本排序。非数组、sparse hole、空 token 或非字符串形成
+`invalid-run-controls`。Product 只用 token presence 解释 executable Check 显式声明的 `enabledByFlags` 四种 predicate，并继续把完整集合交给 callback-local project context；它不定义 token vocabulary、value payload 或其它 Check 领域语义。
 
 `checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：
 

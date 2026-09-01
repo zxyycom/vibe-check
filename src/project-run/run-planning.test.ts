@@ -11,6 +11,7 @@ describe("Package Run", () => {
       definition([
         check({
           dependsOn: ["missing-check"],
+          enabledByFlags: { flags: ["never-enabled"], mode: "all" },
           execution: () => {
             calls += 1;
             return PASSED;

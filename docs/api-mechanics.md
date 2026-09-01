@@ -13,9 +13,9 @@
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
     declarative snapshot + fingerprint + complete static graph validation
-      │ sequential all-Check preflight barrier
+      │ sequential preparation barrier: cancellation, flag control, then remaining Check preflight
       ▼
-    prepared Checks / blocked unavailable outcomes
+    prepared Checks / settled not-applicable or unavailable outcomes
       │ build the ready task graph; apply dependency, mutex and parallel scheduling
       ▼
     author execution + terminal settlement
@@ -25,10 +25,11 @@
       ▼
     RunResult
 
-Run 在 preflight 前验证包含全部可执行 Check 的静态 task graph；完整 barrier 结束后，blocked Check 先结算为
-`unavailable`，其余 prepared Checks 再形成 ready task graph。Run snapshot 保存 Check facts；progress rendering 呈现
+Run 在 preparation 前验证包含全部可执行 Check 的静态 task graph。barrier 按 Definition 顺序处理每个 Check：先检查
+invocation cancellation，再判断声明的 flag 条件，然后才为剩余 Check 执行 preflight。flag 条件不匹配时结算为
+`not-applicable`；preflight block 或 failure 时结算为 `unavailable`；prepared Checks 最后形成 ready task graph。Run snapshot 保存 Check facts；progress rendering 呈现
 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files。所有 author execution 都在完整
-preflight barrier 之后开始，optional aggregate 也在 terminal facts 结算后计算。
+preparation barrier 之后开始，optional aggregate 也在 terminal facts 结算后计算。
 
 ## Definition 与 invocation 的责任
 
@@ -50,7 +51,7 @@ preflight 返回以下三种 closed result 之一：
 | `{ status: "failure", action: "block", reason, messages? }` | owning Check 以 `unavailable` 结算。 |
 | `{ status: "failure", action: "continue", reason, fallback, messages? }` | 使用 `fallback` 进入 execution。 |
 
-Run 按 Definition 顺序执行所有 Check 的 preflight，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
+Run 按 Definition 顺序执行所有进入 preflight 的 Check，完整 barrier 结束后才启动 Check scheduler。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。`enabledByFlags` 的公开 authoring grammar 见 [README 的 Check 定义](../README.md#定义-check)。
 
 Package root 的 `defaultProjectFileSelection` 只是 file-selecting constructor 共用的可组合、深冻结 baseline；spread 该
 value 不会建立跨 Check global config。部分 constructor 原样物化它，具有更窄文件类型能力的 constructor 从相同
@@ -69,7 +70,7 @@ selected-but-rejected 行为由对应 Check 指南说明。
 
 Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
 region，并在同一个 terminal 上移动光标。Product 先完成静态 Check graph 校验，再在任何 author preflight 或 execution
-之前安装一次全局 `console.*` router；router 贯穿完整 preflight barrier 与 Check execution，所有 Check 闭合后统一恢复原
+之前安装一次全局 `console.*` router；router 贯穿完整 preparation barrier 与 Check execution，所有 Check 闭合后统一恢复原
 method descriptors。每个 awaited preflight/execution 只建立独立 async capture context：当前 Check 的调用先进入自己的
 内存数组，settlement 后再与该 Check 的 row 连续呈现，并以 `console-<method>` code 保留在
 `RunResult.checkMessages`。并发 Check 的数组互不混合；没有 Check capture context 的 host console 调用继续走原方法。

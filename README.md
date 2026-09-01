@@ -135,12 +135,15 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | `checkId` | 在同一 Definition 中唯一的稳定标识；用于查找 outcome、Record、message 和 duration。 |
 | `displayName` | 进度和人读结果中显示的名称。 |
 | `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
+| `enabledByFlags` | 可选的 `{ flags, mode }`；根据声明的 flag 是否存在决定是否启用，条件不匹配时在 preflight 和 execution 前结算为 `not-applicable`。 |
 | `dependsOn` | 此 Check 要读取或等待的 direct Check IDs；可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
 | `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或已建立的 capacity reservation。 |
 | `options` | 当前 Check 的配置；Run 会把准备后的只读副本交给 `context.options`。 |
 | `checks` | 可选的子 Check 列表，用于组织一组相关规则。 |
 
 `execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、已声明依赖的数据、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
+
+`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。深入执行顺序与 settlement 见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
 
 需要读取一个已声明 direct dependency 的 final data 时，使用 `context.dependencies.get(checkId)`，并由 producing
 Check 的 `parseData` 恢复其业务类型。需要审计所有已声明 direct dependencies 时，使用零参数

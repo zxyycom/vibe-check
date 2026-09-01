@@ -53,6 +53,17 @@ export interface CheckResultMessages {
 /** 已结算 Check 在人读 progress 中的可见性。 */
 export type CheckVisibility = "always" | "attention";
 
+/** 多 flag Check 启用条件使用的集合 predicate。 */
+export type CheckFlagEnablementMode = "all" | "any" | "none" | "not-all";
+
+/** executable Check 的声明式多 flag 启用条件。 */
+export interface CheckFlagEnablement {
+  /** 非空 flag token 集合；Definition 会去重并稳定排序。 */
+  readonly flags: readonly [string, ...string[]];
+  /** 对声明 token 与本次 Run flags 执行的 presence predicate。 */
+  readonly mode: CheckFlagEnablementMode;
+}
+
 /**
  * Check callback 的 terminal result。
  *
@@ -304,6 +315,8 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   readonly displayName: string;
   /** Check-owned declarative options；默认 Check 的嵌套 branch 以普通对象组合替换。 */
   readonly options?: AuthoredOptions;
+  /** 仅当多 flag presence predicate 匹配时启用 executable Check；省略时始终启用。 */
+  readonly enabledByFlags?: CheckFlagEnablement;
   /** 可执行节点的 callback；省略时此节点只承载递归 children。 */
   execution?(
     this: void,

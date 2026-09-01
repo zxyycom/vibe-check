@@ -16,9 +16,21 @@ Entities:
 - `bun|src/project-run/output-directories.test.ts|Package Run output directories > accepts child, parent, and absolute directories in Definition and RunControls`
   Proves:
 
-- Recursive ordinary Checks normalize only the declared executable/container grammar. Exact scheduling collections use explicit `inherit`; scalar `maxParallel` and signed `admissionPriority` inherit the nearest explicit value, with priority omission and explicit `0` sharing canonical identity. Executable visibility is canonical while container or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
+- Recursive ordinary Checks normalize only the declared executable/container grammar. Exact scheduling collections use explicit `inherit`; scalar `maxParallel` and signed `admissionPriority` inherit the nearest explicit value, with priority omission and explicit `0` sharing canonical identity. Executable visibility is declarative identity, while container, malformed, retired or unknown declarations fail closed; trusted execution/parser functions remain outside declarative fingerprints.
 - Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed.
 - Definition and RunControls use one closed directory grammar for machine publication and diagnostic logging: child, parent and absolute targets are valid without output I/O; empty, U+0000 and unknown output keys remain configuration failures before callbacks run.
+
+## Case WB-PROJECT-DEFINITION-FLAG-ENABLEMENT-001: Flag enablement is closed executable identity
+
+Owner: `docs/configuration.md#flag-enabled-checks`
+Entities:
+
+- `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > normalizes executable flag enablement as declarative identity`
+- `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > rejects malformed and container flag enablement`
+  Proves:
+
+- An executable Check's non-empty `enabledByFlags` set is copied, de-duplicated, sorted and frozen with its closed mode. Equivalent declarations share a fingerprint, while changing the mode changes declarative identity.
+- Empty or malformed flag sets, unknown modes or control fields, container declarations and the retired singular field fail Definition validation.
 
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
 
@@ -118,7 +130,10 @@ Entities:
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
 - `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > finishes every sequential preflight before any author execution`
 - `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > settles blocked preflights before graph admission without a started fact or duration`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to cooperative preflights and closes a cancelled barrier`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > settles already-cancelled preparations without invoking preflight`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > reports cancellation raised by a preflight callback`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > closes a fully settled preparation barrier as cancelled`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > retains completed preflight messages when a later preflight cancels`
 - `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
@@ -126,5 +141,5 @@ Entities:
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
-- The sequential preflight barrier receives the invocation signal; cooperative cancellation closes the existing execution phase as `cancelled` even when all blocked Checks leave no scheduler task to admit.
+- The sequential preparation barrier receives the invocation signal; cooperative cancellation closes the existing execution phase as `cancelled` before preflight, after a preflight callback, when every Check settles during preparation, and when an earlier prepared Check has already emitted accepted messages.
 - A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility.
