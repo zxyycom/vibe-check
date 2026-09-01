@@ -64,6 +64,11 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 checkout 必须显式运行 `git config --local core.hooksPath .githooks`，只修改当前 checkout 的本地 Git 配置。使用
 `git config --local --unset core.hooksPath` 可以停用它。
 
+在本仓库中，`core.hooksPath=.githooks` 表示当前 checkout 已显式选择该 hook 及其下述受限 push 行为。该配置存在时，
+任务对普通 `git commit` 的授权同时覆盖 hook 按本节契约发起的 push，无需另行确认；执行者不得仅为避免 auto-push
+而临时覆盖 `core.hooksPath` 或以其他方式绕过 hook。只有任务明确要求仅创建本地提交，或 hook 故障后另行取得绕过授权时，
+才能在该次提交中绕过 hook。
+
 启用后，hook 只在当前分支精确为 `main` 时处理提交，并且：
 
 - 每 3,600 秒最多执行一次真实 push 尝试；attempt time 保存在 Git-local state 中，失败的尝试同样占用该窗口，避免在
