@@ -127,6 +127,7 @@ candidate 和文档切换必须与当前分支上的 SCC 结果串行协调，�
 | [`surface-generic-finding-waivers`](../changes/surface-generic-finding-waivers/proposal.md) | 文档发现路径为主；收敛为 Plan 后可与 Scheduler 或 scanner 实现并行，合入时处理 README/configuration 小范围冲突 |
 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | Draft；先闭合只读 output facts 与 writable workspace/state owner，不直接实施 |
 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | Draft；可并行完成大型 corpus benchmark 和安全 payload 设计，persistent cache 实现不得假设 path-context Draft 已落地 |
+| [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) | Draft；从当前连续堆叠集成基线及已归档 SCC v4 evidence 出发，判断未来是否值得形成独立 public capability。它不扩张当前 public API、不授权 runtime 实现，也不阻塞 Lizard 或当前 scanner implementation。 |
 
 Invocation path context 与 Markdown cache 只有在前者最终提供明确的 cross-run state capability 时才形成条件依赖；
 仅暴露 machine 或 diagnostic output path 不构成 cache directory。
