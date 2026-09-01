@@ -55,6 +55,11 @@ artifacts 为准。固定 artifact、严格 metadata、stage、Git 距离、命�
 [`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
 [脚本工具](script-tooling.md#governance-and-test-evidence-adapters)。
 
+同时推进多个 Change 时，从[Change 执行依赖与 Worktree 协调](change-execution-order.md)恢复跨 Change 的
+硬前置、推荐合入顺序和共享 owner 冲突。该文档是依据当前 Change artifacts 维护的协调视图，不拥有 active
+membership、stage、进度、暂停或实施授权；它与目标 artifacts 不一致时，先按当前事实修正协调视图，不能反向
+覆盖目标 Change。
+
 ## 内容归属与同步
 
 1. 已确认且跨 change 持续有效的判断写入 `docs/decisions/`；未确认草稿留在对话或 Change 中。
