@@ -1,0 +1,1572 @@
+{
+  "fixtures": [
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.c",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.c",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.c",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cpp",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cpp",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cpp",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cc",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cc",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cc",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cxx",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cxx",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.cxx",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.h",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.h",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.h",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.hpp",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.hpp",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/normal.hpp",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/normal.java",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/normal.java",
+          "functionName": "Sample::readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/normal.java",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/normal.cs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/normal.cs",
+          "functionName": "Sample::ReaderSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/normal.cs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.js",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.js",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.js",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.cjs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.cjs",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.cjs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.mjs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.mjs",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/normal.mjs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/normal.py",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/normal.py",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/normal.py",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.m",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.m",
+          "functionName": "readerSample:",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.m",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.mm",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.mm",
+          "functionName": "readerSample:",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/normal.mm",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcn",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcn",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcn",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcnpp",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcnpp",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/normal.ttcnpp",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/normal.rb",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/normal.rb",
+          "functionName": "reader_sample",
+          "nloc": 6,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/normal.rb",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/normal.php",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/normal.php",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/normal.php",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/normal.swift",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/normal.swift",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/normal.swift",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/normal.scala",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/normal.scala",
+          "functionName": "readerSample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/normal.scala",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/normal.gd",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/normal.gd",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/normal.gd",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/normal.go",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/normal.go",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/normal.go",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/normal.lua",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/normal.lua",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/normal.lua",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/normal.rs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/normal.rs",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/normal.rs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/normal.ts",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/normal.ts",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/normal.ts",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f70",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f70",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f70",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f90",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f90",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f90",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f95",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f95",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f95",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f03",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f03",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f03",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f08",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f08",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f08",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.f",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.for",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.for",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.for",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.ftn",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.ftn",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.ftn",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.fpp",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.fpp",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/normal.fpp",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kt",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kt",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kt",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kts",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kts",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/normal.kts",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/normal.sol",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/normal.sol",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/normal.sol",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.erl",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.erl",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.erl",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.hrl",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.hrl",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.hrl",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.es",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.es",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.es",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.escript",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.escript",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/normal.escript",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/normal.zig",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/normal.zig",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/normal.zig",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.tsx",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.tsx",
+          "functionName": "ReaderSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.tsx",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.jsx",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.jsx",
+          "functionName": "ReaderSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/normal.jsx",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/normal.vue",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/normal.vue",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/normal.vue",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pl",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pl",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pl",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pm",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pm",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/normal.pm",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/normal.st",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/normal.st",
+          "functionName": "reader_sample",
+          "nloc": 2,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/normal.st",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/normal.r",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/normal.r",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/normal.r",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.sql",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.sql",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.sql",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pks",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pks",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pks",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pkb",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pkb",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pkb",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pls",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pls",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pls",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.plb",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.plb",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.plb",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pck",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pck",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/normal.pck",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/edge.c",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/edge.c",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/edge.c",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/edge.java",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/edge.java",
+          "functionName": "Sample::readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/edge.java",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/edge.cs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/edge.cs",
+          "functionName": "Sample::ReaderSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/edge.cs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/edge.js",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/edge.js",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/edge.js",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/edge.py",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/edge.py",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/edge.py",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/edge.m",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/edge.m",
+          "functionName": "readerSample:",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/edge.m",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/edge.ttcn",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/edge.ttcn",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/edge.ttcn",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/edge.rb",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/edge.rb",
+          "functionName": "reader_sample",
+          "nloc": 6,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/edge.rb",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/edge.php",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/edge.php",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/edge.php",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/edge.swift",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/edge.swift",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/edge.swift",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/edge.scala",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/edge.scala",
+          "functionName": "readerSample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/edge.scala",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/edge.gd",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/edge.gd",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/edge.gd",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/edge.go",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/edge.go",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/edge.go",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/edge.lua",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 4,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/edge.lua",
+          "functionName": "reader_sample",
+          "nloc": 4,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/edge.lua",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/edge.rs",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/edge.rs",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/edge.rs",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/edge.ts",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/edge.ts",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/edge.ts",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/edge.f70",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 8,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/edge.f70",
+          "functionName": "reader_sample",
+          "nloc": 8,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/edge.f70",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/edge.kt",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/edge.kt",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/edge.kt",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/edge.sol",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/edge.sol",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/edge.sol",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/edge.erl",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/edge.erl",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/edge.erl",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/edge.zig",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/edge.zig",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/edge.zig",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/edge.tsx",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/edge.tsx",
+          "functionName": "ReaderSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/edge.tsx",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/edge.vue",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/edge.vue",
+          "functionName": "readerSample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/edge.vue",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/edge.pl",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/edge.pl",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/edge.pl",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/edge.st",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/edge.st",
+          "functionName": "reader_sample",
+          "nloc": 2,
+          "parameterCount": 0,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/edge.st",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/edge.r",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/edge.r",
+          "functionName": "reader_sample",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/edge.r",
+        "--csv"
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/edge.sql",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 6,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/edge.sql",
+          "functionName": "reader_sample",
+          "nloc": 5,
+          "parameterCount": 1,
+          "startLine": 2
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/edge.sql",
+        "--csv"
+      ]
+    }
+  ],
+  "oracle": {
+    "command": [
+      "lizard",
+      "--version"
+    ],
+    "output": "1.23.0",
+    "revision": "06284ec87c1966fee4ddbf3f068ccf89b987b0f8",
+    "tag": "1.23.0"
+  },
+  "schemaVersion": 1
+}

@@ -1,0 +1,8 @@
+function reader_sample(value) result(answer)
+ integer :: value, answer
+ if (value .gt. 0) then
+  answer = 1
+ else
+  answer = 0
+ end if
+end function reader_sample

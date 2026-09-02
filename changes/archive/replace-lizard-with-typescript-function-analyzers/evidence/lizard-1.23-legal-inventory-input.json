@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "upstream": {
+    "project": "terryyin/lizard",
+    "tag": "1.23.0",
+    "revision": "06284ec87c1966fee4ddbf3f068ccf89b987b0f8"
+  },
+  "licenseInputs": [
+    {
+      "path": "LICENSE.txt",
+      "role": "Lizard distribution MIT text",
+      "source": "fixed-tag",
+      "licenseSha256": "d39663810f02975743f69d01856f93c7391ce6b842a20189544b9fd464f663f3",
+      "requiredNoticePath": "THIRD_PARTY_NOTICES.md",
+      "requiredLicenseTextPath": "licenses/Lizard-1.23.0-MIT.txt"
+    },
+    {
+      "path": "lizard.py",
+      "role": "Apache-2.0 file-range override",
+      "source": "fixed-tag-header",
+      "licenseSha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "requiredNoticePath": "THIRD_PARTY_NOTICES.md",
+      "requiredLicenseTextPath": "licenses/Lizard-1.23.0-lizard.py-Apache-2.0.txt"
+    },
+    {
+      "path": "pygments-2.18.0-py3-none-any.whl::pygments/lexers/erlang.py",
+      "role": "Pygments ErlangLexer source-derived range",
+      "source": "Pygments 2.18.0 fixed wheel",
+      "distributionUrl": "https://files.pythonhosted.org/packages/f7/3f/01c8b82017c199075f8f788d0d906b9ffbbc5a47dc9918a945e13d5a2bda/pygments-2.18.0-py3-none-any.whl",
+      "distributionSha256": "b8e6aca0523f3ab76fee51799c488e38782ac06eafcf95e7ba832985c8e7b13a",
+      "sourceSha256": "df15549a76ef81b40de10339586bc8a103054bd8c9a6d04244cdcc3f82b1b19a",
+      "range": "lines 22-146",
+      "spdx": "BSD-2-Clause",
+      "targetPath": "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "licensePath": "pygments-2.18.0.dist-info/licenses/LICENSE",
+      "licenseSha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "requiredDerivedHeader": "verified in erlang.ts: Lizard 1.23.0 MIT plus Pygments 2.18.0 BSD-2-Clause source/version-or-revision/SPDX/modified header; inclusive ranges remain in provenance ledger",
+      "requiredNoticePath": "THIRD_PARTY_NOTICES.md",
+      "requiredLicenseTextPath": "licenses/Pygments-2.18.0-BSD-2-Clause.txt"
+    }
+  ],
+  "requiredBeforeShipping": [
+    "validate every translated source range against the provenance ledger",
+    "carry source/SPDX/revision/modified headers for translated ranges",
+    "derive THIRD_PARTY_NOTICES.md and licenses/ from the finalized ledger",
+    "fail closed when candidate, tarball, or installed inventory differs from the ledger",
+    "verify the fixed Pygments 2.18.0 wheel hash, Erlang lexer source hash and inclusive source range before accepting the Erlang reader target",
+    "carry the Pygments BSD-2-Clause source/modified header together with the Lizard MIT header in erlang.ts",
+    "carry the Pygments BSD-2-Clause notice and complete license text in the generated package inventory"
+  ]
+}

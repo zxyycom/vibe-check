@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 2,
+  "oracle": {
+    "tag": "1.23.0",
+    "revision": "06284ec87c1966fee4ddbf3f068ccf89b987b0f8"
+  },
+  "boundaries": [
+    {
+      "kind": "malformed-source",
+      "status": "verified-reader-differential-evidence",
+      "requiredObservation": "Every source-order reader runs one deterministic reader-state-targeted malformed/incomplete source through the complete Lizard 1.23 pipeline. The TypeScript port must publish the same complete ordered function result (including an upstream-defined empty list) rather than inventing a Product failure or a selected prefix.",
+      "evidence": "lizard-1.23-malformed-reader-observations.json contains 27 exact-source Lizard observations with full CSV function metrics, order and ranges; malformed-source.test.ts verifies each fixture byte hash, source-order reader identity, unchanged 55-suffix registry and TypeScript result.",
+      "remainingBoundary": "This differential corpus is not a public syntax-validity contract. The Worker request-shape test separately proves a malformed protocol request fails whole-request, and Product cancellation/resource tests separately prohibit partial Product outcomes."
+    },
+    {
+      "kind": "read-failure",
+      "status": "verified-product-test",
+      "requiredObservation": "An approved exact path that cannot be read settles functionMetrics unavailable without expanding scope or forging waiver audit.",
+      "evidence": "measurement.resource.test.ts reports a missing approved exact path as source-unavailable before Worker analysis, records or waiver audit.",
+      "remainingBoundary": "No package-layout assertion is claimed here."
+    },
+    {
+      "kind": "cancellation",
+      "status": "verified-source-tree-product-boundary",
+      "requiredObservation": "A signal during admission or after Worker construction settles the Check cancelled without a partial result, Records or waiver audit.",
+      "evidence": "measurement.resource.test.ts proves timer cancellation interrupts 8 MiB admission before Worker start. constructor.test.ts arms cancellation only from a tracked Worker constructor and proves one Worker termination before result formation. resource-and-cancellation.md records three fresh-process observations for both boundaries.",
+      "remainingBoundary": "The in-flight Worker spike observes lifecycle and timing, not per-token reader progress; package-layout execution remains separate."
+    },
+    {
+      "kind": "resource-capacity",
+      "status": "measured-source-tree-no-budget",
+      "requiredObservation": "The actual Product adapter enforces 8 MiB per file and 64 MiB aggregate caps, rejects overages before Worker start, and records observed latency/RSS without claiming an undeclared performance threshold.",
+      "evidence": "resource-cancellation-spike.ts runs three fresh-process source-tree scenarios and writes resource-cancellation-observations.json. Product resource tests cover actual-byte caps and no-prefix outcomes.",
+      "remainingBoundary": "The source-tree spike used a stale candidate; current candidate and installed-consumer status are verified separately. A maintainer must choose latency/RSS acceptance budgets if the measured exact-file or aggregate-rejection cost is unacceptable."
+    },
+    {
+      "kind": "source-byte-decoding",
+      "status": "verified-product-test-and-fixed-source-differential",
+      "requiredObservation": "The Product admitted-byte decoder preserves Lizard 1.23 auto_read behavior for strict UTF-8/BOM/universal-newline input and its invalid-byte ignore fallback.",
+      "evidence": "measurement.encoding.test.ts records direct fixed-source cases for BOM, legal U+FFFD, invalid/truncated bytes, BOM plus invalid bytes, and strict/fallback newline behavior. A deterministic 271-sequence differential run matched the fixed checkout.",
+      "remainingBoundary": "This replaces only the excluded command-side auto_open decoding policy at Product admission; it does not claim generic encoding detection."
+    }
+  ]
+}

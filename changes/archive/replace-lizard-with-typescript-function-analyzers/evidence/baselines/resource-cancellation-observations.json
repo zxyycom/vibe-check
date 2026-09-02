@@ -1,0 +1,371 @@
+{
+  "environment": {
+    "admissionChunkBytes": 32768,
+    "bun": "1.3.14",
+    "fileLimitBytes": 8388608,
+    "aggregateLimitBytes": 67108864,
+    "platform": "linux",
+    "runs": 3,
+    "workerAbortDelayMs": 30
+  },
+  "observations": {
+    "representative": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.4,
+            "heapUsed": 1.1,
+            "rss": 56.3
+          },
+          "maxRssKiB": 57820
+        },
+        "result": "complete:1",
+        "scenario": "representative",
+        "wallMs": 18.7,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.4,
+            "heapUsed": 1.1,
+            "rss": 56.1
+          },
+          "maxRssKiB": 57564
+        },
+        "result": "complete:1",
+        "scenario": "representative",
+        "wallMs": 19,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.4,
+            "heapUsed": 1.1,
+            "rss": 56.3
+          },
+          "maxRssKiB": 57728
+        },
+        "result": "complete:1",
+        "scenario": "representative",
+        "wallMs": 19.7,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      }
+    ],
+    "exact-file-limit": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 16.4,
+            "heapUsed": 17.1,
+            "rss": 104.4
+          },
+          "maxRssKiB": 237308
+        },
+        "result": "complete:0",
+        "scenario": "exact-file-limit",
+        "wallMs": 612.1,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 16.4,
+            "heapUsed": 17.1,
+            "rss": 103.8
+          },
+          "maxRssKiB": 237012
+        },
+        "result": "complete:0",
+        "scenario": "exact-file-limit",
+        "wallMs": 583.9,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 16.4,
+            "heapUsed": 17.1,
+            "rss": 103.2
+          },
+          "maxRssKiB": 236516
+        },
+        "result": "complete:0",
+        "scenario": "exact-file-limit",
+        "wallMs": 587.3,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      }
+    ],
+    "over-file-limit": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 8.1,
+            "heapUsed": 8.8,
+            "rss": 60.9
+          },
+          "maxRssKiB": 62496
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-file-limit",
+        "wallMs": 305,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 8.2,
+            "heapUsed": 8.9,
+            "rss": 61
+          },
+          "maxRssKiB": 62572
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-file-limit",
+        "wallMs": 303.8,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 8.2,
+            "heapUsed": 8.8,
+            "rss": 60.9
+          },
+          "maxRssKiB": 62532
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-file-limit",
+        "wallMs": 305,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      }
+    ],
+    "over-aggregate-limit": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 72.2,
+            "heapUsed": 72.9,
+            "rss": 137.3
+          },
+          "maxRssKiB": 140552
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-aggregate-limit",
+        "wallMs": 2457.4,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 72.3,
+            "heapUsed": 73,
+            "rss": 137.2
+          },
+          "maxRssKiB": 140720
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-aggregate-limit",
+        "wallMs": 2470.3,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 72.3,
+            "heapUsed": 73,
+            "rss": 138.1
+          },
+          "maxRssKiB": 141432
+        },
+        "result": "resource-limit-exceeded",
+        "scenario": "over-aggregate-limit",
+        "wallMs": 2457,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      }
+    ],
+    "admission-cancel": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.3,
+            "heapUsed": 0.9,
+            "rss": 49.6
+          },
+          "maxRssKiB": 50964
+        },
+        "result": "cancelled",
+        "scenario": "admission-cancel",
+        "wallMs": 2.1,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.3,
+            "heapUsed": 0.9,
+            "rss": 49.7
+          },
+          "maxRssKiB": 50884
+        },
+        "result": "cancelled",
+        "scenario": "admission-cancel",
+        "wallMs": 2.2,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.3,
+            "heapUsed": 0.9,
+            "rss": 50
+          },
+          "maxRssKiB": 51332
+        },
+        "result": "cancelled",
+        "scenario": "admission-cancel",
+        "wallMs": 2,
+        "workerStarts": 0,
+        "workerTerminates": 0
+      }
+    ],
+    "worker-complete": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 111.5
+          },
+          "maxRssKiB": 114140
+        },
+        "result": "complete:1",
+        "scenario": "worker-complete",
+        "wallMs": 76.7,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 110.5
+          },
+          "maxRssKiB": 113180
+        },
+        "result": "complete:1",
+        "scenario": "worker-complete",
+        "wallMs": 68.7,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 109.4
+          },
+          "maxRssKiB": 112008
+        },
+        "result": "complete:1",
+        "scenario": "worker-complete",
+        "wallMs": 70.5,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      }
+    ],
+    "worker-cancel": [
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 77.2
+          },
+          "maxRssKiB": 79308
+        },
+        "result": "cancelled",
+        "scenario": "worker-cancel",
+        "wallMs": 37.2,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 78
+          },
+          "maxRssKiB": 79892
+        },
+        "result": "cancelled",
+        "scenario": "worker-cancel",
+        "wallMs": 36.6,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      },
+      {
+        "memory": {
+          "endpointMiB": {
+            "external": 0.5,
+            "heapUsed": 1.2,
+            "rss": 77.6
+          },
+          "maxRssKiB": 79748
+        },
+        "result": "cancelled",
+        "scenario": "worker-cancel",
+        "wallMs": 36.9,
+        "workerStarts": 1,
+        "workerTerminates": 1
+      }
+    ]
+  },
+  "packageBoundary": {
+    "emittedWorker": {
+      "result": {
+        "kind": "complete",
+        "metrics": [
+          {
+            "cyclomaticComplexity": {
+              "source": "typescript-analyzer",
+              "value": 1
+            },
+            "endLine": 1,
+            "file": "src/sample.ts",
+            "lines": 1,
+            "name": "sample",
+            "parameterCount": 0,
+            "startLine": 1
+          }
+        ]
+      },
+      "status": "responded"
+    },
+    "packageStatus": {
+      "exitCode": 1,
+      "stderr": "",
+      "stdout": "package candidate version: 0.0.0-local.09acd75a9599\npackage freshness: stale\npackage required preparation: rebuild (receipt-input-mismatch)\npackage unpacked path: /home/dev/.codex/worktrees/d20e/vibe-check/build/package\npackage tarball path: /home/dev/.codex/worktrees/d20e/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.09acd75a9599.tgz\npackage installed entry: unavailable (run package:build)"
+    },
+    "scope": "The emitted Worker is probed directly only. A stale candidate never establishes installed public API or tar-consumer behavior."
+  },
+  "schemaVersion": 2
+}

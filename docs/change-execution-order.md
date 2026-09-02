@@ -56,7 +56,7 @@
 
 ## 当前协调基线
 
-本节于 2026-09-02 按本地主线提交 `427f75b36490221542be2a6348637894e4f1786c` 审阅。该基线包含：
+本节于 2026-09-02 按本地主线提交 `0ec422cb1899ad6840e5b4a24a1cd70938c57e7f` 审阅。该基线包含：
 
 - `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
@@ -73,7 +73,7 @@ baseline，不能只因其 Plan 仍合法而沿用旧测量。
 | 1A：主实现 | [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md) | 从 Readiness 连续推进到实现、A/B 验收和归档 | 独占 Scheduler、check-execution、diagnostic 与相关公共说明 |
 | 1B：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A 并行规划；不要同时修改 invocation runtime |
 | 1C：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
-| 1D：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
+| 1D：已验收并归档 | [`replace-lizard-with-typescript-function-analyzers`](../changes/archive/replace-lizard-with-typescript-function-analyzers/proposal.md) | source-aligned analyzer、package/legal closure 与 required/full Gate 已完成，Change 已归档 | 后续 upstream 采用建立独立 Change，且不得把本次 local candidate 作为版本政策 |
 
 第一批完成后按以下顺序继续：
 
@@ -102,9 +102,11 @@ Scheduler 的 passed dependency、terminal observation、admission policy、meas
 
 ### Scanner 轨道
 
-jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-analyzers` 的 Plan 基线早于当前 scanner、package、
-environment 和 quality-scope 事实；实施前必须重审 27 readers、55 extensions、public options、license/provenance、
-candidate 与性能证据，并取得其 Resume Conditions 要求的明确优先级授权。
+jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-analyzers` 已完成 source-aligned hard cut：
+`functionMetrics` 不再使用 Python/Lizard runtime 或 public `scanner.executable`，保持 27 readers/55 extensions，
+以 explicit-only repository advisory 跟随 upstream，并已完成 source/provenance、resource、candidate/installed 与 required/full
+Gate 验收并归档；任何上游版本采用、性能预算或新增 extension body 都是独立 Change，
+不得把这次实现重新视为待授权的 backend 工作。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。

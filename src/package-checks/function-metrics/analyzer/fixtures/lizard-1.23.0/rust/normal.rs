@@ -1,0 +1,1 @@
+fn reader_sample(value: i32) -> i32 { if value > 0 { return 1; } 0 }

@@ -5,6 +5,7 @@ import {
   runMain,
   type ProcessInvocation
 } from "../process-execution/command.ts";
+import { GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES } from "./format-targets.ts";
 
 export type LintScope = "product" | "scripts";
 
@@ -14,7 +15,9 @@ const lintPaths: Readonly<Record<LintScope, readonly string[]>> = {
 };
 
 export function lintInvocation(scope: LintScope): ProcessInvocation {
-  return bunPackageInvocation("oxlint", ["--deny-warnings", ...lintPaths[scope]]);
+  const exclusions =
+    scope === "product" ? [`--ignore-pattern=${GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES}`] : [];
+  return bunPackageInvocation("oxlint", ["--deny-warnings", ...exclusions, ...lintPaths[scope]]);
 }
 
 function isLintScope(value: string): value is LintScope {

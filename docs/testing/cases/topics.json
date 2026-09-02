@@ -31,11 +31,35 @@
     },
     {
       "id": "check-owned-scanners",
-      "description": "各 producing Check 自己拥有的 scc、Lizard 与 jscpd 解析、可用性、调用和失败投影契约。"
+      "description": "各 producing Check 自己拥有的 scc、Product-owned function analyzer 与 jscpd 解析、可用性、调用和失败投影契约。"
     },
     {
       "id": "warning-generation",
       "description": "Default Check threshold、Check-local supplemental Record 与 final data 的生成契约。"
+    },
+    {
+      "id": "function-metrics-analyzers",
+      "description": "Lizard 1.23 reader 翻译的 tokenizer、函数边界、NLOC、CCN、参数与扩展名 parity 证据。"
+    },
+    {
+      "id": "translated-function-analyzers-script",
+      "description": "Lizard 1.23 script reader 翻译及其共享 in-memory primitive 的直接行为证据。"
+    },
+    {
+      "id": "translated-function-analyzers-typescript",
+      "description": "Lizard 1.23 TypeScript、JavaScript、TSX/JSX 与 Vue reader 的可观察指标 parity 证据。"
+    },
+    {
+      "id": "translated-function-analyzers-clike",
+      "description": "Lizard 1.23 C-like reader 翻译与共享 CLikeReader 的直接行为证据。"
+    },
+    {
+      "id": "translated-function-analyzers-golike",
+      "description": "Lizard 1.23 Go、Rust、Scala、Solidity、Zig、Swift 与 Kotlin reader 翻译及共享 Go-like state 的完整直接行为证据。"
+    },
+    {
+      "id": "translated-function-analyzers-sql-php",
+      "description": "Lizard 1.23 PHP、PL/SQL reader、ordered reader registry 与其必要 CLike override seam 的直接行为证据。"
     }
   ]
 }

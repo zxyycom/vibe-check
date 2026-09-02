@@ -1,0 +1,8 @@
+CREATE OR REPLACE PACKAGE BODY sample AS
+FUNCTION reader_sample(value IN NUMBER) RETURN NUMBER IS
+BEGIN
+ IF value > 0 THEN RETURN 1; END IF;
+ RETURN 0;
+END reader_sample;
+END sample;
+/
