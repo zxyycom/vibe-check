@@ -116,7 +116,8 @@ describe("Project Gate Definition", () => {
     });
     assert.deepEqual(definition.scheduler, {
       admissionPolicy: { kind: "static" },
-      maxParallel: 3
+      maxParallel: 3,
+      measurementHooks: []
     });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);

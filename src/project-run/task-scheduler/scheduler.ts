@@ -1,3 +1,7 @@
+import type {
+  SchedulerMeasurementContext,
+  SchedulerRawMeasurement
+} from "../../project-definition/project-definition.ts";
 import { prepareTaskGraph, type PlannedTask } from "./graph.ts";
 import { diagnosticTags, type DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import {
@@ -95,7 +99,10 @@ export async function runTaskGraph<TResult>(
         if (diagnostics === undefined) applyBlockedSettlement(state, decision);
         else diagnostics.measureControlPath(() => applyBlockedSettlement(state, decision));
         diagnostics?.captureState(performanceState(state));
-        trigger = Object.freeze({ kind: "blocked-settled", taskId: decision.taskId });
+        trigger = Object.freeze({
+          kind: "blocked-settled",
+          taskId: decision.taskId
+        });
         continue;
       case "cancel-pending":
         diagnostics?.beforePendingSettlement(decision.taskIds);
@@ -123,7 +130,7 @@ export async function runTaskGraph<TResult>(
       case "complete": {
         if (diagnostics === undefined) return buildTaskGraphRun(state);
         const run = diagnostics.measureControlPath(() => buildTaskGraphRun(state));
-        diagnostics.observeSummary();
+        await observeTerminalMeasurement({ diagnostics, options, state });
         return run;
       }
     }
@@ -186,7 +193,10 @@ function performanceState<TResult>(state: SchedulerState<TResult>): SchedulerPer
   for (const task of inspection.pendingTasks) {
     if (!isRelationEligible(task, inspection)) continue;
     admissionViablePendingTasks.push(
-      Object.freeze({ kind: admissionViablePendingKind(task, inspection), taskId: task.id })
+      Object.freeze({
+        kind: admissionViablePendingKind(task, inspection),
+        taskId: task.id
+      })
     );
   }
   const capacity = capacityFor(inspection);
@@ -212,6 +222,91 @@ function schedulerDecisionTags(decision: SchedulerDecision): readonly string[] {
     decision.kind.toUpperCase(),
     ...("taskId" in decision ? [`TASK:${decision.taskId}`] : [])
   );
+}
+
+async function observeTerminalMeasurement<TResult>(
+  input: Readonly<{
+    readonly diagnostics: SchedulerPerformanceDiagnostics;
+    readonly options: RunTaskGraphOptions<TResult>;
+    readonly state: SchedulerState<TResult>;
+  }>
+): Promise<void> {
+  const hooks = input.options.measurementHooks ?? [];
+  const context = measurementContext(
+    input.state,
+    input.diagnostics.admittedTaskIds(),
+    input.diagnostics.rawMeasurement()
+  );
+  input.diagnostics.observeSummary(context.rawMeasurement);
+  let hookFailed = false;
+  for (const hook of hooks) {
+    try {
+      await hook(context);
+    } catch {
+      hookFailed = true;
+      observeSchedulerDiagnostic(input.state, {
+        event: "scheduler.measurement-hook-failed",
+        tags: diagnosticTags("SCHEDULER", "MEASUREMENT_HOOK_FAILED"),
+        details: Object.freeze({})
+      });
+      try {
+        input.options.onMeasurementHookFailure?.();
+      } catch {
+        // A failure-reporting seam cannot revise terminal Scheduler facts either.
+      }
+    }
+  }
+  if (hooks.length > 0 && !hookFailed) {
+    try {
+      input.options.onMeasurementHooksSettled?.();
+    } catch {
+      // A success-reporting seam cannot revise terminal Scheduler facts either.
+    }
+  }
+}
+
+function measurementContext<TResult>(
+  state: SchedulerState<TResult>,
+  admittedTaskIds: readonly string[],
+  rawMeasurement: SchedulerRawMeasurement
+): SchedulerMeasurementContext {
+  return Object.freeze({
+    graph: Object.freeze({
+      scopes: Object.freeze(
+        state.graph.scopes.map((scope) =>
+          Object.freeze({
+            activationTaskIds: Object.freeze([...scope.activationTaskIds]),
+            id: scope.id,
+            maxParallel: scope.maxParallel,
+            terminalTaskId: scope.terminalTaskId
+          })
+        )
+      ),
+      tasks: Object.freeze(
+        state.graph.tasks.map((task) =>
+          Object.freeze({
+            admissionPriority: task.admissionPriority,
+            dependsOn: Object.freeze([...task.dependsOn]),
+            id: task.id,
+            mutex: Object.freeze([...task.mutex]),
+            observes: Object.freeze([...task.observes]),
+            scopeId: task.scopeId ?? null
+          })
+        )
+      )
+    }),
+    execution: Object.freeze({
+      admittedTaskIds: Object.freeze([...admittedTaskIds]),
+      settledTasks: Object.freeze(
+        state.graph.tasks.map((task) => {
+          const settlement = state.settlementsByTaskId.get(task.id);
+          if (settlement === undefined) throw new Error(`task ${task.id} was not settled`);
+          return Object.freeze({ kind: settlement.kind, taskId: task.id });
+        })
+      )
+    }),
+    rawMeasurement
+  });
 }
 
 function applyAdmission<TResult>(

@@ -59,7 +59,10 @@ export interface AdmissionPolicyContext {
     }>[];
   }>;
   /** 已满足 relation/mutex 条件的 pending Task 及其本轮 capacity 可准入性。 */
-  readonly candidates: readonly Readonly<{ readonly canAdmit: boolean; readonly taskId: string }>[];
+  readonly candidates: readonly Readonly<{
+    readonly canAdmit: boolean;
+    readonly taskId: string;
+  }>[];
   /** 当前 root 与已激活 scope 合成后的 capacity 事实。 */
   readonly capacity: Readonly<{
     readonly effectiveMaxParallel: number;
@@ -73,7 +76,10 @@ export interface AdmissionPolicyContext {
   /** 当前已结算的 Task IDs；不携带 Check result、data 或 message。 */
   readonly settledTaskIds: readonly string[];
   /** 本轮与生命周期有关的最小只读事实。 */
-  readonly runtime: Readonly<{ readonly abortRequested: boolean; readonly cancelled: boolean }>;
+  readonly runtime: Readonly<{
+    readonly abortRequested: boolean;
+    readonly cancelled: boolean;
+  }>;
 }
 
 /** Definition authoring 的 closed admission policy；custom callback 必须同步返回 {@link AdmissionProposal}。 */
@@ -85,13 +91,135 @@ export type AdmissionPolicy =
     }>;
 
 /** 定义级的 Check 调度预算与 admission policy。 */
+export type SchedulerMeasurementTimingUnavailableReason =
+  | "clock-threw"
+  | "clock-non-finite"
+  | "clock-backward"
+  | "interval-invalid"
+  | "integral-invalid";
+
+export type SchedulerMeasurementTiming =
+  | Readonly<{ readonly availability: "available" }>
+  | Readonly<{
+      readonly availability: "unavailable";
+      readonly reason: SchedulerMeasurementTimingUnavailableReason;
+    }>;
+
+export interface SchedulerMeasurementPeakCounts {
+  readonly admissionViablePendingTaskCount: number;
+  readonly admissiblePendingTaskCount: number;
+  readonly capacityBlockedTaskCount: number;
+  readonly mutexBlockedTaskCount: number;
+}
+
+export interface SchedulerMeasurementAdmission {
+  readonly admissionDelay: Readonly<{
+    readonly admissiblePendingMs: number;
+    readonly capacityBlockedMs: number;
+    readonly mutexBlockedMs: number;
+  }>;
+  /** Scheduler monotonic-clock timestamp in milliseconds, or no admission occurred. */
+  readonly admittedAtMonotonicMs: number | null;
+  /** Scheduler monotonic-clock timestamp in milliseconds, or no settlement occurred. */
+  readonly settledAtMonotonicMs: number | null;
+  readonly taskId: string;
+}
+
+export interface SchedulerMeasurementTimingFacts {
+  readonly acceptedWaitMs: number;
+  readonly admissions: readonly SchedulerMeasurementAdmission[];
+  readonly effectiveCapacitySlotMs: number;
+  /** Terminal Scheduler monotonic-clock timestamp in milliseconds. */
+  readonly endedAtMonotonicMs: number;
+  readonly rootCapacitySlotMs: number;
+  readonly schedulerControlPathMs: number;
+  readonly schedulerDecisionObservationMs: number;
+  /** First Scheduler monotonic-clock timestamp in milliseconds. */
+  readonly startedAtMonotonicMs: number;
+  readonly taskSlotMs: number;
+}
+
+interface SchedulerRawMeasurementFacts {
+  readonly declarativeFingerprint: string;
+  readonly discrete: Readonly<{
+    readonly acceptedWaitCount: number;
+    readonly admittedCount: number;
+    readonly completionTailActiveTaskIds: readonly string[];
+    readonly lastSettledTaskId: string | null;
+    readonly maxRunning: number;
+  }>;
+  readonly peaks: SchedulerMeasurementPeakCounts;
+}
+
+interface AvailableSchedulerRawMeasurement extends SchedulerRawMeasurementFacts {
+  readonly timing: Readonly<{ readonly availability: "available" }>;
+  readonly timingFacts: SchedulerMeasurementTimingFacts;
+}
+
+interface UnavailableSchedulerRawMeasurement extends SchedulerRawMeasurementFacts {
+  readonly timing: Readonly<{
+    readonly availability: "unavailable";
+    readonly reason: SchedulerMeasurementTimingUnavailableReason;
+  }>;
+  readonly timingFacts?: never;
+}
+
+/** Scheduler-owned terminal 一阶事实；全部二级 summary 都由 Hook 投影。 */
+export type SchedulerRawMeasurement =
+  | AvailableSchedulerRawMeasurement
+  | UnavailableSchedulerRawMeasurement;
+
+/**
+ * 一次 Scheduler 终态 Hook 可读取的递归冻结上下文；不包含 Task 值、错误或可变 engine 对象。
+ */
+export interface SchedulerMeasurementContext {
+  readonly graph: Readonly<{
+    readonly scopes: readonly Readonly<{
+      readonly activationTaskIds: readonly string[];
+      readonly id: string;
+      readonly maxParallel: number;
+      readonly terminalTaskId: string;
+    }>[];
+    readonly tasks: readonly Readonly<{
+      readonly admissionPriority: number;
+      readonly dependsOn: readonly string[];
+      readonly id: string;
+      readonly mutex: readonly string[];
+      readonly observes: readonly string[];
+      readonly scopeId: string | null;
+    }>[];
+  }>;
+  readonly execution: Readonly<{
+    readonly admittedTaskIds: readonly string[];
+    readonly settledTasks: readonly Readonly<{
+      readonly kind:
+        | "completed"
+        | "prerequisite-unsatisfied"
+        | "failed"
+        | "blocked"
+        | "cancelled-before-start";
+      readonly taskId: string;
+    }>[];
+  }>;
+  readonly rawMeasurement: SchedulerRawMeasurement;
+}
+
+/** 一次 terminal Scheduler measurement 的 caller-owned sync/async consumer。 */
+export type SchedulerMeasurementHook =
+  | ((this: void, context: SchedulerMeasurementContext) => void)
+  | ((this: void, context: SchedulerMeasurementContext) => Promise<void>);
+
+/** 定义级的 Scheduler 预算、admission policy 与终态 measurement consumer。 */
 export interface SchedulerPolicy {
   readonly admissionPolicy: AdmissionPolicy;
   readonly maxParallel: number;
+  readonly measurementHooks: readonly SchedulerMeasurementHook[];
 }
 
 interface DeclarativeSchedulerPolicy {
-  readonly admissionPolicy: Readonly<{ readonly kind: AdmissionPolicy["kind"] }>;
+  readonly admissionPolicy: Readonly<{
+    readonly kind: AdmissionPolicy["kind"];
+  }>;
   readonly maxParallel: number;
 }
 /** 已补齐默认 outputs、可交给 run 执行的项目定义。 */
@@ -152,7 +280,9 @@ export interface NormalizedProjectDefinition {
   /** Runtime scheduler policy；custom callback 保留在此处，不进入 declarative snapshot。 */
   readonly scheduler: SchedulerPolicy;
 }
-const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({ kind: "static" });
+const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({
+  kind: "static"
+});
 type ExactAdmissionPolicy<T extends AdmissionPolicy> =
   T extends Readonly<{ readonly kind: "static" }>
     ? T & Record<Exclude<keyof T, "kind">, never>
@@ -204,7 +334,8 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
     },
     scheduler: {
       admissionPolicy: value.scheduler?.admissionPolicy ?? STATIC_ADMISSION_POLICY,
-      maxParallel: value.scheduler?.maxParallel ?? 4
+      maxParallel: value.scheduler?.maxParallel ?? 4,
+      measurementHooks: value.scheduler?.measurementHooks ?? []
     }
   };
 }
@@ -251,7 +382,9 @@ function freezeDeclarativeSnapshot(
     checks: declarations,
     outputs: definition.outputs,
     scheduler: Object.freeze({
-      admissionPolicy: Object.freeze({ kind: definition.scheduler.admissionPolicy.kind }),
+      admissionPolicy: Object.freeze({
+        kind: definition.scheduler.admissionPolicy.kind
+      }),
       maxParallel: definition.scheduler.maxParallel
     })
   });
@@ -264,7 +397,11 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
           kind: "custom" as const,
           proposeAdmission: policy.admissionPolicy.proposeAdmission
         });
-  return Object.freeze({ admissionPolicy, maxParallel: policy.maxParallel });
+  return Object.freeze({
+    admissionPolicy,
+    maxParallel: policy.maxParallel,
+    measurementHooks: Object.freeze([...policy.measurementHooks])
+  });
 }
 function compareText(left: string, right: string): number {
   if (left < right) return -1;

@@ -68,6 +68,7 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
+      "expose-invocation-local-scheduler-measurement-hooks.md": "sha256:6679160916dd07a45f0fe0cc69b3a9d9817d8e2cd552ecda04a4c336847d4e7b",
       "expose-markdown-link-finding-policy.md": "sha256:ab2134d56080e7bd28d92d20fd70290bbeca1f4a7cfd3ca79232b77d05561979",
       "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
       "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
@@ -75,7 +76,7 @@
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
       "expose-stateless-custom-admission-policy-to-callers.md": "sha256:0a768b30ed2df7f7141b7e863218db14a0dfb2268b37fd14178cd8b0c421bc4d",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
-      "extend-invocation-local-scheduler-performance-summary.md": "sha256:86c0f48701a07ee4b82a34f7dcc529afd528a95821e8205fe7d237da8a3b461b",
+      "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
@@ -125,6 +126,7 @@
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
+      "preserve-primary-run-failures-over-measurement-hook-output.md": "sha256:01dbc2b595e7c0438649b42614ef5c9318f6402f5996dfad89c7df0434f52055",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:a4202b9217e59872a9d2777688722d72bceeaa6dc5b2564b59bbefed0db74a73",
@@ -2243,6 +2245,40 @@
         ]
       }
     },
+    "expose-invocation-local-scheduler-measurement-hooks.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/expose-invocation-local-scheduler-measurement-hooks.md",
+        "title": "将 Scheduler 性能测量交给 invocation-local Hook",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T01:22:44Z",
+        "purpose": "让调用方在不复制 Scheduler 生命周期的前提下消费安全的终态性能事实。",
+        "background": "现有 Scheduler summary 是启用日志时的私有人读投影，不能支持调用方的二级测量。",
+        "decision": "Scheduler 保留一阶测量并在 terminal drain 后交给有序 Hook，内置 summary 作为其中一个副作用。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "extend-invocation-local-scheduler-performance-summary.md"
+          }
+        ]
+      }
+    },
     "expose-markdown-link-finding-policy.md": {
       "keys": {
         "tag": [
@@ -2463,16 +2499,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "extend-invocation-local-scheduler-performance-summary.md",
+        "sourcePath": "archive/extend-invocation-local-scheduler-performance-summary.md",
         "title": "扩展 invocation-local Scheduler 压力与尾段诊断",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T00:07:04Z",
         "purpose": "让 Scheduler 人读汇总解释可准入队列压力与完成尾段，并以现有声明指纹支持同配置比较。",
@@ -4033,6 +4069,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "preserve-primary-run-failures-over-measurement-hook-output.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "preserve-primary-run-failures-over-measurement-hook-output.md",
+        "title": "保留主 Run failure 高于 measurement Hook output",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T01:50:13Z",
+        "purpose": "让 measurement Hook 副作用可见而不掩盖已形成的主 Run failure。",
+        "background": "Hook failure 已有 output status，但 cancellation 和 admission-policy failure 需要保留其主语义。",
+        "decision": "只让正常完成升级为 Hook output failure，主 execution failure 保持原 result。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "expose-invocation-local-scheduler-measurement-hooks.md"
+          }
+        ]
       }
     },
     "preserve-release-gate-readiness-with-invocation-creation-time.md": {

@@ -18,7 +18,10 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
-          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
           dependsOn: ["prepare", "compile"],
           observes: ["release", "audit"],
           execution: passed
@@ -31,7 +34,10 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { nested: { mode: "strict" }, threshold: 2 },
-          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
           dependsOn: ["compile", "prepare", "compile"],
           observes: ["audit", "release", "audit"],
           execution: async () => passed()
@@ -50,7 +56,10 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
-          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
           dependsOn: ["prepare", "compile"],
           execution: passed
         })
@@ -73,11 +82,22 @@ describe("Project Definition", () => {
       scheduler: {
         admissionPolicy: {
           kind: "custom",
-          proposeAdmission: () => ({ kind: "select", taskId: "different-closure" })
+          proposeAdmission: () => ({
+            kind: "select",
+            taskId: "different-closure"
+          })
         }
       }
     });
-    const staticPolicy = defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } });
+    const hooksOne = defineConfig({
+      scheduler: { measurementHooks: [() => undefined] }
+    });
+    const hooksTwo = defineConfig({
+      scheduler: { measurementHooks: [async () => undefined] }
+    });
+    const staticPolicy = defineConfig({
+      scheduler: { admissionPolicy: { kind: "static" } }
+    });
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(secondCustomPolicy).declarative)
@@ -85,6 +105,10 @@ describe("Project Definition", () => {
     assert.notEqual(
       createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(staticPolicy).declarative)
+    );
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(hooksOne).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(hooksTwo).declarative)
     );
     assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
       admissionPolicy: { kind: "custom" },
@@ -104,7 +128,10 @@ describe("Project Definition", () => {
             displayName: "Own prototype key",
             execution: passed,
             options,
-            preflight: (preparedOptions) => ({ status: "success", preparedOptions })
+            preflight: (preparedOptions) => ({
+              status: "success",
+              preparedOptions
+            })
           }
         ]
       })

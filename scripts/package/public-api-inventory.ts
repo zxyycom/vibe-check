@@ -103,6 +103,9 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     ReconcileFindingWaiversOptions: "ReconcileFindingWaiversOptions",
     RunControls: "RunControls",
     RunResult: "RunResult",
+    SchedulerMeasurementContext: "SchedulerMeasurementContext",
+    SchedulerMeasurementHook: "SchedulerMeasurementHook",
+    SchedulerRawMeasurement: "SchedulerRawMeasurement",
     SchedulerPolicy: "SchedulerPolicy"
   })
 } as const);

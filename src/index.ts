@@ -118,6 +118,9 @@ export type {
   AdmissionProposal,
   ProjectOutputs,
   ProjectDefinition,
+  SchedulerMeasurementContext,
+  SchedulerMeasurementHook,
+  SchedulerRawMeasurement,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";
 export type {

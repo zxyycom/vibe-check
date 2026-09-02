@@ -75,11 +75,11 @@ console capture、`checkMessages` ownership、timing telemetry、parser/schema �
 
 preflight 返回以下三种 closed result 之一：
 
-| 结果 | execution 输入与 Check outcome |
-| --- | --- |
-| `{ status: "success", preparedOptions, messages? }` | 使用 `preparedOptions` 进入 execution。 |
-| `{ status: "failure", action: "block", reason, messages? }` | owning Check 以 `unavailable` 结算。 |
-| `{ status: "failure", action: "continue", reason, fallback, messages? }` | 使用 `fallback` 进入 execution。 |
+| 结果                                                                     | execution 输入与 Check outcome          |
+| ------------------------------------------------------------------------ | --------------------------------------- |
+| `{ status: "success", preparedOptions, messages? }`                      | 使用 `preparedOptions` 进入 execution。 |
+| `{ status: "failure", action: "block", reason, messages? }`              | owning Check 以 `unavailable` 结算。    |
+| `{ status: "failure", action: "continue", reason, fallback, messages? }` | 使用 `fallback` 进入 execution。        |
 
 Run 先验证完整 static task graph；Scheduler 在 direct relation、mutex 与 capacity 允许后 admission 单个 Check，并在该 Check 的 author callback 前执行其 task-local preflight。互不约束的 preflight 可以并行，不形成按 Definition 顺序的全局 barrier。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`；其 `dependsOn` dependent 因此不会开始 author work。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。
 
@@ -151,13 +151,20 @@ const messages = presentCheckFindings({
   message: (finding) => ({
     code: "finding-detail",
     level: finding.blocking ? "error" : "warning",
-    message: `${finding.path}:${finding.line} ${finding.summary}`
+    message: `${finding.path}:${finding.line} ${finding.summary}`,
   }),
-  omittedMessage: ({ omittedCount, omittedFindings, presentedCount, totalCount }) => ({
+  omittedMessage: ({
+    omittedCount,
+    omittedFindings,
+    presentedCount,
+    totalCount,
+  }) => ({
     code: "findings-omitted",
-    level: omittedFindings.some((finding) => finding.blocking) ? "error" : "warning",
-    message: `${omittedCount} more of ${totalCount} findings; inspect reports/my-check.json after the first ${presentedCount}.`
-  })
+    level: omittedFindings.some((finding) => finding.blocking)
+      ? "error"
+      : "warning",
+    message: `${omittedCount} more of ${totalCount} findings; inspect reports/my-check.json after the first ${presentedCount}.`,
+  }),
 });
 ```
 
@@ -268,21 +275,28 @@ const auditChangedFiles = defineCheck({
   execution({ dependencies }) {
     const observations = dependencies.list();
     const readable = observations.filter(
-      ({ outcome }) => outcome.status === "passed" || outcome.status === "failed"
+      ({ outcome }) =>
+        outcome.status === "passed" || outcome.status === "failed",
     );
     const changedFilesObservation = readable.find(
-      ({ checkId }) => checkId === changedFiles.checkId
+      ({ checkId }) => checkId === changedFiles.checkId,
     );
     if (changedFilesObservation === undefined) {
-      return { status: "unavailable", reason: { code: "changed-files-data-unavailable" } };
+      return {
+        status: "unavailable",
+        reason: { code: "changed-files-data-unavailable" },
+      };
     }
 
     const data = changedFiles.parseData(changedFilesObservation.outcome.data);
     return {
       status: "passed",
-      data: { directDependencyCount: observations.length, changedFileCount: data.files.length }
+      data: {
+        directDependencyCount: observations.length,
+        changedFileCount: data.files.length,
+      },
     };
-  }
+  },
 });
 ```
 
@@ -307,7 +321,7 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 defaults，RunControls 可以只覆盖当前调用需要的部分。machine publication 与 diagnostic logging 各自的 `directory` 都是受信任调用方选择的非空、无 U+0000 target：relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target；没有 containment 或 sandbox 语义，两个 output 也不因同目录而合并。configuration 成功后的职责如下：
+Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 default；RunControls 可以只覆盖当前调用需要的部分。`scheduler.measurementHooks` 不属于这组三项配置：它是 Definition-owned terminal side effect，不能由 RunControls 注入或覆盖。machine publication 与 diagnostic logging 各自的 `directory` 都是受信任调用方选择的非空、无 U+0000 target：relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target；没有 containment 或 sandbox 语义，两个 output 也不因同目录而合并。configuration 成功后的职责如下：
 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
 - 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
@@ -316,7 +330,7 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 - broader graph-ready 只要求全部 directed relations settled；Queue pressure 使用更窄的 admission-viable pending universe：每个 `dependsOn` 必须 `completed`，每个 `observes` 必须 settled，且 Task 仍 pending。即将因 failed prerequisite 走 `settle-blocked` 的 graph-ready Task 不在其中。每个 sampled interval 按 mutex conflict → canonical `canAdmit` false → canonical `canAdmit` true 的顺序互斥分类为 mutex-blocked、capacity-blocked 或 admissible-pending，分别形成 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs`；三者之和是 `admissionViablePendingTaskMs`。`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 是可能来自不同 boundary 的离散峰值，分类峰值不能相加为同一时刻的 total，也不是 decision 计数。top-three `topAdmissionDelays` 中每项的 `mutexBlockedMs + capacityBlockedMs + admissiblePendingMs` 精确构成该项 `admissionDelayMs`；这些事实不推断 policy 的选择理由。
 - Tail active set 是最后一次 admission boundary 的逻辑 post-state snapshot，包含此前仍 running 的 Tasks 与新 admitted Task；`discrete.completionTailActiveTaskCount` 保留完整数量，`topCompletionTailContributors` 只保留其中 settlement delta 最大的三个 `{ taskId, settledAfterLastAdmissionMs }`。它解释 last-admission-to-terminal span 的活跃成员，不是 critical path；terminal control/observation 可能使 tail span 大于最大的 contributor delta。`declarativeFingerprint` 原样来自 invocation，只是 declarative-configuration matching signal；它覆盖 normalized declarative Definition，但不包含 `RunControls`、code/candidate/tool/runtime/host、terminal outcome 或 custom callback identity/source/closure。timing unavailable 仍精确保留 fingerprint、admitted count、accepted-wait count、max-running、last-settled Task ID、四个 queue peaks 与 tail active count，但省略不能证明的 task·ms、delay breakdown、tail delta 及其它 time-valued projection。
 - 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
-- progress rendering 呈现人读 lifecycle。三项 output 都由 Run 调度，并分别返回 status。
+- progress rendering 呈现人读 lifecycle。machine publication、progress rendering、diagnostic logging 与 configured measurement hooks 都由 Run 调度，并分别保留 status；measurement hooks 不因它们与前三项一同 readback 而成为 `outputs` configuration。
 
 这些 diagnostic 行不建立可解析 schema。Run 结束前最后一条可写 diagnostic event 是 `run.terminal-before-log-close`：它只证明 terminal fact 已写入、logger close 尚未确认，随后才尝试关闭日志。
 
@@ -326,11 +340,19 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 `path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。实际 filename 始终是 invocation-specific `run-<UTC 紧凑时间>-<UUID>.log`。无效 Definition、controls 或 aggregation selection 直接返回
 configuration diagnostic，不创建诊断日志。
 
+`outputs.measurementHooks` 的形状为 `{ enabled, status }`，使用同一 closed status set。它仅在 normalized
+`scheduler.measurementHooks` 为非空时 enabled，并在终态 Hook sequence 前保持 `not-run`；没有 configured Hook 时为
+`disabled`。pre-work/planning failure 没有 Scheduler terminal sequence，故 enabled Hook output 仍可为 `not-run`。
+在有 terminal sequence 的路径，所有 caller Hooks 成功 settlement 后为 `succeeded`；任一 caller Hook throw/reject 后为
+`failed`，但其余 Hook 仍按顺序获得调用机会。内置 `scheduler.summary` writer 不属于此 output。
+
 diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation
 discovery contract，也不替代 Check final data、Record、terminal message 或 Check/process adapter 自有的 transcript。logging
 failure 只把该 output 标为 failed，不改写已形成的 Check/Record facts，也不阻断 progress rendering 或 machine publication 的
-闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；唯一 `output` diagnostic 依次选择 progress rendering、
-machine publication、diagnostic logging。diagnostic logging 不进入 machine v4；其 machine-field 排除见
+闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；仅当 primary Run 已正常完成时，`kind: "output"` 依次选择
+progress rendering、machine publication、diagnostic logging、measurement hooks 的第一个 failed output。故
+`scheduler-measurement-hooks-failed` 表示 Hook output failed 且没有更高优先级的 output failure 被选作 diagnostic；它不覆盖
+cancellation 或 execution diagnostic。diagnostic logging 不进入 machine v4；其 machine-field 排除见
 [机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
 
 因此 `scheduler.summary` 不进入 `RunResult`、Check/Record facts、machine v4、progress、warning、autotune 或任何 public API；它不获得 parser/schema/version、跨 invocation discovery 或 retention contract，也不是 CPU、memory、thread、process 等 OS telemetry。以后若 fail-fast 或 named-resource capacity 改变 Scheduler capacity/hard guard，必须重新审阅 summary 的 capacity denominator、queue classification、boundary 与 wait 解释，而不是静默重用旧 projection。
@@ -339,14 +361,14 @@ progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 
-| 分支 | 可用 facts 与处理方式 |
-| --- | --- |
-| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。 |
-| `output` | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。 |
-| `cancelled` / `phase: "execution"` | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。 |
-| `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。 |
-| `configuration` | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。 |
-| `planning` | task-graph diagnostic 与 invocation metadata。 |
-| `execution` | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。 |
+| 分支                                              | 可用 facts 与处理方式                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `completed`                                       | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。                                                                                                                                                                                                                          |
+| `output`                                          | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。`scheduler-measurement-hooks-failed` 只在正常 completion 且 measurement Hooks 是按 output 顺序选中的第一个 failed output 时出现；所有 caller Hooks 已获调用机会且至少一个 throw/reject。已有 cancellation 或 execution failure 时主 result 保留，Hook failure 仅表现为 `outputs.measurementHooks.status: "failed"`。 |
+| `cancelled` / `phase: "execution"`                | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。                                                                                                                                                                                                                                                             |
+| `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。                                                                                                                                                                                                                                                                          |
+| `configuration`                                   | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。                                                                                                                                                                                                                                                 |
+| `planning`                                        | task-graph diagnostic 与 invocation metadata。                                                                                                                                                                                                                                                                                          |
+| `execution`                                       | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。                                                                                      |
 
 Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 diagnostic logging、publication 或 rendering failure diagnostic。

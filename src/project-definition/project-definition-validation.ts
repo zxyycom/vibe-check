@@ -6,6 +6,7 @@ import {
   type ProjectDefinitionDiagnostic,
   type ProjectDefinitionValidationResult,
   type AdmissionPolicy,
+  type SchedulerMeasurementHook,
   type SchedulerPolicy
 } from "./project-definition.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
@@ -93,19 +94,44 @@ function parseScheduler(value: unknown): SchedulerPolicy | undefined {
   if (
     data === undefined ||
     !Object.hasOwn(data, "maxParallel") ||
-    Object.keys(data).some((key) => key !== "admissionPolicy" && key !== "maxParallel")
+    Object.keys(data).some(
+      (key) => key !== "admissionPolicy" && key !== "maxParallel" && key !== "measurementHooks"
+    )
   ) {
     return undefined;
   }
   const admissionPolicy = Object.hasOwn(data, "admissionPolicy")
     ? parseAdmissionPolicy(data.admissionPolicy)
     : Object.freeze({ kind: "static" as const });
+  const measurementHooks = parseMeasurementHooks(data.measurementHooks);
   return typeof data.maxParallel === "number" &&
     Number.isSafeInteger(data.maxParallel) &&
     data.maxParallel > 0 &&
-    admissionPolicy !== undefined
-    ? Object.freeze({ admissionPolicy, maxParallel: data.maxParallel })
+    admissionPolicy !== undefined &&
+    measurementHooks !== undefined
+    ? Object.freeze({
+        admissionPolicy,
+        maxParallel: data.maxParallel,
+        measurementHooks
+      })
     : undefined;
+}
+
+function parseMeasurementHooks(
+  value: unknown
+): readonly import("./project-definition.ts").SchedulerMeasurementHook[] | undefined {
+  if (value === undefined) return Object.freeze([]);
+  if (!Array.isArray(value)) return undefined;
+  const hooks: SchedulerMeasurementHook[] = [];
+  for (const hook of value) {
+    if (!isMeasurementHook(hook)) return undefined;
+    hooks.push(hook);
+  }
+  return Object.freeze(hooks);
+}
+
+function isMeasurementHook(value: unknown): value is SchedulerMeasurementHook {
+  return typeof value === "function";
 }
 
 function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
@@ -146,7 +172,11 @@ function exactKeys(
 function invalidDefinition(path: string): ProjectDefinitionValidationResult {
   return Object.freeze({
     ok: false,
-    error: Object.freeze({ kind: "invalid-project-definition", path, reason: "invalid-value" })
+    error: Object.freeze({
+      kind: "invalid-project-definition",
+      path,
+      reason: "invalid-value"
+    })
   });
 }
 
@@ -155,5 +185,8 @@ function invalid(
   path: string,
   reason: ProjectDefinitionDiagnostic["reason"]
 ): DefinitionValidationResult<never> {
-  return Object.freeze({ ok: false, error: Object.freeze({ kind, path, reason }) });
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({ kind, path, reason })
+  });
 }

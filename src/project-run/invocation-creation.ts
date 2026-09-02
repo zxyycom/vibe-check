@@ -44,7 +44,11 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     projectRoot,
     startedAtUtc
   });
-  const outputs = createOutputStatuses(outputConfiguration, diagnosticLoggingFile);
+  const outputs = createOutputStatuses(
+    outputConfiguration,
+    diagnosticLoggingFile,
+    input.normalized.scheduler.measurementHooks.length > 0
+  );
   const diagnosticLogger = createDiagnosticLoggerSafely(
     input.dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger,
     {
@@ -88,7 +92,10 @@ function captureOutputCreationTimestamp(
   return (dependencies.wallClock?.now() ?? new Date()).toISOString();
 }
 
-function createInvocationIdentity(): Readonly<{ readonly id: string; readonly uuid: string }> {
+function createInvocationIdentity(): Readonly<{
+  readonly id: string;
+  readonly uuid: string;
+}> {
   const uuid = randomUUID();
   return Object.freeze({ id: `invocation/v1:${uuid}`, uuid });
 }

@@ -158,7 +158,10 @@ async function executePlannedInvocation(
   return executePreparedInvocation(
     invocation,
     aggregation,
-    createProjectContext({ controls: invocation.controls, root: invocation.projectRoot })
+    createProjectContext({
+      controls: invocation.controls,
+      root: invocation.projectRoot
+    })
   );
 }
 async function executePreparedInvocation(
@@ -238,13 +241,20 @@ async function executeChecks(
       checks: invocation.normalized.checks,
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
-      schedulerPerformanceDiagnostics: invocation.diagnosticLoggingEnabled
-        ? Object.freeze({
-            clock,
-            declarativeFingerprint: invocation.declarativeFingerprint,
-            logger: invocation.diagnosticLogger
-          })
-        : undefined,
+      schedulerPerformanceDiagnostics:
+        invocation.diagnosticLoggingEnabled ||
+        invocation.normalized.scheduler.measurementHooks.length > 0
+          ? Object.freeze({
+              clock,
+              declarativeFingerprint: invocation.declarativeFingerprint,
+              ...(invocation.diagnosticLoggingEnabled
+                ? { logger: invocation.diagnosticLogger }
+                : {})
+            })
+          : undefined,
+      schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
+      onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
+      onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       lifecycle: invocation.progressRendering.lifecycle,
       project,

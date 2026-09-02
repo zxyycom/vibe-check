@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import type { SchedulerMeasurementContext } from "../../project-definition/project-definition.ts";
 import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
 import { runTaskGraph } from "./scheduler.ts";
@@ -234,7 +235,9 @@ describe("Scheduler performance diagnostics", () => {
     await runTaskGraph({
       diagnosticLogger: recordingLogger(observations),
       execute: (task) => task.id,
-      graph: { tasks: [{ id: "zeta" }, { id: "beta" }, { id: "alpha" }, { id: "delta" }] },
+      graph: {
+        tasks: [{ id: "zeta" }, { id: "beta" }, { id: "alpha" }, { id: "delta" }]
+      },
       maxParallel: 4,
       performanceDiagnostics: enabledDiagnostics(clock, observations)
     });
@@ -466,7 +469,9 @@ describe("Scheduler performance diagnostics", () => {
 
   it("retains an accepted wait count when timing becomes unavailable", async () => {
     let timingFaulted = false;
-    const clock = Object.freeze({ now: () => (timingFaulted ? Number.NaN : 0) });
+    const clock = Object.freeze({
+      now: () => (timingFaulted ? Number.NaN : 0)
+    });
     const observations: DiagnosticObservation[] = [];
     const release = createDeferred<void>();
     let proposals = 0;
@@ -502,7 +507,10 @@ describe("Scheduler performance diagnostics", () => {
     await running;
 
     const summary = schedulerSummary(observations);
-    assert.deepEqual(summary.timing, { availability: "unavailable", reason: "clock-non-finite" });
+    assert.deepEqual(summary.timing, {
+      availability: "unavailable",
+      reason: "clock-non-finite"
+    });
     assert.equal(summaryDiscreteValue(summary, "acceptedWaitCount"), 1);
   });
 
@@ -695,5 +703,107 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     assert.deepEqual(summary.topCompletionTailContributors, [
       { settledAfterLastAdmissionMs: 4, taskId: "started" }
     ]);
+  });
+});
+
+describe("Scheduler measurement hooks", () => {
+  it("awaits ordered hooks over one immutable terminal context without exposing Task values", async () => {
+    const calls: string[] = [];
+    let successes = 0;
+    const contexts: SchedulerMeasurementContext[] = [];
+    await runTaskGraph({
+      execute: () => ({ private: "Task value" }),
+      graph: { tasks: [{ id: "first" }, { id: "second" }] },
+      maxParallel: 2,
+      performanceDiagnostics: Object.freeze({
+        clock: scriptedClock(),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT
+      }),
+      measurementHooks: [
+        async (context) => {
+          calls.push("first-start");
+          contexts.push(context);
+          await Promise.resolve();
+          calls.push("first-end");
+        },
+        (context) => {
+          calls.push("second");
+          contexts.push(context);
+        }
+      ],
+      onMeasurementHooksSettled: () => {
+        successes += 1;
+      }
+    });
+
+    assert.deepEqual(calls, ["first-start", "first-end", "second"]);
+    assert.equal(successes, 1);
+    assert.equal(contexts[0], contexts[1]);
+    const context = contexts[0];
+    if (context === undefined) assert.fail("expected terminal measurement context");
+    assert.equal(Object.isFrozen(context), true);
+    assert.equal(Object.isFrozen(context.graph), true);
+    assert.equal(Object.isFrozen(context.graph.tasks), true);
+    assert.equal(Object.isFrozen(context.graph.tasks[0]), true);
+    assert.equal(Object.isFrozen(context.graph.tasks[0]?.dependsOn), true);
+    assert.equal(Object.isFrozen(context.execution), true);
+    assert.equal(Object.isFrozen(context.execution.settledTasks), true);
+    assert.equal(Object.isFrozen(context.execution.settledTasks[0]), true);
+    assert.equal(Object.isFrozen(context.rawMeasurement), true);
+    assert.equal(Object.isFrozen(context.rawMeasurement.discrete), true);
+    assert.equal(Object.isFrozen(context.rawMeasurement.peaks), true);
+    const timingFacts = context.rawMeasurement.timingFacts;
+    if (timingFacts !== undefined) {
+      assert.equal(Object.isFrozen(timingFacts), true);
+      assert.equal(Object.isFrozen(timingFacts.admissions), true);
+      assert.equal(Object.isFrozen(timingFacts.admissions[0]), true);
+      assert.equal(Object.isFrozen(timingFacts.admissions[0]?.admissionDelay), true);
+    }
+    assert.deepEqual(context.execution.admittedTaskIds, ["first", "second"]);
+    assert.deepEqual(context.execution.settledTasks, [
+      { kind: "completed", taskId: "first" },
+      { kind: "completed", taskId: "second" }
+    ]);
+    assert.equal("values" in context.rawMeasurement, false);
+    assert.equal("topAdmissionDelays" in context.rawMeasurement, false);
+    assert.equal("error" in context.execution.settledTasks[0], false);
+    assert.equal("value" in context.execution.settledTasks[0], false);
+  });
+
+  it("continues after synchronous and asynchronous hook failures", async () => {
+    const calls: string[] = [];
+    let failures = 0;
+    let successes = 0;
+    const run = await runTaskGraph({
+      execute: () => "settled",
+      graph: { tasks: [{ id: "task" }] },
+      maxParallel: 1,
+      performanceDiagnostics: Object.freeze({
+        clock: scriptedClock(),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT
+      }),
+      measurementHooks: [
+        () => {
+          calls.push("sync");
+          throw new Error("sync failure");
+        },
+        async () => {
+          calls.push("async");
+          throw new Error("async failure");
+        },
+        () => calls.push("after")
+      ],
+      onMeasurementHookFailure: () => {
+        failures += 1;
+      },
+      onMeasurementHooksSettled: () => {
+        successes += 1;
+      }
+    });
+
+    assert.equal(run.settlements[0]?.settlement.kind, "completed");
+    assert.deepEqual(calls, ["sync", "async", "after"]);
+    assert.equal(failures, 2);
+    assert.equal(successes, 0);
   });
 });

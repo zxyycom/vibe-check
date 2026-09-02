@@ -68,23 +68,25 @@ custom selector 已完成并归档：[`expose-custom-admission-selection-policy`
 
 Scheduler 基础性能汇总也已完成并归档：[`add-scheduler-performance-diagnostics`](../changes/archive/add-scheduler-performance-diagnostics/proposal.md)。它形成 enabled-only、invocation-local 的 slot/capacity、accepted wait、admission delay 与 completion-tail 人读 summary；archive 只保留形成时 Plan，当前字段与解释以稳定 owner、源码和测试为准。
 
-剩余 active Scheduler 主线为：
+当前 active Scheduler measurement Change 是：
 
 ```text
-extend-scheduler-pressure-and-tail-diagnostics
+add-scheduler-measurement-hooks
   -> schedule-checks-from-learned-durations
 ```
 
-[`extend-scheduler-pressure-and-tail-diagnostics`](../changes/extend-scheduler-pressure-and-tail-diagnostics/proposal.md) 在已归档 summary 上补齐 admission-viable queue pressure、admission-delay 事实分解、last-admission tail contributors 与 declarative workload signal。它是 learned policy 的验收前置：learned policy 验收需要 matching-workload 的 admission delay、slot utilization、queue pressure 和 tail 证据，而不能从 decision 次数或单个 last-settled Task 推断瓶颈。该后继仍不建立 custom callback timing、policy 原因或自动调优。
+[`extend-scheduler-pressure-and-tail-diagnostics`](../changes/archive/extend-scheduler-pressure-and-tail-diagnostics/proposal.md) 已完成并归档：它在 private summary 中补齐 admission-viable queue pressure、admission-delay 事实分解、last-admission tail contributors 与 declarative workload signal。当前字段与解释由 stable owner、active Decision 和源码拥有，archive 只保留形成时 Plan。
+
+[`add-scheduler-measurement-hooks`](../changes/add-scheduler-measurement-hooks/proposal.md) 将同一 invocation 的 Scheduler-owned 一阶测量以有界 terminal context 交给 caller Hook，并把既有人读 summary 保留为内置二级副作用。它不建立 history、learned scheduling、policy reason 或自动调参；Hook failure 也不改变已形成的 primary Run failure。该 Change 与 learned-duration Change 共享 Scheduler/Run owner，推荐先收口 measurement Hook 的事实和 output-failure 边界，再开始下游方案；该顺序是共享 owner 的协调顺序，不把 Hook context 解释为跨 invocation history 或 learned-policy 的语义前置。
 
 因此推荐剩余 active Change 合入顺序为：
 
 ```text
-extend-scheduler-pressure-and-tail-diagnostics
+add-scheduler-measurement-hooks
   -> schedule-checks-from-learned-durations
 ```
 
-这两项与已归档基础共同涉及 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 和公共说明；remaining active Change 不得在多个 worktree 中同时实施。Readiness 调查可以并行，但不得各自复制候选规则、图状态或时间 owner。
+这两项与已归档基础共同涉及 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 和公共说明；同一 Scheduler 主线的 active Change 不得在多个 worktree 中同时实施。Readiness 调查可以并行，但不得各自复制候选规则、图状态或时间 owner。
 
 ### Scheduler 条件分支
 

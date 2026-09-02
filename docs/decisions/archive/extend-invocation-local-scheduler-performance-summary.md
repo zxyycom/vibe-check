@@ -1,6 +1,6 @@
 ---
 title: 扩展 invocation-local Scheduler 压力与尾段诊断
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T00:07:04Z
 purpose: 让 Scheduler 人读汇总解释可准入队列压力与完成尾段，并以现有声明指纹支持同配置比较。

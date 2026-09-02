@@ -82,7 +82,8 @@ export type RunResult = Readonly<
         readonly code:
           | "machine-publication-failed"
           | "progress-rendering-failed"
-          | "diagnostic-logging-failed";
+          | "diagnostic-logging-failed"
+          | "scheduler-measurement-hooks-failed";
       }>;
       readonly outputs: RunOutputStatuses;
     } & RunResultFacts)
@@ -119,6 +120,8 @@ function outputDiagnosticCode(
       return "progress-rendering-failed";
     case "diagnosticLogging":
       return "diagnostic-logging-failed";
+    case "measurementHooks":
+      return "scheduler-measurement-hooks-failed";
   }
 }
 

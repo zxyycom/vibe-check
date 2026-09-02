@@ -6,7 +6,8 @@ import type {
 } from "../../check/check.ts";
 import type {
   AdmissionPolicy,
-  NormalizedCheck
+  NormalizedCheck,
+  SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
 import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
 import {
@@ -43,7 +44,9 @@ import {
 } from "./preflight.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
-const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({ now: () => performance.now() });
+const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
+  now: () => performance.now()
+});
 
 /** Private Run handoff for Check lifecycle presentation and accounting. */
 export type CheckExecutionLifecycle = Readonly<{
@@ -54,7 +57,10 @@ export type CheckExecutionLifecycle = Readonly<{
 /** Package-private monotonic clock seam for execution accounting. */
 export type CheckExecutionClock = Readonly<{ now(): number }>;
 
-export type CheckStartedFact = Readonly<{ checkId: string; displayName: string }>;
+export type CheckStartedFact = Readonly<{
+  checkId: string;
+  displayName: string;
+}>;
 
 export type CheckSettledFact = CheckStartedFact &
   Readonly<{
@@ -96,6 +102,9 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly diagnosticLogger?: DiagnosticLogger;
   /** Explicit enabled-only diagnostics handoff from the invocation output owner. */
   readonly schedulerPerformanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
+  readonly schedulerMeasurementHooks?: readonly SchedulerMeasurementHook[];
+  readonly onSchedulerMeasurementHookFailure?: () => void;
+  readonly onSchedulerMeasurementHooksSettled?: () => void;
   readonly lifecycle?: CheckExecutionLifecycle;
 }>;
 
@@ -132,6 +141,9 @@ async function executePreparedResolvedChecks(
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
       performanceDiagnostics: input.schedulerPerformanceDiagnostics,
+      measurementHooks: input.schedulerMeasurementHooks,
+      onMeasurementHookFailure: input.onSchedulerMeasurementHookFailure,
+      onMeasurementHooksSettled: input.onSchedulerMeasurementHooksSettled,
       signal: input.signal,
       isPrerequisiteSatisfied: (satisfied) => satisfied,
       onTaskBlocked: (task, dependencyIds) => {

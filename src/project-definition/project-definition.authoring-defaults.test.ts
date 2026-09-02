@@ -22,6 +22,7 @@ describe("Project Definition", () => {
     assert.equal(definition.apiVersion, "1");
     assert.equal(definition.scheduler.maxParallel, 4);
     assert.deepEqual(definition.scheduler.admissionPolicy, { kind: "static" });
+    assert.deepEqual(definition.scheduler.measurementHooks, []);
     assert.deepEqual(
       normalizeProjectDefinition(defineConfig({})).declarative.scheduler,
       normalizeProjectDefinition(
@@ -38,11 +39,16 @@ describe("Project Definition", () => {
           : { kind: "select" as const, taskId: candidate.taskId };
       }
     });
-    const customDefinition = defineConfig({ scheduler: { admissionPolicy: policy } });
+    const customDefinition = defineConfig({
+      scheduler: { admissionPolicy: policy }
+    });
     assert.equal(customDefinition.scheduler.admissionPolicy, policy);
     assert.equal(validateProjectDefinition(customDefinition).ok, true);
     assert.equal(
-      validateProjectDefinition({ ...definition, scheduler: { maxParallel: 1 } }).ok,
+      validateProjectDefinition({
+        ...definition,
+        scheduler: { maxParallel: 1 }
+      }).ok,
       true
     );
     const normalizedCustomDefinition = normalizeProjectDefinition(customDefinition);
@@ -56,9 +62,17 @@ describe("Project Definition", () => {
     for (const scheduler of [
       { admissionPolicy: { kind: "static", extra: true }, maxParallel: 1 },
       { admissionPolicy: { kind: "custom" }, maxParallel: 1 },
-      { admissionPolicy: { kind: "custom", proposeAdmission: 1 }, maxParallel: 1 },
+      {
+        admissionPolicy: { kind: "custom", proposeAdmission: 1 },
+        maxParallel: 1
+      },
       { admissionPolicy: { kind: "unknown" }, maxParallel: 1 },
       { admissionPolicy: undefined, maxParallel: 1 },
+      {
+        admissionPolicy: { kind: "static" },
+        maxParallel: 1,
+        measurementHooks: ["invalid"]
+      },
       { admissionPolicy: { kind: "static" }, maxParallel: 1, unexpected: true }
     ]) {
       assert.equal(validateProjectDefinition({ ...definition, scheduler }).ok, false);

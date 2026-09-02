@@ -28,26 +28,27 @@ import {
   functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
-  markdownLinkValidation
+  markdownLinkValidation,
 } from "@zxyycom/vibe-check";
 
 const licenses = defineCheck({
   checkId: "licenses",
   displayName: "Dependency licenses",
   async execution({ records, signal }) {
-    if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
+    if (signal.aborted)
+      return { status: "unavailable", reason: { code: "cancelled" } };
 
     const disallowed = await inspectDependencyLicenses();
     for (const dependency of disallowed) {
       records.report(
         { id: `dependency:${dependency.name}` },
-        { license: dependency.license, name: dependency.name }
+        { license: dependency.license, name: dependency.name },
       );
     }
     return disallowed.length === 0
       ? { status: "passed", data: { disallowedCount: 0 } }
       : { status: "failed", data: { disallowedCount: disallowed.length } };
-  }
+  },
 });
 
 export default defineConfig({
@@ -63,11 +64,11 @@ export default defineConfig({
         jsonValidation(),
         jsonSchemaValidation(),
         markdownLinkValidation(),
-        licenses
-      ]
-    }
+        licenses,
+      ],
+    },
   ],
-  scheduler: { maxParallel: 4 }
+  scheduler: { maxParallel: 4 },
 });
 ```
 
@@ -78,6 +79,18 @@ export default defineConfig({
 TypeScript inference，与同形 inline object 没有额外运行语义。custom policy 的
 `proposeAdmission(context)` 必须同步返回精确的 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`；异步
 Promise/thenable、reason、reservation、identity/version 或 composition fields 都不属于该 grammar。
+
+`scheduler.measurementHooks` 是可选的 readonly function array；省略时规范化为冻结空数组。validation 只接受
+exact function entries，normalization 复制并冻结列表。每个 callback 接收同一个递归冻结的
+`SchedulerMeasurementContext`，可同步返回或返回 `Promise<void>`。该 context 只交付 canonical graph、
+admitted/settled kind observation 与 Scheduler-owned raw measurement；它不交付 Task value/error/callback、clock、
+mutable Scheduler 或完整 interval history。
+
+这是一项 Definition-owned runtime callback，而不是可由 `RunControls.outputs` 配置、覆盖或注入的 output。Hook
+function 的 identity、source 与 closure 不进入 declarative snapshot/fingerprint；只有非空 configured list 才启用
+`outputs.measurementHooks`。终态调用顺序、context 形成、status 与主 Run failure 的优先级由
+[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)
+完整拥有。
 
 `AdmissionPolicyContext` 是每轮新建的 detached、deep-frozen ordinary data snapshot。它完整交接 canonical
 static graph 的 tasks、scopes 及每个 Task 的 relation arrays，且 topology 与 `admissionPriority` 只在 `graph.tasks` 的 Task metadata 中出现；动态
@@ -217,13 +230,13 @@ const inheritedScheduling = {
 const exactScheduling = {
   dependsOn: ["compile"], // Replace the inherited dependencies.
   observes: ["publish-summary"], // Replace the inherited terminal observations.
-  mutex: [] // Deliberately clear inherited mutexes.
+  mutex: [], // Deliberately clear inherited mutexes.
 };
 
 const editedScheduling = {
   dependsOn: inherit({ add: ["test"], remove: ["lint"] }),
   observes: inherit({ add: ["report"] }),
-  mutex: inherit({ add: ["network"] })
+  mutex: inherit({ add: ["network"] }),
 };
 ```
 
@@ -294,11 +307,11 @@ messages、output failure priority 和 readback 见[深入 API 机制的 outputs
 
 Definition 为三项相互独立的 Run output 建立以下 defaults；RunControls 只覆盖当前调用明确提供的字段：
 
-| Output | Definition default | 配置责任 |
-| --- | --- | --- |
-| machine publication | `{ enabled: true, directory: "artifacts/vibe-check" }` | 发布完整 machine artifact set；字节契约见 [Output](output.md)。 |
-| progress rendering | `{ enabled: true }` | 呈现 invocation 与 Check lifecycle；终端和 console capture 边界见 [API mechanisms](api-mechanics.md#check-输出与受管-progress)。 |
-| diagnostic logging | `{ enabled: false, directory: ".log/vibe-check" }` | 记录 Product core 时间线；格式与失败边界见 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)。 |
+| Output              | Definition default                                     | 配置责任                                                                                                                         |
+| ------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| machine publication | `{ enabled: true, directory: "artifacts/vibe-check" }` | 发布完整 machine artifact set；字节契约见 [Output](output.md)。                                                                  |
+| progress rendering  | `{ enabled: true }`                                    | 呈现 invocation 与 Check lifecycle；终端和 console capture 边界见 [API mechanisms](api-mechanics.md#check-输出与受管-progress)。 |
+| diagnostic logging  | `{ enabled: false, directory: ".log/vibe-check" }`     | 记录 Product core 时间线；格式与失败边界见 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)。                        |
 
 machine publication 与 diagnostic logging 的 `directory` 共用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。
 相对值从 effective `projectRoot` 解析，`..` 保持合法；绝对值直接作为明确 target。Definition 与 RunControls 对两项 output 使用相同 grammar，且两项仍独立配置、独立 status/failure，也可以显式填写同一目录。grammar 不 trim author text、不建立跨平台字符禁用表，也不提供 lexical/realpath/symlink containment、directory allowlist、清空或 filesystem sandbox。Definition 中的 author directory string 仍进入 declarative fingerprint；因此可移植、可重复的 Definition 应优先使用相对目录，而 invocation-specific 外部 target 通常放在 RunControls。

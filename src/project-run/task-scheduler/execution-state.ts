@@ -7,6 +7,7 @@ import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
+import type { SchedulerMeasurementHook } from "../../project-definition/project-definition.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
@@ -38,6 +39,10 @@ export interface RunTaskGraphOptions<TResult> {
   readonly diagnosticLogger?: DiagnosticLogger;
   /** Explicit enabled-only handoff; no Scheduler behavior is inferred from a logger shape. */
   readonly performanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
+  /** Runtime-only terminal consumers; their context is formed after Scheduler drain. */
+  readonly measurementHooks?: readonly SchedulerMeasurementHook[];
+  readonly onMeasurementHookFailure?: () => void;
+  readonly onMeasurementHooksSettled?: () => void;
   readonly graph: TaskGraph;
   readonly maxParallel: number;
   readonly signal?: AbortSignal;

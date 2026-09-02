@@ -124,3 +124,153 @@ describe("Package Run diagnostic logging output", () => {
     );
   });
 });
+
+describe("Scheduler measurement Hook output", () => {
+  it("keeps settled facts while making Hook failures visible", async () => {
+    const calls: string[] = [];
+    const result = await executeValidatedRun(
+      defineConfig({
+        checks: [],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          measurementHooks: [
+            () => {
+              calls.push("failed");
+              throw new Error("measurement failure");
+            },
+            () => calls.push("settled")
+          ]
+        }
+      }),
+      {},
+      []
+    );
+
+    assert.deepEqual(calls, ["failed", "settled"]);
+    assert.equal(result.kind, "output");
+    if (result.kind !== "output") return;
+    assert.deepEqual(result.diagnostic, {
+      code: "scheduler-measurement-hooks-failed"
+    });
+    assert.equal(result.outputs.measurementHooks.status, "failed");
+    assert.deepEqual(result.snapshot.checks, []);
+  });
+});
+
+describe("Scheduler measurement Hook output", () => {
+  it("marks all successfully settled configured Hooks as succeeded", async () => {
+    let calls = 0;
+    const result = await executeValidatedRun(
+      defineConfig({
+        checks: [],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          measurementHooks: [
+            () => {
+              calls += 1;
+            }
+          ]
+        }
+      }),
+      {},
+      []
+    );
+
+    assert.equal(calls, 1);
+    assert.equal(result.kind, "completed");
+    assert.deepEqual(result.outputs.measurementHooks, {
+      enabled: true,
+      status: "succeeded"
+    });
+  });
+
+  it("preserves execution cancellation when a measurement Hook fails after drain", async () => {
+    const controller = new AbortController();
+    let entered: (() => void) | undefined;
+    const executionEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const cancelled = executeValidatedRun(
+      defineConfig({
+        checks: [
+          {
+            checkId: "waiting",
+            displayName: "Waiting",
+            execution: async ({ signal }) => {
+              entered?.();
+              await new Promise<void>((resolve) =>
+                signal.addEventListener("abort", () => resolve(), {
+                  once: true
+                })
+              );
+              return { data: {}, status: "passed" };
+            }
+          }
+        ],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          measurementHooks: [() => Promise.reject(new Error("measurement failure"))]
+        }
+      }),
+      { signal: controller.signal },
+      []
+    );
+
+    await executionEntered;
+    controller.abort();
+    const result = await cancelled;
+
+    assert.equal(result.kind, "cancelled");
+    if (result.kind !== "cancelled") return;
+    assert.equal(result.phase, "execution");
+    assert.equal(result.outputs.measurementHooks.status, "failed");
+    assert.equal("diagnostic" in result, false);
+  });
+
+  it("preserves an admission-policy failure when a measurement Hook fails after drain", async () => {
+    const result = await executeValidatedRun(
+      defineConfig({
+        checks: [
+          {
+            checkId: "never-started",
+            displayName: "Never started",
+            execution: () => ({ data: {}, status: "passed" })
+          }
+        ],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: {
+          admissionPolicy: {
+            kind: "custom",
+            proposeAdmission: () => {
+              throw new Error("policy failure");
+            }
+          },
+          measurementHooks: [() => Promise.reject(new Error("measurement failure"))]
+        }
+      }),
+      {},
+      []
+    );
+
+    assert.equal(result.kind, "execution");
+    if (result.kind !== "execution") return;
+    assert.deepEqual(result.diagnostic, { code: "admission-policy-failed" });
+    assert.equal(result.outputs.measurementHooks.status, "failed");
+  });
+});
