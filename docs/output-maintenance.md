@@ -36,9 +36,9 @@ snapshot，完整集合 fingerprint 与 handled-failure cleanup 承接 fail-clos
 Product progress 从 producing Run 的 lifecycle facts 呈现 status、duration、受控 reason code 和受管 messages，不从
 machine artifacts 恢复状态。普通 visible settled block 先输出 row，再按 preflight console、preflight author、execution
 console、terminal author order 输出 message lines；message code 保留在 `RunResult.checkMessages`，不重复到终端。
-`attention` 只省略 passed 且无 messages 的 settled row。flag 条件未匹配的 preparation settlements 是独立例外：renderer
-缓存其 `displayName`；resolved Check lifecycle 调用必需的 `preparationCompleted` 后，presentation 将它映射为
-`"preparation-completed"` feedback，renderer 再写一个原因说明块和名称列表。精确分组条件、
+`attention` 只省略 passed 且无 messages 的 settled row。flag 条件未匹配的 invocation-control settlements 是独立例外：renderer
+缓存其 `displayName`；resolved Check lifecycle 调用必需的 `flagControlCompleted` 后，presentation 将它映射为
+`"flag-control-completed"` feedback，renderer 再写一个原因说明块和名称列表。精确分组条件、
 其它未启动状态的逐项呈现和完整 facts 边界由[深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)拥有；所有 outcomes
 仍计入 canonical ordinal 和最终计数。
 

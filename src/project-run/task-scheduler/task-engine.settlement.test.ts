@@ -86,7 +86,7 @@ describe("static task engine", () => {
     assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
   });
 
-  it("starts from Product-owned terminal results without admitting those Tasks", async () => {
+  it("accepts Product-owned pre-admission results without admitting those Tasks", async () => {
     const calls: string[] = [];
     const run = await runTaskGraph<boolean>({
       graph: {
@@ -96,7 +96,7 @@ describe("static task engine", () => {
           { id: "observer", observes: ["source"] }
         ]
       },
-      initialTaskResults: [{ taskId: "source", value: false }],
+      preAdmissionTaskResults: [{ taskId: "source", value: false }],
       maxParallel: 1,
       isPrerequisiteSatisfied: (value) => value,
       execute: (task) => {

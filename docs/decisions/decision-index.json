@@ -77,7 +77,7 @@
       "expose-stateless-custom-admission-policy-to-callers.md": "sha256:6e63362aa8485a0edd4500c9e3d616c1d4c6c71ee17551251ec4f6d495e49307",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
-      "group-flag-disabled-checks-in-progress.md": "sha256:5646b0f05f279dbd44f768532af95e685af23457bccf5851d6c97137d6f075e6",
+      "group-flag-disabled-checks-in-progress.md": "sha256:dbd74b6a814ab87e204de01e948970a5284a6021e44cf35ee95f5f7dd967f458",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
@@ -196,7 +196,7 @@
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
-      "treat-flag-control-settlements-as-scheduler-results.md": "sha256:13450bb383c00b1ece655416446f663fc615402b6237e9be40932d708c462324",
+      "treat-flag-control-settlements-as-scheduler-results.md": "sha256:82c224445e6f3669831841c61391a70ff407cab3caa3b57b6c6c61c969e1a920",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
@@ -2554,7 +2554,7 @@
         "createdAt": "2026-09-01T15:57:07Z",
         "purpose": "保留终态消息和 visibility 的同时，集中呈现因 flag 条件未匹配而未启动的 Checks。",
         "background": "逐项输出相同的未运行状态会放大可预期控制结果，并掩盖真正执行或需要关注的 Check。",
-        "decision": "终态消息和 attention visibility 保持独立；progress 在 preparation 结束时按名称分组明确的 flag 条件未匹配结果。",
+        "decision": "终态消息和 attention visibility 保持独立；progress 在 invocation flag control 完成时按名称分组明确的 flag 条件未匹配结果。",
         "tags": [
           "configuration",
           "product-contract"
@@ -6332,13 +6332,13 @@
       },
       "state": {
         "sourcePath": "treat-flag-control-settlements-as-scheduler-results.md",
-        "title": "将 flag control 终态作为 Scheduler 初始结果",
+        "title": "将 flag control 终态作为 Scheduler 准入前结果",
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-09-02T03:33:46Z",
         "purpose": "保留统一 flag 判定的同时，让未启用 Check 遵守 passed prerequisite 与 terminal observation 语义。",
         "background": "多 flag 决策形成时所有已结算上游都会放行 dependent；dependsOn 后来收敛为必须 passed，旧的放行结论已与当前图契约冲突。",
-        "decision": "flag 条件未匹配继续在 author work 前结算，并作为同一张 Scheduler 图的初始非通过结果阻断 dependsOn、放行 observes。",
+        "decision": "flag 条件未匹配继续在 author work 前结算，并作为同一张 Scheduler 图的准入前非通过结果阻断 dependsOn、放行 observes。",
         "tags": [
           "configuration",
           "dependency-policy",

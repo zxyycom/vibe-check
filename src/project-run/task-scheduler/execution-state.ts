@@ -26,7 +26,7 @@ export interface TaskExecutionContext {
   readonly signal: AbortSignal | undefined;
 }
 
-export interface InitialTaskResult<TResult> {
+export interface PreAdmissionTaskResult<TResult> {
   readonly taskId: string;
   readonly value: TResult;
 }
@@ -49,8 +49,8 @@ export interface RunTaskGraphOptions<TResult> {
   readonly onMeasurementHookFailure?: () => void;
   readonly onMeasurementHooksSettled?: () => void;
   readonly graph: TaskGraph;
-  /** Product-private terminal results formed before Scheduler admission begins. */
-  readonly initialTaskResults?: readonly InitialTaskResult<TResult>[];
+  /** Product-private Task results formed without Scheduler admission in the current Run. */
+  readonly preAdmissionTaskResults?: readonly PreAdmissionTaskResult<TResult>[];
   readonly maxParallel: number;
   readonly signal?: AbortSignal;
   readonly execute: (
@@ -130,29 +130,29 @@ export function createSchedulerState<TResult>(
     isCancelled: false,
     admissionPolicyFault: undefined
   };
-  recordInitialTaskResults(state, options.initialTaskResults ?? []);
+  recordPreAdmissionTaskResults(state, options.preAdmissionTaskResults ?? []);
   return state;
 }
 
-function recordInitialTaskResults<TResult>(
+function recordPreAdmissionTaskResults<TResult>(
   state: SchedulerState<TResult>,
-  initialTaskResults: readonly InitialTaskResult<TResult>[]
+  preAdmissionTaskResults: readonly PreAdmissionTaskResult<TResult>[]
 ): void {
-  for (const initial of initialTaskResults) {
-    const pendingIndex = state.pending.findIndex((task) => task.id === initial.taskId);
+  for (const result of preAdmissionTaskResults) {
+    const pendingIndex = state.pending.findIndex((task) => task.id === result.taskId);
     if (pendingIndex < 0) {
       throw new TypeError(
-        `initial task result references unknown or duplicate task ${initial.taskId}`
+        `pre-admission task result references unknown or duplicate task ${result.taskId}`
       );
     }
     const [task] = state.pending.splice(pendingIndex, 1);
     if (task === undefined) {
-      throw new Error(`initial task ${initial.taskId} disappeared before settlement`);
+      throw new Error(`pre-admission task ${result.taskId} disappeared before settlement`);
     }
     const settlement: TaskSettlement<TResult> =
-      state.isPrerequisiteSatisfied?.(initial.value) === false
-        ? { kind: "prerequisite-unsatisfied", value: initial.value }
-        : { kind: "completed", value: initial.value };
+      state.isPrerequisiteSatisfied?.(result.value) === false
+        ? { kind: "prerequisite-unsatisfied", value: result.value }
+        : { kind: "completed", value: result.value };
     recordSettlement(state, task, Object.freeze(settlement));
   }
 }

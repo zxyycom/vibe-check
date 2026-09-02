@@ -1,4 +1,4 @@
-import type { CheckProjectContext } from "../../check/check.ts";
+import type { CheckMessage, CheckProjectContext } from "../../check/check.ts";
 import type {
   AdmissionPolicy,
   NormalizedCheck,
@@ -33,7 +33,7 @@ import {
 } from "./execution-finalization.ts";
 import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import { planStaticCheckGraph } from "./plan.ts";
-import { prepareCheckControls } from "./preparation-barrier.ts";
+import { resolveFlagControlSettlements, type FlagControlSettlement } from "./flag-controls.ts";
 import {
   prepareCheck,
   type CheckPreflightResolution,
@@ -41,6 +41,7 @@ import {
 } from "./preflight.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
+const NO_CHECK_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
   now: () => performance.now()
 });
@@ -105,16 +106,16 @@ async function executePreparedResolvedChecks(
     diagnosticLogger: input.diagnosticLogger,
     lifecycle: input.lifecycle
   });
-  const controlSettlements = prepareCheckControls({
+  const flagControlSettlements = resolveFlagControlSettlements({
     checks: input.checks,
     diagnosticLogger: input.diagnosticLogger,
     flags: input.project.flags,
     signal: input.signal
   });
-  for (const settlement of controlSettlements) {
-    settleControlOutcome(state, settlement);
+  for (const settlement of flagControlSettlements) {
+    settleFlagControlOutcome(state, settlement);
   }
-  input.lifecycle?.preparationCompleted();
+  input.lifecycle?.flagControlCompleted();
   const checksByCheckId = new Map(
     input.checks.map((check) => [check.definition.checkId, check] as const)
   );
@@ -132,8 +133,10 @@ async function executePreparedResolvedChecks(
       measurementHooks: input.schedulerMeasurementHooks,
       onMeasurementHookFailure: input.onSchedulerMeasurementHookFailure,
       onMeasurementHooksSettled: input.onSchedulerMeasurementHooksSettled,
-      initialTaskResults: controlSettlements.map((settlement) =>
-        Object.freeze({ taskId: settlement.check.definition.checkId, value: false })
+      preAdmissionTaskResults: Object.freeze(
+        flagControlSettlements.map((settlement) =>
+          Object.freeze({ taskId: settlement.check.definition.checkId, value: false })
+        )
       ),
       signal: input.signal,
       isPrerequisiteSatisfied: (satisfied) => satisfied,
@@ -186,16 +189,16 @@ function createExecutionState(
   };
 }
 
-function settleControlOutcome(
+function settleFlagControlOutcome(
   state: CheckExecutionState,
-  settlement: ReturnType<typeof prepareCheckControls>[number]
+  settlement: FlagControlSettlement
 ): void {
   const scope = state.session.openCheckScope(settlement.check.definition.checkId);
   const outcome = scope.settleProduct(settlement.outcome);
   recordSettledCheck({
     check: checkIdentity(settlement.check),
     durationMs: null,
-    messages: settlement.check.messages,
+    messages: NO_CHECK_MESSAGES,
     outcome,
     phase: "control",
     state

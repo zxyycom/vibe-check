@@ -109,13 +109,15 @@ Definition 会复制、去重、按文本排序并冻结这组 token。`mode` �
 该字段只属于 executable Check，并作为 canonical declarative identity 进入 Definition fingerprint。container
 不接受该字段，也不向 children 继承它。空 flags 集合没有有效的控制含义，因此属于 malformed Definition。
 
-**执行顺序。** Run 在任何 preparation settlement 前验证包含全部 executable Checks 的完整静态 graph。随后，
-每个 Check 的 preparation 依次检查 invocation cancellation、`enabledByFlags` 和 Check-owned preflight。字段省略或
-flag 条件匹配时，Check 继续普通 preflight 与 execution；条件不匹配时，Product 在任何 owning preflight、execution、
-scanner 或其它 Check-local work 前把它结算为
+**执行顺序。** Run 在任何 control settlement 或 author work 前验证包含全部 executable Checks 的完整静态 graph。
+如果 invocation signal 此时已经取消，Scheduler 直接关闭 pending Tasks，不再把它们结算为 flag 未命中；否则 Run
+按 Definition 顺序一次完成所有 `enabledByFlags` 判断。字段省略或条件匹配的 Check 继续留在 Scheduler pending 集合，
+只有获得 admission 后才执行自己的 task-local preflight 和 execution；条件不匹配时，Product 在这些 Check-local work 前把它结算为
 `{ status: "not-applicable", reason: { code: "flag-condition-not-matched" } }`。该 Check 没有 started fact，
-duration 为 `null`，但仍保留在 Check facts、dependency readback 与显式 aggregation 中；已声明 dependent 在这个
-终态后仍会正常 admission。默认 progress 在 preparation barrier 结束时用一个原因说明和 `displayName` 列表呈现全部这类
+duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一张 Scheduler graph、Check facts、dependency readback
+与显式 aggregation 中。以它为 `dependsOn` 的 Check 在自己的 preflight 前结算为 `unavailable / dependency-not-passed`；
+以它为 `observes` 的 Check 仍可 admission 并读取该 `not-applicable` outcome。默认 progress 在 invocation flag control 完成时
+用一个原因说明和 `displayName` 列表呈现全部这类
 未启动 Checks，不为每项重复完整 settled row；其它未启动或非成功结果不进入该分组。完整人读输出边界见
 [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)。
 
@@ -146,7 +148,7 @@ function 的 identity、source 与 closure 不进入 declarative snapshot/finger
 
 ### Check options preflight
 
-executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function。Run 先完成 invocation cancellation 与 `enabledByFlags` control barrier；未结算的 Check 在 Scheduler admission 后、该 Check 的 author execution 前运行 task-local preflight。它受 direct relation、mutex、capacity、priority 与 cancellation 约束，不形成按 Definition 顺序的全局 preflight barrier。
+executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function。Run 先处理 invocation cancellation precedence 并完成 `enabledByFlags` control；未结算的 Check 在 Scheduler admission 后、该 Check 的 author execution 前运行 task-local preflight。它受 direct relation、mutex、capacity、priority 与 cancellation 约束，不形成按 Definition 顺序的全局 preflight barrier。
 
 preflight 只能返回以下 closed result 之一：
 
@@ -319,7 +321,7 @@ scanner executable、command marker 和 adapter protocol 由 owning Check 及
 commands、注册 dependencies 或选择另一份 Definition。
 
 `flags` 是可省略的 dense string-token array。省略、显式 `undefined` 和 `[]` 都形成冻结空数组；合法 token
-必须是非空字符串，并在进入 Check preparation 前复制、去重和按文本排序。非数组、sparse hole、空 token 或非字符串形成
+必须是非空字符串，并在进入 invocation flag control 前复制、去重和按文本排序。非数组、sparse hole、空 token 或非字符串形成
 `invalid-run-controls`。Product 只用 token presence 解释 executable Check 显式声明的 `enabledByFlags` 四种 predicate，并继续把完整集合交给 callback-local project context；它不定义 token vocabulary、value payload 或其它 Check 领域语义。
 
 `checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：

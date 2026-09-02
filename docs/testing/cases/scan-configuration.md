@@ -128,8 +128,8 @@ Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
-- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
+- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
 - `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to admitted preflights and closes cancelled Check Tasks`
 - `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`

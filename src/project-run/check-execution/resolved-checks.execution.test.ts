@@ -19,7 +19,7 @@ describe("Package Run direct Check execution", () => {
     const started: unknown[] = [];
     const settled: unknown[] = [];
     const lifecycle: CheckExecutionLifecycle = Object.freeze({
-      preparationCompleted: () => undefined,
+      flagControlCompleted: () => undefined,
       started: (fact: CheckStartedFact): void => {
         started.push(fact);
       },
@@ -82,7 +82,7 @@ describe("Package Run direct Check execution", () => {
       ],
       clock: scriptedClock([10, 20, 30, 40]),
       lifecycle: Object.freeze({
-        preparationCompleted: () => undefined,
+        flagControlCompleted: () => undefined,
         started: (fact: CheckStartedFact): void => {
           events.push(`started:${fact.checkId}`);
         },

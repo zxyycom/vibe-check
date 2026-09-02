@@ -1,5 +1,5 @@
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
-import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/preparation-settlement.ts";
+import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/flag-controls.ts";
 import type { ProgressFeedback, ProgressOutcomeCounts } from "./renderer.ts";
 
 const COLOR = Object.freeze({

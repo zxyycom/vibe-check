@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
-import type { Check, CheckFlagEnablementMode } from "../../check/check.ts";
+import type { Check, CheckFlagEnablementMode, CheckOutcome } from "../../check/check.ts";
 import { run } from "../run.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
@@ -34,6 +34,8 @@ async function assertFlagEnablementMode(
   let preflightCalls = 0;
   let controlledCalls = 0;
   let dependentCalls = 0;
+  let observerCalls = 0;
+  const observedStatuses: CheckOutcome["status"][] = [];
   const observedFlags: (readonly string[])[] = [];
   const source = definition([
     {
@@ -58,6 +60,18 @@ async function assertFlagEnablementMode(
         dependentCalls += 1;
         return PASSED;
       }
+    },
+    {
+      checkId: "observer",
+      displayName: "Observer",
+      observes: ["flag-controlled"],
+      execution: ({ dependencies }) => {
+        observerCalls += 1;
+        const [observation] = dependencies.list();
+        assert(observation !== undefined);
+        observedStatuses.push(observation.outcome.status);
+        return PASSED;
+      }
     }
   ]);
 
@@ -66,6 +80,8 @@ async function assertFlagEnablementMode(
   assert.equal(preflightCalls, 1);
   assert.equal(controlledCalls, 1);
   assert.equal(dependentCalls, 1);
+  assert.equal(observerCalls, 2);
+  assert.deepEqual(observedStatuses, ["passed", "not-applicable"]);
   assert.deepEqual(observedFlags, [Object.freeze([...new Set(input.matchingFlags)].sort())]);
   assert.deepEqual(
     enabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,

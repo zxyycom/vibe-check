@@ -2,8 +2,8 @@ import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/ch
 
 /** Private Run handoff for Check lifecycle presentation and accounting. */
 export type CheckExecutionLifecycle = Readonly<{
-  /** Fires after all control/preflight settlements and before any Check starts. */
-  readonly preparationCompleted: () => void;
+  /** Fires after the invocation-wide flag-control phase and before Scheduler execution starts. */
+  readonly flagControlCompleted: () => void;
   readonly started: (fact: CheckStartedFact) => void;
   readonly settled: (fact: CheckSettledFact) => void;
 }>;

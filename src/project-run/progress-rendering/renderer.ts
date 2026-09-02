@@ -14,7 +14,7 @@ export type ProgressFeedback = Readonly<
       readonly totalChecks: number;
     }
   | {
-      readonly kind: "preparation-completed";
+      readonly kind: "flag-control-completed";
     }
   | {
       readonly kind: "started";

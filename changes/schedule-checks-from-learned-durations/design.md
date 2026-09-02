@@ -4,7 +4,7 @@
 
 ## Context
 
-Project Run当前在每个实际执行Check callback前后使用invocation-private monotonic clock，并在settlement后形成`RunResult.checkDurations`。该duration不包含graph-ready后的排队时间，但包含callback、Record validation和terminal settlement前的active execution，适合作为Task占用Product槽位的历史观测。
+Project Run当前在每个实际执行Check callback前后使用invocation-private monotonic clock，并在settlement后形成`RunResult.checkDurations`。该公开 duration 包含 callback、Record validation 和 terminal settlement，但不包含合并后已经进入 admitted Task lifecycle 的 task-local preflight，因此不能代表完整槽位占用。既有 Scheduler terminal raw measurement 在 timing available 时为每个 admitted Task 提供 `admittedAtMonotonicMs` 与 `settledAtMonotonicMs`；两者差值才是本 Change 的 Task active-duration 样本。
 
 当前static `admissionPriority`是Definition-owned signed integer，按nearest-explicit inheritance进入fingerprint和Task metadata。它在无状态 static tightening/constrained/ordinary 算法的同轮比较中排序。本仓重复A/B evidence显示，手工把一个长Check提前并未稳定改善full wall time；自动策略需要估计完整downstream chain，而不是把“单项更长”直接等同于“先运行更优”。
 
@@ -18,7 +18,8 @@ explicit Definition setting + effective project root
   -> load and validate bounded duration history
   -> build immutable prediction snapshot
   -> pure admission-selection policy
-  -> task-local preflight, execute and settle Checks with real active duration
+  -> Scheduler admission + task-local preflight, execution and settlement
+  -> derive valid admitted-to-settled Task intervals from terminal raw measurement
   -> update bounded history after Scheduler closure
 ```
 
@@ -27,7 +28,7 @@ explicit Definition setting + effective project root
 **Goals**
 
 - 一次项目级设置自动覆盖所有实际执行Check，不要求逐项手工估时。
-- 从真实active duration形成可解释、可衰减到新数据的跨运行estimate。
+- 从真实 admitted-to-settled Task duration 形成可解释、可衰减到新数据的跨运行estimate。
 - 用estimated downstream critical path改善长尾，同时保持所有硬约束与有限进展。
 - 让相同graph和prediction snapshot产生确定选择，并能从diagnostic恢复estimate来源。
 - 让历史损坏或I/O失败只损失优化，不损失质量事实和执行正确性。
@@ -64,7 +65,7 @@ state path进入closed Definition与declarative fingerprint。Product只拥有�
 
 #### 2. Per-Check override是例外，不是主路径
 
-executable Check可以声明`expectedDurationMs?: number`。字段必须是positive safe integer，不继承，container声明视为invalid；省略表示使用learned或prior estimate。它进入normalized declaration和fingerprint，但不进入Check options、execution context、Check/Record facts或machine publication。
+executable Check可以声明`expectedDurationMs?: number`。字段必须是positive safe integer，不继承，container声明视为invalid；其单位是该 Check Task 从 Scheduler admission 到 settlement 的毫秒数，省略表示使用learned或prior estimate。它进入normalized declaration和fingerprint，但不进入Check options、execution context、Check/Record facts或machine publication。
 
 在learned mode中，override是该Task duration estimate的最高来源。现有`admissionPriority`不再作为独立于预测的首要层级：只有critical-path score及既有cap tie-break相同时才按priority降序。需要纠正已知时长时使用带单位的override，不能靠扩大priority长期压制model。
 
@@ -81,13 +82,13 @@ Scheduler history schema拥有独立model version。每项normalized executable 
 
 task-local preflight function identity、prepared options、任意外部文件和toolchain不能在admission前由Product可靠序列化或发现，不进入默认identity。若这些因素改变时长，rolling samples会逐步适应；存在稳定分桶需求后再评审显式identity hook，本Change不预置任意key callback，也不为取得prepared options恢复全局preflight barrier。
 
-history只保存digest、bounded numeric samples、对应outcome分类和内部observation sequence；不保存raw authored/prepared options、flags、messages、Records或callback output。digest是本地identity，不宣称保密或content correctness。
+history只保存digest、bounded numeric samples、对应Scheduler settlement kind和内部observation sequence；不保存raw authored/prepared options、flags、messages、Records或callback output。digest是本地identity，不宣称保密或content correctness。
 
-#### 4. 所有实际started duration都是事实样本
+#### 4. 所有有效 admitted-to-settled interval 都是事实样本
 
-Check execution measurement需要同时保留“用于现有public duration projection的数值”和“该monotonic interval是否可作为history sample”的内部事实。只有started、clock samples有限且未倒退的active interval进入history；现有public duration若为兼容而把clock anomaly投影成`0`，该fallback不能被学习器误收为真实`0ms`。无论terminal status为`passed`、`failed`、`not-applicable`或`unavailable`，有效interval都记录duration和status；prediction使用最近32项duration的arithmetic mean，status distribution与nearest-rank p90只用于解释波动。
+learned mode 必须启用既有 Scheduler measurement collector，即使 diagnostic、caller measurement Hooks 和 custom policy 都未启用。history owner 只读取 terminal raw measurement；`timing.availability` 必须为 `available`，且 owning admission 同时具有有限、未倒退的 admission 与 settlement timestamp。二者非负差值是 Task active duration，覆盖 task-local preflight、execution 与 Product settlement。现有 public `RunResult.checkDurations` 保持 callback-only 契约，不被扩大，也不作为学习输入。
 
-preflight block、dependency block、fail-fast/caller cancellation before admission及其它未started Check的duration为`null`，不产生`0ms`样本。Scheduler admission delay、mutex/resource wait和diagnostic observation不进入duration window，避免把调度结果反向训练为executor耗时。
+任何已经 admitted 且形成有效 interval 的 Task 都记录真实 duration 与 Scheduler settlement kind；这包括 preflight block、execution 非通过和 admission 后的 cooperative cancellation，因为它们都实际占用过槽位。flag-control pre-admission result、dependency block、fail-fast/caller cancellation before admission 及其它未 admitted Task 没有 admission interval，不产生`0ms`样本。Scheduler admission delay、mutex/resource wait和diagnostic observation不进入duration window，避免把调度结果反向训练为executor耗时。
 
 每个identity第一项真实样本在下一Run立即参与estimate。新样本append后只保留最后32项，因此一次异常值会作为真实观测参与有限窗口，但不会永久固定权重。history最多保存4096个identity series；超过上限时按内部observation sequence淘汰最久未更新series，避免Check ID或options长期变化造成无界文件。
 
@@ -130,7 +131,7 @@ policy读取Scheduler给出的relation/mutex eligible candidates和per-candidate
 
 state directory内只使用一个固定文件名和versioned closed JSON envelope。读取顺序是missing、parse、schema/model validation；missing形成empty model，invalid或read failure也降级empty model并记录不同diagnostic status。历史不可信，不把malformed data直接传入policy。
 
-Run在Scheduler闭合并已取得duration/outcome后，把本轮samples合并到内存model，应用32-sample与总series上限，再在同目录写完整temporary file并atomic replace。write failure不回滚Check settlement、不重跑Tasks、不改变aggregate或Run result kind。并发invocation各自使用启动时snapshot；atomic replace保证文件完整，但last writer可能覆盖另一轮尚未合并的样本，这只降低统计质量，不影响正确性。
+Run在Scheduler闭合并已取得terminal raw measurement与settlement kinds后，把本轮有效 Task intervals 合并到内存model，应用32-sample与总series上限，再在同目录写完整temporary file并atomic replace。write failure不回滚Check settlement、不重跑Tasks、不改变aggregate或Run result kind。并发invocation各自使用启动时snapshot；atomic replace保证文件完整，但last writer可能覆盖另一轮尚未合并的样本，这只降低统计质量，不影响正确性。
 
 `cacheJsonByKey`不提供read-modify-write、history merge或series enumeration，本Change不修改它。只有现有canonical snapshot或atomic file helper可在不扩大cache owner时机械复用。
 
@@ -157,7 +158,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 - Definition新增policy union与Check override会改变declarative schema；省略与显式static必须规范化为同一snapshot。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
 - admission前history identity构造需要复用Definition的canonical authored-options boundary，但不能调用preflight，也不能把authored/prepared options写入history或diagnostic。
-- history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入Check duration或Scheduler own time。
+- history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入public Check duration或Scheduler Task active interval。learned mode启用既有 measurement collector，但不改变raw timestamp或public Hook contract。
 - estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。policy仍接收完整 graph、relation/mutex eligible candidates 与 capacity facts；priority只存在于Task metadata，不设旁路输入。
 - Project Gate若采用learned mode，其state directory、忽略/清理policy和performance baseline需要由Gate owner维护；Product文档只说明通用state lifecycle。
 

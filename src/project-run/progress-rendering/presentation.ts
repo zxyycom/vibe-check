@@ -130,7 +130,7 @@ export function createProgressRendering(
   return Object.freeze({
     prepared: (totalChecks: number) => render(Object.freeze({ kind: "prepared", totalChecks })),
     lifecycle: Object.freeze({
-      preparationCompleted: () => render(Object.freeze({ kind: "preparation-completed" })),
+      flagControlCompleted: () => render(Object.freeze({ kind: "flag-control-completed" })),
       settled: (fact: CheckSettledFact) => {
         render(
           Object.freeze({
@@ -169,7 +169,7 @@ export function createProgressRendering(
 }
 function inertProgressRendering(): ProgressRendering {
   const lifecycle = Object.freeze({
-    preparationCompleted: (): void => undefined,
+    flagControlCompleted: (): void => undefined,
     settled: (_fact: CheckSettledFact): void => undefined,
     started: (_fact: CheckStartedFact): void => undefined
   });

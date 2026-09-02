@@ -120,7 +120,7 @@ describe("Package Run direct Check execution", () => {
       ],
       diagnosticLogger: recordingLogger(observations),
       lifecycle: {
-        preparationCompleted: () => undefined,
+        flagControlCompleted: () => undefined,
         started: (fact) => started.push(fact),
         settled: (fact) => settled.push(fact)
       },

@@ -28,7 +28,7 @@
       ▼
     RunResult
 
-Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再按 Definition 顺序完成 invocation flag control barrier。flag 条件不匹配的 Check 先结算为 `not-applicable / flag-condition-not-matched`，并以 initial non-passed settlement 留在同一张 Scheduler graph：其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
+Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence，并按 Definition 顺序完成 invocation flag control。flag 条件不匹配的 Check 先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
 
 ## Definition 与 invocation 的责任
 

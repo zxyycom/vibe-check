@@ -49,9 +49,10 @@
 
 ## 当前协调基线
 
-本节于 2026-09-02 按本次主线集成输入审阅：scanner 结果已经通过 `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91`
-合入，Scheduler 连续成果来自 `82da7ac6ec0bf29fe9cd95c56dc962a67758d0b4`。下列“已完成”只表示对应实现与
-Change archive 已进入本次集成结果；当前 active 成员、stage、任务和 Git 基线仍以 `change-plan` 查询为准。
+本节于 2026-09-02 按主线集成提交 `714fcd48d76416a27fe813466ef1550a25ddedf7` 审阅；该提交已经包含
+scanner 集成提交 `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91`，以及此前位于
+`82da7ac6ec0bf29fe9cd95c56dc962a67758d0b4` 的 Scheduler 连续成果。下列“已完成”只表示对应实现与
+Change archive 已进入该主线基线；当前 active 成员、stage、任务和 Git 距离仍以 `change-plan` 查询为准。
 
 ### Scheduler 主线
 
@@ -69,7 +70,7 @@ Change archive 已进入本次集成结果；当前 active 成员、stage、任�
 schedule-checks-from-learned-durations
 ```
 
-该 Change 可以从上述集成结果开始 Readiness，但必须先重新审阅并刷新 Plan 基线；它仍需建立 priority/history 后继
+该 Change 的 Plan 基线已经刷新为上述 `714fcd4` 集成提交，可以从自身 Readiness 开始；它仍需建立 priority/history 后继
 Decision、保存 static A/B baseline，并确认 fail-fast 与 named resource 两个 Draft 没有被误当作已经落地的 hard guard。
 它继续独占 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 与相关公共说明；不要与
 Scheduler 条件分支在不同 worktree 同时实施。

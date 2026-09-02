@@ -53,8 +53,8 @@ export class ProgressRendererController implements ProgressRenderer {
       case "prepared":
         this.prepare(feedback.totalChecks);
         return;
-      case "preparation-completed":
-        this.completePreparation();
+      case "flag-control-completed":
+        this.completeFlagControl();
         return;
       case "started":
         this.start(feedback);
@@ -118,7 +118,7 @@ export class ProgressRendererController implements ProgressRenderer {
     this.writer.write(formatFinalSummary(feedback));
   }
 
-  private completePreparation(): void {
+  private completeFlagControl(): void {
     this.requirePrepared();
     this.flushFlagConditionNotMatchedChecks();
   }

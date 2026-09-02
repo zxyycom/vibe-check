@@ -5,7 +5,7 @@ alignment: aligned
 createdAt: 2026-09-01T15:57:07Z
 purpose: 保留终态消息和 visibility 的同时，集中呈现因 flag 条件未匹配而未启动的 Checks。
 background: 逐项输出相同的未运行状态会放大可预期控制结果，并掩盖真正执行或需要关注的 Check。
-decision: 终态消息和 attention visibility 保持独立；progress 在 preparation 结束时按名称分组明确的 flag 条件未匹配结果。
+decision: 终态消息和 attention visibility 保持独立；progress 在 invocation flag control 完成时按名称分组明确的 flag 条件未匹配结果。
 tags:
   - configuration
   - product-contract
@@ -22,7 +22,7 @@ relations:
 
 ## 背景
 
-- `enabledByFlags` 条件未匹配会在全局 preparation barrier 内形成 Product-owned
+- `enabledByFlags` 条件未匹配会在 invocation-wide flag control 内形成 Product-owned
   `not-applicable / flag-condition-not-matched`，没有 started fact 或 messages，`durationMs` 为 `null`；完整 Check facts 仍可从
   `RunResult` 和 machine output 读取。
 - 现有 `attention` 是 Check 自己声明的 presentation identity，只隐藏无消息的 `passed` row。把 flag 压缩映射为
@@ -41,7 +41,7 @@ relations:
   任何带 messages 的 Check，以及除下述 flag 分组外的 `failed`、`not-applicable` 和 `unavailable` 都显示 owning settled block。
   Visibility 继续作为 declarative Check identity 进入 Definition fingerprint，不决定 execution、outcome 或 machine facts。
 - 采用: progress renderer 只把 Product 形成的 `not-applicable / flag-condition-not-matched`、`durationMs: null` 且无 messages 的
-  preparation settlements 收集为一个 block。barrier 完成时先用原因说明报告数量，再按 Definition 顺序逐行列出
+  invocation-control settlements 收集为一个 block。flag control 完成时先用原因说明报告数量，再按 Definition 顺序逐行列出
   terminal-escaped `displayName`；不再为这些 Checks 分别输出完整 settled row。
 - 采用: 该分组是默认的 Product progress presentation，不增加 Check-level visibility 值、每项 opt-in、Run Control 或第二套
   flag grammar。其它未启动状态保持独立呈现；需要完整结构化明细的 consumer 读取 `RunResult` 或 machine output。
